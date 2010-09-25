@@ -1,6 +1,8 @@
 abs.9
 and2.9
 biquad.9
+bldc_hall3.9
+bldc_sine.9
 blend.9
 charge_pump.9
 clarke2.9
@@ -66,6 +68,7 @@ mult2.9
 mux2.9
 mux4.9
 mux8.9
+mux16.9
 near.9
 not.9
 offset.9

@@ -72,7 +72,7 @@ static inline int READ(hal_u32_t base, int offset) {
 
 
 static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
     int r = 0;
     int i;
     hal_pin_dir_t direction;
@@ -132,10 +132,10 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     r = hal_param_u32_newf(HAL_RO, &(inst->dir_), comp_id,
         "%s.dir", prefix);
     if(r != 0) return r;
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.read", prefix);
+    rtapi_snprintf(buf, sizeof(buf), "%s.read", prefix);
     r = hal_export_funct(buf, (void(*)(void *inst, long))read, inst, 0, 0, comp_id);
     if(r != 0) return r;
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.write", prefix);
+    rtapi_snprintf(buf, sizeof(buf), "%s.write", prefix);
     r = hal_export_funct(buf, (void(*)(void *inst, long))write, inst, 0, 0, comp_id);
     if(r != 0) return r;
 
@@ -183,7 +183,7 @@ static int get_count(void);
 int rtapi_app_main(void) {
     int r = 0;
     int i, j;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     count = get_count();
     comp_id = hal_init("pci_8255");
@@ -200,7 +200,7 @@ int rtapi_app_main(void) {
 	WRITE(0x11, io[i]+2, 0);
 
 	for(j=0; j<3; j++) {
-	    rtapi_snprintf(buf, HAL_NAME_LEN, "pci8255.%d.%d", i, j);
+	    rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.%d", i, j);
 	    r = export(buf, &inst[i].ports[j],
 		    io[i] + 0xc0 + 16*j, (dir[i] >> (4*j)) & 0xf);
 	    if(r != 0) goto out_error;
@@ -208,7 +208,7 @@ int rtapi_app_main(void) {
 	hal_pin_bit_newf(HAL_IN, &(inst[i].relay), comp_id, "pci8255.%d.relay", i);
 	hal_param_bit_newf(HAL_RW, &(inst[i].relay_invert), comp_id, 
 		    "pci8255.%d.relay-invert", i);
-	rtapi_snprintf(buf, HAL_NAME_LEN, "pci8255.%d.write-relay", i);
+	rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.write-relay", i);
 	r = hal_export_funct(buf, (void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id);
 	r = hal_param_u32_newf(HAL_RO, &(inst->ioaddr), comp_id,
 	    "pci8255.%d.io-addr", i);

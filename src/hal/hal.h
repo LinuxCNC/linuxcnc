@@ -154,8 +154,7 @@ RTAPI_BEGIN_DECLS
     function is called, to open the HAL shared memory block and
     do other initialization.
     'name' is the name of the component.  It must be unique in the
-    system.  If it is longer than HAL_NAME_LEN it will be
-    truncated.
+    system.  It must be no longer than HAL_NAME_LEN.
     On success, hal_init() returns a positive integer component ID,
     which is used for subsequent calls to hal_xxx_new() and
     hal_exit().  On failure, returns an error code (see above).
@@ -319,9 +318,8 @@ extern unsigned char hal_get_lock(void);
     There are eight functions, one for each of the data types that
     the HAL supports.  Pins may only be linked to signals of the same
     type.
-    'name' is the name of the new pin.  If longer than HAL_NAME_LEN it
-    will be truncated.  If there is already a pin with the same name
-    the call will fail.
+    'name' is the name of the new pin.  It must be no longer than HAL_NAME_LEN.
+    If there is already a pin with the same name the call will fail.
     'dir' is the pin direction.  It indicates whether the pin is
     an input or output from the component.
     'data_ptr_addr' is the address of the pointer that the component
@@ -408,8 +406,8 @@ extern int hal_pin_alias(const char *pin_name, const char *alias);
     been created, pins can be linked to it with hal_link().  The signal
     object contains the actual storage for the signal data.  Pin objects
     linked to the signal have pointers that point to the data.
-    'name' is the name of the new signal.  If longer than HAL_NAME_LEN
-    it will be truncated.  If there is already a signal with the same
+    'name' is the name of the new signal.  It must be no longer than
+    HAL_NAME_LEN.  If there is already a signal with the same
     name the call will fail.
     'type' is the data type handled by the signal.  Pins can only be
     linked to a signal of the same type.
@@ -464,8 +462,8 @@ extern int hal_unlink(const char *pin_name);
     There are eight functions, one for each of the data types that
     the HAL supports.  Pins may only be linked to signals of the same
     type.
-    'name' is the name of the new parameter.  If longer than HAL_NAME_LEN
-    it will be truncated.  If there is already a parameter with the same
+    'name' is the name of the new parameter.  It must be no longer than
+    .HAL_NAME_LEN.  If there is already a parameter with the same
     name the call will fail.
     'dir' is the parameter direction.  HAL_RO paramters are read only from
     outside, and are written to by the component itself, typically to provide a
@@ -586,10 +584,9 @@ extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
     component available to the system.  A subsequent call to
     hal_add_funct_to_thread() can be used to schedule the
     execution of the function as needed by the system.
-    'name' is the name of the new function, if it is longer
-    than HAL_VAR_NAME_LEN it will be truncated.  This is the
-    name as it would appear in an ini file, which does not
-    need to be the same as the C function name.
+    'name' is the name of the new function.  It must be no longer
+    than HAL_NAME_LEN.  This is the name as it would appear in an ini
+    file, which does not need to be the same as the C function name.
     'funct' is a pointer to the function code.  'funct' must be
     the address of a function that accepts a void pointer and
     a long int.  The pointer will be set to the value 'arg' below,
@@ -620,8 +617,7 @@ extern int hal_export_funct(const char *name, void (*funct) (void *, long),
 /** hal_create_thread() establishes a realtime thread that will
     execute one or more HAL functions periodically.
     'name' is the name of the thread, which must be unique in
-    the system.  If it is longer than HAL_NAME_LEN it will be
-    truncated.
+    the system.  It must be no longer than HAL_NAME_LEN.
     'period_nsec' is the desired period of the thread, in nano-
     seconds.  All threads must run at an integer multiple of the
     fastest thread, and the fastest thread must be created first.

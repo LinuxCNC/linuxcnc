@@ -127,9 +127,10 @@ class PM_CARTESIAN;
 #define EMC_TRAJ_CIRCULAR_MOVE_TYPE                  ((NMLTYPE) 221)
 #define EMC_TRAJ_SET_TERM_COND_TYPE                  ((NMLTYPE) 222)
 #define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)
-#define EMC_TRAJ_SET_ORIGIN_TYPE                     ((NMLTYPE) 224)
+#define EMC_TRAJ_SET_G5X_TYPE                        ((NMLTYPE) 224)
 #define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
 #define EMC_TRAJ_SET_ROTATION_TYPE                   ((NMLTYPE) 226)
+#define EMC_TRAJ_SET_G92_TYPE                        ((NMLTYPE) 227)
 /* gap because of removed messages */
 
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
@@ -404,7 +405,7 @@ extern int emcJointSetMinFerror(int joint, double ferror);
 extern int emcJointSetHomingParams(int joint, double home, double offset, double home_vel,
 				  double search_vel, double latch_vel,
 				  int use_index, int ignore_limits,
-				  int is_shared, int home_sequence, int volatile_home);
+				  int is_shared, int home_sequence, int volatile_home, int locking_indexer);
 extern int emcJointSetMaxVelocity(int joint, double vel);
 extern int emcJointSetMaxAcceleration(int joint, double acc);
 
@@ -456,8 +457,8 @@ extern int emcTrajPause();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
-extern int emcTrajLinearMove(EmcPose end, int type, double vel, double
-        ini_maxvel, double acc);
+extern int emcTrajLinearMove(EmcPose end, int type, double vel,
+                             double ini_maxvel, double acc, int indexrotary);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
         normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);

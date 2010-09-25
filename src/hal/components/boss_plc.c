@@ -468,7 +468,7 @@ static int
 Plc_Export(Plc *this, int compId, int id)
 {
     int                         msgLevel, error;
-    char                        name[HAL_NAME_LEN + 2];
+    char                        name[HAL_NAME_LEN + 1];
 
     // This function exports a lot of stuff, which results in a lot of
     // logging if msg_level is at INFO or ALL. So we save the current value
@@ -497,7 +497,7 @@ Plc_Export(Plc *this, int compId, int id)
 
     // Export functions.
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.refresh", id);
+        rtapi_snprintf(name, sizeof(name), "boss_plc.%d.refresh", id);
         error = hal_export_funct(name, Plc_Refresh, this, 1, 0, compId);
     }
 
@@ -514,63 +514,63 @@ Plc_ExportFeed(Plc *this, int compId, int id, char *name)
     int                         error;
 
     // Export pins.
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.cycle-start-in", id);
-    error = hal_pin_bit_new(name, HAL_IN, &this->pCycleStartIn, compId);
+    error = hal_pin_bit_newf(HAL_IN, &this->pCycleStartIn, compId,
+			     "boss_plc.%d.cycle-start-in", id);
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.cycle-hold-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pCycleHoldIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pCycleHoldIn, compId,
+				 "boss_plc.%d.cycle-hold-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.feed-hold-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pFeedHoldOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pFeedHoldOut, compId,
+				 "boss_plc.%d.feed-hold-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.adaptive-feed-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &this->pAdaptiveFeedIn, compId);
+        error = hal_pin_float_newf(HAL_IN, &this->pAdaptiveFeedIn, compId,
+				   "boss_plc.%d.adaptive-feed-in", id);
     }
 
     if(!error){
         *this->pAdaptiveFeedIn = 1.0;
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.adaptive-feed-out", id);
-        error = hal_pin_float_new(name, HAL_OUT, &this->pAdaptiveFeedOut, compId);
+        error = hal_pin_float_newf(HAL_OUT, &this->pAdaptiveFeedOut, compId,
+				   "boss_plc.%d.adaptive-feed-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.tool-change-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pToolChangeIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pToolChangeIn, compId,
+				 "boss_plc.%d.tool-change-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.tool-changed-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pToolChangedOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pToolChangedOut, compId,
+				 "boss_plc.%d.tool-changed-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.wait-user-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pWaitUserOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pWaitUserOut, compId,
+				 "boss_plc.%d.wait-user-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.mist-on-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pMistOnIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pMistOnIn, compId,
+				 "boss_plc.%d.mist-on-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.mist-on-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pMistOnOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pMistOnOut, compId,
+				 "boss_plc.%d.mist-on-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.flood-on-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pFloodOnIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pFloodOnIn, compId,
+				 "boss_plc.%d.flood-on-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.flood-on-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pFloodOnOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pFloodOnOut, compId,
+				 "boss_plc.%d.flood-on-out", id);
     }
 
     return(error);
@@ -583,12 +583,12 @@ Plc_ExportLimits(Plc *this, int compId, int id, char *name)
     int                         error;
 
     // Export pins.
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-override-in", id);
-    error = hal_pin_bit_new(name, HAL_IN, &this->pLimitOverrideIn, compId);
+    error = hal_pin_bit_newf(HAL_IN, &this->pLimitOverrideIn, compId,
+			     "boss_plc.%d.limit-override-in", id);
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.limit-active-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pLimitActiveOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pLimitActiveOut, compId,
+				 "boss_plc.%d.limit-active-out", id);
     }
 
     if(!error){
@@ -600,40 +600,40 @@ Plc_ExportLimits(Plc *this, int compId, int id, char *name)
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-pos-in", id, axisNames[2]);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pZLimitPosIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pZLimitPosIn, compId,
+				 "boss_plc.%d.%c-limit-pos-in", id, axisNames[2]);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-jog-en-in", id, axisNames[2]);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pZJogEnIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pZJogEnIn, compId,
+				 "boss_plc.%d.%c-jog-en-in", id, axisNames[2]);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-neg-in", id, axisNames[2]);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pZLimitNegIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pZLimitNegIn, compId,
+				 "boss_plc.%d.%c-limit-neg-in", id, axisNames[2]);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-pos-out", id, axisNames[2]);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pZLimitPosOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pZLimitPosOut, compId,
+				 "boss_plc.%d.%c-limit-pos-out", id, axisNames[2]);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-neg-out", id, axisNames[2]);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pZLimitNegOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pZLimitNegOut, compId,
+				 "boss_plc.%d.%c-limit-neg-out", id, axisNames[2]);
     }
 
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-state", id, axisNames[0]);
-            error = hal_param_u32_new(name, HAL_RO, &this->xLimit.state, compId);
+            error = hal_param_u32_newf(HAL_RO, &this->xLimit.state, compId,
+				       "boss_plc.%d.%c-limit-state", id, axisNames[0]);
         }
 
         if(!error){
-            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-state", id, axisNames[1]);
-            error = hal_param_u32_new(name, HAL_RO, &this->yLimit.state, compId);
+            error = hal_param_u32_newf(HAL_RO, &this->yLimit.state, compId,
+				       "boss_plc.%d.%c-limit-state", id, axisNames[1]);
         }
     }
 
@@ -647,8 +647,8 @@ Plc_ExportAmps(Plc *this, int compId, int id, char *name)
     int                         error, i;
     Amp                         *pAmp;
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.amp-ready-delay", id);
-    error = hal_pin_u32_new(name, HAL_IO, &this->ampReadyDelay, compId);
+    error = hal_pin_u32_newf(HAL_IO, &this->ampReadyDelay, compId,
+			     "boss_plc.%d.amp-ready-delay", id);
 
     pAmp = this->amps;
     for(i = 0; i < NUM_AXIS && !error; i++, pAmp++){
@@ -665,76 +665,76 @@ Plc_ExportSpindle(Plc *this, int compId, int id, char *name)
     int                         error;
 
     // Export parameters.
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-on-delay", id);
-    error = hal_pin_u32_new(name, HAL_IO, &this->brakeOnDelay, compId);
+    error = hal_pin_u32_newf(HAL_IO, &this->brakeOnDelay, compId,
+			     "boss_plc.%d.brake-on-delay", id);
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-off-delay", id);
-        error = hal_pin_u32_new(name, HAL_IO, &this->brakeOffDelay, compId);
+        error = hal_pin_u32_newf(HAL_IO, &this->brakeOffDelay, compId,
+				 "boss_plc.%d.brake-off-delay", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-lo-to-hi", id);
-        error = hal_pin_float_new(name, HAL_IO, &this->spindleLoToHi, compId);
+        error = hal_pin_float_newf(HAL_IO, &this->spindleLoToHi, compId,
+				   "boss_plc.%d.spindle-lo-to-hi", id);
     }
 
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-state", id);
-            error = hal_param_u32_new(name, HAL_RO, &this->spindleState, compId);
+            error = hal_param_u32_newf(HAL_RO, &this->spindleState, compId,
+				       "boss_plc.%d.spindle-state", id);
         }
     }
 
     // Export pins.
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-speed-in", id);
-        error = hal_pin_float_new(name, HAL_IN, &this->pSpindleSpeedIn, compId);
+        error = hal_pin_float_newf(HAL_IN, &this->pSpindleSpeedIn, compId,
+				   "boss_plc.%d.spindle-speed-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-is-on-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pSpindleIsOnIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pSpindleIsOnIn, compId,
+				 "boss_plc.%d.spindle-is-on-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-fwd-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleFwdOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleFwdOut, compId,
+				 "boss_plc.%d.spindle-fwd-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-rev-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleRevOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleRevOut, compId,
+				 "boss_plc.%d.spindle-rev-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-inc-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pSpindleIncIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pSpindleIncIn, compId,
+				 "boss_plc.%d.spindle-inc-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-dec-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pSpindleDecIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pSpindleDecIn, compId,
+				 "boss_plc.%d.spindle-dec-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-inc-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleIncOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleIncOut, compId,
+				 "boss_plc.%d.spindle-inc-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.spindle-dec-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pSpindleDecOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pSpindleDecOut, compId,
+				 "boss_plc.%d.spindle-dec-out", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-en-in", id);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pBrakeEnIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pBrakeEnIn, compId,
+				 "boss_plc.%d.brake-en-in", id);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.brake-en-out", id);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pBrakeEnOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pBrakeEnOut, compId,
+				 "boss_plc.%d.brake-en-out", id);
     }
 
     return(error);
@@ -748,21 +748,21 @@ Plc_ExportJog(Plc *this, int compId, int id, char *name)
 
     // Export parameters.
     for(i = 0, error = 0; i < NUM_JOG_SEL && !error; i++){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-%d", id, i);
-        error = hal_pin_float_new(name, HAL_IO, &this->jogScale[i], compId);
+        error = hal_pin_float_newf(HAL_IO, &this->jogScale[i], compId,
+				   "boss_plc.%d.jog-scale-%d", id, i);
     }
 
     if(!error){
         for(i = 0; i < NUM_JOG_SEL && !error; i++){
-            rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-sel-in-%d", id, i);
-            error = hal_pin_bit_new(name, HAL_IN, &this->pJogSelIn[i], compId);
+            error = hal_pin_bit_newf(HAL_IN, &this->pJogSelIn[i], compId,
+				     "boss_plc.%d.jog-sel-in-%d", id, i);
         }
     }
 
     // Export pins.
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.jog-scale-out", id);
-        error = hal_pin_float_new(name, HAL_OUT, &this->pJogScaleOut, compId);
+        error = hal_pin_float_newf(HAL_OUT, &this->pJogScaleOut, compId,
+				   "boss_plc.%d.jog-scale-out", id);
     }
 
     return(error);
@@ -973,27 +973,27 @@ Limit_Export(Limit *this, int compId, int id, char *name, char axis)
 {
     int                         error;
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-position-in", id, axis);
-    error = hal_pin_float_new(name, HAL_IN, &this->pPositionIn, compId);
+    error = hal_pin_float_newf(HAL_IN, &this->pPositionIn, compId,
+			       "boss_plc.%d.%c-position-in", id, axis);
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-jog-en-in", id, axis);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pJogEnIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pJogEnIn, compId,
+				 "boss_plc.%d.%c-jog-en-in", id, axis);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-in", id, axis);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pIn, compId,
+				 "boss_plc.%d.%c-limit-in", id, axis);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-pos-out", id, axis);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pPosOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pPosOut, compId,
+				 "boss_plc.%d.%c-limit-pos-out", id, axis);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-limit-neg-out", id, axis);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pNegOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pNegOut, compId,
+				 "boss_plc.%d.%c-limit-neg-out", id, axis);
     }
 
     return(error);
@@ -1088,17 +1088,17 @@ Amp_Export(Amp *this, int compId, int id, char *name, char axis)
 {
     int                         error;
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-amp-enable-in", id, axis);
-    error = hal_pin_bit_new(name, HAL_IN, &this->pEnableIn, compId);
+    error = hal_pin_bit_newf(HAL_IN, &this->pEnableIn, compId,
+			     "boss_plc.%d.%c-amp-enable-in", id, axis);
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-amp-ready-in", id, axis);
-        error = hal_pin_bit_new(name, HAL_IN, &this->pReadyIn, compId);
+        error = hal_pin_bit_newf(HAL_IN, &this->pReadyIn, compId,
+				 "boss_plc.%d.%c-amp-ready-in", id, axis);
     }
 
     if(!error){
-        rtapi_snprintf(name, HAL_NAME_LEN, "boss_plc.%d.%c-amp-fault-out", id, axis);
-        error = hal_pin_bit_new(name, HAL_OUT, &this->pFaultOut, compId);
+        error = hal_pin_bit_newf(HAL_OUT, &this->pFaultOut, compId,
+				 "boss_plc.%d.%c-amp-fault-out", id, axis);
     }
 
     return(error);

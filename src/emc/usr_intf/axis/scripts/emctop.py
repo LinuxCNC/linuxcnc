@@ -79,6 +79,8 @@ maps = {
 'rotation_xy': show_float,
 'probed_position': show_position,
 'tool_offset': show_position,
+'g5x_offset': show_position,
+'g92_offset': show_position,
 'linear_units': show_float,
 'max_acceleration': show_float,
 'max_velocity': show_float,

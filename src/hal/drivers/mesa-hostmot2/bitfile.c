@@ -245,12 +245,3 @@ u8 bitfile_reverse_bits(u8 data) {
     return swaptab[data];
 }
 
-
-void bitfile_reverse_bits_of_chunk(bitfile_chunk_t *chunk) {
-    int i;
-
-    for (i = 0; i < chunk->size; i ++) {
-        chunk->data[i] = bitfile_reverse_bits(chunk->data[i]);
-    }
-}
-

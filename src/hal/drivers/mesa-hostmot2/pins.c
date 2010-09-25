@@ -40,9 +40,25 @@ RTAPI_MP_INT(debug_pin_descriptors, "Developer/debug use only!  Enable debug log
 // FIXME: the static automatic string makes this function non-reentrant
 static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     static char unknown[100];
-    int sec_pin = pin->sec_pin & 0x3F;  // turn off the "pin is an output" bit and "applies to all instances" bit
+    int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
 
     switch (pin->sec_tag) {
+
+        case HM2_GTAG_MUXED_ENCODER:
+            switch (sec_pin) {
+                case 1: return "Muxed A";
+                case 2: return "Muxed B";
+                case 3: return "Muxed Index";
+                case 4: return "Muxed IndexMask";
+            }
+            break;
+
+        case HM2_GTAG_MUXED_ENCODER_SEL:
+            switch (sec_pin) {
+                case 1: return "Mux Select 0";
+                case 2: return "Mux Select 1";
+            }
+            break;
 
         case HM2_GTAG_ENCODER:
             switch (sec_pin) {
@@ -50,7 +66,6 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 2: return "B";
                 case 3: return "Index";
                 case 4: return "IndexMask";
-                case 0x45:
                 case 5: return "Probe";
             }
             break;
@@ -349,6 +364,11 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
+
+    // muxed encoder gets the sel pins
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
+    // and about half as many I/Os as you'd expect
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2);
 }
 
 

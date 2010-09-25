@@ -61,12 +61,10 @@ static double            _probe_position_c = 0; /*CC*/
 static double            _probe_position_x = 0;
 static double            _probe_position_y = 0;
 static double            _probe_position_z = 0;
-static double            _program_origin_a = 0; /*AA*/
-static double            _program_origin_b = 0; /*BB*/
-static double            _program_origin_c = 0; /*CC*/
-static double            _program_origin_x = 0;
-static double            _program_origin_y = 0;
-static double            _program_origin_z = 0;
+static double _g5x_x, _g5x_y, _g5x_z;
+static double _g5x_a, _g5x_b, _g5x_c;
+static double _g92_x, _g92_y, _g92_z;
+static double _g92_a, _g92_b, _g92_c;
 static double            _program_position_a = 0; /*AA*/
 static double            _program_position_b = 0; /*BB*/
 static double            _program_position_c = 0; /*CC*/
@@ -205,38 +203,49 @@ void SET_XY_ROTATION(double t) {
 }
     
 
-void SET_ORIGIN_OFFSETS(
- double x, double y, double z
- , double a  /*AA*/
- , double b  /*BB*/
- , double c  /*CC*/
- , double u, double v, double w
-)
-{
+void SET_G5X_OFFSET(int index,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
-  fprintf(_outfile, "SET_ORIGIN_OFFSETS(%.4f, %.4f, %.4f"
-         ", %.4f"  /*AA*/
-         ", %.4f"  /*BB*/
-         ", %.4f"  /*CC*/
-         ")\n", x, y, z
-         , a  /*AA*/
-         , b  /*BB*/
-         , c  /*CC*/
-         );
-  _program_position_x = _program_position_x + _program_origin_x - x;
-  _program_position_y = _program_position_y + _program_origin_y - y;
-  _program_position_z = _program_position_z + _program_origin_z - z;
-  _program_position_a = _program_position_a + _program_origin_a - a;/*AA*/
-  _program_position_b = _program_position_b + _program_origin_b - b;/*BB*/
-  _program_position_c = _program_position_c + _program_origin_c - c;/*CC*/
+  fprintf(_outfile, "SET_G5X_OFFSET(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)\n",
+          index, x, y, z, a, b, c);
+  _program_position_x = _program_position_x + _g5x_x - x;
+  _program_position_y = _program_position_y + _g5x_y - y;
+  _program_position_z = _program_position_z + _g5x_z - z;
+  _program_position_a = _program_position_a + _g5x_a - a;/*AA*/
+  _program_position_b = _program_position_b + _g5x_b - b;/*BB*/
+  _program_position_c = _program_position_c + _g5x_c - c;/*CC*/
 
-  _program_origin_x = x;
-  _program_origin_y = y;
-  _program_origin_z = z;
-  _program_origin_a = a;  /*AA*/
-  _program_origin_b = b;  /*BB*/
-  _program_origin_c = c;  /*CC*/
+  _g5x_x = x;
+  _g5x_y = y;
+  _g5x_z = z;
+  _g5x_a = a;  /*AA*/
+  _g5x_b = b;  /*BB*/
+  _g5x_c = c;  /*CC*/
+}
+
+void SET_G92_OFFSET(double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+  fprintf(_outfile, "%5d ", _line_number++);
+  print_nc_line_number();
+  fprintf(_outfile, "SET_G92_OFFSET(%.4f, %.4f, %.4f, %.4f, %.4f, %.4f)\n",
+          x, y, z, a, b, c);
+  _program_position_x = _program_position_x + _g92_x - x;
+  _program_position_y = _program_position_y + _g92_y - y;
+  _program_position_z = _program_position_z + _g92_z - z;
+  _program_position_a = _program_position_a + _g92_a - a;/*AA*/
+  _program_position_b = _program_position_b + _g92_b - b;/*BB*/
+  _program_position_c = _program_position_c + _g92_c - c;/*CC*/
+
+  _g92_x = x;
+  _g92_y = y;
+  _g92_z = z;
+  _g92_a = a;  /*AA*/
+  _g92_b = b;  /*BB*/
+  _g92_c = c;  /*CC*/
 }
 
 void USE_LENGTH_UNITS(CANON_UNITS in_unit)
@@ -248,12 +257,18 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
         {
           _length_unit_type = CANON_UNITS_INCHES;
           _length_unit_factor = 25.4;
-          _program_origin_x = (_program_origin_x / 25.4);
-          _program_origin_y = (_program_origin_y / 25.4);
-          _program_origin_z = (_program_origin_z / 25.4);
-          _program_position_x = (_program_position_x / 25.4);
-          _program_position_y = (_program_position_y / 25.4);
-          _program_position_z = (_program_position_z / 25.4);
+
+          _program_position_x /= 25.4;
+          _program_position_y /= 25.4;
+          _program_position_z /= 25.4;
+
+          _g5x_x /= 25.4;
+          _g5x_y /= 25.4;
+          _g5x_z /= 25.4;
+
+          _g92_x /= 25.4;
+          _g92_y /= 25.4;
+          _g92_z /= 25.4;
         }
     }
   else if (in_unit == CANON_UNITS_MM)
@@ -263,12 +278,18 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
         {
           _length_unit_type = CANON_UNITS_MM;
           _length_unit_factor = 1.0;
-          _program_origin_x = (_program_origin_x * 25.4);
-          _program_origin_y = (_program_origin_y * 25.4);
-          _program_origin_z = (_program_origin_z * 25.4);
-          _program_position_x = (_program_position_x * 25.4);
-          _program_position_y = (_program_position_y * 25.4);
-          _program_position_z = (_program_position_z * 25.4);
+
+          _program_position_x *= 25.4;
+          _program_position_y *= 25.4;
+          _program_position_z *= 25.4;
+
+          _g5x_x *= 25.4;
+          _g5x_y *= 25.4;
+          _g5x_z *= 25.4;
+
+          _g92_x *= 25.4;
+          _g92_y *= 25.4;
+          _g92_z *= 25.4;
         }
     }
   else
@@ -395,31 +416,6 @@ std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
   _program_position_x = nurbs_control_points[nurbs_control_points.size()].X;
   _program_position_y = nurbs_control_points[nurbs_control_points.size()].Y;
 }
-
-void SPLINE_FEED(int lineno,
-double x1, double y1, double x2, double y2, double x3, double y3)
-{
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SPLINE_FEED(%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n",
-  x1, y1, x2, y2, x3, y3);
-
-  _program_position_x = x3;
-  _program_position_y = y3;
-}
-
-void SPLINE_FEED(int lineno,
-double x1, double y1, double x2, double y2)
-{
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SPLINE_FEED(%.4f, %.4f, %.4f, %.4f\n",
-  x1, y1, x2, y2);
-
-  _program_position_x = x2;
-  _program_position_y = y2;
-}
-
 
 void ARC_FEED(int line_number,
  double first_end, double second_end,
@@ -794,6 +790,8 @@ CANON_MOTION_MODE motion_mode;
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, double timeout) { return 0; }
+int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
+int LOCK_ROTARY(int line_no, int axis) {return 0;}
 
 /* Returns the system feed rate */
 double GET_EXTERNAL_FEED_RATE()

@@ -319,6 +319,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.uu_per_rev = tp->uu_per_rev;
     tc.velocity_mode = tp->velocity_mode;
     tc.enables = enables;
+    tc.indexrotary = -1;
 
     if (syncdio.anychanged != 0) {
 	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
@@ -347,7 +348,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 // of the previous move to the new end specified here at the
 // currently-active accel and vel settings from the tp struct.
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_uvw, line_abc;
@@ -429,6 +430,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
+    tc.indexrotary = indexrotary;
 
     if (syncdio.anychanged != 0) {
 	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
@@ -539,6 +541,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
+    tc.indexrotary = -1;
     
     if (syncdio.anychanged != 0) {
 	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
@@ -625,6 +628,15 @@ void tpToggleDIOs(TC_STRUCT * tc) {
     }
 }
 
+static void tpSetRotaryUnlock(int axis, int unlock) {
+    emcmotSetRotaryUnlock(axis, unlock);
+}
+
+static int tpGetRotaryIsUnlocked(int axis) {
+    return emcmotGetRotaryIsUnlocked(axis);
+}
+
+
 // This is the brains of the operation.  It's called every TRAJ period
 // and is expected to set tp->currentPos to the new machine position.
 // Lots of other tp fields (depth, done, etc) have to be twiddled to
@@ -682,6 +694,16 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             spindleoffset += tc->target/tc->uu_per_rev;
         else
             spindleoffset = 0.0;
+
+        if(tc->indexrotary != -1) {
+            // this was an indexing move, so before we remove it we must
+            // relock the axis
+            tpSetRotaryUnlock(tc->indexrotary, 0);
+            // if it is now locked, fall through and remove the finished move.
+            // otherwise, just come back later and check again
+            if(tpGetRotaryIsUnlocked(tc->indexrotary))
+                return 0;
+        }
 
         // done with this move
         tcqRemove(&tp->queue, 1);
@@ -781,6 +803,15 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             return 0;
         }
 
+        if (tc->indexrotary != -1) {
+            // request that the axis unlock
+            tpSetRotaryUnlock(tc->indexrotary, 1);
+            // if it is unlocked, fall through and start the move.
+            // otherwise, just come back later and check again
+            if (!tpGetRotaryIsUnlocked(tc->indexrotary))
+                return 0;
+        }
+
         tc->active = 1;
         tc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
@@ -821,6 +852,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     if (tc->motion_type == TC_RIGIDTAP) {
         static double old_spindlepos;
         double new_spindlepos = emcmotStatus->spindleRevs;
+        if (emcmotStatus->spindle.direction < 0) new_spindlepos = -new_spindlepos;
 
         switch (tc->coords.rigidtap.state) {
         case TAPPING:
@@ -908,13 +940,16 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             }
         } else {
             double spindle_vel, target_vel;
+            double new_spindlepos = emcmotStatus->spindleRevs;
+            if (emcmotStatus->spindle.direction < 0) new_spindlepos = -new_spindlepos;
+
             if(tc->motion_type == TC_RIGIDTAP && 
                (tc->coords.rigidtap.state == RETRACTION || 
                 tc->coords.rigidtap.state == FINAL_REVERSAL))
                 revs = tc->coords.rigidtap.spindlerevs_at_reversal - 
-                    emcmotStatus->spindleRevs;
+                    new_spindlepos;
             else
-                revs = emcmotStatus->spindleRevs;
+                revs = new_spindlepos;
 
             pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
             if(nexttc) pos_error -= nexttc->progress;

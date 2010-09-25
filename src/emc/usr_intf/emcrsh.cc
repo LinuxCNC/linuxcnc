@@ -495,7 +495,8 @@ struct option longopts[] = {
   {"sessions", 1, NULL, 's'},
   {"connectpw", 1, NULL, 'w'},
   {"enablepw", 1, NULL, 'e'},
-  {"path", 1, NULL, 'd'}};
+  {"path", 1, NULL, 'd'},
+  {0,0,0,0}};
 
 /* static char *skipWhite(char *s)
 {
@@ -1668,33 +1669,27 @@ static cmdResponseType getRelCmdPos(char *s, connectionRecType *context)
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 0)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.x - 
-      emcStatus->task.origin.tran.x);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g5x_offset.tran.x);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 1)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.y - 
-      emcStatus->task.origin.tran.y);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g5x_offset.tran.y);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 2)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.z - 
-      emcStatus->task.origin.tran.z);
+    sprintf(buf, " %f", emcStatus->motion.traj.position.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g5x_offset.tran.z);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 3)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.a - 
-      emcStatus->task.origin.a); // No rotational offsets
+    sprintf(buf, " %f", emcStatus->motion.traj.position.a - emcStatus->task.g5x_offset.a - emcStatus->task.g5x_offset.a);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 4)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.a - 
-      emcStatus->task.origin.b); // No rotational offsets
+    sprintf(buf, " %f", emcStatus->motion.traj.position.b - emcStatus->task.g5x_offset.b - emcStatus->task.g5x_offset.b);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 5)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.position.a - 
-      emcStatus->task.origin.c); // No rotational offsets
+    sprintf(buf, " %f", emcStatus->motion.traj.position.c - emcStatus->task.g5x_offset.c - emcStatus->task.g5x_offset.c);
     strcat(context->outBuf, buf);
     }
   return rtNoError;
@@ -1714,33 +1709,27 @@ static cmdResponseType getRelActPos(char *s, connectionRecType *context)
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 0)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.x -
-      emcStatus->task.origin.tran.x);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g5x_offset.tran.x);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 1)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.y -
-      emcStatus->task.origin.tran.y);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g5x_offset.tran.y);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 2)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.z -
-      emcStatus->task.origin.tran.z);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g5x_offset.tran.z);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 3)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.a -
-      emcStatus->task.origin.a);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.a - emcStatus->task.g5x_offset.a - emcStatus->task.g5x_offset.a);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 4)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.b -
-      emcStatus->task.origin.b);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.b - emcStatus->task.g5x_offset.b - emcStatus->task.g5x_offset.b);
     strcat(context->outBuf, buf);
     }
   if ((axis == -1) || (axis == 5)) {
-    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.c -
-      emcStatus->task.origin.c);
+    sprintf(buf, " %f", emcStatus->motion.traj.actualPosition.c - emcStatus->task.g5x_offset.c - emcStatus->task.g5x_offset.c);
     strcat(context->outBuf, buf);
     }
   return rtNoError;
@@ -1774,31 +1763,31 @@ static cmdResponseType getPosOffset(char *s, connectionRecType *context)
   
   if (s == NULL) {
     strcpy(context->outBuf, pPosOffset);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.tran.x));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g5x_offset.tran.x));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.tran.y));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g5x_offset.tran.y));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.tran.z));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g5x_offset.tran.z));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.a));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.b));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b));
     strcat(context->outBuf, buf);
-    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.c));
+    sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c));
     strcat(context->outBuf, buf);
     }
   else
     {
       switch (s[0]) {
-        case 'X': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.tran.x)); break;
-        case 'Y': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.tran.y)); break;
-        case 'Z': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.tran.z)); break;
+        case 'X': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x)); break;
+        case 'Y': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y)); break;
+        case 'Z': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z)); break;
         case 'A': 
-        case 'R': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.a)); break;
+        case 'R': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a)); break;
         case 'B': 
-        case 'P': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.b)); break;
+        case 'P': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b)); break;
         case 'C': 
-        case 'W': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.origin.c));
+        case 'W': sprintf(buf, " %f", convertLinearUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c));
       }
       sprintf(context->outBuf, "%s %c %s", pPosOffset, s[0], buf);
     }

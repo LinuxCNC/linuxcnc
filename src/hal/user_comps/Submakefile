@@ -1,4 +1,4 @@
-USER_COMP_PY = pyvcp hal_input
+USER_COMP_PY = pyvcp hal_input gladevcp
 
 $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)

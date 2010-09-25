@@ -303,7 +303,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     streamer_t *str;
     pin_data_t *pptr;
     fifo_t *fifo;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     /* alloc shmem for base streamer data and user specified pins */
     size = sizeof(streamer_t) + tmp_fifo->num_pins*sizeof(pin_data_t);
@@ -353,7 +353,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     usefp = 0;
     /* export user specified pins (the ones that stream data) */
     for ( n = 0 ; n < tmp_fifo->num_pins ; n++ ) {
-	rtapi_snprintf(buf, HAL_NAME_LEN, "streamer.%d.pin.%d", num, n);
+	rtapi_snprintf(buf, sizeof(buf), "streamer.%d.pin.%d", num, n);
 	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_OUT, (void **)pptr, comp_id );
 	if (retval != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -381,7 +381,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	pptr++;
     }
     /* export update function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "streamer.%d", num);
+    rtapi_snprintf(buf, sizeof(buf), "streamer.%d", num);
     retval = hal_export_funct(buf, update, str, usefp, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

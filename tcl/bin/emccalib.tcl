@@ -157,7 +157,6 @@ proc makeIniTune {} {
     for {set j 0} {$j<$numjoints} {incr j} {
         set af($j) [$top insert [expr $j+3] page$j \
             -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectJoint $j" ]
-        puts "af: [array get af]"
         set col0 [label $af($j).collabel0 -text [msgcat::mc "INI Name"]]
         set col1 [label $af($j).collabel1 -text [msgcat::mc "HAL's Value"]]
         set col2 [label $af($j).space -text "   "]
@@ -182,14 +181,15 @@ proc makeIniTune {} {
         scan [$haltext index end] %d nl
         for {set i 1} { $i < $nl } {incr i} {
             set tmpstring [$haltext get $i.0 $i.end]
-            if {[lsearch -regexp $tmpstring JOINT] > -1 && ![string match *#* $tmpstring]} {
+            if {[string match *JOINT* $tmpstring] && ![string match *#* $tmpstring]} {
 	      set halcommand [split $tmpstring " "]
 	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
                         if { [lindex $halcommand 1] == "\=" } {
                             set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
                         }
                 for {set j 0} {$j < $numjoints} {incr j} {
-                    if {[lsearch -regexp $tmpstring JOINT_$j] > -1} {
+                    if {[string match *JOINT_${j}* $tmpstring]} {
+			puts [list $j $tmpstring]
                         # this is a hal file search ordered loop
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"

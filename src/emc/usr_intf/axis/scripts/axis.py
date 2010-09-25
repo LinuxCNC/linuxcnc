@@ -515,6 +515,7 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def get_show_program(self): return vars.show_program.get()
     def get_show_rapids(self): return vars.show_rapids.get()
+    def get_show_offsets(self): return vars.show_offsets.get()
     def get_show_extents(self): return vars.show_extents.get()
     def get_show_metric(self): return vars.metric.get()
     def get_show_live_plot(self): return vars.show_live_plot.get()
@@ -738,7 +739,9 @@ class LivePlotter:
                 or self.stat.actual_position != o.last_position
                 or self.stat.joint_actual_position != o.last_joint_position
                 or self.stat.homed != o.last_homed
-                or self.stat.origin != o.last_origin
+                or self.stat.g5x_offset != o.last_g5x_offset
+                or self.stat.g92_offset != o.last_g92_offset
+                or self.stat.g5x_index != o.last_g5x_index
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_table[0] != o.last_tool
@@ -749,7 +752,9 @@ class LivePlotter:
             o.last_limit = self.stat.limit
             o.last_homed = self.stat.homed
             o.last_position = self.stat.actual_position
-            o.last_origin = self.stat.origin
+            o.last_g5x_offset = self.stat.g5x_offset
+            o.last_g92_offset = self.stat.g92_offset
+            o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
             o.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]
@@ -760,26 +765,27 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
-        set_manual_mode = comp["set-manual-mode"]
-        if self.set_manual_mode != set_manual_mode:
-             self.set_manual_mode = set_manual_mode
-             if self.set_manual_mode:
-                 root_window.tk.eval(pane_top + ".tabs raise manual")
-        notifications_clear = comp["notifications-clear"]
-        if self.notifications_clear != notifications_clear:
-             self.notifications_clear = notifications_clear
-             if self.notifications_clear:
-                 notifications.clear()
-        notifications_clear_info = comp["notifications-clear-info"]
-        if self.notifications_clear_info != notifications_clear_info:
-             self.notifications_clear_info = notifications_clear_info
-             if self.notifications_clear_info:
-                 notifications.clear("info")
-        notifications_clear_error = comp["notifications-clear-error"]
-        if self.notifications_clear_error != notifications_clear_error:
-             self.notifications_clear_error = notifications_clear_error
-             if self.notifications_clear_error:
-                 notifications.clear("error")
+        if hal_present == 1 :
+            set_manual_mode = comp["set-manual-mode"]
+            if self.set_manual_mode != set_manual_mode:
+                 self.set_manual_mode = set_manual_mode
+                 if self.set_manual_mode:
+                     root_window.tk.eval(pane_top + ".tabs raise manual")
+            notifications_clear = comp["notifications-clear"]
+            if self.notifications_clear != notifications_clear:
+                 self.notifications_clear = notifications_clear
+                 if self.notifications_clear:
+                     notifications.clear()
+            notifications_clear_info = comp["notifications-clear-info"]
+            if self.notifications_clear_info != notifications_clear_info:
+                 self.notifications_clear_info = notifications_clear_info
+                 if self.notifications_clear_info:
+                     notifications.clear("info")
+            notifications_clear_error = comp["notifications-clear-error"]
+            if self.notifications_clear_error != notifications_clear_error:
+                 self.notifications_clear_error = notifications_clear_error
+                 if self.notifications_clear_error:
+                     notifications.clear("error")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -1325,7 +1331,8 @@ selection = SelectionHandler(root_window)
 class DummyCanon:
     def comment(*args): pass
     def next_line(*args): pass
-    def set_origin_offsets(*args): pass
+    def set_g5x_offset(*args): pass
+    def set_g92_offset(*args): pass
     def set_xy_rotation(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
@@ -2138,6 +2145,10 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_extents", vars.show_extents.get())
         o.tkRedraw()
 
+    def toggle_show_offsets(*event):
+        ap.putpref("show_offsets", vars.show_offsets.get())
+        o.tkRedraw()
+
     def toggle_show_machine_limits(*event):
         ap.putpref("show_machine_limits", vars.show_machine_limits.get())
         o.tkRedraw()
@@ -2442,6 +2453,7 @@ vars = nf.Variables(root_window,
     ("show_live_plot", IntVar),
     ("show_tool", IntVar),
     ("show_extents", IntVar),
+    ("show_offsets", IntVar),
     ("show_machine_limits", IntVar),
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
@@ -2480,6 +2492,7 @@ vars.show_rapids.set(ap.getpref("show_rapids", True))
 vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
+vars.show_offsets.set(ap.getpref("show_offsets", True))
 vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
@@ -2782,12 +2795,16 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 s = emc.stat();
 s.poll()
 statfail=0
+statwait=.01
 while s.joints == 0:
     print "waiting for s.joints"
     time.sleep(.01)
     statfail+=1
-    if statfail > 500:
-        raise SystemExit, "Invalid configuration of axes is preventing EMC from starting"
+    statwait *= 2
+    if statfail > 8:
+        raise SystemExit, (
+            "A configuration error is preventing emc2 from starting.\n"
+            "More information may be available when running from a terminal.")
     s.poll()
 
 num_joints = s.joints
@@ -2943,6 +2960,8 @@ def rClicker(e):
             rmenu.add_separator()
         else: rmenu.add_command(label=txt, command=cmd)
     rmenu.entryconfigure(0, label = "AXIS", state = 'disabled')
+    if not manual_ok():
+        rmenu.entryconfigure(2, state = 'disabled')
     rmenu.tk_popup(e.x_root-3, e.y_root+3,entry="0")
     return "break"
 

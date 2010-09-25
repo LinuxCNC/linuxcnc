@@ -6,8 +6,10 @@
 #if defined(RTAPI) && !defined(SIM)
 extern double sin(double);
 extern double cos(double);
+extern double tan(double);
 extern double sqrt(double);
 extern double fabs(double);
+extern double atan(double);
 extern double atan2(double, double);
 extern double asin(double);
 extern double acos(double);

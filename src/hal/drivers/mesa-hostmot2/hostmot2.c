@@ -83,10 +83,10 @@ static void hm2_read(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
 
     hm2_ioport_gpio_process_tram_read(hm2);
-    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_encoder_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
 
+    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_raw_read(hm2);
 }
 
@@ -177,6 +177,8 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
         case HM2_GTAG_TPPWM:           return "ThreePhasePWM";
         case HM2_GTAG_LED:             return "LED";
+        case HM2_GTAG_MUXED_ENCODER:   return "Muxed Encoder";
+        case HM2_GTAG_MUXED_ENCODER_SEL: return "Muxed Encoder Select";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -623,6 +625,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
 
             case HM2_GTAG_ENCODER:
+            case HM2_GTAG_MUXED_ENCODER:
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
                 break;
 
@@ -754,14 +757,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     {
         int i;
 
-        for (i = 0; i < HAL_NAME_LEN; i ++) {
+        for (i = 0; i < HAL_NAME_LEN+1; i ++) {
             if (llio->name[i] == '\0') break;
             if (!isprint(llio->name[i])) {
                 HM2_ERR_NO_LL("invalid llio name passed in (contains non-printable character)\n");
                 return -EINVAL;
             }
         }
-        if (i == HAL_NAME_LEN) {
+        if (i == HAL_NAME_LEN+1) {
             HM2_ERR_NO_LL("invalid llio name passed in (not NULL terminated)\n");
             return -EINVAL;
         }
@@ -792,14 +795,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
                 return -EINVAL;
             }
 
-            for (i = 0; i < HAL_NAME_LEN; i ++) {
+            for (i = 0; i < HAL_NAME_LEN+1; i ++) {
                 if (llio->ioport_connector_name[port][i] == '\0') break;
                 if (!isprint(llio->ioport_connector_name[port][i])) {
                     HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
                     return -EINVAL;
                 }
             }
-            if (i == HAL_NAME_LEN) {
+            if (i == HAL_NAME_LEN+1) {
                 HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
                 return -EINVAL;
             }
@@ -900,7 +903,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         device_unregister(&dev);
         if (r == -ENOENT) {
             HM2_ERR("firmware %s not found\n", hm2->config.firmware);
-            HM2_ERR("install the package containing the firmware, or link your RIP sandbox into /lib/firmware manually\n");
+            HM2_ERR("install the package containing the firmware.\n");
             goto fail0;
         }
         if (r != 0) {
@@ -961,7 +964,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     {
         int r;
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
         llio->io_error = (hal_bit_t *)hal_malloc(sizeof(hal_bit_t));
         if (llio->io_error == NULL) {
@@ -972,7 +975,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
         (*llio->io_error) = 0;
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.io_error", llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.io_error", llio->name);
         r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
         if (r < 0) {
             HM2_ERR("error adding param '%s', aborting\n", name);
@@ -1188,9 +1191,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.read", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.read", hm2->llio->name);
         r = hal_export_funct(name, hm2_read, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting read function %s\n", r, name);
@@ -1198,7 +1201,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail1;
         }
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.write", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.write", hm2->llio->name);
         r = hal_export_funct(name, hm2_write, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting write function %s\n", r, name);
@@ -1213,9 +1216,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if (hm2->llio->threadsafe) {
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.read_gpio", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.read_gpio", hm2->llio->name);
         r = hal_export_funct(name, hm2_read_gpio, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting gpio_read function %s\n", r, name);
@@ -1223,7 +1226,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail1;
         }
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.write_gpio", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.write_gpio", hm2->llio->name);
         r = hal_export_funct(name, hm2_write_gpio, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting gpio_write function %s\n", r, name);

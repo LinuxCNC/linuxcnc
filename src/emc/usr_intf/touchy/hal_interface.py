@@ -15,11 +15,14 @@
 import hal
 
 class hal_interface:
-    def __init__(self, gui, emc_control, mdi_control):
+    def __init__(self, gui, emc_control, mdi_control, emc):
         self.gui = gui
         self.emc_control = emc_control
+        self.emc = emc
+        self.emc_stat = self.emc.stat()
         self.mdi_control = mdi_control
         self.c = hal.component("touchy")
+        self.c.newpin("status-indicator", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.active", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.wheel.x", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.wheel.y", hal.HAL_BIT, hal.HAL_OUT)
@@ -109,7 +112,6 @@ class hal_interface:
 
     def jogactive(self, active):
         self.active = active
-        self.c["jog.active"] = active;
 
     def periodic(self, mdi_mode):
         # edge detection
@@ -190,12 +192,16 @@ class hal_interface:
             self.emc_control.quill_up()
         self.quillup = quillup
 
+        singleblock = self.c["single-block"]
+        if singleblock ^ self.singleblock: self.emc_control.single_block(singleblock)
+        self.singleblock = singleblock
+
         cyclestart = self.c["cycle-start"]
         if cyclestart and not self.cyclestart:
             if self.gui.wheel == "jogging": self.gui.wheel = "mv"
             self.gui.jogsettings_activate(0)
             if mdi_mode:
-                self.mdi_control.ok(0)
+                if not self.singleblock: self.mdi_control.ok(0)
             else:
                 self.emc_control.cycle_start()
         self.cyclestart = cyclestart
@@ -204,8 +210,16 @@ class hal_interface:
         if abort and not self.abort: self.emc_control.abort()
         self.abort = abort
 
-        singleblock = self.c["single-block"]
-        if singleblock ^ self.singleblock: self.emc_control.single_block(singleblock)
-        self.singleblock = singleblock
+        self.emc_stat.poll()
+        self.c["jog.active"] = self.emc_stat.task_mode == self.emc.MODE_MANUAL
 
-        
+        if self.emc_stat.paused:
+            # blink
+            self.c["status-indicator"] = not self.c["status-indicator"]
+        else:
+            if self.emc_stat.queue > 0 or self.emc_stat.interp_state != self.emc.INTERP_IDLE:
+                # something is running
+                self.c["status-indicator"] = 1
+            else:
+                # nothing is happening
+                self.c["status-indicator"] = 0

@@ -410,7 +410,8 @@ int rcs_shm_nattch(shm_t * shm)
     err = shmctl(shm->id, IPC_STAT, &shared_mem_info);
 
     if(err == -1) {
-        perror("shmctl");
+        rcs_print_error("rcs_shm_nattch: shmctl failed: %s\n",
+                strerror(errno));
         return 0;
     }
 

@@ -248,6 +248,7 @@ HEADERS := \
     emc/motion/motion.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
+    emc/nml_intf/emctool.h \
     emc/nml_intf/emc.hh \
     emc/nml_intf/emc_nml.hh \
     emc/nml_intf/emccfg.h \
@@ -501,10 +502,12 @@ install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
+	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
+	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
+	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/emc/emc2-wizard.gif $(DESTDIR)$(prefix)/share/emc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
@@ -607,8 +610,6 @@ obj-$(CONFIG_STEPGEN) += stepgen.o
 stepgen-objs := hal/components/stepgen.o $(MATHSTUB)
 obj-$(CONFIG_FREQGEN) += freqgen.o
 freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
-obj-$(CONFIG_TPPWMGEN) += tpwmgen.o
-tp_pwmgen-objs := hal/components/tp_pwmgen.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o
@@ -625,6 +626,8 @@ obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o $(MATHSTUB)
 obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o
 weighted_sum-objs := hal/components/weighted_sum.o $(MATHSTUB)
+obj-$(CONFIG_WATCHDOG) += watchdog.o
+watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
 obj-$(CONFIG_MODMATH) += modmath.o
 modmath-objs := hal/components/modmath.o $(MATHSTUB)
 obj-$(CONFIG_STREAMER) += streamer.o
@@ -833,7 +836,6 @@ endif
 ../rtlib/stepgen$(MODULE_EXT): $(addprefix objects/rt,$(stepgen-objs))
 ../rtlib/freqgen$(MODULE_EXT): $(addprefix objects/rt,$(freqgen-objs))
 ../rtlib/pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(pwmgen-objs))
-../rtlib/tp_pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(tp_pwmgen-objs))
 ../rtlib/siggen$(MODULE_EXT): $(addprefix objects/rt,$(siggen-objs))
 ../rtlib/at_pid$(MODULE_EXT): $(addprefix objects/rt,$(at_pid-objs))
 ../rtlib/pid$(MODULE_EXT): $(addprefix objects/rt,$(pid-objs))
@@ -841,6 +843,7 @@ endif
 ../rtlib/supply$(MODULE_EXT): $(addprefix objects/rt,$(supply-objs))
 ../rtlib/sim_encoder$(MODULE_EXT): $(addprefix objects/rt,$(sim_encoder-objs))
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
+../rtlib/watchdog$(MODULE_EXT): $(addprefix objects/rt,$(watchdog-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))

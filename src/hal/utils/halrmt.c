@@ -347,7 +347,7 @@ int done = 0;		/* used to break out of processing loop */
 int linenumber=0;	/* used to print linenumber on errors */
 int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) */
 int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
-char comp_name[HAL_NAME_LEN];	/* name for this instance of halrmt */
+char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halrmt */
 
 char pwd[16] = "EMC\0";              // Connect password
 char enablePWD[16] = "EMCTOO\0";     // Enable password
@@ -1255,8 +1255,11 @@ static int doDelsig(char *mod_name, connectionRecType *context)
       while (next != 0) {
         sig = SHMPTR(next);
         /* we want to unload this signal, remember it's name */
-        if (n < ( MAX_EXPECTED_SIGS - 1))
-          strncpy(sigs[n++], sig->name, HAL_NAME_LEN );
+        if (n < ( MAX_EXPECTED_SIGS - 1)) {
+          strncpy(sigs[n], sig->name, HAL_NAME_LEN );
+	  sigs[n][HAL_NAME_LEN] = '\0';
+	  n++;
+	  }
         next = sig->next_ptr;
 	}
       rtapi_mutex_give(&(hal_data->mutex));
@@ -1309,7 +1312,9 @@ static int doUnload(char *mod_name, connectionRecType *context)
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
-		    strncpy(comps[n++], comp->name, HAL_NAME_LEN );
+		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
+		    comps[n][HAL_NAME_LEN] = '\0';
+		    n++;
 		}
 	    }
 	}
@@ -3553,7 +3558,7 @@ int main(int argc, char **argv)
     signal(SIGPIPE, SIG_IGN);
     /* at this point all options are parsed, connect to HAL */
     /* create a unique module name, to allow for multiple halrmt's */
-    snprintf(comp_name, HAL_NAME_LEN-1, "halrmt%d", getpid());
+    snprintf(comp_name, HAL_NAME_LEN, "halrmt%d", getpid());
     /* tell the signal handler that we might have the mutex */
     hal_flag = 1;
     /* connect to the HAL */

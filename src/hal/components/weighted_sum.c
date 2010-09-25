@@ -200,11 +200,11 @@ static void process_wsums(void *arg, long period)
 static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
 {
     int retval, i, w;
-    char buf[HAL_NAME_LEN + 2], base[HAL_NAME_LEN];
+    char buf[HAL_NAME_LEN+1], base[HAL_NAME_LEN+1];
 
-    rtapi_snprintf(base, HAL_NAME_LEN, "wsum.%d", num);
+    rtapi_snprintf(base, sizeof(base), "wsum.%d", num);
     /* export pin for offset (input) */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.offset", base);
+    rtapi_snprintf(buf, sizeof(buf), "%s.offset", base);
     retval = hal_pin_s32_new(buf, HAL_IO, &(addr->offset), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -213,7 +213,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     }
 
     /* export pin for output sum */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.sum", base);
+    rtapi_snprintf(buf, sizeof(buf), "%s.sum", base);
     retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->sum), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -222,7 +222,7 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     }
 
     /* export pin for update hold */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.hold", base);
+    rtapi_snprintf(buf, sizeof(buf), "%s.hold", base);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->hold), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -235,14 +235,14 @@ static int export_wsum(int num, int num_bits, wsum_t *addr, wsum_bit_t *bitaddr)
     /* export the input bits and weight parameters, and set the default weights */
     w = 1;
     for (i=0;i<num_bits;i++) {
-	rtapi_snprintf(buf, HAL_NAME_LEN, "%s.bit.%d.in", base, i);
+	rtapi_snprintf(buf, sizeof(buf), "%s.bit.%d.in", base, i);
 	retval = hal_pin_bit_new(buf, HAL_IN, &(addr->bits[i].bit), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	    "WEIGHTED_SUM: ERROR: '%s' pin export failed\n", buf);
 	    return retval;
 	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "%s.bit.%d.weight", base, i);
+	rtapi_snprintf(buf, sizeof(buf), "%s.bit.%d.weight", base, i);
 	retval = hal_pin_s32_new(buf, HAL_IO, &(addr->bits[i].weight), comp_id);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,

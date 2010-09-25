@@ -668,7 +668,7 @@ static enum {
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
 
-int halui_export_pin_IN_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_IN_bit(hal_bit_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_bit_new(name, HAL_IN, pin, comp_id);
@@ -680,7 +680,7 @@ int halui_export_pin_IN_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2])
     return 0;
 }
 
-int halui_export_pin_IN_s32(hal_s32_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_IN_s32(hal_s32_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_s32_new(name, HAL_IN, pin, comp_id);
@@ -692,7 +692,7 @@ int halui_export_pin_IN_s32(hal_s32_t **pin, char name[HAL_NAME_LEN+2])
     return 0;
 }
 
-int halui_export_pin_IN_float(hal_float_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_IN_float(hal_float_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_float_new(name, HAL_IN, pin, comp_id);
@@ -705,7 +705,7 @@ int halui_export_pin_IN_float(hal_float_t **pin, char name[HAL_NAME_LEN+2])
 }
 
 
-int halui_export_pin_OUT_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_OUT_bit(hal_bit_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_bit_new(name, HAL_OUT, pin, comp_id);
@@ -2002,15 +2002,15 @@ static void modify_hal_pins()
     *(halui_data->axis_pos_feedback[6]) = emcStatus->motion.traj.actualPosition.u;
     *(halui_data->axis_pos_feedback[7]) = emcStatus->motion.traj.actualPosition.v;
     *(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.w;
-    *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.origin.tran.x;	
-    *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.origin.tran.y;	
-    *(halui_data->axis_pos_relative[2]) = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.origin.tran.z;
-    *(halui_data->axis_pos_relative[3]) = emcStatus->motion.traj.actualPosition.a - emcStatus->task.origin.a;
-    *(halui_data->axis_pos_relative[4]) = emcStatus->motion.traj.actualPosition.b - emcStatus->task.origin.b;
-    *(halui_data->axis_pos_relative[5]) = emcStatus->motion.traj.actualPosition.c - emcStatus->task.origin.c;
-    *(halui_data->axis_pos_relative[6]) = emcStatus->motion.traj.actualPosition.u - emcStatus->task.origin.u;
-    *(halui_data->axis_pos_relative[7]) = emcStatus->motion.traj.actualPosition.v - emcStatus->task.origin.v;
-    *(halui_data->axis_pos_relative[8]) = emcStatus->motion.traj.actualPosition.w - emcStatus->task.origin.w;
+    *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x;	
+    *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y;	
+    *(halui_data->axis_pos_relative[2]) = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z;
+    *(halui_data->axis_pos_relative[3]) = emcStatus->motion.traj.actualPosition.a - emcStatus->task.g5x_offset.a - emcStatus->task.g92_offset.a;
+    *(halui_data->axis_pos_relative[4]) = emcStatus->motion.traj.actualPosition.b - emcStatus->task.g5x_offset.b - emcStatus->task.g92_offset.b;
+    *(halui_data->axis_pos_relative[5]) = emcStatus->motion.traj.actualPosition.c - emcStatus->task.g5x_offset.c - emcStatus->task.g92_offset.c;
+    *(halui_data->axis_pos_relative[6]) = emcStatus->motion.traj.actualPosition.u - emcStatus->task.g5x_offset.u - emcStatus->task.g92_offset.u;
+    *(halui_data->axis_pos_relative[7]) = emcStatus->motion.traj.actualPosition.v - emcStatus->task.g5x_offset.v - emcStatus->task.g92_offset.v;
+    *(halui_data->axis_pos_relative[8]) = emcStatus->motion.traj.actualPosition.w - emcStatus->task.g5x_offset.w - emcStatus->task.g92_offset.w;
 
     *(halui_data->joint_is_homed[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].homed;
     *(halui_data->joint_on_soft_min_limit[num_axes]) = emcStatus->motion.joint[*(halui_data->joint_selected)].minSoftLimit;

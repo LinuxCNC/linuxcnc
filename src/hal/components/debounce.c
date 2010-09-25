@@ -229,7 +229,7 @@ static void debounce(void *arg, long period)
 static int export_group(int num, debounce_group_t * addr, int group_size)
 {
     int n, retval, msg;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -246,7 +246,7 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 	return -1;
     }
     /* export param variable for delay */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.delay", num);
+    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.delay", num);
     retval = hal_param_s32_new(buf, HAL_RW, &(addr->delay), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -254,7 +254,7 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d", num);
+    rtapi_snprintf(buf, sizeof(buf), "debounce.%d", num);
     retval = hal_export_funct(buf, debounce, addr, 0, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -282,10 +282,10 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 static int export_filter(int num, debounce_t * addr, int group_num)
 {
     int retval;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     /* export pin for input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.in", group_num, num);
+    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d.in", group_num, num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->in), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -293,7 +293,7 @@ static int export_filter(int num, debounce_t * addr, int group_num)
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.out", group_num, num);
+    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d.out", group_num, num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->out), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -302,7 +302,7 @@ static int export_filter(int num, debounce_t * addr, int group_num)
     }
 #ifdef EXPORT_STATE
     /* export parameter containing internal state */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "debounce.%d.%d.state", group_num, num);
+    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.%d.state", group_num, num);
     retval = hal_param_s32_new(buf, HAL_RO, &(addr->state), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

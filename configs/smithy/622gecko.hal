@@ -56,9 +56,9 @@ net charge-pump parport.0.pin-17-out charge-pump.out
 net estop-in parport.0.pin-10-in-not iocontrol.0.emc-enable-in
 net estop-out charge-pump.enable halui.machine.is-on
 #PMDX-110
-net run parport.0.pin-11-in-not motion.feed-hold
+net run parport.0.pin-11-in-not halui.program.pause motion.feed-hold
 #PMDX-131
-#net run parport.0.pin-11-in motion.feed-hold
+#net run parport.0.pin-11-in halui.program.pause motion.feed-hold
 #normally closed switches (late production)
 net all-home parport.0.pin-12-in
 #normally open switches (early production)

@@ -154,14 +154,14 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
   }
 
-  axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
-               (block->z_flag == ON) || (block->a_flag == ON) ||
-               (block->b_flag == ON) || (block->c_flag == ON) ||
-               (block->u_flag == ON) || (block->v_flag == ON) ||
-               (block->w_flag == ON));
-  polar_flag = (block->radius_flag == ON) || (block->theta_flag == ON);
-  ijk_flag = ((block->i_flag == ON) || (block->j_flag == ON) ||
-              (block->k_flag == ON));
+  axis_flag = ((block->x_flag) || (block->y_flag) ||
+               (block->z_flag) || (block->a_flag) ||
+               (block->b_flag) || (block->c_flag) ||
+               (block->u_flag) || (block->v_flag) ||
+               (block->w_flag));
+  polar_flag = (block->radius_flag) || (block->theta_flag);
+  ijk_flag = ((block->i_flag) || (block->j_flag) ||
+              (block->k_flag));
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =
@@ -228,7 +228,7 @@ serves to show that a value for that slot has not been read.
 The rules for the indicators for slots whose values may be read are:
 1. If the value may be an arbitrary real number (which is always stored
    internally as a double), a flag is needed to indicate if a value has
-   been read. All such flags are initialized to OFF.
+   been read. All such flags are initialized to false.
    Note that the value itself is not initialized; there is no point in it.
 2. If the value must be a non-negative real number (which is always stored
    internally as a double), a value of -1.0 indicates the item is not present.
@@ -243,23 +243,23 @@ The rules for the indicators for slots whose values may be read are:
 int Interp::init_block(block_pointer block)      //!< pointer to a block to be initialized or reset
 {
   int n;
-  block->a_flag = OFF;
-  block->b_flag = OFF;
-  block->c_flag = OFF;
+  block->a_flag = false;
+  block->b_flag = false;
+  block->c_flag = false;
   block->comment[0] = 0;
-  block->d_flag = OFF;
-  block->e_flag = OFF;
-  block->f_number = -1.0;
+  block->d_flag = false;
+  block->e_flag = false;
+  block->f_flag = false;
   for (n = 0; n < 16; n++) {
     block->g_modes[n] = -1;
   }
-  block->h_flag = OFF;
+  block->h_flag = false;
   block->h_number = -1;
-  block->i_flag = OFF;
-  block->j_flag = OFF;
-  block->k_flag = OFF;
+  block->i_flag = false;
+  block->j_flag = false;
+  block->k_flag = false;
   block->l_number = -1;
-  block->l_flag = OFF;
+  block->l_flag = false;
   block->line_number = -1;
   block->n_number = -1;
   block->motion_to_be = -1;
@@ -269,20 +269,21 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   }
   block->user_m = 0;
   block->p_number = -1.0;
-  block->p_flag = OFF;
+  block->p_flag = false;
+  block->q_flag = false;
   block->q_number = -1.0;
-  block->r_flag = OFF;
-  block->s_number = -1.0;
-  block->t_number = -1;
-  block->u_flag = OFF;
-  block->v_flag = OFF;
-  block->w_flag = OFF;
-  block->x_flag = OFF;
-  block->y_flag = OFF;
-  block->z_flag = OFF;
+  block->r_flag = false;
+  block->s_flag = false;
+  block->t_flag = false;
+  block->u_flag = false;
+  block->v_flag = false;
+  block->w_flag = false;
+  block->x_flag = false;
+  block->y_flag = false;
+  block->z_flag = false;
 
-  block->theta_flag = OFF;
-  block->radius_flag = OFF;
+  block->theta_flag = false;
+  block->radius_flag = false;
 
   block->o_type = O_none;
   block->o_number = 0;

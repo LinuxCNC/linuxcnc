@@ -1,0 +1,43 @@
+# dot -Tpng homing.dot > homing.png
+# dot -Txlib homing.dot
+
+digraph finite_state_machine {
+
+        node [shape = doublecircle]; IDLE FINISHED
+        node [shape = circle];
+        rankdir=LR;
+        START -> IDLE [ label = "errors" ];
+        START -> UNLOCK [ label = "unlock needed" ];
+        START -> UNLOCK_WAIT [ label = "unlock not needed" ];
+        UNLOCK -> UNLOCK_WAIT
+        UNLOCK_WAIT -> SET_SWITCH_POSITION [ label = "searchvel 0 latchvel 0" ];
+        UNLOCK_WAIT -> INDEX_ONLY_START [ label = "searchvel 0 latchvel !0 useindex" ];
+        UNLOCK_WAIT -> INITIAL_SEARCH_START [ label = "searchvel !0 latchvel !0" ];
+        INITIAL_BACKOFF_START -> INITIAL_BACKOFF_WAIT [ label = "delay times out" ];
+        INITIAL_BACKOFF_WAIT -> INITIAL_SEARCH_START [ label = "!switch" ];
+        INITIAL_SEARCH_START -> INITIAL_BACKOFF_START [ label = "switch" ];
+        INITIAL_SEARCH_START -> INITIAL_SEARCH_WAIT [ label = "!switch" ];
+        INITIAL_SEARCH_WAIT -> SET_COARSE_POSITION [ label = "switch" ];
+        SET_COARSE_POSITION -> FINAL_BACKOFF_START [ label = "search/latch opposite" ];
+        SET_COARSE_POSITION -> FALL_SEARCH_START [ label = "search/latch same sign" ];
+        FINAL_BACKOFF_START -> FINAL_BACKOFF_WAIT [ label = "switch" ];
+        FINAL_BACKOFF_WAIT -> RISE_SEARCH_START [ label = "!switch" ];
+        RISE_SEARCH_START -> RISE_SEARCH_WAIT [ label = "!switch" ];
+        RISE_SEARCH_WAIT -> INDEX_SEARCH_START [ label = "switch & index" ];
+        RISE_SEARCH_WAIT -> SET_SWITCH_POSITION [ label = "switch & !index" ];
+        FALL_SEARCH_START -> FALL_SEARCH_WAIT [ label = "switch" ];
+        FALL_SEARCH_WAIT -> INDEX_SEARCH_START [ label = "!switch & index" ];
+        FALL_SEARCH_WAIT -> SET_SWITCH_POSITION [ label = "!switch & !index" ];
+        SET_SWITCH_POSITION -> FINAL_MOVE_START
+        INDEX_ONLY_START -> INDEX_SEARCH_WAIT
+        INDEX_SEARCH_START -> INDEX_SEARCH_WAIT
+        INDEX_SEARCH_WAIT -> SET_INDEX_POSITION [ label = "index found" ];
+        SET_INDEX_POSITION -> FINAL_MOVE_START
+        FINAL_MOVE_START -> FINAL_MOVE_WAIT
+        FINAL_MOVE_WAIT -> LOCK [ label = "in position" ];
+        LOCK -> LOCK_WAIT
+        LOCK_WAIT -> FINISHED
+
+        FINISHED -> IDLE
+        IDLE -> START 
+}

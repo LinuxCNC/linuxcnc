@@ -1,0 +1,14 @@
+; this file tests the lock/unlock of an indexing rotary.
+; run it with a configuration having [AXIS_4]LOCKING_INDEXER=1
+g20 g90
+g0b0
+g0x0y0z0
+g1x1f70
+g0x2
+b45
+x3
+b90
+x2
+b0
+x1
+m2

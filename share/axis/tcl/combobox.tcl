@@ -383,7 +383,8 @@ proc ::combobox::SetBindings {w} {
     # handling. 
     foreach event [list <Up> <Down> <Tab> <Return> <Escape> \
 	    <Next> <Prior> <Double-1> <1> <Any-KeyPress> \
-	    <FocusIn> <FocusOut>] {
+	    <FocusIn> <FocusOut> <KeyRelease-Up> <KeyRelease-Down> \
+	    <KeyRelease-Next> <KeyRelease-Prior>] {
 	bind $widgets(entry) $event \
             [list ::combobox::HandleEvent $widgets(this) $event]
     }
@@ -739,6 +740,13 @@ proc ::combobox::HandleEvent {w event args} {
 		    $widgets(this) open
 		    return -code break;
 		}
+	    }
+	}
+
+	"<KeyRelease-Up>" - "<KeyRelease-Down>" -
+	"<KeyRelease-Next>" - "<KeyRelease-Prior>" {
+	    if {[winfo ismapped $widgets(dropdown)]} {
+		return -code break;
 	    }
 	}
     }
@@ -1193,7 +1201,7 @@ proc ::combobox::WidgetProc {w command args} {
     upvar ::combobox::${w}::widgets widgets
     upvar ::combobox::${w}::options options
     upvar ::combobox::${w}::oldFocus oldFocus
-    upvar ::combobox::${w}::oldFocus oldGrab
+    upvar ::combobox::${w}::oldGrab oldGrab
 
     set command [::combobox::Canonize $w command $command]
 

@@ -190,7 +190,9 @@ class emc_control:
                 if self.emcstat.paused:
                         if self.sb:
                                 self.emccommand.auto(self.emc.AUTO_STEP)
-                                return
+                        else:
+                                self.emccommand.auto(self.emc.AUTO_RESUME)
+                        return
 
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
                         self.emccommand.mode(self.emc.MODE_AUTO)
@@ -283,17 +285,34 @@ class emc_status:
                 else:
                         p = self.emcstat.position
 
-                x = p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]
-                y = p[1] - self.emcstat.origin[1]
-                z = p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]
-                a = p[3] - self.emcstat.origin[3]
-                b = p[4] - self.emcstat.origin[4]
-                c = p[5] - self.emcstat.origin[5]
-                u = p[6] - self.emcstat.origin[6]
-                v = p[7] - self.emcstat.origin[7]
-                w = p[8] - self.emcstat.origin[8] - self.emcstat.tool_offset[8]
-                t = math.radians(-self.emcstat.rotation_xy)
-                relp = [x * math.cos(t) - y * math.sin(t), x * math.sin(t) + y * math.cos(t), z, a, b, c, u, v, w]
+                x = p[0] - self.emcstat.g5x_offset[0] - self.emcstat.tool_offset[0]
+                y = p[1] - self.emcstat.g5x_offset[1] - self.emcstat.tool_offset[1]
+                z = p[2] - self.emcstat.g5x_offset[2] - self.emcstat.tool_offset[2]
+                a = p[3] - self.emcstat.g5x_offset[3] - self.emcstat.tool_offset[3]
+                b = p[4] - self.emcstat.g5x_offset[4] - self.emcstat.tool_offset[4]
+                c = p[5] - self.emcstat.g5x_offset[5] - self.emcstat.tool_offset[5]
+                u = p[6] - self.emcstat.g5x_offset[6] - self.emcstat.tool_offset[6]
+                v = p[7] - self.emcstat.g5x_offset[7] - self.emcstat.tool_offset[7]
+                w = p[8] - self.emcstat.g5x_offset[8] - self.emcstat.tool_offset[8]
+
+                if self.emcstat.rotation_xy != 0:
+                        t = math.radians(-self.emcstat.rotation_xy)
+                        xr = x * math.cos(t) - y * math.sin(t)
+                        yr = x * math.sin(t) + y * math.cos(t)
+                        x = xr
+                        y = yr
+
+                x -= self.emcstat.g92_offset[0] 
+                y -= self.emcstat.g92_offset[1] 
+                z -= self.emcstat.g92_offset[2] 
+                a -= self.emcstat.g92_offset[3] 
+                b -= self.emcstat.g92_offset[4] 
+                c -= self.emcstat.g92_offset[5] 
+                u -= self.emcstat.g92_offset[6] 
+                v -= self.emcstat.g92_offset[7] 
+                w -= self.emcstat.g92_offset[8] 
+
+                relp = [x, y, z, a, b, c, u, v, w]
 
                 if self.mm:
                         p = [i*25.4 for i in p]
@@ -345,11 +364,12 @@ class emc_status:
                 set_active(self.override_limit, ovl)
 
                 set_text(self.status['file'], self.emcstat.file)
+                set_text(self.status['file_lines'], "%d" % len(self.listing.program))
                 set_text(self.status['line'], "%d" % self.emcstat.current_line)
                 set_text(self.status['id'], "%d" % self.emcstat.id)
-                set_text(self.status['dtg'], "%f" % self.emcstat.distance_to_go)
-                set_text(self.status['velocity'], "%f" % (self.emcstat.current_vel * 60.0))
-                set_text(self.status['delay'], "%f" % self.emcstat.delay_left)
+                set_text(self.status['dtg'], "%.4f" % self.emcstat.distance_to_go)
+                set_text(self.status['velocity'], "%.4f" % (self.emcstat.current_vel * 60.0))
+                set_text(self.status['delay'], "%.2f" % self.emcstat.delay_left)
 
                 flood = self.emcstat.flood
                 set_active(self.floods['on'], flood)
@@ -380,8 +400,35 @@ class emc_status:
 			set_text(self.status['preppedtool'], _("None"))
 		else:
 			set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
+
+                tt = ""
+                for p, t in zip(range(len(self.emcstat.tool_table)), self.emcstat.tool_table):
+                        if t.id != -1:
+                                tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
+                                if p == 0: tt += '\n'
+                set_text(self.status['tooltable'], tt)
+                        
+                
                 set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
-                set_text(self.status['tlo'], "%f" % self.emcstat.tool_offset[2])
+                set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
+
+                cs = self.emcstat.g5x_index
+                if cs<7:
+                        cslabel = "G5%d" % (cs+3)
+                else:
+                        cslabel = "G59.%d" % (cs-6)
+                        
+                set_text(self.status['label_g5xoffset'], '<b>' + cslabel + '</b>' + ' Offset:');
+
+                g5x = ""
+                g92 = ""
+                for i in range(len(self.emcstat.g5x_offset)):
+                        letter = "XYZABCUVW"[i]
+                        if self.emcstat.g5x_offset[i] != 0: g5x += "%s%.4f " % (letter, self.emcstat.g5x_offset[i])
+                        if self.emcstat.g92_offset[i] != 0: g92 += "%s%.4f " % (letter, self.emcstat.g92_offset[i])
+                                   
+                set_text(self.status['g5xoffset'], g5x);
+                set_text(self.status['g92offset'], g92);
 
                 active_codes = []
                 for i in self.emcstat.gcodes[1:]:

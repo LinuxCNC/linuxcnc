@@ -47,6 +47,8 @@ linksp Ahome => joint.3.home-sw-in
 
 # connect index pulses to motion controller
 # uncomment these lines only if you have a Rev 3 UPC board
+# The ppmc.x.encoder.xx.index-enable pin is ONLY exported by the driver
+#     if the UPC has rev 3 or above firmware
 #newsig Xindex bit
 #newsig Yindex  bit
 #newsig Zindex bit

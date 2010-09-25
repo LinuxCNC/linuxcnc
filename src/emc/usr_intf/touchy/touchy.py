@@ -141,7 +141,7 @@ class touchy:
 
                 # emc interface
                 self.emc = emc_interface.emc_control(emc, self.listing, self.wTree.get_widget("error"))
-                self.hal = hal_interface.hal_interface(self, self.emc, self.mdi_control)
+                self.hal = hal_interface.hal_interface(self, self.emc, self.mdi_control, emc)
 
                 # silly file chooser
                 filechooser_labels = []
@@ -168,9 +168,10 @@ class touchy:
                 mists = dict((i, self.wTree.get_widget("mist_" + i)) for i in mists)
                 spindles = ['forward', 'off', 'reverse']
                 spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
-                stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
+                stats = ['file', 'file_lines', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                          'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
-                         'xyrotation', 'tlo', 'activecodes', 'spindlespeed2']
+                         'xyrotation', 'tlo', 'activecodes', 'spindlespeed2',
+                         'label_g5xoffset', 'g5xoffset', 'g92offset', 'tooltable']
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)

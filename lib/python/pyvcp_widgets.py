@@ -566,7 +566,7 @@ class pyvcp_jogwheel(Canvas):
 
 class pyvcp_radiobutton(Frame):
     n=0
-    def __init__(self,master,pycomp,halpin=None,choices=[],**kw):
+    def __init__(self,master,pycomp,halpin=None,initval=0,choices=[],**kw):
         f=Frame.__init__(self,master,bd=2,relief=GROOVE)
         self.v = IntVar()
         self.v.set(1)
@@ -581,7 +581,7 @@ class pyvcp_radiobutton(Frame):
             b=Radiobutton(self,f, text=str(c)
                         ,variable=self.v, value=pow(2,n))
             b.pack()
-            if n==0:
+            if n==initval:
                 b.select()
 
             c_halpin=halpin+"."+str(c)

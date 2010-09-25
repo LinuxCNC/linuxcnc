@@ -168,46 +168,13 @@ void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points
     PLANE_POINT P1;
     while (u+umax/div < umax) {
         PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        // EBo -- replace 12345 with *whatever* gives us the line_number
         STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
         u = u + umax/div;
     } 
     P1.X = nurbs_control_points[n].X;
     P1.Y = nurbs_control_points[n].Y;
-    // EBo -- replace 12345 with *whatever* gives us the line_number
     STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
     knot_vector.clear();
-}
-
-void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2) {
-    double x0 = TO_PROG_LEN(_pos_x),
-         y0 = TO_PROG_LEN(_pos_y);
-
-    for(int i=1; i<=100; i++) {
-      double t = i / 100.;
-      double t2 = t*t;
-      double t1 = 2*t*(1-t);
-      double t0 = (1-t)*(1-t);
-      double x = x0*t0 + x1*t1 + x2*t2;
-      double y = y0*t0 + y1*t1 + y2*t2;
-      // EBo -- replace 12345 with *whatever* gives us the line_number
-      STRAIGHT_FEED(line_number, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
-    }
-}
-
-void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2, double x3, double y3) {
-    double x0 = TO_PROG_LEN(_pos_x),
-         y0 = TO_PROG_LEN(_pos_y);
-
-    for(int i=1; i<=100; i++) {      double t = i / 100.;
-      double t3 = t*t*t;
-      double t2 = 3*t*t*(1-t);
-      double t1 = 3*t*(1-t)*(1-t);
-      double t0 = (1-t)*(1-t)*(1-t);
-      double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
-      double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
-      STRAIGHT_FEED(line_number, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
-    }
 }
 
 void ARC_FEED(int line_number,
@@ -272,14 +239,28 @@ void STRAIGHT_TRAVERSE(int line_number,
     Py_XDECREF(result);
 }
 
-void SET_ORIGIN_OFFSETS(double x, double y, double z,
-                        double a, double b, double c,
-                        double u, double v, double w) {
+void SET_G5X_OFFSET(int g5x_index,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_origin_offsets", "fffffffff",
+        PyObject_CallMethod(callback, "set_g5x_offset", "ifffffffff",
+                            g5x_index, x, y, z, a, b, c, u, v, w);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+}
+
+void SET_G92_OFFSET(double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
+    maybe_new_line();
+    if(interp_error) return;
+    PyObject *result =
+        PyObject_CallMethod(callback, "set_g92_offset", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -454,6 +435,9 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
+int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
+int LOCK_ROTARY(int line_no, int axis) {return 0;}
+
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 
                     double a, double b, double c,
@@ -864,7 +848,7 @@ static void rotate(double &x, double &y, double c, double s) {
 static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     PyObject *canon;
     double x1, y1, cx, cy, z1, a, b, c, u, v, w;
-    double o[9], n[9], offset[9];
+    double o[9], n[9], g5xoffset[9], g92offset[9];
     int rot, plane;
     int X, Y, Z;
     double rotation_cos, rotation_sin;
@@ -878,15 +862,24 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     if(!get_attr(canon, "plane", &plane)) return NULL;
     if(!get_attr(canon, "rotation_cos", &rotation_cos)) return NULL;
     if(!get_attr(canon, "rotation_sin", &rotation_sin)) return NULL;
-    if(!get_attr(canon, "offset_x", &offset[0])) return NULL;
-    if(!get_attr(canon, "offset_y", &offset[1])) return NULL;
-    if(!get_attr(canon, "offset_z", &offset[2])) return NULL;
-    if(!get_attr(canon, "offset_a", &offset[3])) return NULL;
-    if(!get_attr(canon, "offset_b", &offset[4])) return NULL;
-    if(!get_attr(canon, "offset_c", &offset[5])) return NULL;
-    if(!get_attr(canon, "offset_u", &offset[6])) return NULL;
-    if(!get_attr(canon, "offset_v", &offset[7])) return NULL;
-    if(!get_attr(canon, "offset_w", &offset[8])) return NULL;
+    if(!get_attr(canon, "g5x_offset_x", &g5xoffset[0])) return NULL;
+    if(!get_attr(canon, "g5x_offset_y", &g5xoffset[1])) return NULL;
+    if(!get_attr(canon, "g5x_offset_z", &g5xoffset[2])) return NULL;
+    if(!get_attr(canon, "g5x_offset_a", &g5xoffset[3])) return NULL;
+    if(!get_attr(canon, "g5x_offset_b", &g5xoffset[4])) return NULL;
+    if(!get_attr(canon, "g5x_offset_c", &g5xoffset[5])) return NULL;
+    if(!get_attr(canon, "g5x_offset_u", &g5xoffset[6])) return NULL;
+    if(!get_attr(canon, "g5x_offset_v", &g5xoffset[7])) return NULL;
+    if(!get_attr(canon, "g5x_offset_w", &g5xoffset[8])) return NULL;
+    if(!get_attr(canon, "g92_offset_x", &g92offset[0])) return NULL;
+    if(!get_attr(canon, "g92_offset_y", &g92offset[1])) return NULL;
+    if(!get_attr(canon, "g92_offset_z", &g92offset[2])) return NULL;
+    if(!get_attr(canon, "g92_offset_a", &g92offset[3])) return NULL;
+    if(!get_attr(canon, "g92_offset_b", &g92offset[4])) return NULL;
+    if(!get_attr(canon, "g92_offset_c", &g92offset[5])) return NULL;
+    if(!get_attr(canon, "g92_offset_u", &g92offset[6])) return NULL;
+    if(!get_attr(canon, "g92_offset_v", &g92offset[7])) return NULL;
+    if(!get_attr(canon, "g92_offset_w", &g92offset[8])) return NULL;
 
     if(plane == 1) {
         X=0; Y=1; Z=2;
@@ -904,8 +897,9 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     n[6] = u;
     n[7] = v;
     n[8] = w;
-    for(int ax=0; ax<9; ax++) o[ax] -= offset[ax];
+    for(int ax=0; ax<9; ax++) o[ax] -= g5xoffset[ax];
     unrotate(o[0], o[1], rotation_cos, rotation_sin);
+    for(int ax=0; ax<9; ax++) o[ax] -= g92offset[ax];
 
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
@@ -938,13 +932,15 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
         p[6] = o[6] + d[6] * f;
         p[7] = o[7] + d[7] * f;
         p[8] = o[8] + d[8] * f;
+        for(int ax=0; ax<9; ax++) p[ax] += g92offset[ax];
         rotate(p[0], p[1], rotation_cos, rotation_sin);
-        for(int ax=0; ax<9; ax++) p[ax] += offset[ax];
+        for(int ax=0; ax<9; ax++) p[ax] += g5xoffset[ax];
         PyList_SET_ITEM(segs, i,
             Py_BuildValue("ddddddddd", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]));
     }
+    for(int ax=0; ax<9; ax++) n[ax] += g92offset[ax];
     rotate(n[0], n[1], rotation_cos, rotation_sin);
-    for(int ax=0; ax<9; ax++) n[ax] += offset[ax];
+    for(int ax=0; ax<9; ax++) n[ax] += g5xoffset[ax];
     PyList_SET_ITEM(segs, steps-1,
         Py_BuildValue("ddddddddd", n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8]));
     return segs;

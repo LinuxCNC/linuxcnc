@@ -270,7 +270,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_7i43_t *board = this->private;
     int64_t start_time, end_time;
     int i;
-    void *firmware = bitfile->e.data;
+    const u8 *firmware = bitfile->e.data;
 
 
     //
@@ -284,7 +284,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_7i43_epp_addr8(0, board);
 
     for (i = 0; i < bitfile->e.size; i ++, firmware ++) {
-        hm2_7i43_epp_write(bitfile_reverse_bits(*(u8 *)firmware), board);
+        hm2_7i43_epp_write(bitfile_reverse_bits(*firmware), board);
     }
 
     end_time = rtapi_get_time();
@@ -334,6 +334,8 @@ int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
     // HostMot2 or GPIO firmware
     //
 
+    hm2_7i43_epp_addr16(0x7F7F, board);
+    hm2_7i43_epp_write(0x5A, board);
     hm2_7i43_epp_addr16(0x7F7F, board);
     hm2_7i43_epp_write(0x5A, board);
 
@@ -423,7 +425,7 @@ static int hm2_7i43_setup(void) {
         hm2_7i43_epp_write_control(0x04, &board[i]);  // set control lines and input mode
         hm2_7i43_epp_clear_timeout(&board[i]);
 
-        rtapi_snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, i);
+        rtapi_snprintf(board[i].llio.name, sizeof(board[i].llio.name), "%s.%d", HM2_LLIO_NAME, i);
         board[i].llio.comp_id = comp_id;
 
         board[i].llio.read = hm2_7i43_read;

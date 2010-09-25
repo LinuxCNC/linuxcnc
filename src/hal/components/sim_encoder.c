@@ -337,7 +337,6 @@ static void update_speed(void *arg, long period)
 static int export_sim_enc(int num, sim_enc_t * addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -346,42 +345,42 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.ppr", num);
-    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->ppr), comp_id);
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->ppr), comp_id,
+			      "sim-encoder.%d.ppr", num);
     if (retval != 0) {
 	return retval;
     }
     /* export param variable for scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.scale", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->scale), comp_id);
+    retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
+				"sim-encoder.%d.scale", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for speed command */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.speed", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->speed), comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->speed), comp_id,
+				"sim-encoder.%d.speed", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for output phases */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-A", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseA), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseA), comp_id,
+			      "sim-encoder.%d.phase-A", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-B", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseB), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseB), comp_id,
+			      "sim-encoder.%d.phase-B", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-Z", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseZ), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseZ), comp_id,
+			      "sim-encoder.%d.phase-Z", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for rawcounts */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.rawcounts", num);
-    retval = hal_pin_s32_new(buf, HAL_IN, &(addr->rawcounts), comp_id);
+    retval = hal_pin_s32_newf(HAL_IN, &(addr->rawcounts), comp_id,
+			      "sim-encoder.%d.rawcounts", num);
     if (retval != 0) {
 	return retval;
     }

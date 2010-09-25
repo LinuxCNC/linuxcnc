@@ -86,7 +86,7 @@ int comp_id = -1;	/* -1 means hal_init() not called yet */
 int shmem_id = -1;
 int exitval = 1;	/* program return code - 1 means error */
 int ignore_sig = 0;	/* used to flag critical regions */
-char comp_name[HAL_NAME_LEN];	/* name for this instance of sampler */
+char comp_name[HAL_NAME_LEN+1];	/* name for this instance of sampler */
 
 /***********************************************************************
 *                            MAIN PROGRAM                              *
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
     signal(SIGPIPE, quit);
     /* connect to HAL */
     /* create a unique module name, to allow for multiple samplers */
-    snprintf(comp_name, HAL_NAME_LEN-1, "halsampler%d", getpid());
+    snprintf(comp_name, sizeof(comp_name), "halsampler%d", getpid());
     /* connect to the HAL */
     ignore_sig = 1;
     comp_id = hal_init(comp_name);

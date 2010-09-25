@@ -109,9 +109,9 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     // export to HAL
     {
         int i;
-        char name[HAL_NAME_LEN];
+        char name[HAL_NAME_LEN+1];
         for (i = 0 ; i < hm2->config.num_leds ; i++) {
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.led.CR%02d", hm2->llio->name, i + 1 );
+            rtapi_snprintf(name, sizeof(name), "%s.led.CR%02d", hm2->llio->name, i + 1 );
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->led.instance[i].led), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);

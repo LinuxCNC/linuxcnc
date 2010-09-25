@@ -25,6 +25,7 @@
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
 #include "_timer.h"
+#include "rcs_print.hh"
 
 #include "inifile.hh"
 
@@ -44,7 +45,6 @@ static emcmot_config_t *emcmotConfig = 0;
 static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_struct_t *emcmotStruct = 0;
-emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT, COMM_WAIT)
    from named ini file */
@@ -86,6 +86,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 
     /* check for mapped mem still around */
     if (0 == emcmotCommand) {
+        rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     /* copy entire command structure to shared memory */
@@ -101,10 +102,12 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
 		return EMCMOT_COMM_OK;
 	    } else {
+                rcs_print("USRMOT: ERROR: invalid command\n");
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }
 	}
     }
+    rcs_print("USRMOT: ERROR: command timeout\n");
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
@@ -672,8 +675,6 @@ int usrmotInit(char *modname)
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
 
-    emcmotshmem = emcmotStruct;
-
     inited = 1;
 
     return 0;
@@ -697,7 +698,6 @@ int usrmotExit(void)
 	emcmotComp[axis] = 0;
     }
 #endif
-    emcmotshmem = 0;
 
     inited = 0;
     return 0;

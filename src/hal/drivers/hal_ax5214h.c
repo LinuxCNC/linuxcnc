@@ -191,7 +191,7 @@ int rtapi_app_main(void)
 {
     char *cp;
     char *argv[MAX_TOK];
-    char name[HAL_NAME_LEN + 2];
+    char name[HAL_NAME_LEN + 1];
     int n, retval;
 
     /* test for config string */
@@ -236,7 +236,7 @@ int rtapi_app_main(void)
     /* export functions for each board */
     for (n = 0; n < num_boards; n++) {
 	/* make read function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "ax5214h.%d.read", n);
+	rtapi_snprintf(name, sizeof(name), "ax5214h.%d.read", n);
 	/* export read function */
 	retval = hal_export_funct(name, read_board, &(board_array[n]),
 	    0, 0, comp_id);
@@ -247,7 +247,7 @@ int rtapi_app_main(void)
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "ax5214h.%d.write", n);
+	rtapi_snprintf(name, sizeof(name), "ax5214h.%d.write", n);
 	/* export write function */
 	retval = hal_export_funct(name, write_board, &(board_array[n]),
 	    0, 0, comp_id);
@@ -646,18 +646,17 @@ static int export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, i
 
 static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
 
     /* export read only HAL pin for input data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.in-%02d", boardnum, pinnum);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->data), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data), comp_id,
+			      "ax5214h.%d.in-%02d", boardnum, pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export additional pin for inverted input data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.in-%02d-not", boardnum, pinnum);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->io.not), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not), comp_id,
+			      "ax5214h.%d.in-%02d-not", boardnum, pinnum);
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
@@ -666,18 +665,17 @@ static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin)
 
 static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
 
     /* export read only HAL pin for output data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.out-%02d", boardnum, pinnum);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(pin->data), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(pin->data), comp_id,
+			      "ax5214h.%d.out-%02d", boardnum, pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for polarity */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "ax5214h.%d.out-%02d-invert", boardnum, pinnum);
-    retval = hal_param_bit_new(buf, HAL_RW, &(pin->io.invert), comp_id);
+    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert), comp_id,
+				"ax5214h.%d.out-%02d-invert", boardnum, pinnum);
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;

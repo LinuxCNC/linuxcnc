@@ -772,7 +772,6 @@ static void update_pos(void *arg, long period)
 static int export_freqgen(int num, freqgen_t * addr, int step_type)
 {
     int n, retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -782,56 +781,56 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export param variable for raw counts */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.rawcounts", num);
-    retval = hal_param_s32_new(buf, HAL_RO, &(addr->rawcount), comp_id);
+    retval = hal_param_s32_newf(HAL_RO, &(addr->rawcount), comp_id,
+				"freqgen.%d.rawcounts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+			      "freqgen.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.position-fb", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
+				"freqgen.%d.position-fb", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for position scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
+				  "freqgen.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for frequency command */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.velocity", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->vel), comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->vel), comp_id,
+				"freqgen.%d.velocity", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for frequency scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.velocity-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->vel_scale), comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(addr->vel_scale), comp_id,
+				  "freqgen.%d.velocity-scale", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for max frequency */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.maxfreq", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxfreq), comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(addr->maxfreq), comp_id,
+				  "freqgen.%d.maxfreq", num);
     if (retval != 0) {
 	return retval;
     }
     /* export param for scaled velocity (frequency in Hz) */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.frequency", num);
-    retval = hal_param_float_new(buf, HAL_RO, &(addr->freq), comp_id);
+    retval = hal_param_float_newf(HAL_RO, &(addr->freq), comp_id,
+				  "freqgen.%d.frequency", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for max accel/decel */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.maxaccel", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxaccel), comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(addr->maxaccel), comp_id,
+				  "freqgen.%d.maxaccel", num);
     if (retval != 0) {
 	return retval;
     }
@@ -857,28 +856,23 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	addr->wd.st0.space_timer = 0;
 	addr->wd.st0.len_timer = 0;
 	/* export parameters for step/dir pulse timing */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dirsetup", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_setup), comp_id);
+	retval = hal_param_u32_newf(HAL_RW, &(addr->wd.st0.dir_setup), comp_id,
+				    "freqgen.%d.dirsetup", num);
 	if (retval != 0) {
 	    return retval;
 	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dirhold", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_hold), comp_id);
+	retval = hal_param_u32_newf(HAL_RW, &(addr->wd.st0.dir_hold), comp_id,
+				    "freqgen.%d.dirhold", num);
 	if (retval != 0) {
 	    return retval;
 	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.steplen", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_len), comp_id);
+	retval = hal_param_u32_newf(HAL_RW, &(addr->wd.st0.step_len), comp_id,
+				    "freqgen.%d.steplen", num);
 	if (retval != 0) {
 	    return retval;
 	}
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.stepspace", num);
-	retval =
-	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_space),
-	    comp_id);
+	retval = hal_param_u32_newf(HAL_RW, &(addr->wd.st0.step_space), comp_id,
+				    "freqgen.%d.stepspace", num);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -888,16 +882,14 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	addr->wd.st0.step_len = 1;
 	addr->wd.st0.step_space = 1;
 	/* export pins for step and direction */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.step", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[STEP_PIN]), comp_id);
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[STEP_PIN]), comp_id,
+				  "freqgen.%d.step", num);
 	if (retval != 0) {
 	    return retval;
 	}
 	*(addr->phase[STEP_PIN]) = 0;
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dir", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[DIR_PIN]), comp_id);
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[DIR_PIN]), comp_id,
+				  "freqgen.%d.dir", num);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -905,23 +897,20 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     } else if (step_type == 1) {
 	/* setup for stepping type 1 - pseudo-PWM */
 	/* export pins for up and down */
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.up", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[UP_PIN]), comp_id);
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[UP_PIN]), comp_id,
+				  "freqgen.%d.up", num);
 	if (retval != 0) {
 	    return retval;
 	}
 	*(addr->phase[UP_PIN]) = 0;
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.down", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[DOWN_PIN]), comp_id);
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[DOWN_PIN]), comp_id,
+				  "freqgen.%d.down", num);
 	if (retval != 0) {
 	    return retval;
 	}
 	*(addr->phase[DOWN_PIN]) = 0;
-	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.count", num);
-	retval =
-	    hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[COUNT_PIN]), comp_id);
+	retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[COUNT_PIN]), comp_id,
+				  "freqgen.%d.count", num);
 	if (retval != 0) {
 	    return retval;
 	}
@@ -934,9 +923,8 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	addr->wd.st2.lut = &(master_lut[step_type - 2][0]);
 	/* export pins for output phases */
 	for (n = 0; n < addr->wd.st2.num_phases; n++) {
-	    rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.phase-%c", num,
-		n + 'A');
-	    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phase[n]), comp_id);
+	    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phase[n]), comp_id,
+				      "freqgen.%d.phase-%c", num, n + 'A');
 	    if (retval != 0) {
 		return retval;
 	    }

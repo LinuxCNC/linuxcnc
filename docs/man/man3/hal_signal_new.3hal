@@ -30,7 +30,7 @@ The type of the signal, as specified in \fBhal_type_t(3hal)\fR.
 created, pins can be linked to it with \fBhal_link\fR.  The signal object
 contains the actual storage for the signal data.  Pin objects linked to the
 signal have pointers that point to the data.  'name' is the name of the new
-signal.  If longer than HAL_NAME_LEN it will be truncated.  If there is already
+signal.  It may be no longer than HAL_NAME_LEN characters.  If there is already
 a signal with the same name the call will fail.
 
 \fBhal_link\fR links a pin to a signal.  If the pin is already linked to the

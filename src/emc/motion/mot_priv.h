@@ -66,6 +66,9 @@ typedef struct {
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
     hal_s32_t home_state;	/* RPA: homing state machine state */
 
+    hal_bit_t *unlock;          /* WPI: command that axis should unlock for rotation */
+    hal_bit_t *is_unlocked;     /* RPI: axis is currently unlocked */
+
     hal_s32_t *jog_counts;	/* WPI: jogwheel position input */
     hal_bit_t *jog_enable;	/* RPI: enable jogwheel */
     hal_float_t *jog_scale;	/* RPI: distance to jog on each count */
@@ -139,6 +142,7 @@ typedef struct {
     // output of a prescribed speed (to hook-up to a velocity controller)
     hal_float_t *spindle_speed_out;	/* spindle speed output */
     hal_float_t *spindle_speed_out_rps;	/* spindle speed output */
+    hal_float_t *spindle_speed_cmd_rps;	/* spindle speed command without SO applied */
     hal_float_t *spindle_speed_in;	/* spindle speed measured */
     
     // FIXME - debug only, remove later
@@ -215,6 +219,9 @@ extern void emcmotSetCycleTime(unsigned long nsec);
 /* these are related to synchronized I/O */
 extern void emcmotDioWrite(int index, char value);
 extern void emcmotAioWrite(int index, double value);
+
+extern void emcmotSetRotaryUnlock(int axis, int unlock);
+extern int emcmotGetRotaryIsUnlocked(int axis);
 
 /* homing is no longer in control.c, make functions public */
 extern void do_homing_sequence(void);

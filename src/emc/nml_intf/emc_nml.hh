@@ -308,6 +308,7 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     int is_shared;
     int home_sequence;
     int volatile_home;
+    int locking_indexer;
 };
 
 class EMC_JOINT_SET_MAX_VELOCITY:public EMC_JOINT_CMD_MSG {
@@ -825,6 +826,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     EmcPose end;		// end point
     double vel, ini_maxvel, acc;
     int feed_mode;
+    int indexrotary;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
@@ -884,10 +886,22 @@ class EMC_TRAJ_SET_OFFSET:public EMC_TRAJ_CMD_MSG {
     EmcPose offset;
 };
 
-class EMC_TRAJ_SET_ORIGIN:public EMC_TRAJ_CMD_MSG {
+class EMC_TRAJ_SET_G5X:public EMC_TRAJ_CMD_MSG {
   public:
-    EMC_TRAJ_SET_ORIGIN():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_ORIGIN_TYPE,
-					   sizeof(EMC_TRAJ_SET_ORIGIN)) {
+    EMC_TRAJ_SET_G5X():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_G5X_TYPE,
+					   sizeof(EMC_TRAJ_SET_G5X)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    int g5x_index;
+    EmcPose origin;
+};
+
+class EMC_TRAJ_SET_G92:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_G92():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_G92_TYPE,
+					   sizeof(EMC_TRAJ_SET_G92)) {
     };
 
     // For internal NML/CMS use only.
@@ -1429,7 +1443,9 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     bool input_timeout;		// has a timeout happened on digital input
     char file[LINELEN];
     char command[LINELEN];
-    EmcPose origin;		// origin, in user units, currently active
+    EmcPose g5x_offset;		// in user units, currently active
+    int g5x_index;              // index of active g5x system
+    EmcPose g92_offset;		// in user units, currently active
     double rotation_xy;
     EmcPose toolOffset;		// tool offset, in general pose form
     int activeGCodes[ACTIVE_G_CODES];

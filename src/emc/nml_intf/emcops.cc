@@ -130,7 +130,9 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     file[0] = 0;
     command[0] = 0;
 
-    ZERO_EMC_POSE(origin);
+    ZERO_EMC_POSE(g5x_offset);
+    g5x_index = 0;
+    ZERO_EMC_POSE(g92_offset);
     ZERO_EMC_POSE(toolOffset);
 
     rotation_xy = 0.0;

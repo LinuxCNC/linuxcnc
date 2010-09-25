@@ -27,7 +27,6 @@ struct haldata {
     hal_float_t *pivot_length;
 } *haldata;
 
-// should not even be called
 int kinematicsForward(const double *joints,
 		      EmcPose * pos,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,

@@ -82,7 +82,7 @@ int shmem_id = -1;
 int exitval = 1;	/* program return code - 1 means error */
 int ignore_sig = 0;	/* used to flag critical regions */
 int linenumber=0;	/* used to print linenumber on errors */
-char comp_name[HAL_NAME_LEN];	/* name for this instance of streamer */
+char comp_name[HAL_NAME_LEN+1];	/* name for this instance of streamer */
 
 /***********************************************************************
 *                            MAIN PROGRAM                              *
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
     signal(SIGPIPE, SIG_IGN);
     /* connect to HAL */
     /* create a unique module name, to allow for multiple streamers */
-    snprintf(comp_name, HAL_NAME_LEN-1, "halstreamer%d", getpid());
+    snprintf(comp_name, sizeof(comp_name), "halstreamer%d", getpid());
     /* connect to the HAL */
     ignore_sig = 1;
     comp_id = hal_init(comp_name);

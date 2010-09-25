@@ -356,7 +356,7 @@ void SocketModbusMasterLoop( void )
 				    if ( ModbusSerialPortNameUsed[ 0 ]=='\0' )
 					ResponseSize = WaitRespSocketModbusMaster( ResponseFrame, 800, ModbusTimeOutReceipt );
 				    else
-					ResponseSize = SerialReceive( ResponseFrame, 800 );
+					ResponseSize = SerialReceive( ResponseFrame, 800, ModbusTimeOutReceipt );
 				    NbrFrames++;
 				    if ( ResponseSize==0 )
 					printf("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n", ++CptErrors, NbrFrames);

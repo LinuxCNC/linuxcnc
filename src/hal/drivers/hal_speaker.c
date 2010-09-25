@@ -138,7 +138,7 @@ static void write_port(void *arg, long period)
 
 int rtapi_app_main(void)
 {
-    char name[HAL_NAME_LEN + 2];
+    char name[HAL_NAME_LEN + 1];
     int i, n, retval;
 
     /* only one port at the moment */
@@ -164,9 +164,8 @@ int rtapi_app_main(void)
 
     /* STEP 3: export the pin(s) */
     for(i = 0; i < 8; i++) {
-        rtapi_snprintf(name, HAL_NAME_LEN, "speaker.%d.pin-%02d-out", n, i);
-        retval = hal_pin_bit_new(
-                name, HAL_IN, &(port_data_array->signals[i]), comp_id);
+        retval = hal_pin_bit_newf(HAL_IN, &(port_data_array->signals[i]),
+				  comp_id, "speaker.%d.pin-%02d-out", n, i);
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "SPEAKER: ERROR: port %d var export failed with err=%i\n", n,
@@ -177,7 +176,7 @@ int rtapi_app_main(void)
     }
 
     /* STEP 4: export write function */
-    rtapi_snprintf(name, HAL_NAME_LEN, "speaker.%d.write", n);
+    rtapi_snprintf(name, sizeof(name), "speaker.%d.write", n);
     retval =
 	hal_export_funct(name, write_port, &(port_data_array[n]), 0, 0,
 	comp_id);

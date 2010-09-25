@@ -401,8 +401,16 @@ static PyObject *pose(const EmcPose &p) {
     return res;
 }
 
-static PyObject *Stat_origin(pyStatChannel *s) {
-    return pose(s->status.task.origin);
+static PyObject *Stat_g5x_index(pyStatChannel *s) {
+    return PyInt_FromLong(s->status.task.g5x_index);
+}
+
+static PyObject *Stat_g5x_offset(pyStatChannel *s) {
+    return pose(s->status.task.g5x_offset);
+}
+
+static PyObject *Stat_g92_offset(pyStatChannel *s) {
+    return pose(s->status.task.g92_offset);
 }
 
 static PyObject *Stat_tool_offset(pyStatChannel *s) {
@@ -573,7 +581,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
     int j=0;
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
         struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
-        if(t.toolno == -1 && i!=0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
         PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
         PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.x));
@@ -610,7 +617,9 @@ static PyGetSetDef Stat_getsetlist[] = {
     {"homed", (getter)Stat_homed},
     {"limit", (getter)Stat_limit},
     {"mcodes", (getter)Stat_activemcodes},
-    {"origin", (getter)Stat_origin},
+    {"g5x_offset", (getter)Stat_g5x_offset},
+    {"g5x_index", (getter)Stat_g5x_index},
+    {"g92_offset", (getter)Stat_g92_offset},
     {"position", (getter)Stat_position},
     {"dtg", (getter)Stat_dtg},
     {"joint_position", (getter)Stat_joint_position},

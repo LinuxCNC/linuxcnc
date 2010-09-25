@@ -248,7 +248,7 @@ int emcJointSetMinFerror(int joint, double ferror)
 int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
 			   int use_index, int ignore_limits, int is_shared,
-			   int sequence,int volatile_home)
+			   int sequence,int volatile_home, int locking_indexer)
 {
     CATCH_NAN(isnan(home) || isnan(offset) || isnan(home_final_vel) || isnan(search_vel) || isnan(latch_vel));
 
@@ -274,6 +274,9 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     }
     if (is_shared) {
 	emcmotCommand.flags |= HOME_IS_SHARED;
+    }
+    if (locking_indexer) {
+        emcmotCommand.flags |= HOME_UNLOCK_FIRST;
     }
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -1210,7 +1213,8 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc)
+int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc,
+                      int indexrotary)
 {
     CATCH_NAN(isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
         isnan(end.a) || isnan(end.b) || isnan(end.c) ||
@@ -1225,6 +1229,7 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
+    emcmotCommand.turn = indexrotary;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }

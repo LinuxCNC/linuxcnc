@@ -1004,11 +1004,17 @@ name "PARAMETER FILE"
 
 \end_inset
 
-\InsetSpace ~
-=\InsetSpace ~
-file.var The file which contains the parameters used by the interpreter
- (saved between runs).
+ The file located in the same directory as the ini file which contains the
+ parameters used by the interpreter (saved between runs).
  
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+PARAMETER_FILE = myfile.var
 \end_layout
 
 \begin_layout Description
@@ -1020,13 +1026,92 @@ name "RS274NGC STARTUP CODE"
 
 \end_inset
 
-\InsetSpace ~
-=\InsetSpace ~
-G21\InsetSpace ~
-G90 A string of NC codes that the interpreter is initialized with.
+ A string of NC codes that the interpreter is initialized with.
  This is not a substitute for specifying modal g-codes at the top of each
  ngc file, because the modal codes of machines differ, and may be changed
  by g-code interpreted earlier in the session.
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+
+\color black
+RS274NGC_STARTUP_CODE = G20 G90
+\end_layout
+
+\begin_layout Description
+SUBROUTINE_PATH
+\begin_inset LatexCommand index
+name "SUBROUTINE PATH"
+
+\end_inset
+
+ Specifies a colon (:) separated list of up to 10 directories to be searched
+ when single-file subroutines are specified in gcode.
+ These directories are searched after searching [DISPLAY]PROGRAM_PREFIX
+ (if it is specified) and before searching [WIZARD]WIZARD_ROOT (if specified).
+ The first matching subroutine file found in the search is used.
+ Directories are specified relative to the current directory for the inifile
+ or as absolute paths.
+ The list must contain no intervening whitespace.
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs
+\end_layout
+
+\begin_layout Description
+USER_M_PATH
+\begin_inset LatexCommand index
+name "USER M PATH"
+
+\end_inset
+
+ specifies a list of colon (:) separated directories (no intervening whitespace)
+ for user defined functions.
+ The maximum number of directories is defined at compile time by: USER_DEFINED_F
+UNCTION_MAX_DIRS=5.
+ Directories are specified relative to the current directory for the inifile
+ or as absolute paths.
+ The list must contain no intervening whitespace.
+ 
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes
+\end_layout
+
+\begin_layout Standard
+A search is made for each possible user defined function, typically (M100-M199).
+ The search order is: 
+\end_layout
+
+\begin_layout Enumerate
+[DISPLAY]PROGRAM_PREFIX (if specified)
+\end_layout
+
+\begin_layout Enumerate
+If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location:
+ nc_files
+\end_layout
+
+\begin_layout Enumerate
+Then search each directory in the list [RS274NGC]USER_M_PATH
+\end_layout
+
+\begin_layout Standard
+The first executable M1xx found in the search is used for each M1xx.
 \end_layout
 
 \begin_layout Subsection
@@ -1605,6 +1690,42 @@ The [AXIS_0], [AXIS_1], etc.
  of axes specified in the [TRAJ] AXES entry minus 1.
 \end_layout
 
+\begin_layout Itemize
+AXIS_0 = X
+\end_layout
+
+\begin_layout Itemize
+AXIS_1 = Y
+\end_layout
+
+\begin_layout Itemize
+AXIS_2 = Z
+\end_layout
+
+\begin_layout Itemize
+AXIS_3 = A
+\end_layout
+
+\begin_layout Itemize
+AXIS_4 = B
+\end_layout
+
+\begin_layout Itemize
+AXIS_5 = C
+\end_layout
+
+\begin_layout Itemize
+AXIS_6 = U
+\end_layout
+
+\begin_layout Itemize
+AXIS_7 = V
+\end_layout
+
+\begin_layout Itemize
+AXIS_8 = W
+\end_layout
+
 \begin_layout Description
 
 \color black
@@ -1669,7 +1790,13 @@ BACKLASH\InsetSpace ~
 \series bold
 0.000
 \series default
- Backlash in machine units.
+ 
+\begin_inset LatexCommand index
+name "Backlash"
+
+\end_inset
+
+Backlash in machine units.
  Backlash compensation value can be used to make up for small deficiencies
  in the hardware used to drive an axis.
  If backlash is added to an axis and you are using steppers the STEPGEN_MAXACCEL
@@ -1679,29 +1806,45 @@ BACKLASH\InsetSpace ~
 \begin_layout Description
 COMP_FILE\InsetSpace ~
 =\InsetSpace ~
-file.extension A file holding a compensation structure for the
- specific axis.
- The values inside are triplets of nominal, forward and reverse positions
- which correspond to the nominal position (where it should be), forward
- (where the axis is while traveling forward) and reverse (where the axis
- is while traveling back).
- One set of triplets per line.
- Currently the limit inside EMC2 is for 256 triplets / axis.
+file.extension 
+\begin_inset LatexCommand index
+name "Compensation"
+
+\end_inset
+
+A file holding compensation structure for the axis.
+ The file could be named xscrew.comp for example for the X axis.
+ File names are case sensitive and can contain letters and or numbers.
+ The values are triplets per line separated by a space.
+ The first value is nominal (where it should be).
+ The second and third values depend on the setting of COMP_FILE_TYPE.
+ Currently the limit inside EMC2 is for 256 triplets per axis.
  If COMP_FILE is specified, BACKLASH is ignored.
- COMP_FILE values are in machine units.
+ Compensation file values are in machine units.
+\end_layout
+
+\begin_layout Itemize
+COMP_FILE_TYPE=0 the second and third values specify the forward position
+ (where the axis is while traveling forward) and reverse position (where
+ the axis is while traveling reverse) positions which correspond to the
+ nominal position.
+ 
+\end_layout
+
+\begin_layout Itemize
+COMP_FILE_TYPE=1 the second and third values specify the forward trim (how
+ far from nominal while traveling forward) and the reverse trim (how far
+ from nominal while traveling in reverse).
 \end_layout
 
 \begin_layout Description
 COMP_FILE_TYPE\InsetSpace ~
 =\InsetSpace ~
-1 Specifying a non-zero value changes the expected format
- of the COMP_FILE.
- For COMP_FILE_TYPE of zero, the values are triplets for nominal, forward
- & reverse.
- Otherwise, the values in the COMP_FILE are nominal, forward_trim and reverse_tr
-im.
- These correspond to the nominal, nominal-forward and nominal-reverse defined
- above.
+0 For COMP_FILE_TYPE of zero, the values in the compensation
+ file are nominal, forward & reverse.
+ For COMP_FILE_TYPE of non-zero the values in the compensation file are
+ nominal, forward_trim and reverse_trim.
+ 
 \end_layout
 
 \begin_layout Description
@@ -2898,9 +3041,10 @@ TOOL_CHANGE_AT_G30\InsetSpace ~
 \begin_layout Description
 RANDOM_TOOLCHANGER\InsetSpace ~
 =\InsetSpace ~
-1 This is for machines that can not place the tool back
+1 This is for machines that cannot place the tool back
  into the pocket it came from.
- Machines that swap the tool in the pocket with the tool in the spindle.
+ For example, machines that exchange the tool in the active pocket with
+ the tool in the spindle.
 \end_layout
 
 \end_body

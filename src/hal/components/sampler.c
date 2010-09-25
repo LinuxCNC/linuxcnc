@@ -310,7 +310,7 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
     sampler_t *str;
     pin_data_t *pptr;
     fifo_t *fifo;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     /* alloc shmem for base sampler data and user specified pins */
     size = sizeof(sampler_t) + tmp_fifo->num_pins * sizeof(pin_data_t);
@@ -368,7 +368,7 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
     usefp = 0;
     /* export user specified pins (the ones that sample data) */
     for ( n = 0 ; n < tmp_fifo->num_pins ; n++ ) {
-	rtapi_snprintf(buf, HAL_NAME_LEN, "sampler.%d.pin.%d", num, n);
+	rtapi_snprintf(buf, sizeof(buf), "sampler.%d.pin.%d", num, n);
 	retval = hal_pin_new(buf, tmp_fifo->type[n], HAL_IN, (void **)pptr, comp_id );
 	if (retval != 0 ) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -396,7 +396,7 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
 	pptr++;
     }
     /* export update function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "sampler.%d", num);
+    rtapi_snprintf(buf, sizeof(buf), "sampler.%d", num);
     retval = hal_export_funct(buf, sample, str, usefp, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

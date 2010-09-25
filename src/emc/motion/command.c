@@ -277,6 +277,14 @@ void clearHomes(int joint_num)
     }
 }
 
+void emcmotSetRotaryUnlock(int axis, int unlock) {
+    *(emcmot_hal_data->joint[axis].unlock) = unlock;
+}
+
+int emcmotGetRotaryIsUnlocked(int axis) {
+    return *(emcmot_hal_data->joint[axis].is_unlocked);
+}
+
 /*! \function emcmotDioWrite()
 
   sets or clears a HAL DIO pin, 
@@ -326,6 +334,7 @@ static int is_feed_type(int motion_type)
         rtapi_print_msg(RTAPI_MSG_ERR, "Internal error: unhandled motion type %d\n", motion_type);
     case EMC_MOTION_TYPE_TOOLCHANGE:
     case EMC_MOTION_TYPE_TRAVERSE:
+    case EMC_MOTION_TYPE_INDEXROTARY:
         return 0;
     }
 }
@@ -679,12 +688,16 @@ check_stuff ( "before command_handler()" );
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
-
             if (!GET_MOTION_TELEOP_FLAG()) {
 	        if (joint->wheel_jog_active) {
 		    /* can't do two kinds of jog at once */
 		    break;
 	        }
+                if (joint->home_flags & HOME_UNLOCK_FIRST) {
+                    reportError("Can't jog a locking joint.");
+                    SET_JOINT_ERROR_FLAG(joint, 1);
+                    break;
+                }
 	        /* don't jog further onto limits */
 	        if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		    SET_JOINT_ERROR_FLAG(joint, 1);
@@ -759,12 +772,16 @@ check_stuff ( "before command_handler()" );
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
-
             if (!GET_MOTION_TELEOP_FLAG()) {
 	        if (joint->wheel_jog_active) {
 		    /* can't do two kinds of jog at once */
 		    break;
 	        }
+                if (joint->home_flags & HOME_UNLOCK_FIRST) {
+                    reportError("Can't jog a locking joint.");
+                    SET_JOINT_ERROR_FLAG(joint, 1);
+                    break;
+                }
 	        /* don't jog further onto limits */
 	        if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		    SET_JOINT_ERROR_FLAG(joint, 1);
@@ -933,7 +950,8 @@ check_stuff ( "before command_handler()" );
 	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
 	    if (-1 == tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, 
                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
-                                emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
+                                emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
+                                emcmotCommand->turn)) {
 		reportError(_("can't add linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->coord_tp);
@@ -1379,7 +1397,7 @@ check_stuff ( "before command_handler()" );
 
 	    /* append it to the emcmotDebug->coord_tp */
 	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0)) {
+	    if (-1 == tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1)) {
 		reportError(_("can't add probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->coord_tp);

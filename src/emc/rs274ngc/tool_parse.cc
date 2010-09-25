@@ -122,7 +122,7 @@ int loadToolTable(const char *filename,
     while (!feof(fp)) {
         const char *token;
         char *buff, *comment;
-        int toolno, orientation, valid = 0;
+        int toolno, orientation, valid = 1;
         EmcPose offset;  // tlo
         double diameter, frontangle, backangle;
 
@@ -147,7 +147,6 @@ int loadToolTable(const char *filename,
 
         token = strtok(buff, " ");
         while (token != NULL) {
-            valid = 1;
             switch (toupper(token[0])) {
             case 'T':
                 if (sscanf(&token[1], "%d", &toolno) != 1)

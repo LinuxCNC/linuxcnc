@@ -121,7 +121,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[13] =
     (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
-  gez[15] = (settings->lathe_diameter_mode == ON) ? G_7 : G_8;
+  gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
   return INTERP_OK;
 }
 
@@ -156,21 +156,21 @@ int Interp::write_m_codes(block_pointer block,   //!< pointer to a block of RS27
   emz[3] =                      /* 3 tool change */
     (block == NULL) ? -1 : block->m_modes[6];
   emz[4] =                      /* 4 mist        */
-    (settings->mist == ON) ? 7 : (settings->flood == ON) ? -1 : 9;
+    (settings->mist) ? 7 : (settings->flood) ? -1 : 9;
   emz[5] =                      /* 5 flood       */
-    (settings->flood == ON) ? 8 : -1;
-  if (settings->feed_override == ON) {
-    if (settings->speed_override == ON) emz[6] =  48;
+    (settings->flood) ? 8 : -1;
+  if (settings->feed_override) {
+    if (settings->speed_override) emz[6] =  48;
     else emz[6] = 50;
-  } else if (settings->speed_override == ON) {
+  } else if (settings->speed_override) {
     emz[6] = 51;
   } else emz[6] = 49;
   
   emz[7] =                      /* 7 overrides   */
-    (settings->adaptive_feed == ON) ? 52 : -1;
+    (settings->adaptive_feed) ? 52 : -1;
 
   emz[8] =                      /* 8 overrides   */
-    (settings->feed_hold == ON) ? 53 : -1;
+    (settings->feed_hold) ? 53 : -1;
 
   return INTERP_OK;
 }

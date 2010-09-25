@@ -28,6 +28,10 @@
 #include "hostmot2-lowlevel.h"
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
+typedef unsigned long gfp_t;
+char *kstrdup(const char *s, gfp_t gpf);
+#endif
 void argv_free(char **argv);
 char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #endif
@@ -102,6 +106,8 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_TRANSLATIONRAM  (11)
 #define HM2_GTAG_TPPWM           (19)
 #define HM2_GTAG_LED            (128)
+#define HM2_GTAG_MUXED_ENCODER   (12)
+#define HM2_GTAG_MUXED_ENCODER_SEL (13)
 
 
 
@@ -423,7 +429,7 @@ typedef struct {
     // enable is a little more complicated and is based on the read-back
     // of the fault/enable register
     float written_deadzone;
-    bool written_faultpolarity;
+    int written_faultpolarity;
     float written_sampletime;
 } hm2_tp_pwmgen_instance_t;
 

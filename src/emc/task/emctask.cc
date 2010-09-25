@@ -17,6 +17,7 @@
 #include <string.h>		// strncpy()
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
+#include <limits.h>		// PATH_MAX
 
 #include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
@@ -30,6 +31,10 @@
 #include "rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
 
+#define USER_DEFINED_FUNCTION_MAX_DIRS 5
+#define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
+//note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
+
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
@@ -42,18 +47,21 @@ Interp interp;
   user-defined programs are in the programs/ directory and are named
   M1XX, where XX is a two-digit string.
 */
+static char user_defined_fmt[MAX_M_DIRS][EMC_SYSTEM_CMD_LEN]; // ex: "dirname/M1%02d"
 
-static char user_defined_fmt[EMC_SYSTEM_CMD_LEN] = "nc_files/M1%02d";
+// index to directory for each user defined function:
+static int user_defined_function_dirindex[USER_DEFINED_FUNCTION_NUM];
 
 static void user_defined_add_m_code(int num, double arg1, double arg2)
 {
+    // num      is the m_code number, typically 00-99 corresponding to M100-M199
     char fmt[EMC_SYSTEM_CMD_LEN];
     EMC_SYSTEM_CMD system_cmd;
 
     //we call FINISH() to flush any linked motions before the M1xx call, 
     //otherwise they would mix badly
     FINISH();
-    strcpy(fmt, user_defined_fmt);
+    strcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
     strcat(fmt, " %f %f");
     sprintf(system_cmd.string, fmt, num, arg1, arg2);
     interp_list.append(system_cmd);
@@ -61,43 +69,70 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
 
 int emcTaskInit()
 {
-    int index;
+    char mdir[MAX_M_DIRS][PATH_MAX+1];
+    int num,dct,dmax;
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
     IniFile inifile;
     const char *inistring;
 
-    // read out directory where programs are located
     inifile.Open(EMC_INIFILE);
-    inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY");
-    inifile.Close();
 
-    // if we have a program prefix, override the default user_defined_fmt
-    // string with program prefix, then "M1%02d", e.g.
-    // nc_files/M101, where the %%02d means 2 digits after the M code
-    // and we need two % to get the literal %
-    if (NULL != inistring) {
-	sprintf(user_defined_fmt, "%s/M1%%02d", inistring);
+    // Identify user_defined_function directories
+    if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
+        strcpy(mdir[0],inistring);
+    } else {
+        // default dir if no PROGRAM_PREFIX
+        strcpy(mdir[0],"nc_files");
     }
+    dmax = 1; //one directory mdir[0],  USER_M_PATH specifies additional dirs
+
+    // user can specify a list of directories for user defined functions
+    // with a colon (:) separated list
+    if (NULL != (inistring = inifile.Find("USER_M_PATH", "RS274NGC"))) {
+        char* nextdir;
+        char tmpdirs[PATH_MAX];
+
+        for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
+
+        strcpy(tmpdirs,inistring);
+        nextdir = strtok(tmpdirs,":");  // first token
+        dct = 1;
+        while (dct < MAX_M_DIRS) {
+            if (nextdir == NULL) break; // no more tokens
+            strcpy(mdir[dct],nextdir);
+            nextdir = strtok(NULL,":");
+            dct++;
+        }
+        dmax=dct;
+    }
+    inifile.Close();
 
     /* check for programs named programs/M100 .. programs/M199 and add
        any to the user defined functions list */
-    for (index = 0; index < USER_DEFINED_FUNCTION_NUM; index++) {
-	sprintf(path, user_defined_fmt, index);
-	if (0 == stat(path, &buf)) {
-	    if (buf.st_mode & S_IXUSR) {
-		USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code, index);
-		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-		    rcs_print
-			("emcTaskInit: adding user-defined function %s\n",
-			 path);
-		}
-	    } else {
-		if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-		    rcs_print
-			("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
-			 path);
-		}
+    for (num = 0; num < USER_DEFINED_FUNCTION_NUM; num++) {
+	for (dct=0; dct < dmax; dct++) {
+	    if (!mdir[dct][0]) continue;
+	    sprintf(path,"%s/M1%02d",mdir[dct],num);
+	    if (0 == stat(path, &buf)) {
+	        if (buf.st_mode & S_IXUSR) {
+		    // set the user_defined_fmt string with dirname
+		    // note the %%02d means 2 digits after the M code
+		    // and we need two % to get the literal %
+		    sprintf(user_defined_fmt[dct], "%s/M1%%02d", mdir[dct]); // update global
+		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
+		    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		        rcs_print("emcTaskInit: adding user-defined function %s\n",
+			     path);
+		    }
+	            user_defined_function_dirindex[num] = dct;
+	            break; // use first occurrence found for num
+	        } else {
+		    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		        rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
+			     path);
+		    }
+	        }
 	    }
 	}
     }
@@ -388,13 +423,13 @@ int emcTaskPlanClearWait()
     return 0;
 }
 
-int emcTaskPlanSetOptionalStop(ON_OFF state)
+int emcTaskPlanSetOptionalStop(bool state)
 {
     SET_OPTIONAL_PROGRAM_STOP(state);
     return 0;
 }
 
-int emcTaskPlanSetBlockDelete(ON_OFF state)
+int emcTaskPlanSetBlockDelete(bool state)
 {
     SET_BLOCK_DELETE(state);
     return 0;

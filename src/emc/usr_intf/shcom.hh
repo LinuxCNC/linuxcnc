@@ -86,7 +86,7 @@ extern int programStartLine;
 extern void strupr(char *s);
 extern int emcTaskNmlGet();
 extern int emcErrorNmlGet();
-extern int tryNml();
+extern int tryNml(double retry_time=10.0, double retry_interval=1.0);
 extern int updateStatus();
 extern int updateError();
 extern int emcCommandWaitReceived(int serial_number);
@@ -142,5 +142,6 @@ extern int sendSetTeleopEnable(int enable);
 extern int sendClearProbeTrippedFlag();
 extern int sendProbe(double x, double y, double z);
 extern int iniLoad(const char *filename);
+extern int checkStatus();
 
 #endif				/* ifndef SHCOM_HH */

@@ -121,78 +121,6 @@ static void flush_segments(void);
 */
 extern void CANON_ERROR(const char *fmt, ...);
 
-static double offset_x(double x) {
-    return x + canon.programOrigin.x + canon.toolOffset.tran.x;
-}
-
-static double offset_y(double y) {
-    return y + canon.programOrigin.y + canon.toolOffset.tran.y;
-}
-
-static double offset_z(double z) {
-    return z + canon.programOrigin.z + canon.toolOffset.tran.z;
-}
-
-static double offset_a(double a) {
-    return a + canon.programOrigin.a + canon.toolOffset.a;
-}
-
-static double offset_b(double b) {
-    return b + canon.programOrigin.b + canon.toolOffset.b;
-}
-
-static double offset_c(double c) {
-    return c + canon.programOrigin.c + canon.toolOffset.c;
-}
-
-static double offset_u(double u) {
-    return u + canon.programOrigin.u + canon.toolOffset.u;
-}
-
-static double offset_v(double v) {
-    return v + canon.programOrigin.v + canon.toolOffset.v;
-}
-
-static double offset_w(double w) {
-    return w + canon.programOrigin.w + canon.toolOffset.w;
-}
-
-static double unoffset_x(double x) {
-    return x - canon.programOrigin.x - canon.toolOffset.tran.x;
-}
-
-static double unoffset_y(double y) {
-    return y - canon.programOrigin.y - canon.toolOffset.tran.y;
-}
-
-static double unoffset_z(double z) {
-    return z - canon.programOrigin.z - canon.toolOffset.tran.z;
-}
-
-static double unoffset_a(double a) {
-    return a - canon.programOrigin.a - canon.toolOffset.a;
-}
-
-static double unoffset_b(double b) {
-    return b - canon.programOrigin.b - canon.toolOffset.b;
-}
-
-static double unoffset_c(double c) {
-    return c - canon.programOrigin.c - canon.toolOffset.c;
-}
-
-static double unoffset_u(double u) {
-    return u - canon.programOrigin.u - canon.toolOffset.u;
-}
-
-static double unoffset_v(double v) {
-    return v - canon.programOrigin.v - canon.toolOffset.v;
-}
-
-static double unoffset_w(double w) {
-    return w - canon.programOrigin.w - canon.toolOffset.w;
-}
-
 #ifndef D2R
 #define D2R(r) ((r)*M_PI/180.0)
 #endif
@@ -206,46 +134,91 @@ static void rotate(double &x, double &y, double theta) {
 }
 
 static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    x += canon.g92Offset.x;
+    y += canon.g92Offset.y;
+    z += canon.g92Offset.z;
+    a += canon.g92Offset.a;
+    b += canon.g92Offset.b;
+    c += canon.g92Offset.c;
+    u += canon.g92Offset.u;
+    v += canon.g92Offset.v;
+    w += canon.g92Offset.w;
+
     rotate(x, y, canon.xy_rotation);
-    x = offset_x(x);
-    y = offset_y(y);
-    z = offset_z(z);
-    a = offset_a(a);
-    b = offset_b(b);
-    c = offset_c(c);
-    u = offset_u(u);
-    v = offset_v(v);
-    w = offset_w(w);
+
+    x += canon.g5xOffset.x;
+    y += canon.g5xOffset.y;
+    z += canon.g5xOffset.z;
+    a += canon.g5xOffset.a;
+    b += canon.g5xOffset.b;
+    c += canon.g5xOffset.c;
+    u += canon.g5xOffset.u;
+    v += canon.g5xOffset.v;
+    w += canon.g5xOffset.w;
+
+    x += canon.toolOffset.tran.x;
+    y += canon.toolOffset.tran.y;
+    z += canon.toolOffset.tran.z;
+    a += canon.toolOffset.a;
+    b += canon.toolOffset.b;
+    c += canon.toolOffset.c;
+    u += canon.toolOffset.u;
+    v += canon.toolOffset.v;
+    w += canon.toolOffset.w;
 }
 
 static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
-    CANON_POSITION res;
-    res.x = unoffset_x(pos.x);
-    res.y = unoffset_y(pos.y);
+    CANON_POSITION res = pos;
+
+    res.x -= canon.toolOffset.tran.x;
+    res.y -= canon.toolOffset.tran.y;
+    res.z -= canon.toolOffset.tran.z;
+    res.a -= canon.toolOffset.a;
+    res.b -= canon.toolOffset.b;
+    res.c -= canon.toolOffset.c;
+    res.u -= canon.toolOffset.u;
+    res.v -= canon.toolOffset.v;
+    res.w -= canon.toolOffset.w;
+    
+    res.x -= canon.g5xOffset.x;
+    res.y -= canon.g5xOffset.y;
+    res.z -= canon.g5xOffset.z;
+    res.a -= canon.g5xOffset.a;
+    res.b -= canon.g5xOffset.b;
+    res.c -= canon.g5xOffset.c;
+    res.u -= canon.g5xOffset.u;
+    res.v -= canon.g5xOffset.v;
+    res.w -= canon.g5xOffset.w;
+
     rotate(res.x, res.y, -canon.xy_rotation);
-    res.z = unoffset_z(pos.z);
-    res.a = unoffset_a(pos.a);
-    res.b = unoffset_b(pos.b);
-    res.c = unoffset_c(pos.c);
-    res.u = unoffset_u(pos.u);
-    res.v = unoffset_v(pos.v);
-    res.w = unoffset_w(pos.w);
+
+    res.x -= canon.g92Offset.x;
+    res.y -= canon.g92Offset.y;
+    res.z -= canon.g92Offset.z;
+    res.a -= canon.g92Offset.a;
+    res.b -= canon.g92Offset.b;
+    res.c -= canon.g92Offset.c;
+    res.u -= canon.g92Offset.u;
+    res.v -= canon.g92Offset.v;
+    res.w -= canon.g92Offset.w;
+
     return res;
 }
 
+
 static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
     CANON_POSITION res;
-    res.x = unoffset_x(pos.tran.x);
-    res.y = unoffset_y(pos.tran.y);
-    rotate(res.x, res.y, -canon.xy_rotation);
-    res.z = unoffset_z(pos.tran.z);
-    res.a = unoffset_a(pos.a);
-    res.b = unoffset_b(pos.b);
-    res.c = unoffset_c(pos.c);
-    res.u = unoffset_u(pos.u);
-    res.v = unoffset_v(pos.v);
-    res.w = unoffset_w(pos.w);
-    return res;
+    res.x = pos.tran.x;
+    res.y = pos.tran.y;
+    res.z = pos.tran.z;
+    res.a = pos.a;
+    res.b = pos.b;
+    res.c = pos.c;
+    res.u = pos.u;
+    res.v = pos.v;
+    res.w = pos.w;
+
+    return unoffset_and_unrotate_pos(res);
 }
 
 static void from_prog(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
@@ -346,36 +319,65 @@ static double toExtVel(double vel) {
 
 static double toExtAcc(double acc) { return toExtVel(acc); }
 
-static void send_origin_msg(void) {
+static void send_g5x_msg(int index) {
     flush_segments();
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
-    EMC_TRAJ_SET_ORIGIN set_origin_msg;
+    EMC_TRAJ_SET_G5X set_g5x_msg;
 
-    set_origin_msg.origin.tran.x = TO_EXT_LEN(canon.programOrigin.x);
-    set_origin_msg.origin.tran.y = TO_EXT_LEN(canon.programOrigin.y);
-    set_origin_msg.origin.tran.z = TO_EXT_LEN(canon.programOrigin.z);
+    set_g5x_msg.g5x_index = index;
 
-    set_origin_msg.origin.a = TO_EXT_ANG(canon.programOrigin.a);
-    set_origin_msg.origin.b = TO_EXT_ANG(canon.programOrigin.b);
-    set_origin_msg.origin.c = TO_EXT_ANG(canon.programOrigin.c);
+    set_g5x_msg.origin.tran.x = TO_EXT_LEN(canon.g5xOffset.x);
+    set_g5x_msg.origin.tran.y = TO_EXT_LEN(canon.g5xOffset.y);
+    set_g5x_msg.origin.tran.z = TO_EXT_LEN(canon.g5xOffset.z);
 
-    set_origin_msg.origin.u = TO_EXT_LEN(canon.programOrigin.u);
-    set_origin_msg.origin.v = TO_EXT_LEN(canon.programOrigin.v);
-    set_origin_msg.origin.w = TO_EXT_LEN(canon.programOrigin.w);
+    set_g5x_msg.origin.a = TO_EXT_ANG(canon.g5xOffset.a);
+    set_g5x_msg.origin.b = TO_EXT_ANG(canon.g5xOffset.b);
+    set_g5x_msg.origin.c = TO_EXT_ANG(canon.g5xOffset.c);
+
+    set_g5x_msg.origin.u = TO_EXT_LEN(canon.g5xOffset.u);
+    set_g5x_msg.origin.v = TO_EXT_LEN(canon.g5xOffset.v);
+    set_g5x_msg.origin.w = TO_EXT_LEN(canon.g5xOffset.w);
 
     if(canon.css_maximum) {
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = canon.css_maximum;
 	emc_spindle_speed_msg.factor = canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.programOrigin.x + canon.toolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
-    interp_list.append(set_origin_msg);
+    interp_list.append(set_g5x_msg);
 }
 
-/* Representation */
+static void send_g92_msg(void) {
+    flush_segments();
+
+    /* append it to interp list so it gets updated at the right time, not at
+       read-ahead time */
+    EMC_TRAJ_SET_G92 set_g92_msg;
+
+    set_g92_msg.origin.tran.x = TO_EXT_LEN(canon.g92Offset.x);
+    set_g92_msg.origin.tran.y = TO_EXT_LEN(canon.g92Offset.y);
+    set_g92_msg.origin.tran.z = TO_EXT_LEN(canon.g92Offset.z);
+
+    set_g92_msg.origin.a = TO_EXT_ANG(canon.g92Offset.a);
+    set_g92_msg.origin.b = TO_EXT_ANG(canon.g92Offset.b);
+    set_g92_msg.origin.c = TO_EXT_ANG(canon.g92Offset.c);
+
+    set_g92_msg.origin.u = TO_EXT_LEN(canon.g92Offset.u);
+    set_g92_msg.origin.v = TO_EXT_LEN(canon.g92Offset.v);
+    set_g92_msg.origin.w = TO_EXT_LEN(canon.g92Offset.w);
+
+    if(canon.css_maximum) {
+	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
+	emc_spindle_speed_msg.speed = canon.css_maximum;
+	emc_spindle_speed_msg.factor = canon.css_numerator;
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+	interp_list.append(emc_spindle_speed_msg);
+    }
+    interp_list.append(set_g92_msg);
+}
 
 void SET_XY_ROTATION(double t) {
     EMC_TRAJ_SET_ROTATION sr;
@@ -385,9 +387,10 @@ void SET_XY_ROTATION(double t) {
     canon.xy_rotation = t;
 }
 
-void SET_ORIGIN_OFFSETS(double x, double y, double z,
-                        double a, double b, double c,
-                        double u, double v, double w)
+void SET_G5X_OFFSET(int index,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w)
 {
     /* convert to mm units */
     x = FROM_PROG_LEN(x);
@@ -400,21 +403,49 @@ void SET_ORIGIN_OFFSETS(double x, double y, double z,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    canon.programOrigin.x = x;
-    canon.programOrigin.y = y;
-    canon.programOrigin.z = z;
+    canon.g5xOffset.x = x;
+    canon.g5xOffset.y = y;
+    canon.g5xOffset.z = z;
     
-    canon.programOrigin.a = a;
-    canon.programOrigin.b = b;
-    canon.programOrigin.c = c;
+    canon.g5xOffset.a = a;
+    canon.g5xOffset.b = b;
+    canon.g5xOffset.c = c;
 
-    canon.programOrigin.u = u;
-    canon.programOrigin.v = v;
-    canon.programOrigin.w = w;
+    canon.g5xOffset.u = u;
+    canon.g5xOffset.v = v;
+    canon.g5xOffset.w = w;
 
-    send_origin_msg();
+    send_g5x_msg(index);
 }
 
+void SET_G92_OFFSET(double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    /* convert to mm units */
+    x = FROM_PROG_LEN(x);
+    y = FROM_PROG_LEN(y);
+    z = FROM_PROG_LEN(z);
+    a = FROM_PROG_ANG(a);
+    b = FROM_PROG_ANG(b);
+    c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
+
+    canon.g92Offset.x = x;
+    canon.g92Offset.y = y;
+    canon.g92Offset.z = z;
+    
+    canon.g92Offset.a = a;
+    canon.g92Offset.b = b;
+    canon.g92Offset.c = c;
+
+    canon.g92Offset.u = u;
+    canon.g92Offset.v = v;
+    canon.g92Offset.w = w;
+
+    send_g92_msg();
+}
 
 void USE_LENGTH_UNITS(CANON_UNITS in_unit)
 {
@@ -769,6 +800,7 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
+    linearMoveMsg.indexrotary = -1;
     if ((vel && acc) || canon.synched) {
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
@@ -864,7 +896,10 @@ void STRAIGHT_TRAVERSE(int line_number,
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     linearMoveMsg.feed_mode = 0;
-    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
+    if (canon.rotary_unlock_for_traverse != -1)
+        linearMoveMsg.type = EMC_MOTION_TYPE_INDEXROTARY;
+    else
+        linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
@@ -875,6 +910,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg.indexrotary = canon.rotary_unlock_for_traverse;
 
     int old_feed_mode = canon.feed_mode;
     if(canon.feed_mode)
@@ -1111,12 +1147,12 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy
     double small = 0.000001;
     double x = x1-x0, y=y1-y0;
     double den = 2 * (y*dx - x*dy);
-    double r = -(x*x+y*y)/den;
-    double i = dy*r, j = -dx*r;
-    double cx = x1+i, cy=y1+j;
     CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
     to_prog(p);
     if (fabs(den) > small) {
+        double r = -(x*x+y*y)/den;
+        double i = dy*r, j = -dx*r;
+        double cx = x1+i, cy=y1+j;
         ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
                  p.z, p.a, p.b, p.c, p.u, p.v, p.w);
     } else { 
@@ -1163,121 +1199,26 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 /* Canon calls */
 
 void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
-    double u = 0.0;
+    flush_segments();
+
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*4;
-    double dxs,dys,dxe,dye,alpha1,alpha2,alpha3,alphaM;
     std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
-    PLANE_POINT P0, P1, P2;
+    PLANE_POINT P0, P0T, P1, P1T;
 
-    P0 = nurbs_point(u,k,nurbs_control_points,knot_vector);
-    P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+    P0 = nurbs_point(0,k,nurbs_control_points,knot_vector);
+    P0T = nurbs_tangent(0, k, nurbs_control_points, knot_vector);
 
-
-    dxs = nurbs_control_points[1].X-nurbs_control_points[0].X;
-    dys = nurbs_control_points[1].Y-nurbs_control_points[0].Y;
-    unit(&dxs,&dys);
-    u = u + umax/div;
-    while (u+umax/div <= umax) {
-        P2= nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        alpha1 = atan2(P1.Y-P0.Y, P1.X-P0.X); // starting direction
-        alpha2 = atan2(P2.Y-P1.Y, P2.X-P1.X); // ending direction
-        alpha3 = atan2(P2.Y-P0.Y, P2.X-P0.X); // direction of startpoint->endpoint vector
-
-        // direction we'd like to be going at the middle of our biarc
-        alphaM = (alpha1 + alpha2) / 2.; 
-
-        // except if we have quadrant crossing, it'll be pointing backward.
-        // this is easy to see since it's contrary to alpha3
-        if(fabs(fabs(alpha3) - fabs(alphaM)) > M_PI/4.) {
-            // so flip it
-            alphaM += M_PI;
-        }
-        dxe = cos(alphaM);
-        dye = sin(alphaM);
-        biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
-        dxs = dxe;
-        dys = dye;
+    for(unsigned int i=1; i<=div; i++) {
+	double u = umax * i / div;
+        P1 = nurbs_point(u,k,nurbs_control_points,knot_vector);
+	P1T = nurbs_tangent(u,k,nurbs_control_points,knot_vector);
+        biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
         P0 = P1;
-        P1 = P2;   
-        u = u + umax/div;      
+        P0T = P1T;
     }
-    P1.X = nurbs_control_points[n].X;
-    P1.Y = nurbs_control_points[n].Y;	   
-    dxe = nurbs_control_points[n].X - nurbs_control_points[n-1].X;
-    dye = nurbs_control_points[n].Y - nurbs_control_points[n-1].Y;
-    unit(&dxe,&dye);
-    biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
     knot_vector.clear();
-}
-
-void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2) {
-    flush_segments();
-    CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
-    to_prog(p);
-
-    double x0 = p.x;
-    double y0 = p.y;
-    double xx0 = 2*(x1-x0), xx1 = 2*(x2-x1),
-           yy0 = 2*(y1-y0), yy1 = 2*(y2-y1),
-         ox = x0, oy = y0, odx = xx0, ody = yy0;
-
-#define N 2
-    for(int i=1; i<=N; i++) {
-      double t = i * 1. / N;
-      double u = 1. / N;
-      double t0 = (1-t)*(1-t);
-      double t1 = 2*t*(1-t);
-      double t2 = t*t;
-      double q0 = (1-t);
-      double q1 = t;
-
-perturb:
-      double x = x0*t0 + x1*t1 + x2*t2;
-      double y = y0*t0 + y1*t1 + y2*t2;
-      double dx = xx0*q0 + xx1*q1;
-      double dy = yy0*q0 + yy1*q1;
-      if(!biarc(lineno, ox, oy, odx, ody, x, y, dx, dy)) {
-          t = t - u; u /= -2; goto perturb;
-      }
-      ox = x; oy = y; odx = dx; ody = dy;
-    }
-}
-
-void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3) {
-    flush_segments();
-
-    CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
-    to_prog(p);
-    double x0 = p.x;
-    double y0 = p.y;
-    double xx0 = 3*(x1-x0), xx1 = 3*(x2-x1), xx2 = 3*(x3-x2),
-           yy0 = 3*(y1-y0), yy1 = 3*(y2-y1), yy2 = 3*(y3-y2),
-         ox = x0, oy = y0, odx = xx0, ody = yy0;
-
-//#define N 4
-    for(int i=1; i<=N; i++) {
-      double t = i * 1. / N;
-      double u = 1. / N;
-      double t3 = t*t*t;
-      double t2 = 3*t*t*(1-t);
-      double t1 = 3*t*(1-t)*(1-t);
-      double t0 = (1-t)*(1-t)*(1-t);
-      double q0 = (1-t)*(1-t);
-      double q1 = 2*t*(1-t);
-      double q2 = t*t;
-
-perturb:
-      double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
-      double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
-      double dx = xx0*q0 + xx1*q1 + xx2*q2;
-      double dy = yy0*q0 + yy1*q1 + yy2*q2;
-      if(!biarc(lineno, ox, oy, odx, ody, x, y, dx, dy)) {
-          t = t - u; u /= -2; goto perturb;
-      }
-      ox = x; oy = y; odx = dx; ody = dy;
-    }
 }
 
 
@@ -1317,25 +1258,32 @@ void ARC_FEED(int line_number,
 
     get_last_pos(lx, ly, lz);
 
-    // XXX rotation?
-    if( (canon.activePlane == CANON_PLANE_XY)
-            && canon.motionMode == CANON_CONTINUOUS
-            && chord_deviation(lx, ly,
-                offset_x(FROM_PROG_LEN(first_end)), offset_y(FROM_PROG_LEN(second_end)),
-                offset_x(FROM_PROG_LEN(first_axis)), offset_y(FROM_PROG_LEN(second_axis)),
-                rotation, mx, my) < canon.naivecamTolerance) {
-        double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
-        rotate_and_offset_pos(x, y, z, a, b, c, u, v, w);
-        see_segment(line_number, mx, my,
-                (lz + z)/2, 
-                (canon.endPoint.a + a)/2, 
-                (canon.endPoint.b + b)/2, 
-                (canon.endPoint.c + c)/2, 
-                (canon.endPoint.u + u)/2, 
-                (canon.endPoint.v + v)/2, 
-                (canon.endPoint.w + w)/2);
-        see_segment(line_number, x, y, z, a, b, c, u, v, w);
-        return;
+    a = FROM_PROG_ANG(a);
+    b = FROM_PROG_ANG(b);
+    c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
+
+    if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) {
+        double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
+        double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
+        rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
+        rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
+            
+        if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
+            rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
+            see_segment(line_number, mx, my,
+                        (lz + ae)/2, 
+                        (canon.endPoint.a + a)/2, 
+                        (canon.endPoint.b + b)/2, 
+                        (canon.endPoint.c + c)/2, 
+                        (canon.endPoint.u + u)/2, 
+                        (canon.endPoint.v + v)/2, 
+                        (canon.endPoint.w + w)/2);
+            see_segment(line_number, fe, se, ae, a, b, c, u, v, w);
+            return;
+        }
     }
     //ini_maxvel = max vel defined by various ini constraints
     //circ_maxvel = max vel defined by ini constraints in the circle plane (XY, YZ or XZ)
@@ -1344,13 +1292,6 @@ void ARC_FEED(int line_number,
     linearMoveMsg.feed_mode = canon.feed_mode;
     circularMoveMsg.feed_mode = canon.feed_mode;
     flush_segments();
-
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
 
     rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
 
@@ -1584,6 +1525,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
+        linearMoveMsg.indexrotary = -1;
         if(vel && acc){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
@@ -1669,7 +1611,7 @@ void START_SPINDLE_CLOCKWISE()
 	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_on_msg.speed = canon.css_maximum;
 	emc_spindle_on_msg.factor = canon.css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.programOrigin.x + canon.toolOffset.tran.x);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
 	emc_spindle_on_msg.speed = canon.spindleSpeed;
 	canon.css_numerator = 0;
@@ -1690,7 +1632,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 	    canon.css_numerator = -1000 / (2 * M_PI) * canon.spindleSpeed;
 	emc_spindle_on_msg.speed = canon.css_maximum;
 	emc_spindle_on_msg.factor = canon.css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.programOrigin.x + canon.toolOffset.tran.x);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
 	emc_spindle_on_msg.speed = -canon.spindleSpeed;
 	canon.css_numerator = 0;
@@ -1716,7 +1658,7 @@ void SET_SPINDLE_SPEED(double r)
 	    canon.css_numerator = 1000 / (2 * M_PI) * canon.spindleSpeed;
 	emc_spindle_speed_msg.speed = canon.css_maximum;
 	emc_spindle_speed_msg.factor = canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.programOrigin.x + canon.toolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
 	emc_spindle_speed_msg.speed = canon.spindleSpeed;
 	canon.css_numerator = 0;
@@ -1813,7 +1755,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = canon.css_maximum;
 	emc_spindle_speed_msg.factor = canon.css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.programOrigin.x + canon.toolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_offset_msg);
@@ -1859,6 +1801,7 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	linearMoveMsg.feed_mode = 0;
+        linearMoveMsg.indexrotary = -1;
 
 	int old_feed_mode = canon.feed_mode;
 	if(canon.feed_mode)
@@ -2277,19 +2220,29 @@ void INIT_CANON()
 
     // initialize locals to original values
     canon.xy_rotation = 0.0;
+    canon.rotary_unlock_for_traverse = -1;
     canon.css_maximum = 0.0;
     canon.css_numerator = 0.0;
     canon.feed_mode = 0;
     canon.synched = 0;
-    canon.programOrigin.x = 0.0;
-    canon.programOrigin.y = 0.0;
-    canon.programOrigin.z = 0.0;
-    canon.programOrigin.a = 0.0;
-    canon.programOrigin.b = 0.0;
-    canon.programOrigin.c = 0.0;
-    canon.programOrigin.u = 0.0;
-    canon.programOrigin.v = 0.0;
-    canon.programOrigin.w = 0.0;
+    canon.g5xOffset.x = 0.0;
+    canon.g5xOffset.y = 0.0;
+    canon.g5xOffset.z = 0.0;
+    canon.g5xOffset.a = 0.0;
+    canon.g5xOffset.b = 0.0;
+    canon.g5xOffset.c = 0.0;
+    canon.g5xOffset.u = 0.0;
+    canon.g5xOffset.v = 0.0;
+    canon.g5xOffset.w = 0.0;
+    canon.g92Offset.x = 0.0;
+    canon.g92Offset.y = 0.0;
+    canon.g92Offset.z = 0.0;
+    canon.g92Offset.a = 0.0;
+    canon.g92Offset.b = 0.0;
+    canon.g92Offset.c = 0.0;
+    canon.g92Offset.u = 0.0;
+    canon.g92Offset.v = 0.0;
+    canon.g92Offset.w = 0.0;
     SELECT_PLANE(CANON_PLANE_XY);
     canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
@@ -2963,4 +2916,35 @@ int WAIT(int index, /* index of the motion exported input */
  
  interp_list.append(wait_msg);
  return 0;
+}
+
+int UNLOCK_ROTARY(int line_number, int axis) {
+    EMC_TRAJ_LINEAR_MOVE m;
+    // first, set up a zero length move to interrupt blending and get to final position
+    m.type = EMC_MOTION_TYPE_TRAVERSE;
+    m.feed_mode = 0;
+    m.end = to_ext_pose(canon.endPoint.x, canon.endPoint.y, canon.endPoint.z,
+                        canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
+                        canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
+    m.vel = m.acc = 1; // nonzero but otherwise doesn't matter
+    m.indexrotary = -1;
+
+    // issue it
+    int old_feed_mode = canon.feed_mode;
+    if(canon.feed_mode)
+	STOP_SPEED_FEED_SYNCH();
+    interp_list.set_line_number(line_number);
+    interp_list.append(m);
+    // no need to update endpoint
+    if(old_feed_mode)
+	START_SPEED_FEED_SYNCH(canon.linearFeedRate, 1);
+
+    // now, the next move is the real indexing move, so be ready
+    canon.rotary_unlock_for_traverse = axis;
+    return 0;
+}
+
+int LOCK_ROTARY(int line_number, int axis) {
+    canon.rotary_unlock_for_traverse = -1;
+    return 0;
 }

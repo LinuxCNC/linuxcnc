@@ -596,9 +596,13 @@ interpret_again:
 						       emcStatus->motion.traj.actualPosition.u,
 						       emcStatus->motion.traj.actualPosition.v,
 						       emcStatus->motion.traj.actualPosition.w);
-				if (emcStatus->task.readLine + 1
-					== programStartLine)
+				if (emcStatus->task.readLine + 1 == programStartLine) {
 				    emcTaskPlanSynch();
+
+                                    // reset programStartLine so we don't fall into our stepping routines
+                                    // if we happen to execute lines before the current point later (due to subroutines).
+                                    programStartLine = 0;
+                                }
 			    }
 
                             if (count++ < EMC_TASK_INTERP_MAX_LEN
@@ -1335,7 +1339,8 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_OFFSET_TYPE:
 	// this applies the tool length offset variable after previous
 	// motions
-    case EMC_TRAJ_SET_ORIGIN_TYPE:
+    case EMC_TRAJ_SET_G5X_TYPE:
+    case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
@@ -1535,7 +1540,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
-					set_homing_params_msg->volatile_home);
+					set_homing_params_msg->volatile_home,
+                                        set_homing_params_msg->locking_indexer);
 	break;
 
     case EMC_JOINT_SET_FERROR_TYPE:
@@ -1622,8 +1628,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
-                emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
-                emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc);
+                                   emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
+                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
+                                   emcTrajLinearMoveMsg->indexrotary);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
@@ -1678,9 +1685,15 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = 0;
         break;
 
-    case EMC_TRAJ_SET_ORIGIN_TYPE:
+    case EMC_TRAJ_SET_G5X_TYPE:
 	// struct-copy program origin
-	emcStatus->task.origin = ((EMC_TRAJ_SET_ORIGIN *) cmd)->origin;
+	emcStatus->task.g5x_offset = ((EMC_TRAJ_SET_G5X *) cmd)->origin;
+        emcStatus->task.g5x_index = ((EMC_TRAJ_SET_G5X *) cmd)->g5x_index;
+	retval = 0;
+	break;
+    case EMC_TRAJ_SET_G92_TYPE:
+	// struct-copy program origin
+	emcStatus->task.g92_offset = ((EMC_TRAJ_SET_G92 *) cmd)->origin;
 	retval = 0;
 	break;
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
@@ -2107,7 +2120,8 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_TERM_COND_TYPE:
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
     case EMC_TRAJ_SET_OFFSET_TYPE:
-    case EMC_TRAJ_SET_ORIGIN_TYPE:
+    case EMC_TRAJ_SET_G5X_TYPE:
+    case EMC_TRAJ_SET_G92_TYPE:
     case EMC_TRAJ_SET_ROTATION_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
@@ -2905,7 +2919,7 @@ int main(int argc, char *argv[])
     done = 0;
     // trap ^C
     signal(SIGINT, emctask_quit);
-    // and SIGTERM (used by runs script to shut down
+    // and SIGTERM (used by runscript to shut down)
     signal(SIGTERM, emctask_quit);
 
     // set print destination to stdout, for console apps
