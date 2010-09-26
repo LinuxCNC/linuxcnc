@@ -456,3 +456,4 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
   return INTERP_OK;
 }
 
+int Interp::call_level(void) { return _setup.call_level; }

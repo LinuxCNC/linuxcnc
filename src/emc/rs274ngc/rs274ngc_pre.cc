@@ -224,8 +224,9 @@ int Interp::execute(const char *command)
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   //  if (_setup.block1.o_number != 0)
-  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) )
+  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
     {
+      logDebug("Convert control functions");
       CHP(convert_control_functions(&(_setup.block1), &_setup));
 
 #if 1
@@ -236,6 +237,10 @@ int Interp::execute(const char *command)
       // NOTE: the last executed file will still be open, because "close"
       // is really a lazy close.
     
+      if (_setup.mdi_interrupt) {
+	  _setup.mdi_interrupt = false;
+	  MDImode = 1;
+      }
       logDebug("!!!KL Open file is:%s:", _setup.filename);
       logDebug("MDImode = %d", MDImode);
       while(MDImode && _setup.call_level) // we are still in a subroutine
@@ -247,10 +252,14 @@ int Interp::execute(const char *command)
 	    }
           status = execute();  // special handling for mdi errors
           if (status != INTERP_OK) {
-               reset();
+		if (status == INTERP_EXECUTE_FINISH) {
+		    _setup.mdi_interrupt = true;
+		} else
+		    reset();
                CHP(status);
           }
       }
+      _setup.mdi_interrupt = false;
 #endif
       return INTERP_OK;
     }
@@ -969,6 +978,8 @@ int Interp::reset()
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
+
+  _setup.mdi_interrupt = false;
 
   qc_reset();
 

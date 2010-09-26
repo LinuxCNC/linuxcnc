@@ -489,6 +489,7 @@ typedef struct setup_struct
   int c_indexer;
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
+  bool mdi_interrupt;
 }
 setup;
 

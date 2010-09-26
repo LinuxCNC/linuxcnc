@@ -98,6 +98,7 @@ public:
  int ini_load(const char *filename);
 
  int line() { return sequence_number(); }
+ int call_level();
 
  char *command(char *buf, int len) { line_text(buf, len); return buf; }
 
