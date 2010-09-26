@@ -4669,9 +4669,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);
     tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.c);
+    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.a);
+    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.b);
+    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.c);
     tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.u);
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.w);
