@@ -383,6 +383,10 @@ int stepping = 0;
 int steppingWait = 0;
 static int steppedLine = 0;
 
+// Variables to handle MDI call interrupts
+static int mdi_execute_level = -1;
+static int mdi_execute_queue = 0;
+
 /*
   checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
   to an interpreter list and a pointer to the EMC status, pops each NML
@@ -613,6 +617,33 @@ interpret_again:
 			}	// else read was OK, so execute
 		    }		// else not emcTaskPlanIsWait
 		}		// if interp len is less than max
+}
+
+static void mdi_execute_hook(void)
+{
+    if (mdi_execute_level < 0) return;
+
+    if (interp_list.len() > EMC_TASK_INTERP_MAX_LEN) return;
+
+    if (emcTaskPlanIsWait()) {
+	// delay reading of next line until all is done
+	if (interp_list.len() == 0 &&
+	    emcTaskCommand == 0 &&
+	    emcStatus->task.execState ==
+	    EMC_TASK_EXEC_DONE) {
+	    emcTaskPlanClearWait();
+	    mdi_execute_hook();
+	}
+	return;
+    }
+
+    if (!mdi_execute_queue) return;
+    mdi_execute_queue = 0;
+
+    EMC_TASK_PLAN_EXECUTE msg;
+    msg.command[0] = (char) 0xff;
+
+    interp_list.append(msg);
 }
 
 void readahead_waiting(void)
@@ -1267,6 +1298,7 @@ static int emcTaskPlan(void)
 		break;
 
 	    }			// switch (type) in ON, MDI
+	    mdi_execute_hook();
 
 	    break;		// case EMC_TASK_MODE_MDI
 
@@ -1958,10 +1990,29 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             break;
         }
 	if (execute_msg->command[0] != 0) {
+	    int level = emcTaskPlanLevel();
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(++pseudoMdiLineNumber);
+		if (mdi_execute_level < 0)
+		    mdi_execute_level = level;
 	    }
-	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
+	    char * command = execute_msg->command;
+	    if (command[0] == (char) 0xff) {
+		// Empty command recieved. Consider it is NULL
+		command = NULL;
+	    }
+	    execRetval = emcTaskPlanExecute(command, pseudoMdiLineNumber);
+
+	    level = emcTaskPlanLevel();
+
+	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+		if (mdi_execute_level == level) {
+		    mdi_execute_level = -1;
+		} else if (level > 0) {
+		    // Still insude call. Need another execute(0) call
+		    mdi_execute_queue = 1;
+		}
+	    }
 	    if (execRetval == INTERP_EXECUTE_FINISH) {
 		// need to flush execution, so signify no more reading
 		// until all is done
