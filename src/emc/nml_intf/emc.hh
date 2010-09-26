@@ -470,6 +470,7 @@ extern int emcTaskPlanResume();
 extern int emcTaskPlanClose();
 
 extern int emcTaskPlanLine();
+extern int emcTaskPlanLevel();
 extern int emcTaskPlanCommand(char *cmd);
 
 extern int emcTaskUpdate(EMC_TASK_STAT * stat);

@@ -560,6 +560,17 @@ int emcTaskPlanLine()
     return retval;
 }
 
+int emcTaskPlanLevel()
+{
+    int retval = interp.call_level();
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanLevel() returned %d\n", retval);
+    }
+
+    return retval;
+}
+
 int emcTaskPlanCommand(char *cmd)
 {
     char buf[LINELEN];
