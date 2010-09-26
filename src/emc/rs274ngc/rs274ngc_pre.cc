@@ -728,7 +728,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   CHKS((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
   CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
-  CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
+  CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE, filename);
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
     CHKS((fgets(line, LINELEN, _setup.file_pointer) ==
