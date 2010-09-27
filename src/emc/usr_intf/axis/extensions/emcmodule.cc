@@ -33,11 +33,13 @@
 
 #include <cmath>
 
+#ifndef T_BOOL
 // The C++ standard probably doesn't specify the amount of storage for a 'bool',
 // and on some systems it might be more than one byte.  However, on x86 and
 // x86-64, sizeof(bool) == 1.  When a counterexample is found, this must be
 // replaced with the result of a configure test.
 #define T_BOOL T_UBYTE
+#endif
 
 #define NUM_AXES (9)
 
