@@ -154,11 +154,6 @@ static void maybe_new_line(int sequence_number) {
     Py_XDECREF(result);
 }
 
-static double TO_PROG_LEN(double p) {
-    if(metric) return p*25.4;
-    return p;
-}
-
 void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
