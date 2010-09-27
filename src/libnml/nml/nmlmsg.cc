@@ -34,13 +34,13 @@ NMLmsg::NMLmsg(NMLTYPE t, long s)
 	clear();
     }
     if (size < ((long) sizeof(NMLmsg))) {
-	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
+	rcs_print_error("NMLmsg: size(=%ld) must be atleast %lu\n", size,
 	    sizeof(NMLmsg));
 	size = sizeof(NMLmsg);
     }
     if (type <= 0) {
 	rcs_print_error("NMLmsg: type(=%d) should be greater than zero.\n",
-	    type);
+	    (int)type);
     }
 };
 
@@ -52,13 +52,13 @@ NMLmsg::NMLmsg(NMLTYPE t, size_t s)
 	clear();
     }
     if (size < ((long) sizeof(NMLmsg))) {
-	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
+	rcs_print_error("NMLmsg: size(=%ld) must be atleast %lu\n", size,
 	    sizeof(NMLmsg));
 	size = sizeof(NMLmsg);
     }
     if (type <= 0) {
 	rcs_print_error("NMLmsg: type(=%d) should be greater than zero.\n",
-	    type);
+	    (int)type);
     }
 }
 
@@ -70,13 +70,13 @@ NMLmsg::NMLmsg(NMLTYPE t, long s, int noclear)
     type = t;
     size = s;
     if (size < ((long) sizeof(NMLmsg))) {
-	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
+	rcs_print_error("NMLmsg: size(=%ld) must be atleast %lu\n", size,
 	    sizeof(NMLmsg));
 	size = sizeof(NMLmsg);
     }
     if (type <= 0) {
 	rcs_print_error("NMLmsg: type(=%d) should be greater than zero.\n",
-	    type);
+	    (int)type);
     }
 };
 
@@ -90,7 +90,7 @@ void NMLmsg::clear()
     size = temp_size;
     type = temp_type;
     if (size < ((long) sizeof(NMLmsg))) {
-	rcs_print_error("NMLmsg: size(=%d) must be atleast %d\n", size,
+	rcs_print_error("NMLmsg: size(=%ld) must be atleast %lu\n", size,
 	    sizeof(NMLmsg));
 	size = sizeof(NMLmsg);
     }

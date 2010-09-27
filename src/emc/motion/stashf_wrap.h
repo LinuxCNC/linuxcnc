@@ -38,7 +38,7 @@ const char *fmt, *efmt;
 
         switch(code) {
             case '%':
-                result = PRINT(block);
+                result = PRINT("%s", block);
                 break;
             case 'c': case 'd': case 'i': case 'x': case 'u': case 'X':
                 if(modifier_l)
@@ -79,7 +79,7 @@ const char *fmt, *efmt;
         fmt = efmt;
     }
     if(*fmt) {
-        result = PRINT(fmt);
+        result = PRINT("%s", fmt);
         if(result < 0) return SET_ERRNO(result);
         total += result;
         EXTRA

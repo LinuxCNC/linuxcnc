@@ -406,7 +406,7 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 	switch (cmd->type) {
 
 	case EMC_OPERATOR_ERROR_TYPE:
-	    emcOperatorError(operator_error_msg->id,
+	    emcOperatorError(operator_error_msg->id, "%s",
 			     operator_error_msg->error);
 	    break;
 
@@ -653,7 +653,6 @@ void readahead_waiting(void)
 static int emcTaskPlan(void)
 {
     NMLTYPE type;
-    static char errstring[200];
     int retval = 0;
 
     // check for new command
@@ -870,9 +869,8 @@ static int emcTaskPlan(void)
 		// otherwise we can't handle it
 
 	    default:
-		sprintf(errstring, _("can't do that (%s) in manual mode"),
+		emcOperatorError(0, _("can't do that (%s) in manual mode"),
 			emc_symbol_lookup(type));
-		emcOperatorError(0, errstring);
 		retval = -1;
 		break;
 
@@ -967,11 +965,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter idle"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1029,11 +1025,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter reading"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1113,11 +1107,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter paused"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1177,11 +1169,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter waiting"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1270,10 +1260,9 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
-
-		sprintf(errstring, _("can't do that (%s) in MDI mode"),
+		emcOperatorError(0, _("can't do that (%s) in MDI mode"),
 			emc_symbol_lookup(type));
-		emcOperatorError(0, errstring);
+
 		retval = -1;
 		break;
 
@@ -1417,7 +1406,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
-			    cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
 	return EMC_TASK_EXEC_ERROR;
 	break;
@@ -1459,17 +1448,17 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_OPERATOR_ERROR_TYPE:
 	retval = emcOperatorError(((EMC_OPERATOR_ERROR *) cmd)->id,
-				  ((EMC_OPERATOR_ERROR *) cmd)->error);
+				  "%s", ((EMC_OPERATOR_ERROR *) cmd)->error);
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
 	retval = emcOperatorText(((EMC_OPERATOR_TEXT *) cmd)->id,
-				 ((EMC_OPERATOR_TEXT *) cmd)->text);
+				 "%s", ((EMC_OPERATOR_TEXT *) cmd)->text);
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
 	retval = emcOperatorDisplay(((EMC_OPERATOR_DISPLAY *) cmd)->id,
-				    ((EMC_OPERATOR_DISPLAY *) cmd)->
+				    "%s", ((EMC_OPERATOR_DISPLAY *) cmd)->
 				    display);
 	break;
 
@@ -2074,7 +2063,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("ignoring issue of unknown command %d:%s\n",
-			    cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2082,7 +2071,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("error executing command %d:%s\n", cmd->type,
+	    rcs_print_error("error executing command %d:%s\n", (int)cmd->type,
 			    emc_symbol_lookup(cmd->type));
 	}
     }
@@ -2183,7 +2172,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
-			    cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
 	return EMC_TASK_EXEC_DONE;
 	break;

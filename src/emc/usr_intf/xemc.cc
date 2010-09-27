@@ -1509,7 +1509,7 @@ static void fileEditorMarkCB(Widget w, XtPointer client_data, XtPointer call_dat
   while (! feof(fp)) {
     if (NULL == fgets(buffer, 256, fp)) {
       // hmmm... never found line
-      popupError("Can't mark line-- character position\n%d outside range of file", pos);
+      popupError("Can't mark line-- character position\n%d outside range of file", (int)pos);
       break;
     }
 
@@ -2090,7 +2090,7 @@ static void doFileEditDone()
       // file is there-- check type and permissions
       if (! S_ISREG(buf.st_mode)) {
         // file is not a regular file
-        popupError("Can't edit %S: not a text file", EDITOR_FILE);
+        popupError("Can't edit %s: not a text file", EDITOR_FILE);
       }
       else if ((S_IWUSR & buf.st_mode)) {
         // file is writeable
@@ -3548,7 +3548,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
 
   // print any result stored by updateError() in error_string
   if (error_string[0] != 0) {
-    popupError(error_string);
+    popupError("%s", error_string);
     error_string[0] = 0;
   }
 

@@ -288,15 +288,15 @@ NML_MODULE::setStatChannel (RCS_STAT_CHANNEL * stat_channel,
     {
       rcs_print_error
 	("Status out message must have positive type. (type = %d)\n",
-	 stat_msg->type);
+	 (int)stat_msg->type);
       rcs_exit (-1);
     }
   if (stat_msg->size < ((long) sizeof (RCS_STAT_MSG)))
     {
       rcs_print_error
-	("Status out message must have a size of atleast sizeof(RCS_STAT_MSG) or %d bytes,",
+	("Status out message must have a size of atleast sizeof(RCS_STAT_MSG) or %lu bytes,",
 	 sizeof (RCS_STAT_MSG));
-      rcs_print_error ("but the status out message size was only %d.\n",
+      rcs_print_error ("but the status out message size was only %ld.\n",
 		       stat_msg->size);
       rcs_exit (-1);
     }
@@ -651,7 +651,7 @@ NML_MODULE::setSelfCommand (RCS_CMD_MSG * cmd)
   if (cmd->size > commandIn->cms->size)
     {
       rcs_print_error
-	("NML_MODULE::setSelfCommand, Command too big! %d(0x%X) > %d(0x%X)\n",
+	("NML_MODULE::setSelfCommand, Command too big! %ld(0x%lX) > %ld(0x%lX)\n",
 	 cmd->size, cmd->size, commandIn->cms->size, commandIn->cms->size);
     }
   statusOutData->echo_serial_number++;

@@ -599,8 +599,8 @@ int CMS::queue_get_space_available_raw()
     }
 
     if (cms_print_queue_free_space) {
-	rcs_print("queue free space = %d\n", free_space);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print("queue free space = %ld\n", free_space);
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -663,8 +663,8 @@ int CMS::queue_get_space_available_encoded()
     }
 
     if (cms_print_queue_free_space) {
-	rcs_print("queue free space = %d\n", free_space);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print("queue free space = %ld\n", free_space);
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -960,7 +960,7 @@ CMS_STATUS CMS::queue_read_encoded()
 	rcs_print_error
 	    ("CMS:(%s) Error reading from global memory at %s:%d\n",
 	    BufferName, __FILE__, __LINE__);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head, queuing_header.tail,
 	    queuing_header.end_queue_space, queuing_header.queue_length,
 	    queuing_header.write_id);
@@ -985,7 +985,7 @@ CMS_STATUS CMS::queue_read_encoded()
 	handle_to_global_data->write(encoded_header, encoded_header_size)) {
 	rcs_print_error("CMS:(%s) Error writing to global memory at %s:%d\n",
 	    BufferName, __FILE__, __LINE__);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -1001,7 +1001,7 @@ CMS_STATUS CMS::queue_read_encoded()
 	rcs_print_error
 	    ("CMS:(%s) Error reading from global memory at %s:%d\n",
 	    BufferName, __FILE__, __LINE__);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head, queuing_header.tail,
 	    queuing_header.end_queue_space, queuing_header.queue_length,
 	    queuing_header.write_id);
@@ -1025,7 +1025,7 @@ CMS_STATUS CMS::queue_read_encoded()
 	    encoded_queuing_header_size)) {
 	rcs_print_error("CMS:(%s) Error writing to global memory at %s:%d\n",
 	    BufferName, __FILE__, __LINE__);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -1381,7 +1381,7 @@ CMS_STATUS CMS::write_raw(void *user_data)
 	if (-1 == handle_to_global_data->write(user_data, (long)
 		current_header_in_buffer_size)) {
 	    rcs_print_error
-		("CMS:(%s) Error writing %ld bytes to global memory at offset %X\n (See  %s line %d.)\n",
+		("CMS:(%s) Error writing %ld bytes to global memory at offset %p\n (See  %s line %d.)\n",
 		BufferName, header.in_buffer_size, user_data, __FILE__,
 		__LINE__);
 	    return (status = CMS_INTERNAL_ACCESS_ERROR);
@@ -1467,8 +1467,8 @@ CMS_STATUS CMS::queue_write_raw(void *user_data)
     }
 
     if (cms_print_queue_free_space) {
-	rcs_print("queue free space = %d\n", free_space);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print("queue free space = %ld\n", free_space);
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -1677,8 +1677,8 @@ CMS_STATUS CMS::queue_write_encoded()
     }
 
     if (cms_print_queue_free_space) {
-	rcs_print("queue free space = %d\n", free_space);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print("queue free space = %ld\n", free_space);
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -1896,8 +1896,8 @@ CMS_STATUS CMS::queue_write_if_read_raw(void *user_data)
     }
 
     if (cms_print_queue_free_space) {
-	rcs_print("queue free space = %d\n", free_space);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print("queue free space = %ld\n", free_space);
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,
@@ -2114,8 +2114,8 @@ CMS_STATUS CMS::queue_write_if_read_encoded()
     }
 
     if (cms_print_queue_free_space) {
-	rcs_print("queue free space = %d\n", free_space);
-	rcs_print(" { head=%d,tail=%d,end=%d,length=%d,id=%d }\n",
+	rcs_print("queue free space = %ld\n", free_space);
+	rcs_print(" { head=%ld,tail=%ld,end=%ld,length=%ld,id=%ld }\n",
 	    queuing_header.head,
 	    queuing_header.tail,
 	    queuing_header.end_queue_space,

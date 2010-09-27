@@ -801,7 +801,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
     /* CMS's derived classes and call its constructor. */
     if (!strcmp(buffer_type, "PHANTOM") || !strcmp(proc_type, "PHANTOM")) {
 	*cms = new PHANTOMMEM(buffer_line, proc_line);
-	rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new PHANTOMEM(%s,%s)\n",
+	rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%p = new PHANTOMEM(%s,%s)\n",
 	    *cms, buffer_line, proc_line);
 	if (NULL == *cms) {
 	    if (verbose_nml_error_messages) {
@@ -863,7 +863,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 #endif
 	} else if (NULL != strstr(buffer_line, "TCP=")) {
 	    *cms = new TCPMEM(buffer_line, proc_line);
-	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new TCPMEM(%s,%s)\n",
+	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%p = new TCPMEM(%s,%s)\n",
 		*cms, buffer_line, proc_line);
 	    if (NULL == *cms) {
 		if (verbose_nml_error_messages) {
@@ -893,7 +893,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	    *cms = new SHMEM(buffer_line, proc_line, set_to_server,
 		set_to_master);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
-		"%X = new SHMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
+		"%p = new SHMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
 		proc_line, set_to_server, set_to_master);
 	    if (NULL == *cms) {
 		if (verbose_nml_error_messages) {
@@ -924,7 +924,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		new LOCMEM(buffer_line, proc_line, set_to_server,
 		set_to_master);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
-		"%X = new LOCMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
+		"%p = new LOCMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
 		proc_line, set_to_server, set_to_master);
 	    if (NULL == *cms) {
 		if (verbose_nml_error_messages) {

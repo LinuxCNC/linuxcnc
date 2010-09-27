@@ -290,7 +290,7 @@ char* sockGetError(void)
 int sockSendError(int fd, char* message)
 {
 // simple: performance penalty isn't worth more work...
-  return sockPrintfError(fd, message);
+  return sockPrintfError(fd, "%s", message);
 }
 
 /** prints printf-like formatted output to logfile and sends it to the

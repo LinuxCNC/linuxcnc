@@ -350,7 +350,7 @@ rcs_sem_t *rcs_sem_create(unsigned long int id, int mode, int state)
     rcs_sem_t *sem;
 
     if (id < 1) {
-	rcs_print_error("rcs_sem_create: invalid id %d\n", id);
+	rcs_print_error("rcs_sem_create: invalid id %lu\n", id);
 	return NULL;
     }
 

@@ -1837,7 +1837,7 @@ int Interp::store_named_param(
 
   nameList = &_setup.sub_context[level].named_parameters;
 
-  logDebug("store_named_parameter: nameList[%d]=0x%x storing:|%s|", level,
+  logDebug("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
            nameList, nameBuf);
   logDebug("store_named_parameter: named_parameter_used_size=%d",
            nameList->named_parameter_used_size);
@@ -1927,7 +1927,7 @@ int Interp::add_named_param(
   {
       ERS(NCE_OUT_OF_MEMORY);
   }
-  logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
+  logDebug("%s strdup[%p]:|%s|", name, dup, dup);
   nameList->named_parameters[nameList->named_parameter_used_size++] = dup;
 
   return INTERP_OK;
@@ -2216,7 +2216,7 @@ int Interp::read_parameter_setting(
       {
           ERS(NCE_OUT_OF_MEMORY);
       }
-      logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
+      logDebug("%s strdup[%p]:|%s|", name, dup, dup);
       _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
 
       _setup.named_parameter_values[_setup.named_parameter_occurrence] = value;

@@ -285,7 +285,7 @@ int CMS_XDR_UPDATER::check_pointer(char *_pointer, long _bytes)
 	int xdr_pos = xdr_getpos(current_stream);
 	if (xdr_pos + _bytes > encoded_data_size) {
 	    rcs_print_error
-		("Encoded message buffer full. (xdr_pos=%d,_bytes=%d,(xdr_pos+_bytes)=%d,encoded_data_size=%d)\n",
+		("Encoded message buffer full. (xdr_pos=%d,_bytes=%ld,(xdr_pos+_bytes)=%ld,encoded_data_size=%ld)\n",
 		xdr_pos, _bytes, (xdr_pos + _bytes), encoded_data_size);
 	    return -1;
 	}

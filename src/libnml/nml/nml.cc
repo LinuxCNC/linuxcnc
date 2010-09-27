@@ -90,7 +90,7 @@ void *NML::operator new(size_t size)
 {
     if (size < sizeof(NML)) {
 	rcs_print_error
-	    ("void *NML::operator new() called with size (%d) < sizeof(NML) (%d) the code calling NML was probably not compiled with the correct header file version.\n",
+	    ("void *NML::operator new() called with size (%zd) < sizeof(NML) (%lu) the code calling NML was probably not compiled with the correct header file version.\n",
 	    size, sizeof(NML));
 	size = sizeof(NML);
     }
@@ -113,7 +113,7 @@ void *NML::operator new(size_t size)
 	cptr += sizeof(size_t) - (((size_t) cptr) % sizeof(size_t));
 	*((int *) cptr) = dynamic_list_id;
     }
-    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%X = NML::operater new(%d)\n",
+    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operater new(%zd)\n",
 	nml_space, size);
     return nml_space;
 }
@@ -123,7 +123,7 @@ void NML::operator delete(void *nml_space)
     int dynamic_list_id = 0;
     char *cptr = (char *) NULL;
 
-    rcs_print_debug(PRINT_NML_DESTRUCTORS, "NML::operater delete(%X)\n",
+    rcs_print_debug(PRINT_NML_DESTRUCTORS, "NML::operater delete(%p)\n",
 	nml_space);
 
     if (NULL == nml_space) {
@@ -248,7 +248,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 	    print_info(buf, proc, file);
 	}
 	if (NULL != cms) {
-	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n",
+	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n",
 		cms);
 	    delete cms;
 	    cms = (CMS *) NULL;
@@ -269,7 +269,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 	if (!info_printed) {
 	    print_info(buf, proc, file);
 	}
-	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n", cms);
+	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
 	delete cms;
 	cms = (CMS *) NULL;
 	return;
@@ -371,7 +371,7 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
 	    print_info(buf, proc, file);
 	}
 	if (NULL != cms) {
-	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n",
+	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n",
 		cms);
 	    delete cms;
 	    cms = (CMS *) NULL;
@@ -393,7 +393,7 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
 	if (!info_printed) {
 	    print_info(buf, proc, file);
 	}
-	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n", cms);
+	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
 	delete cms;
 	cms = (CMS *) NULL;
 	return;
@@ -483,7 +483,7 @@ NML::NML(char *buffer_line, char *proc_line)
 	    print_info();
 	}
 	if (NULL != cms) {
-	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n",
+	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n",
 		cms);
 	    delete cms;
 	    cms = (CMS *) NULL;
@@ -503,7 +503,7 @@ NML::NML(char *buffer_line, char *proc_line)
 	if (!info_printed) {
 	    print_info();
 	}
-	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n", cms);
+	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
 	delete cms;
 	cms = (CMS *) NULL;
 	return;
@@ -773,7 +773,7 @@ void NML::delete_channel()
 	cms_for_msg_string_conversions = 0;
     }
     if (NULL != cms) {
-	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %X;\n", cms);
+	rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
 	delete cms;
 	cms = (CMS *) NULL;
     }
@@ -1048,7 +1048,7 @@ NMLTYPE NML::read()
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
 		    ("NML: New data recieved but type of %d is invalid.\n",
-		    ((NMLmsg *) cms->subdiv_data)->type);
+		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
 	    return (((NMLmsg *) cms->subdiv_data)->type);
@@ -1101,7 +1101,7 @@ NMLTYPE NML::read()
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
 		("NML: New data recieved but type of %d is invalid.\n",
-		((NMLmsg *) cms->subdiv_data)->type);
+		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
 	return (((NMLmsg *) cms->subdiv_data)->type);
@@ -1141,7 +1141,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
 		    ("NML: New data recieved but type of %d is invalid.\n",
-		    ((NMLmsg *) cms->subdiv_data)->type);
+		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
 	    return (((NMLmsg *) cms->subdiv_data)->type);
@@ -1223,7 +1223,7 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
 		("NML: New data recieved but type of %d is invalid.\n",
-		((NMLmsg *) cms->subdiv_data)->type);
+		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
 	return (((NMLmsg *) cms->subdiv_data)->type);
@@ -1325,7 +1325,7 @@ NMLTYPE NML::peek()
 	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 		rcs_print_error
 		    ("NML: New data recieved but type of %d is invalid.\n",
-		    ((NMLmsg *) cms->subdiv_data)->type);
+		    (int)((NMLmsg *) cms->subdiv_data)->type);
 		return -1;
 	    }
 	    return (((NMLmsg *) cms->subdiv_data)->type);
@@ -1371,7 +1371,7 @@ NMLTYPE NML::peek()
 	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
 	    rcs_print_error
 		("NML: New data recieved but type of %d is invalid.\n",
-		((NMLmsg *) cms->subdiv_data)->type);
+		(int)((NMLmsg *) cms->subdiv_data)->type);
 	    return -1;
 	}
 	return (((NMLmsg *) cms->subdiv_data)->type);
@@ -1455,7 +1455,7 @@ int NML::format_output()
 		rcs_print_error("NML: Message %ld of size  %ld \n", new_type,
 		    new_size);
 		rcs_print_error
-		    ("     too large for local buffer of %s of size %d.\n",
+		    ("     too large for local buffer of %s of size %ld.\n",
 		    cms->BufferName, cms->max_message_size);
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
@@ -1508,7 +1508,7 @@ int NML::format_output()
 		rcs_print_error("NML: Message %ld of size  %ld\n", new_type,
 		    new_size);
 		rcs_print_error
-		    ("     too large for local buffer of %s of size %d.\n",
+		    ("     too large for local buffer of %s of size %ld.\n",
 		    cms->BufferName, cms->max_message_size);
 		if (verbose_nml_error_messages) {
 		    rcs_print_error
@@ -1845,8 +1845,8 @@ int NML::format_input(NMLmsg * nml_msg)
     case CMS_RAW_IN:
 	/* Make sure the message size is not larger than the buffer size. */
 	if (nml_msg->size > cms->max_message_size) {
-	    rcs_print_error("NML: Message size(%d) too large for"
-		" CMS buffer size of %d.\n",
+	    rcs_print_error("NML: Message size(%ld) too large for"
+		" CMS buffer size of %ld.\n",
 		nml_msg->size, cms->max_message_size);
 	    cms->status = CMS_INSUFFICIENT_SPACE_ERROR;
 	    return (-1);
@@ -1856,8 +1856,8 @@ int NML::format_input(NMLmsg * nml_msg)
     case CMS_ENCODE:
 	/* Make sure the message size is not larger than the buffer size. */
 	if (nml_msg->size > cms->max_message_size) {
-	    rcs_print_error("NML: Message size(%d) too large for"
-		" CMS buffer size of %d.\n",
+	    rcs_print_error("NML: Message size(%ld) too large for"
+		" CMS buffer size of %ld.\n",
 		nml_msg->size, cms->max_message_size);
 	    cms->status = CMS_INSUFFICIENT_SPACE_ERROR;
 	    return (-1);
@@ -1900,8 +1900,8 @@ int NML::format_input(NMLmsg * nml_msg)
 
 	/* Make sure the message size is not larger than the buffer size. */
 	if (new_size > cms->max_message_size) {
-	    rcs_print_error("NMLwrite: Message size(%d) too large for"
-		" CMS buffer size of %d.\n", new_size, cms->max_message_size);
+	    rcs_print_error("NMLwrite: Message size(%ld) too large for"
+		" CMS buffer size of %ld.\n", new_size, cms->max_message_size);
 	    cms->status = CMS_INSUFFICIENT_SPACE_ERROR;
 	    return (-1);
 	}
@@ -2288,7 +2288,7 @@ int NML::print_queue_info()
 	return (-1);
     }
     rcs_print
-	("head = %d(0x%X); tail=%d(0x%X); queue_length=%d,end_queue_space=%d(0x%X); write_id=%d\n",
+	("head = %ld(0x%lX); tail=%ld(0x%lX); queue_length=%ld,end_queue_space=%ld(0x%lX); write_id=%ld\n",
 	cms->queuing_header.head, cms->queuing_header.head,
 	cms->queuing_header.tail, cms->queuing_header.tail,
 	cms->queuing_header.queue_length, cms->queuing_header.end_queue_space,

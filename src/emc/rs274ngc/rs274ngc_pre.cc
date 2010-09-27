@@ -258,7 +258,7 @@ int Interp::execute(const char *command)
   // skip if skipping
   if(_setup.skipping_o)
     {
-      logDebug("skipping to line: %d", _setup.skipping_o);
+      logDebug("skipping to: %s", _setup.skipping_o);
       return INTERP_OK;
     }
 
@@ -279,7 +279,7 @@ int Interp::execute(const char *command)
                           _setup.named_parameter_values[n]));
 
     // free the string
-      logDebug("freeing param[%d]:|%s|:0x%x", n, _setup.named_parameters[n],
+      logDebug("freeing param[%d]:|%s|:%p", n, _setup.named_parameters[n],
                _setup.named_parameters[n]);
     free(_setup.named_parameters[n]);
   }
@@ -499,7 +499,7 @@ int Interp::init()
           {
               logDebug("SUBROUTINE_PATH not found");
           }
-          logDebug("_setup.subroutines:%s:\n", _setup.subroutines);
+          logDebug("_setup.subroutines:%p:\n", _setup.subroutines);
 
 
           // close it
@@ -1027,8 +1027,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
       return INTERP_OK;
   // open original for reading
   infile = fopen(filename, "r");
-  sprintf(line,"Unable to open parameter file: '%s'", filename);
-  CHKS((infile == NULL), line);
+  CHKS((infile == NULL), "Unable to open parameter file: '%s'", filename);
 
   pars = _setup.parameters;
   k = 0;

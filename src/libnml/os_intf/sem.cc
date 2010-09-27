@@ -38,7 +38,7 @@ RCS_SEMAPHORE::RCS_SEMAPHORE(unsigned long int _id, int _oflag, double _time,
 
     if (sem == NULL) {
 	rcs_print_error
-	    ("can't create semaphore (id = %d, oflag = %d, timeout = %f, mode = 0x%X, state = %d)\n",
+	    ("can't create semaphore (id = %lu, oflag = %d, timeout = %f, mode = 0x%X, state = %d)\n",
 	    id, oflag, timeout, mode, state);
     }
 }

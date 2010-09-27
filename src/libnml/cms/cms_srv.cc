@@ -294,7 +294,7 @@ void CMS_SERVER_REMOTE_PORT::print_servers()
     cms_server = (CMS_SERVER *) cms_server_list->get_head();
     rcs_print("Server Tasks for this remote port.\n");
     while (NULL != cms_server) {
-	rcs_print(" \t(%d (0x%X), %d (0x%X))\n",
+	rcs_print(" \t(%ld (0x%lX), %ld (0x%lX))\n",
 	    cms_server->server_pid, cms_server->server_pid,
 	    cms_server->server_tid, cms_server->server_tid);
 
@@ -585,7 +585,7 @@ void CMS_SERVER::reset_diag_info(int buffer_number)
     CMS_SERVER_LOCAL_PORT *local_port = find_local_port(buffer_number);
     if (NULL == local_port) {
 	rcs_print_error
-	    ("CMS_SERVER: Cannot find local port for buffer number %ld\n",
+	    ("CMS_SERVER: Cannot find local port for buffer number %d\n",
 	    buffer_number);
 	return;
     }
@@ -857,7 +857,7 @@ void CMS_SERVER::initialize_write_request_space()
     }
     write_req.data = malloc(maximum_cms_size);
     if (NULL == write_req.data) {
-	rcs_print_error("malloc(%d) failed.\n", maximum_cms_size);
+	rcs_print_error("malloc(%ld) failed.\n", maximum_cms_size);
     }
     local_port = (CMS_SERVER_LOCAL_PORT *) cms_local_ports->get_head();
     while (NULL != local_port) {
@@ -1055,13 +1055,13 @@ int CMS_SERVER::security_check(CMS_USER_INFO * user_info, int buffer_number)
 
     if (!user_info->allow_read
 	&& request->type == REMOTE_CMS_READ_REQUEST_TYPE) {
-	rcs_print_error("CMS_SERVER:: %s does not have read permission.");
+	rcs_print_error("CMS_SERVER:: %s does not have read permission.", user_info->name);
 	return 0;
     }
 
     if (!user_info->allow_write
 	&& request->type == REMOTE_CMS_WRITE_REQUEST_TYPE) {
-	rcs_print_error("CMS_SERVER:: %s does not have write permission.");
+	rcs_print_error("CMS_SERVER:: %s does not have write permission.", user_info->name);
 	return 0;
     }
     return 1;

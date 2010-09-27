@@ -1359,7 +1359,7 @@ static char *guess_comp_name(char *prog_name)
     char *en = last_dot ? last_dot : prog_name + strlen(prog_name);
     size_t len = en-st;
 
-    snprintf(name, sizeof(name), "%.*s", len, st);
+    snprintf(name, sizeof(name), "%.*s", (int)len, st);
     return name;
 }
 
