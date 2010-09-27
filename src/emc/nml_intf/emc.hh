@@ -342,13 +342,13 @@ extern char **Argv;
 // intended to be implemented in main() file, by writing to NML buffer
 
 // print an error
-extern int emcOperatorError(int id, const char *fmt, ...);
+extern int emcOperatorError(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // print general text
-extern int emcOperatorText(int id, const char *fmt, ...);
+extern int emcOperatorText(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // print note to operator
-extern int emcOperatorDisplay(int id, const char *fmt, ...);
+extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // implementation functions for EMC_AXIS types
 

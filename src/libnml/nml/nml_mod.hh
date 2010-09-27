@@ -201,8 +201,8 @@ public:
 
   int setSubordinates (int number);
   int setLogInfo (const char *src, int l);
-  int logError (const char *fmt, ...);
-  int logText (const char *fmt, ...);
+  int logError (const char *fmt, ...) __attribute__((format(printf,2,3)));
+  int logText (const char *fmt, ...) __attribute__((format(printf,2,3)));
   int requestDisplay (const char *display);
   void stop_timing (void);
   void set_file_and_line (char *file, int line);
@@ -254,6 +254,6 @@ public:
 };
 
 #define NML_MOD_LOG_ERROR setLogInfo(__FILE__,__LINE__); logError
-extern int logTextToNML (NML *, const char *fmt, ...);
+extern int logTextToNML (NML *, const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 #endif

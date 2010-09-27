@@ -76,7 +76,7 @@ static void errorReturnAction(Widget w, XEvent *event, String *params, Cardinal 
 static void errorDoneCB(Widget w, XtPointer client_data, XtPointer call_data);
 static int createErrorShell();
 static int destroyErrorShell();
-static void popupError(const char *fmt, ...);
+static void popupError(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // forward decl for quit() function
 static void quit();

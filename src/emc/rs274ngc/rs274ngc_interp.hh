@@ -72,7 +72,7 @@ public:
  void error_text(int error_code, char *error_text,
                                 int max_size);
 
- void setError(const char *fmt, ...);
+ void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
@@ -441,7 +441,7 @@ private:
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
- void doLog(char *fmt, ...);
+ void doLog(char *fmt, ...) __attribute__((format(printf,2,3)));
 
  FILE *log_file;
 
