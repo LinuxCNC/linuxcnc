@@ -384,8 +384,12 @@ int steppingWait = 0;
 static int steppedLine = 0;
 
 // Variables to handle MDI call interrupts
+// Depth of call level before interrupted MDI call
 static int mdi_execute_level = -1;
-static int mdi_execute_queue = 0;
+// Schedule execute(0) command
+static int mdi_execute_next = 0;
+// Wait after interrupted command
+static int mdi_execute_wait = 0;
 
 /*
   checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
@@ -619,26 +623,34 @@ interpret_again:
 		}		// if interp len is less than max
 }
 
+static void mdi_execute_abort(void)
+{
+    // XXX: Reset needed?
+    mdi_execute_level = -1;
+    mdi_execute_wait = 0;
+    mdi_execute_next = 0;
+}
+
 static void mdi_execute_hook(void)
 {
-    if (mdi_execute_level < 0) return;
-
-    if (interp_list.len() > EMC_TASK_INTERP_MAX_LEN) return;
-
-    if (emcTaskPlanIsWait()) {
+    if (mdi_execute_wait && emcTaskPlanIsWait()) {
 	// delay reading of next line until all is done
 	if (interp_list.len() == 0 &&
 	    emcTaskCommand == 0 &&
 	    emcStatus->task.execState ==
 	    EMC_TASK_EXEC_DONE) {
 	    emcTaskPlanClearWait();
+	    mdi_execute_wait = 0;
 	    mdi_execute_hook();
 	}
 	return;
     }
 
-    if (!mdi_execute_queue) return;
-    mdi_execute_queue = 0;
+    if (!mdi_execute_next) return;
+
+    if (interp_list.len() > EMC_TASK_INTERP_MAX_LEN) return;
+
+    mdi_execute_next = 0;
 
     EMC_TASK_PLAN_EXECUTE msg;
     msg.command[0] = (char) 0xff;
@@ -1901,6 +1913,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTaskAbort();
         emcIoAbort();
         emcSpindleAbort();
+	mdi_execute_abort();
 	retval = 0;
 	break;
 
@@ -1923,6 +1936,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 		// abort motion
 		emcTaskAbort();
+		mdi_execute_abort();
 
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
@@ -2010,10 +2024,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    mdi_execute_level = -1;
 		} else if (level > 0) {
 		    // Still insude call. Need another execute(0) call
-		    mdi_execute_queue = 1;
+		    mdi_execute_next = 1;
 		}
 	    }
 	    if (execRetval == INTERP_EXECUTE_FINISH) {
+		// Flag MDI wait
+		mdi_execute_wait = 1;
 		// need to flush execution, so signify no more reading
 		// until all is done
 		emcTaskPlanSetWait();
@@ -2280,6 +2296,7 @@ static int emcTaskExecute(void)
 	emcTaskAbort();
         emcIoAbort();
         emcSpindleAbort();
+	mdi_execute_abort();
 
 	// without emcTaskPlanClose(), a new run command resumes at
 	// aborted line-- feature that may be considered later
@@ -3038,6 +3055,7 @@ int main(int argc, char *argv[])
                 emcIoAbort();
                 emcSpindleAbort();
                 emcAxisUnhome(-2); // only those joints which are volatile_home
+		mdi_execute_abort();
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -3066,6 +3084,7 @@ int main(int argc, char *argv[])
             emcTaskAbort();
             emcIoAbort();
             emcSpindleAbort();
+	    mdi_execute_abort();
             // without emcTaskPlanClose(), a new run command resumes at
             // aborted line-- feature that may be considered later
             {
