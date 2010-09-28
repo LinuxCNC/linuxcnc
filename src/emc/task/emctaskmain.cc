@@ -390,6 +390,8 @@ static int mdi_execute_level = -1;
 static int mdi_execute_next = 0;
 // Wait after interrupted command
 static int mdi_execute_wait = 0;
+// Side queue to store MDI commands
+static NML_INTERP_LIST mdi_execute_queue;
 
 /*
   checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
@@ -629,6 +631,8 @@ static void mdi_execute_abort(void)
     mdi_execute_level = -1;
     mdi_execute_wait = 0;
     mdi_execute_next = 0;
+
+    mdi_execute_queue.clear();
 }
 
 static void mdi_execute_hook(void)
@@ -643,6 +647,12 @@ static void mdi_execute_hook(void)
 	    mdi_execute_wait = 0;
 	    mdi_execute_hook();
 	}
+	return;
+    }
+
+    if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
+	printf("Rescheduling back");
+	interp_list.append(mdi_execute_queue.get());
 	return;
     }
 
@@ -2004,17 +2014,25 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             break;
         }
 	if (execute_msg->command[0] != 0) {
+	    char * command = execute_msg->command;
+	    if (command[0] == (char) 0xff) {
+		// Empty command recieved. Consider it is NULL
+		command = NULL;
+	    }
+
+	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
+		printf("Reschedule command %s\n", command);
+		mdi_execute_queue.append(execute_msg);
+		break;
+	    }
+
 	    int level = emcTaskPlanLevel();
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(++pseudoMdiLineNumber);
 		if (mdi_execute_level < 0)
 		    mdi_execute_level = level;
 	    }
-	    char * command = execute_msg->command;
-	    if (command[0] == (char) 0xff) {
-		// Empty command recieved. Consider it is NULL
-		command = NULL;
-	    }
+
 	    execRetval = emcTaskPlanExecute(command, pseudoMdiLineNumber);
 
 	    level = emcTaskPlanLevel();
