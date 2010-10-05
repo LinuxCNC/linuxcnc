@@ -68,12 +68,19 @@ class GladePanel():
                     self[idname].connect("pressed", self.button_callback, idname,True)
                     self[idname].connect("released", self.button_callback, idname,False)
                     self[idname].emit("released")
-            if k =="HAL_HScale" or k == "HAL_VScale"or k == "HAL_SpinButton":
+            if k =="HAL_HScale" or k == "HAL_VScale":
                     print" found a HAL scale bar! ",idname
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
                     self.hal.newpin(idname, hal.HAL_FLOAT, hal.HAL_OUT)
                     self[idname].connect("value-changed", self.scale_callback, idname)
-                    self[idname].emit("value-changed")        
+                    self[idname].emit("value-changed")  
+            if k == "HAL_SpinButton":
+                    print" found a HAL spinbutton bar! ",idname
+                    self[idname] = self.read_widget(idname,builder,self.buildertype)                   
+                    self.hal.newpin(idname+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
+                    self.hal.newpin(idname+"-s", hal.HAL_S32, hal.HAL_OUT)
+                    self[idname].connect("value-changed", self.spin_callback, idname)
+                    self[idname].emit("value-changed")
             if k =="HAL_ProgressBar" :
                     print" found a HAL progess bar ! ",idname
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
@@ -101,8 +108,6 @@ class GladePanel():
                             self[idname].set_dia(int(data))
                         if temp =="led_shape":
                             self[idname].set_shape(int(data))  
-                        if temp =="led_blink":
-                            self[idname].set_blink_active(bool(data))
                         if temp =="led_blink_rate":
                             self[idname].set_blink_rate(int(data))
                     self[idname].set_active(False)
@@ -134,7 +139,7 @@ class GladePanel():
                     self.hal.newpin(idname, pin_type, hal.HAL_IN)
                     self.updatelist[idname] = k
             if k =="HAL_ComboBox" :
-                    print" found a HAL combo boxr ! ",idname
+                    print" found a HAL combo box ! ",idname
                     for child in parent:
                         temp = child.attrib.get("name")
                         data = child.text
@@ -186,6 +191,12 @@ class GladePanel():
         #print widget,component
             data=self[component].get_value()
             self.hal[component] = data
+    def spin_callback(self,widget,component):
+        #print widget,component
+        data = self[component].get_value()
+        self.hal[component+"-f"] = data
+        self.hal[component+"-s"] = int(data)
+
     def combo_callback(self,widget,component):
         #print widget,component
         self.hal[component] = self[component].get_active()
