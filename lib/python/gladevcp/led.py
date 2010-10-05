@@ -86,7 +86,7 @@ class HAL_LED(gtk.DrawingArea):
         if self._state == True:
             if self._blink_active == False or self._blink_active == True and self._blink_state == True:
                 cr.set_source_rgba(self._on_color[0],self._on_color[1],self._on_color[2],alpha)
-            elif self._blink_state == False:
+            else:
                 cr.set_source_rgba(self._off_color[0],self._off_color[1],self._off_color[2],alpha)
         else:
             cr.set_source_rgba(self._off_color[0],self._off_color[1],self._off_color[2],alpha)
@@ -103,17 +103,12 @@ class HAL_LED(gtk.DrawingArea):
     def set_sensitive(self, data ):
         print data
 
-    def set_blink_active(self, data):
-        self.set_blink_rate(self._blink_rate)
-        if data == True:
-            self._blink_active = True
-            self.set_blink_rate(self._blink_rate)
-        else:
-            print "LED's that blink, cannot be made unblinked at runtime"
-            return
-
     #FIXME the gobject timers are never explicly destroyed
     def set_blink_rate(self,rate):
+        if rate == 0:
+            self._blink_active = False
+        else:
+            self._blink_active = True
         self._blink_timer = gobject.timeout_add(rate, self.blink)
 
     def blink(self):
