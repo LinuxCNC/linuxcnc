@@ -55,32 +55,25 @@ domain="glade-3" depends="gtk+">
             <tooltip>size of LED</tooltip>
         </property>
 
-	<property id="led_blink" name="Blink" ignore="True" save-always="True">
-            <parameter-spec>
-                <type>GParamBoolean</type>
-            </parameter-spec>
-            <tooltip>Check to blink led</tooltip>
-        </property>
-
-	<property id="led_blink_rate" name="Blink Rate" ignore="True"  default="500" save-always="True">
+        <property id="led_blink_rate" optional-default="False" name="Blink Rate" save-always="True" optional="True" ignore="True"  default="500">
             <parameter-spec>
                 <type>GParamInt</type>
                 <min>100</min>
                 <max>1000</max>
             </parameter-spec>
-            <tooltip>LED blink rate (ms)</tooltip>
+            <tooltip>Click to blink LED at set rate (ms)</tooltip>
         </property>
-        <property optional-default="False" optional="True" id="pick_color_on" name="pick_color_on"
+        <property optional-default="False" optional="True" id="pick_color_on" name="Pick On-Color"
         ignore="True" default="#FFFFFF">
             <spec>glade_standard_gdkcolor_spec</spec>
             </property>
 
-        <property optional-default="False" optional="True" id="pick_color_off" name="pick_color_off"
+        <property optional-default="False" optional="True" id="pick_color_off" name="Pick Off-Color"
         ignore="True"  default="#000000">
             <spec>glade_standard_gdkcolor_spec</spec>
         </property>
 
-        <property optional-default="False" optional="True" id="on-color" name="On Color" ignore="True"
+        <property optional-default="False" optional="True" id="on-color" name="Standard On-Color" ignore="True"
         save-always="True" default="red">
             <parameter-spec>
                 <type>GParamString</type>
@@ -88,8 +81,8 @@ domain="glade-3" depends="gtk+">
             <tooltip>use: red blue green white yellow black only</tooltip>
         </property>
 
-        <property optional-default="False" optional="True" id="off-color" name="Off Color" ignore="True"
-        save-always="True" default="black" >
+        <property optional-default="True" optional="True" id="off-color" name="Standard Off-Color" ignore="True"
+        save-always="True" default="dark" >
             <parameter-spec>
                 <type>GParamString</type>
             </parameter-spec>
