@@ -989,6 +989,9 @@ int Interp::reset()
         sub->saved_params[i];
     }
 
+    // When called from Interp::close this one is NULL
+    if (!_setup.file_pointer) continue;
+
     if(0 != strcmp(_setup.filename, sub->filename)) {
       fclose(_setup.file_pointer);
       _setup.file_pointer = fopen(sub->filename, "r");
