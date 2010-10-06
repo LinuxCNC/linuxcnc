@@ -628,6 +628,8 @@ interpret_again:
 static void mdi_execute_abort(void)
 {
     // XXX: Reset needed?
+    if (mdi_execute_wait || mdi_execute_next)
+        emcTaskPlanReset();
     mdi_execute_level = -1;
     mdi_execute_wait = 0;
     mdi_execute_next = 0;

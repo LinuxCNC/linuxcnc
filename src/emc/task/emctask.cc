@@ -549,6 +549,16 @@ int emcTaskPlanClose()
     return retval;
 }
 
+int emcTaskPlanReset()
+{
+    int retval = interp.reset();
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
+    }
+
+    return retval;
+}
+
 int emcTaskPlanLine()
 {
     int retval = interp.line();

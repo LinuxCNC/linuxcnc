@@ -468,6 +468,7 @@ extern int emcTaskPlanExecute(const char *command, int line_number); //used in c
 extern int emcTaskPlanPause();
 extern int emcTaskPlanResume();
 extern int emcTaskPlanClose();
+extern int emcTaskPlanReset();
 
 extern int emcTaskPlanLine();
 extern int emcTaskPlanLevel();
