@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sstream>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
@@ -2771,23 +2772,23 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
                             int *counter,       //!< pointer to a counter for position on the line 
                             double *double_ptr) //!< pointer to double to be read                  
 {
-  char *start, *end, save;
+  char *start;
   size_t after;
 
   start = line + *counter;
 
-  after = strspn(start, "0123456789+-.");
-  save = start[after];
-  start[after] = 0;
+  after = strspn(start, "+-");
+  after = strspn(start+after, "0123456789.") + after;
 
-  *double_ptr = strtod(start, &end);
-  start[after] = save;
+  std::string st(start, start+after);
+  std::stringstream s(st);
+  double val;
+  if(!(s >> val)) ERS("bad number format (conversion failed) parsing '%s'", st.c_str());
+  if(s.get() != std::char_traits<char>::eof()) ERS("bad number format (trailing characters) parsing '%s'", st.c_str());
 
-  if(end == start) {
-    ERS(NCE_BAD_NUMBER_FORMAT);
-  }
-
-  *counter = end - line;
+  *double_ptr = val;
+  *counter = start + after - line;
+  //fprintf(stderr, "got %f   rest of line=%s\n", val, line+*counter);
   return INTERP_OK;
 }
 
