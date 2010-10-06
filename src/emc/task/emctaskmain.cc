@@ -653,7 +653,6 @@ static void mdi_execute_hook(void)
     }
 
     if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
-	printf("Rescheduling back");
 	interp_list.append(mdi_execute_queue.get());
 	return;
     }
@@ -2023,7 +2022,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    }
 
 	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
-		printf("Reschedule command %s\n", command);
 		mdi_execute_queue.append(execute_msg);
 		break;
 	    }
