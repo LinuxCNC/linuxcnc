@@ -1602,11 +1602,11 @@ static void hal_init_pins()
 {
     int joint;
 
-    old_halui_data.machine_on = *(halui_data->machine_on) = 0;
-    old_halui_data.machine_off = *(halui_data->machine_off) = 0;
+    *(halui_data->machine_on) = old_halui_data.machine_on = 0;
+    *(halui_data->machine_off) = old_halui_data.machine_off = 0;
 
-    old_halui_data.estop_activate = *(halui_data->estop_activate) = 0;
-    old_halui_data.estop_reset = *(halui_data->estop_reset) = 0;
+    *(halui_data->estop_activate) = old_halui_data.estop_activate = 0;
+    *(halui_data->estop_reset) = old_halui_data.estop_reset = 0;
 
     
     for (joint=0; joint < num_axes; joint++) {
