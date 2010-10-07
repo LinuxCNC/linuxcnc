@@ -1330,7 +1330,7 @@ class Data:
             else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
-            print >>file, "MAX_OUTPUT = %s" % (get("maxoutput") * temp)
+            print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
             if get("invertencoder"):
                 temp = -1
             else: temp = 1
