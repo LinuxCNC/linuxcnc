@@ -1334,7 +1334,7 @@ class Data:
             if get("invertencoder"):
                 temp = -1
             else: temp = 1
-            print >>file, "INPUT_SCALE = %s" % get("scale")
+            print >>file, "INPUT_SCALE = %s" % (get("scale") * temp)
         else:
             print >>file, "# these are in nanoseconds"
             print >>file, "DIRSETUP   = %d"% int(get("dirsetup"))
