@@ -33,6 +33,12 @@ try:
 except:
 	sys.exit(1)
 
+import tempfile
+
+empty_program = tempfile.NamedTemporaryFile()
+empty_program.write("%\n%\n")
+empty_program.flush()
+
 import gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
@@ -74,7 +80,7 @@ pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
 invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 
 class touchy:
-	def __init__(self):
+        def __init__(self, inifile):
 		#Set the Glade file
 		self.gladefile = os.path.join(datadir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
@@ -131,6 +137,11 @@ class touchy:
                         mdi_labels.append(self.wTree.get_widget("mdi%d" % i))
                         mdi_eventboxes.append(self.wTree.get_widget("eventbox_mdi%d" % i))
                 self.mdi_control = mdi.mdi_control(gtk, emc, mdi_labels, mdi_eventboxes)
+
+                if inifile:
+                    ini = emc.ini(inifile)
+                    self.mdi_control.mdi.add_macros(
+                        ini.findall("TOUCHY", "MACRO"))
 
                 listing_labels = []
                 listing_eventboxes = []
@@ -208,6 +219,8 @@ class touchy:
                 else:
                         self.emc.opstop_off(0)                        
 
+		self.emc.emccommand.program_open(empty_program.name)
+
                 self.emc.max_velocity(self.mv_val)
                                 
                 gobject.timeout_add(50, self.periodic_status)
@@ -249,6 +262,7 @@ class touchy:
                         "on_mdi_select" : self.mdi_control.select,
                         "on_mdi_set_tool_clicked" : self.mdi_set_tool,
                         "on_mdi_set_origin_clicked" : self.mdi_set_origin,
+                        "on_mdi_macro_clicked" : self.mdi_macro,
                         "on_filechooser_select" : self.fileselect,
                         "on_filechooser_up_clicked" : self.filechooser.up,
                         "on_filechooser_down_clicked" : self.filechooser.down,
@@ -464,7 +478,7 @@ class touchy:
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
                           "flood_on", "flood_off", "mist_on", "mist_off",
-                          "g", "gp", "m", "t", "set_tool", "set_origin",
+                          "g", "gp", "m", "t", "set_tool", "set_origin", "macro",
                           "estop", "estop_reset", "machine_off", "machine_on",
                           "home_all", "unhome_all", "home_selected", "unhome_selected",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
@@ -516,6 +530,9 @@ class touchy:
 
         def mdi_set_origin(self, b):
                 self.mdi_control.set_origin(self.status.get_current_system())
+
+        def mdi_macro(self, b):
+                self.mdi_control.o(b)
 
         def fileselect(self, eb, e):
                 if self.wheel == "jogging": self.wheel = "mv"
@@ -616,7 +633,11 @@ class touchy:
 
 
 if __name__ == "__main__":
-	hwg = touchy()
+        if len(sys.argv) > 2 and sys.argv[1] == '-ini':
+            print "ini", sys.argv[2]
+            hwg = touchy(sys.argv[2])
+        else:
+            hwg = touchy()
 	res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
 	if res: raise SystemExit, res
 	gtk.main()
