@@ -130,7 +130,7 @@ class mdi:
         if m.lower().startswith('o'):
             codes = self.codes[m]
             for code in self.codes[m][1:]:
-                v = self.words[code]
+                v = self.words[code] or "0"
                 m = m + " [%s]" % v
         else:
             w = [i for i in self.words if len(self.words.get(i)) > 0]
