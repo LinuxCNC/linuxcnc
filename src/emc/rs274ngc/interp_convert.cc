@@ -2906,7 +2906,7 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
 {
 
   if (code == G_10) {
-      if(block->l_number == 1 || block->l_number == 10)
+      if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
           CHP(convert_setup_tool(block, settings));
       else
           CHP(convert_setup(block, settings));
@@ -3135,6 +3135,9 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     int pocket = -1, toolno;
     int q;
+    double tx, ty, tz, ta, tb, tc, tu, tv, tw;
+    int relative_to_system = block->l_number != 1;
+    int destination_system = block->l_number == 11? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
 
     is_near_int(&toolno, block->p_number);
 
@@ -3142,50 +3145,62 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     settings->tool_table[pocket].toolno = toolno;
 
-    if(block->x_flag) {
-        double x = block->x_number;
-        if (block->l_number == 10) x = settings->current_x + settings->tool_offset.tran.x - x;
-        settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(x);
-    }
-    if(block->y_flag) {
-        double y = block->y_number;
-        if (block->l_number == 10) y = settings->current_y + settings->tool_offset.tran.y - y;
-        settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(y);
-    }
-    if(block->z_flag) {
-        double z = block->z_number;
-        if (block->l_number == 10) z = settings->current_z + settings->tool_offset.tran.z - z;
-        settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(z);
-    }
-    if(block->a_flag) {
-        double a = block->a_number;
-        if (block->l_number == 10) a = settings->AA_current + settings->tool_offset.a - a;
-        settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(a);
-    }
-    if(block->b_flag) {
-        double b = block->b_number;
-        if (block->l_number == 10) b = settings->BB_current + settings->tool_offset.b - b;
-        settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(b);
-    }
-    if(block->c_flag) {
-        double c = block->c_number;
-        if (block->l_number == 10) c = settings->CC_current + settings->tool_offset.c - c;
-        settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(c);
-    }
-    if(block->u_flag) {
-        double u = block->u_number;
-        if (block->l_number == 10) u = settings->u_current + settings->tool_offset.u - u;
-        settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(u);
-    }
-    if(block->v_flag) {
-        double v = block->v_number;
-        if (block->l_number == 10) v = settings->v_current + settings->tool_offset.v - v;
-        settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(v);
-    }
-    if(block->w_flag) {
-        double w = block->w_number;
-        if (block->l_number == 10) w = settings->w_current + settings->tool_offset.w - w;
-        settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(w);
+    if(!relative_to_system) {
+        if(block->x_flag)
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
+        if(block->y_flag)
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(block->y_number);
+        if(block->z_flag) 
+            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
+        if(block->a_flag) 
+            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(block->a_number);
+        if(block->b_flag) 
+            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(block->b_number);
+        if(block->c_flag) 
+            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(block->c_number);
+        if(block->u_flag) 
+            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(block->u_number);
+        if(block->v_flag) 
+            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(block->v_number);
+        if(block->w_flag) 
+            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(block->w_number);
+    } else {
+        double oldx, oldy;
+        find_current_in_system(settings, destination_system,
+                               &tx, &ty, &tz, 
+                               &ta, &tb, &tc,
+                               &tu, &tv, &tw);
+        if(block->x_flag || block->y_flag) {
+            oldx = tx;
+            oldy = ty;
+            if(block->x_flag) {
+                tx = block->x_number;
+            }
+            if(block->y_flag) {
+                ty = block->y_number;
+            }
+            
+            rotate(&oldx, &oldy, settings->parameters[5210 + destination_system * 20]);
+            rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
+            
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(oldx + settings->tool_offset.tran.x - tx);
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(oldy + settings->tool_offset.tran.y - ty);
+        }
+        
+        if(block->z_flag) 
+            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(tz + settings->tool_offset.tran.z - block->z_number);
+        if(block->a_flag) 
+            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(ta + settings->tool_offset.a - block->a_number);
+        if(block->b_flag) 
+            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(tb + settings->tool_offset.b - block->b_number);
+        if(block->c_flag) 
+            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(tc + settings->tool_offset.c - block->c_number);
+        if(block->u_flag) 
+            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(tu + settings->tool_offset.u - block->u_number);
+        if(block->v_flag) 
+            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(tv + settings->tool_offset.v - block->v_number);
+        if(block->w_flag) 
+            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(tw + settings->tool_offset.w - block->w_number);
     }
 
     if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
@@ -4692,8 +4707,15 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-  settings->current_x += settings->tool_offset.tran.x - tool_offset.tran.x;
-  settings->current_y += settings->tool_offset.tran.y - tool_offset.tran.y;
+  double dx, dy;
+
+  dx = settings->tool_offset.tran.x - tool_offset.tran.x;
+  dy = settings->tool_offset.tran.y - tool_offset.tran.y;
+
+  rotate(&dx, &dy, -settings->rotation_xy);
+
+  settings->current_x += dx;
+  settings->current_y += dy;
   settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;
   settings->AA_current += settings->tool_offset.a - tool_offset.a;
   settings->BB_current += settings->tool_offset.b - tool_offset.b;
