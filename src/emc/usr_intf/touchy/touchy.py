@@ -661,7 +661,6 @@ class touchy:
 		nb = self.wTree.get_widget('notebook1')
 		for t,c in zip(tab_names, tab_cmd):
 			xid = self._dynamic_tab(nb, t)
-			print "Xid: %d" % xid
 			if not xid: continue
 			cmd = c.replace('{XID}', str(xid))
 			child = Popen(cmd.split())
