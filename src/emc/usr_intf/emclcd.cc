@@ -287,7 +287,9 @@ struct option longopts[] = {
   {"driver", 1, NULL, 'd'},
   {"autostart", 1, NULL, 'a'},
   {"server", 1, NULL, 's'},
-  {"delay", 1, NULL, 'w'}};
+  {"delay", 1, NULL, 'w'},
+  {0,0,0,0}
+  };
 
 int sockfd = -1;
 int err;

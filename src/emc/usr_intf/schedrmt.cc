@@ -279,7 +279,9 @@ struct option longopts[] = {
   {"sessions", 1, NULL, 's'},
   {"connectpw", 1, NULL, 'w'},
   {"enablepw", 1, NULL, 'e'},
-  {"path", 1, NULL, 'd'}};
+  {"path", 1, NULL, 'd'},
+  {0,0,0,0}
+  };
 
 
 static void thisQuit()
