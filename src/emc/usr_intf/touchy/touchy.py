@@ -142,6 +142,9 @@ class touchy:
                     ini = emc.ini(inifile)
                     self.mdi_control.mdi.add_macros(
                         ini.findall("TOUCHY", "MACRO"))
+                    self.ini = ini
+                else:
+                    self.ini = None
 
                 listing_labels = []
                 listing_eventboxes = []
@@ -309,6 +312,7 @@ class touchy:
 				widget.connect_after('released',self.hack_leave)
 
                 self.setfont()
+                self.set_dynamic_tabs()
 
         def quit(self, unused):
                 gtk.main_quit()
@@ -630,6 +634,36 @@ class touchy:
 		s = w.get_screen()
 		x, y = w.get_origin()
 		d.warp_pointer(s, x, y)
+
+	def _dynamic_tab(self, notebook, text):
+		s = gtk.Socket()
+		label = gtk.Label(text)
+		label.modify_font(self.control_font)
+		notebook.append_page(s, label)
+		return s.get_id()
+
+	def set_dynamic_tabs(self):
+		from subprocess import Popen
+		self._dynamic_childs = {}
+
+		if not self.ini:
+			return
+
+		tab_names = self.ini.findall("DISPLAY", "EMBED_TAB_NAME")
+		tab_cmd   = self.ini.findall("DISPLAY", "EMBED_TAB_COMMAND")
+
+		if len(tab_names) != len(tab_cmd):
+			print "Invalid tab configuration" # Complain somehow
+
+		nb = self.wTree.get_widget('notebook1')
+		for t,c in zip(tab_names, tab_cmd):
+			xid = self._dynamic_tab(nb, t)
+			print "Xid: %d" % xid
+			if not xid: continue
+			cmd = c.replace('{XID}', str(xid))
+			child = Popen(cmd.split())
+			self._dynamic_childs[xid] = child
+		nb.show_all()
 
 
 if __name__ == "__main__":
