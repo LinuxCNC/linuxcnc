@@ -311,8 +311,8 @@ class touchy:
 			if isinstance(widget, gtk.Button):
 				widget.connect_after('released',self.hack_leave)
 
-                self.setfont()
                 self.set_dynamic_tabs()
+                self.setfont()
 
         def quit(self, unused):
                 gtk.main_quit()
@@ -500,6 +500,11 @@ class touchy:
                                 w = w.child
                                 w.modify_font(self.control_font)
 
+		notebook = self.wTree.get_widget('notebook1')
+		for i in range(notebook.get_n_pages()):
+			w = notebook.get_nth_page(i)
+			notebook.get_tab_label(w).modify_font(self.control_font)
+
                 # labels
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_widget("mdi%d" % i)
@@ -637,9 +642,7 @@ class touchy:
 
 	def _dynamic_tab(self, notebook, text):
 		s = gtk.Socket()
-		label = gtk.Label(text)
-		label.modify_font(self.control_font)
-		notebook.append_page(s, label)
+		notebook.append_page(s, gtk.Label(text))
 		return s.get_id()
 
 	def set_dynamic_tabs(self):
