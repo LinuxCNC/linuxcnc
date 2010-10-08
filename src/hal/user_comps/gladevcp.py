@@ -66,19 +66,22 @@ def main():
     """
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "c:g:")
+        opts, args = getopt.getopt(sys.argv[1:], "c:g:w:")
     except getopt.GetoptError, detail:
         print detail
         usage()
         sys.exit(1)
     window_geometry = ""
     component_name = None
+    parent = None
     for o, a in opts:
         print o,a
         if o == "-c":
             component_name = a
         if o == "-g": 
             window_geometry = a
+        if o == "-w":
+            parent = int(a, 0)
     try:
         xmlname = args[0]
     except:
@@ -118,6 +121,18 @@ def main():
     else:
         builder.connect_signals(builder)
     window.show()
+
+    if parent:
+        from Xlib import display
+        from Xlib.xobject import drawable
+        d = display.Display()
+        w = drawable.Window(d.display, window.window.xid, 0)
+        # Honor XEmbed spec
+        atom = d.get_atom('_XEMBED_INFO')
+        w.change_property(atom, atom, 32, [0, 1])
+        w.reparent(parent, 0, 0)
+        w.map()
+        d.sync()
 
     # for window resize and or position options
     if "+" in window_geometry:
