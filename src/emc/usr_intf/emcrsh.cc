@@ -748,7 +748,7 @@ static cmdResponseType setVerbose(char *s, connectionRecType *context)
 static cmdResponseType setEnable(char *s, connectionRecType *context)
 {
   
-   if (strcmp(s, enablePWD) == 0) {
+   if (s && (strcmp(s, enablePWD) == 0) ) {
      enabledConn = context->cliSock;
      context->enabled = true;
      return rtNoError;
