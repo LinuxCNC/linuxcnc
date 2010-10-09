@@ -33,6 +33,7 @@ try:
 except:
 	sys.exit(1)
 
+import atexit
 import tempfile
 
 empty_program = tempfile.NamedTemporaryFile()
@@ -319,7 +320,10 @@ class touchy:
 			if isinstance(widget, gtk.Button):
 				widget.connect_after('released',self.hack_leave)
 
+                self._dynamic_childs = {}
+                atexit.register(self.kill_dynamic_childs)
                 self.set_dynamic_tabs()
+
                 self.setfont()
 
         def quit(self, unused):
@@ -669,7 +673,6 @@ class touchy:
 
 	def set_dynamic_tabs(self):
 		from subprocess import Popen
-		self._dynamic_childs = {}
 
 		if not self.ini:
 			return
@@ -688,6 +691,10 @@ class touchy:
 			child = Popen(cmd.split())
 			self._dynamic_childs[xid] = child
 		nb.show_all()
+
+	def kill_dynamic_childs(self):
+		for c in self._dynamic_childs.values():
+			c.terminate()
 
 
 if __name__ == "__main__":
