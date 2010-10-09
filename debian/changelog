@@ -1,3 +1,15 @@
+emc2 (1:2.4.5) lucid; urgency=low
+
+  * interp: fix bug that made axis "touch off" frequently crash
+
+  * pncconf: make generated configuration files work better with tcllalib
+  * pncconf: fix inverted encoder
+  * pncconf: fix following error when inverting servo direction
+
+  * documentation: small improvements
+ 
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 09 Oct 2010 08:07:30 -0500
+
 emc2 (1:2.4.4) lucid; urgency=low
 
   * axis: improve preview of programs that use tool length parameters
