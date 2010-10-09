@@ -527,7 +527,8 @@ void hm2_ioport_gpio_prepare_tram_write(hostmot2_t *hm2) {
             if (hm2->pin[io_pin].gtag != HM2_GTAG_IOPORT) continue;
 
             hm2->ioport.data_write_reg[port] &= ~(1 << port_pin);   // zero the bit
-            hm2->ioport.data_write_reg[port] |= (*(hm2->pin[io_pin].instance->hal.pin.out) << port_pin);  // and set it as appropriate
+            if(*(hm2->pin[io_pin].instance->hal.pin.out))
+                hm2->ioport.data_write_reg[port] |= (1 << port_pin);  // and set if appropriate
         }
     }
 }
