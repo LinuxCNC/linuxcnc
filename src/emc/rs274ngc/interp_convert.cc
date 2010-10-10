@@ -135,16 +135,16 @@ int Interp::convert_nurbs(int mode,
 
     if (mode == G_5_2)  {
 	CHKS((((block->x_flag) && !(block->y_flag)) || (!(block->x_flag) && (block->y_flag))), (
-             "You must specify both X and Y coordinates for Control Points"));
+             _("You must specify both X and Y coordinates for Control Points")));
 	CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) && 
              (!nurbs_control_points.empty())), (
-             "Can specify P without X and Y only for the first control point"));
+             _("Can specify P without X and Y only for the first control point")));
 
         CHKS(((block->p_number <= 0) && (!nurbs_control_points.empty())), (
-             "Must specify positive weight P for every Control Point"));
+             _("Must specify positive weight P for every Control Point")));
         if (settings->feed_mode == UNITS_PER_MINUTE) {
             CHKS((settings->feed_rate == 0.0), (
-                 "Cannot make a NURBS with 0 feedrate"));
+                 _("Cannot make a NURBS with 0 feedrate")));
         }
         if (nurbs_control_points.empty()) {
             CP.X = settings->current_x;
@@ -179,7 +179,7 @@ int Interp::convert_nurbs(int mode,
     
     else if (mode == G_5_3){
         CHKS((settings->motion_mode != G_5_2), (
-             "Cannot use G5.3 without G5.2 first"));
+             _("Cannot use G5.3 without G5.2 first")));
         CHKS((nurbs_control_points.size()<nurbs_order), _("You must specify a number of control points at least equal to the order L = %d"), nurbs_order);
 	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
         settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
@@ -224,11 +224,11 @@ int Interp::convert_spline(int mode,
 
     CHKS((block->z_flag || block->a_flag || block->b_flag
           || block->c_flag),
-          ("Splines may not have motion in Z, A, B, or C"));
+          _("Splines may not have motion in Z, A, B, or C"));
 
     if(mode == G_5_1) {
       CHKS(!block->i_flag || !block->j_flag,
-                  ("Must specify both I and J with G5.1"));
+                  _("Must specify both I and J with G5.1"));
       x1 = settings->current_x + block->i_number;
       y1 = settings->current_y + block->j_number;
       CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
@@ -247,7 +247,7 @@ int Interp::convert_spline(int mode,
     } else {
       if(!block->i_flag || !block->j_flag) {
           CHKS(block->i_flag || block->j_flag,
-                  ("Must specify both I and J, or neither"));
+                  _("Must specify both I and J, or neither"));
           x1 = settings->current_x + settings->cycle_i;
           y1 = settings->current_y + settings->cycle_j;
       } else {
@@ -258,7 +258,7 @@ int Interp::convert_spline(int mode,
                     &u_end, &v_end, &w_end));
 
       CHKS(!block->p_flag || !block->q_flag,
-	      ("Must specify both P and Q with G5"));
+	      _("Must specify both P and Q with G5"));
       x2 = x3 + block->p_number;
       y2 = y3 + block->q_number;
 
@@ -375,7 +375,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     CHKS((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
     CHKS((settings->speed == 0.0),
-	"Cannot feed with zero spindle speed in feed per rev mode");
+	_("Cannot feed with zero spindle speed in feed per rev mode"));
   } else if (settings->feed_mode == INVERSE_TIME) {
     CHKS((!block->f_flag),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
@@ -386,13 +386,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
       if (!block->i_flag) { /* i or j flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'I');
+	  ERS(_("%c word missing in absolute center arc"_), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
       } else if (!block->j_flag) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'J');
+	  ERS(_("%c word missing in absolute center arc"), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
@@ -401,13 +401,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
       if (!block->j_flag) { /* j or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'J');
+	  ERS(_("%c word missing in absolute center arc"_), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
       } else if (!block->k_flag) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'K');
+	  ERS(_("%c word missing in absolute center arc"), 'K');
 	} else {
 	  block->k_number = 0.0;
 	}
@@ -416,13 +416,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->j_flag), NCE_J_WORD_GIVEN_FOR_ARC_IN_XZ_PLANE);
       if (!block->i_flag) { /* i or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'I');
+	  ERS(_("%c word missing in absolute center arc"), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
       } else if (!block->k_flag) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'K');
+	  ERS(_("%c word missing in absolute center arc"), 'K');
 	} else {
 	  block->k_number = 0.0;
 	}
@@ -641,7 +641,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     comp_get_current(settings, &cx, &cy, &cz);
 
     CHKS((hypot((end_x - cx), (end_y - cy)) <= tool_radius),
-         "Radius of cutter compensation entry arc is not greater than the tool radius");
+         _("Radius of cutter compensation entry arc is not greater than the tool radius"));
 
     if (block->r_flag) {
         CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
@@ -2213,7 +2213,7 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     double *p = s->parameters;
     
     if(s->cutter_comp_side) {
-        ERS("Cannot set reference point with cutter compensation in effect");
+        ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
     double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_offset.tran.x + s->origin_offset_x + s->axis_offset_x);
@@ -2661,7 +2661,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
     if (block->p_flag) { // got a digital input
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
-	    ERS("invalid P-word with M66");
+	    ERS(_("invalid P-word with M66"));
 	    
 	if (block->l_flag) {
 	    type = round_to_int(block->l_number);
@@ -3066,7 +3066,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   CHKS(settings->feed_mode == UNITS_PER_REVOLUTION,
-	  "Cannot probe with feed per rev mode");
+	  _("Cannot probe with feed per rev mode"));
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));
@@ -3207,8 +3207,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     if(block->i_flag) settings->tool_table[pocket].frontangle = block->i_number;
     if(block->j_flag) settings->tool_table[pocket].backangle = block->j_number;
     if(block->q_number != -1.0) {
-        CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
-        CHKS((q > 9), "Invalid tool orientation");
+        CHKS((!is_near_int(&q, block->q_number)), _("Q number in G10 is not an integer"));
+        CHKS((q > 9), _("Invalid tool orientation"));
         settings->tool_table[pocket].orientation = q;
     }
 
@@ -3328,7 +3328,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                          &cu, &cv, &cw);
 
   if (block->r_flag) {
-    CHKS((block->l_number == 20), "R not allowed in G10 L20");
+    CHKS((block->l_number == 20), _("R not allowed in G10 L20"));
     r = block->r_number;
     parameters[5210 + (p_int * 20)] = r;
   } else
@@ -3842,7 +3842,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
     } else if (settings->feed_mode == UNITS_PER_REVOLUTION) {
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
-      CHKS((settings->speed == 0.0), "Cannot feed with zero spindle speed in feed per rev mode");
+      CHKS((settings->speed == 0.0), _("Cannot feed with zero spindle speed in feed per rev mode"));
     } else if (settings->feed_mode == INVERSE_TIME) {
       CHKS((!block->f_flag),
           NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE);
@@ -3899,7 +3899,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   } else if (move == G_33) {
     CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
-          "Spindle not turning in G33");
+          _("Spindle not turning in G33"));
     START_SPEED_FEED_SYNCH(block->k_number, 0);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
@@ -3909,7 +3909,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   } else if (move == G_33_1) {
     CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
-          "Spindle not turning in G33.1");
+          _("Spindle not turning in G33.1"));
     START_SPEED_FEED_SYNCH(block->k_number, 0);
     RIGID_TAP(block->line_number, end_x, end_y, end_z);
     STOP_SPEED_FEED_SYNCH();
@@ -4207,7 +4207,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     distance = hypot((px - cx), (py - cy));
 
     CHKS(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
-    CHKS((distance <= radius), "Length of cutter compensation entry move is not greater than the tool radius");
+    CHKS((distance <= radius), _("Length of cutter compensation entry move is not greater than the tool radius"));
 
     alpha = atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
 

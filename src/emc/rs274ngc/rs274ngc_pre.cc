@@ -1071,7 +1071,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
       return INTERP_OK;
   // open original for reading
   infile = fopen(filename, "r");
-  CHKS((infile == NULL), "Unable to open parameter file: '%s'", filename);
+  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename);
 
   pars = _setup.parameters;
   k = 0;

@@ -1599,7 +1599,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("while");
       block->o_type = O_while;
       CHKS((line[*counter] != '['),
-	    "Left bracket missing after 'while'");
+	    _("Left bracket missing after 'while'"));
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1615,7 +1615,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
           *counter += strlen("repeat");
           block->o_type = O_repeat;
           CHKS((line[*counter] != '['),
-               "Left bracket missing after 'repeat'");
+               _("Left bracket missing after 'repeat'"));
           CHP(read_real_expression(line, counter, &value, parameters));
           _setup.test_value = value;
       }
@@ -1631,7 +1631,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("if");
       block->o_type = O_if;
       CHKS((line[*counter] != '['),
-	    "Left bracket missing after 'if'");
+	    _("Left bracket missing after 'if'"));
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1647,7 +1647,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("elseif");
       block->o_type = O_elseif;
       CHKS((line[*counter] != '['),
-	    "Left bracket missing after 'elseif'");
+	    _("Left bracket missing after 'elseif'"));
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -2783,8 +2783,8 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
   std::string st(start, start+after);
   std::stringstream s(st);
   double val;
-  if(!(s >> val)) ERS("bad number format (conversion failed) parsing '%s'", st.c_str());
-  if(s.get() != std::char_traits<char>::eof()) ERS("bad number format (trailing characters) parsing '%s'", st.c_str());
+  if(!(s >> val)) ERS(_("bad number format (conversion failed) parsing '%s'"), st.c_str());
+  if(s.get() != std::char_traits<char>::eof()) ERS(_("bad number format (trailing characters) parsing '%s'"), st.c_str());
 
   *double_ptr = val;
   *counter = start + after - line;
@@ -2874,9 +2874,9 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
     CHP(read_real_number(line, counter, double_ptr));
 
   CHKS(isnan(*double_ptr),
-          "Calculation resulted in 'not a number'");
+          _("Calculation resulted in 'not a number'"));
   CHKS(isinf(*double_ptr),
-          "Calculation resulted in 'infinity'");
+          _("Calculation resulted in 'infinity'"));
 
   return INTERP_OK;
 }
@@ -3170,7 +3170,7 @@ int Interp::read_text(
     if (fgets(raw_line, LINELEN, inport) == NULL) {
       if(_setup.skipping_to_sub)
       {
-        ERS("EOF in file:%s seeking o-word: o<%s> from line: %d",
+        ERS(_("EOF in file:%s seeking o-word: o<%s> from line: %d"),
                  _setup.filename,
                  _setup.skipping_to_sub,
                  _setup.skipping_start);
