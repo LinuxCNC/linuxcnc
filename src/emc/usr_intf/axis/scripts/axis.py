@@ -1344,6 +1344,20 @@ class DummyCanon:
     def user_defined_function(self, m, p, q):
         self.number = p
 
+def parse_gcode_expression(e):
+    f = os.path.devnull
+    canon = DummyCanon()
+
+    parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
+    temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
+    shutil.copy(parameter, temp_parameter)
+    canon.parameter_file = temp_parameter
+
+    result, seq = gcode.parse("", canon, "M199 P["+e+"]", "M2")
+    print "parse_gcode_expression", result, seq, getattr(canon, 'number', None)
+    if result > gcode.MIN_ERROR: return False, gcode.strerror(result)
+    return True, canon.number
+
 class _prompt_areyousure:
     """ Prompt for a question, user can enter yes or no """
     def __init__(self, title, text):
@@ -1458,21 +1472,9 @@ class _prompt_float:
                 ok = 0
 
         if ok:
-            f = os.path.devnull
-            canon = DummyCanon()
-
-            parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
-            temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-            shutil.copy(parameter, temp_parameter)
-            canon.parameter_file = temp_parameter
-
-            result, seq = gcode.parse("", canon, "M199 P["+v+"]", "M2")
-
-            if result > gcode.MIN_ERROR:
-                self.w.set(gcode.strerror(result))
-                ok = 0
-            else:
-                self.w.set("= %f%s" % (canon.number, self.unit_str))
+            ok, value = parse_gcode_expression(v)
+            if ok: self.w.set("= %f%s" % (value, self.unit_str))
+            else:  self.w.set(value)
 
         if ok: 
             self.ok.configure(state="normal")
