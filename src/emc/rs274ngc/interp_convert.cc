@@ -386,7 +386,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
       if (!block->i_flag) { /* i or j flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS(_("%c word missing in absolute center arc"_), 'I');
+	  ERS(_("%c word missing in absolute center arc"), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
@@ -401,7 +401,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
       if (!block->j_flag) { /* j or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS(_("%c word missing in absolute center arc"_), 'J');
+	  ERS(_("%c word missing in absolute center arc"), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
