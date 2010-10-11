@@ -2353,4 +2353,22 @@ catch {
     set ::tk::dialog::file::showHiddenVar 0
 }
 
+# Show what alphabetic letters are left for a specific menu
+proc show_menu_available {m} {
+    for {set i 0} {$i < [$m index end]} {incr i} {
+        set t [$m type $i]
+        if {$t == "separator" || $t == "tearoff"} {continue}
+        set u [$m entrycget $i -underline]
+        if {$u == -1} {continue}
+        set l [$m entrycget $i -label]
+        set c [string tolower [string range $l $u $u]]
+        if {[info exists used($c)]} { puts "Duplicate: $c" }
+        set used($c) {}
+    }
+
+    foreach i {a b c d e f g h i j k l m n o p q r s t u v w x y z} {
+        if {![info exists used($i)]} { puts "Available: $i" }
+    }
+}
+
 # vim:ts=8:sts=4:et:sw=4:
