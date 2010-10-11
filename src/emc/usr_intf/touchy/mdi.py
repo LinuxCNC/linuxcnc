@@ -89,7 +89,6 @@ class mdi:
 
     def add_macros(self, macros):
         for m in macros:
-            print "adding macro", m
             words = m.split()
             call = "O<%s> call" % words[0]
             args = [''] + [w + ' ' for w in words[1:]]
