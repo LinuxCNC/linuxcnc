@@ -1633,6 +1633,9 @@ class TclCommands(nf.TclCommands):
         if b is not None: b = float(b)
         return from_internal_linear_unit(float(a), b)
 
+    def toggle_tto_g11(event=None):
+        ap.putpref("tto_g11", vars.tto_g11.get())
+        
     def toggle_optional_stop(event=None):
         c.set_optional_stop(vars.optional_stop.get())
         ap.putpref("optional_stop", vars.optional_stop.get())
@@ -2267,7 +2270,8 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         if system.split()[0] == "T":
-            offset_command = "G10 L10 P%d %c[%s*%.12f]" % (s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
+            lnum = 10 + vars.tto_g11.get()
+            offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")
@@ -2444,6 +2448,7 @@ vars = nf.Variables(root_window,
     ("has_ladder", IntVar),
     ("has_editor", IntVar),
     ("current_axis", StringVar),
+    ("tto_g11", BooleanVar),
     ("mist", BooleanVar),
     ("flood", BooleanVar),
     ("brake", BooleanVar),
@@ -2488,6 +2493,7 @@ vars = nf.Variables(root_window,
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
+vars.tto_g11.set(ap.getpref("tto_g11", False))
 vars.show_program.set(ap.getpref("show_program", True))
 vars.show_rapids.set(ap.getpref("show_rapids", True))
 vars.show_live_plot.set(ap.getpref("show_live_plot", True))

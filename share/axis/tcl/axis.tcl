@@ -237,7 +237,17 @@ setup_menu_accel .menu.machine.clearoffset end [_ "P9  G59._3"]
     -command [list clear_offset G92]
 setup_menu_accel .menu.machine.clearoffset end [_ "_G92"]
 
+.menu.machine add radiobutton \
+	-variable tto_g11 \
+        -value 0 \
+        -command toggle_tto_g11
+setup_menu_accel .menu.machine end [_ "Tool touch off to wor_kpiece"]
 
+.menu.machine add radiobutton \
+	-variable tto_g11 \
+        -value 1 \
+        -command toggle_tto_g11
+setup_menu_accel .menu.machine end [_ "Tool touch off to _fixture"]
 
 # ----------------------------------------------------------------------
 .menu.view add radiobutton \
