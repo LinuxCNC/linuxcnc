@@ -237,6 +237,8 @@ setup_menu_accel .menu.machine.clearoffset end [_ "P9  G59._3"]
     -command [list clear_offset G92]
 setup_menu_accel .menu.machine.clearoffset end [_ "_G92"]
 
+.menu.machine add separator
+
 .menu.machine add radiobutton \
 	-variable tto_g11 \
         -value 0 \
