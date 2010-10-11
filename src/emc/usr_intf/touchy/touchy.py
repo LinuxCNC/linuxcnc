@@ -664,7 +664,7 @@ class touchy:
 
 	def _dynamic_tab(self, notebook, text):
 		s = gtk.Socket()
-		notebook.append_page(s, gtk.Label(text))
+		notebook.append_page(s, gtk.Label(" " + text + " "))
 		return s.get_id()
 
 	def set_dynamic_tabs(self):
