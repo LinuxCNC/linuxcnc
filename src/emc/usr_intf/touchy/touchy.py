@@ -104,10 +104,10 @@ class touchy:
 
                 self.fo_val = 100
                 self.so_val = 100
-                self.mv_val = 100
                 self.g10l11 = 0
 
                 self.prefs = preferences.preferences()
+                self.mv_val = self.prefs.getpref('maxvel', 100, int)
                 self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
                 self.dro_font_name = self.prefs.getpref('dro_font', 'Courier 10 Pitch Bold 16', str)
                 self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
@@ -644,6 +644,7 @@ class touchy:
                         if d != 0:
                                 self.emc.max_velocity(self.mv_val)
                                 self.emc.continuous_jog_velocity(self.mv_val)
+                                self.prefs.putpref('maxvel', self.mv_val, int)
                         
 
                 set_label(self.wTree.get_widget("fo").child, "FO: %d%%" % self.fo_val)
