@@ -274,11 +274,14 @@ class mdi_control:
         if n <= self.numwords:
             self.editing(n)
 
-    def set_tool(self, tool):
+    def set_tool(self, tool, g10l11):
         self.g(0)
         self.set_text("G10", 0)
         self.next(0)
-        self.set_text("L10", 1)
+        if g10l11:
+            self.set_text("L11", 1)
+        else:
+            self.set_text("L10", 1)
         self.next(0)
         self.set_text("P%d" % tool, 2)
         self.next(0)

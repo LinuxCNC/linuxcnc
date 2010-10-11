@@ -105,6 +105,7 @@ class touchy:
                 self.fo_val = 100
                 self.so_val = 100
                 self.mv_val = 100
+                self.g10l11 = 0
 
                 self.prefs = preferences.preferences()
                 self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
@@ -193,7 +194,6 @@ class touchy:
                 opstop = dict((i, self.wTree.get_widget("opstop_" + i)) for i in opstop)
                 blockdel = ['on', 'off']
                 blockdel = dict((i, self.wTree.get_widget("blockdel_" + i)) for i in blockdel)
-
                 self.status = emc_interface.emc_status(gtk, emc, self.listing, relative, absolute, distance,
                                                        self.wTree.get_widget("dro_table"),
                                                        self.wTree.get_widget("error"),
@@ -202,6 +202,12 @@ class touchy:
                                                        stats,
                                                        floods, mists, spindles, prefs,
                                                        opstop, blockdel)
+
+                if self.prefs.getpref('toolsetting_fixture', 0):
+                        self.g10l11 = 1
+                else:
+                        self.g10l11 = 0
+
                 if self.prefs.getpref('dro_mm', 0):
                         self.status.dro_mm(0)
                 else:
@@ -304,6 +310,8 @@ class touchy:
                         "on_spindle_reverse_clicked" : self.emc.spindle_reverse,
                         "on_spindle_slower_clicked" : self.emc.spindle_slower,
                         "on_spindle_faster_clicked" : self.emc.spindle_faster,
+                        "on_toolset_fixture_clicked" : self.toolset_fixture,
+                        "on_toolset_workpiece_clicked" : self.toolset_workpiece,
                         }
                 self.wTree.signal_autoconnect(dic)
 
@@ -447,6 +455,16 @@ class touchy:
                 self.emc.jogging(b)
                 self.jogsettings_activate(1)
 
+        def toolset_fixture(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('toolsetting_fixture', 1)
+                self.g10l11 = 1
+
+        def toolset_workpiece(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('toolsetting_fixture', 0)
+                self.g10l11 = 0
+
         def jogsettings_activate(self, active):
                 for i in ["wheelinc1", "wheelinc2", "wheelinc3"]:
                         w = self.wTree.get_widget(i)
@@ -494,7 +512,8 @@ class touchy:
                           "spindle_faster", "spindle_slower",
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
                           "reload_tooltable", "opstop_on", "opstop_off",
-                          "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show"]:
+                          "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show",
+                          "toolset_workpiece", "toolset_fixture"]:
                         w = self.wTree.get_widget(i)
                         if w:
                                 w = w.child
@@ -535,7 +554,7 @@ class touchy:
 		self.wTree.get_widget("MainWindow").window.maximize()
 
         def mdi_set_tool(self, b):
-                self.mdi_control.set_tool(self.status.get_current_tool())
+                self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
 
         def mdi_set_origin(self, b):
                 self.mdi_control.set_origin(self.status.get_current_system())
@@ -597,6 +616,8 @@ class touchy:
                 set_active(self.wTree.get_widget("jogging"), self.wheel == "jogging")
                 set_active(self.wTree.get_widget("pointer_show"), not self.invisible_cursor)
                 set_active(self.wTree.get_widget("pointer_hide"), self.invisible_cursor)
+                set_active(self.wTree.get_widget("toolset_workpiece"), not self.g10l11)
+                set_active(self.wTree.get_widget("toolset_fixture"), self.g10l11)
                 self.radiobutton_mask = 0
 
                 if self.wheel == "jogging":
