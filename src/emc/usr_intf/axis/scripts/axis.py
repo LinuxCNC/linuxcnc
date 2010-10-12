@@ -199,7 +199,7 @@ help2 = [
     ("", ""),
     (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
-    ("F4", _("Switch between preview and DRO")),
+    ("F4", _("Cycle among preview, DRO, and user tabs")),
     ("", ""),
     (_("Ctrl-Space"), _("Clear notifications")),
 ]
@@ -1619,10 +1619,17 @@ def reload_file(refilter=True):
         o.set_highlight_line(line)
  
 class TclCommands(nf.TclCommands):
-    def toggle_preview(event=None):
+    def next_tab(event=None):
         current = widgets.right.raise_page()
-        if current == "preview": widgets.right.raise_page("numbers")
-        else: widgets.right.raise_page("preview")
+        pages = widgets.right.pages()
+        try:
+            idx = pages.index(current)
+        except ValueError:
+            idx = -1
+        newidx = (idx + 1) % len(pages)
+        widgets.right.raise_page(pages[newidx])
+        root_window.focus_force()
+
     def redraw_soon(event=None):
         o.redraw_soon()
 
@@ -2953,7 +2960,7 @@ def get_coordinate_font(large):
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
 root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
-root_window.bind("<Key-F4>", commands.toggle_preview)
+root_window.bind("<Key-F4>", commands.next_tab)
 
 init()
 
@@ -3095,7 +3102,7 @@ def _dynamic_tabs(inifile):
         # Complain somehow
         return
     for i,t,c in zip(range(len(tab_cmd)), tab_names, tab_cmd):
-        w = _dynamic_tab(str(i), t)
+        w = _dynamic_tab("user_" + str(i), t)
         f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
         f.pack(fill="both", expand=1)
         xid = f.winfo_id()
