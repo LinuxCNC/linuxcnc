@@ -28,10 +28,12 @@ class DummyProgress:
     def progress(self): pass
 
 class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
-    def __init__(self, colors, geometry, stat):
+    def __init__(self, colors, geometry, stat, random):
         rs274.glcanon.GLCanon.__init__(self, colors, geometry)
-        rs274.interpret.StatMixin.__init__(self, stat)
+        rs274.interpret.StatMixin.__init__(self, stat, random)
         self.progress = DummyProgress()
+
+    def is_lathe(self): return False
 
 def W(p, k, *args, **kw):
     w = k(*args, **kw)
@@ -149,7 +151,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         s.poll()
         fingerprint = (self.logger.npts, self.soft_limits(),
             s.actual_position, s.joint_actual_position,
-            s.homed, s.origin, s.limit, s.tool_in_spindle,
+            s.homed, s.g5x_offset, s.g92_offset, s.limit, s.tool_in_spindle,
             s.motion_mode, s.current_vel)
 
         if fingerprint != self.fingerprint:
@@ -178,7 +180,8 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
         td = tempfile.mkdtemp()
         try:
-            canon = StatCanon(self.colors, self.get_geometry(), s)
+            random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
+            canon = StatCanon(self.colors, self.get_geometry(), s, random)
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
             temp_parameter = os.path.join(td, os.path.basename(parameter))
             shutil.copy(parameter, temp_parameter)
@@ -220,6 +223,8 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base
+
+    def get_show_offsets(self): return True
 
     def select_prime(self, x, y):
         self.select_primed = x, y
