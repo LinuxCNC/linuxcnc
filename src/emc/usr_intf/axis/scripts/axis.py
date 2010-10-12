@@ -3080,6 +3080,36 @@ try:
 except Tkinter.TclError:
     pass
 
+_dynamic_childs = {}
+def _dynamic_tab(name, text):
+    tab = widgets.right.insert("end", name, text=text)
+    tab.configure(borderwidth=1, highlightthickness=0)
+    return tab
+
+def _dynamic_tabs(inifile):
+    from subprocess import Popen
+    tab_names = inifile.findall("DISPLAY", "EMBED_TAB_NAME")
+    tab_cmd   = inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
+    if len(tab_names) != len(tab_cmd):
+        print "Invalid tab configuration"
+        # Complain somehow
+        return
+    for i,t,c in zip(range(len(tab_cmd)), tab_names, tab_cmd):
+        w = _dynamic_tab(str(i), t)
+        f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
+        f.pack(fill="both", expand=1)
+        xid = f.winfo_id()
+        cmd = c.replace('{XID}', str(xid))
+        child = Popen(cmd.split())
+        _dynamic_childs[str(w)] = child
+
+@atexit.register
+def kill_dynamic_childs():
+    for c in _dynamic_childs.values():
+        c.terminate()
+
+_dynamic_tabs(inifile)
+
 o.update_idletasks()
 
 import _tk_seticon
