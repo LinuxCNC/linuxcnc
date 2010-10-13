@@ -442,7 +442,7 @@ private:
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
- void doLog(char *fmt, ...) __attribute__((format(printf,2,3)));
+ void doLog(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
  FILE *log_file;
 

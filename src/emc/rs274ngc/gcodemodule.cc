@@ -352,7 +352,7 @@ void LOG(char *s) {}
 void LOGOPEN(char *f) {}
 void LOGCLOSE() {}
 
-void COMMENT(char *comment) {
+void COMMENT(const char *comment) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =

@@ -1429,7 +1429,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   double value;
   int param_cnt;
   char oNameBuf[LINELEN+1];
-  char *subName;
+  const char *subName;
   char fullNameBuf[2*LINELEN+1];
   int oNumber;
 

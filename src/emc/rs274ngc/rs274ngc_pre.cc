@@ -107,7 +107,7 @@ Interp::~Interp() {
     }
 }
 
-void Interp::doLog(char *fmt, ...)
+void Interp::doLog(const char *fmt, ...)
 {
 #ifdef LOG_FILE
     struct timeval tv;

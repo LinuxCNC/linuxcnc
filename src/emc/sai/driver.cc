@@ -285,7 +285,7 @@ Called By: main
 */
 
 int read_tool_file(  /* ARGUMENTS         */
- char * tool_file_name)   /* name of tool file */
+ const char * tool_file_name)   /* name of tool file */
 {
   char buffer[1000];
 
