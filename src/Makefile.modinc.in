@@ -57,7 +57,7 @@ endif
 
 ifeq ($(BUILDSYS),kbuild)
 modules:
-	$(MAKE) -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
 
 clean:
 	rm *.ko *.mod.c *.o
