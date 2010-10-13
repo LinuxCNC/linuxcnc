@@ -550,9 +550,9 @@ static int loadFiles()
 
 static int copyFiles(int fromUSB)
 {
-  char *usbPath = "/media/usbdisk/nc_files";
-  char *copyToStr = "cp *.nc /media/usbdisk/nc_files/";
-  char *copyFromStr = "cp /media/usbdisk/nc_files/*.nc ./";
+  const char *usbPath = "/media/usbdisk/nc_files";
+  const char *copyToStr = "cp *.nc /media/usbdisk/nc_files/ &";
+  const char *copyFromStr = "cp /media/usbdisk/nc_files/*.nc ./ &";
 
   if (opendir(usbPath) == NULL) {
     printf("Cannot open thumb drive folder: %s\n", usbPath);
@@ -563,14 +563,12 @@ static int copyFiles(int fromUSB)
     printf("Cannot open nc files folder: %s\n", EMC2_NCFILES_DIR);
     return -1;
     }
-  chdir(EMC2_NCFILES_DIR);
+  if(!chdir(EMC2_NCFILES_DIR)) { perror("chdir"); return -1; }
 
   if (fromUSB)
-    popen(copyFromStr, "r");
+    return system(copyFromStr);
   else 
-    popen(copyToStr, "r");
-
-  return 0;
+    return system(copyToStr);
 }
 
 static int loadNetworking()
