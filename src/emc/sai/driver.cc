@@ -233,8 +233,7 @@ int interpret_from_file( /* ARGUMENTS                  */
               fprintf(stderr, "starting MDI\n");
               interpret_from_keyboard(block_delete, print_stack);
               fprintf(stderr, "continue program? y/n =>");
-              fgets(line, LINELEN, stdin);
-              if (line[0] != 'y')
+              if (!fgets(line, LINELEN, stdin) || line[0] != 'y')
                 {
                   status = 1;
                   break;
@@ -257,8 +256,7 @@ int interpret_from_file( /* ARGUMENTS                  */
               fprintf(stderr, "starting MDI\n");
               interpret_from_keyboard(block_delete, print_stack);
               fprintf(stderr, "continue program? y/n =>");
-              fgets(line, LINELEN, stdin);
-              if (line[0] != 'y')
+              if (!fgets(line, LINELEN, stdin) || line[0] != 'y')
                 break;
             }
           else if (do_next == 2) /* 2 means stop */
@@ -294,7 +292,7 @@ int read_tool_file(  /* ARGUMENTS         */
   if (tool_file_name[0] == 0) /* ask for name if given name is empty string */
     {
       fprintf(stderr, "name of tool file => ");
-      fgets(buffer, 1000, stdin);
+      if(!fgets(buffer, 1000, stdin)) return 1;
       buffer[strlen(buffer) - 1] = 0;
       tool_file_name = buffer;
     }
@@ -324,7 +322,8 @@ int designate_parameter_file(char * parameter_file_name)
   FILE * test_port;
 
   fprintf(stderr, "name of parameter file => ");
-  fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin);
+  if(!fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin))
+    return 1;
   parameter_file_name[strlen(parameter_file_name) - 1] = 0;
   test_port = fopen(parameter_file_name, "r");
   if (test_port == NULL)
@@ -407,7 +406,8 @@ int adjust_error_handling(
                     "3 = continue on error (do not stop or mdi)\n");
         }
       fprintf(stderr, "enter choice => ");
-      fgets(buffer, 80, stdin);
+      if (!fgets(buffer, 80, stdin))
+        break;
       if (sscanf(buffer, "%d", &choice) != 1)
         continue;
       if (choice == 1)
@@ -559,7 +559,8 @@ usage:
               ((block_delete == OFF) ? "ON" : "OFF"));
       fprintf(stderr, "5 = adjust error handling...\n");
       fprintf(stderr, "enter choice => ");
-      fgets(buffer, 80, stdin);
+      if (!fgets(buffer, 80, stdin))
+        break;
       if (sscanf(buffer, "%d", &choice) != 1)
         continue;
       if (choice == 1)
