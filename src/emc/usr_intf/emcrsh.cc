@@ -28,6 +28,7 @@
 #include <sys/uio.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include <getopt.h>
 
@@ -566,8 +567,7 @@ static void sigQuit(int sig)
 static int sockWrite(connectionRecType *context)
 {
    strcat(context->outBuf, "\r\n");
-   write(context->cliSock, context->outBuf, strlen(context->outBuf));
-   return 0;
+   return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static setCommandType lookupSetCommand(char *s)
@@ -1198,15 +1198,13 @@ int commandSet(connectionRecType *context)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
     sprintf(context->outBuf, setCmdNakStr, pch);
-    write(context->cliSock, context->outBuf, strlen(context->outBuf));
-    return 0;
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   switch (cmd) {
     case scEcho: ret = setEcho(strtok(NULL, delims), context); break;
@@ -1291,17 +1289,17 @@ int commandSet(connectionRecType *context)
     case rtNoError:  
       if (context->verbose) {
         sprintf(context->outBuf, ackStr, pch);
-        write(context->cliSock, context->outBuf, strlen(context->outBuf));
+        return write(context->cliSock, context->outBuf, strlen(context->outBuf));
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
       sprintf(context->outBuf, setCmdNakStr, pch);
-      write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomError: // Custom error response entered in buffer
-      write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomHandledError: ;// Custom error respose handled, take no action
     }
@@ -2252,8 +2250,7 @@ int commandGet(connectionRecType *context)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
   strupr(pch);
@@ -2602,15 +2599,15 @@ int parseCommand(connectionRecType *context)
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          write(context->cliSock, helloNakStr, strlen(helloNakStr));
-        else write(context->cliSock, s, strlen(s));
+          ret = write(context->cliSock, helloNakStr, strlen(helloNakStr));
+        else ret = write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (!context->linked)
-	  write(context->cliSock, setNakStr, strlen(setNakStr)); 
+	  ret = write(context->cliSock, setNakStr, strlen(setNakStr));
         else ret = commandSet(context);
         break;
       case cmdQuit: 
@@ -2619,7 +2616,7 @@ int parseCommand(connectionRecType *context)
       case cmdShutdown:
         ret = commandShutdown(context);
         if(ret ==0){
-          write(context->cliSock, shutdownNakStr, strlen(shutdownNakStr));
+          ret = write(context->cliSock, shutdownNakStr, strlen(shutdownNakStr));
         }
 	break;
       case cmdHelp:
@@ -2661,7 +2658,9 @@ void *readClient(void *arg)
     strcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if (context->echo && context->linked)
-      write(context->cliSock, buf, strlen(buf));
+      if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
+        fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));
+      }
     i = 0;
     j = 0;
     while (i <= strlen(buf)) {
