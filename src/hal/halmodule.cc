@@ -708,7 +708,7 @@ PyMethodDef module_methods[] = {
     {NULL},
 };
 
-char *module_doc = "Interface to emc2's hal\n"
+const char *module_doc = "Interface to emc2's hal\n"
 "\n"
 "This module allows the creation of userspace HAL components in Python.\n"
 "This includes pins and parameters of the various HAL types.\n"
@@ -739,7 +739,7 @@ void inithal(void) {
     PyObject *m = Py_InitModule3("hal", module_methods,
             module_doc);
 
-    pyhal_error_type = PyErr_NewException("hal.error", NULL, NULL);
+    pyhal_error_type = PyErr_NewException((char*)"hal.error", NULL, NULL);
     PyModule_AddObject(m, "error", pyhal_error_type);
 
     PyType_Ready(&halobject_type);
