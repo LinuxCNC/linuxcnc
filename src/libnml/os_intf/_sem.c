@@ -90,7 +90,7 @@ int rcs_sem_clear(rcs_sem_t * sem)
 static int rcs_sem_open_val = 0;
 
 /* create a named binary semaphore */
-rcs_sem_t *rcs_sem_open(const char *name, int oflag, /* int mode */ ...)
+rcs_sem_t *rcs_sem_open(key_t name, int oflag, /* int mode */ ...)
 {
     va_list ap;
     int mode;			/* optional last arg */
@@ -110,10 +110,8 @@ rcs_sem_t *rcs_sem_open(const char *name, int oflag, /* int mode */ ...)
 	semflg &= ~IPC_CREAT;
     }
 
-    /* change the char* name to a key_t-- this is impossible, so let's just
-       consider the value of the char* as a key_t */
-    /* FIX-ME semid is a number, not a name. Get rid of this fsck'd ... */
-    key = (key_t) name;		/* ugh */
+    key = name;
+
     if (key < 1) {
 	rcs_print_error("rcs_sem_open: invalid key %d\n", key);
 	return NULL;
@@ -344,19 +342,19 @@ int rcs_sem_flush(rcs_sem_t * sem)
     return (0);
 }
 
-rcs_sem_t *rcs_sem_create(unsigned long int id, int mode, int state)
+rcs_sem_t *rcs_sem_create(key_t id, int mode, int state)
 {
     union semun sem_arg;
     rcs_sem_t *sem;
 
     if (id < 1) {
-	rcs_print_error("rcs_sem_create: invalid id %lu\n", id);
+	rcs_print_error("rcs_sem_create: invalid id %lu\n", (unsigned long)id);
 	return NULL;
     }
 
     rcs_sem_open_val = state;
 
-    sem = rcs_sem_open((char *) id, IPC_CREAT, mode);
+    sem = rcs_sem_open(id, IPC_CREAT, mode);
 
     if (NULL == sem) {
 	rcs_print_error("sem_init: Pointer to semaphore object is NULL.\n");
