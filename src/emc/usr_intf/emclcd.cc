@@ -39,6 +39,7 @@
 #include <termios.h>
 #include <time.h>
 #include <getopt.h>
+#include <string.h>
 
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
@@ -294,14 +295,14 @@ struct option longopts[] = {
 int sockfd = -1;
 int err;
 int len;
-char *testMsg = "hello\n";
+const char *testMsg = "hello\n";
 char buffer[255];
 char sockStr[1024];
 char *bufptr;
 int screensInitialized = -1;
 screenType curScreen = stStartup;
 connectRec lcdParms;
-char *delims = " \n\r";
+const char *delims = " \n\r";
 char menu1[20] = "\0";
 char menu2[20] = "\0";
 char programName[25] = "<none>";
@@ -340,7 +341,7 @@ int preciseSleep(double sleepTime)
   return(0);
 }
 
-int sockSendStr(int fd, char *string)
+int sockSendStr(int fd, const char *string)
 {
   preciseSleep(delay);
   return sockSend(fd, string, strlen(string));
@@ -377,7 +378,7 @@ static int widgetSetInt(int widgetNo, int newInt, int oldInt)
   return newInt;
 }
 
-static char *widgetSetStr(int widgetNo, char *newStr, char *oldStr)
+static const char *widgetSetStr(int widgetNo, const char *newStr, const char *oldStr)
 {
   if (strcmp(newStr, oldStr) == 0) return newStr;
 
@@ -416,7 +417,7 @@ static void intScreenSet(char *screen, char *attr,  int value)
     }
 }
 
-static void strScreenSet(char *screen, char *attr, char *s)
+static void strScreenSet(const char *screen, const char *attr, const char *s)
 {
   if (s != NULL) {
     sprintf(sockStr, "screen_set %s %s %s\n", screen, attr, s);
@@ -530,7 +531,7 @@ static int loadFiles()
     return -1;
     }
 
-  chdir(EMC2_NCFILES_DIR);
+  if(!chdir(EMC2_NCFILES_DIR)) { perror("chdir"); return -1; }
   while ((entry = readdir(dp)) != NULL) {
     lstat(entry->d_name, &statbuf);
     if (!S_ISDIR(statbuf.st_mode)) {
@@ -576,11 +577,11 @@ static int loadNetworking()
 {
   FILE *f;
   char *pch;
-  char *delims = " :\n\r\0";
-  char *ipconfigstr = "ifconfig eth0 | grep \"inet addr\"";
-  char *ifacetypestr = "cat /etc/network/interfaces | grep \"iface eth0\"";
-  char *gatewaystr = "netstat -r | grep \"default\"";
-  char *dnsstr = "cat /etc/resolv.conf";
+  const char *delims = " :\n\r\0";
+  const char *ipconfigstr = "ifconfig eth0 | grep \"inet addr\"";
+  const char *ifacetypestr = "cat /etc/network/interfaces | grep \"iface eth0\"";
+  const char *gatewaystr = "netstat -r | grep \"default\"";
+  const char *dnsstr = "cat /etc/resolv.conf";
 
   // Get interface type
   memset(buffer, '\0', sizeof(buffer));
@@ -665,10 +666,10 @@ static int getStats()
 {
   FILE *f;
   char *pch;
-  char *delims = " k,\n\r\0";
-  char *diskStr = "df | grep \"/dev/hda1\"";
-  char *memStr = "top -n 1 -p 0 | grep \"Mem\"";
-  char *cpuStr = "top -n 1 -p 0 | grep \"Cpu\"";
+  const char *delims = " k,\n\r\0";
+  const char *diskStr = "df | grep \"/dev/hda1\"";
+  const char *memStr = "top -n 1 -p 0 | grep \"Mem\"";
+  const char *cpuStr = "top -n 1 -p 0 | grep \"Cpu\"";
   int temp;
   float tempr;
   static int diskUsed, diskFree;
@@ -741,19 +742,19 @@ static int getStats()
 }
 
 
-static void menuSetInt(char *menu, char *item, int value)
+static void menuSetInt(const char *menu, const char *item, int value)
 {
   sprintf(sockStr, "menu_set_item %s %s -value {%d}\n", menu, item, value);
   sockSendStr(sockfd, sockStr);
 }
 
-static void menuSetMin(char *menu, char *item, int value)
+static void menuSetMin(const char *menu, const char *item, int value)
 {
   sprintf(sockStr, "menu_set_item %s %s -minvalue {%d}\n", menu, item, value);
   sockSendStr(sockfd, sockStr);
 }
 
-static void menuSetMax(char *menu, char *item, int value)
+static void menuSetMax(const char *menu, const char *item, int value)
 {
   sprintf(sockStr, "menu_set_item %s %s -maxvalue {%d}\n", menu, item, value);
   sockSendStr(sockfd, sockStr);
@@ -832,8 +833,8 @@ static int createMenus()
 
 static screenType setNewScreen(screenType screenNo)
 {
-  static char *background = "background";
-  static char *foreground = "foreground";
+  static const char *background = "background";
+  static const char *foreground = "foreground";
 
   printf("Old Screen: %s New Screen: %s\n", screens[curScreen].name, screens[screenNo].name);
   strScreenSet(screens[curScreen].name, attrs[3], background);

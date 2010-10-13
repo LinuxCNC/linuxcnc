@@ -145,7 +145,7 @@ int sockPrintf(int fd, const char *format, .../*args*/ )
 }
 
 // Send/receive lines of text
-int sockSendString(int fd, char *string)
+int sockSendString(int fd, const char *string)
 {
   return sockSend(fd, string, strlen(string));
 }
@@ -200,7 +200,7 @@ int sockRecvString(int fd, char *dest, size_t maxlen)
 }
 
 // Send/receive raw data
-int sockSend(int fd, void *src, size_t size)
+int sockSend(int fd, const void *src, size_t size)
 {
   int offset = 0;
 
@@ -210,9 +210,9 @@ int sockSend(int fd, void *src, size_t size)
     // write isn't guaranteed to send the entire string at once,
     // so we have to sent it in a loop like this
 #ifndef WINSOCK2
-    int sent = write(fd, ((char *) src) + offset, size - offset);
+    int sent = write(fd, ((const char *) src) + offset, size - offset);
 #else
-    int sent = send(fd, ((char *) src) + offset, size - offset, 0);
+    int sent = send(fd, ((const char *) src) + offset, size - offset, 0);
 #endif
     if (sent == -1) {
       if (errno != EAGAIN) {
@@ -287,7 +287,7 @@ char* sockGetError(void)
 /** prints error to logfile and sends it to the client.
  * @param fd socket
  * @param message the message to send (without the "huh? ") */
-int sockSendError(int fd, char* message)
+int sockSendError(int fd, const char* message)
 {
 // simple: performance penalty isn't worth more work...
   return sockPrintfError(fd, "%s", message);
