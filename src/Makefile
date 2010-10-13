@@ -17,6 +17,30 @@ TRIVIAL_BUILD=no
 endif
 endif
 
+# Beautify output
+# ---------------------------------------------------------------------------
+#
+# A simple variant is to prefix commands with $(Q) - that's useful
+# for commands that shall be hidden in non-verbose mode.
+#
+#	$(Q)ln $@ :<
+#
+# If BUILD_VERBOSE equals 0 then the above command will be hidden.
+# If BUILD_VERBOSE equals 1 then the above command is displayed.
+
+ifeq ("$(origin V)", "command line")
+  BUILD_VERBOSE = $(V)
+endif
+ifndef BUILD_VERBOSE
+  BUILD_VERBOSE = 0
+endif
+
+ifeq ($(BUILD_VERBOSE),1)
+  Q =
+else
+  Q = @
+endif
+
 ifeq "$(findstring s,$(MAKEFLAGS))" ""
 ECHO=@echo
 VECHO=echo
@@ -178,21 +202,21 @@ $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
-	@$(CC) -c $(CFLAGS) $(EXTRAFLAGS) $< -o $@
+	$(Q)$(CC) -c $(CFLAGS) $(EXTRAFLAGS) $< -o $@
 
 $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 	$(ECHO) Compiling $<
 	@mkdir -p $(dir $@)
-	@$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
+	$(Q)$(CXX) -c $(CXXFLAGS) $(EXTRAFLAGS) $< -o $@
 
 # Rules to make .i (preprocessed) files
 $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
-	@echo Preprocessing $< to $@
-	@$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CC) -dD $(CFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
-	@echo Preprocessing $< to $@
-	@$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
+	$(ECHO) Preprocessing $< to $@
+	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
 configure: configure.in
