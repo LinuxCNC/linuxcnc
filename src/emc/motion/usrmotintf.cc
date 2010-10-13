@@ -672,7 +672,7 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 static int module_id;
 static int shmem_id;
 
-int usrmotInit(char *modname)
+int usrmotInit(const char *modname)
 {
     int retval;
 
