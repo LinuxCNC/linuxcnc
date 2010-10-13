@@ -50,7 +50,7 @@ void tcpmem_sigpipe_handler(int sig)
     tcpmem_sigpipe_count++;
 }
 
-TCPMEM::TCPMEM(char *_bufline, char *_procline):CMS(_bufline, _procline)
+TCPMEM::TCPMEM(const char *_bufline, const char *_procline):CMS(_bufline, _procline)
 {
     max_consecutive_timeouts = DEFAULT_MAX_CONSECUTIVE_TIMEOUTS;
     char *max_consecutive_timeouts_string;

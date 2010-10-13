@@ -63,7 +63,7 @@ static int not_zero(volatile double x)
 /* SHMEM Member Functions. */
 
 /* Constructor for hard coded tests. */
-SHMEM::SHMEM(char *n, long s, int nt, key_t k, int m):CMS(s)
+SHMEM::SHMEM(const char *n, long s, int nt, key_t k, int m):CMS(s)
 {
     /* Set pointers to null so only properly opened pointers are closed. */
     shm = NULL;
@@ -78,7 +78,7 @@ SHMEM::SHMEM(char *n, long s, int nt, key_t k, int m):CMS(s)
 }
 
 /* Constructor for use with cms_config. */
-SHMEM::SHMEM(char *bufline, char *procline, int set_to_server,
+SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server,
     int set_to_master):CMS(bufline, procline, set_to_server)
 {
     /* Set pointers to null so only properly opened pointers are closed. */

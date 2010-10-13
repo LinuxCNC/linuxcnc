@@ -35,7 +35,7 @@ extern "C" {
 #endif
 LinkedList *LOCMEM::buffers_list = (LinkedList *) NULL;
 
-LOCMEM::LOCMEM(char *bufline, char *procline, int set_to_server,
+LOCMEM::LOCMEM(const char *bufline, const char *procline, int set_to_server,
     int set_to_master):CMS(bufline, procline, set_to_server)
 {
     my_node = (BUFFERS_LIST_NODE *) NULL;

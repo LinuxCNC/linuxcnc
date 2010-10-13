@@ -166,7 +166,7 @@ void NML::operator delete(void *nml_space)
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 ******************************************************************/
-NML::NML(NML_FORMAT_PTR f_ptr, char *buf, char *proc, char *file,
+NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *file,
     int set_to_server, int set_to_master)
 {
     registered_with_server = 0;
@@ -215,8 +215,8 @@ int NML::login(const char *name, const char *passwd)
     return cms->login(name, passwd);
 }
 
-void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
-    char *file, int set_to_server, int set_to_master)
+void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
+    const char *file, int set_to_server, int set_to_master)
 {
 
     cms = (CMS *) NULL;
@@ -333,7 +333,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, char *buf, char *proc,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(char *buf, char *proc, char *file, int set_to_server,
+NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
     int set_to_master)
 {
     if (NULL == file) {
@@ -452,7 +452,7 @@ NML::NML(char *buf, char *proc, char *file, int set_to_server,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(char *buffer_line, char *proc_line)
+NML::NML(const char *buffer_line, const char *proc_line)
 {
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
@@ -2101,7 +2101,7 @@ char last_cfg_file[40];
 * NML member function: print_info()
 * Prints the buffer, process names and configuration file information.
 ***************************************************************************/
-void NML::print_info(char *bufname, char *procname, char *cfg_file)
+void NML::print_info(const char *bufname, const char *procname, const char *cfg_file)
 {
     info_printed = 1;
     if (!verbose_nml_error_messages) {

@@ -34,7 +34,7 @@ extern int RCS_STAT_MSG_format(NMLTYPE, void *, CMS *);
 
 class RCS_STAT_CHANNEL:public NML {
   public:
-    RCS_STAT_CHANNEL(NML_FORMAT_PTR, char *, char *, char *,
+    RCS_STAT_CHANNEL(NML_FORMAT_PTR, const char *, const char *, const char *,
 	int set_to_server = 0);
      ~RCS_STAT_CHANNEL();
     RCS_STAT_MSG *get_address() {
