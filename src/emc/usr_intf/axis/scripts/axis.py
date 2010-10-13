@@ -1354,7 +1354,6 @@ def parse_gcode_expression(e):
     canon.parameter_file = temp_parameter
 
     result, seq = gcode.parse("", canon, "M199 P["+e+"]", "M2")
-    print "parse_gcode_expression", result, seq, getattr(canon, 'number', None)
     if result > gcode.MIN_ERROR: return False, gcode.strerror(result)
     return True, canon.number
 
