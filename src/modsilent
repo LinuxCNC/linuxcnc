@@ -2,14 +2,7 @@
 
 import re
 import sys
-
-try:
-    import subprocess
-except ImportError:
-    # Older Python versions don't have the subprocess module.  In this case, we
-    # don't filter the warnings.
-    import os
-    os.execvp(sys.argv[1], sys.argv[1:])
+import subprocess
 
 duplicate_warning = re.compile("WARNING: [^ ]*: '(.*?)' exported twice. Previous.*")
 
