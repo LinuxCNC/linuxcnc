@@ -364,7 +364,7 @@ ifeq ($(BUILD_SYS),kbuild)
 
 # '-o $(KERNELDIR)/Module.symvers' silences warnings about that file being missing
 modules:
-	./modsilent $(MAKE) -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KERNELDIR)/Module.symvers modules 
+	./modsilent $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
 	-cp *$(MODULE_EXT) ../rtlib/
 endif
 
