@@ -153,7 +153,7 @@ OPT := -Os $(call cc-option,-fno-strict-aliasing) $(call cc-option,-fno-stack-pr
 # ( see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=442950 )
 # So we explicitly turn it off here, to avoid a flood of meaningless warnings that
 # might be hiding a few real ones.
-DEBUG := -g -Wall $(call cc-option,-Wno-write-strings)
+DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 
