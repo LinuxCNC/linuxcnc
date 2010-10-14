@@ -3136,8 +3136,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     int pocket = -1, toolno;
     int q;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
-    int relative_to_system = block->l_number != 1;
-    int destination_system = block->l_number == 11? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
+    int direct = block->l_number == 1;
 
     is_near_int(&toolno, block->p_number);
 
@@ -3145,7 +3144,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     settings->tool_table[pocket].toolno = toolno;
 
-    if(!relative_to_system) {
+    if(direct) {
         if(block->x_flag)
             settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
         if(block->y_flag)
@@ -3165,11 +3164,31 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         if(block->w_flag) 
             settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(block->w_number);
     } else {
+        int to_fixture = block->l_number == 11;
+        int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
+
         double oldx, oldy;
         find_current_in_system(settings, destination_system,
                                &tx, &ty, &tz, 
                                &ta, &tb, &tc,
                                &tu, &tv, &tw);
+
+        if ( to_fixture && settings->parameters[5210]) {
+            // For G10L11, we don't want to move the origin of the
+            // fixture according to G92.  Since find_current_in_system
+            // did this for us already, undo it.
+            tx += USER_TO_PROGRAM_LEN(settings->parameters[5211]);
+            ty += USER_TO_PROGRAM_LEN(settings->parameters[5212]);
+            tz += USER_TO_PROGRAM_LEN(settings->parameters[5213]);
+            ta += USER_TO_PROGRAM_ANG(settings->parameters[5214]);
+            tb += USER_TO_PROGRAM_ANG(settings->parameters[5215]);
+            tc += USER_TO_PROGRAM_ANG(settings->parameters[5216]);
+            tu += USER_TO_PROGRAM_LEN(settings->parameters[5217]);
+            tv += USER_TO_PROGRAM_LEN(settings->parameters[5218]);
+            tw += USER_TO_PROGRAM_LEN(settings->parameters[5219]);
+        }
+
+
         if(block->x_flag || block->y_flag) {
             oldx = tx;
             oldy = ty;
