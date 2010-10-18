@@ -1983,14 +1983,15 @@ class Data:
             print >>file
             print >>file, "net jog-speed            halui.jog-speed "
             print >>file, "sets    jog-speed %f"% self.jograpidrate
+            temp = ("x","y","z","a")
             if self.multijogbuttons:
-                for axnum,axletter in enumerate(self.available_axes):
-                    if not axletter == "s":
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
                         print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
                         print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
             else:
-                for axnum,axletter in enumerate(self.available_axes):
-                    if not axletter == "s":
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
                         print >>file, "net joint-select-%s         halui.joint.%d.select"% (chr(axnum+97),axnum)
                 print >>file, "net jog-selected-pos     halui.jog.selected.plus"
                 print >>file, "net jog-selected-neg     halui.jog.selected.minus"
@@ -2014,8 +2015,9 @@ class Data:
                 print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
             if not self.joycmdrapidb =="":
                 print >>file, "net jog-speed-b           <=  %s"% (self.joycmdrapidb)
-            for axnum,axletter in enumerate(self.available_axes):
-                if not axletter == "s":
+            temp = ("x","y","z","a")
+            for axnum,axletter in enumerate(temp):
+                if axletter in self.available_axes:
                     pin_pos = self["joycmd"+axletter+"pos"]
                     pin_neg = self["joycmd"+axletter+"neg"]
                     if pin_pos == "" or pin_neg =="": continue
@@ -2028,9 +2030,10 @@ class Data:
         if self.externalmpg:
             print >>file, _("#  ---mpg signals---")
             print >>file
-            if self.multimpg:  
-                for axnum,axletter in enumerate(self.available_axes):
-                    if not axletter == "s":
+            if self.multimpg:
+                temp = ("x","y","z","a")
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
                         pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
                         print pinname
                         if 'hm2' in pinname:      
@@ -2049,9 +2052,10 @@ class Data:
                     print >>file, "# connect jogwheel signals to mesa encoder - shared MPG " 
                     print >>file, "net joint-selected-count     <=  %s.count"% (pinname)      
                     print >>file, "setp    %s.filter true" % pinname
-                    print >>file, "setp    %s.counter-mode true" % pinname                
-                    for axnum,axletter in enumerate(self.available_axes):
-                        if not axletter == "s":
+                    print >>file, "setp    %s.counter-mode true" % pinname
+                    temp = ("x","y","z","a")
+                    for axnum,axletter in enumerate(temp):
+                        if axletter in self.available_axes:
                             print >>file, "#       for axis %s MPG" % (axletter)
                             print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
