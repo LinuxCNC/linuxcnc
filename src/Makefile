@@ -782,6 +782,7 @@ obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o 
 motmod-objs += emc/kinematics/tc.o 
 motmod-objs += emc/kinematics/tp.o 
+motmod-objs += emc/kinematics/segmentqueue.o
 motmod-objs += emc/motion/motion.o 
 motmod-objs += emc/motion/command.o 
 motmod-objs += emc/motion/control.o 
