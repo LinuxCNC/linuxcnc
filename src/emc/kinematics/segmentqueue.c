@@ -419,18 +419,18 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
     */
 
     maxInc = sqGiveMaxInc(sq, s);
-    diagnostics("maxinc %g\n", maxInc);
+    //diagnostics("maxinc %g\n", maxInc);
     maxInc *= sq->feedOverrideFactor;
-    diagnostics("scaled maxinc %g\n", maxInc);
+    //diagnostics("scaled maxinc %g\n", maxInc);
 
     /* maxInc should never exceed the the system's maximum increment (maxV*cycleTime) */
     maxInc = min(maxInc, sq->maxV * sq->cycleTime);
-    diagnostics("capped maxinc %g\n", maxInc);
+    //diagnostics("capped maxinc %g\n", maxInc);
 
     /* find the minimum value for the maximum tangential acceleration for this
        chain of segments beginning with s */
     amaxTan = sqGiveMinAmaxTan(s);
-    diagnostics("AmaxTan in sqplansegment  = %g, maxInc %g \n", amaxTan, maxInc);
+    //diagnostics("AmaxTan in sqplansegment  = %g, maxInc %g \n", amaxTan, maxInc);
     /* finalInc ( = initInc of nextSegment) should never be larger than
        the maxInc * feedOveride of this segment and the next segment */
 
@@ -472,6 +472,8 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
     if (length - ((s->m + 1) * (s->plInitInc + maxInc) / 2 - s->plInitInc) * (s->m != 0) -
         ((s->q + 1) * (maxInc + s->plFinalInc) / 2 - maxInc) * (s->q != 0) < 0) {
         /* true: there is no cruising phase */
+        diagnostics("true, there is no cruising phase maxinc %g plinitinc %g plfinalinc %g\n", maxInc,
+                    s->plInitInc, s->plFinalInc);
         s->p = 3;
         validSolutionFound = 0;
         if (maxInc > s->plInitInc && maxInc > s->plFinalInc) {
@@ -479,7 +481,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
                 sqrt(4 * s->p * s->p * amaxTan * amaxTan * sq->ctPow2 * sq->ctPow2 +
                      18 * (s->plInitInc * s->plInitInc + s->plFinalInc * s->plFinalInc) +
                      12 * amaxTan * sq->ctPow2 * (s->plInitInc - s->plFinalInc + 2 * length)) / 6;
-            diagnostics("1: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("1: maxInc = %g\n", maxInc);
             if (maxInc > s->plInitInc && maxInc > s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -489,7 +491,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
             maxInc = 3 * ((s->plFinalInc * s->plFinalInc - s->plInitInc * s->plInitInc) +
                           2 * amaxTan * sq->ctPow2 * (s->plInitInc - s->plFinalInc + 2 * length)) /
                 (4 * s->p * amaxTan * sq->ctPow2);
-            diagnostics("2: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("2: maxInc = %g\n", maxInc);
             if (s->plInitInc >= maxInc && maxInc > s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -498,7 +500,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
             maxInc = (3 * (s->plInitInc * s->plInitInc - s->plFinalInc * s->plFinalInc) +
                       2 * amaxTan * sq->ctPow2 * (s->plInitInc - s->plFinalInc + 2 * length)) /
                 (4 * s->p * amaxTan * sq->ctPow2);
-            diagnostics("3: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("3: maxInc = %g\n", maxInc);
             if (s->plInitInc < maxInc && maxInc <= s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -508,7 +510,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
                 3 + sqrt(4 * s->p * s->p * amaxTan * amaxTan * sq->ctPow2 * sq->ctPow2 +
                          18 * (s->plInitInc * s->plInitInc + s->plFinalInc * s->plFinalInc) +
                          12 * amaxTan * sq->ctPow2 * (-s->plInitInc + s->plFinalInc - 2 * length)) / 6;
-            diagnostics("4: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("4: maxInc = %g\n", maxInc);
             if (maxInc <= s->plInitInc && maxInc <= s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -798,7 +800,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
     SEGMENT *prevseg;
     SEGMENT *cursor;
 
-    diagnostics("Preprocess Segment %d\n", newseg->ID);
+    //diagnostics("Preprocess Segment %d\n", newseg->ID);
 
     /* check if segment queue has been initialized and if newseg is valid */
     if (sq == 0 || sq->queue == 0 || newseg == 0) {
@@ -813,7 +815,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
         newseg->start = sq->lastPoint;
         newseg->prevSegment = 0;
         if (sq->paused != 1 && sq->stepping != 1) {
-            diagnostics("we are NOT done\n");
+            //diagnostics("we are NOT done\n");
             sq->done = 0;
         }
     } else {
@@ -1130,7 +1132,7 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
         start = sq->queue[(sq->end + sq->size - 1) % sq->size].end;
 
     length = sqGiveLength(start, end);
-    diagnostics("addline length %g\n", length);
+    //diagnostics("addline length %g\n", length);
 
     if (length == 0) {
         /* only set ID of last appended motion */
@@ -1392,7 +1394,9 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
 
     /* depending of in what phase of the motion we are, determine the new
        distance */
+    //diagnostics("sq->n %d as->m %d as->p %d as->q %d\n", sq->n, as->m, as->p, as->q);
     if (sq->n == 1 || sq->n == 2) {
+        //diagnostics("initial 1\n");
         sq->dist += as->plInitInc;
     } else if (sq->n <= as->m + 2) {
         /* acceleration phase */
@@ -1401,10 +1405,13 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
         npow3 = npow2 * npow1;
         sq->dist += as->a1 * npow3 * sq->ctPow3
             + as->b1 * npow2 * sq->ctPow2 + as->c1 * npow1 * sq->cycleTime + as->d1;
+        //diagnostics("acc 2 a1 %g npow3 %g ctpow3 %g b1 %g npow2 %g ctpow2 %g c1 %g npow1 %g ct %g d1 %g\n", as->a1, npow3, sq->ctPow3, as->b1, npow2, sq->ctPow2, as->c1, npow1, sq->cycleTime, as->d1);
     } else if (sq->n <= as->m + as->p + 2) {
+        //diagnostics("cruise 3\n");
         /* cruising phase */
         sq->dist += as->cruiseInc;
     } else if (sq->n <= as->m + as->p + as->q + 2) {
+        //diagnostics("decel 4\n");
         /* deceleration phase */
         npow1 = sq->n - as->m - as->p - 2;
         npow2 = npow1 * npow1;
@@ -1413,6 +1420,7 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
             + as->b3 * npow2 * sq->ctPow2 + as->c3 * npow1 * sq->cycleTime + as->d3;
 
     } else if (sq->n == as->m + as->p + as->q + 3) {
+        //diagnostics("last step 5\n");
         /* last step */
         sq->dist += as->plFinalInc;
     } else {
@@ -1606,10 +1614,7 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
         fabs(newAcc.tran.y) > sq->maxAcc * sq->ctPow2 ||
         fabs(newAcc.tran.z) > sq->maxAcc * sq->ctPow2) {
         diagnostics("MaxAcc limited violated on motion %d\n", sq->currentID);
-        diagnostics("ddx=%d ddy=%d ddz=%d\n",
-                       (int) (newAcc.tran.x * 1000000.0),
-                       (int) (newAcc.tran.y * 1000000.0),
-                       (int) (newAcc.tran.z * 1000000.0));
+        diagnostics("ddx=%g ddy=%g ddz=%g\n", newAcc.tran.x, newAcc.tran.y, newAcc.tran.z);
     }
 
     sq->currentVel = sq->dist - oldDist;
