@@ -912,9 +912,10 @@ check_stuff ( "before command_handler()" );
                 emcmotStatus->atspeed_next_feed = 1;
             }
 	    /* append it to the emcmotDebug->queue */
-	    if(use_sq_planner) 
+	    if(use_sq_planner) {
                 sqSetFeed(&emcmotDebug->sqplanner, emcmotCommand->vel);
-            else
+                sqSetVmax(&emcmotDebug->sqplanner, emcmotCommand->ini_maxvel);
+            } else
                 tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == (use_sq_planner? 
                        sqAddLine(&emcmotDebug->sqplanner, emcmotCommand->pos, emcmotCommand->id):
@@ -972,9 +973,10 @@ check_stuff ( "before command_handler()" );
                 emcmotStatus->atspeed_next_feed = 0;
             }
 	    /* append it to the emcmotDebug->queue */
-	    if(use_sq_planner) 
+	    if(use_sq_planner) {
+                sqSetVmax(&emcmotDebug->sqplanner, emcmotCommand->ini_maxvel);
                 sqSetFeed(&emcmotDebug->sqplanner, emcmotCommand->vel);
-            else
+            } else
                 tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == (use_sq_planner?
                        sqAddCircle(&emcmotDebug->sqplanner, emcmotCommand->pos,
