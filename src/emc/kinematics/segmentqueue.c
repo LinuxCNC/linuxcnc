@@ -62,8 +62,11 @@
 #define SQ_LINKING_NOT_NEEDED 1
 
 /* the next define can be used to turn off printing of individual messages */
-#define diagnostics(fmt, args...)    /* nothing: it's a placeholder */
-#define diagnosticsOff(fmt, args...)    /* nothing: it's a placeholder */
+#if 0
+#define diagnostics printf
+#else
+#define diagnostics(a, b...)
+#endif
 
 /* some static variables for debugging */
 static EmcPose oldPos, oldVel, newVel, newAcc;
@@ -116,6 +119,8 @@ static double sqGiveMinAmaxTan(SEGMENT * s)
 
     if (s->numLinkedSegs == 0)
         return s->amaxTan;
+
+    diagnostics("numLinkedSegs=%d\n", s->numLinkedSegs);
 
     minAmax = s->amaxTan;
     cursor = s;
@@ -190,10 +195,10 @@ static int sqLinkCriterion(SEGMENTQUEUE * sq, SEGMENT * s, double feedOverride)
     if ((minNumSteps + 1) * (initInc + finalInc) / 2 - 
         initInc > s->totLength - 
         2 * initInc - finalInc - 5 * max(initInc, finalInc)) {
-        diagnosticsOff("Chain starting at %d is too short - linking needed\n", s->ID);
+        diagnostics("Chain starting at %d is too short - linking needed\n", s->ID);
         return SQ_LINKING_NEEDED;
     } else {
-        diagnosticsOff("Chain starting at %d is NOT too short - linking NOT needed\n", s->ID);
+        diagnostics("Chain starting at %d is NOT too short - linking NOT needed\n", s->ID);
         return SQ_LINKING_NOT_NEEDED;
     }
 }
@@ -335,7 +340,7 @@ static double sqGiveMaxInc(SEGMENTQUEUE * sq, SEGMENT * s)
             done = 1;
     }
 
-    diagnosticsOff("max increment for chain starting at %d is %g\n", s->ID, cursor->maxInc);
+    diagnostics("max increment for chain starting at %d is %g\n", s->ID, cursor->maxInc);
     return cursor->maxInc;
 }
 
@@ -413,18 +418,19 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
 
     */
 
-    if (-1 == (maxInc = sqGiveMaxInc(sq, s) * sq->feedOverrideFactor)) {
-        diagnostics("Error in sqPlanSegment()\n");
-        return -1;
-    }
+    maxInc = sqGiveMaxInc(sq, s);
+    diagnostics("maxinc %g\n", maxInc);
+    maxInc *= sq->feedOverrideFactor;
+    diagnostics("scaled maxinc %g\n", maxInc);
 
     /* maxInc should never exceed the the system's maximum increment (maxV*cycleTime) */
     maxInc = min(maxInc, sq->maxV * sq->cycleTime);
+    diagnostics("capped maxinc %g\n", maxInc);
 
     /* find the minimum value for the maximum tangential acceleration for this
        chain of segments beginning with s */
     amaxTan = sqGiveMinAmaxTan(s);
-    diagnosticsOff("AmaxTan in sqplansegment  = %d \n", (int) (ceil(amaxTan)));
+    diagnostics("AmaxTan in sqplansegment  = %g, maxInc %g \n", amaxTan, maxInc);
     /* finalInc ( = initInc of nextSegment) should never be larger than
        the maxInc * feedOveride of this segment and the next segment */
 
@@ -473,7 +479,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
                 sqrt(4 * s->p * s->p * amaxTan * amaxTan * sq->ctPow2 * sq->ctPow2 +
                      18 * (s->plInitInc * s->plInitInc + s->plFinalInc * s->plFinalInc) +
                      12 * amaxTan * sq->ctPow2 * (s->plInitInc - s->plFinalInc + 2 * length)) / 6;
-            diagnosticsOff("1: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("1: maxInc = %d\n", (int) (100000.0 * maxInc));
             if (maxInc > s->plInitInc && maxInc > s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -483,7 +489,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
             maxInc = 3 * ((s->plFinalInc * s->plFinalInc - s->plInitInc * s->plInitInc) +
                           2 * amaxTan * sq->ctPow2 * (s->plInitInc - s->plFinalInc + 2 * length)) /
                 (4 * s->p * amaxTan * sq->ctPow2);
-            diagnosticsOff("2: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("2: maxInc = %d\n", (int) (100000.0 * maxInc));
             if (s->plInitInc >= maxInc && maxInc > s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -492,7 +498,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
             maxInc = (3 * (s->plInitInc * s->plInitInc - s->plFinalInc * s->plFinalInc) +
                       2 * amaxTan * sq->ctPow2 * (s->plInitInc - s->plFinalInc + 2 * length)) /
                 (4 * s->p * amaxTan * sq->ctPow2);
-            diagnosticsOff("3: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("3: maxInc = %d\n", (int) (100000.0 * maxInc));
             if (s->plInitInc < maxInc && maxInc <= s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -502,7 +508,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
                 3 + sqrt(4 * s->p * s->p * amaxTan * amaxTan * sq->ctPow2 * sq->ctPow2 +
                          18 * (s->plInitInc * s->plInitInc + s->plFinalInc * s->plFinalInc) +
                          12 * amaxTan * sq->ctPow2 * (-s->plInitInc + s->plFinalInc - 2 * length)) / 6;
-            diagnosticsOff("4: maxInc = %d\n", (int) (100000.0 * maxInc));
+            diagnostics("4: maxInc = %d\n", (int) (100000.0 * maxInc));
             if (maxInc <= s->plInitInc && maxInc <= s->plFinalInc) {
                 validSolutionFound = 1;
             }
@@ -557,7 +563,7 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
    Here it is assumed that s1 and s2 are indeed successive segments */
 static int sqLinkSegments(SEGMENT * s1, SEGMENT * s2, int priority)
 {
-    diagnosticsOff("Linking %d to %d\n", s1->ID, s2->ID);
+    diagnostics("Linking %d to %d\n", s1->ID, s2->ID);
 
     if (s1 == 0) {
         diagnostics("Error 1a in sqLinkSegments() \n");
@@ -615,7 +621,7 @@ static int sqForwardLinkSegment(SEGMENTQUEUE * sq, SEGMENT * s, double feedOverr
     int done, counter;
     int linkcrit;
 
-    diagnosticsOff("Checking whether segment %d needs to be linked forward...\n", s->ID);
+    diagnostics("Checking whether segment %d needs to be linked forward...\n", s->ID);
 
     if (sq == 0 || s == 0) {
         diagnostics("Error in sqForwardLinkSegment\n");
@@ -623,7 +629,7 @@ static int sqForwardLinkSegment(SEGMENTQUEUE * sq, SEGMENT * s, double feedOverr
     }
 
     if (s->initInc - s->finalInc > 1e-10) {
-        diagnosticsOff("sqForwardlinkSegment called while initInc is larger than finalInc\n");
+        diagnostics("sqForwardlinkSegment called while initInc is larger than finalInc\n");
         /* not critical, so we don't return -1, but it's not good.... */
         return 0;
     }
@@ -694,7 +700,7 @@ static int sqForwardLinkSegment(SEGMENTQUEUE * sq, SEGMENT * s, double feedOverr
             done = 1;
         }
     }
-    diagnosticsOff("... done linking forward\n");
+    diagnostics("... done linking forward\n");
     return 0;
 }
 
@@ -709,7 +715,7 @@ static int sqBackwardLinkSegment(SEGMENTQUEUE * sq, SEGMENT * s, double feedOver
     int done, counter;
     int linkcrit;
 
-    diagnosticsOff("Checking whether segment %d needs to be linked backward...\n", s->ID);
+    diagnostics("Checking whether segment %d needs to be linked backward...\n", s->ID);
 
     if (sq == 0 || s == 0) {
         diagnostics("Error in sqBackwardLinkSegment\n");
@@ -771,11 +777,11 @@ static int sqBackwardLinkSegment(SEGMENTQUEUE * sq, SEGMENT * s, double feedOver
                 done = 1;               /* no further linking needed */
         }
         if (cursor == sq->queue + sq->start) {
-            diagnosticsOff("Beginning of queue reached, no further linking possible\n");
+            diagnostics("Beginning of queue reached, no further linking possible\n");
             done = 1;
         }
     }
-    diagnosticsOff("... done linking backward\n");
+    diagnostics("... done linking backward\n");
     return 0;
 }
 
@@ -792,7 +798,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
     SEGMENT *prevseg;
     SEGMENT *cursor;
 
-    diagnosticsOff("Preprocess Segment %d\n", newseg->ID);
+    diagnostics("Preprocess Segment %d\n", newseg->ID);
 
     /* check if segment queue has been initialized and if newseg is valid */
     if (sq == 0 || sq->queue == 0 || newseg == 0) {
@@ -802,11 +808,14 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
 
     /* if this is the first segment.... */
     if (sq->numSegments == 1) {
+        diagnostics("this is the first segment\n");
         newseg->initInc = 0;
         newseg->start = sq->lastPoint;
         newseg->prevSegment = 0;
-        if (sq->paused != 1 && sq->stepping != 1)
+        if (sq->paused != 1 && sq->stepping != 1) {
+            diagnostics("we are NOT done\n");
             sq->done = 0;
+        }
     } else {
         /* if not ... */
         prevseg = sq->queue + ((sq->end + sq->size - 2) % sq->size);
@@ -832,7 +841,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
                are the same and the corner speed is larger than this
                maximum speed, the segments can be linked */
             if ((prevseg->maxInc - newseg->maxInc < 1e-8) && (cornerInc > newseg->maxInc)) {
-                diagnosticsOff("Linking ID = %d for conv \n", newseg->ID);
+                diagnostics("Linking ID = %d for conv \n", newseg->ID);
                 if (-1 == sqLinkSegments(prevseg, newseg, SQ_LOW_LINKING_PRIORITY)) {
                     diagnostics("Error 3 in sqPreprocessSegment()\n");
                     return -1;
@@ -873,7 +882,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
                            can be. The feedoverride factor is set to the
                            maximum feedoverride to ensure correct linking
                            for every possible feed */
-                        diagnosticsOff("Calling FLS for ID = %d\n", cursor->ID);
+                        diagnostics("Calling FLS for ID = %d\n", cursor->ID);
                         if (-1 == sqForwardLinkSegment(sq, cursor, sq->maxFeedOverrideFactor)) {
                             diagnostics("Error 4 in sqPreprocessSegment()\n");
                             return -1;
@@ -883,7 +892,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
                            predecessor(s). The feedoverride factor is set to
                            the maximum feedoverride to ensure correct linking
                            for every possible feed */
-                        diagnosticsOff("Calling BLS for ID = %d\n", cursor->ID);
+                        diagnostics("Calling BLS for ID = %d\n", cursor->ID);
                         if (-1 == sqBackwardLinkSegment(sq, cursor, sq->maxFeedOverrideFactor)) {
                             diagnostics("Error 5 in sqPreprocessSegment()\n");
                             return -1;
@@ -901,7 +910,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
                 }
                 if (!newseg->linkedToPrevSeg &&
                     SQ_LINKING_NEEDED == sqLinkCriterion(sq, newseg, sq->maxFeedOverrideFactor)) {
-                    diagnosticsOff("New segment too short, linking.\n");
+                    diagnostics("New segment too short, linking.\n");
                     sqBackwardLinkSegment(sq, newseg, sq->maxFeedOverrideFactor);
                 }
             }
@@ -969,9 +978,10 @@ int sqSetAmax(SEGMENTQUEUE * sq, double amax)
 int sqSetVmax(SEGMENTQUEUE * sq, double vmax)
 {
     if (sq == 0 || vmax <= 0) {
-        diagnostics("Error in SetVmax!!!\n");
+        diagnostics("Error in SetVmax!!! sq %p vmax %g\n", sq, vmax);
         return -1;
     }
+    diagnostics("SetVmax sq %p vmax %g\n", sq, vmax);
     sq->maxV = vmax;
     return 0;
 };
@@ -979,9 +989,10 @@ int sqSetVmax(SEGMENTQUEUE * sq, double vmax)
 int sqSetCycleTime(SEGMENTQUEUE * sq, double secs)
 {
     if (sq == 0 || secs == 0) {
-        diagnostics("Cycletime is zero!!!\n");
+        diagnostics("Cycletime is zero!!! sq %p secs %g\n", sq, secs);
         return -1;
     }
+    diagnostics("Cycletime sq %p secs %g\n", sq, secs);
     sq->cycleTime = secs;
     sq->ctPow2 = secs * secs;
     sq->ctPow3 = sq->ctPow2 * secs;
@@ -1057,10 +1068,11 @@ int sqSetFeed(SEGMENTQUEUE * sq, double feed)
         diagnostics("Error in sqSetFeed: null pointer\n");
         return -1;
     }
+    diagnostics("sqSetFeed: %g\n", feed);
 
     if (feed <= 0.0) {
         /* tp.c ignores this and returns an error that's never checked */
-        diagnosticsOff("Error in sqSetFeed: non-positive feed %d/1000, using old feed %d/1000\n", (int) (feed*1000.0), (int) (sq->feed*1000.0));
+        diagnostics("Error in sqSetFeed: non-positive feed %d/1000, using old feed %d/1000\n", (int) (feed*1000.0), (int) (sq->feed*1000.0));
         feed = sq->feed;
     }
 
@@ -1118,6 +1130,7 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
         start = sq->queue[(sq->end + sq->size - 1) % sq->size].end;
 
     length = sqGiveLength(start, end);
+    diagnostics("addline length %g\n", length);
 
     if (length == 0) {
         /* only set ID of last appended motion */
@@ -1145,6 +1158,7 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
     if (newseg->maxInc > length) {
         newseg->maxInc = length;
     }
+    diagnostics("newseg feed %g cycletime %g length %g\n", sq->feed, sq->cycleTime, length);
     newseg->finalInc = 0;
     newseg->plInitInc = 0;
     newseg->plFinalInc = 0;
@@ -1166,7 +1180,7 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
     maxUVec = max(fabs(newseg->line.uVec.z), maxUVec);
     newseg->amaxTan = sq->maxAcc / maxUVec;
 
-    diagnosticsOff("Amax tan = %d\n", (int) newseg->amaxTan);
+    diagnostics("Amax tan = %g\n", newseg->amaxTan);
 
     if (-1 == sqPreprocessSegment(sq, newseg)) {
         diagnostics("Error in sqAddLine()\n");
@@ -1345,6 +1359,7 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
 
     if (as->active == 0) {
         /* we're about to start with a new segment */
+        diagnostics("starting with new segment\n");
         if (-1 == sqPlanSegment(sq, as)) {
             diagnostics("Error 1 in sqRunCycle\n");
             return -1;
@@ -1590,8 +1605,8 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
     if (fabs(newAcc.tran.x) > sq->maxAcc * sq->ctPow2 ||
         fabs(newAcc.tran.y) > sq->maxAcc * sq->ctPow2 ||
         fabs(newAcc.tran.z) > sq->maxAcc * sq->ctPow2) {
-        diagnosticsOff("MaxAcc limited violated on motion %d\n", sq->currentID);
-        diagnosticsOff("ddx=%d ddy=%d ddz=%d\n",
+        diagnostics("MaxAcc limited violated on motion %d\n", sq->currentID);
+        diagnostics("ddx=%d ddy=%d ddz=%d\n",
                        (int) (newAcc.tran.x * 1000000.0),
                        (int) (newAcc.tran.y * 1000000.0),
                        (int) (newAcc.tran.z * 1000000.0));
@@ -1971,7 +1986,7 @@ int sqResume(SEGMENTQUEUE * sq)
 
         /* we can't resume if the systems is not done yet with a step or pause
            action */
-        diagnosticsOff("Can't resume if not done with pause or step action\n");
+        diagnostics("Can't resume if not done with pause or step action\n");
         /* this is not a critical error, so we'll just ignore the command */
         return 0;
     }
