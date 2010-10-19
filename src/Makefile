@@ -363,7 +363,7 @@ endif
 ifeq ($(BUILD_SYS),kbuild)
 
 modules:
-	./modsilent $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
