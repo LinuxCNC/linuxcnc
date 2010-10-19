@@ -1325,7 +1325,7 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
     PmPose last_point_pose;
     PmPose start_pose, end_pose;
 
-    int npow1, npow2, npow3;    /* to speed up cubic calculations */
+    double npow1, npow2, npow3;    /* to speed up cubic calculations */
 
     if (sq == 0) {
         diagnostics("Error in sqRunCycle(): Segmentqueue doesn't exist!\n");
