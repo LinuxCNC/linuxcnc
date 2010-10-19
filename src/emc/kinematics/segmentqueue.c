@@ -914,7 +914,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
 /* interface functions */
 /* ------------------- */
 
-int sqInitQueue(SEGMENTQUEUE * sq, SEGMENT * first, int size)
+int sqCreate(SEGMENTQUEUE * sq, SEGMENT * first, int size)
 {
     if (size <= 0 || sq == 0 || first == 0) {
         diagnostics("Error in sqInitQueue()\n");
@@ -956,7 +956,7 @@ int sqInitQueue(SEGMENTQUEUE * sq, SEGMENT * first, int size)
     return 0;
 };
 
-int sqSetMaxAcc(SEGMENTQUEUE * sq, double amax)
+int sqSetAmax(SEGMENTQUEUE * sq, double amax)
 {
     if (sq == 0 || amax <= 0) {
         diagnostics("Error in SetMaxAcc!!!\n");
@@ -1010,7 +1010,7 @@ int sqSetPos(SEGMENTQUEUE * sq, EmcPose pos)
     return 0;
 }
 
-int sqClearQueue(SEGMENTQUEUE * sq)
+int sqClear(SEGMENTQUEUE * sq)
 {
     if (sq == 0) {
         diagnostics("Error in sqClearQueue(): sq == 0 \n");
@@ -1045,7 +1045,7 @@ int sqTrashQueue(SEGMENTQUEUE * sq)
         diagnostics("Error in sqTrashQueue()\n");
         return -1;
     }
-    sqClearQueue(sq);
+    sqClear(sq);
     sq->queue = 0;
     return 0;
 };
@@ -1283,18 +1283,19 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     return 0;
 }
 
-int sqGetPosition(SEGMENTQUEUE * sq, EmcPose * p)
+EmcPose sqGetPos(SEGMENTQUEUE * sq)
 {
-    if ((sq == 0) || (p == 0)) {
+    EmcPose retval;
+    if (sq == 0) {
         diagnostics("Error in sqGetPosition()\n");
-        return -1;
+        ZERO_EMC_POSE(retval);
+        return retval;
     }
 
-    *p = sq->lastPoint;
-    return 0;
+    return sq->lastPoint;
 };
 
-int sqRunCycle(SEGMENTQUEUE * sq)
+int sqRunCycle(SEGMENTQUEUE * sq, long period)
 {
     SEGMENT *as;                        /* to use instead of sq->queue[sq->start],
                                            stands for Active Segment */
@@ -1446,7 +1447,7 @@ int sqRunCycle(SEGMENTQUEUE * sq)
 
     if (sq->n > as->totNumPoints) {
         if (sq->aborting == 1) {
-            if (-1 == sqClearQueue(sq)) {
+            if (-1 == sqClear(sq)) {
                 diagnostics("Error 3 in sqRunCycle\n");
                 return -1;
             }
@@ -2030,7 +2031,7 @@ int sqAbort(SEGMENTQUEUE * sq)
     }
 
     if (sq->paused == 1 || sq->done == 1) {
-        if (-1 == sqClearQueue(sq)) {
+        if (-1 == sqClear(sq)) {
             diagnostics("Error in sqAbort\n");
             return -1;
         }
@@ -2133,7 +2134,7 @@ double sqGetMaxAcc(SEGMENTQUEUE * sq)
     return sq->maxAcc;
 }
 
-int sqGetDepth(SEGMENTQUEUE * sq)
+int sqQueueDepth(SEGMENTQUEUE * sq)
 {
     if (sq == 0) {
         diagnostics("Error in sqGetDepth\n");
@@ -2151,7 +2152,7 @@ int sqIsQueueFull(SEGMENTQUEUE * sq)
     return sq->full;
 }
 
-int sqGetID(SEGMENTQUEUE * sq)
+int sqGetExecId(SEGMENTQUEUE * sq)
 {
     if (sq == 0) {
         diagnostics("Error in sqGetID\n");

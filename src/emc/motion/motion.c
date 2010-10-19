@@ -1014,11 +1014,20 @@ static int init_comm_buffers(void)
 	    "MOTION: failed to create motion emcmotDebug->queue\n");
 	return -1;
     }
+    if (-1 == sqCreate(&emcmotDebug->sqplanner, &emcmotDebug->squeue[0], SQ_DEFAULT_LENGTH)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "MOTION: failed to init segmentqueue planner");
+        return -1;
+    }
 
     tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
+    sqSetCycleTime(&emcmotDebug->sqplanner, emcmotConfig->trajCycleTime);
     tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+    sqSetPos(&emcmotDebug->sqplanner, emcmotStatus->carte_pos_cmd);
     tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel, emcmotStatus->vel);
+    sqSetVmax(&emcmotDebug->sqplanner, emcmotStatus->vel);
     tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
+    sqSetAmax(&emcmotDebug->sqplanner, emcmotStatus->acc);
 
     emcmotStatus->tail = 0;
 
@@ -1145,6 +1154,7 @@ static int setTrajCycleTime(double secs)
 
     /* set traj planner */
     tpSetCycleTime(&emcmotDebug->queue, secs);
+    sqSetCycleTime(&emcmotDebug->sqplanner, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < num_joints; t++) {

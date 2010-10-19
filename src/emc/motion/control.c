@@ -22,6 +22,7 @@
 #include "rtapi_math.h"
 #include "tp.h"
 #include "tc.h"
+#include "segmentqueue.h"
 #include "motion_debug.h"
 #include "config.h"
 
@@ -369,11 +370,15 @@ static void process_probe_inputs(void) {
             /* remember the current position */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb; 
             /* stop! */
-            tpAbort(&emcmotDebug->queue);
+            if(use_sq_planner)
+                sqAbort(&emcmotDebug->sqplanner);
+            else
+                tpAbort(&emcmotDebug->queue);
             emcmotStatus->probing = 0;
             emcmotStatus->probeTripped = 1;
         /* check if the probe hasn't tripped, but the move finished */
-        } else if (GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) == 0) {
+        } else if (GET_MOTION_INPOS_FLAG() && 
+                   (use_sq_planner? sqQueueDepth(&emcmotDebug->sqplanner): tpQueueDepth(&emcmotDebug->queue)) == 0) {
             /* we are already stopped, but we need to remember the current 
                position here, because it will still be queried */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
@@ -394,11 +399,15 @@ static void process_probe_inputs(void) {
         int i;
         int aborted = 0;
 
-        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
-           tpGetExecId(&emcmotDebug->queue) <= 0) {
+        if(!GET_MOTION_INPOS_FLAG() && 
+           (use_sq_planner? sqQueueDepth(&emcmotDebug->sqplanner): tpQueueDepth(&emcmotDebug->queue)) &&
+           (use_sq_planner? sqGetExecId(&emcmotDebug->sqplanner) : tpGetExecId(&emcmotDebug->queue)) <= 0) {
             // running an MDI command
             reportError(_("Probe tripped during non-probe MDI command."));
-            tpAbort(&emcmotDebug->queue);
+            if(use_sq_planner)
+                sqAbort(&emcmotDebug->sqplanner);
+            else
+                tpAbort(&emcmotDebug->queue);
         }
 
         for(i=0; i<num_joints; i++) {
@@ -766,7 +775,10 @@ static void set_operating_mode(void)
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
 	/* clear out the motion emcmotDebug->queue and interpolators */
-	tpClear(&emcmotDebug->queue);
+        if(use_sq_planner)
+            sqClear(&emcmotDebug->sqplanner);
+        else
+            tpClear(&emcmotDebug->queue);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
 	    joint_data = &(emcmot_hal_data->joint[joint_num]);
@@ -799,7 +811,10 @@ static void set_operating_mode(void)
 
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
-	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+        if(use_sq_planner)
+            sqSetPos(&emcmotDebug->sqplanner, emcmotStatus->carte_pos_cmd);
+        else
+            tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
 	    joint_data = &(emcmot_hal_data->joint[joint_num]);
@@ -825,7 +840,10 @@ static void set_operating_mode(void)
 	if (GET_MOTION_INPOS_FLAG()) {
 
 	    /* update coordinated emcmotDebug->queue position */
-	    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+            if(use_sq_planner)
+                sqSetPos(&emcmotDebug->sqplanner, emcmotStatus->carte_pos_cmd);
+            else
+                tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	    /* drain the cubics so they'll synch up */
 	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint data */
@@ -863,7 +881,10 @@ static void set_operating_mode(void)
 	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
 		/* preset traj planner to current position */
-		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+                if(use_sq_planner)
+                    sqSetPos(&emcmotDebug->sqplanner, emcmotStatus->carte_pos_cmd);
+                else
+                    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint data */
@@ -1230,9 +1251,15 @@ static void get_pos_cmds(long period)
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
-	    tpRunCycle(&emcmotDebug->queue, period);
+            if(use_sq_planner) {
+                sqRunCycle(&emcmotDebug->sqplanner, period);
+                emcmotStatus->carte_pos_cmd = sqGetPos(&emcmotDebug->sqplanner);
+            } else {
+                tpRunCycle(&emcmotDebug->queue, period);
+                emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
+            }
 	    /* gt new commanded traj pos */
-	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
+            
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
@@ -1261,7 +1288,7 @@ static void get_pos_cmds(long period)
 	}
 	/* report motion status */
 	SET_MOTION_INPOS_FLAG(0);
-	if (tpIsDone(&emcmotDebug->queue)) {
+	if (use_sq_planner? sqIsDone(&emcmotDebug->sqplanner): tpIsDone(&emcmotDebug->queue)) {
 	    SET_MOTION_INPOS_FLAG(1);
 	}
 	break;
@@ -1936,16 +1963,19 @@ static void update_status(void)
     */
 
     /* motion emcmotDebug->queue status */
-    emcmotStatus->depth = tpQueueDepth(&emcmotDebug->queue);
-    emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->queue);
-    emcmotStatus->id = tpGetExecId(&emcmotDebug->queue);
-    emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->queue);
-    emcmotStatus->queueFull = tcqFull(&emcmotDebug->queue.queue);
+    emcmotStatus->depth = use_sq_planner? sqQueueDepth(&emcmotDebug->sqplanner): tpQueueDepth(&emcmotDebug->queue);
+    emcmotStatus->activeDepth = use_sq_planner? -1: tpActiveDepth(&emcmotDebug->queue);
+    emcmotStatus->id = use_sq_planner? sqGetExecId(&emcmotDebug->sqplanner): tpGetExecId(&emcmotDebug->queue);
+    emcmotStatus->motionType = use_sq_planner? -1: tpGetMotionType(&emcmotDebug->queue);
+    emcmotStatus->queueFull = use_sq_planner? sqIsQueueFull(&emcmotDebug->sqplanner): tcqFull(&emcmotDebug->queue.queue);
 
     /* check to see if we should pause in order to implement
        single emcmotDebug->stepping */
     if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
-      tpPause(&emcmotDebug->queue);
+      if(use_sq_planner)
+          sqPause(&emcmotDebug->sqplanner);
+      else
+          tpPause(&emcmotDebug->queue);
       emcmotDebug->stepping = 0;
       emcmotStatus->paused = 1;
     }

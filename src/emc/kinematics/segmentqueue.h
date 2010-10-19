@@ -27,6 +27,10 @@
 #define SQ_LINEAR 1
 #define SQ_CIRCULAR 2
 
+#define SQ_DEFAULT_LENGTH 20
+
+#define use_sq_planner (1)
+
 /* Structure that contains all the information about a segment */
 typedef struct _seg
 {
@@ -152,10 +156,10 @@ typedef struct
 
 /* function to initialize the segment queue. Needs to be called after
    creating an instantiation of the segmentqueue before it can be used */
-extern int sqInitQueue(SEGMENTQUEUE *sq, SEGMENT *first, int size);
+extern int sqCreate(SEGMENTQUEUE *sq, SEGMENT *first, int size);
 
 /* functions to set some parameters */
-extern int sqSetMaxAcc(SEGMENTQUEUE *sq, double amax);
+extern int sqSetAmax(SEGMENTQUEUE *sq, double amax);
 extern int sqSetVmax(SEGMENTQUEUE *sq, double vmax);
 extern int sqSetCycleTime(SEGMENTQUEUE *sq, double secs);
 extern int sqSetMaxFeedOverride(SEGMENTQUEUE *sq, double mfo);
@@ -167,7 +171,7 @@ extern int sqSetPos(SEGMENTQUEUE *sq, EmcPose pos);
 extern int sqTrashQueue(SEGMENTQUEUE *sq);
 
 /* function to empty the segmentqueue */
-extern int sqClearQueue(SEGMENTQUEUE *sq);
+extern int sqClear(SEGMENTQUEUE *sq);
 
 
 /* Implemented commands */
@@ -186,10 +190,10 @@ extern int sqSetFeed(SEGMENTQUEUE *sq, double feed);
 extern int sqSetFeedOverride(SEGMENTQUEUE *sq, double factor);
 
 /* function to run a new cycle */
-extern int sqRunCycle(SEGMENTQUEUE *sq);
+extern int sqRunCycle(SEGMENTQUEUE *sq, long period);
 
 /* function to get a new position */
-extern int sqGetPosition(SEGMENTQUEUE *sq, EmcPose *p);
+extern EmcPose sqGetPos(SEGMENTQUEUE *sq);
 
 /* function to pause the system (decelerate to zero velocity) */
 extern int sqPause(SEGMENTQUEUE *sq);
@@ -212,8 +216,8 @@ extern int sqIsPaused(SEGMENTQUEUE *sq);
 extern int sqIsStepping(SEGMENTQUEUE *sq);
 extern double sqGetVel(SEGMENTQUEUE *sq);
 extern double sqGetMaxAcc(SEGMENTQUEUE *sq);
-extern int sqGetDepth(SEGMENTQUEUE *sq);
+extern int sqQueueDepth(SEGMENTQUEUE *sq);
 extern int sqIsQueueFull(SEGMENTQUEUE *sq);
-extern int sqGetID(SEGMENTQUEUE *sq); /* function the get the ID of the
+extern int sqGetExecId(SEGMENTQUEUE *sq); /* function the get the ID of the
                                        active (sub)segment */
 #endif

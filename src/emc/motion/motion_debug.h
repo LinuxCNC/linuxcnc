@@ -16,6 +16,7 @@
 
 #include "tp.h"			/* TP_STRUCT */
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
+#include "segmentqueue.h"
 /*********************************
         DEBUG STRUCTURE
 *********************************/
@@ -68,6 +69,8 @@
 	unsigned char allHomed;
 
 	TP_STRUCT queue;	/* coordinated mode planner */
+        SEGMENTQUEUE sqplanner;
+        SEGMENT squeue[DEFAULT_TC_QUEUE_SIZE];
 
 /* space for trajectory planner queues, plus 10 more for safety */
 /*! \todo FIXME-- default is used; dynamic is not honored */
