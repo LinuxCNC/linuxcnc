@@ -27,7 +27,7 @@
 #define SQ_LINEAR 1
 #define SQ_CIRCULAR 2
 
-#define SQ_DEFAULT_LENGTH 20
+#define SQ_DEFAULT_LENGTH 2000
 
 #define use_sq_planner (1)
 
