@@ -1014,7 +1014,7 @@ static int init_comm_buffers(void)
 	    "MOTION: failed to create motion emcmotDebug->queue\n");
 	return -1;
     }
-//    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
+
     tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
     tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
     tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel, emcmotStatus->vel);

@@ -46,7 +46,18 @@ int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
     }
 
     /* init the rest of our data */
-    return tpInit(tp);
+    tp->cycleTime = 0.0;
+    tp->vLimit = 0.0;
+    tp->vScale = 1.0;
+    tp->aMax = 0.0;
+    tp->vMax = 0.0;
+    tp->ini_maxvel = 0.0;
+    tp->wMax = 0.0;
+    tp->wDotMax = 0.0;
+
+    ZERO_EMC_POSE(tp->currentPos);
+    
+    return tpClear(tp);
 }
 
 
@@ -99,22 +110,6 @@ int tpClear(TP_STRUCT * tp)
     return tpClearDIOs();
 }
 
-
-int tpInit(TP_STRUCT * tp)
-{
-    tp->cycleTime = 0.0;
-    tp->vLimit = 0.0;
-    tp->vScale = 1.0;
-    tp->aMax = 0.0;
-    tp->vMax = 0.0;
-    tp->ini_maxvel = 0.0;
-    tp->wMax = 0.0;
-    tp->wDotMax = 0.0;
-
-    ZERO_EMC_POSE(tp->currentPos);
-    
-    return tpClear(tp);
-}
 
 int tpSetCycleTime(TP_STRUCT * tp, double secs)
 {
@@ -563,7 +558,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     return 0;
 }
 
-void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
+static void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
     double discr, maxnewvel, newvel, newaccel=0;
     if(!tc->blending) tc->vel_at_blend_start = tc->currentvel;
 
