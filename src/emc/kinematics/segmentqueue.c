@@ -1283,6 +1283,7 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
             0.75 * topIncPow2 * topIncPow2);
 
     newseg->amaxTan = sqrt(A / (rpow2 * (rpow2 + topIncPow2))) / sq->ctPow2;
+    if (newseg->amaxTan > sq->maxAcc) newseg->amaxTan = sq->maxAcc;
 
     if (absHelix != 0) {
         newseg->amaxTan = min(newseg->amaxTan, sq->maxAcc * newseg->helixRadius / absHelix);
