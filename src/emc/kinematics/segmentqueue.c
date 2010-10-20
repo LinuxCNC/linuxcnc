@@ -1279,10 +1279,10 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     /* calculate the maximum tangential acceleration for this circle */
     rpow2 = circle.radius * circle.radius;
     topIncPow2 = newseg->maxInc * newseg->maxInc;
-    A = max(sq->maxAcc * sq->maxAcc * sq->ctPow2 * sq->ctPow2 * rpow2 -
-            topIncPow2 * topIncPow2, 3.0 / 4.0 * topIncPow2 * topIncPow2);
+    A = max(sq->maxAcc * sq->maxAcc * sq->ctPow2 * sq->ctPow2 * rpow2 - topIncPow2 * topIncPow2, 
+            0.75 * topIncPow2 * topIncPow2);
 
-    newseg->amaxTan = sqrt(A / (rpow2 * (rpow2 * +topIncPow2))) / sq->ctPow2;
+    newseg->amaxTan = sqrt(A / (rpow2 * (rpow2 + topIncPow2))) / sq->ctPow2;
 
     if (absHelix != 0) {
         newseg->amaxTan = min(newseg->amaxTan, sq->maxAcc * newseg->helixRadius / absHelix);
