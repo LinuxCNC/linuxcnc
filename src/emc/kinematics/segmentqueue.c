@@ -424,7 +424,6 @@ static int sqPlanSegment(SEGMENTQUEUE * sq, SEGMENT * s)
     //diagnostics("scaled maxinc %g\n", maxInc);
 
     /* maxInc should never exceed the the system's maximum increment (maxV*cycleTime) */
-    maxInc = min(maxInc, sq->maxV * sq->cycleTime);
     //diagnostics("capped maxinc %g\n", maxInc);
 
     /* find the minimum value for the maximum tangential acceleration for this
@@ -833,7 +832,7 @@ static int sqPreprocessSegment(SEGMENTQUEUE * sq, SEGMENT * newseg)
             /* calculate the corner velocity for the corner between prevSegment
                and newseg */
 
-            if (-1 == (cornerInc = sqGiveCornerVelocity(prevseg, newseg, sq->maxAcc, sq->cycleTime) *
+            if (-1 == (cornerInc = sqGiveCornerVelocity(prevseg, newseg, max(prevseg->amaxTan, newseg->amaxTan), sq->cycleTime) *
                        sq->cycleTime)) {
                 diagnostics("Error 2 in sqPreprocessSegment()\n");
                 return -1;
@@ -948,8 +947,6 @@ int sqCreate(SEGMENTQUEUE * sq, SEGMENT * first, int size)
                                            sqSetMaxFeedOverride() */
     sq->feedOverrideFactor = 1.0;
     sq->cycleTime = 0;
-    sq->maxAcc = 0;
-    sq->maxV = 0;
     sq->currentID = 0;
 
     sq->done = 1;                       /* the queue is empty, so by definition we're done */
@@ -967,6 +964,7 @@ int sqCreate(SEGMENTQUEUE * sq, SEGMENT * first, int size)
     return 0;
 };
 
+#if 0
 int sqSetAmax(SEGMENTQUEUE * sq, double amax)
 {
     if (sq == 0 || amax <= 0) {
@@ -987,6 +985,7 @@ int sqSetVmax(SEGMENTQUEUE * sq, double vmax)
     sq->maxV = vmax;
     return 0;
 };
+#endif
 
 int sqSetCycleTime(SEGMENTQUEUE * sq, double secs)
 {
@@ -1063,6 +1062,7 @@ int sqTrashQueue(SEGMENTQUEUE * sq)
     return 0;
 };
 
+#if 0
 /* function to set the feed rate for the motions appended after this command */
 int sqSetFeed(SEGMENTQUEUE * sq, double feed)
 {
@@ -1084,6 +1084,7 @@ int sqSetFeed(SEGMENTQUEUE * sq, double feed)
         sq->feed = feed;
     return 0;
 }
+#endif
 
 static void emcpose_to_pmpose(EmcPose e, PmPose * p)
 {
@@ -1106,9 +1107,16 @@ static void pmpose_to_emcpose(PmPose p, EmcPose * e)
     return;
 }
 
-int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
+int sqSetId(SEGMENTQUEUE *sq, int id) {
+    if(!sq) return -1;
+    sq->nextId = id;
+    return 0;
+}
+
+int sqAddLine(SEGMENTQUEUE *sq, EmcPose end, int type, double vel, double ini_maxvel, 
+              double acc, unsigned char enables, char atspeed, int indexrotary)
 {
-    double length, maxUVec;
+    double length;
     SEGMENT *newseg;
     EmcPose start;
     PmPose start_pose, end_pose;
@@ -1136,7 +1144,7 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
 
     if (length == 0) {
         /* only set ID of last appended motion */
-        sq->lastAppMotionID = ID;
+        sq->lastAppMotionID = sq->nextId;
         return 0;
     }
 
@@ -1150,13 +1158,13 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
     }
 
     /* fill segment parameter fields */
-    newseg->ID = ID;
+    newseg->ID = sq->nextId;
     newseg->type = SQ_LINEAR;
     newseg->length = length;
     newseg->totLength = length;
     newseg->start = start;
     newseg->end = end;
-    newseg->maxInc = sq->feed * sq->cycleTime;
+    newseg->maxInc = vel * sq->cycleTime;
     if (newseg->maxInc > length) {
         newseg->maxInc = length;
     }
@@ -1177,10 +1185,7 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
     emcpose_to_pmpose(newseg->end, &end_pose);
     pmLineInit(&newseg->line, start_pose, end_pose);
 
-    /* set the maximum tangential acceleration for this line */
-    maxUVec = max(fabs(newseg->line.uVec.x), fabs(newseg->line.uVec.y));
-    maxUVec = max(fabs(newseg->line.uVec.z), maxUVec);
-    newseg->amaxTan = sq->maxAcc / maxUVec;
+    newseg->amaxTan = acc;
 
     diagnostics("Amax tan = %g\n", newseg->amaxTan);
 
@@ -1190,13 +1195,14 @@ int sqAddLine(SEGMENTQUEUE * sq, EmcPose end, int ID)
     }
 
     /* set last Appended Motion ID */
-    sq->lastAppMotionID = ID;
+    sq->lastAppMotionID = sq->nextId;
 
     return 0;
 }
 
-int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
-                PmCartesian normal, int turn, int ID)
+int sqAddCircle(SEGMENTQUEUE *sq, EmcPose end, PmCartesian center,
+                PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
+                double acc, unsigned char enables, char atspeed)
 {
     SEGMENT *newseg;
     PmCircle circle;
@@ -1204,9 +1210,6 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     PmCartesian helix;
     double absHelix;
     PmPose start_pose, end_pose;
-
-    /* used to calculate the maximum tangential acceleration */
-    double rpow2, A, topIncPow2;
 
     /* check if segment queue has been initialized */
     if (sq == 0 || sq->queue == 0) {
@@ -1231,7 +1234,7 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
 
     if (circle.angle == 0) {
         /* only set ID of last appended motion */
-        sq->lastAppMotionID = ID;
+        sq->lastAppMotionID = sq->nextId;
         return 0;
     }
 
@@ -1249,7 +1252,7 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     }
 
     /* fill segment parameter fields */
-    newseg->ID = ID;
+    newseg->ID = sq->nextId;
     newseg->type = SQ_CIRCULAR;
     newseg->circle = circle;
 
@@ -1260,8 +1263,8 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     newseg->totLength = newseg->length;
     newseg->start = start;
     newseg->end = end;
-    newseg->maxInc = min(sq->feed * sq->cycleTime,
-                         sqrt(sq->maxAcc * circle.radius) * sq->cycleTime);
+    newseg->maxInc = vel * sq->cycleTime;
+    
     if (absHelix != 0)
         newseg->maxInc = min(newseg->maxInc, sq->feed * sq->cycleTime / absHelix);
 
@@ -1276,18 +1279,7 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     newseg->totNumPoints = 0;
     newseg->nextSegment = 0;
 
-    /* calculate the maximum tangential acceleration for this circle */
-    rpow2 = circle.radius * circle.radius;
-    topIncPow2 = newseg->maxInc * newseg->maxInc;
-    A = max(sq->maxAcc * sq->maxAcc * sq->ctPow2 * sq->ctPow2 * rpow2 - topIncPow2 * topIncPow2, 
-            0.75 * topIncPow2 * topIncPow2);
-
-    newseg->amaxTan = sqrt(A / (rpow2 * (rpow2 + topIncPow2))) / sq->ctPow2;
-    if (newseg->amaxTan > sq->maxAcc) newseg->amaxTan = sq->maxAcc;
-
-    if (absHelix != 0) {
-        newseg->amaxTan = min(newseg->amaxTan, sq->maxAcc * newseg->helixRadius / absHelix);
-    }
+    newseg->amaxTan = acc;
 
     if (-1 == sqPreprocessSegment(sq, newseg)) {
         diagnostics("Error in sqAddCircle()\n");
@@ -1295,7 +1287,7 @@ int sqAddCircle(SEGMENTQUEUE * sq, EmcPose end, PmCartesian center,
     }
 
     /* set last Appended Motion ID */
-    sq->lastAppMotionID = ID;
+    sq->lastAppMotionID = sq->nextId;
 
     return 0;
 }
@@ -1611,13 +1603,14 @@ int sqRunCycle(SEGMENTQUEUE * sq, long period)
     newAcc.tran.y = newVel.tran.y - oldVel.tran.y;
     newAcc.tran.z = newVel.tran.z - oldVel.tran.z;
 
+#if 0
     if (fabs(newAcc.tran.x) > sq->maxAcc * sq->ctPow2 ||
         fabs(newAcc.tran.y) > sq->maxAcc * sq->ctPow2 ||
         fabs(newAcc.tran.z) > sq->maxAcc * sq->ctPow2) {
         diagnostics("MaxAcc limited violated on motion %d\n", sq->currentID);
         diagnostics("ddx=%g ddy=%g ddz=%g\n", newAcc.tran.x, newAcc.tran.y, newAcc.tran.z);
     }
-
+#endif
     sq->currentVel = sq->dist - oldDist;
     oldDist = sq->dist;
 
@@ -1743,10 +1736,10 @@ int sqSetFeedOverride(SEGMENTQUEUE * sq, double fo)
                 as->c1 * npow1 * sq->cycleTime + as->d1;
             startAcc = startInc - prevInc;
         }
-        as->q = ceil(1.7393877 * fabs(startInc - finalInc) / (sq->maxAcc * sq->ctPow2) +
+        as->q = ceil(1.7393877 * fabs(startInc - finalInc) / (as->amaxTan * sq->ctPow2) +
                      0.5967755904 * fabs(startInc - finalInc) /
-                     (sq->maxAcc * sq->maxAcc * sq->ctPow2 * sq->ctPow2) * startAcc -
-                     (sq->maxAcc * sq->ctPow2) / 2);
+                     (as->amaxTan * as->amaxTan * sq->ctPow2 * sq->ctPow2) * startAcc -
+                     (as->amaxTan * sq->ctPow2) / 2);
         as->m = 0;
         as->p = 0;
         as->totNumPoints = as->q + 1;
@@ -2146,6 +2139,7 @@ double sqGetVel(SEGMENTQUEUE * sq)
     return sq->currentVel;
 }
 
+#if 0
 double sqGetMaxAcc(SEGMENTQUEUE * sq)
 {
     if (sq == 0) {
@@ -2154,6 +2148,7 @@ double sqGetMaxAcc(SEGMENTQUEUE * sq)
     }
     return sq->maxAcc;
 }
+#endif
 
 int sqQueueDepth(SEGMENTQUEUE * sq)
 {

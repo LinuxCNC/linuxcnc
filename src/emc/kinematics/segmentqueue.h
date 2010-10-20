@@ -108,8 +108,6 @@ typedef struct
     double cycleTime;
     double ctPow2, ctPow3;  /* cycleTime to the second and third order, to speed
                                up calculations */
-    double maxAcc;          /* maximum acceleration (both tang and normal) */
-    double maxV;            /* the absolute maximum velocity */
     double maxFeedOverrideFactor;         /* the maximum value for the feed
                                              override factor */
 
@@ -149,6 +147,7 @@ typedef struct
     int lastAppMotionID;
 
     double currentVel;    /* the current increment */
+    double nextId;
 } SEGMENTQUEUE;
 
 
@@ -159,8 +158,6 @@ typedef struct
 extern int sqCreate(SEGMENTQUEUE *sq, SEGMENT *first, int size);
 
 /* functions to set some parameters */
-extern int sqSetAmax(SEGMENTQUEUE *sq, double amax);
-extern int sqSetVmax(SEGMENTQUEUE *sq, double vmax);
 extern int sqSetCycleTime(SEGMENTQUEUE *sq, double secs);
 extern int sqSetMaxFeedOverride(SEGMENTQUEUE *sq, double mfo);
 
@@ -178,10 +175,13 @@ extern int sqClear(SEGMENTQUEUE *sq);
 /* -------------------- */
 
 /* functiosn to add a motion to the queue */
-extern int sqAddLine(SEGMENTQUEUE *sq, EmcPose end, int ID);
-extern int sqAddCircle(SEGMENTQUEUE *sq, EmcPose end,
-                       PmCartesian center, PmCartesian normal,
-                       int turn, int ID);
+extern int sqAddLine(SEGMENTQUEUE *sq, EmcPose end, int type, double vel, double
+                     ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary);
+extern int sqAddCircle(SEGMENTQUEUE *sq, EmcPose end, PmCartesian center,
+                       PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
+                       double acc, unsigned char enables, char atspeed);
+
+extern int sqSetId(SEGMENTQUEUE *sq, int id);
 
 /* function to set the feed rate for the motions appended after this command */
 extern int sqSetFeed(SEGMENTQUEUE *sq, double feed);

@@ -1025,9 +1025,7 @@ static int init_comm_buffers(void)
     tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
     sqSetPos(&emcmotDebug->sqplanner, emcmotStatus->carte_pos_cmd);
     tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel, emcmotStatus->vel);
-    sqSetVmax(&emcmotDebug->sqplanner, emcmotStatus->vel);
     tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
-    sqSetAmax(&emcmotDebug->sqplanner, emcmotStatus->acc);
 
     emcmotStatus->tail = 0;
 

@@ -913,15 +913,17 @@ check_stuff ( "before command_handler()" );
             }
 	    /* append it to the emcmotDebug->queue */
 	    if(use_sq_planner) {
-                sqSetFeed(&emcmotDebug->sqplanner, emcmotCommand->vel);
-                sqSetVmax(&emcmotDebug->sqplanner, emcmotCommand->ini_maxvel);
+                sqSetId(&emcmotDebug->sqplanner, emcmotCommand->id);
             } else
                 tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == (use_sq_planner? 
-                       sqAddLine(&emcmotDebug->sqplanner, emcmotCommand->pos, emcmotCommand->id):
+                       sqAddLine(&emcmotDebug->sqplanner, emcmotCommand->pos, emcmotCommand->motion_type, 
+                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
+                                 emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
+                                 emcmotCommand->turn):
                        tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, 
-                          emcmotCommand->vel, emcmotCommand->ini_maxvel, 
-                          emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
+                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
+                                 emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
                                  emcmotCommand->turn))) {
 		reportError(_("can't add linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
@@ -974,14 +976,15 @@ check_stuff ( "before command_handler()" );
             }
 	    /* append it to the emcmotDebug->queue */
 	    if(use_sq_planner) {
-                sqSetVmax(&emcmotDebug->sqplanner, emcmotCommand->ini_maxvel);
-                sqSetFeed(&emcmotDebug->sqplanner, emcmotCommand->vel);
+                sqSetId(&emcmotDebug->sqplanner, emcmotCommand->id);
             } else
                 tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == (use_sq_planner?
                        sqAddCircle(&emcmotDebug->sqplanner, emcmotCommand->pos,
                                    emcmotCommand->center, emcmotCommand->normal,
-                                   emcmotCommand->turn, emcmotCommand->id):
+                                   emcmotCommand->turn, emcmotCommand->motion_type,
+                                   emcmotCommand->vel, emcmotCommand->ini_maxvel,
+                                   emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed):
                        tpAddCircle(&emcmotDebug->queue, emcmotCommand->pos,
                                    emcmotCommand->center, emcmotCommand->normal,
                                    emcmotCommand->turn, emcmotCommand->motion_type,
@@ -1009,9 +1012,7 @@ check_stuff ( "before command_handler()" );
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
 	    emcmotStatus->vel = emcmotCommand->vel;
-	    if(use_sq_planner) 
-                sqSetVmax(&emcmotDebug->sqplanner, emcmotStatus->vel);
-            else
+	    if(!use_sq_planner) 
                 tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel, 
                           emcmotCommand->ini_maxvel);
 	    break;
@@ -1022,9 +1023,7 @@ check_stuff ( "before command_handler()" );
 	    /* set the absolute max velocity for all subsequent moves */
 	    /* can do it at any time */
 	    emcmotConfig->limitVel = emcmotCommand->vel;
-	    if(use_sq_planner) 
-                sqSetVmax(&emcmotDebug->sqplanner, emcmotConfig->limitVel); //XXX what is the difference?
-            else
+	    if(!use_sq_planner) 
                 tpSetVlimit(&emcmotDebug->queue, emcmotConfig->limitVel);
 	    break;
 
@@ -1056,9 +1055,7 @@ check_stuff ( "before command_handler()" );
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
 	    emcmotStatus->acc = emcmotCommand->acc;
-            if(use_sq_planner)
-                sqSetAmax(&emcmotDebug->sqplanner, emcmotStatus->acc);
-            else
+            if(!use_sq_planner)
                 tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
 	    break;
 
@@ -1435,7 +1432,7 @@ check_stuff ( "before command_handler()" );
 	    /* append it to the emcmotDebug->queue */
 	    if(!use_sq_planner) tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == (use_sq_planner?
-                       sqAddLine(&emcmotDebug->sqplanner, emcmotCommand->pos, emcmotCommand->id):
+                       sqAddLine(&emcmotDebug->sqplanner, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1):
                        tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1))) {
 		reportError(_("can't add probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
