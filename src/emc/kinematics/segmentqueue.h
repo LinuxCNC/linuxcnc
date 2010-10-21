@@ -111,9 +111,6 @@ typedef struct
     double maxFeedOverrideFactor;         /* the maximum value for the feed
                                              override factor */
 
-    /* feed rate of the next motion(s) to append */
-    double feed;
-
     /* initial position */
     EmcPose initXYZ;
 

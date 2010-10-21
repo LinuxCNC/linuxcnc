@@ -1168,7 +1168,7 @@ int sqAddLine(SEGMENTQUEUE *sq, EmcPose end, int type, double vel, double ini_ma
     if (newseg->maxInc > length) {
         newseg->maxInc = length;
     }
-    diagnostics("newseg feed %g cycletime %g length %g\n", sq->feed, sq->cycleTime, length);
+    diagnostics("newseg vel %g cycletime %g length %g\n", vel, sq->cycleTime, length);
     newseg->finalInc = 0;
     newseg->plInitInc = 0;
     newseg->plFinalInc = 0;
@@ -1266,7 +1266,7 @@ int sqAddCircle(SEGMENTQUEUE *sq, EmcPose end, PmCartesian center,
     newseg->maxInc = vel * sq->cycleTime;
     
     if (absHelix != 0)
-        newseg->maxInc = min(newseg->maxInc, sq->feed * sq->cycleTime / absHelix);
+        newseg->maxInc = min(newseg->maxInc, newseg->maxInc * sq->cycleTime / absHelix);
 
     newseg->finalInc = 0;
     newseg->plInitInc = 0;
