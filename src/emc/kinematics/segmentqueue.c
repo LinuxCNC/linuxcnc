@@ -245,9 +245,7 @@ static double sqGiveCornerVelocity(SEGMENT * s1, SEGMENT * s2, double amax,
 
     PmCartesian v1;
     PmCartesian v2;
-    PmCartesian me;
     PmCartesian diff;
-    PmCartesian helix;
 
     double maxdiff;
 
@@ -265,22 +263,28 @@ static double sqGiveCornerVelocity(SEGMENT * s1, SEGMENT * s2, double amax,
 
     if (s1->type == SQ_LINEAR) {
         v1 = s1->line.uVec;
-    } else {
-        pmCartCartSub(s1->end.tran, s1->circle.center, &me);
-        pmCartCartCross(s1->circle.normal, me, &v1);
-        pmCartScalDiv(s1->circle.rHelix, s1->circle.angle, &helix);
-        pmCartCartAdd(v1, helix, &v1);
         pmCartUnit(v1, &v1);
-
+    } else {
+        PmPose p1, p2;
+        pmCirclePoint(&s1->circle, s1->circle.angle - (s1->maxInc/s1->circle.radius), &p1);
+        pmCirclePoint(&s1->circle, s1->circle.angle, &p2);
+        pmCartCartSub(p2.tran, p1.tran, &v1);
+        pmCartUnit(v1, &v1);
     }
+    diagnostics("s1 id %d ending %g,%g,%g\n", s1->ID, v1.x, v1.y, v1.z);
 
     if (s2->type == SQ_LINEAR) {
         v2 = s2->line.uVec;
+        pmCartUnit(v2, &v2);
     } else {
-        pmCartScalDiv(s2->circle.rHelix, s2->circle.angle, &helix);
-        pmCartCartAdd(s2->circle.rPerp, helix, &v2);
+        PmPose p1, p2;
+
+        pmCirclePoint(&s2->circle, 0.0, &p1);
+        pmCirclePoint(&s2->circle, (s1->maxInc/s1->circle.radius), &p2);
+        pmCartCartSub(p2.tran, p1.tran, &v2);
         pmCartUnit(v2, &v2);
     }
+    diagnostics("s2 id %d beginning %g,%g,%g\n", s2->ID, v2.x, v2.y, v2.z);
 
     /* calculate the difference between v1 and v2 */
     pmCartCartSub(v2, v1, &diff);
@@ -289,12 +293,13 @@ static double sqGiveCornerVelocity(SEGMENT * s1, SEGMENT * s2, double amax,
     maxdiff = max(fabs(diff.x), fabs(diff.y));
     maxdiff = max(maxdiff, fabs(diff.z));
 
-    /* return cornerVelocity */
-    if (maxdiff <= 0.0)
+    if (maxdiff <= 0.0) {
+        diagnostics("maxdiff %g vel dblmax\n", maxdiff);
         return DBL_MAX;
-    else
+    } else {
+        diagnostics("maxdiff %g vel %g\n", maxdiff, amax * cycleTime / maxdiff);
         return (amax * cycleTime / maxdiff);
-
+    }
 };
 
 
