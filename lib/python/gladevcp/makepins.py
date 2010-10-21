@@ -87,6 +87,13 @@ class GladePanel():
                     self.hal.newpin(idname, hal.HAL_FLOAT, hal.HAL_IN)
                     self.hal.newpin(idname+".scale", hal.HAL_FLOAT, hal.HAL_IN)
                     self.updatelist[idname] = k
+                    bar = self[idname]
+                    if bar.yellow_limit or bar.red_limit:
+                        bar.set_fraction(0)
+                        bar.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
+                    if bar.text_template:
+                        bar.set_text(bar.text_template % {'value':0})
+
             if k =="HAL_LED" :
                     print" found a HAL LED ! ",idname
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
@@ -170,7 +177,33 @@ class GladePanel():
                 if (setting/scale) >1:
                     setting = 1
                     scale = 1
+                old = self[obj].get_fraction()
+                new = setting/scale
                 self[obj].set_fraction(setting/scale)
+
+                bar = self[obj]
+
+                if bar.text_template and old != new:
+                    bar.set_text(bar.text_template % {'value':setting})
+
+                colors = []
+                if bar.yellow_limit:
+                    colors.append((bar.yellow_limit, 'yellow'))
+                if bar.red_limit:
+                    colors.append((bar.red_limit, 'red'))
+                if colors:
+                    colors.insert(0, (0, 'green'))
+
+                color = None
+                for (l,c), (h, _) in zip(colors, colors[1:] + [(1, None)]):
+                    if new < l or new >= h:
+                        pass
+                    elif old < l or old >= h:
+                        color = c
+                        break
+
+                if color:
+                    bar.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse(color))
         #add suport for pulsing 
         #self["hal_progressbar2"].pulse()
         return True # keep running this event

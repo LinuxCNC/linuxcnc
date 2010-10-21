@@ -52,8 +52,39 @@ class HAL_VScale(gtk.VScale):
 
 class HAL_ProgressBar(gtk.ProgressBar):
     __gtype_name__ = "HAL_ProgressBar"
+    __gproperties__ = {
+        'green_limit'  : ( gobject.TYPE_FLOAT, 'green zone limit',
+                'lower limit of green zone', 0, 1, 0, gobject.PARAM_READWRITE),
+        'yellow_limit' : ( gobject.TYPE_FLOAT, 'yellow zone limit',
+                'lower limit of yellow zone', 0, 1, 0, gobject.PARAM_READWRITE),
+        'red_limit' :    ( gobject.TYPE_FLOAT, 'red zone limit',
+                'lower limit of red zone', 0, 1, 0, gobject.PARAM_READWRITE),
+        'text_template' : ( gobject.TYPE_STRING, 'text template',
+                'Text template to display. Python formatting may be used for dict {"value":value}',
+                "", gobject.PARAM_READWRITE),
+    }
+
     def __init__(self):
         gtk.ProgressBar.__init__(self)
+        self.green_limit = 0
+        self.yellow_limit = 0
+        self.red_limit = 0
+        self.text_template = ""
+
+    def do_get_property(self, property):
+        name = property.name.replace('-', '_')
+        if name in ['green_limit', 'yellow_limit', 'red_limit', 'text_template']:
+            return getattr(self, name)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
+    def do_set_property(self, property, value):
+        name = property.name.replace('-', '_')
+        if name in ['green_limit', 'yellow_limit', 'red_limit', 'text_template']:
+            return setattr(self, name, value)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
 
 class HAL_Label(gtk.Label):
     __gtype_name__ = "HAL_Label"
