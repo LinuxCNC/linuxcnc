@@ -471,6 +471,8 @@ install-dirs:
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl \
+		$(DESTDIR)$(datadir)/glade3/catalogs \
+		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/emc/pncconf/pncconf-help
 
 install-kernel-indep: install-dirs
@@ -518,6 +520,9 @@ install-kernel-indep: install-dirs
 	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
+
+	$(FILE) ../lib/python/gladevcp/hal_python.xml $(DESTDIR)$(datadir)/glade3/catalogs/
+	$(FILE) ../lib/python/gladevcp/widget*.png  $(DESTDIR)$(datadir)/glade3/pixmaps/
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
