@@ -74,9 +74,9 @@ else
 fi
 
 if [ -z "$GLADE_CATALOG_PATH" ]; then
-    GLADE_CATALOG_PATH=$EMC2_HOME/share/glade3/catalogs
+    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp
 else
-    GLADE_CATALOG_PATH=$EMC2_HOME/share/glade3/catalogs:"$GLADE_CATALOG_PATH"
+    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp:"$GLADE_CATALOG_PATH"
 fi
 
 # TODO: if these completion directives give trouble for any versions
