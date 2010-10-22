@@ -88,5 +88,27 @@ class HAL_ProgressBar(gtk.ProgressBar):
 
 class HAL_Label(gtk.Label):
     __gtype_name__ = "HAL_Label"
+    __gproperties__ = {
+        'label_pin_type'  : ( gobject.TYPE_INT, 'HAL pin type', 'Pin type',
+                0, 2, 0, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+        'text_template' : ( gobject.TYPE_STRING, 'text template',
+                'Text template to display. Python formatting may be used for one variable',
+                "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+    }
     def __init__(self):
         gtk.Label.__init__(self)
+
+    def do_get_property(self, property):
+        name = property.name.replace('-', '_')
+        if name in ['label_pin_type', 'text_template']:
+            return getattr(self, name)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
+    def do_set_property(self, property, value):
+        name = property.name.replace('-', '_')
+        if name in ['label_pin_type', 'text_template']:
+            return setattr(self, name, value)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+

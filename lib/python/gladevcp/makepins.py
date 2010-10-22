@@ -134,16 +134,16 @@ class GladePanel():
                     print" found a HAL label ! ",idname
                     pin_type = hal.HAL_S32
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
-                    for child in parent:
-                        temp = child.attrib.get("name")
-                        data = child.text
-                        #print  temp,data
-                        if temp =="label_pin_type":
-                            if data == "1":
-                                pin_type = hal.HAL_FLOAT
-                            elif data == "2":
-                                pin_type = hal.HAL_U32
-                    self.hal.newpin(idname, pin_type, hal.HAL_IN)
+                    widget = self[idname]
+                    types = {0:hal.HAL_S32
+                            ,1:hal.HAL_FLOAT
+                            ,2:hal.HAL_U32
+                            }
+                    pin_type = types.get(widget.label_pin_type, None)
+                    if pin_type is None:
+                        print "Invalid pin type for %s: %s" % (idname, widget.label_pin_type)
+                    else:
+                        self.hal.newpin(idname, pin_type, hal.HAL_IN)
                     self.updatelist[idname] = k
             if k =="HAL_ComboBox" :
                     print" found a HAL combo box ! ",idname
@@ -168,7 +168,7 @@ class GladePanel():
             if hal_type == "HAL_Table":
                 self[obj].set_sensitive(self.hal[obj])
             if hal_type == "HAL_Label":
-                self[obj].set_text("%s"% str ( self.hal[obj] ) )
+                self[obj].set_text(self[obj].text_template % self.hal[obj])
             if hal_type == "HAL_ProgressBar":
                 scale = self.hal[obj+".scale"]
                 setting = self.hal[obj]
