@@ -98,25 +98,17 @@ class GladePanel():
                     print" found a HAL LED ! ",idname
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_IN)
-                    for child in parent:
-                        temp = child.attrib.get("name")
-                        data = child.text
-                        #print  temp,data
-                        if temp =="off_color":
-                            self[idname].set_color("off",None,data)
-                        if temp =="on_color":
-                            self[idname].set_color("on",None,data)
-                        if temp =="pick_color_on" or temp == "pick_color_off":
-                            r = int("0x"+data[1:5],16)/65536.0
-                            g = int("0x"+data[5:9],16)/65536.0
-                            b = int("0x"+data[9:13],16)/65536.0 
-                            self[idname].set_color(temp[11:],(r,g,b),None)
-                        if temp =="led_size":
-                            self[idname].set_dia(int(data))
-                        if temp =="led_shape":
-                            self[idname].set_shape(int(data))  
-                        if temp =="led_blink_rate":
-                            self[idname].set_blink_rate(int(data))
+
+                    led = self[idname]
+                    print "on", led.pick_on_color or led.on_color
+                    print "off", led.pick_off_color or led.off_color
+                    led.set_color('on', led.pick_on_color or led.on_color)
+                    led.set_color('off', led.pick_off_color or led.off_color)
+                    led.set_dia(led.led_size)
+                    led.set_shape(led.led_shape)
+                    if led.led_blink_rate:
+                        led.set_blink_rate(max(100, led.led_blink_rate))
+
                     self[idname].set_active(False)
                     self.updatelist[idname] = k
             if k =="HAL_HBox" :
@@ -249,3 +241,5 @@ if __name__ == "__main__":
     print "Gladevcp_make_pins cannot be run on its own"
     print "It must be called by gladevcp or a python program"
     print "that loads and displays the glade panel and creates a HAL component"
+
+# vim: sts=4 sw=4 et
