@@ -36,55 +36,55 @@ class GladePanel():
 
     def __init__(self,halcomp,xmlname,builder,buildertype):
         
-        self.buildertype = buildertype
         self.builder = builder
         self.hal = halcomp
         self.updatelist= {}
+
         if isinstance(builder, gtk.Builder):
             widgets = builder.get_objects()
-            self.buildertype = GTKBUILDER
+            buildertype = GTKBUILDER
         else:
             widgets = builder.get_widget_prefix("")
-            self.buildertype = LIBGLADE
+            buildertype = LIBGLADE
 
         for widget in widgets:
             #print parent.attrib
             k = widget.__class__.__name__
-            if self.buildertype == GTKBUILDER:
+            if buildertype == GTKBUILDER:
                 # Workaround issue with get_name
                 idname = gtk.Buildable.get_name(widget)
             else:
                 idname = widget.get_name()
             if k =="HAL_CheckButton" or k=="HAL_ToggleButton" or k =="HAL_RadioButton":
                     print" found a HAL chekcbutton! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self[idname].set_active(False)
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_OUT)
                     self[idname].connect("toggled", self.chkbtn_callback, idname)
                     self[idname].emit("toggled")
             if k =="HAL_Button" :
                     print" found a HAL button! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_OUT)
                     self[idname].connect("pressed", self.button_callback, idname,True)
                     self[idname].connect("released", self.button_callback, idname,False)
                     self[idname].emit("released")
             if k =="HAL_HScale" or k == "HAL_VScale":
                     print" found a HAL scale bar! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self.hal.newpin(idname, hal.HAL_FLOAT, hal.HAL_OUT)
                     self[idname].connect("value-changed", self.scale_callback, idname)
                     self[idname].emit("value-changed")  
             if k == "HAL_SpinButton":
                     print" found a HAL spinbutton bar! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)                   
+                    self[idname] = widget
                     self.hal.newpin(idname+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
                     self.hal.newpin(idname+"-s", hal.HAL_S32, hal.HAL_OUT)
                     self[idname].connect("value-changed", self.spin_callback, idname)
                     self[idname].emit("value-changed")
             if k =="HAL_ProgressBar" :
                     print" found a HAL progess bar ! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self.hal.newpin(idname, hal.HAL_FLOAT, hal.HAL_IN)
                     self.hal.newpin(idname+".scale", hal.HAL_FLOAT, hal.HAL_IN)
                     self.updatelist[idname] = k
@@ -97,7 +97,7 @@ class GladePanel():
 
             if k =="HAL_LED" :
                     print" found a HAL LED ! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_IN)
 
                     led = self[idname]
@@ -114,19 +114,19 @@ class GladePanel():
                     self.updatelist[idname] = k
             if k =="HAL_HBox" :
                     print" found a HAL hbox ! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_IN)
                     self.updatelist[idname] = k
             if k =="HAL_Table" :
                     print" found a HAL table ! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self[idname].connect("property-notify-event", self.table_callback, idname)
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_IN)
                     self.updatelist[idname] = k
             if k =="HAL_Label" :
                     print" found a HAL label ! ",idname
                     pin_type = hal.HAL_S32
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     widget = self[idname]
                     types = {0:hal.HAL_S32
                             ,1:hal.HAL_FLOAT
@@ -140,7 +140,7 @@ class GladePanel():
                     self.updatelist[idname] = k
             if k =="HAL_ComboBox" :
                     print" found a HAL combo box ! ",idname
-                    self[idname] = self.read_widget(idname,builder,self.buildertype)
+                    self[idname] = widget
                     self.hal.newpin(idname, hal.HAL_FLOAT, hal.HAL_OUT)
                     self[idname].connect("changed", self.combo_callback, idname)
 
@@ -222,12 +222,6 @@ class GladePanel():
     def combo_callback(self,widget,component):
         #print widget,component
         self.hal[component] = self[component].get_active()
-
-    def read_widget(self,widgetname,builder,builder_type=LIBGLADE):
-        if builder_type == LIBGLADE:
-            return builder.get_widget(widgetname)
-        else:
-            return builder.get_object(widgetname)
 
     def __getitem__(self, item):
         return getattr(self, item)
