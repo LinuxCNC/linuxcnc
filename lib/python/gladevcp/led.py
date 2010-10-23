@@ -42,8 +42,6 @@ class HAL_LED(gtk.DrawingArea):
         self._blink_active = False
         self._blink_state = False
         self._blink_rate = 500
-        self._on_color = [0.3, 0.4, 0.6]
-        self._off_color = [0.9, 0.1, 0.1]
         self.set_size_request(25, 25)
         self.connect("expose-event", self.expose)
 
@@ -53,6 +51,9 @@ class HAL_LED(gtk.DrawingArea):
         self.on_color  = "#4ccc66669998" # RGB [0.3, 0.4, 0.6]
         self.off_color = "#e66519991999" # RGB [0.9, 0.1, 0.1]
         self.pick_on_color = self.pick_off_color = ""
+
+        self._on_color = gtk.gdk.Color(self.on_color)
+        self._off_color = gtk.gdk.Color(self.off_color)
 
     # This method draws our widget
     # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
