@@ -22,10 +22,6 @@ import hal
 import gtk.glade
 import gobject
 import getopt
-import xml.etree.ElementTree
-import xml.etree.ElementPath
-
-sys.path.append('/usr/lib/glade3/modules')
 
 from hal_pythonplugin import *
 
@@ -43,17 +39,22 @@ class GladePanel():
         self.buildertype = buildertype
         self.builder = builder
         self.hal = halcomp
-        doc = xml.etree.ElementTree.parse(xmlname)
         self.updatelist= {}
-        if self.buildertype == LIBGLADE:
-            temp = "widget"
+        if isinstance(builder, gtk.Builder):
+            widgets = builder.get_objects()
+            self.buildertype = GTKBUILDER
         else:
-            temp = "object"
-        for parent in doc.getiterator(temp):
+            widgets = builder.get_widget_prefix("")
+            self.buildertype = LIBGLADE
+
+        for widget in widgets:
             #print parent.attrib
-            j = parent.attrib
-            k = j.get("class")
-            idname = j.get("id")
+            k = widget.__class__.__name__
+            if self.buildertype == GTKBUILDER:
+                # Workaround issue with get_name
+                idname = gtk.Buildable.get_name(widget)
+            else:
+                idname = widget.get_name()
             if k =="HAL_CheckButton" or k=="HAL_ToggleButton" or k =="HAL_RadioButton":
                     print" found a HAL chekcbutton! ",idname
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
@@ -139,10 +140,6 @@ class GladePanel():
                     self.updatelist[idname] = k
             if k =="HAL_ComboBox" :
                     print" found a HAL combo box ! ",idname
-                    for child in parent:
-                        temp = child.attrib.get("name")
-                        data = child.text
-                        #print  temp,data
                     self[idname] = self.read_widget(idname,builder,self.buildertype)
                     self.hal.newpin(idname, hal.HAL_FLOAT, hal.HAL_OUT)
                     self[idname].connect("changed", self.combo_callback, idname)
