@@ -120,6 +120,13 @@ def main():
         builder.signal_autoconnect(builder)
     else:
         builder.connect_signals(builder)
+    if parent:
+        plug = gtk.Plug(parent)
+        for c in window.get_children():
+            window.remove(c)
+            plug.add(c)
+        window = plug
+
     window.show()
 
     if parent:
