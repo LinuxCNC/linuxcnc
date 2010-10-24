@@ -89,7 +89,7 @@ class HAL_ProgressBar(gtk.ProgressBar):
 class HAL_Label(gtk.Label):
     __gtype_name__ = "HAL_Label"
     __gproperties__ = {
-        'label_pin_type'  : ( gobject.TYPE_INT, 'HAL pin type', 'Pin type',
+        'label_pin_type'  : ( gobject.TYPE_INT, 'HAL pin type', '0:S32 1:Float 2:U32',
                 0, 2, 0, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'text_template' : ( gobject.TYPE_STRING, 'text template',
                 'Text template to display. Python formatting may be used for one variable',
