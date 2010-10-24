@@ -16,7 +16,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class name="HAL_ProgressBar" generic-name="hal_progressbar" title="HAL_ProgressBar"/>
    <glade-widget-class name="HAL_LED" generic-name="hal_led" title="HAL LED">
     <properties>
-        <property id="led_blink_rate" optional="True" optional-default='False'/>
+        <property id="led_blink_rate" optional="True" save-always='True'/>
         <property id="pick_color_on"  optional="True"/>
         <property id="pick_color_off" optional="True"/>
     </properties>

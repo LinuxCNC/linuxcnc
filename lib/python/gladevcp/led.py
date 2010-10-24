@@ -38,6 +38,7 @@ class HAL_LED(gtk.DrawingArea):
         self._dia = 10
         self._blink_active = False
         self._blink_state = False
+        self._blink_magic = 0
         self.set_size_request(25, 25)
         self.connect("expose-event", self.expose)
 
@@ -112,10 +113,13 @@ class HAL_LED(gtk.DrawingArea):
             self._blink_active = False
         else:
             self._blink_active = True
-            self._blink_timer = gobject.timeout_add(rate, self.blink)
+            self._blink_magic += 1
+            self._blink_timer = gobject.timeout_add(rate, self.blink, self._blink_magic)
 
-    def blink(self):
+    def blink(self, magic=None):
         if not self._blink_active:
+            return False
+        if magic is not None and self._blink_magic != magic:
             return False
         if self._blink_state == True:
             self._blink_state = False
