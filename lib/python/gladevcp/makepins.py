@@ -50,11 +50,12 @@ class GladePanel():
         for widget in widgets:
             #print parent.attrib
             k = widget.__class__.__name__
-            if buildertype == GTKBUILDER:
-                # Workaround issue with get_name
+            if isinstance(widget, gtk.Buildable):
                 idname = gtk.Buildable.get_name(widget)
-            else:
+            elif hasattr(widget, 'get_name'):
                 idname = widget.get_name()
+            else:
+                continue
             if k =="HAL_CheckButton" or k=="HAL_ToggleButton" or k =="HAL_RadioButton":
                     print" found a HAL chekcbutton! ",idname
                     self[idname] = widget
