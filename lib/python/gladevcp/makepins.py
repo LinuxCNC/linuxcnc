@@ -101,14 +101,13 @@ class GladePanel():
                     self.hal.newpin(idname, hal.HAL_BIT, hal.HAL_IN)
 
                     led = self[idname]
-                    print "on", led.pick_on_color or led.on_color
-                    print "off", led.pick_off_color or led.off_color
-                    led.set_color('on', led.pick_on_color or led.on_color)
-                    led.set_color('off', led.pick_off_color or led.off_color)
-                    led.set_dia(led.led_size)
-                    led.set_shape(led.led_shape)
+
+                    #print "on", led.pick_on_color or led.on_color
+                    #print "off", led.pick_off_color or led.off_color
+                    led.set_color('on',  led.pick_color_on or led.on_color)
+                    led.set_color('off', led.pick_color_off or led.off_color)
                     if led.led_blink_rate:
-                        led.set_blink_rate(max(100, led.led_blink_rate))
+                        led.set_blink_rate(led.led_blink_rate)
 
                     self[idname].set_active(False)
                     self.updatelist[idname] = k
