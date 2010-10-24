@@ -1330,11 +1330,11 @@ class Data:
             else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
-            print >>file, "MAX_OUTPUT = %s" % (get("maxoutput") * temp)
+            print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
             if get("invertencoder"):
                 temp = -1
             else: temp = 1
-            print >>file, "INPUT_SCALE = %s" % get("scale")
+            print >>file, "INPUT_SCALE = %s" % (get("scale") * temp)
         else:
             print >>file, "# these are in nanoseconds"
             print >>file, "DIRSETUP   = %d"% int(get("dirsetup"))
@@ -1450,15 +1450,16 @@ class Data:
          
         if not pwmgen == "false":
             if (self.spidcontrol == True and let == 's') or not let == 's':
-                print >>file, "    setp pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
-                print >>file, "    setp pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
-                print >>file, "    setp pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
-                print >>file, "    setp pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
-                print >>file, "    setp pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
-                print >>file, "    setp pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
-                print >>file, "    setp pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
-                print >>file, "    setp pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
-                print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
+                print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
+                print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
+                print >>file, "setp   pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
+                print >>file, "setp   pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
+                print >>file, "setp   pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
+                print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
+                print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
+                print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                print >>file
                 if let == 's':
                     name = "spindle"
                 else:
@@ -1468,10 +1469,11 @@ class Data:
                
             if 'mesa' in pwmgen:
                 pinname = self.make_pinname(pwmgen,ini_style)
-                print >>file, "# PWM Generator signals/setup"
+                print >>file, "# ---PWM Generator signals/setup---"
                 print >>file
-                print >>file, "    setp "+pinname+".output-type 1" 
-                print >>file, "    setp "+pinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)  
+                print >>file, "setp   "+pinname+".output-type 1" 
+                print >>file, "setp   "+pinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                print >>file
                 if let == 's':  
                     
                     x1 = self.spindlepwm1
@@ -1505,20 +1507,20 @@ class Data:
             pinname = self.make_pinname(stepgen,ini_style)
             print >>file, "# Step Gen signals/setup"
             print >>file
-            print >>file, "    setp " + pinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
-            print >>file, "    setp " + pinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
-            print >>file, "    setp " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
-            print >>file, "    setp " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
-            print >>file, "    setp " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
+            print >>file, "setp   " + pinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
+            print >>file, "setp   " + pinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
+            print >>file, "setp   " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
+            print >>file, "setp   " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
+            print >>file, "setp   " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
             if let =="s":
-                print >>file, "    setp " + pinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
-                print >>file, "    setp " + pinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
+                print >>file, "setp   " + pinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
+                print >>file, "setp   " + pinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "    setp " + pinname + ".maxaccel         0"
-                print >>file, "    setp " + pinname + ".maxvel           0"
-            print >>file, "    setp " + pinname + ".step_type        0"        
+                print >>file, "setp   " + pinname + ".maxaccel         0"
+                print >>file, "setp   " + pinname + ".maxvel           0"
+            print >>file, "setp   " + pinname + ".step_type        0"        
             if let == 's':  
-                print >>file, "    setp " + pinname + ".control-type    1"
+                print >>file, "setp   " + pinname + ".control-type     1"
                 print >>file
                 print >>file, "net spindle-enable          =>  " + pinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ pinname + ".velocity-cmd"
@@ -1536,12 +1538,13 @@ class Data:
                 countmode = 0
                 print >>file, "# ---Encoder feedback signals/setup---"
                 print >>file             
-                print >>file, "    setp "+pinname+".counter-mode %d"% countmode
-                print >>file, "    setp "+pinname+".filter 1" 
-                print >>file, "    setp "+pinname+".index-invert 0"
-                print >>file, "    setp "+pinname+".index-mask 0" 
-                print >>file, "    setp "+pinname+".index-mask-invert 0"              
-                print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
+                print >>file, "setp    "+pinname+".counter-mode %d"% countmode
+                print >>file, "setp    "+pinname+".filter 1" 
+                print >>file, "setp    "+pinname+".index-invert 0"
+                print >>file, "setp    "+pinname+".index-mask 0" 
+                print >>file, "setp    "+pinname+".index-mask-invert 0"              
+                print >>file, "setp    "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)
+                print >>file
                 if let == 's':
                     print >>file, "net spindle-revs              <=  " + pinname + ".position"
                     print >>file, "net spindle-vel-fb            <=  " + pinname + ".velocity"
@@ -1554,9 +1557,9 @@ class Data:
                             print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                             print >>file, "net spindle-vel-fb         =>  near.0.in2"
                             print >>file, "net spindle-at-speed       <=  near.0.out"
-                            print >>file, "    setp near.0.scale .9"
+                            print >>file, "setp near.0.scale .9"
                         else:
-                            print >>file, "    sets spindle-at-speed true"               
+                            print >>file, "sets spindle-at-speed true"               
                 else: 
                     print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
                     print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
@@ -1639,7 +1642,7 @@ class Data:
             i = self['pp1Opin%dinv' % q]
             if p == UNUSED_OUTPUT: continue
             print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, q)
-            if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
+            if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % q           
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
@@ -1653,9 +1656,9 @@ class Data:
                         if p == "unused-output":continue
                         pinname = self.make_pinname(self.findsignal( p ),ini_style)
                         print >>file, "# ---",p.upper(),"---"
-                        print >>file, "    setp "+pinname +".is_output true"
-                        if i: print >>file, "    setp "+pinname+".invert_output true"
-                        if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"   
+                        print >>file, "setp    "+pinname +".is_output true"
+                        if i: print >>file, "setp    "+pinname+".invert_output true"
+                        if t == 2: print >>file, "setp    "+pinname+".is_opendrain  true"   
                         print >>file, "net %s     =>  "% (p)+pinname +".out"              
                     # for pwm pins
                     elif t in (PWMP,PDMP):
@@ -1665,9 +1668,9 @@ class Data:
                             sig = p.rstrip("-pulse")
                             print >>file, "# ---",sig.upper(),"---"
                             if t == PWMP:
-                                print >>file, "    setp "+pinname +".output-type 1"
+                                print >>file, "setp    "+pinname +".output-type 1"
                             elif t == PDMP:
-                                print >>file, "    setp "+pinname +".output-type 3"
+                                print >>file, "setp    "+pinname +".output-type 3"
                             print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"  
                             print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value" 
                     # for stepper pins
@@ -1722,9 +1725,9 @@ class Data:
             else:
                 halnum = 0
             if self["mesa%d_numof_pwmgens"% boardnum] > 0:
-                print >>file, "    setp hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum, self["mesa%d_pwm_frequency"% boardnum] )
-                print >>file, "    setp hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_pdm_frequency"% boardnum] )
-            print >>file, "    setp hm2_%s.%d.watchdog.timeout_ns %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_watchdog_timeout"% boardnum] )
+                print >>file, "setp     hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum, self["mesa%d_pwm_frequency"% boardnum] )
+                print >>file, "setp     hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_pdm_frequency"% boardnum] )
+            print >>file, "setp     hm2_%s.%d.watchdog.timeout_ns %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_watchdog_timeout"% boardnum] )
 
         if self.number_pports>0:
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
@@ -1837,6 +1840,7 @@ class Data:
 
         if self.pyvcp and not self.frontend == 1:
             print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
+        
         print >>file
         if self.number_pports > 0:
             print >>file, "addf parport.0.read servo-thread"
@@ -1978,15 +1982,16 @@ class Data:
             print >>file, _("# ---jog button signals---")
             print >>file
             print >>file, "net jog-speed            halui.jog-speed "
-            print >>file, "     sets jog-speed %f"% self.jograpidrate
+            print >>file, "sets    jog-speed %f"% self.jograpidrate
+            temp = ("x","y","z","a")
             if self.multijogbuttons:
-                for axnum,axletter in enumerate(self.available_axes):
-                    if not axletter == "s":
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
                         print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
                         print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
             else:
-                for axnum,axletter in enumerate(self.available_axes):
-                    if not axletter == "s":
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
                         print >>file, "net joint-select-%s         halui.joint.%d.select"% (chr(axnum+97),axnum)
                 print >>file, "net jog-selected-pos     halui.jog.selected.plus"
                 print >>file, "net jog-selected-neg     halui.jog.selected.minus"
@@ -2002,16 +2007,17 @@ class Data:
             print >>file, "net jog-speed-a           =>  mux8.jogspeed.sel0"
             print >>file, "net jog-speed-b           =>  mux8.jogspeed.sel1"
             print >>file, "net jog-speed             halui.jog-speed  <=  mux8.jogspeed.out"
-            print >>file, "    setp mux8.jogspeed.in0          %f"% (self.joystickjograpidrate0)
-            print >>file, "    setp mux8.jogspeed.in1          %f"% (self.joystickjograpidrate1)
-            print >>file, "    setp mux8.jogspeed.in2          %f"% (self.joystickjograpidrate2)
-            print >>file, "    setp mux8.jogspeed.in3          %f"% (self.joystickjograpidrate3)
+            print >>file, "setp    mux8.jogspeed.in0          %f"% (self.joystickjograpidrate0)
+            print >>file, "setp    mux8.jogspeed.in1          %f"% (self.joystickjograpidrate1)
+            print >>file, "setp    mux8.jogspeed.in2          %f"% (self.joystickjograpidrate2)
+            print >>file, "setp    mux8.jogspeed.in3          %f"% (self.joystickjograpidrate3)
             if not self.joycmdrapida =="":
                 print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
             if not self.joycmdrapidb =="":
                 print >>file, "net jog-speed-b           <=  %s"% (self.joycmdrapidb)
-            for axnum,axletter in enumerate(self.available_axes):
-                if not axletter == "s":
+            temp = ("x","y","z","a")
+            for axnum,axletter in enumerate(temp):
+                if axletter in self.available_axes:
                     pin_pos = self["joycmd"+axletter+"pos"]
                     pin_neg = self["joycmd"+axletter+"neg"]
                     if pin_pos == "" or pin_neg =="": continue
@@ -2024,17 +2030,18 @@ class Data:
         if self.externalmpg:
             print >>file, _("#  ---mpg signals---")
             print >>file
-            if self.multimpg:  
-                for axnum,axletter in enumerate(self.available_axes):
-                    if not axletter == "s":
+            if self.multimpg:
+                temp = ("x","y","z","a")
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
                         pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
                         print pinname
                         if 'hm2' in pinname:      
                             print >>file, "# connect jogwheel signals to mesa encoder - %s axis MPG "% axletter       
-                            print >>file, "    setp  axis.%d.jog-vel-mode 0" % axnum
-                            print >>file, "    setp  axis.%d.jog-enable true"% (axnum)
-                            print >>file, "    setp  %s.filter true" % pinname
-                            print >>file, "    setp  %s.counter-mode true" % pinname
+                            print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
+                            print >>file, "setp    axis.%d.jog-enable true"% (axnum)
+                            print >>file, "setp    %s.filter true" % pinname
+                            print >>file, "setp    %s.counter-mode true" % pinname
                             print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)                  
                             print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter,axnum)
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
@@ -2044,12 +2051,13 @@ class Data:
                  if 'hm2' in pinname:      
                     print >>file, "# connect jogwheel signals to mesa encoder - shared MPG " 
                     print >>file, "net joint-selected-count     <=  %s.count"% (pinname)      
-                    print >>file, "    setp %s.filter true" % pinname
-                    print >>file, "    setp %s.counter-mode true" % pinname                
-                    for axnum,axletter in enumerate(self.available_axes):
-                        if not axletter == "s":
+                    print >>file, "setp    %s.filter true" % pinname
+                    print >>file, "setp    %s.counter-mode true" % pinname
+                    temp = ("x","y","z","a")
+                    for axnum,axletter in enumerate(temp):
+                        if axletter in self.available_axes:
                             print >>file, "#       for axis %s MPG" % (axletter)
-                            print >>file, "    setp  axis.%d.jog-vel-mode 0" % axnum
+                            print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
                             print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
                             print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
@@ -2060,14 +2068,14 @@ class Data:
                 print >>file, "net jog-incr-b           =>  mux8.jogincr.sel1"
                 print >>file, "net jog-incr-c           =>  mux8.jogincr.sel2"
                 print >>file, "net selected-jog-incr    <=  mux8.jogincr.out"
-                print >>file, "    setp mux8.jogincr.in0          %f"% (self.mpgincrvalue0)
-                print >>file, "    setp mux8.jogincr.in1          %f"% (self.mpgincrvalue1)
-                print >>file, "    setp mux8.jogincr.in2          %f"% (self.mpgincrvalue2)
-                print >>file, "    setp mux8.jogincr.in3          %f"% (self.mpgincrvalue3)
-                print >>file, "    setp mux8.jogincr.in4          %f"% (self.mpgincrvalue4)
-                print >>file, "    setp mux8.jogincr.in5          %f"% (self.mpgincrvalue5)
-                print >>file, "    setp mux8.jogincr.in6          %f"% (self.mpgincrvalue6)
-                print >>file, "    setp mux8.jogincr.in7          %f"% (self.mpgincrvalue7)
+                print >>file, "setp     mux8.jogincr.in0          %f"% (self.mpgincrvalue0)
+                print >>file, "setp     mux8.jogincr.in1          %f"% (self.mpgincrvalue1)
+                print >>file, "setp     mux8.jogincr.in2          %f"% (self.mpgincrvalue2)
+                print >>file, "setp     mux8.jogincr.in3          %f"% (self.mpgincrvalue3)
+                print >>file, "setp     mux8.jogincr.in4          %f"% (self.mpgincrvalue4)
+                print >>file, "setp     mux8.jogincr.in5          %f"% (self.mpgincrvalue5)
+                print >>file, "setp     mux8.jogincr.in6          %f"% (self.mpgincrvalue6)
+                print >>file, "setp     mux8.jogincr.in7          %f"% (self.mpgincrvalue7)
                 print >>file
             else:
                 print >>file, "net selected-jog-incr    <= %f"% (self.mpgincrvalue0)
@@ -2162,7 +2170,7 @@ class Data:
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
-                      print >>f1, ("    setp scale.spindle.gain .01667")
+                      print >>f1, ("setp     scale.spindle.gain .01667")
                       print >>f1, ("net spindle-velocity-fb  => abs.spindle.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.spindle.out => scale.spindle.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.spindle.out => pyvcp.spindle-speed")

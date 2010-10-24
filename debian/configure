@@ -95,6 +95,10 @@ Ubuntu-8.04)
 	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
 	TCLTK_VERSION=8.4
 	;;
+Debian-testing)
+	EXTRA_BUILD=lyx
+	TCLTK_VERSION=8.5
+	;;
 Debian-5.0*)
 	EXTRA_BUILD=lyx
 	TCLTK_VERSION=8.4

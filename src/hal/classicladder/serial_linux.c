@@ -29,6 +29,7 @@
 #include <sys/signal.h>
 #include <sys/types.h> 
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #include "serial_common.h"
 extern int ModbusSerialUseRtsToSend;
@@ -179,7 +180,16 @@ void SerialSend( char *Buff, int BuffLength )
 		}
 		if ( ModbusDebugLevel>=2 )
 			printf("Serial writing...\n");
-		write(fd,Buff,BuffLength);
+		while(BuffLength > 0) {
+			int r = write(fd,Buff,BuffLength);
+			if(r < 0) {
+				if ( ModbusDebugLevel>=1 )
+					printf("SerialSend failed: %s!\n", strerror(errno));
+				break;
+			}
+			Buff += r;
+			BuffLength -= r;
+		}
 		if ( ModbusDebugLevel>=2 )
 			printf("Writing done!\n");
 		// wait until everything has been transmitted
