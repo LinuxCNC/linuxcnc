@@ -7,7 +7,7 @@ Build-Depends: debhelper (>> 4.0.0),
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget,
     libxaw7-dev, libncurses-dev, libreadline5-dev,
     lyx-qt | lyx, xsltproc, groff,
-    python, python-dev, python-tk,
+    python, python-dev, python-support, python-tk,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
     libgtk2.0-dev, libgnomeprintui2.2-dev,
     gettext, autoconf
