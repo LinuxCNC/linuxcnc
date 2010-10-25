@@ -1,18 +1,14 @@
-newsig a bit
-newsig b bit
-newsig c bit
-newsig d bit
 
-linkps streamer.0.pin.0 a
-linkps streamer.0.pin.1 b
-linkps streamer.0.pin.2 c
-linkps streamer.0.pin.3 d
+net a streamer.0.pin.0
+net b streamer.0.pin.1
+net c streamer.0.pin.2
+net d streamer.0.pin.3
 
-linksp a flipflop.0.data
-linksp b flipflop.0.clk
-linksp c flipflop.0.reset
-linksp d flipflop.0.set
+net a flipflop.0.data
+net b flipflop.0.clk
+net c flipflop.0.reset
+net d flipflop.0.set
 
-linkpp flipflop.0.out sampler.0.pin.0
+net n0 flipflop.0.out sampler.0.pin.0
 
 
