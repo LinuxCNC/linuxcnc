@@ -255,7 +255,7 @@ void rtapi_app_exit(void)
 static void calc_pid(void *arg, long period)
 {
     hal_pid_t *pid;
-    double tmp1, tmp2;
+    double tmp1, tmp2, command, feedback;
     int enable;
     double periodfp, periodrecip;
 
@@ -266,8 +266,11 @@ static void calc_pid(void *arg, long period)
     periodrecip = 1.0 / periodfp;
     /* get the enable bit */
     enable = *(pid->enable);
+    /* read the command and feedback only once */
+    command = *(pid->command);
+    feedback = *(pid->feedback);
     /* calculate the error */
-    tmp1 = *(pid->command) - *(pid->feedback);
+    tmp1 = command - feedback;
     /* store error to error pin */
     *(pid->error) = tmp1;
     /* apply error limits */
