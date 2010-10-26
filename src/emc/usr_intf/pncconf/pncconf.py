@@ -2090,7 +2090,7 @@ class Data:
                 print >>file, "setp     mux8.jogincr.in7          %f"% (self.mpgincrvalue7)
                 print >>file
             else:
-                print >>file, "net selected-jog-incr    <= %f"% (self.mpgincrvalue0)
+                print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
 
         print >>file, _("#  ---digital in / out signals---")
         print >>file
