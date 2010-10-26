@@ -151,7 +151,11 @@ RTAPI_MP_INT(debug, "enables optional params");
 typedef struct {
     hal_bit_t *enable;		/* pin: enable input */
     hal_float_t *command;	/* pin: commanded value */
+    hal_float_t *commandvds;	/* pin: commanded derivative dummysig */
+    hal_float_t *commandv;	/* pin: commanded derivative value */
     hal_float_t *feedback;	/* pin: feedback value */
+    hal_float_t *feedbackvds;	/* pin: feedback derivative dummysig */
+    hal_float_t *feedbackv;	/* pin: feedback derivative value */
     hal_float_t *error;		/* pin: command - feedback */
     hal_float_t *deadband;	/* pin: deadband */
     hal_float_t *maxerror;	/* pin: limit for error */
@@ -163,6 +167,7 @@ typedef struct {
     double prev_error;		/* previous error for differentiator */
     hal_float_t *error_d;	/* opt. pin: differentiated error */
     double prev_cmd;		/* previous command for differentiator */
+    double prev_fb;		/* previous feedback for differentiator */
     double limit_state;		/* +1 or -1 if in limit, else 0.0 */
     hal_float_t *cmd_d;		/* opt. pin: differentiated command */
     hal_float_t *cmd_dd;	/* opt. pin: 2nd derivative of command */
@@ -308,8 +313,11 @@ static void calc_pid(void *arg, long period)
 	/* not enabled, reset integrator */
 	*(pid->error_i) = 0;
     }
-    /* calculate derivative term */
-    *(pid->error_d) = (tmp1 - pid->prev_error) * periodrecip;
+    /* compute command and feedback derivatives to dummysigs */
+    *(pid->commandvds) = (command - pid->prev_cmd) * periodrecip;
+    *(pid->feedbackvds) = (feedback - pid->prev_fb) * periodrecip;
+    /* and calculate derivative term as difference of derivatives */
+    *(pid->error_d) = *(pid->commandv) - *(pid->feedbackv);
     pid->prev_error = tmp1;
     /* apply derivative limits */
     if (*(pid->maxerror_d) != 0.0) {
@@ -335,7 +343,9 @@ static void calc_pid(void *arg, long period)
     // save ie for next time
     pid->prev_ie = *(pid->index_enable);
 
-    pid->prev_cmd = *(pid->command);
+    pid->prev_cmd = command;
+    pid->prev_fb = feedback;
+
     /* apply derivative limits */
     if (*(pid->maxcmd_d) != 0.0) {
 	if (*(pid->cmd_d) > *(pid->maxcmd_d)) {
@@ -423,11 +433,25 @@ static int export_pid(int num, hal_pid_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_float_newf(HAL_IN, &(addr->commandv), comp_id,
+				"pid.%d.command-deriv", num);
+    if (retval != 0) {
+	return retval;
+    }
+    addr->commandvds = addr->commandv;
+
     retval = hal_pin_float_newf(HAL_IN, &(addr->feedback), comp_id,
 				"pid.%d.feedback", num);
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_float_newf(HAL_IN, &(addr->feedbackv), comp_id,
+				"pid.%d.feedback-deriv", num);
+    if (retval != 0) {
+	return retval;
+    }
+    addr->feedbackvds = addr->feedbackv;
+
     retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
 				"pid.%d.error", num);
     if (retval != 0) {
