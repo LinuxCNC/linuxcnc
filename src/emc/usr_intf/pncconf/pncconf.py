@@ -2247,7 +2247,7 @@ class Data:
                 print >>f1, ("net jog-y-neg  => touchy.jog.continuous.y.negative")
                 print >>f1, ("net jog-z-pos  => touchy.jog.continuous.z.positive")
                 print >>f1, ("net jog-z-neg  => touchy.jog.continuous.z.negative")
-                print >>f1, ("net QuillUp  => touchy.quill-up")
+                print >>f1, ("net quillup  => touchy.quill-up")
                 temp = ("x","y","z","a")
                 for axnum,axletter in enumerate(temp):
                     if axletter in self.available_axes:
