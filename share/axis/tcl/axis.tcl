@@ -316,6 +316,11 @@ setup_menu_accel .menu.view end [_ "S_how program"]
 setup_menu_accel .menu.view end [_ "Show program r_apids"]
 
 .menu.view add checkbutton \
+	-variable program_alpha \
+	-command toggle_program_alpha
+setup_menu_accel .menu.view end [_ "Alpha-_blend program"]
+
+.menu.view add checkbutton \
 	-variable show_live_plot \
 	-command toggle_show_live_plot
 setup_menu_accel .menu.view end [_ "Sho_w live plot"]
