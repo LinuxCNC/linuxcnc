@@ -143,6 +143,7 @@ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_MAXPWM = 6;_MAXSTEP = 7;_ENCPINS = 8
 _STEPPINS = 9;_HASWATCHDOG = 10;_MAXGPIO = 11;_LOWFREQ = 12;_HIFREQ = 13;_NUMOFCNCTRS = 14;_STARTOFDATA = 15
+_AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 # boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, max pwm gens, 
 # max step gens, number of pins per encoder,
@@ -537,7 +538,7 @@ class Data:
         # basic machine data
         self.help = "help-welcome.txt"
         self.machinename = _("my_EMC_machine")
-        self.frontend = 1 # AXIS
+        self.frontend = _AXIS 
         self.axes = 0 # XYZ
         self.available_axes = []
         self.baseperiod = 50000
@@ -1097,13 +1098,13 @@ class Data:
 
         print >>file
         print >>file, "[DISPLAY]"
-        if self.frontend == 1:
+        if self.frontend == _AXIS:
             print >>file, "DISPLAY = axis"
-        elif self.frontend == 2:
+        elif self.frontend == _TKEMC:
             print >>file, "DISPLAY = tkemc"
-        elif self.frontend == 3:
+        elif self.frontend == _MINI:
             print >>file, "DISPLAY = mini"
-        elif self.frontend == 4:
+        elif self.frontend == _TOUCHY:
             print >>file, "DISPLAY = touchy"
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
@@ -1841,7 +1842,7 @@ class Data:
             else:              
                 print >>file, i 
 
-        if self.pyvcp and not self.frontend == 1:
+        if self.pyvcp and not self.frontend == _AXIS:
             print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
         
         print >>file
@@ -2068,7 +2069,7 @@ class Data:
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
                             print >>file, "sets %s-jog-enable    true"% (axletter)
                             print >>file
-        if self.externalmpg and not self.frontend == 4:# TOUCHY GUI sets its own jog increments:
+        if self.externalmpg and not self.frontend == _TOUCHY:# TOUCHY GUI sets its own jog increments:
             if self.incrselect :
                 print >>file, "# connect selectable mpg jog increments "  
                 print >>file, "net jog-incr-a           =>  mux8.jogincr.sel0"
@@ -2230,7 +2231,7 @@ class Data:
                 print >>f1, _("# Include your customized HAL commands here")
                 print >>f1, _("# This file will not be overwritten when you run PNCconf again")
 
-        if self.frontend == 4:# TOUCHY GUI
+        if self.frontend == _TOUCHY:# TOUCHY GUI
                 touchyfile = os.path.join(base, "touchy.hal")
             #if not os.path.exists(touchyfile):
                 f1 = open(touchyfile, "w")
@@ -2240,12 +2241,12 @@ class Data:
                 print >>f1, ("net single-step          =>   touchy.single-block")
                 print >>f1, ("net selected-jog-incr    <=   touchy.jog.wheel.increment")
                 print >>f1, ("net joint-selected-count =>   touchy.wheel-counts")
-                print >>f1, ("net JogXPos  => touchy.jog.continuous.x.positive")
-                print >>f1, ("net JogXNeg  => touchy.jog.continuous.x.negative")
-                print >>f1, ("net JogYPos  => touchy.jog.continuous.y.positive")
-                print >>f1, ("net JogYNeg  => touchy.jog.continuous.y.negative")
-                print >>f1, ("net JogZPos  => touchy.jog.continuous.z.positive")
-                print >>f1, ("net JogZNeg  => touchy.jog.continuous.z.negative")
+                print >>f1, ("net jog-x-pos  => touchy.jog.continuous.x.positive")
+                print >>f1, ("net jog-x-neg  => touchy.jog.continuous.x.negative")
+                print >>f1, ("net jog-y-pos  => touchy.jog.continuous.y.positive")
+                print >>f1, ("net jog-y-neg  => touchy.jog.continuous.y.negative")
+                print >>f1, ("net jog-z-pos  => touchy.jog.continuous.z.positive")
+                print >>f1, ("net jog-z-neg  => touchy.jog.continuous.z.negative")
                 print >>f1, ("net QuillUp  => touchy.quill-up")
                 temp = ("x","y","z","a")
                 for axnum,axletter in enumerate(temp):
@@ -2267,10 +2268,10 @@ class Data:
         print >>file
         if  self.units == 0: unit = "an imperial"
         else: unit = "a metric"
-        if self.frontend == 1: display = "AXIS"
-        elif self.frontend == 2: display = "Tkemc"
-        elif self.frontend == 3: display = "Mini"
-        elif self.frontend == 4: display = "TOUCHY"
+        if self.frontend == _AXIS: display = "AXIS"
+        elif self.frontend == _TKEMC: display = "Tkemc"
+        elif self.frontend == _MINI: display = "Mini"
+        elif self.frontend == _TOUCHY: display = "TOUCHY"
         else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
@@ -3141,10 +3142,10 @@ class App:
 
     def on_GUI_config_prepare(self, *args):
         self.data.help = "help-gui.txt"
-        if self.data.frontend == 1 : self.widgets.GUIAXIS.set_active(True)
-        elif self.data.frontend == 2: self.widgets.GUITKEMC.set_active(True)
-        elif self.data.frontend == 3: self.widgets.GUIMINI.set_active(True)
-        elif self.data.frontend == 4: self.widgets.GUITOUCHY.set_active(True)
+        if self.data.frontend == _AXIS : self.widgets.GUIAXIS.set_active(True)
+        elif self.data.frontend == _TKEMC: self.widgets.GUITKEMC.set_active(True)
+        elif self.data.frontend == _MINI: self.widgets.GUIMINI.set_active(True)
+        elif self.data.frontend == _TOUCHY: self.widgets.GUITOUCHY.set_active(True)
         self.widgets.pyvcp.set_active(self.data.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.widgets.createconfig.get_active():
@@ -3180,13 +3181,13 @@ class App:
         
     def on_GUI_config_next(self, *args):
         if self.widgets.GUIAXIS.get_active():
-           self.data.frontend = 1
+           self.data.frontend = _AXIS
         elif self.widgets.GUITKEMC.get_active():
-           self.data.frontend = 2
+           self.data.frontend = _TKEMC
         elif self.widgets.GUIMINI.get_active():
-           self.data.frontend = 3
+           self.data.frontend = _MINI
         elif self.widgets.GUITOUCHY.get_active():
-           self.data.frontend = 4
+           self.data.frontend = _TOUCHY
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
         self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
         self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
@@ -4336,7 +4337,7 @@ class App:
             if not step == "false" and not pwm == "false": 
                 warnings.append(_("You can not have both steppers and pwm signals for axis %s\n")% i)
                 do_warning = True
-        if self.data.frontend == 4:# TOUCHY GUI
+        if self.data.frontend == _TOUCHY:# TOUCHY GUI
             abort = self.data.findsignal("abort")
             cycle = self.data.findsignal("cycle-start")
             single = self.data.findsignal("single-step")
