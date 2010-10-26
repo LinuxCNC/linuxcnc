@@ -363,7 +363,7 @@ ALL_LIMIT, ALL_HOME, DIN0, DIN1, DIN2, DIN3,
 JOGA, JOGB, JOGC, SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGX_P,JOGX_N,JOGY_P,JOGY_N,JOGZ_P,JOGZ_N,JOGA_P,JOGA_N,
 JOGSLCT_P, JOGSLCT_N, SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,
-SPINDLE_AT_SPEED   ) = hal_input_names = ["unused-input",
+SPINDLE_AT_SPEED, CYCLE_START, ABORT, SINGLE_STEP   ) = hal_input_names = ["unused-input",
 "estop-ext", "probe-in",
 "home-x", "home-y", "home-z", "home-a",
 "min-home-x", "min-home-y", "min-home-z", "min-home-a",
@@ -379,7 +379,7 @@ SPINDLE_AT_SPEED   ) = hal_input_names = ["unused-input",
 "jog-z-pos","jog-z-neg","jog-a-pos","jog-a-neg",
 "jog-selected-pos","jog-selected-neg","spindle-manual-cw",
 "spindle-manual-ccw","spindle-manual-stop",
-"spindle-at-speed"]
+"spindle-at-speed","cycle-start","abort","single-step"]
 
 human_output_names = [ _("Unused Output"),
 _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake"),
@@ -401,7 +401,7 @@ _("Jog incr A"),_("Jog incr B"),_("Jog incr C"),
 _("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D"),
 _("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),
 _("Jog A +"),_("Jog A -"),_("Jog button selected +"),_("Jog button selected -"),_("Manual Spindle CW"),
-_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed")]
+_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed"),_("Cycle Start"),_("Abort"),_("Single Step")]
 
 human_names_multi_jog_buttons = [_("Jog X +"),_("Jog X -"),
 _("Jog Y +"),_("Jog Y -"),
@@ -1101,8 +1101,10 @@ class Data:
             print >>file, "DISPLAY = axis"
         elif self.frontend == 2:
             print >>file, "DISPLAY = tkemc"
-        else:
+        elif self.frontend == 3:
             print >>file, "DISPLAY = mini"
+        elif self.frontend == 4:
+            print >>file, "DISPLAY = touchy"
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -1549,17 +1551,7 @@ class Data:
                     print >>file, "net spindle-revs              <=  " + pinname + ".position"
                     print >>file, "net spindle-vel-fb            <=  " + pinname + ".velocity"
                     print >>file, "net spindle-index-enable     <=>  " + pinname + ".index-enable" 
-                    if self.findsignal("spindle-at-speed") == "false":
-                        print >>file
-                        print >>file, "# ---Setup spindle at speed signals---"
-                        print >>file
-                        if not stepgen =="false" or not encoder == "false":
-                            print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
-                            print >>file, "net spindle-vel-fb         =>  near.0.in2"
-                            print >>file, "net spindle-at-speed       <=  near.0.out"
-                            print >>file, "setp near.0.scale .9"
-                        else:
-                            print >>file, "sets spindle-at-speed true"               
+               
                 else: 
                     print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
                     print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
@@ -1579,9 +1571,20 @@ class Data:
             print >>file, "net spindle-revs           =>  motion.spindle-revs"
             print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
             print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"            
+            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
+            if self.findsignal("spindle-at-speed") == "false":
+                print >>file
+                print >>file, "# ---Setup spindle at speed signals---"
+                print >>file
+                if not stepgen =="false" or not encoder == "false":
+                    print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
+                    print >>file, "net spindle-vel-fb         =>  near.0.in2"
+                    print >>file, "net spindle-at-speed       <=  near.0.out"
+                    print >>file, "setp near.0.scale .9"
+                else:
+                    print >>file, "sets spindle-at-speed true"
             return
-        
+
         min_limsig = self.min_lim_sig(let)
         if  min_limsig == "false": min_limsig = "%s-neg-limit" % let
         max_limsig = self.max_lim_sig(let)  
@@ -2027,42 +2030,46 @@ class Data:
                     print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
             print >>file
 
-        if self.externalmpg:
-            print >>file, _("#  ---mpg signals---")
-            print >>file
-            if self.multimpg:
-                temp = ("x","y","z","a")
-                for axnum,axletter in enumerate(temp):
-                    if axletter in self.available_axes:
-                        pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
-                        print pinname
-                        if 'hm2' in pinname:      
-                            print >>file, "# connect jogwheel signals to mesa encoder - %s axis MPG "% axletter       
-                            print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
-                            print >>file, "setp    axis.%d.jog-enable true"% (axnum)
-                            print >>file, "setp    %s.filter true" % pinname
-                            print >>file, "setp    %s.counter-mode true" % pinname
-                            print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)                  
-                            print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter,axnum)
-                            print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
-                            print >>file                    
-            else:
-                 pinname = self.make_pinname(self.findsignal("select-mpg-a"),ini_style)
-                 if 'hm2' in pinname:      
-                    print >>file, "# connect jogwheel signals to mesa encoder - shared MPG " 
-                    print >>file, "net joint-selected-count     <=  %s.count"% (pinname)      
+        pinname = self.make_pinname(self.findsignal("select-mpg-a"),ini_style)
+        if 'hm2' in pinname:
+            print >>file, "# jogwheel signals to mesa encoder - shared MPG "
+            print >>file, "net joint-selected-count     <=  %s.count"% (pinname)
+            print >>file, "setp    %s.filter true" % pinname
+            print >>file, "setp    %s.counter-mode true" % pinname
+            if self.externalmpg:
+                    print >>file, _("#  ---mpg signals---")
+                    print >>file
+                    if not self.multimpg:
+                        temp = ("x","y","z","a")
+                        for axnum,axletter in enumerate(temp):
+                            if axletter in self.available_axes:
+                                print >>file, "#       for axis %s MPG" % (axletter)
+                                print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
+                                print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
+                                print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
+                                print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
+                            print >>file
+        temp = ("x","y","z","a")
+        for axnum,axletter in enumerate(temp):
+            if axletter in self.available_axes:
+                pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
+                if 'hm2' in pinname:
+                    print >>file, "# jogwheel signals to mesa encoder - %s axis MPG "% axletter
+                    print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)
                     print >>file, "setp    %s.filter true" % pinname
                     print >>file, "setp    %s.counter-mode true" % pinname
-                    temp = ("x","y","z","a")
-                    for axnum,axletter in enumerate(temp):
-                        if axletter in self.available_axes:
-                            print >>file, "#       for axis %s MPG" % (axletter)
+                    if self.externalmpg:
+                        print >>file, _("#  ---mpg signals---")
+                        print >>file
+                        if self.multimpg:
                             print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
+                            print >>file, "net %s-jog-enable    axis.%d.jog-enable"% (axletter, axnum)            
+                            print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter, axnum)
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
-                            print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
-                            print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
-                    print >>file
-            if self.incrselect:
+                            print >>file, "sets %s-jog-enable    true"% (axletter)
+                            print >>file
+        if self.externalmpg and not self.frontend == 4:# TOUCHY GUI sets its own jog increments:
+            if self.incrselect :
                 print >>file, "# connect selectable mpg jog increments "  
                 print >>file, "net jog-incr-a           =>  mux8.jogincr.sel0"
                 print >>file, "net jog-incr-b           =>  mux8.jogincr.sel1"
@@ -2223,6 +2230,28 @@ class Data:
                 print >>f1, _("# Include your customized HAL commands here")
                 print >>f1, _("# This file will not be overwritten when you run PNCconf again")
 
+        if self.frontend == 4:# TOUCHY GUI
+                touchyfile = os.path.join(base, "touchy.hal")
+            #if not os.path.exists(touchyfile):
+                f1 = open(touchyfile, "w")
+                print >>f1, _("# These commands are required for Touchy GUI")
+                print >>f1, ("net cycle-start          =>   touchy.cycle-start")
+                print >>f1, ("net abort                =>   touchy.abort")
+                print >>f1, ("net single-step          =>   touchy.single-block")
+                print >>f1, ("net selected-jog-incr    <=   touchy.jog.wheel.increment")
+                print >>f1, ("net joint-selected-count =>   touchy.wheel-counts")
+                print >>f1, ("net JogXPos  => touchy.jog.continuous.x.positive")
+                print >>f1, ("net JogXNeg  => touchy.jog.continuous.x.negative")
+                print >>f1, ("net JogYPos  => touchy.jog.continuous.y.positive")
+                print >>f1, ("net JogYNeg  => touchy.jog.continuous.y.negative")
+                print >>f1, ("net JogZPos  => touchy.jog.continuous.z.positive")
+                print >>f1, ("net JogZNeg  => touchy.jog.continuous.z.negative")
+                print >>f1, ("net QuillUp  => touchy.quill-up")
+                temp = ("x","y","z","a")
+                for axnum,axletter in enumerate(temp):
+                    if axletter in self.available_axes:
+                        print >>f1, "net joint-select-%s   <=   touchy.jog.wheel.%s"% (chr(axnum+97), axletter)
+
         shutdown = os.path.join(base, "shutdown.hal")
         if not os.path.exists(shutdown):
             f1 = open(shutdown, "w")
@@ -2241,6 +2270,7 @@ class Data:
         if self.frontend == 1: display = "AXIS"
         elif self.frontend == 2: display = "Tkemc"
         elif self.frontend == 3: display = "Mini"
+        elif self.frontend == 4: display = "TOUCHY"
         else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
@@ -3113,7 +3143,8 @@ class App:
         self.data.help = "help-gui.txt"
         if self.data.frontend == 1 : self.widgets.GUIAXIS.set_active(True)
         elif self.data.frontend == 2: self.widgets.GUITKEMC.set_active(True)
-        else:   self.widgets.GUIMINI.set_active(True)
+        elif self.data.frontend == 3: self.widgets.GUIMINI.set_active(True)
+        elif self.data.frontend == 4: self.widgets.GUITOUCHY.set_active(True)
         self.widgets.pyvcp.set_active(self.data.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.widgets.createconfig.get_active():
@@ -3152,8 +3183,10 @@ class App:
            self.data.frontend = 1
         elif self.widgets.GUITKEMC.get_active():
            self.data.frontend = 2
-        else:
-            self.data.frontend = 3
+        elif self.widgets.GUIMINI.get_active():
+           self.data.frontend = 3
+        elif self.widgets.GUITOUCHY.get_active():
+           self.data.frontend = 4
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
         self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
         self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
@@ -4302,6 +4335,32 @@ class App:
                 do_warning = True
             if not step == "false" and not pwm == "false": 
                 warnings.append(_("You can not have both steppers and pwm signals for axis %s\n")% i)
+                do_warning = True
+        if self.data.frontend == 4:# TOUCHY GUI
+            abort = self.data.findsignal("abort")
+            cycle = self.data.findsignal("cycle-start")
+            single = self.data.findsignal("single-step")
+            mpg = self.data.findsignal("select-mpg-a")
+            if cycle == "false": 
+                warnings.append(_("Touchy require an external cycle start signal\n"))
+                do_warning = True
+            if abort == "false": 
+                warnings.append(_("Touchy require an external abort signal\n"))
+                do_warning = True
+            if single == "false": 
+                warnings.append(_("Touchy require an external single-step signal\n"))
+                do_warning = True
+            if mpg == "false": 
+                warnings.append(_("Touchy require an external multi handwheel MPG encoder signal on the mesa page\n"))
+                do_warning = True
+            if not self.data.externalmpg:
+                warnings.append(_("Touchy require 'external mpg jogging' to be selected on the external control page\n"))
+                do_warning = True
+            if self.data.multimpg:
+                warnings.append(_("Touchy require the external mpg to be in 'shared mpg' mode on the external controls page\n"))
+                do_warning = True
+            if self.data.incrselect:
+                warnings.append(_("Touchy require selectable increments to be unchecked on the external controls page\n"))
                 do_warning = True
         if do_warning: self.warning_dialog("\n".join(warnings),True)
 
