@@ -2033,10 +2033,12 @@ class Data:
 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"),ini_style)
         if 'hm2' in pinname:
-            print >>file, "# jogwheel signals to mesa encoder - shared MPG "
+            print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
+            print >>file
             print >>file, "net joint-selected-count     <=  %s.count"% (pinname)
             print >>file, "setp    %s.filter true" % pinname
             print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file
             if self.externalmpg:
                     print >>file, _("#  ---mpg signals---")
                     print >>file
@@ -2055,10 +2057,12 @@ class Data:
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
                 if 'hm2' in pinname:
-                    print >>file, "# jogwheel signals to mesa encoder - %s axis MPG "% axletter
+                    print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
+                    print >>file
                     print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)
                     print >>file, "setp    %s.filter true" % pinname
                     print >>file, "setp    %s.counter-mode true" % pinname
+                    print >>file
                     if self.externalmpg:
                         print >>file, _("#  ---mpg signals---")
                         print >>file
