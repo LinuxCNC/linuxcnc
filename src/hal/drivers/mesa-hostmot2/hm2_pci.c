@@ -613,7 +613,7 @@ int rtapi_app_main(void) {
     if (r != 0) {
         LL_ERR("error registering PCI driver\n");
         hal_exit(comp_id);
-        return -EINVAL;
+        return r;
     }
 
     if(failed_errno) {
