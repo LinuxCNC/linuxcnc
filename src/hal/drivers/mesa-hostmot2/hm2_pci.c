@@ -619,12 +619,14 @@ int rtapi_app_main(void) {
     if(failed_errno) {
 	// at least one card registration failed
 	hal_exit(comp_id);
+	pci_unregister_driver(&hm2_pci_driver);
 	return failed_errno;
     }
 
     if(num_boards == 0) {
 	// no cards were detected
 	hal_exit(comp_id);
+	pci_unregister_driver(&hm2_pci_driver);
 	return -ENODEV;
     }
 
