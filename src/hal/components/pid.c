@@ -332,7 +332,7 @@ static void calc_pid(void *arg, long period)
     tmp2 = *(pid->cmd_d);
     if(!(pid->prev_ie && !*(pid->index_enable))) {
         // not falling edge of index_enable: the normal case
-        *(pid->cmd_d) = (*(pid->command) - pid->prev_cmd) * periodrecip;
+        *(pid->cmd_d) = (command - pid->prev_cmd) * periodrecip;
     }
     // else: leave cmd_d alone and use last period's.  prev_cmd
     // shouldn't be trusted because index homing has caused us to have
@@ -370,7 +370,7 @@ static void calc_pid(void *arg, long period)
 	tmp1 =
 	    *(pid->bias) + *(pid->pgain) * tmp1 + *(pid->igain) * *(pid->error_i) +
 	    *(pid->dgain) * *(pid->error_d);
-	tmp1 += *(pid->command) * *(pid->ff0gain) + *(pid->cmd_d) * *(pid->ff1gain) +
+	tmp1 += command * *(pid->ff0gain) + *(pid->cmd_d) * *(pid->ff1gain) +
 	    *(pid->cmd_dd) * *(pid->ff2gain);
 	/* apply output limits */
 	if (*(pid->maxoutput) != 0.0) {
