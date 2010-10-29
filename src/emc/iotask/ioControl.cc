@@ -620,7 +620,8 @@ void load_tool(int pocket) {
 }
 
 void reload_tool_number(int toolno) {
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
+    if(random_toolchanger) return; // doesn't need special handling here
+    for(int i=1; i<CANON_POCKETS_MAX; i++) {
         if(emcioStatus.tool.toolTable[i].toolno == toolno) {
             load_tool(i);
             break;
