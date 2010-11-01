@@ -7,7 +7,9 @@ import gtk.glade
 
 # This creates the custom LED widget
 
-class HAL_LED(gtk.DrawingArea):
+from hal_widgets import _HalSensitiveBase
+
+class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gtype_name__ = 'HAL_LED'
     __gproperties__ = {
         'is_on' : ( gobject.TYPE_BOOLEAN, 'Is on', 'How to display LED in editor',
@@ -105,7 +107,7 @@ class HAL_LED(gtk.DrawingArea):
         self.queue_draw()
 
     def set_sensitive(self, data ):
-        print data
+        self.set_active(data)
 
     #FIXME the gobject timers are never explicly destroyed
     def set_blink_rate(self,rate):
@@ -196,3 +198,10 @@ class HAL_LED(gtk.DrawingArea):
             raise AttributeError('unknown property %s' % property.name)
         self.queue_draw()
         return True
+
+    def _hal_init(self):
+        _HalSensitiveBase._hal_init(self)
+        self.set_color('on',  self.pick_color_on or self.on_color)
+        self.set_color('off', self.pick_color_off or self.off_color)
+        if self.led_blink_rate:
+            self.set_blink_rate(self.led_blink_rate)
