@@ -232,15 +232,15 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   motion = block->motion_to_be;
   if (block->a_flag) {
-    CHKS(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
+    CHKS(((motion > G_80) && (motion < G_90)),
         NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE);
   }
   if (block->b_flag) {
-    CHKS(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
+    CHKS(((motion > G_80) && (motion < G_90)),
         NCE_CANNOT_PUT_A_B_IN_CANNED_CYCLE);
   }
   if (block->c_flag) {
-    CHKS(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
+    CHKS(((motion > G_80) && (motion < G_90)),
         NCE_CANNOT_PUT_A_C_IN_CANNED_CYCLE);
   }
   if (block->d_flag) {
