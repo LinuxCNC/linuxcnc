@@ -495,6 +495,9 @@ setup;
 
 typedef setup *setup_pointer;
 
+inline bool is_a_cycle(int motion) {
+    return ((motion > G_80) && (motion < G_90)) || (motion == G_73);
+}
 /*
 
 The _setup model includes a stack array for the names of function
