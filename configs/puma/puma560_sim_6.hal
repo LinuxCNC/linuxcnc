@@ -9,27 +9,21 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 
 # create HAL signals for position commands from motion module
-newsig J0pos float
-linksp J0pos <= axis.0.motor-pos-cmd
-newsig J1pos float
-linksp J1pos <= axis.1.motor-pos-cmd
-newsig J2pos float
-linksp J2pos <= axis.2.motor-pos-cmd
-newsig J3pos float
-linksp J3pos <= axis.3.motor-pos-cmd
-newsig J4pos float
-linksp J4pos <= axis.4.motor-pos-cmd
-newsig J5pos float
-linksp J5pos <= axis.5.motor-pos-cmd
+net J0pos <= axis.0.motor-pos-cmd
+net J1pos <= axis.1.motor-pos-cmd
+net J2pos <= axis.2.motor-pos-cmd
+net J3pos <= axis.3.motor-pos-cmd
+net J4pos <= axis.4.motor-pos-cmd
+net J5pos <= axis.5.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-linksp J0pos => axis.0.motor-pos-fb
-linksp J1pos => axis.1.motor-pos-fb
-linksp J2pos => axis.2.motor-pos-fb
-linksp J3pos => axis.3.motor-pos-fb
-linksp J4pos => axis.4.motor-pos-fb
-linksp J5pos => axis.5.motor-pos-fb
+net J0pos => axis.0.motor-pos-fb
+net J1pos => axis.1.motor-pos-fb
+net J2pos => axis.2.motor-pos-fb
+net J3pos => axis.3.motor-pos-fb
+net J4pos => axis.4.motor-pos-fb
+net J5pos => axis.5.motor-pos-fb
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -71,12 +65,12 @@ addf scale.3 servo-thread
 addf scale.4 servo-thread
 addf scale.5 servo-thread
 
-linksp J0pos scale.0.in
-linksp J1pos scale.1.in
-linksp J2pos scale.2.in
-linksp J3pos scale.3.in
-linksp J4pos scale.4.in
-linksp J5pos scale.5.in
+net J0pos scale.0.in
+net J1pos scale.1.in
+net J2pos scale.2.in
+net J3pos scale.3.in
+net J4pos scale.4.in
+net J5pos scale.5.in
 
 setp scale.0.gain 1
 setp scale.1.gain 1

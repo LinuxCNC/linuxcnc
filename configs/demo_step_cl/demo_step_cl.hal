@@ -30,12 +30,12 @@ loadusr classicladder
 
 # begin to connect physical pins to signals
 # this is EMC's standard motion pinouts
-linksp Xstep parport.0.pin-03-out
-linksp Xdir  parport.0.pin-02-out
-linksp Ystep parport.0.pin-05-out
-linksp Ydir  parport.0.pin-04-out
-linksp Zstep parport.0.pin-07-out
-linksp Zdir  parport.0.pin-06-out
+net Xstep parport.0.pin-03-out
+net Xdir parport.0.pin-02-out
+net Ystep parport.0.pin-05-out
+net Ydir parport.0.pin-04-out
+net Zstep parport.0.pin-07-out
+net Zdir parport.0.pin-06-out
 
 # three axis motion allows 6 other outputs on pins 8,9,1,14,16,17
 # five additional input pins are available 10,11,12,13,15
@@ -47,9 +47,8 @@ net user-enable-out iocontrol.0.user-enable-out classicladder.0.in-00
 # one-shot on  timer when signal above goes high.
 net user-request-enable iocontrol.0.user-request-enable  classicladder.0.in-02
 # this bit is an external estop button connected to parport pin 11 and ground
-newsig ext-estop bit
-linksp ext-estop parport.0.pin-10-in
-linkps classicladder.0.in-01 ext-estop
+net ext-estop parport.0.pin-10-in
+net ext-estop classicladder.0.in-01
 # This bit signal is comand to estop from CL to EMC
 net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
 
@@ -57,15 +56,13 @@ net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00
 # lube run command from emc to CL 
 net lube iocontrol.0.lube classicladder.0.in-03
 # for ease of reading we will make a new signal lube-run
-newsig lube-run bit
-linkps classicladder.0.out-01  lube-run
-linksp lube-run parport.0.pin-01-out
+net lube-run classicladder.0.out-01
+net lube-run parport.0.pin-01-out
 
 # The lube sense stuff runs from an external pin, through CL to iocontrol in 
-newsig lube-up  bit
 # lube-up is the signal between the parport and cl
-linkps parport.0.pin-12-in lube-up
-linkps  classicladder.0.in-04 lube-up
+net lube-up parport.0.pin-12-in
+net lube-up classicladder.0.in-04
 net lube-level iocontrol.0.lube_level classicladder.0.out-02
 
 # coolant signals
@@ -88,19 +85,18 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # create a limit switch signal
-newsig limit-reached bit
 # read limit conditions from external normally open switches in parallel
 # this configuration allows the control to run but still test limit 
 # for real use a normally closed series loop and reverse parport pin polarity
 # add all limits to a single parport pin
 # connect this signal to pin 10 on the parport
-linkps parport.0.pin-10-in-not  limit-reached
+net limit-reached parport.0.pin-10-in-not
 # connect this signal to all limit signals of relevant axes
-linksp limit-reached  axis.0.neg-lim-sw-in  
-linksp limit-reached  axis.0.pos-lim-sw-in  
-linksp limit-reached  axis.1.neg-lim-sw-in  
-linksp limit-reached  axis.1.pos-lim-sw-in  
-linksp limit-reached  axis.2.neg-lim-sw-in  
+net limit-reached axis.0.neg-lim-sw-in
+net limit-reached axis.0.pos-lim-sw-in
+net limit-reached axis.1.neg-lim-sw-in
+net limit-reached axis.1.pos-lim-sw-in
+net limit-reached axis.2.neg-lim-sw-in
 #linksp limit-reached  axis.2.pos-lim-sw-in  
 
 

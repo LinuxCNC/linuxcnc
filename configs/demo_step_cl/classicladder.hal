@@ -5,20 +5,14 @@ loadrt classicladder_rt period=1000000
 addf classicladder.0.refresh classicladder.thread 1
 
 # create some I/O signals
-newsig I0 bit
-newsig I1 bit
-newsig I2 bit
-newsig Q0 bit
-newsig Q1 bit
-newsig Q2 bit
 
 # connect I/O signals to classicladder
-linksp I0 => classicladder.0.in-00
-linksp I1 => classicladder.0.in-01
-linksp I2 => classicladder.0.in-02
-linksp Q0 <= classicladder.0.out-00
-linksp Q1 <= classicladder.0.out-01
-linksp Q2 <= classicladder.0.out-02
+net I0 => classicladder.0.in-00
+net I1 => classicladder.0.in-01
+net I2 => classicladder.0.in-02
+net Q0 <= classicladder.0.out-00
+net Q1 <= classicladder.0.out-01
+net Q2 <= classicladder.0.out-02
 
 # set the input signals
 sets I0 0

@@ -2,34 +2,26 @@
 # for a full four axis setup
 
 # create four position feedback signals
-newsig Xpos-fb float
-newsig Ypos-fb float
-newsig Zpos-fb float
-newsig Apos-fb float
 
 # connect position feedback to PID loop
-linksp Xpos-fb => pid.0.feedback
-linksp Ypos-fb => pid.1.feedback
-linksp Zpos-fb => pid.2.feedback
-linksp Apos-fb => pid.3.feedback
+net Xpos-fb => pid.0.feedback
+net Ypos-fb => pid.1.feedback
+net Zpos-fb => pid.2.feedback
+net Apos-fb => pid.3.feedback
 
 # connect position feedback to motion module
-linksp Xpos-fb => axis.0.motor-pos-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
-linksp Zpos-fb => axis.2.motor-pos-fb
-linksp Apos-fb => axis.3.motor-pos-fb
+net Xpos-fb => axis.0.motor-pos-fb
+net Ypos-fb => axis.1.motor-pos-fb
+net Zpos-fb => axis.2.motor-pos-fb
+net Apos-fb => axis.3.motor-pos-fb
 
 # create PID to DAC output signals
-newsig Xoutput float
-newsig Youtput float
-newsig Zoutput float
-newsig Aoutput float
 
 # connect output signals to output of PID loops
-linksp Xoutput <= pid.0.output
-linksp Youtput <= pid.1.output
-linksp Zoutput <= pid.2.output
-linksp Aoutput <= pid.3.output
+net Xoutput <= pid.0.output
+net Youtput <= pid.1.output
+net Zoutput <= pid.2.output
+net Aoutput <= pid.3.output
 
 # set PID loop output limits to +/-1.00
 setp pid.0.maxoutput [AXIS_0]PID_MAX_VEL
@@ -75,37 +67,29 @@ setp pid.3.FF2 [AXIS_3]FF2
 setp pid.3.deadband [AXIS_3]DEADBAND
 
 # create four position command signals
-newsig Xpos-cmd float
-newsig Ypos-cmd float
-newsig Zpos-cmd float
-newsig Apos-cmd float
 
 # connect position commands to motion controller
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
-linksp Zpos-cmd <= axis.2.motor-pos-cmd
-linksp Apos-cmd <= axis.3.motor-pos-cmd
+net Xpos-cmd <= axis.0.motor-pos-cmd
+net Ypos-cmd <= axis.1.motor-pos-cmd
+net Zpos-cmd <= axis.2.motor-pos-cmd
+net Apos-cmd <= axis.3.motor-pos-cmd
 
 # connect position commands to PID input
-linksp Xpos-cmd => pid.0.command
-linksp Ypos-cmd => pid.1.command
-linksp Zpos-cmd => pid.2.command
-linksp Apos-cmd => pid.3.command
+net Xpos-cmd => pid.0.command
+net Ypos-cmd => pid.1.command
+net Zpos-cmd => pid.2.command
+net Apos-cmd => pid.3.command
 
 # create bit signals to enable/disable the PID loops
-newsig Xenable bit
-newsig Yenable bit
-newsig Zenable bit
-newsig Aenable bit
 
 # connect the signals to the motion controller
-linksp Xenable <= axis.0.amp-enable-out
-linksp Yenable <= axis.1.amp-enable-out
-linksp Zenable <= axis.2.amp-enable-out
-linksp Aenable <= axis.3.amp-enable-out
+net Xenable <= axis.0.amp-enable-out
+net Yenable <= axis.1.amp-enable-out
+net Zenable <= axis.2.amp-enable-out
+net Aenable <= axis.3.amp-enable-out
 
 # connect the signals to the PID blocks
-linksp Xenable => pid.0.enable
-linksp Yenable => pid.1.enable
-linksp Zenable => pid.2.enable
-linksp Aenable => pid.3.enable
+net Xenable => pid.0.enable
+net Yenable => pid.1.enable
+net Zenable => pid.2.enable
+net Aenable => pid.3.enable

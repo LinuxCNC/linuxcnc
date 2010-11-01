@@ -28,8 +28,6 @@ addf ddt.2                     servo-thread
 addf ddt.3                     servo-thread
 
 # hook stuff together
-newsig Xpos-fb float
-newsig Ypos-fb float
 
 setp encoder.0.position-scale [AXIS_0]INPUT_SCALE
 setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
@@ -39,42 +37,36 @@ net enc0B encoder.0.phase-B <= parport.0.pin-11-in
 net enc1A encoder.1.phase-A <= parport.0.pin-12-in
 net enc1B encoder.1.phase-B <= parport.0.pin-13-in
 
-linksp Xpos-fb <= encoder.0.position
-linksp Ypos-fb <= encoder.1.position
+net Xpos-fb <= encoder.0.position
+net Ypos-fb <= encoder.1.position
 
-newsig Xvel-cmd float
-newsig Yvel-cmd float
 
-linksp Xpos-fb => pid.0.feedback
-linksp Ypos-fb => pid.1.feedback
-linksp Xpos-fb => axis.0.motor-pos-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
+net Xpos-fb => pid.0.feedback
+net Ypos-fb => pid.1.feedback
+net Xpos-fb => axis.0.motor-pos-fb
+net Ypos-fb => axis.1.motor-pos-fb
 
-linksp Xvel-cmd <= pid.0.output
-linksp Yvel-cmd <= pid.1.output
+net Xvel-cmd <= pid.0.output
+net Yvel-cmd <= pid.1.output
 
-linksp Xvel-cmd => pwmgen.0.value
-linksp Yvel-cmd => pwmgen.1.value
+net Xvel-cmd => pwmgen.0.value
+net Yvel-cmd => pwmgen.1.value
 
-newsig Xpwm bit
-newsig Ypwm bit
-linkps pwmgen.0.pwm Xpwm
-linkps pwmgen.1.pwm Ypwm
+net Xpwm pwmgen.0.pwm
+net Ypwm pwmgen.1.pwm
 
-newsig Xdir bit
-newsig Ydir bit
-linkps pwmgen.0.dir => Xdir
-linkps pwmgen.1.dir => Ydir
+net Xdir <= pwmgen.0.dir
+net Ydir <= pwmgen.1.dir
 
-linksp Xdir    => parport.0.pin-02-out
-linksp Xdir    => parport.0.pin-04-out
+net Xdir => parport.0.pin-02-out
+net Xdir => parport.0.pin-04-out
 setp parport.0.pin-04-out-invert TRUE
-linksp Xpwm => parport.0.pin-03-out
+net Xpwm => parport.0.pin-03-out
 
-linksp Ydir    => parport.0.pin-05-out
-linksp Ydir    => parport.0.pin-07-out
+net Ydir => parport.0.pin-05-out
+net Ydir => parport.0.pin-07-out
 setp parport.0.pin-07-out-invert TRUE
-linksp Ypwm => parport.0.pin-06-out
+net Ypwm => parport.0.pin-06-out
 
 setp pid.0.maxoutput 1.0
 setp pid.1.maxoutput 1.0
@@ -100,35 +92,27 @@ setp pid.1.FF2 [AXIS_1]FF2
 # deadband should be just over 1 count
 setp pid.1.deadband [AXIS_1]DEADBAND
 
-newsig Xpos-cmd float
-newsig Ypos-cmd float
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
-linkps pid.0.command <= Xpos-cmd
-linkps pid.1.command <= Ypos-cmd
-newsig Xenable bit
-newsig Yenable bit
-linkps axis.0.amp-enable-out => Xenable
-linkps axis.1.amp-enable-out => Yenable
-linksp Xenable => pid.0.enable 
-linksp Xenable => pwmgen.0.enable
-linksp Yenable => pid.1.enable
-linksp Yenable => pwmgen.1.enable
+net Xpos-cmd <= axis.0.motor-pos-cmd
+net Ypos-cmd <= axis.1.motor-pos-cmd
+net Xpos-cmd => pid.0.command
+net Ypos-cmd => pid.1.command
+net Xenable <= axis.0.amp-enable-out
+net Yenable <= axis.1.amp-enable-out
+net Xenable => pid.0.enable
+net Xenable => pwmgen.0.enable
+net Yenable => pid.1.enable
+net Yenable => pwmgen.1.enable
 
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
-newsig Xvel float
-newsig Xacc float
-linksp Xpos-cmd => ddt.0.in
-linkps ddt.0.out => Xvel
-linksp Xvel => ddt.1.in
-linkps ddt.1.out => Xacc
-newsig Yvel float
-newsig Yacc float
-linksp Ypos-cmd => ddt.2.in
-linkps ddt.2.out => Yvel
-linksp Yvel => ddt.3.in
-linkps ddt.3.out => Yacc
+net Xpos-cmd => ddt.0.in
+net Xvel <= ddt.0.out
+net Xvel => ddt.1.in
+net Xacc <= ddt.1.out
+net Ypos-cmd => ddt.2.in
+net Yvel <= ddt.2.out
+net Yvel => ddt.3.in
+net Yacc <= ddt.3.out
 
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

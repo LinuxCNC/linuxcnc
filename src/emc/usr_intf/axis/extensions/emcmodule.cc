@@ -1707,10 +1707,11 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
 static PyObject *pydraw_dwells(PyObject *s, PyObject *o) {
     PyListObject *li;
     int for_selection = 0, is_lathe = 0, i, n;
+    double alpha;
     char *geometry;
     double delta = 0.015625;
 
-    if(!PyArg_ParseTuple(o, "sO!ii:draw_dwells", &geometry, &PyList_Type, &li, &for_selection, &is_lathe))
+    if(!PyArg_ParseTuple(o, "sO!dii:draw_dwells", &geometry, &PyList_Type, &li, &alpha, &for_selection, &is_lathe))
         return NULL;
 
     if (for_selection == 0)
@@ -1723,7 +1724,8 @@ static PyObject *pydraw_dwells(PyObject *s, PyObject *o) {
         if(!PyArg_ParseTuple(it, "i(ddd)dddi", &n, &red, &green, &blue, &x, &y, &z, &axis)) {
             return NULL;
         }
-        glColor3f(red, green, blue);
+        if (for_selection != 1)
+            glColor4d(red, green, blue, alpha);
         if (for_selection == 1) {
             glLoadName(n);
             glBegin(GL_LINES);

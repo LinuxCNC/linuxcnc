@@ -2973,9 +2973,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   CHKS((ci && (xyzuvw_flag || block->a_flag || block->b_flag)),
        (_("Indexing axis %c can only be moved alone")), 'C');
 
-  int is_a_cycle = (motion == G_73 || ((motion > G_80) && (motion < G_90)));
-
-  if (!is_a_cycle)
+  if (!is_a_cycle(motion))
     settings->cycle_il_flag = false;
 
   if (ai || bi || ci) {
@@ -2994,7 +2992,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
-  } else if (is_a_cycle) {
+  } else if (is_a_cycle(motion)) {
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
     CHP(convert_spline(motion, block, settings));

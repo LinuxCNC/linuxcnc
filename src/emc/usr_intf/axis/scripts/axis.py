@@ -425,6 +425,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_rapids(self): return vars.show_rapids.get()
     def get_geometry(self): return geometry
     def get_num_joints(self): return num_joints
+    def get_program_alpha(self): return vars.program_alpha.get()
 
     def get_a_axis_wrapped(self): return a_axis_wrapped
     def get_b_axis_wrapped(self): return b_axis_wrapped
@@ -514,7 +515,6 @@ class MyOpengl(GlCanonDraw, Opengl):
             self.tkRedraw_ortho()
 
     def get_show_program(self): return vars.show_program.get()
-    def get_show_rapids(self): return vars.show_rapids.get()
     def get_show_offsets(self): return vars.show_offsets.get()
     def get_show_extents(self): return vars.show_extents.get()
     def get_show_metric(self): return vars.metric.get()
@@ -2143,6 +2143,10 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_program", vars.show_program.get())
         o.tkRedraw()
 
+    def toggle_program_alpha(*event):
+        ap.putpref("program_alpha", vars.program_alpha.get())
+        o.tkRedraw()
+
     def toggle_show_live_plot(*event):
         ap.putpref("show_live_plot", vars.show_live_plot.get())
         o.tkRedraw()
@@ -2462,6 +2466,7 @@ vars = nf.Variables(root_window,
     ("running_line", IntVar),
     ("highlight_line", IntVar),
     ("show_program", IntVar),
+    ("program_alpha", IntVar),
     ("show_live_plot", IntVar),
     ("show_tool", IntVar),
     ("show_extents", IntVar),
@@ -2502,6 +2507,7 @@ vars.running_line.set(-1)
 vars.tto_g11.set(ap.getpref("tto_g11", False))
 vars.show_program.set(ap.getpref("show_program", True))
 vars.show_rapids.set(ap.getpref("show_rapids", True))
+vars.program_alpha.set(ap.getpref("program_alpha", False))
 vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
