@@ -6974,10 +6974,10 @@ G17.1
 \end_layout
 
 \begin_layout Standard
-Rotational axis words are allowed in canned cycles, but it is better to
- omit them.
- If rotational axis words are used, the numbers must be the same as the
- current position numbers so that the rotational axes do not move.
+Rotational axis words are not allowed in canned cycles.  When
+ the active plane is one of the XYZ family, the UVW axis words are not
+ allowed.  Likewise, when the active plane is one of the UVW family, the
+ XYZ axis words are not allowed.
 \end_layout
 
 \begin_layout Subsection
@@ -7184,7 +7184,7 @@ name "sub:G81:-Drilling-Cycle"
 \begin_layout Quote
 
 \family typewriter
-G81 X- Y- Z- A- B- C- R- L-
+G81 X- Y- Z- R- L-
 \end_layout
 
 \begin_layout Standard
@@ -7370,7 +7370,7 @@ name "sub:G82:-Drilling-Cycle"
 \begin_layout Quote
 
 \family typewriter
-G82 X- Y- Z- A- B- C- R- L- P-
+G82 X- Y- Z- R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7417,7 +7417,7 @@ name "sub:G83:-Peck-Drilling"
 \begin_layout Quote
 
 \family typewriter
-G83 X- Y- Z- A- B- C- R- L- Q-
+G83 X- Y- Z- R- L- Q-
 \end_layout
 
 \begin_layout Standard
@@ -7517,7 +7517,7 @@ name "sub:G85:-Boring,-No"
 \begin_layout Quote
 
 \family typewriter
-G85 X- Y- Z- A- B- C- R- L-
+G85 X- Y- Z- R- L-
 \end_layout
 
 \begin_layout Standard
@@ -7562,7 +7562,7 @@ name "sub:G86:-Boring,-Spindle"
 \begin_layout Quote
 
 \family typewriter
-G86 X- Y- Z- A- B- C- R- L- P-
+G86 X- Y- Z- R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7671,7 +7671,7 @@ name "sub:G89:-Boring,-Dwell,"
 \begin_layout Quote
 
 \family typewriter
-G89 X- Y- Z- A- B- C- R- L- P-
+G89 X- Y- Z- R- L- P-
 \end_layout
 
 \begin_layout Standard
