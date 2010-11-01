@@ -24,7 +24,7 @@ for t in glob.glob('*.ngc'):
 
     err = output[-2].strip()
     if err != expected:
-	print "%s: Expected %r, got %r instead" % (t, err, expected)
+	print "%s: Expected %r, got %r instead" % (t, expected, err)
 	fail += 1
 
 if fail:
