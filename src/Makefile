@@ -352,6 +352,7 @@ userspace: $(TARGETS)
 ifeq ($(BUILD_PYTHON),yes)
 pythonclean:
 	rm -f $(PYTARGETS)
+	find ../lib/python -name '*.so' -exec rm {} +
 python: $(PYTARGETS)
 userspace: python
 clean: docclean pythonclean
