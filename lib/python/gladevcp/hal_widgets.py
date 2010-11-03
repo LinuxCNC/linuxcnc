@@ -24,27 +24,27 @@ class _HalWidgetBase:
 class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.set_active(False)
-        self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
         self.connect("toggled", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal[self.hal_name] = bool(self.get_active())
+        self.hal_pin.set(bool(self.get_active()))
 
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal[self.hal_name] = self.get_value()
+        self.hal_pin.set(self.get_value())
 
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
-        self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
         self.set_sensitive(False)
 
     def hal_update(self):
-        self.set_sensitive(self.hal[self.hal_name])
+        self.set_sensitive(self.hal_pin.get())
 
 """ Real widgets """
 
@@ -64,11 +64,11 @@ class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
         gtk.ComboBox.__init__(self)
 
     def _hal_init(self):
-        self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
         self.connect("changed", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal[self.hal_name] = self.get_active()
+        self.hal_pin.set(self.get_active())
 
 class HAL_Button(gtk.Button, _HalWidgetBase):
     __gtype_name__ = "HAL_Button"
@@ -76,9 +76,9 @@ class HAL_Button(gtk.Button, _HalWidgetBase):
         gtk.Button.__init__(self)
 
     def _hal_init(self):
-        self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
         def _f(w, data):
-                self.hal[self.hal_name] = data
+                self.hal_pin.set(data)
         self.connect("pressed",  _f, True)
         self.connect("released", _f, False)
         self.emit("released")
@@ -94,12 +94,12 @@ class HAL_SpinButton(gtk.SpinButton, _HalWidgetBase):
         gtk.SpinButton.__init__(self)
 
     def _hal_init(self):
-        self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
         def _f(w):
             data = self.get_value()
-            self.hal[self.hal_name+"-f"] = data
-            self.hal[self.hal_name+"-s"] = int(data)
+            self.hal_pin_f.set(data)
+            self.hal_pin_s.set(int(data))
         self.connect("value-changed", _f)
         self.emit("value-changed")
 
@@ -159,8 +159,8 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
             raise AttributeError('unknown property %s' % property.name)
 
     def _hal_init(self):
-        self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
-        self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
         if self.yellow_limit or self.red_limit:
             bar.set_fraction(0)
             bar.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
@@ -168,8 +168,8 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
             self.set_text(self.text_template % {'value':0})
 
     def hal_update(self):
-        scale = self.hal[self.hal_name+".scale"]
-        setting = self.hal[self.hal_name]
+        scale = self.hal_pin_scale.get()
+        setting = self.hal_pin.get()
         if scale <= 0 : scale = 1
         if setting < 0 : setting = 0
         if (setting/scale) >1:
@@ -238,7 +238,7 @@ class HAL_Label(gtk.Label, _HalWidgetBase):
         pin_type = types.get(self.label_pin_type, None)
         if pin_type is None:
             raise TypeError("%s: Invalid pin type: %s" % (self.hal_name, self.label_pin_type))
-        self.hal.newpin(self.hal_name, pin_type, hal.HAL_IN)
+        self.hal_pin = self.hal.newpin(self.hal_name, pin_type, hal.HAL_IN)
 
     def hal_update(self):
-        self.set_text(self.text_template % self.hal[self.hal_name])
+        self.set_text(self.text_template % self.hal_pin.get())
