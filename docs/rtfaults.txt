@@ -1,0 +1,41 @@
+Finding line number information for faults in realtime components
+
+1. Get a version of emc which prints the faulting instruction address
+   (that includes this version of emc)
+
+2. Include debugging info in your modules.  For built-in modules,
+   below the definition of EXTRA_CFLAGS in Makefile, add
+      EXTRA_CFLAGS += -g
+   For standalone modules, add the same line just above the line
+      ifeq ($(BUILDSYS),kbuild)
+   and (re)build the component
+
+3. Run hal until the fault occurs.  DO NOT EXIT THE HAL SESSION YET.  You
+   must find the start of the module (step 5) first.
+
+4. Note the ip (instruction pointer) address in dmesg.  e.g.:
+      RTAPI: Task 1[c2800000]: Fault with vec=14, signo=11 ip=c93dc01a.
+                                                              ^^^^^^^^
+5. Make an educated guess about what component it is in, and find the start
+   of "text" (program code) for that kernel module:
+      $ cat /sys/module/fault/sections/.text
+      0xc93dc000
+   Now you can exit hal/emc2.
+
+6. Subtract the start of text from the faulting ip (in this case, 0x1a)
+   Among other ways to do this, you can use the shell:
+      $ printf "0x%x\n" $((0xc93dc01a-0xc93dc000))
+      0x1a
+
+7. Use addr2line to find out the source code line:
+      $ addr2line -e fault.ko 0x1a
+      /usr/src/linux-headers-2.6.32-122-rtai/hal/components/fault.comp:9
+   Ignore how the directory name is wrong and see whether this has helped you
+   localize the problem:
+      fault.comp:9          *(int*)0 = 0;
+   Yup!  Looks like it has.
+
+   Note that even if you do not prefix the address argument to addr2line
+   with 0x, it is taken to be a hex number, and you'll get the wrong
+   line-number information.  Take care to always use hex addresses with
+   addr2line.
