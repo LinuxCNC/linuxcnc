@@ -18,7 +18,7 @@ $(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
 
-HALMODULE := ../lib/python/hal.so
+HALMODULE := ../lib/python/_hal.so
 $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CXX) $(LDFLAGS) -shared -o $@ $^

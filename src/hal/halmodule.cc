@@ -504,7 +504,7 @@ PyTypeObject halobject_type = {
     pyhal_getattro,            /*tp_getattro*/
     pyhal_setattro,            /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
     "HAL Component",           /*tp_doc*/
     0,                         /*tp_traverse*/
     0,                         /*tp_clear*/
@@ -918,8 +918,8 @@ const char *module_doc = "Interface to emc2's hal\n"
 ;
 
 extern "C"
-void inithal(void) {
-    PyObject *m = Py_InitModule3("hal", module_methods,
+void init_hal(void) {
+    PyObject *m = Py_InitModule3("_hal", module_methods,
             module_doc);
 
     pyhal_error_type = PyErr_NewException((char*)"hal.error", NULL, NULL);
