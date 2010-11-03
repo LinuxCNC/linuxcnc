@@ -51,6 +51,10 @@ try:
     
     try_set("f", 1l<<1024)
 
+except:
+    import traceback
+    print "Exception:", traceback.format_exc()
+    raise
 finally:
     h.exit()
 EOF
