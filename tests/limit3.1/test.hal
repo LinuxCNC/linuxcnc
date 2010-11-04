@@ -6,7 +6,7 @@ loadrt limit3
 loadrt threads name1=t period1=1000000
 setp limit3.0.maxv 500.000000
 
-linkpp limit3.0.out sampler.0.pin.0
+net n0 limit3.0.out sampler.0.pin.0
 
 addf limit3.0 t
 addf sampler.0 t

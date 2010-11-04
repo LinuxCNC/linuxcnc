@@ -8,9 +8,8 @@ net jogZ axisui.jog.z => axis.2.jog-enable
 
 net jogcounts encoder.1.counts => axis.0.jog-counts axis.1.jog-counts axis.2.jog-counts
 
-newsig jogscale float
 sets jogscale .00002
-linksp jogscale axis.0.jog-scale 
-linksp jogscale axis.1.jog-scale 
-linksp jogscale axis.2.jog-scale
+net jogscale axis.0.jog-scale
+net jogscale axis.1.jog-scale
+net jogscale axis.2.jog-scale
 

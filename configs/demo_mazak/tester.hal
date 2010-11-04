@@ -3,67 +3,67 @@
 
 loadusr -W halvcp tester.vcp
 
-linksp external-estop-ok led.ext-estop
-linksp gui-estop-ok led.gui-estop
-linksp main-estop-ok led.main-estop
-linksp AP1 led.charging
-linksp AP2 led.powered
-linksp motion-enable led.motion-enable
+net external-estop-ok led.ext-estop
+net gui-estop-ok led.gui-estop
+net main-estop-ok led.main-estop
+net AP1 led.charging
+net AP2 led.powered
+net motion-enable led.motion-enable
 
-linksp spindle-ready led.sp-ready
-linksp spindle-drive-run led.sp-run
-linksp spindle-at-speed led.sp-at-speed
-linksp spindle-use-low-gear led.sp-low-gear
-linksp spindle-use-low-gear button.sp-low-gear
-linksp spindle-do-orient led.sp-do-orient
-linksp spindle-oriented led.sp-oriented
+net spindle-ready led.sp-ready
+net spindle-drive-run led.sp-run
+net spindle-at-speed led.sp-at-speed
+net spindle-use-low-gear led.sp-low-gear
+net spindle-use-low-gear button.sp-low-gear
+net spindle-do-orient led.sp-do-orient
+net spindle-oriented led.sp-oriented
 
-linksp X-amp-running led.x-amp-on
-linksp X-amp-fault led.x-amp-flt
-linksp X-lim-plus led.x-pos-lim
-linksp X-lim-minus led.x-neg-lim
-linksp X-lim-plus led.x-home
+net X-amp-running led.x-amp-on
+net X-amp-fault led.x-amp-flt
+net X-lim-plus led.x-pos-lim
+net X-lim-minus led.x-neg-lim
+net X-lim-plus led.x-home
 
-linksp Y-amp-running led.y-amp-on
-linksp Y-amp-fault led.y-amp-flt
-linksp Y-lim-plus led.y-pos-lim
-linksp Y-lim-minus led.y-neg-lim
-linksp Y-lim-plus led.y-home
+net Y-amp-running led.y-amp-on
+net Y-amp-fault led.y-amp-flt
+net Y-lim-plus led.y-pos-lim
+net Y-lim-minus led.y-neg-lim
+net Y-lim-plus led.y-home
 
-linksp Z-amp-running led.z-amp-on
-linksp Z-amp-fault led.z-amp-flt
-linksp Z-lim-plus led.z-pos-lim
-linksp Z-lim-minus led.z-neg-lim
-linksp Z-lim-plus led.z-home
+net Z-amp-running led.z-amp-on
+net Z-amp-fault led.z-amp-flt
+net Z-lim-plus led.z-pos-lim
+net Z-lim-minus led.z-neg-lim
+net Z-lim-plus led.z-home
 
-linksp tool-prepare led.tool-prep
-linksp tool-prepared led.tool-prepped
-linksp tool-change led.tool-change
-linksp tool-changed led.tool-changed
+net tool-prepare led.tool-prep
+net tool-prepared led.tool-prepped
+net tool-change led.tool-change
+net tool-changed led.tool-changed
 
-linksp magazine-index-pbs led.tool-index-pb
-linksp tool-load-pbs led.tool-load-pb
-linksp tool-unload-pbs led.tool-unload-pb
+net magazine-index-pbs led.tool-index-pb
+net tool-load-pbs led.tool-load-pb
+net tool-unload-pbs led.tool-unload-pb
 
-linksp magazine-in-position led.mag-in-pos
-linksp magazine-position-0 led.mag-pos-0
-linksp magazine-position-1 led.mag-pos-1
-linksp magazine-position-2 led.mag-pos-2
-linksp magazine-position-3 led.mag-pos-3
-linksp magazine-position-4 led.mag-pos-4
+net magazine-in-position led.mag-in-pos
+net magazine-position-0 led.mag-pos-0
+net magazine-position-1 led.mag-pos-1
+net magazine-position-2 led.mag-pos-2
+net magazine-position-3 led.mag-pos-3
+net magazine-position-4 led.mag-pos-4
 
-linksp tool-loaded led.arm1-loaded
-linksp tool-unloaded led.arm1-unloaded
+net tool-loaded led.arm1-loaded
+net tool-unloaded led.arm1-unloaded
 
-linksp arm-retracted led.arm2-retracted
-linksp arm-extended led.arm2-extended
-linksp arm-at-0/180 led.arm2-0/180
-linksp arm-at-0/60 led.arm2-0/60
-linksp arm-at-60 led.arm2-60
-linksp arm-at-180 led.arm2-180
+net arm-retracted led.arm2-retracted
+net arm-extended led.arm2-extended
+net arm-at-0/180 led.arm2-0/180
+net arm-at-0/60 led.arm2-0/60
+net arm-at-60 led.arm2-60
+net arm-at-180 led.arm2-180
 
-linksp tool-clamped led.tool-clamped
-linksp tool-unclamped led.tool-unclamped
+net tool-clamped led.tool-clamped
+net tool-unclamped led.tool-unclamped
 
 
 

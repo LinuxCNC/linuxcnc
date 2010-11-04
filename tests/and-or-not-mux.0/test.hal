@@ -8,35 +8,31 @@ loadrt mux4
 loadrt sampler depth=1000 cfg=bbbff
 loadrt streamer depth=32 cfg=bbbb
 
-newsig a bit
-newsig b bit
-newsig c bit
-newsig d bit
 
-linkps streamer.0.pin.0 a
-linkps streamer.0.pin.1 b
-linkps streamer.0.pin.2 c
-linkps streamer.0.pin.3 d
+net a streamer.0.pin.0
+net b streamer.0.pin.1
+net c streamer.0.pin.2
+net d streamer.0.pin.3
 
-linksp a and2.0.in0
-linksp b and2.0.in1
-linkpp and2.0.out sampler.0.pin.0
+net a and2.0.in0
+net b and2.0.in1
+net n0 and2.0.out sampler.0.pin.0
 
-linksp a or2.0.in0
-linksp b or2.0.in1
-linkpp or2.0.out sampler.0.pin.1
+net a or2.0.in0
+net b or2.0.in1
+net n1 or2.0.out sampler.0.pin.1
 
-linksp a not.0.in
-linkpp not.0.out sampler.0.pin.2
+net a not.0.in
+net n2 not.0.out sampler.0.pin.2
 
-linksp a mux2.0.sel
-linkpp mux2.0.out sampler.0.pin.3
+net a mux2.0.sel
+net n3 mux2.0.out sampler.0.pin.3
 setp mux2.0.in0 1
 setp mux2.0.in1 2
 
-linksp a mux4.0.sel0
-linksp b mux4.0.sel1
-linkpp mux4.0.out sampler.0.pin.4
+net a mux4.0.sel0
+net b mux4.0.sel1
+net n4 mux4.0.out sampler.0.pin.4
 setp mux4.0.in0 3
 setp mux4.0.in1 4
 setp mux4.0.in2 5

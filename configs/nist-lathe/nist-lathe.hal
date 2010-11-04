@@ -70,59 +70,43 @@ addf mult2.0			servo-thread
 #######################################################
 
 # connect position commands from motion module to step generator
-newsig Xpos-cmd float
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Xpos-cmd => stepgen.0.position-cmd
-newsig Ypos-cmd float
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
-linksp Ypos-cmd => stepgen.1.position-cmd
-newsig Zpos-cmd float
-linksp Zpos-cmd <= axis.2.motor-pos-cmd
-linksp Zpos-cmd => stepgen.2.position-cmd
+net Xpos-cmd <= axis.0.motor-pos-cmd
+net Xpos-cmd => stepgen.0.position-cmd
+net Ypos-cmd <= axis.1.motor-pos-cmd
+net Ypos-cmd => stepgen.1.position-cmd
+net Zpos-cmd <= axis.2.motor-pos-cmd
+net Zpos-cmd => stepgen.2.position-cmd
 
 # connect position feedback from step generators
 # to motion module
-newsig Xpos-fb float
-linksp Xpos-fb <= stepgen.0.position-fb
-linksp Xpos-fb => axis.0.motor-pos-fb
-newsig Ypos-fb float
-linksp Ypos-fb <= stepgen.1.position-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
-newsig Zpos-fb float
-linksp Zpos-fb <= stepgen.2.position-fb
-linksp Zpos-fb => axis.2.motor-pos-fb
+net Xpos-fb <= stepgen.0.position-fb
+net Xpos-fb => axis.0.motor-pos-fb
+net Ypos-fb <= stepgen.1.position-fb
+net Ypos-fb => axis.1.motor-pos-fb
+net Zpos-fb <= stepgen.2.position-fb
+net Zpos-fb => axis.2.motor-pos-fb
 
 # connect enable signals for step generators
-newsig Xen bit
-linksp Xen <= axis.0.amp-enable-out
-linksp Xen => stepgen.0.enable
-newsig Yen bit
-linksp Yen <= axis.1.amp-enable-out
-linksp Yen => stepgen.1.enable
-newsig Zen bit
-linksp Zen <= axis.2.amp-enable-out
-linksp Zen => stepgen.2.enable
+net Xen <= axis.0.amp-enable-out
+net Xen => stepgen.0.enable
+net Yen <= axis.1.amp-enable-out
+net Yen => stepgen.1.enable
+net Zen <= axis.2.amp-enable-out
+net Zen => stepgen.2.enable
 
 # connect signals to step pulse generator outputs
-newsig Xstep bit
-newsig Xdir  bit
-newsig Ystep bit
-newsig Ydir  bit
-newsig Zstep bit
-newsig Zdir  bit
-linkps stepgen.0.step => Xstep
-linkps stepgen.0.dir  => Xdir
-linkps stepgen.1.step => Ystep
-linkps stepgen.1.dir  => Ydir
-linkps stepgen.2.step => Zstep
-linkps stepgen.2.dir  => Zdir
+net Xstep <= stepgen.0.step
+net Xdir <= stepgen.0.dir
+net Ystep <= stepgen.1.step
+net Ydir <= stepgen.1.dir
+net Zstep <= stepgen.2.step
+net Zdir <= stepgen.2.dir
 
 #############################################################################
 # Spindle Speed
 # The spindle goes forward only
-newsig spindle-forward bit
-linkps motion.spindle-forward => spindle-forward
-linksp spindle-forward => pwmgen.0.enable
+net spindle-forward <= motion.spindle-forward
+net spindle-forward => pwmgen.0.enable
 
 # PID is not used to give closed-loop spindle speed control, because at the
 # highest speeds the software-based counter cannot keep up (note: with 'counter',
@@ -141,31 +125,26 @@ linksp spindle-forward => pwmgen.0.enable
 setp scale.0.gain .00089
 setp scale.0.offset .07
 
-newsig spindle-speed-cmd float
-linkps motion.spindle-speed-out => spindle-speed-cmd
-linksp spindle-speed-cmd => scale.0.in
-newsig spindle-speed-pwm float
-linkps scale.0.out => spindle-speed-pwm
-linksp spindle-speed-pwm => pwmgen.0.value
+net spindle-speed-cmd <= motion.spindle-speed-out
+net spindle-speed-cmd => scale.0.in
+net spindle-speed-pwm <= scale.0.out
+net spindle-speed-pwm => pwmgen.0.value
 
 # Spindle speed feedback -- spindle-speed-fb-rpm can be metered or scoped
 # but beware that at the highest speeds the software-based counter cannot
 # keep up, and the speed is estimated incorrectly
-newsig spindle-speed-fb-raw float
-newsig spindle-speed-fb-filtered  float
-newsig spindle-speed-fb-rpm  float
 
 # The gain of the lowpass filter is a trade-off: Higher numbers track spindle
 # speed better when the speed changes.  Lower numbers give a more steady
 # estimate of average spindle speed when the speed is nominally constant
 setp lowpass.0.gain 0.01
-linkps counter.0.velocity => spindle-speed-fb-raw
-linksp spindle-speed-fb-raw => lowpass.0.in
-linkps lowpass.0.out => spindle-speed-fb-filtered
+net spindle-speed-fb-raw <= counter.0.velocity
+net spindle-speed-fb-raw => lowpass.0.in
+net spindle-speed-fb-filtered <= lowpass.0.out
 
 setp mult2.0.in0 60
-linksp spindle-speed-fb-filtered mult2.0.in1
-linkps mult2.0.out spindle-speed-fb-rpm
+net spindle-speed-fb-filtered mult2.0.in1
+net spindle-speed-fb-rpm mult2.0.out
 #############################################################################
 
 # create a signal for the estop loopback
@@ -176,22 +155,21 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # create a signal for "spindle on"
-newsig spindle_on bit
-linksp spindle_on <= motion.spindle-on
+net spindle_on <= motion.spindle-on
 
 # connect physical pins to the signals
-linksp Xstep		=> parport.0.pin-03-out
-linksp Xdir		=> parport.0.pin-02-out
-linksp Ystep		=> parport.0.pin-05-out
-linksp Ydir		=> parport.0.pin-04-out
-linksp Zstep		=> parport.0.pin-07-out
-linksp Zdir		=> parport.0.pin-06-out
+net Xstep => parport.0.pin-03-out
+net Xdir => parport.0.pin-02-out
+net Ystep => parport.0.pin-05-out
+net Ydir => parport.0.pin-04-out
+net Zstep => parport.0.pin-07-out
+net Zdir => parport.0.pin-06-out
 # amp enable (active lo)
 #linksp Xen		=> parport.0.pin-01-out
 #setp parport.0.pin-01-out-invert 1
 
 # spindle enable
-linksp spindle_on	=> parport.0.pin-01-out
+net spindle_on => parport.0.pin-01-out
 setp parport.0.pin-01-out-invert 1
 
 net pwm pwmgen.0.pwm	=> parport.0.pin-14-out
@@ -212,10 +190,9 @@ setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 
 # end of basic machine
 
-newsig homeswitches bit
-linkps parport.0.pin-10-in => homeswitches
-linkps axis.0.home-sw-in <= homeswitches
-linkps axis.2.home-sw-in <= homeswitches
+net homeswitches <= parport.0.pin-10-in
+net homeswitches => axis.0.home-sw-in
+net homeswitches => axis.2.home-sw-in
 
 #######################################################
 # Beginning of threading-related stuff
@@ -224,15 +201,12 @@ linkps axis.2.home-sw-in <= homeswitches
 # spindle counter
 # connect encoder signals to counter counter
 # B is not used because it is the counter module, not encoder
-newsig spindle-phase-A bit
-newsig spindle-phase-B bit
-newsig spindle-phase-Z bit
-linksp spindle-phase-A => counter.0.phase-A
-linksp spindle-phase-Z => counter.0.phase-Z
+net spindle-phase-A => counter.0.phase-A
+net spindle-phase-Z => counter.0.phase-Z
 
-linkps parport.0.pin-11-in => spindle-phase-A
-linkps parport.0.pin-12-in => spindle-phase-B
-linkps parport.0.pin-13-in => spindle-phase-Z
+net spindle-phase-A <= parport.0.pin-11-in
+net spindle-phase-B <= parport.0.pin-12-in
+net spindle-phase-Z <= parport.0.pin-13-in
 
 # (that way thread pitches can be straightforward,
 #  a 20 tpi thread would multiply the counter output
@@ -240,14 +214,12 @@ linkps parport.0.pin-13-in => spindle-phase-Z
 setp counter.0.position-scale 1024
 
 # hook up motion controller's spindle indexing pin
-newsig spindle-index-enable bit
-linkps motion.spindle-index-enable <=> spindle-index-enable
-linksp spindle-index-enable <=> counter.0.index-enable
+net spindle-index-enable <= motion.spindle-index-enable
+net spindle-index-enable <=> counter.0.index-enable
 
 # report our revolution count to the motion controller
-newsig spindle-pos float
-linkps counter.0.position => spindle-pos
-linksp spindle-pos => motion.spindle-revs
+net spindle-pos <= counter.0.position
+net spindle-pos => motion.spindle-revs
 
 
 #######################################################
@@ -258,23 +230,17 @@ linksp spindle-pos => motion.spindle-revs
 # generate velocity and accel signals (for testing)
 
 # define the signals, and hook them up
-newsig Xvel float
-newsig Xacc float
-linksp Xpos-cmd => ddt.0.in
-linkps ddt.0.out => Xvel
-linksp Xvel => ddt.1.in
-linkps ddt.1.out => Xacc
+net Xpos-cmd => ddt.0.in
+net Xvel <= ddt.0.out
+net Xvel => ddt.1.in
+net Xacc <= ddt.1.out
 
-newsig Yvel float
-newsig Yacc float
-linksp Ypos-cmd => ddt.2.in
-linkps ddt.2.out => Yvel
-linksp Yvel => ddt.3.in
-linkps ddt.3.out => Yacc
+net Ypos-cmd => ddt.2.in
+net Yvel <= ddt.2.out
+net Yvel => ddt.3.in
+net Yacc <= ddt.3.out
 
-newsig Zvel float
-newsig Zacc float
-linksp Zpos-cmd => ddt.4.in
-linkps ddt.4.out => Zvel
-linksp Zvel => ddt.5.in
-linkps ddt.5.out => Zacc
+net Zpos-cmd => ddt.4.in
+net Zvel <= ddt.4.out
+net Zvel => ddt.5.in
+net Zacc <= ddt.5.out
