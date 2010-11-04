@@ -85,7 +85,7 @@ void *CMS::operator new(size_t size)
 {
     if (size < sizeof(CMS)) {
 	rcs_print_error
-	    ("CMS::operator new -- The size requested %zu is less than the mininimum size of CMS %lu.\n",
+	    ("CMS::operator new -- The size requested %zu is less than the mininimum size of CMS %zu.\n",
 	    size, sizeof(CMS));
 	rcs_print_error("This could indicate a version mismatch problem.\n");
 	size = sizeof(CMS);

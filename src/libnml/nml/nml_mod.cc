@@ -294,7 +294,7 @@ NML_MODULE::setStatChannel (RCS_STAT_CHANNEL * stat_channel,
   if (stat_msg->size < ((long) sizeof (RCS_STAT_MSG)))
     {
       rcs_print_error
-	("Status out message must have a size of atleast sizeof(RCS_STAT_MSG) or %lu bytes,",
+	("Status out message must have a size of atleast sizeof(RCS_STAT_MSG) or %zu bytes,",
 	 sizeof (RCS_STAT_MSG));
       rcs_print_error ("but the status out message size was only %ld.\n",
 		       stat_msg->size);
