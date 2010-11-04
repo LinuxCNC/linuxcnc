@@ -88,10 +88,10 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS((block->p_number == -1.0), NCE_DWELL_TIME_MISSING_WITH_G4);
   } else if (mode0 == G_10) {
     p_int = (int) (block->p_number + 0.0001);
-    CHKS((block->l_number != 2 && block->l_number != 1 && block->l_number != 20 && block->l_number != 10), "Line with G10 does not have L1, L10, L2, or L20");
-    CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  "P value not an integer with G10");
-    CHKS((((block->l_number == 2 || block->l_number == 20) && ((p_int < 1) || (p_int > 9)))), "P value out of range with G10 L2 or G10 L20");
-    CHKS((((block->l_number == 1 || block->l_number == 10) && p_int < 1)), "P value out of range with G10 L1 or G10 L10");
+    CHKS((block->l_number != 2 && block->l_number != 1 && block->l_number != 20 && block->l_number != 10 && block->l_number != 11), _("Line with G10 does not have L1, L10, L11, L2, or L20"));
+    CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  _("P value not an integer with G10"));
+    CHKS((((block->l_number == 2 || block->l_number == 20) && ((p_int < 1) || (p_int > 9)))), _("P value out of range with G10 L2 or G10 L20"));
+    CHKS((((block->l_number == 1 || block->l_number == 10 || block->l_number == 11) && p_int < 1)), _("P value out of range with G10 L1 or G10 L10"));
   } else if (mode0 == G_28) {
   } else if (mode0 == G_30) {
   } else if (mode0 == G_5_3) { 
@@ -232,16 +232,13 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   motion = block->motion_to_be;
   if (block->a_flag) {
-    CHKS(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
-        NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE);
+    CHKS(is_a_cycle(motion), NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE);
   }
   if (block->b_flag) {
-    CHKS(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
-        NCE_CANNOT_PUT_A_B_IN_CANNED_CYCLE);
+    CHKS(is_a_cycle(motion), NCE_CANNOT_PUT_A_B_IN_CANNED_CYCLE);
   }
   if (block->c_flag) {
-    CHKS(((block->g_modes[1] > G_80) && (block->g_modes[1] < G_90)),
-        NCE_CANNOT_PUT_A_C_IN_CANNED_CYCLE);
+    CHKS(is_a_cycle(motion), NCE_CANNOT_PUT_A_C_IN_CANNED_CYCLE);
   }
   if (block->d_flag) {
     CHKS(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42) &&

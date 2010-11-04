@@ -976,11 +976,11 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
-LDFLAGS_hold=$LDFLAGS
-LDFLAGS="$LDFLAGS -lm"
+LIBS_hold=$LIBS
+LIBS="$LIBS -lm"
 AC_CHECK_FUNCS(sincos)
 AC_CHECK_FUNCS(__sincos)
-LDFLAGS=$LDFLAGS_hold
+LIBS=$LIBS_hold
 
 AH_BOTTOM(#endif
 )
@@ -1120,9 +1120,9 @@ AC_SUBST([X_CFLAGS])
 
 if test "$have_x" = "yes"; then
 CFLAGS_hold=$CFLAGS
-LDFLAGS_hold=$LDFLAGS
+LIBS_hold=$LIBS
 CFLAGS="$CFLAGS $X_CFLAGS"
-LDFLAGS="$LDFLAGS $X_PRE_LIBS $X_LIBS"
+LIBS="$LIBS $X_PRE_LIBS $X_LIBS"
 
 AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
 	    [HAVE_XAW=yes],
@@ -1134,7 +1134,7 @@ AC_CHECK_LIB(Xaw, XawDialogGetValueString,
 	    [],
 	    [HAVE_XAW=no])
 CFLAGS=$CFLAGS_hold
-LDFLAGS=$LDFLAGS_hold
+LIBS=$LIBS_hold
 fi
 
 if test "x$HAVE_XAW" = "xno"; then

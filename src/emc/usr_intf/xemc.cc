@@ -76,7 +76,7 @@ static void errorReturnAction(Widget w, XEvent *event, String *params, Cardinal 
 static void errorDoneCB(Widget w, XtPointer client_data, XtPointer call_data);
 static int createErrorShell();
 static int destroyErrorShell();
-static void popupError(const char *fmt, ...);
+static void popupError(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // forward decl for quit() function
 static void quit();
@@ -136,7 +136,7 @@ static int emcErrorNmlGet()
   return retval;
 }
 
-static void printError(char *error)
+static void printError(const char *error)
 {
   printf("%s\n", error);
 }
@@ -1254,11 +1254,11 @@ static int setColor(Widget w, Pixel pixel, int foreground)
   return 0;
 }
 
-static int stringToPixel(Widget w, String string, Pixel *pixel)
+static int stringToPixel(Widget w, const char * string, Pixel *pixel)
 {
   XrmValue from, to;
 
-  from.addr = string;
+  from.addr = (char*)string;
   from.size = strlen(string) + 1;
   to.addr = (char *) pixel;
   to.size = sizeof(Pixel);
@@ -1513,7 +1513,7 @@ static void fileEditorMarkCB(Widget w, XtPointer client_data, XtPointer call_dat
   while (! feof(fp)) {
     if (NULL == fgets(buffer, 256, fp)) {
       // hmmm... never found line
-      popupError("Can't mark line-- character position\n%d outside range of file", pos);
+      popupError("Can't mark line-- character position\n%d outside range of file", (int)pos);
       break;
     }
 
@@ -2094,7 +2094,7 @@ static void doFileEditDone()
       // file is there-- check type and permissions
       if (! S_ISREG(buf.st_mode)) {
         // file is not a regular file
-        popupError("Can't edit %S: not a text file", EDITOR_FILE);
+        popupError("Can't edit %s: not a text file", EDITOR_FILE);
       }
       else if ((S_IWUSR & buf.st_mode)) {
         // file is writeable
@@ -3088,7 +3088,7 @@ static void keyAction(Widget w,
   return;
 }
 
-static String fileMenuEntryNames[] = {
+static const char * fileMenuEntryNames[] = {
   "[O]    Open...",
   "[E]     Edit...",
   "[F6]   Reset",
@@ -3097,14 +3097,14 @@ static String fileMenuEntryNames[] = {
   NULL
 };
 
-static String viewMenuEntryNames[] = {
+static const char * viewMenuEntryNames[] = {
   "Tools...",
   "Offsets and Variables...",
   "Diagnostics...",
   NULL
 };
 
-static String settingsMenuEntryNames[] = {
+static const char * settingsMenuEntryNames[] = {
   "[#] Relative Coordinates",
   "[#] Machine Coordinates",
   "-",
@@ -3113,14 +3113,14 @@ static String settingsMenuEntryNames[] = {
   NULL
 };
 
-static String helpMenuEntryNames[] = {
+static const char * helpMenuEntryNames[] = {
   "Help...",
   "-",
   "About...",
   NULL
 };
 
-static String stateMenuEntryNames[] = {
+static const char * stateMenuEntryNames[] = {
   "[F1] Estop on",
   "[F1] Estop off",
   "-",
@@ -3129,40 +3129,40 @@ static String stateMenuEntryNames[] = {
   NULL
 };
 
-static String modeMenuEntryNames[] = {
+static const char * modeMenuEntryNames[] = {
   "[F3] Manual",
   "[F4] Auto",
   "[F5] MDI",
   NULL
 };
 
-static String mistMenuEntryNames[] = {
+static const char * mistMenuEntryNames[] = {
   "[F7] Mist on",
   "[F7] Mist off",
   NULL
 };
 
-static String floodMenuEntryNames[] = {
+static const char * floodMenuEntryNames[] = {
   "[F8] Flood on",
   "[F8] Flood off",
   NULL
 };
 
-static String spindleMenuEntryNames[] = {
+static const char * spindleMenuEntryNames[] = {
   "[F9]        Spindle forward",
   "[F10]      Spindle reverse",
   "[F9/F10] Spindle off",
   NULL
 };
 
-static String brakeMenuEntryNames[] = {
+static const char * brakeMenuEntryNames[] = {
   "[B] Brake on",
   "[b] Brake off",
   NULL
 };
 
 static char stepIncrementLabel[32] = "0.123456";
-static String jogIncrementMenuEntryNames[] = {
+static const char * jogIncrementMenuEntryNames[] = {
   "0.1000",
   "0.0100",
   "0.0010",
@@ -3552,7 +3552,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
 
   // print any result stored by updateError() in error_string
   if (error_string[0] != 0) {
-    popupError(error_string);
+    popupError("%s", error_string);
     error_string[0] = 0;
   }
 
@@ -4282,48 +4282,48 @@ static void errorShellProtocols(Widget w, XEvent *event, String *string, Cardina
 
 static XtActionsRec actionsTable[] =
 {
-  {"downAction", downAction},
-  {"upAction", upAction},
-  {"keyAction", keyAction},
-  {"fileOpenReturnAction", fileOpenReturnAction},
-  {"fileOpenTabAction", fileOpenTabAction},
-  {"fileEditReturnAction", fileEditReturnAction},
-  {"fileEditTabAction", fileEditTabAction},
-  {"fileQuitReturnAction", fileQuitReturnAction},
-  {"fileQuitTabAction", fileQuitTabAction},
-  {"diagnosticsReturnAction", diagnosticsReturnAction},
-  {"toolSetOffsetUpAction", toolSetOffsetUpAction},
-  {"toolSetOffsetReturnAction", toolSetOffsetReturnAction},
-  {"toolSetOffsetTabAction", toolSetOffsetTabAction},
-  {"posOffsetUpAction", posOffsetUpAction},
-  {"posOffsetReturnAction", posOffsetReturnAction},
-  {"jogSpeedReturnAction", jogSpeedReturnAction},
-  {"feedOverrideReturnAction", feedOverrideReturnAction},
-  {"mdiReturnAction", mdiReturnAction},
-  {"helpXemcReturnAction", helpXemcReturnAction},
-  {"helpAboutReturnAction", helpAboutReturnAction},
-  {"errorReturnAction", errorReturnAction},
-  {"topLevelProtocols", topLevelProtocols},
-  {"fileOpenShellProtocols", fileOpenShellProtocols},
-  {"fileQuitShellProtocols", fileQuitShellProtocols},
-  {"fileEditShellProtocols", fileEditShellProtocols},
-  {"fileEditorShellProtocols", fileEditorShellProtocols},
-  {"toolTableShellProtocols", toolTableShellProtocols},
-  {"toolSetOffsetShellProtocols", toolSetOffsetShellProtocols},
-  {"posOffsetShellProtocols", posOffsetShellProtocols},
-  {"jogSpeedShellProtocols", jogSpeedShellProtocols},
-  {"feedOverrideShellProtocols", feedOverrideShellProtocols},
-  {"varFileShellProtocols", varFileShellProtocols},
-  {"diagnosticsShellProtocols", diagnosticsShellProtocols},
-  {"helpXemcProtocols", helpXemcProtocols},
-  {"helpAboutProtocols", helpAboutProtocols},
-  {"errorShellProtocols", errorShellProtocols}
+  {(char*)"downAction", downAction},
+  {(char*)"upAction", upAction},
+  {(char*)"keyAction", keyAction},
+  {(char*)"fileOpenReturnAction", fileOpenReturnAction},
+  {(char*)"fileOpenTabAction", fileOpenTabAction},
+  {(char*)"fileEditReturnAction", fileEditReturnAction},
+  {(char*)"fileEditTabAction", fileEditTabAction},
+  {(char*)"fileQuitReturnAction", fileQuitReturnAction},
+  {(char*)"fileQuitTabAction", fileQuitTabAction},
+  {(char*)"diagnosticsReturnAction", diagnosticsReturnAction},
+  {(char*)"toolSetOffsetUpAction", toolSetOffsetUpAction},
+  {(char*)"toolSetOffsetReturnAction", toolSetOffsetReturnAction},
+  {(char*)"toolSetOffsetTabAction", toolSetOffsetTabAction},
+  {(char*)"posOffsetUpAction", posOffsetUpAction},
+  {(char*)"posOffsetReturnAction", posOffsetReturnAction},
+  {(char*)"jogSpeedReturnAction", jogSpeedReturnAction},
+  {(char*)"feedOverrideReturnAction", feedOverrideReturnAction},
+  {(char*)"mdiReturnAction", mdiReturnAction},
+  {(char*)"helpXemcReturnAction", helpXemcReturnAction},
+  {(char*)"helpAboutReturnAction", helpAboutReturnAction},
+  {(char*)"errorReturnAction", errorReturnAction},
+  {(char*)"topLevelProtocols", topLevelProtocols},
+  {(char*)"fileOpenShellProtocols", fileOpenShellProtocols},
+  {(char*)"fileQuitShellProtocols", fileQuitShellProtocols},
+  {(char*)"fileEditShellProtocols", fileEditShellProtocols},
+  {(char*)"fileEditorShellProtocols", fileEditorShellProtocols},
+  {(char*)"toolTableShellProtocols", toolTableShellProtocols},
+  {(char*)"toolSetOffsetShellProtocols", toolSetOffsetShellProtocols},
+  {(char*)"posOffsetShellProtocols", posOffsetShellProtocols},
+  {(char*)"jogSpeedShellProtocols", jogSpeedShellProtocols},
+  {(char*)"feedOverrideShellProtocols", feedOverrideShellProtocols},
+  {(char*)"varFileShellProtocols", varFileShellProtocols},
+  {(char*)"diagnosticsShellProtocols", diagnosticsShellProtocols},
+  {(char*)"helpXemcProtocols", helpXemcProtocols},
+  {(char*)"helpAboutProtocols", helpAboutProtocols},
+  {(char*)"errorShellProtocols", errorShellProtocols}
 };
 
 typedef void (MenuSelectFunc)(Widget w, XtPointer client_data, XtPointer call_data);
 
-static int setupMenu(Widget *menu, char *label,
-                     char **labels,
+static int setupMenu(Widget *menu, const char *label,
+                     const char **labels,
                      Widget which,
                      Widget horiz, Widget vert,
                      MenuSelectFunc *func)
@@ -4336,7 +4336,7 @@ static int setupMenu(Widget *menu, char *label,
       if (NULL != vert)
         {
           *menu =
-            XtVaCreateManagedWidget(label,
+            XtVaCreateManagedWidget((char*)label,
                                     menuButtonWidgetClass,
                                     which,
                                     XtNfromHoriz, horiz,
@@ -4346,7 +4346,7 @@ static int setupMenu(Widget *menu, char *label,
       else
         {
           *menu =
-            XtVaCreateManagedWidget(label,
+            XtVaCreateManagedWidget((char*)label,
                                     menuButtonWidgetClass,
                                     which,
                                     XtNfromHoriz, horiz,
@@ -4358,7 +4358,7 @@ static int setupMenu(Widget *menu, char *label,
       if (NULL != vert)
         {
           *menu =
-            XtVaCreateManagedWidget(label,
+            XtVaCreateManagedWidget((char*)label,
                                     menuButtonWidgetClass,
                                     which,
                                     XtNfromVert, vert,
@@ -4367,7 +4367,7 @@ static int setupMenu(Widget *menu, char *label,
       else
         {
           *menu =
-            XtVaCreateManagedWidget(label,
+            XtVaCreateManagedWidget((char*)label,
                                     menuButtonWidgetClass,
                                     which,
                                     NULL);
@@ -4387,7 +4387,7 @@ static int setupMenu(Widget *menu, char *label,
           labels[t][1] == 0)
         {
           // it's a dash
-          XtAddCallback(XtVaCreateManagedWidget(labels[t],
+          XtAddCallback(XtVaCreateManagedWidget((char*)labels[t],
                                                 smeLineObjectClass,
                                                 *popup,
                                                 NULL),
@@ -4396,7 +4396,7 @@ static int setupMenu(Widget *menu, char *label,
         }
       else
         {
-          XtAddCallback(XtVaCreateManagedWidget(labels[t],
+          XtAddCallback(XtVaCreateManagedWidget((char*)labels[t],
                                                 smeBSBObjectClass,
                                                 *popup,
                                                 NULL),
@@ -4652,7 +4652,7 @@ static int iniLoad(const char *filename)
   if (stepIncrement >= 0.0010) {
     stepIncrement = 0.0001;
   }
-  sprintf(jogIncrementMenuEntryNames[3], "%.6f", stepIncrement);
+  sprintf(stepIncrementLabel, "%.6f", stepIncrement);
 
   // close it
   inifile.Close();

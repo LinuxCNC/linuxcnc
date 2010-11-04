@@ -1,10 +1,8 @@
-to use gladevcp in a run in place environment one must add system links to these files.
+To use gladevcp in a run in place environment just source scripts/emc-environment
+and it will set all paths.
 
-in usr/lib/glade3/modules add links for hal_pythonplugin.py hal_widgets.py and led.py
+To install it system-wide you must link files from ./share/glade3/ 
+to /usr/share/glade3 system folder.
 
-in usr/share/glade3/catalogs add link for led.py
-
-in usr/share/glade3/pixmaps/hicolor/22x22/actions add link for widget_hal_pythonplugin-hal_led.png
-
-
-When using gladevcp widgets in python programs remember to import hal_pythonplugin
+When using gladevcp widgets in python programs you need to import
+gladevcp.makepins.

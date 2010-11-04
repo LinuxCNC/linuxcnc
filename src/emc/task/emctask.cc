@@ -355,7 +355,7 @@ static void print_interp_error(int retval)
     if (0 != interp_error_text_buf[0]) {
 	rcs_print_error("interp_error: %s\n", interp_error_text_buf);
     }
-    emcOperatorError(0, interp_error_text_buf);
+    emcOperatorError(0, "%s", interp_error_text_buf);
     index = 0;
     if (EMC_DEBUG & EMC_DEBUG_INTERP) {
 	rcs_print("Interpreter stack: \t");
@@ -549,12 +549,33 @@ int emcTaskPlanClose()
     return retval;
 }
 
+int emcTaskPlanReset()
+{
+    int retval = interp.reset();
+    if (retval > INTERP_MIN_ERROR) {
+	print_interp_error(retval);
+    }
+
+    return retval;
+}
+
 int emcTaskPlanLine()
 {
     int retval = interp.line();
     
     if (EMC_DEBUG & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanLine() returned %d\n", retval);
+    }
+
+    return retval;
+}
+
+int emcTaskPlanLevel()
+{
+    int retval = interp.call_level();
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanLevel() returned %d\n", retval);
     }
 
     return retval;

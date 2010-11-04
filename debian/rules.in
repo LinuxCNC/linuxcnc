@@ -64,8 +64,6 @@ install: build
 	mkdir -p debian/tmp
 	-(cd debian/@EXTRAS@ && find . | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
-	python@PYTHON_VERSION@ /usr/lib/python@PYTHON_VERSION@/compileall.py debian/tmp/usr/lib/python@PYTHON_VERSION@
-	find debian/tmp/usr/lib/python@PYTHON_VERSION@ -name \*.py -exec rm {} \;
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/emc2
 	cp lib/*.a debian/tmp/usr/lib
 	mkdir -p debian/tmp/usr/share/doc/emc2-dev
@@ -101,11 +99,11 @@ binary-arch: build install
 ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/emc_module_helper
 endif
+	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
 	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
 	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
-	dh_python /usr/lib/python@PYTHON_VERSION@/site-packages /usr/lib/python@PYTHON_VERSION@/dist-packages
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

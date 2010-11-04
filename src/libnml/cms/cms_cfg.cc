@@ -28,6 +28,7 @@ extern "C" {
 #include <ctype.h>		/* toupper(), tolower() */
 #include <netdb.h>
 #include <arpa/inet.h>		/* inet_ntoa */
+#include <stdlib.h>
 
 #ifdef __cplusplus
 }
@@ -417,7 +418,7 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s);
 
 /* Function for initializing a CMS from a configuration file. */
  /* Returns 0 for success or -1 for error. */
-int cms_config(CMS ** cms, char *bufname, char *procname, char *filename,
+int cms_config(CMS ** cms, const char *bufname, const char *procname, const char *filename,
     int set_to_server, int set_to_master)
 {
     CONFIG_SEARCH_STRUCT search;
@@ -762,34 +763,44 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 }
 
 int
-cms_create_from_lines(CMS ** cms, char *buffer_line, char *proc_line,
+cms_create_from_lines(CMS ** cms, const char *buffer_line_in, const char *proc_line_in,
     int set_to_server, int set_to_master)
 {
     char proc_type[CMS_CONFIG_LINELEN];
     char buffer_type[CMS_CONFIG_LINELEN];
     char *word[4];		/* array of pointers to words from line */
 
+    char *proc_line = strdup(proc_line_in);
     if (4 != separate_words(word, 4, proc_line)) {
 	rcs_print_error("cms_config: invalid proc_line=(%s)\n", proc_line);
+	free(proc_line);
 	return -1;
     }
 
     convert2upper(proc_type, word[3], CMS_CONFIG_LINELEN);
 
+    char *buffer_line = strdup(buffer_line_in);
     if (4 != separate_words(word, 4, buffer_line)) {
 	rcs_print_error("cms_config: invalid buffer_line=(%s)\n",
 	    buffer_line);
+	free(proc_line);
+	free(buffer_line);
 	return -1;
     }
 
     convert2upper(buffer_type, word[2], CMS_CONFIG_LINELEN);
 
-    return (cms_create(cms, buffer_line, proc_line,
+    int result = (cms_create(cms, buffer_line, proc_line,
 	    buffer_type, proc_type, set_to_server, set_to_master));
+
+    free(proc_line);
+    free(buffer_line);
+
+    return result;
 }
 
-int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
-    char *buffer_type, char *proc_type, int set_to_server, int set_to_master)
+int cms_create(CMS ** cms, const char *buffer_line, const char *proc_line,
+    const char *buffer_type, const char *proc_type, int set_to_server, int set_to_master)
 {
     if (NULL == cms || NULL == buffer_line || NULL == proc_line ||
 	NULL == buffer_type || NULL == proc_type) {
@@ -801,7 +812,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
     /* CMS's derived classes and call its constructor. */
     if (!strcmp(buffer_type, "PHANTOM") || !strcmp(proc_type, "PHANTOM")) {
 	*cms = new PHANTOMMEM(buffer_line, proc_line);
-	rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new PHANTOMEM(%s,%s)\n",
+	rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%p = new PHANTOMEM(%s,%s)\n",
 	    *cms, buffer_line, proc_line);
 	if (NULL == *cms) {
 	    if (verbose_nml_error_messages) {
@@ -863,7 +874,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 #endif
 	} else if (NULL != strstr(buffer_line, "TCP=")) {
 	    *cms = new TCPMEM(buffer_line, proc_line);
-	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%X = new TCPMEM(%s,%s)\n",
+	    rcs_print_debug(PRINT_CMS_CONFIG_INFO, "%p = new TCPMEM(%s,%s)\n",
 		*cms, buffer_line, proc_line);
 	    if (NULL == *cms) {
 		if (verbose_nml_error_messages) {
@@ -893,7 +904,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 	    *cms = new SHMEM(buffer_line, proc_line, set_to_server,
 		set_to_master);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
-		"%X = new SHMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
+		"%p = new SHMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
 		proc_line, set_to_server, set_to_master);
 	    if (NULL == *cms) {
 		if (verbose_nml_error_messages) {
@@ -924,7 +935,7 @@ int cms_create(CMS ** cms, char *buffer_line, char *proc_line,
 		new LOCMEM(buffer_line, proc_line, set_to_server,
 		set_to_master);
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
-		"%X = new LOCMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
+		"%p = new LOCMEM(%s,%s,%d,%d)\n", *cms, buffer_line,
 		proc_line, set_to_server, set_to_master);
 	    if (NULL == *cms) {
 		if (verbose_nml_error_messages) {

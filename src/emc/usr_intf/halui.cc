@@ -215,198 +215,154 @@ DONE: - spindle-override
 
 #define MDI_MAX 64
 
-struct halui_str {
-    hal_bit_t *machine_on;         //pin for setting machine On
-    hal_bit_t *machine_off;        //pin for setting machine Off
-    hal_bit_t *machine_is_on;      //pin for machine is On/Off
-    
-                                   // (check iocontrol.cc for a proper description)
-    hal_bit_t *estop_activate;     //pin for activating EMC ESTOP 
-    hal_bit_t *estop_reset;        //pin for resetting ESTOP
-    hal_bit_t *estop_is_activated; //pin for status ESTOP is activated
+#define HAL_FIELDS \
+    FIELD(hal_bit_t,machine_on) /* pin for setting machine On */ \
+    FIELD(hal_bit_t,machine_off) /* pin for setting machine Off */ \
+    FIELD(hal_bit_t,machine_is_on) /* pin for machine is On/Off */ \
+    FIELD(hal_bit_t,estop_activate) /* pin for activating EMC ESTOP  */ \
+    FIELD(hal_bit_t,estop_reset) /* pin for resetting ESTOP */ \
+    FIELD(hal_bit_t,estop_is_activated) /* pin for status ESTOP is activated */ \
+\
+    FIELD(hal_bit_t,mode_manual) /* pin for requesting manual mode */ \
+    FIELD(hal_bit_t,mode_is_manual) /* pin for manual mode is on */ \
+    FIELD(hal_bit_t,mode_auto) /* pin for requesting auto mode */ \
+    FIELD(hal_bit_t,mode_is_auto) /* pin for auto mode is on */ \
+    FIELD(hal_bit_t,mode_mdi) /* pin for requesting mdi mode */ \
+    FIELD(hal_bit_t,mode_is_mdi) /* pin for mdi mode is on */ \
+    FIELD(hal_bit_t,mode_teleop) /* pin for requesting teleop mode */ \
+    FIELD(hal_bit_t,mode_is_teleop) /* pin for teleop mode is on */ \
+    FIELD(hal_bit_t,mode_joint) /* pin for requesting joint mode */ \
+    FIELD(hal_bit_t,mode_is_joint) /* pin for joint mode is on */ \
+\
+    FIELD(hal_bit_t,mist_on) /* pin for starting mist */ \
+    FIELD(hal_bit_t,mist_off) /* pin for stoping mist */ \
+    FIELD(hal_bit_t,mist_is_on) /* pin for mist is on */ \
+    FIELD(hal_bit_t,flood_on) /* pin for starting flood */ \
+    FIELD(hal_bit_t,flood_off) /* pin for stoping flood */ \
+    FIELD(hal_bit_t,flood_is_on) /* pin for flood is on */ \
+    FIELD(hal_bit_t,lube_on) /* pin for starting lube */ \
+    FIELD(hal_bit_t,lube_off) /* pin for stoping lube */ \
+    FIELD(hal_bit_t,lube_is_on) /* pin for lube is on */ \
+\
+    FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
+    FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
+    FIELD(hal_bit_t,program_is_paused) /* pin for notifying user that program is paused */ \
+    FIELD(hal_bit_t,program_run) /* pin for running program */ \
+    FIELD(hal_bit_t,program_pause) /* pin for pausing program */ \
+    FIELD(hal_bit_t,program_resume) /* pin for resuming program */ \
+    FIELD(hal_bit_t,program_step) /* pin for running one line of the program */ \
+    FIELD(hal_bit_t,program_stop) /* pin for stopping the program */ \
+    FIELD(hal_bit_t,program_os_on) /* pin for setting optional stop on */ \
+    FIELD(hal_bit_t,program_os_off) /* pin for setting optional stop off */ \
+    FIELD(hal_bit_t,program_os_is_on) /* status pin that optional stop is on */ \
+    FIELD(hal_bit_t,program_bd_on) /* pin for setting block delete on */ \
+    FIELD(hal_bit_t,program_bd_off) /* pin for setting block delete off */ \
+    FIELD(hal_bit_t,program_bd_is_on) /* status pin that block delete is on */ \
+\
+    FIELD(hal_u32_t,tool_number) /* pin for current selected tool */ \
+    FIELD(hal_float_t,tool_length_offset_x) /* current applied x tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_y) /* current applied y tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_z) /* current applied z tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_a) /* current applied a tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_b) /* current applied b tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_c) /* current applied c tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_u) /* current applied u tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_v) /* current applied v tool-length-offset */ \
+    FIELD(hal_float_t,tool_length_offset_w) /* current applied w tool-length-offset */ \
+\
+    FIELD(hal_bit_t,spindle_start) /* pin for starting the spindle */ \
+    FIELD(hal_bit_t,spindle_stop) /* pin for stoping the spindle */ \
+    FIELD(hal_bit_t,spindle_is_on) /* status pin for spindle is on */ \
+    FIELD(hal_bit_t,spindle_forward) /* pin for making the spindle go forward */ \
+    FIELD(hal_bit_t,spindle_runs_forward) /* status pin for spindle running forward */ \
+    FIELD(hal_bit_t,spindle_reverse) /* pin for making the spindle go reverse */ \
+    FIELD(hal_bit_t,spindle_runs_backward) /* status pin for spindle running backward */ \
+    FIELD(hal_bit_t,spindle_increase) /* pin for making the spindle go faster */ \
+    FIELD(hal_bit_t,spindle_decrease) /* pin for making the spindle go slower */ \
+\
+    FIELD(hal_bit_t,spindle_brake_on) /* pin for activating spindle-brake */ \
+    FIELD(hal_bit_t,spindle_brake_off) /* pin for deactivating spindle/brake */ \
+    FIELD(hal_bit_t,spindle_brake_is_on) /* status pin that tells us if brake is on */ \
+\
+    ARRAY(hal_bit_t,joint_home,EMCMOT_MAX_JOINTS+1) /* pin for homing one joint */ \
+    ARRAY(hal_bit_t,joint_unhome,EMCMOT_MAX_JOINTS+1) /* pin for unhoming one joint */ \
+    ARRAY(hal_bit_t,joint_is_homed,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is homed */ \
+    ARRAY(hal_bit_t,joint_on_soft_min_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the software min limit */ \
+    ARRAY(hal_bit_t,joint_on_soft_max_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the software max limit */ \
+    ARRAY(hal_bit_t,joint_on_hard_min_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware min limit */ \
+    ARRAY(hal_bit_t,joint_on_hard_max_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware max limit */ \
+    ARRAY(hal_bit_t,joint_has_fault,EMCMOT_MAX_JOINTS+1) /* status pin that the joint has a fault */ \
+    FIELD(hal_u32_t,joint_selected) /* status pin for the joint selected */ \
+    ARRAY(hal_bit_t,joint_nr_select,EMCMOT_MAX_JOINTS) /* nr. of pins to select a joint */ \
+    ARRAY(hal_bit_t,joint_is_selected,EMCMOT_MAX_JOINTS) /* nr. of status pins for joint selected */ \
+\
+    ARRAY(hal_float_t,axis_pos_commanded,EMCMOT_MAX_AXIS+1) /* status pin for commanded cartesian position */ \
+    ARRAY(hal_float_t,axis_pos_feedback,EMCMOT_MAX_AXIS+1) /* status pin for actual cartesian position */ \
+    ARRAY(hal_float_t,axis_pos_relative,EMCMOT_MAX_AXIS+1) /* status pin for relative cartesian position */ \
+\
+    FIELD(hal_float_t,jog_speed) /* pin for setting the jog speed (halui internal) */ \
+    ARRAY(hal_bit_t,jog_minus,EMCMOT_MAX_JOINTS+1) /* pin to jog in positive direction */ \
+    ARRAY(hal_bit_t,jog_plus,EMCMOT_MAX_JOINTS+1) /* pin to jog in negative direction */ \
+    ARRAY(hal_float_t,jog_analog,EMCMOT_MAX_JOINTS+1) /* pin for analog jogging (-1..0..1) */ \
+    FIELD(hal_float_t,jog_deadband) /* pin for setting the jog analog deadband (where not to move) */ \
+\
+    FIELD(hal_s32_t,mv_counts) /* pin for the Max Velocity counting */ \
+    FIELD(hal_bit_t,mv_count_enable) /* pin for the Max Velocity counting enable */ \
+    FIELD(hal_bit_t,mv_direct_value) /* pin for enabling direct value option instead of counts */ \
+    FIELD(hal_float_t,mv_scale) /* scale for the Max Velocity counting */ \
+    FIELD(hal_float_t,mv_value) /* current Max Velocity value */ \
+    FIELD(hal_bit_t,mv_increase) /* pin for increasing the MV (+=scale) */ \
+    FIELD(hal_bit_t,mv_decrease) /* pin for decreasing the MV (-=scale) */ \
+\
+    FIELD(hal_s32_t,fo_counts) /* pin for the Feed Override counting */ \
+    FIELD(hal_bit_t,fo_count_enable) /* pin for the Feed Override counting enable */ \
+    FIELD(hal_bit_t,fo_direct_value) /* pin for enabling direct value option instead of counts  */ \
+    FIELD(hal_float_t,fo_scale) /* scale for the Feed Override counting */ \
+    FIELD(hal_float_t,fo_value) /* current Feed Override value */ \
+    FIELD(hal_bit_t,fo_increase) /* pin for increasing the FO (+=scale) */ \
+    FIELD(hal_bit_t,fo_decrease) /* pin for decreasing the FO (-=scale) */ \
+\
+    FIELD(hal_s32_t,so_counts) /* pin for the Spindle Speed Override counting */ \
+    FIELD(hal_bit_t,so_count_enable) /* pin for the Spindle Speed Override counting enable */ \
+    FIELD(hal_bit_t,so_direct_value) /* pin for enabling direct value option instead of counts */ \
+    FIELD(hal_float_t,so_scale) /* scale for the Spindle Speed Override counting */ \
+    FIELD(hal_float_t,so_value) /* current Spindle speed Override value */ \
+    FIELD(hal_bit_t,so_increase) /* pin for increasing the SO (+=scale) */ \
+    FIELD(hal_bit_t,so_decrease) /* pin for decreasing the SO (-=scale) */ \
+\
+    FIELD(hal_bit_t,home_all) /* pin for homing all joints in sequence */ \
+    FIELD(hal_bit_t,abort) /* pin for aborting */ \
+    ARRAY(hal_bit_t,mdi_commands,MDI_MAX)
 
-    hal_bit_t *mode_manual;        //pin for requesting manual mode
-    hal_bit_t *mode_is_manual;     //pin for manual mode is on
-    hal_bit_t *mode_auto;          //pin for requesting auto mode
-    hal_bit_t *mode_is_auto;       //pin for auto mode is on
-    hal_bit_t *mode_mdi;           //pin for requesting mdi mode
-    hal_bit_t *mode_is_mdi;        //pin for mdi mode is on
-    hal_bit_t *mode_teleop;        //pin for requesting teleop mode
-    hal_bit_t *mode_is_teleop;     //pin for teleop mode is on
-    hal_bit_t *mode_joint;         //pin for requesting joint mode
-    hal_bit_t *mode_is_joint;      //pin for joint mode is on
+struct PTR {
+    template<class T>
+    struct field { typedef T *type; };
+};
 
-    hal_bit_t *mist_on;            //pin for starting mist
-    hal_bit_t *mist_off;           //pin for stoping mist
-    hal_bit_t *mist_is_on;         //pin for mist is on
-    hal_bit_t *flood_on;           //pin for starting flood
-    hal_bit_t *flood_off;          //pin for stoping flood
-    hal_bit_t *flood_is_on;        //pin for flood is on
-    hal_bit_t *lube_on;            //pin for starting lube
-    hal_bit_t *lube_off;           //pin for stoping lube
-    hal_bit_t *lube_is_on;         //pin for lube is on
+template<class T> struct NATIVE {};
+template<> struct NATIVE<hal_bit_t> { typedef bool type; };
+template<> struct NATIVE<hal_s32_t> { typedef __s32 type; };
+template<> struct NATIVE<hal_u32_t> { typedef __u32 type; };
+template<> struct NATIVE<hal_float_t> { typedef double type; };
+struct VALUE {
+    template<class T> struct field { typedef typename NATIVE<T>::type type; };
+};
 
-    hal_bit_t *program_is_idle;    //pin for notifying user that program is idle
-    hal_bit_t *program_is_running; //pin for notifying user that program is running
-    hal_bit_t *program_is_paused;  //pin for notifying user that program is paused
-    hal_bit_t *program_run;        //pin for running program
-    hal_bit_t *program_pause;      //pin for pausing program
-    hal_bit_t *program_resume;     //pin for resuming program
-    hal_bit_t *program_step;       //pin for running one line of the program
-    hal_bit_t *program_stop;       //pin for stopping the program
-    hal_bit_t *program_os_on;      //pin for setting optional stop on
-    hal_bit_t *program_os_off;     //pin for setting optional stop off
-    hal_bit_t *program_os_is_on;   //status pin that optional stop is on
-    hal_bit_t *program_bd_on;      //pin for setting block delete on
-    hal_bit_t *program_bd_off;     //pin for setting block delete off
-    hal_bit_t *program_bd_is_on;   //status pin that block delete is on
+template<class T>
+struct halui_str_base
+{
+#define FIELD(t,f) typename T::template field<t>::type f;
+#define ARRAY(t,f,n) typename T::template field<t>::type f[n];
+HAL_FIELDS
+#undef FIELD
+#undef ARRAY
+};
 
-    hal_u32_t *tool_number;		//pin for current selected tool
-    hal_float_t *tool_length_offset_x;	//current applied x tool-length-offset
-    hal_float_t *tool_length_offset_y;	//current applied y tool-length-offset
-    hal_float_t *tool_length_offset_z;	//current applied z tool-length-offset
-    hal_float_t *tool_length_offset_a;	//current applied a tool-length-offset
-    hal_float_t *tool_length_offset_b;	//current applied b tool-length-offset
-    hal_float_t *tool_length_offset_c;	//current applied c tool-length-offset
-    hal_float_t *tool_length_offset_u;	//current applied u tool-length-offset
-    hal_float_t *tool_length_offset_v;	//current applied v tool-length-offset
-    hal_float_t *tool_length_offset_w;	//current applied w tool-length-offset
+typedef halui_str_base<PTR> halui_str;
+typedef halui_str_base<VALUE> local_halui_str;
 
-    hal_bit_t *spindle_start;		//pin for starting the spindle
-    hal_bit_t *spindle_stop;		//pin for stoping the spindle
-    hal_bit_t *spindle_is_on;		//status pin for spindle is on
-    hal_bit_t *spindle_forward;		//pin for making the spindle go forward
-    hal_bit_t *spindle_runs_forward;	//status pin for spindle running forward
-    hal_bit_t *spindle_reverse;		//pin for making the spindle go reverse
-    hal_bit_t *spindle_runs_backward;	//status pin for spindle running backward
-    hal_bit_t *spindle_increase;	//pin for making the spindle go faster
-    hal_bit_t *spindle_decrease;	//pin for making the spindle go slower
-
-    hal_bit_t *spindle_brake_on;   //pin for activating spindle-brake
-    hal_bit_t *spindle_brake_off;  //pin for deactivating spindle/brake
-    hal_bit_t *spindle_brake_is_on;//status pin that tells us if brake is on
-
-    hal_bit_t *joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
-    hal_bit_t *joint_unhome[EMCMOT_MAX_JOINTS+1];   //pin for unhoming one joint
-    hal_bit_t *joint_is_homed[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is homed
-    hal_bit_t *joint_on_soft_min_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software min limit
-    hal_bit_t *joint_on_soft_max_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software max limit
-    hal_bit_t *joint_on_hard_min_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the hardware min limit
-    hal_bit_t *joint_on_hard_max_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the hardware max limit
-    hal_bit_t *joint_has_fault[EMCMOT_MAX_JOINTS+1];   //status pin that the joint has a fault
-    hal_u32_t *joint_selected;                               // status pin for the joint selected
-    hal_bit_t *joint_nr_select[EMCMOT_MAX_JOINTS];             // nr. of pins to select a joint
-    hal_bit_t *joint_is_selected[EMCMOT_MAX_JOINTS];           // nr. of status pins for joint selected
-
-    hal_float_t *axis_pos_commanded[EMCMOT_MAX_AXIS+1]; //status pin for commanded cartesian position
-    hal_float_t *axis_pos_feedback[EMCMOT_MAX_AXIS+1]; //status pin for actual cartesian position
-    hal_float_t *axis_pos_relative[EMCMOT_MAX_AXIS+1]; //status pin for relative cartesian position
-
-
-    hal_float_t *jog_speed;	//pin for setting the jog speed (halui internal)
-    hal_bit_t *jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
-    hal_bit_t *jog_plus[EMCMOT_MAX_JOINTS+1];	//pin to jog in negative direction
-    hal_float_t *jog_analog[EMCMOT_MAX_JOINTS+1];	//pin for analog jogging (-1..0..1)
-    hal_float_t *jog_deadband;	//pin for setting the jog analog deadband (where not to move)
-
-    hal_s32_t *mv_counts;	//pin for the Max Velocity counting
-    hal_bit_t *mv_count_enable;	//pin for the Max Velocity counting enable
-    hal_bit_t *mv_direct_value;	//pin for enabling direct value option instead of counts
-    hal_float_t *mv_scale;	//scale for the Max Velocity counting
-    hal_float_t *mv_value;	//current Max Velocity value
-    hal_bit_t  *mv_increase;	// pin for increasing the MV (+=scale)
-    hal_bit_t  *mv_decrease;	// pin for decreasing the MV (-=scale)
-
-    hal_s32_t *fo_counts;	//pin for the Feed Override counting
-    hal_bit_t *fo_count_enable;	//pin for the Feed Override counting enable
-    hal_bit_t *fo_direct_value; // pin for enabling direct value option instead of counts 
-    hal_float_t *fo_scale;	//scale for the Feed Override counting
-    hal_float_t *fo_value;	//current Feed Override value
-    hal_bit_t  *fo_increase;	// pin for increasing the FO (+=scale)
-    hal_bit_t  *fo_decrease;	// pin for decreasing the FO (-=scale)
-
-    hal_s32_t *so_counts;	//pin for the Spindle Speed Override counting
-    hal_bit_t *so_count_enable;	//pin for the Spindle Speed Override counting enable
-    hal_bit_t *so_direct_value;	//pin for enabling direct value option instead of counts
-    hal_float_t *so_scale;	//scale for the Spindle Speed Override counting
-    hal_float_t *so_value;	//current Spindle speed Override value
-    hal_bit_t  *so_increase;	// pin for increasing the SO (+=scale)
-    hal_bit_t  *so_decrease;	// pin for decreasing the SO (-=scale)
-
-    hal_bit_t *home_all;        //pin for homing all joints in sequence
-    hal_bit_t *abort;            //pin for aborting
-    hal_bit_t *mdi_commands[MDI_MAX];
-} * halui_data; 
-
-struct local_halui_str {
-    hal_bit_t machine_on;         //pin for setting machine On
-    hal_bit_t machine_off;        //pin for setting machine Off
-
-    hal_bit_t estop_activate;     //pin for activating EMC ESTOP 
-    hal_bit_t estop_reset;        //pin for resetting ESTOP
-
-    hal_bit_t mode_manual;        //pin for requesting manual mode
-    hal_bit_t mode_auto;          //pin for requesting auto mode
-    hal_bit_t mode_mdi;           //pin for requesting mdi mode
-    hal_bit_t mode_teleop;        //pin for requesting teleop mode
-    hal_bit_t mode_joint;         //pin for requesting joint mode
-
-    hal_bit_t mist_on;            //pin for starting mist
-    hal_bit_t mist_off;           //pin for stoping mist
-    hal_bit_t flood_on;           //pin for starting flood
-    hal_bit_t flood_off;          //pin for stoping flood
-    hal_bit_t lube_on;            //pin for starting lube
-    hal_bit_t lube_off;           //pin for stoping lube
-
-    hal_bit_t program_run;        //pin for running program
-    hal_bit_t program_pause;      //pin for pausing program
-    hal_bit_t program_resume;     //pin for resuming program
-    hal_bit_t program_step;       //pin for running one line of the program
-    hal_bit_t program_stop;       //pin for stopping the program
-    hal_bit_t program_os_on;      //pin for setting optional stop on
-    hal_bit_t program_os_off;     //pin for setting optional stop off
-    hal_bit_t program_bd_on;      //pin for setting block delete on
-    hal_bit_t program_bd_off;     //pin for setting block delete off
-
-    hal_bit_t spindle_start;      //pin for starting the spindle
-    hal_bit_t spindle_stop;       //pin for stoping the spindle
-    hal_bit_t spindle_forward;    //pin for making the spindle go forward
-    hal_bit_t spindle_reverse;    //pin for making the spindle go reverse
-    hal_bit_t spindle_increase;   //pin for making the spindle go faster
-    hal_bit_t spindle_decrease;   //pin for making the spindle go slower
-
-    hal_bit_t spindle_brake_on;   //pin for activating spindle-brake
-    hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
-
-    hal_bit_t joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
-    hal_bit_t joint_unhome[EMCMOT_MAX_JOINTS+1];   //pin for unhoming one joint
-    hal_u32_t joint_selected;
-    hal_bit_t joint_nr_select[EMCMOT_MAX_JOINTS];
-    hal_bit_t joint_is_selected[EMCMOT_MAX_JOINTS];
-
-    hal_bit_t jog_minus[EMCMOT_MAX_JOINTS+1];	//pin to jog in positive direction
-    hal_bit_t jog_plus[EMCMOT_MAX_JOINTS+1];	//pin to jog in negative direction
-    hal_float_t jog_analog[EMCMOT_MAX_JOINTS+1];	//pin for analog jogging (-1..0..1)
-
-    hal_s32_t mv_counts;	//pin for the Max Velocity counting
-    hal_float_t mv_scale;	//scale for the Max Velocity counting
-    hal_bit_t  mv_increase;	// pin for increasing the MV (+=scale)
-    hal_bit_t  mv_decrease;	// pin for decreasing the MV (-=scale)
-        
-    hal_s32_t fo_counts;	//pin for the Feed Override counting
-    hal_float_t fo_scale;	//scale for the Feed Override counting
-    hal_bit_t  fo_increase;	// pin for increasing the FO (+=scale)
-    hal_bit_t  fo_decrease;	// pin for decreasing the FO (-=scale)
-
-    hal_s32_t so_counts;	//pin for the Spindle Speed Override counting
-    hal_float_t so_scale;	//scale for the Spindle Speed Override counting
-    hal_bit_t  so_increase;	// pin for increasing the SO (+=scale)
-    hal_bit_t  so_decrease;	// pin for decreasing the SO (-=scale)
-
-    hal_bit_t home_all;         //pin for homing all joints in sequence
-    hal_bit_t abort;            //pin for aborting
-    hal_bit_t mdi_commands[MDI_MAX];
-} old_halui_data; //pointer to the HAL-struct
+static halui_str *halui_data;
+static local_halui_str old_halui_data;
 
 static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
@@ -668,7 +624,7 @@ static enum {
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
 
-int halui_export_pin_IN_bit(hal_bit_t **pin, char *name) 
+int halui_export_pin_IN_bit(hal_bit_t **pin, const char *name)
 {
     int retval;
     retval = hal_pin_bit_new(name, HAL_IN, pin, comp_id);
@@ -680,7 +636,7 @@ int halui_export_pin_IN_bit(hal_bit_t **pin, char *name)
     return 0;
 }
 
-int halui_export_pin_IN_s32(hal_s32_t **pin, char *name) 
+int halui_export_pin_IN_s32(hal_s32_t **pin, const char *name)
 {
     int retval;
     retval = hal_pin_s32_new(name, HAL_IN, pin, comp_id);
@@ -692,7 +648,7 @@ int halui_export_pin_IN_s32(hal_s32_t **pin, char *name)
     return 0;
 }
 
-int halui_export_pin_IN_float(hal_float_t **pin, char *name) 
+int halui_export_pin_IN_float(hal_float_t **pin, const char *name)
 {
     int retval;
     retval = hal_pin_float_new(name, HAL_IN, pin, comp_id);
@@ -705,7 +661,7 @@ int halui_export_pin_IN_float(hal_float_t **pin, char *name)
 }
 
 
-int halui_export_pin_OUT_bit(hal_bit_t **pin, char *name) 
+int halui_export_pin_OUT_bit(hal_bit_t **pin, const char *name)
 {
     int retval;
     retval = hal_pin_bit_new(name, HAL_OUT, pin, comp_id);
@@ -1569,11 +1525,11 @@ static void hal_init_pins()
 {
     int joint;
 
-    old_halui_data.machine_on = *(halui_data->machine_on) = 0;
-    old_halui_data.machine_off = *(halui_data->machine_off) = 0;
+    *(halui_data->machine_on) = old_halui_data.machine_on = 0;
+    *(halui_data->machine_off) = old_halui_data.machine_off = 0;
 
-    old_halui_data.estop_activate = *(halui_data->estop_activate) = 0;
-    old_halui_data.estop_reset = *(halui_data->estop_reset) = 0;
+    *(halui_data->estop_activate) = old_halui_data.estop_activate = 0;
+    *(halui_data->estop_reset) = old_halui_data.estop_reset = 0;
 
     
     for (joint=0; joint < num_axes; joint++) {
@@ -1597,18 +1553,23 @@ static void hal_init_pins()
     *(halui_data->so_scale) = old_halui_data.so_scale = 0.1; //sane default
 }
 
-static int check_bit_changed(hal_bit_t *halpin, hal_bit_t *oldpin) {
-    if(!halpin) return 0; // uncreated pin never changes
-
-    hal_bit_t bit;
-    
-    bit = *(halpin);
-    if (bit != *(oldpin)) {
-	*(oldpin) = bit;
-	if (bit != 0) //if transition to 1
-	    return 1;
+static int check_bit_changed(bool halpin, bool &newpin)
+{
+    if (halpin != newpin) {
+	newpin = halpin;
+	return halpin;
     }
     return 0;
+}
+
+static void copy_hal_data(const halui_str &i, local_halui_str &j)
+{
+    int x;
+#define FIELD(t,f) j.f = (i.f)?*i.f:0;
+#define ARRAY(t,f,n) do { for (x = 0; x < n; x++) j.f[x] = (i.f[x])?*i.f[x]:0; } while (0);
+    HAL_FIELDS
+#undef FIELD
+#undef ARRAY
 }
 
 // this function looks if any of the hal pins has changed
@@ -1619,151 +1580,156 @@ static void check_hal_changes()
     int select_changed, joint;
     hal_bit_t bit, js;
     hal_float_t floatt;
-    
+
+    local_halui_str new_halui_data_mutable;
+    copy_hal_data(*halui_data, new_halui_data_mutable);
+    const local_halui_str &new_halui_data = new_halui_data_mutable;
+
+
     //check if machine_on pin has changed (the rest work exactly the same)
-    if (check_bit_changed(halui_data->machine_on, &(old_halui_data.machine_on)) != 0)
+    if (check_bit_changed(new_halui_data.machine_on, old_halui_data.machine_on) != 0)
 	sendMachineOn();                //send MachineOn NML command
     
-    if (check_bit_changed(halui_data->machine_off, &(old_halui_data.machine_off)) != 0)
+    if (check_bit_changed(new_halui_data.machine_off, old_halui_data.machine_off) != 0)
 	sendMachineOff();
 
-    if (check_bit_changed(halui_data->estop_activate, &(old_halui_data.estop_activate)) != 0)
+    if (check_bit_changed(new_halui_data.estop_activate, old_halui_data.estop_activate) != 0)
 	sendEstop();
 
-    if (check_bit_changed(halui_data->estop_reset, &(old_halui_data.estop_reset)) != 0)
+    if (check_bit_changed(new_halui_data.estop_reset, old_halui_data.estop_reset) != 0)
 	sendEstopReset();
 
-    if (check_bit_changed(halui_data->mode_manual, &(old_halui_data.mode_manual)) != 0)
+    if (check_bit_changed(new_halui_data.mode_manual, old_halui_data.mode_manual) != 0)
 	sendManual();
 
-    if (check_bit_changed(halui_data->mode_auto, &(old_halui_data.mode_auto)) != 0)
+    if (check_bit_changed(new_halui_data.mode_auto, old_halui_data.mode_auto) != 0)
 	sendAuto();
 
-    if (check_bit_changed(halui_data->mode_mdi, &(old_halui_data.mode_mdi)) != 0)
+    if (check_bit_changed(new_halui_data.mode_mdi, old_halui_data.mode_mdi) != 0)
 	sendMdi();
 
-    if (check_bit_changed(halui_data->mode_teleop, &(old_halui_data.mode_teleop)) != 0)
+    if (check_bit_changed(new_halui_data.mode_teleop, old_halui_data.mode_teleop) != 0)
 	sendTeleop();
 
-    if (check_bit_changed(halui_data->mode_joint, &(old_halui_data.mode_joint)) != 0)
+    if (check_bit_changed(new_halui_data.mode_joint, old_halui_data.mode_joint) != 0)
 	sendJoint();
 
-    if (check_bit_changed(halui_data->mist_on, &(old_halui_data.mist_on)) != 0)
+    if (check_bit_changed(new_halui_data.mist_on, old_halui_data.mist_on) != 0)
 	sendMistOn();
 
-    if (check_bit_changed(halui_data->mist_off, &(old_halui_data.mist_off)) != 0)
+    if (check_bit_changed(new_halui_data.mist_off, old_halui_data.mist_off) != 0)
 	sendMistOff();
 
-    if (check_bit_changed(halui_data->flood_on, &(old_halui_data.flood_on)) != 0)
+    if (check_bit_changed(new_halui_data.flood_on, old_halui_data.flood_on) != 0)
 	sendFloodOn();
 
-    if (check_bit_changed(halui_data->flood_off, &(old_halui_data.flood_off)) != 0)
+    if (check_bit_changed(new_halui_data.flood_off, old_halui_data.flood_off) != 0)
 	sendFloodOff();
 
-    if (check_bit_changed(halui_data->lube_on, &(old_halui_data.lube_on)) != 0)
+    if (check_bit_changed(new_halui_data.lube_on, old_halui_data.lube_on) != 0)
 	sendLubeOn();
 
-    if (check_bit_changed(halui_data->lube_off, &(old_halui_data.lube_off)) != 0)
+    if (check_bit_changed(new_halui_data.lube_off, old_halui_data.lube_off) != 0)
 	sendLubeOff();
 
-    if (check_bit_changed(halui_data->program_run, &(old_halui_data.program_run)) != 0)
+    if (check_bit_changed(new_halui_data.program_run, old_halui_data.program_run) != 0)
 	sendProgramRun(0);
 
-    if (check_bit_changed(halui_data->program_pause, &(old_halui_data.program_pause)) != 0)
+    if (check_bit_changed(new_halui_data.program_pause, old_halui_data.program_pause) != 0)
 	sendProgramPause();
 
-    if (check_bit_changed(halui_data->program_os_on, &(old_halui_data.program_os_on)) != 0)
+    if (check_bit_changed(new_halui_data.program_os_on, old_halui_data.program_os_on) != 0)
 	sendSetOptionalStop(ON);
 
-    if (check_bit_changed(halui_data->program_os_off, &(old_halui_data.program_os_off)) != 0)
+    if (check_bit_changed(new_halui_data.program_os_off, old_halui_data.program_os_off) != 0)
 	sendSetOptionalStop(OFF);
 
-    if (check_bit_changed(halui_data->program_bd_on, &(old_halui_data.program_bd_on)) != 0)
+    if (check_bit_changed(new_halui_data.program_bd_on, old_halui_data.program_bd_on) != 0)
 	sendSetBlockDelete(ON);
 
-    if (check_bit_changed(halui_data->program_bd_off, &(old_halui_data.program_bd_off)) != 0)
+    if (check_bit_changed(new_halui_data.program_bd_off, old_halui_data.program_bd_off) != 0)
 	sendSetBlockDelete(OFF);
 
-    if (check_bit_changed(halui_data->program_resume, &(old_halui_data.program_resume)) != 0)
+    if (check_bit_changed(new_halui_data.program_resume, old_halui_data.program_resume) != 0)
 	sendProgramResume();
 
-    if (check_bit_changed(halui_data->program_step, &(old_halui_data.program_step)) != 0)
+    if (check_bit_changed(new_halui_data.program_step, old_halui_data.program_step) != 0)
 	sendProgramStep();
 
-    if (check_bit_changed(halui_data->program_stop, &(old_halui_data.program_stop)) != 0)
+    if (check_bit_changed(new_halui_data.program_stop, old_halui_data.program_stop) != 0)
 	sendAbort();
 
     //max-velocity stuff
-    counts = *halui_data->mv_counts;
+    counts = new_halui_data.mv_counts;
     if (counts != old_halui_data.mv_counts) {
-        if (*halui_data->mv_count_enable) {
-            if (*halui_data->mv_direct_value) {
-                sendMaxVelocity(counts * *halui_data->mv_scale);
+        if (new_halui_data.mv_count_enable) {
+            if (new_halui_data.mv_direct_value) {
+                sendMaxVelocity(counts * new_halui_data.mv_scale);
             } else {
-                sendMaxVelocity( *halui_data->mv_value + (counts - old_halui_data.mv_counts) *
-                    *halui_data->mv_scale);
+                sendMaxVelocity( new_halui_data.mv_value + (counts - old_halui_data.mv_counts) *
+                    new_halui_data.mv_scale);
             }
         }
         old_halui_data.mv_counts = counts;
     }
 
     //feed-override stuff
-    counts = *halui_data->fo_counts;
+    counts = new_halui_data.fo_counts;
     if (counts != old_halui_data.fo_counts) {
-        if (*halui_data->fo_count_enable) {
-            if (*halui_data->fo_direct_value) {
-                sendFeedOverride(counts * *halui_data->fo_scale);
+        if (new_halui_data.fo_count_enable) {
+            if (new_halui_data.fo_direct_value) {
+                sendFeedOverride(counts * new_halui_data.fo_scale);
             } else {
-                sendFeedOverride( *halui_data->fo_value + (counts - old_halui_data.fo_counts) *
-                    *halui_data->fo_scale);
+                sendFeedOverride( new_halui_data.fo_value + (counts - old_halui_data.fo_counts) *
+                    new_halui_data.fo_scale);
             }
         }
         old_halui_data.fo_counts = counts;
     }
 
     //spindle-override stuff
-    counts = *halui_data->so_counts;
+    counts = new_halui_data.so_counts;
     if (counts != old_halui_data.so_counts) {
-        if (*halui_data->so_count_enable) {
-            if (*halui_data->so_direct_value) {
-                sendSpindleOverride(counts * *halui_data->so_scale);
+        if (new_halui_data.so_count_enable) {
+            if (new_halui_data.so_direct_value) {
+                sendSpindleOverride(counts * new_halui_data.so_scale);
             } else {
-                sendSpindleOverride( *halui_data->so_value + (counts - old_halui_data.so_counts) *
-                    *halui_data->so_scale);
+                sendSpindleOverride( new_halui_data.so_value + (counts - old_halui_data.so_counts) *
+                    new_halui_data.so_scale);
             }
         }
         old_halui_data.so_counts = counts;
     }
 
-    if (check_bit_changed(halui_data->mv_increase, &(old_halui_data.mv_increase)) != 0)
-        sendMaxVelocity(*halui_data->mv_value + *halui_data->mv_scale);
-    if (check_bit_changed(halui_data->mv_decrease, &(old_halui_data.mv_decrease)) != 0)
-        sendMaxVelocity(*halui_data->mv_value - *halui_data->mv_scale);
+    if (check_bit_changed(new_halui_data.mv_increase, old_halui_data.mv_increase) != 0)
+        sendMaxVelocity(new_halui_data.mv_value + new_halui_data.mv_scale);
+    if (check_bit_changed(new_halui_data.mv_decrease, old_halui_data.mv_decrease) != 0)
+        sendMaxVelocity(new_halui_data.mv_value - new_halui_data.mv_scale);
 
-    if (check_bit_changed(halui_data->fo_increase, &(old_halui_data.fo_increase)) != 0)
-        sendFeedOverride(*halui_data->fo_value + *halui_data->fo_scale);
-    if (check_bit_changed(halui_data->fo_decrease, &(old_halui_data.fo_decrease)) != 0)
-        sendFeedOverride(*halui_data->fo_value - *halui_data->fo_scale);
+    if (check_bit_changed(new_halui_data.fo_increase, old_halui_data.fo_increase) != 0)
+        sendFeedOverride(new_halui_data.fo_value + new_halui_data.fo_scale);
+    if (check_bit_changed(new_halui_data.fo_decrease, old_halui_data.fo_decrease) != 0)
+        sendFeedOverride(new_halui_data.fo_value - new_halui_data.fo_scale);
 
-    if (check_bit_changed(halui_data->so_increase, &(old_halui_data.so_increase)) != 0)
-        sendSpindleOverride(*halui_data->so_value + *halui_data->so_scale);
-    if (check_bit_changed(halui_data->so_decrease, &(old_halui_data.so_decrease)) != 0)
-        sendSpindleOverride(*halui_data->so_value - *halui_data->so_scale);
+    if (check_bit_changed(new_halui_data.so_increase, old_halui_data.so_increase) != 0)
+        sendSpindleOverride(new_halui_data.so_value + new_halui_data.so_scale);
+    if (check_bit_changed(new_halui_data.so_decrease, old_halui_data.so_decrease) != 0)
+        sendSpindleOverride(new_halui_data.so_value - new_halui_data.so_scale);
 
 //spindle stuff
-    if (check_bit_changed(halui_data->spindle_start, &(old_halui_data.spindle_start)) != 0)
+    if (check_bit_changed(new_halui_data.spindle_start, old_halui_data.spindle_start) != 0)
 	sendSpindleForward();
 
-    if (check_bit_changed(halui_data->spindle_stop, &(old_halui_data.spindle_stop)) != 0)
+    if (check_bit_changed(new_halui_data.spindle_stop, old_halui_data.spindle_stop) != 0)
 	sendSpindleOff();
 
-    if (check_bit_changed(halui_data->spindle_forward, &(old_halui_data.spindle_forward)) != 0)
+    if (check_bit_changed(new_halui_data.spindle_forward, old_halui_data.spindle_forward) != 0)
 	sendSpindleForward();
 
-    if (check_bit_changed(halui_data->spindle_reverse, &(old_halui_data.spindle_reverse)) != 0)
+    if (check_bit_changed(new_halui_data.spindle_reverse, old_halui_data.spindle_reverse) != 0)
 	sendSpindleReverse();
 
-    bit = *(halui_data->spindle_increase);
+    bit = new_halui_data.spindle_increase;
     if (bit != old_halui_data.spindle_increase) {
 	if (bit != 0)
 	    sendSpindleIncrease();
@@ -1772,7 +1738,7 @@ static void check_hal_changes()
 	old_halui_data.spindle_increase = bit;
     }
 
-    bit = *(halui_data->spindle_decrease);
+    bit = new_halui_data.spindle_decrease;
     if (bit != old_halui_data.spindle_decrease) {
 	if (bit != 0)
 	    sendSpindleDecrease();
@@ -1781,60 +1747,60 @@ static void check_hal_changes()
 	old_halui_data.spindle_decrease = bit;
     }
 
-    if (check_bit_changed(halui_data->spindle_brake_on, &(old_halui_data.spindle_brake_on)) != 0)
+    if (check_bit_changed(new_halui_data.spindle_brake_on, old_halui_data.spindle_brake_on) != 0)
 	sendBrakeEngage();
 
-    if (check_bit_changed(halui_data->spindle_brake_off, &(old_halui_data.spindle_brake_off)) != 0)
+    if (check_bit_changed(new_halui_data.spindle_brake_off, old_halui_data.spindle_brake_off) != 0)
 	sendBrakeRelease();
     
-    if (check_bit_changed(halui_data->abort, &(old_halui_data.abort)) != 0)
+    if (check_bit_changed(new_halui_data.abort, old_halui_data.abort) != 0)
 	sendAbort();
     
-    if (check_bit_changed(halui_data->home_all, &(old_halui_data.home_all)) != 0)
+    if (check_bit_changed(new_halui_data.home_all, old_halui_data.home_all) != 0)
 	sendHome(-1);
 
 // joint stuff (selection, homing..)
     select_changed = -1; // flag to see if the selected joint changed
     
     for (joint=0; joint < num_axes; joint++) {
-	if (check_bit_changed(halui_data->joint_home[joint], &(old_halui_data.joint_home[joint])) != 0)
+	if (check_bit_changed(new_halui_data.joint_home[joint], old_halui_data.joint_home[joint]) != 0)
 	    sendHome(joint);
 
-	if (check_bit_changed(halui_data->joint_unhome[joint], &(old_halui_data.joint_unhome[joint])) != 0)
+	if (check_bit_changed(new_halui_data.joint_unhome[joint], old_halui_data.joint_unhome[joint]) != 0)
 	    sendUnhome(joint);
 
-	bit = *(halui_data->jog_minus[joint]);
+	bit = new_halui_data.jog_minus[joint];
 	if (bit != old_halui_data.jog_minus[joint]) {
 	    if (bit != 0)
-		sendJogCont(joint,-*(halui_data->jog_speed));
+		sendJogCont(joint,-new_halui_data.jog_speed);
 	    else
 		sendJogStop(joint);
 	    old_halui_data.jog_minus[joint] = bit;
 	}
 
-	bit = *(halui_data->jog_plus[joint]);
+	bit = *(&new_halui_data.jog_plus[joint]);
 	if (bit != old_halui_data.jog_plus[joint]) {
 	    if (bit != 0)
-		sendJogCont(joint,*(halui_data->jog_speed));
+		sendJogCont(joint,new_halui_data.jog_speed);
 	    else
 		sendJogStop(joint);
 	    old_halui_data.jog_plus[joint] = bit;
 	}
 
-	floatt = *(halui_data->jog_analog[joint]);
+	floatt = new_halui_data.jog_analog[joint];
 	if (floatt != old_halui_data.jog_analog[joint]) {
-	    if (fabs(floatt) > *(halui_data->jog_deadband))
-		sendJogCont(joint,*(halui_data->jog_speed) * *(halui_data->jog_analog[joint]));
+	    if (fabs(floatt) > *(&new_halui_data.jog_deadband))
+		sendJogCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));
 	    else
 		sendJogStop(joint);
 	    old_halui_data.jog_analog[joint] = floatt;
 	}
 	
 	// check to see if another joint has been selected
-	bit = *(halui_data->joint_nr_select[joint]);
+	bit = new_halui_data.joint_nr_select[joint];
 	if (bit != old_halui_data.joint_nr_select[joint]) {
 	    if (bit != 0) {
-		*(halui_data->joint_selected) = joint;
+		*halui_data->joint_selected = joint;
 		select_changed = joint; // flag that we changed the selected joint
 	    } 
 	    old_halui_data.joint_home[joint] = bit;
@@ -1851,34 +1817,34 @@ static void check_hal_changes()
 	}
     }
 
-    if (check_bit_changed(halui_data->joint_home[num_axes], &(old_halui_data.joint_home[num_axes])) != 0)
-	sendHome(*(halui_data->joint_selected));
+    if (check_bit_changed(new_halui_data.joint_home[num_axes], old_halui_data.joint_home[num_axes]) != 0)
+	sendHome(*(&new_halui_data.joint_selected));
 
-    if (check_bit_changed(halui_data->joint_unhome[num_axes], &(old_halui_data.joint_unhome[num_axes])) != 0)
-	sendUnhome(*(halui_data->joint_selected));
+    if (check_bit_changed(new_halui_data.joint_unhome[num_axes], old_halui_data.joint_unhome[num_axes]) != 0)
+	sendUnhome(*(&new_halui_data.joint_selected));
 
-    bit = *(halui_data->jog_minus[num_axes]);
-    js = *(halui_data->joint_selected);
+    bit = *(&new_halui_data.jog_minus[num_axes]);
+    js = *(&new_halui_data.joint_selected);
     if (bit != old_halui_data.jog_minus[num_axes]) {
         if (bit != 0)
-	    sendJogCont(js, -*(halui_data->jog_speed));
+	    sendJogCont(js, -*(&new_halui_data.jog_speed));
 	else
 	    sendJogStop(js);
 	old_halui_data.jog_minus[num_axes] = bit;
     }
 
-    bit = *(halui_data->jog_plus[num_axes]);
-    js = *(halui_data->joint_selected);
+    bit = *(&new_halui_data.jog_plus[num_axes]);
+    js = *(&new_halui_data.joint_selected);
     if (bit != old_halui_data.jog_plus[num_axes]) {
         if (bit != 0)
-    	    sendJogCont(js,*(halui_data->jog_speed));
+	    sendJogCont(js,*(&new_halui_data.jog_speed));
 	else
 	    sendJogStop(js);
 	old_halui_data.jog_plus[num_axes] = bit;
     }
 
     for(int n = 0; n < num_mdi_commands; n++) {
-        if (check_bit_changed(halui_data->mdi_commands[n], &(old_halui_data.mdi_commands[n])) != 0)
+        if (check_bit_changed(new_halui_data.mdi_commands[n], old_halui_data.mdi_commands[n]) != 0)
             sendMdiCommand(n);
     }
 }

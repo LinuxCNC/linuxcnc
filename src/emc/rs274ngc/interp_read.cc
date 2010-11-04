@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sstream>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
@@ -1428,7 +1429,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   double value;
   int param_cnt;
   char oNameBuf[LINELEN+1];
-  char *subName;
+  const char *subName;
   char fullNameBuf[2*LINELEN+1];
   int oNumber;
 
@@ -1598,7 +1599,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("while");
       block->o_type = O_while;
       CHKS((line[*counter] != '['),
-	    "Left bracket missing after 'while'");
+	    _("Left bracket missing after 'while'"));
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1614,7 +1615,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
           *counter += strlen("repeat");
           block->o_type = O_repeat;
           CHKS((line[*counter] != '['),
-               "Left bracket missing after 'repeat'");
+               _("Left bracket missing after 'repeat'"));
           CHP(read_real_expression(line, counter, &value, parameters));
           _setup.test_value = value;
       }
@@ -1630,7 +1631,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("if");
       block->o_type = O_if;
       CHKS((line[*counter] != '['),
-	    "Left bracket missing after 'if'");
+	    _("Left bracket missing after 'if'"));
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1646,7 +1647,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       *counter += strlen("elseif");
       block->o_type = O_elseif;
       CHKS((line[*counter] != '['),
-	    "Left bracket missing after 'elseif'");
+	    _("Left bracket missing after 'elseif'"));
       CHP(read_real_expression(line, counter, &value, parameters));
       _setup.test_value = value;
     }
@@ -1837,7 +1838,7 @@ int Interp::store_named_param(
 
   nameList = &_setup.sub_context[level].named_parameters;
 
-  logDebug("store_named_parameter: nameList[%d]=0x%x storing:|%s|", level,
+  logDebug("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
            nameList, nameBuf);
   logDebug("store_named_parameter: named_parameter_used_size=%d",
            nameList->named_parameter_used_size);
@@ -1927,7 +1928,7 @@ int Interp::add_named_param(
   {
       ERS(NCE_OUT_OF_MEMORY);
   }
-  logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
+  logDebug("%s strdup[%p]:|%s|", name, dup, dup);
   nameList->named_parameters[nameList->named_parameter_used_size++] = dup;
 
   return INTERP_OK;
@@ -2216,7 +2217,7 @@ int Interp::read_parameter_setting(
       {
           ERS(NCE_OUT_OF_MEMORY);
       }
-      logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
+      logDebug("%s strdup[%p]:|%s|", name, dup, dup);
       _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
 
       _setup.named_parameter_values[_setup.named_parameter_occurrence] = value;
@@ -2771,23 +2772,23 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
                             int *counter,       //!< pointer to a counter for position on the line 
                             double *double_ptr) //!< pointer to double to be read                  
 {
-  char *start, *end, save;
+  char *start;
   size_t after;
 
   start = line + *counter;
 
-  after = strspn(start, "0123456789+-.");
-  save = start[after];
-  start[after] = 0;
+  after = strspn(start, "+-");
+  after = strspn(start+after, "0123456789.") + after;
 
-  *double_ptr = strtod(start, &end);
-  start[after] = save;
+  std::string st(start, start+after);
+  std::stringstream s(st);
+  double val;
+  if(!(s >> val)) ERS(_("bad number format (conversion failed) parsing '%s'"), st.c_str());
+  if(s.get() != std::char_traits<char>::eof()) ERS(_("bad number format (trailing characters) parsing '%s'"), st.c_str());
 
-  if(end == start) {
-    ERS(NCE_BAD_NUMBER_FORMAT);
-  }
-
-  *counter = end - line;
+  *double_ptr = val;
+  *counter = start + after - line;
+  //fprintf(stderr, "got %f   rest of line=%s\n", val, line+*counter);
   return INTERP_OK;
 }
 
@@ -2873,9 +2874,9 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
     CHP(read_real_number(line, counter, double_ptr));
 
   CHKS(isnan(*double_ptr),
-          "Calculation resulted in 'not a number'");
+          _("Calculation resulted in 'not a number'"));
   CHKS(isinf(*double_ptr),
-          "Calculation resulted in 'infinity'");
+          _("Calculation resulted in 'infinity'"));
 
   return INTERP_OK;
 }
@@ -3169,7 +3170,7 @@ int Interp::read_text(
     if (fgets(raw_line, LINELEN, inport) == NULL) {
       if(_setup.skipping_to_sub)
       {
-        ERS("EOF in file:%s seeking o-word: o<%s> from line: %d",
+        ERS(_("EOF in file:%s seeking o-word: o<%s> from line: %d"),
                  _setup.filename,
                  _setup.skipping_to_sub,
                  _setup.skipping_start);

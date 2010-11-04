@@ -227,8 +227,7 @@ char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 						while( !feof( pParametersFile ) )
 						{
 							char Buff[ 300 ];
-							fgets( Buff, 300, pParametersFile );
-							if (!feof(pParametersFile))
+							if (fgets( Buff, 300, pParametersFile ) && !feof(pParametersFile))
 							{
 								fputs( Buff, pProjectFile );
 							}
@@ -268,14 +267,12 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 	{
 
 		/* start line of project ?*/
-		fgets( Buff, 300, pProjectFile );
-		if ( strncmp( Buff, "_FILES_CLASSICLADDER", strlen( "_FILES_CLASSICLADDER" ) )==0 )
+		if ( fgets( Buff, 300, pProjectFile ) && strncmp( Buff, "_FILES_CLASSICLADDER", strlen( "_FILES_CLASSICLADDER" ) )==0 )
 		{
 
 			while( !feof( pProjectFile ) )
 			{
-				fgets( Buff, 300, pProjectFile );
-				if ( !feof( pProjectFile ) )
+				if ( fgets( Buff, 300, pProjectFile ) && !feof( pProjectFile ) )
 				{
 					// header line for a file parameter ?
 					if (strncmp(Buff,FILE_HEAD,STR_LEN_FILE_HEAD) ==0)
@@ -302,8 +299,7 @@ ParametersFile[ strlen(ParametersFile)-1 ] = '\0';
 								fputs( Buff, pParametersFile );
 								while( !feof( pProjectFile ) && !cEndOfFile )
 								{
-									fgets( Buff, 300, pProjectFile );
-									if (strncmp(Buff,"_/FILE-",strlen("_/FILE-")) !=0)
+									if (fgets( Buff, 300, pProjectFile ) && strncmp(Buff,"_/FILE-",strlen("_/FILE-")) !=0)
 									{
 										if (!feof(pProjectFile))
 											fputs( Buff, pParametersFile );

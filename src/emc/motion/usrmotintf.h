@@ -70,7 +70,7 @@ extern "C" {
     extern int usrmotWriteEmcmotCommand(emcmot_command_t * c);
 
 /* usrmotInit() initializes communication with the emcmot process */
-    extern int usrmotInit(char *name);
+    extern int usrmotInit(const char *name);
 
 /* usrmotExit() terminates communication with the emcmot process */
     extern int usrmotExit(void);

@@ -107,7 +107,7 @@ Interp::~Interp() {
     }
 }
 
-void Interp::doLog(char *fmt, ...)
+void Interp::doLog(const char *fmt, ...)
 {
 #ifdef LOG_FILE
     struct timeval tv;
@@ -224,8 +224,9 @@ int Interp::execute(const char *command)
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   //  if (_setup.block1.o_number != 0)
-  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) )
+  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
     {
+      logDebug("Convert control functions");
       CHP(convert_control_functions(&(_setup.block1), &_setup));
 
 #if 1
@@ -236,6 +237,10 @@ int Interp::execute(const char *command)
       // NOTE: the last executed file will still be open, because "close"
       // is really a lazy close.
     
+      if (_setup.mdi_interrupt) {
+	  _setup.mdi_interrupt = false;
+	  MDImode = 1;
+      }
       logDebug("!!!KL Open file is:%s:", _setup.filename);
       logDebug("MDImode = %d", MDImode);
       while(MDImode && _setup.call_level) // we are still in a subroutine
@@ -247,10 +252,14 @@ int Interp::execute(const char *command)
 	    }
           status = execute();  // special handling for mdi errors
           if (status != INTERP_OK) {
-               reset();
+		if (status == INTERP_EXECUTE_FINISH) {
+		    _setup.mdi_interrupt = true;
+		} else
+		    reset();
                CHP(status);
           }
       }
+      _setup.mdi_interrupt = false;
 #endif
       return INTERP_OK;
     }
@@ -258,7 +267,7 @@ int Interp::execute(const char *command)
   // skip if skipping
   if(_setup.skipping_o)
     {
-      logDebug("skipping to line: %d", _setup.skipping_o);
+      logDebug("skipping to: %s", _setup.skipping_o);
       return INTERP_OK;
     }
 
@@ -279,7 +288,7 @@ int Interp::execute(const char *command)
                           _setup.named_parameter_values[n]));
 
     // free the string
-      logDebug("freeing param[%d]:|%s|:0x%x", n, _setup.named_parameters[n],
+      logDebug("freeing param[%d]:|%s|:%p", n, _setup.named_parameters[n],
                _setup.named_parameters[n]);
     free(_setup.named_parameters[n]);
   }
@@ -499,7 +508,7 @@ int Interp::init()
           {
               logDebug("SUBROUTINE_PATH not found");
           }
-          logDebug("_setup.subroutines:%s:\n", _setup.subroutines);
+          logDebug("_setup.subroutines:%p:\n", _setup.subroutines);
 
 
           // close it
@@ -775,7 +784,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   CHKS((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
   CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
-  CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
+  CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE, filename);
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
     CHKS((fgets(line, LINELEN, _setup.file_pointer) ==
@@ -965,10 +974,45 @@ int Interp::reset()
   //!!!KL (also called by external -- but probably OK)
   //
   // initialization stuff for subroutines and control structures
+
+  for(; _setup.call_level > 0; _setup.call_level--) {
+    int i;
+    context * sub = _setup.sub_context + _setup.call_level - 1;
+    free_named_parameters(_setup.call_level, &_setup);
+    if(sub->subName) {
+      free(sub->subName);
+      sub->subName = 0;
+    }
+
+    for(i=0; i<INTERP_SUB_PARAMS; i++) {
+      _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+        sub->saved_params[i];
+    }
+
+    // When called from Interp::close this one is NULL
+    if (!_setup.file_pointer) continue;
+
+    if(0 != strcmp(_setup.filename, sub->filename)) {
+      fclose(_setup.file_pointer);
+      _setup.file_pointer = fopen(sub->filename, "r");
+
+      strcpy(_setup.filename, sub->filename);
+    }
+
+    fseek(_setup.file_pointer, sub->position, SEEK_SET);
+
+    _setup.sequence_number = sub->sequence_number;
+  }
+  if(_setup.sub_name) {
+    free(_setup.sub_name);
+    _setup.sub_name = 0;
+  }
   _setup.call_level = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
+
+  _setup.mdi_interrupt = false;
 
   qc_reset();
 
@@ -1027,8 +1071,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
       return INTERP_OK;
   // open original for reading
   infile = fopen(filename, "r");
-  sprintf(line,"Unable to open parameter file: '%s'", filename);
-  CHKS((infile == NULL), line);
+  CHKS((infile == NULL), _("Unable to open parameter file: '%s'"), filename);
 
   pars = _setup.parameters;
   k = 0;

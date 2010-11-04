@@ -186,59 +186,44 @@ addf encoder.update-counters        base-thread
 
 # ---------------------------------------------------
 # ESTOP and related signals
-newsig external-estop-ok bit
-linksp external-estop-ok ax5214h.0.in-24
-newsig gui-estop-ok bit
-linksp gui-estop-ok iocontrol.0.user-enable-out
-newsig main-estop-ok bit
-linksp main-estop-ok parport.0.pin-01-out
-linksp main-estop-ok iocontrol.0.emc-enable-in
-linksp main-estop-ok charge-pump.enable
-newsig estop-reset bit
-linksp estop-reset iocontrol.0.user-request-enable
-newsig charge-pump bit
-linksp charge-pump parport.0.pin-17-out
-linksp charge-pump charge-pump.out
+net external-estop-ok ax5214h.0.in-24
+net gui-estop-ok iocontrol.0.user-enable-out
+net main-estop-ok parport.0.pin-01-out
+net main-estop-ok iocontrol.0.emc-enable-in
+net main-estop-ok charge-pump.enable
+net estop-reset iocontrol.0.user-request-enable
+net charge-pump parport.0.pin-17-out
+net charge-pump charge-pump.out
 
 
 # servo power supply control
-newsig AP1 bit
-linksp AP1 motenc.3.out-00
-newsig AP2 bit
-linksp AP2 motenc.3.out-01
+net AP1 motenc.3.out-00
+net AP2 motenc.3.out-01
 
 # motion enable - this signal prevents the motion controller
 # from starting unless everything is OK (comes from ladder)
-newsig motion-enable bit
-linksp motion-enable motion.enable
+net motion-enable motion.enable
 
 # servo amp enable (only one, driven by axis 0)
-newsig servo-enable bit
-linksp servo-enable motenc.3.out-02
-linksp servo-enable joint.0.amp-enable-out
+net servo-enable motenc.3.out-02
+net servo-enable joint.0.amp-enable-out
 
 # servo amp fault signals
 # the signals from the amps are actually "not running"
 # they are asserted when the amp is faulted, OR just
 # disabled.  So we use the inverse and call them "running"
-newsig X-amp-running bit
-linksp X-amp-running motenc.3.in-12-not
-newsig Y-amp-running bit
-linksp Y-amp-running motenc.3.in-13-not
-newsig Z-amp-running bit
-linksp Z-amp-running motenc.3.in-14-not
+net X-amp-running motenc.3.in-12-not
+net Y-amp-running motenc.3.in-13-not
+net Z-amp-running motenc.3.in-14-not
 # need to release the Z-axis brake when running
-linksp Z-amp-running motenc.3.out-15
+net Z-amp-running motenc.3.out-15
 
 # these are the real fault signals, and go to the motion
 # controller, they are derived from the ones above by
 # ladder logic
-newsig X-amp-fault bit
-linksp X-amp-fault joint.0.amp-fault-in
-newsig Y-amp-fault bit
-linksp Y-amp-fault joint.1.amp-fault-in
-newsig Z-amp-fault bit
-linksp Z-amp-fault joint.2.amp-fault-in
+net X-amp-fault joint.0.amp-fault-in
+net Y-amp-fault joint.1.amp-fault-in
+net Z-amp-fault joint.2.amp-fault-in
 
 # Limit switches
 # (the switches are NC, and open when hit, so
@@ -267,39 +252,11 @@ net Z-home motenc.3.in-10-not => joint.2.home-sw-in
 #   oriented status (from spindle control)
 #   commanded speed (from EMC to control)
 #   spindle current feedback (from drive to PC)
-newsig spindle-ready bit
-newsig spindle-run-request bit
-newsig spindle-drive-run bit
-newsig spindle-at-speed bit
-newsig spindle-do-orient bit
-newsig spindle-oriented bit
-newsig spindle-rpm-cmd float
-newsig spindle-amps float
-newsig spindle-use-low-gear bit
 
 # spindle related signals: "internal" signal
-newsig sp-enc-pos float
-newsig sp-pos-revs float
-newsig sp-orient-pos-cmd float
-newsig sp-orient-pos-err float
-newsig sp-index-enable bit
-newsig sp-orient-rpm-cmd float
-newsig sp-rpm-cmd float
-newsig sp-mtr-high-rpm-cmd float
-newsig sp-mtr-low-rpm-cmd float
-newsig sp-mtr-mesh-rpm-cmd float
-newsig sp-mtr-rpm-cmd float
-newsig sp-orient-pos-ok bit
-newsig sp-engage-high-gear bit
-newsig sp-engage-low-gear bit
-newsig sp-in-high-gear bit
-newsig sp-in-low-gear bit
-newsig sp-in-neutral bit
-newsig sp-shifting bit
-newsig sp-at-speed bit
 
 # get spindle position from encoder
-linksp sp-enc-pos motenc.3.enc-03-position
+net sp-enc-pos motenc.3.enc-03-position
 # scale spindle position to degrees
 # 1440 cnts/rev = 4 cnts/degree
 setp motenc.3.enc-03-scale -4.0
@@ -308,11 +265,11 @@ setp motenc.3.enc-03-scale -4.0
 sets sp-orient-pos-cmd [SPINDLE]ORIENT_POSITION
 
 # connect commanded and feedback positions to PID loop
-linksp sp-orient-pos-cmd pid.3.command
-linksp sp-enc-pos pid.3.feedback
+net sp-orient-pos-cmd pid.3.command
+net sp-enc-pos pid.3.feedback
 
 # enable PID loop when in orient mode
-linksp spindle-do-orient pid.3.enable
+net spindle-do-orient pid.3.enable
 
 # tuning params for PID loop
 setp pid.3.Pgain 1.0
@@ -329,80 +286,80 @@ setp pid.3.maxerrorI 200.0
 setp pid.3.maxoutput 100
 
 # check position error with window comparator
-linksp sp-orient-pos-err pid.3.error
-linksp sp-orient-pos-err wcomp.0.in
-linksp sp-orient-pos-ok wcomp.0.out
+net sp-orient-pos-err pid.3.error
+net sp-orient-pos-err wcomp.0.in
+net sp-orient-pos-ok wcomp.0.out
 # set a +/- 1 degree window
 setp wcomp.0.min -1.0
 setp wcomp.0.max  1.0
 
 # output of loop is velocity for orientation
-linksp sp-orient-rpm-cmd pid.3.output
+net sp-orient-rpm-cmd pid.3.output
 
 # select between normal speed and orient speed
 # based on do-orient command
-linksp sp-orient-rpm-cmd mux2.0.in1
-linksp spindle-rpm-cmd mux2.0.in0
-linksp spindle-do-orient mux2.0.sel
+net sp-orient-rpm-cmd mux2.0.in1
+net spindle-rpm-cmd mux2.0.in0
+net spindle-do-orient mux2.0.sel
 # output of mux is desired spindle RPM
-linksp sp-rpm-cmd mux2.0.out
+net sp-rpm-cmd mux2.0.out
 
 # use scale blocks to calculate required motor RPM for
 # both gears based on desired spindle RPM
-linksp sp-rpm-cmd scale.0.in
-linksp sp-mtr-high-rpm-cmd scale.0.out
+net sp-rpm-cmd scale.0.in
+net sp-mtr-high-rpm-cmd scale.0.out
 setp scale.0.gain [SPINDLE]HIGH_GEAR_RATIO
-linksp sp-rpm-cmd scale.1.in
-linksp sp-mtr-low-rpm-cmd scale.1.out
+net sp-rpm-cmd scale.1.in
+net sp-mtr-low-rpm-cmd scale.1.out
 setp scale.1.gain [SPINDLE]LOW_GEAR_RATIO
 
 # select either high or low speed based on current gear ratio,
 # unless shifting, then select a low speed for meshing the gears
-linksp sp-mtr-high-rpm-cmd mux4.0.in0
-linksp sp-mtr-low-rpm-cmd mux4.0.in1
-linksp sp-mtr-mesh-rpm-cmd mux4.0.in2
-linksp sp-mtr-mesh-rpm-cmd mux4.0.in3
-linksp sp-in-low-gear mux4.0.sel0
-linksp sp-shifting mux4.0.sel1
+net sp-mtr-high-rpm-cmd mux4.0.in0
+net sp-mtr-low-rpm-cmd mux4.0.in1
+net sp-mtr-mesh-rpm-cmd mux4.0.in2
+net sp-mtr-mesh-rpm-cmd mux4.0.in3
+net sp-in-low-gear mux4.0.sel0
+net sp-shifting mux4.0.sel1
 # output of mux is desired motor RPM
-linksp sp-mtr-rpm-cmd mux4.0.out
+net sp-mtr-rpm-cmd mux4.0.out
 # set meshing speed
 sets sp-mtr-mesh-rpm-cmd 15
 
 # link the final motor command to the DAC
-linksp sp-mtr-rpm-cmd motenc.3.dac-03-value
+net sp-mtr-rpm-cmd motenc.3.dac-03-value
 # set scaling - 10V = 4500RPM at the motor
 setp motenc.3.dac-03-gain -0.002222
 # correct for offset, it causes drift and hunting
 setp motenc.3.dac-03-offset -8
 
 # connect other signals to drive
-linksp spindle-ready motenc.3.in-15
-linksp spindle-drive-run motenc.3.out-03
-linksp sp-at-speed motenc.3.in-11
-linksp spindle-amps motenc.3.adc-03-value
+net spindle-ready motenc.3.in-15
+net spindle-drive-run motenc.3.out-03
+net sp-at-speed motenc.3.in-11
+net spindle-amps motenc.3.adc-03-value
 
 # connect signals to gearbox controls
 # need to add a spindle run command
 # and a rotating speed I think
-linksp sp-engage-high-gear ax5214h.0.out-21
-linksp sp-engage-low-gear ax5214h.0.out-20
-linksp sp-in-high-gear ax5214h.0.in-34
-linksp sp-in-neutral ax5214h.0.in-35
-linksp sp-in-low-gear ax5214h.0.in-36
+net sp-engage-high-gear ax5214h.0.out-21
+net sp-engage-low-gear ax5214h.0.out-20
+net sp-in-high-gear ax5214h.0.in-34
+net sp-in-neutral ax5214h.0.in-35
+net sp-in-low-gear ax5214h.0.in-36
 
 # use scale block to convert spindle position in degrees
 # to revolutions for rigid tapping
-linksp sp-enc-pos scale.2.in
-linksp sp-pos-revs scale.2.out
+net sp-enc-pos scale.2.in
+net sp-pos-revs scale.2.out
 setp scale.2.gain 0.002777777777777
-linksp sp-pos-revs motion.spindle-revs
+net sp-pos-revs motion.spindle-revs
 
 # rayh begins to screw it up with help from his friends
 # connect iocontrol signals for spindle run and speed
 # these work as long as a spindle command is being output.
-linksp spindle-run-request motion.spindle-on
-linksp spindle-rpm-cmd motion.spindle-speed-out
+net spindle-run-request motion.spindle-on
+net spindle-rpm-cmd motion.spindle-speed-out
 
 # end of spindle control
 
@@ -415,57 +372,37 @@ linksp spindle-rpm-cmd motion.spindle-speed-out
 # it also exports iocontrol.0.tool-number, which is the current tool
 # in the spindle and is used when its time to return that tool to
 # the tool magazine
-newsig tool-prepare bit
-linksp tool-prepare iocontrol.0.tool-prepare
-newsig tool-prepared bit
-linksp tool-prepared iocontrol.0.tool-prepared
-newsig tool-change bit
-linksp tool-change iocontrol.0.tool-change
-newsig tool-changed bit
-linksp tool-changed iocontrol.0.tool-changed
-newsig tool-requested-number s32
-linksp tool-requested-number iocontrol.0.tool-prep-number
-newsig tool-current-number s32
-linksp tool-current-number iocontrol.0.tool-number
+net tool-prepare iocontrol.0.tool-prepare
+net tool-prepared iocontrol.0.tool-prepared
+net tool-change iocontrol.0.tool-change
+net tool-changed iocontrol.0.tool-changed
+net tool-requested-number iocontrol.0.tool-prep-number
+net tool-current-number iocontrol.0.tool-number
 
 # misc control
 # tool change location push button operators
-newsig magazine-index-pbs bit
-linksp magazine-index-pbs ax5214h.0.in-07
-newsig worklight-pbs bit
-linksp worklight-pbs ax5214h.0.in-08
-newsig tool-load-pbs bit
-linksp tool-load-pbs ax5214h.0.in-09
-newsig tool-unload-pbs bit
-linksp tool-unload-pbs ax5214h.0.in-10
+net magazine-index-pbs ax5214h.0.in-07
+net worklight-pbs ax5214h.0.in-08
+net tool-load-pbs ax5214h.0.in-09
+net tool-unload-pbs ax5214h.0.in-10
 
 # add front panel buttons here
-newsig tool-unclamp-pbs bit
-linksp tool-unclamp-pbs ax5214h.0.in-39
-newsig feed-hold-pbs bit
-linksp feed-hold-pbs ax5214h.0.in-14
-newsig cycle-start-pbs bit
-linksp cycle-start-pbs ax5214h.0.in-25
+net tool-unclamp-pbs ax5214h.0.in-39
+net feed-hold-pbs ax5214h.0.in-14
+net cycle-start-pbs ax5214h.0.in-25
 
 # hydraulic pump
-newsig hydraulic-pump-run bit
-linksp hydraulic-pump-run motenc.3.out-14
-newsig hydraulic-pump-running bit
-linksp hydraulic-pump-running ax5214h.0.in-05
+net hydraulic-pump-run motenc.3.out-14
+net hydraulic-pump-running ax5214h.0.in-05
 
 # hydraulic actuator prox switches
 # tool load-unload arm
-newsig tool-unloaded bit
-linksp tool-unloaded ax5214h.0.in-38
-newsig tool-loaded bit
-linksp tool-loaded ax5214h.0.in-15
+net tool-unloaded ax5214h.0.in-38
+net tool-loaded ax5214h.0.in-15
 
 # double or intermediate arm
-newsig arm-retracted bit
-linksp arm-retracted ax5214h.0.in-29
-newsig arm-extended bit
-linksp arm-extended ax5214h.0.in-30
-newsig arm-at-0/180 bit
+net arm-retracted ax5214h.0.in-29
+net arm-extended ax5214h.0.in-30
 # FIXME!!  This sensor is broken, so we are using a delay
 # instead - 2 seconds after the cylinder is actuated, we
 # assume that we have reached the desired position and 
@@ -474,154 +411,111 @@ newsig arm-at-0/180 bit
 # driven by classicladder output number 27 (see ladder
 # section near end of file).
 #linksp arm-at-0/180 ax5214h.0.in-26
-newsig arm-at-0/60 bit
-linksp arm-at-0/60 ax5214h.0.in-27
-newsig arm-at-60 bit
-linksp arm-at-60 ax5214h.0.in-28
-newsig arm-at-180 bit
-linksp arm-at-180 ax5214h.0.in-31
+net arm-at-0/60 ax5214h.0.in-27
+net arm-at-60 ax5214h.0.in-28
+net arm-at-180 ax5214h.0.in-31
 
 # tool drawbar
-newsig tool-clamped bit
-linksp tool-clamped ax5214h.0.in-33
-newsig tool-unclamped bit
-linksp tool-unclamped ax5214h.0.in-32
+net tool-clamped ax5214h.0.in-33
+net tool-unclamped ax5214h.0.in-32
 
 # tool magazine or carousel with 0-24 positions
-newsig magazine-in-position bit
-linksp magazine-in-position ax5214h.0.in-37
-newsig magazine-not-in-position bit
-linksp magazine-not-in-position ax5214h.0.in-37-not
-linksp magazine-not-in-position wsum.0.hold
-newsig magazine-position-0 bit
-linksp magazine-position-0 ax5214h.0.in-00
-linksp magazine-position-0 wsum.0.bit.0.in
-newsig magazine-position-1 bit
-linksp magazine-position-1 ax5214h.0.in-01
-linksp magazine-position-1 wsum.0.bit.1.in
-newsig magazine-position-2 bit
-linksp magazine-position-2 ax5214h.0.in-02
-linksp magazine-position-2 wsum.0.bit.2.in
-newsig magazine-position-3 bit
-linksp magazine-position-3 ax5214h.0.in-03
-linksp magazine-position-3 wsum.0.bit.3.in
-newsig magazine-position-4 bit
-linksp magazine-position-4 ax5214h.0.in-04
-linksp magazine-position-4 wsum.0.bit.4.in
+net magazine-in-position ax5214h.0.in-37
+net magazine-not-in-position ax5214h.0.in-37-not
+net magazine-not-in-position wsum.0.hold
+net magazine-position-0 ax5214h.0.in-00
+net magazine-position-0 wsum.0.bit.0.in
+net magazine-position-1 ax5214h.0.in-01
+net magazine-position-1 wsum.0.bit.1.in
+net magazine-position-2 ax5214h.0.in-02
+net magazine-position-2 wsum.0.bit.2.in
+net magazine-position-3 ax5214h.0.in-03
+net magazine-position-3 wsum.0.bit.3.in
+net magazine-position-4 ax5214h.0.in-04
+net magazine-position-4 wsum.0.bit.4.in
 # set the bit weight for bit 4 to 13 instead of the default 16
 setp wsum.0.bit.4.weight 13
 # add a signal for magazine position
-newsig magazine-position s32
-linksp magazine-position wsum.0.sum
+net magazine-position wsum.0.sum
 # add a temporary signal to rotate by one.
-newsig forward-one bit
 
 # hydraulic valves
-newsig arm-extend bit
-linksp arm-extend ax5214h.0.out-47
-newsig arm-retract bit
-linksp arm-retract ax5214h.0.out-46
-newsig arm-60cw bit
-linksp arm-60cw ax5214h.0.out-45
-newsig arm-180ccw bit
-linksp arm-180ccw ax5214h.0.out-44
-newsig tool-load bit
-linksp tool-load ax5214h.0.out-43
-newsig tool-unload bit
-linksp tool-unload ax5214h.0.out-42
-newsig magazine-forward bit
-linksp magazine-forward ax5214h.0.out-41
-newsig magazine-reverse bit
-linksp magazine-reverse ax5214h.0.out-40
-newsig tool-unclamp bit
-linksp tool-unclamp ax5214h.0.out-23
-newsig head-unclamp bit
-linksp head-unclamp ax5214h.0.out-22
+net arm-extend ax5214h.0.out-47
+net arm-retract ax5214h.0.out-46
+net arm-60cw ax5214h.0.out-45
+net arm-180ccw ax5214h.0.out-44
+net tool-load ax5214h.0.out-43
+net tool-unload ax5214h.0.out-42
+net magazine-forward ax5214h.0.out-41
+net magazine-reverse ax5214h.0.out-40
+net tool-unclamp ax5214h.0.out-23
+net head-unclamp ax5214h.0.out-22
 
 # other solenoids and such
-newsig spindle-air-blast bit
-linksp spindle-air-blast ax5214h.0.out-19
-newsig work-air-blast bit
-linksp work-air-blast ax5214h.0.out-18
-newsig mist-coolant bit
-linksp mist-coolant ax5214h.0.out-17
+net spindle-air-blast ax5214h.0.out-19
+net work-air-blast ax5214h.0.out-18
+net mist-coolant ax5214h.0.out-17
 
 net coolant-flood iocontrol.0.coolant-flood ax5214h.0.out-16
 
 # magazine indexing
-linksp magazine-position mod-dir.0.actual
-linksp tool-requested-number mod-dir.0.desired
-newsig tool-requested-match bit
-linksp tool-requested-match mod-dir.0.on-target
+net magazine-position mod-dir.0.actual
+net tool-requested-number mod-dir.0.desired
+net tool-requested-match mod-dir.0.on-target
 
-linksp magazine-position mod-dir.1.actual
-linksp tool-current-number mod-dir.1.desired
-newsig tool-current-match bit
-linksp tool-current-match mod-dir.1.on-target
+net magazine-position mod-dir.1.actual
+net tool-current-number mod-dir.1.desired
+net tool-current-match mod-dir.1.on-target
 
 setp mod-dir.0.max-num [EMCIO]TOOL_TURRET_MAX
 setp mod-dir.0.wrap [EMCIO]TOOL_TURRET_WRAP
 setp mod-dir.1.max-num [EMCIO]TOOL_TURRET_MAX
 setp mod-dir.1.wrap [EMCIO]TOOL_TURRET_WRAP
 # direction to move to fetch new tool
-newsig magazine-fwd-req-fetch bit
-newsig magazine-rev-req-fetch bit
-linksp magazine-fwd-req-fetch mod-dir.0.up
-linksp magazine-rev-req-fetch mod-dir.0.down
+net magazine-fwd-req-fetch mod-dir.0.up
+net magazine-rev-req-fetch mod-dir.0.down
 # direction to move to store previous tool
-newsig magazine-fwd-req-store bit
-newsig magazine-rev-req-store bit
-linksp magazine-fwd-req-store mod-dir.1.up
-linksp magazine-rev-req-store mod-dir.1.down
+net magazine-fwd-req-store mod-dir.1.up
+net magazine-rev-req-store mod-dir.1.down
 
 # set encoder latch enable TRUE so encoder count "wraps" during toolchanges
 # and resets under motion controller command for rigid tapping
-linksp sp-index-enable motenc.3.enc-03-index-enable
-linksp sp-index-enable tristate-bit.0.out
+net sp-index-enable motenc.3.enc-03-index-enable
+net sp-index-enable tristate-bit.0.out
 setp tristate-bit.0.in 1
-linksp tool-change tristate-bit.0.enable
-linksp sp-index-enable motion.spindle-index-enable
+net tool-change tristate-bit.0.enable
+net sp-index-enable motion.spindle-index-enable
 
 # jogwheel signals
 setp encoder.0.x4-mode 0
-newsig jogwheel-phA bit
-newsig jogwheel-phB bit
-linksp jogwheel-phA parport.0.pin-12-in
-linksp jogwheel-phB parport.0.pin-11-in
+net jogwheel-phA parport.0.pin-12-in
+net jogwheel-phB parport.0.pin-11-in
 # route signals to software encoder counter
-linksp jogwheel-phA encoder.0.phase-A
+net jogwheel-phA encoder.0.phase-A
 
-linksp jogwheel-phB encoder.0.phase-B
+net jogwheel-phB encoder.0.phase-B
 # jogwheel output
-newsig jogwheel-counts s32
-linksp jogwheel-counts encoder.0.counts
+net jogwheel-counts encoder.0.counts
 # need to release the Z-axis brake when running
-linksp Z-amp-running motenc.3.out-15
+net Z-amp-running motenc.3.out-15
 
 # feedhold, uses G50 adaptive feed input
-newsig zero float
 sets zero 0.0
-newsig one float
 sets one 1.0
-newsig adaptive-feed float
-linksp adaptive-feed mux2.1.out
-linksp adaptive-feed motion.adaptive-feed
-linksp zero mux2.1.in1
-linksp one mux2.1.in0
-newsig feed-hold bit
-linksp feed-hold mux2.1.sel
+net adaptive-feed mux2.1.out
+net adaptive-feed motion.adaptive-feed
+net zero mux2.1.in1
+net one mux2.1.in0
+net feed-hold mux2.1.sel
 
 
 # -----------------------------------------------------
 # encoders - signals and scaling
 #
 # position in counts
-newsig X-enc-counts s32
-newsig Y-enc-counts s32
-newsig Z-enc-counts s32
-linksp X-enc-counts motenc.3.enc-00-count
-linksp Y-enc-counts motenc.3.enc-01-count
-linksp Z-enc-counts motenc.3.enc-02-count
+net X-enc-counts motenc.3.enc-00-count
+net Y-enc-counts motenc.3.enc-01-count
+net Z-enc-counts motenc.3.enc-02-count
 
 # scaling to get inches (scale comes from ini file)
 setp motenc.3.enc-00-scale [AXIS_0]INPUT_SCALE
@@ -629,12 +523,9 @@ setp motenc.3.enc-01-scale [AXIS_1]INPUT_SCALE
 setp motenc.3.enc-02-scale [AXIS_2]INPUT_SCALE
 
 # position in inches
-newsig X-enc-pos float
-newsig Y-enc-pos float
-newsig Z-enc-pos float
-linksp X-enc-pos motenc.3.enc-00-position
-linksp Y-enc-pos motenc.3.enc-01-position
-linksp Z-enc-pos motenc.3.enc-02-position
+net X-enc-pos motenc.3.enc-00-position
+net Y-enc-pos motenc.3.enc-01-position
+net Z-enc-pos motenc.3.enc-02-position
 
 # index pulses
 net X-index-enable motenc.3.enc-00-index-enable joint.0.index-enable
@@ -644,12 +535,9 @@ net Z-index-enable motenc.3.enc-02-index-enable joint.2.index-enable
 # -----------------------------------------------------
 # DACs - output to servo amps
 #
-newsig X-volts float
-newsig Y-volts float
-newsig Z-volts float
-linksp X-volts motenc.3.dac-00-value
-linksp Y-volts motenc.3.dac-01-value
-linksp Z-volts motenc.3.dac-02-value
+net X-volts motenc.3.dac-00-value
+net Y-volts motenc.3.dac-01-value
+net Z-volts motenc.3.dac-02-value
 # get scale and offset from the ini file
 setp motenc.3.dac-00-gain [AXIS_0]OUTPUT_SCALE
 setp motenc.3.dac-01-gain [AXIS_1]OUTPUT_SCALE
@@ -661,12 +549,9 @@ setp motenc.3.dac-02-offset [AXIS_2]OUTPUT_OFFSET
 # -----------------------------------------------------
 # ADCs - servo amp current feedback
 #
-newsig X-amps float
-newsig Y-amps float
-newsig Z-amps float
-linksp X-amps motenc.3.adc-00-value
-linksp Y-amps motenc.3.adc-01-value
-linksp Z-amps motenc.3.adc-02-value
+net X-amps motenc.3.adc-00-value
+net Y-amps motenc.3.adc-01-value
+net Z-amps motenc.3.adc-02-value
 # set scale and offset (need to calibrate this)
 setp motenc.3.adc-00-gain 1.0
 setp motenc.3.adc-01-gain 1.0
@@ -680,39 +565,36 @@ setp motenc.3.adc-02-offset 0.0
 #
 
 # signals for position command
-newsig X-pos-cmd float
-newsig Y-pos-cmd float
-newsig Z-pos-cmd float
 # hook the motion controller outputs to the position command
-linksp X-pos-cmd joint.0.motor-pos-cmd
-linksp Y-pos-cmd joint.1.motor-pos-cmd
-linksp Z-pos-cmd joint.2.motor-pos-cmd
+net X-pos-cmd joint.0.motor-pos-cmd
+net Y-pos-cmd joint.1.motor-pos-cmd
+net Z-pos-cmd joint.2.motor-pos-cmd
 # and to the PID inputs
-linksp X-pos-cmd pid.0.command
-linksp Y-pos-cmd pid.1.command
-linksp Z-pos-cmd pid.2.command
+net X-pos-cmd pid.0.command
+net Y-pos-cmd pid.1.command
+net Z-pos-cmd pid.2.command
 
 # hook encoders to PID feedback
-linksp X-enc-pos pid.0.feedback
-linksp Y-enc-pos pid.1.feedback
-linksp Z-enc-pos pid.2.feedback
+net X-enc-pos pid.0.feedback
+net Y-enc-pos pid.1.feedback
+net Z-enc-pos pid.2.feedback
 # and to motion controller
-linksp X-enc-pos joint.0.motor-pos-fb
-linksp Y-enc-pos joint.1.motor-pos-fb
-linksp Z-enc-pos joint.2.motor-pos-fb
+net X-enc-pos joint.0.motor-pos-fb
+net Y-enc-pos joint.1.motor-pos-fb
+net Z-enc-pos joint.2.motor-pos-fb
 
 # hook PID outputs to DACs
-linksp X-volts pid.0.output
-linksp Y-volts pid.1.output
-linksp Z-volts pid.2.output
+net X-volts pid.0.output
+net Y-volts pid.1.output
+net Z-volts pid.2.output
 
 # use 'servo-enable' to enable PID blocks
 # need to release the Z-axis brake when running
-linksp Z-amp-running motenc.3.out-15
+net Z-amp-running motenc.3.out-15
 
-linksp servo-enable pid.0.enable
-linksp servo-enable pid.1.enable
-linksp servo-enable pid.2.enable
+net servo-enable pid.0.enable
+net servo-enable pid.1.enable
+net servo-enable pid.2.enable
 
 # get tuning params from ini file
 setp pid.0.deadband [AXIS_0]DEADBAND
@@ -751,95 +633,95 @@ setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
 # INPUTS to CL
 # I0 = the GUI estop "button" isn't pressed
-linkps classicladder.0.in-00 gui-estop-ok
+net gui-estop-ok classicladder.0.in-00
 # I1 = servo-enable, used to mask amp faults when not enabled
-linkps classicladder.0.in-01 servo-enable
+net servo-enable classicladder.0.in-01
 # I2 thru I4, amp running signal (FALSE when faulted OR disabled)
-linkps classicladder.0.in-02 X-amp-running
-linkps classicladder.0.in-03 Y-amp-running
-linkps classicladder.0.in-04 Z-amp-running
-linkps classicladder.0.in-05 spindle-use-low-gear
-linkps classicladder.0.in-06 sp-in-low-gear
-linkps classicladder.0.in-07 sp-in-high-gear
-linkps classicladder.0.in-08 sp-in-neutral
-linkps classicladder.0.in-09 sp-at-speed
-linkps classicladder.0.in-10 hydraulic-pump-running
-linkps classicladder.0.in-11 magazine-in-position
-linkps classicladder.0.in-12 magazine-index-pbs
-linkps classicladder.0.in-13 tool-load-pbs
-linkps classicladder.0.in-14 tool-loaded
-linkps classicladder.0.in-15 tool-unload-pbs
-linkps classicladder.0.in-16 tool-unloaded
-linkps classicladder.0.in-17 tool-unclamp-pbs
+net X-amp-running classicladder.0.in-02
+net Y-amp-running classicladder.0.in-03
+net Z-amp-running classicladder.0.in-04
+net spindle-use-low-gear classicladder.0.in-05
+net sp-in-low-gear classicladder.0.in-06
+net sp-in-high-gear classicladder.0.in-07
+net sp-in-neutral classicladder.0.in-08
+net sp-at-speed classicladder.0.in-09
+net hydraulic-pump-running classicladder.0.in-10
+net magazine-in-position classicladder.0.in-11
+net magazine-index-pbs classicladder.0.in-12
+net tool-load-pbs classicladder.0.in-13
+net tool-loaded classicladder.0.in-14
+net tool-unload-pbs classicladder.0.in-15
+net tool-unloaded classicladder.0.in-16
+net tool-unclamp-pbs classicladder.0.in-17
 # based on difference between current position and
 # the slot for the tool currently in the spindle
-linkps classicladder.0.in-18 magazine-fwd-req-store
-linkps classicladder.0.in-19 magazine-rev-req-store
+net magazine-fwd-req-store classicladder.0.in-18
+net magazine-rev-req-store classicladder.0.in-19
 # I20 = means the external estop chain is OK
-linkps classicladder.0.in-20 external-estop-ok
+net external-estop-ok classicladder.0.in-20
 # I21 = estop-reset, pulsed to reset the estop relay
-linkps classicladder.0.in-21 estop-reset
-linkps classicladder.0.in-22 feed-hold-pbs
-linkps classicladder.0.in-23 spindle-run-request
-linkps classicladder.0.in-24 sp-orient-pos-ok
-linkps classicladder.0.in-25 tool-requested-match
-linkps classicladder.0.in-26 tool-prepare
+net estop-reset classicladder.0.in-21
+net feed-hold-pbs classicladder.0.in-22
+net spindle-run-request classicladder.0.in-23
+net sp-orient-pos-ok classicladder.0.in-24
+net tool-requested-match classicladder.0.in-25
+net tool-prepare classicladder.0.in-26
 # based on difference between current position and EMC
 # requested position (from a T block)
-linkps classicladder.0.in-27 magazine-fwd-req-fetch
-linkps classicladder.0.in-28 magazine-rev-req-fetch
+net magazine-fwd-req-fetch classicladder.0.in-27
+net magazine-rev-req-fetch classicladder.0.in-28
 # tool changer proxes
-linkps classicladder.0.in-29 arm-at-0/180
-linkps classicladder.0.in-30 arm-at-0/60
-linkps classicladder.0.in-31 arm-at-180
-linkps classicladder.0.in-32 arm-at-60
-linkps classicladder.0.in-33 arm-extended
-linkps classicladder.0.in-34 arm-retracted
-linkps classicladder.0.in-35 tool-change
-linkps classicladder.0.in-36 tool-clamped
-linkps classicladder.0.in-37 tool-unclamped
-linkps classicladder.0.in-38 tool-current-match
+net arm-at-0/180 classicladder.0.in-29
+net arm-at-0/60 classicladder.0.in-30
+net arm-at-180 classicladder.0.in-31
+net arm-at-60 classicladder.0.in-32
+net arm-extended classicladder.0.in-33
+net arm-retracted classicladder.0.in-34
+net tool-change classicladder.0.in-35
+net tool-clamped classicladder.0.in-36
+net tool-unclamped classicladder.0.in-37
+net tool-current-match classicladder.0.in-38
 
 
 
 # OUTPUTS from CL
 # Q0 = AP1, first stage power up (applies power thru resistors)
-linkps classicladder.0.out-00 AP1
+net AP1 classicladder.0.out-00
 # Q1 = AP2, second stage (bypasses resistors)
-linkps classicladder.0.out-01 AP2
+net AP2 classicladder.0.out-01
 # Q2 thru Q4, amp faulted signal (ENABLED and NOT RUNNING)
-linkps classicladder.0.out-02 X-amp-fault
-linkps classicladder.0.out-03 Y-amp-fault
-linkps classicladder.0.out-04 Z-amp-fault
+net X-amp-fault classicladder.0.out-02
+net Y-amp-fault classicladder.0.out-03
+net Z-amp-fault classicladder.0.out-04
 # Q5 is motion enable (after chain)
-linkps classicladder.0.out-05 motion-enable
+net motion-enable classicladder.0.out-05
 # Q6 and 7 are the gear shift outputs
-linkps classicladder.0.out-06 sp-engage-low-gear
-linkps classicladder.0.out-07 sp-engage-high-gear
+net sp-engage-low-gear classicladder.0.out-06
+net sp-engage-high-gear classicladder.0.out-07
 # Q8 indicates that a shift is in progress
-linkps classicladder.0.out-08 sp-shifting
-linkps classicladder.0.out-09 hydraulic-pump-run
-linkps classicladder.0.out-10 magazine-forward
-linkps classicladder.0.out-11 magazine-reverse
-linkps classicladder.0.out-12 tool-load
-linkps classicladder.0.out-13 tool-unload
-linkps classicladder.0.out-14 arm-extend
-linkps classicladder.0.out-15 arm-retract
-linkps classicladder.0.out-16 arm-60cw
-linkps classicladder.0.out-17 arm-180ccw
-linkps classicladder.0.out-18 tool-unclamp
-linkps classicladder.0.out-19 head-unclamp
-linkps classicladder.0.out-20 tool-prepared
-linkps classicladder.0.out-21 tool-changed
+net sp-shifting classicladder.0.out-08
+net hydraulic-pump-run classicladder.0.out-09
+net magazine-forward classicladder.0.out-10
+net magazine-reverse classicladder.0.out-11
+net tool-load classicladder.0.out-12
+net tool-unload classicladder.0.out-13
+net arm-extend classicladder.0.out-14
+net arm-retract classicladder.0.out-15
+net arm-60cw classicladder.0.out-16
+net arm-180ccw classicladder.0.out-17
+net tool-unclamp classicladder.0.out-18
+net head-unclamp classicladder.0.out-19
+net tool-prepared classicladder.0.out-20
+net tool-changed classicladder.0.out-21
 # Q22 indicates that the estop ladder rung (latch) is ok
-linkps classicladder.0.out-22 main-estop-ok
-linkps classicladder.0.out-23 spindle-drive-run
-linkps classicladder.0.out-24 spindle-at-speed
-linkps classicladder.0.out-25 spindle-oriented
-linkps classicladder.0.out-26 feed-hold
+net main-estop-ok classicladder.0.out-22
+net spindle-drive-run classicladder.0.out-23
+net spindle-at-speed classicladder.0.out-24
+net spindle-oriented classicladder.0.out-25
+net feed-hold classicladder.0.out-26
 # FIXME! this is a temporary replacement for a bad sensor
-linkps classicladder.0.out-27 arm-at-0/180
-linkps classicladder.0.out-28 spindle-do-orient
+net arm-at-0/180 classicladder.0.out-27
+net spindle-do-orient classicladder.0.out-28
 
 # CL internals (not HAL data, just here for documentation
 #

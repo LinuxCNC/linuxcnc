@@ -33,7 +33,7 @@ class RCS_SEMAPHORE {
        the semaphore and you must specify which process is responsible for
        creating the semaphore. Surround accesses to the shared resource with */
   public:
-    RCS_SEMAPHORE(unsigned long int id, int oflag, double _timeout, int mode =
+    RCS_SEMAPHORE(key_t id, int oflag, double _timeout, int mode =
 	DEFAULT_SEM_MODE, int state = 0);
     /* Initializes an RCS_SEMAPHORE object. If _oflag equals
        RCS_SEMAPHORE_CREATE a semaphore is created. If _oflag equals

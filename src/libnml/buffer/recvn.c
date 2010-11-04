@@ -74,7 +74,8 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	}
 	if (*bytes_read_ptr < 0) {
 	    rcs_print_error
-		("recvn: Invalid parameter -- (*bytes_read_ptr = %d) must be greater than or equal to zero.\n");
+		("recvn: Invalid parameter -- (*bytes_read_ptr = %d) must be greater than or equal to zero.\n",
+                *bytes_read_ptr);
 	    return -1;
 	}
 	ptr += *bytes_read_ptr;

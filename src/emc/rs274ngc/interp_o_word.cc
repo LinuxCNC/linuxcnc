@@ -101,7 +101,7 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   if(control_find_oword(block, settings, &index) == INTERP_OK)
   {
       // already exists
-      ERS("File:%s line:%d redefining sub: o|%s| already defined in file:%s",
+      ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
                settings->filename, settings->sequence_number,
 	       block->o_name,
                settings->oword_offset[index].filename);

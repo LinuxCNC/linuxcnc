@@ -19,72 +19,54 @@ addf ddt.7 servo-thread
 addf ddt.8 servo-thread
 
 # create HAL signals for position commands from motion module
-newsig J0pos float
-linksp J0pos <= joint.0.motor-pos-cmd
-newsig J1pos float
-linksp J1pos <= joint.1.motor-pos-cmd
-newsig J2pos float
-linksp J2pos <= joint.2.motor-pos-cmd
-newsig J3pos float
-linksp J3pos <= joint.3.motor-pos-cmd
-newsig J4pos float
-linksp J4pos <= joint.4.motor-pos-cmd
-newsig J5pos float
-linksp J5pos <= joint.5.motor-pos-cmd
+net J0pos <= joint.0.motor-pos-cmd
+net J1pos <= joint.1.motor-pos-cmd
+net J2pos <= joint.2.motor-pos-cmd
+net J3pos <= joint.3.motor-pos-cmd
+net J4pos <= joint.4.motor-pos-cmd
+net J5pos <= joint.5.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-linksp J0pos => joint.0.motor-pos-fb
-linksp J1pos => joint.1.motor-pos-fb
-linksp J2pos => joint.2.motor-pos-fb
-linksp J3pos => joint.3.motor-pos-fb
-linksp J4pos => joint.4.motor-pos-fb
-linksp J5pos => joint.5.motor-pos-fb
+net J0pos => joint.0.motor-pos-fb
+net J1pos => joint.1.motor-pos-fb
+net J2pos => joint.2.motor-pos-fb
+net J3pos => joint.3.motor-pos-fb
+net J4pos => joint.4.motor-pos-fb
+net J5pos => joint.5.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 # define the signals, and hook them up
-newsig J0vel float
-newsig J0acc float
-linksp J0pos => ddt.0.in
-linkps ddt.0.out => J0vel
-linksp J0vel => ddt.1.in
-linkps ddt.1.out => J0acc
+net J0pos => ddt.0.in
+net J0vel <= ddt.0.out
+net J0vel => ddt.1.in
+net J0acc <= ddt.1.out
 
-newsig J1vel float
-newsig J1acc float
-linksp J1pos => ddt.2.in
-linkps ddt.2.out => J1vel
-linksp J1vel => ddt.3.in
-linkps ddt.3.out => J1acc
+net J1pos => ddt.2.in
+net J1vel <= ddt.2.out
+net J1vel => ddt.3.in
+net J1acc <= ddt.3.out
 
-newsig J2vel float
-newsig J2acc float
-linksp J2pos => ddt.4.in
-linkps ddt.4.out => J2vel
-linksp J2vel => ddt.5.in
-linkps ddt.5.out => J2acc
+net J2pos => ddt.4.in
+net J2vel <= ddt.4.out
+net J2vel => ddt.5.in
+net J2acc <= ddt.5.out
 
-newsig J3vel float
-newsig J3acc float
-linksp J3pos => ddt.6.in
-linkps ddt.6.out => J3vel
-linksp J3vel => ddt.7.in
-linkps ddt.7.out => J3acc
+net J3pos => ddt.6.in
+net J3vel <= ddt.6.out
+net J3vel => ddt.7.in
+net J3acc <= ddt.7.out
 
-newsig J4vel float
-newsig J4acc float
-linksp J4pos => ddt.8.in
-linkps ddt.8.out => J4vel
-linksp J4vel => ddt.9.in
-linkps ddt.9.out => J4acc
+net J4pos => ddt.8.in
+net J4vel <= ddt.8.out
+net J4vel => ddt.9.in
+net J4acc <= ddt.9.out
 
-newsig J5vel float
-newsig J5acc float
-linksp J5pos => ddt.10.in
-linkps ddt.10.out => J5vel
-linksp J5vel => ddt.11.in
-linkps ddt.11.out => J5acc
+net J5pos => ddt.10.in
+net J5vel <= ddt.10.out
+net J5vel => ddt.11.in
+net J5acc <= ddt.11.out
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -94,31 +76,19 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # amp control
-newsig xena bit
-linksp xena joint.0.amp-enable-out
-newsig yena bit
-linksp yena joint.1.amp-enable-out
-newsig zena bit
-linksp zena joint.2.amp-enable-out
-newsig aena bit
-linksp aena joint.3.amp-enable-out
-newsig bena bit
-linksp bena joint.4.amp-enable-out
-newsig cena bit
-linksp cena joint.5.amp-enable-out
+net xena joint.0.amp-enable-out
+net yena joint.1.amp-enable-out
+net zena joint.2.amp-enable-out
+net aena joint.3.amp-enable-out
+net bena joint.4.amp-enable-out
+net cena joint.5.amp-enable-out
 
-newsig xflt bit
-linksp xflt joint.0.amp-fault-in
-newsig yflt bit
-linksp yflt joint.1.amp-fault-in
-newsig zflt bit
-linksp zflt joint.2.amp-fault-in
-newsig aflt bit
-linksp aflt joint.3.amp-fault-in
-newsig bflt bit
-linksp bflt joint.4.amp-fault-in
-newsig cflt bit
-linksp cflt joint.5.amp-fault-in
+net xflt joint.0.amp-fault-in
+net yflt joint.1.amp-fault-in
+net zflt joint.2.amp-fault-in
+net aflt joint.3.amp-fault-in
+net bflt joint.4.amp-fault-in
+net cflt joint.5.amp-fault-in
 
 loadusr -W pumagui
 
@@ -131,12 +101,12 @@ addf scale.3 servo-thread
 addf scale.4 servo-thread
 addf scale.5 servo-thread
 
-linksp J0pos scale.0.in
-linksp J1pos scale.1.in
-linksp J2pos scale.2.in
-linksp J3pos scale.3.in
-linksp J4pos scale.4.in
-linksp J5pos scale.5.in
+net J0pos scale.0.in
+net J1pos scale.1.in
+net J2pos scale.2.in
+net J3pos scale.3.in
+net J4pos scale.4.in
+net J5pos scale.5.in
 
 setp scale.0.gain 1
 setp scale.1.gain 1

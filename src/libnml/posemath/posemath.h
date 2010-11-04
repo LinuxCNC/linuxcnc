@@ -750,7 +750,7 @@ extern "C" {
 /* Bug fix for the missing circles problem */
 
 /* debug output printing */
-    extern void pmPrintError(const char *fmt, ...);
+    extern void pmPrintError(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 /* global error number and errors */
     extern int pmErrno;

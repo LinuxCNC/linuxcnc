@@ -1294,9 +1294,9 @@ static void get_pos_cmds(long period)
 	    /* just hit the limit */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0]) {
-                    reportError(_("joint %d exceed min soft limit"), joint_num);
+                    reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
                 } else if (joint_limit[joint_num][1]) {
-                    reportError(_("joint %d exceed max soft limit"), joint_num);
+                    reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
                 }
 	    }
 	    SET_MOTION_ERROR_FLAG(1);

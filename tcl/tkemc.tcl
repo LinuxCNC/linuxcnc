@@ -913,10 +913,10 @@ pack $settings1 -side top -anchor w
 set offsetlabel [label $settings1.offsetlabel -text [msgcat::mc "Work Offsets:"] -anchor w]
 set offsetsetting [label $settings1.offsetsetting -textvariable offsetsetting -width 80 -anchor w]
 
-pack $toollabel -side left -padx 1m
-pack $toolsetting -side left -padx 1m
-pack $tooloffsetlabel -side left -padx 1m
-pack $tooloffsetsetting -side left -padx 1m
+pack $toollabel -side left -padx 1m -pady .3m
+pack $toolsetting -side left -pady .3m
+pack $tooloffsetlabel -side left  -pady .3m
+pack $tooloffsetsetting -side left -pady .3m
 pack $offsetlabel -side left -padx 1m
 pack $offsetsetting -side left -padx 1m
 pack $unitlabel -side left -padx 1m
@@ -2327,18 +2327,15 @@ proc updateStatus {} {
     }
 
     # set the offset information
-    upvar #0 numaxes numaxes2
-    upvar #0 coordnames coordnames2
-    upvar #0 worldlabellist worldlabellist2
-    for {set i 0} {$i < $numaxes2} {incr i} {
-    if { [lsearch $coordnames2 [lindex $worldlabellist2 $i]] != -1 } {
-      set fstr [lindex $worldlabellist2 $i]
-      set spec "$fstr%.4f "
+    set offsetsetting [lsearch -inline [emc_program_codes] {G5[4-9]*}]
+    for {set i 0} {$i < $::numaxes} {incr i} {
+    if { [lsearch $::coordnames [lindex $::worldlabellist $i]] != -1 } {
+      set fstr [lindex $::worldlabellist $i]
+      set spec " $fstr%.4f"
       set args [emc_pos_offset $fstr]
-      append tempstring [format $spec $args]
+      append offsetsetting [format $spec $args]
       }
     }
-    set offsetsetting [string trim $tempstring]
 
     # set the unit information
     set unitsetting [emc_display_linear_units]

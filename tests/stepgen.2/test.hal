@@ -4,8 +4,8 @@ loadrt sampler cfg=bb depth=4096
 loadrt stepgen step_type=0
 loadrt threads name1=fast period1=100000
 
-linkpp stepgen.0.dir sampler.0.pin.0
-linkpp stepgen.0.step sampler.0.pin.1
+net n0 stepgen.0.dir sampler.0.pin.0
+net n1 stepgen.0.step sampler.0.pin.1
 
 addf stepgen.update-freq fast
 addf stepgen.make-pulses fast

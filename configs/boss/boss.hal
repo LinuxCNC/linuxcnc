@@ -138,14 +138,14 @@ net zPosFb motenc.0.enc-02-position => pid.2.feedback
 net aPosFb motenc.0.enc-00-position => pid.3.feedback
 
 # Connect position feedback to motion module.
-linksp xPosFb => joint.0.motor-pos-fb
-linksp yPosFb => joint.1.motor-pos-fb
-linksp zPosFb => joint.2.motor-pos-fb
-linksp aPosFb => joint.3.motor-pos-fb
+net xPosFb => joint.0.motor-pos-fb
+net yPosFb => joint.1.motor-pos-fb
+net zPosFb => joint.2.motor-pos-fb
+net aPosFb => joint.3.motor-pos-fb
 
 # Connect position feedback to PLC.
-linksp xPosFb => boss_plc.0.x-position-in
-linksp yPosFb => boss_plc.0.y-position-in
+net xPosFb => boss_plc.0.x-position-in
+net yPosFb => boss_plc.0.y-position-in
 
 # Connect index pulses to motion controller.
 net xIndex motenc.0.enc-01-index-enable <=> joint.0.index-enable
@@ -157,9 +157,9 @@ net aIndex motenc.0.enc-00-index-enable <=> joint.3.index-enable
 #
 # Connect limit/home switch inputs to PLC and motion controller.
 net xLimitSw motenc.0.in-09 => boss_plc.0.x-limit-in
-linksp xLimitSw => joint.0.home-sw-in
+net xLimitSw => joint.0.home-sw-in
 net yLimitSw motenc.0.in-13 => boss_plc.0.y-limit-in
-linksp yLimitSw => joint.1.home-sw-in
+net yLimitSw => joint.1.home-sw-in
 net zMinlimSw motenc.0.in-26 => boss_plc.0.z-limit-neg-in
 net zMaxlimSw motenc.0.in-25 => boss_plc.0.z-limit-pos-in
 net zHome motenc.0.in-27 => joint.2.home-sw-in
@@ -181,16 +181,16 @@ net zReady motenc.0.in-24 => boss_plc.0.z-amp-ready-in
 net aReady motenc.0.in-28 => boss_plc.0.a-amp-ready-in
 
 # Connect amp enables to I/O.
-linksp xEnable => motenc.0.out-00
-linksp yEnable => motenc.0.out-01
-linksp zEnable => motenc.0.out-08
-linksp aEnable => motenc.0.out-09
+net xEnable => motenc.0.out-00
+net yEnable => motenc.0.out-01
+net zEnable => motenc.0.out-08
+net aEnable => motenc.0.out-09
 
 # Connect amp enables to PLC.
-linksp xEnable => boss_plc.0.x-amp-enable-in
-linksp yEnable => boss_plc.0.y-amp-enable-in
-linksp zEnable => boss_plc.0.z-amp-enable-in
-linksp aEnable => boss_plc.0.a-amp-enable-in
+net xEnable => boss_plc.0.x-amp-enable-in
+net yEnable => boss_plc.0.y-amp-enable-in
+net zEnable => boss_plc.0.z-amp-enable-in
+net aEnable => boss_plc.0.a-amp-enable-in
 
 # Connect amp faults to motion controller.
 net xFault boss_plc.0.x-amp-fault-out => joint.0.amp-fault-in
@@ -290,9 +290,9 @@ net xJog motenc.0.in-40 => joint.0.jog-enable
 net yJog motenc.0.in-41 => joint.1.jog-enable
 net zJog motenc.0.in-42 => joint.2.jog-enable
 net aJog motenc.0.in-43 => joint.3.jog-enable
-linksp xJog => boss_plc.0.x-jog-en-in
-linksp yJog => boss_plc.0.y-jog-en-in
-linksp zJog => boss_plc.0.z-jog-en-in
+net xJog => boss_plc.0.x-jog-en-in
+net yJog => boss_plc.0.y-jog-en-in
+net zJog => boss_plc.0.z-jog-en-in
 
 # Connect jog wheel encoder.
 net jogCounts motenc.0.enc-05-count => joint.0.jog-counts joint.1.jog-counts joint.2.jog-counts joint.3.jog-counts

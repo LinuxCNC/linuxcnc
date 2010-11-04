@@ -167,7 +167,7 @@ int dbuf_get_double(dbuf_iter *di, double *i) {
 
 int dbuf_get_string(dbuf_iter *di, const char **s) {
     dbuf *d;
-    unsigned char *p, ch;
+    unsigned char *p, ch=0;
     int result;
 
     if(!di) return -EINVAL;

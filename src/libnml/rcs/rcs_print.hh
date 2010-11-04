@@ -48,21 +48,21 @@ extern "C" {
     /* Prints a message using the _fmt format string and the _va_args using
        the vprintf conventions. */
 
-    extern int rcs_print(const char *_fmt, ...);
+    extern int rcs_print(const char *_fmt, ...) __attribute__((format(printf,1,2)));
     /* 
        Prints a message using the _fmt format string and optional additional
        arguments using the printf conventions. */
 
-    extern int rcs_print_debug(long, const char *_fmt, ...);
+    extern int rcs_print_debug(long, const char *_fmt, ...) __attribute__((format(printf,2,3)));
     /* 
        Prints a message using the _fmt format string and optional additional
        arguments using the printf conventions if the corresponding flag to
        _flag_to_check is set. (See set_rcs_print_flag().) */
 #ifdef DO_NOT_USE_RCS_PRINT_ERROR_NEW
-    extern int rcs_print_error(const char *_fmt, ...);
+    extern int rcs_print_error(const char *_fmt, ...) __attribute__((format(printf,1,2)));
 #else
     extern int set_print_rcs_error_info(const char *file, int line);
-    extern int print_rcs_error_new(const char *_fmt, ...);
+    extern int print_rcs_error_new(const char *_fmt, ...) __attribute__((format(printf,1,2)));
 #define rcs_print_error set_print_rcs_error_info( __FILE__, __LINE__); print_rcs_error_new
 #endif
 
@@ -176,7 +176,7 @@ extern "C" {
        256 with excess nodes being deleted from the head. */
 
     extern RCS_PRINT_DESTINATION_TYPE get_rcs_print_destination(void);
-    extern int rcs_print_sys_error(int error_source, const char *_fmt, ...);
+    extern int rcs_print_sys_error(int error_source, const char *_fmt, ...) __attribute__((format(printf,2,3)));
 
 #ifdef __cplusplus
     enum RCS_PRINT_ERROR_SOURCE_TYPE {

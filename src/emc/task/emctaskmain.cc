@@ -382,6 +382,16 @@ int stepping = 0;
 int steppingWait = 0;
 static int steppedLine = 0;
 
+// Variables to handle MDI call interrupts
+// Depth of call level before interrupted MDI call
+static int mdi_execute_level = -1;
+// Schedule execute(0) command
+static int mdi_execute_next = 0;
+// Wait after interrupted command
+static int mdi_execute_wait = 0;
+// Side queue to store MDI commands
+static NML_INTERP_LIST mdi_execute_queue;
+
 /*
   checkInterpList(NML_INTERP_LIST *il, EMC_STAT *stat) takes a pointer
   to an interpreter list and a pointer to the EMC status, pops each NML
@@ -405,7 +415,7 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 	switch (cmd->type) {
 
 	case EMC_OPERATOR_ERROR_TYPE:
-	    emcOperatorError(operator_error_msg->id,
+	    emcOperatorError(operator_error_msg->id, "%s",
 			     operator_error_msg->error);
 	    break;
 
@@ -616,6 +626,50 @@ interpret_again:
 		}		// if interp len is less than max
 }
 
+static void mdi_execute_abort(void)
+{
+    // XXX: Reset needed?
+    if (mdi_execute_wait || mdi_execute_next)
+        emcTaskPlanReset();
+    mdi_execute_level = -1;
+    mdi_execute_wait = 0;
+    mdi_execute_next = 0;
+
+    mdi_execute_queue.clear();
+}
+
+static void mdi_execute_hook(void)
+{
+    if (mdi_execute_wait && emcTaskPlanIsWait()) {
+	// delay reading of next line until all is done
+	if (interp_list.len() == 0 &&
+	    emcTaskCommand == 0 &&
+	    emcStatus->task.execState ==
+	    EMC_TASK_EXEC_DONE) {
+	    emcTaskPlanClearWait();
+	    mdi_execute_wait = 0;
+	    mdi_execute_hook();
+	}
+	return;
+    }
+
+    if (mdi_execute_level < 0 && !mdi_execute_wait && mdi_execute_queue.len()) {
+	interp_list.append(mdi_execute_queue.get());
+	return;
+    }
+
+    if (!mdi_execute_next) return;
+
+    if (interp_list.len() > EMC_TASK_INTERP_MAX_LEN) return;
+
+    mdi_execute_next = 0;
+
+    EMC_TASK_PLAN_EXECUTE msg;
+    msg.command[0] = (char) 0xff;
+
+    interp_list.append(msg);
+}
+
 void readahead_waiting(void)
 {
 	// now handle call logic
@@ -654,7 +708,6 @@ void readahead_waiting(void)
 static int emcTaskPlan(void)
 {
     NMLTYPE type;
-    static char errstring[200];
     int retval = 0;
 
     // check for new command
@@ -870,9 +923,8 @@ static int emcTaskPlan(void)
 		// otherwise we can't handle it
 
 	    default:
-		sprintf(errstring, _("can't do that (%s) in manual mode"),
+		emcOperatorError(0, _("can't do that (%s) in manual mode"),
 			emc_symbol_lookup(type));
-		emcOperatorError(0, errstring);
 		retval = -1;
 		break;
 
@@ -967,11 +1019,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter idle"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1029,11 +1079,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter reading"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1113,11 +1161,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter paused"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1177,11 +1223,9 @@ static int emcTaskPlan(void)
 
 		    // otherwise we can't handle it
 		default:
-		    sprintf(errstring,
-			    _
+		    emcOperatorError(0, _
 			    ("can't do that (%s) in auto mode with the interpreter waiting"),
 			    emc_symbol_lookup(type));
-		    emcOperatorError(0, errstring);
 		    retval = -1;
 		    break;
 
@@ -1270,14 +1314,14 @@ static int emcTaskPlan(void)
 
 		// otherwise we can't handle it
 	    default:
-
-		sprintf(errstring, _("can't do that (%s) in MDI mode"),
+		emcOperatorError(0, _("can't do that (%s) in MDI mode"),
 			emc_symbol_lookup(type));
-		emcOperatorError(0, errstring);
+
 		retval = -1;
 		break;
 
 	    }			// switch (type) in ON, MDI
+	    mdi_execute_hook();
 
 	    break;		// case EMC_TASK_MODE_MDI
 
@@ -1417,7 +1461,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
-			    cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
 	return EMC_TASK_EXEC_ERROR;
 	break;
@@ -1459,17 +1503,17 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_OPERATOR_ERROR_TYPE:
 	retval = emcOperatorError(((EMC_OPERATOR_ERROR *) cmd)->id,
-				  ((EMC_OPERATOR_ERROR *) cmd)->error);
+				  "%s", ((EMC_OPERATOR_ERROR *) cmd)->error);
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
 	retval = emcOperatorText(((EMC_OPERATOR_TEXT *) cmd)->id,
-				 ((EMC_OPERATOR_TEXT *) cmd)->text);
+				 "%s", ((EMC_OPERATOR_TEXT *) cmd)->text);
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
 	retval = emcOperatorDisplay(((EMC_OPERATOR_DISPLAY *) cmd)->id,
-				    ((EMC_OPERATOR_DISPLAY *) cmd)->
+				    "%s", ((EMC_OPERATOR_DISPLAY *) cmd)->
 				    display);
 	break;
 
@@ -1874,6 +1918,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTaskAbort();
         emcIoAbort();
         emcSpindleAbort();
+	mdi_execute_abort();
 	retval = 0;
 	break;
 
@@ -1896,6 +1941,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
 		// abort motion
 		emcTaskAbort();
+		mdi_execute_abort();
 
 		// without emcTaskPlanClose(), a new run command resumes at
 		// aborted line-- feature that may be considered later
@@ -1963,11 +2009,39 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             break;
         }
 	if (execute_msg->command[0] != 0) {
+	    char * command = execute_msg->command;
+	    if (command[0] == (char) 0xff) {
+		// Empty command recieved. Consider it is NULL
+		command = NULL;
+	    }
+
+	    if ((mdi_execute_level >= 0 || mdi_execute_wait) && command) {
+		mdi_execute_queue.append(execute_msg);
+		break;
+	    }
+
+	    int level = emcTaskPlanLevel();
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(++pseudoMdiLineNumber);
+		if (mdi_execute_level < 0)
+		    mdi_execute_level = level;
 	    }
-	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
+
+	    execRetval = emcTaskPlanExecute(command, pseudoMdiLineNumber);
+
+	    level = emcTaskPlanLevel();
+
+	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+		if (mdi_execute_level == level) {
+		    mdi_execute_level = -1;
+		} else if (level > 0) {
+		    // Still insude call. Need another execute(0) call
+		    mdi_execute_next = 1;
+		}
+	    }
 	    if (execRetval == INTERP_EXECUTE_FINISH) {
+		// Flag MDI wait
+		mdi_execute_wait = 1;
 		// need to flush execution, so signify no more reading
 		// until all is done
 		emcTaskPlanSetWait();
@@ -2068,7 +2142,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("ignoring issue of unknown command %d:%s\n",
-			    cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2076,7 +2150,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("error executing command %d:%s\n", cmd->type,
+	    rcs_print_error("error executing command %d:%s\n", (int)cmd->type,
 			    emc_symbol_lookup(cmd->type));
 	}
     }
@@ -2176,7 +2250,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
-			    cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->type, emc_symbol_lookup(cmd->type));
 	}
 	return EMC_TASK_EXEC_DONE;
 	break;
@@ -2233,6 +2307,7 @@ static int emcTaskExecute(void)
 	emcTaskAbort();
         emcIoAbort();
         emcSpindleAbort();
+	mdi_execute_abort();
 
 	// without emcTaskPlanClose(), a new run command resumes at
 	// aborted line-- feature that may be considered later
@@ -2993,6 +3068,7 @@ int main(int argc, char *argv[])
                 emcIoAbort();
                 emcSpindleAbort();
                 emcJointUnhome(-2); // only those joints which are volatile_home
+		mdi_execute_abort();
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -3021,6 +3097,7 @@ int main(int argc, char *argv[])
             emcTaskAbort();
             emcIoAbort();
             emcSpindleAbort();
+	    mdi_execute_abort();
             // without emcTaskPlanClose(), a new run command resumes at
             // aborted line-- feature that may be considered later
             {

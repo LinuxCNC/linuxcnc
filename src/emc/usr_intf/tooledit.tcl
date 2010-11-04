@@ -657,7 +657,8 @@ proc ::tooledit::writefile {filename} {
           set j ""
           set w $::te($h,width)
           # correct entries with leading zeros
-          if {[string first 0 [string trim $::te($type,$i,$h)]] == 0} {
+          if {$h != "comment" &&
+		[string first 0 [string trim $::te($type,$i,$h)]] == 0} {
              set ::te($type,$i,$h) [format %g $::te($type,$i,$h)]
           }
           set value [string trim $::te($type,$i,$h)]

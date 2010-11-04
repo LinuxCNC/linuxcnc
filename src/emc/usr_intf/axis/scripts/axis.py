@@ -199,7 +199,7 @@ help2 = [
     ("", ""),
     (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
-    ("F4", _("Switch between preview and DRO")),
+    ("F4", _("Cycle among preview, DRO, and user tabs")),
     ("", ""),
     (_("Ctrl-Space"), _("Clear notifications")),
 ]
@@ -425,6 +425,7 @@ class MyOpengl(GlCanonDraw, Opengl):
     def get_show_rapids(self): return vars.show_rapids.get()
     def get_geometry(self): return geometry
     def get_num_joints(self): return num_joints
+    def get_program_alpha(self): return vars.program_alpha.get()
 
     def get_a_axis_wrapped(self): return a_axis_wrapped
     def get_b_axis_wrapped(self): return b_axis_wrapped
@@ -514,7 +515,6 @@ class MyOpengl(GlCanonDraw, Opengl):
             self.tkRedraw_ortho()
 
     def get_show_program(self): return vars.show_program.get()
-    def get_show_rapids(self): return vars.show_rapids.get()
     def get_show_offsets(self): return vars.show_offsets.get()
     def get_show_extents(self): return vars.show_extents.get()
     def get_show_metric(self): return vars.metric.get()
@@ -1345,6 +1345,19 @@ class DummyCanon:
     def user_defined_function(self, m, p, q):
         self.number = p
 
+def parse_gcode_expression(e):
+    f = os.path.devnull
+    canon = DummyCanon()
+
+    parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
+    temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
+    shutil.copy(parameter, temp_parameter)
+    canon.parameter_file = temp_parameter
+
+    result, seq = gcode.parse("", canon, "M199 P["+e+"]", "M2")
+    if result > gcode.MIN_ERROR: return False, gcode.strerror(result)
+    return True, canon.number
+
 class _prompt_areyousure:
     """ Prompt for a question, user can enter yes or no """
     def __init__(self, title, text):
@@ -1459,21 +1472,9 @@ class _prompt_float:
                 ok = 0
 
         if ok:
-            f = os.path.devnull
-            canon = DummyCanon()
-
-            parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
-            temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
-            shutil.copy(parameter, temp_parameter)
-            canon.parameter_file = temp_parameter
-
-            result, seq = gcode.parse("", canon, "M199 P["+v+"]", "M2")
-
-            if result > gcode.MIN_ERROR:
-                self.w.set(gcode.strerror(result))
-                ok = 0
-            else:
-                self.w.set("= %f%s" % (canon.number, self.unit_str))
+            ok, value = parse_gcode_expression(v)
+            if ok: self.w.set("= %f%s" % (value, self.unit_str))
+            else:  self.w.set(value)
 
         if ok: 
             self.ok.configure(state="normal")
@@ -1618,10 +1619,17 @@ def reload_file(refilter=True):
         o.set_highlight_line(line)
  
 class TclCommands(nf.TclCommands):
-    def toggle_preview(event=None):
+    def next_tab(event=None):
         current = widgets.right.raise_page()
-        if current == "preview": widgets.right.raise_page("numbers")
-        else: widgets.right.raise_page("preview")
+        pages = widgets.right.pages()
+        try:
+            idx = pages.index(current)
+        except ValueError:
+            idx = -1
+        newidx = (idx + 1) % len(pages)
+        widgets.right.raise_page(pages[newidx])
+        root_window.focus_force()
+
     def redraw_soon(event=None):
         o.redraw_soon()
 
@@ -1632,6 +1640,9 @@ class TclCommands(nf.TclCommands):
         if b is not None: b = float(b)
         return from_internal_linear_unit(float(a), b)
 
+    def toggle_tto_g11(event=None):
+        ap.putpref("tto_g11", vars.tto_g11.get())
+        
     def toggle_optional_stop(event=None):
         c.set_optional_stop(vars.optional_stop.get())
         ap.putpref("optional_stop", vars.optional_stop.get())
@@ -2133,6 +2144,10 @@ class TclCommands(nf.TclCommands):
         ap.putpref("show_program", vars.show_program.get())
         o.tkRedraw()
 
+    def toggle_program_alpha(*event):
+        ap.putpref("program_alpha", vars.program_alpha.get())
+        o.tkRedraw()
+
     def toggle_show_live_plot(*event):
         ap.putpref("show_live_plot", vars.show_live_plot.get())
         o.tkRedraw()
@@ -2266,7 +2281,8 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         if system.split()[0] == "T":
-            offset_command = "G10 L10 P%d %c[%s*%.12f]" % (s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
+            lnum = 10 + vars.tto_g11.get()
+            offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")
@@ -2443,6 +2459,7 @@ vars = nf.Variables(root_window,
     ("has_ladder", IntVar),
     ("has_editor", IntVar),
     ("current_axis", StringVar),
+    ("tto_g11", BooleanVar),
     ("mist", BooleanVar),
     ("flood", BooleanVar),
     ("brake", BooleanVar),
@@ -2450,6 +2467,7 @@ vars = nf.Variables(root_window,
     ("running_line", IntVar),
     ("highlight_line", IntVar),
     ("show_program", IntVar),
+    ("program_alpha", IntVar),
     ("show_live_plot", IntVar),
     ("show_tool", IntVar),
     ("show_extents", IntVar),
@@ -2487,8 +2505,10 @@ vars = nf.Variables(root_window,
 vars.emctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "emctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
+vars.tto_g11.set(ap.getpref("tto_g11", False))
 vars.show_program.set(ap.getpref("show_program", True))
 vars.show_rapids.set(ap.getpref("show_rapids", True))
+vars.program_alpha.set(ap.getpref("program_alpha", False))
 vars.show_live_plot.set(ap.getpref("show_live_plot", True))
 vars.show_tool.set(ap.getpref("show_tool", True))
 vars.show_extents.set(ap.getpref("show_extents", True))
@@ -2935,7 +2955,7 @@ def get_coordinate_font(large):
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
 root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
-root_window.bind("<Key-F4>", commands.toggle_preview)
+root_window.bind("<Key-F4>", commands.next_tab)
 
 init()
 
@@ -3061,6 +3081,36 @@ try:
     root_window.tk.call("send", "-async", "popimage", "destroy .")
 except Tkinter.TclError:
     pass
+
+_dynamic_childs = {}
+def _dynamic_tab(name, text):
+    tab = widgets.right.insert("end", name, text=text)
+    tab.configure(borderwidth=1, highlightthickness=0)
+    return tab
+
+def _dynamic_tabs(inifile):
+    from subprocess import Popen
+    tab_names = inifile.findall("DISPLAY", "EMBED_TAB_NAME")
+    tab_cmd   = inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
+    if len(tab_names) != len(tab_cmd):
+        print "Invalid tab configuration"
+        # Complain somehow
+        return
+    for i,t,c in zip(range(len(tab_cmd)), tab_names, tab_cmd):
+        w = _dynamic_tab("user_" + str(i), t)
+        f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
+        f.pack(fill="both", expand=1)
+        xid = f.winfo_id()
+        cmd = c.replace('{XID}', str(xid))
+        child = Popen(cmd.split())
+        _dynamic_childs[str(w)] = child
+
+@atexit.register
+def kill_dynamic_childs():
+    for c in _dynamic_childs.values():
+        c.terminate()
+
+_dynamic_tabs(inifile)
 
 o.update_idletasks()
 

@@ -19,58 +19,43 @@ addf ddt.7 servo-thread
 addf ddt.8 servo-thread
 
 # create HAL signals for position commands from motion module
-newsig Xpos float
-linksp Xpos <= joint.0.motor-pos-cmd
-newsig Ypos float
-linksp Ypos <= joint.1.motor-pos-cmd
-newsig Zpos float
-linksp Zpos <= joint.2.motor-pos-cmd
-newsig Apos float
-linksp Apos <= joint.3.motor-pos-cmd
-newsig Bpos float
-linksp Bpos <= joint.4.motor-pos-cmd
-newsig Cpos float
-linksp Cpos <= joint.5.motor-pos-cmd
+net Xpos <= joint.0.motor-pos-cmd
+net Ypos <= joint.1.motor-pos-cmd
+net Zpos <= joint.2.motor-pos-cmd
+net Apos <= joint.3.motor-pos-cmd
+net Bpos <= joint.4.motor-pos-cmd
+net Cpos <= joint.5.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-linksp Xpos => joint.0.motor-pos-fb
-linksp Ypos => joint.1.motor-pos-fb
-linksp Zpos => joint.2.motor-pos-fb
-linksp Apos => joint.3.motor-pos-fb
-linksp Bpos => joint.4.motor-pos-fb
-linksp Cpos => joint.5.motor-pos-fb
+net Xpos => joint.0.motor-pos-fb
+net Ypos => joint.1.motor-pos-fb
+net Zpos => joint.2.motor-pos-fb
+net Apos => joint.3.motor-pos-fb
+net Bpos => joint.4.motor-pos-fb
+net Cpos => joint.5.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
 # define the signals, and hook them up
-newsig Xvel float
-newsig Xacc float
-newsig Xjerk float
-linksp Xpos => ddt.0.in
-linkps ddt.0.out => Xvel
-linksp Xvel => ddt.1.in
-linkps ddt.1.out => Xacc
-linksp Xacc => ddt.2.in
-linkps ddt.2.out => Xjerk
-newsig Yvel float
-newsig Yacc float
-newsig Yjerk float
-linksp Ypos => ddt.3.in
-linkps ddt.3.out => Yvel
-linksp Yvel => ddt.4.in
-linkps ddt.4.out => Yacc
-linksp Yacc => ddt.5.in
-linkps ddt.5.out => Yjerk
-newsig Zvel float
-newsig Zacc float
-newsig Zjerk float
-linksp Zpos => ddt.6.in
-linkps ddt.6.out => Zvel
-linksp Zvel => ddt.7.in
-linkps ddt.7.out => Zacc
-linksp Zacc => ddt.8.in
-linkps ddt.8.out => Zjerk
+net Xpos => ddt.0.in
+net Xvel <= ddt.0.out
+net Xvel => ddt.1.in
+net Xacc <= ddt.1.out
+net Xacc => ddt.2.in
+net Xjerk <= ddt.2.out
+net Ypos => ddt.3.in
+net Yvel <= ddt.3.out
+net Yvel => ddt.4.in
+net Yacc <= ddt.4.out
+net Yacc => ddt.5.in
+net Yjerk <= ddt.5.out
+net Zpos => ddt.6.in
+net Zvel <= ddt.6.out
+net Zvel => ddt.7.in
+net Zacc <= ddt.7.out
+net Zacc => ddt.8.in
+net Zjerk <= ddt.8.out
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
@@ -80,28 +65,16 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # amp control
-newsig xena bit
-linksp xena joint.0.amp-enable-out
-newsig yena bit
-linksp yena joint.1.amp-enable-out
-newsig zena bit
-linksp zena joint.2.amp-enable-out
-newsig aena bit
-linksp aena joint.3.amp-enable-out
-newsig bena bit
-linksp bena joint.4.amp-enable-out
-newsig cena bit
-linksp cena joint.5.amp-enable-out
+net xena joint.0.amp-enable-out
+net yena joint.1.amp-enable-out
+net zena joint.2.amp-enable-out
+net aena joint.3.amp-enable-out
+net bena joint.4.amp-enable-out
+net cena joint.5.amp-enable-out
 
-newsig xflt bit
-linksp xflt joint.0.amp-fault-in
-newsig yflt bit
-linksp yflt joint.1.amp-fault-in
-newsig zflt bit
-linksp zflt joint.2.amp-fault-in
-newsig aflt bit
-linksp aflt joint.3.amp-fault-in
-newsig bflt bit
-linksp bflt joint.4.amp-fault-in
-newsig cflt bit
-linksp cflt joint.5.amp-fault-in
+net xflt joint.0.amp-fault-in
+net yflt joint.1.amp-fault-in
+net zflt joint.2.amp-fault-in
+net aflt joint.3.amp-fault-in
+net bflt joint.4.amp-fault-in
+net cflt joint.5.amp-fault-in

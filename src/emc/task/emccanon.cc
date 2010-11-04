@@ -119,7 +119,7 @@ static void flush_segments(void);
   defined here that are used for convenience but no longer have decls
   in the 6-axis canon.hh. So, we declare them here now.
 */
-extern void CANON_ERROR(const char *fmt, ...);
+extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 #ifndef D2R
 #define D2R(r) ((r)*M_PI/180.0)
@@ -1888,13 +1888,13 @@ static char *addString(char *dst, const char *src, int maxlen)
 
 static FILE *probefile = NULL;
 
-void COMMENT(char *comment)
+void COMMENT(const char *comment)
 {
     // nothing need be done here, but you can play tricks with hot comments
 
     char msg[LINELEN];
     char probefilename[LINELEN];
-    char *ptr;
+    const char *ptr;
 
     // set RPY orientation for subsequent moves
     if (!strncmp(comment, "RPY", strlen("RPY"))) {

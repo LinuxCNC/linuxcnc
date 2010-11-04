@@ -1712,7 +1712,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	// no error, so ignore
     } else {
 	// an error to report
-	emcOperatorError(0, errorString);
+	emcOperatorError(0, "%s", errorString);
     }
 
     // save the heartbeat and command number locally,

@@ -325,7 +325,7 @@ static void printError(const char * errstring)
   mvwaddstr(window, ERR_Y, ERR_X, line_blank);
   wattrset(window, A_BOLD);
   mvwaddstr(window, ERR_Y, ERR_X, errstring);
-  wattrset(window, (int) saveattr);
+  (void)wattrset(window, (int) saveattr);
   wmove(window, savey, savex);
   wrefresh(window);
 

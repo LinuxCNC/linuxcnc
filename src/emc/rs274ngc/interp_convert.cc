@@ -135,16 +135,16 @@ int Interp::convert_nurbs(int mode,
 
     if (mode == G_5_2)  {
 	CHKS((((block->x_flag) && !(block->y_flag)) || (!(block->x_flag) && (block->y_flag))), (
-             "You must specify both X and Y coordinates for Control Points"));
+             _("You must specify both X and Y coordinates for Control Points")));
 	CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) && 
              (!nurbs_control_points.empty())), (
-             "Can specify P without X and Y only for the first control point"));
+             _("Can specify P without X and Y only for the first control point")));
 
         CHKS(((block->p_number <= 0) && (!nurbs_control_points.empty())), (
-             "Must specify positive weight P for every Control Point"));
+             _("Must specify positive weight P for every Control Point")));
         if (settings->feed_mode == UNITS_PER_MINUTE) {
             CHKS((settings->feed_rate == 0.0), (
-                 "Cannot make a NURBS with 0 feedrate"));
+                 _("Cannot make a NURBS with 0 feedrate")));
         }
         if (nurbs_control_points.empty()) {
             CP.X = settings->current_x;
@@ -179,7 +179,7 @@ int Interp::convert_nurbs(int mode,
     
     else if (mode == G_5_3){
         CHKS((settings->motion_mode != G_5_2), (
-             "Cannot use G5.3 without G5.2 first"));
+             _("Cannot use G5.3 without G5.2 first")));
         CHKS((nurbs_control_points.size()<nurbs_order), _("You must specify a number of control points at least equal to the order L = %d"), nurbs_order);
 	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
         settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
@@ -224,11 +224,11 @@ int Interp::convert_spline(int mode,
 
     CHKS((block->z_flag || block->a_flag || block->b_flag
           || block->c_flag),
-          ("Splines may not have motion in Z, A, B, or C"));
+          _("Splines may not have motion in Z, A, B, or C"));
 
     if(mode == G_5_1) {
       CHKS(!block->i_flag || !block->j_flag,
-                  ("Must specify both I and J with G5.1"));
+                  _("Must specify both I and J with G5.1"));
       x1 = settings->current_x + block->i_number;
       y1 = settings->current_y + block->j_number;
       CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
@@ -247,7 +247,7 @@ int Interp::convert_spline(int mode,
     } else {
       if(!block->i_flag || !block->j_flag) {
           CHKS(block->i_flag || block->j_flag,
-                  ("Must specify both I and J, or neither"));
+                  _("Must specify both I and J, or neither"));
           x1 = settings->current_x + settings->cycle_i;
           y1 = settings->current_y + settings->cycle_j;
       } else {
@@ -258,7 +258,7 @@ int Interp::convert_spline(int mode,
                     &u_end, &v_end, &w_end));
 
       CHKS(!block->p_flag || !block->q_flag,
-	      ("Must specify both P and Q with G5"));
+	      _("Must specify both P and Q with G5"));
       x2 = x3 + block->p_number;
       y2 = y3 + block->q_number;
 
@@ -375,7 +375,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     CHKS((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
     CHKS((settings->speed == 0.0),
-	"Cannot feed with zero spindle speed in feed per rev mode");
+	_("Cannot feed with zero spindle speed in feed per rev mode"));
   } else if (settings->feed_mode == INVERSE_TIME) {
     CHKS((!block->f_flag),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
@@ -386,13 +386,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
       if (!block->i_flag) { /* i or j flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'I');
+	  ERS(_("%c word missing in absolute center arc"), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
       } else if (!block->j_flag) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'J');
+	  ERS(_("%c word missing in absolute center arc"), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
@@ -401,13 +401,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
       if (!block->j_flag) { /* j or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'J');
+	  ERS(_("%c word missing in absolute center arc"), 'J');
 	} else {
 	  block->j_number = 0.0;
 	}
       } else if (!block->k_flag) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'K');
+	  ERS(_("%c word missing in absolute center arc"), 'K');
 	} else {
 	  block->k_number = 0.0;
 	}
@@ -416,13 +416,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
       CHKS((block->j_flag), NCE_J_WORD_GIVEN_FOR_ARC_IN_XZ_PLANE);
       if (!block->i_flag) { /* i or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'I');
+	  ERS(_("%c word missing in absolute center arc"), 'I');
 	} else {
 	  block->i_number = 0.0;
 	}
       } else if (!block->k_flag) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
-	  ERS("%c word missing in absolute center arc", 'K');
+	  ERS(_("%c word missing in absolute center arc"), 'K');
 	} else {
 	  block->k_number = 0.0;
 	}
@@ -641,7 +641,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     comp_get_current(settings, &cx, &cy, &cz);
 
     CHKS((hypot((end_x - cx), (end_y - cy)) <= tool_radius),
-         "Radius of cutter compensation entry arc is not greater than the tool radius");
+         _("Radius of cutter compensation entry arc is not greater than the tool radius"));
 
     if (block->r_flag) {
         CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
@@ -2213,7 +2213,7 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     double *p = s->parameters;
     
     if(s->cutter_comp_side) {
-        ERS("Cannot set reference point with cutter compensation in effect");
+        ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
     double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_offset.tran.x + s->origin_offset_x + s->axis_offset_x);
@@ -2661,7 +2661,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
     if (block->p_flag) { // got a digital input
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
-	    ERS("invalid P-word with M66");
+	    ERS(_("invalid P-word with M66"));
 	    
 	if (block->l_flag) {
 	    type = round_to_int(block->l_number);
@@ -2906,7 +2906,7 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
 {
 
   if (code == G_10) {
-      if(block->l_number == 1 || block->l_number == 10)
+      if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
           CHP(convert_setup_tool(block, settings));
       else
           CHP(convert_setup(block, settings));
@@ -2973,9 +2973,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   CHKS((ci && (xyzuvw_flag || block->a_flag || block->b_flag)),
        (_("Indexing axis %c can only be moved alone")), 'C');
 
-  int is_a_cycle = (motion == G_73 || ((motion > G_80) && (motion < G_90)));
-
-  if (!is_a_cycle)
+  if (!is_a_cycle(motion))
     settings->cycle_il_flag = false;
 
   if (ai || bi || ci) {
@@ -2994,7 +2992,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
-  } else if (is_a_cycle) {
+  } else if (is_a_cycle(motion)) {
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
     CHP(convert_spline(motion, block, settings));
@@ -3066,7 +3064,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   CHKS(settings->feed_mode == UNITS_PER_REVOLUTION,
-	  "Cannot probe with feed per rev mode");
+	  _("Cannot probe with feed per rev mode"));
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));
@@ -3135,6 +3133,8 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     int pocket = -1, toolno;
     int q;
+    double tx, ty, tz, ta, tb, tc, tu, tv, tw;
+    int direct = block->l_number == 1;
 
     is_near_int(&toolno, block->p_number);
 
@@ -3142,58 +3142,90 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     settings->tool_table[pocket].toolno = toolno;
 
-    if(block->x_flag) {
-        double x = block->x_number;
-        if (block->l_number == 10) x = settings->current_x + settings->tool_offset.tran.x - x;
-        settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(x);
-    }
-    if(block->y_flag) {
-        double y = block->y_number;
-        if (block->l_number == 10) y = settings->current_y + settings->tool_offset.tran.y - y;
-        settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(y);
-    }
-    if(block->z_flag) {
-        double z = block->z_number;
-        if (block->l_number == 10) z = settings->current_z + settings->tool_offset.tran.z - z;
-        settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(z);
-    }
-    if(block->a_flag) {
-        double a = block->a_number;
-        if (block->l_number == 10) a = settings->AA_current + settings->tool_offset.a - a;
-        settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(a);
-    }
-    if(block->b_flag) {
-        double b = block->b_number;
-        if (block->l_number == 10) b = settings->BB_current + settings->tool_offset.b - b;
-        settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(b);
-    }
-    if(block->c_flag) {
-        double c = block->c_number;
-        if (block->l_number == 10) c = settings->CC_current + settings->tool_offset.c - c;
-        settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(c);
-    }
-    if(block->u_flag) {
-        double u = block->u_number;
-        if (block->l_number == 10) u = settings->u_current + settings->tool_offset.u - u;
-        settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(u);
-    }
-    if(block->v_flag) {
-        double v = block->v_number;
-        if (block->l_number == 10) v = settings->v_current + settings->tool_offset.v - v;
-        settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(v);
-    }
-    if(block->w_flag) {
-        double w = block->w_number;
-        if (block->l_number == 10) w = settings->w_current + settings->tool_offset.w - w;
-        settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(w);
+    if(direct) {
+        if(block->x_flag)
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
+        if(block->y_flag)
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(block->y_number);
+        if(block->z_flag) 
+            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
+        if(block->a_flag) 
+            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(block->a_number);
+        if(block->b_flag) 
+            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(block->b_number);
+        if(block->c_flag) 
+            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(block->c_number);
+        if(block->u_flag) 
+            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(block->u_number);
+        if(block->v_flag) 
+            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(block->v_number);
+        if(block->w_flag) 
+            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(block->w_number);
+    } else {
+        int to_fixture = block->l_number == 11;
+        int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
+
+        double oldx, oldy;
+        find_current_in_system(settings, destination_system,
+                               &tx, &ty, &tz, 
+                               &ta, &tb, &tc,
+                               &tu, &tv, &tw);
+
+        if ( to_fixture && settings->parameters[5210]) {
+            // For G10L11, we don't want to move the origin of the
+            // fixture according to G92.  Since find_current_in_system
+            // did this for us already, undo it.
+            tx += USER_TO_PROGRAM_LEN(settings->parameters[5211]);
+            ty += USER_TO_PROGRAM_LEN(settings->parameters[5212]);
+            tz += USER_TO_PROGRAM_LEN(settings->parameters[5213]);
+            ta += USER_TO_PROGRAM_ANG(settings->parameters[5214]);
+            tb += USER_TO_PROGRAM_ANG(settings->parameters[5215]);
+            tc += USER_TO_PROGRAM_ANG(settings->parameters[5216]);
+            tu += USER_TO_PROGRAM_LEN(settings->parameters[5217]);
+            tv += USER_TO_PROGRAM_LEN(settings->parameters[5218]);
+            tw += USER_TO_PROGRAM_LEN(settings->parameters[5219]);
+        }
+
+
+        if(block->x_flag || block->y_flag) {
+            oldx = tx;
+            oldy = ty;
+            if(block->x_flag) {
+                tx = block->x_number;
+            }
+            if(block->y_flag) {
+                ty = block->y_number;
+            }
+            
+            rotate(&oldx, &oldy, settings->parameters[5210 + destination_system * 20]);
+            rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
+            
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(oldx + settings->tool_offset.tran.x - tx);
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(oldy + settings->tool_offset.tran.y - ty);
+        }
+        
+        if(block->z_flag) 
+            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(tz + settings->tool_offset.tran.z - block->z_number);
+        if(block->a_flag) 
+            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(ta + settings->tool_offset.a - block->a_number);
+        if(block->b_flag) 
+            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(tb + settings->tool_offset.b - block->b_number);
+        if(block->c_flag) 
+            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(tc + settings->tool_offset.c - block->c_number);
+        if(block->u_flag) 
+            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(tu + settings->tool_offset.u - block->u_number);
+        if(block->v_flag) 
+            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(tv + settings->tool_offset.v - block->v_number);
+        if(block->w_flag) 
+            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(tw + settings->tool_offset.w - block->w_number);
     }
 
     if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
     if(block->i_flag) settings->tool_table[pocket].frontangle = block->i_number;
     if(block->j_flag) settings->tool_table[pocket].backangle = block->j_number;
     if(block->q_number != -1.0) {
-        CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
-        CHKS((q > 9), "Invalid tool orientation");
+        CHKS((!is_near_int(&q, block->q_number)), _("Q number in G10 is not an integer"));
+        CHKS((q > 9), _("Invalid tool orientation"));
         settings->tool_table[pocket].orientation = q;
     }
 
@@ -3313,7 +3345,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                          &cu, &cv, &cw);
 
   if (block->r_flag) {
-    CHKS((block->l_number == 20), "R not allowed in G10 L20");
+    CHKS((block->l_number == 20), _("R not allowed in G10 L20"));
     r = block->r_number;
     parameters[5210 + (p_int * 20)] = r;
   } else
@@ -3827,7 +3859,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
     } else if (settings->feed_mode == UNITS_PER_REVOLUTION) {
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
-      CHKS((settings->speed == 0.0), "Cannot feed with zero spindle speed in feed per rev mode");
+      CHKS((settings->speed == 0.0), _("Cannot feed with zero spindle speed in feed per rev mode"));
     } else if (settings->feed_mode == INVERSE_TIME) {
       CHKS((!block->f_flag),
           NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE);
@@ -3884,7 +3916,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   } else if (move == G_33) {
     CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
-          "Spindle not turning in G33");
+          _("Spindle not turning in G33"));
     START_SPEED_FEED_SYNCH(block->k_number, 0);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
@@ -3894,7 +3926,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   } else if (move == G_33_1) {
     CHKS(((settings->spindle_turning != CANON_CLOCKWISE) &&
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
-          "Spindle not turning in G33.1");
+          _("Spindle not turning in G33.1"));
     START_SPEED_FEED_SYNCH(block->k_number, 0);
     RIGID_TAP(block->line_number, end_x, end_y, end_z);
     STOP_SPEED_FEED_SYNCH();
@@ -4192,7 +4224,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     distance = hypot((px - cx), (py - cy));
 
     CHKS(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
-    CHKS((distance <= radius), "Length of cutter compensation entry move is not greater than the tool radius");
+    CHKS((distance <= radius), _("Length of cutter compensation entry move is not greater than the tool radius"));
 
     alpha = atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
 
@@ -4669,9 +4701,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);
     tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.c);
+    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.a);
+    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.b);
+    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[index].offset.c);
     tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.u);
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.w);
@@ -4692,8 +4724,15 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
-  settings->current_x += settings->tool_offset.tran.x - tool_offset.tran.x;
-  settings->current_y += settings->tool_offset.tran.y - tool_offset.tran.y;
+  double dx, dy;
+
+  dx = settings->tool_offset.tran.x - tool_offset.tran.x;
+  dy = settings->tool_offset.tran.y - tool_offset.tran.y;
+
+  rotate(&dx, &dy, -settings->rotation_xy);
+
+  settings->current_x += dx;
+  settings->current_y += dy;
   settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;
   settings->AA_current += settings->tool_offset.a - tool_offset.a;
   settings->BB_current += settings->tool_offset.b - tool_offset.b;

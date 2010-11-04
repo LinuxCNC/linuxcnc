@@ -12,9 +12,9 @@ addf motenc.0.encoder-read servo-thread 1
 addf motenc.0.dac-write servo-thread -1
 
 # Connect position feedback signals to encoders.
-linksp Xpos-fb <= motenc.0.enc-00-position
-linksp Ypos-fb <= motenc.0.enc-01-position
-linksp Zpos-fb <= motenc.0.enc-02-position
+net Xpos-fb <= motenc.0.enc-00-position
+net Ypos-fb <= motenc.0.enc-01-position
+net Zpos-fb <= motenc.0.enc-02-position
 
 # Get feedback scaling from ini file.
 setp motenc.0.enc-00-scale [AXIS_0]INPUT_SCALE 
@@ -22,9 +22,9 @@ setp motenc.0.enc-01-scale [AXIS_1]INPUT_SCALE
 setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
 
 # Connect PID output signals to DACs.
-linksp Xoutput => motenc.0.dac-00-value
-linksp Youtput => motenc.0.dac-01-value
-linksp Zoutput => motenc.0.dac-02-value
+net Xoutput => motenc.0.dac-00-value
+net Youtput => motenc.0.dac-01-value
+net Zoutput => motenc.0.dac-02-value
 
 # Set output scaling from ini file.
 setp motenc.0.dac-00-gain [AXIS_0]OUTPUT_SCALE

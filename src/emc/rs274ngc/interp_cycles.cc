@@ -577,6 +577,18 @@ int Interp::convert_cycle_g89(block_pointer block,
   return INTERP_OK;
 }
 
+static const char* plane_name(CANON_PLANE p) {
+  switch(p) {
+    case CANON_PLANE_XY: return "XY";
+    case CANON_PLANE_YZ: return "YZ";
+    case CANON_PLANE_XZ: return "XZ";
+    case CANON_PLANE_UV: return "UV";
+    case CANON_PLANE_VW: return "VW";
+    case CANON_PLANE_UW: return "UW";
+    default:             return "invalid";
+  }
+}
+
 /****************************************************************************/
 
 /*! convert_cycle
@@ -613,9 +625,9 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
 {
   CANON_PLANE plane;
 
-  CHKS((settings->feed_rate == 0.0), "Cannot feed with zero feed rate");
-  CHKS((settings->feed_mode == INVERSE_TIME), "Cannot use inverse time feed with canned cycles");
-  CHKS((settings->cutter_comp_side), "Cannot use canned cycles with cutter compensation on");
+  CHKS((settings->feed_rate == 0.0), _("Cannot feed with zero feed rate"));
+  CHKS((settings->feed_mode == INVERSE_TIME), _("Cannot use inverse time feed with canned cycles"));
+  CHKS((settings->cutter_comp_side), _("Cannot use canned cycles with cutter compensation on"));
 
   plane = settings->plane;
   if (!block->r_flag) {
@@ -628,6 +640,29 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
   CHKS((block->l_number == 0), NCE_CANNOT_DO_ZERO_REPEATS_OF_CYCLE);
   if (block->l_number == -1)
     block->l_number = 1;
+
+  switch(plane) {
+  case CANON_PLANE_XY:
+  case CANON_PLANE_XZ:
+  case CANON_PLANE_YZ:
+    CHKS(block->u_flag, "Cannot put a U in a canned cycle in the %s plane",
+	plane_name(settings->plane));
+    CHKS(block->v_flag, "Cannot put a V in a canned cycle in the %s plane",
+	plane_name(settings->plane));
+    CHKS(block->w_flag, "Cannot put a W in a canned cycle in the %s plane",
+	plane_name(settings->plane));
+    break;
+
+  case CANON_PLANE_UV:
+  case CANON_PLANE_VW:
+  case CANON_PLANE_UW:
+    CHKS(block->x_flag, "Cannot put an X in a canned cycle in the %s plane",
+	plane_name(settings->plane));
+    CHKS(block->y_flag, "Cannot put a Y in a canned cycle in the %s plane",
+	plane_name(settings->plane));
+    CHKS(block->z_flag, "Cannot put a Z in a canned cycle in the %s plane",
+	plane_name(settings->plane));
+  }
 
   if (plane == CANON_PLANE_XY) {
     CHP(convert_cycle_xy(motion, block, settings));

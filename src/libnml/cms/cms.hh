@@ -179,7 +179,7 @@ class CMS {
   public:
     /* Constructors and Destructors. */
       CMS(long size);
-      CMS(char *bufline, char *procline, int set_to_server = 0);
+      CMS(const char *bufline, const char *procline, int set_to_server = 0);
       virtual ~ CMS();
 
     /* Simple read/write interface functions. */
