@@ -280,6 +280,8 @@ fi
 EMC2_HOME=`(cd .. ; pwd)`
 AC_SUBST([EMC2_HOME])
 
+AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime system])
+
 ##############################################################################
 # Section 3                                                                  #
 # aditional checking                                                         #
