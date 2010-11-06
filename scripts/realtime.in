@@ -49,7 +49,7 @@ CheckConfig(){
     fi
     INSMOD="@INSMOD@"
     RMMOD="@RMMOD@"
-    LSMOD="@LSMOD"
+    LSMOD="@LSMOD@"
     FUSER="@FUSER@"
 
     # Import the config
