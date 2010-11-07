@@ -2985,7 +2985,18 @@ Actual</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <placeholder/>
+                                          <widget class="GtkRadioButton" id="GUITOUCHY">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="label" translatable="yes">Touchy</property>
+                                            <property name="response_id">0</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">True</property>
+                                            <property name="group">GUIAXIS</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">5</property>
+                                          </packing>
                                         </child>
                                       </widget>
                                     </child>

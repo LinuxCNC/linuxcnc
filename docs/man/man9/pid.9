@@ -56,6 +56,13 @@ The output of the PID loop, which goes to some actuator such as a motor.
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
 .TP
+\fBpid.\fIN\fB.index-enable\fR bit in
+On the falling edge of \fBindex-enable\fR, pid does not update the
+internal command derivative estimate.  On systems which use the encoder
+index pulse, this pin should be connected to the index-enable signal.
+When this is not done, and FF1 is nonzero, a step change in the input
+command causes a single-cycle spike in the PID output.
+.TP
 \fBpid.\fIN\fB.saturated\fR bit out
 When true, the current PID output is saturated.  That is,
 .RS 12
