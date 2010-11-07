@@ -61,7 +61,8 @@ On the falling edge of \fBindex-enable\fR, pid does not update the
 internal command derivative estimate.  On systems which use the encoder
 index pulse, this pin should be connected to the index-enable signal.
 When this is not done, and FF1 is nonzero, a step change in the input
-command causes a single-cycle spike in the PID output.
+command causes a single-cycle spike in the PID output.  On systems which use
+exactly one of the \fB-deriv\fR inputs, this affects the D term as well.
 .TP
 \fBpid.\fIN\fB.saturated\fR bit out
 When true, the current PID output is saturated.  That is,
