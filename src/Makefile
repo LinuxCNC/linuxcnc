@@ -171,12 +171,6 @@ endif
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
 OPT := -Os $(call cc-option,-fno-stack-protector)
-# NOTE: Wwrite-strings is supposed to be OFF unless explicitly requested, even with -Wall,
-# since it produces a mess of warnings on any code that doesn't use "const" fastidiously
-# There is a bug in some versions of gcc that turns it on.
-# ( see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=442950 )
-# So we explicitly turn it off here, to avoid a flood of meaningless warnings that
-# might be hiding a few real ones.
 DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
