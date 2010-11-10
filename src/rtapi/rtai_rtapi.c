@@ -652,13 +652,21 @@ static void wrapper(long task_id)
     return;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,24)
+#define IP(x) ((x)->ip)
+#elif defined(__i386__)
+#define IP(x) ((x)->eip)
+#else
+#define IP(x) ((x)->rip)
+#endif
+
 static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
         void *task) {
     int self = rtapi_task_self();
     rtapi_print_msg(RTAPI_MSG_ERR,
 	"RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d ip=%08lx.\n"
 	"RTAPI: This fault may not be recoverable without rebooting.\n",
-	self, task, vec, signo, regs->ip);
+	self, task, vec, signo, IP(regs));
     rtapi_task_pause(self);
     return 0;
 }
