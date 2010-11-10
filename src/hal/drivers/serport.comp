@@ -65,6 +65,10 @@ EXTRA_SETUP() {
     if(!rtapi_request_region(io[extra_arg], 7, "serport")) {
 	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
 	// ports that were never requested.
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "Could not register port at address 0x%x.  See\n"
+	    "'man serport' for information on using 'setserial'\n"
+	    "to make a port available to hal", io[extra_arg]);
         io[extra_arg] = 0; 
         return -EBUSY;
     }

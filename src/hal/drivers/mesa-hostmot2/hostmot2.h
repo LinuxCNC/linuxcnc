@@ -106,6 +106,8 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_TRANSLATIONRAM  (11)
 #define HM2_GTAG_TPPWM           (19)
 #define HM2_GTAG_LED            (128)
+#define HM2_GTAG_MUXED_ENCODER   (12)
+#define HM2_GTAG_MUXED_ENCODER_SEL (13)
 
 
 

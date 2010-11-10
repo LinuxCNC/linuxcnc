@@ -96,7 +96,7 @@ void enqueue_START_SPINDLE_COUNTERCLOCKWISE(void);
 void enqueue_STOP_SPINDLE_TURNING(void);
 void enqueue_SET_SPINDLE_MODE(double mode);
 void enqueue_SET_SPINDLE_SPEED(double speed);
-void enqueue_COMMENT(char *c);
+void enqueue_COMMENT(const char *c);
 int enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
                           double dx, double dy, double dz,
                           double x, double y, double z, 

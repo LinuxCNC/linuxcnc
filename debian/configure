@@ -69,7 +69,9 @@ PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(s
 
 # hope this works on other systems too
 DISTRIB_NAME=
-if [ -f /etc/lsb-release ]; then
+if [ "$(which lsb_release)" != "" ]; then
+    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
+elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
@@ -91,6 +93,14 @@ Ubuntu-9.10)
 	;;
 Ubuntu-8.04)
 	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	TCLTK_VERSION=8.4
+	;;
+Debian-testing)
+	EXTRA_BUILD=lyx
+	TCLTK_VERSION=8.5
+	;;
+Debian-5.0*)
+	EXTRA_BUILD=lyx
 	TCLTK_VERSION=8.4
 	;;
 *)
@@ -124,6 +134,7 @@ case $TARGET in
     2.6.24-16-rtai)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
     ;;
+    2.6.32-122-rtai) ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
@@ -147,7 +158,13 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 }
 
 subst control.in > control
-if [ "$TARGET" == "sim" ]; then cp emc2-dev.files emc2-sim-dev.files; fi
+
+if [ "$TARGET" == "sim" ]; then
+    cp emc2-dev.files.in emc2-sim-dev.files
+else
+    cp emc2-dev.files.in emc2-dev.files
+    echo "$MODULE_PATH/Module.symvers" >> emc2-dev.files
+fi
 
 subst rules.in > rules; chmod +x rules
 

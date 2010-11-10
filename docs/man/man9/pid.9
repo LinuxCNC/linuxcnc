@@ -32,8 +32,19 @@ Does the PID calculations for control loop \fIN\fR.
 \fBpid.\fIN\fB.command\fR float in
 The desired (commanded) value for the control loop.
 .TP
+\fBpid.\fIN\fB.command-deriv\fR float in
+The derivative of the desired (commanded) value for the control loop.  If no
+signal is connected then the derivative will be estimated numerically.
+.TP
 \fBpid.\fIN\fB.feedback\fR float in
 The actual (feedback) value, from some sensor such as an encoder.
+.TP
+\fBpid.\fIN\fB.feedback-deriv\fR float in
+The derivative of the actual (feedback) value for the control loop.  If no
+signal is connected then the derivative will be estimated numerically.  When
+the feedback is from a quantized position source (e.g., encoder feedback
+position), behavior of the D term can be improved by using a better velocity
+estimate here, such as the velocity output of encoder(9) or hostmot2(9).
 .TP
 \fBpid.\fIN\fB.error\fR float out
 The difference between command and feedback.
@@ -44,6 +55,14 @@ The output of the PID loop, which goes to some actuator such as a motor.
 \fBpid.\fIN\fB.enable\fR bit in
 When true, enables the PID calculations.  When false, \fBoutput\fR is zero,
 and all internal integrators, etc, are reset.
+.TP
+\fBpid.\fIN\fB.index-enable\fR bit in
+On the falling edge of \fBindex-enable\fR, pid does not update the
+internal command derivative estimate.  On systems which use the encoder
+index pulse, this pin should be connected to the index-enable signal.
+When this is not done, and FF1 is nonzero, a step change in the input
+command causes a single-cycle spike in the PID output.  On systems which use
+exactly one of the \fB-deriv\fR inputs, this affects the D term as well.
 .TP
 \fBpid.\fIN\fB.saturated\fR bit out
 When true, the current PID output is saturated.  That is,

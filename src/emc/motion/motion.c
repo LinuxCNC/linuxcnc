@@ -307,6 +307,7 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_brake), mot_comp_id, "motion.spindle-brake")) < 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->spindle_speed_out), mot_comp_id, "motion.spindle-speed-out")) < 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->spindle_speed_out_rps), mot_comp_id, "motion.spindle-speed-out-rps")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->spindle_speed_cmd_rps), mot_comp_id, "motion.spindle-speed-cmd-rps")) < 0) goto error;
 
 //    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->inpos_output), mot_comp_id, "motion.motion-inpos")) < 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->spindle_revs), mot_comp_id, "motion.spindle-revs")) < 0) goto error;

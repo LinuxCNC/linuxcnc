@@ -418,7 +418,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::run()
 		    if (client_port_to_check->blocking) {
 			if (client_port_to_check->threadId > 0) {
 			    rcs_print_debug(PRINT_SERVER_THREAD_ACTIVITY,
-				"Data recieved from %s:%d when it should be blocking (bytes_ready=%d).\n",
+				"Data recieved from %s:%d when it should be blocking (bytes_ready=%ld).\n",
 				inet_ntoa
 				(client_port_to_check->address.
 				    sin_addr),
@@ -676,7 +676,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::handle_request(CLIENT_TCP_PORT *
     received_serial_number = ntohl(*((u_long *) temp_buffer));
     if (received_serial_number != _client_tcp_port->serial_number) {
 	rcs_print_error
-	    ("received_serial_number (%d) does not equal expected serial number.(%d)\n",
+	    ("received_serial_number (%ld) does not equal expected serial number.(%ld)\n",
 	    received_serial_number, _client_tcp_port->serial_number);
 	_client_tcp_port->serial_number = received_serial_number;
 	_client_tcp_port->errors++;
@@ -686,7 +686,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::handle_request(CLIENT_TCP_PORT *
     buffer_number = ntohl(*((u_long *) temp_buffer + 2));
 
     rcs_print_debug(PRINT_ALL_SOCKET_REQUESTS,
-	"TCPSVR request recieved: fd = %d, serial_number=%d, request_type=%d, buffer_number=%d\n",
+	"TCPSVR request recieved: fd = %d, serial_number=%ld, request_type=%ld, buffer_number=%ld\n",
 	_client_tcp_port->socket_fd,
 	_client_tcp_port->serial_number, request_type, buffer_number);
 

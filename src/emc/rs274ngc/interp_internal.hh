@@ -59,14 +59,10 @@
 #define MM_PER_INCH 25.4
 //#define INCH_PER_MM 0.039370078740157477
 
-// on-off switch settings
-#define OFF 0
-#define ON 1
-
 // feed_mode
 enum feed_mode { UNITS_PER_MINUTE=0, INVERSE_TIME=1, UNITS_PER_REVOLUTION=2 };
 
-// cutter radius compensation mode, OFF already defined to 0
+// cutter radius compensation mode, 0 or false means none
 // not using CANON_SIDE since interpreter handles cutter radius comp
 #define RIGHT 1
 #define LEFT 2
@@ -245,29 +241,30 @@ RETRACT_MODE;
 
 typedef struct block_struct
 {
-  ON_OFF a_flag;
+  bool a_flag;
   double a_number;
-  ON_OFF b_flag;
+  bool b_flag;
   double b_number;
-  ON_OFF c_flag;
+  bool c_flag;
   double c_number;
   char comment[256];
   double d_number_float;
-  ON_OFF d_flag;
-  ON_OFF e_flag;
+  bool d_flag;
+  bool e_flag;
   double e_number;
+  bool f_flag;
   double f_number;
   int g_modes[16];
-  ON_OFF h_flag;
+  bool h_flag;
   int h_number;
-  ON_OFF i_flag;
+  bool i_flag;
   double i_number;
-  ON_OFF j_flag;
+  bool j_flag;
   double j_number;
-  ON_OFF k_flag;
+  bool k_flag;
   double k_number;
   int l_number;
-  ON_OFF l_flag;
+  bool l_flag;
   int line_number;
   int n_number;
   int motion_to_be;
@@ -275,24 +272,26 @@ typedef struct block_struct
   int m_modes[11];
   int user_m;
   double p_number;
-  ON_OFF p_flag;
+  bool p_flag;
   double q_number;
-  ON_OFF q_flag;
-  ON_OFF r_flag;
+  bool q_flag;
+  bool r_flag;
   double r_number;
+  bool s_flag;
   double s_number;
+  bool t_flag;
   int t_number;
-  ON_OFF u_flag;
+  bool u_flag;
   double u_number;
-  ON_OFF v_flag;
+  bool v_flag;
   double v_number;
-  ON_OFF w_flag;
+  bool w_flag;
   double w_number;
-  ON_OFF x_flag;
+  bool x_flag;
   double x_number;
-  ON_OFF y_flag;
+  bool y_flag;
   double y_number;
-  ON_OFF z_flag;
+  bool z_flag;
   double z_number;
 
   int radius_flag;
@@ -356,6 +355,7 @@ and is not represented here
 */
 #define STACK_LEN 50
 #define STACK_ENTRY_LEN 80
+#define MAX_SUB_DIRS 10
 
 typedef struct setup_struct
 {
@@ -376,7 +376,7 @@ typedef struct setup_struct
   int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-  ON_OFF arc_not_allowed;       // we just exited cutter compensation, so we error if the next move isn't straight
+  bool arc_not_allowed;       // we just exited cutter compensation, so we error if the next move isn't straight
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset
@@ -398,19 +398,21 @@ typedef struct setup_struct
   double cycle_p;               // p-value (dwell) for canned cycles
   double cycle_q;               // q-value for canned cycles
   double cycle_r;               // r-value for canned cycles
+  double cycle_il;              // "initial level" height when switching from non-cycle into cycle, for g98 retract
+  int cycle_il_flag;            // il is currently valid because we're in a series of cycles
   DISTANCE_MODE distance_mode;  // absolute or incremental
   DISTANCE_MODE ijk_distance_mode;  // absolute or incremental for IJK in arcs
   int feed_mode;                // G_93 (inverse time) or G_94 units/min
-  ON_OFF feed_override;         // whether feed override is enabled
+  bool feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
   char filename[PATH_MAX];      // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
-  ON_OFF flood;                 // whether flood coolant is on
+  bool flood;                 // whether flood coolant is on
   int tool_offset_index;        // for use with tool length offsets
   CANON_UNITS length_units;     // millimeters or inches
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read
-  ON_OFF mist;                  // whether mist coolant is on
+  bool mist;                  // whether mist coolant is on
   int motion_mode;              // active G-code for motion
   int origin_index;             // active origin (1=G54 to 9=G59.3)
   double origin_offset_x;       // g5x offset x
@@ -424,14 +426,14 @@ typedef struct setup_struct
   int named_parameter_occurrence;
   char *named_parameters[50];
   double named_parameter_values[50];
-  ON_OFF percent_flag;          // ON means first line was percent sign
+  bool percent_flag;          // true means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
-  ON_OFF probe_flag;            // flag indicating probing done
-  ON_OFF input_flag;            // flag indicating waiting for input done
-  ON_OFF toolchange_flag;       // flag indicating we just had a tool change
+  bool probe_flag;            // flag indicating probing done
+  bool input_flag;            // flag indicating waiting for input done
+  bool toolchange_flag;       // flag indicating we just had a tool change
   int input_index;		// channel queried
-  ON_OFF input_digital;		// input queried was digital (OFF=analog)
-  ON_OFF cutter_comp_firstmove; // this is the first comp move
+  bool input_digital;		// input queried was digital (false=analog)
+  bool cutter_comp_firstmove; // this is the first comp move
   double program_x;             // program x, used when cutter comp on
   double program_y;             // program y, used when cutter comp on
   double program_z;             // program y, used when cutter comp on
@@ -442,7 +444,7 @@ typedef struct setup_struct
   double speed;                 // current spindle speed in rpm or SxM
   SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
-  ON_OFF speed_override;        // whether speed override is enabled
+  bool speed_override;        // whether speed override is enabled
   CANON_DIRECTION spindle_turning;      // direction spindle is turning
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
@@ -465,11 +467,12 @@ typedef struct setup_struct
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int oword_labels;
   offset oword_offset[INTERP_OWORD_LABELS];
-  ON_OFF adaptive_feed;              // adaptive feed is enabled
-  ON_OFF feed_hold;                  // feed hold is enabled
+  bool adaptive_feed;              // adaptive feed is enabled
+  bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
   char log_file[PATH_MAX];
-  char program_prefix[PATH_MAX];
+  char program_prefix[PATH_MAX];            // program directory
+  char subroutines[MAX_SUB_DIRS][PATH_MAX]; // subroutines directories
   int use_lazy_close;                // wait until next open before closing
                                      // the input file
   int lazy_closing;                  // close has been called
@@ -485,12 +488,16 @@ typedef struct setup_struct
   int b_indexer;
   int c_indexer;
 
-  ON_OFF lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
+  bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
+  bool mdi_interrupt;
 }
 setup;
 
 typedef setup *setup_pointer;
 
+inline bool is_a_cycle(int motion) {
+    return ((motion > G_80) && (motion < G_90)) || (motion == G_73);
+}
 /*
 
 The _setup model includes a stack array for the names of function
@@ -595,11 +602,10 @@ macros totally crash-proof. If the function call stack is deeper than
            aa = radius * cos(theta); \
            bb = radius * sin(theta); \
        } \
-       cycle_traverse(block, plane, aa, bb, old_cc); \
+       cycle_traverse(block, plane, aa, bb, current_cc); \
        if (old_cc != r) \
          cycle_traverse(block, plane, aa, bb, r); \
        CHP(call); \
-       old_cc = clear_cc; \
      }
 
 

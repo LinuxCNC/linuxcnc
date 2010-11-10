@@ -9,14 +9,14 @@ addf parport.0.read base-thread 1
 addf parport.0.write base-thread -1
 #
 # finally connect physical pins to the signals
-linksp Xstep parport.0.pin-03-out
-linksp Xdir  parport.0.pin-02-out
-linksp Ystep parport.0.pin-05-out
-linksp Ydir  parport.0.pin-04-out
-linksp Zstep parport.0.pin-07-out
-linksp Zdir  parport.0.pin-06-out
-linksp Astep parport.0.pin-09-out
-linksp Adir  parport.0.pin-08-out
+net Xstep parport.0.pin-03-out
+net Xdir parport.0.pin-02-out
+net Ystep parport.0.pin-05-out
+net Ydir parport.0.pin-04-out
+net Zstep parport.0.pin-07-out
+net Zdir parport.0.pin-06-out
+net Astep parport.0.pin-09-out
+net Adir parport.0.pin-08-out
 
 # create a signal for the estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in

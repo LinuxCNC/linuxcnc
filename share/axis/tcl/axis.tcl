@@ -237,7 +237,19 @@ setup_menu_accel .menu.machine.clearoffset end [_ "P9  G59._3"]
     -command [list clear_offset G92]
 setup_menu_accel .menu.machine.clearoffset end [_ "_G92"]
 
+.menu.machine add separator
 
+.menu.machine add radiobutton \
+	-variable tto_g11 \
+        -value 0 \
+        -command toggle_tto_g11
+setup_menu_accel .menu.machine end [_ "Tool touch off to wor_kpiece"]
+
+.menu.machine add radiobutton \
+	-variable tto_g11 \
+        -value 1 \
+        -command toggle_tto_g11
+setup_menu_accel .menu.machine end [_ "Tool touch off to _fixture"]
 
 # ----------------------------------------------------------------------
 .menu.view add radiobutton \
@@ -302,6 +314,11 @@ setup_menu_accel .menu.view end [_ "S_how program"]
 	-variable show_rapids \
 	-command toggle_show_rapids
 setup_menu_accel .menu.view end [_ "Show program r_apids"]
+
+.menu.view add checkbutton \
+	-variable program_alpha \
+	-command toggle_program_alpha
+setup_menu_accel .menu.view end [_ "Alpha-_blend program"]
 
 .menu.view add checkbutton \
 	-variable show_live_plot \
@@ -2341,6 +2358,24 @@ catch {
     namespace eval ::tk::dialog::file {}
     set ::tk::dialog::file::showHiddenBtn 1
     set ::tk::dialog::file::showHiddenVar 0
+}
+
+# Show what alphabetic letters are left for a specific menu
+proc show_menu_available {m} {
+    for {set i 0} {$i < [$m index end]} {incr i} {
+        set t [$m type $i]
+        if {$t == "separator" || $t == "tearoff"} {continue}
+        set u [$m entrycget $i -underline]
+        if {$u == -1} {continue}
+        set l [$m entrycget $i -label]
+        set c [string tolower [string range $l $u $u]]
+        if {[info exists used($c)]} { puts "Duplicate: $c" }
+        set used($c) {}
+    }
+
+    foreach i {a b c d e f g h i j k l m n o p q r s t u v w x y z} {
+        if {![info exists used($i)]} { puts "Available: $i" }
+    }
 }
 
 # vim:ts=8:sts=4:et:sw=4:

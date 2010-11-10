@@ -15,7 +15,7 @@
 #include "cms.hh"		/* enum CMS_STATUS */
 #include "phantom.hh"		/* class PHANTOMMEM */
 
-PHANTOMMEM::PHANTOMMEM(char *bufline, char *procline):CMS(bufline, procline)
+PHANTOMMEM::PHANTOMMEM(const char *bufline, const char *procline):CMS(bufline, procline)
 {
 }
 

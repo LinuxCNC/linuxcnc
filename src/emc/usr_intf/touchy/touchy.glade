@@ -685,6 +685,21 @@
                                 <property name="position">1</property>
                               </packing>
                             </child>
+                            <child>
+                              <widget class="GtkButton" id="macro">
+                                <property name="label">Macro</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="receives_default">False</property>
+                                <property name="border_width">11</property>
+                                <property name="use_underline">True</property>
+                                <property name="focus_on_click">False</property>
+                                <signal name="clicked" handler="on_mdi_macro_clicked"/>
+                              </widget>
+                              <packing>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
@@ -3309,6 +3324,67 @@ F1 S1</property>
                               </packing>
                             </child>
                             <child>
+                              <widget class="GtkFrame" id="frame14">
+                                <property name="visible">True</property>
+                                <property name="border_width">5</property>
+                                <property name="label_xalign">0</property>
+                                <child>
+                                  <widget class="GtkAlignment" id="alignment15">
+                                    <property name="visible">True</property>
+                                    <property name="left_padding">12</property>
+                                    <child>
+                                      <widget class="GtkTable" id="table1">
+                                        <property name="visible">True</property>
+                                        <property name="border_width">5</property>
+                                        <property name="n_rows">2</property>
+                                        <property name="column_spacing">15</property>
+                                        <property name="homogeneous">True</property>
+                                        <child>
+                                          <widget class="GtkToggleButton" id="toolset_workpiece">
+                                            <property name="label" translatable="yes">Workpiece</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="focus_on_click">False</property>
+                                            <signal name="clicked" handler="on_toolset_workpiece_clicked"/>
+                                          </widget>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkToggleButton" id="toolset_fixture">
+                                            <property name="label" translatable="yes">Fixture</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="focus_on_click">False</property>
+                                            <signal name="clicked" handler="on_toolset_fixture_clicked"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="top_attach">1</property>
+                                            <property name="bottom_attach">2</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label7">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Tool Setting&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="type">label_item</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="GtkFrame" id="frame13">
                                 <property name="visible">True</property>
                                 <property name="border_width">5</property>
@@ -3399,7 +3475,7 @@ F1 S1</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </widget>

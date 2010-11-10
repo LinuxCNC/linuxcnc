@@ -31,17 +31,17 @@ extern "C" {
 #endif
 
 /* Function Prototypes. */
-    extern int cms_config(CMS ** c, char *b, char *p, char *f,
+    extern int cms_config(CMS ** c, const char *b, const char *p, const char *f,
 	int set_to_server = 0, int set_to_master = 0);
 
     extern int cms_copy(CMS ** dest, CMS * src,
 	int set_to_server = 0, int set_to_master = 0);
 
-    extern int cms_create_from_lines(CMS ** cms, char *buffer_line,
-	char *proc_line, int set_to_server = 0, int set_to_master = 0);
+    extern int cms_create_from_lines(CMS ** cms, const char *buffer_line,
+	const char *proc_line, int set_to_server = 0, int set_to_master = 0);
 
-    extern int cms_create(CMS ** cms, char *buf_line, char *proc_line,
-	char *buffer_type, char *proc_type,
+    extern int cms_create(CMS ** cms, const char *buf_line, const char *proc_line,
+	const char *buffer_type, const char *proc_type,
 	int set_to_server = 0, int set_to_master = 0);
 
     extern int load_nml_config_file(const char *file);

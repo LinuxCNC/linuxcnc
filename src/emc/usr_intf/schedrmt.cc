@@ -28,6 +28,7 @@
 #include <sys/uio.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include <getopt.h>
 
@@ -279,7 +280,9 @@ struct option longopts[] = {
   {"sessions", 1, NULL, 's'},
   {"connectpw", 1, NULL, 'w'},
   {"enablepw", 1, NULL, 'e'},
-  {"path", 1, NULL, 'd'}};
+  {"path", 1, NULL, 'd'},
+  {0,0,0,0}
+  };
 
 
 static void thisQuit()
@@ -339,8 +342,7 @@ static void sigQuit(int sig)
 static int sockWrite(connectionRecType *context)
 {
    strcat(context->outBuf, "\r\n");
-   write(context->cliSock, context->outBuf, strlen(context->outBuf));
-   return 0;
+   return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static setCommandType lookupSetCommand(char *s)
@@ -378,8 +380,8 @@ static int commandHello(connectionRecType *context)
 
 static int checkOnOff(char *s)
 {
-  static char *onStr = "ON";
-  static char *offStr = "OFF";
+  static const char *onStr = "ON";
+  static const char *offStr = "OFF";
   
   if (s == NULL) return -1;
   strupr(s);
@@ -390,8 +392,8 @@ static int checkOnOff(char *s)
 
 static int checkBinaryASCII(char *s)
 {
-  static char *binaryStr = "BINARY";
-  static char *ASCIIStr = "ASCII";
+  static const char *binaryStr = "BINARY";
+  static const char *ASCIIStr = "ASCII";
   
   if (s == NULL) return -1;
   strupr(s);
@@ -402,10 +404,10 @@ static int checkBinaryASCII(char *s)
 
 static queueStatusType checkMode(char *s)
 {
-  static char *runStr = "RUN";
-  static char *stopStr = "STOP";
-  static char *pauseStr = "PAUSE";
-  static char *resumeStr = "RESUME";
+  static const char *runStr = "RUN";
+  static const char *stopStr = "STOP";
+  static const char *pauseStr = "PAUSE";
+  static const char *resumeStr = "RESUME";
 
   if (s == NULL) return qsError;
   strupr(s);
@@ -628,24 +630,22 @@ static cmdResponseType setPollRate(char *s, connectionRecType *context)
 
 int commandSet(connectionRecType *context)
 {
-  static char *setNakStr = "SET NAK\n\r";
-  static char *setCmdNakStr = "SET %s NAK\n\r";
-  static char *ackStr = "SET %s ACK\n\r";
+  static const char *setNakStr = "SET NAK\n\r";
+  static const char *setCmdNakStr = "SET %s NAK\n\r";
+  static const char *ackStr = "SET %s ACK\n\r";
   setCommandType cmd;
   char *pch;
   cmdResponseType ret = rtNoError;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if ((cmd >= scIniFile) && (context->cliSock != enabledConn)) {
     sprintf(context->outBuf, setCmdNakStr, pch);
-    write(context->cliSock, context->outBuf, strlen(context->outBuf));
-    return 0;
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   switch (cmd) {
     case scEcho: ret = setEcho(strtok(NULL, delims), context); break;
@@ -676,17 +676,17 @@ int commandSet(connectionRecType *context)
     case rtNoError:  
       if (context->verbose) {
         sprintf(context->outBuf, ackStr, pch);
-        write(context->cliSock, context->outBuf, strlen(context->outBuf));
+        return write(context->cliSock, context->outBuf, strlen(context->outBuf));
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
       sprintf(context->outBuf, setCmdNakStr, pch);
-      write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomError: // Custom error response entered in buffer
-      write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomHandledError: ;// Custom error respose handled, take no action
     }
@@ -695,7 +695,7 @@ int commandSet(connectionRecType *context)
 
 static cmdResponseType getEcho(char *s, connectionRecType *context)
 {
-  char *pEchoStr = "ECHO %s";
+  const char *pEchoStr = "ECHO %s";
   
   if (context->echo) sprintf(context->outBuf, pEchoStr, "ON");
   else sprintf(context->outBuf, pEchoStr, "OFF");
@@ -704,7 +704,7 @@ static cmdResponseType getEcho(char *s, connectionRecType *context)
 
 static cmdResponseType getVerbose(char *s, connectionRecType *context)
 {
-  char *pVerboseStr = "VERBOSE %s";
+  const char *pVerboseStr = "VERBOSE %s";
   
   if (context->verbose) sprintf(context->outBuf, pVerboseStr, "ON");
   else sprintf(context->outBuf, pVerboseStr, "OFF");
@@ -713,7 +713,7 @@ static cmdResponseType getVerbose(char *s, connectionRecType *context)
 
 static cmdResponseType getEnable(char *s, connectionRecType *context)
 {
-  char *pEnableStr = "ENABLE %s";
+  const char *pEnableStr = "ENABLE %s";
   
   if (context->cliSock == enabledConn) 
 //  if (context->enabled == true)
@@ -724,7 +724,7 @@ static cmdResponseType getEnable(char *s, connectionRecType *context)
 
 static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
-  char *pConfigStr = "CONFIG";
+  const char *pConfigStr = "CONFIG";
 
   strcpy(context->outBuf, pConfigStr);
   return rtNoError;
@@ -732,7 +732,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 
 static cmdResponseType getCommMode(char *s, connectionRecType *context)
 {
-  char *pCommModeStr = "COMM_MODE %s";
+  const char *pCommModeStr = "COMM_MODE %s";
   
   switch (context->commMode) {
     case 0: sprintf(context->outBuf, pCommModeStr, "ASCII"); break;
@@ -743,7 +743,7 @@ static cmdResponseType getCommMode(char *s, connectionRecType *context)
 
 static cmdResponseType getCommProt(char *s, connectionRecType *context)
 {
-  char *pCommProtStr = "COMM_PROT %s";
+  const char *pCommProtStr = "COMM_PROT %s";
   
   sprintf(context->outBuf, pCommProtStr, context->version);
   return rtNoError;
@@ -751,7 +751,7 @@ static cmdResponseType getCommProt(char *s, connectionRecType *context)
 
 static cmdResponseType getDebug(char *s, connectionRecType *context)
 {
-  char *pUpdateStr = "DEBUG %d";
+  const char *pUpdateStr = "DEBUG %d";
   
   sprintf(context->outBuf, pUpdateStr, emcStatus->debug);
   return rtNoError;
@@ -759,7 +759,7 @@ static cmdResponseType getDebug(char *s, connectionRecType *context)
 
 static cmdResponseType getIniFile(char *s, connectionRecType *context)
 {
-  char *pIniFile = "INIFILE %s";
+  const char *pIniFile = "INIFILE %s";
   
   sprintf(context->outBuf, pIniFile, EMC_INIFILE);
   return rtNoError;
@@ -767,7 +767,7 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
 
 static cmdResponseType getPlat(char *s, connectionRecType *context)
 {
-  char *pPlatStr = "PLAT %s";
+  const char *pPlatStr = "PLAT %s";
   
   sprintf(context->outBuf, pPlatStr, "Linux");
   return rtNoError;  
@@ -775,7 +775,7 @@ static cmdResponseType getPlat(char *s, connectionRecType *context)
 
 static cmdResponseType getQMode(char *s, connectionRecType *context)
 {
-  char *pQMode = "QMODE %s";
+  const char *pQMode = "QMODE %s";
 
   switch (getStatus()) {
     case qsStop: sprintf(context->outBuf, pQMode, "STOP"); break;
@@ -789,7 +789,7 @@ static cmdResponseType getQMode(char *s, connectionRecType *context)
 
 static cmdResponseType getQStatus(connectionRecType *context)
 {
-  char *pQStatus = "QSTATUS %d %d %d %d";
+  const char *pQStatus = "QSTATUS %d %d %d %d";
 
   sprintf(context->outBuf, pQStatus, getQueueSize(), getFirstTagId(), getLastTagId(), getQueueCRC());
   return rtNoError;
@@ -797,7 +797,7 @@ static cmdResponseType getQStatus(connectionRecType *context)
 
 static cmdResponseType getTagId(connectionRecType *context)
 {
-  char *pTagId = "AUTOTAGID %d";
+  const char *pTagId = "AUTOTAGID %d";
 
   sprintf(context->outBuf, pTagId, getNextTagId());
   return rtNoError;
@@ -878,16 +878,15 @@ static cmdResponseType getPollRate(connectionRecType *context)
 
 int commandGet(connectionRecType *context)
 {
-  static char *setNakStr = "GET NAK\r\n";
-  static char *setCmdNakStr = "GET %s NAK\r\n";
+  static const char *setNakStr = "GET NAK\r\n";
+  static const char *setCmdNakStr = "GET %s NAK\r\n";
   setCommandType cmd;
   char *pch;
   cmdResponseType ret = rtNoError;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
   strupr(pch);
@@ -1099,10 +1098,10 @@ int parseCommand(connectionRecType *context)
   int ret = 0;
   char *pch;
   char s[64];
-  static char *helloNakStr = "HELLO NAK\r\n";
-  static char *shutdownNakStr = "SHUTDOWN NAK\r\n";
-  static char *helloAckStr = "HELLO ACK %s 1.1\r\n";
-  static char *setNakStr = "SET NAK\r\n";
+  static const char *helloNakStr = "HELLO NAK\r\n";
+  static const char *shutdownNakStr = "SHUTDOWN NAK\r\n";
+  static const char *helloAckStr = "HELLO ACK %s 1.1\r\n";
+  static const char *setNakStr = "SET NAK\r\n";
     
   pch = strtok(context->inBuf, delims);
   sprintf(s, helloAckStr, serverName);
@@ -1111,15 +1110,15 @@ int parseCommand(connectionRecType *context)
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          write(context->cliSock, helloNakStr, strlen(helloNakStr));
-        else write(context->cliSock, s, strlen(s));
+          ret = write(context->cliSock, helloNakStr, strlen(helloNakStr));
+        else ret = write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (!context->linked)
-	  write(context->cliSock, setNakStr, strlen(setNakStr)); 
+	  ret = write(context->cliSock, setNakStr, strlen(setNakStr));
         else ret = commandSet(context);
         break;
       case cmdQuit: 
@@ -1128,7 +1127,7 @@ int parseCommand(connectionRecType *context)
       case cmdShutdown:
         ret = commandShutdown(context);
         if(ret ==0){
-          write(context->cliSock, shutdownNakStr, strlen(shutdownNakStr));
+          ret = write(context->cliSock, shutdownNakStr, strlen(shutdownNakStr));
         }
 	break;
       case cmdHelp:
@@ -1179,7 +1178,9 @@ void *readClient(void *arg)
     strcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if (context->echo && context->linked)
-      write(context->cliSock, buf, strlen(buf));
+      if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
+        fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));
+      }
     i = 0;
     j = 0;
     while (i <= strlen(buf)) {

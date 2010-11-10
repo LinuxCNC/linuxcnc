@@ -54,10 +54,13 @@ EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/emc2
 RTLIBDIR := @EMC2_RTLIB_DIR@
 LIBDIR := @libdir@
 endif
+cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)
 
 ifeq ($(BUILDSYS),kbuild)
 modules:
-	$(MAKE) -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 -o $(KDIR)/Module.symvers modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
 
 clean:
 	rm *.ko *.mod.c *.o

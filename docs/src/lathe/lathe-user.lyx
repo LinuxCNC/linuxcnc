@@ -61,8 +61,9 @@ When you set up a lathe using Lathe Mode you need to use a Lathe Tool Table
 \end_layout
 
 \begin_layout Standard
-Lathe Mode in Axis does not put your default plane to G18 XZ.
- You must program that in the preamble of each file or add to your ini.
+Lathe Mode in Axis does not set your default plane to G18 (XZ).
+ You must program that in the preamble of each gcode file or (better) add
+ it to your .ini.
 \end_layout
 
 \begin_layout Section
@@ -72,10 +73,11 @@ Tool Table
 \begin_layout Standard
 The "Tool Table" is a text file that contains information about each tool.
  The file is located in the same directory as your configuration and is
- called "tool.tbl".
+ called "tool.tbl" by default.
  The tools might be in a tool changer or just changed manually.
  The file can be edited with a text editor or be updated using G10 L1.
- 
+ The maximum number of entries in the tool table is 56.
+ The maximum tool and pocket number is 99999.
 \end_layout
 
 \begin_layout Standard
@@ -351,44 +353,41 @@ P99999
 \end_layout
 
 \begin_layout Standard
-In general new tool table line format is: 
+In general, the new tool table line format is: 
 \end_layout
 
 \begin_layout Itemize
-T - integer tool number 
+T - tool number - integer, 0-99999 (you can have a large number of tools
+ in inventory)
 \end_layout
 
 \begin_layout Itemize
-P - integer pocket number 
+P - pocket number - integer, 1-99999 (tool table has a lower number of entries,
+ currently 56) 
 \end_layout
 
 \begin_layout Itemize
-D - abs float tool diameter 
+D - tool diameter - floating-point, absolute value 
 \end_layout
 
 \begin_layout Itemize
-X..W - float tool length offset on specified axis 
+X..W - tool length offset on specified axis - floating-point
 \end_layout
 
 \begin_layout Itemize
-I - float front angle (lathe tools) 
+I - front angle (lathe only) - floating-point 
 \end_layout
 
 \begin_layout Itemize
-J - float back angle (lathe tools) 
+J - back angle (lathe only) - floating-point 
 \end_layout
 
 \begin_layout Itemize
-Q - int tool orientation (lathe) 
+Q - tool orientation (lathe only) - integer, 0-9 
 \end_layout
 
 \begin_layout Itemize
-; - begin of comment 
-\end_layout
-
-\begin_layout Standard
-The maximum number of entries in the tool table is 56.
- The maximum tool and pocket number is 99999.
+; - beginning of comment - text
 \end_layout
 
 \begin_layout Standard
@@ -625,7 +624,7 @@ Select Touch Off and pick Tool Table then enter the position or the diameter.
 \end_layout
 
 \begin_layout Standard
-Note: if your in Radius Mode you will enter the radius not the diameter.
+Note: if you are in Radius Mode you must enter the radius, not the diameter.
 \end_layout
 
 \begin_layout Subsection*
@@ -635,12 +634,12 @@ The Z Tool Offset
 \begin_layout Standard
 The Z axis offsets can be a bit confusing at first because there are two
  elements to the Z offset.
- The tool table offset and the machine coordinate offset.
+ The tool table offset, and the machine coordinate offset.
  First we will look at the tool table offsets.
  One method is to use a fixed point on your lathe and set the Z offset for
  all tools from this point.
  Some use the spindle nose or chuck face.
- This gives you the ability to change to a new tool and set it's Z offset
+ This gives you the ability to change to a new tool and set its Z offset
  without having to reset all the tools.
 \end_layout
 
@@ -685,8 +684,8 @@ Now all the tools are offset the same distance from a standard position.
  in sync with the rest of the tools for Z offset.
  Some tools might require a bit of cyphering to determine the control point
  from the touch off point.
- For example if you have a 0.125" wide parting tool and you touch the left
- side off but want the right to be Z0 then enter 0.125" in the touch off
+ For example, if you have a 0.125" wide parting tool and you touch the left
+ side off but want the right to be Z0, then enter 0.125" in the touch off
  window.
 \end_layout
 
@@ -696,7 +695,7 @@ The Z Machine Offset
 
 \begin_layout Standard
 Once all the tools have the Z offset entered into the tool table you can
- use any tool to set the machine offset using a machine coordinate system.
+ use any tool to set the machine offset using the machine coordinate system.
 \end_layout
 
 \begin_layout Standard
@@ -721,8 +720,9 @@ Bring the tool to the work piece and set the machine Z offset.
 
 \begin_layout Standard
 If you forget to set the G43 for the current tool when you set the machine
- coordinate system offset you will not get what you expect as the tool offset
- will be added to the current offset when the tool is used in your program.
+ coordinate system offset you will not get what you expect, as the tool
+ offset will be added to the current offset when the tool is used in your
+ program.
 \end_layout
 
 \begin_layout Section
@@ -737,8 +737,8 @@ Threading with a lathe requires feedback from the spindle to EMC.
 \end_layout
 
 \begin_layout Standard
-The G76 threading cycle is used for both internal and external threads for
- more information see G76
+The G76 threading cycle is used for both internal and external threads.
+ For more information see G76
 \begin_inset LatexCommand ref
 reference "sec:G76:-Threading-Canned"
 
@@ -755,7 +755,7 @@ Constant Surface Speed
 CSS or Constant Surface Speed (G96) uses the machine X origin modified by
  the tool X offset to compute the spindle speed in RPM.
  CSS will track changes in tool offsets.
- The X machine origin should be when the reference tool ( the one with zero
+ The X machine origin should be when the reference tool (the one with zero
  offset) is at the center of rotation.
 \end_layout
 
@@ -768,7 +768,7 @@ Calculating arcs can be mind challenging enough without considering radius
  and diameter mode on lathes as well as machine coordinate system orientation.
  The following applies to center format arcs.
  On a lathe you should include G18 in your preamble as the default is G17
- even if your in lathe mode in the user interface Axis.
+ even if you're in lathe mode, in the user interface Axis.
  Arcs in G18 XZ plane use I (X axis) and K (Z axis) offsets.
 \end_layout
 
@@ -802,11 +802,11 @@ Some lathes with tools on the back side have the imaginary Y axis pointing
 \end_layout
 
 \begin_layout Standard
-G2/3 Arcs direction is based on the axis it rotates about.
- In the case of lathes it is the imaginary Y axis.
- If the Y points toward the floor you have to look up for the arc to appear
+G2/G3 Arc directions are based on the axis they rotate around.
+ In the case of lathes, it is the imaginary Y axis.
+ If the Y points toward the floor, you have to look up for the arc to appear
  to go in the correct direction.
- So looking from above you reverse the G2/3 for the arc to appear to go
+ So looking from above you reverse the G2/G3 for the arc to appear to go
  in the correct direction.
 \end_layout
 
@@ -821,7 +821,7 @@ When calculating arcs in radius mode you only have to remember the direction
 
 \begin_layout Standard
 When calculating arcs in diameter mode X is diameter and the X offset (I)
- is radius even if your in G7 diameter mode.
+ is radius even if you're in G7 diameter mode.
 \end_layout
 
 \begin_layout Section
@@ -833,15 +833,15 @@ Control Point
 \end_layout
 
 \begin_layout Standard
-The the control point for the tool follows the programmed path.
+The control point for the tool follows the programmed path.
  The control point is the intersection of a line parallel to the X and Z
- axis and tangent to the tool tip diameter as defined when you touch off
+ axis and tangent to the tool tip diameter, as defined when you touch off
  the X and Z axes for that tool.
  When turning or facing straight sided parts the cutting path and the tool
  edge follow the same path.
  When turning radius and angles the edge of the tool tip will not follow
  the programmed path unless cutter comp is in effect.
- In the following figure you can see how the control point does not follow
+ In the following figures you can see how the control point does not follow
  the tool edge as you might assume.
 \end_layout
 
@@ -1007,9 +1007,9 @@ Cutting a Radius
 \begin_layout Standard
 In this example we will examine what happens during a radius cut without
  cutter comp.
- In the next figure you see the tool turning the OD of the part and the
- control point of the tool is following the programmed path and the tool
- is touching the OD of the part.
+ In the next figure you see the tool turning the OD of the part.
+ The control point of the tool is following the programmed path and the
+ tool is touching the OD of the part.
 \end_layout
 
 \begin_layout Standard

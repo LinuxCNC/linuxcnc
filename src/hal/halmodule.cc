@@ -64,6 +64,14 @@ struct halitem {
     union halunion *u; 
 };
 
+struct pyhalitem {
+    PyObject_HEAD
+    halitem  pin;
+    char * name;
+};
+
+static PyObject * pyhal_pin_new(halitem * pin, const char *name);
+
 typedef std::map<std::string, struct halitem> itemmap;
 
 typedef struct halobject {
@@ -302,7 +310,7 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
 
     (*self->items)[name] = param;
 
-    Py_RETURN_NONE;
+    return pyhal_pin_new(&param, name);
 }
 
 
@@ -332,7 +340,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
 
     (*self->items)[name] = pin;
 
-    Py_RETURN_NONE;
+    return pyhal_pin_new(&pin, name);
 }
 
 static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
@@ -364,6 +372,19 @@ static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
         return NULL;
     } else { PyErr_Clear(); }
     return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pin_dir_t)dir);
+}
+
+static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
+    char *name;
+    halobject *self = (halobject *)_self;
+
+    if(!PyArg_ParseTuple(o, "s", &name))
+        return NULL;
+
+    halitem * pin = find_item(self, name);
+    if (!pin)
+	return NULL;
+    return pyhal_pin_new(pin, name);
 }
 
 static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
@@ -446,6 +467,8 @@ static PyMethodDef hal_methods[] = {
         "Create a new parameter"},
     {"newpin", pyhal_new_pin, METH_VARARGS,
         "Create a new pin"},
+    {"getitem", pyhal_get_pin, METH_VARARGS,
+        "Get existing pin object"},
     {"exit", pyhal_exit, METH_NOARGS,
         "Call hal_exit"},
     {"ready", pyhal_ready, METH_NOARGS,
@@ -481,7 +504,7 @@ PyTypeObject halobject_type = {
     pyhal_getattro,            /*tp_getattro*/
     pyhal_setattro,            /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
     "HAL Component",           /*tp_doc*/
     0,                         /*tp_traverse*/
     0,                         /*tp_clear*/
@@ -503,6 +526,166 @@ PyTypeObject halobject_type = {
     0,                         /*tp_free*/
     0,                         /*tp_is_gc*/
 };
+
+static const char * pin_type2name(hal_type_t type) {
+    switch (type) {
+	case HAL_BIT: return "BIT";
+	case HAL_S32: return "S32";
+	case HAL_U32: return "U32";
+	case HAL_FLOAT: return "FLOAT";
+	default: return "unknown";
+    }
+}
+
+static const char * pin_dir2name(hal_pin_dir_t type) {
+    switch (type) {
+	case HAL_IN:  return "IN";
+	case HAL_IO:  return "IO";
+	case HAL_OUT: return "OUT";
+	default: return "unknown";
+    }
+}
+
+static const char * param_dir2name(hal_param_dir_t type) {
+    switch (type) {
+	case HAL_RO:  return "RO";
+	case HAL_RW:  return "RW";
+	default: return "unknown";
+    }
+}
+
+static PyObject *pyhalpin_repr(PyObject *_self) {
+    pyhalitem *pyself = (pyhalitem *) _self;
+    halitem *self = &pyself->pin;
+
+    const char * name = "(null)";
+    if (pyself->name) name = pyself->name;
+
+    if (!self->is_pin)
+	return PyString_FromFormat("<hal param \"%s\" %s-%s>", name,
+	    pin_type2name(self->type), param_dir2name(self->dir.paramdir));
+    return PyString_FromFormat("<hal pin \"%s\" %s-%s>", name,
+            pin_type2name(self->type), pin_dir2name(self->dir.pindir));
+}
+
+static int pyhalpin_init(PyObject *_self, PyObject *, PyObject *) {
+    PyErr_Format(PyExc_RuntimeError,
+	    "Cannot be constructed directly");
+    return -1;
+}
+
+static void pyhalpin_delete(PyObject *_self) {
+    pyhalitem *self = (pyhalitem *)_self;
+
+    if(self->name) free(self->name);
+
+    PyObject_Del(self);
+}
+
+static PyObject * pyhal_pin_set(PyObject * _self, PyObject * value) {
+    pyhalitem * self = (pyhalitem *) _self;
+    if (pyhal_write_common(&self->pin, value) == -1)
+	return NULL;
+    Py_RETURN_NONE;
+}
+
+static PyObject * pyhal_pin_get(PyObject * _self, PyObject *) {
+    pyhalitem * self = (pyhalitem *) _self;
+    return pyhal_read_common(&self->pin);
+}
+
+static PyObject * pyhal_pin_get_type(PyObject * _self, PyObject *) {
+    pyhalitem * self = (pyhalitem *) _self;
+    return PyInt_FromLong(self->pin.type);
+}
+
+static PyObject * pyhal_pin_get_dir(PyObject * _self, PyObject *) {
+    pyhalitem * self = (pyhalitem *) _self;
+    if (self->pin.is_pin)
+	return PyInt_FromLong(self->pin.dir.pindir);
+    else
+	return PyInt_FromLong(self->pin.dir.paramdir);
+}
+
+static PyObject * pyhal_pin_is_pin(PyObject * _self, PyObject *) {
+    pyhalitem * self = (pyhalitem *) _self;
+    return PyBool_FromLong(self->pin.is_pin);
+}
+
+static PyObject * pyhal_pin_get_name(PyObject * _self, PyObject *) {
+    pyhalitem * self = (pyhalitem *) _self;
+    if (!self->name)
+	Py_RETURN_NONE;
+    return PyString_FromString(self->name);
+}
+
+static PyMethodDef halpin_methods[] = {
+    {"set", pyhal_pin_set, METH_O, "Set item value"},
+    {"get", pyhal_pin_get, METH_NOARGS, "Get item value"},
+    {"get_type", pyhal_pin_get_type, METH_NOARGS, "Get item type"},
+    {"get_dir", pyhal_pin_get_dir, METH_NOARGS, "Get item direction"},
+    {"get_name", pyhal_pin_get_name, METH_NOARGS, "Get item name"},
+    {"is_pin", pyhal_pin_is_pin, METH_NOARGS, "If item is pin or param"},
+    {NULL},
+};
+
+static 
+PyTypeObject halpin_type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "hal.item",                /*tp_name*/
+    sizeof(pyhalitem),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    pyhalpin_delete,           /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    pyhalpin_repr,             /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
+    "HAL Pin",                 /*tp_doc*/
+    0,                         /*tp_traverse*/
+    0,                         /*tp_clear*/
+    0,                         /*tp_richcompare*/
+    0,                         /*tp_weaklistoffset*/
+    0,                         /*tp_iter*/
+    0,                         /*tp_iternext*/
+    halpin_methods,            /*tp_methods*/
+    0,                         /*tp_members*/
+    0,                         /*tp_getset*/
+    0,                         /*tp_base*/
+    0,                         /*tp_dict*/
+    0,                         /*tp_descr_get*/
+    0,                         /*tp_descr_set*/
+    0,                         /*tp_dictoffset*/
+    pyhalpin_init,             /*tp_init*/
+    0,                         /*tp_alloc*/
+    PyType_GenericNew,         /*tp_new*/
+    0,                         /*tp_free*/
+    0,                         /*tp_is_gc*/
+};
+
+static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
+    pyhalitem * pypin = PyObject_New(pyhalitem, &halpin_type);
+    if (!pypin)
+	return NULL;
+    pypin->pin = *pin;
+    if (name)
+	pypin->name = strdup(name);
+    else
+	pypin->name = NULL;
+
+    return (PyObject *) pypin;
+}
 
 PyObject *pin_has_writer(PyObject *self, PyObject *args) {
     char *name;
@@ -708,7 +891,7 @@ PyMethodDef module_methods[] = {
     {NULL},
 };
 
-char *module_doc = "Interface to emc2's hal\n"
+const char *module_doc = "Interface to emc2's hal\n"
 "\n"
 "This module allows the creation of userspace HAL components in Python.\n"
 "This includes pins and parameters of the various HAL types.\n"
@@ -735,17 +918,19 @@ char *module_doc = "Interface to emc2's hal\n"
 ;
 
 extern "C"
-void inithal(void) {
-    PyObject *m = Py_InitModule3("hal", module_methods,
+void init_hal(void) {
+    PyObject *m = Py_InitModule3("_hal", module_methods,
             module_doc);
 
-    pyhal_error_type = PyErr_NewException("hal.error", NULL, NULL);
+    pyhal_error_type = PyErr_NewException((char*)"hal.error", NULL, NULL);
     PyModule_AddObject(m, "error", pyhal_error_type);
 
     PyType_Ready(&halobject_type);
     PyType_Ready(&shm_type);
+    PyType_Ready(&halpin_type);
     PyModule_AddObject(m, "component", (PyObject*)&halobject_type);
     PyModule_AddObject(m, "shm", (PyObject*)&shm_type);
+    PyModule_AddObject(m, "item", (PyObject*)&halpin_type);
 
     PyModule_AddIntConstant(m, "MSG_NONE", RTAPI_MSG_NONE);
     PyModule_AddIntConstant(m, "MSG_ERR", RTAPI_MSG_ERR);

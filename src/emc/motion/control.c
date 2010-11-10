@@ -380,8 +380,11 @@ static void process_probe_inputs(void) {
             emcmotStatus->probing = 0;
             if (probe_suppress) {
                 emcmotStatus->probeTripped = 0;
+            } else if(probe_whenclears) {
+                reportError(_("G38.4 move finished without breaking contact."));
+                SET_MOTION_ERROR_FLAG(1);
             } else {
-                reportError(_("G38.2 probe move finished without tripping probe"));
+                reportError(_("G38.2 move finished without making contact."));
                 SET_MOTION_ERROR_FLAG(1);
             }
         }
@@ -1436,11 +1439,13 @@ static void get_pos_cmds(long period)
 	    /* check for soft limits */
 	    if (joint->pos_cmd > joint->max_pos_limit) {
 		onlimit = 1;
-                reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
+                if (!emcmotStatus->on_soft_limit)
+                    reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
 	    }
 	    if (joint->pos_cmd < joint->min_pos_limit) {
 		onlimit = 1;
-                reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
+                if (!emcmotStatus->on_soft_limit)
+                    reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
 	    }
 	}
     }
@@ -1770,6 +1775,7 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
 	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
     }
+    *(emcmot_hal_data->spindle_speed_cmd_rps) = emcmotStatus->spindle.speed / 60.;
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_reverse) = (*emcmot_hal_data->spindle_speed_out < 0) ? 1 : 0;

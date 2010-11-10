@@ -456,9 +456,10 @@ static void dialog_realtime_not_loaded(void)
 
     if(first_time) {
         first_time = 0;
-        system(EMC2_BIN_DIR "/halcmd loadrt scope_rt");
-        sleep(1);
-        return;
+        if(system(EMC2_BIN_DIR "/halcmd loadrt scope_rt") == 0) {
+	    sleep(1);
+	    return;
+	}
     }
     title = _("Realtime component not loaded");
     msg = _("HALSCOPE uses a realtime component called scope_rt'\n"

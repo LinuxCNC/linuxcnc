@@ -28,7 +28,24 @@ run_shell_script () {
     else
         bash -x $testname > result 2> stderr
     fi
+    exitcode=$?
     popd > /dev/null
+    return $exitcode
+}
+
+run_executable () {
+    testname=$(basename $1)
+    testdir=$(dirname $1)
+
+    pushd $testdir > /dev/null
+    if [ $VERBOSE -eq 1 ]; then
+        (./$testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+    else
+        ./$testname > result 2> stderr
+    fi
+    exitcode=$?
+    popd > /dev/null
+    return $exitcode
 }
 
 run_without_overruns () {
@@ -43,9 +60,9 @@ run_without_overruns () {
         else
             halrun -f $testname > result 2> stderr
         fi
+        exitcode=$?
         popd > /dev/null
 
-        exitcode=$?
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
     echo "--- $testdir: $i overruns detected, giving up" 1>&2
@@ -57,7 +74,8 @@ trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 
 run_tests () {
-    find $* -name test.hal -or -name test.sh | sort > $TMPDIR/alltests
+    find $* -name test.hal -or -name test.sh -or -name test \
+	| sort > $TMPDIR/alltests
 
     while read testname; do
 	testdir=$(dirname $testname)
@@ -72,6 +90,7 @@ run_tests () {
         case $testname in
         *.hal) run_without_overruns $testname ;;
         *.sh) run_shell_script $testname ;;
+        *) run_executable $testname ;;
         esac
 	exitcode=$?
 	if [ $exitcode -ne 0 ]; then

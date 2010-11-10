@@ -436,7 +436,7 @@ class emc_status:
                         if i % 10 == 0:
                                 active_codes.append("G%d" % (i/10))
                         else:
-                                active_codes.append("G%d.%d" % (i/10, 1%10))
+                                active_codes.append("G%d.%d" % (i/10, i%10))
 
                 for i in self.emcstat.mcodes[1:]:
                         if i == -1: continue

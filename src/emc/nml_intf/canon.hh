@@ -564,7 +564,7 @@ controller.
 An attempt to move an axis while it is clamped should result in an
 error condition in the controller. */
 
-extern void COMMENT(char *s);
+extern void COMMENT(const char *s);
 
 /* This function has no physical effect. If commands are being printed or
 logged, the comment command is printed or logged, including the string

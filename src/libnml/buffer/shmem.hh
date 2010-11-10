@@ -36,8 +36,8 @@ extern "C" {
 
 class SHMEM:public CMS {
   public:
-    SHMEM(char *name, long size, int neutral, key_t key, int m = 0);
-    SHMEM(char *bufline, char *procline, int set_to_server = 0,
+    SHMEM(const char *name, long size, int neutral, key_t key, int m = 0);
+    SHMEM(const char *bufline, const char *procline, int set_to_server = 0,
 	int set_to_master = 0);
     virtual ~ SHMEM();
 

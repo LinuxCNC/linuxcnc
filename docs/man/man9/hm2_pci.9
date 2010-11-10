@@ -23,7 +23,8 @@ hm2_pci is a device driver that interfaces Mesa's PCI and PC-104/Plus
 based Anything I/O boards (with the HostMot2 firmware) to the EMC2 HAL.
 
 The supported boards are: the 5i20, 5i22, and 5i23 (all on PCI); the
-4i65 and 4i68 (on PC-104/Plus), and the 3x20 (on PCI Express).
+4i65 and 4i68 (on PC-104/Plus), and the 3x20 (on PCI Express, probably
+using a 6i68 or 7i68 carrier card).
 
 The driver programs the board's FPGA with firmware when it registers
 the board with the hostmot2 driver.  The firmware to load is specified

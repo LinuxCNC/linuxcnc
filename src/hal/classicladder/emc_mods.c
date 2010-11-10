@@ -54,112 +54,107 @@
 
 char * ConvVarNameToHalSigName( char * VarNameParam ) 
 {
-	if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return "Error blank symbol name";}
-	if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
-	if( VarNameParam[0] == '%'){
-            char pin_name[100] = {0};
-            int arrowside=0;
-            int idx;
+    if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return "Error blank symbol name";}
+    if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
+    if( VarNameParam[0] == '%'){
+        char pin_name[100] = {0};
+        int arrowside=0;
+        int idx;
 
-        switch(VarNameParam[1])
-           {
+        switch(VarNameParam[1]) {
             case 'I':
-                    switch(VarNameParam[2])
-                     {
-                      case 'W':
-                          sscanf(VarNameParam+3, "%d", &idx);
-                          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs) {return "out of bounds variable number";}
-                          snprintf(pin_name, 100, "classicladder.0.s32in-%02d", idx);
-                          arrowside = 1;
-                      break;     
-                      case 'F':
-                          sscanf(VarNameParam+3, "%d", &idx);
-                          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs) {return "out of bounds variable number";}
-                          snprintf(pin_name, 100, "classicladder.0.floatin-%02d", idx);
-                          arrowside = 1;
-                      break; 
-                      default:
-                          sscanf(VarNameParam+2, "%d", &idx);
-                          snprintf(pin_name, 100, "classicladder.0.in-%02d", idx);
-                          arrowside = 1;
-		          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs) {return "out of bounds variable number";}
-                      break;
-                     }
+                switch(VarNameParam[2]) {
+                    case 'W':
+                        sscanf(VarNameParam+3, "%d", &idx);
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs) {return "out of bounds variable number";}
+                        snprintf(pin_name, 100, "classicladder.0.s32in-%02d", idx);
+                        arrowside = 1;
+                        break;
+                    case 'F':
+                        sscanf(VarNameParam+3, "%d", &idx);
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs) {return "out of bounds variable number";}
+                        snprintf(pin_name, 100, "classicladder.0.floatin-%02d", idx);
+                        arrowside = 1;
+                        break;
+                    default:
+                        sscanf(VarNameParam+2, "%d", &idx);
+                        snprintf(pin_name, 100, "classicladder.0.in-%02d", idx);
+                        arrowside = 1;
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs) {return "out of bounds variable number";}
+                        break;
+                }
                 break;
             case 'Q':
-                    switch(VarNameParam[2])
-                     {
-                      case 'W':
-                          sscanf(VarNameParam+3, "%d", &idx);
-                          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs) {return "out of bounds variable number";}
-                          snprintf(pin_name, 100, "classicladder.0.s32out-%02d", idx);
-                          arrowside = 0;
-                      break;   
-                      case 'F':
-                          sscanf(VarNameParam+3, "%d", &idx);
-                          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs) {return "out of bounds variable number";}
-                          snprintf(pin_name, 100, "classicladder.0.floatout-%02d", idx);
-                          arrowside = 0;
-                      break;   
-                      default:
-                          sscanf(VarNameParam+2, "%d", &idx);
-                          snprintf(pin_name, 100, "classicladder.0.out-%02d", idx);
-                          arrowside = 0;
-		          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs) {return "out of bounds variable number";}
-                      break;
-                     }
+                switch(VarNameParam[2]) {
+                    case 'W':
+                        sscanf(VarNameParam+3, "%d", &idx);
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs) {return "out of bounds variable number";}
+                        snprintf(pin_name, 100, "classicladder.0.s32out-%02d", idx);
+                        arrowside = 0;
+                        break;
+                    case 'F':
+                        sscanf(VarNameParam+3, "%d", &idx);
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs) {return "out of bounds variable number";}
+                        snprintf(pin_name, 100, "classicladder.0.floatout-%02d", idx);
+                        arrowside = 0;
+                        break;
+                    default:
+                        sscanf(VarNameParam+2, "%d", &idx);
+                        snprintf(pin_name, 100, "classicladder.0.out-%02d", idx);
+                        arrowside = 0;
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs) {return "out of bounds variable number";}
+                        break;
+                }
                 break;
-            case 'W':                    
+            case 'W':
                 sscanf(VarNameParam+2, "%d", &idx);
-		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
-                return "None -Internal Memory";                
+                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
+                return "None -Internal Memory";
                 break;
-	   case 'B':
+            case 'B':
                 sscanf(VarNameParam+2, "%d", &idx);
-		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_bits) {return "out of bounds variable number";}
-		return "None -Internal Memory";
-		break;
-           case 'E':
+                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_bits) {return "out of bounds variable number";}
+                return "None -Internal Memory";
+                break;
+            case 'E':
                 sscanf(VarNameParam+2, "%d", &idx);
-		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_error_bits) {return "out of bounds variable number";}
-		return "None -Internal Error Status";
-		break;
-           case 'T':
-           case 'C':
-           case 'M':
-           case 'X':
+                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_error_bits) {return "out of bounds variable number";}
+                return "None -Internal Error Status";
+                break;
+            case 'T':
+            case 'C':
+            case 'M':
+            case 'X':
                 return "None";
                 break;
-	   default:
+            default:
                 return "error";
-		break;
-          }
+                break;
+        }
 
-            if(*pin_name) {
-                hal_pin_t *pin = halpr_find_pin_by_name(pin_name);
-                if(pin && pin->signal) {
-                    hal_sig_t *sig = SHMPTR(pin->signal);
-                    if(sig->name) {
-                        static char sig_name[100];
-                        // char *arrow = "\xe2\x86\x90";
-                        char *arrow = "\xe2\x87\x92";
+        if(*pin_name) {
+            hal_pin_t *pin = halpr_find_pin_by_name(pin_name);
+            if(pin && pin->signal) {
+                hal_sig_t *sig = SHMPTR(pin->signal);
+                if(sig->name) {
+                    static char sig_name[100];
+                    // char *arrow = "\xe2\x86\x90";
+                    char *arrow = "\xe2\x87\x92";
 
-                        if(arrowside == 0) {
-                            snprintf(sig_name, 100, "%s%s", sig->name, arrow);
-                        } else {
-                            snprintf(sig_name, 100, "%s%s", arrow, sig->name);
-                        }
-			
-                        return sig_name;
-                  			   }
-					}
-			if (!pin->signal) {return "no signal connected";  }
-			  }
-				}
-                
-            
-		
-return "Conv. HAL signal ERROR";
+                    if(arrowside == 0) {
+                        snprintf(sig_name, 100, "%s%s", sig->name, arrow);
+                    } else {
+                        snprintf(sig_name, 100, "%s%s", arrow, sig->name);
+                    }
+
+                    return sig_name;
+                }
+            }
+            if (pin && !pin->signal) {return "no signal connected";  }
+        }
+    }
+
+    return "Conv. HAL signal ERROR";
 }
 
 // function to check for first Variable in an arithmetic expression

@@ -7,7 +7,7 @@ Build-Depends: debhelper (>> 4.0.0),
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget,
     libxaw7-dev, libncurses-dev, libreadline5-dev,
     lyx-qt | lyx, xsltproc, groff,
-    python, python-dev, python-tk,
+    python, python-dev, python-support, python-tk,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
     libgtk2.0-dev, libgnomeprintui2.2-dev,
     gettext, autoconf
@@ -52,7 +52,7 @@ Description: PC based motion controller for real-time Linux
  applications (milling, cutting, routing, etc.).
 
 Package: emc2-doc-en
-Conflicts: emc2 (<< 2.5.0~pre1)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
 Architecture: all
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
@@ -63,7 +63,7 @@ Description: PC based motion controller for real-time Linux
  This package contains the documentation in English.
 
 Package: emc2-doc-fr
-Conflicts: emc2 (<< 2.5.0~pre1)
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
 Architecture: all
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux

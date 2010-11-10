@@ -43,9 +43,10 @@ Regression Tests
 A regression test should consist of these three files:
 	README
 		A human-readable file describing the test
-	test.hal *or* test.sh
+	test.hal *or* test.sh *or* test
 		The test script to execute.  test.hal is executed with
-		'halrun -f', test.sh is executed with 'bash -x'
+		'halrun -f', test.sh is executed with 'bash -x', and
+		test is executed as ./test
 	expected
 		A file whose contents are compared with the stdout of
 			halrun -f test.hal
@@ -69,9 +70,10 @@ Functional Tests
 A functional test should consist of three files:
 	README
 		A human-readable file describing the test
-	test.hal *or* test.sh
+	test.hal *or* test.sh *or* test
 		The test script to execute.  test.hal is executed with
-		'halrun -f', test.sh is executed with 'bash -x'
+		'halrun -f', test.sh is executed with 'bash -x', and
+		test is executed as ./test
 	checkresult
 		An executable file (such as a shell or python script)
 		which determines if the stdout of

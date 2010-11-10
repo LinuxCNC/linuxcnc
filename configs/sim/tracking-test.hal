@@ -12,14 +12,14 @@ net x-mouse input.0.rel-x-position
 net y-mouse input.0.rel-y-position
 net z-mouse input.0.rel-wheel-position
 net click input.0.btn-right
-linksp click input.0.rel-wheel-reset
-linksp click input.0.rel-x-reset
-linksp click input.0.rel-y-reset
+net click input.0.rel-wheel-reset
+net click input.0.rel-x-reset
+net click input.0.rel-y-reset
 
 loadusr -W tracking-test
-linksp x-mouse tracking-test.axis0
-linksp y-mouse tracking-test.axis1
-linksp z-mouse tracking-test.axis2
+net x-mouse tracking-test.axis0
+net y-mouse tracking-test.axis1
+net z-mouse tracking-test.axis2
 #linksp a tracking-test.axis3
 #linksp b tracking-test.axis4
 #linksp c tracking-test.axis5

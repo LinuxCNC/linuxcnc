@@ -652,6 +652,17 @@ static void wrapper(long task_id)
     return;
 }
 
+static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
+        void *task) {
+    int self = rtapi_task_self();
+    rtapi_print_msg(RTAPI_MSG_ERR,
+	"RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d ip=%08lx.\n"
+	"RTAPI: This fault may not be recoverable without rebooting.\n",
+	self, task, vec, signo, regs->ip);
+    rtapi_task_pause(self);
+    return 0;
+}
+
 int rtapi_task_new(void (*taskcode) (void *), void *arg,
     int prio, int owner, unsigned long int stacksize, int uses_fp)
 {
@@ -712,6 +723,14 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 	/* unknown error */
 	return -EINVAL;
     }
+
+    /* request to handle traps in the new task */
+    {
+    int v;
+    for(v=0; v<HAL_NR_FAULTS; v++)
+        rt_set_task_trap_handler(ostask_array[task_id], v, rtapi_trap_handler);
+    }
+
     /* the task has been created, update data */
     task->state = PAUSED;
     task->prio = prio;

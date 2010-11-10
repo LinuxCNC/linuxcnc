@@ -52,7 +52,7 @@ int cms_encoded_data_explosion_factor = 4;
 
 /*! \todo Another #if 0 */
 #if 0
-static int convert2lower(char *dest, char *src, int len)
+static int convert2lower(char *dest, const char *src, int len)
 {
     int i;
     for (i = 0; i < len; i++) {
@@ -66,7 +66,7 @@ static int convert2lower(char *dest, char *src, int len)
 }
 #endif
 
-static int convert2upper(char *dest, char *src, int len)
+static int convert2upper(char *dest, const char *src, int len)
 {
     int i;
     for (i = 0; i < len; i++) {
@@ -85,7 +85,7 @@ void *CMS::operator new(size_t size)
 {
     if (size < sizeof(CMS)) {
 	rcs_print_error
-	    ("CMS::operator new -- The size requested %d is less than the mininimum size of CMS %d.\n",
+	    ("CMS::operator new -- The size requested %zu is less than the mininimum size of CMS %zu.\n",
 	    size, sizeof(CMS));
 	rcs_print_error("This could indicate a version mismatch problem.\n");
 	size = sizeof(CMS);
@@ -94,14 +94,14 @@ void *CMS::operator new(size_t size)
     if (NULL != space) {
 	memset(space, 0, size);
     }
-    rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "%X = CMS::new(%d)\n", space,
+    rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "%p = CMS::new(%zu)\n", space,
 	size);
     return space;
 }
 
 void CMS::operator delete(void *space)
 {
-    rcs_print_debug(PRINT_CMS_DESTRUCTORS, " CMS::delete(%X)\n", space);
+    rcs_print_debug(PRINT_CMS_DESTRUCTORS, " CMS::delete(%p)\n", space);
     free(space);
     rcs_print_debug(PRINT_CMS_DESTRUCTORS, " CMS::delete successful.\n");
 }
@@ -116,7 +116,7 @@ CMS::CMS(long s)
 {
     /* Print a message if the PRINT_CMS_CONSTUCTORS */
     /* member of the print flags is set. */
-    rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%d)", s);
+    rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%lu)", s);
 
     /* Init string buffers */
     memset(BufferName, 0, CMS_CONFIG_LINELEN);
@@ -185,7 +185,7 @@ CMS::CMS(long s)
  /* -1 force this CMS object NOT to be in server mode. */
  /* 0 allow the parameter in the procline to set whether server mode is used */
  /* 1 force this CMS object to be in server mode. */
-CMS::CMS(char *bufline, char *procline, int set_to_server)
+CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 {
     char *word[32]={0,};	/* Array of pointers to strings.  */
     char *buffer_type_name;	/* pointer to buffer type name from bufline */
@@ -224,10 +224,13 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     diag_offset = 0;
     use_autokey_for_connection_number = 0;
 
-    if ((NULL == bufline) || (NULL == procline)) {
+    if ((NULL == bufline_in) || (NULL == procline_in)) {
 	rcs_print_error("CMS: Pointer to bufline or procline is NULL.\n");
 	return;
     }
+
+    char *bufline = strdup(bufline_in);
+    char *procline = strdup(procline_in);
 
     convert2upper(buflineupper, bufline, CMS_CONFIG_LINELEN);
     convert2upper(proclineupper, procline, CMS_CONFIG_LINELEN);
@@ -273,6 +276,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
 	status = CMS_CONFIG_ERROR;
+	free(bufline);
+	free(procline);
 	return;
     }
 
@@ -310,6 +315,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
 	status = CMS_CONFIG_ERROR;
+	free(bufline);
+	free(procline);
 	return;
     }
 
@@ -326,6 +333,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     } else {
 	rcs_print_error("CMS: invalid buffer type (%s)\n", buffer_type_name);
 	status = CMS_CONFIG_ERROR;
+	free(bufline);
+	free(procline);
 	return;
     }
 
@@ -334,6 +343,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
 	status = CMS_CONFIG_ERROR;
+	free(bufline);
+	free(procline);
 	return;
     }
     for (i = 8; i < num_words && i < 32; i++) {
@@ -428,6 +439,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 		("CMS: Error parsing process line from config file.\n");
 	    rcs_print_error("%s\n", procline);
 	    status = CMS_CONFIG_ERROR;
+	    free(bufline);
+	    free(procline);
 	    return;
 	}
     } else {
@@ -436,6 +449,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 		("CMS: Error parsing process line from config file.\n");
 	    rcs_print_error("%s\n", procline);
 	    status = CMS_CONFIG_ERROR;
+	    free(bufline);
+	    free(procline);
 	    return;
 	}
     }
@@ -473,9 +488,11 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 
 	if (total_connections <= connection_number) {
 	    rcs_print_error
-		("CMS: connection number(%d) must be less than total connections (%d).\n",
+		("CMS: connection number(%lu) must be less than total connections (%lu).\n",
 		connection_number, total_connections);
 	    status = CMS_CONFIG_ERROR;
+	    free(bufline);
+	    free(procline);
 	    return;
 	}
     }
@@ -484,6 +501,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
 	rcs_print_error("CMS: Error in proc line from config file.\n");
 	rcs_print_error("%s\n", procline);
 	status = CMS_CONFIG_ERROR;
+	free(bufline);
+	free(procline);
 	return;
     }
 
@@ -580,6 +599,8 @@ CMS::CMS(char *bufline, char *procline, int set_to_server)
     if (enable_diagnostics) {
 	setup_diag_proc_info();
     }
+    free(bufline);
+    free(procline);
 }
 
 /* Function for allocating memory and initializing XDR streams, which */
@@ -629,7 +650,7 @@ void CMS::open(void)
 	if (force_raw) {
 	    encoded_data = data;
 	}
-	rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "%X = data = calloc(%d,1);\n",
+	rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "%p = data = calloc(%lu,1);\n",
 	    data, size);
 	/* Check to see if allocating memory was successful. */
 	if (data == NULL) {
@@ -844,7 +865,7 @@ CMS::~CMS()
 
     /* Free the memory used for the local copy of the global buffer. */
     if (NULL != data && (!force_raw || !using_external_encoded_data)) {
-	rcs_print_debug(PRINT_CMS_DESTRUCTORS, "free( data = %X);\n", data);
+	rcs_print_debug(PRINT_CMS_DESTRUCTORS, "free( data = %p);\n", data);
 	free(data);
 	data = NULL;
 	if (force_raw) {
@@ -1254,7 +1275,7 @@ int CMS::check_pointer(char *ptr, long bytes)
 	return 0;
     }
     if (ptr < format_low_ptr || ptr > (format_high_ptr - bytes)) {
-	rcs_print_error("CMS: pointer %p to %d bytes out of range %p to %p\n",
+	rcs_print_error("CMS: pointer %p to %ld bytes out of range %p to %p\n",
 	    ptr, bytes, format_low_ptr, format_high_ptr);
 	rcs_print_error("CMS: Check buffer and message sizes.\n");
 	status = CMS_UPDATE_ERROR;

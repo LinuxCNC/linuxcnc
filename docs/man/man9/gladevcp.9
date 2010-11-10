@@ -1,0 +1,23 @@
+.\"
+.TH gladevcp "9" "2010-08-24" "EMC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+gladevcp \- displays Virtual control Panels built with GTK / GLADE 
+.SH SYNOPSIS
+\fBloadusr gladevcp  [-c conponentname0x\fIN\fB] [-g WxH+Xoffset+Yoffset0x\fIN\fB] gladefile.glade
+
+.SH DESCRIPTION
+gladevcp parses a glade file and displays the widgets in a window.
+Then calls gladevcp_makepins which again parses the gladefile looking for specific HAL widgets
+then makes HAL pins and sets up updating for them.
+
+gladevcp supports gtkbuilder or libglade files though some widgets are not fully supported in gtkbuilder yet.
+
+.SH ISSUES
+For now system links need to be added in the glade library folders to point to our new widgets and catalog files. look in lib/python/gladevcp/READ_ME for details
+

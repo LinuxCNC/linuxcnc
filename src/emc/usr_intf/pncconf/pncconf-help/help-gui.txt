@@ -5,6 +5,8 @@ Frontend:
     Each one has different option. 
     eg. mini does not support estop
         AXIS is the only frontend that fully supports lathes.
+        TOUCHY requires cycle-start, abort, and single-step signals
+            It also requires shared axis MPG jogging to be selected.  
 
 Virtual Control Panels:
     Use to add stand-alone pyvcp panels or if AXIS is chosen,

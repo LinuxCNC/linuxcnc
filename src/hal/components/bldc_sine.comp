@@ -1,0 +1,129 @@
+component bldc_sine
+"Sinusoidal Brushless DC motor drive, with optional self-zeroing";
+
+pin in signed rawcounts
+"Encoder counts input";
+pin in bit init
+"""A rising edge on this pin starts the motor alignment sequence. This pin
+should be connected in such a way that the motors re-align any time that
+encoder monitoring has been interrupted. Typically this will only be at machine
+power-off.
+The alignment process involves powering the motor phases in such a way as to
+put the motor in a known position. The encoder counts are then stored in the
+\\fBoffset\\fP parameter. The alignement process will tend to cause a following
+error if it is triggered while the axis is enabled, so should be set before the
+matching axis.N.enable pin. The complementary \\fBinit-done\\fP pin can be used
+to handle the required sequencing.
+
+Both pins can be ignored if the encoder offset is known explicitly, such as is
+the case with an absolute encoder. In that case the \\fBoffset\\fP parameter
+can be set directly in the HAL file""";
+
+pin out bit init-done = 0
+"indicates that the motor alignment process is completed";
+
+pin in float dir = 1 """The peak output of the three \\fB*-value\\fP pins will
+be the product of the \\fBvalue\\fP pin and the \\fBdir\\fP pin. The main
+purpose of the pin is to invert the the motor direction sense using a scale of
+-1, but there is no restriction on the valid values.
+Typically the component will take a bipolar +/- fullscale input from a pid
+function and in that case this pin will not be wired""";
+pin in float value
+"PWM demand";
+pin in float angle = 90
+"The phase lead between the electrical vector and the rotor position";
+pin in float initvalue = .1
+"The PWM demand to use for motor initialisation";
+
+pin out float A-value = 0
+"Output amplitude for phase A";
+pin out float B-value = 0
+"Output amplitude for phase B";
+pin out float C-value = 0
+"Output amplitude for phase C";
+
+param rw signed offset = 0
+"""The offset in encoder counts between the encoder zero position and
+motor electrical
+zero. Can be set directly for use in absolute feedback systems or will be
+initialised by the \\fBinit\\fP pin.""";
+param rw float scale = 512
+"""The number of encoder counts per electrical revolution. eg counts/2 for a
+4-pole motor, counts/3 for a 6 pole etc. There is a 50% chance that this
+parameter will need to be negative for proper function.""";
+
+variable int counter;
+variable int old_init;
+
+option extra_setup yes;
+
+license "GPL";
+author "Andy Pugh";
+function _;
+
+;;
+
+#include <rtapi_math.h>
+
+const float pi2 = 6.283185307179586;
+const float pi23 = 2.094395102393195;
+const float deg2rad = 0.017453292519943;
+const double cos120 = -1/2.;
+const double sin120 = 0.8660254037844386;
+const int absc[] = {1200, 1000, 600, 400, 200, 0}; // Alignment sequence def
+const double V_a[] = {0, 1, 1, 1, 1, 1};
+const double th_a[] = {0, 0, -90, 90, 0, 0};
+
+
+FUNCTION(_){
+
+    double theta, sintheta, costheta;
+    double V;
+    int i;
+
+    if (init && !old_init) { // Rotor alignement
+        if (counter <= 0) {
+            offset = rawcounts;
+            counter = absc[0];
+            old_init = 1;
+            init_done = 1;
+	    return;
+        }
+	init_done = 0;
+        for (i = 1 ; absc[i] > counter ; i++ ) {}
+        V = initvalue * (V_a[i-1] + (V_a[i] - V_a[i-1])
+            * (counter - absc[i-1]) / (absc[i] - absc[i-1]));
+        theta = deg2rad * (th_a[i-1] + (th_a[i] - th_a[i-1])
+            * (counter - absc[i-1]) / (absc[i] - absc[i-1]));
+
+        counter--;
+    } else { //Normal running
+
+        old_init = init;
+
+        V = value * dir;
+        theta = (pi2 / scale)
+        * ((rawcounts - scale * floor(rawcounts / scale)) - offset);
+
+        if (V < 0) {
+            theta = theta - angle * deg2rad;
+            V = -V;
+        }
+        else {
+            theta = theta + angle * deg2rad;
+        }
+
+    }
+
+    sintheta = sin(theta);
+    costheta = cos(theta);
+    A_value = V * costheta;
+    B_value = V * (costheta * cos120 + sintheta * sin120);
+    C_value = V * (costheta * cos120 - sintheta * sin120);
+
+}
+
+EXTRA_SETUP() {
+    counter = absc[0];
+    return 0;
+}

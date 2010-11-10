@@ -1350,6 +1350,19 @@ int do_unload_cmd(char *mod_name) {
     }
 }
 
+static char *guess_comp_name(char *prog_name)
+{
+    static char name[HAL_NAME_LEN+1];
+    char *last_slash = strrchr(prog_name, '/');
+    char *st = last_slash ? last_slash + 1 : prog_name;
+    char *last_dot = strrchr(st, '.');
+    char *en = last_dot ? last_dot : prog_name + strlen(prog_name);
+    size_t len = en-st;
+
+    snprintf(name, sizeof(name), "%.*s", (int)len, st);
+    return name;
+}
+
 int do_loadusr_cmd(char *args[])
 {
     int wait_flag, wait_comp_flag, name_flag, ignore_flag;
@@ -1396,7 +1409,7 @@ int do_loadusr_cmd(char *args[])
     args += optind;
     prog_name = *args++;
     if(!new_comp_name) {
-	new_comp_name = prog_name;
+	new_comp_name = guess_comp_name(prog_name);
     }
     /* prepare to exec() the program */
     argv[0] = prog_name;

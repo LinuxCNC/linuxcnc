@@ -54,7 +54,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
     {
         if((modes & linux_port->modes) != modes)
         {
-            rtapi_print_msg(RTAPI_MSG_ERR,
+            rtapi_print_msg(RTAPI_MSG_WARN,
                 "PARPORT: linux parport %s does not support mode %x.\n"
                 "PARPORT: continuing anyway.\n",
                 linux_port->name, modes);

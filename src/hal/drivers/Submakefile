@@ -1,12 +1,12 @@
 hal/drivers/pluto_servo_rbf.h: hal/drivers/pluto_servo_firmware/pluto_servo.rbf hal/drivers/rbf2h.py
-	python hal/drivers/rbf2h.py -g \
+	$(PYTHON) hal/drivers/rbf2h.py -g \
     -c "This is a component of pluto_servo, a PWM servo driver and" \
     -c "quadrature counter for emc2" \
     -c "Copyright (C) 2006, 2007 Jeff Epler" \
 	    $< > $@
 
 hal/drivers/pluto_step_rbf.h: hal/drivers/pluto_step_firmware/pluto_step.rbf hal/drivers/rbf2h.py
-	python hal/drivers/rbf2h.py -g \
+	$(PYTHON) hal/drivers/rbf2h.py -g \
     -c "This is a component of pluto_step, a hardware step generator for emc2" \
     -c "Copyright (C) 2006, 2007 Jeff Epler" \
 	    $< > $@

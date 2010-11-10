@@ -50,34 +50,34 @@ static PyObject *LineCode_mcodes(LineCode *l) {
 }
 
 static PyGetSetDef LineCodeGetSet[] = {
-    {"gcodes", (getter)LineCode_gcodes},
-    {"mcodes", (getter)LineCode_mcodes},
+    {(char*)"gcodes", (getter)LineCode_gcodes},
+    {(char*)"mcodes", (getter)LineCode_mcodes},
     {NULL, NULL},
 };
 
 static PyMemberDef LineCodeMembers[] = {
-    {"sequence_number", T_INT, offsetof(LineCode, gcodes[0]), READONLY},
+    {(char*)"sequence_number", T_INT, offsetof(LineCode, gcodes[0]), READONLY},
 
-    {"feed_rate", T_DOUBLE, offsetof(LineCode, settings[1]), READONLY},
-    {"speed", T_DOUBLE, offsetof(LineCode, settings[2]), READONLY},
-    {"motion_mode", T_INT, offsetof(LineCode, gcodes[1]), READONLY},
-    {"block", T_INT, offsetof(LineCode, gcodes[2]), READONLY},
-    {"plane", T_INT, offsetof(LineCode, gcodes[3]), READONLY},
-    {"cutter_side", T_INT, offsetof(LineCode, gcodes[4]), READONLY},
-    {"units", T_INT, offsetof(LineCode, gcodes[5]), READONLY},
-    {"distance_mode", T_INT, offsetof(LineCode, gcodes[6]), READONLY},
-    {"feed_mode", T_INT, offsetof(LineCode, gcodes[7]), READONLY},
-    {"origin", T_INT, offsetof(LineCode, gcodes[8]), READONLY},
-    {"tool_length_offset", T_INT, offsetof(LineCode, gcodes[9]), READONLY},
-    {"retract_mode", T_INT, offsetof(LineCode, gcodes[10]), READONLY},
-    {"path_mode", T_INT, offsetof(LineCode, gcodes[11]), READONLY},
+    {(char*)"feed_rate", T_DOUBLE, offsetof(LineCode, settings[1]), READONLY},
+    {(char*)"speed", T_DOUBLE, offsetof(LineCode, settings[2]), READONLY},
+    {(char*)"motion_mode", T_INT, offsetof(LineCode, gcodes[1]), READONLY},
+    {(char*)"block", T_INT, offsetof(LineCode, gcodes[2]), READONLY},
+    {(char*)"plane", T_INT, offsetof(LineCode, gcodes[3]), READONLY},
+    {(char*)"cutter_side", T_INT, offsetof(LineCode, gcodes[4]), READONLY},
+    {(char*)"units", T_INT, offsetof(LineCode, gcodes[5]), READONLY},
+    {(char*)"distance_mode", T_INT, offsetof(LineCode, gcodes[6]), READONLY},
+    {(char*)"feed_mode", T_INT, offsetof(LineCode, gcodes[7]), READONLY},
+    {(char*)"origin", T_INT, offsetof(LineCode, gcodes[8]), READONLY},
+    {(char*)"tool_length_offset", T_INT, offsetof(LineCode, gcodes[9]), READONLY},
+    {(char*)"retract_mode", T_INT, offsetof(LineCode, gcodes[10]), READONLY},
+    {(char*)"path_mode", T_INT, offsetof(LineCode, gcodes[11]), READONLY},
 
-    {"stopping", T_INT, offsetof(LineCode, mcodes[1]), READONLY},
-    {"spindle", T_INT, offsetof(LineCode, mcodes[2]), READONLY},
-    {"toolchange", T_INT, offsetof(LineCode, mcodes[3]), READONLY},
-    {"mist", T_INT, offsetof(LineCode, mcodes[4]), READONLY},
-    {"flood", T_INT, offsetof(LineCode, mcodes[5]), READONLY},
-    {"overrides", T_INT, offsetof(LineCode, mcodes[6]), READONLY},
+    {(char*)"stopping", T_INT, offsetof(LineCode, mcodes[1]), READONLY},
+    {(char*)"spindle", T_INT, offsetof(LineCode, mcodes[2]), READONLY},
+    {(char*)"toolchange", T_INT, offsetof(LineCode, mcodes[3]), READONLY},
+    {(char*)"mist", T_INT, offsetof(LineCode, mcodes[4]), READONLY},
+    {(char*)"flood", T_INT, offsetof(LineCode, mcodes[5]), READONLY},
+    {(char*)"overrides", T_INT, offsetof(LineCode, mcodes[6]), READONLY},
     {NULL}
 };
 
@@ -135,6 +135,8 @@ EmcPose tool_offset;
 
 static Interp interp_new;
 
+#define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
+
 static void maybe_new_line(int sequence_number=interp_new.sequence_number());
 static void maybe_new_line(int sequence_number) {
     if(interp_error) return;
@@ -148,15 +150,10 @@ static void maybe_new_line(int sequence_number) {
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
     PyObject *result = 
-        PyObject_CallMethod(callback, "next_line", "O", new_line_code);
+        callmethod(callback, "next_line", "O", new_line_code);
     Py_DECREF(new_line_code);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
-}
-
-static double TO_PROG_LEN(double p) {
-    if(metric) return p*25.4;
-    return p;
 }
 
 void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
@@ -196,7 +193,7 @@ void ARC_FEED(int line_number,
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "arc_feed", "ffffifffffff",
+        callmethod(callback, "arc_feed", "ffffifffffff",
                             first_end, second_end, first_axis, second_axis,
                             rotation, axis_end_point, 
                             a_position, b_position, c_position,
@@ -216,7 +213,7 @@ void STRAIGHT_FEED(int line_number,
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "straight_feed", "fffffffff",
+        callmethod(callback, "straight_feed", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -233,7 +230,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "straight_traverse", "fffffffff",
+        callmethod(callback, "straight_traverse", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -247,7 +244,7 @@ void SET_G5X_OFFSET(int g5x_index,
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_g5x_offset", "ifffffffff",
+        callmethod(callback, "set_g5x_offset", "ifffffffff",
                             g5x_index, x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -260,7 +257,7 @@ void SET_G92_OFFSET(double x, double y, double z,
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_g92_offset", "fffffffff",
+        callmethod(callback, "set_g92_offset", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -270,7 +267,7 @@ void SET_XY_ROTATION(double t) {
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_xy_rotation", "f", t);
+        callmethod(callback, "set_xy_rotation", "f", t);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 };
@@ -281,7 +278,7 @@ void SELECT_PLANE(CANON_PLANE pl) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_plane", "i", pl);
+        callmethod(callback, "set_plane", "i", pl);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -290,7 +287,7 @@ void SET_TRAVERSE_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_traverse_rate", "f", rate);
+        callmethod(callback, "set_traverse_rate", "f", rate);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -300,7 +297,7 @@ void SET_FEED_MODE(int mode) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_feed_mode", "i", mode);
+        callmethod(callback, "set_feed_mode", "i", mode);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 #endif
@@ -310,7 +307,7 @@ void CHANGE_TOOL(int pocket) {
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = 
-        PyObject_CallMethod(callback, "change_tool", "i", pocket);
+        callmethod(callback, "change_tool", "i", pocket);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -330,7 +327,7 @@ void SET_FEED_RATE(double rate) {
     if(interp_error) return;
     if(metric) rate /= 25.4;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_feed_rate", "f", rate);
+        callmethod(callback, "set_feed_rate", "f", rate);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -339,7 +336,7 @@ void DWELL(double time) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "dwell", "f", time);
+        callmethod(callback, "dwell", "f", time);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -348,7 +345,7 @@ void MESSAGE(char *comment) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "message", "s", comment);
+        callmethod(callback, "message", "s", comment);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -357,11 +354,11 @@ void LOG(char *s) {}
 void LOGOPEN(char *f) {}
 void LOGCLOSE() {}
 
-void COMMENT(char *comment) {
+void COMMENT(const char *comment) {
     maybe_new_line();   
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "comment", "s", comment);
+        callmethod(callback, "comment", "s", comment);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -377,7 +374,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
     if(metric) {
         offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
         offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
-    PyObject *result = PyObject_CallMethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z, 
+    PyObject *result = callmethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z,
         offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -407,7 +404,7 @@ extern bool GET_BLOCK_DELETE(void) {
     int bd = 0;
     if(interp_error) return 0;
     PyObject *result =
-        PyObject_CallMethod(callback, "get_block_delete", "");
+        callmethod(callback, "get_block_delete", "");
     if(result == NULL) {
         interp_error++;
     } else {
@@ -449,7 +446,7 @@ void STRAIGHT_PROBE(int line_number,
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "straight_probe", "fffffffff",
+        callmethod(callback, "straight_probe", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -461,7 +458,7 @@ void RIGID_TAP(int line_number,
     maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "rigid_tap", "fff",
+        callmethod(callback, "rigid_tap", "fff",
             x, y, z);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
@@ -501,7 +498,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
-        PyObject_CallMethod(callback, "get_tool", "i", pocket);
+        callmethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
        !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
                           &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
@@ -520,7 +517,7 @@ static void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;
     maybe_new_line();
     PyObject *result =
-        PyObject_CallMethod(callback, "user_defined_function",
+        callmethod(callback, "user_defined_function",
                             "idd", num, arg1, arg2);
     if(result == NULL) interp_error++;
     Py_XDECREF(result);
@@ -549,7 +546,7 @@ int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
     PyObject *result =
-        PyObject_CallMethod(callback, "get_axis_mask", "");
+        callmethod(callback, "get_axis_mask", "");
     if(!result) { interp_error ++; return 7 /* XYZABC */; }
     if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
     int mask = PyInt_AsLong(result);
@@ -601,7 +598,7 @@ static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
 
 double GET_EXTERNAL_ANGLE_UNITS() {
     PyObject *result =
-        PyObject_CallMethod(callback, "get_external_angular_units", "");
+        callmethod(callback, "get_external_angular_units", "");
     if(result == NULL) interp_error++;
 
     double dresult = 1.0;
@@ -616,7 +613,7 @@ double GET_EXTERNAL_ANGLE_UNITS() {
 
 double GET_EXTERNAL_LENGTH_UNITS() {
     PyObject *result =
-        PyObject_CallMethod(callback, "get_external_length_units", "");
+        callmethod(callback, "get_external_length_units", "");
     if(result == NULL) interp_error++;
 
     double dresult = 0.03937007874016;
@@ -631,7 +628,7 @@ double GET_EXTERNAL_LENGTH_UNITS() {
 
 static bool check_abort() {
     PyObject *result =
-        PyObject_CallMethod(callback, "check_abort", "");
+        callmethod(callback, "check_abort", "");
     if(!result) return 1;
     if(PyObject_IsTrue(result)) {
         Py_DECREF(result);
