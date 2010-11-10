@@ -1,6 +1,3 @@
-emc2 (1:2.4.2) lucid; urgency=low
-
-  * (fill out this changelog before releasing) 
 
   * axis: fix crash when environment variable AXIS_NO_HAL is set
 

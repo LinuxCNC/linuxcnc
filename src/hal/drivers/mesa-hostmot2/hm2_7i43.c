@@ -270,7 +270,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_7i43_t *board = this->private;
     int64_t start_time, end_time;
     int i;
-    void *firmware = bitfile->e.data;
+    const u8 *firmware = bitfile->e.data;
 
 
     //
@@ -284,7 +284,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_7i43_epp_addr8(0, board);
 
     for (i = 0; i < bitfile->e.size; i ++, firmware ++) {
-        hm2_7i43_epp_write(bitfile_reverse_bits(*(u8 *)firmware), board);
+        hm2_7i43_epp_write(bitfile_reverse_bits(*firmware), board);
     }
 
     end_time = rtapi_get_time();

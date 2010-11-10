@@ -1315,29 +1315,32 @@ void ARC_FEED(int line_number,
 
     get_last_pos(lx, ly, lz);
 
-    // XXX rotation?
-#if 0
-    if( (activePlane == CANON_PLANE_XY)
-            && canonMotionMode == CANON_CONTINUOUS
-            && chord_deviation(lx, ly,
-                offset_x(FROM_PROG_LEN(first_end)), offset_y(FROM_PROG_LEN(second_end)),
-                offset_x(FROM_PROG_LEN(first_axis)), offset_y(FROM_PROG_LEN(second_axis)),
-                rotation, mx, my) < canonNaivecamTolerance) {
-#else
-    if(0) {
-#endif
-        double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
-        rotate_and_offset_pos(x, y, z, a, b, c, u, v, w);
-        see_segment(line_number, mx, my,
-                (lz + z)/2, 
-                (canonEndPoint.a + a)/2, 
-                (canonEndPoint.b + b)/2, 
-                (canonEndPoint.c + c)/2, 
-                (canonEndPoint.u + u)/2, 
-                (canonEndPoint.v + v)/2, 
-                (canonEndPoint.w + w)/2);
-        see_segment(line_number, x, y, z, a, b, c, u, v, w);
-        return;
+    a = FROM_PROG_ANG(a);
+    b = FROM_PROG_ANG(b);
+    c = FROM_PROG_ANG(c);
+    u = FROM_PROG_LEN(u);
+    v = FROM_PROG_LEN(v);
+    w = FROM_PROG_LEN(w);
+
+    if( activePlane == CANON_PLANE_XY && canonMotionMode == CANON_CONTINUOUS) {
+        double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
+        double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
+        rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
+        rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
+            
+        if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canonNaivecamTolerance) {
+            rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
+            see_segment(line_number, mx, my,
+                        (lz + ae)/2, 
+                        (canonEndPoint.a + a)/2, 
+                        (canonEndPoint.b + b)/2, 
+                        (canonEndPoint.c + c)/2, 
+                        (canonEndPoint.u + u)/2, 
+                        (canonEndPoint.v + v)/2, 
+                        (canonEndPoint.w + w)/2);
+            see_segment(line_number, fe, se, ae, a, b, c, u, v, w);
+            return;
+        }
     }
     //ini_maxvel = max vel defined by various ini constraints
     //circ_maxvel = max vel defined by ini constraints in the circle plane (XY, YZ or XZ)
@@ -1346,13 +1349,6 @@ void ARC_FEED(int line_number,
     linearMoveMsg.feed_mode = feed_mode;
     circularMoveMsg.feed_mode = feed_mode;
     flush_segments();
-
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
 
     rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
 
