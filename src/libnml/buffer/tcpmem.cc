@@ -534,7 +534,7 @@ void TCPMEM::reconnect()
 		rcs_print_error("Can`t setup subscription.\n");
 		subscription_type = CMS_NO_SUBSCRIPTION;
 	    }
-	    if (!ntohl(*((u_long *) temp_buffer) + 1)) {
+	    if (!getbe32(temp_buffer+4)) {
 		rcs_print_error("Can`t setup subscription.\n");
 		subscription_type = CMS_NO_SUBSCRIPTION;
 	    }
