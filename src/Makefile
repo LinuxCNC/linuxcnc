@@ -170,7 +170,7 @@ INCLUDE += -I$(INCLUDEPY)
 endif
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
-OPT := -Os $(call cc-option,-fno-stack-protector)
+OPT := -Os
 DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
@@ -807,7 +807,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	@ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	@ld -shared -Bsymbolic -o $@ objects/$*.tmp -lm
+	@$(CC) -shared -Bsymbolic -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
