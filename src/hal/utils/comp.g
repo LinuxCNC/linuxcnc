@@ -366,6 +366,8 @@ static int comp_id;
     print >>f, "    int sz = sizeof(struct state) + get_data_size();"
     print >>f, "    struct state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
+    if has_data:
+        print >>f, "    inst->_data = (char*)inst + sizeof(struct state);"
     if has_personality:
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
@@ -590,7 +592,7 @@ static int comp_id;
 
         if has_data:
             print >>f, "#undef data"
-            print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
+            print >>f, "#define data (*(%s*)(inst->_data))" % options['data']
         if has_personality:
             print >>f, "#undef personality"
             print >>f, "#define personality (inst->_personality)"
