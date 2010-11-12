@@ -1868,28 +1868,20 @@ class Data:
         
         if self.externalmpg or self.externalfo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
             self.mux16names=""
-            if self.joystickjog: 
-                self.mux16names = self.mux16names+"jogspeed"
-                if self.userneededmux16 > 0:
-                    self.mux16names = self.mux16names+","
-            if self.externalmpg: 
-                self.mux16names = self.mux16names+"jogincr"
-                if self.userneededmux16 > 0:
-                    self.mux16names = self.mux16names+","
-            if self.externalfo: 
-                self.mux16names = self.mux16names+"foincr"
-                if self.userneededmux16 > 0:
-                    self.mux16names = self.mux16names+","
-            if self.externalso: 
-                self.mux16names = self.mux16names+"soincr"
-                if self.userneededmux16 > 0:
-                    self.mux16names = self.mux16names+","
             for i in range(0,self.userneededmux16):
-                self.mux16names = self.mux16names+"%d"% (i)
-                if i <> self.userneededmux16-1:
-                    self.mux16names = self.mux16names+","
+                self.mux16names = self.mux16names+"%d,"% (i)
+            if self.joystickjog: 
+                self.mux16names = self.mux16names+"jogspeed,"
+            if self.externalmpg: 
+                self.mux16names = self.mux16names+"jogincr,"  
+            if self.externalfo: 
+                self.mux16names = self.mux16names+"foincr," 
+            if self.externalso: 
+                self.mux16names = self.mux16names+"soincr,"
+            temp = self.mux16names.rstrip(",")
+            self.mux16names = temp
             print >>file, "loadrt mux16 names=%s"% (self.mux16names)
-        
+
         # load user custom components
         for i in self.loadcompbase:
             if i == '': continue
@@ -1975,7 +1967,7 @@ class Data:
         if self.externalmpg or self.externalfo or self.externalso or self.joystickjog or self.userneededmux16 > 0: 
             temp=self.mux16names.split(",")
             for j in (temp):
-                print >>file, "addf mux16.%s servo-thread"% j
+                print >>file, "addf %s servo-thread"% j
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
             temp=self.absnames.split(",")
             for j in (temp):
@@ -2067,13 +2059,13 @@ class Data:
             print >>file, _("# ---USB device jog button signals---")
             print >>file
             print >>file, "# connect selectable mpg jog speeds "
-            print >>file, "net jog-speed-a           =>  mux16.jogspeed.sel0"
-            print >>file, "net jog-speed-b           =>  mux16.jogspeed.sel1"
-            print >>file, "net jog-speed             halui.jog-speed  <=  mux16.jogspeed.out"
-            print >>file, "setp    mux16.jogspeed.in0          %f"% (self.joystickjograpidrate0)
-            print >>file, "setp    mux16.jogspeed.in1          %f"% (self.joystickjograpidrate1)
-            print >>file, "setp    mux16.jogspeed.in2          %f"% (self.joystickjograpidrate2)
-            print >>file, "setp    mux16.jogspeed.in3          %f"% (self.joystickjograpidrate3)
+            print >>file, "net jog-speed-a           =>  jogspeed.sel00"
+            print >>file, "net jog-speed-b           =>  jogspeed.sel01"
+            print >>file, "net jog-speed             halui.jog-speed  <=  jogspeed.out-f"
+            print >>file, "setp    jogspeed.in00          %f"% (self.joystickjograpidrate0)
+            print >>file, "setp    jogspeed.in01          %f"% (self.joystickjograpidrate1)
+            print >>file, "setp    jogspeed.in02          %f"% (self.joystickjograpidrate2)
+            print >>file, "setp    jogspeed.in03          %f"% (self.joystickjograpidrate3)
             if not self.joycmdrapida =="":
                 print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
             if not self.joycmdrapidb =="":
@@ -2135,14 +2127,15 @@ class Data:
         if self.externalmpg and not self.frontend == _TOUCHY:# TOUCHY GUI sets its own jog increments:
             if self.incrselect :
                 print >>file, "# connect selectable mpg jog increments "  
-                print >>file, "net jog-incr-a           =>  mux16.jogincr.sel0"
-                print >>file, "net jog-incr-b           =>  mux16.jogincr.sel1"
-                print >>file, "net jog-incr-c           =>  mux16.jogincr.sel2"
-                print >>file, "net selected-jog-incr    <=  mux16.jogincr.out"
-                print >>file, "    setp mux16.jogincr.suppress-no-input true"
+                print >>file, "net jog-incr-a           =>  jogincr.sel0"
+                print >>file, "net jog-incr-b           =>  jogincr.sel1"
+                print >>file, "net jog-incr-c           =>  jogincr.sel2"
+                print >>file, "net jog-incr-d           =>  jogincr.sel3"
+                print >>file, "net selected-jog-incr    <=  jogincr.out-f"
+                print >>file, "    setp jogincr.suppress-no-input true"
                 for i in range(0,16):
                     value = self["mpgincrvalue%d"% i]
-                print >>file, "    setp mux16.jogincr.in%2d          %f"% (i,value)
+                print >>file, "    setp jogincr.in%2d          %f"% (i,value)
                 print >>file
             else:
                 print >>file, "net selected-jog-incr    <= %f"% (self.mpgincrvalue0)
@@ -2154,32 +2147,33 @@ class Data:
             print >>file, "    setp halui.feed-override.direct_value true"
             print >>file, "net feedoverride-incr <=  halui.feed-override.counts"
             print >>file, "    setp halui.feed-override.scale .01"
-            print >>file, "net fo-incr-a           =>  mux16.foincr.sel0"
-            print >>file, "net fo-incr-b           =>  mux16.foincr.sel1"
-            print >>file, "net fo-incr-c           =>  mux16.foincr.sel2"
-            print >>file, "net fo-incr-d           =>  mux16.foincr.sel3"
-            print >>file, "net feedoverride-incr   <=  mux16.foincr.sout"
-            print >>file, "    setp mux16.foincr.suppress-no-input true"
+            print >>file, "net fo-incr-a           =>  foincr.sel0"
+            print >>file, "net fo-incr-b           =>  foincr.sel1"
+            print >>file, "net fo-incr-c           =>  foincr.sel2"
+            print >>file, "net fo-incr-d           =>  foincr.sel3"
+            print >>file, "net feedoverride-incr   <=  foincr.sout-f"
+            print >>file, "    setp foincr.suppress-no-input true"
             for i in range(0,16):
                 value = self["foincrvalue%d"% i]
-            print >>file, "    setp mux16.foincr.in%2d          %f"% (i,value)            
+            print >>file, "    setp foincr.in%2d          %f"% (i,value)            
             print >>file
-        
+        for i in range(0,self.userneededmux16):
+                self.mux16names = self.mux16names+"%d"% (i)
         if self.externalso:
             print >>file, "# connect spindle overide increments " 
             print >>file, "    setp halui.spindle-override.count-enable true"
             print >>file, "    setp halui.spindle-override.direct_value true"
             print >>file, "net spindleoverride-incr <=  halui.spindle-override.counts"
             print >>file, "    setp halui.spindle-override.scale .01"
-            print >>file, "net so-incr-a           =>  mux16.soincr.sel0"
-            print >>file, "net so-incr-b           =>  mux16.soincr.sel1"
-            print >>file, "net so-incr-c           =>  mux16.soincr.sel2"
-            print >>file, "net so-incr-d           =>  mux16.soincr.sel3"
-            print >>file, "net spindleoverride-incr   <=  mux16.soincr.sout"
-            print >>file, "    setp mux16.soincr.suppress-no-input true"
+            print >>file, "net so-incr-a           =>  soincr.sel0"
+            print >>file, "net so-incr-b           =>  soincr.sel1"
+            print >>file, "net so-incr-c           =>  soincr.sel2"
+            print >>file, "net so-incr-d           =>  soincr.sel3"
+            print >>file, "net spindleoverride-incr   <=  soincr.sout-f"
+            print >>file, "    setp soincr.suppress-no-input true"
             for i in range(0,16):
                 value = self["soincrvalue%d"% i]
-            print >>file, "    setp mux16.soincr.in%2d          %f"% (i,value)          
+            print >>file, "    setp soincr.in%2d          %f"% (i,value)          
             print >>file
 
         print >>file, _("#  ---digital in / out signals---")
