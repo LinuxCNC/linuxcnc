@@ -1081,7 +1081,8 @@ static void get_pos_cmds(long period)
                     vel_lim = joint->vel_limit;
                 }
                 /* set vel limit in free TP */
-                joint->free_tp.max_vel = vel_lim;
+               if (vel_lim < joint->free_tp.max_vel)
+                   joint->free_tp.max_vel = vel_lim;
             } else {
                 /* except if homing, when we set free_tp max vel in do_homing */
             }
