@@ -275,14 +275,14 @@ a couple of HAL Parameters that affect all the pwmgen instances:
 (u32 rw) pwm_frequency: This specifies the PWM frequency, in Hz, of all
 the pwmgen instances running in the PWM modes (modes 1 and 2).  This is
 the frequency of the variable-duty-cycle wave.  Its effective range is
-from 1 Hz up to 193 KHz.  Note that the max frequency is determined by the
+from 1 Hz up to 193 kHz.  Note that the max frequency is determined by the
 ClockHigh frequency of the Anything IO board; the 5i20 and 7i43 both have
-a 100 MHz clock, resulting in a 193 KHz max PWM frequency.  Other boards
+a 100 MHz clock, resulting in a 193 kHz max PWM frequency.  Other boards
 may have different clocks, resulting in different max PWM frequencies.
 If the user attempts to set the frequency too high, it will be clipped
 to the max supported frequency of the board.  Frequencies below about
 5 Hz are not terribly accurate, but above 5 Hz they're pretty close.
-The default pwm_frequency is 20,000 Hz (20 KHz).
+The default pwm_frequency is 20,000 Hz (20 kHz).
 
 (u32 rw) pdm_frequency: This specifies the PDM frequency, in Hz, of
 all the pwmgen instances running in PDM mode (mode 3).  This is the
@@ -298,7 +298,7 @@ is determined by the ClockHigh frequency of the Anything IO board; the
 PDM frequency.  Other boards may have different clocks, resulting in
 different max PDM frequencies.  If the user attempts to set the frequency
 too high, it will be clipped to the max supported frequency of the board.
-The default pdm_frequency is 20,000 Hz (20 KHz).
+The default pdm_frequency is 20,000 Hz (20 kHz).
 
 .SH 3ppwmgen
 Three-Phase PWM generators (3pwmgens) are intended for controlling the high-side
@@ -336,7 +336,7 @@ Parameters:
 
 (u32 rw) deadtime: Sets the dead-time between the high-side driver turning off and
 the low-side driver turning on and vice-versa. Deadtime is subtracted from on time
-and added to off time symmetrically. For example with 20 KHz PWM (50 uSec period),
+and added to off time symmetrically. For example with 20 kHz PWM (50 uSec period),
 50% duty cycle and zero dead time, the PWM and NPWM outputs would be square
 waves (NPWM being inverted from PWM) with high times of 25 uS. With the same
 settings but 1 uS of deadtime, the PWM and NPWM outputs would both have high
