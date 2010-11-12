@@ -13,11 +13,11 @@ net THCTVoltage pyvcp.Spin-THCTargetVoltage => serial_interface.vcpt_voltage
 net THCCVoltage serial_interface.vcpc_voltage => pyvcp.Num-THCCurrentVoltage 
 
 # Hook up pins connecting to PyVCP objects
-linksp MoveUp => pyvcp.Led-MoveUp
-linksp MoveDown => pyvcp.Led-MoveDown
-linksp FloatSwitch => pyvcp.Led-FloatSwitch
-linksp ArcOK => pyvcp.Led-ArcOK
-linksp LockHeight => pyvcp.Led-HeightLocked
-linksp TorchOn => pyvcp.Led-TorchOn
-linksp ExtEStop => pyvcp.Led-ExtEStop
+net MoveUp => pyvcp.Led-MoveUp
+net MoveDown => pyvcp.Led-MoveDown
+net FloatSwitch => pyvcp.Led-FloatSwitch
+net ArcOK => pyvcp.Led-ArcOK
+net LockHeight => pyvcp.Led-HeightLocked
+net TorchOn => pyvcp.Led-TorchOn
+net ExtEStop => pyvcp.Led-ExtEStop
 net PierceDelayTimer oneshot.0.time-left =>  pyvcp.Num-PierceDelayTimer 

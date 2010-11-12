@@ -18,48 +18,36 @@ addf stg.do-write servo-thread 1
 #
 
 # connect limit/home switch outputs to motion controller
-newsig Xminlim bit
-newsig Xmaxlim  bit
-newsig Xhome bit
-linksp Xminlim <= stg.in-02
-linksp Xminlim => axis.0.neg-lim-sw-in
-linksp Xmaxlim <= stg.in-01
-linksp Xmaxlim => axis.0.pos-lim-sw-in
-linksp Xhome <= stg.in-00
-linksp Xhome => axis.0.home-sw-in
+net Xminlim <= stg.in-02
+net Xminlim => axis.0.neg-lim-sw-in
+net Xmaxlim <= stg.in-01
+net Xmaxlim => axis.0.pos-lim-sw-in
+net Xhome <= stg.in-00
+net Xhome => axis.0.home-sw-in
 
-newsig Yminlim bit
-newsig Ymaxlim  bit
-newsig Yhome bit
-linksp Yminlim <= stg.in-06
-linksp Yminlim => axis.1.neg-lim-sw-in
-linksp Ymaxlim <= stg.in-05
-linksp Ymaxlim => axis.1.pos-lim-sw-in
-linksp Yhome <= stg.in-04
-linksp Yhome => axis.1.home-sw-in
+net Yminlim <= stg.in-06
+net Yminlim => axis.1.neg-lim-sw-in
+net Ymaxlim <= stg.in-05
+net Ymaxlim => axis.1.pos-lim-sw-in
+net Yhome <= stg.in-04
+net Yhome => axis.1.home-sw-in
 
-newsig Zminlim bit
-newsig Zmaxlim  bit
-newsig Zhome bit
-linksp Zminlim <= stg.in-10
-linksp Zminlim => axis.2.neg-lim-sw-in
-linksp Zmaxlim <= stg.in-09
-linksp Zmaxlim => axis.2.pos-lim-sw-in
-linksp Zhome <= stg.in-08
-linksp Zhome => axis.2.home-sw-in
+net Zminlim <= stg.in-10
+net Zminlim => axis.2.neg-lim-sw-in
+net Zmaxlim <= stg.in-09
+net Zmaxlim => axis.2.pos-lim-sw-in
+net Zhome <= stg.in-08
+net Zhome => axis.2.home-sw-in
 
 #continue in the same manner for further axes (A,B,C)
 
 # connect amp faults to motion controller
-newsig Xfault bit
-newsig Yfault  bit
-newsig Zfault bit
-linksp Xfault <= stg.in-03
-linksp Xfault => axis.0.amp-fault-in
-linksp Yfault <= stg.in-07
-linksp Yfault => axis.1.amp-fault-in
-linksp Zfault <= stg.in-11
-linksp Zfault => axis.2.amp-fault-in
+net Xfault <= stg.in-03
+net Xfault => axis.0.amp-fault-in
+net Yfault <= stg.in-07
+net Yfault => axis.1.amp-fault-in
+net Zfault <= stg.in-11
+net Zfault => axis.2.amp-fault-in
 
 # connect index pulses to motion controller
 # do these when index pulsing is figured out
@@ -74,9 +62,9 @@ linksp Zfault => axis.2.amp-fault-in
 #linksp Zindex => axis.2.index-enable
 
 # connect amp enables to motion controller
-linksp Xenable => stg.out-00
-linksp Yenable => stg.out-01
-linksp Zenable => stg.out-02
+net Xenable => stg.out-00
+net Yenable => stg.out-01
+net Zenable => stg.out-02
 
 # connect watchdog reset to motion controller
 # needs watchdo
@@ -92,47 +80,38 @@ linksp Zenable => stg.out-02
 # connect e-stop write/sense to I/O controller
 # these connections assume an external ESTOP circuitry will be used
 # if it's not used, comment the next lines and uncomment the loopback
-newsig EstopSense bit
-newsig EstopWrite bit
-linksp EstopSense <= stg.in-12
-linksp EstopSense => iocontrol.0.emc-enable-in
-linksp EstopWrite <= stg.out-07
-linksp EstopWrite => iocontrol.0.user-enable-out
+net EstopSense <= stg.in-12
+net EstopSense => iocontrol.0.emc-enable-in
+net EstopWrite <= stg.out-07
+net EstopWrite => iocontrol.0.user-enable-out
 
 # ESTOP loopback, only use this for a simple machine without external ESTOP
 # you really SHOULDN'T use a servo machine without proper ESTOP
 #net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # connect spindle fwd/rev to I/O controller
-newsig SpindleFwd bit
-newsig SpindleRev bit
-linksp SpindleFwd <= stg.out-06
-linksp SpindleFwd => motion.spindle-forward
-linksp SpindleRev <= stg.out-05
-linksp SpindleRev => motion.spindle-reverse
+net SpindleFwd <= stg.out-06
+net SpindleFwd => motion.spindle-forward
+net SpindleRev <= stg.out-05
+net SpindleRev => motion.spindle-reverse
 
 # connect spindle brake to I/O controller
-newsig SpindleBrakeOn bit
-linksp SpindleBrakeOn <= stg.out-10
-linksp SpindleBrakeOn => motion.spindle-brake
+net SpindleBrakeOn <= stg.out-10
+net SpindleBrakeOn => motion.spindle-brake
 
 # connect mist/flood coolant to I/O controller
-newsig MistOn bit
-newsig FloodOn bit
-linksp MistOn <= stg.out-11
-linksp MistOn => iocontrol.0.coolant-mist
-linksp FloodOn <= stg.out-12
-linksp FloodOn => iocontrol.0.coolant-flood
+net MistOn <= stg.out-11
+net MistOn => iocontrol.0.coolant-mist
+net FloodOn <= stg.out-12
+net FloodOn => iocontrol.0.coolant-flood
 
 # connect lube motor run to I/O controller
-newsig LubeOn bit
-linksp LubeOn <= stg.out-13
-linksp LubeOn => iocontrol.0.lube
+net LubeOn <= stg.out-13
+net LubeOn => iocontrol.0.lube
 
 # connect lube level to I/O controller
-newsig LubeLevel bit
-linksp LubeLevel <= stg.in-13
-linksp LubeLevel => iocontrol.0.lube_level
+net LubeLevel <= stg.in-13
+net LubeLevel => iocontrol.0.lube_level
 
 # create signals for tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared

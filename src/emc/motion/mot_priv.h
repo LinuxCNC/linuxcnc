@@ -138,6 +138,7 @@ typedef struct {
     // output of a prescribed speed (to hook-up to a velocity controller)
     hal_float_t *spindle_speed_out;	/* spindle speed output */
     hal_float_t *spindle_speed_out_rps;	/* spindle speed output */
+    hal_float_t *spindle_speed_cmd_rps;	/* spindle speed command without SO applied */
     hal_float_t *spindle_speed_in;	/* spindle speed measured */
     
     // FIXME - debug only, remove later
@@ -250,7 +251,7 @@ extern void refresh_jog_limits(emcmot_joint_t *joint);
 extern void clearHomes(int joint_num);
 
 extern void emcmot_config_change(void);
-extern void reportError(const char *fmt, ...);	/* Use the rtapi_print call */
+extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2))); /* Use the rtapi_print call */
 
  /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
     value for all calcs and only do the conversion to seconds when it is

@@ -85,6 +85,15 @@ class mdi:
             'G92' : [_('Offset all coordinate systems'), 'A'],
             'G96' : [_('CSS Mode'), 'S', 'D'],
             }
+        self.ocodes = []
+
+    def add_macros(self, macros):
+        for m in macros:
+            words = m.split()
+            call = "O<%s> call" % words[0]
+            args = [''] + [w + ' ' for w in words[1:]]
+            self.ocodes.append(call)
+            self.codes[call] = args
 
     def get_description(self, gcode):
         return self.codes[gcode][0]
@@ -117,16 +126,22 @@ class mdi:
 
     def issue(self):
         m = self.gcode
-        w = [i for i in self.words if len(self.words.get(i)) > 0]
-        if '@' in w:
-            m += '@' + self.words.get('@')
-            w.remove('@')
-        if '^' in w:
-            m += '^' + self.words.get('^')
-            w.remove('^')
-        for i in w:
-            if len(self.words.get(i)) > 0:
-                m += i + self.words.get(i)
+        if m.lower().startswith('o'):
+            codes = self.codes[m]
+            for code in self.codes[m][1:]:
+                v = self.words[code] or "0"
+                m = m + " [%s]" % v
+        else:
+            w = [i for i in self.words if len(self.words.get(i)) > 0]
+            if '@' in w:
+                m += '@' + self.words.get('@')
+                w.remove('@')
+            if '^' in w:
+                m += '^' + self.words.get('^')
+                w.remove('^')
+            for i in w:
+                if len(self.words.get(i)) > 0:
+                    m += i + self.words.get(i)
         self.emcstat.poll()
         if self.emcstat.task_mode != self.emc.MODE_MDI:
             self.emccommand.mode(self.emc.MODE_MDI)
@@ -169,10 +184,9 @@ class mdi_control:
         w = self.labels[n]
         w.set_text(t)
         if n > 0:
-            if len(t) > 1:
-                self.mdi.set_word(t[0], t[1:])
-            if len(t) == 1:
-                self.mdi.set_word(t, "")
+            head = t.rstrip("0123456789.-")
+            tail = t[len(head):]
+            self.mdi.set_word(head, tail)
         if len(t) < 2:
             w.set_alignment(1.0, 0.5)
         else:
@@ -180,11 +194,11 @@ class mdi_control:
             
     def clear(self, b):
         t = self.get_text()
-        self.set_text(t[:1])
+        self.set_text(t.rstrip("0123456789.-"))
         
     def back(self, b):
         t = self.get_text()
-        if len(t) > 1:
+        if t[-1:] in "0123456789.-":
             self.set_text(t[:-1])
 
     def fill_out(self):
@@ -214,10 +228,12 @@ class mdi_control:
     def minus(self, b):
         t = self.get_text()
         if self.selected > 0:
-            if t.find("-") == -1:
-                self.set_text(t[:1] + "-" + t[1:])
+            head = t.rstrip("0123456789.-")
+            tail = t[len(head):]
+            if tail.find("-") == -1:
+                self.set_text(head + "-" + tail)
             else:
-                self.set_text(t[:1] + t[2:])
+                self.set_text(head + tail[1:])
 
     def keypad(self, b):
         t = self.get_text()
@@ -241,6 +257,16 @@ class mdi_control:
     def t(self, b):
         self.g(b, "T")
 
+    def o(self, b):
+        old_code = self.labels[0].get_text()
+        ocodes = self.mdi.ocodes
+        if old_code in ocodes:
+            j = (ocodes.index(old_code) + 1) % len(ocodes)
+        else:
+            j = 0
+        self.g(b, ocodes[j])
+        self.next(b)
+
     def select(self, eventbox, event):
         n = int(eventbox.get_name()[12:])
         if self.selected == 0:
@@ -248,11 +274,14 @@ class mdi_control:
         if n <= self.numwords:
             self.editing(n)
 
-    def set_tool(self, tool):
+    def set_tool(self, tool, g10l11):
         self.g(0)
         self.set_text("G10", 0)
         self.next(0)
-        self.set_text("L10", 1)
+        if g10l11:
+            self.set_text("L11", 1)
+        else:
+            self.set_text("L10", 1)
         self.next(0)
         self.set_text("P%d" % tool, 2)
         self.next(0)

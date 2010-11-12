@@ -27,7 +27,7 @@ extern int RCS_CMD_MSG_format(NMLTYPE, void *, CMS *);
 
 class RCS_CMD_CHANNEL:public NML {
   public:
-    RCS_CMD_CHANNEL(NML_FORMAT_PTR, char *, char *, char *,
+    RCS_CMD_CHANNEL(NML_FORMAT_PTR, const char *, const char *, const char *,
 	int set_to_server = 0);
      ~RCS_CMD_CHANNEL();
     RCS_CMD_MSG *get_address() {

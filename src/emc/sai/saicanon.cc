@@ -646,7 +646,7 @@ void CLAMP_AXIS(CANON_AXIS axis)
         (axis == CANON_AXIS_B) ? "CANON_AXIS_B" :
         (axis == CANON_AXIS_C) ? "CANON_AXIS_C" : "UNKNOWN");}
 
-void COMMENT(char *s)
+void COMMENT(const char *s)
 {PRINT1("COMMENT(\"%s\")\n", s);}
 
 void DISABLE_ADAPTIVE_FEED()

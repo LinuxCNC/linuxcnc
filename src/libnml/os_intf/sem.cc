@@ -20,7 +20,7 @@ extern "C" {
 #include "rcs_print.hh"		// rcs_print_debug(),
 				// PRINT_SEMAPHORE_ACTIVITY
 #include "timer.hh"		// etime()
-RCS_SEMAPHORE::RCS_SEMAPHORE(unsigned long int _id, int _oflag, double _time,
+RCS_SEMAPHORE::RCS_SEMAPHORE(key_t _id, int _oflag, double _time,
     int _mode, int _state)
 {
     /* save the constructor args */
@@ -33,12 +33,12 @@ RCS_SEMAPHORE::RCS_SEMAPHORE(unsigned long int _id, int _oflag, double _time,
     if (oflag & RCS_SEMAPHORE_CREATE) {
 	sem = rcs_sem_create(id, mode, state);
     } else {
-	sem = rcs_sem_open((char *) id, 0);
+	sem = rcs_sem_open(id, 0);
     }
 
     if (sem == NULL) {
 	rcs_print_error
-	    ("can't create semaphore (id = %d, oflag = %d, timeout = %f, mode = 0x%X, state = %d)\n",
+	    ("can't create semaphore (id = %lu, oflag = %d, timeout = %f, mode = 0x%X, state = %d)\n",
 	    id, oflag, timeout, mode, state);
     }
 }

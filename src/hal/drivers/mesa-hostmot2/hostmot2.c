@@ -177,6 +177,8 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
         case HM2_GTAG_TPPWM:           return "ThreePhasePWM";
         case HM2_GTAG_LED:             return "LED";
+        case HM2_GTAG_MUXED_ENCODER:   return "Muxed Encoder";
+        case HM2_GTAG_MUXED_ENCODER_SEL: return "Muxed Encoder Select";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -623,6 +625,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
 
             case HM2_GTAG_ENCODER:
+            case HM2_GTAG_MUXED_ENCODER:
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
                 break;
 

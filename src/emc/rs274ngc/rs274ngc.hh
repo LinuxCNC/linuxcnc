@@ -35,8 +35,6 @@ typedef struct block_struct block;
 typedef block *block_pointer;
 #endif
 
-typedef bool ON_OFF;
-
 // Declare class so that we can use it in the typedef.
 class Interp;
 typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);

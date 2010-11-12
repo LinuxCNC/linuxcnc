@@ -63,7 +63,7 @@
 #include <sys/mman.h>		/* PROT_READ, needed for rtai_shm.h */
 #include <sys/types.h>		/* off_t, needed for rtai_shm.h */
 #include <sys/fcntl.h>		/* O_RDWR, needed for rtai_shm.h */
-#include <rtai_shm.h>		/* rtai_malloc,free() */
+#include "rtapi_rtai_shm_wrap.h" /*rtai_malloc,free() */
 #include <malloc.h>		/* malloc(), free() */
 #include <sys/io.h>		/* inb(), outb() */
 #include <errno.h>		/* errno */

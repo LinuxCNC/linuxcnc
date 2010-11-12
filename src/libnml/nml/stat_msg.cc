@@ -68,8 +68,8 @@ void
 // Just avoiding an inline function.
 }
 
-RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr, char *name,
-    char *process, char *file,
+RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr, const char *name,
+    const char *process, const char *file,
     int set_to_server):NML(name, process, file, set_to_server)
 {
     format_chain = new LinkedList;

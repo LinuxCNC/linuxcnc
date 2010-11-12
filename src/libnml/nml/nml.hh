@@ -171,25 +171,25 @@ class NML:public virtual CMS_USER {
 
     /* Constructors and destructors. */
       NML(NML_FORMAT_PTR f_ptr,
-	char *, char *, char *, int set_to_server = 0, int set_to_master = 0);
+	const char *, const char *, const char *, int set_to_server = 0, int set_to_master = 0);
       NML(NML *, int set_to_server = 0, int set_to_master = 0);
-      NML(char *buffer_line, char *proc_line);
+      NML(const char *buffer_line, const char *proc_line);
       virtual ~ NML();
     int reset();
 
     int queue_length;
     int print_queue_info();
     int set_error();
-    void print_info(char *bufname = NULL, char *procname =
-	NULL, char *cfg_file = NULL);
+    void print_info(const char *bufname = NULL, const char *procname = NULL,
+	    const char *cfg_file = NULL);
   protected:
 
     int fast_mode;
     int *cms_status;
     long *cms_inbuffer_header_size;
-      NML(char *, char *, char *, int set_to_server = 0, int set_to_master =
+      NML(const char *, const char *, const char *, int set_to_server = 0, int set_to_master =
 	0);
-    void reconstruct(NML_FORMAT_PTR, char *, char *, char *,
+    void reconstruct(NML_FORMAT_PTR, const char *, const char *, const char *,
 	int set_to_server = 0, int set_to_master = 0);
 
     int info_printed;

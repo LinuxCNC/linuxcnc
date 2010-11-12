@@ -27,7 +27,7 @@ extern "C" {
 #endif
 class TCPMEM:public CMS {
   public:
-    TCPMEM(char *bufline, char *procline);
+    TCPMEM(const char *bufline, const char *procline);
       virtual ~ TCPMEM();
 
     /* Overloaded CMS functions. */

@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -1853,10 +1854,11 @@ name "sub:Parameters"
 
 \begin_layout Standard
 In the RS274/NGC language view, a machining center maintains an array of
- over 5400 numerical parameters defined by a system definition (RS274NGC_MAX_PARAMETERS).
+ over 5400 numerical parameters defined by a system definition (RS274NGC_MAX_PAR
+AMETERS).
  Many of them have specific uses especially in defining coordinate systems.
- The number of numerical parameters can increase as development adds support for
- new parameters.
+ The number of numerical parameters can increase as development adds support
+ for new parameters.
  The parameter array persists over time, even if the machining center is
  powered down.
  EMC2 uses a parameter file to ensure persistence and gives the Interpreter
@@ -1893,7 +1895,7 @@ name "cap:Parameters-Used-by"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="16" columns="2">
+<lyxtabular version="3" rows="19" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -1922,6 +1924,46 @@ Meaning
 \begin_inset Text
 
 \begin_layout Standard
+1 - 30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Subroutine local parameters of call arguments
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+1 - 5000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+G-Code user parameters
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
 5061-5070
 \end_layout
 
@@ -1931,15 +1973,7 @@ Meaning
 \begin_inset Text
 
 \begin_layout Standard
-Result of 
-\begin_inset Quotes eld
-\end_inset
-
-G38.2
-\begin_inset Quotes erd
-\end_inset
-
- Probe
+Result of "G38.2" Probe
 \end_layout
 
 \end_inset
@@ -1959,14 +1993,7 @@ G38.2
 \begin_inset Text
 
 \begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-G28
-\begin_inset Quotes erd
-\end_inset
-
- Home
+"G28" Home
 \end_layout
 
 \end_inset
@@ -1986,14 +2013,7 @@ G28
 \begin_inset Text
 
 \begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-G30
-\begin_inset Quotes erd
-\end_inset
-
- Home
+"G30" Home
 \end_layout
 
 \end_inset
@@ -2013,14 +2033,7 @@ G30
 \begin_inset Text
 
 \begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-G92
-\begin_inset Quotes erd
-\end_inset
-
- offset
+"G92" offset
 \end_layout
 
 \end_inset
@@ -2226,7 +2239,7 @@ Coordinate System 9
 \end_inset
 </cell>
 </row>
-<row topline="true" bottomline="true">
+<row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -2241,6 +2254,26 @@ Coordinate System 9
 
 \begin_layout Standard
 Result of M66 - Check or wait for input
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+5400 - 5413
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Loaded Tool parameters
 \end_layout
 
 \end_inset

@@ -4305,7 +4305,7 @@ Radius compensation is turned on
 \end_layout
 
 \begin_layout Section
-G33, G33.1 Spindle-Synchronized Motion
+G33 Spindle-Synchronized Motion
 \begin_inset LatexCommand index
 name "G33, G33.1 Spindle-Synchronized Motion"
 
@@ -4320,7 +4320,7 @@ name "sec:G33,-G33.1:-Spindle-Synchronized"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G33 X- Y- Z- K-
 \end_layout
 
@@ -4341,6 +4341,66 @@ G33 Z-1 K.0625
  produces a 1 inch motion in Z over 16 revolutions of the spindle.
  This command might be part of a program to produce a 16TPI thread.
  
+\end_layout
+
+\begin_layout Standard
+Note: K follows the drive line described by 
+\family typewriter
+X- Y- Z-
+\family default
+ and is not parallel to the Z axis.
+\end_layout
+
+\begin_layout Standard
+Spindle-synchronized motions wait for spindle index, so multiple passes
+ line up.
+ 
+\family typewriter
+G33
+\family default
+ moves end at the programmed endpoint.
+\end_layout
+
+\begin_layout Standard
+All the axis words are optional, except that at least one must be used.
+ 
+\end_layout
+
+\begin_layout Standard
+It is an error if: 
+\end_layout
+
+\begin_layout Itemize
+All axis words are omitted.
+\end_layout
+
+\begin_layout Itemize
+The spindle is not turning when this command is executed
+\end_layout
+
+\begin_layout Itemize
+The requested linear motion exceeds machine velocity limits due to the spindle
+ speed
+\end_layout
+
+\begin_layout Section
+G33.1 Rigid Tapping
+\begin_inset LatexCommand label
+name "sec:G33.1-Rigid-Tapping"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "G33.1 Rigid Tapping"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+G33.1 X- Y- Z- K-
 \end_layout
 
 \begin_layout Standard
@@ -4400,13 +4460,9 @@ unsynchronized
 \end_layout
 
 \begin_layout Standard
-All spindle-synchronized motions wait for spindle index, so multiple passes
+Spindle-synchronized motions wait for spindle index, so multiple passes
  line up.
  
-\family typewriter
-G33
-\family default
- moves end at the programmed endpoint; 
 \family typewriter
 G33.1
 \family default
@@ -6918,10 +6974,10 @@ G17.1
 \end_layout
 
 \begin_layout Standard
-Rotational axis words are allowed in canned cycles, but it is better to
- omit them.
- If rotational axis words are used, the numbers must be the same as the
- current position numbers so that the rotational axes do not move.
+Rotational axis words are not allowed in canned cycles.  When
+ the active plane is one of the XYZ family, the UVW axis words are not
+ allowed.  Likewise, when the active plane is one of the UVW family, the
+ XYZ axis words are not allowed.
 \end_layout
 
 \begin_layout Subsection
@@ -7128,7 +7184,7 @@ name "sub:G81:-Drilling-Cycle"
 \begin_layout Quote
 
 \family typewriter
-G81 X- Y- Z- A- B- C- R- L-
+G81 X- Y- Z- R- L-
 \end_layout
 
 \begin_layout Standard
@@ -7314,7 +7370,7 @@ name "sub:G82:-Drilling-Cycle"
 \begin_layout Quote
 
 \family typewriter
-G82 X- Y- Z- A- B- C- R- L- P-
+G82 X- Y- Z- R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7361,7 +7417,7 @@ name "sub:G83:-Peck-Drilling"
 \begin_layout Quote
 
 \family typewriter
-G83 X- Y- Z- A- B- C- R- L- Q-
+G83 X- Y- Z- R- L- Q-
 \end_layout
 
 \begin_layout Standard
@@ -7461,7 +7517,7 @@ name "sub:G85:-Boring,-No"
 \begin_layout Quote
 
 \family typewriter
-G85 X- Y- Z- A- B- C- R- L-
+G85 X- Y- Z- R- L-
 \end_layout
 
 \begin_layout Standard
@@ -7506,7 +7562,7 @@ name "sub:G86:-Boring,-Spindle"
 \begin_layout Quote
 
 \family typewriter
-G86 X- Y- Z- A- B- C- R- L- P-
+G86 X- Y- Z- R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7615,7 +7671,7 @@ name "sub:G89:-Boring,-Dwell,"
 \begin_layout Quote
 
 \family typewriter
-G89 X- Y- Z- A- B- C- R- L- P-
+G89 X- Y- Z- R- L- P-
 \end_layout
 
 \begin_layout Standard

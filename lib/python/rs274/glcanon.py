@@ -98,9 +98,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def draw_lines(self, lines, for_selection, j=0):
         return emc.draw_lines(self.geometry, lines, for_selection)
 
-    def draw_dwells(self, dwells, for_selection, j0=0):
-        return emc.draw_dwells(self.geometry, dwells, for_selection, self.is_lathe())
-
+    def draw_dwells(self, dwells, alpha, for_selection, j0=0):
+        return emc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
@@ -208,7 +207,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             coords.append(line[2][:3])
         for line in self.dwells:
             if line[0] != lineno: continue
-            self.draw_dwells([(line[0], c) + line[2:]], 2)
+            self.draw_dwells([(line[0], c) + line[2:]], 2, 0)
             coords.append(line[2:5])
         glEnd()
         glLineWidth(1)
@@ -222,21 +221,35 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             z = (self.min_extents[2] + self.max_extents[2])/2
         return x, y, z
 
+    def color_with_alpha(self, name):
+        glColor4f(*(self.colors[name] + (self.colors.get(name+'_alpha', 1/3.),)))
+    def color(self, name):
+        glColor3f(*self.colors[name])
+
     def draw(self, for_selection=0, no_traverse=True):
         if not no_traverse:
             glEnable(GL_LINE_STIPPLE)
-            glColor3f(*self.colors['traverse'])
+            if for_selection:
+                self.color('traverse')
+            else:
+                self.color_with_alpha('traverse')
             self.draw_lines(self.traverse, for_selection)
             glDisable(GL_LINE_STIPPLE)
         else:
-            glColor3f(*self.colors['straight_feed'])
+            if for_selection:
+                self.color('straight_feed')
+            else:
+                self.color_with_alpha('straight_feed')
             self.draw_lines(self.feed, for_selection, len(self.traverse))
 
-            glColor3f(*self.colors['arc_feed'])
+            if for_selection:
+                self.color('arc_feed')
+            else:
+                self.color_with_alpha('arc_feed')
             self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
 
             glLineWidth(2)
-            self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
+            self.draw_dwells(self.dwells, self.colors.get('dwell_alpha', 1/3.), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
             glLineWidth(1)
 
 def with_context(f):
@@ -262,6 +275,7 @@ def with_context_swap(f):
 class GlCanonDraw:
     colors = {
         'traverse': (0.30, 0.50, 0.50),
+        'traverse_alpha': 1/3.,
         'backplotprobing_alpha': 0.75,
         'backplotprobing': (0.63, 0.13, 0.94),
         'backplottraverse': (0.30, 0.50, 0.50),
@@ -282,6 +296,7 @@ class GlCanonDraw:
         'overlay_foreground': (1.00, 1.00, 1.00),
         'overlay_background': (0.00, 0.00, 0.00),
         'straight_feed': (1.00, 1.00, 1.00),
+        'straight_feed_alpha': 1/3.,
         'small_origin': (0.00, 1.00, 1.00),
         'backplottoolchange_alpha': 0.25,
         'backplottraverse_alpha': 0.25,
@@ -294,6 +309,7 @@ class GlCanonDraw:
         'backplotfeed_alpha': 0.75,
         'backplotarc_alpha': 0.75,
         'arc_feed': (1.00, 1.00, 1.00),
+        'arc_feed_alpha': .5,
         'axis_y': (1.00, 0.20, 0.20),
     }
     def __init__(self, s, lp, g=None):
@@ -702,10 +718,19 @@ class GlCanonDraw:
         glMatrixMode(GL_MODELVIEW)
 
         if self.get_show_program():
+            if self.get_program_alpha():
+                glDisable(GL_DEPTH_TEST)
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
             if self.get_show_rapids():
                 glCallList(self.dlist('program_rapids', gen=self.make_main_list))
             glCallList(self.dlist('program_norapids', gen=self.make_main_list))
             glCallList(self.dlist('highlight'))
+
+            if self.get_program_alpha():
+                glDisable(GL_BLEND)
+                glEnable(GL_DEPTH_TEST)
 
             if self.get_show_extents():
                 self.show_extents()
@@ -737,7 +762,12 @@ class GlCanonDraw:
                         label = "G59.%d" % (i-6)
                     glPushMatrix()
                     glScalef(0.2,0.2,0.2)
-                    g5xrot=math.atan2(g5x_offset[1], g5x_offset[0])
+                    if self.is_lathe:
+                        g5xrot=math.atan2(g5x_offset[0], -g5x_offset[2])
+                        glRotatef(90, 1, 0, 0)
+                        glRotatef(-90, 0, 0, 1)
+                    else:
+                        g5xrot=math.atan2(g5x_offset[1], g5x_offset[0])
                     glRotatef(math.degrees(g5xrot), 0, 0, 1)
                     glTranslatef(0.5, 0.5, 0)
                     self.hershey.plot_string(label, 0.1)
@@ -755,7 +785,12 @@ class GlCanonDraw:
 
                     glPushMatrix()
                     glScalef(0.2,0.2,0.2)
-                    g92rot=math.atan2(g92_offset[1], g92_offset[0])
+                    if self.is_lathe:
+                        g92rot=math.atan2(g92_offset[0], -g92_offset[2])
+                        glRotatef(90, 1, 0, 0)
+                        glRotatef(-90, 0, 0, 1)
+                    else:
+                        g92rot=math.atan2(g92_offset[1], g92_offset[0])
                     glRotatef(math.degrees(g92rot), 0, 0, 1)
                     glTranslatef(0.5, 0.5, 0)
                     self.hershey.plot_string("G92", 0.1)
@@ -1031,6 +1066,7 @@ class GlCanonDraw:
                 droformat = " " + format + "  DTG %1s:% 9.4f"
                 offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
                 rotformat = "% 5s %1s:% 9.4f"
+            diaformat = " " + format
 
             posstrs = []
             droposstrs = []
@@ -1065,7 +1101,7 @@ class GlCanonDraw:
                 posstrs[0] = format % ("Rad", positions[0])
                 posstrs.insert(1, format % ("Dia", positions[0]*2.0))
                 droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
-                droposstrs.insert(1, format % ("Dia", positions[0]*2.0))
+                droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.get_show_machine_speed():
                 spd = self.to_internal_linear_unit(s.current_vel)

@@ -63,7 +63,7 @@ static int not_zero(volatile double x)
 /* SHMEM Member Functions. */
 
 /* Constructor for hard coded tests. */
-SHMEM::SHMEM(char *n, long s, int nt, key_t k, int m):CMS(s)
+SHMEM::SHMEM(const char *n, long s, int nt, key_t k, int m):CMS(s)
 {
     /* Set pointers to null so only properly opened pointers are closed. */
     shm = NULL;
@@ -78,7 +78,7 @@ SHMEM::SHMEM(char *n, long s, int nt, key_t k, int m):CMS(s)
 }
 
 /* Constructor for use with cms_config. */
-SHMEM::SHMEM(char *bufline, char *procline, int set_to_server,
+SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server,
     int set_to_master):CMS(bufline, procline, set_to_server)
 {
     /* Set pointers to null so only properly opened pointers are closed. */
@@ -245,7 +245,7 @@ int SHMEM::open()
 	shm = new RCS_SHAREDMEM(key, size, RCS_SHAREDMEM_NOCREATE);
 	if (NULL == shm) {
 	    rcs_print_error
-		("CMS: couldn't create RCS_SHAREDMEM(%d(0x%X), %d(0x%X), RCS_SHAREDMEM_NOCREATE).\n",
+		("CMS: couldn't create RCS_SHAREDMEM(%d(0x%X), %ld(0x%lX), RCS_SHAREDMEM_NOCREATE).\n",
 		key, key, size, size);
 	    status = CMS_CREATE_ERROR;
 	    return -1;
@@ -395,7 +395,7 @@ int SHMEM::open()
     handle_to_global_data->set_to_ptr(shm_addr_offset, size);
     if ((connection_number < 0 || connection_number >= total_connections)
 	&& (mutex_type == MAO_MUTEX || mutex_type == MAO_MUTEX_W_OS_SEM)) {
-	rcs_print_error("Bad connection number %d\n", connection_number);
+	rcs_print_error("Bad connection number %ld\n", connection_number);
 	status = CMS_MISC_ERROR;
 	return -1;
     }

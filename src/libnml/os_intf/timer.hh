@@ -90,8 +90,8 @@ difficult */
     RCS_TIMER(double timeout, RCS_TIMERFUNC function =
 	(RCS_TIMERFUNC) NULL, void *arg = NULL);
 
-      RCS_TIMER(char *process_name, char *timer_config_file);
-      RCS_TIMER(double _timeout, char *process_name, char *timer_config_file);
+      RCS_TIMER(const char *process_name, const char *timer_config_file);
+      RCS_TIMER(double _timeout, const char *process_name, const char *timer_config_file);
     /* Initialize a new RCS_TIMER object. _interval is the cycle period.
        _function is an optional function for synchronizing to an event other
        than the system clock. _arg is a parameter that will be passed to

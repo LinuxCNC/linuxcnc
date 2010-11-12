@@ -167,11 +167,11 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 
     rcs_print_debug
 	(PRINT_SHARED_MEMORY_ACTIVITY,
-	"rcs_shm_open(key=%d(0x%X),size=%d(0x%X),oflag=%d)\n",
+	"rcs_shm_open(key=%d(0x%X),size=%zu(0x%zX),oflag=%d)\n",
 	key, key, size, size, oflag);
 
     if (key == 0) {
-	rcs_print_error("rcs_shm_open(%d(0x%X), %d(0x%X), %d(0x%X)): error\n",
+	rcs_print_error("rcs_shm_open(%d(0x%X), %zu(0x%zX), %d(0x%X)): error\n",
 	    key, key, size, size, oflag, oflag);
 	rcs_print_error("RCS Shared Memory key may not be zero.\n");
 	return NULL;
@@ -203,7 +203,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 
     if ((shm->id = shmget(key, (int) size, shmflg)) == -1) {
 	shm->create_errno = errno;
-	rcs_print_error("shmget(%d(0x%X),%d,%d) failed: (errno = %d): %s\n",
+	rcs_print_error("shmget(%d(0x%X),%zd,%d) failed: (errno = %d): %s\n",
 	    key, key, size, shmflg, errno, strerror(errno));
 	switch (errno) {
 	case EEXIST:
@@ -321,7 +321,7 @@ int rcs_shm_close(shm_t * shm)
 	return -1;
 
     rcs_print_debug(PRINT_SHARED_MEMORY_ACTIVITY,
-	"rcs_shm_close(shm->key=%d(0x%X),shm->size=%d(0x%X),shm->addr=0x%X)\n",
+	"rcs_shm_close(shm->key=%d(0x%X),shm->size=%zu(0x%zX),shm->addr=%p)\n",
 	shm->key, shm->key, shm->size, shm->size, shm->addr);
 
     /* detach from shmem */

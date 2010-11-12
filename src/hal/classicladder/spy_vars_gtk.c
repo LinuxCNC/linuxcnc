@@ -439,7 +439,7 @@ void FreeVarsWindowInitGtk( )
 				TooltipsEntryVarSpy[ NumVarSpy ] = gtk_tooltips_new();
 				gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumEntry ],VarName);
 				gtk_signal_connect(GTK_OBJECT (EntryVarSpy[ NumEntry ]), "activate",
-                                (GtkSignalFunc) EntryVarSpy_activate_event, (void *)NumVarSpy);
+                                (GtkSignalFunc) EntryVarSpy_activate_event, (void *)(intptr_t)NumVarSpy);
 			}
 			if ( ColumnVar==2)
 			{

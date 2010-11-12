@@ -26,14 +26,11 @@ addf motenc.0.digital-out-write motenc.thread
 addf motenc.0.dac-write motenc.thread
 
 # create three position feedback signals
-newsig Xpos-fb float
-newsig Ypos-fb float
-newsig Zpos-fb float
 
 # connect position feedback signals to encoders
-linksp Xpos-fb <= motenc.0.enc-00-position
-linksp Ypos-fb <= motenc.0.enc-01-position
-linksp Zpos-fb <= motenc.0.enc-02-position
+net Xpos-fb <= motenc.0.enc-00-position
+net Ypos-fb <= motenc.0.enc-01-position
+net Zpos-fb <= motenc.0.enc-02-position
 
 # set feedback scaling
 # this is just an example
@@ -52,19 +49,16 @@ setp motenc.0.enc-02-scale 81920
 # continue on.
 
 # connect position feedback to PID loop
-linksp Xpos-fb => pid.0.feedback
-linksp Ypos-fb => pid.1.feedback
-linksp Zpos-fb => pid.2.feedback
+net Xpos-fb => pid.0.feedback
+net Ypos-fb => pid.1.feedback
+net Zpos-fb => pid.2.feedback
 
 # create PID to DAC output signals
-newsig Xoutput float
-newsig Youtput float
-newsig Zoutput float
 
 # connect output signals to DACs
-linksp Xoutput => motenc.0.dac-00-value
-linksp Youtput => motenc.0.dac-01-value
-linksp Zoutput => motenc.0.dac-02-value
+net Xoutput => motenc.0.dac-00-value
+net Youtput => motenc.0.dac-01-value
+net Zoutput => motenc.0.dac-02-value
 
 # set offset and scale so that +/-1.00 on output 
 # signals is +/-10V at the physical DAC pins
@@ -76,9 +70,9 @@ setp motenc.0.dac-01-offset 0
 setp motenc.0.dac-02-offset 0
 
 # connect output signals to output of PID loops
-linksp Xoutput <= pid.0.output
-linksp Youtput <= pid.1.output
-linksp Zoutput <= pid.2.output
+net Xoutput <= pid.0.output
+net Youtput <= pid.1.output
+net Zoutput <= pid.2.output
 
 # set PID loop output limits to +/-1.00
 setp pid.0.maxoutput 1
@@ -127,14 +121,11 @@ setp pid.2.deadband 0.000015
 
 # create three position command signals
 # eventually, these will come from EMC
-newsig Xpos-cmd float
-newsig Ypos-cmd float
-newsig Zpos-cmd float
 
 # connect position commands to PID input
-linksp Xpos-cmd => pid.0.command
-linksp Ypos-cmd => pid.1.command
-linksp Zpos-cmd => pid.2.command
+net Xpos-cmd => pid.0.command
+net Ypos-cmd => pid.1.command
+net Zpos-cmd => pid.2.command
 
 # connect the signal generator sine and cosine outputs
 # to X and Y position commands
@@ -151,8 +142,8 @@ linksp Zpos-cmd => pid.2.command
 # Proceed with caution, keep siggen.0.amplitude small 
 # until you know that the movement is stable, then increase
 # it in small increments only.
-linksp Xpos-cmd <= siggen.0.sine
-linksp Ypos-cmd <= siggen.0.cosine
+net Xpos-cmd <= siggen.0.sine
+net Ypos-cmd <= siggen.0.cosine
 
 # set the siggen parameters for a 0.5" diameter circle, once every 10 seconds
 # once the PID loops are tuned, the size and/or speed can be increased
@@ -161,12 +152,11 @@ setp siggen.0.offset 0
 setp siggen.0.amplitude 0.25
 
 # create a bit signal to enable/disable the PID loops
-newsig pid-enable bit
 
 # connect the signal to all three PID blocks
-linksp pid-enable => pid.0.enable
-linksp pid-enable => pid.1.enable
-linksp pid-enable => pid.2.enable
+net pid-enable => pid.0.enable
+net pid-enable => pid.1.enable
+net pid-enable => pid.2.enable
 
 # you can either turn pid-enable on and off using the
 # "halcmd sets" command, or you can connect it to a 

@@ -55,6 +55,7 @@ static int num_5i23 = 0;
 static int num_4i65 = 0;
 static int num_4i68 = 0;
 static int num_3x20 = 0;
+static int failed_errno=0; // errno of last failed registration
 
 
 static struct pci_device_id hm2_pci_tbl[] = {
@@ -365,7 +366,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
     // NOTE: this enables the board's BARs -- this fixes the Arty bug
     if (pci_enable_device(dev)) {
         LL_PRINT("skipping AnyIO board at %s, failed to enable PCI device\n", pci_name(dev));
-        return -ENODEV;
+        return failed_errno = -ENODEV;
     }
 
 
@@ -473,7 +474,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
         default: {
             LL_ERR("unknown subsystem device id 0x%04x", dev->subsystem_device);
-            return -ENODEV;
+            return failed_errno = -ENODEV;
         }
     }
 
@@ -562,7 +563,7 @@ fail1:
 
 fail0:
     pci_disable_device(dev);
-    return r;
+    return failed_errno = r;
 }
 
 
@@ -612,7 +613,21 @@ int rtapi_app_main(void) {
     if (r != 0) {
         LL_ERR("error registering PCI driver\n");
         hal_exit(comp_id);
-        return -EINVAL;
+        return r;
+    }
+
+    if(failed_errno) {
+	// at least one card registration failed
+	hal_exit(comp_id);
+	pci_unregister_driver(&hm2_pci_driver);
+	return failed_errno;
+    }
+
+    if(num_boards == 0) {
+	// no cards were detected
+	hal_exit(comp_id);
+	pci_unregister_driver(&hm2_pci_driver);
+	return -ENODEV;
     }
 
     hal_ready(comp_id);

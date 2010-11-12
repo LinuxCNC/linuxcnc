@@ -212,7 +212,7 @@ void enqueue_SET_SPINDLE_SPEED(double speed) {
     qc().push_back(q);
 }
 
-void enqueue_COMMENT(char *c) {
+void enqueue_COMMENT(const char *c) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate comment \"%s\"\n", c);
         COMMENT(c);

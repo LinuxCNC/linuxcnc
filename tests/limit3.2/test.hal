@@ -8,7 +8,7 @@ setp limit3.0.maxv 500.000000
 setp limit3.0.maxa 1000
 setp limit3.0.max 160
 
-linkpp limit3.0.out sampler.0.pin.0
+net n0 limit3.0.out sampler.0.pin.0
 
 addf limit3.0 t
 addf sampler.0 t

@@ -69,12 +69,12 @@ public:
 
 protected:
     struct StrIntPair {
-        char                    *pStr;
+        const char             *pStr;
         int                     value;
     };
 
     struct StrDoublePair {
-        char                    *pStr;
+        const char              *pStr;
         double                   value;
     };
 

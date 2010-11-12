@@ -19,7 +19,7 @@
 
 class PHANTOMMEM:public CMS {
   public:
-    PHANTOMMEM(char *bufline, char *procline);
+    PHANTOMMEM(const char *bufline, const char *procline);
       virtual ~ PHANTOMMEM();
     virtual CMS_STATUS main_access(void *_local);
 };

@@ -33,11 +33,11 @@ static char access_name[9][40] = {
 void NML_DIAGNOSTICS_INFO::print()
 {
     if (NULL != last_writer_dpi) {
-	rcs_print("Last writer = %d (%s)\n", last_writer,
+	rcs_print("Last writer = %ld (%s)\n", last_writer,
 	    last_writer_dpi->name);
     }
     if (NULL != last_reader_dpi) {
-	rcs_print("Last reader = %d (%s)\n", last_reader,
+	rcs_print("Last reader = %ld (%s)\n", last_reader,
 	    last_reader_dpi->name);
     }
     if (NULL == dpis) {
@@ -48,17 +48,17 @@ void NML_DIAGNOSTICS_INFO::print()
 	rcs_print("\n");
 	rcs_print("Info for process %s:\n", dpi->name);
 	rcs_print("\t Host and system info: %s\n", dpi->host_sysinfo);
-	rcs_print("\t Process Id: %d\n", dpi->pid);
+	rcs_print("\t Process Id: %ld\n", dpi->pid);
 	rcs_print("\t RCS Library Version: %f\n", dpi->rcslib_ver);
 	if (dpi->access_type >= 0 && dpi->access_type <= 9) {
 	    rcs_print("\t Last operation:  %d (%s)\n", dpi->access_type,
 		access_name[dpi->access_type]);
 	}
-	rcs_print("\t msg_id: %d\n", dpi->msg_id);
-	rcs_print("\t msg_size: %d\n", dpi->msg_size);
-	rcs_print("\t msg_type: %d\n", dpi->msg_type);
-	rcs_print("\t number_of_accesses: %d\n", dpi->number_of_accesses);
-	rcs_print("\t number_of_new_messages: %d\n",
+	rcs_print("\t msg_id: %ld\n", dpi->msg_id);
+	rcs_print("\t msg_size: %ld\n", dpi->msg_size);
+	rcs_print("\t msg_type: %ld\n", dpi->msg_type);
+	rcs_print("\t number_of_accesses: %ld\n", dpi->number_of_accesses);
+	rcs_print("\t number_of_new_messages: %ld\n",
 	    dpi->number_of_new_messages);
 	rcs_print("\t bytes_moved: %f\n", dpi->bytes_moved);
 	time_t t = 0;
@@ -96,7 +96,7 @@ void NML_DIAGNOSTICS_INFO::print()
 	    m = ((int) total_time - h * 60) / 60;
 	    s = ((int) total_time - h * 3600 - m * 60);
 	    rcs_print
-		("\t Time between first and last access: %f -- %02.2d:%02.2d:%02.2d\n",
+		("\t Time between first and last access: %f -- %02d:%02d:%02d\n",
 		total_time, h, m, s);
 	    if (dpi->number_of_accesses > 0) {
 		rcs_print("\t Average time between accesses: %f\n",

@@ -1,0 +1,9 @@
+;Straight feed in concave corner cannot be reached by the tool without gouging
+g0x0y0z0
+g41.1d.25
+g1x1f1
+g1x2
+g1y.1
+g1x1
+g40
+g1x2

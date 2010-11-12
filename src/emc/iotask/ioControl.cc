@@ -603,6 +603,16 @@ void load_tool(int pocket) {
     }
 }
 
+void reload_tool_number(int toolno) {
+    if(random_toolchanger) return; // doesn't need special handling here
+    for(int i=1; i<CANON_POCKETS_MAX; i++) {
+        if(emcioStatus.tool.toolTable[i].toolno == toolno) {
+            load_tool(i);
+            break;
+        }
+    }
+}
+
 
 /********************************************************************
 *
@@ -802,6 +812,7 @@ int main(int argc, char *argv[])
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_INIT\n");
 	    loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
 		    fms, ttcomments, random_toolchanger);
+	    reload_tool_number(emcioStatus.tool.toolInSpindle);
 	    break;
 
 	case EMC_TOOL_HALT_TYPE:
@@ -884,6 +895,8 @@ int main(int argc, char *argv[])
 		if (0 != loadToolTable(filename, emcioStatus.tool.toolTable,
 				  fms, ttcomments, random_toolchanger))
 		    emcioStatus.status = RCS_ERROR;
+		else
+		    reload_tool_number(emcioStatus.tool.toolInSpindle);
 	    }
 	    break;
 

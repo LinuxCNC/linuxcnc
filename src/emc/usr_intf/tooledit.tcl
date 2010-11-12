@@ -33,18 +33,23 @@
 # Text on a line following a semicolon (;) is treated as comment
 # Comment-only lines are preserved
 
+package require BWidget ;# for ScrolledWindow, ScrollableFrame
+
 namespace eval ::tooledit {
   namespace export tooledit ;# public interface
 }
 
 proc ::tooledit::init {} {
   set ::te(fmt,int)   %d
-  set ::te(fmt,real)  %.4g
-  set ::te(fmt,angle) %.1f
+  set ::te(fmt,real)  %g
+  set ::te(fmt,angle) %f
   set ::te(msg,last)  ""
   set ::te(pollms)    2000
 
   set ::te(types)        {unified}
+  set ::te(unified,width)     0 ;# initial width as reqd
+  set ::te(unified,height)  100 ;# initial height limit here
+  set ::te(unified,hincr)    10 ;# height increment to bump scrollable size
   set ::te(unified,header)  {tool poc x y z a b c u v w \
                           diam front back orien comment}
 
@@ -63,8 +68,10 @@ proc ::tooledit::init {} {
   set ::te(diam,width)     7; set ::te(diam,tag)     D
   set ::te(front,width)    7; set ::te(front,tag)    I
   set ::te(back,width)     7; set ::te(back,tag)     J
-  set ::te(orien,width)    5; set ::te(orien,tag)    Q
-  set ::te(comment,width) 15; set ::te(comment,tag) \;
+  set ::te(orien,width)    6; set ::te(orien,tag)    Q
+  set ::te(comment,width)  20; set ::te(comment,tag) \;
+  # note: width 0 expands with text in entry widget
+  #       when using Bwidget scrollable frame
 } ;# init
 
 proc ::tooledit::validangle {v} {
@@ -197,7 +204,7 @@ proc ::tooledit::readfile {filename} {
       set newline    [string range $newline 0 [expr -1 + $i1]]
       set newline    [string trim $newline]
     }
-     
+
     if {"$newline" == ""} {
       lappend ::te(global,comments) $u(comment)
       continue
@@ -294,6 +301,7 @@ proc ::tooledit::tooledit {filename} {
   foreach h $::te(unified,header)  {set ::te($h) [string toupper $h]}
 
   set ::te(top) [toplevel .tooledit]
+  wm resizable $::te(top) 1 1
   wm protocol $::te(top) WM_DELETE_WINDOW ::tooledit::bye
   wm title $::te(top) "tooledit: [file tail $::te(filename)]"
   if [info exists ::te(tooledit,geometry)] {
@@ -302,17 +310,20 @@ proc ::tooledit::tooledit {filename} {
 
   # frame for headers & entries
   foreach type $::te(types) {
-    set f [frame $::te(top).$type] ;# pack deferred until used
-    set ::te($type,frame) $f
+    set ::te($type,hframe) [frame $::te(top).[qid]]
+    pack $::te($type,hframe) -side top -expand 0 -fill x -anchor nw
+
+
+
+    # note: dont pack ::te($type,sframe), handled by ScrolledWindow
+    set ::te($type,sw)  [ScrolledWindow  $::te(top).$type \
+             -scrollbar vertical -auto none]
+    set ::te($type,sframe) [ScrollableFrame $::te(top).$type.sff \
+             -height $::te($type,height) -width $::te($type,width) \
+             -constrainedwidth 1]
+    $::te($type,sw) setwidget $::te($type,sframe) ;# associates scrollbars
+    set ::te($type,frame) [$::te($type,sframe) getframe] ;# this is parent
   }
-
-  # message frame (pack from bottom)
-  set f [frame $::te(top).[qid]]
-  pack $f -side bottom -expand 1 -fill x
-
-  set msg [label $f.[qid] -anchor w]
-  set ::te(msg,widget) $msg
-  pack $msg -side top -expand 1 -fill x -anchor w
 
   set readstatus [readfile $filename]
   switch $readstatus {
@@ -335,15 +346,15 @@ proc ::tooledit::tooledit {filename} {
 
   # button frame (pack from bottom)
   set f [frame $::te(top).[qid]]
-  pack $f -side bottom -expand 1 -fill x
+  pack $f -side top -expand 0 -fill both -anchor nw
 
   set   bb [button $f.[qid] -text "Delete items"\
            -command {::tooledit::deleteline}]
-  pack $bb -side left -fill none -expand 0
+  pack $bb -side left -fill y -expand 0
   set ::te(deletebutton) $bb
   checkdelete
 
-  pack [button $f.am -text "Add Tool" \
+  pack [button $f.[qid] -text "Add Tool" \
        -command {::tooledit::makeline unified new}] -side left -fill x -expand 1
   pack [button $f.[qid] -text "Reload File" \
        -command  ::tooledit::toolreread] -side left -fill x -expand 1
@@ -356,7 +367,39 @@ proc ::tooledit::tooledit {filename} {
        -command ::tooledit::bye] \
        -side left -fill x -expand 1
 
+  set f [frame $::te(top).[qid]]
+  pack $f -side top -expand 0 -fill x
+
+  set msg [label $f.msg -anchor w]
+  set ::te(msg,widget) $msg
+  pack $msg -side top -expand 0 -fill x -anchor w
+
+  set f [frame $::te(top).dummy -height 1] ;# unused widget for expansion
+  pack $f -side top -expand 0 -fill x
+
+  update ;# wait for display before binding Configure events
+  set geo [wm geometry $::te(top)]
+  set ::te(top,geometry) $geo
+  set ::te(top,height) [string range $geo [expr  1 + [string first x $geo]] \
+                                        [expr -1 + [string first + $geo]] ]
+  # set min width so it can be disappeared inadvertently
+  # set min height to initial
+  wm minsize $::te(top) 100 $::te(top,height)
+
+  bind $::te(top) <Configure> {::tooledit::configure %W %w %h}
 } ;# tooledit
+
+proc ::tooledit::configure {W w h} {
+  if {"$W" == $::te(top) && $::te(top,geometry) != [wm geometry $::te(top)]} {
+    set ::te(top,geometry) [wm geometry $::te(top)]
+    set deltah [expr $h - $::te(top,height)]
+    set fsize [$::te(unified,sframe) cget -height]
+    if {[expr abs($deltah)] > $::te(unified,hincr)} {
+      $::te(unified,sframe) configure -height [expr $fsize + $deltah]
+      set ::te(top,height) $h
+    }
+  }
+} ;# configure
 
 proc ::tooledit::message {type} {
   if ![info exists ::te(msg,widget)] return
@@ -374,7 +417,10 @@ proc ::tooledit::message {type} {
     verror   {$w conf -text "$dt: File errors -- Check Entries"   -fg red}
     changed  {$w conf -text "$dt: Warning: File changed by another process" -fg red}
     filegone {$w conf -text "$dt: Warning: File deleted by another process" -fg red}
-    newtool  {$w conf -text "$dt: Added Tool" -fg green4}
+    newtool  {$w conf -text "$dt: Added Tool" -fg green4
+                 update idletasks
+                 $::te(unified,sframe) yview moveto 1.0
+             }
   }
   set ::te(msg,last) $type
 } ;# message
@@ -437,11 +483,10 @@ proc ::tooledit::makeline {type ay_name} {
     unified  {
       if ![info exists ::te(unified,i)] {set ::te(unified,i) 0}
       set i $::te(unified,i)
-      pack $::te($type,frame) -side top -fill both -expand 1
       if ![info exists ::te(unified,header,frame)] {
-        set f [frame $::te($type,frame).${i}unified,header]
+        set f [frame $::te($type,hframe).${i}unified,header]
         set ::te(unified,header,frame) $f
-        pack $f -side top -expand 0 -fill x
+        pack $f -side top -expand 1 -fill x -anchor n
         pack [label $f.b -text Del -width 3] -side left -expand 0
         foreach h $::te(unified,header) {
           set e 0;set j center
@@ -454,7 +499,7 @@ proc ::tooledit::makeline {type ay_name} {
       }
       set f [frame $::te($type,frame).data$i]
       set ::te(unified,$i,frame) $f
-      pack $f -side top -expand 0 -fill x
+      pack $f -side top -expand 1 -fill x -anchor n
       lappend ::te(unified,items) $i
       set ::te(unified,$i,tool)      $ay(t)
       set ::te(unified,$i,poc)       $ay(p)
@@ -493,6 +538,7 @@ proc ::tooledit::makeline {type ay_name} {
     $vefocus selection to end
     focus $vefocus
   }
+  pack $::te($type,sw) -side top -fill x -expand 0 -anchor nw
 } ;# makeline
 
 proc ::tooledit::entrybindings {type e h i} {
@@ -610,8 +656,14 @@ proc ::tooledit::writefile {filename} {
         foreach h $::te($type,header) {
           set j ""
           set w $::te($h,width)
-          if {"$::te($type,$i,$h)" != ""} {
-            puts -nonewline $fd "$::te($h,tag)$::te($type,$i,$h) "
+          # correct entries with leading zeros
+          if {$h != "comment" &&
+		[string first 0 [string trim $::te($type,$i,$h)]] == 0} {
+             set ::te($type,$i,$h) [format %g $::te($type,$i,$h)]
+          }
+          set value [string trim $::te($type,$i,$h)]
+          if {"$value" != ""} {
+            puts -nonewline $fd "$::te($h,tag)$value "
           }
         }
         puts $fd "" ;# new line
