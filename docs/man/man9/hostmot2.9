@@ -260,6 +260,7 @@ Parameters:
 (float rw) scale: Scaling factor to convert 'value' from arbitrary units
 to duty cycle: dc = value / scale.  Duty cycle has an effective range
 of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
+The default scale is 1.0.
 
 (s32 rw) output-type: This emulates the output_type load-time argument to
 the software pwmgen component.  This parameter may be changed at runtime,
@@ -281,6 +282,7 @@ may have different clocks, resulting in different max PWM frequencies.
 If the user attempts to set the frequency too high, it will be clipped
 to the max supported frequency of the board.  Frequencies below about
 5 Hz are not terribly accurate, but above 5 Hz they're pretty close.
+The default pwm_frequency is 20,000 Hz (20 KHz).
 
 (u32 rw) pdm_frequency: This specifies the PDM frequency, in Hz, of
 all the pwmgen instances running in PDM mode (mode 3).  This is the
@@ -292,10 +294,11 @@ to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
 with 50% duty cycle.  The effective range of this parameter is from
 about 1525 Hz up to just under 100 MHz.  Note that the max frequency
 is determined by the ClockHigh frequency of the Anything IO board; the
-5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max PDM
-frequency.  Other boards may have different clocks, resulting in different
-max PDM frequencies.  If the user attempts to set the frequency too high,
-it will be clipped to the max supported frequency of the board.
+5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max
+PDM frequency.  Other boards may have different clocks, resulting in
+different max PDM frequencies.  If the user attempts to set the frequency
+too high, it will be clipped to the max supported frequency of the board.
+The default pdm_frequency is 20,000 Hz (20 KHz).
 
 .SH 3ppwmgen
 Three-Phase PWM generators (3pwmgens) are intended for controlling the high-side
