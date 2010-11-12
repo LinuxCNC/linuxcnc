@@ -84,7 +84,26 @@ hal_parport_get(int comp_id, hal_parport_t *port,
         }
 
         port->base = linux_port->base;
-        port->base_hi = linux_port->base_hi;
+        if(linux_port->base_hi > 0) {
+            port->base_hi = linux_port->base_hi;
+        } else if(base_hi != (unsigned short)-1) {
+            if(base_hi == 0) base_hi = port->base + 0x400;
+            rtapi_print_msg(RTAPI_MSG_DBG,
+                "PARPORT: DEBUG: linux reports no ioaddr_hi, using 0x%x",
+                base_hi);
+            port->region_hi =
+                rtapi_request_region(base_hi, 3, hal_comp_name(comp_id));
+            if(port->region_hi) {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "PARPORT: DEBUG: got requested region starting at 0x%x",
+                    base_hi);
+                port->base_hi = base_hi;
+            } else {
+                rtapi_print_msg(RTAPI_MSG_DBG,
+                    "PARPORT: DEBUG: did not get requested region starting at 0x%x",
+                    base_hi);
+            }
+        }
         parport_put_port(linux_port);
     } else {
         if(base_hi == 0) base_hi = base + 0x400;
