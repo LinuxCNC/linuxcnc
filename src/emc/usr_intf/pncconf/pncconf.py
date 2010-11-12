@@ -666,7 +666,6 @@ class Data:
         self.allow_spindle_on_toolchange = False
         self.customhal = False # include custom hal file
         self.userneededpid = 0
-        self.userneededmux8 = 0
         self.userneededabs = 0
         self.userneededscale = 0
         self.userneededmux16 = 0
@@ -1872,7 +1871,7 @@ class Data:
             if self.joystickjog: 
                 self.mux16names = self.mux16names+"jogspeed"
                 if self.userneededmux16 > 0:
-                    self.mux16names = self.mux8names+","
+                    self.mux16names = self.mux16names+","
             if self.externalmpg: 
                 self.mux16names = self.mux16names+"jogincr"
                 if self.userneededmux16 > 0:
@@ -2068,13 +2067,13 @@ class Data:
             print >>file, _("# ---USB device jog button signals---")
             print >>file
             print >>file, "# connect selectable mpg jog speeds "
-            print >>file, "net jog-speed-a           =>  mux8.jogspeed.sel0"
-            print >>file, "net jog-speed-b           =>  mux8.jogspeed.sel1"
-            print >>file, "net jog-speed             halui.jog-speed  <=  mux8.jogspeed.out"
-            print >>file, "setp    mux8.jogspeed.in0          %f"% (self.joystickjograpidrate0)
-            print >>file, "setp    mux8.jogspeed.in1          %f"% (self.joystickjograpidrate1)
-            print >>file, "setp    mux8.jogspeed.in2          %f"% (self.joystickjograpidrate2)
-            print >>file, "setp    mux8.jogspeed.in3          %f"% (self.joystickjograpidrate3)
+            print >>file, "net jog-speed-a           =>  mux16.jogspeed.sel0"
+            print >>file, "net jog-speed-b           =>  mux16.jogspeed.sel1"
+            print >>file, "net jog-speed             halui.jog-speed  <=  mux16.jogspeed.out"
+            print >>file, "setp    mux16.jogspeed.in0          %f"% (self.joystickjograpidrate0)
+            print >>file, "setp    mux16.jogspeed.in1          %f"% (self.joystickjograpidrate1)
+            print >>file, "setp    mux16.jogspeed.in2          %f"% (self.joystickjograpidrate2)
+            print >>file, "setp    mux16.jogspeed.in3          %f"% (self.joystickjograpidrate3)
             if not self.joycmdrapida =="":
                 print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
             if not self.joycmdrapidb =="":
@@ -2955,23 +2954,23 @@ class App:
         if (self.data.number_mesa): 
             for boardnum in (0,1):
                 cb = "mesa%d_comp_update"% (boardnum)
-                i = "mesa%dsignalhandler_comp_update"% (boardnum)
+                i = "_mesa%dsignalhandler_comp_update"% (boardnum)
                 self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
                 cb = "mesa%d_boardtitle"% (boardnum)
-                i = "mesa%dsignalhandler_boardname_change"% (boardnum)
+                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
                 self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
                 cb = "mesa%d_firmware"% (boardnum)
-                i = "mesa%dsignalhandler_firmware_change"% (boardnum)
+                i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
                 self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
                 for connector in (2,3,4,5,6,7,8,9):
                     for pin in range(0,24):
                       cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
-                      i = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
                       self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
-                      i = "mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
+                      i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
                       self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
                       cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
-                      i = "mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
                       self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
 
             # here we initalise the mesa configure page data
@@ -3730,7 +3729,7 @@ class App:
                 if old == GPIOI and new in (GPIOO,GPIOD):
                     print "switch GPIO input ",p," to output",new
                     model = self.widgets[p].get_model()
-                    blocksignal = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
+                    blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
                     self.widgets[p].handler_block(self.intrnldata[blocksignal])
                     model.clear()
                     for name in human_output_names: model.append((name,))
@@ -3742,7 +3741,7 @@ class App:
                     print "switch GPIO output ",p,"to input"
                     model = self.widgets[p].get_model()
                     model.clear()
-                    blocksignal = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
+                    blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
                     self.widgets[p].handler_block(self.intrnldata[blocksignal])              
                     for name in human_input_names:
                         if self.data.limitshared or self.data.limitsnone:
@@ -3856,9 +3855,9 @@ class App:
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
-                blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
-                ptypeblocksignal  = "mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
-                actblocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
+                blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
+                ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 # kill all widget signals:
                 self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                 self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
@@ -4130,9 +4129,9 @@ class App:
             for pin in range (0,24):      
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
-                ptypeblocksignal  = "mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
-                actblocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
+                blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
+                ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.intrnldata[blocksignal]) 
                 self.widgets[p].child.handler_unblock(self.intrnldata[actblocksignal])          
@@ -4227,9 +4226,9 @@ class App:
                                         if comptype not in (relatedsearch): continue
                                         tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
                                         #print "checking-",comptype,"num-",compnum,"in ",tochange
-                                        blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
+                                        blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
                                         self.widgets[tochange].handler_block(self.intrnldata[blocksignal])
-                                        blocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
+                                        blocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
                                         self.widgets[tochange].child.handler_block(self.intrnldata[blocksignal])
                                         for offset,i in enumerate(relatedsearch):                                     
                                             #print "rawname-"+pinchanged,"    offset ",offset
@@ -4260,7 +4259,7 @@ class App:
                                                         self.widgets[tochange].set_active(search)
                                                         break
                                         self.widgets[tochange].child.handler_unblock(self.intrnldata[blocksignal])
-                                        blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
+                                        blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
                                         self.widgets[tochange].handler_unblock(self.intrnldata[blocksignal])
                                         if i == comptype :break
 
@@ -5164,7 +5163,6 @@ class App:
     def on_realtime_components_prepare(self,*args):
         self.data.help = "help-realtime.txt"
         self.widgets.userneededpid.set_value(self.data.userneededpid)
-        self.widgets.userneededmux8.set_value(self.data.userneededmux8)
         self.widgets.userneededabs.set_value(self.data.userneededabs)
         self.widgets.userneededscale.set_value(self.data.userneededscale)
         self.widgets.userneededmux16.set_value(self.data.userneededmux16)
@@ -5190,7 +5188,6 @@ class App:
 
     def on_realtime_components_next(self,*args):
         self.data.userneededpid = int(self.widgets.userneededpid.get_value())
-        self.data.userneededmux8 = int(self.widgets.userneededmux8.get_value())
         self.data.userneededabs = int(self.widgets.userneededabs.get_value())
         self.data.userneededscale = int(self.widgets.userneededscale.get_value())
         self.data.userneededmux16 = int(self.widgets.userneededmux16.get_value())
