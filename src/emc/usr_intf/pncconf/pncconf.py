@@ -2059,8 +2059,8 @@ class Data:
             print >>file, _("# ---USB device jog button signals---")
             print >>file
             print >>file, "# connect selectable mpg jog speeds "
-            print >>file, "net jog-speed-a           =>  jogspeed.sel00"
-            print >>file, "net jog-speed-b           =>  jogspeed.sel01"
+            print >>file, "net jog-speed-a           =>  jogspeed.sel0"
+            print >>file, "net jog-speed-b           =>  jogspeed.sel1"
             print >>file, "net jog-speed             halui.jog-speed  <=  jogspeed.out-f"
             print >>file, "setp    jogspeed.in00          %f"% (self.joystickjograpidrate0)
             print >>file, "setp    jogspeed.in01          %f"% (self.joystickjograpidrate1)
@@ -2138,8 +2138,7 @@ class Data:
                 print >>file, "    setp jogincr.in%2d          %f"% (i,value)
                 print >>file
             else:
-                print >>file, "net selected-jog-incr    <= %f"% (self.mpgincrvalue0)
-            print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
+                print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
 
         if self.externalfo:
             print >>file, "# connect feed overide increments " 
