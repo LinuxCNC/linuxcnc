@@ -52,7 +52,7 @@ class GladePanel():
                 # XXX: Sometimes in Glade mode on HAL_VBox previous if is triggered
                 # but name is None.
                 idname = widget.get_name()
-            else:
+            if idname is None:
                 continue
 
             if isinstance(widget, _HalWidgetBase):
