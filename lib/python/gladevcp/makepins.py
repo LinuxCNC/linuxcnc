@@ -48,7 +48,9 @@ class GladePanel():
             k = widget.__class__.__name__
             if isinstance(widget, gtk.Buildable):
                 idname = gtk.Buildable.get_name(widget)
-            elif hasattr(widget, 'get_name'):
+            if idname is None and hasattr(widget, 'get_name'):
+                # XXX: Sometimes in Glade mode on HAL_VBox previous if is triggered
+                # but name is None.
                 idname = widget.get_name()
             else:
                 continue
