@@ -32,8 +32,8 @@
                 <child>
                   <object class="HAL_LED" id="hal_led1">
                     <property name="visible">True</property>
-                    <property name="pick_color_off">#00002724ffff</property>
                     <property name="pick_color_on">#f88096020000</property>
+                    <property name="pick_color_off">#00002724ffff</property>
                   </object>
                   <packing>
                     <property name="position">0</property>
@@ -213,13 +213,42 @@
               </packing>
             </child>
             <child>
+              <object class="GtkHBox" id="hbox2">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Scale</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="HAL_SpinButton" id="hal_spinbutton2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">&#x25CF;</property>
+                    <property name="adjustment">adjustment4</property>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
               <object class="HAL_ProgressBar" id="hal_progressbar1">
                 <property name="visible">True</property>
+                <property name="scale">180</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">4</property>
+                <property name="position">5</property>
               </packing>
             </child>
           </object>
@@ -246,6 +275,10 @@
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">0</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment4">
+    <property name="upper">1000</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
   </object>
 </interface>

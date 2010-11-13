@@ -33,8 +33,8 @@
                 <child>
                   <widget class="HAL_LED" id="hal_led1">
                     <property name="visible">True</property>
-                    <property name="pick_color_off">#00002724ffff</property>
                     <property name="pick_color_on">#f88096020000</property>
+                    <property name="pick_color_off">#00002724ffff</property>
                   </widget>
                   <packing>
                     <property name="position">0</property>
@@ -214,13 +214,42 @@
               </packing>
             </child>
             <child>
+              <widget class="GtkHBox" id="hbox2">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Scale</property>
+                  </widget>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="HAL_SpinButton" id="hal_spinbutton2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">&#x25CF;</property>
+                    <property name="adjustment">0 0 1000 1 10 0</property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
               <widget class="HAL_ProgressBar" id="hal_progressbar1">
                 <property name="visible">True</property>
+                <property name="scale">180</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">4</property>
+                <property name="position">5</property>
               </packing>
             </child>
           </widget>
