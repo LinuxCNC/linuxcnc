@@ -35,7 +35,6 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 print "\nhola\n"
 
     def __init__(self):
-        print "LED init"
         super(HAL_LED, self).__init__()
         self._dia = 10
         self._blink_active = False
