@@ -1,3 +1,4 @@
+loadusr -Wn gladevcp-test gladevcp gladevcp-test.ui
 net vcp_b2led    gladevcp-test.hal_button1 => gladevcp-test.hal_led1
 net vcp_tb2table gladevcp-test.hal_togglebutton1 => gladevcp-test.hal_table1
 net vcp_cb2hbox  gladevcp-test.hal_checkbutton1  => gladevcp-test.hal_hbox1
