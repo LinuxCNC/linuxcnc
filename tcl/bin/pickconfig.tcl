@@ -377,6 +377,7 @@ proc prompt_copy configname {
 
         eval file copy [glob -directory $configdir *] [list $copydir]
         foreach f [glob -directory $copydir *] {
+	    file attributes $f -permissions u+w
 	    if {[file extension $f] == ".ini"} {
 		set c [get_file_contents $f]
 		regsub {(?n)^(PROGRAM_PREFIX\s*=\s*).*$} $c "\\1$ncfiles" c
