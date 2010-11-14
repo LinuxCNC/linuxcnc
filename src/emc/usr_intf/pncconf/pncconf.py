@@ -96,13 +96,21 @@ def iceil(x):
     return int(math.ceil(x))
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "emc")
-
 wizard = os.path.join(datadir, "emc2-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join("/etc/emc2/emc2-wizard.gif")
 if not os.path.isfile(wizard):
+    emc2icon = os.path.join("/usr/share/emc/emc2-wizard.gif")
+if not os.path.isfile(wizard):
     wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
     wizard = os.path.join(wizdir, "emc2-wizard.gif")
+
+icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+emc2icon = os.path.join(icondir, "emc2icon.png")
+if not os.path.isfile(emc2icon):
+    emc2icon = os.path.join("/etc/emc2/emc2-wizard.gif")
+if not os.path.isfile(emc2icon):
+    emc2icon = os.path.join("/usr/share/emc/emc2icon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
