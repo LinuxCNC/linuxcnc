@@ -1094,6 +1094,8 @@ class Data:
             print >>file,"Comment=" + _("Desktop Launcher for EMC config made by Stepconf")
             print >>file,"Icon=/etc/emc2/emc2icon.png"
             file.close()
+            # Ubuntu 10.04 require launcher to have execute permissions
+            os.chmod(filename,0775)
 
     def __getitem__(self, item):
         return getattr(self, item)
