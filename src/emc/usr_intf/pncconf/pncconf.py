@@ -137,7 +137,7 @@ drivertypes = [
 (GPIOI, GPIOO, GPIOD, ENCA, ENCB, ENCI, ENCM, STEPA, STEPB, STEPC, STEPD, STEPE, STEPF, PWMP, PWMD, PWME, PDMP, PDMD, PDME ) = pintype_names = [
 _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),
 _("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M"),
-_("Step/Dir Gen-A"),_("Step/Dir Gen-B"),_("Step/Dir Gen-C"),_("Step/Dir Gen-D"),_("Step/Dir Gen-E"),_("Step/dir Gen-F"),
+_("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"),_("Step/Dir Gen-D"),_("Step/Dir Gen-E"),_("Step/dir Gen-F"),
 _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E"),
 _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 
@@ -2112,7 +2112,7 @@ class Data:
                     print >>file
                     print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)
                     print >>file, "setp    %s.filter true" % pinname
-                    print >>file, "setp    %s.counter-mode true" % pinname
+                    print >>file, "setp    %s.counter-mode false" % pinname
                     print >>file
                     if self.externalmpg:
                         print >>file, _("#  ---mpg signals---")
@@ -2135,45 +2135,76 @@ class Data:
                 print >>file, "    setp jogincr.suppress-no-input true"
                 for i in range(0,16):
                     value = self["mpgincrvalue%d"% i]
-                print >>file, "    setp jogincr.in%2d          %f"% (i,value)
+                    print >>file, "    setp jogincr.in%02d          %f"% (i,value)
                 print >>file
             else:
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
 
+        pinname = self.make_pinname(self.findsignal("fo-mpg-a"),ini_style)
+        if 'hm2' in pinname:
+            print >>file, "# ---feed override signals to mesa encoder - mpg---"
+            print >>file
+            print >>file, "net fo-count     <=  %s.count"% (pinname)
+            print >>file, "setp    %s.filter true" % pinname
+            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file
         if self.externalfo:
-            print >>file, "# connect feed overide increments " 
-            print >>file, "    setp halui.feed-override.count-enable true"
-            print >>file, "    setp halui.feed-override.direct_value true"
-            print >>file, "net feedoverride-incr <=  halui.feed-override.counts"
-            print >>file, "    setp halui.feed-override.scale .01"
-            print >>file, "net fo-incr-a           =>  foincr.sel0"
-            print >>file, "net fo-incr-b           =>  foincr.sel1"
-            print >>file, "net fo-incr-c           =>  foincr.sel2"
-            print >>file, "net fo-incr-d           =>  foincr.sel3"
-            print >>file, "net feedoverride-incr   <=  foincr.sout-f"
-            print >>file, "    setp foincr.suppress-no-input true"
-            for i in range(0,16):
-                value = self["foincrvalue%d"% i]
-            print >>file, "    setp foincr.in%2d          %f"% (i,value)            
+            if self.fo_mpg:
+                print >>file, "# connect feed overide increments - MPG" 
+                print >>file, "    setp halui.feed-override.count-enable true"
+                print >>file, "    setp halui.feed-override.direct_value false"
+                print >>file, "net fo-count =>  halui.feed-override.counts"
+                print >>file, "    setp halui.feed-override.scale .01"
+                print >>file
+            elif self.fo_useswitch:
+                print >>file, "# connect feed overide increments - switches" 
+                print >>file, "    setp halui.feed-override.count-enable true"
+                print >>file, "    setp halui.feed-override.direct_value true"
+                print >>file, "net feedoverride-incr <=  halui.feed-override.counts"
+                print >>file, "    setp halui.feed-override.scale .01"
+                print >>file, "net fo-incr-a           =>  foincr.sel0"
+                print >>file, "net fo-incr-b           =>  foincr.sel1"
+                print >>file, "net fo-incr-c           =>  foincr.sel2"
+                print >>file, "net fo-incr-d           =>  foincr.sel3"
+                print >>file, "net feedoverride-incr   <=  foincr.sout-f"
+                print >>file, "    setp foincr.suppress-no-input true"
+                for i in range(0,16):
+                    value = self["foincrvalue%d"% i]
+                    print >>file, "    setp foincr.in%02d          %f"% (i,value)
+                print >>file
+
+        pinname = self.make_pinname(self.findsignal("so-mpg-a"),ini_style)
+        if 'hm2' in pinname:
+            print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
-        for i in range(0,self.userneededmux16):
-                self.mux16names = self.mux16names+"%d"% (i)
+            print >>file, "net so-count     <=  %s.count"% (pinname)
+            print >>file, "setp    %s.filter true" % pinname
+            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file
         if self.externalso:
-            print >>file, "# connect spindle overide increments " 
-            print >>file, "    setp halui.spindle-override.count-enable true"
-            print >>file, "    setp halui.spindle-override.direct_value true"
-            print >>file, "net spindleoverride-incr <=  halui.spindle-override.counts"
-            print >>file, "    setp halui.spindle-override.scale .01"
-            print >>file, "net so-incr-a           =>  soincr.sel0"
-            print >>file, "net so-incr-b           =>  soincr.sel1"
-            print >>file, "net so-incr-c           =>  soincr.sel2"
-            print >>file, "net so-incr-d           =>  soincr.sel3"
-            print >>file, "net spindleoverride-incr   <=  soincr.sout-f"
-            print >>file, "    setp soincr.suppress-no-input true"
-            for i in range(0,16):
-                value = self["soincrvalue%d"% i]
-            print >>file, "    setp soincr.in%2d          %f"% (i,value)          
-            print >>file
+            if self.so_mpg:
+                print >>file, "# connect spindle overide increments - MPG" 
+                print >>file, "    setp halui.feed-override.count-enable true"
+                print >>file, "    setp halui.feed-override.direct_value false"
+                print >>file, "net so-count =>  halui.feed-override.counts"
+                print >>file, "    setp halui.feed-override.scale .01"
+                print >>file
+            elif self.so_useswitch:
+                print >>file, "# connect spindle overide increments " 
+                print >>file, "    setp halui.spindle-override.count-enable true"
+                print >>file, "    setp halui.spindle-override.direct_value true"
+                print >>file, "net spindleoverride-incr <=  halui.spindle-override.counts"
+                print >>file, "    setp halui.spindle-override.scale .01"
+                print >>file, "net so-incr-a           =>  soincr.sel0"
+                print >>file, "net so-incr-b           =>  soincr.sel1"
+                print >>file, "net so-incr-c           =>  soincr.sel2"
+                print >>file, "net so-incr-d           =>  soincr.sel3"
+                print >>file, "net spindleoverride-incr   <=  soincr.sout-f"
+                print >>file, "    setp soincr.suppress-no-input true"
+                for i in range(0,16):
+                    value = self["soincrvalue%d"% i]
+                    print >>file, "    setp soincr.in%02d          %f"% (i,value)
+                print >>file
 
         print >>file, _("#  ---digital in / out signals---")
         print >>file
