@@ -808,7 +808,7 @@ class Data:
             print >>file, "loadrt abs count=1"
             if encoder:
                print >>file, "loadrt scale count=1"
-
+               print >>file, "loadrt lowpass count=1"
         if pump:
             print >>file, "loadrt charge_pump"
             print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
@@ -851,7 +851,7 @@ class Data:
             print >>file, "addf abs.0 servo-thread"
             if encoder:
                print >>file, "addf scale.0 servo-thread"
-
+               print >>file, "addf lowpass.0 servo-thread"
         if pwm:
             x1 = self.spindlepwm1
             x2 = self.spindlepwm2
@@ -995,14 +995,18 @@ class Data:
 # The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
+                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
                       print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1, ("setp scale.0.gain .01667")
-                      print >>f1, ("net spindle-velocity => abs.0.in")
+                      print >>f1, ("setp lowpass.0.gain 0.01")
+                      print >>f1, ("net spindle-velocity => lowpass.0.in")
+                      print >>f1, ("net spindle-rpm-filtered <= lowpass.0.out")
+                      print >>f1, ("net spindle-rpm-filtered => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
