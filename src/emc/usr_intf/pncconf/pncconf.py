@@ -2431,7 +2431,7 @@ class Data:
                          % ( scriptspath, base, self.machinename )
             print >>file,"Type=Application"
             print >>file,"Comment=" + _("Desktop Launcher for EMC config made by PNCconf")
-            print >>file,"Icon=/etc/emc2/emc2icon.png"
+            print >>file,"Icon=%s"% emc2icon
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
             os.chmod(filename,0775)
