@@ -1005,8 +1005,8 @@ class Data:
                       print >>f1, ("setp scale.0.gain .01667")
                       print >>f1, ("setp lowpass.0.gain 0.01")
                       print >>f1, ("net spindle-velocity => lowpass.0.in")
-                      print >>f1, ("net spindle-rpm-filtered <= lowpass.0.out")
-                      print >>f1, ("net spindle-rpm-filtered => abs.0.in")
+                      print >>f1, ("net spindle-rps-filtered <= lowpass.0.out")
+                      print >>f1, ("net spindle-rps-filtered => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
