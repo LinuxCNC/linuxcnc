@@ -1,3 +1,14 @@
 #!/bin/sh
 . rtapi.conf
-! [ "$RTPREFIX" = sim ]
+
+if [ "$RTPREFIX" = sim ]; then
+    exit 1
+fi
+
+# for some reason, 64-bit Hardy in KVM doesn't put all the kernel messages
+# into the dmesg buffer, which causes this test to fail
+if [ $(lsb_release -cs) = hardy ] && [ $(dpkg-architecture -qDEB_HOST_ARCH) = amd64 ]; then
+    exit 1
+fi
+
+exit 0
