@@ -11,5 +11,21 @@
                         <halpin>"spindle-speed"</halpin>
                         <max_>3000</max_>
                 </bar>
+                <label>
+                        <text>"Spindle-At-Speed:"</text>
+                        <font>("Helvetica",20)</font>
+                </label>
+                <hbox>
+                    <label>
+                            <text>"             "</text>
+                            <font>("Helvetica",20)</font>
+                    </label>
+                    <led>
+                        <halpin>"spindle-led"</halpin> 
+                        <size>30</size> 
+                        <on_color>"green"</on_color>
+                        <off_color>"red"</off_color>
+                    </led>
+                </hbox>
         </vbox>
 </pyvcp>
