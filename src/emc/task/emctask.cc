@@ -18,6 +18,7 @@
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
 #include <limits.h>		// PATH_MAX
+#include <dlfcn.h>
 
 #include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
@@ -41,10 +42,9 @@
 /* flag for how we want to interpret traj coord mode, as mdi or auto */
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
-Interp interp;
-setup_pointer _is = &interp._setup; // helper for gdb hardware watchpoints FIXME 
-
-
+InterpBase *pinterp=0;
+#define interp (*pinterp)
+setup_pointer _is = 0; // helper for gdb hardware watchpoints FIXME
 
 
 /*
@@ -405,7 +405,24 @@ static void print_interp_error(int retval)
 
 int emcTaskPlanInit()
 {
-    //    _is = &interp._setup;  // FIXME
+    if(!pinterp) {
+	IniFile inifile;
+	const char *inistring;
+	inifile.Open(emc_inifile);
+	if((inistring = inifile.Find("INTERPRETER", "TASK"))) {
+	    pinterp = interp_from_shlib(inistring);
+	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
+	}
+        inifile.Close();
+    }
+    if(!pinterp) {
+	rcs_print("emcTaskInit: using builtin interpreter\n");
+        pinterp = new Interp;
+    }
+
+    Interp *i = dynamic_cast<Interp*>(pinterp);
+    if(i) _is = &i->_setup; // FIXME
+    else  _is = 0;
     interp.ini_load(emc_inifile);
     waitFlag = 0;
 
