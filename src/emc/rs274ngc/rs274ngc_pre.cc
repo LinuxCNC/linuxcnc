@@ -125,6 +125,7 @@ void Interp::doLog(const char *fmt, ...)
     {
          fprintf(stderr, "(%d)Unable to open log file:%s\n",
                   getpid(), LOG_FILE);
+         return;
     }
 
     gettimeofday(&tv, NULL);
