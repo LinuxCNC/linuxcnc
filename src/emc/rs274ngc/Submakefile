@@ -6,6 +6,7 @@ INCLUDES += emc/rs274ngc
 LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_arc.cc \
 	interp_array.cc \
+	interp_base.cc \
 	interp_check.cc \
 	interp_convert.cc \
 	interp_queue.cc \

@@ -13,10 +13,7 @@
 #ifndef RS274NGC_HH
 #define RS274NGC_HH
 
-/* Size of certain arrays */
-#define ACTIVE_G_CODES 16
-#define ACTIVE_M_CODES 10
-#define ACTIVE_SETTINGS 3
+#include "interp_base.hh"
 
 
 

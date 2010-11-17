@@ -2,7 +2,7 @@
 #define RS274NGC_INTERP_H
 #include "rs274ngc.hh"
 
-class Interp {
+class Interp : public InterpBase {
 
 public:
  Interp();
