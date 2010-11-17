@@ -36,3 +36,6 @@ public:
     virtual void active_settings(double active_settings[ACTIVE_SETTINGS]) = 0;
     virtual void set_loglevel(int level) = 0;
 };
+
+InterpBase *interp_from_shlib(const char *shlib);
+extern "C" InterpBase *makeInterp();
