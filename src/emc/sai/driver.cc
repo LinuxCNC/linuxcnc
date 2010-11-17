@@ -30,13 +30,15 @@
 #include <string.h>   /* strcpy     */
 #include <getopt.h>
 #include <stdarg.h>
+#include <string>
 
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <glob.h>
 #include <wordexp.h>
 
-Interp interp_new;
+InterpBase *pinterp;
+#define interp_new (*pinterp)
 const char *prompt = "READ => ";
 const char *history = "~/.rs274";
 #define RS274_HISTORY "RS274_HISTORY"
@@ -249,8 +251,7 @@ int interpret_from_file( /* ARGUMENTS                  */
 
   for(; ;)
     {
-      interp_load_tool_table();
-      status = interp_read(NULL);
+      status = interp_read();
       if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON))
         continue;
       else if (status == INTERP_ENDFILE)
@@ -545,6 +546,7 @@ int main (int argc, char ** argv)
   int go_flag;
   char *inifile = NULL;
   int log_level = -1;
+  std::string interp;
 
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
@@ -555,10 +557,11 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
   while(1) {
-      int c = getopt(argc, argv, "t:v:bsn:gi:l:T");
+      int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
       if(c == -1) break;
 
       switch(c) {
+          case 'p': interp = optarg; break;
           case 't': read_tool_file(optarg); tool_flag=1; break;
           case 'v': strcpy(_parameter_file_name, optarg); break;
           case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
@@ -576,9 +579,10 @@ int main (int argc, char ** argv)
     {
 usage:
       fprintf(stderr,
-            "Usage: %s [-t tool.tbl] [-v var-file.var] [-n 0|1|2]\n"
+            "Usage: %s [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0|1|2]\n"
             "          [-b] [-s] [-g] [input file [output file]]\n"
             "\n"
+            "    -p: Specify the pluggable interpreter to use\n"
             "    -t: Specify the .tbl (tool table) file to use\n"
             "    -v: Specify the .var (parameter) file to use\n"
             "    -n: Specify the continue mode:\n"
@@ -594,6 +598,11 @@ usage:
             , argv[0]);
       exit(1);
     }
+
+  if(!interp.empty()) {
+    pinterp = interp_from_shlib(interp.c_str());
+  }
+  if(!pinterp) pinterp = new Interp;
 
   for(; !go_flag ;)
     {

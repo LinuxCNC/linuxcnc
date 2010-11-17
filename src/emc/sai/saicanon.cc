@@ -109,7 +109,9 @@ stdout to a file.
 */
 
 //extern void rs274ngc_line_text(char * line_text, int max_size);
-extern Interp interp_new;
+extern InterpBase *pinterp;
+#define interp_new (*pinterp)
+
 void print_nc_line_number()
 {
   char text[256];
