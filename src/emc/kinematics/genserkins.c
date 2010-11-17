@@ -591,7 +591,7 @@ int rtapi_app_main(void)
 		hal_pin_float_newf(HAL_IO, &(haldata->alpha[i]), comp_id,
 		    "genserkins.ALPHA-%d", i)) < 0)
 	    goto error;
-        *(haldata->theta[i])=0;
+        *(haldata->alpha[i])=0;
 	if ((res =
 		hal_pin_float_newf(HAL_IO, &(haldata->d[i]), comp_id,
 		    "genserkins.D-%d", i)) < 0)
