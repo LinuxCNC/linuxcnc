@@ -1979,19 +1979,20 @@ max_size.
 
 */
 
-void Interp::error_text(int error_code,        //!< code number of error                
+char * Interp::error_text(int error_code,        //!< code number of error
                          char *error_text,      //!< char array to copy error text into  
-                         int max_size)  //!< maximum number of characters to copy
+                         size_t max_size)  //!< maximum number of characters to copy
 {
     if(error_code == INTERP_ERROR)
     {
         strncpy(error_text, savedError, max_size);
         error_text[max_size-1] = 0;
 
-        return;
+        return error_text;
     }
 
     error_text[0] = 0;
+    return error_text;
 }
 
 /***********************************************************************/
@@ -2011,13 +2012,14 @@ max_size, in which case a null string is put in the file_name array.
 
 */
 
-void Interp::file_name(char *file_name,        //!< string: to copy file name into      
-                        int max_size)   //!< maximum number of characters to copy
+char *Interp::file_name(char *file_name,        //!< string: to copy file name into
+                        size_t max_size)   //!< maximum number of characters to copy
 {
   if (strlen(_setup.filename) < ((size_t) max_size))
     strcpy(file_name, _setup.filename);
   else
     file_name[0] = 0;
+  return file_name;
 }
 
 /***********************************************************************/
@@ -2032,7 +2034,7 @@ Called By: external programs
 
 */
 
-int Interp::line_length()
+size_t Interp::line_length()
 {
   return _setup.line_length;
 }
@@ -2053,10 +2055,10 @@ last non-null character.
 
 */
 
-void Interp::line_text(char *line_text,        //!< string: to copy line into           
-                        int max_size)   //!< maximum number of characters to copy
+char *Interp::line_text(char *line_text,        //!< string: to copy line into
+                        size_t max_size)   //!< maximum number of characters to copy
 {
-  int n;
+  size_t n;
   char *the_text;
 
   the_text = _setup.linetext;
@@ -2067,6 +2069,7 @@ void Interp::line_text(char *line_text,        //!< string: to copy line into
       break;
   }
   line_text[n] = 0;
+  return line_text;
 }
 
 /***********************************************************************/
@@ -2112,11 +2115,11 @@ empty string is returned for the name.
 
 */
 
-void Interp::stack_name(int stack_index,       //!< index into stack of function names  
+char *Interp::stack_name(int stack_index,       //!< index into stack of function names
                          char *function_name,   //!< string: to copy function name into
-                         int max_size)  //!< maximum number of characters to copy
+                         size_t max_size)  //!< maximum number of characters to copy
 {
-  int n;
+  size_t n;
   char *the_name;
 
   if ((stack_index > -1) && (stack_index < STACK_LEN)) {
@@ -2130,6 +2133,7 @@ void Interp::stack_name(int stack_index,       //!< index into stack of function
     function_name[n] = 0;
   } else
     function_name[0] = 0;
+  return function_name;
 }
 
 /***********************************************************************/

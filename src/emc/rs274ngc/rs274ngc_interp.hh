@@ -67,21 +67,21 @@ public:
 
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
- void error_text(int error_code, char *error_text,
-                                int max_size);
+ char *error_text(int error_code, char *error_text,
+                                size_t max_size);
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
- void file_name(char *file_name, int max_size);
+ char *file_name(char *file_name, size_t max_size);
 
 // return the length of the most recently read line
- int line_length();
+ size_t line_length();
 
 // copy the text of the most recently read line into the line_text array,
 // but stop at max_size if the text is longer
- void line_text(char *line_text, int max_size);
+ char *line_text(char *line_text, size_t max_size);
 
 // return the current sequence number (how many lines read)
  int sequence_number();
@@ -89,8 +89,8 @@ public:
 // copy the function name from the stack_index'th position of the
 // function call stack at the time of the most recent error into
 // the function name string, but stop at max_size if the name is longer
- void stack_name(int stack_index, char *function_name,
-                                int max_size);
+ char *stack_name(int stack_index, char *function_name,
+                                size_t max_size);
 
 // Get the parameter file name from the ini file.
  int ini_load(const char *filename);
@@ -98,9 +98,9 @@ public:
  int line() { return sequence_number(); }
  int call_level();
 
- char *command(char *buf, int len) { line_text(buf, len); return buf; }
+ char *command(char *buf, size_t len) { line_text(buf, len); return buf; }
 
- char *file(char *buf, int len) { file_name(buf, len); return buf; }
+ char *file(char *buf, size_t len) { file_name(buf, len); return buf; }
 
  int init_tool_parameters();
  int default_tool_parameters();
