@@ -52,288 +52,63 @@
 #include <stdio.h>		// FILE, fopen(), fclose()
 #include <string.h>		// strcpy()
 #include <ctype.h>		// isspace()
-#include "emc.hh"		// emcStatus
-#include "emc_nml.hh"
-#include "rcs_print.hh"
-#include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
-#include "emc/task/task.hh"	// emcTaskCommand etc
+#include <limits.h>
+#include <algorithm>
+#include "config.h"
+#include "emc/nml_intf/interp_return.hh"
+#include "emc/nml_intf/canon.hh"
+#include "emc/rs274ngc/interp_base.hh"
 
-static FILE *the_file = NULL;	// our file pointer
-static char the_file_name[LINELEN] = { 0 };	// our file pointer
 static char the_command[LINELEN] = { 0 };	// our current command
 static char the_command_name[LINELEN] = { 0 };	// just the name part
 static char the_command_args[LINELEN] = { 0 };	// just the args part
-static int the_line_number = 0;	// current line number
-static int waitFlag = 0;	// local wait flag
 
-// flag for how we want to interpret traj coord mode, as mdi or auto
-static int mdiOrAuto = EMC_TASK_MODE_AUTO;
+class Canterp : public InterpBase {
+public:
+    Canterp () : f(0) {}
+    char *error_text(int errcode, char *buf, size_t buflen);
+    char *stack_name(int index, char *buf, size_t buflen);
+    char *line_text(char *buf, size_t buflen);
+    char *file_name(char *buf, size_t buflen);
+    size_t line_length();
+    int sequence_number();
+    int ini_load(const char *inifile);
+    int init();
+    int execute();
+    int execute(const char *line);
+    int execute(const char *line, int line_number);
+    int synch();
+    int exit();
+    int open(const char *filename);
+    int read();
+    int read(const char *line);
+    int close();
+    int reset();
+    int line();
+    int call_level();
+    char *command(char *buf, size_t buflen);
+    char *file(char *buf, size_t buflen);
+    int on_abort(int reason, const char *message);
+    void active_g_codes(int active_gcodes[ACTIVE_G_CODES]);
+    void active_m_codes(int active_mcodes[ACTIVE_M_CODES]);
+    void active_settings(double active_settings[ACTIVE_SETTINGS]);
+    void set_loglevel(int level);
+    FILE *f;
+    char filename[PATH_MAX];
+};
 
-int emcTaskInit()
-{
-    return 0;
+char *Canterp::error_text(int errcode, char *buf, size_t buflen) {
+    if(errcode < INTERP_MIN_ERROR) snprintf(buf, buflen, "OK %d", errcode);
+    else snprintf(buf, buflen, "ERROR %d", errcode);
+    return buf;
 }
 
-int emcTaskHalt()
-{
-    return 0;
+char *Canterp::stack_name(int index, char *buf, size_t buflen) {
+    snprintf(buf, buflen, "<stack %d>", index);
+    return buf;
 }
 
-int emcTaskAbort()
-{
-    emcMotionAbort();
-    emcIoAbort();
-
-    // clear out the pending command
-    emcTaskCommand = 0;
-
-    // clear out the interpreter state
-    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
-    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-    emcStatus->task.motionLine = 0;
-    emcStatus->task.readLine = 0;
-    stepping = 0;
-    steppingWait = 0;
-
-    // now queue up command to resynch interpreter
-    EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
-    emcTaskQueueCommand(&taskPlanSynchCmd);
-
-    // without emcTaskPlanClose(), a new run command resumes at
-    // aborted line-- feature that may be considered later
-    {
-	int was_open = taskplanopen;
-	emcTaskPlanClose();
-	if (emc_debug & EMC_DEBUG_INTERP && was_open) {
-	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
-		      __LINE__);
-	}
-    }
-
-    return 0;
-}
-
-int emcTaskSetMode(int mode)
-{
-    int retval = 0;
-
-    switch (mode) {
-    case EMC_TASK_MODE_MANUAL:
-	// go to manual mode
-	emcTrajSetMode(EMC_TRAJ_MODE_FREE);
-	mdiOrAuto = EMC_TASK_MODE_AUTO;	// we'll default back to here
-	break;
-
-    case EMC_TASK_MODE_MDI:
-	// go to mdi mode
-	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
-	emcTaskPlanSynch();
-	mdiOrAuto = EMC_TASK_MODE_MDI;
-	break;
-
-    case EMC_TASK_MODE_AUTO:
-	// go to auto mode
-	emcTrajSetMode(EMC_TRAJ_MODE_COORD);
-	emcTaskPlanSynch();
-	mdiOrAuto = EMC_TASK_MODE_AUTO;
-	break;
-
-    default:
-	retval = -1;
-	break;
-    }
-
-    return retval;
-}
-
-int emcTaskSetState(int state)
-{
-    int t;
-    int retval = 0;
-
-    switch (state) {
-    case EMC_TASK_STATE_OFF:
-	// turn the machine servos off-- go into ESTOP_RESET state
-	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisDisable(t);
-	}
-	emcTrajDisable();
-	emcLubeOff();
-	emcTaskAbort();
-	emcTaskPlanSynch();
-	break;
-
-    case EMC_TASK_STATE_ON:
-	// turn the machine servos on
-	emcTrajEnable();
-	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisEnable(t);
-	}
-	emcLubeOn();
-	break;
-
-    case EMC_TASK_STATE_ESTOP_RESET:
-	// reset the estop
-	emcAuxEstopOff();
-	emcLubeOff();
-	emcTaskAbort();
-	emcTaskPlanSynch();
-	break;
-
-    case EMC_TASK_STATE_ESTOP:
-	// go into estop-- do both IO estop and machine servos off
-	emcAuxEstopOn();
-	for (t = 0; t < emcStatus->motion.traj.axes; t++) {
-	    emcAxisDisable(t);
-	}
-	emcTrajDisable();
-	emcLubeOff();
-	emcTaskAbort();
-	emcTaskPlanSynch();
-	break;
-
-    default:
-	retval = -1;
-	break;
-    }
-
-    return retval;
-}
-
-// WM access functions
-
-/*
-  determineMode()
-
-  Looks at mode of subsystems, and returns associated mode
-
-  Depends on traj mode, and mdiOrAuto flag
-
-  traj mode   mdiOrAuto     mode
-  ---------   ---------     ----
-  FREE        XXX           MANUAL
-  COORD       MDI           MDI
-  COORD       AUTO          AUTO
-  */
-static int determineMode()
-{
-    // if traj is in free mode, then we're in manual mode
-    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_FREE ||
-	emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) {
-	return EMC_TASK_MODE_MANUAL;
-    }
-    // else traj is in coord mode-- we can be in either mdi or auto
-    return mdiOrAuto;
-}
-
-/*
-  determineState()
-
-  Looks at state of subsystems, and returns associated state
-
-  Depends on traj enabled, io estop, and desired task state
-
-  traj enabled   io estop      state
-  ------------   --------      -----
-  DISABLED       ESTOP         ESTOP
-  ENABLED        ESTOP         ESTOP
-  DISABLED       OUT OF ESTOP  ESTOP_RESET
-  ENABLED        OUT OF ESTOP  ON
-  */
-static int determineState()
-{
-    if (emcStatus->io.aux.estop) {
-	return EMC_TASK_STATE_ESTOP;
-    }
-
-    if (!emcStatus->motion.traj.enabled) {
-	return EMC_TASK_STATE_ESTOP_RESET;
-    }
-
-    return EMC_TASK_STATE_ON;
-}
-
-int emcTaskPlanInit(void)
-{
-    if (the_file != NULL) {
-	fclose(the_file);
-	the_file = NULL;
-    }
-    the_file_name[0] = 0;
-    the_command[0] = 0;
-    the_command_name[0] = 0;
-    the_command_args[0] = 0;
-    the_line_number = 0;
-    waitFlag = 0;
-    taskplanopen = 1;
-
-    return 0;
-}
-
-int emcTaskPlanSetWait(void)
-{
-    waitFlag = 1;
-
-    return 0;
-}
-
-int emcTaskPlanIsWait(void)
-{
-    return waitFlag;
-}
-
-int emcTaskPlanClearWait(void)
-{
-    waitFlag = 0;
-
-    return 0;
-}
-
-int emcTaskPlanSynch(void)
-{
-    return 0;
-}
-
-int emcTaskPlanSetOptionalStop(bool state)
-{
-    SET_OPTIONAL_PROGRAM_STOP(state);
-    return 0;
-}
-
-int emcTaskPlanSetBlockDelete(bool state)
-{
-    SET_BLOCK_DELETE(state);
-    return 0;
-}
-
-int emcTaskPlanExit(void)
-{
-    return 0;
-}
-
-int emcTaskPlanOpen(const char *file)
-{
-    if (the_file != NULL) {
-	fclose(the_file);
-    }
-
-    if (NULL == (the_file = fopen(file, "r"))) {
-	return 1;
-    }
-    strcpy(the_file_name, file);
-    the_command[0] = 0;
-    the_command_name[0] = 0;
-    the_command_args[0] = 0;
-    the_line_number = 0;
-    waitFlag = 0;
-    taskplanopen = 1;
-
-    if (emcStatus != 0) {
-	emcStatus->task.motionLine = 0;
-	emcStatus->task.currentLine = 0;
-	emcStatus->task.readLine = 0;
-    }
-
+int Canterp::ini_load(const char *inifile) {
     return 0;
 }
 
@@ -344,14 +119,14 @@ int emcTaskPlanOpen(const char *file)
 
  */
 
-char *skipwhite(char *ptr)
+static char *skipwhite(char *ptr)
 {
     while (isspace(*ptr))
 	ptr++;
     return ptr;
 }
 
-char *findwhite(char *ptr)
+static char *findwhite(char *ptr)
 {
     while (!isspace(*ptr) && 0 != *ptr)
 	ptr++;
@@ -414,7 +189,7 @@ static int canterp_parse(char *buffer)
 	// we're missing the '(', so flag an error
 	*name_ptr = 0;
 	*cmd_ptr = 0;
-	return 1;
+	return INTERP_ERROR;
     }
     // we got the '(', so keep going
     *name_ptr = 0;		// terminate the name
@@ -448,7 +223,7 @@ static int canterp_parse(char *buffer)
 	// finished args without ')', so error
 	*args_ptr = 0;
 	*cmd_ptr = 0;
-	return 1;
+	return INTERP_ERROR;
     }
     if (0 != last_quote_ptr)
 	*last_quote_ptr = 0;
@@ -459,60 +234,55 @@ static int canterp_parse(char *buffer)
     return 0;
 }
 
-int emcTaskPlanRead(void)
-{
-    char buffer[LINELEN];
-
-    if (NULL == fgets(buffer, LINELEN, the_file)) {
-	return 1;
-    }
-
-    the_line_number++;
-
-    return canterp_parse(buffer);
+int Canterp::read(const char *line) {
+    return canterp_parse((char *) line);
 }
 
-int emcTaskPlanExecute(const char *command, int line_number)
-{
-    return emcTaskPlanExecute(command);
+int Canterp::read() {
+    char buf[LINELEN];
+    if(!f) return INTERP_ERROR;
+    if(!fgets(buf, sizeof(buf), f)) return INTERP_ENDFILE;
+    return canterp_parse(buf);
 }
 
-int emcTaskPlanExecute(const char *command)
-{
+int Canterp::execute(const char *line) {
     int retval;
     double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
     int i1, ln=-1;
     char s1[256];
 
-    if (command) {
-	retval = canterp_parse((char *) command);
+    if (line) {
+	retval = canterp_parse((char *) line);
 	if (retval)
 	    return retval;
     }
 
+    // a blank line
+    if (strlen(the_command_name) == 0) return INTERP_OK;
+
     if (!strcmp(the_command_name, "STRAIGHT_FEED")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+	if (9 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	STRAIGHT_FEED(ln, d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "ARC_FEED")) {
-	if (9 != sscanf(the_command_args,
+	if (12 != sscanf(the_command_args,
 			"%lf %lf %lf %lf %d %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &i1, &d5, &d6, &d7, &d8, &d9, &d10, &d11)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	ARC_FEED(ln, d1, d2, d3, d4, i1, d5, d6, d7, d8, d9, d10, d11);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "STRAIGHT_TRAVERSE")) {
-	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+	if (9 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	STRAIGHT_TRAVERSE(ln, d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
@@ -521,7 +291,7 @@ int emcTaskPlanExecute(const char *command)
     if (!strcmp(the_command_name, "STRAIGHT_PROBE")) {
 	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	STRAIGHT_PROBE(ln, d1, d2, d3, d4, d5, d6, d7, d8, d9, 0);
 	return 0;
@@ -540,17 +310,19 @@ int emcTaskPlanExecute(const char *command)
 	    USE_LENGTH_UNITS(CANON_UNITS_INCHES);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
+#if 0
     if (!strcmp(the_command_name, "SET_ORIGIN_OFFSETS")) {
 	if (6 != sscanf(the_command_args, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	SET_ORIGIN_OFFSETS(d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
+#endif
 
     if (!strcmp(the_command_name, "SET_FEED_REFERENCE")) {
 	if (!strcmp(the_command_args, "CANON_WORKPIECE")) {
@@ -561,7 +333,7 @@ int emcTaskPlanExecute(const char *command)
 	    SET_FEED_REFERENCE(CANON_XYZ);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "SELECT_PLANE")) {
@@ -577,7 +349,7 @@ int emcTaskPlanExecute(const char *command)
 	    SELECT_PLANE(CANON_PLANE_XZ);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "COMMENT")) {
@@ -605,41 +377,45 @@ int emcTaskPlanExecute(const char *command)
 	return 0;
     }
 
+#if 0
     if (!strcmp(the_command_name, "USE_TOOL_LENGTH_OFFSET")) {
 	if (1 != sscanf(the_command_args, "%lf %lf %lf", &d1, &d2, &d3)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	USE_TOOL_LENGTH_OFFSET(d1, d2, d3);
 	return 0;
     }
+#endif
 
     if (!strcmp(the_command_name, "SET_FEED_RATE")) {
 	if (1 != sscanf(the_command_args, "%lf", &d1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	SET_FEED_RATE(d1);
 	return 0;
     }
 
+#if 0
     if (!strcmp(the_command_name, "SET_TRAVERSE_RATE")) {
 	if (1 != sscanf(the_command_args, "%lf", &d1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	SET_TRAVERSE_RATE(d1);
 	return 0;
     }
+#endif
 
     if (!strcmp(the_command_name, "SELECT_POCKET")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
-	SELECT_POCKET(i1);
+	SELECT_POCKET(i1, i1);
 	return 0;
     }
 
     if (!strcmp(the_command_name, "CHANGE_TOOL")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	CHANGE_TOOL(i1);
 	return 0;
@@ -647,12 +423,13 @@ int emcTaskPlanExecute(const char *command)
 
     if (!strcmp(the_command_name, "DWELL")) {
 	if (1 != sscanf(the_command_args, "%lf", &d1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	DWELL(d1);
 	return 0;
     }
 
+#if 0
     if (!strcmp(the_command_name, "SPINDLE_RETRACT")) {
 	SPINDLE_RETRACT();
 	return 0;
@@ -703,7 +480,7 @@ int emcTaskPlanExecute(const char *command)
 	    CLAMP_AXIS(CANON_AXIS_C);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "UNCLAMP_AXIS")) {
@@ -731,12 +508,12 @@ int emcTaskPlanExecute(const char *command)
 	    UNCLAMP_AXIS(CANON_AXIS_C);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "SET_CUTTER_RADIUS_COMPENSATION")) {
 	if (1 != sscanf(the_command_args, "%lf", &d1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	SET_CUTTER_RADIUS_COMPENSATION(d1);
 	return 0;
@@ -744,7 +521,7 @@ int emcTaskPlanExecute(const char *command)
 
     if (!strcmp(the_command_name, "START_CUTTER_RADIUS_COMPENSATION")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	START_CUTTER_RADIUS_COMPENSATION(i1);
 	return 0;
@@ -754,10 +531,11 @@ int emcTaskPlanExecute(const char *command)
 	STOP_CUTTER_RADIUS_COMPENSATION();
 	return 0;
     }
+#endif
 
     if (!strcmp(the_command_name, "START_SPEED_FEED_SYNCH")) {
 	if (2 != sscanf(the_command_args, "%lf %d", &d1, &i1)) {
-            return 1;
+            return INTERP_ERROR;
         }
 	START_SPEED_FEED_SYNCH(d1, i1);
 	return 0;
@@ -770,7 +548,7 @@ int emcTaskPlanExecute(const char *command)
 
     if (!strcmp(the_command_name, "SET_SPINDLE_SPEED")) {
 	if (1 != sscanf(the_command_args, "%lf", &d1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	SET_SPINDLE_SPEED(d1);
 	return 0;
@@ -793,7 +571,7 @@ int emcTaskPlanExecute(const char *command)
 
     if (!strcmp(the_command_name, "ORIENT_SPINDLE")) {
 	if (2 != sscanf(the_command_args, "%lf %s", &d1, s1)) {
-	    return 1;
+	    return INTERP_ERROR;
 	}
 	if (!strcmp(s1, "CANON_CLOCKWISE")) {
 	    ORIENT_SPINDLE(d1, CANON_CLOCKWISE);
@@ -803,7 +581,7 @@ int emcTaskPlanExecute(const char *command)
 	    ORIENT_SPINDLE(d1, CANON_COUNTERCLOCKWISE);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "DISABLE_SPEED_OVERRIDE")) {
@@ -859,7 +637,7 @@ int emcTaskPlanExecute(const char *command)
 	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
 	    return 0;
 	}
-	return 1;
+	return INTERP_ERROR;
     }
 
     if (!strcmp(the_command_name, "MESSAGE")) {
@@ -884,46 +662,66 @@ int emcTaskPlanExecute(const char *command)
 
     fprintf(stderr, "canterp: unrecognized canonical command %s\n",
 	    the_command);
-    return 1;
+    return INTERP_ERROR;
 }
 
-int emcTaskPlanClose(void)
+int Canterp::execute(const char *line, int line_number) {
+    return execute(line);
+}
+
+int Canterp::execute() {
+    return execute(0);
+}
+
+int Canterp::open(const char *newfilename) {
+    if(f) fclose(f);
+    f = fopen(newfilename, "r");
+    if(f) snprintf(filename, sizeof(filename), "%s", newfilename);
+    return f ? INTERP_OK : INTERP_ERROR;
+}
+
+int Canterp::close() {
+    return INTERP_OK;
+}
+
+int Canterp::exit() { return 0; }
+int Canterp::synch() { return 0; }
+int Canterp::reset() { return 0; }
+int Canterp::line() { return 0; }
+int Canterp::call_level() { return 0; }
+
+char *Canterp::line_text(char *buf, size_t bufsize) {
+   snprintf(buf, bufsize, "<Canterp::line_text>");
+   return buf;
+}
+char *Canterp::file_name(char *buf, size_t bufsize) {
+   snprintf(buf, bufsize, "%s", filename);
+   return buf;
+}
+char *Canterp::file(char *buf, size_t bufsize) {
+   snprintf(buf, bufsize, "%s", filename);
+   return buf;
+}
+int Canterp::on_abort(int reason, const char *message)
 {
-    taskplanopen = 0;
-
-    return 0;
+    fprintf(stderr, "Canterp::on_abort reason=%d message='%s'", reason, message);
+    reset();
+    return INTERP_OK;
 }
-
-int emcTaskPlanLine(void)
-{
-    return the_line_number;
+char *Canterp::command(char *buf, size_t bufsize) {
+   snprintf(buf, bufsize, "<Canterp::command>");
+   return buf;
 }
-
-int emcTaskPlanCommand(char *cmd)
-{
-    strcpy(cmd, the_command);
-
-    return 0;
+size_t Canterp::line_length() {
+   return 0;
 }
-
-int emcTaskUpdate(EMC_TASK_STAT * stat)
-{
-    stat->mode = (enum EMC_TASK_MODE_ENUM) determineMode();
-    stat->state = (enum EMC_TASK_STATE_ENUM) determineState();
-
-    // execState set in main
-    // interpState set in main
-    if (emcStatus->motion.traj.id > 0) {
-	stat->motionLine = emcStatus->motion.traj.id;
-    }
-    // currentLine set in main
-    // readLine set in main
-
-    strcpy(stat->file, the_file_name);
-    // command set in main
-
-    stat->heartbeat++;
-
-    return 0;
+int Canterp::sequence_number() {
+   return -1;
 }
+int Canterp::init() { return INTERP_OK; }
+void Canterp::active_g_codes(int gees[]) { std::fill(gees, gees + ACTIVE_G_CODES, 0); }
+void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
+void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
+void Canterp::set_loglevel(int level) {}
 
+InterpBase *makeInterp() { return new Canterp; }

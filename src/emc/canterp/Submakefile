@@ -1,0 +1,9 @@
+LIBCANTERPSRCS := emc/canterp/canterp.cc
+USERSRCS += $(LIBCANTERPSRCS)
+TARGETS += ../lib/libcanterp.so ../lib/libcanterp.so.0
+$(call TOOBJSDEPS, $(LIBCANTERPSRCS)) : EXTRAFLAGS=-fPIC
+../lib/libcanterp.so.0: $(patsubst %.cc,objects/%.o,$(LIBCANTERPSRCS)) ../lib/liblinuxcncini.so ../lib/librs274.so
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -ldl
