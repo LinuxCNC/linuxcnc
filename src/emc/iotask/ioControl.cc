@@ -686,6 +686,11 @@ int main(int argc, char *argv[])
 	    if (t == argc - 1) {
 		return -1;
 	    } else {
+                if (strlen(argv[t+1]) >= LINELEN) {
+                    rtapi_print_msg(RTAPI_MSG_ERR, "ini file name too long (max %d)\n", LINELEN);
+                    rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
+                    return -1;
+                }
 		strcpy(EMC_INIFILE, argv[t + 1]);
 		t++;
 	    }

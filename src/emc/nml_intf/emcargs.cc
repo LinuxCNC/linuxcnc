@@ -30,6 +30,11 @@ int emcGetArgs(int argc, char *argv[])
 	    if (t == argc - 1) {
 		return -1;
 	    } else {
+                if (strlen(argv[t+1]) >= LINELEN) {
+                    fprintf(stderr, "ini file name too long (max %d):\n", LINELEN);
+                    fprintf(stderr, "    %s\n", argv[t+1]);
+                    return -1;
+                }
 		strcpy(EMC_INIFILE, argv[t + 1]);
 		t++;
 	    }
