@@ -1,7 +1,14 @@
 component mux16 "Select from one of sixteen input values";
+pin in bit use_graycode"""\
+This signifies the input will use Gray code instead of binary
+""";
 pin in bit suppress_no_input"""\
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
+""";
+pin in s32 debounce_time"""\
+sets debouce time based on the number of thread periods counted
+input must be stable this long before outputs changes.
 """;
 pin in bit sel0;
 pin in bit sel1;
@@ -44,53 +51,81 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) {
+    int temp = 0,num = 0;
+    static int lastnum = 0,delay = 0;
     if(suppress_no_input) {
         if (sel0 + sel1 + sel2 + sel3 == 0) {
             return;
         }
     }
-    if(sel0) {
-        if(sel1) {
-            if(sel2) {
-                if(sel3) {out_f = in15; out_s = in15;}
-                else     {out_f = in07; out_s = in07;}
+    num = (sel0)+(sel1*2) + (sel2*4) + (sel3*8);
+    if(debounce_time) {
+        if (num == lastnum) {
+            if (delay < debounce_time) {
+                delay++;
+                return;
+                }
+        }else{
+            delay = 0;
+            lastnum = num;
+            return;
             }
-            else {
-                if(sel3) {out_f = in11; out_s = in11;}
-                else     {out_f = in03; out_s = in03;}
-            }
-        }
-        else {
-            if(sel2) {
-                if(sel3) {out_f = in13; out_s = in13;}
-                else     {out_f = in05; out_s = in05;}
-            }
-            else {
-                if(sel3) {out_f = in09; out_s = in09;}
-                else     {out_f = in01; out_s = in01;}
-            }
-        }
     }
-    else {
-       if(sel1) {
-            if(sel2) {
-                if(sel3) {out_f = in14; out_s = in14;}
-                else     {out_f = in06; out_s = in06;}
-            }
-            else {
-                if(sel3) {out_f = in10; out_s = in10;}
-                else     {out_f = in02; out_s = in02;}
-            }
+    if(use_graycode) {   
+        temp = num ^ (num>>8);
+        temp ^= (temp>>4);
+        temp ^= (temp>>2);
+        temp ^= (temp>>1);
+        num = temp;
         }
-        else {
-            if(sel2) {
-                if(sel3) {out_f = in12; out_s = in12;}
-                else     {out_f = in04; out_s = in04;}
-            }
-            else {
-                if(sel3) {out_f = in08; out_s = in08;}
-                else     {out_f = in00; out_s = in00;}
-            }
+    switch (num) {
+        case 1: 
+            out_s = out_f = in01; 
+            break;
+        case 2: 
+            out_s = out_f = in02; 
+            break;
+        case 3: 
+            out_s = out_f = in03; 
+            break;
+        case 4: 
+            out_s = out_f = in04; 
+            break;
+        case 5: 
+            out_s = out_f = in05; 
+            break;
+        case 6: 
+            out_s = out_f = in06; 
+            break;
+        case 7: 
+            out_s = out_f = in07; 
+            break;
+        case 8: 
+            out_s = out_f = in08; 
+            break;
+        case 9: 
+            out_s = out_f = in09; 
+            break;
+        case 10: 
+            out_s = out_f = in10; 
+            break;
+        case 11: 
+            out_s = out_f = in11; 
+            break;
+        case 12: 
+            out_s = out_f = in12; 
+            break;
+        case 13: 
+            out_s = out_f = in13; 
+            break;
+        case 14: 
+            out_s = out_f = in14; 
+            break;
+        case 15: 
+            out_s = out_f = in15; 
+            break;
+        default: 
+            out_s = out_f = in00; 
+            break;
         }
-    }
 }
