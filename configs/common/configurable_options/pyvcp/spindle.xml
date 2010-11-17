@@ -21,7 +21,7 @@
                             <font>("Helvetica",20)</font>
                     </label>
                     <led>
-                        <halpin>"spindle-led"</halpin> 
+                        <halpin>"spindle-at-speed-led"</halpin> 
                         <size>30</size> 
                         <on_color>"green"</on_color>
                         <off_color>"red"</off_color>
