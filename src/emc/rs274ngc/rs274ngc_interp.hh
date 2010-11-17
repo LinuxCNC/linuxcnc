@@ -16,11 +16,8 @@ public:
  int close();
 
 // execute a line of NC code
-#ifndef NOT_OLD_EMC_INTERP_COMPATIBLE
- int execute(const char *command = 0);
-#else
+ int execute(const char *command);
  int execute();
-#endif
 
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
@@ -37,7 +34,8 @@ public:
  int open(const char *filename);
 
 // read the mdi or the next line of the open NC code file
- int read(const char *mdi = 0);
+ int read(const char *mdi);
+ int read();
 
 // reset yourself
  int reset();

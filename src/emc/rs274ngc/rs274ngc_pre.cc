@@ -469,6 +469,12 @@ int Interp::execute(const char *command)
     }
     return status;
 }
+
+int Interp::execute()
+{
+  return Interp::execute(0);
+}
+
 int Interp::execute(const char *command, int line_number)
 {
     int status;
@@ -1532,6 +1538,10 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 
     qc_reset();
     return INTERP_OK;
+}
+
+int Interp::read() {
+  return read(0);
 }
 /***********************************************************************/
 
