@@ -96,13 +96,21 @@ def iceil(x):
     return int(math.ceil(x))
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "emc")
-
 wizard = os.path.join(datadir, "emc2-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join("/etc/emc2/emc2-wizard.gif")
 if not os.path.isfile(wizard):
+    emc2icon = os.path.join("/usr/share/emc/emc2-wizard.gif")
+if not os.path.isfile(wizard):
     wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
     wizard = os.path.join(wizdir, "emc2-wizard.gif")
+
+icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+emc2icon = os.path.join(icondir, "emc2icon.png")
+if not os.path.isfile(emc2icon):
+    emc2icon = os.path.join("/etc/emc2/emc2-wizard.gif")
+if not os.path.isfile(emc2icon):
+    emc2icon = os.path.join("/usr/share/emc/emc2icon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
@@ -619,7 +627,7 @@ class Data:
         self.userneededmux8 = 0
         self.userneededabs = 0
         self.userneededscale = 0
-
+        self.userneededlowpass = 0
 
         # pyvcp data
         self.pyvcp = 0 # not included
@@ -1799,6 +1807,16 @@ class Data:
                 if i <> self.userneededabs-1:
                     self.absnames = self.absnames+","
             print >>file, "loadrt abs names=%s"% self.absnames
+
+        if self.pyvcp or self.userneededlowpass >0:
+            self.lowpassnames=""
+            for i in range(0,self.userneededlowpass):
+                self.lowpassnames = self.lowpassnames+"lowpass.%d,"% (i)
+            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
+                self.lowpassnames=self.lowpassnames+"lowpass.spindle,"
+            temp = self.lowpassnames.rstrip(",")
+            print >>file, "loadrt lowpass names=%s"% temp
+
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and spindle_enc or self.userneededscale >0:
             self.scalenames=""
             if spindle_enc and self.pyvcp:
@@ -1926,6 +1944,10 @@ class Data:
                 temp=self.scalenames.split(",")
                 for j in (temp):
                     print >>file, "addf %s servo-thread"% j
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededlowpass > 0:
+            temp=self.lowpassnames.split(",")
+            for j in (temp):
+                print >>file, "addf %s servo-thread"% j
 
         for i in self.addcompservo:
             if not i == '':
@@ -2178,19 +2200,23 @@ class Data:
                   print >>f1
                   if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
+                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
                       print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
                       print >>f1, ("setp     scale.spindle.gain .01667")
-                      print >>f1, ("net spindle-velocity-fb  => abs.spindle.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.spindle.out => scale.spindle.in")
-                      print >>f1, ("net scaled-spindle-vel <= scale.spindle.out => pyvcp.spindle-speed")
+                      print >>f1, ("setp     lowpass.spindle.gain 0.01")
+                      print >>f1, ("net spindle-vel-fb => lowpass.spindle.in")
+                      print >>f1, ("net spindle-rps-filtered <= lowpass.spindle.out")
+                      print >>f1, ("net spindle-rps-filtered => abs.spindle.in")
+                      print >>f1, ("net spindle-absolute-rps    abs.spindle.out => scale.spindle.in")
+                      print >>f1, ("net spindle-filtered-rpm    scale.spindle.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-vel-cmd                       =>  abs.spindle.in")
+                      print >>f1, ("net spindle-vel-cmd                         =>  abs.spindle.in")
                       print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")                     
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
@@ -2405,8 +2431,10 @@ class Data:
                          % ( scriptspath, base, self.machinename )
             print >>file,"Type=Application"
             print >>file,"Comment=" + _("Desktop Launcher for EMC config made by PNCconf")
-            print >>file,"Icon=/etc/emc2/emc2icon.png"
+            print >>file,"Icon=%s"% emc2icon
             file.close()
+            # Ubuntu 10.04 require launcher to have execute permissions
+            os.chmod(filename,0775)
 
     def __getitem__(self, item):
         return getattr(self, item)

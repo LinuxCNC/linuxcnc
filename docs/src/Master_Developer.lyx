@@ -1,5 +1,7 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
@@ -15,17 +17,24 @@
 \end_preamble
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement !!h
 \paperfontsize 10
-\spacing single 
+\spacing single
 \papersize letterpaper
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\use_geometry true
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \paperwidth 8.5in
 \paperheight 11in
@@ -38,52 +47,104 @@
 \paragraph_separation skip
 \defskip medskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle headings
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Standard
+\begin_body
 
-
+\begin_layout Standard
 \begin_inset ERT
-status Open
+status open
 
-\layout Standard
+\begin_layout Standard
 
-\backslash 
+
+\backslash
 addcontentsline{toc}{chapter}{Cover}
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Title
+\end_layout
 
-V2.3 Developers Handbook
-\layout Author
+\begin_layout Title
+V2.4 Developers Handbook
+\end_layout
 
+\begin_layout Author
 The EMC Team
-\layout Standard
-\align center 
+\end_layout
 
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename common/emc2-intro.png
 	lyxscale 80
 	scale 50
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\added_space_top 0.75in 
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.75in
+\end_inset
+
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
-\layout Standard
-\added_space_top 0.5in \align center 
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.5in
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 Copyright (c) 2000-7 LinuxCNC.org
-\layout Standard
-\added_space_top 0.5in \line_top \noindent 
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace 0.5in
+\end_inset
+
+
+\lyxline
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Standard
+
+
+\backslash
+vspace{-1
+\backslash
+parskip}
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
@@ -95,80 +156,89 @@ Permission is granted to copy, distribute and/or modify this document under
  If you do not find the license you may order a copy from Free Software
  Foundation, Inc.
  59 Temple Place, Suite 330 Boston, MA 02111-1307 
-\layout Standard
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand tableofcontents
+
+\end_inset
 
 
-\begin_inset LatexCommand \tableofcontents{}
+\end_layout
 
-\end_inset 
-
-
-\layout Part
-
+\begin_layout Part
 EMC2 Code Notes
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Include \include{code/Code_Notes.lyx}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Part
+\end_layout
 
+\begin_layout Part
 NML Messages
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Include \include{code/NML_Messages.lyx}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Part
-\start_of_appendix 
+\end_layout
+
+\begin_layout Part
+\start_of_appendix
 Coding Style Guide
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Include \include{code/Style_Guide.lyx}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Part
+\end_layout
 
+\begin_layout Part
 Glossary
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Include \include{common/Glossary.lyx}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Chapter
+\end_layout
 
+\begin_layout Chapter
 Legal Section
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Include \input{common/GPLD_Copyright.lyx}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand printindex
+
+\end_inset
 
 
-\begin_inset LatexCommand \printindex{}
+\end_layout
 
-\end_inset 
-
-
-\the_end
+\end_body
+\end_document

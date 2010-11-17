@@ -1,3 +1,8 @@
 #!/bin/sh
 . rtapi.conf
-! [ "$RTPREFIX" = sim ]
+
+if [ "$RTPREFIX" = sim ]; then
+    exit 1
+fi
+
+exit 0

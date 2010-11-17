@@ -958,8 +958,6 @@ int main(int argc, char *argv[])
 		rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_SET_NUMBER old_loaded=%d new_number=%d\n", emcioStatus.tool.toolInSpindle, number);
 		emcioStatus.tool.toolInSpindle = number;
 		*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
-
-                load_tool(number);
 	    }
 	    break;
 
