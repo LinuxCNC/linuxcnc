@@ -623,7 +623,6 @@ extern "C" {
 	PmQuaternion qVec;	/* unit of rotation */
 	double tmag;
 	double rmag;
-	int tmag_is_greater_than_rmag;
 	int tmag_zero;
 	int rmag_zero;
 
