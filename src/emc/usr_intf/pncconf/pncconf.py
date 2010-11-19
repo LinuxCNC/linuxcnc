@@ -361,7 +361,7 @@ MIN_X, MIN_Y, MIN_Z, MIN_A,
 MAX_X, MAX_Y, MAX_Z, MAX_A,
 BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
 ALL_LIMIT, ALL_HOME, DIN0, DIN1, DIN2, DIN3,
-JOGA, JOGB, JOGC, FOA, FOB, FOC, FOD,
+JOGA, JOGB, JOGC, JOGD, FOA, FOB, FOC, FOD,
 SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGX_P,JOGX_N,JOGY_P,JOGY_N,JOGZ_P,JOGZ_N,JOGA_P,JOGA_N,
 JOGSLCT_P, JOGSLCT_N, SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,
@@ -375,7 +375,7 @@ SPINDLE_AT_SPEED, CYCLE_START, ABORT, SINGLE_STEP   ) = hal_input_names = ["unus
 "max-x", "max-y", "max-z", "max-a",
 "both-x", "both-y", "both-z", "both-a",
 "all-limit", "all-home", "din-00", "din-01", "din-02", "din-03",
-"jog-incr-a","jog-incr-b","jog-incr-c",
+"jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d",
 "fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-x-pos","jog-x-neg","jog-y-pos","jog-y-neg",
@@ -400,7 +400,7 @@ _("X Maximum Limit"), _("Y Maximum Limit"), _("Z Maximum Limit"), _("A Maximum L
 _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
 _("All Limits"), _("All Home"),
 _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),
+_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),
 _("Feed Override incr A"),_("Feed Override incr B"),_("Feed Override incr C"),_("Feed Override incr D"),
 _("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D"),
 _("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),
@@ -602,6 +602,7 @@ class Data:
         self.mpgincrvalue15 = .125 # abcd
         self.externalfo = False
         self.fo_usempg = False
+        self.fo_useswitch = False
         self.foincrvalue0 = 0  # all incr-select low
         self.foincrvalue1 = 5  # incr-select-a  high
         self.foincrvalue2 = 10  # b
@@ -619,7 +620,8 @@ class Data:
         self.foincrvalue14 = 190 # bcd
         self.foincrvalue15 = 200 # abcd
         self.externalso = False
-        self.so_usingmpg = False
+        self.so_usempg = False
+        self.so_useswitch = False
         self.soincrvalue0 = 0  # all incr-select low
         self.soincrvalue1 = 5  # incr-select-a  high
         self.soincrvalue2 = 10  # b
@@ -675,6 +677,12 @@ class Data:
         self.pyvcpname = "custom.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
+
+        # gladevcp data
+        self.gladevcp = 0 # not included
+        self.gladevcpname = "custom.xml"
+        self.gladevcphaltype = 0 # no HAL connections specified
+        self.gladevcpconnect = 1 # HAL connections allowed
 
         # classicladder data
         self.classicladder = 0 # not included
@@ -1351,6 +1359,7 @@ class Data:
         def get(s): return self[letter + s]       
         pwmgen = self.pwmgen_sig(letter)
         stepgen = self.stepgen_sig(letter)
+        encoder = self.encoder_sig(letter)
         print >>file
         print >>file, "#********************"
         if letter == 's':
@@ -1367,7 +1376,7 @@ class Data:
             print >>file, "MIN_FERROR = %s" % get("minferror")
         print >>file, "MAX_VELOCITY = %s" % get("maxvel")
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-        if stepgen == "false":
+        if not encoder == "false":
             if (self.spidcontrol == True and letter == 's') or not letter == 's':
                 print >>file, "P = %s" % get("P")
                 print >>file, "I = %s" % get("I") 
@@ -1387,16 +1396,17 @@ class Data:
                 temp = -1
             else: temp = 1
             print >>file, "INPUT_SCALE = %s" % (get("scale") * temp)
-        else:
+        if not stepgen == "false":
             print >>file, "# these are in nanoseconds"
             print >>file, "DIRSETUP   = %d"% int(get("dirsetup"))
             print >>file, "DIRHOLD    = %d"% int(get("dirhold"))
             print >>file, "STEPLEN    = %d"% int(get("steptime"))          
             print >>file, "STEPSPACE  = %d"% int(get("stepspace"))
-            if get("invertmotor"):
-                temp = -1
-            else: temp = 1
-            print >>file, "SCALE = %s"% (get("scale") * temp)
+            if encoder == "false":
+                if get("invertmotor"):
+                    temp = -1
+                else: temp = 1
+                print >>file, "SCALE = %s"% (get("scale") * temp)
         if letter == 's':return
         if self[letter + "usecomp"]:
             print >>file, "COMP_FILE = %s" % get("compfilename")
@@ -1408,8 +1418,8 @@ class Data:
         minlim = -abs(get("minlim"))
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.units: extend = .001
-        else: extend = .01
+        if self.units: extend = .01
+        else: extend = .001
         minlim = min(minlim, home - extend)
         maxlim = max(maxlim, home + extend)
         print >>file, "MIN_LIMIT = %s" % minlim
@@ -1500,7 +1510,7 @@ class Data:
         print >>file, "#*******************"
         print >>file
          
-        if not pwmgen == "false":
+        if not encoder == "false":
             if (self.spidcontrol == True and let == 's') or not let == 's':
                 print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
@@ -1519,7 +1529,7 @@ class Data:
                 print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
                 print >>file
                
-            if 'mesa' in pwmgen:
+            if not pwmgen == "false":
                 pinname = self.make_pinname(pwmgen,ini_style)
                 print >>file, "# ---PWM Generator signals/setup---"
                 print >>file
@@ -1585,7 +1595,7 @@ class Data:
                 print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"
             print >>file
 
-        if 'mesa' in encoder:
+        if not encoder == "false":
                 pinname = self.make_pinname(encoder,ini_style)              
                 countmode = 0
                 print >>file, "# ---Encoder feedback signals/setup---"
@@ -1626,7 +1636,7 @@ class Data:
                 print >>file
                 print >>file, "# ---Setup spindle at speed signals---"
                 print >>file
-                if not stepgen =="false" or not encoder == "false":
+                if not encoder == "false":
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
@@ -2083,7 +2093,7 @@ class Data:
             print >>file
 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"),ini_style)
-        if 'hm2' in pinname:
+        if not pinname == "false":
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
             print >>file, "net joint-selected-count     <=  %s.count"% (pinname)
@@ -2107,7 +2117,7 @@ class Data:
         for axnum,axletter in enumerate(temp):
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
-                if 'hm2' in pinname:
+                if not pinname == "false":
                     print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
                     print >>file
                     print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)
@@ -2141,7 +2151,7 @@ class Data:
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
 
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"),ini_style)
-        if 'hm2' in pinname:
+        if not pinname == "false":
             print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net fo-count     <=  %s.count"% (pinname)
@@ -2149,10 +2159,10 @@ class Data:
             print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
         if self.externalfo:
-            if self.fo_mpg:
+            if self.fo_usempg:
                 print >>file, "# connect feed overide increments - MPG" 
                 print >>file, "    setp halui.feed-override.count-enable true"
-                print >>file, "    setp halui.feed-override.direct_value false"
+                print >>file, "    setp halui.feed-override.direct-value false"
                 print >>file, "net fo-count =>  halui.feed-override.counts"
                 print >>file, "    setp halui.feed-override.scale .01"
                 print >>file
@@ -2166,7 +2176,7 @@ class Data:
                 print >>file, "net fo-incr-b           =>  foincr.sel1"
                 print >>file, "net fo-incr-c           =>  foincr.sel2"
                 print >>file, "net fo-incr-d           =>  foincr.sel3"
-                print >>file, "net feedoverride-incr   <=  foincr.sout-f"
+                print >>file, "net feedoverride-incr   <=  foincr.out-s"
                 print >>file, "    setp foincr.suppress-no-input true"
                 for i in range(0,16):
                     value = self["foincrvalue%d"% i]
@@ -2174,18 +2184,18 @@ class Data:
                 print >>file
 
         pinname = self.make_pinname(self.findsignal("so-mpg-a"),ini_style)
-        if 'hm2' in pinname:
-            print >>file, "# ---feed override signals to mesa encoder - mpg---"
+        if not pinname == "false":
+            print >>file, "# ---spindle override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net so-count     <=  %s.count"% (pinname)
             print >>file, "setp    %s.filter true" % pinname
             print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
         if self.externalso:
-            if self.so_mpg:
+            if self.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG" 
                 print >>file, "    setp halui.feed-override.count-enable true"
-                print >>file, "    setp halui.feed-override.direct_value false"
+                print >>file, "    setp halui.feed-override.direct-value false"
                 print >>file, "net so-count =>  halui.feed-override.counts"
                 print >>file, "    setp halui.feed-override.scale .01"
                 print >>file
@@ -2199,7 +2209,7 @@ class Data:
                 print >>file, "net so-incr-b           =>  soincr.sel1"
                 print >>file, "net so-incr-c           =>  soincr.sel2"
                 print >>file, "net so-incr-d           =>  soincr.sel3"
-                print >>file, "net spindleoverride-incr   <=  soincr.sout-f"
+                print >>file, "net spindleoverride-incr   <=  soincr.out-s"
                 print >>file, "    setp soincr.suppress-no-input true"
                 for i in range(0,16):
                     value = self["soincrvalue%d"% i]
@@ -2305,7 +2315,8 @@ class Data:
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-vel-cmd                       =>  abs.spindle.in")
-                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")                     
+                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")
+                  print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
                   print >>f1
@@ -2877,15 +2888,17 @@ class App:
         self.widgets.machinename.set_text(self.data.machinename)
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
-        self.widgets.latency.set_value(self.data.latency)
-        self.widgets.baseperiod.set_value(self.data.baseperiod)
         self.widgets.servoperiod.set_value(self.data.servoperiod)
         self.widgets.machinename.grab_focus()
-        if self.data.number_mesa:
-            self.widgets.mesa5i20_checkbutton.set_active(True)
+        if self.data.number_mesa == 1:
+            self.widgets.mesa0_checkbutton.set_active(True)
+            self.widgets.mesa1_checkbutton.set_active(False)
+        elif self.data.number_mesa == 2:
+            self.widgets.mesa0_checkbutton.set_active(True)
+            self.widgets.mesa1_checkbutton.set_active(True)
         else:
-            self.widgets.mesa5i20_checkbutton.set_active(False)
-        self.widgets.number_mesa.set_value(self.data.number_mesa)
+            self.widgets.mesa0_checkbutton.set_active(False)
+            self.widgets.mesa1_checkbutton.set_active(False)
         self.widgets.ioaddr.set_text(self.data.ioaddr)
         self.widgets.ioaddr2.set_text(self.data.ioaddr2) 
         self.widgets.ioaddr3.set_text(self.data.ioaddr3)
@@ -2900,10 +2913,74 @@ class App:
              self.widgets.pp2_checkbutton.set_active(1)
         if self.data.number_pports>2:
              self.widgets.pp3_checkbutton.set_active(1)
+        if self.data.frontend == _AXIS : self.widgets.GUIAXIS.set_active(True)
+        elif self.data.frontend == _TKEMC: self.widgets.GUITKEMC.set_active(True)
+        elif self.data.frontend == _MINI: self.widgets.GUIMINI.set_active(True)
+        elif self.data.frontend == _TOUCHY: self.widgets.GUITOUCHY.set_active(True)
         
-    def on_mesa5i20_checkbutton_toggled(self, *args): 
-        i = self.widgets.mesa5i20_checkbutton.get_active()   
-        self.widgets.number_mesa.set_sensitive(i)
+        # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
+        # record the signal ID numbers so we can block the signals later in the mesa routines
+        # have to do it here manually (instead of autoconnect) because glade doesn't handle added
+        # user info (board/connector/pin number designations) and doesn't record the signal ID numbers
+        # none of this is done if mesa is not checked off in pncconf
+
+        if (self.data.number_mesa): 
+            for boardnum in (0,1):
+                cb = "mesa%d_comp_update"% (boardnum)
+                i = "_mesa%dsignalhandler_comp_update"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
+                cb = "mesa%d_boardtitle"% (boardnum)
+                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
+                cb = "mesa%d_firmware"% (boardnum)
+                i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
+                for connector in (2,3,4,5,6,7,8,9):
+                    for pin in range(0,24):
+                      cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
+                      i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
+                      i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
+                      cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
+                      i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
+
+        # here we initalise the mesa configure page data
+        for boardnum in(0,1):
+            model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
+            model.clear()
+            for i in mesaboardnames:
+                model.append((i,))      
+            for search,item in enumerate(mesaboardnames):
+                if mesaboardnames[search]  == self.data["mesa%d_boardtitle"% boardnum]:
+                    self.widgets["mesa%d_boardtitle"% boardnum].set_active(search)
+                model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+                model.clear()
+                for search, item in enumerate(mesafirmwaredata):
+                    d = mesafirmwaredata[search]
+                    if not d[_BOARDTITLE] == self.data["mesa%d_boardtitle"% boardnum]:continue
+                    model.append((d[_FIRMWARE],))
+                for search,item in enumerate(model):
+                    if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
+                        self.widgets["mesa%d_firmware"% boardnum].set_active(search)
+
+                self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
+                self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
+                self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
+                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
+                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
+
+    def on_mesa_checkbutton_toggled(self, *args): 
+        i = self.widgets.mesa0_checkbutton.get_active()
+        j = self.widgets.mesa1_checkbutton.get_active()
+        self.widgets.mesa0_boardtitle.set_sensitive(i)
+        self.widgets.mesa1_boardtitle.set_sensitive(j)
+        if j and not i:
+            self.widgets.mesa1_checkbutton.set_active(False)
+            self.widgets.mesa1_boardtitle.set_sensitive(False)
         
     def on_pp1_checkbutton_toggled(self, *args): 
         i = self.widgets.pp1_checkbutton.get_active()   
@@ -2943,16 +3020,13 @@ class App:
         elif self.data.axes == 1: self.data.available_axes = ['x','y','z','a','s']
         elif self.data.axes == 2: self.data.available_axes = ['x','z','s']
         self.data.units = self.widgets.units.get_active()
-        self.data.latency = self.widgets.latency.get_value()
-        self.data.baseperiod = self.widgets.baseperiod.get_value()
         self.data.servoperiod = self.widgets.servoperiod.get_value()
         self.data.ioaddr = self.widgets.ioaddr.get_text()
         self.data.ioaddr2 = self.widgets.ioaddr2.get_text()
         self.data.ioaddr3 = self.widgets.ioaddr3.get_text()
-        if self.widgets.mesa5i20_checkbutton.get_active():
-            self.data.number_mesa = self.widgets.number_mesa.get_value()
-        else:
-            self.data.number_mesa = 0
+        i = self.widgets.mesa0_checkbutton.get_active()
+        j = self.widgets.mesa1_checkbutton.get_active()
+        self.data.number_mesa = int(i)+int(j)
         if self.widgets.pp3_checkbutton.get_active() and self.widgets.pp2_checkbutton.get_active():
             self.data.number_pports = 3
         elif self.widgets.pp2_checkbutton.get_active() and self.widgets.pp1_checkbutton.get_active():
@@ -2968,61 +3042,14 @@ class App:
         self.data.pp1_direction = self.widgets.pp1_direction.get_active()
         self.data.pp2_direction = self.widgets.pp2_direction.get_active()
         self.data.pp3_direction = self.widgets.pp3_direction.get_active()
-        
-        # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
-        # record the signal ID numbers so we can block the signals later in the mesa routines
-        # have to do it here manually (instead of autoconnect) because glade doesn't handle added
-        # user info (board/connector/pin number designations) and doesn't record the signal ID numbers
-        # none of this is done if mesa is not checked off in pncconf
-
-        if (self.data.number_mesa): 
-            for boardnum in (0,1):
-                cb = "mesa%d_comp_update"% (boardnum)
-                i = "_mesa%dsignalhandler_comp_update"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
-                cb = "mesa%d_boardtitle"% (boardnum)
-                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
-                cb = "mesa%d_firmware"% (boardnum)
-                i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
-                for connector in (2,3,4,5,6,7,8,9):
-                    for pin in range(0,24):
-                      cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
-                      i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
-                      i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
-                      cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
-                      i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
-
-            # here we initalise the mesa configure page data
-            for boardnum in(0,1):
-                model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
-                model.clear()
-                for i in mesaboardnames:
-                    model.append((i,))      
-                for search,item in enumerate(mesaboardnames):
-                    if mesaboardnames[search]  == self.data["mesa%d_boardtitle"% boardnum]:
-                        self.widgets["mesa%d_boardtitle"% boardnum].set_active(search)  
-                model = self.widgets["mesa%d_firmware"% boardnum].get_model()
-                model.clear()
-                for search, item in enumerate(mesafirmwaredata):
-                    d = mesafirmwaredata[search]
-                    if not d[_BOARDTITLE] == self.data["mesa%d_boardtitle"% boardnum]:continue
-                    model.append((d[_FIRMWARE],))        
-                for search,item in enumerate(model):           
-                    if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
-                        self.widgets["mesa%d_firmware"% boardnum].set_active(search)   
-    
-                self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
-                self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
-                self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
-                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
-                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])          
+        if self.widgets.GUIAXIS.get_active():
+           self.data.frontend = _AXIS
+        elif self.widgets.GUITKEMC.get_active():
+           self.data.frontend = _TKEMC
+        elif self.widgets.GUIMINI.get_active():
+           self.data.frontend = _MINI
+        elif self.widgets.GUITOUCHY.get_active():
+           self.data.frontend = _TOUCHY
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -3052,6 +3079,10 @@ class App:
             self.widgets.fo_usempg.set_active(1)
         else:
             self.widgets.fo_useswitch.set_active(1)
+        if self.data.so_usempg :
+            self.widgets.so_usempg.set_active(1)
+        else:
+            self.widgets.so_useswitch.set_active(1)
         self.widgets.jograpidrate.set_value(self.data.jograpidrate)
         self.widgets.singlejogbuttons.set_active(self.data.singlejogbuttons)
         self.widgets.multijogbuttons.set_active(self.data.multijogbuttons)
@@ -3249,8 +3280,11 @@ class App:
         self.data.homeindex = self.widgets.home_index.get_active()
         self.data.homeswitch = self.widgets.home_switch.get_active()
         self.data.homeboth = self.widgets.home_both.get_active()
-        self.data.multimpg == self.widgets.multimpg.get_active()
-        self.data.fo_usempg == self.widgets.fo_usempg.get_active()
+        self.data.multimpg = self.widgets.multimpg.get_active()
+        self.data.fo_usempg = self.widgets.fo_usempg.get_active()
+        self.data.fo_useswitch = self.widgets.fo_useswitch.get_active()
+        self.data.so_usempg = self.widgets.so_usempg.get_active()
+        self.data.so_useswitch = self.widgets.so_useswitch.get_active()
         self.data.jograpidrate = self.widgets.jograpidrate.get_value()
         self.data.singlejogbuttons = self.widgets.singlejogbuttons.get_active()
         self.data.multijogbuttons = self.widgets.multijogbuttons.get_active()
@@ -3275,10 +3309,6 @@ class App:
 
     def on_GUI_config_prepare(self, *args):
         self.data.help = "help-gui.txt"
-        if self.data.frontend == _AXIS : self.widgets.GUIAXIS.set_active(True)
-        elif self.data.frontend == _TKEMC: self.widgets.GUITKEMC.set_active(True)
-        elif self.data.frontend == _MINI: self.widgets.GUIMINI.set_active(True)
-        elif self.data.frontend == _TOUCHY: self.widgets.GUITOUCHY.set_active(True)
         self.widgets.pyvcp.set_active(self.data.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.widgets.createconfig.get_active():
@@ -3313,14 +3343,6 @@ class App:
         self.widgets.toolchangeprompt.set_active(self.data.toolchangeprompt)
         
     def on_GUI_config_next(self, *args):
-        if self.widgets.GUIAXIS.get_active():
-           self.data.frontend = _AXIS
-        elif self.widgets.GUITKEMC.get_active():
-           self.data.frontend = _TKEMC
-        elif self.widgets.GUIMINI.get_active():
-           self.data.frontend = _MINI
-        elif self.widgets.GUITOUCHY.get_active():
-           self.data.frontend = _TOUCHY
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
         self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
         self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
@@ -3443,22 +3465,34 @@ class App:
         self.do_exclusive_inputs(15)
 
     def on_mesa_boardname_changed(self, widget,boardnum):
-        title = self.widgets["mesa%d_boardtitle"%boardnum].get_active_text()
+        model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
+        active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
+        if active < 0:
+          title = None
+        else: title = model[active][0]
+        if title == None:return
+        self.widgets["mesa%dtitle"%boardnum].set_text(title)
         model = self.widgets["mesa%d_firmware"% boardnum].get_model()
         model.clear()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[_BOARDTITLE] == title:continue
-            model.append((d[_FIRMWARE],))       
+            model.append((d[_FIRMWARE],))
+            break
         self.widgets["mesa%d_firmware"% boardnum].set_active(0)
-        if  d[_BOARDNAME] =="7i43":
+        print "boardname-" + d[_BOARDNAME]
+        if  "7i43" in d[_BOARDNAME] :
             self.widgets["mesa%d_parportaddrs"% boardnum].set_sensitive(1)
         else:
             self.widgets["mesa%d_parportaddrs"% boardnum].set_sensitive(0)
         self.on_mesa_firmware_changed(self,boardnum)
 
     def on_mesa_firmware_changed(self, widget,boardnum):
-        title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
+        model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
+        active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
+        if active < 0:
+          title = None
+        else: title = model[active][0]
         firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
@@ -3471,6 +3505,7 @@ class App:
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
+                break
             self.on_gpio_update(self,boardnum)
 
     def on_gpio_update(self,*args):
@@ -3632,8 +3667,18 @@ class App:
         self.widgets.mesa0_parportaddrs.set_text(self.data.mesa0_parportaddrs)
             
     def on_mesa0_next(self,*args):
+        model = self.widgets.mesa0_boardtitle.get_model()
+        active = self.widgets.mesa0_boardtitle.get_active()
+        if active < 0:
+            title = None
+        else: title = model[active][0]
+        print title,self.data.mesa0_currentfirmwaredata[_BOARDTITLE]
         if not self.intrnldata.mesa0_configured:
-            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.warning_dialog(_("You need to configure the mesa0 page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.widgets.druid1.set_page(self.widgets.mesa0)
+            return True
+        if not self.data.mesa0_currentfirmwaredata[_BOARDTITLE] ==  title:
+            self.warning_dialog(_("The chosen Mesa0 board is different from the current displayed.\nplease press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa0)
             return True
         self.data.mesa0_parportaddrs = self.widgets.mesa0_parportaddrs.get_text()
@@ -3664,10 +3709,20 @@ class App:
         self.widgets.mesa1_parportaddrs.set_text(self.data.mesa1_parportaddrs)
 
     def on_mesa1_next(self,*args):
+        model = self.widgets.mesa1_boardtitle.get_model()
+        active = self.widgets.mesa1_boardtitle.get_active()
+        if active < 0:
+            title = None
+        else: title = model[active][0]
+        print title,self.data.mesa1_currentfirmwaredata[_BOARDTITLE]
         if not self.intrnldata.mesa1_configured:
-            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.warning_dialog(_("You need to configure the mesa1 page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa1)
             return True
+        if not self.data.mesa1_currentfirmwaredata[_BOARDTITLE] ==  title:
+            self.warning_dialog(_("The chosen Mesa1 board is different from the current displayed.\nplease press 'Accept component changes' button'"),True)
+            self.widgets.druid1.set_page(self.widgets.mesa1)
+            return True    
         self.data.mesa1_parportaddrs = self.widgets.mesa1_parportaddrs.get_text()
         self.mesa_data_transfer(1) 
         if self.data.number_pports<1:
@@ -3868,7 +3923,7 @@ class App:
             self.widgets["mesa%dcon8table"% boardnum].hide()
             self.widgets["mesa%dcon9table"% boardnum].hide()
 
-
+        self.widgets["mesa%d"%boardnum].set_title("Mesa%d Config-Board %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum]))
 
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
@@ -4443,17 +4498,14 @@ class App:
                     warnings.append(_("You can not have both steppers and pwm signals for spindle control\n") )
                     do_warning = True
                 continue
-            if step == "false" and pwm == "false" and enc =="false":
+            if step == "false" and pwm == "false":
                 warnings.append(_("You forgot to designate a stepper or pwm signal for axis %s\n")% i)
                 do_warning = True
             if not pwm == "false" and enc == "false": 
-                warnings.append(_("You forgot to designate a servo encoder signal for axis %s\n")% i)
+                warnings.append(_("You forgot to designate an encoder signal for axis %s servo\n")% i)
                 do_warning = True
-            if pwm == "false" and not enc == "false": 
-                warnings.append(_("You forgot to designate a servo pwm signal for axis %s\n")% i)
-                do_warning = True
-            if not step == "false" and not enc == "false": 
-                warnings.append(_("You can not have encoders with steppers for axis %s\n")% i)
+            if not enc == "false" and  pwm == "false" and step == "false": 
+                warnings.append(_("You forgot to designate a pwm signal or stepper signal for axis %s\n")% i)
                 do_warning = True
             if not step == "false" and not pwm == "false": 
                 warnings.append(_("You can not have both steppers and pwm signals for axis %s\n")% i)
@@ -6294,7 +6346,8 @@ class PyApp(gtk.Window):
         self.widgets['window1'].set_sensitive(1)                 
         gobject.source_remove(self.timer) 
         self.hal.c.exit()
-        self.app.halrun.close()     
+        self.app.halrun.close()
+        print "**** Mesa test panel closed out."
         return True
 
     def update(self):      
