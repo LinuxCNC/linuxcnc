@@ -912,10 +912,13 @@ int hal_signal_new(const char *name, hal_type_t type)
 	*((char *) data_addr) = 0;
 	break;
     case HAL_S32:
+	*((hal_s32_t *) data_addr) = 0;
+        break;
     case HAL_U32:
-	*((long *) data_addr) = 0;
+	*((hal_u32_t *) data_addr) = 0;
+        break;
     case HAL_FLOAT:
-	*((real_t *) data_addr) = 0.0;
+	*((hal_float_t *) data_addr) = 0.0;
 	break;
     default:
 	break;
