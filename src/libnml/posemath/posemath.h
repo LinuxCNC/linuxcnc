@@ -430,11 +430,13 @@ extern double dot(PM_CARTESIAN v1, PM_CARTESIAN v2);
 /* cross */
 extern PM_CARTESIAN cross(PM_CARTESIAN v1, PM_CARTESIAN v2);
 
+#if 0
 /* norm */
 extern PM_CARTESIAN norm(PM_CARTESIAN v);
 extern PM_QUATERNION norm(PM_QUATERNION q);
 extern PM_ROTATION_VECTOR norm(PM_ROTATION_VECTOR r);
 extern PM_ROTATION_MATRIX norm(PM_ROTATION_MATRIX m);
+#endif
 
 /* unit */
 extern PM_CARTESIAN unit(PM_CARTESIAN v);
