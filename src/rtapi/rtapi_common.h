@@ -85,14 +85,11 @@
    are accessed by multiple different programs, both user processes
    and kernel modules.  If the structure layouts used by various
    programs don't match, that's bad.  So we have revision checking.
-   The string below is used to create a revision code (an int).
-   Whenever a module or program is loaded, the code is checked
+   Whenever a module or program is loaded, the rev_code is checked
    against the code in the shared memory area.  If they don't match,
    the rtapi_init() call will faill.
 */
-static char rev[] = "$Revision$";	/* magically updated by CVS */
-static char *rev_str;
-static unsigned int rev_code;
+static unsigned int rev_code = 1;  // increment this whenever you change the data structures
 
 /* These structs hold data associated with objects like tasks, etc. */
 
@@ -211,42 +208,6 @@ shmem_data *shmem_array = NULL;
 sem_data *sem_array = NULL;
 fifo_data *fifo_array = NULL;
 irq_data *irq_array = NULL;
-
-/* generate 'rev_str' and 'rev_code' from 'rev'
-   'rev' is updated by CVS whenever this file is updated
-*/
-static void setup_revision_info(void)
-{
-    char *cp;
-
-    /* point to start of revision number (skip text) */
-    if(strlen(rev) < 11) return;
-
-    rev_str = &(rev[11]);
-    /* end of number is marked by a space... replace it with a '\0' */
-    cp = rev_str;
-    while ((*cp != ' ') && (*cp != '\0' )){
-	cp++;
-    }
-    *cp = '\0';
-    /* calculate revision code from revision number - a crude hash function */
-    cp = rev_str;
-    rev_code = 0;
-    while (*cp != 0) {
-	if ((*cp >= '0') && (*cp <= '9')) {
-	    /* it's a digit, use the low 4 bits */
-	    rev_code <<= 4;
-	    rev_code |= *cp & 0x0f;
-	} else {
-	    /* it must be a period, just add one bit */
-	    rev_code <<= 1;
-	}
-	/* wrap five high order bits, so they aren't lost on next shift */
-	rev_code ^= rev_code >> 27;
-	cp++;
-    }
-    /* done */
-}
 
 /* global init code */
 

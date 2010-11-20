@@ -101,8 +101,6 @@ int rtapi_init(const char *modname)
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
-    /* setup revision string and code, and print opening message */
-    setup_revision_info();
     /* get shared memory block from OS and save its address */
     errno = 0;
     rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));

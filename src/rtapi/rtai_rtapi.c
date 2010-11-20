@@ -149,8 +149,6 @@ int init_module(void)
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init\n");
-    /* setup revision string and code, and print opening message */
-    setup_revision_info();
     /* get master shared memory block from OS and save its address */
     rtapi_data = rtai_kmalloc(RTAPI_KEY, sizeof(rtapi_data_t));
     if (rtapi_data == NULL) {
