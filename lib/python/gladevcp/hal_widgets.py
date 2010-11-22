@@ -2,10 +2,7 @@
 import gobject
 import gtk
 
-try:
-    import hal
-except ImportError:
-    hal = None
+import hal
 
 """ Set of base classes """
 class _HalWidgetBase:
