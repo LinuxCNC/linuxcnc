@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
 		case 0:
 		    if (0 == (errCode =
 			      usrmotReadEmcmotStatus(&emcmotStatus))) {
-			usrmotPrintEmcmotStatus(emcmotStatus, lastPrint);
+			usrmotPrintEmcmotStatus(&emcmotStatus, lastPrint);
 		    } else {
 			fprintf(stderr, "can't read status: %s\n",
 				errCode ==
@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
 		case 1:
 		    if (0 ==
 			(errCode = usrmotReadEmcmotDebug(&emcmotDebug))) {
-			usrmotPrintEmcmotDebug(emcmotDebug, lastPrint);
+			usrmotPrintEmcmotDebug(&emcmotDebug, lastPrint);
 		    } else {
 			fprintf(stderr, "can't read debug: %s\n",
 				errCode ==
@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
 		    case 1:
 			if (0 == (errCode =
 				  usrmotReadEmcmotDebug(&emcmotDebug))) {
-			    usrmotPrintEmcmotDebug(emcmotDebug, lastPrint);
+			    usrmotPrintEmcmotDebug(&emcmotDebug, lastPrint);
 			} else {
 			    fprintf(stderr, "can't read debug: %s\n",
 				    errCode ==

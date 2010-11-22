@@ -604,7 +604,8 @@ void load_tool(int pocket) {
 }
 
 void reload_tool_number(int toolno) {
-    for(int i=0; i<CANON_POCKETS_MAX; i++) {
+    if(random_toolchanger) return; // doesn't need special handling here
+    for(int i=1; i<CANON_POCKETS_MAX; i++) {
         if(emcioStatus.tool.toolTable[i].toolno == toolno) {
             load_tool(i);
             break;
@@ -685,6 +686,11 @@ int main(int argc, char *argv[])
 	    if (t == argc - 1) {
 		return -1;
 	    } else {
+                if (strlen(argv[t+1]) >= LINELEN) {
+                    rtapi_print_msg(RTAPI_MSG_ERR, "ini file name too long (max %d)\n", LINELEN);
+                    rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
+                    return -1;
+                }
 		strcpy(EMC_INIFILE, argv[t + 1]);
 		t++;
 	    }

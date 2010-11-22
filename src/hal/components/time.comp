@@ -1,0 +1,44 @@
+component time "Time Converter";
+
+description 
+"""
+Input seconds and output Hours, Minutes, Seconds
+Useful for a cycle timer
+
+# Cycle Timer
+# This creates a 1Hz signal
+loadrt pwmgen output_type=0 
+# This will count the 1Hz signals
+loadrt encoder num_chan=1 
+# and this looks for a change in program.is-running to reset the timer
+loadrt edge count=1 
+
+net run-timer halui.program.is-running => pwmgen.0.enable edge.0.in
+net OneHzPulse pwmgen.0.pwm => encoder.0.phase-A
+net timer-reset edge.0.out => encoder.0.reset
+""";
+ 
+author "John Thornton";
+
+license "GPL";
+
+// Input Pins
+pin in u32 input "Input Value in Seconds";
+
+// Output Pins
+pin out u32 seconds "Seconds";
+pin out u32 minutes "Minutes";
+pin out u32 hours "Hours";
+
+function _;
+
+;;
+
+#include "rtapi_math.h"
+
+FUNCTION(_) {
+	seconds = input % 60;
+	minutes = (input / 60) % 60;
+	hours = (input / 3600) % 60;
+}
+

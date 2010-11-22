@@ -263,41 +263,41 @@ void printTPstruct(TP_STRUCT * tp)
     printf("pausing=%d\n", tp->pausing);
 }
 
-void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
+void usrmotPrintEmcmotDebug(emcmot_debug_t *d, int which)
 {
 //    int t;
 
-    printf("running time: \t%f\n", d.running_time);
+    printf("running time: \t%f\n", d->running_time);
     switch (which) {
 /*! \todo Another #if 0 */
 #if 0
 	printf("\nferror:        ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d.ferrorCurrent[t]);
+	    printf("\t%f", d->ferrorCurrent[t]);
 	}
 	printf("\n");
 
 	printf("\nferror High:        ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d.ferrorHighMark[t]);
+	    printf("\t%f", d->ferrorHighMark[t]);
 	}
 	printf("\n");
 	break;
     case 5:
-	printf("traj  m/m/a:\t%f\t%f\t%f\n", d.tMin, d.tMax, d.tAvg);
+	printf("traj  m/m/a:\t%f\t%f\t%f\n", d->tMin, d->tMax, d->tAvg);
 	printf("\n");
-	printf("servo m/m/a:\t%f\t%f\t%f\n", d.sMin, d.sMax, d.sAvg);
+	printf("servo m/m/a:\t%f\t%f\t%f\n", d->sMin, d->sMax, d->sAvg);
 	printf("\n");
-	printf("(off) m/m/a:\t%f\t%f\t%f\n", d.nMin, d.nMax, d.nAvg);
+	printf("(off) m/m/a:\t%f\t%f\t%f\n", d->nMin, d->nMax, d->nAvg);
 	printf("\n");
-	printf("(cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n", d.yMin, d.yMax,
-	    d.yAvg);
+	printf("(cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n", d->yMin, d->yMax,
+	    d->yAvg);
 	printf("\n");
-	printf("(frequency compute  time) m/m/a:\t%f\t%f\t%f\n", d.fMin,
-	    d.fMax, d.fAvg);
+	printf("(frequency compute  time) m/m/a:\t%f\t%f\t%f\n", d->fMin,
+	    d->fMax, d->fAvg);
 	printf("\n");
 	printf("(frequecy cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n",
-	    d.fyMin, d.fyMax, d.fyAvg);
+	    d->fyMin, d->fyMax, d->fyAvg);
 	printf("\n");
 	break;
 #endif
@@ -308,17 +308,17 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
     case 9:
     case 10:
     case 11:
-//      printf("jointPos[%d]: %f\n", which - 6, d.jointPos[(which - 6)]);
+//      printf("jointPos[%d]: %f\n", which - 6, d->jointPos[(which - 6)]);
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("coarseJointPos[%d]: %f\n",
-	    which - 6, d.coarseJointPos[(which - 6)]);
-	printf("jointVel[%d]: %f\n", which - 6, d.jointVel[(which - 6)]);
-	printf("rawInput[%d]: %f\n", which - 6, d.rawInput[(which - 6)]);
-	printf("rawOutput[%d]: %f\n", which - 6, d.rawOutput[(which - 6)]);
+	    which - 6, d->coarseJointPos[(which - 6)]);
+	printf("jointVel[%d]: %f\n", which - 6, d->jointVel[(which - 6)]);
+	printf("rawInput[%d]: %f\n", which - 6, d->rawInput[(which - 6)]);
+	printf("rawOutput[%d]: %f\n", which - 6, d->rawOutput[(which - 6)]);
 #endif
-//      printf("bcompincr[%d]: %f\n", which - 6, d.bcompincr[(which - 6)]);
+//      printf("bcompincr[%d]: %f\n", which - 6, d->bcompincr[(which - 6)]);
 	break;
 
     case 12:
@@ -327,15 +327,15 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 				   structures */
 	printf("\noldInput:  ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d.oldInput[t]);
+	    printf("\t%f", d->oldInput[t]);
 	}
 	printf("\nrawInput:  ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d.rawInput[t]);
+	    printf("\t%f", d->rawInput[t]);
 	}
 	printf("\ninverseInputScale:  ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d.inverseInputScale[t]);
+	    printf("\t%f", d->inverseInputScale[t]);
 	}
 #endif
 	printf("\n");
@@ -431,7 +431,7 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 }
 
 /* status printing function */
-void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
+void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 {
 //    int t;
 //    char m[32];
@@ -439,77 +439,77 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
     switch (which) {
     case 0:
 	printf("mode:         \t%s\n",
-	    s.motionFlag & EMCMOT_MOTION_TELEOP_BIT ? "teleop" :
-	    (s.motionFlag & EMCMOT_MOTION_COORD_BIT ? "coord" : "free")
+	    s->motionFlag & EMCMOT_MOTION_TELEOP_BIT ? "teleop" :
+	    (s->motionFlag & EMCMOT_MOTION_COORD_BIT ? "coord" : "free")
 	    );
-	printf("cmd:          \t%d\n", s.commandEcho);
-	printf("cmd num:      \t%d\n", s.commandNumEcho);
-	printf("heartbeat:    \t%u\n", s.heartbeat);
+	printf("cmd:          \t%d\n", s->commandEcho);
+	printf("cmd num:      \t%d\n", s->commandNumEcho);
+	printf("heartbeat:    \t%u\n", s->heartbeat);
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf("axes enabled: \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d", s.axisFlag[t] & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
+	    printf("%d", s->axisFlag[t] & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
 	}
 	printf("\n");
 #endif
 	printf("cmd pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    s.carte_pos_cmd.tran.x, s.carte_pos_cmd.tran.y,
-	    s.carte_pos_cmd.tran.z, s.carte_pos_cmd.a, s.carte_pos_cmd.b,
-	    s.carte_pos_cmd.c);
+	    s->carte_pos_cmd.tran.x, s->carte_pos_cmd.tran.y,
+	    s->carte_pos_cmd.tran.z, s->carte_pos_cmd.a, s->carte_pos_cmd.b,
+	    s->carte_pos_cmd.c);
 	printf("act pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    s.carte_pos_fb.tran.x, s.carte_pos_fb.tran.y,
-	    s.carte_pos_fb.tran.z, s.carte_pos_fb.a, s.carte_pos_fb.b,
-	    s.carte_pos_fb.c);
+	    s->carte_pos_fb.tran.x, s->carte_pos_fb.tran.y,
+	    s->carte_pos_fb.tran.z, s->carte_pos_fb.a, s->carte_pos_fb.b,
+	    s->carte_pos_fb.c);
 	printf("joint data:\n");
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
 	printf(" cmd: ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.joint_pos_cmd[t]);
+	    printf("\t%f", s->joint_pos_cmd[t]);
 	}
 	printf("\n");
 	printf(" fb:  ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.joint_pos_fb[t]);
+	    printf("\t%f", s->joint_pos_fb[t]);
 	}
 	printf("\n");
 	printf(" vel: ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.joint_vel_cmd[t]);
+	    printf("\t%f", s->joint_vel_cmd[t]);
 	}
 	printf("\n");
 	printf(" ferr:");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.ferrorCurrent[t]);
+	    printf("\t%f", s->ferrorCurrent[t]);
 	}
 	printf("\n");
 	printf(" lim:");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.ferrorLimit[t]);
+	    printf("\t%f", s->ferrorLimit[t]);
 	}
 	printf("\n");
 	printf(" max:");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.ferrorHighMark[t]);
+	    printf("\t%f", s->ferrorHighMark[t]);
 	}
 	printf("\n");
 #endif
-	printf("velocity:     \t%f\n", s.vel);
-	printf("accel:        \t%f\n", s.acc);
-	printf("id:           \t%d\n", s.id);
-	printf("depth:        \t%d\n", s.depth);
-	printf("active depth: \t%d\n", s.activeDepth);
+	printf("velocity:     \t%f\n", s->vel);
+	printf("accel:        \t%f\n", s->acc);
+	printf("id:           \t%d\n", s->id);
+	printf("depth:        \t%d\n", s->depth);
+	printf("active depth: \t%d\n", s->activeDepth);
 	printf("inpos:        \t%d\n",
-	    s.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
+	    s->motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
-	printf("vscales:      \tQ: %.2f", s.qVscale);
+	printf("vscales:      \tQ: %.2f", s->qVscale);
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%d: %.2f", t, s.axVscale[t]);
+	    printf("\t%d: %.2f", t, s->axVscale[t]);
 	}
 	printf("\n");
 #endif
@@ -518,17 +518,17 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 				   structures */
 	printf("homing:       \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d", s.axisFlag[0] & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
+	    printf("%d", s->axisFlag[0] & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
 	}
 	printf("\n");
 #endif
 	printf("enabled:     \t%s\n",
-	    s.motionFlag & EMCMOT_MOTION_ENABLE_BIT ? "ENABLED" : "DISABLED");
-	printf("probe value: %d\n", s.probeVal);
-	printf("probe Tripped: %d\n", s.probeTripped);
-	printf("probing: %d\n", s.probing);
+	    s->motionFlag & EMCMOT_MOTION_ENABLE_BIT ? "ENABLED" : "DISABLED");
+	printf("probe value: %d\n", s->probeVal);
+	printf("probe Tripped: %d\n", s->probeTripped);
+	printf("probing: %d\n", s->probing);
 	printf("probed pos:      \t%f\t%f\t%f\n",
-	    s.probedPos.tran.x, s.probedPos.tran.y, s.probedPos.tran.z);
+	    s->probedPos.tran.x, s->probedPos.tran.y, s->probedPos.tran.z);
 	break;
 
     case 2:
@@ -536,74 +536,74 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
-	htostr(m, s.motionFlag);
+	htostr(m, s->motionFlag);
 	printf("motion:   %s\n", m);
 	printf("axes:     ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    htostr(m, s.axisFlag[t]);
+	    htostr(m, s->axisFlag[t]);
 	    printf("%s ", m);
 	}
 	printf("\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_ENABLE_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_ENABLE_BIT) != 0));
 	}
 	printf("enable\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_ACTIVE_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_ACTIVE_BIT) != 0));
 	}
 	printf("active\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_INPOS_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_INPOS_BIT) != 0));
 	}
 	printf("inpos\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_ERROR_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_ERROR_BIT) != 0));
 	}
 	printf("error\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_JOINT_MAX_SOFT_LIMIT_BIT) != 0));
+		((s->axisFlag[t] & EMCMOT_JOINT_MAX_SOFT_LIMIT_BIT) != 0));
 	}
 	printf("max_soft_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_JOINT_MIN_SOFT_LIMIT_BIT) != 0));
+		((s->axisFlag[t] & EMCMOT_JOINT_MIN_SOFT_LIMIT_BIT) != 0));
 	}
 	printf("min_soft_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_JOINT_MAX_HARD_LIMIT_BIT) != 0));
+		((s->axisFlag[t] & EMCMOT_JOINT_MAX_HARD_LIMIT_BIT) != 0));
 	}
 	printf("max_hard_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_JOINT_MIN_HARD_LIMIT_BIT) != 0));
+		((s->axisFlag[t] & EMCMOT_JOINT_MIN_HARD_LIMIT_BIT) != 0));
 	}
 	printf("min_hard_limit\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d\t",
-		((s.axisFlag[t] & EMCMOT_JOINT_HOME_SWITCH_BIT) != 0));
+		((s->axisFlag[t] & EMCMOT_JOINT_HOME_SWITCH_BIT) != 0));
 	}
 	printf("home_switch\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_HOMING_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_HOMING_BIT) != 0));
 	}
 	printf("homing\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_HOMED_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_HOMED_BIT) != 0));
 	}
 	printf("homed\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_FERROR_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_FERROR_BIT) != 0));
 	}
 	printf("ferror\n");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("%d\t", ((s.axisFlag[t] & EMCMOT_JOINT_FAULT_BIT) != 0));
+	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_FAULT_BIT) != 0));
 	}
 #endif
 	printf("fault\n");
 	printf("\npolarity: ");
-	printf("limit override mask: %08x\n", s.overrideLimitMask);
+	printf("limit override mask: %08x\n", s->overrideLimitMask);
 	break;
 
     case 4:
@@ -612,22 +612,22 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 #if 0
 	printf("output scales: ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.outputScale[t]);
+	    printf("\t%f", s->outputScale[t]);
 	}
 
 	printf("\noutput offsets:");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.outputOffset[t]);
+	    printf("\t%f", s->outputOffset[t]);
 	}
 
 	printf("\ninput scales:  ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.inputScale[t]);
+	    printf("\t%f", s->inputScale[t]);
 	}
 
 	printf("\ninput offsets: ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", s.inputOffset[t]);
+	    printf("\t%f", s->inputOffset[t]);
 	}
 
 	printf("\n");

@@ -167,7 +167,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 
     rcs_print_debug
 	(PRINT_SHARED_MEMORY_ACTIVITY,
-	"rcs_shm_open(key=%d(0x%X),size=%lu(0x%lX),oflag=%d)\n",
+	"rcs_shm_open(key=%d(0x%X),size=%zu(0x%zX),oflag=%d)\n",
 	key, key, size, size, oflag);
 
     if (key == 0) {

@@ -90,7 +90,7 @@ void *NML::operator new(size_t size)
 {
     if (size < sizeof(NML)) {
 	rcs_print_error
-	    ("void *NML::operator new() called with size (%zd) < sizeof(NML) (%lu) the code calling NML was probably not compiled with the correct header file version.\n",
+	    ("void *NML::operator new() called with size (%zd) < sizeof(NML) (%zu) the code calling NML was probably not compiled with the correct header file version.\n",
 	    size, sizeof(NML));
 	size = sizeof(NML);
     }

@@ -1,4 +1,4 @@
-# 5i20 config file for Smithy 622 Mill with Leadshine Drives
+# 5i20 config file for Smithy 1240 Mill
 
 # load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
@@ -29,10 +29,55 @@ newsig Enable bit
 sets Enable TRUE
 
 #configure the spindle speed
-net scmd motion.spindle-speed-out hm2_5i20.0.pwmgen.00.value
-setp hm2_5i20.0.pwmgen.00.scale 5000
+loadrt limit1 count=1
+loadrt sum2 count=2
+setp sum2.0.gain1 1.0
+setp sum2.0.gain0 1.0
+setp sum2.1.gain1 1.0
+
+#*** Old parameters for 400-6000 RPM Operation with 10%-90% PWM***
+# sum2.1.gain0 = (1.0 - sum2.1.offset)/(limit1.0.max - limit1.0.min)
+#setp sum2.1.gain0 0.000142857
+# limit1.0.min is the lowest allowable spindle speed
+#setp limit1.0.min 400.0
+# limit1.0.max is the highest allowable spindle speed
+#setp limit1.0.max 6000.0
+# sum2.0.offset = -(limit1.0.min)
+#setp sum2.0.offset -400.0
+# sum2.1.offset is the lowest allowable modulation percentage
+# the highest modulation percentage is = (1.0 - sum2.1.offset)
+#setp sum2.1.offset 0.1
+
+#*** New parameters for 0-6000 RPM Operation with 0%-100% PWM***
+# sum2.1.gain0 = (1.0 - sum2.1.offset)/(limit1.0.max - limit1.0.min)
+setp sum2.1.gain0 0.000166667
+# limit1.0.min is the lowest allowable spindle speed
+setp limit1.0.min 0.0
+# limit1.0.max is the highest allowable spindle speed
+setp limit1.0.max 6000.0
+# sum2.0.offset = -(limit1.0.min)
+setp sum2.0.offset 0.0
+# sum2.1.offset is the lowest allowable modulation percentage
+# the highest modulation percentage is = (1.0 - sum2.1.offset)
+setp sum2.1.offset 0.0
+
+net scmd motion.spindle-speed-out limit1.0.in
+net slim limit1.0.out sum2.0.in0
+net szero sum2.0.in1 sum2.1.in1
+sets szero 0.0
+net sshift sum2.0.out sum2.1.in0
+net spwm sum2.1.out hm2_5i20.0.pwmgen.00.value
+net senable hm2_5i20.0.pwmgen.00.enable motion.spindle-on
+#setp hm2_5i20.0.pwmgen.00.scale 1.0
 setp hm2_5i20.0.pwmgen.00.output-type 1
-setp hm2_5i20.0.pwmgen.pwm_frequency 100
+# Documentation from Sangmutan indicates this should be 500Hz-5Kz
+# with 1kHz as the recommended PWM frequency, but according to this:
+# http://www.cnczone.com/forums/showpost.php?p=796369&postcount=46
+# the correct range is 150-200Hz. Another cnczone post has 235Hz:
+# http://www.cnczone.com/forums/attachment.php?attachmentid=111177&d=1279485200
+# Sangmutan documatation says the PWM should be 10%-90%, but cnczone posts
+# show 0% modulation.
+setp hm2_5i20.0.pwmgen.pwm_frequency 1000
 
 # invert the step pulse polarity
 setp hm2_5i20.0.gpio.000.invert_output TRUE
@@ -42,30 +87,30 @@ setp hm2_5i20.0.gpio.018.invert_output TRUE
 
 # configure the stepgen parameters
 setp hm2_5i20.0.stepgen.00.dirsetup        5000
-setp hm2_5i20.0.stepgen.00.dirhold         1250
-setp hm2_5i20.0.stepgen.00.steplen         1250
-setp hm2_5i20.0.stepgen.00.stepspace       1250
+setp hm2_5i20.0.stepgen.00.dirhold         2000
+setp hm2_5i20.0.stepgen.00.steplen         2000
+setp hm2_5i20.0.stepgen.00.stepspace       2000
 setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
 setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.01.dirsetup        5000
-setp hm2_5i20.0.stepgen.01.dirhold         1250
-setp hm2_5i20.0.stepgen.01.steplen         1250
-setp hm2_5i20.0.stepgen.01.stepspace       1250
+setp hm2_5i20.0.stepgen.01.dirhold         2000
+setp hm2_5i20.0.stepgen.01.steplen         2000
+setp hm2_5i20.0.stepgen.01.stepspace       2000
 setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_1]SCALE
 setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.02.dirsetup        5000
-setp hm2_5i20.0.stepgen.02.dirhold         1250
-setp hm2_5i20.0.stepgen.02.steplen         1250
-setp hm2_5i20.0.stepgen.02.stepspace       1250
+setp hm2_5i20.0.stepgen.02.dirhold         2000
+setp hm2_5i20.0.stepgen.02.steplen         2000
+setp hm2_5i20.0.stepgen.02.stepspace       2000
 setp hm2_5i20.0.stepgen.02.position-scale  [AXIS_2]SCALE
 setp hm2_5i20.0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.03.dirsetup        5000
-setp hm2_5i20.0.stepgen.03.dirhold         1250
-setp hm2_5i20.0.stepgen.03.steplen         1250
-setp hm2_5i20.0.stepgen.03.stepspace       1250
+setp hm2_5i20.0.stepgen.03.dirhold         2000
+setp hm2_5i20.0.stepgen.03.steplen         2000
+setp hm2_5i20.0.stepgen.03.stepspace       2000
 setp hm2_5i20.0.stepgen.03.position-scale  [AXIS_3]SCALE
 setp hm2_5i20.0.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
@@ -94,9 +139,6 @@ net Enable axis.1.jog-vel-mode
 net Enable axis.2.jog-vel-mode
 #net Enable axis.3.jog-vel-mode
 
-# enable the PWM generator
-net Enable => hm2_5i20.0.pwmgen.00.enable
-
 # enable the charge pump
 net Enable => charge-pump.enable
 
@@ -110,19 +152,12 @@ net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
 net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
 #connect limit switches to limit inputs
-net Xmax hm2_5i20.0.gpio.032.in => axis.0.pos-lim-sw-in
-net Xmin hm2_5i20.0.gpio.034.in => axis.0.neg-lim-sw-in
-net Ymax hm2_5i20.0.gpio.028.in => axis.1.pos-lim-sw-in
-net Ymin hm2_5i20.0.gpio.030.in => axis.1.neg-lim-sw-in
-# The earliest production units had normally open switches
-# on the Z axis which were deemed too difficult to change
-# to normally closed operation due to their remote location.
-net Zmax hm2_5i20.0.gpio.024.in_not => axis.2.pos-lim-sw-in
-net Zmin hm2_5i20.0.gpio.026.in_not => axis.2.neg-lim-sw-in
-# Later production untis came correctly wired with normally
-# closed switched on all three axes.
-#net Zmax hm2_5i20.0.gpio.024.in => axis.2.pos-lim-sw-in
-#net Zmin hm2_5i20.0.gpio.026.in => axis.2.neg-lim-sw-in
+net Xmax hm2_5i20.0.gpio.024.in_not => axis.0.pos-lim-sw-in
+net Xmin hm2_5i20.0.gpio.026.in_not => axis.0.neg-lim-sw-in
+net Ymax hm2_5i20.0.gpio.028.in_not => axis.1.pos-lim-sw-in
+net Ymin hm2_5i20.0.gpio.030.in_not => axis.1.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.032.in_not => axis.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.034.in_not => axis.2.neg-lim-sw-in
 
 #connect positive limit signals to home inputs
 net Xmax => axis.0.home-sw-in
@@ -140,7 +175,7 @@ net ACOK hm2_5i20.0.gpio.035.in_not
 # VFD Fault Relay - True when VFD is not faulted
 #this bit is repurposed on a Sieg KX3 that has no VFD fault signal
 #it is used for the A axis home sensor
-#net VFDOK hm2_5i20.0.gpio.031.in_not
+net VFDOK hm2_5i20.0.gpio.031.in_not
 #net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
@@ -148,20 +183,20 @@ net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 # Axis Drive Status Signals
 # True when YAKO stepper drive is on a full step position
 # True when a Leadshine stepper drive is in the READY state
-net DRV1 hm2_5i20.0.gpio.025.in_not
+net DRV0 hm2_5i20.0.gpio.025.in_not
+net DRV1 hm2_5i20.0.gpio.027.in_not
 net DRV2 hm2_5i20.0.gpio.036.in_not
-net DRV3 hm2_5i20.0.gpio.027.in_not
-net DRV4 hm2_5i20.0.gpio.038.in_not
+net DRV3 hm2_5i20.0.gpio.038.in_not
 
 # Output Bits
-# KA1
-setp hm2_5i20.0.gpio.040.is_output TRUE
-setp hm2_5i20.0.gpio.040.invert_output TRUE
-net KA1 motion.spindle-reverse => hm2_5i20.0.gpio.040.out
-# KA2
-setp hm2_5i20.0.gpio.042.is_output TRUE
-setp hm2_5i20.0.gpio.042.invert_output TRUE
-net KA2 motion.spindle-on => hm2_5i20.0.gpio.042.out
+# F/R
+setp hm2_5i20.0.gpio.023.is_output TRUE
+#setp hm2_5i20.0.gpio.023.invert_output TRUE
+net FR motion.spindle-forward => hm2_5i20.0.gpio.023.out
+# ST/SP
+setp hm2_5i20.0.gpio.021.is_output TRUE
+#setp hm2_5i20.0.gpio.021.invert_output TRUE
+net STSP motion.spindle-on => hm2_5i20.0.gpio.021.out
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
@@ -179,6 +214,10 @@ addf hm2_5i20.0.read_gpio servo-thread
 addf motion-command-handler servo-thread
 # run the motion controller
 addf motion-controller servo-thread
+# condition the spindle pwm value
+addf limit1.0 servo-thread
+addf sum2.0 servo-thread
+addf sum2.1 servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
 addf hm2_5i20.0.write_gpio servo-thread

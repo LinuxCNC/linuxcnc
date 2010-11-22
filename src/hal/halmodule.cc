@@ -108,10 +108,15 @@ static int pyhal_init(PyObject *_self, PyObject *args, PyObject *kw) {
         pyhal_error(self->hal_id);
         return -1;
     }
+
     self->name = strdup(name);
     self->prefix = strdup(prefix ? prefix : name);
-    if(!name) {
+    if(!self->name) {
         PyErr_SetString(PyExc_MemoryError, "strdup(name) failed");
+        return -1;
+    }
+    if(!self->prefix) {
+        PyErr_SetString(PyExc_MemoryError, "strdup(prefix) failed");
         return -1;
     }
 
