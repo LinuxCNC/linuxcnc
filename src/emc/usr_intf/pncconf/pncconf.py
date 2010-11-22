@@ -5656,6 +5656,10 @@ class App:
             w[axis + "tunedistunits"].set_text(_("degrees"))
             w[axis + "tunevelunits"].set_text(_("degrees / minute"))
             w[axis + "tuneaccunits"].set_text(_("degrees / second²"))
+        elif axis == "s":
+            w[axis + "tunedistunits"].set_text(_("revolutions"))
+            w[axis + "tunevelunits"].set_text(_("rpm"))
+            w[axis + "tuneaccunits"].set_text(_("revs / second²"))
         elif d.units:
             w[axis + "tunedistunits"].set_text(_("mm"))
             w[axis + "tunevelunits"].set_text(_("mm / minute"))
@@ -5701,6 +5705,7 @@ class App:
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
+        loadrt scale names=scale_to_rpm
         loadrt steptest     
         """ % {'period':100000, 'period2':self.data.servoperiod })   
         if self.stepgen == "false": 
@@ -5710,6 +5715,7 @@ class App:
         halrun.write("addf steptest.0 slow \n")
         if self.stepgen == "false": 
             halrun.write("addf pid.0.do-pid-calcs slow \n")
+        halrun.write("addf scale_to_rpm slow \n")
         self.hal_cmnds("WRITE")
         # for encoder signals
         if "mesa" in self.encoder: 
@@ -5755,7 +5761,10 @@ class App:
             halrun.write("net enable => %s.enable \n"% (self.step_signalname))
             halrun.write("net cmd steptest.0.position-cmd => %s.position-cmd \n"% (self.step_signalname))
             halrun.write("net feedback steptest.0.position-fb <= %s.position-fb \n"% (self.step_signalname))
-            halrun.write("loadusr halmeter pin %s.velocity-fb -g 0 415\n"% (self.step_signalname))
+            halrun.write("net speed_rps scale_to_rpm.in <= %s.velocity-fb \n"% (self.step_signalname))
+            halrun.write("net speed_rpm scale_to_rpm.out\n")
+            halrun.write("setp scale_to_rpm.gain 60\n")
+            halrun.write("loadusr halmeter sig speed_rpm -g 0 415\n")
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
         # set up enable output pin if used
