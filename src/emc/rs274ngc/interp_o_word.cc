@@ -276,8 +276,10 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   }
   else
   {
+     char *dirname = get_current_dir_name();
      logDebug("fopen: |%s| failed CWD:|%s|", newFileName,
-              get_current_dir_name());
+              dirname);
+     free(dirname);
      ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
   }
 

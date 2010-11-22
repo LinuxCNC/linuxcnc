@@ -1,4 +1,10 @@
 
-loadrt hostmot2 debug_idrom=1 debug_pin_descriptors=1 debug_module_descriptors=1
+
+# RTAI 3.6.1 (what we use on Hardy) has a bug in the 64-bit version that
+# truncates kernel log messages when they are printed too quickly.
+# Without the hostmot2 debug modparams, this test squeaks in under the
+# 1 kB limit.
+
+loadrt hostmot2 # debug_idrom=1 debug_pin_descriptors=1 debug_module_descriptors=1
 loadrt hm2_test test_pattern=$(TEST_PATTERN)
 
