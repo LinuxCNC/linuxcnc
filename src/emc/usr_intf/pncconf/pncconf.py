@@ -549,6 +549,8 @@ class Data:
         # pncconf default options
         self.createsymlink = 1
         self.createshortcut = 0  
+        self._lastconfigname= ""
+        self._chooselastconfig = True
 
         # basic machine data
         self.help = "help-welcome.txt"
@@ -1119,7 +1121,6 @@ class Data:
                 if i.endswith(j):
                     k = i.rstrip(j)
             human_stepper_names.append(k)
-
 
         warnings = []
         for f, m in self.md5sums:
@@ -2530,7 +2531,38 @@ class Data:
             n.setAttribute('value', str(v))
         
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        print("%s" % base)
+        print "%s" % base
+
+        filename = os.path.expanduser("~/.pncconf-preferences")
+        d2 = xml.dom.minidom.getDOMImplementation().createDocument(
+                            None, "int-pncconf", None)
+        e2 = d2.documentElement
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "always_shortcut")
+        n2.setAttribute('value', str("%s"% self.createshortcut))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "always_link")
+        n2.setAttribute('value', str("%s"% self.createsymlink))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "chooselastconfig")
+        n2.setAttribute('value', str("%s"% self._chooselastconfig))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'string')
+        n2.setAttribute('name', "machinename")
+        n2.setAttribute('value', str("%s"%self.machinename))
+
+        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
         desktop = commands.getoutput("""
@@ -2878,8 +2910,23 @@ class App:
        
     def on_page_newormodify_prepare(self, *args):
         self.data.help = "help-load.txt"
-        self.widgets.createsymlink.set_active(self.data.createsymlink)
-        self.widgets.createshortcut.set_active(self.data.createshortcut)
+        filename = os.path.expanduser("~/.pncconf-preferences")
+        link = short = False
+        if os.path.exists(filename):
+            d = xml.dom.minidom.parse(open(filename, "r"))
+            for n in d.getElementsByTagName("property"):
+                name = n.getAttribute("name")
+                text = n.getAttribute('value')
+                if name == "always_shortcut":
+                    short = eval(text)
+                if name == "always_link":
+                    link = eval(text)
+                if name == "machinename":
+                    self.data._lastconfigname = text
+                if name == "choosetconfig":
+                    self.data._chooselastconfig = eval(text)
+        self.widgets.createsymlink.set_active(link)
+        self.widgets.createshortcut.set_active(short)
 
     def on_page_newormodify_next(self, *args):
         if not self.widgets.createconfig.get_active():
@@ -2892,6 +2939,8 @@ class App:
                  gtk.STOCK_OPEN, gtk.RESPONSE_OK))
             dialog.set_default_response(gtk.RESPONSE_OK)
             dialog.add_filter(filter) 
+            if not self.data._lastconfigname == "" and self.data._chooselastconfig:
+                dialog.set_filename(os.path.expanduser("~/emc2/configs/%s.pncconf"% self.data._lastconfigname))
             dialog.add_shortcut_folder(os.path.expanduser("~/emc2/configs"))
             dialog.set_current_folder(os.path.expanduser("~/emc2/configs"))
             dialog.show_all()
