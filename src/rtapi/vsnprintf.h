@@ -70,6 +70,13 @@ static char *ch(char *buf, char *end, char ch)
     return buf+1;
 }
 
+static char *st(char *buf, char *end, char *add)
+{
+    while(*add)
+	buf = ch(buf, end, *add++);
+    return buf;
+}
+
 static char *number(char *buf, char *end, long long numll, int base,
 		    int size, int precision, int type)
 {
