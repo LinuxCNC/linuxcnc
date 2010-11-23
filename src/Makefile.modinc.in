@@ -36,7 +36,7 @@ BUILDSYS = @BUILD_SYS@
 
 KERNELDIR := @KERNELDIR@
 CC := @CC@
-RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
+RTFLAGS = $(filter-out -ffast-math,@RTFLAGS@ @EXT_RTFLAGS@) -fno-fast-math -mieee-fp -fno-unsafe-math-optimizations
 RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
 ifeq ($(RTARCH),x86_64)
 EXTRA_CFLAGS += -msse
