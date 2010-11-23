@@ -120,61 +120,28 @@ static char *number(char *buf, char *end, long long numll, int base,
     }
     size -= precision;
     if (!(type & (ZEROPAD + LEFT))) {
-	while (size-- > 0) {
-	    if (buf <= end) {
-		*buf = ' ';
-	    }
-	    ++buf;
-	}
+	while (size-- > 0) buf = ch(buf, end, ' ');
     }
-    if (sign) {
-	if (buf <= end) {
-	    *buf = sign;
-	}
-	++buf;
-    }
+    if (sign) buf = ch(buf, end, sign);
     if (type & SPECIAL) {
 	if (base == 8) {
-	    if (buf <= end) {
-		*buf = '0';
-	    }
-	    ++buf;
+	    buf = ch(buf, end, '0');
 	} else if (base == 16) {
-	    if (buf <= end) {
-		*buf = '0';
-	    }
-	    ++buf;
-	    if (buf <= end) {
-		*buf = digits[33];
-	    }
-	    ++buf;
+	    buf = ch(buf, end, '0');
+	    buf = ch(buf, end, digits[33]);
 	}
     }
     if (!(type & LEFT)) {
-	while (size-- > 0) {
-	    if (buf <= end) {
-		*buf = c;
-	    }
-	    ++buf;
-	}
+	while (size-- > 0) buf = ch(buf, end, c);
     }
     while (i < precision--) {
-	if (buf <= end) {
-	    *buf = '0';
-	}
-	++buf;
+	buf = ch(buf, end, '0');
     }
     while (i-- > 0) {
-	if (buf <= end) {
-	    *buf = tmp[i];
-	}
-	++buf;
+	buf = ch(buf, end, tmp[i]);
     }
     while (size-- > 0) {
-	if (buf <= end) {
-	    *buf = ' ';
-	}
-	++buf;
+	buf = ch(buf, end, ' ');
     }
     return buf;
 }
@@ -312,17 +279,11 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 		}
 	    }
 	    for (i = 0; i < len; ++i) {
-		if (str <= end) {
-		    *str = *s;
-		}
-		++str;
+		str = ch(str, end, *s);
 		++s;
 	    }
 	    while (len < field_width--) {
-		if (str <= end) {
-		    *str = ' ';
-		}
-		++str;
+		str = ch(str, end, ' ');
 	    }
 	    continue;
 	case 'p':
@@ -349,10 +310,7 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
                 continue;
             }
 	case '%':
-	    if (str <= end) {
-		*str = '%';
-	    }
-	    ++str;
+	    str = ch(str, end, '%');
 	    continue;
 	    /* integer number formats - set up the flags and "break" */
 	case 'o':
@@ -369,15 +327,9 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 	case 'u':
 	    break;
 	default:
-	    if (str <= end) {
-		*str = '%';
-	    }
-	    ++str;
+	    str = ch(str, end, '%');
 	    if (*fmt) {
-		if (str <= end) {
-		    *str = *fmt;
-		}
-		++str;
+		str = ch(str, end, *fmt);
 	    } else {
 		--fmt;
 	    }
