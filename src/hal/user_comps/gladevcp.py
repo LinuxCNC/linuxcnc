@@ -41,7 +41,7 @@ import gtk
 import gtk.glade
 import gobject
 
-import gladevcp_makepins
+import gladevcp.makepins
 
 global builder,buildertype,halcomp
 GTKBUILDER = 1
@@ -63,7 +63,7 @@ def on_window_destroy(widget, data=None):
 def main():
     """ creates a HAL component.
         parsees a glade XML file with gtk.builder or libglade
-        calls gladevcp_makepins with the specified XML file
+        calls gladevcp.makepins with the specified XML file
         to create pins and register callbacks.
         main window must be called "window1"
     """
@@ -169,7 +169,7 @@ def main():
             print "**** GLADE VCP ERROR:    With window resize data"
             usage()
             sys.exit(1)
-    panel = gladevcp_makepins.GladePanel( halcomp, xmlname, builder, buildertype)
+    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, buildertype)
     halcomp.ready()
     
     if halfile:
