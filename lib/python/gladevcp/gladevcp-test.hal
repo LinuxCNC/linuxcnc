@@ -1,4 +1,6 @@
-# Choose one of the following lines
+# Choose one of the following lines if running gladevcp via halcommand
+# comment out the loadusr statement if passing this file to gladevcp with -h gladevcp-test.hal
+# see also the example in http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GladeVcp
 loadusr -Wn gladevcp-test gladevcp gladevcp-test.ui
 #loadusr -Wn gladevcp-test gladevcp gladevcp-test.glade
 
