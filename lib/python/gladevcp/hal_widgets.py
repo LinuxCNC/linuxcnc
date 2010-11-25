@@ -22,10 +22,13 @@ class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.set_active(False)
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", hal.HAL_BIT, hal.HAL_OUT)
         self.connect("toggled", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal_pin.set(bool(self.get_active()))
+        active = bool(self.get_active())
+        self.hal_pin.set(active)
+        self.hal_pin_not.set(not active)
 
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
