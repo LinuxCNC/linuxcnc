@@ -46,6 +46,7 @@ class GladePanel():
         for widget in widgets:
             #print parent.attrib
             k = widget.__class__.__name__
+            idname = None
             if isinstance(widget, gtk.Buildable):
                 idname = gtk.Buildable.get_name(widget)
             if idname is None and hasattr(widget, 'get_name'):
