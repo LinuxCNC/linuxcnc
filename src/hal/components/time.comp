@@ -2,20 +2,52 @@ component time "Time Converter";
 
 description 
 """
-Input seconds and output Hours, Minutes, Seconds
-Useful for a cycle timer
+Cycle Timer
 
-# Cycle Timer
-# This creates a 1Hz signal
-loadrt pwmgen output_type=0 
-# This will count the 1Hz signals
-loadrt encoder num_chan=1 
-# and this looks for a change in program.is-running to reset the timer
-loadrt edge count=1 
+Connect time.n.start to halui.is-running to complete the cycle timer.
 
-net run-timer halui.program.is-running => pwmgen.0.enable edge.0.in
-net OneHzPulse pwmgen.0.pwm => encoder.0.phase-A
-net timer-reset edge.0.out => encoder.0.reset
+The pyVCP code to display it might be like:
+<pyvcp>
+	<hbox>
+	<label>
+		<text>"Cycle Time"</text>
+		<font>("Helvetica",14)</font>	
+	</label>
+	<u32> 
+    	<halpin>"time-hours"</halpin>
+    	<font>("Helvetica",14)</font>
+    	<format>"2d"</format>
+	</u32>
+	<label>
+		<text>":"</text>
+		<font>("Helvetica",14)</font>	
+	</label>
+	<u32> 
+    	<halpin>"time-minutes"</halpin>
+    	<font>("Helvetica",14)</font>
+    	<format>"2d"</format>
+	</u32>
+	<label>
+		<text>":"</text>
+		<font>("Helvetica",14)</font>	
+	</label>
+	<u32> 
+    	<halpin>"time-seconds"</halpin>
+    	<font>("Helvetica",14)</font>
+    	<format>"2d"</format>
+	</u32>
+	</hbox>
+</pyvcp>
+
+In your post-gui.hal file you might use the following to connect it up
+
+loadrt time
+addf time.0 servo-thread
+net cycle-timer time.0.start <= halui.program.is-running
+net cycle-seconds pyvcp.time-seconds <= time.0.seconds
+net cycle-minutes pyvcp.time-minutes <= time.0.minutes
+net cycle-hours pyvcp.time-hours <= time.0.hours
+
 """;
  
 author "John Thornton";
@@ -23,12 +55,16 @@ author "John Thornton";
 license "GPL";
 
 // Input Pins
-pin in u32 input "Input Value in Seconds";
+pin in bit start "Run Timer";
 
 // Output Pins
 pin out u32 seconds "Seconds";
 pin out u32 minutes "Minutes";
 pin out u32 hours "Hours";
+
+// Global Variables
+variable double totalnsec;
+variable int old_start;
 
 function _;
 
@@ -37,8 +73,16 @@ function _;
 #include "rtapi_math.h"
 
 FUNCTION(_) {
-	seconds = input % 60;
-	minutes = (input / 60) % 60;
-	hours = (input / 3600) % 60;
+    u32 totalseconds; 
+    if(start && !old_start) totalnsec = 0;
+
+    if(start){
+    totalnsec = totalnsec + period;
+    totalseconds = totalnsec * 0.000000001;
+    seconds = totalseconds % 60;
+	minutes = (totalseconds / 60) % 60;
+	hours = (totalseconds / 3600) % 60;
+	}
+	old_start = start;
 }
 
