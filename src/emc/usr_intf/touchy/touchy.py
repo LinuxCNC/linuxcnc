@@ -208,24 +208,18 @@ class touchy:
                 inifile=self.emc.emc.ini(sys.argv[2])
                 # first check the global settings
                 units=inifile.find("TRAJ","LINEAR_UNITS")
-                if units==None:
-                        # next check the individual axis configuration and use the first valid one
-                        for i in range(9):
-                                units=inifile.find("AXIS_"+i,"UNITS")
-                                if units in [ "mm", "metric", "inch","in"]: break
 
-                if units=="mm" or units=="metric":
+                if units==None:
+                        units=inifile.find("AXIS_0","UNITS")
+
+                if units=="mm" or units=="metric" or units == "1.0":
                         machine_units_mm=1
                         conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
-                elif units=="inch" or units=="in":
+                else:
                         machine_units_mm=0
                         conversion=[25.4]*3+[1]*3+[25.4]*3
-                else:
-                        machine_units_mm=0  # deactivate conversion and pretend is inches
-                        conversion=[1]*9
 
                 self.status.set_machine_units(machine_units_mm,conversion)
-                print machine_units_mm, conversion
 
                 if self.prefs.getpref('toolsetting_fixture', 0):
                         self.g10l11 = 1
