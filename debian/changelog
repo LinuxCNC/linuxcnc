@@ -1,3 +1,36 @@
+emc2 (1:2.4.6) lucid; urgency=low
+
+  * documentation: various improvements
+
+  * estop_latch: make watchdog behavior match documentation.
+
+  * hostmot2: make gpio pins behave when the value of the pin as an integer was
+    not 0 or 1
+
+  * iocontrol: fix current tool information after reloading table
+
+  * near: fix for negative inputs
+
+  * pico/7i43/pluto: if the kernel does not report a base_hi address, make
+    an educated guess (fixes the D510MO bug)
+  * pico/7i43/pluto: show "linux parport does not support mode" as a warning,
+    not an error
+
+  * pncconf: fix spinbox limits on metric configurations
+  * pncconf: fix jogging buttons on lathe configs
+  * pncconf: add touchy gui choice
+  * pncconf: fix spindle-at-speed code
+  * pncconf: fix launchers on ubuntu 10.04
+  * pncconf: fix firmware directory names for 7i43, 5i22
+
+  * sample configs: add another smithy sample configuration
+
+  * stepconf: fix launchers on ubuntu 10.04
+
+  * touchy: fix display of 3-digit active gcodes
+
+ -- jepler <jepler@unlucky.unpythonic.net>  Fri, 26 Nov 2010 11:34:57 -0600
+
 emc2 (1:2.4.5) lucid; urgency=low
 
   * interp: fix bug that made axis "touch off" frequently crash
