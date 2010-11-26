@@ -247,10 +247,7 @@ class emc_status:
                 self.unit_convert = c
 
         def convert_units(self,v,c):
-                r = [3.1415]*9 # dummy
-                for i in range(9):
-                        r[i] = v[i] * c[i]
-                return r
+                return map(lambda x,y: x*y, v, c)
 
         def dro_commanded(self, b):
                 self.actual = 0
@@ -326,7 +323,7 @@ class emc_status:
 
                 relp = [x, y, z, a, b, c, u, v, w]
 
-                if self.mm <> self.machine_units_mm:
+                if self.mm != self.machine_units_mm:
                         p = self.convert_units(p,self.unit_convert)
                         relp = self.convert_units(relp,self.unit_convert)
                         dtg = self.convert_units(dtg,self.unit_convert)
