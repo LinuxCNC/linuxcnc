@@ -22,15 +22,16 @@
     A virtual control panel (VCP) is used to display and control
     HAL pins.
 
-    Usage: gladevcp -g position -c compname myfile.glade
+    Usage: gladevcp -g position -c compname -H halfile -x windowid myfile.glade
     compname is the name of the HAL component to be created.
+    halfile contains hal commands to be executed with halcmd after the hal component is ready 
     The name of the HAL pins associated with the VCP will begin with 'compname.'
     
     myfile.glade is an XML file which specifies the layout of the VCP.
 
     -g option allows setting of the inital position of the panel
 """
-import sys, os
+import sys, os, subprocess
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -40,7 +41,7 @@ import gtk
 import gtk.glade
 import gobject
 
-import gladevcp_makepins
+import gladevcp.makepins
 
 global builder,buildertype,halcomp
 GTKBUILDER = 1
@@ -48,10 +49,12 @@ LIBGLADE = 0
 
 def usage():
     """ prints the usage message """
-    print "usage: gladevcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] myfile.glade"
+    print "usage: gladevcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] [-H hal command file] [-x windowid] myfile.glade"
     print "If the component name is not specified, the basename of the xml file is used."
     print "-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen"
     print "use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position"
+    print "use -H halfile to execute hal statements with halcmd after the component is set up and ready"
+    print "use -x windowid to start gladevcp reparenting into an existing window instead of creating a new top level window"
 
 
 def on_window_destroy(widget, data=None):
@@ -60,13 +63,13 @@ def on_window_destroy(widget, data=None):
 def main():
     """ creates a HAL component.
         parsees a glade XML file with gtk.builder or libglade
-        calls gladevcp_makepins with the specified XML file
+        calls gladevcp.makepins with the specified XML file
         to create pins and register callbacks.
         main window must be called "window1"
     """
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "c:g:w:")
+        opts, args = getopt.getopt(sys.argv[1:], "c:g:w:H:h")
     except getopt.GetoptError, detail:
         print detail
         usage()
@@ -74,6 +77,7 @@ def main():
     window_geometry = ""
     component_name = None
     parent = None
+    halfile = None
     for o, a in opts:
         print o,a
         if o == "-c":
@@ -82,6 +86,11 @@ def main():
             window_geometry = a
         if o == "-w":
             parent = int(a, 0)
+        if o == "-H":
+            halfile = a
+        if o == "-h":
+            usage()
+            sys.exit(0)
     try:
         xmlname = args[0]
     except:
@@ -163,8 +172,12 @@ def main():
             print "**** GLADE VCP ERROR:    With window resize data"
             usage()
             sys.exit(1)
-    panel = gladevcp_makepins.GladePanel( halcomp, xmlname, builder, buildertype)
+    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, buildertype)
     halcomp.ready()
+    
+    if halfile:
+        res = subprocess.call(["halcmd", "-f", halfile])
+        if res: raise SystemExit, res
 
     try:
         try:
