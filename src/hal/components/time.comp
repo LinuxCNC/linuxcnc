@@ -73,7 +73,7 @@ function _;
 #include "rtapi_math.h"
 
 FUNCTION(_) {
-    u32 totalseconds; 
+    __u32 totalseconds; 
     if(start && !old_start) totalnsec = 0;
 
     if(start){
