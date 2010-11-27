@@ -213,13 +213,13 @@ class touchy:
                         units=inifile.find("AXIS_0","UNITS")
 
                 if units=="mm" or units=="metric" or units == "1.0":
-                        machine_units_mm=1
+                        self.machine_units_mm=1
                         conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
                 else:
-                        machine_units_mm=0
+                        self.machine_units_mm=0
                         conversion=[25.4]*3+[1]*3+[25.4]*3
 
-                self.status.set_machine_units(machine_units_mm,conversion)
+                self.status.set_machine_units(self.machine_units_mm,conversion)
 
                 if self.prefs.getpref('toolsetting_fixture', 0):
                         self.g10l11 = 1
@@ -646,7 +646,19 @@ class touchy:
                 else:
                         # disable all
                         self.hal.jogaxis(-1)
-                self.hal.jogincrement(self.wheelinc)
+
+                if self.wheelxyz == 3 or self.wheelxyz == 4 or self.wheelxyz == 5:
+                        incs = ["1.0", "0.1", "0.01"]
+                elif self.machine_units_mm:
+                        incs = ["0.1", "0.01", "0.001"]
+                else:
+                        incs = ["0.01", "0.001", "0.0001"]
+
+                set_label(self.wTree.get_widget("wheelinc1").child, incs[0])
+                set_label(self.wTree.get_widget("wheelinc2").child, incs[1])
+                set_label(self.wTree.get_widget("wheelinc3").child, incs[2])
+
+                self.hal.jogincrement(self.wheelinc, map(float,incs))
 
                 d = self.hal.wheel()
                 if self.wheel == "fo":
