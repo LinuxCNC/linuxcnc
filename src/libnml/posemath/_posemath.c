@@ -312,8 +312,7 @@ int pmRotRpyConvert(PmRotationVector r, PmRpy * rpy)
 {
     PmQuaternion q;
     int r1, r2;
-    r1 = 0;
-    r2 = 0;
+
     q.s = q.x = q.y = q.z = 0.0;
 
     r1 = pmRotQuatConvert(r, &q);
@@ -687,8 +686,7 @@ int pmRpyRotConvert(PmRpy rpy, PmRotationVector * r)
 {
     PmQuaternion q;
     int r1, r2;
-    r1 = 0;
-    r2 = 0;
+
     q.s = q.x = q.y = q.z = 0.0;
     r->s = r->x = r->y = r->z = 0.0;
 

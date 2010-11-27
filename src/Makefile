@@ -141,7 +141,7 @@ $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 $(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
-$(call TOOBJSDEPS,$(PYSRCS)) : EXTRAFLAGS += -fPIC
+$(call TOOBJSDEPS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
 USERSRCS += $(PYSRCS)
 endif
 
@@ -170,13 +170,7 @@ INCLUDE += -I$(INCLUDEPY)
 endif
 
 # Compilation options.  Perhaps some of these should come from Makefile.inc?
-OPT := -Os $(call cc-option,-fno-strict-aliasing) $(call cc-option,-fno-stack-protector)
-# NOTE: Wwrite-strings is supposed to be OFF unless explicitly requested, even with -Wall,
-# since it produces a mess of warnings on any code that doesn't use "const" fastidiously
-# There is a bug in some versions of gcc that turns it on.
-# ( see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=442950 )
-# So we explicitly turn it off here, to avoid a flood of meaningless warnings that
-# might be hiding a few real ones.
+OPT := -Os
 DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
@@ -597,7 +591,8 @@ EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
-        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
+        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
+	$(call cc-option,-Wframe-larger-than=2560)
 ifeq ($(RTARCH),x86_64)
 EXTRA_CFLAGS += -msse
 endif
@@ -812,7 +807,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	@ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	@ld -shared -Bsymbolic -o $@ objects/$*.tmp -lm
+	@$(CC) -shared -Bsymbolic -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)

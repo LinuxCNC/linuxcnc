@@ -34,6 +34,7 @@
 #define GENSERKINS_H
 
 #include "gomath.h"		/* go_pose */
+#include "hal.h"		/* HAL data types */
 
 /*! 
   The maximum number of joints supported by the general serial
@@ -71,8 +72,8 @@
 typedef struct {
   go_link links[GENSER_MAX_JOINTS]; /*!< The link description of the device. */
   int link_num;		/*!< How many are actually present. */
-  int iterations;	/*!< How many iterations were actually used to compute the inverse kinematics. */
-  int max_iterations;	/*!< Number of iterations after which to give up and report an error. */
+  hal_s32_t iterations;	/*!< How many iterations were actually used to compute the inverse kinematics. */
+  hal_s32_t max_iterations;	/*!< Number of iterations after which to give up and report an error. */
 } genser_struct;
 
 extern int genser_kin_size(void); 

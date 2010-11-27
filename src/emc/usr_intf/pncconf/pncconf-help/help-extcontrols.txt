@@ -54,10 +54,11 @@ External Button Jogging:
 
 External MPG Jogging:
     Allows jogging with a Manual Pulse Generator.
-    This is independent from the GUI jogging.
     Choose a single MPG - with axis selected by
     switches or separate MPGs - for each axis
+    (TOUCHY requires a single shared MPG)
     Choose selectable jog rates or a single jog rate.
+    (TOUCHY selects its own jog rates) 
     There are 3 inputs used to select up to eight
     Jog rates. The bold face labels - Default, a, b, and c
     Allow simple switches (eg center-off or rotary) to be

@@ -7,6 +7,7 @@
 * Usage:  halcmd loadrt hal_ppmc port_addr=<addr1>[,addr2[,addr3]]
 *		[extradac=<slotcode1>,[<slotcode2>]]
 *		[extradout=<slotcode1,[<slotcode2>]]
+*               [timestamp=<slotcode1,[<slotcode2>]]
 *
 *               where 'addr1', 'addr2', and 'addr3' are the addresses
 *               of up to three parallel ports.
@@ -19,7 +20,9 @@
 *		second digit is the slot number on that bus (0 to F).
 *		The slotcode tells the driver which board(s) have the
 *		optional DAC or digital outs installed.
-*
+*               timestamp works the same way, for UPC boards of rev 4
+*               or higher that have the timestamp feature.
+*              
 * Author: John Kasunich, Jon Elson, Stephen Wille Padnos
 * License: GPL Version 2
 *    
@@ -87,6 +90,11 @@ int extradout[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
 RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out modules");
+int timestamp[MAX_BUS*8] = {
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
+RTAPI_MP_ARRAY_INT(timestamp, MAX_BUS*8, "bus/slot locations of timestamped encoders");
 
 /***********************************************************************
 *                DEFINES (MOSTLY REGISTER ADDRESSES)                   *
@@ -114,6 +122,11 @@ RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out mo
                                 /* only available with rev 2 and above FPGA config */
 #define ENCLOAD     0x00	/* EPP address to write into first byte of preset */
 				/* register for channels 0 - 3 */
+// following regs for new UPC with encoder count timesamp feature
+#define ENCTS       0x10        /* timestamp low byte for axis 0 */
+#define ENCTS1      0x11        /* timestamp high byte for axis 0 */
+#define ENCTB       0x18        /* timebase low byte */
+#define ENCTB1      0x19        /* timebase high byte */
 
 #define DAC_0       0x00	/* EPP address of low byte of DAC chan 0 */
 #define DAC_1       0x02	/* EPP address of low byte of DAC chan 1 */
@@ -260,15 +273,21 @@ typedef union {
 
 /* runtime data for a single encoder */
 typedef struct {
-    hal_float_t *position;      /* output: scaled position pointer */
-    hal_s32_t *count;           /* output: unscaled encoder counts */
-    hal_s32_t *delta;		/* output: delta counts since last read */
-    hal_float_t scale;          /* parameter: scale factor */
-    hal_bit_t *index;           /* output: index flag */
-    hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-    signed long oldreading;     /* used to detect overflow / underflow of the counter */
+  hal_float_t *position;      /* output: scaled position pointer */
+  hal_s32_t *count;           /* output: unscaled encoder counts */
+  hal_s32_t *delta;		/* output: delta counts since last read */
+  hal_s32_t prevdir;		/* local: previous direction  */
+  hal_float_t scale;          /* parameter: scale factor */
+  hal_bit_t *index;           /* output: index flag */
+  hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
+  signed long oldreading;     /* used to detect overflow / underflow of the counter */
   unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
   unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
+  hal_float_t *vel;             /* output: scaled velocity */
+  hal_float_t min_speed;        /* parameter: min speed for velocity estimation */
+  hal_u32_t counts_since_timeout;    /* for velocity estimation */
+  unsigned short old_timestamp;
+  unsigned short timestamp;
 } encoder_t;
 
 /* this structure contains the runtime data for a single EPP bus slot */
@@ -307,6 +326,7 @@ typedef struct slot_data_s {
     DACs_t *DAC;                /* ptr to shmem data for DACs */
     int extra_mode;		/* indicates if/how "extra" port is used */
     extra_t *extra;		/* ptr to shmem for "extra" port */
+  unsigned int use_timestamp;   /* indicates whether to use timestamp encoder feature */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -334,6 +354,7 @@ typedef struct {
 
 static bus_data_t *bus_array[MAX_BUS];
 static int comp_id;		/* component ID */
+static long read_period;        /* makes real time period available to called functions */
 
 /***********************************************************************
 *                    REALTIME FUNCTION DECLARATIONS                    *
@@ -382,6 +403,7 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus);
 static int export_encoders(slot_data_t *slot, bus_data_t *bus);
 static int export_extra_dac(slot_data_t *slot, bus_data_t *bus);
 static int export_extra_dout(slot_data_t *slot, bus_data_t *bus);
+static int export_timestamp(slot_data_t *slot, bus_data_t *bus);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -390,7 +412,7 @@ static int export_extra_dout(slot_data_t *slot, bus_data_t *bus);
 int rtapi_app_main(void)
 {
     int msg, rv, rv1, busnum, slotnum, n, boards;
-    int bus_slot_code, need_extra_dac, need_extra_dout;
+    int bus_slot_code, need_extra_dac, need_extra_dout, need_timestamp;
     int idcode, id, ver;
     bus_data_t *bus;
     slot_data_t *slot;
@@ -408,7 +430,7 @@ int rtapi_app_main(void)
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
     msg = rtapi_get_msg_level();
-//    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    //    rtapi_set_msg_level(RTAPI_MSG_ERR);
 
     /* validate port addresses */
     n = 0;
@@ -533,6 +555,7 @@ int rtapi_app_main(void)
 	    rtapi_print_msg(RTAPI_MSG_INFO, "ID code: %02X ", idcode);
 	    slot->id = id = idcode & 0xF0;
 	    slot->ver = ver = idcode & 0x0F;
+	    slot->use_timestamp = 0; /* default is no timestamp */
 	    /* mark slot as occupied */
 	    bus->slot_valid[slotnum] = 1;
 	    
@@ -591,10 +614,10 @@ int rtapi_app_main(void)
 		rv1 += export_UxC_digin(slot, bus);
 		rv1 += export_UxC_digout(slot, bus);
 		rv1 += export_UPC_pwmgen(slot, bus);
-		rv1 += export_encoders(slot, bus);
 		bus_slot_code = (busnum << 4) | slotnum;
 		need_extra_dac = 0;
 		need_extra_dout = 0;
+		need_timestamp = 0;
 		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
 		    if ( extradac[n] == bus_slot_code ) {
 			need_extra_dac = 1;
@@ -604,6 +627,10 @@ int rtapi_app_main(void)
 			need_extra_dout = 1;
 			extradout[n] = -1;
 		    }
+		    if ( timestamp[n] == bus_slot_code ) {
+			need_timestamp = 1;
+			timestamp[n] = -1;
+		    }
 		}
 		if ( need_extra_dac && need_extra_dout ) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -612,7 +639,11 @@ int rtapi_app_main(void)
 		    rv1 += export_extra_dac(slot, bus);
 		} else if ( need_extra_dout ) {
 		    rv1 += export_extra_dout(slot, bus);
+		} else if ( need_timestamp ) {
+		    rv1 += export_timestamp(slot, bus);
 		}		
+		// can't export encoders until we know if they use timestamp feature
+		rv1 += export_encoders(slot, bus);
 		/* the UPC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -741,6 +772,7 @@ static void read_all(void *arg, long period)
     unsigned char n, eppaddr;
     __u32 bitmap;
 
+    read_period = period;          /* make thread period available to called functions */
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
     /* test to make sure it hasn't been freed */
@@ -981,7 +1013,8 @@ static void write_PPMC_digouts(slot_data_t *slot)
 
 static void read_encoders(slot_data_t *slot)
 {
-    int i, byteindex;
+  int i, byteindex, byteindx2;
+  double vel;                    // local temporary velocity
     union pos_tag {
         signed long l;
         struct byte_tag {
@@ -991,8 +1024,25 @@ static void read_encoders(slot_data_t *slot)
             signed char b3;
         } byte;
     } pos, oldpos;
-
+    union time_tag {
+      unsigned short s;
+      struct byte2_tag {
+	unsigned char b0;
+	unsigned char b1;
+      } byte;
+    } timebase, timestamp;
+    unsigned short delta_time;
+    //    hal_u32_t timestamp;
+    //    hal_u32_t timebase;
+      
+    // sample timebase only on boards so equipped
+    if (slot->use_timestamp) {
+      byteindex = ENCTB;
+      timebase.byte.b0 = (unsigned char)slot->rd_buf[byteindex++];
+      timebase.byte.b1 = (unsigned char)slot->rd_buf[byteindex];
+    }
     byteindex = ENCCNT0;        /* first encoder count register */
+    byteindx2 = ENCTS;          /* first encoder timestamp register */
     for (i = 0; i < 4; i++) {
       slot->encoder[i].indrescnt++;  /* increment counter each servo cycle */
         oldpos.l = slot->encoder[i].oldreading;
@@ -1007,6 +1057,8 @@ static void read_encoders(slot_data_t *slot)
             if ((oldpos.byte.b2 == 0) && (pos.byte.b2 & 0xc0) == 0xc0)
                 pos.byte.b3--;
 	*(slot->encoder[i].delta) = pos.l - slot->encoder[i].oldreading;
+	vel = (pos.l - slot->encoder[i].oldreading) /
+	           (read_period * 1e-9 * slot->encoder[i].scale);
 	/* index processing */
 	if ( (slot->rd_buf[ENCISR] & ( 1 << i )) != 0 ) {
 	  //	  rtapi_print_msg(RTAPI_MSG_INFO, "index seen for axis %d",i);
@@ -1020,14 +1072,14 @@ static void read_encoders(slot_data_t *slot)
 		     (slot->encoder[i].indrescnt > 3)) {
 		    /* yes, clear index-enable to announce that we found it */
 		    *(slot->encoder[i].index_enable) = 0;
-    /* need to properly set the 24->32 bit extension byte */
-    if ( pos.byte.b2 < 0 ) {
-      /* going backwards */
-      pos.byte.b3 = 0xFF;
-    } else {
-      pos.byte.b3 = 0;
-    }
-    oldpos.byte.b3 = pos.byte.b3;
+		    /* need to properly set the 24->32 bit extension byte */
+		    if ( pos.byte.b2 < 0 ) {
+		      /* going backwards */
+		      pos.byte.b3 = 0xFF;
+		    } else {
+		      pos.byte.b3 = 0;
+		    }
+		    oldpos.byte.b3 = pos.byte.b3;
 		}
 	    }
 	} else {
@@ -1044,6 +1096,57 @@ static void read_encoders(slot_data_t *slot)
 	    slot->encoder[i].scale = 1.0;
 	}
 	*(slot->encoder[i].position) = pos.l / slot->encoder[i].scale;
+	// perform velocity estimate when hardware provides timestamps
+	if (slot->use_timestamp) {
+	  slot->encoder[i].old_timestamp = slot->encoder[i].timestamp;
+	  timestamp.byte.b0 = slot->rd_buf[byteindx2++];
+	  timestamp.byte.b1 = slot->rd_buf[byteindx2++];
+	  slot->encoder[i].timestamp = timestamp.s;
+	  // one or more counts this sample
+	  if (*(slot->encoder[i].delta) != 0.0) {
+	    delta_time = timestamp.s - slot->encoder[i].old_timestamp;
+	    delta_time = delta_time & 0xffff;
+	    if (slot->encoder[i].counts_since_timeout < 2) {
+	      // just keep simple vel calc from above
+	      slot->encoder[i].counts_since_timeout++;
+	      *(slot->encoder[i].vel) = vel;  // cannot make estimate
+	    } else {
+	      vel = *(slot->encoder[i].delta) / (delta_time * 1e-6 * slot->encoder[i].scale);
+	      *(slot->encoder[i].vel) = vel;
+	    }
+	    if (((slot->encoder[i].prevdir > 0) && (*(slot->encoder[i].delta) < 0)) ||
+		((slot->encoder[i].prevdir < 0) && (*(slot->encoder[i].delta) > 0))) {
+	      *(slot->encoder[i].vel) = 0.0;    /* suppress velocity of dithering encoder at reversal */
+	    }
+	  } else {
+	    // no counts this sample
+	    if (slot->encoder[i].counts_since_timeout) {
+	      delta_time = timebase.s - timestamp.s;	
+	      delta_time = delta_time & 0xffff;
+	      //  if (delta_time < slot->encoder[i].scale * slot->encoder[i].min_speed) {
+	      if (delta_time < 65500) {
+		// 1e-6 is timebase period
+		vel = 1.0 / (slot->encoder[i].scale * delta_time * 1e-6);
+		if (vel < 0.0) vel = -vel;
+		if (vel < *(slot->encoder[i].vel)) {
+		  *(slot->encoder[i].vel) = vel;
+		}
+		if (-vel > *(slot->encoder[i].vel)) {
+		  *(slot->encoder[i].vel) = -vel;
+		}
+	      } else {
+		slot->encoder[i].counts_since_timeout = 0;
+		*(slot->encoder[i].vel) = 0;
+	      }
+	    } else {
+	      *(slot->encoder[i].vel) = 0;
+	    }
+	  }
+	} else {
+	  *(slot->encoder[i].vel) = vel;  // encoder without timestamp
+	}
+	if (*(slot->encoder[i].delta) > 0) slot->encoder[i].prevdir = 1;  // mark last direction moved
+	if (*(slot->encoder[i].delta) < 0) slot->encoder[i].prevdir = -1;
     }
 }
 
@@ -2035,11 +2138,30 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 	  if (retval != 0) {
 	    return retval;
 	  }
+	  retval = hal_pin_float_newf(HAL_OUT, &(slot->encoder[n].vel), comp_id,
+	        "ppmc.%d.encoder.%02d.velocity",bus->busnum,bus->last_encoder);
+	  if (retval != 0) {
+	    return retval;
+	  }
+	  if (slot->use_timestamp) {
+	    /* encoder time stamp function / velocity estimation */
+	    /* only implemented on latest UPC right now */
+	    retval = hal_param_float_newf(HAL_RW, &(slot->encoder[n].min_speed), comp_id,
+		   "ppmc.%d.encoder.%02d.min-speed-estimate", bus->busnum, bus->last_encoder);
+	    if (retval != 0) {
+	      return retval;
+	    }
+	  }
 	}
 	/* increment number to prepare for next output */
 	bus->last_encoder++;
     }
-    add_rd_funct(read_encoders, slot, block(ENCCNT0, ENCISR));
+    // need to read more registers from board if has timestamp
+    if (slot->use_timestamp) {
+      add_rd_funct(read_encoders, slot, block(ENCCNT0, ENCISR) | block(ENCTS, ENCTB+1));
+    } else {
+      add_rd_funct(read_encoders, slot, block(ENCCNT0, ENCISR));
+    }
     add_wr_funct(write_encoders, slot, block(ENCINDX, ENCINDX));
     return 0;
 }
@@ -2085,6 +2207,23 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     /* increment number to prepare for next output */
     bus->last_extraDAC++;
     add_wr_funct(write_extraDAC, slot, block(UxC_EXTRA, UxC_EXTRA));
+    return 0;
+}
+
+ int export_timestamp(slot_data_t *slot, bus_data_t *bus)
+{
+    int n;
+
+    /* does the board have the timestamp feature? */
+    n=0;
+    //    if (slot->id == 0x40) n=1;
+    if (slot->id == 0x50 && slot->ver >= 4) n=1;
+    if ( n == 0 ) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "PPMC: ERROR: board firmware doesn't support encoder timestamp.\n");
+	return -1;
+    }
+    slot->use_timestamp = 1;    /* tell encoder function to process timestamp */
     return 0;
 }
 

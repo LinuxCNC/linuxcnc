@@ -314,8 +314,10 @@ static void calc_pid(void *arg, long period)
 	*(pid->error_i) = 0;
     }
     /* compute command and feedback derivatives to dummysigs */
-    *(pid->commandvds) = (command - pid->prev_cmd) * periodrecip;
-    *(pid->feedbackvds) = (feedback - pid->prev_fb) * periodrecip;
+    if(!(pid->prev_ie && !*(pid->index_enable))) {
+        *(pid->commandvds) = (command - pid->prev_cmd) * periodrecip;
+        *(pid->feedbackvds) = (feedback - pid->prev_fb) * periodrecip;
+    }
     /* and calculate derivative term as difference of derivatives */
     *(pid->error_d) = *(pid->commandv) - *(pid->feedbackv);
     pid->prev_error = tmp1;

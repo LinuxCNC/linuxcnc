@@ -34,7 +34,7 @@ char *module_whitelist[] = {
 /* module path must start with this. */
 
 char *path_whitelist[] = {
-    "/lib/modules", "/usr/realtime",
+    "/lib/modules", RTDIR,
 
     NULL
 };

@@ -63,7 +63,7 @@
 #include <sys/mman.h>		/* PROT_READ, needed for rtai_shm.h */
 #include <sys/types.h>		/* off_t, needed for rtai_shm.h */
 #include <sys/fcntl.h>		/* O_RDWR, needed for rtai_shm.h */
-#include <rtai_shm.h>		/* rtai_malloc,free() */
+#include "rtapi_rtai_shm_wrap.h" /*rtai_malloc,free() */
 #include <malloc.h>		/* malloc(), free() */
 #include <sys/io.h>		/* inb(), outb() */
 #include <errno.h>		/* errno */
@@ -101,8 +101,6 @@ int rtapi_init(const char *modname)
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
-    /* setup revision string and code, and print opening message */
-    setup_revision_info();
     /* get shared memory block from OS and save its address */
     errno = 0;
     rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));

@@ -230,6 +230,8 @@ class emc_status:
                 self.resized_dro = 0
                 
                 self.mm = 0
+                self.machine_units_mm=0
+                self.unit_convert=[1]*9
                 self.actual = 0
                 self.emcstat = emc.stat()
                 self.emcerror = emc.error_channel()
@@ -239,6 +241,13 @@ class emc_status:
 
         def dro_mm(self, b):
                 self.mm = 1
+
+        def set_machine_units(self,u,c):
+                self.machine_units_mm = u
+                self.unit_convert = c
+
+        def convert_units(self,v,c):
+                return map(lambda x,y: x*y, v, c)
 
         def dro_commanded(self, b):
                 self.actual = 0
@@ -314,10 +323,12 @@ class emc_status:
 
                 relp = [x, y, z, a, b, c, u, v, w]
 
+                if self.mm != self.machine_units_mm:
+                        p = self.convert_units(p,self.unit_convert)
+                        relp = self.convert_units(relp,self.unit_convert)
+                        dtg = self.convert_units(dtg,self.unit_convert)
+
                 if self.mm:
-                        p = [i*25.4 for i in p]
-                        relp = [i*25.4 for i in relp]
-                        dtg = [i*25.4 for i in dtg]
                         fmt = "%c:% 10.3f"
                 else:
                         fmt = "%c:% 9.4f"

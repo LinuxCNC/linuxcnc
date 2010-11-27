@@ -269,7 +269,7 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 	}
 	/* get the conversion qualifier */
 	qualifier = -1;
-	if (*fmt == 'h' || *fmt == 'l') {
+	if (*fmt == 'h' || *fmt == 'l' || *fmt == 'z') {
 	    qualifier = *fmt;
 	    ++fmt;
 	}
@@ -383,7 +383,7 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 	    }
 	    continue;
 	}
-	if (qualifier == 'l') {
+	if (qualifier == 'l' || (qualifier == 'z' && sizeof(size_t) == sizeof(long))) {
 	    num = va_arg(args, unsigned long);
 	    if (flags & SIGN) {
 		num = (signed long) num;
@@ -394,6 +394,7 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 		num = (signed short) num;
 	    }
 	} else {
+	    /* no qualifier, or 'z' on platforms where sizeof(size_t) == sizeof(int) */
 	    num = va_arg(args, unsigned int);
 	    if (flags & SIGN) {
 		num = (signed int) num;
