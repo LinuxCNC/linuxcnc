@@ -397,8 +397,9 @@ static void process_probe_inputs(void) {
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
            tpGetExecId(&emcmotDebug->queue) <= 0) {
             // running an MDI command
-            reportError(_("Probe tripped during non-probe MDI command."));
             tpAbort(&emcmotDebug->queue);
+            reportError(_("Probe tripped during non-probe MDI command."));
+	    SET_MOTION_ERROR_FLAG(1);
         }
 
         for(i=0; i<num_joints; i++) {
