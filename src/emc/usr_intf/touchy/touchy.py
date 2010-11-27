@@ -672,7 +672,10 @@ class touchy:
                         if d != 0: self.emc.spindle_override(self.so_val)
 
                 if self.wheel == "mv":
-                        self.mv_val += d
+                        if self.machine_units_mm:
+                                self.mv_val += 20 * d
+                        else:
+                                self.mv_val += d
                         if self.mv_val < 0: self.mv_val = 0
                         if d != 0:
                                 self.emc.max_velocity(self.mv_val)
