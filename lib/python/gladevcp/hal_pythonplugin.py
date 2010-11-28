@@ -12,3 +12,4 @@ from hal_widgets import HAL_SpinButton
 from hal_widgets import HAL_Label
 
 from led import HAL_LED
+from hal_bar import HAL_HBar, HAL_VBar
