@@ -55,10 +55,19 @@ def usage():
     print "use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position"
     print "use -H halfile to execute hal statements with halcmd after the component is set up and ready"
     print "use -x windowid to start gladevcp reparenting into an existing window instead of creating a new top level window"
+    print "use -u <path to Python module> to import"
 
 
 def on_window_destroy(widget, data=None):
         gtk.main_quit()
+
+class Trampoline(object):
+    def __init__(self,methods):
+        self.methods = methods
+
+    def __call__(self, *a, **kw):
+        for m in self.methods:
+            m(*a, **kw)
 
 def main():
     """ creates a HAL component.
@@ -69,7 +78,7 @@ def main():
     """
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "c:g:w:H:h")
+        opts, args = getopt.getopt(sys.argv[1:], "c:g:w:H:u:hd")
     except getopt.GetoptError, detail:
         print detail
         usage()
@@ -78,6 +87,8 @@ def main():
     component_name = None
     parent = None
     halfile = None
+    debug = 0
+    usermods = []
     for o, a in opts:
         print o,a
         if o == "-c":
@@ -88,6 +99,10 @@ def main():
             parent = int(a, 0)
         if o == "-H":
             halfile = a
+        if o == "-u":
+            usermods.append(a)
+        if o == '-d':
+            debug += 1
         if o == "-h":
             usage()
             sys.exit(0)
@@ -125,10 +140,49 @@ def main():
 
     window.connect("destroy", on_window_destroy)
     window.set_title(component_name)
+
+    handlers = {}
+
+    for u in usermods:
+        (directory,filename) = os.path.split(u)
+        (basename,extension) = os.path.splitext(filename)
+        if directory == '':
+            directory = '.'
+        if directory not in sys.path:
+            sys.path.insert(0,directory)
+            if debug: print 'adding import dir %s' % directory
+
+        try:
+            m = __import__(basename)
+        except ImportError,_msg:
+            print "module '%s' skipped - import error: %s" %(basename,_msg)
+	    continue
+        if debug: print "module '%s' imported OK" % m.__name__
+        try:
+            for n in dir(m):
+                f = getattr(m, n);
+                if not hasattr(f, '__call__'):
+                    continue
+                if n in handlers:
+                    handlers[n].append(f)
+                else:
+                    handlers[n] = [f]
+        except Exception,msg:
+            print "trouble looking for handlers in '%s': %s" %(basename,msg)
+
+    # XXX: Wrap lists in Trampoline, unwrap single functions
+    for n,v in list(handlers.items()):
+        if len(v) == 1:
+            handlers[n] = v[0]
+        else:
+            handlers[n] = Trampoline(v)
+
+    if debug: print "connecting handlers: %s" % handlers.keys()
     if buildertype == LIBGLADE:
-        builder.signal_autoconnect(builder)
+        builder.signal_autoconnect(handlers)
     else:
-        builder.connect_signals(builder)
+        builder.connect_signals(handlers)
+
     if parent:
         plug = gtk.Plug(parent)
         for c in window.get_children():
