@@ -41,12 +41,12 @@ The pyVCP code to display it might be like:
 
 In your post-gui.hal file you might use the following to connect it up
 
-loadrt time
-addf time.0 servo-thread
-net cycle-timer time.0.start <= halui.program.is-running
-net cycle-seconds pyvcp.time-seconds <= time.0.seconds
-net cycle-minutes pyvcp.time-minutes <= time.0.minutes
-net cycle-hours pyvcp.time-hours <= time.0.hours
+ loadrt time
+ addf time.0 servo-thread
+ net cycle-timer time.0.start <= halui.program.is-running
+ net cycle-seconds pyvcp.time-seconds <= time.0.seconds
+ net cycle-minutes pyvcp.time-minutes <= time.0.minutes
+ net cycle-hours pyvcp.time-hours <= time.0.hours
 
 """;
  
