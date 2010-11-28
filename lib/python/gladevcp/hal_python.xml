@@ -22,6 +22,8 @@ domain="glade-3" depends="gtk+">
     </properties>
     </glade-widget-class>
     <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label"/>
+   <glade-widget-class name="HAL_HBar" generic-name="hal_hbar" title="HAL HBar"/>
+   <glade-widget-class name="HAL_VBar" generic-name="hal_vbar" title="HAL VBar"/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -38,6 +40,8 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_VScale"/>
    <glade-widget-class-ref name="HAL_ProgressBar"/>
    <glade-widget-class-ref name="HAL_Label"/>
+   <glade-widget-class-ref name="HAL_HBar"/>
+   <glade-widget-class-ref name="HAL_VBar"/>
  </glade-widget-group>
 </glade-catalog>
 
