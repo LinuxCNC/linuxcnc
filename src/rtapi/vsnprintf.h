@@ -34,6 +34,7 @@ values (or floating point).
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
 */
 
+#include <rtapi_math.h>
 
 /* we use this so that we can do without the string library */
 static int strn_len(const char *s, int count)
@@ -151,6 +152,41 @@ static char *number(char *buf, char *end, long long numll, int base,
     while (size-- > 0) {
 	buf = ch(buf, end, ' ');
     }
+    return buf;
+}
+
+static char *fnumber(char *buf, char *end, double num)
+{
+    int exp;
+    double mantissa = frexp(fabs(num), &exp);
+    int i;
+
+    if(signbit(num)) buf = ch(buf, end, '-');
+    if(isnan(num)) { buf = st(buf, end, "NaN"); return buf; }
+    if(isinf(num)) { buf = st(buf, end, "Inf"); return buf; }
+
+    buf = st(buf, end, "0x");
+
+    /* want one digit to the left of the radix point.  ldexp should return in
+     * the range [0.5,1) but guard with an 'if' just in case */
+    if(mantissa != 0 && mantissa < 1) { mantissa *= 16; exp -= 4; }
+
+    /* first digit */
+    i = (int)floor(mantissa);
+    buf = ch(buf, end, large_digits[i]);
+    mantissa = 16 * (mantissa - i);
+
+    /* radix point if any fractional digits */
+    if(mantissa) { buf = ch(buf, end, '.'); }
+    while(mantissa) {
+        /* remaning digits, if any */
+        i = (int)floor(mantissa);
+        buf = ch(buf, end, large_digits[i]);
+        mantissa = 16 * (mantissa - i);
+    }
+
+    buf = ch(buf, end, 'P');
+    buf = number(buf, end, exp, 10, 0, 0, PLUS|SIGN);
     return buf;
 }
 
@@ -308,13 +344,7 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
         case 'a': case 'A':
             {
                 double d = va_arg(args, double);
-                uint32_t *l = (uint32_t*)&d;
-                str = ch(str, end, 'F');
-                str = ch(str, end, '[');
-                str = number(str, end, l[0], 16, 8, 8, 0);
-                str = ch(str, end, ':');
-                str = number(str, end, l[1], 16, 8, 8, 0);
-                str = ch(str, end, ']');
+                str = fnumber(str, end, d);
                 continue;
             }
 	case '%':
