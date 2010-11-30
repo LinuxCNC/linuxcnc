@@ -20,7 +20,6 @@ extern double ceil(double);
 extern double floor(double);
 
 #define frexp(p,q) __builtin_frexp((p),(q))
-#define isinf(x) __builtin_isinf((x))
 #define isnan(x) __builtin_isnan((x))
 #define signbit(x) __builtin_signbit((x))
 
@@ -40,6 +39,11 @@ extern double floor(double);
 #endif
 #endif /* __GNUC_PREREQ */
 
+#if __GNUC_PREREQ(4,4)
+#define isinf(x) __builtin_isinf((x))
+#else
+#define isinf(x) ({ double v=((x)); !isnan(v) && isnan(v-v); })
+#endif
 
 #ifdef __i386__
 #include "rtapi_math_i386.h"
