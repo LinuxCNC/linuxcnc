@@ -1,0 +1,29 @@
+#!/usr/bin/python
+"""\
+This script decodes hex floats (e.g., in dmesg) into real floats.  In the
+future maybe it will do other emc2-specific dmesg decoding.
+
+Usage:
+	dmesg | decode_dmesg
+"""
+
+import commands
+import re
+import sys
+
+def repl(m):
+    g = m.group(0)
+    s, w, f, e = m.group("s", "w", "f", "e")
+    f = f or "0"
+    v = int(w, 16) + int(f, 16) * (16 ** -len(f))
+    v *= 2**int(e)
+    if s: v = -v
+    return "%g" % v
+
+pat = re.compile('(?i)(?P<s>-?)0[xX]'
+        '(?P<w>[0-9A-Fa-f])'
+        '(\\.(?P<f>[0-9A-Fa-f]*))?[Pp](?P<e>[+-]?[0-9]+)')
+
+for line in sys.stdin:
+    line = pat.sub(repl, line)
+    sys.stdout.write(line)
