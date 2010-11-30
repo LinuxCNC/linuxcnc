@@ -8,7 +8,6 @@ import emc, hal
 
 _after = None
 def hal_in_background():
-    print "hib"
     global _after
     _after = None
     if not h.change:
