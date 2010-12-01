@@ -152,6 +152,7 @@ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_MAXPWM = 6;_MAXSTEP = 7;_ENCPINS = 8
 _STEPPINS = 9;_HASWATCHDOG = 10;_MAXGPIO = 11;_LOWFREQ = 12;_HIFREQ = 13;_NUMOFCNCTRS = 14;_STARTOFDATA = 15
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
+_IMPERIAL = 0;_METRIC = 1
 # boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, max pwm gens, 
 # max step gens, number of pins per encoder,
@@ -560,7 +561,7 @@ class Data:
         self.available_axes = []
         self.baseperiod = 50000
         self.servoperiod = 1000000
-        self.units = 0 # inch
+        self.units = _IMPERIAL # inch
         self.limitsnone = True
         self.limitswitch = False
         self.limitshared = False
@@ -856,10 +857,18 @@ class Data:
         # axis x data
         self.xdrivertype = "custom"
         self.xsteprev = 200
-        self.xmicrostep = 2
-        self.xpulleydriver = 1
-        self.xpulleydriven = 1
-        self.xleadscrew = 5
+        self.xmicrostep = 5
+        self.xmotor_pulleydriver = 1
+        self.xmotor_pulleydriven = 1
+        self.xmotor_wormdriver = 1
+        self.xmotor_wormdriven = 1
+        self.xencoder_pulleydriver = 1
+        self.xencoder_pulleydriven = 1
+        self.xencoder_wormdriver = 1
+        self.xencoder_wormdriven = 1
+        self.xmotor_leadscrew = 5
+        self.xencoder_leadscrew = 5
+        self.xencodercounts = 4000
         self.xusecomp = 0
         self.xcompfilename = "xcompensation"
         self.xcomptype = 0
@@ -897,16 +906,24 @@ class Data:
         self.xsearchdir = 0
         self.xusehomeindex = 1
         self.xhomesequence = 1203
-        self.xencodercounts = 4000
-        self.xscale = 0
+        self.xstepscale = 0
+        self.xencoderscale = 0
 
         # axis y data
         self.ydrivertype = "custom"
         self.ysteprev = 200
-        self.ymicrostep = 2
-        self.ypulleydriver = 1
-        self.ypulleydriven = 1
-        self.yleadscrew = 5
+        self.ymicrostep = 5
+        self.ymotor_pulleydriver = 1
+        self.ymotor_pulleydriven = 1
+        self.ymotor_wormdriver = 1
+        self.ymotor_wormdriven = 1
+        self.yencoder_pulleydriver = 1
+        self.yencoder_pulleydriven = 1
+        self.yencoder_wormdriver = 1
+        self.yencoder_wormdriven = 1
+        self.ymotor_leadscrew = 5
+        self.yencoder_leadscrew = 5
+        self.yencodercounts = 4000
         self.yusecomp = 0
         self.ycompfilename = "ycompensation"
         self.ycomptype = 0
@@ -943,16 +960,24 @@ class Data:
         self.ysearchdir = 0
         self.ylatchdir = 0
         self.yusehomeindex = 0
-        self.yencodercounts =4000
-        self.yscale = 0
+        self.ystepscale = 0
+        self.yencoderscale = 0
    
         # axis z data
         self.zdrivertype = "custom"     
         self.zsteprev = 200
-        self.zmicrostep = 2
-        self.zpulleydriver = 1
-        self.zpulleydriven = 1
-        self.zleadscrew = 5
+        self.zmicrostep = 5
+        self.zmotor_pulleydriver = 1
+        self.zmotor_pulleydriven = 1
+        self.zmotor_wormdriver = 1
+        self.zmotor_wormdriven = 1
+        self.zencoder_pulleydriver = 1
+        self.zencoder_pulleydriven = 1
+        self.zencoder_wormdriver = 1
+        self.zencoder_wormdriven = 1
+        self.zmotor_leadscrew = 5
+        self.zencoder_leadscrew = 5
+        self.zencodercounts = 1000
         self.zusecomp = 0
         self.zcompfilename = "zcompensation"
         self.zcomptype = 0
@@ -989,17 +1014,25 @@ class Data:
         self.zsearchdir = 0
         self.zlatchdir = 0
         self.zusehomeindex = 0
-        self.zencodercounts = 1000
-        self.zscale = 0
+        self.zstepscale = 0
+        self.zencoderscale = 0
 
 
         # axis a data
         self.adrivertype = "custom"
         self.asteprev = 200
-        self.amicrostep = 2
-        self.apulleydriver = 1
-        self.apulleydriven = 1
-        self.aleadscrew = 8
+        self.amicrostep = 5
+        self.amotor_pulleydriver = 1
+        self.amotor_pulleydriven = 1
+        self.amotor_wormdriver = 1
+        self.amotor_wormdriven = 1
+        self.aencoder_pulleydriver = 1
+        self.aencoder_pulleydriven = 1
+        self.aencoder_wormdriver = 1
+        self.aencoder_wormdriven = 1
+        self.amotor_leadscrew = 8
+        self.aencoder_leadscrew = 8
+        self.aencodercounts = 1000
         self.ausecomp = 0
         self.acompfilename = "acompensation"
         self.acomptype = 0
@@ -1036,16 +1069,24 @@ class Data:
         self.asearchdir = 0
         self.alatchdir = 0
         self.ausehomeindex = 0
-        self.aencodercounts = 1000
-        self.ascale = 0
+        self.astepscale = 0
+        self.aencoderscale = 0
 
         # axis s (spindle) data
         self.sdrivertype = "custom"
         self.ssteprev = 200
-        self.smicrostep = 2
-        self.spulleydriver = 1
-        self.spulleydriven = 1
-        self.sleadscrew = 5
+        self.smicrostep = 5
+        self.smotor_pulleydriver = 1
+        self.smotor_pulleydriven = 1
+        self.smotor_wormdriver = 1
+        self.smotor_wormdriven = 1
+        self.sencoder_pulleydriver = 1
+        self.sencoder_pulleydriven = 1
+        self.sencoder_wormdriver = 1
+        self.sencoder_wormdriven = 1
+        self.smotor_leadscrew = 5
+        self.sencoder_leadscrew = 5
+        self.sencodercounts = 1000
         self.smaxvel = 1.67
         self.smaxacc = 2
         self.sinvertmotor = 0
@@ -1066,7 +1107,6 @@ class Data:
         self.sstepspace = 1000
         self.sdirhold = 1000
         self.sdirsetup = 1000
-        self.sencodercounts = 1000
         self.spindlecarrier = 100
         self.spindlecpr = 100
         self.spindlespeed1 = 100
@@ -1078,7 +1118,8 @@ class Data:
         self.spindleoutputscale = 1
         self.spindleoutputoffset = 0
         self.spindlemaxoutput = 10
-        self.spindlescale = 0
+        self.sstepscale = 0
+        self.sencoderscale = 0
         self.spidcontrol = False
 
     def load(self, filename, app=None, force=False):
@@ -1189,7 +1230,7 @@ class Data:
         if self.pyvcp:
             print >>file, "PYVCP = custompanel.xml"
         # these are for AXIS GUI only
-        if self.units:
+        if self.units == _METRIC:
             print >>file, "INCREMENTS = %s"% self.increments_metric
         else:
             print >>file, "INCREMENTS = %s"% self.increments_imperial
@@ -1286,7 +1327,7 @@ class Data:
         else:
             print >>file, "AXES = 3"
             print >>file, "COORDINATES = X Z"
-        if self.units:
+        if self.units == _METRIC:
             print >>file, "LINEAR_UNITS = mm"
         else:
             print >>file, "LINEAR_UNITS = inch"
@@ -1328,48 +1369,18 @@ class Data:
         file.close()
         self.add_md5sum(filename)
 
-    def hz(self, axname):
-        steprev = getattr(self, axname+"steprev")
-        microstep = getattr(self, axname+"microstep")
-        pulleydriver = getattr(self, axname+"pulleydriver")
-        pulleydriven = getattr(self, axname+"pulleydriven")
-        leadscrew = getattr(self, axname+"leadscrew")
-        maxvel = getattr(self, axname+"maxvel")
-        if self.units or axname == 'a': leadscrew = 1./leadscrew
-        pps = leadscrew * steprev * microstep * (pulleydriver/pulleydriven) * maxvel
-        return abs(pps)
-
-    def minperiod(self, steptime=None, stepspace=None, latency=None):
-        if steptime is None: steptime = self.steptime
-        if stepspace is None: stepspace = self.stepspace
-        if latency is None: latency = self.latency
-        return latency + max(steptime, stepspace)
-
-    def maxhz(self):
-        return 1e9 / self.minperiod()
-
-    def ideal_period(self):
-        xhz = self.hz('x')
-        yhz = self.hz('y')
-        zhz = self.hz('z')
-        ahz = self.hz('a')
-        if self.axes == 1:
-            pps = max(xhz, yhz, zhz, ahz)
-        elif self.axes == 0:
-            pps = max(xhz, yhz, zhz)
-        else:
-            pps = max(xhz, zhz)
-        base_period = 1e9 / pps
-        if base_period > 100000: base_period = 100000
-        if base_period < self.minperiod(): base_period = self.minperiod()
-        return int(base_period)
-
     def write_one_axis(self, file, num, letter, type, all_homes):
         order = "1203"
         def get(s): return self[letter + s]       
         pwmgen = self.pwmgen_sig(letter)
         stepgen = self.stepgen_sig(letter)
         encoder = self.encoder_sig(letter)
+        closedloop = False
+        if stepgen and encoder: closedloop = True
+        if letter == "s" and self.spidcontrol == True: closedloop = True
+        if not letter == "s" and pwmgen and encoder: closedloop = True
+        print "INI ",letter + " is closedloop? "+ str(closedloop),encoder
+
         print >>file
         print >>file, "#********************"
         if letter == 's':
@@ -1386,8 +1397,8 @@ class Data:
             print >>file, "MIN_FERROR = %s" % get("minferror")
         print >>file, "MAX_VELOCITY = %s" % get("maxvel")
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-        if not encoder == "false":
-            if (self.spidcontrol == True and letter == 's') or not letter == 's':
+        if encoder:
+            if closedloop:
                 print >>file, "P = %s" % get("P")
                 print >>file, "I = %s" % get("I") 
                 print >>file, "D = %s" % get("D")
@@ -1396,27 +1407,28 @@ class Data:
                 print >>file, "FF2 = %s" % get("FF2")
                 print >>file, "BIAS = %s"% get("bias") 
                 print >>file, "DEADBAND = %s"% get("deadband")
+            if get("invertencoder"):
+                temp = -1
+            else: temp = 1
+            print >>file, "ENCODER_SCALE = %s" % (get("encoderscale") * temp)
+        if pwmgen:
             if get("invertmotor"):
                 temp = -1
             else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
             print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
-            if get("invertencoder"):
-                temp = -1
-            else: temp = 1
-            print >>file, "INPUT_SCALE = %s" % (get("scale") * temp)
-        if not stepgen == "false":
+
+        if stepgen:
             print >>file, "# these are in nanoseconds"
             print >>file, "DIRSETUP   = %d"% int(get("dirsetup"))
             print >>file, "DIRHOLD    = %d"% int(get("dirhold"))
             print >>file, "STEPLEN    = %d"% int(get("steptime"))          
             print >>file, "STEPSPACE  = %d"% int(get("stepspace"))
-            if encoder == "false":
-                if get("invertmotor"):
-                    temp = -1
-                else: temp = 1
-                print >>file, "SCALE = %s"% (get("scale") * temp)
+            if get("invertmotor"):
+                temp = -1
+            else: temp = 1
+            print >>file, "STEP_SCALE = %s"% (get("stepscale") * temp)
         if letter == 's':return
         if self[letter + "usecomp"]:
             print >>file, "COMP_FILE = %s" % get("compfilename")
@@ -1428,7 +1440,7 @@ class Data:
         minlim = -abs(get("minlim"))
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.units: extend = .01
+        if self.units == _METRIC: extend = .01
         else: extend = .001
         minlim = min(minlim, home - extend)
         maxlim = max(maxlim, home + extend)
@@ -1439,7 +1451,7 @@ class Data:
         ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         homes = False
         for i in thisaxishome:
-            if not self.findsignal(i) == "false": homes = True
+            if self.findsignal(i): homes = True
         # set homing speeds and directions
         # search direction : True = positive direction
         # latch direction :  True = opposite direction
@@ -1462,7 +1474,7 @@ class Data:
             else: useindex = "NO"   
             print >>file, "HOME_USE_INDEX = %s" % useindex
             for i in ignore:
-                if not self.findsignal(i) == "false":
+                if self.findsignal(i):
                     print >>file, "HOME_IGNORE_LIMITS = YES"
                     break
             if all_homes and not self.individual_homing:
@@ -1473,55 +1485,58 @@ class Data:
     def home_sig(self, axis):
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis, "max-home-" + axis, "both-home-" + axis))
         for i in thisaxishome:
-            if not self.findsignal(i) == "false": return i
-        return "false"
+            if self.findsignal(i): return i
+        return None
 
     def min_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "min-" + axis,"min-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
-               if not self.findsignal(i) == "false": return i
-           return "false"
+               if self.findsignal(i): return i
+           return None
 
     def max_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "max-" + axis, "max-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
-               if not self.findsignal(i) == "false": return i
-           return "false"
+               if self.findsignal(i): return i
+           return None
 
     def stepgen_sig(self, axis):
            thisaxisstepgen =  axis + "-stepgen-step" 
            test = self.findsignal(thisaxisstepgen)
-           if not test == "false": return test
-           else:return "false"
+           return test
 
     def encoder_sig(self, axis): 
            thisaxisencoder = axis +"-encoder-a"
            test = self.findsignal(thisaxisencoder)
-           if not test == "false": return test
-           else:return "false"
+           return test
 
     def pwmgen_sig(self, axis):
            thisaxispwmgen =  axis + "-pwm-pulse" 
            test = self.findsignal( thisaxispwmgen)
-           if not test == "false": return test
-           else:return "false"
+           return test
 
     def connect_axis(self, file, num, let):
         axnum = "xyzabcuvws".index(let)
         title = 'AXIS'
         if let == 's':
             title = 'SPINDLE'
-        pwmgen = self.pwmgen_sig(let)
-        stepgen = self.stepgen_sig(let)
-        encoder = self.encoder_sig(let)
+        closedloop = False
+        pwmpinname = self.make_pinname(self.pwmgen_sig(let),ini_style)
+        steppinname = self.make_pinname(self.stepgen_sig(let),ini_style)
+        encoderpinname = self.make_pinname(self.encoder_sig(let),ini_style)
+        if steppinname and encoderpinname: closedloop = True
+        if let == "s" and self.spidcontrol == True: closedloop = True
+        if not let == "s" and encoderpinname and encoderpinname: closedloop = True
+        print let + " is closedloop? "+ str(closedloop),encoderpinname
+
         lat = self.latency
         print >>file, "#*******************"
         print >>file, "#  %s %s" % (title, let.upper())
         print >>file, "#*******************"
         print >>file
          
-        if not encoder == "false":
-            if (self.spidcontrol == True and let == 's') or not let == 's':
+        if closedloop:
+            if closedloop:
                 print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
@@ -1539,12 +1554,11 @@ class Data:
                 print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
                 print >>file
                
-            if not pwmgen == "false":
-                pinname = self.make_pinname(pwmgen,ini_style)
+            if pwmpinname:
                 print >>file, "# ---PWM Generator signals/setup---"
                 print >>file
-                print >>file, "setp   "+pinname+".output-type 1" 
-                print >>file, "setp   "+pinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
+                print >>file, "setp   "+pwmpinname+".output-type 1" 
+                print >>file, "setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                 print >>file
                 if let == 's':  
                     
@@ -1562,71 +1576,78 @@ class Data:
                     #print >>file, "    setp pwmgen.0.dither-pwm true"
                     if self.spidcontrol == True:
                         print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
-                        print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
+                        print >>file, "net spindle-output     pid.%s.output      => "% (let) + pwmpinname + ".value"
                         print >>file, "net spindle-enable      => pid.%s.enable" % (let)
-                        print >>file, "net spindle-enable      => " + pinname +".enable"
+                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"
                         print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)    
                     else:
-                        print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
-                        print >>file, "net spindle-enable      => " + pinname +".enable"
+                        print >>file, "net spindle-vel-cmd     => " + pwmpinname + ".value"
+                        print >>file, "net spindle-enable      => " + pwmpinname +".enable"
                 else:
                     print >>file, "net %senable     => pid.%s.enable" % (let, let)
-                    print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pinname + ".value"
+                    print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pwmpinname + ".value"
                     print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
-                    print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + pinname +".enable"
+                    print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
                 print >>file    
-        if not stepgen == "false":
-            pinname = self.make_pinname(stepgen,ini_style)
+        if steppinname:
             print >>file, "# Step Gen signals/setup"
             print >>file
-            print >>file, "setp   " + pinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
-            print >>file, "setp   " + pinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
-            print >>file, "setp   " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
-            print >>file, "setp   " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
-            print >>file, "setp   " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".step_type        0"
+            if closedloop or let == "s":
+                print >>file, "setp   " + steppinname + ".control-type     1"
+            else:
+                print >>file, "setp   " + steppinname + ".control-type     0"
             if let =="s":
-                print >>file, "setp   " + pinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
-                print >>file, "setp   " + pinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "setp   " + pinname + ".maxaccel         0"
-                print >>file, "setp   " + pinname + ".maxvel           0"
-            print >>file, "setp   " + pinname + ".step_type        0"        
-            if let == 's':  
-                print >>file, "setp   " + pinname + ".control-type     1"
+                print >>file, "setp   " + steppinname + ".maxaccel         0"
+                print >>file, "setp   " + steppinname + ".maxvel           0"
+            if let == "s":
                 print >>file
-                print >>file, "net spindle-enable          =>  " + pinname + ".enable" 
-                print >>file, "net spindle-vel-cmd-rps     =>  "+ pinname + ".velocity-cmd"
-                if encoder == "false":
-                    print >>file, "net spindle-vel-fb         <=  "+ pinname + ".velocity-fb"     
+                print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
+                print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
+                if not encoderpinname:
+                    print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
+            elif closedloop:
+                print >>file, "closedloop stepper signals"
+                print >>file, "net %senable                             => pid.%s.enable" % (let, let)
+                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
+                print >>file, "net %soutput     pid.%s.output           => "% (let, let) + steppinname + ".velocity-cmd"
+                print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + steppinname +".enable"
             else:
                 print >>file
-                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + pinname + ".position-fb"
-                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + pinname + ".position-cmd"
-                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"
+                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + steppinname + ".position-fb"
+                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
+                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
             print >>file
 
-        if not encoder == "false":
-                pinname = self.make_pinname(encoder,ini_style)              
+        if encoderpinname:             
                 countmode = 0
                 print >>file, "# ---Encoder feedback signals/setup---"
                 print >>file             
-                print >>file, "setp    "+pinname+".counter-mode %d"% countmode
-                print >>file, "setp    "+pinname+".filter 1" 
-                print >>file, "setp    "+pinname+".index-invert 0"
-                print >>file, "setp    "+pinname+".index-mask 0" 
-                print >>file, "setp    "+pinname+".index-mask-invert 0"              
-                print >>file, "setp    "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)
+                print >>file, "setp    "+encoderpinname+".counter-mode %d"% countmode
+                print >>file, "setp    "+encoderpinname+".filter 1" 
+                print >>file, "setp    "+encoderpinname+".index-invert 0"
+                print >>file, "setp    "+encoderpinname+".index-mask 0" 
+                print >>file, "setp    "+encoderpinname+".index-mask-invert 0"              
+                print >>file, "setp    "+encoderpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
                 print >>file
                 if let == 's':
-                    print >>file, "net spindle-revs              <=  " + pinname + ".position"
-                    print >>file, "net spindle-vel-fb            <=  " + pinname + ".velocity"
-                    print >>file, "net spindle-index-enable     <=>  " + pinname + ".index-enable" 
+                    print >>file, "net spindle-revs              <=  " + encoderpinname + ".position"
+                    print >>file, "net spindle-vel-fb            <=  " + encoderpinname + ".velocity"
+                    print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable" 
                
                 else: 
-                    print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
+                    print >>file, "net %spos-fb               <=  "% (let) + encoderpinname+".position"
                     print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
                     print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
-                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + pinname + ".index-enable"
+                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
                 print >>file
 
         if let =='s':
@@ -1642,11 +1663,11 @@ class Data:
             print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
             print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
             print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
-            if self.findsignal("spindle-at-speed") == "false":
+            if not self.findsignal("spindle-at-speed"):
                 print >>file
                 print >>file, "# ---Setup spindle at speed signals---"
                 print >>file
-                if not encoder == "false":
+                if encoderpinname:
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
@@ -1656,11 +1677,11 @@ class Data:
             return
 
         min_limsig = self.min_lim_sig(let)
-        if  min_limsig == "false": min_limsig = "%s-neg-limit" % let
+        if not min_limsig: min_limsig = "%s-neg-limit" % let
         max_limsig = self.max_lim_sig(let)  
-        if  max_limsig == "false": max_limsig = "%s-pos-limit" % let 
+        if not max_limsig: max_limsig = "%s-pos-limit" % let 
         homesig = self.home_sig(let)
-        if homesig == "false": homesig = "%s-home-sw" % let
+        if not homesig: homesig = "%s-home-sw" % let
         print >>file, "# ---setup home / limit switch signals---"       
         print >>file       
         print >>file, "net %s     =>  axis.%d.home-sw-in" % (homesig, axnum)       
@@ -1830,31 +1851,31 @@ class Data:
         enable = spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = False
 
-        if not self.findsignal("s-encoder-a") == "false":
+        if self.findsignal("s-encoder-a"):
             spindle_enc = True        
-        if not self.findsignal("probe") =="false":
+        if self.findsignal("probe"):
             probe = True
-        if not self.findsignal("s-pwm-pulse") =="false":
+        if self.findsignal("s-pwm-pulse"):
             pwm = True
-        if not self.findsignal("charge-pump") =="false":
+        if self.findsignal("charge-pump"):
             pump = True
-        if not self.findsignal("estop-ext") =="false":
+        if self.findsignal("estop-ext"):
             estop = True
-        if not self.findsignal("enable") =="false":
+        if self.findsignal("enable"):
             enable = True
-        if not self.findsignal("spindle-enable") =="false":
+        if self.findsignal("spindle-enable"):
             spindle_on = True
-        if not self.findsignal("spindle-cw") =="false":
+        if self.findsignal("spindle-cw"):
             spindle_cw = True
-        if not self.findsignal("spindle-ccw") =="false":
+        if self.findsignal("spindle-ccw"):
             spindle_ccw = True
-        if not self.findsignal("coolant-mist") =="false":
+        if self.findsignal("coolant-mist"):
             mist = True
-        if not self.findsignal("coolant-flood") =="false":
+        if self.findsignal("coolant-flood"):
             flood = True
-        if not self.findsignal("spindle-brake") =="false":
+        if self.findsignal("spindle-brake"):
             brake = True
-        if not self.findsignal("spindle-at-speed") =="false":
+        if self.findsignal("spindle-at-speed"):
             at_speed = True
 
         if self.pyvcp or self.userneededabs >0:
@@ -1961,7 +1982,7 @@ class Data:
         for i in self.available_axes:
             #if axis needs pid- (has pwm)
             print "looking at available axis : ",i
-            if self.findsignal(i+"-encoder-a") == "false": 
+            if not self.findsignal(i+"-encoder-a"): 
                 continue 
             if (self.spidcontrol == False and i == 's') :   
                 continue
@@ -2117,7 +2138,7 @@ class Data:
             print >>file
 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"),ini_style)
-        if not pinname == "false":
+        if pinname:
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
             print >>file, "net joint-selected-count     <=  %s.count"% (pinname)
@@ -2141,7 +2162,7 @@ class Data:
         for axnum,axletter in enumerate(temp):
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
-                if not pinname == "false":
+                if pinname:
                     print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
                     print >>file
                     print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)
@@ -2175,7 +2196,7 @@ class Data:
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
 
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"),ini_style)
-        if not pinname == "false":
+        if pinname:
             print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net fo-count     <=  %s.count"% (pinname)
@@ -2208,7 +2229,7 @@ class Data:
                 print >>file
 
         pinname = self.make_pinname(self.findsignal("so-mpg-a"),ini_style)
-        if not pinname == "false":
+        if pinname:
             print >>file, "# ---spindle override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net so-count     <=  %s.count"% (pinname)
@@ -2244,11 +2265,11 @@ class Data:
         print >>file
         for i in range(4):
             dout = "dout-%02d" % i
-            if not self.findsignal(dout) =="false":
+            if self.findsignal(dout):
                 print >>file, "net %s     <=  motion.digital-out-%02d" % (dout, i)
         for i in range(4):
             din = "din-%02d" % i
-            if not self.findsignal(din) =="false":
+            if self.findsignal(din):
                 print >>file, "net %s     =>  motion.digital-in-%02d" % (din, i)
         print >>file, _("#  ---estop signals---")
         print >>file
@@ -2423,7 +2444,7 @@ class Data:
         file = open(filename, "w")
         print >>file, _("Generated by PNCconf at %s") % time.asctime()
         print >>file
-        if  self.units == 0: unit = "an imperial"
+        if  self.units == _IMPERIAL: unit = "an imperial"
         else: unit = "a metric"
         if self.frontend == _AXIS: display = "AXIS"
         elif self.frontend == _TKEMC: display = "Tkemc"
@@ -2621,16 +2642,16 @@ class Data:
                     mesa[key] = "mesa%dc%dpin%d" %(boardnum,connector,s)     
         try:
             return mesa[sig]
-        except :   
-            if self.number_pports:             
+        except:
+            if self.number_pports:
                 try:
                     return ppinput[sig]
-                except :
-                    try: 
+                except:
+                    try:
                         return ppoutput[sig]
-                    except :
-                        return "false"    
-            else: return "false"            
+                    except:
+                        return None
+            else: return None
 
     # This method takes a signalname data pin (eg mesa0c3pin1)
     # and converts it to a HAL pin names (eg hm2_5i20.0.gpio.01)
@@ -2639,8 +2660,9 @@ class Data:
     # (a,b,i are related pins for encoder component) 
     def make_pinname(self, pin, ini_style = False):
         test = str(pin)  
-        halboardnum = 0     
-        if 'mesa' in test:
+        halboardnum = 0
+        if test == "None": return None
+        elif 'mesa' in test:
             boardnum = int(test[4:5])
             if ini_style:
                 boardname = "[hosmot2](board%d)"% boardnum                
@@ -2671,8 +2693,8 @@ class Data:
             elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF):
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
             else: 
-                print "pintype error"
-                return 
+                print "pintype error in make_pinname: ptype = ",ptype
+                return None
         elif 'pp' in test:
             print test
             ending = "-out"
@@ -2683,7 +2705,9 @@ class Data:
             connum = int(test[2:3])-1
             if pintype == 'I': ending = "-in"
             return "parport."+str(connum)+".pin-%02d"%(pinnum)+ending
-        else: return "false"
+        else:
+            print "pintype error in make_pinname: pinname = ",test
+            return None
 
 class App:
     fname = 'pncconf.glade'  # XXX search path
@@ -3171,7 +3195,7 @@ class App:
         self.widgets.sharedmpg.set_active(self.data.sharedmpg)
         self.widgets.multimpg.set_active(self.data.multimpg)
         self.widgets.incrselect.set_active(self.data.incrselect)
-        if self.data.units == 0 :
+        if self.data.units == _IMPERIAL :
             tempunits = "in"
         else:
             tempunits = "mm"      
@@ -3399,7 +3423,7 @@ class App:
         self.widgets.max_angular_velocity.set_value( self.data.max_angular_velocity*60)
         self.widgets.min_angular_velocity.set_value( self.data.min_angular_velocity*60)
         self.widgets.editor.set_text(self.data.editor)
-        if self.data.units == 0 :
+        if self.data.units == _IMPERIAL :
             temp = self.data.increments_imperial
             tempunits = "in / min"
         else:
@@ -3428,7 +3452,7 @@ class App:
         self.data.max_angular_velocity = self.widgets.max_angular_velocity.get_value()/60
         self.data.min_angular_velocity = self.widgets.min_angular_velocity.get_value()/60
         self.data.editor = self.widgets.editor.get_text()
-        if self.data.units == 0 :self.data.increments_imperial = self.widgets.increments.get_text()
+        if self.data.units == _IMPERIAL :self.data.increments_imperial = self.widgets.increments.get_text()
         else:self.data.increments_metric = self.widgets.increments.get_text()
         self.data.geometry = self.widgets.geometry.get_text()
         self.data.position_offset = self.widgets.position_offset.get_active()
@@ -4572,20 +4596,20 @@ class App:
             pwm = self.data.findsignal(i+"-pwm-pulse")
 
             if i == 's':
-                if not step == "false" and not pwm == "false":
+                if step and pwm:
                     warnings.append(_("You can not have both steppers and pwm signals for spindle control\n") )
                     do_warning = True
                 continue
-            if step == "false" and pwm == "false":
+            if not step and not pwm:
                 warnings.append(_("You forgot to designate a stepper or pwm signal for axis %s\n")% i)
                 do_warning = True
-            if not pwm == "false" and enc == "false": 
+            if pwm and not enc: 
                 warnings.append(_("You forgot to designate an encoder signal for axis %s servo\n")% i)
                 do_warning = True
-            if not enc == "false" and  pwm == "false" and step == "false": 
+            if enc and not pwm and not step: 
                 warnings.append(_("You forgot to designate a pwm signal or stepper signal for axis %s\n")% i)
                 do_warning = True
-            if not step == "false" and not pwm == "false": 
+            if step and pwm: 
                 warnings.append(_("You can not have both steppers and pwm signals for axis %s\n")% i)
                 do_warning = True
         if self.data.frontend == _TOUCHY:# TOUCHY GUI
@@ -4593,16 +4617,16 @@ class App:
             cycle = self.data.findsignal("cycle-start")
             single = self.data.findsignal("single-step")
             mpg = self.data.findsignal("select-mpg-a")
-            if cycle == "false": 
+            if not cycle: 
                 warnings.append(_("Touchy require an external cycle start signal\n"))
                 do_warning = True
-            if abort == "false": 
+            if not abort: 
                 warnings.append(_("Touchy require an external abort signal\n"))
                 do_warning = True
-            if single == "false": 
+            if not single: 
                 warnings.append(_("Touchy require an external single-step signal\n"))
                 do_warning = True
-            if mpg == "false": 
+            if not mpg: 
                 warnings.append(_("Touchy require an external multi handwheel MPG encoder signal on the mesa page\n"))
                 do_warning = True
             if not self.data.externalmpg:
@@ -4693,14 +4717,15 @@ class App:
     def on_scalculatescale_clicked(self, *args): self.calculate_scale('s')
 
     def axis_prepare(self, axis):
-        test = self.data.findsignal(axis+"-stepgen-step")
-        stepdriven = 1
-        if test == "false":stepdriven = 0
         d = self.data
         w = self.widgets
         def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
+        stepdriven = encoder = pwmgen = False
+        if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
+        if self.data.findsignal(axis+"-encoder-a"): encoder = True
+        if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
         model = w[axis+"drivertype"].get_model()
         model.clear()
         for i in drivertypes:
@@ -4725,17 +4750,23 @@ class App:
         set_active("invertmotor")
         set_active("invertencoder")  
         set_value("maxoutput")
-        w["pulleydriver"].set_value(d[axis+"pulleydriver"])
-        w["pulleydriven"].set_value(d[axis +"pulleydriven"])
-        w["leadscrew"].set_value(d[axis +"leadscrew"])
+        w["motor_pulleydriver"].set_value(d[axis +"motor_pulleydriver"])
+        w["motor_pulleydriven"].set_value(d[axis +"motor_pulleydriven"])
+        w["encoder_pulleydriver"].set_value(d[axis +"encoder_pulleydriver"])
+        w["encoder_pulleydriven"].set_value(d[axis +"encoder_pulleydriven"])
+        w["motor_leadscrew"].set_value(d[axis +"motor_leadscrew"])
+        w["encoder_leadscrew"].set_value(d[axis +"encoder_leadscrew"])
         w["encoderline"].set_value((d[axis+"encodercounts"]/4))
         set_text("encodercounts")
-        set_value("scale")
+        set_value("stepscale")
+        set_value("encoderscale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
-        w[axis + "servo_info"].set_sensitive(not stepdriven)
-        w[axis + "stepper_info"].set_sensitive(stepdriven)  
-        w[axis + "invertencoder"].set_sensitive(not stepdriven)
+        w[axis + "servo_info"].set_sensitive(encoder) 
+        w[axis + "invertencoder"].set_sensitive(encoder)
+        w[axis + "encoderscale"].set_sensitive(encoder)
+        w[axis + "stepper_info"].set_sensitive(stepdriven) 
+        w[axis + "stepscale"].set_sensitive(stepdriven)
         w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
         if w[axis + "drivertype"].get_active_text()  == _("Custom"):
             w[axis + "steptime"].set_value(d[axis + "steptime"])
@@ -4745,43 +4776,20 @@ class App:
         gobject.idle_add(lambda: self.update_pps(axis))
 
         if axis == 's':
-            self.widgets.spidcontrol.set_active( self.data.spidcontrol )
-            test = self.data.findsignal("s-stepgen-step")
-            stepdriven = 1
-            if test == "false":
-                stepdriven = 0
-            test = self.data.findsignal("s-pwm-pulse")
-            pwmdriven = 1
-            if test == "false":
-                pwmdriven = 0
-            if stepdriven:
-                w["sresolutionunits"].set_text(_("revolution / Step"))        
-                w["sscaleunits"].set_text(_("Steps / revolution"))
-            else:
-                w["sresolutionunits"].set_text(_("revolution / encoder pulse"))
-                w["sscaleunits"].set_text(_("Encoder pulses / revolution"))
-            w["leadscrewlabel"].set_text(_("Gearbox Reduction Ratio"))
-            w["screwunits"].set_text((""))
-            #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
-            w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
-            w['spindlespeed2'].set_text("%s" % d.spindlespeed2)
-            w['spindlepwm1'].set_text("%s" % d.spindlepwm1)
-            w['spindlepwm2'].set_text("%s" % d.spindlepwm2)
-            #self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
-            has_spindle_pha = self.data.findsignal("s-encoder-a")
-            if has_spindle_pha == "false":
-                
-                w.sencodercounts.set_sensitive(0)
-            else: 
-                
-                w.sencodercounts.set_sensitive(1) 
-            w[axis + "invertencoder"].set_sensitive(True)
-            w["soutputscale"].set_sensitive(pwmdriven)
-            w["soutputoffset"].set_sensitive(pwmdriven)
-            w["smaxoutput"].set_sensitive(pwmdriven)
-            w["sservo_info"].set_sensitive(pwmdriven)
+            self.widgets.spidcontrol.set_active( self.data.spidcontrol )        
+            
+            w["labelmotor_pitch"].set_text(_("Gearbox Reduction Ratio"))
+            w["labelencoder_pitch"].set_text(_("Gearbox Reduction Ratio"))
+            w["motor_screwunits"].set_text((""))
+            w["encoder_screwunits"].set_text((""))        
+            w.sencodercounts.set_sensitive(encoder)
+            w[axis + "invertencoder"].set_sensitive(encoder)
+            w["soutputscale"].set_sensitive(pwmgen)
+            w["soutputoffset"].set_sensitive(pwmgen)
+            w["smaxoutput"].set_sensitive(pwmgen)
+            w["sservo_info"].set_sensitive(pwmgen)
             self.on_spidcontrol_toggled()
-            w["saxistest"].set_sensitive(pwmdriven)
+            w["saxistest"].set_sensitive(pwmgen)
             w["sstepper_info"].set_sensitive(stepdriven)    
         else:
             set_value("maxferror")
@@ -4801,8 +4809,10 @@ class App:
             set_active("latchdir")
             set_active("usehomeindex")
             if axis == "a":
-                w["leadscrewlabel"].set_text(_("Reduction Ratio"))
-                w["screwunits"].set_text(_("degrees / rev"))
+                w["labelmotor_pitch"].set_text(_("Reduction Ratio"))
+                w["labelencoder_pitch"].set_text(_("Reduction Ratio"))
+                w["motor_screwunits"].set_text(_("degrees / rev"))
+                w["encoder_screwunits"].set_text(_("degrees / rev"))
                 w[axis + "velunits"].set_text(_("degrees / min"))
                 w[axis + "accunits"].set_text(_("degrees / sec²"))
                 w[axis + "homevelunits"].set_text(_("degrees / min"))
@@ -4810,17 +4820,19 @@ class App:
                 w[axis + "homefinalvelunits"].set_text(_("degrees / min"))
                 w[axis + "accdistunits"].set_text(_("degrees"))
                 if stepdriven:
-                    w[axis + "resolutionunits1"].set_text(_("degree / Step"))        
-                    w[axis + "scaleunits"].set_text(_("Steps / degree"))
+                    w["resolutionunits1"].set_text(_("degree / Step"))        
+                    w["scaleunits"].set_text(_("Steps / degree"))
                 else:
-                    w[axis + "resolutionunits1"].set_text(_("degrees / encoder pulse"))
-                    w[axis + "scaleunits"].set_text(_("Encoder pulses / degree"))
+                    w[ "resolutionunits1"].set_text(_("degrees / encoder pulse"))
+                    w["scaleunits"].set_text(_("Encoder pulses / degree"))
                 w[axis + "minfollowunits"].set_text(_("degrees"))
                 w[axis + "maxfollowunits"].set_text(_("degrees"))
     
-            elif d.units:
-                w["leadscrewlabel"].set_text(_("Leadscrew Pitch"))
-                w["screwunits"].set_text(_("(mm / rev)"))
+            elif d.units == _METRIC:
+                w["labelmotor_pitch"].set_text(_("Leadscrew Pitch"))
+                w["labelencoder_pitch"].set_text(_("Leadscrew Pitch"))
+                w["motor_screwunits"].set_text(_("(mm / rev)"))
+                w["encoder_screwunits"].set_text(_("(mm / rev)"))
                 w[axis + "velunits"].set_text(_("mm / min"))
                 w[axis + "accunits"].set_text(_("mm / sec²"))
                 w[axis + "homevelunits"].set_text(_("mm / min"))
@@ -4828,30 +4840,32 @@ class App:
                 w[axis + "homefinalvelunits"].set_text(_("mm / min"))
                 w[axis + "accdistunits"].set_text(_("mm"))
                 if stepdriven:
-                    w[axis + "resolutionunits1"].set_text(_("mm / Step"))        
-                    w[axis + "scaleunits"].set_text(_("Steps / mm"))
+                    w[ "resolutionunits1"].set_text(_("mm / Step"))        
+                    w["scaleunits"].set_text(_("Steps / mm"))
                 else:
-                    w[axis + "resolutionunits1"].set_text(_("mm / encoder pulse"))          
-                    w[axis + "scaleunits"].set_text(_("Encoder pulses / mm"))
+                    w["resolutionunits1"].set_text(_("mm / encoder pulse"))          
+                    w["scaleunits"].set_text(_("Encoder pulses / mm"))
                
                 w[axis + "minfollowunits"].set_text(_("mm"))
                 w[axis + "maxfollowunits"].set_text(_("mm"))
                
             else:
-                w["leadscrewlabel"].set_text(_("Leadscrew TPI"))
-                w["screwunits"].set_text(_("(rev / inch)"))
+                w["labelmotor_pitch"].set_text(_("Leadscrew TPI"))
+                w["labelencoder_pitch"].set_text(_("Leadscrew TPI"))
+                w["motor_screwunits"].set_text(_("(rev / inch)"))
+                w["encoder_screwunits"].set_text(_("(rev / inch)"))
                 w[axis + "velunits"].set_text(_("inches / min"))
                 w[axis + "accunits"].set_text(_("inches / sec²"))
                 w[axis + "homevelunits"].set_text(_("inches / min"))
                 w[axis + "homelatchvelunits"].set_text(_("inches / min"))
                 w[axis + "homefinalvelunits"].set_text(_("inches / min"))
-                w[axis + "accdistunits"].set_text(_("inches"))
+                w["accdistunits"].set_text(_("inches"))
                 if stepdriven:
-                    w[axis + "resolutionunits1"].set_text(_("inches / Step"))        
-                    w[axis + "scaleunits"].set_text(_("Steps / inch"))
+                    w[ "resolutionunits1"].set_text(_("inches / Step"))        
+                    w[ "scaleunits"].set_text(_("Steps / inch"))
                 else:
-                    w[axis + "resolutionunits1"].set_text(_("inches / encoder pulse"))        
-                    w[axis + "scaleunits"].set_text(_("Encoder pulses / inch"))
+                    w[ "resolutionunits1"].set_text(_("inches / encoder pulse"))        
+                    w["scaleunits"].set_text(_("Encoder pulses / inch"))
                
                 w[axis + "minfollowunits"].set_text(_("inches"))
                 w[axis + "maxfollowunits"].set_text(_("inches"))
@@ -4859,7 +4873,7 @@ class App:
             homes = False
             for i in thisaxishome:
                 test = self.data.findsignal(i)
-                if not test == "false": homes = True
+                if test: homes = True
             w[axis + "homesw"].set_sensitive(homes)
             w[axis + "homesearchvel"].set_sensitive(homes)
             w[axis + "searchdir"].set_sensitive(homes)
@@ -4947,8 +4961,9 @@ class App:
         def get_text(n): d[axis + n] = get_value(w[axis + n])
         def get_pagevalue(n): d[axis + n] = get_value(w[axis + n])
         def get_active(n): d[axis + n] = w[axis + n].get_active()
-        d[axis + "steprev"] = int(get_value(w["steprev"]))
-        d[axis + "microstep"] = int(get_value(w["microstep"]))
+        stepdrive = self.data.findsignal(axis+"-stepgen-step")
+        encoder = self.data.findsignal(axis+"-encoder-a")
+        
         get_pagevalue("P")
         get_pagevalue("I")
         get_pagevalue("D")
@@ -4965,12 +4980,18 @@ class App:
         get_pagevalue("outputoffset")
         get_pagevalue("maxoutput")
         d[axis + "encodercounts"] = int(float(w["encoderline"].get_text())*4)
-        get_pagevalue("scale")
+        if stepdrive: get_pagevalue("stepscale")
+        if encoder: get_pagevalue("encoderscale")
         get_active("invertmotor")
-        get_active("invertencoder") 
-        d[axis + "pulleydriver"] = int(get_value(w["pulleydriver"]))
-        d[axis + "pulleydriven"] = int(get_value(w["pulleydriven"]))
-        d[axis + "leadscrew"] = int(get_value(w["leadscrew"]))        
+        get_active("invertencoder")
+        d[axis + "steprev"] = int(get_value(w["steprev"]))
+        d[axis + "microstep"] = int(get_value(w["microstep"]))
+        d[axis + "motor_pulleydriver"] = int(get_value(w["motor_pulleydriver"]))
+        d[axis + "motor_pulleydriven"] = int(get_value(w["motor_pulleydriven"]))
+        d[axis + "encoder_pulleydriver"] = int(get_value(w["encoder_pulleydriver"]))
+        d[axis + "encoder_pulleydriven"] = int(get_value(w["encoder_pulleydriven"]))
+        d[axis + "motor_leadscrew"] = int(get_value(w["motor_leadscrew"]))
+        d[axis + "encoder_leadscrew"] = int(get_value(w["encoder_leadscrew"]))
         d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
         get_text("maxacc")
         d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
@@ -4993,95 +5014,159 @@ class App:
             get_active("usecomp")
             get_active("usebacklash")
         else:
-            self.data.spindlespeed1 = get_value(self.widgets.spindlespeed1)
-            self.data.spindlespeed2 = get_value(self.widgets.spindlespeed2)
-            self.data.spindlepwm1 = get_value(self.widgets.spindlepwm1)
-            self.data.spindlepwm2 = get_value(self.widgets.spindlepwm2)
-            #self.data.spindlecarrier = get_value(self.widgets.spindlecarrier)
-            #self.data.spindlecpr = get_value(self.widgets.spindlecpr)
             get_active("pidcontrol") 
 
-    def calculate_scale(self, axis):
-        w = self.widgets
-        stepdriven = rotaryaxis = encoder = 1
-        def get(n): return get_value(w[n])
-        test = self.data.findsignal(axis+"-stepgen-step")    
-        if test == "false":stepdriven = 0
-        test = self.data.findsignal(axis+"-encoder-a")    
-        if test == "false":encoder = 0
-        w["steprev"].set_sensitive( stepdriven ) 
-        w["microstep"].set_sensitive( stepdriven )
-        w["encoderline"].set_sensitive( encoder )
-        if not axis == 'a': rotaryaxis = 0
-        w["wormdriver"].set_sensitive( rotaryaxis ) 
-        w["wormdriven"].set_sensitive( rotaryaxis )
-        w["leadscrew"].set_sensitive( not rotaryaxis )
+    def calculate_scale(self,axis):
+        def get(n): return get_value(self.widgets[n])
+        stepdrive = self.data.findsignal(axis+"-stepgen-step")
+        encoder = self.data.findsignal(axis+"-encoder-a")
+        cb = ["encoderline","encoder_leadscrew","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven","encoder_pulleydriver",
+                "steprev","motor_leadscrew","microstep","motor_wormdriven","motor_wormdriver","motor_pulleydriven","motor_pulleydriver"]
+        for i in cb:
+            self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
+        cb = [ "cbencoder_pitch","cbencoder_worm","cbencoder_pulley","cbmotor_pitch","cbmicrosteps","cbmotor_worm","cbmotor_pulley"]
+        for i in cb:
+            self.widgets[i].connect("toggled", self.update_scale_calculation,axis)
+        self.update_scale_calculation(self.widgets,axis)
         self.widgets.scaledialog.set_title(_("Axis Scale Calculation"))
         self.widgets.scaledialog.show_all()
         result = self.widgets.scaledialog.run()
         self.widgets.scaledialog.hide()
+        if not result: return
+        if encoder:
+            self.widgets[axis+"encoderscale"].set_value(get("calcencoder_scale"))
+        if stepdrive:
+            self.widgets[axis+"stepscale"].set_value(get("calcmotor_scale"))
+
+    def update_scale_calculation(self,widgets,axis):
+        w = self.widgets
+        d = self.data
+        def get(n): return get_value(w[n])
+        stepdrive = self.data.findsignal(axis+"-stepgen-step")
+        encoder = self.data.findsignal(axis+"-encoder-a")
+        motor_pulley_ratio = encoder_pulley_ratio = 1
+        motor_worm_ratio = encoder_worm_ratio = 1
+        microstepfactor = motor_pitch = encoder_pitch = motor_steps = 1
+        if axis == "a": rotary_scale = 360
+        else: rotary_scale = 1 
         try:
-            worm_ratio = enc_count_per_rev = steps_per_rev = 1
-            if axis == 'a': 
-                pitch = 1
-                worm_ratio = (get("wormdriver") / get("wormdriven"))
-            elif self.data.units == 1: 
-                pitch = 1./ get("leadscrew")
-            else:  
-                pitch = get("leadscrew")
-            motor_ratio = (get("pulleydriver") / get("pulleydriven"))          
-            if stepdriven :
-                steps_per_rev = get("steprev") * get("microstep")
-                scale = ( steps_per_rev * pitch * worm_ratio * motor_ratio)
+            if stepdrive:
+                # stepmotor scale
+                w["calcmotor_scale"].set_sensitive(True)
+                w["stepscaleframe"].set_sensitive(True)
+                if w["cbmotor_pulley"].get_active():
+                    w["motor_pulleydriver"].set_sensitive(True)
+                    w["motor_pulleydriven"].set_sensitive(True)
+                    motor_pulley_ratio = (get("motor_pulleydriven") / get("motor_pulleydriver"))
+                else:
+                     w["motor_pulleydriver"].set_sensitive(False)
+                     w["motor_pulleydriven"].set_sensitive(False)
+                if w["cbmotor_worm"].get_active():
+                    w["motor_wormdriver"].set_sensitive(True)
+                    w["motor_wormdriven"].set_sensitive(True)
+                    motor_worm_ratio = (get("motor_wormdriver") / get("motor_wormdriven"))
+                else:
+                    w["motor_wormdriver"].set_sensitive(False)
+                    w["motor_wormdriven"].set_sensitive(False)
+                if w["cbmicrosteps"].get_active():
+                    w["microstep"].set_sensitive(True)
+                    microstepfactor = get("microstep")
+                else:
+                    w["microstep"].set_sensitive(False)
+                if w["cbmotor_pitch"].get_active():
+                    w["motor_leadscrew"].set_sensitive(True)
+                    if self.data.units == _METRIC: 
+                        motor_pitch = 1./ get("motor_leadscrew")
+                    else:  
+                        motor_pitch = get("motor_leadscrew")
+                else: w["motor_leadscrew"].set_sensitive(False)
+                motor_steps = get("steprev")
+                motor_scale = (motor_steps * microstepfactor * motor_pulley_ratio * motor_worm_ratio * motor_pitch) / rotary_scale
+                w["calcmotor_scale"].set_text("%.4f" % motor_scale)
             else:
-                enc_count_per_rev = get_value(w[("encoderline")]) * 4
-                scale =  ( enc_count_per_rev * pitch * worm_ratio * motor_ratio)
-            w[axis + "encodercounts"].set_text( "%d" % ( enc_count_per_rev))
-            if axis == 'a': scale = scale / 360
-            w[axis + "calscale"].set_text("%.1f" % scale)
-            w[axis + "scale"].set_value(scale)   
+                w["calcmotor_scale"].set_sensitive(False)
+                w["stepscaleframe"].set_sensitive(False)
+            # encoder scale
+            if encoder:
+                w["calcencoder_scale"].set_sensitive(True)
+                w["encoderscaleframe"].set_sensitive(True)
+                if w["cbencoder_pulley"].get_active():
+                    w["encoder_pulleydriver"].set_sensitive(True)
+                    w["encoder_pulleydriven"].set_sensitive(True)
+                    encoder_pulley_ratio = (get("encoder_pulleydriven") / get("encoder_pulleydriver"))
+                else:
+                     w["encoder_pulleydriver"].set_sensitive(False)
+                     w["encoder_pulleydriven"].set_sensitive(False)
+                if w["cbencoder_worm"].get_active():
+                    w["encoder_wormdriver"].set_sensitive(True)
+                    w["encoder_wormdriven"].set_sensitive(True)
+                    encoder_worm_ratio = (get("encoder_wormdriver") / get("encoder_wormdriven"))
+                else:
+                    w["encoder_wormdriver"].set_sensitive(False)
+                    w["encoder_wormdriven"].set_sensitive(False)
+                if w["cbencoder_pitch"].get_active():
+                    w["encoder_leadscrew"].set_sensitive(True)
+                    if self.data.units == _METRIC: 
+                        encoder_pitch = 1./ get("encoder_leadscrew")
+                    else:  
+                        encoder_pitch = get("encoder_leadscrew")
+                else: w["encoder_leadscrew"].set_sensitive(False)
+                encoder_cpr = get_value(w[("encoderline")]) * 4
+                encoder_scale = (encoder_pulley_ratio * encoder_worm_ratio * encoder_pitch * encoder_cpr) / rotary_scale
+                w["calcencoder_scale"].set_text("%.4f" % encoder_scale)
+            else:
+                w["calcencoder_scale"].set_sensitive(False)
+                w["encoderscaleframe"].set_sensitive(False)
         except (ValueError, ZeroDivisionError):
-            w[axis + "scale"].set_text( "")
+            w["calcmotor_scale"].set_text("1")
+            w["calcencoder_scale"].set_text("1")
         self.update_pps(axis)
 
     def update_pps(self, axis):
         w = self.widgets
         d = self.data
         worm_ratio = motor_ratio = 1       
-        def get(n): return get_value(w[axis + n])
-
+        def get(n): return get_value(w[n])
+        stepdrive = self.data.findsignal(axis+"-stepgen-step")
+        encoder = self.data.findsignal(axis+"-encoder-a")
         try:
-            if axis == 'a': 
-                pitch = 1
-                worm_ratio = (get_value(w.wormdriver) / get_value(w.wormdriven))
-            elif self.data.units == 1: 
-                pitch = 1./ get_value(w.leadscrew)
-            else:  
-                pitch = get_value(w.leadscrew)
-            motor_ratio = (get_value(w.pulleydriver) / get_value(w.pulleydriven))  
-            maxvps = (get("maxvel"))/60
-            pps = (get_value(w[axis+"scale"]) * (maxvps))/1000
+            if encoder:
+                scale = get("calcencoder_scale")
+                encoder_cpr = get_value(w[("encoderline")]) * 4
+            elif stepdrive:
+                scale = get("calcmotor_scale")
+            else: return
+            if stepdrive:
+                motor_steps = get("steprev")
+                if w["cbmicrosteps"].get_active():
+                    microstepfactor = get("microstep")
+                else: microstepfactor = 1
+            maxvps = (get_value(w[axis+"maxvel"]))/60
+            pps = (scale * (maxvps))/1000
             if pps == 0: raise ValueError
             pps = abs(pps)
-            w[axis + "khz"].set_text("%.1f" % pps)
-            acctime = (maxvps) / get("maxacc")
+            w["khz"].set_text("%.1f" % pps)
+            acctime = (maxvps) / get_value(w[axis+"maxacc"])
             accdist = acctime * .5 * (maxvps)
-            maxrpm = int(maxvps * 60 *  pitch /( worm_ratio * motor_ratio))
-            w[axis + "acctime"].set_text("%.4f" % acctime)
+            if encoder:
+                maxrpm = int(maxvps * 60 * (scale/encoder_cpr))
+            else:
+                maxrpm = int(maxvps * 60 * (scale/(microstepfactor * motor_steps)))
+            w["acctime"].set_text("%.4f" % acctime)
             if not axis == 's':
-                w[axis + "accdist"].set_text("%.4f" % accdist)                 
-            w[axis + "chartresolution"].set_text("%.7f" % (1.0 / get_value(w[axis+"scale"])))
-            w[axis + "calscale"].set_text(str(get_value(w[axis+"scale"])))
-            w[axis + "maxrpm"].set_text("%d" % maxrpm)
+                w["accdist"].set_text("%.4f" % accdist)                 
+            w["chartresolution"].set_text("%.7f" % (1.0 / scale))
+            w["calscale"].set_text(str(scale))
+            w["maxrpm"].set_text("%d" % maxrpm)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             w[axis + "axistune"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
-            w[axis + "chartresolution"].set_text("")
-            w[axis + "acctime"].set_text("")
+            w["chartresolution"].set_text("")
+            w["acctime"].set_text("")
             if not axis == 's':
-                w[axis + "accdist"].set_text("")
-            w[axis + "khz"].set_text("")
-            w[axis + "calscale"].set_text("")
+                w["accdist"].set_text("")
+            w["khz"].set_text("")
+            w["calscale"].set_text("")
             self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
             w[axis + "axistune"].set_sensitive(0)
 
@@ -5172,14 +5257,14 @@ class App:
     def has_spindle_speed_control(self):
         for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake"):
             has_spindle = self.data.findsignal(test)
-            if not has_spindle == "false":
+            if has_spindle:
                 return True
         return False
 
     def on_spidcontrol_toggled(self, *args):
         test = self.data.findsignal("s-pwm-pulse")
-        pwmdriven = 1
-        if test == "false":pwmdriven = 0
+        pwmdriven = 0
+        if test: pwmdriven = 1
         if self.widgets.spidcontrol.get_active() == False: pwmdriven = 0
         self.widgets.sP.set_sensitive(pwmdriven)
         self.widgets.sI.set_sensitive(pwmdriven)
@@ -5233,7 +5318,7 @@ class App:
            if self.widgets.ladder1.get_active() == True:
               self.data.laddername = 'estop.clp'
               has_estop = self.data.findsignal("estop-ext")
-              if has_estop == "false":
+              if not has_estop:
                  self.warning_dialog(_("You need to designate an E-stop input pin for this ladder program."),True)
                  self.widgets.druid1.set_page(self.widgets.advanced)
                  return True
@@ -5718,7 +5803,7 @@ class App:
         w.tuneaxispage.set_current_page(axnum)
         w[axis+"tunepage"].set_sensitive(1)
 
-        if not self.stepgen == "false":
+        if self.stepgen:
             w[axis+"tuningnotebook"].set_current_page(1)
             w[axis+"pid"].set_sensitive(0)
             w[axis+"tuneinvertencoder"].set_sensitive(0)
@@ -5738,7 +5823,7 @@ class App:
             w[axis + "tunedistunits"].set_text(_("revolutions"))
             w[axis + "tunevelunits"].set_text(_("rpm"))
             w[axis + "tuneaccunits"].set_text(_("revs / second²"))
-        elif d.units:
+        elif d.units == _METRIC:
             w[axis + "tunedistunits"].set_text(_("mm"))
             w[axis + "tunevelunits"].set_text(_("mm / minute"))
             w[axis + "tuneaccunits"].set_text(_("mm / second²"))
@@ -5786,17 +5871,17 @@ class App:
         loadrt scale names=scale_to_rpm
         loadrt steptest     
         """ % {'period':100000, 'period2':self.data.servoperiod })   
-        if self.stepgen == "false": 
+        if not self.stepgen: 
             halrun.write("loadrt pid num_chan=1\n")
         self.hal_cmnds("LOAD")
         self.hal_cmnds("READ")       
         halrun.write("addf steptest.0 slow \n")
-        if self.stepgen == "false": 
+        if not self.stepgen: 
             halrun.write("addf pid.0.do-pid-calcs slow \n")
         halrun.write("addf scale_to_rpm slow \n")
         self.hal_cmnds("WRITE")
         # for encoder signals
-        if "mesa" in self.encoder: 
+        if self.encoder: 
             print self.encoder,"--",self.encoder[4:5],self.encoder[10:],self.encoder[6:7] 
             self.enc_signalname = self.data.make_pinname(self.encoder)                 
             halrun.write("setp %s.counter-mode 0\n"% (self.enc_signalname))
@@ -5804,12 +5889,12 @@ class App:
             halrun.write("setp %s.index-invert 0\n"% (self.enc_signalname))
             halrun.write("setp %s.index-mask 0\n"% (self.enc_signalname))
             halrun.write("setp %s.index-mask-invert 0\n"% (self.enc_signalname)) 
-            halrun.write("setp %s.scale %d\n"% (self.enc_signalname, get_value(w[axis + "scale"])))                         
+            halrun.write("setp %s.scale %d\n"% (self.enc_signalname, get_value(w[axis + "encoderscale"])))                         
             halrun.write("loadusr halmeter -s pin %s.velocity -g 0 625 330\n"% (self.enc_signalname))
             halrun.write("loadusr halmeter -s pin %s.position -g 0 675 330\n"% (self.enc_signalname))
             halrun.write("loadusr halmeter pin %s.velocity -g 275 415\n"% (self.enc_signalname))
         # for pwm components
-        if "mesa" in self.pwmgen:                             
+        if self.pwmgen:                             
             self.pwm_signalname = self.data.make_pinname(self.pwmgen)  
             print "got to pwm", self.pwmgen," -- ",self.pwm_signalname                        
             halrun.write("setp %s.scale 10\n"% (self.pwm_signalname))                        
@@ -5818,14 +5903,14 @@ class App:
             halrun.write("loadusr halmeter -s pin %s.enable -g 0 525 330\n"% (self.pwm_signalname))
             halrun.write("loadusr halmeter -s pin %s.value -g 0 575 330\n"% (self.pwm_signalname)) 
         # for step gen components
-        if "mesa" in self.stepgen:                        
+        if self.stepgen:                        
             # check current component number to signal's component number                             
             self.step_signalname = self.data.make_pinname(self.stepgen) 
             print "step_signal--",self.step_signalname   
             if w[axis+"invertmotor"].get_active():
-                self.scale = get_value(w[axis + "scale"]) * -1
+                self.scale = get_value(w[axis + "stepscale"]) * -1
             else:
-                self.scale = get_value(w[axis + "scale"]) * 1
+                self.scale = get_value(w[axis + "stepscale"]) * 1
                 #halrun.write("setp %s.gpio.%03d.invert_output %d \n"% (self.step_signalname,self.invert,guiinvert))
             halrun.write("setp %s.step_type 0 \n"% (self.step_signalname))
             halrun.write("setp %s.position-scale %f \n"% (self.step_signalname,self.scale))
@@ -5833,7 +5918,7 @@ class App:
             halrun.write("setp %s.stepspace %d \n"% (self.step_signalname,w[axis+"stepspace"].get_value()))
             halrun.write("setp %s.dirhold %d \n"% (self.step_signalname,w[axis+"dirhold"].get_value()))
             halrun.write("setp %s.dirsetup %d \n"% (self.step_signalname,w[axis+"dirsetup"].get_value()))
-            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "scale"]))  )
+            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "stepscale"]))  )
             halrun.write("setp %s.maxaccel 0 \n"% (self.step_signalname))
             halrun.write("setp %s.maxvel 0 \n"% (self.step_signalname))
             halrun.write("net enable => %s.enable \n"% (self.step_signalname))
@@ -5848,7 +5933,7 @@ class App:
         # set up enable output pin if used
         temp = self.data.findsignal( "enable")
         amp = self.data.make_pinname(temp)
-        if not amp == "false":
+        if amp:
             if "hm2" in amp:    
                 halrun.write("setp %s true\n"% (amp + ".is_output"))             
                 halrun.write("net enable %s \n"% (amp + ".out"))
@@ -5857,14 +5942,14 @@ class App:
         # set up estop output if used
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
-        if not estop =="false":        
+        if estop:        
             if "hm2" in estop:
                 halrun.write("setp %s true\n"%  (estop + ".is_output"))    
                 halrun.write("net enable %s\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
         # set up as servo system if no step generator...
-        if self.stepgen == "false":
+        if not self.encoder:
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
             halrun.write("setp pid.0.Igain     %d\n"% ( w[axis+"I"].get_value() ))
             halrun.write("setp pid.0.Dgain     %d\n"% ( w[axis+"D"].get_value() ))
@@ -5926,7 +6011,7 @@ class App:
             self.widgets[axis+"tunejogplus"].set_sensitive(temp)
         self.widgets[axis+"tunerun"].set_sensitive(temp)
         halrun = self.halrun
-        if not self.stepgen == "false":
+        if self.stepgen:
             halrun.write("""
                 setp %(stepgen)s.steplen %(len)d
                 setp %(stepgen)s.stepspace %(space)d
@@ -6017,20 +6102,21 @@ class App:
     def on_tunejogplus_released(self, w):
         self.tunejogplus = 0
         self.update_tune_axis_params()
+    # TODO fix scaling for servos:
     def on_tuneinvertmotor_toggled(self, w):
         axis = self.axis_under_tune
         w = self.widgets
         if w[axis+"tuneinvertmotor"].get_active():
-            self.scale = get_value(w[axis + "scale"]) * -1
+            self.scale = get_value(w[axis + "stepscale"]) * -1
         else:
-            self.scale = get_value(w[axis + "scale"])                 
+            self.scale = get_value(w[axis + "stepscale"])                 
         self.update_tune_axis_params()
 
     # openloop servo test
     def test_axis(self, axis):
         if not self.check_for_rt(self):
             return
-        if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
+        if not self.data.findsignal( (axis + "-pwm-pulse")) or not self.data.findsignal( (axis + "-encoder-a")):
              self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
              return
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
@@ -6041,10 +6127,9 @@ class App:
         fastdac = get_value(widgets["fastdac"])
         slowdac = get_value(widgets["slowdac"])
         dacspeed = widgets.Dac_speed_fast.get_active()
-        enc_scale = get_value(widgets[axis+"scale"])          
-        if not self.data.findsignal("charge-pump") =="false": 
-            pump = True   
-        
+        enc_scale = get_value(widgets[axis+"encoderscale"])
+        pump = self.data.findsignal("charge-pump")
+
         halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))       
         self.hal_cmnds("LOAD")
         halrun.write("loadrt steptest\n")
@@ -6060,7 +6145,7 @@ class App:
         # set enable pin if used (output)
         temp = self.data.findsignal( "enable")
         self.amp = self.data.make_pinname(temp)
-        if not self.amp == "false":
+        if self.amp:
             if "hm2_" in self.amp:    
                 print "got here"
                 halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
@@ -6076,7 +6161,7 @@ class App:
         # setup pwm generator
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
-        if not estop == "false":        
+        if estop:        
             if "hm2_" in estop:
                 halrun.write("setp %s true\n"%  (estop + ".is_output"))    
                 halrun.write("setp %s true\n"%  (estop + ".out"))
@@ -6091,7 +6176,7 @@ class App:
         # set charge pump if used
         temp = self.data.findsignal( "charge-pump")
         pump = self.data.make_pinname(temp)
-        if not pump == "false":        
+        if pump:        
             if "hm2_" in pump:
                 halrun.write("setp %s true\n"%  (pump + ".is_output"))    
                 halrun.write("setp %s true\n"%  (pump + ".out"))
@@ -6106,7 +6191,7 @@ class App:
             halrun.write("loadusr halmeter -s pin %s -g 0 500 330\n"%  (pump))             
         # setup pwm generator
         pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
-        if not pwm == "false":          
+        if pwm:          
             halrun.write("net dac %s \n"%  (pwm +".value"))
             halrun.write("setp %s \n"%  (pwm +".enable true"))
             halrun.write("setp %s \n"%  (pwm +".scale 10"))
@@ -6114,7 +6199,7 @@ class App:
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
         # set up encoder     
         self.enc = self.data.make_pinname(self.data.findsignal( (axis + "-encoder-a")))
-        if not self.enc =="false":           
+        if self.enc:           
             halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
             halrun.write("setp %s.scale %f \n"%  (self.enc, enc_scale))
             halrun.write("setp %s \n"%  (self.enc +".filter true"))
@@ -6138,9 +6223,9 @@ class App:
         result = widgets.openloopdialog.run()
 
         widgets.openloopdialog.hide()
-        if not self.amp == "false":
+        if self.amp:
              halrun.write("setp %s false\n"% (self.amp))
-        if not estop == "false":
+        if estop:
              halrun.write("setp %s false\n"% (estop))
         time.sleep(.001)
         halrun.close()        
@@ -6149,7 +6234,7 @@ class App:
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
             widgets[axis+"outputoffset"].set_value(widgets.testoutputoffset.get_value())
-            widgets[axis+"scale"].set_value(widgets.testenc_scale.get_value())
+            widgets[axis+"encoderscale"].set_value(widgets.testenc_scale.get_value())
             #widgets[axis+"maxvel"].set_text("%s" % widgets.testvel.get_value())
         self.axis_under_test = None
         self.widgets['window1'].set_sensitive(1)
@@ -6174,7 +6259,7 @@ class App:
         if self.widgets.testinvertmotor.get_active() == True: 
             output = output * -1
         output += get_value(self.widgets.testoutputoffset)
-        if not self.amp == "false":
+        if self.amp:
             halrun.write("setp %s %d\n"% (self.amp, self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
