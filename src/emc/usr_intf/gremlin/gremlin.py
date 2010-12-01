@@ -195,6 +195,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
         self.set_view_z()
 
+    def get_program_alpha(self): return False
     def get_num_joints(self): return self.num_joints
     def get_geometry(self): return 'XYZ'
     def get_joints_mode(self): return False
