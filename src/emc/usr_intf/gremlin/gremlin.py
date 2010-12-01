@@ -210,7 +210,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_show_relative(self): return True
     def get_show_tool(self): return True
     def get_show_distance_to_go(self): return True
-    def get_view(self): return 'z'
+    def get_view(self): return 3 # assume perspective
     def is_lathe(self): return False
     def get_current_tool(self):
         for i in self.stat.tool_table:
