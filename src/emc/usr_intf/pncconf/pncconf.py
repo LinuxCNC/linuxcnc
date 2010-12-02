@@ -1895,7 +1895,7 @@ class Data:
             for i in range(0,self.userneededlowpass):
                 self.lowpassnames = self.lowpassnames+"lowpass.%d,"% (i)
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
-                self.lowpassnames=self.lowpassnames+"lowpass.spindle,"
+                self.lowpassnames=self.lowpassnames+"lowpass.spindle"
             temp = self.lowpassnames.rstrip(",")
             print >>file, "loadrt lowpass names=%s"% temp
 
@@ -2860,7 +2860,13 @@ class App:
        
         self.intrnldata = Intrnl_data()
         self.data = Data()
-        
+        # add some custom signals for:
+        # motor/encoder scaling
+        for axis in ["x","y","z","a","s"]:
+            cb = ["encoderscale","stepscale"]
+            for i in cb:
+                self.widgets[axis + i].connect("value-changed", self.motor_encoder_sanity_check,axis)
+
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile) 
@@ -3025,6 +3031,8 @@ class App:
         # have to do it here manually (instead of autoconnect) because glade doesn't handle added
         # user info (board/connector/pin number designations) and doesn't record the signal ID numbers
         # none of this is done if mesa is not checked off in pncconf
+        # TODO we should check to see if signals are already present as each time user goes though this page
+        # the signals get added again causing multple calls to the functions.
 
         if (self.data.number_mesa): 
             for boardnum in (0,1):
@@ -4885,7 +4893,9 @@ class App:
             w[axis + "comptype"].set_sensitive(i)
             w[axis + "compfilename"].set_sensitive(i)
             i = d[axis + "usebacklash"]
-            w[axis + "backlash"].set_sensitive(i)       
+            w[axis + "backlash"].set_sensitive(i)
+            self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+            self.motor_encoder_sanity_check(None,axis)
 
     def on_xusecomp_toggled(self, *args): self.comp_toggle('x')
     def on_yusecomp_toggled(self, *args): self.comp_toggle('y')
@@ -4963,7 +4973,6 @@ class App:
         def get_active(n): d[axis + n] = w[axis + n].get_active()
         stepdrive = self.data.findsignal(axis+"-stepgen-step")
         encoder = self.data.findsignal(axis+"-encoder-a")
-        
         get_pagevalue("P")
         get_pagevalue("I")
         get_pagevalue("D")
@@ -5020,18 +5029,25 @@ class App:
         def get(n): return get_value(self.widgets[n])
         stepdrive = self.data.findsignal(axis+"-stepgen-step")
         encoder = self.data.findsignal(axis+"-encoder-a")
-        cb = ["encoderline","encoder_leadscrew","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven","encoder_pulleydriver",
+        # temparally add signals
+        templist1 = ["encoderline","encoder_leadscrew","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven","encoder_pulleydriver",
                 "steprev","motor_leadscrew","microstep","motor_wormdriven","motor_wormdriver","motor_pulleydriven","motor_pulleydriver"]
-        for i in cb:
-            self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
-        cb = [ "cbencoder_pitch","cbencoder_worm","cbencoder_pulley","cbmotor_pitch","cbmicrosteps","cbmotor_worm","cbmotor_pulley"]
-        for i in cb:
-            self.widgets[i].connect("toggled", self.update_scale_calculation,axis)
+        for i in templist1:
+            self.intrnldata[i] = self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
+        templist2 = [ "cbencoder_pitch","cbencoder_worm","cbencoder_pulley","cbmotor_pitch","cbmicrosteps","cbmotor_worm","cbmotor_pulley"]
+        for i in templist2:
+            self.intrnldata[i] = self.widgets[i].connect("toggled", self.update_scale_calculation,axis)
+
         self.update_scale_calculation(self.widgets,axis)
         self.widgets.scaledialog.set_title(_("Axis Scale Calculation"))
         self.widgets.scaledialog.show_all()
         result = self.widgets.scaledialog.run()
         self.widgets.scaledialog.hide()
+        # remove signals
+        for i in templist1:
+            self.widgets[i].disconnect(self.intrnldata[i])
+        for i in templist2:
+            self.widgets[i].disconnect(self.intrnldata[i])
         if not result: return
         if encoder:
             self.widgets[axis+"encoderscale"].set_value(get("calcencoder_scale"))
@@ -5158,8 +5174,8 @@ class App:
             w["chartresolution"].set_text("%.7f" % (1.0 / scale))
             w["calscale"].set_text(str(scale))
             w["maxrpm"].set_text("%d" % maxrpm)
-            self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-            w[axis + "axistune"].set_sensitive(1)
+            #self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
+            #w[axis + "axistune"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
             w["chartresolution"].set_text("")
             w["acctime"].set_text("")
@@ -5167,8 +5183,28 @@ class App:
                 w["accdist"].set_text("")
             w["khz"].set_text("")
             w["calscale"].set_text("")
+            #self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+            #w[axis + "axistune"].set_sensitive(0)
+
+    def motor_encoder_sanity_check(self,widgets,axis):
+        stepdrive = encoder = bad = False
+        if self.data.findsignal(axis+"-stepgen-step"): stepdrive = True
+        if self.data.findsignal(axis+"-encoder-a"): encoder = True
+        if encoder:
+            if self.widgets[axis+"encoderscale"].get_value() < 1: bad = True
+        if stepdrive:
+            if self.widgets[axis+"stepscale"].get_value() < 1: bad = True
+        if not encoder and not stepdrive : bad = True
+        if self.widgets[axis+"maxvel"] < 1: bad = True
+        if self.widgets[axis+"maxacc"] < 1: bad = True
+        if bad:
             self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
-            w[axis + "axistune"].set_sensitive(0)
+            self.widgets[axis + "axistune"].set_sensitive(0)
+            self.widgets[axis + "axistest"].set_sensitive(0)
+        else:
+            self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
+            self.widgets[axis + "axistune"].set_sensitive(1)
+            self.widgets[axis + "axistest"].set_sensitive(1)
 
     def on_spindle_info_changed(self, *args): self.update_pps('s')
     def on_xaxis_info_changed(self, *args): self.update_pps('x')
