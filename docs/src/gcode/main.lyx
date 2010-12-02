@@ -9860,6 +9860,16 @@ Opens the named log file.
 \end_layout
 
 \begin_layout Subsection
+(LOGAPPEND,filename)
+\end_layout
+
+\begin_layout Standard
+Opens the named log file.
+ If the file already exists, the data is appended.
+\end_layout
+
+
+\begin_layout Subsection
 (LOGCLOSE)
 \end_layout
 

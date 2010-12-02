@@ -696,6 +696,8 @@ void LOG(char *s)
 {PRINT1("LOG(\"%s\")\n", s);}
 void LOGOPEN(char *s)
 {PRINT1("LOGOPEN(\"%s\")\n", s);}
+void LOGAPPEND(char *s)
+{PRINT1("LOGAPPEND(\"%s\")\n", s);}
 void LOGCLOSE()
 {PRINT0("LOGCLOSE()\n");}
 
