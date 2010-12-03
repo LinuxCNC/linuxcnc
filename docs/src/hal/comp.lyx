@@ -195,6 +195,21 @@ For a non-singleton, the
 \end_layout
 
 \begin_layout Section
+Parameters
+\end_layout
+
+\begin_layout Standard
+Comp's are passed the 
+\family typewriter
+"period"
+\family default
+ parameter which is the time in nanoseconds of the last period to execute
+ the comp.
+ This can be useful in comps that need the timing information.
+ 
+\end_layout
+
+\begin_layout Section
 Syntax
 \end_layout
 
