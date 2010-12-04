@@ -537,7 +537,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
 
             if(fabs(r1-r2) > .01) 
                 ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
-            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + 0.001) {
+            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
                 ERS(_("Arc move in concave corner cannot be reached by the tool without gouging"));
             }
             q.data.arc_feed.end1 = x;
