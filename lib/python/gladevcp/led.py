@@ -48,15 +48,15 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self.on_color = 'red'
         self.off_color = 'dark'
 
-        self.set_color('on', self.on_color)
-        self.set_color('off', self.on_color)
+        self.set_color('on', gtk.gdk.Color(red=0xffff))
+        self.set_color('off', self.off_color)
 
     # This method draws our widget
     # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
     # sets the fill as the on or off colour.
     def expose(self, widget, event):
         cr = widget.window.cairo_create()
-        set_source_color_alpha = lambda c,a=1: cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, a)
+        set_source_color_alpha = lambda c,a=1: cr.set_source_rgba(c.red/65535., c.green/65535., c.blue/65535., a)
         sensitive = self.flags() & gtk.PARENT_SENSITIVE
         if not sensitive: alpha = .3
         else: alpha = 1
@@ -138,9 +138,9 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         elif color != 'dark':
             color = gtk.gdk.Color(color)
         else:
-            r = 0.4 * self._on_color.red_float
-            g = 0.4 * self._on_color.green_float
-            b = 0.4 * self._on_color.blue_float
+            r = 0.4 * self._on_color.red
+            g = 0.4 * self._on_color.green
+            b = 0.4 * self._on_color.blue
             color = gtk.gdk.Color(r, g, b)
         if state == "off":
             self._off_color = color

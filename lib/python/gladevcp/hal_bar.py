@@ -45,6 +45,9 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
                     -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'force_height' : ( gobject.TYPE_INT, 'Forced height', 'Force bar height not dependent on widget size. -1 to disable',
                     -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'text_template' : ( gobject.TYPE_STRING, 'Text template',
+                'Text template to display. Python formatting may be used for one variable',
+                "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
     _size_request = (20, 20)
@@ -212,13 +215,14 @@ class HAL_HBar(HAL_Bar):
 
         set_color(gtk.gdk.Color('black'))
 
+        tmpl = lambda s: self.text_template % s
         if not self.invert:
-            self.text_at(cr, str(self.min), 5, h/2, 'left')
-            self.text_at(cr, str(self.max), w-5, h/2, 'right')
+            self.text_at(cr, tmpl(self.min), 5, h/2, 'left')
+            self.text_at(cr, tmpl(self.max), w-5, h/2, 'right')
         else:
-            self.text_at(cr, str(self.max), 5, h/2, 'left')
-            self.text_at(cr, str(self.min), w-5, h/2, 'right')
-        self.text_at(cr, str(self.value), w/2, h/2, 'center')
+            self.text_at(cr, tmpl(self.max), 5, h/2, 'left')
+            self.text_at(cr, tmpl(self.min), w-5, h/2, 'right')
+        self.text_at(cr, tmpl(self.value), w/2, h/2, 'center')
 
         return False
 
@@ -251,12 +255,13 @@ class HAL_VBar(HAL_Bar):
 
         set_color(gtk.gdk.Color('black'))
 
+        tmpl = lambda s: self.text_template % s
         if not self.invert:
-            self.text_at(cr, str(self.max), w/2, 5,  yalign='top')
-            self.text_at(cr, str(self.min), w/2, h-5, yalign='bottom')
+            self.text_at(cr, tmpl(self.max), w/2, 5,  yalign='top')
+            self.text_at(cr, tmpl(self.min), w/2, h-5, yalign='bottom')
         else:
-            self.text_at(cr, str(self.min), w/2, 5,  yalign='top')
-            self.text_at(cr, str(self.max), w/2, h-5, yalign='bottom')
-        self.text_at(cr, str(self.value), w/2, h/2)
+            self.text_at(cr, tmpl(self.min), w/2, 5,  yalign='top')
+            self.text_at(cr, tmpl(self.max), w/2, h-5, yalign='bottom')
+        self.text_at(cr, tmpl(self.value), w/2, h/2)
 
         return False
