@@ -58,10 +58,6 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           ]
 
 
-global builder,buildertype,halcomp
-GTKBUILDER = 1
-LIBGLADE = 0
-
 def on_window_destroy(widget, data=None):
         gtk.main_quit()
 
@@ -107,18 +103,16 @@ def main():
     #try loading as a libglade project
     try:
         builder = gtk.glade.XML(xmlname)
-        buildertype = LIBGLADE
     except:
         try:
             # try loading as a gtk.builder project
             print "**** GLADE VCP INFO:    Not a libglade project, trying to load as a GTK builder project"
             builder = gtk.Builder()
             builder.add_from_file(xmlname)
-            buildertype = GTKBUILDER
         except:
             print "**** GLADE VCP ERROR:    With xml file: %s"% xmlname
             sys.exit(0)
-    if buildertype == LIBGLADE:
+    if not isinstance(builder, gtk.Builder):
             window = builder.get_widget("window1")
     else:
             window = builder.get_object("window1")
@@ -163,7 +157,7 @@ def main():
             handlers[n] = Trampoline(v)
 
     if debug: print "connecting handlers: %s" % handlers.keys()
-    if buildertype == LIBGLADE:
+    if not isinstance(builder, gtk.Builder):
         builder.signal_autoconnect(handlers)
     else:
         builder.connect_signals(handlers)
@@ -211,7 +205,7 @@ def main():
             print "**** GLADE VCP ERROR:    With window resize data"
             parser.print_usage()
             sys.exit(1)
-    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, buildertype)
+    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
     halcomp.ready()
     
     if opts.halfile:
