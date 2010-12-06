@@ -35,12 +35,6 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
     def is_lathe(self): return False
 
-def W(p, k, *args, **kw):
-    w = k(*args, **kw)
-    w.show()
-    p.add(w)
-    return w
-
 class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
               rs274.glcanon.GlCanonDraw):
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
@@ -274,25 +268,3 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def scroll(self, widget, event):
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
-
-class GremlinApp(gtk.Window):
-    def __init__(self, inifile):
-        inifile = emc.ini(inifile)
-        gtk.Window.__init__(self)
-
-        self.vbox = W(self, gtk.VBox)
-        self.gremlin = W(self.vbox, Gremlin, inifile)
-        self.gremlin.set_size_request(400, 400)
-
-        self.connect("destroy", self.quit)
-
-        self.show()
-    def quit(self, event):
-        gtk.main_quit()
-
-def main():
-    from sys import argv
-    g = GremlinApp(argv[1])
-    gtk.main()
-
-if __name__ == '__main__': raise SystemExit, main()
