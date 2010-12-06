@@ -1774,9 +1774,6 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(3)
-        o.reset()
-        glRotatef(-90, 0, 1, 0)
-        glRotatef(-90, 1, 0, 0)
         o.set_view_x()
 
     def set_view_y(event=None):
