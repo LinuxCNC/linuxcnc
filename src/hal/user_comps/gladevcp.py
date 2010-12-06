@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+# vim: sts=4 sw=4 et
 #    This is a component of EMC
 #    gladevcp Copyright 2010 Chris Morley
-#    
+#
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,39 +25,42 @@
 
     Usage: gladevcp -g position -c compname -H halfile -x windowid myfile.glade
     compname is the name of the HAL component to be created.
-    halfile contains hal commands to be executed with halcmd after the hal component is ready 
+    halfile contains hal commands to be executed with halcmd after the hal component is ready
     The name of the HAL pins associated with the VCP will begin with 'compname.'
-    
+
     myfile.glade is an XML file which specifies the layout of the VCP.
 
     -g option allows setting of the inital position of the panel
 """
 import sys, os, subprocess
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 import hal
-import getopt
+from optparse import Option, OptionParser
 import gtk
 import gtk.glade
 import gobject
 
 import gladevcp.makepins
 
+options = [ Option( '-c', dest='component', metavar='NAME'
+                  , help="Set component name to NAME. Default is basename of UI file")
+          , Option( '-d', action='store_true', dest='debug'
+                  , help="Enable debug output")
+          , Option( '-g', dest='geometry', default="", help="""Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
+Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
+use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position""")
+          , Option( '-H', dest='halfile', metavar='FILE'
+                  , help="execute hal statements from FILE with halcmd after the component is set up and ready")
+          , Option( '-x', dest='parent', type=int, metavar='XID'
+                  , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
+          , Option( '-u', dest='usermod', action='append', default=[], metavar='FILE'
+                  , help='Use FILEs as additional user defined modules with handlers')
+          ]
+
+
 global builder,buildertype,halcomp
 GTKBUILDER = 1
 LIBGLADE = 0
-
-def usage():
-    """ prints the usage message """
-    print "usage: gladevcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] [-H hal command file] [-x windowid] myfile.glade"
-    print "If the component name is not specified, the basename of the xml file is used."
-    print "-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen"
-    print "use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position"
-    print "use -H halfile to execute hal statements with halcmd after the component is set up and ready"
-    print "use -x windowid to start gladevcp reparenting into an existing window instead of creating a new top level window"
-    print "use -u <path to Python module> to import"
-
 
 def on_window_destroy(widget, data=None):
         gtk.main_quit()
@@ -76,46 +80,27 @@ def main():
         to create pins and register callbacks.
         main window must be called "window1"
     """
+    (progdir, progname) = os.path.split(sys.argv[0])
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "c:g:w:H:u:hd")
-    except getopt.GetoptError, detail:
-        print detail
-        usage()
+    usage = "usage: %prog [options] myfile.ui"
+    parser = OptionParser(usage=usage)
+    parser.disable_interspersed_args()
+    parser.add_options(options)
+
+    (opts, args) = parser.parse_args()
+
+    if not args:
+        parser.print_help()
         sys.exit(1)
-    window_geometry = ""
-    component_name = None
-    parent = None
-    halfile = None
-    debug = 0
-    usermods = []
-    for o, a in opts:
-        print o,a
-        if o == "-c":
-            component_name = a
-        if o == "-g": 
-            window_geometry = a
-        if o == "-w":
-            parent = int(a, 0)
-        if o == "-H":
-            halfile = a
-        if o == "-u":
-            usermods.append(a)
-        if o == '-d':
-            debug += 1
-        if o == "-h":
-            usage()
-            sys.exit(0)
-    try:
-        xmlname = args[0]
-    except:
-        usage()
-        sys.exit(1)
+
+    debug = opts.debug
+    xmlname = args[0]
+
     #if there was no component name specified use the xml file name
-    if component_name is None:
-        component_name = os.path.splitext(os.path.basename(xmlname))[0]
+    if opts.component is None:
+        opts.component = os.path.splitext(os.path.basename(xmlname))[0]
     try:
-        halcomp = hal.component(component_name)
+        halcomp = hal.component(opts.component)
     except:
         print "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
         sys.exit(0)
@@ -139,11 +124,11 @@ def main():
             window = builder.get_object("window1")
 
     window.connect("destroy", on_window_destroy)
-    window.set_title(component_name)
+    window.set_title(opts.component)
 
     handlers = {}
 
-    for u in usermods:
+    for u in opts.usermod:
         (directory,filename) = os.path.split(u)
         (basename,extension) = os.path.splitext(filename)
         if directory == '':
@@ -183,8 +168,8 @@ def main():
     else:
         builder.connect_signals(handlers)
 
-    if parent:
-        plug = gtk.Plug(parent)
+    if opts.parent:
+        plug = gtk.Plug(opts.parent)
         for c in window.get_children():
             window.remove(c)
             plug.add(c)
@@ -192,7 +177,7 @@ def main():
 
     window.show()
 
-    if parent:
+    if opts.parent:
         from Xlib import display
         from Xlib.xobject import drawable
         d = display.Display()
@@ -200,36 +185,36 @@ def main():
         # Honor XEmbed spec
         atom = d.get_atom('_XEMBED_INFO')
         w.change_property(atom, atom, 32, [0, 1])
-        w.reparent(parent, 0, 0)
+        w.reparent(opts.parent, 0, 0)
         w.map()
         d.sync()
 
     # for window resize and or position options
-    if "+" in window_geometry:
+    if "+" in opts.geometry:
         try:
-            j =  window_geometry.partition("+")
+            j =  opts.geometry.partition("+")
             pos = j[2].partition("+")
             window.move( int(pos[0]), int(pos[2]) )
         except:
             print "**** GLADE VCP ERROR:    With window position data"
-            usage()
+            parser.print_usage()
             sys.exit(1)
-    if "x" in window_geometry:
+    if "x" in opts.geometry:
         try:
-            if "+" in window_geometry:
-                j =  window_geometry.partition("+")
+            if "+" in opts.geometry:
+                j =  opts.geometry.partition("+")
                 t = j[0].partition("x")
             else:
                 t = window_geometry.partition("x")
             window.resize( int(t[0]), int(t[2]) )
         except:
             print "**** GLADE VCP ERROR:    With window resize data"
-            usage()
+            parser.print_usage()
             sys.exit(1)
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, buildertype)
     halcomp.ready()
     
-    if halfile:
+    if opts.halfile:
         res = subprocess.call(["halcmd", "-f", halfile])
         if res: raise SystemExit, res
 
