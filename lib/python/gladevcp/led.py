@@ -141,7 +141,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             r = 0.4 * self._on_color.red
             g = 0.4 * self._on_color.green
             b = 0.4 * self._on_color.blue
-            color = gtk.gdk.Color(r, g, b)
+            color = gtk.gdk.Color(int(r), int(g), int(b))
         if state == "off":
             self._off_color = color
         elif state == "on":
