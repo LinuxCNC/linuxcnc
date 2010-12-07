@@ -28,6 +28,7 @@
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
+static int current_operation=0;
 /****************************************************************************/
 
 /*! read_a
@@ -1141,6 +1142,7 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
 
   c = line[*counter];
   *counter = (*counter + 1);
+  current_operation = 0;
   switch (c) {
   case '+':
     *operation = PLUS;
@@ -1287,6 +1289,7 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
 
   c = line[*counter];
   *counter = (*counter + 1);
+  current_operation = 0;
   switch (c) {
   case 'a':
     if ((line[*counter] == 'b') && (line[(*counter) + 1] == 's')) {
@@ -1315,8 +1318,17 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
     if ((line[*counter] == 'x') && (line[(*counter) + 1] == 'p')) {
       *operation = EXP;
       *counter = (*counter + 2);
-    } else
+    } else if (    (line[*counter]     == 'x')
+                && (line[*counter + 1] == 'i')
+                && (line[*counter + 2] == 's')
+                && (line[*counter + 3] == 't')
+                && (line[*counter + 4] == 's')
+             ) {
+      *counter = (*counter + 5);
+      *operation = EXISTS;
+    } else {
       ERS(NCE_UNKNOWN_WORD_STARTING_WITH_E);
+    }
     break;
   case 'f':
     if ((line[*counter] == 'i') && (line[(*counter) + 1] == 'x')) {
@@ -1362,6 +1374,7 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
   default:
     ERS(NCE_UNKNOWN_WORD_WHERE_UNARY_OPERATION_COULD_BE);
   }
+  current_operation=*operation;
   return INTERP_OK;
 }
 
@@ -2073,7 +2086,7 @@ int Interp::read_parameter(
     double *double_ptr,   //!< pointer to double to be read                  
     double *parameters)   //!< array of system parameters                    
 {
-  int index;
+  int index,status;
 
   CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
@@ -2085,11 +2098,22 @@ int Interp::read_parameter(
       //_setup.stack_index = 0; -- reminder of variable we need
       // find the matching string (if any) -- or create it
       // then get the value and store it
-      CHP(read_named_parameter(line, counter, double_ptr, parameters));
+      status = read_named_parameter(line, counter, double_ptr, parameters);
+      if (current_operation == EXISTS) {
+          if (status != INTERP_OK) {
+             *double_ptr = 0.0;  //does not exist
+          } else {
+             *double_ptr = 1.0;  //does     exist
+          }
+          return INTERP_OK;
+      }
+      if (status != INTERP_OK) ERP(status);
   }
   else
   {
-      CHP(read_integer_value(line, counter, &index, parameters));
+      CHKS( current_operation == EXISTS, NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      status = read_integer_value(line, counter, &index, parameters);
+      if (status != INTERP_OK) ERP(status);
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       *double_ptr = parameters[index];
@@ -3264,14 +3288,47 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
                       double *parameters)       //!< array of system parameters                    
 {
   int operation;
+  int start_expression = 0;
 
   CHP(read_operation_unary(line, counter, &operation));
   CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME);
+  start_expression= *counter +1;
   CHP(read_real_expression(line, counter, double_ptr, parameters));
 
   if (operation == ATAN)
     CHP(read_atan(line, counter, double_ptr, parameters));
+  else if (operation == EXISTS) {
+    // EXISTS[] is for named_parameters only
+    // accept only "[#<named_parameter_name>]"
+    //        line[0]     == '['
+    //        line[1]     == '<'
+    //        ...
+    //        line[len-2] == '>'
+    //        line[len-1] == ']'
+    if ( (line[start_expression] == '#') && (line[start_expression+1] == '<') ) {
+      int i;
+      int len=(int)strlen(line);
+      for (i=start_expression+2; i<len-1 ;i++) {
+        if (line[i] == '>')  break;
+        if (    ( (line[i] >= 'a' ) && (line[i] <= 'z' ) )
+             || ( (line[i] >= '0' ) && (line[i] <= '9' ) )
+             || (  line[i] == '_' )
+           ) {
+          continue;
+        } else {
+          ERS(_("EXISTS requires single named parameter"));
+        }
+      }
+      if (i != (len-2) ) {
+        ERS(_("EXISTS requires single named parameter"));
+      } else {
+        CHP(execute_unary(double_ptr, operation));
+      }
+    } else {
+      ERS(_("EXISTS requires single named parameter"));
+    }
+  }
   else
     CHP(execute_unary(double_ptr, operation));
   return INTERP_OK;

@@ -627,6 +627,13 @@ AC_SUBST(GLIB_CFLAGS)
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
+
+AC_PATH_PROG(CXX,$CXX,"none")
+if test $CXX = "none"
+then
+    AC_MSG_ERROR([C++ compiler not found])
+fi
+
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
@@ -1117,6 +1124,18 @@ AC_PATH_XTRA
 
 AC_SUBST([X_LIBS])
 AC_SUBST([X_CFLAGS])
+
+AC_CHECK_HEADERS(X11/extensions/Xinerama.h,
+	    [HAVE_XINERAMA=yes],
+	    [HAVE_XINERAMA=no])
+
+AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
+	    [],
+	    [HAVE_XINERAMA=no])
+
+if test "x$HAVE_XINERAMA" = "xno"; then
+    AC_MSG_ERROR([Xinerama library or headers not found])
+fi
 
 # check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
 

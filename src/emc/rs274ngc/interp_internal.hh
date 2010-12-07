@@ -87,6 +87,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define SIN 11
 #define SQRT 12
 #define TAN 13
+#define EXISTS 14
 
 
 // binary operations

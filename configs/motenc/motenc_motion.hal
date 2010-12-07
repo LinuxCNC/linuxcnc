@@ -70,6 +70,6 @@ setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
 # Connect index pulses to motion controller.
-net Xindex motenc.0.enc-00-index-enable <=> axis.0.index-enable
-net Yindex motenc.0.enc-01-index-enable <=> axis.1.index-enable
-net Zindex motenc.0.enc-02-index-enable <=> axis.2.index-enable
+net Xindex motenc.0.enc-00-index-enable <=> axis.0.index-enable pid.0.index-enable
+net Yindex motenc.0.enc-01-index-enable <=> axis.1.index-enable pid.1.index-enable
+net Zindex motenc.0.enc-02-index-enable <=> axis.2.index-enable pid.2.index-enable

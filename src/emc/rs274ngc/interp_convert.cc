@@ -1356,6 +1356,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   char PRINT_STR[] = "print,";
   char LOG_STR[] = "log,";
   char LOGOPEN_STR[] = "logopen,";
+  char LOGAPPEND_STR[] = "logappend,";
   char LOGCLOSE_STR[] = "logclose";
   int m, n, start;
 
@@ -1400,6 +1401,11 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   else if (startswith(lc, LOGOPEN_STR))
   {
       LOGOPEN(comment + start + strlen(LOGOPEN_STR));
+      return INTERP_OK;
+  }
+  else if (startswith(lc, LOGAPPEND_STR))
+  {
+      LOGAPPEND(comment + start + strlen(LOGAPPEND_STR));
       return INTERP_OK;
   }
   else if (streq(lc, LOGCLOSE_STR))

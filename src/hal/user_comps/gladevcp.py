@@ -127,7 +127,7 @@ def load_handlers(usermod,halcomp,builder,panel, useropts):
                     if callable(f):
                         dbg("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
-        except Exception as e:
+        except Exception, e:
             print "gladevcp: trouble looking for handlers in '%s': %s" %(basename, e)
             traceback.print_exc()
 
