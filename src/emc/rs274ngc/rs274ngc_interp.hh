@@ -107,6 +107,7 @@ public:
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
+ int init_named_parameters();
 
 private:
 
@@ -365,6 +366,7 @@ private:
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
  int store_named_param(char *nameBuf, double value);
+ int init_named_param(char *nameBuf, double value);
  int add_named_param(char *nameBuf);
  int find_named_param(char *nameBuf, int *status, double *value);
  int read_name(char *line, int *counter, char *nameBuf);

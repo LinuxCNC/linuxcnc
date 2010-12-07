@@ -1847,6 +1847,11 @@ int Interp::store_named_param(
   {
       // call level zero is global scope
       level = 0;
+      //disallow for predefined, readonly named_parameters
+      if (   (0 == strcmp(nameBuf,"_vmajor") )
+          || (0 == strcmp(nameBuf,"_vminor") )  ) {
+         ERS(_("Cannot change #<%s>"), nameBuf);
+      }
   }
 
   nameList = &_setup.sub_context[level].named_parameters;
@@ -1874,6 +1879,49 @@ int Interp::store_named_param(
   }
 
   logDebug("%s: param:|%s| returning not defined", "store_named_param",
+           nameBuf);
+
+  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
+}
+
+// use to initialize global,readonly named_parameters
+//     like "_vmajor", "_vminor"
+int Interp::init_named_param (
+    char *nameBuf, //!< pointer to name to be written
+    double value   //!< value to be written
+    )
+{
+  struct named_parameters_struct *nameList;
+
+  int level = 0;
+  int i;
+
+  if(nameBuf[0] != '_') // local scope
+  {
+      ERS(_("init_named_parameter must be global #<%s>"), nameBuf);
+  }
+
+  nameList = &_setup.sub_context[level].named_parameters;
+
+  logDebug("init_named_parameter: nameList[%d]=%p storing:|%s|", level,
+           nameList, nameBuf);
+  logDebug("init_named_parameter: named_parameter_used_size=%d",
+           nameList->named_parameter_used_size);
+
+
+  for(i=0; i<nameList->named_parameter_used_size; i++)
+  {
+      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
+      {
+          nameList->named_param_values[i] = value;
+          logDebug("init_named_parameter: level[%d] %s value=%lf",
+                   level, nameBuf, value);
+
+          return INTERP_OK;
+      }
+  }
+
+  logDebug("%s: param:|%s| returning not defined", "init_named_param",
            nameBuf);
 
   ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
@@ -1909,7 +1957,6 @@ int Interp::add_named_param(
       // call level zero is global scope
       level = 0;
   }
-
   nameList = &_setup.sub_context[level].named_parameters;
 
   if(nameList->named_parameter_used_size >=

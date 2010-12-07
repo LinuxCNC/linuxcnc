@@ -674,7 +674,27 @@ int Interp::init()
   write_settings(&_setup);
 
   init_tool_parameters();
+  CHP(init_named_parameters());
   // Synch rest of settings to external world
+  return INTERP_OK;
+}
+
+int Interp::init_named_parameters()
+{
+// version       major   minor      Note
+// ------------ -------- ---------- -------------------------------------
+// M.N.m         M.N     0.m        normal format
+// M.N.m~xxx     M.N     0.m        pre-release format
+  const char *pkgversion = PACKAGE_VERSION;  //examples: 2.4.6, 2.5.0~pre
+  const char *version_major = "_vmajor";// named_parameter name (use lower case)
+  const char *version_minor = "_vminor";// named_parameter name (use lower case)
+  double vmajor=0.0, vminor=0.0;
+  sscanf(pkgversion, "%lf%lf", &vmajor, &vminor);
+  CHP( add_named_param((char*)version_major));
+  CHP(init_named_param((char*)version_major,vmajor));
+  CHP( add_named_param((char*)version_minor));
+  CHP(init_named_param((char*)version_minor,vminor));
+
   return INTERP_OK;
 }
 
