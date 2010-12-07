@@ -56,12 +56,20 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     # sets the fill as the on or off colour.
     def expose(self, widget, event):
         cr = widget.window.cairo_create()
-        set_source_color_alpha = lambda c,a=1: cr.set_source_rgba(c.red/65535., c.green/65535., c.blue/65535., a)
         sensitive = self.flags() & gtk.PARENT_SENSITIVE
         if not sensitive: alpha = .3
         else: alpha = 1
         cr.set_line_width(3)
         cr.set_source_rgba(0, 0, 0, alpha)
+
+        if self.is_on:
+            if self._blink_active == False or self._blink_active == True and self._blink_state == True:
+                color = self._on_color
+            else:
+                color = self._off_color
+        else:
+            color = self._off_color
+
         # square led
         if self.led_shape == 2:
             self.set_size_request(self._dia*2+5, self._dia*2+5)
@@ -83,18 +91,15 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             w = self.allocation.width
             h = self.allocation.height
             cr.translate(w/2, h/2)
-            lg2 = cairo.RadialGradient(1., 1., 1., 0, 1, self._dia*2)
+            lg2 = cairo.RadialGradient(0, 0, self._dia-2, 0, 0, self._dia+1)
+            lg2.add_color_stop_rgba(0.0, 0., 0., 0., 0.)
+            lg2.add_color_stop_rgba(.99, 0., 0., 0., 1.)
+            lg2.add_color_stop_rgba(1.0, 0., 0., 0., 0.)
             cr.arc(0, 0, self._dia, 0, 2*math.pi)
             cr.mask(lg2)
 
         cr.stroke_preserve()        
-        if self.is_on:
-            if self._blink_active == False or self._blink_active == True and self._blink_state == True:
-                set_source_color_alpha(self._on_color, alpha)
-            else:
-                set_source_color_alpha(self._off_color, alpha)
-        else:
-            set_source_color_alpha(self._off_color, alpha)
+        cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
         cr.fill()    
         return False
       
