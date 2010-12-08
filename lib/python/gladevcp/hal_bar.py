@@ -170,6 +170,13 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
 
+        if name == 'text_template':
+            try:
+                v = value % 0.0
+            except Exception, e:
+                print "Invalid format string '%s': %s" % (value, e)
+                return False
+
         if name in self.__gproperties.keys():
             setattr(self, name, value)
             self.queue_draw()
