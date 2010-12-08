@@ -161,7 +161,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    gladevcp_debgu = debug = opts.debug
+    gladevcp_debug = debug = opts.debug
     xmlname = args[0]
 
     #if there was no component name specified use the xml file name
