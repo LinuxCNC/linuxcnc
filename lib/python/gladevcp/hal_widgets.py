@@ -74,15 +74,41 @@ class HAL_Table(gtk.Table, _HalSensitiveBase):
 
 class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
     __gtype_name__ = "HAL_ComboBox"
+    __gproperties__ = {
+        'column'  : ( gobject.TYPE_INT, 'Column', '-1:return value of index, other: column index of value in ListStore',
+                -1, 100, -1, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+    }
     def __init__(self):
         gtk.ComboBox.__init__(self)
 
+    def do_get_property(self, property):
+        name = property.name.replace('-', '_')
+        if name in ['column']:
+            return getattr(self, name)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
+    def do_set_property(self, property, value):
+        name = property.name.replace('-', '_')
+        if name in ['column']:
+            return setattr(self, name, value)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
         self.connect("changed", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal_pin.set(self.get_active())
+        index = self.get_active()
+        if self.column == -1: # just use index
+            v = index
+        else:
+            model = self.get_model()
+            v = model[index][self.column]
+        self.hal_pin_s.set(int(v))
+        self.hal_pin_f.set(float(v))
 
 class HAL_Button(gtk.Button, _HalWidgetBase):
     __gtype_name__ = "HAL_Button"
