@@ -2440,6 +2440,11 @@ class TclCommands(nf.TclCommands):
             t.see("%d.0" % (line+2))
             t.see("%d.0" % line)
 
+    def dynamic_tab(name, text):
+        return _dynamic_tab(name,text) # caller: make a frame and pack
+
+    def inifindall(section, item): return tuple(inifile.findall(section, item))
+
 commands = TclCommands(root_window)
 
 vars = nf.Variables(root_window, 
@@ -3164,6 +3169,15 @@ def check_dynamic_tabs():
         destroy_splash()
         return
     root_window.after(100, check_dynamic_tabs)
+
+tkpkgs = inifile.findall("DISPLAY","TKPKG") or ""
+for pkg in tkpkgs:
+    pkg=pkg.split()
+    root_window.tk.call("package","require",*pkg)
+
+tkapps = inifile.findall("DISPLAY","TKAPP") or ""
+for app in tkapps:
+    root_window.tk.call("source",app)
 
 o.update_idletasks()
 
