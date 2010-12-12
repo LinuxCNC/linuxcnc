@@ -18,6 +18,8 @@ import gtk
 
 import hal
 
+hal_pin_changed_signal = ('hal-pin-changed', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
+
 """ Set of base classes """
 class _HalWidgetBase:
     def hal_init(self, comp, name):
@@ -56,14 +58,17 @@ class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
         self.hal_pin.connect('value-changed', lambda s: self.set_sensitive(s.value))
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
 """ Real widgets """
 
 class HAL_HBox(gtk.HBox, _HalSensitiveBase):
     __gtype_name__ = "HAL_HBox"
+    __gsignals__ = dict([hal_pin_changed_signal])
 
 class HAL_Table(gtk.Table, _HalSensitiveBase):
     __gtype_name__ = "HAL_Table"
+    __gsignals__ = dict([hal_pin_changed_signal])
 
 class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
     __gtype_name__ = "HAL_ComboBox"
@@ -223,6 +228,7 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
 
 class HAL_Label(gtk.Label, _HalWidgetBase):
     __gtype_name__ = "HAL_Label"
+    __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
         'label_pin_type'  : ( gobject.TYPE_INT, 'HAL pin type', '0:S32 1:Float 2:U32',
                 0, 2, 0, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
@@ -257,3 +263,4 @@ class HAL_Label(gtk.Label, _HalWidgetBase):
         self.hal_pin = self.hal.newpin(self.hal_name, pin_type, hal.HAL_IN)
         self.hal_pin.connect('value-changed',
                             lambda p: self.set_text(self.text_template % p.value))
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))

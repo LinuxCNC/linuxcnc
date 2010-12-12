@@ -7,10 +7,11 @@ import gtk.glade
 
 # This creates the custom LED widget
 
-from hal_widgets import _HalSensitiveBase
+from hal_widgets import _HalSensitiveBase, hal_pin_changed_signal
 
 class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gtype_name__ = 'HAL_LED'
+    __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
         'is_on' : ( gobject.TYPE_BOOLEAN, 'Is on', 'How to display LED in editor',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
