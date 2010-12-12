@@ -201,11 +201,7 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
-
-    def hal_update(self):
-        v = self.hal_pin.get()
-        if self.value != v:
-            self.set_value(v)
+        self.hal_pin.connect('value-changed', lambda p: self.set_value(p.value))
 
 class HAL_HBar(HAL_Bar):
     __gtype_name__ = 'HAL_HBar'

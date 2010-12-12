@@ -55,10 +55,7 @@ class _HalScaleBase(_HalWidgetBase):
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
-        self.set_sensitive(False)
-
-    def hal_update(self):
-        self.set_sensitive(self.hal_pin.get())
+        self.hal_pin.connect('value-changed', lambda s: self.set_sensitive(s.value))
 
 """ Real widgets """
 
@@ -258,6 +255,5 @@ class HAL_Label(gtk.Label, _HalWidgetBase):
         if pin_type is None:
             raise TypeError("%s: Invalid pin type: %s" % (self.hal_name, self.label_pin_type))
         self.hal_pin = self.hal.newpin(self.hal_name, pin_type, hal.HAL_IN)
-
-    def hal_update(self):
-        self.set_text(self.text_template % self.hal_pin.get())
+        self.hal_pin.connect('value-changed',
+                            lambda p: self.set_text(self.text_template % p.value))
