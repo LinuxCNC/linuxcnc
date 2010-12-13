@@ -26,6 +26,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class name="HAL_VBar" generic-name="hal_vbar" title="HAL VBar"/>
     <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
+    <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -46,6 +47,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_VBar"/>
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
+   <glade-widget-class-ref name="HAL_Graph"/>
  </glade-widget-group>
 </glade-catalog>
 

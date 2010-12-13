@@ -64,13 +64,9 @@ class _HalSensitiveBase(_HalWidgetBase):
 
 class HAL_HBox(gtk.HBox, _HalSensitiveBase):
     __gtype_name__ = "HAL_HBox"
-    def __init__(self):
-        gtk.HBox.__init__(self)
 
 class HAL_Table(gtk.Table, _HalSensitiveBase):
     __gtype_name__ = "HAL_Table"
-    def __init__(self):
-        gtk.Table.__init__(self)
 
 class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
     __gtype_name__ = "HAL_ComboBox"
@@ -78,8 +74,6 @@ class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
         'column'  : ( gobject.TYPE_INT, 'Column', '-1:return value of index, other: column index of value in ListStore',
                 -1, 100, -1, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
     }
-    def __init__(self):
-        gtk.ComboBox.__init__(self)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -112,8 +106,6 @@ class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
 
 class HAL_Button(gtk.Button, _HalWidgetBase):
     __gtype_name__ = "HAL_Button"
-    def __init__(self):
-        gtk.Button.__init__(self)
 
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
@@ -125,13 +117,9 @@ class HAL_Button(gtk.Button, _HalWidgetBase):
 
 class HAL_CheckButton(gtk.CheckButton, _HalToggleBase):
     __gtype_name__ = "HAL_CheckButton"
-    def __init__(self):
-        gtk.CheckButton.__init__(self)
 
 class HAL_SpinButton(gtk.SpinButton, _HalWidgetBase):
     __gtype_name__ = "HAL_SpinButton"
-    def __init__(self):
-        gtk.SpinButton.__init__(self)
 
     def _hal_init(self):
         self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
@@ -145,23 +133,15 @@ class HAL_SpinButton(gtk.SpinButton, _HalWidgetBase):
 
 class HAL_RadioButton(gtk.RadioButton, _HalToggleBase):
     __gtype_name__ = "HAL_RadioButton"
-    def __init__(self):
-        gtk.RadioButton.__init__(self)
 
 class HAL_ToggleButton(gtk.ToggleButton, _HalToggleBase):
     __gtype_name__ = "HAL_ToggleButton"
-    def __init__(self):
-        gtk.ToggleButton.__init__(self)
 
 class HAL_HScale(gtk.HScale, _HalScaleBase):
     __gtype_name__ = "HAL_HScale"
-    def __init__(self):
-        gtk.HScale.__init__(self)
 
 class HAL_VScale(gtk.VScale, _HalScaleBase):
     __gtype_name__ = "HAL_VScale"
-    def __init__(self):
-        gtk.VScale.__init__(self)
 
 class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
     __gtype_name__ = "HAL_ProgressBar"
@@ -184,8 +164,6 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
     }
     __gproperties = __gproperties__
 
-    def __init__(self):
-        gtk.ProgressBar.__init__(self)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -255,8 +233,6 @@ class HAL_Label(gtk.Label, _HalWidgetBase):
                 'Text template to display. Python formatting may be used for one variable',
                 "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
     }
-    def __init__(self):
-        gtk.Label.__init__(self)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
