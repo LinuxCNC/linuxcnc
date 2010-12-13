@@ -250,8 +250,12 @@ def main():
             sys.exit(1)
 
     if opts.halfile:
-        res = subprocess.call(["halcmd", "-f", halfile])
-        if res: raise SystemExit, res
+        cmd = ["halcmd", "-f", opts.halfile]
+        res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+        if res:
+            print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+            halcomp.exit()
+            sys.exit(res)
 
     try:
         try:
