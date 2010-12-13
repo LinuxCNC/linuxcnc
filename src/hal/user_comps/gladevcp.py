@@ -42,6 +42,7 @@ import gtk.glade
 import gobject
 
 import gladevcp.makepins
+from gladevcp.gladebuilder import GladeBuilder
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -175,6 +176,7 @@ def main():
     #try loading as a libglade project
     try:
         builder = gtk.glade.XML(xmlname)
+        builder = GladeBuilder(builder)
     except:
         try:
             # try loading as a gtk.builder project
@@ -184,10 +186,8 @@ def main():
         except:
             print "**** GLADE VCP ERROR:    With xml file: %s"% xmlname
             sys.exit(0)
-    if not isinstance(builder, gtk.Builder):
-            window = builder.get_widget("window1")
-    else:
-            window = builder.get_object("window1")
+
+    window = builder.get_object("window1")
 
     window.connect("destroy", on_window_destroy)
     window.set_title(opts.component)
@@ -197,10 +197,7 @@ def main():
     # at this point, any glade HL widgets and their pins are set up.
     handlers = load_handlers(opts.usermod,halcomp,builder,panel, opts.useropts)
 
-    if not isinstance(builder, gtk.Builder):
-        builder.signal_autoconnect(handlers)
-    else:
-        builder.connect_signals(handlers)
+    builder.connect_signals(handlers)
 
     # User components are set up so report that we are ready
     halcomp.ready()

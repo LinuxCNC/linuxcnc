@@ -26,6 +26,8 @@ import getopt
 from hal_widgets import _HalWidgetBase
 from led import HAL_LED
 
+from gladevcp.gladebuilder import widget_name
+
 class GladePanel():
     def on_window_destroy(self, widget, data=None):
         self.hal.exit()
@@ -38,21 +40,9 @@ class GladePanel():
         self.hal = halcomp
         self.widgets = {}
 
-        if isinstance(builder, gtk.Builder):
-            widgets = builder.get_objects()
-        else:
-            widgets = builder.get_widget_prefix("")
+        for widget in builder.get_objects():
+            idname = widget_name(widget)
 
-        for widget in widgets:
-            #print parent.attrib
-            k = widget.__class__.__name__
-            idname = None
-            if isinstance(widget, gtk.Buildable):
-                idname = gtk.Buildable.get_name(widget)
-            if idname is None and hasattr(widget, 'get_name'):
-                # XXX: Sometimes in Glade mode on HAL_VBox previous if is triggered
-                # but name is None.
-                idname = widget.get_name()
             if idname is None:
                 continue
 
