@@ -25,6 +25,7 @@ import getopt
 
 from hal_widgets import _HalWidgetBase
 from led import HAL_LED
+from hal_glib import GComponent
 
 from gladevcp.gladebuilder import widget_name
 
@@ -37,7 +38,7 @@ class GladePanel():
     def __init__(self,halcomp,xmlname,builder,buildertype):
         
         self.builder = builder
-        self.hal = halcomp
+        self.hal = GComponent(halcomp)
         self.widgets = {}
 
         for widget in builder.get_objects():

@@ -21,7 +21,7 @@ import gtk.glade
 
 # This creates the custom LED widget
 
-from hal_widgets import _HalWidgetBase, hal
+from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 MAX_INT = 0x7fffffff
 
@@ -32,6 +32,7 @@ def gdk_color_tuple(c):
 
 class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Bar'
+    __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
         'invert' : ( gobject.TYPE_BOOLEAN, 'Inverted', 'Invert min-max direction',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -201,11 +202,8 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
-
-    def hal_update(self):
-        v = self.hal_pin.get()
-        if self.value != v:
-            self.set_value(v)
+        self.hal_pin.connect('value-changed', lambda p: self.set_value(p.value))
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
 class HAL_HBar(HAL_Bar):
     __gtype_name__ = 'HAL_HBar'
