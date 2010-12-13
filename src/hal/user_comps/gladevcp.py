@@ -192,6 +192,19 @@ def main():
     window.connect("destroy", on_window_destroy)
     window.set_title(opts.component)
 
+    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
+
+    # at this point, any glade HL widgets and their pins are set up.
+    handlers = load_handlers(opts.usermod,halcomp,builder,panel, opts.useropts)
+
+    if not isinstance(builder, gtk.Builder):
+        builder.signal_autoconnect(handlers)
+    else:
+        builder.connect_signals(handlers)
+
+    # User components are set up so report that we are ready
+    halcomp.ready()
+
     if opts.parent:
         plug = gtk.Plug(opts.parent)
         for c in window.get_children():
@@ -235,17 +248,6 @@ def main():
             print "**** GLADE VCP ERROR:    With window resize data"
             parser.print_usage()
             sys.exit(1)
-
-    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
-    halcomp.ready()
-
-    # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,panel, opts.useropts)
-
-    if not isinstance(builder, gtk.Builder):
-        builder.signal_autoconnect(handlers)
-    else:
-        builder.connect_signals(handlers)
 
     if opts.halfile:
         res = subprocess.call(["halcmd", "-f", halfile])
