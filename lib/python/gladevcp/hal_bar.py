@@ -1,4 +1,18 @@
 # vim: sts=4 sw=4 et
+# GladeVcp Widgets
+#
+# Copyright (c) 2010  Pavel Shramov <shramov@mexmat.net>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
 import gtk
 import gobject
 import cairo
@@ -7,7 +21,7 @@ import gtk.glade
 
 # This creates the custom LED widget
 
-from hal_widgets import _HalWidgetBase, hal
+from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 MAX_INT = 0x7fffffff
 
@@ -18,6 +32,7 @@ def gdk_color_tuple(c):
 
 class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Bar'
+    __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
         'invert' : ( gobject.TYPE_BOOLEAN, 'Inverted', 'Invert min-max direction',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -156,6 +171,13 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
 
+        if name == 'text_template':
+            try:
+                v = value % 0.0
+            except Exception, e:
+                print "Invalid format string '%s': %s" % (value, e)
+                return False
+
         if name in self.__gproperties.keys():
             setattr(self, name, value)
             self.queue_draw()
@@ -180,11 +202,8 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
-
-    def hal_update(self):
-        v = self.hal_pin.get()
-        if self.value != v:
-            self.set_value(v)
+        self.hal_pin.connect('value-changed', lambda p: self.set_value(p.value))
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
 class HAL_HBar(HAL_Bar):
     __gtype_name__ = 'HAL_HBar'

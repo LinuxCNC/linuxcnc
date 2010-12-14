@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="default_width">70</property>
+    <property name="default_height">30</property>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="HAL_ComboBox" id="hal_combobox1">
+            <property name="visible">True</property>
+            <signal name="changed" handler="on_changed"/>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -42,6 +42,7 @@ import gtk.glade
 import gobject
 
 import gladevcp.makepins
+from gladevcp.gladebuilder import GladeBuilder
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -77,7 +78,7 @@ class Trampoline(object):
         for m in self.methods:
             m(*a, **kw)
 
-def load_handlers(usermod,halcomp,builder,panel, useropts):
+def load_handlers(usermod,halcomp,builder,useropts):
     hdl_func = 'get_handlers'
 
     def add_handler(method, f):
@@ -108,7 +109,7 @@ def load_handlers(usermod,halcomp,builder,panel, useropts):
 
             if h and callable(h):
                 dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
-                objlist = h(halcomp,builder,panel,useropts)
+                objlist = h(halcomp,builder,useropts)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
@@ -161,7 +162,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    gladevcp_debgu = debug = opts.debug
+    gladevcp_debug = debug = opts.debug
     xmlname = args[0]
 
     #if there was no component name specified use the xml file name
@@ -175,6 +176,7 @@ def main():
     #try loading as a libglade project
     try:
         builder = gtk.glade.XML(xmlname)
+        builder = GladeBuilder(builder)
     except:
         try:
             # try loading as a gtk.builder project
@@ -184,13 +186,21 @@ def main():
         except:
             print "**** GLADE VCP ERROR:    With xml file: %s"% xmlname
             sys.exit(0)
-    if not isinstance(builder, gtk.Builder):
-            window = builder.get_widget("window1")
-    else:
-            window = builder.get_object("window1")
+
+    window = builder.get_object("window1")
 
     window.connect("destroy", on_window_destroy)
     window.set_title(opts.component)
+
+    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
+
+    # at this point, any glade HL widgets and their pins are set up.
+    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+
+    builder.connect_signals(handlers)
+
+    # User components are set up so report that we are ready
+    halcomp.ready()
 
     if opts.parent:
         plug = gtk.Plug(opts.parent)
@@ -236,20 +246,13 @@ def main():
             parser.print_usage()
             sys.exit(1)
 
-    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
-    halcomp.ready()
-
-    # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,panel, opts.useropts)
-
-    if not isinstance(builder, gtk.Builder):
-        builder.signal_autoconnect(handlers)
-    else:
-        builder.connect_signals(handlers)
-
     if opts.halfile:
-        res = subprocess.call(["halcmd", "-f", halfile])
-        if res: raise SystemExit, res
+        cmd = ["halcmd", "-f", opts.halfile]
+        res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
+        if res:
+            print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+            halcomp.exit()
+            sys.exit(res)
 
     try:
         try:

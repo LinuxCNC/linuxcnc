@@ -1,0 +1,4 @@
+setp probe.probebox 1
+setp probe.modebox 1
+
+net probe-contact probe.probe_contact => motion.probe-input

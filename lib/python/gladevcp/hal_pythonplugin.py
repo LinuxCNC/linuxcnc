@@ -13,4 +13,6 @@ from hal_widgets import HAL_Label
 
 from led import HAL_LED
 from hal_bar import HAL_HBar, HAL_VBar
+from hal_meter import HAL_Meter
 from hal_gremlin import HAL_Gremlin
+from hal_graph import HAL_Graph
