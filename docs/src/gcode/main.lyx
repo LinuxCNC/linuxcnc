@@ -4422,8 +4422,8 @@ A move to the specified coordinate, synchronized with the spindle at the
 \end_layout
 
 \begin_layout Itemize
-When reaching the endpoint, a command to reverse the spindle (e.g., from 300
- RPM clockwise to 300RPM counterclockwise)
+When reaching the endpoint, a command to reverse the spindle (e.g., from clockwise
+ to counterclockwise)
 \end_layout
 
 \begin_layout Itemize
@@ -4440,7 +4440,7 @@ Continued synchronized motion back to the original coordinate
 
 \begin_layout Itemize
 When reaching the original coordinate, a command to reverse the spindle
- a second time (e.g., from 300RPM counterclockwise to 300RPM clockwise)
+ a second time (e.g., from counterclockwise to clockwise)
 \end_layout
 
 \begin_layout Itemize
@@ -4489,6 +4489,26 @@ The spindle is not turning when this command is executed
 \begin_layout Itemize
 The requested linear motion exceeds machine velocity limits due to the spindle
  speed
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+;move to starting position
+\end_layout
+
+\begin_layout LyX-Code
+G0 X1.000 Y1.000 Z0.100
+\end_layout
+
+\begin_layout LyX-Code
+;rigid tapping a 20 TPI thread
+\end_layout
+
+\begin_layout LyX-Code
+G33.1 Z-0.750 K0.05
 \end_layout
 
 \begin_layout Section
