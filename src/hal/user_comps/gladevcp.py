@@ -78,7 +78,7 @@ class Trampoline(object):
         for m in self.methods:
             m(*a, **kw)
 
-def load_handlers(usermod,halcomp,builder,panel, useropts):
+def load_handlers(usermod,halcomp,builder,useropts):
     hdl_func = 'get_handlers'
 
     def add_handler(method, f):
@@ -109,7 +109,7 @@ def load_handlers(usermod,halcomp,builder,panel, useropts):
 
             if h and callable(h):
                 dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
-                objlist = h(halcomp,builder,panel,useropts)
+                objlist = h(halcomp,builder,useropts)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
@@ -195,7 +195,7 @@ def main():
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
     # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,panel, opts.useropts)
+    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
 
     builder.connect_signals(handlers)
 
