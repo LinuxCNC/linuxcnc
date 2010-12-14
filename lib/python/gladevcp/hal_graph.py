@@ -89,10 +89,13 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
 
         self.force_radius = None
         self.ticks = deque()
+        self.ticks_saved = []
         self.time_strings = {}
         self.tick_period = 0.1
 
+        self.connect("button-press-event", self.snapshot)
         self.connect("expose-event", self.expose)
+        self.add_events(gtk.gdk.BUTTON_PRESS_MASK)
 
         self.tick = 500
         self.tick_idx = 0
@@ -117,12 +120,15 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         self.queue_draw()
         return True
 
-    def expose(self, widget, event):
-        if self.flags() & gtk.PARENT_SENSITIVE:
-            alpha = 1
+    def snapshot(self, widget, event):
+        if event.button != 1:
+            return
+        if self.ticks_saved:
+            self.ticks_saved = []
         else:
-            alpha = 0.3
+            self.ticks_saved = list(self.ticks)
 
+    def expose(self, widget, event):
         w = self.allocation.width
         h = self.allocation.height
 
@@ -138,15 +144,12 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         if fh != -1: h = fh
 
         cr = widget.window.cairo_create()
-        def set_color(c):
-            return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgb(0, 0, 0)
 
         #print w, h, aw, ah, fw, fh
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
 
         cr.translate((aw - w) / 2, (ah - h) / 2)
         cr.rectangle(0, 0, w, h)
@@ -157,18 +160,20 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         w, h = w - 2, h - 2
 
         cr.set_line_width(1)
-        set_color(self.bg_color)
+        cr.set_source_color(self.bg_color)
         cr.rectangle(0, 0, w, h)
         cr.stroke_preserve()
         cr.fill()
 
         #tw = self.tick_period * w / self.period
-        now = time.time()
+        tnow = now = time.time()
+        if self.ticks_saved:
+            now = max(map(lambda x: x[0], self.ticks_saved))
 
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgb(0, 0, 0)
 
-        def t2x(t):
-            p = (t - now + self.period) / self.period
+        def t2x(t, n=now):
+            p = (t - n + self.period) / self.period
             if p < 0 or p > 1:
                 return None
             return w * p
@@ -180,33 +185,46 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         ymin, ymax = self.min, self.max
         yticks = self.yticks
         if self.autoscale:
-            tv = map(lambda x: x[1], self.ticks)
+            tv = map(lambda x: x[1], self.ticks_saved + list(self.ticks))
             if tv:
                 ymin, ymax = min(tv), max(tv)
-                if ymin == ymax:
-                    ymin *= 0.9
-                    ymax *= 1.1
-                ymin *= 1.1
-                ymax *= 1.1
+                ymin -= abs(ymin) * 0.1
+                ymax += abs(ymax) * 0.1
             else:
                 ymin, ymax = -1.1, 1.1
             yticks = 0
 
         if not yticks:
+            if ymin == ymax:
+                ymin -= max(1, abs(ymin) * 0.1)
+                ymax += max(1, abs(ymax) * 0.1)
+            #print ymax, ymin, ymax - ymin
             yround = 10 ** math.floor(math.log10((ymax - ymin) / 10))
             yticks = mround((ymax - ymin) / 10, yround)
 
         self.draw_xticks(cr, w, h, self.xticks, now, t2x)
-        self.draw_yticks(cr, w, h, ymin, ymax, yticks, set_color)
+        self.draw_yticks(cr, w, h, ymin, ymax, yticks)
 
-        set_color(gtk.gdk.Color('black'))
+        cr.set_source_rgb(0, 0, 0)
         cr.set_font_size(font_large)
         self.text_at(cr, self.label, w/2, font_large, yalign='top')
         cr.set_font_size(font_small)
         self.text_at(cr, self.sublabel, w/2, 2.5 * font_large, yalign='top')
 
-        set_color(self.fg_color)
-        self.draw_graph(cr, w, h, ymin, ymax, self.ticks, t2x)
+        cr.set_source_color(self.fg_color)
+
+        if self.ticks_saved:
+            self.draw_graph(cr, w, h, ymin, ymax, self.ticks_saved, t2x)
+            cr.set_source_rgba(*(gdk_color_tuple(self.fg_color) + (0.3,)))
+
+        self.draw_graph(cr, w, h, ymin, ymax, self.ticks, lambda t: t2x(t, tnow))
+
+        if not (self.flags() & gtk.PARENT_SENSITIVE):
+            cr.set_source_rgba(0, 0, 0, 0.3)
+            cr.set_operator(cairo.OPERATOR_DEST_OUT)
+            cr.rectangle(0, 0, w, h)
+            cr.stroke_preserve()
+            cr.fill()
 
         return True 
 
@@ -254,7 +272,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
             self.text_at(cr, s, x, 0.96 * h, yalign='bottom')
         cr.stroke()
 
-    def draw_yticks(self, cr, w, h, ymin, ymax, yticks, set_color):
+    def draw_yticks(self, cr, w, h, ymin, ymax, yticks):
         ysize = ymax - ymin
         rmax = mround(ymax, yticks)
         rmin = mround(ymin, yticks)
@@ -269,7 +287,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
             self.text_at(cr, str(v), 0.02 * w, y, xalign='left', yalign='center')
         cr.stroke()
 
-        set_color(gtk.gdk.Color('lightgray'))
+        cr.set_source_rgba(0.5, 0.5, 0.5, 0.5)
         for t in range(0, int(rsize / yticks) + 1):
             v = rmin + yticks * t
             y = h * (1 - (v - ymin)/ ysize)
