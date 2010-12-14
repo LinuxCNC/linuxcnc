@@ -30,6 +30,16 @@ def gdk_color_tuple(c):
         return 0, 0, 0
     return c.red_float, c.green_float, c.blue_float
 
+def mround(v, m):
+    vm = v % m
+    if vm == 0:
+        if v > 0: return v - m
+        if v < 0: return v + m
+        return 0
+    if v > 0: return v - vm
+    if v < 0: return v - vm + m
+    return 0
+
 class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
     __gtype_name__ = 'HAL_Graph'
     __gproperties__ = {
@@ -37,6 +47,8 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'max'  : ( gobject.TYPE_FLOAT, 'Max', 'Maximum value',
                     -MAX_INT, MAX_INT, 100, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'autoscale' : ( gobject.TYPE_BOOLEAN, 'Autoscale', 'Autoscale Y axis',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'period'  : ( gobject.TYPE_FLOAT, 'Period', 'TIme period to display',
                     -MAX_INT, MAX_INT, 60, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'tick'  : ( gobject.TYPE_INT, 'Tick period', 'Data acquarison pariod in ms',
@@ -161,51 +173,31 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
                 return None
             return w * p
 
-        def mround(v, m):
-            vm = v % m
-            if vm == 0:
-                if v > 0: return v - m
-                if v < 0: return v + m
-                return 0
-            if v > 0: return v - vm
-            if v < 0: return v - vm + m
-            return 0
-
         font_small = max(h/20, 10)
         font_large = max(h/10, 20)
         cr.set_font_size(font_small)
-        rnow = mround(now, self.xticks)
-        for t in range(0, int(self.period / self.xticks)):
-            ts = int(rnow - t * self.xticks)
-            x = t2x(ts)
-            if x is None: continue
-            cr.move_to(x, h)
-            cr.line_to(x, 0.98 * h)
-            s = self.time_string(ts)
-            self.text_at(cr, s, x, 0.96 * h, yalign='bottom')
-        cr.stroke()
 
-        ysize = self.max - self.min
-        rmax = mround(self.max, self.yticks)
-        rmin = mround(self.min, self.yticks)
-        rsize = rmax - rmin
-        for t in range(0, int(rsize / self.yticks) + 1):
-            v = rmin + self.yticks * t
-            y = h * (1 - (v - self.min)/ ysize)
-            cr.move_to(0, y)
-            cr.line_to(w/100, y)
-            cr.move_to(w, y)
-            cr.line_to(w - w/100, y)
-            self.text_at(cr, str(v), 0.02 * w, y, xalign='left', yalign='center')
-        cr.stroke()
+        ymin, ymax = self.min, self.max
+        yticks = self.yticks
+        if self.autoscale:
+            tv = map(lambda x: x[1], self.ticks)
+            if tv:
+                ymin, ymax = min(tv), max(tv)
+                if ymin == ymax:
+                    ymin *= 0.9
+                    ymax *= 1.1
+                ymin *= 1.1
+                ymax *= 1.1
+            else:
+                ymin, ymax = -1.1, 1.1
+            yticks = 0
 
-        set_color(gtk.gdk.Color('lightgray'))
-        for t in range(0, int(rsize / self.yticks) + 1):
-            v = rmin + self.yticks * t
-            y = h * (1 - (v - self.min)/ ysize)
-            cr.move_to(0.1*w, y)
-            cr.line_to(0.9*w, y)
-        cr.stroke()
+        if not yticks:
+            yround = 10 ** math.floor(math.log10((ymax - ymin) / 10))
+            yticks = mround((ymax - ymin) / 10, yround)
+
+        self.draw_xticks(cr, w, h, self.xticks, now, t2x)
+        self.draw_yticks(cr, w, h, ymin, ymax, yticks, set_color)
 
         set_color(gtk.gdk.Color('black'))
         cr.set_font_size(font_large)
@@ -214,24 +206,10 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         self.text_at(cr, self.sublabel, w/2, 2.5 * font_large, yalign='top')
 
         set_color(self.fg_color)
+        self.draw_graph(cr, w, h, ymin, ymax, self.ticks, t2x)
 
-        move = True
-        for (t, v) in self.ticks:
-            if v is None:
-                move = True
-                continue
-            v = min(max(v, self.min), self.max)
-            x = t2x(t)
-            if x is None:
-                move = True
-                continue
-            y = h * (1 - (v - self.min)/(self.max - self.min))
-            if move:
-                cr.move_to(x, y)
-                move = False
-            cr.line_to(x, y)
-        cr.stroke()
         return True 
+
     def text_at(self, cr, text, x, y, xalign='center', yalign='center'):
         xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
         #print xbearing, ybearing, width, height, xadvance, yadvance
@@ -246,16 +224,58 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         cr.move_to(x, y)
         cr.show_text(text)
 
-    def draw_arrow(self, cr, r, a):
-        cr.rotate(a)
-        cr.move_to(0, 0)
-        cr.line_to(-r/10, r/20)
-        cr.line_to(0.8 * r, 0)
-        cr.line_to(-r/10, -r/20)
-        cr.line_to(0, 0)
-        cr.stroke_preserve()
-        cr.fill()
-        cr.rotate(-a)
+    def draw_graph(self, cr, w, h, ymin, ymax, ticks, t2x):
+        move = True
+        for (t, v) in ticks:
+            if v is None:
+                move = True
+                continue
+            v = min(max(v, ymin), ymax)
+            x = t2x(t)
+            if x is None:
+                move = True
+                continue
+            y = h * (1 - (v - ymin)/(ymax - ymin))
+            if move:
+                cr.move_to(x, y)
+                move = False
+            cr.line_to(x, y)
+        cr.stroke()
+
+    def draw_xticks(self, cr, w, h, xticks, now, t2x):
+        rnow = mround(now, xticks)
+        for t in range(0, int(self.period / xticks)):
+            ts = int(rnow - t * xticks)
+            x = t2x(ts)
+            if x is None: continue
+            cr.move_to(x, h)
+            cr.line_to(x, 0.98 * h)
+            s = self.time_string(ts)
+            self.text_at(cr, s, x, 0.96 * h, yalign='bottom')
+        cr.stroke()
+
+    def draw_yticks(self, cr, w, h, ymin, ymax, yticks, set_color):
+        ysize = ymax - ymin
+        rmax = mround(ymax, yticks)
+        rmin = mround(ymin, yticks)
+        rsize = rmax - rmin
+        for t in range(0, int(rsize / yticks) + 1):
+            v = rmin + yticks * t
+            y = h * (1 - (v - ymin)/ ysize)
+            cr.move_to(0, y)
+            cr.line_to(w/100, y)
+            cr.move_to(w, y)
+            cr.line_to(w - w/100, y)
+            self.text_at(cr, str(v), 0.02 * w, y, xalign='left', yalign='center')
+        cr.stroke()
+
+        set_color(gtk.gdk.Color('lightgray'))
+        for t in range(0, int(rsize / yticks) + 1):
+            v = rmin + yticks * t
+            y = h * (1 - (v - ymin)/ ysize)
+            cr.move_to(0.1*w, y)
+            cr.line_to(0.9*w, y)
+        cr.stroke()
 
     def time_string(self, ts):
         if ts in self.time_strings:
