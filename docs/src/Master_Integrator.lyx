@@ -218,6 +218,19 @@ preview false
 \end_layout
 
 \begin_layout Part
+GUI
+\end_layout
+
+\begin_layout Standard
+\begin_inset Include \include{gui/gladevcp.lyx}
+preview false
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
 HAL
 \end_layout
 

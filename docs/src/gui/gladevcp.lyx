@@ -1,0 +1,388 @@
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass book
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Chapter
+GladeVCP
+\end_layout
+
+\begin_layout Standard
+GladeVCP is an EMC2 component which adds the ability to add a virtual control
+ panel to EMC user interfaces like Axis or Touchy.
+ It is similar to PyVCP; whereas PyVCP panels are created by editing an
+ XML file manually, GladeVCP uses the glade WYSIWYG user interface editor.
+ Therefore, it's faster and easier to create visually pleasing panels with
+ GladeVCP.
+\end_layout
+
+\begin_layout Section
+Creating your first GladeVCP UI component
+\end_layout
+
+\begin_layout Standard
+Either modify an existing UI component, or start a new one with running
+ glade.
+ In the left tab, expand the 'HAL Python' components.
+ Create a frame as top level window from the 'Toplevels' section, which
+ by default will be named window1.
+ Leave that name as is - gladevcp assumes the top level window has this
+ name.
+ Add a HAL_Box or a HAL_Table from 'HAL Python' to the frame, and pick and
+ place some elements like LED, button etc in its box.
+\end_layout
+
+\begin_layout Standard
+This will look like so: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Glade
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/glade-myui.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Select File->Save as, give it a name like 'myui.ui' and make sure it's saved
+ as 'GtkBuilder' file (radio button left bottom corner in Save dialog).
+ The convention for GtkBuilder file extension is '.ui'.
+ You can now run it with:
+\end_layout
+
+\begin_layout LyX-Code
+gladevcp myui.ui 
+\end_layout
+
+\begin_layout Section
+Integrating the example UI into Axis
+\end_layout
+
+\begin_layout Standard
+While you could run your UI as a separate top level window side-by-side
+ with Axis, having it within the Axis frame as a tab side-by-side with the
+ Preview and DRO tabs is more elegant.
+ To do so, edit your .ini file and add two variables to the DISPLAY section
+ of ini file:
+\end_layout
+
+\begin_layout LyX-Code
+
+\size small
+EMBED_TAB_NAME = GladeVCP 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size small
+EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -w {XID} -H gladevcp-test.hal
+ gladevcp-test.ui
+\end_layout
+
+\begin_layout Standard
+Try it out by running Axis - there should be a new tab called 'GladeVCP'
+ near the DRO tab.
+ Select that tab, you should see the example panel nicely fit within Axis
+ like so: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+GladeVCP in Axis
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/axis-gladevcp.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Integrating into Touchy
+\end_layout
+
+\begin_layout Standard
+Touchy also understands EMBED_TAB_NAME/EMBED_TAB_COMMAND variables from
+ INI file so instructions for it are equal to Axis.
+ 
+\end_layout
+
+\begin_layout Section
+Axis: linking HAL pins in the example UI
+\end_layout
+
+\begin_layout Standard
+To be useful, the pins in your UI need to be linked to the rest of your
+ setup.
+ Usually this is done by running one or several HAL files through the HALFILE
+ and POSTGUI_HALFILE statements in the HAL section of your .ini file.
+\end_layout
+
+\begin_layout Standard
+For gladevcp components this not currently possible because all of these
+ HALFILE statements are run before gladevcp is started, so linking to your
+ UI's pins from there would refer to pins which do not yet exist.
+ You therefore need to prepare a file of all HAL commands which refer to
+ / link with your UI's pins and pass it to the gladevcp command in the EMBED_TAB
+_COMMAND statement like so:
+\end_layout
+
+\begin_layout Standard
+EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -H gladevcp-test.hal -w {XID}
+ gladevcp-test.glade
+\end_layout
+
+\begin_layout Standard
+There is an example gladevcp-test.hal file in the emc2-dev/lib/python/gladevcp
+ directory.
+ Before using it in the EMBED_TAB_NAME statement, make sure the loadusr
+ statements at the top are commented out.
+\end_layout
+
+\begin_layout Section
+Adding custom user callbacks in Python 
+\end_layout
+
+\begin_layout Standard
+This is just a very minimal example to convey the idea - for a detailed
+ description on how to program a gladevcp application, see GladeVCPprogramming
+ and HalWidgets .
+\end_layout
+
+\begin_layout Standard
+gladevcp cannot only manipulate or display HAL pins, you can also write
+ regular event handlers in Python.
+ This could be used, among others, to execute MDI commands.
+ Here's how you do it:
+\end_layout
+
+\begin_layout Standard
+Write a Python module like so and save as e.g.
+ handlers.py:
+\end_layout
+
+\begin_layout LyX-Code
+nhits = 0
+\end_layout
+
+\begin_layout LyX-Code
+def on_button_press(gtkobj,data=None):
+\end_layout
+
+\begin_layout LyX-Code
+global nhits nhits += 1 gtkobj.set_label("hits: %d" % nhits)
+\end_layout
+
+\begin_layout Standard
+In glade, define a button or HAL button, select the 'Signals' tab, and in
+ the GtkButton properties select the 'pressed' line.
+ Enter 'on_button_press' there, and save the glade file.
+\end_layout
+
+\begin_layout Standard
+Then add the option '-u handlers.py' to the gladevcp command line.
+ If your event handlers are spread over several files, just add multiple
+ '-u <pyfilename>' options.
+\end_layout
+
+\begin_layout Standard
+Now, pressing the button should change its label since it's set in the callback
+ function.
+\end_layout
+
+\begin_layout Standard
+What the -u flag does is: all Python functions in this file are collected
+ and setup as potential callback handlers for your Gtk widgets - they can
+ be referenced from glade 'Signals' tabs.
+ The callback handlers are called with the particular object instance as
+ parameter, like the GtkButton instance above, so you can apply any GtkButton
+ method from there.
+\end_layout
+
+\begin_layout Standard
+Or do some more useful stuff, like calling an MDI command!
+\end_layout
+
+\begin_layout Section
+Gladevcp commandline options
+\end_layout
+
+\begin_layout Standard
+See also 'man gladevcp' .
+ This is the usage message when you run 'gladevcp -h':
+\end_layout
+
+\begin_layout Standard
+Usage: gladevcp [options] myfile.ui
+\end_layout
+
+\begin_layout Standard
+Options:
+\end_layout
+
+\begin_layout Description
+-h,\InsetSpace ~
+--help show this help message and exit
+\end_layout
+
+\begin_layout Description
+-c\InsetSpace ~
+NAME Set component name to NAME.
+ Default is basename of UI file
+\end_layout
+
+\begin_layout Description
+-d Enable debug output
+\end_layout
+
+\begin_layout Description
+-g\InsetSpace ~
+GEOMETRY Set geometry WIDTHxHEIGHT?+XOFFSET+YOFFSET.Values are in pixel
+ units, XOFFSET/YOFFSET is referenced from top left of screen use -g WIDTHxHEIGH
+T? for just setting size or -g +XOFFSET+YOFFSET for just position -H FILE
+ execute hal statements from FILE with halcmd after the component is set
+ up and ready
+\end_layout
+
+\begin_layout Description
+-x\InsetSpace ~
+XID Reparent gladevcp into an existing window XID instead of creating
+ a new top level window
+\end_layout
+
+\begin_layout Description
+-u\InsetSpace ~
+FILE Use FILEs as additional user defined modules with handlers
+\end_layout
+
+\begin_layout Description
+-U\InsetSpace ~
+USEROPT pass USEROPTs to Python modules 
+\end_layout
+
+\begin_layout Section
+Troubleshooting
+\end_layout
+
+\begin_layout Itemize
+make sure your have the development version of emc2 installed.
+ You dont need the axisrc file any more, this was mentioned in the old GladeVcp
+ wiki page.
+ 
+\end_layout
+
+\begin_layout Itemize
+run gladevcp or Axis from a terminal window.
+ If you get Python errors, check wether there's still a /usr/lib/python2.6/dist-p
+ackages/hal.so file lying around besides the newer /usr/lib/python2.6/dist-package
+s/_hal.so (note underscore); if yes, remove the hal.so file.
+ It has been superseded by hal.py in the same directory and thus creates
+ confusion.
+\end_layout
+
+\begin_layout Itemize
+if you're using run-in-place, do a 'make clean' to remove any accidentially
+ left over hal.so file, then 'make' .
+\end_layout
+
+\begin_layout Itemize
+if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have an
+ HAL pin associated with it which is off by default.
+ This pin controls wether these container's children are active or not.
+ 
+\end_layout
+
+\end_body
+\end_document
