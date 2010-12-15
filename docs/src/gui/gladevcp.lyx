@@ -69,7 +69,7 @@ Either modify an existing UI component, or start a new one with running
 \end_layout
 
 \begin_layout Standard
-This will look like so: 
+This will look like so:
 \end_layout
 
 \begin_layout Standard
@@ -115,7 +115,7 @@ Select File->Save as, give it a name like 'myui.ui' and make sure it's saved
 \end_layout
 
 \begin_layout LyX-Code
-gladevcp myui.ui 
+gladevcp myui.ui
 \end_layout
 
 \begin_layout Section
@@ -133,7 +133,7 @@ While you could run your UI as a separate top level window side-by-side
 \begin_layout LyX-Code
 
 \size small
-EMBED_TAB_NAME = GladeVCP 
+EMBED_TAB_NAME = GladeVCP
 \end_layout
 
 \begin_layout LyX-Code
@@ -147,7 +147,7 @@ EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -w {XID} -H gladevcp-test.hal
 Try it out by running Axis - there should be a new tab called 'GladeVCP'
  near the DRO tab.
  Select that tab, you should see the example panel nicely fit within Axis
- like so: 
+ like so:
 \end_layout
 
 \begin_layout Standard
@@ -196,7 +196,6 @@ Integrating into Touchy
 \begin_layout Standard
 Touchy also understands EMBED_TAB_NAME/EMBED_TAB_COMMAND variables from
  INI file so instructions for it are equal to Axis.
- 
 \end_layout
 
 \begin_layout Section
@@ -232,13 +231,13 @@ There is an example gladevcp-test.hal file in the emc2-dev/lib/python/gladevcp
 \end_layout
 
 \begin_layout Section
-Adding custom user callbacks in Python 
+Adding custom user callbacks in Python
 \end_layout
 
 \begin_layout Standard
 This is just a very minimal example to convey the idea - for a detailed
  description on how to program a gladevcp application, see GladeVCPprogramming
- and HalWidgets .
+ and HalWidgets.
 \end_layout
 
 \begin_layout Standard
@@ -349,7 +348,7 @@ FILE Use FILEs as additional user defined modules with handlers
 
 \begin_layout Description
 -U\InsetSpace ~
-USEROPT pass USEROPTs to Python modules 
+USEROPT pass USEROPTs to Python modules
 \end_layout
 
 \begin_layout Section
@@ -360,7 +359,6 @@ Troubleshooting
 make sure your have the development version of emc2 installed.
  You dont need the axisrc file any more, this was mentioned in the old GladeVcp
  wiki page.
- 
 \end_layout
 
 \begin_layout Itemize
@@ -374,14 +372,13 @@ s/_hal.so (note underscore); if yes, remove the hal.so file.
 
 \begin_layout Itemize
 if you're using run-in-place, do a 'make clean' to remove any accidentially
- left over hal.so file, then 'make' .
+ left over hal.so file, then 'make'.
 \end_layout
 
 \begin_layout Itemize
 if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have an
  HAL pin associated with it which is off by default.
  This pin controls wether these container's children are active or not.
- 
 \end_layout
 
 \end_body
