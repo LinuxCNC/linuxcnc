@@ -43,6 +43,7 @@ import gobject
 
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
+from gladevcp import xembed
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -168,11 +169,7 @@ def main():
     #if there was no component name specified use the xml file name
     if opts.component is None:
         opts.component = os.path.splitext(os.path.basename(xmlname))[0]
-    try:
-        halcomp = hal.component(opts.component)
-    except:
-        print "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
-        sys.exit(0)
+
     #try loading as a libglade project
     try:
         builder = gtk.glade.XML(xmlname)
@@ -189,8 +186,13 @@ def main():
 
     window = builder.get_object("window1")
 
-    window.connect("destroy", on_window_destroy)
     window.set_title(opts.component)
+
+    try:
+        halcomp = hal.component(opts.component)
+    except:
+        print "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
+        sys.exit(0)
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
@@ -199,29 +201,15 @@ def main():
 
     builder.connect_signals(handlers)
 
-    # User components are set up so report that we are ready
-    halcomp.ready()
-
     if opts.parent:
-        plug = gtk.Plug(opts.parent)
-        for c in window.get_children():
-            window.remove(c)
-            plug.add(c)
-        window = plug
+        # block X errors since gdk error handling silently exits the
+        # program without even the atexit handler given a chance
+        gtk.gdk.error_trap_push()
 
+        window = xembed.reparent(window, opts.parent)
+
+    window.connect("destroy", on_window_destroy)
     window.show()
-
-    if opts.parent:
-        from Xlib import display
-        from Xlib.xobject import drawable
-        d = display.Display()
-        w = drawable.Window(d.display, window.window.xid, 0)
-        # Honor XEmbed spec
-        atom = d.get_atom('_XEMBED_INFO')
-        w.change_property(atom, atom, 32, [0, 1])
-        w.reparent(opts.parent, 0, 0)
-        w.map()
-        d.sync()
 
     # for window resize and or position options
     if "+" in opts.geometry:
@@ -251,17 +239,24 @@ def main():
         res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
         if res:
             print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
-            halcomp.exit()
             sys.exit(res)
 
+    # User components are set up so report that we are ready
+    halcomp.ready()
+
     try:
-        try:
-            gtk.main()
-        except KeyboardInterrupt:
-            halcomp.exit()
-            sys.exit(0)
+        gtk.main()
+    except KeyboardInterrupt:
+        sys.exit(0)
     finally:
         halcomp.exit()
+
+    if opts.parent:
+        gtk.gdk.flush()
+        error = gtk.gdk.error_trap_pop()
+        if error:
+            print "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
+
 
 if __name__ == '__main__':
     main()
