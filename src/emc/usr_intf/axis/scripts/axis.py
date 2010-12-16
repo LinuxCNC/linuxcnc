@@ -108,6 +108,7 @@ class AxisPreferences(cp):
 ap = AxisPreferences()
 
 root_window = Tkinter.Tk(className="Axis")
+root_window.iconify()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
@@ -3049,10 +3050,6 @@ def remove_tempdir(t):
 tempdir = tempfile.mkdtemp()
 atexit.register(remove_tempdir, tempdir)
 
-if postgui_halfile:
-    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
-    if res: raise SystemExit, res
-
 activate_axis(0, True)
 set_hal_jogincrement()
 
@@ -3084,10 +3081,11 @@ if o.canon:
     z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
     o.set_centerpoint(x, y, z)
 
-try:
-    root_window.tk.call("send", "-async", "popimage", "destroy .")
-except Tkinter.TclError:
-    pass
+def destroy_splash():
+    try:
+        root_window.send("popimage", "destroy", ".")
+    except Tkinter.TclError:
+        pass
 
 _dynamic_childs = {}
 def _dynamic_tab(name, text):
@@ -3114,16 +3112,38 @@ def _dynamic_tabs(inifile):
         f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
         f.pack(fill="both", expand=1)
         xid = f.winfo_id()
-        cmd = c.replace('{XID}', str(xid))
-        child = Popen(cmd.split())
-        _dynamic_childs[str(w)] = child
+        cmd = c.replace('{XID}', str(xid)).split()
+        child = Popen(cmd)
+        wait = cmd[:2] == ['halcmd', 'loadusr']
+
+        _dynamic_childs[str(w)] = (child, cmd, wait)
 
 @atexit.register
 def kill_dynamic_childs():
-    for c in _dynamic_childs.values():
-        c.terminate()
+    for c,_,w in _dynamic_childs.values():
+        if not w:
+            c.terminate()
 
-_dynamic_tabs(inifile)
+def check_dynamic_tabs():
+    for c,cmd,w in _dynamic_childs.values():
+        if not w:
+            continue
+        r = c.poll()
+        if r == 0:
+            continue
+        if r is None:
+            break
+        print 'Embeded tab command "%s" exited with error: %s' %\
+                             (" ".join(cmd), r)
+        raise SystemExit(r)
+    else:
+        if postgui_halfile:
+            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
+            if res: raise SystemExit, res
+        root_window.deiconify()
+        destroy_splash()
+        return
+    root_window.after(100, check_dynamic_tabs)
 
 o.update_idletasks()
 
@@ -3227,6 +3247,9 @@ if os.path.exists(rcfile):
         print >>sys.stderr, tb
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
+
+_dynamic_tabs(inifile)
+check_dynamic_tabs()
 
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
