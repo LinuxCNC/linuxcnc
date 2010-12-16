@@ -208,6 +208,10 @@ def main():
 
         window = xembed.reparent(window, opts.parent)
 
+        forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
+        if forward:
+            xembed.keyboard_forward(window, forward)
+
     window.connect("destroy", on_window_destroy)
     window.show()
 

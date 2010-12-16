@@ -3103,6 +3103,12 @@ def _dynamic_tabs(inifile):
         print "Invalid tab configuration"
         # Complain somehow
         return
+
+    # XXX: Set our root window ID in environment so child GladeVcp processes
+    # may forward keyboard events to it
+    rxid = root_window.winfo_id()
+    os.environ['AXIS_FORWARD_EVENTS_TO'] = str(rxid)
+
     for i,t,c in zip(range(len(tab_cmd)), tab_names, tab_cmd):
         w = _dynamic_tab("user_" + str(i), t)
         f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
