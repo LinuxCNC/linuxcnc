@@ -1808,7 +1808,7 @@ class Data:
             for i in range(0,self.userneededlowpass):
                 self.lowpassnames = self.lowpassnames+"lowpass.%d,"% (i)
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
-                self.lowpassnames=self.lowpassnames+"lowpass.spindle,"
+                self.lowpassnames=self.lowpassnames+"lowpass.spindle"
             temp = self.lowpassnames.rstrip(",")
             print >>file, "loadrt lowpass names=%s"% temp
 
