@@ -2934,8 +2934,8 @@ class App:
                 self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])          
 
     def on_machinename_changed(self, *args):
-        self.widgets.confdir.set_text(
-            "~/emc2/configs/%s" % self.widgets.machinename.get_text())
+        temp = self.widgets.machinename.get_text()
+        self.widgets.confdir.set_text("~/emc2/configs/%s" % temp.replace(" ","_"))
 
     def on_external_cntrl_prepare(self, *args):
         self.data.help = "help-extcontrols.txt"
