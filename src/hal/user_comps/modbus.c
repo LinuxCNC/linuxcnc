@@ -417,13 +417,8 @@ static int check_crc16(modbus_param_t *mb_param,
   if (mb_param->type_com == RTU) {
     unsigned short crc_calc;
     unsigned short crc_received;
-    unsigned char recv_crc_hi;
-    unsigned char recv_crc_lo;
 		
     crc_calc = crc16(response, response_size - 2);
-		
-    recv_crc_hi = (unsigned) response[response_size - 2];
-    recv_crc_lo = (unsigned) response[response_size - 1];
 		
     crc_received = response[response_size - 2];
     crc_received = (unsigned) crc_received << 8;

@@ -3,107 +3,25 @@ domain="glade-3" depends="gtk+">
  <init-function>glade_python_init</init-function>
 
  <glade-widget-classes>
-   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL_HBox">
-     <properties>
-    <property id="size" save="False" query="True" default="4"/>
-    </properties>
- </glade-widget-class>
- <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL_table">
-     <properties>
-    <property id="size" save="False" query="True" default="4"/>
-    </properties>
- </glade-widget-class>
-   <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox">
-    <properties>
-        <property translatable="True" libglade-only="False" id="items" name="Items">
-        </property>
-    </properties>
-   </glade-widget-class>
+   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL_HBox"/>
+   <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL_table"/>
+   <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox"/>
    <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button"/>
-   <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton">
-   </glade-widget-class>
+   <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton"/>
    <glade-widget-class name="HAL_SpinButton" generic-name="hal_spinbutton" title="HAL_SpinButton"/>
    <glade-widget-class name="HAL_ToggleButton" generic-name="hal_togglebutton" title="HAL_ToggleButton"/>
    <glade-widget-class name="HAL_RadioButton" generic-name="hal_radiobutton" title="HAL_RadioButton"/>
    <glade-widget-class name="HAL_HScale" generic-name="hal_hscale" title="HAL_HScale"/>
    <glade-widget-class name="HAL_VScale" generic-name="hal_vscale" title="HAL_VScale"/>
    <glade-widget-class name="HAL_ProgressBar" generic-name="hal_progressbar" title="HAL_ProgressBar"/>
-   <glade-widget-class name="HAL_LED" generic-name="hal_led" title="HAL_LED">
+   <glade-widget-class name="HAL_LED" generic-name="hal_led" title="HAL LED">
     <properties>
-        <property id="is_on" name="Is_on" ignore="True">
-            <parameter-spec>
-                <type>GParamBoolean</type>
-            </parameter-spec>
-            <tooltip>How to display LED in editor</tooltip>
-        </property>
-
-        <property id="led_shape" name="Shape" ignore="True" save-always="True" default="0" >
-            <parameter-spec>
-                <type>GParamInt</type>
-                <min>0</min>
-                <max>2</max>
-            </parameter-spec>
-            <tooltip>0:round 1:oval 2:square</tooltip>
-        </property>
-
-        <property id="led_size" name="Size" ignore="True" save-always="True" default="10" >
-            <parameter-spec>
-                <type>GParamInt</type>
-                <min>5</min>
-                <max>30</max>
-            </parameter-spec>
-            <tooltip>size of LED</tooltip>
-        </property>
-
-        <property id="led_blink_rate" optional-default="False" name="Blink Rate" save-always="True" optional="True" ignore="True"  default="500">
-            <parameter-spec>
-                <type>GParamInt</type>
-                <min>100</min>
-                <max>1000</max>
-            </parameter-spec>
-            <tooltip>Click to blink LED at set rate (ms)</tooltip>
-        </property>
-        <property optional-default="False" optional="True" id="pick_color_on" name="Pick On-Color"
-        ignore="True" default="#FFFFFF">
-            <spec>glade_standard_gdkcolor_spec</spec>
-            </property>
-
-        <property optional-default="False" optional="True" id="pick_color_off" name="Pick Off-Color"
-        ignore="True"  default="#000000">
-            <spec>glade_standard_gdkcolor_spec</spec>
-        </property>
-
-        <property optional-default="False" optional="True" id="on-color" name="Standard On-Color" ignore="True"
-        save-always="True" default="red">
-            <parameter-spec>
-                <type>GParamString</type>
-            </parameter-spec>
-            <tooltip>use: red blue green white yellow black only</tooltip>
-        </property>
-
-        <property optional-default="True" optional="True" id="off-color" name="Standard Off-Color" ignore="True"
-        save-always="True" default="dark" >
-            <parameter-spec>
-                <type>GParamString</type>
-            </parameter-spec>
-            <tooltip>use: red blue green yellow white black dark only</tooltip>
-        </property>
-
-         
+        <property id="led_blink_rate" optional="True" save-always='True'/>
+        <property id="pick_color_on"  optional="True"/>
+        <property id="pick_color_off" optional="True"/>
     </properties>
     </glade-widget-class>
-    <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label">
-        <properties>
-            <property id="label_pin_type" name="label pin type" ignore="True" save-always="True" default="0" >
-                <parameter-spec>
-                    <type>GParamInt</type>
-                    <min>0</min>
-                    <max>2</max>
-                </parameter-spec>
-                <tooltip>0:S32 1:Float 2:U32</tooltip>
-            </property>  
-        </properties>
-    </glade-widget-class>
+    <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label"/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">

@@ -164,7 +164,7 @@ int rtapi_app_main(void)
     /* periodns will be set to the proper value when 'make_pulses()' runs for
        the first time.  We load a default value here to avoid glitches at
        startup */
-    periodns = 50000;
+    periodns = -1;
     /* have good config info, connect to the HAL */
     comp_id = hal_init("pwmgen");
     if (comp_id < 0) {
@@ -330,6 +330,8 @@ static void make_pulses(void *arg, long period)
 
 static void update(void *arg, long period)
 {
+	static long oldperiodns=-1;
+
     pwmgen_t *pwmgen;
     int n, high_periods;
     unsigned char new_pwm_mode;
@@ -379,8 +381,9 @@ static void update(void *arg, long period)
 	if ( *(pwmgen->pwm_freq) != pwmgen->old_pwm_freq ) {
 	    pwmgen->pwm_mode = PWM_DISABLED;
 	}
-	/* do the period calcs only when mode or pwm_freq changes */
-	if ( pwmgen->pwm_mode != new_pwm_mode ) {
+	/* do the period calcs when mode, pwm_freq, or periodns changes */
+	if ( ( pwmgen->pwm_mode != new_pwm_mode )
+		|| ( periodns != oldperiodns ) ) {
 	    /* disable output during calcs */
 	    pwmgen->pwm_mode = PWM_DISABLED;
 	    /* validate max_freq */
@@ -461,6 +464,7 @@ static void update(void *arg, long period)
 	/* move on to next channel */
 	pwmgen++;
     }
+    oldperiodns = periodns;
     /* done */
 }
 

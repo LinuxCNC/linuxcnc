@@ -85,8 +85,6 @@ int genser_kin_init(void) {
     /* set a select few to make it PUMA-like */
     // FIXME-AJ: make a hal pin, also set number of joints based on it
     genser->link_num = 6;
-//    genser->iterations = 0;
-    genser->max_iterations = GENSER_DEFAULT_MAX_ITERATIONS;
 
     return GO_RESULT_OK;
 }
@@ -588,15 +586,17 @@ int rtapi_app_main(void)
     if (!haldata)
 	goto error;
 
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < GENSER_MAX_JOINTS; i++) {
 	if ((res =
 		hal_pin_float_newf(HAL_IO, &(haldata->a[i]), comp_id,
 		    "genserkins.A-%d", i)) < 0)
 	    goto error;
+        *(haldata->a[i])=0;
 	if ((res =
 		hal_pin_float_newf(HAL_IO, &(haldata->alpha[i]), comp_id,
 		    "genserkins.ALPHA-%d", i)) < 0)
 	    goto error;
+        *(haldata->alpha[i])=0;
 	if ((res =
 		hal_pin_float_newf(HAL_IO, &(haldata->d[i]), comp_id,
 		    "genserkins.D-%d", i)) < 0)
@@ -613,6 +613,17 @@ int rtapi_app_main(void)
     haldata->pos = (go_pose *) hal_malloc(sizeof(go_pose));
     if (KINS_PTR == NULL)
 	goto error;
+    if (haldata->pos == NULL)
+	goto error;
+    if ((res=
+        hal_param_s32_newf(HAL_RO, &(KINS_PTR->iterations), comp_id, "genserkins.last-iterations")) < 0)
+        goto error;
+    if ((res=
+        hal_param_s32_newf(HAL_RW, &(KINS_PTR->max_iterations), comp_id, "genserkins.max-iterations")) < 0)
+        goto error;
+
+    KINS_PTR->max_iterations = GENSER_DEFAULT_MAX_ITERATIONS;
+
 
     A(0) = DEFAULT_A1;
     A(1) = DEFAULT_A2;
@@ -688,7 +699,7 @@ int main(int argc, char *argv[])
     KINS_PTR = malloc(sizeof(genser_struct));
     haldata->pos = (go_pose *) malloc(sizeof(go_pose));
 
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < GENSER_MAX_JOINTS ; i++) {
 	haldata->a[i] = malloc(sizeof(double));
 	haldata->alpha[i] = malloc(sizeof(double));
 	haldata->d[i] = malloc(sizeof(double));

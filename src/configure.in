@@ -119,7 +119,7 @@ AC_ARG_WITH(realtime,
     [  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed],
     [   case "$withval" in
 	"" | y | ye | yes | n | no)
-	    AC_MSG_ERROR([You must supply a path for --with-rtai.]) ;;
+	    AC_MSG_ERROR([You must supply a path for --with-realtime.]) ;;
 	*)
 		case "$SIMULATOR" in
 		yes) AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive]) ;;
@@ -279,6 +279,8 @@ fi
 
 EMC2_HOME=`(cd .. ; pwd)`
 AC_SUBST([EMC2_HOME])
+
+AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime system])
 
 ##############################################################################
 # Section 3                                                                  #
