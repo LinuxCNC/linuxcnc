@@ -17,15 +17,10 @@ def reparent(window, parent):
         return window
 
     plug = gtk.Plug(parent)
-    for c in window.get_children():
-        window.remove(c)
-        plug.add(c)
-    window = plug
-
-    window.show()
+    plug.show()
 
     d = display.Display()
-    w = drawable.Window(d.display, window.window.xid, 0)
+    w = drawable.Window(d.display, plug.window.xid, 0)
     # Honor XEmbed spec
     atom = d.get_atom('_XEMBED_INFO')
     w.change_property(atom, atom, 32, [0, 1])
@@ -33,7 +28,14 @@ def reparent(window, parent):
     w.map()
     d.sync()
 
-    return window
+    for c in window.get_children():
+        window.remove(c)
+        plug.add(c)
+
+    # Hide window if it's displayed
+    window.unmap()
+
+    return plug
 
 def keyboard_forward(window, forward):
     """ XXX: Keyboard events forwardind
