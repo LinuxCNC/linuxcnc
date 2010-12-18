@@ -3032,6 +3032,27 @@ if hal_present == 1 :
         vcpparse.create_vcp(f, comp)
     comp.ready()
 
+    gladevcp = inifile.find("DISPLAY", "GLADEVCP")
+    if gladevcp:
+        f = Tkinter.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
+        f.grid(row=0, column=5, rowspan=6, sticky="nsew", padx=4, pady=4)
+    else:
+        f = None
+    gladevcp_frame = f
+
+_dynamic_childs = {}
+# Call this later
+def load_gladevcp_panel():
+    gladevcp = inifile.find("DISPLAY", "GLADEVCP")
+    if gladevcp:
+        from subprocess import Popen
+
+        xid = gladevcp_frame.winfo_id()
+        cmd = "halcmd loadusr -Wn gladevcp gladevcp -c gladevcp".split()
+        cmd += ['-x', str(xid)] + gladevcp.split()
+        child = Popen(cmd)
+        _dynamic_childs['gladevcp'] = (child, cmd, True)
+
 notifications = Notification(root_window)
 
 root_window.bind("<Control-space>", lambda event: notifications.clear())
@@ -3087,7 +3108,6 @@ def destroy_splash():
     except Tkinter.TclError:
         pass
 
-_dynamic_childs = {}
 def _dynamic_tab(name, text):
     tab = widgets.right.insert("end", name, text=text)
     tab.configure(borderwidth=1, highlightthickness=0)
@@ -3249,7 +3269,12 @@ if os.path.exists(rcfile):
             tb, "error", 0, _("OK"))
 
 _dynamic_tabs(inifile)
-check_dynamic_tabs()
+if hal_present == 1:
+    load_gladevcp_panel()
+    check_dynamic_tabs()
+else:
+    root_window.deiconify()
+    destroy_splash()
 
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
