@@ -91,16 +91,16 @@ class HandlerClass:
         note the widget tree is not safely accessible here any more
         '''
         print "on_destroy() - saving state)"
-        self.ini.save_state(self,self.builder)
+        self.ini.save_state(self)
 
     def on_restore_defaults(self,button,data=None):
         self.ini.create_default_ini()
-        self.ini.restore_state(self,self.builder)
+        self.ini.restore_state(self)
         self.builder.get_object('hal_button1').set_label("past hits: %d" % self.nhits)
 
     def on_save_settings(self,button,data=None):
         print "on_save_settings() - saving state"
-        self.ini.save_state(self,self.builder)
+        self.ini.save_state(self)
 
     def _hal_setup(self,halcomp, builder):
         '''
@@ -172,8 +172,9 @@ class HandlerClass:
                             # NB: this does NOT restore state pf plain gtk objects - set hal_only to False to do this
                             IniFile.widgets: widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)),
                        }
-        self.ini = IniFile(self.ini_filename,self.defaults)
-        self.ini.restore_state(self,self.builder)
+
+        self.ini = IniFile(self.ini_filename,self.defaults, self.builder)
+        self.ini.restore_state(self)
 
         # at this point it is ok to refer to restored attributes like self.nhits and self.lifetime_ticks:
         self.builder.get_object('hal_button1').set_label("past hits: %d" % self.nhits)

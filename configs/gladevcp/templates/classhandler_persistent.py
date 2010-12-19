@@ -40,7 +40,7 @@ class HandlerClass:
         save state on application exit
         '''
         print "on_destroy() - saving state"
-        self.ini.save_state(self,self.builder)
+        self.ini.save_state(self)
 
     def on_restore_defaults(self,button,data=None):
         '''
@@ -48,7 +48,7 @@ class HandlerClass:
         '''
         print "on_restore_defaults() - setting default state"
         self.ini.create_default_ini()
-        self.ini.restore_state(self,self.builder)
+        self.ini.restore_state(self)
 
 
     def __init__(self, halcomp,builder,useropts):
@@ -74,11 +74,11 @@ class HandlerClass:
                             IniFile.widgets : widget_defaults(select_widgets(self.builder.get_objects(), hal_only=False,output_only = False))
                         }
 
-        self.ini = IniFile(self.ini_filename,self.defaults)
+        self.ini = IniFile(self.ini_filename,self.defaults, self.builder)
 
         # it is OK to use self.panel.widgets (all widgets) here because only
         # widgets whose state was saved as per descriptor will be restored
-        self.ini.restore_state(self,self.builder)
+        self.ini.restore_state(self)
 
 
 def get_handlers(halcomp,builder,useropts):

@@ -43,7 +43,7 @@ class EmcInterface(object):
             emc.nmlfile = os.path.join(os.path.dirname(os.environ['INI_FILE_NAME']), emcIniFile.find("EMC", "NML_FILE"))
             self.s = emc.stat();
             self.c = emc.command()
-        except Exception as msg:
+        except Exception, msg:
             print "cant initialize EmcInterface: %s - EMC not running?" %(msg)
 
     def running(self,do_poll=True):
@@ -169,7 +169,7 @@ class HandlerClass:
 
 
     def on_destroy(self,obj,data=None):
-        self.ini.save_state(self,self.builder)
+        self.ini.save_state(self)
 
     def on_restore_defaults(self,button,data=None):
         '''
@@ -177,7 +177,7 @@ class HandlerClass:
         currently unused
         '''
         self.ini.create_default_ini()
-        self.ini.restore_state(self,self.builder)
+        self.ini.restore_state(self)
 
 
     def __init__(self, halcomp,builder,useropts):
@@ -188,8 +188,8 @@ class HandlerClass:
         self.defaults = {  IniFile.vars: dict(),
                            IniFile.widgets : widget_defaults(select_widgets(self.builder.get_objects(), hal_only=False,output_only = True))
                         }
-        self.ini = IniFile(self.ini_filename,self.defaults)
-        self.ini.restore_state(self,self.builder)
+        self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
+        self.ini.restore_state(self)
 
         self.e = EmcInterface()
 
