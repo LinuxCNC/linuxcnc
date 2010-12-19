@@ -1107,6 +1107,31 @@ The global parameters _a, _b, _c, ...
 \end_layout
 
 \begin_layout Section
+System Parameters
+\begin_inset LatexCommand label
+name "sec:System-Parameters"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two global read only named parameters are available to check which version
+ is running from G Code.
+\end_layout
+
+\begin_layout Description
+#<_vmajor> Major package version.
+ If current version was 2.6.2 would return 2.6.
+\end_layout
+
+\begin_layout Description
+#<_vminor> Minor package version.
+ If current version was 2.6.2 would return 0.2.
+\end_layout
+
+\begin_layout Section
 Expressions
 \begin_inset LatexCommand label
 name "sub:Expressions"
