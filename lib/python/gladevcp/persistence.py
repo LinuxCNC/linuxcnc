@@ -158,11 +158,13 @@ class IniFile(object):
                 spec += '\t' + varname + ' = ' + typename  + '\n'
         return spec
 
-    def restore_state(self,obj,builder):
+    def restore_state(self,obj):
         '''
         restore attributes from ini file 'vars' section as obj attributes,
         as well as any widget state in 'widgets' section
         '''
+        dbg(1, "restore_state() from %s" % (self.filename))
+
         if not self.defaults.has_key(IniFile.ini):
             raise BadDescriptorDictError("defaults dict lacks 'ini' section")
 
@@ -183,9 +185,9 @@ class IniFile(object):
 
         if self.config.has_key(IniFile.widgets):
             for k,v in self.config[IniFile.widgets].items():
-                store_value(builder.get_object(k),v)
+                store_value(self.builder.get_object(k),v)
 
-    def save_state(self, obj,builder):
+    def save_state(self, obj):
         '''
         save obj attributes as listed in ini file 'IniFile.vars' section and
         widget state to 'widgets' section
@@ -196,11 +198,13 @@ class IniFile(object):
 
         if self.config.has_key(IniFile.widgets):
             for k in self.defaults[IniFile.widgets].keys():
-                self.config[IniFile.widgets][k] = get_value(builder.get_object(k))
+                self.config[IniFile.widgets][k] = get_value(self.builder.get_object(k))
 
         self.config.final_comment = ['last update  by %s.save_state() on %s ' %
                                          (__name__,time.asctime())]
         self.write()
+        dbg(1, "save_state() to %s" % (self.filename))
+
 
     def create_default_ini(self):
         '''
@@ -248,7 +252,7 @@ class IniFile(object):
                         raise UselessIniError("cant make sense of '%s', renamed to '%s'"
                                               % (self.filename, badfilename))
                     else:
-                        raise Exception(errors)
+                        raise Exception(error)
 
             except (IOError, TypeError,UselessIniError),msg:
                 warn("%s - creating default" % (msg))
@@ -269,11 +273,12 @@ class IniFile(object):
             self.filename = filename
         self.config.write()
 
-    def __init__(self,filename,defaults):
+    def __init__(self,filename,defaults,builder):
         defaults[IniFile.ini] =   { IniFile.signature : 'astring',
                                     IniFile.version : version_number }
         self.defaults = defaults
         self.filename = filename
+        self.builder = builder
         spec = self._gen_spec(self.defaults)
         self.signature = sha1(spec).hexdigest()
         self.defaults[IniFile.ini][IniFile.signature] = self.signature
