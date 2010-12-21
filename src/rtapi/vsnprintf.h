@@ -71,7 +71,7 @@ static char *ch(char *buf, char *end, char ch)
     return buf+1;
 }
 
-static char *st(char *buf, char *end, char *add)
+static char *st(char *buf, char *end, const char *add)
 {
     while(*add)
 	buf = ch(buf, end, *add++);
