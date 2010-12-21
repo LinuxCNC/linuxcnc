@@ -217,9 +217,11 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
     }
     str = buf;
     end = buf + size - 1;
-    if (end < buf - 1) {
-	end = ((void *) -1);
-	size = end - buf + 1;
+    if (end <= buf) {
+	/* impossible or hack attempt: end of buffer wraps around in memory from
+	 * high addresses to low
+	 */
+	return -1;
     }
     for (; *fmt; ++fmt) {
 	if (*fmt != '%') {
