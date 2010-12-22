@@ -423,7 +423,6 @@ g a value.
  than changing HAL values.
  Doing something more complex, like executing MDI commands to call a G-code
  subroutine, is outside scope.
- 
 \end_layout
 
 \begin_layout Section
@@ -516,7 +515,6 @@ gladevcp imports the module, inspects it for signal handlers and connects
 
 \begin_layout Itemize
 the main event loop is run.
- 
 \end_layout
 
 \begin_layout Subsubsection*
@@ -557,7 +555,7 @@ Add this function to a Python file and run as follows:
 \end_layout
 
 \begin_layout LyX-Code
-gladevcp -u <myhandler>.py mygui.ui 
+gladevcp -u <myhandler>.py mygui.ui
 \end_layout
 
 \begin_layout Standard
@@ -585,7 +583,6 @@ one or more several class definition(s) with one or several methods, in
 \begin_layout Itemize
 a function 'get_handlers' in each module which will return a list of class
  instances to gladevcp - their method names will be linked to signal handlers
- 
 \end_layout
 
 \begin_layout Standard
@@ -609,7 +606,7 @@ def get_handlers(halcomp,builder,useropts):
 \end_layout
 
 \begin_layout LyX-Code
-return [MyCallbacks ()] 
+return [MyCallbacks ()]
 \end_layout
 
 \begin_layout Standard
@@ -645,7 +642,7 @@ builder - widget tree - result of reading the UI definition (either referring
 
 \begin_layout Itemize
 useropts - a list of strings collected from the gladevcp command line '-U
- <useropts>' option 
+ <useropts>' option
 \end_layout
 
 \begin_layout Standard
@@ -694,7 +691,6 @@ the halcomp HAL component is set up and all HAL widget's pins have already
 it is safe to add more HAL pins because halcomp.ready() has not yet been
  called at this point, so you may add your own pins, for instance in the
  class __init__() method.
- 
 \end_layout
 
 \begin_layout Standard
@@ -724,7 +720,6 @@ if a HAL command file was passed with '-H halfile', it is executed with
 
 \begin_layout Itemize
 the gtk main loop is run.
- 
 \end_layout
 
 \begin_layout Standard
@@ -836,7 +831,7 @@ decide which widgets should have their state retained
 
 \begin_layout Itemize
 describe these decisions in your handler class' __init__() method through
- a nested dictionary as follows: 
+ a nested dictionary as follows:
 \end_layout
 
 \begin_layout LyX-Code
@@ -856,7 +851,7 @@ self.useropts = useropts
 \end_layout
 
 \begin_layout LyX-Code
-self.defaults = { 
+self.defaults = {
 \end_layout
 
 \begin_layout LyX-Code
@@ -864,7 +859,7 @@ self.defaults = {
 \end_layout
 
 \begin_layout LyX-Code
-    # the save/restore mechanism is strongly typed - the variable's   type
+    # the save/restore mechanism is strongly typed - the variable's type
  will be derived from the type of the
 \end_layout
 
@@ -879,11 +874,11 @@ self.defaults = {
 
 \begin_layout LyX-Code
     # to save/restore all widget's state which might remotely make sense,
- add this: 
+ add this:
 \end_layout
 
 \begin_layout LyX-Code
-    IniFile.widgets : widget_defaults(builder.get_objects()) 
+    IniFile.widgets : widget_defaults(builder.get_objects())
 \end_layout
 
 \begin_layout LyX-Code
@@ -958,7 +953,7 @@ ini.create_default_ini() - create a .ini file with default values
 
 \begin_layout Itemize
 ini.restore_state(obj) - restore HAL out pins and obj's attributes as saved/initi
-alzed to default as above 
+alzed to default as above
 \end_layout
 
 \begin_layout Standard
@@ -1070,7 +1065,6 @@ return True # to restart the timer; return False for on-shot
 
 \begin_layout LyX-Code
 ...
- 
 \end_layout
 
 \begin_layout LyX-Code
@@ -1123,7 +1117,7 @@ However, this assumes that both parent and child application properly support
 Therefore, key events in gladevcp are explicitly handled, and selectively
  forwarded to Axis, to assure that such situations cannot arise.
  For details, see the keyboard_forward() function in lib/python/gladevcp/xembed.p
-y .
+y.
 \end_layout
 
 \begin_layout Subsection*
@@ -1142,7 +1136,6 @@ I get an unexpected unmap event in my handler function right after startup.
  (made invisible), which is the cause of the unmap signal you get.
  Suggested fix: set window1.visible to False, and ignore an initial unmap
  event.
- 
 \end_layout
 
 \begin_layout Itemize
@@ -1160,7 +1153,6 @@ my gladevcp program starts, but no window appears where I expect it to be?:
  The general rule is: if you manually run a UI file with 'gladevcp <uifile>'
  and its window has reasonable geometry, it should come up in Axis properly
  as well.
- 
 \end_layout
 
 \begin_layout Subsection*
