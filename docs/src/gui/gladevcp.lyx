@@ -52,6 +52,11 @@ GladeVCP is an EMC2 component which adds the ability to add a virtual control
  GladeVCP.
 \end_layout
 
+\begin_layout Description
+Note: Until GladeVCP is fully integrated with EMC2 please refer to the EMC
+ wiki page GladeVcpSetup for instructions on installing and setting up GladeVCP.
+\end_layout
+
 \begin_layout Section
 Creating your first GladeVCP UI component
 \end_layout
@@ -60,7 +65,7 @@ Creating your first GladeVCP UI component
 Either modify an existing UI component, or start a new one with running
  glade.
  In the left tab, expand the 'HAL Python' components.
- Create a frame as top level window from the 'Toplevels' section, which
+ Create a window as top level window from the 'Toplevels' section, which
  by default will be named window1.
  Leave that name as is - gladevcp assumes the top level window has this
  name.
@@ -379,6 +384,792 @@ if you're using run-in-place, do a 'make clean' to remove any accidentially
 if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have an
  HAL pin associated with it which is off by default.
  This pin controls wether these container's children are active or not.
+\end_layout
+
+\begin_layout Chapter
+GladeVCP Programming
+\end_layout
+
+\begin_layout Section
+PyVCP to GladeVCP
+\end_layout
+
+\begin_layout Standard
+Stock gladevcp can be used pretty much in the style of PyVCP - the major
+ difference being that in the case of gladevcp, the glade user interface
+ editor is used to design a screen layout, whereas PyVCP is driven by manually
+ edited XML files.
+ Also, PyVCP uses the TkInter widgets, whereas gladevcp uses the much richer
+ GTK toolkit.
+ Both support 'HAL widgets' - widgets with one or more associated HAL pin
+ which is the interface to the rest of EMC.
+ Stock gladevcp and PyVCP panels are really just a bunch of virtual switches,
+ dials, leds an so forth, wired to the outside world through the HAL layer,
+ designed to set and read ints, bits and floats values.
+\end_layout
+
+\begin_layout Standard
+Most widget sets, and their associated user interface editors, support the
+ concept of callbacks - functions in user-writen code which are executed
+ when 'something happens' in the UI - events like mouse clicks, characters
+ typed, mouse movement, timer events, window hiding and exposure and so
+ forth.
+ Both PyVCP and stock gladevcp mainly do two things: mapping events on HAL
+ widgets to actions like a value change of the associated HAL pin, and in
+ the other direction - detecting if HAL pin values changed and updating
+ the associated widget, like a LED, a meter, a bar, or just some label displayin
+g a value.
+ However, neither PyVCP nor stock gladevcp provide support for other actions
+ than changing HAL values.
+ Doing something more complex, like executing MDI commands to call a G-code
+ subroutine, is outside scope.
+ 
+\end_layout
+
+\begin_layout Section
+User Defined Actions
+\end_layout
+
+\begin_layout Standard
+As most of the infrastructure to support user-defined actions in glade and
+ the GTK widget set is in place, the new gladevcp version really just provides
+ a way for the user to write a Python module whose class methods - or in
+ the simple case, just functions - can be referred to in glade as event
+ handlers, a way to import this module(s) into gladevcp at runtime and properly
+ link it with the rest of the HAL layer.
+\end_layout
+
+\begin_layout Subsection*
+HAL value change events
+\end_layout
+
+\begin_layout Standard
+We also extended the way the HAL input pins interact with the gladevcp panel.
+ Beyond HAL widgets displaying pin values, there is now a way to attach
+ a 'value-changed' callback to a HAL pin, which fits nicely with the event-drive
+n structure of a typical widget application: every activity, be it mouse
+ click, key, timer expired, or the change of a HAL pin's value, generates
+ a callback and is handled by the same orthogonal mechanism.
+\end_layout
+
+\begin_layout Standard
+Note that the above refers to explictely declared HAL pins.
+ HAL widgets come with a pre-defined signal 'hal-pin-changed', see the HalWidget
+s page for details.
+\end_layout
+
+\begin_layout Standard
+See the 'Adding HAL pins' section below for details.
+\end_layout
+
+\begin_layout Subsection*
+Persistent values in GladeVCP
+\end_layout
+
+\begin_layout Standard
+A annoying aspect of gladevcp in its earlier form and pyvcp is the fact
+ that you may change values through text entry, sliders, spin boxes, toggle
+ buttons etc, but their settings are not saved and restored at the next
+ run of EMC - they start at the default value as set in the panel or widget
+ definition.
+ Therefore I added an easy-to-use mechanism to save and restore the state
+ of HAL widgets, and program variables (in fact instance attributes) as
+ well.
+ This mechanism uses the popular '.ini' file syntax and has safeguards against
+ the .ini file and the corresponding user interface or program variables
+ getting out of sync - just imagine renaming, adding or deleting widgets
+ in glade: an .ini file lying around from a previous program version, or
+ an entirely different user interface, would be not be able to restore the
+ state properly.
+ This situation is detected through a signature which depends on all object
+ names and types which are saved and to be restored.
+ In the case of signature mismatch, a new .ini file with default settings
+ is generated.
+\end_layout
+
+\begin_layout Subsection*
+Programming model
+\end_layout
+
+\begin_layout Standard
+The overall protocol is as follows:
+\end_layout
+
+\begin_layout Itemize
+design your UI with glade, and set signal handlers where you want actions
+ associated with a widget
+\end_layout
+
+\begin_layout Itemize
+write a Python module which contains callable objects (see 'handler models'
+ below)
+\end_layout
+
+\begin_layout Itemize
+pass your module's path name to gladevcp with the '-u <module>' option
+\end_layout
+
+\begin_layout Itemize
+gladevcp imports the module, inspects it for signal handlers and connects
+ them to the widget tree
+\end_layout
+
+\begin_layout Itemize
+the main event loop is run.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+The simple handler model
+\end_layout
+
+\begin_layout Standard
+For simple tasks it's sufficient to define functions named after the glade
+ signal handlers.
+ These will be called when the corresponding event happens in the widget
+ tree.
+ Here's a trivial example - it assumes that the 'pressed' signal of a GTK
+ Button or HAL Button is linked to a callback called 'on_button_press':
+\end_layout
+
+\begin_layout LyX-Code
+nhits = 0
+\end_layout
+
+\begin_layout LyX-Code
+def on_button_press(gtkobj,data=None):
+\end_layout
+
+\begin_layout LyX-Code
+global nhits
+\end_layout
+
+\begin_layout LyX-Code
+nhits += 1
+\end_layout
+
+\begin_layout LyX-Code
+gtkobj.set_label("hits: %d" % nhits)
+\end_layout
+
+\begin_layout Standard
+Add this function to a Python file and run as follows:
+\end_layout
+
+\begin_layout LyX-Code
+gladevcp -u <myhandler>.py mygui.ui 
+\end_layout
+
+\begin_layout Standard
+Note communication between handlers has to go through global variables,
+ which does not scale well and is positively Unpythonic.
+ This is why we came up with the class-based handler model.
+\end_layout
+
+\begin_layout Subsubsection*
+The class-based handler model
+\end_layout
+
+\begin_layout Standard
+The idea here is: handlers are linked to class methods.
+ The underlying class(es) are instantiated and inspected during gladevcp
+ startup and linked to the widget tree as signal handlers.
+ So the task now is to write:
+\end_layout
+
+\begin_layout Itemize
+one or more several class definition(s) with one or several methods, in
+ one module or split over several modules,
+\end_layout
+
+\begin_layout Itemize
+a function 'get_handlers' in each module which will return a list of class
+ instances to gladevcp - their method names will be linked to signal handlers
+ 
+\end_layout
+
+\begin_layout Standard
+Here is a minimum user-defined handler example module:
+\end_layout
+
+\begin_layout LyX-Code
+Class MyCallbacks :
+\end_layout
+
+\begin_layout LyX-Code
+def on_this_signal(self,obj,data=None):
+\end_layout
+
+\begin_layout LyX-Code
+print "this_signal happened, obj=",obj
+\end_layout
+
+\begin_layout LyX-Code
+def get_handlers(halcomp,builder,useropts):
+\end_layout
+
+\begin_layout LyX-Code
+return [MyCallbacks ()] 
+\end_layout
+
+\begin_layout Standard
+Now, 'on_this_signal' will be available as signal handler to your widget
+ tree.
+\end_layout
+
+\begin_layout Subsubsection*
+The get_handlers protocol
+\end_layout
+
+\begin_layout Standard
+If during module inspection gladevcp finds a function 'get_handlers', it
+ calls it as follows:
+\end_layout
+
+\begin_layout Standard
+get_handlers(halcomp,builder,useropts)
+\end_layout
+
+\begin_layout Standard
+the arguments are:
+\end_layout
+
+\begin_layout Itemize
+halcomp - refers to the HAL component under construction
+\end_layout
+
+\begin_layout Itemize
+builder - widget tree - result of reading the UI definition (either referring
+ to a GTKBuilder or libglade-type object)
+\end_layout
+
+\begin_layout Itemize
+useropts - a list of strings collected from the gladevcp command line '-U
+ <useropts>' option 
+\end_layout
+
+\begin_layout Standard
+gladevcp then inspects the list of class instances and retrieves their method
+ names.
+ Qualifying method names are connected to the widget tree as signal handlers.
+ Only method names which do not begin with an '_' (underscore) are considered.
+\end_layout
+
+\begin_layout Standard
+Note that regardless wether you're using the libglade or the new GtkBuilder?
+ format for your glade UI, widgets can always be referred to as 
+\series bold
+builder.get_object(<widgetname>)
+\series default
+.
+ Also, the complete list of widgets is available as 
+\series bold
+builder.get_objects()
+\series default
+ regardless of UI format.
+\end_layout
+
+\begin_layout Subsection*
+Initialization sequence
+\end_layout
+
+\begin_layout Standard
+It is important to know in which state of affairs your get_handlers() function
+ is called so you know what is safe to do there and what not.
+ First, modules are imported and initialized in command line order.
+ After successful import, get_handlers() is called in the following state:
+\end_layout
+
+\begin_layout Itemize
+the widget tree is created, but not yet realized (no toplevel window.show()
+ has been executed yet)
+\end_layout
+
+\begin_layout Itemize
+the halcomp HAL component is set up and all HAL widget's pins have already
+ been added to it
+\end_layout
+
+\begin_layout Itemize
+it is safe to add more HAL pins because halcomp.ready() has not yet been
+ called at this point, so you may add your own pins, for instance in the
+ class __init__() method.
+ 
+\end_layout
+
+\begin_layout Standard
+Once all modules have been imported and method names extracted, the following
+ steps happen:
+\end_layout
+
+\begin_layout Itemize
+all qualifying method names will be connected to the widget tree with connect_si
+gnals()/signal_autoconnect() (depending on the type of UI imported - GtkBuilder?
+ vs the old libglade format).
+\end_layout
+
+\begin_layout Itemize
+the HAL component is finalized with halcomp.ready()
+\end_layout
+
+\begin_layout Itemize
+if a window ID was passed as argument, the widget tree is reparented to
+ run in this window, and glade's toplevel window1 is abandoned (see FAQ)
+\end_layout
+
+\begin_layout Itemize
+if a HAL command file was passed with '-H halfile', it is executed with
+ halcmd
+\end_layout
+
+\begin_layout Itemize
+the gtk main loop is run.
+ 
+\end_layout
+
+\begin_layout Standard
+So when your handler class is initialized, all widgets are existent but
+ not yet realized (displayed on screen).
+ And the HAL component is'nt ready as well, so its unsafe to access pins
+ values in your __init__() method.
+\end_layout
+
+\begin_layout Standard
+If you want to have a callback to execute at program start after it is safe
+ to access HAL pins, then a connect a handler to the realize signal of the
+ top level window1 (which might be its only real purpose).
+ At this point gladevcp is done with all setup tasks, the halfile has been
+ run, and gladevcp is about to enter the gtk main loop.
+\end_layout
+
+\begin_layout Subsection*
+Multiple callbacks with the same name
+\end_layout
+
+\begin_layout Standard
+Within a class, method names must be unique.
+ However, it is ok to have multiple class instances passed to gladevcp by
+ get_handlers() with identically named methods.
+ When the corresponding signal occurs, these methods will be called in definitio
+n order - module by module, and within a module, in the order class instances
+ are returned by get_handlers().
+\end_layout
+
+\begin_layout Subsection*
+The gladevcp -U <useropts> flag
+\end_layout
+
+\begin_layout Standard
+Instead of extending gladevcp for any conceivable option which could potentially
+ be useful for a handler class, you may use the -U <useroption> flag (repeatedly
+ if you wish).
+ This flag collects a list of <useroption> strings.
+ This list is passed to the get_handlers() function (useropts argument).
+ Your code is free to interpret these strings as you see fit.
+ An possible usage would be to pass them to the Python exec function in
+ your get_handlers() as follows:
+\end_layout
+
+\begin_layout LyX-Code
+debug = 0
+\end_layout
+
+\begin_layout LyX-Code
+...
+\end_layout
+
+\begin_layout LyX-Code
+def get_handlers(halcomp,builder,useropts):
+\end_layout
+
+\begin_layout LyX-Code
+...
+\end_layout
+
+\begin_layout LyX-Code
+global debug # assuming there's a global var
+\end_layout
+
+\begin_layout LyX-Code
+for cmd in useropts:
+\end_layout
+
+\begin_layout LyX-Code
+exec cmd in globals()
+\end_layout
+
+\begin_layout Standard
+This way you can pass arbitrary Python statements to your module through
+ the gladevcp -U option, for example:
+\end_layout
+
+\begin_layout Standard
+gladevcp -U debug=42 -U "print 'debug=%d' % debug" ...
+\end_layout
+
+\begin_layout Standard
+This should set debug to 2 and confirm that your module actually did it.
+\end_layout
+
+\begin_layout Subsection*
+Persistence
+\end_layout
+
+\begin_layout Standard
+If you want any of: GTK widget state, HAL widgets output pin's values and/or
+ class attributes of your handler class to be retained across invocations,
+ proceed as follows:
+\end_layout
+
+\begin_layout Itemize
+import the gladevcp.persistence module
+\end_layout
+
+\begin_layout Itemize
+decide which instance attributes, and their default values you want to have
+ retained, if any
+\end_layout
+
+\begin_layout Itemize
+decide which widgets should have their state retained
+\end_layout
+
+\begin_layout Itemize
+describe these decisions in your handler class' __init__() method through
+ a nested dictionary as follows: 
+\end_layout
+
+\begin_layout LyX-Code
+def __init__(self, halcomp,builder,useropts):
+\end_layout
+
+\begin_layout LyX-Code
+self.halcomp = halcomp
+\end_layout
+
+\begin_layout LyX-Code
+self.builder = builder
+\end_layout
+
+\begin_layout LyX-Code
+self.useropts = useropts
+\end_layout
+
+\begin_layout LyX-Code
+self.defaults = { 
+\end_layout
+
+\begin_layout LyX-Code
+    # the following names will be saved/restored as method attributes
+\end_layout
+
+\begin_layout LyX-Code
+    # the save/restore mechanism is strongly typed - the variable's   type
+ will be derived from the type of the
+\end_layout
+
+\begin_layout LyX-Code
+    # initialisation value.
+ Currently supported types are: int, float, bool, string
+\end_layout
+
+\begin_layout LyX-Code
+    IniFile.vars : { 'nhits' : 0, 'a': 1.67, 'd': True ,'c' : "a string"},
+\end_layout
+
+\begin_layout LyX-Code
+    # to save/restore all widget's state which might remotely make sense,
+ add this: 
+\end_layout
+
+\begin_layout LyX-Code
+    IniFile.widgets : widget_defaults(builder.get_objects()) 
+\end_layout
+
+\begin_layout LyX-Code
+    # a sensible alternative might be to retain only all HAL output widgets'
+ state:
+\end_layout
+
+\begin_layout LyX-Code
+    # IniFile.widgets: widget_defaults(select_widgets(self.builder.get_objects(),
+ hal_only=True,output_only = True)),
+\end_layout
+
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout Standard
+and associate an .ini file with this descriptor:
+\end_layout
+
+\begin_layout LyX-Code
+self.ini_filename = __name__ + '.ini'
+\end_layout
+
+\begin_layout LyX-Code
+self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
+\end_layout
+
+\begin_layout LyX-Code
+self.ini.restore_state(self)
+\end_layout
+
+\begin_layout Standard
+after restore_state(), self will have attributes set if as running the following
+:
+\end_layout
+
+\begin_layout LyX-Code
+self.nhits = 0
+\end_layout
+
+\begin_layout LyX-Code
+self.a = 1.67
+\end_layout
+
+\begin_layout LyX-Code
+self.d = True
+\end_layout
+
+\begin_layout LyX-Code
+self.c = "a string"
+\end_layout
+
+\begin_layout Standard
+Note that types are saved and preserved on restore.
+ This example assumes that the ini file didnt exist or had the default values
+ from self.defaults.
+\end_layout
+
+\begin_layout Standard
+After this incantation, you can use the following IniFil methods:
+\end_layout
+
+\begin_layout Itemize
+ini.save_state(obj) - saves objs's attributes as per IniFil.vars dictionary
+ and the widget state as described in IniFile.widgets in self.defaults
+\end_layout
+
+\begin_layout Itemize
+ini.create_default_ini() - create a .ini file with default values
+\end_layout
+
+\begin_layout Itemize
+ini.restore_state(obj) - restore HAL out pins and obj's attributes as saved/initi
+alzed to default as above 
+\end_layout
+
+\begin_layout Standard
+To save the widget and/or variable state on exit, connect a signal handler
+ to the window1 (toplevel) destroy event:
+\end_layout
+
+\begin_layout LyX-Code
+def on_destroy(self,obj,data=None):
+\end_layout
+
+\begin_layout LyX-Code
+    self.ini.save_state(self)
+\end_layout
+
+\begin_layout Standard
+Next time you start the gladevcp application, the widgets should come up
+ in the state when the application was closed.
+\end_layout
+
+\begin_layout Subsection*
+Hand-editing .ini files
+\end_layout
+
+\begin_layout Standard
+You can do that, but note that the values in self.defaults override your
+ edits if there is a syntax or type error in your edit.
+ The error is detected, a console message will hint about that happened,
+ and the bad inifile will be renamed to have the .BAD suffix.
+ Subsequent bad ini files overwrite earlier .BAD files.
+\end_layout
+
+\begin_layout Subsection*
+Adding HAL pins
+\end_layout
+
+\begin_layout Standard
+If you need HAL pins which are not associated with a specific HAL widget,
+ add them as follows:
+\end_layout
+
+\begin_layout LyX-Code
+import hal_glib
+\end_layout
+
+\begin_layout LyX-Code
+...
+\end_layout
+
+\begin_layout LyX-Code
+# in your handler class __init__():
+\end_layout
+
+\begin_layout LyX-Code
+self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT,
+ hal.HAL_IN))
+\end_layout
+
+\begin_layout Standard
+To get a callback when this pin's value changes, associate a 
+\series bold
+value-change
+\series default
+ callback with this pin, add:
+\end_layout
+
+\begin_layout LyX-Code
+self.example_trigger.connect('value-changed', self._on_example_trigger_change)
+\end_layout
+
+\begin_layout Standard
+and define a callback method (or function, in this case leave out the 'self'
+ parameter):
+\end_layout
+
+\begin_layout LyX-Code
+# note '_' - this method will not be visible to the widget tree
+\end_layout
+
+\begin_layout LyX-Code
+def _on_example_trigger_change(self,pin,userdata=None):
+\end_layout
+
+\begin_layout LyX-Code
+print "pin value changed to:" % (pin.get())
+\end_layout
+
+\begin_layout Subsection*
+Adding timers
+\end_layout
+
+\begin_layout Standard
+Since gladevcp uses GTK widgets which rely on the GObject base class, the
+ full glib functionaliy is available.
+ Here is an example for a timer callback:
+\end_layout
+
+\begin_layout LyX-Code
+def _on_timer_tick(self,userdata=None):
+\end_layout
+
+\begin_layout LyX-Code
+...
+\end_layout
+
+\begin_layout LyX-Code
+return True # to restart the timer; return False for on-shot
+\end_layout
+
+\begin_layout LyX-Code
+...
+ 
+\end_layout
+
+\begin_layout LyX-Code
+# demonstrate a slow background timer - granularity is one second
+\end_layout
+
+\begin_layout LyX-Code
+# for a faster timer (granularity 1msec), use this:
+\end_layout
+
+\begin_layout LyX-Code
+# glib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
+\end_layout
+
+\begin_layout LyX-Code
+glib.timeout_add_seconds(1, self._on_timer_tick)
+\end_layout
+
+\begin_layout Subsection*
+Implementation note: Key handling in Axis
+\end_layout
+
+\begin_layout Standard
+We believe key handling works OK, but since it is new code, we're telling
+ about it you so you can watch out for problems; please let us know of errors
+ or odd behaviour.
+ This is the story:
+\end_layout
+
+\begin_layout Standard
+Axis uses the TkInter? widget set.
+ GladeVCP? applications use Gtk widgets and run in a separate process context.
+ They are hooked into Axis with the Xembed protocol.
+ This allows a child application like gladevcp to properly fit in a parent's
+ window, and - in theory - have integrated event handling.
+\end_layout
+
+\begin_layout Standard
+However, this assumes that both parent and child application properly support
+ the Xembed protocol, which Gtk does, but TkInter? doesnt.
+ A consequence of this is that certain keys would not be forwarded from
+ a gladevcp panel to Axis properly under all circumstances.
+ One of these situations was the case when an Entry, or SpinButton? widget
+ had focus: in this case, for instance an Escape key would not have been
+ forwarded to Axis and cause an abort as it should, with potentially disastrous
+ consequences.
+\end_layout
+
+\begin_layout Standard
+Therefore, key events in gladevcp are explicitly handled, and selectively
+ forwarded to Axis, to assure that such situations cannot arise.
+ For details, see the keyboard_forward() function in lib/python/gladevcp/xembed.p
+y .
+\end_layout
+
+\begin_layout Subsection*
+FAQ
+\end_layout
+
+\begin_layout Itemize
+I get an unexpected unmap event in my handler function right after startup.
+ What's this?: This is a consequence of your glade UI file having the window1
+ Visible property set to True, together with reparenting the gladevcp window
+ into Axis or touchy.
+ The gladevcp widget tree is created, including a top level window, and
+ then 'reparented into Axis', leaving that toplevel window laying around
+ orphaned.
+ To avoid having this useless empty window hanging around, it is unmapped
+ (made invisible), which is the cause of the unmap signal you get.
+ Suggested fix: set window1.visible to False, and ignore an initial unmap
+ event.
+ 
+\end_layout
+
+\begin_layout Itemize
+my gladevcp program starts, but no window appears where I expect it to be?:
+ The window Axis allocates for gladevcp will obtain the 'natural size' of
+ all its child widgets combined.
+ It's the child widget's job to request a size (width and/or height).
+ However, not all widgets do request a width greater than 0, for instance
+ the Graph widget in its current form.
+ If there's such a widget in your glade file and it#s the one which defines
+ the layout you might want to set its width explicitely.
+ Note that setting the window1 width and height properties in glade does
+ not make sense because this window will be orphaned during reparenting
+ and hence its geometry will have no impact on layout (see above).
+ The general rule is: if you manually run a UI file with 'gladevcp <uifile>'
+ and its window has reasonable geometry, it should come up in Axis properly
+ as well.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Examples, and rolling your own gladevcp application
+\end_layout
+
+\begin_layout Standard
+Visit emc2/configs/gladevcp for running examples.
+ The templates subdirectory has starters for your own projects.
 \end_layout
 
 \end_body
