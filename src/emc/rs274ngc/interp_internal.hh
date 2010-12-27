@@ -218,7 +218,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX ".bak"
 
 // number of parameters in parameter table
-#define RS274NGC_MAX_PARAMETERS 5414
+#define RS274NGC_MAX_PARAMETERS 5429
 
 // Subroutine parameters
 #define INTERP_SUB_PARAMS 30

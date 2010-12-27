@@ -904,6 +904,16 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
   CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
 
+  _setup.parameters[5420] = _setup.current_x;
+  _setup.parameters[5421] = _setup.current_y;
+  _setup.parameters[5422] = _setup.current_z;
+  _setup.parameters[5423] = _setup.AA_current;
+  _setup.parameters[5424] = _setup.BB_current;
+  _setup.parameters[5425] = _setup.CC_current;
+  _setup.parameters[5426] = _setup.u_current;
+  _setup.parameters[5427] = _setup.v_current;
+  _setup.parameters[5428] = _setup.w_current;
+
   if(_setup.file_pointer)
   {
      _setup.block1.offset = ftell(_setup.file_pointer);
