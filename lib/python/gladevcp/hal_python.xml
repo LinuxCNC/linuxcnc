@@ -27,6 +27,27 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
+
+    <!-- Actions -->
+    <glade-widget-class name="EMC_Action_ESTOP" generic-name="hal_action_estop" title="EMC Action ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_Action_ESTOP_RESET" generic-name="hal_action_estop_reset" title="EMC Action ESTOP RESET" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_Action_ON" generic-name="hal_action_on" title="EMC Action ON" icon-name='gtk-connect'/>
+    <glade-widget-class name="EMC_Action_OFF" generic-name="hal_action_off" title="EMC Action OFF" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_Action_Run" generic-name="hal_action_run" title="EMC Action Run" icon-name='gtk-media-play-ltr'/>
+    <glade-widget-class name="EMC_Action_Step" generic-name="hal_action_run" title="EMC Action Step" icon-name='gtk-media-next-ltr'/>
+    <glade-widget-class name="EMC_Action_Pause" generic-name="hal_action_run" title="EMC Action Pause" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_Action_Resume" generic-name="hal_action_run" title="EMC Action Resume" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_Action_Stop" generic-name="hal_action_stop" title="EMC Action Stop" icon-name='gtk-media-stop'/>
+    <glade-widget-class name="EMC_Action_MDI" generic-name="hal_action_mdi" title="EMC Action MDI" icon-name='gtk-execute'/>
+
+    <glade-widget-class name="EMC_ToggleAction_ESTOP" generic-name="hal_toggleaction_estop" title="EMC ToggleAction ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_ToggleAction_Power" generic-name="hal_toggleaction_power" title="EMC ToggleAction Power" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_ToggleAction_Run" generic-name="hal_toggleaction_run" title="EMC ToggleAction Run" icon-name='gtk-media-play-ltr'/>
+    <glade-widget-class name="EMC_ToggleAction_Stop" generic-name="hal_toggleaction_stop" title="EMC ToggleAction Stop" icon-name='gtk-media-stop'/>
+    <glade-widget-class name="EMC_ToggleAction_Pause" generic-name="hal_toggleaction_pause" title="EMC ToggleAction Pause" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_ToggleAction_MDI" generic-name="hal_toggleaction_mdi" title="EMC ToggleAction MDI" icon-name='gtk-execute'/>
+
+    <glade-widget-class name="EMC_Stat" generic-name="hal_stat" title="EMC Stat" icon-name='gtk-properties' toplevel='yes'/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -48,6 +69,27 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
+ </glade-widget-group>
+ <glade-widget-group name="python" title="EMC Actions">
+   <glade-widget-class-ref name="EMC_Action_ESTOP"/>
+   <glade-widget-class-ref name="EMC_Action_ESTOP_RESET"/>
+   <glade-widget-class-ref name="EMC_Action_ON"/>
+   <glade-widget-class-ref name="EMC_Action_OFF"/>
+   <glade-widget-class-ref name="EMC_Action_Run"/>
+   <glade-widget-class-ref name="EMC_Action_Step"/>
+   <glade-widget-class-ref name="EMC_Action_Pause"/>
+   <glade-widget-class-ref name="EMC_Action_Resume"/>
+   <glade-widget-class-ref name="EMC_Action_Stop"/>
+   <glade-widget-class-ref name="EMC_Action_MDI"/>
+
+   <glade-widget-class-ref name="EMC_ToggleAction_ESTOP"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Power"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Run"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Stop"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Pause"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_MDI"/>
+
+   <glade-widget-class-ref name="EMC_Stat"/>
  </glade-widget-group>
 </glade-catalog>
 
