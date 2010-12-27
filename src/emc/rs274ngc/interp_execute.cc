@@ -333,7 +333,7 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
     break;
   case EXISTS:
     // do nothing here
-    // result for the EXISTS function is set by Interp:read_parameter()
+    // result for the EXISTS function is set by Interp:read_unary()
     break;
   case EXP:
     *double_ptr = exp(*double_ptr);

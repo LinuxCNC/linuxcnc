@@ -371,11 +371,13 @@ private:
  int find_named_param(char *nameBuf, int *status, double *value);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
-                          double *parameters);
+                          double *parameters, bool check_exists);
  int read_parameter(char *line, int *counter, double *double_ptr,
-                          double *parameters);
+                          double *parameters, bool check_exists);
  int read_parameter_setting(char *line, int *counter,
                                   block_pointer block, double *parameters);
+ int read_bracketed_parameter(char *line, int *counter, double *double_ptr,
+                          double *parameters, bool check_exists);
  int read_named_parameter_setting(char *line, int *counter,
                                   char **param, double *parameters);
  int read_q(char *line, int *counter, block_pointer block,

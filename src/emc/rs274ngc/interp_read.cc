@@ -28,7 +28,6 @@
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
-static int current_operation=0;
 /****************************************************************************/
 
 /*! read_a
@@ -1142,7 +1141,6 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
 
   c = line[*counter];
   *counter = (*counter + 1);
-  current_operation = 0;
   switch (c) {
   case '+':
     *operation = PLUS;
@@ -1289,7 +1287,6 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
 
   c = line[*counter];
   *counter = (*counter + 1);
-  current_operation = 0;
   switch (c) {
   case 'a':
     if ((line[*counter] == 'b') && (line[(*counter) + 1] == 's')) {
@@ -1374,7 +1371,6 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
   default:
     ERS(NCE_UNKNOWN_WORD_WHERE_UNARY_OPERATION_COULD_BE);
   }
-  current_operation=*operation;
   return INTERP_OK;
 }
 
@@ -2038,7 +2034,8 @@ int Interp::read_named_parameter(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
     double *double_ptr,   //!< pointer to double to be read
-    double *parameters)   //!< array of system parameters
+    double *parameters,   //!< array of system parameters
+    bool check_exists)    //!< test for existence, not value
 {
   static char name[] = "read_named_parameter";
 
@@ -2070,13 +2067,18 @@ int Interp::read_named_parameter(
   {
       if(0 == strcmp(nameList->named_parameters[i], paramNameBuf))
       {
-          *double_ptr = nameList->named_param_values[i];
+          if(check_exists)
+              *double_ptr = 1.0;
+          else
+              *double_ptr = nameList->named_param_values[i];
           return INTERP_OK;
       }
   }
 
   *double_ptr = 0.0;
   
+  if(check_exists) return INTERP_OK;
+
   logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
   ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
@@ -2131,9 +2133,10 @@ int Interp::read_parameter(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
     double *double_ptr,   //!< pointer to double to be read                  
-    double *parameters)   //!< array of system parameters                    
+    double *parameters,   //!< array of system parameters
+    bool check_exists)    //!< test for existence, not value
 {
-  int index,status;
+  int index;
 
   CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
@@ -2145,22 +2148,17 @@ int Interp::read_parameter(
       //_setup.stack_index = 0; -- reminder of variable we need
       // find the matching string (if any) -- or create it
       // then get the value and store it
-      status = read_named_parameter(line, counter, double_ptr, parameters);
-      if (current_operation == EXISTS) {
-          if (status != INTERP_OK) {
-             *double_ptr = 0.0;  //does not exist
-          } else {
-             *double_ptr = 1.0;  //does     exist
-          }
-          return INTERP_OK;
-      }
-      if (status != INTERP_OK) ERP(status);
+      CHP(read_named_parameter(line, counter, double_ptr, parameters,
+	      check_exists));
   }
   else
   {
-      CHKS( current_operation == EXISTS, NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      status = read_integer_value(line, counter, &index, parameters);
-      if (status != INTERP_OK) ERP(status);
+      CHP(read_integer_value(line, counter, &index, parameters));
+      if(check_exists)
+      {
+	  *double_ptr = index >= 1 && index < RS274NGC_MAX_PARAMETERS;
+	  return INTERP_OK;
+      }
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       CHKS(((index >= 5420) && (index <= 5428) && (_setup.cutter_comp_side)),
@@ -2170,6 +2168,21 @@ int Interp::read_parameter(
   return INTERP_OK;
 }
 
+int Interp::read_bracketed_parameter(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line
+    double *double_ptr,   //!< pointer to double to be read
+    double *parameters,   //!< array of system parameters
+    bool check_exists)    //!< test for existence, not value
+{
+  CHKS((line[*counter] != '['), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHKS((line[*counter] != '#'), _("Expected # reading parameter"));
+  CHP(read_parameter(line, counter, double_ptr, parameters, check_exists));
+  CHKS((line[*counter] != ']'), _("Expected ] reading bracketed parameter"));
+  *counter = (*counter + 1);
+  return INTERP_OK;
+}
 
 int Interp::free_named_parameters( // ARGUMENTS
     int level,      // level to free
@@ -2928,7 +2941,7 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
   {
-    CHP(read_parameter(line, counter, double_ptr, parameters));
+    CHP(read_parameter(line, counter, double_ptr, parameters, false));
   }
   else if (c == '+' && c1 && !isdigit(c1) && c1 != '.')
   {
@@ -3343,41 +3356,17 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
   CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME);
   start_expression= *counter +1;
+
+  if (operation == EXISTS)
+  {
+      CHP(read_bracketed_parameter(line, counter, double_ptr, parameters, true));
+      return INTERP_OK;
+  }
+
   CHP(read_real_expression(line, counter, double_ptr, parameters));
 
   if (operation == ATAN)
     CHP(read_atan(line, counter, double_ptr, parameters));
-  else if (operation == EXISTS) {
-    // EXISTS[] is for named_parameters only
-    // accept only "[#<named_parameter_name>]"
-    //        line[0]     == '['
-    //        line[1]     == '<'
-    //        ...
-    //        line[len-2] == '>'
-    //        line[len-1] == ']'
-    if ( (line[start_expression] == '#') && (line[start_expression+1] == '<') ) {
-      int i;
-      int len=(int)strlen(line);
-      for (i=start_expression+2; i<len-1 ;i++) {
-        if (line[i] == '>')  break;
-        if (    ( (line[i] >= 'a' ) && (line[i] <= 'z' ) )
-             || ( (line[i] >= '0' ) && (line[i] <= '9' ) )
-             || (  line[i] == '_' )
-           ) {
-          continue;
-        } else {
-          ERS(_("EXISTS requires single named parameter"));
-        }
-      }
-      if (i != (len-2) ) {
-        ERS(_("EXISTS requires single named parameter"));
-      } else {
-        CHP(execute_unary(double_ptr, operation));
-      }
-    } else {
-      ERS(_("EXISTS requires single named parameter"));
-    }
-  }
   else
     CHP(execute_unary(double_ptr, operation));
   return INTERP_OK;
