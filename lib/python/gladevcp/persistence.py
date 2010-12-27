@@ -29,12 +29,10 @@ from configobj import ConfigObj, flatten_errors
 from validate import Validator
 from hashlib import sha1
 from hal_widgets import _HalWidgetBase
+from hal_actions import _EMC_ActionBase
 from gladevcp.gladebuilder import widget_name
 
 class UselessIniError(Exception):
-    pass
-
-class NoGetterSetterError(Exception):
     pass
 
 class BadDescriptorDictError(Exception):
@@ -65,12 +63,15 @@ def select_widgets(widgets, hal_only=False,output_only = False):
     '''
     input: a list of widget instances
     output: a list of widget instances, pruned according to the flags:
-        hal_only = True:  only add HAL widgets
+        hal_only = True:  only add HAL widgets which make sense restoring
         output_only = True: only add widgets which let users
         set a value (scale,button..)
     '''
     wlist = []
     for w in widgets:
+        # always skip the following types: 
+        if isinstance(w, (_EMC_ActionBase)):
+            continue
         if hal_only and not isinstance(w, _HalWidgetBase):
             continue
         if output_only and not isinstance(w, (gtk.Range,
@@ -88,33 +89,19 @@ def accessors(w):
     '''
     retrieve getter/setter name of an 'interesting' widget
     '''
-    if isinstance(w, (gtk.Range, gtk.SpinButton,gtk.ComboBox)):
-        return ('get_value','set_value')
-    if isinstance(w, (gtk.CheckButton, gtk.ToggleButton,gtk.RadioButton)):
-        return ('get_active','set_active')
-
-    raise NoGetterSetterError
-
+    if isinstance(w, (gtk.Range, gtk.SpinButton)):
+        return (w.get_value,w.set_value)
+    if isinstance(w, (gtk.CheckButton, gtk.ToggleButton,gtk.RadioButton,gtk.ComboBox)):
+        return (w.get_active,w.set_active)
+    return (None,None)
 
 def store_value(widget,value):
-    try:
-        (_,setter) = accessors(widget)
-        method = getattr(widget,setter,None)
-        method(value)
-    except NoGetterSetterError:
-        dbg(3,"store_value: no setter method for: ",str(widget))
-        raise
-
+    _,setter = accessors(widget)
+    return setter and setter(value)
 
 def get_value(widget):
-    try:
-        (getter,_) = accessors(widget)
-        method = getattr(widget,getter,None)
-        return method()
-    except NoGetterSetterError:
-        dbg(3,"store_value: no getter method for: ",str(widget))
-        raise
-
+    getter,_ = accessors(widget)
+    return getter and getter()
 
 def widget_defaults(widgets):
     '''
@@ -126,7 +113,8 @@ def widget_defaults(widgets):
         try:
             v = get_value(w)
             wvalues[k] = v
-        except NoGetterSetterError:
+        except Exception,msg:
+            warn("widget_defaults:" + msg)
             continue
     return wvalues
 
