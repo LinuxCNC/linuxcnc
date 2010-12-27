@@ -2,6 +2,7 @@
 # vim: sts=4 sw=4 et
 
 import _hal, hal, gobject
+import emc
 
 class GPin(gobject.GObject, hal.Pin):
     __gtype_name__ = 'GPin'
@@ -60,3 +61,94 @@ class GComponent:
     def getpin(self, *a, **kw): return GPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
+
+    def __getitem__(self, k): return self.comp[k]
+    def __setitem__(self, k, v): self.comp[k] = v
+
+class GStat(gobject.GObject):
+    __gsignals__ = {
+        'state-estop': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'state-on': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'state-off': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
+        'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'mode-mdi': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
+        'interp-run': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
+        'interp-idle': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'interp-paused': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'interp-reading': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'interp-waiting': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        }
+
+    STATES = { emc.STATE_ESTOP:       'state-estop'
+             , emc.STATE_ESTOP_RESET: 'state-estop-reset'
+             , emc.STATE_ON:          'state-on'
+             , emc.STATE_OFF:         'state-off'
+             }
+
+    MODES  = { emc.MODE_MANUAL: 'mode-manual'
+             , emc.MODE_AUTO:   'mode-auto'
+             , emc.MODE_MDI:    'mode-mdi'
+             }
+
+    INTERP = { emc.INTERP_WAITING: 'interp-waiting'
+             , emc.INTERP_READING: 'interp-reading'
+             , emc.INTERP_PAUSED: 'interp-paused'
+             , emc.INTERP_IDLE: 'interp-idle'
+             }
+
+    def __init__(self, stat = None):
+        gobject.GObject.__init__(self)
+        self.stat = emc.stat()
+        self.old = {}
+        gobject.timeout_add(100, self.update)
+
+    def merge(self):
+        self.old['state'] = self.stat.task_state
+        self.old['mode']  = self.stat.task_mode
+        self.old['interp']= self.stat.interp_state
+
+    def update(self):
+        try:
+            self.stat.poll()
+        except:
+            # Reschedule
+            return True
+        old = dict(self.old)
+        self.merge()
+        state_old = old.get('state', 0)
+        state_new = self.old['state']
+        if not state_old:
+            if state_new > emc.STATE_ESTOP:
+                self.emit('state-estop-reset')
+            else:
+                self.emit('state-estop')
+            self.emit('state-off')
+            self.emit('interp-idle')
+
+        if state_new != state_old:
+            if state_old == emc.STATE_ON and state_new < emc.STATE_ON:
+                self.emit('state-off')
+            self.emit(self.STATES[state_new])
+            if state_new == emc.STATE_ON:
+                old['mode'] = 0
+                old['interp'] = 0
+
+        mode_old = old.get('mode', 0)
+        mode_new = self.old['mode']
+        if mode_new != mode_old:
+            self.emit(self.MODES[mode_new])
+
+        interp_old = old.get('interp', 0)
+        interp_new = self.old['interp']
+        if interp_new != interp_old:
+            if not interp_old or interp_old == emc.INTERP_IDLE:
+                print "Emit", "interp-run"
+                self.emit('interp-run')
+            self.emit(self.INTERP[interp_new])
+
+        return True
