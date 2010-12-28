@@ -432,6 +432,17 @@ capture_position()
 \noun on
 (bit)
 \noun default
+ stepgen.<chan>.enable
+\family default
+ -- Enables output steps - when false, no steps are generated.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\noun on
+(bit)
+\noun default
  stepgen.<chan>.step
 \family default
  -- Step pulse output (step type 0 only).
