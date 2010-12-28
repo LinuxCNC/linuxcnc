@@ -119,6 +119,7 @@ static int emcioNmlGet()
 }
 
 static RCS_CMD_MSG *last_io_command = 0;
+static long last_io_command_size = 0;
 
 /*
   sendCommand() waits until any currently executing command has finished,
@@ -194,8 +195,8 @@ static int sendCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
 
-    if (last_io_command == 0) {
-	last_io_command = (RCS_CMD_MSG *) malloc(0x4000);
+    if (last_io_command_size < msg->size) {
+	last_io_command = (RCS_CMD_MSG *) realloc(last_io_command, std::max<long>(msg->size, 4096));
     }
 
     if (0 != last_io_command) {
