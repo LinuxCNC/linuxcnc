@@ -747,7 +747,7 @@ Scale
 \begin_layout Standard
 Hint: To make a scale useful in glade, add an 'Adjustment' (General->Adjustment-
 >New or existing adjustment) and edit the adjustment object.
- It defines the default/min/max/increment 
+ It defines the default/min/max/increment
 \end_layout
 
 \begin_layout Standard
@@ -813,7 +813,6 @@ SpinButton
 \begin_layout Standard
 Hint: to be useful, Spinbuttons need an adjustment value like scales, see
  above.
- 
 \end_layout
 
 \begin_layout Subsection*
@@ -1009,8 +1008,17 @@ scale - value scale.
 \end_layout
 
 \begin_layout Itemize
-green_limit - green zone limit lower limit -- PFIXME: please give example
- value and effect
+green_limit - green zone limit lower limit 
+\begin_inset Note Note
+status open
+
+\begin_layout Standard
+-- PFIXME: please give example value and effect
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
@@ -1103,7 +1111,6 @@ It has the following property which can be set in glade:
 
 \begin_layout LyX-Code
 column: the column index, type S32, defaults to -1, range from -1..100 .
- 
 \end_layout
 
 \begin_layout Standard
@@ -1187,7 +1194,6 @@ z0_color, z1_color, z2_color: Colors of different value zones.
  values so zone 0 will fill from 0 to first border, zone 1 will fill from
  first to second border and zone 2 -- from last border to 1.
  Borders are set as fractions, values from 0 to 1.
- 
 \end_layout
 
 \begin_layout Standard
@@ -1303,10 +1309,6 @@ sideways false
 status open
 
 \begin_layout Standard
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset Caption
 
 \begin_layout Standard
@@ -1365,7 +1367,7 @@ enable_dro : boolean; wether to draw a DRO on the plot or not.
 \end_layout
 
 \begin_layout Standard
-Example: 
+Example:
 \end_layout
 
 \begin_layout Standard
