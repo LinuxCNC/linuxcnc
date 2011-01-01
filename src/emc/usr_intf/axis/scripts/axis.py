@@ -2443,7 +2443,9 @@ class TclCommands(nf.TclCommands):
     def dynamic_tab(name, text):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
-    def inifindall(section, item): return tuple(inifile.findall(section, item))
+    def inifindall(section, item):
+	items = tuple(inifile.findall(section, item))
+	return root_window.tk.merge(*items)
 
 commands = TclCommands(root_window)
 
