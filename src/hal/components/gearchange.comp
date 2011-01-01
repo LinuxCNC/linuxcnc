@@ -1,46 +1,88 @@
-component gearchange """Select from one two speed ranges
-The output will be a value scaled for the selected gear, and clamped to
-the min/max values for that gear.
-The scale of gear 1 is assumed to be 1, so the output device scale
-should be chosen accordingly.
-The scale of gear 2 is relative to gear 1, so if gear 2 runs the spindle
-2.5 times as fast as gear 1, scale2 should be set to 2.5.""";
-pin in bit sel "Gear selection input";
-pin in float speed_in "Speed command input";
-pin out float speed_out "Speed command to DAC/PWM";
-pin in bit dir_in "Direction command input";
-pin out bit dir_out "Direction output - possibly inverted for second gear";
-param rw float min1 = 0 "Minimum allowed speed in gear range 1";
-param rw float max1 = 100000 "Maximum allowed speed in gear range 1";
-param rw float min2 = 0 "Minimum allowed speed in gear range 2";
-param rw float max2 = 100000 "Maximum allowed speed in gear range 2";
-param rw float scale2 = 1.0 """Relative scale of gear 2 vs. gear 1
-Since it is assumed that gear 2 is "high gear", \\fBscale2\\fR must be
-greater than 1, and will be reset to 1 if set lower.""";
-param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear";
+component gearchange """Calculate the correct motor speed setpoint for a 
+machine with multiple gear ratios.""";
+
+pin in float speed-in "Speed command input.";
+pin out float speed-out "Speed command to DAC/PWM";
+pin in bit gear-#-sel [32 : personality+1] """Gear selection by bit. Higher
+numbers take priority if more than one is set""";
+pin in bit sel "Alias for sel2 for compatibility with the previous version ";
+pin in bit dir_in "Direction input for absolute speed + dir modes";
+pin out bit dir-out "Direction output (will be reversed for negative scales)";
+pin out bit min-lim "Indicates that the minimum limitation is active";
+pin out bit max-lim "Indicates that the maximum limitation is active";
+pin in unsigned gear-number "Gear selection as a numeric";
+pin out float speed-filtered "Speed command to display, limited and absolute";
+pin out float accel-limit "Acceleration limit for the selected gear";
+param rw float min#[32: personality+1] = 0 
+    "Minimum allowed speed in gear range N";
+param rw float max#[32 : personality+1] = 100000 
+    "Maximum allowed speed in gear range N";
+param rw float acc#[32 : personality+1] = 0 
+    "Maximum Acceleration in rpm/s. 0 = no limit";
+param rw float scale#[32 : personality+1] = 1.0 "Ratio in gear range 1";
+param rw bit reverse "negates the value of scale2, for compatibility";
+
+option extra_setup;
+variable float old_speed = 0;
+
+description """The output will be a  value scaled for the selected gear, and 
+clamped to the min/max values for that gear.
+
+This should work for up to 32 gears.
+To load two instances, one with 5 gears and one with 6 use:
+loadrt gearchange count=2 personality=5,6
+For a single instance you can omit the count, eg with 11 gears you can use:
+loadrt gearchange personality=11
+
+It accepts negative speeds, negative outputs and negative scales to allow for 
+gear ranges that reverse the motion.
+
+The scale is the ratio between input speed and output speed, so the same VFD 
+scale parameter will work for any gear. The output value is that motor speed 
+which would be required to give the requested output speed with a gear ratio of
+1. If gear 1 is the slowest gear then other ratios will probably need to be 
+fractional. If the highest numbered gear is the slowest then the scales will 
+probably need to be greater than one. 
+
+The gear can be input either as a numeric value (possibly assembled from 
+\\fBweighted_sum\\fR components to convert the positions of several levers into 
+a gear) or as an individual select bit for each gear. """;
 
 function _;
 license "GPL";
 ;;
+#include <rtapi_math.h>
 FUNCTION(_) {
-    hal_float_t temp_in = speed_in;
-    hal_float_t sign=1;
-    /* Assume that the output device is scaled so that gear 1 is "Pass-through" */
-    /* the other gear(s) need to be scaled by the relative scale for that gear */
-    if (scale2 < 1) scale2 = 1;
-    if (temp_in < 0) {
-	sign = -1;
-	temp_in = -temp_in;
-    }
-    if(sel) {		/* gear 2 */
-    	if (temp_in < min2) temp_in = min2;
-    	else if (temp_in > max2) temp_in = max2;
-    	temp_in /= scale2;		/* scale up to second gear output range */
-	dir_out = dir_in ^ reverse;
-    } else {
-    	if (temp_in < min1) temp_in = min1;
-    	else if (temp_in > max1) temp_in = max1;
-	dir_out = dir_in;
-    }
-    speed_out = sign*temp_in;
+    int gear;
+    double speed_target;
+    double delta;
+    
+    if (sel) gear = 2; // Backwards compatibility
+    else if (gear_number) gear = gear_number;
+    else for (gear = personality ; gear > 0 && !gear_sel(gear) ; gear--) {}
+    
+    speed_filtered = fabs(speed_in);
+    if (speed_filtered > max(gear)) {
+        max_lim = 1; min_lim = 0;
+        speed_filtered = max(gear);}
+    else if (speed_filtered < min(gear)) {
+        min_lim = 1; max_lim = 0;
+        speed_filtered = min(gear);}
+    else { min_lim = 0; max_lim = 0; }
+    
+    speed_target =  speed_filtered * ((scale(gear) != 0)? scale(gear) : 1)
+    *((speed_in < 0)? -1 : 1) ;
+    delta = acc(gear) * fperiod * ((speed_target > old_speed)? 1 : -1);
+    speed_out = 
+        ((acc(gear) != 0 && fabs(speed_target - old_speed) > fabs(delta))?
+        (old_speed += delta) : (old_speed = speed_target));
+    
+    dir_out = ((scale(gear) < 0)? !dir_in : dir_in);
+    dir_out = ((reverse && gear == 2)? !dir_out : dir_out); // Backwards compat
+    accel_limit = acc(gear);
+}
+
+EXTRA_SETUP( ) {
+    if (personality == 0) personality = 2;
+    return 0;
 }
