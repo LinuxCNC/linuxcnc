@@ -4805,7 +4805,7 @@ class App:
                 pitch = 1./ get("leadscrew")
             else:  
                 pitch = get("leadscrew")
-            motor_ratio = (get("pulleydriver") / get("pulleydriven"))          
+            motor_ratio = ( get("pulleydriven") / get("pulleydriver") )          
             if stepdriven :
                 steps_per_rev = get("steprev") * get("microstep")
                 scale = ( steps_per_rev * pitch * worm_ratio * motor_ratio)
