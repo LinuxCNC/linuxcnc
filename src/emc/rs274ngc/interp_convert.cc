@@ -3372,6 +3372,8 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
 
   if (p_int == settings->origin_index) {        /* system is currently used */
+
+    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
       
     settings->current_x += settings->origin_offset_x;
     settings->current_y += settings->origin_offset_y;
@@ -3413,8 +3415,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                        v + settings->v_axis_offset,
                        w + settings->w_axis_offset);
 
-    // current_xy are relative to this sytem's origin, so we can rotate directly
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy - r);
+    rotate(&settings->current_x, &settings->current_y, - r);
     settings->rotation_xy = r;
     SET_XY_ROTATION(settings->rotation_xy);
 
