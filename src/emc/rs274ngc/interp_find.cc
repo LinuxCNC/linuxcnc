@@ -521,6 +521,85 @@ int Interp::find_current_in_system(setup_pointer s, int system,
     return INTERP_OK;
 }
 
+
+// find what the current coordinates would be if we were in a different system,
+// if TLO were unapplied
+
+int Interp::find_current_in_system_without_tlo(setup_pointer s, int system,
+                                   double *x, double *y, double *z,
+                                   double *a, double *b, double *c,
+                                   double *u, double *v, double *w) {
+    double *p = s->parameters;
+
+    *x = s->current_x;
+    *y = s->current_y;
+    *z = s->current_z;
+    *a = s->AA_current;
+    *b = s->BB_current;
+    *c = s->CC_current;
+    *u = s->u_current;
+    *v = s->v_current;
+    *w = s->w_current;
+
+    *x += s->axis_offset_x;
+    *y += s->axis_offset_y;
+    *z += s->axis_offset_z;
+    *a += s->AA_axis_offset;
+    *b += s->BB_axis_offset;
+    *c += s->CC_axis_offset;
+    *u += s->u_axis_offset;
+    *v += s->v_axis_offset;
+    *w += s->w_axis_offset;
+
+    rotate(x, y, s->rotation_xy);
+
+    *x += s->origin_offset_x;
+    *y += s->origin_offset_y;
+    *z += s->origin_offset_z;
+    *a += s->AA_origin_offset;
+    *b += s->BB_origin_offset;
+    *c += s->CC_origin_offset;
+    *u += s->u_origin_offset;
+    *v += s->v_origin_offset;
+    *w += s->w_origin_offset;
+
+    *x += s->tool_offset.tran.x;
+    *y += s->tool_offset.tran.y;
+    *z += s->tool_offset.tran.z;
+    *a += s->tool_offset.a;
+    *b += s->tool_offset.b;
+    *c += s->tool_offset.c;
+    *u += s->tool_offset.u;
+    *v += s->tool_offset.v;
+    *w += s->tool_offset.w;
+
+    *x -= USER_TO_PROGRAM_LEN(p[5201 + system * 20]);
+    *y -= USER_TO_PROGRAM_LEN(p[5202 + system * 20]);
+    *z -= USER_TO_PROGRAM_LEN(p[5203 + system * 20]);
+    *a -= USER_TO_PROGRAM_ANG(p[5204 + system * 20]);
+    *b -= USER_TO_PROGRAM_ANG(p[5205 + system * 20]);
+    *c -= USER_TO_PROGRAM_ANG(p[5206 + system * 20]);
+    *u -= USER_TO_PROGRAM_LEN(p[5207 + system * 20]);
+    *v -= USER_TO_PROGRAM_LEN(p[5208 + system * 20]);
+    *w -= USER_TO_PROGRAM_LEN(p[5209 + system * 20]);
+
+    rotate(x, y, -p[5210 + system * 20]);
+
+    if (p[5210]) {
+        *x -= USER_TO_PROGRAM_LEN(p[5211]);
+        *y -= USER_TO_PROGRAM_LEN(p[5212]);
+        *z -= USER_TO_PROGRAM_LEN(p[5213]);
+        *a -= USER_TO_PROGRAM_ANG(p[5214]);
+        *b -= USER_TO_PROGRAM_ANG(p[5215]);
+        *c -= USER_TO_PROGRAM_ANG(p[5216]);
+        *u -= USER_TO_PROGRAM_LEN(p[5217]);
+        *v -= USER_TO_PROGRAM_LEN(p[5218]);
+        *w -= USER_TO_PROGRAM_LEN(p[5219]);
+    }
+
+    return INTERP_OK;
+}
+
 /****************************************************************************/
 
 /*! find_straight_length

@@ -281,6 +281,9 @@ private:
  int find_current_in_system(setup_pointer s, int system, double *x, double *y, double *z,
                             double *a, double *b, double *c,
                             double *u, double *v, double *w);
+ int find_current_in_system_without_tlo(setup_pointer s, int system, double *x, double *y, double *z,
+                            double *a, double *b, double *c,
+                            double *u, double *v, double *w);
  int find_ends(block_pointer block, setup_pointer settings, 
                double *px, double *py, double *pz, 
                double *AA_p, double *BB_p, double *CC_p,

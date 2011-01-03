@@ -3171,11 +3171,10 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         int to_fixture = block->l_number == 11;
         int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
 
-        double oldx, oldy;
-        find_current_in_system(settings, destination_system,
-                               &tx, &ty, &tz, 
-                               &ta, &tb, &tc,
-                               &tu, &tv, &tw);
+        find_current_in_system_without_tlo(settings, destination_system,
+                                           &tx, &ty, &tz,
+                                           &ta, &tb, &tc,
+                                           &tu, &tv, &tw);
 
         if ( to_fixture && settings->parameters[5210]) {
             // For G10L11, we don't want to move the origin of the
@@ -3193,37 +3192,60 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         }
 
 
-        if(block->x_flag || block->y_flag) {
-            oldx = tx;
-            oldy = ty;
-            if(block->x_flag) {
-                tx = block->x_number;
-            }
-            if(block->y_flag) {
-                ty = block->y_number;
-            }
-            
-            rotate(&oldx, &oldy, settings->parameters[5210 + destination_system * 20]);
+        if(block->x_flag && block->y_flag) {
+            tx -= block->x_number;
+            ty -= block->y_number;
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(tx);
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(ty);
+        } else if(block->x_flag) {
+            // keep the component of the tool table's current setting that points
+            // along our possibly-rotated Y axis
+            double ox, oy;
+            ox = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.x);
+            oy = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.y);
+            rotate(&ox, &oy, -settings->parameters[5210 + destination_system * 20]);
+            ox = 0;
+            rotate(&ox, &oy, settings->parameters[5210 + destination_system * 20]);
+
             
-            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(oldx + settings->tool_offset.tran.x - tx);
-            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(oldy + settings->tool_offset.tran.y - ty);
+            tx -= block->x_number;
+            ty = 0;
+            rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
+
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
+        } else if(block->y_flag) {
+            double ox, oy;
+            ox = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.x);
+            oy = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.y);
+            rotate(&ox, &oy, -settings->parameters[5210 + destination_system * 20]);
+            oy = 0;
+            rotate(&ox, &oy, settings->parameters[5210 + destination_system * 20]);
+
+            ty -= block->y_number;
+            tx = 0;
+
+            rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
+            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
+            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
         }
-        
+
+
         if(block->z_flag) 
-            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(tz + settings->tool_offset.tran.z - block->z_number);
+            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(tz - block->z_number);
         if(block->a_flag) 
-            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(ta + settings->tool_offset.a - block->a_number);
+            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(ta - block->a_number);
         if(block->b_flag) 
-            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(tb + settings->tool_offset.b - block->b_number);
+            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(tb - block->b_number);
         if(block->c_flag) 
-            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(tc + settings->tool_offset.c - block->c_number);
+            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(tc - block->c_number);
         if(block->u_flag) 
-            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(tu + settings->tool_offset.u - block->u_number);
+            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(tu - block->u_number);
         if(block->v_flag) 
-            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(tv + settings->tool_offset.v - block->v_number);
+            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(tv - block->v_number);
         if(block->w_flag) 
-            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(tw + settings->tool_offset.w - block->w_number);
+            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(tw - block->w_number);
     }
 
     if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
