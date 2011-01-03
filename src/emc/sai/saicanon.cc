@@ -192,6 +192,13 @@ void print_nc_line_number()
            fprintf(_outfile, control,                                       \
                    arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);     \
           } else
+#define PRINT14(control,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14) \
+          if (1)                                                            \
+          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                       \
+           print_nc_line_number();                                          \
+           fprintf(_outfile, control,                                       \
+                   arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14); \
+          } else
 
 /* Representation */
 
@@ -609,6 +616,16 @@ void USE_NO_SPINDLE_FORCE()
 /* Tool Functions */
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
+    _tools[pocket].toolno = toolno;
+    _tools[pocket].offset = offset;
+    _tools[pocket].diameter = diameter;
+    _tools[pocket].frontangle = frontangle;
+    _tools[pocket].backangle = backangle;
+    _tools[pocket].orientation = orientation;
+    PRINT14("SET_TOOL_TABLE_ENTRY(%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d)\n",
+            pocket, toolno,
+            offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
+            frontangle, backangle, orientation);
 }
 
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
