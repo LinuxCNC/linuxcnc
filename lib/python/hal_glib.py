@@ -65,7 +65,7 @@ class GComponent:
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
 
-class GStat(gobject.GObject):
+class _GStat(gobject.GObject):
     __gsignals__ = {
         'state-estop': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -103,7 +103,7 @@ class GStat(gobject.GObject):
 
     def __init__(self, stat = None):
         gobject.GObject.__init__(self)
-        self.stat = emc.stat()
+        self.stat = stat or emc.stat()
         self.old = {}
         gobject.timeout_add(100, self.update)
 
@@ -152,3 +152,10 @@ class GStat(gobject.GObject):
             self.emit(self.INTERP[interp_new])
 
         return True
+
+class GStat(_GStat):
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _GStat.__new__(cls, *args, **kwargs)
+        return cls._instance
