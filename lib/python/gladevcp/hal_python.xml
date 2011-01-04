@@ -48,6 +48,10 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_ToggleAction_MDI" generic-name="hal_toggleaction_mdi" title="EMC ToggleAction MDI" icon-name='gtk-execute'/>
 
     <glade-widget-class name="EMC_Stat" generic-name="hal_stat" title="EMC Stat" icon-name='gtk-properties' toplevel='yes'/>
+    <glade-widget-class name="EMC_FileChooserDialog" generic-name="hal_filechooserdialog" title="EMC FileChooserDialog"/>
+    <glade-widget-class name="EMC_FileChooserButton" generic-name="hal_filechooserbutton" title="EMC FileChooserButton"/>
+    <glade-widget-class name="EMC_Action_Open" generic-name="hal_action_open" title="EMC Action Open" icon-name='gtk-open'/>
+    <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-reload'/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -69,6 +73,11 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
+
+   <glade-widget-class-ref name="EMC_Stat"/>
+
+   <glade-widget-class-ref name="EMC_FileChooserDialog"/>
+   <glade-widget-class-ref name="EMC_FileChooserButton"/>
  </glade-widget-group>
  <glade-widget-group name="python" title="EMC Actions">
    <glade-widget-class-ref name="EMC_Action_ESTOP"/>
@@ -89,7 +98,8 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_ToggleAction_Pause"/>
    <glade-widget-class-ref name="EMC_ToggleAction_MDI"/>
 
-   <glade-widget-class-ref name="EMC_Stat"/>
+   <glade-widget-class-ref name="EMC_Action_Open"/>
+   <glade-widget-class-ref name="EMC_Action_Reload"/>
  </glade-widget-group>
 </glade-catalog>
 
