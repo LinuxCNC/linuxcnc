@@ -82,6 +82,9 @@ class _GStat(gobject.GObject):
         'interp-paused': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-reading': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-waiting': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
+        'file-loaded': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         }
 
     STATES = { emc.STATE_ESTOP:       'state-estop'
@@ -111,6 +114,8 @@ class _GStat(gobject.GObject):
         self.old['state'] = self.stat.task_state
         self.old['mode']  = self.stat.task_mode
         self.old['interp']= self.stat.interp_state
+        self.old['file']  = self.stat.file
+        self.old['line']  = self.stat.motion_line
 
     def update(self):
         try:
@@ -150,6 +155,16 @@ class _GStat(gobject.GObject):
                 print "Emit", "interp-run"
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
+
+        file_old = old.get('file', None)
+        file_new = self.old['file']
+        if file_new != file_old:
+            self.emit('file-loaded', file_new)
+
+        line_old = old.get('line', None)
+        line_new = self.old['line']
+        if line_new != line_old:
+            self.emit('line-changed', line_new)
 
         return True
 
