@@ -34,11 +34,9 @@ class _EMCStaticHolder:
     def get(self):
         if not self.emc:
             self.emc = emc.command()
-        if not self.stat:
-            self.stat = emc.stat()
         if not self.gstat:
-            self.gstat = GStat(self.stat)
-        return self.emc, self.stat, self.gstat
+            self.gstat = GStat()
+        return self.emc, self.gstat.stat, self.gstat
 
 class _EMCStatic:
     holder = _EMCStaticHolder()
