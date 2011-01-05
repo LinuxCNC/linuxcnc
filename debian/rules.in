@@ -93,6 +93,7 @@ binary-arch: build install
 	dh_installdocs
 	dh_installexamples
 	dh_installman
+	dh_installmime
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
