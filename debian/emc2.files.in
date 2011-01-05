@@ -27,3 +27,4 @@ usr/share/emc/*
 usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/man/man1/*
 usr/share/man/man9/*
+usr/share/gtksourceview-2.0/
