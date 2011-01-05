@@ -422,7 +422,7 @@ linksp X-step parport.0.pin-02-out
 \end_layout
 
 \begin_layout Standard
-The "linksp" command has been superseeded by the "net" command.
+The "linksp" command has been superseded by the "net" command.
 \end_layout
 
 \begin_layout Subsubsection
@@ -447,7 +447,7 @@ linkps parport.0.pin-02-out X-Step
 \end_layout
 
 \begin_layout Standard
-The "linkps" command has been superseeded by the "net" command.
+The "linkps" command has been superseded by the "net" command.
 \end_layout
 
 \begin_layout Subsubsection
@@ -659,7 +659,7 @@ and2
 
 \begin_layout Standard
 The "and2" component is a two input "and" gate.
- The truth table below shows the ouput based on each combination of input.
+ The truth table below shows the output based on each combination of input.
 \end_layout
 
 \begin_layout Standard

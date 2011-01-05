@@ -300,7 +300,7 @@ class Notification(Tkinter.Frame):
         if len(self.widgets) > 10:
             self.remove(self.widgets[0])
         if self.cache:
-            frame, icon, text, button, discard = widgets = self.cache.pop()
+            frame, icon, text, button, discard = self.cache.pop()
             icon.configure(image=iconname)
             text.configure(text=message)
             widgets = frame, icon, text, button, iconname
@@ -308,12 +308,12 @@ class Notification(Tkinter.Frame):
             frame = Tkinter.Frame(self)
             icon = Tkinter.Label(frame, image=iconname)
             text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
-            button = Tkinter.Button(frame, image=close,
-                command=lambda: self.remove(widgets))
+            button = Tkinter.Button(frame, image=close)
             widgets = frame, icon, text, button, iconname
             text.pack(side="left")
             icon.pack(side="left")
             button.pack(side="left")
+        button.configure(command=lambda: self.remove(widgets))
         frame.pack(side="top", anchor="e")
         self.widgets.append(widgets)
 
