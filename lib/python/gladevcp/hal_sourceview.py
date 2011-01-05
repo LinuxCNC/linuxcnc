@@ -36,7 +36,8 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.set_buffer(self.buf)
         lm = gtksourceview.LanguageManager()
         if 'EMC2_HOME' in os.environ:
-            lm.set_search_path(lm.get_search_path() + [os.environ['EMC2_HOME']])
+            path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
+            lm.set_search_path(lm.get_search_path() + [path])
 
         self.buf.set_language(lm.get_language('.ngc'))
         self.set_show_line_numbers(True)
