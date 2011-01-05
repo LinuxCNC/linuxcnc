@@ -24,6 +24,8 @@ from hal_widgets import _HalWidgetBase
 import emc
 from hal_glib import GStat
 
+_ = lambda x: x
+
 class _EMCStaticHolder:
     def __init__(self):
         # Delay init...
@@ -362,3 +364,39 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
         self.set_active_safe(False)
         self.set_sensitive(self.machine_on())
         return False
+
+class EMC_Action_Home(_EMC_Action):
+    __gtype_name__ = 'EMC_Action_Unhome'
+    axis = gobject.property(type=int, default=-1, nick='Axis to unhome. -1 to unhome all')
+    def on_activate(self, w):
+        ensure_mode(self.stat, self.emc, emc.MODE_MANUAL)
+        self.emc.unhome(self.axis)
+
+def prompt_areyousure(type, message, secondary=None):
+    dialog = gtk.MessageDialog(None, 0, type, gtk.BUTTONS_YES_NO, message)
+    if secondary:
+        dialog.format_secondary_text(secondary)
+    r = dialog.run()
+    dialog.destroy()
+    return r == gtk.RESPONSE_YES
+
+class EMC_Action_Home(_EMC_Action):
+    __gtype_name__ = 'EMC_Action_Home'
+    axis = gobject.property(type=int, default=-1, nick='Axis to home. -1 to home all')
+    confirm_homed = gobject.property(type=bool, default=False, nick='Confirm rehoming',
+                                     blurb='Ask user if axis is already homed')
+    def homed(self):
+        if self.axis != -1:
+            return self.stat.homed[self.axis]
+        for i,h in enumerate(self.stat.homed):
+            if h and self.stat.axis_mask & (1<<i):
+                return True
+
+    def on_activate(self, w):
+        #if not manual_ok(): return
+        ensure_mode(self.stat, self.emc, emc.MODE_MANUAL)
+        if self.confirm_homed and self.homed():
+            if not prompt_areyousure(gtk.MESSAGE_WARNING,
+                            _("Axis is already homed, are you sure you want to re-home?")):
+                return
+        self.emc.home(self.axis)

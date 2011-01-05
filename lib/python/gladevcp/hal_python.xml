@@ -39,6 +39,8 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_Action_Resume" generic-name="hal_action_run" title="EMC Action Resume" icon-name='gtk-media-pause'/>
     <glade-widget-class name="EMC_Action_Stop" generic-name="hal_action_stop" title="EMC Action Stop" icon-name='gtk-media-stop'/>
     <glade-widget-class name="EMC_Action_MDI" generic-name="hal_action_mdi" title="EMC Action MDI" icon-name='gtk-execute'/>
+    <glade-widget-class name="EMC_Action_Home" generic-name="hal_action_home" title="EMC Action Home" icon-name='gtk-home'/>
+    <glade-widget-class name="EMC_Action_Unhome" generic-name="hal_action_unhome" title="EMC Action Unhome" icon-name='gtk-home'/>
 
     <glade-widget-class name="EMC_ToggleAction_ESTOP" generic-name="hal_toggleaction_estop" title="EMC ToggleAction ESTOP" icon-name='gtk-stop'/>
     <glade-widget-class name="EMC_ToggleAction_Power" generic-name="hal_toggleaction_power" title="EMC ToggleAction Power" icon-name='gtk-disconnect'/>
@@ -94,6 +96,8 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_Action_Resume"/>
    <glade-widget-class-ref name="EMC_Action_Stop"/>
    <glade-widget-class-ref name="EMC_Action_MDI"/>
+   <glade-widget-class-ref name="EMC_Action_Home"/>
+   <glade-widget-class-ref name="EMC_Action_Unhome"/>
 
    <glade-widget-class-ref name="EMC_ToggleAction_ESTOP"/>
    <glade-widget-class-ref name="EMC_ToggleAction_Power"/>
