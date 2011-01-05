@@ -1,8 +1,100 @@
 emc2 (1:2.5.0~pre) hardy; urgency=low
 
-  * (fill out this changelog before releasing)
+  * AXIS: dynamic tabs can embed other applications, including virtual control panels
+  * AXIS: make the gcode readout resizable
+  * AXIS: many speedups in preview generation
+  * AXIS: new OpenGL preview with antialiased fonts
+  * AXIS: optional blending in the program preview can make very complex programs easier to see
+  * AXIS: prompt when homing a joint that's already homed
+  * AXIS: Selectable tool touch off to workpiece or fixture
+  * AXIS: show all offsets and rotation separately in the BIG DRO
+  * AXIS: show G5x and G92 offsets graphically in the preview
 
- -- Jeff Epler <jepler@unpythonic.net>  Sat, 31 Jul 2010 12:41:10 -0500
+  * Configs: many configuration updates for Smithy machines
+  * Configs: update motenc sample configs for encoder index
+
+  * GladeVCP: a new framework for making virtual control panels with the Glade screen designer
+
+  * Gremlin: AXIS's program preview is now separated out as gremlin, for use with GladeVCP/Touchy/etc.
+
+  * HAL: fix rare problem with freqgen output getting stuck "on"
+  * HAL: gearchange component: support up to 32 gears
+  * HAL: make commanded (unaffected by spindle override) spindle speed available on a pin, for gear selection etc.
+  * HAL: make limit3 parameters into pins
+  * HAL: new axis.N.motor-offset pins can be used to detect position loss between homings
+  * HAL: new component bldc_sine: commutation for BLDC with encoder feedback
+  * HAL: new mux16 component
+  * HAL: new time comp, which converts seconds to hr/min/sec
+  * HAL: new watchdog component
+  * HAL: remove deprecated hal_m5i20 driver
+
+  * Halshow: add menu with load/save/exit
+  * Halshow: fix the tree to not cut off after a certain depth
+
+  * HAL: standardize on maximum hal name length
+
+  * HALUI: allow direct-value input to spindle and feed overrides and max velocity
+  * HALUI: handle the situation better when many command inputs change simultaneously
+
+  * Hostmot2: fix a rare problem in stepgen mode setting
+  * Hostmot2: fix stepgen moving VERY slowly when it should have been stopped
+  * Hostmot2: handle failed card registration better
+  * Hostmot2: support for multiplexed encoders like on the 7i48
+  * Hostmot2: support for onboard diagnostic LEDs
+  * Hostmot2: support for three phase PWM
+
+  * Interpreter: fixes to always use . for a decimal, no matter the locale
+  * Interpreter: fix G83 peck retract to match fanuc
+  * Interpreter: fix G98/G99 to match fanuc retract planes behavior
+  * Interpreter: fix "run from line" when the start line is between a sub definition and its call
+  * Interpreter: give correct errors when rotary axes are commanded to move in canned cycles
+  * Interpreter: improve radius-mismatch error checking
+  * Interpreter: maintain G5x and G92 offsets separately
+  * Interpreter: make current position including all offsets and in the current program units available in parameters 5420-5428
+  * Interpreter: make EMC version available in named parameters _vminor, _vmajor
+  * Interpreter: make G92 offset rotated coordinate systems correctly
+  * Interpreter: make more errors translatable
+  * Interpreter: many fixes to allow O-call of subroutines from MDI mode
+  * Interpreter: many new tests in the test suite, including the ability to verify errors
+  * Interpreter: new G10 L11 code for tool touch off to fixture instead of active work coordinate system
+  * Interpreter: new unary function EXISTS tells whether a certain parameter exists
+  * Interpreter: search path for subroutines: [RS274NGC]SUBROUTINE_PATH
+  * Interpreter: search path for user M codes: [RS274NGC]USER_M_PATH
+
+  * IOcontrol: make aborting tool changes work
+
+  * Kinematics: several improvements to the general serial kinematics module
+
+  * Motion: allow translations of more error messages
+  * Motion: fix stuttering motion in NURBS
+  * Motion: support for indexing/locking rotary axes
+
+  * PID: accept external command-deriv and feedback-deriv connections to use a high quality velocity signal when it is available
+
+  * PPMC: improve error messages when cards are not found
+
+  * Probing: correctly abort motion when the probe trips during a non-probe MDI command
+
+  * TkEMC: display and allow entry of all tool offsets
+  * TkEMC: in Set Coordinates, display the correct axes
+  * TkEMC: only display active axes
+  * TkEMC: show coordinate system in offset widget
+  * TkEMC: show work offsets for all axes
+
+  * Touchy: add a spindle speed readout on the manual tab
+  * Touchy: dynamic tabs can embed other applications, including virtual control panels
+  * Touchy: macro capability that uses MDI O-call
+  * Touchy: make single-block switch work like feed hold
+  * Touchy: save maximum velocity (MV) value across runs
+  * Touchy: Selectable tool touch off to workpiece or fixture
+  * Touchy: show all offsets separately in the status information
+  * Touchy: show the total number of lines in the loaded program
+  * Touchy: show which tools are in which pockets
+  * Touchy: support for metric configurations
+  * Touchy: support panel indicators for status readout
+  * Touchy: use appropriate jog and maxvel increments for metric and degrees
+
+ -- Chris Radek <chris@timeguy.com>  Tue, 04 Jan 2011 21:44:00 -0600
 
 emc2 (1:2.4.6) lucid; urgency=low
 
