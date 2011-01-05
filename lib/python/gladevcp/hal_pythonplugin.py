@@ -18,3 +18,6 @@ from hal_gremlin import HAL_Gremlin
 from hal_graph import HAL_Graph
 
 from hal_actions import *
+from hal_filechooser import *
+
+from hal_sourceview import *

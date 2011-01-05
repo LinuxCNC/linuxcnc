@@ -65,7 +65,7 @@ class GComponent:
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
 
-class GStat(gobject.GObject):
+class _GStat(gobject.GObject):
     __gsignals__ = {
         'state-estop': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -82,6 +82,9 @@ class GStat(gobject.GObject):
         'interp-paused': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-reading': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-waiting': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
+        'file-loaded': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         }
 
     STATES = { emc.STATE_ESTOP:       'state-estop'
@@ -103,7 +106,7 @@ class GStat(gobject.GObject):
 
     def __init__(self, stat = None):
         gobject.GObject.__init__(self)
-        self.stat = emc.stat()
+        self.stat = stat or emc.stat()
         self.old = {}
         gobject.timeout_add(100, self.update)
 
@@ -111,6 +114,8 @@ class GStat(gobject.GObject):
         self.old['state'] = self.stat.task_state
         self.old['mode']  = self.stat.task_mode
         self.old['interp']= self.stat.interp_state
+        self.old['file']  = self.stat.file
+        self.old['line']  = self.stat.motion_line
 
     def update(self):
         try:
@@ -151,4 +156,21 @@ class GStat(gobject.GObject):
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
 
+        file_old = old.get('file', None)
+        file_new = self.old['file']
+        if file_new != file_old:
+            self.emit('file-loaded', file_new)
+
+        line_old = old.get('line', None)
+        line_new = self.old['line']
+        if line_new != line_old:
+            self.emit('line-changed', line_new)
+
         return True
+
+class GStat(_GStat):
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _GStat.__new__(cls, *args, **kwargs)
+        return cls._instance

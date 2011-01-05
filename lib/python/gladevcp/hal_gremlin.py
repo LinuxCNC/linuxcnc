@@ -21,7 +21,10 @@ import emc
 import gremlin
 import rs274.glcanon
 
-class HAL_Gremlin(gremlin.Gremlin):
+from hal_actions import _EMC_ActionBase
+from hal_glib import GStat
+
+class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gproperties__ = {
         'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: x, y, z, p',
@@ -35,6 +38,8 @@ class HAL_Gremlin(gremlin.Gremlin):
         inifile = emc.ini(inifile)
         gremlin.Gremlin.__init__(self, inifile)
 
+        self.gstat = GStat()
+        self.gstat.connect('file-loaded', lambda w, f: self._load(f))
         self.show()
 
     def do_get_property(self, property):
@@ -75,14 +80,6 @@ class HAL_Gremlin(gremlin.Gremlin):
 
     def realize(self, widget):
         gremlin.Gremlin.realize(self, widget)
-        gobject.timeout_add(1000, self.poll_file_change)
-
-    def poll_file_change(self):
-        s = self.stat
-        s.poll()
-        if s.file and self._current_file != s.file:
-            self._load(s.file)
-        return True
 
     @rs274.glcanon.with_context
     def _load(self, filename):
