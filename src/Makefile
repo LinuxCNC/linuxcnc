@@ -492,7 +492,6 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
-	$(EXE) ../bin/toolconvert $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
