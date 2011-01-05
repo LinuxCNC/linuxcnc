@@ -59,7 +59,7 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
     sub definition and its call
   * Interpreter: give correct errors when rotary axes are commanded to
     move in canned cycles
-  * Interpreter: improve radius-mismatch error checking
+  * Interpreter: improve arc endpoint radius-mismatch error checking
   * Interpreter: maintain G5x and G92 offsets separately
   * Interpreter: make current position including all offsets and in the
     current program units available in parameters 5420-5428
