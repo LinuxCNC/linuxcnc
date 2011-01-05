@@ -1,6 +1,6 @@
 #!/usr/bin/wish
 #
-# Copyright: 2009-2010
+# Copyright: 2009-2011
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -48,8 +48,8 @@ proc ::tooledit::init {} {
 
   set ::te(types)        {unified}
   set ::te(unified,width)     0 ;# initial width as reqd
-  set ::te(unified,height)  100 ;# initial height limit here
-  set ::te(unified,hincr)    10 ;# height increment to bump scrollable size
+  set ::te(unified,height)  110 ;# initial height limit here
+  set ::te(unified,hincr)     1 ;# height increment to bump scrollable size
   set ::te(unified,header)  {tool poc x y z a b c u v w \
                           diam front back orien comment}
 
@@ -164,10 +164,7 @@ proc ::tooledit::invalidNumber {varname widget} {
 } ;# invalidNumber
 
 proc ::tooledit::readfile {filename} {
-  # return codes:
-  #              error  msg
-  #              nofile 0
-  #              ok     1
+  # support for type==unified
   if {[file exists $filename] && ![file readable $filename]} {
     set msg "filename: <$filename> not readable"
   }
@@ -182,8 +179,12 @@ proc ::tooledit::readfile {filename} {
     }
   }
 
-  if [info exists msg] {return $msg}
-  if [info exists new] {return    0}
+  if [info exists msg] {return -code error $msg}
+  if [info exists new] {
+    makeline unified new
+    message newfile
+    return
+  }
 
   set fd [open $filename r]
 
@@ -250,7 +251,8 @@ proc ::tooledit::readfile {filename} {
     # schedule message after message widget is created
     after 0 {::tooledit::message bogus}
   }
-  return 1 ;# ok
+  message opened
+  return
 } ;# readfile
 
 proc ::tooledit::watch {args} {
@@ -313,8 +315,6 @@ proc ::tooledit::tooledit {filename} {
     set ::te($type,hframe) [frame $::te(top).[qid]]
     pack $::te($type,hframe) -side top -expand 0 -fill x -anchor nw
 
-
-
     # note: dont pack ::te($type,sframe), handled by ScrolledWindow
     set ::te($type,sw)  [ScrolledWindow  $::te(top).$type \
              -scrollbar vertical -auto none]
@@ -325,23 +325,7 @@ proc ::tooledit::tooledit {filename} {
     set ::te($type,frame) [$::te($type,sframe) getframe] ;# this is parent
   }
 
-  set readstatus [readfile $filename]
-  switch $readstatus {
-    0 {
-      # no existing file, create empty entries:
-      makeline unified new
-      message newfile
-    }
-    1 {message opened}
-    default {
-      if [info exists ::te(standalone)] {
-        puts stderr "$readstatus"
-        exit
-      } else {
-        return -code error $readstatus
-      }
-    }
-  }
+  readfile $::te(filename) ;# requires ::te($type,hframe)
   if [file exists $::te(filename)] {watch start}
 
   # button frame (pack from bottom)
@@ -374,15 +358,10 @@ proc ::tooledit::tooledit {filename} {
   set ::te(msg,widget) $msg
   pack $msg -side top -expand 0 -fill x -anchor w
 
-  set f [frame $::te(top).dummy -height 1] ;# unused widget for expansion
-  pack $f -side top -expand 0 -fill x
-
   update ;# wait for display before binding Configure events
-  set geo [wm geometry $::te(top)]
-  set ::te(top,geometry) $geo
-  set ::te(top,height) [string range $geo [expr  1 + [string first x $geo]] \
-                                        [expr -1 + [string first + $geo]] ]
-  # set min width so it can be disappeared inadvertently
+  set ::te(top,geometry) [wm geometry $::te(top)]
+  set ::te(top,height)   [winfo height $::te(top)]
+  # set min width so top cannot be disappeared inadvertently
   # set min height to initial
   wm minsize $::te(top) 100 $::te(top,height)
 
@@ -390,6 +369,7 @@ proc ::tooledit::tooledit {filename} {
 } ;# tooledit
 
 proc ::tooledit::configure {W w h} {
+  if {"$W" != "$::te(top)"} return
   if {"$W" == $::te(top) && $::te(top,geometry) != [wm geometry $::te(top)]} {
     set ::te(top,geometry) [wm geometry $::te(top)]
     set deltah [expr $h - $::te(top,height)]
@@ -461,6 +441,7 @@ proc ::tooledit::deleteline {} {
 } ;# deleteline
 
 proc ::tooledit::makeline {type ay_name} {
+  # support for type==unified
   if {"$ay_name" == "new"} {
     set new 1
     set date "Added [clock format [clock seconds] -format %Y%m%d]"
@@ -497,7 +478,7 @@ proc ::tooledit::makeline {type ay_name} {
                -width $::te($h,width)] -side left -fill x -expand $e
         }
       }
-      set f [frame $::te($type,frame).data$i]
+      set f [frame $::te($type,frame).[qid]]
       set ::te(unified,$i,frame) $f
       pack $f -side top -expand 1 -fill x -anchor n
       lappend ::te(unified,items) $i
@@ -625,14 +606,20 @@ proc ::tooledit::checkdelete {} {
 } ;# checkdelete
 
 proc ::tooledit::toolreread {} {
-  set geo [wm geometry $::te(top)]
-  set loc [string range $geo [string first + $geo] end]
+  set ::te(tooledit,geometry) [wm geometry $::te(top)]
 
-  set filename $::te(filename)
-  destroy $::te(top)
-  unset ::te
-  set ::te(tooledit,geometry) $loc
-  after 0 ::tooledit::tooledit $filename
+  for {set i 0} {$i < $::te(unified,i)} {incr i} {
+    catch {
+      destroy $::te(unified,$i,frame)
+      unset ::te(unified,$i,frame)
+    } ;# it may already be gone
+  }
+  set ::te(unified,i) 0
+  # can be missing for some prior file open errors
+  catch {unset ::te(unified,items)}
+
+  readfile $::te(filename)
+  if [file exists $::te(filename)] {watch start}
 } ;# toolreread
 
 proc ::tooledit::writefile {filename} {
@@ -796,8 +783,11 @@ if {[info script] == $argv0} {
     puts stderr "Usage: $::argv0 filename"
     exit 1
   }
-  ::tooledit::tooledit [lindex $argv 0] ;# arg: filename
-  tkwait variable ::tooledit::finis
-  exit 0
+  # start, unless already started (convenient for debug sourcing):
+  if ![info exists ::te(top)] {
+    ::tooledit::tooledit [lindex $argv 0] ;# arg: filename
+    tkwait variable ::tooledit::finis
+    exit 0
+  }
 }
 
