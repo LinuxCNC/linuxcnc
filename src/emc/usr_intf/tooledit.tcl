@@ -46,14 +46,13 @@ proc ::tooledit::init {} {
   set ::te(msg,last)  ""
   set ::te(pollms)    2000
 
-  set ::te(types)        {unified}
-  set ::te(unified,width)     0 ;# initial width as reqd
-  set ::te(unified,height)  110 ;# initial height limit here
-  set ::te(unified,hincr)     1 ;# height increment to bump scrollable size
-  set ::te(unified,header)  {tool poc x y z a b c u v w \
+  set ::te(initial,width)     0 ;# initial width as reqd
+  set ::te(initial,height)  110 ;# initial height limit here
+  set ::te(hincr)             1 ;# height increment to bump scrollable size
+  set ::te(header)  {tool poc x y z a b c u v w \
                           diam front back orien comment}
 
-  # include values for each *,header item:
+  # include values for each (header) item:
   set ::te(tool,width)     5; set ::te(tool,tag)     T
   set ::te(poc,width)      5; set ::te(poc,tag)      P
   set ::te(x,width)        7; set ::te(x,tag)        X
@@ -164,7 +163,6 @@ proc ::tooledit::invalidNumber {varname widget} {
 } ;# invalidNumber
 
 proc ::tooledit::readfile {filename} {
-  # support for type==unified
   if {[file exists $filename] && ![file readable $filename]} {
     set msg "filename: <$filename> not readable"
   }
@@ -181,7 +179,7 @@ proc ::tooledit::readfile {filename} {
 
   if [info exists msg] {return -code error $msg}
   if [info exists new] {
-    makeline unified new
+    makeline new
     message newfile
     return
   }
@@ -244,7 +242,7 @@ proc ::tooledit::readfile {filename} {
       }
     }
     if $bogus continue
-    makeline unified u
+    makeline u
   } ;# while
   close $fd
   if {$bct >0} {
@@ -300,7 +298,7 @@ proc ::tooledit::tooledit {filename} {
   init
   set ::te(filename) $filename
 
-  foreach h $::te(unified,header)  {set ::te($h) [string toupper $h]}
+  foreach h $::te(header)  {set ::te($h) [string toupper $h]}
 
   set ::te(top) [toplevel .tooledit]
   wm resizable $::te(top) 1 1
@@ -310,51 +308,65 @@ proc ::tooledit::tooledit {filename} {
     wm geometry $::te(top) $::te(tooledit,geometry)
   }
 
-  # frame for headers & entries
-  foreach type $::te(types) {
-    set ::te($type,hframe) [frame $::te(top).[qid]]
-    pack $::te($type,hframe) -side top -expand 0 -fill x -anchor nw
-
-    # note: dont pack ::te($type,sframe), handled by ScrolledWindow
-    set ::te($type,sw)  [ScrolledWindow  $::te(top).$type \
+  # note: never pack ::te(scroll,frame), handled by ScrolledWindow
+  set ::te(scroll,window)  [ScrolledWindow  $::te(top).scrolled \
              -scrollbar vertical -auto none]
-    set ::te($type,sframe) [ScrollableFrame $::te(top).$type.sff \
-             -height $::te($type,height) -width $::te($type,width) \
+  set ::te(scroll,frame) [ScrollableFrame $::te(top).scrolled.sff \
+             -height $::te(initial,height) -width $::te(initial,width) \
              -constrainedwidth 1]
-    $::te($type,sw) setwidget $::te($type,sframe) ;# associates scrollbars
-    set ::te($type,frame) [$::te($type,sframe) getframe] ;# this is parent
+  $::te(scroll,window) setwidget $::te(scroll,frame) ;# associates scrollbars
+  set ::te(main,frame) [$::te(scroll,frame) getframe] ;# this is parent
+
+  set ::te(lasti) 0
+
+  # header frame -------------------------------------------------
+  set f [frame $::te(top).header]
+  set ::te(header,frame) $f
+  pack $f -side top -expand 1 -fill x -anchor n
+  pack [label $f.b -text Del -width 3] -side left -expand 0
+
+  foreach h $::te(header) {
+    set e 0;set j center
+    if {"$h" == "comment"} {set e 1;set j left}
+    pack [entry $f.$::te(lasti)$h -justify $j -textvariable ::te($h) \
+         -state disabled -relief groove \
+         -disabledforeground black \
+         -width $::te($h,width)] -side left -fill x -expand $e
   }
 
-  readfile $::te(filename) ;# requires ::te($type,hframe)
+  readfile $::te(filename)
   if [file exists $::te(filename)] {watch start}
 
-  # button frame (pack from bottom)
-  set f [frame $::te(top).[qid]]
-  pack $f -side top -expand 0 -fill both -anchor nw
+  pack $::te(scroll,window) -side top -fill x -expand 0 -anchor nw
 
-  set   bb [button $f.[qid] -text "Delete items"\
+  # button frame -------------------------------------------------
+  set bf [frame $::te(top).[qid]]
+  pack $bf -side top -expand 0 -fill both -anchor nw
+
+  set   bb [button $bf.[qid] -text "Delete items"\
            -command {::tooledit::deleteline}]
   pack $bb -side left -fill y -expand 0
   set ::te(deletebutton) $bb
   checkdelete
 
-  pack [button $f.[qid] -text "Add Tool" \
-       -command {::tooledit::makeline unified new}] -side left -fill x -expand 1
-  pack [button $f.[qid] -text "Reload File" \
+  pack [button $bf.[qid] -text "Add Tool" \
+       -command {::tooledit::makeline new}] -side left -fill x -expand 1
+  pack [button $bf.[qid] -text "Reload File" \
        -command  ::tooledit::toolreread] -side left -fill x -expand 1
-  pack [button $f.[qid] -text "Check Entries" \
+  pack [button $bf.[qid] -text "Check Entries" \
        -command [list ::tooledit::toolvalidate]] -side left -fill x -expand 1
-  pack [button $f.[qid] -text "Write Tool Table" \
+  pack [button $bf.[qid] -text "Write Tool Table" \
        -command [list ::tooledit::writefile $::te(filename)]] \
        -side left -fill x -expand 1
-  pack [button $f.[qid] -text Dismiss \
+  pack [button $bf.[qid] -text Dismiss \
        -command ::tooledit::bye] \
        -side left -fill x -expand 1
 
-  set f [frame $::te(top).[qid]]
-  pack $f -side top -expand 0 -fill x
+  # message frame -------------------------------------------------
+  set mf [frame $::te(top).[qid]]
+  pack $mf -side top -expand 0 -fill x
 
-  set msg [label $f.msg -anchor w]
+  set msg [label $mf.msg -anchor w]
   set ::te(msg,widget) $msg
   pack $msg -side top -expand 0 -fill x -anchor w
 
@@ -373,19 +385,19 @@ proc ::tooledit::configure {W w h} {
   if {"$W" == $::te(top) && $::te(top,geometry) != [wm geometry $::te(top)]} {
     set ::te(top,geometry) [wm geometry $::te(top)]
     set deltah [expr $h - $::te(top,height)]
-    set fsize [$::te(unified,sframe) cget -height]
-    if {[expr abs($deltah)] > $::te(unified,hincr)} {
-      $::te(unified,sframe) configure -height [expr $fsize + $deltah]
+    set fsize [$::te(scroll,frame) cget -height]
+    if {[expr abs($deltah)] > $::te(hincr)} {
+      $::te(scroll,frame) configure -height [expr $fsize + $deltah]
       set ::te(top,height) $h
     }
   }
 } ;# configure
 
-proc ::tooledit::message {type} {
+proc ::tooledit::message {mtype} {
   if ![info exists ::te(msg,widget)] return
   set w $::te(msg,widget)
   set dt [clock format [clock seconds]]
-  switch $type {
+  switch $mtype {
     opened   {$w conf -text "$dt: Opened $::te(filename)"      -fg darkblue}
     newfile  {$w conf -text "$dt: Created $::te(filename)"     -fg darkblue}
     write    {$w conf -text "$dt: File updated"                -fg green4}
@@ -399,118 +411,92 @@ proc ::tooledit::message {type} {
     filegone {$w conf -text "$dt: Warning: File deleted by another process" -fg red}
     newtool  {$w conf -text "$dt: Added Tool" -fg green4
                  update idletasks
-                 $::te(unified,sframe) yview moveto 1.0
+                 $::te(scroll,frame) yview moveto 1.0
              }
   }
-  set ::te(msg,last) $type
+  set ::te(msg,last) $mtype
 } ;# message
 
 proc ::tooledit::deleteline {} {
   set dct 0
-  foreach type $::te(types) {
-    catch {unset dlines}
-    foreach item [array names ::te "$type,*,deleteme"] {
-      if {$::te($item) == 1} {
-        set i1 [expr  1 + [string first , $item]]
-        set i2 [expr -1 + [string last  , $item]]
-        lappend dlines [string range $item $i1 $i2]
+  catch {unset dlines}
+  foreach item [array names ::te "parm,*,deleteme"] {
+    if {$::te($item) == 1} {
+      set i1 [expr  1 + [string first , $item]]
+      set i2 [expr -1 + [string last  , $item]]
+      lappend dlines [string range $item $i1 $i2]
+    }
+  }
+  if ![info exists dlines] continue
+  foreach i $dlines {
+    destroy $::te(entry,$i,frame); unset ::te(entry,$i,frame)
+    incr dct
+
+    if [info exists ::te(items)] {
+      set idx [lsearch $::te(items) $i]
+      if {$idx >= 0} {
+        set ::te(items) [lreplace $::te(items) $idx $idx]
+      }
+      if {[string length $::te(items)] == 0} {
+        unset ::te(items)
       }
     }
-    if ![info exists dlines] continue
-    foreach i $dlines {
-      destroy $::te($type,$i,frame); unset ::te($type,$i,frame)
-      incr dct
 
-      if [info exists ::te($type,items)] {
-        set idx [lsearch $::te($type,items) $i]
-        if {$idx >= 0} {
-          set ::te($type,items) [lreplace $::te($type,items) $idx $idx]
-        }
-        if {[string length $::te($type,items)] == 0} {
-          unset ::te($type,items)
-        }
-      }
-
-      foreach name [array names ::te $type,$i,*] {
-        unset ::te($name)
-      }
+    foreach name [array names ::te parm,$i,*] {
+      unset ::te($name)
     }
   }
   checkdelete
   if {$dct >0}  { message delete}
 } ;# deleteline
 
-proc ::tooledit::makeline {type ay_name} {
-  # support for type==unified
+proc ::tooledit::makeline {ay_name} {
   if {"$ay_name" == "new"} {
     set new 1
     set date "Added [clock format [clock seconds] -format %Y%m%d]"
 
-    switch $type {
-      unified  {
-        foreach item {t p x y z a b c u v w d i j q} {
-          set ay($item) ""
-        }
-        set ay(p) NEW
-        set ay(t) NEW
-        set ay(comment) "$date"
-        after 0 {::tooledit::message newtool}
-      }
+    foreach item {t p x y z a b c u v w d i j q} {
+      set ay($item) ""
     }
+    set ay(p) NEW
+    set ay(t) NEW
+    set ay(comment) "$date"
+    after 0 {::tooledit::message newtool}
   } else {
     upvar $ay_name ay
   }
-  switch $type {
-    unified  {
-      if ![info exists ::te(unified,i)] {set ::te(unified,i) 0}
-      set i $::te(unified,i)
-      if ![info exists ::te(unified,header,frame)] {
-        set f [frame $::te($type,hframe).${i}unified,header]
-        set ::te(unified,header,frame) $f
-        pack $f -side top -expand 1 -fill x -anchor n
-        pack [label $f.b -text Del -width 3] -side left -expand 0
-        foreach h $::te(unified,header) {
-          set e 0;set j center
-          if {"$h" == "comment"} {set e 1;set j left}
-          pack [entry $f.$i$h -justify $j -textvariable ::te($h) \
-               -state disabled -relief groove \
-               -disabledforeground black \
-               -width $::te($h,width)] -side left -fill x -expand $e
-        }
-      }
-      set f [frame $::te($type,frame).[qid]]
-      set ::te(unified,$i,frame) $f
-      pack $f -side top -expand 1 -fill x -anchor n
-      lappend ::te(unified,items) $i
-      set ::te(unified,$i,tool)      $ay(t)
-      set ::te(unified,$i,poc)       $ay(p)
-      set ::te(unified,$i,x)         $ay(x)
-      set ::te(unified,$i,y)         $ay(y)
-      set ::te(unified,$i,z)         $ay(z)
-      set ::te(unified,$i,a)         $ay(a)
-      set ::te(unified,$i,b)         $ay(b)
-      set ::te(unified,$i,c)         $ay(c)
-      set ::te(unified,$i,u)         $ay(u)
-      set ::te(unified,$i,v)         $ay(v)
-      set ::te(unified,$i,w)         $ay(w)
-      set ::te(unified,$i,diam)      $ay(d)
-      set ::te(unified,$i,front)     $ay(i)
-      set ::te(unified,$i,back)      $ay(j)
-      set ::te(unified,$i,orien)     $ay(q)
-      set ::te(unified,$i,comment)   [string trim $ay(comment)]
-      pack [checkbutton $f.b -variable ::te(unified,$i,deleteme)\
-           -command "::tooledit::checkdelete"] -side left -expand 0
-      foreach h $::te(unified,header) {
-        set e 0;set j right;set v 1
-        if {"$h" == "comment"} {set e 1; set j left;set v 0}
-        set ve [ventry $f $v ::te(unified,$i,$h) $::te($h,width) $e $j]
-        if {[info exists new] && "$h" == "tool"} {set vefocus $ve}
-        entrybindings unified $ve $h $i
-      }
-      incr ::te(unified,i)
-    }
-    default {return -code error "::tooledit::makeline:<unknown type <$type>"}
+
+  set i $::te(lasti)
+  set f [frame $::te(main,frame).[qid]]
+  set ::te(entry,$i,frame) $f
+  pack $f -side top -expand 1 -fill x -anchor n
+  lappend ::te(items) $i
+  set ::te(parm,$i,tool)      $ay(t)
+  set ::te(parm,$i,poc)       $ay(p)
+  set ::te(parm,$i,x)         $ay(x)
+  set ::te(parm,$i,y)         $ay(y)
+  set ::te(parm,$i,z)         $ay(z)
+  set ::te(parm,$i,a)         $ay(a)
+  set ::te(parm,$i,b)         $ay(b)
+  set ::te(parm,$i,c)         $ay(c)
+  set ::te(parm,$i,u)         $ay(u)
+  set ::te(parm,$i,v)         $ay(v)
+  set ::te(parm,$i,w)         $ay(w)
+  set ::te(parm,$i,diam)      $ay(d)
+  set ::te(parm,$i,front)     $ay(i)
+  set ::te(parm,$i,back)      $ay(j)
+  set ::te(parm,$i,orien)     $ay(q)
+  set ::te(parm,$i,comment)   [string trim $ay(comment)]
+  pack [checkbutton $f.b -variable ::te(parm,$i,deleteme)\
+       -command "::tooledit::checkdelete"] -side left -expand 0
+  foreach h $::te(header) {
+    set e 0;set j right;set v 1
+    if {"$h" == "comment"} {set e 1; set j left;set v 0}
+    set ve [ventry $f $v ::te(parm,$i,$h) $::te($h,width) $e $j]
+    if {[info exists new] && "$h" == "tool"} {set vefocus $ve}
+    entrybindings $ve $h $i
   }
+  incr ::te(lasti)
   if [info exists vefocus] {
     set ::te(restore,selectbackground) [$vefocus cget -selectbackground]
     set ::te(restore,selectforeground) [$vefocus cget -selectforeground]
@@ -519,34 +505,33 @@ proc ::tooledit::makeline {type ay_name} {
     $vefocus selection to end
     focus $vefocus
   }
-  pack $::te($type,sw) -side top -fill x -expand 0 -anchor nw
 } ;# makeline
 
-proc ::tooledit::entrybindings {type e h i} {
+proc ::tooledit::entrybindings {e h i} {
   $e conf -takefocus 1
-  set ::te($type,$i,$h,entry) $e
-  bind $e <Key-Up>    "::tooledit::bindactions $type $h $i %K"
-  bind $e <Key-Down>  "::tooledit::bindactions $type $h $i %K"
-  bind $e <Key-Left>  "::tooledit::bindactions $type $h $i %K"
-  bind $e <Key-Right> "::tooledit::bindactions $type $h $i %K"
+  set ::te($i,$h,entry) $e
+  bind $e <Key-Up>    "::tooledit::bindactions $h $i %K"
+  bind $e <Key-Down>  "::tooledit::bindactions $h $i %K"
+  bind $e <Key-Left>  "::tooledit::bindactions $h $i %K"
+  bind $e <Key-Right> "::tooledit::bindactions $h $i %K"
 } ;# entrybindings
 
-proc ::tooledit::bindactions {type h i key args} {
+proc ::tooledit::bindactions {h i key args} {
   set nexth $h;set nexti $i;
   switch $key {
     Up {
       set nexti [expr $i -1]
       if {$nexti <0} {
-        set nexti [expr $::te($type,i) -0]
-        after 0 [list ::tooledit::bindactions $type $h $nexti $key]
+        set nexti [expr $::te(lasti) -0]
+        after 0 [list ::tooledit::bindactions $h $nexti $key]
         return
       }
     }
     Down {
       set nexti [expr $i + 1]
-      if {$nexti >= $::te($type,i)} {
+      if {$nexti >= $::te(lasti)} {
         set nexti -1
-        after 0 [list ::tooledit::bindactions $type $h $nexti $key]
+        after 0 [list ::tooledit::bindactions $h $nexti $key]
         return
       }
     }
@@ -554,38 +539,38 @@ proc ::tooledit::bindactions {type h i key args} {
       if {"$h" == "nosuch"} {
         set nextidx 0
       } else {
-        set idx [lsearch $::te($type,header) $h]
+        set idx [lsearch $::te(header) $h]
         set nextidx [expr $idx + 1]
-        if {$nextidx >= [llength $::te($type,header)]} {
-          after 0 [list ::tooledit::bindactions $type nosuch $nexti $key]
+        if {$nextidx >= [llength $::te(header)]} {
+          after 0 [list ::tooledit::bindactions nosuch $nexti $key]
           return
         }
       }
-      set nexth [lindex $::te($type,header)  $nextidx]
+      set nexth [lindex $::te(header)  $nextidx]
     }
     Left {
       if {"$h" == "nosuch"} {
-        set nextidx [expr [llength $::te($type,header)] -1]
+        set nextidx [expr [llength $::te(header)] -1]
       } else {
-        set idx [lsearch $::te($type,header) $h]
+        set idx [lsearch $::te(header) $h]
         set nextidx [expr $idx + -1]
         if {$nextidx < 0} {
-          after 0 [list ::tooledit::bindactions $type nosuch $nexti $key]
+          after 0 [list ::tooledit::bindactions nosuch $nexti $key]
           return
         }
       }
-      set nexth [lindex $::te($type,header)  $nextidx]
+      set nexth [lindex $::te(header)  $nextidx]
     }
   }
-  if [info exists ::te($type,$nexti,$nexth,entry)] {
-    $::te($type,$nexti,$nexth,entry) selection to end
-    focus $::te($type,$nexti,$nexth,entry)
+  if [info exists ::te($nexti,$nexth,entry)] {
+    $::te($nexti,$nexth,entry) selection to end
+    focus $::te($nexti,$nexth,entry)
   } else {
     # frame has been deleted
     switch $key {
       Up - Down {
         set nexti [expr $nexti + 0]
-        after 0 [list ::tooledit::bindactions $type $h $nexti $key]
+        after 0 [list ::tooledit::bindactions $h $nexti $key]
         return
       }
     }
@@ -594,7 +579,7 @@ proc ::tooledit::bindactions {type h i key args} {
 
 proc ::tooledit::checkdelete {} {
   set ct 0
-  foreach name [array names ::te *,deleteme] {
+  foreach name [array names ::te parm,*,deleteme] {
     if {$::te($name) == 1} {incr ct}
   }
   if {$ct > 0} {
@@ -608,15 +593,15 @@ proc ::tooledit::checkdelete {} {
 proc ::tooledit::toolreread {} {
   set ::te(tooledit,geometry) [wm geometry $::te(top)]
 
-  for {set i 0} {$i < $::te(unified,i)} {incr i} {
+  for {set i 0} {$i < $::te(lasti)} {incr i} {
     catch {
-      destroy $::te(unified,$i,frame)
-      unset ::te(unified,$i,frame)
+      destroy $::te(entry,$i,frame)
+      unset ::te(entry,$i,frame)
     } ;# it may already be gone
   }
-  set ::te(unified,i) 0
+  set ::te(lasti) 0
   # can be missing for some prior file open errors
-  catch {unset ::te(unified,items)}
+  catch {unset ::te(items)}
 
   readfile $::te(filename)
   if [file exists $::te(filename)] {watch start}
@@ -637,25 +622,21 @@ proc ::tooledit::writefile {filename} {
     }
   }
 
-  foreach type $::te(types) {
-    if [info exists ::te($type,items)] {
-      foreach i $::te($type,items) {
-        foreach h $::te($type,header) {
-          set j ""
-          set w $::te($h,width)
-          # correct entries with leading zeros
-          if {$h != "comment" &&
-		[string first 0 [string trim $::te($type,$i,$h)]] == 0} {
-             set ::te($type,$i,$h) [format %g $::te($type,$i,$h)]
-          }
-          set value [string trim $::te($type,$i,$h)]
-          if {"$value" != ""} {
-            puts -nonewline $fd "$::te($h,tag)$value "
-          }
-        }
-        puts $fd "" ;# new line
+  foreach i $::te(items) {
+    foreach h $::te(header) {
+      set j ""
+      set w $::te($h,width)
+      # correct entries with leading zeros
+      if {$h != "comment" &&
+		[string first 0 [string trim $::te(parm,$i,$h)]] == 0} {
+         set ::te(parm,$i,$h) [format %g $::te(parm,$i,$h)]
+      }
+      set value [string trim $::te(parm,$i,$h)]
+      if {"$value" != ""} {
+        puts -nonewline $fd "$::te($h,tag)$value "
       }
     }
+    puts $fd "" ;# new line
   }
   watch stop
   close $fd
@@ -668,33 +649,31 @@ proc ::tooledit::toolvalidate {args} {
   set silent 0
   if {"$args" == "silent"} {set silent 1}
 
-  foreach type $::te(types) {
-    if [info exists ::te($type,items)] {
-      foreach i $::te($type,items) {
-        foreach h $::te($type,header) {
-          if {"$h" == "comment"} continue
-          if ![isnumber $::te($type,$i,$h)] {
-            set nextmsg "Tool $::te($type,$i,tool): $h value=$::te($type,$i,$h) is not a number"
-            if {[lsearch $msg $nextmsg] >= 0} continue
-            lappend msg $nextmsg
-          }
+  if [info exists ::te(items)] {
+    foreach i $::te(items) {
+      foreach h $::te(header) {
+        if {"$h" == "comment"} continue
+        if ![isnumber $::te(parm,$i,$h)] {
+          set nextmsg "Tool $::te(parm,$i,tool): $h value=$::te(parm,$i,$h) is not a number"
+          if {[lsearch $msg $nextmsg] >= 0} continue
+          lappend msg $nextmsg
+        }
 
-          switch -glob $h {
-            tool* - poc* {
-              if {![isinteger $::te($type,$i,$h)] || [isnegative $::te($type,$i,$h)]} {
-                 lappend msg "Tool $::te($type,$i,tool): $h must be nonnegative integer"
-              }
+        switch -glob $h {
+          tool* - poc* {
+            if {![isinteger $::te(parm,$i,$h)] || [isnegative $::te(parm,$i,$h)]} {
+               lappend msg "Tool $::te(parm,$i,tool): $h must be nonnegative integer"
             }
-            orien* {
-              if {   "$::te($type,$i,$h)" != "" \
-                  && [lsearch {0 1 2 3 4 5 6 7 8 9} $::te($type,$i,$h)] < 0} {
-                lappend msg "Tool $::te($type,$i,tool): Orientation must be 0..9 integer"
-              }
+          }
+          orien* {
+            if {   "$::te(parm,$i,$h)" != "" \
+                && [lsearch {0 1 2 3 4 5 6 7 8 9} $::te(parm,$i,$h)] < 0} {
+              lappend msg "Tool $::te(parm,$i,tool): Orientation must be 0..9 integer"
             }
-            front* - back* {
-              if {![validangle $::te($type,$i,$h)] } {
-                lappend msg "Tool $::te($type,$i,tool): $h must be between -360 and 360"
-              }
+          }
+          front* - back* {
+            if {![validangle $::te(parm,$i,$h)] } {
+              lappend msg "Tool $::te(parm,$i,tool): $h must be between -360 and 360"
             }
           }
         }
@@ -703,35 +682,31 @@ proc ::tooledit::toolvalidate {args} {
   }
 
   # check for multiple uses of a single pocket
-  foreach type $::te(types) {
-    if ![info exists ::te($type,items)] continue
-    set pocs ""
-    foreach i $::te($type,items) {
-      set p $::te($type,$i,poc)
+  if ![info exists ::te(items)] continue
+  set pocs ""
+  foreach i $::te(items) {
+    set p $::te(parm,$i,poc)
 
-      if {[lsearch $pocs $p] >= 0} {
-        set nextmsg "Pocket $p specified multiple times"
-        if {[lsearch $msg $nextmsg] >= 0} continue
-        lappend msg $nextmsg
-      } else {
-        lappend pocs $p
-      }
+    if {[lsearch $pocs $p] >= 0} {
+      set nextmsg "Pocket $p specified multiple times"
+      if {[lsearch $msg $nextmsg] >= 0} continue
+      lappend msg $nextmsg
+    } else {
+      lappend pocs $p
     }
   }
   # check for multiple uses of a single tool
-  foreach type $::te(types) {
-    if ![info exists ::te($type,items)] continue
-    set tools ""
-    foreach i $::te($type,items) {
-      set t $::te($type,$i,tool)
+  if ![info exists ::te(items)] continue
+  set tools ""
+  foreach i $::te(items) {
+    set t $::te(parm,$i,tool)
 
-      if {[lsearch $tools $t] >= 0} {
-        set nextmsg "Tool $t specified multiple times"
-        if {[lsearch $msg $nextmsg] >= 0} continue
-        lappend msg $nextmsg
-      } else {
-        lappend tools $t
-      }
+    if {[lsearch $tools $t] >= 0} {
+      set nextmsg "Tool $t specified multiple times"
+      if {[lsearch $msg $nextmsg] >= 0} continue
+      lappend msg $nextmsg
+    } else {
+      lappend tools $t
     }
   }
 
