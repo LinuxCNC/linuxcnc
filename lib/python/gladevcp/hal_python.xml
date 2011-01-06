@@ -56,6 +56,7 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-reload'/>
 
     <glade-widget-class name="EMC_SourceView" generic-name="hal_sourceview" title="EMC SourceView"/>
+    <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory"/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -84,6 +85,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_FileChooserButton"/>
 
    <glade-widget-class-ref name="EMC_SourceView"/>
+   <glade-widget-class-ref name="EMC_MDIHistory"/>
  </glade-widget-group>
  <glade-widget-group name="python" title="EMC Actions">
    <glade-widget-class-ref name="EMC_Action_ESTOP"/>
