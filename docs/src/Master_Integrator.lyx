@@ -267,7 +267,7 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{hal/drivers.lyx}
+\begin_inset Include \include{hal/parallel_port.lyx}
 preview false
 
 \end_inset
