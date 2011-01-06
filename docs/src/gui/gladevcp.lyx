@@ -1587,7 +1587,7 @@ A simple example: Execute MDI command on button press
 \end_layout
 
 \begin_layout Standard
-Here's a glade UI file which conveys the basics: 
+Here's a glade UI file which conveys the basics:
 \begin_inset Note Note
 status open
 
@@ -1690,7 +1690,7 @@ for the above HAL SpinBox, we could use (MSG, "The speed is: ${speed-f}")
 \end_layout
 
 \begin_layout Standard
-Here's the example UI file for gladevcp: 
+Here's the example UI file for gladevcp:
 \begin_inset Note Note
 status open
 
@@ -1709,10 +1709,6 @@ placement H
 wide false
 sideways false
 status open
-
-\begin_layout Standard
-
-\end_layout
 
 \begin_layout Standard
 \begin_inset Caption
@@ -1750,7 +1746,7 @@ An advanced example: Feeding parameters to an O-word subroutine
 \begin_layout Standard
 It's perfectly OK to call an O-word subroutine in an MDI command, and pass
  HAL pin values as actual parameters.
- Here's an example UI file upload:owordsub.ui and O-word sub: 
+ Here's an example UI file upload:owordsub.ui and O-word sub:
 \begin_inset Note Note
 status open
 
