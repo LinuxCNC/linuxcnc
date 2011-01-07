@@ -342,6 +342,8 @@ class touchy:
                 atexit.register(self.kill_dynamic_childs)
                 self.set_dynamic_tabs()
 
+                atexit.register(self.save_maxvel_pref)
+
                 self.setfont()
 
         def quit(self, unused):
@@ -681,7 +683,6 @@ class touchy:
                         if d != 0:
                                 self.emc.max_velocity(self.mv_val)
                                 self.emc.continuous_jog_velocity(self.mv_val)
-                                self.prefs.putpref('maxvel', self.mv_val, int)
                         
 
                 set_label(self.wTree.get_widget("fo").child, "FO: %d%%" % self.fo_val)
@@ -729,6 +730,8 @@ class touchy:
 		for c in self._dynamic_childs.values():
 			c.terminate()
 
+        def save_maxvel_pref(self):
+                self.prefs.putpref('maxvel', self.mv_val, int)
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
