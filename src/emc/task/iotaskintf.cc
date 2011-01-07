@@ -138,15 +138,8 @@ static int sendCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
 
-    // detect abort of a pending toolchange or prepare
-    // criteria: last command is TOOL_LOAD or TOOL_PREPARE
-    // current command is TOOL_ABORT
-    // in this case, dont wait for the last command to finish and queue
-    // abort immediately
-
-    if (((last_io_command->type == EMC_TOOL_LOAD_TYPE) ||
-	       (last_io_command->type == EMC_TOOL_PREPARE_TYPE)) &&
-	       (msg->type == EMC_TOOL_ABORT_TYPE)) {
+    // always force-queue an abort
+    if (msg->type == EMC_TOOL_ABORT_TYPE) {
 	// just queue the abort and call it a day
 	int rc = forceCommand(msg);
 	if (rc) {
