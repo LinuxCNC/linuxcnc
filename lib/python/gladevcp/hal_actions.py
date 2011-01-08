@@ -433,7 +433,8 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
 
 class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
-    axis = gobject.property(type=int, default=-1, nick='Axis to unhome. -1 to unhome all')
+    axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
+                                    blurb='Axis to unhome. -1 to unhome all')
     def on_activate(self, w):
         ensure_mode(self.stat, self.emc, emc.MODE_MANUAL)
         self.emc.unhome(self.axis)
@@ -448,7 +449,8 @@ def prompt_areyousure(type, message, secondary=None):
 
 class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Home'
-    axis = gobject.property(type=int, default=-1, nick='Axis to home. -1 to home all')
+    axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
+                                    blurb='Axis to home. -1 to home all')
     confirm_homed = gobject.property(type=bool, default=False, nick='Confirm rehoming',
                                      blurb='Ask user if axis is already homed')
     def homed(self):
