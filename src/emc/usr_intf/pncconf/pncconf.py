@@ -370,7 +370,7 @@ coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
 control_output = [_("ESTOP Out"), _("Amplifier Enable"),_("Charge Pump")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 human_output_names = [ [_("Unused Output"),[None]],[_("Spindle"),spindle_output],[_("Coolant"),coolant_output],
-    [_("Control"),control_output],[_("Digital"),digital_output] ]
+    [_("Control"),control_output],[_("Digital"),digital_output],[_("Custom Signals"),[None]]  ]
 
 limit = [_("X Minimum Limit"), _("Y Minimum Limit"), _("Z Minimum Limit"), _("A Minimum Limit"),
     _("X Maximum Limit"), _("Y Maximum Limit"), _("Z Maximum Limit"), _("A Maximum Limit"),
@@ -392,7 +392,7 @@ rapid = [_("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog
 
 human_input_names = [ [_("Unused Input"),[None]],[_("Limits"),limit],[_("Home"),home],[_("Limts/Home Shared"),home_limits_shared],
     [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],[_("Spindle"),spindle],
-    [_("Operation"),operation],[_("External Control"),control],[_("Axis rapid"),rapid] ]
+    [_("Operation"),operation],[_("External Control"),control],[_("Axis rapid"),rapid],[_("Custom Signals"),[None]] ]
 
 (UNUSED_INPUT,
 MIN_X, MIN_Y, MIN_Z, MIN_A,
@@ -453,7 +453,8 @@ SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_nam
 "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
 "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable"]
 
-human_pwm_output_names =[ _("Unused PWM Gen"),_("X Axis PWM"),_("Y Axis PWM"),_("Z Axis PWM"),_("A Axis PWM"),_("Spindle PWM"),  ]
+human_pwm_output_names =[ [_("Unused PWM Gen"),[None]],[_("X Axis PWM"),[None]],[_("Y Axis PWM"),[None]],
+                        [_("Z Axis PWM"),[None]],[_("A Axis PWM"),[None]],[_("Spindle PWM"),[None]],[_("Custom Signals"),[None]] ]
 
 (UNUSED_ENCODER, 
 X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, X_ENCODER_M,
@@ -478,7 +479,8 @@ FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal
 axis = [_("X Encoder"),_("Y Encoder"), _("Z Encoder"),_("A Encoder"),_("Spindle Encoder")]
 mpg = [_("X Hand Wheel"), _("Y Hand Wheel"), _("Z Hand Wheel"), _("A Hand Wheel") ,_("Multi Hand Wheel")]
 over = [_("Feed Override"),_("spindle Override")]
-human_encoder_input_names = [ [_("Unused Encoder"),[None]],[_("Axis Encoder"), axis],[_("MPG Jog Controls"), mpg],[_("Override MPG control"), over] ] 
+human_encoder_input_names = [ [_("Unused Encoder"),[None]],[_("Axis Encoder"), axis],[_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
+                            [_("Custom Signals"),[None]] ] 
 
 
 (UNUSED_STEPGEN, 
@@ -492,9 +494,10 @@ SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_
 "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
 "a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",
 "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", 
-"s-stepgen-phase-f",]
+"s-stepgen-phase-f"]
 
-human_stepper_names = [_("Unused StepGen"), _("X Axis StepGen"),_("Y Axis StepGen"),_("Z Axis StepGen"),_("A Axis StepGen"),_("Spindle StepGen") ]
+human_stepper_names = [ [_("Unused StepGen"),[None]],[_("X Axis StepGen"),[None]],[_("Y Axis StepGen"),[None]],[_("Z Axis StepGen"),[None]],
+                        [_("A Axis StepGen"),[None]],[_("Spindle StepGen"),[None]],[_("Custom Signals"),[None]] ]
 
 
 
@@ -1139,27 +1142,42 @@ class Data:
             setattr(self, name, conv(text))
         
         # this loads custom signal names created by the user
-        # strips endings off of custom signal name when put in
-        # human names arrays 
+        # adds endings to the custom signal name when put in
+        # hal signal name arrays
+        #encoders
+        temp =[]; i = False
         for i in  self.halencoderinputsignames:
-            human_encoder_input_names.append(i)
+            temp.append(i)
             for j in(["-a","-b","-i","-m"]):
                 hal_encoder_input_names.append(i+j)
-
+        if i:  human_encoder_input_names[4][1]= temp
+        #pwm
+        temp =[]; i = False
         for i in  self.halpwmoutputsignames:
-            human_pwm_output_names.append(i+j)
+            temp.append(i)
             for j in(["-pulse","-dir","-enable"]):
-                hal_pwm_output_names.append(i)
+                hal_pwm_output_names.append(i+j)
+        if i: human_pwm_output_names[6][1]= temp
+        # GPIO Input
+        temp = []; i = False
         for i in  self.halinputsignames:
+            temp.append(i)
             hal_input_names.append(i)
-            human_input_names.append(i)
+        if i: human_input_names[11][1]= temp
+        # GPIO Output
+        temp = []; i = False
         for i in  self.haloutputsignames:
+            temp.append(i)
             hal_output_names.append(i)
-            human_output_names.append(i)
+        if i: human_output_names[5][1]= temp
+        # steppers
+        temp = []; i = False
         for i in  self.halsteppersignames:
-            human_stepper_names.append(i)
+            temp.append(i)
             for j in(["-step","-dir","-c","-d","-e","-f"]):
                 hal_stepper_names.append(i+j)
+        if i: human_stepper_names[6][1]= temp
+
         warnings = []
         for f, m in self.md5sums:
             m1 = md5sum(f)
@@ -1713,15 +1731,16 @@ class Data:
                     # for encoder pins
                     elif t in (ENCA):
                         if p == "unused-encoder":continue
-                        if p in (self.halencoderinputsignames): 
-                            pinname = self.make_pinname(self.findsignal( p ),ini_style) 
-                            sig = p.rstrip("-a")
-                            print >>file, "# ---",sig.upper(),"---"
-                            print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"   
-                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"     
-                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
-                            print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"      
-                            print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"      
+                        for sig in (self.halencoderinputsignames):
+                            if p == sig+"-a":
+                                pinname = self.make_pinname(self.findsignal( p ),ini_style)
+                                print >>file, "# ---",sig.upper(),"---"
+                                print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
+                                print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                                print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
+                                print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
+                                print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                                break
                     else: continue
 
     def connect_output(self, file):
@@ -1741,6 +1760,7 @@ class Data:
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, q)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, q)]
+                    #print "**** INFO output:",p,t,boardnum,connector,q
                     truepinnum = q + ((connector-2)*24)
                     # for output /open drain pins
                     if t in (GPIOO,GPIOD):
@@ -1754,28 +1774,30 @@ class Data:
                     # for pwm pins
                     elif t in (PWMP,PDMP):
                         if p == "unused-pwm":continue
-                        if p in (self.halpwmoutputsignames): 
-                            pinname = self.make_pinname(self.findsignal( p ),ini_style) 
-                            sig = p.rstrip("-pulse")
-                            print >>file, "# ---",sig.upper(),"---"
-                            if t == PWMP:
-                                print >>file, "setp    "+pinname +".output-type 1"
-                            elif t == PDMP:
-                                print >>file, "setp    "+pinname +".output-type 3"
-                            print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"  
-                            print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value" 
+                        for sig in (self.halpwmoutputsignames):
+                            if p == (sig+"-pulse"):
+                                pinname = self.make_pinname(self.findsignal( p ),ini_style)
+                                print >>file, "# ---",sig.upper(),"---"
+                                if t == PWMP:
+                                    print >>file, "setp    "+pinname +".output-type 1"
+                                elif t == PDMP:
+                                    print >>file, "setp    "+pinname +".output-type 3"
+                                print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"
+                                print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value"
+                                break
                     # for stepper pins
                     elif t == (STEPA):
                         if p == "unused-stepgen":continue
-                        if p in (self.halsteppersignames): 
-                            pinname = self.make_pinname(self.findsignal( p ),ini_style) 
-                            sig = p.rstrip("-step")
-                            print >>file, "# ---",sig.upper(),"---"
-                            print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
-                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
-                            print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
-                            print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
-                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
+                        for sig in (self.halsteppersignames):
+                            if p == (sig+"-step"):
+                                pinname = self.make_pinname(self.findsignal( p ),ini_style) 
+                                print >>file, "# ---",sig.upper(),"---"
+                                print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
+                                print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
+                                print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
+                                print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
+                                print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
+                                break
                     else:continue
 
     def write_halfile(self, base):
@@ -3082,7 +3104,7 @@ class App:
                 self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
                 #TODO
         self.fill_pintype_model()
-        self.fill_gpioo_model()
+        self.fill_combobox_models()
 
     def on_mesa_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa0_checkbutton.get_active()
@@ -3652,7 +3674,7 @@ class App:
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                print "selection: ",selection,"  pintype: ",pintype
+                #print "**** INFO mesa-data-transfer: selection: ",selection,"  pintype: ",pintype
                 # type GPIO input
                 if pintype == GPIOI:
                     signaltree = self.data._gpioisignaltree
@@ -3707,30 +3729,30 @@ class App:
                     signaltocheck = hal_stepper_names
                     addsignalto = self.data.halsteppersignames
                     relatedsignals =["DUMMY",STEPB,STEPC,STEPD,STEPE,STEPF]
-                    relatedending = ["-step","-dir","c","d","e","f"]
+                    relatedending = ["-step","-dir","-c","-d","-e","-f"]
                     addedending = "-a"
                     unusedname = "Unused StepGen"
                 else :
-                    print "error unknown pin type"
+                    print "**** ERROR mesa-data-transfer: error unknown pin type:",pintype
                     return
                 
                 # **Start widget to data Convertion**                    
                 # for encoder pins
                 if piter == None:
-                        print "callin pin changed !!!"
+                        #print "callin pin changed !!!"
                         self.on_mesa_pin_changed(p,boardnum,connector,pin,True)  
-                        print "back !!!"
+                        #print "back !!!"
                         selection = self.widgets[p].get_active_text()
                         piter = self.widgets[p].get_active_iter()
-                        print "found signame -> ",selection," "
+                        #print "found signame -> ",selection," "
                 # ok we have a piter with a signal type now- lets convert it to a signalname
                 dummy, index = signaltree.get(piter,0,1)
-                print "signaltree: ",dummy
+                #print "signaltree: ",dummy
                 dummy, index2 = ptypetree.get(ptiter,0,1)
-                print "ptypetree: ",dummy
+                #print "ptypetree: ",dummy
                 if pintype in (GPIOI,GPIOO,GPIOD) or (index == 0):index2 = 0
                 self.data[p] = signaltocheck[index+index2]
-                print p,self.data[p]
+                #print p,self.data[p]
                 self.data[pinv] = self.widgets[pinv].get_active()
         self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
@@ -3757,7 +3779,6 @@ class App:
         if active < 0:
             title = None
         else: title = model[active][0]
-        print title,self.data.mesa0_currentfirmwaredata[_BOARDTITLE]
         if not self.intrnldata.mesa0_configured:
             self.warning_dialog(_("You need to configure the mesa0 page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa0)
@@ -3799,7 +3820,6 @@ class App:
         if active < 0:
             title = None
         else: title = model[active][0]
-        print title,self.data.mesa1_currentfirmwaredata[_BOARDTITLE]
         if not self.intrnldata.mesa1_configured:
             self.warning_dialog(_("You need to configure the mesa1 page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa1)
@@ -4018,7 +4038,7 @@ class App:
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                print "start:",self.data[p],p
+                print "**** INFO set-mesa-options:",self.data[p],p
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
@@ -4077,18 +4097,17 @@ class App:
                             # else set to unused_encoder signal name 
                             # no sense in deleting the user's selected signal if it is for the right ptype
                             if self.data[ptype] == firmptype: 
-                                #print self.data[p]
                                 signalindex = hal_encoder_input_names.index(self.data[p]) - pintype_encoder.index(self.data[ptype])
-                                print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
+                                #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                                 count = -3
                                 if signalindex > 0:
                                     for row,parent in enumerate(human_encoder_input_names):
                                         if parent[1][0] == None:continue
                                         for column,child in enumerate(parent[1]):
                                             count +=4
-                                            print row,column,count,parent[0],child
+                                            #print row,column,count,parent[0],child
                                             if count == signalindex:
-                                                print "match",row,column
+                                                #print "match",row,column
                                                 break
                                         if count >= signalindex:break
                                     temp = (row,column)
@@ -4148,17 +4167,27 @@ class App:
                                 else:
                                     ptypeindex = pintype_pdm.index(firmptype)
                                 signalindex = hal_pwm_output_names.index(self.data[p])
-                                print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex,ptypeindex
+                                #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex,ptypeindex
                                 count = -2
                                 if signalindex > 0:
                                     for row,parent in enumerate(human_pwm_output_names):
-                                            if row == 0:continue
+                                        if row == 0: continue
+                                        if parent[1][0] == None:
+                                                count += 3
+                                                #print row,column,count,parent[0]
+                                                if count == signalindex - ptypeindex:
+                                                    #print "match",row
+                                                    temp = (row)
+                                                    break
+                                                continue
+                                        for column,child in enumerate(parent[1]):
                                             count +=3
-                                            print row,column,count,parent,child
+                                            #print row,column,count,parent[0],child
                                             if count == signalindex - ptypeindex:
-                                                print "match",row
+                                                #print "match",row
+                                                temp = (row,column)
                                                 break
-                                    temp = (row)
+                                        if count >= signalindex:break
                                 else:
                                     temp = (0) # set unused pwm
                                 treeiter = self.data._pwmsignaltree.get_iter(temp)
@@ -4174,8 +4203,8 @@ class App:
                     else:
                         firmptype = GPIOI
                 # ---SETUP FOR STEPPER FAMILY COMPONENT---
-                elif firmptype in (STEPA,STEPB):  
-                    if numofstepgens >= (compnum+1):               
+                elif firmptype in (STEPA,STEPB):
+                    if numofstepgens >= (compnum+1):
                         if not self.widgets[ptype].get_active_text() == firmptype:
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
@@ -4189,23 +4218,34 @@ class App:
                                 steptype = 1
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[ptype].set_sensitive(0)
-                            if self.data[ptype] == firmptype: 
-                                self.widgets[ptype].set_active(steptype)  
+                            if self.data[ptype] == firmptype:
+                                self.widgets[ptype].set_active(steptype)
                                 self.widgets[p].set_active(0)
                                 signalindex = hal_stepper_names.index(self.data[p])
                                 ptypeindex = pintype_stepper.index(firmptype)
                                 count = -5
+                                #print "stepper,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex,ptypeindex
                                 if signalindex > 0:
                                     for row,parent in enumerate(human_stepper_names):
                                             if row == 0:continue
-                                            count +=6
-                                            print row,count,parent
-                                            if count == signalindex - ptypeindex:
-                                                print "match",row
-                                                break
-                                    temp = (row)
+                                            if parent[1][0] == None:
+                                                count += 6
+                                                #print row,column,count,parent[0]
+                                                if count == signalindex - ptypeindex:
+                                                    #print "match",row
+                                                    temp = (row)
+                                                    break
+                                                continue
+                                            for column,child in enumerate(parent[1]):
+                                                count +=6
+                                                #print row,column,count,parent[0],child
+                                                if count == signalindex - ptypeindex:
+                                                    #print "match",row
+                                                    temp = (row,column)
+                                                    break
+                                            if count >= signalindex:break
                                 else:
-                                    temp = (0) # set unused pwm
+                                    temp = (0) # set unused stepper
                                 treeiter = self.data._steppersignaltree.get_iter(temp)
                                 self.widgets[p].set_active_iter(treeiter)     
                                 #model = self.widgets[p].get_model()
@@ -4265,17 +4305,17 @@ class App:
                         self.widgets[p].set_model(tree)
                         signalindex = signal.index(tempp)
                         ptypeindex = pintype_gpio.index(firmptype)
-                        print "gpio temp ptype:",tempptype," temp p:",tempp,signalindex,ptypeindex
+                        ##print "gpio temp ptype:",tempptype," temp p:",tempp,signalindex,ptypeindex
                         count = 0
-                        temp = (0) # set unused encoder
+                        temp = (0) # set unused gpio
                         if signalindex > 0:
                             for row,parent in enumerate(human):
                                 if parent[1][0] == None:continue
                                 for column,child in enumerate(parent[1]):
                                     count +=1
-                                    print row,column,count,parent[0],child
+                                    #print row,column,count,parent[0],child
                                     if count == signalindex- ptypeindex:
-                                        print "match",row,column
+                                        #print "match",row,column
                                         break
                                 if count >= signalindex:break
                             temp = (row,column)
@@ -4310,11 +4350,6 @@ class App:
         self.window.hide()
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
-    def add_pintype_model(self,comboboxname,pintype):
-        self[combobox].set_model(listore)
-        cell = gtk.CellRendererText()
-        self[combobox].pack_start(cell,True)
-
     def fill_pintype_model(self):
         # gpio
         self.data._gpioliststore = gtk.ListStore(str,int)
@@ -4332,56 +4367,27 @@ class App:
         self.data._pwmliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_pwm):
             self.data._pwmliststore.append([text,number])
-        
-    def fill_gpioo_model(self):
-        # gpio output signals
-        self.data._gpioosignaltree = gtk.TreeStore(str,int)
-        count = 1
-        for i,parent in enumerate(human_output_names):
-            print parent
-            piter = self.data._gpioosignaltree.append(None, [parent[0],0])
-            if parent[1][0] == None:continue
-            for j,child in enumerate(parent[1]):
-                self.data._gpioosignaltree.append(piter, [child, count])
-                count +=1
-        # gpio input signals
-        self.data._gpioisignaltree = gtk.TreeStore(str,int)
-        count = 1
-        for i,parent in enumerate(human_input_names):
-            print parent
-            piter = self.data._gpioisignaltree.append(None, [parent[0],0])
-            if parent[1][0] == None:continue
-            for j,child in enumerate(parent[1]):
-                self.data._gpioisignaltree.append(piter, [child, count])
-                count +=1
-        # encoder input signals
-        self.data._encodersignaltree = gtk.TreeStore(str,int)
-        count = 1
-        for i,parent in enumerate(human_encoder_input_names):
-            piter = self.data._encodersignaltree.append(None, [parent[0],0])
-            if parent[1][0] == None:continue
-            for j,child in enumerate(parent[1]):
-                print i,count,parent[0],child
-                self.data._encodersignaltree.append(piter, [child, count])
-                count +=4
-        # stepper signals
-        self.data._steppersignaltree = gtk.TreeStore(str,int)
-        count = 0
-        for i,parent in enumerate(human_stepper_names):
-            piter = self.data._steppersignaltree.append(None, [parent, count])
-            if count == 0:
-                count = 1
-                continue
-            count +=6
-        # pwm signals
-        count = 0
-        self.data._pwmsignaltree = gtk.TreeStore(str,int)
-        for i,parent in enumerate(human_pwm_output_names):
-            piter = self.data._pwmsignaltree.append(None, [parent, count])
-            if count == 0:
-                count = 1
-                continue
-            count +=3
+
+    def fill_combobox_models(self):
+        templist = [ ["_gpioosignaltree",human_output_names,1],["_gpioisignaltree",human_input_names,1],["_encodersignaltree",human_encoder_input_names,4],
+                     ["_pwmsignaltree",human_pwm_output_names,3],["_steppersignaltree",human_stepper_names,6] ]
+        for item in templist:
+            count = 0
+            end = len(item[1])-1
+            self.data[item[0]]= gtk.TreeStore(str,int)
+            for i,parent in enumerate(item[1]):
+                if parent[1][0] == None:
+                    if i == end:temp = 0
+                    else:temp = count
+                    piter = self.data[item[0]].append(None, [parent[0], temp])
+                    if count == 0: count = 1
+                    else: count +=item[2]
+                else:
+                    piter = self.data[item[0]].append(None, [parent[0],0])
+                    for j,child in enumerate(parent[1]):
+                        #print i,count,parent[0],child
+                        self.data[item[0]].append(piter, [child, count])
+                        count +=item[2]
 
     # This is for when a user picks a signal name or creates a custom signal (by pressing enter)
     # if searches for the 'related pins' of a component so it can update them too
@@ -4392,21 +4398,45 @@ class App:
                 pinchanged =  self.widgets[p].get_active_text()
                 piter = self.widgets[p].get_active_iter()
                 widgetptype = self.widgets[ptype].get_active_text()
-                #print"pin change method ",ptype," = ",widgetptype,"active ",pinchanged,"\n"
-                if widgetptype in (ENCB,ENCI,ENCM,STEPB,STEPC,STEPD,STEPE,STEPF,PDMD,PDME,PWMD,PWME,GPIOI,GPIOO,GPIOD):return
+                print "*** INFO mesa-pin-changed: pin:",p,"custom:",custom
+                print "*** INFO mesa-pin-changed: ptype:",widgetptype,"pinchaanged:",pinchanged
+                if piter == None and not custom:
+                    print "*** INFO mesa-pin-changed: no iter and not custom"
+                    return
+                if widgetptype in (ENCB,ENCI,ENCM,STEPB,STEPC,STEPD,STEPE,STEPF,PDMD,PDME,PWMD,PWME):return
+                # for GPIO output
+                if widgetptype in (GPIOO,GPIOD):
+                    #print"ptype GPIOO\n"
+                    signaltree = self.data._gpioosignaltree
+                    halsignallist = hal_output_names
+                    humansignallist = human_output_names
+                    addsignalto = self.data.haloutputsignames
+                    relatedsearch = ["dummy"]
+                    relatedending = [""]
+                # for GPIO input
+                elif widgetptype == GPIOI:
+                    #print"ptype GPIOI\n"
+                    signaltree = self.data._gpioisignaltree
+                    halsignallist = hal_input_names
+                    humansignallist = human_input_names
+                    addsignalto = self.data.halinputsignames
+                    relatedsearch = ["dummy"]
+                    relatedending = [""]
                 # for stepgen pins
-                if widgetptype == STEPA:
+                elif widgetptype == STEPA:
                     #print"ptype step\n"
                     signaltree = self.data._steppersignaltree
                     halsignallist = hal_stepper_names
+                    humansignallist = human_stepper_names
                     addsignalto = self.data.halsteppersignames
-                    relatedsearch = [STEPA,STEPB,STEPC,STEPD,STEPE,STEPF] 
-                    relatedending = ["-step","-dir","c","d","e","f"]
+                    relatedsearch = [STEPA,STEPB,STEPC,STEPD,STEPE,STEPF]
+                    relatedending = ["-step","-dir","-c","-d","-e","-f"]
                 # for encoder pins
                 elif widgetptype == ENCA: 
                     #print"\nptype encoder"
                     signaltree = self.data._encodersignaltree
                     halsignallist = hal_encoder_input_names
+                    humansignallist = human_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
                     relatedsearch = [ENCA,ENCB,ENCI,ENCM]
                     relatedending = ["-a","-b","-i","-m"]
@@ -4415,6 +4445,7 @@ class App:
                     #print"ptype pwmp\n"
                     signaltree = self.data._pwmsignaltree
                     halsignallist = hal_pwm_output_names
+                    humansignallist = human_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
                     relatedsearch = [PWMP,PWMD,PWME]
                     relatedending = ["-pulse","-dir","-enable"]
@@ -4424,11 +4455,12 @@ class App:
                     #print"ptype pdmp\n"
                     signaltree = self.data._pwmsignaltree
                     halsignallist = hal_pwm_output_names
+                    humansignallist = human_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
                     relatedsearch = [PWMP,PWMD,PWME]
                     relatedending = ["-pulse","-dir","-enable"]
                 else: 
-                    print" pintype not found\n"
+                    print"**** INFO: pncconf on_mesa_pin_changed:  pintype not found\n"
                     return   
                 # *** change the related pin's signal names ***
                      
@@ -4440,16 +4472,28 @@ class App:
                 # pins so we can change them to the related signal name 
                 # all signal names have related signal (eg encoders have A and B phase and index and index mask)
                 # except 'unused' signal it is a special case as there is no related signal names with it.
-                print pinchanged,signaltree
-                if piter == None:
-                    name = pinchanged
-                    index = len(signaltree)
-                    if not custom:return
+                if piter == None or custom:
+                    print "*** INFO mesa-pin-changed: PITER:",piter," length:",len(signaltree)
+                    if pinchanged in (addsignalto):return
+                    for i in (humansignallist):
+                        if pinchanged == i[0]:return
+                        if pinchanged in i[1]:return
+                    length = len(signaltree)
+                    index = len(halsignallist) - len(relatedsearch)
+                    customiter = signaltree.get_iter((length-1,))
+                    childiter = signaltree.iter_nth_child(customiter, 0)
+                    n = 0
+                    while childiter:
+                        dummy, index = signaltree.get(childiter, 0, 1)
+                        n+=1
+                        childiter = signaltree.iter_nth_child(customiter, n)
+                    index += len(relatedsearch)
+                    
                 else:
                     dummy, index = signaltree.get(piter, 0, 1)
                     if index == 0:
                         piter = signaltree.get_iter_first()
-                    #print dummy,index
+                #print "*** INFO mesa-pin-changed: index",index
                 # This finds the pin type and component number of the pin that has changed
                 # search all the current firmware array for related pins
                 # if not the same component number as the pin that changed or
@@ -4457,16 +4501,19 @@ class App:
                 # if is the right component type and number, che3ck the relatedsearch array for a match
                 # if its a match add it to a list of pins (pinlist) that need to be updated
                 pinlist = []
-                for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-                            if i == connector:
-                                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
-                                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-                                    for t_pin in range (0,24):
-                                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
-                                        if compnum != currentcompnum: continue
-                                        if comptype not in (relatedsearch): continue
-                                        tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
-                                        pinlist.append(tochange)
+                if widgetptype in(GPIOI,GPIOO,GPIOD):
+                    pinlist = [["%s"%p,boardnum,connector,pin]]
+                else:
+                    for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+                                if i == connector:
+                                    currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
+                                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+                                        for t_pin in range (0,24):
+                                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
+                                            if compnum != currentcompnum: continue
+                                            if comptype not in (relatedsearch): continue
+                                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                                            pinlist.append(tochange)
                 # Now we have a list of pins that need to be updated
                 # first check if the name is a custom name if it is
                 #   add the legalized custom name to ;
@@ -4480,9 +4527,12 @@ class App:
                 if custom:
                     legal_name = pinchanged.replace(" ","_")
                     addsignalto.append ((legal_name))
-                    newiter = signaltree.append(None, [legal_name,index+1])
+                    endoftree = len(signaltree)-1
+                    customiter = signaltree.get_iter((endoftree,))
+                    newiter = signaltree.append(customiter, [legal_name,index])
                     for offset,i in enumerate(relatedsearch):
                         with_endings = legal_name + relatedending[offset]
+                        print "new signal:",with_endings
                         halsignallist.append ((with_endings))
                 for data in(pinlist):
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[3]) 
