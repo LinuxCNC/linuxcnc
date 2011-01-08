@@ -29,7 +29,6 @@ proc setp {p v} {
 
 proc sets {p v} {
     set v [uplevel [list expr $v]]
-    puts "hal sets $p $v"
     hal sets $p $v
 }
 
