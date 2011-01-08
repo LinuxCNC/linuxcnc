@@ -9,7 +9,7 @@ proc parse_ini {filename} {
             # nothing
         } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
             upvar $section s
-            lappend s($k) $v
+            lappend s([string trim $k]) $v
         }
     }
 
