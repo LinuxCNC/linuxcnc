@@ -354,7 +354,6 @@ mesafirmwaredata = [
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
 mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
-ini_style = False
 
 (UNUSED_OUTPUT,
 ON, CW, CCW, BRAKE,
@@ -534,7 +533,6 @@ class Intrnl_data:
 
 class Data:
     def __init__(self):
-
         pw = pwd.getpwuid(os.getuid())
         # custom signal name lists
         self.halencoderinputsignames = []
@@ -1521,6 +1519,20 @@ class Data:
            test = self.findsignal(thisaxisstepgen)
            return test
 
+    def stepgen_invert_pins(self,pinnumber):
+        signallist = []
+        pin = int(pinnumber[10:])
+        connector = int(pinnumber[6:7])
+        boardnum = int(pinnumber[4:5])
+        pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, pin, 0)
+        print pinlist
+        for i in pinlist:
+            if self[i[0]+"inv"]:
+                gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
+                print gpioname
+                signallist.append(gpioname)
+        return signallist
+
     def encoder_sig(self, axis): 
            thisaxisencoder = axis +"-encoder-a"
            test = self.findsignal(thisaxisencoder)
@@ -1537,9 +1549,11 @@ class Data:
         if let == 's':
             title = 'SPINDLE'
         closedloop = False
-        pwmpinname = self.make_pinname(self.pwmgen_sig(let),ini_style)
-        steppinname = self.make_pinname(self.stepgen_sig(let),ini_style)
-        encoderpinname = self.make_pinname(self.encoder_sig(let),ini_style)
+        pwmpinname = self.make_pinname(self.pwmgen_sig(let))
+        steppinname = self.make_pinname(self.stepgen_sig(let))
+        if steppinname:
+            stepinvertlist = self.stepgen_invert_pins(self.stepgen_sig(let))
+        encoderpinname = self.make_pinname(self.encoder_sig(let))
         if steppinname and encoderpinname: closedloop = True
         if let == "s" and self.spidcontrol == True: closedloop = True
         if not let == "s" and encoderpinname and encoderpinname: closedloop = True
@@ -1604,6 +1618,7 @@ class Data:
                     print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pwmpinname + ".value"
                     print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
                     print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
+
                 print >>file    
         if steppinname:
             print >>file, "# Step Gen signals/setup"
@@ -1641,6 +1656,8 @@ class Data:
                 print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + steppinname + ".position-fb"
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
                 print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
+            for i in stepinvertlist:
+                   print >>file, "setp    "+i+".invert_output true"
             print >>file
 
         if encoderpinname:             
@@ -1708,24 +1725,24 @@ class Data:
     def connect_input(self, file):
         print >>file, "# external input signals"
         print >>file
-        for q in (2,3,4,5,6,7,8,9,10,11,12,13,15):
-            p = self['pp1Ipin%d' % q]
-            i = self['pp1Ipin%dinv' % q]
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = self['pp1Ipin%d' % pin]
+            i = self['pp1Ipin%dinv' % pin]
             if p == UNUSED_INPUT: continue
-            if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, q)
-            else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, q)
+            if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
+            else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
-                for q in range(0,24):
-                    p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
-                    i = self['mesa%dc%dpin%dinv' % (boardnum,connector, q)]
-                    t = self['mesa%dc%dpin%dtype' % (boardnum,connector, q)]
-                    truepinnum = q + ((connector-2)*24)
+                for pin in range(0,24):
+                    p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
+                    i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
+                    t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
+                    truepinnum = pin + ((connector-2)*24)
                     # for input pins
                     if t == GPIOI:
                         if p == "unused-input":continue 
-                        pinname = self.make_pinname(self.findsignal( p ),ini_style) 
+                        pinname = self.make_pinname(self.findsignal( p )) 
                         print >>file, "# ---",p.upper(),"---"
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
@@ -1734,7 +1751,7 @@ class Data:
                         if p == "unused-encoder":continue
                         for sig in (self.halencoderinputsignames):
                             if p == sig+"-a":
-                                pinname = self.make_pinname(self.findsignal( p ),ini_style)
+                                pinname = self.make_pinname(self.findsignal( p ))
                                 print >>file, "# ---",sig.upper(),"---"
                                 print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                                 print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
@@ -1748,25 +1765,25 @@ class Data:
         
         print >>file, "# external output signals"
         print >>file
-        for q in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = self['pp1Opin%d' % q]
-            i = self['pp1Opin%dinv' % q]
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            p = self['pp1Opin%d' % pin]
+            i = self['pp1Opin%dinv' % pin]
             if p == UNUSED_OUTPUT: continue
-            print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, q)
-            if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % q           
+            print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
+            if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
-                for q in range(0,24):
-                    p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
-                    i = self['mesa%dc%dpin%dinv' % (boardnum,connector, q)]
-                    t = self['mesa%dc%dpin%dtype' % (boardnum,connector, q)]
-                    #print "**** INFO output:",p,t,boardnum,connector,q
-                    truepinnum = q + ((connector-2)*24)
+                for pin in range(0,24):
+                    p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
+                    i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
+                    t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
+                    #print "**** INFO output:",p,t,boardnum,connector,pin
+                    truepinnum = pin + ((connector-2)*24)
                     # for output /open drain pins
                     if t in (GPIOO,GPIOD):
                         if p == "unused-output":continue
-                        pinname = self.make_pinname(self.findsignal( p ),ini_style)
+                        pinname = self.make_pinname(self.findsignal( p ))
                         print >>file, "# ---",p.upper(),"---"
                         print >>file, "setp    "+pinname +".is_output true"
                         if i: print >>file, "setp    "+pinname+".invert_output true"
@@ -1777,7 +1794,7 @@ class Data:
                         if p == "unused-pwm":continue
                         for sig in (self.halpwmoutputsignames):
                             if p == (sig+"-pulse"):
-                                pinname = self.make_pinname(self.findsignal( p ),ini_style)
+                                pinname = self.make_pinname(self.findsignal( p ))
                                 print >>file, "# ---",sig.upper(),"---"
                                 if t == PWMP:
                                     print >>file, "setp    "+pinname +".output-type 1"
@@ -1791,13 +1808,20 @@ class Data:
                         if p == "unused-stepgen":continue
                         for sig in (self.halsteppersignames):
                             if p == (sig+"-step"):
-                                pinname = self.make_pinname(self.findsignal( p ),ini_style) 
+                                pinname = self.make_pinname(self.findsignal( p )) 
                                 print >>file, "# ---",sig.upper(),"---"
                                 print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
                                 print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
                                 print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
                                 print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
                                 print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
+                                pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, pin, 0)
+                                print pinlist
+                                for i in pinlist:
+                                    if self[i[0]+"inv"]:
+                                        gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
+                                        print gpioname
+                                        print >>file, "setp    "+gpioname+".invert_output true"
                                 break
                     else:continue
 
@@ -2157,7 +2181,7 @@ class Data:
                     print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
             print >>file
 
-        pinname = self.make_pinname(self.findsignal("select-mpg-a"),ini_style)
+        pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
@@ -2181,7 +2205,7 @@ class Data:
         temp = ("x","y","z","a")
         for axnum,axletter in enumerate(temp):
             if axletter in self.available_axes:
-                pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
+                pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
                 if pinname:
                     print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
                     print >>file
@@ -2215,7 +2239,7 @@ class Data:
             else:
                 print >>file, "sets selected-jog-incr     %f"% (self.mpgincrvalue0)
 
-        pinname = self.make_pinname(self.findsignal("fo-mpg-a"),ini_style)
+        pinname = self.make_pinname(self.findsignal("fo-mpg-a"))
         if pinname:
             print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
@@ -2248,7 +2272,7 @@ class Data:
                     print >>file, "    setp foincr.in%02d          %f"% (i,value)
                 print >>file
 
-        pinname = self.make_pinname(self.findsignal("so-mpg-a"),ini_style)
+        pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
             print >>file, "# ---spindle override signals to mesa encoder - mpg---"
             print >>file
@@ -2674,24 +2698,48 @@ class Data:
                         return None
             else: return None
 
+    # search all the current firmware array for related pins
+    # if not the same component number as the pin that changed or
+    # if not in the relate component type keep searching
+    # if is the right component type and number, che3ck the relatedsearch array for a match
+    # if its a match add it to a list of pins (pinlist) that need to be updated
+    def list_related_pins(self, relatedsearch, boardnum, connector, pin, style):
+        pinlist =[]
+        for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+            if i == connector:
+                currentptype,currentcompnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
+                for t_concount,t_connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+                    for t_pin in range (0,24):
+                        comptype,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
+                        if compnum != currentcompnum: continue
+                        if comptype not in (relatedsearch): continue
+                        if style == 0:
+                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                        if style == 1:
+                            tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                        if style == 2:
+                            tochange = ['mesa%dc%dpin%dinv'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                        pinlist.append(tochange)
+        return pinlist
+
     # This method takes a signalname data pin (eg mesa0c3pin1)
     # and converts it to a HAL pin names (eg hm2_5i20.0.gpio.01)
     # component number conversion is for adjustment of position of pins related to the
     # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
     # (a,b,i are related pins for encoder component) 
-    def make_pinname(self, pin, ini_style = False):
+    def make_pinname(self, pin, gpionumber = False):
         test = str(pin)  
         halboardnum = 0
         if test == "None": return None
         elif 'mesa' in test:
             boardnum = int(test[4:5])
-            if ini_style:
-                boardname = "[hosmot2](board%d)"% boardnum                
-            else:
-                boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+            boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
             if boardnum == 1 and self.mesa1_currentfirmwaredata[_BOARDNAME] == self.mesa0_currentfirmwaredata[_BOARDNAME]:
                 halboardnum = 1
-            ptype = self[pin+"type"] 
+            if gpionumber:
+                ptype = GPIOI
+            else:
+                ptype = self[pin+"type"] 
             signalname = self[pin]
             pinnum = int(test[10:])
             connum = int(test[6:7])
@@ -3946,7 +3994,7 @@ class App:
                     self.data[ptype] = new
                 elif old == PWMP and new == PDMP:
                     relatedpins = [PWMP,PWMD,PWME]
-                    pinlist = self.list_related_pins(relatedpins, boardnum, connector, pin, 1)
+                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, pin, 1)
                     for i in (pinlist):
                         if i[0] == ptype :continue
                         j = self.widgets[i[0]].get_active()
@@ -3956,7 +4004,7 @@ class App:
                     self.data[ptype] = new
                 elif old == PDMP and new == PWMP:
                     relatedpins = [PWMP,PWMD,PWME]
-                    pinlist = self.list_related_pins(relatedpins, boardnum, connector, pin, 1)
+                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, pin, 1)
                     for i in (pinlist):
                         if i[0] == ptype :continue
                         j = self.widgets[i[0]].get_active()
@@ -4232,8 +4280,8 @@ class App:
                 elif firmptype in (STEPA,STEPB):
                     if numofstepgens >= (compnum+1):
                         if not self.widgets[ptype].get_active_text() == firmptype:
-                            self.widgets[pinv].set_sensitive(0)
-                            self.widgets[pinv].set_active(0)
+                            #self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_active(self.data[pinv])
                             ptmodel = self.widgets[ptype].set_model(self.data._stepperliststore)
                             pmodel = self.widgets[p].set_model(self.data._steppersignaltree)
                             if firmptype == STEPA:
@@ -4531,7 +4579,7 @@ class App:
                 if widgetptype in(GPIOI,GPIOO,GPIOD):
                     pinlist = [["%s"%p,boardnum,connector,pin]]
                 else:
-                    pinlist = self.list_related_pins(relatedsearch, boardnum, connector, pin, 0)
+                    pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, pin, 0)
                     
                 # Now we have a list of pins that need to be updated
                 # first check if the name is a custom name if it is
@@ -4565,28 +4613,6 @@ class App:
                     self.widgets[data[0]].child.handler_unblock(self.intrnldata[blocksignal])
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[3]) 
                     self.widgets[data[0]].handler_unblock(self.intrnldata[blocksignal])
-
-    # search all the current firmware array for related pins
-    # if not the same component number as the pin that changed or
-    # if not in the relate component type keep searching
-    # if is the right component type and number, che3ck the relatedsearch array for a match
-    # if its a match add it to a list of pins (pinlist) that need to be updated
-    def list_related_pins(self, relatedsearch, boardnum, connector, pin, style ):
-        pinlist =[]
-        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-            if i == connector:
-                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
-                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-                    for t_pin in range (0,24):
-                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
-                        if compnum != currentcompnum: continue
-                        if comptype not in (relatedsearch): continue
-                        if style == 0:
-                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
-                        if style == 1:
-                            tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
-                        pinlist.append(tochange)
-        return pinlist
 
     def on_pp1pport_prepare(self, *args):
         self.data.help = 5
