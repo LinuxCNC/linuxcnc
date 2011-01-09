@@ -552,7 +552,8 @@ class Data:
         self._gpioisignaltree = None
         self._steppersignaltree = None
         self._encodersignaltree = None
-        self._pwmsignaltree = None
+        self._pwmcontrolsignaltree = None
+        self._pwmrelatedsignaltree = None
         # pncconf default options
         self.createsymlink = 1
         self.createshortcut = 0  
@@ -3674,7 +3675,7 @@ class App:
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                #print "**** INFO mesa-data-transfer: selection: ",selection,"  pintype: ",pintype
+                print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
                 # type GPIO input
                 if pintype == GPIOI:
                     signaltree = self.data._gpioisignaltree
@@ -3702,8 +3703,12 @@ class App:
                     unusedname = "Unused Encoder"
                 # type PWM gen
                 elif pintype in( PDMP,PDMD,PDME):
+                    print "pdm"
                     signaltree = self.data._pwmsignaltree
-                    ptypetree = self.data._pwmliststore
+                    if pintype == PDMP:
+                        ptypetree = self.data._pwmcontrolliststore
+                    else:
+                        ptypetree = self.data._pdmrelatedliststore
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
@@ -3712,8 +3717,12 @@ class App:
                     addedending = "-pulse"
                     unusedname = "Unused PWM Gen"
                 elif pintype in( PWMP,PWMD,PWME):
+                    print "pwm"
                     signaltree = self.data._pwmsignaltree
-                    ptypetree = self.data._pwmliststore
+                    if pintype == PWMP:
+                        ptypetree = self.data._pwmcontrolliststore
+                    else:
+                        ptypetree = self.data._pwmrelatedliststore
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
@@ -3739,21 +3748,22 @@ class App:
                 # **Start widget to data Convertion**                    
                 # for encoder pins
                 if piter == None:
-                        #print "callin pin changed !!!"
+                        print "callin pin changed !!!"
                         self.on_mesa_pin_changed(p,boardnum,connector,pin,True)  
-                        #print "back !!!"
+                        print "back !!!"
                         selection = self.widgets[p].get_active_text()
                         piter = self.widgets[p].get_active_iter()
-                        #print "found signame -> ",selection," "
+                        print "found signame -> ",selection," "
                 # ok we have a piter with a signal type now- lets convert it to a signalname
                 dummy, index = signaltree.get(piter,0,1)
-                #print "signaltree: ",dummy
-                dummy, index2 = ptypetree.get(ptiter,0,1)
-                #print "ptypetree: ",dummy
+                print "signaltree: ",dummy
+                widgetptype, index2 = ptypetree.get(ptiter,0,1)
+                print "ptypetree: ",dummy
                 if pintype in (GPIOI,GPIOO,GPIOD) or (index == 0):index2 = 0
                 self.data[p] = signaltocheck[index+index2]
-                #print p,self.data[p]
+                self.data[ptype] = widgetptype
                 self.data[pinv] = self.widgets[pinv].get_active()
+                print p,self.data[p],widgetptype
         self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
@@ -3912,29 +3922,18 @@ class App:
                 if (new == None or new == old): return 
                 if old == GPIOI and new in (GPIOO,GPIOD):
                     print "switch GPIO input ",p," to output",new
-                    model = self.widgets[p].get_model()
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
                     self.widgets[p].handler_block(self.intrnldata[blocksignal])
-                    model.clear()
-                    for name in human_output_names: model.append((name,))
+                    self.widgets[p].set_model(self.data._gpioosignaltree)
                     self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_OUTPUT
                     self.data[ptype] = new
                 elif old in (GPIOO,GPIOD) and new == GPIOI:
                     print "switch GPIO output ",p,"to input"
-                    model = self.widgets[p].get_model()
-                    model.clear()
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
                     self.widgets[p].handler_block(self.intrnldata[blocksignal])              
-                    for name in human_input_names:
-                        if self.data.limitshared or self.data.limitsnone:
-                            if name in human_names_limit_only: continue 
-                        if self.data.limitswitch or self.data.limitsnone:
-                            if name in human_names_shared_home: continue                          
-                        if self.data.homenone or self.data.limitshared:
-                            if name in (_("X Home"), _("Y Home"), _("Z Home"), _("A Home"), _("All Home")): continue
-                        model.append((name,))
+                    self.widgets[p].set_model(self.data._gpioisignaltree)
                     self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
@@ -3946,10 +3945,24 @@ class App:
                     print "switch GPIO opendrain ",p,"to output"
                     self.data[ptype] = new
                 elif old == PWMP and new == PDMP:
-                    print "switch PWM  ",p,"to PDM"
+                    relatedpins = [PWMP,PWMD,PWME]
+                    pinlist = self.list_related_pins(relatedpins, boardnum, connector, pin, 1)
+                    for i in (pinlist):
+                        if i[0] == ptype :continue
+                        j = self.widgets[i[0]].get_active()
+                        self.widgets[i[0]].set_model(self.data._pdmrelatedliststore)
+                        self.widgets[i[0]].set_active(j)
+                    #print "switch PWM  ",p,"to PDM"
                     self.data[ptype] = new
                 elif old == PDMP and new == PWMP:
-                    print "switch PDM  ",p,"to PWM"
+                    relatedpins = [PWMP,PWMD,PWME]
+                    pinlist = self.list_related_pins(relatedpins, boardnum, connector, pin, 1)
+                    for i in (pinlist):
+                        if i[0] == ptype :continue
+                        j = self.widgets[i[0]].get_active()
+                        self.widgets[i[0]].set_model(self.data._pwmrelatedliststore)
+                        self.widgets[i[0]].set_active(j)
+                    #print "switch PDM  ",p,"to PWM"
                     self.data[ptype] = new
                 elif old in(GPIOI,GPIOO,GPIOD) and new in (ENCA,ENCB,ENCI,ENCM):
                     print "switch ",old,"to ",new," on pin ",p
@@ -4038,7 +4051,7 @@ class App:
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                print "**** INFO set-mesa-options:",self.data[p],p
+                print "**** INFO set-mesa-options:",self.data[p],p,self.data[ptype]
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
@@ -4133,17 +4146,21 @@ class App:
                         if not self.widgets[ptype].get_active_text() == firmptype:
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
-                            ptmodel = self.widgets[ptype].set_model(self.data._pwmliststore)
                             pmodel = self.widgets[p].set_model(self.data._pwmsignaltree)
                             
                             # only add the -pulse signal names for the user to see
                             if firmptype in(PWMP,PDMP):
+                                ptmodel = self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
                                 self.widgets[ptype].set_sensitive(1)
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[p].set_active(0)
                                 self.widgets[ptype].set_active(0)
                             # add them all here      
-                            elif firmptype in (PWMD,PWME,PDMD,PDME):                             
+                            elif firmptype in (PWMD,PWME,PDMD,PDME):
+                                if firmptype in (PWMD,PWME):
+                                    ptmodel = self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
+                                else:
+                                    ptmodel = self.widgets[ptype].set_model(self.data._pdmrelatedliststore)
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[p].set_active(0) 
                                 self.widgets[ptype].set_sensitive(0)
@@ -4154,37 +4171,46 @@ class App:
                 # check to see data is already set to PWM family
                 # set the ptype to PWM or PDM 
                 # if in PWM family - set to widget signal name 
-                # else change to unused_PWM signal name 
-                            if self.data[ptype] == firmptype  :
-                                if firmptype in(PWMP,PDMP):
-                                    self.widgets[ptype].set_active(0)
-                                elif firmptype in (PWMD,PWME,PDMD,PDME):
+                # else change to unused_PWM signal name
+                            dataptype = self.data[ptype]
+                            print dataptype
+                            if dataptype in (PWMD,PWME) and not  dataptype == PWMP:
+                                print "Model PWM"
+                                ptmodel = self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
+                            elif dataptype in (PDMD,PDME) and not dataptype == PDMP:
+                                print "Model PDM"
+                                ptmodel = self.widgets[ptype].set_model(self.data._pdmrelatedliststore)
+                            if  dataptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ) :
+                                if dataptype in(PWMP,PDMP):
+                                    self.widgets[ptype].set_active(0 +(dataptype == PDMP) )
+                                    ptypeindex = 0
+                                elif dataptype in (PWMD,PWME,PDMD,PDME):
                                     temp = 1
-                                    if firmptype in (PWME,PDME): temp = 2
+                                    if dataptype in (PWME,PDME): temp = 2
                                     self.widgets[ptype].set_active(temp)
-                                if firmptype in (PWMP,PWMD,PWME):
-                                    ptypeindex = pintype_pwm.index(firmptype)
-                                else:
-                                    ptypeindex = pintype_pdm.index(firmptype)
+                                if dataptype in (PWMD,PWME):
+                                    ptypeindex = pintype_pwm.index(dataptype)
+                                elif dataptype in (PDMD,PDME):
+                                    ptypeindex = pintype_pdm.index(dataptype)
                                 signalindex = hal_pwm_output_names.index(self.data[p])
-                                #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex,ptypeindex
+                                print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex,ptypeindex
                                 count = -2
                                 if signalindex > 0:
                                     for row,parent in enumerate(human_pwm_output_names):
                                         if row == 0: continue
                                         if parent[1][0] == None:
                                                 count += 3
-                                                #print row,column,count,parent[0]
+                                                print row,count,parent[0]
                                                 if count == signalindex - ptypeindex:
-                                                    #print "match",row
+                                                    print "match",row
                                                     temp = (row)
                                                     break
                                                 continue
                                         for column,child in enumerate(parent[1]):
                                             count +=3
-                                            #print row,column,count,parent[0],child
+                                            print row,column,count,parent[0],child
                                             if count == signalindex - ptypeindex:
-                                                #print "match",row
+                                                print "match",row
                                                 temp = (row,column)
                                                 break
                                         if count >= signalindex:break
@@ -4286,7 +4312,7 @@ class App:
                             tempp = self.data[p]
                         else:
                             tempptype = firmptype
-                            temp = 0 # unused gpio
+                            tempp = UNUSED_INPUT # unused gpio
                         # signal names for GPIO INPUT
                         if tempptype == GPIOI:  
                             self.widgets[ptype].set_active(0)
@@ -4364,9 +4390,15 @@ class App:
         for number,text in enumerate(pintype_encoder):
             self.data._encoderliststore.append([text,number])
         # pwm
-        self.data._pwmliststore = gtk.ListStore(str,int)
+        self.data._pwmrelatedliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_pwm):
-            self.data._pwmliststore.append([text,number])
+            self.data._pwmrelatedliststore.append([text,number])
+        self.data._pdmrelatedliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_pdm):
+            self.data._pdmrelatedliststore.append([text,number])
+        self.data._pwmcontrolliststore = gtk.ListStore(str,int)
+        self.data._pwmcontrolliststore.append([pintype_pwm[0],0])
+        self.data._pwmcontrolliststore.append([pintype_pdm[0],0])
 
     def fill_combobox_models(self):
         templist = [ ["_gpioosignaltree",human_output_names,1],["_gpioisignaltree",human_input_names,1],["_encodersignaltree",human_encoder_input_names,4],
@@ -4442,7 +4474,7 @@ class App:
                     relatedending = ["-a","-b","-i","-m"]
                 # for PWM pins
                 elif widgetptype == PWMP: 
-                    #print"ptype pwmp\n"
+                    print"ptype pwmp\n"
                     signaltree = self.data._pwmsignaltree
                     halsignallist = hal_pwm_output_names
                     humansignallist = human_pwm_output_names
@@ -4452,7 +4484,7 @@ class App:
                 # for PDM pins
                 elif widgetptype == PDMP: 
                     datatype = PWMP
-                    #print"ptype pdmp\n"
+                    print"ptype pdmp\n"
                     signaltree = self.data._pwmsignaltree
                     halsignallist = hal_pwm_output_names
                     humansignallist = human_pwm_output_names
@@ -4460,7 +4492,7 @@ class App:
                     relatedsearch = [PWMP,PWMD,PWME]
                     relatedending = ["-pulse","-dir","-enable"]
                 else: 
-                    print"**** INFO: pncconf on_mesa_pin_changed:  pintype not found\n"
+                    print"**** INFO: pncconf on_mesa_pin_changed:  pintype not found:%s\n",widgetptype
                     return   
                 # *** change the related pin's signal names ***
                      
@@ -4493,27 +4525,14 @@ class App:
                     dummy, index = signaltree.get(piter, 0, 1)
                     if index == 0:
                         piter = signaltree.get_iter_first()
-                #print "*** INFO mesa-pin-changed: index",index
+                print "*** INFO mesa-pin-changed: index",index
                 # This finds the pin type and component number of the pin that has changed
-                # search all the current firmware array for related pins
-                # if not the same component number as the pin that changed or
-                # if not in the relate component type keep searching
-                # if is the right component type and number, che3ck the relatedsearch array for a match
-                # if its a match add it to a list of pins (pinlist) that need to be updated
                 pinlist = []
                 if widgetptype in(GPIOI,GPIOO,GPIOD):
                     pinlist = [["%s"%p,boardnum,connector,pin]]
                 else:
-                    for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-                                if i == connector:
-                                    currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
-                                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-                                        for t_pin in range (0,24):
-                                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
-                                            if compnum != currentcompnum: continue
-                                            if comptype not in (relatedsearch): continue
-                                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
-                                            pinlist.append(tochange)
+                    pinlist = self.list_related_pins(relatedsearch, boardnum, connector, pin, 0)
+                    
                 # Now we have a list of pins that need to be updated
                 # first check if the name is a custom name if it is
                 #   add the legalized custom name to ;
@@ -4546,6 +4565,28 @@ class App:
                     self.widgets[data[0]].child.handler_unblock(self.intrnldata[blocksignal])
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[3]) 
                     self.widgets[data[0]].handler_unblock(self.intrnldata[blocksignal])
+
+    # search all the current firmware array for related pins
+    # if not the same component number as the pin that changed or
+    # if not in the relate component type keep searching
+    # if is the right component type and number, che3ck the relatedsearch array for a match
+    # if its a match add it to a list of pins (pinlist) that need to be updated
+    def list_related_pins(self, relatedsearch, boardnum, connector, pin, style ):
+        pinlist =[]
+        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+            if i == connector:
+                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
+                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+                    for t_pin in range (0,24):
+                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
+                        if compnum != currentcompnum: continue
+                        if comptype not in (relatedsearch): continue
+                        if style == 0:
+                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                        if style == 1:
+                            tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                        pinlist.append(tochange)
+        return pinlist
 
     def on_pp1pport_prepare(self, *args):
         self.data.help = 5
