@@ -11,12 +11,12 @@ setp ppmc.0.pwm.00.bootstrap TRUE
 setp ppmc.0.pwm.01.bootstrap TRUE
 setp ppmc.0.pwm.02.bootstrap TRUE
 setp ppmc.0.pwm.03.bootstrap TRUE
-# set max duty cycle to 99.5% for the MOSFET drives
-# at 50KHz this corresponds to 100nS
-setp ppmc.0.pwm.00.max-dc 0.995
-setp ppmc.0.pwm.01.max-dc 0.99
-setp ppmc.0.pwm.02.max-dc 0.99
-setp ppmc.0.pwm.03.max-dc 0.99
+# set max duty cycle to 95% for the MOSFET drives
+# at 50KHz this corresponds to 1 us
+setp ppmc.0.pwm.00.max-dc 0.95
+setp ppmc.0.pwm.01.max-dc 0.95
+setp ppmc.0.pwm.02.max-dc 0.95
+setp ppmc.0.pwm.03.max-dc 0.95
 
 setp ppmc.0.encoder.00.min-speed-estimate 0.001
 setp ppmc.0.encoder.01.min-speed-estimate 0.001
