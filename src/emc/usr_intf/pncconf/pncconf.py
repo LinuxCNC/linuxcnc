@@ -3012,6 +3012,13 @@ class App:
         filename = os.path.expanduser("~/.pncconf-preferences")
         link = short = False
         if os.path.exists(filename):
+            match =  open(filename).read()
+            textbuffer = self.widgets.textoutput.get_buffer()
+            try :
+                textbuffer.set_text("%s\n\n"% filename)
+                textbuffer.insert_at_cursor(match)
+            except:
+                pass
             d = xml.dom.minidom.parse(open(filename, "r"))
             for n in d.getElementsByTagName("property"):
                 name = n.getAttribute("name")
@@ -3432,7 +3439,7 @@ class App:
         textbuffer = self.widgets.textoutput.get_buffer()
         textbuffer.set_text("Searching for device rules in folder:    /etc/udev/rules.d\n\n")
         for entry in os.listdir("/etc/udev/rules.d"):
-            if fnmatch.fnmatch( entry,"50-EMC2-*"):              
+            if fnmatch.fnmatch( entry,"50-EMC2-*"):
                 temp = open("/etc/udev/rules.d/" + entry, "r").read()
                 templist = temp.split("\n")
                 for i in templist:
@@ -3441,7 +3448,7 @@ class App:
                         temp = i.split("=")
                         name = temp[1]
                         try:
-                            textbuffer.insert_at_cursor( "File name:    %s\n"% entry) 
+                            textbuffer.insert_at_cursor( "File name:    %s\n"% entry)
                             textbuffer.insert_at_cursor( "Device name:    %s\n\n"% name)
                             self.widgets.helpnotebook.set_current_page(2)
                             self.widgets.helpwindow.show_all()
@@ -3724,6 +3731,7 @@ class App:
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
                 print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
+                print "**** INFO mesa-data-transfer:",ptiter,piter
                 # type GPIO input
                 if pintype == GPIOI:
                     signaltree = self.data._gpioisignaltree
@@ -5842,12 +5850,13 @@ class App:
         halrun.close()
         self.widgets['window1'].set_sensitive(1)
 
-    def on_address_search_clicked(self,w):   
+    def on_address_search_clicked(self,w):
+        self.on_druid1_help()
         match =  os.popen('lspci -v').read()
-        self.widgets.helpwindow.set_title(_("PCI Board Info Search"))
-        textbuffer = self.widgets.helpview.get_buffer()
+        textbuffer = self.widgets.textoutput.get_buffer()
         try :         
             textbuffer.set_text(match)
+            self.widgets.helpnotebook.set_current_page(2)
             self.widgets.helpwindow.show_all()
         except:
             text = _("PCI search page is unavailable\n")
