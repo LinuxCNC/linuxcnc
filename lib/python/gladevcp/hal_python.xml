@@ -49,6 +49,11 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_ToggleAction_Pause" generic-name="hal_toggleaction_pause" title="EMC ToggleAction Pause" icon-name='gtk-media-pause'/>
     <glade-widget-class name="EMC_ToggleAction_MDI" generic-name="hal_toggleaction_mdi" title="EMC ToggleAction MDI" icon-name='gtk-execute'/>
 
+    <glade-widget-class name="EMC_RadioAction_ESTOP" generic-name="hal_radioaction_estop" title="EMC RadioAction ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_RadioAction_ESTOP_RESET" generic-name="hal_radioaction_estop_reset" title="EMC RadioAction ESTOP RESET" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_RadioAction_ON" generic-name="hal_radioaction_on" title="EMC RadioAction ON" icon-name='gtk-connect'/>
+    <glade-widget-class name="EMC_RadioAction_OFF" generic-name="hal_radioaction_off" title="EMC RadioAction OFF" icon-name='gtk-disconnect'/>
+
     <glade-widget-class name="EMC_Stat" generic-name="hal_stat" title="EMC Stat" icon-name='gtk-properties' toplevel='yes'/>
     <glade-widget-class name="EMC_FileChooserDialog" generic-name="hal_filechooserdialog" title="EMC FileChooserDialog"/>
     <glade-widget-class name="EMC_FileChooserButton" generic-name="hal_filechooserbutton" title="EMC FileChooserButton"/>
@@ -56,6 +61,7 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-reload'/>
 
     <glade-widget-class name="EMC_SourceView" generic-name="hal_sourceview" title="EMC SourceView"/>
+    <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory"/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -84,6 +90,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_FileChooserButton"/>
 
    <glade-widget-class-ref name="EMC_SourceView"/>
+   <glade-widget-class-ref name="EMC_MDIHistory"/>
  </glade-widget-group>
  <glade-widget-group name="python" title="EMC Actions">
    <glade-widget-class-ref name="EMC_Action_ESTOP"/>
@@ -105,6 +112,11 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_ToggleAction_Stop"/>
    <glade-widget-class-ref name="EMC_ToggleAction_Pause"/>
    <glade-widget-class-ref name="EMC_ToggleAction_MDI"/>
+
+   <glade-widget-class-ref name="EMC_RadioAction_ESTOP"/>
+   <glade-widget-class-ref name="EMC_RadioAction_ESTOP_RESET"/>
+   <glade-widget-class-ref name="EMC_RadioAction_ON"/>
+   <glade-widget-class-ref name="EMC_RadioAction_OFF"/>
 
    <glade-widget-class-ref name="EMC_Action_Open"/>
    <glade-widget-class-ref name="EMC_Action_Reload"/>

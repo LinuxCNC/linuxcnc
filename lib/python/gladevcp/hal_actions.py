@@ -67,6 +67,11 @@ class _EMC_ActionBase(_HalWidgetBase):
             return f(self, *a, **kw)
         return _f
 
+    def set_active_safe(self, active):
+        self._stop_emission = True
+        self.set_active(active)
+        self._stop_emission = False
+
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
 
@@ -101,8 +106,10 @@ class _EMC_Action(gtk.Action, _EMC_ActionBase):
     __gproperties__ = _EMC_ActionBase._gproperties
     def __init__(self, name=None):
         gtk.Action.__init__(self, None, None, None, None)
-        self._stop_emission = True
+        self._stop_emission = False
         self.connect('activate', self.safe_handler(self.on_activate))
+
+    def set_active_safe(self, a): return #XXX: Override set_active with nop
 
     def on_activate(self, w):
         return True
@@ -110,17 +117,24 @@ class _EMC_Action(gtk.Action, _EMC_ActionBase):
 class _EMC_ToggleAction(gtk.ToggleAction, _EMC_ActionBase):
     __gproperties__ = _EMC_ActionBase._gproperties
     def __init__(self, name=None):
-        gtk.Action.__init__(self, None, None, None, None)
+        gtk.ToggleAction.__init__(self, None, None, None, None)
         self._stop_emission = False
         self.connect('toggled', self.safe_handler(self.on_toggled))
 
-    def set_active_safe(self, active):
-        self._stop_emission = True
-        self.set_active(active)
-        self._stop_emission = False
-
     def on_toggled(self, w):
         return True
+
+class _EMC_RadioAction(gtk.RadioAction, _EMC_ToggleAction):
+    __gproperties__ = _EMC_ToggleAction._gproperties
+    def __init__(self, name=None):
+        gtk.RadioAction.__init__(self, None, None, None, None, 0)
+        self._stop_emission = False
+        self.connect('toggled', self.safe_handler(self.on_toggled))
+
+    def on_toggled(self, w):
+        if not w.get_active():
+            return
+        return self.on_activate(w)
 
 class EMC_Stat(GStat, _EMC_ActionBase):
     __gtype_name__ = 'EMC_Stat'
@@ -182,6 +196,58 @@ class EMC_ToggleAction_Power(_EMC_ToggleAction):
         else:
             print 'Issuing OFF'
             self.emc.state(emc.STATE_OFF)
+
+class EMC_RadioAction_ESTOP(_EMC_RadioAction):
+    __gtype_name__ = 'EMC_RadioAction_ESTOP'
+    def _hal_init(self):
+        _EMC_RadioAction._hal_init(self)
+
+        self.set_active_safe(True)
+
+        self.gstat.connect('state-estop', lambda w: self.set_active_safe(True))
+
+    def on_activate(self, w):
+        self.emc.state(emc.STATE_ESTOP)
+
+class EMC_RadioAction_ESTOP_RESET(_EMC_RadioAction):
+    __gtype_name__ = 'EMC_RadioAction_ESTOP_RESET'
+    def _hal_init(self):
+        _EMC_RadioAction._hal_init(self)
+
+        self.set_active_safe(False)
+
+        self.gstat.connect('state-estop-reset', lambda w: self.set_active_safe(True))
+
+    def on_activate(self, w):
+        self.emc.state(emc.STATE_ESTOP_RESET)
+
+class EMC_RadioAction_ON(_EMC_RadioAction):
+    __gtype_name__ = 'EMC_RadioAction_ON'
+    def _hal_init(self):
+        _EMC_RadioAction._hal_init(self)
+
+        self.set_active_safe(True)
+
+        self.gstat.connect('state-on',  lambda w: self.set_active_safe(True))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop-reset', lambda w: self.set_sensitive(True))
+
+    def on_activate(self, w):
+        self.emc.state(emc.STATE_ON)
+
+class EMC_RadioAction_OFF(_EMC_RadioAction):
+    __gtype_name__ = 'EMC_RadioAction_OFF'
+    def _hal_init(self):
+        _EMC_RadioAction._hal_init(self)
+
+        self.set_active_safe(False)
+
+        self.gstat.connect('state-off', lambda w: self.set_active_safe(True))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop-reset', lambda w: self.set_sensitive(True))
+
+    def on_activate(self, w):
+        self.emc.state(emc.STATE_OFF)
 
 def running(s, do_poll=True):
     if do_poll: s.poll()
@@ -367,7 +433,8 @@ class EMC_ToggleAction_MDI(_EMC_ToggleAction, EMC_Action_MDI):
 
 class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
-    axis = gobject.property(type=int, default=-1, nick='Axis to unhome. -1 to unhome all')
+    axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
+                                    blurb='Axis to unhome. -1 to unhome all')
     def on_activate(self, w):
         ensure_mode(self.stat, self.emc, emc.MODE_MANUAL)
         self.emc.unhome(self.axis)
@@ -382,7 +449,8 @@ def prompt_areyousure(type, message, secondary=None):
 
 class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Home'
-    axis = gobject.property(type=int, default=-1, nick='Axis to home. -1 to home all')
+    axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
+                                    blurb='Axis to home. -1 to home all')
     confirm_homed = gobject.property(type=bool, default=False, nick='Confirm rehoming',
                                      blurb='Ask user if axis is already homed')
     def homed(self):
