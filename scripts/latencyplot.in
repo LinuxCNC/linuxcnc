@@ -101,6 +101,8 @@ proc startpipe {} {
   set ::sc(fd) [open "| sudo $::sc(program) 2>/dev/null" r]
   cd $restore_dir
 
+  set ::sc(program,pid) [pid $::sc(fd)]
+
   fconfigure $::sc(fd) -blocking 0 -buffering line
   fileevent $::sc(fd) readable [list readpipe $::sc(fd)]
   set ::sc(start,seconds) [clock seconds]
@@ -134,6 +136,28 @@ proc readpipe {fd} {
     set ::yv4(++end) [expr abs($::sc(ovl,min))]
   }
 } ;# readpipe
+
+proc restart {} {
+  close $::sc(fd)
+  $::sc(stripchart) axis configure x -hide yes
+  ::xv set {}
+  ::yv1 set {}; ::yv2 set {}; ::yv3 set {}; ::yv4 set {}
+  update
+  set attempts 0
+  while {$attempts < 10} {
+    if [catch {eval exec pgrep -P $::sc(program,pid)} msg] {
+      set gone 1
+      break
+    }
+    after 1000
+  }
+  if [info exists gone] {
+    startpipe
+  } else {
+    puts "restart: $::sc(program,pid) still running?"
+    exit
+  }
+} ;# restart
 
 proc setup_stripchart {} {
   wm minsize . 400 300
@@ -179,6 +203,10 @@ proc setup_stripchart {} {
   pack [frame .f2] -side top -anchor w -fill x -expand 0
 
   pack [frame .f3] -side left -anchor e -fill none -expand 0
+  pack [button .f3.b1 -text "R"\
+         -padx 2 -pady 0 \
+         -command restart \
+       ] -side left -expand 0
   pack [label .f3.l2 -text "Pts:"] -side left -expand 0
   pack [entry .f3.e -textvariable ::sc(xpoints) \
        -width 5 -justify right -state readonly] \
