@@ -1469,7 +1469,7 @@ Motor & Leadscrew Teeth is if you have some reduction between the motor
 \begin_layout Standard
 Leadscrew pitch is how many turns it takes to move your table one user unit.
  If you're setting up in inches then it is turns per inch.
- If your setting up in millimeters then how many turns per millimeter.
+ If you're setting up in millimeters then how many millimeters per turn.
  
 \end_layout
 
