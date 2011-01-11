@@ -120,7 +120,7 @@ Gather the information about each axis of your machine.
 
 \begin_layout Standard
 Drive timing is in nano seconds.
- If your unsure about the timing many popular drives are included in the
+ If you're unsure about the timing many popular drives are included in the
  stepper configuration wizard.
  Note some newer Gecko drives have different timing than the original one.
  A list is also on the user maintained EMC wiki site of more drives at 
@@ -1468,7 +1468,7 @@ Motor & Leadscrew Teeth is if you have some reduction between the motor
 
 \begin_layout Standard
 Leadscrew pitch is how many turns it takes to move your table one user unit.
- If your setting up in inches then it is turns per inch.
+ If you're setting up in inches then it is turns per inch.
  If your setting up in millimeters then how many turns per millimeter.
  
 \end_layout
