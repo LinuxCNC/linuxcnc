@@ -29,8 +29,9 @@ set ::sc(program) "@RTDIR@/testsuite/user/latency/run"
 package require Tk
 
 if [catch {package require BLT} msg] {
-  puts "BLT package is required:"
-  puts "    sudo apt-get install blt"
+  set msg "BLT package is required:\n\
+          sudo apt-get install blt"
+  popup $msg
   exit
 }
 
@@ -67,18 +68,30 @@ proc init {} {
   blt::vector create ::yv4; set ::yv4(++end) 0.0
 } ;# init
 
+proc popup {msg} { \
+  set answer [tk_messageBox \
+     -parent . \
+     -icon error \
+     -type ok \
+     -title "Message" \
+     -message  "$msg" \
+     ]
+   puts $msg
+} ;# popup
+
 proc check {} {
   if {[string first rtai [exec lsmod]] < 0} {
-    puts "ok -- no rtai modules currently loaded"
+    #puts "ok -- no rtai modules currently loaded"
   } else {
-    puts "Cannot start with rtai modules loaded"
-    puts "Stop all programs (emc) using realtime first and then run:"
-    puts "     realtime stop"
+    set msg "Cannot start with rtai modules loaded.\n\
+Stop all programs (emc) using realtime first and then run:\n\
+    realtime stop\n"
+    popup $msg
     exit
   }
   if ![file exists $::sc(program)] {
-    puts "Can\'t find latency program:"
-    puts "$::sc(program)"
+    set msg "Can\'t find latency program:\n$::sc(program)"
+    popup $msg
     exit
   }
 } ;# check
@@ -88,7 +101,8 @@ proc mcheck {} {
   # %mem "ratio of process's resident set size to the physical mem in percent"
   set mempercent [eval exec ps --no-headers --pid $::sc(pid) -o %mem]
   if {$mempercent > $::sc(mem,max,percent)} {
-    puts "Memory used is ${mempercent}%, Exiting"
+    set msg "Memory used is ${mempercent}%, Exiting"
+    popup $msg
     exit
   }
   after 10000 mcheck
@@ -113,6 +127,10 @@ proc readpipe {fd} {
   if [eof $fd] {
     puts "eof--bye"
     close $fd
+    set msg "readpipe: End of file from $::sc(program)\n\
+            PID=$::sc(program,pid)"
+    popup $msg
+    exit
     return
   }
   #Example header and data lines:
@@ -144,17 +162,19 @@ proc restart {} {
   ::yv1 set {}; ::yv2 set {}; ::yv3 set {}; ::yv4 set {}
   update
   set attempts 0
-  while {$attempts < 10} {
+  while {$attempts < 20} {
     if [catch {eval exec pgrep -P $::sc(program,pid)} msg] {
       set gone 1
       break
     }
-    after 1000
+    after 250
   }
   if [info exists gone] {
     startpipe
   } else {
-    puts "restart: $::sc(program,pid) still running?"
+    set msg "restart: $::sc(program) failed\n\
+             PID:$::sc(program,pid)"
+    popup $msg
     exit
   }
 } ;# restart
