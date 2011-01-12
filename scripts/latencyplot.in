@@ -1,12 +1,17 @@
 #!/usr/bin/wish
-set ::sc(program) "@RTDIR@/testsuite/user/latency/run"
+set ::sc(rtai_testsuite,program) "@RTDIR@/testsuite/user/latency/run"
 
 # tested with tcl 8.4 and 8.5
 
+# Notes:
 # notusing y axis title because it coredumps with X BadMatch with wish8.5
 # (it works with wish8.4, tcl8.5 introduced a problem for rotated text)
 # see also:
 # http://lists.fedoraproject.org/pipermail/package-announce/2010-January/034295.html
+
+# Declining usage rtai_testsuite:
+#   when using rtai_testsuite, backgrounding this script causes eof from pipe
+
 
 #-----------------------------------------------------------------------
 # Copyright: 2011
@@ -35,38 +40,90 @@ if [catch {package require BLT} msg] {
   exit
 }
 
-if ![file exists $::sc(program)] {
-  puts "No such file: $::sc(program)"
-  set ::sc(program) "/usr/realtime-2.6.32-122-rtai/testsuite/user/latency/run"
-  puts "Trying: $::sc(program)"
-}
-
-proc init {} {
+proc setdefaults {} {
   # note: program updates at 1 second intervals
   set          ::sc(xpoints)    60  ;# x axis points
-  set      ::sc(xpoints,min)    10  ;# x axis points
-  set      ::sc(xpoints,max) 12000  ;# x axis points
+  set      ::sc(xpoints,min)    15  ;#
+  set      ::sc(xpoints,max) 15360  ;#
   set          ::sc(shiftby)     1  ;# x axis shiftby points
-  set           ::sc(smooth) linear ;# linear,step,...
-  set           ::sc(symbol) ""     ;# square,circle,...
-  set    ::sc(lat,min,color) green
-  set    ::sc(ovl,min,color) yellow
-  set    ::sc(lat,max,color) blue
-  set    ::sc(ovl,max,color) red
+  set     ::sc(::yv1,smooth) linear ;# linear,step,...
+  set     ::sc(::yv2,smooth) linear
+  set     ::sc(::yv3,smooth) step
+  set     ::sc(::yv4,smooth) step
+  set     ::sc(::yv1,symbol) ""     ;# square,circle,...
+  set     ::sc(::yv2,symbol) ""
+  set     ::sc(::yv3,symbol) circle
+  set     ::sc(::yv4,symbol) square
+  set     ::sc(::yv1,pixels) 0      ;# symbol size
+  set     ::sc(::yv2,pixels) 0
+  set     ::sc(::yv3,pixels) 2
+  set     ::sc(::yv4,pixels) 2
+  set  ::sc(::yv1,linewidth) 2
+  set  ::sc(::yv2,linewidth) 2
+  set  ::sc(::yv3,linewidth) 1
+  set  ::sc(::yv4,linewidth) 1
+  set      ::sc(::yv1,color) red
+  set      ::sc(::yv2,color) blue
+  set      ::sc(::yv3,color) green
+  set      ::sc(::yv4,color) yellow
   set       ::sc(grid,color) white
   set        ::sc(grid,hide) no
-  set        ::sc(linewidth) 2
   set ::sc(color,background) black
-  set       ::sc(clock,mode) relative ;# normal | relative
+  set       ::sc(clock,mode) relative ;# actual | relative
   set  ::sc(mem,max,percent) 1.0
   set              ::sc(pid) [pid]
 
-  blt::vector create ::xv ; set ::xv(++end) [clock seconds]
+  set      ::sc(data,source) hal_timedelta
+
+  # hal_timedelta defaults:
+  set   ::sc(base,period,ns)  100000
+  set  ::sc(servo,period,ns) 1000000
+  set        ::sc(report,ms)    1000
+  set    ::sc(report,ms,min)     100
+  set    ::sc(report,ms,max)   10000
+
+} ;# setdefaults
+
+proc init {} {
+  blt::vector create ::xv
   blt::vector create ::yv1; set ::yv1(++end) 0.0
   blt::vector create ::yv2; set ::yv2(++end) 0.0
   blt::vector create ::yv3; set ::yv3(++end) 0.0
   blt::vector create ::yv4; set ::yv4(++end) 0.0
+
+  switch $::sc(data,source) {
+    rtai_testsuite {init_rtai_testsuite
+      set ::xv(++end) [clock seconds]
+    }
+    hal_timedelta  {init_hal_timedelta
+      set ::xv(++end) [expr [clock milliseconds]/1000.]
+    }
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+  wm protocol . WM_DELETE_WINDOW finish
+
 } ;# init
+
+proc init_rtai_testsuite {} {
+  set ::sc(label) "Latency (uSeconds) vs Time (seconds)   "
+  set ::sc(v,name,pairs) { ::yv1 ovl,max \
+                           ::yv2 lat,max \
+                           ::yv3 lat,min \
+                           ::yv4 ovl,min }
+} ;# init_rtai_testsuite
+
+proc init_hal_timedelta {} {
+  eval exec realtime start
+  package require Hal
+
+  set ::sc(label) "Latency (uSeconds) vs Time (seconds)   "
+  set ::sc(v,name,pairs) { ::yv1 b:max \
+                           ::yv2 s:max \
+                           ::yv3 b:latency \
+                           ::yv4 s:latency }
+  set ::sc(servo,max,last) 0
+  set ::sc(base,max,last)  0
+} ;# init_hal_timedelta
 
 proc popup {msg} { \
   set answer [tk_messageBox \
@@ -85,16 +142,31 @@ proc check {} {
   } else {
     set msg "Cannot start with rtai modules loaded.\n\
 Stop all programs (emc) using realtime first and then run:\n\
-    realtime stop\n"
+    halrun -U\n"
     popup $msg
     exit
   }
-  if ![file exists $::sc(program)] {
-    set msg "Can\'t find latency program:\n$::sc(program)"
-    popup $msg
-    exit
+  switch $::sc(data,source) {
+    rtai_testsuite {check_rtai_testsuite}
+    hal_timedelta  {}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
   }
 } ;# check
+
+proc check_rtai_testsuite {} {
+  if ![file exists $::sc(rtai_testsuite,program)] {
+    puts "No such file: $::sc(rtai_testsuite,program)"
+    set ::sc(rtai_testsuite,program) \
+         "/usr/realtime-2.6.32-122-rtai/testsuite/user/latency/run"
+    puts "Trying: $::sc(rtai_testsuite,program)"
+  }
+
+  if ![file exists $::sc(rtai_testsuite,program)] {
+    set msg "Can\'t find latency program:\n$::sc(rtai_testsuite,program)"
+    popup $msg
+    exit
+  }
+} ;# check_rtai_testsuite
 
 proc mcheck {} {
   # cautionary check on memory usage
@@ -108,31 +180,44 @@ proc mcheck {} {
   after 10000 mcheck
 } ;# mcheck
 
-proc startpipe {} {
+proc start {} {
+  switch $::sc(data,source) {
+    rtai_testsuite {start_rtai_testsuite_pipe}
+    hal_timedelta  {start_hal_timedelta}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# start
+
+proc start_rtai_testsuite_pipe {} {
   set restore_dir [pwd]
-  cd [file dirname $::sc(program)] ;# must cd for .runinfo
-  puts "Starting: sudo $::sc(program)"
-  set ::sc(fd) [open "| sudo $::sc(program) 2>/dev/null" r]
+  cd [file dirname $::sc(rtai_testsuite,program)] ;# must cd for .runinfo
+  puts "Starting: sudo $::sc(rtai_testsuite,program)"
+  set ::sc(rtai_testsuite,fd) [open "| sudo $::sc(rtai_testsuite,program) 2>/dev/null" r]
   cd $restore_dir
 
-  set ::sc(program,pid) [pid $::sc(fd)]
+  set ::sc(rtai_testsuite,program,pid) [pid $::sc(rtai_testsuite,fd)]
+  set ::sc(rtai,ct) 0
 
-  fconfigure $::sc(fd) -blocking 0 -buffering line
-  fileevent $::sc(fd) readable [list readpipe $::sc(fd)]
-  set ::sc(start,seconds) [clock seconds]
+  fconfigure $::sc(rtai_testsuite,fd) -blocking 0 -buffering line
+  fileevent $::sc(rtai_testsuite,fd) readable \
+            [list readpipe $::sc(rtai_testsuite,fd)]
+  set ::sc(start,time) [clock seconds]
+  update
   after 2000 [list $::sc(stripchart) axis configure x -hide no]
-} ;# startpipe
+} ;# start_rtai_testsuite_pipe
 
 proc readpipe {fd} {
   if [eof $fd] {
     puts "eof--bye"
     close $fd
-    set msg "readpipe: End of file from $::sc(program)\n\
-            PID=$::sc(program,pid)"
+    set msg "readpipe: End of file from $::sc(rtai_testsuite,program)\n\
+            PID=$::sc(rtai_testsuite,program,pid)"
     popup $msg
     exit
     return
   }
+  incr ::sc(rtai,ct)
+  if {$::sc(rtai,ct) < 2} return ;# try to avoid first spike
   #Example header and data lines:
   #RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns
   #RTD|   -1174|   -1174|   -1102|    7898|    7898|        0
@@ -148,36 +233,130 @@ proc readpipe {fd} {
            ::sc(overruns)
 
     set ::xv(++end)  [clock seconds]
-    set ::yv1(++end) $::sc(ovl,max)
-    set ::yv2(++end) $::sc(lat,max)
-    set ::yv3(++end) [expr abs($::sc(lat,min))]
-    set ::yv4(++end) [expr abs($::sc(ovl,min))]
+    set ::yv1(++end) [expr $::sc(ovl,max)     /1000]
+    set ::yv2(++end) [expr $::sc(lat,max)     /1000]
+    set ::yv3(++end) [expr abs($::sc(lat,min))/1000]
+    set ::yv4(++end) [expr abs($::sc(ovl,min))/1000]
   }
 } ;# readpipe
 
+proc start_hal_timedelta {} {
+  hal loadrt threads name1=base period1=$::sc(base,period,ns) \
+                     name2=servo period2=$::sc(servo,period,ns)
+  hal loadrt timedelta names=base:time,servo:time
+  hal addf  base:time base
+  hal addf servo:time servo
+
+  hal net  servo_max    servo:time.max
+  hal net  servo_jitter servo:time.jitter
+  hal net  servo_out    servo:time.out
+  hal net  base_max     base:time.max
+  hal net  base_jitter  base:time.jitter
+  hal net  base_out     base:time.out
+
+  hal start
+
+  set ::sc(start,time)  [expr [clock milliseconds]/1000.]
+  set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
+  after 2000 [list $::sc(stripchart) axis configure x -hide no]
+} ;# start_hal_timedelta
+
+proc hal_report {} {
+  set  ::sc(base,max)  [hal getp  base:time.max]
+  set  ::sc(servo,max) [hal getp servo:time.max]
+  set  ::sc(base,out)  [hal getp  base:time.out]
+  set  ::sc(servo,out) [hal getp servo:time.out]
+
+  set ::sc(base,lat)  $::sc(base,out)
+  set ::sc(servo,lat) $::sc(servo,out)
+
+  # This script undersamples the hal threads so it can miss a latency
+  # spike that bumps (*,max). Detect explicitly whenever an increase
+  # in (*,max) occurs during the (report,ms) interval:
+  if { $::sc(base,max) > $::sc(base,max,last) } {
+    set ::sc(base,lat) $::sc(base,max)
+  }
+  if { $::sc(servo,max) > $::sc(servo,max,last) } {
+    set ::sc(servo,lat) $::sc(servo,max)
+  }
+  set ::xv(++end)  [expr [clock milliseconds]/1000.]
+  set ::yv1(++end) [expr ($::sc(base,max)  -  $::sc(base,period,ns) )/1000]
+  set ::yv2(++end) [expr ($::sc(servo,max) - $::sc(servo,period,ns) )/1000]
+  set ::yv3(++end) [expr ($::sc(base,lat)  -  $::sc(base,period,ns) )/1000]
+  set ::yv4(++end) [expr ($::sc(servo,lat) - $::sc(servo,period,ns) )/1000]
+
+  if {[info exists ::env(verbose_latencyplot)]} {
+    set ::sc(base,jitter)  [hal getp  base:time.jitter]
+    set ::sc(servo,jitter) [hal getp servo:time.jitter]
+    puts [format "%7.0f %7.0f %7.0f %8.0f      %8.0f %8.0f %8.0f %9.0f"\
+         $::sc(base,max) \
+         $::sc(base,out) \
+         $::sc(base,jitter) \
+         $::sc(base,lat) \
+         $::sc(servo,max) \
+         $::sc(servo,out) \
+         $::sc(servo,jitter) \
+         $::sc(servo,lat) \
+         ]
+  } ;# if verbose
+
+  set ::sc(base,max,last)  $::sc(base,max)
+  set ::sc(servo,max,last) $::sc(servo,max)
+
+  # reschedule:
+  set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
+} ;# hal_report
+
 proc restart {} {
-  close $::sc(fd)
+  switch $::sc(data,source) {
+    rtai_testsuite {restart_rtai_testsuite}
+    hal_timedelta  {restart_hal_timedelta}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# restart
+
+proc restart_rtai_testsuite {} {
+  close $::sc(rtai_testsuite,fd)
   $::sc(stripchart) axis configure x -hide yes
   ::xv set {}
   ::yv1 set {}; ::yv2 set {}; ::yv3 set {}; ::yv4 set {}
   update
   set attempts 0
   while {$attempts < 20} {
-    if [catch {eval exec pgrep -P $::sc(program,pid)} msg] {
+    if [catch {eval exec pgrep -P $::sc(rtai_testsuite,program,pid)} msg] {
       set gone 1
       break
     }
     after 250
   }
   if [info exists gone] {
-    startpipe
+    start_rtai_testsuite_pipe
   } else {
-    set msg "restart: $::sc(program) failed\n\
-             PID:$::sc(program,pid)"
+    set msg "restart: $::sc(rtai_testsuite,program) failed\n\
+             PID:$::sc(rtai_testsuite,program,pid)"
     popup $msg
     exit
   }
-} ;# restart
+} ;# restart_rtai_testsuite
+
+proc restart_hal_timedelta {} {
+  $::sc(stripchart) axis configure x -hide yes
+  after cancel $::sc(after,hal,report)
+  hal setp servo:time.reset 1
+  hal setp  base:time.reset 1
+
+  ::xv set {}
+  ::yv1 set {}; ::yv2 set {}; ::yv3 set {}; ::yv4 set {}
+  set ::sc(start,time) [expr [clock milliseconds]/1000.]
+  set ::xv(++end)  $::sc(start,time)
+
+  update ;# !!
+  hal setp servo:time.reset 0
+  hal setp  base:time.reset 0
+
+  set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
+  after 2000 [list $::sc(stripchart) axis configure x -hide no]
+} ;# restart_hal_timedelta
 
 proc setup_stripchart {} {
   wm minsize . 400 300
@@ -190,34 +369,32 @@ proc setup_stripchart {} {
   pack $::sc(stripchart) -expand yes -fill both
 
   $::sc(stripchart) grid configure \
-     -hide $::sc(grid,hide) \
+      -hide $::sc(grid,hide) \
      -color $::sc(grid,color)
 
   $::sc(stripchart) legend configure \
-     -anchor n \
+       -anchor n \
      -position leftmargin
 
   # note: hide x axis label until autoranging completed
   $::sc(stripchart) axis configure x \
      -autorange $::sc(xpoints) \
-     -shiftby $::sc(shiftby) \
-     -command xfmt \
-     -hide 1
+       -shiftby $::sc(shiftby) \
+       -command xfmt \
+          -hide 1
 
   $::sc(stripchart) axis configure y \
      -autorange 0
 
-  foreach {v name} {::yv1 ovl,max \
-                    ::yv2 lat,max \
-                    ::yv3 lat,min \
-                    ::yv4 ovl,min } {
+  foreach {v name} $::sc(v,name,pairs) {
     $::sc(stripchart) element create $name \
-       -xdata ::xv \
-       -ydata $v \
-       -color $::sc($name,color) \
-       -symbol $::sc(symbol) \
-       -linewidth $::sc(linewidth) \
-       -smooth $::sc(smooth)
+           -xdata ::xv \
+           -ydata $v \
+           -color $::sc($v,color) \
+       -linewidth $::sc($v,linewidth) \
+          -smooth $::sc($v,smooth) \
+          -symbol $::sc($v,symbol) \
+          -pixels $::sc($v,pixels)
   }
 
   pack [frame .f2] -side top -anchor w -fill x -expand 0
@@ -241,15 +418,51 @@ proc setup_stripchart {} {
   set ::sc(button,increase) .f3.increment
 
   pack [frame .f4] -side right -anchor w -fill x -expand 0
-  pack [label .f4.l1 -text "Latency (nSeconds) vs Elapsed Time (seconds)  "]\
+  pack [label .f4.l1 -text "$::sc(label)"]\
        -side left -anchor w -fill none -expand 1
 
 } ;# setup_stripchart
 
+proc finish {} {
+  switch $::sc(data,source) {
+    rtai_testsuite {finish_rtai_testsuite}
+    hal_timedelta  {finish_hal_timedelta}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# finish
+
+proc finish_rtai_testsuite {} {
+  exit
+} ;# finish_rtai_testsuite
+
+proc finish_hal_timedelta {} {
+  after cancel $::sc(after,hal,report)
+  hal stop
+
+  hal   delsig servo_max
+  hal   delsig servo_jitter
+  hal   delsig servo_out
+  hal   delsig base_max
+  hal   delsig base_jitter
+  hal   delsig base_out
+
+  hal     delf base:time base
+  hal     delf servo:time servo
+  hal unloadrt timedelta
+  hal unloadrt threads ;# doesnt seem to work
+
+  #puts [hal show funct]  ;# gone
+  #puts [hal show thread] ;# not gone
+  eval exec halrun -U
+
+} ;# finish_hal_timedelta
+
 proc xfmt {widget x} {
   switch $::sc(clock,mode) {
-    relative { return [expr $x - $::sc(start,seconds)] }
-    default  { return [clock format $x -format "%H:%M:%S"] }
+    relative { return [format %.0f [expr int($x - $::sc(start,time) + 0.5)]] }
+    actual   { return [clock format $x -format "%H:%M:%S"] }
+    default  { return -code error \
+               "xfmt: unknown clock,mode <$::sc(clock,mode)>"}
   }
 } ;# xfmt
 
@@ -272,15 +485,59 @@ proc xpoints {input} {
   }
 
   $::sc(stripchart) axis configure x  -autorange $::sc(xpoints)
-} ;# points
+} ;# xpoints
+
+proc usage {} {
+  set prog [file tail $::argv0]
+  puts ""
+  puts "Usage:"
+  puts "      $prog --help | -?      (this)"
+  puts "      $prog --rtai           (declining usage, uses rtai testsuite)"
+  puts "      $prog --hal \[Options\]  (default uses hal timedelta)"
+  puts ""
+  puts "Options:"
+  puts "      --time mS  (report interval, default: $::sc(report,ms))"
+  puts "      --relative (relative clock time (default))"
+  puts "      --actual   (actual clock time)"
+} ;# usage
+
+proc config {} {
+  while {[llength $::argv] >0} {
+    # beware wish handling of reserved cmdline arguments
+    # to use -h: use -- -h,
+    # lreplace shifts argv for no. of items for each iteration
+    switch -- [lindex $::argv 0] {
+      -? - --help {usage;exit 0}
+      -r - --rtai {set ::sc(data,source) rtai_testsuite}
+      -H - --hal  {set ::sc(data,source) hal_timedelta}
+      --actual    {set ::sc(clock,mode) actual}
+      --relative  {set ::sc(clock,mode) relative}
+      -t - --time {set t [lindex $::argv 1]
+                   if {$t > $::sc(report,ms,max)} {
+                     set t $::sc(report,ms,max)
+                     puts "--time value too big, setting to $t"
+                   }
+                   if {$t < $::sc(report,ms,min)} {
+                     set t $::sc(report,ms,min)
+                     puts "--time value too small, setting to $t"
+                   }
+                   set ::sc(report,ms) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+    }
+    set ::argv [lreplace $::argv 0 0]
+  } ;# while
+} ;# config
 
 # allow re-sourcing for testing
 if ![info exists ::sc(xpoints)] {
-  init
+  setdefaults
+  config
   check
+  init
   mcheck
   setup_stripchart
-  startpipe
+  start
 } else {
   puts "already running"
 }
