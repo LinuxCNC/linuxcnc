@@ -36,6 +36,7 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
   * HAL: new time comp, which converts seconds to hr/min/sec
   * HAL: new watchdog component
   * HAL: remove deprecated hal_m5i20 driver
+  * HAL: new component for ShuttleXpress USB jog dongle
 
   * Halshow: add menu with load/save/exit
   * Halshow: fix the tree to not cut off after a certain depth
