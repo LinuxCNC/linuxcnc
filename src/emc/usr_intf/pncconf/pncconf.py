@@ -44,6 +44,8 @@ import gtk.glade
 import gnome.ui
 
 import xml.dom.minidom
+import xml.etree.ElementTree
+import xml.etree.ElementPath
 import traceback
 
 import cairo
@@ -122,6 +124,8 @@ if not os.path.isdir(distdir):
 helpdir = os.path.join(BASE, "share", "emc", "pncconf", "pncconf-help")
 if not os.path.exists(helpdir):
     helpdir = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "pncconf-help")
+firmdir = "/lib/firmware/hm2/"
+mesablacklist = ["5i22","7i43","4i65","4i68","SVST8_3P.xml"]
 
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
@@ -151,13 +155,17 @@ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 
 ( GPIOI, GPIOO, GPIOD ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
-( STEPA, STEPB, STEPC, STEPD, STEPE, STEPF ) = pintype_stepper = [
- _("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),_("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
+(  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
+    _("Mux Enc Select") ]
+( STEPA, STEPB, STEPC, STEPD, STEPE, STEPF ) = pintype_stepper = [_("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
+    _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
 ( PWMP, PWMD, PWME ) = pintype_pwm = [ _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E") ]
 ( PDMP, PDMD, PDME ) = pintype_pdm = [ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
+( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ) = pintype_tp_pwm = [ _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
+    _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"), _("Motor Enable"), _("Motor Fault") ]
 
-_BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_MAXPWM = 6;_MAXSTEP = 7;_ENCPINS = 8
-_STEPPINS = 9;_HASWATCHDOG = 10;_MAXGPIO = 11;_LOWFREQ = 12;_HIFREQ = 13;_NUMOFCNCTRS = 14;_STARTOFDATA = 15
+_BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXPWM = 7;_MAXTPPWM = 8;
+_MAXSTEP = 9;_STEPPINS = 10;_HASWATCHDOG = 11;_MAXGPIO = 12;_LOWFREQ = 13;_HIFREQ = 14;_NUMOFCNCTRS = 15;_STARTOFDATA = 16
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
 # boardname, firmwarename, firmware directory,Hal driver name,
@@ -168,42 +176,42 @@ _IMPERIAL = 0;_METRIC = 1
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
-    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 33, 100, [2,3,4],
+    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12, 3, 12, 0, 0, 0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8, 3, 8, 0, 4, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST2_4_7I47", "5i20", "hm2_pci", 4, 2, 4, 3, 2, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_4_7I47", "5i20", "hm2_pci", 4, 3, 2, 0, 4, 2, 1, 72, 33, 100, [2,3,4],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[ENCA,0],[ENCA,2],[ENCB,0],[ENCB,2],[ENCI,0],[ENCI,2],[ENCA,1],[ENCA,3],
                 [ENCB,1],[ENCB,3],[ENCI,1],[ENCI,3],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0], ],
-    ["5i20", "5i20", "SVST2_8", "5i20", "hm2_pci", 2, 2, 8, 3, 6, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_8", "5i20", "hm2_pci", 2, 3, 2, 0, 8, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST8_4IM2", "5i20", "hm2_pci", 8, 8, 4, 4, 2, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4IM2", "5i20", "hm2_pci", 8, 4, 8, 0, 4, 2, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCM,0],[ENCM,1],[ENCM,2],[ENCM,3],[ENCM,4],[ENCM,5],[ENCM,6],[ENCM,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3] ],
-    ["5i22-1", "5i22", "SV16", "5i22", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SV16", "5i22", "hm2_pci", 16, 3, 16, 0, 0, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -212,7 +220,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1", "5i22", "SVST8_8", "5i22", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVST8_8", "5i22", "hm2_pci", 8, 3, 8, 0, 8, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -221,7 +229,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1", "5i22", "SVS8_24", "5i22", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVS8_24", "5i22", "hm2_pci", 8, 3, 8, 0, 24, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -230,7 +238,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i22-1.5", "5i22", "SV16", "5i22", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SV16", "5i22", "hm2_pci", 16, 3, 16, 0, 0, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -239,7 +247,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1.5", "5i22", "SVST8_8", "5i22", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVST8_8", "5i22", "hm2_pci", 8, 3, 8, 0, 8, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -248,7 +256,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1.5", "5i22", "SVS8_24", "5i22", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVS8_24", "5i22", "hm2_pci", 8, 3, 8, 0, 24, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -257,63 +265,63 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12, 3, 12, 0, 0, 0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i23", "5i23", "SVST8_4", "5i23", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST8_4", "5i23", "hm2_pci", 8, 3, 8, 0, 4, 6, 1, 72, 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i23", "5i23", "SVST4_8", "5i23", "hm2_pci", 4, 4, 8, 3, 6, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST4_8", "5i23", "hm2_pci", 4, 3, 4, 8, 6, 1, 72, 48, 96, [2,3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-2", "7i43", "SV8", "7i43-2", "hm2_7i43", 8, 8, 0, 3, 0, 1, 48, 50, 100, [4,3],
+    ["7i43-2", "7i43", "SV8", "7i43-2", "hm2_7i43", 8, 3, 8, 0, 0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43-2", "7i43", "SVST4_4", "7i43-2", "hm2_7i43", 4, 4, 4, 3, 6, 1, 48, 50, 100, [4,3],
+    ["7i43-2", "7i43", "SVST4_4", "7i43-2", "hm2_7i43", 4, 3, 4, 0, 4, 6, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-2", "7i43", "SVST4_6", "7i43-2", "hm2_7i43", 4, 4, 6, 3, 4, 1, 48, 50, 100, [4,3],
+    ["7i43-2", "7i43", "SVST4_6", "7i43-2", "hm2_7i43", 4, 4, 6, 0, 3, 4, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                   [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SV8", "7i43-4", "hm2_7i43", 8, 8, 0, 3, 0, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SV8", "7i43-4", "hm2_7i43", 8, 3, 8, 0, 0, 0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43-4", "7i43", "SVST4_4", "7i43-4", "hm2_7i43", 4, 4, 4, 3, 6, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SVST4_4", "7i43-4", "hm2_7i43", 4, 3, 4, 0, 4, 6, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SVST4_6", "7i43-4", "hm2_7i43", 4, 4, 6, 3, 4, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SVST4_6", "7i43-4", "hm2_7i43", 4, 3, 4, 6, 4, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                   [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SVST4_12", "7i43-4", "hm2_7i43", 4, 4, 12, 3, 2, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SVST4_12", "7i43-4", "hm2_7i43", 4, 3, 4, 0, 12, 2, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
                   [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11] ],
-    ["3x20-1", "3x20", "SV24", "3x20-1", "hm2_pci", 24, 24, 0, 3, 0, 1, 144, 50, 100, [4,5,6,9,8,7],
+    ["3x20-1", "3x20", "SV24", "3x20-1", "hm2_pci", 24, 3, 24, 0, 0, 0, 1, 144, 50, 100, [4,5,6,9,8,7],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -326,7 +334,7 @@ mesafirmwaredata = [
                  [ENCB,19],[ENCA,19],[ENCB,18],[ENCA,18],[ENCI,19],[ENCI,18],[PWMP,19],[PWMP,18],[PWMD,19],[PWMD,18],[PWME,19],[PWME,18],
         [ENCB,21],[ENCA,21],[ENCB,20],[ENCA,20],[ENCI,21],[ENCI,20],[PWMP,21],[PWMP,20],[PWMD,21],[PWMD,20],[PWME,21],[PWME,20],
                  [ENCB,23],[ENCA,23],[ENCB,22],[ENCA,22],[ENCI,23],[ENCI,22],[PWMP,23],[PWMP,22],[PWMD,23],[PWMD,22],[PWME,23],[PWME,22] ],
-    ["3x20-1", "3x20", "SVST16_24", "3x20-1", "hm2_pci", 16, 16, 24, 3, 2, 1, 144, 50, 100, [4,5,6,9,8,7],
+    ["3x20-1", "3x20", "SVST16_24", "3x20-1", "hm2_pci", 16, 3, 16, 0, 24, 2, 1, 144, 50, 100, [4,5,6,9,8,7],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -493,6 +501,21 @@ SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_
 human_stepper_names = [ [_("Unused StepGen"),[None]],[_("X Axis StepGen"),[None]],[_("Y Axis StepGen"),[None]],[_("Z Axis StepGen"),[None]],
                         [_("A Axis StepGen"),[None]],[_("Spindle StepGen"),[None]],[_("Custom Signals"),[None]] ]
 
+(UNUSED_TPPWM,
+X_TPPWM_A, X_TPPWM_B,X_TPPWM_C,X_TPPWM_AN,X_TPPWM_BN,X_TPPWM_CN,X_TPPWM_ENABLE,X_TPPWM_FAULT,
+Y_TPPWM_A, Y_TPPWM_B,Y_TPPWM_C,Y_TPPWM_AN,Y_TPPWM_BN,Y_TPPWM_CN,Y_TPPWM_ENABLE,Y_TPPWM_FAULT,
+Z_TPPWM_A, Z_TPPWM_B,Z_TPPWM_C,Z_TPPWM_AN,Z_TPPWM_BN,Z_TPPWM_CN,Z_TPPWM_ENABLE,Z_TPPWM_FAULT,
+A_TPPWM_A, A_TPPWM_B,A_TPPWM_C,A_TPPWM_AN,A_TPPWM_BN,A_TPPWM_CN,A_TPPWM_ENABLE,A_TPPWM_FAULT,
+S_TPPWM_A, S_TPPWM_B,S_TPPWM_C,S_TPPWM_AN,S_TPPWM_BN,S_TPPWM_CN,S_TPPWM_ENABLE,S_TPPWM_FAULT) = hal_tppwm_output_names= ["unused-tppwm",
+"x-tppwm-a","x-tppwm-b","x-tppwm-c","x-tppwm-anot","x-tppwm-bnot","x-tppwm-cnot", "x-tppwm-enable","x-tppwm-fault",
+"y-tppwm-a","y-tppwm-b","y-tppwm-c","y-tppwm-anot","y-tppwm-bnot","y-tppwm-cnot", "y-tppwm-enable","y-tppwm-fault",
+"z-tppwm-a","z-tppwm-b","z-tppwm-c","z-tppwm-anot","z-tppwm-bnot","z-tppwm-cnot", "z-tppwm-enable","z-tppwm-fault",
+"a-tppwm-a","a-tppwm-b","a-tppwm-c","a-tppwm-anot","a-tppwm-bnot","a-tppwm-cnot", "a-tppwm-enable","a-tppwm-fault",
+"s-tppwm-a","s-tppwm-b","s-tppwm-c","s-tppwm-anot","s-tppwm-bnot","s-tppwm-cnot", "s-tppwm-enable","s-tppwm-fault"]
+
+human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[None]],[_("X Axis BL Driver"),[None]],[ _("Y Axis BL Driver"),[None]],
+    [_("Z Axis BL Driver"),[None]],[_("A Axis BL Driver"),[None]],[_("S Axis BL Driver"),[None]],[_("Custom Signals"),[None]] ]
+
 
 
 def md5sum(filename):
@@ -531,22 +554,32 @@ class Data:
         pw = pwd.getpwuid(os.getuid())
         # custom signal name lists
         self.halencoderinputsignames = []
+        self.halmuxencodersignames = []
         self.halpwmoutputsignames = []
+        self.haltppwmoutputsignames = []
         self.halinputsignames = []
         self.haloutputsignames = []
         self.halsteppersignames = []
 
-        #internal data
+        # internal flags
+        self._arrayloaded = False
+
+        # internal data
         self._gpioliststore = None
         self._stepperliststore = None
         self._encoderliststore = None
+        self._muxencoderliststore = None
         self._pwmliststore = None
+        self._tppwmliststore = []
         self._gpioosignaltree = None
         self._gpioisignaltree = None
         self._steppersignaltree = None
         self._encodersignaltree = None
+        self._muxencodersignaltree = None
         self._pwmcontrolsignaltree = None
         self._pwmrelatedsignaltree = None
+        self._tppwmsignaltree = None
+
         # pncconf default options
         self.createsymlink = 1
         self.createshortcut = 0  
@@ -754,6 +787,7 @@ class Data:
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
         self.mesa0_numof_pwmgens = 4
+        self.mesa0_numof_tppwmgens = 0
         self.mesa0_numof_stepgens = 0
         self.mesa0_numof_gpio = 48
         # second mesa card
@@ -767,6 +801,7 @@ class Data:
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
         self.mesa1_numof_pwmgens = 4
+        self.mesa1_numof_tppwmgens = 0
         self.mesa1_numof_stepgens = 0
         self.mesa1_numof_gpio = 48
 
@@ -1152,6 +1187,8 @@ class Data:
             for j in(["-pulse","-dir","-enable"]):
                 hal_pwm_output_names.append(i+j)
         if i: human_pwm_output_names[6][1]= temp
+        # TODO add tppwm
+
         # GPIO Input
         temp = []; i = False
         for i in  self.halinputsignames:
@@ -1538,6 +1575,11 @@ class Data:
            test = self.findsignal( thisaxispwmgen)
            return test
 
+    def tppwmgen_sig(self, axis):
+           thisaxispwmgen =  axis + "-tppwm-a" 
+           test = self.findsignal(thisaxispwmgen)
+           return test
+
     def connect_axis(self, file, num, let):
         axnum = "xyzabcuvws".index(let)
         title = 'AXIS'
@@ -1545,6 +1587,7 @@ class Data:
             title = 'SPINDLE'
         closedloop = False
         pwmpinname = self.make_pinname(self.pwmgen_sig(let))
+        tppwmpinname = self.make_pinname(self.tppwmgen_sig(let))
         steppinname = self.make_pinname(self.stepgen_sig(let))
         if steppinname:
             stepinvertlist = self.stepgen_invert_pins(self.stepgen_sig(let))
@@ -1578,7 +1621,12 @@ class Data:
                     name = let
                 print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
                 print >>file
-               
+
+            if tppwmpinname:
+                print >>file, "# ---TPPWM Generator signals/setup---"
+                print >>file, "# TODO write some commands!"
+                print >>file
+
             if pwmpinname:
                 print >>file, "# ---PWM Generator signals/setup---"
                 print >>file
@@ -1798,6 +1846,14 @@ class Data:
                                 print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"
                                 print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value"
                                 break
+                    # fot TP pwm pins
+                    elif t == (TPPWMA):
+                        if p == "unused-tppwmgen":continue
+                        for sig in (self.halttpwmsignames):
+                            if p == (sig+"-a"):
+                                pinname = self.make_pinname(self.findsignal( p ),ini_style) 
+                                print >>file, "# ---",sig.upper(),"---"
+                                print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable" 
                     # for stepper pins
                     elif t == (STEPA):
                         if p == "unused-stepgen":continue
@@ -2744,21 +2800,24 @@ class Data:
                     dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pinnum+(concount*24)]
                     break
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
-                PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
+                PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
+                TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
+                TPPWME:"tppwmgen",TPPWMF:"tppwmgen","Error":"None" }
 
             # we iter over this dic because of locale translation problems when using
             # comptype = type_name[ptype]
             comptype = "ERROR FINDING COMPONENT TYPE"
             for key,value in type_name.iteritems():
                 if key == ptype: comptype = value
-            if ptype in(GPIOI,GPIOO,GPIOD):
+            if value == "Error":
+                print "pintype error in make_pinname: ptype = ",ptype
+                return None
+            elif ptype in(GPIOI,GPIOO,GPIOD):
                 compnum = int(pinnum)+(concount*24)
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
             elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF):
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
-            else: 
-                print "pintype error in make_pinname: ptype = ",ptype
-                return None
+  
         elif 'pp' in test:
             print test
             ending = "-out"
@@ -2924,12 +2983,57 @@ class App:
        
         self.intrnldata = Intrnl_data()
         self.data = Data()
-        # add some custom signals for:
-        # motor/encoder scaling
+        # add some custom signals for motor/encoder scaling
         for axis in ["x","y","z","a","s"]:
             cb = ["encoderscale","stepscale"]
             for i in cb:
                 self.widgets[axis + i].connect("value-changed", self.motor_encoder_sanity_check,axis)
+        # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
+        # record the signal ID numbers so we can block the signals later in the mesa routines
+        # have to do it here manually (instead of autoconnect) because glade doesn't handle added
+        # user info (board/connector/pin number designations) and doesn't record the signal ID numbers
+        # none of this is done if mesa is not checked off in pncconf
+        # TODO we should check to see if signals are already present as each time user goes though this page
+        # the signals get added again causing multple calls to the functions.
+
+        if (self.data.number_mesa): 
+            for boardnum in (0,1):
+                cb = "mesa%d_comp_update"% (boardnum)
+                i = "_mesa%dsignalhandler_comp_update"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
+                cb = "mesa%d_boardtitle"% (boardnum)
+                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
+                cb = "mesa%d_firmware"% (boardnum)
+                i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
+                for connector in (2,3,4,5,6,7,8,9):
+                    for pin in range(0,24):
+                      cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
+                      i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
+                      i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
+                      cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
+                      i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
+
+        # search for firmware packages
+        if os.path.exists(firmdir):
+            global mesaboardnames
+            mesaboardnames = []
+            for root, dirs, files in os.walk(firmdir):
+                folder = root.lstrip(firmdir)
+                if folder in mesablacklist:continue
+                if folder == "":continue
+                mesaboardnames.append(folder)
+                print "\n**** ",folder,":\n"
+        else:
+            #TODO what if there are no external firmware is this enough?
+            self.warning_dialog(_("You are have no hostmot2 firmware in folder:%s"%firmdir),True)
+        #TODO is this right place?
+        self.fill_pintype_model()
+        self.fill_combobox_models()
 
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
@@ -3097,65 +3201,16 @@ class App:
         elif self.data.frontend == _MINI: self.widgets.GUIMINI.set_active(True)
         elif self.data.frontend == _TOUCHY: self.widgets.GUITOUCHY.set_active(True)
         
-        # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
-        # record the signal ID numbers so we can block the signals later in the mesa routines
-        # have to do it here manually (instead of autoconnect) because glade doesn't handle added
-        # user info (board/connector/pin number designations) and doesn't record the signal ID numbers
-        # none of this is done if mesa is not checked off in pncconf
-        # TODO we should check to see if signals are already present as each time user goes though this page
-        # the signals get added again causing multple calls to the functions.
-
-        if (self.data.number_mesa): 
-            for boardnum in (0,1):
-                cb = "mesa%d_comp_update"% (boardnum)
-                i = "_mesa%dsignalhandler_comp_update"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
-                cb = "mesa%d_boardtitle"% (boardnum)
-                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
-                cb = "mesa%d_firmware"% (boardnum)
-                i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
-                for connector in (2,3,4,5,6,7,8,9):
-                    for pin in range(0,24):
-                      cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
-                      i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
-                      i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
-                      cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
-                      i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
-
         # here we initalise the mesa configure page data
-        for boardnum in(0,1):
-            model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
-            model.clear()
-            for i in mesaboardnames:
-                model.append((i,))      
-            for search,item in enumerate(mesaboardnames):
-                if mesaboardnames[search]  == self.data["mesa%d_boardtitle"% boardnum]:
-                    self.widgets["mesa%d_boardtitle"% boardnum].set_active(search)
-                model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+        if not self.data._arrayloaded:
+            print "fill boardtitle array"
+            for boardnum in(0,1):
+                model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
                 model.clear()
-                for search, item in enumerate(mesafirmwaredata):
-                    d = mesafirmwaredata[search]
-                    if not d[_BOARDTITLE] == self.data["mesa%d_boardtitle"% boardnum]:continue
-                    model.append((d[_FIRMWARE],))
-                for search,item in enumerate(model):
-                    if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
-                        self.widgets["mesa%d_firmware"% boardnum].set_active(search)
-
-                self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
-                self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
-                self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
-                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
-                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
-                #TODO
-        self.fill_pintype_model()
-        self.fill_combobox_models()
+                for search,item in enumerate(mesaboardnames):
+                    model.append((item,))
+                    if mesaboardnames[search]  == self.data["mesa%d_boardtitle"% boardnum]:
+                        self.widgets["mesa%d_boardtitle"% boardnum].set_active(search)
 
     def on_mesa_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa0_checkbutton.get_active()
@@ -3234,6 +3289,151 @@ class App:
            self.data.frontend = _MINI
         elif self.widgets.GUITOUCHY.get_active():
            self.data.frontend = _TOUCHY
+        i = self.widgets.mesa0_boardtitle.get_active_text()
+        j = self.widgets.mesa1_boardtitle.get_active_text()
+        print i,self.data.mesa0_boardtitle,j,self.data.mesa1_boardtitle 
+        if not self.data._arrayloaded or not self.data.mesa0_boardtitle == i or not self.data.mesa1_boardtitle == j:
+            if os.path.exists(os.path.join(firmdir,i)) or os.path.exists(os.path.join(firmdir,j)):
+                global mesafirmwaredata
+                mesafirmwaredata = []
+                self.mesa_firmware_search(i)
+                #print mesafirmwaredata
+                if self.data.number_mesa == 2 and not i == j: self.mesa_firmware_search(j)
+                self.data._arrayloaded = True
+            for boardnum in (0,1):
+                model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+                model.clear()
+                for search, item in enumerate(mesafirmwaredata):
+                    d = mesafirmwaredata[search]
+                    if not d[_BOARDTITLE] == self.widgets["mesa%d_boardtitle"% boardnum].get_active_text():continue
+                    model.append((d[_FIRMWARE],))
+                for search,item in enumerate(model):
+                    if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
+                        self.widgets["mesa%d_firmware"% boardnum].set_active(search)
+                self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
+                self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
+                self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
+                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
+                self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(self.data["mesa%d_numof_tppwmgens"% boardnum])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
+                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
+        self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
+        self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
+
+
+    def mesa_firmware_search(self,boardtitle,*args):
+        print "**** INFO mesa-firmware-search"
+        #TODO if no firm packages set up for internal data?
+        #TODO don't do this if the firmware is already loaded
+        self.pbar.set_text("Loading external firmware")
+        self.pbar.set_fraction(1)
+        self.window.show()
+        while gtk.events_pending():
+            gtk.main_iteration()
+        firmlist = []
+        for root, dirs, files in os.walk(firmdir):
+            folder = root.lstrip(firmdir)
+            if folder in mesablacklist:continue
+            if not folder == boardtitle:continue
+            for name in files:
+                if name in mesablacklist:continue
+                if ".xml" in name:
+                    print name
+                    temp = name.strip(".xml")
+                    firmlist.append(temp)
+        for currentfirm in(firmlist):
+            root = xml.etree.ElementTree.parse(os.path.join(firmdir,boardtitle,currentfirm+".xml"))
+            watchdog = encoder = pwmgen = led = muxedqcount = stepgen = tppwmgen = 0
+            numencoderpins = 3; numstepperpins = 2
+            boardname = root.find("boardname").text;print boardname, currentfirm
+            maxgpio  = int(root.find("iowidth").text) ; #print maxgpio
+            numcnctrs  = root.find("ioports").text ; #print numcnctrs
+            lowfreq = int(root.find("clocklow").text)/1000000 ; #print lowfreq
+            hifreq = int(root.find("clockhigh").text)/1000000 ; #print hifreq
+            modules = root.findall("//modules")[0]
+            if "7i43" in boardname:
+                driver = "hm2_7i43"
+            else:
+                driver = "hm2_pci"
+            for i,j in enumerate(modules):
+                k = modules[i].find("tagname").text
+                if k == "Watchdog": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    watchdog = int(l)
+                elif k == "Encoder": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    encoder = int(l)
+                elif k == "PWMGen":
+                    l = modules[i].find("numinstances").text;#print l,k
+                    pwmgen = int(l)
+                elif k == "LED": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    led = int(l)
+                elif k == "MuxedQCount": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    muxedqcount = int(l)
+                elif k == "StepGen": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    stepgen = int(l)
+                elif k == "TPPWM": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    tppwmgen = int(l)
+                elif k in ("IOPort","AddrX","MuxedQCountSel"):
+                    continue
+                else:
+                    print "**** WARNING: Pncconf parsing firmware: tagname (%s) not reconized"% k
+    
+            pins = root.findall("//pins")[0]
+            temppinlist = []
+            tempconlist = []
+            pinconvertenc = {"Phase A (in)":ENCA,"Phase B (in)":ENCB,"Index (in)":ENCI,"IndexMask (in)":ENCM,
+                "Muxed Phase A (in)":MXEA,"Muxed Phase B (in)":MXEB,"Muxed Index (in)":MXEI,"Muxed Index Mask (in)":MXEM,"Muxed Encoder Select 0 (out)":MXES}
+            pinconvertstep = {"Step (out)":STEPA,"Dir (out)":STEPB}
+                #"StepTable 2 (out)":STEPC,"StepTable 3 (out)":STEPD,"StepTable 4 (out)":STEPE,"StepTable 5 (out)":STEPF
+            pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
+            pinconverttppwm = {"PWM A (out)":TPPWMA,"PWM B (out)":TPPWMB,"PWM C (out)":TPPWMC,"PWM /A (out)":TPPWMAN,"PWM /B (out)":TPPWMBN,
+                "PWM /C (out)":TPPWMCN,"Fault (in)":TPPWMF,"Enable (out)":TPPWME}
+            for i,j in enumerate(pins):
+                temppinunit = []
+                temp = pins[i].find("connector").text
+                tempcon = int(temp.strip("P"))
+                temp = pins[i].find("secondaryfunctionname").text
+                try:
+                    modulename = pins[i].find("secondarymodulename").text
+                    #print temp,modulename
+                    if modulename in ("Encoder","MuxedQCount","MuxedQCountSel"):
+                        convertedname = pinconvertenc[temp]
+                    elif modulename == "PWMGen":
+                        convertedname = pinconvertppwm[temp]
+                    elif modulename == "StepGen":
+                        convertedname = pinconvertstep[temp]
+                    elif modulename == "TPPWM":
+                        convertedname = pinconverttppwm[temp]
+                    else: raise ValueError
+                except:
+                    # must be GPIO pins if there is no secondary mudule name
+                    #print "GPIO"
+                    temppinunit.append(GPIOI)
+                    temppinunit.append(int(pins[i].find("index").text))
+                else:
+                    temppinunit.append(convertedname)
+                    temppinunit.append(int(pins[i].find("secondaryinstance").text))
+                    tempmod = pins[i].find("secondarymodulename").text
+                    tempfunc = pins[i].find("secondaryfunctionname").text
+                    if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
+                        numencoderpins = 4
+                if not tempcon in tempconlist:
+                    tempconlist.append(tempcon)
+                temppinlist.append(temppinunit)
+
+            temp = [boardtitle,boardname,currentfirm,boardtitle,driver,encoder + muxedqcount,numencoderpins,pwmgen,tppwmgen,stepgen,
+                    numstepperpins,watchdog,maxgpio,lowfreq,hifreq,tempconlist]
+            print temp
+            for i in temppinlist:
+                temp.append(i)
+            mesafirmwaredata.append(temp)
+        self.window.hide()
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -3649,6 +3849,7 @@ class App:
         self.do_exclusive_inputs(15)
 
     def on_mesa_boardname_changed(self, widget,boardnum):
+        print "**** INFO boardname changed"
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
         if active < 0:
@@ -3686,6 +3887,8 @@ class App:
                 self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[_MAXENC])
                 self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[_MAXPWM])
                 self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[_MAXPWM])
+                self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_range(0,d[_MAXTPPWM])
+                self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(d[_MAXTPPWM])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
@@ -3703,7 +3906,8 @@ class App:
                     i = (int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value()) * 3)
                     j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
                     k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
-                    total = (d[_MAXGPIO]-i-j-k)
+                    l = (int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value()) * 6)
+                    total = (d[_MAXGPIO]-i-j-k-l)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
@@ -3826,7 +4030,7 @@ class App:
         boardnum = 0
         if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa0_configured  :
             self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
-                    self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
+                    self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
         elif not self.intrnldata.mesa0_configured:
             self.widgets.mesa0con2table.hide()
             self.widgets.mesa0con3table.hide()   
@@ -3867,7 +4071,7 @@ class App:
         boardnum = 1
         if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
-                    self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens)
+                    self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens)
         elif not self.intrnldata.mesa1_configured:           
             self.widgets.mesa1con2table.hide()
             self.widgets.mesa1con3table.hide()           
@@ -4025,11 +4229,12 @@ class App:
         self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
         numofpwmgens = self.data["mesa%d_numof_pwmgens"% boardnum] = int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value())
+        numoftppwmgens = self.data["mesa%d_numof_tppwmgens"% boardnum] = int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value())
         numofstepgens = self.data["mesa%d_numof_stepgens"% boardnum] = int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value())
         numofencoders = self.data["mesa%d_numof_encodergens"% boardnum] = int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value())
         title = self.data["mesa%d_boardtitle"% boardnum] = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         firmware = self.data["mesa%d_firmware"% boardnum] = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
-        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numofstepgens,numofencoders)
+        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders)
         return True
 
     # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
@@ -4043,7 +4248,7 @@ class App:
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
-    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numofstepgens,numofencoders): 
+    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders): 
         self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -4056,6 +4261,7 @@ class App:
             if d[_FIRMWARE] == firmware:
                 self.data["mesa%d_currentfirmwaredata"% boardnum] = mesafirmwaredata[search]
                 break
+        print mesafirmwaredata[search]
         self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
         self.widgets["mesa%dcon3tab"% boardnum].set_sensitive(1)
         self.widgets["mesa%dcon3table"% boardnum].show()
@@ -4092,7 +4298,8 @@ class App:
             self.widgets["mesa%dcon8table"% boardnum].hide()
             self.widgets["mesa%dcon9table"% boardnum].hide()
 
-        self.widgets["mesa%d"%boardnum].set_title("Mesa%d Config-Board %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum]))
+        self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum],
+            self.data["mesa%d_currentfirmwaredata"% boardnum][_FIRMWARE]))
 
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
@@ -4102,7 +4309,7 @@ class App:
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                print "**** INFO set-mesa-options:",self.data[p],p,self.data[ptype]
+                print "**** INFO set-mesa-options DATA:",self.data[p],p,self.data[ptype]
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
@@ -4190,11 +4397,43 @@ class App:
                         # We cheat a little and tell the rest of the method that the firmware says
                         # it should be GPIO
                         firmptype = GPIOI
+                # --- mux encoder ---
+                if firmptype in (MXEA,MXEB,MXEI,MXEM):
+                    print "**** INFO: MUX ENCODER:",firmptype
+                    if numofencoders >= (compnum+1) or firmptype == MXES:
+                        # if the combobox is not already displaying the right component:
+                        # then we need to set up the comboboxes for this pin, otherwise skip it
+                        if 1==1:  
+                            self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_active(0)
+                            pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
+                            ptmodel = self.widgets[ptype].set_model(self.data._muxencoderliststore)
+                            self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
+                            self.widgets[ptype].set_sensitive(0)
+                            self.widgets[p].set_active(0)
+                            if firmptype == MXEA:
+                                self.widgets[p].set_sensitive(1)
+                            else: 
+                                self.widgets[p].set_sensitive(0)
+                           
+                    else:
+                        firmptype = GPIOI
+                # special case mux select
+                if firmptype == (MXES):
+                    self.widgets[pinv].set_sensitive(0)
+                    self.widgets[pinv].set_active(0)
+                    pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
+                    ptmodel = self.widgets[ptype].set_model(self.data._muxencoderliststore)
+                    self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
+                    self.widgets[ptype].set_sensitive(0)
+                    self.widgets[p].set_active(0)
+
                 # ---SETUP GUI FOR PWM FAMILY COMPONENT---
                 # the user has a choice of pulse width or pulse density modulation
+
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     if numofpwmgens >= (compnum+1):
-                        if not self.widgets[ptype].get_active_text() == firmptype:
+                        if 1==1 :
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
                             pmodel = self.widgets[p].set_model(self.data._pwmsignaltree)
@@ -4279,11 +4518,30 @@ class App:
                             continue
                     else:
                         firmptype = GPIOI
+                # ---SETUP GUI FOR TP PWM FAMILY COMPONENT---   
+                elif firmptype in ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ):
+                    if numoftppwmgens >= (compnum+1):
+                        if not self.widgets[ptype].get_active_text() == firmptype:
+                            self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_active(0)
+                            pmodel = self.widgets[p].set_model(self.data._tppwmsignaltree)
+                            ptmodel = self.widgets[ptype].set_model(self.data._tppwmliststore)
+                            self.widgets[ptype].set_sensitive(0)
+                            self.widgets[ptype].set_active(pintype_tp_pwm.index(firmptype))
+                            self.widgets[p].set_active(0)
+                            # only add the -a signal names for the user to change
+                            if firmptype == TPPWMA:
+                                self.widgets[p].set_sensitive(1)
+                            # the rest the user can't change      
+                            else:
+                                self.widgets[p].set_sensitive(0)
+                    else:
+                        firmptype = GPIOI
                 # ---SETUP FOR STEPPER FAMILY COMPONENT---
                 elif firmptype in (STEPA,STEPB):
-                    if numofstepgens >= (compnum+1):
+                    if 1 == 1:
                         if not self.widgets[ptype].get_active_text() == firmptype:
-                            #self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_sensitive(1)
                             self.widgets[pinv].set_active(self.data[pinv])
                             ptmodel = self.widgets[ptype].set_model(self.data._stepperliststore)
                             pmodel = self.widgets[p].set_model(self.data._steppersignaltree)
@@ -4440,6 +4698,10 @@ class App:
         self.data._encoderliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_encoder):
             self.data._encoderliststore.append([text,number])
+        # mux encoder
+        self.data._muxencoderliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_muxencoder):
+            self.data._muxencoderliststore.append([text,number])
         # pwm
         self.data._pwmrelatedliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_pwm):
@@ -4450,10 +4712,15 @@ class App:
         self.data._pwmcontrolliststore = gtk.ListStore(str,int)
         self.data._pwmcontrolliststore.append([pintype_pwm[0],0])
         self.data._pwmcontrolliststore.append([pintype_pdm[0],0])
+        #tppwm
+        self.data._tppwmliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_tp_pwm):
+            self.data._tppwmliststore.append([text,number])
 
     def fill_combobox_models(self):
         templist = [ ["_gpioosignaltree",human_output_names,1],["_gpioisignaltree",human_input_names,1],["_encodersignaltree",human_encoder_input_names,4],
-                     ["_pwmsignaltree",human_pwm_output_names,3],["_steppersignaltree",human_stepper_names,6] ]
+                     ["_pwmsignaltree",human_pwm_output_names,3],["_tppwmsignaltree",human_tppwm_output_names,8],["_steppersignaltree",human_stepper_names,6],
+                     ["_muxencodersignaltree",human_encoder_input_names,4] ]
         for item in templist:
             count = 0
             end = len(item[1])-1
@@ -4486,7 +4753,12 @@ class App:
                 if piter == None and not custom:
                     print "*** INFO mesa-pin-changed: no iter and not custom"
                     return
-                if widgetptype in (ENCB,ENCI,ENCM,STEPB,STEPC,STEPD,STEPE,STEPF,PDMD,PDME,PWMD,PWME):return
+                if widgetptype in (ENCB,ENCI,ENCM,
+                                    MXEB,MXEI,MXEM,MXES,
+                                    STEPB,STEPC,STEPD,STEPE,STEPF,
+                                    PDMD,PDME,PWMD,PWME,
+                                    TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF
+                                    ):return
                 # for GPIO output
                 if widgetptype in (GPIOO,GPIOD):
                     #print"ptype GPIOO\n"
@@ -4523,6 +4795,15 @@ class App:
                     addsignalto = self.data.halencoderinputsignames
                     relatedsearch = [ENCA,ENCB,ENCI,ENCM]
                     relatedending = ["-a","-b","-i","-m"]
+                # for mux encoder pins
+                elif widgetptype == MXEA: 
+                    #print"\nptype encoder"
+                    signaltree = self.data._muxencodersignaltree
+                    halsignallist = hal_encoder_input_names
+                    humansignallist = human_encoder_input_names
+                    addsignalto = self.data.halencoderinputsignames
+                    relatedsearch = [MXEA,MXEB,MXEI,MXEM]
+                    relatedending = ["-a","-b","-i","-m"]
                 # for PWM pins
                 elif widgetptype == PWMP: 
                     print"ptype pwmp\n"
@@ -4534,7 +4815,6 @@ class App:
                     relatedending = ["-pulse","-dir","-enable"]
                 # for PDM pins
                 elif widgetptype == PDMP: 
-                    datatype = PWMP
                     print"ptype pdmp\n"
                     signaltree = self.data._pwmsignaltree
                     halsignallist = hal_pwm_output_names
@@ -4542,6 +4822,14 @@ class App:
                     addsignalto = self.data.halpwmoutputsignames
                     relatedsearch = [PWMP,PWMD,PWME]
                     relatedending = ["-pulse","-dir","-enable"]
+                elif widgetptype == TPPWMA: 
+                    print"ptype pdmp\n"
+                    signaltree = self.data._tppwmsignaltree
+                    halsignallist = hal_tppwm_output_names
+                    humansignallist = human_tppwm_output_names
+                    addsignalto = self.data.haltppwmoutputsignames
+                    relatedsearch = [TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF]
+                    relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                 else: 
                     print"**** INFO: pncconf on_mesa_pin_changed:  pintype not found:%s\n",widgetptype
                     return   

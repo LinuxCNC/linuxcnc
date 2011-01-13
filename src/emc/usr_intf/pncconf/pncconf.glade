@@ -5711,8 +5711,41 @@ accept the changes.
                             <child>
                               <widget class="GtkTable" id="table21">
                                 <property name="visible">True</property>
-                                <property name="n_rows">13</property>
+                                <property name="n_rows">14</property>
                                 <property name="n_columns">5</property>
+                                <child>
+                                  <widget class="GtkSpinButton" id="mesa0_numof_tppwmgens">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">9</property>
+                                    <property name="bottom_attach">10</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label371">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Num of TP pwm generators: </property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">9</property>
+                                    <property name="bottom_attach">10</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -5872,8 +5905,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Total number of pins:</property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">11</property>
-                                    <property name="bottom_attach">12</property>
+                                    <property name="top_attach">12</property>
+                                    <property name="bottom_attach">13</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -5885,8 +5918,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">11</property>
-                                    <property name="bottom_attach">12</property>
+                                    <property name="top_attach">12</property>
+                                    <property name="bottom_attach">13</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -5901,8 +5934,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">12</property>
-                                    <property name="bottom_attach">13</property>
+                                    <property name="top_attach">13</property>
+                                    <property name="bottom_attach">14</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -6072,8 +6105,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">9</property>
-                                    <property name="bottom_attach">10</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -6105,8 +6138,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Num of step generators: </property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">9</property>
-                                    <property name="bottom_attach">10</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -6116,8 +6149,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Num of GPIO:</property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">10</property>
-                                    <property name="bottom_attach">11</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">12</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -6129,8 +6162,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">10</property>
-                                    <property name="bottom_attach">11</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">12</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -23850,8 +23883,41 @@ accept the changes.
                             <child>
                               <widget class="GtkTable" id="table1">
                                 <property name="visible">True</property>
-                                <property name="n_rows">13</property>
+                                <property name="n_rows">14</property>
                                 <property name="n_columns">5</property>
+                                <child>
+                                  <widget class="GtkSpinButton" id="mesa1_numof_tppwmgens">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">0 0 8 1 10 10</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">9</property>
+                                    <property name="bottom_attach">10</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label402">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Num of tppwm generators:</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">9</property>
+                                    <property name="bottom_attach">10</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -24000,8 +24066,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">11</property>
-                                    <property name="bottom_attach">12</property>
+                                    <property name="top_attach">12</property>
+                                    <property name="bottom_attach">13</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -24011,8 +24077,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Total number of pins:</property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">11</property>
-                                    <property name="bottom_attach">12</property>
+                                    <property name="top_attach">12</property>
+                                    <property name="bottom_attach">13</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -24103,8 +24169,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">9</property>
-                                    <property name="bottom_attach">10</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -24116,8 +24182,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">10</property>
-                                    <property name="bottom_attach">11</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">12</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -24132,8 +24198,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">12</property>
-                                    <property name="bottom_attach">13</property>
+                                    <property name="top_attach">13</property>
+                                    <property name="bottom_attach">14</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -24208,8 +24274,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Num of GPIO:</property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">10</property>
-                                    <property name="bottom_attach">11</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">12</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -24219,8 +24285,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Num of step generators: </property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">9</property>
-                                    <property name="bottom_attach">10</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -46035,7 +46101,7 @@ Test</property>
                             <child>
                               <widget class="GtkLabel" id="label430">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">I /O Info</property>
+                                <property name="label" translatable="yes">I/O Info</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
