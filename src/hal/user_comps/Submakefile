@@ -14,12 +14,21 @@ MODBUSLDFLAGS := $(GLIB_LIBS)
 MODBUSCCFLAGS := $(GLIB_CFLAGS)
 USERSRCS += $(MODBUSSRCS)
 
+SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
+USERSRCS += $(SHUTTLEXPRESS_SRC)
+
  $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
+ $(call TOOBJSDEPS, $(SHUTTLEXPRESS_SRC)) :
 
 ../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CC) $(LDFLAGS) $(MODBUSLDFLAGS) -o $@ $^
 TARGETS += ../bin/gs2_vfd
+
+../bin/shuttlexpress: $(call TOOBJS, $(SHUTTLEXPRESS_SRC)) ../lib/libemchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	@$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/shuttlexpress
 
 ../include/%.h: ./hal/user_comps/%.h
 	cp $^ $@
