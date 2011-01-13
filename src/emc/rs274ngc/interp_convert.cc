@@ -3357,6 +3357,11 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
 
+  // if P = 0 then use whatever coordinate system that is currently active
+  if (p_int == 0) {
+    p_int = settings->origin_index;
+  }
+
   CHKS((block->l_number == 20 && block->a_flag && settings->a_axis_wrapped && 
         (block->a_number <= -360.0 || block->a_number >= 360.0)), 
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
