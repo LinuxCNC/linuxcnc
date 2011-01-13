@@ -239,6 +239,10 @@ INFILES = \
 	../share/applications/emc.desktop \
 	../share/applications/emc-latency.desktop
 
+ifneq ($(BUILD_SYS),sim)
+INFILES += ../scripts/latencyplot
+endif
+
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 

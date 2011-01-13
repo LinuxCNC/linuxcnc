@@ -1,0 +1,238 @@
+#!/usr/bin/wish
+set ::sc(program) "@RTDIR@/testsuite/user/latency/run"
+
+# tested with tcl 8.4 and 8.5
+
+# notusing y axis title because it coredumps with X BadMatch with wish8.5
+# (it works with wish8.4, tcl8.5 introduced a problem for rotated text)
+# see also:
+# http://lists.fedoraproject.org/pipermail/package-announce/2010-January/034295.html
+
+#-----------------------------------------------------------------------
+# Copyright: 2011
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#-----------------------------------------------------------------------
+package require Tk
+
+if [catch {package require BLT} msg] {
+  puts "BLT package is required:"
+  puts "    sudo apt-get install blt"
+  exit
+}
+
+if ![file exists $::sc(program)] {
+  puts "No such file: $::sc(program)"
+  set ::sc(program) "/usr/realtime-2.6.32-122-rtai/testsuite/user/latency/run"
+  puts "Trying: $::sc(program)"
+}
+
+proc init {} {
+  # note: program updates at 1 second intervals
+  set          ::sc(xpoints)    60  ;# x axis points
+  set      ::sc(xpoints,min)    10  ;# x axis points
+  set      ::sc(xpoints,max) 12000  ;# x axis points
+  set          ::sc(shiftby)     1  ;# x axis shiftby points
+  set           ::sc(smooth) linear ;# linear,step,...
+  set           ::sc(symbol) ""     ;# square,circle,...
+  set    ::sc(lat,min,color) green
+  set    ::sc(ovl,min,color) yellow
+  set    ::sc(lat,max,color) blue
+  set    ::sc(ovl,max,color) red
+  set       ::sc(grid,color) white
+  set        ::sc(grid,hide) no
+  set        ::sc(linewidth) 2
+  set ::sc(color,background) black
+  set       ::sc(clock,mode) relative ;# normal | relative
+  set  ::sc(mem,max,percent) 1.0
+  set              ::sc(pid) [pid]
+
+  blt::vector create ::xv ; set ::xv(++end) [clock seconds]
+  blt::vector create ::yv1; set ::yv1(++end) 0.0
+  blt::vector create ::yv2; set ::yv2(++end) 0.0
+  blt::vector create ::yv3; set ::yv3(++end) 0.0
+  blt::vector create ::yv4; set ::yv4(++end) 0.0
+} ;# init
+
+proc check {} {
+  if {[string first rtai [exec lsmod]] < 0} {
+    puts "ok -- no rtai modules currently loaded"
+  } else {
+    puts "Cannot start with rtai modules loaded"
+    puts "Stop all programs (emc) using realtime first and then run:"
+    puts "     realtime stop"
+    exit
+  }
+  if ![file exists $::sc(program)] {
+    puts "Can\'t find latency program:"
+    puts "$::sc(program)"
+    exit
+  }
+} ;# check
+
+proc mcheck {} {
+  # cautionary check on memory usage
+  # %mem "ratio of process's resident set size to the physical mem in percent"
+  set mempercent [eval exec ps --no-headers --pid $::sc(pid) -o %mem]
+  if {$mempercent > $::sc(mem,max,percent)} {
+    puts "Memory used is ${mempercent}%, Exiting"
+    exit
+  }
+  after 10000 mcheck
+} ;# mcheck
+
+proc startpipe {} {
+  set restore_dir [pwd]
+  cd [file dirname $::sc(program)] ;# must cd for .runinfo
+  puts "Starting: sudo $::sc(program)"
+  set ::sc(fd) [open "| sudo $::sc(program) 2>/dev/null" r]
+  cd $restore_dir
+
+  fconfigure $::sc(fd) -blocking 0 -buffering line
+  fileevent $::sc(fd) readable [list readpipe $::sc(fd)]
+  set ::sc(start,seconds) [clock seconds]
+  after 2000 [list $::sc(stripchart) axis configure x -hide no]
+} ;# startpipe
+
+proc readpipe {fd} {
+  if [eof $fd] {
+    puts "eof--bye"
+    close $fd
+    return
+  }
+  #Example header and data lines:
+  #RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns
+  #RTD|   -1174|   -1174|   -1102|    7898|    7898|        0
+  set line [gets $fd]
+  if {[string first RTD "$line"] == 0} {
+      scan $line "%s %f%s %f%s %f%s %f%s %f%s %d"\
+           ::sc(id)\
+           ::sc(lat,min) sep\
+           ::sc(ovl,min) sep\
+           ::sc(lat,avg) sep\
+           ::sc(lat,max) sep\
+           ::sc(ovl,max) sep\
+           ::sc(overruns)
+
+    set ::xv(++end)  [clock seconds]
+    set ::yv1(++end) $::sc(ovl,max)
+    set ::yv2(++end) $::sc(lat,max)
+    set ::yv3(++end) [expr abs($::sc(lat,min))]
+    set ::yv4(++end) [expr abs($::sc(ovl,min))]
+  }
+} ;# readpipe
+
+proc setup_stripchart {} {
+  wm minsize . 400 300
+  pack [frame .f1] -fill both -expand 1
+  set ::sc(stripchart) [blt::stripchart .f1.s \
+                        -plotbackground $::sc(color,background) \
+                        -height 2i \
+                       ]
+
+  pack $::sc(stripchart) -expand yes -fill both
+
+  $::sc(stripchart) grid configure \
+     -hide $::sc(grid,hide) \
+     -color $::sc(grid,color)
+
+  $::sc(stripchart) legend configure \
+     -anchor n \
+     -position leftmargin
+
+  # note: hide x axis label until autoranging completed
+  $::sc(stripchart) axis configure x \
+     -autorange $::sc(xpoints) \
+     -shiftby $::sc(shiftby) \
+     -command xfmt \
+     -hide 1
+
+  $::sc(stripchart) axis configure y \
+     -autorange 0
+
+  foreach {v name} {::yv1 ovl,max \
+                    ::yv2 lat,max \
+                    ::yv3 lat,min \
+                    ::yv4 ovl,min } {
+    $::sc(stripchart) element create $name \
+       -xdata ::xv \
+       -ydata $v \
+       -color $::sc($name,color) \
+       -symbol $::sc(symbol) \
+       -linewidth $::sc(linewidth) \
+       -smooth $::sc(smooth)
+  }
+
+  pack [frame .f2] -side top -anchor w -fill x -expand 0
+
+  pack [frame .f3] -side left -anchor e -fill none -expand 0
+  pack [label .f3.l2 -text "Pts:"] -side left -expand 0
+  pack [entry .f3.e -textvariable ::sc(xpoints) \
+       -width 5 -justify right -state readonly] \
+       -side left -fill none -expand 0
+  pack [button .f3.decrement \
+       -padx 3 -pady 0  -text "-" -command "xpoints decrease"] \
+       -side left -fill none -expand 1
+  pack [button .f3.increment \
+       -padx 0 -pady 0 -text "+" -command "xpoints increase"] \
+       -side left -fill none -expand 1
+  set ::sc(button,decrease) .f3.decrement
+  set ::sc(button,increase) .f3.increment
+
+  pack [frame .f4] -side right -anchor w -fill x -expand 0
+  pack [label .f4.l1 -text "Latency (nSeconds) vs Elapsed Time (seconds)  "]\
+       -side left -anchor w -fill none -expand 1
+
+} ;# setup_stripchart
+
+proc xfmt {widget x} {
+  switch $::sc(clock,mode) {
+    relative { return [expr $x - $::sc(start,seconds)] }
+    default  { return [clock format $x -format "%H:%M:%S"] }
+  }
+} ;# xfmt
+
+proc xpoints {input} {
+  switch $input {
+    increase { set ::sc(xpoints) [expr $::sc(xpoints) * 2] }
+    decrease { set ::sc(xpoints) [expr $::sc(xpoints)/2] }
+  }
+  if {$::sc(xpoints) <= $::sc(xpoints,min)} {
+    set ::sc(xpoints) $::sc(xpoints,min)
+    $::sc(button,decrease) configure -state disabled
+  } else {
+    $::sc(button,decrease) configure -state normal
+  }
+  if {$::sc(xpoints) >= $::sc(xpoints,max)} {
+    set ::sc(xpoints) $::sc(xpoints,max)
+    $::sc(button,increase) configure -state disabled
+  } else {
+    $::sc(button,increase) configure -state normal
+  }
+
+  $::sc(stripchart) axis configure x  -autorange $::sc(xpoints)
+} ;# points
+
+# allow re-sourcing for testing
+if ![info exists ::sc(xpoints)] {
+  init
+  check
+  mcheck
+  setup_stripchart
+  startpipe
+} else {
+  puts "already running"
+}

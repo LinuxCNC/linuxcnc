@@ -11,9 +11,12 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
   * AXIS: Selectable tool touch off to workpiece or fixture
   * AXIS: show all offsets and rotation separately in the BIG DRO
   * AXIS: show G5x and G92 offsets graphically in the preview
+  * AXIS: user-configurable MDI history file
 
   * Configs: many configuration updates for Smithy machines
   * Configs: update motenc sample configs for encoder index
+  * Configs: add filtering (image-to-gcode etc) to hostmot2 samples
+  * Configs: univpwm sample uses new encoder velocity for pid
 
   * GladeVCP: a new framework for making virtual control panels with the
     Glade screen designer
@@ -113,7 +116,10 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
   * Touchy: support panel indicators for status readout
   * Touchy: use appropriate jog and maxvel increments for metric and degrees
 
- -- Chris Radek <chris@timeguy.com>  Tue, 04 Jan 2011 21:56:13 -0600
+  * add a G code language spec for gedit
+  * add latencyplot, a strip-chart type display of latency test results
+
+ -- Chris Radek <cradek@timeguy.com>  Tue, 11 Jan 2011 11:19:31 -0600
 
 emc2 (1:2.4.6) lucid; urgency=low
 

@@ -105,6 +105,11 @@ class AxisPreferences(cp):
         self.set("DEFAULT", option, type(value))
         self.write(open(self.fn, "w"))
 
+if sys.argv[1] != "-ini":
+    raise SystemExit, "-ini must be first argument"
+
+inifile = emc.ini(sys.argv[2])
+
 ap = AxisPreferences()
 
 root_window = Tkinter.Tk(className="Axis")
@@ -124,8 +129,8 @@ program_start_line_last = -1
 
 lathe = 0
 mdi_history_max_entries = 1000
-mdi_history_save_filename= "~/.axis_mdi_history"
-
+mdi_history_save_filename =\
+    inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or "~/.axis_mdi_history"
 
 
 feedrate_blackout = 0
@@ -2728,10 +2733,6 @@ def units(s, d=1.0):
     except ValueError:
         return unit_values.get(s, d)
 
-if sys.argv[1] != "-ini":
-    raise SystemExit, "-ini must be first argument"
-
-inifile = emc.ini(sys.argv[2])
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
