@@ -77,7 +77,7 @@ struct shuttlexpress_hal {
     hal_bit_t *button_3_not;
     hal_bit_t *button_4;
     hal_bit_t *button_4_not;
-    hal_s32_t *count;     // accumulated counts from the jog wheel
+    hal_s32_t *counts;        // accumulated counts from the jog wheel
     hal_s32_t *rotation;  // current position of the springy outer wheel (FIXME: for lack of a better name...)
 };
 
@@ -139,14 +139,14 @@ int read_update(struct shuttlexpress *s) {
         int curr_count = packet[1];
 
         if (s->read_first_event == 0) {
-            *s->hal->count = 0;
+            *s->hal->counts = 0;
             s->prev_count = curr_count;
             s->read_first_event = 1;
         } else {
             int diff_count = curr_count - s->prev_count;
             if (diff_count > 128) diff_count -= 256;
             if (diff_count < -128) diff_count += 256;
-            *s->hal->count += diff_count;
+            *s->hal->counts += diff_count;
             s->prev_count = curr_count;
         }
     }
@@ -243,7 +243,7 @@ struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
     r = hal_pin_bit_newf(HAL_OUT, &(s->hal->button_4_not), hal_comp_id, "%s.%d.button-4-not", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->count), hal_comp_id, "%s.%d.count", modname, num_devices);
+    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", modname, num_devices);
     if (r != 0) goto fail1;
 
     r = hal_pin_s32_newf(HAL_OUT, &(s->hal->rotation), hal_comp_id, "%s.%d.rotation", modname, num_devices);
@@ -259,7 +259,7 @@ struct shuttlexpress *check_for_shuttlexpress(char *dev_filename) {
     *s->hal->button_3_not = 1;
     *s->hal->button_4 = 0;
     *s->hal->button_4_not = 1;
-    *s->hal->count = 0;
+    *s->hal->counts = 0;
     *s->hal->rotation = 0;
 
     return s;
