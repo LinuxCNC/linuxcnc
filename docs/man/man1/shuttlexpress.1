@@ -39,3 +39,50 @@ Any user interaction with the ShuttleXpress device will generate an event,
 informing the driver of the jog-wheel position.  So if you (for example)
 push one of the buttons at startup, the jog-wheel will work fine and
 notice the first click.
+
+.SH Pins
+.TP
+(bit out) \fIshuttlexpress.0.button-0\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-0-not\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-1\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-1-not\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-2\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-2-not\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-3\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-3-not\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-4\fR
+.TP
+(bit out) \fIshuttlexpress.0.button-4-not\fR
+
+    The five buttons around the outside, starting with the
+    counter-clockwise-most one.
+
+.TP
+(s32 out) \fIshuttlexpress.0.counts\fR
+
+    Accumulated counts from the jog wheel (the inner wheel).
+
+.TP
+(s32 out) \fIshuttlexpress.0.spring-wheel-s32\fR
+
+    The current deflection of the spring-wheel (the outer wheel).
+    It's 0 at rest, and ranges from -7 at the counter-clockwise
+    extreme to +7 at the clockwise extreme.
+
+.TP
+(float out) \fIshuttlexpress.0.spring-wheel-f\fR
+
+    The current deflection of the spring-wheel (the outer wheel).
+    It's 0 at rest, -1 at the counter-clockwise extreme, and
+    +1 at the clockwise extreme.  (The ShuttleXpress device reports the
+    spring-wheel position quantized from -7 to +7, so this pin reports
+    only 15 discrete values in it's range.)
+
