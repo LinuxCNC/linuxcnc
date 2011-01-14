@@ -26,6 +26,7 @@ class emc_control:
                 self.mdi = 0
                 self.listing = listing
                 self.error = error
+                self.isjogging = [0,0,0,0,0,0,0,0,0]
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -125,12 +126,17 @@ class emc_control:
 
         def continuous_jog_velocity(self, velocity):
                 self.jog_velocity = velocity / 60.0
+                for i in range(9):
+                        if self.isjogging[i]:
+                                self.emccommand.jog(self.emc.JOG_CONTINUOUS, i, self.isjogging[i] * self.jog_velocity)
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
                 if direction == 0:
+                        self.isjogging[axis] = 0
                         self.emccommand.jog(self.emc.JOG_STOP, axis)
                 else:
+                        self.isjogging[axis] = direction
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * self.jog_velocity)
                 
 	def quill_up(self):

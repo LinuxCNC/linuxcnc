@@ -116,11 +116,13 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
   * Touchy: support for metric configurations
   * Touchy: support panel indicators for status readout
   * Touchy: use appropriate jog and maxvel increments for metric and degrees
+  * Touchy: turning the wheel during a continuous jog changes the current 
+    jog speed
 
   * add a G code language spec for gedit
   * add latencyplot, a strip-chart type display of latency test results
 
- -- Chris Radek <cradek@timeguy.com>  Tue, 11 Jan 2011 11:19:31 -0600
+ -- Chris Radek <chris@timeguy.com>  Fri, 14 Jan 2011 10:32:03 -0600
 
 emc2 (1:2.4.6) lucid; urgency=low
 
