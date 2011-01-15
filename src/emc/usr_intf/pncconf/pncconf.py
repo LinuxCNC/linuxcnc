@@ -538,17 +538,6 @@ class Widgets:
         if r is None: raise IndexError, "No widget %r" % attr
         return r
 
-class Intrnl_data:
-    def __init__(self):
-        self.mesa0_configured = False
-        self.mesa1_configured = False
-        self.components_is_prepared = False
-        #self.available_axes = []
-    def __getitem__(self, item):
-        return getattr(self, item)
-    def __setitem__(self, item, value):
-        return setattr(self, item, value)
-
 class Data:
     def __init__(self):
         pw = pwd.getpwuid(os.getuid())
@@ -563,6 +552,9 @@ class Data:
 
         # internal flags
         self._arrayloaded = False
+        self._mesa0_configured = False
+        self._mesa1_configured = False
+        self._components_is_prepared = False
 
         # internal data
         self._gpioliststore = None
@@ -2980,8 +2972,7 @@ class App:
         self.in_pport_prepare = False
         self.axis_under_test = False
         self.jogminus = self.jogplus = 0
-       
-        self.intrnldata = Intrnl_data()
+
         self.data = Data()
         # add some custom signals for motor/encoder scaling
         for axis in ["x","y","z","a","s"]:
@@ -3000,23 +2991,23 @@ class App:
             for boardnum in (0,1):
                 cb = "mesa%d_comp_update"% (boardnum)
                 i = "_mesa%dsignalhandler_comp_update"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
+                self.data[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
                 cb = "mesa%d_boardtitle"% (boardnum)
                 i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
+                self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
                 cb = "mesa%d_firmware"% (boardnum)
                 i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
-                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
+                self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
                 for connector in (2,3,4,5,6,7,8,9):
                     for pin in range(0,24):
                       cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
                       i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
+                      self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
                       i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
+                      self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
                       cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
                       i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
+                      self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
 
         # search for firmware packages
         if os.path.exists(firmdir):
@@ -3154,8 +3145,8 @@ class App:
                 filename = dialog.get_filename()
                 dialog.destroy()
                 self.data.load(filename, self)
-                self.intrnldata.mesa0_configured = False
-                self.intrnldata.mesa1_configured = False
+                self.data._mesa0_configured = False
+                self.data._mesa1_configured = False
             else:
                 dialog.destroy()
                 return True
@@ -4028,10 +4019,10 @@ class App:
     def on_mesa0_prepare(self, *args):
         self.data.help = "help-mesa.txt"
         boardnum = 0
-        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa0_configured  :
+        if not self.widgets.createconfig.get_active() and not self.data._mesa0_configured  :
             self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
                     self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
-        elif not self.intrnldata.mesa0_configured:
+        elif not self.data._mesa0_configured:
             self.widgets.mesa0con2table.hide()
             self.widgets.mesa0con3table.hide()   
             self.widgets.mesa0con4table.hide()
@@ -4044,7 +4035,7 @@ class App:
         if active < 0:
             title = None
         else: title = model[active][0]
-        if not self.intrnldata.mesa0_configured:
+        if not self.data._mesa0_configured:
             self.warning_dialog(_("You need to configure the mesa0 page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa0)
             return True
@@ -4069,10 +4060,10 @@ class App:
     def on_mesa1_prepare(self,*args):
         self.data.help = "help-mesa.txt"
         boardnum = 1
-        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa1_configured  :
+        if not self.widgets.createconfig.get_active() and not self.data._mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
                     self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens)
-        elif not self.intrnldata.mesa1_configured:           
+        elif not self.data._mesa1_configured:           
             self.widgets.mesa1con2table.hide()
             self.widgets.mesa1con3table.hide()           
             self.widgets.mesa1con4table.hide()
@@ -4085,7 +4076,7 @@ class App:
         if active < 0:
             title = None
         else: title = model[active][0]
-        if not self.intrnldata.mesa1_configured:
+        if not self.data._mesa1_configured:
             self.warning_dialog(_("You need to configure the mesa1 page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa1)
             return True
@@ -4178,18 +4169,18 @@ class App:
                 if old == GPIOI and new in (GPIOO,GPIOD):
                     print "switch GPIO input ",p," to output",new
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
-                    self.widgets[p].handler_block(self.intrnldata[blocksignal])
+                    self.widgets[p].handler_block(self.data[blocksignal])
                     self.widgets[p].set_model(self.data._gpioosignaltree)
-                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
+                    self.widgets[p].handler_unblock(self.data[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_OUTPUT
                     self.data[ptype] = new
                 elif old in (GPIOO,GPIOD) and new == GPIOI:
                     print "switch GPIO output ",p,"to input"
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
-                    self.widgets[p].handler_block(self.intrnldata[blocksignal])              
+                    self.widgets[p].handler_block(self.data[blocksignal])              
                     self.widgets[p].set_model(self.data._gpioisignaltree)
-                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
+                    self.widgets[p].handler_unblock(self.data[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
                     self.data[ptype] = new
@@ -4315,11 +4306,11 @@ class App:
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
                 actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 # kill all widget signals:
-                self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
-                self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
-                self.widgets[p].child.handler_block(self.intrnldata[actblocksignal])                                            
+                self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
+                self.widgets[p].handler_block(self.data[blocksignal]) 
+                self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
-                if self.intrnldata["mesa%d_configured"% boardnum]:
+                if self.data["_mesa%d_configured"% boardnum]:
                     print "clearing data"
                     if self.data[ptype] not in (GPIOI,GPIOO,GPIOD):
                         if firmptype in ( ENCA,ENCB,ENCI,ENCM ): 
@@ -4670,7 +4661,7 @@ class App:
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
         self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
         self.in_mesa_prepare = False   
-        self.intrnldata["mesa%d_configured"% boardnum] = True
+        self.data["_mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):      
@@ -4679,9 +4670,9 @@ class App:
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
                 actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
-                self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
-                self.widgets[p].handler_unblock(self.intrnldata[blocksignal]) 
-                self.widgets[p].child.handler_unblock(self.intrnldata[actblocksignal])          
+                self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
+                self.widgets[p].handler_unblock(self.data[blocksignal]) 
+                self.widgets[p].child.handler_unblock(self.data[actblocksignal])          
         self.window.hide()
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
@@ -4894,16 +4885,16 @@ class App:
                         halsignallist.append ((with_endings))
                 for data in(pinlist):
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[3]) 
-                    self.widgets[data[0]].handler_block(self.intrnldata[blocksignal])
+                    self.widgets[data[0]].handler_block(self.data[blocksignal])
                     blocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (data[1], data[2], data[3]) 
-                    self.widgets[data[0]].child.handler_block(self.intrnldata[blocksignal])
+                    self.widgets[data[0]].child.handler_block(self.data[blocksignal])
                     if custom:
                         self.widgets[data[0]].set_active_iter(newiter)
                     else:
                         self.widgets[data[0]].set_active_iter(piter)
-                    self.widgets[data[0]].child.handler_unblock(self.intrnldata[blocksignal])
+                    self.widgets[data[0]].child.handler_unblock(self.data[blocksignal])
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[3]) 
-                    self.widgets[data[0]].handler_unblock(self.intrnldata[blocksignal])
+                    self.widgets[data[0]].handler_unblock(self.data[blocksignal])
 
     def on_pp1pport_prepare(self, *args):
         self.data.help = 5
@@ -5486,10 +5477,10 @@ class App:
         templist1 = ["encoderline","encoder_leadscrew","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven","encoder_pulleydriver",
                 "steprev","motor_leadscrew","microstep","motor_wormdriven","motor_wormdriver","motor_pulleydriven","motor_pulleydriver"]
         for i in templist1:
-            self.intrnldata[i] = self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
+            self.data[i] = self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
         templist2 = [ "cbencoder_pitch","cbencoder_worm","cbencoder_pulley","cbmotor_pitch","cbmicrosteps","cbmotor_worm","cbmotor_pulley"]
         for i in templist2:
-            self.intrnldata[i] = self.widgets[i].connect("toggled", self.update_scale_calculation,axis)
+            self.data[i] = self.widgets[i].connect("toggled", self.update_scale_calculation,axis)
 
         self.update_scale_calculation(self.widgets,axis)
         self.widgets.scaledialog.set_title(_("Axis Scale Calculation"))
@@ -5498,9 +5489,9 @@ class App:
         self.widgets.scaledialog.hide()
         # remove signals
         for i in templist1:
-            self.widgets[i].disconnect(self.intrnldata[i])
+            self.widgets[i].disconnect(self.data[i])
         for i in templist2:
-            self.widgets[i].disconnect(self.intrnldata[i])
+            self.widgets[i].disconnect(self.data[i])
         if not result: return
         if encoder:
             self.widgets[axis+"encoderscale"].set_value(get("calcencoder_scale"))
@@ -5895,7 +5886,7 @@ class App:
         self.widgets.userneededscale.set_value(self.data.userneededscale)
         self.widgets.userneededmux16.set_value(self.data.userneededmux16)
 
-        if not self.intrnldata.components_is_prepared:
+        if not self.data._components_is_prepared:
             textbuffer = self.widgets.loadcompservo.get_buffer()
             for i in self.data.loadcompservo:
                 if i == '': continue
@@ -5912,7 +5903,7 @@ class App:
             for i in self.data.addcompbase:
                 if i == '': continue
                 textbuffer.insert_at_cursor(i+"\n" )
-            self.intrnldata.components_is_prepared = True
+            self.data._components_is_prepared = True
 
     def on_realtime_components_next(self,*args):
         self.data.userneededpid = int(self.widgets.userneededpid.get_value())
