@@ -1822,7 +1822,7 @@ static void check_hal_changes()
 	    old_halui_data.jog_minus[joint] = bit;
 	}
 
-	bit = *(&new_halui_data.jog_plus[joint]);
+	bit = new_halui_data.jog_plus[joint];
 	if ((bit != old_halui_data.jog_plus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
 		sendJogCont(joint,new_halui_data.jog_speed);
@@ -1832,7 +1832,7 @@ static void check_hal_changes()
 	}
 
 	floatt = new_halui_data.jog_analog[joint];
-	bit = (fabs(floatt) > *(&new_halui_data.jog_deadband));
+	bit = (fabs(floatt) > new_halui_data.jog_deadband);
 	if ((floatt != old_halui_data.jog_analog[joint]) || (bit && jog_speed_changed)) {
 	    if (bit)
 		sendJogCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));
@@ -1863,26 +1863,26 @@ static void check_hal_changes()
     }
 
     if (check_bit_changed(new_halui_data.joint_home[num_axes], old_halui_data.joint_home[num_axes]) != 0)
-	sendHome(*(&new_halui_data.joint_selected));
+	sendHome(new_halui_data.joint_selected);
 
     if (check_bit_changed(new_halui_data.joint_unhome[num_axes], old_halui_data.joint_unhome[num_axes]) != 0)
-	sendUnhome(*(&new_halui_data.joint_selected));
+	sendUnhome(new_halui_data.joint_selected);
 
-    bit = *(&new_halui_data.jog_minus[num_axes]);
-    js = *(&new_halui_data.joint_selected);
+    bit = new_halui_data.jog_minus[num_axes];
+    js = new_halui_data.joint_selected;
     if ((bit != old_halui_data.jog_minus[num_axes]) || (bit && jog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js, -*(&new_halui_data.jog_speed));
+	    sendJogCont(js, -new_halui_data.jog_speed);
 	else
 	    sendJogStop(js);
 	old_halui_data.jog_minus[num_axes] = bit;
     }
 
-    bit = *(&new_halui_data.jog_plus[num_axes]);
-    js = *(&new_halui_data.joint_selected);
+    bit = new_halui_data.jog_plus[num_axes];
+    js = new_halui_data.joint_selected;
     if ((bit != old_halui_data.jog_plus[num_axes]) || (bit && jog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js,*(&new_halui_data.jog_speed));
+	    sendJogCont(js,new_halui_data.jog_speed);
 	else
 	    sendJogStop(js);
 	old_halui_data.jog_plus[num_axes] = bit;
