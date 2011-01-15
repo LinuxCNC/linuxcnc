@@ -25,7 +25,7 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) {
-    s32 tmp = in;
+    __s32 tmp = in;
     if ( tmp >= 0 ) {
 	sign = 0;
 	out = tmp;
