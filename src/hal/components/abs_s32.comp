@@ -1,5 +1,5 @@
 //   This is a component for EMC2 HAL
-//   Copyright 2006 John Kasunich <jmkasunich at sourceforge dot net>
+//   Copyright 2011 Sebastian Kuzminsky <seb@highlab.com>
 //
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of version 2 of the GNU General
@@ -18,8 +18,8 @@ component abs_s32 "Compute the absolute value and sign of the input signal";
 pin in s32 in "input value" ;
 pin out s32 out "output value, always non-negative";
 pin out bit sign "Sign of input, false for positive, true for negative" ;
-pin out bit is_positive "TRUE if input is positive or 0";
-pin out bit is_negative "TRUE if input is negative";
+pin out bit is_positive "TRUE if input is positive, FALSE if input is 0 or negative";
+pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or positive";
 
 function _;
 license "GPL";
@@ -28,13 +28,15 @@ FUNCTION(_) {
     s32 tmp = in;
     if ( tmp >= 0 ) {
 	sign = 0;
-        is_positive = 1;
-        is_negative = 0;
 	out = tmp;
     } else {
 	sign = 1;
-        is_positive = 0;
-        is_negative = 1;
 	out = -tmp;
     }
+
+    if (tmp > 0.000001) is_positive = 1;
+    else is_positive = 0;
+
+    if (tmp < -0.000001) is_negative = 1;
+    else is_negative = 0;
 }
