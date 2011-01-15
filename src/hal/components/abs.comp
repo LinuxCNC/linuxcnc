@@ -18,6 +18,8 @@ component abs "Compute the absolute value and sign of the input signal";
 pin in float in "Analog input value" ;
 pin out float out "Analog output value, always positive";
 pin out bit sign "Sign of input, false for positive, true for negative" ;
+pin out bit is_positive "TRUE if input is positive or 0";
+pin out bit is_negative "TRUE if input is negative";
 
 function _;
 license "GPL";
@@ -26,9 +28,13 @@ FUNCTION(_) {
     double tmp = in;
     if ( tmp >= 0.0 ) {
 	sign = 0;
+        is_positive = 1;
+        is_negative = 0;
 	out = tmp;
     } else {
 	sign = 1;
+        is_positive = 0;
+        is_negative = 1;
 	out = -tmp;
     }
 }
