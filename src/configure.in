@@ -515,6 +515,7 @@ fe () {
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
+    EMC2_LATENCYPLOT_SCRIPT=$EMC2_HOME/scripts/latencyplot
     EMC2_SCRIPT=$EMC2_HOME/scripts/emc
     EMC2_SUFFIX=" (run-in-place)"
     EMC2_ICON=$EMC2_HOME/emc2icon.png
@@ -533,6 +534,7 @@ else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
+    EMC2_LATENCYPLOT_SCRIPT=$EMC2_BIN_DIR/latencyplot
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=emc2icon
@@ -573,6 +575,7 @@ AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
+AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
 
@@ -1415,6 +1418,7 @@ AC_CONFIG_FILES(../tcl/emc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])
 AC_CONFIG_FILES(../share/applications/emc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/emc-latencyplot.desktop)
 AC_CONFIG_FILES(../share/applications/emc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)

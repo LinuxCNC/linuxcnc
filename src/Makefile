@@ -494,6 +494,7 @@ install-kernel-indep: install-dirs
 	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)

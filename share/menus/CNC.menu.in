@@ -8,6 +8,7 @@
     <Include>
 	<Filename>emc.desktop</Filename>
 	<Filename>emc-latency.desktop</Filename>
+	<Filename>emc-latencyplot.desktop</Filename>
     </Include>
     <AppDir>@EMC2_HOME@/share/applications</AppDir>
     <DirectoryDir>@EMC2_HOME@/share/desktop-directories</DirectoryDir>

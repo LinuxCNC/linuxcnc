@@ -41,6 +41,10 @@ if [catch {package require BLT} msg] {
 }
 
 proc setdefaults {} {
+  set ::sc(emc2_tcl_lib_dir) @EMC2_TCL_LIB_DIR@
+  set           ::sc(halrun) @EMC2_HOME@/scripts/halrun
+  set         ::sc(realtime) @REALTIME@
+
   # note: program updates at 1 second intervals
   set          ::sc(xpoints)    60  ;# x axis points
   set      ::sc(xpoints,min)    15  ;#
@@ -117,7 +121,10 @@ proc init_rtai_testsuite {} {
 } ;# init_rtai_testsuite
 
 proc init_hal_timedelta {} {
-  eval exec realtime start
+  eval exec $::sc(realtime) start
+
+  # need with rip & menu for pkg Hal:
+  lappend ::auto_path $::sc(emc2_tcl_lib_dir)
   package require Hal
 
   set ::sc(label) "Latency (uSeconds) vs Time (seconds)   "
@@ -146,9 +153,9 @@ proc check {} {
   if {[string first rtai [exec lsmod]] < 0} {
     #puts "ok -- no rtai modules currently loaded"
   } else {
-    set msg "Cannot start with rtai modules loaded.\n\
-Stop all programs (emc) using realtime first and then run:\n\
-    halrun -U\n"
+    set msg "Cannot start with rtai modules loaded.\
+Stop all programs (emc) using realtime first and then run:\n\n\
+halrun -U\n"
     popup $msg
     exit
   }
@@ -487,7 +494,7 @@ proc finish_hal_timedelta {} {
 
   #puts [hal show funct]  ;# gone
   #puts [hal show thread] ;# not gone
-  eval exec halrun -U
+  eval exec $::sc(halrun) -U
 
 } ;# finish_hal_timedelta
 
