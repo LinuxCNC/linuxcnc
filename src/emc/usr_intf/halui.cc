@@ -153,7 +153,7 @@ WIP:
    ...
 
 DONE - jogging:
-   halui.jog.speed                     float //set jog speed
+   halui.jog-speed                     float //set jog speed
    halui.jog-deadband                  float //pin for setting the jog analog deadband (where not to move)
 
    halui.jog.0.minus                   bit
@@ -1613,6 +1613,7 @@ static void check_hal_changes()
     int select_changed, joint;
     hal_bit_t bit, js;
     hal_float_t floatt;
+    int jog_speed_changed;
 
     local_halui_str new_halui_data_mutable;
     copy_hal_data(*halui_data, new_halui_data_mutable);
@@ -1794,6 +1795,16 @@ static void check_hal_changes()
 
 // joint stuff (selection, homing..)
     select_changed = -1; // flag to see if the selected joint changed
+
+    // if the jog-speed changes while in a continuous jog, we want to
+    // re-start the jog with the new speed
+    if (fabs(old_halui_data.jog_speed - new_halui_data.jog_speed) > 0.00001) {
+        old_halui_data.jog_speed = new_halui_data.jog_speed;
+        jog_speed_changed = 1;
+    } else {
+        jog_speed_changed = 0;
+    }
+
     
     for (joint=0; joint < num_axes; joint++) {
 	if (check_bit_changed(new_halui_data.joint_home[joint], old_halui_data.joint_home[joint]) != 0)
@@ -1803,7 +1814,7 @@ static void check_hal_changes()
 	    sendUnhome(joint);
 
 	bit = new_halui_data.jog_minus[joint];
-	if (bit != old_halui_data.jog_minus[joint]) {
+	if ((bit != old_halui_data.jog_minus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
 		sendJogCont(joint,-new_halui_data.jog_speed);
 	    else
@@ -1812,7 +1823,7 @@ static void check_hal_changes()
 	}
 
 	bit = *(&new_halui_data.jog_plus[joint]);
-	if (bit != old_halui_data.jog_plus[joint]) {
+	if ((bit != old_halui_data.jog_plus[joint]) || (bit && jog_speed_changed)) {
 	    if (bit != 0)
 		sendJogCont(joint,new_halui_data.jog_speed);
 	    else
@@ -1821,8 +1832,9 @@ static void check_hal_changes()
 	}
 
 	floatt = new_halui_data.jog_analog[joint];
-	if (floatt != old_halui_data.jog_analog[joint]) {
-	    if (fabs(floatt) > *(&new_halui_data.jog_deadband))
+	bit = (fabs(floatt) > *(&new_halui_data.jog_deadband));
+	if ((floatt != old_halui_data.jog_analog[joint]) || (bit && jog_speed_changed)) {
+	    if (bit)
 		sendJogCont(joint,(new_halui_data.jog_speed) * (new_halui_data.jog_analog[joint]));
 	    else
 		sendJogStop(joint);
@@ -1858,7 +1870,7 @@ static void check_hal_changes()
 
     bit = *(&new_halui_data.jog_minus[num_axes]);
     js = *(&new_halui_data.joint_selected);
-    if (bit != old_halui_data.jog_minus[num_axes]) {
+    if ((bit != old_halui_data.jog_minus[num_axes]) || (bit && jog_speed_changed)) {
         if (bit != 0)
 	    sendJogCont(js, -*(&new_halui_data.jog_speed));
 	else
@@ -1868,7 +1880,7 @@ static void check_hal_changes()
 
     bit = *(&new_halui_data.jog_plus[num_axes]);
     js = *(&new_halui_data.joint_selected);
-    if (bit != old_halui_data.jog_plus[num_axes]) {
+    if ((bit != old_halui_data.jog_plus[num_axes]) || (bit && jog_speed_changed)) {
         if (bit != 0)
 	    sendJogCont(js,*(&new_halui_data.jog_speed));
 	else
