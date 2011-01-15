@@ -82,6 +82,10 @@ proc setdefaults {} {
   set    ::sc(report,ms,min)     100
   set    ::sc(report,ms,max)   10000
 
+  set        ::sc(sample,ms) 10 ;# min value is 1 mS using tcl after cmd
+                                ;# not sure all cpus could do 1mS so use 10mS
+  set  ::sc(show,sample,max)  1 ;# 1: show max  .out value in report,ms interval
+                                ;# 0: show last .out value of report,ms interval
 } ;# setdefaults
 
 proc init {} {
@@ -123,6 +127,8 @@ proc init_hal_timedelta {} {
                            ::yv4 s:latency }
   set ::sc(servo,max,last) 0
   set ::sc(base,max,last)  0
+  set ::sc(servo,out,sample,max) 0
+  set ::sc(base,out,sample,max)  0
 } ;# init_hal_timedelta
 
 proc popup {msg} { \
@@ -257,9 +263,25 @@ proc start_hal_timedelta {} {
   hal start
 
   set ::sc(start,time)  [expr [clock milliseconds]/1000.]
+  set ::sc(after,hal,sample) [after $::sc(sample,ms) hal_sample]
   set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
   after 2000 [list $::sc(stripchart) axis configure x -hide no]
 } ;# start_hal_timedelta
+
+proc hal_sample {} {
+  set  ::sc(base,out,sample) [hal getp  base:time.out]
+  set  ::sc(servo,out,sample) [hal getp  servo:time.out]
+
+  # save the largest sampled .out value:
+  if {$::sc(base,out,sample) > $::sc(base,out,sample,max)} {
+    set ::sc(base,out,sample,max) $::sc(base,out,sample)
+  }
+  if {$::sc(servo,out,sample) > $::sc(servo,out,sample,max)} {
+    set ::sc(servo,out,sample,max) $::sc(servo,out,sample)
+  }
+  # reschedule:
+  set ::sc(after,hal,sample) [after $::sc(sample,ms) hal_sample]
+} ;# hal_sample
 
 proc hal_report {} {
   set  ::sc(base,max)  [hal getp  base:time.max]
@@ -267,8 +289,13 @@ proc hal_report {} {
   set  ::sc(base,out)  [hal getp  base:time.out]
   set  ::sc(servo,out) [hal getp servo:time.out]
 
-  set ::sc(base,lat)  $::sc(base,out)
-  set ::sc(servo,lat) $::sc(servo,out)
+  if $::sc(show,sample,max) {
+    set ::sc(base,lat)  $::sc(base,out,sample,max)
+    set ::sc(servo,lat) $::sc(servo,out,sample,max)
+  } else {
+    set ::sc(base,lat)  $::sc(base,out)
+    set ::sc(servo,lat) $::sc(servo,out)
+  }
 
   # This script undersamples the hal threads so it can miss a latency
   # spike that bumps (*,max). Detect explicitly whenever an increase
@@ -302,6 +329,9 @@ proc hal_report {} {
 
   set ::sc(base,max,last)  $::sc(base,max)
   set ::sc(servo,max,last) $::sc(servo,max)
+
+  set  ::sc(base,out,sample,max)  0
+  set  ::sc(servo,out,sample,max) 0
 
   # reschedule:
   set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
@@ -341,7 +371,9 @@ proc restart_rtai_testsuite {} {
 
 proc restart_hal_timedelta {} {
   $::sc(stripchart) axis configure x -hide yes
+  after cancel $::sc(after,hal,sample)
   after cancel $::sc(after,hal,report)
+
   hal setp servo:time.reset 1
   hal setp  base:time.reset 1
 
@@ -354,6 +386,7 @@ proc restart_hal_timedelta {} {
   hal setp servo:time.reset 0
   hal setp  base:time.reset 0
 
+  set ::sc(after,hal,sample) [after $::sc(sample,ms) hal_sample]
   set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
   after 2000 [list $::sc(stripchart) axis configure x -hide no]
 } ;# restart_hal_timedelta
@@ -436,6 +469,7 @@ proc finish_rtai_testsuite {} {
 } ;# finish_rtai_testsuite
 
 proc finish_hal_timedelta {} {
+  after cancel $::sc(after,hal,sample)
   after cancel $::sc(after,hal,report)
   hal stop
 
