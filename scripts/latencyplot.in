@@ -1,7 +1,5 @@
-#!/usr/bin/wish
+#!/usr/bin/wish8.5
 set ::sc(rtai_testsuite,program) "@RTDIR@/testsuite/user/latency/run"
-
-# tested with tcl 8.4 and 8.5
 
 # Notes:
 # notusing y axis title because it coredumps with X BadMatch with wish8.5
@@ -31,7 +29,7 @@ set ::sc(rtai_testsuite,program) "@RTDIR@/testsuite/user/latency/run"
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #-----------------------------------------------------------------------
-package require Tk
+package require Tk 8.5 ;# needed for clock milliseconds
 
 if [catch {package require BLT} msg] {
   set msg "BLT package is required:\n\
