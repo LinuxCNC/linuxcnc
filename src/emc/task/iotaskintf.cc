@@ -223,8 +223,9 @@ static int forceCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
 
-    if (last_io_command == 0) {
-	last_io_command = (RCS_CMD_MSG *) malloc(0x4000);
+    if (largest_io_command_size < msg->size) {
+	largest_io_command_size = std::max<long>(msg->size, 4096);
+	last_io_command = (RCS_CMD_MSG *) realloc(last_io_command, largest_io_command_size);
     }
 
     if (0 != last_io_command) {
