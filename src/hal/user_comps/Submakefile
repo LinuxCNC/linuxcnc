@@ -21,12 +21,14 @@ USERSRCS += $(MODBUSSRCS)
 	@$(CC) $(LDFLAGS) $(MODBUSLDFLAGS) -o $@ $^
 TARGETS += ../bin/gs2_vfd
 
+ifeq ($(HIDRAW_H_USABLE),yes)
 SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
 USERSRCS += $(SHUTTLEXPRESS_SRC)
 ../bin/shuttlexpress: $(call TOOBJS, $(SHUTTLEXPRESS_SRC)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/shuttlexpress
+endif
 
 ../include/%.h: ./hal/user_comps/%.h
 	cp $^ $@
