@@ -8,6 +8,20 @@ export LANG=C
 
 PIDOF=@PIDOF@
 
+CheckKernel() {
+    case "@KERNEL_VERS@" in
+    "") ;;
+    *)
+	if [ `uname -r` != "@KERNEL_VERS@" ]; then
+	    cat 1>&2 << EOF
+RTAPI requires the real-time kernel @KERNEL_VERS@ to run.  Before running
+this realtime application, reboot and choose this kernel at the boot menu.
+EOF
+	    exit 1
+	fi
+    esac
+}
+
 if ! type -path readlink > /dev/null 2>& 1; then
     function readlink () {
         perl -le 'print readlink(shift)' -- $1
@@ -142,6 +156,7 @@ CheckMem(){
 }
 
 Load(){
+    CheckKernel
     case $RTPREFIX in
     sim)
     ;;
@@ -170,6 +185,7 @@ CheckLoaded(){
 }
 
 Unload(){
+    CheckKernel
     case $RTPREFIX in
     sim)
         rtapi_app exit 
