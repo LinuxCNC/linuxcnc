@@ -340,6 +340,22 @@ void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
     ], [MSR_H_USABLE=no])
 AC_MSG_RESULT($MSR_H_USABLE)
 
+AC_MSG_CHECKING([for usability of linux/hidraw.h])
+AC_TRY_LINK(
+    [
+#include <sys/ioctl.h>
+#include <linux/hidraw.h>
+long hidiocgrawinfo = HIDIOCGRAWINFO;
+    ],
+    [],
+    [
+	HIDRAW_H_USABLE=yes
+        AC_DEFINE([HIDRAW_H_USABLE], [], [Define to 1 if linux/hidraw.h is usable and defines HIDIOCGRAWINFO])
+],
+    [HIDRAW_H_USABLE=no])
+AC_MSG_RESULT($HIDRAW_H_USABLE)
+AC_SUBST([HIDRAW_H_USABLE])
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
