@@ -1,0 +1,3875 @@
+#!/usr/bin/wish
+
+#-----------------------------------------------------------------------
+# ngcgui.tcl is a front-end gui that reads one or more single function
+# gcode subroutine files, provides user prompts for parameters for an
+# arbitrary number of invocations, and creates a single output file
+# of gcode.
+
+# ngcgui can be run as a standalone application or its functionality
+# can be embedded in a parent tcl application including the axis gui.
+
+# Example standalone Usage, create link:
+#  $ ln -s somewhere/ngcgui.tcl directory_in_your_PATH/ngcgui
+#
+# Usage:
+#   ngcgui --help | -?
+#   ngcgui [Options] -D nc_files_directory_name
+#   ngcgui [Options] -i emc_inifile_name
+#   ngcgui [Options]
+#
+#   Options:
+#          [-S subroutine_file]
+#          [-p preamble_file]
+#          [-P postamble_file]
+#          [-o output_file]
+#          [-a autosend_file]            (autosend to axis default:auto.ngc)
+#          [--noauto]                    (no autosend to axis)
+#          [--font [big|small|fontspec]] (default: "Helvetica -10 bold")
+#          [--horiz|--vert]              (default: --horiz)
+#          [--cwidth comment_width]      (width of comment field)
+#          [--vwidth varname_width]      (width of varname field)
+#          [--quiet]                     (fewer comments in outfile)
+#          [--noiframe]                  (default: frame displays image)
+#
+#-----------------------------------------------------------------------
+# ngcgui was first developed on git-master version 2.4.0-pre
+# named "O" words available since: EMC 2.3.0, April 19, 2009
+
+#-----------------------------------------------------------------------
+# Copyright: 2010-2011
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#-----------------------------------------------------------------------
+
+# ngcgui allows a user to write subroutine files that contain
+# a single subroutine as described in
+#      3.7 Calling Files of the EMC ________ manual
+# and then use or test them with a gui frontend that simplifies
+# user entry of both calling arguments (positional parameters #1,#2,...)
+# and _global named parameters identified with a leading underscore like
+# (#<_global_named_parameter>)
+
+# Note: use of global named parameters as inputs to ngcgui is deprecated
+
+# see http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Named_Parameters
+
+# If the subroutine includes lines to equate positional parameters
+# (#n) to named parameters (#<parmname>) on special association lines like:
+#
+#    #<parmname> = #n (optional_comment_text)
+#
+# then the positional parameter will be supplemented with the more
+# descriptive #<parmname> in the gui entry box and any optional_comment_text
+# will be included in the gui.  Use of the descriptive #<parmname> in
+# the body of the subroutine will make it more readable but is not
+# mandatory.
+#
+# When this format is used, the order of appearance of the positional
+# parameters must be monotonically increasing with no omissions.  This
+# helps to prevent user errors in assignment of parmnames to parameters.
+#
+# A default value can also be specified on the special association line like:
+#    #<parmname> = #n (=dvalue)
+#  or
+#    #<parmname> = #n (=dvalue optional_comment_text)
+
+# All positional parameters used in the body of the subroutine must be
+# entered -- an error occurs if an item  entry is missing when a feature
+# is made with "Create Feature"
+
+
+# Note: use of global named parameters as inputs to ngcgui is deprecated
+# Similarly, for _globals, additional information can be included on a special
+# association comment line:
+#               ( #<_globalname> optional_comment_text )
+# to include a default value:
+#               ( #<_globalname> =dvalue optional_comment_text )
+# (note a default dvalue may be superseded by settings in a preamble file)
+
+# As in many languages, use of _globals is not recommended for user inputs
+# to ngcgui.
+
+# Entries for _globals may be omitted since they could be set through other
+# mechanisms.  An error _will_ occur at runtime if a used _global is
+# undefined.
+
+# (i think there are some bugs in interpreter passing named globals to subs
+# (when they are set using mdi -- using an "immediate" preamble entry
+# (like :#_someglobal=1234) can be helpful)
+
+# The emc gcode language does not provide a mechanism for returning
+# results so subroutines must set global parameters for results.
+# Within ngcgui, _globals with names that contain a colon (:) character
+# are ignored in the creation of  entry boxes.
+# For example, a subroutine called from a Subfile named o<line> returns
+# results in globals like: #<_line:theta>, $<_line:length>, etc.
+# This feature can be used to hide globals from entry boxes for any purpose
+# or for communication between routines
+
+# Workflow (for standalone usage):
+
+#  1) The directory location for ngc gcode files used in emc2 is specified
+#     in the ini file by: [DISPLAY]PROGRAM_PREFIX.
+#     In emc2.5, multiple directories can be specified using
+#     [RS274NGC]SUBROUTINE_PATH if
+
+#  2) Candidate subroutine files for use with this utility should contain
+#     a single subroutine as described in:
+#          3.7 Calling Files of the EMC ________ manual
+
+#  3) Optionally, user supplies a Preamble file of gcode
+#     No substitutions are performed on this file
+
+#  4) User specifies a subroutine file (Subfile).
+#     Entry boxes are created for each positional parameter and
+#     each _global variable used within the Subfile.
+
+#  5) Optionally, user supplies a Postamble file of gcode
+#     No substitutions are performed on this file
+
+#  6) "Create Feature" Button adds feature to queue for output file.
+#     The gui will verify that all positional parameters are not
+#     null but makes no checks on values.
+
+#     A conflict would occur if a _global variable is set in both
+#     the preamble file and a Subfile _global  entry box.  When
+#     this situation is detected, the preamble file value is entered
+#     in the entry box and the entry box is disabled from entry
+
+#     The gui will verify that all _globals are not
+#     null but makes no checks on values.
+
+#  7) "Finalize" button prompts for filename, and writes output file
+#     for all features and adds a terminating m2
+
+#  8) After finalizing the file, the user may send the file to
+#     the axis gui with the SendFileToAxis button.  If axis is not running,
+#     an error is displayed.  User should verify axis state before
+#     sending.  Errors detected by axis are shown within the axis
+#     application.
+
+#  9) To create a file with multiple sections from one or more
+#     subroutine files:
+#       a) enter values for Preamble, Subfile, Postamble
+#       b) fill in _global and positional parameters
+#       d) "Create Feature" number_1
+
+#       e) If this this the only feature, select "Finalize" to write
+#          the file.  Then select "SendFileToAxis" to send the file to axis
+#          or "Create Feature" to start a new file
+
+#       f) For multiple features, continue:
+#          enter different parameter values
+#            or
+#          specify new values for Preamble, Subfile, Postamble
+#          and fill in the new entry box values
+#       g) "Create Feature" number_2
+#       h) Repeat f),g) for all features
+#       i) "Finalize" the file (as above)
+
+#     The Preamble and Postamble files are optional, for example one
+#     might specify the Preamble only for the first subroutine and the
+#     Postamble only for the last subroutine in making a output file
+#     for a set of features with common parameters specified in a
+#     single preamble file of features.
+
+# Options:
+#   "Retain values on Subfile read"
+#        After opening a Subfile (and creating an output file) a second
+#        Subfile (third,fourth, ...) may be opened while retaining values
+#        for _globals and positional parameters where the names are
+#        _matched_ in the subsequent file.  This is useful when
+#        testing new subroutines and may be useful when combining multiple
+#        feature routines if they share parameters with common names like
+#        "#<zsafe>", "#<zstart>", etc.
+#        Values for _numbered_ positional parameters (#n) without a name
+#        association are never retained.
+
+#   "Expand subroutine"
+#        When checked, subroutines are expanded in the
+#        output file.  This allows the axis_gui to highlight
+#        gcode lines in the text window when paths are left-clicked in
+#        the 3D window (and vice-vera) when subroutines are used.
+#        In expanding subroutines, labels within are made unique
+#        to avoid name collision with labels in other expansions or
+#        other included subroutines.  Only one level of subroutine
+#        expansion is performed.  If the interpreter detects an error, it
+#        is sometimes unclear where it occurs when subroutines are called.
+#        Expanding the Subfile and rerunning often gives a line number
+#        as an aid in finding the problem.
+#
+#        When not checked, subroutines are called and not expanded.
+
+# Button Shortcut bindings:
+#   Preamble, Subfile, Postamble buttons
+#     Instead of using the button and file selection dialog, enter
+#     a new file name in the associated entry and <Return> to open
+#     and read different file.  When the filename differs from the
+#     currently laoded file, the filename text changes color.
+#     This shortcut is useful when you are debugging/editing one of the
+#     input files -- enter a <Return> in the corresponding entry item
+#     for the filename to reload the file.
+
+# Notes:
+#   0. configuring ngcgui is simplified with emc2.5; support for
+#      emc2.4 will cease when emc2.5 is released
+
+#   1. ngcgui supports subroutine files that contain a _single_
+#      subroutine in a file where the name of the subroutine
+#      is the same as the name of the file.
+#      ex:
+#          $ cat rect.ngc
+#          o<rect> sub
+#          ...
+#          o<rect> endsub
+#      Only comments and empty lines may appear before sub or after endsub
+
+#   2. The parameters passed to a subroutine (Postional parameters)
+#      are identified as "Numbered parameters" #1,#2,...,#n with
+#      n <= 30
+#      ngcgui finds any instances of #1,...,#30 and identifies
+#      each as a positional parameter for invocation of the subroutine.
+#      So, if you have a subroutine with 3 parameters (#1,#2,#3),
+#      it is not a good idea to use parameters like #4 or #30 in the
+#      body of the routine since they will increase the number of
+#      entry-box items in the ngcgui front-end and cause great confusion.
+#
+#      Note: use of global named parameters as inputs to ngcgui is deprecated
+#      In the manual:
+#         "O- call takes up to 30 optional arguments, which are passed
+#         to the subroutine as #1, #2, ..., #N.  Parameters from #N+1 to
+#          #30 have the same value as in the calling context."
+#      If used, these _globals will cause the confusion mentioned above
+#      so it would be better to use the "Named" format for _globals.
+#      For example: #<_feedrate>
+
+#   3. EMC gcode supports labels for conditional blocks and subroutines
+#      in both "Numbered" (ex: o100) and "Named" (ex: o<l101>) forms.
+#      Support for the "Numbered" label format is included, but
+#      it would be clearer to limit ngcgui support to:
+#          Positional Parametrs --> #1, ..., #n   1<=n<=30
+#          Named Globals        --> #<_global_name>
+#          Named Labels         --> o<label_name>
+#      This seems consistent with the trajectory of EMC gcode and
+#      accomodation of earlier styles (numbered labels and _globals like
+#      #n+1 to #30) is a small matter of editing:).
+
+#   4. If one inadvertently codes a _global name in the special association
+#      to positional parameters like this:
+#           #<_aglobal> = #4
+#      and uses the same _global elsewhere, unexpected results may occur.
+
+#   5. If a file (subfile,preamble,postamble) is removed or modified by
+#      another application (like an editor), the color for its name will
+#      change to notify the ngcgui user that it should probably be reloaded.
+
+#   6. The preamble file is provided to support simple setup actions
+#      like g20/g21,g40 etc.  Similarly, the postamble file supports
+#      terminating actions as required like m5.
+#      The preamble and postamble file can be more complex even
+#      including subroutines.  Such inclusion requires care
+#      by the user if multiple files are used to make a single output
+#      file with ngcgui because if a file containing subroutines
+#      is included more than once, a multiple definition error is
+#      flagged.  The user can avoid this by carefully selecting/deselecting
+#      preamble/postamble files but a better course is to avoid
+#      subroutines in these files and rely on a library of "subroutine-only"
+#      files in the [DISPLAY]PROGRAM_PREFIX directory.
+
+#   7. ngcgui inserts a special global variable named #<_feature> that begins
+#      with a value of 0 and is incremented for each added feature.  This
+#      _global can be tested in subroutines; no entry box is created for it.
+
+#   8. entry boxes for _global and positional parameters include key bindings
+#      for keys x,y,z,a,b,c,u,v,w, and d.  When embedded in axis, typing these keys
+#      cause the current value (emc_rel_act_pos) to be entered into the
+#      entry box.  This function makes it simple to enter current coordinate
+#      values. The d key will enter the 2*x for the diameter on a lathe)
+#
+#      (If there is a tcl global ::entrykeybinding proc, it will
+#      be used instead for these key bindings so that other embedding
+#      applications can handle thse keys -- see the source for the parameters
+#      passed to the proc.)
+
+#   9. lines before the o<>sub line and after the o<>endsub line must
+#      be comments (enclosed in parentheses) or begun with a semicolon (;)
+
+#  10. each time an output file is finished, ngcgui saves a copy in
+#      /tmp/ngcgui_bak/ just in case you want to see it or reuse it later
+#      The /tmp directory is normally purged at restart or after
+#      a number of days determined by the variable TMPTIME in
+#      the system file /etc/default/rcS (ubuntu for example)
+
+#  11. key bindings
+#      Escape return to Preview page (only if embed_in_axis)
+#      Ctrl-a Toggle autosend
+#      Ctrl-c Clear entries
+#      Ctrl-d Set entries to default values
+#      Ctrl-e Open editor specified by $VISUAL on last outfile
+#      Ctrl-f Create feature
+#      Ctrl-F Finalize
+#      Ctrl-k Show key bindings
+#      Ctrl-n Restart (cancel pending)
+#      Ctrl-p (re)Read Preamble
+#      Ctrl-P (re)Read Postamble
+#      Ctrl-r (re)Read Subfile
+#      Ctrl-s Show status
+#      Ctrl-S Show full status (debug info)
+#      Ctrl-u Open editor specified by $VISUAL on current subfile
+#      Ctrl-U Open editor specified by $VISUAL on current preamble
+
+#  12. All entry boxes are checked for valid numbers and the entry is
+#      turned red if invalid.
+
+#  13. Emc gcode (2.3 19apr09) allows a single semicolon use for comments.
+#      This gui supports semicolon comments but the syntax for special
+#      association lines requires the () forms:
+#
+#      for positional parameters 1<=n<=30:
+#         #<parmname>     = #n (=defaultvalue comment_text)
+#
+#      for globals:
+#         (#<_globalname> = value comment_text)
+
+#  14. Features requiring emc-2.4pre (that I can remember):
+#      a) error detection when sending file to axis
+
+#  15. Helper subroutine files that are included in the
+#      [DISPLAY]PROGRAM_PREFIX (or the[RS274NGC]SUBROUTINE_PATH)
+#      directory may not be suitable for use as a subfile.
+#      To indicate this to a user, include a special comment line:
+#          (not_a_subfile)
+#      Alternatively, these files can be placed in a different
+#      directory specified in the ini file [WIZARD]WIZARD_ROOT
+
+# 16. Using a launcher (like ubuntu gnome destop launcher) doesn't
+#     make it easy to pass in environmental variables like VISUAL.
+#     This works for a launcher: put ngcgui.tcl in a directory
+#     such as /home/yourname/bin and create script such as
+#     $ cat /home/yourname/bin/launch_ngc
+#     #!/bin/sh
+#     export VISUAL=gedit ;# your favorite editor
+#     /home/yourname/bin/ngcgui.tcl -a auto -i your inifile
+#
+#     make it executable:
+#     $ chmod 755 /home/yourname/bin/launch_ngc
+#     configure the launcher so the command is:
+#     Command: /home/yourname/bin/launch_ngc
+#
+# 17. obsolete: xembed support removed, internal embedding works better
+#
+# 18. If --vwidth 0 is used and a parameter has no comment, the variable
+#     name is placed in the comment field
+#
+# 19. For emc 2.4, the tcl proc embed_in_axis_tab will embed directly
+#     in an axis tab using [DISPLAY]USER_COMMAND_FILE (or ~/.axisrc)
+#     example:
+#     w = widgets.right.insert("end", 'ngcgui', text='Ngcgui')
+#     w.configure(borderwidth=1, highlightthickness=0)
+#     f = Tkinter.Frame(w, container=0, borderwidth=0, highlightthickness=0)
+#     f.pack(fill="both", expand=1, anchor="nw",side="top")
+#     root_window.tk.call("source","somepath/ngcgui.tcl")
+#     root_window.tk.call("::ngcgui::embed_in_axis_tab",f,"nameof_ngcgui_subfile")
+#
+# 20. The Preamble and Postamble entry fields may be used to insert
+#     immediate gcode commands instead of reading files.  The immediate
+#     syntax is signaled by a leading colon (:), commands are separated by
+#     semicolons (;).  Example:
+#          :t0m6;(debug, pausing);m0 (pause)
+#     The commands are not validated by ngcgui but are added to the
+#     output gcode file
+#
+# 21. When embedding in axis directly,  multiple tabpages can be specified.  Each
+#     can be used independently to add multiple features from the initial or
+#     newly selected subfiles.  If multiple tabpages have created features, the
+#     Finalize action will offer to finalize all tabpages in left-to-right order.
+#     Beware of this ordering.  If the order is incorrect, cancel and then
+#     rearrange page order before finalizing.
+#
+# 22. Subfiles can optionally include a special comment:
+#     (info: info_text)
+#     The info text will be displayed (embed_in_axis only)
+#
+# 23. An optional image file (.png,.gif,.jpg,.pgm) can accompany a subfile.
+#     The image file can help clarify the parameters; a window displaying
+#     the image is popped up when the subfile is read.  The image file
+#     should be in the same directory as the subfile and have the same
+#     name with an appropriate image suffix, e.g. the subfile iquad.ngc
+#     should be accompanied by an image file iquad.png
+#
+# 24. When ngcgui pages are embedded in the axis gui, options can
+#     be specified:
+#     NGCGUI_OPTIONS = opt1 opt2 ...
+#     opt items:
+#       nonew      -- disallow making   new tab page
+#       noremove   -- disallow removing any tab page
+#       noauto     -- noautosend (makeFile, then manually send)
+#       noiframe   -- put image inside a toplevel instead of a frame
+#                     so all controls are available
+#
+# 25. When ngcgui pages are embedded in the axis gui and the user
+#     is allowed to open new subroutines, the initial starting directroy
+#     for subfiles is:
+#        the first directory in [RS274NGC]SUBROUTINE_PATH if
+#                               [RS274NGC]SUBROUTINE_PATH is specified
+#     or
+#        the dir specified by [DISPLAY]PROGRAM_PREFIX if
+#                             [DISPLAY]PROGRAM_PREFIX is specified
+#     otherwise
+#        "."
+
+#-----------------------------------------------------------------------
+
+namespace eval ::ngcgui {
+  namespace export ngcgui ;# public interface
+}
+
+proc ::ngcgui::parse {hdl ay_name filename args} {
+  # return 1 for ok
+  # return 0 for error and lappend to (parse,msg)
+  upvar $ay_name ay
+  set ay($hdl,parse,msg) ""
+
+  # default info, supersede expected:
+  set ay($hdl,info) "Current subfile: $filename"
+
+  if {"$filename" == ""} {
+    lappend ay($hdl,parse,msg) "Need non-null file name"
+    return 0
+  }
+  if [catch {set fd [open $filename r]} msg] {
+    lappend ay($hdl,parse,msg) $msg
+    return 0
+  }
+  set basename [file tail $filename]
+  set idx [string last . $basename]
+  set ay($hdl,subroutine,name) [string replace $basename $idx end]
+#puts "parse $hdl $filename"
+  new_image $hdl $filename
+
+  if {$ay($hdl,retainvalues)} {
+    # _globals:             retain all
+    # positional parameters: retain some
+    foreach n [array names ay $hdl,arg,name,*] {
+      # example:
+      # exists    arg,name,03      == xloc
+      #           arg,value,03     == 999
+      # set       arg,byname,xloc  == 999
+      set num [string range $n [expr 1+[string last , $n]] end]
+      set name $ay($n)
+      if ![info exists ay($hdl,arg,value,$num)] continue
+      if {[string first # $name] != 0} {
+        set ay($hdl,arg,byname,$name) $ay($hdl,arg,value,$num)
+      }
+    }
+  } else {
+    # retaining none
+    foreach n [array names ay $hdl,global,name,*]    {unset ay($n)}
+    foreach n [array names ay $hdl,global,value,*]   {unset ay($n)}
+    foreach n [array names ay $hdl,arg,value*]       {unset ay($n)}
+    foreach n [array names ay $hdl,arg,byname,*]     {unset ay($n)}
+  }
+  # always unset these
+  foreach n [array names ay $hdl,arg,name,*]           {unset ay($n)}
+  foreach n [array names ay $hdl,arg,comment,*]        {unset ay($n)}
+  foreach n [array names ay $hdl,arg,value,*]          {unset ay($n)}
+  foreach n [array names ay $hdl,arg,dvalue,*]         {unset ay($n)}
+  foreach n [array names ay $hdl,global,name,*]        {unset ay($n)}
+  foreach n [array names ay $hdl,global,comment,*]     {unset ay($n)}
+  foreach n [array names ay $hdl,global,dvalue,*]      {unset ay($n)}
+  foreach n [array names ay $hdl,global,entrywidget,*] {unset ay($n)}
+  foreach n [array names ay $hdl,arg,entrywidget,*]    {unset ay($n)}
+
+  set min_num 999999; set max_num -1
+  set last_num 0
+  set ay($hdl,label_maxwidth) 0
+  set lct 0
+  set lno 1
+
+  catch {
+    foreach n [array names ::ngc_sub $hdl,*] {
+      unset ::ngc_sub($n)
+    }
+  }
+
+  while {![eof $fd]} {
+    gets $fd theline
+    incr lno
+
+    #remove blanks and tabs, use lower case (ngc rs274 format):
+    set line [string map {" " "" "	" ""} $theline] ;#sp,tab to ""
+    set line [string tolower $line]
+
+    # theline: original line, may have whitespace, caps, etc.
+    #    line: collapsed whitespace, lowercase
+    set line_end [expr -1 + [string len $line]] ;# last index
+    if {"$line" == ""} continue ;# discard empty lines
+    set iscomment 0
+    if {   ([string first ( $line] == 0 && [string last ) $line] == $line_end)\
+        || [string first \; $line] == 0 } {
+      set iscomment 1
+      # match to theline for caps to find spaceFEATUREspace on a comment line
+      if [string match "*\[ \]FEATURE\[ \]*"  $theline] {
+        lappend emsg "Disallowed use of ngcgui generated file as Subfile"
+        set ay($hdl,parse,msg) $emsg
+        catch {unset ay($hdl,argct)} ;# make parmcheck fail
+        return 0
+      }
+      if [string match "(not_a_subfile)"  $theline] {
+        lappend emsg "File <$filename> marked (not_a_subfile)\nNot intended for use as a subfile"
+        catch {unset ay($hdl,argct)} ;# make parmcheck fail
+        set ay($hdl,parse,msg) $emsg
+        return 0
+      }
+      if {[string first "(info:"  $theline] >= 0} {
+        set idx [string first : $theline]
+        set info [string range $theline [expr $idx +1] end]
+        set ay($hdl,info) [string trim $info " )"]
+      }
+    }
+
+    # find subroutine start:
+    if [string match o<*>sub* $line] {
+      if [info exists found_sub_end] {
+        lappend emsg "Multiple subroutines in file not allowed"
+        set ay($hdl,parse,msg) $emsg
+        return 0
+      }
+      set found_sub_start 1
+      set i1    [string first < $theline]
+      set i2    [string first > $theline]
+      set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
+      if {"$label" != "$ay($hdl,subroutine,name)"} {
+        puts stderr "bogus:$lno<$theline>"
+        lappend emsg \
+          "sub label: o<$label> does not match subroutine file name"
+      }
+      continue ;# the sub line itself is not saved
+    }
+
+    if {[info exists found_sub_end]} {
+      # allow null lines and comments after endsub
+      if $iscomment {
+         set ::ngc_sub($hdl,$lct) $theline
+         incr lct
+         continue
+      } else {
+        # sometimes there is an m2 after endsub, ignore it
+        if {[string first m2 [string trim [string tolower $theline]]] == 0} {
+          set ::ngc_sub($hdl,$lct) \
+              "($::ngc(any,app): ignoring M2 after endsub: <$theline>)"
+          puts stderr "ignoring M2 after endsub <$theline>"
+          incr lct
+          continue
+        } else {
+          puts stderr "bogus:$lno<$theline>"
+          lappend emsg "file contains lines after subend"
+        }
+      }
+    }
+
+    if {![info exists found_sub_start]} {
+      # allow null lines and comments before sub
+      if $iscomment {
+        set ::ngc_sub($hdl,$lct) $theline
+        incr lct
+        continue
+       } else {
+         puts stderr "bogus:$lno<$theline>"
+         lappend emsg "file contains lines before sub"
+       }
+    }
+
+    # find special comment line that associates
+    # a default value and/or comment with a _global
+    # like:     (#<_gloname> comment_text)
+    #   or:     (#<_gloname> =value comment_text)
+    #   or:     (#<_gloname> =value)
+    #
+    if {   $iscomment \
+        && [regexp -nocase "#<(_.*)>.*" $line match gname more]} {
+      set i1  [string first > $theline]
+      set i2  [string last  ) $theline]
+      set txt [string range   $theline [expr 1 + $i1] [expr -1 + $i2]]
+
+      set cmt [string trim $txt]
+      if [regexp -nocase "= *(\\+*-*\[0-9.\]*)(.*)" \
+             $cmt V(match) V(dvalue) V(comment)] {
+        set ay($hdl,global,dvalue,$gname)  $V(dvalue)
+        set ay($hdl,global,comment,$gname) [string trim $V(comment)]
+      } else {
+        set ay($hdl,global,comment,$gname) $cmt
+      }
+    }
+
+    if {$iscomment} {
+      set ::ngc_sub($hdl,$lct) $theline
+      incr lct
+      continue
+    }
+    # processing below for non-comments only
+
+    # find subroutine end:
+    if {   [info exists found_sub_start] \
+        && [string match o<*>endsub* $line] } {
+      set found_sub_end 1
+      set i1    [string first < $theline]
+      set i2    [string first > $theline]
+      set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
+      if {"$label" != "$ay($hdl,subroutine,name)"} {
+        puts stderr "bogus:$lno<$theline>"
+        lappend emsg \
+          "endsub label: o<$label> does not match subroutine file name"
+      }
+      continue ;# the endsub line is not saved
+    }
+
+    # find and save labels for name mangling when expanding
+    if {   [info exists found_sub_start] \
+       && ![info exists found_sub_end]} {
+      if {$lct >= 0} {
+        # save label identifiers so they can be made unique when expanding
+        # multiple subroutines
+        # but do not include labels for calls:
+        # match to line but use theline for label to preserve user case
+        if {     [string match *o<* $line] \
+             && ![string match *o<*>*call* $line]} {
+          set i1    [string first < $theline]
+          set i2    [string first > $theline]
+          set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
+          set ::ngc_sub($hdl,$lct,label) $label
+          set txt [string range $theline [expr $i2+1] end]
+          set ::ngc_sub($hdl,$lct) $txt
+        } elseif {   [string match o\[0-9\]* $line] } {
+          set tline [string trimleft $theline]
+          if [regexp -nocase "(^o\[0-9\]*)(.*)" $tline v label txt] {
+            set ::ngc_sub($hdl,$lct,label) $label
+            set ::ngc_sub($hdl,$lct) $txt
+          }
+        } else {
+          set ::ngc_sub($hdl,$lct) $theline
+          set label ""
+        }
+        if {[string length $label] > $ay($hdl,label_maxwidth)} {
+          set ay($hdl,label_maxwidth) [string length $label]
+        }
+      }
+      incr lct
+    }
+
+    # find numbered parameters #1--#30 inclusive
+    # in order to identify the biggest one since all
+    # in this range are considered to be positional parameters
+    # even if some in the range are not explicitly used
+    set l $line
+    while 1 {
+      set i1 [string first # $l]
+      if {$i1 < 0} {break}
+      set i2 [expr 1 + $i1]
+      set i3 [expr 2 + $i1]
+      set i4 [expr 3 + $i1]
+      set char2 [string range $l $i2 $i2]
+      set char3 [string range $l $i3 $i3]
+
+      set v $char2$char3[string range $l $i4 $i4]
+      if {   [is_int $v] \
+          && ($v > 30) } {
+        break ;# ignore #nnn...
+      }
+      if {[is_int $char2] && ![is_int $char3]} {
+        set num_var $char2
+        if {$num_var < $min_num} {set min_num $num_var}
+        if {$num_var > $max_num} {set max_num $num_var}
+        set l [string range $l $i3 end]
+        continue
+      }
+      if {[is_int $char2] && [is_int $char3]} {
+        set num_var $char2$char3
+        if { 0 < $num_var & $num_var <= 30} {
+          if {$num_var < $min_num} {set min_num $num_var}
+          if {$num_var > $max_num} {set max_num $num_var}
+          set l [string range $l [expr 1+$i3] end]
+          continue
+        }
+      }
+      set l [string range $l $i2 end]
+    }
+
+    # find special association lines that match:
+    # for positional parameters, special line is
+    #      #<parmname>=#n    where 0 <= n <= 30
+    #  or  #<parmname>=#n (=defaultvalue comment_text)
+    if {   [string match *#<*>=#\[1-9\]*         $line] \
+        || [string match *#<*>=#\[1-2\]\[0-9\]*  $line] \
+        || [string match *#<*>=#30*              $line] } {
+
+      if { [string match *#<*>=#\[3-9\]\[1-9\]*  $line] } {
+        # exclude #31-#99
+      } elseif {[string match *#<*>=#\[1-9\]\[0-9\]\[0-9\]*  $line] } {
+        # exclude #nnn... (3 or more digit numbers)
+      } else {
+        set i1 [string first >=# $line]
+        set parmname [string range $line 2 [expr -1+$i1]]
+        set num [string range $line [expr 3+ $i1] end]
+
+        # remove trailing comment:
+        set i1 [string first ( $num]
+        if {$i1 >= 0} {
+          set num [string range $num 0 [expr -1 +$i1]]
+        }
+        set num02 [format %02d $num]
+        set ay($hdl,arg,name,$num02) $parmname
+        set expect_num [expr $last_num +1]
+        # enforce these to appear in order to help prevent user errors
+        if {$num != $expect_num && $num <= 30} {
+          puts stderr "bogus:$lno<$theline>"
+          lappend emsg \
+            "out of sequence positional parameter $num expected: $expect_num "
+        } else {
+          set last_num $num
+        }
+
+        set i1 [string first ( $theline]
+        set i2 [string last  ) $theline]
+        if { $i1 >0 && $i2 > $i1} {
+          set cmt [string range $theline [expr 1 + $i1] [expr -1 + $i2]]
+          if [regexp -nocase "= *(\\+*-*\[0-9.\]*)(.*)" \
+                 $cmt V(match) V(dvalue) V(comment)] {
+            set ay($hdl,arg,dvalue,$num02)  $V(dvalue)
+            set ay($hdl,arg,comment,$num02) [string trim $V(comment)]
+          } else {
+            set ay($hdl,arg,comment,$num02) $cmt
+          }
+        }
+      }
+      # for --vwidth 0, make sure something exists for comment
+      if {   $ay(any,width,varname) == 0 \
+          && (   ![info exists ay($hdl,arg,comment,$num02)] \
+              || "$ay($hdl,arg,comment,$num02)" == "")
+         } {
+        set ay($hdl,arg,comment,$num02) $ay($hdl,arg,name,$num02)
+      }
+    }
+
+    # find _globals anywhere on line
+    # but ignore _globals which contain a ":" character
+    # so these can be used as return variables from sub calls
+    # or for other purposes
+    # don't use a line like #<_a> =[2*#<_b:answer>] to define #<_a>
+    # because the whole line is ignored (use another line to find #<_a>
+    if [string match *#<_* $line] {
+      set gline $line
+      set ct 0
+
+      while 1 {
+        set i1 [string first #<_ $gline]
+        if {$i1 < 0} break
+        set gline [string replace $gline 0 $i1]
+
+        set i2 [string first > $gline]
+        if {$i2 < 0} {
+          puts stderr problem1:$gline
+          break
+        }
+        set gname [string range $gline 1 [expr -1+$i2]]
+        # ignore name that includes a colon (:)
+        if {[string first : $gname] > 0} break
+        # ignore _global named _feature
+        if {"$gname" == "_feature"} break
+        if {![info exists ay($hdl,global,value,$gname)]} {
+          set ay($hdl,global,value,$gname) ""
+        }
+        set ay($hdl,global,name,$gname)  $gname
+        set gline [string replace $gline 0 $i2]
+        incr ct
+        if {$ct > 20} {
+          puts stderr toomany
+          break
+        }
+      } ;# while
+    }
+  } ;# while !eof
+  set ay($hdl,sublines) $lct
+  close $fd
+
+  # for args without a special name association, use #n for name
+  for {set i 1} {$i <= $max_num} {incr i} {
+    set num02 [format %02d $i]
+    if ![info exists ay($hdl,arg,name,$num02)] {
+      set ay($hdl,arg,name,$num02) #$i ;# ensure all intervening parms
+    }
+  }
+
+  set ay($hdl,argct) $max_num
+
+  # remove any notused retained items
+  for {set i [expr $max_num +1]} {$i <= 30} {incr i} {
+    set num02 [format %02d $i]
+    catch {unset ay($hdl,arg,name,$num02)}
+    catch {unset ay($hdl,arg,comment,$num02)}
+  }
+  foreach v [array names ay $hdl,global,value,*] {
+    set item [string replace $v 0 [string last , $v]]
+    if ![info exists ay($hdl,global,name,$item)] {
+      unset ay($hdl,global,value,$item)
+    }
+  }
+
+  # for --vwidth 0, make sure something exists for comment
+  if {$ay(any,width,varname) == 0 } {
+    foreach v [array names ay $hdl,global,name,*] {
+      set gname [string replace $v 0 [string last , $v]]
+       if {(   ![info exists ay($hdl,global,comment,$gname)] \
+            || "$ay($hdl,global,comment,$gname)" == "")
+       } {
+       set ay($hdl,global,comment,$gname) $gname
+      }
+    }
+  }
+
+  # error checks
+  if {$max_num < 0 && "" == [array names ay $hdl,global,name,*]} {
+    # not exactly an error but flag anyway
+    #lappend emsg "No _globals or subroutine parms found in $filename"
+    #puts stderr "No _globals or subroutine parms found in $filename"
+  }
+  if {![info exists found_sub_start]} {
+    lappend emsg "no sub found in file"
+  }
+  if {[info exists found_sub_start] && ![info exists found_sub_end]} {
+    lappend emsg "no endsub found in file"
+  }
+  if [info exists emsg] {
+    set ay($hdl,parse,msg) $emsg
+    return 0
+  }
+  return 1 ;# ok
+} ;# parse
+
+proc ::ngcgui::dt {} {
+  return [clock format [clock seconds] -format %y%m%d:%H.%M.%S]
+} ;# dt
+
+proc ::ngcgui::is_int {v} {
+  if [catch {format %d $v}] { return 0 }
+  return 1
+} ;# is_int
+
+proc ::ngcgui::trimprefix {s {pfx opt,} } {
+  set idx [string first $pfx $s]
+  if {$idx != 0} {return $s}
+  return [string range $s [string length $pfx] end]
+} ;# trimprefix
+
+proc ::ngcgui::trimsuffix {s {sfx .ngc} } {
+  set idx [string last $sfx $s]
+  if {$idx <0} {return $s}
+  return [string range $s 0 [expr -1 + $idx]]
+} ;# trimsuffix
+
+proc ::ngcgui::qid {} {
+  # unique identifier
+  if ![info exists ::ngc(any,qid)] { set ::ngc(any,qid) 0 }
+  return [incr ::ngc(any,qid)]
+} ;# qid
+
+proc ::ngcgui::initgui {hdl} {
+  if ![info exists ::ngc(embed,hdl)] {set ::ngc(embed,hdl) 0}
+  # fixed initializations
+  set ::ngc(any,pentries)       10 ;# number of entries in positional frame
+                                   ;# 30 max positional parameters
+                                   ;# 3 frames max so must have pentries >=10
+  set ::ngc(any,pollms)         2000
+  set ::ngc(any,wait_restart)   0  ;# for alternate behavior
+
+  set ::ngc(any,color,black)    black
+  set ::ngc(any,color,stdbg)    #dcdad5 ;# default gray color set
+  set ::ngc(any,color,title)    lightsteelblue2
+  set ::ngc(any,color,vdefault) darkseagreen2 ;# value defaults
+  set ::ngc(any,color,readonly) gray
+
+  set ::ngc(any,color,ok)       green4
+  set ::ngc(any,color,single)   palegreen
+  set ::ngc(any,color,multiple) cyan
+  set ::ngc(any,color,feature)  lightslategray
+  set ::ngc(any,color,prompt)   blue3
+  set ::ngc(any,color,warn)     darkorange
+  set ::ngc(any,color,notice)   lightgoldenrodyellow
+
+  set ::ngc(any,color,error)    red
+  set ::ngc(any,color,filegone) maroon
+  set ::ngc(any,color,filenew)  darkorange
+  set ::ngc(any,color,filemod)  purple
+  set ::ngc(any,color,custom)   ivory2
+  set ::ngc(any,color,default)  blue4
+
+  set ::ngc($hdl,afterid)        ""
+  statemap $hdl ;# set up state transitions
+} ;# initgui
+
+
+proc ::ngcgui::preset {hdl ay_name} {
+  # using apps call this to populate ay_name,
+  # superseded items as reqd
+  # all required items with defaults:
+  upvar $ay_name ay
+
+  # per-instance items:
+  set ay($hdl,fname,subfile)      ""
+  set ay($hdl,fname,preamble)     ""
+  set ay($hdl,fname,postamble)    ""
+  set ay($hdl,fname,outfile)      ""
+  set ay($hdl,auto)               1
+  set ay($hdl,fname,autosend)     "auto.ngc"
+  set ay($hdl,dir)                ""
+  set ay($hdl,retainvalues)       1
+  set ay($hdl,expandsubroutine)   0
+  set ay($hdl,verbose)            1
+  set ay($hdl,chooser)            0
+  set ay($hdl,info)               "Choose Files"
+  set ay($hdl,standalone)         0
+
+  # common to any instance items:
+  set ay(any,app)                ngcgui
+  set ay(any,entrykeys,special)  {x X y Y z Z a A b B c C u U v V w W d D}
+  set ay(any,dir,just)           "/tmp/ngcgui_bak" ;# set to "" to disable
+  set ay(any,aspect)             horiz
+  set ay(any,font)               {Helvetica -10 normal}
+  set ay(any,width,comment)      12
+  set ay(any,width,varname)      12
+  set ay(any,img,width,max)     320 ;# subsample image to this max size
+  set ay(any,img,height,max)    240 ;# subsample image to this max size
+
+  # options currently available with embed_in_axis only
+  set ::ngc(opt,nonew)      0 ;# default allows new
+  set ::ngc(opt,noremove)   0 ;# default allows remove
+  set ::ngc(opt,noauto)     0 ;# default is autosend
+  set ::ngc(opt,noinput)    0 ;# default is to show an input frame
+  set ::ngc(opt,noiframe)   0 ;# default uses a separate toplevel for img
+} ;# preset
+
+proc ::ngcgui::gui {hdl mode args} {
+  # use ::ngcgui::preset for required ::ngc($hdl,) items and defaults
+  # standalone invoke: ::ngcgui::gui $hdl standalone wframe
+  # embedded   invoke: ::ngcgui::gui $hdl create     wframe
+  switch $mode {
+    standalone {
+      set ::ngc($hdl,standalone) 1
+      set w [::ngcgui::gui $hdl create $args]
+      return $w
+    }
+    create {
+      if {"$hdl" == ""} {return -code error "hdl is null"}
+      # mandatory arg for mode==create is a frame
+      # caller packs/unpacks wframe which must be a valid name
+      # but not exist yet
+      set wframe [lindex $args 0]
+      initgui $hdl
+      set ::ngc($hdl,l,width) 10 ;# min lside width, see also tw
+      if {"$::ngc(any,dir,just)" == ""} {
+        unset ::ngc(any,dir,just) ;# disable feature:
+      } else {
+        if {   [file isdirectory $::ngc(any,dir,just)] \
+            && [file writable    $::ngc(any,dir,just)] \
+          } {
+          # ok
+        } else {
+          if [catch {file mkdir $::ngc(any,dir,just)} msg] {
+            puts stderr $msg ;# no such dir for example
+            return "" ;# something bad happened
+          }
+        }
+      }
+      if {"$wframe" == ""} {
+        return -code error "gui:create no arg for wframe"
+      }
+      set wframe [frame $wframe] ;# wframe specifies name, create it here
+      pack $wframe -anchor nw -fill none -expand 0 ;# NB
+      set ::ngc($hdl,top) [winfo toplevel $wframe]
+      set ::ngc($hdl,topf) $wframe ;# ok for embed_in_axis, ok standalone
+
+      if {"$::ngc($hdl,dir)" == ""} {set ::ngc($hdl,dir) .}
+
+      # defaults:
+      set ::ngc($hdl,id)      0
+      set ::ngc($hdl,savect)  0
+      conf $hdl restart,widget state disabled
+      set ::ngc($hdl,ftypes)  { {{NGC} {.ngc}} }
+
+      # initializations:
+      set ::ngc($hdl,data,preamble)    ""
+      set ::ngc($hdl,data,postamble)   ""
+
+      # special frame for embed,axis
+      set removable 0; set newable 0
+      if {[info exists ::ngc(embed,axis)] } {
+        if !$::ngc($hdl,standalone) {
+          if {!$::ngc(opt,noremove) || $::ngc($hdl,chooser)} {
+            set removable 1
+          }
+          if {!$::ngc(opt,nonew) || $::ngc($hdl,chooser)} {
+            set newable 1
+          }
+        }
+        tabmanage $::ngc($hdl,axis,page) $wframe \
+                  "$::ngc(any,app)-$hdl" \
+                  ::ngc($hdl,info) \
+                   $removable $newable
+      }
+      set wframe [frame $wframe.[qid]]
+
+      set bw 8
+      set tw 10 ;# min text width (default is 20) see also l,width
+      switch $::ngc(any,aspect) {
+        vert {
+          set wI [frame $wframe.input   -bd 1 -relief sunken] ;# input frame
+          set wO [frame $wframe.output  -bd 1 -relief sunken] ;# output frame
+          set wV [frame $wframe.var]                          ;# variable frame
+          set wC [frame $wframe.create  -bd 1 -relief sunken] ;# create frame
+          set wE [frame $wframe.exit    -bd 1 -relief sunken] ;# exit frame
+
+          pack $wI -side top    -fill x -expand 1 -anchor n
+          pack $wE -side bottom -fill x -expand 1 -anchor s
+          pack $wO -side bottom -fill x -expand 1 -anchor s
+          pack $wC -side bottom -fill x -expand 1 -anchor n
+          pack $wV -side top    -fill x -expand 1 -anchor n
+          set ::ngc($hdl,pack,positional) top
+          set ::ngc($hdl,pack,global)     top
+        }
+        horiz {
+          set wL [frame $wframe.left -bd 2 -relief ridge] ;# left frame
+          set wI [frame $wL.input    -bd 0 -relief sunken] ;# input frame
+          set wO [frame $wL.output   -bd 0 -relief sunken] ;# output frame
+          set wC [frame $wL.create   -bd 0 -relief sunken] ;# create frame
+          set wE [frame $wL.exit     -bd 0 -relief sunken] ;# exit frame
+          set wV [frame $wframe.var  -bd 0 -relief flat]   ;# variable frame
+
+          pack $wL -side left    -fill x -expand 1 -anchor nw
+          pack $wI -side top     -fill x -expand 1 -anchor n
+          pack $wO -side top     -fill x -expand 1 -anchor n
+          pack $wE -side bottom  -fill x -expand 1 -anchor s
+          pack $wC -side bottom  -fill x -expand 1 -anchor s
+          pack $wV -side left -fill x -expand 1 -anchor n
+          set ::ngc($hdl,pack,positional) left
+          set ::ngc($hdl,pack,global)     left
+          $wframe config -relief ridge -bd 2
+        }
+        default {return -code error ngc::gui:aspect <$aspect>}
+      }
+      set ::ngc($hdl,varframe) $wV
+      set ::ngc($hdl,iframe)   $wI
+      image_init $hdl
+
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      #pack [label $w.[qid] -anchor w -text "Input Files" \
+      #    -width $::ngc($hdl,l,width)\
+      #    -bg $::ngc(any,color,title) -relief groove] -fill x -expand 1
+      pack [label $w.[qid] -anchor w -text "Controls" \
+          -width $::ngc($hdl,l,width)\
+          -bg $::ngc(any,color,title) -relief groove] -fill x -expand 1
+
+# wI inputs
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+
+      set b [button $w.[qid] -font $::ngc(any,font) \
+            -pady 0 -width $bw -text "Preamble" \
+            -command "::ngcgui::gui $hdl getpreamble"]
+      set ::ngc($hdl,begin,widget) $b
+      pack $b -side left -expand 0
+      set e [entry $w.e -width $tw -font $::ngc(any,font) \
+            -textvariable ::ngc($hdl,dname,preamble)]
+      bind $e <Return> [list ::ngcgui::readfile $hdl preamble]
+      pack $e -side left -fill x -expand 1
+      set ::ngc($hdl,preamble,widget) $e
+
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      set b [button $w.[qid] -font $::ngc(any,font) \
+            -pady 0 -width $bw -text "Subfile" \
+            -command "::ngcgui::gui $hdl getsubfile"]
+      pack $b -side left -expand 0
+      set e [entry $w.e -width $tw -font $::ngc(any,font) \
+            -textvariable ::ngc($hdl,dname,subfile)]
+      bind $e <Return> [list ::ngcgui::readfile $hdl subfile]
+      pack $e -side left -fill x -expand 1
+      set ::ngc($hdl,subfile,widget) $e
+
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      set b [button $w.[qid] -font $::ngc(any,font) \
+            -pady 0 -width $bw -text "Postamble" \
+            -command "::ngcgui::gui $hdl  getpostamble"]
+      pack $b -side left -expand 0
+      set e [entry $w.e -width $tw -font $::ngc(any,font) \
+            -textvariable ::ngc($hdl,dname,postamble)]
+      bind $e <Return> [list ::ngcgui::readfile $hdl postamble]
+      pack $e -side left -fill x -expand 1
+      set ::ngc($hdl,postamble,widget) $e
+
+#     set w [frame $wI.[qid]]
+#     pack $w -fill x -expand 1
+#     pack [label $w.[qid] -anchor w -text "Options" \
+#          -bg $::ngc(any,color,title) -relief groove] -fill x -expand 1
+
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
+            -text "Retain values on Subfile read" \
+            -command [list ::ngcgui::aftertoggle $hdl retainvalues] \
+            -variable ::ngc($hdl,retainvalues)]
+      pack $b -side left -fill x -expand 1
+
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
+            -text "Expand subroutine" \
+            -command [list ::ngcgui::aftertoggle $hdl expandsubroutine] \
+            -variable ::ngc($hdl,expandsubroutine)]
+      pack $b -side left -fill x -expand 1
+
+if {1} {
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
+            -text "Autosend" \
+            -command [list ::ngcgui::aftertoggle $hdl auto] \
+            -variable ::ngc($hdl,auto)]
+      pack $b -side left -fill x -expand 1
+}
+if {0} {
+# take up too much room
+      set w [frame $wI.[qid]]
+      pack $w -fill x -expand 1
+      set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
+            -text "Verbose ngcfile" \
+            -command [list ::ngcgui::aftertoggle $hdl verbose] \
+            -variable ::ngc($hdl,verbose)]
+      pack $b -side left -fill x -expand 1
+}
+
+# wC create frame
+      # used fixed widths so buttons stay same when text is changed
+      set w [frame $wC.[qid]]
+      pack $w -side top -fill x -expand 1
+      set b [button $w.[qid] -text "Create Feature" -font $::ngc(any,font) \
+            -width 14 -padx 1\
+            -command "::ngcgui::gui $hdl savesection"]
+      pack $b -side left -fill x -expand 1
+      set ::ngc($hdl,save,widget) $b
+
+      set text "MakeFile"
+      if $::ngc($hdl,auto) {set text Finalize}
+      set b [button $w.[qid] -state disabled -font $::ngc(any,font) \
+            -fg $::ngc(any,color,prompt) \
+            -width 8 -padx 1\
+            -text "$text" -command "::ngcgui::gui $hdl finalize"]
+      pack $b -side left -fill x -expand 1
+      set ::ngc($hdl,finalize,widget) $b
+
+      set w [frame $wC.[qid]]
+      pack $w -fill x -expand 1
+      pack [label $w.[qid] -width 0 -font $::ngc(any,font) \
+           -pady 0 -relief flat \
+           -textvariable ::ngc($hdl,savect)] -side left -fill x -expand 0
+
+      if {!$::ngc(opt,noinput) || $::ngc($hdl,chooser)} {
+        # reread notapplicable with no controls
+        set b [button $w.[qid] -width 2 -font $::ngc(any,font) \
+             -padx 0 -pady 0 -text "Reread" \
+             -state disabled \
+             -command [list ::ngcgui::reread $hdl] \
+             ]
+        pack $b -side left -fill x -expand 1
+        set ::ngc($hdl,reread,widget) $b
+      }
+
+      set b [button $w.[qid] -width 2 -font $::ngc(any,font) \
+           -padx 0 -pady 0 -text "Restart" \
+           -state disabled \
+           -command [list ::ngcgui::message $hdl restart] \
+           ]
+      pack $b -side left -fill x -expand 1
+      set ::ngc($hdl,restart,widget) $b
+      # sendfile,widget button is forgettable
+      # use wC frame avoids problems with ctrl-a resizing app
+      set b [button $wC.[qid] -state disabled -font $::ngc(any,font) \
+            -pady 1 \
+            -text "SendFileToAxis" -command [list ::ngcgui::sendfile $hdl]]
+      pack $b -side bottom -fill x -expand 1
+      set ::ngc($hdl,sendfile,widget) $b
+
+      if $::ngc($hdl,auto) {
+        pack forget $::ngc($hdl,sendfile,widget)
+        $::ngc($hdl,finalize,widget) conf -fg $::ngc(any,color,prompt)
+      }
+
+      if $::ngc($hdl,standalone) {
+        set b [button $w.[qid] -takefocus 0 -font $::ngc(any,font) \
+               -pady 0 -text "Exit" \
+               -command [list ::ngcgui::bye $hdl]]
+        pack $b -side left -fill none -expand 0
+      }
+
+# wO output frame
+      set w [frame $wO.[qid] -bd 2]
+      pack $w -side top -fill x -expand 1
+
+      set ::ngc($hdl,msg,widget) [label $wE.[qid] \
+                             -width 20\
+                             -relief sunken \
+                             -anchor w] ;# update with config
+      pack $::ngc($hdl,msg,widget) -side left -fill x -expand 1
+
+# wE exit frame obsoleted
+#------------------------------------------------------------------------------
+      if {"$::ngc($hdl,fname,preamble)" != ""} {
+        set ::ngc($hdl,fname,preamble) [string trim $::ngc($hdl,fname,preamble)]
+        ::ngcgui::gui $hdl readpreamble
+      }
+      if {"$::ngc($hdl,fname,subfile)" != ""} {
+        set ::ngc($hdl,fname,subfile) [string trim $::ngc($hdl,fname,subfile)]
+        ::ngcgui::gui $hdl readsubfile
+      }
+      if {"$::ngc($hdl,fname,postamble)" != ""} {
+        set ::ngc($hdl,fname,postamble) \
+          [string trim $::ngc($hdl,fname,postamble)]
+        ::ngcgui::gui $hdl readpostamble
+      }
+      if [info exists ::ngc($hdl,fail)] {
+        puts stderr "\n$::ngc(any,app):Unrecoverable problem:\n<$hdl>$::ngc($hdl,fail)"
+        ::ngcgui::deletepage $::ngc($hdl,axis,page)
+        return
+      }
+      update ;# ensure entry variables are updated before starting checks
+      periodic_checks $hdl
+      bindings $hdl init
+      if ![info exists ::ngc(embed,axis)] [list updownkeys $::ngc($hdl,top)]
+      after 2000 [list ::ngcgui::showmessage $hdl startup]
+      return $wframe
+      # ::ngcgui::gui-create-end
+    }
+    getpreamble {
+      if {$::ngc($hdl,fname,preamble) == ""} {
+        set idir $::ngc($hdl,dir)
+      } else {
+        set idir [file dirname $::ngc($hdl,fname,preamble)]
+      }
+      set filename [tk_getOpenFile \
+           -title "$::ngc(any,app) Preamble file" \
+           -defaultextension .ngc \
+           -initialfile [file tail $::ngc($hdl,fname,preamble)] \
+           -initialdir  $idir \
+           -filetypes $::ngc($hdl,ftypes) \
+           ]
+      set filename [string trim $filename]
+      if {"$filename" == ""} return
+      set ::ngc($hdl,fname,preamble) $filename
+      ::ngcgui::gui $hdl readpreamble
+      return
+    }
+    readpreamble {
+      if {   ![string match *.ngc $::ngc($hdl,fname,preamble)]\
+          &&  [file readable "$::ngc($hdl,fname,preamble).ngc"]} {
+        set ::ngc($hdl,fname,preamble) "$::ngc($hdl,fname,preamble).ngc"
+      }
+      set ::ngc($hdl,data,preamble) ""
+      foreach n [array names ::ngc $hdl,global,prevalue,*] {unset ::ngc($n)}
+
+      foreach n [array names ::ngc $hdl,global,entrywidget,*] {
+        $::ngc($n) conf -state normal -takefocus 1
+      }
+      if {"$::ngc($hdl,fname,preamble)" == ""} {
+        # message $hdl nullpreamble
+        return
+      } else {
+        if [catch {set fpre [open $::ngc($hdl,fname,preamble) r]} msg] {
+          lappend emsg $msg
+          showerr $emsg
+          message $hdl preambleerror
+          if {$::ngc(opt,noinput) && !$::ngc($hdl,chooser)} {
+            set ::ngc($hdl,fail) "preamble:$msg" ;# unrecoverable
+          }
+          return
+        }
+        set ::ngc($hdl,dname,preamble) [file tail $::ngc($hdl,fname,preamble)]
+        lappend ::ngc($hdl,data,preamble) \
+                "($::ngc(any,app): preamble file: $::ngc($hdl,fname,preamble))"
+
+        # find _globals that are set (=) in the preamble file
+        while {![eof $fpre]} {
+          gets $fpre line
+          set l [string map {" " "" "	" ""} $line] ;#sp,tab to ""
+          if {"$l" == ""} continue
+          if [string match *#<_*>*=* $l] {
+            if [string match (*) $l] {
+              # ignore comment
+            } else {
+              set i1 [string first _ $l]
+              set i2 [string last  > $l]
+              set gname [string range $l $i1 [expr -1 + $i2]]
+              set i3 [string first = $l]
+              set l [string range $l [expr 1 + $i3] end]
+              set i4 [string first ( $l]
+              set i4 [expr -1 + $i4]
+              if {$i4 < 0} {set i4 end}
+              set value [string range $l 0 $i4]
+              set ::ngc($hdl,global,prevalue,$gname) $value
+              globalcheck $hdl
+            }
+          }
+          if ![string match "(not_a_subfile)"  $line] {
+            lappend ::ngc($hdl,data,preamble) $line
+          }
+        }
+        close $fpre
+        set ::ngc($hdl,fname,preamble,time) \
+                     [file mtime $::ngc($hdl,fname,preamble)]
+      }
+      message $hdl readpreamble
+      return
+    }
+    getpostamble {
+      if {$::ngc($hdl,fname,postamble) == ""} {
+        set idir $::ngc($hdl,dir)
+      } else {
+        set idir [file dirname $::ngc($hdl,fname,postamble)]
+      }
+      set filename [tk_getOpenFile \
+           -title "$::ngc(any,app) Postamble file" \
+           -defaultextension .ngc \
+           -initialfile [file tail $::ngc($hdl,fname,postamble)] \
+           -initialdir  $idir \
+           -filetypes $::ngc($hdl,ftypes) \
+           ]
+      set filename [string trim $filename]
+      if {"$filename" == ""} return
+      set ::ngc($hdl,fname,postamble) $filename
+      ::ngcgui::gui $hdl readpostamble
+      return
+    }
+    readpostamble {
+      if {   ![string match *.ngc $::ngc($hdl,fname,postamble)]\
+          &&  [file readable "$::ngc($hdl,fname,postamble).ngc"]} {
+        set ::ngc($hdl,fname,postamble) "$::ngc($hdl,fname,postamble).ngc"
+      }
+      set ::ngc($hdl,data,postamble) ""
+      if {"$::ngc($hdl,fname,postamble)" == ""} {
+        # message $hdl nullpostamble
+        return
+      } else {
+        if [catch {set fpost [open $::ngc($hdl,fname,postamble) r]} msg] {
+          lappend emsg $msg
+          showerr $emsg
+          message $hdl postambleerror
+          return
+        }
+        set ::ngc($hdl,dname,postamble) [file tail $::ngc($hdl,fname,postamble)]
+        lappend ::ngc($hdl,data,postamble) \
+             "($::ngc(any,app): postamble file: $::ngc($hdl,fname,postamble))"
+        while {![eof $fpost]} {
+          gets $fpost line
+          lappend ::ngc($hdl,data,postamble) "$line"
+        }
+        close $fpost
+        set ::ngc($hdl,fname,postamble,time) \
+                     [file mtime $::ngc($hdl,fname,postamble)]
+      }
+      message $hdl readpostamble
+      return
+    }
+    getsubfile {
+      if {$::ngc($hdl,fname,subfile) == ""} {
+        set idir $::ngc($hdl,dir)
+      } else {
+        set idir [file dirname $::ngc($hdl,fname,subfile)]
+      }
+      set filename [tk_getOpenFile \
+           -title "$::ngc(any,app) Subroutine file" \
+           -defaultextension .ngc \
+           -initialfile [file tail $::ngc($hdl,fname,subfile)] \
+           -initialdir  $idir \
+           -filetypes $::ngc($hdl,ftypes) \
+           ]
+      set filename [string trim $filename]
+      if {"$filename" == ""} return
+      set ::ngc($hdl,fname,subfile) $filename
+      ::ngcgui::gui $hdl readsubfile
+      return
+    }
+    readsubfile {
+      if {   ![string match *.ngc $::ngc($hdl,fname,subfile)] } {
+        set ::ngc($hdl,fname,subfile) "$::ngc($hdl,fname,subfile).ngc"
+      }
+      # uses two pack/unpack frames wG,wP
+      set ew 6; set bw 9
+
+# wP positional parameters
+      set wP $::ngc($hdl,varframe).positional ;# variable frame positional parms
+      if  [winfo exists $wP] {destroy $wP}
+      set wP [frame $wP -bd 2 -relief ridge]
+
+      set wG $::ngc($hdl,varframe).globals    ;# variable frame _globals
+      if  [winfo exists $wG] {destroy $wG}
+      set wG [frame $wG -bd 2 -relief ridge]
+
+      pack $wP -side $::ngc($hdl,pack,positional) -fill x -expand 1 -anchor n
+
+      if {   ![string match *.ngc $::ngc($hdl,fname,subfile)]\
+          &&  [file readable "$::ngc($hdl,fname,subfile).ngc"]} {
+       set ::ngc($hdl,fname,subfile) "$::ngc($hdl,fname,subfile).ngc"
+      }
+      # read and parse the file
+
+      set ::ngc($hdl,dname,subfile) [file tail $::ngc($hdl,fname,subfile)]
+      if ![parse $hdl ::ngc $::ngc($hdl,fname,subfile)] {
+        # case where user can't recover
+        if {$::ngc(opt,noinput) && !$::ngc($hdl,chooser)} {
+          set ::ngc($hdl,fail) "subfile:$::ngc($hdl,parse,msg)";# unrecoverable
+        }
+        showerr  $::ngc($hdl,parse,msg)
+        # try to display name of failed file:
+        message $hdl parseerror
+        # 101024:09.13 leave them alone
+        # set ::ngc($hdl,fname,subfile) "" ;# prevents color change
+        # set ::ngc($hdl,dname,subfile) "" ;# in periodic_checks
+        catch {pack forget $wP}
+        catch {pack forget $wG}
+        return
+      }
+      set ::ngc($hdl,fname,subfile,time) \
+                     [file mtime $::ngc($hdl,fname,subfile)]
+
+      set w [frame $wP.[qid]]
+      pack $w -side top -fill x -expand 1
+      pack [label $w.[qid] -text "Positional Parameters" \
+           -bg $::ngc(any,color,title) -anchor w -relief groove] \
+           -side top -fill x -expand 1
+
+      # Positional parameters
+      # find retained values for numbered parms (#n) with
+      # a byname association
+      foreach n [array names ::ngc $hdl,arg,name,*] {
+        # example:
+        # if       ::ngc($hdl,arg,name,04)     == xloc
+        # and      ::ngc($hdl,arg,byname,xloc) == 33
+        # then set ::ngc($hdl,arg,value,04)       33
+        # else set ::ngc($hdl,arg,value,04)       ""
+        set name $::ngc($n)
+        set num  [string range $n [expr 1 + [string last , $n]] end]
+        if {[info exists ::ngc($hdl,arg,byname,$name)]} {
+          set ::ngc($hdl,arg,value,$num) $::ngc($hdl,arg,byname,$name)
+        } else {
+          # use default value if available
+          if [info exists ::ngc($hdl,arg,dvalue,$num)] {
+            set ::ngc($hdl,arg,value,$num) $::ngc($hdl,arg,dvalue,$num)
+          } else {
+            set ::ngc($hdl,arg,value,$num) ""
+          }
+        }
+      }
+
+      # Positional parameters entries, provide two frames
+      set pnamelist [lsort [array names ::ngc $hdl,arg,name,*]]
+      set wP1 [frame $wP.[qid] -relief flat]
+      set wP2 [frame $wP.[qid] -relief flat]
+      set wP3 [frame $wP.[qid] -relief flat]
+      set npos [llength $pnamelist]
+      pack $wP1 -side left -anchor n -fill x -expand 1
+      # a weird space is left if you dont do these separately:
+      if {$npos > $::ngc(any,pentries)} {
+        pack $wP2 -side left -anchor n -fill x -expand 1
+        if {$npos > [expr 2*$::ngc(any,pentries)]} {
+          pack $wP3 -side left -anchor n -fill x -expand 1
+        }
+      }
+      set ct 0
+
+      foreach v $pnamelist {
+        incr ct
+        if {$ct <= $::ngc(any,pentries)} {
+          set fdata [frame $wP1.[qid]]
+        } elseif {$ct <= [expr 2* $::ngc(any,pentries)]} {
+          set fdata [frame $wP2.[qid]]
+        } else {
+          set fdata [frame $wP3.[qid]]
+        }
+
+        pack $fdata -side top -fill x -expand 1
+
+        set i1 [string last , $v]
+        set num [string range $v [expr 1+$i1] end]
+        if [info exists ::ngc($hdl,arg,name,$num)] {
+          set name $::ngc($hdl,arg,name,$num)
+        } else {
+          set name [format %d $num]
+        }
+
+        scan $num %d onum ;# ==>onum avoid octalinterpretation of 08,09
+        set num02 [format %02d $onum]
+
+        set l [label $fdata.[qid] -text [format %#2d $onum] -anchor e \
+              -takefocus 0 -relief ridge -width 2]
+        pack $l -side left -fill x -expand 0
+
+        # use entry since it can be expanded by user to see overfill
+        if {$::ngc(any,width,varname) != 0} {
+          set l [entry $fdata.[qid] -state readonly  -font $::ngc(any,font) \
+                -textvariable ::ngc($hdl,arg,name,$num) \
+                -takefocus 0 -justify right -relief groove \
+                -width $::ngc(any,width,varname)]
+          pack $l -side left -fill x -expand 0
+        }
+        set tvar ::ngc($hdl,arg,value,$num)
+        set e [entry $fdata.[qid] \
+              -width $ew \
+              -font $::ngc(any,font) \
+              -textvariable $tvar\
+              -validate     all\
+              -validatecommand \
+                [list ::ngcgui::validateNumber $hdl $tvar %W %s %P]]
+        foreach k $::ngc(any,entrykeys,special) {
+          bind $e <Key-$k> \
+             [list ::ngcgui::entrykeybinding %K %W ::ngc($hdl,arg,value,$num)]
+        }
+        if [info exists ::ngc(embed,axis)] [list updownkeys $e]
+        set ::ngc($hdl,arg,entrywidget,$num02) $e
+        pack $e -side left
+
+        set l [entry $fdata.[qid] -state readonly  -font $::ngc(any,font) \
+               -textvariable ::ngc($hdl,arg,comment,$num02) \
+               -takefocus 0 -relief groove \
+               -width $::ngc(any,width,comment)\
+               ]
+        pack $l -side left -fill x -expand 1
+      }
+
+# wG _global parameters
+      pack $wG -fill x -expand 1 -side $::ngc($hdl,pack,global) -anchor n
+      if {[array names ::ngc $hdl,global,name,*] != ""} {
+        pack [label $wG.[qid] -text "_Globals" \
+             -bg $::ngc(any,color,title) \
+             -anchor w  -relief groove] -fill x -expand 1
+      }
+
+      # _globals entries
+      foreach v [lsort [array names ::ngc $hdl,global,name,*]] {
+        set fdata [frame $wG.[qid]]
+        pack $fdata -side top -fill x -expand 1
+        set i1 [string last , $v]
+        set gname [string replace $v 0 $i1]
+        set extra 3 ;# compensate for positional parameters numbers
+        if {"$::ngc(any,aspect)" == "horiz"} { set extra 0 }
+
+        if {   $::ngc(any,width,varname) != 0 } {
+          set lw [expr $extra + $::ngc(any,width,varname)]
+          set l [entry $fdata.[qid] -state readonly  -font $::ngc(any,font) \
+                -textvariable ::ngc($hdl,global,name,$gname) \
+                -takefocus 0 -justify right -relief groove \
+                -width $lw]
+          pack $l -side left -fill x -expand 0
+        }
+        set tvar ::ngc($hdl,global,value,$gname)
+        set e [entry $fdata.[qid] \
+              -width $ew  \
+              -font $::ngc(any,font) \
+              -readonlybackground $::ngc(any,color,readonly)\
+              -textvariable $tvar\
+              -takefocus 1 \
+              -validate  all\
+              -validatecommand \
+                [list ::ngcgui::validateNumber $hdl $tvar %W %s %P]]
+        foreach k $::ngc(any,entrykeys,special) {
+          bind $e <Key-$k> \
+          [list ::ngcgui::entrykeybinding %K %W ::ngc($hdl,global,value,$gname)]
+        }
+        if [info exists ::ngc(embed,axis)] [list updownkeys $e]
+        set ::ngc($hdl,global,entrywidget,$gname) $e
+        # use preamble prevalue if it exists
+        if [info exists ::ngc($hdl,global,prevalue,$gname)] {
+          set ::ngc($hdl,global,value,$gname) \
+              $::ngc($hdl,global,prevalue,$gname)
+          $e conf -state readonly -takefocus 0
+        } else {
+          # use default value if it exists
+          if {    [info exists ::ngc($hdl,global,dvalue,$gname)] \
+              && $::ngc($hdl,global,value,$gname) == "" \
+            } {
+            set ::ngc($hdl,global,value,$gname) \
+                $::ngc($hdl,global,dvalue,$gname)
+          }
+        }
+        pack $e -side left
+        set l [entry $fdata.[qid] -state readonly  -font $::ngc(any,font) \
+              -textvariable ::ngc($hdl,global,comment,$gname) \
+              -takefocus 0 -relief groove \
+              -width $::ngc(any,width,comment)]
+        pack $l -side left -fill x -expand 1
+      }
+      dcheck $hdl
+      set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
+      message $hdl readsubfile
+
+      if [info exists ::ngc(embed,axis)] {
+        set tabname $::ngc($hdl,dname,subfile)
+        if {[string match *.ngc $tabname] } {
+          set     idx [string last .ngc $tabname]
+          set tabname [string replace $tabname $idx end ""]
+        }
+        # show last subfile used as page name
+        $::ngc(any,axis,parent) itemconfigure $::ngc($hdl,axis,page) \
+              -createcmd "::ngcgui::pagecreate $hdl"\
+              -raisecmd  "::ngcgui::pageraise  $hdl"\
+              -leavecmd  "::ngcgui::pageleave  $hdl"\
+              -text "$tabname"
+
+        # current tab names for other hdls
+        set names ""
+        for {set i 0} {$i <= $::ngc(embed,hdl)} {incr i} {
+          if {$i == $hdl} continue ;# exclude name for this hdl
+          if [info exists ::ngc($i,axis,page)] {
+             lappend names [$::ngc(any,axis,parent) \
+                           itemcget $::ngc($i,axis,page) -text]
+             }
+        }
+        if {[lsearch $names "$tabname"] >= 0} {
+          # name exists, make unique name for page
+          set ct 1
+          while 1 {
+            set tryname ${tabname}-$ct
+            if {[lsearch $names "$tryname"] < 0} break
+            incr ct
+            if {$ct>100} {return -code error "readsubfile:problem<$trytabname>"}
+          }
+          $::ngc(any,axis,parent) itemconfigure $::ngc($hdl,axis,page) \
+                                  -text "$tryname"
+        }
+      }
+      return ;# readsubfile
+    }
+    parmcheck {
+      if ![info exists ::ngc($hdl,argct)] {
+        if {"$::ngc($hdl,fname,subfile)" == ""} {
+          lappend err "No Subfile specified"
+        }
+        lappend err "No parameters yet"
+      } else {
+        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+          set num02 [format %02d $i]
+          set token $::ngc($hdl,arg,name,$num02)
+          # nuisance spaces cause problems:
+          set ::ngc($hdl,arg,value,$num02) \
+              [string trim $::ngc($hdl,arg,value,$num02)]
+          if {"$::ngc($hdl,arg,value,$num02)" == ""} {
+            lappend err "Missing value for parm #$i ($token)"
+          }
+        }
+      }
+      foreach g [lsort [array names ::ngc $hdl,global,name,* ]] {
+        set idx [string last , $g]
+        set gname "[string replace $g 0 $idx]"
+        set token "#<[string replace $g 0 $idx]>"
+        # nuisance spaces cause problems:
+        set ::ngc($hdl,global,value,$gname) \
+            [string trim $::ngc($hdl,global,value,$gname)]
+        # not an error for globals since it could be defined earlier
+        # in runtime
+        #if {"" == "$::ngc($hdl,global,value,$gname)"} {
+        #  lappend err "Missing value for _global $gname"
+        #}
+      }
+      if [info exists err] {
+        showerr $err
+        message $hdl parmerr
+        return 0 ;# error
+      }
+      return 1 ;# ok
+    }
+    setoutfile {
+      if {$::ngc($hdl,fname,outfile) == ""} {
+        set idir $::ngc($hdl,dir)
+      } else {
+        set idir [file dirname $::ngc($hdl,fname,outfile)]
+      }
+      if {"$::ngc($hdl,fname,outfile)" == "" } {
+        set ::ngc($hdl,fname,outfile) tmp
+      }
+      set filename [tk_getSaveFile \
+           -title "$::ngc(any,app) Output file" \
+           -defaultextension .ngc \
+           -initialfile [file tail $::ngc($hdl,fname,outfile)] \
+           -initialdir  $idir \
+           -filetypes $::ngc($hdl,ftypes) \
+           ]
+      set filename [string trim $filename]
+      # sometimes leading blanks get in
+      set filename [string map {" " "" "	" ""} $filename] ;#sp,tab to ""
+      if {$filename == ""} {
+        set ::ngc($hdl,fname,outfile) "" ;# canceled
+        return
+      }
+      set ::ngc($hdl,fname,outfile) $filename
+      message $hdl setoutfile
+      return
+    }
+    savesection {
+      ::ngcgui::readfile $hdl preamble
+      ::ngcgui::readfile $hdl postamble
+      # save,widget has multiple presentations to steer user
+      # according to state and wait_restart
+      switch [$::ngc($hdl,save,widget) cget -text] {
+        "New Feature" {message $hdl newfeature; return}
+        "New Outfile" {message $hdl begin;      return}
+        default       {#fall thru to create the feature}
+      }
+
+      if ![::ngcgui::gui $hdl parmcheck] {
+        return
+      }
+
+      # could check for number here using %f
+      set gfmt "% 12s = %s"  ;# _global
+      set pfmt "%12s = %s"   ;# positional
+      set cfmt "(%11s = %12s = %12s)" ;# positional comment form
+
+      if $::ngc($hdl,verbose) {
+        lappend ::ngc($hdl,data,section) \
+"($::ngc(any,app): files: <$::ngc($hdl,fname,preamble) $::ngc($hdl,fname,subfile) $::ngc($hdl,fname,postamble)>)"
+      }
+      # note: this line will be replaced on file output with a count
+      # that can include multiple tab pages
+      lappend ::ngc($hdl,data,section) "#<_feature> = $::ngc($hdl,savect)"
+
+      if {"$::ngc($hdl,fname,preamble)" == "IMMEDIATE"} {
+        # indicates preamble is interpreted as
+        # immediate commands separated by semicolons
+        # example  ":t1m6;m1"
+        set ::ngc($hdl,immediate,preamble) [string range \
+                                      $::ngc($hdl,dname,preamble) 1 end]
+        if $::ngc($hdl,verbose) {
+          lappend ::ngc($hdl,data,section) \
+                  "($::ngc(any,app): IMMEDIATE preamble:)"
+        }
+        foreach line [split $::ngc($hdl,immediate,preamble) \;] {
+          lappend ::ngc($hdl,data,section) [string trim $line]
+        }
+        unset ::ngc($hdl,immediate,preamble)
+      } else {
+        for {set i 0} {$i < [llength $::ngc($hdl,data,preamble)]} {incr i} {
+          lappend ::ngc($hdl,data,section) \
+                  [lindex $::ngc($hdl,data,preamble) $i]
+        }
+      }
+
+      set gnames [array names ::ngc $hdl,global,name,*]
+      if {"$gnames" != ""} {
+        if $::ngc($hdl,verbose) {
+          lappend ::ngc($hdl,data,section) \
+            "($::ngc(any,app): _globals for $::ngc($hdl,fname,subfile):)"
+        }
+
+        foreach g [lsort $gnames] {
+          set idx [string last , $g]
+          set gname "[string replace $g 0 $idx]"
+          set token "#<[string replace $g 0 $idx]>"
+          if {[info exists ::ngc($hdl,global,prevalue,$gname)]} {
+            continue
+          }
+          if {"$::ngc($hdl,global,value,$gname)" == ""} {
+            # _global with "" default -- do not set here,
+            # user must set in runtime, prior routine, etc.
+            continue
+          }
+          lappend ::ngc($hdl,data,section) \
+                   [format $gfmt $token $::ngc($hdl,global,value,$gname)]
+        }
+      }
+
+      if {$::ngc($hdl,expandsubroutine)} {
+        # id for unique label when expanding multiple sub files
+        set id $::ngc($hdl,id)
+        set uwidth 3 ;# extra width for unique label 000-999
+        # $uwdith characters in unique ids
+        set id [format %0${uwidth}d $::ngc($hdl,id)]
+        incr ::ngc($hdl,id)
+        lappend ::ngc($hdl,data,section) \
+                 "(Positional parameters for $::ngc($hdl,fname,subfile):)"
+        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+          set num02 [format %02d $i]
+          set name  $::ngc($hdl,arg,value,$num02)
+          lappend ::ngc($hdl,data,section) [format $pfmt #$i $name ]
+        }
+        # expand the subroutine in place
+        lappend ::ngc($hdl,data,section) \
+                "(expanded file: $::ngc($hdl,fname,subfile))"
+        for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
+          if [info exists ::ngc_sub($hdl,$i,label)] {
+            lappend ::ngc($hdl,data,section) \
+                    "o<$id$::ngc_sub($hdl,$i,label)> $::ngc_sub($hdl,$i)"
+          } else {
+            lappend ::ngc($hdl,data,section)  \
+                    [format %${uwidth}s%s "" " $::ngc_sub($hdl,$i)"]
+          }
+        }
+      } else {
+        # insert the subroutine call
+        if $::ngc($hdl,verbose) {
+          lappend ::ngc($hdl,data,section) \
+               "($::ngc(any,app): call subroutine file: $::ngc($hdl,fname,subfile))"
+          lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
+        }
+        set cline "o<$::ngc($hdl,subroutine,name)> call "
+        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+          set num02 [format %02d $i]
+          set name  $::ngc($hdl,arg,name,$num02)
+          if {[string first # $name] == 0} {set name "?"}
+          # documenting comment
+          if $::ngc($hdl,verbose) {
+            lappend ::ngc($hdl,data,section) \
+                  [format $cfmt #$i $name $::ngc($hdl,arg,value,$num02)]
+          }
+          set cline "$cline\[$::ngc($hdl,arg,value,$num02)\]"
+        }
+          lappend ::ngc($hdl,data,section) "$cline"
+      }
+
+     if {"$::ngc($hdl,fname,postamble)" == "IMMEDIATE"} {
+       # indicates postamble is interpreted as
+       # immediate commands separated by semicolons
+       # example  ":t1m6;m1"
+       set ::ngc($hdl,immediate,postamble) [string range \
+                                      $::ngc($hdl,dname,postamble) 1 end]
+       if $::ngc($hdl,verbose) {
+         lappend ::ngc($hdl,data,section) \
+                 "($::ngc(any,app): IMMEDIATE postamble:)"
+       }
+       foreach line [split $::ngc($hdl,immediate,postamble) \;] {
+         lappend ::ngc($hdl,data,section) [string trim $line]
+       }
+       unset ::ngc($hdl,immediate,postamble)
+      } else {
+        for {set i 0} {$i < [llength $::ngc($hdl,data,postamble)]} {incr i} {
+          lappend ::ngc($hdl,data,section) \
+                  [lindex $::ngc($hdl,data,postamble) $i]
+        }
+      }
+
+      message $hdl savesection
+      return
+    }
+    finalize {
+      if {$::ngc($hdl,savect) == 0} {
+        return ;# silently (may be bound to key)
+      }
+
+      set doall 1 ;# default
+      if {![info exists ::ngc(embed,axis)]} {
+        set hdllist $hdl
+      } else {
+        # find all tabpages with saved features
+        # order of tabpage names determines execution order
+        set tnames ""
+        foreach p [$::ngc(any,axis,parent) pages] {
+          set h [pagetohdl $p]
+          if {$h >= 0} {
+            if {$::ngc($h,savect) == 0} {continue}
+            lappend hdllist $h
+            if [info exists ::ngc($h,axis,page)] {
+              lappend tnames [$::ngc(any,axis,parent) \
+                            itemcget $::ngc($h,axis,page) -text]
+            }
+          }
+        }
+        set thisone [$::ngc(any,axis,parent) \
+                         itemcget $::ngc($hdl,axis,page) -text]
+
+        if {[llength $hdllist] > 1} {
+           set ans [tk_dialog .foo \
+                       "Multiple Tabs with Features" \
+                       "Finalize all Tabs?\n Order:<$tnames>" \
+                       questhead 0 \
+                       "No, just this page <$thisone>" Yes Cancel\
+                   ]
+           switch $ans {
+              0 { set hdllist $hdl; set doall 0; #NO}
+              1 {}
+              2 {showmessage $hdl cancel; return}
+           }
+        }
+      }
+      set endhdl [lindex $hdllist end]
+
+      if {$::ngc($hdl,auto) && ![sendaxis $hdl ping]} {
+        set ::ngc($hdl,auto) 0
+        $::ngc($hdl,finalize,widget) conf -fg $::ngc(any,color,prompt)
+        lappend msg "Axis is not responding"
+        lappend msg "Error: $::ngc($hdl,axis,error)"
+        lappend msg ""
+        lappend msg "Autosend disabled, Ctrl-A toggles autosend"
+        lappend msg ""
+        lappend msg "File saving enabled -- Finalize to save"
+        showerr $msg nosort
+        message $hdl senderror
+        return
+      }
+      if $::ngc($hdl,auto) {
+        set ::ngc($hdl,fname,outfile) $::ngc($hdl,fname,autosend)
+      } else {
+        # open and write fname,outfile
+        title $::ngc($hdl,top) "$::ngc(any,app) <>"
+        ::ngcgui::gui $hdl setoutfile
+        if {"$::ngc($hdl,fname,outfile)" == ""} {
+          message $hdl usercancel
+          return
+        }
+        if {![string match *.ngc $::ngc($hdl,fname,outfile)]} {
+          lappend msg "Require .ngc suffix for filename"
+          showerr $msg
+          message $hdl writeerror
+          return
+        }
+        if {   "$::ngc($hdl,fname,outfile)" == "$::ngc($hdl,fname,subfile)" \
+            || "$::ngc($hdl,fname,outfile)" == "$::ngc($hdl,fname,preamble)" \
+            || "$::ngc($hdl,fname,outfile)" == "$::ngc($hdl,fname,postamble)" \
+           } {
+          set msg ""
+          lappend msg "Disallowed overwrite of $::ngc($hdl,fname,outfile)"
+          showerr $msg
+          message $hdl writeerror
+          return
+        }
+      }
+
+      if [catch {set fout [open $::ngc($hdl,fname,outfile) w]} msg] {
+        lappend emsg $msg
+        showerr $emsg
+        message $hdl writeerror
+        return
+      }
+
+      set featurect 0;
+      set date [dt]
+      foreach thdl $hdllist {
+        # the string FEATURE is used so files generated by ngcgui can
+        # be detected and excluded as subfile candidates
+        puts $fout "($::ngc(any,app): FEATURE $date)"
+
+        for {set i 0} {$i < [llength $::ngc($thdl,data,section)]} {incr i} {
+          set line [lindex $::ngc($thdl,data,section) $i]
+          if {[string first "#<_feature>" $line] >= 0} {
+            # instead of current $line, output feature count (zero referenced)
+            puts $fout \
+              "($::ngc(any,app): feature line added) #<_feature> = $featurect"
+            incr featurect 1
+          } else {
+            puts $fout $line
+          }
+        }
+      } ;# for hdllist
+
+      if $::ngc($endhdl,verbose) {
+        puts  $fout "($::ngc(any,app): m2 line added) m2 (g54 activated)"
+      } else {
+        puts  $fout "m2 (m2 restores g54)"
+      }
+      close $fout
+
+      set ::ngc($hdl,last,outfile) $::ngc($hdl,fname,outfile)
+      # just in case you need it later, save a dated copy in /tmp
+      if [info exists ::ngc(any,dir,just)] {
+        set base     [file tail $::ngc($hdl,fname,outfile)]
+        set savename [file join $::ngc(any,dir,just) [dt].${base}]
+        if [catch {file copy $::ngc($hdl,fname,outfile) $savename} msg] {
+          lappend emsg "<$hdl>$msg"
+          showerr $emsg
+          message $hdl writeerror
+          return
+        }
+      }
+
+      if {$::ngc($hdl,auto)} {
+        if ![::ngcgui::sendfile $hdl] {
+          return ;# send failed, user can start axis or Ctrl-a
+        }
+      }
+
+      foreach thdl $hdllist {
+        set ::ngc($thdl,savect) 0
+        conf $hdl restart,widget state disabled
+        set ::ngc($thdl,data,section) ""
+        message $thdl finalize
+      } ;# for
+
+      title $::ngc($thdl,top) "$::ngc(any,app) \
+                <[file tail $::ngc($thdl,fname,outfile)]>"
+
+      return
+    }
+    default {return -code error "::ngcgui::gui: unknown mode <$mode>"}
+  }
+  puts stderr "NOTREACHED reached mode=<$mode>"
+} ;# gui
+
+proc ::ngcgui::conf {hdl wsuffix item value} {
+  set w $hdl,$wsuffix
+  if ![info exists ::ngc($w)] return
+  $::ngc($w) conf -$item $value
+} ;# conf
+
+proc ::ngcgui::reread {hdl} {
+  ::ngcgui::gui $hdl readpreamble
+  ::ngcgui::gui $hdl readsubfile
+  ::ngcgui::gui $hdl readpostamble
+} ;# reread
+
+proc ::ngcgui::sendfile {hdl} {
+  if ![sendaxis $hdl ping] {
+    showerr $::ngc($hdl,axis,error) nosort
+    message $hdl senderror
+    return 0 ;# err
+  }
+  if ![sendaxis $hdl file] {
+    showerr $::ngc($hdl,axis,error) nosort
+    message $hdl senderror
+    return 0 ;# err
+  }
+  $::ngc($hdl,sendfile,widget) conf -state disabled
+  message $hdl sendfile
+  return 1 ;# ok
+} ;# sendfile
+
+proc ::ngcgui::readfile {hdl item} {
+  # update fname,$item and readfile
+  if {    ("$item" == "preamble" || "$item" == "postamble") \
+       && [string first : $::ngc($hdl,dname,$item)] == 0} {
+    set ::ngc($hdl,fname,$item) "IMMEDIATE"
+    set ::ngc($hdl,immediate,$item) [string range \
+                                       $::ngc($hdl,fname,$item) 1 end]
+    return
+  }
+  if {"$::ngc($hdl,dname,$item)" != ""} {
+    set ptype [file pathtype $::ngc($hdl,dname,$item)]
+    switch $ptype {
+      relative {
+        set fdir [file dirname $::ngc($hdl,fname,$item)]
+        if {"$fdir" == "." } {
+          set fdir $::ngc($hdl,dir) ;# -D wins for this case
+        }
+        set ::ngc($hdl,fname,$item)  [file normalize \
+            [file join  $fdir $::ngc($hdl,dname,$item)]]
+      }
+      absolute {set ::ngc($hdl,fname,$item) \
+                    [file normalize $::ngc($hdl,dname,$item)]
+      }
+      default  {return -code error "::ngcgui::readfile <$hdl $ptype>"}
+    }
+    # simplify dname,$item to just filename
+    set ::ngc($hdl,dname,$item) [file tail $::ngc($hdl,fname,$item)]
+  } else {
+    #note: ngc(dname,$item) is "", each readproc must init appropriately
+    set ::ngc($hdl,fname,$item) ""
+  }
+  switch $item {
+    preamble  {::ngcgui::gui $hdl readpreamble  }
+    subfile   {::ngcgui::gui $hdl readsubfile   }
+    postamble {::ngcgui::gui $hdl readpostamble }
+  }
+} ;# readfile
+
+proc ::ngcgui::globalcheck {hdl} {
+  # make entry boxes readonly for prevalues
+  foreach n [array names ::ngc $hdl,global,entrywidget,*] {
+    set i1 [string last , $n]
+    set gname [string range $n [expr 1 + $i1] end]
+    if [info exists ::ngc($hdl,global,prevalue,$gname)] {
+      set ::ngc($hdl,global,value,$gname) $::ngc($hdl,global,prevalue,$gname)
+      $::ngc($hdl,global,entrywidget,$gname) conf -state readonly -takefocus 0
+    }
+  }
+} ;# globalcheck
+
+proc ::ngcgui::debug {hdl} {
+  set t .debug-$hdl
+  catch {destroy $t}
+  set t [toplevel $t]
+  set lw 20;set ew 12
+  # hdl,$i
+  foreach i {standalone auto state lastevent \
+             savect dir afterid img,orig,size img,sampled,size} {
+    set f [frame $t.[qid] ]
+    pack [label $f.[qid] -relief ridge -anchor e -width $lw\
+         -text "$i" \
+         -font $::ngc(any,font)\
+         ] -fill x -expand 0 -side left
+    pack [entry $f.[qid] -state readonly -relief ridge -width $ew \
+         -textvariable ::ngc($hdl,$i) \
+         -font $::ngc(any,font)\
+         ] -fill x -expand 1 -side left
+    pack $f -side top -fill x -expand 1
+  }
+  # any,$i
+  foreach i {any,font any,width,comment any,width,varname any,pollms\
+             embed,axis embed,hdl} {
+    set f [frame $t.[qid] ]
+    pack [label $f.[qid] -relief ridge -anchor e -width $lw\
+         -text "$i" \
+         -font $::ngc(any,font)\
+         ] -fill x -expand 0 -side left
+    pack [entry $f.[qid] -state readonly -relief ridge -width $ew \
+-textvariable ::ngc($i) \
+         -font $::ngc(any,font)\
+         ] -fill x -expand 1 -side left
+    pack $f -side top -fill x -expand 1
+  }
+  wm resizable $t 1 0
+} ;# debug
+
+proc ::ngcgui::statemap {hdl} {
+  # form: (next,state:mode,event) --> nextstate
+  set ::ngc(any,next,reset:auto,newfeature)    start
+  set ::ngc(any,next,reset:noauto,newfeature)  start
+  set ::ngc(any,next,reset:auto,begin)         start
+  set ::ngc(any,next,reset:noauto,begin)       start
+  set ::ngc(any,next,reset:auto,savesection)   start
+  set ::ngc(any,next,reset:noauto,savesection) start
+  set ::ngc(any,next,reset:auto,restart)       reset
+  set ::ngc(any,next,reset:noauto,restart)     reset
+
+  set ::ngc(any,next,start:auto,immediate)     avail
+  set ::ngc(any,next,start:noauto,immediate)   avail
+
+  # have one or more features available:
+  set ::ngc(any,next,avail:auto,newfeature)    avail
+  set ::ngc(any,next,avail:noauto,newfeature)  avail
+  set ::ngc(any,next,avail:auto,savesection)   avail
+  set ::ngc(any,next,avail:noauto,savesection) avail
+  set ::ngc(any,next,avail:auto,restart)       reset
+  set ::ngc(any,next,avail:noauto,restart)     reset
+
+  set ::ngc(any,next,avail:auto,finalize)      reset
+  set ::ngc(any,next,avail:noauto,finalize)    reset2
+
+  set ::ngc(any,next,reset2:auto,immediate)    reset
+  set ::ngc(any,next,reset2:noauto,immediate)  reset
+
+  set ::ngc($hdl,state) reset
+  set ::ngc($hdl,lastevent) notsetyet
+
+  # alternate behavior (user must push button for New Outfile)
+  if $::ngc(any,wait_restart) {
+    set ::ngc(any,next,uwait:auto,begin)        reset
+    set ::ngc(any,next,uwait:noauto,begin)      reset
+
+    set ::ngc(any,next,avail:auto,restart)      uwait
+    set ::ngc(any,next,avail:noauto,restart)    uwait
+
+    set ::ngc(any,next,avail:auto,finalize)     uwait
+    set ::ngc(any,next,avail:noauto,finalize)   uwait2
+
+    set ::ngc(any,next,uwait2:noauto,immediate) uwait
+    set ::ngc(any,next,uwait2:auto,immediate)   uwait
+  }
+} ;# statemap
+
+proc ::ngcgui::message {hdl event} {
+  # statemachine events (and messages)
+  # ::ngc(any,next,currentstateandmode,event) specifies next state for event
+  switch $::ngc($hdl,auto) {
+    0 {set statemode $::ngc($hdl,state):noauto}
+    1 {set statemode $::ngc($hdl,state):auto}
+  }
+  if ![info exists ::ngc(any,next,$statemode,$event)] {
+    showmessage $hdl $event
+    #puts "NOEVENT $::ngc($hdl,state) $event"
+    return
+  }
+  set ::ngc($hdl,lastevent) $event
+  set ::ngc($hdl,state) $::ngc(any,next,$statemode,$event)
+  #puts "$event:   $statemode ------>$::ngc($hdl,state)"
+  set mw $::ngc($hdl,msg,widget)
+
+  # entry-to-state actions:
+  # note: execute switch even if state unchanged to update gui
+  switch  $::ngc($hdl,state) {
+    reset {
+      if {"$event" == "finalize"} {
+        showmessage $hdl finalize
+        update idletasks
+        if $::ngc($hdl,standalone) {
+          after 500 ;#pause to see messages
+        }
+      }
+      set   ::ngc($hdl,savect)         0
+      conf $hdl restart,widget state disabled
+      set   ::ngc($hdl,data,section)   ""
+      if [info exists ::ngc(embed,axis)] {
+        set bcolor $::ngc(any,color,stdbg)
+        if $::ngc($hdl,chooser) {
+          set bcolor $::ngc(any,color,custom)
+        }
+        $::ngc(any,axis,parent) itemconfigure $::ngc($hdl,axis,page) \
+            -foreground $::ngc(any,color,black) \
+            -background $bcolor
+      }
+
+      title $::ngc($hdl,top) "$::ngc(any,app)"
+      walktree $::ngc($hdl,varframe) normal
+      walktree $::ngc($hdl,iframe) normal
+      # 101024:19.49 this is better:
+      focus $::ngc($hdl,topf)
+      globalcheck $hdl
+
+      # note: dont disable sendfile,widget (wanted if noauto)
+      $::ngc($hdl,finalize,widget) conf -state disabled
+      $::ngc($hdl,save,widget) conf -text "Create Feature"
+      $mw conf -text "Enter parms for 1st feature" \
+               -fg $::ngc(any,color,prompt)
+    }
+    uwait {
+      # alternate behavior: user must select "New Outfile"
+      walktree $::ngc($hdl,varframe) disabled
+      walktree $::ngc($hdl,iframe) disabled
+      $::ngc($hdl,save,widget)     conf -text "New Outfile"
+      $::ngc($hdl,finalize,widget) conf -state disabled
+      $mw conf -text "Ready to make New Outfile" \
+               -fg $::ngc(any,color,prompt)
+    }
+    reset2 - uwait2 {
+      # just make sure sendfile is made available, then go next state
+      $::ngc($hdl,sendfile,widget) conf -state normal
+      after 0 [list ::ngcgui::message $hdl immediate]
+    }
+    start {
+     walktree $::ngc($hdl,varframe) normal
+     walktree $::ngc($hdl,iframe) normal
+     focus $::ngc($hdl,begin,widget)
+     globalcheck $hdl
+
+     $::ngc($hdl,save,widget)     conf -text "Create Feature"
+     $::ngc($hdl,sendfile,widget) conf -state disabled
+     $::ngc($hdl,finalize,widget) conf -state normal
+     $mw conf -text "Enter parms for feature [expr 1 + $::ngc($hdl,savect)]" \
+              -fg $::ngc(any,color,prompt)
+     after 0 [list ::ngcgui::message $hdl immediate]
+    }
+    avail {
+      incr ::ngc($hdl,savect)
+      conf $hdl restart,widget state active
+
+      if [info exists ::ngc(embed,axis)] {
+        if {$::ngc($hdl,savect) > 1} {
+          $::ngc(any,axis,parent) itemconfigure $::ngc($hdl,axis,page) \
+             -foreground $::ngc(any,color,multiple) \
+             -background $::ngc(any,color,feature)
+        } else {
+          $::ngc(any,axis,parent) itemconfigure $::ngc($hdl,axis,page) \
+             -foreground $::ngc(any,color,single) \
+             -background $::ngc(any,color,feature)
+        }
+      }
+
+      set t "$::ngc(any,app) $::ngc($hdl,savect) feature"
+      if {$::ngc($hdl,savect) > 1} { set t ${t}s}
+      title $::ngc($hdl,top) "$t" ;# plural
+      $::ngc($hdl,finalize,widget) conf -state normal
+      if {$::ngc($hdl,savect) > 0} {
+        $::ngc($hdl,save,widget) conf -text "Create Next"
+      } else {
+        $::ngc($hdl,save,widget) conf -text "Create Feature"
+      }
+      $::ngc($hdl,sendfile,widget) conf -state disabled
+      $mw conf -text "Created feature $::ngc($hdl,savect)" \
+              -fg $::ngc(any,color,ok)
+      after 500 [list $::ngc($hdl,msg,widget) conf \
+             -text "Enter parms for feature [expr 1 + $::ngc($hdl,savect)]" \
+             -fg $::ngc(any,color,prompt)
+             ]
+    }
+  }
+} ;# message
+
+proc ::ngcgui::title {t txt} {
+  if ![info exists ::ngc(embed,axis)] {
+    wm title $t $txt
+  }
+} ;# title
+
+proc ::ngcgui::showmessage {hdl type} {
+  if {"$hdl" == "opt"} {
+    # no message widget since opt is for all instances
+    foreach w [array names ::ngc *,msg,widget] {
+      $::ngc($w) conf -text "option:$type $::ngc($hdl,$type)" \
+                      -fg $::ngc(any,color,ok)
+    }
+    return
+  }
+  if ![info exists ::ngc($hdl,msg,widget)] return
+  set ::ngc($hdl,dname,outfile) [file tail $::ngc($hdl,fname,outfile)] ;#shorten
+
+  set mw $::ngc($hdl,msg,widget)
+  switch $type {
+    parmerr    {
+      $mw conf -text "Missing parameters" \
+               -fg $::ngc(any,color,error)
+    }
+    parseerror   {
+      $mw conf -text "Parse Error: $::ngc($hdl,dname,subfile)" \
+               -fg $::ngc(any,color,error)
+      $::ngc($hdl,finalize,widget)  conf -state disabled
+      $::ngc($hdl,save,widget)      conf -state disabled
+    }
+    nullpreamble   {
+      periodic_checks $hdl ;# resync
+      $mw conf -text "Null Preamble" \
+               -fg $::ngc(any,color,ok)
+    }
+    readpreamble   {
+      periodic_checks $hdl ;# resync
+      $mw conf -text "Read Preamble: $::ngc($hdl,dname,preamble)" \
+               -fg $::ngc(any,color,ok)
+    }
+    preambleerror {
+      $mw conf -text "Preamble Error: $::ngc($hdl,dname,preamble)" \
+               -fg $::ngc(any,color,error)
+    }
+    nullpostamble   {
+      periodic_checks $hdl ;# resync
+      $mw conf -text "Null Postamble" \
+               -fg $::ngc(any,color,ok)
+    }
+    readpostamble   {
+      periodic_checks $hdl ;# resync
+      $mw conf -text "Read Postamble: $::ngc($hdl,dname,postamble)" \
+               -fg $::ngc(any,color,ok)
+    }
+    postambleerror {
+      $mw conf -text "Postamble Error: $::ngc($hdl,dname,postamble)" \
+               -fg $::ngc(any,color,error)
+    }
+    readsubfile   {
+      periodic_checks $hdl ;# resync
+      $mw conf -text "Read Subfile: $::ngc($hdl,dname,subfile)" \
+               -fg $::ngc(any,color,ok)
+      $::ngc($hdl,save,widget) conf -state normal ;# restore after parseerror
+    }
+    writeerror   {
+      $mw conf -text "Write Error: $::ngc($hdl,dname,outfile)" \
+               -fg $::ngc(any,color,error)
+    }
+    setoutfile {
+      $mw conf -text "Outfile set: $::ngc($hdl,dname,outfile)" \
+               -fg $::ngc(any,color,ok)
+    }
+    finalize   {
+      $mw conf -text \
+               "Finished: ($::ngc($hdl,savect)): $::ngc($hdl,dname,outfile)"\
+               -fg $::ngc(any,color,ok)
+    }
+    usercancel {
+      # user canceled output file spec
+      $mw conf -text "Canceled: $::ngc($hdl,savect) pending "\
+               -fg $::ngc(any,color,warn)
+      walktree $::ngc($hdl,varframe) normal
+      walktree $::ngc($hdl,iframe) normal
+    }
+    sendfile {
+      $mw conf -text "Sent: $::ngc($hdl,dname,outfile)" \
+               -fg $::ngc(any,color,ok)
+    }
+    senderror {
+      $mw conf -text "SendFileToAxis failed" -fg $::ngc(any,color,error)
+    }
+    startup {
+      $mw conf -text "Ctrl-k for Key bindings" -fg $::ngc(any,color,ok)
+    }
+    expandsubroutine {
+      $mw conf -text "Expand sub $::ngc($hdl,expandsubroutine)" \
+               -fg $::ngc(any,color,ok)
+    }
+    retainvalues {
+      $mw conf -text "Retain values $::ngc($hdl,retainvalues)" \
+               -fg $::ngc(any,color,ok)
+    }
+    verbose {
+      $mw conf -text "Verbose $::ngc($hdl,verbose)" -fg $::ngc(any,color,ok)
+    }
+    auto {
+      $mw conf -text "Autosend $::ngc($hdl,auto)" -fg $::ngc(any,color,ok)
+    }
+    cancel {
+      $mw conf -text "Finalize Canceled" -fg $::ngc(any,color,ok)
+    }
+    default {
+      $mw conf -text "$type" -fg $::ngc(any,color,default)
+    }
+  }
+} ;# showmessage
+
+proc ::ngcgui::periodic_checks {hdl} {
+  after cancel $::ngc($hdl,afterid)
+  if {    [info exists ::ngc(embed,axis)] \
+       && ([$::ngc(any,axis,parent) raise] != "$::ngc($hdl,axis,page)") } {
+     # not raised, skip tests
+     set ::ngc($hdl,afterid) [after $::ngc(any,pollms) \
+             [list ::ngcgui::periodic_checks $hdl]] ;#reschedule
+     return
+  }
+  # notify for modified files
+  foreach i {subfile preamble postamble} {
+    set f $::ngc($hdl,fname,$i)
+    if {"$f" == ""} continue
+    # check for widget because it can go away
+    if {   [info exists ::ngc($hdl,$i,widget)] \
+        && [winfo exists $::ngc($hdl,$i,widget)]} {
+       # check for change in entry widget
+       if {[file tail $f] != "$::ngc($hdl,dname,$i)"} {
+         # new file specified in entry box
+         $::ngc($hdl,$i,widget) conf -fg $::ngc(any,color,filenew)
+       } else {
+         $::ngc($hdl,$i,widget)     conf -fg $::ngc(any,color,ok)
+         catch {unset ::ngc($hdl,$i,reread,pending)}
+       }
+       # check for file removal
+       if ![file readable $f] {
+         # file gone/perm changed notification:
+         $::ngc($hdl,$i,widget) conf -fg $::ngc(any,color,filegone)
+         continue
+       }
+      set t [file mtime $f]
+      if {   [info exists ::ngc($hdl,fname,$i,time)] \
+          && $t > $::ngc($hdl,fname,$i,time)\
+         } {
+        # file modified notification:
+        conf $hdl $i,widget     fg    $::ngc(any,color,filemod)
+        conf $hdl reread,widget state normal
+        conf $hdl reread,widget fg    $::ngc(any,color,filemod)
+        set ::ngc($hdl,$i,reread,pending) 1
+      }
+    }
+  }
+  if {[array names ::ngc $hdl,*,reread,pending] == ""} {
+     conf $hdl reread,widget fg    $::ngc(any,color,black)
+     conf $hdl reread,widget state disabled
+  }
+  ::ngcgui::dcheck $hdl
+  set ::ngc($hdl,afterid) [after $::ngc(any,pollms) \
+             [list ::ngcgui::periodic_checks $hdl]] ;#reschedule
+  return
+} ;# periodic_checks
+
+proc ::ngcgui::dcheck {hdl} {
+  # check display of default values for _global parameters
+  foreach n [array names ::ngc $hdl,global,entrywidget,*] {
+    set i1 [string last , $n]
+    set gname [string range $n [expr 1 + $i1] end]
+
+    # under some conditions, this entrywidget may be done:
+    if ![winfo exists $::ngc($hdl,global,entrywidget,$gname)] continue
+      if {   [info exists ::ngc($hdl,global,value,$gname)] \
+           && "$::ngc($hdl,global,value,$gname)" == ""} {
+        $::ngc($hdl,global,entrywidget,$gname) conf -bg $::ngc(any,color,notice)
+      } elseif {   [info exists ::ngc($hdl,global,dvalue,$gname)] \
+        && "$::ngc($hdl,global,dvalue,$gname)" \
+                 == "$::ngc($hdl,global,value,$gname)"} {
+       $::ngc($hdl,global,entrywidget,$gname) conf -bg $::ngc(any,color,vdefault)
+    } else {
+       $::ngc($hdl,global,entrywidget,$gname) conf -bg #dcdad5 ;#restore default
+    }
+  }
+
+  # check display of default values for positional parameters
+  foreach n [array names ::ngc $hdl,arg,entrywidget,*] {
+    set i1 [string last , $n]
+    set num02 [string range $n [expr 1 + $i1] end]
+    # under some contitions, this entrywidget may be done:
+    if ![winfo exists $::ngc($hdl,arg,entrywidget,$num02)] continue
+    if {   [info exists ::ngc($hdl,arg,dvalue,$num02)] \
+        && "$::ngc($hdl,arg,dvalue,$num02)" \
+              == "$::ngc($hdl,arg,value,$num02)"} {
+       $::ngc($hdl,arg,entrywidget,$num02) conf -bg $::ngc(any,color,vdefault)
+    } else {
+       $::ngc($hdl,arg,entrywidget,$num02) conf \
+          -bg $::ngc(any,color,stdbg);# restore default
+    }
+  }
+} ;# dcheck
+
+proc ::ngcgui::updownkeys {w} {
+  # not compatible with axis key bindings
+  # make up-arrow, down-arrow behave like tab,shift-tab navigation
+  bind $w <Key-Down>   [bind all <Key-Tab>]
+  bind $w <Key-Up>     [bind all <<PrevWindow>>]
+  # recursion:
+  foreach child [winfo children $w] {
+    if {$child == ""} continue
+    updownkeys $child
+  }
+} ;# updownkeys
+
+proc ::ngcgui::walktree {w mode} {
+  # mode == normal|disabled
+  # puts "w=$w mode=$mode"
+  switch [winfo class $w] {
+    Button      -
+    Checkbutton -
+    Radiobutton -
+    Entry       {
+      if {[$w cget -state] == "readonly"} {
+        # skip
+      } else {
+        $w config -state $mode
+      }
+    }
+    Toplevel    -
+    Frame       {
+      # recursion:
+      foreach child [winfo children $w] {
+        if {$child == ""} continue
+        walktree $child $mode
+      }
+    }
+  }
+} ;# walktree
+
+proc ::ngcgui::showerr {msg "opt sort" "maxerr 10"} {
+  # msg is a list; default: sort msg
+  set w .showerr
+  catch {destroy $w}
+  set w [toplevel $w]
+  set l [label $w.l -justify left]
+  set text ""
+  if {"$opt" == "sort"} {set msg [lsort $msg]}
+  set ct 0
+  foreach item $msg {
+    if {$ct > $maxerr} {
+      set text "$text\n..."
+      break ;# avoid showing too many
+    } else {
+      set text "$text\n$item"
+    }
+    incr ct
+  }
+  $l configure -text $text
+  pack $l -side top
+  set b [button $w.b -text Dismiss -command "destroy $w"]
+  pack $b -side top
+  focus $b
+  wm withdraw $w
+  wm title    $w "ngcgui Error"
+  update idletasks
+  set x [expr [winfo screenwidth $w]/2 \
+            - [winfo reqwidth $w]/2  - [winfo vrootx [winfo parent $w]]]
+  set y [expr [winfo screenheight $w]/2 \
+            - [winfo reqheight $w]/2  - [winfo vrooty [winfo parent $w]]]
+  wm geom $w +$x+$y
+  wm deiconify $w
+} ;# showerr
+
+proc ::ngcgui::bye {hdl} {
+  after cancel $::ngc($hdl,afterid)
+  catch {destroy $::ngc($hdl,top)}   ;# for embedded usage
+  set ::ngcgui::finis 1 ;# for standalone usage
+} ;# bye
+
+proc ::ngcgui::sendaxis {hdl cmd} {
+  # return 1==>ok
+  switch $cmd {
+    ping {
+      if ![catch {send axis pwd} msg] {return 1 ;#ok}
+      # tk8.5 send misfeature
+      if {[string first "X server insecure" $msg] >= 0} {
+         puts stderr "Declining support for tk send bug in ngcgui"
+         puts stderr "You should upgrade emc to emc2.5.x"
+         eval exec xhost - SI:localuser:gdm
+         eval exec xhost - SI:localuser:root
+         # test if that worked:
+         if [::ngcgui::sendaxis $hdl ping2] {return 1 ;# ok}
+      }
+    }
+    ping2 {
+      if ![catch {send axis pwd} msg] {return 1 ;#ok}
+    }
+    file {
+      set f [file normalize $::ngc($hdl,fname,outfile)]
+
+      if ![catch {send axis "remote open_file_name $f"} msg] {
+        if {"$msg" == ""} {
+          #puts sendaxis:file:ok:<$f>msg=$msg
+          if [info exists ::ngc(embed,axis)] {
+            $::ngc(any,axis,parent) raise preview
+            focus -force .
+          }
+          return 1 ;# ok
+        } else {
+          # nonnull msg means axis-remote cmd failed, see msg
+        }
+      } else {
+         # axis-ui-remote command not available pre2.4
+         # try method that may work for axis in emc2.3.x
+         return [pre2.4_send_file_to_axis $hdl $f]
+      }
+    }
+    default {return -code error "sendaxis: unknown cmd <$cmd>"}
+  }
+  set ::ngc($hdl,axis,error) \{$msg\} ;# brackets needed here
+  lappend ::ngc($hdl,axis,error) {Note: Ctrl-A toggles autosend}
+
+  return 0 ;# fail
+} ;# sendaxis
+
+proc ::ngcgui::pre2.4_send_file_to_axis {hdl f} {
+  # errors may be shown on axisui but NOT detected here with pre2.4
+  if ![catch {send axis open_file_name $f} msg] {
+    return 1 ;# ok (expect "None")
+  } else {
+    # notreached i suspect
+    puts "re2.4_send_file_to_axis:error<$msg>"
+    set ::ngc($hdl,axis,error) [list $msg]
+    return 0 ;# error
+  }
+} ;# pre2.4_send_file_to_axis
+
+proc ::ngcgui::entrykeybinding {ax w v} {
+  # if a global ::entrykeybinding proc exists, use it only:
+  if {[info proc ::entrykeybinding] != ""} {
+    after 0 [list ::entrykeybinding $ax $w $v]
+    return
+  }
+  set axis [string toupper $ax]
+  # these coord values may not work for some configurations:
+  switch $axis {
+    X {set coord 0}
+    Y {set coord 1}
+    Z {set coord 2}
+    A {set coord 3}
+    B {set coord 4}
+    C {set coord 5}
+    U {set coord 6}
+    V {set coord 7}
+    W {set coord 8}
+    D {set coord 0;# for diameter}
+  }
+  if {![info exists coord]} return ;# silently
+  # ignore errors (standalone for example)
+  if [catch {
+    set value [emc_rel_act_pos $coord]
+    switch $axis {
+      D       {set value [expr 2.0*$value] ;# diameter}
+      default {}
+    }
+    set value [format %.4f $value]
+    after 0 [list set $v $value]
+  } msg] {
+    # silently ignore, emc_rel_act_pos will fail in standalone
+    # puts stderr "entrykeybinding:<$msg>"
+  }
+} ;# entrykeybinding
+
+proc ::ngcgui::text_width_and_length {text wname lname} {
+  upvar $wname maxwidth  ;#pass by ref
+  upvar $lname lines     ;#pass by ref
+  set linelimit 80 ;# some lines can be real long, ex ::env(LS_COLORS)
+  set start 0; set end 0; set len 0
+  set maxwidth 0
+  set lines 0
+  while {$end >= 0} {
+    set end [string first \n $text $start]
+    set len [expr $end - $start]
+    #puts "$len $start $end [string range $text $start $end]"
+    set start [expr $end +1]
+    if {$len > $maxwidth} {
+      # dont use len of very long lines
+      if {$len < $linelimit} {
+        set maxwidth $len
+      }
+    }
+    incr lines
+  }
+  return
+} ;# text_width_and_length
+
+proc ::ngcgui::simple_text {top text {title ""} } {
+  #note: on first cany, top should not exist
+  set maxheight 20
+  set tf  $top.f
+  set t   $tf.txt
+  set ysb $tf.ysb
+  if {![winfo exists $top]} {
+    toplevel $top
+    pack [frame $tf] -fill both -expand 1
+
+    text_width_and_length "$text" twidth theight
+    if {$theight > $maxheight} {set theight $maxheight}
+    set t   [text $t \
+             -width $twidth -height $theight\
+             -yscrollcommand "$ysb set" \
+            ]
+    set ysb [scrollbar $ysb -command "$t yview" -relief sunken]
+    set  db  [button $top.b -pady 1 -text Dismiss -command "destroy $top"]
+    focus $db
+
+    pack $t   -side left   -fill both -expand 0
+    pack $ysb -side right  -fill y
+    pack $db -side top  -fill x    -expand 0
+    # fall-thru to insert
+  } else {
+    wm deiconify $top
+  }
+  if {"$title" != ""} { wm title $top "$title" }
+
+  #update
+  #set geo [wm geometry $top]
+  #set w [string range $geo 0 [expr [string first x $geo] -1]]
+  #set h [string range $geo [expr [string first x $geo +1]]\
+  #                         [expr [string first + $geo] -1]]
+
+  $t configure -state normal ;# to delete/insert
+  $t delete 0.0 end
+  $t insert end $text
+  $t configure -state disabled ;# leave disabled: insert
+  wm resizable $top 0 1
+  wmcenter $top
+  return $top
+} ;# simple_text
+
+proc ::ngcgui::wmcenter w {
+# Withdraw the window, then update all the geometry information
+# so we know how big it wants to be, then center the window in the
+# display and de-iconify it.
+    wm withdraw $w
+    update idletasks
+    set x [expr [winfo screenwidth $w]/2 \
+              - [winfo reqwidth $w]/2  - [winfo vrootx [winfo parent $w]]]
+    set y [expr [winfo screenheight $w]/2 \
+              - [winfo reqheight $w]/2  - [winfo vrooty [winfo parent $w]]]
+    wm geom $w +$x+$y
+    wm deiconify $w
+} ;# wmcenter
+
+proc ::ngcgui::entry_mend {w} {
+  # note: entry_mend is callable by others (ttt)
+  # axis creates jog bindings for the toplevel (.==dot):
+  # for <KeyPress-minus> <KeyRelease-minus>  <KeyPress-equal> <KeyRelease-equal>
+  # eg: bind . <KeyPress-minus> ==> {stuff}
+  # thus, for entries, bindtags are: {$e Entry . all} <-- the . is a problem
+  # so, limit the bindtags for entries
+  if {[winfo class $w] == "Entry"} {
+    bindtags $w [list $w Entry all] ;# remove the . bindtag
+    bind_for_axis $w
+  }
+  foreach child [winfo children $w] {
+    if {$child == ""} continue
+    ::ngcgui::entry_mend $child
+  }
+} ;# entry_mend
+
+proc ::ngcgui::recursive_bind_controlkeys {hdl w} {
+  bind_controlkeys $hdl $w
+  foreach child [winfo children $w] {
+    if {$child == ""} continue
+    ::ngcgui::recursive_bind_controlkeys $hdl $child
+  }
+} ;# recursive_bind_controlkeys
+
+proc ::ngcgui::bind_controlkeys {hdl w} {
+  set ::ngc(any,kbindlist) {a c d e E f F k n p P r R s S x v t U u}
+  bind $w <Control-Key-a> [list ::ngcgui::toggle $hdl auto]
+  bind $w <Control-Key-c> [list ::ngcgui::setentries $hdl clear]
+  bind $w <Control-Key-d> [list ::ngcgui::setentries $hdl defaults]
+  bind $w <Control-Key-D> [list ::ngcgui::debug $hdl]
+  bind $w <Control-Key-e> [list ::ngcgui::editfile $hdl last]
+  bind $w <Control-Key-E> [list ::ngcgui::toggle $hdl expandsubroutine]
+  bind $w <Control-Key-f> [list ::ngcgui::gui $hdl savesection]
+  bind $w <Control-Key-F> [list ::ngcgui::gui $hdl finalize]
+  bind $w <Control-Key-k> [list ::ngcgui::bindings $hdl show]
+  bind $w <Control-Key-n> [list ::ngcgui::message $hdl restart]
+  bind $w <Control-Key-p> [list ::ngcgui::gui $hdl readpreamble]
+  bind $w <Control-Key-P> [list ::ngcgui::gui $hdl readpostamble]
+  bind $w <Control-Key-r> [list ::ngcgui::gui $hdl readsubfile]
+  bind $w <Control-Key-R> [list ::ngcgui::toggle $hdl retainvalues]
+  bind $w <Control-Key-q> [list ::ngcgui::toggle $hdl verbose]
+  bind $w <Control-Key-s> [list ::ngcgui::status $hdl]
+  bind $w <Control-Key-S> [list ::ngcgui::status $hdl full]
+  bind $w <Control-Key-u> [list ::ngcgui::editfile $hdl source]
+  bind $w <Control-Key-U> [list ::ngcgui::editfile $hdl preamble]
+  # for debugging:
+  bind $w <Control-Key-x> [list parray ::ngc]
+  bind $w <Control-Key-v> [list parray ::env]
+  bind $w <Control-Key-t> [list ::ngcgui::test]
+} ;# bind_controlkeys
+
+proc ::ngcgui::bind_for_axis {w} {
+  # Escape and other special bindings for axis embedding
+  bind $w <Key-Escape> "$::ngc(any,axis,parent) raise preview" ;# allow Escape too
+
+  # axis omits return break in estopped_clicked for F1
+  bind $w <Key-F1> "[bind all <Key-F1>];break"
+
+  # Fn keys
+  foreach i {2 3 4 5 6 7 8 9 10 11 12} {
+    bind $w <Key-F$i> "[bind . <Key-F$i>];break"
+  }
+} ;# bind_for_axis
+
+proc ::ngcgui::bindings {hdl mode} {
+  set mode [string tolower $mode] ;# -nocase doesnt work tcl8.4
+  switch $mode {
+    show {
+      set atxt "OFF"
+      if {$::ngc($hdl,auto)} {set atxt "ON"}
+      set msg "\
+Ctrl-a Toggle autosend\n\
+Ctrl-c Clear entries\n\
+Ctrl-d Set entries to default values\n\
+Ctrl-e Open editor specified by \$VISUAL\n\
+       on last outfile\n\
+Ctrl-E toggle expand subroutines\n\
+Ctrl-f Create feature\n\
+Ctrl-F Finalize (AUTO send is $atxt)\n\
+Ctrl-k Show key bindings\n\
+Ctrl-n Restart (cancel pending)\n\
+Ctrl-p (re)Read Preamble\n\
+Ctrl-P (re)Read Postamble\n\
+Ctrl-r (re)Read Subfile\n\
+Ctrl-R toggle retain values\n\
+Ctrl-q toggle output file verbosity\n\
+Ctrl-s Show status\n\
+Ctrl-S Show full status (debug info)\n\
+Ctrl-u Open editor specified by \$VISUAL\n\
+       on current subfile\n\
+Ctrl-U Open editor specified by \$VISUAL\n\
+       on current preamble\
+"
+      if [info exists ::ngc(embed,axis)] {
+        set msg " Escape Return to Preview page\n$msg"
+      }
+      # puts $msg
+      ::ngcgui::simple_text .ngcguikeys $msg "$::ngc(any,app)-$hdl-keys"
+    }
+    init {
+      # coordinate with bind_controlkeys (x,v,t for debugging)
+
+      if [info exists ::ngc(embed,axis)] {
+        ::ngcgui::bind_for_axis $::ngc($hdl,topf)
+      }
+
+      if [info exists ::ngc(embed,axis)] {
+        entry_mend $::ngc($hdl,topf)
+      }
+      recursive_bind_controlkeys $hdl $::ngc($hdl,topf)
+      bind $::ngc($hdl,topf) <Enter> [list ::ngcgui::bindings $hdl enter]
+      bind $::ngc($hdl,topf) <Leave> [list ::ngcgui::bindings $hdl leave]
+      set ::ngc($hdl,restore,bindtags) [bindtags $::ngc($hdl,topf)]
+      set ::ngc($hdl,restore,focus) [focus -lastfor $::ngc($hdl,topf)]
+    }
+    enter {
+      set ::ngc($hdl,restore,bindtags) [bindtags $::ngc($hdl,topf)]
+      bindtags $::ngc($hdl,topf) $::ngc($hdl,topf)
+
+      if [info exists ::ngc(embed,axis)] {
+        entry_mend $::ngc($hdl,topf)
+      }
+      recursive_bind_controlkeys $hdl $::ngc($hdl,topf)
+      set ::ngc($hdl,restore,focus) [focus -lastfor $::ngc($hdl,topf)]
+      focus  $::ngc($hdl,topf)
+      return
+    }
+    leave {
+      bindtags $::ngc($hdl,topf) $::ngc($hdl,restore,bindtags)
+      focus -force $::ngc($hdl,restore,focus)
+      # this seems to be necesarry with notebook pages
+      foreach key $::ngc(any,kbindlist) {
+        bind $::ngc($hdl,topf) <Control-Key-$key> {}
+      }
+    }
+  }
+} ;# bindings
+
+proc ::ngcgui::aftertoggle {hdl x} {
+  # hdl: handle (note: opt may be used too)
+  switch $x {
+    auto {
+      if $::ngc($hdl,auto) {
+        pack forget $::ngc($hdl,sendfile,widget)
+        $::ngc($hdl,sendfile,widget) conf -state normal
+        $::ngc($hdl,finalize,widget) config -text "Finalize"
+      } else {
+        pack $::ngc($hdl,sendfile,widget) -fill x
+        $::ngc($hdl,finalize,widget) config -text "MakeFile"
+      }
+    }
+  }
+  ::ngcgui::showmessage $hdl $x
+} ;# aftertoggle
+
+proc ::ngcgui::toggle {hdl x} {
+  # hdl: handle (note: opt may be used too)
+  set ::ngc($hdl,$x) [expr $::ngc($hdl,$x)?0:1]
+  ::ngcgui::aftertoggle $hdl $x
+} ;# toggle
+
+proc ::ngcgui::test {} {
+  set text "Environmental Variables:\n"
+  foreach v [lsort [array names ::env]] {
+    set text "$text $v [set ::env($v)]\n"
+  }
+  simple_text .test $text
+} ;# test
+
+proc ::ngcgui::editfile {hdl {mode last} } {
+  if ![info exists ::env(VISUAL)] {
+    simple_text .problem "\nEditing requires setting for environmental variable VISUAL \n
+Trying gedit\n"\
+      "$::ngc(any,app)-$hdl-problem"
+    set ::env(VISUAL) gedit
+    update
+    after 5000 {destroy .problem}
+  }
+  switch $mode {
+    last {
+      if {   [info exists ::ngc($hdl,last,outfile)] \
+          && "$::ngc($hdl,last,outfile)" != ""} {
+        eval exec $::env(VISUAL) $::ngc($hdl,last,outfile) &
+      } else {
+        simple_text .problem "No file available for editing yet\n"\
+          "$::ngc(any,app)-$hdl-problem"
+        return
+      }
+    }
+    source {
+      if {"$::ngc($hdl,fname,subfile)" != ""} {
+        eval exec $::env(VISUAL) $::ngc($hdl,fname,subfile) &
+      } else {
+        simple_text .problem "No file available for editing\n"\
+          "$::ngc(any,app)-$hdl-problem"
+        return
+      }
+    }
+    preamble {
+      if {"$::ngc($hdl,fname,preamble)" != ""} {
+        eval exec $::env(VISUAL) $::ngc($hdl,fname,preamble) &
+      } else {
+        simple_text .problem "No file available for editing\n"\
+          "$::ngc(any,app)-$hdl-problem"
+        return
+      }
+    }
+  }
+} ;# editfile
+
+proc ::ngcgui::status {hdl args} {
+  set items {fname,preamble fname,subfile fname,postamble\
+            fname,outfile fname,autosend\
+            auto dir savect font aspect retainvalues\
+            expandsubroutine chooser\
+            }
+  set optitems {noauto nonew noremove noiframe noinput }
+  set anyitems {app pollms aspect width,comment width,varname qid}
+
+  set text "Status items:"
+  if {"$args" == "full"} {
+    #parray ::ngc;return
+    set bitems [lsort [array names ::ngc $hdl,*]]
+    foreach i $bitems {lappend items [string trim $i $hdl,]}
+    set text "Status items(all):"
+  }
+  set fmt "%s: %s"
+  foreach i $items {
+    # catch in case item gets unset
+    if [catch { set line [format "$fmt" $i $::ngc($hdl,$i)]}] continue
+    set text "$text\n$line"
+  }
+  set text "$text\n\nAll-page opt items:"
+  foreach i $optitems {
+    # catch in case item gets unset
+    if [catch { set line [format "$fmt" $i $::ngc(opt,$i)]}] continue
+    set text "$text\n$line"
+  }
+  set text "$text\n\nany-items:"
+  foreach i $anyitems {
+    # catch in case item gets unset
+    if [catch { set line [format "$fmt" $i $::ngc(any,$i)]}] continue
+    set text "$text\n$line"
+  }
+  simple_text .status $text "$::ngc(any,app)-$hdl-status"
+  focus .status
+  bind .status <Control-Key-s> [list ::ngcgui::status $hdl $args]
+  bind .status <Control-Key-S> [list ::ngcgui::status $hdl $args]
+} ;# status
+
+proc ::ngcgui::validateNumber {hdl varname widget current new} {
+  # all entries must be numbers
+  if ![info exists $varname] {return 1}
+  if [catch  {format %g $new} ] {
+    $widget configure -fg $::ngc(any,color,error)
+    return 1 ;# problem but return ok (just change color)
+  } else {
+    if {"$current" != "$new"} {}
+    $widget configure -fg $::ngc(any,color,black)
+    return 1 ;# 1==>ok
+  }
+} ;# validateNumber
+
+proc ::ngcgui::setentries {hdl opt} {
+  # set entries per opt == defaults | clear
+  switch $opt {
+    defaults {
+      foreach n [array names ::ngc  $hdl,arg,dvalue,*] {
+        set num02 [string range $n [expr 1+[string last , $n]] end]
+        set ::ngc($hdl,arg,value,$num02) $::ngc($n)
+      }
+      foreach n [array names ::ngc $hdl,global,dvalue,*] {
+        set gname [string range $n [expr 1+[string last , $n]] end]
+        set ::ngc($hdl,global,value,$gname) $::ngc($n)
+      }
+      ::ngcgui::showmessage $hdl "Set defaults"
+    }
+    clear {
+      foreach n [array names ::ngc $hdl,arg,value,*] {
+        set num02 [string range $n [expr 1+[string last , $n]] end]
+        set ::ngc($hdl,arg,value,$num02) ""
+      }
+      foreach n [array names ::ngc $hdl,global,value,*] {
+        set gname [string range $n [expr 1+[string last , $n]] end]
+        set ::ngc($hdl,global,value,$gname) ""
+      }
+      ::ngcgui::showmessage $hdl "Clear entries"
+    }
+  }
+  ::ngcgui::dcheck $hdl
+} ;# setentries
+
+proc ::ngcgui::wgui {dir} {
+  # for embedded applications, this proc makes a separate-window gui
+  # in the current process
+  # this proc is useful for testing with tkcon:
+  # to debug using tkcon: source this file then % ::ngcgui::wgui dirname
+  # to run ngcgui in a frame, use ::ngcgui::gui hdl create frame
+  # multiple intantiations of ngcgui within the same prcess are not supported
+  package require Tk
+  set hdl 0
+  catch {unset ::ngc}
+  ::ngcgui::preset $hdl control  ;# setup control() with defaults
+  set control(any,aspect) horiz
+  set control(any,font)   {Helvetica -10 bold}
+# set control(any,app)    [file tail $::argv0]
+  set control(any,app)    ::ngcgui::wgui       ;# with tkcon argv0 not available
+  set control($hdl,auto)   1                    ;# autosend with finalize
+  set control($hdl,dir)    $dir
+  set control($hdl,topname) .ngcgui
+  eval ::ngcgui::top $hdl control
+  wm withdraw .
+} ;# wgui
+
+proc ::ngcgui::findkeybinding {w {key k} } {
+  # utility
+  set b [bind $w <Control-Key-$key>]
+  if {"$b" != ""} {
+    puts "w=$w key=$key binding=<$b>"
+  }
+  foreach child [winfo children $w] {
+    if {$child == ""} continue
+    find $child $key
+  }
+} ;# findkeybinding
+
+proc ::ngcgui::top {hdl ay_name} {
+  # make a standalone toplevel
+  upvar $ay_name ay
+
+  foreach n [array names ay $hdl,*] { set ::ngc($n) $ay($n) }
+  foreach n [array names ay any,*]  { set ::ngc($n) $ay($n) }
+  if ![info exists ::ngc($hdl,topname)] {
+    set ::ngc($hdl,topname) .
+    focus $::ngc($hdl,topname)
+  } else {
+    catch {destroy $::ngc($hdl,topname)}
+    toplevel    $::ngc($hdl,topname)
+  }
+  wm protocol $::ngc($hdl,topname) WM_DELETE_WINDOW [list ::ngcgui::bye $hdl]
+
+  # if autosend, make sure file is writable
+  if $::ngc($hdl,auto) {
+    if {"$::ngc($hdl,fname,autosend)" == ""} {
+      set ::ngc($hdl,fname,autosend) auto.ngc
+    }
+    if ![string match *.ngc $::ngc($hdl,fname,autosend)] {
+      set ::ngc($hdl,fname,autosend) $::ngc($hdl,fname,autosend).ngc
+    }
+    set fname $::ngc($hdl,fname,autosend)
+    if [file writable $fname] {
+      # ok
+    } else {
+      if [file exists $fname] {
+        puts stderr "$fname not writable"
+        exit 1
+      } else {
+        if [catch {set fd [open $fname w]} msg] {
+          puts stderr $msg
+          exit 1
+        } else {
+          close $fd
+          file delete $fname
+        }
+      }
+    }
+  }
+
+  if {"$::ngc($hdl,topname)" == "."} {
+    set w [::ngcgui::gui $hdl standalone .w]
+  } else {
+    set w [::ngcgui::gui $hdl standalone $::ngc($hdl,topname).w]
+  }
+
+  if {"$w" == ""} {exit 1} ;# "" indicates something went wrong
+  pack $w -expand 0
+   switch $::ngc(any,aspect) {
+     vert  {wm resizable $::ngc($hdl,top) 0 1}
+     horiz {wm resizable $::ngc($hdl,top) 1 0}
+   }
+
+} ;# top
+
+proc ::ngcgui::usage {hdl ay_name} {
+  upvar $ay_name ay
+  set prog [file tail $::argv0]
+  set dfont "\"$ay(any,font)\"" ;# avoid messing up vim colors
+  set aname $ay($hdl,fname,autosend)
+  puts stderr "Usage:
+  $prog --help | -?
+  $prog \[Options\] -D nc_files_directory_name
+  $prog \[Options\] -i emc_inifile_name
+  $prog \[Options\]
+
+  Options:
+         \[-S subroutine_file\]
+         \[-p preamble_file\]
+         \[-P postamble_file\]
+         \[-o output_file\]
+         \[-a autosend_file]\            (autosend to axis default:$aname)
+         \[--noauto]\                    (no autosend to axis)
+         \[--font \[big|small|fontspec\]\] (default: $dfont)
+         \[--horiz|--vert\]              (default: --horiz)
+         \[--cwidth comment_width]\      (width of comment field)
+         \[--vwidth varname_width]\      (width of varname field)
+         \[--quiet]\                     (fewer comments in outfile)
+         \[--noiframe]\                  (default: frame displays image)
+
+"
+  exit 0
+} ;# usage
+
+proc ::ngcgui::inifind {filename stanza item} {
+  # find [STANZA]ITEM value from an ini file
+  set fd [open $filename r]
+  set state find_stanza
+  while {![eof $fd]} {
+    gets $fd theline
+    # remove blanks and tabs, use lower case
+    set line [string map {" " "" "	" ""} $theline] ;#sp,tab to ""
+    # remove trailing comment
+    set i1    [string first # $line]
+    if {$i1 > 0} {
+      set line [string range $line 0 [expr $i1 -1]]
+    }
+    switch $state {
+      find_stanza {
+        if [regexp -nocase "^\\\[$stanza\\\]$" $line] { set state find_item }
+      }
+      find_item {
+        if [regexp -nocase "^\\\[.*" $line] {
+          break ;# new stanza found before item
+        }
+        if [regexp -nocase "^$item=(.*)" $line match value] {
+          set thevalue $value
+          # if more than one line like item=value, take the last line
+        }
+      }
+    }
+  }
+  close $fd
+  if [info exists thevalue] {
+    return $value
+  }
+  return ""
+} ;# inifind
+
+proc ::ngcgui::movepage {parent lr} {
+  set pages [$parent pages]
+  set  page [$parent raise]
+  set   idx [lsearch $pages $page]
+  switch $lr {
+    left  {
+      if {$idx <= $::ngc(any,axis,min,idx)} {
+        return
+      }
+      incr idx -1
+    }
+    right { incr idx +1 }
+  }
+  $parent move $page $idx
+  updatepage
+} ;# movepage
+
+proc ::ngcgui::newpage {creatinghdl} {
+  set subfile "" ;# newpage: user must open file
+
+  if $::ngc(opt,noinput) {
+    # there is no wI input frame, just use current file
+    set subfile $::ngc($creatinghdl,fname,subfile)
+    if {"$subfile" == ""} {
+      set ::ngc(opt,noinput) 0 ;# need input if no subfile to open page
+    }
+  }
+  if $::ngc($creatinghdl,chooser) {
+    set subfile "\"\""  ;# chooser
+  }
+
+  set prefile ""
+  set postfile ""
+  if {"$::ngc($creatinghdl,dname,preamble)" != ""} {
+    set prefile $::ngc($creatinghdl,fname,preamble)
+  }
+  if {"$::ngc($creatinghdl,dname,postamble)" != ""} {
+    set postfile $::ngc($creatinghdl,fname,postamble)
+  }
+
+  set pageid ngcgui[qid]
+  set w [$::ngc(any,axis,parent) insert end "$pageid" \
+        -text new
+        ]
+  $w config -borderwidth 0 ;# not sure why this needs to be by itself
+  set f [frame $w.[qid] -borderwidth 0 -highlightthickness 0]
+  pack $f -fill both -expand 1 -anchor nw -side top
+
+  # note: express font as list here is important fore embedded spaces
+  set newhdl [embed_in_axis_tab $f \
+              subfile=$subfile \
+              preamble=$prefile \
+              postamble=$postfile \
+              font=$::ngc(any,font) \
+              options=$::ngc(input,options) \
+             ]
+  $::ngc(any,axis,parent) itemconfigure $pageid \
+        -createcmd "::ngcgui::pagecreate $newhdl"\
+        -raisecmd  "::ngcgui::pageraise  $newhdl"\
+        -leavecmd  "::ngcgui::pageleave  $newhdl"
+
+  # use directory from creating page
+  set ::ngc($newhdl,dir) [file dir $::ngc($creatinghdl,fname,subfile)]
+  $::ngc(any,axis,parent) raise $::ngc($newhdl,axis,page)
+  if {$::ngc(opt,noinput) && ("$::ngc($newhdl,dname,subfile)" != "")} {
+    set ::ngc($newhdl,info) "$::ngc($newhdl,dname,subfile)"
+  } else {
+    set ::ngc($newhdl,info) "Open a new Subfile"
+  }
+  updatepage
+} ;# newpage
+
+proc ::ngcgui::nextpage {pagename lr} {
+  # next page to use after this page is deleted
+  set hdl [pagetohdl $pagename]
+  if {$hdl <0} {return -code error \
+    "nextpage:unexpected pagename <$pagename>"
+  }
+  set page $::ngc($hdl,axis,page)
+  set pages [$::ngc(any,axis,parent) pages]
+  set lastidx [expr -1 + [llength $pages]]
+  set idx [lsearch $pages $page]
+  switch $lr {
+    left  {
+      if {$idx <= $::ngc(any,axis,min,idx)} {
+        incr idx +1 ;# since idx page will be deleted
+      } else {
+        incr idx -1
+      }
+    }
+    right {
+      if {$idx >= $lastidx} {
+        incr idx -1 ;# since idx page will be deleted
+      } else {
+        incr idx +1
+      }
+    }
+  }
+  set newpage [lindex $pages $idx]
+  return $newpage
+} ;# nextpage
+
+proc ::ngcgui::pageexists {hdl} {
+  if [info exists ::ngc($hdl,axis,page)] {return 1}
+  return 0
+} ;# pageexists
+
+proc ::ngcgui::deletepage {pagename} {
+  set hdl [pagetohdl $pagename]
+  if {$hdl <0} {return -code error \
+    "deletepage:unexpected pagename <$pagename>"
+  }
+  set newpage [nextpage $pagename left]
+  after cancel $::ngc($hdl,afterid)
+  $::ngc(any,axis,parent) delete $::ngc($hdl,axis,page)
+
+  wm protocol $::ngc($hdl,img,top) WM_DELETE_WINDOW {}
+  destroy $::ngc($hdl,img,top)
+
+  foreach n [array names ::ngc $hdl,*] {
+    unset ::ngc($n)
+  }
+
+  set idx [lsearch $::ngc(embed,pages) $pagename]
+  set ::ngc(embed,pages) [lreplace $::ngc(embed,pages) $idx $idx]
+  $::ngc(any,axis,parent) raise $newpage
+  updatepage
+} ;# deletepage
+
+proc ::ngcgui::updatepage {} {
+  set parent $::ngc(any,axis,parent)
+  set allpages [$parent pages] ;# these are in tab order
+  foreach page [$parent pages] {
+    if {[lsearch $::ngc(embed,pages) $page] < 0} continue
+    lappend orderedpages $page
+  }
+  if ![info exists orderedpages] return ;# can occur at start
+  if {[llength $orderedpages] == 1} {
+    set p $orderedpages
+    foreach w {,move,l,widget move,r,widget ,remove,widget} {
+      if [info exists ::ngc($p$w)] {
+        $::ngc($p$w) config -state disabled
+      }
+    }
+    return
+  }
+  foreach p $orderedpages {
+    set idx [lsearch $orderedpages $p]
+    if {$idx == 0} {
+      $::ngc($p,move,l,widget) config -state disabled
+      $::ngc($p,move,r,widget) config -state active
+    } elseif {$idx == [expr -1 +[llength $orderedpages]]} {
+      $::ngc($p,move,l,widget) config -state active
+      $::ngc($p,move,r,widget) config -state disabled
+    } else {
+      $::ngc($p,move,l,widget) config -state active
+      $::ngc($p,move,r,widget) config -state active
+    }
+    # remove,widget not always present
+    if [info exists ::ngc($p,remove,widget)] {
+      $::ngc($p,remove,widget) config -state active}
+  }
+
+  # if choosers exist, do not allow removal of last one
+  set ct 0
+  foreach name [array names ::ngc *,chooser] {
+    if $::ngc($name) {
+      incr ct
+      lappend chdls [trimsuffix $name ,chooser]
+    }
+  }
+  if {$ct == 1} {
+    set chdl $chdls
+    set page $::ngc($chdl,axis,page)
+    $::ngc($page,remove,widget) configure -state disabled
+  } elseif {$ct > 1} {
+    foreach chdl $chdls {
+      set page $::ngc($chdl,axis,page)
+      $::ngc($page,remove,widget) configure -state active
+    }
+  }
+} ;# updatepage
+
+proc ::ngcgui::pagetohdl {pagename} {
+  foreach name [array names ::ngc *,axis,page] {
+    if {"$::ngc($name)" == "$pagename"} {
+      return [trimsuffix $name ,axis,page]
+      break
+    }
+  }
+  return -1
+} ;# pagetohdl
+
+proc ::ngcgui::tabmanage {pagename wframe ident infovar \
+                         {removable 0} {newable 0} } {
+  # filler frame to put space below page tabs
+  pack [frame $wframe.[qid] -relief flat -height 1m\
+       ] -anchor n -fill both -expand 0
+
+  set   af [frame $wframe.[qid] -relief ridge -bd 2]
+  pack $af -fill x -expand 0 -anchor n ;# always pack to hold space
+
+  # another filler frame to put space below page tabs
+  pack [frame $wframe.[qid] -relief flat -height 1m\
+       ] -anchor n -fill both -expand 0
+
+  pack [label $wframe.[qid] -relief flat -anchor w \
+       -textvariable $infovar \
+       -fg $::ngc(any,color,prompt)\
+  ] -anchor ne -fill both -expand 0
+
+  if $removable {
+    set hdl [pagetohdl $pagename]
+    set b [button $af.[qid] -text "remove" -padx 2 -pady 1]
+    $b configure -command [list ::ngcgui::deletepage $pagename]
+    pack $b -side left -fill none -expand 0
+    set ::ngc($pagename,remove,widget) $b
+  }
+
+  if $newable {
+    set hdl [pagetohdl $pagename]
+    set b [button $af.[qid] -text "new" -padx 2 -pady 1]
+    $b configure -command [list ::ngcgui::newpage $hdl]
+    pack $b -side left -fill none -expand 0
+  }
+
+  set l [label  $af.[qid] \
+       -text "$ident" \
+       -padx 2 -pady 1 -relief ridge\
+       ]
+  pack $l -side left -fill x -expand 1
+
+  set parent $::ngc(any,axis,parent)
+  set b [button $af.[qid] -text "move-->" -padx 2 -pady 1]
+  $b configure -command [list ::ngcgui::movepage $parent right]
+  pack $b -side right -fill none -expand 0
+  set ::ngc($pagename,move,r,widget) $b
+
+  set b [button $af.[qid] -text "<--move" -padx 2 -pady 1]
+  $b configure -command [list ::ngcgui::movepage $parent left]
+  pack $b -side right -fill none -expand 0
+  set ::ngc($pagename,move,l,widget) $b
+  updatepage
+} ;# tabmanage
+
+proc ::ngcgui::parent {} {return $::ngc(any,axis,parent)}
+
+proc ::ngcgui::getngcgui_frame {name} {
+  # utility for applications managed by ngcgui
+  set wtab [dynamic_tab $name $name] ;# axis function
+  set w [frame $wtab.[qid] -container 0 -borderwidth 0 -highlightthickness 0]
+  pack $w -side top -fill both -expand 1 -anchor nw
+
+  lappend ::ngc(embed,pages) $name
+  return $w
+} ;# getngcgui_frame
+
+proc ::ngcgui::embed_in_axis_tab {f args} {
+  # f: frame
+  # args: "item=value item=value ..."
+
+  if ![info exists ::ngc(embed,hdl)] {
+    set ::ngc(embed,axis) 1
+    set ::ngc(embed,hdl) 0
+    set ::ngc(embed,pages) ""
+
+    set ::ngc(any,axis,parent) [winfo parent [winfo parent $f]]
+
+    # dont allow movement of tab to left of original location:
+    set idx [lsearch [$::ngc(any,axis,parent) pages] \
+                     [$::ngc(any,axis,parent) pages end]]
+    if {$idx < 0} {
+      set ::ngc(any,axis,min,idx)  10000
+    } else {
+      set ::ngc(any,axis,min,idx)  $idx
+    }
+  } else {
+    incr ::ngc(embed,hdl)
+  }
+  set hdl $::ngc(embed,hdl) ;# local
+
+  ::ngcgui::preset $hdl ::ngc   ;# setup defaults
+
+  set equalitems {subfile preamble postamble font startdir options}
+  foreach item $equalitems {set ::ngc(input,$item) ""}
+  foreach input  $args {
+    set  pair [split $input =]
+    set ::ngc(input,[lindex $pair 0]) [lindex $pair 1]
+    # ex: input,subfile
+  }
+  foreach item $equalitems {set $item $::ngc(input,$item)}
+
+  set ::ngc($hdl,dir) $::ngc(input,startdir)
+
+  if {[lsearch $options nonew     ] >=0} {set ::ngc(opt,nonew)      1}
+  if {[lsearch $options noremove  ] >=0} {set ::ngc(opt,noremove)   1}
+  if {[lsearch $options noauto    ] >=0} {set ::ngc(opt,noauto)     1}
+  if {[lsearch $options noinput   ] >=0} {set ::ngc(opt,noinput)    1}
+  if {[lsearch $options noiframe  ] >=0} {set ::ngc(opt,noiframe)   1}
+
+  if {[lsearch $options expandsub ] >=0} {set ::ngc($hdl,expandsubroutine)   1}
+
+  if $::ngc(opt,noauto) {
+    set ::ngc($hdl,auto) 0
+  } else {
+    set ::ngc($hdl,auto) 1
+  }
+  # with image in frame there is not enough room so force noinput
+  if !$::ngc(opt,noiframe) {set ::ngc(opt,noinput) 1}
+
+  set ::ngc(any,width,comment) 0  ;# field can be as long as reqd
+
+  set ::ngc($hdl,axis,page)   [$::ngc(any,axis,parent) pages end]
+  set page $::ngc($hdl,axis,page) ;# local
+
+  # if font has leading/trailing literal quotes, remove them
+  if {   [string first \" $font] == 0 \
+      && [string last  \" $font] == [expr [string len $font] -1]} {
+     set font [string range $font 1 [expr [string len $font] -2]]
+  }
+  if {"$font" != ""} {set ::ngc(any,font) $font}
+
+  # specific settings for embedding in axis tab:
+  set ::ngc(any,aspect)        horiz
+  set ::ngc(any,width,varname) 0
+  if {"$subfile" != ""} {
+    # detect ini file specified as ""
+    # this is a chooser page -- user can open new files
+    if {"$subfile" == "\"\""} {
+      set ::ngc($hdl,chooser)        1
+      set ::ngc($hdl,fname,subfile)  ""
+      $::ngc(any,axis,parent) itemconfigure $page \
+            -text "Custom" \
+            -background $::ngc(any,color,custom)
+    } else {
+      set ::ngc($hdl,fname,subfile) $subfile
+      set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
+    }
+  }
+  if {"$preamble"  != ""} {set ::ngc($hdl,fname,preamble) $preamble   }
+  if {"$postamble" != ""} {set ::ngc($hdl,fname,postamble) $postamble }
+
+  set  w [::ngcgui::gui $hdl create $f.ngc_gui]
+
+  if {"$w" == ""} {
+    puts stderr "Problem creating page <$hdl> <$f>"
+  } else  {
+    pack $w -side top -fill none -expand 1 -anchor nw
+  }
+  # package require Emc ;# needs emcv2.5.x, segfaults emcv2.4.x
+  # just invoking emc_init works with v2.4 and v2.5
+  if  [catch {emc_init} msg] {
+    puts "embed_in_axis_tab: entrykeybindings not available <$msg>"
+  }
+  lappend ::ngc(embed,pages) $page
+  updatepage
+
+  return $hdl
+} ;# embed_in_axis_tab
+
+proc ::ngcgui::raiselastpage {} {
+  $::ngc(any,axis,parent) raise $::ngc($::ngc(embed,hdl),axis,page)
+} ;# raiselastpage
+
+proc ::ngcgui::position {top} {
+  set geo [wm geometry $top]
+  return [string range $geo [string first + $geo] end]
+} ;# position
+
+proc ::ngcgui::pagecreate {hdl} {
+  #puts "n:pagecreate-$hdl"
+  return 1
+} ;# pagecreate
+
+proc ::ngcgui::pageraise {hdl} {
+  #puts "n:pageraise-$hdl"
+  set ::ngc($hdl,img,status) raised
+  if {"$::ngc($hdl,fname,subfile)" != ""} {
+    new_image $hdl $::ngc($hdl,fname,subfile)
+  }
+  return 1
+} ;# pageraise
+
+proc ::ngcgui::pageleave {hdl} {
+  #puts "n:pageleave-$hdl"
+  set ::ngc($hdl,img,position) [position $::ngc($hdl,img,top)]
+  wm withdraw $::ngc($hdl,img,top)
+  return 1 ;# important: permission to leave
+} ;# pageleave
+
+proc ::ngcgui::image_init {hdl} {
+  set ::ngc($hdl,img,status)    new
+  if [info exists ::ngc(embed,axis)] {
+    set ::ngc($hdl,img,top) .$::ngc(any,app)-$hdl
+  } else {
+    set ::ngc($hdl,img,top) .$::ngc(any,app)
+  }
+  if [winfo exists $::ngc($hdl,img,top)] return
+  wm withdraw [toplevel $::ngc($hdl,img,top)]
+  wm protocol $::ngc($hdl,img,top) WM_DELETE_WINDOW \
+              [list wm withdraw $::ngc($hdl,img,top)]
+
+  if {$::ngc(opt,noinput) && !$::ngc($hdl,chooser)} {
+    pack forget $::ngc($hdl,iframe) ;# wI remove the Input frame
+  }
+  if {   (!$::ngc(opt,noiframe) && !$::ngc($hdl,chooser) )\
+      || (!$::ngc(opt,noiframe) &&  $::ngc($hdl,standalone) )\
+      } {
+    # use a frame for image
+    set p [winfo parent $::ngc($hdl,iframe)]
+    set w $p.[qid] ;# name of frame
+    set ::ngc($hdl,img,widget) [image_widget $hdl $w]
+    set ::ngc($hdl,img,type) frame
+  } else {
+    # use a toplevel for image
+    set ::ngc($hdl,img,widget) [image_widget $hdl $::ngc($hdl,img,top).i]
+    set ::ngc($hdl,img,type) toplevel
+  }
+  # note: new_image packs $::ngc($hdl,img,widget)
+} ;# image_init
+
+proc ::ngcgui::image_widget {hdl f} {
+  # f is name of a frame, it should not exist at call, caller packs
+  # png, pgm,ppm etc support
+  if [catch {package require Img} msg] {
+    tk_dialog .img \
+      "Missing Tcl Package Img " \
+      "Please install Img:\n $ sudo apt-get install libtk-img" \
+      "" 0 \
+      "ok"
+    exit
+  }
+  if {[winfo exists $f]} {return -code error "image_widget <$w> exists"}
+  frame $f ;# caller packs
+
+  set fimg [frame $f.fimg -relief groove -borderwidth 2]
+  pack $fimg -side top -expand 1 -fill both
+
+  set ::ngc($hdl,img,canvas) [canvas $fimg.canvas -bg darkgray ]
+  pack $::ngc($hdl,img,canvas) -side left -expand 1 -fill both
+  return $f
+} ;# image_widget
+
+proc ::ngcgui::new_image {hdl ngcfilename} {
+  set idx [string first .ngc $ngcfilename]
+  if {$idx < 0} {return -code error "new_image <$ngcfilename>"}
+
+  set filestart [string range $ngcfilename 0 $idx]
+  foreach suffix {png gif jpg pgm} {
+    set f ${filestart}$suffix
+    if [file readable $f] {
+      set ifilename $f
+      break
+    }
+  }
+  if ![info exists ifilename] {
+     catch {unset ::ngc($hdl,img,filename)}
+     catch {pack forget $::ngc($hdl,img,widget)} ;# standalone
+     catch {wm withdraw $::ngc($hdl,img,top)} ;# needed for standalone
+     return ;# silently continue
+  }
+
+  set doimage 0
+  if ![info exists ::ngc($hdl,img,filename)] {
+    set ::ngc($hdl,img,status) first
+    set doimage 1
+  } else {
+    if {"$::ngc($hdl,img,filename)" != "$ifilename"} {
+      set ::ngc($hdl,img,position) [position $::ngc($hdl,img,top)]
+      set ::ngc($hdl,img,status) new
+      set doimage 1
+    }
+  }
+
+  if {$doimage} {
+    # first time for this file for this hdl
+    set ::ngc($hdl,img,filename) $ifilename
+    pack forget $::ngc($hdl,img,widget)
+    set tmpimage [image create photo -file $ifilename]
+    set ct 0
+    set sw [expr [image width  $tmpimage] / $::ngc(any,img,width,max)  + 1]
+    set sh [expr [image height $tmpimage] / $::ngc(any,img,height,max) + 1]
+    set subsample $sw
+    if  {$sh > $sw} {set subsample $sh}
+    set ::ngc($hdl,img,image) [image create photo]
+    $::ngc($hdl,img,image) copy $tmpimage -subsample $subsample -shrink
+
+    set width  [image  width  $::ngc($hdl,img,image)]
+    set height [image  height $::ngc($hdl,img,image)]
+    # convenience only:
+    set ::ngc($hdl,img,orig,size)  [image width $tmpimage]x[image height $tmpimage]
+    set ::ngc($hdl,img,sampled,size)  ${width}x${height}
+
+    $::ngc($hdl,img,canvas) delete all
+    $::ngc($hdl,img,canvas) configure -width $width -height $height
+    $::ngc($hdl,img,canvas) create image [expr $width/2] [expr $height/2]\
+                      -anchor center \
+                      -image $::ngc($hdl,img,image)
+    recursive_bind_controlkeys $hdl $::ngc($hdl,img,top)
+    pack $::ngc($hdl,img,widget)
+  }
+
+  # restore the image widget toplevel if applicable
+  if {"$::ngc($hdl,img,type)" == "toplevel"} {
+    switch $::ngc($hdl,img,status) {
+       first {
+         if [info exists ::ngc($hdl,img,position)] {
+           wmrestore $hdl
+         } else {
+           wmcenter $::ngc($hdl,img,top)
+         }
+         if {  ![info exists ::ngc(embed,axis)] \
+             || [$::ngc(any,axis,parent) raise] == $::ngc($hdl,axis,page)} {
+           set ::ngc($hdl,img,status) raised ;# need for standalone
+         } else {
+           wm withdraw $::ngc($hdl,img,top)
+         }
+      }
+      new -
+      raised { wmrestore $hdl }
+    }
+    wm resizable $::ngc($hdl,img,top) 0 0
+    wm title $::ngc($hdl,img,top) [trimsuffix $::ngc($hdl,dname,subfile)]
+  }
+} ;# new_image
+
+proc ::ngcgui::wmrestore {hdl} {
+  set w $::ngc($hdl,img,top)
+  wm deiconify $w
+  if [catch {
+        if [info exists ::ngc($hdl,img,position)] {
+          wm geometry $w $::ngc($hdl,img,position)
+        }
+   } msg] {
+      puts stderr "wmrestore: unexpected<$msg>"
+   }
+} ;# wmrestore
+
+if [catch {
+  # configure standalone usage:
+
+  if {[info exists ::argv0] && [info script] == $::argv0} {
+    # setup ::ngcgui::control() with defaults
+    set hdl 0
+    ::ngcgui::preset $hdl ::ngcgui::control
+    package require Tk
+    # configure for standalone usage:
+    set ::ngcgui::control(any,app) [file tail $argv0]
+
+    while {[llength $::argv] >0} {
+      # beware wish handling of reserved cmdline arguments
+      # to use -h: use -- -h,
+      # lreplace shifts argv for no. of items for each iteration
+      switch -- [lindex $::argv 0] {
+        --noiframe {set ::ngc(opt,noiframe) 1
+                    set ::argv [lreplace $::argv 0 0]
+                    }
+        -h - -? -
+        --help {::ngcgui::usage $hdl ::ngcgui::control;exit 0}
+        --horiz -
+        -horiz {set ::ngcgui::control(any,aspect) horiz
+                set ::argv [lreplace $::argv 0 0]
+               }
+        --vert -
+        -vert  {set ::ngcgui::control(any,aspect) vert
+                set ::argv [lreplace $::argv 0 0]
+               }
+        -q      -
+        --quiet {
+                 set ::ngcgui::control($hdl,verbose) 0
+                 set ::argv [lreplace $::argv 0 0]
+                }
+        --font -
+        -font  {set ::ngcgui::control(any,font) [lindex $::argv 1]
+                set ::argv [lreplace $::argv 0 1]
+               }
+        --vwidth {set ::ngcgui::control(any,width,varname) [lindex $::argv 1]
+                  set ::argv [lreplace $::argv 0 1]
+                 }
+        --cwidth {set ::ngcgui::control(any,width,comment) [lindex $::argv 1]
+                  set ::argv [lreplace $::argv 0 1]
+                  }
+        -S          -
+        --subfile  {set ::ngcgui::control($hdl,fname,subfile) [lindex $::argv 1]
+                     set ::argv [lreplace $::argv 0 1]
+                   }
+        -p         -
+        --preamble {set ::ngcgui::control($hdl,fname,preamble) \
+                          [lindex $::argv 1]
+                     set ::argv [lreplace $::argv 0 1]
+                   }
+        -P          -
+        --postamble {set ::ngcgui::control($hdl,fname,postamble) \
+                           [lindex $::argv 1]
+                     set ::argv [lreplace $::argv 0 1]
+                    }
+        -o       -
+        --output {set ::ngcgui::control($hdl,fname,outfile) [lindex $::argv 1]
+                  set ::argv [lreplace $::argv 0 1]
+                 }
+        -D          -
+        --dir       {
+                     # -D allows dir specification with no filenames
+                     set ans [lindex $::argv 1]
+                     if [file isdirectory $ans] {
+                       set ::ngcgui::control($hdl,dir) $ans
+                     } else {
+                       set ::ngcgui::control($hdl,dir) [file dirname $ans]
+                     }
+                     set ::argv [lreplace $::argv 0 1]
+                    }
+        -a          -
+        --autosend  {set ::ngcgui::control($hdl,auto) 1
+                     set ::ngcgui::control($hdl,fname,autosend) \
+                           [lindex $::argv 1]
+                     set ::argv [lreplace $::argv 0 1]
+                    }
+        --noautosend -
+        --noauto     {set ::ngcgui::control($hdl,auto) 0
+                      set ::argv [lreplace $::argv 0 0]
+                     }
+
+        -i          -
+        --ini*      {
+                       set filename [lindex $::argv 1]
+                       if ![file readable $filename] {
+                         puts "ini file: <$filename> not readable"
+                         exit 1
+                       }
+                       set ::argv [lreplace $::argv 0 1]
+                       set dir [file normalize [file dirname $filename]]
+                       set pdir [::ngcgui::inifind $filename \
+                                           DISPLAY PROGRAM_PREFIX]
+                       if {"$pdir" == ""} {
+                         puts "\[DISPLAY\]PROGRAM_PREFIX not found <$filename>"
+                         exit 1
+                       }
+                       set ptype [file pathtype $pdir]
+                       switch $ptype {
+                         relative {set inidir [file join $dir $pdir]}
+                         absolute {set inidir [file normalize $pdir]}
+                         default  {puts "unhandled pathtype for $pdir <$ptype>"
+                                   exit 1
+                                  }
+                       }
+                       set ::ngcgui::control($hdl,dir) $inidir
+                    }
+        default {break}
+      }
+    }
+    if {"$::ngcgui::control(any,font)" == ""} {
+      set ::ngcgui::control(any,font) small
+    }
+    switch -- $::ngcgui::control(any,font) {
+      small   {set ::ngcgui::control(any,font) {Helvetica -10 bold}}
+      big     {set ::ngcgui::control(any,font) {Helvetica -16 bold}}
+      default {}
+    }
+    # ::ngcgui::control() specifies args
+    eval ::ngcgui::top $hdl ::ngcgui::control
+    tkwait variable ::ngcgui::finis
+    exit 0
+  }
+} msg] {puts "ngcgui.tcl:msg=$msg"}

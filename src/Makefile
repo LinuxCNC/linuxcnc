@@ -343,6 +343,12 @@ TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
+TARGETS += ngcgui
+
+# ngcgui as standalone app:
+ngcgui: ../tcl/ngcgui.tcl
+	cp ../tcl/ngcgui.tcl $(bindir)/ngcgui
+	chmod 0755 $(bindir)/ngcgui
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
