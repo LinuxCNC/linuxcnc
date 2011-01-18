@@ -237,7 +237,8 @@ INFILES = \
 	../scripts/emcmkdesktop ../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
 	../share/applications/emc.desktop \
-	../share/applications/emc-latency.desktop
+	../share/applications/emc-latency.desktop \
+	../share/applications/emc-latencyplot.desktop
 
 ifneq ($(BUILD_SYS),sim)
 INFILES += ../scripts/latencyplot
@@ -432,7 +433,8 @@ install:
 install-menus install-menu: ../share/menus/CNC.menu \
 		../share/desktop-directories/cnc.directory \
 		../share/applications/emc.desktop \
-		../share/applications/emc-latency.desktop
+		../share/applications/emc-latency.desktop \
+		../share/applications/emc-latencyplot.desktop
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
