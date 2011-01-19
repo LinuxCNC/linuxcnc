@@ -35,7 +35,7 @@ if [catch {package require BLT} msg] {
   set msg "BLT package is required:\n\
           sudo apt-get install blt"
   popup $msg
-  exit
+  exit 1
 }
 
 proc setdefaults {} {
@@ -78,7 +78,7 @@ proc setdefaults {} {
   set      ::sc(data,source) hal_timedelta
 
   # hal_timedelta defaults:
-  set   ::sc(base,period,ns)  100000
+  set   ::sc(base,period,ns)   25000
   set  ::sc(servo,period,ns) 1000000
   set        ::sc(report,ms)    1000
   set    ::sc(report,ms,min)     100
@@ -91,6 +91,16 @@ proc setdefaults {} {
 } ;# setdefaults
 
 proc init {} {
+  set ::sc(label) "Latency (uSeconds) vs Time (seconds)   Wall:"
+  switch $::sc(clock,mode) {
+    actual   {set ::sc(button,timescale) 1}
+    relative {set ::sc(button,timescale) 0}
+  }
+  set sp [format %.0f [expr $::sc(servo,period,ns)/1000]]
+  set bp [format %.0f [expr $::sc(base,period,ns)/1000]]
+  wm title .  "[file tail $::argv0] (servo: $sp uS, base: $bp uS)"
+  update_timescale
+
   blt::vector create ::xv
   blt::vector create ::yv1; set ::yv1(++end) 0.0
   blt::vector create ::yv2; set ::yv2(++end) 0.0
@@ -111,7 +121,6 @@ proc init {} {
 } ;# init
 
 proc init_rtai_testsuite {} {
-  set ::sc(label) "Latency (uSeconds) vs Time (seconds)   "
   set ::sc(v,name,pairs) { ::yv1 ovl,max \
                            ::yv2 lat,max \
                            ::yv3 lat,min \
@@ -125,7 +134,6 @@ proc init_hal_timedelta {} {
   lappend ::auto_path $::sc(emc2_tcl_lib_dir)
   package require Hal
 
-  set ::sc(label) "Latency (uSeconds) vs Time (seconds)   "
   set ::sc(v,name,pairs) { ::yv1 b:max \
                            ::yv2 s:max \
                            ::yv3 b:latency \
@@ -155,7 +163,7 @@ proc check {} {
 Stop all programs (emc) using realtime first and then run:\n\n\
 halrun -U\n"
     popup $msg
-    exit
+    exit 1
   }
   switch $::sc(data,source) {
     rtai_testsuite {check_rtai_testsuite}
@@ -175,7 +183,7 @@ proc check_rtai_testsuite {} {
   if ![file exists $::sc(rtai_testsuite,program)] {
     set msg "Can\'t find latency program:\n$::sc(rtai_testsuite,program)"
     popup $msg
-    exit
+    exit 1
   }
 } ;# check_rtai_testsuite
 
@@ -186,7 +194,7 @@ proc mcheck {} {
   if {$mempercent > $::sc(mem,max,percent)} {
     set msg "Memory used is ${mempercent}%, Exiting"
     popup $msg
-    exit
+    exit 1
   }
   after 10000 mcheck
 } ;# mcheck
@@ -224,7 +232,7 @@ proc readpipe {fd} {
     set msg "readpipe: End of file from $::sc(rtai_testsuite,program)\n\
             PID=$::sc(rtai_testsuite,program,pid)"
     popup $msg
-    exit
+    exit 1
     return
   }
   incr ::sc(rtai,ct)
@@ -370,7 +378,7 @@ proc restart_rtai_testsuite {} {
     set msg "restart: $::sc(rtai_testsuite,program) failed\n\
              PID:$::sc(rtai_testsuite,program,pid)"
     popup $msg
-    exit
+    exit 1
   }
 } ;# restart_rtai_testsuite
 
@@ -456,10 +464,20 @@ proc setup_stripchart {} {
   set ::sc(button,increase) .f3.increment
 
   pack [frame .f4] -side right -anchor w -fill x -expand 0
+  pack [checkbutton .f4.b -command update_timescale\
+       -variable ::sc(button,timescale)
+       ] -side right -anchor w -fill x -expand 0
   pack [label .f4.l1 -text "$::sc(label)"]\
        -side left -anchor w -fill none -expand 1
 
 } ;# setup_stripchart
+
+proc update_timescale {} {
+  switch $::sc(button,timescale) {
+     0 {set ::sc(clock,mode) relative}
+     1 {set ::sc(clock,mode) actual}
+  }
+} ;# update_timescale
 
 proc finish {} {
   switch $::sc(data,source) {
@@ -470,7 +488,7 @@ proc finish {} {
 } ;# finish
 
 proc finish_rtai_testsuite {} {
-  exit
+  exit 0
 } ;# finish_rtai_testsuite
 
 proc finish_hal_timedelta {} {
@@ -532,9 +550,11 @@ proc usage {} {
   puts "Usage:"
   puts "      $prog --help | -?      (this)"
   puts "      $prog --rtai           (declining usage, uses rtai testsuite)"
-  puts "      $prog --hal \[Options\]  (default uses hal timedelta)"
+  puts "      $prog --hal \[Options\]  (default, uses hal timedelta)"
   puts ""
   puts "Options:"
+  puts "      --base nS  (base  thread interval, default:   $::sc(base,period,ns))"
+  puts "      --servo nS (servo thread interval, default: $::sc(servo,period,ns))"
   puts "      --time mS  (report interval, default: $::sc(report,ms))"
   puts "      --relative (relative clock time (default))"
   puts "      --actual   (actual clock time)"
@@ -545,12 +565,21 @@ proc config {} {
     # beware wish handling of reserved cmdline arguments
     # to use -h: use -- -h,
     # lreplace shifts argv for no. of items for each iteration
-    switch -- [lindex $::argv 0] {
+    set currentarg [lindex $::argv 0]
+    switch -- $currentarg {
       -? - --help {usage;exit 0}
       -r - --rtai {set ::sc(data,source) rtai_testsuite}
       -H - --hal  {set ::sc(data,source) hal_timedelta}
       --actual    {set ::sc(clock,mode) actual}
       --relative  {set ::sc(clock,mode) relative}
+      -b - --base {set t [lindex $::argv 1]
+                   set ::sc(base,period,ns) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      -s - --servo {set t [lindex $::argv 1]
+                    set ::sc(servo,period,ns) $t
+                    set ::argv [lreplace $::argv 0 0]
+                   }
       -t - --time {set t [lindex $::argv 1]
                    if {$t > $::sc(report,ms,max)} {
                      set t $::sc(report,ms,max)
@@ -563,9 +592,27 @@ proc config {} {
                    set ::sc(report,ms) $t
                    set ::argv [lreplace $::argv 0 0]
                   }
+      default {lappend unknownargs $currentarg}
     }
     set ::argv [lreplace $::argv 0 0]
   } ;# while
+  if [info exists unknownargs] {
+    puts "\nIgnoring unknown args: <$unknownargs>"
+  }
+  if {$::sc(base,period,ns) > $::sc(servo,period,ns)} {
+    set msg "Require base thread period <= servo thread period"
+    puts $msg
+    wm withdraw .
+    popup $msg
+    exit 1
+  }
+  if {$::sc(servo,period,ns) >= [expr $::sc(sample,ms) * 1000000]} {
+    set msg "Require servo thread period < sample interval $::sc(sample,ms) mS"
+    puts $msg
+    wm withdraw .
+    popup $msg
+    exit 1
+  }
 } ;# config
 
 # allow re-sourcing for testing
