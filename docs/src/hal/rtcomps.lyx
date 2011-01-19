@@ -1562,11 +1562,43 @@ encoder.<chan>.counts (s32, Out)
 \end_layout
 
 \begin_layout Itemize
+encoder.<chan>.counts-latched (s32, Out) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
 
 \family typewriter
 encoder.<chan>.index-enable
 \family default
- (bit, I/O) -- See canonical encoder interface.
+ (bit, I/O) -- When True, reset to zero on next index pulse, and set pin
+ False.
+ The index-enable pin is bi-directional.
+ If index-enable is False, the index channel of the encoder will be ignored,
+ and the counter will count normally.
+ The encoder driver will never set index-enable True.
+ However, some other component may do so.
+ If index-enable is True, then when the next index pulse arrives, the encoder
+ counter will be reset to zero, and the driver will set index-enable False.
+ That will let the other component know that an index pulse arrived.
+ This is a form of handshaking - the other component sets index-enable True
+ to request a index pulse reset, and the driver sets it False when the request
+ has been satisfied.
+\end_layout
+
+\begin_layout Itemize
+encoder.<chan>.latch-falling (bit, In) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
+encoder.<chan>.latch-input (bit, In) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
+encoder.<chan>.latch-rising (bit, In) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
+encoder.<chan>.min-speed-estimate (float, in)
 \end_layout
 
 \begin_layout Itemize
@@ -1606,7 +1638,16 @@ encoder.<chan>.position
 \family typewriter
 encoder.<chan>.position-interpolated
 \family default
- (float, Out) -- See below.
+ (float, Out) -- The pin 
+\family typewriter
+position-interpolated
+\family default
+ attempts to interpolate between encoder counts, based on the most recently
+ measured velocity.
+ It should not be used for position control, since its value is incorrect
+ at low speeds, during direction reversals, and during speed changes.
+ However, it allows a low ppr encoder (including a one pulse per revolution
+ "encoder") to be used for lathe threading, and may have other uses as well.
 \end_layout
 
 \begin_layout Itemize
@@ -1626,7 +1667,7 @@ encoder.<chan>.rawcounts (s32, In)
 \family typewriter
 encoder.<chan>.reset
 \family default
- (bit, In) -- See the canonical encoder interface section of the HAL manual.
+ (bit, In) -- When True, force counter to zero.
 \end_layout
 
 \begin_layout Itemize
@@ -1645,19 +1686,6 @@ encoder.<chan>.x4-mode (bit, I/O) --
 \family default
  Sets encoder to 4x or 1x mode.
  The 1x mode is usefull for some jogwheels.
-\end_layout
-
-\begin_layout Standard
-The pin 
-\family typewriter
-position-interpolated
-\family default
- attempts to interpolate between encoder counts, based on the most recently
- measured velocity.
- It should not be used for position control, since its value is incorrect
- at low speeds, during direction reversals, and during speed changes.
- However, it allows a low ppr encoder (including a one pulse per revolution
- "encoder") to be used for lathe threading, and may have other uses as well.
 \end_layout
 
 \begin_layout Subsection
