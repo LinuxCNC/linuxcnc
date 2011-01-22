@@ -2634,7 +2634,7 @@ The interpreter and task are carefully written so that the only limit on
 \end_layout
 
 \begin_layout Chapter
-Order of Execution
+G Code Order of Execution
 \begin_inset LatexCommand index
 name "G Code Order of Execution"
 
