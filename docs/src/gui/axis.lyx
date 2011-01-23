@@ -1364,6 +1364,7 @@ The buttons on the first row select the direction for the spindle to rotate:
  released.
  Depending on your machine configuration, not all the items in this group
  may appear.
+ Pressing the spindle start button sets the "S" speed to 0.
 \end_layout
 
 \begin_layout Subsubsection
