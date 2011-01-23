@@ -3470,7 +3470,9 @@ G10 L2 P- R-
 axes
 \family default
 \emph default
-, where the P number is in the range 1 to 9 (corresponding to 
+, where the P number is in the range 0 to 9.
+ For the currently active coordinate system program P0.
+ To specify a coordinate system program 1 to 9 corresponding to 
 \family typewriter
 G54
 \family default
@@ -3478,8 +3480,9 @@ G54
 \family typewriter
 G59.3
 \family default
-) and optionally R to indicate the rotation of the XY axis around the Z
- and all axis words are optional.
+.
+ Optionally program R to indicate the rotation of the XY axis around the
+ Z and all axis words are optional.
  The origin of the coordinate system specified by the P number is set to
  the given values (in terms of the not offset machine coordinate system).
  Only those coordinates for which an axis word is included on the line will
@@ -3516,7 +3519,7 @@ It is an error if:
 \end_layout
 
 \begin_layout Itemize
-The P number does not evaluate to an integer in the range 1 to 9.
+The P number does not evaluate to an integer in the range 0 to 9.
 \end_layout
 
 \begin_layout Itemize
@@ -3573,12 +3576,16 @@ G54
 \end_layout
 
 \begin_layout Description
+
+\family typewriter
 G10\InsetSpace ~
 L2\InsetSpace ~
 P1\InsetSpace ~
 X0\InsetSpace ~
 Y0\InsetSpace ~
-Z0 sets the G54 coordinate back to the origin.
+Z0
+\family default
+ sets the G54 coordinate back to the origin.
 \end_layout
 
 \begin_layout Standard
@@ -3609,7 +3616,7 @@ name "cap:Set-Coordinate-System"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="10" columns="3">
+<lyxtabular version="3" rows="11" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -3648,7 +3655,7 @@ G Code
 \begin_inset Text
 
 \begin_layout Standard
-1
+0
 \end_layout
 
 \end_inset
@@ -3657,12 +3664,41 @@ G Code
 \begin_inset Text
 
 \begin_layout Standard
-1
+Currently Active
 \end_layout
 
 \end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+n/a
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -3984,7 +4020,7 @@ It is an error if:
 \end_layout
 
 \begin_layout Itemize
-The P number does not evaluate to an integer in the range 1 to 9.
+The P number does not evaluate to an integer in the range 0 to 9.
 \end_layout
 
 \begin_layout Itemize
@@ -6994,10 +7030,11 @@ G17.1
 \end_layout
 
 \begin_layout Standard
-Rotational axis words are not allowed in canned cycles.  When
- the active plane is one of the XYZ family, the UVW axis words are not
- allowed.  Likewise, when the active plane is one of the UVW family, the
- XYZ axis words are not allowed.
+Rotational axis words are not allowed in canned cycles.
+  When the active plane is one of the XYZ family, the UVW axis words are
+ not allowed.
+  Likewise, when the active plane is one of the UVW family, the XYZ axis
+ words are not allowed.
 \end_layout
 
 \begin_layout Subsection
@@ -9882,7 +9919,6 @@ Opens the named log file.
 Opens the named log file.
  If the file already exists, the data is appended.
 \end_layout
-
 
 \begin_layout Subsection
 (LOGCLOSE)
