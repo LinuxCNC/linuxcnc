@@ -314,7 +314,13 @@ proc ::tp::hal_to_tcl {ifile ofile} {
       set idx [expr $s + 1]
     }
     if {$altered} {
-      puts $fdout $new
+      set line $new
+    }
+    # Anything following "#" on a line is a comment
+    set cidx [string first "#" $line]
+    if {$cidx > 0} {
+      puts $fdout "[string range $line 0 [expr -1 + $cidx]]\
+                  ;[string range $line $cidx end]"
     } else {
       puts $fdout $line
     }
