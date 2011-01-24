@@ -3976,6 +3976,15 @@ class App:
                     relatedending = ["-pulse","-dir","-enable"]
                     addedending = "-pulse"
                     unusedname = "Unused PWM Gen"
+                # type tp pwm
+                elif pintype in (TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF): 
+                    signaltree = self.data._tppwmsignaltree
+                    ptypetree = self.data._tppwmliststore 
+                    nametocheck = human_tppwm_output_names
+                    signaltocheck = hal_tppwm_output_names
+                    addsignalto = self.data.haltppwmoutputsignames
+                    relatedsignals = [TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF]
+                    relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                 # type step gen
                 elif pintype in (STEPA,STEPB):
                     signaltree = self.data._steppersignaltree
@@ -4301,6 +4310,8 @@ class App:
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 print "**** INFO set-mesa-options DATA:",self.data[p],p,self.data[ptype]
+                print "**** INFO set-mesa-options FIRM:",firmptype
+                print "**** INFO set-mesa-options WIDGET:",self.widgets[p].get_active_text(),self.widgets[ptype].get_active_text()
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
@@ -4427,10 +4438,10 @@ class App:
                         if 1==1 :
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
-                            pmodel = self.widgets[p].set_model(self.data._pwmsignaltree)
-                            
+                            pmodel = self.widgets[p].set_model(self.data._pwmsignaltree)         
                             # only add the -pulse signal names for the user to see
                             if firmptype in(PWMP,PDMP):
+                                print "firmptype = controlling"
                                 ptmodel = self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
                                 self.widgets[ptype].set_sensitive(1)
                                 self.widgets[p].set_sensitive(1)
@@ -4438,6 +4449,7 @@ class App:
                                 self.widgets[ptype].set_active(0)
                             # add them all here      
                             elif firmptype in (PWMD,PWME,PDMD,PDME):
+                                print "firmptype = related"
                                 if firmptype in (PWMD,PWME):
                                     ptmodel = self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
                                 else:
@@ -4675,6 +4687,95 @@ class App:
                 self.widgets[p].child.handler_unblock(self.data[actblocksignal])          
         self.window.hide()
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
+
+    def mesa_data_to_widget(self,boardnum):
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
+            for pin in range (0,24):
+                firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
+                p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
+                dataptype = self.data[ptype]
+                print "**** INFO set-mesa-options DATA:",self.data[p],p,self.data[ptype]
+                print "**** INFO set-mesa-options WIDGET:",self.widgets[p].get_active_text(),self.widgets[ptype].get_active_text()
+                if dataptype in (ENCB,ENCI,ENCM,
+                                    MXEB,MXEI,MXEM,MXES,
+                                    STEPB,STEPC,STEPD,STEPE,STEPF,
+                                    PDMD,PDME,PWMD,PWME,
+                                    TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF
+                                    ):return
+
+                if dataptype == GPIOO:
+                    pass
+                if dataptype in (GPIOI,GPIOD):
+                    pass
+                elif datatype in (ENCA,ENCB,ENCI,ENCM):
+                    pass
+                # type PWM gen
+                elif datptype in( PDMP,PDMD,PDME):
+                    print "pdm"
+                    pass
+                elif dataptype in( PWMP,PWMD,PWME):
+                    print "pwm"
+                    print dataptype
+                            if dataptype in (PWMD,PWME) and not  dataptype == PWMP:
+                                print "Model PWM"
+                                ptmodel = self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
+                            elif dataptype in (PDMD,PDME) and not dataptype == PDMP:
+                                print "Model PDM"
+                                ptmodel = self.widgets[ptype].set_model(self.data._pdmrelatedliststore)
+                            if  dataptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ) :
+                                if dataptype in(PWMP,PDMP):
+                                    self.widgets[ptype].set_active(0 +(dataptype == PDMP) )
+                                    ptypeindex = 0
+                                elif dataptype in (PWMD,PWME,PDMD,PDME):
+                                    temp = 1
+                                    if dataptype in (PWME,PDME): temp = 2
+                                    self.widgets[ptype].set_active(temp)
+                                if dataptype in (PWMD,PWME):
+                                    ptypeindex = pintype_pwm.index(dataptype)
+                                elif dataptype in (PDMD,PDME):
+                                    ptypeindex = pintype_pdm.index(dataptype)
+                                signalindex = hal_pwm_output_names.index(self.data[p])
+                                print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex,ptypeindex
+                                count = -2
+                                if signalindex > 0:
+                                    for row,parent in enumerate(human_pwm_output_names):
+                                        if row == 0: continue
+                                        if parent[1][0] == None:
+                                                count += 3
+                                                print row,count,parent[0]
+                                                if count == signalindex - ptypeindex:
+                                                    print "match",row
+                                                    temp = (row)
+                                                    break
+                                                continue
+                                        for column,child in enumerate(parent[1]):
+                                            count +=3
+                                            print row,column,count,parent[0],child
+                                            if count == signalindex - ptypeindex:
+                                                print "match",row
+                                                temp = (row,column)
+                                                break
+                                        if count >= signalindex:break
+                                else:
+                                    temp = (0) # set unused pwm
+                                treeiter = self.data._pwmsignaltree.get_iter(temp)
+                                self.widgets[p].set_active_iter(treeiter)                          
+
+                            else:
+                                self.data[p] =  UNUSED_PWM
+                                self.data[ptype] = firmptype
+                                self.widgets[p].set_active(0) 
+                                if firmptype in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
+                                else:self.widgets[ptype].set_active(1) 
+                            continue 
+                # type tp pwm
+                elif dataptype in (TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF): 
+                # type step gen
+                    pass
+                elif dataptype in (STEPA,STEPB):
+                    pass
 
     def fill_pintype_model(self):
         # gpio
@@ -5043,9 +5144,11 @@ class App:
         warnings = []
         do_warning = False
         for i in self.data.available_axes:
+            pwm = False
             step = self.data.findsignal(i+"-stepgen-step")
             enc = self.data.findsignal(i+"-encoder-a")
-            pwm = self.data.findsignal(i+"-pwm-pulse")
+            if self.data.findsignal(i+"-pwm-pulse"): pwm = True
+            if self.data.findsignal(i+"-tppwm-a"): pwm = True
 
             if i == 's':
                 if step and pwm:
@@ -5178,6 +5281,8 @@ class App:
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
         if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
+        if self.data.findsignal(axis+"-tppwm-a"): pwmgen = True
+
         model = w[axis+"drivertype"].get_model()
         model.clear()
         for i in drivertypes:
