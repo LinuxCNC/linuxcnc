@@ -1194,6 +1194,20 @@ name "Manual"
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Standard
+This section needs to be expanded and show what pins turn on what even if
+ it is really integrator information...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 While the machine is turned on but not running a program, the items in the
  "Manual Control" tab can be used to move the machining center or turn different
  parts of it on and off.
@@ -1359,12 +1373,21 @@ name "spindle"
 \begin_layout Standard
 The buttons on the first row select the direction for the spindle to rotate:
  Counterclockwise, Stopped, Clockwise.
+ Counterclockwise will only show up if the pin 
+\family typewriter
+motion.spindle-reverse
+\family default
+ is in the hal file (it can be 
+\family typewriter
+net trick-axis motion.spindle-reverse
+\family default
+).
  The buttons on the next row increase or decrease the rotation speed.
  The checkbox on the third row allows the spindle brake to be engaged or
  released.
  Depending on your machine configuration, not all the items in this group
  may appear.
- Pressing the spindle start button sets the "S" speed to 0.
+ Pressing the spindle start button sets the "S" speed to 1.
 \end_layout
 
 \begin_layout Subsubsection
