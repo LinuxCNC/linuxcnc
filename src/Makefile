@@ -706,6 +706,9 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/pwmgen.o    \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
+	hal/drivers/mesa-hostmot2/sserial.o   \
+	hal/drivers/mesa-hostmot2/mesa_8i20.o \
+	hal/drivers/mesa-hostmot2/mesa_7i64.o \
     hal/drivers/mesa-hostmot2/stepgen.o   \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o      \
