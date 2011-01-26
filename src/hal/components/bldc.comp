@@ -1,0 +1,897 @@
+component bldc "BLDC and AC-servo control component ";
+// 1.3.2 (26/1/11 20:10)
+
+pin in bit hall1 if personality & 0x01 "Hall sensor signal 1";
+pin in bit hall2 if personality & 0x01 "Hall sensor signal 2";
+pin in bit hall3 if personality & 0x01 "Hall sensor signal 3";
+
+pin in bit C1 if (personality & 0x10) "Fanuc Gray-code bit 0 input";
+pin in bit C2 if (personality & 0x10) "Fanuc Gray-code bit 1 input";
+pin in bit C4 if (personality & 0x10) "Fanuc Gray-code bit 2 input";
+pin in bit C8 if (personality & 0x10) "Fanuc Gray-code bit 3 input";
+
+pin in float value "PWM master amplitude input";
+
+pin in float lead-angle = 90 if personality & 0x06
+"The phase lead between the electrical vector and the rotor position in degrees";
+
+pin in bit rev
+"""Set this pin true to reverse the motor. Negative PWM amplitudes will also
+reverse the motor and there will generally be a Hall pattern that runs the motor
+in each direction too.""";
+
+pin in float frequency if (personality & 0x0F)==0 """Frequency input for motors
+with no feedback at all, or those with only an index (which is ignored)""";
+
+pin in float initvalue = 0.2 if personality & 0x04 """The current to be used for
+the homing sequence in applications where an incremental encoder is used with no
+hall-sensor feedback""";
+
+pin in signed rawcounts if personality & 0x06
+"""Encoder counts input. This must be linked to the encoder rawcounts pin or
+encoder index resets will cause the motor commutation to fail""";
+
+pin io bit index-enable if personality & 0x08 """This pin should be connected to
+the associated encoder index-enable pin to zero the encoder when it passes index
+This is only used indicate to the bldc control component that an index has been
+seen""";
+
+pin in bit init if (personality & 0x05) == 4
+"""A rising edge on this pin starts the motor alignment sequence. This pin
+should be connected in such a way that the motors re-align any time that
+encoder monitoring has been interrupted. Typically this will only be at machine
+power-off.
+The alignment process involves powering the motor phases in such a way as to
+put the motor in a known position. The encoder counts are then stored in the
+\\fBoffset\\fP parameter. The alignement process will tend to cause a following
+error if it is triggered while the axis is enabled, so should be set before the
+matching axis.N.enable pin. The complementary \\fBinit-done\\fP pin can be used
+to handle the required sequencing.
+
+Both pins can be ignored if the encoder offset is known explicitly, such as is
+the case with an absolute encoder. In that case the \\fBoffset\\fP parameter
+can be set directly in the HAL file""";
+
+pin out bit init-done = 0 if (personality & 0x05) == 4
+"Indicates homing sequence complete";
+
+pin out float A-value if (personality & 0xF00)==0 "Output amplitude for phase A";
+pin out float B-value if (personality & 0xF00)==0 "Output amplitude for phase B";
+pin out float C-value if (personality & 0xF00)==0 "Output amplitude for phase C";
+pin out bit A-on if (personality & 0xF00)==0x100 "Output bit for phase A";
+pin out bit B-on if (personality & 0xF00)==0x100 "Output bit for phase B";
+pin out bit C-on if (personality & 0xF00)==0x100 "Output bit for phase C";
+pin out float A-high if (personality & 0xF00)==0x200 "High-side driver for phase A";
+pin out float B-high if (personality & 0xF00)==0x200 "High-side driver for phase B";
+pin out float C-high if (personality & 0xF00)==0x200 "High-side driver for phase C";
+pin out float A-low if (personality & 0xF00)==0x200 "Low-side driver for phase A";
+pin out float B-low if (personality & 0xF00)==0x200 "Low-side driver for phase B";
+pin out float C-low if (personality & 0xF00)==0x200 "Low-side driver for phase C";
+pin out bit A-high-on if (personality & 0xF00)==0x300 "High-side driver for phase A";
+pin out bit B-high-on if (personality & 0xF00)==0x300 "High-side driver for phase B";
+pin out bit C-high-on if (personality & 0xF00)==0x300 "High-side driver for phase C";
+pin out bit A-low-on if (personality & 0xF00)==0x300 "Low-side driver for phase A";
+pin out bit B-low-on if (personality & 0xF00)==0x300 "Low-side driver for phase B";
+pin out bit C-low-on if (personality & 0xF00)==0x300"Low-side driver for phase C";
+
+pin out bit hall1-out if (personality & 0x400) "Hall 1 output";
+pin out bit hall2-out if (personality & 0x400) "Hall 2 output";
+pin out bit hall3-out if (personality & 0x400) "Hall 3 output";
+
+pin out bit C1-out if (personality & 0x800) "Fanuc Gray-code bit 0 output";
+pin out bit C2-out if (personality & 0x800) "Fanuc Gray-code bit 1 output";
+pin out bit C4-out if (personality & 0x800) "Fanuc Gray-code bit 2 output";
+pin out bit C8-out if (personality & 0x800) "Fanuc Gray-code bit 3 output";
+
+pin out float phase-angle = 0
+"""Phase angle including lead/lag angle after encoder zeroing etc. Useful for
+angle/current drives. This value has a range of 0 to 1 and measures electrical
+revolutions. It will have two zeros for a 4 pole motor, three for a 6-pole etc""";
+
+pin out float rotor-angle = 0
+"""Rotor angle after encoder zeroing etc. Useful for angle/current drives which
+add their own phase offset such as the 8i20. This value has a range of 0 to 1
+and measures electrical revolutions. It will have two zeros for a 4 pole motor,
+three for a 6-pole etc""";
+
+pin out float out
+"Current output, including the effect of the dir pin and the alignment sequence";
+
+pin out bit out-dir
+"Direction output, high if /fBvalue/fR is negative XOR /fBrev/fR is true.";
+
+pin out float out-abs
+"Absolute value of the input value";
+
+param r signed in_type = -1 "state machine output, will probably hide after debug";
+param r signed out_type = -1 "state machine output, will probably hide after debug";
+
+param rw signed scale = 512 if personality & 0x06
+"The number of encoder counts per rotor revolution.";
+param rw signed poles = 4 if personality & 0x06
+"""The number of motor poles. The encoder scale will be divided by this value
+to determine the number of encoder counts per electrical revolution""";
+param rw signed encoder-offset if personality & 0x0A
+"""The offset, in encoder counts, between the motor electrical zero and the
+encoder zero modulo the number of counts per electrical revolution""";
+
+param rw float drive-offset = 90 """The angle, in degrees,
+applied to the commanded angle by the drive in degrees. This value is only used
+during the homing sequence of drives with incremental encoder feedback. It is
+used to back-calculate from commanded angle to actual phase angle. It is only
+relevant to drives which expect rotor-angle input rather than phase-angle
+demand. Should be 0 for most drives. """;
+
+param rw unsigned output-pattern if personality & 0x40
+"""Commutation pattern to be output in Hall Signal translation mode. See the
+description of /fBpattern/fR for details""";
+
+param rw unsigned pattern=25 if personality & 0x01
+"""Commutation pattern to use, from 0 to 47. Default is type 25.
+Every plausible combination is included. The table shows the excitation pattern
+along the top, and the pattern code on the left hand side. The table entries
+are the hall patterns in H1, H2, H3 order.
+Common patterns are:
+0 (30 degree commutation) and 26, its reverse.
+17 (120 degree).
+18 (alternate 60 degree).
+21 (300 degree, Bodine).
+22 (240 degree).
+25 (60 degree commutation).
+
+Note that a number of incorrect commutations will have non-zero net torque
+which might look as if they work, but don't really.
+
+If your motor lacks documentation it might be worth trying every pattern.
+
+.ie '\*[.T]'html' \\{\\
+.HTML \\
+<STYLE> \\
+#pattern TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
+#pattern TH { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
+#pattern TD.W { text-align: right; } \\
+</STYLE> \\
+<TABLE ID="pattern" STYLE="border: 1px solid black; border-collapse: collapse"> \\
+<COL SPAN=7 STYLE="margin: .2ex"><COL SPAN=1 STYLE="border-left: 1px solid black"> \\
+<TR><TD>&nbsp;<TH COLSPAN=6 CLASS=W>Phases, Source - Sink \\
+<TR><TH CLASS=W>pat<TH CLASS=W>B-A<TH CLASS=W>C-A<TH CLASS=W>C-B<TH CLASS=W>A-B<TH CLASS=W>A-C<TH CLASS=W>B-C \\
+<TR><TH>0<TD>000<TD>001<TD>011<TD>111<TD>110<TD>100 \\
+<TR><TH>1<TD>001<TD>000<TD>010<TD>110<TD>111<TD>101 \\
+<TR><TH>2<TD>000<TD>010<TD>011<TD>111<TD>101<TD>100 \\
+<TR><TH>3<TD>001<TD>011<TD>010<TD>110<TD>100<TD>101 \\
+<TR><TH>4<TD>010<TD>011<TD>001<TD>101<TD>100<TD>110 \\
+<TR><TH>5<TD>011<TD>010<TD>000<TD>100<TD>101<TD>111 \\
+<TR><TH>6<TD>010<TD>000<TD>001<TD>101<TD>111<TD>110 \\
+<TR><TH>7<TD>011<TD>001<TD>000<TD>100<TD>110<TD>111 \\
+<TR><TH>8<TD>000<TD>001<TD>101<TD>111<TD>110<TD>010 \\
+<TR><TH>9<TD>001<TD>000<TD>100<TD>110<TD>111<TD>011 \\
+<TR><TH>10<TD>000<TD>010<TD>110<TD>111<TD>101<TD>001 \\
+<TR><TH>11<TD>001<TD>011<TD>111<TD>110<TD>100<TD>000 \\
+<TR><TH>12<TD>010<TD>011<TD>111<TD>101<TD>100<TD>000 \\
+<TR><TH>13<TD>011<TD>010<TD>110<TD>100<TD>101<TD>001 \\
+<TR><TH>14<TD>010<TD>000<TD>100<TD>101<TD>111<TD>011 \\
+<TR><TH>15<TD>011<TD>001<TD>101<TD>100<TD>110<TD>010 \\
+<TR><TH>16<TD>000<TD>100<TD>101<TD>111<TD>011<TD>010 \\
+<TR><TH>17<TD>001<TD>101<TD>100<TD>110<TD>010<TD>011 \\
+<TR><TH>18<TD>000<TD>100<TD>110<TD>111<TD>011<TD>001 \\
+<TR><TH>19<TD>001<TD>101<TD>111<TD>110<TD>010<TD>000 \\
+<TR><TH>20<TD>010<TD>110<TD>111<TD>101<TD>001<TD>000 \\
+<TR><TH>21<TD>011<TD>111<TD>110<TD>100<TD>000<TD>001 \\
+<TR><TH>22<TD>010<TD>110<TD>100<TD>101<TD>001<TD>011 \\
+<TR><TH>23<TD>011<TD>111<TD>101<TD>100<TD>000<TD>010 \\
+<TR><TH>24<TD>100<TD>101<TD>111<TD>011<TD>010<TD>000 \\
+<TR><TH>25<TD>101<TD>100<TD>110<TD>010<TD>011<TD>001 \\
+<TR><TH>26<TD>100<TD>110<TD>111<TD>011<TD>001<TD>000 \\
+<TR><TH>27<TD>101<TD>111<TD>110<TD>010<TD>000<TD>001 \\
+<TR><TH>28<TD>110<TD>111<TD>101<TD>001<TD>000<TD>010 \\
+<TR><TH>29<TD>111<TD>110<TD>100<TD>000<TD>001<TD>011 \\
+<TR><TH>30<TD>110<TD>100<TD>101<TD>001<TD>011<TD>010 \\
+<TR><TH>31<TD>111<TD>101<TD>100<TD>000<TD>010<TD>011 \\
+<TR><TH>32<TD>100<TD>101<TD>001<TD>011<TD>010<TD>110 \\
+<TR><TH>33<TD>101<TD>100<TD>000<TD>010<TD>011<TD>111 \\
+<TR><TH>34<TD>100<TD>110<TD>010<TD>011<TD>001<TD>101 \\
+<TR><TH>35<TD>101<TD>111<TD>011<TD>010<TD>000<TD>100 \\
+<TR><TH>36<TD>110<TD>111<TD>011<TD>001<TD>000<TD>100 \\
+<TR><TH>37<TD>111<TD>110<TD>010<TD>000<TD>001<TD>101 \\
+<TR><TH>38<TD>110<TD>100<TD>000<TD>001<TD>011<TD>111 \\
+<TR><TH>39<TD>111<TD>101<TD>001<TD>000<TD>010<TD>110 \\
+<TR><TH>40<TD>100<TD>000<TD>001<TD>011<TD>111<TD>110 \\
+<TR><TH>41<TD>101<TD>001<TD>000<TD>010<TD>110<TD>111 \\
+<TR><TH>42<TD>100<TD>000<TD>010<TD>011<TD>111<TD>101 \\
+<TR><TH>43<TD>101<TD>001<TD>011<TD>010<TD>110<TD>100 \\
+<TR><TH>44<TD>110<TD>010<TD>011<TD>001<TD>101<TD>100 \\
+<TR><TH>45<TD>111<TD>011<TD>010<TD>000<TD>100<TD>101 \\
+<TR><TH>46<TD>110<TD>010<TD>000<TD>001<TD>101<TD>111 \\
+<TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \\
+</TABLE> \\
+\\}
+.el \\{\\
+
+.TS
+box tab(;);
+cb s s s s s s
+cb|cb cb cb cb cb cb
+c | c  c  c  c c r.
+Phases, Source - Sink
+_
+pat;B-A;C-A;C-B;A-B;A-C;B-C
+_
+0;000;001;011;111;110;100
+1;001;000;010;110;111;101
+2;000;010;011;111;101;100
+3;001;011;010;110;100;101
+4;010;011;001;101;100;110
+5;011;010;000;100;101;111
+6;010;000;001;101;111;110
+7;011;001;000;100;110;111
+8;000;001;101;111;110;010
+9;001;000;100;110;111;011
+10;000;010;110;111;101;001
+11;001;011;111;110;100;000
+12;010;011;111;101;100;000
+13;011;010;110;100;101;001
+14;010;000;100;101;111;011
+15;011;001;101;100;110;010
+16;000;100;101;111;011;010
+17;001;101;100;110;010;011
+18;000;100;110;111;011;001
+19;001;101;111;110;010;000
+20;010;110;111;101;001;000
+21;011;111;110;100;000;001
+22;010;110;100;101;001;011
+23;011;111;101;100;000;010
+24;100;101;111;011;010;000
+25;101;100;110;010;011;001
+26;100;110;111;011;001;000
+27;101;111;110;010;000;001
+28;110;111;101;001;000;010
+29;111;110;100;000;001;011
+30;110;100;101;001;011;010
+31;111;101;100;000;010;011
+32;100;101;001;011;010;110
+33;101;100;000;010;011;111
+34;100;110;010;011;001;101
+35;101;111;011;010;000;100
+36;110;111;011;001;000;100
+37;111;110;010;000;001;101
+38;110;100;000;001;011;111
+39;111;101;001;000;010;110
+40;100;000;001;011;111;110
+41;101;001;000;010;110;111
+42;100;000;010;011;111;101
+43;101;001;011;010;110;100
+44;110;010;011;001;101;100
+45;111;011;010;000;100;101
+46;110;010;000;001;101;111
+47;111;011;001;000;100;110
+.TE
+\\}
+.ei
+""";
+
+description """
+This component is designed as an interface between the most common forms of
+three-phase motor feedback devices and the corresponding types of drive. However
+there is no requirement that the motor and drive should necessarily be of
+inherently compatible types.
+.SH SYNOPSIS
+(ignore the auto-generated SYNOPSIS above)
+.SH
+.HP
+.B loadrt bldc cfg=qi6,aH\\fB
+Each instance of the component is defined by a group of letters describing the
+input and output types. A comma separates individual instances of the component.
+.SH Tags
+Input type definitions are all lower-case.
+
+\\fBn\\fR No motor feedback. This mode could be used to drive AC
+induction motors, but is also potentially useful for creating free-running motor
+simulators for drive testing.
+
+\\fBh\\fR Hall sensor input. Brushless DC motors (electronically commutated
+permanent magnet 3-phase motors) typically use a set of three Hall sensors to
+measure the angular position of the rotor. A lower-case \\fBh\\fR in the cfg
+string indicates that these should be used.
+
+\\fBa\\fR Absolute encoder input. (Also possibly used by some forms of Resolver
+conversion hardware). The presence of this tag over-rides all other inputs. Note
+that the component still requires to be be connected to the \\fBrawcounts\\fR
+encoder pin to prevent loss of commutation on index-reset.
+
+\\fBq\\fR Incremental (quadrature) encoder input. If this input is used then
+the rotor will need to be homed before the motor can be run.
+
+\\fBf\\fR Use a 4-bit Gray-scale patttern to determine rotor alignment. This
+scheme is only used on the Fanuc "Red Cap" motors. This mode could be used to
+control one of these motors using a non-Fanuc drive.
+
+Output type descriptions are all upper-case.
+
+\\fBDefaults\\fR The component will always calculate rotor angle, phase angle
+and the absolute value of the input \\fBvalue\\fR for interfacing with drives
+such as the Mesa 8i20. It will also default to three individual, bipolar phase
+output values if no other output type modifiers are used.
+
+\\fBB\\fR Bit level outputs. Either 3 or 6 logic-level outputs indicating which
+high or low gate drivers on an external drive should be used.
+
+\\fB6\\fR Create 6 rather than the default 3 outputs. In the case of numeric
+value outputs these are separate positive and negative drive amplitudes. Both
+have positive magnitude.
+
+\\fBH\\fR Emulated Hall sensor output. This mode can be used to control a drive
+which expects 3x Hall signals, or to convert between a motor with one hall
+pattern and a drive which expects a different one.
+
+\\fBF\\fR Emulated Fanuc Red Cap Gray-code encoder output. This mode might be
+used to drive a non-Fanuc motor using a Fanuc drive intended for the "Red-Cap"
+motors.
+
+\\fBT\\fR Force Trapezoidal mode.
+
+.SH OPERATING MODES
+The component can control a drive in either Trapezoidal or Sinusoidal mode, but
+will always default to sinusoidal if the input and output modes allow it. This
+can be over-ridden by the \\fBT\\fR tag. Sinusoidal commutation is significantly
+smoother (trapezoidal commutation induces 13% torque ripple).
+
+.SH ROTOR HOMING.
+To use an encoder for commutation a reference 0-degrees point must be found.
+The component uses the convention that motor zero is the point that an unloaded
+motor aligns to with a positive voltage on the A (or U) terminal and the B & C
+(or V and W) terminals connected together and to -ve voltage. There will be
+two such positions on a 4-pole motor, 3 on a 6-pole and so on. They are all
+functionally equivalent as far as driving the motor is concerned.
+If the motor has Hall sensors then the motor can be started in trapezoidal
+commutation mode, and will switch to sinusoidal commutation when an alignment is
+found. If the mode is \\fBqh\\fR then the first Hall state-transition will be
+used. If the mode is \\fBqhi\\fR then the encoder index will be used. This
+gives a more accurate homing position if the distance in encoder counts between
+motor zero and encoder index is known. To force homing to the Hall edges instead
+simply omit the \\fBi\\fR.
+
+Motors without Hall sensors may be homed in synchronous/direct mode.
+The better of these options is to home to the encoder zero using the \\fBiq\\fR
+config parameter. When the \\fBinit\\fR pin goes high the motor will rotate (in
+a direction determined by the \\fBrev\\fR pin) until the encoder indicates an
+index-latch (the servo thread runs too slowly to rely on detecting an encoder
+index directly).
+If there is no encoder index or its location relative to motor zero can not be
+found, then an alternative is to use \\fImagnetic\\fR homing using the \\fBq\\fR
+config. In this mode the motor will go through an alignment sequence ending at
+motor zero when the init pin goes high It will then set the final position as
+motor zero. Unfortunately the motor is rather \\fIspringy\\fR in this mode and
+so alignment is likely to be fairly sensitive to load.
+""";
+
+license "GPL";
+
+author "Andy Pugh";
+
+function _;
+
+option extra_setup yes;
+option userinit yes;
+option count_function yes;
+
+variable int old_init = 0;
+variable char old_ph = 000;
+variable double counter = 0;
+variable signed offset = 0;
+variable __s64 long_rawcounts = 0;
+variable __s32 old_rawcounts = 0;
+variable int force_trap = 0;
+
+;;
+
+#include <rtapi_math.h>
+#define MAX_CHAN 8
+#define NUM_TAG 8
+
+static char *cfg[NUM_TAG];
+RTAPI_MP_ARRAY_STRING(cfg, MAX_CHAN, "Description of each motor");
+
+/*dir H1 H2 H3 pattern
+000  001  010  011  100  101  110  111 */
+static unsigned int P[]={
+024, 014, 000, 012, 021, 000, 041, 042,
+014, 024, 012, 000, 000, 021, 042, 041,
+024, 000, 014, 012, 021, 041, 000, 042,
+000, 024, 012, 014, 041, 021, 042, 000,
+000, 012, 024, 014, 041, 042, 021, 000,
+012, 000, 014, 024, 042, 041, 000, 021,
+014, 012, 024, 000, 000, 042, 021, 041,
+012, 014, 000, 024, 042, 000, 041, 021,
+024, 014, 021, 000, 000, 012, 041, 042,
+014, 024, 000, 021, 012, 000, 042, 041,
+024, 021, 014, 000, 000, 041, 012, 042,
+021, 024, 000, 014, 041, 000, 042, 012,
+021, 000, 024, 014, 041, 042, 000, 012,
+000, 021, 014, 024, 042, 041, 012, 000,
+014, 000, 024, 021, 012, 042, 000, 041,
+000, 014, 021, 024, 042, 012, 041, 000,
+024, 000, 021, 041, 014, 012, 000, 042,
+000, 024, 041, 021, 012, 014, 042, 000,
+024, 021, 000, 041, 014, 000, 012, 042,
+021, 024, 041, 000, 000, 014, 042, 012,
+021, 041, 024, 000, 000, 042, 014, 012,
+041, 021, 000, 024, 042, 000, 012, 014,
+000, 041, 024, 021, 012, 042, 014, 000,
+041, 000, 021, 024, 042, 012, 000, 014,
+021, 000, 041, 042, 024, 014, 000, 012,
+000, 021, 042, 041, 014, 024, 012, 000,
+021, 041, 000, 042, 024, 000, 014, 012,
+041, 021, 042, 000, 000, 024, 012, 014,
+041, 042, 021, 000, 000, 012, 024, 014,
+042, 041, 000, 021, 012, 000, 014, 024,
+000, 042, 021, 041, 014, 012, 024, 000,
+042, 000, 041, 021, 012, 014, 000, 024,
+000, 012, 041, 042, 024, 014, 021, 000,
+012, 000, 042, 041, 014, 024, 000, 021,
+000, 041, 012, 042, 024, 021, 014, 000,
+041, 000, 042, 012, 021, 024, 000, 014,
+041, 042, 000, 012, 021, 000, 024, 014,
+042, 041, 012, 000, 000, 021, 014, 024,
+012, 042, 000, 041, 014, 000, 024, 021,
+042, 012, 041, 000, 000, 014, 021, 024,
+014, 012, 000, 042, 024, 000, 021, 041,
+012, 014, 042, 000, 000, 024, 041, 021,
+014, 000, 012, 042, 024, 021, 000, 041,
+000, 014, 042, 012, 021, 024, 041, 000,
+000, 042, 014, 012, 021, 041, 024, 000,
+042, 000, 012, 014, 041, 021, 000, 024,
+012, 042, 014, 000, 000, 041, 024, 021,
+042, 012, 000, 014, 041, 000, 021, 024};
+
+int phases[] =   {021,   024,   014,    012,    042,    041,    021,    024   };
+double angles[] = {0.0/36,6.0/36,12.0/36,18.0/36,24.0/36,30.0/36,36.0/36,42.0/36};
+int gray_b[] = {000, 001, 003, 002, 006, 007, 005, 004, 014, 015, 017, 016, 012,
+                013, 011, 010, 000};
+double gray_a[] = {0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5,
+                   0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0};
+
+const double pi2 = 6.283185307179586;
+const double cos120 = -0.5;
+const double sin120 = 0.8660254037844386;
+const double absc[] = {2.4, 2.0, 1.2, 0.8, 0.4, 0.0}; // Alignment sequence def
+const double V_a[] = {0, 1, 1, 1, 1, 1};
+const double th_a[] = {0, 0, -.25, .25, 0, 0};
+
+FUNCTION(_) {
+    int i;
+    double V;
+    double lead;
+    double sintheta, costheta;
+    char ph;
+    int trap = -1; // Flag for sinusoidal/trapezoidal output
+
+    if (rev) V = -value;
+    else V = value;
+    out_dir = (V < 0);
+    out_abs = fabs(V);
+    // Would expect to set "out" here too, but some modes need to over-ride it.
+
+    if ((personality & 0x05) == 4){
+        if (init && !old_init && init_done) {
+            init_done = 0;
+            in_type = -1;
+        }
+        else {
+            old_init = init;
+        }
+    }
+
+    if (personality & 0x06) {
+        // Handle s32 rollover of rawcounts
+        long_rawcounts += (rawcounts-old_rawcounts);
+        old_rawcounts = rawcounts;
+    }
+
+    trap = 0;
+
+    switch(in_type){
+        case -2: // Error type, simply to suppress error messages
+            return;
+        case -1: // Initialisation
+            in_type = personality & 0xFF;
+            if (in_type & 0x08) index_enable = 1;
+            offset = encoder_offset;
+            counter = absc[0];
+            out_type = personality & 0x7F00;
+            force_trap = (personality & 0x8000);
+            return;
+
+        case 0x00: // Dumb VFD mode, just set the angle with no feedback
+            phase_angle += (frequency * period / 1000000000.0);
+            phase_angle -= floor(phase_angle);
+            rotor_angle = phase_angle;
+            break;
+
+        case 0x01: // Trapezoidal Hall Commutation.
+        case 0x05: // incremental encoder homing to hall transition
+        case 0x0D:// incremental encoder homing to index
+
+            trap = 1;
+
+            if (pattern > 47 || pattern < 0){
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                                "Only `Hall patterns 0-47 are allowed, you have"
+                                " requested pattern %i\n", pattern);
+                pattern = 0;
+                return;
+            }
+
+            i  = (pattern << 3) + (hall1 << 2) + (hall2 << 1) + hall3;
+            ph = P[i];
+
+            // calculate angle. This looks at transitions between motor field
+            // excitation patterns to remove the effect of different hall patterns.
+            // As the phase pattern at this point corresponds to that which is
+            // required for forwards rotation, it provides a way to infer rotor
+            // position. The fixed 90 degree Hall offset is incorporated in the
+            // angle lookup table.
+
+            for (i = 0 ; phases[i] != ph && i<8 ; i++) {}
+            rotor_angle = angles[i];
+            rotor_angle -= floor(rotor_angle);
+            if (out_dir) phase_angle = rotor_angle + 0.25;
+            else phase_angle = rotor_angle - 0.25;
+            phase_angle -= floor(phase_angle);
+
+            if (force_trap) break;
+
+            if (in_type == 0x05 && old_ph && ph != old_ph) { // Homing to hall edges
+                for (i = 1 ; phases[i] != ph && i<8 ; i++) {}
+                if (phases[i - 1] == old_ph) {
+                    rotor_angle = (angles[i] + angles[i - 1])/2;}
+                else{
+                    rotor_angle = (angles[i] + angles[i + 1])/2;
+                }
+                rotor_angle -= floor(rotor_angle);
+                if (out_dir) phase_angle = rotor_angle - 0.25;
+                else phase_angle = rotor_angle + 0.25;
+                phase_angle -= floor(phase_angle);
+                offset = long_rawcounts - rotor_angle * ( 2 * scale/poles);
+                // And now we are homed, switch to sinusoidal drive
+                in_type = 0x02;
+            }
+            else if (in_type == 0x0D) { // homing to encoder index
+                if (!index_enable){ // index has reset
+                    offset = encoder_offset + long_rawcounts;
+                    in_type = 0x02;
+                }
+            }
+            old_ph = ph;
+            break;
+
+        case 0x10: // Fanuc-style Gray-code input
+        case 0x14: // incremental encoder homing to gray-code transition
+        case 0x1C: // incremental encoder homing to index.
+            ph = C1 | (C2 << 1) | (C4 << 2) | (C8 << 3);
+
+            for (i = 0 ; gray_b[i] != ph && i<16 ; i++) {}
+            rotor_angle = gray_a[i] + 0.03125;
+            rotor_angle -= floor(rotor_angle);
+            if (out_dir) phase_angle = rotor_angle - 0.25;
+            else phase_angle = rotor_angle + 0.25;
+            phase_angle -= floor(phase_angle);
+
+            if (force_trap) break;
+
+            if (in_type == 0x14 && old_ph && ph != old_ph) { // Homing to Gray edges
+                for (i = 1 ; gray_b[i] != ph && i<15 ; i++) {}
+                if (phases[i - 1] == old_ph) {
+                    rotor_angle = gray_a[i];
+                }
+                else{
+                    rotor_angle = gray_a[i + 1];
+                }
+                rotor_angle -= floor(rotor_angle);
+                if (out_dir) phase_angle = rotor_angle - 0.25;
+                else phase_angle = rotor_angle + 0.25;
+                phase_angle -= floor(phase_angle);
+                offset = long_rawcounts - rotor_angle * ( 2 * scale/poles);
+                // And now we are homed, switch to sinusoidal drive
+                in_type = 0x02;
+            }
+            else if (in_type == 0x1C) { // homing to encoder index
+                if (!index_enable){ // index has reset
+                    offset = encoder_offset + long_rawcounts;
+                    in_type = 0x02;
+                }
+            }
+            old_ph = ph;
+
+            break;
+
+         case 0x04: // Incremental encoder homing "magnetically"
+
+            if (! init) {
+                V = 0;
+                return;
+            }
+            if (! init_done) {
+                if (counter <= 0) {
+                    offset = long_rawcounts - phase_angle * ( 2 * scale/poles);
+                    counter = absc[0];
+                    old_init = 1;
+                    init_done = 1;
+                    in_type = 0x02; // switch to sinusoidal commutation
+                    return;
+                }
+                init_done = 0;
+                for (i = 0 ; absc[i] >= counter && i < 6 ; i++ ) {}
+                V = initvalue * (V_a[i-1] + (V_a[i] - V_a[i-1])
+                                   * (counter - absc[i-1]) / (absc[i] - absc[i-1]));
+                phase_angle = (th_a[i-1] + (th_a[i] - th_a[i-1])
+                               * (counter - absc[i-1]) / (absc[i] - absc[i-1]));
+                phase_angle -= floor(phase_angle);
+                counter -= fperiod;
+                rotor_angle = phase_angle - (drive_offset/360.0);
+                rotor_angle -= floor(rotor_angle);
+            }
+            else {
+                rtapi_print_msg(RTAPI_MSG_ERR, "An error has occurred in the "
+                                "bldc homing sequence. Init done without state");
+                return;}
+            break;
+
+        case 0x0C: // Incremental encoder homing to index.
+            if (! init) return;
+            if (!index_enable){ // index has reset
+                offset = encoder_offset + long_rawcounts;
+                counter = absc[0];
+                old_init = 1;
+                init_done = 1;
+                in_type = 0x02;
+                break;
+            }
+            if (! init_done){
+                if (initvalue < 0) rotor_angle -= period / 1000000000.0;
+                    else rotor_angle += period / 1000000000.0;
+                rotor_angle -= floor(rotor_angle);
+                phase_angle = rotor_angle;
+                V = fabs(initvalue);
+            }
+            break;
+
+        case 0x02: // Sinusoidal Commutation, homed or absolute
+            if (out_dir && !force_trap) {
+                lead = lead_angle / -360.0;
+            } else {
+                lead = lead_angle / 360.0;
+            }
+            rotor_angle = (double)((long_rawcounts-offset) * poles/2)/scale;
+            rotor_angle -= floor(rotor_angle);
+            phase_angle = rotor_angle + lead;
+            phase_angle -= floor(phase_angle);
+            break;
+
+        case 0x03:
+        case 0x0B:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Both Hall Sensors and Absolute "
+                            "encoder specfied on the same motor. Only the"
+                            "Encoder will be used\n");
+            in_type = 0x02;
+            return;
+        case 0x06:
+        case 0x07:
+        case 0x0E:
+        case 0x0F:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Specifying the use of both absolute "
+                            "and incremental encoders on the same motor is an "
+                             "error. Motor disabled\n");
+            in_type = -2;
+            return;
+        case 0x08:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Driving an electronically commutated"
+                            "motor with only an index for feedback is not"
+                            "possible. Motor Disabled\n" );
+            in_type = -2;
+            return;
+        case 0x09:
+            rtapi_print_msg(RTAPI_MSG_ERR, "The use of an encoder Index with "
+                            "Hall sensors is not supported. Defaulting to "
+                            "trapezoidal commutation\n");
+            in_type = 0x01;
+            return;
+        case 0x0A:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Index is not needed with an Absolute"
+                            "encoder and will be ignored\n");
+            in_type = 0x02;
+            return;
+        default:
+        rtapi_print_msg(RTAPI_MSG_ERR, "Unknown input type pattern (%X) in "
+                        "bldc\n", in_type);
+            in_type = -2;
+        return;
+    }
+
+/**************************************************************
+     Now calculate the output values
+***************************************************************/
+
+    // equivalent trapezoidal pattern for non-hall types
+    if (!trap){
+        for (i = 0 ; rotor_angle > angles[i] - 3.0/36 && i < 8 ; i++) {}
+        ph = phases[i];
+    }
+
+    if (force_trap) {trap = 1;} // forced trapezoidal mode
+
+    out = V;
+    out_abs = fabs(V);
+
+    switch (out_type){
+        case 0: // Default; 3-wire sinusoidal or trapezoidal
+            if (trap){
+                if (ph & 040) A_value =V;
+                else if (ph & 004) A_value = -V;
+                else A_value = 0;
+
+                if (ph & 020) B_value = V;
+                else if (ph & 002) B_value = -V;
+                else B_value = 0;
+
+                if (ph & 010) C_value = V;
+                else if (ph & 001) C_value = -V;
+                else C_value = 0;
+            }
+            else
+            {
+                sintheta = sin(phase_angle * pi2);
+                costheta = cos(phase_angle * pi2);
+                A_value = out_abs * costheta;
+                B_value = out_abs * (costheta * cos120 + sintheta * sin120);
+                C_value = out_abs * (costheta * cos120 - sintheta * sin120);
+            }
+            return;
+
+        case 0x100: // bit outputs, 3-wire. Dubious utility
+            if (out_dir){ ph = (ph & 070) >> 3 | (ph & 007) << 3;}
+            if      (ph & 040) {A_on = 1;}
+            else if (ph & 020) {B_on = 1;}
+            else if (ph & 010) {C_on = 1;}
+            else               {A_on = 0 ; B_on = 0 ; C_on = 0;}
+            if      (ph & 004) {A_on = 0;}
+            else if (ph & 002) {B_on = 0;}
+            else if (ph & 001) {C_on = 0;}
+            else               {A_on = 0 ; B_on = 0 ; C_on = 0;}
+            return;
+
+        case 0x200: // 6-wire modes
+            if (trap){
+                if (out_dir){ ph = (ph & 070) >> 3 | (ph & 007) << 3;}
+                if (ph & 040) { A_high = out_abs; A_low = 0;}
+                else if (ph & 004) {A_high = 0; A_low = out_abs;}
+                else {A_high = 0; A_low = 0;}
+
+                if (ph & 020) {B_high = out_abs; B_low = 0;}
+                else if (ph & 002) {B_high = 0; B_low = out_abs;}
+                else {B_high = 0; B_low = 0;}
+
+                if (ph & 010) {C_high = out_abs; C_low = 0;}
+                else if (ph & 001) {C_high = 0; C_low = out_abs;}
+                else {C_high = 0; C_low=0;}
+            }
+            else
+            {
+                sintheta = sin(phase_angle * pi2);
+                costheta = cos(phase_angle * pi2);
+                if (costheta >=0){
+                    A_high = out_abs * costheta; A_low = 0;}
+                else {
+                    A_high = 0; A_low = -out_abs * costheta;}
+
+                if ((costheta * cos120 + sintheta * sin120) >= 0){
+                    B_high = out_abs * (costheta * cos120 + sintheta * sin120);
+                    B_low = 0;}
+                else {
+                    B_high = 0;
+                    B_low = -out_abs * (costheta * cos120 + sintheta * sin120);}
+
+                if ((costheta * cos120 - sintheta * sin120) >= 0) {
+                    C_high = out_abs * (costheta * cos120 - sintheta * sin120);
+                    C_low = 0;}
+                else {
+                    C_high = 0;
+                    C_low = -out_abs * (costheta * cos120 - sintheta * sin120);}
+            }
+            return;
+        case 0x300: // 6-wire bit mode
+            if (out_dir) {
+                A_high_on = (ph & 004) ; A_low_on = (ph & 040);
+                B_high_on = (ph & 002) ; B_low_on = (ph & 020);
+                C_high_on = (ph & 001) ; C_low_on = (ph & 010);
+
+            }
+            else
+            {
+                A_high_on = (ph & 040) ; A_low_on = (ph & 004);
+                B_high_on = (ph & 020) ; B_low_on = (ph & 002);
+                C_high_on = (ph & 010) ; C_low_on = (ph & 001);
+            }
+            return;
+
+        case 0x400: // Hall Output
+            for (i = 0; P[(output_pattern << 3) + i] != ph && i < 8 ; i++) {}
+            hall1_out = (i & 0x04);
+            hall2_out = (i & 0x02);
+            hall3_out = (i & 0x01);
+            return;
+
+        case 0x800: // Fanuc Red Cap style Gray-Code emulation
+            for (i = 0; (gray_a[i] + 0.0625) < rotor_angle && i < 16 ; i++) {}
+            C1_out = (gray_b[i] & 001);
+            C2_out = (gray_b[i] & 002);
+            C4_out = (gray_b[i] & 004);
+            C8_out = (gray_b[i] & 010);
+            return;
+
+        case 0x500:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Combinations of Hall Pattern and Bit"
+                            " outputs are not supported. Defaulting to Hall");
+            out_type = 0x400;
+            return;
+        case 0x600:
+            rtapi_print_msg(RTAPI_MSG_ERR, "6-Wire Hall patterns outputs are "
+                            "not supported. Defaulting to 3-wire");
+            out_type = 0x400;
+            return;
+        case 0x700:
+            rtapi_print_msg(RTAPI_MSG_ERR, "6-wire combinations of Hall and Bit"
+                            " outputs can't be supported. Defaulting to 3-wire"
+                            " Hall pattern");
+            out_type = 0x400;
+            return;
+        case 0x900:
+        case 0xB00:
+        case 0xA00:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Combinations of bit level and "
+                            " Gray Code outputs are not supported. Defaulting"
+                            " to Gray Code");
+            out_type = 0x800;
+            return;
+        case 0xC00:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Hall Sensor and Gray-code outputs"
+                            " can not be combined. defaulting to Hall");
+            out_type = 0x400;
+            return;
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Unsupported output type (%X) in bldc"
+                            , out_type);
+            in_type = -2;
+            return;
+    }
+}
+
+EXTRA_SETUP(){
+    int i;
+    char c;
+    for (i = 0; cfg[extra_arg][i] != 0 && i < NUM_TAG ; i++){
+        c = cfg[extra_arg][i];
+        if (c == 'h') personality |= 0x01;
+        if (c == 'a') personality |= 0x02;
+        if (c == 'q') personality |= 0x04;
+        if (c == 'i') personality |= 0x08;
+        if (c == 'f') personality |= 0x10;
+        if (c == 'B') personality |= 0x0100;
+        if (c == '6') personality |= 0x0200;
+        if (c == 'H') personality |= 0x0400;
+        if (c == 'F') personality |= 0x0800;
+        if (c == 'T') personality |= 0x8000;
+    }
+    return 0;
+}
+
+int get_count(void){
+    int i;
+
+    for (i=0; cfg[i] != NULL && i < MAX_CHAN; i++){}
+    if (i == 0){
+        rtapi_print_msg(RTAPI_MSG_ERR, "The bldc component needs at least one "
+                    "feedback type tag.\nValid tags are h, a, q, i, b, 6, n\n" );
+        return 0;
+    }
+    return i;
+}
