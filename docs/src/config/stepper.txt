@@ -1,0 +1,255 @@
+= Basic Configuration
+
+==  [[sec:Introduction]]Introduction
+
+The preferred way to set up a standard stepper machine is with the
+Step Configuration Wizard. See the Getting Started Guide.
+
+This chapter describes some of the more common settings for manually
+setting up a stepper based system. Because of the various possibilities
+of configuring EMC2, it is very hard to document them all, and keep
+this document relatively short.
+
+The most common EMC2 usage is for stepper based systems. These systems
+are using stepper motors with drives that accept step & direction
+signals.
+
+It is one of the simpler setups, because the motors run open-loop (no
+feedback comes back from the motors), yet the system needs to be
+configured properly so the motors don't stall or lose steps.
+
+Most of this chapter is based on the sample config released along with
+EMC2. The config is called stepper(((stepper))), and usually it is
+found in `/etc/emc2/sample-configs/stepper`.
+
+==  [[sec:Maximum-step-rate]]Maximum step rate(((step rate)))
+
+With software step generation, the maximum step rate is one step per
+two BASE_PERIODs for step-and-direction output. The maximum requested
+step rate is the product of an axis' MAX_VELOCITY and its INPUT_SCALE.
+If the requested step rate is not attainable, following errors will
+occur, particularly during fast jogs and G0 moves.
+
+If your stepper driver can accept quadrature input, use this mode.
+With a quadrature signal, one step is possible for each BASE_PERIOD,
+doubling the maximum step rate.
+
+The other remedies are to decrease one or more of: the BASE_PERIOD
+(setting this too low will cause the machine to become unresponsive or
+even lock up), the INPUT_SCALE (if you can select different step sizes
+on your stepper driver, change pulley ratios, or leadscrew pitch), or
+the MAX_VELOCITY and STEPGEN_MAXVEL.
+
+If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY
+is acceptable, then consider using hardware step generation (such as
+with the emc2-supported Universal Stepper Controller, Mesa cards, and
+others.)
+
+==  [[sec:Pinout]]Pinout(((pinout)))
+
+One of the major flaws in EMC was that you couldn't specify the pinout
+without recompiling the source code. EMC2 is far more flexible, and now
+(thanks to the Hardware Abstraction Layer) you can easily specify which
+signal goes where. See the HAL manual for more detailed information on
+HAL.
+
+As it is described in the HAL Introduction and tutorial, we have
+signals, pins and parameters inside the HAL.
+
+The ones relevant for our pinout arefootnote:[Note: we are only
+presenting one axis to keep it short, all others are
+similar.
+]:
+
+    signals: Xstep, Xdir & Xen
+
+Depending on what you have chosen in your .ini file you are using
+either standard_pinout.hal or xylotex_pinout.hal. These are two files
+that instruct the HAL how to link the various signals & pins. Further
+on we'll investigate the standard_pinout.hal.
+
+===  [[sub:standard_pinout.hal]]standard_pinout.hal(((standard pinout))) 
+
+This file contains several HAL commands, and usually looks like this:
+
+
+----------------------------------------
+# standard pinout config file for 3-axis steppers
+# using a parport for I/O
+#
+# first load the parport driver
+loadrt hal_parport cfg="0x0378"
+#
+# next connect the parport functions to threads
+# read inputs first
+addf parport.0.read base-thread 1
+# write outputs last
+addf parport.0.write base-thread -1
+#
+# finally connect physical pins to the signals
+net Xstep => parport.0.pin-03-out
+net Xdir  => parport.0.pin-02-out
+net Ystep => parport.0.pin-05-out
+net Ydir  => parport.0.pin-04-out
+net Zstep => parport.0.pin-07-out
+net Zdir  => parport.0.pin-06-out
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# connect "spindle on" motion controller pin to a physical pin
+net spindle-on motion.spindle-on => parport.0.pin-09-out
+
+###
+### You might use something like this to enable chopper drives when machine ON
+### the Xen signal is defined in core_stepper.hal
+###
+
+# net Xen => parport.0.pin-01-out
+
+###
+### If you want active low for this pin, invert it like this:
+###
+
+# setp parport.0.pin-01-out-invert 1
+
+###
+### A sample home switch on the X axis (axis 0).  make a signal,
+### link the incoming parport pin to the signal, then link the signal
+### to EMC's axis 0 home switch input pin
+###
+
+# net Xhome parport.0.pin-10-in => axis.0.home-sw-in
+
+###
+### Shared home switches all on one parallel port pin?
+### that's ok, hook the same signal to all the axes, but be sure to 
+### set HOME_IS_SHARED and HOME_SEQUENCE in the ini file.  See the
+### user manual!
+###
+
+# net homeswitches <= parport.0.pin-10-in
+# net homeswitches => axis.0.home-sw-in
+# net homeswitches => axis.1.home-sw-in
+# net homeswitches => axis.2.home-sw-in
+
+###
+### Sample separate limit switches on the X axis (axis 0)
+###
+
+# net X-neg-limit parport.0.pin-11-in => axis.0.neg-lim-sw-in
+# net X-pos-limit parport.0.pin-12-in => axis.0.pos-lim-sw-in
+
+###
+### Just like the shared home switches example, you can wire together
+### limit switches.  Beware if you hit one, EMC will stop but can't tell
+### you which switch/axis has faulted.  Use caution when recovering from this.
+###
+
+# net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
+
+----------------------------------------
+
+The files starting with '#' are comments, and their only purpose is to
+guide the reader through the file.
+
+===  [[sub:Overview-standard_pinout.hal]]Overview of the standard_pinout.hal
+
+There are a couple of operations that get executed when the
+standard_pinout.hal gets executed / interpreted:
+
+ . The Parport driver gets loaded (see  <<sec:Parport>> for details)
+ .  The read & write functions of the parport driver get assigned to the
+   base thread footnote:[the fastest thread in the EMC2 setup, usually the
+   code gets executed
+   every few microseconds
+   ]
+ .  The step & direction signals for axes X,Y,Z get linked to pins on the
+   parport
+ . Further IO signals get connected (estop loopback, toolchanger loopback)
+ . A spindle-on signal gets defined and linked to a parport pin
+
+===  [[sub:Changing-standard_pinout.hal]]Changing the standard_pinout.hal
+
+If you want to change the standard_pinout.hal file, all you need is a
+text editor. Open the file and locate the parts you want to change.
+
+If you want for example to change the pin for the X-axis Step &
+Directions signals, all you need to do is to change the number in the
+'parport.0.pin-XX-out' name:
+
+    net Xstep parport.0.pin-03-out 
+
+can be changed to:
+
+    net Xstep parport.0.pin-02-out 
+
+or basically any other numbers you like.
+
+Hint: make sure you don't have more than one signal connected to the
+same pin.
+
+===   [[sub:Changing-the-polarity]]Changing the polarity of a signal(((signal polarity)))
+
+If external hardware expects an “active low” signal, set the
+corresponding `-invert` parameter. For instance, to invert the spindle
+control signal:
+
+    setp parport.0.pin-09-invert TRUE
+
+===   [[sub:PWM-Spindle-Speed]]Adding PWM Spindle Speed Control(((spindle speed control)))
+
+If your spindle can be controlled by a PWM signal, use the `pwmgen`
+component to create the signal:
+
+    loadrt pwmgen output_type=0
+
+This assumes that the spindle controller's response to PWM is simple:
+0% PWM gives 0 RPM, 10% PWM gives 180 RPM, etc. If there is a minimum
+PWM required to get the spindle to turn, follow the example in the
+'nist-lathe' sample configuration to use a `scale` component.
+
+===  [[sub:Adding-enable-signal]]Adding an enable signal(((enable signal)))
+
+Some amplifiers (drives) require an enable signal before they accept
+and command movement of the motors. For this reason there are already
+defined signals called 'Xen', 'Yen', 'Zen'.
+
+To connect them use the following example:
+
+    net Xen parport.0.pin-08-out
+
+You can either have one single pin that enables all drives; or
+several, depending on the setup you have. Note, however, that usually
+when one axis faults, all the other drives will be disabled as well, so
+having only one enable signal / pin for all drives is a common
+practice.
+
+=== Adding an external ESTOP (((ESTOP))) button
+
+As you can see in  <<sub:standard_pinout.hal>> by default the stepper
+configuration assumes no external ESTOP button. footnote:[An extensive
+explanation of hooking up ESTOP circuitry is explained in
+the wiki.linuxcnc.org and in the Integrator Manual
+]
+
+To add a simple external button you need to replace the line:
+
+    net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+with
+
+    net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
+
+This assumes an ESTOP switch connected to pin 01 on the parport. As
+long as the switch will stay pushedfootnote:[make sure you use a
+maintained switch for ESTOP.
+ ], EMC2 will be in the ESTOP state. When the external button gets
+released EMC2 will imediately switch to the ESTOP-RESET state, and all
+you need to do is switch to Machine On(((machine on))) and you'll be
+able to continue your work with EMC2.
+

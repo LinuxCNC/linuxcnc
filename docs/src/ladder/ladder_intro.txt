@@ -1,0 +1,60 @@
+= Ladder programming 
+
+== Introduction
+
+Ladder logic or the Ladder programming language is a method of drawing
+electrical logic schematics. It is now a graphical language very
+popular for programming Programmable Logic Controllers (PLCs). It was
+originally invented to describe logic made from relays. The name is
+based on the observation that programs in this language resemble
+ladders, with two vertical "rails" and a series of "rungs" between
+them. In Germany and elsewhere in Europe, the style is to draw the
+rails horizontal along the top and bottom of the page while the rungs
+are drawn sequentially from left to right.
+
+A program in ladder logic, also called a ladder diagram, is similar to
+a schematic for a set of relay circuits. Ladder logic is useful because
+a wide variety of engineers and technicians can understand and use it
+without much additional training because of the resemblance.
+
+Ladder logic is widely used to program PLCs, where sequential control
+of a process or manufacturing operation is required. Ladder logic is
+useful for simple but critical control systems, or for reworking old
+hardwired relay circuits. As programmable logic controllers became more
+sophisticated it has also been used in very complex automation systems.
+
+Ladder logic can be thought of as a rule-based language, rather than a
+procedural language. A "rung" in the ladder represents a rule. When
+implemented with relays and other electromechanical devices, the
+various rules "execute" simultaneously and immediately. When
+implemented in a programmable logic controller, the rules are typically
+executed sequentially by software, in a loop. By executing the loop
+fast enough, typically many times per second, the effect of
+simultaneous and immediate execution is obtained.
+
+== Example
+
+The most common components of ladder are contacts (inputs), these
+usually are either NC (normally closed) or NO (normally open), and
+coils (outputs).
+
+ - the NO contact image:images/ladder_action_load.png[]
+ - the NC contact image:images/ladder_action_loadbar.png[]
+ - the coil (output) image:images/ladder_action_out.png[]
+
+Of course there are way more components to a full ladder language, but
+understanding these will help grasp the overall concept.
+
+The ladder consists of one or more rungs. These rungs are horizontal
+traces, with components on them (inputs, outputs and other), which get
+evaluated left to right.
+
+This example is the simplest rung:
+image:images/example_link_contact_coil.png[]
+
+The input on the left, a normal open contact is connected to the
+output on the right Q0. Now imagine a voltage gets applied to the
+leftmost end, as soon as the B0 turns true (e.g. the input is
+activated, or the user pushed the NO contact), the voltage reaches the
+right part Q0. As a consequence, the Q0 output will turn from 0 to 1.
+

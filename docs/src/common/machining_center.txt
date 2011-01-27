@@ -1,0 +1,543 @@
+= CNC Machine Overview
+
+This section gives a brief description of how a CNC machine is viewed
+from the input and output ends of the Interpreter.
+
+== Mechanical Components
+
+A CNC machine has many mechanical components that may be controlled or
+may affect the way in which control is exercised. This section
+describes the subset of those components that interact with the
+Interpreter. Mechanical components that do not interact directly with
+the Interpreter, such as the jog buttons, are not described here, even
+if they affect control.
+
+=== Axes (((axes)))
+
+Any CNC machine has one or more Axes. Different types of CNC machines
+have different combinations. For instance, a "4-axis milling machine"
+may have XYZA or XYZB axes. A lathe typically has XZ axes. A
+foam-cutting machine may have XYUZ axes. In EMC, the case of a XYYZ
+"gantry" machine with two motors for one axis is better handled by
+kinematics rather than by a second linear axis.
+
+footnote:[If the motion of mechanical components is not independent,
+as with
+hexapod machines, the RS274/NGC language and the canonical machining
+functions will still be usable, as long as the lower levels of control
+know how to control the actual mechanisms to produce the same relative
+motion of tool and workpiece as would be produced by independent axes.
+This is called 'kinematics'.
+]
+
+==== Primary Linear Axes (((axes, primary linear)))
+
+The X, Y, and Z axes produce linear motion in three mutually
+orthogonal directions.
+
+==== Secondary Linear Axes (((axes, secondary linear)))
+
+The U, V, and W axes produce linear motion in three mutually
+orthogonal directions. Typically, X and U are parallel, Y and V are
+parallel, and Z and W are parallel.
+
+==== Rotational Axes (((axes, rotational)))
+
+The A, B and C axes produce angular motion (rotation). Typically, A
+rotates around a line parallel to X, B rotates around a line parallel
+to Y, and C rotates around a line parallel to Z.
+
+=== Spindle (((spindle)))
+
+A CNC machine typically has a spindle which holds one cutting tool,
+probe, or the material in the case of a lathe. The spindle may or may
+not be controlled by the CNC software.
+
+=== Coolant (((coolant)))
+
+If a CNC machine has components to provide mist coolant and/or flood
+coolant they can be controlled by G-Codes.
+
+=== Feed  (((feed override))) and Speed(((spindle speed override))) Override[[sub:Feed-and-Speed]]
+
+A CNC machine can have separate feed and speed override controls,
+which let the operator specify that the actual feed rate or spindle
+speed used in machining at some percentage of the programmed rate. See
+Section  <<sub:Feed-Interaction>>.
+
+=== Block Delete Switch (((optional block delete)))[[sub:Block-Delete-Switch]]
+
+A CNC machine can have a block delete switch. See Section 
+<<sub:Block-Delete-Switch-Interaction>>.
+
+=== Optional Program Stop (((optional program stop))) Switch[[sub:Optional-Program-Stop]]
+
+A CNC machine can have an optional program stop switch. See Section 
+<<sub:Optional-Program-Stop-Interaction>>.
+
+== Control and Data Components
+
+=== Linear Axes
+
+The X, Y, and Z axes form a standard right-handed coordinate system of
+orthogonal linear axes. Positions of the three linear motion mechanisms
+are expressed using coordinates on these axes.
+
+The U, V and W axes also form a standard right-handed coordinate
+system. X and U are parallel, Y and V are parallel, and Z and W are
+parallel.
+
+=== Rotational Axes
+
+The rotational axes are measured in degrees as wrapped linear axes in
+which the direction of positive rotation is counterclockwise when
+viewed from the positive end of the corresponding X, Y, or Z-axis. By
+“wrapped linear axis,” we mean one on which the angular position
+increases without limit (goes towards plus infinity) as the axis turns
+counterclockwise and deceases without limit (goes towards minus
+infinity) as the axis turns clockwise. Wrapped linear axes are used
+regardless of whether or not there is a mechanical limit on rotation.
+
+Clockwise or counterclockwise is from the point of view of the
+workpiece. If the workpiece is fastened to a turntable which turns on a
+rotational axis, a counterclockwise turn from the point of view of the
+workpiece is accomplished by turning the turntable in a direction that
+(for most common machine configurations) looks clockwise from the point
+of view of someone standing next to the machine.footnote:[If the
+parallelism requirement is violated, the system builder will
+have to say how to distinguish clockwise from counterclockwise.
+]
+
+=== Controlled Point [[sub:Controlled-Point]](((controlled point)))
+
+The controlled point is the point whose position and rate of motion
+are controlled. When the tool length offset is zero (the default
+value), this is a point on the spindle axis (often called the gauge
+point) that is some fixed distance beyond the end of the spindle,
+usually near the end of a tool holder that fits into the spindle. The
+location of the controlled point can be moved out along the spindle
+axis by specifying some positive amount for the tool length offset.
+This amount is normally the length of the cutting tool in use, so that
+the controlled point is at the end of the cutting tool. On a lathe,
+tool length offsets can be specified for X and Z axes, and the
+controlled point is either at the tool tip or slightly outside it
+(where the perpendicular, axis-aligned lines touched by the “front” and
+“side” of the tool intersect).
+
+=== Coordinated Linear Motion [[sub:Coordinate-Linear-Motion]]
+
+To drive a tool along a specified path, a machining center must often
+coordinate the motion of several axes. We use the term “coordinated
+linear motion” to describe the situation in which, nominally, each axis
+moves at constant speed and all axes move from their starting positions
+to their end positions at the same time. If only the X, Y, and Z axes
+(or any one or two of them) move, this produces motion in a straight
+line, hence the word “linear” in the term. In actual motions, it is
+often not possible to maintain constant speed because acceleration or
+deceleration is required at the beginning and/or end of the motion. It
+is feasible, however, to control the axes so that, at all times, each
+axis has completed the same fraction of its required motion as the
+other axes. This moves the tool along same path, and we also call this
+kind of motion coordinated linear motion.
+
+Coordinated linear motion can be performed either at the prevailing
+feed rate, or at traverse rate, or it may be synchronized to the
+spindle rotation. If physical limits on axis speed make the desired
+rate unobtainable, all axes are slowed to maintain the desired path.
+
+=== Feed Rate (((feed rate)))[[sub:Feed-Rate]]
+
+The rate at which the controlled point or the axes move is nominally a
+steady rate which may be set by the user. In the Interpreter, the
+interpretation of the feed rate is as follows unless “inverse time
+feed” or “feed per revolution” modes are being used (see Section 
+xref:sub:G93,-G94:-Set[]).
+
+ .  If any of XYZ are moving, F is in units per minute in the XYZ
+   cartesian system, and all other axes (UVWABC) move so as to start and
+   stop in coordinated fashion
+ .  Otherwise, if any of UVW are moving, F is in units per minute in the
+   UVW cartesian system, and all other axes (ABC) move so as to start and
+   stop in coordinated fashion
+ .  Otherwise, the move is pure rotary motion and the F word is in rotary
+   units in the ABC “pseudo-cartesian” system.
+
+=== Coolant (((coolant)))
+
+Flood coolant and mist coolant may each be turned on independently.
+The RS274/NGC language turns them off together (see Section 
+xref:sub:M7,-M8,-M9:[]).
+
+=== Dwell (((dwell)))
+
+A machining center may be commanded to dwell (i.e., keep all axes
+unmoving) for a specific amount of time. The most common use of dwell
+is to break and clear chips, so the spindle is usually turning during a
+dwell. Regardless of the Path Control Mode (see Section 
+<<sub:Path-Control-Mode>>) the machine will stop exactly at the end of
+the previous programmed move, as though it was in exact path mode.
+
+=== Units (((units)))
+
+Units used for distances along the X, Y, and Z axes may be measured in
+millimeters or inches. Units for all other quantities involved in
+machine control cannot be changed. Different quantities use different
+specific units. Spindle speed is measured in revolutions per minute.
+The positions of rotational axes are measured in degrees. Feed rates
+are expressed in current length units per minute, or degrees per
+minute, or length units per spindle revolution, as described in Section
+ <<sub:Feed-Rate>>.
+
+=== Current Position
+
+The controlled point is always at some location called the “current
+position,” and the controller always knows where that is. The numbers
+representing the current position must be adjusted in the absence of
+any axis motion if any of several events take place:
+
+ . Length units are changed.
+ . Tool length offset is changed.
+ . Coordinate system offsets are changed. 
+
+=== Selected Plane [[sub:Selected-Plane]]
+
+There is always a “selected plane”, which must be the XY-plane, the
+YZ-plane, or the XZ-plane of the machining center. The Z-axis is, of
+course, perpendicular to the XY-plane, the X-axis to the YZ-plane, and
+the Y-axis to the XZ-plane.
+
+=== Tool Carousel
+
+Zero or one tool is assigned to each slot in the tool carousel.
+
+=== Tool Change
+
+A machining center may be commanded to change tools.
+
+=== Pallet Shuttle
+
+The two pallets may be exchanged by command.
+
+=== Feed and Speed Override Switches
+
+The feed and speed override switches may be enabled (so they work as
+expected) or disabled (so they have no effect on the feed rate or
+spindle speed). The RS274/NGC language has one command that enables
+both switches and one command that disables both (see Section 
+xref:sub:M48,-M49:-Override[]). See Section  <<sub:Feed-Interaction>>
+for further details.
+
+=== Path Control Mode (((path control mode)))[[sub:Path-Control-Mode]]
+
+The machining center may be put into any one of three path control
+modes: (1) exact stop mode, (2) exact path mode, or (3) continuous mode
+with optional tolerance. In exact stop mode, the machine stops briefly
+at the end of each programmed move. In exact path mode, the machine
+follows the programmed path as exactly as possible, slowing or stopping
+if necessary at sharp corners of the path. In continuous mode, sharp
+corners of the path may be rounded slightly so that the feed rate may
+be kept up (but by no more than the tolerance, if specified). See
+Section  xref:sub:G61,-G61.1,-G64:[].
+
+== Interpreter Interaction with Switches
+
+The Interpreter interacts with several switches. This section
+describes the interactions in more detail. In no case does the
+Interpreter know what the setting of any of these switches is.
+
+=== Feed and Speed Override Switches [[sub:Feed-Interaction]]
+
+The Interpreter will interpret RS274/NGC commands which enable (`M48`)
+or disable (`M49` ) the feed and speed override switches. For certain
+moves, such as the
+traverse out of the end of a thread during a threading cycle, the
+switches are disabled automatically.
+
+EMC2 reacts to the speed and feed override settings when these
+switches are enabled.
+
+=== Block Delete (((block delete))) Switch[[sub:Block-Delete-Switch-Interaction]]
+
+If the block delete switch is on, lines of RS274/NGC code which start
+with a slash (the block delete character) are not interpreted. If the
+switch is off, such lines are interpreted. Normally the block delete
+switch should be set before starting the NGC program.
+
+=== Optional Program Stop  (((optional program stop))) Switch[[sub:Optional-Program-Stop-Interaction]]
+
+If this switch is on and an M1 code is encountered, program execution
+is paused.
+
+== Tool File [[sub:Tool-File]]
+
+A tool file is required to use the Interpreter. The file tells which
+tools are in which carousel slots and what the length and diameter of
+each tool are.
+
+The file consists of any number of header lines, followed by one blank
+line, followed by any number of lines of data. The header lines are
+ignored by the interpreter. It is important that there be exactly one
+blank line (with no spaces or tabs, even) before the data. The header
+line shown in Table  <<cap:Sample-Tool-File>> describes the data
+columns, so it is suggested (but not required) that such a line always
+be included in the header.
+
+Each data line of the file contains the data for one tool. The line
+may contain 4 or 5 elements (“mill format”) or 8 or 9 elements (“lathe
+format”).
+
+The units used for the length and diameter are in machine units.
+
+The lines do not have to be in any particular order. Switching the
+order of lines has no effect unless the same slot number is used on two
+or more lines, which should not normally be done, in which case the
+data for only the last such line will be used.
+
+In emc, the location of the tool file is specified in the ini file.
+See the Integrator Manual for more details.
+
+A tool file may have a mixture of “mill format” and “lathe format”
+lines, though usually the “lathe format” lines are only required for
+lathe-type tooling.
+
+=== Mill Format Tool Files
+
+The “mill format” of a tool file is shown in Table 
+<<cap:Sample-Tool-File>>.
+
+.Sample Tool File (mill format)[[cap:Sample-Tool-File]]
+
+[width="90%", options="header"]
+|========================================
+|Pocket | FMS | TLO | Diameter | Comment
+| |  |  |  | 
+|1 | 1 | 2.0 | 1.0 | 
+|2 | 2 | 1.0 | 0.2 | 
+|5 | 5 | 1.5 | 0.25 | endmill
+|10 | 10 | 2.4 | -0.3 | for testing
+|========================================
+
+Each line has five entries. The first four entries are required. The
+last entry (a comment) is optional. It makes reading easier if the
+entries are arranged in columns, as shown in the table, but the only
+format requirement is that there be at least one space or tab after
+each of the first three entries on a line and a space, tab, or newline
+at the end of the fourth entry. The meanings of the columns and the
+type of data to be put in each are as follows.
+
+The “Pocket” column contains the number (unsigned integer) which
+represents the pocket number (slot number) of the tool carousel slot in
+which the tool is placed. The entries in this column must all be
+different.
+
+The “FMS” column contains the number (unsigned integer) which
+represents a code number for the tool. The user may use any code for
+any tool, as long as the codes are unsigned integers. This is typically
+the same as the pocket number.
+
+The “TLO” column contains a real number which represents the tool
+length offset. This number will be used if tool length offsets are
+being used and this pocket is selected. This is normally a positive
+real number, but it may be zero or any other number if it is never to
+be used.
+
+The “Diameter” column contains a real number. This number is used only
+if tool radius compensation is turned on using this pocket. If the
+programmed path during compensation is the edge of the material being
+cut, this should be a positive real number representing the measured
+diameter of the tool. If the programmed path during compensation is the
+path of a tool whose diameter is nominal, this should be a small number
+(positive, negative, or zero) representing the difference between the
+measured diameter of the tool and the nominal diameter. If cutter
+radius compensation is not used with a tool, it does not matter what
+number is in this column.
+
+The “Comment” column may optionally be used to describe the tool. Any
+type of description is OK. This column is for the benefit of human
+readers only.
+
+=== Lathe Format Tool Files
+
+The “lathe format” of a tool file is shown in Table 
+<<cap:Lathe-Tool-File>>.
+
+.Sample Tool File (lathe format)[[cap:Lathe-Tool-File]]
+
+[width="90%", options="header"]
+|========================================
+ |Pocket | FMS | ZOFFSET | XOFFSET | DIA | FRONTANGLE | BACKANGLE |
+ORIENTATION | Comment
+| |  |  |  |  |  |  |  | 
+|1 | 1 | 0.0 | 0.0 | 0.1 | 95.0 | 155.0 | 1 | 
+|2 | 2 | 0.5 | 0.5 | 0.1 | 120 | 60 | 6 | 
+|========================================
+
+The Pocket, FMS, DIA and Comment fields are as for mill format tool
+files. The ZOFFSET field is the same as the TLO field of mill format
+tool files. The DIA is also used by the AXIS gui display.
+
+The XOFFSET field gives an offset for the X coordinate when tool
+length offsets are in effect.
+
+The ORIENTATION field gives the orientation of the lathe tool, as
+illustrated in  <<cap:Tool-Orientations>>. The red cross is the
+controlled point. See  <<sub:Controlled-Point>>.
+
+The FRONTANGLE and BACKANGLE fields are used by some user interfaces
+to display a fancy representation of the lathe tool.
+
+.Tool Orientations[[cap:Tool-Orientations]]
+
+image::lathe_tool.png[]
+
+== Parameters (((parameters)))[[sub:Parameters]]
+
+In the RS274/NGC language view, a machining center maintains an array
+of numerical parameters defined by a system definition
+(RS274NGC_MAX_PARAMETERS). Many of them have specific uses especially
+in defining coordinate systems. The number of numerical parameters can
+increase as development adds support for new parameters. The parameter
+array persists over time, even if the machining center is powered down.
+EMC2 uses a parameter file to ensure persistence and gives the
+Interpreter the responsibility for maintaining the file. The
+Interpreter reads the file when it starts up, and writes the file when
+it exits.
+
+All parameters are avalible for use in G Code programs.
+
+1-30::
+     Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. See  <<cha:O-Codes>>
+
+1-5000::
+    G-Code user parameters. These parameters are global in the G Code file.
+
+5061-5070::
+    Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
+
+5161-5169::
+    "G28" Home for X, Y, Z, A, B, C, U, V & W.
+
+5181-5189::
+    "G30" Home for X, Y, Z, A, B, C, U, V & W.
+
+5211-5219::
+    "G92" offset for X, Y, Z, A, B, C, U, V & W.
+
+5220::
+    Coordinate System number 1 - 9 for G54 - G59.3.
+
+5221-5229::
+    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
+
+5241-5249::
+    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
+
+5261-5269::
+    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
+
+5281-5289::
+    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
+
+5301-5309::
+    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
+
+5321-5329::
+    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
+
+5341-5349::
+    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
+
+5361-5369::
+    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
+
+5381-5389::
+    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
+
+5399::
+    Result of M66 - Check or wait for input
+
+5400::
+    Tool Number
+
+5401::
+    Tool X Offset
+
+5402::
+    Tool Y Offset
+
+5403::
+    Tool Z Offset
+
+5404::
+    Tool A Offset
+
+5405::
+    Tool B Offset
+
+5406::
+    Tool C Offset
+
+5407::
+    Tool U Offset
+
+5408::
+    Tool V Offset
+
+5409::
+    Tool W Offset
+
+5410::
+    Tool Diameter
+
+5411::
+    Tool Front Angle
+
+5412::
+    Tool Back Angle
+
+5413::
+    Tool Orientation
+
+5420-5428::
+     Current Position including all offsets and in the current program
+    units for X, Y, Z, A, B, C, U, V & W.
+
+The format of a parameter file is shown in Table 
+<<cap:Parameter-File-Format>>. The file consists of any number of
+header lines, followed by one blank line, followed by any number of
+lines of data. The Interpreter skips over the header lines. It is
+important that there be exactly one blank line (with no spaces or tabs,
+even) before the data. The header line shown in Table 
+<<cap:Parameter-File-Format>> describes the data columns, so it is
+suggested (but not required) that that line always be included in the
+header.
+
+The Interpreter reads only the first two columns of the table. The
+third column, "Comment," is not read by the Interpreter.
+
+Each line of the file contains the index number of a parameter in the
+first column and the value to which that parameter should be set in the
+second column. The value is represented as a double-precision floating
+point number inside the Interpreter, but a decimal point is not
+required in the file. All of the parameters shown in Table 
+<<cap:Parameter-File-Format>> are required parameters and must be
+included in any parameter file, except that any parameter representing
+a rotational axis value for an unused axis may be omitted. An error
+will be signalled if any required parameter is missing. A parameter
+file may include any other parameter, as long as its number is in the
+range 1 to 5400. The parameter numbers must be arranged in ascending
+order. An error will be signalled if not. Any parameter included in the
+file read by the Interpreter will be included in the file it writes as
+it exits. The original file is saved as a backup file when the new file
+is written. Comments are not preserved when the file is written.
+
+.Parameter File Format[[cap:Parameter-File-Format]]
+
+[width="90%", options="header"]
+|========================================
+|Parameter Number | Parameter Value | Comment
+|5161 | 0.0 | G28 Home X
+|5162 | 0.0 | G28 Home Y
+|========================================
+

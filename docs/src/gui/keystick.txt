@@ -1,0 +1,24 @@
+= KEYSTICK (((KEYSTICK)))
+
+== Introduction
+
+image::images/keystick.png[]
+
+.[[fig:startmini]]The Mini Graphical Interface
+
+Keystick is a minimal text based interface.
+
+== Installing
+
+To use keystick change the DISPLAY ini file setting to:
+
+[DISPLAY]
+
+DISPLAY = keystick
+
+== Using
+
+Keystick is very simple to use. In the MDI Mode you simply start
+typing the g code and it shows up in the bottom text area. The “?” key
+toggles help.
+

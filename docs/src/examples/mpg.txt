@@ -1,0 +1,52 @@
+= MPG Pendant
+
+This example is to explain how to hook up the common MPG pendants
+found on the market place today. This example uses a MPG3 pendant and a
+C22 pendant interface card from CNC4PC connected to a second parallel
+port plugged into the PCI slot. This example gives you 3 axis with 3
+step increments of 0.1, 0.01, 0.001
+
+In your custom.hal file or other .hal file add the following making
+sure you don't have mux4 or an encoder already in use. If you do just
+increase the counts and change the reference number. More information
+about mux4 and encoder can be found here  <<cha:HAL-Components>> and
+here  <<sec:Encoder>>.
+
+    # Jog Pendant +
+    loadrt encoder num_chan=1 +
+    loadrt mux4 count=1 +
+    addf encoder.capture-position servo-thread +
+    addf encoder.update-counters base-thread +
+    addf mux4.0 servo-thread
+
+    # If your MPG outputs a quadture signal per click set x4 to 1  +
+    # If your MPG puts out 1 pulse per click set x4 to 0 +
+    setp encoder.0.x4-mode 0
+
+    # For velocity mode, set n to 1  +
+     # In velocity mode the axis stops when dial is stopped even if that
+    means  +
+    # the commanded motion is not completed,  +
+    # For position mode (the default), set n to 0  +
+    # In position mode the axis will move exactly jog-scale  +
+    # units for each count, regardless of how long that might take,  +
+    # This must be set for each axis you want to behave other than default +
+    setp axis.N.jog-vel-mode n
+
+    setp mux4.0.in0 0.1 +
+    setp mux4.0.in1 0.01 +
+    setp mux4.0.in2 0.001 +
+    net scale1 mux4.0.sel0 <= parport.1.pin-09-in +
+    net scale2 mux4.0.sel1 <= parport.1.pin-10-in +
+    net pend-scale axis.0.jog-scale <= mux4.0.out +
+    net pend-scale axis.1.jog-scale +
+    net pend-scale axis.2.jog-scale +
+    net mpg-a encoder.0.phase-A <= parport.1.pin-02-in +
+    net mpg-b encoder.0.phase-B <= parport.1.pin-03-in +
+    net mpg-x axis.0.jog-enable <= parport.1.pin-04-in +
+    net mpg-y axis.1.jog-enable <= parport.1.pin-05-in +
+    net mpg-z axis.2.jog-enable <= parport.1.pin-06-in +
+    net pend-counts axis.0.jog-counts <= encoder.0.counts +
+    net pend-counts axis.1.jog-counts +
+    net pend-counts axis.2.jog-counts
+
