@@ -238,6 +238,7 @@ Inverse Clarke transform
     clarkeinv.N.c (float out) three phase output vector
 
 ===== Parameters
+.
 
 ===== Description
 
@@ -634,12 +635,17 @@ convert a group of bits to an integer
 Two-input XOR (exclusive OR) gate
 
 ===== Loading
+.
 
 ===== Functions
+.
 
 ===== Pins
+.
 
 ===== Parameters
+.
 
 ===== Description
+.
 

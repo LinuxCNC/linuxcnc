@@ -9,17 +9,16 @@ image::common/emc2-intro[]
 
 == Getting Started Guide
 
-{0.75in}This handbook is a work in progress. If you are able to
+This handbook is a work in progress. If you are able to
 help with writing, editing, or graphic preparation please contact
 any member of the writing team or join and send an email to
 emc-users@lists.sourceforge.net.
 
-{0.5in}
 
     Copyright (c) 2000-9 LinuxCNC.org
 
 
-{0.5in}{\\normalsize}{-1\\parskip}Permission is granted to copy,
+Permission is granted to copy,
 distribute and/or modify this document under the terms of the GNU
 Free Documentation License, Version 1.1 or any later version
 published by the Free Software Foundation; with no Invariant

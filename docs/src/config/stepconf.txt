@@ -17,6 +17,7 @@ The Stepconf Wizard needs at least 800 x 600 screen resolution to see
 the buttons on the bottom of the pages.
 
 == Step by Step Instructions
+.
 
 == Entry Page [[sec:Entry-Page]]
 

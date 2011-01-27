@@ -108,16 +108,16 @@ HALNAME::
     A trailing _ is retained, so that HAL identifiers which would
     otherwise collide with reserved names or keywords (e.g., 'min') can be
     used.
-    +
-    [width="90%", options="header"]
-    |========================================
-    |HALNAME | C Identifier | HAL Identifier
-    |x_y_z | x_y_z | x-y-z
-    |x-y.z | x_y_z | x-y.z
-    |x_y_z_ | x_y_z_ | x-y-z
-    |x.##.y | x_y(MM) | x.MM.z
-    |x.## | x(MM) | x.MM
-    |========================================
+
+[width="90%", options="header"]
+|========================================
+|HALNAME | C Identifier | HAL Identifier
+|x_y_z | x_y_z | x-y-z
+|x-y.z | x_y_z | x-y.z
+|x_y_z_ | x_y_z_ | x-y-z
+|x.##.y | x_y(MM) | x.MM.z
+|x.## | x(MM) | x.MM
+|========================================
 
 if CONDITION::
      An expression involving the variable 'personality' which is nonzero
@@ -138,13 +138,13 @@ DOC::
     quoted" string, like `"Selects the desired edge: TRUE means falling,
     FALSE means rising"`  or a Python-style "triple quoted" string, which
     may include embedded
-    newlines and quote characters, such as:
-        `param rw bit zot=TRUE +
-        """The effect of this parameter, also known as "the orb of zot", +
-        will require at least two paragraphs to explain. +
+    newlines and quote characters, such as: +
+        `param rw bit zot=TRUE` +
+        `"""The effect of this parameter, also known as "the orb of zot",` +
+        `will require at least two paragraphs to explain.` +
          +
-        Hopefully these paragraphs have allowed you to understand "zot"  +
-        better.""";`
+        `Hopefully these paragraphs have allowed you to understand "zot"` +
+        `better.""";`
     +
     The documentation string is in "groff -man" format. For more
     information on this markup format, see `groff_man(7)` . Remember that

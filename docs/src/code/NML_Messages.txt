@@ -104,8 +104,8 @@ Written From: none
 Read To: emctaskmain.cc
 
 Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [p, double] [i,
-double] [d, double] [ff0, double] [ff1, double] [ff2, double]
-[backlash, double] [bias, double] [maxError, double]
+double] [d, double] [ff0, double] [ff1, double] [ff2, double] [backlash,
+double] [bias, double] [maxError, double]
 
 === EMC_AXIS_SET_CYCLE_TIME_TYPE
 
@@ -130,8 +130,7 @@ Read To: emcTaskIssueCommand (emctaskmain.cc) calls
 emcAxisSetInputScale (minimill|bridgeporttaskintf.cc) which sends
 EMCMOT_SET_INPUT_SCALE
 
-Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double]
-[offset, double]
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double] [offset, double]
 
 === EMC_AXIS_SET_OUTPUT_SCALE_TYPE
 
@@ -144,8 +143,7 @@ Written From: none
 
 Read To: emcTaskIssueCommand (emctaskmain.cc)
 
-Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double]
-[offset, double]
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [scale, double] [offset, double]
 
 === EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE
 
@@ -373,8 +371,8 @@ Written From: sendJogIncr (emcsh.cc)
 Read To: emcTaskIssueCommand (emctaskmain.cc) calls emcAxisIncrJog
 (taskintf.cc) which sends EMCMOT_JOG_INCR
 
-Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [incr, double]
-[vel, double]
+Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [incr, double] [vel,
+double]
 
 === EMC_AXIS_ABS_JOG_TYPE
 
@@ -958,8 +956,8 @@ Written From: none
 Read To: emcTaskIssueCommand (emctaskmain.cc) calls emcMotionSetAout
 (minimill | bridgeporttaskintf.cc) which sends EMCMOT_SET_AOUT
 
-Parameter, Type: [index, unsigned char] [start, double] [end, double]
-[now, unsigned char]
+Parameter, Type: [index, unsigned char] [start, double] [end, double] [now,
+unsigned char]
 
 === EMC_MOTION_SET_DOUT_TYPE
 
@@ -985,8 +983,8 @@ Written From: none
 
 Read To: none
 
-Parameter, Type: [heartbeat, unsigned long int] [traj, EMC_TRAJ_STAT]
-[axis[EMC_AXIS_MAX], EMC_AXIS_STAT]
+Parameter, Type: [heartbeat, unsigned long int] [traj,
+EMC_TRAJ_STAT] [axis[EMC_AXIS_MAX], EMC_AXIS_STAT]
 
 == EMC TASK
 
@@ -1528,8 +1526,8 @@ Written From: none
 
 Read To: none
 
-Parameter, Type: [speed, double] [direction, int] [brake, int]
-[increasing, int] [enabled, int]
+Parameter, Type: [speed, double] [direction, int] [brake, int] [increasing,
+int] [enabled, int]
 
 == EMC COOLANT
 
@@ -1881,8 +1879,8 @@ Read To: emcTaskIssueCommand (emctaskmain.cc) calls emcLogOpen
 (taskintf.cc) which sends EMCMOT_OPEN_LOG
 
 Parameter, Type: [file, char[LINELEN]] [type, int] [size, int] [skip,
-int] [which, int] [triggerType, int] [triggerVar, int]
-[triggerThreshold, double]
+int] [which, int] [triggerType, int] [triggerVar, int] [triggerThreshold,
+double]
 
 === EMC_LOG_START_TYPE
 
@@ -1936,5 +1934,5 @@ Read To: none
 
 Parameter, Type: [task, EMC_TASK_STAT] [motion, EMC_MOTION_STAT] [io,
 EMC_IO_STAT] [logFile, char[LINELEN]] [logType, int] [logSize, int]
-[logSkip, int] [logOpen, int] [logStarted, int] [logPoints, int]
++++[+++logSkip, int] [logOpen, int] [logStarted, int] [logPoints, int]
 

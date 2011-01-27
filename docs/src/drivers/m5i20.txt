@@ -1,0 +1,288 @@
+= m5i20
+
+[NOTE]
+The hal_m5i20 driver is deprecated and you should use the 
+hostmot2 driver for new installations.
+
+== Mesa Electronics m5i20 "Anything I/O Card"
+
+The Mesa Electronics m5i20 card consists of an FPGA that can be 
+loaded with a wide variety of configurations, and has 72 pins 
+that leave the PC. The assignment of the pins depends on the FPGA 
+configuration. Currently there is a HAL driver for the "4 axis 
+host based motion control" configuration, and this FPGA 
+configurations is also provided with EMC2. It provides 8 encoder 
+counters, 4 PWM outputs (normally used as DACs) and up to 48 
+digital I/O channels, 32 inputs and 16 outputs.
+
+== Installing
+
+  loadrt hal_m5i20 [loadFpga=1|0] [dacRate=<rate>]
+
+If loadFpga is 1 (the default) the driver will load the FPGA 
+configuration on startup. If it is 0, the driver assumes the 
+configuration is already loaded. dacRate sets the carrier 
+frequency for the PWM outputs, in Hz. The default is 32000, for 
+32KHz PWM. Valid values are from 1 to 32226. The driver prints 
+some useful debugging message to the kernel log, which can be 
+viewed with dmesg.
+
+Up to 4 boards may be used in one system.
+
+==  Pins
+
+In the following pins, parameters, and functions, <board> is the 
+board ID. According to the naming conventions the first board 
+should always have an ID of zero, however this driver uses the 
+PCI board ID, so it may be non-zero even if there is only one 
+board.
+
+ - (s32) m5i20.<board>.enc-<channel>-count -- Encoder position, in 
+   counts.
+
+ - (float) m5i20.<board>.enc-<channel>-position -- Encoder 
+   position, in user units.
+
+ - (bit) m5i20.<board>.enc-<channel>-index -- Current status of 
+   index pulse input?
+
+ - (bit) m5i20.<board>.enc-<channel>-index-enable -- when true, 
+   and an index pulse appears on the encoder input, reset counter 
+   to zero and clear index-enable.
+
+ - (bit) m5i20.<board>.enc-<channel>-reset -- When true, counter 
+   is forced to zero.
+
+ - (bit) m5i20.<board>.dac-<channel>-enable -- Enables DAC if 
+   true. DAC outputs zero volts if false?
+
+ - (float) m5i20.<board>.dac-<channel>-value -- Analog output 
+   value for PWM "DAC" (in user units, see -scale and -offset)
+
+ - (bit) m5i20.<board>.in-<channel> -- State of digital input pin, 
+   see canonical digital input.
+
+ - (bit) m5i20.<board>.in-<channel>-not -- Inverted state of 
+   digital input pin, see canonical digital input.
+
+ - (bit) m5i20.<board>.out-<channel> -- Value to be written to 
+   digital output, see canonical digital output.
+
+ - (bit) m5i20.<board>.estop-in -- Dedicated estop input, more 
+   details needed.
+
+ - (bit) m5i20.<board>.estop-in-not -- Inverted state of dedicated 
+   estop input.
+
+ - (bit) m5i20.<board>.watchdog-reset -- Bidirectional, - Set TRUE 
+   to reset watchdog once, is automatically cleared. If bit value 
+   16 is set in watchdog-control then this value is not used, and 
+   the hardware watchdog is cleared every time the dac-write 
+   function is executed.
+
+== Parameters
+
+ - (float) m5i20.<board>.enc-<channel>-scale -- The number of 
+   counts / user unit (to convert from counts to units).
+
+ - (float) m5i20.<board>.dac-<channel>-offset -- Sets the DAC 
+   offset.
+
+ - (float) m5i20.<board>.dac-<channel>-gain -- Sets the DAC gain 
+ - (scaling).
+
+ - (bit) m5i20.<board>.dac-<channel>-interlaced -- Sets the DAC to 
+   interlaced mode. Use this mode if you are filtering the PWM to 
+   generate an anaolg voltage.With normal 10 bit PWM, 50% duty 
+   cycle would be 512 cycles on and 512 cycles off = ca 30 kHz 
+   with 33 MHz reference counter. With fully interleaved PWM this 
+   would be 1 cycle on, 1 cycle off for 1024 cycles (16.66 MHz if 
+   the PWM reference counter runs at 33 MHz) = much easier to 
+   filter. The 5I20 configuration interlace is somewhat between 
+   non and fully interlaced (to make it easy to filter but not 
+   have as many transistions as fully interleaved).
+
+ - (bit) m5i20.<board>.out-<channel>-invert -- Inverts a digital 
+   output, see canonical digital output.
+
+ - (u32) m5i20.<board>.watchdog-control -- Configures the 
+   watchdog. The value may be a bitwise OR of the following 
+   values:
+
+[width="90%", options="header", cols="1,1,5"]
+|========================================
+| Bit #  | Value  | Meaning 
+|   0    |   1    | Watchdog is enabled
+|   1    |   2    | Watchdog is automatically reset by DAC writes (the HAL dac-write function) 
+|========================================
+
+Typically, the useful values are 0 (watchdog disabled) or 3 
+(watchdog enabled, cleared by dac-write).
+
+ - (u32) m5i20.<board>.led-view -- Maps some of the I/O to onboard 
+   LEDs. See table below.
+
+== Functions
+
+ - (funct) m5i20.<board>.encoder-read -- Reads all encoder 
+   counters.
+
+ - (funct) m5i20.<board>.digital-in-read -- Reads digital inputs.
+
+ - (funct) m5i20.<board>.dac-write -- Writes the voltages (PWM 
+   duty cycles) to the "DACs".
+
+ - (funct) m5i20.<board>.digital-out-write -- Writes digital 
+   outputs.
+
+ - (funct) m5i20.<board>.misc-update -- Writes watchdog timer 
+   configuration to hardware. Resets watchdog timer. Updates 
+   E-stop pin (more info needed). Updates onboard LEDs. 
+
+== Connector pinout
+
+The Hostmot-4 FPGA configuration has the following pinout. There 
+are three 50-pin ribbon cable connectors on the card: P2, P3, and 
+P4. There are also 8 status LEDs.
+
+=== Connector P2
+
+
+[width="90%", options="header"]
+|========================================
+| m5i20 Connector P2  |    Function/HAL-pin     
+|         1           |     enc-01 A input      
+|         3           |     enc-01 B input      
+|         5           |     enc-00 A input      
+|         7           |     enc-00 B input      
+|         9           |   enc-01 index input    
+|         11          |   enc-00 index input    
+|         13          |      dac-01 output      
+|         15          |      dac-00 output      
+|         17          |  DIR output for dac-01  
+|         19          |  DIR output for dac-00  
+|         21          |  dac-01-enable output   
+|         23          |  dac-00-enable output   
+|         25          |     enc-03 B input      
+|         27          |     enc-03 A input      
+|         29          |     enc-02 B input      
+|         31          |     enc-02 A input      
+|         33          |   enc-03 index input    
+|         35          |   enc-02 index input    
+|         37          |      dac-03 output      
+|         39          |      dac-02 output      
+|         41          |  DIR output for dac-03  
+|         43          |  DIR output for dac-02  
+|         45          |  dac-03-enable output   
+|         47          |  dac-02-enable output   
+|         49          | Power +5 V (or +3.3V ?) 
+|   all even pins     |         Ground          
+|========================================
+
+
+=== Connector P3
+
+Encoder counters 4 - 7 work simultaneously with in-00 to in-11. 
+
+If you are using in-00 to in-11 as general purpose IO then 
+reading enc-<4-7> will produce some random junk number.
+
+
+[width="90%", options="header"]
+|========================================
+| m5i20 Connector P3  |    Function/HAL-pin      | Secondary Function/HAL-pin 
+|         1           |          in-00           |       enc-04 A input       
+|         3           |          in-01           |       enc-04 B input       
+|         5           |          in-02           |     enc-04 index input     
+|         7           |          in-03           |       enc-05 A input       
+|         9           |          in-04           |       enc-05 B input       
+|         11          |          in-05           |     enc-05 index input     
+|         13          |          in-06           |       enc-06 A input       
+|         15          |          in-07           |       enc-06 B input       
+|         17          |          in-08           |     enc-06 index input     
+|         19          |          in-09           |       enc-07 A input       
+|         21          |          in-10           |       enc-07 B input       
+|         23          |          in-11           |     enc-07 index input     
+|         25          |          in-12           |                            
+|         27          |          in-13           |                            
+|         29          |          in-14           |                            
+|         31          |          in-15           |                            
+|         33          |         out-00           |                            
+|         35          |         out-01           |                            
+|         37          |         out-02           |                            
+|         39          |         out-03           |                            
+|         41          |         out-04           |                            
+|         43          |         out-05           |                            
+|         45          |         out-06           |                            
+|         47          |         out-07           |                            
+|         49          | Power +5 V (or +3.3V ?)  |                            
+|   all even pins     |         Ground           |                            
+|========================================
+
+
+=== Connector P4
+
+The index mask masks the index input of the encoder so that the 
+encoder index can be combined with a mechanical switch or opto 
+detector to clear or latch the encoder counter only when the mask 
+input bit is in proper state (selected by mask polarity bit) and 
+encoder index occurs. This is useful for homing. The behaviour of 
+these pins is controlled by the Counter Control Register (CCR), 
+however there is currently no function in the driver to change 
+the CCR. See REGMAP4emc2/src/hal/drivers/m5i20/REGMAP4E for a 
+description of the CCR.
+
+[width="90%", options="header"]
+|========================================
+| m5i20 Connector P4  |    Function/HAL-pin      | Secondary Function/HAL-pin 
+|         1           |          in-16           |     enc-00 index mask      
+|         3           |          in-17           |     enc-01 index mask      
+|         5           |          in-18           |     enc-02 index mask      
+|         7           |          in-19           |     enc-03 index mask      
+|         9           |          in-20           |                            
+|         11          |          in-21           |                            
+|         13          |          in-22           |                            
+|         15          |          in-23           |                            
+|         17          |          in-24           |     enc-04 index mask      
+|         19          |          in-25           |     enc-05 index mask      
+|         21          |          in-26           |     enc-06 index mask      
+|         23          |          in-27           |     enc-07 index mask      
+|         25          |          in-28           |                            
+|         27          |          in-29           |                            
+|         29          |          in-30           |                            
+|         31          |          in-31           |                            
+|         33          |         out-08           |                            
+|         35          |         out-09           |                            
+|         37          |         out-10           |                            
+|         39          |         out-11           |                            
+|         41          |         out-12           |                            
+|         43          |         out-13           |                            
+|         45          |         out-14           |                            
+|         47          |         out-15           |                            
+|         49          | Power +5 V (or +3.3V ?)  |                            
+|   all even pins     |         Ground           |                            
+|========================================
+
+
+=== LEDs
+
+The status LEDs will monitor one motion channel set by the 
+m5i20.<board>.led-view parameter. A call to 
+m5i20.<board>.misc-update is required to update the viewed 
+channel.
+
+
+[width="90%", options="header"]
+|========================================
+| LED name  |        Output        
+|   LED0    |      IRQLatch ?      
+|   LED1    |  enc-00 index mask   
+|   LED2    |  enc-00 index mask   
+|   LED3    | enc-<channel> index  
+|   LED4    |  dac-<channel> DIR   
+|   LED5    |    dac-<channel>     
+|   LED6    | dac-<channel>-enable 
+|   LED7    |  watchdog timeout ?  
+|========================================
+
+

@@ -1,20 +1,23 @@
-{toc}{chapter}{Cover}{V2.5 Developers Handbook}{The EMC Team}
+Developers Handbook
+===================
+The EMC Team
+V2.5
 
-. 
-image::common/emc2-intro[]
+:masterdir: {indir}
+
+image::common/emc2-intro.*[]
 
 
-{0.75in}This handbook is a work in progress. If you are able to
+This handbook is a work in progress. If you are able to
 help with writing, editing, or graphic preparation please contact
 any member of the writing team or join and send an email to
 emc-users@lists.sourceforge.net.
 
-{0.5in}
 
     Copyright (c) 2000-7 LinuxCNC.org
 
 
-{0.5in}{\\normalsize}{-1\\parskip}Permission is granted to copy,
+Permission is granted to copy,
 distribute and/or modify this document under the terms of the GNU
 Free Documentation License, Version 1.1 or any later version
 published by the Free Software Foundation; with no Invariant
@@ -27,5 +30,32 @@ Documentation License. If you do not find the license you may
 order a copy from Free Software Foundation, Inc. 59 Temple Place,
 Suite 330 Boston, MA 02111-1307
 
-{EMC2 Code Notes}{code/Code\_Notes}{NML Messages}{code/NML\_Messages}{Coding Style Guide}{code/Style\_Guide}{Glossary}{common/Glossary}{Legal Section}{common/GPLD\_Copyright.tex}
+= EMC2 Code Notes
+
+:leveloffset: 1
+
+include::code/Code_Notes.txt[]
+
+:leveloffset: 0
+= NML Messages
+:leveloffset: 1
+
+include::code/NML_Messages.txt[]
+
+:leveloffset: 0
+= Coding Style Guide
+:leveloffset: 1
+
+include::code/Style_Guide.txt[]
+
+
+:leveloffset: 0
+include::common/Glossary.txt[]
+
+= Legal Section
+:leveloffset: 1
+
+include::common/GPLD_Copyright.txt[]
+
+
 

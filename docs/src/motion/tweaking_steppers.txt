@@ -109,67 +109,45 @@ Different brands of stepper drives have different timing requirements
 on their step and direction inputs. So you need to dig out (or Google
 for) the data sheet that has your drive's specs.
 
-[quote]
-________________________________________
 For example, the Gecko G202 manual says this:
+[verse]
+________________________________________
 
 
 Step Frequency: 0 to 200 kHz 
-
-
 Step Pulse “0” Time: 0.5 uS min (Step on falling edge) 
-
-
 Step Pulse “1” Time: 4.5 uS min 
-
-
 Direction Setup: 1 uS min (20 uS min hold time after Step edge)
 
+________________________________________
 
  
 
 
 The Gecko G203V specifications are:
 
+[verse]
+________________________________________
 
 Step Frequency: 0 to 333 kHz 
-
-
 Step Pulse “0” Time: 2.0 uS min (Step on rising edge) 
-
-
 Step Pulse “1” Time: 1.0 uS min 
 
-
 Direction Setup: 
-[quote]
-________________________________________
-200 nS (0.2uS) before step pulse rising edge 
-+
-+
-200 nS (0.2uS) hold after step pulse rising edge
-________________________________________
-+
+    200 nS (0.2uS) before step pulse rising edge 
+    200 nS (0.2uS) hold after step pulse rising edge
 ________________________________________
 
 
 A Xylotex drive datasheet has a nice drawing of the timing
 requirements, which are:
 
-[quote]
+[verse]
 ________________________________________
 Minimum DIR setup time before rising edge of STEP Pulse 200nS Minimum 
-
-
 DIR hold time after rising edge of STEP pulse 200nS 
-
-
 Minimum STEP pulse high time 2.0uS 
-
-
 Minimum STEP pulse low time 1.0uS 
-
-
 Step happens on rising edge
 ________________________________________
 

@@ -39,8 +39,7 @@ http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
 
 [width="90%", options="header"]
 |========================================
- |Axis | Drive Type | Step Time ns | Step Space ns | Direction Hold ns
-| Direction Setup ns
+|Axis | Drive Type | Step Time ns | Step Space ns | Direction Hold ns | Direction Setup ns
 |X |  |  |  |  | 
 |Y |  |  |  |  | 
 |Z |  |  |  |  | 
@@ -53,8 +52,7 @@ PC parallel port.
 
 [width="90%", options="header"]
 |========================================
- |Output Pin | Typical Function | If Different | Input Pin | Typical
-Function | If Different
+|Output Pin | Typical Function | If Different | Input Pin | Typical Function | If Different
 |1 | E-Stop Out |  | 10 | Both Limit & Home X | 
 |2 | X Step |  | 11 | Both Limit & Home Y | 
 |3 | X Direction |  | 12 | Both Limit & Home Z | 

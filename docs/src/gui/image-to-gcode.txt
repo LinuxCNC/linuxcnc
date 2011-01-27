@@ -84,6 +84,8 @@ The feed rate for other parts of the path
 
 === Spindle Speed (RPM)
 
+.
+
 === Scan Pattern
 
 Possible scan patterns are:

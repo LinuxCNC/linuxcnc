@@ -98,7 +98,7 @@ motor_pos_fb.
 
 image::emc2-motion-joint-controller-block-diag.png[]
 
- .[[fig:motion-joint-controller-block-diag]]Joint Controller Block
+.[[fig:motion-joint-controller-block-diag]]Joint Controller Block
 Diagram
 
 Figure  <<fig:motion-joint-controller-block-diag>> shows five of the
@@ -783,11 +783,19 @@ clarify it.
 
 == Backlash and Screw Error Compensation
 
+.
+
 = Task controller (EMCTASK)
+
+.
 
 = IO controller (EMCIO)
 
+.
+
 = User Interfaces
+
+.
 
 = libnml
 

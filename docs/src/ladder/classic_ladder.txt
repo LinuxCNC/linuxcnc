@@ -980,7 +980,7 @@ window pops up and the Section Display shows a grid. The grid is one
 rung of ladder. The rung can contain branches. A simple rung has one
 input, a connector line and one output.
 
-.Section Display with Grid[[cap:Section-Display-with]]
+.Section Display with Grid[[cap:Section-Display-with-Grid]]
 
 image::images/Section_Display_Grid.png[]
 
@@ -993,7 +993,7 @@ image::images/Editor_N.O.Input.png[]
 Now click in the upper left grid to place the N.O. Input into the
 ladder.
 
-.Section Display with Input[[cap:Section-Display-with]]
+.Section Display with Input[[cap:Section-Display-with-Input]]
 
 image::images/Section_Display_Build01.png[]
 
@@ -1001,7 +1001,7 @@ Repeat the above steps to add a N.O. Output to the upper right grid
 and use the Horizontal Connection to connect the two. It should look
 like the following. If not use the Eraser to remove unwanted sections.
 
-.Section Display with Rung[[cap:Section-Display-with]]
+.Section Display with Rung[[cap:Section-Display-with-Rung]]
 
 image::images/Section_Display_Build02.png[]
 
