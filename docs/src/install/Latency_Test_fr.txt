@@ -1,0 +1,154 @@
+= Test de latence
+
+Ce test est le premier test à effectuer sur un PC pour savoir si
+celui-ci est capable de piloter une machine CNC.
+
+Le temps de latence est le temps nécessaire au PC pour arrêter ce
+qu'il est en train de faire pour répondre à une requête externe.
+Dans notre cas, la requête est l'horloge qui sert de référence pour
+les impulsions de pas. Plus la latence est basse, plus l'horloge
+pourra être rapide et donc, plus rapides et plus douces seront les
+impulsions de pas.
+
+Le temps de latence est beaucoup plus important que la vitesse du
+P. Un vieux Pentium III qui répond aux interruptions avec 10
+microsecondes entre chacune peut donner de meilleurs résultats
+qu'un rapide P4 en Hyperthreading.
+
+Le CPU n'est pas le seul facteur déterminant le temps de latence.
+Les cartes mères, les cartes vidéo, les ports USB et de nombreuses
+autres choses peuvent détériorer le temps de latence.
+
+Faire générer les impulsions de pas au logiciel présente un grand
+avantage, c'est gratuit. Quasiment chaque PC dispose d'un port
+parallèle capable de sortir sur ses broches les signaux de pas
+générés par le logiciel. Cependant, les générateurs d'impulsions
+logiciels ont aussi quelques inconvénients:
+
+
+ - Leur fréquence maximum est limitée
+
+ - Les trains d'impulsions générés sont irréguliers
+
+ - Ils chargent le processeur
+
+
+La seule façon de savoir ce qu'il en est sur votre PC est de lancer
+un test de latence de HAL. Pour exécuter ce test, il suffit
+d'ouvrir une console et de taper: {\\textbf{latency-test}}. Vous
+devriez voir quelque chose comme ceci:
+
+. 
+image::images/latency.png[]
+
+
+Pendant que le test est en cours d'exécution, il faut øg abuser
+de l'ordinateur. Déplacez les fenêtres sur l'écran. Connectez
+vous à l'Internet. Copiez quelques gros fichiers sur le disque dur.
+Jouer de la musique. Lancez une démo OpenGL telle que
+{\\textbf{glxgears}}. L'idée est de charger le PC au maximum pour
+que le temps de latence soit mesuré dans le pire des cas.
+{\\textbf{Ne pas exécuter
+EMC2 ou Stepconf pendant que latency-test est en cours d'exécution.}}Le
+chiffre {\\textbf{max jitter}}dans cet exemple est de 17894
+nanosecondes, soit 17.9 microsecondes. Enregistrer ce chiffre et
+entrez le dans Stepconf quand il le demande.
+
+Dans cet exemple de test de latence il n'a fallu que quelques
+secondes pour afficher cette valeur. Vous devrez peut être lancer
+le test pendant plusieurs minutes. Parfois même, dans le pire des
+cas, rien ne provoque de latence ou seulement des actions
+particulières. Par exemple, une carte mère Intel marchait très bien
+la plupart du temps, mais toutes les 64 secondes elle avait une
+très mauvaise latence de 300s. Heureusement, il existe un
+correctif (voir Fixing Dapper SMI Issues
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues)
+
+Alors, que signifient les résultats ? Si le résultat de votre Max
+Jitter est en dessous d'environ 15-20 microsecondes (15000-20000
+nanosecondes), l'ordinateur pourra donner d'excellents résultats
+avec la génération logicielle des pas. Si le temps de latence est à
+plus de 30-50 microsecondes, vous aurez de bons résultats, mais la
+vitesse maximum sera un peu décevante, spécialement si vous
+utilisez des micropas ou si le pas de votre vis est fin. Si les
+résultats sont de 100uS ou plus (100,000 nanosecondes), alors le PC
+n'est pas un bon candidat à la génération des pas. Les résultats
+supérieurs à 1 milliseconde (1,000,000 nanosecondes) éliminent,
+dans tous les cas, ce PC pour faire tourner EMC, en utilisant des
+micropas ou pas.
+
+Notez que si vous obtenez une latence élevée, il peut être possible
+de l'améliorer. Un PC avait une très mauvaise latence (plusieurs
+millisecondes) en utilisant la carte graphique interne. Un carte
+graphique Matrox d'occasion à $5US a résolu le problème. EMC
+n'exige pas de matériel de pointe.
+
+== Adresses des ports
+
+Pour ceux qui construisent leur matériel, il est facile et
+économique d'augmenter le nombre d'entrées sorties d'un PC en lui
+ajoutant une carte PCI fournissant un ou deux ports parallèles
+supplémentaires. Faire suivre ces ports d'une couche
+d'opto-isolation est utile pour éviter les courts circuits pouvant
+détruire la carte, voir même toute la carte mère. EMC2 supporte un
+maximum de 8 ports parallèles.
+
+Certaines parmis les bonnes cartes parallèles sont à base de
+chipset Netmos. Elles fournissent un signal +5V bien propre, elles
+sont fournies avec un ou deux ports parallèles.
+
+Pour trouver les adresses d'entrées/sorties de ces cartes, ouvrir
+une console et utiliser la commande en ligne:
+
+    lspci -v
+
+
+Rechercher ensuite dans la liste de matériel fournie, le nom du
+chipset de la nouvelle carte, dans cette exemple c'est l'entrée
+NetMos Technologypour une carte à deux ports:
+
+0000:01:0a.0 Communication controller: Netmos Technology PCI 9815
+Multi-I/O Controller (rev 01)
+
+    Subsystem: LSI Losgic / Symbios Logic 2POS (2 port parallel
+    adapter)
+
+    Flags: medium devsel, IRQ 5
+    I/O ports at b800 {[}size=8{]}
+    I/O ports at bc00 {[}size=8{]}
+    I/O ports at c000 {[}size=8{]}
+    I/O ports at c400 {[}size=8{]}
+    I/O ports at c800 {[}size=8{]}
+    I/O ports at cc00 {[}size=16{]}
+
+
+Après expérimentation, il se trouve que le premier port (incorporé
+à la carte) utilise la troisième adresse de la liste (c000) et le
+deuxième port (racccordé par un ruban) utilise la première adresse
+(b800).
+
+Il est alors possible d'ouvrir dans l'éditeur le fichier .hal de la
+machine et d'insérer l'adresse trouvée à l'endroit approprié.
+
+    loadrt hal\_parport cfg=0x378 0xc000
+
+
+Noter la présence des guillemets () encadrant les deux adresses,
+ils sont obligatoires dès qu'il y a plus d'une carte.
+
+Il est nécessaire également d'ajouter les fonctions de lecture
+(read) et d'écriture (write) pour la nouvelle carte. Par
+exemple,
+
+    addf parport.1.read base-thread 1
+
+    addf parport.1.write base-thread -1
+
+
+Noter que les valeurs peuvent être différentes de celles de cet
+exemple. Les cartes Netmos sont Plug-N-Play, elles peuvent donc
+changer leur adressage selon le connecteur PCI dans lequel elles
+sont placées. Si vous modifiez l'installation des cartes PCI de
+votre machine, n'oubliez pas de vérifier leurs adresses avant de
+lancer EMC.
+

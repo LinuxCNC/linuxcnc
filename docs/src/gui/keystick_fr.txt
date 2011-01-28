@@ -1,0 +1,30 @@
+= L'interface KEYSTICK (((KEYSTICK)))
+
+== Introduction
+
+image::images/keystick.png[]
+
+.[[fig:startkeystick]]L'interface utilisateur minimale
+
+Keystick est une interface minimaliste textuelle.
+
+== Installation
+
+Pour utiliser «keystick» modifier la section DISPLAY du fichier ini de
+la manière suivante:
+
+[DISPLAY]
+
+DISPLAY = keystick
+
+== Utilisation
+
+Keystick est extrêmement simple à utiliser. Dans le mode MDI vous
+pouvez directement taper le G-code et il sera visible dans la partie
+supérieur. La touche «?» bascule avec ou sans aide.
+
+footnote:[ndt: keystick a été conçu pour être minimaliste, par
+conséquent son
+interface n'est pas traductible.
+]
+

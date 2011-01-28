@@ -1,0 +1,140 @@
+= Les composants de HAL
+
+== Composants de commandes et composants de l'espace utilisateur
+
+Certaines de ces descriptions sont plus approfondies dans leurs pages
+man. Certaines auront juste une description limitée. Chaque composant a
+sa page man. A partir de cette liste vous connaîtrez quels composants
+existent avec le nom et le N° de leur page man permettant d'avoir plus
+de détails. Par exemple dans une fenêtre de terminal tapez `man 1 axis
+`pour accéder aux informations de cette page man.
+
+ - = Interface de télécommande d'AXIS
+ -  = AXIS EMC (The Enhanced Machine Controller) Interface Graphique
+   Utilisateur
+ -  = Pour charger un programme «Xilinx Bitfile» dans le FPGA de n'importe
+   quelle carte d'entrées/sorties de Mesa
+ - = Créer, compiler et installer des composants de EMC HAL
+ - = EMC (The Enhanced Machine Controller)
+ -  = Contrôler des pins d'entrée de HAL avec n'importe quel matériel y
+   compris les matériels USB HID
+ - = Manipuler HAL depuis la ligne de commandes
+ - = Observer les pins de HAL, ses signaux et ses paramètres
+ - = Manipuler HAL depuis la ligne de commandes
+ - = Echantillonner des données temps réel depuis HAL
+ - = Créer un flux de données temps réel dans HAL depuis un fichier
+ - = Observer des pins de HAL et commander EMC au travers d'NML
+ -  = Commandes NML I/O acceptées et interactions avec HAL dans l'espace
+   utilisateur
+ -  = Commandes NML I/O acceptées et interactions avec HAL dans l'espace
+   utilisateur
+ - = Virtual Control Panel (Panneau de Contrôle Virtuel) pour EMC2
+
+== Composants temps réel et modules du noyau
+
+Certaines de ces descriptions sont plus approfondies dans leur man
+page. Certaines auront juste une description limitée. Chaque composant
+a sa man page. A partir de cette liste vous connaîtrez quels composants
+existent avec le nom et le N° de leur man page permettant d'avoir plus
+de détails.
+
+ - = Calcule la valeur absolue et le signe d'un signal d'entrée
+ - = Porte AND (ET) à deux entrées
+ - = Contrôleur Proportionelle/Intégrale/dérivée avec réglage automatique
+ -  = Commandes de mouvement NML acceptées, intéractions en temps réel
+   avec HAL
+ - = Filtre biquad IIR
+ - = Provoque une interpolation linéaire entre deux valeurs
+ - = Old style HAL blocks (deprecated)
+ -  = Crée un signal carré destiné à l'entrée «pompe de charge» de
+   certaines cartes de contrôle
+ - = Transformation de Clarke, version à deux entrées
+ - = Transformation de Clarke (3 triphasé/cartésien)
+ - = Transformation de Clarke inverse
+ - = Automate temps réel programmable en logique Ladder
+ - = Comparateur à deux entrées avec hystérésis
+ - = Utilise un paramètre pour positionner une pin
+ - = Converti une valeur de bit vers s32
+ - = Converti une valeur de bit vers u32
+ - = Converti la valeur d'un flottant vers s32
+ - = Converti la valeur d'un flottant vers u32
+ - = Converti une valeur de s32 en bit
+ - = Converti une valeur de u32 en bit
+ - = Converti une valeur de s32 en u32
+ - = Converti une valeur de u32 en bit
+ - = Converti une valeur de u32 en flottant
+ - = Converti une valeur de u32 en s32
+ - = counts input pulses (deprecated)
+ - = Calcule la dérivée de la fonction d'entrée
+ - = Retourne le centre si il est dans le seuil
+ - = Filtre une entrée digitale bruitée
+ - = Détecteur de front
+ - = Comptage logiciel des signaux en quadrature d'un codeur
+ - = Un engrenage électronique pour synchroniser deux axes
+ - = Verrou d'Arrêt d'Ugence
+ - = Bascule D
+ - = Générateur logiciel d'impulsions de pas
+ - = Définition de cinématique pour emc2
+ - = Calculateur d'hypoténuse à trois entrées (distance Euclidienne)
+ - = Intégrateur
+ - = Définition de cinématique pour emc2
+ -  = Convertisseur de comptage (probablement d'un codeur) vers une valeur
+   en virgule flottante
+ - = Limite le signal de sortie pour qu'il soit entre min et max
+ - = Limite le signal de sortie pour qu'il soit entre min et max
+ - = Limite le signal de sortie pour qu'il soit entre min et max
+ - = 
+ - = Filtre passe-bas
+ - = Cinq fonctions logiques arbitraires basée sur une table de recherche
+ -  = RTAI driver for the Mesa 7i43 EPP Anything IO board with HostMot2
+   firmware
+ - = Calcule la majorité parmis 3 entrées
+ - = Détecteur de coïncidence binaire sur 8 bits
+ - = Suiveur de valeur minimum et maximum de l'entrée vers les sorties
+ -  = Commandes de mouvement NML acceptées, intéractions en temps réel
+   avec HAL
+ - = Le produit de deux entrées
+ - = Sélection d'une valeur d'entrée sur deux
+ - = Sélection d'une valeur d'entrée sur quatre
+ - = Inverseur
+ -  = Additionne un offset à une entrée et la soustrait à la valeur de
+   retour
+ - = Générateur d'impulsion monostable
+ - = Porte OR (OU) à deux entrées
+ -  = Contrôleur Proportionelle/Intégrale/dérivée, pour plus de détails
+   voir (???)
+ -  = Pilote matériel et microprogramme pour le «Pluto-P parallel-port
+   FPGA», utilisation avec servomoteurs
+ -  = Pilote matériel et microprogramme pour le «Pluto-P parallel-port
+   FPGA», utilisation avec moteurs pas à pas
+ - = Générateur logiciel de PWM/PDM, pour plus de détails voir (???)
+ - = Définition de cinématique pour emc2
+ - = Echantillonneur bloqueur
+ - = Echantillonneur de données de HAL en temps réel
+ - = 
+ - = Détecteur de coïncidence binaire sur 8 bits
+ -  = Pilote matériel pour les circuits d'entrées/sorties digitales de
+   port série 8250 et 16550
+ - = Générateur de signal <<sec:Siggen>>
+ - = Simulation d'un codeur en quadrature, pour plus de détails voir (???)
+ - = Générateur d'impulsions de pas logiciel <<sec:Stepgen>>
+ -  = Utilisé par Stepconf pour permettre de tester les valeurs
+   d'accélération et de vitesse d'un axe
+ - = Flux temps réel depuis un fichier vers HAL
+ - = La somme de deux entrées (chacune avec un gain) et l'écart
+ - = set output pins with values from parameters (deprecated)
+ - = Créer des threads temps réel de HAL
+ - = 
+ - = 
+ - = Bouton à bascule NO/NF
+ - = Définition de cinématique pour emc2
+ -  = Place un signal sur une pin d'I/O seulement quand elle est validée,
+   similaire à un tampon trois états en électronique
+ -  = Place un signal sur une pin d'I/O seulement quand elle est validée,
+   similaire à un tampon trois états en électronique
+ - = Définition de cinématique pour emc2
+ - = Compteur/décompteur avec limites optionnelles et wraparound behavior
+ - = Comparateur à fenêtre
+ - = Convertir un groupe de bits en un entier
+ - = Porte XOR (OU exclusif) à deux entrées
+

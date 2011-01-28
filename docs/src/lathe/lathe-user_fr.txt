@@ -1,0 +1,97 @@
+= Spécificités des tours
+
+Ce chapitre va regrouper les informations spécifiques aux tours, il
+est en cours de rédaction.
+
+== EMC configuré pour un tour
+
+En plus d'utiliser une configuration propre à un tour il est
+préférable d'utiliser également un fichier d'outils de sorte que AXIS
+affiche correctement la forme de l'outil. La section sur les fichiers
+INI du manuel de l'intégrateur indique comment configurer AXIS pour un
+tour.
+
+== Fichier d'outils
+
+Les outils de tour différent de ceux d'une fraiseuse par l'ajout des
+angles FRONTANGLE (angle avant), BACKANGLE (angle arrière) et ORIENT
+(orientation). La table suivante montre le format d'un fichier d'outils
+pour tour.
+
+.Fichier d'outils pour tour
+
+[width="90%", options="header"]
+|========================================
+ |Pocket | FMS | ZOFFSET | XOFFSET | DIA | FRONTANGLE | BACKANGLE |
+ORIENT | COMMENT
+|1 | 1 | 0.000 | 0.000 | 0.10 | 105.0 | 165.0 | 1 | 60 deg
+|2 | 2 | 0.000 | 0.000 | 0.05 | 22.5 | 67.5 | 2 | 45 deg
+|3 | 3 | 0.000 | 0.000 | 0.10 | 277.5 | 352.5 | 3 | 75 deg
+|4 | 4 | 0.000 | 0.000 | 0.10 | 255.0 | 195.0 | 4 | 60 deg
+|5 | 5 | 0.000 | 0.000 | 0.10 | 202.5 | 157.5 | 5 | 45 deg
+|6 | 6 | 0.000 | 0.000 | 0.10 | 90 | 45 | 6 | 45 deg
+|7 | 7 | 0.000 | 0.000 | 0.10 | -22.5 | 22.5 | 7 | 45 deg
+|8 | 8 | 0.000 | 0.000 | 0.10 | 247.5 | 292.5 | 8 | 45 deg
+|9 | 9 | 0.000 | 0.000 | 0.10 | 0 | 0 | 9 | 
+| |  |  |  |  |  |  |  | 
+|========================================
+
+Les valeurs du fichier d'outils peuvent être ajustées en utilisant G10
+L1, à l'exception de FRONTANGLE, BACKANGLE et COMMENT qui doivent être,
+actuellement, renseignés manuellement.
+
+La figure suivante indique les différentes positions conventionnelles
+ainsi que l'angle de l'axe de l'outil et les informations concernant le
+FRONTANGLE et le BACKANGLE.
+
+.Orientations des outils de tour
+
+image::images/tool_positions.png[]
+
+La figure suivante montre comment sont représentées par AXIS les
+positions d'outil du fichier précédent.
+
+.Tool Positions 1, 2, 3 & 4
+
+
+image::images/tool_pos_1.png[]image::images/tool_pos_2.png[]image::images/tool_pos_3.png[]image::images/tool_pos_4.png[]
+
+.Tool Position 2
+
+
+image::images/tool_pos_5.png[]image::images/tool_pos_6.png[]image::images/tool_pos_7.png[]image::images/tool_pos_8.png[]
+
+== Tangenter et corriger l'outil
+
+Quand AXIS est utilisé sur un tour, il est possible de corriger
+l'outil sur les deux axes X et Z. Les corrections sont alors
+introduites dans la table d'outils en utilisant le bouton «Toucher» et
+sa fenêtre de dialogue.
+
+Voici une séquence typique:
+
+ . Prise d'origine de chacun des axes.
+ .  Déclarer l'outil avec «Tn M6» dans lequel "n" est le numéro de l'outil
+   courant.
+ . Sélectionner l'axe X dans la fenêtre de l'onglet «Contrôle manuel» (F3).
+ .  Déplacer l'axe X sur une position connue ou prendre une passe de test
+   et mesurer le diamètre obtenu.
+ .  Cliquer le bouton «Toucher» et choisir l'option «T Table d'outils», ce
+   qui entrera la correction dans la table.
+ . Recommencer la même séquence pour corriger l'axe Z.
+
+Note: Si l'opérateur travaille en mode rayon (G8), la correction
+introduite dans le fichier d'outils portera sur le rayon, par contre,
+elle sera relative au diamètre si le mode diamètre (G7) et utilisé.
+
+== Filetage
+
+Sur un tour, le filetage nécessite un signal de retour entre la broche
+et EMC2. Généralement, c'est un codeur de position qui fourni ce
+retour. Le manuel de l'intégrateur donne d'avantage d'informations sur
+le codeur de broche.
+
+Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage
+intérieur qu'en filetage extérieur, voir G76
+<<sub:G76:-Filetage-preprogramme>> dans la section G-code.
+

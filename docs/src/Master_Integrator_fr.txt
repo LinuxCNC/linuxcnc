@@ -1,0 +1,138 @@
+Manuel de l'intégrateur V2.3
+============================
+The EMC Team
+
+:masterdir: {indir}
+
+. 
+image::common/emc2-intro.*[]
+
+
+This handbook is a work in progress. If you are able to
+help with writing, editing, or graphic preparation please contact
+any member of the writing team or join and send an email to
+emc-users@lists.sourceforge.net.
+
+
+    Copyright (c) 2000-9 LinuxCNC.org
+
+
+Permission is granted to copy,
+distribute and/or modify this document under the terms of the GNU
+Free Documentation License, Version 1.1 or any later version
+published by the Free Software Foundation; with no Invariant
+Sections, no Front-Cover Texts, and one Back-Cover Text: This EMC
+Handbook is the product of several authors writing for
+linuxCNC.org. As you find it to be of value in your work, we invite
+you to contribute to its revision and growth.A copy of the
+license is included in the section entitled GNU Free
+Documentation License. If you do not find the license you may
+order a copy from Free Software Foundation, Inc. 59 Temple Place,
+Suite 330 Boston, MA 02111-1307
+
+= Table des matières
+.
+
+= Installation d'EMC2
+:leveloffset: 1
+
+include::install/installing_emc2.txt[]
+
+include::install/compiling_emc2.txt[]
+
+:leveloffset: 0
+= Configuration d'EMC2
+:leveloffset: 1
+
+include::install/Latency_Test.txt[]
+
+include::config/ini_config.txt[]
+
+include::config/ini_homing.txt[]
+
+include::config/lathe_config.txt[]
+
+include::config/emc2hal.txt[]
+
+:leveloffset: 0
+= Spécificités de HAL
+:leveloffset: 1
+
+include::hal/basic_hal.txt[]
+
+include::hal/halshow.txt[]
+
+include::config/stepper.txt[]
+
+include::hal/components.txt[]
+
+include::hal/hal-examples.txt[]
+
+include::hal/rtcomps.txt[]
+
+include::hal/drivers.txt[]
+
+include::gui/halui.txt[]
+
+include::hal/pyvcp.txt[]
+
+include::hal/pyvcp_examples.txt[]
+
+:leveloffset: 0
+= Notions de cinématique
+:leveloffset: 1
+
+include::motion/kinematics.txt[]
+
+:leveloffset: 0
+= Les réglages
+:leveloffset: 1
+
+include::motion/tweaking_steppers.txt[]
+
+include::motion/pid_theory.txt[]
+
+:leveloffset: 0
+= La logique Ladder
+:leveloffset: 1
+
+include::ladder/ladder_intro.txt[]
+
+include::ladder/classic_ladder.txt[]
+
+include::ladder/ladder_examples.txt[]
+
+:leveloffset: 0
+= Exemples d'utilisation
+:leveloffset: 1
+
+include::examples/pci_parallel_port.txt[]
+
+include::examples/spindle.txt[]
+
+include::examples/mpg.txt[]
+
+:leveloffset: 0
+= Diagnostic
+:leveloffset: 1
+
+include::common/Stepper_Diagnostics.txt[]
+
+:leveloffset: 0
+= Petite FAQ Linux
+:leveloffset: 1
+
+include::common/Linux_FAQ.txt[]
+
+:leveloffset: 0
+= Annexes 
+:leveloffset: 1
+
+include::common/Glossary.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+:leveloffset: 0
+= Index de l'ouvrage
+:leveloffset: 1
+

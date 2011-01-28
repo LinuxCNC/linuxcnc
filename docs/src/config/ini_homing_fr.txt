@@ -1,0 +1,156 @@
+=  [[sec:Prises-d-origine]]Prise d'origine
+
+== Vue d'ensemble
+
+La prise d'origine semble assez simple, il suffit de déplacer chaque
+axe à un emplacement connu et de positionner l'ensemble des variables
+internes d'EMC en conséquence. Toutefois, les machines sont différentes
+les unes des autres et la prise d'origine est maintenant devenue assez
+complexe.
+
+=== Séquence de prise d'origine
+
+La figure  <<fig: Sequences de prise d-origine>> montre les quatre
+séquences de prise d'origine possibles, avec les variables de
+configuration associées  <<cap:Variables sequences de POM>>. Une
+description détaillée de ces paramètres sera faite au chapitre suivant.
+
+<<fig: Sequences de prise d-origine>>
+image::emc2-motion-homing-diag.eps[]
+
+[[fig: Sequences de prise d-origine]] Les séquences de POM possibles
+
+=== Configuration
+
+Il y a six combinaisons possibles des variables qui définissent le
+déroulement de la séquence de prise d'origine. EIles sont définies dans
+la section [AXIS] du fichier ini.
+
+[width="90%", options="header"]
+|========================================
+|SEARCH_VEL | LATCH_VEL | USE_INDEX | Type de séquence
+|nonzero | nonzero | NO | Switch-seulement
+|nonzero | nonzero | YES | Switch + Index
+|0 | nonzero | YES | Index-seulement
+|0 | 0 | NO | Aucun
+|Autres combinaisons |  |  | Erreur
+|========================================
+
+.[[cap:Variables sequences de POM]] Combinaisons des variables de la POM
+
+==== HOME_SEARCH_VEL = 0 (((HOME SEARCH VEL)))
+
+Vitesse de la phase initiale de prise d'origine, c'est la recherche du
+contact d'origine machine. Une valeur différente de zéro indique à EMC
+la présence d'un contact d'origine machine. EMC va alors commencer par
+vérifier si ce contact est déjà pressé. Si oui, il le dégagera à la
+vitesse établie par “HOME_SEARCH_VEL”, la direction du dégagement sera
+de signe opposé à celui de “HOME_SEARCH_VEL”. Puis, il va revenir vers
+le contact en se déplaçant dans la direction spécifiée par le signe de
+“HOME_SEARCH_VEL” et à la vitesse déterminée par sa valeur absolue.
+Quand le contact d'origine machine est détecté, le mobile s'arrête
+aussi vite que possible, il y aura cependant toujours un certain
+dépassement dépendant de la vitesse. Si celle-ci est trop élevée, le
+mobile peut dépasser suffisamment le contact pour aller attaquer un fin
+de course de limite d'axe, voir même aller se crasher dans une butée
+mécanique. À l'opposé, si “HOME_SEARCH_VEL” est trop basse, la prise
+d'origine peut durer très longtemps.
+
+Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine
+machine, dans ce cas, les phases de recherche de ce contact seront
+occultées. La valeur par défaut est zéro.
+
+==== HOME_LATCH_VEL = 0 (((HOME LATCH VEL)))
+
+Spécifie la vitesse et la direction utilisée par le mobile pendant la
+dernière phase de la prise d'origine, c'est la recherche précise du
+contact d'origine machine, si il existe et de l'emplacement de
+l'impulsion d'index, si elle est présente. Cette vitesse est plus lente
+que celle de la phase initiale, afin d'améliorer la précision. Si
+“HOME_SEARCH_VEL” et “HOME_LATCH_VEL” sont de mêmes signes, la phase de
+recherche précise s'effectuera dans le même sens que la phase de
+recherche initiale. Dans ce cas, le mobile dégagera d'abord le contact
+en sens inverse avant de revenir vers lui à la vitesse définie ici.
+L'acquisition de la position d'origine se fera sur la première
+impulsion de changement d'état du contact. Si “HOME_SEARCH_VEL” et
+“HOME_LATCH_VEL” sont de signes opposés, la phase de recherche précise
+s'effectuera dans le sens opposé à celui de la recherche initiale. Dans
+ce cas, EMC dégagera le contact à la vitesse définie ici. L'acquisition
+de la position d'origine se fera sur la première impulsion de
+changement d'état du contact lors de son dégagement. Si
+“HOME_SEARCH_VEL” est à zéro, signifiant qu'il n'y a pas de contact et
+que “HOME_LATCH_VEL” et différente de zéro, le mobile continuera
+jusqu'à la prochaine impulsion d'index. Si “HOME_SEARCH_VEL” est
+différent de zéro et que “HOME_LATCH_VEL” est égal à zéro, c'est une
+cause d'erreur, l'opération de prise d'origine échouera. La valeur par
+défaut est zéro.
+
+==== HOME_IGNORE_LIMITS = YES/NO (((HOME IGNORE LIMITS)))
+
+Peut contenir les valeurs YES ou NO. Cette variable détermine si EMC
+doit ignorer les fins de course de limites d'axe. Certaines machines
+n'utilisent pas un contact d'origine séparé, à la place, elles
+utilisent un des interrupteurs de fin de course comme contact
+d'origine. Dans ce cas, EMC doit ignorer l'activation de cette limite
+de course pendant la séquence de prise d'origine. La valeur par défaut
+de ce paramètre est NO.
+
+==== HOME_USE_INDEX = YES/NO (((HOME USE INDEX)))
+
+Spécifie si une impulsion d'index doit être prise en compte (cas de
+règles de mesure ou de codeurs de positions). Si cette variable est
+vraie (HOME_USE_INDEX = YES), EMC fera l'acquisition de l'origine
+machine sur le premier front de l'impulsion d'index. Si elle est fausse
+(=NO), EMC fera l'acquisition de l'origine sur le premier front produit
+par le contact d'origine (dépendra des signes de “HOME_SEARCH_VEL” et
+“HOME_LATCH_VEL”). La valeur par défaut est NO.
+
+==== HOME_OFFSET (((HOME OFFSET)))
+
+Contient l'emplacement du point d'origine ou de l'impulsion d'index,
+en coordonnées relatives. Il peut aussi être traité comme le décalage
+entre le point d'origine machine et le zéro de l'axe. A la détection de
+l'impulsion d'origine, EMC ajuste les coordonnées de l'axe à la valeur
+de “HOME_OFFSET”. La valeur par défaut est zéro.
+
+==== HOME (((HOME)))
+
+C'est la position sur laquelle ira le mobile à la fin de la séquence
+de prise d'origine. Après avoir détecté le contact d'origine, avoir
+ajusté les coordonnées de ce point à la valeur de “HOME_OFFSET”, le
+mobile va se déplacer sur la valeur de “HOME, c'est le point final de
+la séquence de prise d'origine. La valeur par défaut est zéro. Notez
+que même si ce paramètre est égal à la valeur de “HOME_OFFSET”, le
+mobile dépassera très légérement la position du point d'aquisition de
+l'origine machine avant de s'arrêter. Donc il y aura toujours un petit
+mouvement à ce moment là (sauf bien sûr si “HOME_SEARCH_VEL” est à
+zéro, et que toute la séquence de POM a été sautée). Ce mouvement final
+s'effectue en vitesse de déplacement rapide. Puisque l'axe est
+maintenant référencé, il n'y a plus de risque pour la machine, un
+mouvement rapide est donc la façon la plus rapide de finir la séquence
+de prise d'origine.footnote:[La distinction entre l'origine machine et
+le décalage d'origine n'est
+pas aussi claire que je le voudrais. J'envisage de faire un petit
+dessin et un exemple pour la clarifier.
+]
+
+==== HOME_IS_SHARED (((HOME IS SHARED)))
+
+Si cet axe n'a pas un contact d'origine séparé des autres, mais
+plusieurs contacts câblés sur la même broche, mettez cette valeur à 1
+pour éviter de commencer la prise d'origine si un de ces contacts
+partagés est déjà activé. Mettez cette valeur à 0 pour permettre la
+prise d'origine même si un contact est déjà attaqué.
+
+==== HOME_SEQUENCE (((HOME SEQUENCE)))
+
+Utilisé pour définir l'ordre des séquences “HOME ALL” de prise
+d'origine des différents axes (exemple: la POM de l'axe X ne pourra se
+faire qu'après celle de Z). La POM d'un axe ne pourra se faire qu'après
+tous les autres en ayant la valeur la plus petite de “HOME_SEQUENCE” et
+après qu'ils soient déjà tous à “HOME_OFFSET”. Si deux axes ont la même
+valeur de “HOME_SEQUENCE”, leur POM s'effectueront simultanément. Si
+“HOME_SEQUENCE” est égale à -1 ou non spécifiée, l'axe ne sera pas
+compris dans la séquence “HOME ALL”. Les valeurs de “HOME_SEQUENCE”
+débutent à 0, il ne peut pas y avoir de valeur inutilisée.
+
