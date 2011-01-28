@@ -26,9 +26,9 @@ links_db.py: $(patsubst %,%.db,$(SMALL))
 	asciidoc -o- -b docbook $< | xsltproc links.xslt - > $@
 
 %.html: %.txt
-	asciidoc -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $<
+	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $<
 
 $(patsubst %,%.html,$(LARGE)) :: %.html: %.txt
-	a2x -L -d book -vf xhtml $<
+	a2x --stylesheet=linuxcnc.css -L -d book -vf xhtml $<
 
 .PHONY: all docs htmldocs pdfdocs docclean clean
