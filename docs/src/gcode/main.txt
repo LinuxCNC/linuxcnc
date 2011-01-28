@@ -97,7 +97,7 @@ It is an error if:
 |Code | Description | Section
 |G0 | Coordinated Straight Motion Rapid | <<sec:G0:-Rapid-Linear>>
 |G1 | Coordinated Straight Motion Feed Rate | <<sec:G1:-Linear-Motion>>
-|G2, G3 | Coordinated Helical Motion Feed Rate | xref:sub:G2,-G3:-Arc[]
+|G2, G3 | Coordinated Helical Motion Feed Rate | <<"sub:G2,-G3:-Arc">>
 |G4 | Dwell | <<sec:G4:-Dwell>>
 |G5.2, G5.3 | NURBs Block | <<sec:G5.2-G5.3-NURBs>>
 |G7, G8 | Diameter or Radius Mode | <<sec:G7-Diameter-Mode>>
@@ -105,51 +105,51 @@ It is an error if:
 |G10 L10 | Set Tool Table Entry Calculated | <<sec:G10-L10>>
 |G10 L2 | Coordinate System Origin Setting | <<sub:G10:-Set-Coordinate>>
 |G10 L20 | Coordinate System Origin Setting Calculated | <<sec:G10-L20>>
-|G17 - G19.1 | Plane Select | xref:sub:G17,-G18,-G19:[]
-|G20, G21 | Units of Measure | xref:sec:G20,-G21:-Length[]
-|G28 - G30.1 | Go to Predefined Position | xref:sub:G28,-G30:-Return[]
+|G17 - G19.1 | Plane Select | <<"sub:G17,-G18,-G19:">>
+|G20, G21 | Units of Measure | <<"sec:G20,-G21:-Length">>
+|G28 - G30.1 | Go to Predefined Position | <<"sub:G28,-G30:-Return">>
  |G33 | Spindle Synchronized Motion |
-xref:sec:G33,-G33.1:-Spindle-Synchronized[]
-|G33.1 | Rigid Tapping | xref:sec:G33,-G33.1:-Spindle-Synchronized[]
+<<"sec:G33,-G33.1:-Spindle-Synchronized">>
+|G33.1 | Rigid Tapping | <<"sec:G33,-G33.1:-Spindle-Synchronized">>
 |G38.2 - G38.5 | Probing | <<sub:G38.2:-Straight-Probe>>
 |G40 | Cancel Cutter Compensation | <<sec:G40>>
-|G41, G42 | Cutter Compensation | xref:sec:G41,-G42[]
-|G41.1, G42.1 | Cutter Compensation Transient | xref:sec:G41.1,-G42.1[]
+|G41, G42 | Cutter Compensation | <<"sec:G41,-G42">>
+|G41.1, G42.1 | Cutter Compensation Transient | <<"sec:G41.1,-G42.1">>
  |G43, G43.1 | Use Tool Length Offset from Tool Table |
-xref:sub:G43,-G49:-Tool[]
-|G49 | Cancel Tool Length Offset | xref:sub:G43,-G49:-Tool[]
+<<"sub:G43,-G49:-Tool">>
+|G49 | Cancel Tool Length Offset | <<"sub:G43,-G49:-Tool">>
 |G53 | Motion in Machine Coordinate System | <<sub:G53:-Move-in>>
 |G54-G59 | Select Coordinate System | <<sub:G54-to-G59.3:>>
 |G59.1-G59.3 | Select Coordinate System | <<sub:G54-to-G59.3:>>
-|G61, G61.1 | Path Control Mode | xref:sub:G61,-G61.1,-G64:[]
+|G61, G61.1 | Path Control Mode | <<"sub:G61,-G61.1,-G64:">>
  |G64 | Path Control Mode with Optional Tolerance |
-xref:sub:G61,-G61.1,-G64:[]
+<<"sub:G61,-G61.1,-G64:">>
 |G73 | Drilling Cycle with Chip Breaking | <<sub:G73:-Drilling-Cycle>>
 |G76 | Multipass Threading Cycle (Lathe) | <<sec:G76:-Threading-Canned>>
 |G80 | Cancel Motion Modes | <<sec:G80:-Cancel-Modal>>
 |G81 | Canned Drilling Cycle | <<sub:G81-to-G89:>>
 |G82-G89 | Other Canned Cycles | <<sub:G82:-Drilling-Cycle>>
-|G90, G91 | Distance Mode | xref:sub:G90,-G91:-Set[]
-|G90.1, G91.1 | Arc Distance Mode | xref:sec:G90.1,-G91.1[]
+|G90, G91 | Distance Mode | <<"sub:G90,-G91:-Set">>
+|G90.1, G91.1 | Arc Distance Mode | <<"sec:G90.1,-G91.1">>
  |G92 | Offset Coordinate Systems & Set Parameters |
-xref:sub:G92,-G92.1,-G92.2,[]
-|G92.1, G92.2 | Cancel Offsets | xref:sub:G92,-G92.1,-G92.2,[]
+<<"sub:G92,-G92.1,-G92.2,">>
+|G92.1, G92.2 | Cancel Offsets | <<"sub:G92,-G92.1,-G92.2,">>
  |G92.3 | Apply Parameters to Offset Coordinate Systems |
-xref:sub:G92,-G92.1,-G92.2,[]
-|G93, G94, G95 | Feed Modes | xref:sub:G93,-G94:-Set[]
-|G96 | Constant Surface Speed | xref:sec:G96,-G97:-Spindle[]
-|G97 | RPM Mode | xref:sec:G96,-G97:-Spindle[]
-|G98, G99 | Canned Cycle Z Retract Mode | xref:sub:G98,-G99:-Set[]
+<<"sub:G92,-G92.1,-G92.2,">>
+|G93, G94, G95 | Feed Modes | <<"sub:G93,-G94:-Set">>
+|G96 | Constant Surface Speed | <<"sec:G96,-G97:-Spindle">>
+|G97 | RPM Mode | <<"sec:G96,-G97:-Spindle">>
+|G98, G99 | Canned Cycle Z Retract Mode | <<"sub:G98,-G99:-Set">>
 |========================================
 
 [width="90%", options="header"]
 |========================================
 |Code | Description | Section
-|M0, M1, M2 | Program Control | xref:sub:M0,-M1,-M2,[]
-|M3, M4, M5 | Spindle Control | xref:sub:M3,-M4,-M5:[]
+|M0, M1, M2 | Program Control | <<"sub:M0,-M1,-M2,">>
+|M3, M4, M5 | Spindle Control | <<"sub:M3,-M4,-M5:">>
 |M6 | Tool Change | <<sub:M6:-Tool-Change>>
-|M7, M8, M9 | Coolant Control | xref:sub:M7,-M8,-M9:[]
-|M30, M60 | Pallet Shuttle | xref:sub:M0,-M1,-M2,[]
+|M7, M8, M9 | Coolant Control | <<"sub:M7,-M8,-M9:">>
+|M30, M60 | Pallet Shuttle | <<"sub:M0,-M1,-M2,">>
 |M48 - M53 | Override Controls | <<sec:Overrides>>
 |M61 | Set Current Tool Number | <<sec:M66-Input-Control>>
 |M62-65 | Output Control | <<sec:M62-to-M65>>
@@ -208,7 +208,7 @@ It is an error if:
 
  - No feed rate has been set.
 
-== G2, G3 Arc (((G2, G3 Arc)))[[sub:G2,-G3:-Arc]]
+== G2, G3 Arc (((G2, G3 Arc)))[["sub:G2,-G3:-Arc"]]
 
 A circular or helical arc is specified using either `G2` (clockwise
 arc) or `G3`  (counterclockwise arc). The direction (CW, CCW) is as
@@ -591,7 +591,7 @@ It is an error if:
  - The P number does not evaluate to an integer in the range 0 to 9.
  - An axis is programmed that is not defined in the configuration.
 
-== G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection (((G17, G18, G19 Plane Selection)))[[sub:G17,-G18,-G19:]]
+== G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection (((G17, G18, G19 Plane Selection)))[["sub:G17,-G18,-G19:"]]
 
 These codes set the current plane as follows:
 
@@ -606,9 +606,9 @@ These codes set the current plane as follows:
 |========================================
 
 The effects of having a plane selected are discussed in Section 
-xref:sub:G2,-G3:-Arc[] and Section  <<sub:G81-to-G89:>>
+<<"sub:G2,-G3:-Arc">> and Section  <<sub:G81-to-G89:>>
 
-== G20, G21 Length Units (((G20, G21 Length Units)))[[sec:G20,-G21:-Length]]
+== G20, G21 Length Units (((G20, G21 Length Units)))[["sec:G20,-G21:-Length"]]
 
 Program G20 to use inches for length units.
 
@@ -618,7 +618,7 @@ It is usually a good idea to program either G20 or G21 near the
 beginning of a program before any motion occurs, and not to use either
 one anywhere else in the program.
 
-== G28, G28.1 Go to Predefined Position (((G28, G28.1)))[[sub:G28,-G30:-Return]]
+== G28, G28.1 Go to Predefined Position (((G28, G28.1)))[["sub:G28,-G30:-Return"]]
 
 G28 uses the values in parameters 5161-5166 as the absolute values to
 make a rapid traverse move to from the current position. The parameter
@@ -636,7 +636,7 @@ It is an error if :
 
  - Radius compensation is turned on
 
-== G30, G30.1 Go to Predefined Position (((G30, G30.1)))[[sec:G30,-G30.1]]
+== G30, G30.1 Go to Predefined Position (((G30, G30.1)))[["sec:G30,-G30.1"]]
 
 G30 uses the values in parameters 5181-5186 as the absolute values to
 make a rapid traverse move to from the current position. The parameter
@@ -657,7 +657,7 @@ It is an error if :
 
  - Radius compensation is turned on
 
-== G33 Spindle-Synchronized Motion  (((G33, G33.1 Spindle-Synchronized Motion)))[[sec:G33,-G33.1:-Spindle-Synchronized]]
+== G33 Spindle-Synchronized Motion  (((G33, G33.1 Spindle-Synchronized Motion)))[["sec:G33,-G33.1:-Spindle-Synchronized"]]
 
     G33 X- Y- Z- K-
 
@@ -783,7 +783,7 @@ It is an error if:
 
  - A G2/3 arc move is programmed next after a G40.
 
-== G41, G42 Cutter Radius Compensation (((G40, G41, G41.1, G42, G42.1 Cutter Compensation)))[[sec:G41,-G42]]
+== G41, G42 Cutter Radius Compensation (((G40, G41, G41.1, G42, G42.1 Cutter Compensation)))[["sec:G41,-G42"]]
 
     G41 or G42 D[tool]
 
@@ -828,7 +828,7 @@ It is an error if:
  -  or cutter radius compensation is commanded to turn on when it is
    already on.
 
-== G41.1, G42.1 Dynamic Cutter Radius Compensation (((Dynamic Cutter Radius Compensation)))[[sec:G41.1,-G42.1]]
+== G41.1, G42.1 Dynamic Cutter Radius Compensation (((Dynamic Cutter Radius Compensation)))[["sec:G41.1,-G42.1"]]
 
     G41.1 or G42.1 D[diameter] <L[orientation]>
 
@@ -847,7 +847,7 @@ It is an error if:
  - the L number is not in the range from 0 to 9 inclusive.
  - or cutter compensation is commanded to turn on when it is already on
 
-== G43, G43.1, G49 Tool Length Offsets (((G43, G43.1, G49 Tool Length Offsets)))[[sub:G43,-G49:-Tool]]
+== G43, G43.1, G49 Tool Length Offsets (((G43, G43.1, G49 Tool Length Offsets)))[["sub:G43,-G49:-Tool"]]
 
 === G43 [[sub:G43]], G43.1: Activate Tool length compensation
 
@@ -940,7 +940,7 @@ It is an error if:
 See Section  <<cha:Coordinate-System>> for an overview of coordinate
 systems.
 
-== G61, G61.1, G64 Set Path Control Mode (((G61, G61.1, G64 Path Control)))[[sub:G61,-G61.1,-G64:]]
+== G61, G61.1, G64 Set Path Control Mode (((G61, G61.1, G64 Path Control)))[["sub:G61,-G61.1,-G64:"]]
 
     G61 Exact Path Mode
 
@@ -1192,7 +1192,7 @@ The height of the retract move at the end of each repeat (called
 the retract mode: either to the original Z position (if that is above
 the R position and the retract mode is `G98` , OLD_Z), or otherwise to
 the R position. See Section 
-xref:sub:G98,-G99:-Set[]
+<<"sub:G98,-G99:-Set">>
 
 === Canned Cycle Errors
 
@@ -1337,9 +1337,9 @@ It is an error if:
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined. See section
-xref:sec:G33,-G33.1:-Spindle-Synchronized[]
+<<"sec:G33,-G33.1:-Spindle-Synchronized">>
 
-== G85 Boring, No Dwell, Feed Out (((G85 Boring, No Dwell, Feed Out)))[[sub:G85:-Boring,-No]]
+== G85 Boring, No Dwell, Feed Out (((G85 Boring, No Dwell, Feed Out)))[["sub:G85:-Boring,-No"]]
 
     
 
@@ -1351,7 +1351,7 @@ drilling or milling.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Retract the Z-axis at the current feed rate to clear Z. 
 
-== G86 Boring, Spindle Stop, Rapid Out (((G86 Boring, Spindle Stop, Rapid Out)))[[sub:G86:-Boring,-Spindle]]
+== G86 Boring, Spindle Stop, Rapid Out (((G86 Boring, Spindle Stop, Rapid Out)))[["sub:G86:-Boring,-Spindle"]]
 
     
 
@@ -1376,12 +1376,12 @@ if:
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined.
 
-== G88 Boring, Spindle Stop, Manual Out (((G88 Boring, Spindle Stop, Manual Out)))[[sub:G88:-Boring,-Spindle]]
+== G88 Boring, Spindle Stop, Manual Out (((G88 Boring, Spindle Stop, Manual Out)))[["sub:G88:-Boring,-Spindle"]]
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined.
 
-== G89 Boring, Dwell, Feed Out (((G89 Boring, Dwell, Feed Out)))[[sub:G89:-Boring,-Dwell,]]
+== G89 Boring, Dwell, Feed Out (((G89 Boring, Dwell, Feed Out)))[["sub:G89:-Boring,-Dwell,"]]
 
     
 
@@ -1394,7 +1394,7 @@ specifies the number of seconds to dwell.
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 
 
-== G90, G91 Set Distance Mode (((G90, G91 Set Distance Mode)))[[sub:G90,-G91:-Set]]
+== G90, G91 Set Distance Mode (((G90, G91 Set Distance Mode)))[["sub:G90,-G91:-Set"]]
 
     G90 is Absolute Distance Mode
 
@@ -1413,7 +1413,7 @@ To go into incremental distance mode, program `G91` . In incremental
 distance mode, axis numbers usually represent
 increments from the current coordinate.
 
-== G90.1, G91.1 Arc Distance Mode (((Arc Distance Mode)))[[sec:G90.1,-G91.1]]
+== G90.1, G91.1 Arc Distance Mode (((Arc Distance Mode)))[["sec:G90.1,-G91.1"]]
 
 G90.1 Absolute Distance Mode for I, J & K offsets.
 
@@ -1423,7 +1423,7 @@ G91.1 Incremental Distance Mode for I, J & K offsets.
 
  - Returns I, J & K to their normal behavior.
 
-== G92, G92.1, G92.2, G92.3 Coordinate System Offsets (((G92, G92.1, G92.2, G92.3 Offsets)))[[sub:G92,-G92.1,-G92.2,]]
+== G92, G92.1, G92.2, G92.3 Coordinate System Offsets (((G92, G92.1, G92.2, G92.3 Offsets)))[["sub:G92,-G92.1,-G92.2,"]]
 
     G92 X- Y- Z- A- B- C- U- V- W-
 
@@ -1479,7 +1479,7 @@ EMC2 stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a G92.1 (to erase them), or
 program a G92.2 (to remove them - they are still stored).
 
-== G93, G94, G95: Set Feed Rate Mode (((G93, G94, G95: Feed Rate Mode)))[[sub:G93,-G94:-Set]]
+== G93, G94, G95: Set Feed Rate Mode (((G93, G94, G95: Feed Rate Mode)))[["sub:G93,-G94:-Set"]]
 
     G93 is Inverse Time Mode
 
@@ -1518,7 +1518,7 @@ It is an error if:
    (explicitly or implicitly) does not have an F word.
  - A new feed rate is not specified after switching to G94 or G95
 
-== G96, G97 Spindle Control Mode (((G96, G97 Spindle Control Mode)))[[sec:G96,-G97:-Spindle]]
+== G96, G97 Spindle Control Mode (((G96, G97 Spindle Control Mode)))[["sec:G96,-G97:-Spindle"]]
 
      G96 D[max spindle speed] S[units per minute] is Constant Surface Speed
     Mode
@@ -1541,7 +1541,7 @@ It is an error if:
  - S is not specified with G96
  - A feed move is specified in G96 mode while the spindle is not turning
 
-== G98, G99 Set Canned Cycle Return Level (((G98, G99 Canned Cycle Return)))[[sub:G98,-G99:-Set]]
+== G98, G99 Set Canned Cycle Return Level (((G98, G99 Canned Cycle Return)))[["sub:G98,-G99:-Set"]]
 
 When the spindle retracts during canned cycles, there is a choice of
 how far it retracts: (1) retract perpendicular to the selected plane to
@@ -1556,7 +1556,7 @@ mode and incremental distance mode.
 
 = M Codes
 
-== M0, M1, M2, M30, M60 Program Stopping and Ending (((M0, M1, M2, M30, M60 Program Pause/End)))[[sub:M0,-M1,-M2,]]
+== M0, M1, M2, M30, M60 Program Stopping and Ending (((M0, M1, M2, M30, M60 Program Pause/End)))[["sub:M0,-M1,-M2,"]]
 
 To pause a running program temporarily (regardless of the setting of
 the optional stop switch), program M0. EMC2 remains in the Auto Mode so
@@ -1598,7 +1598,7 @@ No more lines of code in an RS274/NGC file will be executed after the
 M2 or M30 command is executed. Pressing cycle start will start the
 program back at the beginning of the file.
 
-== M3, M4, M5 Spindle Control (((M3, M4, M5 Spindle Control)))[[sub:M3,-M4,-M5:]]
+== M3, M4, M5 Spindle Control (((M3, M4, M5 Spindle Control)))[["sub:M3,-M4,-M5:"]]
 
 To start the spindle turning clockwise at the currently programmed
 speed, program `M3`.
@@ -1652,7 +1652,7 @@ is no tool in the selected slot; in that case, the spindle will be
 empty after the tool change. If slot zero was last selected, there will
 definitely be no tool in the spindle after a tool change.
 
-== M7, M8, M9 Coolant Control (((M7, M8, M9 Coolant Control)))[[sub:M7,-M8,-M9:]]
+== M7, M8, M9 Coolant Control (((M7, M8, M9 Coolant Control)))[["sub:M7,-M8,-M9:"]]
 
 To turn mist coolant on, program `M7`.
 
@@ -1665,7 +1665,7 @@ coolant is on or off.
 
 == Overrides [[sec:Overrides]]
 
-=== M48, M49 Override Control (((M48, M49 Override Control)))[[sub:M48,-M49:-Override]]
+=== M48, M49 Override Control (((M48, M49 Override Control)))[["sub:M48,-M49:-Override"]]
 
 To enable the spindle speed and feed rate override switches, program
 `M48`. To disable both switches, program `M49` . See Section 
@@ -2025,7 +2025,7 @@ To set the feed rate, program `F<n>`  where "n" is a number. The
 application of the feed rate is as
 described in Section  <<sub:Feed-Rate>>, unless inverse time feed rate
 mode is in effect, in which case the feed rate is as described in
-Section  xref:sub:G93,-G94:-Set[].
+Section  <<"sub:G93,-G94:-Set">>.
 
 == S: Set Spindle Speed (((S: Set Spindle Speed)))[[sub:S:-Set-Spindle]]
 

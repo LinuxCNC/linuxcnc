@@ -151,7 +151,7 @@ The rate at which the controlled point or the axes move is nominally a
 steady rate which may be set by the user. In the Interpreter, the
 interpretation of the feed rate is as follows unless “inverse time
 feed” or “feed per revolution” modes are being used (see Section 
-xref:sub:G93,-G94:-Set[]).
+<<"sub:G93,-G94:-Set">>).
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
    cartesian system, and all other axes (UVWABC) move so as to start and
@@ -166,7 +166,7 @@ xref:sub:G93,-G94:-Set[]).
 
 Flood coolant and mist coolant may each be turned on independently.
 The RS274/NGC language turns them off together (see Section 
-xref:sub:M7,-M8,-M9:[]).
+<<"sub:M7,-M8,-M9:">>).
 
 === Dwell (((dwell)))
 
@@ -224,7 +224,7 @@ The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
 both switches and one command that disables both (see Section 
-xref:sub:M48,-M49:-Override[]). See Section  <<sub:Feed-Interaction>>
+<<"sub:M48,-M49:-Override">>). See Section  <<sub:Feed-Interaction>>
 for further details.
 
 === Path Control Mode (((path control mode)))[[sub:Path-Control-Mode]]
@@ -237,7 +237,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Section  xref:sub:G61,-G61.1,-G64:[].
+Section  <<"sub:G61,-G61.1,-G64:">>.
 
 == Interpreter Interaction with Switches
 

@@ -59,6 +59,7 @@ def inline_label(e):
     l = e.attrib['id']
     if auto_href_re.match(l):
         return ''
+    if ',' in l: l = '"' + l + '"'
     return '[[' + l + ']]'
 
 def inline_index(e):
@@ -67,7 +68,7 @@ def inline_index(e):
 def inline_ref(e):
     target = e.attrib['target']
     if ',' in target:
-        return ' xref:' + target + '[]'
+        return ' <<"' + target + '">>'
     else:
         return ' <<' + target + '>>'
 
