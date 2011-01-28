@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 # vim: sts=4 sw=4 et
 
 import os,sys,re
@@ -59,6 +60,7 @@ def inline_label(e):
     l = e.attrib['id']
     if auto_href_re.match(l):
         return ''
+    l = l.encode('ascii', 'ignore').replace("'", "-")
     if ',' in l: l = '"' + l + '"'
     return '[[' + l + ']]'
 
@@ -67,6 +69,7 @@ def inline_index(e):
 
 def inline_ref(e):
     target = e.attrib['target']
+    target = target.encode('ascii', 'ignore').replace("'", "-")
     if ',' in target:
         return ' <<"' + target + '">>'
     else:
@@ -77,6 +80,16 @@ def inline_formula(e):
 
 def inline_htmlurl(e):
     return e.attrib['url'] + '[' + (e.text or '') + ']'
+
+def inline_quote(e):
+    quotes = {'fld': '«'.decode('utf-8'), 'frd': '»'.decode('utf-8')
+             ,'sld': '”'.decode('utf-8'), 'srd': '”'.decode('utf-8')
+             }
+    klass = e.attrib['class']
+    if klass in quotes:
+        return quotes[klass]
+    sys.stderr.write(">>> Unknown quotes class: %s\n" % klass)
+    return '"'
 
 def inline_font(e):
     a = dict(e.items())
@@ -124,6 +137,9 @@ def inline_deeper(e):
             ll[i] = '+' + l
     return '\n' + '\n'.join(ll)
 
+def inline_inset(e):
+    return "\n" + process_block(e) + "\n"
+
 def process_inline(e, text=True):
     if text:
         txt = e.text or ''
@@ -138,6 +154,8 @@ def process_inline(e, text=True):
             txt += inline_ref(c)
         elif c.tag == 'font':
             txt += inline_font(c)
+        elif c.tag == 'quote':
+            txt += inline_quote(c)
         elif c.tag == 'footnote':
             txt += inline_footnote(c)
         elif c.tag == 'float':
@@ -146,6 +164,8 @@ def process_inline(e, text=True):
             txt += inline_tabular(c)
         elif c.tag == 'graphics':
             txt += inline_graphics(c)
+        elif c.tag == 'inset':
+            txt += inline_inset(c)
         elif c.tag in ['color', 'size', 'shape']:
             txt += process_inline(c)
         elif c.tag in ['newline']:
@@ -156,7 +176,7 @@ def process_inline(e, text=True):
             txt += inline_formula(c)
         elif c.tag in ['htmlurl']:
             txt += inline_htmlurl(c)
-        elif c.tag in [ 'align', 'noindent', 'inset', 'pagebreak_bottom'
+        elif c.tag in [ 'align', 'noindent', 'pagebreak_bottom'
                       , 'ert', 'labelwidthstring', 'added_space_bottom'
                       , 'hfill', 'added_space_top', 'bar']:
             pass
