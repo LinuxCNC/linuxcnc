@@ -484,7 +484,7 @@ when you click on the editor button on the top menu.
 
 === Backplot (((backplot))) Display
 
-.Mini's Backplotter[[cap:Mini's-Backplotter]]
+.Minis Backplotter[[cap:Minis-Backplotter]]
 
 image::minibkplot.png[]
 

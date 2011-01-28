@@ -126,15 +126,15 @@ latexmath:[$BD^{2}=(Bx-x)^{2}+y^{2}$].
 
 If we subtract one from the other we will get:
 
-latexmath:[\[AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}\]]
+latexmath::[\[AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}\]]
 
 and therefore:
 
-latexmath:[\[x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]]
+latexmath::[\[x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]]
 
 From there we calculate:
 
-latexmath:[\[y=\sqrt{AD^{2}-x^{2}}\]]
+latexmath::[\[y=\sqrt{AD^{2}-x^{2}}\]]
 
 Note that the calculation for y involves the square root of a
 difference, which may not result in a real number. If there is no
@@ -160,9 +160,9 @@ Translated to actual code:
 The inverse kinematics is lots easier in our example, as we can write
 it directly:
 
-latexmath:[\[AD=\sqrt{x^{2}+y^{2}}\]]
+latexmath::[\[AD=\sqrt{x^{2}+y^{2}}\]]
 
-latexmath:[\[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
+latexmath::[\[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
 
 or translated to actual code:
 

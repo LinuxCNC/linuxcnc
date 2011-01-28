@@ -276,7 +276,7 @@ configured to add a Virtual Control Panel to customize the interface to
 suit your needs. AXIS is the default user interface and is actively
 being developed.
 
-image:images/axis_2.3.png[]
+image:images/axis_2_3.png[]
 
 == Updates to EMC2 (((Updates to EMC2)))
 

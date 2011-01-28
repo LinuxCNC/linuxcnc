@@ -181,8 +181,7 @@ controls as the table shows:
 |Control type | P | I | D
 |P | latexmath:[$.5K_{c}$] |  | 
 |PI | latexmath:[$.45K_{c}$] | latexmath:[$1.2/P_{c}$] | 
- |PID | latexmath:[$.6K_{c}$] | latexmath:[$2/P_{c}$] |
-latexmath:[$P\times P_{c}/8$]
+|PID | latexmath:[$.6K_{c}$] | latexmath:[$2/P_{c}$] | latexmath:[$P\times P_{c}/8$]
 |========================================
 
 ===== Final Steps

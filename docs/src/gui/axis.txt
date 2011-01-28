@@ -8,7 +8,7 @@ Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface.
 
 .AXIS Window[[cap:AXIS-Window]]
 
-image::images/axis_2.3.png[]
+image::images/axis_2_3.png[]
 
 == Getting Started
 
@@ -640,7 +640,8 @@ commands to a running AXIS. The available commands are shown by running
 (`---ping`), loading a file by name, reloading the currently loaded
 file (`---reload`), and making AXIS exit (`---quit`).
 
-== Manual Tool Change (((Manual Tool Change)))[[sec:Manual-Tool-Change]]
+== Manual Tool Change
+(((Manual Tool Change))) [[sec:Manual-Tool-Change]]
 
 EMC2 includes a userspace hal component called "hal_manualtoolchange",
 which shows a window (Figure  <<cap:The-Manual-Toolchange>>) when a

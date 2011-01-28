@@ -679,7 +679,7 @@ homing sequences, along with the associated configuration parameters.
 For a more detailed description of what each configuration parameter
 does, see the following section.
 
-image::emc2-motion-homing-diag.ps[]
+image::emc2-motion-homing-diag.eps[]
 
 .[[fig:motion-homing-sequence-diagram]]Homing Sequences
 

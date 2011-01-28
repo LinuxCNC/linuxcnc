@@ -988,7 +988,7 @@ Now click on the N.O. Input in the Editor Window.
 
 .Editor Window[[cap:Editor-Window]]
 
-image::images/Editor_N.O.Input.png[]
+image::images/Editor_N_O_Input.png[]
 
 Now click in the upper left grid to place the N.O. Input into the
 ladder.

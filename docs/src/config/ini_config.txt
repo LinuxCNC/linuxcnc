@@ -778,8 +778,7 @@ P ::
     multiplies the
     error between commanded and actual position in machine units, resulting
     in a contribution to the computed voltage for the motor amplifier. The
-    units on the P gain are volts per machine unit, e.g.,
-    latexmath:[$\frac{volt}{mu}$]. 
+    units on the P gain are volts per machine unit, e.g., latexmath:[$\frac{volt}{mu}$]. 
 
 I ::
      *= 0* (hal)  The integral gain for the axis servo. The value
@@ -809,8 +808,7 @@ FF1 ::
     multiplied by the
     change in commanded position per second, resulting in a contribution to
     the computed voltage for the motor amplifier. The units on the FF1 gain
-    are volts per machine unit per second, e.g.,
-    latexmath:[$\frac{volt}{mu\, s}$].
+    are volts per machine unit per second, e.g., latexmath:[$\frac{volt}{mu\, s}$].
 
 FF2 ::
      *= 0* (hal)  The 2nd order feed forward gain. This number is
@@ -834,15 +832,18 @@ OUTPUT_OFFSET = ::
      Specifically, when writing outputs, the EMC first converts the desired
     output in quasi-SI units to raw actuator values, e.g., volts for an
     amplifier DAC. This scaling looks like:
-    latexmath:[\[raw=\frac{{output-offset}}{scale}\]] The value for scale
+    +
+    latexmath:[$[raw=\frac{{output-offset}}{scale}\]$]
+    +
+    The value for scale
     can be obtained analytically by doing a unit analysis, i.e., units are
     [output SI units]/[actuator units]. For example, on a machine with a
     velocity mode amplifier such that 1 volt results in 250 mm/sec
     velocity,
-    
-    
-    latexmath:[\[amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec\,
-    volt}\]] Note that the units of the offset are in machine units, e.g.,
+    +
+    latexmath:[[amplifier[volts\]=(output[\frac{mm}{sec}\]-offset[\frac{mm}{sec}\])/250\frac{mm}{sec\, volt}\]]
+    +
+    Note that the units of the offset are in machine units, e.g.,
     mm/sec, and they are pre-subtracted from the sensor readings. The value
     for this offset is obtained by finding the value of your output which
     yields 0.0 for the actuator output. If the DAC is linearized, this
@@ -856,11 +857,11 @@ OUTPUT_OFFSET = ::
        <<cap:Output-Voltage-Measurements>> for an example of voltage
        measurements.
      .  Do a least-squares linear fit to get coefficients a, b such
-       thatlatexmath:[meas=a*raw+b]
+       that latexmath:[$meas=a*raw+b$]
      .  Note that we want raw output such that our measured result is
        identical to the commanded output. This means 
-        . latexmath:[cmd=a*raw+b]
-        . latexmath:[raw=(cmd-b)/a]
+        . latexmath:[$cmd=a*raw+b$]
+        . latexmath:[$raw=(cmd-b)/a$]
       .  As a result, the a and b coefficients from the linear fit can be
     used
        as the scale and offset for the controller directly. 
@@ -895,9 +896,11 @@ INPUT_SCALE::
     A second number, if specified, is ignored. +
      For example, on a 2000 counts per rev encoder(((encoder))), and 10
     revs/inch gearing, and desired units of inch, we
-    havelatexmath:[\begin{eqnarray*}input\_scale & = &
+    have
+    +
+    latexmath:[\begin{array}{ccc} input\_scale & = &
     2000\frac{counts}{rev}*10\frac{rev}{inch}\\ & = &
-    20000\frac{counts}{inch}\end{eqnarray*}]
+    20000\frac{counts}{inch}\end{array}]
 
 ==== Stepper [[sub:Stepper-related-items]]
 
@@ -914,9 +917,12 @@ SCALE::
     A second number, if specified, is ignored. +
      For example, on a 1.8 degree stepper motor with half-stepping, and 10
     revs/inch gearing, and desired machine units of inch, we
-    havelatexmath:[\begin{eqnarray*}input\_scale & = & \frac{{2\,
-    steps}}{1.8\, degree}*360\frac{{degree}}{rev}*10\frac{rev}{inch}\\ & =
-    & 4000\frac{steps}{inch}\end{eqnarray*}]Older stepper configuration
+    have
+    +
+    latexmath:[\begin{array}{cccc} input\_scale & = & \frac{{2\, steps}}{1.8\, degree}
+    *360\frac{{degree}}{rev}*10\frac{rev}{inch}\\ & = & 4000\frac{steps}{inch}\end{array}]
+    +
+    Older stepper configuration
     .ini and .hal used INPUT_SCALE for this value.
 
 STEPGEN_MAXACCEL ::
