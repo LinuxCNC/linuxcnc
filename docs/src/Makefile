@@ -11,7 +11,7 @@ A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  --asciidoc-opts "-f docbook.conf" \
-	   --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0"
+	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0"
 
 all:
 	$(MAKE) -C ../../src docs
@@ -35,7 +35,7 @@ links_db.py: $(patsubst %,%.db,$(SMALL))
 	./links_db_gen.py $^ > $@
 
 %.db: %.txt
-	asciidoc -o- -b docbook $< | xsltproc links.xslt - > $@
+	asciidoc -d book -o- -b docbook $< | xsltproc links.xslt - > $@
 
 %.html: %.txt
 	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $<
