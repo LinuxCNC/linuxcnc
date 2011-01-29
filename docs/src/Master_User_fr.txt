@@ -2,6 +2,7 @@ Manuel de l'utilisateur V2.3
 ============================
 The EMC Team
 
+:language: fr
 :masterdir: {indir}
 
 image::common/emc2-intro.*[]
@@ -28,10 +29,9 @@ Documentation License. If you do not find the license you may
 order a copy from Free Software Foundation, Inc. 59 Temple Place,
 Suite 330 Boston, MA 02111-1307
 
-= Table des matières
 :leveloffset: 1
 
-include::common/userforeword.txt[]
+include::common/userforeword_fr.txt[]
 
 :leveloffset: 0
 = Avant-propos
@@ -40,47 +40,47 @@ include::common/userforeword.txt[]
 = Les concepts
 :leveloffset: 1
 
-include::common/user_intro.txt[]
+include::common/user_intro_fr.txt[]
 
-include::common/User_Concepts.txt[]
+include::common/User_Concepts_fr.txt[]
 
 :leveloffset: 0
 = Les interfaces utilisateur
 :leveloffset: 1
 
-include::gui/axis.txt[]
+include::gui/axis_fr.txt[]
 
-include::gui/tkemc.txt[]
+include::gui/tkemc_fr.txt[]
 
-include::gui/mini.txt[]
+include::gui/mini_fr.txt[]
 
-include::gui/keystick.txt[]
+include::gui/keystick_fr.txt[]
 
 :leveloffset: 0
 = L'utilisation d'EMC2
 :leveloffset: 1
 
-include::gcode/main.txt[]
+include::gcode/main_fr.txt[]
 
-include::gcode/tool_compensation.txt[]
+include::gcode/tool_compensation_fr.txt[]
 
-include::gcode/coordinates.txt[]
+include::gcode/coordinates_fr.txt[]
 
-include::lathe/lathe-user.txt[]
+include::lathe/lathe-user_fr.txt[]
 
 :leveloffset: 0
 = Quelques exemples
 :leveloffset: 1
 
-include::examples/gcode.txt[]
+include::examples/gcode_fr.txt[]
 
-include::gui/image-to-gcode.txt[]
+include::gui/image-to-gcode_fr.txt[]
 
 :leveloffset: 0
 = Diagnostic
 :leveloffset: 1
 
-include::common/Stepper_Diagnostics.txt[]
+include::common/Stepper_Diagnostics_fr.txt[]
 
 :leveloffset: 0
 = Annexes

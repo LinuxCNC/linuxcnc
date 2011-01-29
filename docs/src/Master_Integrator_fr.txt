@@ -2,9 +2,9 @@ Manuel de l'intégrateur V2.3
 ============================
 The EMC Team
 
+:language: fr
 :masterdir: {indir}
 
-. 
 image::common/emc2-intro.*[]
 
 
@@ -30,99 +30,96 @@ Documentation License. If you do not find the license you may
 order a copy from Free Software Foundation, Inc. 59 Temple Place,
 Suite 330 Boston, MA 02111-1307
 
-= Table des matières
-.
-
 = Installation d'EMC2
 :leveloffset: 1
 
-include::install/installing_emc2.txt[]
+include::install/installing_emc2_fr.txt[]
 
-include::install/compiling_emc2.txt[]
+include::install/compiling_emc2_fr.txt[]
 
 :leveloffset: 0
 = Configuration d'EMC2
 :leveloffset: 1
 
-include::install/Latency_Test.txt[]
+include::install/Latency_Test_fr.txt[]
 
-include::config/ini_config.txt[]
+include::config/ini_config_fr.txt[]
 
-include::config/ini_homing.txt[]
+include::config/ini_homing_fr.txt[]
 
-include::config/lathe_config.txt[]
+include::config/lathe_config_fr.txt[]
 
-include::config/emc2hal.txt[]
+include::config/emc2hal_fr.txt[]
 
 :leveloffset: 0
 = Spécificités de HAL
 :leveloffset: 1
 
-include::hal/basic_hal.txt[]
+include::hal/basic_hal_fr.txt[]
 
-include::hal/halshow.txt[]
+include::hal/halshow_fr.txt[]
 
-include::config/stepper.txt[]
+include::config/stepper_fr.txt[]
 
-include::hal/components.txt[]
+include::hal/components_fr.txt[]
 
-include::hal/hal-examples.txt[]
+include::hal/hal-examples_fr.txt[]
 
-include::hal/rtcomps.txt[]
+include::hal/rtcomps_fr.txt[]
 
-include::hal/drivers.txt[]
+include::hal/drivers_fr.txt[]
 
-include::gui/halui.txt[]
+include::gui/halui_fr.txt[]
 
-include::hal/pyvcp.txt[]
+include::hal/pyvcp_fr.txt[]
 
-include::hal/pyvcp_examples.txt[]
+include::hal/pyvcp_examples_fr.txt[]
 
 :leveloffset: 0
 = Notions de cinématique
 :leveloffset: 1
 
-include::motion/kinematics.txt[]
+include::motion/kinematics_fr.txt[]
 
 :leveloffset: 0
 = Les réglages
 :leveloffset: 1
 
-include::motion/tweaking_steppers.txt[]
+include::motion/tweaking_steppers_fr.txt[]
 
-include::motion/pid_theory.txt[]
+include::motion/pid_theory_fr.txt[]
 
 :leveloffset: 0
 = La logique Ladder
 :leveloffset: 1
 
-include::ladder/ladder_intro.txt[]
+include::ladder/ladder_intro_fr.txt[]
 
-include::ladder/classic_ladder.txt[]
+include::ladder/classic_ladder_fr.txt[]
 
-include::ladder/ladder_examples.txt[]
+include::ladder/ladder_examples_fr.txt[]
 
 :leveloffset: 0
 = Exemples d'utilisation
 :leveloffset: 1
 
-include::examples/pci_parallel_port.txt[]
+include::examples/pci_parallel_port_fr.txt[]
 
-include::examples/spindle.txt[]
+include::examples/spindle_fr.txt[]
 
-include::examples/mpg.txt[]
+include::examples/mpg_fr.txt[]
 
 :leveloffset: 0
 = Diagnostic
 :leveloffset: 1
 
-include::common/Stepper_Diagnostics.txt[]
+include::common/Stepper_Diagnostics_fr.txt[]
 
 :leveloffset: 0
 = Petite FAQ Linux
 :leveloffset: 1
 
-include::common/Linux_FAQ.txt[]
+include::common/Linux_FAQ_fr.txt[]
 
 :leveloffset: 0
 = Annexes 

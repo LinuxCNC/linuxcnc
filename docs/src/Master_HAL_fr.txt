@@ -1,21 +1,23 @@
-{toc}{chapter}{Couverture}{Le manuel de HAL\\\\
-(Couche d'abstraction du matériel)}{The EMC Team}
+Le manuel de HAL (Couche d'abstraction du matériel)
+===================================================
+The EMC Team
 
-. 
-image::common/emc2-intro[]
+:language: fr
+:masterdir: {indir}
+
+image::common/emc2-intro.*[]
 
 
-{0.75in}This handbook is a work in progress. If you are able to
+This handbook is a work in progress. If you are able to
 help with writing, editing, or graphic preparation please contact
 any member of the writing team or join and send an email to
 emc-users@lists.sourceforge.net.
 
-{0.5in}
 
     Copyright (c) 2000-9 LinuxCNC.org
 
 
-{0.5in}{\\normalsize}{-1\\parskip}Permission is granted to copy,
+Permission is granted to copy,
 distribute and/or modify this document under the terms of the GNU
 Free Documentation License, Version 1.1 or any later version
 published by the Free Software Foundation; with no Invariant
@@ -28,5 +30,29 @@ Documentation License. If you do not find the license you may
 order a copy from Free Software Foundation, Inc. 59 Temple Place,
 Suite 330 Boston, MA 02111-1307
 
-{toc}{chapter}{Table des matières}{Introduction et tutoriels}{hal/intro\_fr}{hal/tutorial\_fr}{Les références de HAL}{hal/general\_ref\_fr}{hal/tools\_fr}{hal/comp\_fr}{hal/halmodule\_fr}{Annexes}{common/GPLD\_Copyright}
+= Introduction et tutoriels
+
+:leveloffset: 1
+include::hal/intro_fr.txt[]
+
+include::hal/tutorial_fr.txt[]
+
+:leveloffset: 0
+= Les références de HAL
+:leveloffset: 1
+
+include::hal/general_ref_fr.txt[]
+
+include::hal/tools_fr.txt[]
+
+include::hal/comp_fr.txt[]
+
+include::hal/halmodule_fr.txt[]
+
+:leveloffset: 0
+= Annexes
+:leveloffset: 1
+
+include::common/GPLD_Copyright.txt[]
+
 
