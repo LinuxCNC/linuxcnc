@@ -290,6 +290,19 @@ proc ::tooledit::watch {args} {
      } {
     ::tooledit::toolvalidate silent ;# to clear errors
   }
+  if [info exists ::te(load,button)] {
+    if ![sendaxis ping] {
+      # axis disappeared
+      pack forget $::te(load,button)
+      unset ::te(load,button)
+    } else {
+      if [sendaxis check_for_reload] {
+        $::te(load,button) configure -state normal
+      } else {
+        $::te(load,button) configure -state disabled
+      }
+    }
+  }
   set ::te(afterid) [after $::te(pollms) ::tooledit::watch]
 } ;# watch
 
@@ -355,9 +368,15 @@ proc ::tooledit::tooledit {filename} {
        -command  ::tooledit::toolreread] -side left -fill x -expand 1
   pack [button $bf.[qid] -text "Check Entries" \
        -command [list ::tooledit::toolvalidate]] -side left -fill x -expand 1
-  pack [button $bf.[qid] -text "Write Tool Table" \
+  pack [button $bf.[qid] -text "Write Tool Table File" \
        -command [list ::tooledit::writefile $::te(filename)]] \
        -side left -fill x -expand 1
+  if {[sendaxis ping] && [sendaxis tool_table_filename]} {
+    set ::te(load,button) [button $bf.[qid] -text "ReLoad Tool Table" \
+         -state disabled \
+         -command [list ::tooledit::sendaxis reload_tool_table]]
+    pack $::te(load,button) -side left -fill x -expand 1
+  }
   pack [button $bf.[qid] -text Dismiss \
        -command ::tooledit::bye] \
        -side left -fill x -expand 1
@@ -748,6 +767,56 @@ proc ::tooledit::bye {} {
   destroy $::te(top)      ;# for embedded usage
   set ::tooledit::finis 1 ;# for standalone usage
 } ;# bye
+
+proc ::tooledit::sendaxis {cmd} {
+  # return 1==>ok
+  switch $cmd {
+    ping {
+      # must ping to see if axis is running and get its pwd
+      if ![catch {set ::te(axis,pwd) [send axis pwd]} msg] {return 1 ;#ok}
+    }
+    tool_table_filename {
+      # check that tooledit opened with same filename as axis
+      if [catch {set f [send axis inifindall EMCIO TOOL_TABLE]} msg] {
+        return -code error "::tooledit::sendaxis tool_table_filename <$msg>"
+      }
+      if {[llength $f] > 1} {
+        set f [lindex $f 0] ;# use first item specified for compatibility
+        puts stderr \
+        "tooledit: Warning: multiple items specified for \[EMCIO\]TOOL_TABLE"
+        puts stderr "tooledit: Using: $f"
+      }
+      if {[file pathtype $f] == "relative"} {
+        set f [file join $::te(axis,pwd) $f]
+      }
+      set ::te(axis,filename) [file normalize $f]
+      if {"$::te(axis,filename)" == [file normalize $::te(filename)]} {
+        return 1 ;# ok
+      }
+    }
+    check_for_reload {
+      # use same test as axis for disabling:
+      if [send axis {expr "$::task_state"   == "$::STATE_ON"\
+                       && "$::interp_state" == "$::INTERP_IDLE"}] {
+        return 1 ;# ok
+      }
+    }
+    reload_tool_table {
+      if ![sendaxis check_for_reload] {
+        showerr [list "Must be On and Idle to reload tool table"]
+        return 0 ;# fail
+      }
+      ::tooledit::writefile $::te(filename)
+      if [catch {send axis reload_tool_table} msg] {
+        return -code error "::tooledit::sendaxis reload_tool_table <$msg>"
+      }
+      return 1 ;# ok
+    }
+    default {return -code error "::tooledit::sendaxis: unknown cmd <$cmd>"}
+  }
+
+  return 0 ;# fail
+} ;# sendaxis
 
 #------------------------------------------------------------------------
 if {[info script] == $argv0} {
