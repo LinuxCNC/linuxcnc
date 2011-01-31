@@ -6,7 +6,7 @@ SMALL = $(filter-out $(LARGE_EN),$(DOCS_EN))
 DOCS  = $(DOCS_EN) $(DOCS_FR)
 LARGE = $(LARGE_EN) $(LARGE_FR)
 
-A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
+A2X = ./a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
