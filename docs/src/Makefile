@@ -35,18 +35,18 @@ links_db.py: $(patsubst %,%.db,$(SMALL))
 	./links_db_gen.py $^ > $@
 
 %.db: %.txt
-	asciidoc -d book -o- -b docbook $< | xsltproc links.xslt - > $@
+	asciidoc -d book -o- -b docbook $< | xsltproc links.xslt - > $@ || (X=$?; rm $@; exit $X)
 
 %.html: %.txt
-	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $<
+	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
 
 %.pdf: %.txt
-	a2x --asciidoc-opts "-f docbook.conf" -L -d book -vf pdf $<
+	a2x --asciidoc-opts "-f docbook.conf" -L -d book -vf pdf $< || (X=$?; rm $@; exit $X)
 
 $(patsubst %,%.html,$(LARGE_EN)) :: %.html: %.txt
-	$(A2X) --stylesheet=$(shell pwd)/linuxcnc.css -L -d book -vf xhtml $<
+	$(A2X) --stylesheet=$(shell pwd)/linuxcnc.css -L -d book -vf xhtml $< || (X=$?; rm $@; exit $X)
 
 $(patsubst %,%.html,$(LARGE_FR)) :: %.html: %.txt
-	$(A2X) --stylesheet=$(shell pwd)/linuxcnc.css -a imagesdir=../src -L -d book -vf xhtml $<
+	$(A2X) --stylesheet=$(shell pwd)/linuxcnc.css -a imagesdir=../src -L -d book -vf xhtml $< || (X=$?; rm $@; exit $X)
 
 .PHONY: all docs htmldocs pdfdocs docclean clean
