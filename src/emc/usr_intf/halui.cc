@@ -1220,7 +1220,7 @@ static int sendSpindleForward()
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
     } else {
-	emc_spindle_on_msg.speed = +500;
+	emc_spindle_on_msg.speed = +1;
     }
     emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_spindle_on_msg);
@@ -1234,7 +1234,7 @@ static int sendSpindleReverse()
 	emc_spindle_on_msg.speed =
 	    -1 * fabs(emcStatus->task.activeSettings[2]);
     } else {
-	emc_spindle_on_msg.speed = -500;
+	emc_spindle_on_msg.speed = -1;
     }
     emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(emc_spindle_on_msg);
