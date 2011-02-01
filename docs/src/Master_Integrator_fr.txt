@@ -7,6 +7,7 @@ The EMC Team
 
 image::common/emc2-intro.*[]
 
+++include::common/outdated-notice_fr.txt[]
 
 This handbook is a work in progress. If you are able to
 help with writing, editing, or graphic preparation please contact
