@@ -112,6 +112,7 @@ inifile = emc.ini(sys.argv[2])
 
 ap = AxisPreferences()
 
+os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
 root_window.iconify()
 nf.start(root_window)
