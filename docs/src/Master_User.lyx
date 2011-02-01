@@ -248,15 +248,6 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{gcode/overview.lyx}
-preview false
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset Include \include{gcode/coordinates.lyx}
 preview false
 
@@ -267,6 +258,15 @@ preview false
 
 \begin_layout Standard
 \begin_inset Include \include{gcode/tool_compensation.lyx}
+preview false
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Include \include{gcode/overview.lyx}
 preview false
 
 \end_inset

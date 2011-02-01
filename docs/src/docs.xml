@@ -42,7 +42,7 @@
 <doc name="hal_halshow" title="Halshow"/>
 <doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
 <doc name="hal_pyvcp_examples" title="pyVCP Examples"/>
-<doc name="hal_drivers" title="Hardware Drivers"/>
+<doc name="hal_parallel_port" title="Parallel Port Driver"/>
 <doc name="hal_rtcomps" title="Realtime Components"/>
 <doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
 <doc name="hal_halmodule" title="Creating Userspace Python Components with the 'hal' module"/>

@@ -99,7 +99,7 @@ DOC_SRCS := \
 	hal/comp_fr.lyx \
 	hal/components.lyx \
 	hal/components_fr.lyx \
-	hal/drivers.lyx \
+	hal/parallel_port.lyx \
 	hal/drivers_fr.lyx \
 	hal/general_ref.lyx \
 	hal/general_ref_fr.lyx \
