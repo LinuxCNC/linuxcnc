@@ -1,0 +1,161 @@
+
+loadrt trivkins
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt probe_parport
+loadrt hal_parport cfg=0x378
+setp parport.0.reset-time 4000
+loadrt stepgen step_type=0,0,0,0,0 ctrl_type=p,p,p,p,v
+
+loadrt estop_latch
+net charge-pump <= estop-latch.0.watchdog
+
+addf parport.0.read base-thread
+addf stepgen.make-pulses base-thread
+addf estop-latch.0 base-thread
+addf parport.0.write base-thread
+addf parport.0.reset base-thread
+
+addf stepgen.capture-position servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf stepgen.update-freq servo-thread
+net spindle-cw <= motion.spindle-forward
+net coolant-flood <= iocontrol.0.coolant-flood
+net spindle-on motion.spindle-on stepgen.4.enable
+
+
+#
+# Spindle gear selection code.
+#
+# emc2 (rpm) => gearchange => stepgen (step & dir) => spindle
+# low gear:  175-3250 rpm, 201.3 ppr, 10900 Hz => 3250 rpm, 3.354 Hz/rpm
+# high gear: 525-10200 rpm, 64.1 ppr, 10900 Hz => 10200 rpm, 1.069 Hz/rpm
+# low/high ppr = 201.3/64.1 = 3.140
+#
+
+setp stepgen.4.maxaccel 20000
+setp stepgen.4.maxvel 3250
+setp stepgen.4.position-scale 3.354
+net spindle-pwm stepgen.4.step parport.0.pin-01-out
+setp stepgen.4.stepspace 0
+setp stepgen.4.steplen 1
+setp parport.0.pin-01-out-reset 1
+loadrt or2 count=1
+linksp spindle-cw or2.0.in0
+net spindle-ccw motion.spindle-reverse or2.0.in1
+
+loadrt toggle count=1
+loadrt not count=1
+loadrt gearchange count=1
+addf toggle.0 servo-thread
+addf not.0 servo-thread
+addf gearchange.0 servo-thread
+setp toggle.0.debounce 0
+setp gearchange.0.min1 175
+setp gearchange.0.max1 3250
+setp gearchange.0.min2 525
+setp gearchange.0.max2 10200
+setp gearchange.0.scale2 3.140
+# we're not controlling the direction with the gearchanger, so reverse isn't set
+# and the dir-in and dir-out pins aren't linked
+net spindle-speed-raw motion.spindle-speed-out gearchange.0.speed-in
+net spindle-speed gearchange.0.speed-out stepgen.4.velocity-cmd
+
+net xdir => parport.0.pin-02-out
+setp parport.0.pin-03-out-invert 1
+net xstep => parport.0.pin-03-out
+setp parport.0.pin-03-out-reset 1
+net ydir => parport.0.pin-04-out
+setp parport.0.pin-05-out-invert 1
+net ystep => parport.0.pin-05-out
+setp parport.0.pin-05-out-reset 1
+setp parport.0.pin-06-out-invert 1
+net zdir => parport.0.pin-06-out
+setp parport.0.pin-07-out-invert 1
+net zstep => parport.0.pin-07-out
+setp parport.0.pin-07-out-reset 1
+net adir => parport.0.pin-08-out
+setp parport.0.pin-09-out-invert 1
+net astep => parport.0.pin-09-out
+setp parport.0.pin-09-out-reset 1
+net coolant-flood => parport.0.pin-14-out
+net spindle-cw => parport.0.pin-16-out
+net charge-pump => parport.0.pin-17-out
+
+net both-home-x <= parport.0.pin-10-in
+net both-home-y <= parport.0.pin-11-in
+net both-home-z <= parport.0.pin-12-in
+net home-a <= parport.0.pin-13-in
+net machine-ok <= parport.0.pin-15-in-not
+
+setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 0
+setp stepgen.0.dirhold 45000
+setp stepgen.0.dirsetup 26000
+setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+net xpos-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
+net xpos-fb stepgen.0.position-fb => axis.0.motor-pos-fb
+net xstep <= stepgen.0.step
+net xdir <= stepgen.0.dir
+net xenable axis.0.amp-enable-out => stepgen.0.enable
+net both-home-x => axis.0.home-sw-in
+net both-home-x => axis.0.neg-lim-sw-in
+net both-home-x => axis.0.pos-lim-sw-in
+
+setp stepgen.1.position-scale [AXIS_1]SCALE
+setp stepgen.1.steplen 1
+setp stepgen.1.stepspace 0
+setp stepgen.1.dirhold 45000
+setp stepgen.1.dirsetup 26000
+setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
+net ypos-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
+net ypos-fb stepgen.1.position-fb => axis.1.motor-pos-fb
+net ystep <= stepgen.1.step
+net ydir <= stepgen.1.dir
+net yenable axis.1.amp-enable-out => stepgen.1.enable
+net both-home-y => axis.1.home-sw-in
+net both-home-y => axis.1.neg-lim-sw-in
+net both-home-y => axis.1.pos-lim-sw-in
+
+setp stepgen.2.position-scale [AXIS_2]SCALE
+setp stepgen.2.steplen 1
+setp stepgen.2.stepspace 0
+setp stepgen.2.dirhold 45000
+setp stepgen.2.dirsetup 26000
+setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
+net zpos-cmd axis.2.motor-pos-cmd => stepgen.2.position-cmd
+net zpos-fb stepgen.2.position-fb => axis.2.motor-pos-fb
+net zstep <= stepgen.2.step
+net zdir <= stepgen.2.dir
+net zenable axis.2.amp-enable-out => stepgen.2.enable
+net both-home-z => axis.2.home-sw-in
+net both-home-z => axis.2.neg-lim-sw-in
+net both-home-z => axis.2.pos-lim-sw-in
+
+setp stepgen.3.position-scale [AXIS_3]SCALE
+setp stepgen.3.steplen 1
+setp stepgen.3.stepspace 0
+setp stepgen.3.dirhold 45000
+setp stepgen.3.dirsetup 26000
+setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+net apos-cmd axis.3.motor-pos-cmd => stepgen.3.position-cmd
+net apos-fb stepgen.3.position-fb => axis.3.motor-pos-fb
+net astep <= stepgen.3.step
+net adir <= stepgen.3.dir
+net aenable axis.3.amp-enable-out => stepgen.3.enable
+net home-a => axis.3.home-sw-in
+
+#linksp xenable estop-latch.0.ok-out
+net estop-out <= iocontrol.0.user-enable-out
+net machine-ok => estop-latch.0.ok-in
+net estop estop-latch.0.ok-out => iocontrol.0.emc-enable-in
+net estop-reset iocontrol.0.user-request-enable => estop-latch.0.reset
+
+loadusr -W hal_manualtoolchange
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+net probe parport.0.pin-13-in-not => motion.probe-input
