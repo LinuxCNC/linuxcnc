@@ -619,7 +619,7 @@ sequential), and select what type (main or subroutine).
 Select a subroutine number (SR0 for example). An empty section will be
 displayed and you can build your subroutine.
 
-When your done that, go back to the section manager and click on the
+When you've done that, go back to the section manager and click on the
 your main section (default name prog1).
 
 Now you can add a CALL COIL to your program. CALL COILs are to be

@@ -315,7 +315,7 @@ redirect the output to a file:
 
 === Exiting HalRun
 
-When your finished with your HAL session type "exit" at the halcmd:
+When you're finished with your HAL session type "exit" at the halcmd:
 prompt. Do not simply close the terminal window without shutting down
 the HAL session.
 

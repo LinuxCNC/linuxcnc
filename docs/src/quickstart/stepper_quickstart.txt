@@ -31,11 +31,11 @@ machines.
 
 Gather the information about each axis of your machine.
 
-Drive timing is in nano seconds. If your unsure about the timing many
-popular drives are included in the stepper configuration wizard. Note
-some newer Gecko drives have different timing than the original one. A
-list is also on the user maintained EMC wiki site of more drives at
-http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
+Drive timing is in nano seconds. If you're unsure about the timing
+many popular drives are included in the stepper configuration wizard.
+Note some newer Gecko drives have different timing than the original
+one. A list is also on the user maintained EMC wiki site of more drives
+at http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
 
 [width="90%", options="header"]
 |========================================
@@ -95,8 +95,8 @@ Motor & Leadscrew Teeth is if you have some reduction between the
 motor and the leadscrew. If not set these to 1.
 
 Leadscrew pitch is how many turns it takes to move your table one user
-unit. If your setting up in inches then it is turns per inch. If your
-setting up in millimeters then how many turns per millimeter.
+unit. If you're setting up in inches then it is turns per inch. If
+you're setting up in millimeters then how many millimeters per turn.
 
 == Configuration Wizard
 

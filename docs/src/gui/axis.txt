@@ -400,6 +400,8 @@ image::images/axis-currentandselected.png[]
 
 === Manual Control (((Manual)))
 
+
+
 While the machine is turned on but not running a program, the items in
 the "Manual Control" tab can be used to move the machining center or
 turn different parts of it on and off.
@@ -478,10 +480,14 @@ if a limit switch is tripped.
 ==== The "Spindle" group (((spindle)))
 
 The buttons on the first row select the direction for the spindle to
-rotate: Counterclockwise, Stopped, Clockwise. The buttons on the next
-row increase or decrease the rotation speed. The checkbox on the third
-row allows the spindle brake to be engaged or released. Depending on
-your machine configuration, not all the items in this group may appear.
+rotate: Counterclockwise, Stopped, Clockwise. Counterclockwise will
+only show up if the pin `motion.spindle-reverse` is in the hal file (it
+can be `net trick-axis motion.spindle-reverse` ). The buttons on the
+next row increase or decrease the rotation
+speed. The checkbox on the third row allows the spindle brake to be
+engaged or released. Depending on your machine configuration, not all
+the items in this group may appear. Pressing the spindle start button
+sets the "S" speed to 1.
 
 ==== The "Coolant" group (((coolant)))
 
