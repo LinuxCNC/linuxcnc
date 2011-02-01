@@ -66,7 +66,7 @@ include::hal/components.txt[]
 
 include::hal/rtcomps.txt[]
 
-include::hal/drivers.txt[]
+include::hal/parallel_port.txt[]
 
 include::gui/halui.txt[]
 
