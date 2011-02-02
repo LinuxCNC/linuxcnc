@@ -243,6 +243,7 @@ const int Interp::_readonly_parameters[] = {
  5411, // tool frontangle
  5412, // tool backangle
  5413, // tool orientation
+ 5420, 5421, 5422, 5423, 5424, 5425, 5426, 5427, 5428, // current X Y ... W
 };
 const int Interp::_n_readonly_parameters = sizeof(_readonly_parameters)/sizeof(int);
 

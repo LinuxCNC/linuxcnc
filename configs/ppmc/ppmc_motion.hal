@@ -21,17 +21,11 @@ net Youtput => ppmc.0.DAC.01.value
 net Zoutput => ppmc.0.DAC.02.value
 net Aoutput => ppmc.0.DAC.03.value
 
-# connect axis enables to step generators
-#linksp Xenable => ppmc.0.pwm.00.enable
-#linksp Yenable => ppmc.0.pwm.01.enable
-#linksp Zenable => ppmc.0.pwm.02.enable
-#linksp Aenable => ppmc.0.pwm.03.enable
-
 # set output scaling from ini file
-#setp ppmc.0.DAC.00.scale [AXIS_0]OUTPUT_SCALE
-#setp ppmc.0.DAC.01.scale [AXIS_1]OUTPUT_SCALE
-#setp ppmc.0.DAC.02.scale [AXIS_2]OUTPUT_SCALE
-#setp ppmc.0.DAC.03.scale [AXIS_3]OUTPUT_SCALE
+setp ppmc.0.DAC.00.scale [AXIS_0]OUTPUT_SCALE
+setp ppmc.0.DAC.01.scale [AXIS_1]OUTPUT_SCALE
+setp ppmc.0.DAC.02.scale [AXIS_2]OUTPUT_SCALE
+setp ppmc.0.DAC.03.scale [AXIS_3]OUTPUT_SCALE
 
 # add a couple of tuning test links
 # if these are useful will want to add them to the other axes as well

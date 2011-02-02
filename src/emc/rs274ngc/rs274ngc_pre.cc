@@ -674,7 +674,27 @@ int Interp::init()
   write_settings(&_setup);
 
   init_tool_parameters();
+  CHP(init_named_parameters());
   // Synch rest of settings to external world
+  return INTERP_OK;
+}
+
+int Interp::init_named_parameters()
+{
+// version       major   minor      Note
+// ------------ -------- ---------- -------------------------------------
+// M.N.m         M.N     0.m        normal format
+// M.N.m~xxx     M.N     0.m        pre-release format
+  const char *pkgversion = PACKAGE_VERSION;  //examples: 2.4.6, 2.5.0~pre
+  const char *version_major = "_vmajor";// named_parameter name (use lower case)
+  const char *version_minor = "_vminor";// named_parameter name (use lower case)
+  double vmajor=0.0, vminor=0.0;
+  sscanf(pkgversion, "%lf%lf", &vmajor, &vminor);
+  CHP( add_named_param((char*)version_major));
+  CHP(init_named_param((char*)version_major,vmajor));
+  CHP( add_named_param((char*)version_minor));
+  CHP(init_named_param((char*)version_minor,vminor));
+
   return INTERP_OK;
 }
 
@@ -883,6 +903,16 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
   }
   CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
+
+  _setup.parameters[5420] = _setup.current_x;
+  _setup.parameters[5421] = _setup.current_y;
+  _setup.parameters[5422] = _setup.current_z;
+  _setup.parameters[5423] = _setup.AA_current;
+  _setup.parameters[5424] = _setup.BB_current;
+  _setup.parameters[5425] = _setup.CC_current;
+  _setup.parameters[5426] = _setup.u_current;
+  _setup.parameters[5427] = _setup.v_current;
+  _setup.parameters[5428] = _setup.w_current;
 
   if(_setup.file_pointer)
   {

@@ -1315,8 +1315,17 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
     if ((line[*counter] == 'x') && (line[(*counter) + 1] == 'p')) {
       *operation = EXP;
       *counter = (*counter + 2);
-    } else
+    } else if (    (line[*counter]     == 'x')
+                && (line[*counter + 1] == 'i')
+                && (line[*counter + 2] == 's')
+                && (line[*counter + 3] == 't')
+                && (line[*counter + 4] == 's')
+             ) {
+      *counter = (*counter + 5);
+      *operation = EXISTS;
+    } else {
       ERS(NCE_UNKNOWN_WORD_STARTING_WITH_E);
+    }
     break;
   case 'f':
     if ((line[*counter] == 'i') && (line[(*counter) + 1] == 'x')) {
@@ -1834,6 +1843,11 @@ int Interp::store_named_param(
   {
       // call level zero is global scope
       level = 0;
+      //disallow for predefined, readonly named_parameters
+      if (   (0 == strcmp(nameBuf,"_vmajor") )
+          || (0 == strcmp(nameBuf,"_vminor") )  ) {
+         ERS(_("Cannot change #<%s>"), nameBuf);
+      }
   }
 
   nameList = &_setup.sub_context[level].named_parameters;
@@ -1861,6 +1875,49 @@ int Interp::store_named_param(
   }
 
   logDebug("%s: param:|%s| returning not defined", "store_named_param",
+           nameBuf);
+
+  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
+}
+
+// use to initialize global,readonly named_parameters
+//     like "_vmajor", "_vminor"
+int Interp::init_named_param (
+    char *nameBuf, //!< pointer to name to be written
+    double value   //!< value to be written
+    )
+{
+  struct named_parameters_struct *nameList;
+
+  int level = 0;
+  int i;
+
+  if(nameBuf[0] != '_') // local scope
+  {
+      ERS(_("init_named_parameter must be global #<%s>"), nameBuf);
+  }
+
+  nameList = &_setup.sub_context[level].named_parameters;
+
+  logDebug("init_named_parameter: nameList[%d]=%p storing:|%s|", level,
+           nameList, nameBuf);
+  logDebug("init_named_parameter: named_parameter_used_size=%d",
+           nameList->named_parameter_used_size);
+
+
+  for(i=0; i<nameList->named_parameter_used_size; i++)
+  {
+      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
+      {
+          nameList->named_param_values[i] = value;
+          logDebug("init_named_parameter: level[%d] %s value=%lf",
+                   level, nameBuf, value);
+
+          return INTERP_OK;
+      }
+  }
+
+  logDebug("%s: param:|%s| returning not defined", "init_named_param",
            nameBuf);
 
   ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
@@ -1896,7 +1953,6 @@ int Interp::add_named_param(
       // call level zero is global scope
       level = 0;
   }
-
   nameList = &_setup.sub_context[level].named_parameters;
 
   if(nameList->named_parameter_used_size >=
@@ -1978,7 +2034,8 @@ int Interp::read_named_parameter(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
     double *double_ptr,   //!< pointer to double to be read
-    double *parameters)   //!< array of system parameters
+    double *parameters,   //!< array of system parameters
+    bool check_exists)    //!< test for existence, not value
 {
   static char name[] = "read_named_parameter";
 
@@ -2010,13 +2067,18 @@ int Interp::read_named_parameter(
   {
       if(0 == strcmp(nameList->named_parameters[i], paramNameBuf))
       {
-          *double_ptr = nameList->named_param_values[i];
+          if(check_exists)
+              *double_ptr = 1.0;
+          else
+              *double_ptr = nameList->named_param_values[i];
           return INTERP_OK;
       }
   }
 
   *double_ptr = 0.0;
   
+  if(check_exists) return INTERP_OK;
+
   logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
   ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
@@ -2071,7 +2133,8 @@ int Interp::read_parameter(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
     double *double_ptr,   //!< pointer to double to be read                  
-    double *parameters)   //!< array of system parameters                    
+    double *parameters,   //!< array of system parameters
+    bool check_exists)    //!< test for existence, not value
 {
   int index;
 
@@ -2085,18 +2148,41 @@ int Interp::read_parameter(
       //_setup.stack_index = 0; -- reminder of variable we need
       // find the matching string (if any) -- or create it
       // then get the value and store it
-      CHP(read_named_parameter(line, counter, double_ptr, parameters));
+      CHP(read_named_parameter(line, counter, double_ptr, parameters,
+	      check_exists));
   }
   else
   {
       CHP(read_integer_value(line, counter, &index, parameters));
+      if(check_exists)
+      {
+	  *double_ptr = index >= 1 && index < RS274NGC_MAX_PARAMETERS;
+	  return INTERP_OK;
+      }
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      CHKS(((index >= 5420) && (index <= 5428) && (_setup.cutter_comp_side)),
+           _("Cannot read current position with cutter radius compensation on"));
       *double_ptr = parameters[index];
   }
   return INTERP_OK;
 }
 
+int Interp::read_bracketed_parameter(
+    char *line,   //!< string: line of RS274/NGC code being processed
+    int *counter, //!< pointer to a counter for position on the line
+    double *double_ptr,   //!< pointer to double to be read
+    double *parameters,   //!< array of system parameters
+    bool check_exists)    //!< test for existence, not value
+{
+  CHKS((line[*counter] != '['), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  *counter = (*counter + 1);
+  CHKS((line[*counter] != '#'), _("Expected # reading parameter"));
+  CHP(read_parameter(line, counter, double_ptr, parameters, check_exists));
+  CHKS((line[*counter] != ']'), _("Expected ] reading bracketed parameter"));
+  *counter = (*counter + 1);
+  return INTERP_OK;
+}
 
 int Interp::free_named_parameters( // ARGUMENTS
     int level,      // level to free
@@ -2855,7 +2941,7 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
   {
-    CHP(read_parameter(line, counter, double_ptr, parameters));
+    CHP(read_parameter(line, counter, double_ptr, parameters, false));
   }
   else if (c == '+' && c1 && !isdigit(c1) && c1 != '.')
   {
@@ -3264,10 +3350,19 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
                       double *parameters)       //!< array of system parameters                    
 {
   int operation;
+  int start_expression = 0;
 
   CHP(read_operation_unary(line, counter, &operation));
   CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME);
+  start_expression= *counter +1;
+
+  if (operation == EXISTS)
+  {
+      CHP(read_bracketed_parameter(line, counter, double_ptr, parameters, true));
+      return INTERP_OK;
+  }
+
   CHP(read_real_expression(line, counter, double_ptr, parameters));
 
   if (operation == ATAN)

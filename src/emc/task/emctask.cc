@@ -229,9 +229,9 @@ int emcTaskSetState(int state)
 	    emcJointDisable(t);
 	}
 	emcTrajDisable();
+	emcIoAbort();
 	emcLubeOff();
 	emcTaskAbort();
-        emcIoAbort();
         emcSpindleAbort();
         emcJointUnhome(-2); // only those joints which are volatile_home
 	emcTaskPlanSynch();

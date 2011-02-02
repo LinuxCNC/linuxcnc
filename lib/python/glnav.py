@@ -317,6 +317,9 @@ class GlNavBase:
             self.translate(x, y)
 
     def set_view_x(self):
+        self.reset()
+        glRotatef(-90, 0, 1, 0)
+        glRotatef(-90, 1, 0, 0)
         mid, size = self.extents_info()
         glTranslatef(-mid[0], -mid[1], -mid[2])
         self.set_eyepoint_from_extents(size[1], size[2])

@@ -2065,6 +2065,13 @@ void LOGOPEN(char *name) {
     fprintf(stderr, "LOGOPEN(%s) -> %p\n", name, logfile);
 }
 
+void LOGAPPEND(char *name) {
+    if(logfile) fclose(logfile);
+    logfile = fopen(name, "at");
+    fprintf(stderr, "LOGAPPEND(%s) -> %p\n", name, logfile);
+}
+
+
 void LOGCLOSE() {
     if(logfile) fclose(logfile);
     logfile = NULL;

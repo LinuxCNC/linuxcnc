@@ -1,8 +1,24 @@
 # vim: sts=4 sw=4 et
+# GladeVcp Widgets
+#
+# Copyright (c) 2010  Chris Morley, Pavel Shramov
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
 import gobject
 import gtk
 
 import hal
+
+hal_pin_changed_signal = ('hal-pin-changed', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
 
 """ Set of base classes """
 class _HalWidgetBase:
@@ -22,10 +38,13 @@ class _HalToggleBase(_HalWidgetBase):
     def _hal_init(self):
         self.set_active(False)
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
+        self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", hal.HAL_BIT, hal.HAL_OUT)
         self.connect("toggled", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal_pin.set(bool(self.get_active()))
+        active = bool(self.get_active())
+        self.hal_pin.set(active)
+        self.hal_pin_not.set(not active)
 
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
@@ -38,39 +57,57 @@ class _HalScaleBase(_HalWidgetBase):
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
-        self.set_sensitive(False)
-
-    def hal_update(self):
-        self.set_sensitive(self.hal_pin.get())
+        self.hal_pin.connect('value-changed', lambda s: self.set_sensitive(s.value))
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
 """ Real widgets """
 
 class HAL_HBox(gtk.HBox, _HalSensitiveBase):
     __gtype_name__ = "HAL_HBox"
-    def __init__(self):
-        gtk.HBox.__init__(self)
+    __gsignals__ = dict([hal_pin_changed_signal])
 
 class HAL_Table(gtk.Table, _HalSensitiveBase):
     __gtype_name__ = "HAL_Table"
-    def __init__(self):
-        gtk.Table.__init__(self)
+    __gsignals__ = dict([hal_pin_changed_signal])
 
 class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
     __gtype_name__ = "HAL_ComboBox"
-    def __init__(self):
-        gtk.ComboBox.__init__(self)
+    __gproperties__ = {
+        'column'  : ( gobject.TYPE_INT, 'Column', '-1:return value of index, other: column index of value in ListStore',
+                -1, 100, -1, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+    }
+
+    def do_get_property(self, property):
+        name = property.name.replace('-', '_')
+        if name in ['column']:
+            return getattr(self, name)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
+    def do_set_property(self, property, value):
+        name = property.name.replace('-', '_')
+        if name in ['column']:
+            return setattr(self, name, value)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
 
     def _hal_init(self):
-        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
         self.connect("changed", self.hal_update)
 
     def hal_update(self, *a):
-        self.hal_pin.set(self.get_active())
+        index = self.get_active()
+        if self.column == -1: # just use index
+            v = index
+        else:
+            model = self.get_model()
+            v = model[index][self.column]
+        self.hal_pin_s.set(int(v))
+        self.hal_pin_f.set(float(v))
 
 class HAL_Button(gtk.Button, _HalWidgetBase):
     __gtype_name__ = "HAL_Button"
-    def __init__(self):
-        gtk.Button.__init__(self)
 
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_OUT)
@@ -82,13 +119,9 @@ class HAL_Button(gtk.Button, _HalWidgetBase):
 
 class HAL_CheckButton(gtk.CheckButton, _HalToggleBase):
     __gtype_name__ = "HAL_CheckButton"
-    def __init__(self):
-        gtk.CheckButton.__init__(self)
 
 class HAL_SpinButton(gtk.SpinButton, _HalWidgetBase):
     __gtype_name__ = "HAL_SpinButton"
-    def __init__(self):
-        gtk.SpinButton.__init__(self)
 
     def _hal_init(self):
         self.hal_pin_f = self.hal.newpin(self.hal_name+"-f", hal.HAL_FLOAT, hal.HAL_OUT)
@@ -102,23 +135,15 @@ class HAL_SpinButton(gtk.SpinButton, _HalWidgetBase):
 
 class HAL_RadioButton(gtk.RadioButton, _HalToggleBase):
     __gtype_name__ = "HAL_RadioButton"
-    def __init__(self):
-        gtk.RadioButton.__init__(self)
 
 class HAL_ToggleButton(gtk.ToggleButton, _HalToggleBase):
     __gtype_name__ = "HAL_ToggleButton"
-    def __init__(self):
-        gtk.ToggleButton.__init__(self)
 
 class HAL_HScale(gtk.HScale, _HalScaleBase):
     __gtype_name__ = "HAL_HScale"
-    def __init__(self):
-        gtk.HScale.__init__(self)
 
 class HAL_VScale(gtk.VScale, _HalScaleBase):
     __gtype_name__ = "HAL_VScale"
-    def __init__(self):
-        gtk.VScale.__init__(self)
 
 class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
     __gtype_name__ = "HAL_ProgressBar"
@@ -141,8 +166,6 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
     }
     __gproperties = __gproperties__
 
-    def __init__(self):
-        gtk.ProgressBar.__init__(self)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -205,6 +228,7 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
 
 class HAL_Label(gtk.Label, _HalWidgetBase):
     __gtype_name__ = "HAL_Label"
+    __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
         'label_pin_type'  : ( gobject.TYPE_INT, 'HAL pin type', '0:S32 1:Float 2:U32',
                 0, 2, 0, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
@@ -212,8 +236,6 @@ class HAL_Label(gtk.Label, _HalWidgetBase):
                 'Text template to display. Python formatting may be used for one variable',
                 "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
     }
-    def __init__(self):
-        gtk.Label.__init__(self)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -239,6 +261,6 @@ class HAL_Label(gtk.Label, _HalWidgetBase):
         if pin_type is None:
             raise TypeError("%s: Invalid pin type: %s" % (self.hal_name, self.label_pin_type))
         self.hal_pin = self.hal.newpin(self.hal_name, pin_type, hal.HAL_IN)
-
-    def hal_update(self):
-        self.set_text(self.text_template % self.hal_pin.get())
+        self.hal_pin.connect('value-changed',
+                            lambda p: self.set_text(self.text_template % p.value))
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))

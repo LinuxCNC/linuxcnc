@@ -1,4 +1,4 @@
-#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+#LyX 1.5.6 created this file. For more info see http://www.lyx.org/
 \lyxformat 276
 \begin_document
 \begin_header
@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -43,7 +44,8 @@ Pico PPMC
 \end_layout
 
 \begin_layout Standard
-Pico Systems has a family of boards for doing servo, stepper, and pwm control.
+Pico Systems has a family of boards for doing analog servo, stepper, and
+ pwm (digital) servo control.
  The boards connect to the PC through a parallel port working in EPP mode.
  Although most users connect one board to a parallel port, in theory any
  mix of up to 8 or 16 boards can be used on a single parport.
@@ -114,17 +116,17 @@ Pins
 In the following pins, parameters, and functions, <board> is the board ID.
  According to the naming conventions the first board should always have
  an ID of zero.
- However this driver sets the ID based on a pair of jumpers on the baord,
- so it may be non-zero even if there is only one board.
+ However this driver sets the ID based on switches on the board, so it may
+ be non-zero even if there is only one board.
 \end_layout
 
 \begin_layout Itemize
 
 \family typewriter
 \noun on
-(s32
+(All s32
 \noun default
-) ppmc.<port>.encoder.<channel>.count
+ output) ppmc.<port>.encoder.<channel>.count
 \family default
  -- Encoder position, in counts.
 \end_layout
@@ -133,11 +135,32 @@ In the following pins, parameters, and functions, <board> is the board ID.
 
 \family typewriter
 \noun on
-(s32
+(All s32
 \noun default
-) ppmc.<port>.encoder.<channel>.delta
+ output) ppmc.<port>.encoder.<channel>.delta
 \family default
- -- Change in counts since last read.
+ -- Change in counts since last read, in raw encoder count units.
+\end_layout
+
+\begin_layout Itemize
+(
+\noun on
+All float 
+\noun default
+output) 
+\family typewriter
+ppmc.<port>.encoder.<channel>.velocity
+\family default
+ -- Velocity scaled in user units per second.
+ On PPMC and USC this is derived from raw encoder counts per servo period,
+ and hence is affected by encoder granularity.
+ On UPC boards with the 8/21/09 and later firmware, velocity estimation
+ by timestamping encoder counts can be used to improve the smoothness of
+ this velocity output.
+ This can be fed to the pid hal component to produce a more stable servo
+ response.
+ This function has to be enabled in the hal command line that starts the
+ ppmc driver, with the timestamp=0x00 option.
 \end_layout
 
 \begin_layout Itemize
@@ -145,9 +168,9 @@ In the following pins, parameters, and functions, <board> is the board ID.
 \family typewriter
 (
 \noun on
-float
+All float
 \noun default
-) ppmc.<port>.encoder.<channel>.position
+ output) ppmc.<port>.encoder.<channel>.position
 \family default
  -- Encoder position, in user units.
 \end_layout
@@ -156,19 +179,30 @@ float
 
 \family typewriter
 \noun on
-(bit) 
+(All bit 
+\noun default
+bidir
+\noun on
+) 
 \noun default
 ppmc.<port>.encoder.<channel>.index-enable
 \family default
  -- Connect to axis.#.index-enable for home-to-index.
-
+ This is a bidirectional hal signal.
+ Setting it to true causes the encoder hardware to reset the count to zero
+ on the next encoder index pulse.
+ The driver will detect this and set the signal back to false.
 \end_layout
 
 \begin_layout Itemize
 
 \family typewriter
 \noun on
-(bit) 
+(UPC bit 
+\noun default
+input
+\noun on
+) 
 \noun default
 ppmc.<port>.pwm.<channel>.enable
 \family default
@@ -179,7 +213,11 @@ ppmc.<port>.pwm.<channel>.enable
 
 \family typewriter
 \noun on
-(float) 
+(UPC float 
+\noun default
+input
+\noun on
+) 
 \noun default
 ppmc.<port>.pwm.<channel>.value
 \family default
@@ -197,7 +235,11 @@ pwm.<channel>.scale
 
 \family typewriter
 \noun on
-(bit) 
+(USC bit 
+\noun default
+input
+\noun on
+) 
 \noun default
 ppmc.<port>.stepgen.<channel>.enable
 \family default
@@ -208,7 +250,11 @@ ppmc.<port>.stepgen.<channel>.enable
 
 \family typewriter
 \noun on
-(float) 
+(USC float 
+\noun default
+input
+\noun on
+) 
 \noun default
 ppmc.<port>.stepgen.<channel>.velocity
 \family default
@@ -226,7 +272,11 @@ stepgen.<channel>.scale
 
 \family typewriter
 \noun on
-(bit) 
+(All bit 
+\noun default
+output
+\noun on
+) 
 \noun default
 ppmc.<port>.in-<channel>
 \family default
@@ -237,7 +287,11 @@ ppmc.<port>.in-<channel>
 
 \family typewriter
 \noun on
-(bit) 
+(All bit 
+\noun default
+output
+\noun on
+) 
 \noun default
 ppmc.<port>.in.<channel>-not
 \family default
@@ -248,11 +302,51 @@ ppmc.<port>.in.<channel>-not
 
 \family typewriter
 \noun on
-(bit) 
+(All bit 
+\noun default
+input
+\noun on
+) 
 \noun default
 ppmc.<port>.out-<channel>
 \family default
  -- Value to be written to digital output, seen canonical digital output.
+\end_layout
+
+\begin_layout Itemize
+(
+\noun on
+Option float
+\noun default
+ input) 
+\family typewriter
+ppmc.<port>.DAC8-<channel>.value
+\family default
+ -- Value to be written to analog output, range from 0 to 255.
+ This sends 8 output bits to J8, which should have a Spindle DAC board connected
+ to it.
+ 0 correponds to zero Volts, 255 corresponds to 10 Volts.
+ The polarity of the output can be set for always minus, always plus, or
+ can be controlled by the state of SSR1 (plus when on) and SSR2 (minus when
+ on).
+ You must specify extradac = 0x00 on the hal command line that loads the
+ ppmc driver to enable this function on the first USC ur UPC board.
+\end_layout
+
+\begin_layout Itemize
+(
+\noun on
+Option bit 
+\noun default
+input) 
+\family typewriter
+ppmc.<port>.dout-<channel>.out
+\family default
+ -- Value to be written to one of the 8 extra digital output pins on J8.
+ You must specify extradout = 0x00 on the hal command line that loads the
+ ppmc driver to enable this function on the first USC ur UPC board.
+ extradac and extradout are mutually exclusive features as they use the
+ same signal lines for different purposes.
 \end_layout
 
 \begin_layout Subsection
@@ -263,7 +357,7 @@ Parameters
 
 \family typewriter
 \noun on
-(float) 
+(All float) 
 \noun default
 ppmc.<port>.enc.<channel>.scale
 \family default
@@ -274,7 +368,7 @@ ppmc.<port>.enc.<channel>.scale
 
 \family typewriter
 \noun on
-(float) 
+(UPC float) 
 \noun default
 ppmc.<port>.pwm.<channel-range>.freq
 \family default
@@ -285,7 +379,7 @@ ppmc.<port>.pwm.<channel-range>.freq
 <channel-range>
 \family default
 .
- Minimum is 153Hz, maximum is 500KHz.
+ Minimum is 610Hz, maximum is 500KHz.
 \end_layout
 
 \begin_layout Itemize
@@ -293,7 +387,7 @@ ppmc.<port>.pwm.<channel-range>.freq
 \family typewriter
 (
 \noun on
-float
+UPC float
 \noun default
 ) ppmc.<port>.pwm.<channel>.scale
 \family default
@@ -314,7 +408,7 @@ value
 \family typewriter
 (
 \noun on
-float
+UPC float
 \noun default
 ) ppmc.<port>.pwm.<channel>.max-dc
 \family default
@@ -326,7 +420,7 @@ float
 \family typewriter
 (
 \noun on
-float
+UPC float
 \noun default
 ) ppmc.<port>.pwm.<channel>.min-dc
 \family default
@@ -338,7 +432,7 @@ float
 \family typewriter
 (
 \noun on
-float
+UPC float
 \noun default
 ) ppmc.<port>.pwm.<channel>.duty-cycle
 \family default
@@ -350,12 +444,12 @@ float
 \family typewriter
 (
 \noun on
-bit
+UPC bit
 \noun default
 ) ppmc.<port>.pwm.<channel>.bootstrap
 \family default
  -- If true, the PWM generator will generate a short sequence of pulses
- of both polarities when it is enabled, to charge the bootstrap capacators
+ of both polarities when E-stop goes false, to charge the bootstrap capacitors
  used on some MOSFET gate drivers.
 \end_layout
 
@@ -364,13 +458,13 @@ bit
 \family typewriter
 (
 \noun on
-u32
+USC u32
 \noun default
 ) ppmc.<port>.stepgen.<channel-range>.setup-time
 \family default
  -- Sets minimum time between direction change and step pulse, in units
  of 100nS.
- Applies to a group fof four consecutive PWM generators, as indicated by
+ Applies to a group of four consecutive PWM generators, as indicated by
  
 \family typewriter
 <channel-range>
@@ -383,12 +477,12 @@ u32
 \family typewriter
 (
 \noun on
-u32
+USC u32
 \noun default
 ) ppmc.<port>.stepgen.<channel-range>.pulse-width
 \family default
  -- Sets width of step pulses, in units of 100nS.
- Applies to a group fof four consecutive PWM generators, as indicated by
+ Applies to a group of four consecutive PWM generators, as indicated by
  
 \family typewriter
 <channel-range>
@@ -401,7 +495,7 @@ u32
 \family typewriter
 (
 \noun on
-u32
+USC u32
 \noun default
 ) ppmc.<port>.stepgen.<channel-range>.pulse-space-min
 \family default
@@ -415,7 +509,7 @@ pulse-width
 pulse-space-min
 \family default
  )).
- Applies to a group fof four consecutive PWM generators, as indicated by
+ Applies to a group of four consecutive PWM generators, as indicated by
  
 \family typewriter
 <channel-range>
@@ -428,7 +522,7 @@ pulse-space-min
 \family typewriter
 (
 \noun on
-float
+USC float
 \noun default
 ) ppmc.<port>.stepgen.<channel>.scale
 \family default
@@ -449,7 +543,7 @@ scale
 \family typewriter
 (
 \noun on
-float
+USC float
 \noun default
 ) ppmc.<port>.stepgen.<channel>.max-vel
 \family default
@@ -472,7 +566,7 @@ max-vel
 \family typewriter
 (
 \noun on
-float
+USC float
 \noun default
 ) ppmc.<port>.stepgen.<channel>.frequency
 \family default
@@ -484,11 +578,37 @@ float
 \family typewriter
 (
 \noun on
-bit
+Option float
+\noun default
+) ppmc.<port>.DAC8.<channel>.scale
+\family default
+ -- Sets scale of extra DAC output such that an output velue equal to scale
+ gives a magnitude of 10.0 V output.
+ (The sign of the output is set by jumpers and/or other digital outputs.)
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+(
+\noun on
+Option bit
 \noun default
 ) ppmc.<port>.out.<channel>-invert
 \family default
  -- Inverts a digital output, see canonical digital output.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+(
+\noun on
+Option bit
+\noun default
+) ppmc.<port>.dout.<channel>-invert
+\family default
+ -- Inverts a digital output pin of J8, see canonical digital output.
 \end_layout
 
 \begin_layout Subsection
@@ -499,22 +619,26 @@ Functions
 
 \family typewriter
 \noun on
-(funct) 
+(All funct) 
 \noun default
 ppmc.<port>.read
 \family default
  -- Reads all inputs (digital inputs and encoder counters) on one port.
+ These reads are organized into blocks of contiguous registers to be read
+ in a block to minimize CPU overhead.
 \end_layout
 
 \begin_layout Itemize
 
 \family typewriter
 \noun on
-(funct) 
+(All funct) 
 \noun default
 ppmc.<port>.write
 \family default
  -- Writes all outputs (digital outputs, stepgens, PWMs) on one port.
+ These reads are organized into blocks of contiguous registers to be read
+ in a block to minimize CPU overhead.
 \end_layout
 
 \end_body

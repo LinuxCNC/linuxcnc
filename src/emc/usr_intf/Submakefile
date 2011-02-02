@@ -44,11 +44,6 @@ $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 	chmod +x $@
 TARGETS += ../bin/tooledit
 
-../bin/toolconvert: emc/usr_intf/toolconvert.tcl
-	cp $< $@
-	chmod +x $@
-TARGETS += ../bin/toolconvert
-
 ../tcl/emc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama

@@ -106,8 +106,7 @@ class hal_interface:
         self.c["jog.wheel.v"] = n == 7 and self.active
         self.c["jog.wheel.w"] = n == 8 and self.active
 
-    def jogincrement(self, inc):
-        incs = [0.01, 0.001, 0.0001]
+    def jogincrement(self, inc, incs):
         self.c["jog.wheel.increment"] = incs[inc]
 
     def jogactive(self, active):

@@ -157,6 +157,7 @@ class touchy:
 
                 # emc interface
                 self.emc = emc_interface.emc_control(emc, self.listing, self.wTree.get_widget("error"))
+                self.emc.continuous_jog_velocity(self.mv_val)
                 self.hal = hal_interface.hal_interface(self, self.emc, self.mdi_control, emc)
 
                 # silly file chooser
@@ -203,6 +204,23 @@ class touchy:
                                                        stats,
                                                        floods, mists, spindles, prefs,
                                                        opstop, blockdel)
+
+                # check the ini file if UNITS are set to mm"
+                inifile=self.emc.emc.ini(sys.argv[2])
+                # first check the global settings
+                units=inifile.find("TRAJ","LINEAR_UNITS")
+
+                if units==None:
+                        units=inifile.find("AXIS_0","UNITS")
+
+                if units=="mm" or units=="metric" or units == "1.0":
+                        self.machine_units_mm=1
+                        conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+                else:
+                        self.machine_units_mm=0
+                        conversion=[25.4]*3+[1]*3+[25.4]*3
+
+                self.status.set_machine_units(self.machine_units_mm,conversion)
 
                 if self.prefs.getpref('toolsetting_fixture', 0):
                         self.g10l11 = 1
@@ -323,6 +341,8 @@ class touchy:
                 self._dynamic_childs = {}
                 atexit.register(self.kill_dynamic_childs)
                 self.set_dynamic_tabs()
+
+                atexit.register(self.save_maxvel_pref)
 
                 self.setfont()
 
@@ -629,7 +649,19 @@ class touchy:
                 else:
                         # disable all
                         self.hal.jogaxis(-1)
-                self.hal.jogincrement(self.wheelinc)
+
+                if self.wheelxyz == 3 or self.wheelxyz == 4 or self.wheelxyz == 5:
+                        incs = ["1.0", "0.1", "0.01"]
+                elif self.machine_units_mm:
+                        incs = ["0.1", "0.01", "0.001"]
+                else:
+                        incs = ["0.01", "0.001", "0.0001"]
+
+                set_label(self.wTree.get_widget("wheelinc1").child, incs[0])
+                set_label(self.wTree.get_widget("wheelinc2").child, incs[1])
+                set_label(self.wTree.get_widget("wheelinc3").child, incs[2])
+
+                self.hal.jogincrement(self.wheelinc, map(float,incs))
 
                 d = self.hal.wheel()
                 if self.wheel == "fo":
@@ -643,12 +675,14 @@ class touchy:
                         if d != 0: self.emc.spindle_override(self.so_val)
 
                 if self.wheel == "mv":
-                        self.mv_val += d
+                        if self.machine_units_mm:
+                                self.mv_val += 20 * d
+                        else:
+                                self.mv_val += d
                         if self.mv_val < 0: self.mv_val = 0
                         if d != 0:
                                 self.emc.max_velocity(self.mv_val)
                                 self.emc.continuous_jog_velocity(self.mv_val)
-                                self.prefs.putpref('maxvel', self.mv_val, int)
                         
 
                 set_label(self.wTree.get_widget("fo").child, "FO: %d%%" % self.fo_val)
@@ -696,6 +730,8 @@ class touchy:
 		for c in self._dynamic_childs.values():
 			c.terminate()
 
+        def save_maxvel_pref(self):
+                self.prefs.putpref('maxvel', self.mv_val, int)
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!-- 
+	ngc.lang is a Highlight-mode file for gedit,
+	written by Jan Van Gilsen <janvangilsen(at)gmail(dot)com>
+	Installation instructions can be found at:
+	http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Highlighting_In_Gedit
+	
+	Version		: 0.3
+	Last Edit	: 10Th Nov 2007, by Jan Van Gilsen
+	Comment 	: added probing and rigid tapping G-codes (new in 2.2)
+-->
+<language name=".ngc" version="1.0" _section="Others" mimetypes="text/ngc">
+	<default-regex-options case-sensitive= "false"></default-regex-options>
+	
+	<block-comment _name = "Block Comment" style= "Comment">
+		<start-regex>\(</start-regex>
+		<end-regex>\)</end-regex>
+	</block-comment>
+	
+	<pattern-item _name = "Variable" style = "Variable">
+		<regex>(#[0-9]*)|(#&lt;[a-zA-Z0-9_]*&gt;)</regex>
+	</pattern-item>
+	<keyword-list name = "Math Functions" style = "Function" case-sensitive="FALSE">
+		<keyword>sin</keyword>
+		<keyword>cos</keyword>
+		<keyword>tan</keyword>
+		<keyword>asin</keyword>
+		<keyword>acos</keyword>
+		<keyword>atan</keyword>
+		<keyword>exp</keyword>
+		<keyword>ln</keyword>
+		<keyword>sqrt</keyword>
+		<keyword>fup</keyword>
+		<keyword>fix</keyword>
+		<keyword>abs</keyword>
+		<keyword>or|xor|and</keyword>
+		<keyword>mod</keyword>
+		<keyword>gt|lt|ge|le|eq|ne</keyword>
+	</keyword-list>
+	<pattern-item _name = "Operators" style = "Function">
+		<regex>(([-/|\=\+\*])|(\])|(\[))</regex>
+	</pattern-item>
+	<pattern-item _name = "Line Number" style = "Comment">
+		<regex>^[n|N]([ |\t]*[0-9]){1,5}</regex>
+	</pattern-item>
+	
+	<keyword-list _name = "G-Codes" style = "Keywords" case-sensitive="FALSE"
+		match-empty-string-at-beginning = "FALSE"
+		match-empty-string-at-end = "FALSE"
+		beginning-regex = "[g|G]([ \t]*[0])*[ \t]*">
+		<keyword>[0-5]</keyword>
+		<keyword>1[ \t]*[07-9]</keyword>
+		<keyword>2[ \t]*[018]</keyword>
+		<keyword>3[ \t]*[03]</keyword>
+		<keyword>3[ \t]*3[ \t]*.[ \t]*1</keyword>
+		<keyword>3[ \t]*8[ \t]*.[ \t]*[2-5]</keyword>
+		<keyword>4[ \t]*[1-3][ \t]*.[ \t]*1</keyword>
+		<keyword>4[ \t]*[0-39]</keyword>
+		<keyword>5[ \t]*[3-9]</keyword>
+		<keyword>6[ \t]*[14]</keyword>
+		<keyword>6[ \t]*.[ \t]*1</keyword>
+		<keyword>7[ \t]*6</keyword>
+		<keyword>8[ \t]*[0-9]</keyword>
+		<keyword>9[ \t]*[0-489]</keyword>
+		<keyword>9[ \t]*2[ \t]*.[ \t]*[1-3]</keyword>
+	</keyword-list>
+	<keyword-list _name = "M-Codes" style = "Keywords" case-sensitive="FALSE"
+		match-empty-string-at-beginning = "FALSE"
+		match-empty-string-at-end = "FALSE"
+		beginning-regex = "[m|M]([ \t]*[0])*[ \t]*">
+		<keyword>[0-9]</keyword>
+		<keyword>5[ \t]*[0-3]</keyword>
+		<keyword>3[ \t]*0</keyword>
+		<keyword>6[ \t]*0</keyword>
+		<keyword>1[ \t]*[0-9][ \t]*[1-9]</keyword>
+		<keyword>1[ \t]*[1-9][ \t]*0</keyword>
+	</keyword-list>
+	<pattern-item _name = "F,S-Codes" style = "Keywords">
+		<regex>[f|F|s|S]([ \t]*[0-9])*[ \t]*[.]?([ \t]*[0-9])*</regex>
+	</pattern-item>	
+	<pattern-item _name = "T,H-Codes" style = "Keywords">
+		<regex>[t|T|h|H]([ \t]*[0-9])*</regex>
+	</pattern-item>
+	<pattern-item _name = "Coordinates" style = "Decimal">
+		<regex>[x|X|y|Y|z|Z|a|A|b|B|c|C|u|U|v|V|w|W|i|I|j|J|k|K|p|P|r|R|l|L][ \t]*[+|-]?[ \t]*([ \t]*[0-9]*)*[ \t]*[.]?([ \t]*[0-9]*)*</regex>
+	</pattern-item>
+	
+	<keyword-list _name = "O-Codes" style = "Preprocessor" case-sensitive="FALSE"
+		match-empty-string-at-beginning = "FALSE"
+		match-empty-string-at-end = "FALSE"		
+		beginning-regex = "^[ \t]*[o|O]([ \t]*[0-9])* ">
+		<keyword>sub</keyword>
+		<keyword>endsub</keyword>
+		<keyword>while</keyword>
+		<keyword>endwhile</keyword>
+		<keyword>if</keyword>
+		<keyword>else</keyword>
+		<keyword>endif</keyword>
+		<keyword>do</keyword>
+		<keyword>call</keyword>
+		<keyword>break</keyword>
+		<keyword>continue</keyword>
+		<keyword>return</keyword>
+	</keyword-list>
+</language>

@@ -85,6 +85,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
+    hm2_sserial_process_tram_read(hm2, period);
 
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_raw_read(hm2);
@@ -104,6 +105,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_pwmgen_prepare_tram_write(hm2);
     hm2_tp_pwmgen_prepare_tram_write(hm2);
     hm2_stepgen_prepare_tram_write(hm2, period);
+    hm2_sserial_prepare_tram_write(hm2, period);
     hm2_tram_write(hm2);
 
     // these usually do nothing
@@ -179,6 +181,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_LED:             return "LED";
         case HM2_GTAG_MUXED_ENCODER:   return "Muxed Encoder";
         case HM2_GTAG_MUXED_ENCODER_SEL: return "Muxed Encoder Select";
+        case HM2_GTAG_SMARTSERIAL:     return "Smart Serial Interface";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -197,6 +200,11 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_encoders = -1;
     hm2->config.num_pwmgens = -1;
     hm2->config.num_tp_pwmgens = -1;
+    hm2->config.num_sserials = 0;
+    hm2->config.num_sserial_chans[0] = 0; // default to all-off to make probing safer
+    hm2->config.num_sserial_chans[1] = 0;
+    hm2->config.num_sserial_chans[2] = 0;
+    hm2->config.num_sserial_chans[3] = 0;
     hm2->config.num_stepgens = -1;
     hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
@@ -229,6 +237,17 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 13;
             hm2->config.num_tp_pwmgens = simple_strtol(token, NULL, 0);
 
+        } else if (strncmp(token, "num_sserials=", 13) == 0) {
+            hm2->config.num_sserials = 0;
+            token += 13;
+            for ( ; *token != 0; token++) {
+                if (*token >= '0' && *token <= '8') {
+                    hm2->config.num_sserial_chans[hm2->config.num_sserials] =
+                    *token - '0';
+                    hm2->config.num_sserials ++;
+                }
+            }
+
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
             token += 13;
             hm2->config.num_stepgens = simple_strtol(token, NULL, 0);
@@ -257,6 +276,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
     HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
+    HM2_DBG("    num_sserials=%i.%i.%i.%i)\n", hm2->config.num_sserial_chans[0],
+            hm2->config.num_sserial_chans[1], hm2->config.num_sserial_chans[2],
+            hm2->config.num_sserial_chans[3]);
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
@@ -645,6 +667,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_tp_pwmgen_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_SMARTSERIAL:
+                md_accepted = hm2_sserial_parse_md(hm2, md_index);
+                break;
+
             case HM2_GTAG_LED:
                 md_accepted = hm2_led_parse_md(hm2, md_index);
                 break;
@@ -703,6 +729,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_pwmgen_cleanup(hm2);
     hm2_tp_pwmgen_cleanup(hm2);
     hm2_led_cleanup(hm2);
+    hm2_sserial_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
@@ -715,6 +742,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_encoder_print_module(hm2);
     hm2_pwmgen_print_module(hm2);
     hm2_tp_pwmgen_print_module(hm2);
+    hm2_sserial_print_module(hm2);
     hm2_stepgen_print_module(hm2);
     hm2_ioport_print_module(hm2);
     hm2_watchdog_print_module(hm2);
@@ -1319,5 +1347,6 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_pwmgen_force_write(hm2);
     hm2_stepgen_force_write(hm2);
     hm2_tp_pwmgen_force_write(hm2);
+    hm2_sserial_force_write(hm2);
 }
 

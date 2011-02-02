@@ -1,0 +1,48 @@
+# loads all HAL modules for Universal PWM controller with threading
+
+# kinematics
+loadrt trivkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY
+
+# next load the PID module, for four PID loops
+loadrt pid num_chan=4
+
+# install Universal PWM Controller driver
+loadrt hal_ppmc port_addr="0x378" timestamp="0x00"
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
+
+# make some signals for the scope for tuning.
+loadrt ddt count=4
+loadrt not count=1
+loadrt estop_latch count=1
+loadrt and2 count=1
+loadrt or2 count=1
+loadrt conv_s32_float count=1
+loadrt mult2 count=2
+loadrt lowpass count=1
+
+# set up the realtime thread
+# read inputs first
+addf ppmc.0.read       servo-thread
+# then run the motion controller
+addf motion-command-handler servo-thread
+addf and2.0            servo-thread
+addf estop-latch.0     servo-thread
+addf motion-controller servo-thread
+addf not.0	       servo-thread
+# then the PID loops
+addf pid.0.do-pid-calcs servo-thread
+addf pid.1.do-pid-calcs servo-thread
+addf pid.2.do-pid-calcs servo-thread
+addf pid.3.do-pid-calcs servo-thread
+#  for spindle
+addf or2.0              servo-thread
+addf conv-s32-float.0   servo-thread
+addf mult2.0            servo-thread
+addf mult2.1            servo-thread
+addf lowpass.0          servo-thread
+# write outputs last
+addf ppmc.0.write servo-thread

@@ -1,0 +1,15 @@
+emc interaction example
+-----------------------
+This needs a running EMC, for instance Axis - it does 'menu-based probing'
+
+It does run fine in simulator mode - just fake a probe contact with the 'Simulated probe contact' button
+
+Make sure EMC can find the probe.ngc G-code file in this directory.
+
+run like so:
+$ export INI_FILE_NAME=/home/mah/emc2/configs/sim/axis_mm_mah.ini
+$ gladevcp -u probe.py -H probe.hal probe.ui
+
+or to get a lot of debug output what gladevcp and probe.py are doing:
+
+$ gladevcp -d -d -u probe.py -U debug=3 -H probe.hal probe.ui

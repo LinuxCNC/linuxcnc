@@ -105,9 +105,16 @@ class AxisPreferences(cp):
         self.set("DEFAULT", option, type(value))
         self.write(open(self.fn, "w"))
 
+if sys.argv[1] != "-ini":
+    raise SystemExit, "-ini must be first argument"
+
+inifile = emc.ini(sys.argv[2])
+
 ap = AxisPreferences()
 
+os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
+root_window.iconify()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
@@ -123,8 +130,8 @@ program_start_line_last = -1
 
 lathe = 0
 mdi_history_max_entries = 1000
-mdi_history_save_filename= "~/.axis_mdi_history"
-
+mdi_history_save_filename =\
+    inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or "~/.axis_mdi_history"
 
 
 feedrate_blackout = 0
@@ -299,7 +306,7 @@ class Notification(Tkinter.Frame):
         if len(self.widgets) > 10:
             self.remove(self.widgets[0])
         if self.cache:
-            frame, icon, text, button, discard = widgets = self.cache.pop()
+            frame, icon, text, button, discard = self.cache.pop()
             icon.configure(image=iconname)
             text.configure(text=message)
             widgets = frame, icon, text, button, iconname
@@ -307,12 +314,12 @@ class Notification(Tkinter.Frame):
             frame = Tkinter.Frame(self)
             icon = Tkinter.Label(frame, image=iconname)
             text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
-            button = Tkinter.Button(frame, image=close,
-                command=lambda: self.remove(widgets))
+            button = Tkinter.Button(frame, image=close)
             widgets = frame, icon, text, button, iconname
             text.pack(side="left")
             icon.pack(side="left")
             button.pack(side="left")
+        button.configure(command=lambda: self.remove(widgets))
         frame.pack(side="top", anchor="e")
         self.widgets.append(widgets)
 
@@ -1775,9 +1782,6 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(3)
-        o.reset()
-        glRotatef(-90, 0, 1, 0)
-        glRotatef(-90, 1, 0, 0)
         o.set_view_x()
 
     def set_view_y(event=None):
@@ -2443,6 +2447,13 @@ class TclCommands(nf.TclCommands):
             t.see("%d.0" % (line+2))
             t.see("%d.0" % line)
 
+    def dynamic_tab(name, text):
+        return _dynamic_tab(name,text) # caller: make a frame and pack
+
+    def inifindall(section, item):
+	items = tuple(inifile.findall(section, item))
+	return root_window.tk.merge(*items)
+
 commands = TclCommands(root_window)
 
 vars = nf.Variables(root_window, 
@@ -2714,10 +2725,6 @@ def units(s, d=1.0):
     except ValueError:
         return unit_values.get(s, d)
 
-if sys.argv[1] != "-ini":
-    raise SystemExit, "-ini must be first argument"
-
-inifile = emc.ini(sys.argv[2])
 random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 jointcount = int(inifile.find("KINS", "JOINTS"))
@@ -3024,6 +3031,27 @@ if hal_present == 1 :
         vcpparse.create_vcp(f, comp)
     comp.ready()
 
+    gladevcp = inifile.find("DISPLAY", "GLADEVCP")
+    if gladevcp:
+        f = Tkinter.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
+        f.grid(row=0, column=5, rowspan=6, sticky="nsew", padx=4, pady=4)
+    else:
+        f = None
+    gladevcp_frame = f
+
+_dynamic_childs = {}
+# Call this later
+def load_gladevcp_panel():
+    gladevcp = inifile.find("DISPLAY", "GLADEVCP")
+    if gladevcp:
+        from subprocess import Popen
+
+        xid = gladevcp_frame.winfo_id()
+        cmd = "halcmd loadusr -Wn gladevcp gladevcp -c gladevcp".split()
+        cmd += ['-x', str(xid)] + gladevcp.split()
+        child = Popen(cmd)
+        _dynamic_childs['gladevcp'] = (child, cmd, True)
+
 notifications = Notification(root_window)
 
 root_window.bind("<Control-space>", lambda event: notifications.clear())
@@ -3041,10 +3069,6 @@ def remove_tempdir(t):
     shutil.rmtree(t)
 tempdir = tempfile.mkdtemp()
 atexit.register(remove_tempdir, tempdir)
-
-if postgui_halfile:
-    res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
-    if res: raise SystemExit, res
 
 activate_axis(0, True)
 set_hal_jogincrement()
@@ -3077,12 +3101,12 @@ if o.canon:
     z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
     o.set_centerpoint(x, y, z)
 
-try:
-    root_window.tk.call("send", "-async", "popimage", "destroy .")
-except Tkinter.TclError:
-    pass
+def destroy_splash():
+    try:
+        root_window.send("popimage", "destroy", ".")
+    except Tkinter.TclError:
+        pass
 
-_dynamic_childs = {}
 def _dynamic_tab(name, text):
     tab = widgets.right.insert("end", name, text=text)
     tab.configure(borderwidth=1, highlightthickness=0)
@@ -3096,21 +3120,58 @@ def _dynamic_tabs(inifile):
         print "Invalid tab configuration"
         # Complain somehow
         return
+
+    # XXX: Set our root window ID in environment so child GladeVcp processes
+    # may forward keyboard events to it
+    rxid = root_window.winfo_id()
+    os.environ['AXIS_FORWARD_EVENTS_TO'] = str(rxid)
+
     for i,t,c in zip(range(len(tab_cmd)), tab_names, tab_cmd):
         w = _dynamic_tab("user_" + str(i), t)
         f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
         f.pack(fill="both", expand=1)
         xid = f.winfo_id()
-        cmd = c.replace('{XID}', str(xid))
-        child = Popen(cmd.split())
-        _dynamic_childs[str(w)] = child
+        cmd = c.replace('{XID}', str(xid)).split()
+        child = Popen(cmd)
+        wait = cmd[:2] == ['halcmd', 'loadusr']
+
+        _dynamic_childs[str(w)] = (child, cmd, wait)
 
 @atexit.register
 def kill_dynamic_childs():
-    for c in _dynamic_childs.values():
-        c.terminate()
+    for c,_,w in _dynamic_childs.values():
+        if not w:
+            c.terminate()
 
-_dynamic_tabs(inifile)
+def check_dynamic_tabs():
+    for c,cmd,w in _dynamic_childs.values():
+        if not w:
+            continue
+        r = c.poll()
+        if r == 0:
+            continue
+        if r is None:
+            break
+        print 'Embeded tab command "%s" exited with error: %s' %\
+                             (" ".join(cmd), r)
+        raise SystemExit(r)
+    else:
+        if postgui_halfile:
+            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", postgui_halfile])
+            if res: raise SystemExit, res
+        root_window.deiconify()
+        destroy_splash()
+        return
+    root_window.after(100, check_dynamic_tabs)
+
+tkpkgs = inifile.findall("DISPLAY","TKPKG") or ""
+for pkg in tkpkgs:
+    pkg=pkg.split()
+    root_window.tk.call("package","require",*pkg)
+
+tkapps = inifile.findall("DISPLAY","TKAPP") or ""
+for app in tkapps:
+    root_window.tk.call("source",app)
 
 o.update_idletasks()
 
@@ -3214,6 +3275,14 @@ if os.path.exists(rcfile):
         print >>sys.stderr, tb
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
+
+_dynamic_tabs(inifile)
+if hal_present == 1:
+    load_gladevcp_panel()
+    check_dynamic_tabs()
+else:
+    root_window.deiconify()
+    destroy_splash()
 
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)

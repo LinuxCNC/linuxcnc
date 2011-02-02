@@ -340,6 +340,22 @@ void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
     ], [MSR_H_USABLE=no])
 AC_MSG_RESULT($MSR_H_USABLE)
 
+AC_MSG_CHECKING([for usability of linux/hidraw.h])
+AC_TRY_LINK(
+    [
+#include <sys/ioctl.h>
+#include <linux/hidraw.h>
+long hidiocgrawinfo = HIDIOCGRAWINFO;
+    ],
+    [],
+    [
+	HIDRAW_H_USABLE=yes
+        AC_DEFINE([HIDRAW_H_USABLE], [], [Define to 1 if linux/hidraw.h is usable and defines HIDIOCGRAWINFO])
+],
+    [HIDRAW_H_USABLE=no])
+AC_MSG_RESULT($HIDRAW_H_USABLE)
+AC_SUBST([HIDRAW_H_USABLE])
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
@@ -499,6 +515,7 @@ fe () {
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
+    EMC2_LATENCYPLOT_SCRIPT=$EMC2_HOME/scripts/latencyplot
     EMC2_SCRIPT=$EMC2_HOME/scripts/emc
     EMC2_SUFFIX=" (run-in-place)"
     EMC2_ICON=$EMC2_HOME/emc2icon.png
@@ -517,6 +534,7 @@ else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
+    EMC2_LATENCYPLOT_SCRIPT=$EMC2_BIN_DIR/latencyplot
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=emc2icon
@@ -557,6 +575,7 @@ AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
+AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
 
@@ -627,6 +646,13 @@ AC_SUBST(GLIB_CFLAGS)
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
+
+AC_PATH_PROG(CXX,$CXX,"none")
+if test $CXX = "none"
+then
+    AC_MSG_ERROR([C++ compiler not found])
+fi
+
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
@@ -1118,6 +1144,18 @@ AC_PATH_XTRA
 AC_SUBST([X_LIBS])
 AC_SUBST([X_CFLAGS])
 
+AC_CHECK_HEADERS(X11/extensions/Xinerama.h,
+	    [HAVE_XINERAMA=yes],
+	    [HAVE_XINERAMA=no])
+
+AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
+	    [],
+	    [HAVE_XINERAMA=no])
+
+if test "x$HAVE_XINERAMA" = "xno"; then
+    AC_MSG_ERROR([Xinerama library or headers not found])
+fi
+
 # check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
 
 if test "$have_x" = "yes"; then
@@ -1373,12 +1411,14 @@ AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
+AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/emc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])
 AC_CONFIG_FILES(../share/applications/emc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/emc-latencyplot.desktop)
 AC_CONFIG_FILES(../share/applications/emc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)

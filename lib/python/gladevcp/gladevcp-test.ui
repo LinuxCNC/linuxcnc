@@ -48,8 +48,17 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="HAL_LED" id="hal_led3">
+                  <object class="HAL_VBar" id="hal_vbar1">
                     <property name="visible">True</property>
+                    <property name="bg_color">#bebebebebebe</property>
+                    <property name="z1_border">0.80000001192092896</property>
+                    <property name="z0_border">0.69999998807907104</property>
+                    <property name="z1_color">#ffffffff0000</property>
+                    <property name="min">10</property>
+                    <property name="force_width">30</property>
+                    <property name="invert">True</property>
+                    <property name="z2_color">#ffff00000000</property>
+                    <property name="z0_color">#0000ffff0000</property>
                   </object>
                   <packing>
                     <property name="position">2</property>
@@ -163,10 +172,32 @@
               </object>
             </child>
             <child>
-              <placeholder/>
+              <object class="HAL_HBar" id="hal_hbar1">
+                <property name="visible">True</property>
+                <property name="bg_color">#bebebebebebe</property>
+                <property name="z1_border">0.85000002384185791</property>
+                <property name="z0_border">0.69999998807907104</property>
+                <property name="force_height">20</property>
+                <property name="max">50</property>
+                <property name="z1_color">#ffffffff0000</property>
+                <property name="z2_color">#ffff00000000</property>
+                <property name="z0_color">#0000ffff0000</property>
+              </object>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="HAL_HScale" id="hal_hscale2">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="adjustment">adjustment5</property>
+              </object>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
             </child>
           </object>
           <packing>
@@ -280,5 +311,11 @@
     <property name="upper">1000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment5">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
   </object>
 </interface>

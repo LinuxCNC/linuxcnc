@@ -331,6 +331,10 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
   case COS:
     *double_ptr = cos((*double_ptr * M_PIl) / 180.0);
     break;
+  case EXISTS:
+    // do nothing here
+    // result for the EXISTS function is set by Interp:read_unary()
+    break;
   case EXP:
     *double_ptr = exp(*double_ptr);
     break;

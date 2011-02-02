@@ -1,4 +1,5 @@
 abs.9
+abs_s32.9
 and2.9
 biquad.9
 bldc_hall3.9
@@ -85,6 +86,7 @@ steptest.9
 sum2.9
 thc.9
 threadtest.9
+time.9
 timedelta.9
 timedelay.9
 toggle.9

@@ -7,10 +7,11 @@ import gtk.glade
 
 # This creates the custom LED widget
 
-from hal_widgets import _HalSensitiveBase
+from hal_widgets import _HalSensitiveBase, hal_pin_changed_signal
 
 class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gtype_name__ = 'HAL_LED'
+    __gsignals__ = dict([hal_pin_changed_signal])
     __gproperties__ = {
         'is_on' : ( gobject.TYPE_BOOLEAN, 'Is on', 'How to display LED in editor',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -48,20 +49,28 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self.on_color = 'red'
         self.off_color = 'dark'
 
-        self.set_color('on', self.on_color)
-        self.set_color('off', self.on_color)
+        self.set_color('on', gtk.gdk.Color(red=0xffff))
+        self.set_color('off', self.off_color)
 
     # This method draws our widget
     # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
     # sets the fill as the on or off colour.
     def expose(self, widget, event):
         cr = widget.window.cairo_create()
-        set_source_color_alpha = lambda c,a=1: cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, a)
         sensitive = self.flags() & gtk.PARENT_SENSITIVE
         if not sensitive: alpha = .3
         else: alpha = 1
         cr.set_line_width(3)
         cr.set_source_rgba(0, 0, 0, alpha)
+
+        if self.is_on:
+            if self._blink_active == False or self._blink_active == True and self._blink_state == True:
+                color = self._on_color
+            else:
+                color = self._off_color
+        else:
+            color = self._off_color
+
         # square led
         if self.led_shape == 2:
             self.set_size_request(self._dia*2+5, self._dia*2+5)
@@ -83,18 +92,15 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             w = self.allocation.width
             h = self.allocation.height
             cr.translate(w/2, h/2)
-            lg2 = cairo.RadialGradient(1., 1., 1., 0, 1, self._dia*2)
+            lg2 = cairo.RadialGradient(0, 0, self._dia-2, 0, 0, self._dia+1)
+            lg2.add_color_stop_rgba(0.0, 0., 0., 0., 0.)
+            lg2.add_color_stop_rgba(.99, 0., 0., 0., 1.)
+            lg2.add_color_stop_rgba(1.0, 0., 0., 0., 0.)
             cr.arc(0, 0, self._dia, 0, 2*math.pi)
             cr.mask(lg2)
 
         cr.stroke_preserve()        
-        if self.is_on:
-            if self._blink_active == False or self._blink_active == True and self._blink_state == True:
-                set_source_color_alpha(self._on_color, alpha)
-            else:
-                set_source_color_alpha(self._off_color, alpha)
-        else:
-            set_source_color_alpha(self._off_color, alpha)
+        cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
         cr.fill()    
         return False
       
@@ -138,10 +144,10 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         elif color != 'dark':
             color = gtk.gdk.Color(color)
         else:
-            r = 0.4 * self._on_color.red_float
-            g = 0.4 * self._on_color.green_float
-            b = 0.4 * self._on_color.blue_float
-            color = gtk.gdk.Color(r, g, b)
+            r = 0.4 * self._on_color.red
+            g = 0.4 * self._on_color.green
+            b = 0.4 * self._on_color.blue
+            color = gtk.gdk.Color(int(r), int(g), int(b))
         if state == "off":
             self._off_color = color
         elif state == "on":

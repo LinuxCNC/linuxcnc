@@ -1,0 +1,20 @@
+g54
+g20
+g10 l2 p1 x0 y0 z0 r45
+g0 g53 x0 y0 z0
+(debug, Should be 0 0: #5420 #5421)
+g10 l20 p1 x-1
+(debug, Should be -1 0: #5420 #5421)
+g1 x0 f60
+(debug, Should be 0 0: #5420 #5421)
+g10 l20 p1 y -1
+(debug, Should be 0 -1: #5420 #5421)
+g1 y0
+(debug, Should be 0 0: #5420 #5421)
+g10 l20 p1 x1 y1
+(debug, Should be 1 1: #5420 #5421)
+g1 x0 y0
+(debug, Should be 0 0: #5420 #5421)
+g10 l2 p1 r0
+(debug, Should be 0 0: #5420 #5421)
+m2

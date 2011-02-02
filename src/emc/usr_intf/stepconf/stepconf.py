@@ -1326,7 +1326,8 @@ class App:
     def on_basicinfo_next(self, *args):
         self.widgets.drivetime_expander.set_expanded(False)
         self.widgets.parport_expander.set_expanded(False)
-        self.data.machinename = self.widgets.machinename.get_text()
+        machinename = self.widgets.machinename.get_text()
+        self.data.machinename = machinename.replace(" ","_")
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
         self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
@@ -1349,8 +1350,8 @@ class App:
             self.data.number_pports = 1
 
     def on_machinename_changed(self, *args):
-        self.widgets.confdir.set_text(
-            "~/emc2/configs/%s" % self.widgets.machinename.get_text())
+        temp = self.widgets.machinename.get_text()
+        self.widgets.confdir.set_text("~/emc2/configs/%s" % temp.replace(" ","_"))
 
     def on_drivertype_changed(self, *args):
         v = self.widgets.drivertype.get_active()

@@ -21,8 +21,10 @@ FUNCTION(_) {
 	    ok_out = 1;
 	    fault_out = 0;
 	}
-	/* toggle watchdog */
-	watchdog = !watchdog;
+	if( ok_out ) {
+	    /* toggle watchdog */
+	    watchdog = !watchdog;
+	}
     } else {
 	/* fault condition exists, trip */
 	ok_out = 0;
