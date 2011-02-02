@@ -8,7 +8,8 @@
 
 hostmot2 \- EMC2 HAL driver for the Mesa Electronics HostMot2 firmware.
 .SH SYNOPSIS
-
+See the config modparam section below for Mesa card configuration. Typically
+hostmot2 is loaded with no parameters unless debugging is required.
 .HP
 .B loadrt hostmot2 [debug_idrom=\fIN\fB] [debug_module_descriptors=\fIN\fB] [debug_pin_descriptors=\fIN\fB] [debug_modules=\fIN\fB]
 .RS
@@ -86,7 +87,7 @@ like this:
 
 .B
 .nf
-loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=0,firmware=hm2/5i23/SVST8_4.BIT num_encoders=0 num_pwmgens=0 num_stepgens=2"
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT num_sserials=8 num_encoders=4"
 .fi
 
 Note: this assumes that the hm2_pci driver detects the 5i20 first and
@@ -100,7 +101,7 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [num_leds=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [num_sserials=\fIN.N.N.N\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
@@ -144,6 +145,27 @@ Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
 .TP
+\fBnum_sserials\fR [optional, default: 0.0.0.0]
+Up to 32 Smart Serial devices can be connected to a Mesa Anything IO board
+depending on the firmware used and the number of physical connections on the
+board. These are arranged in 1-4 ports of 1 to 8 channels.
+The number of ports enabled is governed by the number of digits in the string.
+The "." character is optional and any characters other than space and comma are
+OK. However, do not put a leading 0 in front of a digit or it will be read as a
+zero value.
+The ports and channels are numbered in the C-style, starting at 0, so
+num_sserial=8 will activate channels 0 to 7 of port 0.
+The sserial driver will auto-detect the devices. This parameter determines which
+of the the 8 channels of each port should be searched for devices.
+The channels are activated in ascending order. Pins allocated
+to Smart Serial by the firmware but not connected to a Smart Serial device may
+be used for GPIO. pins activated but on which no devices are found can also be
+used for GPIO, but this is not recommended as the pin values and directions will
+change randomly during the device interogation stage.
+For this reason the feature defaults to all channels disabled.
+The parameter can also be used to disable specific channels and/
+or ports.
+.TP
 \fBnum_leds\fR [optional, default: -1]
 Only enable the first N of the LEDs on the FPGA board. If N is -1, then HAL
 pins for all the LEDs will be created. If N=0 then no pins will be added.
@@ -151,6 +173,7 @@ pins for all the LEDs will be created. If N=0 then no pins will be added.
 \fBenable_raw\fR [optional]
 If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
+.TP
 .RE
 .SH encoder
 
@@ -227,6 +250,7 @@ can wait several iterations for the next pulse to arrive, all the while
 reporting the upper bound of the encoder velocity, which can be accurately
 guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
+
 .SH pwmgen
 
 pwmgens have names like "hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>".
@@ -260,6 +284,7 @@ Parameters:
 (float rw) scale: Scaling factor to convert 'value' from arbitrary units
 to duty cycle: dc = value / scale.  Duty cycle has an effective range
 of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
+The default scale is 1.0.
 
 (s32 rw) output-type: This emulates the output_type load-time argument to
 the software pwmgen component.  This parameter may be changed at runtime,
@@ -274,13 +299,14 @@ a couple of HAL Parameters that affect all the pwmgen instances:
 (u32 rw) pwm_frequency: This specifies the PWM frequency, in Hz, of all
 the pwmgen instances running in the PWM modes (modes 1 and 2).  This is
 the frequency of the variable-duty-cycle wave.  Its effective range is
-from 1 Hz up to 193 KHz.  Note that the max frequency is determined by the
+from 1 Hz up to 193 kHz.  Note that the max frequency is determined by the
 ClockHigh frequency of the Anything IO board; the 5i20 and 7i43 both have
-a 100 MHz clock, resulting in a 193 KHz max PWM frequency.  Other boards
+a 100 MHz clock, resulting in a 193 kHz max PWM frequency.  Other boards
 may have different clocks, resulting in different max PWM frequencies.
 If the user attempts to set the frequency too high, it will be clipped
 to the max supported frequency of the board.  Frequencies below about
 5 Hz are not terribly accurate, but above 5 Hz they're pretty close.
+The default pwm_frequency is 20,000 Hz (20 kHz).
 
 (u32 rw) pdm_frequency: This specifies the PDM frequency, in Hz, of
 all the pwmgen instances running in PDM mode (mode 3).  This is the
@@ -292,10 +318,11 @@ to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
 with 50% duty cycle.  The effective range of this parameter is from
 about 1525 Hz up to just under 100 MHz.  Note that the max frequency
 is determined by the ClockHigh frequency of the Anything IO board; the
-5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max PDM
-frequency.  Other boards may have different clocks, resulting in different
-max PDM frequencies.  If the user attempts to set the frequency too high,
-it will be clipped to the max supported frequency of the board.
+5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max
+PDM frequency.  Other boards may have different clocks, resulting in
+different max PDM frequencies.  If the user attempts to set the frequency
+too high, it will be clipped to the max supported frequency of the board.
+The default pdm_frequency is 20,000 Hz (20 kHz).
 
 .SH 3ppwmgen
 Three-Phase PWM generators (3pwmgens) are intended for controlling the high-side
@@ -333,7 +360,7 @@ Parameters:
 
 (u32 rw) deadtime: Sets the dead-time between the high-side driver turning off and
 the low-side driver turning on and vice-versa. Deadtime is subtracted from on time
-and added to off time symmetrically. For example with 20 KHz PWM (50 uSec period),
+and added to off time symmetrically. For example with 20 kHz PWM (50 uSec period),
 50% duty cycle and zero dead time, the PWM and NPWM outputs would be square
 waves (NPWM being inverted from PWM) with high times of 25 uS. With the same
 settings but 1 uS of deadtime, the PWM and NPWM outputs would both have high
@@ -438,6 +465,136 @@ step ends, in nanoseconds.
 software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature.
 In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
 cycle (00 -> 01 -> 11 -> 10 -> 00) for each "step" it takes.
+
+.SH Smart Serial Interface
+
+The Smart Serial Interface allows up to 32 different devices such as the Mesa
+8i20 2.2kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
+FPGA card.
+The driver auto-detects the connected hardware port, channel and device type.
+Devices can be connected in any order to any active channel of an active port.
+(see the config modparam definition above).
+
+In addition to the per-channel/device pins detailed below there are two per-port
+pins and a further 7 pins shared between all ports used for setting on-device
+parameters.
+
+Pins:
+(bit, in) .sserial.port-N.run: Enables the specific Smart Serial module.
+Setting this pin low will disable all boards on the port and puts the port in a
+pass-through mode where device parameter setting is possible.
+This pin defaults to TRUE and can be left unconnected. However, toggling the pin
+low-to-high will re-enable a faulted drive so the pin could usefully be
+connected to the iocontrol.0.user-enable-out pin.
+
+(u32, ro) run_state: Shows the state of the sserial communications state-machine.
+This pin will generally show  value of 0x03 in normal operation, 0x07 in
+setup mode and 0x00 when the "run" pin is false.
+
+(u32, in) .sserial.port: When programming device parameters, this pin sets the
+active port.
+
+(u32, in) .sserial.channel: This sets the active channel on the port defined
+above.
+
+(u32, in) .sserial.parameter: The two LSBs of this pin determine the parameter
+address on the device connected to the channel and port defined above which will
+be read from or written to.
+
+(u32, in) .sserial.value: This pin is used to set the value to be written to a
+device parameter. It can also be used to read-back a value from the device, but
+as it is an input pin the read-back value is only useful to humans.
+
+(bit, in) .sserial.read: Starts the parameter read cycle. On completion the pin
+will return to zero (if not connected in HAL)
+
+(bit, in) .sserial.write: Starts the parameter write cycle. On completion the
+pin will return to zero (if not connected in HAL)
+
+(u32, out) .sserial.state: Shows the state of the read or write process (which
+typically takes many servo cycles). See the source code if the precise meanings
+are important to your application.
+
+The other pins and parameters created in HAL depend on the devices detected.
+.TP
+.SH \fB8i20\fR
+The 8i20 is a 2.2kW three-phase drive for brushless DC motors and AC servo
+motors.
+8i20 pins and parameters have names like
+"hm2_<BoardType>.<BoardNum>.8i20.<PortNum>.<ChanNum>.<Pin>", for example
+"hm2_5i23.0.8i20.1.3.current" would set the phase current for the drive
+connected to the fourth channel of the second sserial port of the first 5i23
+board. Note that the sserial ports do not necessarily correlate in layout or
+number to the physical ports on the card.
+
+Pins:
+
+(bit, in) amp-enable: Set this pin high to enable the drive. With the pin low
+communications are active but the phase angle and current are set to zero.
+
+(float in) angle: The rotor angle of the motor in fractions of a full
+\fBphase\fR revolution. An angle of 0.5 indicates that the motor is half a turn
+/ 180 degrees / \[*p] radians from the zero position. The zero position is taken to
+be the position that the motor adopts under no load with a poitive voltage
+applied to the A (or U) phase and both B and C (or V and W) connected to -V or
+0V. A 6 pole motor will have 3 zero positions per physical rotation. Note that
+the 8i20 drive automatically adds the phase lead/lag angle, and that this pin
+should see the raw rotor angle. There is a HAL module (bldc) which handles the
+complexity of differing motor and drive types.
+
+(float, in) current: The phase current command to the drive. This is scaled
+from -1 to +1 for forwards and reverse maximum currents. The absolute value of
+the current is set by the max_current parameter.
+
+(float, ro) voltage: The drive bus voltage in V. This will tend to show 25.6V
+when the drive is unpowered and the drive will not operate below about 50V.
+
+(float, ro) temp: The temperature of the driver in degrees C.
+
+(u32, ro) fault: The fault status of the drive. See the 8i20 manual for a
+detailed description.
+
+(u32, ro) status: The operating status of the drive. See the 8i20 manual for
+more details.
+
+(u32, ro) comms: The communication status of the drive. See the manual for
+more details.
+
+Parameters:
+
+(float, rw) max_current: Sets the maximum drive current in Amps. The default
+value is the maximum current programmed into the drive EEPROM. The value must be
+positive, and an error will be raised if a current in excess of the drive
+maximum is requested.
+
+(u32, ro) serial_number: The serial number of the connected drive. This is
+also shown on the label on the drive.
+.TP
+.SH \fB 7i64\fR
+The 7i64 is a 24-input 24-output GPIO card.
+7i64 pins and parameters have names like "hm2_<BoardType>.<BoardNum>.7i64.
+<PortNum>.<ChanNum>.<Pin>", for example hm2_5i23.0.7i63.1.3.gpio.01.out
+
+Pins:
+(bit, in) .gpio.NN.out: Writing a 1 or TRUE to this pin will enable output
+driver NN. Note that the outputs are drivers (switches) rather than voltage
+outputs. The LED adjacent to the connector on the board shows the status.
+
+(bit, out) .gpio.NN.in: The value of input NN. Note that the inputs are
+isolated and both pins of each unput must be connected (typically to signal and
+the ground of the signal. This need not be the ground of the board.)
+
+(bit, out) .gpio.NN.in_not: An inverted copy of the corresponding input.
+
+(float, out) .analogue.00 & .analogue.01: The two analogue inputs (0 to 3.3V) on
+the board.
+
+Parameters:
+(bit, rw) .gpio.NN.invert_output: Setting this parameter to 1 / TRUE will invert
+the output value, such that writing 0 to .gpio.NN.out will enable the output
+and vice-versa.
+
+
 .SH General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported
@@ -577,6 +734,47 @@ to the address in .write_address, and .write_strobe is set back to False.
 (bit in/out) dump_state: This pin is normally False.  If it gets set to
 True the hostmot2 driver will write its representation of the board's
 internal state to the syslog, and set the pin back to False.
+
+.SH setup_sserial
+Adding "setup_sserial" to the hostmot2 modparam will start up any attached
+Smart Serial devices in setup mode. The on-board parameters can then be
+manuipulated with "setp" commands from within halrun or with halcmd.
+The hostmot read function needs to be attached to a realtime thread to allow
+parameters to be read and set, but the write thread is not needed.
+A typical command-line sequence to read and set parameters would be:
+$>halrun
+
+ halcmd: loadrt hostmot2
+ halcmd: loadrt hm2_pci conf="config="firmware=hm2/5i23/svss8_44 conf_sserial=
+0x00000001 setup_sserial"
+ halcmd: loadrt threads
+ halcmd: addf hm2_5i23.0.read thread1
+ halcmd: addf hm2_5i23.0.write thread1
+ halcmd: start
+ halcmd: setp hm2_5i23.0.sserial.0.0.parameter 0x8e8
+ halcmd: setp hm2_5i23.0.sserial.0.0.read 1
+ halcmd: show pin hm2_5i23.0.sserial.0.0.value
+
+It is not expected that this would be a frequent task.
+
+Pins:
+(u32, r/w) parameter: The address of the parameter to be read or set. See the
+manual for the relevant hardware for the parameter addresses.
+
+(u32, r/w) value: The raw value of the parameter as read from the device, or to
+be written. See the device manual for the conversion to engineering units.
+
+(bit, r/w) read: setting this bit high will copy the internal value at the
+parameter address to the "value" pin.
+
+(bit, r/w) write: setting this bit high will copy the value from the "value" pin
+to the internal drive memory at the address specified by "parameter"
+
+(u32, ro) state: Shows the state of the state machine that handles
+communications with the board. 0 is idle, 1, 2 & 3 are read-states and 9 & 10
+are write states.
+
+
 .SH FUNCTIONS
 .TP
 \fBhm2_<BoardType>.<BoardNum>.read\fR

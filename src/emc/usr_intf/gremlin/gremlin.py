@@ -35,12 +35,6 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
     def is_lathe(self): return False
 
-def W(p, k, *args, **kw):
-    w = k(*args, **kw)
-    w.show()
-    p.add(w)
-    return w
-
 class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
               rs274.glcanon.GlCanonDraw):
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
@@ -72,6 +66,8 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
         rs274.glcanon.GlCanonDraw.__init__(self, emc.stat(), self.logger)
         self.inifile = inifile
+
+        self.current_view = 'z'
 
         self.select_primed = None
 
@@ -143,10 +139,9 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def _redraw(self): self.expose()
 
     def map(self, *args):
-        gobject.idle_add(self.poll)
+        gobject.timeout_add(50, self.poll)
 
     def poll(self):
-        time.sleep(.02)
         s = self.stat
         s.poll()
         fingerprint = (self.logger.npts, self.soft_limits(),
@@ -156,17 +151,17 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
         if fingerprint != self.fingerprint:
             self.fingerprint = fingerprint
-            self.expose()
+            self.queue_draw()
 
         # return self.visible
         return True
 
     @rs274.glcanon.with_context
     def realize(self, widget):
-        self.set_view_z()
+        self.set_current_view()
         s = self.stat
         s.poll()
-        if s.file: self.load(s.file)
+        self._current_file = None
 
         self.font_base, width, linespace = \
 		glnav.use_pango_font('courier bold 16', 0, 128)
@@ -174,17 +169,26 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.font_charwidth = width
         rs274.glcanon.GlCanonDraw.realize(self)
 
+        if s.file: self.load(s.file)
+
+    def set_current_view(self):
+        if self.current_view not in ['x', 'y', 'z', 'p']:
+            return
+        return getattr(self, 'set_view_%s' % self.current_view)()
+
     def load(self, filename):
         s = self.stat
         s.poll()
 
         td = tempfile.mkdtemp()
+        self._current_file = filename
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             canon = StatCanon(self.colors, self.get_geometry(), s, random)
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
-            temp_parameter = os.path.join(td, os.path.basename(parameter))
-            shutil.copy(parameter, temp_parameter)
+            temp_parameter = os.path.join(td, os.path.basename(parameter or "emc.var"))
+            if parameter:
+                shutil.copy(parameter, temp_parameter)
             canon.parameter_file = temp_parameter
 
             unitcode = "G%d" % (20 + (s.linear_units == 1))
@@ -193,8 +197,9 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         finally:
             shutil.rmtree(td)
 
-        self.set_view_z()
+        self.set_current_view()
 
+    def get_program_alpha(self): return False
     def get_num_joints(self): return self.num_joints
     def get_geometry(self): return 'XYZ'
     def get_joints_mode(self): return False
@@ -209,7 +214,11 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def get_show_relative(self): return True
     def get_show_tool(self): return True
     def get_show_distance_to_go(self): return True
-    def get_view(self): return 'z'
+
+    def get_view(self):
+        view_dict = {'x':0, 'y':1, 'z':2, 'p':3}
+        return view_dict.get(self.current_view, 3)
+
     def is_lathe(self): return False
     def get_current_tool(self):
         for i in self.stat.tool_table:
@@ -273,25 +282,3 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def scroll(self, widget, event):
         if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
         elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
-
-class GremlinApp(gtk.Window):
-    def __init__(self, inifile):
-        inifile = emc.ini(inifile)
-        gtk.Window.__init__(self)
-
-        self.vbox = W(self, gtk.VBox)
-        self.gremlin = W(self.vbox, Gremlin, inifile)
-        self.gremlin.set_size_request(400, 400)
-
-        self.connect("destroy", self.quit)
-
-        self.show()
-    def quit(self, event):
-        gtk.main_quit()
-
-def main():
-    from sys import argv
-    g = GremlinApp(argv[1])
-    gtk.main()
-
-if __name__ == '__main__': raise SystemExit, main()

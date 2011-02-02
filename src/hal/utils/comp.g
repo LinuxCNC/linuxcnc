@@ -366,6 +366,8 @@ static int comp_id;
     print >>f, "    int sz = sizeof(struct state) + get_data_size();"
     print >>f, "    struct state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
+    if has_data:
+        print >>f, "    inst->_data = (char*)inst + sizeof(struct state);"
     if has_personality:
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
@@ -590,7 +592,7 @@ static int comp_id;
 
         if has_data:
             print >>f, "#undef data"
-            print >>f, "#define data (*(%s*)&(inst->_data))" % options['data']
+            print >>f, "#define data (*(%s*)(inst->_data))" % options['data']
         if has_personality:
             print >>f, "#undef personality"
             print >>f, "#define personality (inst->_personality)"
@@ -826,7 +828,10 @@ def document(filename, outfilename):
             print >>f, type, dir,
             if array:
                 sz = name.count("#")
-                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+                if isinstance(array, tuple):
+                    print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
+                else:
+                    print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
             if personality:
                 print >>f, " [if %s]" % personality,
             if value:

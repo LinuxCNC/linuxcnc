@@ -37,6 +37,7 @@ DOC_SRCS := \
 	gui/touchy.lyx \
 	gui/image-to-gcode.lyx \
 	gui/image-to-gcode_fr.lyx \
+	gui/gladevcp.lyx \
 	Master_Developer.lyx \
 	Master_Integrator.lyx \
 	Master_Integrator_fr.lyx \
@@ -98,7 +99,7 @@ DOC_SRCS := \
 	hal/comp_fr.lyx \
 	hal/components.lyx \
 	hal/components_fr.lyx \
-	hal/drivers.lyx \
+	hal/parallel_port.lyx \
 	hal/drivers_fr.lyx \
 	hal/general_ref.lyx \
 	hal/general_ref_fr.lyx \

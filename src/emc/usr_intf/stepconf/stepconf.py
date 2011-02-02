@@ -90,13 +90,21 @@ def iceil(x):
     return int(math.ceil(x))
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "emc")
-
 wizard = os.path.join(datadir, "emc2-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join("/etc/emc2/emc2-wizard.gif")
 if not os.path.isfile(wizard):
+    emc2icon = os.path.join("/usr/share/emc/emc2-wizard.gif")
+if not os.path.isfile(wizard):
     wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
     wizard = os.path.join(wizdir, "emc2-wizard.gif")
+
+icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+emc2icon = os.path.join(icondir, "emc2icon.png")
+if not os.path.isfile(emc2icon):
+    emc2icon = os.path.join("/etc/emc2/emc2-wizard.gif")
+if not os.path.isfile(emc2icon):
+    emc2icon = os.path.join("/usr/share/emc/emc2icon.png")
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
@@ -811,7 +819,7 @@ class Data:
             print >>file, "loadrt abs count=1"
             if encoder:
                print >>file, "loadrt scale count=1"
-
+               print >>file, "loadrt lowpass count=1"
         if pump:
             print >>file, "loadrt charge_pump"
             print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
@@ -862,7 +870,7 @@ class Data:
             print >>file, "addf abs.0 servo-thread"
             if encoder:
                print >>file, "addf scale.0 servo-thread"
-
+               print >>file, "addf lowpass.0 servo-thread"
         if pwm:
             x1 = self.spindlepwm1
             x2 = self.spindlepwm2
@@ -1024,14 +1032,18 @@ class Data:
 # The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
+                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
                       print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1, ("setp scale.0.gain .01667")
-                      print >>f1, ("net spindle-velocity => abs.0.in")
+                      print >>f1, ("setp lowpass.0.gain 0.01")
+                      print >>f1, ("net spindle-velocity => lowpass.0.in")
+                      print >>f1, ("net spindle-rps-filtered <= lowpass.0.out")
+                      print >>f1, ("net spindle-rps-filtered => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
@@ -1129,8 +1141,10 @@ class Data:
                          % ( scriptspath, base, self.machinename )
             print >>file,"Type=Application"
             print >>file,"Comment=" + _("Desktop Launcher for EMC config made by Stepconf")
-            print >>file,"Icon=/etc/emc2/emc2icon.png"
+            print >>file,"Icon=%s"% emc2icon
             file.close()
+            # Ubuntu 10.04 require launcher to have execute permissions
+            os.chmod(filename,0775)
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -1312,7 +1326,8 @@ class App:
     def on_basicinfo_next(self, *args):
         self.widgets.drivetime_expander.set_expanded(False)
         self.widgets.parport_expander.set_expanded(False)
-        self.data.machinename = self.widgets.machinename.get_text()
+        machinename = self.widgets.machinename.get_text()
+        self.data.machinename = machinename.replace(" ","_")
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
         self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
@@ -1335,8 +1350,8 @@ class App:
             self.data.number_pports = 1
 
     def on_machinename_changed(self, *args):
-        self.widgets.confdir.set_text(
-            "~/emc2/configs/%s" % self.widgets.machinename.get_text())
+        temp = self.widgets.machinename.get_text()
+        self.widgets.confdir.set_text("~/emc2/configs/%s" % temp.replace(" ","_"))
 
     def on_drivertype_changed(self, *args):
         v = self.widgets.drivertype.get_active()

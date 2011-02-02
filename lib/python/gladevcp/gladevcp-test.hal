@@ -1,0 +1,19 @@
+# Choose one of the following lines if running gladevcp via halcommand
+# comment out the loadusr statement if passing this file to gladevcp with -h gladevcp-test.hal
+# see also the example in http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GladeVcp
+loadusr -Wn gladevcp-test gladevcp gladevcp-test.ui
+#loadusr -Wn gladevcp-test gladevcp gladevcp-test.glade
+
+net vcp_b2led    gladevcp-test.hal_button1 => gladevcp-test.hal_led1
+net vcp_tb2table gladevcp-test.hal_togglebutton1 => gladevcp-test.hal_table1
+net vcp_cb2hbox  gladevcp-test.hal_checkbutton1  => gladevcp-test.hal_hbox1
+net vcp_vs2label gladevcp-test.hal_vscale1       => gladevcp-test.hal_label1 gladevcp-test.hal_vbar1
+net vcp_sb2label gladevcp-test.hal_spinbutton1-s => gladevcp-test.hal_label2
+
+net vcp_rb2lab1  gladevcp-test.hal_radiobutton1  => gladevcp-test.hal_led4
+net vcp_rb2lab2  gladevcp-test.hal_radiobutton2  => gladevcp-test.hal_led5
+
+net vcp_hs2prgrs gladevcp-test.hal_hscale1       => gladevcp-test.hal_progressbar1
+net vcp_sb2prgrs gladevcp-test.hal_spinbutton2-f => gladevcp-test.hal_progressbar1.scale
+
+net vcp_hs2bar   gladevcp-test.hal_hscale2       => gladevcp-test.hal_hbar1

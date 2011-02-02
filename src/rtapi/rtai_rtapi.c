@@ -149,8 +149,6 @@ int init_module(void)
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init\n");
-    /* setup revision string and code, and print opening message */
-    setup_revision_info();
     /* get master shared memory block from OS and save its address */
     rtapi_data = rtai_kmalloc(RTAPI_KEY, sizeof(rtapi_data_t));
     if (rtapi_data == NULL) {
@@ -652,13 +650,21 @@ static void wrapper(long task_id)
     return;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,24)
+#define IP(x) ((x)->ip)
+#elif defined(__i386__)
+#define IP(x) ((x)->eip)
+#else
+#define IP(x) ((x)->rip)
+#endif
+
 static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
         void *task) {
     int self = rtapi_task_self();
     rtapi_print_msg(RTAPI_MSG_ERR,
 	"RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d ip=%08lx.\n"
 	"RTAPI: This fault may not be recoverable without rebooting.\n",
-	self, task, vec, signo, regs->ip);
+	self, task, vec, signo, IP(regs));
     rtapi_task_pause(self);
     return 0;
 }

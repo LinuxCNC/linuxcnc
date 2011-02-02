@@ -41,6 +41,7 @@ EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
 EMC2_LANG_DIR=@EMC2_LANG_DIR@
 REALTIME=@REALTIME@
 EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
+EMC2_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 
 #put the EMC2_BIN_DIR in PATH
 PATH=$EMC2_BIN_DIR:$PATH
@@ -595,28 +596,38 @@ if [ -n "$HALUI" ] ; then
     $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
 fi
 
-# 4.3.6. execute HALCMD config files (if any)
-# get first config file name from ini file
-NUM=1
-CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
-while [ -n "$CFGFILE" ] ; do
-    case $CFGFILE in
-    *.tcl)
-        if ! haltcl -ini "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
-            Cleanup
-            exit -1
-        fi
-    ;;
-    *)
-        if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
-            Cleanup
-            exit -1
-        fi
-    esac
-    # get next config file name from ini file
-    NUM=$(($NUM+1))
+TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
+if [ -n "$TWOPASS" ] ; then
+  # if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
+  CFGFILE=$EMC2_TCL_LIB_DIR/twopass.tcl
+  if ! haltcl -ini "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+      Cleanup
+      exit -1
+  fi
+else
+    # 4.3.6. execute HALCMD config files (if any)
+    # get first config file name from ini file
+    NUM=1
     CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
-done
+    while [ -n "$CFGFILE" ] ; do
+        case $CFGFILE in
+        *.tcl)
+            if ! haltcl -ini "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+                Cleanup
+                exit -1
+            fi
+        ;;
+        *)
+            if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
+                Cleanup
+                exit -1
+            fi
+        esac
+        # get next config file name from ini file
+        NUM=$(($NUM+1))
+        CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+    done
+fi
 
 # 4.3.7. execute discrete HAL commands from ini file (if any)
 # get first command from ini file

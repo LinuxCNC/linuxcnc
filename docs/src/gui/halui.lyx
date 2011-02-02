@@ -45,12 +45,13 @@
 \begin_body
 
 \begin_layout Chapter
+Hal User Interface
 \begin_inset LatexCommand label
-name "cha:Halui"
+name "cha:Hal-User-Interface"
 
 \end_inset
 
-Halui
+
 \end_layout
 
 \begin_layout Section
@@ -153,11 +154,21 @@ halui.feed-override.count-enable (bit, in) - must be true for counts to work.
 \end_layout
 
 \begin_layout Itemize
-halui.feed-override.counts (s32, in) - counts from an encoder to change FO
+halui.feed-override.counts (s32, in) - counts * scale = FO percentage
 \end_layout
 
 \begin_layout Itemize
 halui.feed-override.decrease (bit, in) - pin for decreasing the FO (-=scale)
+\end_layout
+
+\begin_layout Itemize
+halui.feed-override.direct-value (bit, in) - false when using encoder to change
+ counts, true when setting counts directly.
+ The 
+\family typewriter
+count-enable
+\family default
+ pin must be true.
 \end_layout
 
 \begin_layout Itemize
@@ -585,12 +596,21 @@ halui.spindle-override.count-enable (bit, in) - when TRUE, modify spindle
 \end_layout
 
 \begin_layout Itemize
-halui.spindle-override.counts (s32, in) - counts from an encoder for example
- to change SO
+halui.spindle-override.counts (s32, in) - counts * scale = SO percentage
 \end_layout
 
 \begin_layout Itemize
 halui.spindle-override.decrease (bit, in)- pin for decreasing the SO (-=scale)
+\end_layout
+
+\begin_layout Itemize
+halui.spindle-override.direct-value (bit, in) - false when using encoder to
+ change counts, true when setting counts directly.
+ The 
+\family typewriter
+count-enable
+\family default
+ pin must be true.
 \end_layout
 
 \begin_layout Itemize

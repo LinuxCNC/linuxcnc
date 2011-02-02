@@ -352,6 +352,7 @@ void MESSAGE(char *comment) {
 
 void LOG(char *s) {}
 void LOGOPEN(char *f) {}
+void LOGAPPEND(char *f) {}
 void LOGCLOSE() {}
 
 void COMMENT(const char *comment) {

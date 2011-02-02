@@ -435,11 +435,11 @@ void CMS_SERVER_REMOTE_TCP_PORT::run()
 			    *((u_long *) temp_buffer + 1) =
 				htonl((unsigned long)
 				CMS_SERVER_SIDE_ERROR);
-			    *((u_long *) temp_buffer + 2) = htonl(0);	/* size 
+			    putbe32(temp_buffer + 8, 0);	/* size
 									 */
-			    *((u_long *) temp_buffer + 3) = htonl(0);	/* write_id 
+			    putbe32(temp_buffer + 12, 0);	/* write_id
 									 */
-			    *((u_long *) temp_buffer + 4) = htonl(0);	/* was_read 
+			    putbe32(temp_buffer + 16, 0);	/* was_read
 									 */
 			    sendn(client_port_to_check->socket_fd,
 				temp_buffer, 20, 0, dtimeout);
@@ -508,6 +508,17 @@ void tcpsvr_handle_blocking_request_sigint_handler(int sig)
     tcpsvr_handle_blocking_request_sigint_count++;
 }
 
+static void putbe32(char *addr, uint32_t val) {
+    val = htonl(val);
+    memcpy(addr, &val, sizeof(val));
+}
+
+static uint32_t getbe32(char *addr) {
+    uint32_t val;
+    memcpy(&val, addr, sizeof(val));
+    return ntohl(val);
+}
+
 #if defined(POSIX_THREADS) || defined(NO_THREADS)
 void *tcpsvr_handle_blocking_request(void *_req)
 {
@@ -554,12 +565,11 @@ void *tcpsvr_handle_blocking_request(void *_req)
     if (NULL == read_reply) {
 	_client_tcp_port->blocking = 0;
 	rcs_print_error("Server could not process request.\n");
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
-	*((u_long *) temp_buffer + 1) =
-	    htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-	*((u_long *) temp_buffer + 2) = htonl(0);	/* size */
-	*((u_long *) temp_buffer + 3) = htonl(0);	/* write_id */
-	*((u_long *) temp_buffer + 4) = htonl(0);	/* was_read */
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
+	putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+	putbe32(temp_buffer + 8, 0);	/* size */
+	putbe32(temp_buffer + 12, 0)	/* write_id */;
+	putbe32(temp_buffer + 16, 0)	/* was_read */;
 	sendn(_client_tcp_port->socket_fd, temp_buffer, 20, 0, dtimeout);
 	_client_tcp_port->errors++;
 	_client_tcp_port->blocking_read_req = NULL;
@@ -568,11 +578,11 @@ void *tcpsvr_handle_blocking_request(void *_req)
 	tcpsvr_threads_returned_early++;
 	return 0;
     }
-    *((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
-    *((u_long *) temp_buffer + 1) = htonl(read_reply->status);
-    *((u_long *) temp_buffer + 2) = htonl(read_reply->size);
-    *((u_long *) temp_buffer + 3) = htonl(read_reply->write_id);
-    *((u_long *) temp_buffer + 4) = htonl(read_reply->was_read);
+    putbe32(temp_buffer, _client_tcp_port->serial_number);
+    putbe32(temp_buffer + 4, read_reply->status);
+    putbe32(temp_buffer + 8, read_reply->size);
+    putbe32(temp_buffer + 12, read_reply->write_id);
+    putbe32(temp_buffer + 16, read_reply->was_read);
     if (read_reply->size < (0x2000 - 20) && read_reply->size > 0) {
 	memcpy(temp_buffer + 20, read_reply->data, read_reply->size);
 	_client_tcp_port->blocking = 0;
@@ -673,7 +683,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::handle_request(CLIENT_TCP_PORT *
 	return;
     }
     long request_type, buffer_number, received_serial_number;
-    received_serial_number = ntohl(*((u_long *) temp_buffer));
+    received_serial_number = getbe32(temp_buffer);
     if (received_serial_number != _client_tcp_port->serial_number) {
 	rcs_print_error
 	    ("received_serial_number (%ld) does not equal expected serial number.(%ld)\n",
@@ -768,10 +778,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		(REMOTE_GET_DIAG_INFO_REPLY *) server->
 		process_request(&diagreq);
 	    if (NULL == diagreply) {
-		*((u_long *) temp_buffer) =
-		    htonl(_client_tcp_port->serial_number);
-		*((u_long *) temp_buffer + 1) =
-		    htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
+		putbe32(temp_buffer, _client_tcp_port->serial_number);
+		putbe32(temp_buffer+4, CMS_SERVER_SIDE_ERROR);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 24, 0,
 			dtimeout) < 0) {
@@ -780,10 +788,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		return;
 	    }
 	    if (NULL == diagreply->cdi) {
-		*((u_long *) temp_buffer) =
-		    htonl(_client_tcp_port->serial_number);
-		*((u_long *) temp_buffer + 1) =
-		    htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
+		putbe32(temp_buffer, _client_tcp_port->serial_number);
+		putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 24, 0,
 			dtimeout) < 0) {
@@ -793,13 +799,10 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    }
 	    memset(temp_buffer, 0, 0x2000);
 	    unsigned long dpi_offset = 32;
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) = htonl(diagreply->status);
-	    *((u_long *) temp_buffer + 2) =
-		htonl(diagreply->cdi->last_writer);
-	    *((u_long *) temp_buffer + 3) =
-		htonl(diagreply->cdi->last_reader);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, diagreply->status);
+	    putbe32(temp_buffer + 8, diagreply->cdi->last_writer);
+	    putbe32(temp_buffer + 12, diagreply->cdi->last_reader);
 	    double curtime = etime();
 	    double reversed_temp = 0.0;
 	    if (_client_tcp_port->diag_info->reverse_flag == 0x44332211) {
@@ -955,9 +958,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		process_request(&namereq);
 	    memset(temp_buffer, 0, 40);
 	    if (NULL != namereply) {
-		*((u_long *) temp_buffer) =
-		    htonl(_client_tcp_port->serial_number);
-		*((u_long *) temp_buffer + 1) = htonl(namereply->status);
+		putbe32(temp_buffer, _client_tcp_port->serial_number);
+		putbe32(temp_buffer + 4, namereply->status);
 		strncpy(temp_buffer + 8, namereply->name, 31);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 40, 0,
@@ -966,10 +968,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		    return;
 		}
 	    } else {
-		*((u_long *) temp_buffer) =
-		    htonl(_client_tcp_port->serial_number);
-		*((u_long *) temp_buffer + 1) =
-		    htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
+		putbe32(temp_buffer, _client_tcp_port->serial_number);
+		putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
 		if (sendn
 		    (_client_tcp_port->socket_fd, temp_buffer, 40, 0,
 			dtimeout) < 0) {
@@ -1053,9 +1053,9 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		    htonl(_client_tcp_port->serial_number);
 		*((u_long *) temp_buffer + 1) =
 		    htonl((unsigned long) CMS_SERVER_SIDE_ERROR);
-		*((u_long *) temp_buffer + 2) = htonl(0);	/* size */
-		*((u_long *) temp_buffer + 3) = htonl(0);	/* write_id */
-		*((u_long *) temp_buffer + 4) = htonl(0);	/* was_read */
+		putbe32(temp_buffer + 8, 0);	/* size */
+		putbe32(temp_buffer + 12, 0);	/* write_id */
+		putbe32(temp_buffer + 16, 0);	/* was_read */
 		sendn(_client_tcp_port->socket_fd, temp_buffer, 20, 0,
 		    dtimeout);
 		return;
@@ -1074,13 +1074,11 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		rcs_print_error("fork error: %d %s\n", errno,
 		    strerror(errno));
 		_client_tcp_port->blocking = 0;
-		*((u_long *) temp_buffer) =
-		    htonl(_client_tcp_port->serial_number);
-		*((u_long *) temp_buffer + 1) =
-		    htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-		*((u_long *) temp_buffer + 2) = htonl(0);	/* size */
-		*((u_long *) temp_buffer + 3) = htonl(0);	/* write_id */
-		*((u_long *) temp_buffer + 4) = htonl(0);	/* was_read */
+		putbe32(temp_buffer, _client_tcp_port->serial_number);
+		putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+		putbe32(temp_buffer + 8, 0);
+		putbe32(temp_buffer + 12, 0);
+		putbe32(temp_buffer + 16, 0);
 		sendn(_client_tcp_port->socket_fd, temp_buffer, 20, 0,
 		    dtimeout);
 		break;
@@ -1096,9 +1094,9 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 		htonl(_client_tcp_port->serial_number);
 	    *((u_long *) temp_buffer + 1) =
 		htonl((unsigned long) CMS_SERVER_SIDE_ERROR);
-	    *((u_long *) temp_buffer + 2) = htonl(0);	/* size */
-	    *((u_long *) temp_buffer + 3) = htonl(0);	/* write_id */
-	    *((u_long *) temp_buffer + 4) = htonl(0);	/* was_read */
+	    putbe32(temp_buffer + 8, 0);	/* size */
+	    putbe32(temp_buffer + 12, 0);	/* write_id */
+	    putbe32(temp_buffer + 16, 0);	/* was_read */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 20, 0, dtimeout);
 	    return;
 
@@ -1136,21 +1134,19 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	}
 	if (NULL == server->read_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-	    *((u_long *) temp_buffer + 2) = htonl(0);	/* size */
-	    *((u_long *) temp_buffer + 3) = htonl(0);	/* write_id */
-	    *((u_long *) temp_buffer + 4) = htonl(0);	/* was_read */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+	    putbe32(temp_buffer + 8, 0);
+	    putbe32(temp_buffer + 12, 0);
+	    putbe32(temp_buffer + 16, 0);
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 20, 0, dtimeout);
 	    return;
 	}
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
-	*((u_long *) temp_buffer + 1) = htonl(server->read_reply->status);
-	*((u_long *) temp_buffer + 2) = htonl(server->read_reply->size);
-	*((u_long *) temp_buffer + 3) = htonl(server->read_reply->write_id);
-	*((u_long *) temp_buffer + 4) = htonl(server->read_reply->was_read);
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
+	putbe32(temp_buffer + 4, server->read_reply->status);
+	putbe32(temp_buffer + 8, server->read_reply->size);
+	putbe32(temp_buffer + 12, server->read_reply->write_id);
+	putbe32(temp_buffer + 16, server->read_reply->was_read);
 	if (server->read_reply->size < (0x2000 - 20)
 	    && server->read_reply->size > 0) {
 	    memcpy(temp_buffer + 20, server->read_reply->data,
@@ -1218,21 +1214,16 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	if (((min_compatible_version < 2.58) && (min_compatible_version > 1e-6)) || server->write_reply->confirm_write) {
 	    if (NULL == server->write_reply) {
 		rcs_print_error("Server could not process request.\n");
-		*((u_long *) temp_buffer) =
-		    htonl(_client_tcp_port->serial_number);
-		*((u_long *) temp_buffer + 1) =
-		    htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-		*((u_long *) temp_buffer + 2) = htonl(0);	/* was_read */
+		putbe32(temp_buffer, _client_tcp_port->serial_number);
+		putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+		putbe32(temp_buffer + 8, 0);	/* was_read */
 		sendn(_client_tcp_port->socket_fd, temp_buffer, 12, 0,
 		    dtimeout);
 		return;
 	    }
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl(server->write_reply->status);
-	    *((u_long *) temp_buffer + 2) =
-		htonl(server->write_reply->was_read);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, server->write_reply->status);
+	    putbe32(temp_buffer + 8, server->write_reply->was_read);
 	    if (sendn
 		(_client_tcp_port->socket_fd, temp_buffer, 12, 0,
 		    dtimeout) < 0) {
@@ -1254,15 +1245,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    check_if_read_req);
 	if (NULL == server->check_if_read_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-	    *((u_long *) temp_buffer + 2) = htonl(0);	/* was_read */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+	    putbe32(temp_buffer + 8, 0);	/* was_read */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 12, 0, dtimeout);
 	    return;
 	}
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
 	*((u_long *) temp_buffer + 1) =
 	    htonl(server->check_if_read_reply->status);
 	*((u_long *) temp_buffer + 2) =
@@ -1282,15 +1271,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    get_msg_count_req);
 	if (NULL == server->get_msg_count_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-	    *((u_long *) temp_buffer + 2) = htonl(0);	/* was_read */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+	    putbe32(temp_buffer + 8, 0);	/* was_read */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 12, 0, dtimeout);
 	    return;
 	}
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
 	*((u_long *) temp_buffer + 1) =
 	    htonl(server->get_msg_count_reply->status);
 	*((u_long *) temp_buffer + 2) =
@@ -1310,15 +1297,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    process_request(&server->get_queue_length_req);
 	if (NULL == server->get_queue_length_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-	    *((u_long *) temp_buffer + 2) = htonl(0);	/* was_read */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+	    putbe32(temp_buffer + 8, 0);	/* was_read */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 12, 0, dtimeout);
 	    return;
 	}
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
 	*((u_long *) temp_buffer + 1) =
 	    htonl(server->get_queue_length_reply->status);
 	*((u_long *) temp_buffer + 2) =
@@ -1338,15 +1323,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    process_request(&server->get_space_available_req);
 	if (NULL == server->get_space_available_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
-	    *((u_long *) temp_buffer + 2) = htonl(0);	/* was_read */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
+	    putbe32(temp_buffer + 8, 0);	/* was_read */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 12, 0, dtimeout);
 	    return;
 	}
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
 	*((u_long *) temp_buffer + 1) =
 	    htonl(server->get_space_available_reply->status);
 	*((u_long *) temp_buffer + 2) =
@@ -1365,15 +1348,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    clear_req);
 	if (NULL == server->clear_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl((uint32_t) CMS_SERVER_SIDE_ERROR);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, CMS_SERVER_SIDE_ERROR);
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 8, 0, dtimeout);
 	    return;
 	}
-	*((u_long *) temp_buffer) = htonl(_client_tcp_port->serial_number);
-	*((u_long *) temp_buffer + 1) = htonl(server->clear_reply->status);
+	putbe32(temp_buffer, _client_tcp_port->serial_number);
+	putbe32(temp_buffer + 4, server->clear_reply->status);
 	if (sendn(_client_tcp_port->socket_fd, temp_buffer, 8, 0, dtimeout) <
 	    0) {
 	    _client_tcp_port->errors++;
@@ -1419,15 +1400,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	if (NULL == server->get_keys_reply) {
 	    rcs_print_error("Server could not process request.\n");
 	    memset(temp_buffer, 0, 20);
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
 	    server->gen_random_key(((char *) temp_buffer) + 4, 2);
 	    server->gen_random_key(((char *) temp_buffer) + 12, 2);
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 20, 0, dtimeout);
 	    return;
 	} else {
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
 	    memcpy(((char *) temp_buffer) + 4, server->get_keys_reply->key1,
 		8);
 	    memcpy(((char *) temp_buffer) + 12, server->get_keys_reply->key2,
@@ -1455,16 +1434,13 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    login_req);
 	if (NULL == server->login_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) = htonl(0);	/* not successful */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, 0);	/* not successful */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 8, 0, dtimeout);
 	    return;
 	} else {
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) =
-		htonl(server->login_reply->success);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, server->login_reply->success);
 	    /* successful ? */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 8, 0, dtimeout);
 	    return;
@@ -1482,9 +1458,8 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	    process_request(&server->set_subscription_req);
 	if (NULL == server->set_subscription_reply) {
 	    rcs_print_error("Server could not process request.\n");
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
-	    *((u_long *) temp_buffer + 1) = htonl(0);	/* not successful */
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
+	    putbe32(temp_buffer + 4, 0);	/* not successful */
 	    sendn(_client_tcp_port->socket_fd, temp_buffer, 8, 0, dtimeout);
 	    return;
 	} else {
@@ -1505,8 +1480,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 			buffer_number);
 		}
 	    }
-	    *((u_long *) temp_buffer) =
-		htonl(_client_tcp_port->serial_number);
+	    putbe32(temp_buffer, _client_tcp_port->serial_number);
 	    *((u_long *) temp_buffer + 1) =
 		htonl(server->set_subscription_reply->success);
 	    /* successful ? */
@@ -1689,11 +1663,11 @@ void CMS_SERVER_REMOTE_TCP_PORT::update_subscriptions()
 		subscription_buffers->get_next();
 	    continue;
 	}
-	*((u_long *) temp_buffer) = 0;
-	*((u_long *) temp_buffer + 1) = htonl(server->read_reply->status);
-	*((u_long *) temp_buffer + 2) = htonl(server->read_reply->size);
-	*((u_long *) temp_buffer + 3) = htonl(server->read_reply->write_id);
-	*((u_long *) temp_buffer + 4) = htonl(server->read_reply->was_read);
+	putbe32(temp_buffer, 0);
+	putbe32(temp_buffer + 4, server->read_reply->status);
+	putbe32(temp_buffer + 8, server->read_reply->size);
+	putbe32(temp_buffer + 12, server->read_reply->write_id);
+	putbe32(temp_buffer + 16, server->read_reply->was_read);
 	TCP_CLIENT_SUBSCRIPTION_INFO *temp_clnt_info =
 	    (TCP_CLIENT_SUBSCRIPTION_INFO *) buf_info->sub_clnt_info->
 	    get_head();
@@ -1713,8 +1687,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::update_subscriptions()
 		temp_clnt_info->last_id_read = server->read_reply->write_id;
 		temp_clnt_info->last_sub_sent_time = cur_time;
 		temp_clnt_info->clnt_port->serial_number++;
-		*((u_long *) temp_buffer) =
-		    htonl(temp_clnt_info->clnt_port->serial_number);
+		putbe32(temp_buffer, temp_clnt_info->clnt_port->serial_number);
 		if (server->read_reply->size < 0x2000 - 20
 		    && server->read_reply->size > 0) {
 		    memcpy(temp_buffer + 20, server->read_reply->data,

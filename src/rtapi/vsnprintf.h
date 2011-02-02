@@ -34,6 +34,7 @@ values (or floating point).
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
 */
 
+#include <rtapi_math.h>
 
 /* we use this so that we can do without the string library */
 static int strn_len(const char *s, int count)
@@ -61,10 +62,20 @@ static int skip_atoi(const char **s)
 #define SPECIAL	32		/* 0x */
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
+static const char small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+static const char large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 static char *ch(char *buf, char *end, char ch)
 {
     if(buf <= end) *buf = ch;
     return buf+1;
+}
+
+static char *st(char *buf, char *end, char *add)
+{
+    while(*add)
+	buf = ch(buf, end, *add++);
+    return buf;
 }
 
 static char *number(char *buf, char *end, long long numll, int base,
@@ -73,8 +84,6 @@ static char *number(char *buf, char *end, long long numll, int base,
     unsigned long num;
     char c, sign, tmp[66];
     const char *digits;
-    const char small_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-    const char large_digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int i;
 
     digits = (type & LARGE) ? large_digits : small_digits;
@@ -120,62 +129,64 @@ static char *number(char *buf, char *end, long long numll, int base,
     }
     size -= precision;
     if (!(type & (ZEROPAD + LEFT))) {
-	while (size-- > 0) {
-	    if (buf <= end) {
-		*buf = ' ';
-	    }
-	    ++buf;
-	}
+	while (size-- > 0) buf = ch(buf, end, ' ');
     }
-    if (sign) {
-	if (buf <= end) {
-	    *buf = sign;
-	}
-	++buf;
-    }
+    if (sign) buf = ch(buf, end, sign);
     if (type & SPECIAL) {
 	if (base == 8) {
-	    if (buf <= end) {
-		*buf = '0';
-	    }
-	    ++buf;
+	    buf = ch(buf, end, '0');
 	} else if (base == 16) {
-	    if (buf <= end) {
-		*buf = '0';
-	    }
-	    ++buf;
-	    if (buf <= end) {
-		*buf = digits[33];
-	    }
-	    ++buf;
+	    buf = ch(buf, end, '0');
+	    buf = ch(buf, end, digits[33]);
 	}
     }
     if (!(type & LEFT)) {
-	while (size-- > 0) {
-	    if (buf <= end) {
-		*buf = c;
-	    }
-	    ++buf;
-	}
+	while (size-- > 0) buf = ch(buf, end, c);
     }
     while (i < precision--) {
-	if (buf <= end) {
-	    *buf = '0';
-	}
-	++buf;
+	buf = ch(buf, end, '0');
     }
     while (i-- > 0) {
-	if (buf <= end) {
-	    *buf = tmp[i];
-	}
-	++buf;
+	buf = ch(buf, end, tmp[i]);
     }
     while (size-- > 0) {
-	if (buf <= end) {
-	    *buf = ' ';
-	}
-	++buf;
+	buf = ch(buf, end, ' ');
     }
+    return buf;
+}
+
+static char *fnumber(char *buf, char *end, double num)
+{
+    int exp;
+    double mantissa = frexp(fabs(num), &exp);
+    int i;
+
+    if(signbit(num)) buf = ch(buf, end, '-');
+    if(isnan(num)) { buf = st(buf, end, "NaN"); return buf; }
+    if(isinf(num)) { buf = st(buf, end, "Inf"); return buf; }
+
+    buf = st(buf, end, "0x");
+
+    /* want one digit to the left of the radix point.  ldexp should return in
+     * the range [0.5,1) but guard with an 'if' just in case */
+    if(mantissa != 0 && mantissa < 1) { mantissa *= 16; exp -= 4; }
+
+    /* first digit */
+    i = (int)floor(mantissa);
+    buf = ch(buf, end, large_digits[i]);
+    mantissa = 16 * (mantissa - i);
+
+    /* radix point if any fractional digits */
+    if(mantissa) { buf = ch(buf, end, '.'); }
+    while(mantissa) {
+        /* remaning digits, if any */
+        i = (int)floor(mantissa);
+        buf = ch(buf, end, large_digits[i]);
+        mantissa = 16 * (mantissa - i);
+    }
+
+    buf = ch(buf, end, 'P');
+    buf = number(buf, end, exp, 10, 0, 0, PLUS|SIGN);
     return buf;
 }
 
@@ -312,17 +323,11 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 		}
 	    }
 	    for (i = 0; i < len; ++i) {
-		if (str <= end) {
-		    *str = *s;
-		}
-		++str;
+		str = ch(str, end, *s);
 		++s;
 	    }
 	    while (len < field_width--) {
-		if (str <= end) {
-		    *str = ' ';
-		}
-		++str;
+		str = ch(str, end, ' ');
 	    }
 	    continue;
 	case 'p':
@@ -339,20 +344,11 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
         case 'a': case 'A':
             {
                 double d = va_arg(args, double);
-                uint32_t *l = (uint32_t*)&d;
-                str = ch(str, end, 'F');
-                str = ch(str, end, '[');
-                str = number(str, end, l[0], 16, 8, 8, 0);
-                str = ch(str, end, ':');
-                str = number(str, end, l[1], 16, 8, 8, 0);
-                str = ch(str, end, ']');
+                str = fnumber(str, end, d);
                 continue;
             }
 	case '%':
-	    if (str <= end) {
-		*str = '%';
-	    }
-	    ++str;
+	    str = ch(str, end, '%');
 	    continue;
 	    /* integer number formats - set up the flags and "break" */
 	case 'o':
@@ -369,15 +365,9 @@ static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_li
 	case 'u':
 	    break;
 	default:
-	    if (str <= end) {
-		*str = '%';
-	    }
-	    ++str;
+	    str = ch(str, end, '%');
 	    if (*fmt) {
-		if (str <= end) {
-		    *str = *fmt;
-		}
-		++str;
+		str = ch(str, end, *fmt);
 	    } else {
 		--fmt;
 	    }

@@ -973,7 +973,6 @@ PM_CARTESIAN norm(PM_CARTESIAN v)
 
     return vout;
 }
-#endif
 
 PM_QUATERNION norm(PM_QUATERNION q)
 {
@@ -1015,6 +1014,7 @@ PM_ROTATION_MATRIX norm(PM_ROTATION_MATRIX m)
 
     return mout;
 }
+#endif
 
 // isNorm
 

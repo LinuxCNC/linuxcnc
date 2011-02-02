@@ -108,8 +108,6 @@ int rtapi_init(const char *modname)
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: Init\n");
-    /* setup revision string and code, and print opening message */
-    setup_revision_info();
     /* convert main RTAPI key to a string */
     genstr((unsigned int) RTAPI_KEY, keystr);
     /* get main shared memory block from OS and save its address */

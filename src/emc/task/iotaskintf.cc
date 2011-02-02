@@ -40,6 +40,8 @@ EMC_IO_STAT *emcIoStatus = 0;
 static int emcIoCommandSerialNumber = 0;
 static double EMCIO_BUFFER_GET_TIMEOUT = 5.0;
 
+static int forceCommand(RCS_CMD_MSG *msg);
+
 static int emcioNmlGet()
 {
     int retval = 0;
@@ -117,6 +119,7 @@ static int emcioNmlGet()
 }
 
 static RCS_CMD_MSG *last_io_command = 0;
+static long largest_io_command_size = 0;
 
 /*
   sendCommand() waits until any currently executing command has finished,
@@ -133,6 +136,16 @@ static int sendCommand(RCS_CMD_MSG * msg)
     // need status buffer also, to check for command received
     if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
 	return -1;
+    }
+
+    // always force-queue an abort
+    if (msg->type == EMC_TOOL_ABORT_TYPE) {
+	// just queue the abort and call it a day
+	int rc = forceCommand(msg);
+	if (rc) {
+	    rcs_print_error("forceCommand(EMC_TOOL_ABORT) returned %d\n", rc);
+	}
+	return 0;
     }
 
     double send_command_timeout = etime() + 5.0;
@@ -175,8 +188,9 @@ static int sendCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
 
-    if (last_io_command == 0) {
-	last_io_command = (RCS_CMD_MSG *) malloc(0x4000);
+    if (largest_io_command_size < msg->size) {
+	largest_io_command_size = std::max<long>(msg->size, 4096);
+	last_io_command = (RCS_CMD_MSG *) realloc(last_io_command, largest_io_command_size);
     }
 
     if (0 != last_io_command) {
@@ -209,8 +223,9 @@ static int forceCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
 
-    if (last_io_command == 0) {
-	last_io_command = (RCS_CMD_MSG *) malloc(0x4000);
+    if (largest_io_command_size < msg->size) {
+	largest_io_command_size = std::max<long>(msg->size, 4096);
+	last_io_command = (RCS_CMD_MSG *) realloc(last_io_command, largest_io_command_size);
     }
 
     if (0 != last_io_command) {

@@ -562,6 +562,11 @@ int main(int argc, char *argv[])
 	    if (t == argc - 1) {
 		return -1;
 	    } else {
+                if (strlen(argv[t+1]) >= LINELEN) {
+                    rtapi_print_msg(RTAPI_MSG_ERR, "ini file name too long (max %d)\n", LINELEN);
+                    rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
+                    return -1;
+                }
 		strcpy(EMC_INIFILE, argv[t + 1]);
 		t++;
 	    }
@@ -686,7 +691,6 @@ int main(int argc, char *argv[])
 	    // this gets sent on any Task Abort, so it might be safer to stop
 	    // the spindle  and coolant
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
-
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:

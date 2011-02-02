@@ -206,10 +206,11 @@ static PyTypeObject Ini_Type = {
 #define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
-static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s) {
+static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s, double timeout) {
     double start = etime();
 
-    while (etime() - start < EMC_COMMAND_TIMEOUT) {
+    do {
+        double now = etime();
         if(s->peek() == EMC_STAT_TYPE) {
            EMC_STAT *stat = (EMC_STAT*)s->get_address();
 //           printf("WaitComplete: %d %d %d\n", serial_number, stat->echo_serial_number, stat->status);
@@ -218,8 +219,8 @@ static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s) {
                 return s->get_address()->status;
            }
         }
-        esleep(EMC_COMMAND_DELAY);
-    }
+        esleep(fmin(timeout - (now - start), EMC_COMMAND_DELAY));
+    } while (etime() - start < timeout);
     return -1;
 }
 
@@ -1307,7 +1308,10 @@ static PyObject *set_analog_output(pyCommandChannel *s, PyObject *o) {
 }
 
 static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
-    return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
+    double timeout = EMC_COMMAND_TIMEOUT;
+    if (!PyArg_ParseTuple(o, "|d:emc.command.wait_complete", &timeout))
+        return NULL;
+    return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s, timeout));
 }
 
 static PyMemberDef Command_members[] = {
@@ -1320,7 +1324,7 @@ static PyMethodDef Command_methods[] = {
     {"teleop_enable", (PyCFunction)teleop, METH_VARARGS},
     {"teleop_vector", (PyCFunction)set_teleop_vector, METH_VARARGS},
     {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS},
-    {"wait_complete", (PyCFunction)wait_complete, METH_NOARGS},
+    {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS},
     {"state", (PyCFunction)state, METH_VARARGS},
     {"mdi", (PyCFunction)mdi, METH_VARARGS},
     {"mode", (PyCFunction)mode, METH_VARARGS},
@@ -2202,6 +2206,10 @@ initemc(void) {
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_DELAY);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD);
+
+    ENUM(RCS_DONE);
+    ENUM(RCS_EXEC);
+    ENUM(RCS_ERROR);
 }
 
 

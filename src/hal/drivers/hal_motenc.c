@@ -368,11 +368,11 @@ rtapi_app_exit(void)
 	if((pDevice = driver.deviceTable[i]) != NULL){
 	    // turn off digital outputs
 	    for(j = 0; j < pDevice->numFpga; j++){
-		pDevice->pCard->fpga[i].digitalIo = MOTENC_DIGITAL_OUT;
+		pDevice->pCard->fpga[j].digitalIo = MOTENC_DIGITAL_OUT;
 	    }
 	    // set DAC outputs to zero volts
-	    for(i = 0; i < MOTENC_NUM_DAC_CHANNELS; i++){
-		pDevice->pCard->dac[i] = MOTENC_DAC_COUNT_ZERO;
+	    for(j = 0; j < MOTENC_NUM_DAC_CHANNELS; j++){
+		pDevice->pCard->dac[j] = MOTENC_DAC_COUNT_ZERO;
 	    }
 	    
 	    // Unmap card.

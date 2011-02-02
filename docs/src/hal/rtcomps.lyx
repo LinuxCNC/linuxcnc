@@ -432,6 +432,17 @@ capture_position()
 \noun on
 (bit)
 \noun default
+ stepgen.<chan>.enable
+\family default
+ -- Enables output steps - when false, no steps are generated.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\noun on
+(bit)
+\noun default
  stepgen.<chan>.step
 \family default
  -- Step pulse output (step type 0 only).
@@ -1542,12 +1553,32 @@ Pins
 \end_layout
 
 \begin_layout Itemize
-encoder.<chan>.counter-mode (bit, I/O) -- When set to true the Phase B input
- is ignored.
+
+\family typewriter
+encoder.<chan>.counter-mode
+\family default
+ (bit, I/O) (default: FALSE) -- Enables counter mode.
+ When true, the counter counts each rising edge of the phase-A input, ignoring
+ the value on phase-B.
+ This is useful for counting the output of a single channel (non-quadrature)
+ sensor.
+ When false, it counts in quadrature mode.
 \end_layout
 
 \begin_layout Itemize
-encoder.<chan>.counts (s32, Out)
+
+\family typewriter
+encoder.<chan>.counts
+\family default
+ (s32, Out) -- Position in encoder counts.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+encoder.<chan>.counts-latched
+\family default
+ (s32, Out) -- Not used at this time.
 \end_layout
 
 \begin_layout Itemize
@@ -1555,7 +1586,82 @@ encoder.<chan>.counts (s32, Out)
 \family typewriter
 encoder.<chan>.index-enable
 \family default
- (bit, I/O) -- See canonical encoder interface.
+ (bit, I/O) -- When True, 
+\family typewriter
+counts
+\family default
+ and 
+\family typewriter
+position are
+\family default
+ reset to zero on next rising edge of Phase Z.
+ At the same time, 
+\family typewriter
+index-enable
+\family default
+ is reset to zero to indicate that the rising edge has occoured.
+ The 
+\family typewriter
+index-enable
+\family default
+ pin is bi-directional.
+ If 
+\family typewriter
+index-enable
+\family default
+ is False, the Phase Z channel of the encoder will be ignored, and the counter
+ will count normally.
+ The encoder driver will never set 
+\family typewriter
+index-enable
+\family default
+ True.
+ However, some other component may do so.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+encoder.<chan>.latch-falling
+\family default
+ (bit, In) (default: TRUE) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+encoder.<chan>.latch-input
+\family default
+ (bit, In) (default: TRUE) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+encoder.<chan>.latch-rising
+\family default
+ (bit, In) -- Not used at this time.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+encoder.<chan>.min-speed-estimate
+\family default
+ (float, in) -- Determine the minimum true velocity magnitude at which velocity
+ will be estimated as nonzero and postition-interpolated will be interpolated.
+ The units of 
+\family typewriter
+min-speed-estimate
+\family default
+ are the same as the units of 
+\family typewriter
+velocity
+\family default
+.
+ Scale factor, in counts per length unit.
+ Setting this parameter too low will cause it to take a long time for velocity
+ to go to 0 after encoder pulses have stopped arriving.
 \end_layout
 
 \begin_layout Itemize
@@ -1587,7 +1693,11 @@ encoder.<chan>.phase-Z
 \family typewriter
 encoder.<chan>.position
 \family default
- (float, Out) -- See canonical encoder interface.
+ (float, Out) -- Position in scaled units (see 
+\family typewriter
+position-scale
+\family default
+).
 \end_layout
 
 \begin_layout Itemize
@@ -1595,19 +1705,53 @@ encoder.<chan>.position
 \family typewriter
 encoder.<chan>.position-interpolated
 \family default
- (float, Out) -- See below.
+ (float, Out) -- Position in scaled units, interpolated between encoder
+ counts.
+ The 
+\family typewriter
+position-interpolated
+\family default
+ attempts to interpolate between encoder counts, based on the most recently
+ measured velocity.
+ Only valid when velocity is approximately constant and above 
+\family typewriter
+min-speed-estimate
+\family default
+.
+ Do not be used for position control, since its value is incorrect at low
+ speeds, during direction reversals, and during speed changes.
+ However, it allows a low ppr encoder (including a one pulse per revolution
+ "encoder") to be used for lathe threading, and may have other uses as well.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+encoder.<chan>.position-latched (float, Out)
+\family default
+ -- 
+\family typewriter
+Not used at this time.
 \end_layout
 
 \begin_layout Itemize
 
 \family typewriter
 encoder.<chan>.position-scale (float, I/O)
+\family default
+ -- Scale factor, in counts per length unit.
+ For example, if position-scale is 500, then 1000 counts of the encoder
+ will be reported as a position of 2.0 units.
 \end_layout
 
 \begin_layout Itemize
 
 \family typewriter
 encoder.<chan>.rawcounts (s32, In)
+\family default
+ -- The raw count, as determined by update-counters.
+ This value is updated more frequently than counts and position.
+ It is also unaffected by reset or the index pulse.
 \end_layout
 
 \begin_layout Itemize
@@ -1615,7 +1759,15 @@ encoder.<chan>.rawcounts (s32, In)
 \family typewriter
 encoder.<chan>.reset
 \family default
- (bit, In) -- See the canonical encoder interface section of the HAL manual.
+ (bit, In) -- When True, force 
+\family typewriter
+counts
+\family default
+ and 
+\family typewriter
+position
+\family default
+ to zero immediately.
 \end_layout
 
 \begin_layout Itemize
@@ -1623,30 +1775,32 @@ encoder.<chan>.reset
 \family typewriter
 encoder.<chan>.velocity
 \family default
- (float, Out) -- Estimated speed of the quadrature signal.
+ (float, Out) -- Velocity in scaled units per second.
  
+\family typewriter
+encoder
+\family default
+ uses an algorithm that greatly reduces quantization noise as compared to
+ simply differentiating the 
+\family typewriter
+position
+\family default
+ output.
+ When the magnitude of the true velocity is below min-velocity-estimate,
+ the velocity output is 0.
 \end_layout
 
 \begin_layout Itemize
 
 \family typewriter
-encoder.<chan>.x4-mode (bit, I/O) --
+encoder.<chan>.x4-mode (bit, I/O) (default: TRUE)
 \family default
- Sets encoder to 4x or 1x mode.
+ -- Enables times-4 mode.
+ When true, the counter counts each edge of the quadrature waveform (four
+ counts per full cycle).
+ When false, it only counts once per full cycle.
+ In counter-mode, this parameter is ignored.
  The 1x mode is usefull for some jogwheels.
-\end_layout
-
-\begin_layout Standard
-The pin 
-\family typewriter
-position-interpolated
-\family default
- attempts to interpolate between encoder counts, based on the most recently
- measured velocity.
- It should not be used for position control, since its value is incorrect
- at low speeds, during direction reversals, and during speed changes.
- However, it allows a low ppr encoder (including a one pulse per revolution
- "encoder") to be used for lathe threading, and may have other uses as well.
 \end_layout
 
 \begin_layout Subsection

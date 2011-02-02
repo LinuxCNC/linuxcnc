@@ -32,11 +32,14 @@
 # or
 #  comp --install example.c
 
+cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+
 BUILDSYS = @BUILD_SYS@
 
 KERNELDIR := @KERNELDIR@
 CC := @CC@
-RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
+RTFLAGS = $(filter-out -ffast-math,@RTFLAGS@ @EXT_RTFLAGS@) -fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations
 RTFLAGS := -Os -g -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
 ifeq ($(RTARCH),x86_64)
 EXTRA_CFLAGS += -msse
@@ -54,8 +57,6 @@ EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/emc2
 RTLIBDIR := @EMC2_RTLIB_DIR@
 LIBDIR := @libdir@
 endif
-cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)
 
 ifeq ($(BUILDSYS),kbuild)
