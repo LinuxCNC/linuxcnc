@@ -155,6 +155,9 @@ static int pluto_setup(unsigned char *firmware) {
     if(retval < 0)
         return retval;
 
+    ioaddr = portdata.base;
+    ioaddr_hi = portdata.base_hi;
+
     outb(4, ioaddr + 2);        // set control lines and input mode
     if(ioaddr_hi != -1)
         outb(0, ioaddr_hi + 0x2);    // select SPP mode in ECR
