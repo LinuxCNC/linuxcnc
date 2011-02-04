@@ -21,7 +21,7 @@
 #include <asm/io.h>
 #endif
 
-#include "parport_common.h"
+#include "hal_parport.h"
 
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
