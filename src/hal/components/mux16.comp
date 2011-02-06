@@ -6,14 +6,11 @@ pin in bit suppress_no_input"""\
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
 """;
-pin in s32 debounce_time"""\
+pin in float debounce_time"""\
 sets debouce time based on the number of thread periods counted
 input must be stable this long before outputs changes.
 """;
-pin in bit sel0;
-pin in bit sel1;
-pin in bit sel2;
-pin in bit sel3 """\
+pin in bit sel#[4] """\
 Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
 """;
 pin out float out_f;
@@ -31,101 +28,48 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 etc.
 .RE
 """;
-pin in float in00;
-pin in float in01;
-pin in float in02;
-pin in float in03;
-pin in float in04;
-pin in float in05;
-pin in float in06;
-pin in float in07;
-pin in float in08;
-pin in float in09;
-pin in float in10;
-pin in float in11;
-pin in float in12;
-pin in float in13;
-pin in float in14;
-pin in float in15;
+param r float elapsed "Current value of the internal timer";
+param r s32 selected "Current value of the internal selection variable";
+pin in float in##[16] "array of selectable float outputs";
+variable double delaytime;
 function _;
 license "GPL";
 ;;
 FUNCTION(_) {
-    int temp = 0,num = 0;
-    static int lastnum = 0,delay = 0;
+    int i,num = 0;
+    static int lastnum = 0;
+    int internal[4];
+    delaytime += fperiod;
+    elapsed = delaytime;
     if(suppress_no_input) {
-        if (sel0 + sel1 + sel2 + sel3 == 0) {
+        if (sel(0) + sel(1) + sel(2) + sel(3) == 0) {
             return;
         }
     }
-    num = (sel0)+(sel1*2) + (sel2*4) + (sel3*8);
+    if (use_graycode) {
+        internal[0] = sel(3);
+        internal[1] = sel(2);
+        internal[2] = sel(1);
+        internal[3] = sel(0);
+        for(i = 1; i < 4; i++){
+            internal[i] = internal[i] ^ internal[i - 1];
+        }
+        selected = num = internal[3]+(internal[2]*2) + (internal[1]*4) + (internal[0]*8);
+    }else{
+        selected = num = (sel(0))+(sel(1)*2) + (sel(2)*4) + (sel(3)*8);
+    }
     if(debounce_time) {
         if (num == lastnum) {
-            if (delay < debounce_time) {
-                delay++;
+            if (delaytime < debounce_time) {
                 return;
                 }
         }else{
-            delay = 0;
+            delaytime = 0;
             lastnum = num;
             return;
             }
     }
-    if(use_graycode) {   
-        temp = num ^ (num>>8);
-        temp ^= (temp>>4);
-        temp ^= (temp>>2);
-        temp ^= (temp>>1);
-        num = temp;
-        }
-    switch (num) {
-        case 1: 
-            out_s = out_f = in01; 
-            break;
-        case 2: 
-            out_s = out_f = in02; 
-            break;
-        case 3: 
-            out_s = out_f = in03; 
-            break;
-        case 4: 
-            out_s = out_f = in04; 
-            break;
-        case 5: 
-            out_s = out_f = in05; 
-            break;
-        case 6: 
-            out_s = out_f = in06; 
-            break;
-        case 7: 
-            out_s = out_f = in07; 
-            break;
-        case 8: 
-            out_s = out_f = in08; 
-            break;
-        case 9: 
-            out_s = out_f = in09; 
-            break;
-        case 10: 
-            out_s = out_f = in10; 
-            break;
-        case 11: 
-            out_s = out_f = in11; 
-            break;
-        case 12: 
-            out_s = out_f = in12; 
-            break;
-        case 13: 
-            out_s = out_f = in13; 
-            break;
-        case 14: 
-            out_s = out_f = in14; 
-            break;
-        case 15: 
-            out_s = out_f = in15; 
-            break;
-        default: 
-            out_s = out_f = in00; 
-            break;
-        }
+    /* select the output */
+    out_s = out_f = in(num); 
+
 }
