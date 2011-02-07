@@ -2058,8 +2058,7 @@ bind . <Control-Tab> {
 foreach c {Entry Spinbox} {
         foreach b [bind $c] {
             switch -glob $b {
-                <Shift-Key-*> - <Control-Key-*> -
-                <Meta-Key-*> - <Alt-Key-*> {
+                <*-Key-*> {
                     bind $c $b {+if {[%W cget -state] == "normal"} break}
                 }
             }
