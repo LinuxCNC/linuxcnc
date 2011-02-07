@@ -369,9 +369,9 @@ static void process_probe_inputs(void) {
             /* remember the current position */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb; 
             /* stop! */
-            tpAbort(&emcmotDebug->queue);
             emcmotStatus->probing = 0;
             emcmotStatus->probeTripped = 1;
+            tpAbort(&emcmotDebug->queue);
         /* check if the probe hasn't tripped, but the move finished */
         } else if (GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) == 0) {
             /* we are already stopped, but we need to remember the current 
@@ -397,8 +397,9 @@ static void process_probe_inputs(void) {
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
            tpGetExecId(&emcmotDebug->queue) <= 0) {
             // running an MDI command
-            reportError(_("Probe tripped during non-probe MDI command."));
             tpAbort(&emcmotDebug->queue);
+            reportError(_("Probe tripped during non-probe MDI command."));
+	    SET_MOTION_ERROR_FLAG(1);
         }
 
         for(i=0; i<num_joints; i++) {

@@ -1,0 +1,62 @@
+Note on API changes to class handlers and persistence.py:
+
+Class handlers:
+===============
+
+The 'panel' parameter was dropped from get_handlers() since it's not needed.
+Correspondingly, the handler class __init__() method does not get this
+parameter any more as well:
+
+class HandlerClass:
+    ...
+    def __init__(self, halcomp,builder,useropts):
+        self.halcomp = halcomp
+        self.builder = builder
+
+def get_handlers(halcomp,builder,useropts):
+
+    return [HandlerClass(halcomp,builder,useropts)]
+
+Widget access in handler classes:
+=================================
+
+For a named widget, use:
+    w = self.builder.get_object("widgetname")
+
+To retrieve a list of all widgets in the UI file, use:
+    wl = self.builder.get_objects()
+
+This works regardless wether the UI is in libglade or GtkBuilder format.
+
+persistence.py
+==============
+The handling of the builder parameter has been simplified. It has been dropped
+from the save_state and restore_state methods, and added instead to the
+IniFile.__init__() method. Therefore, use as follows:
+
+class HandlerClass:
+    ...
+
+    def on_destroy(self,obj,data=None):
+        # note: save_state(<object to fetch attributes from>) only:
+        self.ini.save_state(self)
+
+
+    def __init__(self, halcomp,builder,useropts):
+        self.halcomp = halcomp
+        self.builder = builder
+
+        self.ini_filename = __name__ + '.ini'
+        self.defaults = {  IniFile.vars: dict(),
+                           IniFile.widgets : widget_defaults(select_widgets(self.builder.get_objects(), hal_only=False,output_only = True))
+                        }
+        # note extra self.builder parameter
+        self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
+        # note - only the object which gets attributes set is passed:
+        self.ini.restore_state(self)
+
+
+All examples and templates have been adapted accordingly.
+
+
+Michael Haberler Dec 19 2010

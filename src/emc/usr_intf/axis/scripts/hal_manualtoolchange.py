@@ -6,6 +6,24 @@ gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode
 
 import emc, hal
 
+_after = None
+def hal_in_background():
+    global _after
+    _after = None
+    if not h.change:
+        app.tk.call("set", "::tkPriv(button)", -1)
+        return
+    _after = app.after(100, hal_in_background)
+
+def poll_hal_in_background():
+    global _after
+    _after = app.after(100, hal_in_background)
+
+def stop_polling_hal_in_background():
+    global _after
+    if _after: app.after_cancel(_after)
+    _after = None
+
 def do_change(n):
     if n:
         message = _("Insert tool %d and click continue when ready") % n
@@ -13,9 +31,15 @@ def do_change(n):
         message = _("Remove the tool and click continue when ready")
     app.wm_withdraw()
     app.update()
-    app.tk.call("nf_dialog", ".tool_change",
-        _("Tool change"), message, "info", 0, _("Continue"))
-    h.changed = True
+    poll_hal_in_background()
+    try:
+        r = app.tk.call("nf_dialog", ".tool_change",
+            _("Tool change"), message, "info", 0, _("Continue"))
+    finally:
+        stop_polling_hal_in_background()
+    if isinstance(r, str): r = int(r)
+    if r == 0:
+        h.changed = True
     app.update()
 
 h = hal.component("hal_manualtoolchange")

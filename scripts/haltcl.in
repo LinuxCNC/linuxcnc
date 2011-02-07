@@ -9,7 +9,7 @@ proc parse_ini {filename} {
             # nothing
         } elseif {[regexp {^([^#]+?)\s*=\s*(.*?)\s*$} $line _  k v]} {
             upvar $section s
-            lappend s($k) $v
+            lappend s([string trim $k]) $v
         }
     }
 
@@ -29,7 +29,6 @@ proc setp {p v} {
 
 proc sets {p v} {
     set v [uplevel [list expr $v]]
-    puts "hal sets $p $v"
     hal sets $p $v
 }
 

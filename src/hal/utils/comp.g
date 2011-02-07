@@ -828,7 +828,10 @@ def document(filename, outfilename):
             print >>f, type, dir,
             if array:
                 sz = name.count("#")
-                print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
+                if isinstance(array, tuple):
+                    print >>f, " (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]),
+                else:
+                    print >>f, " (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1),
             if personality:
                 print >>f, " [if %s]" % personality,
             if value:

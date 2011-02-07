@@ -53,6 +53,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -98,6 +99,44 @@ The EMC Team
 \begin_inset VSpace 0.75in
 \end_inset
 
+NOTICE: 
+\end_layout
+
+\begin_layout Standard
+As of 2011-01-16, the French version of the EMC2 documentation is 2 years
+ out of date due to not having a translator available.
+\end_layout
+
+\begin_layout Standard
+It's recommended to use the English documentation whenever possible.
+\end_layout
+
+\begin_layout Standard
+If you wish to provide updated French translation of EMC2, please contact
+ us.
+\end_layout
+
+\begin_layout Standard
+AVIS:
+\end_layout
+
+\begin_layout Standard
+Au 2011-01-16, la version française de la documentation EMC2 est de 2 ans
+ à la date d'échéance pour ne pas avoir un traducteur disponible.
+\end_layout
+
+\begin_layout Standard
+Il est recommandé d'utiliser la documentation en anglais chaque fois que
+ possible.
+\end_layout
+
+\begin_layout Standard
+Si vous souhaitez fournir des mises à jour traduction française d'EMC2,
+ s'il vous plaît contactez-nous.
+ 
+\end_layout
+
+\begin_layout Standard
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l

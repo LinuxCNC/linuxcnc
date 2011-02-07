@@ -311,7 +311,7 @@ To find more information on these HAL components check the man pages.
 
 \begin_layout Standard
 Place the following in a text file called softstart.hal.
- If your not familiar with Linux place the file in your home directory.
+ If you're not familiar with Linux place the file in your home directory.
 \end_layout
 
 \begin_layout Quote
@@ -459,7 +459,7 @@ After changing a setting run the oscilloscope again to see the change.
 \end_layout
 
 \begin_layout Standard
-When your finished type "exit" in the terminal window to shut down halrun
+When you're finished type "exit" in the terminal window to shut down halrun
  and close the halscope.
  Don't close the terminal window with halrun running as it might leave some
  things in memory that could prevent EMC from loading.

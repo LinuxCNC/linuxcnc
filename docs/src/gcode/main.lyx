@@ -3470,7 +3470,9 @@ G10 L2 P- R-
 axes
 \family default
 \emph default
-, where the P number is in the range 1 to 9 (corresponding to 
+, where the P number is in the range 0 to 9.
+ For the currently active coordinate system program P0.
+ To specify a coordinate system program 1 to 9 corresponding to 
 \family typewriter
 G54
 \family default
@@ -3478,8 +3480,9 @@ G54
 \family typewriter
 G59.3
 \family default
-) and optionally R to indicate the rotation of the XY axis around the Z
- and all axis words are optional.
+.
+ Optionally program R to indicate the rotation of the XY axis around the
+ Z and all axis words are optional.
  The origin of the coordinate system specified by the P number is set to
  the given values (in terms of the not offset machine coordinate system).
  Only those coordinates for which an axis word is included on the line will
@@ -3516,7 +3519,7 @@ It is an error if:
 \end_layout
 
 \begin_layout Itemize
-The P number does not evaluate to an integer in the range 1 to 9.
+The P number does not evaluate to an integer in the range 0 to 9.
 \end_layout
 
 \begin_layout Itemize
@@ -3573,12 +3576,16 @@ G54
 \end_layout
 
 \begin_layout Description
+
+\family typewriter
 G10\InsetSpace ~
 L2\InsetSpace ~
 P1\InsetSpace ~
 X0\InsetSpace ~
 Y0\InsetSpace ~
-Z0 sets the G54 coordinate back to the origin.
+Z0
+\family default
+ sets the G54 coordinate back to the origin.
 \end_layout
 
 \begin_layout Standard
@@ -3609,7 +3616,7 @@ name "cap:Set-Coordinate-System"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="10" columns="3">
+<lyxtabular version="3" rows="11" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -3648,7 +3655,7 @@ G Code
 \begin_inset Text
 
 \begin_layout Standard
-1
+0
 \end_layout
 
 \end_inset
@@ -3657,12 +3664,41 @@ G Code
 \begin_inset Text
 
 \begin_layout Standard
-1
+Currently Active
 \end_layout
 
 \end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+n/a
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -3984,7 +4020,7 @@ It is an error if:
 \end_layout
 
 \begin_layout Itemize
-The P number does not evaluate to an integer in the range 1 to 9.
+The P number does not evaluate to an integer in the range 0 to 9.
 \end_layout
 
 \begin_layout Itemize
@@ -4422,8 +4458,8 @@ A move to the specified coordinate, synchronized with the spindle at the
 \end_layout
 
 \begin_layout Itemize
-When reaching the endpoint, a command to reverse the spindle (e.g., from 300
- RPM clockwise to 300RPM counterclockwise)
+When reaching the endpoint, a command to reverse the spindle (e.g., from clockwise
+ to counterclockwise)
 \end_layout
 
 \begin_layout Itemize
@@ -4440,7 +4476,7 @@ Continued synchronized motion back to the original coordinate
 
 \begin_layout Itemize
 When reaching the original coordinate, a command to reverse the spindle
- a second time (e.g., from 300RPM counterclockwise to 300RPM clockwise)
+ a second time (e.g., from counterclockwise to clockwise)
 \end_layout
 
 \begin_layout Itemize
@@ -4489,6 +4525,26 @@ The spindle is not turning when this command is executed
 \begin_layout Itemize
 The requested linear motion exceeds machine velocity limits due to the spindle
  speed
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+;move to starting position
+\end_layout
+
+\begin_layout LyX-Code
+G0 X1.000 Y1.000 Z0.100
+\end_layout
+
+\begin_layout LyX-Code
+;rigid tapping a 20 TPI thread
+\end_layout
+
+\begin_layout LyX-Code
+G33.1 Z-0.750 K0.05
 \end_layout
 
 \begin_layout Section
@@ -6974,10 +7030,11 @@ G17.1
 \end_layout
 
 \begin_layout Standard
-Rotational axis words are not allowed in canned cycles.  When
- the active plane is one of the XYZ family, the UVW axis words are not
- allowed.  Likewise, when the active plane is one of the UVW family, the
- XYZ axis words are not allowed.
+Rotational axis words are not allowed in canned cycles.
+  When the active plane is one of the XYZ family, the UVW axis words are
+ not allowed.
+  Likewise, when the active plane is one of the UVW family, the XYZ axis
+ words are not allowed.
 \end_layout
 
 \begin_layout Subsection
@@ -6985,7 +7042,8 @@ Common Words
 \end_layout
 
 \begin_layout Standard
-All canned cycles use X, Y, R, and Z words.
+All canned cycles use X, Y, Z, or U, V, W groups depending on the plane
+ selected and R words.
  The R (usually meaning retract) position is along the axis perpendicular
  to the currently selected plane (Z-axis for XY-plane, etc.) Some canned
  cycles use additional arguments.
@@ -6996,17 +7054,9 @@ Sticky Words
 \end_layout
 
 \begin_layout Standard
-For canned cycles, we will call a number 
-\begin_inset Quotes eld
-\end_inset
-
-sticky
-\begin_inset Quotes erd
-\end_inset
-
- if, when the same cycle is used on several lines of code in a row, the
- number must be used the first time, but is optional on the rest of the
- lines.
+For canned cycles, we will call a number "sticky" if, when the same cycle
+ is used on several lines of code in a row, the number must be used the
+ first time, but is optional on the rest of the lines.
  Sticky numbers keep their value on the rest of the lines if they are not
  explicitly programmed to be different.
  The R number is always sticky.
@@ -7020,6 +7070,10 @@ In incremental distance mode X, Y, and R numbers are treated as increments
  in the current coordinate system.
 \end_layout
 
+\begin_layout Subsection
+Repeat Cycle
+\end_layout
+
 \begin_layout Standard
 The L number is optional and represents the number of repeats.
  
@@ -7030,25 +7084,7 @@ The L number is optional and represents the number of repeats.
  If the repeat feature is used, it is normally used in incremental distance
  mode, so that the same sequence of motions is repeated in several equally
  spaced places along a straight line.
- In absolute distance mode, 
-\begin_inset Formula $L>1$
-\end_inset
-
- means "do the same cycle in the same place several times", Omitting the
- L word is equivalent to specifying 
-\begin_inset Formula $L=1$
-\end_inset
-
-.
- The L number is not sticky.
-\end_layout
-
-\begin_layout Subsection
-Repeat Cycle
-\end_layout
-
-\begin_layout Standard
-When L- is greater than 1 in incremental mode with the XY-plane selected,
+ When L- is greater than 1 in incremental mode with the XY-plane selected,
  the X and Y positions are determined by adding the given X and Y numbers
  either to the current X and Y positions (on the first go-around) or to
  the X and Y positions at the end of the previous go-around (on the repetitions).
@@ -7059,6 +7095,18 @@ L10
 , you will get 10 cycles.
  The first cycle will be distance X,Y from the original location.
  The R and Z positions do not change during the repeats.
+ The L number is not sticky.
+ In absolute distance mode, 
+\begin_inset Formula $L>1$
+\end_inset
+
+ means "do the same cycle in the same place several times", Omitting the
+ L word is equivalent to specifying 
+\begin_inset Formula $L=1$
+\end_inset
+
+.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -7093,6 +7141,10 @@ It is an error if:
 
 \begin_layout Itemize
 X, Y, and Z words are all missing during a canned cycle, 
+\end_layout
+
+\begin_layout Itemize
+Axis words from different groups (XYZ) (UVW) are used together,
 \end_layout
 
 \begin_layout Itemize
@@ -7181,10 +7233,10 @@ name "sub:G81:-Drilling-Cycle"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 
 \family typewriter
-G81 X- Y- Z- R- L-
+G81 (X- Y- Z-) or (U- V- W-) R- L-
 \end_layout
 
 \begin_layout Standard
@@ -7219,7 +7271,7 @@ Example 1.
  and the following line of NC code is interpreted.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G90 G81 G98 X4 Y5 Z1.5 R2.8
 \end_layout
 
@@ -7271,7 +7323,7 @@ Example 2.
  and the following line of NC code is interpreted.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
 \end_layout
 
@@ -7367,10 +7419,10 @@ name "sub:G82:-Drilling-Cycle"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 
 \family typewriter
-G82 X- Y- Z- R- L- P-
+G82 (X- Y- Z-) or (U- V- W-) R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7378,7 +7430,7 @@ The
 \family typewriter
 G82
 \family default
- cycle is intended for drilling.
+ cycle is intended for drilling with a dwell at the bottom of the hole.
 \end_layout
 
 \begin_layout Enumerate
@@ -7414,10 +7466,10 @@ name "sub:G83:-Peck-Drilling"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 
 \family typewriter
-G83 X- Y- Z- R- L- Q-
+G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
 \end_layout
 
 \begin_layout Standard
@@ -7514,10 +7566,10 @@ name "sub:G85:-Boring,-No"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 
 \family typewriter
-G85 X- Y- Z- R- L-
+G85 (X- Y- Z-) or (U- V- W-) R- L-
 \end_layout
 
 \begin_layout Standard
@@ -7559,10 +7611,10 @@ name "sub:G86:-Boring,-Spindle"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 
 \family typewriter
-G86 X- Y- Z- R- L- P-
+G86 (X- Y- Z-) or (U- V- W-) R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7668,10 +7720,10 @@ name "sub:G89:-Boring,-Dwell,"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 
 \family typewriter
-G89 X- Y- Z- R- L- P-
+G89 (X- Y- Z-) or (U- V- W-) R- L- P-
 \end_layout
 
 \begin_layout Standard
@@ -7806,6 +7858,10 @@ name "sub:G92,-G92.1,-G92.2,"
 \end_inset
 
 
+\end_layout
+
+\begin_layout LyX-Code
+G92 X- Y- Z- A- B- C- U- V- W-
 \end_layout
 
 \begin_layout Standard
@@ -9157,6 +9213,8 @@ name "cha:O-Codes"
 O-codes provide for flow control in NC programs.
  Each block has an associated number, which is the number used after O.
  Care must be taken to properly match the O-numbers.
+ O codes use the letter "O" not the number zero as the first character in
+ the number like O100.
 \end_layout
 
 \begin_layout Standard
@@ -9191,16 +9249,8 @@ O- sub
 O- endsub
 \family default
 .
- The lines inside the subroutine (the 
-\begin_inset Quotes eld
-\end_inset
-
-body
-\begin_inset Quotes erd
-\end_inset
-
-) are not executed in order; instead, they are executed each time the subroutine
- is called with 
+ The lines inside the subroutine (the "body") are not executed in order;
+ instead, they are executed each time the subroutine is called with 
 \family typewriter
 O- call.
 \end_layout
@@ -9257,6 +9307,7 @@ O- call
  On return from the subroutine, the values of parameters #1 through #30
  (regardless of the number of arguments) will be restored to the values
  they had before the call.
+ Parameters #1 - #30 are local to the subroutine.
 \end_layout
 
 \begin_layout Standard
@@ -9858,6 +9909,15 @@ name "sub:General-logging"
 \begin_layout Standard
 Opens the named log file.
  If the file already exists, it is truncated.
+\end_layout
+
+\begin_layout Subsection
+(LOGAPPEND,filename)
+\end_layout
+
+\begin_layout Standard
+Opens the named log file.
+ If the file already exists, the data is appended.
 \end_layout
 
 \begin_layout Subsection

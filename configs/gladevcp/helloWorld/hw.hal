@@ -1,0 +1,1 @@
+net button-state hw.hal_togglebutton1 => hw.hal_led1

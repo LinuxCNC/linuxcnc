@@ -104,8 +104,41 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
+        case HM2_GTAG_SMARTSERIAL:
+            if (pin->sec_pin & 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "TxData0";
+                    case 0x2: return "TxData1";
+                    case 0x3: return "TxData2";
+                    case 0x4: return "TxData3";
+                    case 0x5: return "TxData4";
+                    case 0x6: return "TxData5";
+                    case 0x7: return "TxData6";
+                    case 0x8: return "TxData7";
+                    case 0x11: return "TxEn0  ";
+                    case 0x12: return "TxEn1  ";
+                    case 0x13: return "TxEn2  ";
+                    case 0x14: return "TxEn3  ";
+                    case 0x15: return "TxEn4  ";
+                    case 0x16: return "TxEn5  ";
+                    case 0x17: return "TxEn6  ";
+                    case 0x18: return "TxEn7  ";
+                }
+                break;
+            }else{ // INput Pin Codes
+                switch (sec_pin) {
+                    case 0x1: return "RxData0";
+                    case 0x2: return "RxData1";
+                    case 0x3: return "RxData2";
+                    case 0x4: return "RxData3";
+                    case 0x5: return "RxData4";
+                    case 0x6: return "RxData5";
+                    case 0x7: return "RxData6";
+                    case 0x8: return "RxData7";
+                }
+                break;
+            }
     }
-
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
     return unknown;
 }
@@ -364,7 +397,8 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
-
+    // sserial.num_instances counts active insts, so use config.num_sserial
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->config.num_sserials);
     // muxed encoder gets the sel pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
     // and about half as many I/Os as you'd expect

@@ -2,12 +2,12 @@
 import glob, os, sys
 
 fail = 0
-for t in glob.glob('*.ngc'):
+for t in sorted(glob.glob('*.ngc')):
     print >>sys.stderr, "#", t
     error = open(t).readline()
     if error.startswith(';'): expected = error[1:-1]
     elif error.startswith('('): expected = error[1:-2]
-    else: raise SystemExit, "%s: Test does not specify expected error" % t
+    else: expected = "%s: Test does not specify expected error" % t
     p = os.popen("rs274 -g %s 2>&1 > /dev/null" % t)
     output = p.readlines()
     r = p.close()

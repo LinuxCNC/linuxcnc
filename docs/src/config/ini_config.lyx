@@ -869,6 +869,14 @@ In emc2.4 and earlier, the default value was 128.
 
 \end_layout
 
+\begin_layout Description
+MDI_HISTORY_FILE\InsetSpace ~
+= The name of a local MDI history file.
+ If this is not specified Axis will save the MDI history in /home/~/.axis_mdi_his
+tory in the home directory.
+ This is useful if you have multiple configurations on one computer.
+\end_layout
+
 \begin_layout Standard
 The following [DISPLAY] items are not used if you select AXIS as your user
  interface program.

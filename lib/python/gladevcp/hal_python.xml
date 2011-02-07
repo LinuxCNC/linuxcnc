@@ -3,107 +3,65 @@ domain="glade-3" depends="gtk+">
  <init-function>glade_python_init</init-function>
 
  <glade-widget-classes>
-   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL_HBox">
-     <properties>
-    <property id="size" save="False" query="True" default="4"/>
-    </properties>
- </glade-widget-class>
- <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL_table">
-     <properties>
-    <property id="size" save="False" query="True" default="4"/>
-    </properties>
- </glade-widget-class>
-   <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox">
-    <properties>
-        <property translatable="True" libglade-only="False" id="items" name="Items">
-        </property>
-    </properties>
-   </glade-widget-class>
+   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL_HBox"/>
+   <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL_table"/>
+   <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox"/>
    <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button"/>
-   <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton">
-   </glade-widget-class>
+   <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton"/>
    <glade-widget-class name="HAL_SpinButton" generic-name="hal_spinbutton" title="HAL_SpinButton"/>
    <glade-widget-class name="HAL_ToggleButton" generic-name="hal_togglebutton" title="HAL_ToggleButton"/>
    <glade-widget-class name="HAL_RadioButton" generic-name="hal_radiobutton" title="HAL_RadioButton"/>
    <glade-widget-class name="HAL_HScale" generic-name="hal_hscale" title="HAL_HScale"/>
    <glade-widget-class name="HAL_VScale" generic-name="hal_vscale" title="HAL_VScale"/>
    <glade-widget-class name="HAL_ProgressBar" generic-name="hal_progressbar" title="HAL_ProgressBar"/>
-   <glade-widget-class name="HAL_LED" generic-name="hal_led" title="HAL_LED">
+   <glade-widget-class name="HAL_LED" generic-name="hal_led" title="HAL LED">
     <properties>
-        <property id="is_on" name="Is_on" ignore="True">
-            <parameter-spec>
-                <type>GParamBoolean</type>
-            </parameter-spec>
-            <tooltip>How to display LED in editor</tooltip>
-        </property>
-
-        <property id="led_shape" name="Shape" ignore="True" save-always="True" default="0" >
-            <parameter-spec>
-                <type>GParamInt</type>
-                <min>0</min>
-                <max>2</max>
-            </parameter-spec>
-            <tooltip>0:round 1:oval 2:square</tooltip>
-        </property>
-
-        <property id="led_size" name="Size" ignore="True" save-always="True" default="10" >
-            <parameter-spec>
-                <type>GParamInt</type>
-                <min>5</min>
-                <max>30</max>
-            </parameter-spec>
-            <tooltip>size of LED</tooltip>
-        </property>
-
-        <property id="led_blink_rate" optional-default="False" name="Blink Rate" save-always="True" optional="True" ignore="True"  default="500">
-            <parameter-spec>
-                <type>GParamInt</type>
-                <min>100</min>
-                <max>1000</max>
-            </parameter-spec>
-            <tooltip>Click to blink LED at set rate (ms)</tooltip>
-        </property>
-        <property optional-default="False" optional="True" id="pick_color_on" name="Pick On-Color"
-        ignore="True" default="#FFFFFF">
-            <spec>glade_standard_gdkcolor_spec</spec>
-            </property>
-
-        <property optional-default="False" optional="True" id="pick_color_off" name="Pick Off-Color"
-        ignore="True"  default="#000000">
-            <spec>glade_standard_gdkcolor_spec</spec>
-        </property>
-
-        <property optional-default="False" optional="True" id="on-color" name="Standard On-Color" ignore="True"
-        save-always="True" default="red">
-            <parameter-spec>
-                <type>GParamString</type>
-            </parameter-spec>
-            <tooltip>use: red blue green white yellow black only</tooltip>
-        </property>
-
-        <property optional-default="True" optional="True" id="off-color" name="Standard Off-Color" ignore="True"
-        save-always="True" default="dark" >
-            <parameter-spec>
-                <type>GParamString</type>
-            </parameter-spec>
-            <tooltip>use: red blue green yellow white black dark only</tooltip>
-        </property>
-
-         
+        <property id="led_blink_rate" optional="True" save-always='True'/>
+        <property id="pick_color_on"  optional="True"/>
+        <property id="pick_color_off" optional="True"/>
     </properties>
     </glade-widget-class>
-    <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label">
-        <properties>
-            <property id="label_pin_type" name="label pin type" ignore="True" save-always="True" default="0" >
-                <parameter-spec>
-                    <type>GParamInt</type>
-                    <min>0</min>
-                    <max>2</max>
-                </parameter-spec>
-                <tooltip>0:S32 1:Float 2:U32</tooltip>
-            </property>  
-        </properties>
-    </glade-widget-class>
+    <glade-widget-class name="HAL_Label" generic-name="hal_label" title="HAL Label"/>
+   <glade-widget-class name="HAL_HBar" generic-name="hal_hbar" title="HAL HBar"/>
+   <glade-widget-class name="HAL_VBar" generic-name="hal_vbar" title="HAL VBar"/>
+    <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
+    <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
+    <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
+
+    <!-- Actions -->
+    <glade-widget-class name="EMC_Action_ESTOP" generic-name="hal_action_estop" title="EMC Action ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_Action_ESTOP_RESET" generic-name="hal_action_estop_reset" title="EMC Action ESTOP RESET" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_Action_ON" generic-name="hal_action_on" title="EMC Action ON" icon-name='gtk-connect'/>
+    <glade-widget-class name="EMC_Action_OFF" generic-name="hal_action_off" title="EMC Action OFF" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_Action_Run" generic-name="hal_action_run" title="EMC Action Run" icon-name='gtk-media-play-ltr'/>
+    <glade-widget-class name="EMC_Action_Step" generic-name="hal_action_run" title="EMC Action Step" icon-name='gtk-media-next-ltr'/>
+    <glade-widget-class name="EMC_Action_Pause" generic-name="hal_action_run" title="EMC Action Pause" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_Action_Resume" generic-name="hal_action_run" title="EMC Action Resume" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_Action_Stop" generic-name="hal_action_stop" title="EMC Action Stop" icon-name='gtk-media-stop'/>
+    <glade-widget-class name="EMC_Action_MDI" generic-name="hal_action_mdi" title="EMC Action MDI" icon-name='gtk-execute'/>
+    <glade-widget-class name="EMC_Action_Home" generic-name="hal_action_home" title="EMC Action Home" icon-name='gtk-home'/>
+    <glade-widget-class name="EMC_Action_Unhome" generic-name="hal_action_unhome" title="EMC Action Unhome" icon-name='gtk-home'/>
+
+    <glade-widget-class name="EMC_ToggleAction_ESTOP" generic-name="hal_toggleaction_estop" title="EMC ToggleAction ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_ToggleAction_Power" generic-name="hal_toggleaction_power" title="EMC ToggleAction Power" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_ToggleAction_Run" generic-name="hal_toggleaction_run" title="EMC ToggleAction Run" icon-name='gtk-media-play-ltr'/>
+    <glade-widget-class name="EMC_ToggleAction_Stop" generic-name="hal_toggleaction_stop" title="EMC ToggleAction Stop" icon-name='gtk-media-stop'/>
+    <glade-widget-class name="EMC_ToggleAction_Pause" generic-name="hal_toggleaction_pause" title="EMC ToggleAction Pause" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_ToggleAction_MDI" generic-name="hal_toggleaction_mdi" title="EMC ToggleAction MDI" icon-name='gtk-execute'/>
+
+    <glade-widget-class name="EMC_RadioAction_ESTOP" generic-name="hal_radioaction_estop" title="EMC RadioAction ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_RadioAction_ESTOP_RESET" generic-name="hal_radioaction_estop_reset" title="EMC RadioAction ESTOP RESET" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_RadioAction_ON" generic-name="hal_radioaction_on" title="EMC RadioAction ON" icon-name='gtk-connect'/>
+    <glade-widget-class name="EMC_RadioAction_OFF" generic-name="hal_radioaction_off" title="EMC RadioAction OFF" icon-name='gtk-disconnect'/>
+
+    <glade-widget-class name="EMC_Stat" generic-name="hal_stat" title="EMC Stat" icon-name='gtk-properties' toplevel='yes'/>
+    <glade-widget-class name="EMC_FileChooserDialog" generic-name="hal_filechooserdialog" title="EMC FileChooserDialog"/>
+    <glade-widget-class name="EMC_FileChooserButton" generic-name="hal_filechooserbutton" title="EMC FileChooserButton"/>
+    <glade-widget-class name="EMC_Action_Open" generic-name="hal_action_open" title="EMC Action Open" icon-name='gtk-open'/>
+    <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-reload'/>
+
+    <glade-widget-class name="EMC_SourceView" generic-name="hal_sourceview" title="EMC SourceView"/>
+    <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory"/>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -120,6 +78,48 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_VScale"/>
    <glade-widget-class-ref name="HAL_ProgressBar"/>
    <glade-widget-class-ref name="HAL_Label"/>
+   <glade-widget-class-ref name="HAL_HBar"/>
+   <glade-widget-class-ref name="HAL_VBar"/>
+   <glade-widget-class-ref name="HAL_Gremlin"/>
+   <glade-widget-class-ref name="HAL_Meter"/>
+   <glade-widget-class-ref name="HAL_Graph"/>
+
+   <glade-widget-class-ref name="EMC_Stat"/>
+
+   <glade-widget-class-ref name="EMC_FileChooserDialog"/>
+   <glade-widget-class-ref name="EMC_FileChooserButton"/>
+
+   <glade-widget-class-ref name="EMC_SourceView"/>
+   <glade-widget-class-ref name="EMC_MDIHistory"/>
+ </glade-widget-group>
+ <glade-widget-group name="python" title="EMC Actions">
+   <glade-widget-class-ref name="EMC_Action_ESTOP"/>
+   <glade-widget-class-ref name="EMC_Action_ESTOP_RESET"/>
+   <glade-widget-class-ref name="EMC_Action_ON"/>
+   <glade-widget-class-ref name="EMC_Action_OFF"/>
+   <glade-widget-class-ref name="EMC_Action_Run"/>
+   <glade-widget-class-ref name="EMC_Action_Step"/>
+   <glade-widget-class-ref name="EMC_Action_Pause"/>
+   <glade-widget-class-ref name="EMC_Action_Resume"/>
+   <glade-widget-class-ref name="EMC_Action_Stop"/>
+   <glade-widget-class-ref name="EMC_Action_MDI"/>
+   <glade-widget-class-ref name="EMC_Action_Home"/>
+   <glade-widget-class-ref name="EMC_Action_Unhome"/>
+
+   <glade-widget-class-ref name="EMC_ToggleAction_ESTOP"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Power"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Run"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Stop"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_Pause"/>
+   <glade-widget-class-ref name="EMC_ToggleAction_MDI"/>
+
+   <glade-widget-class-ref name="EMC_RadioAction_ESTOP"/>
+   <glade-widget-class-ref name="EMC_RadioAction_ESTOP_RESET"/>
+   <glade-widget-class-ref name="EMC_RadioAction_ON"/>
+   <glade-widget-class-ref name="EMC_RadioAction_OFF"/>
+
+   <glade-widget-class-ref name="EMC_Action_Open"/>
+   <glade-widget-class-ref name="EMC_Action_Reload"/>
  </glade-widget-group>
 </glade-catalog>
 

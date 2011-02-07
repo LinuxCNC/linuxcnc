@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="width_request">150</property>
+    <property name="height_request">50</property>
+    <signal name="destroy" handler="on_destroy"/>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="HAL_ComboBox" id="hal_combobox1">
+            <property name="visible">True</property>
+            <property name="model">liststore1</property>
+            <property name="active">2</property>
+            <property name="column">0</property>
+            <signal name="changed" handler="on_changed"/>
+            <child>
+              <object class="GtkCellRendererText" id="cellrenderertext1"/>
+              <attributes>
+                <attribute name="text">1</attribute>
+              </attributes>
+            </child>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name myfloat -->
+      <column type="gfloat"/>
+      <!-- column-name description -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">3.1400001049041748</col>
+        <col id="1" translatable="yes">Pi </col>
+      </row>
+      <row>
+        <col id="0">2.7182817459106445</col>
+        <col id="1" translatable="yes">e</col>
+      </row>
+      <row>
+        <col id="0">42</col>
+        <col id="1" translatable="yes">The Answer</col>
+      </row>
+    </data>
+  </object>
+</interface>

@@ -107,6 +107,7 @@ public:
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
+ int init_named_parameters();
 
 private:
 
@@ -280,6 +281,9 @@ private:
  int find_current_in_system(setup_pointer s, int system, double *x, double *y, double *z,
                             double *a, double *b, double *c,
                             double *u, double *v, double *w);
+ int find_current_in_system_without_tlo(setup_pointer s, int system, double *x, double *y, double *z,
+                            double *a, double *b, double *c,
+                            double *u, double *v, double *w);
  int find_ends(block_pointer block, setup_pointer settings, 
                double *px, double *py, double *pz, 
                double *AA_p, double *BB_p, double *CC_p,
@@ -365,15 +369,18 @@ private:
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
  int store_named_param(char *nameBuf, double value);
+ int init_named_param(char *nameBuf, double value);
  int add_named_param(char *nameBuf);
  int find_named_param(char *nameBuf, int *status, double *value);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
-                          double *parameters);
+                          double *parameters, bool check_exists);
  int read_parameter(char *line, int *counter, double *double_ptr,
-                          double *parameters);
+                          double *parameters, bool check_exists);
  int read_parameter_setting(char *line, int *counter,
                                   block_pointer block, double *parameters);
+ int read_bracketed_parameter(char *line, int *counter, double *double_ptr,
+                          double *parameters, bool check_exists);
  int read_named_parameter_setting(char *line, int *counter,
                                   char **param, double *parameters);
  int read_q(char *line, int *counter, block_pointer block,

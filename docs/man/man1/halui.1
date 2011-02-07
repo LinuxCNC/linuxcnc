@@ -82,10 +82,13 @@ pin for resetting Estop (emc internal) Off
 When TRUE, modify feed override when counts changes.
 .TP
 \fIhalui.feed-override.counts\fR
-counts from an encoder to change FO
+counts X scale = feed override percentage
 .TP
 \fIhalui.feed-override.decrease\fR
 pin for decreasing the FO (-=scale)
+.TP
+\fIhalui.feed-override.direct-value\fR
+pin to enable direct value feed override input
 .TP
 \fIhalui.feed-override.increase\fR
 pin for increasing the FO (+=scale)
@@ -110,23 +113,23 @@ pin for starting flood
 \fIhalui.jog.deadband\fR
 pin for setting jog analog deadband (where not to move)
 .TP
-\fIhalui.jog.speed\fR
+\fIhalui.jog-speed\fR
 pin for setting jog speed. will be used for minus/plus jogging.
 .TP
 \fIhalui.jog.N.analog\fR
 pin for jogging the axis N using an float value (e.g. joystick)
 .TP
 \fIhalui.jog.N.minus\fR
-pin for jogging axis N in negative direction at the halui.jog.speed velocity
+pin for jogging axis N in negative direction at the halui.jog-speed velocity
 .TP
 \fIhalui.jog.N.plus\fR
-pin for jogging axis N in positive direction at the halui.jog.speed velocity
+pin for jogging axis N in positive direction at the halui.jog-speed velocity
 .TP
 \fIhalui.jog.selected.minus\fR
-pin for jogging the selected axis in negative direction at the halui.jog.speed velocity
+pin for jogging the selected axis in negative direction at the halui.jog-speed velocity
 .TP
 \fIhalui.jog.selected.plus\fR
-pin for jogging the selected axis in positive direction at the halui.jog.speed velocity
+pin for jogging the selected axis in positive direction at the halui.jog-speed velocity
 .SS joint
 .TP
 \fIhalui.joint.N.has-fault\fR
@@ -318,16 +321,19 @@ pin for stepping in a program
 When TRUE, modify spindle override when counts changes.
 .TP
 \fIhalui.spindle-override.counts\fR
-counts from an encoder for example to change SO
+counts X scale = spindle override percentage
 .TP
 \fIhalui.spindle-override.decrease\fR
 pin for decreasing the SO (-=scale)
+.TP
+\fIhalui.spindle-override.direct-value\fR
+pin to enable direct spindle override value input
 .TP
 \fIhalui.spindle-override.increase\fR
 pin for increasing the SO (+=scale)
 .TP
 \fIhalui.spindle-override.scale\fR
-pin for setting the scale on changing the SO
+pin for setting the scale of counts for SO
 .TP
 \fIhalui.spindle-override.value\fR
 current FO value

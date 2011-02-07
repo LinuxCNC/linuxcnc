@@ -924,7 +924,7 @@ Exiting HalRun
 \end_layout
 
 \begin_layout Standard
-When your finished with your HAL session type "exit" at the halcmd: prompt.
+When you're finished with your HAL session type "exit" at the halcmd: prompt.
  Do not simply close the terminal window without shutting down the HAL session.
 \end_layout
 

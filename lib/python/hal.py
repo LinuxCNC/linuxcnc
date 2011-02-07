@@ -35,6 +35,9 @@ class _ItemWrap(object):
         if not isinstance(item, _hal.item):
             raise TypeError("Constructor argument must be _hal.item: %s" % type(item))
         self = object.__new__(cls)
+        return self._item_wrap(item)
+
+    def _item_wrap(self, item):
         for f in ['get', 'set', 'get_type', 'get_name', 'get_dir', 'is_pin', '__repr__']:
             setattr(self, f, getattr(item, f))
         return self

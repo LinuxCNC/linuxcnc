@@ -205,7 +205,6 @@ proc makeNodeP {which pstring} {
             set leaf [expr {$i == $lastnode}]
             set j $pcounts($i)
             if {! [$treew exists "$snode"] } {
-                puts [list writeNode $j $parent $snode $element $leaf]
                 writeNode [list $j $parent $snode $element $leaf]
             }
             incr pcounts($i)

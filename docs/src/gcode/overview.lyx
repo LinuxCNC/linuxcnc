@@ -1107,6 +1107,31 @@ The global parameters _a, _b, _c, ...
 \end_layout
 
 \begin_layout Section
+System Parameters
+\begin_inset LatexCommand label
+name "sec:System-Parameters"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two global read only named parameters are available to check which version
+ is running from G Code.
+\end_layout
+
+\begin_layout Description
+#<_vmajor> Major package version.
+ If current version was 2.6.2 would return 2.6.
+\end_layout
+
+\begin_layout Description
+#<_vminor> Minor package version.
+ If current version was 2.6.2 would return 0.2.
+\end_layout
+
+\begin_layout Section
 Expressions
 \begin_inset LatexCommand label
 name "sub:Expressions"
@@ -1502,38 +1527,6 @@ ATAN
 \end_layout
 
 \begin_layout Standard
-The 
-\family typewriter
-FIX
-\family default
- operation rounds towards the left (less positive or more negative) on a
- number line, so that 
-\family typewriter
-FIX[2.8] =2
-\family default
- and 
-\family typewriter
-FIX[-2.8] = -3
-\family default
-, for example.
- The 
-\family typewriter
-FUP
-\family default
- operation rounds towards the right (more positive or less negative) on
- a number line; 
-\family typewriter
-FUP[2.8] = 3
-\family default
- and 
-\family typewriter
-FUP[-2.8] = -2
-\family default
-, for example.
- 
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
@@ -1561,7 +1554,7 @@ name "cap:Functions"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="14" columns="2">
+<lyxtabular version="3" rows="15" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -1845,6 +1838,26 @@ Tangent
 \end_inset
 </cell>
 </row>
+<row bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+EXISTS[arg]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Check named Parameter
+\end_layout
+
+\end_inset
+</cell>
+</row>
 </lyxtabular>
 
 \end_inset
@@ -1858,7 +1871,42 @@ Tangent
 \end_layout
 
 \begin_layout Standard
+The 
+\family typewriter
+FIX
+\family default
+ function rounds towards the left (less positive or more negative) on a
+ number line, so that 
+\family typewriter
+FIX[2.8] =2
+\family default
+ and 
+\family typewriter
+FIX[-2.8] = -3
+\family default
+, for example.
+ The 
+\family typewriter
+FUP
+\family default
+ operation rounds towards the right (more positive or less negative) on
+ a number line; 
+\family typewriter
+FUP[2.8] = 3
+\family default
+ and 
+\family typewriter
+FUP[-2.8] = -2
+\family default
+, for example.
+ 
+\end_layout
 
+\begin_layout Standard
+The EXISTS function checks for the existence of a single named parameter.
+ It takes only one named parameter and returns 1 if it exists and 0 if it
+ does not exist.
+ It is an error if you use a numbered parameter or an expression.
 \end_layout
 
 \begin_layout Section
@@ -1926,32 +1974,16 @@ If the second group (the parameter settings) is reordered, there will be
  no change in the meaning of the line unless the same parameter is set more
  than once.
  In this case, only the last setting of the parameter will take effect.
- For example, after the line 
-\begin_inset Quotes eld
-\end_inset
-
-
+ For example, after the line "
 \family typewriter
 #3=15 #3=6
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
- has been interpreted, the value of parameter 3 will be 6.
- If the order is reversed to 
-\begin_inset Quotes eld
-\end_inset
-
-
+" has been interpreted, the value of parameter 3 will be 6.
+ If the order is reversed to "
 \family typewriter
 #3=6 #3=15
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
- and the line is interpreted, the value of parameter 3 will be 15.
+" and the line is interpreted, the value of parameter 3 will be 15.
 \end_layout
 
 \begin_layout Standard
@@ -1963,32 +1995,16 @@ If the third group (the comments) contains more than one comment and is
 If each group is kept in order or reordered without changing the meaning
  of the line, then the three groups may be interleaved in any way without
  changing the meaning of the line.
- For example, the line 
-\begin_inset Quotes eld
-\end_inset
-
-
+ For example, the line "
 \family typewriter
 g40 g1 #3=15 (foo) #4=-7.0
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
- has five items and means exactly the same thing in any of the 120 possible
- orders (such as 
-\begin_inset Quotes eld
-\end_inset
-
-
+" has five items and means exactly the same thing in any of the 120 possible
+ orders (such as "
 \family typewriter
 #4=-7.0 g1 #3=15 g40 (foo)
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
-) for the five items.
+") for the five items.
  
 \end_layout
 
@@ -2007,7 +2023,7 @@ Many commands cause the controller to change from one mode to another, and
  If a G1 (straight move) command is given on one line, for example, it will
  be executed again on the next line if one or more axis words is available
  on the line, unless an explicit command is given on that next line using
- the axis words or cancelling motion.
+ the axis words or canceling motion.
 \end_layout
 
 \begin_layout Standard
@@ -2488,15 +2504,7 @@ O-
 \begin_inset Text
 
 \begin_layout Standard
-Non-modal codes (
-\begin_inset Quotes eld
-\end_inset
-
-Group 0
-\begin_inset Quotes erd
-\end_inset
-
-)
+Non-modal codes ("Group 0")
 \end_layout
 
 \end_inset
@@ -2634,7 +2642,7 @@ The interpreter and task are carefully written so that the only limit on
 \end_layout
 
 \begin_layout Chapter
-Order of Execution
+G Code Order of Execution
 \begin_inset LatexCommand index
 name "G Code Order of Execution"
 
