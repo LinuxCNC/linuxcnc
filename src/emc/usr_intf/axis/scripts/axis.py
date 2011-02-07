@@ -2908,6 +2908,8 @@ if lathe:
     bind_axis("Up", "Down", 0)
     bind_axis("KP_Left", "KP_Right", 2)
     bind_axis("KP_Up", "KP_Down", 0)
+    bind_axis("KP_4", "KP_6", 2)
+    bind_axis("KP_8", "KP_2", 0)
     root_window.bind("<KeyPress-KP_Next>", kp_wrap(lambda e: None, "KeyPress"))
     root_window.bind("<KeyPress-KP_Prior>", kp_wrap(lambda e: None, "KeyPress"))
 else:
@@ -2917,6 +2919,9 @@ else:
     bind_axis("KP_Left", "KP_Right", 0)
     bind_axis("KP_Down", "KP_Up", 1)
     bind_axis("KP_Next", "KP_Prior", 2)
+    bind_axis("KP_4", "KP_6", 0)
+    bind_axis("KP_2", "KP_8", 1)
+    bind_axis("KP_3", "KP_9", 2)
     bind_axis("bracketleft", "bracketright", 3)
 
 root_window.bind("<KeyPress-minus>", nomodifier(commands.jog_minus))

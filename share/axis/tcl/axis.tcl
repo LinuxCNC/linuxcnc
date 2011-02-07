@@ -2129,6 +2129,11 @@ foreach c {Entry Spinbox} {
         bind $c <KeyRelease-KP_$k> {+if {[%W cget -state] == "normal"} break}
     }
 
+    foreach k {0 1 2 3 4 5 6 7 8 9} {
+        bind $c <KeyPress-KP_$k> "$bb; break"
+        bind $c <KeyRelease-KP_$k> {+if {[%W cget -state] == "normal"} break}
+    }
+
     bind $c <Key> {+if {[%W cget -state] == "normal" && [string length %A]} \
                                                                         break}
 }
