@@ -3784,8 +3784,10 @@ class App:
                     print "pdm"
                     signaltree = self.data._pwmsignaltree
                     if pintype == PDMP:
+                        print "control"
                         ptypetree = self.data._pdmcontrolliststore
                     else:
+                        print "related"
                         ptypetree = self.data._pdmrelatedliststore
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
@@ -4009,10 +4011,10 @@ class App:
     def on_mesa_pintype_changed(self, widget,boardnum,connector,pin):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin) 
-                modelcheck = self.widgets[p].get_model()   
-                old = self.data[ptype]
+                modelcheck = self.widgets[p].get_model()
+                modelptcheck = self.widgets[ptype].get_model()
                 new = self.widgets[ptype].get_active_text()    
-                if (new == None or new == old): return 
+                #if (new == None or new == old): return 
                 if modelcheck == self.data._gpioisignaltree and new in (GPIOO,GPIOD):
                     print "switch GPIO input ",p," to output",new
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
@@ -4020,7 +4022,6 @@ class App:
                     self.widgets[p].set_model(self.data._gpioosignaltree)
                     self.widgets[p].set_active(0)
                     self.widgets[p].handler_unblock(self.data[blocksignal]) 
-                    self.data[ptype] = new
                 elif modelcheck == self.data._gpioosignaltree:
                     if new == GPIOI:
                         print "switch GPIO output ",p,"to input"
@@ -4029,14 +4030,16 @@ class App:
                         self.widgets[p].set_model(self.data._gpioisignaltree)
                         self.widgets[p].set_active(0)
                         self.widgets[p].handler_unblock(self.data[blocksignal])  
-                        self.data[ptype] = new
                     if new == GPIOD:
                         print "switch GPIO output ",p,"to open drain"
-                        self.data[ptype] = new
                     if new == GPIOO:
                         print "switch GPIO opendrain ",p,"to output"
-                        self.data[ptype] = new
-                elif old == PWMP and new == PDMP:
+                elif modelptcheck == self.data._pwmcontrolliststore and new == PDMP:
+                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                    self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
+                    self.widgets[ptype].set_model(self.data._pdmcontrolliststore)
+                    self.widgets[ptype].set_active(1)
+                    self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                     relatedpins = [PWMP,PWMD,PWME]
                     pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, pin, 1)
                     for i in (pinlist):
@@ -4044,9 +4047,13 @@ class App:
                         j = self.widgets[i[0]].get_active()
                         self.widgets[i[0]].set_model(self.data._pdmrelatedliststore)
                         self.widgets[i[0]].set_active(j)
-                    #print "switch PWM  ",p,"to PDM"
-                    self.data[ptype] = new
-                elif old == PDMP and new == PWMP:
+                    print "switch PWM  ",p,"to PDM"
+                elif modelptcheck == self.data._pdmcontrolliststore and new == PWMP:
+                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                    self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
+                    self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
+                    self.widgets[ptype].set_active(0)
+                    self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                     relatedpins = [PWMP,PWMD,PWME]
                     pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, pin, 1)
                     for i in (pinlist):
@@ -4054,11 +4061,8 @@ class App:
                         j = self.widgets[i[0]].get_active()
                         self.widgets[i[0]].set_model(self.data._pwmrelatedliststore)
                         self.widgets[i[0]].set_active(j)
-                    #print "switch PDM  ",p,"to PWM"
-                    self.data[ptype] = new
-                elif old in(GPIOI,GPIOO,GPIOD) and new in (ENCA,ENCB,ENCI,ENCM):
-                    print "switch ",old,"to ",new," on pin ",p
-                else: print "pintype error in pinchanged method old",old,"new ",new,"\npinnumber ",p
+                    print "switch PDM  ",p,"to PWM"
+                else: print "pintype error in pinchanged method new ",new,"    pinnumber ",p
 
     def on_mesa_component_value_changed(self, widget,boardnum):
         self.in_mesa_prepare = True
