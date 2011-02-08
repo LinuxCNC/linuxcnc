@@ -1,14 +1,18 @@
 component mux16 "Select from one of sixteen input values";
 pin in bit use_graycode"""\
-This signifies the input will use Gray code instead of binary
+This signifies the input will use Gray code instead of binary.
+Gray code is a good choice when using physical switches because
+for each increment only one select input changes at a time.
 """;
 pin in bit suppress_no_input"""\
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
+but make in00 unavaliable.
 """;
 pin in float debounce_time"""\
-sets debouce time based on the number of thread periods counted
-input must be stable this long before outputs changes.
+sets debouce time in seconds.  eg. .10 = a tenth of a second
+input must be stable this long before outputs changes. This
+helps to ignore 'noisy' switches.
 """;
 pin in bit sel#[4] """\
 Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
@@ -16,6 +20,7 @@ Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
 pin out float out_f;
 pin out s32 out_s """\
 Follows the value of one of the \\fBin\\fIN\\fR values according to the four \\fBsel\\fR values
+and whether use-graycode is active.
 The s32 value will be trunuated and limited to the max and min values of signed values. 
 .RS
 .TP
@@ -28,9 +33,9 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 etc.
 .RE
 """;
-param r float elapsed "Current value of the internal timer";
-param r s32 selected "Current value of the internal selection variable";
-pin in float in##[16] "array of selectable float outputs";
+param r float elapsed "Current value of the internal debounce timer\n for debugging.";
+param r s32 selected "Current value of the internal selection variable after conversion\n for debugging";
+pin in float in##[16] "array of selectable outputs";
 variable double delaytime;
 function _;
 license "GPL";
