@@ -416,7 +416,7 @@ Millimeter</property>
                                               <widget class="GtkSpinButton" id="servoperiod">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">1000000 500000 2000000 10000 1000 1000</property>
+                                                <property name="adjustment">1000000 500000 2000000 10000 1000 0</property>
                                                 <property name="climb_rate">100</property>
                                                 <property name="numeric">True</property>
                                               </widget>
@@ -1512,7 +1512,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="joystickjograpidrate0">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">2 0 2000 1 10 10</property>
+                                                        <property name="adjustment">2 0 2000 1 10 0</property>
                                                         <property name="digits">1</property>
                                                       </widget>
                                                       <packing>
@@ -1535,7 +1535,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="joystickjograpidrate1">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">2 0 2000 1 10 10</property>
+                                                        <property name="adjustment">2 0 2000 1 10 0</property>
                                                         <property name="digits">1</property>
                                                       </widget>
                                                       <packing>
@@ -1550,7 +1550,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="joystickjograpidrate2">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">2 0 2000 1 10 10</property>
+                                                        <property name="adjustment">2 0 2000 1 10 0</property>
                                                         <property name="digits">1</property>
                                                       </widget>
                                                       <packing>
@@ -1563,7 +1563,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="joystickjograpidrate3">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">2 0 2000 1 10 10</property>
+                                                        <property name="adjustment">2 0 2000 1 10 0</property>
                                                         <property name="digits">1</property>
                                                       </widget>
                                                       <packing>
@@ -1732,7 +1732,7 @@ shared with home</property>
                                               <widget class="GtkSpinButton" id="jograpidrate">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">1 0 2000 1 10 10</property>
+                                                <property name="adjustment">1 0 2000 1 10 0</property>
                                                 <property name="digits">1</property>
                                               </widget>
                                               <packing>
@@ -2173,7 +2173,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue7">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2188,7 +2188,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue6">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2203,7 +2203,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue5">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2218,7 +2218,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue4">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2233,7 +2233,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue15">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2248,7 +2248,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue14">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2263,7 +2263,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue13">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2278,7 +2278,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue12">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2293,7 +2293,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue8">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2317,7 +2317,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue0">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2337,7 +2337,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue1">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2352,7 +2352,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue2">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                                        <property name="adjustment">0 0 100 1 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2367,7 +2367,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue3">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2382,7 +2382,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue9">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2397,7 +2397,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue10">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2412,7 +2412,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="mpgincrvalue11">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                                         <property name="digits">4</property>
                                                       </widget>
                                                       <packing>
@@ -2662,7 +2662,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue0">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">23 0 200 1 10 10</property>
+                                                        <property name="adjustment">23 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2681,7 +2681,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue1">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2695,7 +2695,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue2">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2709,7 +2709,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue3">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">1 0 200 1 10 10</property>
+                                                        <property name="adjustment">1 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2877,7 +2877,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue4">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2891,7 +2891,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue5">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2905,7 +2905,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue6">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -2919,7 +2919,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue7">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3037,7 +3037,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue8">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3049,7 +3049,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue9">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3063,7 +3063,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue10">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3077,7 +3077,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue11">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3091,7 +3091,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue12">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3105,7 +3105,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue13">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3119,7 +3119,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue14">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3133,7 +3133,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="foincrvalue15">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3405,7 +3405,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue0">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">23 0 200 1 10 10</property>
+                                                        <property name="adjustment">23 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3424,7 +3424,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue1">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3438,7 +3438,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue2">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3452,7 +3452,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue3">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">1 0 200 1 10 10</property>
+                                                        <property name="adjustment">1 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3620,7 +3620,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue4">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3634,7 +3634,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue5">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3648,7 +3648,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue6">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">3 0 200 1 10 10</property>
+                                                        <property name="adjustment">3 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3662,7 +3662,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue7">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">1</property>
@@ -3780,7 +3780,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue8">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3792,7 +3792,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue9">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3806,7 +3806,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue10">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3820,7 +3820,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue11">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3834,7 +3834,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue12">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3848,7 +3848,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue13">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3862,7 +3862,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue14">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -3876,7 +3876,7 @@ shared with home</property>
                                                       <widget class="GtkSpinButton" id="soincrvalue15">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0 0 200 1 10 10</property>
+                                                        <property name="adjustment">0 0 200 1 10 0</property>
                                                       </widget>
                                                       <packing>
                                                         <property name="left_attach">4</property>
@@ -4283,7 +4283,7 @@ shared with home</property>
                                                   <widget class="GtkSpinButton" id="Max_spindle_override">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">200 100 200 1 10 10</property>
+                                                    <property name="adjustment">200 100 200 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">5</property>
@@ -4307,7 +4307,7 @@ shared with home</property>
                                                   <widget class="GtkSpinButton" id="min_spindle_override">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">50 0 100 1 10 10</property>
+                                                    <property name="adjustment">50 0 100 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">5</property>
@@ -4366,7 +4366,7 @@ shared with home</property>
                                                   <widget class="GtkSpinButton" id="max_feed_override">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">200 100 200 1 10 10</property>
+                                                    <property name="adjustment">200 100 200 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">5</property>
@@ -4498,7 +4498,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="default_linear_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 10</property>
+                                                    <property name="adjustment">1 0 1000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4510,7 +4510,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="min_linear_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 10</property>
+                                                    <property name="adjustment">1 0 1000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4524,7 +4524,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="max_linear_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 10</property>
+                                                    <property name="adjustment">1 0 1000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4561,7 +4561,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="default_angular_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 10</property>
+                                                    <property name="adjustment">1 0 1000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4610,7 +4610,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="min_angular_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 10</property>
+                                                    <property name="adjustment">1 0 1000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4661,7 +4661,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="max_angular_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 10</property>
+                                                    <property name="adjustment">1 0 1000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4982,7 +4982,7 @@ Actual</property>
                                                                       <widget class="GtkSpinButton" id="pyvcpxpos">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 500 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 500 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">2</property>
@@ -5017,7 +5017,7 @@ Actual</property>
                                                                       <widget class="GtkSpinButton" id="pyvcpypos">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 500 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 500 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">4</property>
@@ -5030,7 +5030,7 @@ Actual</property>
                                                                       <widget class="GtkSpinButton" id="pyvcpwidth">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 250 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 250 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">2</property>
@@ -5051,7 +5051,7 @@ Actual</property>
                                                                       <widget class="GtkSpinButton" id="pyvcpheight">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 250 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 250 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">4</property>
@@ -5283,7 +5283,7 @@ panel</property>
                                                                       <widget class="GtkSpinButton" id="gladevcpheight">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 250 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 250 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">4</property>
@@ -5304,7 +5304,7 @@ panel</property>
                                                                       <widget class="GtkSpinButton" id="gladevcpwidth">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 250 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 250 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">2</property>
@@ -5315,7 +5315,7 @@ panel</property>
                                                                       <widget class="GtkSpinButton" id="gladevcpypos">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 500 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 500 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">4</property>
@@ -5350,7 +5350,7 @@ panel</property>
                                                                       <widget class="GtkSpinButton" id="gladevcpxpos">
                                                                         <property name="visible">True</property>
                                                                         <property name="can_focus">True</property>
-                                                                        <property name="adjustment">0 0 1500 100 500 10</property>
+                                                                        <property name="adjustment">0 0 1500 100 500 0</property>
                                                                       </widget>
                                                                       <packing>
                                                                         <property name="left_attach">2</property>
@@ -24013,7 +24013,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_numof_tppwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">0 0 8 1 10 10</property>
+                                    <property name="adjustment">0 0 8 1 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -24094,7 +24094,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_pwm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">100000 5 195309 1000 10 10</property>
+                                    <property name="adjustment">100000 5 195309 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -24107,7 +24107,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_pdm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">100000 5 195309 1000 10 10</property>
+                                    <property name="adjustment">100000 5 195309 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -24120,7 +24120,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_watchdog_timeout">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">1000000 1000000 500000000 1000 10 10</property>
+                                    <property name="adjustment">1000000 1000000 500000000 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -24133,7 +24133,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_numof_encodergens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 0</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -24147,7 +24147,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_numof_pwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 0</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -24161,7 +24161,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa1_numof_stepgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">2 0 4 1 10 10</property>
+                                    <property name="adjustment">2 0 4 1 10 0</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -44157,7 +44157,7 @@ Charge Pump</property>
                                       <widget class="GtkSpinButton" id="xoutputscale">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                         <property name="digits">2</property>
                                       </widget>
                                       <packing>
@@ -44171,7 +44171,7 @@ Charge Pump</property>
                                       <widget class="GtkSpinButton" id="xmaxoutput">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 0.01 10 10</property>
+                                        <property name="adjustment">0 0 100 0.01 10 0</property>
                                         <property name="digits">2</property>
                                       </widget>
                                       <packing>
@@ -44187,7 +44187,7 @@ Charge Pump</property>
                                       <widget class="GtkSpinButton" id="xoutputoffset">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 -10 10 0.01 0.10000000000000001 10</property>
+                                        <property name="adjustment">0 -10 10 0.01 0.10000000000000001 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44303,7 +44303,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44320,7 +44320,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                         <property name="update_policy">GTK_UPDATE_IF_VALID</property>
                                       </widget>
@@ -44338,7 +44338,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44394,7 +44394,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                                        <property name="adjustment">0 0 10000 0.0001 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44411,7 +44411,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44491,7 +44491,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">1 0 10000 1 10 10</property>
+                                        <property name="adjustment">1 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44506,7 +44506,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44523,7 +44523,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -44651,7 +44651,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xsteptime">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 500000 500 10 10</property>
+                                        <property name="adjustment">1000 0 500000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -44666,7 +44666,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xstepspace">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 500000 500 10 10</property>
+                                        <property name="adjustment">1000 0 500000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -44707,7 +44707,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xdirhold">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 500000 500 10 10</property>
+                                        <property name="adjustment">1000 0 500000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -44722,7 +44722,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xdirsetup">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 500000 500 10 10</property>
+                                        <property name="adjustment">1000 0 500000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -45139,7 +45139,7 @@ Test</property>
                                   <widget class="GtkSpinButton" id="xmaxferror">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">0 0 10 0.01 10 10</property>
+                                    <property name="adjustment">0 0 10 0.01 10 0</property>
                                     <property name="digits">4</property>
                                   </widget>
                                   <packing>
@@ -45151,7 +45151,7 @@ Test</property>
                                   <widget class="GtkSpinButton" id="xminferror">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">0 0 10 0.01 10 10</property>
+                                    <property name="adjustment">0 0 10 0.01 10 0</property>
                                     <property name="digits">4</property>
                                   </widget>
                                   <packing>
@@ -45238,7 +45238,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="xmaxvel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">1 1 1000000 1 10 10</property>
+                                <property name="adjustment">1 1 1000000 1 10 0</property>
                                 <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_xaxis_info_changed"/>
                               </widget>
@@ -45253,7 +45253,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="xmaxacc">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">1 1 10000 0.5 10 10</property>
+                                <property name="adjustment">1 1 10000 0.5 10 0</property>
                                 <property name="digits">1</property>
                                 <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_xaxis_info_changed"/>
@@ -45282,7 +45282,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="xencoderscale">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">0 0 5000000 100 10 10</property>
+                                <property name="adjustment">0 0 5000000 100 10 0</property>
                                 <property name="digits">3</property>
                               </widget>
                               <packing>
@@ -45309,7 +45309,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="xstepscale">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">0 0 5000000 100 10 10</property>
+                                <property name="adjustment">0 0 5000000 100 10 0</property>
                                 <property name="digits">3</property>
                               </widget>
                               <packing>
@@ -45854,7 +45854,7 @@ Type 2</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">0.00060000000000000006 -0.050000000000000003 0.050000000000000003 0.0001 10 10</property>
+                        <property name="adjustment">0.0006 -0.050 0.050 0.0001 10 0</property>
                         <property name="digits">4</property>
                       </widget>
                       <packing>
@@ -46144,7 +46144,7 @@ Type 2</property>
                                       <widget class="GtkSpinButton" id="smaxoutput">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                        <property name="adjustment">0 0 100 1 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -46159,7 +46159,7 @@ Type 2</property>
                                       <widget class="GtkSpinButton" id="soutputscale">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                        <property name="adjustment">0 0 100 1 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -46172,7 +46172,7 @@ Type 2</property>
                                       <widget class="GtkSpinButton" id="soutputoffset">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 -2 2 0.01 0.10000000000000001 10</property>
+                                        <property name="adjustment">0 -2 2 0.01 0.1 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46362,7 +46362,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46379,7 +46379,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                         <property name="update_policy">GTK_UPDATE_IF_VALID</property>
                                       </widget>
@@ -46397,7 +46397,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">2 0 10000 1 10 10</property>
+                                        <property name="adjustment">2 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46453,7 +46453,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                                        <property name="adjustment">0 0 10000 0.0001 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46470,7 +46470,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46550,7 +46550,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">1 0 10000 1 10 10</property>
+                                        <property name="adjustment">1 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46565,7 +46565,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">0 0 10000 1 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46582,7 +46582,7 @@ Test</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 0.01 10 10</property>
+                                        <property name="adjustment">0 0 10000 0.01 10 0</property>
                                         <property name="digits">4</property>
                                       </widget>
                                       <packing>
@@ -46681,7 +46681,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="ssteptime">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 50000 500 10 10</property>
+                                        <property name="adjustment">1000 0 50000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -46696,7 +46696,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="sstepspace">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 50000 500 10 10</property>
+                                        <property name="adjustment">1000 0 50000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -46737,7 +46737,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="sdirhold">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 200000 500 10 10</property>
+                                        <property name="adjustment">1000 0 200000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -46752,7 +46752,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="sdirsetup">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">1000 0 200000 500 10 10</property>
+                                        <property name="adjustment">1000 0 200000 500 10 0</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -46850,7 +46850,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="sstepscale">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">0 0 10000 1 10 10</property>
+                                <property name="adjustment">0 0 10000 1 10 0</property>
                                 <property name="digits">4</property>
                               </widget>
                               <packing>
@@ -46862,7 +46862,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="sencoderscale">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">0 0 10000 1 10 10</property>
+                                <property name="adjustment">0 0 10000 1 10 0</property>
                                 <property name="digits">4</property>
                                 <signal name="value_changed" handler="on_spindle_info_changed"/>
                               </widget>
@@ -46877,7 +46877,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="smaxacc">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">1 0 100 1 10 10</property>
+                                <property name="adjustment">1 0 100 1 10 0</property>
                                 <property name="digits">1</property>
                                 <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_spindle_info_changed"/>
@@ -46893,7 +46893,7 @@ Test</property>
                               <widget class="GtkSpinButton" id="smaxvel">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment">1 0 5000 100 10 10</property>
+                                <property name="adjustment">1 0 5000 100 10 0</property>
                                 <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_spindle_info_changed"/>
                               </widget>
@@ -47777,7 +47777,7 @@ Test</property>
                                               <widget class="GtkSpinButton" id="digitsin">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">15 15 50 1 10 10</property>
+                                                <property name="adjustment">15 15 50 1 10 0</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -47788,7 +47788,7 @@ Test</property>
                                               <widget class="GtkSpinButton" id="digitsout">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">15 15 50 1 10 10</property>
+                                                <property name="adjustment">15 15 50 1 10 0</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -47799,7 +47799,7 @@ Test</property>
                                               <widget class="GtkSpinButton" id="s32in">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 10</property>
+                                                <property name="adjustment">10 10 50 1 10 0</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -47810,7 +47810,7 @@ Test</property>
                                               <widget class="GtkSpinButton" id="s32out">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 10</property>
+                                                <property name="adjustment">10 10 50 1 10 0</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -47821,7 +47821,7 @@ Test</property>
                                               <widget class="GtkSpinButton" id="floatsin">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 10</property>
+                                                <property name="adjustment">10 10 50 1 10 0</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -47832,7 +47832,7 @@ Test</property>
                                               <widget class="GtkSpinButton" id="floatsout">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 10</property>
+                                                <property name="adjustment">10 10 50 1 10 0</property>
                                                 <property name="climb_rate">0.040000000000000001</property>
                                               </widget>
                                               <packing>
@@ -48162,7 +48162,7 @@ program</property>
                           <widget class="GtkSpinButton" id="userneededabs">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 100 1 10 10</property>
+                            <property name="adjustment">0 0 100 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -48229,7 +48229,7 @@ program</property>
                           <widget class="GtkSpinButton" id="userneededpid">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10 1 10 10</property>
+                            <property name="adjustment">0 0 10 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -48255,7 +48255,7 @@ program</property>
                           <widget class="GtkSpinButton" id="userneededscale">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 100 1 10 10</property>
+                            <property name="adjustment">0 0 100 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -48282,7 +48282,7 @@ program</property>
                           <widget class="GtkSpinButton" id="userneededmux16">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 100 1 10 10</property>
+                            <property name="adjustment">0 0 100 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -48570,7 +48570,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="slowdac">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">0.5 0 10 0.10000000000000001 10 10</property>
+                <property name="adjustment">0.5 0 10 0.10000000000000001 10 0</property>
                 <property name="digits">2</property>
                 <signal name="value_changed" handler="on_slowdac_value_changed"/>
               </widget>
@@ -48585,7 +48585,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="fastdac">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">4.9999999999999982 0 10 0.10000000000000001 10 10</property>
+                <property name="adjustment">4.9999999999999982 0 10 0.10000000000000001 10 0</property>
                 <property name="digits">2</property>
                 <signal name="value_changed" handler="on_fastdac_value_changed"/>
               </widget>
@@ -48695,7 +48695,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="testoutputoffset">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">0 -2 2 0.01 0.10000000000000001 10</property>
+                <property name="adjustment">0 -2 2 0.01 0.10000000000000001 0</property>
                 <property name="digits">4</property>
                 <signal name="value_changed" handler="on_testoutputoffset_value_changed"/>
               </widget>
@@ -48731,7 +48731,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="testenc_scale">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">1 -10000 10000 100 10 10</property>
+                <property name="adjustment">1 -10000 10000 100 10 0</property>
                 <property name="digits">3</property>
                 <signal name="value_changed" handler="update_axis_params"/>
               </widget>
@@ -49028,7 +49028,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtuneamplitude">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 10000 1 10 10</property>
+                            <property name="adjustment">1 0 10000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -49078,7 +49078,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunepause">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 30 1 10 10</property>
+                            <property name="adjustment">0 0 30 1 10 0</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
                           <packing>
@@ -49234,7 +49234,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49270,7 +49270,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49514,7 +49514,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentP">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49529,7 +49529,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentI">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 0.10000000000000001 10</property>
+                            <property name="adjustment">0 0 10000 0.01 0.10000000000000001 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49544,7 +49544,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentD">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49559,7 +49559,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentFF0">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49574,7 +49574,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentFF1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 0.10000000000000001 10</property>
+                            <property name="adjustment">0 0 10000 0.01 0.10000000000000001 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49589,7 +49589,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentFF2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 1 10</property>
+                            <property name="adjustment">0 0 10000 0.01 1 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49648,7 +49648,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentbias">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -49662,7 +49662,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentdeadband">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                            <property name="adjustment">0 0 10000 0.0001 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49824,7 +49824,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentsteptime">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
                           <packing>
@@ -49838,7 +49838,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentstepspace">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
                           <packing>
@@ -49852,7 +49852,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentdirhold">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
                           <packing>
@@ -49866,7 +49866,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentdirsetup">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
                           <packing>
@@ -50124,7 +50124,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytuneamplitude">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 10000 1 10 10</property>
+                            <property name="adjustment">1 0 10000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -50174,7 +50174,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunepause">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 30 1 10 10</property>
+                            <property name="adjustment">0 0 30 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
@@ -50328,7 +50328,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -50363,7 +50363,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -50440,7 +50440,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentdeadband">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                            <property name="adjustment">0 0 10000 0.0001 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50455,7 +50455,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentbias">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50514,7 +50514,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentFF2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50529,7 +50529,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentFF1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50544,7 +50544,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentFF0">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50559,7 +50559,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentD">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50574,7 +50574,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentI">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">3</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50589,7 +50589,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentP">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">3</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -50901,7 +50901,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentdirsetup">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -50914,7 +50914,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentdirhold">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -50927,7 +50927,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentstepspace">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -50940,7 +50940,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunecurrentsteptime">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -51217,7 +51217,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztuneamplitude">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 10000 1 10 10</property>
+                            <property name="adjustment">1 0 10000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -51267,7 +51267,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunepause">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 30 1 10 10</property>
+                            <property name="adjustment">0 0 30 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
@@ -51421,7 +51421,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -51456,7 +51456,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -51699,7 +51699,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentP">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51714,7 +51714,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentI">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51729,7 +51729,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentD">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51744,7 +51744,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentFF0">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51759,7 +51759,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentFF1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51774,7 +51774,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentFF2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51833,7 +51833,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentbias">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -51848,7 +51848,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentdeadband">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                            <property name="adjustment">0 0 10000 0.0001 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52010,7 +52010,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentsteptime">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -52023,7 +52023,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentstepspace">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -52036,7 +52036,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentdirhold">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -52049,7 +52049,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunecurrentdirsetup">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -52310,7 +52310,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atuneamplitude">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 1000 1 10 10</property>
+                            <property name="adjustment">1 0 1000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -52360,7 +52360,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunepause">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 30 1 10 10</property>
+                            <property name="adjustment">0 0 30 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
@@ -52514,7 +52514,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -52549,7 +52549,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -52626,7 +52626,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentdeadband">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                            <property name="adjustment">0 0 10000 0.0001 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52641,7 +52641,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentbias">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52700,7 +52700,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentFF2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52715,7 +52715,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentFF1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52730,7 +52730,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentFF0">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52745,7 +52745,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentD">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52760,7 +52760,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentI">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -52775,7 +52775,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentP">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -53087,7 +53087,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentdirsetup">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -53100,7 +53100,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentdirhold">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -53113,7 +53113,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentstepspace">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -53126,7 +53126,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunecurrentsteptime">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1 10 10</property>
+                            <property name="adjustment">0 0 500000 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -53269,7 +53269,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunepause">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 30 1 10 10</property>
+                            <property name="adjustment">0 0 30 1 10 0</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
@@ -53312,7 +53312,7 @@ Warning limits switches
                         <child>
                           <widget class="GtkSpinButton" id="stuneamplitude">
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 1000 1 10 10</property>
+                            <property name="adjustment">1 0 1000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -53585,7 +53585,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -53620,7 +53620,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 50000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 0</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -53863,7 +53863,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentP">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -53877,7 +53877,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentI">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -53891,7 +53891,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentD">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -53905,7 +53905,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentFF0">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -53919,7 +53919,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentFF1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -53933,7 +53933,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentFF2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 1 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -53991,7 +53991,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentbias">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.01 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -54005,7 +54005,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentdeadband">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 0.0001 10 10</property>
+                            <property name="adjustment">0 0 10000 0.0001 10 0</property>
                             <property name="digits">4</property>
                           </widget>
                           <packing>
@@ -54166,7 +54166,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentsteptime">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -54179,7 +54179,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentstepspace">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -54192,7 +54192,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentdirhold">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -54205,7 +54205,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="stunecurrentdirsetup">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 500000 1000 10 10</property>
+                            <property name="adjustment">0 0 500000 1000 10 0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -54523,7 +54523,7 @@ Home Position = Origin to Home Position distance = 1</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">1 1 25000 1 10 10</property>
+                        <property name="adjustment">1 1 25000 1 10 0</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -54540,7 +54540,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 100 1 10 10</property>
+                            <property name="adjustment">1 1 100 1 10 0</property>
                           </widget>
                         </child>
                         <child>
@@ -54559,7 +54559,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 1000 1 10 10</property>
+                            <property name="adjustment">1 1 1000 1 10 0</property>
                             <property name="snap_to_ticks">True</property>
                           </widget>
                           <packing>
@@ -54584,7 +54584,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 100 1 10 10</property>
+                            <property name="adjustment">1 1 100 1 10 0</property>
                             <property name="snap_to_ticks">True</property>
                           </widget>
                         </child>
@@ -54604,7 +54604,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 1000 1 10 10</property>
+                            <property name="adjustment">1 1 1000 1 10 0</property>
                             <property name="snap_to_ticks">True</property>
                           </widget>
                           <packing>
@@ -54677,7 +54677,7 @@ Home Position = Origin to Home Position distance = 1</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">5 1 1000 1 10 10</property>
+                        <property name="adjustment">5 1 1000 1 10 0</property>
                         <property name="digits">4</property>
                       </widget>
                       <packing>
@@ -54721,7 +54721,7 @@ Home Position = Origin to Home Position distance = 1</property>
                       <widget class="GtkSpinButton" id="steprev">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">200 1 5000 200 10 10</property>
+                        <property name="adjustment">200 1 5000 200 10 0</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -54795,7 +54795,7 @@ Home Position = Origin to Home Position distance = 1</property>
                       <widget class="GtkSpinButton" id="encoderline">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">1000 1 500000 100 10 10</property>
+                        <property name="adjustment">1000 1 500000 100 10 0</property>
                       </widget>
                       <packing>
                         <property name="left_attach">1</property>
@@ -54812,7 +54812,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 100 1 10 10</property>
+                            <property name="adjustment">1 1 100 1 10 0</property>
                           </widget>
                         </child>
                         <child>
@@ -54831,7 +54831,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 1000 1 10 10</property>
+                            <property name="adjustment">1 1 1000 1 10 0</property>
                             <property name="snap_to_ticks">True</property>
                           </widget>
                           <packing>
@@ -54879,7 +54879,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 100 1 10 10</property>
+                            <property name="adjustment">1 1 100 1 10 0</property>
                             <property name="snap_to_ticks">True</property>
                           </widget>
                         </child>
@@ -54899,7 +54899,7 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="visible">True</property>
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 1 1000 1 10 10</property>
+                            <property name="adjustment">1 1 1000 1 10 0</property>
                             <property name="snap_to_ticks">True</property>
                           </widget>
                           <packing>
@@ -54959,7 +54959,7 @@ Home Position = Origin to Home Position distance = 1</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">5 1 1000 1 10 10</property>
+                        <property name="adjustment">5 1 1000 1 10 0</property>
                         <property name="digits">4</property>
                       </widget>
                       <packing>
