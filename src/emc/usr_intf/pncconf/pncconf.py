@@ -942,7 +942,7 @@ class Data:
             self[temp+"homefinalvel"]= 0
             self[temp+"latchdir"]= 0
             self[temp+"searchdir"]= 0
-            self[temp+"usehomeindex"]= 1
+            self[temp+"usehomeindex"]= 0
             self[temp+"stepscale"]= 0
             self[temp+"encoderscale"]= 0
     
@@ -3264,20 +3264,6 @@ class App:
 
     def on_external_cntrl_prepare(self, *args):
         self.data.help = "help-extcontrols.txt"
-        if self.data.limitsnone :
-             self.widgets.limittype_none.set_active(1)
-        if self.data.limitswitch :
-             self.widgets.limittype_switch.set_active(1)
-        if self.data.limitshared :
-             self.widgets.limittype_shared.set_active(1)
-        if self.data.homenone :
-             self.widgets.home_none.set_active(1)
-        if self.data.homeindex :
-             self.widgets.home_index.set_active(1)
-        if self.data.homeswitch :
-             self.widgets.home_switch.set_active(1)
-        if self.data.homeboth :
-             self.widgets.home_both.set_active(1)
         if self.data.multimpg :
             self.widgets.multimpg.set_active(1)
         else:
@@ -3479,14 +3465,6 @@ class App:
             self.warning_dialog(text,True)
 
     def on_external_cntrl_next(self, *args):
-        self.data.limitshared = self.widgets.limittype_shared.get_active()
-        self.data.limitsnone = self.widgets.limittype_none.get_active()
-        self.data.limitswitch = self.widgets.limittype_switch.get_active()
-        self.data.limitshared = self.widgets.limittype_shared.get_active()
-        self.data.homenone = self.widgets.home_none.get_active()
-        self.data.homeindex = self.widgets.home_index.get_active()
-        self.data.homeswitch = self.widgets.home_switch.get_active()
-        self.data.homeboth = self.widgets.home_both.get_active()
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.fo_usempg = self.widgets.fo_usempg.get_active()
         self.data.fo_useswitch = self.widgets.fo_useswitch.get_active()
@@ -5213,7 +5191,7 @@ class App:
             w[axis + "homesearchvel"].set_sensitive(homes)
             w[axis + "searchdir"].set_sensitive(homes)
             w[axis + "latchdir"].set_sensitive(homes)
-            w[axis + "usehomeindex"].set_sensitive(homes)
+            w[axis + "usehomeindex"].set_sensitive(encoder)
             w[axis + "homefinalvel"].set_sensitive(homes)
             w[axis + "homelatchvel"].set_sensitive(homes)
             i = d[axis + "usecomp"]
