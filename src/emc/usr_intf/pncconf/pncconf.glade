@@ -5714,10 +5714,136 @@ accept the changes.
                                 <property name="n_rows">14</property>
                                 <property name="n_columns">5</property>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <widget class="GtkSpinButton" id="mesa0_numof_tppwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -5730,138 +5856,12 @@ accept the changes.
                                   <widget class="GtkLabel" id="label371">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Num of TP pwm generators: </property>
+                                    <property name="label" translatable="yes">Num of 3 pwm generators: </property>
                                   </widget>
                                   <packing>
                                     <property name="top_attach">9</property>
                                     <property name="bottom_attach">10</property>
                                   </packing>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
                                 </child>
                                 <child>
                                   <widget class="GtkLabel" id="mesa0title">
@@ -5889,7 +5889,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_pwm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">100000 5 195309 1000 10 10</property>
+                                    <property name="adjustment">100000 5 195309 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -6045,7 +6045,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_pdm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">105000 5 195309 1000 10 10</property>
+                                    <property name="adjustment">105000 5 195309 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -6058,7 +6058,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_watchdog_timeout">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">1007000 1000000 500000000 1000 10 10</property>
+                                    <property name="adjustment">1007000 1000000 500000000 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -6071,7 +6071,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_numof_encodergens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 0</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -6085,7 +6085,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_numof_pwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 0</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -6099,7 +6099,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_numof_stepgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">4 0 4 1 10 10</property>
+                                    <property name="adjustment">4 0 4 1 10 0</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -8816,6 +8816,56 @@ Connector 2</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
                         <child>
+                          <widget class="GtkComboBoxEntry" id="mesa0c3pin0">
+                            <property name="visible">True</property>
+                            <property name="items" translatable="yes">ESTOP IN
+Spindle PPR
+Spindle A 
+Spindle B 
+Home X 
+Home Y 
+Home Z
+Home A
+Minimum Limit + Home X 
+Minimum Limit + Home Y 
+Minimum Limit + Home Z 
+Minimum Limit + Home A
+Maximum Limit + Home X 
+Maximum Limit + Home Y 
+Maximum Limit + Home Z 
+Maximum Limit + Home A
+Both Limit + Home X 
+Both Limit + Home Y 
+Both Limit + Home Z 
+Both Limit + Home A
+Minimum Limit X 
+Minimum Limit Y 
+Minimum Limit Z 
+Minimum Limit A
+Maximum Limit X 
+Maximum Limit Y 
+Maximum Limit Z 
+Maximum Limit A
+Both Limit X 
+Both Limit Y 
+Both Limit Z 
+Both Limit A
+All limits
+All home
+Unused</property>
+                            <child internal-child="entry">
+                              <widget class="GtkEntry" id="comboboxentry-entry123">
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
                           <placeholder/>
                         </child>
                         <child>
@@ -11082,58 +11132,6 @@ Unused</property>
                             <property name="right_attach">2</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBoxEntry" id="mesa0c3pin0">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">ESTOP IN
-Spindle PPR
-Spindle A 
-Spindle B 
-Home X 
-Home Y 
-Home Z
-Home A
-Minimum Limit + Home X 
-Minimum Limit + Home Y 
-Minimum Limit + Home Z 
-Minimum Limit + Home A
-Maximum Limit + Home X 
-Maximum Limit + Home Y 
-Maximum Limit + Home Z 
-Maximum Limit + Home A
-Both Limit + Home X 
-Both Limit + Home Y 
-Both Limit + Home Z 
-Both Limit + Home A
-Minimum Limit X 
-Minimum Limit Y 
-Minimum Limit Z 
-Minimum Limit A
-Maximum Limit X 
-Maximum Limit Y 
-Maximum Limit Z 
-Maximum Limit A
-Both Limit X 
-Both Limit Y 
-Both Limit Z 
-Both Limit A
-All limits
-All home
-Unused</property>
-                            <child internal-child="entry">
-                              <widget class="GtkEntry" id="comboboxentry-entry123">
-                              </widget>
-                            </child>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -23886,6 +23884,132 @@ accept the changes.
                                 <property name="n_rows">14</property>
                                 <property name="n_columns">5</property>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <widget class="GtkSpinButton" id="mesa1_numof_tppwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -23908,132 +24032,6 @@ accept the changes.
                                     <property name="top_attach">9</property>
                                     <property name="bottom_attach">10</property>
                                   </packing>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
                                 </child>
                                 <child>
                                   <widget class="GtkLabel" id="mesa1title">
@@ -44798,166 +44796,223 @@ Test</property>
                       <widget class="GtkHBox" id="hbox8">
                         <property name="visible">True</property>
                         <child>
-                          <widget class="GtkTable" id="table23">
+                          <widget class="GtkFrame" id="frame16">
                             <property name="visible">True</property>
-                            <property name="n_rows">4</property>
-                            <property name="n_columns">3</property>
+                            <property name="label_xalign">0</property>
                             <child>
-                              <widget class="GtkSpinButton" id="xstepscale">
+                              <widget class="GtkTable" id="table25">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="adjustment">0 0 5000000 100 10 10</property>
-                                <property name="digits">3</property>
+                                <property name="n_rows">6</property>
+                                <property name="n_columns">3</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="checkbutton8">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="response_id">0</property>
+                                    <property name="draw_indicator">True</property>
+                                    <child>
+                                      <widget class="GtkVBox" id="vbox27">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <widget class="GtkRadioButton" id="halloutput">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="label" translatable="yes">Emulated Hall sensors</property>
+                                            <property name="response_id">0</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">True</property>
+                                          </widget>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkRadioButton" id="fanucoutput">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="label" translatable="yes">Emulated Fanuc Red Cap</property>
+                                            <property name="response_id">0</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">True</property>
+                                            <property name="group">halloutput</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="checkbutton7">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">Force Trapezoid Mode</property>
+                                    <property name="response_id">0</property>
+                                    <property name="draw_indicator">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="checkbutton6">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">6 outputs</property>
+                                    <property name="response_id">0</property>
+                                    <property name="draw_indicator">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="checkbutton5">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">Bit outputs</property>
+                                    <property name="response_id">0</property>
+                                    <property name="draw_indicator">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkVSeparator" id="vseparator21">
+                                    <property name="visible">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="bottom_attach">6</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkRadioButton" id="xnofeedback">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">No feedback</property>
+                                    <property name="response_id">0</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkRadioButton" id="xabsolutefeedback">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">Absolute Encoder</property>
+                                    <property name="response_id">0</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                    <property name="group">xnofeedback</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkRadioButton" id="xincrmntlfeedback">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="response_id">0</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                    <property name="group">xnofeedback</property>
+                                    <child>
+                                      <widget class="GtkVBox" id="vbox26">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <widget class="GtkCheckButton" id="checkbutton1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="label" translatable="yes">Incremental Encoder</property>
+                                            <property name="response_id">0</property>
+                                            <property name="draw_indicator">True</property>
+                                          </widget>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkCheckButton" id="checkbutton2">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="label" translatable="yes">Hall sensors</property>
+                                            <property name="response_id">0</property>
+                                            <property name="draw_indicator">True</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="checkbutton3">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">Fanuc Red Cap </property>
+                                    <property name="response_id">0</property>
+                                    <property name="draw_indicator">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">4</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="checkbutton4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="label" translatable="yes">Use encoder Index</property>
+                                    <property name="response_id">0</property>
+                                    <property name="draw_indicator">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">4</property>
+                                    <property name="bottom_attach">5</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label403">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Brushless Motor Control&lt;/b&gt;</property>
+                                <property name="use_markup">True</property>
                               </widget>
                               <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label598">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">Stepper Scale:</property>
-                                <property name="use_underline">True</property>
-                                <property name="mnemonic_widget">xmaxvel</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkSpinButton" id="xencoderscale">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="adjustment">0 0 5000000 100 10 10</property>
-                                <property name="digits">3</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label310">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">encoder Scale:</property>
-                                <property name="use_underline">True</property>
-                                <property name="mnemonic_widget">xmaxvel</property>
-                              </widget>
-                              <packing>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkSpinButton" id="xmaxacc">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="adjustment">0 1 10000 0.5 10 10</property>
-                                <property name="digits">1</property>
-                                <property name="snap_to_ticks">True</property>
-                                <signal name="value_changed" handler="on_xaxis_info_changed"/>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkSpinButton" id="xmaxvel">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="adjustment">0 1 1000000 1 10 10</property>
-                                <property name="snap_to_ticks">True</property>
-                                <signal name="value_changed" handler="on_xaxis_info_changed"/>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="xaccunits">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">mm / s²</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="xvelunits">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">mm / s</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label319">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">Maximum _Acceleration:</property>
-                                <property name="use_underline">True</property>
-                                <property name="mnemonic_widget">xmaxacc</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label318">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">Maximum _Velocity:</property>
-                                <property name="use_underline">True</property>
-                                <property name="mnemonic_widget">xmaxvel</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
+                                <property name="type">label_item</property>
                               </packing>
                             </child>
                           </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
                         </child>
                         <child>
                           <placeholder/>
@@ -45115,7 +45170,177 @@ Test</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <widget class="GtkTable" id="table23">
+                            <property name="visible">True</property>
+                            <property name="n_rows">4</property>
+                            <property name="n_columns">3</property>
+                            <child>
+                              <widget class="GtkLabel" id="label318">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Maximum _Velocity:</property>
+                                <property name="use_underline">True</property>
+                                <property name="mnemonic_widget">xmaxvel</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label319">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Maximum _Acceleration:</property>
+                                <property name="use_underline">True</property>
+                                <property name="mnemonic_widget">xmaxacc</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="xvelunits">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">mm / s</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="xaccunits">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">mm / s²</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkSpinButton" id="xmaxvel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="adjustment">1 1 1000000 1 10 10</property>
+                                <property name="snap_to_ticks">True</property>
+                                <signal name="value_changed" handler="on_xaxis_info_changed"/>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkSpinButton" id="xmaxacc">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="adjustment">1 1 10000 0.5 10 10</property>
+                                <property name="digits">1</property>
+                                <property name="snap_to_ticks">True</property>
+                                <signal name="value_changed" handler="on_xaxis_info_changed"/>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label310">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">encoder Scale:</property>
+                                <property name="use_underline">True</property>
+                                <property name="mnemonic_widget">xmaxvel</property>
+                              </widget>
+                              <packing>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkSpinButton" id="xencoderscale">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="adjustment">0 0 5000000 100 10 10</property>
+                                <property name="digits">3</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label598">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Stepper Scale:</property>
+                                <property name="use_underline">True</property>
+                                <property name="mnemonic_widget">xmaxvel</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkSpinButton" id="xstepscale">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="adjustment">0 0 5000000 100 10 10</property>
+                                <property name="digits">3</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkButton" id="calculatescale">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="label" translatable="yes">Calculate
+Scale</property>
+                                <property name="response_id">0</property>
+                                <signal name="clicked" handler="on_xcalculatescale_clicked"/>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="bottom_attach">2</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>
@@ -45133,15 +45358,7 @@ Test</property>
                             <property name="xalign">0</property>
                             <property name="xscale">0.2800000011920929</property>
                             <child>
-                              <widget class="GtkButton" id="calculatescale">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Calculate
-Scale</property>
-                                <property name="response_id">0</property>
-                                <signal name="clicked" handler="on_xcalculatescale_clicked"/>
-                              </widget>
+                              <placeholder/>
                             </child>
                           </widget>
                           <packing>
@@ -46614,6 +46831,9 @@ Test</property>
                             <property name="n_rows">4</property>
                             <property name="n_columns">3</property>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <widget class="GtkLabel" id="label320">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
@@ -46637,9 +46857,6 @@ Test</property>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
                               </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
                             </child>
                             <child>
                               <widget class="GtkSpinButton" id="sencoderscale">
@@ -49312,7 +49529,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentI">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 0.10000000000000001 10</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49357,7 +49574,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentFF1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 0.10000000000000001 10</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -49372,7 +49589,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunecurrentFF2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">0 0 10000 1 10 10</property>
+                            <property name="adjustment">0 0 10000 0.01 1 10</property>
                             <property name="digits">4</property>
                             <signal name="value_changed" handler="update_tune_axis_params"/>
                           </widget>
@@ -54802,6 +55019,18 @@ Home Position = Origin to Home Position distance = 1</property>
                         <property name="n_rows">3</property>
                         <property name="n_columns">3</property>
                         <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
                           <widget class="GtkLabel" id="label936">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">                    </property>
@@ -54846,18 +55075,6 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="bottom_attach">2</property>
                             <property name="y_options"></property>
                           </packing>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
                         </child>
                         <child>
                           <widget class="GtkLabel" id="label602">
@@ -54999,7 +55216,6 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Time to accelerate to max speed:</property>
                             <property name="use_underline">True</property>
-                            <property name="mnemonic_widget">xacctime</property>
                           </widget>
                           <packing>
                             <property name="top_attach">5</property>
@@ -55014,7 +55230,6 @@ Home Position = Origin to Home Position distance = 1</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Distance to acheave max speed:</property>
                             <property name="use_underline">True</property>
-                            <property name="mnemonic_widget">xaccdist</property>
                           </widget>
                           <packing>
                             <property name="top_attach">6</property>
