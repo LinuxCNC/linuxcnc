@@ -5482,7 +5482,7 @@ class App:
             w["chartresolution"].set_text("%.7f" % (1.0 / scale))
             w["calscale"].set_text(str(scale))
             w["maxrpm"].set_text("%d" % maxrpm)
-            #self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
+            self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             #w[axis + "axistune"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
             w["chartresolution"].set_text("")
@@ -5491,7 +5491,7 @@ class App:
                 w["accdist"].set_text("")
             w["khz"].set_text("")
             w["calscale"].set_text("")
-            #self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+            self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
             #w[axis + "axistune"].set_sensitive(0)
 
     def motor_encoder_sanity_check(self,widgets,axis):
@@ -5895,98 +5895,6 @@ class App:
             self.widgets['window1'].set_sensitive(1)
             return False
         return True
-
-    def m5i20test(self,w): 
-        for i in range(0,int(self.data.number_mesa)): 
-            if self.data["mesa%d_currentfirmwaredata"% (i)][_BOARDNAME] in( "5i22", "7i43"):
-                self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but\
-                     maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
-        panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )   
-        halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
-        self.hal_cmnds("LOAD")
-        halrun.write("loadrt or2 count=72\n")
-        self.hal_cmnds("READ")
-        for i in range(0,72):
-            halrun.write("addf or2.%d slow\n"% i)
-        self.hal_cmnds("WRITE")
-        halrun.write("start\n")
-        halrun.write("loadusr -Wn mesa0test pyvcp -g +700+0 -c mesa0test %(panel)s\n" %{'panel':"m5i20panel.xml",})
-        halrun.write("loadusr -Wn mesa1test pyvcp -g +700+200 -c mesa1test %(panel)s\n" %{'panel':"m5i20panel.xml",})
-        halrun.write("loadusr halmeter -g 0 500\n")
-        halrun.write("loadusr halmeter -g 0 620\n")
-        for boardnum in range(0,int(self.data.number_mesa)):
-            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
-                for pin in range (0,24):
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
-                    pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
-                    ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
-                    pintype = self.widgets[ptype].get_active_text()
-                    pininv = self.widgets[pinv].get_active()
-                    truepinnum = (concount*24) + pin
-                    # for output / open drain pins
-                    if  pintype in (GPIOO,GPIOD):                
-                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
-                        halrun.write("setp mesa0test.button.%d.disable false\n"% truepinnum )
-                        halrun.write("setp hm2_%s.gpio.%03d.is_output true\n"% (board,truepinnum ))
-                        if pininv:  halrun.write("setp hm2_%s.gpio.%03d.invert_output true\n"% (board,truepinnum ))
-                        halrun.write("net signal_out%d or2.%d.out hm2_%s.gpio.%03d.out\n"% (truepinnum,truepinnum,board,truepinnum))
-                        halrun.write("net pushbutton.%d or2.%d.in1 mesa0test.button.%d\n"% (truepinnum,truepinnum,truepinnum))
-                        halrun.write("net latchbutton.%d or2.%d.in0 mesa0test.checkbutton.%d\n"% (truepinnum,truepinnum,truepinnum))
-                    # for input pins
-                    elif pintype == GPIOI:                                    
-                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )
-                        halrun.write("setp mesa0test.led.%d.disable false\n"% truepinnum )
-                        if pininv: halrun.write("net blue_in%d hm2_%s.gpio.%03d.in_not mesa0test.led.%d\n"%(truepinnum,board,truepinnum,truepinnum))
-                        else:   halrun.write("net blue_in%d hm2_%s.gpio.%03d.in mesa0test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
-                    # for encoder pins
-                    elif pintype in (ENCA,ENCB,ENCI,ENCM):
-                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
-                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )                   
-                        if not pintype == ENCA: continue                 
-                        if pin == 3 :encpinnum = (connector-2)*4 
-                        elif pin == 1 :encpinnum = 1+((connector-2)*4) 
-                        elif pin == 15 :encpinnum = 2+((connector-2)*4) 
-                        elif pin == 13 :encpinnum = 3+((connector-2)*4) 
-                        halrun.write("setp mesa0test.enc.%d.reset.disable false\n"% encpinnum )
-                        halrun.write("net yellow_reset%d hm2_%s.encoder.%02d.reset mesa0test.enc.%d.reset\
-                        \n"% (encpinnum,board,encpinnum,encpinnum))
-                        halrun.write("net yellow_count%d hm2_%s.encoder.%02d.count mesa0test.number.%d\n"% (encpinnum,board,encpinnum,encpinnum))
-                    # for PWM pins
-                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
-                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
-                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )
-                        if not pintype in (PWMP,PDMP): continue    
-                        if pin == 7 :encpinnum = (connector-2)*4 
-                        elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
-                        elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
-                        elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
-                        halrun.write("net green_enable%d hm2_%s.pwmgen.%02d.enable mesa0test.dac.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum)) 
-                        halrun.write("net green_value%d hm2_%s.pwmgen.%02d.value mesa0test.dac.%d-f\n"% (encpinnum,board,encpinnum,encpinnum)) 
-                        halrun.write("setp hm2_%s.pwmgen.%02d.scale 10\n"% (board,encpinnum)) 
-                    # for Stepgen pins
-                    elif pintype in (STEPA,STEPB):
-                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
-                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum ) 
-                        if not pintype == STEPA : continue 
-                        
-                        halrun.write("net brown_enable%d hm2_%s.stepgen.%02d.enable mesa0test.step.%d.enbl\n"% (compnum,board,compnum,compnum))
-                        halrun.write("net brown_value%d hm2_%s.stepgen.%02d.position-cmd mesa0test.anaout.%d\n"% (compnum,board,compnum,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.maxvel 0 \n"% (board,compnum))
-                    else: 
-                        print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
-            if not board == "5i22":
-                for pin in range (0,24):
-                    truepinnum = (72) + pin
-                    halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )
-                for pin in range (8,12):
-                    halrun.write("setp mesa0test.enc.%d.reset.disable true\n"% pin )
-        halrun.write("waitusr mesa0test\n"); halrun.flush()
-        halrun.close()
-        self.widgets['window1'].set_sensitive(1)
 
     def on_address_search_clicked(self,w):
         self.on_druid1_help()
