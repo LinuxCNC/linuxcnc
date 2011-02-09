@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -e
+
+test -z "$1" && exit 0
+test -f "$1" || exit 1
+
+includes () {
+	DIR=`dirname "$1"`
+
+	for f in `sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1"`; do
+		echo "$f"
+		includes "$f"
+	done
+}
+
+images() {
+	DIR=`dirname "$1"`
+
+	sed -ne "s|^image::\([^[]*\)\[\]$|$DIR/\1|p" "$1"
+	sed -ne "s|^.*image:\([^:][^[]*\)\[\].*$|$DIR/\1|p" "$1"
+}
+
+INCLUDES=`includes "$1"`
+IMAGES=`images "$1"`
+for f in $INCLUDES; do
+	IMAGES="$IMAGES `images $f`"
+done
+
+echo "${1%%.txt}.dep ::" $INCLUDES
+echo "${1%%.txt}.html:: " $INCLUDES
+echo "${1%%.txt}.pdf:: " $INCLUDES $IMAGES

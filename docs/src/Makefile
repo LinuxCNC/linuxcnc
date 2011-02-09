@@ -7,6 +7,8 @@ SMALL := $(filter-out $(LARGE_EN),$(DOCS_EN))
 DOCS  := $(DOCS_EN) $(DOCS_FR)
 LARGE := $(LARGE_EN) $(LARGE_FR)
 
+include $(patsubst %,%.dep,$(LARGE))
+
 A2X = ./a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
@@ -28,6 +30,7 @@ html: links_db.py $(patsubst %,%.html,$(DOCS))
 htmlclean:
 	-rm -f $(patsubst %,%.html,$(DOCS))
 dbclean:
+	-rm -f $(patsubst %,%.dep,$(DOCS))
 	-rm -f $(patsubst %,%.db,$(SMALL))
 	-rm -f links_db.py
 
@@ -38,8 +41,12 @@ links_db.py: $(patsubst %,%.db,$(SMALL))
 %.db: %.txt
 	asciidoc -d book -o- -b docbook $< | xsltproc links.xslt - > $@ || (X=$?; rm $@; exit $X)
 
+%.dep: %.txt
+	./asciideps $< > $@.tmp
+	mv $@.tmp $@
+
 %.html: %.txt
-	asciidoc -a stylesheet=./linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
+	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
 
 $(patsubst %,%.html,$(DOCS_FR)) :: %.html: %.txt
 	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
