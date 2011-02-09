@@ -3150,7 +3150,7 @@ class App:
         #TODO if no firm packages set up for internal data?
         #TODO don't do this if the firmware is already loaded
         self.pbar.set_text("Loading external firmware")
-        self.pbar.set_fraction(1)
+        self.pbar.set_fraction(0)
         self.window.show()
         while gtk.events_pending():
             gtk.main_iteration()
@@ -3159,13 +3159,16 @@ class App:
             folder = root.lstrip(firmdir)
             if folder in mesablacklist:continue
             if not folder == boardtitle:continue
-            for name in files:
+            for n,name in enumerate(files):
                 if name in mesablacklist:continue
                 if ".xml" in name:
                     print name
                     temp = name.strip(".xml")
                     firmlist.append(temp)
-        for currentfirm in(firmlist):
+        for n,currentfirm in enumerate(firmlist):
+            self.pbar.set_fraction(n*1.0/len(firmlist))
+            while gtk.events_pending():
+                gtk.main_iteration()
             root = xml.etree.ElementTree.parse(os.path.join(firmdir,boardtitle,currentfirm+".xml"))
             watchdog = encoder = pwmgen = led = muxedqcount = stepgen = tppwmgen = 0
             numencoderpins = 3; numstepperpins = 2
