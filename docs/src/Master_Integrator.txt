@@ -104,7 +104,9 @@ include::drivers/servo_to_go.txt[]
 
 include::motion/kinematics.txt[]
 
-include::Tuning.txt[]
+:leveloffset: 0
+= Tuning
+:leveloffset: 1
 
 include::motion/tweaking_steppers.txt[]
 
@@ -132,7 +134,9 @@ include::examples/mpg.txt[]
 
 include::examples/gs2_example.txt[]
 
-include::Diagnostics.txt[]
+:leveloffset: 0
+Diagnostics
+:leveloffset: 1
 
 include::common/Stepper_Diagnostics.txt[]
 

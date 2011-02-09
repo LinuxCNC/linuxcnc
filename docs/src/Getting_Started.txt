@@ -4,8 +4,7 @@ The EMC Team
 
 :masterdir: {indir}
 
-. 
-image::common/emc2-intro[]
+image::common/emc2-intro.*[]
 
 == Getting Started Guide
 
