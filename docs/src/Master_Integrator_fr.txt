@@ -74,7 +74,7 @@ include::gui/halui_fr.txt[]
 
 include::hal/pyvcp_fr.txt[]
 
-include::hal/pyvcp_examples_fr.txt[]
+include::hal/pyvcp_examples.txt[]
 
 :leveloffset: 0
 = Notions de cinématique
@@ -96,9 +96,9 @@ include::motion/pid_theory_fr.txt[]
 
 include::ladder/ladder_intro_fr.txt[]
 
-include::ladder/classic_ladder_fr.txt[]
+include::ladder/classic_ladder.txt[]
 
-include::ladder/ladder_examples_fr.txt[]
+include::ladder/ladder_examples.txt[]
 
 :leveloffset: 0
 = Exemples d'utilisation

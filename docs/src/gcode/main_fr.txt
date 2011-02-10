@@ -1214,7 +1214,7 @@ N05 G1 G43 H1 G4 P10 Z0 X3 +
 N06 G49 X2 Z0 +
 N07 G0 X0`
 
-image:images/length1.png[]
+image:length1.png[]
 
 Avec ce programme, dans la plupart des cas, la machine va appliquer le
 décalage sous forme d'une rampe pendant le mouvement en xyz suivant le
@@ -1268,7 +1268,7 @@ marquée Not this way), l'outil ne reste pas en contact avec les angles
 vifs du triangle gris.
 
 .[[figure:7]]
-image::images/radius_comp.png[]
+image::radius_comp.png[]
 
 Des mouvements sur l'axe Z peuvent avoir lieu pendant que le contour
 est suivi dans le plan XY. Des portions du contour peuvent être
@@ -1465,7 +1465,7 @@ possible de faire un cercle, dont le rayon est la moitié du diamètre de
 l'outil donné dans la table d'outils, il sera tangent avec l'outil en
 tout point de son contour.
 
-image:images/radius_comp_error.png[]
+image:radius_comp_error.png[]
 
 En particulier, l'interpréteur traite les coins concaves et les arcs
 concaves plus petits que l'outil, comme des erreurs, le cercle ne peut
@@ -1514,9 +1514,9 @@ droite tracée précédemment. C'est montré sur la figure 9. Si le point
 programmé est situé à l'intérieur de la première section d'outil (le
 cercle de gauche), une erreur sera signalée.
 
-image:images/radius_comp_straight.png[]
+image:radius_comp_straight.png[]
 
-image:images/radius_comp_arc.png[]
+image:radius_comp_arc.png[]
 
 Si le premier mouvement après que la compensation de rayon d'outil a
 été activée est un arc, l'arc qui sera généré est dérivé d'un arc
@@ -1587,7 +1587,7 @@ mouvement d'alignement, la ligne N0020 active la compensation et fait
 le premier mouvement d'entrée et la ligne N0030 fait le second
 mouvement d'entrée.
 
-image:images/radius_comp_entry.png[]
+image:radius_comp_entry.png[]
 
 Dans cet exemple, l'arc AB et la ligne BC sont très larges, ce n'est
 pas nécessaire. Pour un contour sur parcours d'outil, le rayon de l'arc
@@ -1625,7 +1625,7 @@ Cette méthode fonctionnera également avec un angle aigü sur un contour
 sur parcours d'outil, si l'outil est surdimensionné, mais elle échouera
 si il est sousdimensionné.
 
-image:images/radius_comp_entry_simple.png[]
+image:radius_comp_entry_simple.png[]
 
 ==== Autres points où est exécutée la compensation de rayon d'outil
 
@@ -1739,7 +1739,7 @@ mouvement. La manière d'obtenir ce réglage, les mouvements des lignes
 dans les coordonnées Y est à la ligne où l'outil est appelé, en dehors
 de la compensation d'outil.
 
-image:images/partdraw1.png[]
+image:partdraw1.png[]
 
 Certaines autres choses sont à noter, le programme commence avec G40,
 pour désactiver les compensations éventuellement actives. Cela évite un

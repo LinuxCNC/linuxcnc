@@ -1,7 +1,7 @@
 DOCS_EN := $(patsubst %.txt,%,$(wildcard *.txt */*.txt))
-DOCS_FR := $(patsubst %.txt,%,$(wildcard fr/*.txt fr/*/*.txt))
+DOCS_FR := $(patsubst %.txt,%,$(wildcard *_fr.txt */*_fr.txt))
 LARGE_EN := $(patsubst %.txt,%,$(wildcard *.txt))
-LARGE_FR := $(patsubst %.txt,%,$(wildcard fr/*.txt))
+LARGE_FR := $(patsubst %.txt,%,$(wildcard *_fr.txt))
 DOCS_EN := $(filter-out $(DOCS_FR),$(DOCS_EN))
 SMALL := $(filter-out $(LARGE_EN),$(DOCS_EN))
 DOCS  := $(DOCS_EN) $(DOCS_FR)
@@ -48,16 +48,16 @@ links_db.py: $(patsubst %,%.db,$(SMALL))
 %.html: %.txt
 	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
 
-$(patsubst %,%.html,$(DOCS_FR)) :: %.html: %.txt
-	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
+#$(patsubst %,%.html,$(DOCS_FR)) :: %.html: %.txt
+#	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$?; rm $@; exit $X)
 
 %.pdf: %.txt
-	a2x --asciidoc-opts "-f docbook.conf" -L -d book -vf pdf $< || (X=$?; rm $@; exit $X)
+	$(A2X) -L -d book -vf pdf $< || (X=$?; rm $@; exit $X)
 
-$(patsubst %,%.html,$(LARGE_EN)) :: %.html: %.txt
+$(patsubst %,%.html,$(LARGE)) :: %.html: %.txt
 	$(A2X) --stylesheet=./linuxcnc.css -L -d book -vf xhtml $< || (X=$?; rm $@; exit $X)
 
-$(patsubst %,%.html,$(LARGE_FR)) :: %.html: %.txt
-	$(A2X) --stylesheet=../linuxcnc.css -L -d book -vf xhtml $< || (X=$?; rm $@; exit $X)
+#$(patsubst %,%.html,$(LARGE_FR)) :: %.html: %.txt
+#	$(A2X) --stylesheet=../linuxcnc.css -L -d book -vf xhtml $< || (X=$?; rm $@; exit $X)
 
 .PHONY: all docs htmldocs pdfdocs docclean clean
