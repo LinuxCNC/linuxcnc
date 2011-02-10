@@ -14,7 +14,7 @@ A2X = ./a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  --asciidoc-opts "-f docbook.conf" \
-	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0"
+	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s ./emc2.sty"
 
 all:
 	$(MAKE) -C ../../src docs
