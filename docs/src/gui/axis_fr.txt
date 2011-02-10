@@ -9,7 +9,7 @@ l'affichage de l'interface graphique.
 
 .Fenêtre d'AXIS[[cap:Fenetre d-AXIS]]
 
-image::images/axis_2_3_fr.png[]
+image::images/axis_2.3_fr.png[]
 
 == Pour commencer
 

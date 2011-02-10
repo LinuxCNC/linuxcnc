@@ -143,7 +143,7 @@ interfaces utilisateurs graphiques:
  -  Une GUI basée sur OpenGL, avec prévisualisation du G-Code, appelée
    AXIS(((AXIS)))  <<fig:L-interface graphique d-AXIS>>
 
-image::images/axis_2_3_fr.png[]
+image::images/axis_2.3_fr.png[]
 
 .[[fig:L-interface graphique d-AXIS]]L'interface graphique AXIS
 
