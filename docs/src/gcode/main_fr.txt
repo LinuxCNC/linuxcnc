@@ -2573,7 +2573,7 @@ configuration `sim/lathe.ini`.
 
 .[[fig:G76-cycle-de-filetage]]G76 cycle de filetage
 
-image::g76.epsi[]
+image::g76.eps[]
 
 == G80  (((G80 Revocation codes modaux))): Révocation des codes modaux[[sub:G80:-Revocation-modaux]]
 
