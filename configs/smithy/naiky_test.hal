@@ -21,19 +21,19 @@ loadrt encoder num_chan=1
 # mpg jog wheels often have a full quadrature cycle per "click". 0 for off and 1 for on.
 setp encoder.0.x4-mode FALSE
 
-net X1 hm2_5i20.0.gpio.000.in_not naiky.x1
-net X10 hm2_5i20.0.gpio.002.in_not naiky.x10
-net X100 hm2_5i20.0.gpio.004.in_not naiky.x100
-net SEL-X hm2_5i20.0.gpio.006.in_not naiky.x
-net SEL-Y hm2_5i20.0.gpio.008.in_not naiky.y
-net SEL-Z hm2_5i20.0.gpio.010.in_not naiky.z
-net SEL-4 hm2_5i20.0.gpio.012.in_not naiky.4
-net SEL-OFF hm2_5i20.0.gpio.014.in_not naiky.off
-setp hm2_5i20.0.gpio.016.is_output TRUE
-setp hm2_5i20.0.gpio.016.invert_output TRUE
-net LED hm2_5i20.0.gpio.016.out naiky.led
-net MPG-A encoder.0.phase-A hm2_5i20.0.gpio.003.in_not naiky.a
-net MPG-B encoder.0.phase-B hm2_5i20.0.gpio.001.in_not naiky.b
+#net X1 hm2_5i20.0.gpio.000.in_not naiky.x1
+#net X10 hm2_5i20.0.gpio.002.in_not naiky.x10
+#net X100 hm2_5i20.0.gpio.004.in_not naiky.x100
+#net SEL-X hm2_5i20.0.gpio.006.in_not naiky.x
+#net SEL-Y hm2_5i20.0.gpio.008.in_not naiky.y
+#net SEL-Z hm2_5i20.0.gpio.010.in_not naiky.z
+#net SEL-4 hm2_5i20.0.gpio.012.in_not naiky.4
+#net SEL-OFF hm2_5i20.0.gpio.014.in_not naiky.off
+#setp hm2_5i20.0.gpio.016.is_output TRUE
+#setp hm2_5i20.0.gpio.016.invert_output TRUE
+#net LED hm2_5i20.0.gpio.016.out naiky.led
+#net MPG-A encoder.0.phase-A hm2_5i20.0.gpio.003.in_not naiky.a
+#net MPG-B encoder.0.phase-B hm2_5i20.0.gpio.001.in_not naiky.b
 
 #net X1 hm2_5i20.0.gpio.024.in_not naiky.x1
 #net X10 hm2_5i20.0.gpio.026.in_not naiky.x10
@@ -49,19 +49,19 @@ net MPG-B encoder.0.phase-B hm2_5i20.0.gpio.001.in_not naiky.b
 #net MPG-A encoder.0.phase-A hm2_5i20.0.gpio.027.in_not naiky.a
 #net MPG-B encoder.0.phase-B hm2_5i20.0.gpio.025.in_not naiky.b
 
-#net X1 hm2_5i20.0.gpio.048.in_not naiky.x1
-#net X10 hm2_5i20.0.gpio.050.in_not naiky.x10
-#net X100 hm2_5i20.0.gpio.052.in_not naiky.x100
-#net SEL-X hm2_5i20.0.gpio.054.in_not naiky.x
-#net SEL-Y hm2_5i20.0.gpio.056.in_not naiky.y
-#net SEL-Z hm2_5i20.0.gpio.058.in_not naiky.z
-#net SEL-4 hm2_5i20.0.gpio.060.in_not naiky.4
-#net SEL-OFF hm2_5i20.0.gpio.062.in_not naiky.off
-#setp hm2_5i20.0.gpio.064.is_output TRUE
-#setp hm2_5i20.0.gpio.064.invert_output TRUE
-#net LED hm2_5i20.0.gpio.064.out naiky.led
-#net MPG-A encoder.0.phase-A hm2_5i20.0.gpio.051.in_not naiky.a
-#net MPG-B encoder.0.phase-B hm2_5i20.0.gpio.049.in_not naiky.b
+net X1 hm2_5i20.0.gpio.048.in_not naiky.x1
+net X10 hm2_5i20.0.gpio.050.in_not naiky.x10
+net X100 hm2_5i20.0.gpio.052.in_not naiky.x100
+net SEL-X hm2_5i20.0.gpio.054.in_not naiky.x
+net SEL-Y hm2_5i20.0.gpio.056.in_not naiky.y
+net SEL-Z hm2_5i20.0.gpio.058.in_not naiky.z
+net SEL-4 hm2_5i20.0.gpio.060.in_not naiky.4
+net SEL-OFF hm2_5i20.0.gpio.062.in_not naiky.off
+setp hm2_5i20.0.gpio.064.is_output TRUE
+setp hm2_5i20.0.gpio.064.invert_output TRUE
+net LED hm2_5i20.0.gpio.064.out naiky.led
+net MPG-A encoder.0.phase-A hm2_5i20.0.gpio.051.in_not naiky.a
+net MPG-B encoder.0.phase-B hm2_5i20.0.gpio.049.in_not naiky.b
 
 
 net COUNT encoder.0.position naiky.count
