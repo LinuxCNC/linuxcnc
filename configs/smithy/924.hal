@@ -98,7 +98,6 @@ net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 # Safety Relay Monitoring Contacts
 net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
 # Run Switch
-net machine-off hm2_5i20.0.gpio.039.in => halui.machine.off
 net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
 #connect limit switches to limit inputs
@@ -110,6 +109,17 @@ net Zmin hm2_5i20.0.gpio.030.in => axis.2.neg-lim-sw-in
 #connect positive limit signals to home inputs
 net Xmax => axis.0.home-sw-in
 net Zmax => axis.2.home-sw-in
+
+# Main Contactors - True when both contactors are energized
+net ACOK hm2_5i20.0.gpio.035.in_not
+# VFD Fault Relay - True when VFD is not faulted
+#net VFDOK hm2_5i20.0.gpio.031.in_not
+# A Axis Home - On Sieg machines there is no VFD fault signal,
+# it is used for the A axis home sensor on 4 axis machines
+#net VFDOK hm2_5i20.0.gpio.031.in_not
+#net AHOME hm2_5i20.0.gpio.031.in axis.3.home-sw-in
+# Spindle Contactor - False when spindle contactor is energized
+net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
 #Tool Post Control Inputs
 net PrepNo iocontrol.0.tool-prep-number => classicladder.0.s32in-00
