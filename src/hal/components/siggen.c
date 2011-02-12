@@ -2,14 +2,14 @@
 * Description:  siggen.c
 *               This file, 'siggen.c', is a HAL component that 
 *               generates square, triangle, sine, cosine, and 
-*               sawtooth waves.
+*               sawtooth waves plus a clock signal.
 *
 * Author: John Kasunich
 * License: GPL Version 2
 *    
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:  17Nov2010 - Matt Shaver added the "clock" output pin.
 ********************************************************************/
 /** This file, 'siggen.c', is a HAL component that generates square,
     triangle, sine, cosine, and sawtooth waves.  I expect that it 
@@ -29,9 +29,9 @@
     to +1.0.  If 'amplitude' is 2.5 and 'offset' is 10.0, then
     the outputs will swing from 7.5 to 12.5.
 
-    There are five output pins: 'square', 'triangle', 'sine', 'cosine',
-    and 'sawtooth'.  All four run at the same frequency, amplitude, and
-    offset.
+    There are six output pins: 'square', 'triangle', 'sine', 'cosine',
+    'clock', and 'sawtooth'.  All six run at the same frequency,
+    amplitude, and offset.
 
     This component exports one function per signal generator,
     called 'siggen.x.update'.  It is a floating point function.
@@ -93,6 +93,7 @@ typedef struct {
     hal_float_t *triangle;	/* pin: output */
     hal_float_t *sine;		/* pin: output */
     hal_float_t *cosine;	/* pin: output */
+    hal_bit_t *clock;		/* pin: output */
     hal_float_t *frequency;	/* pin: frequency */
     hal_float_t *amplitude;	/* pin: amplitude */
     hal_float_t *offset;	/* pin: offset */
@@ -192,12 +193,14 @@ static void calc_siggen(void *arg, long period)
 	siggen->index -= 1.0;
     }
 
-    /* generate the square wave output */
+    /* generate the square wave and clock output */
     /* tmp1 steps from -1.0 to +1.0 when index passes 0.5 */
     if ( siggen->index > 0.5 ) {
 	tmp1 = 1.0;
+	*(siggen->clock) = 1;
     } else {
 	tmp1 = -1.0;
+	*(siggen->clock) = 0;
     }
     /* apply scaling and offset, and write to output */
     *(siggen->square) = (tmp1 * *(siggen->amplitude)) + *(siggen->offset);
@@ -263,6 +266,11 @@ static int export_siggen(int num, hal_siggen_t * addr)
     if (retval != 0) {
 	return retval;
     }
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->clock), comp_id,
+				"siggen.%d.clock", num);
+    if (retval != 0) {
+	return retval;
+    }
     retval = hal_pin_float_newf(HAL_IN, &(addr->frequency), comp_id,
 				"siggen.%d.frequency", num);
     if (retval != 0) {
@@ -284,6 +292,7 @@ static int export_siggen(int num, hal_siggen_t * addr)
     *(addr->triangle) = 0.0;
     *(addr->sine) = 0.0;
     *(addr->cosine) = 0.0;
+    *(addr->clock) = 0;
     *(addr->frequency) = 1.0;
     *(addr->amplitude) = 1.0;
     *(addr->offset) = 0.0;
