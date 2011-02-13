@@ -4,9 +4,7 @@ The EMC Team
 
 :masterdir: {indir}
 
-. 
 image::common/emc2-intro.*[]
-
 
 This manual is a work in progress. If you are able to help with
 writing, editing, or graphic preparation please contact any member

@@ -2,9 +2,8 @@
 
 == Introduction  footnote:[Much of this chapter quotes from a chapater of the Sherline CNC operators manual. ]
 
-image::mini01_fr.png[]
-
 .[[fig:startmini]]L'interface graphique Mini
+image::mini01_fr.png[]
 
 Mini(((mini))) a été prévu pour être une interface graphique plein
 écran. Il a été écrit initialement pour Sherline(((Sherline)))
@@ -18,9 +17,8 @@ instructions écrites par Joe Martin et Ray Henry.
 
 == L'écran
 
-image::../common/mini_fr.jpg[]
-
 .[[fig:runmini]]Affichage de Mini lors du fonctionnement d'EMC
+image::../common/mini_fr.jpg[]
 
  L'écran de Mini est visible dans plusieurs sections, voir la figure
 <<fig:startmini>>. Il inclu une barre de menu, un jeu de boutons de
@@ -198,9 +196,8 @@ lubrifiant sont visibles en plus de ceux de mouvement. La touche «i» ou
 touche plusieurs fois provoquera le changement cyclique de la taille de
 l'incrément de jog.
 
-image::miniman_fr.png[]
-
 .Boutons du mode Manuel
+image::miniman_fr.png[]
 
 [quote]
 ________________________________________
@@ -270,9 +267,8 @@ réglages du correcteur de vitesse d'avance travail. Le «0» l'ajuste à
 100%, le «9» l'ajuste à 90% etc. D'autres touches fonctionnent de la
 même manière qu'avec l'interface TkEMC.
 
-image::miniauto_fr.png[]
-
 .Mode Auto
+image::miniauto_fr.png[]
 
 Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux.
 Si l'opérateur veut les voir, il doit utiliser le menu «Informations ->
@@ -506,9 +502,8 @@ mode manuel a déjà été décrit précédemment. Chaque écran surgissant va
 
 === Editeur de texte
 
-image::miniedit_fr.png[]
-
 .Editeur de texte de Mini
+image::miniedit_fr.png[]
 
 L'éditeur de texte de Mini peut sembler un peu limité par rapport aux
 éditeurs de texte modernes. Il a été inclus parce qu'il comporte
@@ -525,9 +520,8 @@ menu.
 
 === Parcours d'outil (((trace d'outil )))
 
-image::minibkplot_fr.png[]
-
 .Parcours d'outil de Mini
+image::minibkplot_fr.png[]
 
  Le bouton «Parcours d'outil» du menu, affiche un tracé produit par le
 cheminement de l'outil pendant l'usinage. Cette trace est affichable
@@ -565,9 +559,8 @@ outils, ces valeurs deviennent effectives dès l'appui sur la touche
 de lancer le programme. Les offsets d'outils ne peuvent pas être
 modifiés une fois le programme démarré ni quand il est en pause.
 
-image::minitool_fr.png[]
-
 .Affichage de la table d'outils de Mini
+image::minitool_fr.png[]
 
 Les boutons «Ajouter un outil» et «Enlever le dernier outil» portent
 sur la fin de la liste des outils de sorte que l'ajout d'outils
@@ -587,9 +580,9 @@ de coordonnées est choisi dans la colonne de gauche, par sélection
 d'une case à cocher. Quand un système de coordonnées est choisi il est
 possible d'entrer directement les valeurs ou de déplacer l'axe à une
 position d'apprentissage. 
-image::minioffsets_fr.png[]
 
 .Mini Offset Display
+image::minioffsets_fr.png[]
 
  Il est également possible d'utiliser une pinnule puis d'ajouter le
 rayon et la longueur par le bouton «Apprentissage». Pour celà, il peur

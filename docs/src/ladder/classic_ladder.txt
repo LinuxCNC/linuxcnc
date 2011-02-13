@@ -556,10 +556,9 @@ will be set to True.
 
 .Assign/Compare Example[[cap:Assign/Compare-Example]]
 
-image::images/AssignCompare-Ladder.png[] +
+image::images/AssignCompare-Ladder.png[]
 
-
-image::images/Assignment_Expression.png[]image::images/Comparision_Expression.png[]
+image:images/Assignment_Expression.png[] image:images/Comparision_Expression.png[]
 
 === COILS
 

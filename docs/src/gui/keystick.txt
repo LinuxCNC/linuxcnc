@@ -2,9 +2,8 @@
 
 == Introduction
 
-image::images/keystick.png[]
-
 .[[fig:startmini]]The Mini Graphical Interface
+image::images/keystick.png[]
 
 Keystick is a minimal text based interface.
 
@@ -12,9 +11,11 @@ Keystick is a minimal text based interface.
 
 To use keystick change the DISPLAY ini file setting to:
 
+-------------------
 [DISPLAY]
 
 DISPLAY = keystick
+-------------------
 
 == Using
 
