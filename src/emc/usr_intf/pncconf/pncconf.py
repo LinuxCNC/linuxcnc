@@ -27,7 +27,7 @@ sys.path.insert(0, libdir)
 import pwd
 import errno
 import time
-import md5
+import hashlib
 import pickle
 import shutil
 import math
@@ -524,7 +524,7 @@ def md5sum(filename):
     except IOError:
         return None
     else:
-        return md5.new(f.read()).hexdigest()      
+        return hashlib(f.read()).hexdigest()    
 
 class Widgets:
     def __init__(self, xml):
@@ -1028,7 +1028,7 @@ class Data:
 
         warnings = []
         for f, m in self.md5sums:
-            m1 = md5sum(f)
+            m1 = hashlib.md5(f).hexdigest()
             if m1 and m != m1:
                 warnings.append(_("File %r was modified since it was written by PNCconf") % f)
         if not warnings: return
@@ -1053,7 +1053,7 @@ class Data:
             if response[0] not in _("yY"): raise SystemExit, 1
 
     def add_md5sum(self, filename, mode="r"):
-        self.md5sums.append((filename, md5sum(filename)))
+        self.md5sums.append((filename, hashlib.md5(filename).hexdigest()))
 
     def write_inifile(self, base):
         filename = os.path.join(base, self.machinename + ".ini")
