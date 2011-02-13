@@ -146,13 +146,6 @@ drivertypes = [
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
-(GPIOI, GPIOO, GPIOD, ENCA, ENCB, ENCI, ENCM, STEPA, STEPB, STEPC, STEPD, STEPE, STEPF, PWMP, PWMD, PWME, PDMP, PDMD, PDME ) = pintype_names = [
-_("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),
-_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M"),
-_("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"),_("Step/Dir Gen-D"),_("Step/Dir Gen-E"),_("Step/dir Gen-F"),
-_("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E"),
-_("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
-
 ( GPIOI, GPIOO, GPIOD ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
 (  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
@@ -163,6 +156,8 @@ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 ( PDMP, PDMD, PDME ) = pintype_pdm = [ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ) = pintype_tp_pwm = [ _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
     _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"), _("Motor Enable"), _("Motor Fault") ]
+( RXDATA,TXDATA,TXEN ) = pintype_sserial = [ _("Receive Data"),_("Transmit Data"),_("Enable")  ]
+
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXPWM = 7;_MAXTPPWM = 8;
 _MAXSTEP = 9;_STEPPINS = 10;_HASWATCHDOG = 11;_MAXGPIO = 12;_LOWFREQ = 13;_HIFREQ = 14;_NUMOFCNCTRS = 15;_STARTOFDATA = 16
@@ -395,7 +390,6 @@ operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
 control = [_("ESTOP In"), _("Probe In") ]
 rapid = [_("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),_("Jog A +"),_("Jog A -"),
     _("Jog button selected +"),_("Jog button selected -") ]
-
 human_input_names = [ [_("Unused Input"),[None]],[_("Limits"),limit],[_("Home"),home],[_("Limts/Home Shared"),home_limits_shared],
     [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],[_("Spindle"),spindle],
     [_("Operation"),operation],[_("External Control"),control],[_("Axis rapid"),rapid],[_("Custom Signals"),[None]] ]
@@ -520,7 +514,9 @@ S_TPPWM_A, S_TPPWM_B,S_TPPWM_C,S_TPPWM_AN,S_TPPWM_BN,S_TPPWM_CN,S_TPPWM_ENABLE,S
 human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[None]],[_("X Axis BL Driver"),[None]],[ _("Y Axis BL Driver"),[None]],
     [_("Z Axis BL Driver"),[None]],[_("A Axis BL Driver"),[None]],[_("S Axis BL Driver"),[None]],[_("Custom Signals"),[None]] ]
 
+(UNUSED_SSERIAL,A8I20_R,A8I20_T,A8I20_E,I7I64_R,I7I64_T,I7I64_E) = hal_sserial_names = ["unused-sserial","8i20-r","8i20-t","8i20-e","7i64-r","7i64-t","7i64-e"]
 
+human_sserial_names = [ [_("Unused Serial"),[None]],[_("8i20 Amplifier Card"),[None]],[ _("7i64 I/O Card"),[None]] ]
 
 def md5sum(filename):
     try:
@@ -566,7 +562,8 @@ class Data:
         self._encoderliststore = None
         self._muxencoderliststore = None
         self._pwmliststore = None
-        self._tppwmliststore = []
+        self._tppwmliststore = None
+        self._sserialliststore = None
 
         self._gpioosignaltree = None
         self._gpioisignaltree = None
@@ -576,6 +573,7 @@ class Data:
         self._pwmcontrolsignaltree = None
         self._pwmrelatedsignaltree = None
         self._tppwmsignaltree = None
+        self._sserialsignaltree = None
 
         # pncconf default options
         self.createsymlink = 1
@@ -3170,7 +3168,7 @@ class App:
             while gtk.events_pending():
                 gtk.main_iteration()
             root = xml.etree.ElementTree.parse(os.path.join(firmdir,boardtitle,currentfirm+".xml"))
-            watchdog = encoder = pwmgen = led = muxedqcount = stepgen = tppwmgen = 0
+            watchdog = encoder = pwmgen = led = muxedqcount = stepgen = tppwmgen = sserial = 0
             numencoderpins = 3; numstepperpins = 2
             boardname = root.find("boardname").text;print boardname, currentfirm
             maxgpio  = int(root.find("iowidth").text) ; #print maxgpio
@@ -3205,6 +3203,9 @@ class App:
                 elif k == "TPPWM": 
                     l = modules[i].find("numinstances").text;#print l,k
                     tppwmgen = int(l)
+                elif k == "SSERIAL": 
+                    l = modules[i].find("numinstances").text;#print l,k
+                    sserial = int(l)
                 elif k in ("IOPort","AddrX","MuxedQCountSel"):
                     continue
                 else:
@@ -3220,6 +3221,7 @@ class App:
             pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
             pinconverttppwm = {"PWM A (out)":TPPWMA,"PWM B (out)":TPPWMB,"PWM C (out)":TPPWMC,"PWM /A (out)":TPPWMAN,"PWM /B (out)":TPPWMBN,
                 "PWM /C (out)":TPPWMCN,"Fault (in)":TPPWMF,"Enable (out)":TPPWME}
+            pinconvertsserial = {"RXData":RXDATA,"TXData":TXDATA,"TXE":TXEN}
             for i,j in enumerate(pins):
                 temppinunit = []
                 temp = pins[i].find("connector").text
@@ -3236,6 +3238,8 @@ class App:
                         convertedname = pinconvertstep[temp]
                     elif modulename == "TPPWM":
                         convertedname = pinconverttppwm[temp]
+                    elif modulename == "SSERIAL":
+                        convertedname = pinconvertsserial[temp]
                     else: raise ValueError
                 except:
                     # must be GPIO pins if there is no secondary mudule name
@@ -4564,11 +4568,15 @@ class App:
         self.data._tppwmliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_tp_pwm):
             self.data._tppwmliststore.append([text,number])
+        #sserial
+        self.data._sserialliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_sserial):
+            self.data._sserialliststore.append([text,number])
 
     def fill_combobox_models(self):
         templist = [ ["_gpioosignaltree",human_output_names,1],["_gpioisignaltree",human_input_names,1],["_encodersignaltree",human_encoder_input_names,4],
                      ["_pwmsignaltree",human_pwm_output_names,3],["_tppwmsignaltree",human_tppwm_output_names,8],["_steppersignaltree",human_stepper_names,6],
-                     ["_muxencodersignaltree",human_encoder_input_names,4] ]
+                     ["_muxencodersignaltree",human_encoder_input_names,4],["_sserialsignaltree",human_sserial_names,3] ]
         for item in templist:
             print item[0]
             count = 0
