@@ -1640,10 +1640,10 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 
     if(css_maximum) {
 	if(lengthUnits == CANON_UNITS_INCHES) 
-	    css_numerator = -12 / (2 * M_PI) * spindleSpeed;
+	    css_numerator = -12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
 	else
-	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed;
-	emc_spindle_on_msg.speed = css_maximum;
+	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
+	emc_spindle_on_msg.speed = -css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
 	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
     } else {
@@ -1666,9 +1666,9 @@ void SET_SPINDLE_SPEED(double r)
 
     if(css_maximum) {
 	if(lengthUnits == CANON_UNITS_INCHES) 
-	    css_numerator = 12 / (2 * M_PI) * spindleSpeed;
+	    css_numerator = 12 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(25.4);
 	else
-	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed;
+	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
 	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
