@@ -131,7 +131,11 @@ net CLOSED hm2_5i20.0.gpio.029.in_not hm2_5i20.0.gpio.041.out
 # Main Contactors - True when both contactors are energized
 net ACOK hm2_5i20.0.gpio.035.in_not
 # VFD Fault Relay - True when VFD is not faulted
-net VFDOK hm2_5i20.0.gpio.031.in_not
+#net VFDOK hm2_5i20.0.gpio.031.in_not
+# A Axis Home - On Sieg machines there is no VFD fault signal,
+# it is used for the A axis home sensor on 4 axis machines
+#net VFDOK hm2_5i20.0.gpio.031.in_not
+#net AHOME hm2_5i20.0.gpio.031.in axis.3.home-sw-in
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 

@@ -1759,16 +1759,18 @@ static void output_to_hal(void)
     if(emcmotStatus->spindle.css_factor) {
 	double denom = fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
 	double speed;
+        double maxpositive;
         if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
 	else speed = emcmotStatus->spindle.speed;
 
 	speed = speed * emcmotStatus->net_spindle_scale;
 
+        maxpositive = fabs(emcmotStatus->spindle.speed);
         // cap speed to G96 D...
-        if(speed < -emcmotStatus->spindle.speed)
-            speed = -emcmotStatus->spindle.speed;
-        if(speed > emcmotStatus->spindle.speed)
-            speed = emcmotStatus->spindle.speed;
+        if(speed < -maxpositive)
+            speed = -maxpositive;
+        if(speed > maxpositive)
+            speed = maxpositive;
 
 	*(emcmot_hal_data->spindle_speed_out) = speed;
 	*(emcmot_hal_data->spindle_speed_out_rps) = speed/60.;
