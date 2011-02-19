@@ -7,10 +7,10 @@ manually, GladeVCP uses the glade WYSIWYG user interface editor.
 Therefore, it's faster and easier to create visually pleasing panels
 with GladeVCP.
 
-Note:::
-     Until GladeVCP is fully integrated with EMC2 please refer to the EMC
-    wiki page GladeVcpSetup for instructions on installing and setting up
-    GladeVCP.
+[NOTE]
+Until GladeVCP is fully integrated with EMC2 please refer to the EMC
+wiki page GladeVcpSetup for instructions on installing and setting up
+GladeVCP.
 
 == Creating your first GladeVCP UI component
 
@@ -56,7 +56,7 @@ image::images/axis-gladevcp.png[]
 
 == Integrating into Touchy
 
-Touchy also understands EMBED_TAB_NAME/EMBED_TAB_COMMAND variables
+Touchy also understands `EMBED_TAB_NAME` and `EMBED_TAB_COMMAND` variables
 from INI file so instructions for it are equal to Axis.
 
 == Axis: linking HAL pins in the example UI
@@ -71,14 +71,13 @@ these HALFILE statements are run before gladevcp is started, so linking
 to your UI's pins from there would refer to pins which do not yet
 exist. You therefore need to prepare a file of all HAL commands which
 refer to / link with your UI's pins and pass it to the gladevcp command
-in the EMBED_TAB_COMMAND statement like so:
+in the `EMBED_TAB_COMMAND` statement like so:
 
-EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -H gladevcp-test.hal -w
-{XID} gladevcp-test.glade
+    EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -H gladevcp-test.hal -w {XID} gladevcp-test.glade
 
-There is an example gladevcp-test.hal file in the
-emc2-dev/lib/python/gladevcp directory. Before using it in the
-EMBED_TAB_NAME statement, make sure the loadusr statements at the top
+There is an example `gladevcp-test.hal` file in the
+`emc2-dev/lib/python/gladevcp` directory. Before using it in the
+`EMBED_TAB_NAME` statement, make sure the loadusr statements at the top
 are commented out.
 
 == Adding custom user callbacks in Python
@@ -93,9 +92,12 @@ others, to execute MDI commands. Here's how you do it:
 
 Write a Python module like so and save as e.g. handlers.py:
 
-    nhits = 0
-    def on_button_press(gtkobj,data=None):
+[source,python]
+----------------------------------
+nhits = 0
+def on_button_press(gtkobj,data=None):
     global nhits nhits += 1 gtkobj.set_label("hits: %d" % nhits)
+----------------------------------
 
 In glade, define a button or HAL button, select the 'Signals' tab, and
 in the GtkButton properties select the 'pressed' line. Enter
@@ -216,15 +218,19 @@ signal value with a control widget. Thus there are four classes of
 GladeVcp widgets that you can connect to a HAL signal. Another class of
 helper widgets allow you to organize and label your panel.
 
- - Widgets for indicating "bit" signals: HAL_LED
- -  Widgets for controlling "bit" signals: HAL_Button, HAL_RadioButton,
-   HAL_CheckButton, HAL_RadioButton
- -  Widgets for indicating "number" signals: HAL_Label, HAL_ProgressBar,
-   HAL_Bar, HAL_VBar, HAL_Meter
- -  Widgets for controlling "number" signals: HAL_SpinButton, HAL_HScale,
-   HAL_VScale
- - Helper widgets: HAL_Table, HAL_HBox
- - Tool Path preview: HAL_Gremlin
+ - Widgets for indicating "bit" signals: <<gladevcp:HAL_LED,HAL_LED>>
+ - Widgets for controlling "bit" signals: <<gladevcp:HAL_Button,HAL_Button>>,
+   <<gladevcp:HAL_RadioButton,HAL_RadioButton>>,
+   <<gladevcp:HAL_CheckButton,HAL_CheckButton>>
+ - Widgets for indicating "number" signals: <<gladevcp:HAL_Label,HAL_Label>>,
+   <<gladevcp:HAL_ProgressBar,HAL_ProgressBar>>,
+   <<gladevcp:HAL_HBar,HAL_HBar>>, <<gladevcp:HAL_VBar,HAL_VBar>>,
+   <<gladevcp:HAL_Meter,HAL_Meter>>
+ - Widgets for controlling "number" signals: <<gladevcp:HAL_SpinButton,HAL_SpinButton>>,
+   <<gladevcp:HAL_HScale,HAL_HScale>>,
+   <<gladevcp:HAL_VScale,HAL_VScale>>
+ - Helper widgets: <<gladevcp:HAL_Table,HAL_Table>>, <<gladevcp:HAL_HBox,HAL_HBox>>
+ - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
 
 HAL Widgets inherit methods, properties and signals from the
 underlying Gtk widgets, so it is helpful to consult the Gtk and PyGTK
@@ -242,8 +248,8 @@ and a <widgetname>-s (s32) pin, and the HAL_ProgressBar, which has a
 
 As a general rule, if you need to set a HAL output widget's value from
 Python code, do so by calling the underlying Gtk 'setter' (e.g.
-set_active(), set_value()) - do not try to set the associated pin's
-value by halcomp[pinname] = value directly because the widget 'will not
+`set_active()`, `set_value()`) - do not try to set the associated pin's
+value by `halcomp[pinname] = value` directly because the widget 'will not
 notice'.
 
 It might be tempting to 'set HAL widget input pins' programmatically.
@@ -278,7 +284,7 @@ in the glade UI editor:
 
 image::images/hal-pin-change.png[]
 
-=== Buttons
+=== Buttons [[gladevcp:HAL_Button]] [[gladevcp:HAL_RadioButton]] [[gladevcp:HAL_CheckButton]]
 
 This group of widget is derived from various Gtk buttons and consists
 of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
@@ -296,10 +302,12 @@ base Gtk classes.
  - Important properties: label, image
 
 .Buttons
+image:images/checkbutton.png[]
+image:images/radiobutton.png[]
 
-image::images/checkbutton.png[]image::images/radiobutton.png[]
-
-Hint: Defining radio button groups in glade:
+[TIP]
+======================================
+Defining radio button groups in glade:
 
 - decide on default active button
 
@@ -308,8 +316,9 @@ button's name in the 'Choose a Radio Button in this project' dialog.
 
 See configs/gladevcp/by-widget/radiobutton for a gladevcp application
 and UI file for working with radio buttons.
+======================================
 
-=== Scales
+=== Scales [[gladevcp:HAL_HScale]] [[gladevcp:HAL_VScale]]
 
 HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
 respectively. They have one output FLOAT pin with name equal to widget
@@ -326,21 +335,22 @@ adjustment object. It defines the default/min/max/increment
 values. Also, set adjustment 'Page size' and 'Page increment' to zero
 to avoid warnings.
 
-=== SpinButton
+=== SpinButton [[gladevcp:HAL_SpinButton]]
 
 HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
- - {widgetname}-f: out FLOAT pin
- - {widgetname}-s: out S32 pin
+ - `{widgetname}-f`: out FLOAT pin
+ - `{widgetname}-s`: out S32 pin
 
 .SpinButton
 
 image::images/spinbutton.png[]
 
-Hint: to be useful, Spinbuttons need an adjustment value like scales,
+[TIP]
+To be useful, Spinbuttons need an adjustment value like scales,
 see above.
 
-=== Label
+=== Label [[gladevcp:HAL_Label]]
 
 HAL_Label is simple widget based on GtkLabel which represents a HAL
 pin value in a user-defined format. The pin's HAL type depends on the
@@ -353,10 +363,10 @@ format string to represent the pin value. It defaults to "%s" (values
 are converted by the str() function) but may contain anything legit in
 a as argument to Pythons format() method.
 
-Example: Distance: %.03f will display the text and the pin value with
+Example: `Distance: %.03f` will display the text and the pin value with
 3 fractional digits padded with zeros for a FLOAT pin.
 
-=== Containers: HAL_HBox and HAL_Table
+=== Containers: HAL_HBox and HAL_Table [[gladevcp:HAL_HBox]] [[gladevcp:HAL_Table]]
 
 Compared to their Gtk counterparts they have one input BIT pin which
 controls if their child widgets are sensitive or not. If the pin is low
@@ -365,24 +375,30 @@ then child widgets are inactive which is the default.
 Hint: if you find some part of your gladevcp application is 'grayed
 out' (insensitive), see whether a container's pin is unset.
 
-=== LED
+=== LED [[gladevcp:HAL_LED]]
 
 The HAL_Led simulates a real indicator LED . It has a single input BIT
 pin which controls it's state: ON or OFF. Leds have several properties
 which control their look and feel:
 
- -  on_color: a String defining ON color of led. May be any valid
+on_color::
+   a String defining ON color of led. May be any valid
    gtk.gdk.Color name. Not working on Ubuntu 8.04.
- -  off_color: String defining OFF color of led. May be any valid
-   gtk.gdk.Color name or special value "dark". "dark" means that OFF color
+off_color::
+   String defining OFF color of led. May be any valid
+   gtk.gdk.Color name or special value `dark`. `dark` means that OFF color
    will be set to 0.4 value of ON color. Not working on Ubuntu 8.04.
- -  pick_color_on, pick_color_off: Colors for ON and OFF states may be
-   represented as #RRRRGGGGBBBB strings. These are optional properties
-   which have precedence over "on_color" and "off_color".
- - led_size: LED radius (for square - half of LED's side)
- -  led_shape: LED Shape. Valid values are 0 for round, 1 for oval and 2
+pick_color_on, pick_color_off::
+   Colors for ON and OFF states may be
+   represented as `#RRRRGGGGBBBB` strings. These are optional properties
+   which have precedence over `on_color` and `off_color`.
+led_size::
+   LED radius (for square - half of LED's side)
+led_shape::
+   LED Shape. Valid values are 0 for round, 1 for oval and 2
    for square shapes.
- -  led_blink_rate: if set and led is ON then it's blinking. Blink
+led_blink_rate::
+   if set and led is ON then it's blinking. Blink
    frequency is equal to "led_blink_rate" specified in milliseconds.
 
 As an input widget, LED also supports the hal-pin-changed signal. If
@@ -390,8 +406,11 @@ you want to get a notification in your code when the LED's HAL pin was
 changed, then connect this signal to a handler, for example
 on_led_pin_changed and provide the handler as follows:
 
-    def on_led_pin_changed(self,hal_led,data=None):
+[source,python]
+----------------------------------
+def on_led_pin_changed(self,hal_led,data=None):
     print "on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get()
+----------------------------------
 
 This will be called at any edge of the signal and also during program
 start up to report the current value.
@@ -402,11 +421,10 @@ Example LEDs:
 
 image::images/leds.png[]
 
-=== ProgressBar
+=== ProgressBar [[gladevcp:HAL_ProgressBar]]
 
-
-
-Note: This widget might go away. Use the HAL_HBar and HAL_VBar widgets
+[NOTE]
+This widget might go away. Use the HAL_HBar and HAL_VBar widgets
 instead.
 
 The HAL_ProgressBar is derived from gtk.ProgressBar and has two float
@@ -433,7 +451,7 @@ It has the following properties:
 
 image::images/progressbar2.png[]
 
-=== ComboBox
+=== ComboBox [[gladevcp:HAL_ComboBox]]
 
 HAL_ComboBox is derived from gtk.ComboBox. It enables choice of a
 value from a dropdown list.
@@ -464,32 +482,40 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer , see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-=== Bars
+=== Bars [[gladevcp:HAL_HBar]] [[gladevcp:HAL_VBar]]
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing
 float values. They have one input FLOAT hal pin. Both bars have the
 following properties:
 
- -  invert: Swap min and max direction. An inverted HBar grows from right
+invert::
+   Swap min and max direction. An inverted HBar grows from right
    to left, an inverted VBar from top to bottom.
- -  min, max: Minimum and maximum value of desired range. It is not an
+min, max::
+   Minimum and maximum value of desired range. It is not an
    error condition if the current value is outside this range.
- -  zero: Zero point of range. If it's inside of min/max range then the
+zero::
+   Zero point of range. If it's inside of min/max range then the
    bar will grow from that value and not from the left (or right) side of
    the widget. Useful to represent values that may be both positive or
    negative.
- -  force_width, force_height: Forced width or height of widget. If not
+force_width, force_height::
+   Forced width or height of widget. If not
    set then size will be deduced from packing or from fixed widget size
    and bar will fill whole area.
- -  text_template: Like in Label sets text format for min/max/current
+text_template::
+   Like in Label sets text format for min/max/current
    values. Can be used to turn off value display.
- - bg_color: Background (inactive) color of bar.
- -  z0_color, z1_color, z2_color: Colors of different value zones.
-   Defaults are "green", "yellow" and "red". For description of zones see
-   "z*_border" properties.
- -  * z0_border, z1_border: Define up bounds of color zones. By default
+bg_color::
+   Background (inactive) color of bar.
+z0_color, z1_color, z2_color::
+   Colors of different value zones.
+   Defaults are `green`, `yellow` and `red`. For description of zones see
+   `z*_border` properties.
+z0_border, z1_border::
+   Define up bounds of color zones. By default
    only one zone is enabled. If you want more then one zone set
-   "z0_border" and "z1_border" to desired values so zone 0 will fill from
+   `z0_border` and `z1_border` to desired values so zone 0 will fill from
    0 to first border, zone 1 will fill from first to second border and
    zone 2 -- from last border to 1. Borders are set as fractions, values
    from 0 to 1.
@@ -498,29 +524,38 @@ Examples:
 
 .Bars
 
-image::images/hal_hbar.png[]image::images/vscale.png[]
+image:images/hal_hbar.png[]
+image:images/vscale.png[]
 
-=== Meter
+=== Meter [[gladevcp:HAL_Meter]]
 
 HAL Meter is widget like PyVCP meter representing float value. It have
 one input FLOAT hal pin. Widget has following properties:
 
- -  min, max: Minimum and maximum value of desired range. It is not an
+min, max::
+   Minimum and maximum value of desired range. It is not an
    error condition if the current value is outside this range.
- -  force_size: Forced diameter of widget. If not set then size will be
+force_size::
+   Forced diameter of widget. If not set then size will be
    deduced from packing or from fixed widget size and meter will fill all
    available space with respect to aspect ratio.
- -  text_template: Like in Label sets text format for current value. Can
+text_template::
+   Like in Label sets text format for current value. Can
    be used to turn off value display.
- - label: Large label above center of meter.
- - sublabel: Small label below center of meter.
- - bg_color: Background color of meter.
- -  z0_color, z1_color, </t>z2_color</tt>: Colors of different value
-   zones. Defaults are "green", "yellow" and "red". For description of
-   zones see "z*_border" properties.
- -  z0_border, z1_border: Define up bounds of color zones. By default only
-   one zone is enabled. If you want more then one zone set "z0_border" and
-   "z1_border" to desired values so zone 0 will fill from min to first
+label::
+   Large label above center of meter.
+sublabel::
+   Small label below center of meter.
+bg_color::
+   Background color of meter.
+z0_color, z1_color, z2_color::
+   Colors of different value
+   zones. Defaults are `green`, `yellow` and `red`. For description of
+   zones see `z*_border` properties.
+z0_border, z1_border::
+   Define up bounds of color zones. By default only
+   one zone is enabled. If you want more then one zone set `z0_border` and
+   `z1_border` to desired values so zone 0 will fill from min to first
    border, zone 1 will fill from first to second border and zone 2 -- from
    last border to max. Borders are set as values in range min-max.
 
@@ -530,7 +565,7 @@ Examples:
 
 image::images/hal_meter.png[]
 
-=== Gremlin tool path preview for .ngc files
+=== Gremlin tool path preview for .ngc files [[gladevcp:HAL_Gremlin]]
 
 Gremlin is a plot preview widget similar to the Axis preview window.
 It assumes a running EMC environment like Axis or Touchy. To connect to
@@ -543,10 +578,12 @@ name.
 
 Gremlin does not export any HAL pins. It has the following properties:
 
- -  view : may be any of 'x', 'y', 'z', 'p' (perspective) . Defaults to
-   'z' view.
- -  enable_dro : boolean; wether to draw a DRO on the plot or not.
-   Defaults to 'True'.
+view ::
+   may be any of `x`, `y`, `z`, `p` (perspective) . Defaults to
+   `z` view.
+enable_dro ::
+   boolean; wether to draw a DRO on the plot or not.
+   Defaults to `True`.
 
 Example:
 
@@ -652,9 +689,9 @@ is how it works:
  -  The HAL SpinBox? will have a float-type HAL pin named speed-f (see
    HalWidgets description).
  -  To substitute this value in the MDI command, insert the HAL pin name
-   enclosed like so: ${pin-name}
- -  for the above HAL SpinBox, we could use (MSG, "The speed is:
-   ${speed-f}") just to show what's happening.
+   enclosed like so: `${pin-name}`
+ -  for the above HAL SpinBox, we could use `(MSG, "The speed is:
+   ${speed-f}")` just to show what's happening.
 
 Here's the example UI file for gladevcp: , and here's what you get:
 
@@ -698,6 +735,8 @@ Here's an example how a feed value might be saved and restored by such
 handlers (note that EMC command and status channels are available as
 self.emc and self.stat through the _EMC_ActionBase class:
 
+[source,python]
+----------------------------------
     def on_mdi_command_start(self, action, userdata=None):
         action.stat.poll()
         self.start_feed = action.stat.settings[1]
@@ -706,6 +745,7 @@ self.emc and self.stat through the _EMC_ActionBase class:
         action.emc.mdi('F%.1f' % (self.start_feed))
         while action.emc.wait_complete() == -1:
             pass
+----------------------------------
 
 Only the Action_MDI Toggle widget supports these signals.
 
@@ -801,11 +841,14 @@ event happens in the widget tree. Here's a trivial example - it assumes
 that the 'pressed' signal of a GTK Button or HAL Button is linked to a
 callback called 'on_button_press':
 
-    nhits = 0
-    def on_button_press(gtkobj,data=None):
+[source,python]
+----------------------------------
+nhits = 0
+def on_button_press(gtkobj,data=None):
     global nhits
     nhits += 1
     gtkobj.set_label("hits: %d" % nhits)
+----------------------------------
 
 Add this function to a Python file and run as follows:
 
@@ -830,21 +873,24 @@ write:
 
 Here is a minimum user-defined handler example module:
 
-    Class MyCallbacks :
+[source,python]
+----------------------------------
+class MyCallbacks :
     def on_this_signal(self,obj,data=None):
-    print "this_signal happened, obj=",obj
+        print "this_signal happened, obj=",obj
     def get_handlers(halcomp,builder,useropts):
-    return [MyCallbacks ()]
+        return [MyCallbacks ()]
+----------------------------------
 
 Now, 'on_this_signal' will be available as signal handler to your
 widget tree.
 
 ==== The get_handlers protocol
 
-If during module inspection gladevcp finds a function 'get_handlers',
+If during module inspection gladevcp finds a function `get_handlers`,
 it calls it as follows:
 
-get_handlers(halcomp,builder,useropts)
+    get_handlers(halcomp,builder,useropts)
 
 the arguments are:
 
@@ -852,7 +898,7 @@ the arguments are:
  -  builder - widget tree - result of reading the UI definition (either
    referring to a GTKBuilder or libglade-type object)
  -  useropts - a list of strings collected from the gladevcp command line
-   '-U <useropts>' option
+   `-U <useropts>` option
 
 gladevcp then inspects the list of class instances and retrieves their
 method names. Qualifying method names are connected to the widget tree
@@ -861,43 +907,43 @@ as signal handlers. Only method names which do not begin with an '_'
 
 Note that regardless whether you're using the libglade or the new
 GtkBuilder format for your glade UI, widgets can always be referred to
-as *builder.get_object(<widgetname>)*. Also, the complete list of
-widgets is available as *builder.get_objects()* regardless of UI
+as `builder.get_object(<widgetname>)`. Also, the complete list of
+widgets is available as `builder.get_objects()` regardless of UI
 format.
 
 === Initialization sequence
 
-It is important to know in which state of affairs your get_handlers()
+It is important to know in which state of affairs your `get_handlers()`
 function is called so you know what is safe to do there and what not.
 First, modules are imported and initialized in command line order.
-After successful import, get_handlers() is called in the following
+After successful import, `get_handlers()` is called in the following
 state:
 
  -  the widget tree is created, but not yet realized (no toplevel
-   window.show() has been executed yet)
+   `window.show()` has been executed yet)
  -  the halcomp HAL component is set up and all HAL widget's pins have
    already been added to it
- -  it is safe to add more HAL pins because halcomp.ready() has not yet
+ -  it is safe to add more HAL pins because `halcomp.ready()` has not yet
    been called at this point, so you may add your own pins, for instance
-   in the class __init__() method.
+   in the class `__init__()` method.
 
 Once all modules have been imported and method names extracted, the
 following steps happen:
 
  -  all qualifying method names will be connected to the widget tree with
-   connect_signals()/signal_autoconnect() (depending on the type of UI
+   `connect_signals()/signal_autoconnect()` (depending on the type of UI
    imported - GtkBuilder vs the old libglade format).
  - the HAL component is finalized with halcomp.ready()
  -  if a window ID was passed as argument, the widget tree is re-parented
    to run in this window, and glade's toplevel window1 is abandoned (see
    FAQ)
- -  if a HAL command file was passed with '-H halfile', it is executed
+ -  if a HAL command file was passed with `-H halfile`, it is executed
    with halcmd
  - the gtk main loop is run.
 
 So when your handler class is initialized, all widgets are existent
 but not yet realized (displayed on screen). And the HAL component isn't
-ready as well, so its unsafe to access pins values in your __init__()
+ready as well, so its unsafe to access pins values in your `__init__()`
 method.
 
 If you want to have a callback to execute at program start after it is
@@ -913,9 +959,9 @@ multiple class instances passed to gladevcp by get_handlers() with
 identically named methods. When the corresponding signal occurs, these
 methods will be called in definition order - module by module, and
 within a module, in the order class instances are returned by
-get_handlers().
+`get_handlers()`.
 
-=== The gladevcp -U <useropts> flag
+=== The gladevcp `-U <useropts>` flag
 
 Instead of extending gladevcp for any conceivable option which could
 potentially be useful for a handler class, you may use the -U
@@ -923,20 +969,23 @@ potentially be useful for a handler class, you may use the -U
 of <useroption> strings. This list is passed to the get_handlers()
 function (useropts argument). Your code is free to interpret these
 strings as you see fit. An possible usage would be to pass them to the
-Python exec function in your get_handlers() as follows:
+Python exec function in your `get_handlers()` as follows:
 
-    debug = 0
-    ...
-    def get_handlers(halcomp,builder,useropts):
+[source,python]
+----------------------------------
+debug = 0
+...
+def get_handlers(halcomp,builder,useropts):
     ...
     global debug # assuming there's a global var
     for cmd in useropts:
-    exec cmd in globals()
+        exec cmd in globals()
+----------------------------------
 
 This way you can pass arbitrary Python statements to your module
 through the gladevcp -U option, for example:
 
-gladevcp -U debug=42 -U "print 'debug=%d' % debug" ...
+    gladevcp -U debug=42 -U "print 'debug=%d' % debug" ...
 
 This should set debug to 2 and confirm that your module actually did it.
 
@@ -950,10 +999,12 @@ invocations, proceed as follows:
  -  decide which instance attributes, and their default values you want to
    have retained, if any
  - decide which widgets should have their state retained
- -  describe these decisions in your handler class' __init__() method
+ -  describe these decisions in your handler class' `__init__()` method
    through a nested dictionary as follows:
 
-    def __init__(self, halcomp,builder,useropts):
+[source,python]
+----------------------------------
+def __init__(self, halcomp,builder,useropts):
     self.halcomp = halcomp
     self.builder = builder
     self.useropts = useropts
@@ -967,20 +1018,27 @@ invocations, proceed as follows:
         # a sensible alternative might be to retain only all HAL output widgets' state:
         # IniFile.widgets: widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)),
     }
+----------------------------------
 
 and associate an .ini file with this descriptor:
 
-    self.ini_filename = __name__ + '.ini'
-    self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
-    self.ini.restore_state(self)
+[source,python]
+----------------------------------
+self.ini_filename = __name__ + '.ini'
+self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
+self.ini.restore_state(self)
+----------------------------------
 
-after restore_state(), self will have attributes set if as running the
+after `restore_state()`, self will have attributes set if as running the
 following:
 
-    self.nhits = 0
-    self.a = 1.67
-    self.d = True
-    self.c = "a string"
+[source,python]
+----------------------------------
+self.nhits = 0
+self.a = 1.67
+self.d = True
+self.c = "a string"
+----------------------------------
 
 Note that types are saved and preserved on restore. This example
 assumes that the ini file didn't exist or had the default values from
@@ -988,18 +1046,21 @@ self.defaults.
 
 After this incantation, you can use the following IniFil methods:
 
- -  ini.save_state(obj) - saves objs's attributes as per IniFil.vars
+ - `ini.save_state(obj)` - saves objs's attributes as per IniFil.vars
    dictionary and the widget state as described in IniFile.widgets in
    self.defaults
- - ini.create_default_ini() - create a .ini file with default values
- -  ini.restore_state(obj) - restore HAL out pins and obj's attributes as
+ - `ini.create_default_ini()` - create a .ini file with default values
+ - `ini.restore_state(obj)` - restore HAL out pins and obj's attributes as
    saved/initialized to default as above
 
 To save the widget and/or variable state on exit, connect a signal
 handler to the window1 (toplevel) destroy event:
 
-    def on_destroy(self,obj,data=None):
-        self.ini.save_state(self)
+[source,python]
+----------------------------------
+def on_destroy(self,obj,data=None):
+    self.ini.save_state(self)
+----------------------------------
 
 Next time you start the gladevcp application, the widgets should come
 up in the state when the application was closed.
@@ -1017,22 +1078,31 @@ files overwrite earlier .BAD files.
 If you need HAL pins which are not associated with a specific HAL
 widget, add them as follows:
 
-    import hal_glib
-    ...
-    # in your handler class __init__():
-    self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
+[source,python]
+----------------------------------
+import hal_glib
+...
+# in your handler class __init__():
+self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
+----------------------------------
 
 To get a callback when this pin's value changes, associate a
 *value-change* callback with this pin, add:
 
-    self.example_trigger.connect('value-changed', self._on_example_trigger_change)
+[source,python]
+----------------------------------
+self.example_trigger.connect('value-changed', self._on_example_trigger_change)
+----------------------------------
 
 and define a callback method (or function, in this case leave out the
 'self' parameter):
 
-    # note '_' - this method will not be visible to the widget tree
-    def _on_example_trigger_change(self,pin,userdata=None):
+[source,python]
+----------------------------------
+# note '_' - this method will not be visible to the widget tree
+def _on_example_trigger_change(self,pin,userdata=None):
     print "pin value changed to:" % (pin.get())
+----------------------------------
 
 === Adding timers
 
@@ -1040,14 +1110,17 @@ Since gladevcp uses GTK widgets which rely on the GObject base class,
 the full glib functionally is available. Here is an example for a timer
 callback:
 
-    def _on_timer_tick(self,userdata=None):
+[source,python]
+----------------------------------
+def _on_timer_tick(self,userdata=None):
     ...
     return True # to restart the timer; return False for on-shot
-    ...
-    # demonstrate a slow background timer - granularity is one second
-    # for a faster timer (granularity 1msec), use this:
-    # glib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
-    glib.timeout_add_seconds(1, self._on_timer_tick)
+...
+# demonstrate a slow background timer - granularity is one second
+# for a faster timer (granularity 1msec), use this:
+# glib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
+glib.timeout_add_seconds(1, self._on_timer_tick)
+----------------------------------
 
 === Implementation note: Key handling in Axis
 
@@ -1072,13 +1145,14 @@ consequences.
 
 Therefore, key events in gladevcp are explicitly handled, and
 selectively forwarded to Axis, to assure that such situations cannot
-arise. For details, see the keyboard_forward() function in
-lib/python/gladevcp/xembed.py.
+arise. For details, see the `keyboard_forward()` function in
+`lib/python/gladevcp/xembed.py`.
 
 === FAQ
 
- -  I get an unexpected unmap event in my handler function right after
-   startup. What's this?: This is a consequence of your glade UI file
+[qanda]
+I get an unexpected unmap event in my handler function right after startup. What's this?::
+   This is a consequence of your glade UI file
    having the window1 Visible property set to True, together with
    re-parenting the gladevcp window into Axis or touchy. The gladevcp
    widget tree is created, including a top level window, and then
@@ -1087,8 +1161,8 @@ lib/python/gladevcp/xembed.py.
    is unmapped (made invisible), which is the cause of the unmap signal
    you get. Suggested fix: set window1.visible to False, and ignore an
    initial unmap event.
- -  my gladevcp program starts, but no window appears where I expect it to
-   be?: The window Axis allocates for gladevcp will obtain the 'natural
+My gladevcp program starts, but no window appears where I expect it to be?::
+   The window Axis allocates for gladevcp will obtain the 'natural
    size' of all its child widgets combined. It's the child widget's job to
    request a size (width and/or height). However, not all widgets do
    request a width greater than 0, for instance the Graph widget in its
