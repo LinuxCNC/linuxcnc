@@ -943,7 +943,8 @@ class Data:
             self[temp+"usehomeindex"]= 0
             self[temp+"stepscale"]= 0
             self[temp+"encoderscale"]= 0
-    
+
+            self[temp+"bldcconfig"]= None
             self[temp+"bldc_scale"]= 512
             self[temp+"bldc_poles"]= 4
             self[temp+"bldc_lead-angle"]= 0
@@ -1004,8 +1005,13 @@ class Data:
             for j in(["-pulse","-dir","-enable"]):
                 hal_pwm_output_names.append(i+j)
         if i: human_pwm_output_names[6][1]= temp
-        # TODO add tppwm
-
+        # tppwm
+        temp =[]; i = False
+        for i in  self.tppwmsignames:
+            temp.append(i)
+            for j in(["-a","-b","-c","-anot","-bnot","-cnot","-fault","-enable"]):
+                haltppwmoutputsignames.append(i+j)
+        if i:  haltppwmoutputsignames[4][1]= temp
         # GPIO Input
         temp = []; i = False
         for i in  self.halinputsignames:
@@ -1794,6 +1800,17 @@ class Data:
         if self.findsignal("spindle-at-speed"):
             at_speed = True
 
+        if self.usebldc or self.userneededblcd:
+            self._bldcconfigstring = ""
+            if self.usebldc:
+                for i in self.available_axes:
+                    temp = self[i+"bldcconfig"]
+                    self._bldcconfigstring.append(temp)
+            if self.userneededbldc:
+                for i in self.userneededbldc:
+                    self._bldcconfigstring.append(i)
+            print >>file, "loadrt bldc cfg= %s"% self._bldcconfigstring
+
         if self.pyvcp or self.userneededabs >0:
             self.absnames=""
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
@@ -1928,6 +1945,11 @@ class Data:
                 print >>file, "alias pin    pid.%d.output        pid.%s.output" % (axnum + self.userneededpid, j)
                 print >>file, "alias pin    pid.%d.index-enable  pid.%s.index-enable" % (axnum + self.userneededpid, j)
                 print >>file
+        
+        if self.usebldc or self.userneededbldc:
+            for num,i in enumerate(self._bldcconfigstring):
+                print >>file, "addf bldc.%d servo-thread"% num
+
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
 
