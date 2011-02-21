@@ -556,7 +556,7 @@ class Data:
         self._mesa1_configured = False
         self._components_is_prepared = False
 
-        # internal data
+        # internal combobox arrays
         self._gpioliststore = None
         self._stepperliststore = None
         self._encoderliststore = None
@@ -580,6 +580,7 @@ class Data:
         self.createshortcut = 0  
         self._lastconfigname= ""
         self._chooselastconfig = True
+        self._preference_version = 1.0
 
         # basic machine data
         self.help = "help-welcome.txt"
@@ -706,6 +707,7 @@ class Data:
         self.raise_z_on_toolchange = False
         self.allow_spindle_on_toolchange = False
         self.customhal = False
+        self.usebldc = False
 
         # These components can be used by pncconf so we must keep track of them.
         # in case the user needs some for a custom HAL file
@@ -1007,11 +1009,11 @@ class Data:
         if i: human_pwm_output_names[6][1]= temp
         # tppwm
         temp =[]; i = False
-        for i in  self.tppwmsignames:
+        for i in  self.haltppwmoutputsignames:
             temp.append(i)
             for j in(["-a","-b","-c","-anot","-bnot","-cnot","-fault","-enable"]):
-                haltppwmoutputsignames.append(i+j)
-        if i:  haltppwmoutputsignames[4][1]= temp
+                hal_tppwm_output_names.append(i+j)
+        if i:  human_tppwm_output_names[4][1]= temp
         # GPIO Input
         temp = []; i = False
         for i in  self.halinputsignames:
@@ -1800,7 +1802,7 @@ class Data:
         if self.findsignal("spindle-at-speed"):
             at_speed = True
 
-        if self.usebldc or self.userneededblcd:
+        if self.usebldc or self.userneededbldc:
             self._bldcconfigstring = ""
             if self.usebldc:
                 for i in self.available_axes:
@@ -2500,6 +2502,12 @@ class Data:
 
         n2 = d2.createElement('property')
         e2.appendChild(n2)
+        n2.setAttribute('type', 'float')
+        n2.setAttribute('name', "version")
+        n2.setAttribute('value', str("%f"%self._preference_version))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
         n2.setAttribute('type', 'bool')
         n2.setAttribute('name', "always_shortcut")
         n2.setAttribute('value', str("%s"% self.createshortcut))
@@ -2521,6 +2529,12 @@ class Data:
         n2.setAttribute('type', 'string')
         n2.setAttribute('name', "machinename")
         n2.setAttribute('value', str("%s"%self.machinename))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'eval')
+        n2.setAttribute('name', "mesablacklist")
+        n2.setAttribute('value', str(mesablacklist))
 
         d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
 
@@ -2861,6 +2875,39 @@ class App:
                       i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
                       self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
 
+        # set preferences if they exist
+        filename = os.path.expanduser("~/.pncconf-preferences")
+        if os.path.exists(filename):
+            match =  open(filename).read()
+            textbuffer = self.widgets.textoutput.get_buffer()
+            try :
+                textbuffer.set_text("%s\n\n"% filename)
+                textbuffer.insert_at_cursor(match)
+            except:
+                pass
+            link = short = False
+            version = 0.0
+            d = xml.dom.minidom.parse(open(filename, "r"))
+            for n in d.getElementsByTagName("property"):
+                name = n.getAttribute("name")
+                text = n.getAttribute('value')
+                if name == "version":
+                    version = eval(text)
+                if name == "always_shortcut":
+                    short = eval(text)
+                if name == "always_link":
+                    link = eval(text)
+                if name == "machinename":
+                    self.data._lastconfigname = text
+                if name == "choosetconfig":
+                    self.data._chooselastconfig = eval(text)
+                if name == "mesablacklist":
+                    if version == self.data._preference_version:
+                        global mesablacklist
+                        mesablacklist = eval(text)
+        self.widgets.createsymlink.set_active(link)
+        self.widgets.createshortcut.set_active(short)
+
         # search for firmware packages
         if os.path.exists(firmdir):
             global mesaboardnames
@@ -2948,30 +2995,7 @@ class App:
        
     def on_page_newormodify_prepare(self, *args):
         self.data.help = "help-load.txt"
-        filename = os.path.expanduser("~/.pncconf-preferences")
-        link = short = False
-        if os.path.exists(filename):
-            match =  open(filename).read()
-            textbuffer = self.widgets.textoutput.get_buffer()
-            try :
-                textbuffer.set_text("%s\n\n"% filename)
-                textbuffer.insert_at_cursor(match)
-            except:
-                pass
-            d = xml.dom.minidom.parse(open(filename, "r"))
-            for n in d.getElementsByTagName("property"):
-                name = n.getAttribute("name")
-                text = n.getAttribute('value')
-                if name == "always_shortcut":
-                    short = eval(text)
-                if name == "always_link":
-                    link = eval(text)
-                if name == "machinename":
-                    self.data._lastconfigname = text
-                if name == "choosetconfig":
-                    self.data._chooselastconfig = eval(text)
-        self.widgets.createsymlink.set_active(link)
-        self.widgets.createshortcut.set_active(short)
+        
 
     def on_page_newormodify_next(self, *args):
         if not self.widgets.createconfig.get_active():
