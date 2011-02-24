@@ -349,6 +349,16 @@ void enqueue_M_USER_COMMAND (int index, double p_number, double q_number) {
     qc().push_back(q);
 }
 
+void enqueue_START_CHANGE (void) {
+    queued_canon q;
+    q.type = QSTART_CHANGE;
+    if(debug_qc) printf("enqueue START_CHANGE\n");
+    qc().push_back(q);
+}
+
+
+
+
 void qc_scale(double scale) {
     
     if(qc().empty()) {
@@ -497,6 +507,12 @@ void dequeue_canons(setup_pointer settings) {
                                                     q.data.mcommand.q_number);
             }
             break;
+	case QSTART_CHANGE:
+            if(debug_qc) printf("issuing start_change\n");
+            START_CHANGE();
+            free(q.data.comment.comment);
+            break;
+
         }
     }
     qc().clear();

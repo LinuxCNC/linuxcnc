@@ -1392,6 +1392,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 
     case EMC_TOOL_LOAD_TYPE:
     case EMC_TOOL_UNLOAD_TYPE:
+    case EMC_TOOL_START_CHANGE_TYPE:
     case EMC_COOLANT_MIST_ON_TYPE:
     case EMC_COOLANT_MIST_OFF_TYPE:
     case EMC_COOLANT_FLOOD_ON_TYPE:
@@ -1884,6 +1885,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcToolPrepare(tool_prepare_msg->tool);
 	break;
 
+    case EMC_TOOL_START_CHANGE_TYPE:
+        retval = emcToolStartChange();
+	break;
+
     case EMC_TOOL_LOAD_TYPE:
 	retval = emcToolLoad();
 	break;
@@ -2218,6 +2223,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TOOL_LOAD_TYPE:
     case EMC_TOOL_UNLOAD_TYPE:
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
+    case EMC_TOOL_START_CHANGE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
     case EMC_TOOL_SET_NUMBER_TYPE:
     case EMC_SPINDLE_SPEED_TYPE:

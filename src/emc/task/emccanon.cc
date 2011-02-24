@@ -1818,6 +1818,16 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
     interp_list.append(set_offset_msg);
 }
 
+/* issued at very start of an M6 command. Notification. */
+void START_CHANGE()
+{
+    EMC_TOOL_START_CHANGE emc_start_change_msg;
+
+    flush_segments();
+
+    interp_list.append(emc_start_change_msg);
+}
+
 /* CHANGE_TOOL results from M6, for example */
 void CHANGE_TOOL(int slot)
 {

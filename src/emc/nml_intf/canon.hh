@@ -552,6 +552,10 @@ to allow emc2 to safely restart knowing what tool is in the spindle.
 Using CHANGE_TOOL_NUMBER one can tell emc2 (without any physical action)
 to set the mapping of the currently loaded tool to a certain number */
 
+extern void START_CHANGE(void);
+/* executed at the very start of an M6 command before any movements,
+spindle stop or quill up have been issued, to speed up toolchanging
+process. Passed through to iocontrol to drive a pin. */
 
 /* Miscellaneous Functions */
 

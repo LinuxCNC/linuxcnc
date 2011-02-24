@@ -385,6 +385,17 @@ int emcToolPrepare(int tool)
     return 0;
 }
 
+
+int emcToolStartChange()
+{
+    EMC_TOOL_START_CHANGE toolStartChangeMsg;
+
+    sendCommand(&toolStartChangeMsg);
+
+    return 0;
+}
+
+
 int emcToolLoad()
 {
     EMC_TOOL_LOAD toolLoadMsg;

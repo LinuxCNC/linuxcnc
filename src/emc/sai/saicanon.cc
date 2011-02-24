@@ -1124,3 +1124,7 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
 void FINISH(void) {
     PRINT0("FINISH()\n");
 }
+
+void START_CHANGE(void) {
+    PRINT0("START_CHANGE()\n");
+}

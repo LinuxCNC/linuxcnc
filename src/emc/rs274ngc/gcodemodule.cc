@@ -400,6 +400,7 @@ void FINISH() {}
 void PALLET_SHUTTLE() {}
 void SELECT_POCKET(int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
+void START_CHANGE() {}
 
 extern bool GET_BLOCK_DELETE(void) { 
     int bd = 0;

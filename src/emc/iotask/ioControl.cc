@@ -1015,6 +1015,10 @@ int main(int argc, char *argv[])
 	    EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
 	    break;
 
+	case EMC_TOOL_START_CHANGE_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_START_CHANGE\n");
+	    break;
+
 	default:
 	    rtapi_print("IO: unknown command %s\n", emcSymbolLookup(type));
 	    break;
