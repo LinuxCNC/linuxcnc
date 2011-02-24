@@ -229,7 +229,7 @@ int emcTaskSetState(int state)
 	    emcAxisDisable(t);
 	}
 	emcTrajDisable();
-	emcIoAbort();
+	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
 	emcLubeOff();
 	emcTaskAbort();
         emcSpindleAbort();
@@ -251,7 +251,7 @@ int emcTaskSetState(int state)
 	emcAuxEstopOff();
 	emcLubeOff();
 	emcTaskAbort();
-        emcIoAbort();
+        emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP_RESET);
         emcSpindleAbort();
 	emcTaskPlanSynch();
 	break;
@@ -267,7 +267,7 @@ int emcTaskSetState(int state)
 	emcTrajDisable();
 	emcLubeOff();
 	emcTaskAbort();
-        emcIoAbort();
+        emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
         emcSpindleAbort();
         emcAxisUnhome(-2); // only those joints which are volatile_home
 	emcTaskPlanSynch();
@@ -604,7 +604,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
 	emcTaskAbort();
         emcSpindleAbort();
-        emcIoAbort();
+        emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);
     }
 
     // execState set in main
@@ -635,3 +635,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     return 0;
 }
 
+int emcAbortCleanup(int reason)
+{
+    return interp.on_abort(reason);
+}

@@ -108,6 +108,7 @@ public:
  int default_tool_parameters();
  int set_tool_parameters();
  int init_named_parameters();
+ int on_abort(int reason);
 
 private:
 

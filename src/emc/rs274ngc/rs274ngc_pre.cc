@@ -1734,3 +1734,27 @@ int Interp::set_tool_parameters()
 
   return 0;
 }
+
+
+int Interp::on_abort(int reason)
+{
+    if (_setup.on_abort_command == NULL)
+	return -1;
+
+
+    setup saved_setup = _setup;
+    char cmd[LINELEN];
+
+    sprintf(cmd,"%s [%d]",_setup.on_abort_command, reason);
+//    printf("---- on_abort(%s)\n", cmd);
+    int status = Interp::execute(cmd); // NB: line_number??
+    while (status == INTERP_EXECUTE_FINISH) {
+	status = Interp::execute(0);
+    }
+//    printf("------- on_abort(%s) returned %s\n", cmd, interp_status(status));
+    FILE *fp = _setup.file_pointer;
+    _setup = saved_setup;
+    _setup.file_pointer = fp;
+
+    CHP(status); //???
+}

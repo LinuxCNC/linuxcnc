@@ -1932,7 +1932,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
 	emcTaskAbort();
-        emcIoAbort();
+        emcIoAbort(EMC_ABORT_TASK_ABORT);
         emcSpindleAbort();
 	mdi_execute_abort();
 	retval = 0;
@@ -2323,7 +2323,7 @@ static int emcTaskExecute(void)
 
 	// abort everything
 	emcTaskAbort();
-        emcIoAbort();
+        emcIoAbort(EMC_ABORT_TASK_EXEC_ERROR);
         emcSpindleAbort();
 	mdi_execute_abort();
 
@@ -3091,7 +3091,7 @@ int main(int argc, char *argv[])
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();
-                emcIoAbort();
+		emcIoAbort(EMC_ABORT_AUX_ESTOP);
                 emcSpindleAbort();
                 emcAxisUnhome(-2); // only those joints which are volatile_home
 		mdi_execute_abort();
@@ -3150,7 +3150,7 @@ int main(int argc, char *argv[])
 	    }
             // abort everything
             emcTaskAbort();
-            emcIoAbort();
+            emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
             emcSpindleAbort();
 	    mdi_execute_abort();
             // without emcTaskPlanClose(), a new run command resumes at

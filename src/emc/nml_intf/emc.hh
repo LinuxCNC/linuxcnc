@@ -321,6 +321,18 @@ enum EMC_TRAJ_MODE_ENUM {
     EMC_TRAJ_MODE_TELEOP = 3	// velocity based world coordinates motion,
 };
 
+// types for emcIoAbort() reasons
+enum EMC_IO_ABORT_REASON_ENUM {
+	EMC_ABORT_TASK_EXEC_ERROR = 1,
+	EMC_ABORT_AUX_ESTOP = 2,
+	EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
+	EMC_ABORT_TASK_STATE_OFF = 4,
+	EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
+	EMC_ABORT_TASK_STATE_ESTOP = 6,
+	EMC_ABORT_TASK_STATE_NOT_ON = 7,
+	EMC_ABORT_TASK_ABORT = 8,
+	EMC_ABORT_USER = 100  // user-defined abort codes start here
+};
 // --------------
 // EMC VOCABULARY
 // --------------
@@ -478,6 +490,7 @@ extern int emcTaskPlanLevel();
 extern int emcTaskPlanCommand(char *cmd);
 
 extern int emcTaskUpdate(EMC_TASK_STAT * stat);
+extern int emcAbortCleanup(int reason);
 
 // implementation functions for EMC_TOOL types
 
@@ -540,7 +553,7 @@ extern int emcLubeUpdate(EMC_LUBE_STAT * stat);
 
 extern int emcIoInit();
 extern int emcIoHalt();
-extern int emcIoAbort();
+extern int emcIoAbort(int reason);
 extern int emcIoSetCycleTime(double cycleTime);
 extern int emcIoSetDebug(int debug);
 
