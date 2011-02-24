@@ -233,7 +233,7 @@ int Interp::execute(const char *command)
     }
   }
 
-  logDebug("MDImode = 1");
+  logDebug("MDImode = %d",MDImode);
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   //  if (_setup.block1.o_number != 0)
