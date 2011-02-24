@@ -49,6 +49,7 @@ extern "C" {
 #define EMC_DEBUG_INTERP            0x00000100
 #define EMC_DEBUG_RCS               0x00000200
 #define EMC_DEBUG_INTERP_LIST       0x00000800
+#define EMC_DEBUG_IOCONTROL 		0x00001000
 #define EMC_DEBUG_ALL               0x7FFFFFFF	/* it's an int for %i to work 
 						 */
 
