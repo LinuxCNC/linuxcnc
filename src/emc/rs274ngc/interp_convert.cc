@@ -2723,9 +2723,45 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   
   if (block->m_modes[6] != -1) {
     // when we have M6 do the actual toolchange
-    if (block->m_modes[6] == 6)
-	CHP(convert_tool_change(settings));
-	
+    if (block->m_modes[6] == 6) {
+	if (settings->m6_command) {
+	    setup saved_setup = *settings;
+
+	    // replicate preconditions form convert_tool_change
+	    if (settings->selected_pocket < 0) {
+	      ERS(NCE_TXX_MISSING_FOR_M6);
+	    }
+	    CHKS((settings->cutter_comp_side),
+	          (_("Cannot change tools with cutter radius compensation on")));
+	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
+	    // tool_change_at_g30 - can be handled in g-code if needed
+	    char cmd[LINELEN];
+
+	    sprintf(cmd,"%s [%d]",settings->m6_command,block->t_number);
+//	    printf("---- convert_m(%s)\n", cmd);
+	    int status = Interp::execute(cmd, block->line_number);
+//	    printf("------- convert_m(%s) returned %s\n",  cmd, interp_status(status));
+	    while (status == INTERP_EXECUTE_FINISH) {
+		status = Interp::execute(0);
+	    }
+	    FILE *fp = settings->file_pointer;
+	    *settings = saved_setup;
+	    settings->file_pointer = fp;
+
+	    CHANGE_TOOL(settings->selected_pocket);
+	    settings->current_pocket = settings->selected_pocket;
+	    // tool change can move the controlled point.  reread it:
+	    settings->toolchange_flag = true;
+	    set_tool_parameters();
+
+	    CHP(status);
+	} else {
+	    CHP(convert_tool_change(settings));
+	}
+    }
+    if (block->m_modes[6] == 69) {
+	    CHP(convert_tool_change(settings));
+    }
     // when we have M61 we only change the number of the loaded tool (for example on startup)
     if (block->m_modes[6] == 61) {
 	CHKS((round_to_int(block->q_number) < 0), (_("Need positive Q-word to specify tool number with M61")));

@@ -255,7 +255,31 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     CHP(convert_speed(block, settings));
   }
   if (block->t_flag) {
-    CHP(convert_tool_select(block, settings));
+    if (settings->t_command) {
+	char cmd[LINELEN];
+	int pocket;
+	setup saved_setup = *settings;
+	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
+
+	sprintf(cmd,"%s [%d] [%d]",settings->t_command,block->t_number,pocket);
+//	printf("---- execute(%s),  current_pocket=%d ftell=%ld\n",cmd, settings->current_pocket,ftell(settings->file_pointer));
+	int status = execute(cmd,block->line_number);
+//	printf("------- execute() returned %s \n",interp_status(status));
+	while (status == INTERP_EXECUTE_FINISH) {
+	    status = execute(0);
+	}
+	// restore setup except file_pointer so as not to disturb the
+	// oword close/reopen logic
+	FILE *fp = settings->file_pointer;
+	*settings = saved_setup;
+	settings->file_pointer = fp;
+
+	SELECT_POCKET(pocket);
+	settings->selected_pocket = pocket;
+	CHP(status);
+    } else {
+	CHP(convert_tool_select(block, settings));
+    }
   }
   CHP(convert_m(block, settings));
   CHP(convert_g(block, settings));
