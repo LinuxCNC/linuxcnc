@@ -96,9 +96,21 @@ extern char * _rs274ngc_errors[];
 
 #define LOG_FILE &_setup.log_file[0]
 
+const char *Interp::interp_status(int status) {
+    static char statustext[50];
+    static const char *msgs[] = { "INTERP_OK", "INTERP_EXIT",
+	    "INTERP_EXECUTE_FINISH", "INTERP_ENDFILE", "INTERP_FILE_NOT_OPEN",
+	    "INTERP_ERROR" };
+    sprintf(statustext, "%s%s%d", ((status >= INTERP_OK) && (status
+	    <= INTERP_ERROR)) ? msgs[status] : "unknown interpreter error",
+	    (status >= INTERP_MIN_ERROR) ? " - error: " : " - ", status);
+    return statustext;
+}
+
 Interp::Interp() 
     : log_file(0)
 {}
+
 
 Interp::~Interp() {
     if(log_file) {

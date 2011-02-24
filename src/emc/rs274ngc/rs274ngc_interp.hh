@@ -451,6 +451,8 @@ private:
 
  void doLog(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
+ const char *interp_status(int status);
+
  FILE *log_file;
 
 /* Internal arrays */
