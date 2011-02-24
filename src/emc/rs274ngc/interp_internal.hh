@@ -495,10 +495,12 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
+  const char *t_command, *m6_command,*on_abort_command;
 }
 setup;
 
 typedef setup *setup_pointer;
+
 
 inline bool is_a_cycle(int motion) {
     return ((motion > G_80) && (motion < G_90)) || (motion == G_73);

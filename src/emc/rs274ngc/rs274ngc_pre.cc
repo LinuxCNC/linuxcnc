@@ -523,7 +523,29 @@ int Interp::init()
           }
           logDebug("_setup.subroutines:%p:\n", _setup.subroutines);
 
-
+	  // find T and M6 oword sub replacements commands
+	  // T_COMMAND=O<t> call <pocketnumber>
+	  // M6_COMMAND=O<m6> call
+          if (NULL != (inistring = inifile.Find("T_COMMAND", "RS274NGC"))) {
+	      _setup.t_command = strdup(inistring);
+              logDebug("_setup.t_command=%s\n", _setup.t_command);
+          } else {
+                 _setup.t_command = NULL;
+          }
+          if (NULL != (inistring = inifile.Find("M6_COMMAND", "RS274NGC"))) {
+	      _setup.m6_command = strdup(inistring);
+              logDebug("_setup.m6_command=%s\n", _setup.m6_command);
+          } else {
+	      _setup.m6_command = NULL;
+          }
+          // subroutine to execute on aborts - for instance to retract
+          // toolchange HAL pins
+          if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
+	      _setup.on_abort_command = strdup(inistring);
+              logDebug("_setup.on_abort_command=%s\n", _setup.on_abort_command);
+          } else {
+	      _setup.on_abort_command = NULL;
+          }
           // close it
           inifile.Close();
       }
