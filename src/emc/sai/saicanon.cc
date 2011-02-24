@@ -85,6 +85,8 @@ static double naivecam_tolerance = 0.;
 static double            _traverse_rate;
 
 static EmcPose _tool_offset;
+static bool _toolchanger_fault;
+static int  _toolchanger_reason;
 
 
 /************************************************************************/
@@ -1127,4 +1129,15 @@ void FINISH(void) {
 
 void START_CHANGE(void) {
     PRINT0("START_CHANGE()\n");
+}
+
+
+int GET_EXTERNAL_TC_FAULT()
+{
+    return _toolchanger_fault;
+}
+
+int GET_EXTERNAL_TC_REASON()
+{
+    return _toolchanger_reason;
 }

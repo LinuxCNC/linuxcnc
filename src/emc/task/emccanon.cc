@@ -2729,6 +2729,16 @@ int GET_EXTERNAL_SELECTED_TOOL_SLOT()
     return emcStatus->io.tool.pocketPrepped;
 }
 
+int GET_EXTERNAL_TC_FAULT()
+{
+    return emcStatus->io.fault;
+}
+
+int GET_EXTERNAL_TC_REASON()
+{
+    return emcStatus->io.reason;
+}
+
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()
 {
     return emcStatus->motion.traj.feed_override_enabled;

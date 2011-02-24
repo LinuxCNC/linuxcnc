@@ -126,6 +126,9 @@ NMLmsg *emcTaskCommand = 0;
 static int done;
 static int emctask_shutdown(void);
 static int pseudoMdiLineNumber = INT_MIN;
+// for operator display on iocontrol signalling a toolchanger fault if io.fault is set
+// %d receives io.reason
+static const char *io_error = "toolchanger error %d";
 
 static int all_homed(void) {
     for(int i=0; i<9; i++) {
@@ -2976,6 +2979,10 @@ static int iniLoad(const char *filename)
 	no_force_homing = 0;
     }
 
+    // configurable template for iocontrol reason display
+    if (NULL != (inistring = inifile.Find("IO_ERROR", "TASK"))) {
+	io_error = strdup(inistring);
+    }
     // close it
     inifile.Close();
 
@@ -3096,14 +3103,43 @@ int main(int argc, char *argv[])
 	    }
 	}
 
+	// toolchanger indicated fault code > 0
+	if ((emcStatus->io.status == RCS_ERROR) &&
+	    emcStatus->io.fault) {
+	    static int reported = -1;
+	    if (emcStatus->io.reason > 0) {
+		if (reported ^ emcStatus->io.fault) {
+		    rcs_print("M6: toolchanger soft fault=%d, reason=%d\n",
+			      emcStatus->io.fault, emcStatus->io.reason);
+		    reported = emcStatus->io.fault;
+		}
+		emcStatus->io.status = RCS_DONE; // let program continue
+	    } else {
+		rcs_print("M6: toolchanger hard fault, reason=%d\n",
+			  emcStatus->io.reason);
+		// abort since io.status is RCS_ERROR
+	    }
+
+	}
 	// check for subordinate errors, and halt task if so
 	if (emcStatus->motion.status == RCS_ERROR ||
-	    emcStatus->io.status == RCS_ERROR) {
+	    ((emcStatus->io.status == RCS_ERROR) &&
+	     (emcStatus->io.reason <= 0))) {
 
 	    /*! \todo FIXME-- duplicate code for abort,
 	       also in emcTaskExecute()
 	       and in emcTaskIssueCommand() */
 
+	    if (emcStatus->io.status == RCS_ERROR) {
+		// this is an aborted M6.
+                if (EMC_DEBUG & EMC_DEBUG_RCS ) {
+                    rcs_print("io.status=RCS_ERROR, fault=%d reason=%d\n",
+			      emcStatus->io.fault, emcStatus->io.reason);
+                }
+                if (emcStatus->io.reason < 0) {
+			emcOperatorError(0, io_error, emcStatus->io.reason);
+                }
+	    }
             // abort everything
             emcTaskAbort();
             emcIoAbort();

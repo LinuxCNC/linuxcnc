@@ -888,6 +888,10 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     load_tool_table();
     _setup.toolchange_flag = false;
   }
+  // always track toolchanger-fault and toolchanger-reason codesf
+  _setup.parameters[5600] = GET_EXTERNAL_TC_FAULT();
+  _setup.parameters[5601] = GET_EXTERNAL_TC_REASON();
+
   if (_setup.input_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);

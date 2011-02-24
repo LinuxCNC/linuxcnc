@@ -401,6 +401,9 @@ void PALLET_SHUTTLE() {}
 void SELECT_POCKET(int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
+int  GET_EXTERNAL_TC_FAULT() {return 0;}
+int  GET_EXTERNAL_TC_REASON() {return 0;}
+
 
 extern bool GET_BLOCK_DELETE(void) { 
     int bd = 0;

@@ -880,6 +880,12 @@ extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
 // in the given pocket
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
 
+// return the value of iocontrol's toolchanger-fault pin
+extern int GET_EXTERNAL_TC_FAULT();
+
+// return the value of iocontrol's toolchanger-reason pin
+int GET_EXTERNAL_TC_REASON();
+
 // Returns the system traverse rate
 extern double GET_EXTERNAL_TRAVERSE_RATE();
 

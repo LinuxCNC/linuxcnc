@@ -1459,6 +1459,7 @@ class EMC_TOOL_ABORT:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
+    int reason;		//  convey reason for abort to iocontrol
 };
 
 class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
@@ -1960,7 +1961,8 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     // top-level stuff
     double cycleTime;
     int debug;			// copy of EMC_DEBUG global
-
+    int reason;			// to communicate abort/fault cause
+    int fault;                  //  0 on succes, 1 on fault during M6
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
     EMC_COOLANT_STAT coolant;
