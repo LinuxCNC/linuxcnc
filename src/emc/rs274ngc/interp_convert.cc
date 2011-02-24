@@ -1380,7 +1380,8 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   {
       convert_param_comment(comment+start+strlen(DEBUG_STR), expanded,
                             EX_SIZE);
-      MESSAGE(expanded);
+      if (_setup.parameters[5599] > 0.0)
+	  MESSAGE(expanded);
       return INTERP_OK;
   }
   else if (startswith(lc, PRINT_STR)) 

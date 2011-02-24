@@ -652,6 +652,7 @@ int Interp::init()
   _setup.oword_labels = 0;
 
   _setup.lathe_diameter_mode = false;
+  _setup.parameters[5599] = 1.0; // enable (DEBUG, ) output
 
   memcpy(_readers, default_readers, sizeof(default_readers));
 
