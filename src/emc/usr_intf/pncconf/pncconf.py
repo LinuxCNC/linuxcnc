@@ -962,6 +962,9 @@ class Data:
         # rotary tables need bigger limits
         self.aminlim = -9999
         self.amaxlim =  9999
+        # spindle at speed near settings
+        self.snearscale = .95
+        self.sneardifference = 0
 
     def load(self, filename, app=None, force=False):
         def str2bool(s):
@@ -1562,7 +1565,7 @@ class Data:
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
-                    print >>file, "setp near.0.scale .9"
+                    print >>file, "setp near.0.scale %f"% self.snearscale
                 else:
                     print >>file, "sets spindle-at-speed true"
             return
@@ -5086,7 +5089,8 @@ class App:
         def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
-        stepdriven = encoder = pwmgen = False
+        stepdriven = encoder = pwmgen = digital_at_speed = False
+        if self.data.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
         if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
@@ -5156,7 +5160,11 @@ class App:
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
+            if not digital_at_speed and encoder:
+                print "show frame"
+                w["satspeedframe"].show()
         else:
+            w[axis+"atspeedframe"].hide()
             w[axis+"maxferror"].set_sensitive(True)
             w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
