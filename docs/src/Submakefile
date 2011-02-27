@@ -151,6 +151,7 @@ DOC_SRCS := \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
 
+DOC_SRCS_TXT  := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 
 DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(subst /,_,$(DOC_SRCS_HTML)))
@@ -167,9 +168,17 @@ HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.ht
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
 
+A2X = $(DOC_SRCDIR)/a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
+			   --stringparam toc.max.depth 2 \
+			   --stringparam generate.section.toc.level 2 \
+			   --stringparam generate.toc 'book toc,title chapter toc'" \
+	  -a "scriptdir=$(DOC_SRCDIR)/" \
+	  --asciidoc-opts "-f $(DOC_SRCDIR)/docbook.conf" \
+	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty"
+
 ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
-Makefile: $(patsubst %.lyx, depends/%.d, $(DOC_SRCS))
+-include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
+Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
 endif
 
 ifeq ($(BUILD_DOCS_PDF),yes)
@@ -255,16 +264,18 @@ $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR
 	
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.lyx
+
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.txt
 	$(ECHO) Building $@
 	@rm -f $@
-	@$(LYX) --export pdf2 $<
+	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm $@; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_SRCDIR)/%.lyx $(DOC_SRCDIR)/lyxdep.py
+depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
-	@$(PYTHON) $(DOC_SRCDIR)/lyxdep.py $< $@ $(DOC_DIR)/html/$*/index.html > $@
+	@$(DOC_SRCDIR)/asciideps $< > $@.tmp
+	@mv $@.tmp $@
 
 define lyx2xml
 python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$(1)_$(2).xml $(3)
