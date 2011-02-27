@@ -6246,8 +6246,8 @@ class App:
                 halrun.write("net enable %s\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-        # set up as servo system if no step generator...
-        if not self.encoder:
+        # set up PID if there is a feedback sensor and pwm. TODO add ability to test closed loop steppers
+        if self.encoder and self.pwmgen:
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
             halrun.write("setp pid.0.Igain     %d\n"% ( w[axis+"I"].get_value() ))
             halrun.write("setp pid.0.Dgain     %d\n"% ( w[axis+"D"].get_value() ))
@@ -6636,17 +6636,17 @@ class App:
             firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_tppwmgens=%d num_stepgens=%d"\n """ % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ))
             elif self.data.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_tppwmgens=%d num_stepgens=%d,\
-                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_tppwmgens=%d num_stepgens=%d"\n""" % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d,\
+                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n""" % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
                         self.data.mesa0_numof_stepgens,directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens ))
             elif self.data.number_mesa == 2:
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_tppwmgens=%d num_stepgens=%d"\n """ % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ))
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_tppwmgens=%d num_stepgens=%d"\n """ % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
                     driver1, directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens ))
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
