@@ -946,13 +946,14 @@ class Data:
             self[temp+"stepscale"]= 0
             self[temp+"encoderscale"]= 0
 
-            self[temp+"bldcconfig"]= None
+            self[temp+"bldc_option"]= False
+            self[temp+"bldc_config"]= None
             self[temp+"bldc_scale"]= 512
             self[temp+"bldc_poles"]= 4
             self[temp+"bldc_lead-angle"]= 0
             self[temp+"bldc_initvalue"]= 1
             self[temp+"bldc_encoder_offset"]= 0
-            self[temp+"bldc_rev"]= 0
+            self[temp+"bldc_rev"]= False
             self[temp+"bldc_drive_offset"]= 0.0
             self[temp+"bldc_output_patern"]= 0
             self[temp+"bldc_pattern"]= 25
@@ -961,21 +962,6 @@ class Data:
         # rotary tables need bigger limits
         self.aminlim = -9999
         self.amaxlim =  9999
-
-        # extra axis s (spindle) data
-        self.spidcontrol = False
-        #self.spindlecarrier = 100
-        #self.spindlecpr = 100
-        #self.spindlespeed1 = 100
-        #self.spindlespeed2 = 800
-        #self.spindlepwm1 = .2
-        #self.spindlepwm2 = .8
-        #self.spindlefeedback = 0
-        #self.spindlecontrol = 0
-        #self.spindleoutputscale = 1
-        #self.spindleoutputoffset = 0
-        #self.spindlemaxoutput = 10
-
 
     def load(self, filename, app=None, force=False):
         def str2bool(s):
@@ -1249,8 +1235,7 @@ class Data:
         encoder = self.encoder_sig(letter)
         closedloop = False
         if stepgen and encoder: closedloop = True
-        if letter == "s" and self.spidcontrol == True: closedloop = True
-        if not letter == "s" and encoder and (pwmgen or tppwmgen) : closedloop = True
+        if encoder and (pwmgen or tppwmgen) : closedloop = True
         print "INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen
 
         print >>file
@@ -1415,12 +1400,12 @@ class Data:
         pwmpinname = self.make_pinname(self.pwmgen_sig(let))
         tppwmpinname = self.make_pinname(self.tppwmgen_sig(let))
         steppinname = self.make_pinname(self.stepgen_sig(let))
+        bldc_control = self[let+"bldc_option"]
         if steppinname:
             stepinvertlist = self.stepgen_invert_pins(self.stepgen_sig(let))
         encoderpinname = self.make_pinname(self.encoder_sig(let))
         if steppinname and encoderpinname: closedloop = True
-        if let == "s" and self.spidcontrol == True: closedloop = True
-        if not let == "s" and encoderpinname and (pwmpinname or tppwmpinname): closedloop = True
+        if encoderpinname and (pwmpinname or tppwmpinname): closedloop = True
         print let + " is closedloop? "+ str(closedloop),encoderpinname,pwmpinname,tppwmpinname,steppinname
 
         lat = self.latency
@@ -1428,9 +1413,13 @@ class Data:
         print >>file, "#  %s %s" % (title, let.upper())
         print >>file, "#*******************"
         print >>file
-         
+
+        if bldc_control:
+                print >>file, " BLDC setup"
+                print >>file, "# TODO write some commands!"
+                print >>file
+
         if closedloop:
-            if closedloop:
                 print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
@@ -1448,12 +1437,12 @@ class Data:
                 print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
                 print >>file
 
-            if tppwmpinname:
+        if tppwmpinname:
                 print >>file, "# ---TPPWM Generator signals/setup---"
                 print >>file, "# TODO write some commands!"
                 print >>file
 
-            if pwmpinname:
+        if pwmpinname:
                 print >>file, "# ---PWM Generator signals/setup---"
                 print >>file
                 print >>file, "setp   "+pwmpinname+".output-type 1" 
@@ -1473,7 +1462,7 @@ class Data:
                     #print >>file, "    setp pwmgen.0.scale %s" % scale
                     #print >>file, "    setp pwmgen.0.offset %s" % offset
                     #print >>file, "    setp pwmgen.0.dither-pwm true"
-                    if self.spidcontrol == True:
+                    if closedloop:
                         print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
                         print >>file, "net spindle-output     pid.%s.output      => "% (let) + pwmpinname + ".value"
                         print >>file, "net spindle-enable      => pid.%s.enable" % (let)
@@ -1918,8 +1907,6 @@ class Data:
             #if axis needs pid- (has pwm)
             print "looking at available axis : ",i
             if not self.findsignal(i+"-encoder-a"): 
-                continue 
-            if (self.spidcontrol == False and i == 's') :   
                 continue
             temp = temp +1 
             axislet.append(i)
@@ -2699,7 +2686,7 @@ class App:
 
     def make_axispage(self, doc, axisname):
         axispage = self._getwidget(doc, 'xaxis').parentNode.cloneNode(True)
-        nextpage = self._getwidget(doc, 'spindle').parentNode
+        nextpage = self._getwidget(doc, 'advanced').parentNode
         widget = self._getwidget(axispage, "xaxis")
         for node in widget.childNodes:
             if (node.nodeType == xml.dom.Node.ELEMENT_NODE
@@ -2729,7 +2716,11 @@ class App:
             if (node.nodeType == xml.dom.Node.ELEMENT_NODE
                     and node.tagName == "property"
                     and node.getAttribute('name') == "title"):
-                node.childNodes[0].data = _("%s Axis Motor/Encoder Configuration") % axisname.upper()
+                if axisname =="s":
+                    node.childNodes[0].data = _("Spindle Motor/Encoder Configuration")
+                else:
+                    node.childNodes[0].data = _("%s Axis Motor/Encoder Configuration") % axisname.upper()
+                
         for node in axispage.getElementsByTagName("widget"):
             id = node.getAttribute('id')
             if id.startswith("x"):
@@ -2743,6 +2734,10 @@ class App:
             name = node.getAttribute('name')
             if name == "mnemonic_widget":
                 node.childNodes[0].data = axisname + node.childNodes[0].data[1:]
+            if name == "group":
+                group = node.childNodes[0].data
+                if group.startswith("x"):
+                    node.childNodes[0].data = axisname + node.childNodes[0].data[1:]
         nextpage.parentNode.insertBefore(axispage, nextpage)
 
     def make_pportpage(self, doc, axisname):
@@ -2807,6 +2802,7 @@ class App:
         self.make_axismotorpage(glade, 'y')
         self.make_axismotorpage(glade, 'z')
         self.make_axismotorpage(glade, 'a')
+        self.make_axismotorpage(glade, 's')
         self.pbar.set_fraction(.3)
         while gtk.events_pending():
             gtk.main_iteration()
@@ -5146,8 +5142,6 @@ class App:
         gobject.idle_add(lambda: self.update_pps(axis))
 
         if axis == 's':
-            self.widgets.spidcontrol.set_active( self.data.spidcontrol )        
-            
             w["labelmotor_pitch"].set_text(_("Gearbox Reduction Ratio"))
             w["labelencoder_pitch"].set_text(_("Gearbox Reduction Ratio"))
             w["motor_screwunits"].set_text((""))
@@ -5158,10 +5152,13 @@ class App:
             w["soutputoffset"].set_sensitive(pwmgen)
             w["smaxoutput"].set_sensitive(pwmgen)
             w["sservo_info"].set_sensitive(pwmgen)
-            self.on_spidcontrol_toggled()
             w["saxistest"].set_sensitive(pwmgen)
-            w["sstepper_info"].set_sensitive(stepdriven)    
+            w["sstepper_info"].set_sensitive(stepdriven)
+            w["smaxferror"].set_sensitive(False)
+            w["sminferror"].set_sensitive(False)
         else:
+            w[axis+"maxferror"].set_sensitive(True)
+            w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
             set_value("minferror")
             set_text("compfilename")
@@ -5384,8 +5381,6 @@ class App:
             d[axis + "backlash"]= w[axis + "backlash"].get_value()
             get_active("usecomp")
             get_active("usebacklash")
-        else:
-            get_active("pidcontrol") 
 
     def calculate_scale(self,axis):
         def get(n): return get_value(self.widgets[n])
@@ -5603,7 +5598,7 @@ class App:
         self.axis_done('z')
         if self.data.axes != 1 :
             if self.has_spindle_speed_control():
-                self.widgets.druid1.set_page(self.widgets.spindle)
+                self.widgets.druid1.set_page(self.widgets.saxismotor)
                 return True
             else:
                 self.widgets.druid1.set_page(self.widgets.advanced)
@@ -5618,7 +5613,7 @@ class App:
     def on_aaxis_next(self, *args):
         self.axis_done('a')
         if self.has_spindle_speed_control():
-            self.widgets.druid1.set_page(self.widgets.spindle)
+            self.widgets.druid1.set_page(self.widgets.saxismotor)
         else:
             self.widgets.druid1.set_page(self.widgets.advanced)
         return True
@@ -5639,13 +5634,15 @@ class App:
     def on_aaxistune_clicked(self, *args): self.tune_axis('a')
     def on_saxistune_clicked(self, *args): self.tune_axis('s')
 
-    def on_spindle_prepare(self, *args):
+    def on_saxismotor_prepare(self, *args):
         self.data.help = "help-spindle.txt"
         self.axis_prepare('s')      
-    def on_spindle_next(self, *args):
-        self.axis_done('s')      
-    def on_spindle_back(self, *args):
-        self.on_spindle_next()
+    def on_saxismotor_next(self, *args):
+        self.axis_done('s')
+        self.widgets.druid1.set_page(self.widgets.advanced)
+        return True
+    def on_saxismotor_back(self, *args):
+        self.axis_done('s')
         if self.data.axes != 1:
             self.widgets.druid1.set_page(self.widgets.zaxis)
         else:
@@ -5658,20 +5655,6 @@ class App:
             if has_spindle:
                 return True
         return False
-
-    def on_spidcontrol_toggled(self, *args):
-        test = self.data.findsignal("s-pwm-pulse")
-        pwmdriven = 0
-        if test: pwmdriven = 1
-        if self.widgets.spidcontrol.get_active() == False: pwmdriven = 0
-        self.widgets.sP.set_sensitive(pwmdriven)
-        self.widgets.sI.set_sensitive(pwmdriven)
-        self.widgets.sD.set_sensitive(pwmdriven)
-        self.widgets.sFF0.set_sensitive(pwmdriven)
-        self.widgets.sFF1.set_sensitive(pwmdriven)
-        self.widgets.sFF2.set_sensitive(pwmdriven)
-        self.widgets.sbias.set_sensitive(pwmdriven)
-        self.widgets.sdeadband.set_sensitive(pwmdriven)
        
     def on_advanced_prepare(self, *args):       
         self.data.help = "help-advanced.txt"
@@ -5743,7 +5726,7 @@ class App:
         
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
-            self.widgets.druid1.set_page(self.widgets.spindle)
+            self.widgets.druid1.set_page(self.widgets.saxismotor)
         elif self.data.axes != 1:
             self.widgets.druid1.set_page(self.widgets.zaxis)
         else:
