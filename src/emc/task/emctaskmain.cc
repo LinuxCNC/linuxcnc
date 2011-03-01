@@ -1765,6 +1765,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (emcAuxInputWaitMsg->timeout == WAIT_MODE_IMMEDIATE) { //nothing to do, CANON will get the needed value when asked by the interp
 	    emcStatus->task.input_timeout = 0; // no timeout can occur
 	    emcAuxInputWaitIndex = -1;
+	    taskExecDelayTimeout = 0.0;
 	} else {
 	    emcAuxInputWaitType = emcAuxInputWaitMsg->wait_type; // remember what we are waiting for 
 	    emcAuxInputWaitIndex = emcAuxInputWaitMsg->index; // remember the input to look at
