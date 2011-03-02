@@ -153,17 +153,24 @@ DOC_SRCS := \
 
 DOC_SRCS_TXT  := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 
+DOC_SRCS_FR   := $(filter %_fr.txt, $(DOC_SRCS_TXT))
+DOC_SRCS_EN   := $(filter-out $(DOC_SRCS_FR), $(DOC_SRCS_TXT))
+
+DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(filter-out Getting_Started%, $(DOC_SRCS_FR)))
+DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(filter-out Getting_Started%, $(DOC_SRCS_EN)))
+
 DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
-DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(subst /,_,$(DOC_SRCS_HTML)))
+DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
 	 $(DOC_TARGETS_HTML))
+DOC_TARGETS_XML := 
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf \
 	EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf \
 	EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf EMC2_Getting_Started_fr.pdf)
 
-HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html $(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
+HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html #$(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
@@ -194,10 +201,10 @@ htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode_main.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/main.html
 	python $(DOC_SRCDIR)/checklinks.py $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode_main_fr.html
+checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/main_fr.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
@@ -338,17 +345,52 @@ objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
 objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 
-$(DOC_TARGETS_HTML_EN): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	xsltproc --stringparam xrefdoc objects/xref.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+#$(DOC_TARGETS_HTML_EN): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+#	$(ECHO) Converting $< to HTML
+#	xsltproc --stringparam xrefdoc objects/xref.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+#
+#$(DOC_TARGETS_HTML_FR): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_fr.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+#	$(ECHO) Converting $< to HTML
+#	xsltproc --stringparam xrefdoc objects/xref_fr.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+#
+#$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+#	$(ECHO) Converting $< to HTML
+#	@xsltproc --stringparam docname "xref" --stringparam language english --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
-$(DOC_TARGETS_HTML_FR): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_fr.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	xsltproc --stringparam xrefdoc objects/xref_fr.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+objects/%.links: $(DOC_SRCDIR)/%.txt
+	@mkdir -p `dirname $@`
+	asciidoc -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@ || (X=$$?; rm $@; exit $$X)
 
-$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref" --stringparam language english --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+objects/xref_en.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_EN_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
+objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
+$(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
+	@d=`dirname $*`; \
+	for f in $(shell xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $<); do\
+		mkdir -p $(DOC_DIR)/html/$$d/`dirname $$f`; \
+		cp $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
+	done
+	mkdir -p $(shell dirname $@)
+	@cp $< $@
+
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_en.links" \
+		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
+	
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_fr.links" \
+		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 	
 default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml

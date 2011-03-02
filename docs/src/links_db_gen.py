@@ -4,8 +4,12 @@ import os, sys
 
 d = {}
 
-for f in sys.argv[1:]:
+strip = sys.argv[1]
+
+for f in sys.argv[2:]:
 	base = os.path.splitext(f)[0]
+	if base.startswith(strip):
+		base = base[len(strip):]
 	for l in open(f):
 		l = l.strip().replace(' ', '_')
 		if not l:
