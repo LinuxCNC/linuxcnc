@@ -79,7 +79,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     double home;
     double search_vel;
     double latch_vel;
-    double home_vel; // moving from OFFSET to HOME
+    double final_vel; // moving from OFFSET to HOME
     bool use_index;
     bool ignore_limits;
     bool is_shared;
@@ -157,8 +157,8 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         jointIniFile->Find(&search_vel, "HOME_SEARCH_VEL", jointString);
         latch_vel = 0;	                // default
         jointIniFile->Find(&latch_vel, "HOME_LATCH_VEL", jointString);
-        home_vel = -1;	                // default (rapid)
-        jointIniFile->Find(&home_vel, "HOME_VEL", jointString);
+        final_vel = -1;	                // default (rapid)
+        jointIniFile->Find(&final_vel, "HOME_FINAL_VEL", jointString);
         is_shared = false;	        // default
         jointIniFile->Find(&is_shared, "HOME_IS_SHARED", jointString);
         use_index = false;	        // default
@@ -172,7 +172,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         locking_indexer = false;
         jointIniFile->Find(&locking_indexer, "LOCKING_INDEXER", jointString);
         // issue NML message to set all params
-        if (0 != emcJointSetHomingParams(joint, home, offset, home_vel, search_vel,
+        if (0 != emcJointSetHomingParams(joint, home, offset, final_vel, search_vel,
                                         latch_vel, (int)use_index, (int)ignore_limits,
                                         (int)is_shared, sequence, volatile_home, locking_indexer)) {
             return -1;
