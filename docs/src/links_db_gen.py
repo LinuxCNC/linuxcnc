@@ -11,4 +11,5 @@ for f in sys.argv[1:]:
 		if not l:
 			continue
 		d[l] = base
-print 'links =', d
+for k, v in d.items():
+	print '%s\t%s' % (k, v)
