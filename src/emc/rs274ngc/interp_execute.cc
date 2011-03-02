@@ -263,7 +263,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 
 	sprintf(cmd,"%s [%d] [%d]",settings->t_command,block->t_number,pocket);
 //	printf("---- execute(%s),  current_pocket=%d ftell=%ld\n",cmd, settings->current_pocket,ftell(settings->file_pointer));
-	int status = execute(cmd,block->line_number);
+	int status = execute(cmd,0);
 //	printf("------- execute() returned %s \n",interp_status(status));
 	while (status == INTERP_EXECUTE_FINISH) {
 	    status = execute(0);

@@ -2739,7 +2739,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
 	    sprintf(cmd,"%s [%d]",settings->m6_command,block->t_number);
 //	    printf("---- convert_m(%s)\n", cmd);
-	    int status = Interp::execute(cmd, block->line_number);
+	    int status = Interp::execute(cmd, 0);
 //	    printf("------- convert_m(%s) returned %s\n",  cmd, interp_status(status));
 	    while (status == INTERP_EXECUTE_FINISH) {
 		status = Interp::execute(0);
