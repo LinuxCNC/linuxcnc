@@ -2043,7 +2043,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    mdi_execute_level = -1;
 		} else if (level > 0) {
 		    // Still insude call. Need another execute(0) call
-		    mdi_execute_next = 1;
+		    // but only if we didnt encounter an error
+		    if (execRetval == INTERP_ERROR) {
+			mdi_execute_next = 0;
+		    } else {
+			mdi_execute_next = 1;
+		    }
 		}
 	    }
 	    if (execRetval == INTERP_EXECUTE_FINISH) {
