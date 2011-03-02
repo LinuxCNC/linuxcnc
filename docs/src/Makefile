@@ -7,7 +7,7 @@ SMALL := $(filter-out $(LARGE_EN),$(DOCS_EN))
 DOCS  := $(DOCS_EN) $(DOCS_FR)
 LARGE := $(LARGE_EN) $(LARGE_FR)
 
-include $(patsubst %,%.dep,$(LARGE))
+#include $(patsubst %,%.dep,$(LARGE))
 
 A2X = ./a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
@@ -26,15 +26,15 @@ docclean clean:
 	$(MAKE) -C ../../src docclean
 
 pdf: $(patsubst %,%.pdf,$(LARGE))
-html: links_db.py $(patsubst %,%.html,$(DOCS))
+html: xref_en.links $(patsubst %,%.html,$(DOCS))
 htmlclean:
 	-rm -f $(patsubst %,%.html,$(DOCS))
 dbclean:
 	-rm -f $(patsubst %,%.dep,$(DOCS))
 	-rm -f $(patsubst %,%.db,$(SMALL))
-	-rm -f links_db.py
+	-rm -f xref_en.links
 
-links_db.py: $(patsubst %,%.db,$(SMALL))
+xref_en.links: $(patsubst %,%.db,$(SMALL))
 	echo $(SMALL)
 	./links_db_gen.py $^ > $@
 
@@ -46,7 +46,7 @@ links_db.py: $(patsubst %,%.db,$(SMALL))
 	mv $@.tmp $@
 
 %.html: %.txt
-	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
+	asciidoc -a linksfile=xref_en.links -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 #$(patsubst %,%.html,$(DOCS_FR)) :: %.html: %.txt
 #	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
