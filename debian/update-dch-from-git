@@ -12,6 +12,7 @@ fi
 
 case $GIT_BRANCH in
     master) TAG_GLOB="v2.5*";;
+    v2.5_branch) TAG_GLOB="v2.5*";;
     v2.4_branch) TAG_GLOB="v2.4*";;
     *) TAG_GLOB="*";;
 esac
