@@ -135,9 +135,8 @@ HOME_SEQUENCE, they may be homed at the same time. If HOME_SEQUENCE is
 sequence. HOME_SEQUENCE numbers start with 0 and there may be no unused
 numbers.
 
-image::emc2-motion-homing-diag.eps[]
-
 .[[fig:motion-homing-sequence-diagram]]Homing Sequences
+image::emc2-motion-homing-diag.eps[]
 
 
 

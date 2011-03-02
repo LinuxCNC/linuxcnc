@@ -16,9 +16,9 @@ configuration associées  <<cap:Variables sequences de POM>>. Une
 description détaillée de ces paramètres sera faite au chapitre suivant.
 
 <<fig: Sequences de prise d-origine>>
-image::emc2-motion-homing-diag.eps[]
 
-[[fig: Sequences de prise d-origine]] Les séquences de POM possibles
+.[[fig: Sequences de prise d-origine]] Les séquences de POM possibles
+image::emc2-motion-homing-diag.eps[]
 
 === Configuration
 
