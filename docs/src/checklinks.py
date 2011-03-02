@@ -64,7 +64,7 @@ class get_anchors(sgmllib.SGMLParser, MetaHandler):
     def unknown_endtag(self, tag): pass
 
     def do_a(self, attrs):
-        name = get('name', attrs)
+        name = get('name', attrs, get('id', attrs))
         if self.encoding:
             name = name.decode(self.encoding)
         name = urllib.unquote(name)
