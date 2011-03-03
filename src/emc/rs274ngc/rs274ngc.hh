@@ -39,6 +39,21 @@ typedef block *block_pointer;
 class Interp;
 typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);
 
+#define DBG(level,fmt,args...)                  \
+    do {                                        \
+      if (level < _setup.loggingLevel) {	\
+	fprintf(stderr,fmt, ## args);		\
+      }                                         \
+    } while (0)
+
+// print to if RS27$NGC/LOG_LEVEL > 1:
+
+#define MSG(fmt,args...)                        \
+    do {                                        \
+      DBG(0, fmt, ##args);                      \
+    } while (0)
+
+
 #undef DEBUG_EMC
 
 #define _logDebug(level, fmt, args...)          \

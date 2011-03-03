@@ -315,6 +315,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   int status;
   int index;
   int i;
+  int auto_restore = 0;
 
   logDebug("convert_control_functions");
 
@@ -408,8 +409,19 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  free(settings->skipping_o);
           settings->skipping_o = 0;
 	}
-      if(settings->call_level != 0)
-	{
+      if(settings->call_level != 0) {
+	  // mark any context saved by M70/M73 in this frame as invalid.
+	  if (settings->sub_context[settings->call_level].context_status & CONTEXT_VALID) {
+	      // MSG("---- endsub: invalidating M70/M73 context at level %d in '%s' \n",
+	      // 	     settings->call_level,
+	      // 	     settings->sub_context[settings->call_level].subName);
+
+	      // auto-restore only from valid context frames
+	      // NB: this means an M71 invalidate context will prevent an auto-restore on return/endsub
+	      auto_restore = (settings->sub_context[settings->call_level].context_status & CONTEXT_RESTORE_ON_RETURN);
+	  }
+	  settings->sub_context[settings->call_level].context_status &= ~CONTEXT_VALID;
+
 	  // in a call -- must do a return
           // restore old values of parameters
           // restore file position from context
@@ -421,6 +433,13 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      settings->sub_context[settings->call_level].subName = 0;
 	    }
           settings->call_level--;
+
+	  // previous context was marked by an M73 as auto-restore
+	  if (auto_restore) {
+	      // MSG("---- endsub: auto-restoring - marked by M73, return level=%d \n",
+	      // 	     settings->call_level);
+	      restore_context(settings, settings->call_level + 1);
+	  }
 
           for(i=0; i<INTERP_SUB_PARAMS; i++)
 	    {
@@ -856,6 +875,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       break;
 
     case O_return:
+
       if(settings->call_level == 0)
       {
           // this is in the definition
@@ -867,6 +887,19 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       settings->skipping_o = 0;
 
       // in a call -- must do a return
+
+      // mark any context saved by M70/M73 in this frame as invalid.
+      if (settings->sub_context[settings->call_level].context_status & CONTEXT_VALID) {
+	  // MSG("---- return: invalidating M70/M73 context at level %d in '%s' \n",
+	  // 	 settings->call_level,
+	  // 	 settings->sub_context[settings->call_level].subName);
+
+	  // auto-restore only from valid context frames
+	  // NB: this means an M71 invalidate context will prevent an auto-restore on return/endsub
+	  auto_restore = (settings->sub_context[settings->call_level].context_status & CONTEXT_RESTORE_ON_RETURN);
+      }
+      settings->sub_context[settings->call_level].context_status &= ~CONTEXT_VALID;
+
       // restore old values of parameters
       // restore file position from context
 
@@ -878,6 +911,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
       settings->call_level--;
 
+      // previous context was marked by an M73 as auto-restore
+      if (auto_restore) {
+	  // MSG("---- return: auto-restoring - marked by M73, return level=%d \n",
+	  // 	 settings->call_level);
+	  restore_context(settings, settings->call_level + 1);
+      }
       for(i=0; i<INTERP_SUB_PARAMS; i++)
 	{
 	  settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =

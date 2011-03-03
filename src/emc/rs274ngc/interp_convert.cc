@@ -2573,6 +2573,219 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
   return INTERP_OK;
 }
 
+
+/*
+ * given two double arrays representing interpreter settings as stored in
+ * _setup.active_settings, construct a G-code sequence to synchronize their state.
+ */
+int Interp::gen_settings(double *current, double *saved, char *cmd)
+{
+    int i;
+    char buf[LINELEN];
+    for (i = 0; i < ACTIVE_SETTINGS; i++) {
+	if (saved[i] != current[i]) {
+	    switch (i) {
+	    case 0: break; // FIXME - is sequence_number important?
+	    case 1:
+		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
+		strncat(cmd,buf,sizeof(buf));
+		break;
+	    case 2:
+		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
+		strncat(cmd,buf,sizeof(buf));
+		break;
+	    }
+	}
+    }
+    return INTERP_OK;
+}
+
+
+/*
+ * given two int arrays representing interpreter settings as stored in
+ * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
+ */
+int Interp::gen_g_codes(int *current, int *saved, char *cmd)
+{
+    int i, val;
+    char buf[LINELEN];
+    for (i = 0; i < ACTIVE_G_CODES; i++) {
+	val = saved[i];
+	if (val != current[i]) {
+
+	    switch (i) {
+	    case 0:
+		// FIXME - sequence_number: important?
+		break;
+	    case 2: // FIXME - I dont understand this:
+		//   gez[2] = ((block == NULL) ? -1 : block->g_modes[0]);
+		break;
+	    case 12:  // mystery slot
+		break;
+	    case 5: // - length units
+		// this is treated before all others - see convert_m()
+		break;
+	    case 1: // - motion_mode
+	    case 3: // - plane
+	    case 4: // - cutter compensation
+	    case 6: // - distance mode
+	    case 7: // - feed mode
+	    case 8: // - coordinate system
+	    case 9: // - tool offset (G43/G49)
+	    case 10: // - retract mode
+	    case 11: // - control mode
+	    case 13: // - spindle mode
+	    case 14: // - ijk distance mode
+	    case 15: // - lathe diameter mode
+
+		if (val != -1) { // FIXME not sure if this is correct!
+		    // if this was set in sub, and unset in caller, it will
+		    // not be reset
+		    if (val % 10) {
+			snprintf(buf,sizeof(buf)," G%d.%d", val / 10, val % 10);
+		    } else {
+			snprintf(buf,sizeof(buf)," G%d", val / 10);
+		    }
+		    strncat(cmd,buf,sizeof(buf));
+		} else {
+		    // so complain rather loudly
+		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
+		}
+		break;
+	    }
+	}
+    }
+    return INTERP_OK;
+}
+
+/*
+ * given two int arrays representing interpreter settings as stored in
+ * _setup.active_m_codes, construct a M-code sequence to synchronize their state.
+ */
+int Interp::gen_m_codes(int *current, int *saved, char *cmd)
+{
+    int i,val;
+    char buf[LINELEN];
+    for (i = 0; i < ACTIVE_M_CODES; i++) {
+	val = saved[i];
+	if (val != current[i]) {
+	    switch (i) {
+	    case 0: /* 0 seq number  */
+		// FIXME - is sequence_number important?
+		break;
+	    case 1: /* 1 stopping    */
+		// FIXME - is the next line needed at all?
+		// emz[1] = (block == NULL) ? -1 : block->m_modes[4];
+		break;
+	    case 3: /* 3 tool change */
+		// FIXME - dont know how to handle this.
+		// emz[3] =
+		//  (block == NULL) ? -1 : block->m_modes[6];
+		break;
+	    case 2: // spindle
+	    case 4: // mist
+	    case 5: // flood
+	    case 6: // speed/feed override
+	    case 7: // adaptive feed
+	    case 8: // feed hold
+		if (val != -1) {  // unsure..
+		    snprintf(buf,sizeof(buf)," M%d", val);
+		    strncat(cmd,buf,sizeof(buf));
+		} else {
+		    MSG("------ gen_m_codes: index %d = -1!!\n",i);
+		}
+		break;
+	    }
+	}
+    }
+    return INTERP_OK;
+}
+
+int Interp::save_context(setup_pointer settings)
+{
+      // the state is sprinkled all over _setup
+      // collate state in _setup.active_* arrays
+      write_g_codes((block_pointer) NULL, settings);
+      write_m_codes((block_pointer) NULL, settings);
+      write_settings(settings);
+
+      // save in the current call frame
+      active_g_codes((int *)settings->sub_context[settings->call_level].saved_g_codes);
+      active_m_codes((int *)settings->sub_context[settings->call_level].saved_m_codes);
+      active_settings((double *)settings->sub_context[settings->call_level].saved_settings);
+
+      // TBD: any other state deemed important to save/restore should be added here
+      // context_struct might need to be extended too.
+
+      return INTERP_OK;
+}
+
+/* restore global settings/gcodes/mcodes to current call level from a valid context
+ * used by:
+ *   M72 - restores context from same level
+ *       example: restore_context(settings->call_level)
+ *
+ *   an o-word return/endsub if auto-restore (M73) was issued
+ *       issue this like so - after call_level has been decremented:
+ *       restore_context(settings->call_level + 1)
+ */
+int Interp::restore_context(setup_pointer settings,
+			    int from_level)    //!< call level of context to restore from
+{
+    CHKS((from_level < settings->call_level),
+	 (_("BUG: cannot restore from a lower call level (%d) to a higher call level (%d)")),from_level,settings->call_level);
+    CHKS((from_level < 0), (_("BUG: restore from level %d !?")),from_level);
+    CHKS((settings->call_level < 0), (_("BUG: restore to level %d !?")),settings->call_level);
+
+    // linearize state
+    write_g_codes((block_pointer) NULL, settings);
+    write_m_codes((block_pointer) NULL, settings);
+    write_settings(settings);
+
+    char cmd[LINELEN];
+    memset(cmd, 0, LINELEN);
+
+    // construct gcode from the state difference and execute
+    // this assures appropriate canon commands are generated if needed -
+    // just restoring interp variables is not enough
+
+    // G20/G21 switching is special - it is executed beforehand
+    // so restoring feed lateron is interpreted in the correct context
+
+    if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
+	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
+	int status = Interp::execute(cmd);
+	if (status != INTERP_OK) {
+	    MSG("------- execute(%s) returned %s\n",
+		   cmd, interp_status(status));
+	}
+	memset(cmd, 0, LINELEN);
+    }
+    gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
+    gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
+    gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
+
+    if (strlen(cmd) > 0) {
+	int status = Interp::execute(cmd);
+	if (status != INTERP_OK) {
+	    MSG("------- execute(%s) returned %s\n",
+		   cmd, interp_status(status));
+	}
+	while (status == INTERP_EXECUTE_FINISH) { // probably not needed
+	    status = Interp::execute(0);
+	}
+	write_g_codes((block_pointer) NULL, settings);
+	write_m_codes((block_pointer) NULL, settings);
+	write_settings(settings);
+    }
+
+    // TBD: any state deemed important to restore should be restored here
+    // NB: some state changes might generate canon commands so do that here
+    // if needed
+
+    return INTERP_OK;
+}
+
 /****************************************************************************/
 
 /*! convert_m
@@ -2737,10 +2950,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    // tool_change_at_g30 - can be handled in g-code if needed
 	    char cmd[LINELEN];
 
-	    sprintf(cmd,"%s [%d]",settings->m6_command,block->t_number);
-//	    printf("---- convert_m(%s)\n", cmd);
+	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m6_command,block->t_number);
 	    int status = Interp::execute(cmd, 0);
-//	    printf("------- convert_m(%s) returned %s\n",  cmd, interp_status(status));
+	    if (status != INTERP_OK) {
+		MSG("------- convert_m(%s) returned %s\n",
+		       cmd, interp_status(status));
+	    }
 	    while (status == INTERP_EXECUTE_FINISH) {
 		status = Interp::execute(0);
 	    }
@@ -2803,6 +3018,45 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   } else if (block->m_modes[7] == 5) {
       enqueue_STOP_SPINDLE_TURNING();
       settings->spindle_turning = CANON_STOPPED;
+
+  } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
+
+      // save state in current stack frame. We borrow the o-word call stack
+      // and extend it to hold modes & settings.
+
+      // MSG("---- M%d, call_level=%d)\n", block->m_modes[7],_setup.call_level);
+      // if (_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID) {
+      // 	  MSG("----- overwriting valid M70 context, call_level=%d\n",_setup.call_level);
+      // }
+
+      save_context(&_setup);
+
+      // flag this frame as containing a valid context
+      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_VALID;
+
+      // mark as auto-restore context
+      if (block->m_modes[7] == 73) {
+	  if (_setup.call_level == 0) {
+	      MSG("----- Warning - M73 at top level: nothing to return to; storing context anyway\n");
+	  } else {
+	      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_RESTORE_ON_RETURN;
+	  }
+      }
+
+  } else if (block->m_modes[7] == 71) {
+      // M72 - invalidate context at current level
+      // MSG("---- M71 - mark frame at level %d as invalid\n",_setup.call_level);
+      _setup.sub_context[_setup.call_level].context_status &= ~CONTEXT_VALID;
+
+  } else if (block->m_modes[7] == 72) {
+
+      // restore state from current stack frame.
+
+      CHKS((!(_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID)),
+           (_("Cannot restore context from invalid stack frame - missing M70/M73?")));
+
+      // MSG("---- M72 restore context, call_level=%d)\n", _setup.call_level);
+      restore_context(&_setup, _setup.call_level);
   }
 
   if (block->m_modes[8] == 7) {

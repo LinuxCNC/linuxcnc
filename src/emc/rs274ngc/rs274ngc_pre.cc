@@ -152,6 +152,8 @@ void Interp::doLog(const char *fmt, ...)
     fflush(log_file);
 
     va_end(ap);
+#else
+    rcs_print("foo");
 #endif
 }
 
@@ -1719,23 +1721,33 @@ int Interp::set_tool_parameters()
 
 int Interp::on_abort(int reason)
 {
+    int i;
+
+    // MSG("---- on_abort(call_level=%d)\n",_setup.call_level);
+
+    // invalidate all saved context except the top level one
+    for (i = _setup.call_level; i > 0; i--) {
+        _setup.sub_context[i].context_status = 0;
+        MSG("---- unwind context at level %d\n",i);
+    }
+
     if (_setup.on_abort_command == NULL)
 	return -1;
-
 
     setup saved_setup = _setup;
     char cmd[LINELEN];
 
     sprintf(cmd,"%s [%d]",_setup.on_abort_command, reason);
-//    printf("---- on_abort(%s)\n", cmd);
+//    MSG("---- on_abort(%s)\n", cmd);
     int status = Interp::execute(cmd); // NB: line_number??
     while (status == INTERP_EXECUTE_FINISH) {
 	status = Interp::execute(0);
     }
-//    printf("------- on_abort(%s) returned %s\n", cmd, interp_status(status));
+//    MSG("------- on_abort(%s) returned %s\n", cmd, interp_status(status));
     FILE *fp = _setup.file_pointer;
     _setup = saved_setup;
     _setup.file_pointer = fp;
 
     CHP(status); //???
+    return INTERP_OK;
 }

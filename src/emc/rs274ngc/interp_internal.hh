@@ -341,7 +341,14 @@ typedef struct context_struct {
   char *subName;       // name of the subroutine (oword)
   double saved_params[INTERP_SUB_PARAMS];
   struct named_parameters_struct named_parameters;
+  unsigned char context_status;		// see CONTEXT_ defines below
+  int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
+  int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
+  double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
 }context;
+
+#define CONTEXT_VALID   1 // this was stored by M7*
+#define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
 
 
 // !!!KL ???use the index to this as a surrogate for the o-word text

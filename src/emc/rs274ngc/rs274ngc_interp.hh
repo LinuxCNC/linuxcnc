@@ -362,18 +362,26 @@ private:
                   double *parameters);
  int read_o(char *line, int *counter, block_pointer block,
                   double *parameters);
- int free_named_parameters(int level, setup_pointer settings);
+
+
  int read_one_item(char *line, int *counter, block_pointer block,
                    double *parameters);
  int read_operation(char *line, int *counter, int *operation);
  int read_operation_unary(char *line, int *counter, int *operation);
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
+
  int store_named_param(char *nameBuf, double value, int override_readonly = 0);
  int add_named_param(char *nameBuf, int attr = 0);
  int lookup_named_param(char *nameBuf, double index, double *value);
  int init_readonly_param(const char *nameBuf, double value, int attr);
  int find_named_param(char *nameBuf, int *status, double *value);
+ int free_named_parameters(int level, setup_pointer settings);
+ int save_context(setup_pointer settings);
+ int restore_context(setup_pointer settings, int from_level);
+ int gen_settings(double *current, double *saved, char *cmd);
+ int gen_g_codes(int *current, int *saved, char *cmd);
+ int gen_m_codes(int *current, int *saved, char *cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);

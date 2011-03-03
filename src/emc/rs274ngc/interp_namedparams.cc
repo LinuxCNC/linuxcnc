@@ -158,7 +158,7 @@ int Interp::find_named_param(
       if(0 == strcmp(nameList->named_parameters[i], nameBuf))
       {
 	  if (nameList->named_param_attr[i] & PA_UNSET) {
-	      printf("warning: referencing unassigned variable '%s'\n",nameBuf);
+	      MSG("warning: referencing unassigned variable '%s'\n",nameBuf);
 	  }
 	  if (nameList->named_param_attr[i] & PA_USE_LOOKUP) {
 	      *status = lookup_named_param(nameBuf, nameList->named_param_values[i], value);
@@ -341,7 +341,7 @@ int Interp::init_readonly_param(
     CHP( add_named_param((char *) nameBuf, PA_READONLY|attr));
     CHP(store_named_param((char *) nameBuf, value, OVERRIDE_READONLY));
 
-    //printf("(DEBUG, %s: = #<%s>)\n",nameBuf,nameBuf);
+    //MSG("(DEBUG, %s: = #<%s>)\n",nameBuf,nameBuf);
     return INTERP_OK;
 }
 
@@ -541,7 +541,7 @@ int Interp::lookup_named_param(char *nameBuf,
 	break;
 
     default:
-	printf("---BUG: lookup_named_param(%s) UNHANDLED INDEX=%f \n",
+	MSG("---BUG: lookup_named_param(%s) UNHANDLED INDEX=%f \n",
 	       nameBuf,index);
 	return 0;
     }
