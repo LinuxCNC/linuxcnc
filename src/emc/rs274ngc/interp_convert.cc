@@ -3409,6 +3409,9 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
         (block->c_number <= -360.0 || block->c_number >= 360.0)), 
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
 
+  CHKS((settings->cutter_comp_side && p_int == settings->origin_index),
+       (_("Cannot change the active coordinate system with cutter radius compensation on")));
+
   find_current_in_system(settings, p_int,
                          &cx, &cy, &cz,
                          &ca, &cb, &cc,
