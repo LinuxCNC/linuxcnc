@@ -156,8 +156,8 @@ DOC_SRCS_TXT  := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 DOC_SRCS_FR   := $(filter %_fr.txt, $(DOC_SRCS_TXT))
 DOC_SRCS_EN   := $(filter-out $(DOC_SRCS_FR), $(DOC_SRCS_TXT))
 
-DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(filter-out Getting_Started%, $(DOC_SRCS_FR)))
-DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(filter-out Getting_Started%, $(DOC_SRCS_EN)))
+DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
+DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
 
 DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
