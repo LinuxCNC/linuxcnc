@@ -1,3 +1,13 @@
+AsciiDoc Update:
+
+LyX sources are left for historical purposes and will be removed shortly after
+end of transition!
+
+If you want to update docs just edit .txt file and run 'make docs'. Any editor
+will suffice. Files have simple plain text format with some lightweight markup.
+Check asciidoc cheatsheet http://powerman.name/doc/asciidoc or user manual
+http://www.methods.co.nz/asciidoc/userguide.html for details about format.
+
 Adding files:
 The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
 
@@ -7,25 +17,14 @@ it should generally match the order of the index.tmpl
 
 Notes on EMC2 documentation:
 
-The main EMC2 makefile can optionally build the documentation from lyx and
+The main EMC2 makefile can optionally build the documentation and
 other files in this directory tree.  Use --enable-build-documentation when
 invoking emc2/src/configure, and run make from emc2/src
 
 
-Version of LyX to use:
-
-The LyX files must be in a version understood by lyx on Ubuntu Hardy.  This is
-"version 276".  On systems with newer versions, it appears that the
-documentation can be edited as long as it is converted to 276 format before
-being committed.  The following commands accomplish this:
-    /usr/share/lyx/lyx2lyx/lyx2lyx --to 276 example.lyx > example.tmp.lyx
-    (verify that example.tmp.lyx is OK)
-    mv example.tmp.lyx example.lyx
-
-
 Notes about drawings:
 
-Many of the lyx documents include drawings.  Most of them were originally
+Many of the documents include drawings.  Most of them were originally
 created using EasyCad, a non-free Windows app, then exported to .eps files
 and included in the the docs.  The original 'source' files (EasyCad .FC7
 format) were not usable on a free system.  To fix this problem, all of

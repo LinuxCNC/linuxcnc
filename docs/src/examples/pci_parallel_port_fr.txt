@@ -1,0 +1,46 @@
+= Deuxième port parallèle
+
+Lors de l'ajout d'un deuxième port parallèle placé dans un slot PCI il
+est indispensable de connaître son adresse avant de pouvoir l'utiliser
+avec EMC2. Pour trouver l'adresse de ce port, ouvrez un terminal et
+tapez:
+
+`lspci -v`
+
+Vous devriez voir quelques choses comme ci-dessous parmi la liste du
+matériel installé en PCI:
+
+ -  Communication controller: NetMos Technology PCI 1 port parallel
+   adapter (rev 01) 
+ - LSI Logic / Symbios Logic: Unknown device 0010 
+ - medium devsel, IRQ 11 
+ - ports at a800 [size=8] 
+ - ports at ac00 [size=8] 
+ - ports at b000 [size=8] 
+ - ports at b400 [size=8] 
+ - ports at b800 [size=8] 
+ - ports at bc00 [size=16]
+
+Dans notre cas l'adresse était la première, nous avons donc modifié le
+fichier .hal pour passer de
+
+`loadrt hal_parport cfg=0x378`
+
+à
+
+`loadrt hal_parport cfg="0x378 0xa800 in"`
+
+Notez les guillemets obligatoires encadrant les adresses.
+
+Nous avons également ajouté:
+
+`addf parport.1.read base-thread +
+addf parport.1.write base-thread`
+
+pour que le second port parallèle soit lu et écrit.
+
+Par défaut les 8 premières broches des ports parallèles sont des
+sorties. Le drapeau *in*  situé derrière l'adresse d'un port permet de
+les positionner comme
+étant 8 entrées sur ce port.
+

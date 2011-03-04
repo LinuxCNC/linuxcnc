@@ -1,0 +1,35 @@
+:target { background: #DEF !important;  }
+h1, h2 { background: #c0c0f0; }
+h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
+div.nav { float: right; background: #ffffff; }
+dt { font-weight: bold; }
+pre { margin-left: 4ex; auto; color: black; padding: 1ex; }
+div.float { text-align: center; margin: 2ex; padding: 1ex; }
+div.float span.caption { display: block; margin: 1em; }
+.typewriter { font-family: monospace; }
+table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
+.alignment_center { text-align: center; }
+.topline { border-top: 1px solid black; }
+.bottomline { border-bottom: 1px solid black; }
+.leftline { border-left: 1px solid black; }
+.rightline { border-right: 1px solid black; }
+.v_top { vertical-align: baseline; }
+.a_center { text-align: center; }
+.a_left { text-align: left; }
+.a_right { text-align: right; }
+.block { display: block }
+.blockformula { display: block; text-align: center }
+.f_typewriter { font-family: monospace; }
+.noun { font-variant: small-caps; }
+.s_bold { font-weight: bold; }
+.clist { -moz-column-width: 40ex; -moz-column-gap: 4ex }
+.nclist { -moz-column-width: 20ex; -moz-column-gap: 4ex }
+ .nclist li { list-style-type: none; text-indent: -.5ex; }
+.toc li { list-style-type: none; }
+.toc li a { display: block; border: 1px solid transparent; text-indent: -1ex; }
+
+/* AsciiDoc stuff */
+div.note {
+	padding-left: 0.5em;
+	border-left: 3px solid #c0c0f0;
+}

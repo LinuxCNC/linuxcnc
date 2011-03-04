@@ -1,0 +1,12 @@
+== Tours
+
+=== Plan par défaut
+
+Quand l'interpréteur d'EMC à été créé, il à été écrit pour les
+fraiseuses. C'est pourquoi le plan par défaut est le plan XY (G17). Sur
+un tour standard utilise seulement les axes du plan XZ (G18). Pour
+changer le plan par défaut d'un tour, mettez la ligne suivante dans la
+section RS274NGC du fichier ini.
+
+`RS274NGC_STARTUP_CODE = G18`
+

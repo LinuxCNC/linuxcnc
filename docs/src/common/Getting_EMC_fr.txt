@@ -1,0 +1,214 @@
+= Trouver de l'aide (((Trouver de l'aide)))[[sec:Trouver-aide]]
+
+== IRC
+
+Sur le canal IRC d'EMC.
+
+La manière la plus simple d'aller sur IRC est d'utiliser le client
+Java embarqué sur cette page
+http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
+
+Un peu d'éthique sur le canal IRC:
+
+ - Posez votre question particulière...
+ -  Faites preuve de patience quand vous attendez une réponse, il peut
+   s'écouler un certain temps avant que quelqu'un ne fournisse une
+   réponse, les participants peuvent être occupés à leur travail ou
+   autre...
+ -  Réglez votre compte IRC avec un unique nom de sorte que les gens
+   sachent qui vous êtes.
+
+== Liste de diffusion
+
+La liste de diffusion des utilisateurs d'EMC2 à
+https://lists.sourceforge.net/lists/listinfo/emc-users[https://lists.sourceforge.net/lists/listinfo/emc-users].
+
+== Wiki
+
+Le Wiki d'EMC, site maintenu par les utilisateurs à
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl]
+contient un grand nombre d'informations et d'astuces.
+
+= Charger le logiciel (((Charger le logiciel)))
+
+Téléchargez le CD Live depuis
+http://www.linuxcnc.org/[http://www.linuxcnc.org/] en suivant le lien
+de téléchargement.
+
+== Téléchargement fragmenté (((Telechargement fragmente)))
+
+Si le fichier est trop important pour être téléchargé en une seule
+fois parce que votre connection Internet est lente ou mauvaise,
+utilisez `wget` qui permet la reprise après un téléchargement
+interrompu.
+
+=== Sous Linux (((wget)))
+
+Ouvrez un terminal. Dans Ubuntu il est dans
+Applications/Accessoires/Terminal. Notez que le nom du fichier peut
+être différent de celui de cette documentation, suivez le lien de
+téléchargement sur http://www.linuxcnc.org/[http://www.linuxcnc.org/]
+pour avoir le nom du fichier actuel. Vous pouvez copier le lien puis le
+coller dans le terminal à l'aide de la souris.
+
+Pour prendre la version Ubuntu 8.04 Hardy Heron copiez ce lien dans le
+terminal et pressez Entrée:
+
+` wget -r
+http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+
+Pour prendre la version Ubuntu 6.06 Dapper Drake:
+
+` wget -r
+http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso`
+
+Pour reprendre un téléchargement interrompu ajoutez l'option -c à wget:
+
+` wget -r -c
+http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+
+Pour stopper un téléchargement utilisez Ctrl-C ou fermer la fenêtre du
+terminal.
+
+Après que le téléchargement soit terminé vous trouverez un nouveau
+répertoire appelé www.linuxcnc.org ou quelque chose de similaire. Dans
+ce répertoire vous trouverez l'image ISO du CD. Il ne vous restera plus
+qu'à la graver.
+
+=== Sous Windows
+
+Le programme wget est également disponible pour Windows depuis
+
+http://gnuwin32.sourceforge.net/packages/wget.htm
+
+Suivez les instructions de la page web pour télécharger et installer
+le programme wget sous Windows.
+
+Pour lancer wget ouvrez la fenêtre DOS.
+
+Dans la plupart des Windows elle est dans
+Programmes/Accessoires/Commande
+
+Naviguez jusqu'au répertoire dans lequel s'est installé wget.
+
+Habituellement il est dans C:\Program Files\GnuWin32\bin si c'est le
+cas, tapez la commande:
+
+`cd C:\Program Files\GnuWin32\bin`
+
+et le prompt devrait changer pour C:\Program Files\GnuWin32>
+
+Tapez les commandes wget dans la fenêtre DOS et pressez Entrée comme
+précédemment.
+
+== Graver le CD
+
+EMC2 est distribué sous la forme d'un fichier image de CD, appelée
+image ISO. Pour installer EMC2, vous devez d'abord graver cette image
+ISO sur un CD. Vous devez disposer d'un graveur de CD/DVD et d'un CD
+vierge de 80 minutes (700 Mio). Si la gravure du CD échoue, essayez de
+le graver à une vitesse plus lente.
+
+=== Sous Linux
+
+Avant de graver un CD, il est fortement recommandé de vérifier la
+somme de contrôle md5 (hash) du fichier de l'image iso.
+
+Ouvrez un terminal. Dans Ubuntu il est dans
+Applications/Accessoires/Terminal.
+
+Allez dans le répertoire contenant l'image ISO précédemment téléchargée.
+
+`cd répertoire_de_l'image`
+
+Puis lancez la commande md5sum suivie du nom du fichier, exemple:
+
+`md5sum ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+
+La commande md5sum doit retourner une simple ligne après le calcul de
+la somme de contrôle. Sur une machine lente le calcul peut prendre
+plusieurs minutes, exemple de retour:
+
+`91c5abb84386091e0ff056e9ebc40fdb
+ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+
+Il reste à comparer avec la somme md5 fournie sur la page de
+téléchargement d'EMC2.
+
+Graver l'image ISO sur un CD
+
+ .  Inserez un CD vierge dans votre graveur. Une fenêtre surgissante
+   "CD/DVD Creator" ou "Choisissez le type de disque" va s'ouvrir. Fermez
+   la, elle ne sera pas utilisée.
+ . Naviguez jusqu'au répertoire contenant l'image ISO.
+ .  Faites un click droit sur le fichier de l'image ISO et choisissez
+   Graver le Disque.
+ .  Sélectionnez la vitesse de gravure. Pour graver le CD Live d'EMC2 il
+   est recommandé de graver à la vitesse la plus lente possible pour
+   éviter toute erreur de gravure.
+ . Lancez la gravure.
+ .  Si le choix d'un nom de fichier est demandé pour l'image disque,
+   cliquez juste OK.
+
+=== Sous Windows
+
+Avant de graver un CD, il est fortement recommandé de vérifier la
+somme de contrôle md5 (hash) du fichier de l'image iso.
+
+Windows ne dispose pas de programme de contrôle du md5. Vous devrez en
+installer un pour vérifier la somme de contrôle de l'ISO. Plus
+d'informations sont disponibles ici:
+
+https://help.ubuntu.com/community/HowToMD5SUM
+
+Gravez l'ISO sur un CD
+
+ .  Vous pouvez télécharger Infra Recorder, un logiciel de gravure
+   d'images gratuit et open source.
+ .  Inserez un CD vierge dans le graveur sélectionnez Quitter ou Cancel si
+   un auto-run démarre.
+ .  Lancez Infra Recorder et choisissez le menu 'Actions' puis 'Graver
+   l'image'.
+
+== Tester EMC2
+
+Avec le CD Live d'EMC2 dans le lecteur de CD/DVD redémarrez votre PC
+de sorte qu'il démarre sur le CD Live. Quand l'ordinateur a redémarré
+vous pouvez essayer EMC2 sans l'installer. Vous ne pouvez pas créer de
+configuration personnalisée ni modifier les réglages du système comme
+la résolution de l'écran sans installer EMC2.
+
+Pour lancer EMC2 allez dans le menu Applications/CNC et choisissez
+EMC2. Puis sélectionnez une configuration en sim (simulation) et
+essayez le.
+
+Pour savoir si votre ordinateur est utilisable par le générateur de
+trains d'impulsions du logiciel, lancez un test de latence comme
+indiqué à la section ( <<sec:Test de latence>>)
+
+== Installer EMC2
+
+Si vous avez envie d'aller plus loin, cliquez juste sur l'icône
+Install se trouvant sur le bureau, répondez à quelques questions (votre
+nom, votre fuseau horaire, le mot de passe) et faites une installation
+complète en quelques minutes. Notez bien le mot de passe indiqué et le
+nom d'utilisateur. Une fois l'installation compléte et que vous êtes
+connecté, le gestionnaire de mises à jour vous proposera d'effectuer
+une mise à jour vers la dernière version stable d'EMC2
+
+== L'interface utilisateur Axis
+
+L'interface AXIS est une des interfaces parmis lesquelles vous avez à
+choisir. Elle peut être configurée pour lui ajouter un panneau de
+commandes virtuel personnalisé en fonction des besoins. AXIS est
+l'interface utilisateur par défaut et est activement développée.
+
+image:axis_fr.png[]
+
+== Mises à jour d'EMC2
+
+Avec l'installation normale, si vous êtes en ligne, le gestionnaire de
+mises à jour vous préviendra quand des mises à jour d'EMC2 et d'Ubuntu
+seront disponibles, vous pourrez alors facilement mettre votre système
+à jour sans connaissances particulières de Linux.
+

@@ -1,0 +1,171 @@
+= Compiling from source
+
+== Introduction
+
+The Live CD is the preferred way to install EMC. Compliling from
+source is not normally needed. See the Getting Started Manual for
+infomation on getting and installing EMC.
+
+The third hurdle that you face when you begin to set up EMC from
+scratch is getting and installing the EMC2 software itself. All of EMC2
+has been placed on git.linuxcnc.org. EMC2 is also available as a
+precompiled package (for various platforms) for download from that
+site.
+
+== EMC Download Page
+
+You will find the most recent releases of EMC2 announced on
+www.linuxcnc.org. The releases of EMC2 will be done in two ways
+(sources and binary package). The sources (described furtheron) consist
+of a tarball (emc2-version.tar.gz), which you should download and
+unpack into your home directory.
+
+== EMC2 Release Description
+
+EMC2 will be using a release model similar to (but simpler than) the
+one used by Debian. At any one time there will be three versions of
+EMC2. Debian uses "stable", "testing", and "unstable". We will be using
+"Released", "Testing", and "Head". For the latest information, click on
+the version you are interested in.
+
+*Released*  is exactly that, a released version of EMC2 with a version
+number. It
+is tested by both developers and beta users before being released, and
+is suitable for the average user. Most developers and IRC/mailing list
+ regulars are able to help support people running a released version.
+*"Released"*  is available in several forms, including .debs for Ubuntu
+and source
+tarballs for local compilation. There will be a debian repository which
+will always have the latest released version (and thus allows for easy
+upgrades from one stable release to the next).
+
+*Testing*  is a version of EMC2 that is ready for "beta testing" but
+not for
+ general release. Before a version is labeled *testing*  it will be
+known to compile and run on several different platforms,
+ but there will probably be various limitations and known problems. The
+*Testing*  wiki page will attempt to list known problems and
+workarounds, but
+ there will probably also be undiscovered bugs. Since *Testing*  is
+"beta" software, it should not be used for anything critical.
+ Users of *Testing*  need to understand that it is beta software, and
+must be willing to
+ give detailed bug reports if things go wrong. *Testing*  is available
+primarily as a tag in git, although for convenience of
+testers, a "testing" debian repository and/or tarballs may also be
+available. The EMC Board of Directors will decide when "Testing" is
+worthy of becoming "Released". This is a formal decision, made by
+motion and voting on the board mailing list or board IRC channel.
+
+*master* is a term for where all the primary development takes place.
+*TRUNK* can be broken at any time. When *TRUNK*  reaches a state that
+is deemed worthy of testing by a larger number
+ of people, the *"Testing"*  tag will be moved. This is an informal
+decision, made by concensus of
+lead developers, usually on IRC. Development will immediately continue,
+ and *TRUNK* will once again diverge from *Testing*. *TRUNK*  has no
+"version number", and on a busy weekend it can literally
+change every 10 minutes.
+
+== Download and source preparation.
+
+The following few section will describe how to get EMC2, and compile it.
+
+To download, simply go to www.linuxcnc.org to the Download page, and
+get the latest release or testing tarball.
+
+Once you have it, extract it to your home folder:
+
+    $ cd ~/ +
+    $ tar xzvf emc2-version.tar.gz
+
+Next you'll need to decide what kind of install you want. There are
+two ways to try EMC2 out:
+
+Installed::
+     Like most other software on Linux, the files are placed in system
+    directories, and is automatically available to all users of that
+    computer.footnote:[The pre-built packages for Ubuntu Linux use the
+    “installed” method
+    ]
+
+Run-in-place::
+     All the files for EMC2 are kept inside the `emc2`  directory. This is
+    useful for trying out EMC2, especially when there
+    is another version of EMC2 already installed on the system.
+
+=== Downloading the development version
+
+If you wish to use the development version of emc2, please follow the
+instructions on our wiki to obtain the source code:
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git]
+
+== Installed
+
+EMC2 followes the standard way of compiling linux software. To compile
+it simply go to the sources folder:
+
+    $ cd ~/emc2/src
+
+and issue these commands:
+
+    $ ./configure +
+    $ make && sudo make install
+
+To run it simply type 'emc'.
+
+== Run-in-place
+
+If you want only to test the software before installing it, or if
+you're worried about overwriting an existing installation, there is a
+Run-In-Place (RIP) mode which you can try out. In this mode, there is
+no installation step, and no files are placed outside the top directory
+, `~/emc2` in this example.
+
+    $ cd ~/emc2/src
+
+and issue these commands:
+
+    $ ./configure --enable-run-in-place +
+    $ make && sudo make setuid
+
+In a shell session where you want to use the run-in-place version of
+emcfootnote:[By putting this command in a shell start-up script, such
+as
+`~/.bash_profile`, you do not need to manually run it in each terminal
+window.
+], execute
+
+    $ . ~/emc2/scripts/emc-environment
+
+Until you close that terminal, it will be set up so that the programs
+and manual pages from the Run-In-Place directory are available without
+referring to the path each time. After that you can run EMC2 by
+issuing:
+
+    $ emc
+
+== Simulator
+
+To install EMC2 on a system without a realtime kernel, add
+`--enable-simulator` to the `configure`  commandline. In this mode,
+EMC2 runs as a purely userspace program.
+No hardware can be controlled and realtime scheduling is not
+guaranteed, but the other features of HAL, EMC and its various user
+ interfaces are available. When using `--enable-run-in-place`, the
+`sudo make setuid` step is unneeded.
+
+== Editing and Recompiling
+
+You may need to recompile the EMC2 code for a number of reasons. You
+may have modified the source code, or you may have downloaded just a
+few new files. To recompile, do the following:
+
+    $ cd ~/emc2/src +
+    $ make && sudo make install # for run-installed +
+    $ make && sudo make setuid  # for run-in-place +
+    $ make                      # for run-in-place, simulator
+
+The build process is smart enough to only rebuild things that are
+affected by your changes.
+

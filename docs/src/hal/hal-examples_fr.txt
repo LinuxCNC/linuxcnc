@@ -1,0 +1,21 @@
+= Exemples pour HAL
+
+NOTE: En cours de construction.
+
+Tous ces exemples impliquent la disponibilité de deux “threads base”
+et de “servo-thread”.
+
+== Calculer la vitesse
+
+Cet exemple utilise "ddt" pour calculer la vitesse d'un axe.
+
+    *loadrt ddt count=1 +
+    loadrt hypot count =1*
+
+    *addf ddt.0 servo-thread +
+    addf hypot.0 servo-thread*
+
+    *net X-vel ddt.0.out => ddt.1.in *
+
+
+

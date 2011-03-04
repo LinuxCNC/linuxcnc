@@ -1,0 +1,776 @@
+=  [[cha:Composants-internes]]Composants internes
+
+La plupart des composants ont leurs pages de manuel, style *nix. Pour
+afficher ces “man pages” pour les composants temps réel, taper dans un
+terminal “man 9 'nomducomposant'”.
+
+Le présent document se concentre sur les composants les plus complexes
+qui demandent des figures difficiles à reproduire dans une man page.
+
+==  [[sec:Stepgen]]Stepgen(((stepgen)))
+
+Ce composant fournit un générateur logiciel d'impulsions de pas
+répondant aux commandes de position ou de vitesse. En mode position, il
+contient une boucle de position pré-réglée, de sorte que les réglages
+de PID ne sont pas nécessaires. En mode vitesse, il pilote un moteur à
+la vitesse commandée, tout en obéissant aux limites de vitesse et
+d'accélération. C'est un composant uniquement temps réel, dépendant de
+plusieurs facteurs comme la vitesse du CPU, etc, il est capable de
+fournir des fréquences de pas maximum comprisent entre 10kHz et 50kHz.
+La figure  <<fig:Diagramme-bloc-stepgen>> montre trois schémas
+fonctionnels, chacun est un simple générateur d'impulsions de pas. Le
+premier diagramme est pour le type '0', (pas et direction). Le second
+est pour le type '1' (up/down, ou pseudo-PWM) et le troisième est pour
+les types 2 jusqu'à 14 (les différentes séquences de pas). Les deux
+premiers diagrammes montrent le mode de commande position et le
+troisième montre le mode vitesse. Le mode de commande et le type de
+pas, se réglent indépendamment et n'importe quelle combinaison peut
+être choisie.
+
+image::stepgen-block-diag.eps[]
+
+. [[fig:Diagramme-bloc-stepgen]]Diagramme bloc du générateur de pas (en
+mode position)
+
+image::freqgen-block-diag.eps[]
+
+. [[fig:Diagramme-bloc-freqgen]]Diagramme bloc du générateur de pas (en
+mode vitesse)
+
+=== L'installer
+
+    emc2$ 
+
+`<type-array>`  est une série d'entiers décimaux séparés par des
+virgules. Chaque
+chiffre provoquera le chargement d'un simple générateur d'impulsions de
+ pas, la valeur de ce chiffre déterminera le type de pas.
+`<ctrl_array>` est une série de lettres “`p`” ou “`v` ” séparées par
+des virgules, qui spécifient le mode pas ou le mode
+ vitesse. `ctrl_type`  est optionnel, si il est omis, tous les
+générateurs de pas seront en
+mode position. Par exemple, la commande:
+
+    emc2# 
+
+va installer trois générateurs de pas. Les deux premiers utilisent le
+type de pas '0' (pas et direction) et fonctionnent en mode position. Le
+dernier utilise le type de pas '2' (quadrature) et fonctionne en mode
+vitesse. La valeur par défaut de `<config-array>` est `“0,0,0”`  qui va
+installer trois générateurs de type '0' (step/dir). Le nombre
+maximum de générateurs de pas est de 8 (comme définit par MAX_CHAN dans
+stepgen.c). Chaque générateur est indépendant, mais tous sont
+actualisés par la même fonction(s), au même instant. Dans les
+ descriptions qui suivent, `<chan>`  est le nombre de générateurs
+spécifiques. La numérotation des
+générateurs commence à 0.
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+Chaque générateur d'impulsions de pas n'aura que certaines de ces
+pins, selon le type de pas et le mode de contrôle sélectionné.
+
+ -  `(float)`` stepgen.<chan>.position-cmd`  -- Position désirée du
+   moteur, en unités de longueur (mode position
+   seulement).
+ -  `(float)`` stepgen.<chan>.velocity-cmd`  -- Vitesse désirée du moteur,
+   en unités de longueur par seconde (mode
+   vitesse seulement).
+ -  `(s32) ``stepgen.<chan>.counts`  -- Rétroaction de la position en
+   unités de comptage, actualisée par
+   la fonction `capture_position()`.
+ -  `(float) ``stepgen.<chan>.position-fb`  -- Rétroaction de la position
+   en unités de longueur, actualisée par
+   la fonction `capture_position()`.
+ -  `(bit)`` stepgen.<chan>.step` -- Sortie des impulsions de pas (type de
+   pas 0 seulement).
+ -  `(bit)`` stepgen.<chan>.dir` -- Sortie direction (type de pas 0
+   seulement).
+ -  `(bit) ``stepgen.<chan>.up` -- Sortie UP en pseudo-PWM (type de pas 1
+   seulement).
+ -  `(bit) ``stepgen.<chan>.down` -- Sortie DOWN en pseudo-PWM (type de
+   pas 1 seulement).
+ -  `(bit) ``stepgen.<chan>.phase-A` -- Sortie phase A (séquences de pas 2
+   à 14 seulement).
+ -  `(bit) ``stepgen.<chan>.phase-B` -- Sortie phase B (séquences de pas 2
+   à 14 seulement).
+ -  `(bit) ``stepgen.<chan>.phase-C` -- Sortie phase C (séquences de pas 3
+   à 14 seulement).
+ -  `(bit) ``stepgen.<chan>.phase-D` -- Sortie phase D (séquences de pas 5
+   à 14 seulement).
+ -  `(bit) ``stepgen.<chan>.phase-E` -- Sortie phase E (séquences de pas
+   11 à 14 seulement).
+
+=== Paramètres
+
+ -  `(float)`` stepgen.<chan>.position-scale`  -- Pas par unité de
+   longueur. Ce paramètre est utilisé pour les
+   sorties et les rétroactions.
+ -  `(float)`` stepgen.<chan>.maxvel`  -- Vitesse maximale, en unités de
+   longueur par seconde. Si égal à
+   0.0, n'a aucun effet.
+ -  `(float)`` stepgen.<chan>.maxaccel`  -- Valeur maximale
+   d'accélération, en unités de longueur par seconde
+   au carré. Si égal à 0.0, n'a aucun effet.
+ -  `(float)`` stepgen.<chan>.frequency` -- Fréquence des pas, en pas par
+   seconde.
+ -  `(float)`` stepgen.<chan>.steplen`  -- Durée de l'impulsion de pas
+   (types de pas 0 et 1) ou durée minimum
+   dans un état donné (séquences de pas 2 à 14), en nanosecondes.
+ -  `(float)`` stepgen.<chan>.stepspace`  -- Espace minimum entre deux
+   impulsions de pas (types de pas 0 et 1
+   seulement), en nanosecondes.
+ -  `(float)`` stepgen.<chan>.dirsetup`  -- Durée minimale entre un
+   changement de direction et le début de la
+   prochaine impulsion de pas (type de pas 0 seulement), en nanosecondes.
+ -  `(float)`` stepgen.<chan>.dirhold`  -- Durée minimale entre la fin
+   d'une impulsion de pas et un
+   changement de direction (type de pas 0 seulement), en nanosecondes.
+ -  `(float)`` stepgen.<chan>.dirdelay`  -- Durée minimale entre un pas
+   dans une direction et un pas dans la
+   direction opposée (séquences de pas 1 à 14 seulement), en nanosecondes.
+ -  `(s32)`` stepgen.<chan>.rawcounts`  -- Valeur de comptage brute
+   (count) de la rétroaction, réactualisée
+   par la fonction `make_pulses()`. 
+
+En mode position, les valeurs de maxvel et de maxaccel sont utilisées
+par la boucle de position interne pour éviter de générer des trains
+d'impulsions de pas que le moteur ne peut pas suivre. Lorsqu'elles sont
+réglées sur des valeurs appropriées pour le moteur, même un grand
+changement instantané dans la position commandée produira un mouvement
+trapézoïdal en douceur vers la nouvelle position. L'algorithme
+fonctionne en mesurant à la fois, l'erreur de position et l'erreur de
+vitesse, puis en calculant une accélération qui tende à réduire vers
+zéro, les deux en même temps. Pour plus de détails, y compris les
+contenus de la boîte “d'équation de contrôle”, consulter le code
+source.
+
+En mode vitesse, maxvel est une simple limite qui est appliquée à la
+vitesse commandée, maxaccel est utilisé pour créer une rampe avec la
+fréquence actuelle, si la vitesse commandée change brutalement. Comme
+dans le mode position, des valeurs appropriées de ces paramètres
+assurent que le moteur pourra suivre le train d'impulsions généré.
+
+===  [[sub:Stepgen-squences-de-pas]]Séquences de pas
+
+Le générateur de pas supporte 15 différentes “séquences de pas”. Le
+type de pas 0 est le plus familier, c'est le standard pas et direction
+(step/dir). Quand stepgen est configuré pour le type 0, il y a quatre
+paramètres supplémentaires qui déterminent le timing exact des signaux
+de pas et de direction. Voir la figure  <<fig:StepDir-timing>> pour la
+signification de ces paramètres. Les paramètres sont en nanosecondes,
+mais ils doivent être arrondis à un entier, multiple de la période du
+thread qui appelle `make_pulses()`. Par exemple, si `make_pulses()` 
+est appelée toutes les 16µs et que “steplen” est à 20000, alors
+l'impulsion de pas aura une durée de 2 x 16 = 32µs. La valeur par
+défaut de ces quatre paramètres est de 1ns, mais l'arrondi automatique
+prendra effet au premier lancement du code. Puisqu'un pas exige d'être
+ haut pendant `“steplen”`ns et bas pendant `“stepspace”`ns, la
+fréquence maximale est 1.000.000.000 divisé par `(steplen+stepspace)`.
+Si `“maxfreq”`  est réglé plus haut que cette limite, il sera abaissé
+automatiquement. Si “maxfreq” est à zéro, il restera à zéro, mais la
+fréquence de sortie sera toujours limitée.
+
+image::stepgen-type0.eps[]
+
+.[[fig:StepDir-timing]]Timing pas et direction
+
+Le type de pas 1 a deux sorties, up et down. Les impulsions
+apparaissent sur l'une ou l'autre, selon la direction du déplacement.
+Chaque impulsion a une durée de `“steplen”`ns et les impulsions sont
+séparées de `“stepspace”`ns. La fréquence maximale est la même que pour
+le type 0. Si `“maxfreq”`  est réglé plus haut que cette limite il sera
+abaissé automatiquement.
+Si “maxfreq” est à zéro, il restera à zéro, mais la fréquence de sortie
+sera toujours limitée.
+
+Les séquences 2 jusqu'à 14 sont basées sur les états et ont entre deux
+et cinq sorties. Pour chaque pas, un compteur d''état est incrémenté ou
+décrémenté. Les figures  <<fig:Trois-phases-quadrature>>, 
+<<fig:Quatre-phases>> et  <<fig:Cinq-phases>> montrent les différentes
+séquences des sorties en fonction de l'état du compteur. La fréquence
+maximale est 1.000.000.000 divisé par `“steplen`” et comme dans les
+autres séquences, `“maxfreq”` sera abaissé si il est au dessus de cette
+limite.
+
+image::stepgen-type2-4.eps[]
+
+.Séquences de pas à trois phases[[fig:Trois-phases-quadrature]]
+
+image::stepgen-type5-10.eps[]
+
+.[[fig:Quatre-phases]]Séquences de pas à quatre phases
+
+image::stepgen-type11-14.eps[]
+
+.[[fig:Cinq-phases]]Séquence de pas à cinq phases
+
+=== Fonctions
+
+Le composant exporte trois fonctions. Chaque fonction agit sur tous
+les générateurs d'impulsions de pas. Lancer différents générateurs dans
+différents threads n'est pas supporté.
+
+ -  `(funct)`` stepgen.make-pulses`  -- Fonction haute vitesse de
+   génération et de comptage des impulsions
+   (non flottant).
+ -  `(funct)`` stepgen.update-freq`  -- Fonction basse vitesse de
+   conversion de position en vitesse, mise
+   à l'échelle et traitement des limitations.
+ -  `(funct)`` stepgen.capture-position`  -- Fonction basse vitesse pour
+   la rétroaction, met à jour les latches
+   et les mesures de position.
+
+La fonction à grande vitesse `“stepgen.make-pulses”`  devrait être
+lancée dans un thread très rapide, entre 10 et 50us
+selon les capacités de l'ordinateur. C'est la période de ce thread qui
+ détermine la fréquence maximale des pas, de `steplen`, `stepspace`,
+`dirsetup`, `dirhold` et `dirdelay, tous sont arrondis`  au multiple
+entier de la période du thread en nanosecondes. Les deux
+autres fonctions peuvent être appelées beaucoup plus lentement.
+
+
+
+==  [[sec:PWMgen]]PWMgen(((pwmgen)))
+
+Ce composant fournit un générateur logiciel de PWM (modulation de
+largeur d'impulsions) et PDM (modulation de densité d'impulsions).
+C'est un composant temps réel uniquement, dépendant de plusieurs
+facteurs comme la vitesse du CPU, etc, Il est capable de générer des
+fréquences PWM de quelques centaines de Hertz en assez bonne
+résolution, à peut-être 10kHz avec une résolution limitée.
+
+=== L'installer
+
+    emc2$ 
+
+`<config-array>`  est une série d'entiers décimaux séparés par des
+virgules. Chaque
+chiffre provoquera le chargement d'un simple générateur de PWM, la
+valeur de ce chiffre determinera le type de sortie. Par exemple:
+
+    emc2$ 
+
+va installer trois générateurs de PWM. Le premier utilisera une sortie
+de type '0' (PWM seule), le suivant utilisera une sortie de type 1 (PWM
+et direction) et le troisième utilisera une sortie de type 2 (UP et
+DOWN). Il n'y a pas de valeur par défaut, si `<config-array>`  n'est
+pas spécifié, aucun générateur de PWM ne sera installé. Le
+nombre maximum de générateurs de fréquences est de 8 (comme définit par
+MAX_CHAN dans pwmgen.c). Chaque générateur est indépendant, mais tous
+sont mis à jour par la même fonction(s), au même instant. Dans les
+ descriptions qui suivent, `<chan>`  est le nombre de générateurs
+spécifiques. La numérotation des
+générateurs de PWM commence à 0.
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+Chaque générateur de PWM aura les pins suivantes:
+
+ -  `(float)`` pwmgen.<chan>.value`  -- Valeur commandée, en unités
+   arbitraires. Sera mise à l'échelle par
+   le paramètre d'échelle (voir ci-dessous).
+ -  `(bit)`` pwmgen.<chan>.enable` -- Active ou désactive les sorties du
+   générateur de PWM.
+
+Chaque générateur de PWM aura également certaines de ces pins, selon
+le type de sortie choisi:
+
+ -  `(bit)`` pwmgen.<chan>.pwm` -- Sortie PWM (ou PDM), (types de sortie 0
+   et 1 seulement).
+ -  `(bit)`` pwmgen.<chan>.dir` -- Sortie direction (type de sortie 1
+   seulement).
+ -  `(bit) ``pwmgen.<chan>.up`  -- Sortie PWM/PDM pour une valeur positive
+   en entrée ( type de sortie
+   2 seulement).
+ -  `(bit) ``pwmgen.<chan>.down`  -- Sortie PWM/PDM pour une valeur
+   négative en entrée (type de sortie
+   2 seulement).
+
+=== Paramètres
+
+ -  `(float)`` pwmgen.<chan>.scale`  -- Facteur d'échelle pour convertir
+   les valeurs en unités
+   arbitraires, en coefficients de facteur cyclique.
+ -  `(float)`` pwmgen.<chan>.pwm-freq`  -- Fréquence de PWM désirée, en
+   Hz. Si égale à 0.0, la modulation
+   sera PDM au lieu de PWM. Si elle est réglée plus haute que les limites
+    internes, au prochain appel de la fonction `update_freq()`  elle sera
+   ramenée aux limites internes. Si elle est différente de
+    zéro et si `le lissage` est faux, au prochain appel de la fonction
+   `update_freq()`  elle sera réglée au plus proche entier multiple de la
+   période de la
+   fonction `make_pulses()`.
+ -  `(bit)`` pwmgen.<chan>.dither-pwm`  -- Si vrai, active le lissage pour
+   affiner la fréquence PWM ou le
+   rapport cyclique qui ne pourraient pas être obtenus avec une pure PWM.
+   Si faux, la fréquence PWM et le rapport cyclique seront tous les deux
+   arrondis aux valeurs pouvant être atteintes exactement.
+ -  `(float)`` pwmgen.<chan>.min-dc`  -- Rapport cyclique minimum compris
+   entre 0.0 et 1.0 (Le rapport
+   cyclique sera à zéro quand il est désactivé, indépendamment de ce
+   paramètre).
+ -  `(float)`` pwmgen.<chan>.max-dc` -- Rapport cyclique maximum compris
+   entre 0.0 et 1.0.
+ -  `(float)`` pwmgen.<chan>.curr-dc`  -- Rapport cyclique courant, après
+   toutes les limitations et les
+   arrondis (lecture seule).
+
+=== Types de sortie
+
+Le générateur de PWM supporte trois “types de sortie”. Le type 0 a une
+seule pin de sortie. Seules, les commandes positives sont acceptées,
+les valeurs négatives sont traitées comme zéro (elle seront affectées
+par` min-dc`  si il est différent de zéro). Le type 1 a deux pins de
+sortie, une
+pour le signal PWM/PDM et une pour indiquer la direction. Le rapport
+cyclique d'une pin PWM est basé sur la valeur absolue de la commande,
+de sorte que les valeurs négatives sont acceptables. La pin de
+direction est fausse pour les commandes positives et vraie pour les
+commandes négatives. Finalement, le type 2 a également deux sorties,
+appelées “up” et “down”. Pour les commandes positives, le signal PWM
+apparaît sur la sortie up et la sortie down reste fausse. Pour les
+commandes négatives, le signal PWM apparaît sur la sortie down et la
+sortie up reste fausse. Les sorties de type 2 sont appropriées pour
+piloter la plupart des ponts en H.
+
+=== Fonctions
+
+Le composant exporte deux fonctions. Chaque fonction agit sur tous les
+générateurs de PWM, lancer différents générateurs dans différents
+threads n'est pas supporté.
+
+ -  `(funct)`` pwmgen.make-pulses`  -- Fonction haute vitesse de
+   génération de fréquences PWM (non
+   flottant).
+ -  `(funct)`` pwmgen.update`  -- Fonction basse vitesse de mise à
+   l'échelle, limitation des valeurs
+   et traitement d'autres paramètres.
+
+La fonction haute vitesse `“pwmgen.make-pulses”`  devrait être lancée
+dans un thread très rapide, entre 10 et 50µs
+selon les capacités de l'ordinateur. C'est la période de ce thread qui
+détermine la fréquence maximale de la porteuse PWM, ainsi que la
+résolution des signaux PWM ou PDM. L'autre fonction peut être appelée
+beaucoup plus lentement.
+
+
+
+==  [[sec:Codeur]]Codeur(((encoder)))
+
+Ce composant fournit, en logiciel, le comptage des signaux provenant
+d'encodeurs en quadrature. Il s'agit d'un composant temps réel
+uniquement, il est dépendant de divers facteurs comme la vitesse du
+CPU, etc, il est capable de compter des signaux de fréquences comprises
+entre 10kHz à peut être 50kHz. La figure 
+<<fig:Diagramme-bloc-du-codeur>> est le diagramme bloc d'un canal de
+comptage de codeur.
+
+image::encoder-block-diag.eps[]
+
+.[[fig:Diagramme-bloc-du-codeur]]Diagramme bloc du compteur de codeur
+
+=== L'installer
+
+    emc2$ 
+
+`<counters>` est le nombre de compteurs de codeur à installer. Si
+`numchan`  n'est pas spécifié, trois compteurs seront installés. Le
+nombre
+maximum de compteurs est de 8 (comme définit par MAX_CHAN dans
+encoder.c). Chaque compteur est indépendant, mais tous sont mis à jour
+par la même fonction(s) au même instant. Dans les descriptions qui
+ suivent, `<chan>`  est le nombre de compteurs spécifiques. La
+numérotation des compteurs
+commence à 0.
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+ -  `(bit)`` encoder.<chan>.phase-A` -- Signal de la phase A du codeur en
+   quadrature.
+ -  `(bit)`` encoder.<chan>.phase-B` -- Signal de la phase B du codeur en
+   quadrature.
+ -  `(bit)`` encoder.<chan>.phase-Z` -- Signal de la phase Z (impulsion
+   d'ndex) du codeur en quadrature.
+ -  `(bit) ``encoder.<chan>.reset`  -- Voir l'interface canonique des
+   codeurs à la section 
+   <<sec:CanonEncoder>>.
+ -  `(bit) ``encoder.<chan>.velocity` -- Vitesse estimée du signal de
+   quadrature. 
+ -  `(bit) ``encoder.<chan>.index-enable` -- Voir l'interface canonique
+   des codeurs.
+ -  `(s32) ``encoder.<chan>.count` -- Voir l'interface canonique des
+   codeurs.
+ -  `(float) ``encoder.<chan>.position` -- Voir l'interface canonique des
+   codeurs.
+
+=== Paramètres
+
+ -  `(s32)`` encoder.<chan>.raw-count` -- Valeur de comptage brute,
+   actualisée par la fonction `update-counters()`. 
+ -  `(``bit``) encoder.<chan>.x4-mode`  -- Ajuste le comptage en mode 4x
+   ou 1x. Le mode 1x est intéressant
+   pour les manivelles de jog.
+ -  `(float)`` encoder.<chan>.position-scale`  -- Voir l'interface
+   canonique des codeurs à la section 
+   <<sec:CanonEncoder>>. 
+
+=== Fonctions
+
+Le composant exporte deux fonctions. Chaque fonction agit sur tous les
+compteurs de codeur, lancer différents compteurs de codeur dans
+différents threads n'est pas supporté.
+
+ -  `(funct)`` encoder.update-counters` -- Fonction haute vitesse de
+   comptage d'impulsions (non flottant).
+ -  `(funct)`` encoder.capture-position`  -- Fonction basse vitesse
+   d'actualisation des latches et mise à
+   l'échelle de la position.
+
+
+
+==  [[sec:PID]]PID(((pid)))
+
+Ce composant fournit une boucle de contrôle
+Proportionnel/Intégrale/Dérivée. C'est un composant temps réel
+uniquement. Par souci de simplicité, cette discussion suppose que nous
+parlons de boucles de position, mais ce composant peut aussi être
+utilisé pour implémenter d'autres boucles de rétroaction telles que
+vitesse, hauteur de torche, température, etc. La figure 
+<<fig:Diagramme-bloc-PID>> est le schéma fonctionnel d'une simple
+boucle PID.
+
+image::pid-block-diag.eps[]
+
+.[[fig:Diagramme-bloc-PID]]Diagramme bloc d'une boucle PID
+
+=== L'installer
+
+    emc2$ 
+
+`<loops>` est le nombre de boucles PID à installer. Si `numchan` 
+n'est pas spécifié, une seule boucle sera installée. Le nombre
+maximum de boucles est de 16 (comme définit par MAX_CHAN dans pid.c).
+Chaque boucle est complétement indépendante. Dans les descriptions qui
+ suivent, `<loopnum>`  est le nombre de boucles spécifiques. La
+numérotation des boucle PID
+commence à 0.
+
+Si `debug=1`  est spécifié, le composant exporte quelques paramètres
+destinés au
+déboguage et aux réglages. Par défaut, ces paramètres ne sont pas
+exportés, pour économiser la mémoire partagée et éviter d'encombrer la
+liste des paramètres.
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+Les trois principales pins sont:
+
+ -  `(float) ``pid.<loopnum>.command`  -- La position désirée (consigne),
+   telle que commandée par un autre
+   composant système.
+ -  `(float) ``pid.<loopnum>.feedback`  -- La position actuelle (mesure),
+   telle que mesurée par un organe de
+   rétroaction comme un codeur de position.
+ -  `(float) ``pid.<loopnum>.output`  -- Une commande de vitesse qui tend
+   à aller de la position actuelle à
+   la position désirée. 
+
+Pour une boucle de position, 'command' et 'feedback' sont en unités de
+longueur. Pour un axe linéaire, cela pourrait être des pouces, mm,
+mètres, ou tout autre unité pertinente. De même pour un axe angulaire,
+ils pourraient être des degrés, radians, etc. Les unités sur la pin
+'output' représentent l'écart nécessaire pour que la rétroaction
+coïncide avec la commande. Pour une boucle de position, 'output' est
+une vitesse exprimée en pouces/seconde, mm/seconde, degrés/seconde,
+etc. Les unités de temps sont toujours des secondes et les unités de
+vitesses restent cohérentes avec les unités de longueur. Si la commande
+et la rétroaction sont en mètres, la sortie sera en mètres par seconde.
+
+Chaque boucle PID a deux autres pins qui sont utilisées pour
+surveiller ou contrôler le fonctionnement général du composant.
+
+ -  `(float) ``pid.<loopnum>.error` -- Egal à `.command` moins
+   `.feedback`. (consigne - mesure)
+ -  `(bit) ``pid.<loopnum>.enable` -- Un bit qui active la boucle. Si
+   `.enable`  est faux, tous les intégrateurs sont remis à zéro et les
+   sorties sont
+   forcées à zéro. Si `.enable` est vrai, la boucle opère normalement.
+
+=== Paramètres
+
+Le gain PID, les limites et autres caractèristiques 'accordables' de
+la boucle sont implémentés comme des paramètres.
+
+ -  `(float)`` pid.<loopnum>.Pgain` -- Gain de la composante
+   proportionnelle 
+ - `(float)`` pid.<loopnum>.Igain` -- Gain de la composante intégrale 
+ - `(float)`` pid.<loopnum>.Dgain` -- Gain de la composante dérivée
+ - `(float)`` pid.<loopnum>.bias` -- Constante du décalage de sortie 
+ -  `(float)`` pid.<loopnum>.FF0`  -- Correcteur prédictif d'ordre zéro
+   (feedforward) - sortie
+   proportionnelle à la commande (position).
+ -  `(float)`` pid.<loopnum>.FF1`  -- Correcteur prédictif de premier
+   ordre (feedforward) - sortie
+   proportionnelle à la dérivée de la commande (vitesse).
+ -  `(float)`` pid.<loopnum>.FF2`  -- Correcteur prédictif de second ordre
+   (feedforward) - sortie
+   proportionnelle à la dérivée seconde de la commande
+   (accélération)footnote:[FF2 n'est actuellement pas implémenté, mais il
+   pourrait l'être.
+   Considérez cette note “FIXME” dans le code.
+   ].
+ -  `(float)`` pid.<loopnum>.deadband` -- Définit la bande morte
+   (tolérance) 
+ - `(float)`` pid.<loopnum>.maxerror` -- Limite d'erreur 
+ - `(float)`` pid.<loopnum>.maxerrorI` -- Limite d'erreur intégrale 
+ - `(float)`` pid.<loopnum>.maxerrorD` -- Limite d'erreur dérivée 
+ - `(float)`` pid.<loopnum>.maxcmdD` -- Limite de la commande dérivée 
+ -  `(float)`` pid.<loopnum>.maxcmdDD` -- Limite de la commande dérivée
+   seconde 
+ - `(float)`` pid.<loopnum>.maxoutput` -- Limite de la valeur de sortie
+
+Toutes les limites `max???,`  sont implémentées de sorte que si la
+valeur de ce paramètre est à
+zéro, il n'y a pas de limite.
+
+Si `debug=1`  est spécifié quand le composant est installé, quatre
+paramètres
+supplémentaires seront exportés:
+
+ - `(float)`` pid.<loopnum>.errorI` -- Intégrale de l'erreur.
+ - `(float)`` pid.<loopnum>.errorD` -- Dérivée de l'erreur.
+ - `(float)`` pid.<loopnum>.commandD` -- Dérivée de la commande.
+ - `(float)`` pid.<loopnum>.commandDD` -- Dérivée seconde de la commande. 
+
+=== Fonctions
+
+Le composant exporte une fonction pour chaque boucle PID. Cette
+fonction exécute tous les calculs nécessaires à la boucle. Puisque
+chaque boucle a sa propre fonction, les différentes boucles peuvent
+être incluses dans les différents threads et exécutées à différents
+rythmes.
+
+ -  `(funct)`` pid.<loopnum>.do_pid_calcs` -- Exécute tous les calculs
+   d'une seule boucle PID.
+
+Si vous voulez comprendre exactement l'algorithme utilisé pour
+calculer la sortie d'une boucle PID, référez vous à la figure 
+<<fig:Diagramme-bloc-PID>>, les commentaires au début du source`
+emc2/src/hal/components/pid.c`  et bien sûr, au code lui même. Les
+calculs de boucle sont dans la
+fonction C` calc_pid()`.
+
+
+
+==  [[sec:Codeur-simul]]Codeur simulé(((sim-encoder)))
+
+Le codeur simulé est exactement la même chose qu'un codeur. Il produit
+des impulsions en quadrature avec une impulsion d'index, à une vitesse
+contrôlée par une pin de HAL. Surtout utile pour les essais.
+
+=== L'installer
+
+    emc2$ 
+
+`<number>`  est le nombre de codeurs à simuler. Si aucun n'est
+spécifié, un seul
+codeur sera installé. Le nombre maximum de codeurs est de 8 (comme
+définit par MAX_CHAN dans sim_encoder.c).
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+ -  `(float) ``sim-encoder.<chan-num>.speed` -- La vitesse commandée pour
+   l'arbre simulé.
+ - `(bit) ``sim-encoder.<chan-num>.phase-A` -- Sortie en quadrature.
+ - `(bit) ``sim-encoder.<chan-num>.phase-B` -- Sortie en quadrature.
+ -  `(bit) ``sim-encoder.<chan-num>.phase-Z` -- Sortie de l'impulsion
+   d'index. 
+
+Quand `.speed` est positive, `.phase-A` mène `.phase-B`.
+
+=== Paramètres
+
+ - (u32)` sim-encoder.<chan-num>.ppr` -- Impulsions par tour d'arbre.
+ -  (float)` sim-encoder.<chan-num>.scale` -- Facteur d'échelle pour
+   `speed`. Par défaut est de 1.0, ce qui signifie que `speed`  est en
+   tours par seconde. Passer l'échelle à 60 pour des tours par
+   minute, la passer à 360 pour des degrés par seconde, à 6.283185 pour
+   des radians par seconde, etc.
+
+Noter que les impulsions par tour ne sont pas identiques aux valeurs
+de comptage par tour (counts). Une impulsion est un cycle complet de
+quadrature. La plupart des codeurs comptent quatre fois pendant un
+cycle complet.
+
+=== Fonctions
+
+Le composant exporte deux fonctions. Chaque fonction affecte tous les
+codeurs simulés.
+
+ -  `(funct)`` sim-encoder.make-pulses`  -- Fonction haute vitesse de
+   génération d'impulsions en quadrature
+   (non flottant).
+ -  `(funct)`` sim-encoder.update-speed` -- Fonction basse vitesse de
+   lecture de `speed`, de mise à l'échelle et d'activation de
+   `make-pulses`.
+
+
+
+==  [[sec:Anti-rebond]]Anti-rebond(((Anti-rebond)))
+
+L'anti-rebond est un composant temps réel capable de filtrer les
+rebonds créés par les contacts mécaniques. Il est également très utile
+dans d'autres applications, où des impulsions très courtes doivent être
+supprimées.
+
+=== L'installer
+
+    emc2$ 
+
+`<config-string>`  est une série d'entiers décimaux séparés par des
+espaces. Chaque
+chiffre installe un groupe de filtres anti-rebond identiques, le
+chiffre détermine le nombre de filtres dans le groupe. Par exemple:
+
+    emc2$ 
+
+va installer trois groupes de filtres. Le groupe 0 contient un filtre,
+le groupe 1 en contient quatre et le groupe 2 en contient deux. La
+valeur par défaut de `<config-string>` est `“1”`  qui installe un seul
+groupe contenant un seul filtre. Le nombre
+maximum de groupes est de 8 (comme définit par MAX_GROUPS dans
+debounce.c). Le nombre maximum de filtres dans un groupe est limité
+seulement par l'espace de la mémoire partagée. Chaque groupe est
+complétement indépendant. Tous les filtres dans un même groupe sont
+identiques et ils sont tous mis à jour par la même fonction, au même
+ instant. Dans les descriptions qui suivent, `<G>` est le numéro du
+groupe et `<F>`  est le numéro du filtre dans le groupe. Le premier
+filtre est le
+filtre 0 dans le groupe 0.
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+Chaque filtre individuel a deux pins.
+
+ - `(bit) ``debounce.<G>.<F>.in` -- Entrée du filtre `<F>` du groupe `<G>`.
+ -  `(bit) ``debounce.<G>.<F>.out` -- Sortie du filtre `<F>` du groupe
+   `<G>`.
+
+=== Paramètres
+
+Chaque groupe de filtre a un paramètrefootnote:[Chaque filtre
+individuel a également une variable d'état interne.
+C'est un switch du compilateur qui peut exporter cette variable comme
+un paramètre. Ceci est prévu pour des essais et devrait juste être un
+gaspillage de mémoire partagée dans des circonstances normales.
+].
+
+ -  `(s32) ``debounce.<G>.delay` -- Délai de filtrage pour tous les
+   filtres du groupe `<G>`.
+
+Le délai du filtre est dans l'unité de la période du thread. Le délai
+minimum est de zéro. La sortie d'un filtre avec un délai de zéro, suit
+exactement son entrée, il ne filtre rien. Plus le délai augmente, plus
+larges seront les impulsions rejetées. Si le délai est de 4, toutes les
+impulsions égales ou inférieures à quatre périodes du thread, seront
+rejetées.
+
+=== Fonctions
+
+Chaque groupe de filtres exporte une fonction qui met à jour tous les
+filtres de ce groupe “simultanément”. Différents groupes de filtres
+peuvent être mis à jour dans différents threads et à différentes
+périodes.
+
+ - `(funct)`` debounce.<G>` -- Met à jour tous les filtres du groupe `<G>`.
+
+==  [[sec:Siggen]]Siggen(((siggen)))
+
+Siggen est un composant temps réel qui génère des signaux carrés,
+triangulaires et sinusoïdaux. Il est principalement utilisé pour les
+essais.
+
+=== L'installer
+
+    emc2$ 
+    
+
+`<chans>` est le nombre de générateurs de signaux à installer. Si
+`numchan`  n'est pas spécifié, un seul générateur de signaux sera
+installé. Le
+nombre maximum de générateurs est de 16 (comme définit par MAX_CHAN
+dans siggen.c). Chaque générateur est complétement indépendant. Dans
+ les descriptions qui suivent, `<chan>`  est le numéro d'un générateur
+spécifique. Les numéros de générateur
+commencent à 0.
+
+=== Le désinstaller
+
+    emc2$ 
+
+=== Pins
+
+Chaque générateur a cinq pins de sortie.
+
+ - `(float) ``siggen.<chan>.sine` -- Sortie de l'onde sinusoïdale.
+ - `(float) ``siggen.<chan>.cosine` -- Sortie de l'onde cosinusoïdale.
+ - `(float) ``siggen.<chan>.sawtooth` -- Sortie de l'onde en dents de scie.
+ - `(float) ``siggen.<chan>.triangle` -- Sortie de l'onde triangulaire.
+ - `(float) ``siggen.<chan>.square` -- Sortie de l'onde carrée.
+
+Les cinq sorties ont les mêmes fréquence, amplitude et offset.
+
+Trois pins de contrôle s'ajoutent aux pins de sortie:
+
+ -  `(float) ``siggen.<chan>.frequency` -- Réglage de la fréquence en
+   Hertz, par défaut la valeur est de 1 Hz.
+ -  `(float) ``siggen.<chan>.amplitude`  -- Réglage de l'amplitude de pic
+   des signaux de sortie, par défaut,
+   est à 1.
+ -  `(float) ``siggen.<chan>.offset`  -- Réglage de la composante continue
+   des signaux de sortie, par
+   défaut, est à 0.
+
+Par exemple, si `siggen.0.amplitude` est à 1.0 et `siggen.0.offset`
+est à 0.0, les sorties oscilleront entre -1.0 et +1.0. Si
+`siggen.0.amplitude` est à 2.5 et `siggen.0.offset` est à 10.0, les
+sorties oscilleront entre 7.5 et 12.5.
+
+=== Paramètres
+
+Aucun. footnote:[Dans les versions antérieures à la 2.1, fréquence,
+amplitude et offset
+étaient des paramètres. Ils ont été modifiés en pins pour permettre le
+contrôle par d'autres composants.
+]
+
+=== Fonctions
+
+ -  `(funct)`` siggen.<chan>.update` -- Calcule les nouvelles valeurs pour
+   les cinq sorties.
+

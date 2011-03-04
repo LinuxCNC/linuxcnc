@@ -767,27 +767,31 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
         AC_MSG_ERROR([no python, documentation cannot be built])
     fi
 
-    AC_PATH_PROG(LYX,lyx,"none")
-    if ( test "none" = "$LYX" ) ; then
-	AC_PATH_PROG(LYXQT,lyx-qt,"none")
-	if ( test "none" != "$LYXQT" ) ; then
-	    LYX=$LYXQT
-	fi
+    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
+    if ( test "none" = "$ASCIIDOC" ) ; then
+	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
     fi
-    if ( test "none" = "$LYX" ) ; then
-	AC_MSG_ERROR([no LyX, documentation cannot be built])
-    fi
-
-    AC_MSG_CHECKING([for LyX version])
-    set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
-    AC_MSG_RESULT([$LYX_VER])
-    set -- `echo $LYX_VER | sed 's/\./ /g'`
-    if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 5 \) -o \( $1 -eq 1 -a $2 -eq 5 -a $3 -lt 3 \); then
-	AC_MSG_ERROR([LyX version less than 1.5.3, documentation cannot be built])
-    fi
-    if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 5 \); then
-	    AC_MSG_WARN([LyX documentation should only be edited with LyX version 1.5.x])
-    fi
+#    AC_PATH_PROG(LYX,lyx,"none")
+#    if ( test "none" = "$LYX" ) ; then
+#	AC_PATH_PROG(LYXQT,lyx-qt,"none")
+#	if ( test "none" != "$LYXQT" ) ; then
+#	    LYX=$LYXQT
+#	fi
+#    fi
+#    if ( test "none" = "$LYX" ) ; then
+#	AC_MSG_ERROR([no LyX, documentation cannot be built])
+#    fi
+#
+#    AC_MSG_CHECKING([for LyX version])
+#    set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
+#    AC_MSG_RESULT([$LYX_VER])
+#    set -- `echo $LYX_VER | sed 's/\./ /g'`
+#    if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 5 \) -o \( $1 -eq 1 -a $2 -eq 5 -a $3 -lt 3 \); then
+#	AC_MSG_ERROR([LyX version less than 1.5.3, documentation cannot be built])
+#    fi
+#    if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 5 \); then
+#	    AC_MSG_WARN([LyX documentation should only be edited with LyX version 1.5.x])
+#    fi
     AC_PATH_PROG(CONVERT,convert,"none")
     if ( test "none" = "$CONVERT" ) ; then
 	AC_MSG_ERROR([no convert, documentation cannot be built])
@@ -801,6 +805,11 @@ fi
 
 # Programs required only for building the PDF documentation
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
+    AC_PATH_PROG(DBLATEX,dblatex,"none")
+    if ( test "none" = "$DBLATEX" ) ; then
+	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
+    fi
+
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
 	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
