@@ -1,0 +1,70 @@
+= La programmation en Ladder 
+
+== Introduction
+
+La logique Ladder ou langage de programmation Ladder est une méthode
+pour tracer les schémas en logique électrique. Il s'agit maintenant
+d'un langage graphique vraiment populaire pour la programmation des
+automates programmables industriels (API). Il a été à l'origine inventé
+pour décrire la logique à relais. Son nom est fondé sur la constatation
+que les programmes dans cette langue ressemblent à une échelle
+(ladder), avec deux "rails" verticaux et, entre eux, une série
+"d'échelons". En Allemagne et ailleurs en Europe, le style consiste à
+placer les rails horizontaux, un en haut de la page et l'autre en bas
+avec les échelons verticaux dessinés séquentiellement de la gauche vers
+la droite.
+
+Un programme en logique Ladder, également appelé schéma Ladder, est
+ressemblant au schéma d'un ensemble de circuits électriques à relais.
+C'est l'intérêt majeur du schéma Ladder de permettre à une large
+variété de personnels techniques, ingénieurs, techniciens électriciens,
+etc de le comprendre et de l'utiliser sans formation complémentaire
+grâce à cette ressemblance.
+
+La logique Ladder est largement utilisée pour programmer les API, avec
+lesquels le contrôle séquentiel des processus de fabrication est
+requis. Le Ladder est utile pour les systèmes de contrôle simples mais
+critiques, ou pour reprendre d'anciens circuits à relais câblés. Comme
+les contrôleurs à logique programmable sont devenus plus sophistiqués,
+ils ont aussi été utilisés avec succès dans des systèmes
+d'automatisation très complexes.
+
+Le langage Ladder peut être considéré comme un langage basé sur les
+règles, plutôt que comme un langage procédural. Un "échelon" en Ladder
+représente une règle. Quand elles sont mises en application avec des
+éléments électromécaniques, les diverses règles "s'exécutent" toutes
+simultanément et immédiatement. Quand elle sont mises en application
+dans la logique d'un automate programmable, les règles sont exécutées
+séquentiellement par le logiciel, dans une boucle. En exécutant la
+boucle assez rapidement, typiquement plusieurs fois par seconde,
+l'effet d'une exécution simultanée et immédiate est obtenu.
+
+== Exemple
+
+Les composants les plus communs du Ladder sont les contacts (entrées),
+ceux-ci sont habituellement NC (normalement clos) ou NO (normalement
+ouvert) et les bobines (sorties).
+
+ - Le contact NO image:images/ladder_action_load.png[]
+ - Le contact NC image:images/ladder_action_loadbar.png[]
+ - La bobine (sortie) image:images/ladder_action_out.png[]
+
+Bien sûr, il y a beaucoup plus de composants dans le langage Ladder
+complet, mais la compréhension de ceux-ci aidera à appréhender le
+concept global du langage.
+
+L'échelle se compose d'un ou plusieurs échelons. Ces échelons sont
+tracés horizontalement, avec les composants placés sur eux (entrées,
+sorties et autres), les composants sont évalués de la gauche vers la
+droite.
+
+Cet exemple est un simple échelon:
+image:images/example_link_contact_coil.png[]
+
+L'entrée B0 sur la gauche et un contact normalement ouvert, il est
+connecté sur la sortie Q0 sur la droite. Imaginez maintenant qu'une
+tension soit appliquée à l'extrême gauche, dès que B0 devient vraie
+(par exemple: l'entrée est activée, ou l'utilisateur a pressé le
+contact NO), la tension atteint l'extrême droite en traversant la
+bobine Q0. Avec comme conséquence que la sortie Q0 passe de 0 à 1.
+

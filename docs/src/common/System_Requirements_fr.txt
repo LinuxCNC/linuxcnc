@@ -1,0 +1,48 @@
+= Quel ordinateur
+
+== Configuration minimale (((Configuration minimale)))
+
+La configuration minimale pour faire tourner EMC2 sous Ubuntu varie
+selon l'usage envisagé. Les moteurs pas à pas en général exigent, pour
+générer leurs trains d'impulsions de pas, des machines plus rapides que
+les systèmes à servomoteurs. Il est possible de tester le logiciel à
+partir du CD-Live avant de l'installer sur un ordinateur. Guarder à
+l'esprit que les valeurs retournées par le test de latence (Latency
+Test), sont plus importantes que la vitesse du µP pour la génération
+logicielle des pas. Plus d'informations à propos du test de latence
+dans la section ( <<sec:Test de latence>>).
+
+Autres informations additionnelles sur le Wiki d'EMC2:
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements]
+
+EMC2 et Ubuntu doivent fonctionner raisonnablement bien sur la
+configuration matérielle minimale suivante. Ces valeurs ne sont pas des
+valeurs minimales absolues mais donneront des performances acceptables
+de la plupart des systèmes à moteurs pas à pas.
+
+ - Microprocesseur x86 à 700 MHz (x86 à 1.2 GHz recommandé)
+ - 384 Mio de RAM (512 Mio ou plus de 1 Gio recommandé)
+ - 8 GB d'espace disque
+ - Carte graphique avec une résolution minimale de 1024x768
+ -  Une connection Internet ou réseau (optionnelle mais très pratique pour
+   les mises à jour)
+ - Carte son (optionnelle)
+
+== Problèmatique du matériel
+
+=== Les portables
+
+Les portables donnent généralement de piètres performances pour les
+tâches temps réel utilisées pour la génération logicielle de pas.
+Encore une fois, lancer un test de latence sur une grande période de
+temps vous permettra de déterminer si le portable envisagé est
+utilisable ou non.
+
+=== Les cartes graphiques
+
+Si votre installation se termine par un écran avec une résolution de
+800 x 600 il est alors probable que Ubuntu n'a pas reconnu votre carte
+graphique. Les cartes graphiques intégrées aux cartes mères donnent
+souvent de mauvaises performances temps réel.
+

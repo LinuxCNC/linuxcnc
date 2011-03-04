@@ -1,0 +1,19 @@
+%%
+%% Fixed EMC2 Documentation style
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{emc2doc}[2011/02/10 EMC2 Style]
+
+% The defined options
+\DeclareOption{hyperlink}{ \def\DBKhyperlink{yes} }
+\DeclareOption{nohyperlink}{ \def\DBKhyperlink{no} }
+
+% Default values
+\ExecuteOptions{nohyperlink}
+
+% If defined, process the options
+\ProcessOptions\relax
+
+\usepackage{docbook}
+\usepackage{grffile}
+\usepackage{alltt}

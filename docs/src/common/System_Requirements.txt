@@ -1,0 +1,44 @@
+= Computer
+
+== Minimum Requirements (((Minimum Requirements)))
+
+The minimum system to run EMC2 and Ubuntu may vary depending on the
+exact usage. Stepper systems in general require faster threads to
+generate step pulses than servo systems. Using the Live-CD you can test
+the software before committing a computer. Keep in mind that the
+Latency Test numbers are more important than the processor speed for
+software step generation. More information on the Latency Test is in
+Section ( <<sub:Latency-Test>>).
+
+Additional information is on the EMC Wiki site:
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements]
+
+EMC2 and Ubuntu should run reasonably well on a computer with the
+following minimum hardware specification. These numbers are not the
+absolute minimum but will give reasonable performance for most stepper
+systems.
+
+ - 700 MHz x86 processor (1.2 GHz x86 processor recommended)
+ - 384 MB of RAM (512 MB up to 1 GB recommended)
+ - 4 GB hard disk
+ -  Graphics card capable of at least 800x600 resolution, which is not
+   using the NVidia or ATI fglrx proprietary drivers, and which is not an
+   onboard video chipset that shares main memory with the CPU
+ -  A network or Internet connection (not strictly needed, but very useful
+   for updates and for communicating with the EMC community)
+
+== Problematic Hardware
+
+=== Laptops
+
+Laptops are not generally suited to real time software step
+generation. Again a Latency Test run for an extended time will give you
+the info you need to determine suitability.
+
+=== Video Cards
+
+If your installation pops up with 800 x 600 screen resolution then
+most likely Ubuntu does not recognize your video card or monitor.
+Onboard video many times causes bad real time performance.
+

@@ -1,0 +1,303 @@
+=  [[first-section]]Le concept d'EMC 
+
+== Introduction [[sec:Introduction]]
+
+Ce document est centré sur l'utilisation d'EMC2, il est plutôt destiné
+aux lecteurs l'ayant déjà installé et configuré. Quelques informations
+sur l'installation sont données dans les chapitres suivants. La
+documentation complète sur l'installation et la configuration se trouve
+dans le manuel de l'intégrateur.
+
+== Vue d'ensemble de la CNC [[sec:Vue-d-ensemble-de-la-CNC]]
+
+Le terme CNC a pris beaucoup de sens différents au cours des années.
+Dans les débuts, la CNC a consisté à remplacer les mains de l'opérateur
+par des moteurs, lesquels suivaient des commandes reproduisant au mieux
+les mouvements d'un opérateur tournant les manivelles. De ces premières
+machines, un langage de contrôle de l'outil est né, puis a grandi. Ce
+langage est appellé RS274 dont différentes variantes ont été proposées.
+Des ajouts lui ont été apportés par les fabricants de machines-outils
+et de contrôleurs pour répondre aux besoins spécifiques de leurs
+machines. Pour qu'une machine puisse changer d'outil pendant
+l'exécution d'un programme il est nécessaire de disposer de commandes
+de changement d'outil. Si un chargeur de pièces doit installer un
+nouveau brut, il est également nécessaire d'avoir les commandes
+permettant de gérer ce type de matériel. Comme tous les langages, RS274
+a évolué au fil du temps. Actuellement plusieurs dialectes existent. En
+général, chaque fabricant de machines-outils essaye de rester cohérent
+avec ses lignes de produits mais il arrive que des commandes produisent
+des effets complétement différents d'une machine à une autre.
+
+Très récemment le langage de CNC a été masqué derrière différents
+symboles de programmation se référant à un “Langage footnote:[Un
+fabricant de machines, Hurco, clame avoir seul les droits de
+l'usage de ces symboles en programmation ainsi que de l'usage du terme
+conversationnel utilisé dans ce contexte.
+ ] de programmation conversationnel.” Une caractéristique commune de
+ces types de programmation est la sélection d'une forme ou d'une
+géomètrie et l'ajout de valeurs pour les coins, les limites, ou les
+caractéristiques de cette géomètrie.
+
+L'usage du Dessin Assisté par Ordinateur a également eux un impact sur
+les langages de programmation CNC. Les dessins réalisés en DAO étant
+sauvegardés sous forme de listes de données avec les variables
+associées à chaque géomètrie, ces listes sont facilement interprétées
+dans le G-Code. Les interpréteurs qui réalisent ce travail sont appelés
+des programmes de CAM (Computer Aided Machining).
+
+Ce sont des convertisseurs de DAO, l'ensemble des logiciels de dessin,
+comme Corellatexmath:[™] et presque la totalité des programmes
+graphiques, fournissent des fichiers pouvant être convertis. Ces
+convertisseurs ont été écrits pour lire un fichier d'une image bitmap,
+en trames ou vectorielle et la transformer en un fichier G-Code pouvant
+être lancé sur une machine CNC.
+
+Vous vous demandez peut être, “Pourquoi ai-je besoin de savoir celà?”
+La réponse est que dans sa forme actuelle EMC2 ne peut pas utiliser
+directement, pour l'usinage, un fichier non converti issu d'une DAO, ni
+aucune image. EMC2 utilise une variante du premier langage CNC nommée
+RS274NGC. (pour Next Generation Controller). Toutes les commandes
+passées à EMC2 doivent l'être dans une forme reconnue par son
+interpréteur RS274NGC. Ce qui signifie que si vous voulez usiner une
+pièce déssinée dans un programme graphique ou de dessin, vous devez
+également utiliser un programme capable de convertir le format du
+fichier de sortie de ce programme en un autre fichier dans le format
+reconnu et accepté par l'interpréteur d'EMC2. Il existe plusieurs
+programmes commerciaux effectuant cette tâche. Au moins un
+convertisseur (Ace) a été mis sous un type de copyright le rendant
+disponible au public.
+
+Il y a eux de récentes discussions à propos de l'écriture d'une
+interface «conversationelle» ou géomètrique, permettant à l'opérateur
+d'entrer les programmes plus ou moins de la même façon que sur certains
+contrôleurs propriétaires modernes, mais c'est encore loin.
+
+== Système d'exploitation de l'ordinateur [[sec:Le-systeme-d-exploitation]]
+
+Le code d'EMC2 peut être compilé sur la plupart des distributions
+GNU-Linux (sous réserve que son noyau ait été patché avec une extension
+temps réel). En plus du code source, certaines distributions binaires
+sont disponibles. Le dernier paquet a été créé autour d'une
+distribution Ubuntu(((Ubuntu))) qui est une ditribution
+GNU-Linux(((GNU-Linux))). Ubuntu est la distribution la plus appréciée
+par les utilisateurs de Linux novices, elle est considérée comme étant
+trés facile à utiliser. En plus de celà, il existe pour elle un grand
+nombre de sites d'entraide dans le monde entier. Installer EMC2 sur
+cette distribution est extrêmement simple, voir la section  <<sec:Le
+live CD d-EMC2>>
+
+EMC2 ne fonctionne pas sur les systèmes d'exploitation Microsoft (TM).
+La raison en est qu'EMC2 requiert un environnement temps réel pour son
+planificateur de mouvements et ses générateurs de pas. Il bénéficie
+aussi de l'excellente stabilité et des performances nettement
+meilleures du système d'exploitation Linux.
+
+== Comment marche EMC2 [[sec:Comment-marche-EMC2]]
+
+EMC2 est un peu plus que juste un autre programme de fraiseuse
+CNC(((CNC))) . Il est capable de contrôler des machines-outils, des
+robots ou d'autres automatismes. Il est capable de contrôler des
+servomoteurs, des moteurs pas à pas, des relais ainsi que d'autres
+mécanismes relatifs aux machines-outils. Dans ce manuel nous nous
+concentrerons seulement sur de petites machines mais aux possibilités
+impressionnantes, les mini fraiseuses.
+
+.[[fig:Machine-typique]]Simple machine contrôlée par EMC2
+
+image::whatstep1.png[]
+
+La figure  <<fig:Machine-typique>> montre un simple diagramme bloc
+représentant une machine 3 axes typique comme EMC2 les aime. Cette
+figure montre un système basé sur des moteurs pas à pas. Le PC,
+tournant sous Linux(((Linux))) contrôle les interfaces de puissance des
+moteurs pas à pas en leur envoyant des signaux au travers du port
+parallèle. Ces signaux (impulsionnels) font que la puissance adéquate
+est fournie aux moteurs. EMC2 peut également contrôler des servomoteurs
+via une interface de puissance pour servomoteurs ou utiliser le port
+parallèle étendu connecté à une carte de contrôle externe. Quand nous
+examinerons chacun des composants qui forment un système EMC2, nous
+nous référerons à cette machine typique.
+
+Il y a quatre composants dans le logiciel EMC2: un controleur de
+mouvement (EMCMOT), un contrôleur d'entrées/sorties discrètes (EMCIO),
+un coordinateur d'exécution des tâches (EMCTASK) et une bibliothèque
+d'interfaces utilisateur, tant graphiques que textuelles. EMC2, pour
+prendre le contrôle complet d'une fraiseuse, il doit lancer chacun de
+ces quatre composants. Chaque composant sera brièvement décrit
+ci-dessous. En plus, il existe une couche appelée HAL(((HAL))) (la
+couche d'abstraction du matériel), qui permet la configuration simple
+d'EMC2 sans qu'il soit besoin de le recompiler.
+
+== Interfaces utilisateur graphiques [[sub:Interfaces-utilisateur-graphiques]]
+
+L'interface graphique est la partie d'EMC2 qui interragit avec
+l'opérateur de la machine-outil. EMC2 est fourni avec plusieurs
+interfaces utilisateurs graphiques:
+
+ -  Un écran graphique de type caractères nommé keystick(((keystick))) 
+   <<fig:L-interface Keystick>>
+ - Un programme X Windows nommé xemc(((xemc))) 
+ -  Deux GUI basées sur Tcl/Tk nommées tkemc(((tkemc)))  <<fig:L-interface
+   graphique TkEmc>> et mini(((mini)))  <<fig:L-interface graphique
+   Mini>>. 
+ -  Une GUI basée sur OpenGL, avec prévisualisation du G-Code, appelée
+   AXIS(((AXIS)))  <<fig:L-interface graphique d-AXIS>>
+
+image::images/axis_2.3_fr.png[]
+
+.[[fig:L-interface graphique d-AXIS]]L'interface graphique AXIS
+
+
+image::keystick.png[]
+
+.[[fig:L-interface Keystick]]L'interface graphique Keystick
+
+
+image::mini_fr.jpg[]
+
+.[[fig:L-interface graphique Mini]]L'interface graphique Mini
+
+
+image::tkemc_fr.png[]
+
+.[[fig:L-interface graphique TkEmc]]L'interface graphique TkEmc
+
+Tkemc et Mini peuvent tourner sous Linux, Mac et Microsoft Windows si
+le langage de programmation Tcl/Tk a été préalablement installé. Les
+versions Mac et Microsoft Windows peuvent être connectées à EMC2
+tournant sur une machine Linux temps réel via une connection réseau,
+permettant de visualiser la machine depuis un emplacement distant. Les
+instructions pour installer et configurer une telle connection entre un
+MAC ou une machine Micosoft et un PC sur lequel tourne EMC2 se trouvent
+dans le manuel de l'intégrateur.
+
+== Penser comme un opérateur sur CNC [[sec:Penser-operateur]]
+
+Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une
+fraiseuse. Devenir un opérateur expérimenté prends beaucoup de temps et
+demande beaucoup de travail. Un auteur a dit une fois, «Nous apprenons
+de l'expérience, si on la possède toute». Les outils cassés, les étaux
+attaqués et les cicatrices sont les preuves des leçons apprises. Une
+belle finition, des tolérances serrées et la prudence pendant le
+travail sont les preuves des leçons retenues. Aucune machine, aucun
+programme ne peut remplacer l'expérience humaine.
+
+Maintenant que vous commencez à  travailler avec le programme EMC2,
+vous devez vous placer dans la peau d'un opérateur. Vous devez être 
+dans le rôle de quelqu'un qui a la charge d'une machine. C'est une
+machine qui attendra vos commandes puis qui exécutera les ordres que
+vous lui donnerez. Dans ces pages nous donnerons les explications qui
+vous aideront à devenir un bon opérateur de fraiseuse avec EMC2.
+
+== Modes opératoires [[sub:Modes-operatoires]]
+
+Quand EMC2 fonctionne, il existe trois différents modes majeurs pour
+entrer des commandes. Les modes Manuel(((Manuel))), Auto(((Auto))) et
+MDI(((MDI))). Passer d'un mode à un autre marque une grande différence
+dans le comportement d'EMC2. Des choses spécifiques à un mode ne
+peuvent pas être faites dans un autre. L'opérateur peut faire une prise
+d'origine sur un axe en mode manuel mais pas en mode auto ou MDI.
+L'opérateur peut lancer l'exécution complète d'un programme de G-codes
+en mode auto mais pas en mode manuel ni en MDI.
+
+En mode manuel, chaque commande est entrée séparément. En termes
+humains une commande manuelle pourrait être «active l'arrosage» ou «jog
+l'axe X à 250 millimètres par minute.» C'est en gros équivalent à
+basculer un interrupteur ou à tourner la manivelle d'un axe. Ces
+commandes sont normalement contrôlées en pressant un bouton de
+l'interface graphique avec la souris ou en maintenant appuyée une
+touche du clavier. En mode auto, un bouton similaire ou l'appui d'une
+touche peuvent être utilisés pour charger ou lancer l'exécution
+complète d'un programme de G-codes stocké dans un fichier. En mode
+d'entrée de données manuelles (MDI) l'opérateur peut saisir un bloc de
+codes est dire à la machine de l'exécuter en pressant la touche
+<Return> ou <Entrée> du clavier.
+
+Certaines commandes de mouvement sont disponibles et produisent les
+mêmes effets dans tous les modes. Il s'agit des commandes
+abort(((ABORT))), estop(((ESTOP))) et feed rate override(((feed
+override))). Ces commandes se dispensent d'explications.
+
+L'interface utilisateur graphique AXIS supprime certaines distinctions
+entre Auto et les autres modes en rendant automatique la disponibilité
+des commandes, la plupart du temps. Il rend également floue la
+distinction entre Manuel et MDI parce que certaines commandes manuelles
+comme Toucher, sont également implémentées en envoyant une commande
+MDI.
+
+== Informations affichées  [[sub:Informations-affichees]]
+
+Quand EMC2 fonctionne, chacun de ses modules maintient la conversation
+avec les autres et avec l'interface graphique. C'est à la charge de
+l'affichage de sélectionner quel flux d'information l'opérateur doit
+voir et de l'arranger sur son écran pour lui rendre facile à
+comprendre. Le point le plus important de l'affichage est peut être la
+possibilité de voir le fonctionnement interne d'EMC2. Vous devrez
+garder un oeil sur le mode d'affichage.
+
+L'affichage du mode actif permet de savoir si il y a cohérence entre
+l'affichage et la position de chaque axe. La plupart des interfaces
+permettent à l'opérateur de lire la position actuelle ou commandée
+ainsi que la position machine ou relative.
+
+Machine::
+     (((Position: Machine))) C'est la position d'un axe par rapport à
+    l'origine machine, après que la POM a été faite. 
+
+Relative::
+     (((Position: Relative))) C'est la position relative d'un axe après
+    qu'un ou plusieurs décalages aient été appliqués (pièce, outil, etc). 
+
+Actuelle::
+     (((Position: Actuelle))) C'est la position réelle d'un axe en
+    coordonnées machine ou relatives. 
+
+Commandée::
+     (((Position: Commandee))) C'est la position commandée sur laquelle
+    l'axe doit aller.
+
+Elles sont toutes exactement les mêmes si aucun décalage n'a été
+appliqué et qu'aucune bande morte n'a été paramètrée dans le fichier
+INI. La bande morte (Deadband) est une toute petite distance, supposée
+très proche -- peut être une impulsion de pas ou un point de codeur.
+
+Il est également important de voir tous les messages ou les codes
+d'erreur envoyés par EMC2. Ceux-ci sont utilisés pour demander que
+l'opérateur change l'outil, pour décrire les problèmes dans les
+programmes G-code ou indiquer pourquoi la machine s'est arrêtée.
+
+Vous modifierez votre façon de travailler avec ces petits textes, vous
+apprendrez, petit à petit, comment ajuster et faire fonctionner votre
+machine avec le logiciel EMC2. Pendant que vous apprendrez à affiner
+les réglages, que vous travaillerez avec votre mini fraiseuse, vous
+penserez à d'autres applications et à d'autres possibilités. Ce seront
+les sujets d'autres manuels de linuxcnc.org.
+
+== Unités (((unites)))[[sub:Unites]]
+
+Les unités peuvent prêter à confusion. Vous pouvez vous demander,
+“Vaut-il mieux travailler en pouces, en pieds, en centimètres,
+millimètres ou autre?” Plusieurs réponses sont possibles à cette
+question mais la meilleure est que ça marchera mieux dans l'unité avec
+laquelle vous avez choisi de configuré la machine.
+
+Au niveau de la machine, chacun des axes est réglé avec une unité
+fixée dans une variable du fichier INI. Cette variable ressemble à
+ceci:
+
+    UNITS = inch
+
+ou
+
+    UNITS = mm
+
+Après avoir décidé de l'unité utilisée sur les axes, il faut indiquer
+à EMC2 combien d'impulsions moteur, ou de codeur, il doit envoyer ou
+lire pour produire un déplacement pour chaque unité de distance. Après
+celà, EMC2 sait compter les unités de distance. Cependant il est très
+important de comprendre que ce calcul de distance pour les axes est
+différent de la distance commandée dans le programme. Vous pouvez
+commander une distance en millimètres ou en pouces sans même penser aux
+unités car il existe des G-code permettant de basculer d'une unité
+métrique à une unité impériale.
+

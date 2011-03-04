@@ -1,0 +1,77 @@
+= Point n Click Configurator
+
+The Point n Click Configurator covers Mesa cards and parallel port
+stepper configurations. If you have a simple parallel port stepper
+machine the StepConf Wizard might be a better choice. The Point n Click
+Configurator can generate some advanced configurations without knowing
+anything about HAL.
+
+Start the PnCConf program from the CNC menu or from a terminal window
+with `pncconf`. For more information on the terminal window see the
+Linux FAQ section.
+
+.PnCConf Splash
+
+image::images/pncconf-splash.png[]
+
+== Basic Machine Information
+
+Machine Name:::
+    What you want to call your machine and must not have any spaces.
+
+.PnCConf Basic
+
+image::images/pncconf-basic.png[]
+
+== GUI Configuration
+
+Here you can select from different GUI's and options for each one.
+
+.GUI Configuration
+
+image::images/pncconf-gui.png[]
+
+== Mesa Configuration
+
+.Mesa Configuration
+
+image::images/pncconf-mesa-config.png[]
+
+== Mesa I/O Setup
+
+.Mesa I/O C2
+
+image::images/pncconf-mesa-io2.png[]
+
+.Mesa I/O C3
+
+image::images/pncconf-mesa-io3.png[]
+
+.Mesa I/O C4
+
+image::images/pncconf-mesa-io4.png[]
+
+== Axis Configuration
+
+.Axis Drive Configuration
+
+image::images/pncconf-axis-drive.png[]
+
+.Axis Configuration
+
+image::images/pncconf-axis-config.png[]
+
+== Advanced Options
+
+.Advanced Options
+
+image::images/pncconf-advanced.png[]
+
+== HAL Components
+
+On this page you can add additional HAL components you might need.
+
+.HAL Components
+
+image::images/pncconf-hal.png[]
+

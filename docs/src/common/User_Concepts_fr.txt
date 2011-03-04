@@ -1,0 +1,180 @@
+= Concepts importants
+
+Ce chapitre couvre les concepts importants qui doivent être assimilés
+avant d'essayer de démarrer un fichier de G-code.
+
+== Contrôle de trajectoire
+
+=== La planification de trajectoire
+
+La planification de trajectoire est en général, le moyen qui permet à
+EMC2 de suivre le chemin spécifié par le programme G-code, tout en
+restant dans les limites permises par la machine.
+
+Un programme en G-code ne peut jamais être totalement suivi. Par
+exemple imaginez que vous spécifiez dans une ligne du programme les
+mouvements suivants:
+
+    G1 X10 F100 (G1 un mouvement linéaire, X10 la destination, F100 la vitesse)
+
+En réalité, la totalité du mouvement ne peut pas être effectuée à
+F100, puisque la machine commence le mouvement à une vitesse nulle,
+elle doit accélérer pour se déplacer vers X=10, puis décélérer pour
+revenir à une vitesse nulle en fin de mouvement. Parfois une portion du
+mouvement se fera bien à F100, mais pour beaucoup de mouvements,
+spécialement les petits mouvements, la vitesse spécifiée ne sera jamais
+atteinte.
+
+Les accélérations et décélérations de base décrite ici ne sont pas
+complexes et ne nécessite pas de compromis. Les contraintes des axes de
+la machine sont placés dans le fichier INI, comme la vitesse maximum de
+l'axe et l'accélération ne devant pas être dépassées par le
+planificateur de trajectoire.
+
+=== Le suivi du parcours
+
+Un problème plus compliqué est posé par le suivi du parcours. Quand
+vous programmez un angle droit en G-code, le planificateur de
+trajectoire peut suivre différents parcours, tous sont bons dans
+certains cas; il peut décélérer et s'arrêter exactement sur les
+coordonnées du sommet de l'angle, puis accélérer dans la direction
+perpendiculaire. Il peut également faire ce qui est appelé le mode
+«trajectoire continue», qui consiste à maintenir la vitesse d'avance en
+passant vers le sommet de l'angle, ce qui nécessite d'arrondir l'angle
+de façon à respecter les contraintes machine. Vous pouvez remarquer
+qu'il y a dans ce cas un compromis: vous pouvez ralentir pour avoir un
+meilleur suivi du parcours, ou conserver une vitesse d'avance élevée au
+détriment de la finesse des angles, du fait d'un moins bon suivi du
+parcours. Selon les particularités de l'usinage, du matériau, de
+l'outillage, etc., le programmeur devra décider du bon compromis.
+
+=== La programmation du planificateur
+
+Les commandes de contrôle de trajectoire sont les suivantes:
+
+G61::
+     (mode arrêt exact) G61 indique au planificateur de s'arrêter
+    exactement à la fin de chaque segment. Le parcours sera suivi avec
+    exactitude mais les arrêts complets de l'avance peuvent se révéler
+    destructeurs pour la pièce ou l'outillage, selon les particularités de
+    l'usinage. 
+
+G64::
+     (mode trajectoire continue sans tolérance) G64 est juste une
+    trajectoire continue, le «naive cam detector» n'est pas activé. G64 et
+    G64 P0 indiquent au planificateur de sacrifier la précision de suivi du
+    parcours pour conserver une vitesse d'avance élevée. Ce mode est
+    nécessaire pour certains types de matériaux ou d'outillages pour
+    lesquels l'arrêt exact est dangereux. Il peut très bien fonctionner
+    tant que le programmeur garde à l'esprit que le parcours d'outil pourra
+    être plus arrondi que celui indiqué par le programme. 
+
+G64 Px.xxx::
+     (mode trajectoire continue avec tolérance) Ce mode active le «naive
+    cam detector» et active le mode trajectoire continue avec tolérance. Si
+    vous utilisez le millimètre comme unité et programmez G64 P1.27, vous
+    dites au planificateur que vous souhaitez une vitesse d'avance
+    continue, mais qu'aux coins programmés vous voulez un ralentissement
+    suffisant pour que le parcours de l'outil puisse rester à moins de
+    1.27mm du parcours programmé. L'amplitude exacte du ralentissement
+    dépend de la géométrie de l'angle programmé et des contraintes machine,
+    mais la seule chose dont le programmeur ait à se soucier est la
+    tolérance, ce qui lui donne le contrôle complet des compromis du suivi
+    de parcours. La tolérance de ce mode peut être modifiée tout au long du
+    programme si nécessaire. Attention: spécifier un G64 P0 aura le même
+    effet qu'un G64 seul (voir ci-dessus), c'est rendu nécessaire pour
+    conserver la compatibilité ascendante avec les anciens programmes
+    G-code. 
+
+Trajectoire continue sans tolérance::
+     Le point contrôlé touchera chaque mouvement spécifié à au moins un
+    point. La machine ne pourra jamais se déplacer à une vitesse d'avance
+    telle qu'elle ne puisse pas s'arrêter avec précision à la fin du
+    mouvement en cours (ou du prochain mouvement, si vous mettez en pause
+    lorsque la trajectoire est déjà commencée). La distance avec le point
+    final du mouvement est aussi grande que nécessaire pour maintenir la
+    meilleure vitesse d'avance possible pendant le parcours.
+
+Naive Cam Detector::
+     «» Les mouvements successifs en G1, concernant uniquement les axes
+    XYZ, dont la déviation par rapport à une ligne droite est inférieur à
+    P, sont fusionnés en une seule ligne droite. Ce mouvement fusionné
+    remplace les mouvements individuels en G1 pour obtenir une nouvelle
+    trajectoire avec tolérance. Entre les mouvements successifs, le point
+    contrôlé ne passera jamais à plus de P- du point final du mouvement en
+    cours. Le point contrôlé touchera au moins un point de chacun des
+    mouvements. La machine ne pourra jamais se déplacer à une vitesse ne
+    lui permettant pas de venir s'arrêter exactement à la fin du mouvement
+    actuel (ou du prochain mouvement, si vous mettez en pause lorsque la
+    trajectoire est déjà commencée). 
+
+=== Planification des mouvements
+
+Assurez-vous que les mouvements soient «assez longs» pour convenir à
+votre machine/matériel. Principalement en raison de la règle selon
+laquelle «la machine ne pourra jamais se déplacer à une vitesse ne lui
+permettant pas de venir s'arrêter complètement à la fin du mouvement
+actuel», il y a une longueur minimale de déplacement permettant à la
+machine d'atteindre la vitesse demandée avec un réglage d'accélération
+donné.
+
+Les phases d'accélération et de décélération utilisent chacune la
+moitié de la variable MAX_ACCELERATION du fichier .ini. Avec une
+trajectoire continue c'est exactement inversé, ce qui fait que
+l'accélération totale de l'axe est égal à la variablee
+MAX_ACCELERATION. Dans d'autres cas, l'accélération actuelle de la
+machine est un peu inférieure à celle du fichier ini.
+
+Pour maintenir la vitesse d'avance, le mouvement doit être plus long
+que la distance qui lui est nécessaire pour accélérer de zéro à la
+vitesse souhaitée, puis de décélérer pour s'arrêter. En utilisant A
+comme étant 1/2 de la variable MAX_ACCELERATION et F comme étant la
+vitesse d'avance *en unités par seconde*, le temps d'accélération sera
+ta=F/A et la distance d'accélération sera da=(1/2)*F*ta. Les temps et
+distance de décélération sont les mêmes, ce qui fait que la distance
+critique dc=da+dd=2*da=Flatexmath:[$^{\textrm{2}}$]/A.
+
+Par exemple, pour une vitesse d'avance de 25mm par seconde et une
+accélération de 250mm/seclatexmath:[$^{\textrm{2}}$], la distance
+critique sera de 10latexmath:[$^{\textrm{2}}$]/100=1mm. Pour une
+vitesse d'avance de 5mm par seconde, la distance critique ne serait que
+de 5latexmath:[$^{\textrm{2}}$]/100 = .25mm.
+
+== G-code
+
+=== Vitesse d'avance
+
+Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
+d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
+comprendre la section «vitesse d'avance»( <<sub:-Vitesse-d-avance>>) du
+manuel de l'utilisateur.
+
+=== Compensation de rayon d'outil
+
+La compensation de rayon d'outil (G41/42) nécessite que l'outil puisse
+toucher tout au long de la trajectoire programmée sans interférer avec
+les mouvements d'entrée ou de sortie. Si c'est impossible avec le
+diamètre de l'outil courant, une erreur est signalée. Un diamètre
+d'outil inférieur est peut être utilisable sans erreur pour le même
+parcours. Ce qui signifie que quand ce type de problème se présente, il
+est possible de programmer un outil plus petit pour usiner le même
+parcours sans erreur. Voir la section compensation de rayon d'outil (
+<<sec:Compensation-rayon-d-outil>>) pour plus d'informations.
+
+== Prise d'origine machine
+
+Après le démarrage d'EMC2 chaque axe doit être référencé sur sont
+point d'origine machine avant tout mouvement ou commande MDI.
+
+Pour déroger à ce comportement par défaut, ou pour utiliser
+l'interface Mini, il est possible d'ajuster l'option NO_FORCE_HOMING =
+1 dans la section [TRAJ] du fichier ini.
+
+== Changement d'outil
+
+Il existe plusieurs options pour effectuer un changement d'outil. Voir
+la section [EMCIO] dans le manuel de l'intégrateur pour les
+informations sur la configuration de ces options. Voir également les
+sections G28 <<"sub:G28,-G28.1:-Aller">> et G30
+<<"sub:G30,-G30.1:-Aller">> du manuel de l'utilisateur.
+

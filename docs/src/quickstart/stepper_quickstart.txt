@@ -1,0 +1,112 @@
+= Stepper Configurations
+
+This section assumes you have done a standard install from the Live
+CD. After installation it is recommended that you connect the computer
+to the Internet and wait for the update manager to pop up and get the
+latest updates for EMC and Ubuntu before continuing. For more complex
+installations see the Integrators Manual.
+
+== Latency Test
+
+The Latency Test determines how late your computer processor is in
+responding to a request. Some hardware can interrupt the processing
+which could cause missed steps when running a CNC machine. This is the
+first thing you need to do. Follow the instructions in section (
+<<sub:Latency-Test>>) to run the latency test.
+
+== Sherline
+
+If you have a Sherline several predefined configurations are provided.
+This is on the main menu CNC/EMC then pick the Sherline configuration
+that matches yours and save a copy.
+
+== Xylotex [[sec:Sherline-and-Xylotex]]
+
+If you have a Xylotex you can skip the following sections and go
+straight to the Stepper Config Wizard in Section (
+<<cha:Stepconf-Wizard>>). EMC has provided quick setup for the Xylotex
+machines.
+
+== Machine Information
+
+Gather the information about each axis of your machine.
+
+Drive timing is in nano seconds. If you're unsure about the timing
+many popular drives are included in the stepper configuration wizard.
+Note some newer Gecko drives have different timing than the original
+one. A list is also on the user maintained EMC wiki site of more drives
+at http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
+
+[width="90%", options="header"]
+|========================================
+|Axis | Drive Type | Step Time ns | Step Space ns | Direction Hold ns | Direction Setup ns
+|X |  |  |  |  | 
+|Y |  |  |  |  | 
+|Z |  |  |  |  | 
+|========================================
+
+== Pinout Information
+
+Gather the information about the connections from your machine to the
+PC parallel port.
+
+[width="90%", options="header"]
+|========================================
+|Output Pin | Typical Function | If Different | Input Pin | Typical Function | If Different
+|1 | E-Stop Out |  | 10 | Both Limit & Home X | 
+|2 | X Step |  | 11 | Both Limit & Home Y | 
+|3 | X Direction |  | 12 | Both Limit & Home Z | 
+|4 | Y Step |  | 13 | Both Limit & Home A | 
+|5 | Y Direction |  | 15 | Probe In | 
+|6 | Z Step |  |  |  | 
+|7 | Z Direction |  |  |  | 
+|8 | A Step |  |  |  | 
+|9 | A Direction |  |  |  | 
+|14 | Spindle CW |  |  |  | 
+|16 | Spindle PWM |  |  |  | 
+|17 | Amplifier Enable |  |  |  | 
+|========================================
+
+Note any pins not used should be set to Unused in the drop down box.
+These can always be changed later by running Stepconf again.
+
+== Mechanical Information
+
+Gather information on steps and gearing. The result of this is steps
+per user unit which is used for SCALE in the .ini file.
+
+[width="90%", options="header"]
+|========================================
+ |Axis | Steps/Revolution | Micro steps | Motor Teeth | Leadscrew Teeth
+| Leadscrew Pitch
+| |  |  |  |  | 
+| |  |  |  |  | 
+| |  |  |  |  | 
+| |  |  |  |  | 
+|========================================
+
+Steps per revolution is how many steps it takes to turn the stepper
+one revolution.
+
+Micro steps is how many steps the drive needs to move the stepper one
+step.
+
+Motor & Leadscrew Teeth is if you have some reduction between the
+motor and the leadscrew. If not set these to 1.
+
+Leadscrew pitch is how many turns it takes to move your table one user
+unit. If you're setting up in inches then it is turns per inch. If
+you're setting up in millimeters then how many millimeters per turn.
+
+== Configuration Wizard
+
+Run the Stepconf Wizard in chapter ( <<cha:Stepconf-Wizard>>)
+
+== Modifying
+
+To change something in the basic configuration created by Stepconf
+Wizard run the wizard again. Select Modify a configuration... Then pick
+the configuration file .stepconf you wish to modify in the emc2/configs
+folder. The file headers tell you if the file can be manually edited or
+not.
+

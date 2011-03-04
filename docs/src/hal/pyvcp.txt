@@ -1,0 +1,622 @@
+= Virtual Control Panel (((Virtual Control Panel)))[[cha:Virtual-Control-Panel]]
+
+Python Virtual Control Panel
+
+== Introduction
+
+The pyVCP (python Virtual Control Panel) is designed to give the
+integrator the ability to customize the AXIS interface with buttons and
+indicators to do special tasks.
+
+Hardware machine control panels can use up a lot of I/O pins and can
+be expensive. That is where Virtual Control Panels have the advantage
+as well as it cost nothing to build a pyVCP.
+
+Virtual control panels can be used for testing or monitoring things to
+temporarily replace real I/O devices while debugging ladder logic, or
+to simulate a physical panel before you build it and wire it to an I/O
+board.
+
+The following graphic displays many of the pyVCP widgets.
+
+image:images/pyvcp_group.png[]
+
+== Panel Construction
+
+The layout of a pyVCP panel is specified with an XML file that
+contains widget tags between <pyvcp> and </pyvcp>. For example:
+
+    <pyvcp>
+
+image:images/pyvcp_mypanel.png[]
+
+If you place this text in a file called tiny.xml, and run
+
+    halrun -I loadusr pyvcp -c mypanel tiny.xml
+
+pyVCP will create the panel for you, which includes two widgets, a
+Label with the text "This is a LED indicator", and a LED, used for
+displaying the state of a HAL BIT signal. It will also create a HAL
+component named "mypanel" (all widgets in this panel are connected to
+pins that start with "mypanel."). Since no <halpin> tag was present
+inside the <led> tag, pyVCP will automatically name the HAL pin for the
+LED widget mypanel.led.0
+
+For a list of widgets and their tags and options, see the widget
+reference below.
+
+Once you have created your panel, connecting HAL signals to and from
+the pyVCP pins is done with the halcmd:
+
+    net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name  
+
+If you are new to HAL, the HAL basics chapter in the Integrators
+Manual is a good place to start.
+
+== Security
+
+Parts of pyVCP files are evaluated as Python code, and can take any
+action available to Python programs. Only use pyVCP .xml files from a
+source that you trust.
+
+== AXIS [[sec:pyvcp-with-axis]]
+
+Since AXIS uses the same GUI toolkit (Tkinter) as pyVCP, it is
+possible to include a pyVCP panel on the right side of the normal AXIS
+user interface. A typical example is explained below.
+
+Place your pyVCP XML file describing the panel in the same directory
+where your .ini file is. Say we we want to display the current spindle
+speed using a Bar widget. Place the following in a file called
+spindle.xml:
+
+    <pyvcp>
+
+Here we've made a panel with a Label and a Bar widget, specified that
+the HAL pin connected to the Bar should be named "spindle-speed", and
+set the maximum value of the bar to 5000 (see widget reference below
+for all options). To make AXIS aware of this file, and call it at start
+up, we need to specify the following in the [DISPLAY] section of the
+.ini file:
+
+    PYVCP = spindle.xml
+
+To make our widget actually display the spindle-speed it needs to be
+hooked up to the appropriate HAL signal. A .hal file that will be run
+once AXIS and pyVCP have started can be specified in the [HAL] section
+of the .ini file:
+
+    POSTGUI_HALFILE = spindle_to_pyvcp.hal
+
+This change will run the HAL commands specified in
+"spindle_to_pyvcp.hal". In our example the contents could look like
+this:
+
+    net spindle-rpm-filtered  => pyvcp.spindle-speed
+
+assuming that a signal called "spindle-rpm-filtered" already exists.
+Note that when running together with AXIS, all pyVCP widget HAL pins
+have names that start with "pyvcp.".
+
+image:images/pyvcp_axis_lathe.png[]
+
+This is what the newly created pyVCP panel should look like in AXIS.
+The `sim/lathe` configuration is already configured this way.
+
+== Stand Alone
+
+This section describes how pyVCP panels can be displayed on their own
+with or without EMC's machine controller.
+
+To load a stand alone pyVCP panel with EMC use these commands:
+
+    loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml 
+
+You would use this if you wanted a floating panel or a panel with a
+GUI other than AXIS.
+
+-Wn panelname::
+     makes HAL wait for the component "panelname" to finish loading
+    ("become ready" in HAL speak) before processing more HAL commands. This
+    is important because pyVCP panels export HAL pins and other HAL
+    components will need them present to connect to them. Note the capital
+    W and lowercase n. If you use the -Wn option you must use the -c option
+    to name the panel.
+
+pyvcp <-g> <-c> panel.xml::
+     builds the panel with the optional geometry and/or panelname from the
+    xml panel file. The panel.xml can be any name that ends in .xml. The
+    .xml file is the file that describes how to build the panel. You must
+    add the path name if the panel is not in the directory that the HAL
+    script is in. 
+
+-g <WxH><+X+Y>::
+     specifies the geometry to be used when constructing the panel. The
+    syntax is "Width"x"Height"+"X Anchor"+"Y Anchor". You can set the size
+    or position or both. The anchor point is the upper left corner of the
+    panel. An example is -g 250x500+800+0 This sets the panel at 250 pixels
+    wide, 500 pixels tall, and anchors it at X800 Y0.
+
+-c panelname::
+     tells pyVCP what to call the component and also the title of the
+    window. The panelname can be any name without spaces. 
+
+To load a "stand alone" pyVCP panel without EMC use this command:
+
+    loadusr -Wn mypanel pyvcp -g 250x500+800+0 -c mypanel mypanel.xml 
+
+The minimum command to load a pyvcp panel is:
+
+    loadusr pyvcp mypanel.xml
+
+You would use this if you want a panel without EMC's machine
+controller such as for testing or a standalone DRO.
+
+The loadusr command is used when you also load a component that will
+stop HAL from closing until it's done. If you loaded a panel and then
+loaded ClassicLadder using -w ClassicLadder CL would hold HAL open (and
+the panel)  until you closed CL -Wn means wait for the component
+"panelname" to become ready. "panelname" can be any name. note the
+capital W and lowercase n. The -c tells pyVCP to build a panel with the
+name "panelname" using the info in "panel_file_name.xml"
+"panel_file_name.xml" can be any name but must end in .xml - it is the
+file that describes how to build the panel. You must add the path name
+if the panel is not in the directory that the HAL script is in.
+
+An optional command to use if you want the panel to stop HAL from
+continuing commands / shutting down. After loading any other components
+you want the last HAL command to be:
+
+      waituser panelname
+
+This tells HAL to wait for component "panelname" to close before
+continuing HAL commands This is usually set as the last command so that
+HAL shuts down when the panel is closed.
+
+== Widgets
+
+HAL signals come in two variants, bits and numbers. Bits are off/on
+signals. Numbers can be "float", "s32" or "u32". For more information
+on HAL data types see the  <<sec:Hal-Data>> section. The pyVCP widget
+can either display the value of the signal with an indicator widget, or
+modify the signal value with a control widget. Thus there are four
+classes of pyVCP widgets that you can connect to a HAL signal. A fifth
+class of helper widgets allow you to organize and label your panel.
+
+ . Widgets for indicating "bit" signals: led, rectled
+ . Widgets for controlling "bit" signals: button, checkbutton, radiobutton
+ . Widgets for indicating "number" signals: number, s32, u32, bar, meter
+ . Widgets for controlling "number" signals: spinbox, scale, jogwheel
+ . Helper widgets: hbox, vbox, table, label, labelframe
+
+==== Syntax
+
+Each widget is described briefly, followed by the markup used, and a
+screen shot. All tags inside the main widget tag are optional.
+
+==== General Notes
+
+At the present time, both a tag-based and an attribute-based syntax
+are supported. For instance, the following XML fragments are treated
+identically:
+
+    <led halpin="my-led"/>
+
+and
+
+    <led><halpin>"my-led"</halpin></led>
+
+When the attribute-based syntax is used, the following rules are used
+to turn the attributes value into a Python value:
+
+ .  If the first character of the attribute is one of the following, it is
+   evaluated as a Python expression: `{(["'`
+ . If the string is accepted by int(), the value is treated as an integer
+ .  If the string is accepted by float(), the value is treated as
+   floating-point
+ . Otherwise, the string is accepted as a string.
+
+When the tag-based syntax is used, the text within the tag is always
+evaluated as a Python expression.
+
+The examples below show a mix of formats.
+
+==== Comments
+
+To add a comment use the xml syntax for a comment.
+
+    <!-- My Comment -->
+
+==== Editing the XML file
+
+Edit the XML file with a text editor. In most cases you can right
+click on the file and select "open with text editor" or similar.
+
+==== Colors
+
+Colors can be specified using the X11 rgb colors by name "gray75" or
+hex "#0000ff”. A complete list is located here
+http://sedition.com/perl/rgb.html[http://sedition.com/perl/rgb.html].
+
+Common Colors (colors with numbers indicate shades of that color)
+
+ - white
+ - black
+ - blue and blue1 - 4
+ - cyan and cyan1 - 4
+ - green and green1 - 4
+ - yellow and yellow1 - 4
+ - red and red1 - 4
+ - purple and purple1 - 4
+ - gray and gray0 - 100
+
+==== HAL Pins
+
+HAL pins provide a means to "connect" the widget to something. Once
+you create a HAL pin for your widget you can "connect" it to another
+HAL pin with a "net" command in a .hal file. For more information on
+the "net" command see the HAL Commands section ( <<sec:Hal-Commands>>).
+
+=== Label
+
+A label is a piece of text on your panel.
+
+The label has an optional disable pin that is created when you add
+<disable_pin>True</disable_pin>.
+
+    <label>
+
+The above code produced this example. +
+image:images/pyvcp_label.png[]
+
+=== LEDs
+
+A LED is used to indicate the status of a "bit" halpin. The LED color
+will be on_color when the halpin is true, and off_color otherwise.
+
+<halpin>::
+    sets the name of the pin, default is "led.n", where n is an integer
+
+<size>::
+    sets the size of the led, default is 20
+
+<on_color>::
+    sets the color of the LED when the pin is true. default is "green"
+
+<off_color>::
+    sets the color of the LED when the pin is false. default is "red"
+
+<disable_pin>::
+    when true adds a disable pin to the led.
+
+<disabled_color>::
+    sets the color of the LED when the pin is disabled.
+
+==== Round LED
+
+    <led>
+
+The above code produced this example. +
+image:images/pyvcp_led.png[]
+
+==== Rectangle LED
+
+This is a variant of the "led" widget.
+
+    <vbox>
+
+The above code produced this example. +
+Also showing a vertical box with relief. +
+image:images/pyvcp_rectled.png[]
+
+=== Buttons
+
+A button is used to control a BIT pin. The pin will be set True when
+the button is pressed and held down, and will be set False when the
+button is released. Buttons can use the following formatting options
+
+<padx>n</padx>::
+    where "n" is the amount of extra horizontal extra space
+
+<pady>n</pady>::
+    where "n" is the amount of extra vertical extra space
+
+<activebackground>"color"</activebackground>::
+    the cursor over color
+
+<bg>"color"</bg>::
+    the color of the button
+
+==== Text Button
+
+A text button controls a "bit" halpin. The halpin is false until the
+button is pressed then it is true. The button is a momentary button.
+
+The text button has an optional disable pin that is created when you
+add <disable_pin>True</disable_pin>.
+
+    <button>
+
+The above code produced this example. +
+image:images/pyvcp_button.png[]
+
+==== Checkbutton
+
+A checkbutton controls a "bit" halpin. The halpin will be set True
+when the button is checked, and false when the button is unchecked. The
+checkbutton is a toggle type button.
+
+    <checkbutton>
+
+The above code produced this example. +
+The coolant checkbutton is checked. +
+Notice the extra spaces in the Chips text +
+to keep the checkbuttons aligned. +
+image:images/pyvcp_checkbutton.png[]
+
+==== Radiobutton
+
+A radiobutton will set one of the halpins true. The other pins are set
+false.
+
+    <radiobutton>
+
+The above code produced this example. +
+image:images/pyvcp_radiobutton.png[]
+
+Note that the HAL pins in the example above will me named
+my-radio.one, my-radio.two, and my-radio.three. In the image above,
+"one" is the selected value.
+
+=== Number Displays
+
+Number displays can use the following formatting options
+
+ - <font>("Font Name",n)</font> where "n" is the font size
+ - <width>n</width> where "n" is the overall width of the space used
+ -  <justify>pos</justify> where "pos" is LEFT, CENTER, or RIGHT (doesn't
+   work)
+ - <padx>n</padx> where "n" is the amount of extra horizontal extra space
+ - <pady>n</pady> where "n" is the amount of extra vertical extra space
+
+==== Number
+
+The number widget displays the value of a float signal.
+
+    <number> 
+
+The above code produced this example. +
+image:images/pyvcp_number.png[]
+
+<font> is a Tkinter font type and size specification. One font that
+will show up to at least size 200 is "courier 10 pitch", so for a
+really big Number widget you could specify:
+
+    <font>("courier 10 pitch",100)</font>
+
+<format>::
+     is a "C-style" format specified that determines how the number is
+    displayed.
+
+==== s32 Number
+
+The s32 number widget displays the value of a s32 number. The syntax
+is the same as "number" except the name which is <s32>. Make sure the
+width is wide enough to cover the largest number you expect to use.
+
+    <s32>
+
+The above code produced this example. +
+image:images/pyvcp_s32.png[]
+
+==== u32 Number
+
+The u32 number widget displays the value of a u32 number. The syntax
+is the same as "number" except the name which is <u32>.
+
+==== Bar
+
+A bar widget displays the value of a FLOAT signal both graphically
+using a bar display and numerically.
+
+    <bar>
+
+The above code produced this example. +
+image:images/pyvcp_bar.png[]
+
+==== Meter
+
+Meter displays the value of a FLOAT signal using a traditional dial
+indicator.
+
+    <meter>
+
+The above code produced this example. +
+image:images/pyvcp_meter.png[]
+
+=== Number Inputs
+
+==== Spinbox
+
+Spinbox controls a FLOAT pin. You increase or decrease the value of
+the pin by either pressing on the arrows, or pointing at the spinbox
+and rolling your mouse-wheel.
+
+    <spinbox>
+
+The above code produced this example. +
+image:images/pyvcp_spinbox.png[]
+
+==== Scale
+
+Scale controls a float or a s32 pin. You increase or decrease the
+value of the pin be either dragging the slider, or pointing at the
+scale and rolling your mouse-wheel. The "halpin" will have both "-f"
+and "-i" added to it to form the float and s32 pins. Width is the width
+of the slider in vertical and the height of the slider in horizontal
+orientation.
+
+    <scale>
+    <scale>
+
+The above code produced this example. +
+image:images/pyvcp_scale.png[]
+
+==== Dial
+
+The Dial outputs a HAL float and reacts to both mouse wheel and
+dragging. Double left click to increase the resolution and double right
+click to reduce the resolution by one digit. The output is capped by
+the min and max values. The <cpr> is how many tick marks are on the
+outside of the ring (beware of high numbers).
+
+    <dial>
+
+The above code produced this example. +
+image:images/pyvcp_dial.png[]
+
+==== Jogwheel
+
+Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts
+up or down as the wheel is turned, either by dragging in a circular
+motion, or by rolling the mouse-wheel.
+
+    <jogwheel>
+
+The above code produced this example. +
+image:images/pyvcp_jogwheel.png[]
+
+=== Images
+
+Image displays use only .gif image format. All of the images must be
+the same size. The images must be in the same directory as your ini
+file (or in the current directory if running from the command line with
+halrun/halcmd).
+
+==== Image Bit
+
+The "image_bit" toggles between two images by setting the halpin to
+true or false.
+
+    <image name='fwd' file='fwd.gif'/>
+
+This example was produced from the above code. +
+Using the two image files fwd.gif and rev.gif. +
+FWD is displayed when "selectimage" is false +
+and REV is displayed when "selectimage" is true. +
+image:images/pyvcp_image01.png[]image:images/pyvcp_image02.png[]
+
+==== Image u32
+
+The "image_u32" is the same as "image_bit" except you have essentially
+an unlimited number of images and you "select" the image by setting the
+halpin to a integer value with 0 for the first image in the images list
+and 1 for the second image etc.
+
+    <image name='stb' file='stb.gif'/>
+
+The above code produced the following example +
+by adding the stb.gif image. +
+
+image:images/pyvcp_image_u32_01.png[]image:images/pyvcp_image01.png[]image:images/pyvcp_image02.png[]
+
+Notice that the default is the min even though it is set higher than
+max unless there is a negative min.
+
+=== Containers
+
+Containers are widgets that contain other widgets. Containers are used
+to group other widgets.
+
+==== Borders
+
+Container borders are specified with two tags used together. The
+<relief> tag specifies the type of border and the <bd> specifies the
+width of the border.
+
+<relief>type</relief>::
+    Where "type" is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE
+
+<bd>n</bd>::
+    Where "n" is the width of the border.
+
+    <hbox>
+        <button>
+        <button>
+        <button>
+        <button>
+
+The above code produced this example. +
+image:images/pyvcp_borders.png[]
+
+==== Hbox
+
+Use a Hbox when you want to stack widgets horizontally next to each
+other.
+
+    <hbox>
+
+The above code produced this example. +
+image:images/pyvcp_hbox.png[]
+
+Inside a Hbox, you can use the `<boxfill fill=""/>`, `<boxanchor
+anchor=""/>`, and `<boxexpand expand=""/>`  tags to choose how items in
+the box behave when the window is
+re-sized. For details of how fill, anchor, and expand behave, refer to
+ the Tk `pack` manual page, `pack(3tk)`. By default, `fill="y"`,
+`anchor="center"`, `expand="yes"`.
+
+==== Vbox
+
+Use a Vbox when you want to stack widgets vertically on top of each
+other.
+
+    <vbox>
+
+The above code produced this example. +
+image:images/pyvcp_vbox.png[]
+
+Inside a Hbox, you can use the `<boxfill fill=""/>`, `<boxanchor
+anchor=""/>`, and `<boxexpand expand=""/>`  tags to choose how items in
+the box behave when the window is
+re-sized. For details of how fill, anchor, and expand behave, refer to
+ the Tk `pack` manual page, `pack(3tk)`. By default, `fill="x"`,
+`anchor="center"`, `expand="yes"`.
+
+==== Labelframe
+
+A labelframe is a frame with a groove and a label at the upper-left
+corner.
+
+    <labelframe text="Group Title">
+
+The above code produced this example. +
+image:images/pyvcp_labelframe.png[]
+
+==== Table
+
+A table is a container that allows layout in a grid of rows and
+columns. Each row is started by a `<tablerow/>`  tag. A contained
+widget may span rows or columns through the use of
+ the `<tablespan rows= cols=/>`  tag. The sides of the cells to which
+the contained widgets “stick”
+ may be set through the use of the `<tablesticky sticky=/>` tag. A
+table expands on its flexible rows and columns.
+
+Example:
+
+    <table flexible_rows="[2]" flexible_columns="[1,4]">
+
+The above code produced this example. +
+image:images/pyvcp_table.png[]
+
+==== Tabs
+
+A tabbed interface can save quite a bit of space.
+
+    <tabs>
+
+The above code produced this example showing each tab selected. +
+
+image:images/pyvcp_tabs1.png[]image:images/pyvcp_tabs2.png[]image:images/pyvcp_tabs3.png[]
+
