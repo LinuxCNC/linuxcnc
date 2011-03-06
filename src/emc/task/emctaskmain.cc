@@ -80,6 +80,12 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "nml_oi.hh"
 #include "task.hh"		// emcTaskCommand etc
 
+/* time after which the user interface is declared dead
+ * because it would'nt read any more messages
+ */
+#define DEFAULT_EMC_UI_TIMEOUT 5.0
+
+
 // command line args-- global so that other modules can access 
 int Argc;
 char **Argv;
@@ -150,16 +156,46 @@ static void emctask_quit(int sig)
     signal(sig, emctask_quit);
 }
 
+/* make sure at least space bytes are available on
+ * error channel; wait a bit to drain if needed
+ */
+int emcErrorBufferOKtoWrite(int space, const char *caller)
+{
+    // check channel for validity
+    if (emcErrorBuffer == NULL)
+	return -1;
+    if (!emcErrorBuffer->valid())
+	return -1;
+
+    double send_errorchan_timout = etime() + DEFAULT_EMC_UI_TIMEOUT;
+
+    while (etime() < send_errorchan_timout) {
+	if (emcErrorBuffer->get_space_available() < space) {
+	    esleep(0.01);
+	    continue;
+	} else {
+	    break;
+	}
+    }
+    if (etime() >= send_errorchan_timout) {
+	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
+	    rcs_print("timeout waiting for error channel to drain, caller=`%s' request=%d\n", caller,space);
+	}
+	return -1;
+    } else {
+	// printf("--- %d bytes available after %f seconds\n", space, etime() - send_errorchan_timout + DEFAULT_EMC_UI_TIMEOUT);
+    }
+    return 0;
+}
+
+
 // implementation of EMC error logger
 int emcOperatorError(int id, const char *fmt, ...)
 {
     EMC_OPERATOR_ERROR error_msg;
     va_list ap;
 
-    // check channel for validity
-    if (emcErrorBuffer == NULL)
-	return -1;
-    if (!emcErrorBuffer->valid())
+    if ( emcErrorBufferOKtoWrite(sizeof(error_msg) * 2, "emcOperatorError"))
 	return -1;
 
     if (NULL == fmt) {
@@ -191,10 +227,7 @@ int emcOperatorText(int id, const char *fmt, ...)
     EMC_OPERATOR_TEXT text_msg;
     va_list ap;
 
-    // check channel for validity
-    if (emcErrorBuffer == NULL)
-	return -1;
-    if (!emcErrorBuffer->valid())
+    if ( emcErrorBufferOKtoWrite(sizeof(text_msg) * 2, "emcOperatorText"))
 	return -1;
 
     // write args to NML message (ignore int text code)
@@ -214,10 +247,7 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
     EMC_OPERATOR_DISPLAY display_msg;
     va_list ap;
 
-    // check channel for validity
-    if (emcErrorBuffer == NULL)
-	return -1;
-    if (!emcErrorBuffer->valid())
+    if ( emcErrorBufferOKtoWrite(sizeof(display_msg) * 2, "emcOperatorDisplay"))
 	return -1;
 
     // write args to NML message (ignore int display code)
