@@ -953,10 +953,10 @@ class Data:
             self[temp+"bldc_lead-angle"]= 0
             self[temp+"bldc_initvalue"]= 1
             self[temp+"bldc_encoder_offset"]= 0
-            self[temp+"bldc_rev"]= False
+            self[temp+"bldc_reverse"]= False
             self[temp+"bldc_drive_offset"]= 0.0
-            self[temp+"bldc_output_patern"]= 0
-            self[temp+"bldc_pattern"]= 25
+            self[temp+"bldc_pattern_out"]= 0
+            self[temp+"bldc_pattern_in"]= 25
             self[temp+"bldc_intial_value"]= .2
 
         # rotary tables need bigger limits
@@ -3071,12 +3071,14 @@ class App:
         if not self.data._arrayloaded:
             print "fill boardtitle array"
             for boardnum in(0,1):
+                temp = 0 
                 model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
                 model.clear()
                 for search,item in enumerate(mesaboardnames):
                     model.append((item,))
                     if mesaboardnames[search]  == self.data["mesa%d_boardtitle"% boardnum]:
-                        self.widgets["mesa%d_boardtitle"% boardnum].set_active(search)
+                        temp = search
+                self.widgets["mesa%d_boardtitle"% boardnum].set_active(temp)
 
     def on_mesa_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa0_checkbutton.get_active()
@@ -3967,7 +3969,14 @@ class App:
         if self.data.number_pports<1:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
-        
+
+    def on_mesapanel_kill(self, *args):
+
+        self.halrun.write("quit\n")
+        print "got to kill"
+        self.halrun.flush()
+        self.halrun.close()
+
     def on_mesapanel_clicked(self, *args):
         #self.m5i20test(self)
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w") 
@@ -3978,8 +3987,11 @@ class App:
         halrun.write("start\n")
         halrun.flush()
         time.sleep(1)
-        PyApp(self,self.data,self.widgets)    
+        PyApp(self,self.data,self.widgets)  
+        halrun.write("loadusr  halmeter\n")  
         print "back, after making panel"
+        #halrun.write("quit\n")
+        #halrun.close()
         return
         for boardnum in range(0,int(self.data.number_mesa)):
             print "mesa boardnum-%d"% boardnum
@@ -4623,7 +4635,7 @@ class App:
                      ["_pwmsignaltree",human_pwm_output_names,3],["_tppwmsignaltree",human_tppwm_output_names,8],["_steppersignaltree",human_stepper_names,6],
                      ["_muxencodersignaltree",human_encoder_input_names,4],["_sserialsignaltree",human_sserial_names,3] ]
         for item in templist:
-            print item[0]
+            #print item[0]
             count = 0
             end = len(item[1])-1
             self.data[item[0]]= gtk.TreeStore(str,int)
@@ -4637,7 +4649,7 @@ class App:
                 else:
                     piter = self.data[item[0]].append(None, [parent[0],0])
                     for j,child in enumerate(parent[1]):
-                        print i,count,parent[0],child
+                        #print i,count,parent[0],child
                         self.data[item[0]].append(piter, [child, count])
                         count +=item[2]
 
@@ -5120,6 +5132,14 @@ class App:
         set_active("invertmotor")
         set_active("invertencoder")  
         set_value("maxoutput")
+        set_active("bldc_option")
+        set_active("bldc_reverse")
+        set_value("bldc_scale")
+        set_value("bldc_poles")
+        set_value("bldc_encoder_offset")
+        set_value("bldc_drive_offset")
+        set_value("bldc_pattern_out")
+        set_value("bldc_pattern_in")
         w["motor_pulleydriver"].set_value(d[axis +"motor_pulleydriver"])
         w["motor_pulleydriven"].set_value(d[axis +"motor_pulleydriven"])
         w["encoder_pulleydriver"].set_value(d[axis +"encoder_pulleydriver"])
@@ -5137,6 +5157,8 @@ class App:
         w[axis + "encoderscale"].set_sensitive(encoder)
         w[axis + "stepper_info"].set_sensitive(stepdriven) 
         w[axis + "stepscale"].set_sensitive(stepdriven)
+        if pwmgen: w[axis + "bldcframe"].show()
+        else: w[axis + "bldcframe"].hide()
         w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
         if w[axis + "drivertype"].get_active_text()  == _("Custom"):
             w[axis + "steptime"].set_value(d[axis + "steptime"])
@@ -5355,6 +5377,14 @@ class App:
         get_pagevalue("outputscale")
         get_pagevalue("outputoffset")
         get_pagevalue("maxoutput")
+        get_active("bldc_option")
+        get_active("bldc_reverse")
+        get_pagevalue("bldc_scale")
+        get_pagevalue("bldc_poles")
+        get_pagevalue("bldc_encoder_offset")
+        get_pagevalue("bldc_drive_offset")
+        get_pagevalue("bldc_pattern_out")
+        get_pagevalue("bldc_pattern_in")
         d[axis + "encodercounts"] = int(float(w["encoderline"].get_text())*4)
         if stepdrive: get_pagevalue("stepscale")
         if encoder: get_pagevalue("encoderscale")
@@ -6821,9 +6851,9 @@ class PyApp(gtk.Window):
 
     def quit(self,widget):  
         self.widgets['window1'].set_sensitive(1)                 
-        gobject.source_remove(self.timer) 
+        gobject.source_remove(self.timer)
         self.hal.c.exit()
-        self.app.halrun.close()
+        self.app.on_mesapanel_kill()
         print "**** Mesa test panel closed out."
         return True
 
@@ -7060,6 +7090,7 @@ class PyApp(gtk.Window):
         self.show_all() 
         self.widgets['window1'].set_sensitive(0) 
         self.hal.c.ready()
+        
         print "got to end of panel"
 
         

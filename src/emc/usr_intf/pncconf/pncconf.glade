@@ -44633,7 +44633,7 @@ Test</property>
                                               <widget class="GtkVBox" id="vbox22">
                                                 <property name="visible">True</property>
                                                 <child>
-                                                  <widget class="GtkRadioButton" id="xbldc_nofeedback">
+                                                  <widget class="GtkRadioButton" id="xbldc_no_feedback">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">No feedback</property>
@@ -44643,35 +44643,35 @@ Test</property>
                                                   </widget>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkRadioButton" id="xbldc_absolutefeedback">
+                                                  <widget class="GtkRadioButton" id="xbldc_absolute_feedback">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Absolute Feedback</property>
                                                     <property name="response_id">0</property>
                                                     <property name="active">True</property>
                                                     <property name="draw_indicator">True</property>
-                                                    <property name="group">xbldc_nofeedback</property>
+                                                    <property name="group">xbldc_no_feedback</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="position">1</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkRadioButton" id="xbldc_incrmntlfeedback">
+                                                  <widget class="GtkRadioButton" id="xbldc_incremental_feedback">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Incremental Feedback</property>
                                                     <property name="response_id">0</property>
                                                     <property name="active">True</property>
                                                     <property name="draw_indicator">True</property>
-                                                    <property name="group">xbldc_nofeedback</property>
+                                                    <property name="group">xbldc_no_feedback</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="position">2</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_useencoder">
+                                                  <widget class="GtkCheckButton" id="xbldc_use_encoder">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Incremental Encoder</property>
@@ -44683,7 +44683,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_usehall">
+                                                  <widget class="GtkCheckButton" id="xbldc_use_hall">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Hall sensors</property>
@@ -44695,7 +44695,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_fanucalignment">
+                                                  <widget class="GtkCheckButton" id="xbldc_fanuc_alignment">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Fanuc Red Cap </property>
@@ -44707,7 +44707,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_useindex">
+                                                  <widget class="GtkCheckButton" id="xbldc_use_index">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Use encoder Index</property>
@@ -44746,7 +44746,7 @@ Test</property>
                                               <widget class="GtkVBox" id="vbox23">
                                                 <property name="visible">True</property>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_digitaloutput">
+                                                  <widget class="GtkCheckButton" id="xbldc_digital_output">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Digital instead of PWM outputs</property>
@@ -44755,10 +44755,10 @@ Test</property>
                                                   </widget>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_outputsix">
+                                                  <widget class="GtkCheckButton" id="xbldc_six_outputs">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="label" translatable="yes">6 instead of 3 outputs</property>
+                                                    <property name="label" translatable="yes">6 outputs instead of 3 </property>
                                                     <property name="response_id">0</property>
                                                     <property name="draw_indicator">True</property>
                                                   </widget>
@@ -44767,7 +44767,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_forcetrap">
+                                                  <widget class="GtkCheckButton" id="xbldc_force_trapz">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Force Trapezoid Mode</property>
@@ -44779,7 +44779,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkCheckButton" id="xbldc_emulatefeedback">
+                                                  <widget class="GtkCheckButton" id="xbldc_emulated_feedback">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Emulate feedback </property>
@@ -44791,7 +44791,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkRadioButton" id="xbldc_outputhall">
+                                                  <widget class="GtkRadioButton" id="xbldc_output_hall">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Emulated Hall sensors</property>
@@ -44804,14 +44804,14 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkRadioButton" id="xbldc_outputfanuc">
+                                                  <widget class="GtkRadioButton" id="xbldc_output_fanuc">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="label" translatable="yes">Emulated Fanuc Red Cap</property>
                                                     <property name="response_id">0</property>
                                                     <property name="active">True</property>
                                                     <property name="draw_indicator">True</property>
-                                                    <property name="group">xbldc_outputhall</property>
+                                                    <property name="group">xbldc_output_hall</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="position">5</property>
@@ -44948,7 +44948,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkSpinButton" id="xbldc_encoderoffset">
+                                                  <widget class="GtkSpinButton" id="xbldc_encoder_offset">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="adjustment">0 0 100 1 10 10</property>
@@ -44961,7 +44961,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkSpinButton" id="xbldc_driveoffset">
+                                                  <widget class="GtkSpinButton" id="xbldc_drive_offset">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="adjustment">0 0 100 1 10 10</property>
@@ -44974,7 +44974,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkSpinButton" id="xbldc_patternout">
+                                                  <widget class="GtkSpinButton" id="xbldc_pattern_out">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="adjustment">0 0 100 1 10 10</property>
@@ -44987,7 +44987,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkSpinButton" id="xbldc_patternin">
+                                                  <widget class="GtkSpinButton" id="xbldc_pattern_in">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="adjustment">0 0 100 1 10 10</property>
