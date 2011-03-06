@@ -221,23 +221,193 @@ Examples:
     [#<_feedrate>]`
 
 
-
-Notes:
-
-The global parameters _a, _b, _c, ... _z have been reserved for
-special use. In the future, they may provide access to the last Aword,
-Bword, Cword, etc.
-
 == System Parameters [[sec:System-Parameters]]
 
-Two global read only named parameters are available to check which
-version is running from G Code.
+The following global read only named parameters are available to access internal
+state of the interpreter. They can be used in arbitrary expressions, for instance
+to control flow of the program with if-then-else statements.
 
 #<_vmajor>::
     Major package version. If current version was 2.6.2 would return 2.6.
 
 #<_vminor>::
     Minor package version. If current version was 2.6.2 would return 0.2.
+
+#<_line>::
+    Sequence number. If running a G-Code file, this returns the current line number.
+
+#<_motion_mode>::
+    Return the interpreter's current motion mode:
+[width="20%",options="header"]
+|========================================
+|Motion mode | return value
+|G1| 10
+|G2| 20
+|G3| 30
+|G33| 330
+|G38.2| 382
+|G38.3| 383
+|G38.4| 384
+|G38.5| 385
+|G5.2| 52
+|G73| 730
+|G76| 760
+|G80| 800
+|G81| 810
+|G82| 820
+|G83| 830
+|G84| 840
+|G85| 850
+|G86| 860
+|G87| 870
+|G88| 880
+|G89| 890
+|========================================
+#<_plane>::
+    returns the value designating the current plane:
+[width="20%",options="header"]
+|========================================
+|Plane | return value
+|G17| 170
+|G18| 180
+|G19| 190
+|G17.1| 171
+|G18.1| 181
+|G19.1| 191
+|========================================
+
+
+#<_ccomp>::
+    Status of cutter compensation. Return values:
+[width="20%",options="header"]
+|========================================
+|Mode | return value
+|G40 | 400
+|G41 | 410
+|G41.1| 411
+|G41 | 410
+|G42 | 420
+|G42.1 | 421
+|========================================
+
+#<_metric>::
+    Return 1 if G21 is on, else 0.
+
+#<_imperial>::
+    Return 1 if G20 is on, else 0.
+
+#<_absolute>::
+    Return 1 if G90 is on, else 0.
+
+#<_incremental>::
+    Return 1 if G91 is on, else 0.
+
+#<_inverse_time>::
+    Return 1 if inverse feed mode (G93) is on, else 0.
+
+#<_units_per_minute>::
+    Return 1 if Units/minute feed mode (G94) is on, else 0.
+
+#<_units_per_rev>::
+    Return 1 if Units/revolution mode (G95) is on, else 0.
+
+#<_coord_system>::
+    Return index of the current coordinate system (G54..G59.3)
+[width="20%",options="header"]
+|========================================
+|Mode | return value
+|G54| 0
+|G55| 1
+|G56| 2
+|G57| 3
+|G58| 4
+|G59| 5
+|G59.1|6
+|G59.2|7
+|G59.3|8
+|========================================
+
+#<_tool_offset>::
+    Return 1 if tool offset (G43) is on, else 0.
+
+#<_retract_r_plane>::
+    Return 1 if G98 is set, else 0.
+
+#<_retract_old_z>::
+    Return 1 if G99 is on, else 0.
+
+#<_spindle_rpm_mode>::
+    Return 1 if spindle rpm mode (G97) is on, else 0.
+
+#<_spindle_css_mode>::
+    Return 1 if constant surface speed mode (G96) is on, else 0.
+
+#<_ijk_absolute_mode>::
+    Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
+
+#<_lathe_diameter_mode>::
+    Return 1 if this is a lathe configuration and diameter (G7) mode is on, else 0.
+
+#<_lathe_radius_mode>::
+    Return 1 if this is a lathe configuration and radius (G8) mode is on, else 0.
+
+#<_spindle_on>::
+    Return 1 if spindle currently running (M3 or M4) else 0.
+
+#<_spindle_cw>::
+    Return 1 if spindle direction is clockwise (M3) else 0.
+
+#<_mist>::
+    Return 1 if mist (M7) is on.
+
+#<_flood>::
+    Return 1 if flood (M8) is on.
+
+#<_speed_override>::
+    Return 1 if feed override (M48 or M50 P1) is on, else 0.
+
+#<_feed_override>::
+    Return 1 if feed override (M48 or M51 P1) is on, else 0.
+
+#<_adaptive_feed>::
+    Return 1 if adaptive feed (M52 or M52 P1) is on, else 0.
+
+#<_feed_hold>::
+    Return 1 if feed hold switch is enabled (M53 P1), else 0.
+
+#<_feed>::
+    Return the current feed value (F).
+
+#<_rpm>::
+    Return the current spindle speed (S).
+
+#<_x>::
+    Return absolute machine X coordinate. Same as #5420.
+
+#<_y>::
+    Return absolute machine Y coordinate. Same as #5421.
+
+#<_z>::
+    Return absolute machine Z coordinate. Same as #5422.
+
+#<_a>::
+    Return absolute machine A coordinate. Same as #5423.
+
+#<_b>::
+    Return absolute machine B coordinate. Same as #5424.
+
+#<_c>::
+    Return absolute machine C coordinate. Same as #5425.
+
+#<_u>::
+    Return absolute machine U coordinate. Same as #5426.
+
+#<_v>::
+    Return absolute machine V coordinate. Same as #5427.
+
+#<_w>::
+    Return absolute machine W coordinate. Same as #5428.
+
 
 == Expressions [[sub:Expressions]]
 
