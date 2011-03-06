@@ -321,7 +321,18 @@ struct named_parameters_struct {
   int named_parameter_used_size;
   char **named_parameters;
   double *named_param_values;
+  unsigned char *named_param_attr; // bitmap of attributes
   };
+#define PA_READONLY	1
+#define PA_GLOBAL	2
+#define PA_UNSET	4
+#define PA_USE_LOOKUP	8  // use lookup_named_param() to retrieve value
+
+// optional 3rd arg to store_named_param()
+// flag initialization of r/o parameter
+#define OVERRIDE_READONLY 1
+
+
 
 typedef struct context_struct {
   long position;       // location (ftell) in file
