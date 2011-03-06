@@ -740,6 +740,162 @@ PyObject *component_is_ready(PyObject *self, PyObject *args) {
     return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != NULL);
 }
 
+PyObject *new_sig(PyObject *self, PyObject *args) {
+    char *name;
+    int type,retval;
+    if(!PyArg_ParseTuple(args, "si", &name,&type)) return NULL;
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+    printf("make signal -> %s type %d\n",name,(hal_type_t) type);
+    switch (type) {
+	case HAL_BIT: 
+        retval = hal_signal_new(name, HAL_BIT);
+        break;
+	case HAL_S32:
+        retval = hal_signal_new(name, HAL_S32);
+        break;
+	case HAL_U32:
+        retval = hal_signal_new(name, HAL_U32);
+        break;
+	case HAL_FLOAT:
+        retval = hal_signal_new(name, HAL_FLOAT);
+        break;
+	default: { PyErr_Format(PyExc_RuntimeError,
+		"not a valid HAL signal type");
+	return NULL;}
+    }
+    return PyBool_FromLong( retval!= NULL);
+}
+
+PyObject *connect(PyObject *self, PyObject *args) {
+    char *signame,*pinname;
+    if(!PyArg_ParseTuple(args, "ss", &pinname,&signame)) return NULL;
+    printf("link sig %s to pin %s\n",signame,pinname);
+    return PyBool_FromLong( hal_link(pinname, signame)!= NULL);
+}
+
+static int set_common(hal_type_t type, void *d_ptr, char *value) {
+    // This function assumes that the mutex is held
+    int retval = 0;
+    double fval;
+    long lval;
+    unsigned long ulval;
+    char *cp = value;
+
+    switch (type) {
+    case HAL_BIT:
+	if ((strcmp("1", value) == 0) || (strcasecmp("TRUE", value) == 0)) {
+	    *(hal_bit_t *) (d_ptr) = 1;
+	} else if ((strcmp("0", value) == 0)
+	    || (strcasecmp("FALSE", value)) == 0) {
+	    *(hal_bit_t *) (d_ptr) = 0;
+	} else {
+	    
+	    retval = -EINVAL;
+	}
+	break;
+    case HAL_FLOAT:
+	fval = strtod ( value, &cp );
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    /* invalid character(s) in string */
+	    
+	    retval = -EINVAL;
+	} else {
+	    *((hal_float_t *) (d_ptr)) = fval;
+	}
+	break;
+    case HAL_S32:
+	lval = strtol(value, &cp, 0);
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    /* invalid chars in string */
+	    
+	    retval = -EINVAL;
+	} else {
+	    *((hal_s32_t *) (d_ptr)) = lval;
+	}
+	break;
+    case HAL_U32:
+	ulval = strtoul(value, &cp, 0);
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    /* invalid chars in string */
+	   
+	    retval = -EINVAL;
+	} else {
+	    *((hal_u32_t *) (d_ptr)) = ulval;
+	}
+	break;
+    default:
+	/* Shouldn't get here, but just in case... */
+	
+	retval = -EINVAL;
+    }
+    return retval;
+}
+
+PyObject *set_pin(PyObject *self, PyObject *args) {
+    char *name,*value;
+    int retval;
+    hal_param_t *param;
+    hal_pin_t *pin;
+    hal_type_t type;
+    void *d_ptr;
+
+    if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
+
+    
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    /* search param list for name */
+    param = halpr_find_param_by_name(name);
+    if (param == 0) {
+        pin = halpr_find_pin_by_name(name);
+        if(pin == 0) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            
+            PyErr_Format(PyExc_RuntimeError,
+		        "pin not found");
+	        return NULL;
+        } else {
+            /* found it */
+            type = pin->type;
+            if(pin->dir == HAL_OUT) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                
+                PyErr_Format(PyExc_RuntimeError,
+		            "pin not writable");
+	            return NULL;
+            }
+            if(pin->signal != 0) {
+                rtapi_mutex_give(&(hal_data->mutex));
+                
+                PyErr_Format(PyExc_RuntimeError,
+		            "pin connected to signal");
+	            return NULL;
+            }
+            // d_ptr = (void*)SHMPTR(pin->dummysig);
+            d_ptr = (void*)&pin->dummysig;
+        }
+    } else {
+        /* found it */
+        type = param->type;
+        /* is it read only? */
+        if (param->dir == HAL_RO) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            
+            PyErr_Format(PyExc_RuntimeError,
+		        "param not writable");
+	        return NULL;
+        }
+        d_ptr = SHMPTR(param->data_ptr);
+    }
+    retval = set_common(type, d_ptr, value);
+    rtapi_mutex_give(&(hal_data->mutex));   
+    return PyBool_FromLong( retval!= NULL);
+}
+
 struct shmobject {
     PyObject_HEAD
     halobject *comp;
@@ -893,6 +1049,12 @@ PyMethodDef module_methods[] = {
 	"Set the RTAPI message level"},
     {"get_msg_level", get_msg_level, METH_NOARGS,
 	"Get the RTAPI message level"},
+    {"new_sig", new_sig, METH_VARARGS,
+	"create a signal"},
+    {"connect", connect, METH_VARARGS,
+	"connect pin to signal"},
+    {"set_pin", set_pin, METH_VARARGS,
+	"set pin value"},
     {NULL},
 };
 
