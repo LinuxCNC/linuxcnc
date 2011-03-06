@@ -8,6 +8,7 @@
 (DEBUG, _imperial: = #<_imperial>)
 (DEBUG, _absolute: = #<_absolute>)
 (DEBUG, _incremental: = #<_incremental>)
+g4 p2
 (DEBUG, _inverse_time: = #<_inverse_time>)
 (DEBUG, _units_per_minute: = #<_units_per_minute>)
 (DEBUG, _units_per_rev: = #<_units_per_rev>)
@@ -15,6 +16,7 @@
 (DEBUG, _tool_offset: = #<_tool_offset>)
 (DEBUG, _retract_r_plane: = #<_retract_r_plane>)
 (DEBUG, _retract_old_z: = #<_retract_old_z>)
+g4 p2
 (DEBUG, _spindle_rpm_mode: = #<_spindle_rpm_mode>)
 (DEBUG, _spindle_css_mode: = #<_spindle_css_mode>)
 (DEBUG, _ijk_absolute_mode: = #<_ijk_absolute_mode>)
@@ -22,6 +24,7 @@
 (DEBUG, _lathe_radius_mode: = #<_lathe_radius_mode>)
 (DEBUG, _spindle_on: = #<_spindle_on>)
 (DEBUG, _spindle_cw: = #<_spindle_cw>)
+g4 p2
 (DEBUG, _mist: = #<_mist>)
 (DEBUG, _flood: = #<_flood>)
 (DEBUG, _speed_override: = #<_speed_override>)
@@ -30,6 +33,7 @@
 (DEBUG, _feed_hold: = #<_feed_hold>)
 (DEBUG, _feed: = #<_feed>)
 (DEBUG, _rpm: = #<_rpm>)
+g4p2
 (DEBUG, _x: = #<_x>)
 (DEBUG, _y: = #<_y>)
 (DEBUG, _z: = #<_z>)
