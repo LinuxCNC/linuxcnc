@@ -327,8 +327,6 @@ int Interp::free_named_parameters( // ARGUMENTS
     {
         free(nameList->named_parameters[i]);
     }
-    free(nameList->named_param_values); // previous memory leak
-    free(nameList->named_param_attr);
     nameList->named_parameter_used_size = 0;
 
     return INTERP_OK;
