@@ -715,13 +715,14 @@ class LivePlotter:
 
     def error_task(self):
         error = e.poll()
-        if error: 
+        while error: 
             kind, text = error
             if kind in (emc.NML_ERROR, emc.OPERATOR_ERROR):
                 icon = "error"
             else:
                 icon = "info"
             notifications.add(icon, text)
+            error = e.poll()
         self.error_after = self.win.after(200, self.error_task)
 
     def update(self):
