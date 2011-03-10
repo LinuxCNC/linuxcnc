@@ -102,7 +102,8 @@ It is an error if:
 |G5.2, G5.3 | NURBs Block | <<sec:G5.2-G5.3-NURBs>>
 |G7, G8 | Diameter or Radius Mode | <<sec:G7-Diameter-Mode>>
 |G10 L1 | Set Tool Table Entry | <<sec:G10-L1-Set-Tool-Table>>
-|G10 L10 | Set Tool Table Entry Calculated | <<sec:G10-L10>>
+|G10 L10 | Set Tool Table, Calculated, Workpiece | <<sec:G10-L10>>
+|G10 L11 | Set Tool Table, Calculated, Fixture | <<sec:G10-L11>>
 |G10 L2 | Coordinate System Origin Setting | <<sub:G10:-Set-Coordinate>>
 |G10 L20 | Coordinate System Origin Setting Calculated | <<sec:G10-L20>>
 |G17 - G19.1 | Plane Select | <<"sub:G17,-G18,-G19:">>
@@ -547,7 +548,7 @@ G10 L2 P1 X 3.5 Y 17.2::
     changed.
 
 G10 L2 P1 X0 Y0 Z0::
-     sets the G54 coordinate back to the origin.
+     sets the XYZ coordinates of the G54 origin to the unoffset origin.
 
 .Set Coordinate System[[cap:Set-Coordinate-System]]
 
@@ -568,11 +569,31 @@ G10 L2 P1 X0 Y0 Z0::
 
 == G10 L10 Set Tool Table (((G10 L10 Set Tool Table)))[[sec:G10-L10]]
 
-    G10 L10 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+    G10 L10 P[tool number] `axes`
 
-G10 L10 is just like G10 L1 except that instead of setting the
-offset/entry to the given value, it is set to a calculated value that
-makes the current coordinates become the given value.
+G10 L10 changes the tool table entry for tool P so that if the 
+tool offset is reloaded, with the machine in its current position 
+and with the current G5x and G92 offsets active, the current coordinates
+for the given axes will become the given values.  The axes that are
+not specified in the G10 L10 command will not be changed.
+
+It is an error if:
+
+ - Cutter Compensation is on
+
+== G10 L11 Set Tool Table (((G10 L11 Set Tool Table)))[[sec:G10-L11]]
+
+    G10 L11 P[tool number] `axes`
+
+G10 L11 is just like G10 L10 except that instead of setting the entry
+according to the current offsets, it is set so that the current
+coordinates would become the given value if the new tool offset
+is reloaded and the machine is placed in the G59.3 coordinate
+system without any G92 offset active.
+
+This allows the user to set the G59.3 coordinate system according to a
+fixed point on the machine, and then use that fixture to measure tools
+without regard to other currently-active offsets.
 
 It is an error if:
 

@@ -47,98 +47,99 @@ tr.head td, tr.head th { background: black; color: white; }
 <COL id="group"> <COL id="code"> <COL id="params"> <COL id="description">
 <TR id="titlerow"> <TH>Code <TH>Parameters <TH>Description </TR>
 <TR> <TH>Motion <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z A B C U V W apply to all motions) </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G0:-Rapid-Linear">G0</A> <TD> <TD> Rapid motion </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G1:-Linear-Motion">G1</A> <TD> <TD> Coordinated motion ("Straight feed") </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G2</A>, <A HREF="gcode_main.html#sub:G2,-G3:-Arc">G3</A> <TD> I J K or R <TD> Coordinated helical motion ("Arc feed") CW or CCW </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G4:-Dwell">G4</A> <TD> P <TD> Dwell (no motion for P seconds) </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G38.2:-Straight-Probe">G38.2&hellip;G38.5</A> <TD> <TD> Straight probe </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33</A> <TD> K <TD> Spindle-synchronized motion </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33.1</A> <TD> K <TD> Rigid tapping </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G80:-Cancel-Modal">G80</A> <TD> <TD> Cancel motion mode  </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G0:-Rapid-Linear">G0</A> <TD> <TD> Rapid motion </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G1:-Linear-Motion">G1</A> <TD> <TD> Coordinated motion ("Straight feed") </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G2,-G3:-Arc">G2</A>, <A HREF="gcode/main.html#sub:G2,-G3:-Arc">G3</A> <TD> I J K or R <TD> Coordinated helical motion ("Arc feed") CW or CCW </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G4:-Dwell">G4</A> <TD> P <TD> Dwell (no motion for P seconds) </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G38.2:-Straight-Probe">G38.2&hellip;G38.5</A> <TD> <TD> Straight probe </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33</A> <TD> K <TD> Spindle-synchronized motion </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G33,-G33.1:-Spindle-Synchronized">G33.1</A> <TD> K <TD> Rigid tapping </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G80:-Cancel-Modal">G80</A> <TD> <TD> Cancel motion mode  </TR>
 <TR> <TH>Canned cycles <TD COLSPAN=2 STYLE="border-bottom: 1px solid black">(X Y Z or U V W apply to canned cycles, depending on active plane) </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G81:-Drilling-Cycle">G81</A>, <A HREF="gcode_main.html#sub:G82:-Drilling-Cycle">G82</A> <TD> R L (P) <TD> Drilling cycle without (with) dwell </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G83:-Peck-Drilling">G83</A>, <A HREF="gcode_main.html#sub:G73:-Drilling-Cycle">G73</A> <TD> R L Q <TD> Peck and Chip-break drilling cycles </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G85:-Boring,-No">G85</A>, <A HREF="gcode_main.html#sub:G89:-Boring,-Dwell,">G89</A> <TD> R L (P) <TD> Boring cycle without (with) dwell </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G76:-Threading-Canned">G76</A> <TD> P Z I J R K Q H L E<TD> Multipass lathe threading cycle </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G81:-Drilling-Cycle">G81</A>, <A HREF="gcode/main.html#sub:G82:-Drilling-Cycle">G82</A> <TD> R L (P) <TD> Drilling cycle without (with) dwell </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G83:-Peck-Drilling">G83</A>, <A HREF="gcode/main.html#sub:G73:-Drilling-Cycle">G73</A> <TD> R L Q <TD> Peck and Chip-break drilling cycles </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G85:-Boring,-No">G85</A>, <A HREF="gcode/main.html#sub:G89:-Boring,-Dwell,">G89</A> <TD> R L (P) <TD> Boring cycle without (with) dwell </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G76:-Threading-Canned">G76</A> <TD> P Z I J R K Q H L E<TD> Multipass lathe threading cycle </TR>
 <TR> <TH COLSPAN=3>Distance Mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G90,-G91:-Set">G90</A> <TD> <TD> Absolute distance mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G90,-G91:-Set">G91</A> <TD> <TD> Incremental distance mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G90.1,-G91.1">G90.1</A> <TD> <TD> Arc centers I,J,K are absolute </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G90.1,-G91.1">G91.1</A> <TD> <TD> Arc centers I,J,K are relative to the arc's starting point </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G7-Diameter-Mode">G7</A> <TD> <TD> X Diameter mode (lathe) </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G8-Radius-Mode">G8</A> <TD> <TD> X Radius mode (lathe) </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G90,-G91:-Set">G90</A> <TD> <TD> Absolute distance mode </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G90,-G91:-Set">G91</A> <TD> <TD> Incremental distance mode </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G90.1,-G91.1">G90.1</A> <TD> <TD> Arc centers I,J,K are absolute </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G90.1,-G91.1">G91.1</A> <TD> <TD> Arc centers I,J,K are relative to the arc's starting point </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G7-Diameter-Mode">G7</A> <TD> <TD> X Diameter mode (lathe) </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G8-Radius-Mode">G8</A> <TD> <TD> X Radius mode (lathe) </TR>
 <TR> <TH COLSPAN=3>Feed Rate Mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G93,-G94:-Set">G93</A> <TD> <TD> Inverse time feed rate </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G93,-G94:-Set">G94</A> <TD> <TD> Units per minute feed rate </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G93,-G94:-Set">G95</A> <TD> <TD> Units per revolution </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G93,-G94:-Set">G93</A> <TD> <TD> Inverse time feed rate </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G93,-G94:-Set">G94</A> <TD> <TD> Units per minute feed rate </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G93,-G94:-Set">G95</A> <TD> <TD> Units per revolution </TR>
 <TR> <TH COLSPAN=3>Spindle Control </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M3,-M4,-M5:">M3, M4</A> <TD> S <TD> Turn spindle clockwise or counterclockwise </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M3,-M4,-M5:">M5</A> <TD> <TD> Stop spindle </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G96,-G97:-Spindle">G96</A> <TD> S D <TD> Constant surface speed mode (foot/minute or meter/minute) with top speed </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G96,-G97:-Spindle">G97</A> <TD> <TD> RPM mode </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M3,-M4,-M5:">M3, M4</A> <TD> S <TD> Turn spindle clockwise or counterclockwise </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M3,-M4,-M5:">M5</A> <TD> <TD> Stop spindle </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G96,-G97:-Spindle">G96</A> <TD> S D <TD> Constant surface speed mode (foot/minute or meter/minute) with top speed </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G96,-G97:-Spindle">G97</A> <TD> <TD> RPM mode </TR>
 <TR> <TH COLSPAN=3>Coolant </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M7,-M8,-M9:">M7</A> <TD> <TD> Turn mist on </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M7,-M8,-M9:">M8</A> <TD> <TD> Turn flood on </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M7,-M8,-M9:">M9</A> <TD> <TD> Turn all coolant off </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M7,-M8,-M9:">M7</A> <TD> <TD> Turn mist on </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M7,-M8,-M9:">M8</A> <TD> <TD> Turn flood on </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M7,-M8,-M9:">M9</A> <TD> <TD> Turn all coolant off </TR>
 <TR> <TH COLSPAN=3>Tool Length Offset </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G43,-G49:-Tool">G43</A> <TD> H <TD> Use tool length offset from tool table</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G43,-G49:-Tool">G43.1</A> <TD> I K <TD> Use specified tool length offset for transient tool</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G43,-G49:-Tool">G49</A> <TD> <TD> Cancel tool length offset </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G43,-G49:-Tool">G43</A> <TD> H <TD> Use tool length offset from tool table</TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G43,-G49:-Tool">G43.1</A> <TD> I K <TD> Use specified tool length offset for transient tool</TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G43,-G49:-Tool">G49</A> <TD> <TD> Cancel tool length offset </TR>
 <TR> <TH COLSPAN=3>Stopping </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M0</A> <TD> <TD> Pause Program </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M1</A> <TD> <TD> Optional Stop </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M2</A> <TD> <TD> End Program </TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:M0,-M1,-M2,">M1, M30, M60</A> <TD> Other stop codes </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M0,-M1,-M2,">M0</A> <TD> <TD> Pause Program </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M0,-M1,-M2,">M1</A> <TD> <TD> Optional Stop </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M0,-M1,-M2,">M2</A> <TD> <TD> End Program </TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/main.html#sub:M0,-M1,-M2,">M1, M30, M60</A> <TD> Other stop codes </TR>
 <TR> <TH COLSPAN=3>Units </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G20,-G21:-Length">G20</A> <TD> <TD> Inches </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G20,-G21:-Length">G21</A> <TD> <TD> Millimeters </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G20,-G21:-Length">G20</A> <TD> <TD> Inches </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G20,-G21:-Length">G21</A> <TD> <TD> Millimeters </TR>
 <TR> <TH COLSPAN=3>Plane Selection (affects G2, G3, G81&hellip;G89, G40&hellip;G42)</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G17,-G18,-G19:">G17</A> <TD> <TD> Select XY plane </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G17,-G18,-G19:">G18</A> <TD> <TD> Select XZ plane </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G17,-G18,-G19:">G19</A> <TD> <TD> Select YZ plane </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G17,-G18,-G19:">G17</A> <TD> <TD> Select XY plane </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G17,-G18,-G19:">G18</A> <TD> <TD> Select XZ plane </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G17,-G18,-G19:">G19</A> <TD> <TD> Select YZ plane </TR>
 <TR> <TH COLSPAN=3>Cutter Radius Compensation </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G40">G40</A> <TD> <TD> Cancel cutter radius compensation </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G41,-G42">G41,G42</A> <TD> D <TD> Start cutter radius compensation left or right </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G41.1,-G42.1">G41.1, G42.1</A> <TD> D L <TD> Start cutter radius compensation left or right, transient tool </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G40">G40</A> <TD> <TD> Cancel cutter radius compensation </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G41,-G42">G41,G42</A> <TD> D <TD> Start cutter radius compensation left or right </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G41.1,-G42.1">G41.1, G42.1</A> <TD> D L <TD> Start cutter radius compensation left or right, transient tool </TR>
 <TR> <TH COLSPAN=3>Path Control Mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G61,-G61.1,-G64:">G61</A> <TD> <TD> Exact Path mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G61,-G61.1,-G64:">G61.1</A> <TD> <TD> Exact Stop mode </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G61,-G61.1,-G64:">G64</A> <TD> P <TD> Continuous mode with optional path tolerance </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G61,-G61.1,-G64:">G61</A> <TD> <TD> Exact Path mode </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G61,-G61.1,-G64:">G61.1</A> <TD> <TD> Exact Stop mode </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G61,-G61.1,-G64:">G64</A> <TD> P <TD> Continuous mode with optional path tolerance </TR>
 <TR> <TH COLSPAN=3>Return Mode in Canned Cycles </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G98,-G99:-Set">G98</A> <TD> <TD> Retract to prior position </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G98,-G99:-Set">G99</A> <TD> <TD> Retract to R position </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G98,-G99:-Set">G98</A> <TD> <TD> Retract to prior position </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G98,-G99:-Set">G99</A> <TD> <TD> Retract to R position </TR>
 <TR> <TH COLSPAN=3>Other Modal Codes </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:F:-Set-Feed">F</A> <TD> <TD> Set Feed Rate </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:S:-Set-Spindle">S</A> <TD> <TD> Set Spindle Speed </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M6:-Tool-Change">T</A> <TD> <TD> Select Tool </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:M50:-Feed-Override">M50&hellip;M53</A> <TD> P0 (off) or P1 (on) <TD> Feed Override, Spindle Override, Adaptive Feed, Feed Hold</TR>
-<TR> <TD COLSPAN=2><A HREF="gcode_main.html#sub:G54-to-G59.3:">G54&hellip;G59, G59.1&hellip;G59.3</A><TD> Select coordinate system </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:F:-Set-Feed">F</A> <TD> <TD> Set Feed Rate </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:S:-Set-Spindle">S</A> <TD> <TD> Set Spindle Speed </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M6:-Tool-Change">T</A> <TD> <TD> Select Tool </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:M50:-Feed-Override">M50&hellip;M53</A> <TD> P0 (off) or P1 (on) <TD> Feed Override, Spindle Override, Adaptive Feed, Feed Hold</TR>
+<TR> <TD COLSPAN=2><A HREF="gcode/main.html#sub:G54-to-G59.3:">G54&hellip;G59, G59.1&hellip;G59.3</A><TD> Select coordinate system </TR>
 <TR> <TH COLSPAN=3>Flow-control Codes </TR>
-<TR> <TD> <A HREF="gcode_main.html#cha:O-Codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
+<TR> <TD> <A HREF="gcode/main.html#cha:O-Codes">O &hellip;</A> <TD COLSPAN=2> sub/endsub, while/endwhile, if/else/endif, do/while, call, break/continue/return </TR>
 <TR> <TH COLSPAN=3>Input/Output Codes </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:M62-to-M65">M62-65</A> <TD> P <TD> Digital Output Control </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:M66-Input-Control">M66</A> <TD> P E L Q <TD> Digital and Analog Input Control </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:M67-Analog-Output">M67</A> <TD> T <TD> Analog Output Synchronized with Motion </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:M68-Analog-Output">M68</A> <TD> T <TD> Analog Output Immediate </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:M62-to-M65">M62-65</A> <TD> P <TD> Digital Output Control </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:M66-Input-Control">M66</A> <TD> P E L Q <TD> Digital and Analog Input Control </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:M67-Analog-Output">M67</A> <TD> T <TD> Analog Output Synchronized with Motion </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:M68-Analog-Output">M68</A> <TD> T <TD> Analog Output Immediate </TR>
 <TR> <TH COLSPAN=3>Non-modal Codes </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:M6:-Tool-Change">M6</A> <TD> T <TD> Change tool </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G4:-Dwell">G4</A> <TD> P <TD> Dwell (seconds) </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G10-L1-Set-Tool-Table">G10 L1</A> <TD> P Q R X W Z <TD> Tool offset, radius, orientation setting </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G10-L10">G10 L10</A> <TD> P Q R X W Z <TD> Tool offset, radius, orientation setting calculated</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G10:-Set-Coordinate">G10 L2</A> <TD> P R <em>axes</em> <TD> Coordinate system origin setting </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:G10-L20">G10 L20</A> <TD> P R <em>axes</em> <TD> Coordinate system origin setting calculated</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G28,-G30:-Return">G28, G28.1</A> <TD> <TD> Return to or Set reference point 1 </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G28,-G30:-Return">G30, G30.1</A> <TD> <TD> Return to or Set reference point 2 </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G53:-Move-in">G53</A> <TD> <TD> Motion in machine coordinate system </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92</A> <TD> <em>axes</em> <TD> Offset coordinate systems and set parameters </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.1</A> <TD> <TD> Cancel offset coordinate systems and set parameters to zero </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.2</A> <TD> <TD> Cancel offset coordinate systems but do not reset parameters </TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:G92,-G92.1,-G92.2,">G92.3</A> <TD> <TD> Apply parameters to offset coordinate systems  </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:M100-to-M199:">M101&hellip;M199</A> <TD> P Q <TD> User-defined M-codes </TR>
-<TR> <TD> <A HREF="gcode_main.html#sec:Comments">(&hellip;)</A> <TD> <TD> A comment "<STRONG>&hellip;</STRONG>" to the user</TR>
-<TR> <TD> <A HREF="gcode_main.html#sub:Messages">(MSG,&hellip;)</A> <TD> <TD> Display the message "<STRONG>&hellip;</STRONG>" to the user (e.g., in a popup)</TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:Debugging-messages">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Display the message (with variables substituted) like MSG</TR>
-<TR> <TD COLSPAN=2> <A HREF="gcode_main.html#sub:Debugging-messages">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Display the message (with variables substituted) to stderr</TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:M6:-Tool-Change">M6</A> <TD> T <TD> Change tool </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G4:-Dwell">G4</A> <TD> P <TD> Dwell (seconds) </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G10-L1-Set-Tool-Table">G10 L1</A> <TD> P Q R X W Z <TD> Tool offset, radius, orientation setting </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G10-L10">G10 L10</A> <TD> P <em>axes</em> <TD> Tool offset, setting calculated from workpiece</TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G10-L11">G10 L11</A> <TD> P <em>axes</em> <TD> Tool offset, setting calculated from fixture</TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G10:-Set-Coordinate">G10 L2</A> <TD> P R <em>axes</em> <TD> Coordinate system origin setting </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:G10-L20">G10 L20</A> <TD> P R <em>axes</em> <TD> Coordinate system origin setting calculated</TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G28,-G30:-Return">G28, G28.1</A> <TD> <TD> Return to or Set reference point 1 </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G28,-G30:-Return">G30, G30.1</A> <TD> <TD> Return to or Set reference point 2 </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G53:-Move-in">G53</A> <TD> <TD> Motion in machine coordinate system </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G92,-G92.1,-G92.2,">G92</A> <TD> <em>axes</em> <TD> Offset coordinate systems and set parameters </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G92,-G92.1,-G92.2,">G92.1</A> <TD> <TD> Cancel offset coordinate systems and set parameters to zero </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G92,-G92.1,-G92.2,">G92.2</A> <TD> <TD> Cancel offset coordinate systems but do not reset parameters </TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:G92,-G92.1,-G92.2,">G92.3</A> <TD> <TD> Apply parameters to offset coordinate systems  </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:M100-to-M199:">M101&hellip;M199</A> <TD> P Q <TD> User-defined M-codes </TR>
+<TR> <TD> <A HREF="gcode/main.html#sec:Comments">(&hellip;)</A> <TD> <TD> A comment "<STRONG>&hellip;</STRONG>" to the user</TR>
+<TR> <TD> <A HREF="gcode/main.html#sub:Messages">(MSG,&hellip;)</A> <TD> <TD> Display the message "<STRONG>&hellip;</STRONG>" to the user (e.g., in a popup)</TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/main.html#sub:Debugging-messages">(DEBUG,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Display the message (with variables substituted) like MSG</TR>
+<TR> <TD COLSPAN=2> <A HREF="gcode/main.html#sub:Debugging-messages">(PRINT,&hellip;#123&hellip;#&lt;foo&gt;)</A> <TD> Display the message (with variables substituted) to stderr</TR>
 </TABLE>
 <SCRIPT><!--
 var rows=document.evaluate('//tr', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -164,13 +165,13 @@ var links=document.evaluate('//a[@href]', document, null, XPathResult.ORDERED_NO
     }
 }
 
-// In the emc package, gcode_main.html is (probably) not included.  In this
+// In the emc package, gcode/main.html is (probably) not included.  In this
 // case, fix up the links to point at the online version instead of a local
 // version
 if(document.location.protocol == "file:") {
     try {
         var x = document.implementation.createDocument("", "", null);
-        x.load("gcode_main.html");
+        x.load("gcode/main.html");
         x.onerror = fixup_urls;
     } catch(err) {
         fixup_urls();
