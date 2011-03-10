@@ -33,7 +33,7 @@ import gobject
 import gtk
 import gtk.glade
 import gnome.ui
-
+import hal
 import xml.dom.minidom
 
 import traceback
@@ -1247,6 +1247,19 @@ class App:
             else:
                 return False
 
+    def check_for_rt(self):
+        actual_kernel = os.uname()[2]
+        if hal.is_sim :
+            self.warning_dialog(_("You are using a simulated-realtime version of EMC, so testing / tuning of hardware is unavailable."),True)
+            return False
+        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+            self.warning_dialog(_("You are using a realtime version of EMC but didn't load a realtime kernel so testing / tuning of hardware is\
+                 unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
+                 "You are using the  %(actual)s  kernel.\nYou need to use the  %(needed)s  kernel.")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
+            return False
+        else:
+            return True
+
     def on_page_newormodify_prepare(self, *args):
         self.widgets.createsymlink.set_active(self.data.createsymlink)
         self.widgets.createshortcut.set_active(self.data.createshortcut)
@@ -2044,6 +2057,7 @@ class App:
         
 
     def test_axis(self, axis):
+        if not self.check_for_rt(): return
         data = self.data
         widgets = self.widgets
 
