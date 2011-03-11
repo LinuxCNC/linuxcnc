@@ -186,6 +186,8 @@ may include:
  - tkemc(((tkemc)))
  - xemc(((xemc)))
 
+//
+
 POSITION_OFFSET = RELATIVE::
      The coordinate system (RELATIVE or MACHINE) to show when the user
     interface starts. The RELATIVE coordinate system reflects the G92 and

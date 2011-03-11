@@ -176,6 +176,8 @@ sont les suivantes:
  - tkemc
  - xemc
 
+//
+
 POSITION_OFFSET = RELATIVE::
      Le système de coordonnées (RELATIVE ou MACHINE) à utiliser au
     démarrage de l'interface utilisateur. Le système de coordonnées
