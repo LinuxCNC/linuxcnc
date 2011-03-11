@@ -541,7 +541,7 @@ static int comp_id;
     if options.get("userspace"):
         print >>f, "static void user_mainloop(void);"
         if options.get("userinit"):
-            print >>f, "static void user_init(int argc, char **argv);"
+            print >>f, "static void userinit(int argc, char **argv);"
         print >>f, "int argc=0; char **argv=0;"
         print >>f, "int main(int argc_, char **argv_) {"    
         print >>f, "    argc = argc_; argv = argv;"
