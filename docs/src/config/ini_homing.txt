@@ -135,6 +135,19 @@ HOME_SEQUENCE, they may be homed at the same time. If HOME_SEQUENCE is
 sequence. HOME_SEQUENCE numbers start with 0 and there may be no unused
 numbers.
 
+==== VOLATILE_HOME (((VOLATILE HOME)))
+
+If this setting is true, this axis becomes unhomed whenever the
+machine transitions into the OFF state.  This is appropriate for
+any axis that does not maintain position when the axis drive is
+off.  Some stepper drives, especially microstep drives, may need
+this.
+
+==== LOCKING_INDEXER (((LOCKING INDEXER)))
+
+If this axis is a locking rotary indexer, it will unlock before
+homing, and lock afterward.
+
 .[[fig:motion-homing-sequence-diagram]]Homing Sequences
 image::emc2-motion-homing-diag.eps[]
 
