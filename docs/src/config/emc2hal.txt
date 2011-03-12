@@ -130,10 +130,11 @@ motion.spindle-revs::
 
 motion.spindle-speed-in::
      (float, in) Feedback of actual spindle speed in rotations per second.
-    This is used by feed-per-revolution motion (`G95` ). If your spindle
+    This is used by feed-per-revolution motion (`G95`). If your spindle
     encoder driver does not have a velocity output, you
      can generate a suitable one by sending the spindle position through a
-    `ddt` component.
+    `ddt` component.  If you do not have a spindle encoder, you can loop 
+    back `motion.spindle-speed-out-rps`.
 
 motion.spindle-speed-out::
      (float, out) Commanded spindle speed in rotations per minute. Positive
@@ -147,17 +148,10 @@ motion.teleop-mode::
      (bit, out) TRUE when motion is in "teleop mode", as opposed to
     "coordinated mode"
 
-motion.tooloffset.w::
-     (float, out) shows the w offset in effect; it could come from the tool
-    table (`G43` active), or it could come from the gcode (`G43.1` active)
-
-motion.tooloffset.x::
-     (float, out) shows the x offset in effect; it could come from the tool
-    table (`G43` active), or it could come from the gcode (`G43.1` active)
-
-motion.tooloffset.z::
-     (float, out) shows the z offset in effect; it could come from the tool
-    table (`G43` active), or it could come from the gcode (`G43.1` active)
+motion.tooloffset.x ... motion.tooloffset.w::
+     (float, out, one per axis) shows the tool offset in effect;
+     it could come from the tool table (`G43` active), or it could
+     come from the gcode (`G43.1` active)
 
 === Parameters
 
