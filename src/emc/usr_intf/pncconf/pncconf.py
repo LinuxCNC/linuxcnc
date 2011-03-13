@@ -360,18 +360,35 @@ mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x2
 (UNUSED_OUTPUT,
 ON, CW, CCW, BRAKE,
 MIST, FLOOD, ESTOP, AMP,
-PUMP, DOUT0, DOUT1, DOUT2, DOUT3) = hal_output_names = [
+PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
+X_HALL1_OUT,X_HALL2_OUT,X_HALL3_OUT,X_C1_OUT,X_C2_OUT,X_C4_OUT,X_C8_OUT,
+Y_HALL1_OUT,Y_HALL2_OUT,Y_HALL3_OUT,Y_C1_OUT,Y_C2_OUT,Y_C4_OUT,Y_C8_OUT,
+Z_HALL1_OUT,Z_HALL2_OUT,Z_HALL3_OUT,Z_C1_OUT,Z_C2_OUT,Z_C4_OUT,Z_C8_OUT,
+A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
+S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "enable",
-"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03" ]
+"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+"x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
+"y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
+"z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
+"a-hall1-out","a-hall2-out","a-hall3-out","a-gray-c1-out","a-gray-c2-out","a-gray-C4-out","a-gray-C8-out",
+"s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out", ]
 
 spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
 coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
 control_output = [_("ESTOP Out"), _("Amplifier Enable"),_("Charge Pump")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
+xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
+ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
+zmotor_control = [_("Z HALL 1"),_("Z HALL 2"),_("Z HALL 3"),_("Z Gray C1"),_("Z Gray C2"),_("Z Gray C4"),_("Z Gray C8")]
+amotor_control = [_("A HALL 1"),_("A HALL 2"),_("A HALL 3"),_("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
+smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),_("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
 human_output_names = [ [_("Unused Output"),[None]],[_("Spindle"),spindle_output],[_("Coolant"),coolant_output],
-    [_("Control"),control_output],[_("Digital"),digital_output],[_("Custom Signals"),[None]]  ]
+    [_("Control"),control_output],[_("Digital"),digital_output],[_("X BLDC Control"),xmotor_control],
+    [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],[_("A BLDC Control"),amotor_control],
+    [_(" S BLDC Control"),smotor_control],[_("Custom Signals"),[None]]  ]
 
 limit = [_("X Minimum Limit"), _("Y Minimum Limit"), _("Z Minimum Limit"), _("A Minimum Limit"),
     _("X Maximum Limit"), _("Y Maximum Limit"), _("Z Maximum Limit"), _("A Maximum Limit"),
@@ -384,15 +401,23 @@ home_limits_shared = [ _("X Minimum Limit + Home"), _("Y Minimum Limit + Home"),
 digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3") ]
 axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
 override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
-    _("Feed Override incr C"),_("Feed Override incr D") ]
+    _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),_("Spindle Override incr B"),
+    _("Spindle Override incr C"),_("Spindle Override incr D") ]
 spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed") ]
 operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
 control = [_("ESTOP In"), _("Probe In") ]
+xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
+ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
+zmotor_control = [_("Z HALL 1"),_("Z HALL 2"),_("Z HALL 3"),_("Z Gray C1"),_("Z Gray C2"),_("Z Gray C4"),_("Z Gray C8")]
+amotor_control = [_("A HALL 1"),_("A HALL 2"),_("A HALL 3"),_("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
+smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),_("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
 rapid = [_("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),_("Jog A +"),_("Jog A -"),
     _("Jog button selected +"),_("Jog button selected -") ]
 human_input_names = [ [_("Unused Input"),[None]],[_("Limits"),limit],[_("Home"),home],[_("Limts/Home Shared"),home_limits_shared],
     [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],[_("Spindle"),spindle],
-    [_("Operation"),operation],[_("External Control"),control],[_("Axis rapid"),rapid],[_("Custom Signals"),[None]] ]
+    [_("Operation"),operation],[_("External Control"),control],[_("Axis rapid"),rapid],[_("X BLDC Control"),xmotor_control],
+    [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],[_("A BLDC Control"),amotor_control],
+    [_("S BLDC Control"),smotor_control],[_("Custom Signals"),[None]] ]
 
 (UNUSED_INPUT,
 MIN_X, MIN_Y, MIN_Z, MIN_A,
@@ -405,9 +430,15 @@ BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
 DIN0, DIN1, DIN2, DIN3,
 SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGA, JOGB, JOGC, JOGD, FOA, FOB, FOC, FOD,
+SOA,SOB,SOC,SOD,
 SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,SPINDLE_AT_SPEED,
 CYCLE_START, ABORT, SINGLE_STEP,
 ESTOP_IN, PROBE,
+X_HALL1_IN,X_HALL2_IN,X_HALL3_IN,X_C1_IN,X_C2_IN,X_C4_IN,X_C8_IN,
+Y_HALL1_IN,Y_HALL2_IN,Y_HALL3_IN,Y_C1_IN,Y_C2_IN,Y_C4_IN,Y_C8_IN,
+Z_HALL1_IN,Z_HALL2_IN,Z_HALL3_IN,Z_C1_IN,Z_C2_IN,Z_C4_IN,Z_C8_IN,
+A_HALL1_IN,A_HALL2_IN,A_HALL3_IN,A_C1_IN,A_C2_IN,A_C4_IN,A_C8_IN,
+S_HALL1_IN,S_HALL2_IN,S_HALL3_IN,S_C1_IN,S_C2_IN,S_C4_IN,S_C8_IN,
 JOGX_P,JOGX_N,JOGY_P,JOGY_N,JOGZ_P,JOGZ_N,JOGA_P,JOGA_N,JOGSLCT_P, JOGSLCT_N    ) = hal_input_names = ["unused-input",
 "min-x", "min-y", "min-z", "min-a",
 "max-x", "max-y", "max-z", "max-a",
@@ -419,9 +450,15 @@ JOGX_P,JOGX_N,JOGY_P,JOGY_N,JOGZ_P,JOGZ_N,JOGA_P,JOGA_N,JOGSLCT_P, JOGSLCT_N    
 "din-00", "din-01", "din-02", "din-03",
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
+"so-incr-a","so-incr-b","so-incr-c","so-incr-d",
 "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed",
 "cycle-start","abort","single-step",
 "estop-ext", "probe-in",
+"x-hall1-in","x-hall2-in","x-hall3-in","x-gray-c1-in","x-gray-c2-in","x-gray-C4-in","x-gray-C8-in",
+"y-hall1-in","y-hall2-in","y-hall3-in","y-gray-c1-in","y-gray-c2-in","y-gray-C4-in","y-gray-C8-in",
+"z-hall1-in","z-hall2-in","z-hall3-in","z-gray-c1-in","z-gray-c2-in","z-gray-C4-in","z-gray-C8-in",
+"a-hall1-in","a-hall2-in","a-hall3-in","a-gray-c1-in","a-gray-c2-in","a-gray-C4-in","a-gray-C8-in",
+"s-hall1-in","s-hall2-in","s-hall3-in","s-gray-c1-in","s-gray-c2-in","s-gray-C4-in","s-gray-C8-in",
 "jog-x-pos","jog-x-neg","jog-y-pos","jog-y-neg",
 "jog-z-pos","jog-z-neg","jog-a-pos","jog-a-neg","jog-selected-pos","jog-selected-neg"]
 
@@ -891,7 +928,7 @@ class Data:
         self.addcompbase = []
 
         # common axis data
-        for temp in("x","y","z","s"):
+        for temp in("x","y","z","a","s"):
 
             self[temp+"drivertype"]= "custom"
             self[temp+"steprev"]= 200
@@ -947,17 +984,29 @@ class Data:
             self[temp+"encoderscale"]= 0
 
             self[temp+"bldc_option"]= False
-            self[temp+"bldc_config"]= None
+            self[temp+"bldc_config"]= ""
+            self[temp+"bldc_no_feedback"]= False
+            self[temp+"bldc_absolute_feedback"]= False
+            self[temp+"bldc_incremental_feedback"]= True
+            self[temp+"bldc_use_hall"]= True
+            self[temp+"bldc_use_encoder"]= False
+            self[temp+"bldc_fanuc_alignment"]= False
+            self[temp+"bldc_use_index"]= False
+            self[temp+"bldc_digital_output"]= False
+            self[temp+"bldc_six_outputs"]= False
+            self[temp+"bldc_force_trapz"]= False
+            self[temp+"bldc_emulated_feedback"]= False
+            self[temp+"bldc_output_hall"]= False
+            self[temp+"bldc_output_fanuc"]= False
             self[temp+"bldc_scale"]= 512
             self[temp+"bldc_poles"]= 4
-            self[temp+"bldc_lead-angle"]= 0
-            self[temp+"bldc_initvalue"]= 1
+            self[temp+"bldc_lead_angle"]= 90
+            self[temp+"bldc_inital_value"]= 0.2
             self[temp+"bldc_encoder_offset"]= 0
             self[temp+"bldc_reverse"]= False
             self[temp+"bldc_drive_offset"]= 0.0
-            self[temp+"bldc_pattern_out"]= 0
+            self[temp+"bldc_pattern_out"]= 25
             self[temp+"bldc_pattern_in"]= 25
-            self[temp+"bldc_intial_value"]= .2
 
         # rotary tables need bigger limits
         self.aminlim = -9999
@@ -1418,9 +1467,62 @@ class Data:
         print >>file
 
         if bldc_control:
-                print >>file, " BLDC setup"
-                print >>file, "# TODO write some commands!"
-                print >>file
+            bldc = self[let+"bldc_config"]
+            print >>file, "# -- BLDC setup --"
+            print >>file, "setp   bldc.%d.drive-0ffset       %d" % (axnum,self[let+"bldc_drive_offset"])
+            print >>file, "setp   bldc.%s.rev                %d" % (axnum,self[let+"bldc_rev"])
+            if "q" in(bldc):
+                print >>file, "setp   bldc.%d.scale              %d" % (axnum,self[let+"bldc_scale"])
+                print >>file, "setp   bldc.%d.poles              %d" % (axnum,self[let+"bldc_poles"])
+            if "i" in(bldc):
+                print >>file, "setp   bldc.%s.initvalue          %d" % (axnum,self[let+"bldc_inital_value"])
+            if "i" in(bldc) or "a" in(bldc):
+                print >>file, "setp   bldc.%s.lead-angle         %d" % (axnum,self[let+"bldc_lead_angle"])
+                print >>file, "setp   bldc.%d.encoder-offset     %d" % (axnum,self[let+"bldc_encoder_offset"])
+            if "h" in(bldc):
+                print >>file, "setp   bldc.%d.pattern            %d" % (axnum,self[let+"bldc_pattern_in"])
+                print >>file, "net %s-hall1-in bldc.%d.hall1"% (let,axnum)
+                print >>file, "net %s-hall2-in bldc.%d.hall2"% (let,axnum)
+                print >>file, "net %s-hall3-in bldc.%d.hall3"% (let,axnum)
+            if "f" in(bldc):
+                print >>file, "net %s-c1-in bldc.%d.C1"% (let,axnum)
+                print >>file, "net %s-c2-in bldc.%d.C2"% (let,axnum)
+                print >>file, "net %s-c4-in bldc.%d.C4"% (let,axnum)
+                print >>file, "net %s-c8-in bldc.%d.C8"% (let,axnum)
+            if "H" in(bldc):
+                print >>file, "setp   bldc.%d.output-pattern     %d" % (axnum,self[let+"bldc_pattern_out"])
+                print >>file, "net %s-hall1-out bldc.%d.hall1-out"% (let,axnum)
+                print >>file, "net %s-hall2-out bldc.%d.hall2-out"% (let,axnum)
+                print >>file, "net %s-hall3-out bldc.%d.hall3-out"% (let,axnum)
+            if "6" in(bldc) :
+                if "B" in(bldc):
+                    print >>file, "net %s-a-high-on bldc.%d.A-high-on"% (let,axnum)
+                    print >>file, "net %s-a-low-on bldc.%d.A-low-on"% (let,axnum)
+                    print >>file, "net %s-b-high-on bldc.%d.B-high-on"% (let,axnum)
+                    print >>file, "net %s-b-low-on bldc.%d.B-low-on"% (let,axnum)
+                    print >>file, "net %s-c-high-on bldc.%d.C-high-on"% (let,axnum)
+                    print >>file, "net %s-c-low-on bldc.%d.C-low-on"% (let,axnum)
+                else:
+                    print >>file, "net %s-a-high bldc.%d.A-high"% (let,axnum)
+                    print >>file, "net %s-a-low bldc.%d.A-low"% (let,axnum)
+                    print >>file, "net %s-b-high bldc.%d.B-high"% (let,axnum)
+                    print >>file, "net %s-b-low bldc.%d.B-low"% (let,axnum)
+                    print >>file, "net %s-c-high bldc.%d.C-high"% (let,axnum)
+                    print >>file, "net %s-c-low bldc.%d.C-low"% (let,axnum)
+            elif "B" in(bldc):
+                print >>file, "net %s-a-on bldc.%d.A-on"% (let,axnum)
+                print >>file, "net %s-b-on bldc.%d.B-on"% (let,axnum)
+                print >>file, "net %s-c-on bldc.%d.C-on"% (let,axnum)
+            elif "F" in(bldc):
+                print >>file, "net %s-c1-out bldc.%d.C1-out"% (let,axnum)
+                print >>file, "net %s-c2-out bldc.%d.C2-out"% (let,axnum)
+                print >>file, "net %s-c4-out bldc.%d.C4-out"% (let,axnum)
+                print >>file, "net %s-c8-out bldc.%d.C8-out"% (let,axnum)
+            else:
+                print >>file, "net %s-a-value bldc.%d.A-value"% (let,axnum)
+                print >>file, "net %s-b-value bldc.%d.B-value"% (let,axnum)
+                print >>file, "net %s-c-value bldc.%d.C-value"% (let,axnum)
+            print >>file
 
         if closedloop:
                 print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
@@ -1765,7 +1867,7 @@ class Data:
 
         spindle_enc = counter = probe = pwm = pump = estop = False 
         enable = spindle_on = spindle_cw = spindle_ccw = False
-        mist = flood = brake = at_speed = False
+        mist = flood = brake = at_speed = bldc = False
 
         if self.findsignal("s-encoder-a"):
             spindle_enc = True        
@@ -1793,17 +1895,24 @@ class Data:
             brake = True
         if self.findsignal("spindle-at-speed"):
             at_speed = True
+        for i in self.available_axes:
+            if self[i+"bldc_option"]:
+                bldc = True
+                break
 
-        if self.usebldc or self.userneededbldc:
+        if bldc or self.userneededbldc:
             self._bldcconfigstring = ""
-            if self.usebldc:
+            if bldc:
                 for i in self.available_axes:
-                    temp = self[i+"bldcconfig"]
-                    self._bldcconfigstring.append(temp)
+                    temp = self[i+"bldc_config"]
+                    print i,temp
+                    if temp:
+                        self._bldcconfigstring = self._bldcconfigstring + temp + ","
             if self.userneededbldc:
-                for i in self.userneededbldc:
-                    self._bldcconfigstring.append(i)
-            print >>file, "loadrt bldc cfg= %s"% self._bldcconfigstring
+                    self._bldcconfigstring = self._bldcconfigstring + self.userneededbldc + ","
+            temp = self._bldcconfigstring.rstrip(",")
+            self._bldcconfigstring = temp
+            print >>file, "loadrt bldc cfg=%s"% temp
 
         if self.pyvcp or self.userneededabs >0:
             self.absnames=""
@@ -1938,8 +2047,9 @@ class Data:
                 print >>file, "alias pin    pid.%d.index-enable  pid.%s.index-enable" % (axnum + self.userneededpid, j)
                 print >>file
         
-        if self.usebldc or self.userneededbldc:
-            for num,i in enumerate(self._bldcconfigstring):
+        if bldc or self.userneededbldc:
+            temp=self._bldcconfigstring.split(",")
+            for num,j in enumerate(temp):
                 print >>file, "addf bldc.%d servo-thread"% num
 
         if self.classicladder:
@@ -5133,6 +5243,21 @@ class App:
         set_active("invertencoder")  
         set_value("maxoutput")
         set_active("bldc_option")
+        
+        set_active("bldc_no_feedback")
+        set_active("bldc_absolute_feedback")
+        set_active("bldc_incremental_feedback")
+        set_active("bldc_use_hall")
+        set_active("bldc_use_encoder" )
+        set_active("bldc_use_index")
+        set_active("bldc_fanuc_alignment")
+        set_active("bldc_digital_output")
+        set_active("bldc_six_outputs")
+        set_active("bldc_emulated_feedback")
+        set_active("bldc_output_hall")
+        set_active("bldc_output_fanuc")
+        set_active("bldc_force_trapz")
+
         set_active("bldc_reverse")
         set_value("bldc_scale")
         set_value("bldc_poles")
@@ -5140,6 +5265,7 @@ class App:
         set_value("bldc_drive_offset")
         set_value("bldc_pattern_out")
         set_value("bldc_pattern_in")
+
         w["motor_pulleydriver"].set_value(d[axis +"motor_pulleydriver"])
         w["motor_pulleydriven"].set_value(d[axis +"motor_pulleydriven"])
         w["encoder_pulleydriver"].set_value(d[axis +"encoder_pulleydriver"])
@@ -5385,6 +5511,21 @@ class App:
         get_pagevalue("bldc_drive_offset")
         get_pagevalue("bldc_pattern_out")
         get_pagevalue("bldc_pattern_in")
+        get_active("bldc_no_feedback")
+        get_active("bldc_absolute_feedback")
+        get_active("bldc_incremental_feedback")
+        get_active("bldc_use_hall")
+        get_active("bldc_use_encoder" )
+        get_active("bldc_use_index")
+        get_active("bldc_fanuc_alignment")
+        get_active("bldc_digital_output")
+        get_active("bldc_six_outputs")
+        get_active("bldc_emulated_feedback")
+        get_active("bldc_output_hall")
+        get_active("bldc_output_fanuc")
+        get_active("bldc_force_trapz")
+        if w[axis + "bldc_option"].get_active():
+            self.configure_bldc(axis)
         d[axis + "encodercounts"] = int(float(w["encoderline"].get_text())*4)
         if stepdrive: get_pagevalue("stepscale")
         if encoder: get_pagevalue("encoderscale")
@@ -5419,6 +5560,27 @@ class App:
             d[axis + "backlash"]= w[axis + "backlash"].get_value()
             get_active("usecomp")
             get_active("usebacklash")
+
+    def configure_bldc(self,axis):
+        d = self.data
+        string = ""
+        # Inputs
+        if d[axis + "bldc_no_feedback"]: string = string + "n"
+        elif d[axis +"bldc_absolute_feedback"]: string = string + "a"
+        elif d[axis + "bldc_incremental_feedback"]:
+            if d[axis + "bldc_use_hall"]: string = string + "h"
+            if d[axis + "bldc_use_encoder" ]: string = string + "q"
+        if d[axis + "bldc_use_index"]: string = string + "i"
+        if d[axis + "bldc_fanuc_alignment"]: string = string + "f"
+        # Outputs
+        if d[axis + "bldc_digital_output"]: string = string + "B"
+        if d[axis + "bldc_six_outputs"]: string = string + "6"
+        if d[axis + "bldc_emulated_feedback"]:
+            if d[axis + "bldc_output_hall"]: string = string + "H"
+            if d[axis + "bldc_output_fanuc"]: string = string +"F"
+        if d[axis + "bldc_force_trapz"]: string = string + "T"
+        print "axis ",axis,"bldc config ",string 
+        d[axis+"bldc_config"] = string
 
     def calculate_scale(self,axis):
         def get(n): return get_value(self.widgets[n])
