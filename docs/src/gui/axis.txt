@@ -243,17 +243,16 @@ Clear Live Plot::
     
 
 Show Commanded Position::
-    
 
 Show Actual Position::
-    
+    Actual Position is the position read back from the system's encoders or step generators.  This may differ slightly from Commanded Position for many reasons including PID tuning, physical constraints, or position quantization.
 
 Show Machine Position::
+    This is the position in unoffset coordinates, as established by homing the machine.
     
-
 Show Relative Position::
+    This is the Machine Position modified by `G5x`, `G92`, and `G43` offsets.
     
-
 ==== Help
 
 About Axis::
@@ -556,7 +555,7 @@ full list of keyboard shortcuts can be found in the AXIS Quick
 Reference, which can be displayed by choosing Help > Quick Reference.
 Many of the shortcuts are unavailable when in MDI mode.
 
-==== Feed Override Keys
+.Feed Override Keys
 
 The Feed Override keys behave differently when in Manual Mode. The
 keys `12345678 will select an axis if it is programed. If you have 3
