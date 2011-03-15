@@ -749,7 +749,7 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
 		"Cannot call before creating component");
 	return NULL;
     }
-    printf("make signal -> %s type %d\n",name,(hal_type_t) type);
+    //printf("INFO HALMODULE -- make signal -> %s type %d\n",name,(hal_type_t) type);
     switch (type) {
 	case HAL_BIT: 
         retval = hal_signal_new(name, HAL_BIT);
@@ -773,7 +773,12 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
 PyObject *connect(PyObject *self, PyObject *args) {
     char *signame,*pinname;
     if(!PyArg_ParseTuple(args, "ss", &pinname,&signame)) return NULL;
-    printf("link sig %s to pin %s\n",signame,pinname);
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+    //printf("INFO HALMODULE -- link sig %s to pin %s\n",signame,pinname);
     return PyBool_FromLong( hal_link(pinname, signame)!= NULL);
 }
 
@@ -800,7 +805,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     case HAL_FLOAT:
 	fval = strtod ( value, &cp );
 	if ((*cp != '\0') && (!isspace(*cp))) {
-	    /* invalid character(s) in string */
+	    // invalid character(s) in string 
 	    
 	    retval = -EINVAL;
 	} else {
@@ -810,7 +815,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     case HAL_S32:
 	lval = strtol(value, &cp, 0);
 	if ((*cp != '\0') && (!isspace(*cp))) {
-	    /* invalid chars in string */
+	    // invalid chars in string 
 	    
 	    retval = -EINVAL;
 	} else {
@@ -820,7 +825,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     case HAL_U32:
 	ulval = strtoul(value, &cp, 0);
 	if ((*cp != '\0') && (!isspace(*cp))) {
-	    /* invalid chars in string */
+	    // invalid chars in string 
 	   
 	    retval = -EINVAL;
 	} else {
@@ -828,7 +833,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	}
 	break;
     default:
-	/* Shouldn't get here, but just in case... */
+	// Shouldn't get here, but just in case... 
 	
 	retval = -EINVAL;
     }
@@ -842,13 +847,17 @@ PyObject *set_pin(PyObject *self, PyObject *args) {
     hal_pin_t *pin;
     hal_type_t type;
     void *d_ptr;
-
-    if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
-
     
-    /* get mutex before accessing shared data */
+    if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+    //printf("INFO HALMODULE -- settting pin / param - name:%s value:%s\n",name,value);
+    // get mutex before accessing shared data 
     rtapi_mutex_get(&(hal_data->mutex));
-    /* search param list for name */
+    // search param list for name 
     param = halpr_find_param_by_name(name);
     if (param == 0) {
         pin = halpr_find_pin_by_name(name);
@@ -859,7 +868,7 @@ PyObject *set_pin(PyObject *self, PyObject *args) {
 		        "pin not found");
 	        return NULL;
         } else {
-            /* found it */
+            // found it 
             type = pin->type;
             if(pin->dir == HAL_OUT) {
                 rtapi_mutex_give(&(hal_data->mutex));
@@ -875,11 +884,10 @@ PyObject *set_pin(PyObject *self, PyObject *args) {
 		            "pin connected to signal");
 	            return NULL;
             }
-            // d_ptr = (void*)SHMPTR(pin->dummysig);
             d_ptr = (void*)&pin->dummysig;
         }
     } else {
-        /* found it */
+        // found it 
         type = param->type;
         /* is it read only? */
         if (param->dir == HAL_RO) {
