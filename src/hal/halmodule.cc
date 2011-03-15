@@ -840,7 +840,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     return retval;
 }
 
-PyObject *set_pin(PyObject *self, PyObject *args) {
+PyObject *set_p(PyObject *self, PyObject *args) {
     char *name,*value;
     int retval;
     hal_param_t *param;
@@ -1061,7 +1061,7 @@ PyMethodDef module_methods[] = {
 	"create a signal"},
     {"connect", connect, METH_VARARGS,
 	"connect pin to signal"},
-    {"set_pin", set_pin, METH_VARARGS,
+    {"set_p", set_p, METH_VARARGS,
 	"set pin value"},
     {NULL},
 };
