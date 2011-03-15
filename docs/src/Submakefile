@@ -357,9 +357,18 @@ objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 #	$(ECHO) Converting $< to HTML
 #	@xsltproc --stringparam docname "xref" --stringparam language english --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
-objects/%.links: $(DOC_SRCDIR)/%.txt
+objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
 	@mkdir -p `dirname $@`
-	asciidoc -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@ || (X=$$?; rm $@; exit $$X)
+	asciidoc -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm $@; exit $$X)
+	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
+	touch $@
+
+objects/%.links: objects/%.links-stamp
+	@:
+
+# Scondary is not working here.
+# See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
+.PRECIOUS: objects/%.links-stamp
 
 objects/xref_en.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_EN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
