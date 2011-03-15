@@ -186,6 +186,8 @@ may include:
  - tkemc(((tkemc)))
  - xemc(((xemc)))
 
+//
+
 POSITION_OFFSET = RELATIVE::
      The coordinate system (RELATIVE or MACHINE) to show when the user
     interface starts. The RELATIVE coordinate system reflects the G92 and
@@ -841,7 +843,7 @@ OUTPUT_OFFSET = ::
     velocity mode amplifier such that 1 volt results in 250 mm/sec
     velocity,
     +
-    latexmath:[[amplifier[volts\]=(output[\frac{mm}{sec}\]-offset[\frac{mm}{sec}\])/250\frac{mm}{sec\, volt}\]]
+    latexmath:[$amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec volt}$]
     +
     Note that the units of the offset are in machine units, e.g.,
     mm/sec, and they are pre-subtracted from the sensor readings. The value
@@ -898,9 +900,7 @@ INPUT_SCALE::
     revs/inch gearing, and desired units of inch, we
     have
     +
-    latexmath:[\begin{array}{ccc} input\_scale & = &
-    2000\frac{counts}{rev}*10\frac{rev}{inch}\\ & = &
-    20000\frac{counts}{inch}\end{array}]
+    latexmath:[$input\_scale = 2000\frac{counts}{rev}*10\frac{rev}{inch} = 20000\frac{counts}{inch}$]
 
 ==== Stepper [[sub:Stepper-related-items]]
 
@@ -919,8 +919,7 @@ SCALE::
     revs/inch gearing, and desired machine units of inch, we
     have
     +
-    latexmath:[\begin{array}{cccc} input\_scale & = & \frac{{2\, steps}}{1.8\, degree}
-    *360\frac{{degree}}{rev}*10\frac{rev}{inch}\\ & = & 4000\frac{steps}{inch}\end{array}]
+    latexmath:[$input\_scale = \frac{{2\, steps}}{1.8\, degree}*360\frac{{degree}}{rev}*10\frac{rev}{inch}  =  4000\frac{steps}{inch}$]
     +
     Older stepper configuration
     .ini and .hal used INPUT_SCALE for this value.

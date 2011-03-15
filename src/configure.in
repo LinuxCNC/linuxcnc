@@ -771,27 +771,16 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     if ( test "none" = "$ASCIIDOC" ) ; then
 	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
     fi
-#    AC_PATH_PROG(LYX,lyx,"none")
-#    if ( test "none" = "$LYX" ) ; then
-#	AC_PATH_PROG(LYXQT,lyx-qt,"none")
-#	if ( test "none" != "$LYXQT" ) ; then
-#	    LYX=$LYXQT
-#	fi
-#    fi
-#    if ( test "none" = "$LYX" ) ; then
-#	AC_MSG_ERROR([no LyX, documentation cannot be built])
-#    fi
-#
-#    AC_MSG_CHECKING([for LyX version])
-#    set -- `$LYX --version 2>&1 | grep ^LyX` ; LYX_VER=$2
-#    AC_MSG_RESULT([$LYX_VER])
-#    set -- `echo $LYX_VER | sed 's/\./ /g'`
-#    if test $1 -lt 1 -o \( $1 -eq 1 -a $2 -lt 5 \) -o \( $1 -eq 1 -a $2 -eq 5 -a $3 -lt 3 \); then
-#	AC_MSG_ERROR([LyX version less than 1.5.3, documentation cannot be built])
-#    fi
-#    if test $1 -gt 1 -o \( $1 -eq 1 -a $2 -gt 5 \); then
-#	    AC_MSG_WARN([LyX documentation should only be edited with LyX version 1.5.x])
-#    fi
+
+    AC_MSG_CHECKING([asciidoc version])
+    set -- `asciidoc --version`; ASCIIDOC_VER=$2
+    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
+
+    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
+        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.\nDocumentation cannot be built.])
+    fi
+    AC_MSG_RESULT([$ASCIIDOC_VER])
+
     AC_PATH_PROG(CONVERT,convert,"none")
     if ( test "none" = "$CONVERT" ) ; then
 	AC_MSG_ERROR([no convert, documentation cannot be built])

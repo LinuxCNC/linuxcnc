@@ -23,7 +23,7 @@ coordinates them, and graphical user interfaces. In addition there is a
 layer called HAL (Hardware Abstraction Layer) which allows
 configuration of EMC2 without the need of recompiling.
 
-.[[fig:Typical_machine]]Simple EMC2 Controlled Machine
+.[[fig:Typical-machine]]Simple EMC2 Controlled Machine
 
 image::whatstep1.png[]
 
