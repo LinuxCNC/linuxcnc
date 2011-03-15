@@ -985,7 +985,7 @@ image::images/Section_Display_Grid.png[]
 
 Now click on the N.O. Input in the Editor Window.
 
-.Editor Window[[cap:Editor-Window]]
+.Editor Window[[cap:Editor-Window-NO]]
 
 image::images/Editor_N.O.Input.png[]
 
