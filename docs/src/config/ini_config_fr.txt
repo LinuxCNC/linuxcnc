@@ -726,7 +726,9 @@ SCALE = 4000::
     réduction de 10 tours/pouce et des unités souhaitées en mm, nous
     avons:
     +
-    latexmath:[$input\_ scale = \frac{{2\, pas}}{1.8\, degre}*360\frac{degres}{tour}*10\frac{tours}{pouce} = 4000\frac{pas}{pouce}\end{array}$]
+    latexmath:[\begin{array}{cccc} input\_ scale & = & \frac{{2\,
+    pas}}{1.8\, degre}*360\frac{degres}{tour}*10\frac{tours}{pouce}\\ & = &
+    4000\frac{pas}{pouce}\end{array}]
     +
     D'anciens fichiers de
     configuration .ini et .hal utilisaient INPUT_SCALE pour cette valeur.
