@@ -781,6 +781,22 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
     AC_MSG_RESULT([$ASCIIDOC_VER])
 
+    AC_PATH_PROG(DBLATEX,dblatex,"none")
+    if ( test "none" = "$DBLATEX" ) ; then
+	AC_MSG_ERROR([no dblatex, documentation cannot be built])
+    fi
+
+    AC_MSG_CHECKING([dblatex version])
+    set -- `dblatex --version`; DBLATEX_VER=$3
+    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+
+    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a $3 -lt 12 \) \); then
+        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
+Documentation cannot be built.])
+    fi
+    AC_MSG_RESULT([$DBLATEX_VER])
+
+
     AC_PATH_PROG(CONVERT,convert,"none")
     if ( test "none" = "$CONVERT" ) ; then
 	AC_MSG_ERROR([no convert, documentation cannot be built])
