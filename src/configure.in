@@ -777,7 +777,8 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
 
     if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
-        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.\nDocumentation cannot be built.])
+        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
+Documentation cannot be built.])
     fi
     AC_MSG_RESULT([$ASCIIDOC_VER])
 
