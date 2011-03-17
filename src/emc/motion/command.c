@@ -1330,7 +1330,7 @@ check_stuff ( "before command_handler()" );
 	    } else if (!(emcmotCommand->probe_type & 1)) {
                 // if suppress errors = off...
 
-                int probeval = *(emcmot_hal_data->probe_input);
+                int probeval = !!*(emcmot_hal_data->probe_input);
                 int probe_whenclears = !!(emcmotCommand->probe_type & 2);
 
                 if (probeval != probe_whenclears) {
