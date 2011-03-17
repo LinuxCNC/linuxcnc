@@ -117,12 +117,12 @@ net Ymin hm2_5i20.0.gpio.030.in => axis.1.neg-lim-sw-in
 # The earliest production units had normally open switches
 # on the Z axis which were deemed too difficult to change
 # to normally closed operation due to their remote location.
-net Zmax hm2_5i20.0.gpio.024.in_not => axis.2.pos-lim-sw-in
-net Zmin hm2_5i20.0.gpio.026.in_not => axis.2.neg-lim-sw-in
-# Later production untis came correctly wired with normally
+#net Zmax hm2_5i20.0.gpio.024.in_not => axis.2.pos-lim-sw-in
+#net Zmin hm2_5i20.0.gpio.026.in_not => axis.2.neg-lim-sw-in
+# Later production units came correctly wired with normally
 # closed switched on all three axes.
-#net Zmax hm2_5i20.0.gpio.024.in => axis.2.pos-lim-sw-in
-#net Zmin hm2_5i20.0.gpio.026.in => axis.2.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.024.in => axis.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.026.in => axis.2.neg-lim-sw-in
 
 #connect positive limit signals to home inputs
 net Xmax => axis.0.home-sw-in
