@@ -362,7 +362,7 @@ static void process_probe_inputs(void) {
     char probe_whenclears = !!(probe_type & 2);
     
     /* read probe input */
-    emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);
+    emcmotStatus->probeVal = !!*(emcmot_hal_data->probe_input);
     if (emcmotStatus->probing) {
         /* check if the probe has been tripped */
         if (emcmotStatus->probeVal ^ probe_whenclears) {

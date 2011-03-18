@@ -1828,7 +1828,7 @@ class App:
     def has_spindle_speed_control(self):
         d = self.data
         return PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6, d.pin7,
-            d.pin8, d.pin9, d.pin14, d.pin16) or \
+            d.pin8, d.pin9, d.pin14, d.pin16, d.pin17) or \
                 PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) or \
                 PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) \
 
