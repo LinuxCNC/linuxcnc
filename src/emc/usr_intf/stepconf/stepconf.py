@@ -183,7 +183,7 @@ def md5sum(filename):
     except IOError:
         return None
     else:
-        return hashlib(f.read()).hexdigest()
+        return hashlib.md5(f.read()).hexdigest()
 
 class Widgets:
     def __init__(self, xml):
@@ -367,7 +367,7 @@ class Data:
 
         warnings = []
         for f, m in self.md5sums:
-            m1 = hashlib.md5(f).hexdigest()
+            m1 = md5sum(f)
             if m1 and m != m1:
                 warnings.append(_("File %r was modified since it was written by stepconf") % f)
         if warnings:
@@ -435,7 +435,7 @@ class Data:
                 self.drivertype = "other"
 
     def add_md5sum(self, filename, mode="r"):
-        self.md5sums.append((filename, hashlib.md5(filename).hexdigest()))
+        self.md5sums.append((filename, md5sum(filename)))
 
     def write_inifile(self, base):
         filename = os.path.join(base, self.machinename + ".ini")
@@ -1828,7 +1828,7 @@ class App:
     def has_spindle_speed_control(self):
         d = self.data
         return PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6, d.pin7,
-            d.pin8, d.pin9, d.pin14, d.pin16) or \
+            d.pin8, d.pin9, d.pin14, d.pin16, d.pin17) or \
                 PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) or \
                 PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) \
 
