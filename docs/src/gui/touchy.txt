@@ -1,52 +1,69 @@
 = Touchy
 
-Touchy is a GUI for touch screens. It needs no mouse or keyboard.
+Touchy is a user interface for EMC2 meant for use on machine control panels,
+and therefore does not require keyboard or mouse.
+
+It is meant to be used with a touch screen, and works in combination
+with a wheel/MPG and a few buttons and switches.
 
 .Touchy
 
 image::images/touchy.png[]
 
-== Hard Controls
+== Panel Configuration
 
-=== Required Controls
+=== HAL connections
 
- - Abort button (momentary contact) connected to the hal pin touchy.abort
- - Cycle start button (momentary contact) connected to touchy.cycle-start
- - Wheel/mpg, connected to touchy.wheel-counts
- - Single block (toggle switch) connected to touchy.single-block
+Touchy requires that you create a file named `touchy.hal` in your
+configuration directory (the directory your ini file is in) to 
+connect its controls. Touchy executes the hal commands in this file
+after it has made its own pins available for connection.
+
+Touchy has several output pins that are meant to be connected to the
+motion controller to control wheel jogging:
+
+ - `touchy.jog.wheel.increment`,
+	which is to be connected to the `axis.N.jog-scale` pin of each axis N.
+
+ - `touchy.jog.wheel.N`, which is to be connected to `axis.N.jog-enable`
+	for each axis N.
+
+ - In addition to being connected to `touchy.wheel-counts`, the wheel counts 
+	should also be connected to `axis.N.jog-counts` for
+	each axis N.  If you use ilowpass to smooth wheel jogging, be
+	sure to smooth only `axis.N.jog-counts` and not `touchy.wheel-counts`.
+
+
+==== Required controls
+
+ - Abort button (momentary contact) connected to the HAL pin `touchy.abort`
+ - Cycle start button (momentary contact) connected to `touchy.cycle-start`
+ - Wheel/MPG, connected to `touchy.wheel-counts` and motion pins as described above
+ - Single block (toggle switch) connected to `touchy.single-block`
+
+==== Optional controls
+
+ -  For continuous jog, one center-off bidirectional momentary toggle
+   (or two momentary buttons) for each axis, hooked to `touchy.jog.continuous.x.negative`,
+   `touchy.jog.continuous.x.positive`, etc.
+ -  If a quill up button is wanted (to jog Z to the top of travel at top
+   speed), a momentary button connected to `touchy.quill-up`.
+
+==== Optional panel lamps
+
+ - `touchy.jog.active` shows when the panel jogging controls are live
+ - `touchy.status-indicator` is on when the machine is executing G-code,
+    and flashes when the machine is executing but is in pause/feedhold.
 
 === Recommended for any setup
 
  - Estop button hardwired in the estop chain
 
-=== Optional Controls
+== Setup
 
- -  Continuous Jog needs three center-off bidirectional momentary toggles
-   (or worse, six buttons), hooked to touchy.jog.continuous.x.negative,
-   ....x.positive, ... y ..., ... z ...
- -  If a quill up button is wanted (to jog Z to the top of travel at top
-   speed), a momentary button connected to touchy.quill-up
- -  Optional indicator output: touchy.jog.active can be connected to a
-   panel lamp to show when the panel jogging controls are live
- -  Touchy has several output pins that are meant to be connected to the
-   motion controller to control wheel jogging. They are:
- -  touchy.jog.wheel.increment => axis.N.jog-scale (for all relevant N)
-   touchy.jog.wheel.x => axis.0.jog-enable ... y ... => ... 1 ..., ... z
-   ...
- -  Also be sure to connect the wheel/mpg to axis.N.jog-counts as well as
-   to touchy.wheel-counts. If you use ilowpass to smooth wheel jogging, be
-   sure to smooth only axis.N.jog-counts and not touchy.wheel-counts.
+To use Touchy in the `[DISPLAY]` section of your ini file change the
+`DISPLAY = touchy`
 
-== Configuration
-
-Touchy requires you to create a file named "touchy.hal" in the same
-folder as your ini file to make these connections. Touchy executes the
-hal commands in this file after it has made its pins available for
-connection.
-
-To use Touchy in the [DISPLAY] section of your ini file change the
-DISPLAY = touchy
-
-Font Configuration is done on the Preferences Tab. Changes will be
-saved to the current computer in a hidden file.
-
+When you start Touchy the first time, check the Preferences tab.
+If using a touchscreen, choose the option to hide the pointer for
+best results.
