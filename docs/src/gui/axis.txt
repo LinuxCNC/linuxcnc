@@ -652,13 +652,13 @@ shown. When a command is entered, it is sent to EMC to be executed.
 
 This is a sample session of mdi.
 
-    $ mdi ~/emc2/configs/sim/emc.nml  +
-    MDI>  +
-    (0.0, 0.0, 0.0, 0.0, 0.0, 0.0) +
-    MDI> G1 F5 X1 +
-    MDI>  +
-    (0.5928500000000374, 0.0, 0.0, 0.0, 0.0, 0.0) +
-    MDI>  +
+    $ mdi ~/emc2/configs/sim/emc.nml
+    MDI>
+    (0.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
+    MDI> G1 F5 X1 
+    MDI>  
+    (0.5928500000000374, 0.0, 0.0, 0.0, 0.0, 0.0) 
+    MDI>  
     (1.0000000000000639, 0.0, 0.0, 0.0, 0.0, 0.0)
 
 == axis-remote

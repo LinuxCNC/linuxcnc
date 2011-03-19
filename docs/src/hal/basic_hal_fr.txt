@@ -78,7 +78,7 @@ Syntaxe et exemple:
     *loadusr -Wn spindle gs2_vfd -n spindle*
 
      En anglais ça donne "loadusr wait for name spindle component gs2_vfd
-    name spindle." +
+    name spindle." 
      Le -n spindle est une partie du composant gs2_vfd et non de la
     commande loadusr.
 
@@ -106,7 +106,7 @@ Pour faire celà en une ligne:
 Ou pour le faire en plusieurs lignes, utiliser simplement le signal
 avec les lecteurs des lignes suivantes:
 
-    *net xStep stepgen.0.out => parport.0.pin-02-out +
+    *net xStep stepgen.0.out => parport.0.pin-02-out 
     net xStep => parport.0.pin-02-out*
 
 Les pins appelées I/O pins comme «index-enable», ne suivent pas cette
@@ -234,8 +234,8 @@ Fonctions
 
 Pins
 
-    and2.N.in0 (bit, in) +
-    and2.N.in1 (bit, in) +
+    and2.N.in0 (bit, in) 
+    and2.N.in1 (bit, in) 
     and2.N.out (bit, out)
 
 Table de vérité
@@ -259,12 +259,12 @@ Syntaxe
 
 Fonctions
 
-    not.all +
+    not.all 
     not.n
 
 Pins
 
-    not.n.in (bit, in) +
+    not.n.in (bit, in) 
     not.n.out (bit, out)
 
 Table de vérité
@@ -290,8 +290,8 @@ Fonctions
 
 Pins
 
-    or2.n.in0 (bit, in) +
-    or2.n.in1 (bit, in) +
+    or2.n.in0 (bit, in) 
+    or2.n.in1 (bit, in) 
     or2.n.out (bit, out)
 
 Table de vérité
@@ -319,8 +319,8 @@ Fonctions
 
 Pins
 
-    xor2.n.in0 (bit, in) +
-    xor2.n.in1 (bit, in) +
+    xor2.n.in0 (bit, in) 
+    xor2.n.in1 (bit, in) 
     xor2.n.out (bit, out)
 
 Table de vérité
@@ -338,10 +338,10 @@ Table de vérité
 
 Un exemple de connection avec un "and2", deux entrées vers une sortie.
 
-    *loadrt and2 count=1 +
-    addf and2.0 servo-thread +
-    net my-sigin1 and2.0.in0 <= parport.0.pin-11-in +
-    net my-sigin2 and2.0.in.1 <= parport.0.pin-12-in +
+    *loadrt and2 count=1 
+    addf and2.0 servo-thread 
+    net my-sigin1 and2.0.in0 <= parport.0.pin-11-in 
+    net my-sigin2 and2.0.in.1 <= parport.0.pin-12-in 
     net both-on parport.0.pin-14-out <= and2.0.out*
 
 Dans cet exemple un and2 est chargé dans l'espace temps réel, puis

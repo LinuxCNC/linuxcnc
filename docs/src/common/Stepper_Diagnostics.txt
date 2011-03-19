@@ -102,29 +102,29 @@ the final position will not end up 0.500" that the axis window is
 showing. To test another axis just replace the Z with your axis in the
 G0 lines.
 
-    ( test program to see if Z axis loses position ) +
-    ( msg, test 1 of Z axis configuration ) +
-    G20 #1000=100 ( loop 100 times ) +
-    ( this loop has delays after moves ) +
-    ( tests acc and velocity settings ) +
-    o100 while [#1000] +
-    G0 Z1.000 +
-    G4 P0.250 +
-    G0 Z0.500 +
-    G4 P0.250 +
-    #1000 = [#1000 - 1] +
-    o100 endwhile +
-    ( msg, test 2 of Z axis configuration S to continue) +
-    M1 (stop here) +
-    #1000=100 ( loop 100 times ) +
-    ( the next loop has no delays after moves ) +
+    ( test program to see if Z axis loses position ) 
+    ( msg, test 1 of Z axis configuration ) 
+    G20 #1000=100 ( loop 100 times ) 
+    ( this loop has delays after moves ) 
+    ( tests acc and velocity settings ) 
+    o100 while [#1000] 
+    G0 Z1.000 
+    G4 P0.250 
+    G0 Z0.500 
+    G4 P0.250 
+    #1000 = [#1000 - 1] 
+    o100 endwhile 
+    ( msg, test 2 of Z axis configuration S to continue) 
+    M1 (stop here) 
+    #1000=100 ( loop 100 times ) 
+    ( the next loop has no delays after moves ) 
      ( tests direction hold times on driver config and also max accel
-    setting ) +
-    o101 while [#1000]  +
-    G0 Z1.000 +
-    G0 Z0.500 +
-    #1000 = [#1000 - 1] +
-    o101 endwhile +
-    ( msg, Done...Z should be exactly .5" above table ) +
+    setting ) 
+    o101 while [#1000]  
+    G0 Z1.000 
+    G0 Z0.500 
+    #1000 = [#1000 - 1] 
+    o101 endwhile 
+    ( msg, Done...Z should be exactly .5" above table ) 
     M2
 

@@ -163,7 +163,7 @@ GUI::
          human (in most cases) via the manipulation of icons and other
     elements
         (widgets) on a computer screen.
-    +
+    
     EMC;;
          An application that presents a graphical screen to the machine
         operator allowing manipulation of machine and the corresponding

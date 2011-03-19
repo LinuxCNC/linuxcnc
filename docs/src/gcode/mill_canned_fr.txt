@@ -86,15 +86,15 @@ Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout
 autre g-code. Les résultats des lignes suivantes sont identiques:
 
 ` G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements
-absolus) +
-G80 (révoque G81) +
+absolus) 
+G80 (révoque G81) 
  G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
 mobile en X0, Y0 et Z0)`
 
 produit le même déplacement et le même état final de la machine que:
 
 ` G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements
-absolus)  +
+absolus)  
  G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
 mobile en X0, Y0 et Z0)`
 
@@ -112,21 +112,21 @@ le prochaine ligne de code contenant un (ou plusieurs) mot d'axe X, Y
 ou Z. Le fichier suivant perce (G81) un ensemble de huit trous. Noter
 la position de Z change après les quatre premiers trous.
 
-`G90 G0 X0 Y0 Z0 (coordonnées d'origine)  +
-G1 X0 G4 P0.1  +
-G81 X1 Y0 Z0 R1 (cycle de perçage)  +
+`G90 G0 X0 Y0 Z0 (coordonnées d'origine)  
+G1 X0 G4 P0.1  
+G81 X1 Y0 Z0 R1 (cycle de perçage)  
 X2 `
 
-`X3  +
-X4  +
-Y1 Z0.5  +
-X3  +
-X2  +
-X1  +
-G80 (révocation du cycle G81)  +
-G0 X0 (mouvement en vitesse rapide)  +
-Y0  +
-Z0  +
+`X3  
+X4  
+Y1 Z0.5  
+X3  
+X2  
+X1  
+G80 (révocation du cycle G81)  
+G0 X0 (mouvement en vitesse rapide)  
+Y0  
+Z0  
 M2 (fin du programme)`
 
 image:images/G81mult.png[]
@@ -140,7 +140,7 @@ N120 et N200 appartiennent au cycle G81.
 Si vous utilisez G80 et que vous ne placez pas un code de mouvement
 modal juste derrière vous pourrez avoir un de ces messages:
 
-    `Cannot use axis commands with G80 +
+    `Cannot use axis commands with G80 
     Coordinate setting given with G80`
 
 Ils servent à vous rappeler que vous devez écrire un nouveau mot de
@@ -572,16 +572,16 @@ incrémentale de cycles de perçage pour des blocks de code successifs
 dans le même mode mouvements G81. Ici, nous produisons 12 trous au
 moyen de cinq lignes de code dans le mouvement modal.
 
-`G90 G0 X0 Y0 Z0 (coordinées d'origine) +
-G1 F50 X0 G4 P0.1 +
-G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage) +
-X0 Y1 R0 L3 (répétition) +
-X-1 Y0 L3 (répétition) +
-X0 Y-1 L2 (répétition) +
-G80 (révocation du cycle G81) +
-G90 G0 X0 (retour vers l'origine en vitesse rapide) +
-Y0 +
-Z0 +
+`G90 G0 X0 Y0 Z0 (coordinées d'origine) 
+G1 F50 X0 G4 P0.1 
+G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage) 
+X0 Y1 R0 L3 (répétition) 
+X-1 Y0 L3 (répétition) 
+X0 Y-1 L2 (répétition) 
+G80 (révocation du cycle G81) 
+G90 G0 X0 (retour vers l'origine en vitesse rapide) 
+Y0 
+Z0 
 M2 (fin du programme)`
 
 image:Twelve.png[]

@@ -151,11 +151,11 @@ Direction Setup:
 [quote]
 ________________________________________
 200 nS (0.2uS) before step pulse rising edge 
-+
-+
+
+
 200 nS (0.2uS) hold after step pulse rising edge
 ________________________________________
-+
+
 ________________________________________
 
 

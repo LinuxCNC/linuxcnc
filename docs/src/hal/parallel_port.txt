@@ -168,7 +168,7 @@ same time.
 
 If loading the module reports
 
-    insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': +
+    insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
     -1 Device or resource busy 
 
 then ensure that the standard kernel module `parport_pc`  is not

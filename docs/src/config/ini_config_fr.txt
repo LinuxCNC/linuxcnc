@@ -242,9 +242,9 @@ OPEN_FILE = /full/path/to/file.ngc::
 
 BASE_PERIOD = 50000::
     (hal)  (((BASE PERIOD)))“Période de base” des tâches, exprimée en
-    nanosecondes. C'est la plus rapide des horloges de la machine. +
+    nanosecondes. C'est la plus rapide des horloges de la machine. 
      Avec un système à servomoteurs, il n'y a généralement pas de raison
-    pour que *BASE_PERIOD* soit plus petite que *SERVO_PERIOD*.  +
+    pour que *BASE_PERIOD* soit plus petite que *SERVO_PERIOD*.  
      Sur une machine de type “step&direction” avec génération logicielle
      des impulsions de pas, c'est *BASE_PERIOD*  qui détermine le nombre
     maximum de pas par seconde. Si de longues
@@ -255,7 +255,7 @@ BASE_PERIOD = 50000::
     pas par seconde. 50000ns est une valeur assez large. La plus petite
     valeur utilisable est liée au résultat du test de latence ( <<sec:Test
     de latence>>), à la longueur des impulsions de pas nécessaire et à la
-    vitesse du µP. +
+    vitesse du µP. 
      Choisir une BASE_PERIOD trop basse peut amener à des messages
     “Unexpected realtime delay”, des bloquages ou des reboots spontanés.
 
@@ -265,10 +265,10 @@ SERVO_PERIOD = 1000000::
      nanosecondes. Cette valeur sera arrondie à un multiple entier de
     *BASE_PERIOD* . Elle est utilisée aussi sur des systèmes basés sur des
     moteurs pas à
-    pas +
+    pas 
      C'est la vitesse avec laquelle la nouvelle position des moteurs est
     traitée, les erreurs de suivi vérifiées, les valeurs des sorties PID
-    sont rafraichies etc. +
+    sont rafraichies etc. 
      Sur la plupart des systèmes *cette*  valeur n'est pas à modifier. Il
     s'agit du taux de mise à jour du
     planificateur de mouvement de bas niveau.
@@ -277,7 +277,7 @@ TRAJ_PERIOD = 1000000::
      (hal)  (((TRAJ PERIOD)))Période du planificateur de trajectoire,
     exprimée en
      nanosecondes. Cette valeur sera arrondie à un multiple entier de
-    *SERVO_PERIOD*. +
+    *SERVO_PERIOD*. 
      Excepté pour les machines avec une cinématique particulière (ex:
      hexapodes) Il n'y a aucune raison de rendre cette valeur supérieure à
     *SERVO_PERIOD*.
@@ -360,14 +360,14 @@ HOME = 0 0 0::
 
 LINEAR_UNITS=<units>::
       (((LINEAR UNITS)))Le nom des unités utilisées dans le fichier INI.
-    Les choix possibles sont 'in', 'inch', 'imperial', 'metric', 'mm'.  +
+    Les choix possibles sont 'in', 'inch', 'imperial', 'metric', 'mm'.  
      Cela n'affecte pas les unités linéaires du code NC (pour cela il y a
     les mots G20 et G21). 
 
 ANGULAR_UNITS=<units>::
      (((ANGULAR UNITS)))Le nom des unités utilisées dans le fichier INI.
     Les choix possibles sont 'deg', 'degree' (360 pour un cercle), 'rad',
-    'radian' (2pi pour un cercle), 'grad', ou 'gon' (400 pour un cercle). +
+    'radian' (2pi pour un cercle), 'grad', ou 'gon' (400 pour un cercle). 
      Cela n'affecte pas les unités angulaires du code NC. Dans le code
     RS274NGC, les mots A-, B- et C- sont toujours exprimés en degrés.
 
@@ -633,7 +633,7 @@ OUTPUT_OFFSET = 0.000::
     valeur (facteur d'échelle), avant d'être écrite dans le convertisseur
     D/A. Les unités du facteur d'échelle sont des Volts réels par Volts en
     sortie de DAC. Les unités de la valeur d'offset sont en Volts. Ces
-    valeurs peuvent être utilisées pour linéariser un DAC.  +
+    valeurs peuvent être utilisées pour linéariser un DAC.  
      Plus précisément, quand les sorties sont écrites, EMC converti d'abord
     les unités quasi-SI des sorties concernées en valeurs brutes, exemple:
     Volts pour un amplificateur DAC. Cette mise à l'échelle ressemble à
@@ -642,15 +642,15 @@ OUTPUT_OFFSET = 0.000::
     sont [unités SI en sortie]/[unités de l'actuateur]. Par exemple, sur
     une machine sur laquelle une tension de consigne de l'ampli de 1 Volt
     donne une vitesse de 250 mm/sec :
-    +
+    
     latexmath:[[amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec\,
     volt}\]]
-    +
+    
     Notez que les unités d'offset sont en unités machine, exemple:
     mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
     valeur de cet offset est obtenue en prenant la valeur de votre sortie
     qui donne 0,0 sur la sortie de l'actuateur. Si le DAC est linéarisé,
-    cet offset est normallement de 0.0.  +
+    cet offset est normallement de 0.0.  
      L'échelle et l'offset peuvent être utilisés pour linéariser les DAC,
     d'où des valeurs qui reflètent les effets combinés du gain de l'ampli,
     de la non linéarité du DAC, des unités du DAC, etc. Pour ce faire,
@@ -703,11 +703,11 @@ INPUT_SCALE = 20000::
       (hal)  (((INPUT SCALE)))Spécifie le nombre d'impulsions qui
     correspond à un
     mouvement d'une unité machine. Un second chiffre, si spécifié, sera
-    ignoré. +
+    ignoré. 
      Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
     réducteur de 10 tours/pouce et des unités demandées en mm, nous
     avons:
-    +
+    
     latexmath:[\begin{array}{ccc} input\_ scale & = &
     2000\frac{impulsions}{tour}*10\frac{tours}{pouce}\\ & = &
     20000\frac{impulsions}{pouce}\end{array}]
@@ -721,15 +721,15 @@ SCALE = 4000::
     c'est le nombre d'impulsions de pas nécessaires pour avancer d'une
     unité machine. Pour les systèmes à servo, c'est le nombre d'impulsions
     de retour signifiant que le mobile a avancé d'une unité machine. Un
-    second chiffre, si spécifié, sera ignoré. +
+    second chiffre, si spécifié, sera ignoré. 
      Par exemple, un pas moteur de 1.8 degré, en mode demipas, avec une
     réduction de 10 tours/pouce et des unités souhaitées en mm, nous
     avons:
-    +
+    
     latexmath:[\begin{array}{cccc} input\_ scale & = & \frac{{2\,
     pas}}{1.8\, degre}*360\frac{degres}{tour}*10\frac{tours}{pouce}\\ & = &
     4000\frac{pas}{pouce}\end{array}]
-    +
+    
     D'anciens fichiers de
     configuration .ini et .hal utilisaient INPUT_SCALE pour cette valeur.
 

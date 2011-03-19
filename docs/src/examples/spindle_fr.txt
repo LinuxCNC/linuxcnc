@@ -95,18 +95,18 @@ Matériel supposé présent:
 
 Configuration de base pour ajouter ces composants:
 
-    *loadrt encoder num_chan=1 +
-    addf encoder.update-counters base-thread +
-    addf encoder.capture-position servo-thread +
-    setp encoder.0.position-scale 100 +
-    setp encoder.0.counter-mode 1 +
-    net spindle-position encoder.0.position => motion.spindle-revs +
-    net spindle-velocity encoder.0.velocity => motion.spindle-speed-in +
+    *loadrt encoder num_chan=1 
+    addf encoder.update-counters base-thread 
+    addf encoder.capture-position servo-thread 
+    setp encoder.0.position-scale 100 
+    setp encoder.0.counter-mode 1 
+    net spindle-position encoder.0.position => motion.spindle-revs 
+    net spindle-velocity encoder.0.velocity => motion.spindle-speed-in 
      net spindle-index-enable encoder.0.index-enable <=>
-    motion.spindle-index-enable +
-    net spindle-phase-a encoder.0.phase-A +
-    net spindle-phase-b encoder.0.phase-B +
-    net spindle-index encoder.0.phase-Z +
-    net spindle-phase-a <= parport.0.pin-10-in +
+    motion.spindle-index-enable 
+    net spindle-phase-a encoder.0.phase-A 
+    net spindle-phase-b encoder.0.phase-B 
+    net spindle-index encoder.0.phase-Z 
+    net spindle-phase-a <= parport.0.pin-10-in 
     net spindle-index <= parport.0.pin-11-in*
 

@@ -9,10 +9,10 @@ et de “servo-thread”.
 
 Cet exemple utilise "ddt" pour calculer la vitesse d'un axe.
 
-    *loadrt ddt count=1 +
+    *loadrt ddt count=1 
     loadrt hypot count =1*
 
-    *addf ddt.0 servo-thread +
+    *addf ddt.0 servo-thread 
     addf hypot.0 servo-thread*
 
     *net X-vel ddt.0.out => ddt.1.in *

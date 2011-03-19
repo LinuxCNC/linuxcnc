@@ -79,7 +79,7 @@ first line loads real time the Classic Ladder module. The second line
 adds the function classicladder.0.refresh to the servo thread. This
 line makes Classic Ladder update at the servo thread rate.
 
-    loadrt classicladder_rt +
+    loadrt classicladder_rt 
     addf classicladder.0.refresh servo-thread
 
 The speed of the thread that Classic Ladder is running in directly

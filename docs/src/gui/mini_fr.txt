@@ -70,18 +70,18 @@ Vues::
          millimètre. Ce qui peut être modifié en agissant sur le menu
     «Réglages»
         décrit plus loin.
-    +
+   
     Informations_outil;;
          cet item ajoute une ligne immédiatement sous l'afficheur principal,
         elle affiche quel outil est selectionné et la valeur de l'offset
         appliqué.
-    +
+    
     Informations_offset;;
           ajoute une ligne immédiatement sous celle des informations outil,
     elle
         affiche les offsets de travail actuellement appliqués. C'est la
         distance totale pour chaque axe depuis son point d'origine machine.
-    +
+    
     Afficher_Reprise;;
          ajoute, en mode Auto, un bloc de boutons en bas à droite de
         l'affichage du programme. Ces boutons permettent à l'opérateur de
@@ -90,16 +90,16 @@ Vues::
         lorsqu'un A/U ou un Abandon est engagé, mais l'opérateur peut ici
         choisir le bloc sur lequel redémarrer dans le mode Auto, en activant
         cet item de menu.
-    +
+    
     Masquer_Reprise;;
           enlève le bloc de boutons contrôlant la reprise d'un programme
     stoppé
         par Abandon ou Arrêt d'Urgence.
-    +
+    
     Diviser_la_vue_droite;;
          modifie la nature de l'affichage de la colonne de droite pour qu'il
         montre plus d'informations.
-    +
+    
     Afficher_en_mode_complet;;
           modifie l'affichage de la colonne de droite, soit en mode boutons
     et
@@ -107,7 +107,7 @@ Vues::
          manuel et en utilisant ce mode entier, les boutons de la broche et
     du
         lubrifiant sont visibles en plus des boutons de mouvement.
-    +
+    
     Afficher_dans_toute_la_fenêtre;;
          modifie l'affichage dans la colonne de droite pour qu'elle soit
         remplie entièrement.
@@ -118,15 +118,15 @@ Réglages::
     Position_Actuelle;;
          régle l'afficheur principal sur des valeurs de position actuelle
         (basées sur la machine).
-    +
+    
     Position_Commandée;;
          régle l'afficheur principal sur des valeurs de position commandée
         (positions cibles).
-    +
+    
     Position_Machine;;
          régle l'afficheur principal sur des valeurs de position absolue,
         distance depuis le point d'origine machine.
-    +
+    
     Position_Relative;;
          régle l'affichage principal pour qu'il affiche les valeurs de la
         position courante en incluant tous les offsets comme les origines
@@ -139,22 +139,22 @@ Informations::
     MESSAGES.
     Fichier_programme;;
         Indique le nom du fichier programme actif.
-    +
+    
     Editeur_de_Fichiers;;
           Indique le nom de l'éditeur de texte lancé quand un fichier est
     choisi
         pour être édité.
-    +
+    
     Fichier_de_paramètres;;
          Indique le nom du fichier devant être utilisé pour enregistrer les
         paramètres du programme. Il est possible d'avoir plus d'informations
          dans le chapitre sur les offsets et l'utilisation des paramètres
     dans
         les programmes.
-    +
+    
     Fichiers_d'outils;;
         Indique le nom du fichier d'outils utilisé pour l'usinage en cours.
-    +
+    
     G-Codes_actifs;;
           Indique la liste des G-codes modaux actifs au moment ou cet item
     a été

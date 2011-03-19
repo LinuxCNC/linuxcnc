@@ -164,7 +164,7 @@ MDI commands scheme:
 
  - The MDI_COMMAND is added to the ini file in the [HALUI] section. 
 
-    [HALUI]  +
+    [HALUI] 
     MDI_COMMAND = G0 X0
 
  -  When halui starts it will read the MDI_COMMAND fields in the ini, and

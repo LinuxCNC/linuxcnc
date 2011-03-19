@@ -87,24 +87,24 @@ HALNAME::
     then a trailing period is removed as well, so that "`function _`" gives
     a HAL function name like `component.<num>` instead of
     `component.<num>.`
-    +
+    
     If present, the prefix `hal_`  is removed from the beginning of the
     component name when creating
     pins, parameters and functions.
-    +
+    
     In the HAL identifier for a pin or parameter, # denotes an array item,
     and must be used in conjunction with a `[SIZE]`  declaration. The hash
     marks are replaced with a 0-padded number with
     the same length as the number of # characters.
-    +
+    
     When used to create a C identifier, the following changes are applied
     to the HALNAME:
-    +
+    
      .  Any # characters, and any ".", "_" or "-" characters immediately
        before them, are removed.
      . Any remaining "." and "-" characters are replaced with "_"
      . Repeated "_" characters are changed to a single "_" character.
-    +
+    
     A trailing _ is retained, so that HAL identifiers which would
     otherwise collide with reserved names or keywords (e.g., 'min') can be
     used.
@@ -138,14 +138,14 @@ DOC::
     quoted" string, like `"Selects the desired edge: TRUE means falling,
     FALSE means rising"`  or a Python-style "triple quoted" string, which
     may include embedded
-    newlines and quote characters, such as: +
-        `param rw bit zot=TRUE` +
-        `"""The effect of this parameter, also known as "the orb of zot",` +
-        `will require at least two paragraphs to explain.` +
-         +
-        `Hopefully these paragraphs have allowed you to understand "zot"` +
+    newlines and quote characters, such as: 
+        `param rw bit zot=TRUE` 
+        `"""The effect of this parameter, also known as "the orb of zot",` 
+        `will require at least two paragraphs to explain.` 
+         
+        `Hopefully these paragraphs have allowed you to understand "zot"` 
         `better.""";`
-    +
+    
     The documentation string is in "groff -man" format. For more
     information on this markup format, see `groff_man(7)` . Remember that
     comp interprets backslash escapes in strings, so for
@@ -190,12 +190,12 @@ OPT, VALUE::
     `component-name.item-name`
         and without `singleton`, items for numbered instances are named
         `component-name.<num>.item-name`.
-    +
+    
     option default_count ;;
         'number' (default: 1)
         Normally, the module parameter `count` defaults to 0. If specified,
         the `count` will default to this value instead.
-    +
+    
     option count_function yes;;
         (default: no)
          Normally, the number of instances to create is specified in the
@@ -205,24 +205,24 @@ OPT, VALUE::
          by the function `int get_count(void)` is used instead, and the
     `count`
         module parameter is not defined.
-    +
+    
     option rtapi_app no;;
         (default: yes)
         Normally, the functions `rtapi_app_main` and `rtapi_app_exit` are
         automatically defined. With `option rtapi_app no`, they are not, and
         must be provided in the C code.
-        +
+        
         When implementing your own `rtapi_app_main`, call the function `int
          export(char *prefix, long extra_arg)` to register the pins,
     parameters,
         and functions for `prefix`.
-    +
+    
     option data ;;
         'type' (default: none) deprecated
         If specified, each instance of the component will have an associated
         data block of 'type' (which can be a simple type like `float` or the
         name of a type created with `typedef`).
-        +
+        
         In new components, 'variable' should be used instead.
 
 option extra_setup yes::
@@ -230,14 +230,14 @@ option extra_setup yes::
     If specified, call the function defined by `EXTRA_SETUP` for each
     instance. If using the automatically defined `rtapi_app_main`,
     `extra_arg` is the number of this instance.
-    +
+    
     option extra_cleanup yes;;
         (default: no)
         If specified, call the function defined by `EXTRA_CLEANUP` from the
          automatically defined `rtapi_app_exit`, or if an error is detected
     in
         the automatically defined `rtapi_app_main`.
-    +
+    
     option userspace yes;;
         (default: no)
          If specified, this file describes a userspace component, rather
@@ -255,7 +255,7 @@ option extra_setup yes::
           short time. Another common action in `user_mainloop()` may be to
     call
         the event handler loop of a GUI toolkit.
-    +
+    
     option userinit yes;;
         (default: no)
         If specified, the function `userinit(argc,argv)` is called before
@@ -265,7 +265,7 @@ option extra_setup yes::
     wishes
         to terminate rather than create a hal component (for
         instance, because the commandline arguments were invalid).
-    +
+    
     If an option's VALUE is not specified, then it is equivalent to
     specifying `option … yes` . The result of assigning an inappropriate
     value to an option is
@@ -276,10 +276,10 @@ LICENSE::
     MODULE_LICENSE() module declaration. For example, to specify that the
     module's license is GPL,
         license "GPL";
-    +
+    
     For additional information on the meaning of MODULE_LICENSE() and
     additional license identifiers, see `<linux/module.h>`.
-    +
+    
     Starting in emc 2.3, this declaration is required.
 
 AUTHOR::
@@ -302,7 +302,7 @@ variable ::
     an array of 'SIZE' items, and optionally with a default value
     'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
     'CTYPE' is a simple one-word C type, such as `float`, `u32`, `s32`,
-    int, etc. +
+    int, etc. 
     Access to array variables uses square brackets.
 
 C++-style one-line comments (`// …`) and C-style multi-line comments
@@ -352,7 +352,7 @@ parameter_name::
     form 'pin_name(idx)' or 'param_name(idx)' where 'idx'  is the index
     into the pin array. When the array is a variable-sized
     array, it is only legal to refer to items up to its 'condsize'.
-    +
+    
     When the item is a conditional item, it is only legal to refer to it
     when its 'condition' evaluated to a nonzero value.
 
