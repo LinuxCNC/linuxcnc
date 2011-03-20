@@ -115,10 +115,9 @@ demandent toutes des timing différents pour les impulsions de commande
 de pas et de direction. Aussi vous avez besoin d'accéder (ou Google) à
 la fiche des spécifications techniques de votre carte.
 
+Par exemple, le manuel du Gecko G202 indique:
 [quote]
 ________________________________________
-Par exemple, le manuel du Gecko G202 indique:
-
 
 Step Frequency: 0 to 200 kHz 
 
@@ -130,12 +129,12 @@ Step Pulse “1” Time: 4.5 uS min
 
 
 Direction Setup: 1 uS min (20 uS min hold time after Step edge)
-
-
- 
+________________________________________
 
 
 Les spécifications du Gecko G203V indiquent:
+[quote]
+________________________________________
 
 
 Step Frequency: 0 to 333 kHz 
@@ -147,15 +146,10 @@ Step Pulse “0” Time: 2.0 uS min (Step on rising edge)
 Step Pulse “1” Time: 1.0 uS min 
 
 
-Direction Setup: 
-[quote]
-________________________________________
 200 nS (0.2uS) before step pulse rising edge 
 
 
 200 nS (0.2uS) hold after step pulse rising edge
-________________________________________
-
 ________________________________________
 
 
