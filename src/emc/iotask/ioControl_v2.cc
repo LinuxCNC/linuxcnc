@@ -80,6 +80,7 @@ static NML *emcErrorBuffer = 0;
 static char *ttcomments[CANON_POCKETS_MAX];
 static int fms[CANON_POCKETS_MAX];
 static int random_toolchanger = 0;
+static int support_start_change = 0;
 static const char *progname;
 
 typedef enum {
@@ -799,6 +800,10 @@ int main(int argc, char *argv[])
 
     progname = argv[0];
     for (t = 1; t < argc; t++) {
+	if (!strcmp(argv[t], "-support-start-change")) {
+	    support_start_change = 1;
+	    continue;
+	}
 	if (!strcmp(argv[t], "-ini")) {
 	    if (t == argc - 1) {
 		return -1;
@@ -1059,7 +1064,8 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_START_CHANGE_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_START_CHANGE\n");
-	    if (proto > V1) {
+	    // only handle this if explicitly enabled - less backwards config breakage
+	    if ((proto > V1) && support_start_change) {
 		*(iocontrol_data->start_change) = 1;
 		*(iocontrol_data->state) = ST_START_CHANGE;
 		// delay fetching the next message until ack line seen
