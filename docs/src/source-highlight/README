@@ -1,0 +1,76 @@
+source-highlighting EMC langues in HTML documents
+=================================================
+
+I've created GNU source-highlight language definitions for G-code and
+halcmd to highlight .hal and .ngc files in asciidoc. .ini file
+highlighting works out of the box. All three need a bit of trickery to
+work cleanly for both html and pdf.
+
+Highlighting is for HTML output only at this point in time.  To have
+PDF's highlighted, the file
+/usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty needs to be
+extended to deal with ngc, hal and ini formats, and put into the build
+directory so dblatex can find it.
+
+Highlighting halcmd, ini and ngc source in HTML is now integrated into
+the documentation build process. tcl, python, sh etc keep working out
+of the box.
+
+NB: source-highlight's mechanisms to find .lang and .map files is
+very inflexible which is why the complete source language definition
+directoy (/usr/share/source-highlight) needs to be replicated under 'local',
+and a new lang.map generated in there (all language definitions are
+relative to this directory, and include each other).
+
+Using ngc, hal and ini file snippets in your .txt files:
+========================================================
+Copy this to the top of your txt file:
+----------------- snip ----------------
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+// begin a listing of ini/hal/ngc files like so:
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
+----------------- snip ----------------
+
+Adding or changing a langauage definition (.lang) file
+======================================================
+
+New language: just drop <name>.lang into this directory. The
+source-highlight configuration will be rebuilt to include this
+language. <name> then can be used in [source,{named}] listings. You
+might need a conditional like
+
+:name: {basebackend@docbook:'':name}
+
+to prevent pdflatex formatting errors.
+
+Changing a language defintion: just edit the .lang file in this directory.
+
+Overruling definitons in the source-highlight standard language definitions:
+
+Copy the <language>.lang file from /usr/share/source-highlight into
+this directoy and edit as needed. The reight things should happen on
+build (including a massive initial rebuild ;-)
+
+
+Building HTML examples in the this directory
+============================================
+
+To produce pdf and html samples, type 'make examples' .
+
+This should produce {ini-demo,hal-demo,ngc-demo}.{pdf,html} files in
+the current directory, with proper highlighing of HTML only. PDF files
+come out properly but have no highlighting.
+
+--------------------------------------------
+
+I found this tool very helpful for writing GNU source-highlight .lang
+definitions:
+
+http://srchighliteide.sourceforge.net/
+
+Michael Haberler 3/2011

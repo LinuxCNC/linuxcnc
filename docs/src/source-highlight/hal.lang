@@ -1,0 +1,28 @@
+# language HAL (EMC Hardware Abstraction Layer)
+# as documented by halcmd(1)
+# Michael Haberler 3/2011
+# a bit unsure wether 'function' and 'label' are the appropriate styles
+
+keyword = "loadrt|unloadrt|loadusr|waitusr|unloadusr|unlinkp",
+  "unload|newsig|delsig|sets|stype|gets|linkps|linksp",
+  "linkpp|net|unlinkp|setp|ptype|getp|addf|delf",
+  "start|stop|show|item|save|source"
+
+symbol = "=>","<=","="
+
+# a pin name has a token, followed by at least one dot, and a word
+variable = '([[:alpha:]]|[_])[[:word:]]+\.([[:word:]]|[\-\.])+'
+
+# standalone token - a signal name, component name (no dots)
+function = '([[:alpha:]]|_)([[:word:]]|\-)*'
+
+# INIFILE variable
+label = '\[[[:alpha:]][[:word:]]+\][[:alpha:]][[:word:]]+'
+
+# environment variable
+label = '\$[[:alpha:]][[:word:]]+'
+label = '\$\([[:alpha:]][[:word:]]+\)'
+
+include "number.lang"
+
+include "script_comment.lang"
