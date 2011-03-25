@@ -4,6 +4,13 @@
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
+# oh man..
+HL_DIR=/usr/share/source-highlight
+LANG_MAP=$(HL_DIR)/lang.map
+LOC_HL_DIR=../docs/src/source-highlight
+LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
+
+
 MAN_SRCS := $(sort \
 	$(patsubst %.in,%,$(wildcard $(DOC_DIR)/man/man1/*.1  $(DOC_DIR)/man/man1/*.1.in)) \
 	$(filter-out $(DOC_DIR)/man/man3/skeleton%, $(wildcard $(DOC_DIR)/man/man3/*.3rtapi $(DOC_DIR)/man/man3/*.3hal)) \
@@ -226,7 +233,7 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@
-		
+
 $(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
@@ -268,7 +275,7 @@ objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
 $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \
 		sed "s/@VERSION@/`cat ../VERSION`/" > $@	
-	
+
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 
@@ -385,27 +392,36 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
+# rebuild source-highlight/local/lang.map if needed - note this will cause a major rebuild
+# unsure how to do this as Submakefile -mah
+$(LOC_LANG_MAP): $(wildcard $(LOC_HL_DIR)/*.lang) $(LANG_MAP)
+	(cd $(LOC_HL_DIR); make all)
+
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links  $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_en.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links
+
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_fr.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 default: docs
 
 install-doc-pdf:
@@ -421,7 +437,7 @@ docs:
 	$(error Cannot build documents, missing LyX or some other required program, or explicitly disabled in configure)
 
 endif
-    
+
 docclean:
 	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
 	-rm -f $(DOC_DIR)/HAL_User_Manual_fr.pdf
@@ -435,6 +451,9 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
+# unsure how to do this as Submakefile: -mah
+	-(cd $(LOC_HL_DIR); make clean)
+
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
