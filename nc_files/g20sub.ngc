@@ -1,0 +1,14 @@
+;
+
+O<g20sub> sub
+M70 (save in current call context)
+
+g20 (imperial)
+g90 (absolute mode)
+f4  (much faster feed)
+G0 X1.0 Y1.0 (move absolute to 1in/1in)
+
+M71 (restore to caller context)
+O<g20sub> endsub
+
+m2
