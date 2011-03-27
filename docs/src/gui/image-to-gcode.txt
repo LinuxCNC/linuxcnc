@@ -13,9 +13,9 @@ Add the following lines to the `[FILTER]`  section of your .ini file
 to make AXIS automatically invoke
 image-to-gcode when you open a .png, .gif, or .jpg image:
 
-    PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image +
-    png = image-to-gcode +
-    gif = image-to-gcode +
+    PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
+    png = image-to-gcode
+    gif = image-to-gcode
     jpg = image-to-gcode
 
 The standard `sim/axis.ini` configuration file is already configured

@@ -5,7 +5,7 @@ Automation Direct.
 
 This component is loaded using the halcmd "loadusr" command:
 
-    loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd +
+    loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd 
     (loadusr, wait for named to load, component gs2_vfd, named spindle-vfd)
 
 The command-line options are:
@@ -47,7 +47,7 @@ Pins where <name> is the name given during loading with the -n option.
  - <name>.output-voltage (float, out) from the VFD
  - <name>.power-factor (float, out) from the VFD
  - <name>.scale-frequency (float, out) from the VFD
- - <name>.speed-command (float, in) speed sent to VFD in RPM +
+ - <name>.speed-command (float, in) speed sent to VFD in RPM 
     It is an error to send a speed faster than the Motor Max RPM as set in
    the VFD
  - <name>.spindle-fwd (bit, in) 1 for FWD and 0 for REV sent to VFD
@@ -55,11 +55,11 @@ Pins where <name> is the name given during loading with the -n option.
  - <name>.spindle-on (bit, in) 1 for ON and 0 for OFF sent to VFD
  - <name>.status-1 (s32, out) Drive Status of the VFD (see the GS2 manual)
  -  <name>.status-2 (s32, out) Drive Status of the VFD (see the GS2
-   manual) +
+   manual) 
     Note that the value is a sum of all the bits that are on. So a 163
-   which means  +
+   which means  
     the drive is in the run mode is the sum of 3 (run) + 32 (freq set by
-   serial) +
+   serial) 
    + 128 (operation set by serial).
 
 Parameters where <name> is the name given during loading with the -n

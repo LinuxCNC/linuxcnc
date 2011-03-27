@@ -4695,6 +4695,15 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &AA_end, &BB_end, &CC_end, 
                     &u_end, &v_end, &w_end, settings);
       COMMENT("AXIS,hide");
+
+      // move indexers first, one at a time
+      if (AA_end != settings->AA_current && settings->a_indexer)
+          issue_straight_index(3, AA_end, -1, settings);
+      if (BB_end != settings->BB_current && settings->b_indexer)
+          issue_straight_index(4, BB_end, -1, settings);
+      if (CC_end != settings->CC_current && settings->c_indexer)
+          issue_straight_index(5, CC_end, -1, settings);
+
       STRAIGHT_TRAVERSE(-1, end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,
                         u_end, v_end, w_end);

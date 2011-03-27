@@ -88,31 +88,31 @@ HALNAME::
     «ce-nom» et si le nom `«_`», alors le point final est enlevé aussi,
     ainsi `«function _`» donne un nom de fonction HAL tel que
     `component.<num>` au lieu de `component.<num>.`
-    +
+    
     S'il est présent, le préfixe `hal_`  est enlevé du début d'un nom de
     composant pour la création des pins
     des paramètres et des fonctions.
-    +
+    
     Dans l'identifiant de HAL pour une pin ou un paramètre, # indique un
     membre de tableau, il doit être utilisé conjointement avec une
     déclaration `[SIZE]` . Les «hash marks» sont remplacées par des nombres
     de 0-barrés
     équivalents aux nombres de caractères #.
-    +
+    
     Quand ils sont utilisés pour créer des identifiants C, les changements
     de caractères suivants sont appliqués au HALNAME:
-    +
+    
       .  Tous les caractères # sont enlevés ainsi que tous les caractères
     «.»,
        «_» ou «-» immédiatement devant eux.
      . Dans un nom, tous les carcatères «.» et «-» sont remplacés par «_»
       . Les caractères «_» répétitifs sont remplacés par un seul caractère
     «_».
-    +
+    
     Un «_» final est maintenu, de sorte que les identifiants de HAL, qui
     autrement seraient en conflit avec les noms ou mots clé réservés (par
     exemple: «min»), puissent être utilisés.
-    +
+    
     [width="90%", options="header"]
     |========================================
     |HALNAME | Identifiant C | Identifiant HAL
@@ -145,7 +145,7 @@ DOC::
     guillemets», pouvant inclure des
     caractères newlines et des guillements, comme:
         param rw bit zot=TRUE
-    +
+    
     La chaine documentation est en format «groff -man». Pour plus
     d'informations sur ce format de markup, voyez `groff_man(7)` . Souvenez
     vous que comp interpréte backslash comme Echap dans les
@@ -191,12 +191,12 @@ OPT, VALUE::
         instance. Avec `singleton`, les items sont nommés
         `composant-name.item-name` et sans `singleton`, les items des
         différentes instances sont nommés `composant-name.<num>.item-name`.
-    +
+    
     option default_count ;;
         'number' (défaut: 1)
         Normalement, le paramètre `count par` défaut est 0. Si spécifié,
         `count` remplace la valeur par défaut.
-    +
+    
     option count_function yes;;
         (défaut: no)
         Normalement, le numéro des instances à créer est specifié dans le
@@ -205,23 +205,23 @@ OPT, VALUE::
     utilisée à
         la place de la valeur par défaut et le paramètre `count` du module
         n'est pas défini.
-    +
+    
     option rtapi_app no;;
         (défaut: yes)
         Normalement, les fonctions `rtapi_app_main` et `rtapi_app_exit` sont
         définies automatiquement. Avec `option rtapi_app no`, elles ne le
         seront pas et doivent être fournies dans le code C.
-        +
+        
         Quand vous implémentez votre propre `rtapi_app_main`, appellez la
         fonction `int export(char *prefix, long extra_arg)` pour enregistrer
         les pins, paramètres et fonctions pour `préfix`er.
-    +
+    
     option data ;;
         'type' (défaut: none) deprecated
         If specified, each instance of the component will have an associated
         data block of 'type' (which can be a simple type like `float` or the
         name of a type created with `typedef`).
-        +
+        
         In new components, 'variable' should be used instead.
 
 option extra_setup yes::
@@ -232,7 +232,7 @@ option extra_setup yes::
     depuis la
         fonction définie automatiquement `rtapi_app_exit`, ou une erreur est
         détectée dans la fonction automatiquement définie `rtapi_app_main`.
-    +
+    
     option userspace yes;;
         (défaut: no)
         Si spécifié, ce fichier décrit un composant d'espace utilisateur,
@@ -248,7 +248,7 @@ option extra_setup yes::
     peut
         être d'appeler le gestionnaire de boucles d'événements d'une
         interface graphique.
-    +
+    
     option userinit yes;;
         (défaut: no)
         Si spécifiée, la fonction `userinit(argc,argv)` est appelée avant
@@ -260,7 +260,7 @@ option extra_setup yes::
         composant HAL (par
         exemple, parce que les arguments de la ligne de commande sont
         invalides).
-    +
+    
     Si aucune option VALUE n'est spécifiée, alors c'est équivalent à
     spécifier la valeur`… yes` . Le résultat consécutif à l'assignation
     d'une valeur inappropriée à
@@ -291,7 +291,7 @@ variable ::
     optionnellement comme un tableau de 'SIZE' items et optionnellement
     avec une valeur default. Les items sans 'default' sont initialisés
     «all-bits-zero». 'CTYPE' est un simple mot de type C, comme `float`,
-    `u32`, `s32`, etc. +
+    `u32`, `s32`, etc. 
     Les variables d'un tableau sont mises entre crochets.
 
 Les commentaires de style C++ une ligne (`// …`) et de style C
@@ -348,7 +348,7 @@ parameter_name::
     est l'index dans le tableau de pins. Quand le tableau est de taille
      variable, il est seulement légal de faire référence aux items par
     leurs'condsize'.
-    +
+    
     Quand un item est conditionnel, il est seulement légal de faire
     référence à cet item quand ses 'conditions 'sont évaluées' 'à des
     valeurs différentes de zéro.

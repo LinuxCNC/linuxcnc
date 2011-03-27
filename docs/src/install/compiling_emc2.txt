@@ -76,7 +76,7 @@ get the latest release or testing tarball.
 
 Once you have it, extract it to your home folder:
 
-    $ cd ~/ +
+    $ cd ~/ 
     $ tar xzvf emc2-version.tar.gz
 
 Next you'll need to decide what kind of install you want. There are
@@ -109,7 +109,7 @@ it simply go to the sources folder:
 
 and issue these commands:
 
-    $ ./configure +
+    $ ./configure 
     $ make && sudo make install
 
 To run it simply type 'emc'.
@@ -126,7 +126,7 @@ no installation step, and no files are placed outside the top directory
 
 and issue these commands:
 
-    $ ./configure --enable-run-in-place +
+    $ ./configure --enable-run-in-place 
     $ make && sudo make setuid
 
 In a shell session where you want to use the run-in-place version of
@@ -161,9 +161,9 @@ You may need to recompile the EMC2 code for a number of reasons. You
 may have modified the source code, or you may have downloaded just a
 few new files. To recompile, do the following:
 
-    $ cd ~/emc2/src +
-    $ make && sudo make install # for run-installed +
-    $ make && sudo make setuid  # for run-in-place +
+    $ cd ~/emc2/src 
+    $ make && sudo make install # for run-installed 
+    $ make && sudo make setuid  # for run-in-place 
     $ make                      # for run-in-place, simulator
 
 The build process is smart enough to only rebuild things that are

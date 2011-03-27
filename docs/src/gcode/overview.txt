@@ -639,8 +639,8 @@ parentheses () or for the remainder of a line using a semi-colon. The
 semi-colon is not treated as the start of a comment when enclosed in
 parentheses.
 
-    G0 (Rapid to start) X1 Y1 +
-    G0 X1 Y1 (Rapid to start; but don't forget the coolant) +
+    G0 (Rapid to start) X1 Y1 
+    G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
     M2 ; End of program.
 
 == File Size

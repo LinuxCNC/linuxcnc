@@ -68,17 +68,17 @@ View::
         Machine or Relative location and if they are Actual positions or
         Commanded positions. These can be changed using the Settings menu
         described below.
-    +
+    
     Tool_Info;;
          This adds a line immediately below the main position displays that
         shows which tool has been selected and the length of offset applied.
-    +
+    
     Offset_Info;;
          adds a line immediately below the tool info that shows what offsets
          have been applied. This is a total distance for each axis from
     machine
         zero.
-    +
+    
     Show_Restart;;
          adds a block of buttons to the right of the program display in auto
          mode. These allow the operator to restart a program after an abort
@@ -87,16 +87,16 @@ View::
     can be
         shows by the operator anytime auto mode is active by selecting this
         menu item.
-    +
+    
     Hide_Restart;;
          removes the block of buttons that control the restart of a program
         that has been aborted or estopped.
-    +
+    
     Show_Split_Right;;
           changes the nature of the right hand column so that it shows both
     mode
         and pop-in information.
-    +
+    
     Show_Mode_Full;;
          changes the right hand column so that the mode buttons or displays
          fill the entire right side of the screen. In manual mode, running
@@ -104,7 +104,7 @@ View::
          mode full you will see spindle and lube control buttons as well as
     the
         motion buttons.
-    +
+    
     Show_Popin_Full;;
           changes the right hand column so that the popin fills the entire
     right
@@ -115,16 +115,16 @@ Settings::
     during a run.
     Actual_Position;;
         sets the main position displays to actual(machine based) values.
-    +
+    
     Commanded_Position;;
           sets the main position displays to the values that they were
     commanded
         to.
-    +
+    
     Machine_Position;;
          sets the main position displays to the absolute distance from where
         the machine was homed.
-    +
+    
     Relative_Position;;
           sets the main position displays to show the current position
     including
@@ -136,21 +136,21 @@ Info::
     the MESSAGE pad.
     Program_File;;
         will write the currently active program file name.
-    +
+    
     Editor_File;;
          will write the currently active file if the editor pop in is active
         and a file has been selected for editing.
-    +
+    
     Parameter_File;;
           will write the name of the file being used for program
     parameters. You
         can find more on this in the chapters on offsets and using variables
         for programming.
-    +
+    
     Tool_File;;
          will write the name of the tool file that is being used during
     this run.
-    +
+    
     Active_G-Codes;;
          will write a list of all of the modal program codes that are active
          whenever this item is selected. For more information about modal

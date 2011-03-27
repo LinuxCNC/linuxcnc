@@ -161,53 +161,53 @@ your configuration.
 
 An example of a 5i20 configuration:
 
-    [HOSTMOT2] +
-    DRIVER=hm2_pci +
-    BOARD=5i20 +
+    [HOSTMOT2] 
+    DRIVER=hm2_pci 
+    BOARD=5i20 
      CONFIG="firmware=hm2/5i20/SVST8_4.BIT num_encoders=1 num_pwmgens=1
     num_stepgens=3"
 
     The above configuration produced this printout .
 
-    [ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used: +
-    [ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort +
-    [ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort +
+    [ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used: 
+    [ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort 
+    [ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort 
      [ 1141.053401] hm2/hm2_5i20.0: IO Pin 002 (P2-05): Encoder #0, pin B
-    (Input) +
+    (Input) 
      [ 1141.053405] hm2/hm2_5i20.0: IO Pin 003 (P2-07): Encoder #0, pin A
-    (Input) +
-    [ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort +
+    (Input) 
+    [ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort 
      [ 1141.053411] hm2/hm2_5i20.0: IO Pin 005 (P2-11): Encoder #0, pin
-    Index (Input) +
-    [ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort +
+    Index (Input) 
+    [ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort 
      [ 1141.053418] hm2/hm2_5i20.0: IO Pin 007 (P2-15): PWMGen #0, pin Out0
-    (PWM or Up) (Output) +
-    [ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort +
+    (PWM or Up) (Output) 
+    [ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort 
      [ 1141.053425] hm2/hm2_5i20.0: IO Pin 009 (P2-19): PWMGen #0, pin Out1
-    (Dir or Down) (Output) +
-    [ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort +
+    (Dir or Down) (Output) 
+    [ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort 
      [ 1141.053432] hm2/hm2_5i20.0: IO Pin 011 (P2-23): PWMGen #0, pin
-    Not-Enable (Output) +
-    <snip>... +
+    Not-Enable (Output) 
+    <snip>... 
      [ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin
-    Step (Output) +
+    Step (Output) 
      [ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin
-    Direction (Output) +
+    Direction (Output) 
      [ 1141.053597] hm2/hm2_5i20.0: IO Pin 062 (P4-29): StepGen #2, pin
-    (unused) (Output) +
+    (unused) (Output) 
      [ 1141.053601] hm2/hm2_5i20.0: IO Pin 063 (P4-31): StepGen #2, pin
-    (unused) (Output) +
+    (unused) (Output) 
      [ 1141.053605] hm2/hm2_5i20.0: IO Pin 064 (P4-33): StepGen #2, pin
-    (unused) (Output) +
+    (unused) (Output) 
      [ 1141.053609] hm2/hm2_5i20.0: IO Pin 065 (P4-35): StepGen #2, pin
-    (unused) (Output) +
-    [ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort +
-    [ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort +
-    [ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort +
-    [ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort +
-    [ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort +
-    [ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort +
-    [ 1141.053811] hm2/hm2_5i20.0: registered +
+    (unused) (Output) 
+    [ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort 
+    [ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort 
+    [ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort 
+    [ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort 
+    [ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort 
+    [ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort 
+    [ 1141.053811] hm2/hm2_5i20.0: registered 
     [ 1141.053815] hm2_5i20.0: initialized AnyIO board at 0000:02:02.0
 
 Note that the IO Pin nnn will correspond to the pin number shown on

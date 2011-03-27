@@ -70,7 +70,7 @@ board.
  -  (bit) motenc.<board>.out-<channel>-invert -- Inverts a digital output,
    see canonical digital output.
  -  (u32) motenc.<board>.watchdog-control -- Configures the watchdog. The
-   value may be a bitwise OR of the following values:  +
+   value may be a bitwise OR of the following values:  
    
    [width="90%", options="header"]
    |========================================
@@ -80,7 +80,7 @@ board.
     |4 | 16 | Watchdog is automatically reset by DAC writes (the HAL
    dac-write
    function)
-   |======================================== +
+   |======================================== 
     Typically, the useful values are 0 (watchdog disabled) or 20 (8ms
    watchdog enabled, cleared by dac-write).
  - (u32) motenc.<board>.led-view -- Maps some of the I/O to onboard LEDs?

@@ -29,7 +29,7 @@ you need to do the following basic things.
 The following is an example of a loadusr command to load two pyVCP
 panels and name each one so the connection names in HAL will be known.
 
-    loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml +
+    loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
     loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
 
 The -Wn makes hal "Wait for name" to be loaded before proceeding. The
@@ -75,79 +75,79 @@ widgets.
 
     <pyvcp>
 
-    <labelframe text="Jog Buttons"> +
+    <labelframe text="Jog Buttons"> 
     <font>("Helvetica",16)</font>
 
-    <!--- the X jog buttons ---> +
-    <hbox> +
-    <relief>RAISED</relief> +
-    <bd>3</bd> +
-    <button> +
-    <font>("Helvetica",20)</font> +
-    <width>3</width> +
-    <halpin>"x-plus"</halpin> +
-    <text>"X+"</text> +
-    </button> +
-    <button> +
-    <font>("Helvetica",20)</font> +
-    <width>3</width> +
-    <halpin>"x-minus"</halpin> +
-    <text>"X-"</text> +
-    </button> +
+    <!--- the X jog buttons ---> 
+    <hbox> 
+    <relief>RAISED</relief> 
+    <bd>3</bd> 
+    <button> 
+    <font>("Helvetica",20)</font> 
+    <width>3</width> 
+    <halpin>"x-plus"</halpin> 
+    <text>"X+"</text> 
+    </button> 
+    <button> 
+    <font>("Helvetica",20)</font> 
+    <width>3</width> 
+    <halpin>"x-minus"</halpin> 
+    <text>"X-"</text> 
+    </button> 
     </hbox>
 
-    <!--- the Y jog buttons ---> +
-    <hbox> +
-    <relief>RAISED</relief> +
-    <bd>3</bd> +
-    <button> +
-    <font>("Helvetica",20)</font> +
-    <width>3</width> +
-    <halpin>"y-plus"</halpin> +
-    <text>"Y+"</text> +
-    </button> +
-    <button> +
-    <font>("Helvetica",20)</font> +
-    <width>3</width> +
-    <halpin>"y-minus"</halpin> +
-    <text>"Y-"</text> +
-    </button> +
+    <!--- the Y jog buttons ---> 
+    <hbox> 
+    <relief>RAISED</relief> 
+    <bd>3</bd> 
+    <button> 
+    <font>("Helvetica",20)</font> 
+    <width>3</width> 
+    <halpin>"y-plus"</halpin> 
+    <text>"Y+"</text> 
+    </button> 
+    <button> 
+    <font>("Helvetica",20)</font> 
+    <width>3</width> 
+    <halpin>"y-minus"</halpin> 
+    <text>"Y-"</text> 
+    </button> 
     </hbox>
 
-    <!--- the Z jog buttons ---> +
-    <hbox> +
-    <relief>RAISED</relief> +
-    <bd>3</bd> +
-    <button> +
-    <font>("Helvetica",20)</font> +
-    <width>3</width> +
-    <halpin>"z-plus"</halpin> +
-    <text>"Z+"</text> +
-    </button> +
-    <button> +
-    <font>("Helvetica",20)</font> +
-    <width>3</width> +
-    <halpin>"z-minus"</halpin> +
-    <text>"Z-"</text> +
-    </button> +
+    <!--- the Z jog buttons ---> 
+    <hbox> 
+    <relief>RAISED</relief> 
+    <bd>3</bd> 
+    <button> 
+    <font>("Helvetica",20)</font> 
+    <width>3</width> 
+    <halpin>"z-plus"</halpin> 
+    <text>"Z+"</text> 
+    </button> 
+    <button> 
+    <font>("Helvetica",20)</font> 
+    <width>3</width> 
+    <halpin>"z-minus"</halpin> 
+    <text>"Z-"</text> 
+    </button> 
     </hbox>
 
-    <!--- the jog speed slider ---> +
-    <vbox> +
-    <relief>RAISED</relief> +
-    <bd>3</bd> +
-    <label> +
-    <text>"Jog Speed"</text> +
-    <font>("Helvetica",16)</font> +
-    </label> +
-    <scale> +
-    <font>("Helvetica",14)</font> +
-    <halpin>"jog-speed"</halpin> +
-    <resolution>1</resolution> +
-    <orient>HORIZONTAL</orient> +
-    <min_>0</min_> +
-    <max_>80</max_> +
-    </scale> +
+    <!--- the jog speed slider ---> 
+    <vbox> 
+    <relief>RAISED</relief> 
+    <bd>3</bd> 
+    <label> 
+    <text>"Jog Speed"</text> 
+    <font>("Helvetica",16)</font> 
+    </label> 
+    <scale> 
+    <font>("Helvetica",14)</font> 
+    <halpin>"jog-speed"</halpin> 
+    <resolution>1</resolution> 
+    <orient>HORIZONTAL</orient> 
+    <min_>0</min_> 
+    <max_>80</max_> 
+    </scale> 
     </vbox>
 
     </labelframe>
@@ -171,19 +171,19 @@ widgets.
 To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
-    # connect the X pyVCP buttons +
-    net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus +
+    # connect the X pyVCP buttons 
+    net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus 
     net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
 
-    # connect the Y pyVCP buttons +
-    net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus +
+    # connect the Y pyVCP buttons 
+    net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus 
     net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
 
-    # connect the Z pyVCP buttons +
-    net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus +
+    # connect the Z pyVCP buttons 
+    net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus 
     net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
 
-    # connect the pyVCP jog speed slider  +
+    # connect the pyVCP jog speed slider  
     net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
 
 After resetting the E-Stop and putting it into jog mode and moving the
@@ -249,85 +249,85 @@ To create the panel we add the following to the .xml file.
 
     <pyvcp>
 
-    <!-- the RPM meter --> +
-    <hbox> +
-    <relief>RAISED</relief> +
-    <bd>3</bd> +
-    <meter> +
-    <halpin>"spindle_rpm"</halpin> +
-    <text>"Spindle"</text> +
-    <subtext>"RPM"</subtext> +
-    <size>200</size> +
-    <min_>0</min_> +
-    <max_>3000</max_> +
-    <majorscale>500</majorscale> +
-    <minorscale>100</minorscale> +
-    <region1>0,10,"yellow"</region1> +
-    </meter> +
+    <!-- the RPM meter --> 
+    <hbox> 
+    <relief>RAISED</relief> 
+    <bd>3</bd> 
+    <meter> 
+    <halpin>"spindle_rpm"</halpin> 
+    <text>"Spindle"</text> 
+    <subtext>"RPM"</subtext> 
+    <size>200</size> 
+    <min_>0</min_> 
+    <max_>3000</max_> 
+    <majorscale>500</majorscale> 
+    <minorscale>100</minorscale> 
+    <region1>0,10,"yellow"</region1> 
+    </meter> 
     </hbox>
 
-    <!-- the On Led --> +
-    <hbox> +
-    <relief>RAISED</relief> +
-    <bd>3</bd> +
-    <vbox> +
-    <relief>RAISED</relief> +
-    <bd>2</bd> +
-    <label> +
-    <text>"On"</text> +
-    <font>("Helvetica",18)</font> +
-    </label> +
-    <width>5</width> +
-     <hbox> +
-    <label width=”2”/> <!-- used to center the led --> +
-    <rectled> +
-    <halpin>"on-led"</halpin> +
-    <height>"30"</height> +
-    <width>"30"</width> +
-    <on_color>"green"</on_color> +
-    <off_color>"red"</off_color> +
-    </rectled> +
-    </hbox> +
+    <!-- the On Led --> 
+    <hbox> 
+    <relief>RAISED</relief> 
+    <bd>3</bd> 
+    <vbox> 
+    <relief>RAISED</relief> 
+    <bd>2</bd> 
+    <label> 
+    <text>"On"</text> 
+    <font>("Helvetica",18)</font> 
+    </label> 
+    <width>5</width> 
+     <hbox> 
+    <label width=”2”/> <!-- used to center the led --> 
+    <rectled> 
+    <halpin>"on-led"</halpin> 
+    <height>"30"</height> 
+    <width>"30"</width> 
+    <on_color>"green"</on_color> 
+    <off_color>"red"</off_color> 
+    </rectled> 
+    </hbox> 
     </vbox>
 
-    <!-- the FWD Led --> +
-    <vbox> +
-    <relief>RAISED</relief> +
-    <bd>2</bd> +
-    <label> +
-    <text>"FWD"</text> +
-    <font>("Helvetica",18)</font> +
-    <width>5</width> +
-    </label> +
-    <label width=”2”/> +
-    <rectled> +
-    <halpin>"fwd-led"</halpin> +
-    <height>"30"</height> +
-    <width>"30"</width> +
-    <on_color>"green"</on_color> +
-    <off_color>"red"</off_color> +
-    </rectled> +
+    <!-- the FWD Led --> 
+    <vbox> 
+    <relief>RAISED</relief> 
+    <bd>2</bd> 
+    <label> 
+    <text>"FWD"</text> 
+    <font>("Helvetica",18)</font> 
+    <width>5</width> 
+    </label> 
+    <label width=”2”/> 
+    <rectled> 
+    <halpin>"fwd-led"</halpin> 
+    <height>"30"</height> 
+    <width>"30"</width> 
+    <on_color>"green"</on_color> 
+    <off_color>"red"</off_color> 
+    </rectled> 
     </vbox>
 
-    <!-- the REV Led --> +
-    <vbox> +
-    <relief>RAISED</relief> +
-    <bd>2</bd> +
-    <label> +
-    <text>"REV"</text> +
-    <font>("Helvetica",18)</font> +
-    <width>5</width> +
-    </label> +
-    <label width=”2”/> +
-    <rectled> +
-    <halpin>"rev-led"</halpin> +
-    <height>"30"</height> +
-    <width>"30"</width> +
-    <on_color>"red"</on_color> +
-    <off_color>"green"</off_color> +
-    </rectled> +
-    </vbox> +
-    </hbox> +
+    <!-- the REV Led --> 
+    <vbox> 
+    <relief>RAISED</relief> 
+    <bd>2</bd> 
+    <label> 
+    <text>"REV"</text> 
+    <font>("Helvetica",18)</font> 
+    <width>5</width> 
+    </label> 
+    <label width=”2”/> 
+    <rectled> 
+    <halpin>"rev-led"</halpin> 
+    <height>"30"</height> 
+    <width>"30"</width> 
+    <on_color>"red"</on_color> 
+    <off_color>"green"</off_color> 
+    </rectled> 
+    </vbox> 
+    </hbox> 
     </pyvcp>
 
 The above gives us a pyVCP panel that looks like the following.
@@ -341,20 +341,20 @@ image::images/gs2_panel.png[]
 To make it work we add the following code to the custom_postgui.hal
 file.
 
-    # display the rpm based on freq * rpm per hz +
-    loadrt mult2 +
-    addf mult2.0 servo-thread +
-    setp mult2.0.in1 28.75 +
-    net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out +
+    # display the rpm based on freq * rpm per hz 
+    loadrt mult2 
+    addf mult2.0 servo-thread 
+    setp mult2.0.in1 28.75 
+    net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out 
     net speed_out pyvcp.spindle_rpm <= mult2.0.out 
 
-    # run led +
+    # run led 
     net gs2-run => pyvcp.on-led
 
-    # fwd led +
+    # fwd led 
     net gs2-fwd => pyvcp.fwd-led
 
-    # rev led +
+    # rev led 
     net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
 
 Some of the lines might need some explanations. The fwd led line uses

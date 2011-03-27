@@ -158,7 +158,7 @@ Vitesse de recherche de l'origine::
     course), cette vitesse doit être réglée pour permettre la décélération
     et l'arrêt, avant que le contact ne soit dépassé et ne s'ouvre à
     nouveau. La prise d'origine machine doit toujours commencer du même
-    côté du contact. +
+    côté du contact. 
      Si la machine se déplace dans la mauvaise direction au début de la
     procédure de prise d'origine machine, rendez négative la valeur de
     *Vitesse de recherche de l'origine*.
@@ -167,7 +167,7 @@ Dégagement du contact d'origine::
      Choisissez «Identique» pour que la machine reparte en arrière pour
     dégager le contact, puis revienne de nouveau vers lui à très petite
     vitesse. La seconde fois que le contact se ferme, la position de
-    l'origine machine est acquise. +
+    l'origine machine est acquise. 
      Choisissez «Opposition» pour que la machine reparte en arrière à très
     petite vitesse jusqu'au dégagement du contact. Quand le contact
     s'ouvre, la position de l'origine machine est acquise.

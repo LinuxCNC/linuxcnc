@@ -1206,12 +1206,12 @@ Programme de test de longueur d'outil.
 
 Tool #1 is 1 inch long.
 
-`N01 G1 F15 X0 Y0 Z0 +
-N02 G43 H1 Z0 X1 +
-N03 G49 X0 Z0 +
-N04 G0 X2 +
-N05 G1 G43 H1 G4 P10 Z0 X3 +
-N06 G49 X2 Z0 +
+`N01 G1 F15 X0 Y0 Z0 
+N02 G43 H1 Z0 X1 
+N03 G49 X0 Z0 
+N04 G0 X2 
+N05 G1 G43 H1 G4 P10 Z0 X3 
+N06 G49 X2 Z0 
 N07 G0 X0`
 
 image:length1.png[]
@@ -1401,18 +1401,18 @@ de 0.97 et le diamètre utilisé en générant le parcours d'outil a été de
 est de -0.03. Voici un programme NC qui va usiner l'extérieur d'un
 triangle de la figure 7.
 
-`N0010 G1 X1 Y4.5 (mouvement d'alignement) +
+`N0010 G1 X1 Y4.5 (mouvement d'alignement) 
  N0020 G41 G1 Y3.5 (active la compensation et premier mouvement
-d'entrée) +
-N0030 G3 X2 Y2.5 I1 (deuxième mouvement d'entrée) +
+d'entrée) 
+N0030 G3 X2 Y2.5 I1 (deuxième mouvement d'entrée) 
  N0040 G2 X2.5 Y2 J-0.5 (usinage le long de l'arc en haut du parcours
-d'outil) +
-N0050 G1 Y-1 (usinage le long du côté droit du parcours d'outil) +
-N0060 G2 X2 Y-1.5 I-0.5 (usinage de l'arc en bas à droite) +
-N0070 G1 X-2 (usinage de la base du parcours d'outil) +
-N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche) +
-N0090 G1 X1.7 Y2.4 (usinage de l'hypoténuse) +
-N0100 G2 X2 Y2.5 I0.3 J-0.4 (usinage de l'arc en haut à droite) +
+d'outil) 
+N0050 G1 Y-1 (usinage le long du côté droit du parcours d'outil) 
+N0060 G2 X2 Y-1.5 I-0.5 (usinage de l'arc en bas à droite) 
+N0070 G1 X-2 (usinage de la base du parcours d'outil) 
+N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche) 
+N0090 G1 X1.7 Y2.4 (usinage de l'hypoténuse) 
+N0100 G2 X2 Y2.5 I0.3 J-0.4 (usinage de l'arc en haut à droite) 
 N0110 G40 (désactive la compensation)`
 
 Avec ce programme, l'outil suit cette trajectoire: un mouvement
@@ -1562,9 +1562,9 @@ d'alignement et deux mouvements d'entrée. Les mouvements d'entrée
 expliqués ci-dessus, seront repris comme exemple. Voici le code
 correspondant:
 
-`N0010 G1 X1 Y4.5 (mouvement d'alignement vers le point C) +
+`N0010 G1 X1 Y4.5 (mouvement d'alignement vers le point C) 
  N0020 G41 G1 Y3.5 (active la compensation et fait le premier mouvement
-d'entrée vers le point B) +
+d'entrée vers le point B) 
 N0030 G3 X2 Y2.5 I1 (fait le second mouvement d'entrée vers le point A)`
 
 Voir la figure 11. La figure montre les deux mouvements d'entrée mais
@@ -1697,8 +1697,8 @@ doivent être choisis avec un rayon approximatif bien réfléchi.
 
 Les commandes sont:
 
-G40 - Annuler la compensation de rayon d'outil +
-G41 - Activer la compensation, outil à gauche du profil +
+G40 - Annuler la compensation de rayon d'outil 
+G41 - Activer la compensation, outil à gauche du profil 
 G42 - Activer la compensation, outil à droite du profil
 
 Voici un petit fichier qui usine le côté d'une pièce avec de multiples
@@ -1707,17 +1707,17 @@ ces commandes ont été tracées depuis Bobcad/CAM, mais les lignes N15 et
 N110 ont été ajoutées par moi et certaines coordonnées dans ce contour
 ont été bricolées un peu par moi.
 
-`N10 G01 G40 X-1.3531 Y3.4 +
-N15 F10 G17 G41 D4 X-0.7 Y3.1875 (ligne d'entrée) +
-N20 X0. Y3.1875 +
-N40 X0.5667 F10 +
-N50 G03 X0.8225 Y3.3307 R0.3 +
-N60 G02 X2.9728 Y4.3563 R2.1875 +
-N70 G01 X7.212 Y3.7986 +
-N80 G02 X8.1985 Y3.2849 R1.625 +
-N90 G03 X8.4197 Y3.1875 R0.3 +
-N100 G01 X9. +
-N110 G40 X10.1972 Y3.432 (ligne de sortie) +
+`N10 G01 G40 X-1.3531 Y3.4 
+N15 F10 G17 G41 D4 X-0.7 Y3.1875 (ligne d'entrée) 
+N20 X0. Y3.1875 
+N40 X0.5667 F10 
+N50 G03 X0.8225 Y3.3307 R0.3 
+N60 G02 X2.9728 Y4.3563 R2.1875 
+N70 G01 X7.212 Y3.7986 
+N80 G02 X8.1985 Y3.2849 R1.625 
+N90 G03 X8.4197 Y3.1875 R0.3 
+N100 G01 X9. 
+N110 G40 X10.1972 Y3.432 (ligne de sortie) 
 N220 M02`
 
 La ligne 15 contient G41 D4, qui signifie que le diamètre de l'outil
