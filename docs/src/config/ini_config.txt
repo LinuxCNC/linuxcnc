@@ -43,12 +43,10 @@ NML::
     single computer but can be modified to communicate between several
     computers.
 
-.emcrc::
-     (((.emcrc))) This file saves user specific information and is created
+pass:[.emcrc]::
+    (((\.emcrc))) This file saves user specific information and is created
     to save the name of the directory when the user first selects an EMC
-    configuration.footnote:[Usually this file is in the users home
-    directory (e.g. /home/user/ )
-    ]
+    footnote:[Usually this file is in the users home directory (e.g. /home/user/)]
 
 Items marked *(hal)*  are used only by the sample HAL files and are
 suggested as a good
@@ -149,7 +147,7 @@ Machine Unit::
 === [EMC] Section  [[sub:[EMC]-section]](((EMC (inifile section))))
 
 VERSION ::
-     *=* *$Revision:* *1.3* *$*  The version number for the INI file. The
+     *= $Revision: 1.3 $*  The version number for the INI file. The
     value shown here looks odd
     because it is automatically updated when using the Revision Control
     System. It's a good idea to change this number each time you revise
@@ -157,7 +155,7 @@ VERSION ::
     leave the other tags alone. 
 
 MACHINE ::
-     *=* *My* *Controller*  This is the name of the controller, which is
+     *= My Controller*  This is the name of the controller, which is
     printed out at the top
     of most graphical interfaces. You can put whatever you want here as
     long as you make it a single line long.
@@ -328,8 +326,7 @@ must write rs274ngc code to standard output. This output is what will
 be displayed in the text area, previewed in the display area, and
 executed by EMC when Run.
 
-PROGRAM_EXTENSION = .extension Description::
-    
+PROGRAM_EXTENSION = .extension Description
 
 If your post processor outputs files in all caps you might want to add
 the following line:
@@ -380,7 +377,7 @@ RS274NGC_STARTUP_CODE::
 
 Example:
 
-    
+    RS274NGC_STARTUP_CODE = G21
 
 SUBROUTINE_PATH::
      (((SUBROUTINE PATH))) Specifies a colon (:) separated list of up to 10
@@ -424,7 +421,7 @@ You may find other entries in this section and they should not be
 changed.
 
 BASE_PERIOD::
-     (((BASE PERIOD))) = 50000 (hal)  "Base" task period, in nanoseconds -
+     (((BASE PERIOD))) = *50000 (hal)*  "Base" task period, in nanoseconds -
     this is the fastest thread in
     the machine. 
      On servo-based systems, there is generally no reason for *BASE_PERIOD*
@@ -441,7 +438,7 @@ BASE_PERIOD::
     real time delay" message, lockups, or spontaneous reboots.
 
 SERVO_PERIOD::
-     (((SERVO PERIOD))) = 1000000 (hal)  "Servo" task period is also in
+     (((SERVO PERIOD))) = *1000000 (hal)*  "Servo" task period is also in
     nanoseconds. This value will be
      rounded to an integer multiple of *BASE_PERIOD*. This value is used
     even on systems based on stepper motors. 
@@ -451,7 +448,7 @@ SERVO_PERIOD::
     of the low level motion planner.
 
 TRAJ_PERIOD::
-     (((TRAJ PERIOD))) = *1000000 *(hal)  Trajectory Planner task period in
+     (((TRAJ PERIOD))) = *1000000 (hal)*  Trajectory Planner task period in
     nanoseconds This value will be
     rounded to an integer multiple of *SERVO_PERIOD*. 
      Except for machines with unusual kinematics (e.g., hexapods) there is
@@ -469,7 +466,7 @@ TASK = milltask::
     version of things like task, io, and motion for a specific machine.
 
 CYCLE_TIME ::
-     *=* *0.0* 01 The period, in seconds, at which EMCTASK will run. This
+     *= 0.001* The period, in seconds, at which EMCTASK will run. This
     parameter
     affects the polling interval when waiting for motion to complete, when
     executing a pause instruction, and when accepting a command from a user
@@ -510,8 +507,8 @@ POSTGUI_HALFILE = example2.hal::
 The [TRAJ] section contains general parameters for the trajectory
 planning module in EMCMOT.
 
-COORDINATES ::
-     *=* *X* Y* Z*  The names of the axes being controlled. X, Y, Z, A, B,
+COORDINATES = X Y Z::
+    The names of the axes being controlled. X, Y, Z, A, B,
     C, U, V, and W
      are all valid. Only axis named in *COORDINATES*  are accepted in
     g-code. This has no effect on the mapping from G-code
@@ -528,15 +525,15 @@ AXES = 3::
     nontrivial kinematics (e.g., scarakins) this will generally be the
     number of controlled joints.
 
-HOME ::
-     *=* *0* *0* *0*  Coordinates of the homed position of each axis. Again
+HOME = 0 0 0::
+    Coordinates of the homed position of each axis. Again
     for a fourth
     axis you will need 0 0 0 0. This value is only used for machines with
     nontrivial kinematics. On machines with trivial kinematics this value
     is ignored.
 
 LINEAR_UNITS = <units>::
-     (((LINEAR UNITS))) Specifies the machine units for linear axes.
+    (((LINEAR UNITS))) Specifies the machine units for linear axes.
     Possible choices are (in, inch, imperial, metric, mm).  
      This does not affect the linear units in NC code (the G20 and G21
     words do this). 
@@ -548,13 +545,13 @@ ANGULAR_UNITS = <units>::
      This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
-DEFAULT_VELOCITY ::
-     *= 0.0167*  The initial rate for jogs of linear axes, in machine units
+DEFAULT_VELOCITY = 0.0167::
+    The initial rate for jogs of linear axes, in machine units
     per
     second. The value shown equals one unit per minute.
 
-DEFAULT_ACCELERATION ::
-     *= 2.0*  In machines with nontrivial kinematics, the acceleration used
+DEFAULT_ACCELERATION = 2.0::
+    In machines with nontrivial kinematics, the acceleration used
     for
     "teleop" (Cartesian space) jogs, in machine units per second per
     second. 
@@ -604,6 +601,8 @@ specified in the [TRAJ] AXES entry minus 1.
  - AXIS_7 = V
  - AXIS_8 = W
 
+//
+
 TYPE = LINEAR::
     The type of axes, either LINEAR or ANGULAR.
 
@@ -612,8 +611,8 @@ WRAPPED_ROTARY = 1::
     degrees. Plus Numbers will move the axis in a positive direction and
     minus numbers will move the axis in the opposite direction.
 
-UNITS::
-     (((UNITS))) = inch If specified, this setting overrides the related
+UNITS = inch::
+     (((UNITS))) If specified, this setting overrides the related
     [TRAJ] UNITS setting.  
      (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR,
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
@@ -621,12 +620,12 @@ UNITS::
 MAX_VELOCITY = 1.2::
     Maximum velocity for this axis in machine units per second.
 
-MAX_ACCELERATION ::
-     *=* *20.0* Maximum acceleration for this axis in machine units per
+MAX_ACCELERATION = 20.0::
+    Maximum acceleration for this axis in machine units per
     second squared.
 
-BACKLASH ::
-     *=* *0.000*  (((Backlash)))Backlash in machine units. Backlash
+BACKLASH = 0.000::
+    (((Backlash)))Backlash in machine units. Backlash
     compensation value
     can be used to make up for small deficiencies in the hardware used to
     drive an axis. If backlash is added to an axis and you are using
@@ -651,23 +650,25 @@ COMP_FILE = file.extension::
    (how far from nominal while traveling forward) and the reverse trim
    (how far from nominal while traveling in reverse).
 
+//
+
 COMP_FILE_TYPE = 0::
      For COMP_FILE_TYPE of zero, the values in the compensation file are
     nominal, forward & reverse. For COMP_FILE_TYPE of non-zero the values
     in the compensation file are nominal, forward_trim and reverse_trim. 
 
-MIN_LIMIT::
-     (((MIN LIMIT))) = *-1000*  The minimum limit (soft limit) for axis
+MIN_LIMIT = -1000::
+     (((MIN LIMIT))) The minimum limit (soft limit) for axis
     motion, in machine units.
     When this limit is exceeded, the controller aborts axis motion. 
 
-MAX_LIMIT::
-     (((MAX LIMIT))) *= 1000*  The maximum limit (soft limit) for axis
+MAX_LIMIT = 1000::
+     (((MAX LIMIT))) The maximum limit (soft limit) for axis
     motion, in machine units.
     When this limit is exceeded, the controller aborts axis motion. 
 
-MIN_FERROR::
-     (((MIN FERROR))) *=* *0.010*  This is the value in machine units by
+MIN_FERROR = 0.010::
+     (((MIN FERROR))) This is the value in machine units by
     which the axis is permitted to
     deviate from commanded position at very low speeds. If MIN_FERROR is
     smaller than FERROR, the two produce a ramp of error trip points. You
@@ -675,8 +676,8 @@ MIN_FERROR::
     other is permitted following error. As speed increases the amount of
     following error also increases toward the FERROR value. 
 
-FERROR::
-     (((FERROR))) *= 1.0*  FERROR is the maximum allowable following error,
+FERROR = 1.0::
+     (((FERROR))) FERROR is the maximum allowable following error,
     in machine units. If
     the difference between commanded and sensed position exceeds this
     amount, the controller disables servo calculations, sets all the
@@ -706,19 +707,19 @@ HOME = 0.0::
      The position that the joint will go to upon completion of the homing
     sequence.
 
-HOME_OFFSET ::
-     *= 0.0* The axis position of the home switch or index pulse, in
+HOME_OFFSET = 0.0::
+    The axis position of the home switch or index pulse, in
     machine units.
 
-HOME_SEARCH_VEL::
-     (((HOME SEARCH VEL))) *=* *0.0*  Initial homing velocity in machine
+HOME_SEARCH_VEL =  0.0::
+     (((HOME SEARCH VEL))) Initial homing velocity in machine
     units per second. Sign denotes
     direction of travel. A value of zero means assume that the current
     location is the home position for the machine. If your machine has no
     home switches you will want to leave this value alone.
 
-HOME_LATCH_VEL ::
-     *=* *0.0*  Homing velocity in machine units per second to the home
+HOME_LATCH_VEL = 0.0::
+    Homing velocity in machine units per second to the home
     switch latch
     position. Sign denotes direction of travel.
 
@@ -727,16 +728,16 @@ HOME_FINAL_VEL = 0.0::
     position. If left at 0 or not included in the axis rapid velocity is
     used. Must be a positive number.
 
-HOME_USE_INDEX ::
-     *=* *NO*  If the encoder used for this axis has an index pulse, and
+HOME_USE_INDEX = NO::
+    If the encoder used for this axis has an index pulse, and
     the motion
     card has provision for this signal you may set it to yes. When it is
     yes, it will affect the kind of home pattern used. Currently, you can't
     home to index with steppers unless your using stepgen in velocity mode
     and pid.
 
-HOME_IGNORE_LIMITS ::
-     *= NO*  Some machines use a single switch as a home switch and limit
+HOME_IGNORE_LIMITS = NO::
+    Some machines use a single switch as a home switch and limit
     switch.
     This variable should be set to yes if the machine configured this way.
 
@@ -775,85 +776,86 @@ BIAS = 0.000::
     vertically. bias is turned off when the PID loop is disabled, just like
     all other components of the output.
 
-P ::
-     *=* *50* (hal)  The proportional gain for the axis servo. This value
+P = 50::
+    *(HAL)* The proportional gain for the axis servo. This value
     multiplies the
     error between commanded and actual position in machine units, resulting
     in a contribution to the computed voltage for the motor amplifier. The
     units on the P gain are volts per machine unit, e.g., latexmath:[$\frac{volt}{mu}$]. 
 
-I ::
-     *= 0* (hal)  The integral gain for the axis servo. The value
+I = 0::
+     *(HAL)* The integral gain for the axis servo. The value
     multiplies the
     cumulative error between commanded and actual position in machine
     units, resulting in a contribution to the computed voltage for the
     motor amplifier. The units on the I gain are volts per machine unit
     second, e.g., latexmath:[$\frac{volt}{mu\, s}$].
 
-D ::
-     *= 0* (hal)  The derivative gain for the axis servo. The value
+D = 0::
+     *(HAL)* The derivative gain for the axis servo. The value
     multiplies the
     difference between the current and previous errors, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
     on the D gain are volts per machine unit per second, e.g.,
     latexmath:[$\frac{volt}{mu/s}$].
 
-FF0 ::
-     *= 0* (hal)  The 0th order feed forward gain. This number is
+FF0 = 0::
+     *(HAL)* The 0th order feed forward gain. This number is
     multiplied by the
     commanded position, resulting in a contribution to the computed voltage
     for the motor amplifier. The units on the FF0 gain are volts per
     machine unit, e.g., latexmath:[$\frac{volt}{mu}$].
 
-FF1 ::
-     *= 0* (hal)  The 1st order feed forward gain. This number is
+FF1 = 0::
+     *(HAL)* The 1st order feed forward gain. This number is
     multiplied by the
     change in commanded position per second, resulting in a contribution to
     the computed voltage for the motor amplifier. The units on the FF1 gain
     are volts per machine unit per second, e.g., latexmath:[$\frac{volt}{mu\, s}$].
 
-FF2 ::
-     *= 0* (hal)  The 2nd order feed forward gain. This number is
+FF2 = 0::
+     *(HAL)* The 2nd order feed forward gain. This number is
     multiplied by the
     change in commanded position per second per second, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
     on the FF2 gain are volts per machine unit per second per second, e.g.,
     latexmath:[$\frac{volt}{mu\, s^{2}}$].
 
-OUTPUT_SCALE ::
-    *=* *1.000*
+OUTPUT_SCALE = 1.000::
+    *(HAL)*
 
-OUTPUT_OFFSET = ::
-     *0.000* (hal)  These two values are the scale and offset factors for
+OUTPUT_OFFSET = 0.000::
+    *(HAL)* These two values are the scale and offset factors for
     the axis output
     to the motor amplifiers. The second value (offset) is subtracted from
     the computed output (in volts), and divided by the first value (scale
     factor), before being written to the D/A converters. The units on the
     scale value are in true volts per DAC output volts. The units on the
-    offset value are in volts. These can be used to linearize a DAC.  
+    offset value are in volts. These can be used to linearize a DAC.
      Specifically, when writing outputs, the EMC first converts the desired
     output in quasi-SI units to raw actuator values, e.g., volts for an
     amplifier DAC. This scaling looks like:
-    
-    latexmath:[$[raw=\frac{{output-offset}}{scale}\]$]
-    
+
+//
+latexmath:[$[raw=\frac{{output-offset}}{scale}\]$]
+
     The value for scale
     can be obtained analytically by doing a unit analysis, i.e., units are
     [output SI units]/[actuator units]. For example, on a machine with a
     velocity mode amplifier such that 1 volt results in 250 mm/sec
     velocity,
-    
+
     latexmath:[[amplifier[volts\]=(output[\frac{mm}{sec}\]-offset[\frac{mm}{sec}\])/250\frac{mm}{sec\, volt}\]]
-    
+
     Note that the units of the offset are in machine units, e.g.,
     mm/sec, and they are pre-subtracted from the sensor readings. The value
     for this offset is obtained by finding the value of your output which
     yields 0.0 for the actuator output. If the DAC is linearized, this
-    offset is normally 0.0.  
+    offset is normally 0.0.
      The scale and offset can be used to linearize the DAC as well,
     resulting in values that reflect the combined effects of amplifier
     gain, DAC non-linearity, DAC units, etc. To do this, follow this
-    procedure: 
+    procedure:
      .  Build a calibration table for the output, driving the DAC with a
        desired voltage and measuring the result. See table 
        <<cap:Output-Voltage-Measurements>> for an example of voltage
