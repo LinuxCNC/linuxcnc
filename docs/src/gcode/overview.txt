@@ -1,3 +1,11 @@
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+// begin a listing of ini/hal/ngc files like so:
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
+
 = G Code Overview [[cha:Language-Overview]]
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
@@ -73,12 +81,12 @@ required to be used, but must be in the proper place if used.
 
 A word is a letter other than N followed by a real value.
 
-Words may begin with any of the letters shown in Table 
-<<cap:Words-and-their>>. The table includes N for completeness, even
-though, as defined above, line numbers are not words. Several letters
-(I, J, K, L, P, R) may have different meanings in different contexts.
-Letters which refer to axis names are not valid on a machine which does
-not have the corresponding axis.
+Words may begin with any of the letters shown in Table
+<<cap:Words-and-their,Words and their meanings>>. The table includes N
+for completeness, even though, as defined above, line numbers are not
+words. Several letters (I, J, K, L, P, R) may have different meanings
+in different contexts.  Letters which refer to axis names are not
+valid on a machine which does not have the corresponding axis.
 
 .Words and their meanings[[cap:Words-and-their]]
 
@@ -90,13 +98,13 @@ not have the corresponding axis.
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:Modal-Groups>>)
+|G | General function (See table  <<cap:Modal-Groups,Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 |K | Z offset for arcs and G87 canned cycles.
 | | Spindle-Motion Ratio for G33 synchronized movements.
-|M | Miscellaneous function (See table  <<cap:Modal-Groups>>)
+|M | Miscellaneous function (See table  <<cap:Modal-Groups,Modal Groups>>)
 |N | Line number
 |P | Dwell time in canned cycles and with G4.
 | | Key used with G10.
@@ -143,21 +151,85 @@ example), M codes, and G codes multiplied by ten. A decimal number
 which is supposed be close to an integer is considered close enough if
 it is within 0.0001 of an integer.
 
-== Numbered Parameters [[sub:Numbered-Parameters]]
+== [[sec:Parameters]]Parameters: Variables in G-code programs
 
-A numbered parameter is the pound character `#`  followed by an
-integer between 1 and 5399. The parameter is referred
-to by this integer, and its value is whatever number is stored in the
-parameter.
+The RS274/NGC language supports 'parameters' - what in other
+programming languages would be called 'variables'. There are several
+types of parameter of different purpose and appearance, each described
+in the following sections. The only value type supported by parameters
+is floating-point; there are no string, boolean or integer types in
+G-code like in other programming languages. However, logic expressions
+can be formulated with <<sub:Binary-Operators,boolean operators>>
+( `AND`, `OR`, `XOR`, and the comparison operators
+`EQ`,`NE`,`GT`,`GE`,`LT`,`LE`), and the `MOD`, `ROUND`, `FUP` and
+`FIX` <<cap:Functions,operators>> support integer arithmetic.
 
-A value is stored in a parameter with the = operator; for example "`#3
-= 15` " means "set parameter 3 to 15." A parameter setting does not
-take
-effect until after all parameter values on the same line have been
-found. For example, if parameter 3 has been previously set to 15 and
- the line "`#3=6 G1 x#3` " is interpreted, a straight move to a point
-where x equals 15 will
-occur and the value of parameter 3 will be 6.
+Parameters differ in syntax, scope, behaviour when not yet
+initialized, mode, persistence and intended use.
+
+Syntax:: There are three kinds of syntactic appearance:
+ . 'numbered':  `#4711`
+ . 'named local':  `#<localvalue>`
+ . 'named global': `#<_globalvalue>`
+
+Scope:: The scope of a parameter is either global, or local within a
+subroutine. Subroutine parameters and local named variables have local
+scope. Global named parameters and numbered parameters starting from
+number 31 are global in scope.
+
+Behaviour of uninitialized parameters::
+ . unitialized global parameters, and unused subroutine parameters 
+   return the value zero when used in an expression.
+ . unitialized named parameters signal an error when used in an expression.
+
+Mode:: Most parameters are read/write and may be assigned to
+within an assignment statement.  However, for many predefined
+parameters this does not make sense, so they are are read-only - they
+may appear in expressions, but not on the left-hand side of an
+assignment statement.
+
+Persistence:: When EMC is shut down, volatile parameters lose their
+values. All parameters except numbered parameters in the current
+persistent range footnoteref:[persistent range,The range of persistent
+parameters may change as development progresses. This range is
+currently 5161- 5390. It is defined in the `_required_parameters array`
+in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
+Persistent parameters are saved in the <<var_file_format,.var file>>
+restored to their previous values when EMC is started again. Volatile
+numbered parameters are reset to zero.
+
+Intended Use::
+ . user parameters:: numbered parameters in the range 31..5000, and named
+global and local parameters except predefined parameters. These are
+available for general-purpose storage of floating-point values, like
+intermediate results, flags etc, throughout program execution.  They
+are read/write (can be assigned a value).
+ . <<sub:Subroutine-Parameters,subroutine parameters>>:: these are used to hold the actual parameters 
+passed to a subroutine. 
+ . persistent numbered parameters:: most of these are used to access offsets of
+coordinate systems - see below.
+ . <<sec:Predefined-Named-Parameters,predefined named parameters>>:: used to determine interpreter and
+machine state, for instance `#<_relative>` returns 1 if G91 is on, and
+0 if G90 is set. They are read-only.
+
+=== Numbered Parameters [[sub:Numbered-Parameters]]
+
+A numbered parameter is the pound character `#` followed by an integer
+between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
+maintains an array of numbered parameters. Its size is defined by the
+symbol `RS274NGC_MAX_PARAMETERS` in the file
+src/emc/rs274ngc/interp_internal.h). This number of numerical
+parameters may also increase as development adds support for new
+parameters.  ].  The parameter is referred to by this integer, and its
+value is whatever number is stored in the parameter.
+
+A value is stored in a parameter with the = operator; for example 
+"`#3 = 15` " means "set parameter 3 to 15." A parameter setting does not
+take effect until after all parameter values on the same line have
+been found. For example, if parameter 3 has been previously set to 15
+and the line "`#3=6 G1 x#3` " is interpreted, a straight move to a
+point where x equals 15 will occur and the value of parameter 3 will
+be 6.
 
 The `#`  character takes precedence over other operations, so that, for
  example, "`#1+2` " means the number found by adding 2 to the value of
@@ -168,29 +240,109 @@ example `##2`  means the value of the parameter whose index is the
 (integer) value
 of parameter 2.
 
-The interpreter maintains a number of readonly parameters for a loaded
-tool:
+31-5000::
+    G-Code user parameters. These parameters are global in the G Code file,
+    and available for general use. Volatile.
 
- - #5400 tool number 
- - #5401 tool x offset 
- - #5402 tool y offset 
- - #5403 tool z offset 
- - #5404 tool a offset 
- - #5405 tool b offset 
- - #5406 tool c offset 
- - #5407 tool u offset 
- - #5408 tool v offset 
- - #5409 tool w offset 
- - #5410 tool diameter 
- - #5411 tool frontangle 
- - #5412 tool backangle 
- - #5413 tool orientation
+5061-5069::
+    Coordinates of a "G38.2" Probe result - X, Y, Z, A, B, C, U, V & W.
+    Volatile.
 
-== Named Parameters [[sub:Named-Parameters]]
+5070::
+    "G38" probe result - 1 if success, 0 if probe failed to close. 
+    Used with G38.3 and G38.5. Volatile.
+
+5161-5169::
+    "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5181-5189::
+    "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5211-5219::
+    "G92" offset for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5220::
+    Coordinate System number 1 - 9 for G54 - G59.3.
+
+5221-5229::
+    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5241-5249::
+    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5261-5269::
+    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5281-5289::
+    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5301-5309::
+    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5321-5329::
+    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5341-5349::
+    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5361-5369::
+    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5381-5389::
+    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W. Persistent.
+
+5399::
+    Result of M66 - Check or wait for input. Volatile.
+
+5400::
+    Tool Number. Volatile.
+
+5401-5409::
+    Tool Offsets for X, Y, Z, A, B, C, U, V & W. Volatile.
+
+5410::
+    Tool Diameter. Volatile.
+
+5411::
+    Tool Front Angle. Volatile.
+
+5412::
+    Tool Back Angle. Volatile.
+
+5413::
+    Tool Orientation. Volatile.
+
+5420-5428::
+     Current Position including all offsets and in the current program
+    units for X, Y, Z, A, B, C, U, V & W. In absolute machine coordinates, 
+    volatile.
+
+5599::
+   flag for controlling the output of (DEBUG,) statements.
+   1=output, 0=no output; default=1. Volatile.
+
+5600:: 
+   toolchanger fault indicator. Used with the iocontrol-v2 component.
+   1: toolchanger faulted, 0: normal. Volatile.
+
+5601::
+   toolchanger fault code. Used with the iocontrol-v2 component.
+   Reflects the value of the `toolchanger-reason` HAL pin if a fault occured. 
+   Volatile.
+
+=== Subroutine Parameters [[sub:Subroutine-Parameters]]
+
+1-30::
+     Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. Volatile. See also the chapter on <<cha:O-Codes,O-Codes>>.
+
+
+=== Named Parameters [[sub:Named-Parameters]]
 
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
-tabs removed. Named parameters must be enclosed with `< >` marks.
+tabs removed, so '#<param>' and '#<P a R am >' refer to the same
+parameter. Named parameters must be enclosed with `< >` marks.
 
 `#<named parameter here>`  is a local named parameter. By default, a
 named parameter is local to
@@ -217,21 +369,36 @@ Examples:
 
  - Mixed literal and named parameters
 
-    ` o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>]
-    [#<_feedrate>]`
+    ` o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]`
 
+Named parameters spring into existence when they are assigned a value
+for the first time. Local named parameters vanish when their scope is
+left: when a subroutine returns, all its local parameters are deleted
+and cannot be referred to anymore.
 
-== System Parameters [[sec:System-Parameters]]
+It is an error to use a non-existent named paramater within an
+expression, or at the right-hand side of an assignment. Printing the
+value of a non-existent named parameter with a DEBUG statement - like
+'(DEBUG, #<no_such_parameter>)' will display the string +++######+++.
 
-The following global read only named parameters are available to access internal
-state of the interpreter. They can be used in arbitrary expressions, for instance
-to control flow of the program with if-then-else statements.
+Global parameters, as well as local parameters assigned to at the
+global level, retain their value once assigned even when the program
+ends, and have these  values when the program is run again.
+
+The <<EXISTS-Function,'EXISTS' function>> tests whether a given named parameter exists.
+
+=== Predefined Named Parameters [[sec:Predefined-Named-Parameters]]
+
+The following global read only named parameters are available to
+access internal state of the interpreter and machine state. They can
+be used in arbitrary expressions, for instance to control flow of the
+program with if-then-else statements.
 
 #<_vmajor>::
-    Major package version. If current version was 2.6.2 would return 2.6.
+    Major package version. If current version was 2.6.2 it would return 2.6.
 
 #<_vminor>::
-    Minor package version. If current version was 2.6.2 would return 0.2.
+    Minor package version. If current version was 2.6.2 it would return 0.2.
 
 #<_line>::
     Sequence number. If running a G-Code file, this returns the current line number.
@@ -433,15 +600,15 @@ on the left of the operation to the power on
 strictly less than (`LT`), and less than or equal to (`LE`).
 
 The binary operations are divided into several groups according to
-their precedence. (see table  <<cap:Operator-Precedence>>) If
-operations in different precedence groups are strung together (for
-example in the expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]` ), operations
-in a higher group are to be performed before operations
+their precedence. (see table <<cap:Operator-Precedence,Operator
+Precedence>>) If operations in different precedence groups are strung
+together (for example in the expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]`
+), operations in a higher group are to be performed before operations
 in a lower group. If an expression contains more than one operation
- from the same group (such as the first `/` and `*`  in the example),
-the operation on the left is performed first. Thus,
- the example is equivalent to: `[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]` ,
-which is equivalent to to `[1.0 - 0.5]` , which is `0.5`.
+from the same group (such as the first `/` and `*` in the example),
+the operation on the left is performed first. Thus, the example is
+equivalent to: `[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]` , which is
+equivalent to to `[1.0 - 0.5]` , which is `0.5`.
 
 The logical operations and modulus are to be performed on any real
 numbers, not just on integers. The number zero is equivalent to logical
@@ -459,17 +626,25 @@ false, and any non-zero number is equivalent to logical true.
 |AND OR XOR | 'lowest'
 |========================================
 
+=== Equality and floating-point values
+
+The RS274/NGC language only supports floating-point values of finite
+precision.  Therefore, testing for equality or inequality of two
+floating-point values is inherently problematic. The interpreter
+solves this problem by considering values equal if their absolute
+difference is less than 0.0001 (this value is defined as
+`TOLERANCE_EQUAL` in src/emc/rs274ngc/interp_internal.h).
+
 == Functions [[sub:Unary-Operation-Value]]
 
 A function is either "`ATAN` " followed by one expression divided by
-another expression (for
- example "`ATAN[2]/[1+3]`") or any other function name followed by an
-expression (for example "`SIN[90]` "). The available functions are
-shown in table  <<cap:Functions>>.
- Arguments to unary operations which take angle measures (`COS`, `SIN`,
-and `TAN` ) are in degrees. Values returned by unary operations which
-return
-angle measures (`ACOS`, `ASIN`, and `ATAN`) are also in degrees.
+another expression (for example "`ATAN[2]/[1+3]`") or any other
+function name followed by an expression (for example "`SIN[90]`
+"). The available functions are shown in table
+<<cap:Functions,Functions>>.  Arguments to unary operations which take
+angle measures (`COS`, `SIN`, and `TAN` ) are in degrees. Values
+returned by unary operations which return angle measures (`ACOS`,
+`ASIN`, and `ATAN`) are also in degrees.
 
 .Functions[[cap:Functions]]
 
@@ -499,15 +674,32 @@ example. The `FUP`  operation rounds towards the right (more positive
 or less negative)
 on a number line; `FUP[2.8] = 3` and `FUP[-2.8] = -2`, for example.
 
-The EXISTS function checks for the existence of a single named
-parameter. It takes only one named parameter and returns 1 if it exists
-and 0 if it does not exist. It is an error if you use a numbered
-parameter or an expression.
+[[EXISTS-Function]]The `EXISTS` function checks for the existence of a single named
+parameter. It takes only one named parameter and returns 1 if it
+exists and 0 if it does not exist. It is an error if you use a
+numbered parameter or an expression. Here is an example for the usage
+of the EXISTS function:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o<test> sub
+o10 if [EXISTS[#<_global>]]
+    (debug, _global exists and has the value #<_global>)
+o10 else
+    (debug, _global does not exist)
+o10 endif
+o<test> endsub
+
+o<test> call
+#<_global> = 4711
+o<test> call
+m2
+---------------------------------------------------------------------
 
 == Repeated Items
 
 A line may have any number of G words, but two G words from the same
-modal group (see Section  <<sec:Modal-Groups>>) may not appear on the
+modal group (see Section  <<sec:Modal-Groups,Modal Groups>>) may not appear on the
 same line.
 
 A line may have zero to four M words. Two M words from the same modal
@@ -579,7 +771,7 @@ impossible for two members to be in effect at the same time - like
 measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in Table 
-<<cap:Modal-Groups>>.
+<<cap:Modal-Groups,Modal Groups>>.
 
 .Modal Groups[[cap:Modal-Groups]]
 
@@ -639,9 +831,13 @@ parentheses () or for the remainder of a line using a semi-colon. The
 semi-colon is not treated as the start of a comment when enclosed in
 parentheses.
 
-    G0 (Rapid to start) X1 Y1 
-    G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
-    M2 ; End of program.
+
+[source,{ngc}]
+---------------------------------------------------------------------
+G0 (Rapid to start) X1 Y1
+G0 X1 Y1 (Rapid to start; but don't forget the coolant)
+M2 ; End of program.
+---------------------------------------------------------------------
 
 == File Size
 
@@ -654,7 +850,7 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 special comments.
 
-= G Code Order of Execution (((G Code Order of Execution)))[[sec:Order-of-Execution]]
+== G Code Order of Execution (((G Code Order of Execution)))[[sec:Order-of-Execution]]
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -684,28 +880,28 @@ position of each item on the line, but by the following list:
    (possibly) by G53. 
  . Stop (M0, M1, M2, M30, M60).
 
-= G Code Best Practices (((G Code Best Practices)))
+== G Code Best Practices (((G Code Best Practices)))
 
-== Use an appropriate decimal precision
+=== Use an appropriate decimal precision
 
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches. In
 particular, arc tolerance checks are made to .001 and .0001 depending
 on the active units.
 
-== Use consistent white space
+=== Use consistent white space
 
 G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
-== Use "Center-format" arcs
+=== Use "Center-format" arcs
 
 Center-format arcs (which use `I- J- K-` instead of `R-` ) behave more
 consistently than R-format arcs, particularly for
 included angles near 180 or 360 degrees.
 
-== Put important modal settings at the top of the file
+=== Put important modal settings at the top of the file
 
 When correct execution of your program depends on modal settings, be
 sure to set them at the beginning of the part program. Modes can carry
@@ -714,7 +910,10 @@ over from previous programs and from the MDI commands.
 As a good preventative measure, put a line similar to the following at
 the top of all your programs:
 
+[source,{ngc}]
+---------------------------------------------------------------------
     G17 G20 G40 G49 G54 G80 G90 G94 
+---------------------------------------------------------------------
 
 (XY plane, inch mode, cancel diameter compensation, cancel length
 offset, coordinate system 1, cancel motion, non-incremental motion,
@@ -725,28 +924,82 @@ do not include G20 or G21, then different machines will mill the
 program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
-== Don't put too many things on one line
+=== Don't put too many things on one line
 
-Ignore everything in Section  <<sec:Order-of-Execution>>, and instead
+Ignore everything in Section  <<sec:Order-of-Execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
-== Don't set & use a parameter on the same line
+=== Don't set & use a parameter on the same line
 
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
 `#1=[#1+#2`] is ok.
 
-== Don't use line numbers
+=== Don't use line numbers
 
 Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
 the N-word value.
 
-== When moving more than one coordinate system, consider inverse time feed mode
+=== When moving more than one coordinate system, consider inverse time feed mode
 
 Because the meaning of an F-word in feed-per-minute mode varies
 depending on which axes are commanded to move, and because the amount
 of material removed does not depend only on the feed rate, it may be
 easier to use G93 inverse time feed mode to achieve the desired
 material removal rate.
+
+[appendix]
+= Numbered Parameters persistence
+[[var_file_format]]
+
+The values of parameters in the persistent range are retained over
+time, even if the machining center is powered down.  EMC2 uses a
+parameter file to ensure persistence. It is managed by the
+Interpreter. The Interpreter reads the file when it starts up, and
+writes the file when it exits.
+
+The format of a parameter file is shown in Table
+<<cap:Parameter-File-Format,Parameter File Format>>. 
+
+The Interpreter expects the file to have two colums. It skips any
+lines which do not contain exactly two numeric values. The first
+column is expected to contain an integer value (the parameter's
+number). The second column contains a floating point number (this
+parameter's last value). The value is represented as a
+double-precision floating point number inside the Interpreter, but a
+decimal point is not required in the file.
+
+Parameters in the user-defined range (31-5000) may be added to this
+file. Such parameters will be read by the Interpreter and written to
+the file as it exits.
+
+Missing Parameters in the persistent range will be initialized to zero
+and written with their current values on the next save operation.
+
+The parameter numbers must be arranged in ascending order. An
+`Parameter file out of order` error  will be signalled if they are  not in
+ascending order. 
+
+The original file is saved as a backup file when the new file
+is written. 
+
+.Parameter File Format[[cap:Parameter-File-Format]]
+
+[width="90%", options="header"]
+|========================================
+|Parameter Number | Parameter Value 
+|5161 | 0.0 
+|5162 | 0.0 
+|========================================
+
+
+
+
+
+
+
+
+
+
 
