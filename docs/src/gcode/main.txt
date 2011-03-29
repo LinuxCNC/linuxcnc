@@ -1,3 +1,7 @@
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 = G Code Reference (((G Codes)))
 
 Conventions used in this section
@@ -1852,6 +1856,8 @@ HAL" chapter in the Configuration Section of the Integrators Manual for
 more information on the Motion Controller. M68 functions the same as
 M64-65. See the M62-65 section for information about immediate output
 commands.
+
+include::saverestore.txt[]
 
 == M100 to M199 User Defined Commands (((M100 to M199 User Defined Commands)))[[sec:M100-to-M199:]]
 
