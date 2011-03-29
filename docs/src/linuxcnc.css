@@ -1,4 +1,6 @@
 :target { background: #DEF !important;  }
+tt { font-family: monospace !important; }
+pre { font-family: monospace !important; }
 h1, h2 { background: #c0c0f0; }
 h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
 div.nav { float: right; background: #ffffff; }
