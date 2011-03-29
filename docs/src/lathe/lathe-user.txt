@@ -3,23 +3,67 @@
 This chapter attempts to bring together all the lathe specific
 information and is currently under construction.
 
-== Lathe Mode
+== Lathe Mode Configuration[[sec:Lathe-Mode-Configuration]]
 
 When you set up a lathe using Lathe Mode you need to use a Lathe Tool
-Table so AXIS will display your tool properly. See the INI File section
-of the Integrators Manual for info on setting up AXIS for Lathe Mode.
-Use the "DIA" column for the tool tip diameter.
+Table so AXIS will display your tool properly. See the
+<<sub:[DISPLAY]-section,[DISPLAY]LATHE .ini file parameter>> of the
+Integrators Manual for info on setting up AXIS for Lathe Mode.  
+// Use the "DIA" column for the tool tip diameter.
 
 Lathe Mode in Axis does not set your default plane to G18 (XZ). You
-must program that in the preamble of each gcode file or (better) add it
-to your .ini.
+must program that in the preamble of each gcode file or (better) add
+it to to the
+<<sub:[RS274NGC]-section,[RS274NGC]RS274NGC_STARTUP_CODE>> variable in
+your .ini file.
 
-== Tool Table
+== Tool Table[[sec:Lathe-Tool-Table]]
+
+// carried over from machining_center for salvage -mah
+
+// === Lathe Format Tool Files
+
+// The “lathe format” of a tool file is shown in Table 
+// <<cap:Lathe-Tool-File>>.
+
+// .Sample Tool File (lathe format)[[cap:Lathe-Tool-File]]
+
+// [width="90%", options="header"]
+// |========================================
+//  |Pocket | FMS | ZOFFSET | XOFFSET | DIA | FRONTANGLE | BACKANGLE |
+// ORIENTATION | Comment
+// | |  |  |  |  |  |  |  | 
+// |1 | 1 | 0.0 | 0.0 | 0.1 | 95.0 | 155.0 | 1 | 
+// |2 | 2 | 0.5 | 0.5 | 0.1 | 120 | 60 | 6 | 
+// |========================================
+
+// The Pocket, FMS, DIA and Comment fields are as for mill format tool
+// files. The ZOFFSET field is the same as the TLO field of mill format
+// tool files. The DIA is also used by the AXIS gui display.
+
+// The XOFFSET field gives an offset for the X coordinate when tool
+// length offsets are in effect.
+
+// The ORIENTATION field gives the orientation of the lathe tool, as
+// illustrated in  <<cap:Tool-Orientations>>. The red cross is the
+// controlled point. See  <<sub:Controlled-Point>>.
+
+// The FRONTANGLE and BACKANGLE fields are used by some user interfaces
+// to display a fancy representation of the lathe tool.
+
+// .Tool Orientations[[cap:Tool-Orientations]]
+
+// image::lathe_tool.png[]
 
 The "Tool Table" is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
-and is called "tool.tbl" by default. The tools might be in a tool
-changer or just changed manually. The file can be edited with a text
+and is called "tool.tbl" by default. 
+
+The tools might be in a tool
+changer or just changed manually. 
+
+
+The file can be edited with a text
 editor or be updated using G10 L1. The maximum number of entries in the
 tool table is 56. The maximum tool and pocket number is 99999.
 
@@ -33,7 +77,7 @@ Tool
 |T99999 | P99999 | ... | ... | ... | ... | ... | ;You have lots of tools
 |========================================
 
-In general, the new tool table line format is:
+The tool table line may have the following fields:
 
  -  T - tool number - integer, 0-99999 (you can have a large number of
    tools in inventory)
@@ -46,6 +90,8 @@ In general, the new tool table line format is:
  - Q - tool orientation (lathe only) - integer, 0-9 
  - ; - beginning of comment - text
 
+The tool orientation (Q field) describes the centerline angle of the tool as 
+
 The following figure shows the lathe tool orientations with the center
 line angle of each orientation and info on FRONTANGLE and BACKANGLE.
 
@@ -53,8 +99,8 @@ line angle of each orientation and info on FRONTANGLE and BACKANGLE.
 
 image::images/tool_positions.png[]
 
-In AXIS the following figures show what Tool Positions look like from
-the above tool table.
+In AXIS the following figures show what Tool Positions for a given 
+centerline angle (CL) look like from the above tool table.
 
 .Tool Positions 1, 2, 3 & 4[["cap:Tool-Positions-1, 2, 3 & 4"]]
 
@@ -65,6 +111,8 @@ image:images/tool_pos_1.png[] image:images/tool_pos_2.png[] image:images/tool_po
 
 
 image:images/tool_pos_5.png[] image:images/tool_pos_6.png[] image:images/tool_pos_7.png[] image:images/tool_pos_8.png[]
+
+
 
 == Tool Touch Off
 

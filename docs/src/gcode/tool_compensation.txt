@@ -30,7 +30,65 @@ By using "G10 L1 Pn Zx" where "n" is the tool number and "x" is the
 offset from the MDI window or in your program you can also set the tool
 table.
 
-== Tool Table
+== Tool Table [[sec:Mill-Tool-Table]]
+
+// carried over from machining_center.txt for salvage -mah
+
+// === Mill Format Tool Files
+
+// The “mill format” of a tool file is shown in Table 
+// <<cap:Sample-Tool-File>>.
+
+// .Sample Tool File (mill format)[[cap:Sample-Tool-File]]
+
+// [width="90%", options="header"]
+// |========================================
+// |Pocket | FMS | TLO | Diameter | Comment
+// | |  |  |  | 
+// |1 | 1 | 2.0 | 1.0 | 
+// |2 | 2 | 1.0 | 0.2 | 
+// |5 | 5 | 1.5 | 0.25 | endmill
+// |10 | 10 | 2.4 | -0.3 | for testing
+// |========================================
+
+// Each line has five entries. The first four entries are required. The
+// last entry (a comment) is optional. It makes reading easier if the
+// entries are arranged in columns, as shown in the table, but the only
+// format requirement is that there be at least one space or tab after
+// each of the first three entries on a line and a space, tab, or newline
+// at the end of the fourth entry. The meanings of the columns and the
+// type of data to be put in each are as follows.
+
+// The “Pocket” column contains the number (unsigned integer) which
+// represents the pocket number (slot number) of the tool carousel slot in
+// which the tool is placed. The entries in this column must all be
+// different.
+
+// The “FMS” column contains the number (unsigned integer) which
+// represents a code number for the tool. The user may use any code for
+// any tool, as long as the codes are unsigned integers. This is typically
+// the same as the pocket number.
+
+// The “TLO” column contains a real number which represents the tool
+// length offset. This number will be used if tool length offsets are
+// being used and this pocket is selected. This is normally a positive
+// real number, but it may be zero or any other number if it is never to
+// be used.
+
+// The “Diameter” column contains a real number. This number is used only
+// if tool radius compensation is turned on using this pocket. If the
+// programmed path during compensation is the edge of the material being
+// cut, this should be a positive real number representing the measured
+// diameter of the tool. If the programmed path during compensation is the
+// path of a tool whose diameter is nominal, this should be a small number
+// (positive, negative, or zero) representing the difference between the
+// measured diameter of the tool and the nominal diameter. If cutter
+// radius compensation is not used with a tool, it does not matter what
+// number is in this column.
+
+// The “Comment” column may optionally be used to describe the tool. Any
+// type of description is OK. This column is for the benefit of human
+// readers only.
 
 The "Tool Table" is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
