@@ -1,9 +1,5 @@
 External Controls
 
-Limit And Homing Switches:
-    This narrows the available signal choices in the mesa and
-        parport pages.
-
 USB Joystick Jogging:
     This allows basic jogging with USB devices.
     eg joysticks and keyboards.
@@ -59,10 +55,11 @@ External MPG Jogging:
     (TOUCHY requires a single shared MPG)
     Choose selectable jog rates or a single jog rate.
     (TOUCHY selects its own jog rates) 
-    There are 3 inputs used to select up to eight
-    Jog rates. The bold face labels - Default, a, b, and c
+    There are 4 inputs used to select up to sixteen
+    Jog rates. The bold face labels - Default, a, b, c, and d
     Allow simple switches (eg center-off or rotary) to be
-    used. The letters represent which signals need to be
+    used without multiplexing complexities.
+    The letters represent which signals need to be
     high for the jog rate.( eg abc) requires signals:
     jog-inc-a, jog-inc-b, and jog-inc-c all to be high for
     that jog rate to be selected.)
@@ -70,3 +67,24 @@ External MPG Jogging:
     This is also the rate if a single jog rate is used.
     The jog inc signals will need to be designated on the mesa
     page.
+
+External Spindle Override:
+    allows spindle speed override to be set by MPG or switches.
+    If MPG is choosen, one must choose the spindle override
+    encoder signal in the Mesa page.
+    if switches is choosen, one must select the apropriate
+    overrides increment signals in the mesa / parport  page.
+    There are 4 inputs used to select up to sixteen override
+    percentages. The bold face labels - Default, a, b, c, and d
+    Allow simple switches (eg center-off or rotary) to be
+    used without multiplexing complexities.
+    The letters represent which signals need to be
+    high for the override rate.( eg abc) requires signals:
+    so-incr-a, so-inc-b, and so-inc-c all to be high for
+    that override rate to be selected.)
+    The default pecentage rate is when no so-inc signals are high.
+
+External Feed Override:
+    allows feed speed override to be set by MPG or switches.
+    works the same way as spindle override - see above.
+    

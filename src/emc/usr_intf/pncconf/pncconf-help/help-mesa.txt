@@ -1,6 +1,6 @@
-** Mesa setup page **
+Mesa setup page:
 
- * Configuration Tab *
+Configuration Tab:
     allows you to choose the board,firmware,
     number of components / gpio, 
     frequency of pwm / pdm and the watchdog timeout
@@ -12,43 +12,20 @@
     tabs reflect the changes
     any signalnames you had already pick will be lost unless 
     the component is the same as before the change
-    Depending on the board chosen, the tabs will dim if not 
-    available.
+    Depending on the board chosen, the connector tabs will disapear
+    if not available.
+    The help page output tab will show the firmware PIN file.
 
- * Connector Tabs *
+Connector Tabs:
     The available tabs are selected based on the 
     mesa card type
     The available component types are based on the 
     firmware / component number selected on the setup page
     will display the signal names and the component type:
-    If the type is:
-
-    GPIO   general purpose Input / output 
-        then you may choose between input,output,and opendrain
-
-    PWM GEN 
-        you may choose between pwm and pdm
-
-    STEP GENs
-         at the moment only support step and direction
-
-    ENCODERS 
-        only quadrature.
- 
-    You could change these options in a custom HAL file
-    If you wish to connect a component to something in a 
-    custom HAL file write a unique signal name in the combo 
-    entry box certain components will add endings to your 
-    custom signal name, such as the encoder will 
-    add -position -count -velocity -index-enable and -reset
-
- * Mesa Components / pintypes *
-
-
     There are four major pintypes based on the 
     components available:
 
-    * GPIO - general purpose input / output
+     GPIO - general purpose input / output
 
         You can select the type in the pintype combobox
         This includes GPIOI - input, GPIOO - output, and 
@@ -56,21 +33,35 @@
         The available signals will change if you switch between 
         GPIOI and GPIOO/GPIOD.
 
-    * ENCODER - a hardware base quadrature counter
+     ENCODER - a hardware base quadrature counter
 
         You select the A phase signal and the rest of the 
         phases (B, I, and possibly M) are automatically included
 
-    * STEPGEN - a hardware based step and direction generator
-
-        Right now only step and direction stepgens are selectable 
-        (you could override that in a custom HAL file)
-        You select the STEP signal and the direction and enable
-         signals are automatically setup
-
-    * PWMGEN - a hardware base pulse width (or density) 
+     PWMGEN - a hardware base pulse width (or density) 
         modulation generator
 
         You can select PWM or PWD in the pintype combobox
         you select the PULSE signal and the direction and enable 
         signals are automatically setup
+
+     3 PWMGEN - special pwm generators used for driving brushless
+        servo motor windings directly.
+
+     STEPGEN - a hardware based step and direction generator
+
+        only step and direction stepgens are supported
+        (you could override that in a custom HAL file)
+        You select the STEP signal and the direction and enable
+        signals are automatically setup
+
+    You could change these options in a custom HAL file
+    If you wish to connect a component to something in a 
+    custom HAL file write a unique signal name in the combo 
+    entry box certain components will add endings to your 
+    custom signal name, such as the encoder will 
+    add -position -count -velocity -index-enable and -reset
+
+
+
+    

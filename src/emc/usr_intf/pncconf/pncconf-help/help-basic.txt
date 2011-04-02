@@ -1,17 +1,21 @@
 Basic Machine Page
 
 Machine Basics:
-    Pick the name of the configuration- use no spaces.
+    Pick the name of the configuration- spaces will be 
+    converted to under-score.
     Pick the available axis.
     Pick metric or standard units for pncconf data entry.
 
 Computer Response Time:
-    Test latency of the computer. 
+    Test latency of the computer.
+    choose the servo period.
 
 I/O Ports / Boards:
-    Pick available I/O.
-    Mesa board is required as the parallel port
-    can't currently be used for stepper / servo control. 
+    pick the number and type of mesa boards to configure.
+    The available type depends on the firmware packages downloaded
+    and if any boards are 'blacklisted'. 
+    At least one Mesa board is required as the parallel port
+    can't be configured for stepper / servo control. 
     Parallel ports must have the address specified and can
     be specified as 'OUT' or 'IN' which changes the available
     8 data pins between output or input.
@@ -19,4 +23,11 @@ I/O Ports / Boards:
     all PCI cards installed. Look for One that mentions Parallel
     port, It should have addresses specified. Choose one and try it. 
 
+GUI Frontend list:
+    This specifies the graphical display EMC will use.
+    Each one has different option. 
+    eg. mini does not support estop
+        AXIS is the only frontend that fully supports lathes.
+        TOUCHY requires cycle-start, abort, and single-step signals
+            It also requires shared axis MPG jogging to be selected.  
 
