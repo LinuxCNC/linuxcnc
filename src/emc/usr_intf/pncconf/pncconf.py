@@ -561,7 +561,7 @@ def md5sum(filename):
     except IOError:
         return None
     else:
-        return hashlib(f.read()).hexdigest()    
+        return hashlib.md5(f.read()).hexdigest()    
 
 class Widgets:
     def __init__(self, xml):
@@ -1074,7 +1074,7 @@ class Data:
 
         warnings = []
         for f, m in self.md5sums:
-            m1 = hashlib.md5(f).hexdigest()
+            m1 = md5sum(f)
             if m1 and m != m1:
                 warnings.append(_("File %r was modified since it was written by PNCconf") % f)
         if not warnings: return
@@ -1099,7 +1099,7 @@ class Data:
             if response[0] not in _("yY"): raise SystemExit, 1
 
     def add_md5sum(self, filename, mode="r"):
-        self.md5sums.append((filename, hashlib.md5(filename).hexdigest()))
+        self.md5sums.append((filename, md5sum(filename)))
 
     def write_inifile(self, base):
         filename = os.path.join(base, self.machinename + ".ini")
@@ -1555,12 +1555,12 @@ class Data:
                 print >>file
                 if let == 's':  
                     
-                    x1 = self.spindlepwm1
-                    x2 = self.spindlepwm2
-                    y1 = self.spindlespeed1
-                    y2 = self.spindlespeed2
-                    scale = (y2-y1) / (x2-x1)
-                    offset = x1 - y1 / scale
+                    #x1 = self.spindlepwm1
+                    #x2 = self.spindlepwm2
+                    #y1 = self.spindlespeed1
+                    #y2 = self.spindlespeed2
+                    #scale = (y2-y1) / (x2-x1)
+                    #offset = x1 - y1 / scale
                     print >>file
                     
                     #print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
@@ -1609,7 +1609,8 @@ class Data:
                 if not encoderpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
             elif closedloop:
-                print >>file, "closedloop stepper signals"
+                print >>file
+                print >>file, "# ---closedloop stepper signals---"
                 print >>file, "net %senable                             => pid.%s.enable" % (let, let)
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
                 print >>file, "net %soutput     pid.%s.output           => "% (let, let) + steppinname + ".velocity-cmd"
@@ -1816,17 +1817,17 @@ class Data:
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d numof_3pwmgens%d num_stepgens=%d" """ % (
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens )
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d numof_3pwmgens%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
                     """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
                     directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d numof_3pwmgens%d num_stepgens=%d" """ % (
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens )
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d numof_3pwmgens%d num_stepgens=%d" """ % (
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
                     driver1, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens )
         for boardnum in range(0,int(self.number_mesa)):
             if boardnum == 1 and (board0 == board1):
@@ -3033,7 +3034,7 @@ class App:
 
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
-           os.remove(tempfile) 
+           os.remove(tempfile)
 
     def gtk_main_quit(self, *args):
         gtk.main_quit()
@@ -3288,6 +3289,9 @@ class App:
                 for search,item in enumerate(model):
                     if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
                         self.widgets["mesa%d_firmware"% boardnum].set_active(search)
+                        break
+                    if search == (len(model)-1):
+                        self.widgets["mesa%d_firmware"% boardnum].set_active(0)
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
                 self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
                 self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
@@ -4681,7 +4685,7 @@ class App:
                           if row == 0:continue
                           if parent[1][0] == None:
                              count += 6
-                             print row,column,count,parent[0]
+                             print row,count,parent[0]
                              if count == signalindex:
                                 print "match",row
                                 temp = (row)
@@ -4987,31 +4991,46 @@ class App:
 
     def prepare_parport(self,portname):
         self.data.help = "help-parport.txt"
+        def set_combo(dataptype,p):
+         # signal names for GPIO INPUT
+                        datap = self.data[p]
+                        if dataptype == GPIOI:
+                            human = human_input_names
+                            signal = hal_input_names
+                            tree = self.data._gpioisignaltree
+                        # signal names for GPIO OUTPUT and OPEN DRAIN OUTPUT
+                        elif dataptype in (GPIOO,GPIOD):
+                            human = human_output_names
+                            signal = hal_output_names
+                            tree = self.data._gpioosignaltree
+                        self.widgets[p].set_model(tree)
+
+                        signalindex = signal.index(datap)
+                        print "gpio temp ptype:",dataptype,datap,signalindex
+                        count = 0
+                        temp = (0) # set unused gpio if no match
+                        if signalindex > 0:
+                            for row,parent in enumerate(human):
+                                if parent[1][0] == None:continue
+                                for column,child in enumerate(parent[1]):
+                                    count +=1
+                                    print row,column,count,parent[0],child
+                                    if count == signalindex:
+                                        print "match",row,column
+                                        break
+                                if count >= signalindex:break
+                            temp = (row,column)
+                        treeiter = tree.get_iter(temp)
+                        self.widgets[p].set_active_iter(treeiter)
+
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = '%sOpin%d' % (portname,pin)
-            model = self.widgets[p].get_model()
-            model.clear()
-            for name in human_output_names: model.append((name,))
-            self.widgets[p].set_active(hal_output_names.index(self.data[p]))
-            self.widgets[p].set_wrap_width(3)
+            set_combo(GPIOO,p)
             p = '%sOpin%dinv' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = '%sIpin%d' % (portname, pin)
-            model = self.widgets[p].get_model()
-            model.clear()
-            for name in human_input_names:
-                    if self.data.limitshared or self.data.limitsnone:
-                        if name in human_names_limit_only: continue 
-                    if self.data.limitswitch or self.data.limitsnone:
-                        if name in human_names_shared_home: continue                          
-                    if self.data.homenone or self.data.limitshared:
-                        if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue         
-                    model.append((name,))
-            for search,item in enumerate(model):
-                if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
-                    self.widgets[p].set_active(search)
-            self.widgets[p].set_wrap_width(3)
+            set_combo(GPIOI,p)
             p = '%sIpin%dinv' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
         self.in_pport_prepare = False
@@ -5033,44 +5052,50 @@ class App:
             self.widgets[p].set_sensitive(not c)
 
     def next_parport(self,portname):
-        #check input pins
-        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):           
-            p = '%sIpin%d' % (portname, pin)       
-            foundit = 0
+        def push_data(p,pinv,signaltree,signaltocheck):
+            piter = self.widgets[p].get_active_iter()
             selection = self.widgets[p].get_active_text()
-            for index , i in enumerate(human_input_names):
-                if selection == i : 
-                    foundit = True
-                    break               
-            if not foundit:
-                selection = selection.replace(" ","_")
-                model = self.widgets[p].get_model()
-                model.append((selection,))
-                g = human_input_names
-                g.append ((selection))
-                hal_input_names.append ((selection))
-                self.data.halinputsignames.append ((selection))
-            self.data[p] = hal_input_names[index]
-            p = '%sIpin%dinv' % (portname, pin)
-            self.data[p] = self.widgets[p].get_active()
+            ptypetree = self.data._gpioliststore
+            # **Start widget to data Convertion**                    
+            if piter == None:
+                    print "callin pin changed !!!"
+                    #pin changed method 
+                    print "back !!!"
+                    selection = self.widgets[p].get_active_text()
+                    piter = self.widgets[p].get_active_iter()
+                    print "found signame -> ",selection," "
+            # ok we have a piter with a signal type now- lets convert it to a signalname
+            print "**** INFO parport-data-transfer:",piter
+            self.debug_iter(piter,p,"signal")
+            dummy, index = signaltree.get(piter,0,1)
+            print "signaltree: ",dummy
+            self.data[p] = signaltocheck[index]
+            self.data[pinv] = self.widgets[pinv].get_active()
+
+        #check input pins
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = '%sIpin%d' % (portname, pin)
+            pinv = '%sIpin%dinv' % (portname, pin)
+            signaltree = self.data._gpioisignaltree
+            signaltocheck = hal_input_names
+            print "**** INFO parport-data-transfer:",p
+
+            # type GPIO input
+            
+            ptypetree = self.data._gpioliststore
+            nametocheck = human_input_names
+            addsignalto = self.data.halinputsignames
+
+            push_data(p,pinv,signaltree,signaltocheck)
         # check output pins
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):           
-            foundit = 0
             p = '%sOpin%d' % (portname, pin)
-            selection = self.widgets[p].get_active_text()
-            for i in human_output_names:
-               if selection == i : foundit = 1
-            if not foundit:
-                selection = selection.replace(" ","_")
-                model = self.widgets[p].get_model()
-                model.append((selection,))
-                g = human_output_names
-                g.append ((selection))
-                hal_output_names.append ((selection))
-                self.data.haloutputsignames.append ((selection))
-            self.data[p] = hal_output_names[self.widgets[p].get_active()]
-            p = '%sOpin%dinv' % (portname, pin)
-            self.data[p] = self.widgets[p].get_active() 
+            pinv = '%sOpin%dinv' % (portname, pin)
+            signaltree = self.data._gpioosignaltree
+            signaltocheck = hal_output_names
+            addsignalto = self.data.haloutputsignames
+
+            push_data(p,pinv,signaltree,signaltocheck)
     
     def on_parportpanel_clicked(self, *args):self.parporttest(self)
         
@@ -5291,8 +5316,11 @@ class App:
             w[axis + "stepspace"].set_value(d[axis + "stepspace"])
             w[axis + "dirhold"].set_value(d[axis + "dirhold"])
             w[axis + "dirsetup"].set_value(d[axis + "dirsetup"])
-        gobject.idle_add(lambda: self.update_pps(axis))
+        gobject.idle_add(lambda: self.motor_encoder_sanity_check(None,axis))
 
+        w[axis + "outputscale"].set_sensitive(pwmgen)
+        w[axis + "outputoffset"].set_sensitive(pwmgen)
+        w[axis + "maxoutput"].set_sensitive(pwmgen)
         if axis == 's':
             w["labelmotor_pitch"].set_text(_("Gearbox Reduction Ratio"))
             w["labelencoder_pitch"].set_text(_("Gearbox Reduction Ratio"))
@@ -5300,9 +5328,7 @@ class App:
             w["encoder_screwunits"].set_text((""))        
             w.sencodercounts.set_sensitive(encoder)
             w[axis + "invertencoder"].set_sensitive(encoder)
-            w["soutputscale"].set_sensitive(pwmgen)
-            w["soutputoffset"].set_sensitive(pwmgen)
-            w["smaxoutput"].set_sensitive(pwmgen)
+            
             w["sservo_info"].set_sensitive(pwmgen)
             w["saxistest"].set_sensitive(pwmgen)
             w["sstepper_info"].set_sensitive(stepdriven)
@@ -5361,7 +5387,6 @@ class App:
                 w[axis + "homevelunits"].set_text(_("mm / min"))
                 w[axis + "homelatchvelunits"].set_text(_("mm / min"))
                 w[axis + "homefinalvelunits"].set_text(_("mm / min"))
-                w[axis + "accdistunits"].set_text(_("mm"))
                 if stepdriven:
                     w[ "resolutionunits1"].set_text(_("mm / Step"))        
                     w["scaleunits"].set_text(_("Steps / mm"))
@@ -5401,7 +5426,7 @@ class App:
             w[axis + "homesearchvel"].set_sensitive(homes)
             w[axis + "searchdir"].set_sensitive(homes)
             w[axis + "latchdir"].set_sensitive(homes)
-            w[axis + "usehomeindex"].set_sensitive(encoder)
+            w[axis + "usehomeindex"].set_sensitive(encoder and homes)
             w[axis + "homefinalvel"].set_sensitive(homes)
             w[axis + "homelatchvel"].set_sensitive(homes)
             i = d[axis + "usecomp"]
@@ -5426,6 +5451,12 @@ class App:
     def on_zdrivertype_changed(self, *args): self.driver_changed('z')
     def on_adrivertype_changed(self, *args): self.driver_changed('a')
     def on_sdrivertype_changed(self, *args): self.driver_changed('s')
+
+    def on_xbldc_toggled(self, *args): self.bldc_toggled('x')
+    def on_ybldc_toggled(self, *args): self.bldc_toggled('y')
+    def on_zbldc_toggled(self, *args): self.bldc_toggled('z')
+    def on_abldc_toggled(self, *args): self.bldc_toggled('a')
+    def on_sbldc_toggled(self, *args): self.bldc_toggled('s')
 
     def driver_changed(self, axis):
         d = self.data
@@ -5471,6 +5502,10 @@ class App:
         if i:
             self.widgets[axis + "backlash"].set_sensitive(0)
             self.widgets[axis + "usebacklash"].set_active(0)
+
+    def bldc_toggled(self, axis):
+        i = self.widgets[axis + "bldc_option"].get_active()
+        self.widgets[axis + "bldcoptionbox"].set_sensitive(i)
 
     def backlash_toggle(self, axis):
         i = self.widgets[axis + "usebacklash"].get_active()   
@@ -5619,6 +5654,7 @@ class App:
         encoder = self.data.findsignal(axis+"-encoder-a")
         motor_pulley_ratio = encoder_pulley_ratio = 1
         motor_worm_ratio = encoder_worm_ratio = 1
+        encoder_scale = motor_scale = 0
         microstepfactor = motor_pitch = encoder_pitch = motor_steps = 1
         if axis == "a": rotary_scale = 360
         else: rotary_scale = 1 
@@ -5690,30 +5726,9 @@ class App:
             else:
                 w["calcencoder_scale"].set_sensitive(False)
                 w["encoderscaleframe"].set_sensitive(False)
-        except (ValueError, ZeroDivisionError):
-            w["calcmotor_scale"].set_text("1")
-            w["calcencoder_scale"].set_text("1")
-        self.update_pps(axis)
-
-    def update_pps(self, axis):
-        w = self.widgets
-        d = self.data
-        worm_ratio = motor_ratio = 1       
-        def get(n): return get_value(w[n])
-        stepdrive = self.data.findsignal(axis+"-stepgen-step")
-        encoder = self.data.findsignal(axis+"-encoder-a")
-        try:
-            if encoder:
-                scale = get("calcencoder_scale")
-                encoder_cpr = get_value(w[("encoderline")]) * 4
-            elif stepdrive:
-                scale = get("calcmotor_scale")
-            else: return
-            if stepdrive:
-                motor_steps = get("steprev")
-                if w["cbmicrosteps"].get_active():
-                    microstepfactor = get("microstep")
-                else: microstepfactor = 1
+            #new stuff
+            if stepdrive: scale = motor_scale
+            else: scale = encoder_scale
             maxvps = (get_value(w[axis+"maxvel"]))/60
             pps = (scale * (maxvps))/1000
             if pps == 0: raise ValueError
@@ -5731,19 +5746,19 @@ class App:
             w["chartresolution"].set_text("%.7f" % (1.0 / scale))
             w["calscale"].set_text(str(scale))
             w["maxrpm"].set_text("%d" % maxrpm)
-            self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-            #w[axis + "axistune"].set_sensitive(1)
-        except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
+
+        except (ValueError, ZeroDivisionError):
+            w["calcmotor_scale"].set_text("200")
+            w["calcencoder_scale"].set_text("1000")
             w["chartresolution"].set_text("")
             w["acctime"].set_text("")
             if not axis == 's':
                 w["accdist"].set_text("")
             w["khz"].set_text("")
             w["calscale"].set_text("")
-            self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
-            #w[axis + "axistune"].set_sensitive(0)
 
     def motor_encoder_sanity_check(self,widgets,axis):
+        print "motor/encoder sanity check"
         stepdrive = encoder = bad = False
         if self.data.findsignal(axis+"-stepgen-step"): stepdrive = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
@@ -5751,7 +5766,7 @@ class App:
             if self.widgets[axis+"encoderscale"].get_value() < 1: bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1: bad = True
-        if not encoder and not stepdrive : bad = True
+        if not encoder and not stepdrive and not axis == "s": bad = True
         if self.widgets[axis+"maxvel"] < 1: bad = True
         if self.widgets[axis+"maxacc"] < 1: bad = True
         if bad:
@@ -5762,12 +5777,6 @@ class App:
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)
-
-    def on_spindle_info_changed(self, *args): self.update_pps('s')
-    def on_xaxis_info_changed(self, *args): self.update_pps('x')
-    def on_yaxis_info_changed(self, *args): self.update_pps('y')
-    def on_zaxis_info_changed(self, *args): self.update_pps('z')
-    def on_aaxis_info_changed(self, *args): self.update_pps('a')
         
     def on_xaxis_prepare(self, *args): self.axis_prepare('x')
     def on_yaxis_prepare(self, *args): self.axis_prepare('y')
@@ -6036,10 +6045,6 @@ class App:
         test = textbuffer.get_text(startiter,enditer)
         i = test.split('\n')
         self.data.addcompbase = i
-
-    def on_complete_back(self, *args):
-        self.widgets.druid1.set_page(self.widgets.advanced)
-        return True
    
     def on_complete_finish(self, *args):
         # if parallel ports not used clear all signals
@@ -6109,7 +6114,12 @@ class App:
                   print"%s" % panelname
            else:
                   print "Master PYVCP files missing from configurable_options dir"
-        gtk.main_quit()
+        if self.warning_dialog (_("Quit PNCconfig?\n\nPress no to continue to edit this configuration."),False):
+            gtk.main_quit()
+        #self._mesa0_configured = False
+        #self._mesa1_configured = False
+        self.widgets.druid1.set_page(self.widgets.basicinfo)
+        
 
     def on_calculate_ideal_period(self, *args):
         steptime = self.widgets.steptime.get_value()
