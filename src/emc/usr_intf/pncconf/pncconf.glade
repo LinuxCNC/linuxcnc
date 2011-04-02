@@ -4311,7 +4311,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="default_linear_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 0</property>
+                                                    <property name="adjustment">1 0 20000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4337,7 +4337,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="max_linear_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 0</property>
+                                                    <property name="adjustment">1 0 20000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4374,7 +4374,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="default_angular_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 0</property>
+                                                    <property name="adjustment">1 0 100000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -4474,7 +4474,7 @@ Actual</property>
                                                   <widget class="GtkSpinButton" id="max_angular_velocity">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">1 0 1000 1 10 0</property>
+                                                    <property name="adjustment">1 0 100000 1 10 0</property>
                                                     <property name="digits">2</property>
                                                   </widget>
                                                   <packing>
@@ -44619,10 +44619,10 @@ Test</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <child>
-                                  <widget class="GtkHBox" id="hbox32">
+                                  <widget class="GtkHBox" id="xbldcoptionbox">
                                     <property name="visible">True</property>
                                     <child>
-                                      <widget class="GtkFrame" id="frame12">
+                                      <widget class="GtkFrame" id="xbldcinputframe">
                                         <property name="visible">True</property>
                                         <property name="label_xalign">0</property>
                                         <child>
@@ -45130,6 +45130,7 @@ Test</property>
                                 <property name="can_focus">True</property>
                                 <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
+                                <signal name="toggled" handler="on_xbldc_toggled"/>
                                 <child>
                                   <widget class="GtkLabel" id="label403">
                                     <property name="visible">True</property>
@@ -45460,7 +45461,6 @@ Test</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">1 1 1000000 5 10 0</property>
-                                <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_xaxis_info_changed"/>
                               </widget>
                               <packing>
@@ -45476,7 +45476,6 @@ Test</property>
                                 <property name="can_focus">True</property>
                                 <property name="adjustment">1 1 10000 0.5 10 0</property>
                                 <property name="digits">1</property>
-                                <property name="snap_to_ticks">True</property>
                                 <signal name="value_changed" handler="on_xaxis_info_changed"/>
                               </widget>
                               <packing>
