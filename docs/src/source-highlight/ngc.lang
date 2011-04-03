@@ -45,7 +45,7 @@ preproc = '[ \t]*[o|O](([ \t]*[0-9])+|<([[:alpha:]]|_)([[:word:]]|\-)+>)[ \t]*',
 	'(sub|endsub|while|endwhile|if|else|endif|do|call|break|continue|return)'
 
 # G codes
-vardef GCODE = `[g|G]([ \t]*[0])*[ \t]*`
+vardef GCODE = '[g|G]([ \t]*[0])*[ \t]*'
 keyword = $GCODE + '1[ \t]*[07-9]'
 keyword = $GCODE + '2[ \t]*[018]'
 keyword = $GCODE + '3[ \t]*[03]'
@@ -64,7 +64,7 @@ keyword = $GCODE + '[0-5]'
 
 
 # M-Codes
-vardef MCODE = `[m|M]([ \t]*[0])*[ \t]*`
+vardef MCODE = '[m|M]([ \t]*[0])*[ \t]*'
 keyword = $MCODE + '5[ \t]*[0-3]'
 keyword = $MCODE + '3[ \t]*0'
 keyword = $MCODE + '6[ \t]*0'
@@ -81,7 +81,7 @@ keyword = '[f|F|s|S]([ \t]*[0-9])*[ \t]*[.]?([ \t]*[0-9])*'
 keyword = '[t|T|h|H]([ \t]*[0-9])*'
 
 # Coordinates & arguments; trailing number/expression/params formatted separately
-atom = `[x|X|y|Y|z|Z|a|A|b|B|c|C|u|U|v|V|w|W|i|I|j|J|k|K|p|P|q|Q|r|R|l|L](\s*)?`
+atom = '[x|X|y|Y|z|Z|a|A|b|B|c|C|u|U|v|V|w|W|i|I|j|J|k|K|p|P|q|Q|r|R|l|L](\s*)?'
 
 
 #    * A number consists of (1) an optional plus or minus sign,

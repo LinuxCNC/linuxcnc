@@ -25,4 +25,4 @@ label = '\$\([[:alpha:]][[:word:]]+\)'
 
 include "number.lang"
 
-include "script_comment.lang"
+comment start "#"
