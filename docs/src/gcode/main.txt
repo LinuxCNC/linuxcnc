@@ -883,7 +883,7 @@ To use the currently loaded tool from the last Tn M6 program a G43
 
 ==== G43 Hn: Offsets from tool table
 
-To use a tool length offset from the tool table, program `G43 H` n,
+To use a tool length offset from the tool table, program `G43 Hn`,
 where the n number is the desired index in the tool table. The H
 number will typically be, but does not have to be, the same as the slot
 number of the tool currently in the spindle. It is OK for the H number
@@ -896,7 +896,7 @@ It is an error if:
 
 ==== G43.1: Dynamic tool compensation
 
-To use a tool length offset from the program, use `G43.1 Xn Yn` ... Wn
+To use a tool length offset from the program, use `G43.1 Xn Yn ... Wn`
 to set any axis tlo at run time.
 
 It is an error if:
