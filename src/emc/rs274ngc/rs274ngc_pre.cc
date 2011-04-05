@@ -1748,6 +1748,6 @@ int Interp::on_abort(int reason)
     _setup = saved_setup;
     _setup.file_pointer = fp;
 
-    CHP(status); //???
-    return INTERP_OK;
+    CHP(status); 
+    return status;
 }

@@ -637,5 +637,8 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
 int emcAbortCleanup(int reason)
 {
-    return interp.on_abort(reason);
+    int status = interp.on_abort(reason);
+    if (status != INTERP_OK) 
+	print_interp_error(status);    
+    return status;
 }
