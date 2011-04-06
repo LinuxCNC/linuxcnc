@@ -118,8 +118,8 @@ are used by EMC:
  -  [AXIS_0] ... [AXIS_n] individual axis variables (
    <<sub:[AXIS]-section>>)
  - [EMCIO] settings used by the I/O Controller ( <<sub:[EMCIO]-Section>>)
- -  [HALUI] MDI commands used by HALUI. See the HALUI chapter for more
-   information ( <<sub:MDI>>)
+ -  [HALUI] MDI commands used by HALUI. ( <<sub:[HALUI]-section>>)
+    See the HALUI chapter for more information ( <<sub:MDI>>)
 
 === Variables
 
@@ -504,6 +504,12 @@ POSTGUI_HALFILE = example2.hal::
      '(Only with the AXIS GUI)'  Execute 'example2.hal' after the GUI has
     created its HAL pins. See
     section  <<sec:pyvcp-with-axis>> for more information.
+    
+=== [HALUI] section  [[sub:[HALUI]-section]](((HALUI (inifile section))))
+
+MDI_COMMAND = G53 G0 X0 Y0 Z0::
+     A MDI command can be executed by using halui.mdi-command-00. Increment
+    the number for each command listed in the [HALUI] section.
 
 === [TRAJ] Section  [[sub:[TRAJ]-section]](((TRAJ (inifile section))))
 
