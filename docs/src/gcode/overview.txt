@@ -413,7 +413,7 @@ being in effect. The modal groups are shown in Table
 
 .Modal Groups[[cap:Modal-Groups]]
 
-[width="90%", options="header"]
+[width="90%", cols="1,2", options="header"]
 |========================================
 |Modal Group Meaning | Member Words
 |Motion | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
@@ -426,8 +426,7 @@ being in effect. The modal groups are shown in Table
 |Cutter Diameter Compensation | G40, G41, G42, G41.1, G42.1
 |Tool Length Offset | G43, G43.1, G49
 |Return Mode in Canned Cycles | G98, G99
-|Coordinate System Selection | G54, G55, G56, G57, G58
-| | G59, G59.1, G59.2, G59.3
+|Coordinate System Selection | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
 |Control Mode | G61, G61.1, G64
 |Spindle Speed Mode | G96, G97
 |Lathe Diameter Mode | G7, G8
@@ -437,8 +436,7 @@ being in effect. The modal groups are shown in Table
 |Coolant | (M7 M8 can both be on), M9
 |Override Switches | M48, M49
 |Flow Control | O-
-|Non-modal codes | G4, G10 G28, G30, G53 G92,
-| | G92.1, G92.2, G92.3, M1xx
+|Non-modal codes | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M1xx
 |========================================
 
 For several modal groups, when a machining center is ready to accept
