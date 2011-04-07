@@ -1547,15 +1547,20 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     {
       block->o_type = O_sub;
     }
-  else if(block->o_type == O_endsub)
+
+  // in terms of execution endsub and return do the same thing
+  else if ((block->o_type == O_endsub) || (block->o_type == O_return))
     {
 	if ((_setup.skipping_o != 0) &&
 	    (0 != strcmp(_setup.skipping_o, block->o_name))) {
 	    return INTERP_OK;
 	}
 
-	*counter += strlen("endsub");
-
+        if (block->o_type == O_endsub) {
+	    *counter += strlen("endsub");
+        } else {
+	    *counter += strlen("return");
+        }
 	// optional return value expression
 	if (line[*counter] == '[') {
 	    CHP(read_real_expression(line, counter, &value, parameters));
@@ -1697,22 +1702,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       {
           block->o_type = O_endrepeat;
       }
-  else if(block->o_type == O_return)
-    {
-	if ((_setup.skipping_o != 0) &&
-	   (0 != strcmp(_setup.skipping_o, block->o_name))) {
-	    return INTERP_OK;
-	}
-	*counter += strlen("return");
-
-	// optional return value expression
-	if (line[*counter] == '[') {
-	    CHP(read_real_expression(line, counter, &value, parameters));
-	    _setup.return_value = value;
-	} else {
-	    _setup.return_value = 0;
-	}
-    }
   else
     {
       // not legal
