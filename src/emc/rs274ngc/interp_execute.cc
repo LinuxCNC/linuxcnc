@@ -341,8 +341,13 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 	*settings = saved_setup;
 	settings->file_pointer = fp;
 
-	SELECT_POCKET(pocket);
-	settings->selected_pocket = pocket;
+	// if T_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
+	// commit the tool prepare-
+	if (retval >= TOLERANCE_EQUAL) {
+	    SELECT_POCKET(pocket);
+	    settings->selected_pocket = pocket;
+	}
+
 	CHP(status);
     } else {
 	CHP(convert_tool_select(block, settings));

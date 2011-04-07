@@ -2968,12 +2968,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    FILE *fp = settings->file_pointer;
 	    settings->file_pointer = fp;
 
-	    CHANGE_TOOL(settings->selected_pocket);
-	    settings->current_pocket = settings->selected_pocket;
-	    // tool change can move the controlled point.  reread it:
-	    settings->toolchange_flag = true;
-	    set_tool_parameters();
-
+	    // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
+	    // commit the tool change
+	    if (retval >= TOLERANCE_EQUAL) {
+		CHANGE_TOOL(settings->selected_pocket);
+		settings->current_pocket = settings->selected_pocket;
+		// tool change can move the controlled point.  reread it:
+		settings->toolchange_flag = true;
+		set_tool_parameters();
+	    }
 	    CHP(status);
 	} else {
 	    CHP(convert_tool_change(settings));
