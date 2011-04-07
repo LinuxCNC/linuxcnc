@@ -1,0 +1,20 @@
+; This demonstrates doing an M61 remapped to a named oword sub
+;
+; to activate, incantate as follows in the ini file:
+;
+; [RS274NGC]
+
+; # remap M61 to a named oword subroutine.
+; # parameter #1: the Q value
+; M61_COMMAND=o<m61demo>call
+;
+;
+O<m61demo> sub
+;
+; O<m61demo> if  ;; trigger error report
+;
+(DEBUG,m61demo.ngc:  M61 Q=#1)
+;
+; return a positive value to commit the change.
+O<m61demo> endsub [1]
+m2

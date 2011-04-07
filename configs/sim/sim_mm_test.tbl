@@ -1,0 +1,4 @@
+T1 P11 D3.0 Z+0.511000 ;3mm end mill
+T2 P22 D1.5 Z+0.100000 ;1.5mm  end mill
+T3 P33 D5.0 Z+1.273000 ;5mm tap drill
+T99999 P99999 Z+0.100000 ;big tool number

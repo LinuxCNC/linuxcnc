@@ -1,15 +1,43 @@
-; This demonstrates doing T<pocket> remapped to a named oword sub
+; This demonstrates doing T<pocket> select tool command
+; remapped to a named oword sub
+;
 ; to activate, incantate as follows in the ini file:
 ; [RS274NGC]
 ; # remap T<pocket> to a named oword subroutine.
 ; # The tool number will be passed as parameter #1
 ; # The pocket number will be passed as parameter #2
+;
 ; T_COMMAND=o<tdemo>call
 ;
+; NB: param #3 at this point in time is useless - dont rely on its value.
+; This will change once iocontrol is history, and tooltable I/O is
+; moved to the interpreter.
+;
+;-----------------
 ; emulate the tool-number/tool-prepare/tool-prepared logic of the iocontrol-
 ; based toolchanger
 ;
 O<tdemo> sub
+
+m66 E0 L0 (analog-in-00 = #5399)
+#<ain00> = #5399
+
+; test fail-change line from gladevcp
+M66 P2 L0
+
+(debug, digital-input-02=#5399)
+O<tdemo_prepare_fail> if [#5399 EQ 1]
+    (DEBUG, FAILING PREPARE, analog-in-00=#<ain00>, returning -1 to fail prepare)
+    ; a return value <= 0 fails the tool prepare
+    O<tdemo> return [-1]
+; O<tdemo_prepare_fail> else
+;     (debug, prepare ok, returning +1 to commit prepare)
+;     ; a positive return value commits the tool prepare
+;     O<tdemo> return [1]
+O<tdemo_prepare_fail> endif
+
+
+; O<tdemo> if  ; trigger error to test error reporting
 ;
 ; number of seconds to wait for 'tool-prepared' equivalent
 #<timeout> = 9999
@@ -50,5 +78,11 @@ M65 P0
 ;
 ;
 (DEBUG, done with prepare sub)
-O<tdemo> endsub
+
+
+
+; succeed prepare if not explicitly succeeded or failed above
+O<tdemo> endsub [1]
+
+
 m2
