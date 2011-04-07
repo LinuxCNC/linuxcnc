@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
+    if [ "$GIT_BRANCH" = "(no" ]; then
+        echo "'git branch' says we're not on a branch, pass one in as an argument"
+        exit 1
+    fi
+else
+    GIT_BRANCH="$1"
+fi
+
+case $GIT_BRANCH in
+    master) TAG_GLOB="v2.6*";;
+    v2.5_branch) TAG_GLOB="v2.5*";;
+    v2.4_branch) TAG_GLOB="v2.4*";;
+    *) TAG_GLOB="*";;
+esac
+
+git describe --match "$TAG_GLOB"
+
