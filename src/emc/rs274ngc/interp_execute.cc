@@ -321,18 +321,24 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     if (settings->t_command) {
 	char cmd[LINELEN];
 	int pocket;
+	setup saved_setup = *settings;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
-	sprintf(cmd,"%s [%d] [%d]",settings->t_command,block->t_number,pocket);
-//	printf("---- execute(%s),  current_pocket=%d ftell=%ld\n",cmd, settings->current_pocket,ftell(settings->file_pointer));
-	int status = execute(cmd,0);
-//	printf("------- execute() returned %s \n",interp_status(status));
-	while (status == INTERP_EXECUTE_FINISH) {
-	    status = execute(0);
-	}
+	// pocket will start making sense once tooltable I/O is folded into
+	// interp and iocontrol is gone.
+	snprintf(cmd,sizeof(cmd), "%s [%d] [%d]",
+		 settings->t_command,
+		 block->t_number,
+		 pocket);
+
+	status = execute_handler(settings, cmd);
+
+	double retval = settings->return_value;
+
 	// restore setup except file_pointer so as not to disturb the
 	// oword close/reopen logic
 	FILE *fp = settings->file_pointer;
+	*settings = saved_setup;
 	settings->file_pointer = fp;
 
 	SELECT_POCKET(pocket);

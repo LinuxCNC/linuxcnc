@@ -2940,17 +2940,31 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	          (_("Cannot change tools with cutter radius compensation on")));
 	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
 	    // tool_change_at_g30 - can be handled in g-code if needed
-	    char cmd[LINELEN];
 
-	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m6_command,block->t_number);
-	    int status = Interp::execute(cmd, 0);
-	    if (status != INTERP_OK) {
-		MSG("------- convert_m(%s) returned %s\n",
-		       cmd, interp_status(status));
-	    }
-	    while (status == INTERP_EXECUTE_FINISH) {
-		status = Interp::execute(0);
-	    }
+	    char cmd[LINELEN];
+	    // all the remapped M6 does is call the procedure with the
+	    // following argument list:
+	    // #1 - current tool
+	    // #2 - new tool
+	    // #3 - pocket of new tool
+
+	    // #3 will start making sense once tooltable I/O is moved
+	    // to the interpreter and iocontrol deprecated. Dont use for now.
+
+	    // NB: just executing and returning from the procedure
+	    // does NOT change the tool number. The procedure is
+	    // expected to return a value > 0 by the new 'return [expression]' or
+	    // 'endsub [expression]' feature to actually commit the change-
+	    snprintf(cmd,sizeof(cmd),"%s [%d] [%d] [%d]",settings->m6_command,
+		    settings->tool_table[0].toolno,
+		    block->t_number,
+		    settings->selected_pocket);
+
+	    int status = execute_handler(settings, cmd);
+
+	    double retval = settings->return_value;
+	    MSG("------- convert_m(%s) status=%d return value=%f\n",
+		cmd,status,retval);
 	    FILE *fp = settings->file_pointer;
 	    settings->file_pointer = fp;
 
