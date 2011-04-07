@@ -515,7 +515,7 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
-  const char *t_command, *m6_command,*on_abort_command;
+    const char *t_command, *m6_command,*m61_command,*on_abort_command;
 }
 setup;
 

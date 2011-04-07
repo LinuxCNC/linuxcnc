@@ -551,6 +551,12 @@ int Interp::init()
           } else {
 	      _setup.m6_command = NULL;
           }
+	  if (NULL != (inistring = inifile.Find("M61_COMMAND", "RS274NGC"))) {
+	      _setup.m61_command = strdup(inistring);
+              logDebug("_setup.m61_command=%s\n", _setup.m61_command);
+          } else {
+	      _setup.m61_command = NULL;
+          }
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
           if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
