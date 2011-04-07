@@ -2982,14 +2982,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    CHP(convert_tool_change(settings));
 	}
     }
-    if (block->m_modes[6] == 69) {
-	    CHP(convert_tool_change(settings));
-    }
-    // when we have M61 we only change the number of the loaded tool (for example on startup)
+    // when we have M61 we only change the number of the loaded tool
+    // (for example on startup)
     if (block->m_modes[6] == 61) {
-	CHKS((round_to_int(block->q_number) < 0), (_("Need positive Q-word to specify tool number with M61")));
-	settings->current_pocket = round_to_int(block->q_number);
-	CHANGE_TOOL_NUMBER(round_to_int(block->q_number));
+	int toolno, pocket;
+
+	toolno = round_to_int(block->q_number);
+
+	// now also accept M61 Q0 - unload tool
+	CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
+	// make sure selected tool exists
+	CHP((find_tool_pocket(settings, toolno, &pocket)));
+	settings->current_pocket = toolno;
+	CHANGE_TOOL_NUMBER(toolno);
+	// tool change can move the controlled point.  reread it:
+	settings->toolchange_flag = true;
+	set_tool_parameters();
     }    
 #ifdef DEBATABLE
     // I would like this, but it's a big change.  It changes the
