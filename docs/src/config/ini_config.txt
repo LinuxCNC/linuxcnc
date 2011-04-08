@@ -100,8 +100,11 @@ comments:
 
 Related parts of an ini file are separated into sections. A section
 line looks like [THIS_SECTION]. The name of the section is enclosed in
-brackets. The order of sections is unimportant. The following sections
-are used by EMC:
+brackets. The order of sections is unimportant. Custom sections can be
+added and referenced in HAL. Sections begin at the section name and end
+at the next section name.
+
+The following sections are used by EMC:
 
  - [EMC] general information ( <<sub:[EMC]-section>>)
  -  [DISPLAY] settings related to the graphical user interface (
@@ -136,6 +139,10 @@ Some of the variables are used by EMC, and must always use the section
 names and variable names shown. Other variables are used only by HAL,
 and the section names and variable names shown are those used in the
 sample configuration files.
+
+Custom variables can be used in your HAL files with the following syntax.
+
+     [SECTION]VARIABLE
 
 === Definitions
 
