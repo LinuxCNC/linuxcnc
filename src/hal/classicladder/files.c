@@ -1438,8 +1438,8 @@ void CleanTmpLadderDirectory( char DestroyDir )
 					}
 				}
 			}
+			closedir(pDir);
 		}
-		closedir(pDir);
 		/* delete the temp directory if wanted */
 #ifndef __WIN32__
 		if ( DestroyDir )
