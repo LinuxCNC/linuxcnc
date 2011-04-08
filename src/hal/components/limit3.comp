@@ -23,7 +23,6 @@ FUNCTION(_) {
     double lin, lout, dt, in_v, min_v, max_v, ramp_a, avg_v, err, dv, dp;
     double min_out, max_out, match_time, est_in, est_out;
 
-    est_in = est_out = match_time = 0;
     /* apply first order limit */
     lin = in;
     if ( lin < min_ ) {

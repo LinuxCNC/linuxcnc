@@ -9,7 +9,7 @@
                 <subtext>"RPM"</subtext>
                 <size>150</size>
                 <min_>0</min_>
-                <max_>5140</max_>
+                <max_>10200</max_>
                 <majorscale>1000</majorscale>
                 <minorscale>100</minorscale>
             </meter>
