@@ -40,15 +40,15 @@ get additional information in a terminal window.
 
 Compute the absolute value and sign of the input signal
 
-===== Loading
+==== Loading
 
     loadrt abs [count=N|names=name1[,name2...]]
 
-===== Functions
+==== Functions
 
     addf abs.N|name thread-name
 
-===== Pins
+==== Pins
 
     abs.N.in (float in) Input value
     abs.N.out (float out) Output Value, always positive
@@ -61,15 +61,15 @@ number will increment.
 
 Two-input AND gate. For out to be true both inputs must be true
 
-===== Loading
+==== Loading
 
     loadrt and2 [count=N|names=name1[,name2...]]
 
-===== Functions
+==== Functions
 
     addf and2.N|name thread-name
 
-===== Pins
+==== Pins
 
     and2.N.in0 (bit in) Input 0
     and2.N.in1 (bit in) Input 1
@@ -96,26 +96,26 @@ sensors
 
 Perform linear interpolation between two values
 
-===== Loading
+==== Loading
 
     loadrt blend [count=N|names=name1[,name2...]]
 
-===== Functions
+==== Functions
 
     addf blend.N|name thread-name
 
-===== Pins
+==== Pins
 
     blend.N.in1 (float in) First input.
     blend.N.in2 (float in) Second input.
     blend.N.select (float in) Select input.
     blend.N.out (float out) Output value.
 
-===== Parameters
+==== Parameters
 
     blend.N.open (bit r/w)
 
-===== Description
+==== Description
 
 If select is equal to 0.0 output is equal to in1.
 
@@ -133,20 +133,20 @@ to the the range in1 to in2
 Create a square-wave for the "charge pump" input of some controller
 boards
 
-===== Loading
+==== Loading
 
     loadrt charge_pump
 
-===== Functions
+==== Functions
 
     addf charge-pump
 
-===== Pins
+==== Pins
 
     charge-pump.out (bit out)
     charge-pump.enable (bit in) default = TRUE
 
-===== Description
+==== Description
 
 Outputs a square wave if enable is TRUE or unconnected, low if enable
 is FALSE
@@ -155,22 +155,22 @@ is FALSE
 
 Two input version of Clarke transform
 
-===== Loading
+==== Loading
 
     loadrt clarke2 [count=N|names=name1[,name2...]]
 
-===== Functions
+==== Functions
 
     addf clarke2.N | name
 
-===== Pins
+==== Pins
 
     clarke2.N.a (float in) phase a input
     clarke2.N.b (float in) phase b input
     clarke2.N.x (float out) cartesian components of output
     clarke2.N.y (float out) cartesian components of output
 
-===== Description
+==== Description
 
 The Clarke transform can be used to translate a vector quantity from a
 three phase system (three components 120 degrees apart) to a two phase
@@ -188,15 +188,15 @@ will always be zero in this case, it is not generated.
 
 Clarke (3 phase to cartesian) transform
 
-===== Loading
+==== Loading
 
     loadrt clarke3 [count=N|names=name1[,name2...]]
 
-===== Functions
+==== Functions
 
     addf clarke3.N | name
 
-===== Pins
+==== Pins
 
     clarke3.N.a (float in) three phase input vector
     clarke3.N.b (float in) three phase input vector
@@ -205,7 +205,7 @@ Clarke (3 phase to cartesian) transform
     clarke3.N.y (float out) cartesian components of output
     clarke3.N.h (float out) homopolar component of output
 
-===== Description
+==== Description
 
 The Clarke transform can be used to translate a vector quantity from a
 three phase system (three components 120 degrees apart) to a two phase
@@ -220,15 +220,15 @@ simpler version.
 
 Inverse Clarke transform
 
-===== Loading
+==== Loading
 
     loadrt clarkeinv [count=N|names=name1[,name2...]]
 
-===== Functions
+==== Functions
 
     addf clarkeinv.N | name
 
-===== Pins
+==== Pins
 
     clarkeinv.N.x (float in) cartesian components of input
     clarkeinv.N.y (float in) cartesian components of input
@@ -237,10 +237,10 @@ Inverse Clarke transform
     clarkeinv.N.b (float out) three phase output vector
     clarkeinv.N.c (float out) three phase output vector
 
-===== Parameters
+==== Parameters
 .
 
-===== Description
+==== Description
 
 The inverse Clarke transform can be used to translate a vector
 quantity from Cartesian coordinate system to a three phase system
@@ -634,18 +634,18 @@ convert a group of bits to an integer
 
 Two-input XOR (exclusive OR) gate
 
-===== Loading
+==== Loading
 .
 
-===== Functions
+==== Functions
 .
 
-===== Pins
+==== Pins
 .
 
-===== Parameters
+==== Parameters
 .
 
-===== Description
+==== Description
 .
 
