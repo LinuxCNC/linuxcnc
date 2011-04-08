@@ -5,8 +5,23 @@ if [ ! -d debian -o ! -d src ]; then
     exit 1
 fi
 
+if [ -z "$1" ]; then
+    GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
+    if [ "$GIT_BRANCH" = "(no" ]; then
+        echo "'git branch' says we're not on a branch, pass one in as an argument"
+        exit 1
+    fi
+else
+    GIT_BRANCH="$1"
+fi
 
-GIT_VERSION=$(scripts/get-version-from-git)
+
+GIT_VERSION=$(scripts/get-version-from-git $GIT_BRANCH)
+if [ $? -ne 0 ]; then
+    echo "error determining version!"
+    exit 1
+fi
+
 GIT_TAG=`echo $GIT_VERSION | sed -r 's/^(.*)-[^-]+-[^-]+$/\1/'`
 
 DEB_VERSION=`git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/'`
