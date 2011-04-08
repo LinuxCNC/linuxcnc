@@ -2988,6 +2988,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	int toolno, pocket;
 	char cmd[LINELEN];
 	setup saved_setup = *settings;
+	double retval = 1.0;
+	int status = INTERP_OK;
 
 	toolno = round_to_int(block->q_number);
 	// now also accept M61 Q0 - unload tool
@@ -2995,19 +2997,19 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	// make sure selected tool exists
 	CHP((find_tool_pocket(settings, toolno, &pocket)));
 
-	// does NOT change the tool number. The procedure is
-	// expected to return a value > 0 by the new 'return [expression]' or
-	// 'endsub [expression]' feature to actually commit the change-
-	snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
+	if (settings->m61_command) {
+	    // just calling the handler does NOT change the tool number. The procedure is
+	    // expected to return a value > 0 by the new 'return [expression]' or
+	    // 'endsub [expression]' feature to actually commit the change-
+	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
 
-	int status = execute_handler(settings, cmd);
-	double retval = settings->return_value;
-	MSG("------- convert_m(%s) status=%d return value=%f\n",
-	    cmd,status,retval);
-	FILE *fp = settings->file_pointer;
-	*settings = saved_setup;
-	settings->file_pointer = fp;
+	    status = execute_handler(settings, cmd);
 
+	    retval = settings->return_value;
+	    FILE *fp = settings->file_pointer;
+	    *settings = saved_setup;
+	    settings->file_pointer = fp;
+	}
 	// if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
 	// commit the tool change
 	if (retval >= TOLERANCE_EQUAL) {
