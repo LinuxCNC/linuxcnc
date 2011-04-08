@@ -677,6 +677,10 @@ class Data:
         self.mpgincrvalue13 = .125 # acd
         self.mpgincrvalue14 = .125 # bcd
         self.mpgincrvalue15 = .125 # abcd
+        self.mpgdebounce = True
+        self.mpgdebouncetime = .2
+        self.mpggraycode = False
+        self.mpgignorefalse = False
         self.externalfo = False
         self.fo_usempg = False
         self.fo_useswitch = False
@@ -696,6 +700,10 @@ class Data:
         self.foincrvalue13 = 180 # acd
         self.foincrvalue14 = 190 # bcd
         self.foincrvalue15 = 200 # abcd
+        self.fodebounce = True
+        self.fodebouncetime = .2
+        self.fograycode = False
+        self.foignorefalse = False
         self.externalso = False
         self.so_usempg = False
         self.so_useswitch = False
@@ -715,6 +723,11 @@ class Data:
         self.soincrvalue13 = 180 # acd
         self.soincrvalue14 = 190 # bcd
         self.soincrvalue15 = 200 # abcd
+        self.sodebounce = True
+        self.sodebouncetime = .2
+        self.sograycode = False
+        self.soignorefalse = False
+        self.externalfo = False
 
         # GUI frontend defaults
         self.position_offset = 1 # relative
@@ -1611,6 +1624,7 @@ class Data:
             elif closedloop:
                 print >>file
                 print >>file, "# ---closedloop stepper signals---"
+                print >>file
                 print >>file, "net %senable                             => pid.%s.enable" % (let, let)
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
                 print >>file, "net %soutput     pid.%s.output           => "% (let, let) + steppinname + ".velocity-cmd"
@@ -2215,20 +2229,24 @@ class Data:
                         print >>file
                         if self.multimpg:
                             print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
-                            print >>file, "net %s-jog-enable    axis.%d.jog-enable"% (axletter, axnum)            
+                            print >>file, "net %s-jog-enable         =>  axis.%d.jog-enable"% (axletter, axnum)            
                             print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter, axnum)
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
                             print >>file, "sets %s-jog-enable    true"% (axletter)
                             print >>file
         if self.externalmpg and not self.frontend == _TOUCHY:# TOUCHY GUI sets its own jog increments:
             if self.incrselect :
-                print >>file, "# connect selectable mpg jog increments "  
+                print >>file, "# connect selectable mpg jog increments "
+                print >>file
                 print >>file, "net jog-incr-a           =>  jogincr.sel0"
                 print >>file, "net jog-incr-b           =>  jogincr.sel1"
                 print >>file, "net jog-incr-c           =>  jogincr.sel2"
                 print >>file, "net jog-incr-d           =>  jogincr.sel3"
                 print >>file, "net selected-jog-incr    <=  jogincr.out-f"
-                print >>file, "    setp jogincr.suppress-no-input true"
+                if self.mpgdebounce:
+                    print >>file, "    setp jogincr.debouncetime      %f"% self.mpgdebouncetime
+                print >>file, "    setp jogincr.use-graycode      %s"% self.mpggraycode
+                print >>file, "    setp jogincr.suppress-no-input %s" % self.mpgignorefalse
                 for i in range(0,16):
                     value = self["mpgincrvalue%d"% i]
                     print >>file, "    setp jogincr.in%02d          %f"% (i,value)
@@ -2246,24 +2264,29 @@ class Data:
             print >>file
         if self.externalfo:
             if self.fo_usempg:
-                print >>file, "# connect feed overide increments - MPG" 
+                print >>file, "# connect feed overide increments - MPG"
+                print >>file
                 print >>file, "    setp halui.feed-override.count-enable true"
                 print >>file, "    setp halui.feed-override.direct-value false"
-                print >>file, "net fo-count =>  halui.feed-override.counts"
                 print >>file, "    setp halui.feed-override.scale .01"
+                print >>file, "net fo-count            =>  halui.feed-override.counts"
                 print >>file
             elif self.fo_useswitch:
-                print >>file, "# connect feed overide increments - switches" 
+                print >>file, "# connect feed overide increments - switches"
+                print >>file
                 print >>file, "    setp halui.feed-override.count-enable true"
                 print >>file, "    setp halui.feed-override.direct_value true"
-                print >>file, "net feedoverride-incr <=  halui.feed-override.counts"
                 print >>file, "    setp halui.feed-override.scale .01"
+                print >>file, "net feedoverride-incr   =>  halui.feed-override.counts"
                 print >>file, "net fo-incr-a           =>  foincr.sel0"
                 print >>file, "net fo-incr-b           =>  foincr.sel1"
                 print >>file, "net fo-incr-c           =>  foincr.sel2"
                 print >>file, "net fo-incr-d           =>  foincr.sel3"
                 print >>file, "net feedoverride-incr   <=  foincr.out-s"
-                print >>file, "    setp foincr.suppress-no-input true"
+                if self.fodebounce:
+                    print >>file, "    setp foincr.debouncetime      %f"% self.fodebouncetime
+                print >>file, "    setp foincr.use-graycode      %s"% self.fograycode
+                print >>file, "    setp foincr.suppress-no-input %s" % self.foignorefalse
                 for i in range(0,16):
                     value = self["foincrvalue%d"% i]
                     print >>file, "    setp foincr.in%02d          %f"% (i,value)
@@ -2279,24 +2302,29 @@ class Data:
             print >>file
         if self.externalso:
             if self.so_usempg:
-                print >>file, "# connect spindle overide increments - MPG" 
+                print >>file, "# connect spindle overide increments - MPG"
+                print >>file
                 print >>file, "    setp halui.feed-override.count-enable true"
                 print >>file, "    setp halui.feed-override.direct-value false"
-                print >>file, "net so-count =>  halui.feed-override.counts"
                 print >>file, "    setp halui.feed-override.scale .01"
+                print >>file, "net so-count              =>  halui.feed-override.counts"
                 print >>file
             elif self.so_useswitch:
-                print >>file, "# connect spindle overide increments " 
+                print >>file, "# connect spindle overide increments "
+                print >>file
                 print >>file, "    setp halui.spindle-override.count-enable true"
                 print >>file, "    setp halui.spindle-override.direct_value true"
-                print >>file, "net spindleoverride-incr <=  halui.spindle-override.counts"
                 print >>file, "    setp halui.spindle-override.scale .01"
-                print >>file, "net so-incr-a           =>  soincr.sel0"
-                print >>file, "net so-incr-b           =>  soincr.sel1"
-                print >>file, "net so-incr-c           =>  soincr.sel2"
-                print >>file, "net so-incr-d           =>  soincr.sel3"
-                print >>file, "net spindleoverride-incr   <=  soincr.out-s"
-                print >>file, "    setp soincr.suppress-no-input true"
+                print >>file, "net spindleoverride-incr  =>  halui.spindle-override.counts"
+                print >>file, "net so-incr-a             =>  soincr.sel0"
+                print >>file, "net so-incr-b             =>  soincr.sel1"
+                print >>file, "net so-incr-c             =>  soincr.sel2"
+                print >>file, "net so-incr-d             =>  soincr.sel3"
+                print >>file, "net spindleoverride-incr  <=  soincr.out-s"
+                if self.sodebounce:
+                    print >>file, "    setp soincr.debouncetime      %f"% self.sodebouncetime
+                print >>file, "    setp soincr.use-graycode      %s"% self.sograycode
+                print >>file, "    setp soincr.suppress-no-input %s" % self.soignorefalse
                 for i in range(0,16):
                     value = self["soincrvalue%d"% i]
                     print >>file, "    setp soincr.in%02d          %f"% (i,value)
@@ -3470,6 +3498,11 @@ class App:
         self.widgets.sharedmpg.set_active(self.data.sharedmpg)
         self.widgets.multimpg.set_active(self.data.multimpg)
         self.widgets.incrselect.set_active(self.data.incrselect)
+        for i in ("mpg","fo","so"):
+            self.widgets[i+"debounce"].set_active(self.data[i+"debounce"])
+            self.widgets[i+"debouncetime"].set_value(self.data[i+"debouncetime"])
+            self.widgets[i+"graycode"].set_active(self.data[i+"graycode"])
+            self.widgets[i+"ignorefalse"].set_active(self.data[i+"ignorefalse"])
         if self.data.units == _IMPERIAL :
             tempunits = "in"
         else:
@@ -3664,6 +3697,11 @@ class App:
         self.data.sharedmpg = self.widgets.sharedmpg.get_active()
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.incrselect = self.widgets.incrselect.get_active()
+        for i in ("mpg","fo","so"):
+            self.data[i+"debounce"] = self.widgets[i+"debounce"].get_active()
+            self.data[i+"debouncetime"] = self.widgets[i+"debouncetime"].get_value()
+            self.data[i+"graycode"] = self.widgets[i+"graycode"].get_active()
+            self.data[i+"ignorefalse"] = self.widgets[i+"ignorefalse"].get_active()
         for i in range (0,16):
             self.data["foincrvalue"+str(i)] = self.widgets["foincrvalue"+str(i)].get_value()
             self.data["soincrvalue"+str(i)] = self.widgets["soincrvalue"+str(i)].get_value()
@@ -5367,6 +5405,7 @@ class App:
             if not digital_at_speed and encoder:
                 print "show frame"
                 w["satspeedframe"].show()
+            set_value("nearscale")
         else:
             w[axis+"atspeedframe"].hide()
             w[axis+"maxferror"].set_sensitive(True)
@@ -5607,7 +5646,7 @@ class App:
         d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
         get_text("maxacc")
         d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
-        if not axis =="s":
+        if not axis == "s":
             get_pagevalue("maxferror")
             get_pagevalue("minferror")
             get_text("homepos")
@@ -5625,6 +5664,8 @@ class App:
             d[axis + "backlash"]= w[axis + "backlash"].get_value()
             get_active("usecomp")
             get_active("usebacklash")
+        else:
+            get_pagevalue("nearscale")
 
     def configure_bldc(self,axis):
         d = self.data
