@@ -333,7 +333,7 @@ static meter_t *meter_new(void)
 	return NULL;
     }
     /* define a probe for the display item */
-    new->probe = probe_new(_("Select item to display"));
+    new->probe = probe_new(_("Select Item to Probe"));
     if (new->probe == NULL) {
 	free(new);
 	return NULL;
@@ -359,7 +359,7 @@ probe_t *probe_new(char *probe_name)
 {
     probe_t *new;
 
-    if (probe_name != NULL) {
+    if (probe_name == NULL) {
 	/* no name specified, fake it */
 	probe_name = _("Select Item to Probe");
     }
