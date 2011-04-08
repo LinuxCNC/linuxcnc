@@ -499,9 +499,6 @@ static char *loadusr_generator(const char *text, int state) {
         string_table = loadusr_table;
         len = strlen(text);
         d = opendir(EMC2_BIN_DIR);
-        if (d == NULL) {
-            return NULL;
-        }
     }
 
     if(doing_table) {
@@ -518,7 +515,9 @@ static char *loadusr_generator(const char *text, int state) {
         result = strdup(ent->d_name);
         return result;
     }
-    closedir(d);
+    if (d != NULL) {
+        closedir(d);
+    }
     return NULL;
 }
 
@@ -531,9 +530,6 @@ static char *loadrt_generator(const char *text, int state) {
     if(!state) {
         len = strlen(text);
         d = opendir(EMC2_RTLIB_DIR);
-        if (d == NULL) {
-            return NULL;
-        }
     }
 
     while(d && (ent = readdir(d))) {
@@ -545,7 +541,9 @@ static char *loadrt_generator(const char *text, int state) {
         result[strlen(result) - strlen(MODULE_EXT)] = 0;
         return result;
     }
-    closedir(d);
+    if (d != NULL) {
+        closedir(d);
+    }
     return NULL;
 }
 
