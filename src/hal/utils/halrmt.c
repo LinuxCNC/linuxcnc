@@ -508,6 +508,11 @@ pid_t hal_systemv_nowait(char *const argv[], connectionRecType *context) {
         for(n=0; argv[n] != NULL; n++) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
 	}
+        if (n == 0) {
+            snprintf(errorStr, sizeof(errorStr), "hal_systemv_nowait: empty argv array passed in\n");
+            sockWriteError(nakStr, context);
+            exit(1);
+        }
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
         /* call execv() to invoke command */
 	execvp(argv[0], argv);
