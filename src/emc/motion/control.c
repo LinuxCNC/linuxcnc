@@ -777,7 +777,6 @@ static void set_operating_mode(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    joint_hal_t *joint_data;
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
@@ -785,7 +784,6 @@ static void set_operating_mode(void)
 	tpClear(&emcmotDebug->queue);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
-	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
@@ -818,7 +816,6 @@ static void set_operating_mode(void)
 	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
-	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 
 	    joint->free_pos_cmd = joint->pos_cmd;
