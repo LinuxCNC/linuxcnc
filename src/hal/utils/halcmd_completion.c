@@ -499,7 +499,7 @@ static char *loadusr_generator(const char *text, int state) {
         string_table = loadusr_table;
         len = strlen(text);
         d = opendir(EMC2_BIN_DIR);
-        if (d != NULL) {
+        if (d == NULL) {
             return NULL;
         }
     }
