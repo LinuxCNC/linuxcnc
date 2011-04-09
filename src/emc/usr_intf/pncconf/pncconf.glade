@@ -1770,7 +1770,7 @@ Out</property>
                                                       <widget class="GtkSpinButton" id="mpgdebouncetime">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0.20000000000000001 0 1 0.01 0 0</property>
+                                                        <property name="adjustment">0.20 0.01 1 0.01 0 0</property>
                                                         <property name="digits">2</property>
                                                       </widget>
                                                       <packing>
@@ -2687,7 +2687,7 @@ Out</property>
                                                       <widget class="GtkSpinButton" id="fodebouncetime">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0.20000000000000001 0 1 0.01 0 0</property>
+                                                        <property name="adjustment">0.200 0.01 1 0.01 0 0</property>
                                                         <property name="digits">2</property>
                                                       </widget>
                                                       <packing>
@@ -3487,7 +3487,7 @@ Out</property>
                                                       <widget class="GtkSpinButton" id="sodebouncetime">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
-                                                        <property name="adjustment">0.20000000000000001 0 100 0.01 0 0</property>
+                                                        <property name="adjustment">0.200 0.01 1 0.01 0 0</property>
                                                         <property name="digits">2</property>
                                                       </widget>
                                                       <packing>
@@ -5403,6 +5403,7 @@ panel</property>
                                 <child>
                                   <widget class="GtkFrame" id="frame21">
                                     <property name="visible">True</property>
+                                    <property name="sensitive">False</property>
                                     <property name="label_xalign">0</property>
                                     <child>
                                       <widget class="GtkAlignment" id="alignment41">
@@ -45400,7 +45401,7 @@ Test</property>
                                                   <widget class="GtkSpinButton" id="xbldc_encoder_offset">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">0 0 100 1 10 10</property>
+                                                    <property name="adjustment">0 0 100 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">1</property>
@@ -45413,7 +45414,7 @@ Test</property>
                                                   <widget class="GtkSpinButton" id="xbldc_drive_offset">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">0 0 100 1 10 10</property>
+                                                    <property name="adjustment">0 0 100 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">1</property>
@@ -45426,7 +45427,7 @@ Test</property>
                                                   <widget class="GtkSpinButton" id="xbldc_pattern_out">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">0 0 100 1 10 10</property>
+                                                    <property name="adjustment">0 0 100 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">1</property>
@@ -45439,7 +45440,7 @@ Test</property>
                                                   <widget class="GtkSpinButton" id="xbldc_pattern_in">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
-                                                    <property name="adjustment">0 0 100 1 10 10</property>
+                                                    <property name="adjustment">0 0 100 1 10 0</property>
                                                   </widget>
                                                   <packing>
                                                     <property name="left_attach">1</property>
@@ -46497,7 +46498,7 @@ Scale</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">0.00059999999999999995 -0.050000000000000003 0.050000000000000003 0.0001 10 0</property>
+                        <property name="adjustment">0.0005 -0.0500 0.0500 0.0001 10 0</property>
                         <property name="digits">4</property>
                       </widget>
                       <packing>
@@ -48210,7 +48211,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="testoutputoffset">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">0 -2 2 0.01 0.10000000000000001 0</property>
+                <property name="adjustment">0 -2 2 0.01 0.100 0</property>
                 <property name="digits">4</property>
                 <signal name="value_changed" handler="on_testoutputoffset_value_changed"/>
               </widget>
@@ -48320,7 +48321,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="fastdac">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">4.9999999999999982 0 10 0.10000000000000001 10 0</property>
+                <property name="adjustment">5.0 0 10 0.100 10 0</property>
                 <property name="digits">2</property>
                 <signal name="value_changed" handler="on_fastdac_value_changed"/>
               </widget>
@@ -48335,7 +48336,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="slowdac">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">0.5 0 10 0.10000000000000001 10 0</property>
+                <property name="adjustment">0.5 0 10 0.100 10 0</property>
                 <property name="digits">2</property>
                 <signal name="value_changed" handler="on_slowdac_value_changed"/>
               </widget>
