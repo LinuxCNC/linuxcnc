@@ -1456,6 +1456,11 @@ class Data:
            test = self.findsignal(thisaxispwmgen)
            return test
 
+    def tppwmgen_has_6(self, axis):
+           thisaxispwmgen =  axis + "-tppwm-anot" 
+           test = self.findsignal(thisaxispwmgen)
+           return test
+
     def connect_axis(self, file, num, let):
         axnum = "xyzabcuvws".index(let)
         title = 'AXIS'
@@ -1464,6 +1469,7 @@ class Data:
         closedloop = False
         pwmpinname = self.make_pinname(self.pwmgen_sig(let))
         tppwmpinname = self.make_pinname(self.tppwmgen_sig(let))
+        tppwm_six = self.tppwmgen_has_6(let)
         steppinname = self.make_pinname(self.stepgen_sig(let))
         bldc_control = self[let+"bldc_option"]
         if steppinname:
@@ -1483,7 +1489,7 @@ class Data:
             bldc = self[let+"bldc_config"]
             print >>file, "# -- BLDC setup --"
             print >>file, "setp   bldc.%d.drive-0ffset       %d" % (axnum,self[let+"bldc_drive_offset"])
-            print >>file, "setp   bldc.%s.rev                %d" % (axnum,self[let+"bldc_rev"])
+            print >>file, "setp   bldc.%s.rev                %d" % (axnum,self[let+"bldc_reverse"])
             if "q" in(bldc):
                 print >>file, "setp   bldc.%d.scale              %d" % (axnum,self[let+"bldc_scale"])
                 print >>file, "setp   bldc.%d.poles              %d" % (axnum,self[let+"bldc_poles"])
@@ -1516,12 +1522,12 @@ class Data:
                     print >>file, "net %s-c-high-on bldc.%d.C-high-on"% (let,axnum)
                     print >>file, "net %s-c-low-on bldc.%d.C-low-on"% (let,axnum)
                 else:
-                    print >>file, "net %s-a-high bldc.%d.A-high"% (let,axnum)
-                    print >>file, "net %s-a-low bldc.%d.A-low"% (let,axnum)
-                    print >>file, "net %s-b-high bldc.%d.B-high"% (let,axnum)
-                    print >>file, "net %s-b-low bldc.%d.B-low"% (let,axnum)
-                    print >>file, "net %s-c-high bldc.%d.C-high"% (let,axnum)
-                    print >>file, "net %s-c-low bldc.%d.C-low"% (let,axnum)
+                    print >>file, "net %s-a-high-value bldc.%d.A-high"% (let,axnum)
+                    print >>file, "net %s-a-low-value bldc.%d.A-low"% (let,axnum)
+                    print >>file, "net %s-b-high-value bldc.%d.B-high"% (let,axnum)
+                    print >>file, "net %s-b-low-value bldc.%d.B-low"% (let,axnum)
+                    print >>file, "net %s-c-high-value bldc.%d.C-high"% (let,axnum)
+                    print >>file, "net %s-c-low-value bldc.%d.C-low"% (let,axnum)
             elif "B" in(bldc):
                 print >>file, "net %s-a-on bldc.%d.A-on"% (let,axnum)
                 print >>file, "net %s-b-on bldc.%d.B-on"% (let,axnum)
@@ -1557,6 +1563,9 @@ class Data:
 
         if tppwmpinname:
                 print >>file, "# ---TPPWM Generator signals/setup---"
+                if tppwm_six:
+                    print >>file, "# six output 3pwg"
+                else:print >>file, "# three output 3pwg"
                 print >>file, "# TODO write some commands!"
                 print >>file
 
@@ -4575,6 +4584,7 @@ class App:
         self.mesa_data_to_widget(boardnum)
 
     def mesa_data_to_widget(self,boardnum):
+        #TODO mux encoders and smart serial
         print "got here"
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
@@ -4707,7 +4717,7 @@ class App:
                           if row == 0:continue
                           if len(parent[1]) == 0:
                              count += 8
-                             print row,column,count,parent[0]
+                             print row,count,parent[0]
                              if count == signalindex:
                                 print "match",row
                                 temp = (row)
