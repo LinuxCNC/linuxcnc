@@ -618,6 +618,8 @@ class Data:
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
+        self._pncconf_version = 2.0
+        self.pncconf_version = 2.0
 
         # basic machine data
         self.help = "help-welcome.txt"
@@ -1029,6 +1031,7 @@ class Data:
         self.sneardifference = 0
 
     def load(self, filename, app=None, force=False):
+        self.pncconf_version = 0.0
         def str2bool(s):
             return s == 'True'
 
@@ -1086,14 +1089,20 @@ class Data:
         if i: human_stepper_names[6][1]= temp
 
         warnings = []
+        warnings2 = []
+        if self.pncconf_version < self._pncconf_version:
+            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\nYou may want to save it with another name.\n") )
         for f, m in self.md5sums:
             m1 = md5sum(f)
             if m1 and m != m1:
-                warnings.append(_("File %r was modified since it was written by PNCconf") % f)
-        if not warnings: return
-
-        warnings.append("")
-        warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
+                warnings2.append(_("File %r was modified since it was written by PNCconf") % f)
+        if not warnings and not warnings2: return
+        if warnings2:
+            warnings.append("")
+            warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
+        if warnings:
+            warnings = warnings + warnings2
+        self.pncconf_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -3191,6 +3200,7 @@ class App:
         self.widgets.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.data.machinename)
         # here we initalise the mesa configure page data
         #TODO is this right place?
+        print "fill pintype and combobox"
         self.fill_pintype_model()
         self.fill_combobox_models()
 
