@@ -2996,11 +2996,16 @@ class App:
         self.jogminus = self.jogplus = 0
 
         self.data = Data()
-        # add some custom signals for motor/encoder scaling
+        # add some custom signals for motor/encoder scaling and bldc 
         for axis in ["x","y","z","a","s"]:
             cb = ["encoderscale","stepscale"]
             for i in cb:
                 self.widgets[axis + i].connect("value-changed", self.motor_encoder_sanity_check,axis)
+            cb = ["bldc_incremental_feedback","bldc_use_hall","bldc_use_encoder","bldc_use_index","bldc_fanuc_alignment","bldc_emulated_feedback",
+                "bldc_output_hall"]
+            for i in cb:
+                self.widgets[axis + i].connect("clicked", self.bldc_update,axis)
+
         # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
         # record the signal ID numbers so we can block the signals later in the mesa routines
         # have to do it here manually (instead of autoconnect) because glade doesn't handle added
@@ -5374,6 +5379,8 @@ class App:
         set_active("bldc_reverse")
         set_value("bldc_scale")
         set_value("bldc_poles")
+        set_value("bldc_lead_angle")
+        set_value("bldc_inital_value")
         set_value("bldc_encoder_offset")
         set_value("bldc_drive_offset")
         set_value("bldc_pattern_out")
@@ -5596,6 +5603,24 @@ class App:
         i = self.widgets[axis + "bldc_option"].get_active()
         self.widgets[axis + "bldcoptionbox"].set_sensitive(i)
 
+    def bldc_update(self,Widgets,axis):
+        w = self.widgets
+        i = False
+        if w[axis+"bldc_incremental_feedback"].get_active():
+            i = True
+        w[axis+"bldc_pattern_in"].set_sensitive(i and  w[axis+"bldc_use_hall"].get_active() )
+        w[axis+"bldc_inital_value"].set_sensitive(i and w[axis+"bldc_use_encoder"].get_active() and not w[axis+"bldc_use_hall"].get_active() )
+        w[axis+"bldc_use_hall"].set_sensitive(i)
+        w[axis+"bldc_use_encoder"].set_sensitive(i)
+        w[axis+"bldc_use_index"].set_sensitive(i)
+        w[axis+"bldc_fanuc_alignment"].set_sensitive(i)
+        i = False
+        if w[axis+"bldc_emulated_feedback"].get_active():
+            i = True
+        w[axis+"bldc_output_hall"].set_sensitive(i)
+        w[axis+"bldc_output_fanuc"].set_sensitive(i)
+        w[axis+"bldc_pattern_out"].set_sensitive(i and  w[axis+"bldc_output_hall"].get_active() )
+
     def backlash_toggle(self, axis):
         i = self.widgets[axis + "usebacklash"].get_active()   
         self.widgets[axis + "backlash"].set_sensitive(i)
@@ -5635,6 +5660,8 @@ class App:
         get_pagevalue("bldc_drive_offset")
         get_pagevalue("bldc_pattern_out")
         get_pagevalue("bldc_pattern_in")
+        get_pagevalue("bldc_lead_angle")
+        get_pagevalue("bldc_inital_value")
         get_active("bldc_no_feedback")
         get_active("bldc_absolute_feedback")
         get_active("bldc_incremental_feedback")
