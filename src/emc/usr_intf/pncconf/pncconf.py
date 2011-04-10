@@ -1743,7 +1743,7 @@ class Data:
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
                     # for encoder pins
-                    elif t in (ENCA):
+                    elif t in (ENCA,MXEA):
                         if p == "unused-encoder":continue
                         for sig in (self.halencoderinputsignames):
                             if p == sig+"-a":
@@ -2803,7 +2803,8 @@ class Data:
                 if i == connum:
                     dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pinnum+(concount*24)]
                     break
-            type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
+            type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder",
+                MXEA:"encoder", MXEB:"encoder", MXEI:"encoder", MXEM:"encoder", MXES:"encoder",
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
                 TPPWME:"tppwmgen",TPPWMF:"tppwmgen","Error":"None" }
@@ -2819,7 +2820,7 @@ class Data:
             elif ptype in(GPIOI,GPIOO,GPIOD):
                 compnum = int(pinnum)+(concount*24)
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
-            elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
+            elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                 TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
   
@@ -4003,6 +4004,17 @@ class App:
                     relatedending = ["-a","-b","-i","-m"]
                     addedending = "-a"
                     unusedname = "Unused Encoder"
+                #type mux encoder
+                elif pintype in (MXEA, MXEB, MXEI, MXEM, MXES):
+                    signaltree = self.data._muxencodersignaltree
+                    ptypetree = self.data._muxencoderliststore
+                    nametocheck = human_encoder_input_names
+                    signaltocheck = hal_encoder_input_names
+                    addsignalto = self.data.halencoderinputsignames
+                    relatedsignals =["DUMMY", MXEB, MXEI, MXEM, MXES]
+                    relatedending = ["-a","-b","-i","-m","-s"]
+                    addedending = "-a"
+                    unusedname = "Unused Encoder"
                 # type PWM gen
                 elif pintype in( PDMP,PDMD,PDME):
                     print "pdm"
@@ -4599,7 +4611,7 @@ class App:
         self.mesa_data_to_widget(boardnum)
 
     def mesa_data_to_widget(self,boardnum):
-        #TODO mux encoders and smart serial
+        #TODO smart serial
         print "got here"
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
@@ -4661,7 +4673,7 @@ class App:
                         self.widgets[p].set_active_iter(treeiter)
 
                 # type encoder
-                elif dataptype == ENCA and widgetptype == ENCA:
+                elif dataptype == ENCA and widgetptype == ENCA or dataptype == MXEA and widgetptype == MXEA:
                     signalindex = hal_encoder_input_names.index(datap)
                     print "ENC ->dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -3
@@ -4679,7 +4691,10 @@ class App:
                     else:
                         temp = (0) # set unused encoder if no match
                     print temp
-                    treeiter = self.data._encodersignaltree.get_iter(temp)
+                    if dataptype == ENCA:
+                        treeiter = self.data._encodersignaltree.get_iter(temp)
+                    else:
+                        treeiter = self.data._muxencodersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
                 # type PWM gen
