@@ -1043,7 +1043,7 @@ void DrawRung(GdkPixmap * DrawPixmap, StrRung * Rung, int PosiY, int BlockWidth,
 void DrawRungs()
 {
 	int ScanRung = InfosGene->TopRungDisplayed;
-	int ScanY = InfosGene->OffsetHiddenTopRungDisplayed;
+	int ScanY;
 	StrRung * PtrRung;
 	int FlagAddOrInsertRung = FALSE;
 	int TheEnd = FALSE;
