@@ -7357,8 +7357,8 @@ class PyApp(gtk.Window):
                         h = gtk.HBox(False,2)
                         self.make_switch(h,boardnum,truepinnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
-                        hal.set_pin("hm2_%s.gpio.%03d.is_output"% (board,truepinnum ),"true")
-                        if pininv:  hal.set_pin("hm2_%s.gpio.%03d.invert_output"% (board,truepinnum ),"true")
+                        hal.set_p("hm2_%s.gpio.%03d.is_output"% (board,truepinnum ),"true")
+                        if pininv:  hal.set_p("hm2_%s.gpio.%03d.invert_output"% (board,truepinnum ),"true")
                         hal.connect("hm2_%s.gpio.%03d.out"% (board,truepinnum ),"brd.%d.switch.%d-signal" % (boardnum,truepinnum))
                     # for input pins
                     elif pintype == GPIOI: 
@@ -7384,7 +7384,7 @@ class PyApp(gtk.Window):
                             self.make_pwm(h,boardnum,compnum)
                             hal.connect("hm2_%s.pwmgen.%02d.enable"% (board,compnum),"brd.%d.pwm.%d.enable-signal"% (boardnum,compnum)) 
                             hal.connect("hm2_%s.pwmgen.%02d.value"% (board,compnum),"brd.%d.pwm.%d.value-signal"% (boardnum,compnum)) 
-                            hal.set_pin("hm2_%s.pwmgen.%02d.scale"% (board,compnum),"10") 
+                            hal.set_p("hm2_%s.pwmgen.%02d.scale"% (board,compnum),"10") 
                         else:
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
@@ -7395,12 +7395,12 @@ class PyApp(gtk.Window):
                             self.make_stp(h,boardnum,compnum)
                             hal.connect("hm2_%s.stepgen.%02d.enable"% (board,compnum),"brd.%d.stp.%d.enable-signal"% (boardnum,compnum))
                             hal.connect("hm2_%s.stepgen.%02d.position-cmd"% (board,compnum),"brd.%d.stp.%d.position-cmd-signal"% (boardnum,compnum))   
-                            hal.set_pin("hm2_%s.stepgen.%02d.maxaccel"% (board,compnum),"0")
-                            hal.set_pin("hm2_%s.stepgen.%02d.maxvel"% (board,compnum),"2000")
-                            hal.set_pin("hm2_%s.stepgen.%02d.steplen"% (board,compnum),"2000")
-                            hal.set_pin("hm2_%s.stepgen.%02d.stepspace"% (board,compnum),"2000")
-                            hal.set_pin("hm2_%s.stepgen.%02d.dirhold"% (board,compnum),"2000")
-                            hal.set_pin("hm2_%s.stepgen.%02d.dirsetup"% (board,compnum),"2000")
+                            hal.set_p("hm2_%s.stepgen.%02d.maxaccel"% (board,compnum),"0")
+                            hal.set_p("hm2_%s.stepgen.%02d.maxvel"% (board,compnum),"2000")
+                            hal.set_p("hm2_%s.stepgen.%02d.steplen"% (board,compnum),"2000")
+                            hal.set_p("hm2_%s.stepgen.%02d.stepspace"% (board,compnum),"2000")
+                            hal.set_p("hm2_%s.stepgen.%02d.dirhold"% (board,compnum),"2000")
+                            hal.set_p("hm2_%s.stepgen.%02d.dirsetup"% (board,compnum),"2000")
                         else:
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
