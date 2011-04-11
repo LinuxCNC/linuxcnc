@@ -837,6 +837,7 @@ class Data:
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 100000
         self.mesa0_pdm_frequency = 100000
+        self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
         self.mesa0_numof_pwmgens = 4
@@ -851,6 +852,7 @@ class Data:
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 100000
         self.mesa1_pdm_frequency = 100000
+        self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
         self.mesa1_numof_pwmgens = 4
@@ -968,6 +970,8 @@ class Data:
             self[temp+"maxacc"]= 2
             self[temp+"invertmotor"]= 0
             self[temp+"invertencoder"]= 0
+            self[temp+"3pwmscale"]= 1
+            self[temp+"3pwmdeadtime"]= 500
             self[temp+"outputscale"]= 1
             self[temp+"outputoffset"]= 0
             self[temp+"maxoutput"]= 10
@@ -3363,6 +3367,7 @@ class App:
                         self.widgets["mesa%d_firmware"% boardnum].set_active(0)
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
                 self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
+                self.widgets["mesa%d_3pwm_frequency"% boardnum].set_value(self.data["mesa%d_3pwm_frequency"% boardnum])
                 self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
                 self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
                 self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
@@ -3940,6 +3945,9 @@ class App:
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
+                self.widgets["mesa%d_3pwm_frequency"% boardnum].set_sensitive(d[_MAXTPPWM])
+                self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
+                self.widgets["mesa%d_pdm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
                 break
             self.on_gpio_update(self,boardnum)
 
@@ -4096,6 +4104,7 @@ class App:
                 print p,self.data[p],widgetptype
         self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
+        self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
   
     # If we just reloaded a config then update the page right now
@@ -4612,7 +4621,6 @@ class App:
 
     def mesa_data_to_widget(self,boardnum):
         #TODO smart serial
-        print "got here"
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
@@ -5344,12 +5352,12 @@ class App:
         def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
-        stepdriven = encoder = pwmgen = digital_at_speed = False
+        stepdriven = encoder = pwmgen = tppwm = digital_at_speed = False
         if self.data.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
         if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
-        if self.data.findsignal(axis+"-tppwm-a"): pwmgen = True
+        if self.data.findsignal(axis+"-tppwm-a"): pwmgen = True ; tppwm = True
 
         model = w[axis+"drivertype"].get_model()
         model.clear()
@@ -5372,6 +5380,8 @@ class App:
         set_value("dirsetup")
         set_value("outputscale")
         set_value("outputoffset")
+        set_value("3pwmscale")
+        set_value("3pwmdeadtime")
         set_active("invertmotor")
         set_active("invertencoder")  
         set_value("maxoutput")
@@ -5420,6 +5430,16 @@ class App:
         w[axis + "stepscale"].set_sensitive(stepdriven)
         if pwmgen: w[axis + "bldcframe"].show()
         else: w[axis + "bldcframe"].hide()
+        if tppwm:
+            w[axis + "3pwmdeadtime"].show()
+            w[axis + "3pwmscale"].show()
+            w[axis + "3pwmdeadtimelabel"].show()
+            w[axis + "3pwmscalelabel"].show()
+        else:
+            w[axis + "3pwmdeadtime"].hide()
+            w[axis + "3pwmscale"].hide()
+            w[axis + "3pwmdeadtimelabel"].hide()
+            w[axis + "3pwmscalelabel"].hide()
         w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
         if w[axis + "drivertype"].get_active_text()  == _("Custom"):
             w[axis + "steptime"].set_value(d[axis + "steptime"])
@@ -5666,6 +5686,8 @@ class App:
         get_pagevalue("dirsetup")
         get_pagevalue("outputscale")
         get_pagevalue("outputoffset")
+        get_pagevalue("3pwmscale")
+        get_pagevalue("3pwmdeadtime")
         get_pagevalue("maxoutput")
         get_active("bldc_option")
         get_active("bldc_reverse")
