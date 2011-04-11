@@ -1816,7 +1816,11 @@ class Data:
                             if p == (sig+"-a"):
                                 pinname = self.make_pinname(self.findsignal( p ),ini_style) 
                                 print >>file, "# ---",sig.upper(),"---"
-                                print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable" 
+                                print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
+                                print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
+                                print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
+                                print >>file, "net %s           <=  "% (sig+"-c-value")+pinname +".C-value"
+                                print >>file, "net %s           <=  "% (sig+"-fault")+pinname +".fault"
                     # for stepper pins
                     elif t == (STEPA):
                         if p == "unused-stepgen":continue
