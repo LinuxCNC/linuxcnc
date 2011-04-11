@@ -653,7 +653,13 @@ class Data:
         self.joycmdyneg = ""
         self.joycmdzpos = ""
         self.joycmdzneg = ""
+        self.joycmdapos = ""
+        self.joycmdaneg = ""
         self.joycmdrapid = ""
+        self.joycmdanalogx = ""
+        self.joycmdanalogy = ""
+        self.joycmdanalogz = ""
+        self.joycmdanaloga = ""
         self.externaljog = False
         self.singlejogbuttons = False
         self.multijogbuttons = False
@@ -2207,11 +2213,14 @@ class Data:
                 if axletter in self.available_axes:
                     pin_pos = self["joycmd"+axletter+"pos"]
                     pin_neg = self["joycmd"+axletter+"neg"]
-                    if pin_pos == "" or pin_neg =="": continue
-                    print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
-                    print >>file, "net jog-%s-pos            %s"% (axletter,pin_pos)
-                    print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
-                    print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
+                    if not pin_pos == "" and not pin_neg =="":
+                        print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
+                        print >>file, "net jog-%s-pos            %s"% (axletter,pin_pos)
+                        print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
+                        print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
+                    pin_analog = self["joycmdanalog"+axletter]
+                    if not pin_analog == "":
+                        print >>file, "net jog-%s-analog         %s     halui.jog.%d.analog"% (axletter,pin_analog,axnum)
             print >>file
 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
@@ -3551,7 +3560,8 @@ class App:
         self.widgets.usbdevicename.set_text(self.data.usbdevicename)
         for i in range(0,4):
             self.widgets["joystickjograpidrate%d"%i].set_value(self.data["joystickjograpidrate%d"%i])
-        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapida","joycmdrapidb"):
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdapos","joycmdaneg","joycmdrapida","joycmdrapidb",
+            "joycmdanalogx","joycmdanalogy","joycmdanalogz","joycmdanaloga"):
             self.widgets[temp].set_text(self.data[temp])
 
     def on_joystickjog_toggled(self, *args):
@@ -3740,7 +3750,8 @@ class App:
         self.data.joystickjog = self.widgets.joystickjog.get_active()
         for i in range(0,4):
             self.data["joystickjograpidrate%d"%i] = self.widgets["joystickjograpidrate%d"%i].get_value()
-        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapida","joycmdrapidb"):
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdapos","joycmdaneg","joycmdrapida","joycmdrapidb",
+            "joycmdanalogx","joycmdanalogy","joycmdanalogz","joycmdanaloga"):
             self.data[temp] = self.widgets[temp].get_text()
         self.widgets.joyjogexpander.set_expanded(False)
 

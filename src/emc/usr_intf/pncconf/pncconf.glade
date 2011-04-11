@@ -1084,7 +1084,7 @@ Out</property>
                                                 <property name="n_rows">6</property>
                                                 <property name="n_columns">5</property>
                                                 <child>
-                                                  <widget class="GtkEntry" id="joycmdaneg1">
+                                                  <widget class="GtkEntry" id="joycmdapos">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                   </widget>
