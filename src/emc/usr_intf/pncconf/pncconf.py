@@ -3219,7 +3219,6 @@ class App:
         self.widgets.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.data.machinename)
         # here we initalise the mesa configure page data
         #TODO is this right place?
-        print "fill pintype and combobox"
         self.fill_pintype_model()
         self.fill_combobox_models()
 
@@ -3262,7 +3261,6 @@ class App:
         elif self.data.frontend == _TOUCHY: self.widgets.GUITOUCHY.set_active(True)
         
         if not self.data._arrayloaded:
-            print "fill boardtitle array"
             for boardnum in(0,1):
                 temp = 0 
                 model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
@@ -3388,7 +3386,6 @@ class App:
 
 
     def mesa_firmware_search(self,boardtitle,*args):
-        print "**** INFO mesa-firmware-search"
         #TODO if no firm packages set up for internal data?
         #TODO don't do this if the firmware is already loaded
         self.pbar.set_text("Loading external firmware")
@@ -3487,7 +3484,6 @@ class App:
                     else: raise ValueError
                 except:
                     # must be GPIO pins if there is no secondary mudule name
-                    #print "GPIO"
                     temppinunit.append(GPIOI)
                     temppinunit.append(int(pins[i].find("index").text))
                 else:
@@ -4036,13 +4032,10 @@ class App:
                     unusedname = "Unused Encoder"
                 # type PWM gen
                 elif pintype in( PDMP,PDMD,PDME):
-                    print "pdm"
                     signaltree = self.data._pwmsignaltree
                     if pintype == PDMP:
-                        print "control"
                         ptypetree = self.data._pdmcontrolliststore
                     else:
-                        print "related"
                         ptypetree = self.data._pdmrelatedliststore
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
@@ -4052,14 +4045,11 @@ class App:
                     addedending = "-pulse"
                     unusedname = "Unused PWM Gen"
                 elif pintype in( PWMP,PWMD,PWME):
-                    print "pwm"
                     signaltree = self.data._pwmsignaltree
                     if pintype == PWMP:
                         ptypetree = self.data._pwmcontrolliststore
-                        print "control"
                     else:
                         ptypetree = self.data._pwmrelatedliststore
-                        print "related"
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
@@ -4096,7 +4086,6 @@ class App:
                 if piter == None:
                         print "callin pin changed !!!"
                         self.on_general_pin_changed(None,"mesa",boardnum,connector,pin,True)  
-                        print "back !!!"
                         selection = self.widgets[p].get_active_text()
                         piter = self.widgets[p].get_active_iter()
                         print "found signame -> ",selection," "
@@ -4106,7 +4095,6 @@ class App:
                 print "signaltree: ",dummy
                 self.debug_iter(ptiter,ptype,"ptype")
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
-                
                 print "ptypetree: ",widgetptype
                 if pintype in (GPIOI,GPIOO,GPIOD) or (index == 0):index2 = 0
                 self.data[p] = signaltocheck[index+index2]
@@ -4197,7 +4185,6 @@ class App:
     def on_mesapanel_kill(self, *args):
 
         self.halrun.write("quit\n")
-        print "got to kill"
         self.halrun.flush()
         self.halrun.close()
 
@@ -4212,13 +4199,11 @@ class App:
         halrun.flush()
         time.sleep(1)
         PyApp(self,self.data,self.widgets)  
-        halrun.write("loadusr  halmeter\n")  
-        print "back, after making panel"
+        halrun.write("loadusr  halmeter\n")
         #halrun.write("quit\n")
         #halrun.close()
         return
         for boardnum in range(0,int(self.data.number_mesa)):
-            print "mesa boardnum-%d"% boardnum
             board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_BOARDNAME]+".%d"% boardnum
             for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range (0,24):
@@ -5196,7 +5181,6 @@ class App:
             if piter == None:# means new custom signal name and user never pushed enter
                     print "callin pin changed !!!"
                     self.on_general_pin_changed( None,"parport", port, direction, pin, True)
-                    print "back !!!"
                     selection = self.widgets[p].get_active_text()
                     piter = self.widgets[p].get_active_iter()
                     print "found signame -> ",selection," "
@@ -5476,7 +5460,6 @@ class App:
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
             if not digital_at_speed and encoder:
-                print "show frame"
                 w["satspeedframe"].show()
             set_value("nearscale")
         else:
@@ -5924,7 +5907,6 @@ class App:
             w["calscale"].set_text("")
 
     def motor_encoder_sanity_check(self,widgets,axis):
-        print "motor/encoder sanity check"
         stepdrive = encoder = bad = False
         if self.data.findsignal(axis+"-stepgen-step"): stepdrive = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
@@ -6813,7 +6795,6 @@ class App:
         self.amp = self.data.make_pinname(temp)
         if self.amp:
             if "hm2_" in self.amp:    
-                print "got here"
                 halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
                 halrun.write("setp %s false\n"% (self.amp + ".out"))
                 if self.data[temp+"inv"] == True:
@@ -7192,7 +7173,6 @@ class PyApp(gtk.Window):
         gobject.source_remove(self.timer)
         self.hal.c.exit()
         self.app.on_mesapanel_kill()
-        print "**** Mesa test panel closed out."
         return True
 
     def update(self):      
