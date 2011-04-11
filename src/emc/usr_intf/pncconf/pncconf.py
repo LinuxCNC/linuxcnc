@@ -6262,7 +6262,7 @@ class App:
                   #print"%s" % panelname
            else:
                   print "Master PYVCP files missing from configurable_options dir"
-        if self.warning_dialog (_("Quit PNCconfig?\n\nPress no to continue to edit this configuration."),False):
+        if not self.warning_dialog (_("Do you wish to continue to edit this configuration."),False):
             gtk.main_quit()
         #self._mesa0_configured = False
         #self._mesa1_configured = False
