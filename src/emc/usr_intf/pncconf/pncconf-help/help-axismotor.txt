@@ -16,7 +16,10 @@ Servo Info:
             added.
         Dac scale      - scales the output nominal is +-1 volt
         Dac Max output - clamps the output to +- this value
-        Dac offset     - used to offset dac range. 
+        Dac offset     - used to offset dac range.
+        3PWM scale     - sets the mid point scale factor: see man pages
+        3PWM deadtime  - deadtime between high side and low side enable
+            Too little deadtime creates a short circuit - not good. 
 
 Brushless Control:
     select this to use and configure the BLDC component.
@@ -25,6 +28,7 @@ Brushless Control:
 
 Open loop servo test Button:
     Use this test to confirm proper Dac output.
+    This is unavailable if using simulated realtime.
     It is important to confirm the motor turns in the positive
     direction when the positive jog button is pressed.
     It is important to confirm the encoder counts in the positive 
@@ -36,9 +40,9 @@ Open loop servo test Button:
     The limit switches are not functional during this test.
 
 Spindle-at-speed settings:
-    Set the scaling or the rpm difference so EMC knows when the spindle
-    is close enough to the requested speed. Spindle feedback or spindle
-    at speed signal is required for this.
+    Set the scaling so EMC knows when the spindle is close enough
+    to the requested speed. Spindle feedback or spindle-at-speed 
+    digital input signal is required for this.
 
 Stepper Info:
     This is for setting up the Stepper control loop:
@@ -60,6 +64,8 @@ Axis info:
     Feed speed following error  - amount actual can deviate from commanded.
     Invert motor direction      - check to reverse motor direction
     Invert encoder direction    - check to reverse encoder direction
+    When using metric units check the defaults carefully they are not converted
+    so need to be adjusted to sane values.
 
 Calculate Scale Button:
     You can enter scaling directly or use this dialog to calculate them.

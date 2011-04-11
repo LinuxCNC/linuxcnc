@@ -3,8 +3,6 @@ External Controls
 USB Joystick Jogging:
     This allows basic jogging with USB devices.
     eg joysticks and keyboards.
-    Currently analog controls are not configurable on
-    this page, but could be added to a custom hal file.
     Its important to note that if the usb device is not
     connected when EMC is started, It will fail with an error.
     For a device to be usable there must be a device rule.
@@ -18,16 +16,23 @@ USB Joystick Jogging:
     using halmeter click on a pin name and press buttons till
     you see the response in halmeter. Take note of the pin name
     of the buttons you wish to use for jogging / speed selection.
-    When done close the dialog box. The available pin names
+    When done close the dialog box. All the available pin names
     will be displayed in the text output window. Copy
-    the wanted pin names into the appropriate boxes.
-    Jog speed selection uses two buttons to select four speeds.
+    the wanted pin names into the appropriate boxes. Make sure
+    they are copied exactly or EMC will fail with an error.
+    When using digital control, jog speed selection uses two 
+    buttons to select four speeds.
  
     no buttons                = default speed
     jog speed select a button = a speed
     jog speed select b button = b speed
     both buttons              = ab speed
 
+    If you leave default speed at zero then you must press a
+    speed select button to jog - which is a nice safety feature.
+    If using analog control, jogging speed is proportional to 
+    stick position. There is no scaling or deadzone setting.
+    If needed this must be added in a custom HAL file. 
     USB jogging cannot be used with external button jogging
     because they both use the same HALUI pins.
     USB jogging uses HALUI and hal_input. For more info see
@@ -54,8 +59,9 @@ External MPG Jogging:
     switches or separate MPGs - for each axis
     (TOUCHY requires a single shared MPG)
     Choose selectable jog rates or a single jog rate.
-    (TOUCHY selects its own jog rates) 
-    There are 4 inputs used to select up to sixteen
+    (TOUCHY selects its own jog rates)
+    If selectable jog increments is selected then
+    there are 4 inputs used to select up to sixteen
     Jog rates. The bold face labels - Default, a, b, c, and d
     Allow simple switches (eg center-off or rotary) to be
     used without multiplexing complexities.
@@ -65,6 +71,23 @@ External MPG Jogging:
     that jog rate to be selected.)
     The default jog rate is when no jog-inc signals are high
     This is also the rate if a single jog rate is used.
+    Selectable jog increments uses the mux16 component which
+    has some options to help filter the inputs.
+    - use debounce: debounce is used on switches to help to
+    ignore false on/off 'bounces' while switching. It asks EMC 
+    to wait till the input is stable for the time choosen 
+    (in seconds). the longer the debounce time the longer the
+    response to input changes.
+    - use gray code: gray code helps to avoid momentary out of
+    sequence input errors do to transitional switch movements.
+    each sequence in gray code only changes one input, unlike 
+    binary coding.
+    -ignore all inputs false: In the transition from one switch
+    position to the next there can be no input connection for 
+    a brief period. This will falsely set the rate to the default
+    jog rate momentarily. This setting makes the mux not change
+    the jog rate when all inputs are false. This also means the
+    default jog rate is unusable. debounce is a better solution.  
     The jog inc signals will need to be designated on the mesa
     page.
 
@@ -73,7 +96,7 @@ External Spindle Override:
     If MPG is choosen, one must choose the spindle override
     encoder signal in the Mesa page.
     if switches is choosen, one must select the apropriate
-    overrides increment signals in the mesa / parport  page.
+    overrides increment signals in the mesa / parport page.
     There are 4 inputs used to select up to sixteen override
     percentages. The bold face labels - Default, a, b, c, and d
     Allow simple switches (eg center-off or rotary) to be
@@ -83,6 +106,25 @@ External Spindle Override:
     so-incr-a, so-inc-b, and so-inc-c all to be high for
     that override rate to be selected.)
     The default pecentage rate is when no so-inc signals are high.
+    Selectable increments uses the mux16 component which
+    has some options to help filter the inputs.
+    - use debounce: debounce is used on switches to help to
+    ignore false on/off 'bounces' while switching. It asks EMC 
+    to wait till the input is stable for the time choosen 
+    (in seconds). the longer the debounce time the longer the
+    response to input changes.
+    - use gray code: gray code helps to avoid momentary out of
+    sequence input errors do to transitional switch movements.
+    each sequence in gray code only changes one input, unlike 
+    binary coding.
+    -ignore all inputs false: In the transition from one switch
+    position to the next there can be no input connection for 
+    a brief period. This will falsely set the rate to the default
+    override rate momentarily. This setting makes the mux not change
+    the rate when all inputs are false. This also means the
+    default rate is unusable. debounce is a better solution.  
+    The override increment signals will need to be designated 
+    on the mesa page.
 
 External Feed Override:
     allows feed speed override to be set by MPG or switches.
