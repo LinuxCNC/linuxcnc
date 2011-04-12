@@ -290,11 +290,12 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
       CHKS(((block->g_modes[0] != G_10) && (block->g_modes[0] != G_4) && (block->g_modes[13] != G_64) &&
           (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) && 
           (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
+          (motion != G_2) && (motion != G_3) &&
           (block->m_modes[9] != 50) && (block->m_modes[9] != 51) && (block->m_modes[9] != 52) &&
           (block->m_modes[9] != 53) && (block->m_modes[5] != 62) && (block->m_modes[5] != 63) &&
           (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
           (block->user_m != 1)),
-          _("P word with no G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89"
+          _("P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89"
             " or M50 M51 M52 M53 M62 M63 M64 M65 M66 or user M code to use it"));
   }
 

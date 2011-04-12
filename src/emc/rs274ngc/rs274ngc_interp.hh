@@ -126,6 +126,7 @@ private:
  int arc_data_ijk(int move, int plane, double current_x, double current_y,
                      double end_x, double end_y,
                      int ij_absolute, double i_number, double j_number,
+                     int p_number,
                      double *center_x, double *center_y,
                      int *turn, double tolerance);
  int arc_data_r(int move, int plane, double current_x, double current_y,

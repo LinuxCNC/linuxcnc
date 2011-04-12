@@ -565,7 +565,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   } else {
       CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
                        (settings->ijk_distance_mode == MODE_ABSOLUTE),
-                       offset1, offset2,
+                       offset1, offset2, block->p_flag? round_to_int(block->p_number) : 1,
                        &center1, &center2, &turn, tolerance));
   }
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
@@ -807,7 +807,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         CHP(arc_data_ijk(move, plane,
                          opx, opy, end_x, end_y,
                          (settings->ijk_distance_mode == MODE_ABSOLUTE),
-                         offset_x, offset_y,
+                         offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                          &centerx, &centery, &turn, tolerance));
     }
 
