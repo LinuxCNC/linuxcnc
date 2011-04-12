@@ -3044,16 +3044,11 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    // 'endsub [expression]' feature to actually commit the change-
 	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
 
-	    status = execute_handler(settings, cmd);
-
-	    retval = settings->return_value;
-	    FILE *fp = settings->file_pointer;
-	    *settings = saved_setup;
-	    settings->file_pointer = fp;
-	}
-	// if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
-	// commit the tool change
-	if (retval >= TOLERANCE_EQUAL) {
+	    status = execute_handler(settings, cmd,  &Interp::finish_m61_command);
+	    fprintf(stderr,"---- convert_m(m61_command) returning %s\n",
+		    interp_status(status));
+	    CHP(status);
+	} else {
 	    settings->current_pocket = toolno;
 	    CHANGE_TOOL_NUMBER(toolno);
 	    // tool change can move the controlled point.  reread it:
