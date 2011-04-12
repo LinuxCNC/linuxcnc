@@ -3103,23 +3103,10 @@ class App:
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
 
-        # search for firmware packages
-        if os.path.exists(firmdir):
-            global mesaboardnames
-            mesaboardnames = []
-            for root, dirs, files in os.walk(firmdir):
-                folder = root.lstrip(firmdir)
-                if folder in mesablacklist:continue
-                if folder == "":continue
-                mesaboardnames.append(folder)
-                #print "\n**** ",folder,":\n"
-        else:
-            #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("You are have no hostmot2 firmware in folder:%s"%firmdir),True)
-
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
+
 
     def gtk_main_quit(self, *args):
         gtk.main_quit()
@@ -3190,6 +3177,19 @@ class App:
        
     def on_page_newormodify_prepare(self, *args):
         self.data.help = "help-load.txt"
+        # search for firmware packages
+        if os.path.exists(firmdir):
+            global mesaboardnames
+            mesaboardnames = []
+            for root, dirs, files in os.walk(firmdir):
+                folder = root.lstrip(firmdir)
+                if folder in mesablacklist:continue
+                if folder == "":continue
+                mesaboardnames.append(folder)
+                #print "\n**** ",folder,":\n"
+        else:
+            #TODO what if there are no external firmware is this enough?
+            self.warning_dialog(_("You are have no hostmot2 firmware downloaded in folder:%s\nPncconf will use sample firmware data-live testing will not be possible"%firmdir),True)
         
 
     def on_page_newormodify_next(self, *args):
