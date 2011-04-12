@@ -250,6 +250,7 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         int ij_absolute,        //!<how to interpret i/j numbers
                         double i_number,        //!<first coordinate of center (abs or incr)
                         double j_number,        //!<second coordinate of center (abs or incr)
+                        int p_number,
                         double *center_x,       //!< pointer to first coordinate of center of arc
                         double *center_y,       //!< pointer to second coordinate of center of arc
                         int *turn,      //!< pointer to no. of full or partial circles CCW
@@ -280,9 +281,9 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
        a, end_x, b, end_y, radius, radius2,
        abs_err, rel_err*100);
   if (move == G_2)
-    *turn = -1;
+    *turn = -1 * p_number;
   else if (move == G_3)
-    *turn = 1;
+    *turn = 1 * p_number;
   else
     ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
   return INTERP_OK;
