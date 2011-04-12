@@ -237,8 +237,7 @@ int Interp::finish_t_command(setup_pointer settings)
 	settings->selected_pocket = round_to_int(settings->return_value);
 	SELECT_POCKET(settings->selected_pocket);
     } else {
-	fprintf(stderr,"---- finish_t_command: NOT COMMITING PREPAPRE, return value was %f\n",
-		settings->return_value);
+	ERS("prepare failed (%f)",settings->return_value);
     }
     return(INTERP_OK);
 }

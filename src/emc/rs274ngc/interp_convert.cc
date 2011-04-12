@@ -2791,8 +2791,7 @@ int Interp::finish_m6_command(setup_pointer settings)
 	settings->toolchange_flag = true;
 	set_tool_parameters();
     } else {
-	fprintf(stderr,"not committing change_tool - return value was %f\n",
-		settings->return_value);
+	ERS("M6 failed (%f)",settings->return_value);
     }
     return INTERP_OK;
 }
@@ -2811,8 +2810,7 @@ int Interp::finish_m61_command(setup_pointer settings)
 	settings->toolchange_flag = true;
 	set_tool_parameters();
     } else {
-	fprintf(stderr,"not setting tool number - return value was %f\n",
-		settings->return_value);
+	ERS("M61 failed (%f)",settings->return_value);
     }
     return INTERP_OK;
 }
