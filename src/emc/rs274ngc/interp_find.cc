@@ -711,11 +711,8 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
         *pocket = 0;
         return INTERP_OK;
     }
-    printf("--- search for tool %d \n",toolno);
     *pocket = -1;
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
-	printf("--------- index(pocket)=%d toolno=[%d]=%d\n",i,i,
-	      settings->tool_table[i].toolno);
         if(settings->tool_table[i].toolno == toolno)
             *pocket = i;
     }

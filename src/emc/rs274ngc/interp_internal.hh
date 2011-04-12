@@ -345,11 +345,12 @@ typedef struct context_struct {
   int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+  // if set, the following handler is executed on endsub/return
+  int (Interp::*epilog)(setup_pointer settings);
 }context;
 
 #define CONTEXT_VALID   1 // this was stored by M7*
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
-
 
 // !!!KL ???use the index to this as a surrogate for the o-word text
 typedef struct offset_struct {
@@ -515,6 +516,9 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
+
+  // if set on a sub call, the following function is executed on endsub/return
+  int (Interp::*epilog_hook)(setup_pointer settings);
     const char *t_command, *m6_command,*m61_command,*on_abort_command;
 }
 setup;

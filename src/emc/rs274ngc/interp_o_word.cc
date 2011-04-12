@@ -419,6 +419,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // free local variables
 	  free_named_parameters(settings->call_level, settings);
 
+	  // we have an epilog function. Execute it.
+	  if (settings->sub_context[settings->call_level].epilog) {
+	      fprintf(stderr,"---- return/endsub: calling epilogue\n");
+	      (*this.*settings->sub_context[settings->call_level].epilog)(settings);
+
+	  }
 	  // free subroutine name
 	  if(settings->sub_context[settings->call_level].subName) {
 	      free(settings->sub_context[settings->call_level].subName);
@@ -571,6 +577,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	       settings->sub_context[settings->call_level].position);
 
       settings->call_level++;
+
+      // remember an epilog function in current call frame
+      settings->sub_context[settings->call_level].epilog =
+	      settings->epilog_hook;
+      settings->epilog_hook = NULL;  // mark as consumed
 
       // set the new subName
       // !!!KL do we need to free old subName?

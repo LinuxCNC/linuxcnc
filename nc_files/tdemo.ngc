@@ -33,7 +33,7 @@ O<tdemo_prepare_fail> if [#5399 EQ 1]
 ; O<tdemo_prepare_fail> else
 ;     (debug, prepare ok, returning +1 to commit prepare)
 ;     ; a positive return value commits the tool prepare
-;     O<tdemo> return [1]
+;     O<tdemo> return [1] FIXME WRONG SEE BOTTOM
 O<tdemo_prepare_fail> endif
 
 
@@ -80,9 +80,9 @@ M65 P0
 (DEBUG, done with prepare sub)
 
 
-
-; succeed prepare if not explicitly succeeded or failed above
-O<tdemo> endsub [1]
+; succeed prepare by passing the pocket number as return value
+; a negative return value leaves the interpreter state untouched
+O<tdemo> endsub [#2]
 
 
 m2

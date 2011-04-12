@@ -109,6 +109,8 @@ public:
  int set_tool_parameters();
  int init_named_parameters();
  int on_abort(int reason);
+ int need_continue();
+ int continue_execute_handler();
 
 private:
 
@@ -465,9 +467,17 @@ private:
 
  int execute_handler( /* ARGUMENTS           */
   setup_pointer settings,  /* pointer to machine settings */
-  const char *cmd);
+  const char *cmd,
+  int (Interp::*epilog)(setup_pointer settings) = NULL
+);
 
-    int report_error(setup_pointer settings,int status,const char *text);
+ int report_error(setup_pointer settings,int status,const char *text);
+
+ // epilog routines called post G-code handler procedure
+    int finish_t_command(setup_pointer settings);
+    int finish_m6_command(setup_pointer settings);
+    int finish_m61_command(setup_pointer settings);
+    int finish_on_abort_command(setup_pointer settings);
 
 
  int convert_straight_indexer(int, block*, setup*);

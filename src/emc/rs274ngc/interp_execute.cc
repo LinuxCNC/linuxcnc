@@ -226,19 +226,50 @@ int Interp::report_error(setup_pointer settings,int status,const char *text)
     return status;
 }
 
+// Tx epiplogue - executed past T_COMMAND
+int Interp::finish_t_command(setup_pointer settings)
+{
+
+    // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
+    // commit the tool prepare to that value.
+
+    if (settings->return_value > - TOLERANCE_EQUAL) {
+	settings->selected_pocket = round_to_int(settings->return_value);
+	SELECT_POCKET(settings->selected_pocket);
+    } else {
+	fprintf(stderr,"---- finish_t_command: NOT COMMITING PREPAPRE, return value was %f\n",
+		settings->return_value);
+    }
+    return(INTERP_OK);
+}
+
+
 // common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
-int Interp::execute_handler(setup_pointer settings, const char *cmd)
+int Interp::execute_handler(setup_pointer settings, const char *cmd,
+			    int (Interp::*epilog)(setup_pointer settings)
+)
 {
     // TBD:  good error reporting on errors in T_COMMAND, M6_COMMAND
+
     settings->sequence_number = 1;
 
-    int status = execute(cmd,0);
-    report_error(settings,status,cmd);
+    // Gcode handlers need some c/c++ to finish work after doing theirs.
+    // that's what epilogue functions are for.
 
-    while (status == INTERP_EXECUTE_FINISH) {
-	status = execute(0);
-	report_error(settings,status,cmd);
-    }
+    // this tells O_call code to mark the frame with an epilogue handler
+    // the corresponding O_endsub/O_return will call the epilog
+    // this is zeroed when next O_call is executed
+    // it's essentially a hidden param to the call
+
+    settings->epilog_hook = epilog;
+
+    fprintf(stderr,"---- execute_handler: running '%s' call_level=%d\n",
+	    cmd, settings->call_level);
+
+    int status = execute(cmd,0);
+
+    fprintf(stderr,"---- execute_handler() status=%d - %s \n",
+	    status, interp_status(status));
     return(status);
 }
 
@@ -321,7 +352,6 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     if (settings->t_command) {
 	char cmd[LINELEN];
 	int pocket;
-	setup saved_setup = *settings;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
 	// pocket will start making sense once tooltable I/O is folded into
@@ -331,24 +361,11 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 		 block->t_number,
 		 pocket);
 
-	status = execute_handler(settings, cmd);
-
-	double retval = settings->return_value;
-
-	// restore setup except file_pointer so as not to disturb the
-	// oword close/reopen logic
-	FILE *fp = settings->file_pointer;
-	*settings = saved_setup;
-	settings->file_pointer = fp;
-
-	// if T_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
-	// commit the tool prepare-
-	if (retval >= TOLERANCE_EQUAL) {
-	    SELECT_POCKET(pocket);
-	    settings->selected_pocket = pocket;
-	}
-
+	status = execute_handler(settings, cmd, &Interp::finish_t_command);
+	fprintf(stderr,"---- execute_block(t_command) returning %s\n",
+		interp_status(status));
 	CHP(status);
+
     } else {
 	CHP(convert_tool_select(block, settings));
     }

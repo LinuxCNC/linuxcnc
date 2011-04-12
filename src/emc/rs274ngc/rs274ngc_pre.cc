@@ -1770,13 +1770,11 @@ int Interp::on_abort(int reason)
     int i;
 
     // MSG("---- on_abort(call_level=%d)\n",_setup.call_level);
-
     // invalidate all saved context except the top level one
     for (i = _setup.call_level; i > 0; i--) {
         _setup.sub_context[i].context_status = 0;
         MSG("---- unwind context at level %d\n",i);
     }
-
     if (_setup.on_abort_command == NULL)
 	return -1;
 
@@ -1784,12 +1782,10 @@ int Interp::on_abort(int reason)
     char cmd[LINELEN];
 
     snprintf(cmd,sizeof(cmd), "%s [%d]",_setup.on_abort_command, reason);
-
     int status = execute_handler(&_setup, cmd);
     FILE *fp = _setup.file_pointer;
     _setup = saved_setup;
     _setup.file_pointer = fp;
-
     CHP(status);
     return status;
 }
