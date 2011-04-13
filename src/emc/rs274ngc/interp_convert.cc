@@ -561,7 +561,8 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 
   if (block->r_flag) {
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
-                   block->r_number, &center1, &center2, &turn, tolerance));
+                     block->r_number, block->p_flag? round_to_int(block->p_number) : 1,
+                     &center1, &center2, &turn, tolerance));
   } else {
       CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
                        (settings->ijk_distance_mode == MODE_ABSOLUTE),
@@ -621,7 +622,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               double end_z,      //!< z-value at end of arc                           
                               double offset_x, double offset_y, 
                               double AA_end,     //!< a-value at end of arc                     
-                              double BB_end,     //!< b-value at end of arc                     
+                             double BB_end,     //!< b-value at end of arc                     
                               double CC_end,     //!< c-value at end of arc                     
                               double u_end, double v_end, double w_end) //!< uvw at end of arc
 {
@@ -645,12 +646,12 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (block->r_flag) {
         CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
-                            block->r_number,
+                            block->r_number, block->p_flag? round_to_int(block->p_number): 1,
                             &center_x, &center_y, &turn, tolerance));
     } else {
         CHP(arc_data_comp_ijk(move, plane, side, tool_radius, cx, cy, end_x, end_y,
                               (settings->ijk_distance_mode == MODE_ABSOLUTE),
-                              offset_x, offset_y,
+                              offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                               &center_x, &center_y, &turn, tolerance));
     }
 
@@ -802,7 +803,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (block->r_flag) {
         CHP(arc_data_r(move, plane, opx, opy, end_x, end_y,
-                       block->r_number, &centerx, &centery, &turn, tolerance));
+                       block->r_number, block->p_flag? round_to_int(block->p_number): 1,
+                       &centerx, &centery, &turn, tolerance));
     } else {
         CHP(arc_data_ijk(move, plane,
                          opx, opy, end_x, end_y,
