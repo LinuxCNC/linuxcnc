@@ -79,7 +79,7 @@ variable.
 to and adjust the controlled quantity. These additions are actually
 "subtractions" of error, because the proportions are usually negative:
 
-===== Proportional
+==== Proportional
 
 To handle the present, the error is multiplied by a (negative)
 constant P (for "proportional"), and added to (subtracting error from)
@@ -88,7 +88,7 @@ controller's output is proportional to the error of the system. Note
 that when the error is zero, a proportional controller's output is
 zero.
 
-===== Integral
+==== Integral
 
 To learn from the past, the error is integrated (added up) over a
 period of time, and then multiplied by a (negative) constant I (making
@@ -103,7 +103,7 @@ process input, the average difference between the process output and
 the set point is always being reduced. Therefore, eventually, a
 well-tuned PID loop's process output will settle down at the set point.
 
-===== Derivative
+==== Derivative
 
 To handle the future, the first derivative (the slope of the error)
 over time is calculated, and multiplied by another (negative) constant
@@ -144,7 +144,7 @@ taken offline, the best tuning method often involves subjecting the
 system to a step change in input, measuring the output as a function of
 time, and using this response to determine the control parameters.
 
-===== Simple method
+==== Simple method
 
 If the system must remain on line, one tuning method is to first set
 the I and D values to zero. Increase the P until the output of the loop
@@ -163,7 +163,7 @@ quickly; however, some systems cannot accept overshoot.
 
 Effects of increasing parameters
 
-===== Ziegler-Nichols method
+==== Ziegler-Nichols method
 
 Another tuning method is formally known as the "Ziegler-Nichols
 method", introduced by John G. Ziegler and Nathaniel B. Nichols. It
@@ -184,7 +184,7 @@ controls as the table shows:
 |PID | latexmath:[$.6K_{c}$] | latexmath:[$2/P_{c}$] | latexmath:[$P\times P_{c}/8$]
 |========================================
 
-===== Final Steps
+==== Final Steps
 
 After tuning the axis check the following error with Hal Scope to make
 sure it is within your machine requirements. More information on Hal

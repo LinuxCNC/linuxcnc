@@ -86,8 +86,8 @@ Some IRC etiquette:
 The most common way to share files on the IRC is to upload the file to
 one of the following or a similar service and paste the link:
 
-    http://pastebin.ca = for text  +
-    http://imagebin.ca = for pictures +
+    http://pastebin.ca = for text  
+    http://imagebin.ca = for pictures 
     http://filebin.ca = for files and pdfs
 
 == Mailing List

@@ -63,11 +63,11 @@ Machine Units::
 Driver Type::
      (((Driver Type))) If you have one of the stepper drivers listed in the
     pull down box, choose it. Otherwise, find the 4 timing values in your
-    driver's data sheet and enter them.  +
+    driver's data sheet and enter them.  
      If the data sheet gives a value in microseconds, multiply by 1000. For
     example, enter 4.5us as 4500. A list is on the
     http://wiki.linuxcnc.org[Linuxcnc Wiki] site of most popular drives
-    with the timing values is in the Stepper Drive Timing Page. +
+    with the timing values is in the Stepper Drive Timing Page. 
      Additional signal conditioning or isolation such as optocouplers and
     RC filters on break out boards can impose timing constraints of their
     own, in addition to those of the driver. You may find it necessary to
@@ -262,14 +262,14 @@ Home Search Velocity::
     (instead of being closed from its trip point to one end of travel),
     this velocity must be chosen so that the axis can decelerate to a stop
     before the switch opens again, and homing must always be started from
-    the same side of the switch. +
+    the same side of the switch. 
      If the machine moves the wrong direction at the beginning of the
     homing procedure, negate the value of *Home Search Velocity*.
 
 Home Latch Direction::
      (((Home Latch Direction))) Choose "Same" to have homing back off the
     switch, then approach it again at a very low speed. The second time the
-    switch closes, the home position is set. +
+    switch closes, the home position is set. 
      Choose "Opposite" to have homing slowly back off the switch. When the
     switch opens, the home position is set.
 

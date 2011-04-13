@@ -100,8 +100,11 @@ comments:
 
 Related parts of an ini file are separated into sections. A section
 line looks like [THIS_SECTION]. The name of the section is enclosed in
-brackets. The order of sections is unimportant. The following sections
-are used by EMC:
+brackets. The order of sections is unimportant. Custom sections can be
+added and referenced in HAL. Sections begin at the section name and end
+at the next section name.
+
+The following sections are used by EMC:
 
  - [EMC] general information ( <<sub:[EMC]-section>>)
  -  [DISPLAY] settings related to the graphical user interface (
@@ -118,8 +121,8 @@ are used by EMC:
  -  [AXIS_0] ... [AXIS_n] individual axis variables (
    <<sub:[AXIS]-section>>)
  - [EMCIO] settings used by the I/O Controller ( <<sub:[EMCIO]-Section>>)
- -  [HALUI] MDI commands used by HALUI. See the HALUI chapter for more
-   information ( <<sub:MDI>>)
+ -  [HALUI] MDI commands used by HALUI. ( <<sub:[HALUI]-section>>)
+    See the HALUI chapter for more information ( <<sub:MDI>>)
 
 === Variables
 
@@ -136,6 +139,10 @@ Some of the variables are used by EMC, and must always use the section
 names and variable names shown. Other variables are used only by HAL,
 and the section names and variable names shown are those used in the
 sample configuration files.
+
+Custom variables can be used in your HAL files with the following syntax.
+
+     [SECTION]VARIABLE
 
 === Definitions
 
@@ -280,7 +287,7 @@ GEOMETRY = XYZABCUVW::
     axes defined in `[TRAJ]AXES`  should be used. This sequence specifies
     the order in which the effect
     of each axis is applied, with a "-" inverting the sense of the
-    rotation. +
+    rotation. 
      The proper GEOMETRY string depends on the machine configuration and
     the kinematics used to control it. The example string GEOMETRY=XYZBCUVW
     is for a 5-axis machine where kinematics causes UVW to move in the
@@ -426,9 +433,9 @@ changed.
 BASE_PERIOD::
      (((BASE PERIOD))) = 50000 (hal)  "Base" task period, in nanoseconds -
     this is the fastest thread in
-    the machine. +
+    the machine. 
      On servo-based systems, there is generally no reason for *BASE_PERIOD*
-    to be smaller than *SERVO_PERIOD*.  +
+    to be smaller than *SERVO_PERIOD*.  
      On machines with software step generation, the *BASE_PERIOD* 
     determines the maximum number of steps per second. In the absence of
     long step length and step space requirements, the absolute maximum step
@@ -436,7 +443,7 @@ BASE_PERIOD::
     above gives an absolute maximum step rate of 20000 steps per
     second. 50000ns is a fairly conservative value. The smallest usable
     value is related to the Latency Test result, the necessary step length,
-    and the processor speed. +
+    and the processor speed. 
      Choosing a BASE_PERIOD that is too low can lead to the "Unexpected
     real time delay" message, lockups, or spontaneous reboots.
 
@@ -444,16 +451,16 @@ SERVO_PERIOD::
      (((SERVO PERIOD))) = 1000000 (hal)  "Servo" task period is also in
     nanoseconds. This value will be
      rounded to an integer multiple of *BASE_PERIOD*. This value is used
-    even on systems based on stepper motors. +
+    even on systems based on stepper motors. 
      This is the rate at which new motor positions are computed, following
-    error is checked, PID output values are updated, and so on. +
+    error is checked, PID output values are updated, and so on. 
      Most systems will not need to change this value. It is the update rate
     of the low level motion planner.
 
 TRAJ_PERIOD::
      (((TRAJ PERIOD))) = *1000000 *(hal)  Trajectory Planner task period in
     nanoseconds This value will be
-    rounded to an integer multiple of *SERVO_PERIOD*. +
+    rounded to an integer multiple of *SERVO_PERIOD*. 
      Except for machines with unusual kinematics (e.g., hexapods) there is
     no reason to make this value larger than *SERVO_PERIOD*.
 
@@ -504,6 +511,12 @@ POSTGUI_HALFILE = example2.hal::
      '(Only with the AXIS GUI)'  Execute 'example2.hal' after the GUI has
     created its HAL pins. See
     section  <<sec:pyvcp-with-axis>> for more information.
+    
+=== [HALUI] section  [[sub:[HALUI]-section]](((HALUI (inifile section))))
+
+MDI_COMMAND = G53 G0 X0 Y0 Z0::
+     A MDI command can be executed by using halui.mdi-command-00. Increment
+    the number for each command listed in the [HALUI] section.
 
 === [TRAJ] Section  [[sub:[TRAJ]-section]](((TRAJ (inifile section))))
 
@@ -537,14 +550,14 @@ HOME ::
 
 LINEAR_UNITS = <units>::
      (((LINEAR UNITS))) Specifies the machine units for linear axes.
-    Possible choices are (in, inch, imperial, metric, mm).  +
+    Possible choices are (in, inch, imperial, metric, mm).  
      This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
 ANGULAR_UNITS = <units>::
      (((ANGULAR UNITS))) Specifies the machine units for rotational axes.
     Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
-    (2pi per circle), 'grad', or 'gon' (400 per circle). +
+    (2pi per circle), 'grad', or 'gon' (400 per circle). 
      This does not affect the angular units of NC code. In RS274NGC, A-, B-
     and C- words are always expressed in degrees.
 
@@ -582,7 +595,7 @@ NO_FORCE_HOMING = 1::
     allowed before homing. Setting NO_FORCE_HOMING = 1 allows the user to
     make MDI moves and run programs without homing the machine first.
     Interfaces without homing ability will need to have this option set to
-    1. * +
+    1. * 
      Warning* : Using this will allow the machine to run past soft limits
     while in
     operation and is not generally desirable to allow this. 
@@ -614,7 +627,7 @@ WRAPPED_ROTARY = 1::
 
 UNITS::
      (((UNITS))) = inch If specified, this setting overrides the related
-    [TRAJ] UNITS setting.  +
+    [TRAJ] UNITS setting.  
      (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR,
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
 
@@ -830,26 +843,26 @@ OUTPUT_OFFSET = ::
     the computed output (in volts), and divided by the first value (scale
     factor), before being written to the D/A converters. The units on the
     scale value are in true volts per DAC output volts. The units on the
-    offset value are in volts. These can be used to linearize a DAC.  +
+    offset value are in volts. These can be used to linearize a DAC.  
      Specifically, when writing outputs, the EMC first converts the desired
     output in quasi-SI units to raw actuator values, e.g., volts for an
     amplifier DAC. This scaling looks like:
-    +
+    
     latexmath:[$[raw=\frac{{output-offset}}{scale}\]$]
-    +
+    
     The value for scale
     can be obtained analytically by doing a unit analysis, i.e., units are
     [output SI units]/[actuator units]. For example, on a machine with a
     velocity mode amplifier such that 1 volt results in 250 mm/sec
     velocity,
-    +
+    
     latexmath:[[amplifier[volts\]=(output[\frac{mm}{sec}\]-offset[\frac{mm}{sec}\])/250\frac{mm}{sec\, volt}\]]
-    +
+    
     Note that the units of the offset are in machine units, e.g.,
     mm/sec, and they are pre-subtracted from the sensor readings. The value
     for this offset is obtained by finding the value of your output which
     yields 0.0 for the actuator output. If the DAC is linearized, this
-    offset is normally 0.0.  +
+    offset is normally 0.0.  
      The scale and offset can be used to linearize the DAC as well,
     resulting in values that reflect the combined effects of amplifier
     gain, DAC non-linearity, DAC units, etc. To do this, follow this
@@ -894,12 +907,12 @@ INPUT_SCALE::
     corresponds to a move of one
     machine unit as set in the [TRAJ] section. For a linear axis one
     machine unit will be equal to the setting of LINEAR_UNITS. For an
-    angular axis one unit is equal to the setting in ANGULAR_UNITS. +
-    A second number, if specified, is ignored. +
+    angular axis one unit is equal to the setting in ANGULAR_UNITS. 
+    A second number, if specified, is ignored. 
      For example, on a 2000 counts per rev encoder(((encoder))), and 10
     revs/inch gearing, and desired units of inch, we
     have
-    +
+    
     latexmath:[\begin{array}{ccc} input\_scale & = &
     2000\frac{counts}{rev}*10\frac{rev}{inch}\\ & = &
     20000\frac{counts}{inch}\end{array}]
@@ -916,14 +929,14 @@ SCALE::
     one machine unit will be equal to the setting of LINEAR_UNITS. For an
     angular axis one unit is equal to the setting in ANGULAR_UNITS. For
     servo systems, this is the number of feedback pulses per machine unit.
-    A second number, if specified, is ignored. +
+    A second number, if specified, is ignored. 
      For example, on a 1.8 degree stepper motor with half-stepping, and 10
     revs/inch gearing, and desired machine units of inch, we
     have
-    +
+    
     latexmath:[\begin{array}{cccc} input\_scale & = & \frac{{2\, steps}}{1.8\, degree}
     *360\frac{{degree}}{rev}*10\frac{rev}{inch}\\ & = & 4000\frac{steps}{inch}\end{array}]
-    +
+    
     Older stepper configuration
     .ini and .hal used INPUT_SCALE for this value.
 

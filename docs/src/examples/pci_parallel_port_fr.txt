@@ -34,7 +34,7 @@ Notez les guillemets obligatoires encadrant les adresses.
 
 Nous avons également ajouté:
 
-`addf parport.1.read base-thread +
+`addf parport.1.read base-thread 
 addf parport.1.write base-thread`
 
 pour que le second port parallèle soit lu et écrit.

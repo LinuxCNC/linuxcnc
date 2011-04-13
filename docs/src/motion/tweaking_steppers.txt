@@ -39,34 +39,34 @@ the RTAI latency test.
 
 On Ubuntu Dapper, you can run the test by opening a shell and doing:
 
-    sudo mkdir /dev/rtf;  +
-    sudo mknod /dev/rtf/3 c 150 3;  +
-    sudo mknod /dev/rtf3 c 150 3;  +
+    sudo mkdir /dev/rtf;  
+    sudo mknod /dev/rtf/3 c 150 3;  
+    sudo mknod /dev/rtf3 c 150 3;  
     cd /usr/realtime*/testsuite/kern/latency; ./run
 
 and then you should see something like this:
 
-    ubuntu:/usr/realtime-2.6.12-magma/testsuite/kern/latency$ ./run  +
-    *  +
-    *  +
-    * Type ^C to stop this application.  +
-    *  +
+    ubuntu:/usr/realtime-2.6.12-magma/testsuite/kern/latency$ ./run  
+    *  
+    *  
+    * Type ^C to stop this application.  
+    *  
     *
 
-    ## RTAI latency calibration tool ##  +
-    # period = 100000 (ns)  +
-    # avrgtime = 1 (s)  +
-    # do not use the FPU  +
-    # start the timer  +
+    ## RTAI latency calibration tool ##  
+    # period = 100000 (ns)  
+    # avrgtime = 1 (s)  
+    # do not use the FPU  
+    # start the timer  
     # timer_mode is oneshot
 
-    RTAI Testsuite - KERNEL latency (all data in nanoseconds)  +
-    RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns  +
-    RTD|   -1571|   -1571|    1622|    8446|    8446|      0  +
-    RTD|   -1558|   -1571|    1607|    7704|    8446|      0  +
-    RTD|   -1568|   -1571|    1640|    7359|    8446|      0  +
-    RTD|   -1568|   -1571|    1653|    7594|    8446|      0  +
-    RTD|   -1568|   -1571|    1640|   10636|   10636|      0  +
+    RTAI Testsuite - KERNEL latency (all data in nanoseconds)  
+    RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns  
+    RTD|   -1571|   -1571|    1622|    8446|    8446|      0  
+    RTD|   -1558|   -1571|    1607|    7704|    8446|      0  
+    RTD|   -1568|   -1571|    1640|    7359|    8446|      0  
+    RTD|   -1568|   -1571|    1653|    7594|    8446|      0  
+    RTD|   -1568|   -1571|    1640|   10636|   10636|      0  
     RTD|   -1568|  -1571|    1640|   10636|   10636|      0
 
 While the test is running, you should "abuse" the computer. Move
@@ -281,8 +281,8 @@ guess at periods and other configuration paremeters. You need to make
 measurements on your computer, and do the math to ensure that your
 drives get the signals they need.
 
-To make the math easier, I've created an Open Office spreadsheet  +
-http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods +
+To make the math easier, I've created an Open Office spreadsheet  
+http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods 
  You enter your latency test result and your stepper drive timing
 requirements and the spreadsheet calculates the optimum BASE_PERIOD.
 Next, you test the period to make sure it won't slow down or lock up

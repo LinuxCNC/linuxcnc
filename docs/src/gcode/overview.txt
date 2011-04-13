@@ -413,31 +413,30 @@ being in effect. The modal groups are shown in Table
 
 .Modal Groups[[cap:Modal-Groups]]
 
-[width="90%", options="header"]
+[width="90%", cols="1,2", options="header"]
 |========================================
 |Modal Group Meaning | Member Words
-|Motion ("Group 1") | G0 G1 G2 G3 G33 G38.x G73 G76 G80 G81
-| | G82 G83 G84 G85 G86 G87 G88 G89
-|Plane selection | G17, G18, G19
-|Diameter / Radius for lathes | G7, G8
+|Motion | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+| | G82, G83, G84, G85, G86, G87, G88, G89
+|Plane selection | G17.x, G18.x, G19.x
 |Distance Mode | G90, G91
-|Feed Rate Mode | G93, G94
+|Arc IJK Distance Mode | G90.1, G91.1
+|Feed Rate Mode | G93, G94, G95
 |Units | G20, G21
-|Cutter Radius Compensation | G40, G41, G42, G41.1, G42.1
+|Cutter Diameter Compensation | G40, G41, G42, G41.1, G42.1
 |Tool Length Offset | G43, G43.1, G49
 |Return Mode in Canned Cycles | G98, G99
-|Coordinate System Selection | G54, G55, G56, G57, G58
-| | G59, G59.1, G59.2, G59.3
+|Coordinate System Selection | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Control Mode | G61, G61.1, G64
+|Spindle Speed Mode | G96, G97
+|Lathe Diameter Mode | G7, G8
 |Stopping | M0, M1, M2, M30, M60
 |Tool Change | M6 Tn
-|Spindle Turning | M3, M4, M5
-|Coolant | M7, M8, M9. Special case:
-| | M7 and M8 may be active at the same time
+|Spindle | M3, M4, M5
+|Coolant | (M7 M8 can both be on), M9
 |Override Switches | M48, M49
 |Flow Control | O-
-|Non-modal codes ("Group 0") | G4, G10 G28, G30, G53
-| | G92, G92.1, G92.2, G92.3
-| | M100 to M199
+|Non-modal codes | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M1xx
 |========================================
 
 For several modal groups, when a machining center is ready to accept
@@ -469,8 +468,8 @@ parentheses () or for the remainder of a line using a semi-colon. The
 semi-colon is not treated as the start of a comment when enclosed in
 parentheses.
 
-    G0 (Rapid to start) X1 Y1 +
-    G0 X1 Y1 (Rapid to start; but don't forget the coolant) +
+    G0 (Rapid to start) X1 Y1 
+    G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
     M2 ; End of program.
 
 == File Size

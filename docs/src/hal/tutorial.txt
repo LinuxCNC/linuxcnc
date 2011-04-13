@@ -28,10 +28,10 @@ completing file names as a shell does, it completes commands with HAL
 identifiers. You will have to type enough letters for a unique match.
 Try pressing tab after starting a HAL command:
 
-    halcmd: *loa<TAB>* +
-    halcmd: *load* +
-    halcmd: *loadrt* +
-    halcmd: *loadrt deb<TAB>* +
+    halcmd: *loa<TAB>* 
+    halcmd: *load* 
+    halcmd: *loadrt* 
+    halcmd: *loadrt deb<TAB>* 
     halcmd: *loadrt debounce*
 
 === The RTAPI environment
@@ -63,7 +63,7 @@ In that case, all you need to do is
 load the required RTOS and RTAPI modules into memory. Just run the
 following command from a terminal window:
 
-    ~$ *cd emc2* +
+    ~$ *cd emc2* 
     ~/emc2$ *halrun +*halcmd:
 
 With the realtime OS and RTAPI loaded, we can move into the first
@@ -90,10 +90,10 @@ of this document. The first
 halcmd feature is the show command. This command displays information
 about the current state of the HAL. To show all installed components:
 
-    halcmd: *show comp* +
-    Loaded HAL Components: +
-    ID     Type  Name                  PID       State +
-    3       RT     siggen                             ready  +
+    halcmd: *show comp* 
+    Loaded HAL Components: 
+    ID     Type  Name                  PID       State 
+    3       RT     siggen                             ready  
     2       User  halcmd10190    10190 ready
 
 Since `halcmd`  itself is a HAL component, it will always show up in
@@ -107,16 +107,16 @@ that we installed in the previous step. The "RT" under
 
 Next, let's see what pins `siggen` makes available:
 
-    halcmd: *show pin* +
-    Component Pins: +
-    Owner  Type    Dir    Value      Name  +
-             3  float    IN             1  siggen.0.amplitude  +
-             3  float    OUT          0  siggen.0.cosine  +
-             3  float    IN             1  siggen.0.frequency  +
-             3  float    IN             0  siggen.0.offset  +
-             3  float    OUT          0  siggen.0.sawtooth +
-             3  float    OUT          0  siggen.0.sine +
-             3  float    OUT          0  siggen.0.square +
+    halcmd: *show pin* 
+    Component Pins: 
+    Owner  Type    Dir    Value      Name  
+             3  float    IN             1  siggen.0.amplitude  
+             3  float    OUT          0  siggen.0.cosine  
+             3  float    IN             1  siggen.0.frequency  
+             3  float    IN             0  siggen.0.offset  
+             3  float    OUT          0  siggen.0.sawtooth 
+             3  float    OUT          0  siggen.0.sine 
+             3  float    OUT          0  siggen.0.square 
              3  float    OUT          0  siggen.0.triangle
 
 This command displays all of the pins in the HAL - a complex system
@@ -128,10 +128,10 @@ the component, some the pins have a value of zero.
 
 The next step is to look at parameters:
 
-    halcmd: *show param* +
-    Parameters: +
-    Owner  Type  Dir    Value      Name +
-             3    s32    RO            0   siggen.0.update.time +
+    halcmd: *show param* 
+    Parameters: 
+    Owner  Type  Dir    Value      Name 
+             3    s32    RO            0   siggen.0.update.time 
              3    s32   RW            0   siggen.0.update.tmax
 
 The show param command shows all the parameters in the HAL. Right now
@@ -151,9 +151,9 @@ Most realtime components export one or more functions to actually run
 the realtime code they contain. Let's see what function(s) `siggen`
 exported:
 
-    halcmd: *show funct* +
-    Exported Functions: +
-    Owner    CodeAddr   Arg            FP    Users   Name +
+    halcmd: *show funct* 
+    Exported Functions: 
+    Owner    CodeAddr   Arg            FP    Users   Name 
      00003   b7f74ac5   b7d0c0b4  YES         0  siggen.0.update
 
 The siggen component exported a single function. It requires floating
@@ -174,8 +174,8 @@ a period of 1mS (1000000nS):
 
 Let's see if that worked:
 
-    halcmd: *show thread +*Realtime Threads: +
-           Period      FP    Name                 (Time, Max-Time) +
+    halcmd: *show thread +*Realtime Threads: 
+           Period      FP    Name                 (Time, Max-Time) 
          999849     YES  test-thread        (       0,              0 )
 
 It did. The period is not exactly 1000000nS because of hardware
@@ -192,11 +192,11 @@ actually change something in the HAL. We
 `test-thread`, and if we look at the thread list again, we see that it
 succeeded:
 
-    halcmd: *show thread +*Realtime Threads: +
+    halcmd: *show thread +*Realtime Threads: 
             Period    FP    Name                            (Time,
-    Max-Time) +
+    Max-Time) 
           999849   YES               test-thread     (       0,            
-     0 ) +
+     0 ) 
                                    1 siggen.0.update
 
 There is one more step needed before the `siggen`  component starts
@@ -210,33 +210,33 @@ like this:
 
 Now the signal generator is running. Let's look at its output pins:
 
-    halcmd: *show pin* +
-    Component Pins: +
-    Owner    Type     Dir                Value   Name +
+    halcmd: *show pin* 
+    Component Pins: 
+    Owner    Type     Dir                Value   Name 
                3    float     IN                        1  
-    siggen.0.amplitude +
-              3    float     OUT   -0.9406941   siggen.0.cosine +
+    siggen.0.amplitude 
+              3    float     OUT   -0.9406941   siggen.0.cosine 
                3    float     IN                        1  
-    siggen.0.frequency +
-              3    float     IN                        0   siggen.0.offset +
-              3    float     OUT   -0.1164055   siggen.0.sawtooth +
-              3    float     OUT      0.379820   siggen.0.sine +
-              3    float     OUT                   -1   siggen.0.square +
+    siggen.0.frequency 
+              3    float     IN                        0   siggen.0.offset 
+              3    float     OUT   -0.1164055   siggen.0.sawtooth 
+              3    float     OUT      0.379820   siggen.0.sine 
+              3    float     OUT                   -1   siggen.0.square 
               3    float     OUT   -0.7728110  siggen.0.triangle
 
-    halcmd: *show pin* +
-    Component Pins: +
-    Owner    Type     Dir                 Value   Name +
+    halcmd: *show pin* 
+    Component Pins: 
+    Owner    Type     Dir                 Value   Name 
                3    float     IN                         1  
-    siggen.0.amplitude +
-              3    float     OUT     0.9958036   siggen.0.cosine +
+    siggen.0.amplitude 
+              3    float     OUT     0.9958036   siggen.0.cosine 
                3    float     IN                         1  
-    siggen.0.frequency +
+    siggen.0.frequency 
                3    float     IN                         0  
-    siggen.0.offset +
-              3    float     OUT     0.9708287   siggen.0.sawtooth +
-              3    float     OUT -0.09151597   siggen.0.sine +
-              3    float     OUT                     1   siggen.0.square +
+    siggen.0.offset 
+              3    float     OUT     0.9708287   siggen.0.sawtooth 
+              3    float     OUT -0.09151597   siggen.0.sine 
+              3    float     OUT                     1   siggen.0.square 
               3    float     OUT     0.9416574  siggen.0.triangle
 
 We did two `show pin`  commands in quick succession, and you can see
@@ -256,25 +256,25 @@ of the signal generator from 1.0 to 5.0:
 
 Check the parameters and pins again:
 
-    halcmd: *show param* +
-    Parameters: +
-    Owner    Type  Dir           Value      Name +
-             3    s32    RO               397   siggen.0.update.time +
+    halcmd: *show param* 
+    Parameters: 
+    Owner    Type  Dir           Value      Name 
+             3    s32    RO               397   siggen.0.update.time 
              3    s32    RW       109100   siggen.0.update.tmax
 
-    halcmd: *show pin* +
-    Component Pins: +
-    Owner    Type     Dir                 Value   Name +
+    halcmd: *show pin* 
+    Component Pins: 
+    Owner    Type     Dir                 Value   Name 
                3    float     IN                         5  
-    siggen.0.amplitude +
-              3    float     OUT      -4.179375   siggen.0.cosine +
+    siggen.0.amplitude 
+              3    float     OUT      -4.179375   siggen.0.cosine 
                3    float     IN                         1  
-    siggen.0.frequency +
+    siggen.0.frequency 
                3    float     IN                         0  
-    siggen.0.offset +
-              3    float     OUT     0.9248036   siggen.0.sawtooth +
-              3    float     OUT      -2.744599   siggen.0.sine +
-              3    float     OUT                      5   siggen.0.square +
+    siggen.0.offset 
+              3    float     OUT     0.9248036   siggen.0.sawtooth 
+              3    float     OUT      -2.744599   siggen.0.sine 
+              3    float     OUT                      5   siggen.0.square 
               3    float     OUT      -3.150393  siggen.0.triangle
 
 Note that the value of parameter `siggen.0.amplitude` has changed to
@@ -292,16 +292,16 @@ what about next time? We don't want to manually enter a bunch of
 commands every time we want to use the system. We can save the
 configuration of the entire HAL with a single command:
 
-    halcmd: *save* +
-    # components +
-    loadrt threads name1=test-thread period1=1000000 +
-    loadrt siggen +
-    # pin aliases +
-    # signals +
-    # nets +
-    # parameter values +
-    setp siggen.0.update.tmax 14687 +
-    # realtime thread/function links +
+    halcmd: *save* 
+    # components 
+    loadrt threads name1=test-thread period1=1000000 
+    loadrt siggen 
+    # pin aliases 
+    # signals 
+    # nets 
+    # parameter values 
+    setp siggen.0.update.tmax 14687 
+    # realtime thread/function links 
     addf siggen.0.update test-thread
 
 The output of the `save`  command is a sequence of HAL commands. If
@@ -441,73 +441,73 @@ As before, we can use `halcmd show`  to take a look at the HAL. This
 time we have a lot more pins and
 parameters than before:
 
-    halcmd: *show pin +*Component Pins: +
-    Owner   Type    Dir         Value           Name +
-         3       float    IN              1        siggen.0.amplitude +
-         3       float    OUT           0        siggen.0.cosine +
-         3       float   IN              1        siggen.0.frequency +
-         3       float    IN              0        siggen.0.offset +
-         3       float    OUT          0         siggen.0.sawtooth +
-         3       float    OUT         0         siggen.0.sine +
-         3       float    OUT          0         siggen.0.square +
-         3       float    OUT          0         siggen.0.triangle +
-         3       float    OUT          0         stepgen.0.counts +
-         2       bit       OUT       FALSE    stepgen.0.dir +
-         2       bit       IN          FALSE    stepgen.0.enable +
-         2       float    IN             0         stepgen.0.position-fb +
-         2       float    OUT          0         stepgen.0.step +
-         2       bit       OUT       FALSE    stepgen.0.velocity-cmd +
-         2       s32      OUT          0         stepgen.1.counts +
-         2       bit       OUT       FALSE    stepgen.1.dir +
-         2       bit       IN          FALSE    stepgen.1.enable +
-         2       float    IN             0         stepgen.1.position-fb +
-         2      float    OUT         0         stepgen.1.step +
+    halcmd: *show pin +*Component Pins: 
+    Owner   Type    Dir         Value           Name 
+         3       float    IN              1        siggen.0.amplitude 
+         3       float    OUT           0        siggen.0.cosine 
+         3       float   IN              1        siggen.0.frequency 
+         3       float    IN              0        siggen.0.offset 
+         3       float    OUT          0         siggen.0.sawtooth 
+         3       float    OUT         0         siggen.0.sine 
+         3       float    OUT          0         siggen.0.square 
+         3       float    OUT          0         siggen.0.triangle 
+         3       float    OUT          0         stepgen.0.counts 
+         2       bit       OUT       FALSE    stepgen.0.dir 
+         2       bit       IN          FALSE    stepgen.0.enable 
+         2       float    IN             0         stepgen.0.position-fb 
+         2       float    OUT          0         stepgen.0.step 
+         2       bit       OUT       FALSE    stepgen.0.velocity-cmd 
+         2       s32      OUT          0         stepgen.1.counts 
+         2       bit       OUT       FALSE    stepgen.1.dir 
+         2       bit       IN          FALSE    stepgen.1.enable 
+         2       float    IN             0         stepgen.1.position-fb 
+         2      float    OUT         0         stepgen.1.step 
          2       bit       OUT       FALSE   stepgen.1.velocity-cmd
 
-    halcmd: *show param +*Parameters: +
-    Owner   Type  Dir               Value                  Name +
+    halcmd: *show param +*Parameters: 
+    Owner   Type  Dir               Value                  Name 
           3       s32   RO                        0          
-    siggen.0.update.time +
+    siggen.0.update.time 
           3       s32   RW                       0          
-    siggen.0.update.tmax +
-         2       u32   RW       00000001           stepgen.0.dirhold +
-         2       u32   RW       00000001           stepgen.0.dirsetup +
+    siggen.0.update.tmax 
+         2       u32   RW       00000001           stepgen.0.dirhold 
+         2       u32   RW       00000001           stepgen.0.dirsetup 
           2       float  RO                       0          
-    stepgen.0.frequency +
+    stepgen.0.frequency 
           2       float  RW                      0          
-    stepgen.0.maxaccel +
+    stepgen.0.maxaccel 
           2       float  RW                      0          
-    stepgen.0.maxvel +
+    stepgen.0.maxvel 
           2       float  RW                      1          
-    stepgen.0.position-scale +
+    stepgen.0.position-scale 
           2       s32   RO                        0          
-    stepgen.0.rawcounts +
-         2       u32   RW       00000001           stepgen.0.steplen +
-         2       u32   RW       00000001           stepgen.0.stepspace +
-         2       u32   RW       00000001           stepgen.1.dirhold +
-         2       u32   RW       00000001           stepgen.1.dirsetup +
+    stepgen.0.rawcounts 
+         2       u32   RW       00000001           stepgen.0.steplen 
+         2       u32   RW       00000001           stepgen.0.stepspace 
+         2       u32   RW       00000001           stepgen.1.dirhold 
+         2       u32   RW       00000001           stepgen.1.dirsetup 
           2       float  RO                       0          
-    stepgen.1.frequency +
+    stepgen.1.frequency 
           2       float  RW                      0          
-    stepgen.1.maxaccel +
+    stepgen.1.maxaccel 
           2       float  RW                      0          
-    stepgen.1.maxvel +
+    stepgen.1.maxvel 
           2       float  RW                      1          
-    stepgen.1.position-scale +
+    stepgen.1.position-scale 
           2       s32   RO                        0          
-    stepgen.1.rawcounts +
-         2       u32   RW       00000001           stepgen.1.steplen +
-         2       u32   RW       00000001           stepgen.1.stepspace +
+    stepgen.1.rawcounts 
+         2       u32   RW       00000001           stepgen.1.steplen 
+         2       u32   RW       00000001           stepgen.1.stepspace 
           2       s32   RO                        0          
-    stepgen.capture-position.time +
+    stepgen.capture-position.time 
           2       s32   RW                       0          
-    stepgen.capture-position.tmax +
+    stepgen.capture-position.tmax 
           2       s32   RO                        0          
-    stepgen.make-pulses.time +
+    stepgen.make-pulses.time 
           2       s32   RW                       0          
-    stepgen.make-pulses.tmax +
+    stepgen.make-pulses.tmax 
           2       s32   RO                        0          
-    stepgen.update-freq.time +
+    stepgen.update-freq.time 
           2       s32   RW                       0          
     stepgen.update-freq.tmax
 
@@ -532,10 +532,10 @@ signal to a pin we use the net command.
 
 To see the effect of the `net` command, we show the signals again:
 
-    halcmd: *show sig* +
-    Signals: +
-    Type      Value     Name        (linked to) +
-    float         0           X_vel +
+    halcmd: *show sig* 
+    Signals: 
+    Type      Value     Name        (linked to) 
+    float         0           X_vel 
                                         <== siggen.0.cosine
 
 When a signal is connected to one or more pins, the show command lists
@@ -557,15 +557,15 @@ to the input of the second step pulse generator. The following command
 Now let's take a final look at the signals and the pins connected to
 them:
 
-    halcmd: *show sig* +
-    Signals: +
-    Type      Value      Name            (linked to) +
-    float              0     X-vel +
-                                                       <== siggen.0.cosine +
+    halcmd: *show sig* 
+    Signals: 
+    Type      Value      Name            (linked to) 
+    float              0     X-vel 
+                                                       <== siggen.0.cosine 
                                                         ==>
-    stepgen.0.velocity +
-    float              0     Y-vel +
-                                                      <== siggen.0.sine +
+    stepgen.0.velocity 
+    float              0     Y-vel 
+                                                      <== siggen.0.sine 
                                                       ==> stepgen.1.velocity
 
 The `show sig`  command makes it clear exactly how data flows through
@@ -582,11 +582,11 @@ get things done. Thread are the method used to make those instructions
 run when they are needed. First let's look at the functions available
 to us:
 
-    halcmd: *show funct +*Exported Functions: +
-    Owner   CodeAddr  Arg               FP   Users  Name +
-     00004  d8a3a120  d8bd322c  YES      0     siggen.0.update +
-     00003  d8bf45b0  d8bd30b4   YES      0     stepgen.capture-position +
-     00003  d8bf42c0  d8bd30b4    NO       0     stepgen.make-pulses +
+    halcmd: *show funct +*Exported Functions: 
+    Owner   CodeAddr  Arg               FP   Users  Name 
+     00004  d8a3a120  d8bd322c  YES      0     siggen.0.update 
+     00003  d8bf45b0  d8bd30b4   YES      0     stepgen.capture-position 
+     00003  d8bf42c0  d8bd30b4    NO       0     stepgen.make-pulses 
      00003  d8bf46b0  d8bd30b4   YES      0     stepgen.update-freq
 
 In general, you will have to refer to the documentation for each
@@ -629,10 +629,10 @@ feedback, we don't need to run `stepgen.capture_position` at all.
 We run functions by adding them to threads. Each thread runs at a
 specific rate. Let's see what threads we have available:
 
-    halcmd: *show thread* +
-    Realtime Threads: +
-             Period   FP   Name  ( Time, Max-Time ) +
-         988960  YES  slow    (     0,     0 ) +
+    halcmd: *show thread* 
+    Realtime Threads: 
+             Period   FP   Name  ( Time, Max-Time ) 
+         988960  YES  slow    (     0,     0 ) 
             49448  NO   fast      (     0,     0 )
 
 The two threads were created when we loaded `threads`. The first one,
@@ -645,22 +645,22 @@ point
 functions to the proper thread, we use the `addf` command. We specify
 the function first, followed by the thread:
 
-    halcmd: *addf siggen.0.update slow* +
-    halcmd: *addf stepgen.update-freq slow* +
+    halcmd: *addf siggen.0.update slow* 
+    halcmd: *addf stepgen.update-freq slow* 
     halcmd: *addf stepgen.make-pulses fast*
 
 After we give these commands, we can run the `show thread` command
 again to see what happened:
 
-    halcmd: *show thread +*Realtime Threads: +
+    halcmd: *show thread +*Realtime Threads: 
         Period       FP       Name                            (Time,
-    Max-Time) +
+    Max-Time) 
          988960   YES                          slow         (       0,     
-            0 ) +
-                                  1 siggen.0.update +
-                                  2 stepgen.update-freq +
+            0 ) 
+                                  1 siggen.0.update 
+                                  2 stepgen.update-freq 
            49448   NO                             fast         (       0,  
-               0 ) +
+               0 ) 
                                  1 stepgen.make-pulses
 
 Now each thread is followed by the names of the functions, in the
@@ -686,7 +686,7 @@ case, both the X and Y axis have the same scaling, so
 we set the scaling parameters for both to 10000:
 
      halcmd: *setp stepgen.0.position-scale 10000 +*halcmd: *setp
-    stepgen.1.position-scale 10000 +*halcmd: *setp stepgen.0.enable 1* +
+    stepgen.1.position-scale 10000 +*halcmd: *setp stepgen.0.enable 1* 
     halcmd: *setp stepgen.1.enable 1*
 
 This velocity scaling means that when the pin `stepgen.0.velocity-cmd`

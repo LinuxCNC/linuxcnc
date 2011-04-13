@@ -91,7 +91,10 @@ void VerifyDirectorySelected( char * NewDir )
 			}
 			else
 			{
-				closedir(pDir);
+				if (pDir != NULL)
+				{
+					closedir(pDir);
+				}
 				if (InfosGene->CurrentProjectFileName[strlen(InfosGene->CurrentProjectFileName)-1]!=CAR_SEP)
 					strcat( InfosGene->CurrentProjectFileName, "/" );
 			}

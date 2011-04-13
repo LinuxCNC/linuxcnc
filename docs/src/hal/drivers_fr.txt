@@ -486,7 +486,7 @@ may be non-zero even if there is only one board.
    output, see canonical digital output.
  -  `(``u32``) m5i20.<board>.watchdog-control`  -- Configures the
    watchdog. The value may be a bitwise OR of the
-   following values: +
+   following values: 
    
    [width="90%", options="header"]
    |========================================
@@ -732,7 +732,7 @@ board.
    output, see canonical digital output.
  -  `(``u32``) motenc.<board>.watchdog-control`  -- Configures the
    watchdog. The value may be a bitwise OR of the
-   following values: +
+   following values: 
    
    [width="90%", options="header"]
    |========================================

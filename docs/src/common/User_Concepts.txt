@@ -147,7 +147,7 @@ takes to accelerate from 0 to the desired feed rate and then stop
 again. Using A as 1/2 the ini file MAX_ACCELERATION and F as the feed
 rate *in units per second*, the acceleration time is ta = F/A and the
 acceleration distance is latexmath:[da=(1/2)*F*ta] the deceleration
-time and distance are the same, making the critical distance d = da +
+time and distance are the same, making the critical distance d = da 
 dd = 2*da = F^2 / A.
 
 For example, for a feed rate of 1 inch per second and an acceleration
@@ -244,16 +244,16 @@ If you're having trouble getting 0,0,0 on the DRO when you think you
 should, you may have some offsets programmed in and need to remove
 them.
 
- - Move to the Machine origin with  +
+ - Move to the Machine origin with  
    G53 G0 X0 Y0 Z0
- - Clear any G92 offset with +
+ - Clear any G92 offset with 
    G92.1
- - Use the G54 coordinate system with +
+ - Use the G54 coordinate system with 
    G54
  -  Set the G54 coordinate system to be the same as the machine coordinate
-   system with +
+   system with 
    G10 L2 P1 X0 Y0 Z0
- - Turn off tool offsets with +
+ - Turn off tool offsets with 
    G49
  - Turn on the Relative Coordinate Display from the menu
 

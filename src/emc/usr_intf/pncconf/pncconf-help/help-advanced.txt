@@ -1,9 +1,9 @@
 Advanced Options
-    Use to add HALUI and PLC components to EMC.
 
 HALUI:
     HALUI is used to comunicate between EMC and a gui 
-        or operator panel
+        or operator panel. 
+    HALUI is always loaded.
     Click the HALUI checkbox and add your commands to 
         the text boxes
 

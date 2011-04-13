@@ -206,10 +206,10 @@ autrement.
 image:images/pyvcp_led.png[]
 
 <halpin> définit le nom de la pin, par défaut: “led.n”, où n est un
-entier +
-<size> définit la taille de la led, par défaut: 20 +
+entier 
+<size> définit la taille de la led, par défaut: 20 
  <on_color> définit la couleur de la led LED quand la pin est vraie,
-par défaut: “green” +
+par défaut: “green” 
  <off_color> définit la couleur de la LED quand la pin est fausse, par
 défaut: “ref”
 
@@ -217,20 +217,20 @@ défaut: “ref”
 
 C'est une variante du widget "led".
 
-    <vbox> +
-    <relief>RIDGE</relief> +
-    <bd>6</bd> +
-    <rectled> +
-    <halpin>"ma-led-rect"</halpin> +
-    <height>"50"</height> +
-    <width>"100"</width> +
-    <on_color>"green"</on_color> +
-    <off_color>"red"</off_color> +
-    </rectled> +
+    <vbox> 
+    <relief>RIDGE</relief> 
+    <bd>6</bd> 
+    <rectled> 
+    <halpin>"ma-led-rect"</halpin> 
+    <height>"50"</height> 
+    <width>"100"</width> 
+    <on_color>"green"</on_color> 
+    <off_color>"red"</off_color> 
+    </rectled> 
     </vbox>
 
-Le code ci-dessus produit cet exemple. +
-Il affiche également un relief autour de la boîte. +
+Le code ci-dessus produit cet exemple. 
+Il affiche également un relief autour de la boîte. 
 image:images/pyvcp_rectled.png[]
 
 === Bouton (button)
@@ -294,10 +294,10 @@ L'affichage d'un nombre peux suivre le format suivant:
 
 Le widget number affiche la valeur d'un signal de type float.
 
-    <number> +
-        <halpin>"number"</halpin> +
-        <font>("Helvetica",24)</font> +
-        <format>"+4.4f"</format> +
+    <number> 
+        <halpin>"number"</halpin> 
+        <font>("Helvetica",24)</font> 
+        <format>"+4.4f"</format> 
     </number>
 
 image:images/pyvcp_number.png[]
@@ -329,11 +329,11 @@ même que celle de "number" excepté le nom qui est <s32>. Il faut
 prévoir une largeur suffisante pour afficher le nombre dans sa
 totalité.
 
-    <s32> +
-    <halpin>"simple-number"</halpin> +
-    <font>("Helvetica",24)</font> +
-    <format>"6d"</format> +
-    <width>6</width> +
+    <s32> 
+    <halpin>"simple-number"</halpin> 
+    <font>("Helvetica",24)</font> 
+    <format>"6d"</format> 
+    <width>6</width> 
     </s32>
 
 image:images/pyvcp_s32.png[]
@@ -356,17 +356,17 @@ halrun/halcmd).
 La bascule "image_bit" bascule entre deux images selon la position
 vraie ou fausse de halpin.
 
-    <pyvcp> +
-    <image name='fwd' file='fwd.gif'/> +
-    <image name='rev' file='rev.gif'/> +
-    <vbox> +
-    <image_bit halpin='selectimage' images='fwd rev'/> +
-    </vbox> +
+    <pyvcp> 
+    <image name='fwd' file='fwd.gif'/> 
+    <image name='rev' file='rev.gif'/> 
+    <vbox> 
+    <image_bit halpin='selectimage' images='fwd rev'/> 
+    </vbox> 
     </pyvcp>
 
-En utilisant les deux images fwd.gif et rev.gif. +
-FWD est affiché quand "selectimage" est fausse +
-et REV est affiché quand "selectimage" est vraie. +
+En utilisant les deux images fwd.gif et rev.gif. 
+FWD est affiché quand "selectimage" est fausse 
+et REV est affiché quand "selectimage" est vraie. 
 image:images/pyvcp_image01.png[]image:images/pyvcp_image02.png[]
 
 ==== Image u32
@@ -377,16 +377,16 @@ nombre d'images n'est pratiquement plus limité, il suffit de
 commençant à 0 pour la première image de la liste, à 1 pour la seconde
 image etc.
 
-    <pyvcp> +
-    <image name='stb' file='stb.gif'/> +
-    <image name='fwd' file='fwd.gif'/> +
-    <image name='rev' file='rev.gif'/> +
-    <vbox> +
-    <image_u32 halpin='selectimage' images='stb fwd rev'/> +
-    </vbox> +
+    <pyvcp> 
+    <image name='stb' file='stb.gif'/> 
+    <image name='fwd' file='fwd.gif'/> 
+    <image name='rev' file='rev.gif'/> 
+    <vbox> 
+    <image_u32 halpin='selectimage' images='stb fwd rev'/> 
+    </vbox> 
     </pyvcp>
 
-Même résultat mais en ajoutant l'image stb.gif. +
+Même résultat mais en ajoutant l'image stb.gif. 
 
 image:images/pyvcp_image_u32_01.png[]image:images/pyvcp_image01.png[]image:images/pyvcp_image02.png[]
 
@@ -444,18 +444,18 @@ digit. La sortie est limitée par les valeurs min et max. La variable
 cpr fixe le nombre de graduations sur le pourtour du cadran (prudence
 avec les grands nombres).
 
-    <dial> +
-    <size>200</size> +
-    <cpr>100</cpr> +
-    <min_>-15</min_> +
-    <max_>15</max_> +
-    <text>"Dial"</text> +
-    <init>0</init> +
-    <resolution>0.001</resolution> +
-    <halpin>"anaout"</halpin> +
-    <dialcolor>"yellow"</dialcolor> +
-    <edgecolor>"green"</edgecolor> +
-    <dotcolor>"black"</dotcolor> +
+    <dial> 
+    <size>200</size> 
+    <cpr>100</cpr> 
+    <min_>-15</min_> 
+    <max_>15</max_> 
+    <text>"Dial"</text> 
+    <init>0</init> 
+    <resolution>0.001</resolution> 
+    <halpin>"anaout"</halpin> 
+    <dialcolor>"yellow"</dialcolor> 
+    <edgecolor>"green"</edgecolor> 
+    <dotcolor>"black"</dotcolor> 
     </dial>
 
 image:images/pyvcp_dial.png[]
@@ -487,36 +487,36 @@ largeur de la bordure.
 <bd>n</bd>::
     La valeur de "n" fixe la largeur de la bordure.
 
-    <hbox> +
-    <button> +
-    <relief>FLAT</relief> +
-    <text>"FLAT"</text> +
-    <bd>3</bd> +
+    <hbox> 
+    <button> 
+    <relief>FLAT</relief> 
+    <text>"FLAT"</text> 
+    <bd>3</bd> 
     </button>
 
-    <button> +
-    <relief>SUNKEN</relief> +
-    <text>"SUNKEN"</text> +
-    <bd>3</bd> +
+    <button> 
+    <relief>SUNKEN</relief> 
+    <text>"SUNKEN"</text> 
+    <bd>3</bd> 
     </button>
 
-    <button> +
-    <relief>RAISED</relief> +
-    <text>"RAISED"</text> +
-    <bd>3</bd> +
+    <button> 
+    <relief>RAISED</relief> 
+    <text>"RAISED"</text> 
+    <bd>3</bd> 
     </button>
 
-    <button> +
-    <relief>GROOVE</relief> +
-    <text>"GROOVE"</text> +
-    <bd>3</bd> +
+    <button> 
+    <relief>GROOVE</relief> 
+    <text>"GROOVE"</text> 
+    <bd>3</bd> 
     </button>
 
-    <button> +
-    <relief>RIDGE</relief> +
-    <text>"RIDGE"</text> +
-    <bd>3</bd> +
-    </button> +
+    <button> 
+    <relief>RIDGE</relief> 
+    <text>"RIDGE"</text> 
+    <bd>3</bd> 
+    </button> 
     </hbox>
 
 image:images/pyvcp_borders.png[]
@@ -592,30 +592,30 @@ Exemple:
 
 Une interface à onglets peut économiser énormément d'espace.
 
-    <tabs> +
-    <names> ["spindle","green eggs"]</names> +
-    </tabs> +
-    <tabs> +
-    <names>["Spindle", "Green Eggs", "Ham"]</names> +
-    <vbox> +
-    <label> +
-    <text>"Spindle speed:"</text> +
-    </label> +
-    <bar> +
-    <halpin>"spindle-speed"</halpin> +
-    <max_>5000</max_> +
-    </bar> +
-    </vbox> +
-    <vbox> +
-    <label> +
-    <text>"(this is the green eggs tab)"</text> +
-    </label> +
-    </vbox> +
-    <vbox> +
-    <label> +
-    <text>"(this tab has nothing on it)"</text> +
-    </label> +
-    </vbox> +
+    <tabs> 
+    <names> ["spindle","green eggs"]</names> 
+    </tabs> 
+    <tabs> 
+    <names>["Spindle", "Green Eggs", "Ham"]</names> 
+    <vbox> 
+    <label> 
+    <text>"Spindle speed:"</text> 
+    </label> 
+    <bar> 
+    <halpin>"spindle-speed"</halpin> 
+    <max_>5000</max_> 
+    </bar> 
+    </vbox> 
+    <vbox> 
+    <label> 
+    <text>"(this is the green eggs tab)"</text> 
+    </label> 
+    </vbox> 
+    <vbox> 
+    <label> 
+    <text>"(this tab has nothing on it)"</text> 
+    </label> 
+    </vbox> 
     </tabs>
 
 image:images/pyvcp_tabs1.png[]image:images/pyvcp_tabs2.png[]image:images/pyvcp_tabs3.png[]

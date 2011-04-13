@@ -82,13 +82,13 @@ motion modes. In the EMC interpreter, G80 is one of the modal codes so
 any other code will replace it. The result of the following lines of
 code is the same.
 
-    G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) +
-    G80 (turn off canned cycle motion) +
+    G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) 
+    G80 (turn off canned cycle motion) 
     G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
 
 produces the same final position and machine state as
 
-    G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)  +
+    G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)  
     G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
 
 The advantage of the first set is that, the G80 line clearly turns off
@@ -104,20 +104,20 @@ code that contains an X, Y, or Z word. The following file drills (G81)
 a set of eight holes as shown. (note the z position change after the
 first four holes.)
 
-    G90 G0 X0 Y0 Z0 (coordinate home)  +
-    G1 X0 G4 P0.1  +
-    G81 X1 Y0 Z0 R1 (canned drill cycle)  +
-    X2  +
-    X3  +
-    X4  +
-    Y1 Z0.5  +
-    X3  +
-    X2  +
-    X1  +
-    G80 (turn off canned cycle)  +
-    G0 X0 (rapid home moves)  +
-    Y0  +
-    Z0  +
+    G90 G0 X0 Y0 Z0 (coordinate home)  
+    G1 X0 G4 P0.1  
+    G81 X1 Y0 Z0 R1 (canned drill cycle)  
+    X2  
+    X3  
+    X4  
+    Y1 Z0.5  
+    X3  
+    X2  
+    X1  
+    G80 (turn off canned cycle)  
+    G0 X0 (rapid home moves)  
+    Y0  
+    Z0  
     M2 (program end)
 
     
@@ -134,7 +134,7 @@ to the canned cycle.
 If you use G80 and do not set another modal motion code soon after,
 you may get one of the following error messages.
 
-    Cannot use axis commands with G80 +
+    Cannot use axis commands with G80 
     Coordinate setting given with G80
 
 These should serve as a reminder that you need to write in a new

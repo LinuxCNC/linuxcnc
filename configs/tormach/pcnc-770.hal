@@ -28,20 +28,20 @@ net spindle-on motion.spindle-on stepgen.4.enable
 # Spindle gear selection code.
 #
 # emc2 (rpm) => gearchange => stepgen (step & dir) => spindle
-# low gear:  100-2000 rpm, 327 ppr, 10900 Hz => 2000 rpm, 5.450 Hz/rpm
-# high gear: 250-5140 rpm, 127 ppr, 10900 Hz => 5140 rpm, 2.121 Hz/rpm
-# low/high ppr = 327/127 = 2.575
+# low gear:  175-3250 rpm, 201.3 ppr, 10900 Hz => 3250 rpm, 3.354 Hz/rpm
+# high gear: 525-10200 rpm, 64.1 ppr, 10900 Hz => 10200 rpm, 1.069 Hz/rpm
+# low/high ppr = 201.3/64.1 = 3.140
 #
 
 setp stepgen.4.maxaccel 20000
-setp stepgen.4.maxvel 2000
-setp stepgen.4.position-scale 5.450
+setp stepgen.4.maxvel 3250
+setp stepgen.4.position-scale 3.354
 net spindle-pwm stepgen.4.step parport.0.pin-01-out
 setp stepgen.4.stepspace 0
 setp stepgen.4.steplen 1
 setp parport.0.pin-01-out-reset 1
 loadrt or2 count=1
-net spindle-cw or2.0.in0
+linksp spindle-cw or2.0.in0
 net spindle-ccw motion.spindle-reverse or2.0.in1
 
 loadrt toggle count=1
@@ -51,11 +51,11 @@ addf toggle.0 servo-thread
 addf not.0 servo-thread
 addf gearchange.0 servo-thread
 setp toggle.0.debounce 0
-setp gearchange.0.min1 100
-setp gearchange.0.max1 2000
-setp gearchange.0.min2 250
-setp gearchange.0.max2 5140
-setp gearchange.0.scale2 2.575
+setp gearchange.0.min1 175
+setp gearchange.0.max1 3250
+setp gearchange.0.min2 525
+setp gearchange.0.max2 10200
+setp gearchange.0.scale2 3.140
 # we're not controlling the direction with the gearchanger, so reverse isn't set
 # and the dir-in and dir-out pins aren't linked
 net spindle-speed-raw motion.spindle-speed-out gearchange.0.speed-in

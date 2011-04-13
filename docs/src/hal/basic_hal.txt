@@ -240,7 +240,7 @@ Two parameters are automatically added to each HAL component when it
 is created. These parameters allow you to scope the execution time of a
 component.
 
-    .time(((time))) +
+    .time(((time))) 
     .tmax(((tmax)))
 
 Time is the number of CPU cycles it took to execute the function.
@@ -272,8 +272,8 @@ Functions
 
 Pins
 
-    and2.N.in0 (bit, in) +
-    and2.N.in1 (bit, in) +
+    and2.N.in0 (bit, in) 
+    and2.N.in1 (bit, in) 
     and2.N.out (bit, out)
 
 Truth Table
@@ -297,12 +297,12 @@ Syntax
 
 Functions
 
-    not.all +
+    not.all 
     not.n
 
 Pins
 
-    not.n.in (bit, in) +
+    not.n.in (bit, in) 
     not.n.out (bit, out)
 
 Truth Table
@@ -328,8 +328,8 @@ Functions
 
 Pins
 
-    or2.n.in0 (bit, in) +
-    or2.n.in1 (bit, in) +
+    or2.n.in0 (bit, in) 
+    or2.n.in1 (bit, in) 
     or2.n.out (bit, out)
 
 Truth Table
@@ -357,8 +357,8 @@ Functions
 
 Pins
 
-    xor2.n.in0 (bit, in) +
-    xor2.n.in1 (bit, in) +
+    xor2.n.in0 (bit, in) 
+    xor2.n.in1 (bit, in) 
     xor2.n.out (bit, out)
 
 Truth Table
@@ -376,10 +376,10 @@ Truth Table
 
 An "and2" example connecting two inputs to one output.
 
-    loadrt and2 count=1 +
-    addf and2.0 servo-thread +
-    net my-sigin1 and2.0.in0 <= parport.0.pin-11-in +
-    net my-sigin2 and2.0.in1 <= parport.0.pin-12-in +
+    loadrt and2 count=1 
+    addf and2.0 servo-thread 
+    net my-sigin1 and2.0.in0 <= parport.0.pin-11-in 
+    net my-sigin2 and2.0.in1 <= parport.0.pin-12-in 
     net both-on parport.0.pin-14-out <= and2.0.out
 
 In the above example one copy of and2 is loaded into real time space

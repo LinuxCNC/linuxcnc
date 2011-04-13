@@ -1,26 +1,25 @@
 GUI Configuration Page
 
 Frontend:
-    This specifies the graphical display EMC will use.
-    Each one has different option. 
-    eg. mini does not support estop
-        AXIS is the only frontend that fully supports lathes.
-        TOUCHY requires cycle-start, abort, and single-step signals
-            It also requires shared axis MPG jogging to be selected.  
+    Set general GUI defaults.
+    Set AXIS specific defaults.
 
 Virtual Control Panels:
-    Use to add stand-alone pyvcp panels or if AXIS is chosen,
-        the panel will be integrated.
-    There are sample panels available.
-    Choose one and click the display button to see an example.
-    Click 'include HAL connections' to have the chosen example 
-    connected to EMC
-    With standalone panels the geometry options allow setting the 
-        initial position and size on the panel. 
-    Set them as you like and click the display button 
-    (after picking a sample) to see the changes.
-    Picking a blank program will tell pncconf to set up 
-        blank pyvcp file for a custom built panel.
+    PyVCP:
+        Use to add stand-alone pyvcp panels or if AXIS is chosen,
+            the panel will be integrated.
+        There are sample panels available.
+        Choose one and click the display button to see an example.
+        Click 'include HAL connections' to have the chosen example 
+        connected to EMC
+        With standalone panels the geometry options allow setting the 
+            initial position and size on the panel. 
+        Set them as you like and click the display button 
+        (after picking a sample) to see the changes.
+        Picking a blank program will tell pncconf to set up 
+            blank pyvcp file for a custom built panel.
+    GladeVCP:
+        Is not available currently.
 
 INI Option:
     -Require homing before MDI / Running

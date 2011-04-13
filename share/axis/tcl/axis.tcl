@@ -1650,7 +1650,7 @@ frame ${pane_top}.feedoverride
 
 label ${pane_top}.feedoverride.foentry \
 	-textvariable feedrate \
-	-width 3 \
+	-width 4 \
         -anchor e
 setup_widget_accel ${pane_top}.feedoverride.foentry 0
 
