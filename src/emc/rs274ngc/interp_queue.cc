@@ -533,7 +533,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                            q.data.arc_feed.center1, q.data.arc_feed.center2,
                            q.data.arc_feed.turn,
                            x, y);
-            if(debug_qc) printf("moving endpoint of arc lineno %d old sweep %f new speed %f\n", q.data.arc_feed.line_number, l1, l2);
+            if(debug_qc) printf("moving endpoint of arc lineno %d old sweep %f new sweep %f\n", q.data.arc_feed.line_number, l1, l2);
 
             if(fabs(r1-r2) > .01) 
                 ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
