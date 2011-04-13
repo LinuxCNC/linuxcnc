@@ -237,7 +237,9 @@ int Interp::finish_t_command(setup_pointer settings)
 	settings->selected_pocket = round_to_int(settings->return_value);
 	SELECT_POCKET(settings->selected_pocket);
     } else {
-	ERS("prepare failed (%f)",settings->return_value);
+	CANON_ERROR("T<tool> - prepare failed (%f)", settings->return_value);
+	SEND_ABORT();
+	return INTERP_OK;
     }
     return(INTERP_OK);
 }
@@ -261,14 +263,7 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
     // it's essentially a hidden param to the call
 
     settings->epilog_hook = epilog;
-
-    fprintf(stderr,"---- execute_handler: running '%s' call_level=%d\n",
-	    cmd, settings->call_level);
-
     int status = execute(cmd,0);
-
-    fprintf(stderr,"---- execute_handler() status=%d - %s \n",
-	    status, interp_status(status));
     return(status);
 }
 
@@ -361,8 +356,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 		 pocket);
 
 	status = execute_handler(settings, cmd, &Interp::finish_t_command);
-	fprintf(stderr,"---- execute_block(t_command) returning %s\n",
-		interp_status(status));
+	// fprintf(stderr,"---- execute_block(t_command) returning %s\n",
+	// 	interp_status(status));
 	CHP(status);
 
     } else {

@@ -2782,8 +2782,7 @@ int Interp::finish_m6_command(setup_pointer settings)
 {
     // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
     // commit the tool change
-    fprintf(stderr,"----- finish_m6_command: return value %f\n",
-	    settings->return_value);
+
     if (settings->return_value >= TOLERANCE_EQUAL) {
 	CHANGE_TOOL(settings->selected_pocket);
 	settings->current_pocket = settings->selected_pocket;
@@ -2791,7 +2790,9 @@ int Interp::finish_m6_command(setup_pointer settings)
 	settings->toolchange_flag = true;
 	set_tool_parameters();
     } else {
-	ERS("M6 failed (%f)",settings->return_value);
+	CANON_ERROR("M6 failed (%f)", settings->return_value);
+	SEND_ABORT();
+	return INTERP_OK;
     }
     return INTERP_OK;
 }
@@ -2801,8 +2802,7 @@ int Interp::finish_m61_command(setup_pointer settings)
     // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
     // set that as the new tool number
     // a negative return value will leave it untouched
-    fprintf(stderr,"----- finish_m61_command: return value %f\n",
-	    settings->return_value);
+
     if (settings->return_value > - TOLERANCE_EQUAL) {
 	settings->current_pocket = round_to_int(settings->return_value);
 	CHANGE_TOOL_NUMBER(settings->current_pocket);
@@ -2810,7 +2810,9 @@ int Interp::finish_m61_command(setup_pointer settings)
 	settings->toolchange_flag = true;
 	set_tool_parameters();
     } else {
-	ERS("M61 failed (%f)",settings->return_value);
+	CANON_ERROR("M61 failed (%f)",settings->return_value);
+	SEND_ABORT();
+	return INTERP_OK;
     }
     return INTERP_OK;
 }
@@ -2997,24 +2999,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		    settings->tool_table[0].toolno,
 		    block->t_number,
 		    settings->selected_pocket);
-
-	    int status = execute_handler(settings, cmd);
-
-	    double retval = settings->return_value;
-	    MSG("------- convert_m(%s) status=%d return value=%f\n",
-		cmd,status,retval);
-	    FILE *fp = settings->file_pointer;
-	    settings->file_pointer = fp;
-
-	    // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
-	    // commit the tool change
-	    if (retval >= TOLERANCE_EQUAL) {
-		CHANGE_TOOL(settings->selected_pocket);
-		settings->current_pocket = settings->selected_pocket;
-		// tool change can move the controlled point.  reread it:
-		settings->toolchange_flag = true;
-		set_tool_parameters();
-	    }
+	    int status = execute_handler(settings, cmd,&Interp::finish_m6_command);
 	    CHP(status);
 	} else {
 	    CHP(convert_tool_change(settings));
@@ -3036,15 +3021,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	CHP((find_tool_pocket(settings, toolno, &pocket)));
 
 	if (settings->m61_command) {
-
-	    // just calling the handler does NOT change the tool number. The procedure is
-	    // expected to return a value > 0 by the new 'return [expression]' or
-	    // 'endsub [expression]' feature to actually commit the change-
 	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
-
 	    status = execute_handler(settings, cmd,  &Interp::finish_m61_command);
-	    fprintf(stderr,"---- convert_m(m61_command) returning %s\n",
-		    interp_status(status));
 	    CHP(status);
 	} else {
 	    settings->current_pocket = toolno;

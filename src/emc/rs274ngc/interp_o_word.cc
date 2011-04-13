@@ -421,7 +421,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	  // we have an epilog function. Execute it.
 	  if (settings->sub_context[settings->call_level].epilog) {
-	      fprintf(stderr,"---- return/endsub: calling epilogue\n");
+	      // fprintf(stderr,"---- return/endsub: calling epilogue\n");
 	      int status = (*this.*settings->sub_context[settings->call_level].epilog)(settings);
 	      if (status > INTERP_MIN_ERROR)
 		  return(status);
