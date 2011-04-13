@@ -28,7 +28,7 @@
 #include "interp_queue.hh"
 
 #include "units.h"
-#define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)==1)||((side)==RIGHT&&(turn)==-1))
+#define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
 #define DEBUG_EMC
 
 
@@ -862,7 +862,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 toward_nominal = cy + tool_radius;
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
-                if(turn == 1) {
+                if(turn > 0) {
                     angle_from_center = theta + asin(l);
                 } else {
                     angle_from_center = theta - asin(l);
@@ -872,7 +872,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 toward_nominal = cy - tool_radius;
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
-                if(turn == 1) {
+                if(turn > 0) {
                     angle_from_center = theta + M_PIl - asin(l);
                 } else {
                     angle_from_center = theta + M_PIl + asin(l);
@@ -906,12 +906,12 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
             double dir;
             if TOOL_INSIDE_ARC(side, prev.turn) {
-                if(turn == 1) 
+                if(turn > 0) 
                     dir = cc_dir + pullback;
                 else
                     dir = cc_dir - pullback;
             } else {
-                if(turn == 1)
+                if(turn > 0)
                     dir = cc_dir - pullback;
                 else
                     dir = cc_dir + pullback;
@@ -4729,8 +4729,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             concave = 1;
         } else if (beta > (M_PIl - small) && 
                    (!qc().empty() && qc().front().type == QARC_FEED && 
-                    ((side == RIGHT && qc().front().data.arc_feed.turn == 1) || 
-                     (side == LEFT && qc().front().data.arc_feed.turn == -1)))) {
+                    ((side == RIGHT && qc().front().data.arc_feed.turn > 0) || 
+                     (side == LEFT && qc().front().data.arc_feed.turn < 0)))) {
             // this is an "h" shape, tool on right, going right to left
             // over the hemispherical round part, then up next to the
             // vertical part (or, the mirror case).  there are two ways
@@ -4794,7 +4794,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 double theta;
                 double phi;
 
-                theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+                theta = (prev.turn > 0) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
                 phi = atan2(prev.center2 - opy, prev.center1 - opx);
                 if TOOL_INSIDE_ARC(side, prev.turn) {
                     oldrad_uncomp = oldrad + radius;
@@ -4812,7 +4812,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     d2 = d - radius;
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
-                    if(prev.turn == 1) 
+                    if(prev.turn > 0) 
                         angle_from_center = - acos(l) + theta + M_PIl;
                     else
                         angle_from_center = acos(l) + theta + M_PIl;
@@ -4820,7 +4820,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     d2 = d + radius;
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
-                    if(prev.turn == 1) 
+                    if(prev.turn > 0) 
                         angle_from_center = acos(l) + theta + M_PIl;
                     else
                         angle_from_center = - acos(l) + theta + M_PIl;
