@@ -48,6 +48,7 @@ In general, the new tool table line format is:
 
 The following figure shows the lathe tool orientations with the center
 line angle of each orientation and info on FRONTANGLE and BACKANGLE.
+The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
 .Lathe Tool Orientations[[cap:Lathe-Tool-Orientations]]
 
