@@ -32,10 +32,10 @@
                     <child>
                       <object class="HAL_LED" id="tool-prepare">
                         <property name="visible">True</property>
-                        <property name="on_color">amber</property>
-                        <property name="pick_color_on">#ffffacac0000</property>
-                        <property name="off_color">black</property>
                         <property name="led_shape">2</property>
+                        <property name="on_color">amber</property>
+                        <property name="off_color">black</property>
+                        <property name="pick_color_on">#ffffacac0000</property>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -92,9 +92,9 @@
                     <child>
                       <object class="HAL_LED" id="tool-change">
                         <property name="visible">True</property>
+                        <property name="led_shape">2</property>
                         <property name="on_color">yellow</property>
                         <property name="off_color">black</property>
-                        <property name="led_shape">2</property>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -161,7 +161,6 @@
         </child>
         <child>
           <object class="HAL_SpinButton" id="spinbutton">
-            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="invisible_char">&#x25CF;</property>
             <property name="adjustment">spinbutton-adj1</property>
@@ -185,8 +184,8 @@
                     <child>
                       <object class="HAL_Label" id="tool-prep-number">
                         <property name="visible">True</property>
-                        <property name="label_pin_type">1</property>
                         <property name="text_template">tool-prep-number: %.0f</property>
+                        <property name="label_pin_type">1</property>
                       </object>
                       <packing>
                         <property name="position">0</property>
@@ -195,8 +194,8 @@
                     <child>
                       <object class="HAL_Label" id="tool-prep-pocket">
                         <property name="visible">True</property>
-                        <property name="label_pin_type">1</property>
                         <property name="text_template">tool-prep-pocket: %.0f</property>
+                        <property name="label_pin_type">1</property>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -205,8 +204,8 @@
                     <child>
                       <object class="HAL_Label" id="tool-number">
                         <property name="visible">True</property>
-                        <property name="label_pin_type">1</property>
                         <property name="text_template">tool-number: %.0f</property>
+                        <property name="label_pin_type">1</property>
                       </object>
                       <packing>
                         <property name="position">2</property>
