@@ -223,6 +223,20 @@ machine coordinate system. The axis (or, equivalently, the plane
 circular, it lies in a
 plane parallel to the selected plane.
 
+To program a helix, include the axis word perpendicular to the arc
+plane: for example, if in the `G17` plane, include a `Z` word.  This
+will cause the `Z` axis to move to the programmed value during the
+circular `XY` motion.
+
+To program an arc that gives more than one full turn, use a `P` word
+specifying the number of full or partial turns of arc.  If `P` is
+unspecified, the behavior is as if `P1` was given: that is, only one
+full or partial turn will result, giving an arc less than or equal to
+one full circle.  For example, if an arc is programmed with P2, the
+resulting motion will be more than one full circle and up to two full
+circles (depending on the programmed endpoint.)  Multiturn helical arcs
+are supported and give motion useful for milling holes or threads.
+
 If a line of code makes an arc and includes rotational axis motion,
 the rotational axes turn at a constant rate so that the rotational
 motion starts and finishes when the XYZ motion starts and finishes.
@@ -338,7 +352,7 @@ The g code for the following example:
 
 image::images/g2-3.png[]
 
-Here is an example of a center format command to mill a spiral arc:
+Here is an example of a center format command to mill a helix:
 
     
 
