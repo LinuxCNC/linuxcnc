@@ -19,30 +19,23 @@
 ;
 O<tdemo> sub
 
-m66 E0 L0 (analog-in-00 = #5399)
-#<ain00> = #5399
+(DEBUG, executing T #1 in O-word sub)
+
+; O<tdemo> if ; trigger error to test error reporting
+
 
 ; test fail-change line from gladevcp
 M66 P2 L0
-
-(debug, digital-input-02=#5399)
 O<tdemo_prepare_fail> if [#5399 EQ 1]
-    (DEBUG, FAILING PREPARE, analog-in-00=#<ain00>, returning -1 to fail prepare)
-    ; a return value <= 0 fails the tool prepare
+    (DEBUG,  returning -1 to fail prepare)
     O<tdemo> return [-1]
-; O<tdemo_prepare_fail> else
-;     (debug, prepare ok, returning +1 to commit prepare)
-;     ; a positive return value commits the tool prepare
-;     O<tdemo> return [1] FIXME WRONG SEE BOTTOM
 O<tdemo_prepare_fail> endif
 
-
-; O<tdemo> if  ; trigger error to test error reporting
 ;
 ; number of seconds to wait for 'tool-prepared' equivalent
-#<timeout> = 9999
+; if timing out, fail the prepare and stop the program
+#<timeout> = 5
 ;
-(DEBUG, executing T #1 in O-word sub)
 ;
 ; set analog output pin #0 to signal the tool number
 ; iocontrol.tool-prep-number becomes motion.analog-out-00
@@ -66,22 +59,36 @@ M64 P0
 ;
 M66 P0 L3 Q#<timeout>
 ;
-O<tdemo_timeout> if [#5399] EQ -1
-    (DEBUG, timeout waiting for motion.digital-in-00 to become true: #5399 )
-O<tdemo_timeout> else
-    (DEBUG, motion.digital-in-00 became true: #5399)
+O<tdemo_timeout> if [#5399 LT  0]
+    (DEBUG, timeout waiting for 'prepared' to become true - failing prepare )
+    M65 P0
+    O<tdemo> return [-2]
 O<tdemo_timeout> endif
+
+; test fail-change line from gladevcp once more in case it became active
+; while waiting for prepared:
+M66 P2 L0
+
+O<tdemo_prepare_fail2> if [#5399 EQ 1]
+    (DEBUG,  returning -1 to fail prepare)
+    M65 P0
+    (debug, turned off prepare)
+    O<tdemo> return [-3]
+O<tdemo_prepare_fail2> endif
+
+; all went well
 
 (DEBUG, deasserting motion.digital-out-00)
 ;
 M65 P0
 ;
-;
 (DEBUG, done with prepare sub)
-
 
 ; succeed prepare by passing the pocket number as return value
 ; a negative return value leaves the interpreter state untouched
+; and fail with an error message:
+; "Tx prepare failed (<return value>)
+;
 O<tdemo> endsub [#2]
 
 

@@ -18,7 +18,7 @@ O<m6demo> sub
 (DEBUG, executing M6 O-word sub, tool-in-spindle=#1 prepared=#2 pocket=#3)
 ;
 M66 P2 L0
-(debug, digital-input-02=#5399)
+;(debug, digital-input-02=#5399)
 
 #<tool_change_with_spindle_on> = 0
 #<tool_change_quill_up> = 0
@@ -42,52 +42,47 @@ O<m6demo_tc_at_g30> endif
 ; set analog output pin #2 to signal the pocket number
 ; iocontrol.tool-number becomes motion.analog-out-02
 M68 E2 Q[#2]
-(DEBUG, set current tool number on motion.analog-out-02: #2)
+;(DEBUG, set current tool number on motion.analog-out-02: #2)
 ;
 ; assert the equivalent of the iocontrol.tool-change pin
 ; which is now motion.digital-out-01
 M64 P1
-(DEBUG, motion.digital-out-01 set high, waiting for motion.digital-in-01)
+;(DEBUG, motion.digital-out-01 set high, waiting for motion.digital-in-01)
 
-M66 P2 L0
-(debug, digital-input-02=#5399)
-;
+
 ; wait for the equivalent of the iocontrol.tool-changed pin to go high
 ; we use motion.digital-in-01
 ;
 M66 P1 L3 Q#<timeout>
 ;
+; if we waited too long, fail change and abort.
+;
 O<m6demo_timeout> if [#5399 EQ -1]
-    (DEBUG, timeout waiting for motion.digital-in-01 to become true: #5399 )
-O<m6demo_timeout> else
-    (DEBUG, motion.digital-in-01 became true: #5399)
+    (DEBUG, timeout waiting for digital-in-01 to become true - failing change )
+    O<m6demo> return [-1]
 O<m6demo_timeout> endif
 
-M66 P2 L0
-(debug, digital-input-02=#5399)
-
 ; retract iocontrol.tool-change equivalent
-(DEBUG, deasserting motion.digital-out-01)
-;
+;(DEBUG, deasserting motion.digital-out-01)
 M65 P1
 ;
-     m66 E0 L0 (analog-in-00 = #5399)
-     #<ain00> = #5399
 
 ; test fail-change line from gladevcp
 M66 P2 L0
-g0
-(debug, digital-input-02=#5399)
+; (debug, digital-input-02=#5399)
 O<m6demo_change_fail> if [#5399 EQ 1]
-    (DEBUG, FAILING CHANGE, analog-in-00=#<ain00>, returning -1 to fail change)
-    ; a return value <= 0 fails the tool change
-
+    (DEBUG, returning -1 to fail change)
     O<m6demo> return [-1]
 O<m6demo_change_fail> else
     (debug, change ok, returning +1 to commit change)
     ; a positive return value commits the tool change
     O<m6demo> return [1]
 O<m6demo_change_fail> endif
-
+;
+; return a positive value commit the change.
+; a negative return value will fail the change and
+; abort the interpreter with a message like
+; "M6 failed (<return value>)"
+;
 O<m6demo> endsub
 m2
