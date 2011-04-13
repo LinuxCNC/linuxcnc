@@ -298,7 +298,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
           _("P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89"
             " or M50 M51 M52 M53 M62 M63 M64 M65 M66 or user M code to use it"));
       CHKS((block->p_flag && (motion == G_2 || motion == G_3) && fabs(round_to_int(block->p_number) - block->p_number) > 0.001),
-_("P value not an integer with G2 or G3"));
+          _("P value not an integer with G2 or G3"));
+      CHKS((block->p_flag && (motion == G_2 || motion == G_3) && round_to_int(block->p_number) < 1),
+          _("P value should be 1 or greater with G2 or G3"));
   }
 
   if (block->q_number != -1.0) {
