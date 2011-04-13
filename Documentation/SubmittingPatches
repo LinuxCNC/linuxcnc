@@ -55,7 +55,7 @@ don't hide your real name.
 
 If you like, you can put extra tags at the end:
 
-1. "Reported-by:" is used to to credit someone who found the bug that
+1. "Reported-by:" is used to credit someone who found the bug that
    the patch attempts to fix.
 2. "Acked-by:" says that the person who is more familiar with the area
    the patch attempts to modify liked the patch.
