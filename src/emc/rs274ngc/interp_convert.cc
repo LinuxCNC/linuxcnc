@@ -2791,7 +2791,7 @@ int Interp::finish_m6_command(setup_pointer settings)
 	set_tool_parameters();
     } else {
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
-	SEND_ABORT();
+	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
 	return INTERP_OK;
     }
     return INTERP_OK;
@@ -2811,7 +2811,7 @@ int Interp::finish_m61_command(setup_pointer settings)
 	set_tool_parameters();
     } else {
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
-	SEND_ABORT();
+	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
 	return INTERP_OK;
     }
     return INTERP_OK;

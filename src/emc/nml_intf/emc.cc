@@ -50,6 +50,9 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_ABORT_TYPE:
 	((EMC_ABORT *) buffer)->update(cms);
 	break;
+   case EMC_HANDLER_ABORT_TYPE:
+	((EMC_HANDLER_ABORT *) buffer)->update(cms);
+	break;
     case EMC_AUX_ESTOP_RESET_TYPE:
 	((EMC_AUX_ESTOP_RESET *) buffer)->update(cms);
 	break;
@@ -474,6 +477,8 @@ const char *emc_symbol_lookup(long type)
     switch (type) {
     case EMC_ABORT_TYPE:
 	return "EMC_ABORT";
+    case EMC_HANDLER_ABORT_TYPE:
+	return "EMC_HANDLER_ABORT";
     case EMC_AUX_ESTOP_RESET_TYPE:
 	return "EMC_AUX_ESTOP_RESET";
     case EMC_AUX_ESTOP_OFF_TYPE:
@@ -1719,6 +1724,18 @@ void EMC_IO_STAT_MSG::update(CMS * cms)
 *	on Sat Oct 11 13:45:16 UTC 2003
 */
 void EMC_ABORT::update(CMS * cms)
+{
+
+    EMC_CMD_MSG::update(cms);
+
+}
+
+/*
+*	NML/CMS Update function for EMC_HANDLER_ABORT
+*	Manually added by Michael Haberler
+*	on Wed Apr 13 14:53:28 CEST 2011
+*/
+void EMC_HANDLER_ABORT::update(CMS * cms)
 {
 
     EMC_CMD_MSG::update(cms);

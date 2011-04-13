@@ -927,7 +927,7 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
 extern void FINISH(void);
 
 // queue a suicide message. Needed to terminate failed G-code handlers.
-extern void SEND_ABORT(void);
+extern void SEND_HANDLER_ABORT(int reason);
 
 // make operator error message visible
 void CANON_ERROR(const char *fmt, ...);

@@ -2022,6 +2022,16 @@ class EMC_ABORT:public EMC_CMD_MSG {
     void update(CMS * cms);
 };
 
+class EMC_HANDLER_ABORT: public EMC_CMD_MSG {
+  public:
+    EMC_HANDLER_ABORT():EMC_CMD_MSG(EMC_HANDLER_ABORT_TYPE, sizeof(EMC_HANDLER_ABORT)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    int reason;
+};
+
 // EMC status base class
 
 class EMC_STAT_MSG:public RCS_STAT_MSG {

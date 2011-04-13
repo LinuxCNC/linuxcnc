@@ -238,7 +238,7 @@ int Interp::finish_t_command(setup_pointer settings)
 	SELECT_POCKET(settings->selected_pocket);
     } else {
 	CANON_ERROR("T<tool> - prepare failed (%f)", settings->return_value);
-	SEND_ABORT();
+	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
 	return INTERP_OK;
     }
     return(INTERP_OK);
