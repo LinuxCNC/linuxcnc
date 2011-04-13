@@ -44,7 +44,7 @@ Polar Coordinates from machine zero use an offset or select a
 coordinate system.
 
 In Absolute Mode the distance and angle is from the XY zero position
-and the angle starts with 0 on the X Positive axis and rotates in a CCW
+and the angle starts with 0 on the X Positive axis and increases in a CCW
 direction about the Z axis. The code G1 @1^90 is the same as G1 Y1.
 
 In Relative Mode the distance and angle is also from the XY zero
@@ -214,7 +214,7 @@ It is an error if:
 A circular or helical arc is specified using either `G2` (clockwise
 arc) or `G3`  (counterclockwise arc). The direction (CW, CCW) is as
 viewed from the
-positive end of the axis about which the rotation occours. The axis of
+positive end of the axis about which the circular motion occours. The axis of
 the circle or helix must be parallel to the X, Y, or Z-axis of the
 machine coordinate system. The axis (or, equivalently, the plane
  perpendicular to the axis) is selected with `G17` (Z-axis, XY-plane),
@@ -237,8 +237,8 @@ resulting motion will be more than one full circle and up to two full
 circles (depending on the programmed endpoint.)  Multiturn helical arcs
 are supported and give motion useful for milling holes or threads.
 
-If a line of code makes an arc and includes rotational axis motion,
-the rotational axes turn at a constant rate so that the rotational
+If a line of code makes an arc and includes rotary axis motion,
+the rotary axes turn at a constant rate so that the rotary
 motion starts and finishes when the XYZ motion starts and finishes.
 Lines of this sort are hardly ever programmed.
 
@@ -1176,7 +1176,7 @@ the canned cycle is along W, and the locations
 or increments are given with U and V. In this case substitute U,V,W for
 X,Y,Z in the instructions below.
 
-Rotational axis words are not allowed in canned cycles.  When the
+Rotary axis words are not allowed in canned cycles.  When the
 active plane is one of the XYZ family, the UVW axis words are not
 allowed.  Likewise, when the active plane is one of the UVW family, the
 XYZ axis words are not allowed.
@@ -1237,7 +1237,7 @@ It is an error if:
  - Axis words from different groups (XYZ) (UVW) are used together,
  - a P number is required and a negative P number is used, 
  - an L number is used that does not evaluate to a positive integer, 
- - rotational axis motion is used during a canned cycle, 
+ - rotary axis motion is used during a canned cycle, 
  - inverse time feed rate is active during a canned cycle, 
  - or cutter radius compensation is active during a canned cycle.
 
