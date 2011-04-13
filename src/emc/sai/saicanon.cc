@@ -1139,3 +1139,13 @@ int GET_EXTERNAL_TC_REASON()
 {
     return _toolchanger_reason;
 }
+
+void SEND_ABORT()
+{
+    PRINT0("SEND_ABORT()\n");
+}
+
+void CANON_ERROR(const char *fmt, ...)
+{
+
+}

@@ -1408,6 +1408,8 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_RIGID_TAP_TYPE: //and this
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:	// and this
     case EMC_AUX_INPUT_WAIT_TYPE:
+
+    case EMC_TASK_ABORT_TYPE: // a try mah
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
 	break;
 

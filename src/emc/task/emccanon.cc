@@ -3028,3 +3028,11 @@ int LOCK_ROTARY(int line_number, int axis) {
     rotary_unlock_for_traverse = -1;
     return 0;
 }
+
+/* SEND_ABORT queues a suicide message */
+void SEND_ABORT()
+{
+    EMC_TASK_ABORT task_abort_msg;
+
+    interp_list.append(task_abort_msg);
+}

@@ -926,4 +926,9 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
 
+// queue a suicide message. Needed to terminate failed G-code handlers.
+extern void SEND_ABORT(void);
+
+// make operator error message visible
+void CANON_ERROR(const char *fmt, ...);
 #endif				/* ifndef CANON_HH */
