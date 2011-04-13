@@ -402,6 +402,7 @@ static EMC_TASK_PLAN_EXECUTE *execute_msg;
 static EMC_TASK_PLAN_OPEN *open_msg;
 static EMC_TASK_PLAN_SET_OPTIONAL_STOP *os_msg;
 static EMC_TASK_PLAN_SET_BLOCK_DELETE *bd_msg;
+static EMC_HANDLER_ABORT *ha_msg;
 
 static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
@@ -1409,7 +1410,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:	// and this
     case EMC_AUX_INPUT_WAIT_TYPE:
 
-    case EMC_TASK_ABORT_TYPE: // a try mah
+    case EMC_HANDLER_ABORT_TYPE: // a try mah
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
 	break;
 
@@ -2206,6 +2207,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
+    case EMC_HANDLER_ABORT_TYPE:
+	ha_msg = (EMC_HANDLER_ABORT *) cmd;
+	emcAbortCleanup(ha_msg->reason);
+	retval = 0;  // FIXME mah correct?
+	break;
+
      default:
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
@@ -2314,6 +2321,10 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
+	return EMC_TASK_EXEC_DONE;
+	break;
+
+    case EMC_HANDLER_ABORT_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
