@@ -798,6 +798,12 @@ Documentation cannot be built.])
     AC_MSG_RESULT([$DBLATEX_VER])
 
 
+    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
+    fi
+
+
     AC_PATH_PROG(CONVERT,convert,"none")
     if ( test "none" = "$CONVERT" ) ; then
 	AC_MSG_ERROR([no convert, documentation cannot be built])
