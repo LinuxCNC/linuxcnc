@@ -3071,6 +3071,7 @@ class App:
                 self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"parport",connector,"Opin",pin,True))
 
         # set preferences if they exist
+        link = short = False
         filename = os.path.expanduser("~/.pncconf-preferences")
         if os.path.exists(filename):
             match =  open(filename).read()
@@ -3080,7 +3081,6 @@ class App:
                 textbuffer.insert_at_cursor(match)
             except:
                 pass
-            link = short = False
             version = 0.0
             d = xml.dom.minidom.parse(open(filename, "r"))
             for n in d.getElementsByTagName("property"):
