@@ -811,6 +811,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   CANON_MOTION_MODE save_mode;
   double save_tolerance;
   double current_cc = settings->current_z;
+  char cmd[LINELEN];
+  int status;
 
   plane = CANON_PLANE_XY;
   if (settings->motion_mode != motion) {
@@ -949,6 +951,40 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                                   settings->spindle_turning)) settings->
       cycle_p = block->p_number;
     break;
+
+  case G_88_1:
+      fprintf(stderr,"---  convert_cycle_xy: motion=%d\n",motion);
+
+      snprintf(cmd,sizeof(cmd),"%s [%f] [%f] [%f] [%f]",
+	       settings->g881_command,
+	       block->x_number,
+	       block->y_number,
+	       block->z_number,
+	       block->r_number);
+      status = execute_handler(settings, cmd,
+			       &Interp::finish_cycle_command, G_88_1_REMAP);
+      if (status != INTERP_OK) {
+	  ERS("G88.1 sub: reading '%s' failed (%d)",cmd,status);
+      }
+      return(-G_88_1_REMAP);
+      break;
+
+ case G_88_2:
+      fprintf(stderr,"---  convert_cycle_xy: motion=%d\n",motion);
+      snprintf(cmd,sizeof(cmd),"%s [%f] [%f] [%f] [%f]",
+	       settings->g882_command,
+	       block->x_number,
+	       block->y_number,
+	       block->z_number,
+	       block->r_number);
+      status = execute_handler(settings, cmd,
+				   &Interp::finish_cycle_command, G_88_2_REMAP);
+      if (status != INTERP_OK) {
+	  ERS("G88.2 sub: reading '%s' failed (%d)",cmd,status);
+      }
+      return(-G_88_2_REMAP);
+      break;
+
   case G_89:
     CHKS(((settings->motion_mode != G_89) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
@@ -970,6 +1006,13 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
 
   return INTERP_OK;
+}
+
+// handler epilogue for cycle commands
+int Interp::finish_cycle_command(setup_pointer settings)
+{
+    // not much to do
+    return INTERP_OK;
 }
 
 int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a canned cycle

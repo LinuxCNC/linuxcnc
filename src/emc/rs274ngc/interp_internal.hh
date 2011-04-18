@@ -196,6 +196,10 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_86   860
 #define G_87   870
 #define G_88   880
+
+#define G_88_1 881
+#define G_88_2 882
+
 #define G_89   890
 #define G_90   900
 #define G_90_1 901
@@ -539,13 +543,14 @@ typedef struct setup_struct
   // if set on a sub call, the following function is executed on endsub/return
   int (Interp::*epilog_hook)(setup_pointer settings);
     const char *t_command, *m6_command,*m61_command,*on_abort_command;
+    const char *g881_command, *g882_command;
   int executing_remap;  // we are in a Tx/M6/M61 replacement procedure
     // see enum remap_op in rs274ngc_interp.hh for values
 }
 setup;
 
 enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3,
-	       G88_1_REMAP=4, G88_2_REMAP=5};
+	       G_88_1_REMAP=4, G_88_2_REMAP=5};
 
 typedef setup *setup_pointer;
 

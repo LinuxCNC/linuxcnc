@@ -199,7 +199,8 @@ int Interp::close()
   return INTERP_OK;
 }
 
-const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP"};
+const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP",
+			"G_88_1_REMAP", "G_88_2_REMAP"};
 
 
 /***********************************************************************/
@@ -330,6 +331,8 @@ int Interp::_execute(const char *command)
 	  case -T_REMAP:
 	  case -M6_REMAP:
 	  case -M61_REMAP:
+	  case -G_88_1_REMAP:
+	  case -G_88_2_REMAP:
 	      fprintf(stderr,"--- handler armed: %s\n",remaps[-status]);
 	      _setup.executing_remap = -status;
 	      if (MDImode) {
@@ -418,6 +421,8 @@ int Interp::remap_finished(int status)
     case T_REMAP:
     case M6_REMAP:
     case M61_REMAP:
+    case G_88_1_REMAP:
+    case G_88_2_REMAP:
 	// _setup.continue_stashed_block = true;
 	// // continue execution of remapped block
 
@@ -459,12 +464,23 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 
     // if remapping other codes, add to this predicate accordingly.
 
+
+    // 5:
     if (block->t_flag && (settings->t_command != NULL))
 	return T_REMAP;
+
+    // 6:
     if ((block->m_modes[6] == 6) && (settings->m6_command != NULL))
 	return M6_REMAP;
     if ((block->m_modes[6] == 61) && (settings->m61_command != NULL))
 	return M61_REMAP;
+
+    // 20:
+    if ((block->g_modes[1] == G_88_1) && (settings->g881_command != NULL))
+	return G_88_1_REMAP;
+    if ((block->g_modes[1] == G_88_2) && (settings->g882_command != NULL))
+	return G_88_2_REMAP;
+
     return NO_REMAP;
 }
 
@@ -692,6 +708,18 @@ int Interp::init()
               logDebug("_setup.on_abort_command=%s\n", _setup.on_abort_command);
           } else {
 	      _setup.on_abort_command = NULL;
+          }
+
+	  if (NULL != (inistring = inifile.Find("G_88_1_COMMAND", "RS274NGC"))) {
+	      _setup.g881_command = strdup(inistring);
+          } else {
+	      _setup.g881_command = NULL;
+          }
+
+	  if (NULL != (inistring = inifile.Find("G_88_2_COMMAND", "RS274NGC"))) {
+	      _setup.g882_command = strdup(inistring);
+          } else {
+	      _setup.g882_command = NULL;
           }
           // close it
           inifile.Close();

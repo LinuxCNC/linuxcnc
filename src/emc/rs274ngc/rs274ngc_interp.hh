@@ -483,6 +483,7 @@ private:
  int finish_t_command(setup_pointer settings);
  int finish_m6_command(setup_pointer settings);
  int finish_m61_command(setup_pointer settings);
+ int finish_cycle_command(setup_pointer settings);
 
 
  int convert_straight_indexer(int, block*, setup*);
