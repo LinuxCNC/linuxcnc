@@ -6362,8 +6362,6 @@ class App:
 
     # This is for pyvcp test panel
     def testpanel(self,w):
-        if not self.check_for_rt(True):
-            return 
         pos = "+0+0"
         size = ""
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
