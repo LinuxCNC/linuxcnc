@@ -24,6 +24,9 @@ public:
 
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
+    // callback when remapping handler done
+    int remap_finished( int status);
+
 // stop running
  int exit();
 
