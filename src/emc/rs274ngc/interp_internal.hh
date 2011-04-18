@@ -423,6 +423,7 @@ typedef struct setup_struct
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset
   block block1;                 // parsed next block
+  block stashed_block;          // currently executing block with remappings
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
   int current_pocket;             // carousel slot number of current tool
@@ -538,6 +539,8 @@ typedef struct setup_struct
   // if set on a sub call, the following function is executed on endsub/return
   int (Interp::*epilog_hook)(setup_pointer settings);
     const char *t_command, *m6_command,*m61_command,*on_abort_command;
+  int executing_remap;  // we are in a Tx/M6/M61 replacement procedure
+    // see enum remap_op in rs274ngc_interp.hh for values
 }
 setup;
 
