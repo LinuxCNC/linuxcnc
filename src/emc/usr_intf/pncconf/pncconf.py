@@ -5466,11 +5466,12 @@ class App:
             w["smaxacc"].set_sensitive(False)
             w["satspeedframe"].hide()
             w["sfiltergainframe"].hide()
-            if digital_at_speed or encoder:
+            if not digital_at_speed and encoder:
                 w["satspeedframe"].show()
+            if encoder:
                 if self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1:
                     w["sfiltergainframe"].show()
-            set_value("nearscale")
+            w["snearscale"].set_value(d["snearscale"]*100)
             set_value("filtergain")
         else:
             w[axis+"maxferror"].set_sensitive(True)
@@ -5753,6 +5754,7 @@ class App:
             get_active("usebacklash")
         else:
             get_pagevalue("nearscale")
+            d["snearscale"] = w["snearscale"].get_value()/100
             get_pagevalue("filtergain")
 
     def configure_bldc(self,axis):
