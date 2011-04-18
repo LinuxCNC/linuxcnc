@@ -259,6 +259,24 @@ typedef struct block_struct
   double e_number;
   bool f_flag;
   double f_number;
+
+    // indices into g_modes
+    // missing: 1,9,11
+#define GM_MODAL_0        0
+#define GM_SET_PLANE      2
+#define GM_DISTANCE_MODE  3
+#define GM_IJK_DISTANCE_MODE  4
+#define GM_FEED_MODE      5
+#define GM_LENGTH_UNITS   6
+#define GM_CUTTER_COMP    7
+#define GM_TOOL_LENGTH_OFFSET 8
+#define GM_RETRACT_MODE   10
+#define GM_COORD_SYSTEM   12
+#define GM_CONTROL_MODE   13
+#define GM_SPINDLE_MODE  14
+#define GM_LATHE_DIAMETER_MODE  15
+
+
   int g_modes[16];
   bool h_flag;
   int h_number;

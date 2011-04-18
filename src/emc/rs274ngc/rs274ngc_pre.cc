@@ -199,6 +199,9 @@ int Interp::close()
   return INTERP_OK;
 }
 
+const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP"};
+
+
 /***********************************************************************/
 
 /*! Interp::execute
@@ -311,9 +314,83 @@ int Interp::_execute(const char *command)
   _setup.named_parameter_occurrence = 0;
 
   if (_setup.line_length != 0) {        /* line not blank */
-    status = execute_block(&(_setup.block1), &_setup);
-    write_g_codes(&(_setup.block1), &_setup);
-    write_m_codes(&(_setup.block1), &_setup);
+      int next_remap = next_remapping(&(_setup.block1), &_setup);
+
+      if (next_remap != NO_REMAP) {
+	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
+		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
+
+	  _setup.stashed_block = _setup.block1;
+
+	  // execute up to the first remap, and read() the handler
+	  status = execute_block(&(_setup.stashed_block), &_setup, true);
+
+	  // All items up to the first remap item have been executed.
+	  // The remap item procedure call has been parsed into _setup.block1.
+	  switch (status) {
+	  case -T_REMAP:
+	  case -M6_REMAP:
+	  case -M61_REMAP:
+	      fprintf(stderr,"--- handler armed: %s\n",remaps[-status]);
+	      _setup.executing_remap = -status;
+	      if (MDImode) {
+		  // need to trigger execution of parsed _setup.block1 here
+		  fprintf(stderr,"--- MDImode=%d: should trigger handler: %s\n",
+			  MDImode,remaps[_setup.executing_remap]);
+
+		  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
+		      {
+			  logDebug("Convert control functions");
+			  CHP(convert_control_functions(&(_setup.block1), &_setup));
+
+#if 1
+			  // let MDI code call subroutines.
+			  // !!!KL not clear what happens if last execution failed while in
+			  // !!!KL a subroutine
+
+			  // NOTE: the last executed file will still be open, because "close"
+			  // is really a lazy close.
+
+			  if (_setup.mdi_interrupt) {
+			      _setup.mdi_interrupt = false;
+			      MDImode = 1;
+			  }
+			  logDebug("!!!KL Open file is:%s:", _setup.filename);
+			  logDebug("MDImode = %d", MDImode);
+			  while(MDImode && _setup.call_level) // we are still in a subroutine
+			      {
+				  status = read(0);  // reads from current file and calls parse
+				  if (status != INTERP_OK)
+				      {
+					  return status;
+				      }
+				  status = execute();  // special handling for mdi errors
+				  if (status != INTERP_OK) {
+				      if (status == INTERP_EXECUTE_FINISH) {
+					  _setup.mdi_interrupt = true;
+				      } else
+					  reset();
+				      CHP(status);
+				  }
+			      }
+			  _setup.mdi_interrupt = false;
+#endif
+			  return INTERP_OK;
+		      }
+
+	      } else {
+		  status = execute(0); // this should get the osub going
+	      }
+	      ERP(status);
+	  default: ;
+	  }
+      } else {
+	  status = execute_block(&(_setup.block1), &_setup);
+      }
+
+
+      write_g_codes(&(_setup.block1), &_setup); // FIXME
+      write_m_codes(&(_setup.block1), &_setup); // FIXME
     write_settings(&_setup);
     if ((status != INTERP_OK) &&
         (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
@@ -338,6 +415,80 @@ int Interp::execute(const char *command, int line_number)
 
   _setup.sequence_number = line_number;
   return Interp::execute(command);
+}
+
+int Interp::execute_remap(const char *command,  int line_no, int remap_op)
+{
+
+  _setup.sequence_number = line_no;
+  _setup.executing_remap = remap_op;
+  fprintf(stderr,"--- execute_remap(%s) op=%s\n",
+	  _setup.blocktext,remaps[_setup.executing_remap]);
+  return Interp::execute(command);
+}
+
+
+int Interp::remap_finished(int status)
+{
+    int remap = _setup.executing_remap;
+    int next_remap;
+
+    _setup.executing_remap = NO_REMAP;
+    fprintf(stderr,"--- remap_finished op=%s status=%d call_level=%d filename=%s\n",
+	    remaps[remap],status,_setup.call_level,_setup.filename);
+
+    switch (remap) {
+    case T_REMAP:
+    case M6_REMAP:
+    case M61_REMAP:
+	// _setup.continue_stashed_block = true;
+	// // continue execution of remapped block
+
+	// any more remaps left?
+	next_remap = next_remapping(&(_setup.stashed_block), &_setup);
+	if (next_remap) {
+	    fprintf(stderr,"--- arming %s\n",remaps[next_remap]);
+	    // this will execute up to the next remap, and return
+	    // after parsing the handler with read()
+	    // so block1 is armed
+	    status = execute_block(&(_setup.stashed_block),
+				   &_setup, true); // remove trail
+	    _setup.executing_remap = next_remap;
+	    status = execute(0); // this should get the osub going
+	    ERP(status);
+	} else {
+	    fprintf(stderr,"--- no remap in stashed_block found\n");
+	    status = execute_block(&(_setup.stashed_block),
+				   &_setup, true); // remove trail
+	    ERP(status);
+	}
+	return status;
+	break;
+    default: ;
+
+    }
+    return INTERP_OK;
+
+}
+
+
+int Interp::next_remapping(block_pointer block, setup_pointer settings)
+{
+    // to test if current block contains an active item
+    // remapped to an oword subroutine.
+
+    // return NO_REMAP  on no remap found.
+    // return remap_op of the first remap in execution sequence.
+
+    // if remapping other codes, add to this predicate accordingly.
+
+    if (block->t_flag && (settings->t_command != NULL))
+	return T_REMAP;
+    if ((block->m_modes[6] == 6) && (settings->m6_command != NULL))
+	return M6_REMAP;
+    if ((block->m_modes[6] == 61) && (settings->m61_command != NULL))
+	return M61_REMAP;
+    return NO_REMAP;
 }
 
 /***********************************************************************/
@@ -1778,14 +1929,13 @@ int Interp::on_abort(int reason)
     if (_setup.on_abort_command == NULL)
 	return -1;
 
-    setup saved_setup = _setup;
+    _setup.executing_remap = false; // returned to top level
+
     char cmd[LINELEN];
 
     snprintf(cmd,sizeof(cmd), "%s [%d]",_setup.on_abort_command, reason);
-    int status = execute_handler(&_setup, cmd);
-    FILE *fp = _setup.file_pointer;
-    _setup = saved_setup;
-    _setup.file_pointer = fp;
-    CHP(status);
+    int status = execute(cmd);
+
+    ERP(status);
     return status;
 }

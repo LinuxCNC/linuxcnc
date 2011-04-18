@@ -24,8 +24,12 @@ public:
 
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
-    // callback when remapping handler done
-    int remap_finished( int status);
+ enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3 };
+ // used for Tx,M6/M61 remapping
+ int execute_remap(const char *command, int line_no, int remap_op = NO_REMAP);
+
+ // callback when remapping handler done
+ int remap_finished( int status);
 
 // stop running
  int exit();
@@ -112,8 +116,6 @@ public:
  int set_tool_parameters();
  int init_named_parameters();
  int on_abort(int reason);
- int need_continue();
- int continue_execute_handler();
 
 private:
 
@@ -236,13 +238,13 @@ private:
  int convert_dwell(setup_pointer settings, double time);
  int convert_feed_mode(int g_code, setup_pointer settings);
  int convert_feed_rate(block_pointer block, setup_pointer settings);
- int convert_g(block_pointer block, setup_pointer settings);
+    int convert_g(block_pointer block, setup_pointer settings, bool remove_trail = false);
  int convert_home(int move, block_pointer block,
                         setup_pointer settings);
  int convert_savehome(int move, block_pointer block,
                         setup_pointer settings);
  int convert_length_units(int g_code, setup_pointer settings);
- int convert_m(block_pointer block, setup_pointer settings);
+    int convert_m(block_pointer block, setup_pointer settings, bool remove_trail = false);
  int convert_modal_0(int code, block_pointer block,
                            setup_pointer settings);
  int convert_motion(int motion, block_pointer block,
@@ -282,7 +284,8 @@ private:
  int execute_binary(double *left, int operation, double *right);
  int execute_binary1(double *left, int operation, double *right);
  int execute_binary2(double *left, int operation, double *right);
- int execute_block(block_pointer block, setup_pointer settings);
+    int execute_block(block_pointer block, setup_pointer settings,
+		      bool remove_trail = false);
  int execute_unary(double *double_ptr, int operation);
  double find_arc_length(double x1, double y1, double z1,
                               double center_x, double center_y, int turn,
@@ -471,16 +474,18 @@ private:
  int execute_handler( /* ARGUMENTS           */
   setup_pointer settings,  /* pointer to machine settings */
   const char *cmd,
-  int (Interp::*epilog)(setup_pointer settings) = NULL
-);
+ int (Interp::*epilog)(setup_pointer settings) = NULL,
+  int remap_op = NO_REMAP);
+
+ // step through parsed block and find first active remapped item
+ int next_remapping(block_pointer block, setup_pointer settings);
 
  int report_error(setup_pointer settings,int status,const char *text);
 
  // epilog routines called post G-code handler procedure
-    int finish_t_command(setup_pointer settings);
-    int finish_m6_command(setup_pointer settings);
-    int finish_m61_command(setup_pointer settings);
-    int finish_on_abort_command(setup_pointer settings);
+ int finish_t_command(setup_pointer settings);
+ int finish_m6_command(setup_pointer settings);
+ int finish_m61_command(setup_pointer settings);
 
 
  int convert_straight_indexer(int, block*, setup*);
