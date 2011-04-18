@@ -316,6 +316,41 @@ int Interp::_execute(const char *command)
   if (_setup.line_length != 0) {        /* line not blank */
       int next_remap = next_remapping(&(_setup.block1), &_setup);
 
+      // at this point we have a parsed block
+      // if items are to be remapped the flow is as follows:
+      //
+      // 1. copy this block to stashed_block because this might take several
+      //    interp invcocations to finish,while other blocks will be parsed and
+      //    executed by the oword subs.
+      //
+      // 2. execute this block, ticking off (zeroing) all items which are done.
+      //
+      // 3. when a remap operation is encountered, this will result in a call like so:
+      //   'o<replacement>call ..params..'
+      //   this replacement call is parsed with read() into _setup.block1 by the
+      //   corresponding routine (see e.g. handling of T in interp_execute.cc)
+      //   through calling into execute_handler()
+      //
+      // 4. execute_handler() also sets up an epilogue handler for the replacement sub
+      //   which finishes any work at the C level on endsub/return, and thereafter a callback
+      //   into remap_finished().
+      //
+      // 5. The execution stops after parsing, and returns with an indication which
+      //   remapping operation was parsed.
+      //
+      //   NB: it is important that a convert_xxx function encountering a remapped
+      //   item does not return a INTERP_* type code but the negative value of the
+      //   the remapping operation so the right thing can be done after parsing.
+      //
+      // 6. In MDI mode, we have to kick execution by replicating code from above
+      //   to get the osub call going.
+      //
+      // 7. In Auto mode, we do an initial execute(0) to get things going, thereafer
+      //   task will do it for us.
+      //
+      // 8. When a replacment sub finishes, remap_finished() continues execution of
+      //   the stashed block until done.
+      //
       if (next_remap != NO_REMAP) {
 	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
@@ -370,7 +405,7 @@ int Interp::_execute(const char *command)
 		  // this should get the osub going
 		  status = execute(0);
 		  // when this is done, a normal block1 will be executed as per standard case
-		  // and g_codes/m_codes/settings recorded there.
+		  // on endsub/return and g_codes/m_codes/settings recorded there.
 	      }
 	      ERP(status);
 	  default: ;
@@ -408,6 +443,8 @@ int Interp::execute(const char *command, int line_number)
   return Interp::execute(command);
 }
 
+// when a remapping sub finishes, the oword return/endsub handling code
+// calls back in here to continue block execution
 int Interp::remap_finished(int status)
 {
     int remap = _setup.executing_remap;
@@ -423,8 +460,6 @@ int Interp::remap_finished(int status)
     case M61_REMAP:
     case G_88_1_REMAP:
     case G_88_2_REMAP:
-	// _setup.continue_stashed_block = true;
-	// // continue execution of remapped block
 
 	// any more remaps left?
 	next_remap = next_remapping(&(_setup.stashed_block), &_setup);
