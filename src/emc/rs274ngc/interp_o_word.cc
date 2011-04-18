@@ -419,13 +419,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // free local variables
 	  free_named_parameters(settings->call_level, settings);
 
-	  // we have an epilog function. Execute it.
-	  if (settings->sub_context[settings->call_level].epilog) {
-	      // fprintf(stderr,"---- return/endsub: calling epilogue\n");
-	      int status = (*this.*settings->sub_context[settings->call_level].epilog)(settings);
-	      if (status > INTERP_MIN_ERROR)
-		  return(status);
-	  }
+
 	  // free subroutine name
 	  if(settings->sub_context[settings->call_level].subName) {
 	      free(settings->sub_context[settings->call_level].subName);
@@ -434,18 +428,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // drop one call level.
 	  settings->call_level--;
 
-	  // a valid previous context was marked by an M73 as auto-restore
-	  if ((settings->sub_context[settings->call_level+1].context_status &
-	       (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
-	      (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
-	      // NB: this means an M71 invalidate context will prevent an
-	      // auto-restore on return/endsub
-	      restore_context(settings, settings->call_level + 1);
-	  }
-	  // always invalidate on leaving a context so we dont accidentially
-	  // 'run into' a valid context when calling the stack upwards again
-	  settings->sub_context[settings->call_level+1].context_status &=
-	      ~CONTEXT_VALID;
 
 	  // restore subroutine parameters.
 	  for(i = 0; i < INTERP_SUB_PARAMS; i++) {
@@ -485,6 +467,32 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	      settings->sequence_number =
 		  settings->sub_context[settings->call_level].sequence_number;
+
+	  // we have an epilog function. Execute it.
+	  if (settings->sub_context[settings->call_level+1].epilog) {
+	      fprintf(stderr,"---- return/endsub: calling epilogue\n");
+	      int status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings);
+	      // signal end of remapping handler
+	      remap_finished(status);
+	      ERP(status);
+	      // if (status > INTERP_MIN_ERROR)
+	      // 	  return(status);
+	  }
+
+
+	  // a valid previous context was marked by an M73 as auto-restore
+	  if ((settings->sub_context[settings->call_level+1].context_status &
+	       (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+	      (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
+	      // NB: this means an M71 invalidate context will prevent an
+	      // auto-restore on return/endsub
+	      restore_context(settings, settings->call_level + 1);
+	  }
+	  // always invalidate on leaving a context so we dont accidentially
+	  // 'run into' a valid context when calling the stack upwards again
+	  settings->sub_context[settings->call_level+1].context_status &=
+	      ~CONTEXT_VALID;
+
 	  }
 
 	  if(settings->sub_name)
@@ -553,15 +561,16 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       // reopen it on return.
       if (settings->file_pointer == NULL) {
 	  settings->sub_context[settings->call_level].position = -1;
-	  // MSG("---- marking as return to 'no file' - level=%d filename='%s' seqno=%d\n",settings->call_level,settings->filename,settings->sequence_number);
+	  //fprintf(stderr,"---- marking as return to 'no file' - level=%d filename='%s' seqno=%d\n",settings->call_level,settings->filename,settings->sequence_number);
       } else {
-	  // MSG("---- marking as return to valid file level=%d filename='%s' seqno=%d\n",settings->call_level,settings->filename,settings->sequence_number);
+	  //fprintf(stderr,"---- marking as return to valid file level=%d filename='%s' seqno=%d\n",settings->call_level,settings->filename,settings->sequence_number);
 	  settings->sub_context[settings->call_level].position = ftell(settings->file_pointer);
       }
 
       if(settings->sub_context[settings->call_level].filename)
           {
               // if there is a string here, free it
+	      //fprintf(stderr,"--freeing filename '%s' at level %d\n",settings->sub_context[settings->call_level].filename,settings->call_level);
               free(settings->sub_context[settings->call_level].filename);
           }
       // save the previous filename
