@@ -3031,14 +3031,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	if (settings->m6_command) {
 	    CLEAR_MODE(6);
 
-	    // setup saved_setup = *settings;
-
 	    // replicate preconditions form convert_tool_change
 	    if (settings->selected_pocket < 0) {
 	      ERS(NCE_TXX_MISSING_FOR_M6);
 	    }
 	    CHKS((settings->cutter_comp_side),
 	          (_("Cannot change tools with cutter radius compensation on")));
+
 	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
 	    // tool_change_at_g30 - can be handled in g-code if needed
 
@@ -3061,8 +3060,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		    block->t_number,
 		    settings->selected_pocket);
 	    int status = execute_handler(settings, cmd,&Interp::finish_m6_command, M6_REMAP);
+	    // just parsing the 'o<foo>call[param]..' command is expected to
+	    // return INTERP_OK; if not, something's badly wrong
+	    if (status != INTERP_OK) {
+		ERS("M6 sub: reading '%s' failed (%d)",cmd,status);
+	    }
 	    return(-M6_REMAP); // FIXTHIS
-	    //CHP(status);
 	} else {
 	    CLEAR_MODE(6);
 	    CHP(convert_tool_change(settings));
@@ -3087,7 +3090,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	if (settings->m61_command) {
 	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
 	    status = execute_handler(settings, cmd,  &Interp::finish_m61_command, M61_REMAP);
-	    return(-M6_REMAP); // FIXTHIS
+	    if (status != INTERP_OK) {
+		ERS("M61 sub: reading '%s' failed (%d)",cmd,status);
+	    }
+	    return(-M61_REMAP);
 	} else {
 	    settings->current_pocket = toolno;
 	    CHANGE_TOOL_NUMBER(toolno);

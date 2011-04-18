@@ -300,7 +300,6 @@ int Interp::_execute(const char *command)
   for (n = 0; n < _setup.named_parameter_occurrence; n++)
   {  // copy parameter settings from parameter buffer into parameter table
 
-      logDebug("storing param");
       logDebug("storing param:|%s|", _setup.named_parameters[n]);
     CHP(store_named_param(_setup.named_parameters[n],
                           _setup.named_parameter_values[n]));
@@ -319,14 +318,14 @@ int Interp::_execute(const char *command)
       if (next_remap != NO_REMAP) {
 	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
-
 	  _setup.stashed_block = _setup.block1;
-
-	  // execute up to the first remap, and read() the handler
+	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(_setup.stashed_block), &_setup, true);
 
 	  // All items up to the first remap item have been executed.
 	  // The remap item procedure call has been parsed into _setup.block1.
+	  // after parsing a handler, execute_block() either fails to toplevel or
+	  // returns the negative value of the handler ID it parsed.
 	  switch (status) {
 	  case -T_REMAP:
 	  case -M6_REMAP:
@@ -335,63 +334,52 @@ int Interp::_execute(const char *command)
 	      _setup.executing_remap = -status;
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
-		  fprintf(stderr,"--- MDImode=%d: should trigger handler: %s\n",
-			  MDImode,remaps[_setup.executing_remap]);
+		  // replicate MDI oword execution code here
 
-		  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
-		      {
-			  logDebug("Convert control functions");
-			  CHP(convert_control_functions(&(_setup.block1), &_setup));
-
-#if 1
-			  // let MDI code call subroutines.
-			  // !!!KL not clear what happens if last execution failed while in
-			  // !!!KL a subroutine
-
-			  // NOTE: the last executed file will still be open, because "close"
-			  // is really a lazy close.
-
-			  if (_setup.mdi_interrupt) {
-			      _setup.mdi_interrupt = false;
-			      MDImode = 1;
-			  }
-			  logDebug("!!!KL Open file is:%s:", _setup.filename);
-			  logDebug("MDImode = %d", MDImode);
-			  while(MDImode && _setup.call_level) // we are still in a subroutine
-			      {
-				  status = read(0);  // reads from current file and calls parse
-				  if (status != INTERP_OK)
-				      {
-					  return status;
-				      }
-				  status = execute();  // special handling for mdi errors
-				  if (status != INTERP_OK) {
-				      if (status == INTERP_EXECUTE_FINISH) {
-					  _setup.mdi_interrupt = true;
-				      } else
-					  reset();
-				      CHP(status);
-				  }
-			      }
+		  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt)) {
+		      CHP(convert_control_functions(&(_setup.block1), &_setup));
+		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
-#endif
-			  return INTERP_OK;
+			  MDImode = 1;
 		      }
-
+		      while(MDImode && _setup.call_level) { // we are still in a subroutine
+			  status = read(0);  // reads from current file and calls parse
+			  if (status != INTERP_OK) {
+			      return status;
+			  }
+			  status = execute();  // special handling for mdi errors
+			  if (status != INTERP_OK) {
+			      if (status == INTERP_EXECUTE_FINISH) {
+				  _setup.mdi_interrupt = true;
+			      } else
+				  reset();
+			      CHP(status);
+			  }
+		      }
+		      _setup.mdi_interrupt = false;
+		      // at this point the MDI execution of a remapped block is complete.
+		      write_g_codes(&(_setup.block1), &_setup);
+		      write_m_codes(&(_setup.block1), &_setup);
+		      write_settings(&_setup);
+		      return INTERP_OK;
+		  }
 	      } else {
-		  status = execute(0); // this should get the osub going
+		  // this should get the osub going
+		  status = execute(0);
+		  // when this is done, a normal block1 will be executed as per standard case
+		  // and g_codes/m_codes/settings recorded there.
 	      }
 	      ERP(status);
 	  default: ;
 	  }
       } else {
+	  // standard case: unremapped block execution
 	  status = execute_block(&(_setup.block1), &_setup);
+	  write_g_codes(&(_setup.block1), &_setup);
+	  write_m_codes(&(_setup.block1), &_setup);
+	  write_settings(&_setup);
       }
 
-
-      write_g_codes(&(_setup.block1), &_setup); // FIXME
-      write_m_codes(&(_setup.block1), &_setup); // FIXME
-    write_settings(&_setup);
     if ((status != INTERP_OK) &&
         (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
       ERP(status);
@@ -416,17 +404,6 @@ int Interp::execute(const char *command, int line_number)
   _setup.sequence_number = line_number;
   return Interp::execute(command);
 }
-
-int Interp::execute_remap(const char *command,  int line_no, int remap_op)
-{
-
-  _setup.sequence_number = line_no;
-  _setup.executing_remap = remap_op;
-  fprintf(stderr,"--- execute_remap(%s) op=%s\n",
-	  _setup.blocktext,remaps[_setup.executing_remap]);
-  return Interp::execute(command);
-}
-
 
 int Interp::remap_finished(int status)
 {
@@ -474,11 +451,11 @@ int Interp::remap_finished(int status)
 
 int Interp::next_remapping(block_pointer block, setup_pointer settings)
 {
-    // to test if current block contains an active item
+    // test if block contains an active item which is
     // remapped to an oword subroutine.
 
     // return NO_REMAP  on no remap found.
-    // return remap_op of the first remap in execution sequence.
+    // return remap_op of the first remap in G-code execution sequence.
 
     // if remapping other codes, add to this predicate accordingly.
 

@@ -474,9 +474,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      int status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings);
 	      // signal end of remapping handler
 	      remap_finished(status);
-	      ERP(status);
-	      // if (status > INTERP_MIN_ERROR)
-	      // 	  return(status);
+	      // cop out if epilogue failed. NB: this must abort.
+	      if (status > INTERP_MIN_ERROR)
+		  return(status);
 	  }
 
 

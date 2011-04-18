@@ -25,8 +25,6 @@ public:
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
  enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3 };
- // used for Tx,M6/M61 remapping
- int execute_remap(const char *command, int line_no, int remap_op = NO_REMAP);
 
  // callback when remapping handler done
  int remap_finished( int status);

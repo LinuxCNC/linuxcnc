@@ -267,9 +267,7 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
     // just read and parse into _setup.block1
     // NB: we're NOT triggering MDI handling in execute()
     int status = read(cmd);
-    CHP(status);
-    // status = execute_remap(NULL,0,remap_op);
-    // return(status);
+    return(status);
 }
 
 
