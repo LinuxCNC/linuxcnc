@@ -24,7 +24,6 @@ public:
 
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
- enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3 };
 
  // callback when remapping handler done
  int remap_finished( int status);
@@ -473,7 +472,7 @@ private:
   setup_pointer settings,  /* pointer to machine settings */
   const char *cmd,
  int (Interp::*epilog)(setup_pointer settings) = NULL,
-  int remap_op = NO_REMAP);
+  int remap_op = 0); // really NO_REMAP but rather keep internal
 
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);

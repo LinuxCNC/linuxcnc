@@ -544,6 +544,9 @@ typedef struct setup_struct
 }
 setup;
 
+enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3,
+	       G88_1_REMAP=4, G88_2_REMAP=5};
+
 typedef setup *setup_pointer;
 
 
