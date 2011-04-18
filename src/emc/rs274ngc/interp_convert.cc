@@ -3065,7 +3065,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    if (status != INTERP_OK) {
 		ERS("M6 sub: reading '%s' failed (%d)",cmd,status);
 	    }
-	    return(-M6_REMAP); // FIXTHIS
+	    return(-M6_REMAP);
 	} else {
 	    CLEAR_MODE(6);
 	    CHP(convert_tool_change(settings));
