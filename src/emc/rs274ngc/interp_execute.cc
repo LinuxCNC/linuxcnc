@@ -247,7 +247,8 @@ int Interp::finish_t_command(setup_pointer settings)
 
 // common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
 int Interp::execute_handler(setup_pointer settings, const char *cmd,
-			    int (Interp::*epilog)(setup_pointer settings)
+			    int (Interp::*epilog)(setup_pointer settings),
+			    int remap_op
 )
 {
     // TBD:  good error reporting on errors in T_COMMAND, M6_COMMAND
@@ -263,8 +264,12 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
     // it's essentially a hidden param to the call
 
     settings->epilog_hook = epilog;
-    int status = execute(cmd,0);
-    return(status);
+    // just read and parse into _setup.block1
+    // NB: we're NOT triggering MDI handling in execute()
+    int status = read(cmd);
+    CHP(status);
+    // status = execute_remap(NULL,0,remap_op);
+    // return(status);
 }
 
 
@@ -318,34 +323,52 @@ error message.
 */
 
 int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-                         setup_pointer settings)        //!< pointer to machine settings                 
+			  setup_pointer settings, //!< pointer to machine settings
+			  bool remove_trail)
 {
   int status;
 
   block->line_number = settings->sequence_number;
-
   if (block->comment[0] != 0) {
-    CHP(convert_comment(block->comment));
+    status = convert_comment(block->comment);
+    if (remove_trail)
+	block->comment[0] = 0;
+    CHP(status);
   }
-  if (block->g_modes[14] != -1) {
-    CHP(convert_spindle_mode(block, settings));
+  if (block->g_modes[GM_SPINDLE_MODE] != -1) {
+      status = convert_spindle_mode(block, settings);
+      if (remove_trail)
+	  block->g_modes[GM_SPINDLE_MODE] = -1;
+      CHP(status);
   }
-  if (block->g_modes[5] != -1) {
-    CHP(convert_feed_mode(block->g_modes[5], settings));
+  if (block->g_modes[GM_FEED_MODE] != -1) {
+      status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
+     if (remove_trail)
+	  block->g_modes[GM_FEED_MODE] = -1;
+      CHP(status);
+
   }
   if (block->f_flag) {
     if (settings->feed_mode != INVERSE_TIME) {
-      CHP(convert_feed_rate(block, settings));
+	status = convert_feed_rate(block, settings);
+	if (remove_trail)
+	    block->f_flag = false;
+	CHP(status);
     }
     /* INVERSE_TIME is handled elsewhere */
   }
   if (block->s_flag) {
-    CHP(convert_speed(block, settings));
+      status = convert_speed(block, settings);
+	if (remove_trail)
+	    block->s_flag = false;
+	CHP(status);
   }
   if (block->t_flag) {
     if (settings->t_command) {
 	char cmd[LINELEN];
 	int pocket;
+	if (remove_trail)
+	    block->t_flag = false;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
 	// pocket will start making sense once tooltable I/O is folded into
@@ -355,32 +378,36 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 		 block->t_number,
 		 pocket);
 
-	status = execute_handler(settings, cmd, &Interp::finish_t_command);
+	status = execute_handler(settings, cmd, &Interp::finish_t_command, T_REMAP);
 	// fprintf(stderr,"---- execute_block(t_command) returning %s\n",
 	// 	interp_status(status));
+
+	return (-T_REMAP);
 	CHP(status);
 
     } else {
 	CHP(convert_tool_select(block, settings));
     }
   }
-  CHP(convert_m(block, settings));
-  CHP(convert_g(block, settings));
+  CHP(convert_m(block, settings, remove_trail));
+  CHP(convert_g(block, settings, remove_trail));
   if (block->m_modes[4] != -1) {        /* converts m0, m1, m2, m30, or m60 */
     status = convert_stop(block, settings);
-    if (status == INTERP_EXIT)
-      return INTERP_EXIT;
-    else if (status != INTERP_OK)
-      ERP(status);
+    if (status == INTERP_EXIT) {
+	return(INTERP_EXIT);
+    }
+    else if (status != INTERP_OK) {
+	ERP(status);
+    }
   }
   if (settings->probe_flag)
-    return INTERP_EXECUTE_FINISH;
+      return (INTERP_EXECUTE_FINISH);
 
   if (settings->input_flag)
-    return INTERP_EXECUTE_FINISH;
+      return (INTERP_EXECUTE_FINISH);
 
   if (settings->toolchange_flag)
-    return INTERP_EXECUTE_FINISH;
+      return (INTERP_EXECUTE_FINISH);
 
   return INTERP_OK;
 }
