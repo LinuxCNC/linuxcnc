@@ -2798,7 +2798,7 @@ int Interp::restore_context(setup_pointer settings,
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
 	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	status = execute_handler(settings, cmd);
+	ERP(execute(cmd));
 	memset(cmd, 0, LINELEN);
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
@@ -2806,7 +2806,9 @@ int Interp::restore_context(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	status = execute_handler(settings, cmd);
+	//	status = execute_handler(settings, cmd);
+	status = execute(cmd);  // FIXME
+	ERP(status);
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);
@@ -2852,10 +2854,14 @@ int Interp::finish_m61_command(setup_pointer settings)
 	settings->toolchange_flag = true;
 	set_tool_parameters();
     } else {
+	// mark command replacement as finished
+	settings->executing_remap = false;
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
 	return INTERP_OK;
     }
+    // mark command replacement as finished
+    settings->executing_remap = false;
     return INTERP_OK;
 }
 
@@ -3054,8 +3060,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		    settings->tool_table[0].toolno,
 		    block->t_number,
 		    settings->selected_pocket);
-	    int status = execute_handler(settings, cmd,&Interp::finish_m6_command);
-	    CHP(status);
+	    int status = execute_handler(settings, cmd,&Interp::finish_m6_command, M6_REMAP);
+	    return(-M6_REMAP); // FIXTHIS
+	    //CHP(status);
 	} else {
 	    CLEAR_MODE(6);
 	    CHP(convert_tool_change(settings));
