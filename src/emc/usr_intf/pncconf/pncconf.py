@@ -1038,7 +1038,7 @@ class Data:
         self.amaxlim =  9999
         # spindle at speed near settings
         self.snearscale = .95
-        self.sneardifference = 0
+        self.sfiltergain = .1
 
     def load(self, filename, app=None, force=False):
         self.pncconf_version = 0.0
@@ -2457,19 +2457,18 @@ class Data:
                       print >>f1
                       print >>f1
                       print >>f1, ("setp     scale.spindle.gain .01667")
-                      print >>f1, ("setp     lowpass.spindle.gain 0.01")
-                      print >>f1, ("net spindle-vel-fb => lowpass.spindle.in")
-                      print >>f1, ("net spindle-rps-filtered <= lowpass.spindle.out")
-                      print >>f1, ("net spindle-rps-filtered => abs.spindle.in")
-                      print >>f1, ("net spindle-absolute-rps    abs.spindle.out => scale.spindle.in")
-                      print >>f1, ("net spindle-filtered-rpm    scale.spindle.out => pyvcp.spindle-speed")
+                      print >>f1, ("setp     lowpass.spindle.gain %f"% self.sfiltergain)
+                      print >>f1, ("net spindle-vel-fb        =>   lowpass.spindle.in")
+                      print >>f1, ("net spindle-rps-filtered    lowpass.spindle.out  =>   abs.spindle.in")
+                      print >>f1, ("net spindle-absolute-rps    abs.spindle.out      =>   scale.spindle.in")
+                      print >>f1, ("net spindle-filtered-rpm    scale.spindle.out    =>   pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-vel-cmd                       =>  abs.spindle.in")
-                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")
-                  print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
+                      print >>f1, ("net spindle-vel-cmd    =>    abs.spindle.in")
+                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out  =>    pyvcp.spindle-speed")
+                  print >>f1, ("net spindle-at-speed  =>    pyvcp.spindle-at-speed-led")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
                   print >>f1
@@ -5463,11 +5462,17 @@ class App:
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
-            if not digital_at_speed and encoder:
+            w["smaxvel"].set_sensitive(False)
+            w["smaxacc"].set_sensitive(False)
+            w["satspeedframe"].hide()
+            w["sfiltergainframe"].hide()
+            if digital_at_speed or encoder:
                 w["satspeedframe"].show()
+                if self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1:
+                    w["sfiltergainframe"].show()
             set_value("nearscale")
+            set_value("filtergain")
         else:
-            w[axis+"atspeedframe"].hide()
             w[axis+"maxferror"].set_sensitive(True)
             w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
@@ -5748,6 +5753,7 @@ class App:
             get_active("usebacklash")
         else:
             get_pagevalue("nearscale")
+            get_pagevalue("filtergain")
 
     def configure_bldc(self,axis):
         d = self.data
