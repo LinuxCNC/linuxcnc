@@ -548,8 +548,10 @@ typedef struct setup_struct
   int executing_remap;  // we are in a Tx/M6/M61 replacement procedure
     // see enum remap_op in rs274ngc_interp.hh for values
 
-    std::map<int,const char *> user_gcodes;
-    std::map<int,const char *> user_mcodes;
+    std::map<int,const char *> user_gcode_argspec;
+    std::map<int,int> user_gcode_mgroup;
+    std::map<int,const char *> user_mcode_argspec;
+    std::map<int,int> user_mcode_mgroup;
 }
 setup;
 

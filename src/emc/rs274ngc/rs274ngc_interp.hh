@@ -486,8 +486,8 @@ private:
  int finish_cycle_command(setup_pointer settings);
 
  // user-defined g/mcode support
- int define_gcode(double gcode, const char *argspec);
- int define_mcode(int mcode, const char *argspec);
+ int define_gcode(double gcode,  int modal_group,const char *argspec);
+ int define_mcode(int mcode,  int modal_group,const char *argspec);
 
  // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
  bool check_args(block_pointer block,const char *argspec);

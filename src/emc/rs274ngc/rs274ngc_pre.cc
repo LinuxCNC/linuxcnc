@@ -761,25 +761,31 @@ int Interp::init()
 	  while (NULL != (inistring = inifile.Find("GCODE", "CUSTOM", n))) {
 	      char argspec[LINELEN];
 	      double gcode = -1.0;
-	      int nfound;
+	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
-	      nfound = sscanf(inistring,"%lf,%[A-KMNP-Za-kmnp-z]*",&gcode,argspec);
-	      define_gcode(gcode,argspec);
-	      fprintf(stderr,"---- GCODE %d: %s --> %2.1f '%s'\n",
-		      n,inistring,gcode,argspec);
+	      if (sscanf(inistring,"%lf,%d,%[A-KMNP-Za-kmnp-z]*",&gcode,&modal_group,argspec) < 2) {
+		  fprintf(stderr,"GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]\n");
+		  continue;
+	      }
+	      define_gcode(gcode,modal_group,argspec);
+	      // fprintf(stderr,"---- GCODE %d: %s --> %2.1f '%s'\n",
+	      // 	      n,inistring,gcode,argspec);
 	      n++;
 	  }
 	  n = 1;
 	  while (NULL != (inistring = inifile.Find("MCODE", "CUSTOM", n))) {
 	      char argspec[LINELEN];
 	      int mcode = -1;
-	      int nfound;
+	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
-	      nfound = sscanf(inistring,"%d,%[A-KMNP-Za-kmnp-z]*",&mcode,argspec);
-	      define_mcode(mcode,argspec);
+	      if (sscanf(inistring,"%d,%d,%[A-KMNP-Za-kmnp-z]*",&mcode,&modal_group,argspec) < 2) {
+		  fprintf(stderr,"MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]\n");
+		  continue;
+	      }
+	      define_mcode(mcode,modal_group,argspec);
 
-	      fprintf(stderr,"---- MCODE %d: %s --> %d '%s'\n",
-		      n,inistring,mcode,argspec);
+	      // fprintf(stderr,"---- MCODE %d: %s --> %d '%s'\n",
+	      // 	      n,inistring,mcode,argspec);
 	      n++;
 	  }
 
@@ -2008,7 +2014,7 @@ int Interp::on_abort(int reason)
     return status;
 }
 
-int Interp::define_gcode(double gcode, const char *argspec)
+int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
 {
     int code = round_to_int(gcode *10);
 
@@ -2020,16 +2026,29 @@ int Interp::define_gcode(double gcode, const char *argspec)
     if (_gees[code] != -1) {
 	fprintf(stderr, "G-code %2.1f already defined\n",gcode);
     }
-    _setup.user_gcodes[code] = strdup(argspec);
+    if (_setup.user_gcode_mgroup[code]) {
+	fprintf(stderr, "G-code %2.1f already remapped\n",gcode);
+    }
+    _setup.user_gcode_argspec[code] = strdup(argspec);
+    _setup.user_gcode_mgroup[code] = modal_group;
     return INTERP_OK;
 }
 
-int Interp::define_mcode(int mcode, const char *argspec)
+int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 {
-   if ((mcode < 74)|| (mcode > 99)) {
+    if ((mcode < 74)|| (mcode > 99)) {
 	fprintf(stderr, "M-codes must range from 74..99, got %d\n",mcode);
 	return INTERP_ERROR;
-   }
-   _setup.user_mcodes[mcode] = strdup(argspec);
-   return INTERP_OK;
+    }
+    if (_ems[mcode] != -1) {
+	fprintf(stderr, "M-code %d already defined\n",mcode);
+    }
+    if (_setup.user_mcode_mgroup[mcode]) {
+	fprintf(stderr, "M-code %d already remapped\n",mcode);
+    }
+    _setup.user_mcode_argspec[mcode] = strdup(argspec);
+    _setup.user_mcode_mgroup[mcode] = modal_group;
+    return INTERP_OK;
 }
+
+
