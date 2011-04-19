@@ -764,7 +764,8 @@ int Interp::init()
 	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
 	      if (sscanf(inistring,"%lf,%d,%[A-KMNP-Za-kmnp-z]*",&gcode,&modal_group,argspec) < 2) {
-		  fprintf(stderr,"GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]\n");
+		  fprintf(stderr,"GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]\n",inistring);
+		  n++;
 		  continue;
 	      }
 	      define_gcode(gcode,modal_group,argspec);
@@ -779,7 +780,8 @@ int Interp::init()
 	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
 	      if (sscanf(inistring,"%d,%d,%[A-KMNP-Za-kmnp-z]*",&mcode,&modal_group,argspec) < 2) {
-		  fprintf(stderr,"MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]\n");
+		  fprintf(stderr,"MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]\n",inistring);
+		  n++;
 		  continue;
 	      }
 	      define_mcode(mcode,modal_group,argspec);
