@@ -3100,6 +3100,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    // tool change can move the controlled point.  reread it:
 	    settings->toolchange_flag = true;
 	    set_tool_parameters();
+	    status = INTERP_OK;
 	}
 	CHP(status);
     }    
