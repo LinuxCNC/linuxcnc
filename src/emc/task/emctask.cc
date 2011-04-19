@@ -384,6 +384,9 @@ int emcTaskPlanInit()
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
 	    retval = interp.execute(RS274NGC_STARTUP_CODE);
+	    while (retval == INTERP_EXECUTE_FINISH) {
+		retval = interp.execute(0);
+	    }
 	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
 	    }
