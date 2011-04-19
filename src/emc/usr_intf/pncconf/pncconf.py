@@ -5502,7 +5502,7 @@ class App:
                 w[axis + "homevelunits"].set_text(_("degrees / min"))
                 w[axis + "homelatchvelunits"].set_text(_("degrees / min"))
                 w[axis + "homefinalvelunits"].set_text(_("degrees / min"))
-                w[axis + "accdistunits"].set_text(_("degrees"))
+                w["accdistunits"].set_text(_("degrees"))
                 if stepdriven:
                     w["resolutionunits1"].set_text(_("degree / Step"))        
                     w["scaleunits"].set_text(_("Steps / degree"))
