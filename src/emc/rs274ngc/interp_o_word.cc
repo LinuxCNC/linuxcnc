@@ -588,10 +588,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
       settings->call_level++;
 
-      // XXX: add canned cycle params here -mah
-      // a test, and it works
-      // add_parameters(&(settings->stashed_block),"xyzfpqr");
-
       // remember an epilog function in current call frame
       settings->sub_context[settings->call_level].epilog =
 	      settings->epilog_hook;
@@ -601,6 +597,17 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       // !!!KL do we need to free old subName?
       settings->sub_context[settings->call_level].subName =
 	strdup(block->o_name);
+
+      // this is the place to call a prolog function
+      if (settings->prolog_hook) {
+	  fprintf(stderr,"---- call: calling prologue\n");
+	  int status = (*this.*settings->prolog_hook)(settings);
+	  ERS("Prolog failed: %s",block->o_name);
+	  return INTERP_ERROR;
+      }
+      // XXX: add canned cycle params here -mah
+      // a test, and it works
+      // add_parameters(&(settings->stashed_block),"xyzfpqr");
 
       if (control_back_to(block,settings) == INTERP_ERROR) {
           ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);

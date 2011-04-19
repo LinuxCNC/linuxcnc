@@ -370,6 +370,8 @@ typedef struct context_struct {
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
   // if set, the following handler is executed on endsub/return
   int (Interp::*epilog)(setup_pointer settings);
+    // the prolog function needs no recording in the call frame since it's
+    // executed while 'we have control'
 }context;
 
 #define CONTEXT_VALID   1 // this was stored by M7*
@@ -541,6 +543,13 @@ typedef struct setup_struct
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
 
+  // if set on a sub call, the following function is executed when:
+  // 1. subroutine parameters are set up
+  // 2. call_level has been incremented
+  // 3. the subroutine name has been set in subName
+  // Usage: add local parameters as passed by block/defined by argspec
+  // for canned cylces in g-code
+  int (Interp::*prolog_hook)(setup_pointer settings);
   // if set on a sub call, the following function is executed on endsub/return
   int (Interp::*epilog_hook)(setup_pointer settings);
     const char *t_command, *m6_command,*m61_command,*on_abort_command;
