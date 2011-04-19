@@ -2826,6 +2826,7 @@ int Interp::finish_m6_command(setup_pointer settings)
 {
     // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
     // commit the tool change
+    int status = INTERP_OK;
 
     if (settings->return_value >= TOLERANCE_EQUAL) {
 	CHANGE_TOOL(settings->selected_pocket);
@@ -2836,13 +2837,15 @@ int Interp::finish_m6_command(setup_pointer settings)
     } else {
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
-	return INTERP_OK;
     }
-    return INTERP_OK;
+    remap_finished(status);
+    return (status);
 }
 
 int Interp::finish_m61_command(setup_pointer settings)
 {
+    int status = INTERP_OK;
+
     // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
     // set that as the new tool number
     // a negative return value will leave it untouched
@@ -2858,10 +2861,10 @@ int Interp::finish_m61_command(setup_pointer settings)
 	settings->executing_remap = false;
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
-	return INTERP_OK;
     }
-    // mark command replacement as finished
-    settings->executing_remap = false;
+    remap_finished(status);
+    // // mark command replacement as finished
+    // settings->executing_remap = false;
     return INTERP_OK;
 }
 

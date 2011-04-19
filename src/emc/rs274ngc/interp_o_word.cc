@@ -472,8 +472,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  if (settings->sub_context[settings->call_level+1].epilog) {
 	      fprintf(stderr,"---- return/endsub: calling epilogue\n");
 	      int status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings);
-	      // signal end of remapping handler
-	      remap_finished(status);
+	      // try executing remap_status() as part of epilog
+	      // // signal end of remapping handler
+	      // remap_finished(status);
 	      // cop out if epilogue failed. NB: this must abort.
 	      if (status > INTERP_MIN_ERROR)
 		  return(status);
@@ -602,8 +603,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       if (settings->prolog_hook) {
 	  fprintf(stderr,"---- call: calling prologue\n");
 	  int status = (*this.*settings->prolog_hook)(settings);
-	  ERS("Prolog failed: %s",block->o_name);
-	  return INTERP_ERROR;
+	  if (status != INTERP_OK) {
+	      ERS("Prolog failed: %s",block->o_name);
+	  }
+	  return status;
       }
       // XXX: add canned cycle params here -mah
       // a test, and it works

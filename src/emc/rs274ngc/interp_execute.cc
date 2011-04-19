@@ -229,6 +229,7 @@ int Interp::report_error(setup_pointer settings,int status,const char *text)
 // Tx epiplogue - executed past T_COMMAND
 int Interp::finish_t_command(setup_pointer settings)
 {
+    int status = INTERP_OK;
 
     // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
     // commit the tool prepare to that value.
@@ -239,8 +240,8 @@ int Interp::finish_t_command(setup_pointer settings)
     } else {
 	CANON_ERROR("T<tool> - prepare failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
-	return INTERP_OK;
     }
+    remap_finished(status);
     return(INTERP_OK);
 }
 
