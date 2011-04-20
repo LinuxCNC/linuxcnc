@@ -85,6 +85,7 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
                              int ij_absolute,   //!<how to interpret i/j numbers
                              double i_number,   //!<first coordinate of center (abs or incr)
                              double j_number,   //!<second coordinate of center (abs or incr)
+                             int p_number,
                              double *center_x,  //!<pointer to first coordinate of center of arc
                              double *center_y,  //!<pointer to second coordinate of center of arc
                              int *turn, //!<pointer to number of full or partial circles CCW
@@ -121,9 +122,9 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
 
   /* This catches an arc too small for the tool, also */
   if (move == G_2)
-    *turn = -1;
+    *turn = -1 * p_number;
   else if (move == G_3)
-    *turn = 1;
+    *turn = 1 * p_number;
   else
     ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
   return INTERP_OK;
@@ -195,6 +196,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
                            double end_x,        //!< first coordinate of arc end point
                            double end_y,        //!< second coordinate of arc end point
                            double big_radius,   //!< radius of arc
+                           int p_number,
                            double *center_x,    //!< pointer to first coordinate of center of arc
                            double *center_y,    //!< pointer to second coordinate of center of arc
                            int *turn,           //!< pointer to number of full or partial circles CCW
@@ -207,7 +209,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
                                        ((side == RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
-  return arc_data_r(move, plane, current_x, current_y, end_x, end_y, big_radius, 
+  return arc_data_r(move, plane, current_x, current_y, end_x, end_y, big_radius, p_number,
              center_x, center_y, turn, tolerance);
 
 }
@@ -250,6 +252,7 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         int ij_absolute,        //!<how to interpret i/j numbers
                         double i_number,        //!<first coordinate of center (abs or incr)
                         double j_number,        //!<second coordinate of center (abs or incr)
+                        int p_number,
                         double *center_x,       //!< pointer to first coordinate of center of arc
                         double *center_y,       //!< pointer to second coordinate of center of arc
                         int *turn,      //!< pointer to no. of full or partial circles CCW
@@ -280,9 +283,9 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
        a, end_x, b, end_y, radius, radius2,
        abs_err, rel_err*100);
   if (move == G_2)
-    *turn = -1;
+    *turn = -1 * p_number;
   else if (move == G_3)
-    *turn = 1;
+    *turn = 1 * p_number;
   else
     ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
   return INTERP_OK;
@@ -331,6 +334,7 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
                       double end_x,     //!< first coordinate of arc end point
                       double end_y,     //!< second coordinate of arc end point
                       double radius,    //!< radius of arc
+                      int p_number,
                       double *center_x, //!< pointer to first coordinate of center of arc
                       double *center_y, //!< pointer to second coordinate of center of arc
                       int *turn,        //!< pointer to number of full or partial circles CCW
@@ -364,7 +368,7 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
   offset = abs_radius * cos(turn2);
   *center_x = mid_x + (offset * cos(theta));
   *center_y = mid_y + (offset * sin(theta));
-  *turn = (move == G_2) ? -1 : 1;
+  *turn = (move == G_2) ? -1 * p_number : 1 * p_number;
 
   return INTERP_OK;
 }

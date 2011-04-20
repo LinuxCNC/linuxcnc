@@ -363,7 +363,7 @@ image::images/stepconf-spindle.png[]
 This page only appear when "Spindle PWM" is chosen in the *Parallel
 Port Pinout* page for one of the outputs.
 
-==== Spindle Speed Control (((spindle speed control)))[[sub:Spindle-Speed-Control]]
+=== Spindle Speed Control (((spindle speed control)))[[sub:Spindle-Speed-Control]]
 
 If "Spindle PWM" appears on the pinout, the following information
 should be entered:

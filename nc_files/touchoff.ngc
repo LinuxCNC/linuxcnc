@@ -1,0 +1,18 @@
+o<touchoff> sub
+; This is the touchoff subroutine for the plasma-5i20 configuration
+(#1 pierce height, #2 pierce delay, #3 cut height)
+F10
+G38.2 Z-1.75 (Probe to find the surface)
+G91
+; set this height based on your machine
+G1 Z0.070 (Raise up to Z0)
+G90
+G92 Z0 (Set Z0)
+G1 Z#1
+M3 S1
+M66 P0 L1 Q5 (Wait for Arc OK from Torch)
+G4 P#2 (Pause for pierce delay)
+F25
+Z#3 (goto cut height)
+o<touchoff> endsub
+M2

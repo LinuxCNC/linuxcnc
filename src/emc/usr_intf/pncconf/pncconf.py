@@ -1038,7 +1038,7 @@ class Data:
         self.amaxlim =  9999
         # spindle at speed near settings
         self.snearscale = .95
-        self.sneardifference = 0
+        self.sfiltergain = .1
 
     def load(self, filename, app=None, force=False):
         self.pncconf_version = 0.0
@@ -2457,19 +2457,18 @@ class Data:
                       print >>f1
                       print >>f1
                       print >>f1, ("setp     scale.spindle.gain .01667")
-                      print >>f1, ("setp     lowpass.spindle.gain 0.01")
-                      print >>f1, ("net spindle-vel-fb => lowpass.spindle.in")
-                      print >>f1, ("net spindle-rps-filtered <= lowpass.spindle.out")
-                      print >>f1, ("net spindle-rps-filtered => abs.spindle.in")
-                      print >>f1, ("net spindle-absolute-rps    abs.spindle.out => scale.spindle.in")
-                      print >>f1, ("net spindle-filtered-rpm    scale.spindle.out => pyvcp.spindle-speed")
+                      print >>f1, ("setp     lowpass.spindle.gain %f"% self.sfiltergain)
+                      print >>f1, ("net spindle-vel-fb        =>   lowpass.spindle.in")
+                      print >>f1, ("net spindle-rps-filtered    lowpass.spindle.out  =>   abs.spindle.in")
+                      print >>f1, ("net spindle-absolute-rps    abs.spindle.out      =>   scale.spindle.in")
+                      print >>f1, ("net spindle-filtered-rpm    scale.spindle.out    =>   pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-vel-cmd                       =>  abs.spindle.in")
-                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")
-                  print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
+                      print >>f1, ("net spindle-vel-cmd    =>    abs.spindle.in")
+                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out  =>    pyvcp.spindle-speed")
+                  print >>f1, ("net spindle-at-speed  =>    pyvcp.spindle-at-speed-led")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
                   print >>f1
@@ -3071,6 +3070,7 @@ class App:
                 self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"parport",connector,"Opin",pin,True))
 
         # set preferences if they exist
+        link = short = False
         filename = os.path.expanduser("~/.pncconf-preferences")
         if os.path.exists(filename):
             match =  open(filename).read()
@@ -3080,7 +3080,6 @@ class App:
                 textbuffer.insert_at_cursor(match)
             except:
                 pass
-            link = short = False
             version = 0.0
             d = xml.dom.minidom.parse(open(filename, "r"))
             for n in d.getElementsByTagName("property"):
@@ -5463,11 +5462,18 @@ class App:
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
+            w["smaxvel"].set_sensitive(False)
+            w["smaxacc"].set_sensitive(False)
+            w["satspeedframe"].hide()
+            w["sfiltergainframe"].hide()
             if not digital_at_speed and encoder:
                 w["satspeedframe"].show()
-            set_value("nearscale")
+            if encoder:
+                if self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1:
+                    w["sfiltergainframe"].show()
+            w["snearscale"].set_value(d["snearscale"]*100)
+            set_value("filtergain")
         else:
-            w[axis+"atspeedframe"].hide()
             w[axis+"maxferror"].set_sensitive(True)
             w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
@@ -5496,7 +5502,7 @@ class App:
                 w[axis + "homevelunits"].set_text(_("degrees / min"))
                 w[axis + "homelatchvelunits"].set_text(_("degrees / min"))
                 w[axis + "homefinalvelunits"].set_text(_("degrees / min"))
-                w[axis + "accdistunits"].set_text(_("degrees"))
+                w["accdistunits"].set_text(_("degrees"))
                 if stepdriven:
                     w["resolutionunits1"].set_text(_("degree / Step"))        
                     w["scaleunits"].set_text(_("Steps / degree"))
@@ -5748,6 +5754,8 @@ class App:
             get_active("usebacklash")
         else:
             get_pagevalue("nearscale")
+            d["snearscale"] = w["snearscale"].get_value()/100
+            get_pagevalue("filtergain")
 
     def configure_bldc(self,axis):
         d = self.data
@@ -6356,8 +6364,6 @@ class App:
 
     # This is for pyvcp test panel
     def testpanel(self,w):
-        if not self.check_for_rt(True):
-            return 
         pos = "+0+0"
         size = ""
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
