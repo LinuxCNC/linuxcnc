@@ -493,8 +493,10 @@ position of each item on the line, but by the following list:
  . Set feed rate (F). 
  . Set spindle speed (S). 
  . Select tool (T). 
- . Change tool (M6).
+ . HAL pin I/O (M62-M68).
+ . Change tool (M6) and Set Tool Number (M61).
  . Spindle on or off (M3, M4, M5).
+ . Save State (M70, M73), Restore State (M72), Invalidate State (M71).
  . Coolant on or off (M7, M8, M9).
  . Enable or disable overrides (M48, M49). 
  . Dwell (G4). 
