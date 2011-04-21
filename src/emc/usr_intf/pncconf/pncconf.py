@@ -1866,9 +1866,8 @@ class Data:
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens )
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
-                    """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"
+                    """ % ( driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens,
                     directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens )
         elif self.number_mesa == 2:
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
@@ -2452,16 +2451,16 @@ class Data:
                   if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
-                      print >>f1, ("setp     scale.spindle.gain .01667")
+                      print >>f1, ("setp     scale.spindle.gain 60")
                       print >>f1, ("setp     lowpass.spindle.gain %f"% self.sfiltergain)
                       print >>f1, ("net spindle-vel-fb        =>   lowpass.spindle.in")
-                      print >>f1, ("net spindle-rps-filtered    lowpass.spindle.out  =>   abs.spindle.in")
-                      print >>f1, ("net spindle-absolute-rps    abs.spindle.out      =>   scale.spindle.in")
-                      print >>f1, ("net spindle-filtered-rpm    scale.spindle.out    =>   pyvcp.spindle-speed")
+                      print >>f1, ("net spindle-fb-filtered-rps    lowpass.spindle.out      =>   abs.spindle.in")
+                      print >>f1, ("net spindle-fb-filtered-abs-rps    abs.spindle.out      =>   scale.spindle.in")
+                      print >>f1, ("net spindle-fb-filtered-abs-rpm    scale.spindle.out    =>   pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component to remove sign")

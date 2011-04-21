@@ -45905,7 +45905,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xnearscale">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">50 50 150 1 0 0</property>
+                                        <property name="adjustment">50 50 200 1 0 0</property>
                                       </widget>
                                       <packing>
                                         <property name="expand">False</property>
@@ -45964,7 +45964,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xfiltergain">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0.100 0.01 1.5 0.100 0 0</property>
+                                        <property name="adjustment">0.005 0.001 1.5 0.001 0 0</property>
                                         <property name="digits">2</property>
                                       </widget>
                                       <packing>
