@@ -97,7 +97,7 @@ FUNCTION(_) {
         if(!torch_on){ // remove any offset
             float z_diff;
             z_diff = z_pos_in - last_z_in;
-            if(z_diff > 0){ // torch is moving up
+            if(z_diff > 0 && offset != 0){ // torch is moving up
                 if(offset > 0){ // positive offset
                     if(offset > z_diff){ // remove some
                         offset -= z_diff;
