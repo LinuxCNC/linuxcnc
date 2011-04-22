@@ -110,8 +110,8 @@ FUNCTION(_) {
                     }
                     else {offset = 0;}
                 }
-            last_z_in = z_pos_in;
             }
+            last_z_in = z_pos_in;
         }
         z_pos_out = z_pos_in + offset;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
