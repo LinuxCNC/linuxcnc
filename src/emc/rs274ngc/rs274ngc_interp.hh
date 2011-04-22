@@ -511,6 +511,8 @@ private:
 
  int convert_remapped_code(int code,block_pointer block,
 			   setup_pointer settings,int type);
+ int remap_m(block_pointer block, setup_pointer settings,
+	    int mode,bool remove_trail);
  const char *remap_name(setup_pointer settings,int type, int code);
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);

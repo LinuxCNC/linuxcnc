@@ -482,9 +482,10 @@ int Interp::remap_finished(int status)
 	    status = execute(0); // this should get the osub going
 	    ERP(status);
 	} else {
-	    fprintf(stderr,"--- no remap in stashed_block found\n");
+	    fprintf(stderr,"--- no more remaps in stashed_block found\n");
 	    status = execute_block(&(_setup.stashed_block),
 				   &_setup, true); // remove trail
+	    // execution of stashed block finished
 	    ERP(status);
 	}
 	return status;

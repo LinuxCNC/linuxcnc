@@ -338,24 +338,24 @@ int Interp::add_parameters(setup_pointer settings, int user_data)
     // collect dead bodies
     s = superfluous;
     if (*s) {
-	strcpy(tail,"superfluous: ");
+	strcpy(tail," superfluous: ");
     }
     while (*s) {
 	errored = true;
 	char c  = toupper(*s);
 	strncat(tail,&c,1);
-	strcat(tail,",");
+	if (*(s+1)) strcat(tail,",");
 	s++;
     }
     s = missing;
     if (*s) {
-	strcat(tail,"missing: ");
+	strcat(tail," missing: ");
     }
     while (*s) {
 	errored = true;
 	char c  = toupper(*s);
 	strncat(tail,&c,1);
-	strcat(tail,",");
+	if (*(s+1)) strcat(tail,",");
 	s++;
     }
     // special cases:
@@ -382,16 +382,12 @@ int Interp::add_parameters(setup_pointer settings, int user_data)
 	}
     }
     if (errored) {
-	if (user_data > MCODE_OFFSET) {
-	    snprintf(msg,sizeof(msg),"user-defined M%d: ",
-		     user_data-MCODE_OFFSET);
-	} else {
-	    snprintf(msg,sizeof(msg),"user-defined G%2.1lf: ",
-		     (double)user_data/10.0);
-	}
-	fprintf(stderr,"----add_parameters error: %s%s\n",msg,tail);
-
-	ERS("%s%s",msg,tail);
+	ERS("user-defined %s:%s",
+	    remap_name(settings,
+		       (user_data > MCODE_OFFSET) ?
+		       M_USER_REMAP : G_USER_REMAP,
+		       user_data),
+	    tail);
     }
     return INTERP_OK;
 }

@@ -2951,6 +2951,17 @@ int Interp::convert_remapped_code(int code,block_pointer block,
     return(-type);
 }
 
+int Interp::remap_m(block_pointer block, setup_pointer settings,
+		   int mode,bool remove_trail)
+{
+    fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+	    block->m_modes[mode],mode);
+    int status = convert_remapped_code(block->m_modes[mode],block,
+				   settings,M_USER_REMAP);
+    if (remove_trail) block->m_modes[mode] = -1;
+    return status;
+}
+
 /****************************************************************************/
 
 /*! convert_m
@@ -2985,7 +2996,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		      setup_pointer settings,    //!< pointer to machine settings
 		      bool remove_trail)
 {
-    int type,status;
+  int type;
   double timeout;               // timeout for M66
   double *pars;                 /* short name for settings->parameters            */
 
@@ -3003,12 +3014,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 #define CLEAR_MODE(x) if (remove_trail) block->m_modes[x] = -1
 
   if (IS_USERMCODE(block,settings,5)) {
-      fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
-	      block->m_modes[5],5);
-      status = convert_remapped_code(block->m_modes[5],block,
-				   settings,M_USER_REMAP);
-      if (remove_trail) block->m_modes[5] = -1;
-      return status;
+      return remap_m(block, settings, 5, true);
   } else if (block->m_modes[5] == 62) {
       CLEAR_MODE(5);
       CHKS((settings->cutter_comp_side),
@@ -3119,12 +3125,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (block->m_modes[6] != -1) {
       if (IS_USERMCODE(block,settings,6)) {
-	  fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
-		  block->m_modes[6],6);
-	  status = convert_remapped_code(block->m_modes[6],block,
-				   settings,M_USER_REMAP);
-	  if (remove_trail) block->m_modes[6] = -1;
-	  return status;
+	  return remap_m(block, settings, 6, true);
       } else  if (block->m_modes[6] == 6) {
 	    // when we have M6 do the actual toolchange
 	    if (settings->m6_command) {
@@ -3229,12 +3230,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 #endif
   }
   if (IS_USERMCODE(block,settings,7)) {
-	  fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
-		  block->m_modes[7],7);
-	  status = convert_remapped_code(block->m_modes[7],block,
-				   settings,M_USER_REMAP);
-	  if (remove_trail) block->m_modes[7] = -1;
-	  return status;
+	  return remap_m(block, settings, 7, true);
   } else if (block->m_modes[7] == 3) {
       CLEAR_MODE(7);
       enqueue_START_SPINDLE_CLOCKWISE();
@@ -3293,13 +3289,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       restore_context(&_setup, _setup.call_level);
   }
 
-if (IS_USERMCODE(block,settings,8)) {
-	  fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
-		  block->m_modes[8],8);
-	  status = convert_remapped_code(block->m_modes[8],block,
-				   settings,M_USER_REMAP);
-	  if (remove_trail) block->m_modes[8] = -1;
-	  return status;
+  if (IS_USERMCODE(block,settings,8)) {
+	  return remap_m(block, settings, 8, true);
   } else if (block->m_modes[8] == 7) {
       CLEAR_MODE(8);
       enqueue_MIST_ON();
@@ -3333,12 +3324,7 @@ if (IS_USERMCODE(block,settings,8)) {
     }
 */
   if (IS_USERMCODE(block,settings,9)) {
-      fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
-	      block->m_modes[9],9);
-      status = convert_remapped_code(block->m_modes[9],block,
-				     settings,M_USER_REMAP);
-      if (remove_trail) block->m_modes[9] = -1;
-      return status;
+      return remap_m(block, settings, 9, true);
   } else if (block->m_modes[9] == 48) {
     CLEAR_MODE(9);
     CHKS((settings->cutter_comp_side),
@@ -3418,12 +3404,7 @@ if (IS_USERMCODE(block,settings,8)) {
   }
 
   if (IS_USERMCODE(block,settings,10)) {
-      fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
-	      block->m_modes[10],10);
-      status = convert_remapped_code(block->m_modes[10],block,
-				     settings,M_USER_REMAP);
-      if (remove_trail) block->m_modes[10] = -1;
-      return status;
+      return remap_m(block, settings, 10, true);
   } else if (block->m_modes[10] != -1) {
      /* user-defined M codes */
     int index = block->m_modes[10];
