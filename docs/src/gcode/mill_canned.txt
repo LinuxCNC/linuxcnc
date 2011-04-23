@@ -144,11 +144,11 @@ motion word.
 
 The G81 cycle is intended for drilling.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Retract the Z-axis at traverse rate to clear Z. This cycle was used
+3. Retract the Z-axis at traverse rate to clear Z. This cycle was used
 in the description of G80 above but is explained in detail here.
 
 Example 2 - Absolute Position G81
@@ -199,17 +199,19 @@ The first repeat consists of 3 moves.
 
 2. a feed parallel to the Z-axis to (5,7, 4.2)
 
-3. a traverse parallel to the Z-axis to (5,7,4.8) The second repeat
-consists of 3 moves. The X position is reset to 9 (=5+4) and the Y
-position to 12 (=7+5).
+3. a traverse parallel to the Z-axis to (5,7,4.8) 
+
+The second repeat consists of 3 moves. The X position is reset to
+ 9 (=5+4) and the Y position to 12 (=7+5).
 
 1. a traverse parallel to the XY-plane to (9,12,4.8)
 
 2. a feed parallel to the Z-axis to (9,12, 4.2)
 
-3. a traverse parallel to the Z-axis to (9,12,4.8) The third repeat
-consists of 3 moves. The X position is reset to 13 (=9+4) and the Y
-position to 17 (=12+5).
+3. a traverse parallel to the Z-axis to (9,12,4.8) 
+
+The third repeat consists of 3 moves. The X position is reset to
+ 13 (=9+4) and the Y position to 17 (=12+5).
 
 1. a traverse parallel to the XY-plane to (13,17,4.8)
 
@@ -250,13 +252,13 @@ Example 5 - Relative position R > Z
 
 The G82 cycle is intended for drilling.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Dwell for the given number of seconds.
+3. Dwell for the given number of seconds.
 
-3. Retract the Z-axis at traverse rate to clear Z. The motion of a G82
+4. Retract the Z-axis at traverse rate to clear Z. The motion of a G82
 canned cycle looks just like g81 with the addition of a dwell at the
 bottom of the Z move. The length of the dwell is specified by a p# word
 in the g82 block.
@@ -274,18 +276,18 @@ common when drilling in aluminum) to be cut off. This cycle takes a Q
 value which represents a "delta" increment along the Z-axis. Machinists
 often refer to this as peck drilling.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate downward by delta or
+2. Move the Z-axis only at the current feed rate downward by delta or
 to the Z position, whichever is less deep.
 
-2. Dwell for 0.25 second.
+3. Dwell for 0.25 second.
 
-3. Retract at traverse rate to clear Z
+4. Retract at traverse rate to clear Z
 
-4. Repeat steps 1 - 3 until the Z position is reached.
+5. Repeat steps 1 - 3 until the Z position is reached.
 
-5. Retract the Z-axis at traverse rate to clear Z.
+6. Retract the Z-axis at traverse rate to clear Z.
 
 NIST lists the elements of the command as G83 X- Y- Z- A- B- C- R- L-
 Q-
@@ -301,33 +303,33 @@ Z-0.500. Each peck pulls the drill tip up to R0.2 after moving Q0.05.
 
 The G84 cycle is intended for right-hand tapping.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Start speed-feed synchronization.
+2. Start speed-feed synchronization.
 
-2. Move the Z-axis only at the current feed rate to the Z position.
+3. Move the Z-axis only at the current feed rate to the Z position.
 
-3. Stop the spindle.
+4. Stop the spindle.
 
-4. Start the spindle counterclockwise.
+5. Start the spindle counterclockwise.
 
-5. Retract the Z-axis at the current feed rate to clear Z.
+6. Retract the Z-axis at the current feed rate to clear Z.
 
-6. If speed-feed synch was not on before the cycle started, stop it.
+7. If speed-feed synch was not on before the cycle started, stop it.
 
-7. Stop the spindle.
+8. Stop the spindle.
 
-8. Start the spindle clockwise.
+9. Start the spindle clockwise.
 
 == G85 (((G85)))
 
 The G85 cycle is intended for boring or reaming.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Retract the Z-axis at the current feed rate to clear Z. This motion
+3. Retract the Z-axis at the current feed rate to clear Z. This motion
 is very similar to g81 except that the tool is retracted from the hole
 at feed rate rather than rapid.
 
@@ -335,17 +337,17 @@ at feed rate rather than rapid.
 
 The G86 cycle is intended for boring.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Dwell for the given number of seconds.
+3. Dwell for the given number of seconds.
 
-3. Stop the spindle turning.
+4. Stop the spindle turning.
 
-4. Retract the Z-axis at traverse rate to clear Z.
+5. Retract the Z-axis at traverse rate to clear Z.
 
-5. Restart the spindle in the direction it was going. This cycle is
+6. Restart the spindle in the direction it was going. This cycle is
 very similar to g82 except that it stops the spindle before it retracts
 the tool and restarts the spindle when it reaches the clearance value
 R.
@@ -371,36 +373,36 @@ of the top of counterbore. The K value is an absolute Z-value in
 absolute distance mode, and an increment (from the Z position) in
 incremental distance mode.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move at traverse rate parallel to the XY-plane to the point
+2. Move at traverse rate parallel to the XY-plane to the point
 indicated by I and J.
 
-2. Stop the spindle in a specific orientation.
+3. Stop the spindle in a specific orientation.
 
-3. Move the Z-axis only at traverse rate downward to the Z position.
+4. Move the Z-axis only at traverse rate downward to the Z position.
 
-4. Move at traverse rate parallel to the XY-plane to the X,Y location.
+5. Move at traverse rate parallel to the XY-plane to the X,Y location.
 
-5. Start the spindle in the direction it was going before.
+6. Start the spindle in the direction it was going before.
 
-6. Move the Z-axis only at the given feed rate upward to the position
+7. Move the Z-axis only at the given feed rate upward to the position
 indicated by K.
 
-7. Move the Z-axis only at the given feed rate back down to the Z
+8. Move the Z-axis only at the given feed rate back down to the Z
 position.
 
-8. Stop the spindle in the same orientation as before.
+9. Stop the spindle in the same orientation as before.
 
-9. Move at traverse rate parallel to the XY-plane to the point
+10. Move at traverse rate parallel to the XY-plane to the point
 indicated by I and J.
 
-10. Move the Z-axis only at traverse rate to the clear Z.
+11. Move the Z-axis only at traverse rate to the clear Z.
 
-11. Move at traverse rate parallel to the XY-plane to the specified
+12. Move at traverse rate parallel to the XY-plane to the specified
 X,Y location.
 
-12. Restart the spindle in the direction it was going before.
+13. Restart the spindle in the direction it was going before.
 
 image:G87pre.png[]
 
@@ -432,17 +434,17 @@ tool through the hole to be backbored.
 The G88 cycle is intended for boring. This cycle uses a P value, where
 P specifies the number of seconds to dwell.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Dwell for the given number of seconds.
+3. Dwell for the given number of seconds.
 
-3. Stop the spindle turning.
+4. Stop the spindle turning.
 
-4. Stop the program so the operator can retract the spindle manually.
+5. Stop the program so the operator can retract the spindle manually.
 
-5. Restart the spindle in the direction it was going. It is unclear
+6. Restart the spindle in the direction it was going. It is unclear
 how the operator is to manually move the tool because a change to
 manual mode resets the program to the top. We will attempt to clarify
 that step in this procedure.
@@ -452,13 +454,13 @@ that step in this procedure.
 The G89 cycle is intended for boring. This cycle uses a P value, where
 P specifies the number of seconds to dwell.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Dwell for the given number of seconds.
+3. Dwell for the given number of seconds.
 
-3. Retract the Z-axis at the current feed rate to clear Z. This cycle
+4. Retract the Z-axis at the current feed rate to clear Z. This cycle
 is like G82 except that the tool is drawn back at feed rate rather than
 rapid.
 

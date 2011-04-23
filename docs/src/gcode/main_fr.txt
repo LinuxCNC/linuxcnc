@@ -1220,7 +1220,7 @@ Avec ce programme, dans la plupart des cas, la machine va appliquer le
 décalage sous forme d'une rampe pendant le mouvement en xyz suivant le
 mot G43.
 
-== Compensation de rayon d'outil [[sec:Compensation-rayon-d-outil]]
+== Compensation de rayon d'outil [[sec:Compensation-rayon-d-outil-duplicate]]
 
 By Jon Elson
 

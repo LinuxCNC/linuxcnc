@@ -189,12 +189,12 @@ class of helper widgets allow you to organize and label your panel.
  . Widgets for controlling "number" signals: spinbox, scale, jogwheel
  . Helper widgets: hbox, vbox, table, label, labelframe
 
-==== Syntax
+=== Syntax
 
 Each widget is described briefly, followed by the markup used, and a
 screen shot. All tags inside the main widget tag are optional.
 
-==== General Notes
+=== General Notes
 
 At the present time, both a tag-based and an attribute-based syntax
 are supported. For instance, the following XML fragments are treated

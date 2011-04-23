@@ -247,9 +247,9 @@ Almost all actions in TkEMC can be accomplished with the keyboard.
 Many of the shortcuts are unavailable when in MDI mode.
 
 The most frequently used keyboard shortcuts are shown in Table 
-<<cap:Most-Common-Keyboard>>.
+<<cap:Tkemc-Common-Keyboard>>.
 
-.Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]
+.Most Common Keyboard Shortcuts[[cap:Tkemc-Common-Keyboard]]
 
 [width="90%", options="header"]
 |========================================

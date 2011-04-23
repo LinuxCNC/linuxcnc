@@ -6,7 +6,7 @@ supported by this driver). The board includes up to 8 channels of
 quadrature encoder input, 8 channels of analog input and output, 32
 bits digital I/O, an interval timer with interrupt and a watchdog.
 
-=== Installing
+== Installing
 
      loadrt hal_stg [base=<address>] [num_chan=<nr>] [dio="<dio-string>"]
     [model=<model>]

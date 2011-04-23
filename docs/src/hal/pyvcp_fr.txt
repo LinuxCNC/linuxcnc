@@ -128,13 +128,13 @@ des labels aux panneaux.
  - Widgets de contrôle, signaux FLOAT: spinbox, scale, jogwheel
  - Widgets d'aide: hbox, vbox, table, label, labelframe
 
-==== Syntaxe
+=== Syntaxe
 
 Chaque widget est décrit brièvement, suivi par la forme d'écriture
 utilisée et d'une capture d'écran. Toutes les balises contenues dans la
 balise du widget principal, sont optionnelles.
 
-==== Notes générales
+=== Notes générales
 
 Ã l'heure actuelle, les deux syntaxes, basée sur les balises et basée
 sur les attributs, sont supportées. Par exemple, les deux fragments de
