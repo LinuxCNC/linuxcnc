@@ -583,6 +583,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	strdup(block->o_name);
 
       if (control_back_to(block,settings) == INTERP_ERROR) {
+          settings->call_level--;
           ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
           return INTERP_ERROR;
       }

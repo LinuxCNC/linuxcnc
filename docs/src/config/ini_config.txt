@@ -1,3 +1,24 @@
+= Starting EMC
+
+== Files
+
+EMC is started with the script file emc.
+  usage: emc [options] [<ini-file>]
+  options:
+  -v = verbose - prints info as it works
+  -d = echos script commands to screen for debugging
+  
+The emc script file reads the ini file and starts emc. The ini file
+[HAL] section specifies the order of loading up hal files if more than
+one is used. Once the HAL=xxx.hal files are loaded then the GUI is loaded
+then the POSTGUI=.xxx.hal file is loaded. If you create pyvcp objects
+with hal pins you must use the postgui hal file to make any connections
+to those pins.
+
+If no ini file is passed to the emc script it loads the configuration picker
+so you can choose a sample configuration.
+
+
 = Config Files
 
 == Files Used for Configuration
@@ -10,8 +31,7 @@ gedit or kwrite produce files that are plain text. They also produce
 lines of text that are separated from each other. A word processor like
 Open Office produce files with paragraphs and word wrapping and lots of
 embedded codes that control font size and such. A text editor does none
-of this.
- ] You'll need to be a bit careful when you edit these files. Some
+of this.] You'll need to be a bit careful when you edit these files. Some
 mistakes will cause the start up to fail. These files are read whenever
 the software starts up. Some of them are read repeatedly while the CNC
 is running.
@@ -43,8 +63,8 @@ NML::
     single computer but can be modified to communicate between several
     computers.
 
-pass:[.emcrc]::
-    (((\.emcrc))) This file saves user specific information and is created
+emcrc::
+     (((.emcrc))) This file saves user specific information and is created
     to save the name of the directory when the user first selects an EMC
     footnote:[Usually this file is in the users home directory (e.g. /home/user/)]
 
@@ -98,8 +118,11 @@ comments:
 
 Related parts of an ini file are separated into sections. A section
 line looks like [THIS_SECTION]. The name of the section is enclosed in
-brackets. The order of sections is unimportant. The following sections
-are used by EMC:
+brackets. The order of sections is unimportant. Custom sections can be
+added and referenced in HAL. Sections begin at the section name and end
+at the next section name.
+
+The following sections are used by EMC:
 
  - [EMC] general information ( <<sub:[EMC]-section>>)
  -  [DISPLAY] settings related to the graphical user interface (
@@ -134,6 +157,10 @@ Some of the variables are used by EMC, and must always use the section
 names and variable names shown. Other variables are used only by HAL,
 and the section names and variable names shown are those used in the
 sample configuration files.
+
+Custom variables can be used in your HAL files with the following syntax.
+
+     [SECTION]VARIABLE
 
 === Definitions
 

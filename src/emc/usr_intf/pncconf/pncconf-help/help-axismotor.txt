@@ -1,6 +1,8 @@
-    ---Axis Motor Configuration Page---
+Axis Motor Configuration Page:
+    Depending on previous page selections, not all of
+    these options will show.
 
-* Servo Info:
+Servo Info:
     This is for setting up the servo control loop.
         P - proportional term
         I - integral term
@@ -8,18 +10,25 @@
         FF0 - zero order feed forward
         FF1 - first order feed forward
         FF2 - second order feed forward
-        Bias - 
+        Bias - used to add / subract a constant value to dac.
         Deadband - if the actual position is in this band
             of the commanded proportional control will not be 
             added.
         Dac scale      - scales the output nominal is +-1 volt
         Dac Max output - clamps the output to +- this value
-        Dac offset     - used to offset dac range. 
-        Encoder Lines  - Will be multiplied by four to get
-            quadrature pulses per revolution.
-        
-* Open loop servo test:
+        Dac offset     - used to offset dac range.
+        3PWM scale     - sets the mid point scale factor: see man pages
+        3PWM deadtime  - deadtime between high side and low side enable
+            Too little deadtime creates a short circuit - not good. 
+
+Brushless Control:
+    select this to use and configure the BLDC component.
+    The BLDC component can be used to control brushless motors
+    directly and for HALL sensor conversions. See the MAN pages.
+
+Open loop servo test Button:
     Use this test to confirm proper Dac output.
+    This is unavailable if using simulated realtime.
     It is important to confirm the motor turns in the positive
     direction when the positive jog button is pressed.
     It is important to confirm the encoder counts in the positive 
@@ -30,7 +39,12 @@
     the axis a known distance and noting the encoder count.
     The limit switches are not functional during this test.
 
-* Stepper Info:
+Spindle-at-speed settings:
+    Set the scaling so EMC knows when the spindle is close enough
+    to the requested speed. Spindle feedback or spindle-at-speed 
+    digital input signal is required for this.
+
+Stepper Info:
     This is for setting up the Stepper control loop:
         step on time    - minimum time in nanoseconds for the step pulse.
         Step Space      - minimum time between steps.
@@ -41,19 +55,46 @@
         microstepping   - microstepping multiplication factor.
         motor steps times microstepping = number of steps per revolution.
 
-* Axis info:
-    Pulley Ratio     - use this if using a pulley or gear drive.
-                       or 1:1 for direct drive.
-    Leadscrew        - pitch (metric) or TPI of leadscrew.
+Axis info:
+    Encoder Scale    - number of pulses per unit of axis movement.
+    Stepper Scale    - number of steps per unit of axis movement.
     Max velocity     - in units per MINUTE.
     Max Acceleration - in units per SECOND squared.  
     Rapid speed following error - amount actual can deviate from commanded.
     Feed speed following error  - amount actual can deviate from commanded.
     Invert motor direction      - check to reverse motor direction
     Invert encoder direction    - check to reverse encoder direction
+    When using metric units check the defaults carefully they are not converted
+    so need to be adjusted to sane values.
 
-* Test / Tune Axis:
+Calculate Scale Button:
+    You can enter scaling directly or use this dialog to calculate them.
+    check the boxes to add the setting to the calculation.
+
+    Pulley Teeth    - use this if using a pulley or gear drive.
+                      or uncheck for direct drive. Enter the
+                      number of teeth of the cogs/gears not the
+                      gear ratio.
+    Worm turn ratio - use this for worm drives. Enter the gear
+                      ratio. EG if two turns of input = one of output
+                      enter 2:1 The encoder is assumed connected to 
+                      the input.
+    Leadscrew       - pitch (metric) or TPI of leadscrew.
+    Encoder lines   - the number of basic lines (not pulses) of the encoder.
+    Microsteps      - the multiplication factor to apply to motor steps. 
+    Motor steps     - the number of steps of motor (usually 200).
+                      one could uncheck the microstep checkbox and just
+                      enter the total number of steps per revolution of
+                      the step drive.
+
+    The scale settings change as you enter data / check boxes.
+    The motion data is just for information.
+    If you wish to use the settings press apply otherwise cancel.
+
+
+Test / Tune Axis Button:
     Use this to test and tune the current axis.
+    This is unavailable for servos or if using simulated realtime.
     set the velocity, acceleration and control loop settings.
     jog to a safe zone close to the middle of axis.
     set the test distance and choose a movement type:

@@ -212,6 +212,10 @@ pid_t hal_systemv_nowait(char *const argv[]) {
         for(n=0; argv[n] != NULL; n++) {
 	    rtapi_print_msg(RTAPI_MSG_DBG, "%s ", argv[n] );
 	}
+        if (n == 0) {
+            halcmd_error("hal_systemv_nowait: empty argv array passed in\n");
+            exit(1);
+        }
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
         /* call execv() to invoke command */
 	execvp(argv[0], argv);

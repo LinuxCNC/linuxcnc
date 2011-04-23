@@ -912,6 +912,10 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
         while(theta2 - theta1 < CIRCLE_FUZZ) theta2 += 2*M_PI;
     }
 
+    // if multi-turn, add the right number of full circles
+    if(rot < -1) theta2 += 2*M_PI*(rot+1);
+    if(rot > 1) theta2 += 2*M_PI*(rot-1);
+
     int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
     double rsteps = 1. / steps;
     PyObject *segs = PyList_New(steps);

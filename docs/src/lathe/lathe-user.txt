@@ -94,6 +94,7 @@ The tool orientation (Q field) describes the centerline angle of the tool as
 
 The following figure shows the lathe tool orientations with the center
 line angle of each orientation and info on FRONTANGLE and BACKANGLE.
+The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
 .Lathe Tool Orientations[[cap:Lathe-Tool-Orientations]]
 

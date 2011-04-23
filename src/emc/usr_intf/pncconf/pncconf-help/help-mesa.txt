@@ -1,10 +1,10 @@
-** Mesa setup page **
+Mesa setup page:
 
- * Configuration Tab *
-    allows you to choose the board,firmware,
-    number of components / gpio, 
+Configuration Tab:
+    allows you to choose the firmware,
+    number of components / number of gpio, 
     frequency of pwm / pdm and the watchdog timeout
-    pick the board you want to use then the firmware and 
+    pick the firmware you wish to use and 
     you will see the component numbers change   
     default is to have all the available components active. 
     by choosing less of each component frees up gpio
@@ -12,43 +12,35 @@
     tabs reflect the changes
     any signalnames you had already pick will be lost unless 
     the component is the same as before the change
-    Depending on the board chosen, the tabs will dim if not 
-    available.
+    Depending on the board chosen, the connector tabs will disapear
+    if not available.
+    The help page output tab will show the firmware PIN file,
+    which shows the default components, their chanel number
+    and their IO number. The IO number is useful for changing
+    some options such as stepper output pins to open drain.
+    For instance: in firmware SVST8_4 to change stepper channel
+    0 to open drain outputs, find out their IO numbers.
+    step IO number = 48
+    direction number = 49
+    In your custom HAL file add the commands:
 
- * Connector Tabs *
+    setp hm2_5i20.0.gpio.048.is_opendrain true
+    setp hm2_5i20.0.gpio.049.is_opendrain true
+
+    note that this says GPIO but the IO number corresponds
+    to the stepper ouputs. See the manual for more options.
+
+Connector Tabs:
     The available tabs are selected based on the 
-    mesa card type
+    mesa card type.
     The available component types are based on the 
-    firmware / component number selected on the setup page
-    will display the signal names and the component type:
-    If the type is:
+    firmware / component number selected on the setup page.
+    The tabs will display the signal names and the component
+    types.
+    There are six pintypes depending on the components 
+    available in the selected firmware:
 
-    GPIO   general purpose Input / output 
-        then you may choose between input,output,and opendrain
-
-    PWM GEN 
-        you may choose between pwm and pdm
-
-    STEP GENs
-         at the moment only support step and direction
-
-    ENCODERS 
-        only quadrature.
- 
-    You could change these options in a custom HAL file
-    If you wish to connect a component to something in a 
-    custom HAL file write a unique signal name in the combo 
-    entry box certain components will add endings to your 
-    custom signal name, such as the encoder will 
-    add -position -count -velocity -index-enable and -reset
-
- * Mesa Components / pintypes *
-
-
-    There are four major pintypes based on the 
-    components available:
-
-    * GPIO - general purpose input / output
+     GPIO - general purpose input / output
 
         You can select the type in the pintype combobox
         This includes GPIOI - input, GPIOO - output, and 
@@ -56,21 +48,83 @@
         The available signals will change if you switch between 
         GPIOI and GPIOO/GPIOD.
 
-    * ENCODER - a hardware base quadrature counter
+     ENCODER - a hardware base quadrature counter
 
         You select the A phase signal and the rest of the 
         phases (B, I, and possibly M) are automatically included
+    
+     MUX ENCODER - a hardware base quadrature counter
 
-    * STEPGEN - a hardware based step and direction generator
+        You select the A phase signal and the rest of the 
+        phases (B, I, and possibly M) are automatically included
+        Mux encoders allows two encoders per set of pins by using
+        a select pin to choose a second set of encoders. This
+        component is used with firmware that requires a special
+        daughter board from Mesa. 
+        PNCconf doesn't currently let you selected the signals for
+        the second set of muxed encoders you must do them manually 
+        after PNCconf finishes.
 
-        Right now only step and direction stepgens are selectable 
-        (you could override that in a custom HAL file)
-        You select the STEP signal and the direction and enable
-         signals are automatically setup
-
-    * PWMGEN - a hardware base pulse width (or density) 
+     PWMGEN - a hardware base pulse width (or density) 
         modulation generator
 
         You can select PWM or PWD in the pintype combobox
         you select the PULSE signal and the direction and enable 
         signals are automatically setup
+
+     3 PWMGEN - special pwm generators used for driving brushless
+        servo motors 3 windings directly.
+        This is not fully supported yet so the HAl file will need
+        commands added to it to finish the config.
+
+     STEPGEN - a hardware based step and direction generator
+
+        only step and direction stepgens are supported
+        You select the STEP signal and the direction and enable
+        signals are automatically setup
+
+    You could change these options in a custom HAL file
+    If you wish to connect a component to something in a 
+    custom HAL file write a unique signal name in the combo 
+    entry box. Certain components will add endings to your 
+    custom signal name.
+
+    Encoder will add < customname > +:
+    -position
+    -count
+    -velocity
+    -index-enable
+    -reset
+
+    Steppers add:
+    -enable
+    -counts
+    -position-cmd
+    -position-fb
+    -velocity-fb
+    
+    PWM add:
+    -enable
+    -value
+
+Signal selection:
+    By selecting signals you are configuring the input and output
+    of the mesa boards and selecting how pncconf displays options
+    in the upcoming pages.
+    PNCconf can configure servo motors, open loop steppers and
+    closed loop steppers.
+    PNCconf does a sanity check when you push the next button.
+    It checks for some obvious problems such as:
+    if you select a PWM signal for an axis PNCconf assumes you
+    are using a servo motor (except for the spindle)- then you 
+    need to select an encoder signal too.
+    If you select an encoder you must select an PWM or a stepper
+    signal as well (except for a spindle)
+    A dialog will pop up letting you know of these detected errors.
+    PNCconf will not catch the error of setting two components 
+    the same (If fact for GPIO outputs this is fine anyways)
+ 
+
+
+
+    

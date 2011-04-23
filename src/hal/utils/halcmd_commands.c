@@ -1365,7 +1365,7 @@ static char *guess_comp_name(char *prog_name)
 
 int do_loadusr_cmd(char *args[])
 {
-    int wait_flag, wait_comp_flag, name_flag, ignore_flag;
+    int wait_flag, wait_comp_flag, ignore_flag;
     char *prog_name, *new_comp_name=NULL;
     char *argv[MAX_TOK+1];
     int n, m, retval, status;
@@ -1381,7 +1381,6 @@ int do_loadusr_cmd(char *args[])
     }
     wait_flag = 0;
     wait_comp_flag = 0;
-    name_flag = 0;
     ignore_flag = 0;
     prog_name = NULL;
 
