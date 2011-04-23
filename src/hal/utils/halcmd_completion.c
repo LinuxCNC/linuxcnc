@@ -515,7 +515,9 @@ static char *loadusr_generator(const char *text, int state) {
         result = strdup(ent->d_name);
         return result;
     }
-    closedir(d);
+    if (d != NULL) {
+        closedir(d);
+    }
     return NULL;
 }
 
@@ -539,7 +541,9 @@ static char *loadrt_generator(const char *text, int state) {
         result[strlen(result) - strlen(MODULE_EXT)] = 0;
         return result;
     }
-    closedir(d);
+    if (d != NULL) {
+        closedir(d);
+    }
     return NULL;
 }
 

@@ -616,11 +616,9 @@ static void do_forward_kins(void)
    at the traj rate */
 
     double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
-    int joint_num, all_homed, all_at_home, result;
+    int joint_num, result;
     emcmot_joint_t *joint;
 
-    all_homed = 1;
-    all_at_home = 1;
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
@@ -631,13 +629,6 @@ static void do_forward_kins(void)
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
 	    /* if joint is not active, don't even look at its limits */
 	    continue;
-	}
-
-	if (!GET_JOINT_HOMED_FLAG(joint)) {
-	    all_homed = 0;
-	    all_at_home = 0;
-	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
-	    all_at_home = 0;
 	}
     }
     switch (kinType) {
@@ -762,7 +753,6 @@ static void set_operating_mode(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
-    joint_hal_t *joint_data;
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
@@ -770,7 +760,6 @@ static void set_operating_mode(void)
 	tpClear(&emcmotDebug->queue);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
-	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp_enable = 0;
@@ -803,7 +792,6 @@ static void set_operating_mode(void)
 	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
-	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 
 	    joint->free_pos_cmd = joint->pos_cmd;
@@ -1026,7 +1014,7 @@ static void handle_jogwheels(void)
 
 static void get_pos_cmds(long period)
 {
-    int joint_num, all_homed, all_at_home, result;
+    int joint_num, result;
     emcmot_joint_t *joint;
     double positions[EMCMOT_MAX_JOINTS];
 /*! \todo Another #if 0 */
@@ -1046,13 +1034,6 @@ static void get_pos_cmds(long period)
 	joint = &joints[joint_num];
 	/* copy coarse command */
 	positions[joint_num] = joint->coarse_pos;
-	/* check for homed */
-	if (!GET_JOINT_HOMED_FLAG(joint)) {
-	    all_homed = 0;
-	    all_at_home = 0;
-	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
-	    all_at_home = 0;
-	}
     }
     /* if less than a full complement of joints, zero out the rest */
     while ( joint_num < EMCMOT_MAX_JOINTS ) {
@@ -1180,8 +1161,6 @@ static void get_pos_cmds(long period)
 	    emcmotDebug->overriding = 0;
 	}
 	/*! \todo FIXME - this should run at the traj rate */
-	all_homed = 1;
-	all_at_home = 1;
 	switch (kinType) {
 
 	case KINEMATICS_IDENTITY:
