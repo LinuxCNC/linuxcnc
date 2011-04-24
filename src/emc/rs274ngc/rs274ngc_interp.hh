@@ -501,6 +501,7 @@ private:
  int add_parameters(setup_pointer settings, int user_data = 0);
 
  int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
+ bool has_user_mcode(setup_pointer settings,block_pointer block);
 
 #define is_user_gcode(s,x) (usercode_mgroup(s,x,false) != -1)
 #define is_user_mcode(s,x) (usercode_mgroup(s,x,true) != -1)

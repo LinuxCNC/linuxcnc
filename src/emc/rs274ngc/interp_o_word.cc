@@ -629,7 +629,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      if (settings->sub_context[settings->call_level].subName)
 		  free(settings->sub_context[settings->call_level].subName);
 	      settings->call_level--;
-	      // settings->sub_context[settings->call_level].filename is freed in caller
+	      settings->stack_level = 0;
 	      return status;
 	  }
       }

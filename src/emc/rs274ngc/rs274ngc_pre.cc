@@ -243,10 +243,12 @@ int Interp::_execute(const char *command)
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   //  if (_setup.block1.o_number != 0)
-  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
+  if ((EXECUTING_BLOCK(_setup).o_number != 0) ||
+      (EXECUTING_BLOCK(_setup).o_name != 0) ||
+      (_setup.mdi_interrupt))
     {
       logDebug("Convert control functions");
-      CHP(convert_control_functions(&(_setup.block1), &_setup));
+      CHP(convert_control_functions(&(EXECUTING_BLOCK(_setup)), &_setup));
 
 #if 1
       // let MDI code call subroutines.
@@ -314,20 +316,21 @@ int Interp::_execute(const char *command)
   _setup.named_parameter_occurrence = 0;
 
   if (_setup.line_length != 0) {        /* line not blank */
-      int next_remap = next_remapping(&(_setup.block1), &_setup);
+      int next_remap = next_remapping(&(EXECUTING_BLOCK(_setup)), &_setup);
 
       // at this point we have a parsed block
       // if items are to be remapped the flow is as follows:
       //
-      // 1. copy this block to stashed_block because this might take several
-      //    interp invcocations to finish,while other blocks will be parsed and
-      //    executed by the oword subs.
+      // 1. push this block onto the remap stack because this might take several
+      //    interp invcocations to finish, while other blocks will be parsed and
+      //    executed by the oword subs. The top-of-stack block is the 'current
+      //    remapped block'.
       //
-      // 2. execute this block, ticking off (zeroing) all items which are done.
+      // 2. execute the remap stack top level block, ticking off (zeroing) all items which are done.
       //
       // 3. when a remap operation is encountered, this will result in a call like so:
       //   'o<replacement>call ..params..'
-      //   this replacement call is parsed with read() into _setup.block1 by the
+      //   this replacement call is parsed with read() into _setup.blocks[0] by the
       //   corresponding routine (see e.g. handling of T in interp_execute.cc)
       //   through calling into execute_handler()
       //
@@ -353,7 +356,7 @@ int Interp::_execute(const char *command)
       //   task will do it for us.
       //
       // 9. When a replacment sub finishes, remap_finished() continues execution of
-      //   the stashed block until done.
+      //   the current remapped block until done.
       //
       if (next_remap != NO_REMAP) {
 	  // if (_setup.executing_remap != NO_REMAP) {
@@ -361,12 +364,20 @@ int Interp::_execute(const char *command)
 	  // }
 	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
-	  _setup.stashed_block = _setup.block1;
+
+          _setup.stack_level++;
+	  if (_setup.stack_level == MAX_NESTED_REMAPS) {
+	      ERS("maximum nesting of remapped blocks execeeded");
+	      return INTERP_ERROR;
+	  }
+	  fprintf(stderr,"---> enter remap nesting (now level %d)\n", _setup.stack_level);
+
+	  CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
 	  // execute up to the first remap including read() of its handler
-	  status = execute_block(&(_setup.stashed_block), &_setup, true);
+	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
 
 	  // All items up to the first remap item have been executed.
-	  // The remap item procedure call has been parsed into _setup.block1.
+	  // The remap item procedure call has been parsed into _setup.blocks[0].
 	  // after parsing a handler, execute_block() either fails to toplevel or
 	  // returns the negative value of the handler ID it parsed.
 	  switch (status) {
@@ -378,10 +389,17 @@ int Interp::_execute(const char *command)
 	      fprintf(stderr,"--- handler armed: %s\n",remaps[-status]);
 	      _setup.executing_remap = -status;
 	      if (MDImode) {
+
+#if 1
+		  return execute(0);
+#else
+		  // FIXME mah replace by recursive call to execute(0)
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-		  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt)) {
-		      CHP(convert_control_functions(&(_setup.block1), &_setup));
+		  if ((EXECUTING_BLOCK(_setup).o_number != 0) ||
+		      (EXECUTING_BLOCK(_setup).o_name != 0) ||
+		      (_setup.mdi_interrupt)) {
+		      CHP(convert_control_functions(&(EXECUTING_BLOCK(_setup)), &_setup));
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
 			  MDImode = 1;
@@ -402,28 +420,30 @@ int Interp::_execute(const char *command)
 		      }
 		      _setup.mdi_interrupt = false;
 		      // at this point the MDI execution of a remapped block is complete.
-		      write_g_codes(&(_setup.block1), &_setup);
-		      write_m_codes(&(_setup.block1), &_setup);
+		      write_g_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
+		      write_m_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
 		      write_settings(&_setup);
 		      return INTERP_OK;
 		  }
+#endif
 	      } else {
 		  // this should get the osub going
 		  status = execute(0);
-		  // when this is done, a normal block1 will be executed as per standard case
+		  // when this is done, blocks[0] will be executed as per standard case
 		  // on endsub/return and g_codes/m_codes/settings recorded there.
 	      }
 	      ERP(status);
-	  default: ;
+	  default:
+	      fprintf(stderr,"---- execute_block status = %d\n",status);
 	  }
       } else {
 	  // standard case: unremapped block execution
-	  status = execute_block(&(_setup.block1), &_setup);
-	  write_g_codes(&(_setup.block1), &_setup);
-	  write_m_codes(&(_setup.block1), &_setup);
+	  status = execute_block(&(EXECUTING_BLOCK(_setup)), &_setup);
+
+	  write_g_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
+	  write_m_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
 	  write_settings(&_setup);
       }
-
     if ((status != INTERP_OK) &&
         (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
       ERP(status);
@@ -446,9 +466,12 @@ int Interp::execute(const char *command, int line_number)
 {
     int status;
     _setup.sequence_number = line_number;
-    fprintf(stderr,"--> execute() level=%d\n",_setup.call_level);
+    fprintf(stderr,"--> execute(%s) remap nesting=%d call_level=%d\n",
+	    command == NULL ? "NULL" : command,
+	    _setup.stack_level,_setup.call_level);
     status = Interp::execute(command);
-    fprintf(stderr,"<-- execute() level=%d\n",_setup.call_level);
+    fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d\n",
+	    _setup.stack_level,_setup.call_level);
     return status;
 }
 
@@ -460,8 +483,8 @@ int Interp::remap_finished(int status)
     int next_remap;
 
     _setup.executing_remap = NO_REMAP;
-    fprintf(stderr,"--- remap_finished op=%s status=%d call_level=%d filename=%s\n",
-	    remaps[remap],status,_setup.call_level,_setup.filename);
+    fprintf(stderr,"--- remap_finished op=%s status=%d nesting=%d call_level=%d filename=%s\n",
+	    remaps[remap],status,_setup.stack_level,_setup.call_level,_setup.filename);
 
     switch (remap) {
     case T_REMAP:
@@ -470,23 +493,32 @@ int Interp::remap_finished(int status)
     case M_USER_REMAP:
     case G_USER_REMAP:
 	// any more remaps left?
-	next_remap = next_remapping(&(_setup.stashed_block), &_setup);
+	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)), &_setup);
 	if (next_remap) {
 	    fprintf(stderr,"--- arming %s\n",remaps[next_remap]);
 	    // this will execute up to the next remap, and return
 	    // after parsing the handler with read()
-	    // so block1 is armed
-	    status = execute_block(&(_setup.stashed_block),
+	    // so blocks[0] is armed (meaning: a osub call is parsed, but not executed yet)
+	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
 	    _setup.executing_remap = next_remap;
 	    status = execute(0); // this should get the osub going
 	    ERP(status);
 	} else {
-	    fprintf(stderr,"--- no more remaps in stashed_block found\n");
-	    status = execute_block(&(_setup.stashed_block),
+	    // execution of controlling block finished
+	    fprintf(stderr,"--- no more remaps in controlling_block found (level %d)\n",
+		    _setup.stack_level);
+	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
-	    // execution of stashed block finished
+	    _setup.stack_level--; // drop one nesting level
+	    fprintf(stderr,"<--- leave remap nesting (now level %d)\n", _setup.stack_level);
 	    ERP(status);
+
+	    if (_setup.stack_level < 0) {
+		fprintf(stderr,"--- BUG: stack_level %d (<0)\n",
+			_setup.stack_level);
+		ERS("BUG: stack_level < 0");
+	    }
 	}
 	return status;
 	break;
@@ -497,7 +529,6 @@ int Interp::remap_finished(int status)
 		remap);
     }
     return INTERP_OK;
-
 }
 
 // examine a block in execution sequence for an active item which is
@@ -667,6 +698,7 @@ int Interp::init()
   _setup.b_indexer = 0;
   _setup.c_indexer = 0;
   _setup.return_value = 0;
+  _setup.stack_level = 0; // remapped blocks stack index
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -1175,7 +1207,7 @@ Returned Value: int
 
 Side Effects:
    _setup.sequence_number is incremented.
-   The _setup.block1 is filled with data.
+   The executing block is filled with data.
 
 Called By: external programs
 
@@ -1237,7 +1269,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
 
   if(_setup.file_pointer)
   {
-     _setup.block1.offset = ftell(_setup.file_pointer);
+      EXECUTING_BLOCK(_setup).offset = ftell(_setup.file_pointer);
   }
 
   read_status =
@@ -1255,7 +1287,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   if ((read_status == INTERP_EXECUTE_FINISH)
       || (read_status == INTERP_OK)) {
     if (_setup.line_length != 0) {
-      CHP(parse_line(_setup.blocktext, &(_setup.block1), &_setup));
+	CHP(parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup));
     }
 
     else // Blank line (zero length)
@@ -1267,12 +1299,12 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
              incremented to allow o-extensions to work. 
              Note that the the block is 'refreshed' by init_block(),
              not created new, so this is a legal operation on block1. */
-        if (_setup.block1.o_type != O_none)
+        if (EXECUTING_BLOCK(_setup).o_type != O_none)
         {
             // Clear o_type, this isn't line isn't a command...
-            _setup.block1.o_type = 0;
+            EXECUTING_BLOCK(_setup).o_type = 0;
             // increment o_number
-            _setup.block1.o_number++;
+	    EXECUTING_BLOCK(_setup).o_number++;
         }
     }
   } else if (read_status == INTERP_ENDFILE);

@@ -289,7 +289,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data)
     }
     o = optional;
     r = required;
-    block = &settings->stashed_block;
+    block = &CONTROLLING_BLOCK((*settings));
 
     fprintf(stderr,"----add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s\n",
 	    user_data,argspec,settings->call_level,required,optional);
@@ -314,8 +314,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data)
 	    errored = true;					\
 	}							\
     }
-// user-defined G88.1: :missing: A,B,C,D,E,F,H,I,J,K,Q,U,V,W,F>0,S>0,
-// 88.1,1,XYZR
+
     PARAM('a',"a",block->a_flag,block->a_number);
     PARAM('b',"b",block->b_flag,block->b_number);
     PARAM('c',"c",block->c_flag,block->c_number);

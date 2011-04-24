@@ -2866,6 +2866,19 @@ int Interp::finish_m61_command(setup_pointer settings)
 }
 
 
+bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
+{
+    unsigned i;
+    for(i = 0; i < sizeof(block->m_modes)/sizeof(int); i++) {
+	if (block->m_modes[i] == -1)
+	    continue;
+	if (usercode_mgroup(settings, block->m_modes[i], true)
+	    != -1)
+	    return true;
+    }
+    return false;
+}
+
 int Interp::usercode_mgroup(setup_pointer settings,int code, bool mcode)
 {
     std::map<int, int>::iterator ii;
@@ -2925,6 +2938,7 @@ const char *Interp::remap_name(setup_pointer settings,int type, int code)
 }
 
 #define CODE(x) ((x == M_USER_REMAP) ? "M": (x == G_USER_REMAP) ? "G":"unknown")
+#define NUMBER(x,n) ((x == M_USER_REMAP) ? n -MCODE_OFFSET: (x == G_USER_REMAP) ? n : -1)
 
 int Interp::convert_remapped_code(int code,block_pointer block,
 				  setup_pointer settings,int type)
@@ -2933,10 +2947,10 @@ int Interp::convert_remapped_code(int code,block_pointer block,
     int status;
 
     fprintf(stderr,"----convert_remapped_code %s%d\n",
-	    CODE(type),code);
+	    CODE(type),NUMBER(type,code));
 
     snprintf(cmd,sizeof(cmd),"o<%s%d> call",
-	      CODE(type), code);
+	      CODE(type),NUMBER(type,code));
     status = execute_handler(settings, cmd,
 			     &Interp::add_parameters,
 			     &Interp::finish_user_command, // FIXME
@@ -2956,7 +2970,7 @@ int Interp::remap_m(block_pointer block, setup_pointer settings,
 {
     fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
 	    block->m_modes[mode],mode);
-    int status = convert_remapped_code(block->m_modes[mode],block,
+    int status = convert_remapped_code(block->m_modes[mode] + MCODE_OFFSET,block,
 				   settings,M_USER_REMAP);
     if (remove_trail) block->m_modes[mode] = -1;
     return status;

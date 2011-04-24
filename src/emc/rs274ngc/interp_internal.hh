@@ -42,6 +42,11 @@
 /* how far above hole bottom for rapid return, in inches */
 #define G83_RAPID_DELTA 0.010
 
+/* nested remap: a remapped code is found in the body of a subroutine
+ * which is executing on behalf of another remapped code
+ * example: a user G code command executes a tool change
+ */
+#define MAX_NESTED_REMAPS 10
 
 /* numerical constants */
 #define TOLERANCE_INCH 0.0005
@@ -430,8 +435,15 @@ typedef struct setup_struct
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset
-  block block1;                 // parsed next block
-  block stashed_block;          // currently executing block with remappings
+  // block block1;                 // parsed next block
+  // stack of controlling blocks for remap execution
+  block blocks[MAX_NESTED_REMAPS];
+  // index into blocks, points to currently controlling block
+  int stack_level;
+#define CONTROLLING_BLOCK(s) s.blocks[s.stack_level]
+#define EXECUTING_BLOCK(s)   s.blocks[0]
+
+  // block stashed_block;          // currently executing block with remappings
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
   int current_pocket;             // carousel slot number of current tool
