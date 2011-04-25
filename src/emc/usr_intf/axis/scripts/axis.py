@@ -866,6 +866,12 @@ def running(do_poll=True):
     return s.task_mode == emc.MODE_AUTO and s.interp_state != emc.INTERP_IDLE
 
 def manual_ok(do_poll=True):
+    """warning: deceptive function name.
+
+This function returns TRUE when not running a program, i.e., when a user-
+initiated action (whether an MDI command or a jog) is acceptable.
+
+This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != emc.STATE_ON: return False
     return s.interp_state == emc.INTERP_IDLE
