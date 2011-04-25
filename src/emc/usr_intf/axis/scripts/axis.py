@@ -2666,6 +2666,7 @@ except IOError:
 
 def jog(*args):
     if not manual_ok(): return
+    if not manual_tab_visible(): return
     ensure_mode(emc.MODE_MANUAL)
     c.jog(*args)
 
@@ -2675,6 +2676,7 @@ jog_cont  = [False] * 9
 jogging   = [0] * 9
 def jog_on(a, b):
     if not manual_ok(): return
+    if not manual_tab_visible(): return
     if isinstance(a, (str, unicode)):
         a = "xyzabcuvw".index(a)
     if a < 3:
