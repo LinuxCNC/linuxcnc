@@ -285,6 +285,9 @@ LICENSE::
 AUTHOR::
     Specify the author of the module for the documentation.
 
+C++-style one-line comments (`// …`) and C-style multi-line comments
+(`/* … */`) are both supported in the declaration section.
+
 == Per-instance data storage
 
 variable ::
@@ -305,8 +308,6 @@ variable ::
     int, etc. 
     Access to array variables uses square brackets.
 
-C++-style one-line comments (`// …`) and C-style multi-line comments
-(`/* … */`) are both supported in the declaration section.
 
 == Other restrictions on comp files
 
