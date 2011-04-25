@@ -83,9 +83,9 @@ NAME::
     A standard C identifier
 
 STARREDNAME::
-    A C identifier with zero or more "*" before it.  This syntax can be used
+    A C identifier with zero or more "\*" before it.  This syntax can be used
     to declare instance variables that are pointers.  Note that because of the
-    grammar, there may not be whitespace between the "*" and the variable name.
+    grammar, there may not be whitespace between the "\*" and the variable name.
     
 HALNAME::
     An extended identifier.
@@ -221,7 +221,7 @@ OPT, VALUE::
         must be provided in the C code.
         
         When implementing your own `rtapi_app_main`, call the function `int
-         export(char *prefix, long extra_arg)` to register the pins,
+         export(char \*prefix, long extra_arg)` to register the pins,
     parameters,
         and functions for `prefix`.
     
@@ -294,7 +294,7 @@ AUTHOR::
     Specify the author of the module for the documentation.
 
 C++-style one-line comments (`// …`) and C-style multi-line comments
-(`/* … */`) are both supported in the declaration section.
+(`/\* … \*/`) are both supported in the declaration section.
 
 == Per-instance data storage
 
@@ -309,19 +309,20 @@ variable ::
 
 variable ::
     'CTYPE STARREDNAME'['SIZE'] = 'DEFAULT';
-    Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
-    an array of 'SIZE' items, and optionally with a default value
-    'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
-    'CTYPE' is a simple one-word C type, such as `float`, `u32`, `s32`,
-    int, etc. 
-    Access to array variables uses square brackets.
 
-    If a variable is to be of a pointer type, there may not be any space
-    between the "*" and the variable name.  Therefore, the following is acceptable:
-        variable int *example;
-    but the following are not:
-        variable int* badexample;
-        variable int * badexample;
+Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
+an array of 'SIZE' items, and optionally with a default value
+'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
+'CTYPE' is a simple one-word C type, such as `float`, `u32`, `s32`,
+int, etc. 
+Access to array variables uses square brackets.
+
+If a variable is to be of a pointer type, there may not be any space
+between the "\*" and the variable name.  Therefore, the following is acceptable:
+    variable int \*example;
+but the following are not:
+    variable int\* badexample;
+    variable int \* badexample;
 
 == Other restrictions on comp files
 
@@ -332,7 +333,7 @@ name, comp does not.
 
 Based on the items in the declaration section, 'comp' creates a C
 structure called `struct state`. However, instead of referring to the
-members of this structure (e.g., `*(inst->name)` ), they will generally
+members of this structure (e.g., `\*(inst->name)` ), they will generally
 be referred to using the macros below. The
  details of `struct state` and these macros may change from one version
 of 'comp' to the next.
@@ -387,7 +388,7 @@ fperiod::
 
 FOR_ALL_INSTS() {::
      `…`} For userspace components. This macro uses the variable `struct
-    state *inst`  to iterate over all the defined instances. Inside the
+    state \*inst`  to iterate over all the defined instances. Inside the
     body of the
      loop, the 'pin_name', 'parameter_name', and *data* macros work as they
     do in realtime functions.
