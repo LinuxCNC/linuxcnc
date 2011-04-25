@@ -865,6 +865,10 @@ def running(do_poll=True):
     if do_poll: s.poll()
     return s.task_mode == emc.MODE_AUTO and s.interp_state != emc.INTERP_IDLE
 
+def manual_tab_visible():
+    page = root_window.tk.call(widgets.tabs, "raise")
+    return page == "manual"
+
 def manual_ok(do_poll=True):
     """warning: deceptive function name.
 
