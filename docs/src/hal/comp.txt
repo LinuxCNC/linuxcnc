@@ -70,7 +70,7 @@ Declarations include:
    `CONDSIZE]``) (if` `CONDITION)` `(=` `STARTVALUE``) (``DOC``) ;`
  - `function` `HALNAME` `(fp | nofp) (``DOC``);`
  - `option` `OPT` `(``VALUE``);`
- - `variable` `CTYPE NAME` `([``SIZE``]);`
+ - `variable` `CTYPE STARREDNAME` `([``SIZE``]);`
  - `description` `DOC``;`
  - `see_also` `DOC``;`
  - `license` `LICENSE``;`
@@ -79,8 +79,16 @@ Declarations include:
 Parentheses indicate optional items. A vertical bar indicates
 alternatives. Words in 'CAPITALS' indicate variable text, as follows:
 
+NAME::
+    A standard C identifier
+
+STARREDNAME::
+    A C identifier with zero or more "*" before it.  This syntax can be used
+    to declare instance variables that are pointers.  Note that because of the
+    grammar, there may not be whitespace between the "*" and the variable name.
+    
 HALNAME::
-    An identifier.
+    An extended identifier.
     When used to create a HAL identifier, any underscores are replaced
     with dashes, and any trailing dash or period is removed, so that
     "this_name_" will be turned into "this-name", and if the name is "`_`",
@@ -291,23 +299,29 @@ C++-style one-line comments (`// …`) and C-style multi-line comments
 == Per-instance data storage
 
 variable ::
-    'CTYPE NAME';
+    'CTYPE STARREDNAME';
 
 variable ::
-    'CTYPE NAME'['SIZE'];
+    'CTYPE STARREDNAME'['SIZE'];
 
 variable ::
-    'CTYPE NAME' = 'DEFAULT';
+    'CTYPE STARREDNAME' = 'DEFAULT';
 
 variable ::
-    'CTYPE NAME'['SIZE'] = 'DEFAULT';
-    Declare a per-instance variable 'NAME' of type 'CTYPE', optionally as
+    'CTYPE STARREDNAME'['SIZE'] = 'DEFAULT';
+    Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
     an array of 'SIZE' items, and optionally with a default value
     'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
     'CTYPE' is a simple one-word C type, such as `float`, `u32`, `s32`,
     int, etc. 
     Access to array variables uses square brackets.
 
+    If a variable is to be of a pointer type, there may not be any space
+    between the "*" and the variable name.  Therefore, the following is acceptable:
+        variable int *example;
+    but the following are not:
+        variable int* badexample;
+        variable int * badexample;
 
 == Other restrictions on comp files
 
