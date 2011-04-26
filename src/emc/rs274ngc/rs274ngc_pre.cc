@@ -359,9 +359,6 @@ int Interp::_execute(const char *command)
       //   the current remapped block until done.
       //
       if (next_remap != NO_REMAP) {
-	  // if (_setup.executing_remap != NO_REMAP) {
-	  //     ERS("%s: nested remap",_setup.blocktext);
-	  // }
 	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
 
@@ -372,7 +369,9 @@ int Interp::_execute(const char *command)
 	  }
 	  fprintf(stderr,"---> enter remap nesting (now level %d)\n", _setup.stack_level);
 
+	  // push onto block stack
 	  CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
+
 	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
 
@@ -387,10 +386,9 @@ int Interp::_execute(const char *command)
 	  case -M_USER_REMAP:
 	  case -G_USER_REMAP:
 	      fprintf(stderr,"--- handler armed: %s\n",remaps[-status]);
-	      _setup.executing_remap = -status;
 	      if (MDImode) {
 
-#if 1
+#if 0
 		  return execute(0);
 #else
 		  // FIXME mah replace by recursive call to execute(0)
@@ -432,7 +430,10 @@ int Interp::_execute(const char *command)
 		  // when this is done, blocks[0] will be executed as per standard case
 		  // on endsub/return and g_codes/m_codes/settings recorded there.
 	      }
-	      ERP(status);
+	      if ((status != INTERP_OK) &&
+		  (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
+		  ERP(status);
+	      break;
 	  default:
 	      fprintf(stderr,"---- execute_block status = %d\n",status);
 	  }
@@ -452,6 +453,15 @@ int Interp::_execute(const char *command)
   return status;
 }
 
+int Interp::signal_error(int status)
+{
+
+    fprintf(stderr," ----- signal error %d\n",status);
+    return INTERP_OK;
+
+    _setup.stack_level = 0;
+    _setup.call_level = 0; // FIXME mah check for memory leaks in call stack
+}
 
 int Interp::execute(const char *command) 
 {
@@ -477,16 +487,14 @@ int Interp::execute(const char *command, int line_number)
 
 // when a remapping sub finishes, the oword return/endsub handling code
 // calls back in here to continue block execution
-int Interp::remap_finished(int status)
+int Interp::remap_finished(int finished_remap)
 {
-    int remap = _setup.executing_remap;
-    int next_remap;
+    int next_remap,status;
 
-    _setup.executing_remap = NO_REMAP;
-    fprintf(stderr,"--- remap_finished op=%s status=%d nesting=%d call_level=%d filename=%s\n",
-	    remaps[remap],status,_setup.stack_level,_setup.call_level,_setup.filename);
+    fprintf(stderr,"--- remap_finished finished=%s nesting=%d call_level=%d filename=%s\n",
+	  remaps[finished_remap],_setup.stack_level,_setup.call_level,_setup.filename);
 
-    switch (remap) {
+    switch (finished_remap) {
     case T_REMAP:
     case M6_REMAP:
     case M61_REMAP:
@@ -501,18 +509,23 @@ int Interp::remap_finished(int status)
 	    // so blocks[0] is armed (meaning: a osub call is parsed, but not executed yet)
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
-	    _setup.executing_remap = next_remap;
+	    fprintf(stderr,"--- post-arming: execute_block() returns %d\n",status);
+
 	    status = execute(0); // this should get the osub going
-	    ERP(status);
+	    if ((status != INTERP_OK) &&
+		(status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
+		ERP(status);
 	} else {
 	    // execution of controlling block finished
-	    fprintf(stderr,"--- no more remaps in controlling_block found (level %d)\n",
-		    _setup.stack_level);
+	    fprintf(stderr,"--- no more remaps in controlling_block found (nesting=%d call_level=%d), dropping\n",
+		    _setup.stack_level,_setup.call_level);
+
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
 	    _setup.stack_level--; // drop one nesting level
 	    fprintf(stderr,"<--- leave remap nesting (now level %d)\n", _setup.stack_level);
-	    ERP(status);
+	    if (status != INTERP_OK)
+		ERP(status);
 
 	    if (_setup.stack_level < 0) {
 		fprintf(stderr,"--- BUG: stack_level %d (<0)\n",
@@ -525,8 +538,8 @@ int Interp::remap_finished(int status)
 
     default: ;
 	// "should not happen"
-	fprintf(stderr,"--- BUG: remap_finished(): unhandled remap code %d\n",
-		remap);
+	fprintf(stderr,"--- remap_finished(): BUG finished_remap=%d nesting=%d\n",
+		finished_remap, _setup.stack_level);
     }
     return INTERP_OK;
 }
@@ -2082,18 +2095,20 @@ int Interp::set_tool_parameters()
 int Interp::on_abort(int reason)
 {
     int i;
-
-    // MSG("---- on_abort(call_level=%d)\n",_setup.call_level);
+    fprintf(stderr,"------- on_abort reason=%d\n",reason);
     // invalidate all saved context except the top level one
     for (i = _setup.call_level; i > 0; i--) {
         _setup.sub_context[i].context_status = 0;
+	// FIXME mah check subName,filename,o_name
+	//  settings->oword_offset[index].o_word_name = strdup(block->o_name);
+	//  settings->oword_offset[index].filename = strdup(settings->filename);
+	//   settings->skipping_o = strdup(block->o_name); // start skipping
+	//  settings->skipping_to_sub = strdup(block->o_name); // start skipping
+	// 	      settings->sub_name = strdup...
         MSG("---- unwind context at level %d\n",i);
     }
     if (_setup.on_abort_command == NULL)
 	return -1;
-
-    // returned to top level - this requires testing FIXME mah
-    _setup.executing_remap = NO_REMAP;
 
     char cmd[LINELEN];
 
@@ -2127,8 +2142,8 @@ int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
 // mcodes start at MCODE_OFFSET
 int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 {
-    if ((mcode < 74)|| (mcode > 99)) {
-	fprintf(stderr, "M-codes must range from 74..99, got %d\n",mcode);
+    if ((mcode < 74)|| ((mcode > 99) && (mcode < 200)) || (mcode > 999)) {
+	fprintf(stderr, "M-codes must range from 74..99, 200-999, got %d\n",mcode);
 	return INTERP_ERROR;
     }
     if (_ems[mcode] != -1) {

@@ -472,21 +472,21 @@ private:
   setup_pointer settings,  /* pointer to machine settings */
   const char *cmd,
   int (Interp::*prolog)(setup_pointer settings, int user_data) = NULL,
- int (Interp::*epilog)(setup_pointer settings) = NULL,
+  int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
   int remap_op = 0, // really NO_REMAP but rather keep internal
   int user_data = 0
   );
-
+    int signal_error(int code);
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
 
  int report_error(setup_pointer settings,int status,const char *text);
 
  // epilog routines called post G-code handler procedure
- int finish_t_command(setup_pointer settings);
- int finish_m6_command(setup_pointer settings);
- int finish_m61_command(setup_pointer settings);
- int finish_user_command(setup_pointer settings);
+    int finish_t_command(setup_pointer settings,int remap);
+    int finish_m6_command(setup_pointer settings,int remap);
+    int finish_m61_command(setup_pointer settings,int remap);
+    int finish_user_command(setup_pointer settings, int remap);
 
  // user-defined g/mcode support
  int define_gcode(double gcode,  int modal_group,const char *argspec);

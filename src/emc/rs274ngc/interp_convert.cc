@@ -2800,7 +2800,9 @@ int Interp::restore_context(setup_pointer settings,
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
 	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	ERP(execute(cmd));
+	status = execute(cmd);
+	if (status != INTERP_OK)
+	    ERP(status);
 	memset(cmd, 0, LINELEN);
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
@@ -2809,7 +2811,8 @@ int Interp::restore_context(setup_pointer settings,
 
     if (strlen(cmd) > 0) {
 	status = execute(cmd);
-	ERP(status);
+	if (status != INTERP_OK)
+	    ERP(status);
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);
@@ -2823,7 +2826,7 @@ int Interp::restore_context(setup_pointer settings,
 }
 
 // handler epilogues
-int Interp::finish_m6_command(setup_pointer settings)
+int Interp::finish_m6_command(setup_pointer settings, int remap)
 {
     // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
     // commit the tool change
@@ -2839,11 +2842,11 @@ int Interp::finish_m6_command(setup_pointer settings)
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    remap_finished(status);
+    remap_finished(remap);
     return (status);
 }
 
-int Interp::finish_m61_command(setup_pointer settings)
+int Interp::finish_m61_command(setup_pointer settings,int remap)
 {
     int status = INTERP_OK;
 
@@ -2861,8 +2864,8 @@ int Interp::finish_m61_command(setup_pointer settings)
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    remap_finished(status);
-    return INTERP_OK;
+    remap_finished(remap);
+    return status;
 }
 
 
@@ -2907,9 +2910,9 @@ const char *Interp::usercode_argspec(setup_pointer settings,int code,
 }
 
 // handler epilogue for remapped user m + g codes
-int Interp::finish_user_command(setup_pointer settings)
+int Interp::finish_user_command(setup_pointer settings,int remap)
 {
-    remap_finished(INTERP_OK);
+    remap_finished(remap);
     return INTERP_OK;
 }
 

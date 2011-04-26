@@ -227,7 +227,7 @@ int Interp::report_error(setup_pointer settings,int status,const char *text)
 }
 
 // Tx epiplogue - executed past T_COMMAND
-int Interp::finish_t_command(setup_pointer settings)
+int Interp::finish_t_command(setup_pointer settings,int remap)
 {
     int status = INTERP_OK;
 
@@ -241,8 +241,8 @@ int Interp::finish_t_command(setup_pointer settings)
 	CANON_ERROR("T<tool> - prepare failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    remap_finished(status);
-    return(INTERP_OK);
+    remap_finished(remap);
+    return(status);
 }
 
 
@@ -250,7 +250,8 @@ int Interp::finish_t_command(setup_pointer settings)
 int Interp::execute_handler(setup_pointer settings, const char *cmd,
 			    int (Interp::*prolog)(setup_pointer settings,
 						  int user_data),
-			    int (Interp::*epilog)(setup_pointer settings),
+			    int (Interp::*epilog)(setup_pointer settings,
+						  int remap_op),
 			    int remap_op,
 			    int user_data
 )
@@ -268,6 +269,7 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
     // it's essentially a hidden param to the call
 
     settings->epilog_hook = epilog;
+    settings->epilog_userdata = remap_op;
 
     // this hook might call a function to enrich subroutine local params
     settings->prolog_hook = prolog;

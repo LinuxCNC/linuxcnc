@@ -376,7 +376,8 @@ typedef struct context_struct {
   int (Interp::*prolog)(setup_pointer settings, int user_data);
   int userdata; // memoized parameter to prolog function
   // if set, the following handler is executed on endsub/return
-  int (Interp::*epilog)(setup_pointer settings);
+    int (Interp::*epilog)(setup_pointer settings, int remap);
+    int epilog_arg; // memoized parameter to epilog function
 
 }context;
 
@@ -565,9 +566,11 @@ typedef struct setup_struct
     int (Interp::*prolog_hook)(setup_pointer settings, int user_data);
     int prolog_userdata; // memoized parameter to prolog function
   // if set on a sub call, the following function is executed on endsub/return
-  int (Interp::*epilog_hook)(setup_pointer settings);
+    int (Interp::*epilog_hook)(setup_pointer settings,int remap);
+    int epilog_userdata; // memoized parameter to epilog function
+
     const char *t_command, *m6_command,*m61_command,*on_abort_command;
-  int executing_remap;  // we are in a Tx/M6/M61 replacement procedure
+    //int pending_remap;  // we are in a Tx/M6/M61 replacement procedure
     // see enum remap_op in rs274ngc_interp.hh for values
 // gcodes are 0..999
 // mcodes are at offset MCODE_OFFSET
@@ -612,6 +615,7 @@ macros totally crash-proof. If the function call stack is deeper than
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
+	signal_error(INTERP_ERROR);                        \
         return INTERP_ERROR;                               \
     } while(0)
 
@@ -623,6 +627,7 @@ macros totally crash-proof. If the function call stack is deeper than
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
+	signal_error(error_code);			   \
         return error_code;                                 \
     } while(0)
 
@@ -636,6 +641,7 @@ macros totally crash-proof. If the function call stack is deeper than
             _setup.stack_index++;                                       \
             _setup.stack[_setup.stack_index][0] = 0;           \
         }                                                      \
+	signal_error(error_code);			       \
         return error_code;                                     \
     } while(0)
 
