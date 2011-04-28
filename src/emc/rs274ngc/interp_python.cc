@@ -1,6 +1,7 @@
 // Support for Python oword subroutines
 // Michael Haberler 4/2011
 //
+// FIXME mah: XDECREF properly
 
 #include "Python.h"
 #include <unistd.h>

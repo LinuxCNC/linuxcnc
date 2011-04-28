@@ -1,3 +1,3 @@
-T2 P0 D1.500000 Z+0.100000 ;1.5mm  end mill
+T2 P47 D1.500000 Z+0.100000 ;1.5mm  end mill
 T1 P11 D3.000000 Z+0.511000 ;3mm end mill
 T3 P33 D5.000000 Z+1.273000 ;5mm tap drill

@@ -1,5 +1,13 @@
 import sys
 import fib
+#import interp
+
+# interp.param(this,5399)
+# interp.param(this,"foo")
+#
+# interp.param[5399]
+# interp.param["foo"]
+
 
 # Python functions as o-word subroutines
 #
@@ -112,3 +120,26 @@ def m270(this,args,**words):
 	#print fib.fib(815,123) #FAIL
 	fib.doppel(1,"foo",volt=24.0,ampere=3.2)
 	return result
+
+
+def pytdemo(this,args,**words):
+	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	for i in range(5):
+		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
+	return args[0] # set prepared tool number from param 0
+
+
+def pym6demo(this,args,**words):
+	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	for i in range(5):
+		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
+	return 1.0  # commit change to prepped tool
+
+def pym61demo(this,args,**words):
+	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	for i in range(5):
+		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
+	for key in words:
+		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
+	return args[0] # set tool number from Q param
+
