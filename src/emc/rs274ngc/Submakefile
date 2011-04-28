@@ -41,7 +41,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	cp $^ $@
 
 GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
-PYSRCS += $(GCODEMODULESRCS) $(FIBMODULESRCS)
+PYSRCS += $(GCODEMODULESRCS) $(FIBMODULESRCS) $(INTERPMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
@@ -55,4 +55,11 @@ $(FIBMODULE): $(call TOOBJS, $(FIBMODULESRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	$(CXX) $(LDFLAGS) -shared -o $@ $^ -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
 
-PYTARGETS += $(GCODEMODULE) $(FIBMODULE)
+INTERPMODULESRCS := emc/rs274ngc/interpmodule.cc
+
+INTERPMODULE := ../lib/python/interp.so
+$(INTERPMODULE): $(call TOOBJS, $(INTERPMODULESRCS)) ../lib/librs274.so.0
+	$(ECHO) Linking python module $(notdir $@)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+
+PYTARGETS += $(GCODEMODULE) $(FIBMODULE) $(INTERPMODULE)

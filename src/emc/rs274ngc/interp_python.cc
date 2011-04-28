@@ -1,3 +1,6 @@
+// Support for Python oword subroutines
+// Michael Haberler 4/2011
+//
 
 #include "Python.h"
 #include <unistd.h>
@@ -63,7 +66,6 @@ bool Interp::is_pycallable(setup_pointer settings,const char *funcname)
 	    (PyCallable_Check(func)));
     fprintf(stderr,"---- py_iscallable(%s) return %d\n",funcname,result);
     return result;
-
 }
 
 
@@ -105,10 +107,12 @@ int Interp::pycall(setup_pointer settings,
 	ERS("exception calling '%s.%s': %s",settings->pymodule,funcname,PyString_AsString(val));
 	goto error;
     }
+
     if ((result != Py_None) && !PyFloat_Check(result)) {
 	res_str = PyObject_Str(result);
-	ERS("function '%s.%s' returned '%s' - not a float value)",
-	    settings->pymodule,funcname, PyString_AsString(res_str));
+	ERS("function '%s.%s' returned '%s' - expected float, got %s",
+	    settings->pymodule,funcname, PyString_AsString(res_str),
+	    result->ob_type->tp_name);
 	goto error;
     }
     if (result != Py_None)

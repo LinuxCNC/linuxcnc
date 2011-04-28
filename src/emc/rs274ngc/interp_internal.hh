@@ -622,7 +622,6 @@ macros totally crash-proof. If the function call stack is deeper than
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
-	signal_error(INTERP_ERROR);                        \
         return INTERP_ERROR;                               \
     } while(0)
 
@@ -634,7 +633,6 @@ macros totally crash-proof. If the function call stack is deeper than
         _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
         _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
-	signal_error(error_code);			   \
         return error_code;                                 \
     } while(0)
 
@@ -648,7 +646,6 @@ macros totally crash-proof. If the function call stack is deeper than
             _setup.stack_index++;                                       \
             _setup.stack[_setup.stack_index][0] = 0;           \
         }                                                      \
-	signal_error(error_code);			       \
         return error_code;                                     \
     } while(0)
 
