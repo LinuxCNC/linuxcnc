@@ -113,7 +113,11 @@ public:
  int set_tool_parameters();
  int init_named_parameters();
  int on_abort(int reason);
+    int signal_error(int code);
 
+    //technically this violates encapsulation rules but is needed for
+    // the Python introspection module
+    setup_pointer get_setup(void);
 private:
 
 /* Function prototypes for all  functions */
@@ -478,7 +482,6 @@ private:
   int user_data = 0,
   bool pydict = false
   );
-    int signal_error(int code);
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
 
@@ -520,9 +523,9 @@ private:
 
     int init_python(setup_pointer settings);
     bool is_pycallable(setup_pointer settings,const char *funcname);
-    double pycall(setup_pointer settings,
-		  const char *funcname,
-		  double params[]);
+    int pycall(setup_pointer settings,
+	       const char *funcname,
+	       double params[]);
 
 
  int convert_straight_indexer(int, block*, setup*);

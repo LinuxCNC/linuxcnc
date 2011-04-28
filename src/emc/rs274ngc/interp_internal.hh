@@ -581,8 +581,8 @@ typedef struct setup_struct
 #define MCODE_OFFSET 1000
     std::map<int,const char *> usercodes_argspec;
     std::map<int,int> usercodes_mgroup;
-    const char *pymodule;
-    bool pymodule_ok;
+    const char *pymodule, *pydir;
+    bool pymodule_ok, py_reload_on_error;
     PyObject *pymodname,*pymod,*pyresult,*pymdict, *kwargs;
 }
 setup;

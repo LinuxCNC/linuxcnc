@@ -10,6 +10,7 @@
 *    
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
+#include "Python.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

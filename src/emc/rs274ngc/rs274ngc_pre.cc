@@ -891,15 +891,26 @@ int Interp::init()
 	      n++;
 	  }
 
+	  if (NULL != (inistring = inifile.Find("PY_RELOAD_AFTER_ERROR", "RS274NGC")))
+	      _setup.py_reload_on_error = (atoi(inistring) > 0);
+	  else
+	      _setup.py_reload_on_error = false;
+
+	  if (NULL != (inistring = inifile.Find("PYDIR", "RS274NGC")))
+	      _setup.pydir = strdup(inistring);
+	  else
+	      _setup.pydir = NULL;
+
           if (NULL != (inistring = inifile.Find("PYIMPORT", "RS274NGC"))) {
 	      _setup.pymodule = strdup(inistring);
-              logDebug("_setup.pymodule=%s\n", _setup.pymodule);
-	      if (init_python(&(_setup)) != INTERP_OK) {
+	      int status;
+	      if ((status = init_python(&(_setup))) != INTERP_OK) {
 		  fprintf(stderr,"PYIMPORT: import of module %s failed\n",_setup.pymodule);
 	      }
           } else {
 	      _setup.pymodule = NULL;
           }
+
           // close it
           inifile.Close();
       }
@@ -2167,3 +2178,7 @@ int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 }
 
 
+setup_pointer Interp::get_setup(void)
+{
+    return &(_setup);
+}

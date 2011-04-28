@@ -11,6 +11,7 @@
 * Last change:
 ********************************************************************/
 
+#include "Python.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -644,30 +645,35 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 	} else {
 
-	    // a python callable function. A lot simpler since it's all inline.
+	    // a python callable function. A lot simpler since it's all executed inline.
 	    // call a prolog function if applicable
+	    //   NB: add_parameters will prepare a word dict if called with pydict = true,
+	    //   stored in settings->kwargs
+	    //   pycall will add this as kwarg type dict to the parameters
 	    // call python callable, and save return_value
 	    // call epilogue of applicable
 
-	    settings->call_level++;   // we need the stack frame for named params
+	    // note we dont increment the stack level - we dont need the context frame
 	    if (settings->prolog_hook) {
 		fprintf(stderr,"---- call: calling py prologue\n");
 		int status = (*this.*settings->prolog_hook)(settings,settings->prolog_userdata, true);
 		settings->prolog_hook = NULL;  // mark as consumed
 		// prolog is exepected to set an appropriate error string
 		if (status != INTERP_OK) {
-		    // we're terminating the call
-		    settings->call_level--;
-		    // and any remappings in progress
+		    // end any remappings in progress
 		    settings->stack_level = 0;
 		    return status;
 		}
 	    }
 	    // block->params[0] is the first positional parameter
-	    settings->return_value =  pycall(settings,block->o_name,
-						  block->params);
+	    status =  pycall(settings, block->o_name, block->params);
+	    if (status != INTERP_OK) {
+		// end any remappings in progress
+		settings->stack_level = 0;
+		return status;
+	    }
 	    fprintf(stderr,"--- O_call(%s) answer=%f\n",
-		    block->o_name,settings->return_value);
+		    block->o_name, settings->return_value);
 
 	    // now the epilogue
 	    if (settings->epilog_hook) {
@@ -683,7 +689,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    ERS("py epilogue failed"); //FIXME mah
 		}
 	    }
-	    settings->call_level--;
 	}
 	break;
 

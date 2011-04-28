@@ -4,4 +4,7 @@
 ;m75p2q47
 ;g88.1X1Y2Z3f200
 ;g88.1X1Y2Z3f200
+;
+;o<myfunc>call [23] [45]
+;(debug,value=#<_value>)
 m2

@@ -46,7 +46,7 @@
   issued.
   */
 
-
+#include "Python.h"
 #include <stdio.h>		// vsprintf()
 #include <string.h>		// strcpy()
 #include <stdarg.h>		// va_start()

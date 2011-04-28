@@ -40,6 +40,10 @@ static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 Interp interp;
 
+// const setup &get_setup(void)
+// {
+//     return interp.get_settings();
+// }
 // EMC_TASK interface
 
 /*

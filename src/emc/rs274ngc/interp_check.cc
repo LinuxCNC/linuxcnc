@@ -11,6 +11,7 @@
 *
 * Last change:
 ********************************************************************/
+#include "Python.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

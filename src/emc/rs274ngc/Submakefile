@@ -1,4 +1,5 @@
-
+PY=python2.6
+#PY=python2.6_d
 
 INCLUDES += emc/rs274ngc
 
@@ -30,11 +31,9 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-Map=librs274ngc.map -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lpython2.6_d  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+	$(CXX) -g $(LDFLAGS) -Wl,-Map=librs274ngc.map -Wl,-soname,$(notdir $@) -shared -o $@ $^ -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
 
-#	$(CXX) -g $(LDFLAGS) -Wl,-Map=librs274ngc.map -Wl,-soname,$(notdir $@) -shared -o $@ $^ /usr/lib/libpython2.6.a -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
 
-# /usr/lib/libssl.a /usr/lib/libz.a /usr/lib/libutil.a /usr/lib/libdl.a /usr/lib/libpthread.a  /usr/lib/libc.a
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@
@@ -42,11 +41,18 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	cp $^ $@
 
 GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
-PYSRCS += $(GCODEMODULESRCS)
+PYSRCS += $(GCODEMODULESRCS) $(FIBMODULESRCS)
 
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CXX) $(LDFLAGS) -shared -o $@ $^
 
-PYTARGETS += $(GCODEMODULE)
+FIBMODULESRCS := emc/rs274ngc/fib.cc
+
+FIBMODULE := ../lib/python/fib.so
+$(FIBMODULE): $(call TOOBJS, $(FIBMODULESRCS)) ../lib/librs274.so.0
+	$(ECHO) Linking python module $(notdir $@)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+
+PYTARGETS += $(GCODEMODULE) $(FIBMODULE)

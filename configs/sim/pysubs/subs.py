@@ -1,14 +1,15 @@
 import sys
+import fib
 
 # Python functions as o-word subroutines
 #
-# you can either call this function like so:
+# you can either call a function like so:
 # o<m260> call [2] [3] [4]
 # (debug, #<_value>) should display 24.0
 #
 # NB: when calling as oword sub, ONLY positional parameters are passed.
 #
-# or as a remapped code, to do so, add in ini:
+# ALternatively, it can be used as a remapped code. To do so, add in ini:
 '''
 #------- add to ini file ------------
 # define custom G and M codes
@@ -60,47 +61,54 @@ MCODE=270,10,pqr
 # >>> from subs import *
 # >>> m270((1,2,3,4,5),a=10,b=20)
 # executing Python function: subs.m270
-# params[0] = 1.000000
-# params[1] = 2.000000
-# params[2] = 3.000000
-# params[3] = 4.000000
-# params[4] = 5.000000
+# args[0] = 1.000000
+# args[1] = 2.000000
+# args[2] = 3.000000
+# args[3] = 4.000000
+# args[4] = 5.000000
 # word 'a' = 10.000000
 # word 'b' = 20.000000
 # >>>
 #
 # to see python stderr output, start emc from a terminal
 
-# positional parameters are available as params[0] .. params[29]
+# positional parameters are available as args[0] .. args[29]
 # and are available only on a call like 'o<pyfunctionname> call [...]
 #
 # if called as a remapped M- or G-code, the words passed from
 # the block as filtered by the argspec are passed through the words dict
-# and params is meaningless
+# and args is meaningless
 
+# 'this' is an opaque reference to the Interpreter instance (a PyCObject).
 
-def m270(params,**words):
+def g885(this,args,**words):
 	result = 1
-	print >> sys.stderr, "executing Python function: %s.%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name)
+	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
-		print >> sys.stderr, "params[%d] = %f" % (i,params[i])
-		if params[i] > 0:
-			result *= params[i]
+		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
+		if args[i] > 0:
+			result *= args[i]
 	for key in words:
 		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
 		if words[key] > 0:
 			result *= words[key]
-	return result
+	return "mah"
+#	return result
 
-def g885(params,**words):
+def m270(this,args,**words):
 	result = 1
-	print >> sys.stderr, "executing Python function: %s.%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name)
+	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
-		print >> sys.stderr, "params[%d] = %f" % (i,params[i])
-		if params[i] > 0:
-			result *= params[i]
+		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
+		if args[i] > 0:
+			result *= args[i]
 	for key in words:
 		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
 		if words[key] > 0:
 			result *= words[key]
+
+	#print fib.fib(this,123) #ok
+	print fib.fib("ds",23.4) # fail
+	#print fib.fib(815,123) #FAIL
+	fib.doppel(1,"foo",volt=24.0,ampere=3.2)
 	return result
