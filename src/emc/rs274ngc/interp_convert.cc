@@ -2835,9 +2835,8 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
     if (settings->return_value >= TOLERANCE_EQUAL) {
 	CHANGE_TOOL(settings->selected_pocket);
 	settings->current_pocket = settings->selected_pocket;
-	// tool change can move the controlled point.  reread it:
+	// this will cause a synch() / re-read of offsets
 	settings->toolchange_flag = true;
-	set_tool_parameters();
     } else {
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
