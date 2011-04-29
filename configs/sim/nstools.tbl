@@ -1,0 +1,24 @@
+T1 P31 D1 Z101
+T2 P32 D2 Z102
+T3 P33 D3 Z103
+T4 P34 D4 Z104 ;added 20110413
+T5 P35 D5 Z105 ;added 20110413
+T6 P36 D6 Z106 ;added 20110413
+T7 P37 D7 Z107 ;added 20110413
+T8 P38 D8 Z108 ;added 20110413
+T9 P39 D9 Z109 ;added 20110413
+T10 P40 D10 Z110 ;added 20110413
+T11 P41 D11 Z111 ;added 20110413
+T12 P42 Z112 D4 ;3d taster elektronisch
+T13 P43 Z113 D13 ;3-schneider schaftfrÃ¤ser
+T14 P44 Z114 D10 ;3 schneiden stufenbohrer 5.5 auf 10
+T15 P45 Z115 D10 ;tin bohrer
+T16 P46 Z116 D12.5 ;3 schneiden stufenbohrer 6.8 auf 12.5
+T17 P47 Z117 D6.5 ;stufenbohrer 4.2 auf 6.5 mit 45 grad Ã¼bergang
+T18 P48 Z118 D4 ;schaftfrÃ¤ser 4 schneider
+T19 P49 Z119 D11 ;bohrer
+T20 P50 Z120 D50.1 ;messerkopf 4 platten
+T21 P51 Z121 D7.8 ;bohrer poliert
+T22 P52 Z122 D16.15 ;messerkopf zweischneider
+T23 P53 Z123 D3.3 ;bohrer poliert
+T24 P54 Z124 D12 ;positionierstift
