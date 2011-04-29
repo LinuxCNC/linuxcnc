@@ -9,9 +9,7 @@
 ;
 ; T_COMMAND=o<tdemo>call
 ;
-; NB: param #3 at this point in time is useless - dont rely on its value.
-; This will change once iocontrol is history, and tooltable I/O is
-; moved to the interpreter.
+; on success, return the pocket number to commit the prepare
 ;
 ;-----------------
 ; emulate the tool-number/tool-prepare/tool-prepared logic of the iocontrol-
@@ -19,7 +17,7 @@
 ;
 O<tdemo> sub
 
-(DEBUG, executing T #1 in O-word sub)
+(DEBUG,tdemo.ngc: #1 #2)
 
 ; O<tdemo> if ; trigger error to test error reporting
 
@@ -81,8 +79,6 @@ O<tdemo_prepare_fail2> endif
 (DEBUG, deasserting motion.digital-out-00)
 ;
 M65 P0
-; flush M65 to motion
-G0
 ;
 (DEBUG, done with prepare sub)
 

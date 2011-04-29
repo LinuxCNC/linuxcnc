@@ -1130,18 +1130,16 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_SET_NUMBER_TYPE:
 	{
+	    // changed als in interp_convert.cc to convey the pocket number, not the tool number
+	    // needed so toolTable[0] can be properly set including offsets
 	    int number;
 
 	    number = ((EMC_TOOL_SET_NUMBER *) emcioCommand)->tool;
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_SET_NUMBER old_loaded=%d new_number=%d\n", emcioStatus.tool.toolInSpindle, number);
-	    emcioStatus.tool.toolInSpindle = number;
-
-	    if (number) {
-		reload_tool_number(emcioStatus.tool.toolInSpindle);
-	    } else {
-		// reload_tool_number() fails to load tool 0 (= unload tool).
-		load_tool(number);
-	    }
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_SET_NUMBER pocket=%d old_loaded=%d new_number=%d\n",
+			    number, emcioStatus.tool.toolInSpindle,
+			    emcioStatus.tool.toolTable[number].toolno);
+	    emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolTable[number].toolno;
+	    load_tool(number);
 	    *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	}
 	break;

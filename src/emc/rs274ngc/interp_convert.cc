@@ -2831,7 +2831,6 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
 {
     // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
     // commit the tool change
-    int status = INTERP_OK;
 
     if (settings->return_value >= TOLERANCE_EQUAL) {
 	CHANGE_TOOL(settings->selected_pocket);
@@ -2843,30 +2842,28 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    CHP(remap_finished(remap));
-    return (status);
+    return remap_finished(remap);
 }
 
 int Interp::finish_m61_command(setup_pointer settings,int remap)
 {
-    int status = INTERP_OK;
-
     // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
-    // set that as the new tool number
+    // set that as the new tool' pocket number
     // a negative return value will leave it untouched
 
     if (settings->return_value > - TOLERANCE_EQUAL) {
 	settings->current_pocket = round_to_int(settings->return_value);
 	CHANGE_TOOL_NUMBER(settings->current_pocket);
-	// tool change can move the controlled point.  reread it:
+	// this will cause a synch() / re-read of offsets
 	settings->toolchange_flag = true;
-	set_tool_parameters();
     } else {
+	// FIXME mah just return like so
+	// return remap_finished(-INTERP_ERROR);
+	// and fixup remap_finished to return that error code
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    CHP(remap_finished(remap));
-    return status;
+    return remap_finished(remap);
 }
 
 
@@ -2913,8 +2910,7 @@ const char *Interp::usercode_argspec(setup_pointer settings,int code,
 // handler epilogue for remapped user m + g codes
 int Interp::finish_user_command(setup_pointer settings,int remap)
 {
-    CHP(remap_finished(remap));
-    return INTERP_OK;
+    return remap_finished(remap);
 }
 
 const char *Interp::remap_name(setup_pointer settings,int type, int code)
@@ -3203,19 +3199,19 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	// make sure selected tool exists
 	CHP((find_tool_pocket(settings, toolno, &pocket)));
 
+	// this handler is expected to return the pocket number on success
 	if (settings->m61_command) {
-	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
+	    snprintf(cmd,sizeof(cmd),"%s [%d] [%d]",settings->m61_command,toolno,pocket);
 	    status = execute_handler(settings, cmd, NULL, &Interp::finish_m61_command, M61_REMAP);
 	    if (status != INTERP_OK) {
 		ERS("M61 sub: reading '%s' failed (%d)",cmd,status);
 	    }
 	    return(-M61_REMAP);
 	} else {
-	    settings->current_pocket = toolno;
-	    CHANGE_TOOL_NUMBER(toolno);
-	    // tool change can move the controlled point.  reread it:
+	    settings->current_pocket = pocket;
+	    CHANGE_TOOL_NUMBER(settings->current_pocket);
+	    // this will cause a synch() and re-reading of offset of tool 0
 	    settings->toolchange_flag = true;
-	    set_tool_parameters();
 	    status = INTERP_OK;
 	}
 	CHP(status);
@@ -5289,6 +5285,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   if (g_code == G_49) {
     index = 0;
   } else if (g_code == G_43) {
+      fprintf(stderr,"--- convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
+	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
     if(block->h_flag) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
     } else if (settings->toolchange_flag) {

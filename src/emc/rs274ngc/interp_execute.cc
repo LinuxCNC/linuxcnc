@@ -242,8 +242,7 @@ int Interp::finish_t_command(setup_pointer settings,int remap)
 	CANON_ERROR("T<tool> - prepare failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    CHP(remap_finished(remap));
-    return(status);
+    return remap_finished(remap);
 }
 
 

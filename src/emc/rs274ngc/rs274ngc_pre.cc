@@ -324,7 +324,7 @@ int Interp::_execute(const char *command)
       // 1. push this block onto the remap stack because this might take several
       //    interp invcocations to finish, while other blocks will be parsed and
       //    executed by the oword subs. The top-of-stack block is the 'current
-      //    remapped block'.
+      //    remapped block' or CONTROLLING_BLOCK.
       //
       // 2. execute the remap stack top level block, ticking off (zeroing) all items which are done.
       //
@@ -376,7 +376,8 @@ int Interp::_execute(const char *command)
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
 
 	  // All items up to the first remap item have been executed.
-	  // The remap item procedure call has been parsed into _setup.blocks[0].
+	  // The remap item procedure call has been parsed into _setup.blocks[0],
+	  // the EXECUTING_BLOCK.
 	  // after parsing a handler, execute_block() either fails to toplevel or
 	  // returns the negative value of the handler ID it parsed.
 	  switch (status) {
@@ -481,11 +482,12 @@ int Interp::execute(const char *command, int line_number)
 	    _setup.stack_level,_setup.call_level);
     status = Interp::execute(command);
     if (status > INTERP_MIN_ERROR) {
-	fprintf(stderr,"-- clear remap stack due to execute() > INTERP_MIN_ERROR\n");
+	fprintf(stderr,"-- clear remap stack due to execute() > INTERP_MIN_ERROR status=%d %s\n",
+		status, interp_status(status));
 	_setup.stack_level = 0;
     }
-    fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d\n",
-	    _setup.stack_level,_setup.call_level);
+    fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d status=%s\n",
+	    _setup.stack_level,_setup.call_level,interp_status(status));
     return status;
 }
 
@@ -504,7 +506,9 @@ int Interp::remap_finished(int finished_remap)
     case M61_REMAP:
     case M_USER_REMAP:
     case G_USER_REMAP:
-	// any more remaps left?
+	// the controlling block had a remapped item, which just finished and the
+	// epilogue handler called in here.
+	// check the current block for the next remapped item
 	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)), &_setup);
 	if (next_remap) {
 	    fprintf(stderr,"--- arming %s\n",remaps[next_remap]);
@@ -514,36 +518,65 @@ int Interp::remap_finished(int finished_remap)
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
 	    fprintf(stderr,"--- post-arming: execute_block() returns %d\n",status);
-	    if ((status != INTERP_OK) &&
-		(status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT)) {
+
+	    if (status < 0) {
+		// a remap was parse, kick it
+		return execute(0);
+	    } else
 		return status;
-	    } else {
-		status = execute(0); // this should get the osub going
-		if ((status != INTERP_OK) &&
-		    (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
-		    ERP(status);
-	    }
+	    // if ((status != INTERP_OK) &&
+	    // 	(status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT)) {
+	    // 	return status;
+	    // } else {
+	    // 	status = execute(0); // this should get the osub going
+	    // 	if ((status != INTERP_OK) &&
+	    // 	    (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
+	    // 	    ERP(status);
+	    // }
 	} else {
-	    // execution of controlling block finished
+	    // execution of controlling block finished executing a remap, and it contains no more
+	    // remapped items. Execute any leftover items.
 	    fprintf(stderr,"--- no more remaps in controlling_block found (nesting=%d call_level=%d), dropping\n",
 		    _setup.stack_level,_setup.call_level);
 
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
-	    _setup.stack_level--; // drop one nesting level
-	    fprintf(stderr,"<--- leave remap nesting (now level %d)\n", _setup.stack_level);
-	    if (status != INTERP_OK)
-		ERP(status);
 
-	    if (_setup.stack_level < 0) {
-		fprintf(stderr,"--- BUG: stack_level %d (<0)\n",
-			_setup.stack_level);
-		ERS("BUG: stack_level < 0");
+	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
+		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
+		fprintf(stderr,"--- executing block leftover items: %s status=%s  nesting=%d (failing)\n",
+			status < 0 ? "BUG":"ERROR", interp_status(status),_setup.stack_level);
+		int level = _setup.stack_level;
+		_setup.stack_level = 0;
+		if (status < 0)
+		    ERS("BUG - check next_remapping() status=%d nesting=%d",status,level);
+	    } else {
+
+		// we're done with this remapped block.
+		// execute_block may return INTERP_EXECUTE_FINISH if a probe, input or toolchange
+		// command was executed.
+		// not sure what INTERP_ENDFILE & INTERP_EXIT really mean here.
+		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
+		// leftover items finished. Drop a remapping level.
+
+		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d (dropping)\n",
+			interp_status(status),_setup.stack_level);
+		_setup.stack_level--; // drop one nesting level
+		if (_setup.stack_level < 0) {
+		    fprintf(stderr,"--- BUG: stack_level %d (<0) after dropping!!\n",
+			    _setup.stack_level);
+		    ERS("BUG: stack_level < 0");
+		}
 	    }
 	}
 	return status;
 	break;
 
+	// not yet
+    // case -INTERP_ERROR:
+    // 	fprintf(stderr,"--- remap_finished(INTERP_ERROR):\n");
+    // 	return INTERP_ERROR;
+    // 	break;
     default: ;
 	// "should not happen"
 	fprintf(stderr,"--- remap_finished(): BUG finished_remap=%d nesting=%d\n",
@@ -1713,6 +1746,7 @@ int Interp::synch()
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
   _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
+  fprintf(stderr,"---synch: SELECTED_POCKET=%d\n", _setup.selected_pocket);
   _setup.speed = GET_EXTERNAL_SPEED();
   _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
   _setup.pockets_max = GET_EXTERNAL_POCKETS_MAX();
@@ -2134,6 +2168,10 @@ int Interp::on_abort(int reason)
 	// 	      settings->sub_name = strdup...
         MSG("---- unwind context at level %d\n",i);
     }
+
+    // reset remapping stack
+    _setup.stack_level = 0;
+
     if (_setup.on_abort_command == NULL)
 	return -1;
 

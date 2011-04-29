@@ -315,7 +315,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
  block_pointer block,      /* pointer to a block of RS274/NGC instructions */
  setup_pointer settings)   /* pointer to machine settings                  */
 {
-  int status;
+  int status = INTERP_OK;
   int index;
   int i;
 
@@ -623,13 +623,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // this is the place to call a prolog function
 	    if (settings->sub_context[settings->call_level].prolog) {
 		fprintf(stderr,"---- call: calling prologue\n");
-		int status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
+		status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
 											 settings->sub_context[settings->call_level].userdata,
 											 false);
 		// prolog is exepected to set an appropriate error string
-		if (status != INTERP_OK) {
+		if (status > INTERP_MIN_ERROR) {
 		    // we're terminating the call in progress as we were setting it up.
 		    // need to unwind setup so far.
+		    fprintf(stderr,"---- call: prologue failed, unwinding\n");
 		    if (settings->sub_context[settings->call_level].subName)
 			free(settings->sub_context[settings->call_level].subName);
 		    settings->call_level--;
@@ -656,10 +657,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // note we dont increment the stack level - we dont need the context frame
 	    if (settings->prolog_hook) {
 		fprintf(stderr,"---- call: calling py prologue\n");
-		int status = (*this.*settings->prolog_hook)(settings,settings->prolog_userdata, true);
+	        status = (*this.*settings->prolog_hook)(settings,settings->prolog_userdata, true);
 		settings->prolog_hook = NULL;  // mark as consumed
 		// prolog is exepected to set an appropriate error string
-		if (status != INTERP_OK) {
+		if (status > INTERP_MIN_ERROR) {
+		    fprintf(stderr,"---- call: py prologue failed, unwinding\n");
 		    // end any remappings in progress
 		    settings->stack_level = 0;
 		    return status;
@@ -667,8 +669,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 	    // block->params[0] is the first positional parameter
 	    status =  pycall(settings, block->o_name, block->params);
-	    if (status != INTERP_OK) {
+	    if (status >  INTERP_MIN_ERROR) {
 		// end any remappings in progress
+		fprintf(stderr,"---- call: pycall failed, unwinding\n");
 		settings->stack_level = 0;
 		return status;
 	    }
@@ -678,17 +681,18 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // now the epilogue
 	    if (settings->epilog_hook) {
 		fprintf(stderr,"---- call: calling py epilogue\n");
-		int status = (*this.*settings->epilog_hook)(settings,settings->epilog_userdata);
+		status = (*this.*settings->epilog_hook)(settings,settings->epilog_userdata);
 		settings->epilog_hook = NULL;  // mark as consumed
 		// epilog is exepected to set an appropriate error string
-		if (status != INTERP_OK) {
+		if (status > INTERP_MIN_ERROR) {
 		    // we're terminating the call
 		    // since we didnt need to increment call_level we're not dropping it either
 		    // however, terminate if part of a remapping
 		    settings->stack_level = 0;
-		    ERS("py epilogue failed"); //FIXME mah
+		    fprintf(stderr,"---- call: py epilogue failed\n");
 		}
 	    }
+	    // fall through - now return status;
 	}
 	break;
 
@@ -998,9 +1002,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     default:
       // FIXME !!!KL should probably be an error
+	status = INTERP_ERROR; // mah
       break;
     }
-    return INTERP_OK;
+  return status;
+  //    return INTERP_OK;
 }
 //========================================================================
 // End of functions for control stuff (O-words)
