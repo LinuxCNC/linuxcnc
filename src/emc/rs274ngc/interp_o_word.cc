@@ -476,7 +476,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 											     settings->sub_context[settings->call_level+1].epilog_arg
 											     );
 		  if (status > INTERP_MIN_ERROR)
-		      ERS("epilogue failed"); //FIXME mah
+		      return status;
 	      }
 
 
