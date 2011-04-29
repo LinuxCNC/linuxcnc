@@ -1,13 +1,4 @@
 import sys
-import fib
-#import interp
-
-# interp.param(this,5399)
-# interp.param(this,"foo")
-#
-# interp.param[5399]
-# interp.param["foo"]
-
 
 # Python functions as o-word subroutines
 #
@@ -100,7 +91,7 @@ def g885(this,args,**words):
 		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
 		if words[key] > 0:
 			result *= words[key]
-	return "mah"
+	return "mah"  # cause a return type error
 #	return result
 
 def m270(this,args,**words):
@@ -114,11 +105,6 @@ def m270(this,args,**words):
 		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
 		if words[key] > 0:
 			result *= words[key]
-
-	#print fib.fib(this,123) #ok
-	print fib.fib("ds",23.4) # fail
-	#print fib.fib(815,123) #FAIL
-	fib.doppel(1,"foo",volt=24.0,ampere=3.2)
 	return result
 
 
@@ -126,7 +112,7 @@ def pytdemo(this,args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
-	return args[0] # set prepared tool number from param 0
+	return args[1] # return pocket number (#2) to commit or -1 to fail
 
 
 def pym6demo(this,args,**words):
@@ -141,5 +127,5 @@ def pym61demo(this,args,**words):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 	for key in words:
 		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
-	return args[0] # set tool number from Q param
+	return args[0] # set tool number from Q param to commit or negative value to fail
 
