@@ -2843,7 +2843,7 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    remap_finished(remap);
+    CHP(remap_finished(remap));
     return (status);
 }
 
@@ -2865,7 +2865,7 @@ int Interp::finish_m61_command(setup_pointer settings,int remap)
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
-    remap_finished(remap);
+    CHP(remap_finished(remap));
     return status;
 }
 
@@ -2913,7 +2913,7 @@ const char *Interp::usercode_argspec(setup_pointer settings,int code,
 // handler epilogue for remapped user m + g codes
 int Interp::finish_user_command(setup_pointer settings,int remap)
 {
-    remap_finished(remap);
+    CHP(remap_finished(remap));
     return INTERP_OK;
 }
 
@@ -3194,8 +3194,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     if (block->m_modes[6] == 61) {
 	int toolno, pocket;
 	char cmd[LINELEN];
-	setup saved_setup = *settings;
-	double retval = 1.0;
 	int status = INTERP_OK;
 
 	CLEAR_MODE(6);
