@@ -514,11 +514,15 @@ int Interp::remap_finished(int finished_remap)
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
 	    fprintf(stderr,"--- post-arming: execute_block() returns %d\n",status);
-
-	    status = execute(0); // this should get the osub going
 	    if ((status != INTERP_OK) &&
-		(status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
-		ERP(status);
+		(status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT)) {
+		return status;
+	    } else {
+		status = execute(0); // this should get the osub going
+		if ((status != INTERP_OK) &&
+		    (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
+		    ERP(status);
+	    }
 	} else {
 	    // execution of controlling block finished
 	    fprintf(stderr,"--- no more remaps in controlling_block found (nesting=%d call_level=%d), dropping\n",
