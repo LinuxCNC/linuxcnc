@@ -81,6 +81,8 @@ O<tdemo_prepare_fail2> endif
 (DEBUG, deasserting motion.digital-out-00)
 ;
 M65 P0
+; flush M65 to motion
+G0
 ;
 (DEBUG, done with prepare sub)
 
