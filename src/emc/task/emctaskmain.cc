@@ -586,6 +586,7 @@ interpret_again:
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
 				interp_list.clear();
+				emcAbortCleanup(4711); // FIXME mah
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
@@ -1983,6 +1984,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcIoAbort(EMC_ABORT_TASK_ABORT);
         emcSpindleAbort();
 	mdi_execute_abort();
+	emcAbortCleanup(EMC_ABORT_TASK_ABORT);
 	retval = 0;
 	break;
 
@@ -2405,6 +2407,7 @@ static int emcTaskExecute(void)
 	// clear out pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
+	emcAbortCleanup(EMC_ABORT_TASK_EXEC_ERROR);
         emcStatus->task.currentLine = 0;
 
 	// clear out the interpreter state
@@ -3159,6 +3162,7 @@ int main(int argc, char *argv[])
                 emcSpindleAbort();
                 emcAxisUnhome(-2); // only those joints which are volatile_home
 		mdi_execute_abort();
+		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -3232,6 +3236,8 @@ int main(int argc, char *argv[])
             emcTaskCommand = 0;
             interp_list.clear();
             emcStatus->task.currentLine = 0;
+
+	    emcAbortCleanup(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
             
             // clear out the interpreter state
             emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
