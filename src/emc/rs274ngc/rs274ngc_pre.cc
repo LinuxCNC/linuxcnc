@@ -235,6 +235,11 @@ int Interp::_execute(const char *command)
     MDImode = 1;
     status = read(command);
     if (status != INTERP_OK) {
+	if (status > INTERP_MIN_ERROR) {
+	    fprintf(stderr,"-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d\n",
+		    _setup.stack_level,command, interp_status(status),MDImode);
+	    _setup.stack_level = 0;
+	}
       return status;
     }
   }
@@ -269,14 +274,25 @@ int Interp::_execute(const char *command)
           status = read(0);  // reads from current file and calls parse
           if (status != INTERP_OK)
 	    {
-               return status;
+		if (status > INTERP_MIN_ERROR) {
+		    fprintf(stderr,"-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d\n",
+			    _setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
+		    _setup.stack_level = 0;
+		}
+		return status;
 	    }
           status = execute();  // special handling for mdi errors
           if (status != INTERP_OK) {
 		if (status == INTERP_EXECUTE_FINISH) {
 		    _setup.mdi_interrupt = true;
-		} else
+		} else {
+		    if (status > INTERP_MIN_ERROR) {
+			fprintf(stderr,"-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d\n",
+				_setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
+			_setup.stack_level = 0;
+		    }
 		    reset();
+		}
                CHP(status);
           }
       }
@@ -364,6 +380,7 @@ int Interp::_execute(const char *command)
 
           _setup.stack_level++;
 	  if (_setup.stack_level == MAX_NESTED_REMAPS) {
+	      _setup.stack_level = 0;
 	      ERS("maximum nesting of remapped blocks execeeded");
 	      return INTERP_ERROR;
 	  }
@@ -481,13 +498,6 @@ int Interp::execute(const char *command, int line_number)
 	    command == NULL ? "NULL" : command,
 	    _setup.stack_level,_setup.call_level);
     status = Interp::execute(command);
-
-    // FIXME mah - this should be moved to execute(command)
-    if (status > INTERP_MIN_ERROR) {
-	fprintf(stderr,"-- clear remap stack (current level=%d) due to execute() status %s\n",
-		_setup.stack_level, interp_status(status));
-	_setup.stack_level = 0;
-    }
     fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d status=%s\n",
 	    _setup.stack_level,_setup.call_level,interp_status(status));
     return status;
@@ -575,11 +585,6 @@ int Interp::remap_finished(int finished_remap)
 	return status;
 	break;
 
-	// not yet
-    // case -INTERP_ERROR:
-    // 	fprintf(stderr,"--- remap_finished(INTERP_ERROR):\n");
-    // 	return INTERP_ERROR;
-    // 	break;
     default: ;
 	// "should not happen"
 	fprintf(stderr,"--- remap_finished(): BUG finished_remap=%d nesting=%d\n",
@@ -2158,7 +2163,7 @@ int Interp::set_tool_parameters()
 int Interp::on_abort(int reason)
 {
     int i;
-    fprintf(stderr,"------- on_abort reason=%d\n",reason);
+    fprintf(stderr,"------- on_abort reason=%d stack_level=%d\n",reason, _setup.stack_level);
     // invalidate all saved context except the top level one
     for (i = _setup.call_level; i > 0; i--) {
         _setup.sub_context[i].context_status = 0;
