@@ -481,9 +481,11 @@ int Interp::execute(const char *command, int line_number)
 	    command == NULL ? "NULL" : command,
 	    _setup.stack_level,_setup.call_level);
     status = Interp::execute(command);
+
+    // FIXME mah - this should be moved to execute(command)
     if (status > INTERP_MIN_ERROR) {
-	fprintf(stderr,"-- clear remap stack due to execute() > INTERP_MIN_ERROR status=%d %s\n",
-		status, interp_status(status));
+	fprintf(stderr,"-- clear remap stack (current level=%d) due to execute() status %s\n",
+		_setup.stack_level, interp_status(status));
 	_setup.stack_level = 0;
     }
     fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d status=%s\n",
