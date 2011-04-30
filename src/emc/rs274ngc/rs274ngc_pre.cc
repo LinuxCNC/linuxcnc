@@ -559,8 +559,9 @@ int Interp::remap_finished(int finished_remap)
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
 
-		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d (dropping)\n",
-			interp_status(status),_setup.stack_level);
+		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d (dropping)\n",
+			interp_status(status),_setup.stack_level,_setup.toolchange_flag,
+			_setup.probe_flag,_setup.input_flag);
 		_setup.stack_level--; // drop one nesting level
 		if (_setup.stack_level < 0) {
 		    fprintf(stderr,"--- BUG: stack_level %d (<0) after dropping!!\n",

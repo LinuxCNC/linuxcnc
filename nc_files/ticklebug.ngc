@@ -1,0 +1,10 @@
+; in MDI, führen 'T1M6G43' aus
+; sieh nach, ob das z-offset stimmt:
+; MDI: (debug, zoffset=#5403)
+; dann starte diese Datei - es muss das offset von tool 3
+; angezeigt werden
+
+T3M6G43
+(debug,T3 zoffset jetzt: #5403)
+
+m2
