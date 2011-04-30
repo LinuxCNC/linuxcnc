@@ -78,9 +78,10 @@ MCODE=270,10,pqr
 # the block as filtered by the argspec are passed through the words dict
 # and args is meaningless
 
-# 'this' is an opaque reference to the Interpreter instance (a PyCObject).
+# The global '_this' is an opaque reference to the Interpreter instance (a long).
+# Do not fiddle with it.
 
-def g885(this,args,**words):
+def g885(args,**words):
 	result = 1
 	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
@@ -94,7 +95,7 @@ def g885(this,args,**words):
 	return "mah"  # cause a return type error
 #	return result
 
-def m270(this,args,**words):
+def m270(args,**words):
 	result = 1
 	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
@@ -108,20 +109,20 @@ def m270(this,args,**words):
 	return result
 
 
-def pytdemo(this,args,**words):
+def pytdemo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 	return args[1] # return pocket number (#2) to commit or -1 to fail
 
 
-def pym6demo(this,args,**words):
+def pym6demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 	return 1.0  # commit change to prepped tool
 
-def pym61demo(this,args,**words):
+def pym61demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
@@ -129,3 +130,7 @@ def pym61demo(this,args,**words):
 		print >> sys.stderr, "word '%s' = %f" % (key, words[key])
 	return args[0] # set tool number from Q param to commit or negative value to fail
 
+
+def m310(args,**words):
+	global _this
+	print "m300 _this=%x" % (_this)
