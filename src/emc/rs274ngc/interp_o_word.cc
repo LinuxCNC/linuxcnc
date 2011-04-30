@@ -476,7 +476,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 											     settings->sub_context[settings->call_level+1].epilog_arg
 											     );
 		  if (status > INTERP_MIN_ERROR)
-		      return status;
+		      fprintf(stderr,"---- call: epilogue failed: %s \n", interp_status(status));
 	      }
 
 
@@ -685,11 +685,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		settings->epilog_hook = NULL;  // mark as consumed
 		// epilog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
-		    // we're terminating the call
-		    // since we didnt need to increment call_level we're not dropping it either
-		    // however, terminate if part of a remapping
-		    settings->stack_level = 0;
-		    fprintf(stderr,"---- call: py epilogue failed\n");
+		    fprintf(stderr,"---- call: py epilogue failed: %s \n", interp_status(status));
 		}
 	    }
 	    // fall through - now return status;
