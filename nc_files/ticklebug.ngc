@@ -4,6 +4,8 @@
 ; dann starte diese Datei - es muss das offset von tool 3
 ; angezeigt werden
 
+#5599 = 1 (turn debug output on)
+
 T3M6G43
 (debug,T3 zoffset jetzt: #5403)
 
