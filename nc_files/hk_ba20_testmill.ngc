@@ -1,0 +1,53 @@
+; Testprogramm um mit zwei Werkzeugen Kreise zu fräsen
+
+G17
+G21
+G54
+G40
+G49
+G90
+G80
+
+T13 M6
+G43
+G0 Z 10
+;G42
+
+G0 Y 100
+G0 X -25
+
+S3000
+M3
+
+F140
+G1 Z -1
+
+F500
+G2 I -45
+
+G0 Z 30
+
+T18 M6
+G43
+G0Z 10
+;G42
+
+G0 Y 100
+G0 X -25
+
+S5000
+M3
+
+F140
+G1 Z -1
+
+F500
+G2 I -45
+
+M5
+
+G0 Z 10
+G0 Y 100
+G0 X -300
+
+M2

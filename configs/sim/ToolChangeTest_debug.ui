@@ -1,0 +1,834 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkAdjustment" id="tc-reason-adj">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <property name="visible">True</property>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkFrame" id="frm_tool_info">
+            <property name="visible">True</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="alignment1">
+                <property name="visible">True</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <object class="GtkVBox" id="vbox3">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkHBox" id="hbox8">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_tool_number">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool number</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="txt_tool_number">
+                            <property name="width_request">75</property>
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">	</property>
+                            <property name="text_template">%0.f</property>
+                            <property name="label_pin_type">1</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox9">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_tool_prepare">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool prepare no.</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="txt_tool_prepare_no">
+                            <property name="width_request">75</property>
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">	</property>
+                            <property name="text_template">%0.f</property>
+                            <property name="label_pin_type">1</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox10">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_prepare_pocket">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool prepare pocket</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="txt_prepare_pocket">
+                            <property name="width_request">75</property>
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">	</property>
+                            <property name="text_template">%0.f</property>
+                            <property name="label_pin_type">1</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox2">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_tool_prepar">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool prepare  </property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led_tool_prepare">
+                            <property name="visible">True</property>
+                            <property name="led_size">8</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="padding">37</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox3">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_tool_prepared">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool prepared</property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led_tool_prepared">
+                            <property name="visible">True</property>
+                            <property name="led_size">8</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="padding">37</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">4</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox5">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_tool_change">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool changer  </property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led_tool_change">
+                            <property name="visible">True</property>
+                            <property name="led_size">8</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="padding">37</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox7">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkLabel" id="lbl_tool_changed">
+                            <property name="width_request">150</property>
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Tool changed </property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led_tool_changed">
+                            <property name="width_request">25</property>
+                            <property name="visible">True</property>
+                            <property name="led_size">8</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="padding">37</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">6</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="lbl_tool_info">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;General Tool Informations&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox4">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_left_door_closed">
+                <property name="label" translatable="yes">Left Door closed</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="xalign">0.57999998331069946</property>
+                <property name="yalign">0.55000001192092896</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_left_door_is_open">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_left_door_is_closed">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox12">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_right_door_closed">
+                <property name="label" translatable="yes">Right Door closed</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="xalign">0.57999998331069946</property>
+                <property name="yalign">0.55000001192092896</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_right_door_is_open">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_right_door_is_closed">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox13">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_spindle_control">
+                <property name="label" translatable="yes">Spindle Control</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="relief">none</property>
+                <property name="yalign">0.46000000834465027</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_spindle_control_off">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_spindle_control_on">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox14">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_spindle_stoped">
+                <property name="label" translatable="yes">Spindle stoped</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_spindle_not_stoped">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_spindle_stoped">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox15">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_spindle_at_speed">
+                <property name="label" translatable="yes">Spindle at speed</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_spindle_not_at_speed">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_spindle_at_speed">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox16">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_lubrication">
+                <property name="label" translatable="yes">Lubrication fault</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_lubrication_ok">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_lubrication_not_ok">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox18">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_cover_left">
+                <property name="label" translatable="yes">Cover left</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="yalign">0.47999998927116394</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_cover_left_open">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_cover_left_closed">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox19">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_cover_right">
+                <property name="label" translatable="yes">Cover right</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_cover_right_open">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_cover_right_closed">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox17">
+            <property name="visible">True</property>
+            <child>
+              <object class="HAL_CheckButton" id="chk_fork_up">
+                <property name="label" translatable="yes">Fork up</property>
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_fork_up">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_fork_down">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">9</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkLabel" id="lbl_left_valvle1">
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Left Valvle</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_valvle_left_off">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_valvle_left_on">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox6">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkLabel" id="lbl_right_valvle">
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Right Valvle</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_valvle_right_off">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_valvle_right_on">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">11</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="hbox20">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkLabel" id="lbl_coolant">
+                <property name="width_request">150</property>
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Coolant</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_coolant_off">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="led_coolant_on">
+                <property name="visible">True</property>
+                <property name="led_size">8</property>
+                <property name="on_color">green</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="padding">10</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">12</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
