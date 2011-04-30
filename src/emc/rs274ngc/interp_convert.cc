@@ -2835,7 +2835,7 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
     if (settings->return_value >= TOLERANCE_EQUAL) {
 	CHANGE_TOOL(settings->selected_pocket);
 	settings->current_pocket = settings->selected_pocket;
-	// this will cause a synch() / re-read of offsets
+	// this will cause execute to return INTERP_EXECUTE_FINISH
 	settings->toolchange_flag = true;
     } else {
 	CANON_ERROR("M6 failed (%f)", settings->return_value);
@@ -2853,7 +2853,7 @@ int Interp::finish_m61_command(setup_pointer settings,int remap)
     if (settings->return_value > - TOLERANCE_EQUAL) {
 	settings->current_pocket = round_to_int(settings->return_value);
 	CHANGE_TOOL_NUMBER(settings->current_pocket);
-	// this will cause a synch() / re-read of offsets
+	// this will cause execute to return INTERP_EXECUTE_FINISH
 	settings->toolchange_flag = true;
     } else {
 	// FIXME mah just return like so

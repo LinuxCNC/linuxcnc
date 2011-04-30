@@ -230,8 +230,6 @@ int Interp::report_error(setup_pointer settings,int status,const char *text)
 // Tx epiplogue - executed past T_COMMAND
 int Interp::finish_t_command(setup_pointer settings,int remap)
 {
-    int status = INTERP_OK;
-
     // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
     // commit the tool prepare to that value.
 
@@ -257,11 +255,10 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
 			    bool pydict
 )
 {
-    // TBD:  good error reporting on errors in T_COMMAND, M6_COMMAND
 
     settings->sequence_number = 1;
 
-    // Gcode handlers need some c/c++ to finish work after doing theirs.
+    // some remapped handlers need c/c++ code to finish work after doing theirs.
     // that's what epilogue functions are for.
 
     // this tells O_call code to mark the frame with an epilogue handler
@@ -272,11 +269,12 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
     settings->epilog_hook = epilog;
     settings->epilog_userdata = remap_op;
 
+    // prologue functions are called just before the subroutine is entered
     // this hook might call a function to enrich subroutine local params
     settings->prolog_hook = prolog;
     settings->prolog_userdata = user_data;
 
-    // just read and parse into _setup.block1
+    // just read and parse into _setup.blocks[0] (EXECUTING_BLOCK)
     // NB: we're NOT triggering MDI handling in execute()
     int status = read(cmd);
     return(status);
