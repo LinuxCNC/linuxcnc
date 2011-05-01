@@ -354,7 +354,7 @@ image::images/g2-3.png[]
 
 Here is an example of a center format command to mill a helix:
 
-    
+    G17 G2 X10 Y16 I3 J4 Z9
 
 That means to make a clockwise (as viewed from the positive z-axis)
 circular or helical arc whose axis is parallel to the Z-axis, ending
@@ -501,7 +501,11 @@ G8 is default at power up.
 
 == G10 L1 Set Tool Table (((G10 L1 Tool Table)))[[sec:G10-L1-Set-Tool-Table]]
 
-    G10 L1 P[tool number] R[radius] X[offset] Y[offset] Z[offset] A[offset] B[offset] C[offset] U[offset] V[offset] W[offset] I[frontangle] J[backangle] Q[orientation] 
+    G10 L1 P[tool number] R[radius] 
+        X[offset] Y[offset] Z[offset] 
+        A[offset] B[offset] C[offset] 
+        U[offset] V[offset] W[offset] 
+        I[frontangle] J[backangle] Q[orientation] 
 
 Program a G10 L1 to set a tool table entry from a program or the MDI
 window.  G10 L1 reloads the tool table.
@@ -516,6 +520,9 @@ For more information on tool orientation see figure (
 == G10 L2 Set Coordinate System (((G10 L2 Coordinate System)))[[sub:G10:-Set-Coordinate]]
 
     G10 L2 P[coordinate system] R[rotation about Z] 
+        X[offset] Y[offset] Z[offset] 
+        A[offset] B[offset] C[offset] 
+        U[offset] V[offset] W[offset] 
 
 The coordinate system is described in Section <<cha:Coordinate-System>>.
 
@@ -525,7 +532,7 @@ active
 coordinate system program P0. To specify a coordinate system program 1
  to 9 corresponding to `G54` to `G59.3` . Optionally program R to
 indicate the rotation of the XY axis around
-the Z and all axis words are optional. The origin of the coordinate
+the Z axis. All axis words are optional. The origin of the coordinate
 system specified by the P number is set to the given values (in terms
 of the not offset machine coordinate system). Only those coordinates
 for which an axis word is included on the line will be set. Being in
@@ -566,7 +573,7 @@ G10 L2 P1 X0 Y0 Z0::
 
 .Set Coordinate System[[cap:Set-Coordinate-System]]
 
-[width="90%", options="header"]
+[width="60%", options="header"]
 |========================================
 |P Value | Coordinate System | G Code
 |0 | Currently Active | n/a
@@ -583,7 +590,11 @@ G10 L2 P1 X0 Y0 Z0::
 
 == G10 L10 Set Tool Table (((G10 L10 Set Tool Table)))[[sec:G10-L10]]
 
-    G10 L10 P[tool number] `axes`
+    G10 L10 P[tool number] R[radius]
+        X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
+        A[set_curr_sys_to] B[set_curr_sys_to] C[set_curr_sys_to] 
+        U[set_curr_sys_to] V[set_curr_sys_to] W[set_curr_sys_to] 
+        I[frontangle] J[backangle] Q[orientation] 
 
 G10 L10 changes the tool table entry for tool P so that if the 
 tool offset is reloaded, with the machine in its current position 
@@ -597,7 +608,11 @@ It is an error if:
 
 == G10 L11 Set Tool Table (((G10 L11 Set Tool Table)))[[sec:G10-L11]]
 
-    G10 L11 P[tool number] `axes`
+    G10 L11 P[tool number] R[radius]
+        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
+        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
+        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
+        I[frontangle] J[backangle] Q[orientation] 
 
 G10 L11 is just like G10 L10 except that instead of setting the entry
 according to the current offsets, it is set so that the current
@@ -615,7 +630,10 @@ It is an error if:
 
 == G10 L20 Set Coordinate System (((G10 L20 Set Coordinate System)))[[sec:G10-L20]]
 
-    G10 L20 P[coordinate system] 
+    G10 L20 P[coordinate system] R[rotation about Z] 
+        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
+        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
+        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
 
 G10 L20 is similar to G10 L2 except that instead of setting the
 offset/entry to the given value, it is set to a calculated value that
@@ -630,7 +648,7 @@ It is an error if:
 
 These codes set the current plane as follows:
 
-[width="90%", options="header"]
+[width="50%", options="header"]
 |========================================
 |G17 | XY (default)
 |G18 | ZX
@@ -647,7 +665,7 @@ The effects of having a plane selected are discussed in Section
 
 Program G20 to use inches for length units.
 
-Program G21 to use millimeters for lenght units.
+Program G21 to use millimeters for length units.
 
 It is usually a good idea to program either G20 or G21 near the
 beginning of a program before any motion occurs, and not to use either
@@ -1355,7 +1373,7 @@ milling with chip breaking. The retracts in this cycle clear the hole
 of chips and cut off any long stringers (which are common when drilling
 in aluminum). This cycle takes a Q number which represents a "delta"
 increment along the Z-axis. The retract before final depth will always 
-be to the "retract" plain even if G98 is in effect. The final retract will
+be to the "retract" plane even if G98 is in effect. The final retract will
 honor the G98/99 in effect.
 
  . Preliminary motion, as described above. 

@@ -181,164 +181,84 @@ I'll start from the top of the list... JT
       ./hal/pyvcp.lyx:1933: \ at start of line in LyX-Code.  Context:
   86.
               <tabs>
-  87.
-      ./hal/basic_hal.lyx:222: \ at start of line in LyX-Code.  Context:
-  88.
-              in English it means "loadusr wait for name spindle component gs2_vfd name
-  89.
-      ./hal/basic_hal.lyx:330: \ at start of line in LyX-Code.  Context:
-  90.
-              net xStep <= stepgen.0.out => parport.0.pin-02-out
-  91.
-      ./hal/comp.lyx:103: \ at start of line in LyX-Code.  Context:
-  92.
-              component ddt "Compute the derivative of the input function";
-  93.
-      ./hal/comp.lyx:1854: \ at start of line in LyX-Code.  Context:
-  94.
-              comp usrexample.comp
-  95.
-      ./hal/comp.lyx:1891: \ at start of line in LyX-Code.  Context:
-  96.
-              component constant;
-  97.
-      ./hal/comp.lyx:1944: \ at start of line in LyX-Code.  Context:
-  98.
-              component sincos;
-  99.
-      ./hal/comp.lyx:2177: \ at start of line in LyX-Code.  Context:
- 100.
-              component hal_loop;
- 101.
-      ./hal/comp.lyx:2237: \ at start of line in LyX-Code.  Context:
- 102.
-              component arraydemo "4-bit Shift register";
- 103.
-      ./hal/comp.lyx:2271: \ at start of line in LyX-Code.  Context:
- 104.
-              \begin_layout LyX-Code
- 105.
-      ./hal/comp.lyx:2289: \ at start of line in LyX-Code.  Context:
- 106.
-              \begin_layout LyX-Code
- 107.
-      ./examples/spindle.lyx:91: \ at start of line in LyX-Code.  Context:
- 108.
-              loadrt scale count=1
- 109.
-      ./examples/spindle.lyx:120: \ at start of line in LyX-Code.  Context:
- 110.
-              loadrt pwmgen output_type=0
- 111.
-      ./examples/spindle.lyx:195: \ at start of line in LyX-Code.  Context:
- 112.
-              net spindle-fwd motion.spindle-forward => parport.0.pin-16-out
- 113.
-      ./examples/spindle.lyx:221: \ at start of line in LyX-Code.  Context:
- 114.
-              # load real time a limit2 and a near with names so it is easier to follow
- 115.
-      ./examples/spindle.lyx:230: \ at start of line in LyX-Code.  Context:
- 116.
-              # add the functions to a thread
- 117.
-      ./examples/spindle.lyx:239: \ at start of line in LyX-Code.  Context:
- 118.
-              # set the parameter for max velocity
- 119.
-      ./examples/spindle.lyx:245: \ at start of line in LyX-Code.  Context:
- 120.
-              # hijack the spindle speed out and send it to spindle ramp in
- 121.
-      ./examples/spindle.lyx:252: \ at start of line in LyX-Code.  Context:
- 122.
-              # the output of spindle ramp is sent to the scale in
- 123.
-      ./examples/spindle.lyx:259: \ at start of line in LyX-Code.  Context:
- 124.
-              # to know when to start the motion we send the near component
- 125.
-      ./examples/spindle.lyx:277: \ at start of line in LyX-Code.  Context:
- 126.
-              # the output from spindle-at-speed is sent to motion.spindle-at-speed
- 127.
-      ./examples/spindle.lyx:347: \ at start of line in LyX-Code.  Context:
- 128.
-              loadrt encoder num_chan=1
- 129.
-      ./gui/gladevcp.lyx:141: \ at start of line in LyX-Code.  Context:
- 130.
-             
- 131.
-      ./gui/gladevcp.lyx:147: \ at start of line in LyX-Code.  Context:
- 132.
-             
- 133.
-      ./gcode/main.lyx:2980: \ at start of line in LyX-Code.  Context:
- 134.
-             
- 135.
-      ./gcode/main.lyx:3447: \ at start of line in LyX-Code.  Context:
- 136.
-              G10 L2 P[coordinate system] R[rotation about Z]
- 137.
-      ./gcode/main.lyx:4007: \ at start of line in LyX-Code.  Context:
- 138.
-              G10 L20 P[coordinate system]
- 139.
-      ./gcode/main.lyx:7238: \ at start of line in LyX-Code.  Context:
- 140.
-             
- 141.
-      ./gcode/main.lyx:7424: \ at start of line in LyX-Code.  Context:
- 142.
-             
- 143.
-      ./gcode/main.lyx:7471: \ at start of line in LyX-Code.  Context:
- 144.
-             
- 145.
-      ./gcode/main.lyx:7571: \ at start of line in LyX-Code.  Context:
- 146.
-             
- 147.
-      ./gcode/main.lyx:7616: \ at start of line in LyX-Code.  Context:
- 148.
-             
- 149.
-      ./gcode/main.lyx:7725: \ at start of line in LyX-Code.  Context:
- 150.
-             
- 151.
-      ./config/stepper.lyx:190: \ at start of line in LyX-Code.  Context:
- 152.
-              signals: Xstep, Xdir & Xen
- 153.
-      ./config/stepper.lyx:238: \ at start of line in LyX-Code.  Context:
- 154.
-              \begin_layout LyX-Code
- 155.
-      ./config/stepper.lyx:327: \ at start of line in LyX-Code.  Context:
- 156.
-              net Xstep parport.0.pin-03-out
- 157.
-      ./config/stepper.lyx:337: \ at start of line in LyX-Code.  Context:
- 158.
-              net Xstep parport.0.pin-02-out
- 159.
-      ./config/stepper.lyx:412: \ at start of line in LyX-Code.  Context:
- 160.
-              loadrt pwmgen output_type=0
- 161.
-      ./config/ini_config.lyx:946: \ at start of line in LyX-Code.  Context:
- 162.
-              PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
- 163.
-      ./config/ini_config.lyx:959: \ at start of line in LyX-Code.  Context:
- 164.
-              PROGRAM_EXTENSION = .py Python Script
- 165.
-      ./config/ini_config.lyx:1049: \ at start of line in LyX-Code.  Context:
+
+--------------------------------------------------  
+
+  87.      ./hal/basic_hal.lyx:222: \ at start of line in LyX-Code.  Context:
+  88.              in English it means "loadusr wait for name spindle component gs2_vfd name
+  89.      ./hal/basic_hal.lyx:330: \ at start of line in LyX-Code.  Context:
+  90.              net xStep <= stepgen.0.out => parport.0.pin-02-out
+
+--------------------------------------------------
+
+  91.      ./hal/comp.lyx:103: \ at start of line in LyX-Code.  Context:
+  92.              component ddt "Compute the derivative of the input function";
+  93.      ./hal/comp.lyx:1854: \ at start of line in LyX-Code.  Context:
+  94.              comp usrexample.comp
+  95.      ./hal/comp.lyx:1891: \ at start of line in LyX-Code.  Context:
+  96.              component constant;
+  97.      ./hal/comp.lyx:1944: \ at start of line in LyX-Code.  Context:
+  98.              component sincos;
+  99.      ./hal/comp.lyx:2177: \ at start of line in LyX-Code.  Context:
+ 100.              component hal_loop;
+ 101.      ./hal/comp.lyx:2237: \ at start of line in LyX-Code.  Context:
+ 102.              component arraydemo "4-bit Shift register";
+ 103.      ./hal/comp.lyx:2271: \ at start of line in LyX-Code.  Context:
+ 104.              \begin_layout LyX-Code
+ 105.      ./hal/comp.lyx:2289: \ at start of line in LyX-Code.  Context:
+ 106.              \begin_layout LyX-Code
+
+------------------------------------------------
+ 
+ 107.      ./examples/spindle.lyx:91: \ at start of line in LyX-Code.  Context:
+ 108.              loadrt scale count=1
+ 109.      ./examples/spindle.lyx:120: \ at start of line in LyX-Code.  Context:
+ 110.              loadrt pwmgen output_type=0
+ 111.      ./examples/spindle.lyx:195: \ at start of line in LyX-Code.  Context:
+ 112.              net spindle-fwd motion.spindle-forward => parport.0.pin-16-out
+ 113.      ./examples/spindle.lyx:221: \ at start of line in LyX-Code.  Context:
+ 114.              # load real time a limit2 and a near with names so it is easier to follow
+ 115.      ./examples/spindle.lyx:230: \ at start of line in LyX-Code.  Context:
+ 116.              # add the functions to a thread
+ 117.      ./examples/spindle.lyx:239: \ at start of line in LyX-Code.  Context:
+ 118.              # set the parameter for max velocity
+ 119.      ./examples/spindle.lyx:245: \ at start of line in LyX-Code.  Context:
+ 120.              # hijack the spindle speed out and send it to spindle ramp in
+ 121.      ./examples/spindle.lyx:252: \ at start of line in LyX-Code.  Context:
+ 122.              # the output of spindle ramp is sent to the scale in
+ 123.      ./examples/spindle.lyx:259: \ at start of line in LyX-Code.  Context:
+ 124.              # to know when to start the motion we send the near component
+ 125.      ./examples/spindle.lyx:277: \ at start of line in LyX-Code.  Context:
+ 126.              # the output from spindle-at-speed is sent to motion.spindle-at-speed
+ 127.      ./examples/spindle.lyx:347: \ at start of line in LyX-Code.  Context:
+ 128.              loadrt encoder num_chan=1
+
+-------------------------------------------------
+
+----- KimK completed gladevcp.lyx / gladevcp.txt 
+
+----- KimK completed main.lyx / main.txt --------            
+
+-------------------------------------------------
+            
+ 151.      ./config/stepper.lyx:190: \ at start of line in LyX-Code.  Context:
+ 152.              signals: Xstep, Xdir & Xen
+ 153.      ./config/stepper.lyx:238: \ at start of line in LyX-Code.  Context:
+ 154.              \begin_layout LyX-Code
+ 155.      ./config/stepper.lyx:327: \ at start of line in LyX-Code.  Context:
+ 156.              net Xstep parport.0.pin-03-out
+ 157.      ./config/stepper.lyx:337: \ at start of line in LyX-Code.  Context:
+ 158.              net Xstep parport.0.pin-02-out
+ 159.      ./config/stepper.lyx:412: \ at start of line in LyX-Code.  Context:
+ 160.              loadrt pwmgen output_type=0
+
+-------------------------------------------------
+
+ 161.      ./config/ini_config.lyx:946: \ at start of line in LyX-Code.  Context:
+ 162.              PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+ 163.      ./config/ini_config.lyx:959: \ at start of line in LyX-Code.  Context:
+ 164.              PROGRAM_EXTENSION = .py Python Script
+ 165.      ./config/ini_config.lyx:1049: \ at start of line in LyX-Code.  Context:
 
 
 *** Getting Started Manual

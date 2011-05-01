@@ -43,8 +43,10 @@ side-by-side with the Preview and DRO tabs is more elegant. To do so,
 edit your .ini file and add two variables to the DISPLAY section of ini
 file:
 
-    
-    
+   EMBED_TAB_NAME = GladeVCP 
+
+   EMBED_TAB_COMMAND = 
+        gladevcp -c gladevcp-test -w {XID} -H gladevcp-test.hal
 
 Try it out by running Axis - there should be a new tab called
 'GladeVCP' near the DRO tab. Select that tab, you should see the
