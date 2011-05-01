@@ -1354,12 +1354,14 @@ drilling or
 milling with chip breaking. The retracts in this cycle clear the hole
 of chips and cut off any long stringers (which are common when drilling
 in aluminum). This cycle takes a Q number which represents a "delta"
-increment along the Z-axis.
+increment along the Z-axis. The retract before final depth will always 
+be to the "retract" plain even if G98 is in effect. The final retract will
+honor the G98/99 in effect.
 
  . Preliminary motion, as described above. 
- .  Move the Z-axis only at the current feed rate downward by delta or to
+ . Move the Z-axis only at the current feed rate downward by delta or to
    the Z position, whichever is less deep. 
- . Rapid back out to the clear_z. 
+ . Rapid back out to the retract plane specificed by the R word. 
  . Rapid back down to the current hole bottom, backed off a bit.
  . Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
  . Retract the Z-axis at traverse rate to clear Z. 
