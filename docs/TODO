@@ -235,30 +235,13 @@ I'll start from the top of the list... JT
 
 -------------------------------------------------
 
------ KimK completed gladevcp.lyx / gladevcp.txt 
+----- KimK completed gladevcp.lyx / gladevcp.txt -----
 
 ----- KimK completed main.lyx / main.txt --------            
 
--------------------------------------------------
+----- KimK completed stepper.lyx / stepper.txt -------
             
- 151.      ./config/stepper.lyx:190: \ at start of line in LyX-Code.  Context:
- 152.              signals: Xstep, Xdir & Xen
- 153.      ./config/stepper.lyx:238: \ at start of line in LyX-Code.  Context:
- 154.              \begin_layout LyX-Code
- 155.      ./config/stepper.lyx:327: \ at start of line in LyX-Code.  Context:
- 156.              net Xstep parport.0.pin-03-out
- 157.      ./config/stepper.lyx:337: \ at start of line in LyX-Code.  Context:
- 158.              net Xstep parport.0.pin-02-out
- 159.      ./config/stepper.lyx:412: \ at start of line in LyX-Code.  Context:
- 160.              loadrt pwmgen output_type=0
-
--------------------------------------------------
-
- 161.      ./config/ini_config.lyx:946: \ at start of line in LyX-Code.  Context:
- 162.              PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
- 163.      ./config/ini_config.lyx:959: \ at start of line in LyX-Code.  Context:
- 164.              PROGRAM_EXTENSION = .py Python Script
- 165.      ./config/ini_config.lyx:1049: \ at start of line in LyX-Code.  Context:
+----- KimK completed ini_config.lyx ini_config.txt -----
 
 
 *** Getting Started Manual
