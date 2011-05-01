@@ -1270,7 +1270,7 @@ analogous.
 
 == G81 Drilling Cycle (((G81 Drilling Cycle)))[[sub:G81:-Drilling-Cycle]]
 
-    
+    G81 (X- Y- Z-) or (U- V- W-) R- L-
 
 The `G81` cycle is intended for drilling.
 
@@ -1335,7 +1335,7 @@ The third repeat consists of 3 moves. The X position is reset to 13
 
 == G82 Drilling Cycle with Dwell (((G82 Drilling Cycle Dwell)))[[sub:G82:-Drilling-Cycle]]
 
-    
+    G82 (X- Y- Z-) or (U- V- W-) R- L- P-
 
 The `G82` cycle is intended for drilling with a dwell at the bottom of
 the hole.
@@ -1347,7 +1347,7 @@ the hole.
 
 == G83 Peck Drilling (((G83 Peck Drilling)))[[sub:G83:-Peck-Drilling]]
 
-    
+    G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
 
 The `G83`  cycle (often called peck drilling) is intended for deep
 drilling or
@@ -1378,7 +1378,7 @@ behavior is undefined. See section
 
 == G85 Boring, No Dwell, Feed Out (((G85 Boring, No Dwell, Feed Out)))[["sub:G85:-Boring,-No"]]
 
-    
+    G85 (X- Y- Z-) or (U- V- W-) (U- V- W-) R- L-
 
 The `G85`  cycle is intended for boring or reaming, but could be used
 for
@@ -1390,7 +1390,7 @@ drilling or milling.
 
 == G86 Boring, Spindle Stop, Rapid Out (((G86 Boring, Spindle Stop, Rapid Out)))[["sub:G86:-Boring,-Spindle"]]
 
-    
+    G86 (X- Y- Z-) or (U- V- W-) R- L- P-
 
 The `G86`  cycle is intended for boring. This cycle uses a P number
 for the
@@ -1420,7 +1420,7 @@ behavior is undefined.
 
 == G89 Boring, Dwell, Feed Out (((G89 Boring, Dwell, Feed Out)))[["sub:G89:-Boring,-Dwell,"]]
 
-    
+    G89 (X- Y- Z-) or (U- V- W-) R- L- P-
 
 The `G89`  cycle is intended for boring. This cycle uses a P number,
 where P
