@@ -199,7 +199,67 @@ pyVCP and HAL.
 First create the ptest.xml file with the following code to create the
 panel description.
 
-    <!-- Test panel for the parallel port cfg for out -->
+[source,xml]
+<!-- Test panel for the parallel port cfg for out -->
+<pyvcp>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <button>
+      <halpin>"btn01"</halpin>
+      <text>"Pin 01"</text>
+    </button>
+    <led>
+      <halpin>"led-01"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <button>
+      <halpin>"btn02"</halpin>
+      <text>"Pin 02"</text>
+    </button>
+    <led>
+      <halpin>"led-02"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <label>
+      <text>"Pin 10"</text>
+      <font>("Helvetica",14)</font>
+    </label>
+    <led>
+      <halpin>"led-10"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <label>
+      <text>"Pin 11"</text>
+      <font>("Helvetica",14)</font>
+    </label>
+    <led>
+      <halpin>"led-11"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+</pyvcp>
+    
 
 This will create the following floating panel which contains a couple
 of in pins and a couple of out pins.
