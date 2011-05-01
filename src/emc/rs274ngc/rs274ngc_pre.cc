@@ -462,6 +462,20 @@ int Interp::_execute(const char *command)
 	  write_g_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
 	  write_m_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
 	  write_settings(&_setup);
+
+	  if ((status == INTERP_EXIT) &&
+	      (_setup.stack_level > 0) &&
+	      (_setup.call_level > 0)) {
+	      // an M2 was encountered while executing a handler.
+	      fprintf(stderr,"-- standard case status=%s remap_level=%d call_level=%d blocktext='%s' MDImode=%d\n",
+		      interp_status(status),_setup.stack_level,_setup.call_level, _setup.blocktext,MDImode);
+	      fprintf(stderr,"-- _setup.filename = %s, fn[0]=%s, fn[1]=%s\n",
+		      _setup.filename,
+		      _setup.sub_context[0].filename,
+		      _setup.sub_context[1].filename);
+
+
+	  }
       }
     if ((status != INTERP_OK) &&
         (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
