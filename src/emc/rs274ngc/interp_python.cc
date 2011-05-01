@@ -2,6 +2,9 @@
 // Michael Haberler 4/2011
 //
 // FIXME mah: proper dereferencing!!
+#include <boost/python.hpp>
+#include <boost/make_shared.hpp>
+using namespace boost::python;
 
 #include "Python.h"
 #include <unistd.h>
@@ -20,6 +23,8 @@
 
 #define HANDLENAME "_this"
 
+typedef boost::shared_ptr< Interp > interp_ptr;
+
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
         if (bad) {                                             \
@@ -33,20 +38,30 @@ int Interp::init_python(setup_pointer settings)
     char cmd[LINELEN];
     PyObject *py_this,*handle,*exc, *val, *tbk;
 
-    fprintf(stderr,"--- init_python(this=%lx) %lx\n",(unsigned long)this,(unsigned long)&this->_setup);
+    //boost::python::object  test = boost::python::object::int_obj(42);
+
+    fprintf(stderr,"--- init_python(this=%lx) %lx\n",
+	    (unsigned long)this,
+	    (unsigned long)&this->_setup);
     if (settings->pymodule_ok)
 	return INTERP_OK;
     if (settings->pymodule) {
 	Py_Initialize();
-	PYCHK((PyRun_SimpleString("import sys") < 0),"init_python: 'import sys' failed");
+	PYCHK((PyRun_SimpleString("import sys") < 0),
+	      "init_python: 'import sys' failed");
 	if (settings->pydir) {
-	    snprintf(cmd,sizeof(cmd),"sys.path.append(\"%s\")",settings->pydir);
-	    PYCHK((PyRun_SimpleString(cmd) < 0),"init_python: '%s' failed",cmd);
+	    snprintf(cmd,sizeof(cmd),"sys.path.append(\"%s\")",
+		     settings->pydir);
+	    PYCHK((PyRun_SimpleString(cmd) < 0),
+		  "init_python: '%s' failed",cmd);
 	}
 
-	PYCHK((settings->pymodname = PyString_FromString(settings->pymodule)) == NULL,"init_python: cant  PyString_FromString()");
-	PYCHK((settings->pymod = PyImport_Import(settings->pymodname)) == NULL,"init_python: cant import '%s'",settings->pymodule);
-	PYCHK((settings->pymdict = PyModule_GetDict(settings->pymod)) == NULL,"init_python: cant PyModule_GetDict");
+	PYCHK((settings->pymodname = PyString_FromString(settings->pymodule)) == NULL,
+	      "init_python: cant  PyString_FromString()");
+	PYCHK((settings->pymod = PyImport_Import(settings->pymodname)) == NULL,
+	      "init_python: cant import '%s'",settings->pymodule);
+	PYCHK((settings->pymdict = PyModule_GetDict(settings->pymod)) == NULL,
+	      "init_python: cant PyModule_GetDict");
 
 	// check for HANDLENAME accidentially already defined
 	PYCHK(((handle = PyDict_GetItemString(settings->pymdict,HANDLENAME)) != NULL),
@@ -59,6 +74,7 @@ int Interp::init_python(setup_pointer settings)
 
 	PYCHK(PyDict_SetItemString(settings->pymdict, HANDLENAME, py_this),
 	      "init_python: cannot store global '%s' - PyDict_SetItemString failed ",HANDLENAME);
+
 
 	if (PyErr_Occurred()) {
 	    PyErr_Fetch(&exc, &val, &tbk);
