@@ -1578,16 +1578,16 @@ It is an error if:
 
 == G98, G99 Set Canned Cycle Return Level (((G98, G99 Canned Cycle Return)))[["sub:G98,-G99:-Set"]]
 
-When the spindle retracts during canned cycles, there is a choice of
-how far it retracts: (1) retract perpendicular to the selected plane to
-the position indicated by the R word, or (2) retract perpendicular to
-the selected plane to the position that axis was in just before the
-canned cycle started (unless that position is lower than the position
-indicated by the R word, in which case use the R word position).
+   G98 Retract to the position that axis was in just before this series
+       of one or more contiguous canned cycles was started.
+    
+   G99 Retract to the position specificed by the R word of the canned cycle.    
 
-To use option (1), program `G99`. To use option (2), program `G98` .
-Remember that the R word has different meanings in absolute distance
-mode and incremental distance mode.
+The "initial" (g98) plane is reset any time cycle motion mode is
+abandoned, whether explicitly (g80) or implicitly (any motion code
+that is not a cycle).  Switching among cycle modes (say g81
+to g83) does NOT reset the "initial" plane. It is possible to switch
+between G98 and G99 during a series of cycles.
 
 = M Codes
 
