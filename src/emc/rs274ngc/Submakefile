@@ -31,7 +31,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-Map=librs274ngc.map -Wl,-soname,$(notdir $@) -shared -o $@ $^ -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
 
 
 
