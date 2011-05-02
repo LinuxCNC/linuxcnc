@@ -237,8 +237,10 @@ int Interp::finish_t_command(setup_pointer settings,int remap)
 	settings->selected_pocket = round_to_int(settings->return_value);
 	SELECT_POCKET(settings->selected_pocket);
     } else {
-	CANON_ERROR("T<tool> - prepare failed (%f)", settings->return_value);
-	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
+
+	char msg[LINELEN];
+	snprintf(msg,sizeof(msg),"T<tool> - prepare failed (%f)", settings->return_value);
+	INTERP_ABORT(round_to_int(settings->return_value),msg);
     }
     return remap_finished(remap);
 }

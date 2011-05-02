@@ -647,10 +647,10 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     return 0;
 }
 
-int emcAbortCleanup(int reason)
+int emcAbortCleanup(int reason, const char *message)
 {
-    int status = interp.on_abort(reason);
-    if (status > INTERP_MIN_ERROR) 
-	print_interp_error(status);    
+    int status = interp.on_abort(reason,message);
+    if (status > INTERP_MIN_ERROR)
+	print_interp_error(status);
     return status;
 }

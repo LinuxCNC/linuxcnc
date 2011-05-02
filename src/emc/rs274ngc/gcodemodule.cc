@@ -439,8 +439,7 @@ void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
 int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
 int LOCK_ROTARY(int line_no, int axis) {return 0;}
-void SEND_HANDLER_ABORT(int reason) {}
-void CANON_ERROR(const char *fmt, ...) {}
+void INTERP_ABORT(int reason,const char *message) {}
 
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 

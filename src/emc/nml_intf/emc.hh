@@ -194,7 +194,7 @@ class PM_CARTESIAN;
 #define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
 // a oword procedure handler failed (gcode toolchange)
-#define EMC_HANDLER_ABORT_TYPE                       ((NMLTYPE) 1111)
+#define EMC_INTERP_ABORT_TYPE                       ((NMLTYPE) 1111)
 
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
@@ -494,7 +494,7 @@ extern int emcTaskPlanLevel();
 extern int emcTaskPlanCommand(char *cmd);
 
 extern int emcTaskUpdate(EMC_TASK_STAT * stat);
-extern int emcAbortCleanup(int reason);
+extern int emcAbortCleanup(int reason,const char *message = "");
 
 // implementation functions for EMC_TOOL types
 

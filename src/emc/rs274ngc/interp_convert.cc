@@ -2838,8 +2838,9 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
 	// this will cause execute to return INTERP_EXECUTE_FINISH
 	settings->toolchange_flag = true;
     } else {
-	CANON_ERROR("M6 failed (%f)", settings->return_value);
-	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
+	char msg[LINELEN];
+	snprintf(msg,sizeof(msg),"M6 failed (%f)", settings->return_value);
+	INTERP_ABORT(round_to_int(settings->return_value),msg);
     }
     return remap_finished(remap);
 }
@@ -2856,11 +2857,9 @@ int Interp::finish_m61_command(setup_pointer settings,int remap)
 	// this will cause execute to return INTERP_EXECUTE_FINISH
 	settings->toolchange_flag = true;
     } else {
-	// FIXME mah just return like so
-	// return remap_finished(-INTERP_ERROR);
-	// and fixup remap_finished to return that error code
-	CANON_ERROR("M61 failed (%f)",settings->return_value);
-	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
+	char msg[LINELEN];
+	snprintf(msg,sizeof(msg),"M61 failed (%f)", settings->return_value);
+	INTERP_ABORT(round_to_int(settings->return_value),msg);
     }
     return remap_finished(remap);
 }

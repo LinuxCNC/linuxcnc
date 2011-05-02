@@ -1140,12 +1140,8 @@ int GET_EXTERNAL_TC_REASON()
     return _toolchanger_reason;
 }
 
-void SEND_HANDLER_ABORT(int reason)
+void INTERP_ABORT(int reason, const char *message)
 {
-    PRINT1("SEND_HANDLER_ABORT(%d)\n",reason);
+    PRINT1("INTERP_ABORT(%d)\n",reason);
 }
 
-void CANON_ERROR(const char *fmt, ...)
-{
-
-}

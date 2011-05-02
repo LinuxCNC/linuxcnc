@@ -231,6 +231,8 @@ int Interp::_execute(const char *command)
   int n;
   int MDImode = 0;
 
+  // fprintf(stderr,"---- execute: command=%s mdi_interrupt=%d\n",command,_setup.mdi_interrupt);
+
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
@@ -583,9 +585,9 @@ int Interp::remap_finished(int finished_remap)
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
 
-		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d (dropping)\n",
+		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d (dropping)\n",
 			interp_status(status),_setup.stack_level,_setup.toolchange_flag,
-			_setup.probe_flag,_setup.input_flag);
+			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt);
 		_setup.stack_level--; // drop one nesting level
 		if (_setup.stack_level < 0) {
 		    fprintf(stderr,"--- BUG: stack_level %d (<0) after dropping!!\n",
@@ -2172,10 +2174,11 @@ int Interp::set_tool_parameters()
 }
 
 
-int Interp::on_abort(int reason)
+int Interp::on_abort(int reason, const char *message)
 {
     int i;
-    fprintf(stderr,"------- on_abort reason=%d stack_level=%d\n",reason, _setup.stack_level);
+    fprintf(stderr,"------- on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d\n",
+	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt);
     // invalidate all saved context except the top level one
     for (i = _setup.call_level; i > 0; i--) {
         _setup.sub_context[i].context_status = 0;
@@ -2187,6 +2190,8 @@ int Interp::on_abort(int reason)
 	// 	      settings->sub_name = strdup...
         MSG("---- unwind context at level %d\n",i);
     }
+
+    _setup.mdi_interrupt = false;
 
     // reset remapping stack
     _setup.stack_level = 0;

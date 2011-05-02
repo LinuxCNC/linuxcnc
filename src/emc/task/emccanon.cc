@@ -3029,13 +3029,16 @@ int LOCK_ROTARY(int line_number, int axis) {
     return 0;
 }
 
-/* SEND_HANDLER_ABORT queues a suicide message due to failed toolchange
+/* INTERP_ABORT queues a suicide message due to failed toolchange
  * G-code procedure handlers
  */
-void SEND_HANDLER_ABORT(int reason)
+void INTERP_ABORT(int reason, const char *message)
 {
-    EMC_HANDLER_ABORT handler_abort_msg;
+    EMC_INTERP_ABORT interp_abort_msg;
 
-    handler_abort_msg.reason = reason;
-    interp_list.append(handler_abort_msg);
+    interp_abort_msg.reason = reason;
+    if (message != NULL)
+	strncpy(interp_abort_msg.message,message,
+		sizeof(interp_abort_msg.message));
+    interp_list.append(interp_abort_msg);
 }
