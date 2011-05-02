@@ -2177,11 +2177,19 @@ int Interp::set_tool_parameters()
 int Interp::on_abort(int reason, const char *message)
 {
     int i;
-    fprintf(stderr,"------- on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d\n",
-	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt);
+
+    fprintf(stderr,"------- on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d\n",
+	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt
+	    ,_setup.toolchange_flag,
+	    _setup.probe_flag,_setup.input_flag);
+
     // invalidate all saved context except the top level one
     for (i = _setup.call_level; i > 0; i--) {
         _setup.sub_context[i].context_status = 0;
+	fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
+		_setup.oword_offset[i].filename,
+		_setup.oword_offset[i].sequence_number,
+		_setup.oword_offset[i].offset);
 	// FIXME mah check subName,filename,o_name
 	//  settings->oword_offset[index].o_word_name = strdup(block->o_name);
 	//  settings->oword_offset[index].filename = strdup(settings->filename);
@@ -2190,8 +2198,18 @@ int Interp::on_abort(int reason, const char *message)
 	// 	      settings->sub_name = strdup...
         MSG("---- unwind context at level %d\n",i);
     }
-
+    i = 0;
+    fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
+		_setup.oword_offset[i].filename,
+		_setup.oword_offset[i].sequence_number,
+		_setup.oword_offset[i].offset);
     _setup.mdi_interrupt = false;
+
+    // clear in case set by an interrupted remapped procedure
+    // if set, may cause a "Queue is not empty after tool change" error
+    _setup.toolchange_flag = false;
+    _setup.probe_flag = false;
+    _setup.input_flag = false;
 
     // reset remapping stack
     _setup.stack_level = 0;
