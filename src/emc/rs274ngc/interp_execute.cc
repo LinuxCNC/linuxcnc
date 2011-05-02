@@ -241,6 +241,7 @@ int Interp::finish_t_command(setup_pointer settings,int remap)
 	char msg[LINELEN];
 	snprintf(msg,sizeof(msg),"T<tool> - prepare failed (%f)", settings->return_value);
 	INTERP_ABORT(round_to_int(settings->return_value),msg);
+	return INTERP_EXECUTE_FINISH;
     }
     return remap_finished(remap);
 }

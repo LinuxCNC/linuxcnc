@@ -2841,6 +2841,7 @@ int Interp::finish_m6_command(setup_pointer settings, int remap)
 	char msg[LINELEN];
 	snprintf(msg,sizeof(msg),"M6 failed (%f)", settings->return_value);
 	INTERP_ABORT(round_to_int(settings->return_value),msg);
+	return INTERP_EXECUTE_FINISH;
     }
     return remap_finished(remap);
 }
@@ -2860,6 +2861,7 @@ int Interp::finish_m61_command(setup_pointer settings,int remap)
 	char msg[LINELEN];
 	snprintf(msg,sizeof(msg),"M61 failed (%f)", settings->return_value);
 	INTERP_ABORT(round_to_int(settings->return_value),msg);
+	return INTERP_EXECUTE_FINISH;
     }
     return remap_finished(remap);
 }
