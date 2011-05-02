@@ -2215,6 +2215,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_INTERP_ABORT_TYPE:
 	ia_msg = (EMC_INTERP_ABORT *) cmd;
 	retval = emcOperatorText(0,"%s",(const char *)&ia_msg->message);
+	// abort everything
+	emcTaskAbort();
+        emcIoAbort(EMC_ABORT_TASK_ABORT);
+        emcSpindleAbort();
+	mdi_execute_abort();
 	emcAbortCleanup(ia_msg->reason,ia_msg->message);
 	retval = 0;
 	break;
