@@ -927,7 +927,7 @@ If you want to record more samples at once, restart realtime and load
 halscope with a numeric argument which indicates the number of samples
 you want to capture, such as
 
-    halcmd: 
+    halcmd: loadusr halscope 80000
 
 if the `scope_rt`  component was not already loaded, halscope will
 load it and request

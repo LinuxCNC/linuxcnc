@@ -8,12 +8,39 @@ inputs. The following component copies the value seen on its input pin
 (`passthrough.in`) to its output pin (`passthrough.out`) approximately
 once per second.
 
-    #!/usr/bin/python
+----------------------------------------------------------
+#!/usr/bin/python
+import hal, time
+h = hal.component("passthrough")
+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+h.ready()
+try:
+    while 1:
+        time.sleep(1)
+        h[’out’] = h[’in’]
+except KeyboardInterrupt:
+    raise SystemExit
+----------------------------------------------------------
 
 Copy the above listing into a file named “passthrough”, make it
 executable (`chmod +x),` and place it on your `$PATH`. Then try it out:
 
-    $ halrun
+--------------------------------------------------------
+$ halrun
+halcmd: loadusr passthrough
+halcmd: show pin
+Component Pins:
+Owner Type  Dir     Value  Name
+ 03   float IN          0  passthrough.in
+ 03   float OUT         0  passthrough.out
+halcmd: setp passthrough.in 3.14
+halcmd: show pin
+Component Pins:
+Owner Type  Dir     Value  Name
+ 03   float IN       3.14  passthrough.in
+ 03   float OUT      3.14  passthrough.out
+--------------------------------------------------------
 
 == Userspace components and delays
 
@@ -50,7 +77,7 @@ and parameter direction.
 
 .HAL Option Names[[cap:HAL-Option-Names]]
 
-[width="90%", options="header"]
+[width="80%", options="header"]
 |========================================
 |*Pin and Parameter Types:* | HAL_BIT | HAL_FLOAT | HAL_S32 | HAL_U32
 |*Pin Directions:* | HAL_IN | HAL_OUT | HAL_IO | 

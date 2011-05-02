@@ -13,133 +13,50 @@ you will get the source code highlighting.
 
 I'll start from the top of the list... JT
 
-   3.
-      ./hal/pyvcp_examples.lyx:716: \ at start of line in LyX-Code.  Context:
-   4.
-              loadrt hal_parport cfg="0x378 out"
-   5.
-      ./hal/pyvcp_examples.lyx:750: \ at start of line in LyX-Code.  Context:
-   6.
-              ~$
-   7.
-      ./hal/pyvcp_examples.lyx:810: \ at start of line in LyX-Code.  Context:
-   8.
-              halcmd:
+   3.      ./hal/pyvcp_examples.lyx:716: \ at start of line in LyX-Code.  Context:
+   4.              loadrt hal_parport cfg="0x378 out"
+   5.      ./hal/pyvcp_examples.lyx:750: \ at start of line in LyX-Code.  Context:
+   6.              ~$
+   7.      ./hal/pyvcp_examples.lyx:810: \ at start of line in LyX-Code.  Context:
+   8.              halcmd:
 
 ------------------------------------------------------------
 
-   9.
-      ./hal/rtcomps.lyx:1109: \ at start of line in LyX-Code.  Context:
-  10.
-              emc2$
-  11.
-      ./hal/rtcomps.lyx:1126: \ at start of line in LyX-Code.  Context:
-  12.
-              emc2$
-  13.
-      ./hal/rtcomps.lyx:1158: \ at start of line in LyX-Code.  Context:
-  14.
-              emc2$
-  15.
-      ./hal/rtcomps.lyx:1515: \ at start of line in LyX-Code.  Context:
-  16.
-              emc2$
-  17.
-      ./hal/rtcomps.lyx:1547: \ at start of line in LyX-Code.  Context:
-  18.
-              emc2$
-  19.
-      ./hal/rtcomps.lyx:1967: \ at start of line in LyX-Code.  Context:
-  20.
-              emc2$
-  21.
-      ./hal/rtcomps.lyx:2009: \ at start of line in LyX-Code.  Context:
-  22.
-              emc2$
+   9.      ./hal/rtcomps.lyx:1109: \ at start of line in LyX-Code.  Context:
+  10.              emc2$
+  11.      ./hal/rtcomps.lyx:1126: \ at start of line in LyX-Code.  Context:
+  12.              emc2$
+  13.      ./hal/rtcomps.lyx:1158: \ at start of line in LyX-Code.  Context:
+  14.              emc2$
+  15.      ./hal/rtcomps.lyx:1515: \ at start of line in LyX-Code.  Context:
+  16.              emc2$
+  17.      ./hal/rtcomps.lyx:1547: \ at start of line in LyX-Code.  Context:
+  18.              emc2$
+  19.      ./hal/rtcomps.lyx:1967: \ at start of line in LyX-Code.  Context:
+  20.              emc2$
+  21.      ./hal/rtcomps.lyx:2009: \ at start of line in LyX-Code.  Context:
+  22.              emc2$
 
 --------------------------------------------------------
 
-  23.
-      ./hal/halmodule.lyx:73: \ at start of line in LyX-Code.  Context:
-  24.
-              #!/usr/bin/python
-  25.
-      ./hal/halmodule.lyx:123: \ at start of line in LyX-Code.  Context:
-  26.
-              $ halrun
+----- KimK completed halmodule.lyx / halmodule.txt -------------
 
 -------------------------------------------------------
 
-  27.
-      ./hal/tutorial.lyx:2804: \ at start of line in LyX-Code.  Context:
-  28.
-              halcmd:
+This has an embedded colon so I'm not sure what the best fix is. 
+It's right at the end of the file, maybe let it go and see if it looks bad?  KimK
+
+  27.      ./hal/tutorial.lyx:2804: \ at start of line in LyX-Code.  Context:
+  28.              halcmd:
 
 -------------------------------------------------------
 
-  29.      ./hal/pyvcp.lyx:119: \ at start of line in LyX-Code.  Context:
-  30.              <pyvcp>
-  31.      ./hal/pyvcp.lyx:210: \ at start of line in LyX-Code.  Context:
-  32.              <pyvcp>
-  33.      ./hal/pyvcp.lyx:631: \ at start of line in LyX-Code.  Context:
-  34.              <label>
-  35.      ./hal/pyvcp.lyx:695: \ at start of line in LyX-Code.  Context:
-  36.              <led>
-  37.      ./hal/pyvcp.lyx:733: \ at start of line in LyX-Code.  Context:
-  38.              <vbox>
-  39.      ./hal/pyvcp.lyx:819: \ at start of line in LyX-Code.  Context:
-  40.              <button>
-  41.      ./hal/pyvcp.lyx:863: \ at start of line in LyX-Code.  Context:
-  42.              <checkbutton>
-  43.      ./hal/pyvcp.lyx:913: \ at start of line in LyX-Code.  Context:
-  44.              <radiobutton>
-  45.      ./hal/pyvcp.lyx:980: \ at start of line in LyX-Code.  Context:
-  46.              <number>
-  47.      ./hal/pyvcp.lyx:1033: \ at start of line in LyX-Code.  Context:
-  48.              <s32>
-  49.      ./hal/pyvcp.lyx:1080: \ at start of line in LyX-Code.  Context:
-  50.              <bar>
-  51.      ./hal/pyvcp.lyx:1119: \ at start of line in LyX-Code.  Context:
-  52.              <meter>
-  53.      ./hal/pyvcp.lyx:1179: \ at start of line in LyX-Code.  Context:
-  54.              <spinbox>
-  55.      ./hal/pyvcp.lyx:1227: \ at start of line in LyX-Code.  Context:
-  56.              <scale>
-  57.      ./hal/pyvcp.lyx:1251: \ at start of line in LyX-Code.  Context:
-  58.              <scale>
-  59.      ./hal/pyvcp.lyx:1300: \ at start of line in LyX-Code.  Context:
-  60.              <dial>
-  61.      ./hal/pyvcp.lyx:1355: \ at start of line in LyX-Code.  Context:
-  62.              <jogwheel>
-  63.      ./hal/pyvcp.lyx:1402: \ at start of line in LyX-Code.  Context:
-  64.              <image name='fwd' file='fwd.gif'/>
-  65.      ./hal/pyvcp.lyx:1455: \ at start of line in LyX-Code.  Context:
-  66.              <image name='stb' file='stb.gif'/>
-  67.      ./hal/pyvcp.lyx:1536: \ at start of line in LyX-Code.  Context:
-  68.              <hbox>
-  69.      ./hal/pyvcp.lyx:1551: \ at start of line in LyX-Code.  Context:
-  70.                  <button>
-  71.      ./hal/pyvcp.lyx:1564: \ at start of line in LyX-Code.  Context:
-  72.                  <button>
-  73.      ./hal/pyvcp.lyx:1577: \ at start of line in LyX-Code.  Context:
-  74.                  <button>
-  75.      ./hal/pyvcp.lyx:1590: \ at start of line in LyX-Code.  Context:
-  76.                  <button>
-  77.      ./hal/pyvcp.lyx:1627: \ at start of line in LyX-Code.  Context:
-  78.              <hbox>
-  79.      ./hal/pyvcp.lyx:1706: \ at start of line in LyX-Code.  Context:
-  80.              <vbox>
-  81.      ./hal/pyvcp.lyx:1785: \ at start of line in LyX-Code.  Context:
-  82.              <labelframe text="Group Title">
-  83.      ./hal/pyvcp.lyx:1852: \ at start of line in LyX-Code.  Context:
-  84.              <table flexible_rows="[2]" flexible_columns="[1,4]">
-  85.      ./hal/pyvcp.lyx:1933: \ at start of line in LyX-Code.  Context:
-  86.              <tabs>
+----- KimK completed pyvcp.lyx pyvcp.lyx -----------
 
 --------------------------------------------------  
 
 I made some minor changes but I never really found the trouble here. 
-What is it complaining about?
+What is it complaining about?  KimK
 
   87.      ./hal/basic_hal.lyx:222: \ at start of line in LyX-Code.  Context:
   88.              in English it means "loadusr wait for name spindle component gs2_vfd name
