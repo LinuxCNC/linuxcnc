@@ -2123,6 +2123,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// it's success, so retval really is 0
 		retval = 0;
 	    } else if (execRetval != 0) {
+		// this causes the error msh on M2 in MDI mode - execRetval == INTERP_EXIT which is would be ok (I think). mah
 		retval = -1;
 	    } else {
 		// other codes are OK
