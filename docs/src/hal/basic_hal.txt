@@ -73,7 +73,8 @@ The syntax and examples:
     loadusr <component> <options>
     loadusr halui
     loadusr -Wn spindle gs2_vfd -n spindle
-    in English it means "loadusr wait for name spindle component gs2_vfd name spindle."
+
+In English it means "loadusr wait for name spindle component gs2_vfd name spindle."
 
 === net
 
