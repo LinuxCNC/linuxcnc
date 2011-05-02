@@ -83,7 +83,7 @@ MCODE=270,10,pqr
 
 def g885(args,**words):
 	result = 1
-	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 		if args[i] > 0:
@@ -97,7 +97,7 @@ def g885(args,**words):
 
 def m270(args,**words):
 	result = 1
-	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	print >> sys.stderr, "executing Python function: %s.%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 		if args[i] > 0:
@@ -110,20 +110,21 @@ def m270(args,**words):
 
 
 def pytdemo(args,**words):
-	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	print >> sys.stderr, "executing Python function: %s.%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 	return args[1] # return pocket number (#2) to commit or -1 to fail
 
 
 def pym6demo(args,**words):
-	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
-	return 1.0  # commit change to prepped tool
+	return -815.0  # commit change to prepped tool
+	#return 1.0  # commit change to prepped tool
 
 def pym61demo(args,**words):
-	print >> sys.stderr, "executing Python function: %s.%s this=%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name,str(this))
+	print >> sys.stderr, "executing Python function: %s.%s" % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	for i in range(5):
 		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
 	for key in words:
