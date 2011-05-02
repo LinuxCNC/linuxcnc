@@ -2183,26 +2183,31 @@ int Interp::on_abort(int reason, const char *message)
 	    ,_setup.toolchange_flag,
 	    _setup.probe_flag,_setup.input_flag);
 
-    // invalidate all saved context except the top level one
-    for (i = _setup.call_level; i > 0; i--) {
-        _setup.sub_context[i].context_status = 0;
-	fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
-		_setup.oword_offset[i].filename,
-		_setup.oword_offset[i].sequence_number,
-		_setup.oword_offset[i].offset);
-	// FIXME mah check subName,filename,o_name
-	//  settings->oword_offset[index].o_word_name = strdup(block->o_name);
-	//  settings->oword_offset[index].filename = strdup(settings->filename);
-	//   settings->skipping_o = strdup(block->o_name); // start skipping
-	//  settings->skipping_to_sub = strdup(block->o_name); // start skipping
-	// 	      settings->sub_name = strdup...
-        MSG("---- unwind context at level %d\n",i);
-    }
-    i = 0;
-    fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
-		_setup.oword_offset[i].filename,
-		_setup.oword_offset[i].sequence_number,
-		_setup.oword_offset[i].offset);
+    // // invalidate all saved context except the top level one
+    // for (i = _setup.call_level; i > 0; i--) {
+    //     _setup.sub_context[i].context_status = 0;
+    // 	fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
+    // 		_setup.oword_offset[i].filename,
+    // 		_setup.oword_offset[i].sequence_number,
+    // 		_setup.oword_offset[i].offset);
+    // 	// FIXME mah check subName,filename,o_name
+    // 	//  settings->oword_offset[index].o_word_name = strdup(block->o_name);
+    // 	//  settings->oword_offset[index].filename = strdup(settings->filename);
+    // 	//   settings->skipping_o = strdup(block->o_name); // start skipping
+    // 	//  settings->skipping_to_sub = strdup(block->o_name); // start skipping
+    // 	// 	      settings->sub_name = strdup...
+    //     MSG("---- unwind context at level %d\n",i);
+    // }
+    // i = 0;
+    // fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
+    // 		_setup.oword_offset[i].filename,
+    // 		_setup.oword_offset[i].sequence_number,
+    // 		_setup.oword_offset[i].offset);
+
+    reset(); // try this mah
+
+    fprintf(stderr,"-- _setup.filename=%s\n",_setup.filename);
+
     _setup.mdi_interrupt = false;
 
     // clear in case set by an interrupted remapped procedure

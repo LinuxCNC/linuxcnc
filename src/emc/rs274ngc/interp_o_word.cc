@@ -127,6 +127,14 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   settings->oword_offset[index].sequence_number =
     settings->sequence_number - 1;
 
+  fprintf(stderr, "-- control_save_offset: o_word_name=%s type=%d offset=%d filename=%s repeat_count=%d sequence_number=%d\n",
+	  settings->oword_offset[index].o_word_name = strdup(block->o_name),
+	  settings->oword_offset[index].type,
+	  settings->oword_offset[index].offset,
+	  settings->oword_offset[index].filename,
+	  settings->oword_offset[index].repeat_count,
+	  settings->oword_offset[index].sequence_number);
+
   return INTERP_OK;
 }
 
@@ -294,6 +302,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
 
   settings->skipping_start = settings->sequence_number;
   //ERS(NCE_UNKNOWN_OWORD_NUMBER);
+
   return INTERP_OK;
 }
 
