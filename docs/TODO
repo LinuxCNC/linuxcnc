@@ -8,36 +8,8 @@ and paste the code from the 2.4 pdf manuals.
 
 Remove items from this list as you fix.
 
-If you prefix code sections with [source,xml] or [source,shell] or [source,c]
+If you prefix code sections with [source,xml] or [source,c]
 you will get the source code highlighting.
-
-I'll start from the top of the list... JT
-
-   3.      ./hal/pyvcp_examples.lyx:716: \ at start of line in LyX-Code.  Context:
-   4.              loadrt hal_parport cfg="0x378 out"
-   5.      ./hal/pyvcp_examples.lyx:750: \ at start of line in LyX-Code.  Context:
-   6.              ~$
-   7.      ./hal/pyvcp_examples.lyx:810: \ at start of line in LyX-Code.  Context:
-   8.              halcmd:
-
-------------------------------------------------------------
-
-   9.      ./hal/rtcomps.lyx:1109: \ at start of line in LyX-Code.  Context:
-  10.              emc2$
-  11.      ./hal/rtcomps.lyx:1126: \ at start of line in LyX-Code.  Context:
-  12.              emc2$
-  13.      ./hal/rtcomps.lyx:1158: \ at start of line in LyX-Code.  Context:
-  14.              emc2$
-  15.      ./hal/rtcomps.lyx:1515: \ at start of line in LyX-Code.  Context:
-  16.              emc2$
-  17.      ./hal/rtcomps.lyx:1547: \ at start of line in LyX-Code.  Context:
-  18.              emc2$
-  19.      ./hal/rtcomps.lyx:1967: \ at start of line in LyX-Code.  Context:
-  20.              emc2$
-  21.      ./hal/rtcomps.lyx:2009: \ at start of line in LyX-Code.  Context:
-  22.              emc2$
-
---------------------------------------------------------
 
 ----- KimK completed halmodule.lyx / halmodule.txt -------------
 
