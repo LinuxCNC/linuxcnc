@@ -127,7 +127,7 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   settings->oword_offset[index].sequence_number =
     settings->sequence_number - 1;
 
-  fprintf(stderr, "-- control_save_offset: o_word_name=%s type=%d offset=%d filename=%s repeat_count=%d sequence_number=%d\n",
+  logDebug("control_save_offset: o_word_name=%s type=%d offset=%ld filename=%s repeat_count=%d sequence_number=%d\n",
 	  settings->oword_offset[index].o_word_name = strdup(block->o_name),
 	  settings->oword_offset[index].type,
 	  settings->oword_offset[index].offset,
@@ -480,12 +480,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	  // we have an epilog function. Execute it.
 	      if (settings->sub_context[settings->call_level+1].epilog) {
-		  fprintf(stderr,"---- return/endsub: calling epilogue\n");
+		  logRemap("return/endsub: calling epilogue\n");
 		  status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings,
 											     settings->sub_context[settings->call_level+1].epilog_arg
 											     );
 		  if (status > INTERP_MIN_ERROR)
-		      fprintf(stderr,"---- call: epilogue failed: %s \n", interp_status(status));
+		      logRemap("call: epilogue failed: %s \n", interp_status(status));
 	      }
 
 
@@ -616,7 +616,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // !!!KL do we need to free old subName?
 	    settings->sub_context[settings->call_level].subName =
 		strdup(block->o_name);
-
+#if 0
 	    // just curious: detect recursion
 	    if ((settings->call_level > 0) &&
 		(settings->sub_context[settings->call_level].subName != NULL) &&
@@ -624,14 +624,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		if (!strcmp(settings->sub_context[settings->call_level].subName,
 			    settings->sub_context[settings->call_level-1].subName)) {
 
-		    fprintf(stderr,"---- recursive call: '%s'\n",
+		    logDebug("recursive call: '%s'\n",
 			    settings->sub_context[settings->call_level].subName);
 		}
 	    }
-
+#endif
 	    // this is the place to call a prolog function
 	    if (settings->sub_context[settings->call_level].prolog) {
-		fprintf(stderr,"---- call: calling prologue\n");
+		logRemap("O_call: calling prologue\n");
 		status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
 											 settings->sub_context[settings->call_level].userdata,
 											 false);
@@ -639,7 +639,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		if (status > INTERP_MIN_ERROR) {
 		    // we're terminating the call in progress as we were setting it up.
 		    // need to unwind setup so far.
-		    fprintf(stderr,"---- call: prologue failed, unwinding\n");
+		    logRemap("O_call: prologue failed, unwinding\n");
 		    if (settings->sub_context[settings->call_level].subName)
 			free(settings->sub_context[settings->call_level].subName);
 		    settings->call_level--;
@@ -665,12 +665,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	    // note we dont increment the stack level - we dont need the context frame
 	    if (settings->prolog_hook) {
-		fprintf(stderr,"---- call: calling py prologue\n");
+		logRemap("O_call: calling py prologue\n");
 	        status = (*this.*settings->prolog_hook)(settings,settings->prolog_userdata, true);
 		settings->prolog_hook = NULL;  // mark as consumed
 		// prolog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
-		    fprintf(stderr,"---- call: py prologue failed, unwinding\n");
+		    logRemap("O_call: py prologue failed, unwinding\n");
 		    // end any remappings in progress
 		    settings->stack_level = 0;
 		    return status;
@@ -680,21 +680,21 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    status =  pycall(settings, block->o_name, block->params);
 	    if (status >  INTERP_MIN_ERROR) {
 		// end any remappings in progress
-		fprintf(stderr,"---- call: pycall failed, unwinding\n");
+		logRemap("O_call: pycall failed, unwinding\n");
 		settings->stack_level = 0;
 		return status;
 	    }
-	    fprintf(stderr,"--- O_call(%s) answer=%f\n",
+	    logRemap("O_call(%s) return value=%f\n",
 		    block->o_name, settings->return_value);
 
 	    // now the epilogue
 	    if (settings->epilog_hook) {
-		fprintf(stderr,"---- call: calling py epilogue\n");
+		logRemap("O_call: calling py epilogue\n");
 		status = (*this.*settings->epilog_hook)(settings,settings->epilog_userdata);
 		settings->epilog_hook = NULL;  // mark as consumed
 		// epilog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
-		    fprintf(stderr,"---- call: py epilogue failed: %s \n", interp_status(status));
+		    logRemap("O_call: py epilogue failed: %s \n", interp_status(status));
 		}
 	    }
 	    // fall through - now return status;
