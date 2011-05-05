@@ -529,7 +529,7 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHKS((value > 999), NCE_G_CODE_OUT_OF_RANGE);
   CHKS((value < 0), NCE_NEGATIVE_G_CODE_USED);
-  mode = usercode_mgroup(&(_setup),value); // FIXME pass settings into read_<x>?
+  mode = usercode_mgroup(&(_setup),value);
   if (mode != -1) {
       CHKS((block->g_modes[mode] != -1),
 	   NCE_TWO_G_CODES_USED_FROM_SAME_MODAL_GROUP);

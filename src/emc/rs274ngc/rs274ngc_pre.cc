@@ -217,14 +217,14 @@ int Interp::_execute(const char *command)
   int n;
   int MDImode = 0;
 
-  logDebug("execute: command=%s mdi_interrupt=%d\n",command,_setup.mdi_interrupt);
+  logDebug("execute: command=%s mdi_interrupt=%d",command,_setup.mdi_interrupt);
 
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
     if (status != INTERP_OK) {
 	if (status > INTERP_MIN_ERROR) {
-	    logRemap("-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d\n",
+	    logRemap("-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d",
 		    _setup.stack_level,command, interp_status(status),MDImode);
 	    _setup.stack_level = 0;
 	}
@@ -263,7 +263,7 @@ int Interp::_execute(const char *command)
           if (status != INTERP_OK)
 	    {
 		if (status > INTERP_MIN_ERROR) {
-		    logRemap("-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d\n",
+		    logRemap("-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d",
 			    _setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
 		    _setup.stack_level = 0;
 		}
@@ -275,7 +275,7 @@ int Interp::_execute(const char *command)
 		    _setup.mdi_interrupt = true;
 		} else {
 		    if (status > INTERP_MIN_ERROR) {
-			logRemap("-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d\n",
+			logRemap("-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d",
 				_setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
 			_setup.stack_level = 0;
 		    }
@@ -363,7 +363,7 @@ int Interp::_execute(const char *command)
       //   the current remapped block until done.
       //
       if (next_remap != NO_REMAP) {
-	  logRemap("found remap %s in '%s', level=%d filename=%s line=%d\n",
+	  logRemap("found remap %s in '%s', level=%d filename=%s line=%d",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
           _setup.stack_level++;
@@ -384,7 +384,7 @@ int Interp::_execute(const char *command)
 	      CONTROLLING_BLOCK(_setup).line_number  = EXECUTING_BLOCK(_setup).line_number;
 	  }
 
-	  logRemap("enter remap nesting (now level %d) remapline=%d\n", _setup.stack_level,CONTROLLING_BLOCK(_setup).line_number);
+	  logRemap("enter remap nesting (now level %d) remapline=%d", _setup.stack_level,CONTROLLING_BLOCK(_setup).line_number);
 
 	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
@@ -400,13 +400,8 @@ int Interp::_execute(const char *command)
 	  case -M61_REMAP:
 	  case -M_USER_REMAP:
 	  case -G_USER_REMAP:
-	      logRemap("handler armed: %s\n",remaps[-status]);
+	      logRemap("handler armed: %s",remaps[-status]);
 	      if (MDImode) {
-
-#if 0
-		  return execute(0);
-#else
-		  // FIXME mah replace by recursive call to execute(0)
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
 		  if ((EXECUTING_BLOCK(_setup).o_number != 0) ||
@@ -438,7 +433,6 @@ int Interp::_execute(const char *command)
 		      write_settings(&_setup);
 		      return INTERP_OK;
 		  }
-#endif
 	      } else {
 		  // this should get the osub going
 		  status = execute(0);
@@ -450,7 +444,7 @@ int Interp::_execute(const char *command)
 		  ERP(status);
 	      break;
 	  default:
-	      logRemap("execute_block status = %d\n",status);
+	      logRemap("execute_block status = %d",status);
 	  }
       } else {
 	  // standard case: unremapped block execution
@@ -464,9 +458,9 @@ int Interp::_execute(const char *command)
 	      (_setup.stack_level > 0) &&
 	      (_setup.call_level > 0)) {
 	      // an M2 was encountered while executing a handler.
-	      logRemap("standard case status=%s remap_level=%d call_level=%d blocktext='%s' MDImode=%d\n",
+	      logRemap("standard case status=%s remap_level=%d call_level=%d blocktext='%s' MDImode=%d",
 		      interp_status(status),_setup.stack_level,_setup.call_level, _setup.blocktext,MDImode);
-	      logRemap("_setup.filename = %s, fn[0]=%s, fn[1]=%s\n",
+	      logRemap("_setup.filename = %s, fn[0]=%s, fn[1]=%s",
 		      _setup.filename,
 		      _setup.sub_context[0].filename,
 		      _setup.sub_context[1].filename);
@@ -497,16 +491,16 @@ int Interp::execute(const char *command, int line_number)
     int status;
 
     _setup.sequence_number = line_number;
-    logDebug("--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d\n",
+    logDebug("--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d",
 	    command == NULL ? "NULL" : command,
 	    _setup.stack_level,_setup.call_level,_setup.mdi_interrupt);
     status = Interp::execute(command);
-    logDebug("<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d\n",
+    logDebug("<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d",
 	    _setup.stack_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
-	logDebug("<-- execute() TRIGGER MDI_INTERRUPT=false\n");
+	logRemap("<-- execute() clearing mdi_interrupt");
 	_setup.mdi_interrupt = false;  // seems to work ok!
     }
     return status;
@@ -518,7 +512,7 @@ int Interp::remap_finished(int finished_remap)
 {
     int next_remap,status;
 
-    logRemap("remap_finished finished=%s nesting=%d call_level=%d filename=%s\n",
+    logRemap("remap_finished finished=%s nesting=%d call_level=%d filename=%s",
 	  remaps[finished_remap],_setup.stack_level,_setup.call_level,_setup.filename);
 
     switch (finished_remap) {
@@ -532,32 +526,24 @@ int Interp::remap_finished(int finished_remap)
 	// check the current block for the next remapped item
 	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)), &_setup);
 	if (next_remap) {
-	    logRemap("arming %s\n",remaps[next_remap]);
+	    logRemap("arming %s",remaps[next_remap]);
+
 	    // this will execute up to the next remap, and return
 	    // after parsing the handler with read()
 	    // so blocks[0] is armed (meaning: a osub call is parsed, but not executed yet)
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
-	    logRemap("post-arming: execute_block() returns %d\n",status);
+	    logRemap("post-arming: execute_block() returns %d",status);
 
 	    if (status < 0) {
-		// a remap was parse, kick it
+		// a remap was parsed, get the block going
 		return execute(0);
 	    } else
 		return status;
-	    // if ((status != INTERP_OK) &&
-	    // 	(status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT)) {
-	    // 	return status;
-	    // } else {
-	    // 	status = execute(0); // this should get the osub going
-	    // 	if ((status != INTERP_OK) &&
-	    // 	    (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
-	    // 	    ERP(status);
-	    // }
 	} else {
 	    // execution of controlling block finished executing a remap, and it contains no more
 	    // remapped items. Execute any leftover items.
-	    logRemap("no more remaps in controlling_block found (nesting=%d call_level=%d), dropping\n",
+	    logRemap("no more remaps in controlling_block found (nesting=%d call_level=%d), dropping",
 		    _setup.stack_level,_setup.call_level);
 
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
@@ -565,7 +551,7 @@ int Interp::remap_finished(int finished_remap)
 
 	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
 		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
-		logRemap("executing block leftover items: %s status=%s  nesting=%d (failing)\n",
+		logRemap("executing block leftover items: %s status=%s  nesting=%d (failing)",
 			status < 0 ? "BUG":"ERROR", interp_status(status),_setup.stack_level);
 		int level = _setup.stack_level;
 		_setup.stack_level = 0;
@@ -579,8 +565,7 @@ int Interp::remap_finished(int finished_remap)
 		// not sure what INTERP_ENDFILE & INTERP_EXIT really mean here.
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
-
-		logRemap("executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d\n",
+		logRemap("executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
 			interp_status(status),_setup.stack_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
 			CONTROLLING_BLOCK(_setup).line_number);
@@ -595,7 +580,7 @@ int Interp::remap_finished(int finished_remap)
 		}
 		_setup.stack_level--; // drop one nesting level
 		if (_setup.stack_level < 0) {
-		    Log("BUG: stack_level %d (<0) after dropping!!\n",
+		    Log("BUG: stack_level %d (<0) after dropping!!",
 			    _setup.stack_level);
 		    ERS("BUG: stack_level < 0");
 		}
@@ -606,7 +591,7 @@ int Interp::remap_finished(int finished_remap)
 
     default: ;
 	// "should not happen"
-	Log("BUG: remap_finished(): finished_remap=%d nesting=%d\n",
+	Log("BUG: remap_finished(): finished_remap=%d nesting=%d",
 	    finished_remap, _setup.stack_level);
     }
     return INTERP_OK;
@@ -823,7 +808,7 @@ int Interp::init()
           if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
 	      if ((log_file = fopen(inistring, "a"))  == NULL) {
-		  logDebug( "(%d): Unable to open log file:%s, using stderr\n",
+		  logDebug( "(%d): Unable to open log file:%s, using stderr",
 			  getpid(), inistring);
 		  log_file = stderr;
 	      }
@@ -835,13 +820,13 @@ int Interp::init()
 	  _setup.wizard_root[0] = 0;
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
-	    logDebug("[WIZARD]WIZARD_ROOT:%s\n", inistring);
+	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring);
             if (realpath(inistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
-        	logDebug("realpath failed to find wizard_root:%s:\n", inistring);
+		logDebug("realpath failed to find wizard_root:%s:", inistring);
             }
           }
-          logDebug("_setup.wizard_root:%s:\n", _setup.wizard_root);
+          logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
           if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
@@ -849,7 +834,7 @@ int Interp::init()
 	    // found it
             if (realpath(inistring, _setup.program_prefix) == NULL){
         	//realpath didn't find the file
-        	logDebug("realpath failed to find program_prefix:%s:\n", inistring);    
+		logDebug("realpath failed to find program_prefix:%s:", inistring);
             }
             logDebug("program prefix:%s: prefix:%s:",
 		     inistring, _setup.program_prefix);
@@ -858,7 +843,7 @@ int Interp::init()
           {
 	      logDebug("PROGRAM_PREFIX not found");
           }
-          logDebug("_setup.program_prefix:%s:\n", _setup.program_prefix);
+          logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
 
           if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
@@ -878,14 +863,14 @@ int Interp::init()
             while (1) {
                 if (realpath(nextdir,_setup.subroutines[dct]) == NULL){
                    //realpath didn't find the file
-                   logDebug("realpath failed to find subroutines[%d]:%s:\n",dct,nextdir);
+                   logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
                     _setup.subroutines[dct][0] = 0;
                 } else {
-                    logDebug("program prefix[%d]:%s\n",dct,_setup.subroutines[dct]);
+                    logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
                 }
                 dct++;
                 if (dct >= MAX_SUB_DIRS) {
-                   logDebug("too many entries in SUBROUTINE_PATH, max=%d\n", MAX_SUB_DIRS);
+                   logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
                    break;
                 }
                 nextdir = strtok(NULL,":");
@@ -896,26 +881,26 @@ int Interp::init()
           {
               logDebug("SUBROUTINE_PATH not found");
           }
-          logDebug("_setup.subroutines:%p:\n", _setup.subroutines);
+          logDebug("_setup.subroutines:%p:", _setup.subroutines);
 
 	  // find T and M6 oword sub replacements commands
 	  // T_COMMAND=O<t> call <pocketnumber>
 	  // M6_COMMAND=O<m6> call
           if (NULL != (inistring = inifile.Find("T_COMMAND", "RS274NGC"))) {
 	      _setup.t_command = strdup(inistring);
-              logDebug("_setup.t_command=%s\n", _setup.t_command);
+              logDebug("_setup.t_command=%s", _setup.t_command);
           } else {
                  _setup.t_command = NULL;
           }
           if (NULL != (inistring = inifile.Find("M6_COMMAND", "RS274NGC"))) {
 	      _setup.m6_command = strdup(inistring);
-              logDebug("_setup.m6_command=%s\n", _setup.m6_command);
+              logDebug("_setup.m6_command=%s", _setup.m6_command);
           } else {
 	      _setup.m6_command = NULL;
           }
 	  if (NULL != (inistring = inifile.Find("M61_COMMAND", "RS274NGC"))) {
 	      _setup.m61_command = strdup(inistring);
-              logDebug("_setup.m61_command=%s\n", _setup.m61_command);
+              logDebug("_setup.m61_command=%s", _setup.m61_command);
           } else {
 	      _setup.m61_command = NULL;
           }
@@ -923,7 +908,7 @@ int Interp::init()
           // toolchange HAL pins
           if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
 	      _setup.on_abort_command = strdup(inistring);
-              logDebug("_setup.on_abort_command=%s\n", _setup.on_abort_command);
+              logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
           } else {
 	      _setup.on_abort_command = NULL;
           }
@@ -936,12 +921,12 @@ int Interp::init()
 	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
 	      if (sscanf(inistring,"%lf,%d,%[A-KMNP-Za-kmnp-z]*",&gcode,&modal_group,argspec) < 2) {
-		  logDebug("GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]\n",inistring);
+		  logDebug("GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]",inistring);
 		  n++;
 		  continue;
 	      }
 	      define_gcode(gcode,modal_group,argspec);
-	      logRemap("GCODE %d: %s --> %2.1f '%s'\n",n,inistring,gcode,argspec);
+	      logRemap("GCODE %d: %s --> %2.1f '%s'",n,inistring,gcode,argspec);
 	      n++;
 	  }
 	  n = 1;
@@ -951,12 +936,12 @@ int Interp::init()
 	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
 	      if (sscanf(inistring,"%d,%d,%[A-KMNP-Za-kmnp-z]*",&mcode,&modal_group,argspec) < 2) {
-		  logDebug("MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]\n",inistring);
+		  logDebug("MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]",inistring);
 		  n++;
 		  continue;
 	      }
 	      define_mcode(mcode,modal_group,argspec);
-	      logDebug("MCODE %d: %s --> %d '%s'\n", n,inistring,mcode,argspec);
+	      logDebug("MCODE %d: %s --> %d '%s'", n,inistring,mcode,argspec);
 	      n++;
 	  }
 
@@ -974,7 +959,7 @@ int Interp::init()
 	      _setup.pymodule = strdup(inistring);
 	      int status;
 	      if ((status = init_python(&(_setup))) != INTERP_OK) {
-		  logDebug("PYIMPORT: import of module %s failed\n",_setup.pymodule);
+		  logDebug("PYIMPORT: import of module %s failed",_setup.pymodule);
 	      }
           } else {
 	      _setup.pymodule = NULL;
@@ -2184,7 +2169,7 @@ int Interp::on_abort(int reason, const char *message)
 {
     // int i;
 
-    logDebug("on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d\n",
+    logDebug("on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d",
 	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt
 	    ,_setup.toolchange_flag,
 	    _setup.probe_flag,_setup.input_flag);
@@ -2219,15 +2204,15 @@ int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
     int code = round_to_int(gcode *10);
 
     if ((code < 650)|| (code > 980)) {
-	logConfig( "G-codes must range from 65..98, got %2.1f\n",
+	logConfig( "G-codes must range from 65..98, got %2.1f",
 		gcode);
 	return INTERP_ERROR;
     }
     if (_gees[code] != -1) {
-	logDebug( "G-code %2.1f already defined\n",gcode);
+	logDebug( "G-code %2.1f already defined",gcode);
     }
     if (_setup.usercodes_mgroup[code]) {
-	logDebug( "G-code %2.1f already remapped\n",gcode);
+	logDebug( "G-code %2.1f already remapped",gcode);
     }
     _setup.usercodes_argspec[code] = strdup(argspec);
     _setup.usercodes_mgroup[code] = modal_group;
@@ -2238,15 +2223,15 @@ int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
 int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 {
     if ((mcode < 74)|| ((mcode > 99) && (mcode < 200)) || (mcode > 999)) {
-	logDebug( "M-codes must range from 74..99, 200-999, got %d\n",mcode);
+	logDebug( "M-codes must range from 74..99, 200-999, got %d",mcode);
 	return INTERP_ERROR;
     }
     if (_ems[mcode] != -1) {
-	logDebug( "M-code %d already defined\n",mcode);
+	logDebug( "M-code %d already defined",mcode);
     }
     mcode += MCODE_OFFSET;
     if (_setup.usercodes_mgroup[mcode]) {
-	logDebug( "M-code %d already remapped\n",mcode-MCODE_OFFSET);
+	logDebug( "M-code %d already remapped",mcode-MCODE_OFFSET);
     }
     _setup.usercodes_argspec[mcode] = strdup(argspec);
     _setup.usercodes_mgroup[mcode] = modal_group;

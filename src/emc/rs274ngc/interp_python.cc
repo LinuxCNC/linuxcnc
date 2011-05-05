@@ -40,9 +40,8 @@ int Interp::init_python(setup_pointer settings)
 
     //boost::python::object  test = boost::python::object::int_obj(42);
 
-    fprintf(stderr,"--- init_python(this=%lx) %lx\n",
-	    (unsigned long)this,
-	    (unsigned long)&this->_setup);
+    logPy("init_python(this=%lx) %lx\n",
+	      (unsigned long)this, (unsigned long)&this->_setup);
     if (settings->pymodule_ok)
 	return INTERP_OK;
     if (settings->pymodule) {
@@ -99,7 +98,8 @@ int Interp::init_python(setup_pointer settings)
     return INTERP_ERROR;
 }
 
-bool Interp::is_pycallable(setup_pointer settings,const char *funcname)
+bool Interp::is_pycallable(setup_pointer settings,
+			   const char *funcname)
 {
     PyObject *func;
     bool result;
@@ -107,7 +107,7 @@ bool Interp::is_pycallable(setup_pointer settings,const char *funcname)
     result =  ((settings->pymdict != NULL) &&
 	    ((func = PyDict_GetItemString(settings->pymdict, funcname)) != NULL) &&  /* borrowed reference */
 	    (PyCallable_Check(func)));
-    fprintf(stderr,"---- py_iscallable(%s) = %s\n",funcname,result ? "TRUE":"FALSE");
+    logPy("py_iscallable(%s) = %s\n",funcname,result ? "TRUE":"FALSE");
     return result;
 }
 
@@ -120,7 +120,7 @@ int Interp::pycall(setup_pointer settings,
 	*exc, *val, *tbk, *exc_str,
 	*res_str = NULL;;
 
-    fprintf(stderr,"---- pycall %s [%f] [%f] this=%lx\n",
+    logPy("pycall %s [%f] [%f] this=%lx\n",
 	    funcname,params[0],params[1],(unsigned long)this);
 
     // borrowed reference
@@ -142,7 +142,10 @@ int Interp::pycall(setup_pointer settings,
     result = PyObject_Call(func, tuple,settings->kwargs);
     if (PyErr_Occurred()) {
 	PyErr_Fetch(&exc, &val, &tbk);
-	ERS("exception calling '%s.%s': %s",settings->pymodule,funcname,PyString_AsString(val));
+	ERS("exception calling '%s.%s': %s",
+	    settings->pymodule,
+	    funcname,
+	    PyString_AsString(val));
 	goto error;
     }
 

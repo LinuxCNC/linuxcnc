@@ -2630,7 +2630,7 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
 	if (saved[i] != current[i]) {
 	    switch (i) {
-	    case 0: break; // FIXME - is sequence_number important?
+	    case 0: break; // sequence_number - no point in restoring
 	    case 1:
 		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
 		strncat(cmd,buf,sizeof(buf));
@@ -2660,7 +2660,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 
 	    switch (i) {
 	    case 0:
-		// FIXME - sequence_number: important?
+		// // sequence_number - no point in restoring
 		break;
 	    case 2: // FIXME - I dont understand this:
 		//   gez[2] = ((block == NULL) ? -1 : block->g_modes[0]);
@@ -2716,7 +2716,6 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 	if (val != current[i]) {
 	    switch (i) {
 	    case 0: /* 0 seq number  */
-		// FIXME - is sequence_number important?
 		break;
 	    case 1: /* 1 stopping    */
 		// FIXME - is the next line needed at all?
@@ -2953,7 +2952,7 @@ int Interp::convert_remapped_code(int code,block_pointer block,
 	      CODE(type),NUMBER(type,code));
     status = execute_handler(settings, cmd,
 			     &Interp::add_parameters,
-			     &Interp::finish_user_command, // FIXME
+			     &Interp::finish_user_command,
 			     type,
 			     code);
 
