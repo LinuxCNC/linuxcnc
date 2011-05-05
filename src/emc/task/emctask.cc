@@ -40,12 +40,6 @@ static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 Interp interp;
 
-// const setup &get_setup(void)
-// {
-//     return interp.get_settings();
-// }
-// EMC_TASK interface
-
 /*
   format string for user-defined programs, e.g., "programs/M1%02d" means
   user-defined programs are in the programs/ directory and are named
