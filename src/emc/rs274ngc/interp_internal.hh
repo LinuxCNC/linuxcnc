@@ -540,6 +540,7 @@ typedef struct setup_struct
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
+  int debugmask;                     // from ini  EMC/DEBUG
   char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];            // program directory
   char subroutines[MAX_SUB_DIRS][PATH_MAX]; // subroutines directories

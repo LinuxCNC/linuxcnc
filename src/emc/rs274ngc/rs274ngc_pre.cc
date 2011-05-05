@@ -92,10 +92,6 @@ include an option for suppressing superfluous commands.
 
 extern char * _rs274ngc_errors[];
 
-#undef LOG_FILE
-
-#define LOG_FILE &_setup.log_file[0]
-
 const char *Interp::interp_status(int status) {
     static char statustext[50];
     static const char *msgs[] = { "INTERP_OK", "INTERP_EXIT",
@@ -119,42 +115,32 @@ Interp::~Interp() {
     }
 }
 
-void Interp::doLog(const char *fmt, ...)
+void Interp::doLog(unsigned int flags, const char *file, int line,
+		   const char *fmt, ...)
 {
-#ifdef LOG_FILE
     struct timeval tv;
     struct tm *tm;
     va_list ap;
 
     va_start(ap, fmt);
+    if (flags & LOG_TIME) {
+	gettimeofday(&tv, NULL);
+	tm = localtime(&tv.tv_sec);
 
-    if(log_file == NULL)
-    {
-       log_file = fopen(LOG_FILE, "a");
+	fprintf(log_file, "%04d%02d%02d-%02d:%02d:%02d.%03ld ",
+		tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
+		tm->tm_hour, tm->tm_min, tm->tm_sec,
+		tv.tv_usec/1000);
     }
-
-    if(log_file == NULL)
-    {
-         fprintf(stderr, "(%d)Unable to open log file:%s\n",
-                  getpid(), LOG_FILE);
-         return;
+    if (flags & LOG_PID) {
+	fprintf(log_file, "%4d ",getpid());
     }
-
-    gettimeofday(&tv, NULL);
-    tm = localtime(&tv.tv_sec);
-
-    fprintf(log_file, "%04d%02d%02d-%02d:%02d:%02d.%03ld ",
-	    tm->tm_year+1900, tm->tm_mon+1, tm->tm_mday,
-	    tm->tm_hour, tm->tm_min, tm->tm_sec,
-	    tv.tv_usec/1000);
-
+    if (flags & LOG_FILENAME) {
+	fprintf(log_file, "%s:%d: ",file,line);
+    }
     vfprintf(log_file, fmt, ap);
     fflush(log_file);
-
     va_end(ap);
-#else
-    rcs_print("foo");
-#endif
 }
 
 /****************************************************************************/
@@ -231,14 +217,14 @@ int Interp::_execute(const char *command)
   int n;
   int MDImode = 0;
 
-  // fprintf(stderr,"---- execute: command=%s mdi_interrupt=%d\n",command,_setup.mdi_interrupt);
+  logDebug("execute: command=%s mdi_interrupt=%d\n",command,_setup.mdi_interrupt);
 
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
     if (status != INTERP_OK) {
 	if (status > INTERP_MIN_ERROR) {
-	    fprintf(stderr,"-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d\n",
+	    logRemap("-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d\n",
 		    _setup.stack_level,command, interp_status(status),MDImode);
 	    _setup.stack_level = 0;
 	}
@@ -277,7 +263,7 @@ int Interp::_execute(const char *command)
           if (status != INTERP_OK)
 	    {
 		if (status > INTERP_MIN_ERROR) {
-		    fprintf(stderr,"-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d\n",
+		    logRemap("-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d\n",
 			    _setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
 		    _setup.stack_level = 0;
 		}
@@ -289,7 +275,7 @@ int Interp::_execute(const char *command)
 		    _setup.mdi_interrupt = true;
 		} else {
 		    if (status > INTERP_MIN_ERROR) {
-			fprintf(stderr,"-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d\n",
+			logRemap("-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d\n",
 				_setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
 			_setup.stack_level = 0;
 		    }
@@ -377,7 +363,7 @@ int Interp::_execute(const char *command)
       //   the current remapped block until done.
       //
       if (next_remap != NO_REMAP) {
-	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s line=%d\n",
+	  logRemap("found remap %s in '%s', level=%d filename=%s line=%d\n",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
           _setup.stack_level++;
@@ -398,7 +384,7 @@ int Interp::_execute(const char *command)
 	      CONTROLLING_BLOCK(_setup).line_number  = EXECUTING_BLOCK(_setup).line_number;
 	  }
 
-	  fprintf(stderr,"---> enter remap nesting (now level %d) remapline=%d\n", _setup.stack_level,CONTROLLING_BLOCK(_setup).line_number);
+	  logRemap("enter remap nesting (now level %d) remapline=%d\n", _setup.stack_level,CONTROLLING_BLOCK(_setup).line_number);
 
 	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
@@ -414,7 +400,7 @@ int Interp::_execute(const char *command)
 	  case -M61_REMAP:
 	  case -M_USER_REMAP:
 	  case -G_USER_REMAP:
-	      fprintf(stderr,"--- handler armed: %s\n",remaps[-status]);
+	      logRemap("handler armed: %s\n",remaps[-status]);
 	      if (MDImode) {
 
 #if 0
@@ -464,7 +450,7 @@ int Interp::_execute(const char *command)
 		  ERP(status);
 	      break;
 	  default:
-	      fprintf(stderr,"---- execute_block status = %d\n",status);
+	      logRemap("execute_block status = %d\n",status);
 	  }
       } else {
 	  // standard case: unremapped block execution
@@ -478,9 +464,9 @@ int Interp::_execute(const char *command)
 	      (_setup.stack_level > 0) &&
 	      (_setup.call_level > 0)) {
 	      // an M2 was encountered while executing a handler.
-	      fprintf(stderr,"-- standard case status=%s remap_level=%d call_level=%d blocktext='%s' MDImode=%d\n",
+	      logRemap("standard case status=%s remap_level=%d call_level=%d blocktext='%s' MDImode=%d\n",
 		      interp_status(status),_setup.stack_level,_setup.call_level, _setup.blocktext,MDImode);
-	      fprintf(stderr,"-- _setup.filename = %s, fn[0]=%s, fn[1]=%s\n",
+	      logRemap("_setup.filename = %s, fn[0]=%s, fn[1]=%s\n",
 		      _setup.filename,
 		      _setup.sub_context[0].filename,
 		      _setup.sub_context[1].filename);
@@ -511,16 +497,16 @@ int Interp::execute(const char *command, int line_number)
     int status;
 
     _setup.sequence_number = line_number;
-    fprintf(stderr,"--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d\n",
+    logDebug("--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d\n",
 	    command == NULL ? "NULL" : command,
 	    _setup.stack_level,_setup.call_level,_setup.mdi_interrupt);
     status = Interp::execute(command);
-    fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d\n",
+    logDebug("<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d\n",
 	    _setup.stack_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
-	fprintf(stderr,"<-- execute() TRIGGER MDI_INTERRUPT=false\n");
+	logDebug("<-- execute() TRIGGER MDI_INTERRUPT=false\n");
 	_setup.mdi_interrupt = false;  // seems to work ok!
     }
     return status;
@@ -532,7 +518,7 @@ int Interp::remap_finished(int finished_remap)
 {
     int next_remap,status;
 
-    fprintf(stderr,"--- remap_finished finished=%s nesting=%d call_level=%d filename=%s\n",
+    logRemap("remap_finished finished=%s nesting=%d call_level=%d filename=%s\n",
 	  remaps[finished_remap],_setup.stack_level,_setup.call_level,_setup.filename);
 
     switch (finished_remap) {
@@ -546,13 +532,13 @@ int Interp::remap_finished(int finished_remap)
 	// check the current block for the next remapped item
 	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)), &_setup);
 	if (next_remap) {
-	    fprintf(stderr,"--- arming %s\n",remaps[next_remap]);
+	    logRemap("arming %s\n",remaps[next_remap]);
 	    // this will execute up to the next remap, and return
 	    // after parsing the handler with read()
 	    // so blocks[0] is armed (meaning: a osub call is parsed, but not executed yet)
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
-	    fprintf(stderr,"--- post-arming: execute_block() returns %d\n",status);
+	    logRemap("post-arming: execute_block() returns %d\n",status);
 
 	    if (status < 0) {
 		// a remap was parse, kick it
@@ -571,7 +557,7 @@ int Interp::remap_finished(int finished_remap)
 	} else {
 	    // execution of controlling block finished executing a remap, and it contains no more
 	    // remapped items. Execute any leftover items.
-	    fprintf(stderr,"--- no more remaps in controlling_block found (nesting=%d call_level=%d), dropping\n",
+	    logRemap("no more remaps in controlling_block found (nesting=%d call_level=%d), dropping\n",
 		    _setup.stack_level,_setup.call_level);
 
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
@@ -579,7 +565,7 @@ int Interp::remap_finished(int finished_remap)
 
 	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
 		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
-		fprintf(stderr,"--- executing block leftover items: %s status=%s  nesting=%d (failing)\n",
+		logRemap("executing block leftover items: %s status=%s  nesting=%d (failing)\n",
 			status < 0 ? "BUG":"ERROR", interp_status(status),_setup.stack_level);
 		int level = _setup.stack_level;
 		_setup.stack_level = 0;
@@ -594,7 +580,7 @@ int Interp::remap_finished(int finished_remap)
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
 
-		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d\n",
+		logRemap("executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d\n",
 			interp_status(status),_setup.stack_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
 			CONTROLLING_BLOCK(_setup).line_number);
@@ -609,7 +595,7 @@ int Interp::remap_finished(int finished_remap)
 		}
 		_setup.stack_level--; // drop one nesting level
 		if (_setup.stack_level < 0) {
-		    fprintf(stderr,"--- BUG: stack_level %d (<0) after dropping!!\n",
+		    Log("BUG: stack_level %d (<0) after dropping!!\n",
 			    _setup.stack_level);
 		    ERS("BUG: stack_level < 0");
 		}
@@ -620,8 +606,8 @@ int Interp::remap_finished(int finished_remap)
 
     default: ;
 	// "should not happen"
-	fprintf(stderr,"--- remap_finished(): BUG finished_remap=%d nesting=%d\n",
-		finished_remap, _setup.stack_level);
+	Log("BUG: remap_finished(): finished_remap=%d nesting=%d\n",
+	    finished_remap, _setup.stack_level);
     }
     return INTERP_OK;
 }
@@ -630,7 +616,6 @@ int Interp::remap_finished(int finished_remap)
 // remapped to an oword subroutine.
 // execution sequence as described in:
 // http://www.linuxcnc.org/docs/2.4/html/gcode_overview.html#sec:Order-of-Execution
-
 // return NO_REMAP if no remapped item found.
 // return remap_op of the first remap in execution sequence.
 int Interp::next_remapping(block_pointer block, setup_pointer settings)
@@ -780,7 +765,6 @@ int Interp::init()
   iniFileName = getenv("INI_FILE_NAME");
 
   // the default log file
-  strcpy(&_setup.log_file[0], "emc_log");
   _setup.loggingLevel = 0;
   _setup.tool_change_at_g30 = 0;
   _setup.tool_change_quill_up = 0;
@@ -826,19 +810,25 @@ int Interp::init()
           inifile.Find(&_setup.c_indexer, "LOCKING_INDEXER", "AXIS_5");
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
 
+          inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
+
+	  _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
+
           if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
               _setup.loggingLevel = atol(inistring);
           }
 
+	  // default the log_file to stderr.
           if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
-	    // found it
-            if (realpath(inistring, &_setup.log_file[0]) == NULL) {
-        	//realpath didn't find the file
-        	//nothing to do, checking for log_file[0] will report it later
-    	    }
-          }
+	      if ((log_file = fopen(inistring, "a"))  == NULL) {
+		  logDebug( "(%d): Unable to open log file:%s, using stderr\n",
+			  getpid(), inistring);
+		  log_file = stderr;
+	      }
+          } else
+	      log_file = stderr;
 
           _setup.use_lazy_close = 1;
 
@@ -946,13 +936,12 @@ int Interp::init()
 	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
 	      if (sscanf(inistring,"%lf,%d,%[A-KMNP-Za-kmnp-z]*",&gcode,&modal_group,argspec) < 2) {
-		  fprintf(stderr,"GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]\n",inistring);
+		  logDebug("GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]\n",inistring);
 		  n++;
 		  continue;
 	      }
 	      define_gcode(gcode,modal_group,argspec);
-	      // fprintf(stderr,"---- GCODE %d: %s --> %2.1f '%s'\n",
-	      // 	      n,inistring,gcode,argspec);
+	      logRemap("GCODE %d: %s --> %2.1f '%s'\n",n,inistring,gcode,argspec);
 	      n++;
 	  }
 	  n = 1;
@@ -962,14 +951,12 @@ int Interp::init()
 	      int modal_group;
 	      memset(argspec,0,sizeof(argspec));
 	      if (sscanf(inistring,"%d,%d,%[A-KMNP-Za-kmnp-z]*",&mcode,&modal_group,argspec) < 2) {
-		  fprintf(stderr,"MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]\n",inistring);
+		  logDebug("MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]\n",inistring);
 		  n++;
 		  continue;
 	      }
 	      define_mcode(mcode,modal_group,argspec);
-
-	      // fprintf(stderr,"---- MCODE %d: %s --> %d '%s'\n",
-	      // 	      n,inistring,mcode,argspec);
+	      logDebug("MCODE %d: %s --> %d '%s'\n", n,inistring,mcode,argspec);
 	      n++;
 	  }
 
@@ -987,7 +974,7 @@ int Interp::init()
 	      _setup.pymodule = strdup(inistring);
 	      int status;
 	      if ((status = init_python(&(_setup))) != INTERP_OK) {
-		  fprintf(stderr,"PYIMPORT: import of module %s failed\n",_setup.pymodule);
+		  logDebug("PYIMPORT: import of module %s failed\n",_setup.pymodule);
 	      }
           } else {
 	      _setup.pymodule = NULL;
@@ -1351,7 +1338,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
     load_tool_table();
     _setup.toolchange_flag = false;
   }
-  // always track toolchanger-fault and toolchanger-reason codesf
+  // always track toolchanger-fault and toolchanger-reason codes
   _setup.parameters[5600] = GET_EXTERNAL_TC_FAULT();
   _setup.parameters[5601] = GET_EXTERNAL_TC_REASON();
 
@@ -2197,36 +2184,12 @@ int Interp::on_abort(int reason, const char *message)
 {
     // int i;
 
-    fprintf(stderr,"------- on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d\n",
+    logDebug("on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d\n",
 	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt
 	    ,_setup.toolchange_flag,
 	    _setup.probe_flag,_setup.input_flag);
 
-    // // invalidate all saved context except the top level one
-    // for (i = _setup.call_level; i > 0; i--) {
-    //     _setup.sub_context[i].context_status = 0;
-    // 	fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
-    // 		_setup.oword_offset[i].filename,
-    // 		_setup.oword_offset[i].sequence_number,
-    // 		_setup.oword_offset[i].offset);
-    // 	// FIXME mah check subName,filename,o_name
-    // 	//  settings->oword_offset[index].o_word_name = strdup(block->o_name);
-    // 	//  settings->oword_offset[index].filename = strdup(settings->filename);
-    // 	//   settings->skipping_o = strdup(block->o_name); // start skipping
-    // 	//  settings->skipping_to_sub = strdup(block->o_name); // start skipping
-    // 	// 	      settings->sub_name = strdup...
-    //     MSG("---- unwind context at level %d\n",i);
-    // }
-    // i = 0;
-    // fprintf(stderr,"-- filename[%d]=%s line=%d offset=%d\n",i,
-    // 		_setup.oword_offset[i].filename,
-    // 		_setup.oword_offset[i].sequence_number,
-    // 		_setup.oword_offset[i].offset);
-
-    reset(); // try this mah
-
-    fprintf(stderr,"-- _setup.filename=%s\n",_setup.filename);
-
+    reset();
     _setup.mdi_interrupt = false;
 
     // clear in case set by an interrupted remapped procedure
@@ -2249,21 +2212,22 @@ int Interp::on_abort(int reason, const char *message)
     ERP(status);
     return status;
 }
+
 // gcodes are 0..999
 int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
 {
     int code = round_to_int(gcode *10);
 
     if ((code < 650)|| (code > 980)) {
-	fprintf(stderr, "G-codes must range from 65..98, got %2.1f\n",
+	logConfig( "G-codes must range from 65..98, got %2.1f\n",
 		gcode);
 	return INTERP_ERROR;
     }
     if (_gees[code] != -1) {
-	fprintf(stderr, "G-code %2.1f already defined\n",gcode);
+	logDebug( "G-code %2.1f already defined\n",gcode);
     }
     if (_setup.usercodes_mgroup[code]) {
-	fprintf(stderr, "G-code %2.1f already remapped\n",gcode);
+	logDebug( "G-code %2.1f already remapped\n",gcode);
     }
     _setup.usercodes_argspec[code] = strdup(argspec);
     _setup.usercodes_mgroup[code] = modal_group;
@@ -2274,15 +2238,15 @@ int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
 int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 {
     if ((mcode < 74)|| ((mcode > 99) && (mcode < 200)) || (mcode > 999)) {
-	fprintf(stderr, "M-codes must range from 74..99, 200-999, got %d\n",mcode);
+	logDebug( "M-codes must range from 74..99, 200-999, got %d\n",mcode);
 	return INTERP_ERROR;
     }
     if (_ems[mcode] != -1) {
-	fprintf(stderr, "M-code %d already defined\n",mcode);
+	logDebug( "M-code %d already defined\n",mcode);
     }
     mcode += MCODE_OFFSET;
     if (_setup.usercodes_mgroup[mcode]) {
-	fprintf(stderr, "M-code %d already remapped\n",mcode-MCODE_OFFSET);
+	logDebug( "M-code %d already remapped\n",mcode-MCODE_OFFSET);
     }
     _setup.usercodes_argspec[mcode] = strdup(argspec);
     _setup.usercodes_mgroup[mcode] = modal_group;

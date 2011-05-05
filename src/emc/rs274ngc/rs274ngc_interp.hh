@@ -520,7 +520,10 @@ private:
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
- void doLog(const char *fmt, ...) __attribute__((format(printf,2,3)));
+ void doLog(unsigned int flags, const char *file, int line,
+	    const char *fmt, ...) __attribute__((format(printf,5,6)));
+
+    // const char *fmt, ...) __attribute__((format(printf,2,3)));
 
  const char *interp_status(int status);
 

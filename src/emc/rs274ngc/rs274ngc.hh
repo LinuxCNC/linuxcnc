@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include "canon.hh"
 #include "emc.hh"
+#include "debugflags.h"
 
 typedef struct setup_struct setup;
 #ifndef JAVA_DIAG_APPLET
@@ -56,21 +57,28 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 
 #undef DEBUG_EMC
 
-#define _logDebug(level, fmt, args...)          \
+#define _logDebug(mask,dlflags,level, fmt, args...)	\
     do {                                        \
-        if (level < _setup.loggingLevel) {      \
-            doLog(                              \
-                "%02d(%d):%s:%d -- " fmt "\n",  \
-                level,                          \
-                getpid(),                       \
-                __FILE__,                       \
-                __LINE__ ,                      \
-                ## args                         \
-            );                                  \
+    if ((mask & _setup.debugmask) &&		\
+	(level < _setup.loggingLevel)) {	\
+	doLog(dlflags,				\
+	      __FILE__,				\
+	      __LINE__ ,			\
+	      fmt "\n",				\
+	      ## args);				\
         }                                       \
     } while(0)
 
-#define logDebug(fmt, args...) _logDebug(0, fmt, ## args)
+#define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,LOG_FILENAME,1,fmt, ## args)
+
+#define logConfig(fmt, args...) _logDebug(EMC_DEBUG_CONFIG,0,1,fmt, ## args)
+#define logOword(fmt, args...)  _logDebug(EMC_DEBUG_OWORD,0,1,fmt, ## args)
+#define logRemap(fmt, args...)  _logDebug(EMC_DEBUG_REMAP,0,1,fmt, ## args)
+#define logPy(fmt, args...)     _logDebug(EMC_DEBUG_PYTHON,0,1,fmt, ## args)
+
+// log always
+#define Log(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,LOG_FILENAME,-1,fmt, ## args)
+
 
 
 #endif
