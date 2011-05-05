@@ -377,8 +377,8 @@ int Interp::_execute(const char *command)
       //   the current remapped block until done.
       //
       if (next_remap != NO_REMAP) {
-	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
-		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
+	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s line=%d\n",
+		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
           _setup.stack_level++;
 	  if (_setup.stack_level == MAX_NESTED_REMAPS) {
@@ -386,10 +386,19 @@ int Interp::_execute(const char *command)
 	      ERS("maximum nesting of remapped blocks execeeded");
 	      return INTERP_ERROR;
 	  }
-	  fprintf(stderr,"---> enter remap nesting (now level %d)\n", _setup.stack_level);
+
 
 	  // push onto block stack
 	  CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
+
+	  // remember the line where remap was discovered
+	  if (_setup.stack_level == 1) {
+	      CONTROLLING_BLOCK(_setup).line_number  = _setup.sequence_number;
+	  } else {
+	      CONTROLLING_BLOCK(_setup).line_number  = EXECUTING_BLOCK(_setup).line_number;
+	  }
+
+	  fprintf(stderr,"---> enter remap nesting (now level %d) remapline=%d\n", _setup.stack_level,CONTROLLING_BLOCK(_setup).line_number);
 
 	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
@@ -585,9 +594,19 @@ int Interp::remap_finished(int finished_remap)
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
 
-		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d (dropping)\n",
+		fprintf(stderr,"--- executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d\n",
 			interp_status(status),_setup.stack_level,_setup.toolchange_flag,
-			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt);
+			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
+			CONTROLLING_BLOCK(_setup).line_number);
+
+		// restore the line number where remap was found
+		if (_setup.stack_level == 1) {
+		    // dropping to top level
+		    _setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
+		} else {
+		    // just dropping a nesting level
+		    EXECUTING_BLOCK(_setup).line_number = CONTROLLING_BLOCK(_setup).line_number ;
+		}
 		_setup.stack_level--; // drop one nesting level
 		if (_setup.stack_level < 0) {
 		    fprintf(stderr,"--- BUG: stack_level %d (<0) after dropping!!\n",
@@ -2176,7 +2195,7 @@ int Interp::set_tool_parameters()
 
 int Interp::on_abort(int reason, const char *message)
 {
-    int i;
+    // int i;
 
     fprintf(stderr,"------- on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d\n",
 	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt
