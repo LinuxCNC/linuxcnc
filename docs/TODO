@@ -2,54 +2,6 @@ To Do
 
 *** All Manuals
 
-Fix missing code sections. During the doc conversion to asciidoc any place
-that had a <code> tag in the lyx file the code was deleted. You can copy
-and paste the code from the 2.4 pdf manuals. 
-
-Remove items from this list as you fix.
-
-If you prefix code sections with [source,xml] or [source,c]
-you will get the source code highlighting.
-
------ KimK completed halmodule.lyx / halmodule.txt -------------
-
--------------------------------------------------------
-
-This has an embedded colon so I'm not sure what the best fix is. 
-It's right at the end of the file, maybe let it go and see if it looks bad?  KimK
-
-  27.      ./hal/tutorial.lyx:2804: \ at start of line in LyX-Code.  Context:
-  28.              halcmd:
-
--------------------------------------------------------
-
------ KimK completed pyvcp.lyx pyvcp.lyx -----------
-
---------------------------------------------------  
-
-I made some minor changes but I never really found the trouble here. 
-What is it complaining about?  KimK
-
-  87.      ./hal/basic_hal.lyx:222: \ at start of line in LyX-Code.  Context:
-  88.              in English it means "loadusr wait for name spindle component gs2_vfd name
-  89.      ./hal/basic_hal.lyx:330: \ at start of line in LyX-Code.  Context:
-  90.              net xStep <= stepgen.0.out => parport.0.pin-02-out
-
---------------------------------------------------
-
------ KimK completed (comp.lyx no, missing? I used the 2.4 PDF HAL) / comp.txt --------
- 
------ KimK completed spindle.lyx / spindle.txt--------------
-
------ KimK completed gladevcp.lyx / gladevcp.txt -----
-
------ KimK completed main.lyx / main.txt --------            
-
------ KimK completed stepper.lyx / stepper.txt -------
-            
------ KimK completed ini_config.lyx ini_config.txt -----
-
---------------------------------------------------
 
 *** Getting Started Manual
 
