@@ -531,7 +531,11 @@ The figures below show the general idea of wiring multiple switches to
 a single input pin. In each case, when one switch is actuated, the
 value seen on INPUT goes from logic HIGH to LOW. However, EMC expects a
 TRUE value when a switch is closed, so the corresponding "Invert" box
-must be checked on the pinout configuration page.
+must be checked on the pinout configuration page. The pull up resistor
+show in the diagrams pulls the input high until the connection to ground
+is made and then the input goes low. Otherwise the input might float 
+between on and off when the circuit is open. Typically for a parallel
+port you might use 47k.
 
 .Normally Closed Switches[[cap:Normally-Closed-Switches]]
 
