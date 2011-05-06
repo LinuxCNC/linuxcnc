@@ -14,7 +14,9 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include "Python.h"
+#include <boost/python.hpp>
+namespace bp = boost::python;
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -270,7 +272,12 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     bool errored = false;
 
     if (pydict) {
-	if (!(settings->kwargs = PyDict_New())) {
+	try {
+	    settings->kwargs = bp::dict();
+	}
+	catch (bp::error_already_set) {
+	    PyErr_Print();
+	    PyErr_Clear();
 	    ERS("add_parameters: cant create dictionary");
 	}
     }
@@ -301,10 +308,14 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     fprintf(stderr,"----add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
 	    user_data,argspec,settings->call_level,required,optional,pydict);
 
-#define STORE(name,value)			\
-    if (pydict) {				\
-	if (PyDict_SetItemString(settings->kwargs,name,		\
-				 PyFloat_FromDouble(value)) < 0) {	\
+#define STORE(name,value)						\
+    if (pydict) {							\
+	try {								\
+	    settings->kwargs[name] = value;				\
+        }								\
+        catch (bp::error_already_set) {					\
+	    PyErr_Print();						\
+	    PyErr_Clear();						\
 	    ERS("add_parameters: cant add '%s' to args",name);		\
 	}								\
     } else {					\

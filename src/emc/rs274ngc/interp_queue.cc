@@ -9,7 +9,7 @@
 *
 ********************************************************************/
 
-#include "Python.h"
+#include <boost/python.hpp>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>

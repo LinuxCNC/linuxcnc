@@ -11,7 +11,7 @@
 * Last change:
 ********************************************************************/
 
-#include "Python.h"
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>

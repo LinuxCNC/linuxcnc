@@ -65,7 +65,7 @@ suppression can produce more concise output. Future versions might
 include an option for suppressing superfluous commands.
 
 ****************************************************************************/
-#include "Python.h"
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -763,6 +763,7 @@ int Interp::init()
   _setup.c_indexer = 0;
   _setup.return_value = 0;
   _setup.stack_level = 0; // remapped blocks stack index
+  _setup.pymodule_stat = PYMOD_NONE;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)

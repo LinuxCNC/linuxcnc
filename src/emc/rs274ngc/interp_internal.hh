@@ -13,7 +13,7 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
-#include "Python.h"
+#include <boost/python.hpp>
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
@@ -585,10 +585,13 @@ typedef struct setup_struct
   std::map<int,int> usercodes_mgroup;
 
   const char *pymodule, *pydir;
-  bool pymodule_ok, py_reload_on_error;
-  PyObject *pymodname,*pymod,*pyresult,*pymdict, *kwargs;
+  int pymodule_stat;
+  bool py_reload_on_error;
+  boost::python::object module, module_namespace,kwargs;
 }
 setup;
+
+enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
 
 enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3,
 	       M_USER_REMAP=4,G_USER_REMAP=5};

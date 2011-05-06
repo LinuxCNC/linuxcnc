@@ -1,12 +1,14 @@
 // Support for Python oword subroutines
 // Michael Haberler 4/2011
-//
-// FIXME mah: proper dereferencing!!
+
 #include <boost/python.hpp>
 #include <boost/make_shared.hpp>
-using namespace boost::python;
+#include <boost/python/object.hpp>
+#include <boost/python/raw_function.hpp>
+#include <boost/python/call.hpp>
 
-#include "Python.h"
+namespace bp = boost::python;
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +23,8 @@ using namespace boost::python;
 #include "rs274ngc_interp.hh"
 #include "units.h"
 
-#define HANDLENAME "_this"
+// module global - references Interp instance:
+#define HANDLENAME "this"
 
 typedef boost::shared_ptr< Interp > interp_ptr;
 
@@ -36,141 +39,138 @@ typedef boost::shared_ptr< Interp > interp_ptr;
 int Interp::init_python(setup_pointer settings)
 {
     char cmd[LINELEN];
-    PyObject *py_this,*handle,*exc, *val, *tbk;
+    char *path;
 
-    //boost::python::object  test = boost::python::object::int_obj(42);
+    if (settings->pymodule_stat != PYMOD_NONE)
+	return INTERP_OK;  // already done, or failed
 
-    logPy("init_python(this=%lx) %lx\n",
-	      (unsigned long)this, (unsigned long)&this->_setup);
-    if (settings->pymodule_ok)
-	return INTERP_OK;
-    if (settings->pymodule) {
-	Py_Initialize();
-	PYCHK((PyRun_SimpleString("import sys") < 0),
-	      "init_python: 'import sys' failed");
-	if (settings->pydir) {
-	    snprintf(cmd,sizeof(cmd),"sys.path.append(\"%s\")",
-		     settings->pydir);
-	    PYCHK((PyRun_SimpleString(cmd) < 0),
-		  "init_python: '%s' failed",cmd);
-	}
+    logPy("init_python(this=%lx _setup=%lx pid=%d)",
+	  (unsigned long)this, (unsigned long)&this->_setup,getpid());
 
-	PYCHK((settings->pymodname = PyString_FromString(settings->pymodule)) == NULL,
-	      "init_python: cant  PyString_FromString()");
-	PYCHK((settings->pymod = PyImport_Import(settings->pymodname)) == NULL,
-	      "init_python: cant import '%s'",settings->pymodule);
-	PYCHK((settings->pymdict = PyModule_GetDict(settings->pymod)) == NULL,
-	      "init_python: cant PyModule_GetDict");
+    PYCHK((settings->pymodule == NULL),
+	  "init_python: no module defined");
 
-	// check for HANDLENAME accidentially already defined
-	PYCHK(((handle = PyDict_GetItemString(settings->pymdict,HANDLENAME)) != NULL),
-	      "init_python: cannot store global '%s' - object already present",HANDLENAME);
+    if (settings->pydir) {
+	snprintf(cmd,sizeof(cmd),"%s/%s", settings->pydir,settings->pymodule);
+    } else
+	strcpy(cmd,settings->pymodule);
 
-	// pass interpreter instance as first argument wrapped in a long
-	// so the interpreter can be called from within Python
-	PYCHK(((py_this = PyLong_FromVoidPtr((void *)this)) == NULL),
-	      "init_python: cannot convert '%s'",HANDLENAME);
+    PYCHK(((path = realpath(cmd,NULL)) == NULL),
+	  "init_python: can resolve path to '%s'",cmd);
+    logPy("module path='%s'",path);
 
-	PYCHK(PyDict_SetItemString(settings->pymdict, HANDLENAME, py_this),
-	      "init_python: cannot store global '%s' - PyDict_SetItemString failed ",HANDLENAME);
+    Py_SetProgramName(path);
+    Py_Initialize();
 
+    try {
+	settings->module = bp::import("__main__");
+	settings->module_namespace = settings->module.attr("__dict__");
 
-	if (PyErr_Occurred()) {
-	    PyErr_Fetch(&exc, &val, &tbk);
-	    ERS("init_python(%s): %s",settings->pymodule,PyString_AsString(val));
-	    goto error;
-	}
+	bp::object o_int10000(10000);
+	settings->module.attr("tamtam") = o_int10000; // define a global
 
-	settings->pymodule_ok = true;
+	// module.attr(HANDLENAME) = interp_ptr(this); // bombs (why?)
+	bp::exec_file(path,
+		      settings->module_namespace,
+		      settings->module_namespace);
+
+	settings->pymodule_stat = PYMOD_OK;
+	free(path);
+    }
+    catch (bp::error_already_set) {
+	PyErr_Print();
+	PyErr_Clear();
+	settings->pymodule_stat = PYMOD_FAILED;
     }
     return INTERP_OK;
+
  error:
-    PyErr_Print();
-    Py_XDECREF(settings->pymodname);
-    Py_XDECREF(settings->pymod);
-    Py_XDECREF(settings->pymdict);
-    Py_XDECREF(py_this);
-    Py_XDECREF(handle);
-    Py_XDECREF(exc);
-    Py_XDECREF(val);
-    Py_XDECREF(tbk);
-    PyErr_Clear();
     return INTERP_ERROR;
 }
 
 bool Interp::is_pycallable(setup_pointer settings,
 			   const char *funcname)
 {
-    PyObject *func;
     bool result;
+    PyObject *func, *exc, *val, *tbk;
 
-    result =  ((settings->pymdict != NULL) &&
-	    ((func = PyDict_GetItemString(settings->pymdict, funcname)) != NULL) &&  /* borrowed reference */
-	    (PyCallable_Check(func)));
+    if ((settings->pymodule_stat != PYMOD_OK) ||
+	(funcname == NULL)) {
+	return false;
+    }
+
+    func = PyDict_GetItemString(settings->module_namespace.ptr(), funcname);
+    result = PyCallable_Check(func);
+    if (PyErr_Occurred()) {
+	PyErr_Print();
+	PyErr_Fetch(&exc, &val, &tbk);
+	Log("exception calling '%s.%s': %s",
+	    settings->pymodule,
+	    funcname,
+	    PyString_AsString(val));
+	PyErr_Clear();
+	result = false;
+    }
     logPy("py_iscallable(%s) = %s\n",funcname,result ? "TRUE":"FALSE");
     return result;
 }
 
+static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
+{
+    return c(*args, **kwds);
+}
 
 int Interp::pycall(setup_pointer settings,
 		   const char *funcname,
 		   double params[])
 {
-    PyObject *func,*result,*tuple,
-	*exc, *val, *tbk, *exc_str,
-	*res_str = NULL;;
+    PyObject *exc, *val, *tbk;
+    bp::object retval;
 
     logPy("pycall %s [%f] [%f] this=%lx\n",
 	    funcname,params[0],params[1],(unsigned long)this);
 
-    // borrowed reference
-    PYCHK(((func = PyDict_GetItemString(settings->pymdict,
-					funcname)) == NULL),
-	  "pycall: didnt find '%s' in module '%s'",
-	  funcname,settings->pymodule);
+    if (settings->pymodule_stat != PYMOD_OK) {
+	ERS("function '%s.%s' : module not initialized",
+	    settings->pymodule,funcname);
+	return INTERP_OK;
+    }
 
-
-    // there must be a better way to do this
-    PYCHK(((tuple = Py_BuildValue("([dddddddddddddddddddddddddddddd])",
-				 params[0],params[1],params[2],params[3],params[4],params[5],params[6],
-				 params[7],params[8],params[9],params[10],params[11],params[12],
-				 params[13],params[14],params[15],params[16],params[17],params[18],
-				 params[19],params[20],params[21],params[22],params[23],params[24],
-				 params[25],params[26],params[27],params[28],params[29])) == NULL),
-	  "pycall: cant build positional arguments for  '%s.%s'",
-	  settings->pymodule,funcname);
-    result = PyObject_Call(func, tuple,settings->kwargs);
-    if (PyErr_Occurred()) {
+    try {
+	bp::object function = settings->module_namespace[funcname];
+	bp::list plist;
+	for (int i = 0; i < 30; i++) {
+	    plist.append(params[i]);
+	}
+	retval = callobject(function,bp::make_tuple(plist),
+				       settings->kwargs);
+    }
+    catch (bp::error_already_set) {
+	PyErr_Print();
 	PyErr_Fetch(&exc, &val, &tbk);
-	ERS("exception calling '%s.%s': %s",
+	ERS("pycall: exception calling '%s.%s': %s",
 	    settings->pymodule,
 	    funcname,
 	    PyString_AsString(val));
-	goto error;
+	PyErr_Clear();
+	return INTERP_OK;
     }
 
-    if ((result != Py_None) && !PyFloat_Check(result)) {
-	res_str = PyObject_Str(result);
-	ERS("function '%s.%s' returned '%s' - expected float, got %s",
-	    settings->pymodule,funcname, PyString_AsString(res_str),
-	    result->ob_type->tp_name);
-	goto error;
+    if (retval.ptr() != Py_None) {
+	if (!PyFloat_Check(retval.ptr())) {
+	    PyObject *res_str = PyObject_Str(retval.ptr());
+	    ERS("function '%s.%s' returned '%s' - expected float, got %s",
+		settings->pymodule,funcname,
+		PyString_AsString(res_str),
+		retval.ptr()->ob_type->tp_name);
+	    Py_XDECREF(res_str);
+	    return INTERP_OK;
+	} else {
+	    settings->return_value = bp::extract<double>(retval);
+	    logPy("pycall: '%s' returned %f", funcname,settings->return_value);
+	}
+    } else {
+	logPy("pycall: '%s' returned no value",funcname);
     }
-    if (result != Py_None)
-	settings->return_value = PyFloat_AsDouble(result);
-
     return INTERP_OK;
-
-error:
-    // PyErr_Print();
-    Py_XDECREF(func);
-    Py_XDECREF(tuple);
-    Py_XDECREF(result);
-    Py_XDECREF(res_str);
-    Py_XDECREF(exc_str);
-    Py_XDECREF(exc);
-    Py_XDECREF(val);
-    Py_XDECREF(tbk);
-    PyErr_Clear();
-    return INTERP_ERROR;
 }
