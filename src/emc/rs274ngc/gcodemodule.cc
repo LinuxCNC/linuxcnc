@@ -419,6 +419,15 @@ extern bool GET_BLOCK_DELETE(void) {
     return bd;
 }
 
+void CLAMP_AXIS(CANON_AXIS axis) {}
+bool GET_OPTIONAL_PROGRAM_STOP() { return false;}
+void SET_OPTIONAL_PROGRAM_STOP(bool state) {}
+void SPINDLE_RETRACT_TRAVERSE() {}
+void SPINDLE_RETRACT() {}
+void STOP_CUTTER_RADIUS_COMPENSATION() {}
+void USE_NO_SPINDLE_FORCE() {}
+void SET_BLOCK_DELETE(bool enabled) {}
+
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
