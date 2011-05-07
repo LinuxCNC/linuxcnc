@@ -1,5 +1,5 @@
-Manuel de l'utilisateur V2.3
-============================
+Manuel de l'utilisateur V2.3, {localdate}
+=========================================
 The EMC Team
 
 :language: fr

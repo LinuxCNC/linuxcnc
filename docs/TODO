@@ -3,26 +3,50 @@ To Do
 *** All Manuals
 
 
+
 *** Getting Started Manual
 
-update the updating section
+	update the updating section (Kim to do)
 
-pncconfig needs new images and updated... a lot of improvements have been made
+	pncconfig needs new images and updated... a lot of improvements have been made
 
-make a diagram of homing for stepconf
+	make a diagram of homing for stepconf
+
+
 
 *** User Manual
-
-scan manual for obvious conversion errors
 
 
 
 *** Integrator Manual
 
-scan manual for obvious conversion errors
-
 
 
 *** HAL Manual
+
+
+
+*** Developer Manual
+
+
+
+
+
+
+
+Doc checked & approved by:                       John            Kim             ????            ????
+(anyone who wants to, add your name ---> )
+(we can use all the inspectors we can get)
+-------------------------------------------------------------------------------------------------------
+
+Scan "Getting Started" for conversion errors    [ OK ]          [    ]          [    ]          [    ]
+
+Scan "User Manual" for conversion errors        [    ]          [    ]          [    ]          [    ]
+
+Scan "Integrator Manual" for conversion errors  [    ]          [    ]          [    ]          [    ]
+
+Scan "HAL Manual" for conversion errors         [ OK ]          [    ]          [    ]          [    ]
+
+Scan "Developer Manual" for conversion errors   [    ]          [    ]          [    ]          [    ]
 
 

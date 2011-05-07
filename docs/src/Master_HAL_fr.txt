@@ -1,5 +1,5 @@
-Le manuel de HAL (Couche d'abstraction du matériel)
-===================================================
+Le manuel de HAL (Couche d'abstraction du matériel), {localdate}
+================================================================
 The EMC Team
 
 :language: fr

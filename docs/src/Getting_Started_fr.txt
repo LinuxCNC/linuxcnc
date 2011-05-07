@@ -1,5 +1,5 @@
-Guide du débutant V2.3
-======================
+Guide du débutant V2.3, {localdate}
+===================================
 The EMC Team
 
 :language: fr
