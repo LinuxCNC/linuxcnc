@@ -23,11 +23,6 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include "units.h"
 
-// module global - references Interp instance:
-#define HANDLENAME "this"
-
-typedef boost::shared_ptr< Interp > interp_ptr;
-
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
         if (bad) {                                             \
@@ -35,6 +30,15 @@ typedef boost::shared_ptr< Interp > interp_ptr;
 	    goto error;					       \
         }                                                      \
     } while(0)
+
+// bp::object identity(bp::object o) { return o; }
+
+
+BOOST_PYTHON_MODULE(InterpMod) {
+    bp::class_<Interp>("Interp")
+    .def("load_tool_table",&Interp::load_tool_table);
+}
+
 
 int Interp::init_python(setup_pointer settings)
 {
@@ -69,7 +73,10 @@ int Interp::init_python(setup_pointer settings)
 	bp::object o_int10000(10000);
 	settings->module.attr("tamtam") = o_int10000; // define a global
 
-	// module.attr(HANDLENAME) = interp_ptr(this); // bombs (why?)
+	bp::object interp_module((bp::handle<>(PyImport_ImportModule("InterpMod"))) );
+	bp::scope(interp_module).attr("interp") = bp::ptr(this);
+	settings->module_namespace["InterpMod"] = interp_module;
+
 	bp::exec_file(path,
 		      settings->module_namespace,
 		      settings->module_namespace);
@@ -119,6 +126,7 @@ static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
 {
     return c(*args, **kwds);
 }
+
 
 int Interp::pycall(setup_pointer settings,
 		   const char *funcname,
