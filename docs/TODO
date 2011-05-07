@@ -6,7 +6,7 @@ To Do
 
 *** Getting Started Manual
 
-	update the updating section (Kim to do)
+	update the updating section (changes "skeletoned" in -Kim)
 
 	pncconfig needs new images and updated... a lot of improvements have been made
 
@@ -31,22 +31,24 @@ To Do
 
 
 
-
-
-
-Doc checked & approved by:                       John            Kim             ????            ????
-(anyone who wants to, add your name ---> )
+(anyone who wants to, add your name here ---> )
 (we can use all the inspectors we can get)
--------------------------------------------------------------------------------------------------------
 
-Scan "Getting Started" for conversion errors    [ OK ]          [    ]          [    ]          [    ]
+Doc checked & approved by:         John            Kim             ????            ????            ????
+----------------------------------------------------------------------------------------------------------------
 
-Scan "User Manual" for conversion errors        [    ]          [    ]          [    ]          [    ]
+Scan "Getting Started" for        [ OK ]          [    ]          [    ]          [    ]          [    ]
+conversion (or any?) errors 
 
-Scan "Integrator Manual" for conversion errors  [    ]          [    ]          [    ]          [    ]
+Scan "User Manual" for            [    ]          [    ]          [    ]          [    ]          [    ]
+conversion (or any?) errors  
 
-Scan "HAL Manual" for conversion errors         [ OK ]          [    ]          [    ]          [    ]
+Scan "Integrator Manual" for      [    ]          [    ]          [    ]          [    ]          [    ]
+conversion (or any?) errors 
 
-Scan "Developer Manual" for conversion errors   [    ]          [    ]          [    ]          [    ]
-
+Scan "HAL Manual" for             [ OK ]          [    ]          [    ]          [    ]          [    ]
+conversion (or any?) errors 
+ 
+Scan "Developer Manual" for       [    ]          [    ]          [    ]          [    ]          [    ]
+conversion (or any?) errors  
 
