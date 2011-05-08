@@ -25,8 +25,6 @@ public:
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
 
- // callback when remapping handler done
- int remap_finished( int status);
 
 // stop running
  int exit();
@@ -478,6 +476,9 @@ private:
 		     bool pydict = false);
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
+
+ // callback when remapping handler done
+ int remap_finished( int status);
 
  int report_error(setup_pointer settings,int status,const char *text);
 
