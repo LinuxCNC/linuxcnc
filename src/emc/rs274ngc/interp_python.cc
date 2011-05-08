@@ -36,13 +36,195 @@ namespace bp = boost::python;
         }                                                      \
     } while(0)
 
+// accessing the private data of Interp is kind of kludgy because
+// technically the Python module does not run in a member context
+// but 'outside'
+// we store references to private data during call setup and
+// use it to reference it in the python module
+
+static setup_pointer current_setup;
+
+// accessors for a few _setup members so they can be injected into Python
+// this would be much easier with add_static_property but _setup
+// would have to be public
+
+int Interp::get_selected_pocket() { return _setup.selected_pocket;}
+void Interp::set_selected_pocket(int p) {  _setup.selected_pocket = p;}
+int Interp::get_current_pocket() { return _setup.current_pocket;}
+void Interp::set_current_pocket(int p) {  _setup.current_pocket = p;}
+int Interp::get_toolchange_flag() { return _setup.toolchange_flag;}
+void Interp::set_toolchange_flag(bool f) {  _setup.toolchange_flag = f;}
+double Interp::get_return_value()  { return _setup.return_value;}
+int Interp::get_remap_level()  { return _setup.stack_level;}
+
+//BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(execute_overloads, execute, 1, 2)
+int demovar;
+int get_demo() {return demovar;}
+void set_demo(int i) {demovar = i;}
+
+
+// http://stackoverflow.com/questions/2348960/how-can-i-use-boostpython-to-add-a-method-to-an-exported-class-without-modifyin
+//     print "do = ",InterpMod.interp.do(123)
+int do_things_to_a_foo(Interp& self, int a)
+{
+    //  fprintf(stderr,"doThings %d",self.get_setup().sequence_number);
+    return 4711 * a;
+}
+
+// struct InterpParameters
+// {
+//   double val;
+
+//   double getitem(bp::object subscriptionObj)
+//   {
+//       fprintf(stderr,"getitem %f",this->val);
+
+//     return this->val;
+//   }
+
+//   double setitem(bp::object subscriptionObj, double val)
+//   {
+//       fprintf(stderr,"setitem %f",val);
+
+//       this->val = val;
+//       return val *3.14;
+//   }
+// };
+
+struct Subscriptable
+{
+
+    Subscriptable()
+    {
+	fprintf(stderr,"new\n");
+    }
+    double val;
+
+    double getitem(bp::object subscriptionObj)
+    {
+	fprintf(stderr,"getitem\n");
+
+	return this->val;
+    }
+
+    double setitem(bp::object subscriptionObj, double val)
+    {
+
+	if(PyObject_IsInstance(subscriptionObj.ptr(),
+			       (PyObject*)&PyString_Type))  {
+
+	    char const* c_str = bp::extract < char const* > (subscriptionObj);
+	    fprintf(stderr,"setitem('%s'), %f\n",c_str,val);
+
+	} else
+	    if(PyObject_IsInstance(subscriptionObj.ptr(),
+				   (PyObject*)&PyInt_Type)) {
+		int ival = bp::extract < int > (subscriptionObj);
+		fprintf(stderr,"setitem(%d), %f\n",ival,val);
+
+	    } else
+		fprintf(stderr,"setitem BAD TYPE %f\n",val);
+
+	this->val = val;
+	return val *2.1718;
+    }
+};
+
+const char * invite(const Interp& w) {
+    return "! Please come soon!";
+    //    return w.greet() + "! Please come soon!";
+}
+
+const char * blocktext(const Interp& w) {
+    return &current_setup->blocktext[0];
+}
+
 BOOST_PYTHON_MODULE(InterpMod) {
+
+    // param array access siehe http://www.spieleprogrammierer.de/index.php?page=Thread&postID=185452
+
+    // next milestone:
+    // get/set indexed param
+    // get/set named param
+
+    // using namespace boost::python;
+    // bp::def("foo2",foo2);
+    //    bp::def("selected_pocket",&current_setup->selected_pocket);
+
+    // bp::scope().attr("this") = bp::object(bp::ptr(&foo));
+    //bp::add_property("demo",get_demo,set_demo)
+
+    // bp::
+    // works bp::scope().attr("foo") = bp::object(4711);
+    bp::object pdict =  bp::dict();
+
+
+    bp::scope Interp_class =
     bp::class_<Interp>("Interp")
 	.def("load_tool_table",&Interp::load_tool_table)
 	.def("synch",&Interp::synch)
 
+	.def("do", &do_things_to_a_foo)
+
 	// the result, btw, currently is wrong.. FIXME mah:
 	.def("sequence_number",&Interp::sequence_number)
+
+	// works .setattr("TAIL_BITS", 815)
+	.add_property("selected_pocket",
+		      &Interp::get_selected_pocket,
+		      &Interp::set_selected_pocket)
+	.add_property("current_pocket",
+		      &Interp::get_current_pocket,
+		      &Interp::set_current_pocket)
+	.add_property("toolchange_flag",
+		      &Interp::get_toolchange_flag,
+		      &Interp::set_toolchange_flag)
+	.add_property("call_level",
+		      &Interp::call_level)
+	.add_property("remap_level",
+		      &Interp::get_remap_level)
+        .def("invite", invite)  // Add invite() as a regular function to the module.
+        .add_property("invprop", invite)
+        .add_property("blocktext", blocktext)
+
+
+	// bombs	.def("foo3",foo3)
+	//bombs	.def("anobject", bp::object(4711))
+
+	;
+	bp::scope().attr("params") = pdict;
+	bp::scope().attr("foo4") = bp::object();
+	bp::class_<Subscriptable>("ps")
+	    .def("__getitem__", &Subscriptable::getitem)
+	    .def("__setitem__", &Subscriptable::setitem);
+
+    // bp::class_<InterpParameters>("params")
+    // 	.def("__getitem__", &InterpParameters::getitem)
+    // 	.def("__setitem__", &InterpParameters::setitem)
+
+    // 	;
+	// bp::class_
+	// .def("param",
+	//      .def("__getitem__", obj_getitem);
+	//      .def("__setitem__", obj_setitem);
+
+
+	// .def("__str__", to_string<eoPop<PyEO> >)
+
+	// this segfaults on initialisation
+	 // .add_static_property("itest", &Interp::staticstruct.itest)
+	 // .add_static_property("dtest", &Interp::staticstruct.dtest)
+
+	//.add_static_property("name", &Interp::statictest,&Interp::statictest)
+
+	// .def("statictest", &Interp::statictest)
+        // .staticmethod("statictest")
+
+	//.def("execute", &Interp::execute,execute_overloads()); //??
+
+	     //	    &(Interp::get_setup().selected_pocket);
+
+
 
 	// TBD: how to access _setup et al
 	// this probably nees a wrapper which I dont understand just yet
@@ -226,6 +408,9 @@ int Interp::init_python(setup_pointer settings)
     char cmd[LINELEN];
     char *path;
 
+    //Log("get_setup().selected_pocket=%d",get_setup().selected_pocket);
+    current_setup = &this->_setup;
+
     if (settings->pymodule_stat != PYMOD_NONE)
 	return INTERP_OK;  // already done, or failed
 
@@ -322,6 +507,8 @@ int Interp::pycall(setup_pointer settings,
 
     logPy("pycall %s [%f] [%f] this=%lx\n",
 	    funcname,params[0],params[1],(unsigned long)this);
+
+    current_setup = &this->_setup;
 
     if (settings->pymodule_stat != PYMOD_OK) {
 	ERS("function '%s.%s' : module not initialized",
