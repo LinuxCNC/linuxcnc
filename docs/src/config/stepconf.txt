@@ -14,10 +14,12 @@ you need to pick the file that matches your configuration name. The
 file extension is .stepconf.
 
 The Stepconf Wizard needs at least 800 x 600 screen resolution to see
-the buttons on the bottom of the pages.
+the buttons on the bottom of the pages. 
 
-== Step by Step Instructions
-.
+[float]
+Step by Step Instructions
+=========================
+unfloat::[]
 
 == Entry Page [[sec:Entry-Page]]
 
@@ -41,7 +43,7 @@ Create Desktop Shortcut::
 Create Desktop Launcher::
     This will place a launcher on your desktop to start your application.
 
-== Basic Information [[sub:Basic-Information]]
+== Basic Information [[sec:Basic-Information]]
 
 .Basic Information Page[[cap:Basic-Information-Page]]
 
@@ -65,14 +67,14 @@ Driver Type::
     pull down box, choose it. Otherwise, find the 4 timing values in your
     driver's data sheet and enter them.  
      If the data sheet gives a value in microseconds, multiply by 1000. For
-    example, enter 4.5us as 4500. A list is on the
-    http://wiki.linuxcnc.org[Linuxcnc Wiki] site of most popular drives
-    with the timing values is in the Stepper Drive Timing Page. 
+    example, enter 4.5us as 4500. A list of some popular drives, along with 
+    their timing values, is on the LinuxCNC.org Wiki under 
+    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Stepper Drive Timing]. 
      Additional signal conditioning or isolation such as optocouplers and
     RC filters on break out boards can impose timing constraints of their
     own, in addition to those of the driver. You may find it necessary to
     add some time to the drive requirements to allow for this. The EMC
-    Configuration Selector has configs for Sherline all ready configured.
+    Configuration Selector has configs for Sherline already configured.
 
 Step Time::
     How long the step pulse is "on" in nano seconds.
@@ -117,7 +119,7 @@ Onscreen Prompt For Tool Change::
     Leave this box checked unless you plan to add support
     for an automatic tool changer in a custom hal file
 
-=== Latency Test [[sub:Latency-Test]]
+=== Latency Test [[sec:Latency-Test]](((Latency Test)))
 
 While the test is running, you should "abuse" the computer. Move
 windows around on the screen. Surf the web. Copy some large files
@@ -141,9 +143,16 @@ pulses. The lower the latency, the faster you can run the heartbeat,
 and the faster and smoother the step pulses will be.
 
 Latency is far more important than CPU speed. The CPU isn't the only
-factor in determining latency. Motherboards, video cards, USB ports,
-nuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[SMI] issues, and a number
-of other things can hurt the latency.
+factor in determining latency. Motherboards, video cards, USB ports, 
+SMI issues, and a number of other things can hurt the latency.
+
+
+.Troubleshooting SMI Issues (LinuxCNC.org Wiki)
+****
+Fixing Realtime problems caused by SMI on Ubuntu
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
+****
 
 The important numbers are the "max jitter". In the example above 7085
 nanoseconds is the highest jitter. Record this number, and enter it in
@@ -160,7 +169,7 @@ candidate for software stepping. Numbers over 1 millisecond (1,000,000
 nanoseconds) mean the PC is not a good candidate for EMC, regardless of
 whether you use software stepping or not.
 
-== Parallel Port Setup (((Parallel Port Setup)))[[sub:Parallel-Port-Setup]]
+== Parallel Port Setup (((Parallel Port Setup)))[[sec:Parallel-Port-Setup]]
 
 .Parallel Port Setup Page[[cap:Parallel-Port-Setup]]
 
@@ -194,7 +203,7 @@ Charge Pump::
     1/2 of the maximum step rate shown on the Basic Machine Configuration
     page.
 
-== Axis Configuration (((Axis Configuration)))[[sub:Axis-Configuration]]
+== Axis Configuration (((Axis Configuration)))[[sec:Axis-Configuration]]
 
 .Axis Configuration Page[[cap:Axis-Configuration-Page]]
 
@@ -287,7 +296,7 @@ Pulse rate at max speed::
     lockups (the fastest usable pulse rate varies from computer to
     computer)
 
-Axis SCALE:::
+Axis SCALE::
      The number that will be used in the ini file [SCALE] setting. This is
     how many steps per user unit.
 
@@ -360,7 +369,7 @@ Acceleration.
 
 image::images/stepconf-spindle.png[]
 
-This page only appear when "Spindle PWM" is chosen in the *Parallel
+This page only appears when "Spindle PWM" is chosen in the *Parallel
 Port Pinout* page for one of the outputs.
 
 === Spindle Speed Control (((spindle speed control)))[[sub:Spindle-Speed-Control]]
@@ -413,7 +422,7 @@ Cycles per revolution::
 
 Enter the following values in the Spindle Configuration page:
 
-[width="90%", options="header"]
+[width="100%", options="header"]
 |========================================
 |Speed 1: | *0* | PWM 1: | *0*
 |Speed 2: | *1000* | PWM 1: | *1*
