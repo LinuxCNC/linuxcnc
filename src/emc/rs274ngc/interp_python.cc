@@ -56,29 +56,26 @@ static double get_return_value() { return current_setup->return_value; }
 static int get_remap_level() { return  current_setup->stack_level; }
 const char *blocktext() { return &current_setup->blocktext[0]; }
 
+#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
+#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
-//BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(execute_overloads, execute, 1, 2)
-
-struct Subscriptable
+struct ParamClass
 {
-    double getitem(bp::object subscriptionObj)
+    double getitem(bp::object sub)
     {
 	fprintf(stderr,"getitem\n");
 	return 3.14;
     }
 
-    double setitem(bp::object subscriptionObj, double val)
+    double setitem(bp::object sub, double val)
     {
-	if(PyObject_IsInstance(subscriptionObj.ptr(),
-			       (PyObject*)&PyString_Type))  {
-
-	    char const* c_str = bp::extract < char const* > (subscriptionObj);
+	if (IS_STRING(sub)) {
+	    char const* c_str = bp::extract < char const* > (sub);
 	    fprintf(stderr,"setitem('%s'), %f\n",c_str,val);
 
 	} else
-	    if(PyObject_IsInstance(subscriptionObj.ptr(),
-				   (PyObject*)&PyInt_Type)) {
-		int ival = bp::extract < int > (subscriptionObj);
+	    if (IS_INT(sub)) {
+		int ival = bp::extract < int > (sub);
 		fprintf(stderr,"setitem(%d), %f\n",ival,val);
 
 	    } else
@@ -88,36 +85,33 @@ struct Subscriptable
     }
 };
 
-// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
-// reason: avoid segfaults by del(interp_instance)
+static ParamClass paramclass;
 
+// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
+// reason: avoid segfaults by del(interp_instance) on program exit
+// make delete(interp_instance) a noop wrt Interp
 static void interpDeallocFunc(Interp *interp)
 {
-  //deallocate interp
-
     fprintf(stderr,"----> interpDeallocFunc pid=%d\n",getpid());
 }
-//typedef boost::shared_ptr< Interp, interpDeallocFunc > interp_ptr;
 typedef boost::shared_ptr< Interp > interp_ptr;
 interp_ptr  interp_instance;
 
 BOOST_PYTHON_MODULE(InterpMod) {
-
     using namespace boost::python;
-    typedef return_value_policy<return_by_value> rbv;
-    typedef default_call_policies dcp;
+    using namespace boost;
 
-    // param array access siehe http://www.spieleprogrammierer.de/index.php?page=Thread&postID=185452
+    scope().attr("__doc__") =
+        "Interpreter introspection\n"
+        ;
 
-    // class_<Interp>("Interp")
     class_< Interp, interp_ptr,
-        boost::noncopyable >("Interp",no_init)
+        noncopyable >("Interp",no_init)
 
-
-	// the result, btw, currently is wrong.. FIXME mah:
 	.def("sequence_number", &Interp::sequence_number)
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("synch", &Interp::synch)
+
 	.add_property("call_level", &Interp::call_level)
 
 	.add_static_property("selected_pocket", &::get_selected_pocket,&::set_selected_pocket)
@@ -126,18 +120,11 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.add_static_property("remap_level", &get_remap_level)
 	.add_static_property("return_value", &get_return_value)
 	;
-    class_<Subscriptable>("param")
-	.def("__getitem__", &Subscriptable::getitem)
-	.def("__setitem__", &Subscriptable::setitem);
+    class_<ParamClass,noncopyable>("ParamClass","Interpreter parameters",no_init)
+	.def("__getitem__", &ParamClass::getitem)
+	.def("__setitem__", &ParamClass::setitem);
     ;
-    // class_<InterpParameters>("params")
-    // 	.def("__getitem__", &InterpParameters::getitem)
-    // 	.def("__setitem__", &InterpParameters::setitem)
-    // 	;
-    // class_
-    // .def("param",
-    //      .def("__getitem__", obj_getitem);
-    //      .def("__setitem__", obj_setitem);
+
     //.def("execute", &Interp::execute,execute_overloads()); //??
 }
 
@@ -308,6 +295,82 @@ BOOST_PYTHON_MODULE(CanonMod) {
     //    def("XYZ",&XYZ);
 }
 
+
+std::string handle_pyerror()
+{
+    using namespace boost::python;
+    using namespace boost;
+
+    PyObject *exc,*val,*tb;
+    PyErr_Fetch(&exc,&val,&tb);
+    handle<> hexc(exc),hval(val),htb(tb);
+    if(!htb || !hval) {
+	fprintf(stderr, "handle_pyerror: BUG \n");
+	// MYAPP_ASSERT_BUG(hexc);
+	return extract<std::string>(str(hexc));
+    } else {
+	object traceback(import("traceback"));
+	object format_exception(traceback.attr("format_exception"));
+	object formatted_list(format_exception(hexc,hval,htb));
+	object formatted(str("\n").join(formatted_list));
+	return extract<std::string>(formatted);
+    }
+}
+
+// lifted from https://svn.boost.org/trac/boost/ticket/2781
+// std::string handle_pyerror()
+// {
+//     using namespace boost::python;
+
+//     std::ostringstream os;
+
+//     PyObject *type = 0, *val = 0, *tb = 0;
+//     PyErr_Fetch(&type, &val, &tb);
+//     handle<> e_val(val), e_type(type), e_tb(allow_null(tb));
+
+//     try {
+//         object t = extract<object>(e_type.get());
+//         object t_name = t.attr("__name__");
+//         std::string typestr = extract<std::string>(t_name);
+
+//         os << typestr << std::flush;
+//     } catch (error_already_set const &) {
+//         os << "Internal error getting error type:\n";
+//         PyErr_Print();
+//     }
+
+//     os << ": ";
+
+//     try {
+//         object v = extract<object>(e_val.get());
+//         std::string valuestr = extract<std::string>(v.attr("__str__")());
+//         os  << valuestr << std::flush;
+//     } catch (error_already_set const &) {
+//         os << "Internal error getting value type:\n";
+//         PyErr_Print();
+//     }
+
+//     if (tb) {
+//         try {
+//             object tb_list = import("traceback").attr("format_tb")(e_tb);
+//             object tb_str = str("").attr("join")(tb_list);
+//             std::string str = extract<std::string>(tb_str);
+
+//             os << "\nTraceback (recent call last):\n" << str;
+//         } catch (error_already_set const &) {
+//             os << "Internal error getting traceback:\n";
+//             PyErr_Print();
+//         }
+//     } else {
+//         os << std::endl;
+//     }
+//     Py_XDECREF(type);
+//     Py_XDECREF(val);
+//     Py_XDECREF(tb);
+//     return os.str();
+// }
+
+
 int Interp::init_python(setup_pointer settings)
 {
     char cmd[LINELEN];
@@ -315,8 +378,6 @@ int Interp::init_python(setup_pointer settings)
 
     //Log("get_setup().selected_pocket=%d",get_setup().selected_pocket);
     current_setup = &this->_setup;
-
-
 
     if (settings->pymodule_stat != PYMOD_NONE) {
 	logPy("init_python RE-INIT %d",settings->pymodule_stat);
@@ -351,8 +412,9 @@ int Interp::init_python(setup_pointer settings)
 	settings->module_namespace = settings->module.attr("__dict__");
 
 	bp::object interp_module = bp::import("InterpMod");
-	// bp::scope(interp_module).attr("interp") = bp::ptr(this);
-	bp::scope(interp_module).attr("interp") = interp_instance; // bp::ptr(this);
+
+	bp::scope(interp_module).attr("interp") = interp_instance;
+	bp::scope(interp_module).attr("params") = bp::ptr(&paramclass);
 
 	settings->module_namespace["InterpMod"] = interp_module;
 
@@ -367,11 +429,10 @@ int Interp::init_python(setup_pointer settings)
 	free(path);
     }
     catch (bp::error_already_set) {
-	logPy("init_python: Exception");
-
-	PyErr_Print();
-	PyErr_Clear();
+	std::string msg = handle_pyerror();
+	ERS("init_python: %s",msg.c_str());
 	settings->pymodule_stat = PYMOD_FAILED;
+	PyErr_Clear();
     }
     return INTERP_OK;
 
@@ -382,25 +443,26 @@ int Interp::init_python(setup_pointer settings)
 bool Interp::is_pycallable(setup_pointer settings,
 			   const char *funcname)
 {
-    bool result;
-    PyObject *func, *exc, *val, *tbk;
+    bool result = false;
 
     if ((settings->pymodule_stat != PYMOD_OK) ||
 	(funcname == NULL)) {
 	return false;
     }
 
-    func = PyDict_GetItemString(settings->module_namespace.ptr(), funcname);
-    result = PyCallable_Check(func);
-    if (PyErr_Occurred()) {
-	PyErr_Print();
-	PyErr_Fetch(&exc, &val, &tbk);
-	Log("exception calling '%s.%s': %s",
-	    settings->pymodule,
-	    funcname,
-	    PyString_AsString(val));
-	PyErr_Clear();
+    try {
+	bp::object function = settings->module_namespace[funcname];
+	result = PyCallable_Check(function.ptr());
+    }
+    catch (bp::error_already_set) {
+	// KeyError expected if not callable
+	if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
+	    // something else, strange
+	    std::string msg = handle_pyerror();
+	    logPy("is_pycallable: %s",msg.c_str());
+	}
 	result = false;
+	PyErr_Clear();
     }
     logPy("py_iscallable(%s) = %s\n",funcname,result ? "TRUE":"FALSE");
     return result;
@@ -411,12 +473,10 @@ static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
     return c(*args, **kwds);
 }
 
-
 int Interp::pycall(setup_pointer settings,
 		   const char *funcname,
 		   double params[])
 {
-    PyObject *exc, *val, *tbk;
     bp::object retval;
     PyGILState_STATE gstate;
 
@@ -430,7 +490,7 @@ int Interp::pycall(setup_pointer settings,
 	    settings->pymodule,funcname);
 	return INTERP_OK;
     }
-
+    // not sure if this is needed
     gstate = PyGILState_Ensure();
 
     try {
@@ -444,22 +504,11 @@ int Interp::pycall(setup_pointer settings,
 				       settings->kwargs);
     }
     catch (bp::error_already_set) {
-	// PyErr_Print(); // this resets the error indicator!!
-	if (PyErr_Occurred()) {
-	    PyErr_Fetch(&exc, &val, &tbk);
-	    PyErr_NormalizeException(&exc, &val, &tbk);
-	    ERS("pycall: exception calling '%s.%s': %s\ntraceback:\n%s\n",
-		settings->pymodule,
-		funcname,
-		val == NULL ? "NULL" : PyString_AsString(val),
-		tbk == NULL ? "NULL" : PyString_AsString(tbk));
-	    PyErr_Clear();
-	    Py_XDECREF(exc); Py_XDECREF(val); Py_XDECREF(tbk);
-	} else {
-	    logPy("pycall: catch but no PyErr_Occurred()");
-	}
+	std::string msg = handle_pyerror();
+	logPy("pycall: %s",msg.c_str());
+	ERS("pycall: %s",msg.c_str());
+	PyErr_Clear();
 	PyGILState_Release(gstate);
-
 	return INTERP_OK;
     }
 
@@ -472,7 +521,6 @@ int Interp::pycall(setup_pointer settings,
 		retval.ptr()->ob_type->tp_name);
 	    Py_XDECREF(res_str);
 	    PyGILState_Release(gstate);
-
 	    return INTERP_OK;
 	} else {
 	    settings->return_value = bp::extract<double>(retval);
@@ -481,8 +529,7 @@ int Interp::pycall(setup_pointer settings,
     } else {
 	logPy("pycall: '%s' returned no value",funcname);
     }
-    PyGILState_Release(gstate);
 
+    PyGILState_Release(gstate);
     return INTERP_OK;
 }
-
