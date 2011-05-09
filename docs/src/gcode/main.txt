@@ -214,7 +214,7 @@ It is an error if:
 A circular or helical arc is specified using either `G2` (clockwise
 arc) or `G3`  (counterclockwise arc). The direction (CW, CCW) is as
 viewed from the
-positive end of the axis about which the circular motion occours. The axis of
+positive end of the axis about which the circular motion occurs. The axis of
 the circle or helix must be parallel to the X, Y, or Z-axis of the
 machine coordinate system. The axis (or, equivalently, the plane
  perpendicular to the axis) is selected with `G17` (Z-axis, XY-plane),
@@ -1379,7 +1379,7 @@ honor the G98/99 in effect.
  . Preliminary motion, as described above. 
  . Move the Z-axis only at the current feed rate downward by delta or to
    the Z position, whichever is less deep. 
- . Rapid back out to the retract plane specificed by the R word. 
+ . Rapid back out to the retract plane specified by the R word. 
  . Rapid back down to the current hole bottom, backed off a bit.
  . Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
  . Retract the Z-axis at traverse rate to clear Z. 
@@ -1586,7 +1586,7 @@ surface speed of S feet per minute (if G20 is in effect) or meters per
 minute (if G21 is in effect). The maximum spindle speed is set by the
 D- number in revolutions per minute. When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is
-the center of rotation or emc will not give the desired spindle speed. 
+the center of rotation or EMC will not give the desired spindle speed. 
 G96 is not affected by radius or diameter mode.
 
 Program G97 to select RPM mode.
@@ -1601,7 +1601,7 @@ It is an error if:
    G98 Retract to the position that axis was in just before this series
        of one or more contiguous canned cycles was started.
     
-   G99 Retract to the position specificed by the R word of the canned cycle.    
+   G99 Retract to the position specified by the R word of the canned cycle.    
 
 The "initial" (g98) plane is reset any time cycle motion mode is
 abandoned, whether explicitly (g80) or implicitly (any motion code
@@ -1694,7 +1694,7 @@ complete:
    the tool that was in the spindle (if there was one) will be in its
    changer slot. 
  -  If configured in the .ini file some axis positions may move when a M6
-   is issued. See the EMCIO section of the Integrators Manual for more
+   is issued. See the EMCIO section of the Integrator's Manual for more
    information on tool change options.
  -  No other changes will be made. For example, coolant will continue to
    flow during the tool change unless it has been turned off by an `M9` .
@@ -1784,7 +1784,7 @@ To control a digital output bit, program `M- P-` , where the M-word
 ranges from 62 to 65, and the P-word ranges from 0
 to a default value of 3. If needed the the number of I/O can be
 increased by using the num_dio parameter when loading the motion
-controller. See the Integrators Manual Configuration Section EMC and
+controller. See the Integrator's Manual Configuration Section EMC and
 HAL section for more information.
 
  - The P- word specifies the digital output number.
@@ -1821,7 +1821,7 @@ To read the value of an analog or digital input pin, program `M66 P-
 E- L- Q-`  , where the P-word and the E-word ranges from 0 to 3. If
 needed the
 the number of I/O can be increased by using the num_dio or num_aio
-parameter when loading the motion controller. See the Integrators
+parameter when loading the motion controller. See the Integrator's
 Manual Configuration Section EMC and HAL section for more
 information.Only one of the P or E words must be present. It is an
 error if they are both missing.
@@ -1871,7 +1871,7 @@ Q-` , where the E word ranges from 0 to the default maximum of 3 and Q
 is
 the value to set. The number of I/O can be increased by using the
 num_aio parameter when loading the motion controller. See the "EMC2 and
-HAL" chapter in the Configuration Section of the Integrators Manual for
+HAL" chapter in the Configuration Section of the Integrator's Manual for
 more information on the Motion Controller. M67 functions the same as
 M62-63. See the M62-65 section for information about queuing output
 commands synchronized with motion.
@@ -1882,7 +1882,7 @@ To control an analog output immediately, program `M68 E- Q-, ` where
 the E word ranges from 0 to the default maximum of 3 and Q is
 the value to set. The number of I/O can be increased by using the
 num_aio parameter when loading the motion controller. See the "EMC2 and
-HAL" chapter in the Configuration Section of the Integrators Manual for
+HAL" chapter in the Configuration Section of the Integrator's Manual for
 more information on the Motion Controller. M68 functions the same as
 M64-65. See the M62-65 section for information about immediate output
 commands.
@@ -1902,22 +1902,22 @@ The error "Unknown M code used" denotes one of the following
  - The file is not an executable file
 
 For example to open and close a collet closer that is controlled by a
-paraport pin using a bash script file using M101 and M102. Create two
+parport pin using a bash script file using M101 and M102. Create two
 files called M101 and M102. Set them as executable files (typically
 right click/properties/permissions) before running EMC2. Make sure the
-paraport pin is not connected to anything in a hal file.
+parport pin is not connected to anything in a hal file.
 
 M101 (file name)
 
     #!/bin/sh
-    # file to turn on paraport pin 14 to open the collet closer
+    # file to turn on parport pin 14 to open the collet closer
     halcmd setp parport.0.pin-14-out True
     exit 0
 
 M102 (file name)
 
     #!/bin/sh
-    # file to turn off paraport pin 14 to open the collet closer
+    # file to turn off parport pin 14 to open the collet closer
     halcmd setp parport.0.pin-14-out False
     exit 0
 
@@ -2084,7 +2084,7 @@ Section  <<"sub:G93,-G94:-Set">>.
 
 == S: Set Spindle Speed (((S: Set Spindle Speed)))[[sub:S:-Set-Spindle]]
 
-To set the speed in revolutions per minute (rpm) of the spindle,
+To set the speed in revolutions per minute (RPM) of the spindle,
 program `S-`  . The spindle will turn at that speed when it has been
 programmed to
 start turning. It is OK to program an S word whether the spindle is
