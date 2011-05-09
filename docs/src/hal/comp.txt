@@ -522,7 +522,8 @@ illustrates the use of `EXTRA_SETUP` and `EXTRA_CLEANUP`  to request an
 I/O region and then free it in case of error or when
 the module is unloaded.
 
-----------------------------------------
+[c]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 component out8;
 pin out unsigned out_ "Output value; only low 8 bits are used";
 param r unsigned ioaddr;
@@ -565,7 +566,8 @@ EXTRA_CLEANUP() {
 }
 
 FUNCTION(_) { outb(out_, ioaddr); }
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 === hal_loop
 
@@ -600,7 +602,8 @@ This realtime component illustrates use of fixed-size arrays:
 This userspace component changes the value on its output pin to a new
 random value in the range latexmath:[[0,1)] about once every 1ms.
 
-----------------------------------------
+[c]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 component rand;
 option userspace;
 
@@ -615,14 +618,15 @@ void user_mainloop(void) {
         FOR_ALL_INSTS() out = drand48();
     }
 }
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 === logic
 
 This realtime component shows how to use "personality" to create
 variable-size arrays and optional pins.
 
-----------------------------------------
+[c]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 component logic "EMC2 HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
@@ -653,7 +657,7 @@ FUNCTION(_) {
     if(personality & 0x200) or = o;
     if(personality & 0x400) xor = x;
 }
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A typical load line for this component might be
 
