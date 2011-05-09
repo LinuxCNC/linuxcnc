@@ -3,51 +3,39 @@ Upgrading EMC2
 
 == Upgrading from 2.4.x to 2.5.x
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Donec nulla magna, consequat dignissim cursus a, auctor a leo. 
-Mauris sed nibh eu risus dapibus ultrices nec sed neque. 
-Cras leo velit, cursus quis tincidunt eu, semper at dui. 
-Ut lobortis elit vel risus iaculis laoreet. Integer facilisis, 
-diam ac laoreet aliquet, mi turpis imperdiet risus, ut 
-dignissim nulla purus a risus. Aliquam cursus accumsan feugiat. 
-Praesent felis felis, iaculis et bibendum hendrerit, ultrices 
-at nisl. Etiam et pretium augue. Vestibulum id metus ac sapien 
-fringilla cursus. Cum sociis natoque penatibus et magnis dis 
-parturient montes, nascetur ridiculus mus. Ut mollis nulla ac 
-urna luctus at pulvinar nibh mollis. Mauris eget est tellus. 
-Sed sapien mauris, condimentum non rutrum nec, ullamcorper 
-vel enim.
+Put
+
+some
+
+text
+
+here
+
 
 == Changes between 2.4.x and 2.5.x
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Donec nulla magna, consequat dignissim cursus a, auctor a leo. 
-Mauris sed nibh eu risus dapibus ultrices nec sed neque. 
-Cras leo velit, cursus quis tincidunt eu, semper at dui. 
-Ut lobortis elit vel risus iaculis laoreet. Integer facilisis, 
-diam ac laoreet aliquet, mi turpis imperdiet risus, ut 
-dignissim nulla purus a risus. Aliquam cursus accumsan feugiat. 
-Praesent felis felis, iaculis et bibendum hendrerit, ultrices 
-at nisl. Etiam et pretium augue. Vestibulum id metus ac sapien 
-fringilla cursus. Cum sociis natoque penatibus et magnis dis 
-parturient montes, nascetur ridiculus mus. Ut mollis nulla ac 
-urna luctus at pulvinar nibh mollis. Mauris eget est tellus. 
-Sed sapien mauris, condimentum non rutrum nec, ullamcorper 
-vel enim.
+Put
+
+some
+
+text
+
+here
+
 
 === Details on thing 1 changes (2.4.x to 2.5.x)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Donec nulla magna, consequat dignissim cursus a, auctor a leo. 
-Mauris sed nibh eu risus dapibus ultrices nec sed neque. 
-Cras leo velit, cursus quis tincidunt eu, semper at dui. 
+Put some 
+
+text here
+
 
 === Details on thing 2 changes (2.4.x to 2.5.x)
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Donec nulla magna, consequat dignissim cursus a, auctor a leo. 
-Mauris sed nibh eu risus dapibus ultrices nec sed neque. 
-Cras leo velit, cursus quis tincidunt eu, semper at dui. 
+Put some 
+
+text here
+
 
 == Upgrading from 2.3.x to 2.4.x
 
