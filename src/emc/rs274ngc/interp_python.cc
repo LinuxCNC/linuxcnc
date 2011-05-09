@@ -63,25 +63,38 @@ struct ParamClass
 {
     double getitem(bp::object sub)
     {
-	fprintf(stderr,"getitem\n");
-	return 3.14;
-    }
-
-    double setitem(bp::object sub, double val)
-    {
+	double retval = 0;
 	if (IS_STRING(sub)) {
-	    char const* c_str = bp::extract < char const* > (sub);
-	    fprintf(stderr,"setitem('%s'), %f\n",c_str,val);
+	    char const* varname = bp::extract < char const* > (sub);
+	    fprintf(stderr,"getitem('%s')\n",varname);
 
 	} else
 	    if (IS_INT(sub)) {
-		int ival = bp::extract < int > (sub);
-		fprintf(stderr,"setitem(%d), %f\n",ival,val);
-
+		int index = bp::extract < int > (sub);
+		retval = current_setup->parameters[index];
+		// fprintf(stderr,"return parameters[%d] = %f\n",index,retval);
 	    } else
-		fprintf(stderr,"setitem BAD TYPE %f\n",val);
+		fprintf(stderr,"getitem BAD SUBSCRIPT  TYPE \n");
 
-	return val *2.1718;
+	return retval;
+    }
+
+    double setitem(bp::object sub, double dvalue)
+    {
+	if (IS_STRING(sub)) {
+	    char const* varname = bp::extract < char const* > (sub);
+	    fprintf(stderr,"setitem('%s'), %f\n",varname,dvalue);
+
+	} else
+	    if (IS_INT(sub)) {
+		int index = bp::extract < int > (sub);
+		current_setup->parameters[index] = dvalue;
+		// fprintf(stderr,"set parameters[%d] = %f\n",index,dvalue);
+		return dvalue;
+	    } else
+		fprintf(stderr,"setitem BAD SUBSCRIPT TYPE\n");
+
+	return dvalue;
     }
 };
 
@@ -316,60 +329,6 @@ std::string handle_pyerror()
 	return extract<std::string>(formatted);
     }
 }
-
-// lifted from https://svn.boost.org/trac/boost/ticket/2781
-// std::string handle_pyerror()
-// {
-//     using namespace boost::python;
-
-//     std::ostringstream os;
-
-//     PyObject *type = 0, *val = 0, *tb = 0;
-//     PyErr_Fetch(&type, &val, &tb);
-//     handle<> e_val(val), e_type(type), e_tb(allow_null(tb));
-
-//     try {
-//         object t = extract<object>(e_type.get());
-//         object t_name = t.attr("__name__");
-//         std::string typestr = extract<std::string>(t_name);
-
-//         os << typestr << std::flush;
-//     } catch (error_already_set const &) {
-//         os << "Internal error getting error type:\n";
-//         PyErr_Print();
-//     }
-
-//     os << ": ";
-
-//     try {
-//         object v = extract<object>(e_val.get());
-//         std::string valuestr = extract<std::string>(v.attr("__str__")());
-//         os  << valuestr << std::flush;
-//     } catch (error_already_set const &) {
-//         os << "Internal error getting value type:\n";
-//         PyErr_Print();
-//     }
-
-//     if (tb) {
-//         try {
-//             object tb_list = import("traceback").attr("format_tb")(e_tb);
-//             object tb_str = str("").attr("join")(tb_list);
-//             std::string str = extract<std::string>(tb_str);
-
-//             os << "\nTraceback (recent call last):\n" << str;
-//         } catch (error_already_set const &) {
-//             os << "Internal error getting traceback:\n";
-//             PyErr_Print();
-//         }
-//     } else {
-//         os << std::endl;
-//     }
-//     Py_XDECREF(type);
-//     Py_XDECREF(val);
-//     Py_XDECREF(tb);
-//     return os.str();
-// }
-
 
 int Interp::init_python(setup_pointer settings)
 {
