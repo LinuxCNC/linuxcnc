@@ -129,7 +129,7 @@ at the next section name.
 
 The following sections are used by EMC:
 
- - [EMC] general information ( <<sub:[EMC]-section>>)
+ - [EMC] general information (<<sub:[EMC]-section>>)
  -  [DISPLAY] settings related to the graphical user interface (
    <<sub:[DISPLAY]-section>>)
  - [FILTER] settings input filter programs ([sub:[FILTER]-Section])

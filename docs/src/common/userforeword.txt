@@ -68,7 +68,7 @@ handbooks we describe the range of abilities currently available.
 As you begin your journey into using EMC2 we offer two cautionary
 notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
- -  Praphrasing the words of Doug Gwyn on UNIX: "emc2 was not designed to
+ -  Paraphrasing the words of Doug Gwyn on UNIX: "emc2 was not designed to
    stop its users from doing stupid things, as that would also stop them
    from doing clever things."
  -  Likewise the words of Steven King: "emc2 is user-friendly. It just
