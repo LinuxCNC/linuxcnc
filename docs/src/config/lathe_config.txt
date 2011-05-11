@@ -9,9 +9,12 @@ the .ini file in the RS274NGC section.
 
     RS274NGC_STARTUP_CODE = G18
 
+The above can be overwritten in a g code program so always set important things
+in the preamble of the g code file.
+
 === INI Settings
 
-The following .ini settings are needed for lathe mode in addition to
+The following .ini settings are needed for lathe mode in Axis in addition to
 or replacing normal settings in the .ini file.
 
     [DISPLAY]
