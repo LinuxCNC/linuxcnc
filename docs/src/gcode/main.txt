@@ -28,7 +28,7 @@ Unless stated otherwise, the explicit numbers can be real values. For
 example, `G10 L2` could equally well be written `G[2*5] L[1+1]`. If the
 value of parameter 100 were 2, `G10 L#100` would also mean the same.
 
-If `L-` is written in a prototype the `"-` " will often be referred to
+If `L-` is written in a prototype the `-`  will often be referred to
 as the "L number", and so on for any other
 letter.
 
@@ -101,11 +101,11 @@ It is an error if:
 |G4 | Dwell | <<sec:G4:-Dwell>>
 |G5.2, G5.3 | NURBs Block | <<sec:G5.2-G5.3-NURBs>>
 |G7, G8 | Diameter or Radius Mode | <<sec:G7-Diameter-Mode>>
-|G10 L1 | Set Tool Table Entry | <<sec:G10-L1-Set-Tool-Table>>
-|G10 L10 | Set Tool Table, Calculated, Workpiece | <<sec:G10-L10>>
-|G10 L11 | Set Tool Table, Calculated, Fixture | <<sec:G10-L11>>
-|G10 L2 | Coordinate System Origin Setting | <<sub:G10:-Set-Coordinate>>
-|G10 L20 | Coordinate System Origin Setting Calculated | <<sec:G10-L20>>
+|G10 L1 | Set Tool Table Entry | <<sec:G10-L1->>
+|G10 L10 | Set Tool Table, Calculated, Workpiece | <<sec:G10-L10->>
+|G10 L11 | Set Tool Table, Calculated, Fixture | <<sec:G10-L11->>
+|G10 L2 | Coordinate System Origin Setting | <<sub:G10-L2->>
+|G10 L20 | Coordinate System Origin Setting Calculated | <<sec:G10-L20->>
 |G17 - G19.1 | Plane Select | <<"sub:G17,-G18,-G19:">>
 |G20, G21 | Units of Measure | <<"sec:G20,-G21:-Length">>
 |G28 - G30.1 | Go to Predefined Position | <<"sub:G28,-G30:-Return">>
@@ -269,7 +269,7 @@ It is an error if:
 
 When the XY-plane is selected program:
 
-    `G2 or G3` `axes` `I- J-`
+    G2 or G3 axes I- J-
 
 The axis words are all optional except that at least one of X and Y
 must be used to program an arc of less than 360 degrees. I and J are
@@ -277,7 +277,7 @@ the offsets from the current location (in the X and Y directions,
 respectively) of the center of the circle. I and J are optional except
 that at least one of the two must be used. If only one is specified,
 the value of the other is taken as 0. If you include the Z word it will
-spiral.
+helix. 
 
 It is an error if:
 
@@ -285,7 +285,7 @@ It is an error if:
 
 When the XZ-plane is selected program:
 
-    `G2 or G3` `axes` `I- K-`
+    G2 or G3 axes I- K-
 
 The axis words are all optional except that at least one of X and Z
 must be used to program an arc of less than 360 degrees. I and K are
@@ -301,7 +301,7 @@ It is an error if:
 
 When the YZ-plane is selected program:
 
-    `G2 or G3` `axes` `J- K-` 
+    G2 or G3 axes J- K- 
 
 The axis words are all optional except that at least one of Y and Z
 must be used to program an arc of less than 360 degrees. J and K are
@@ -413,7 +413,7 @@ are even worse. Other size arcs (in the range tiny to 165 degrees or
 195 to 345 degrees) are OK.
 
 Here is an example of a radius format command to mill an arc: `G17 G2
-x 10 y 15 r 20 z 5.`
+X 10 Y 15 R 20 Z 5.`
 
 That means to make a clockwise (as viewed from the positive Z-axis)
 circular or helical arc whose axis is parallel to the Z-axis, ending
@@ -499,7 +499,7 @@ Radius mode the X axis moves on a lathe will be the distance from the
 center. Thus a cut at X1 would result in a part that is 2" in diameter.
 G8 is default at power up.
 
-== G10 L1 Set Tool Table (((G10 L1 Tool Table)))[[sec:G10-L1-Set-Tool-Table]]
+== G10 L1 Set Tool Table (((G10 L1 Tool Table)))[[sec:G10-L1-]]
 
     G10 L1 P[tool number] R[radius] 
         X[offset] Y[offset] Z[offset] 
@@ -517,7 +517,7 @@ It is an error if:
 For more information on tool orientation see figure (
 <<cap:Tool-Orientations>>)
 
-== G10 L2 Set Coordinate System (((G10 L2 Coordinate System)))[[sub:G10:-Set-Coordinate]]
+== G10 L2 Set Coordinate System (((G10 L2 Coordinate System)))[[sub:G10-L2-]]
 
     G10 L2 P[coordinate system] R[rotation about Z] 
         X[offset] Y[offset] Z[offset] 
@@ -564,7 +564,7 @@ Examples:
 
 G10 L2 P1 X 3.5 Y 17.2::
       sets the origin of the first coordinate system (the one selected by
-    `G54` ) to be X=3.5 and Y=17.2. Because only X and Y are specified, the
+    `G54`) to be X=3.5 and Y=17.2. Because only X and Y are specified, the
     origin point is only moved in X and Y; the other coordinates are not
     changed.
 
@@ -588,7 +588,7 @@ G10 L2 P1 X0 Y0 Z0::
 |9 | 9 | 59.3
 |========================================
 
-== G10 L10 Set Tool Table (((G10 L10 Set Tool Table)))[[sec:G10-L10]]
+== G10 L10 Set Tool Table (((G10 L10 Set Tool Table)))[[sec:G10-L10-]]
 
     G10 L10 P[tool number] R[radius]
         X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
@@ -606,7 +606,7 @@ It is an error if:
 
  - Cutter Compensation is on
 
-== G10 L11 Set Tool Table (((G10 L11 Set Tool Table)))[[sec:G10-L11]]
+== G10 L11 Set Tool Table (((G10 L11 Set Tool Table)))[[sec:G10-L11-]]
 
     G10 L11 P[tool number] R[radius]
         X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
@@ -628,7 +628,7 @@ It is an error if:
 
  - Cutter Compensation is on
 
-== G10 L20 Set Coordinate System (((G10 L20 Set Coordinate System)))[[sec:G10-L20]]
+== G10 L20 Set Coordinate System (((G10 L20 Set Coordinate System)))[[sec:G10-L20-]]
 
     G10 L20 P[coordinate system] R[rotation about Z] 
         X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
@@ -732,7 +732,7 @@ It is an error if:
 
  - All axis words are omitted.
  - The spindle is not turning when this command is executed
- -  The requested linear motion exceeds machine velocity limits due to the
+ - The requested linear motion exceeds machine velocity limits due to the
    spindle speed
 
 == G33.1 Rigid Tapping [[sec:G33.1-Rigid-Tapping]](((G33.1 Rigid Tapping)))
@@ -740,21 +740,20 @@ It is an error if:
     G33.1 X- Y- Z- K-
 
 For rigid tapping (spindle synchronized motion with return) code
-`G33.1 X- Y- Z- K-` where `K-`  gives the distance moved for each
+`G33.1 X- Y- Z- K-` where `K-` gives the distance moved for each
 revolution of the spindle. A rigid
 tapping move consists of the following sequence:
 
- -  A move to the specified coordinate, synchronized with the spindle at
+ - A move to the specified coordinate, synchronized with the spindle at
    the given ratio and starting with a spindle index pulse
- -  When reaching the endpoint, a command to reverse the spindle (e.g.,
+ - When reaching the endpoint, a command to reverse the spindle (e.g.,
    from clockwise to counterclockwise)
- -  Continued synchronized motion *beyond*  the specified end coordinate
-   until the spindle actually stops and
-   reverses
+ - Continued synchronized motion *beyond* the specified end coordinate
+   until the spindle actually stops and reverses
  - Continued synchronized motion back to the original coordinate
- -  When reaching the original coordinate, a command to reverse the
+ - When reaching the original coordinate, a command to reverse the
    spindle a second time (e.g., from counterclockwise to clockwise)
- -  Continued synchronized motion *beyond* the original coordinate until
+ - Continued synchronized motion *beyond* the original coordinate until
    the spindle actually stops and reverses
  - An *unsynchronized* move back to the original coordinate.
 
@@ -820,11 +819,10 @@ point. Parameter 5070 is set to 1 if the probe succeeded and 0 if the
 probe failed. If the probe failed, G38.2 and G38.4 will signal an
 error.
 
-A comment of the form `(PROBEOPEN` `filename.txt``)` will open
-'filename.txt'  and store the 9-number coordinate consisting of X, Y,
-Z, A, B, C, U,
-V, W of each successful straight probe in it. The file must be closed
-with `(PROBECLOSE)`.
+A comment of the form `(PROBEOPEN filename.txt)` will open
+'filename.txt' and store the 9-number coordinate consisting of X, Y,
+Z, A, B, C, U, V, W of each successful straight probe in it. 
+The file must be closed with `(PROBECLOSE)`.
 
 == G40 Compensation Off (((Compensation Off)))[[sec:G40]]
 
@@ -875,10 +873,10 @@ value of zero will be used.
 
 It is an error if:
 
- -  the D number is not an integer, is negative or is larger than the
+ - the D number is not an integer, is negative or is larger than the
    number of carousel slots, 
  - the YZ plane is active,
- -  or cutter radius compensation is commanded to turn on when it is
+ - or cutter radius compensation is commanded to turn on when it is
    already on.
 
 == G41.1, G42.1 Dynamic Cutter Radius Compensation (((Dynamic Cutter Radius Compensation)))[["sec:G41.1,-G42.1"]]
@@ -923,7 +921,7 @@ to be zero; an offset value of zero will be used.
 
 It is an error if:
 
- -  the H number is not an integer, is negative, or is larger than the
+ - the H number is not an integer, is negative, or is larger than the
    number of carousel slots.
 
 ==== G43.1: Dynamic tool compensation
@@ -996,11 +994,8 @@ systems.
 == G61, G61.1, G64 Set Path Control Mode (((G61, G61.1, G64 Path Control)))[["sub:G61,-G61.1,-G64:"]]
 
     G61 Exact Path Mode
-
     G61.1 Exact Stop Mode
-
     G64 Best Possible Speed
-
     G64 P- (motion blending tolerance) Q- (naive cam tolerance) 
 
 G61 visits the programmed point exactly, even though that means 
@@ -1030,16 +1025,16 @@ use the value of P-.
 
 == G73 Drilling Cycle with Chip Breaking (((G73 Drilling Cycle Chip Break)))[[sub:G73:-Drilling-Cycle]]
 
-    `G73 X- Y- Z- A- B- C- R- L- Q-`
+    G73 X- Y- Z- A- B- C- R- L- Q-
 
-The `G73`  cycle is intended for deep drilling or milling with chip
-breaking.
+The `G73` cycle is intended for deep drilling or milling with chip
+breaking. 
 The retracts in this cycle cut off any long stringers (which are common
 when drilling in aluminum). This cycle takes a Q number which
 represents a "delta" increment along the Z axis.
 
  . Preliminary motion, as described above. 
- .  Move the Z-axis only at the current feed rate downward by delta or to
+ . Move the Z-axis only at the current feed rate downward by delta or to
    the Z position, whichever is less deep. 
  . Rapid up a bit.
  . Repeat steps 2 and 3 until the Z position is reached at step 2.
@@ -1051,7 +1046,7 @@ It is an error if:
 
 == G76 Threading Cycle (((G76 Threading)))[[sec:G76:-Threading-Canned]]
 
-    `G76 P- Z- I- J- R- K- Q- H- E- L- `
+    G76 P- Z- I- J- R- K- Q- H- E- L-
 
 It is an error if:
 
@@ -1537,9 +1532,7 @@ program a G92.2 (to remove them - they are still stored).
 == G93, G94, G95: Set Feed Rate Mode (((G93, G94, G95: Feed Rate Mode)))[["sub:G93,-G94:-Set"]]
 
     G93 is Inverse Time Mode
-
     G94 is Units per Minute Mode
-
     G95 is Units per Revolution Mode.
 
 Three feed rate modes are recognized: units per minute, inverse time,
@@ -1575,8 +1568,7 @@ It is an error if:
 
 == G96, G97 Spindle Control Mode (((G96, G97 Spindle Control Mode)))[["sec:G96,-G97:-Spindle"]]
 
-     G96 D[max spindle speed] S[units per minute] is Constant Surface Speed
-    Mode
+    G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode
 
     G97 is RPM Mode
 
@@ -1789,17 +1781,13 @@ HAL section for more information.
 
  - The P- word specifies the digital output number.
 
-M62::
-    Turn on digital output synchronized with motion
+M62:: Turn on digital output synchronized with motion
 
-M63::
-    Turn off digital output synchronized with motion
+M63:: Turn off digital output synchronized with motion
 
-M64::
-    Turn on digital output immediately
+M64:: Turn on digital output immediately
 
-M65::
-    Turn off digital output immediately
+M65:: Turn off digital output immediately
 
 The M62 & M63 commands will be queued. Subsequent commands referring
 to the same output number will overwrite the older settings. More than
@@ -1832,24 +1820,14 @@ M66::
  - The P- word specifies the digital input number. 
  - The E- word specifies the analog input number. 
  - The L- word specifies the wait type:
-   0::
-        WAIT_MODE_IMMEDIATE - no waiting, returns immediately. The current
-       value of the input is stored in parameter #5399
-   
-   1::
-        WAIT_MODE_RISE - waits for the selected input to perform a rise
-   event.
-   
-   2::
-        WAIT_MODE_FALL - waits for the selected input to perform a fall
-   event.
-   
-   3::
-        WAIT_MODE_HIGH - waits for the selected input to go to the HIGH
-   state.
-   
-   4::
-       WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
+
+   0:: WAIT_MODE_IMMEDIATE - no waiting, returns immediately. 
+       The current value of the input is stored in parameter #5399
+   1:: WAIT_MODE_RISE - waits for the selected input to perform a rise event.
+   2:: WAIT_MODE_FALL - waits for the selected input to perform a fall event.
+   3:: WAIT_MODE_HIGH - waits for the selected input to go to the HIGH state.
+   4:: WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
+
  -  The Q-word specifies the timeout for the waiting. If the timeout is
    exceeded, the wait is interrupt, and the variable #5399 will be holding
    the value -1. The Q value is ignored if the L-word is zero (IMMEDIATE).
@@ -1889,7 +1867,7 @@ commands.
 
 == M100 to M199 User Defined Commands (((M100 to M199 User Defined Commands)))[[sec:M100-to-M199:]]
 
-To invoke a user-defined command, program M1nn P- Q- where P- and Q-
+To invoke a user-defined command, program `M1nn P- Q-` where `P-` and `Q-`
 are both optional and must be a number. The external program "M1nn"
 must be in the directory named in [DISPLAY]PROGRAM_PREFIX in the ini
 file and is executed with the P and Q values as its two arguments.
@@ -2034,8 +2012,6 @@ position.
     G0 X1 Y1 (diagonal move to next position)
     O103 endrepeat
     G90 (Absolute mode)
-    
-    
 
 == Indirection (((Indirection)))
 
@@ -2058,9 +2034,7 @@ the directory pointed to by PROGRAM_PREFIX. The file name can include
 lowercase letters, numbers, dash, and underscore only.
 
     o<myfile> call (a named file)
-
 or
-
     o123 call (a number file)
 
 In the called file you must include the oxxx sub and endsub and the
@@ -2149,10 +2123,10 @@ anything.
 
 == Messages (((G Code Messages)))[[sub:Messages]]
 
-A comment contains a message if `"MSG,` " appears after the left
+A comment contains a message if "`MSG, `" appears after the left
 parenthesis and before any other printing
- characters. Variants of `"MSG,` " which include white space and lower
-case characters are allowed. The
+ characters. Variants of "`MSG, `" which include white space and lower
+case characters are allowed. The 
 rest of the characters before the right parenthesis are considered to
 be a message. Messages should be displayed on the message display
 device. Comments not containing messages need not be displayed there.
@@ -2207,6 +2181,6 @@ console window) add a line to your gcode like...
 Inside the above types of comments, sequences like `#123` are replaced
 by the value of the parameter 123. Sequences like `#<named parameter>` 
 are replaced by the value of the named parameter. Remember that named
- parameters will have white space removed from them. So, `#<named
-parameter>` is the same as `#<namedparameter>`.
+ parameters will have white space removed from them. 
+So, `#<named parameter>` is the same as `#<namedparameter>`. 
 

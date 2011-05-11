@@ -1,8 +1,8 @@
 = MINI
 
-== Introduction  footnote:[Much of this chapter quotes from a chapater of the Sherline CNC operators manual. ]
+== Introduction  footnote:[Much of this chapter quotes from a chapter of the Sherline CNC Operators Manual. ]
 
-.[[fig:startmini]]The Mini Graphical Interface
+.[[fig:startmini]]The Mini Graphical Interface (upon starting)
 
 image::mini01.png[]
 
@@ -22,13 +22,13 @@ written for that mill by Joe Martin and Ray Henry.
 
 image::mini02.png[]
 
- The Mini screen is laid out in several sections. (See Figure
-<<fig:startmini>> ) These include a menu across the top, a set of main
-control buttons just below the menu and two rather large columns of
+The Mini screen is laid out in several sections. See Figure 
+(<<fig:startmini>>). These include a menu across the top, a set of main
+control buttons just below the menu, and two rather large columns of
 information that show the state of your machine and allow you to enter
 commands or programs.
 
-When you compare figure <<fig:startmini>> with figure  <<fig:runmini>>
+When you compare figure <<fig:startmini>> with figure <<fig:runmini>>
 you will see many differences. In the second figure
 
  - each axis has been homed -- the display numbers are dark green
@@ -193,68 +193,64 @@ through the available sizes.
 
 image::miniman.png[]
 
-[quote]
-________________________________________
- A button has been added to designate the present position as the home
-position. We felt that a machine of this type (Sherline 5400) would be
-simpler to operate if it didn't use a machine home position. This
-button will zero out any offsets and will home all axes right where
-they are.
+.From the Sherline CNC Operators Manual: 
+***********************************************************************
+A button has been added to designate the present position as the home
+position. We felt that a machine of this type (Sherline 5400) would 
+be simpler to operate if it didn't use a machine home position. 
+This button will zero out any offsets and will home all axes right 
+where they are.
 
+Axis focus is important here. Notice in figure (<<fig:startmini>>) 
+that in manual mode you see a line or 'groove' around the X axis to 
+highlight its position display. This groove says that X is the active 
+axis. It will be the target for jog moves made with the 'plus' and 
+'minus' jog buttons. You can change axis focus by clicking on any 
+other axis display. You can also change axis focus in manual mode if 
+you press its name key on your keyboard. Case is not important here. 
+[Y] or [y] will shift the focus to the Y axis. [A] or [a] will shift 
+the focus to the A axis. To help you remember which axis will jog 
+when you press the jog buttons, the active axis name is displayed on 
+them. 
 
- Axis focus is important here. Notice (in figure  <<fig:startmini>>)
-that in manual mode you see a line or 'groove'  around the X axis to
-highlight its position display. This groove says
-that X is the active axis. It will be the target for jog moves made
- with the 'plus' and 'minus'  jog buttons. You can change axis focus by
-clicking on any other axis
-display. You can also change axis focus in manual mode if you press its
-name key on your keyboard. Case is not important here. [Y] or [y] will
-shift the focus to the Y axis. [A] or [a] will shift the focus to the A
-axis. To help you remember which axis will jog when you press the jog
-buttons, the active axis name is displayed on them. 
+EMC can jog (move a particular axis) as long as you hold the button 
+down when it is set for 'continuous', or it can jog for a preset 
+distance when it is set for 'incremental'. You can also jog the 
+active axis by pressing the plus [+] or minus [-] keys on the 
+keyboard. Again, case is not important for keyboard jogs. The two 
+small buttons between the large jog buttons let you set which kind 
+of jog you want. When you are in incremental mode, the distance 
+buttons come alive. You can set a distance by pressing it with the 
+mouse. You can toggle between distances by pressing [i] or [I] on the 
+keyboard. Incremental jog has an interesting and often unexpected 
+effect. If you press the jog button while a jog is in progress, it 
+will add the distance to the position it was at when the second jog 
+command was issued. Two one-inch jog presses in close succession will 
+not get you two inches of movement. You have to wait until the first 
+one is complete before jogging again. 
 
-
- The EMC can jog (move a particular axis) as long as you hold the
-button down when it is set for 'continuous', or it can jog for a preset
-distance when it is set for 'incremental' . You can also jog the active
-axis by pressing the plus [+] or minus
-[-] keys on the keyboard. Again, case is not important for keyboard
-jogs. The two small buttons between the large jog buttons let you set
-which kind of jog you want. When you are in incremental mode, the
-distance buttons come alive. You can set a distance by pressing it with
-the mouse. You can toggle between distances by pressing [i] or [I] on
-the keyboard. Incremental jog has an interesting and often unexpected
-effect. If you press the jog button while a jog is in progress, it will
-add the distance to the position it was at when the second jog command
-was issued. Two one-inch jog presses in close succession will not get
-you two inches of movement. You have to wait until the first one is
-complete before jogging again. 
-
-
- Jog speed is displayed above the slider. It can be set using the
-slider by clicking in the slider's open slot on the side you want it to
-move toward, or by clicking on the [Default] or [Rapid] buttons. This
-setting only affects the jog move while in manual mode. Once a jog move
-is initiated, jog speed has no effect on the jog. As an example of
-this, say you set jog mode to 'incremental'  and the increment to 1
-inch. Once you press the [Jog] button it will
-travel that inch at the rate at which it started. 
-________________________________________
-
+Jog speed is displayed above the slider. It can be set using the 
+slider by clicking in the slider's open slot on the side you want it 
+to move toward, or by clicking on the [Default] or [Rapid] buttons. 
+This setting only affects the jog move while in manual mode. Once a 
+jog move is initiated, jog speed has no effect on the jog. As an 
+example of this, say you set jog mode to 'incremental' and the 
+increment to 1 inch. Once you press the [Jog] button it will travel 
+that inch at the rate at which it started. 
+***********************************************************************
 
 === AUTO (((Auto)))
 
-When the Auto button is pressed, or <F4> on the keyboard, the EMC is
-changed into that mode, a set of the traditional auto operation buttons
-is displayed, and a small text window opens to show a part program.
-During run the active line will be displayed as white lettering on a
-red background.
+When the Auto button is pressed, or <F4> on the keyboard, and EMC is 
+set to that mode, a set of the traditional auto operation buttons 
+is displayed, and a small text window opens to show a part program. 
+During run the active line will be displayed as white lettering on a 
+red background. 
 
-In the auto mode, many of the keyboard keys are bound to controls. For
-example the numbers above the querty keys are bound to feed rate
-override. The 0 sets 100%, 9 sets 90% and such. Other keys work much
-the same as they do with the tkemc graphical interface.
+In the auto mode, many of the keyboard keys are bound to controls. 
+For example, the numbers above the qwerty keys are bound to feed rate 
+override. The 0 sets 100%, 9 sets 90% and such. Other keys work much 
+the same as they do with the tkemc graphical interface. 
 
 .Auto Mode[[cap:Auto-Mode]]
 
@@ -264,48 +260,47 @@ Auto mode does not normally display the active or modal codes. If the
 operator wishes to check these, use menu Info -> Active_G-Codes. This
 will write all modal codes onto the message scratch pad.
 
-If abort or estop is pressed during a run a set of buttons displays to
-the right of the text that allows the operator to shift the restart
-line forward or backwards. If the restart line is not the last active
-line, it will be highlighted as white letters on a blue background.
-Caution, a very slow feed rate, and a finger poised over the pause
-button is advised during any program restart.
+If abort or estop is pressed during a run, a set of buttons will 
+display to the right of the text that allow the operator to shift the 
+restart line forward or backward. If the restart line is not the last 
+active line, it will be highlighted as white letters on a blue 
+background. Caution, a very slow feed rate, and a finger poised over 
+the pause button is advised during any program restart.
 
-[quote]
-________________________________________
- The real heart of CNC machine tool work is the auto mode. Sherline's
-auto mode displays the typical functions that people have come to
-expect from the EMC. Along the top are a set of buttons which control
-what is happening in auto mode. Below them is the window that shows the
-part of the program currently being executed. As the program runs, the
-active line shows in white letters on a red background. The first three
-buttons, [Open], [Run], and [Pause] do about what you'd expect. [Pause]
-will stop the run right where it is. The next button, [Resume], will
-restart motion. They are like feedhold if used this way. Once [Pause]
-is pressed and motion has stopped, [Step] will resume motion and
-continue it to the end of the current block. Press [Step] again to get
-the motion of the next block. Press [Resume] and the interpreter goes
-back to reading ahead and running the program. The combination of
-[Pause] and [Step] work a lot like single block mode on many
-controllers. The difference is that [Pause] does not let motion
-continue to the end of the current block. Feed rate Override ... can be
-very handy as you approach a first cut. Move in quickly at 100 percent,
-throttle back to 10% and toggle between [Feedhold] and 10% using the
-pause button. When you are satisfied that you've got it right, hit the
-zero to the right of nine and go. 
+.From the Sherline CNC Operators Manual: 
+***********************************************************************
+The real heart of CNC machine tool work is the auto mode. Sherline's 
+auto mode displays the typical functions that people have come to 
+expect from EMC. Along the top are a set of buttons which control 
+what is happening in auto mode. Below them is the window that shows 
+the part of the program currently being executed. As the program runs, 
+the active line shows in white letters on a red background. The first 
+three buttons, [Open], [Run], and [Pause] do about what you'd expect. 
+[Pause] will stop the run right where it is. The next button, [Resume], 
+will restart motion. They are like feedhold if used this way. Once 
+[Pause] is pressed and motion has stopped, [Step] will resume motion 
+and continue it to the end of the current block. Press [Step] again to 
+get the motion of the next block. Press [Resume] and the interpreter 
+goes back to reading ahead and running the program. The combination 
+of [Pause] and [Step] work a lot like single block mode on many 
+controllers. The difference is that [Pause] does not let motion 
+continue to the end of the current block. Feed rate Override ... can 
+be very handy as you approach a first cut. Move in quickly at 100 
+percent, throttle back to 10% and toggle between [Feedhold] and 10% 
+using the pause button. When you are satisfied that you've got it 
+right, hit the zero to the right of nine (feedrate=100%) and go. 
 
-
- The [Verify] button runs the interpreter through the code without
-initiating any motion. If Verify finds a problem it will stop the read
-near the problem block and put up some sort of message. Most of the
-time you will be able to figure out the problem with your program by
-reading the message and looking in the program window at the
-highlighted line. Some of the messages are not very helpful. Sometimes
-you will need to read a line or two ahead of the highlight to see the
-problem. Occasionally the message will refer to something well ahead of
-the highlight line. This often happens if you forget to end your
-program with an acceptable code like %, m2, m30, or m60. 
-________________________________________
+The [Verify] button runs the interpreter through the code without 
+initiating any motion. If Verify finds a problem it will stop the 
+read near the problem block and put up some sort of message. Most of 
+the time you will be able to figure out the problem with your program 
+by reading the message and looking in the program window at the 
+highlighted line. Some of the messages are not very helpful. 
+Sometimes you will need to read a line or two ahead of the highlight 
+to see the problem. Occasionally the message will refer to something 
+well ahead of the highlight line. This often happens if you forget 
+to end your program with an acceptable code like %, m2, m30, or m60. 
+***********************************************************************
 
 
 === MDI (((MDI)))
@@ -314,27 +309,26 @@ The MDI button or <F5> sets the Manual Data Input mode. This mode
 displays a single line of text for block entry and shows the currently
 active modal codes for the interpreter.
 
-[quote]
-________________________________________
- MDI mode allows you to enter single blocks and have the interpreter
-execute them as if they were part of a program (kind of like a one-line
-program). You can execute circles, arcs, lines and such. You can even
-test sets of program lines by entering one block, waiting for that
-motion to end, and then enter the next block. Below the entry window,
-there is a listing of all of the current modal codes. This listing can
-be very handy. I often forget to enter a g00 before I command a motion.
-If nothing happens I look down there to see if g80 is in effect. G80
-stops any motion. If it's there I remember to issue a block like g00 x0
-y0 z0. In MDI you are entering text from the keyboard so none of the
-main keys work for commands to the running machine. [F1] will Estop the
+.From the Sherline CNC Operators Manual: 
+***********************************************************************
+MDI mode allows you to enter single blocks and have the interpreter 
+execute them as if they were part of a program (kind of like a one-line 
+program). You can execute circles, arcs, lines and such. You can even 
+test sets of program lines by entering one block, waiting for that 
+motion to end, and then enter the next block. Below the entry window, 
+there is a listing of all of the current modal codes. This listing can 
+be very handy. I often forget to enter a g00 before I command a motion. 
+If nothing happens I look down there to see if g80 is in effect. G80 
+stops any motion. If it's there I remember to issue a block like g00 x0 
+y0 z0. In MDI you are entering text from the keyboard so none of the 
+main keys work for commands to the running machine. [F1] will Estop the 
 control. 
-________________________________________
-
+***********************************************************************
 
 Since many of the keyboard keys are needed for entry, most of the
 bindings that were available in auto mode are not available here.
 
-=== [FEEDHOLD] -- [CONTINUE]
+=== [FEEDHOLD] -- [CONTINUE](((feedhold)))(((continue)))
 
 Feedhold is a toggle. When the EMC is ready to handle or is handling a
 motion command this button shows the feedhold label on a red
@@ -345,7 +339,7 @@ toggle between zero speed and whatever feed rate override was active
 before it was pressed. This button and the function that it activates
 is also bound to the pause button on most keyboards.
 
-=== [ABORT]
+=== [ABORT](((abort)))
 
 The abort button stops any motion when it is pressed. It also removes
 the motion command from the EMC. No further motions are cued up after
@@ -380,22 +374,22 @@ returns to the standard settings that it wakes up on. If you have an
 external estop circuit that watches the relevant parallel port or DIO
 pin, a software estop can turn off power to the motors.
 
-[quote]
-________________________________________
- Most of the time, when we abort or E-Stop it's because something went
+.From the Sherline CNC Operators Manual: 
+***********************************************************************
+Most of the time, when we abort or E-Stop it's because something went
 wrong. Perhaps we broke a tool and want to change it. We switch to
 manual mode and raise the spindle, change tools, and assuming that we
 got the length the same, get ready to go on. If we return the tool to
-the same place where the abort was issued, the EMC will work perfectly.
+the same place where the abort was issued, EMC will work perfectly.
 It is possible to move the restart line back or ahead of where the
 abort happened. If you press the [Back] or [Ahead] buttons you will see
 a blue highlight that shows the relationship between the abort line and
-the one on which the EMC will start up again. By thinking through what
+the one on which EMC will start up again. By thinking through what
 is happening at the time of the restart you can place the tool tip
 where it will resume work in an acceptable manner. You will need to
-think through things like tool offsets barriers to motion along a
-diagonal line and such before you press the [Restart] button. 
-________________________________________
+think through things like tool offsets, barriers to motion along a
+diagonal line, and such, before you press the [Restart] button. 
+***********************************************************************
 
 
 == Left Column
@@ -435,10 +429,10 @@ rate.
 === Messages 
 
 The message display located under the axis positions is a sort of
-scratch pad for the EMC. If there are problems it will report them
+scratch pad for EMC. If there are problems it will report them
 there. If you try to home or move an axis when the [ESTOP] button is
 pressed, you'll get a message that says something about commanding
-motion when the EMC is not ready. If an axis faults out for something
+motion when EMC is not ready. If an axis faults out for something
 like falling behind, the message pad will show what happened. If you
 want to remind an operator to change a tool, for example, you can add a
 line of code to your program that will display in the message box. An
@@ -450,7 +444,7 @@ wouldn't be displayed. It will still show in the auto
 modes' display of the program file.
 
 To erase messages simply click the message button at the top of the
-pad or on the keyboard hold down the [Alt] key and press the [m] key.
+pad or, on the keyboard, hold down the [Alt] key and press the [m] key.
 
 == Right Column
 
@@ -468,16 +462,16 @@ described in detail below.
 image::miniedit.png[]
 
 The editor is rather limited compared to many modern text editors. It
-does not have 'undo' nor 'paste'  between windows with the
-clipboard.These were eliminated because of
-interaction with a running program. Future releases will replace these
-functions so that it will work the way you've come to expect from a
-text editor. It is included because it has the rather nice feature of
-being able to number and renumber lines in the way that the interpreter
-expects of a file. It will also allow you to cut and paste from one
-part of a file to another. In addition, it will allow you to save your
-changes and submit them to the EMC interpreter with the same menu
-click. You can work on a file in here for a while and then save and
+does not have 'undo' nor 'paste' between windows with the clipboard. 
+These were eliminated because of interaction with a running program. 
+Future releases will replace these functions so that it will work the 
+way you've come to expect from a text editor. It is included because 
+it has the rather nice feature of being able to number and renumber 
+lines in the way that the interpreter expects of a file. 
+It will also allow you to cut and paste from one part of a file to 
+another. In addition, it will allow you to save your changes and 
+submit them to the EMC interpreter with the same menu click. 
+You can work on a file in here for a while and then save and 
 load if the EMC is in Auto mode. If you have been running a file and
 find that you need to edit it, that file will be placed in the editor
 when you click on the editor button on the top menu.
@@ -488,7 +482,7 @@ when you click on the editor button on the top menu.
 
 image::minibkplot.png[]
 
- Backplot [Backplot] will show the tool path that can be viewed from a
+Backplot [Backplot] will show the tool path that can be viewed from a
 chosen direction. '3-D' is the default. Other choices and controls are
 displayed along the top and right side of the pop-in. If you are in the
 middle of a cut when you press one of these control buttons the machine
@@ -539,11 +533,12 @@ The offset page can be used to display and setup work offsets. The
 coordinate system is selected along the left hand side of the window.
 Once you have selected a coordinate system you can enter values or move
 an axis to a teach position. 
+
 .Mini Offset Display[[cap:Mini-Offset-Display]]
 
 image::minioffsets.png[]
 
- You can also teach using an edgefinder by adding the radius and length
+You can also teach using an edgefinder by adding the radius and length
 to the offset_by widgets. When you do this you may need to add or
 subtract the radius depending upon which surface you choose to touch
 from. This is selected with the add or subtract radiobuttons below the

@@ -12,7 +12,7 @@ outdated and has never been reviewed for accuracy.
 
 There will be a chapter for each of the major components of EMC2, as
 well as chapter(s) covering how they work together. This document is
-very much a work in progress, and it's layout may change in the future.
+very much a work in progress, and its layout may change in the future.
 
 = Overview of EMC2
 
@@ -185,7 +185,7 @@ None. The command is alway accepted and acted on immediately.
 ==== Results
 
 In free mode, the free mode trajectory planners are disabled. That
-results in each joint stopping as fast as it's accel (decel) limit
+results in each joint stopping as fast as its accel (decel) limit
 allows. The stop is not coordinated. In teleop mode, the commanded
 Cartesian velocity is set to zero. I don't know exactly what kind of
 stop results (coordinated, uncoordinated, etc), but will figure it out
@@ -198,7 +198,7 @@ but will document it when I figure it out.
 The FREE command puts the motion controller in free mode. Free mode
 means that each joint is independent of all the other joints. Cartesian
 coordinates, poses, and kinematics are ignored when in free mode. In
-essence, each joint has it's own simple trajectory planner, and each
+essence, each joint has its own simple trajectory planner, and each
 joint completely ignores the other joints. Some commands (like JOG)
 only work in free mode. Other commands, including anything that deals
 with Cartesian coordinates, do not work at all in free mode.
@@ -536,7 +536,7 @@ The command handler will reject the JOG_CONT command with an error
 message if machine is not in free mode, or if any joint is in motion
 (GET_MOTION_INPOS_FLAG() == FALSE), or if motion is not enabled. It
 will also silently ignore the command if the joint is already at or
-beyond it's limit and the commanded jog would make it worse.
+beyond its limit and the commanded jog would make it worse.
 
 ==== Results
 
@@ -564,7 +564,7 @@ The command handler will silently reject the JOG_INCR command if
 machine is not in free mode, or if any joint is in motion
 (GET_MOTION_INPOS_FLAG() == FALSE), or if motion is not enabled. It
 will also silently ignore the command if the joint is already at or
-beyond it's limit and the commanded jog would make it worse.
+beyond its limit and the commanded jog would make it worse.
 
 ==== Results
 
@@ -594,7 +594,7 @@ The command handler will silently reject the JOG_ABS command if
 machine is not in free mode, or if any joint is in motion
 (GET_MOTION_INPOS_FLAG() == FALSE), or if motion is not enabled. It
 will also silently ignore the command if the joint is already at or
-beyond it's limit and the commanded jog would make it worse.
+beyond its limit and the commanded jog would make it worse.
 
 ==== Results
 
@@ -635,7 +635,7 @@ along a specific vector in Cartesian space.
 === PROBE
 
 The PROBE command instructs the motion controller to move toward a
-specific point in Carte Sean space, stopping and recording it's
+specific point in Cartesean space, stopping and recording its
 position if the probe input is triggered.
 
 (More later)
@@ -792,11 +792,11 @@ configs]
 
  - B identifies this line as a Buffer configuration.
  - name is the identifier of the buffer.
- -  type describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or
+ - type describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or
    GLOBMEM.
  - host is either an IP address or host name for the NML server
  - size is the size of the buffer
- -  neut a boolean to indicate if the data in the buffer is encoded in a
+ - neut a boolean to indicate if the data in the buffer is encoded in a
    machine independent format, or raw.
  - RPC# Obsolete - Place holder retained for backward compatibility only.
  - buffer# A unique ID number used if a server controls multiple buffers.
@@ -810,49 +810,43 @@ host operating system precludes certain combinations. In an attempt to
 distill published documentation in to a coherent format, only the SHMEM
 buffer type will be covered.
 
- -  mutex=os_sem - default mode for providing semaphore locking of the
+ - mutex=os_sem - default mode for providing semaphore locking of the
    buffer memory.
  - mutex=none - Not used
  - mutex=no_interrupts - not applicable on a Linux system
  - mutex=no_switching - not applicable on a Linux system
- -  mutex=mao split - Splits the buffer in to half (or more) and allows
+ - mutex=mao split - Splits the buffer in to half (or more) and allows
    one process to access part of the buffer whilst a second process is
    writing to another part.
  - TCP=(port number) - Specifies which network port to use.
  - UDP=(port number) - ditto
  - STCP=(port number) - ditto
  - serialPortDevName=(serial port) - Undocumented.
- -  passwd=file_name.pwd - Adds a layer of security to the buffer by
+ - passwd=file_name.pwd - Adds a layer of security to the buffer by
    requiring each process to provide a password.
- -  bsem - NIST documentation implies a key for a blocking semaphore, and
-   if bsem=-1, blocking reads are prevented.
+ - bsem - NIST documentation implies a key for a blocking semaphore, 
+   and if bsem=-1, blocking reads are prevented.
  - queue - Enables queued message passing.
  - ascii - Encode messages in a plain text format
  - disp - Encode messages in a format suitable for display (???)
- -  xdr - Encode messages in External Data Representation. (see rpc/xdr.h
-   for details).
- -  diag - Enables diagnostics stored in the buffer (timings and byte
-   counts ?)
+ - xdr - Encode messages in External Data Representation. (see rpc/xdr.h for details).
+ - diag - Enables diagnostics stored in the buffer (timings and byte counts ?)
 
 === Process line 
 
 The original NIST format of the process line is:
 
-P name buffer type host ops server timeout master c_num [type specific
-configs]
+P name buffer type host ops server timeout master c_num [type specific configs]
 
  - P identifies this line as a Process configuration.
  - name is the identifier of the process.
  - buffer is one of the buffers defined elsewhere in the config file.
- -  type defines whether this process is local or remote relative to the
-   buffer.
+ - type defines whether this process is local or remote relative to the buffer.
  - host specifies where on the network this process is running.
- -  ops gives the process read only, write only, or read/write access to
-   the buffer.
+ - ops gives the process read only, write only, or read/write access to the buffer.
  - server specifies if this process will running a server for this buffer.
  - timeout sets the timeout characteristics for accesses to the buffer.
- -  master indicates if this process is responsible for creating and
-   destroying the buffer.
+ - master indicates if this process is responsible for creating and destroying the buffer.
  - c_num an integer between zero and (max_procs -1)
 
 === Configuration Comments

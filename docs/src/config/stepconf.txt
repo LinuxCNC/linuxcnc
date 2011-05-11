@@ -19,7 +19,7 @@ the buttons on the bottom of the pages.
 [float]
 Step by Step Instructions
 =========================
-unfloat::[]
+
 
 == Entry Page [[sec:Entry-Page]]
 

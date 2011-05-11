@@ -29,8 +29,8 @@ motion controller to control wheel jogging:
 	for each axis N.
 
  - In addition to being connected to `touchy.wheel-counts`, the wheel counts 
-	should also be connected to `axis.N.jog-counts` for
-	each axis N.  If you use ilowpass to smooth wheel jogging, be
+	should also be connected to `axis.N.jog-counts` for 
+	each axis N.  If you use HAL component `ilowpass` to smooth wheel jogging, be
 	sure to smooth only `axis.N.jog-counts` and not `touchy.wheel-counts`.
 
 
@@ -61,8 +61,8 @@ motion controller to control wheel jogging:
 
 == Setup
 
-To use Touchy in the `[DISPLAY]` section of your ini file change the
-`DISPLAY = touchy`
+To use Touchy, in the `[DISPLAY]` section of your ini file change the
+display selector line to `DISPLAY = touchy`
 
 When you start Touchy the first time, check the Preferences tab.
 If using a touchscreen, choose the option to hide the pointer for

@@ -62,7 +62,7 @@ details which are at the very edges of the images will not be cut off.
 
 === Tolerance (units)
 
-When a series of points are within *tolerance*  of being a straight
+When a series of points are within *tolerance* of being a straight
 line, they are output as a straight line.
 Increasing tolerance can lead to better contouring performance in emc,
 but can also remove or blur small details in the image.
@@ -76,15 +76,15 @@ object from a 400x400 image file, use a pixel size of .00625, because
 
 === Plunge Feed Rate (units per minute)
 
-The feed rate for the initial plunge movement
+The feed rate for the initial plunge movement. 
 
 === Feed Rate (units per minute)
 
-The feed rate for other parts of the path
+The feed rate for other parts of the path. 
 
 === Spindle Speed (RPM)
 
-.
+The spindle speed S code that should be put into the gcode file. 
 
 === Scan Pattern
 
@@ -99,11 +99,11 @@ Possible scan patterns are:
 
 Possible scan directions are:
 
- -  Positive: Start milling at a low X or Y axis value, and move towards a
+ - Positive: Start milling at a low X or Y axis value, and move towards a
    high X or Y axis value
- -  Negative: Start milling at a high X or Y axis value, and move towards
+ - Negative: Start milling at a high X or Y axis value, and move towards
    a low X or Y axis value
- -  Alternating: Start on the same end of the X or Y axis travel that the
+ - Alternating: Start on the same end of the X or Y axis travel that the
    last move ended on. This reduces the amount of traverse movements
  - Up Milling: Start milling at low points, moving towards high points
  - Down Milling: Start milling at high points, moving towards low points
@@ -146,16 +146,16 @@ column are skipped. This option only makes sense when both rows and
 columns are being milled. Possible bounding options are:
 
  - None: Rows and columns are both fully milled.
- -  Secondary: When milling in the second direction, areas that do not
+ - Secondary: When milling in the second direction, areas that do not
    strongly slope in that direction are skipped.
- -  Full: When milling in the first direction, areas that strongly slope
+ - Full: When milling in the first direction, areas that strongly slope
    in the second direction are skipped. When milling in the second
    direction, areas that do not strongly slope in that direction are
    skipped.
 
 === Contact angle
 
-When *Lace bounding* is not None, slopes greater than *Contact angle* 
+When *Lace bounding* is not `None`, slopes greater than *Contact angle* 
 are considered to be “strong” slopes, and slopes less than that angle
 are considered to be weak slopes.
 

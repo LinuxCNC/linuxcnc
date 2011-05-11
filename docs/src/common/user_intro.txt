@@ -1,6 +1,9 @@
 = EMC2
 
-*The Enhanced Machine Control*
+[float]
+The Enhanced Machine Control
+============================
+
 
 == This Manual
 
@@ -32,7 +35,7 @@ what a typical 3-axis EMC2 system might look like. This diagram shows a
 stepper motor system. The PC, running Linux(((Linux))) as its operating
 system, is actually controlling the stepper motor drives by sending
 signals through the printer port. These signals (pulses) make the
-stepper drives move the stepper motors. The EMC2 can also run servo
+stepper drives move the stepper motors. The EMC2 system can also run servo
 motors via servo interface cards or by using an extended parallel port
 to connect with external control boards. As we examine each of the
 components that make up an EMC2 system we will remind the reader of
@@ -44,20 +47,20 @@ A user interface is the part of the EMC2 that the machine tool
 operator interacts with. The EMC2 comes with several types of user
 interfaces:
 
- -  AXIS an OpenGL-based GUI (Graphical User Interface), with an
+ - *AXIS*, an OpenGL-based GUI (Graphical User Interface), with an
    interactive G-Code previewer. This interface is one of the few that are
    still under active development and improvement. 
 
 image:images/axis_2.3.png[]
 
- -  Keystick a character-based screen graphics program suitable for
+ -  *Keystick*, a character-based screen graphics program suitable for
    minimal installations (without the X server running).
- - Xemc an X Windows program
- - two Tcl/Tk-based GUIs named TkEMC and Mini 
- -  a HAL based user interface called halui, which allows to control emc2
+ - *Xemc*, an X Windows program
+ - two Tcl/Tk-based GUIs named *TkEMC* and *Mini* 
+ -  a HAL based user interface called *halui*, which allows to control emc2
    using knobs and switches
- -  a telnet based user interface called emcrsh, which allows commands to
-   be sent to emc2 from remote computers
+ -  a telnet based user interface called *emcrsh*, which allows commands to
+   be sent to EMC2 from remote computers
 
 == Languages
 
@@ -82,17 +85,17 @@ yourself in the position of operator. You need to think of yourself in
 the role of the one in charge of a machine. It is a machine that is
 either waiting for your command or executing the command that you have
 just given it. Throughout these pages we will give information that
-will help you become a good operator of the EMC2 mill. You will need
+will help you become a good operator of the EMC2 system. You will need
 some information right up front here so that the following pages will
 make sense to you.
 
 == Modes of Operation [[sub:Modes-of-Operation]]
 
 When an EMC2 is running, there are three different major modes used
-for inputting commands. These are Manual(((Manual))), Auto(((Auto))),
-and MDI(((MDI))). Changing from one mode to another makes a big
-difference in the way that the EMC2 behaves. There are specific things
-that can be done in one mode that can not be done in another. An
+for inputting commands. These are *Manual*(((Manual))), *Auto*(((Auto))),
+and *MDI*(((MDI))). Changing from one mode to another makes a big
+difference in the way that the EMC2 control behaves. There are specific things
+that can be done in one mode that cannot be done in another. An
 operator can home an axis in manual mode but not in auto or MDI modes.
 An operator can cause the machine to execute a whole file full of
 G-codes in the auto mode but not in manual or MDI.

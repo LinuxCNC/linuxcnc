@@ -9,10 +9,10 @@ A typical line of code consists of an optional line number at the
 beginning followed by one or more "words". A word consists of a letter
 followed by a number (or something that evaluates to a number). A word
 may either give a command or provide an argument to a command. For
-example, "`G1 X3`" is a valid line of code with two words. "`G1` " is a
+example, "`G1 X3`" is a valid line of code with two words. "`G1`" is a
 command meaning "move in a straight line at the programmed feed
- rate to the programmed end point", and "`X3` " provides an argument
-value (the value of X should be 3 at the end of
+ rate to the programmed end point", and "`X3`" provides an argument
+value (the value of X should be 3 at the end of 
 the move). Most EMC2 G Code commands start with either G or M (for
 General and Miscellaneous). The words for these commands are called "G
 codes" and "M codes."
@@ -24,13 +24,13 @@ may demarcated with percents in the following way. The first non-blank
 line of a file may contain nothing but a percent sign, "%", possibly
 surrounded by white space, and later in the file (normally at the end
 of the file) there may be a similar line. Demarcating a file with
-percents is optional if the file has an `M2` or `M30`  in it, but is
+percents is optional if the file has an `M2` or `M30` in it, but is
 required if not. An error will be signalled if a file
 has a percent line at the beginning but not at the end. The useful
 contents of a file demarcated by percents stop after the second percent
 line. Anything after that is ignored.
 
-The EMC2 G Code language has two commands (`M2` or `M30` ), either of
+The EMC2 G Code language has two commands (`M2` or `M30`), either of
 which ends a program. A program may end before the end of
 a file. Lines of a file that occur after the end of a program are not
 to be executed. The interpreter does not even read them.
@@ -90,13 +90,13 @@ not have the corresponding axis.
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:Modal-Groups>>)
+|G | General function (See table <<cap:Modal-Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 |K | Z offset for arcs and G87 canned cycles.
 | | Spindle-Motion Ratio for G33 synchronized movements.
-|M | Miscellaneous function (See table  <<cap:Modal-Groups>>)
+|M | Miscellaneous function (See table <<cap:Modal-Groups>>)
 |N | Line number
 |P | Dwell time in canned cycles and with G4.
 | | Key used with G10.
@@ -145,46 +145,45 @@ it is within 0.0001 of an integer.
 
 == Numbered Parameters [[sub:Numbered-Parameters]]
 
-A numbered parameter is the pound character `#`  followed by an
+A numbered parameter is the pound character `#` followed by an
 integer between 1 and 5399. The parameter is referred
 to by this integer, and its value is whatever number is stored in the
 parameter.
 
 A value is stored in a parameter with the = operator; for example "`#3
-= 15` " means "set parameter 3 to 15." A parameter setting does not
+= 15`" means "set parameter 3 to 15." A parameter setting does not
 take
 effect until after all parameter values on the same line have been
 found. For example, if parameter 3 has been previously set to 15 and
- the line "`#3=6 G1 x#3` " is interpreted, a straight move to a point
-where x equals 15 will
+ the line "`#3=6 G1 X#3`" is interpreted, a straight move to a point
+where X equals 15 will
 occur and the value of parameter 3 will be 6.
 
 The `#`  character takes precedence over other operations, so that, for
- example, "`#1+2` " means the number found by adding 2 to the value of
-parameter 1, not
+ example, "`#1+2`" means the number found by adding 2 to the value of
+parameter 1, not 
  the value found in parameter 3. Of course, `#[1+2]` does mean the
 value found in parameter 3. The `#` character may be repeated; for
 example `##2`  means the value of the parameter whose index is the
-(integer) value
-of parameter 2.
+(integer) value of parameter 2.
 
-The interpreter maintains a number of readonly parameters for a loaded
+The interpreter maintains a number of read-only parameters for a loaded
 tool:
 
- - #5400 tool number 
- - #5401 tool x offset 
- - #5402 tool y offset 
- - #5403 tool z offset 
- - #5404 tool a offset 
- - #5405 tool b offset 
- - #5406 tool c offset 
- - #5407 tool u offset 
- - #5408 tool v offset 
- - #5409 tool w offset 
- - #5410 tool diameter 
- - #5411 tool frontangle 
- - #5412 tool backangle 
- - #5413 tool orientation
+ - #5400 Tool number 
+ - #5401 Tool X offset 
+ - #5402 Tool Y offset 
+ - #5403 Tool Z offset 
+ - #5404 Tool A offset 
+ - #5405 Tool B offset 
+ - #5406 Tool C offset 
+ - #5407 Tool U offset 
+ - #5408 Tool V offset 
+ - #5409 Tool W offset 
+ - #5410 Tool Diameter 
+ - #5411 Tool Frontangle 
+ - #5412 Tool Backangle 
+ - #5413 Tool Orientation
 
 == Named Parameters [[sub:Named-Parameters]]
 
@@ -193,14 +192,14 @@ All parameter names are converted to lower case and have spaces and
 tabs removed. Named parameters must be enclosed with `< >` marks.
 
 `#<named parameter here>`  is a local named parameter. By default, a
-named parameter is local to
+named parameter is local to 
 the scope in which it is assigned. You can't access a local parameter
 outside of its subroutine - this is so that two subroutines can use the
 same parameter names without fear of one subroutine overwriting the
 values in another.
 
 `#<_global named parameter here>`  is a global named parameter. They
-are accessible from within called
+are accessible from within called 
 subroutines and may set values within subroutines that are accessible
 to the caller. As far as scope is concerned, they act just like regular
 numeric parameters. They are not stored in files.
@@ -209,18 +208,15 @@ Examples:
 
  - Declaration of named global variable
 
-    `#<_endmill_dia> = 0.049` 
+    #<_endmill_dia> = 0.049 
 
  - Reference to previously declared global variable
 
-    `#<_endmill_rad> = [#<_endmill_dia>/2.0]` 
+    #<_endmill_rad> = [#<_endmill_dia>/2.0] 
 
  - Mixed literal and named parameters
 
-    ` o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>]
-    [#<_feedrate>]`
-
-
+    o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
 
 Notes:
 
@@ -228,7 +224,7 @@ The global parameters _a, _b, _c, ... _z have been reserved for
 special use. In the future, they may provide access to the last Aword,
 Bword, Cword, etc.
 
-== System Parameters [[sec:System-Parameters]]
+=== System Parameters [[sec:System-Parameters]]
 
 Two global read only named parameters are available to check which
 version is running from G Code.
@@ -256,8 +252,8 @@ mathematical operations: addition (`+`), subtraction (`-`),
 multiplication (`*`), and division (`/`). There are three logical
 operations: non-exclusive or (`OR`), exclusive or (`XOR`), and logical
 and (`AND`). The eighth operation is the modulus operation (`MOD`). The
-ninth operation is the "power" operation (`**` ) of raising the number
-on the left of the operation to the power on
+ninth operation is the "power" operation (`**`) of raising the number
+on the left of the operation to the power on 
  the right. The relational operators are equality (`EQ`), inequality
 (`NE`), strictly greater than (`GT`), greater than or equal to (`GE`),
 strictly less than (`LT`), and less than or equal to (`LE`).
@@ -265,7 +261,7 @@ strictly less than (`LT`), and less than or equal to (`LE`).
 The binary operations are divided into several groups according to
 their precedence. (see table  <<cap:Operator-Precedence>>) If
 operations in different precedence groups are strung together (for
-example in the expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]` ), operations
+example in the expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]`), operations
 in a higher group are to be performed before operations
 in a lower group. If an expression contains more than one operation
  from the same group (such as the first `/` and `*`  in the example),
@@ -347,7 +343,7 @@ For all other legal letters, a line may have only one word beginning
 with that letter.
 
 If a parameter setting of the same parameter is repeated on a line,
-"`#3=15 #3=6` ", for example, only the last setting will take effect.
+"`#3=15 #3=6`", for example, only the last setting will take effect.
 It is silly,
 but not illegal, to set the same parameter twice on the same line.
 
@@ -380,7 +376,7 @@ is reordered, only the last comment will be used.
 If each group is kept in order or reordered without changing the
 meaning of the line, then the three groups may be interleaved in any
 way without changing the meaning of the line. For example, the line
-"`g40 g1 #3=15 (foo) #4=-7.0` " has five items and means exactly the
+"`g40 g1 #3=15 (foo) #4=-7.0`" has five items and means exactly the
 same thing in any of the 120
  possible orders (such as "`#4=-7.0 g1 #3=15 g40 (foo)`") for the five
 items.
@@ -416,7 +412,7 @@ being in effect. The modal groups are shown in Table
 [width="90%", cols="1,2", options="header"]
 |========================================
 |Modal Group Meaning | Member Words
-|Motion | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+|Motion ("Group 1")| G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
 | | G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection | G17.x, G18.x, G19.x
 |Distance Mode | G90, G91
@@ -436,7 +432,7 @@ being in effect. The modal groups are shown in Table
 |Coolant | (M7 M8 can both be on), M9
 |Override Switches | M48, M49
 |Flow Control | O-
-|Non-modal codes | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M1xx
+|Non-modal codes ("Group 0") | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M100-M199
 |========================================
 
 For several modal groups, when a machining center is ready to accept

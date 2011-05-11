@@ -26,7 +26,7 @@ include::common/user_intro.txt[]
 include::common/User_Concepts.txt[]
 
 :leveloffset: 0
-= Interfaces
+= User Interfaces
 :leveloffset: 1
 
 include::gui/axis.txt[]
@@ -75,8 +75,10 @@ include::common/Stepper_Diagnostics.txt[]
 = Appendices
 :leveloffset: 1
 
-= Index
-
 include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
+
+= Index
+
+

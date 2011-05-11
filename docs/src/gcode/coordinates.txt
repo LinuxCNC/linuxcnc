@@ -50,17 +50,14 @@ the INI file during the startup of an EMC. In our example below we'll
 use (((G55)))G55. The values for each axis for G55 are stored as
 variable numbers.
 
-    5241    0.000000
-
-    5242    0.000000
-
-    5243    0.000000
-
-    5244    0.000000
-
-    5245    0.000000
-
-    5246    0.000000
+-------------------
+5241  0.000000
+5242  0.000000
+5243  0.000000
+5244  0.000000
+5245  0.000000
+5246  0.000000
+-------------------
 
 In the VAR file scheme, the first variable number stores the X offset,
 the second the Y offset and so on for all six axes. There are numbered
@@ -75,17 +72,14 @@ this is not the recommended way. G10, G92, G28.1, etc are better ways
 to affect variables. For our example let's directly edit the file so
 that G55 takes on the following values.
 
-    5241    2.000000
-
-    5242    1.000000
-
-    5243   -2.000000
-
-    5244    0.000000
-
-    5245    0.000000
-
-    5246    0.000000
+-------------------
+5241  2.000000
+5242  1.000000
+5243 -2.000000
+5244  0.000000
+5245  0.000000
+5246  0.000000
+-------------------
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero
@@ -101,23 +95,17 @@ reference for each of the locations and all of the work to be done
 there. The following code is offered as an example of making a square
 using the G55 offsets that we set above.
 
-    G55 G0 x0 y0 z0
-
-    g1 f2 z-0.2000
-
-    x1
-
-    y1
-
-    x0
-
-    y0
-
-    g0 z0
-
-    g54 x0 y0 z0
-
-    m2
+-------------------
+G55 G0 x0 y0 z0
+g1 f2 z-0.2000
+x1
+y1
+x0
+y0
+g0 z0
+g54 x0 y0 z0
+m2
+-------------------
 
 "But," you say, "why is there a G54 in there near the end." Many
 programmers leave the G54 coordinate system with all zero values so
@@ -127,25 +115,19 @@ ending command as a command to machine zero. It would have been
 possible to use g53 and arrive at the same place but that command would
 not have been modal and any commands issued after it would have
 returned to using the G55 offsets because that coordinate system would
-still be in effect.
+still be in effect. 
 
-    (((G54)))G54     use preset work coordinate system 1
-
-    (((G55)))G55     use preset work coordinate system 2
-
-    (((G56)))G56     use preset work coordinate system 3
-
-    (((G57)))G57     use preset work coordinate system 4
-
-    (((G58)))G58     use preset work coordinate system 5
-
-    (((G59)))G59     use preset work coordinate system 6
-
-    G59.1(((G59.1)))   use preset work coordinate system 7
-
-    G59.2(((G59.2)))   use preset work coordinate system 8
-
-    G59.3(((G59.3)))   use preset work coordinate system 9
+-----------------------------------------------------------
+G54   use preset work coordinate system 1(((G54)))
+G55   use preset work coordinate system 2(((G55)))
+G56   use preset work coordinate system 3(((G56)))
+G57   use preset work coordinate system 4(((G57)))
+G58   use preset work coordinate system 5(((G58)))
+G59   use preset work coordinate system 6(((G59)))
+G59.1 use preset work coordinate system 7(((G59.1)))
+G59.2 use preset work coordinate system 8(((G59.3)))
+G59.3 use preset work coordinate system 9(((G59.3)))
+-----------------------------------------------------------
 
 === Default coordinate system
 
@@ -158,11 +140,16 @@ start up and reset. Any value other than an integer (decimal really)
 between 1 and 9, or a missing 5220 variable will cause the EMC to
 revert to the default value of 1.00000 on start up.
 
-=== Setting coordinate system values within G-code.
+=== Setting coordinate (fixture) offsets from G-code
 
-In the general programming chapter we listed a G10 command word. This
-command can be used to change the values of the offsets in a coordinate
-system. (add here)
+The G10 L2x command can be used to set coordinate (fixture) offsets: 
+  (these are just quick summaries, see the Gcode section for full details)
+
+G10 L2  P(fixture 1-9) - Set offset(s) to a value. Current position irrelevant. 
+                         (see <<sec:G10-L2->> for details)(((G10 L2)))
+
+G10 L20 P(fixture 1-9) - Set offset(s) so current position becomes a value. 
+                         (see <<sec:G10-L20->> for details)(((G10 L20)))
 
 == G92 (((G92))) Offsets[[sec:G92-Offsets]]
 
@@ -191,55 +178,55 @@ G92.3::
 When the commands are used as described above, they will work pretty
 much as you would expect.
 
-     A user must understand the correct ways that the g92 values work. They
-    are set based upon the location of each axis when the g92 command is
-    invoked. The NIST document is clear that, "To make the  current point
-    have the coordinates" x0, y0, and z0 you would use g92
-     x0 y0 z0. G92 'does not work from absolute machine coordinates'. It
-    works from 'current location'. 
+A user must understand the correct ways that the g92 values work. They
+are set based upon the location of each axis when the g92 command is
+invoked. The NIST document is clear that, "To make the  current point
+have the coordinates" x0, y0, and z0 you would use g92 x0 y0 z0. 
+G92 'does not work from absolute machine coordinates'. 
+It works from 'current location'. 
 
-     G92 also works from current location as modified by any other offsets
-    that are in effect when the g92 command is invoked. While testing for
-    differences between work offsets and actual offsets it was found that a
-    g54 offset could cancel out a g92 and thus give the appearance that no
-    offsets were in effect. However, the g92 was still in effect for all
-    coordinates and did produce expected work offsets for the other
-    coordinate systems. 
+G92 also works from current location as modified by any other offsets
+that are in effect when the g92 command is invoked. While testing for
+differences between work offsets and actual offsets it was found that a
+g54 offset could cancel out a g92 and thus give the appearance that no
+offsets were in effect. However, the g92 was still in effect for all
+coordinates and did produce expected work offsets for the other
+coordinate systems. 
 
-     It is likely that the absence of home switches and proper home
-    procedures will result in very large errors in the application of g92
-    values if they exist in the var file. Many EMC users do not have home
-    switches in place on their machines. For them home should be found by
-    moving each axis to a location and issuing the home command. When each
-    axis is in a known location, the home command will recalculate how the
-    g92 values are applied and will produce consistent results. Without a
-    home sequence, the values are applied to the position of the machine
-    when the EMC begins to run.
+It is likely that the absence of home switches and proper home
+procedures will result in very large errors in the application of g92
+values if they exist in the var file. Many EMC users do not have home
+switches in place on their machines. For them home should be found by
+moving each axis to a location and issuing the home command. When each
+axis is in a known location, the home command will recalculate how the
+g92 values are applied and will produce consistent results. Without a
+home sequence, the values are applied to the position of the machine
+when the EMC begins to run.
 
 === Setting G92 values
 
 There are at least two ways to set G92 values.
 
- -  right mouse click on position displays of tkemc will popup a window
+ - right mouse click on position displays of tkemc will popup a window
    into which you can type a value. 
- - the g92 command
+ - the G92 command
 
 Both of these work from the current location of the axis to which the
 offset is to be applied.
 
-     Issuing g92 x y z a b c does in fact set values to the g92 variables
-    such that each axis takes on the value associated with its name. These
-    values are assigned to the current position of the machine axis. These
-    results satisfy paragraphs one and two of the NIST document.
+Issuing `G92 X Y Z A B C U V W` does in fact set values to the G92 variables 
+such that each axis takes on the value associated with its name. 
+These values are assigned to the current position of the machine axis. 
+These results satisfy paragraphs one and two of the NIST document. 
 
-     G92 commands work from current axis location and add and subtract
-    correctly to give the current axis position the value assigned by the
-    g92 command. The effects work even though previous offsets are in.
+G92 commands work from current axis location and add and subtract
+correctly to give the current axis position the value assigned by the
+G92 command. The effects work even though previous offsets are in.
 
-So if the X axis is currently showing 2.0000 as its position a G92 x0
+So if the X axis is currently showing 2.0000 as its position a `G92 X0`
 will set an offset of -2.0000 so that the current location of X becomes
-zero. A G92 X2 will set an offset of 0.0000 and the displayed position
-will not change. A G92 X5.0000 will set an offset of 3.0000 so that the
+zero. A `G92 X2` will set an offset of 0.0000 and the displayed position
+will not change. A `G92 X5.0000` will set an offset of 3.0000 so that the
 current displayed position becomes 5.0000.
 
 === G92 Cautions
@@ -247,19 +234,16 @@ current displayed position becomes 5.0000.
 Sometimes the values of a G92 offset will remain in the VAR file. This
 can happen when a file is aborted during processing that has G92
 offsets in effect. When this happens reset or a startup will cause them
-to become active again. The variables are named
+to become active again. The variables are named: 
 
-    5211    0.000000
-
-    5212    0.000000
-
-    5213    0.000000
-
-    5214    0.000000
-
-    5215    0.000000
-
-    5216    0.000000
+---------------------------------------
+5211    0.000000
+5212    0.000000
+5213    0.000000
+5214    0.000000
+5215    0.000000
+5216    0.000000
+---------------------------------------
 
 where 5211 is the X axis offset and so on. If you are seeing
 unexpected positions as the result of a commanded move, as a result of
@@ -288,93 +272,73 @@ This sample engraving project mills a set of four .1 radius circles in
 roughly a star shape around a center circle. We can setup the
 individual circle pattern like this.
 
-    G10 L2 P1 x0 y0 z0 (ensure that g54 is set to machine zero) 
-
-    g0 x-.1 y0 z0
-
-    g1 f1 z-.25
-
-    g3 x-.1 y0 i.1 j0
-
-    g0 z0
-
-    m2
+---------------------------------------------------------------------
+G10 L2 P1 X0 Y0 Z0 (ensure that g54 is set to machine zero) 
+G0 X-0.1 Y0 Z0
+G1 F1 Z-0.25
+G3 X-0.1 Y0 I0.1 J0
+G0 Z0
+M2
+---------------------------------------------------------------------
 
 We can issue a set of commands to create offsets for the four other
 circles like this.
 
-    G10 L2 P2 x0.5 (offsets g55 x value by 0.5 inch) 
+-----------------------------------------------------------
+G10 L2 P2 X0.5 (offsets G55 X value by 0.5 inch) 
+G10 L2 P3 X-0.5 (offsets G56 X value by -0.5 inch) 
+G10 L2 P4 Y0.5 (offsets G57 Y value by 0.5 inch) 
+G10 L2 P5 Y-0.5 (offsets G58 Y value by -0.5 inch) 
+-----------------------------------------------------------
 
-    G10 L2 P3 x-0.5 (offsets g56 x value by -0.5 inch) 
+We put these together in the following program:
 
-    G10 L2 P4 y0.5 (offsets g57 y value by 0.5 inch) 
+---------------------------------------------------------------------
+(a program for milling five small circles in a diamond shape)
 
-    G10 L2 P5 y-0.5 (offsets g58 y value by -0.5 inch) 
+G10 L2 P1 X0 Y0 Z0 (ensure that G54 is machine zero)
+G10 L2 P2 X0.5 (offsets G55 X value by 0.5 inch) 
+G10 L2 P3 X-0.5 (offsets G56 X value by -0.5 inch) 
+G10 L2 P4 Y0.5 (offsets G57 Y value by 0.5 inch) 
+G10 L2 P5 Y-0.5 (offsets G58 Y value by -0.5 inch)
 
-We put these together in the following program.
+G54 G0 X-0.1 Y0 Z0 (center circle)
+G1 F1 Z-0.25
+G3 X-0.1 Y0 I0.1 J0
+G0 Z0
 
-    (a program for milling five small circles in a diamond shape)
+G55 G0 X-0.1 Y0 Z0 (first offset circle)
+G1 F1 Z-0.25
+G3 X-0.1 Y0 I0.1 J0
+G0 Z0
 
-    G10 L2 P1 x0 y0 z0 (ensure that g54 is machine zero)
+G56 G0 X-0.1 Y0 Z0 (second offset circle)
+G1 F1 Z-0.25
+G3 X-0.1 Y0 I0.1 J0
+G0 Z0
 
-    G10 L2 P2 x0.5 (offsets g55 x value by 0.5 inch) 
+G57 G0 X-0.1 Y0 Z0 (third offset circle)
+G1 F1 Z-0.25
+G3 X-0.1 Y0 I0.1 J0
+G0 Z0
 
-    G10 L2 P3 x-0.5 (offsets g56 x value by -0.5 inch) 
+G58 G0 X-0.1 Y0 Z0 (fourth offset circle)
+G1 F1 Z-0.25
+G3 X-0.1 Y0 I0.1 J0
+G54 G0 X0 Y0 Z0
 
-    G10 L2 P4 y0.5 (offsets g57 y value by 0.5 inch) 
-
-    G10 L2 P5 y-0.5 (offsets g58 y value by -0.5 inch)
-
-    g54 g0 x-.1 y0 z0 (center circle)
-
-    g1 f1 z-.25
-
-    g3 x-.1 y0 i.1 j0
-
-    g0 z0
-
-    g55 g0 x-.1 y0 z0 (first offset circle)
-
-    g1 f1 z-.25
-
-    g3 x-.1 y0 i.1 j0
-
-    g0 z0
-
-    g56 g0 x-.1 y0 z0 (second offset circle)
-
-    g1 f1 z-.25
-
-    g3 x-.1 y0 i.1 j0
-
-    g0 z0
-
-    g57 g0 x-.1 y0 z0 (third offset circle)
-
-    g1 f1 z-.25
-
-    g3 x-.1 y0 i.1 j0
-
-    g0 z0
-
-    g58 g0 x-.1 y0 z0 (fourth offset circle)
-
-    g1 f1 z-.25
-
-    g3 x-.1 y0 i.1 j0
-
-    g54 g0 x0 y0 z0
-
-    m2
+M2
+---------------------------------------------------------------------
 
 Now comes the time when we might apply a set of G92 offsets to this
-program. You'll see that it is running in each case at z0. If the mill
-were at the zero position, a g92 z1.0000 issued at the head of the
+program. You'll see that it is running in each case at Z0. If the mill
+were at the zero position, a G92 Z1.0000 issued at the head of the
 program would shift everything down an inch. You might also shift the
-whole pattern around in the XY plane by adding some x and y offsets
-with g92. If you do this you should add a G92.1 command just before the
+whole pattern around in the XY plane by adding some X and Y offsets
+with G92. If you do this you should add a G92.1 command just before the
 m2 that ends the program. If you do not, other programs that you might
-run after this one will also use that g92 offset. Furthermore it would
-save the g92 values when you shut down the EMC and they will be
+run after this one will also use that G92 offset. Furthermore it would
+save the G92 values when you shut down the EMC and they will be
 recalled when you start up again.
+
 

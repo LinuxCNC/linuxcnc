@@ -4,9 +4,9 @@
 
 TkEMC(((tkemc))) is one of the most traditional graphical front-ends
 for EMC. It is written in Tcl(((Tcl))) and uses the Tk(((Tk))) toolkit
-for the display. Being written in TCL makes it very portable (runs on a
+for the display. Being written in Tcl makes it very portable (it runs on a
 multitude of platforms). A separate backplot window can be displayed as
-shown in Figure( <<cap:TkEMC-Window>>).
+shown in Figure(<<cap:TkEMC-Window>>).
 
 .TkEMC Window[[cap:TkEMC-Window]]
 
@@ -35,10 +35,8 @@ When you start EMC2 with TkEMC, a window like the one in Figure
  . Put the stock to be milled on the table.
  .  Set the proper offsets for each axis by jogging and either homing
    again or right-clicking an axis name and entering an offset value.
-   footnote:[for some of these actions it might be needed to change the
-   mode emc2
-   currently is in.
-   ]
+   footnote:[For some of these actions it might be necessary to change the
+   mode EMC2 is currently running in.]
  . Run the program.
  .  To mill the same file again, return to step 6. To mill a different
    file, return to step 4. When you're done, exit EMC2.
@@ -66,7 +64,7 @@ The TkEMC window contains the following elements:
 From left to right, the buttons are:
 
  . Machine enable: “ESTOP(((ESTOP)))” / “ESTOP RESET” / “ON” 
- . Toggle mist(((MIST)))
+ . Toggle mist coolant(((mist)))(((coolant)))
  . Decrease spindle speed
  .  Set spindle(((spindle))) direction “SPINDLE OFF” / “SPINDLE FORWARD” /
    “SPINDLE REVERSE”
@@ -76,14 +74,14 @@ From left to right, the buttons are:
 then on the second line:
 
  . Operation mode: “MANUAL(((Manual)))” / “MDI(((MDI)))” / “AUTO(((Auto)))”
- . Toggle flood
+ . Toggle flood coolant(((flood)))(((coolant)))
  . Toggle spindle brake control
 
 === Offset display status bar
 
 The Offset display status bar displays the currently selected tool
 (selected with Txx M6), the tool length offset (if active), and the
-work offsets (set by right clicking the coordinates).
+work offsets (set by right-clicking the coordinates).
 
 === Coordinate Display Area
 
@@ -109,9 +107,9 @@ mill, but one step of your stepper motor is 0.00125, then the
 
 Another set of radio buttons allows you to choose between “joint” and
 “world” view. These make little sense on a normal type of machine (e.g.
-trivial kinematics), but helps on machines with non-trivial kinematics
+trivial kinematics), but help on machines with non-trivial kinematics
 like robots or stewart platforms. (you can read more about kinematics
-in the Integrators Handbook).
+in the Integrator Manual).
 
 ==== Backplot
 
@@ -149,8 +147,8 @@ show the current line.
 TkEMC allows you to manually move the machine. This action is known as
 “jogging”. First, select the axis to be moved by clicking it. Then,
 click and hold the “+” or “-” button depending on the desired direction
-of motion. The first four axes can also be moved by the arrow keys (X
-and Y), PAGE UP and PAGE DOWN keys (Z) and the [ and ] keys (A).
+of motion. The first four axes can also be moved by the keyboard arrow keys 
+(X and Y), the PAGE UP and PAGE DOWN keys (Z) and the “[“ and “]“ keys (A/4th). 
 
 If “Continuous” is selected, the motion will continue as long as the
 button or key is pressed. If another value is selected, the machine
@@ -159,7 +157,7 @@ clicked or the key is pressed. The available values are:
 
 [quote]
 ________________________________________
-1.0000 0.1000 0.0100 0.0010 0.0001
+1.0000, 0.1000, 0.0100, 0.0010, 0.0001
 ________________________________________
 
 
@@ -181,7 +179,7 @@ image::tkemc_override_limits.png[]
 
 ==== The “Spindle (((spindle)))” group
 
-The button on the first row select the direction for the spindle to
+The button on the first row selects the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
 allow the user to increase or decrease the rotation speed. The button
 on the second row allows the spindle brake to be engaged or released.
