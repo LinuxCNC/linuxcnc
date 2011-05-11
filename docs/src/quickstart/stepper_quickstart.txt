@@ -1,4 +1,4 @@
-= Stepper Configurations
+= Stepper Configuration
 
 This section assumes you have done a standard install from the Live
 CD. After installation it is recommended that you connect the computer
@@ -85,7 +85,7 @@ per user unit which is used for SCALE in the .ini file.
 |========================================
 
 Steps per revolution is how many steps it takes to turn the stepper
-one revolution.
+one revolution. Typical is 200.
 
 Micro steps is how many steps the drive needs to move the stepper one
 step.
@@ -96,6 +96,18 @@ motor and the leadscrew. If not set these to 1.
 Leadscrew pitch is how many turns it takes to move your table one user
 unit. If you're setting up in inches then it is turns per inch. If
 you're setting up in millimeters then how many millimeters per turn.
+
+The net result your looking for is how many steps it takes to move one 
+user unit (inches or mm).
+
+For Example:
+  Stepper         = 200 steps per revolution
+  Drive           = 10 micro steps
+  Motor Teeth     = 10
+  Leadscrew Teeth = 20
+  Leadscrew Pitch =  5 TPI
+
+From the above information you have to turn the leadscrew 5 turns to move one inch. The motor to leadscrew reduction is 2:1 so the motor turns twice per reveloution of the leadscrew, so the motor turns 10 times per inch. The drive takes 10 step inputs to make the stepper step once. The drive needs 2000 steps to turn the stepper one revolution. 2000 x 10 = 20,000 is the final scale number.
 
 == Configuration Wizard
 
