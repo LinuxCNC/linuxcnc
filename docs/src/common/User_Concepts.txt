@@ -11,7 +11,7 @@ Trajectory planning, in general, is the means by which EMC follows the
 path specified by your G Code program, while still operating within the
 limits of your machinery.
 
-A G Code program can never be fully obeyed. For example imagine you
+A G Code program can never be fully obeyed. For example, imagine you
 specify as a single-line program the following move:
 
     G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
@@ -63,7 +63,7 @@ G61.1::
 G64::
      (Blend Without Tolerance Mode) G64 is the default setting when you
     start EMC. G64 is just blending and the naive cam detector is not
-    enabled. G64 and G64P0 tell the planner to sacrifice path following
+    enabled. G64 and G64 P0 tell the planner to sacrifice path following
     accuracy in order to keep the feed rate up. This is necessary for some
     types of material or tooling where exact stops are harmful, and can
     work great as long as the programmer is careful to keep in mind that
@@ -142,18 +142,20 @@ total axis acceleration to equal the ini file MAX_ACCELERATION. In
 other cases, the actual machine acceleration is somewhat less than the
 ini file acceleration
 
-To keep up feed rate, the move must be longer than the distance it
+To keep up the feed rate, the move must be longer than the distance it
 takes to accelerate from 0 to the desired feed rate and then stop
-again. Using A as 1/2 the ini file MAX_ACCELERATION and F as the feed
-rate *in units per second*, the acceleration time is ta = F/A and the
-acceleration distance is latexmath:[da=(1/2)*F*ta] the deceleration
-time and distance are the same, making the critical distance d = da 
-dd = 2*da = F^2 / A.
+again. Using A as latexmath:[$\frac{1}{2}$] the ini file MAX_ACCELERATION 
+and F as the feed rate *in units per second*, the acceleration time is 
+latexmath:[$ ta = \frac{F}{A} $] and the acceleration distance is 
+latexmath:[$ da = \frac{1}{2} \times F \times ta $]. The deceleration time 
+and distance are the same, making the critical distance 
+latexmath:[$ d = da + dd = 2 \times da = \frac{F^{2}}{A} $]. 
 
-For example, for a feed rate of 1 inch per second and an acceleration
-of 10 inch/sec^2, the critical distance is 1^2 / 10 = .1 inch. For a
-feed rate of .5 inch per second, the critical distance is .5^2 / 10 =
-.025 inch.
+For example, for a feed rate of 1 inch per second and an acceleration of 
+latexmath:[$ 10 \frac{inch}{sec^{2}} $], the critical distance is 
+latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch. 
+For a feed rate of 0.5 inch per second, the critical distance is 
+latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
 
 == G Code
 
@@ -168,14 +170,14 @@ running a G-Code file and left in a different state than when you
 started your EMC session. The best practice is to set the defaults
 needed for the job in the preamble of your G-Code file and not assume
 that the defaults have not changed. Printing out the G-Code Quick
-Reference ( <<sec:Quick-Reference-Table>>) page can help you remember
+Reference (<<sec:Quick-Reference-Table>>) page can help you remember
 what each one is.
 
 === Feed Rate
 
 How the feed rate is applied depends on if an axis involved with the
-move is a rotary axis. Read and understand the Feed Rate section (
-<<sub:Feed-Rate>>) if you have a rotary axis or a lathe.
+move is a rotary axis. Read and understand the Feed Rate section 
+(<<sub:Feed-Rate>>) if you have a rotary axis or a lathe.
 
 === Tool Radius Offset
 
@@ -185,7 +187,7 @@ moves. If that is not possible with the current tool diameter you will
 get an error. A smaller diameter tool may run without an error on the
 same path. This means you can program a cutter to pass down a path that
 is narrower than the cutter without any errors. See the Tool
-Compensation Section ( <<sec:Cutter-Radius-Compensation>>) for more
+Compensation Section (<<sec:Cutter-Radius-Compensation>>) for more
 information.
 
 == Homing
@@ -210,7 +212,7 @@ User Manual.
 The Coordinate Systems can be confusing at first. Before running a CNC
 machine you must understand the basics of the coordinate systems used
 by EMC. In depth information on the EMC Coordinate Systems is in the
-coordinate section  <<cha:Coordinate-System>> of this manual.
+coordinate section (<<cha:Coordinate-System>>) of this manual.
 
 === G53 Machine Coordinate
 
@@ -229,7 +231,7 @@ Normally you use the G54 Coordinate System. When an offset is applied
 to a current user coordinate system a small blue ball with lines will
 be at the machine origin when your DRO is displaying "Position:
 Relative Actual" in Axis. If your offsets are temporary use the Zero
-Coordinate System from the Machine menu or program G10 L2 P1 X0 Y0 Z0
+Coordinate System from the Machine menu or program `G10 L2 P1 X0 Y0 Z0`
 at the end of your G Code file. Change the "P" number to suit the
 coordinate system you wish to clear the offset in.
 
