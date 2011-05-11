@@ -26,9 +26,17 @@ image::images/ToolTable-TouchOff.png[]
 
 === Using G10 L1
 
-By using "G10 L1 Pn Zx" where "n" is the tool number and "x" is the
-offset from the MDI window or in your program you can also set the tool
-table.
+The G10 L1x command can be used to set tool table offsets:
+  (these are just quick summaries, see the Gcode section for full details)
+
+G10 L1  P(tool no.) - Set offset(s) to a value. Current position irrelevant. 
+                      (see <<sec:G10-L1->> for details)(((G10 L1)))
+
+G10 L10 P(tool no.) - Set offset(s) so current position w/ fixture 1-8 becomes a value. 
+                      (see <<sec:G10-L10->> for details)(((G10 L10)))
+
+G10 L11 P(tool no.) - Set offset(s) so current position w/ fixture 9 becomes a value. 
+                      (see <<sec:G10-L11->> for details)(((G10 L11)))
 
 == Tool Table
 
@@ -40,17 +48,22 @@ updated using G10 L1. See the Lathe Specifics Section for lathe tool
 table example. The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999.
 
-.Mill Format Tool File[[cap:Mill-Format-Tool-File]]
+=== Tool Table Format
 
-[width="90%", options="header"]
+.Tool Table Format[[cap:Tool-Table-Format]](((Tool-Table-Format)))
+
+[width="100%", options="header"]
 |========================================
-|T1 | P1 | D0.125000 | Z+0.511000 | ;1/8” End Mill
-|T2 | P2 | D0.062500 | Z+0.100000 | ;1/16” End Mill
-|T99999 | P99999 | D23.75000 | Z-0.3000000 | ;You have a lot of tools
+|T# |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|;  |    |   |   |   |   |   |   |   |   |   |    |   |   |    |
+|T1 |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T2 |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T3 |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |========================================
 
 In general new tool table line format is:
 
+ - ; - opening semicolon, no data
  - T - integer tool number 
  - P - integer pocket number 
  - D - float tool diameter 
@@ -58,11 +71,11 @@ In general new tool table line format is:
  - I - float front angle (lathe tools) 
  - J - float back angle (lathe tools) 
  - Q - int tool orientation (lathe) 
- - ; - begin of comment 
+ - ; - beginning of comment or remark
 
 === Tool Changers
 
-EMC supports three types of tool changers "manual", "random location"
+EMC supports three types of tool changers: "manual", "random location"
 and "fixed location". Information about configuring an EMC tool changer
 is in the Integrators Manual.
 
@@ -78,18 +91,19 @@ tool and the manual tool changer should not be used.
 
 ==== Fixed Location Tool Changers
 
-Fixed location tool changers like lathe turrets the tools are in a
-fixed position in the tool changer. When EMC is configured for a fixed
+Fixed location tool changers always return the tools to a 
+fixed position in the tool changer. This would also include 
+designs like lathe turrets. When EMC is configured for a fixed
 location tool changer the "P" number is ignored (but read, preserved
 and rewritten) by EMC, so you can use P for any bookkeeping number you
 want.
 
 ==== Random Location Tool Changers
 
-Random location tool changers swaps the tool in the spindle with the
-one in the changer. This type of tool changer the tool location will
+Random location tool changers swap the tool in the spindle with the
+one in the changer. With this type of tool changer the tool will 
 always be in a different pocket after a tool change. When a tool is
-changed EMC rewrites the pocket number to keep track of where the tool
+changed EMC rewrites the pocket number to keep track of where the tools 
 are. T can be any number but P must be a number that makes sense for
 the machine.
 

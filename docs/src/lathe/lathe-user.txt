@@ -1,50 +1,79 @@
-= Lathe Specifics
+= Lathe Specifics [[cha:Lathe-Specifics]](((Lathe-Specifics)))
 
 This chapter attempts to bring together all the lathe specific
 information and is currently under construction.
 
 == Lathe Mode
 
-When you set up a lathe using Lathe Mode you need to use a Lathe Tool
-Table so AXIS will display your tool properly. See the INI File section
-of the Integrators Manual for info on setting up AXIS for Lathe Mode.
-Use the "DIA" column for the tool tip diameter.
+If your CNC machine is a lathe, there are some specific changes you 
+will probably want to make to your ini file in order to get the 
+best results from EMC2. 
+
+If you are using the AXIS display, have Axis display your lathe 
+tools properly. See the INI File section of the Integrator Manual for 
+more details but you will probably want to make an entry like this 
+to set up AXIS for Lathe Mode. 
+
+---------------------------------------
+[DISPLAY]
+
+# Tell the Axis Display our machine is a lathe. 
+LATHE = TRUE
+---------------------------------------
 
 Lathe Mode in Axis does not set your default plane to G18 (XZ). You
 must program that in the preamble of each gcode file or (better) add it
-to your .ini.
+to your ini file under: 
+
+---------------------------------------
+[RS274NGC]
+
+# g-code modal codes (modes) that the interpreter is initialized with on startup
+RS274NGC_STARTUP_CODE = G18 G20 G90
+---------------------------------------
 
 == Tool Table
 
-The "Tool Table" is a text file that contains information about each
-tool. The file is located in the same directory as your configuration
-and is called "tool.tbl" by default. The tools might be in a tool
-changer or just changed manually. The file can be edited with a text
-editor or be updated using G10 L1. The maximum number of entries in the
-tool table is 56. The maximum tool and pocket number is 99999.
+The "Tool Table" is a text file that contains information about each 
+tool. The file is located in the same directory as your configuration 
+and is called "tool.tbl" by default. 
+The tools might be in a tool changer or just changed manually. 
+The file can be edited with a text editor or be updated using G10 L1. 
+There is also a built-in tool table editor in the Axis display. 
+The maximum number of entries in the tool table is 56. 
+The maximum tool and pocket number is 99999. 
 
-.Lathe Format Tool Table[[tab:Lathe-Format-Tool-Table]]
+Earlier versions of EMC2 had two different tool table formats for 
+mills and lathes, but since the 2.4.x release, one tool table format 
+is used for all machines. Just ignore the parts of the tool table 
+that don't pertain to your machine, or which you don't neeed to use. 
 
-[width="90%", options="header"]
+=== Tool Table Format
+
+.Tool Table Format[[cap:Tool-Table-Format]](((Tool-Table-Format)))
+
+[width="100%", options="header"]
 |========================================
-|T1 | P1 | D0.125000 | Z+0.511000 | Q7 | I-30 | J30 | ;Facing Tool
- |T2 | P2 | D0.062500 | Z+0.100000 | Q1 | I165 | J105 | ;Back Cutting
-Tool
-|T99999 | P99999 | ... | ... | ... | ... | ... | ;You have lots of tools
+|T# |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|;  |    |   |   |   |   |   |   |   |   |   |    |   |   |    |
+|T1 |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T2 |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T3 |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |========================================
 
 In general, the new tool table line format is:
 
- -  T - tool number - integer, 0-99999 (you can have a large number of
-   tools in inventory)
- -  P - pocket number - integer, 1-99999 (tool table has a lower number of
-   entries, currently 56) 
- - D - tool diameter - floating-point, absolute value 
- - X..W - tool length offset on specified axis - floating-point
+ - ; - opening semicolon, no data
+ - T - tool number, 0-99999 (you can have a large number of tools in inventory)
+ - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
+ - X..W - tool offset on specified axis - floating-point
+ - D - tool diameter - floating-point, absolute value
  - I - front angle (lathe only) - floating-point 
  - J - back angle (lathe only) - floating-point 
  - Q - tool orientation (lathe only) - integer, 0-9 
- - ; - beginning of comment - text
+ - ; - beginning of comment or remark
+
+== Lathe Tool Orientation
 
 The following figure shows the lathe tool orientations with the center
 line angle of each orientation and info on FRONTANGLE and BACKANGLE.
@@ -54,13 +83,12 @@ The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
 image::images/tool_positions.png[]
 
-In AXIS the following figures show what Tool Positions look like from
+In AXIS the following figures show what the Tool Positions look like from
 the above tool table.
 
 Tool Positions 1, 2, 3 & 4
 
 .[["cap:Tool-Positions-1, 2, 3 & 4"]]
-
 
 image:images/tool_pos_1.png[] image:images/tool_pos_2.png[] 
 
@@ -69,7 +97,6 @@ image:images/tool_pos_3.png[] image:images/tool_pos_4.png[]
 Tool Positions 5, 6, 7 & 8
 
 .[["fig:Tool-Position-5, 6, 7 & 8"]]
-
 
 image:images/tool_pos_5.png[] image:images/tool_pos_6.png[] 
 
@@ -82,7 +109,7 @@ table using the Touch Off window.
 
 === The X Axis
 
-The X axis offsets for each tool is normally an offset from the center
+The X axis offset for each tool is normally an offset from the center 
 line of the spindle in the tool table.
 
 One method is to take your normal turning tool and turn down some
@@ -100,13 +127,10 @@ A typical session might be:
  . Home each axis if not homed.
  . Set the current tool with "TnM6" where "n" is the tool number.
  . Select the X axis in the Manual Control window.
- .  Move the X to a known position or take a test cut and measure the
-   diameter.
- .  Select Touch Off and pick Tool Table then enter the position or the
-   diameter.
+ . Move the X to a known position or take a test cut and measure the diameter. 
+ . Select Touch Off and pick Tool Table then enter the position or the diameter. 
 
-Note: if you are in Radius Mode you must enter the radius, not the
-diameter.
+Note: if you are in Radius Mode you must enter the radius, not the diameter. 
 
 === The Z Tool Offset
 
@@ -124,7 +148,7 @@ A typical session might be:
  . Make sure no offsets are in effect for the current coordinate system.
  . Set the current tool with "TnM6" where "n" is the tool number.
  . Select the Z axis in the Manual Control window.
- .  Bring the tool close to the control surface. Using a cylinder move the
+ . Bring the tool close to the control surface. Using a cylinder move the
    Z away from the control surface until the cylinder just passes between
    the tool and the control surface. 
  . Select Touch Off and pick Tool Table and set the position to 0.0.
@@ -160,7 +184,7 @@ used in your program.
 
 Threading with a lathe requires feedback from the spindle to EMC.
 Typically an encoder is used to provide the feedback. See the
-Integrators Manual for more information on spindle feedback.
+Integrator Manual for more information on spindle feedback.
 
 The G76 threading cycle is used for both internal and external
 threads. For more information see G76 <<sec:G76:-Threading-Canned>> in
@@ -182,26 +206,26 @@ you should include G18 in your preamble as the default is G17 even if
 you're in lathe mode, in the user interface Axis. Arcs in G18 XZ plane
 use I (X axis) and K (Z axis) offsets.
 
-=== Lathe Orientation
+=== Arcs and Lathe Design
 
 The typical lathe has the spindle on the left of the operator and the
 tools on the operator side of the spindle center line. This is
-typically set up with the imaginary Y axis pointing at the floor.
+typically set up with the imaginary Y axis (+) pointing at the floor.
 
 The following will be true on this type of setup:
 
- - Plus Z goes to the right away from the spindle.
- -  Plus X goes toward the operator and when on the operator side of the
-   spindle the X values are positive.
+ - The Z axis (+) points to the right, away from the spindle.
+ - The X axis (+) points toward the operator, and when on the operator 
+   side of the spindle the X values are positive.
 
-Some lathes with tools on the back side have the imaginary Y axis
-pointing up.
+Some lathes with tools on the back side have the imaginary Y axis (+) 
+pointing up. 
 
 G2/G3 Arc directions are based on the axis they rotate around. In the
-case of lathes, it is the imaginary Y axis. If the Y points toward the
-floor, you have to look up for the arc to appear to go in the correct
-direction. So looking from above you reverse the G2/G3 for the arc to
-appear to go in the correct direction.
+case of lathes, it is the imaginary Y axis. If the Y axis (+) points 
+toward the floor, you have to look up for the arc to appear to go in the 
+correct direction. So looking from above you reverse the G2/G3 for the 
+arc to appear to go in the correct direction.
 
 === Radius & Diameter Mode
 
@@ -300,4 +324,5 @@ cutting straight lines on the lathe you might not want to use cutter
 comp. For example boring a hole with a tight fitting boring bar you may
 not have enough room to do the exit move. The entry move into a cutter
 comp arc is important to get the correct results.
+
 
