@@ -11,6 +11,7 @@
 <doc name="config_pncconf" title="Point n Click Configurator for Mesa Servo and Stepper Machines"/>
 <doc name="config_ini_config" title="Basic Configuration"/>
 <doc name="config_ini_homing" title="Homing Configuration"/>
+<doc name="config_lathe_config" title="Lathe Configuration"/>
 <doc name="config_emc2hal" title="EMC2's interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 
