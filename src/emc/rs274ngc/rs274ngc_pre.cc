@@ -2187,6 +2187,8 @@ int Interp::on_abort(int reason, const char *message)
 
     // reset remapping stack
     _setup.stack_level = 0;
+    // reset call level if a sub aborted
+    _setup.call_level = 0;
 
     if (_setup.on_abort_command == NULL)
 	return -1;
