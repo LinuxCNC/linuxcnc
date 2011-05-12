@@ -8,13 +8,11 @@ Manuel de l'intégrateur.
 
 == Test de latence (Latency Test)
 
-expand this just a bit JT
-
 Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsqu'ils pilotent une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
-Pour le lancer, suivre les instructions de la section ( <<sec:Test de
+Pour le lancer, suivre les instructions de la section (<<sec:Test de
 latence>>).
 
 == Sherline et Xylotex [[sec:Sherline-and-Xylotex]]
@@ -38,16 +36,15 @@ http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
 
 [width="90%", options="header"]
 |========================================
- |Axes | Type de pilote | Step Time ns | Step Space ns | Direction Hold
-ns | Direction Setup ns
+|Axes | Type de pilote | Step Time ns | Step Space ns | Direction Hold ns | Direction Setup ns
 |X |  |  |  |  | 
 |Y |  |  |  |  | 
 |Z |  |  |  |  | 
+|  |  |  |  |  | 
 |========================================
 
 footnote:[ndt: les termes sont laissés dans la langue d'origine pour
-correspondre aux documentations des constructeurs.
-]
+correspondre aux documentations des constructeurs.]
 
 == Informations relatives au brochage
 
@@ -56,16 +53,15 @@ parallèle utilisées.
 
 [width="90%", options="header"]
 |========================================
- |Pin de sortie | Fonction | Si différent | Pin d'entrée | Fonction |
-Si différent
-|1 | Sortie A/U |  | 10 | Limite et OM X | 
-|2 | X Step |  | 11 | Limite et OM Y | 
+|Pin de sortie | Fonction | Si différent | Pin d'entrée | Fonction | Si différent
+|1 | Sortie A/U  |  | 10 | Limite et OM X | 
+|2 | X Step      |  | 11 | Limite et OM Y | 
 |3 | X Direction |  | 12 | Limite et OM Z | 
-|4 | Y Step |  | 13 | Limite et OM A | 
+|4 | Y Step      |  | 13 | Limite et OM A | 
 |5 | Y Direction |  | 15 | Entrée palpeur | 
-|6 | Z Step |  |  |  | 
-|7 | Z Direction |  |  |  | 
-|8 | A Step |  |  |  | 
+|6 | Z Step      |  |    |  | 
+|7 | Z Direction |  |    |  | 
+|8 | A Step      |  |  |  | 
 |9 | A Direction |  |  |  | 
 |14 | Broche sens horaire |  |  |  | 
 |16 | PWM broche |  |  |  | 
@@ -84,8 +80,7 @@ taille du pas est utilisée par SCALE dans le fichier .ini.
 
 [width="90%", options="header"]
 |========================================
- |Axes | Pas par tour | Micropas | Dents moteur | Dents vis | Pas de la
-vis
+|Axes | Pas par tour | Micropas | Dents moteur | Dents vis | Pas de la vis
 | |  |  |  |  | 
 | |  |  |  |  | 
 | |  |  |  |  | 

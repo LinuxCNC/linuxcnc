@@ -77,9 +77,7 @@ possibilités d'EMC2 actuellement disponibles.
 
 Puisque vous commencez votre voyage dans l'utilisation d'EMC2 nous
 vous proposons ces deux citations:footnote:[Trouvé sur
-http://fr.wikipedia.org/wiki/Philosophie_d%27Unix le
-06/07/2008
-]
+http://fr.wikipedia.org/wiki/Philosophie_d%27Unix le 06/07/2008]
 
  -  "Unix n'a pas été conçu pour empêcher ses utilisateurs de commettre
    des actes stupides, car cela les empêcherait aussi de réaliser des
