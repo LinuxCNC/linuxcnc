@@ -105,10 +105,15 @@ const char *Interp::interp_status(int status) {
 
 Interp::Interp() 
     : log_file(0)
-{}
+{
+    _setup.pymodule_stat = PYMOD_NONE;
+    // fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
+}
 
 
 Interp::~Interp() {
+    // fprintf(stderr,"---> del Interp() pid=%d\"",getpid());
+
     if(log_file) {
 	fclose(log_file);
 	log_file = 0;
@@ -749,6 +754,8 @@ int Interp::init()
 
   iniFileName = getenv("INI_FILE_NAME");
 
+  fprintf(stderr,"Interp.init() called pid=%d ini=%s\n",getpid(),iniFileName);
+
   // the default log file
   _setup.loggingLevel = 0;
   _setup.tool_change_at_g30 = 0;
@@ -763,7 +770,6 @@ int Interp::init()
   _setup.c_indexer = 0;
   _setup.return_value = 0;
   _setup.stack_level = 0; // remapped blocks stack index
-  _setup.pymodule_stat = PYMOD_NONE;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -772,6 +778,8 @@ int Interp::init()
   }
   else
   {
+      fprintf(stderr,"Interp.init(%d) getenv(INI_FILE_NAME)=%s\n",
+	      getpid(),iniFileName);
       IniFile inifile;
 
       logDebug("iniFileName:%s:", iniFileName);
@@ -2243,7 +2251,7 @@ int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 }
 
 
-setup_pointer Interp::get_setup(void)
-{
-    return &(_setup);
-}
+// setup &Interp::get_setup(const Interp& x)
+// {
+//     return x._setup;
+// }

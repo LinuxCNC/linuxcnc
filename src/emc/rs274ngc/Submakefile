@@ -28,11 +28,32 @@ $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
+# try linking -lstdc++
+# see http://projects.skewed.de/graph-tool/browser/configure.ac?rev=a89e069cab4407029335ff8ff4b7364447c8d4bb
+# http://projects.skewed.de/graph-tool/browser/configure.ac?rev=a89e069cab4407029335ff8ff4b7364447c8d4bb
+# ugly, dirty, smelly hack to force libtool to link to libstc++ before anything
+# else, to avoid strange exception-related segfaults in
+# __cxa_allocate_exception() see:
+# http://www.nabble.com/preventing-boost::python::throw_error_already_set-td20958723.html
+# http://wiki.fifengine.de/Segfault_in_cxa_allocate_exception
+#AC_MSG_NOTICE([Modifying libtool to correctly link libstdc++ before anything else...])
+#libtool=`cat libtool | sed "s/-nostdlib/-nostdlib -lstdc++/g"`
+#echo "$libtool" > libtool
+
 ../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -l$(BOOST) -l$(PY)  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
+
+# this didnt fix the segfault either
+#	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ \
+#	 $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) \
+#	 -lstdc++ \
+#	../lib/libemcini.so \
+#	-l$(BOOST) -l$(PY)
+
+#-lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
 
 
 
@@ -44,12 +65,18 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
 PYSRCS += $(GCODEMODULESRCS)
 
+#/usr/bin/g++ -L/home/mah/emc2-tc/lib -Wl,-rpath,/home/mah/emc2-tc/lib -shared -o ../lib/python/gcode.so objects/emc/rs274ngc/gcodemodule.o ../lib/librs274.so.0 -lstdc++
+
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking python module $(notdir $@)
-	@$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
 
-
+# cludge to force libstdc++ linked immediately
+# this wasnt the segfault cause:
+#	$(CXX) $(LDFLAGS) -shared -o $@ $(call TOOBJS, $(GCODEMODULESRCS)) \
+#	 -lstdc++ ../lib/librs274.so.0
+#
 
 
 PYTARGETS += $(GCODEMODULE)

@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-#import bullshit
+import bullshit
 
 def pym6demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
@@ -105,7 +105,12 @@ print "dir(InterpMod)=",dir(InterpMod)
 print "dir(InterpMod.params)=",dir(InterpMod.params)
 
 InterpMod.params[123] = 3.14
+print "InterpMod.params[123]=",InterpMod.params[123]
 InterpMod.params['fasfasdf'] = 2.718
+print "InterpMod.params['fasfasdf']=",InterpMod.params['fasfasdf']
+#print "FAIL: InterpMod.params[3.14]=",InterpMod.params[3.14]
+
+
 
 
 #

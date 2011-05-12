@@ -80,6 +80,7 @@ const char *blocktext() { return &current_setup->blocktext[0]; }
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
+
 struct ParamClass
 {
     double getitem(bp::object sub)
@@ -470,7 +471,10 @@ int Interp::pycall(setup_pointer settings,
     logPy("pycall %s [%f] [%f] this=%lx\n",
 	    funcname,params[0],params[1],(unsigned long)this);
 
-    current_setup = &this->_setup;
+
+    // current_setup = &this->_setup;
+    current_setup = get_setup(this); // // &this->_setup;
+    current_interp = this;
 
     if (settings->pymodule_stat != PYMOD_OK) {
 	ERS("function '%s.%s' : module not initialized",
