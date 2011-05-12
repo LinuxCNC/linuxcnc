@@ -122,15 +122,6 @@ struct ParamClass
 
 static ParamClass paramclass;
 
-// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
-// reason: avoid segfaults by del(interp_instance) on program exit
-// make delete(interp_instance) a noop wrt Interp
-static void interpDeallocFunc(Interp *interp)
-{
-    fprintf(stderr,"----> interpDeallocFunc pid=%d\n",getpid());
-}
-typedef boost::shared_ptr< Interp > interp_ptr;
-interp_ptr  interp_instance;
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
