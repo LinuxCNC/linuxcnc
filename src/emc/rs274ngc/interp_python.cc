@@ -13,7 +13,8 @@
 // try this before starting milltask and axis in emc:
 //  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCTASK ...
 //  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCDISPLAY ...
-// this is actually a bug in libgl1-mesa-dri
+// this is actually a bug in libgl1-mesa-dri and it looks
+// it has been fixed in mesa - 7.10.1-0ubuntu2
 
 #include <boost/python.hpp>
 #include <boost/make_shared.hpp>
@@ -382,7 +383,7 @@ int Interp::init_python(setup_pointer settings)
     PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
     PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
     Py_Initialize();
-    gstate = PyGILState_Ensure();
+    // gstate = PyGILState_Ensure();
 
     try {
 	settings->module = bp::import("__main__");
@@ -412,14 +413,14 @@ int Interp::init_python(setup_pointer settings)
 
 	logPy("init_python: module '%s' init failed: %s",path,msg.c_str());
 	//free(path);
-	PyGILState_Release(gstate);
+	// PyGILState_Release(gstate);
 
 	ERS("init_python: %s",msg.c_str());
 	settings->pymodule_stat = PYMOD_FAILED;
 	PyErr_Clear();
     }
     //free(path);
-    PyGILState_Release(gstate);
+    //PyGILState_Release(gstate);
 
 
     return INTERP_OK;
@@ -466,7 +467,7 @@ int Interp::pycall(setup_pointer settings,
 		   double params[])
 {
     bp::object retval;
-    PyGILState_STATE gstate;
+    //    PyGILState_STATE gstate;
 
     logPy("pycall %s [%f] [%f] this=%lx\n",
 	    funcname,params[0],params[1],(unsigned long)this);
@@ -482,7 +483,7 @@ int Interp::pycall(setup_pointer settings,
 	return INTERP_OK;
     }
     // not sure if this is needed
-    gstate = PyGILState_Ensure();
+    //    gstate = PyGILState_Ensure();
 
     try {
 	bp::object function = settings->module_namespace[funcname];
@@ -499,7 +500,7 @@ int Interp::pycall(setup_pointer settings,
 	logPy("pycall: %s",msg.c_str());
 	ERS("pycall: %s",msg.c_str());
 	PyErr_Clear();
-	PyGILState_Release(gstate);
+	//	PyGILState_Release(gstate);
 	return INTERP_OK;
     }
 
@@ -511,7 +512,7 @@ int Interp::pycall(setup_pointer settings,
 		PyString_AsString(res_str),
 		retval.ptr()->ob_type->tp_name);
 	    Py_XDECREF(res_str);
-	    PyGILState_Release(gstate);
+	    //	    PyGILState_Release(gstate);
 	    return INTERP_OK;
 	} else {
 	    settings->return_value = bp::extract<double>(retval);
@@ -521,6 +522,6 @@ int Interp::pycall(setup_pointer settings,
 	logPy("pycall: '%s' returned no value",funcname);
     }
 
-    PyGILState_Release(gstate);
+    //    PyGILState_Release(gstate);
     return INTERP_OK;
 }
