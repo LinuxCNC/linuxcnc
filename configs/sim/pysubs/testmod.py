@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import bullshit
+#import bullshit  # test exceptions during import properly passed on
 
 def pym6demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
