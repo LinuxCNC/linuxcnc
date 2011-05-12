@@ -308,7 +308,7 @@ int Interp::_execute(const char *command)
   {  // copy parameter settings from parameter buffer into parameter table
 
       logDebug("storing param:|%s|", _setup.named_parameters[n]);
-    CHP(store_named_param(_setup.named_parameters[n],
+      CHP(store_named_param(&_setup, _setup.named_parameters[n],
                           _setup.named_parameter_values[n]));
 
     // free the string
@@ -2062,6 +2062,7 @@ The file looks like this:
 VARIABLE_FILE = rs274ngc.var
 
 */
+
 
 int Interp::ini_load(const char *filename)
 {

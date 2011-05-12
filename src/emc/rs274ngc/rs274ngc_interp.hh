@@ -109,7 +109,6 @@ public:
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
- int init_named_parameters();
  int on_abort(int reason, const char *message);
 
     //technically this violates encapsulation rules but is needed for
@@ -381,10 +380,10 @@ private:
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
 
- int store_named_param(const char *nameBuf, double value, int override_readonly = 0);
+ int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
  int add_named_param(const char *nameBuf, int attr = 0);
  int lookup_named_param(const char *nameBuf, double index, double *value);
- int init_readonly_param(const char *nameBuf, double value, int attr);
+    int init_readonly_param(const char *nameBuf, double value, int attr);
  int find_named_param(const char *nameBuf, int *status, double *value);
  int free_named_parameters(int level, setup_pointer settings);
  int save_context(setup_pointer settings);
@@ -495,6 +494,8 @@ private:
  // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
  bool check_args(block_pointer block,const char *argspec);
 
+
+ int init_named_parameters();
  // given a settings and some opaque userdata, 'do the right thing'
  // present optional words to the subroutine's local variables
  // userdata would typically be a gcode or mcode

@@ -183,7 +183,7 @@ int Interp::find_named_param(
 
 
 
-int Interp::store_named_param(
+int Interp::store_named_param(setup_pointer settings,
     const char *nameBuf, //!< pointer to name to be written
     double value,   //!< value to be written
     int override_readonly  //!< set to true to init a r/o parameter
@@ -197,7 +197,7 @@ int Interp::store_named_param(
   // now look it up
   if(nameBuf[0] != '_') // local scope
   {
-      level = _setup.call_level;
+      level = settings->call_level;
   }
   else
   {
@@ -205,7 +205,7 @@ int Interp::store_named_param(
       level = 0;
   }
 
-  nameList = &_setup.sub_context[level].named_parameters;
+  nameList = &settings->sub_context[level].named_parameters;
 
   logDebug("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
            nameList, nameBuf);
@@ -320,7 +320,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
 	}								\
     } else {					\
 	add_named_param(name,0);		\
-	store_named_param(name,value,0); 	\
+	store_named_param(settings,name,value,0); 	\
     }
 
 #define PARAM(spec,name,flag,value) 	                    	\
@@ -517,7 +517,7 @@ int Interp::init_readonly_param(
     int attr)       //!< see PA_* defs in interp_internal.hh
 {
     CHP( add_named_param((char *) nameBuf, PA_READONLY|attr));
-    CHP(store_named_param((char *) nameBuf, value, OVERRIDE_READONLY));
+    CHP(store_named_param(&_setup, (char *) nameBuf, value, OVERRIDE_READONLY));
 
     //MSG("(DEBUG, %s: = #<%s>)\n",nameBuf,nameBuf);
     return INTERP_OK;
