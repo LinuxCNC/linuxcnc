@@ -5,6 +5,15 @@
 // NB: all this is executed at readahead time
 //
 // Michael Haberler 4/2011
+//
+// if you get a segfault like described
+// here: https://bugs.launchpad.net/ubuntu/+source/mesa/+bug/259219
+// or here: https://www.libavg.de/wiki/LinuxInstallIssues#glibc_invalid_pointer :
+//
+// try this before starting milltask and axis in emc:
+//  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCTASK ...
+//  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCDISPLAY ...
+// this is actually a bug in libgl1-mesa-dri
 
 #include <boost/python.hpp>
 #include <boost/make_shared.hpp>
@@ -73,9 +82,10 @@ struct ParamClass
 		int index = bp::extract < int > (sub);
 		retval = current_setup->parameters[index];
 		// fprintf(stderr,"return parameters[%d] = %f\n",index,retval);
-	    } else
-		fprintf(stderr,"getitem BAD SUBSCRIPT  TYPE \n");
-
+	    } else {
+		fprintf(stderr,"getitem:bad subscript type\n");
+		throw std::runtime_error("getitem: bad subscript type, neither int nor string");
+	    }
 	return retval;
     }
 
@@ -365,6 +375,7 @@ int Interp::init_python(setup_pointer settings)
     PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
     PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
     Py_Initialize();
+    gstate = PyGILState_Ensure();
 
     try {
 	settings->module = bp::import("__main__");
