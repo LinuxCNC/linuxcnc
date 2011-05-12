@@ -50,12 +50,24 @@ namespace bp = boost::python;
 // but 'outside'
 // we store references to private data during call setup and
 // use it to reference it in the python module
+// NB: this is likely not thread-safe
 static setup_pointer current_setup;
+
+// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
+// reason: avoid segfaults by del(interp_instance) on program exit
+// make delete(interp_instance) a noop wrt Interp
+static void interpDeallocFunc(Interp *interp)
+{
+    fprintf(stderr,"----> interpDeallocFunc pid=%d\n",getpid());
+}
+typedef boost::shared_ptr< Interp > interp_ptr;
+static interp_ptr  interp_instance;
+static Interp *current_interp;
 
 // accessors for a few _setup members so they can be injected into Python
 // this would be much easier with add_static_property but _setup
 // would have to be public
-static int get_selected_pocket() { return current_setup->selected_pocket; }
+static int get_selected_pocket() { return get_setup(current_interp)->selected_pocket; }
 static void set_selected_pocket(int p) { current_setup->selected_pocket = p; }
 static int get_current_pocket() { return current_setup->current_pocket; }
 static void set_current_pocket(int p) { current_setup->current_pocket = p; }
@@ -344,9 +356,11 @@ int Interp::init_python(setup_pointer settings)
 {
     char cmd[LINELEN];
     char *path;
+    PyGILState_STATE gstate;
 
     //Log("get_setup().selected_pocket=%d",get_setup().selected_pocket);
-    current_setup = &this->_setup;
+    current_setup = get_setup(this); // // &this->_setup;
+    current_interp = this;
 
     if (settings->pymodule_stat != PYMOD_NONE) {
 	logPy("init_python RE-INIT %d",settings->pymodule_stat);
@@ -355,6 +369,7 @@ int Interp::init_python(setup_pointer settings)
 
     logPy("init_python(this=%lx  pid=%d pymodule_stat=%d PyInited=%d",
 	  (unsigned long)this,getpid(),settings->pymodule_stat,Py_IsInitialized());
+
 
     // boost::shared_ptr< Interp, interpDeallocFunc > interp_ptr;
     interp_instance = interp_ptr(this,interpDeallocFunc  );
@@ -391,22 +406,33 @@ int Interp::init_python(setup_pointer settings)
 	bp::object canon_module = bp::import("CanonMod");
 	settings->module_namespace["CanonMod"] = canon_module;
 
-	bp::exec_file(path,
-		      settings->module_namespace,
-		      settings->module_namespace);
+
+
+	bp::object result = bp::exec_file(path,
+					  settings->module_namespace,
+					  settings->module_namespace);
+
 
 	settings->pymodule_stat = PYMOD_OK;
-	free(path);
     }
     catch (bp::error_already_set) {
 	std::string msg = handle_pyerror();
+
+	logPy("init_python: module '%s' init failed: %s",path,msg.c_str());
+	//free(path);
+	PyGILState_Release(gstate);
+
 	ERS("init_python: %s",msg.c_str());
 	settings->pymodule_stat = PYMOD_FAILED;
 	PyErr_Clear();
     }
+    //free(path);
+    PyGILState_Release(gstate);
+
+
     return INTERP_OK;
 
- error:
+ error:  // come here if PYCHK() macro fails
     return INTERP_ERROR;
 }
 
