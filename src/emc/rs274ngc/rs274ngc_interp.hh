@@ -111,9 +111,9 @@ public:
  int set_tool_parameters();
  int on_abort(int reason, const char *message);
 
-    //technically this violates encapsulation rules but is needed for
-    // the Python introspection module
-    setup_pointer get_setup(void);
+
+
+
 private:
 
 /* Function prototypes for all  functions */
@@ -527,7 +527,13 @@ private:
 
     // const char *fmt, ...) __attribute__((format(printf,2,3)));
 
+
  const char *interp_status(int status);
+
+    //technically this violates encapsulation rules but is needed for
+    // the Python introspection module // FIXME mah deleatur
+
+    friend setup *get_setup(const Interp *x) { return &x->_setup;};
 
  FILE *log_file;
 
