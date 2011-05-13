@@ -774,9 +774,10 @@ HOME_USE_INDEX ::
     and pid.
 
 HOME_IGNORE_LIMITS ::
-     *= NO*  Some machines use a single switch as a home switch and limit
-    switch.
-    This variable should be set to yes if the machine configured this way.
+     *= NO*  Some machines use a single switch per axis as a home switch 
+     and limit switch. This variable should be set to YES if the machine 
+     configured this way. When set to YES the limit switch for this axis
+     only is ignored when homing.
 
 HOME_IS_SHARED = <n>::
      If the home input is shared by more than one axis set <n> to 1 to

@@ -76,11 +76,13 @@ The value must a positive number.
 ==== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
 
 Can hold the values YES / NO. This flag determines whether EMC will
-ignore the limit switch inputs. Some machine configurations do not use
-a separate home switch, instead they route one of the limit switch
-signals to the home switch input as well. In this case, EMC needs to
-ignore that limit during homing. The default value for this parameter
-is NO.
+ignore the limit switch input for this axis while homing. Some machine 
+configurations do not use a separate home switch, instead they route 
+one of the limit switch signals to the home switch input as well. 
+In this case, EMC needs to ignore that limit during homing. The default 
+value for this parameter is NO. To use only one input for all homing and 
+limits you will have to block the limits of the axis not homing with axis 
+that is homing in HAL.
 
 ==== HOME_USE_INDEX (((HOME USE INDEX)))
 
