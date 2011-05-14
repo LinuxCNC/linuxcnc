@@ -111,8 +111,10 @@ public:
  int set_tool_parameters();
  int on_abort(int reason, const char *message);
 
-
-
+    // for now, public - for boost.python access
+ int find_named_param(const char *nameBuf, int *status, double *value);
+ int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
+ int add_named_param(const char *nameBuf, int attr = 0);
 
 private:
 
@@ -380,11 +382,10 @@ private:
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
 
- int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
- int add_named_param(const char *nameBuf, int attr = 0);
+
+
  int lookup_named_param(const char *nameBuf, double index, double *value);
     int init_readonly_param(const char *nameBuf, double value, int attr);
- int find_named_param(const char *nameBuf, int *status, double *value);
  int free_named_parameters(int level, setup_pointer settings);
  int save_context(setup_pointer settings);
  int restore_context(setup_pointer settings, int from_level);
