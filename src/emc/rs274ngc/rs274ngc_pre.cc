@@ -230,8 +230,8 @@ int Interp::_execute(const char *command)
     if (status != INTERP_OK) {
 	if (status > INTERP_MIN_ERROR) {
 	    logRemap("-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d",
-		    _setup.stack_level,command, interp_status(status),MDImode);
-	    _setup.stack_level = 0;
+		    _setup.remap_level,command, interp_status(status),MDImode);
+	    _setup.remap_level = 0;
 	}
       return status;
     }
@@ -269,8 +269,8 @@ int Interp::_execute(const char *command)
 	    {
 		if (status > INTERP_MIN_ERROR) {
 		    logRemap("-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d",
-			    _setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
-		    _setup.stack_level = 0;
+			    _setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
+		    _setup.remap_level = 0;
 		}
 		return status;
 	    }
@@ -281,8 +281,8 @@ int Interp::_execute(const char *command)
 		} else {
 		    if (status > INTERP_MIN_ERROR) {
 			logRemap("-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d",
-				_setup.stack_level, interp_status(status), _setup.blocktext,MDImode);
-			_setup.stack_level = 0;
+				_setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
+			_setup.remap_level = 0;
 		    }
 		    reset();
 		}
@@ -338,17 +338,18 @@ int Interp::_execute(const char *command)
       // 2. execute the remap stack top level block, ticking off (zeroing) all items which are done.
       //
       // 3. when a remap operation is encountered, this will result in a call like so:
-      //   'o<replacement>call ..params..'
+      //   'o<replacement>call ..params..' OR a call to a Python function if so defined.
+      //
       //   this replacement call is parsed with read() into _setup.blocks[0] by the
       //   corresponding routine (see e.g. handling of T in interp_execute.cc)
       //   through calling into execute_handler()
       //
       // 4. execute_handler() sets an optional prologue handler which is called
       //    when the subroutine environment is set up (parameters set, execution of
-      //    body to begin). This is way to set local named parameters for canned cycles.
+      //    body to begin). This is the way to set local named parameters e.g. for canned cycles.
       //
       // 5. execute_handler() also sets up an epilogue handler for the replacement sub
-      //   which finishes any work at the C level on endsub/return, and thereafter a callback
+      //   which finishes any work at the C or Python level on endsub/return, and thereafter a callback
       //   into remap_finished().
       //
       // 6. The execution stops after parsing, and returns with an indication which
@@ -371,9 +372,9 @@ int Interp::_execute(const char *command)
 	  logRemap("found remap %s in '%s', level=%d filename=%s line=%d",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
-          _setup.stack_level++;
-	  if (_setup.stack_level == MAX_NESTED_REMAPS) {
-	      _setup.stack_level = 0;
+          _setup.remap_level++;
+	  if (_setup.remap_level == MAX_NESTED_REMAPS) {
+	      _setup.remap_level = 0;
 	      ERS("maximum nesting of remapped blocks execeeded");
 	      return INTERP_ERROR;
 	  }
@@ -383,13 +384,13 @@ int Interp::_execute(const char *command)
 	  CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
 
 	  // remember the line where remap was discovered
-	  if (_setup.stack_level == 1) {
+	  if (_setup.remap_level == 1) {
 	      CONTROLLING_BLOCK(_setup).line_number  = _setup.sequence_number;
 	  } else {
 	      CONTROLLING_BLOCK(_setup).line_number  = EXECUTING_BLOCK(_setup).line_number;
 	  }
 
-	  logRemap("enter remap nesting (now level %d) remapline=%d", _setup.stack_level,CONTROLLING_BLOCK(_setup).line_number);
+	  logRemap("enter remap nesting (now level %d) remapline=%d", _setup.remap_level,CONTROLLING_BLOCK(_setup).line_number);
 
 	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
@@ -460,11 +461,11 @@ int Interp::_execute(const char *command)
 	  write_settings(&_setup);
 
 	  if ((status == INTERP_EXIT) &&
-	      (_setup.stack_level > 0) &&
+	      (_setup.remap_level > 0) &&
 	      (_setup.call_level > 0)) {
 	      // an M2 was encountered while executing a handler.
 	      logRemap("standard case status=%s remap_level=%d call_level=%d blocktext='%s' MDImode=%d",
-		      interp_status(status),_setup.stack_level,_setup.call_level, _setup.blocktext,MDImode);
+		      interp_status(status),_setup.remap_level,_setup.call_level, _setup.blocktext,MDImode);
 	      logRemap("_setup.filename = %s, fn[0]=%s, fn[1]=%s",
 		      _setup.filename,
 		      _setup.sub_context[0].filename,
@@ -498,10 +499,10 @@ int Interp::execute(const char *command, int line_number)
     _setup.sequence_number = line_number;
     logDebug("--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d",
 	    command == NULL ? "NULL" : command,
-	    _setup.stack_level,_setup.call_level,_setup.mdi_interrupt);
+	    _setup.remap_level,_setup.call_level,_setup.mdi_interrupt);
     status = Interp::execute(command);
     logDebug("<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d",
-	    _setup.stack_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
+	    _setup.remap_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
@@ -518,7 +519,7 @@ int Interp::remap_finished(int finished_remap)
     int next_remap,status;
 
     logRemap("remap_finished finished=%s nesting=%d call_level=%d filename=%s",
-	  remaps[finished_remap],_setup.stack_level,_setup.call_level,_setup.filename);
+	  remaps[finished_remap],_setup.remap_level,_setup.call_level,_setup.filename);
 
     switch (finished_remap) {
     case T_REMAP:
@@ -549,7 +550,7 @@ int Interp::remap_finished(int finished_remap)
 	    // execution of controlling block finished executing a remap, and it contains no more
 	    // remapped items. Execute any leftover items.
 	    logRemap("no more remaps in controlling_block found (nesting=%d call_level=%d), dropping",
-		    _setup.stack_level,_setup.call_level);
+		    _setup.remap_level,_setup.call_level);
 
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
 				   &_setup, true); // remove trail
@@ -557,9 +558,9 @@ int Interp::remap_finished(int finished_remap)
 	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
 		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
 		logRemap("executing block leftover items: %s status=%s  nesting=%d (failing)",
-			status < 0 ? "BUG":"ERROR", interp_status(status),_setup.stack_level);
-		int level = _setup.stack_level;
-		_setup.stack_level = 0;
+			status < 0 ? "BUG":"ERROR", interp_status(status),_setup.remap_level);
+		int level = _setup.remap_level;
+		_setup.remap_level = 0;
 		if (status < 0)
 		    ERS("BUG - check next_remapping() status=%d nesting=%d",status,level);
 	    } else {
@@ -571,23 +572,23 @@ int Interp::remap_finished(int finished_remap)
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
 		logRemap("executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
-			interp_status(status),_setup.stack_level,_setup.toolchange_flag,
+			interp_status(status),_setup.remap_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
 			CONTROLLING_BLOCK(_setup).line_number);
 
 		// restore the line number where remap was found
-		if (_setup.stack_level == 1) {
+		if (_setup.remap_level == 1) {
 		    // dropping to top level
 		    _setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
 		} else {
 		    // just dropping a nesting level
 		    EXECUTING_BLOCK(_setup).line_number = CONTROLLING_BLOCK(_setup).line_number ;
 		}
-		_setup.stack_level--; // drop one nesting level
-		if (_setup.stack_level < 0) {
-		    Log("BUG: stack_level %d (<0) after dropping!!",
-			    _setup.stack_level);
-		    ERS("BUG: stack_level < 0");
+		_setup.remap_level--; // drop one nesting level
+		if (_setup.remap_level < 0) {
+		    Log("BUG: remap_level %d (<0) after dropping!!",
+			    _setup.remap_level);
+		    ERS("BUG: remap_level < 0");
 		}
 	    }
 	}
@@ -597,7 +598,7 @@ int Interp::remap_finished(int finished_remap)
     default: ;
 	// "should not happen"
 	Log("BUG: remap_finished(): finished_remap=%d nesting=%d",
-	    finished_remap, _setup.stack_level);
+	    finished_remap, _setup.remap_level);
     }
     return INTERP_OK;
 }
@@ -769,7 +770,7 @@ int Interp::init()
   _setup.b_indexer = 0;
   _setup.c_indexer = 0;
   _setup.return_value = 0;
-  _setup.stack_level = 0; // remapped blocks stack index
+  _setup.remap_level = 0; // remapped blocks stack index
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -2179,8 +2180,8 @@ int Interp::on_abort(int reason, const char *message)
 {
     // int i;
 
-    logDebug("on_abort reason=%d message='%s' stack_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d",
-	    reason, message,_setup.stack_level,_setup.call_level,_setup.mdi_interrupt
+    logDebug("on_abort reason=%d message='%s' remap_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d",
+	    reason, message,_setup.remap_level,_setup.call_level,_setup.mdi_interrupt
 	    ,_setup.toolchange_flag,
 	    _setup.probe_flag,_setup.input_flag);
 
@@ -2194,7 +2195,7 @@ int Interp::on_abort(int reason, const char *message)
     _setup.input_flag = false;
 
     // reset remapping stack
-    _setup.stack_level = 0;
+    _setup.remap_level = 0;
     // reset call level if a sub aborted
     _setup.call_level = 0;
 

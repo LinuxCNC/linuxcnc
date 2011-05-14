@@ -13,6 +13,7 @@
 // try this before starting milltask and axis in emc:
 //  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCTASK ...
 //  LD_PRELOAD=/usr/lib/libstdc++.so.6 $EMCDISPLAY ...
+//
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
@@ -49,6 +50,8 @@ namespace bp = boost::python;
 // accessing the private data of Interp is kind of kludgy because
 // technically the Python module does not run in a member context
 // but 'outside'
+// option 1 is making all member data public
+// option 2 is this:
 // we store references to private data during call setup and
 // use it to reference it in the python module
 // NB: this is likely not thread-safe
@@ -57,30 +60,13 @@ static setup_pointer current_setup;
 // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 // reason: avoid segfaults by del(interp_instance) on program exit
 // make delete(interp_instance) a noop wrt Interp
-static void interpDeallocFunc(Interp *interp)
-{
-    fprintf(stderr,"----> interpDeallocFunc pid=%d\n",getpid());
-}
+static void interpDeallocFunc(Interp *interp) {}
 typedef boost::shared_ptr< Interp > interp_ptr;
-static interp_ptr  interp_instance;
-static Interp *current_interp;
 
-// accessors for a few _setup members so they can be injected into Python
-// this would be much easier with add_static_property but _setup
-// would have to be public
-static int get_selected_pocket() { return get_setup(current_interp)->selected_pocket; }
-static void set_selected_pocket(int p) { current_setup->selected_pocket = p; }
-static int get_current_pocket() { return current_setup->current_pocket; }
-static void set_current_pocket(int p) { current_setup->current_pocket = p; }
-static int get_toolchange_flag() { return current_setup->toolchange_flag; }
-static void set_toolchange_flag(bool f) { current_setup->toolchange_flag = f; }
-static double get_return_value() { return current_setup->return_value; }
-static int get_remap_level() { return  current_setup->stack_level; }
-const char *blocktext() { return &current_setup->blocktext[0]; }
+static Interp *current_interp;       // the Interp instance
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
-
 
 struct ParamClass
 {
@@ -89,16 +75,16 @@ struct ParamClass
 	double retval = 0;
 	if (IS_STRING(sub)) {
 	    char const* varname = bp::extract < char const* > (sub);
-	    fprintf(stderr,"getitem('%s')\n",varname);
-
+	    int status;
+	    current_interp->find_named_param(varname, &status, &retval);
+	    if (!status)
+		throw std::runtime_error("parameter does not exist: " + std::string(varname));
 	} else
 	    if (IS_INT(sub)) {
 		int index = bp::extract < int > (sub);
 		retval = current_setup->parameters[index];
-		// fprintf(stderr,"return parameters[%d] = %f\n",index,retval);
 	    } else {
-		fprintf(stderr,"getitem:bad subscript type\n");
-		throw std::runtime_error("getitem: bad subscript type, neither int nor string");
+		throw std::runtime_error("params subscript type must be integer or string");
 	    }
 	return retval;
     }
@@ -107,17 +93,19 @@ struct ParamClass
     {
 	if (IS_STRING(sub)) {
 	    char const* varname = bp::extract < char const* > (sub);
-	    fprintf(stderr,"setitem('%s'), %f\n",varname,dvalue);
+	    int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
+	    status = current_interp->store_named_param(current_setup,varname,
+							   dvalue, 0);
+	    if (status != INTERP_OK)
+		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
 
 	} else
 	    if (IS_INT(sub)) {
 		int index = bp::extract < int > (sub);
 		current_setup->parameters[index] = dvalue;
-		// fprintf(stderr,"set parameters[%d] = %f\n",index,dvalue);
 		return dvalue;
 	    } else
-		fprintf(stderr,"setitem BAD SUBSCRIPT TYPE\n");
-
+		throw std::runtime_error("params subscript type must be integer or string");
 	return dvalue;
     }
 };
@@ -133,6 +121,8 @@ BOOST_PYTHON_MODULE(InterpMod) {
         "Interpreter introspection\n"
         ;
 
+    // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
+
     class_< Interp, interp_ptr,
         noncopyable >("Interp",no_init)
 
@@ -140,13 +130,23 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("synch", &Interp::synch)
 
-	.add_property("call_level", &Interp::call_level)
+	// .def_readonly("name", &Var::name)
 
-	.add_static_property("selected_pocket", &::get_selected_pocket,&::set_selected_pocket)
-	.add_static_property("current_pocket", &::get_current_pocket, &::set_current_pocket)
-	.add_static_property("toolchange_flag", &::get_toolchange_flag, &::set_toolchange_flag)
-	.add_static_property("remap_level", &get_remap_level)
-	.add_static_property("return_value", &get_return_value)
+	.def_readwrite("call_level", &current_setup->call_level)
+	.def_readwrite("current_pocket", &current_setup->current_pocket)
+	.def_readwrite("debugmask", &current_setup->debugmask)
+	.def_readwrite("mdi_interrupt", &current_setup->mdi_interrupt)
+	.def_readwrite("input_flag", &current_setup->input_flag)
+	.def_readwrite("input_index", &current_setup->input_index)
+	.def_readwrite("input_digital", &current_setup->input_digital)
+	.def_readwrite("probe_flag", &current_setup->probe_flag)
+	.def_readwrite("remap_level", &current_setup->remap_level)
+	.def_readwrite("return_value", &current_setup->return_value)
+	.def_readwrite("selected_pocket", &current_setup->selected_pocket)
+	.def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
+	.def_readwrite("pockets_max", &current_setup->pockets_max)
+	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
+
 	;
     class_<ParamClass,noncopyable>("ParamClass","Interpreter parameters",no_init)
 	.def("__getitem__", &ParamClass::getitem)
@@ -349,7 +349,8 @@ int Interp::init_python(setup_pointer settings)
 {
     char cmd[LINELEN];
     char *path;
-    PyGILState_STATE gstate;
+    // PyGILState_STATE gstate;
+    interp_ptr  interp_instance;  // the wrapped instance
 
     //Log("get_setup().selected_pocket=%d",get_setup().selected_pocket);
     current_setup = get_setup(this); // // &this->_setup;
@@ -411,7 +412,7 @@ int Interp::init_python(setup_pointer settings)
     catch (bp::error_already_set) {
 	std::string msg = handle_pyerror();
 
-	logPy("init_python: module '%s' init failed: %s",path,msg.c_str());
+	logPy("init_python: module '%s' init failed: %s\n",path,msg.c_str());
 	//free(path);
 	// PyGILState_Release(gstate);
 
@@ -497,8 +498,8 @@ int Interp::pycall(setup_pointer settings,
     }
     catch (bp::error_already_set) {
 	std::string msg = handle_pyerror();
-	logPy("pycall: %s",msg.c_str());
-	ERS("pycall: %s",msg.c_str());
+	logPy("pycall: pid=%d  %s", getpid(), msg.c_str());
+	ERS("pycall: pid=%d %s", getpid(),msg.c_str());
 	PyErr_Clear();
 	//	PyGILState_Release(gstate);
 	return INTERP_OK;

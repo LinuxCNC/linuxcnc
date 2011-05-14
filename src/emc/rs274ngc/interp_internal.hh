@@ -361,6 +361,11 @@ struct named_parameters_struct {
 // flag initialization of r/o parameter
 #define OVERRIDE_READONLY 1
 
+typedef struct remap_struct {
+    const char *argspec;
+    int modalgroup;
+
+} remap;
 
 typedef struct context_struct {
   long position;       // location (ftell) in file
@@ -444,11 +449,10 @@ typedef struct setup_struct
   // stack of controlling blocks for remap execution
   block blocks[MAX_NESTED_REMAPS];
   // index into blocks, points to currently controlling block
-  int stack_level;
-#define CONTROLLING_BLOCK(s) s.blocks[s.stack_level]
+  int remap_level;
+#define CONTROLLING_BLOCK(s) s.blocks[s.remap_level]
 #define EXECUTING_BLOCK(s)   s.blocks[0]
 
-  // block stashed_block;          // currently executing block with remappings
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
   int current_pocket;             // carousel slot number of current tool

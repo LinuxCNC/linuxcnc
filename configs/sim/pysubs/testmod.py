@@ -50,7 +50,7 @@ def m310(callargs,**words):
 			CanonMod.FLOOD_ON()
 		else:
 			CanonMod.FLOOD_OFF()
-			l = 4711 / 0
+		#	l = 4711 / 0
 	# except Exception,err:
 	# 	print >> sys.stderr, "----- m310 exception"
 	# 	CanonMod.MESSAGE("exception: " + str(err) + ":" + traceback.format_exc())
@@ -74,6 +74,19 @@ def m311(callargs,**words):
 		CanonMod.MESSAGE("exception: " + str(err) + ":" + traceback.format_exc())
 		raise
 
+def m312(callargs,**words):
+	print "p[4711]=",InterpMod.params[4711]
+	InterpMod.params[4711] = 3.1415926
+
+def m313(callargs,**words):
+	print "assigning p['_foo']=4711"
+	InterpMod.params['_foo'] = 4711.0
+
+
+
+def m314(callargs,**words):
+	print "p['_foo']=",InterpMod.params['_foo']
+
 def pytdemo(args,**words):
 	print "pytdemo pocket=", args[0]
 #	if True: #success
@@ -86,38 +99,35 @@ def pytdemo(args,**words):
 	return args[1] # return pocket number (#2) to commit or -1 to fail
 
 
-print >> sys.stderr, "--- testmod imported"
-print "dir(InterpMod)=",dir(InterpMod)
-#print "dir(InterpMod.interp)=",dir(InterpMod.interp)
-#print "dir(InterpMod.interp.do)=",dir(InterpMod.interp.do)
-#print "do = ",InterpMod.interp.do(123)
+try:
+	print "dir(InterpMod)=",dir(InterpMod)
+	#print "dir(InterpMod.interp)=",dir(InterpMod.interp)
+	#print "dir(InterpMod.interp.do)=",dir(InterpMod.interp.do)
+	#print "do = ",InterpMod.interp.do(123)
 
-#print "dir(InterpMod.interp.foo4)=",dir(InterpMod.interp.foo4)
-#print "dir(InterpMod.interp.ps)",dir(InterpMod.interp.ps)
-#print "dir(InterpMod.interp.invite)",dir(InterpMod.interp.invite)
-#print "str(InterpMod.interp.invite)",str(InterpMod.interp.invite)
-#print "InterpMod.interp.foo4=",InterpMod.interp.foo4
-#print "InterpMod.interp.invite()",InterpMod.interp.invite()
-#print "InterpMod.interp.blocktext",InterpMod.interp.blocktext
-#print "InterpMod.interp.call_level",InterpMod.interp.call_level
-#print "InterpMod.interp.cl()=",InterpMod.interp.cl()
+	#print "dir(InterpMod.interp.foo4)=",dir(InterpMod.interp.foo4)
+	#print "dir(InterpMod.interp.ps)",dir(InterpMod.interp.ps)
+	#print "dir(InterpMod.interp.invite)",dir(InterpMod.interp.invite)
+	#print "str(InterpMod.interp.invite)",str(InterpMod.interp.invite)
+	#print "InterpMod.interp.foo4=",InterpMod.interp.foo4
+	#print "InterpMod.interp.invite()",InterpMod.interp.invite()
+	#print "InterpMod.interp.blocktext",InterpMod.interp.blocktext
+	#print "InterpMod.interp.call_level",InterpMod.interp.call_level
+	#print "InterpMod.interp.cl()=",InterpMod.interp.cl()
+	#print "InterpMod.interp.value=",InterpMod.interp.value
+	#InterpMod.interp.value = True
+	#print "set true: InterpMod.interp.value=",InterpMod.interp.value
 
-print "dir(InterpMod.params)=",dir(InterpMod.params)
-
-InterpMod.params[123] = 3.14
-print "InterpMod.params[123]=",InterpMod.params[123]
-InterpMod.params['fasfasdf'] = 2.718
-print "InterpMod.params['fasfasdf']=",InterpMod.params['fasfasdf']
-#print "FAIL: InterpMod.params[3.14]=",InterpMod.params[3.14]
+	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
+		print "param",i,"=",InterpMod.params[i]
 
 
 
 
-#
-#print "params[12]=",InterpMod.interp.params[12]
-#print "params['foo']=",InterpMod.interp.params['foo']
 
-#print "dir(InterpMod.do)=",dir(InterpMod.foo)
-#print "dir(CanonMod)=",dir(CanonMod)
+except Exception,err:
+	print "exception: " + str(err) + ":" + traceback.format_exc()
+
+
 
 

@@ -643,7 +643,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    if (settings->sub_context[settings->call_level].subName)
 			free(settings->sub_context[settings->call_level].subName);
 		    settings->call_level--;
-		    settings->stack_level = 0;
+		    settings->remap_level = 0;
 		    return status;
 		}
 	    }
@@ -672,7 +672,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		if (status > INTERP_MIN_ERROR) {
 		    logRemap("O_call: py prologue failed, unwinding\n");
 		    // end any remappings in progress
-		    settings->stack_level = 0;
+		    settings->remap_level = 0;
 		    return status;
 		}
 	    }
@@ -681,7 +681,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    if (status >  INTERP_MIN_ERROR) {
 		// end any remappings in progress
 		logRemap("O_call: pycall failed, unwinding\n");
-		settings->stack_level = 0;
+		settings->remap_level = 0;
 		return status;
 	    }
 	    logRemap("O_call(%s) return value=%f\n",
