@@ -792,6 +792,8 @@ int Interp::init()
       {
           const char *inistring;
 
+	  CHP(init_named_parameters());  // need this before Python init
+
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
           inifile.Find(&_setup.tool_change_with_spindle_on, "TOOL_CHANGE_WITH_SPINDLE_ON", "EMCIO");
@@ -1138,7 +1140,6 @@ int Interp::init()
   write_settings(&_setup);
 
   init_tool_parameters();
-  CHP(init_named_parameters());
   // Synch rest of settings to external world
   return INTERP_OK;
 }
