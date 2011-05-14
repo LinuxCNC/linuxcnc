@@ -17,6 +17,10 @@
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
+// TODO:
+// method to re-import the py module (easier to debug without restarting Axis)
+// block access
+
 #include <boost/python.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/python/object.hpp>
@@ -61,9 +65,12 @@ static setup_pointer current_setup;
 // reason: avoid segfaults by del(interp_instance) on program exit
 // make delete(interp_instance) a noop wrt Interp
 static void interpDeallocFunc(Interp *interp) {}
+
+// the boost-wrapped Interp instance
 typedef boost::shared_ptr< Interp > interp_ptr;
 
-static Interp *current_interp;       // the Interp instance
+// the Interp instance, set on call before handing to Python
+static Interp *current_interp;
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
@@ -323,7 +330,7 @@ BOOST_PYTHON_MODULE(CanonMod) {
     //    def("XYZ",&XYZ);
 }
 
-
+// decode a Python exception into a string.
 std::string handle_pyerror()
 {
     using namespace boost::python;
@@ -334,7 +341,6 @@ std::string handle_pyerror()
     handle<> hexc(exc),hval(val),htb(tb);
     if(!htb || !hval) {
 	fprintf(stderr,"handle_pyerror: BUG \n");
-	// MYAPP_ASSERT_BUG(hexc);
 	return extract<std::string>(str(hexc));
     } else {
 	object traceback(import("traceback"));
@@ -347,12 +353,11 @@ std::string handle_pyerror()
 
 int Interp::init_python(setup_pointer settings)
 {
-    char cmd[LINELEN];
-    char *path;
+    char cmd[LINELEN], path[PATH_MAX];
+    // char *path;
     // PyGILState_STATE gstate;
     interp_ptr  interp_instance;  // the wrapped instance
 
-    //Log("get_setup().selected_pocket=%d",get_setup().selected_pocket);
     current_setup = get_setup(this); // // &this->_setup;
     current_interp = this;
 
@@ -360,30 +365,24 @@ int Interp::init_python(setup_pointer settings)
 	logPy("init_python RE-INIT %d",settings->pymodule_stat);
 	return INTERP_OK;  // already done, or failed
     }
-
     logPy("init_python(this=%lx  pid=%d pymodule_stat=%d PyInited=%d",
 	  (unsigned long)this,getpid(),settings->pymodule_stat,Py_IsInitialized());
-
-
-    // boost::shared_ptr< Interp, interpDeallocFunc > interp_ptr;
     interp_instance = interp_ptr(this,interpDeallocFunc  );
 
     PYCHK((settings->pymodule == NULL),
 	  "init_python: no module defined");
-
     if (settings->pydir) {
 	snprintf(cmd,sizeof(cmd),"%s/%s", settings->pydir,settings->pymodule);
     } else
 	strcpy(cmd,settings->pymodule);
-
-    PYCHK(((path = realpath(cmd,NULL)) == NULL),
+    PYCHK(((realpath(cmd,path)) == NULL),
 	  "init_python: can resolve path to '%s'",cmd);
     logPy("module path='%s'",path);
-
     Py_SetProgramName(path);
     PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
     PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
     Py_Initialize();
+
     // gstate = PyGILState_Ensure();
 
     try {
@@ -413,16 +412,13 @@ int Interp::init_python(setup_pointer settings)
 	std::string msg = handle_pyerror();
 
 	logPy("init_python: module '%s' init failed: %s\n",path,msg.c_str());
-	//free(path);
 	// PyGILState_Release(gstate);
 
 	ERS("init_python: %s",msg.c_str());
 	settings->pymodule_stat = PYMOD_FAILED;
 	PyErr_Clear();
     }
-    //free(path);
     //PyGILState_Release(gstate);
-
 
     return INTERP_OK;
 
@@ -473,9 +469,8 @@ int Interp::pycall(setup_pointer settings,
     logPy("pycall %s [%f] [%f] this=%lx\n",
 	    funcname,params[0],params[1],(unsigned long)this);
 
-
-    // current_setup = &this->_setup;
-    current_setup = get_setup(this); // // &this->_setup;
+    // &this->_setup wont work, _setup is private
+    current_setup = get_setup(this);
     current_interp = this;
 
     if (settings->pymodule_stat != PYMOD_OK) {
