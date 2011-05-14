@@ -169,18 +169,18 @@ construction.
 The ABORT command simply stops all motion. It can be issued at any
 time, and will always be accepted. It does not disable the motion
 controller or change any state information, it simply cancels any
-motion that is currently in progress.footnote:[It seems that the higher
-level code (TASK and above) also use ABORT to
-clear faults. Whenever there is a persistent fault (such as being
-outside the hardware limit switches), the higher level code sends a
-constant stream of ABORTs to the motion controller trying to make the
+motion that is currently in progress.footnote:[It seems that the 
+higher level code (TASK and above) also use ABORT to clear faults. 
+Whenever there is a persistent fault (such as being outside the 
+hardware limit switches), the higher level code sends a constant 
+stream of ABORTs to the motion controller trying to make the
 fault go away. Thousands of 'em.... That means that the motion
-controller should avoid persistent faults. This needs looked into.
-]
+controller should avoid persistent faults. This needs to be looked 
+into.]
 
 ==== Requirements
 
-None. The command is alway accepted and acted on immediately.
+None. The command is always accepted and acted on immediately.
 
 ==== Results
 
@@ -993,17 +993,14 @@ follow these steps to add a new one. (The Message I added in the
 example is called EMC_IO_GENERIC (inherits EMC_IO_CMD_MSG (inherits
 RCS_CMD_MSG)))
 
- .  add the definition of the EMC_IO_GENERIC class to
-   emc2/src/emc/nml_intf/emc.hh
- .  add the type define: #define EMC_IO_GENERIC_TYPE ((NMLTYPE) 1605) - (I
-   chose 1605, because it was available) to emc2/src/emc/nml_intf/emc.hh
- .  add case EMC_IO_GENERIC_TYPE to emcFormat in
-   emc2/src/emc/nml_intf/emc.cc
- .  add case EMC_IO_GENERIC_TYPE to emc_symbol_lookup in
-   emc2/src/emc/nml_intf/emc.cc
+ . add the definition of the EMC_IO_GENERIC class to emc2/src/emc/nml_intf/emc.hh
+ . add the type define: #define EMC_IO_GENERIC_TYPE ((NMLTYPE) 1605) +
+   - (I chose 1605, because it was available) to emc2/src/emc/nml_intf/emc.hh
+ . add case EMC_IO_GENERIC_TYPE to emcFormat in emc2/src/emc/nml_intf/emc.cc
+ . add case EMC_IO_GENERIC_TYPE to emc_symbol_lookup in emc2/src/emc/nml_intf/emc.cc
  . add EMC_IO_GENERIC::update function to emc2/src/emc/nml_intf/emc.cc 
 
-recompile, and the new message should be there. The next part is to
+Recompile, and the new message should be there. The next part is to
 send such messages from somewhere, and receive them in another place,
 and do some stuff with it.
 
