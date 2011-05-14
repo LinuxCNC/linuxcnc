@@ -15,6 +15,7 @@
 #define EMC_DEBUG_OWORD             0x00002000
 #define EMC_DEBUG_REMAP             0x00004000
 #define EMC_DEBUG_PYTHON            0x00008000
+#define EMC_DEBUG_NAMEDPARAM        0x00010000
 
 #define EMC_DEBUG_UNCONDITIONAL     0x40000000  // always logged
 #define EMC_DEBUG_ALL               0x7FFFFFFF	/* it's an int for %i to work

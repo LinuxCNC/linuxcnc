@@ -75,6 +75,7 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 #define logOword(fmt, args...)  _logDebug(EMC_DEBUG_OWORD,0,1,fmt, ## args)
 #define logRemap(fmt, args...)  _logDebug(EMC_DEBUG_REMAP,0,1,fmt, ## args)
 #define logPy(fmt, args...)     _logDebug(EMC_DEBUG_PYTHON,0,1,fmt, ## args)
+#define logNP(fmt, args...)     _logDebug(EMC_DEBUG_NAMEDPARAM,0,1,fmt, ## args)
 
 // log always
 #define Log(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,LOG_PID|LOG_FILENAME,-1,fmt, ## args)
