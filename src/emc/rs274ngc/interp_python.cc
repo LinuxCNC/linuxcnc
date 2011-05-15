@@ -69,6 +69,8 @@ static void interpDeallocFunc(Interp *interp) {}
 // the boost-wrapped Interp instance
 typedef boost::shared_ptr< Interp > interp_ptr;
 
+typedef boost::shared_ptr< block > block_ptr;
+
 // the Interp instance, set on call before handing to Python
 static Interp *current_interp;
 
@@ -119,6 +121,35 @@ struct ParamClass
 
 static ParamClass paramclass;
 
+struct wrap_block : public block
+{
+    char const *get_comment() const { return comment; }
+    char const *get_o_name() const { return o_name; }
+
+    //const bp::object get_tuple() const {return bp::make_tuple(123, 'D', "Hello, World", 0.0);}
+
+    //http://mail.python.org/pipermail/cplusplus-sig/2007-January/011602.html
+    const bp::list get_g_modes() {
+	bp::list g_modes_list;
+	for (unsigned int i = 0; i < sizeof(g_modes)/sizeof(g_modes[0]); i++)
+	    g_modes_list.append(g_modes[i]);
+	return g_modes_list;
+    }
+
+    const bp::list get_m_modes() {
+	bp::list m_modes_list;
+	for (unsigned int i = 0; i < sizeof(m_modes)/sizeof(m_modes[0]); i++)
+	    m_modes_list.append(m_modes[i]);
+	return m_modes_list;
+    }
+    const bp::list get_params() {
+	bp::list params_list;
+	for (unsigned int i = 0; i < sizeof(params)/sizeof(params[0]); i++)
+	    params_list.append(params[i]);
+	return params_list;
+    }
+};
+
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -129,7 +160,93 @@ BOOST_PYTHON_MODULE(InterpMod) {
         ;
 
     // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
+    //class_<block,boost::noncopyable,bases<block>>("block", no_init);
 
+    //class_ <block,block_ptr, noncopyable>("block",no_init) ;
+    class_ <wrap_block,noncopyable>("wrap_block",no_init)
+	.def_readwrite("f_flag",&wrap_block::f_flag)
+	.def_readwrite("p_flag",&wrap_block::p_flag)
+	.def_readwrite("p_number",&wrap_block::p_number)
+	.def_readwrite("a_flag",&wrap_block::a_flag)
+	.def_readwrite("a_number",&wrap_block::a_number)
+	.def_readwrite("b_flag",&wrap_block::b_flag)
+	.def_readwrite("b_number",&wrap_block::b_number)
+	.def_readwrite("c_flag",&wrap_block::c_flag)
+	.def_readwrite("c_number",&wrap_block::c_number)
+	.def_readwrite("d_number_float",&wrap_block::d_number_float)
+	.def_readwrite("d_flag",&wrap_block::d_flag)
+	.def_readwrite("e_flag",&wrap_block::e_flag)
+	.def_readwrite("e_number",&wrap_block::e_number)
+	.def_readwrite("f_flag",&wrap_block::f_flag)
+	.def_readwrite("f_number",&wrap_block::f_number)
+	.def_readwrite("h_flag",&wrap_block::h_flag)
+	.def_readwrite("h_number",&wrap_block::h_number)
+	.def_readwrite("i_flag",&wrap_block::i_flag)
+	.def_readwrite("i_number",&wrap_block::i_number)
+	.def_readwrite("j_flag",&wrap_block::j_flag)
+	.def_readwrite("j_number",&wrap_block::j_number)
+	.def_readwrite("k_flag",&wrap_block::k_flag)
+	.def_readwrite("k_number",&wrap_block::k_number)
+	.def_readwrite("l_number",&wrap_block::l_number)
+	.def_readwrite("l_flag",&wrap_block::l_flag)
+	.def_readwrite("line_number",&wrap_block::line_number)
+	.def_readwrite("n_number",&wrap_block::n_number)
+	.def_readwrite("motion_to_be",&wrap_block::motion_to_be)
+	.def_readwrite("m_count",&wrap_block::m_count)
+	.def_readwrite("user_m",&wrap_block::user_m)
+	.def_readwrite("p_number",&wrap_block::p_number)
+	.def_readwrite("p_flag",&wrap_block::p_flag)
+	.def_readwrite("q_number",&wrap_block::q_number)
+	.def_readwrite("q_flag",&wrap_block::q_flag)
+	.def_readwrite("r_flag",&wrap_block::r_flag)
+	.def_readwrite("r_number",&wrap_block::r_number)
+	.def_readwrite("s_flag",&wrap_block::s_flag)
+	.def_readwrite("s_number",&wrap_block::s_number)
+	.def_readwrite("t_flag",&wrap_block::t_flag)
+	.def_readwrite("t_number",&wrap_block::t_number)
+	.def_readwrite("u_flag",&wrap_block::u_flag)
+	.def_readwrite("u_number",&wrap_block::u_number)
+	.def_readwrite("v_flag",&wrap_block::v_flag)
+	.def_readwrite("v_number",&wrap_block::v_number)
+	.def_readwrite("w_flag",&wrap_block::w_flag)
+	.def_readwrite("w_number",&wrap_block::w_number)
+	.def_readwrite("x_flag",&wrap_block::x_flag)
+	.def_readwrite("x_number",&wrap_block::x_number)
+	.def_readwrite("y_flag",&wrap_block::y_flag)
+	.def_readwrite("y_number",&wrap_block::y_number)
+	.def_readwrite("z_flag",&wrap_block::z_flag)
+	.def_readwrite("z_number",&wrap_block::z_number)
+	.def_readwrite("radius_flag",&wrap_block::radius_flag)
+	.def_readwrite("radius",&wrap_block::radius)
+	.def_readwrite("theta_flag",&wrap_block::theta_flag)
+	.def_readwrite("theta",&wrap_block::theta)
+
+	//http://mail.python.org/pipermail/cplusplus-sig/2005-July/008840.html
+	.def_readwrite("offset",&wrap_block::offset)
+	.def_readwrite("o_type",&wrap_block::o_type)
+
+	.add_property("comment", &wrap_block::get_comment)
+	.add_property("o_name", &wrap_block::get_o_name)
+	.add_property("g_modes", &wrap_block::get_g_modes)
+	.add_property("m_modes", &wrap_block::get_m_modes)
+	.add_property("params", &wrap_block::get_params)
+
+
+	// MISSING:
+
+  //    params[ERP_SUB_PARAMS]
+
+  //  g_modes[16]
+  // char comment[256]
+  //  m_modes[11]
+
+	;
+
+
+
+
+
+	;
     class_< Interp, interp_ptr,
         noncopyable >("Interp",no_init)
 
@@ -154,7 +271,12 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("pockets_max", &current_setup->pockets_max)
 	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
 
+	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
+	.def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+
+
 	;
+
     class_<ParamClass,noncopyable>("ParamClass","Interpreter parameters",no_init)
 	.def("__getitem__", &ParamClass::getitem)
 	.def("__setitem__", &ParamClass::setitem);
@@ -369,6 +491,9 @@ int Interp::init_python(setup_pointer settings)
 	  (unsigned long)this,getpid(),settings->pymodule_stat,Py_IsInitialized());
     interp_instance = interp_ptr(this,interpDeallocFunc  );
 
+    // Interp &x = bp::extract<Interp &>(interp_instance); // inverse to interp_ptr(this...)
+    // logPy("this=%lx interp_instance=%lx x=%lx",(void *)this,(void *)&interp_instance,(void *)&x);
+
     PYCHK((settings->pymodule == NULL),
 	  "init_python: no module defined");
     if (settings->pydir) {
@@ -493,7 +618,7 @@ int Interp::pycall(setup_pointer settings,
     }
     catch (bp::error_already_set) {
 	std::string msg = handle_pyerror();
-	logPy("pycall: pid=%d  %s", getpid(), msg.c_str());
+	//logPy("pycall: pid=%d  %s", getpid(), msg.c_str());
 	ERS("pycall: pid=%d %s", getpid(),msg.c_str());
 	PyErr_Clear();
 	//	PyGILState_Release(gstate);
