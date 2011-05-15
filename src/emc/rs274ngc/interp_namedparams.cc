@@ -725,6 +725,14 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.return_value;
 	break;
 
+    case 250:
+	*value = _setup.call_level;
+	break;
+
+    case 251:
+	*value = _setup.remap_level;
+	break;
+
     default:
 	MSG("---BUG: lookup_named_param(%s) UNHANDLED INDEX=%f \n",
 	       nameBuf,index);
@@ -847,5 +855,10 @@ int Interp::init_named_parameters()
 
   // last (optional) endsub/return value
   init_readonly_param("_value", 249, PA_USE_LOOKUP);
+
+  // debugging aids
+  init_readonly_param("_call_level", 250, PA_USE_LOOKUP);
+  init_readonly_param("_remap_level", 251, PA_USE_LOOKUP);
+
   return INTERP_OK;
 }
