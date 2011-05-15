@@ -87,6 +87,41 @@ def m313(callargs,**words):
 def m314(callargs,**words):
 	print "p['_foo']=",InterpMod.params['_foo']
 
+def m315(callargs,**words):
+	i = InterpMod.interp
+	c = i.cblock
+	e = i.eblock
+	#print "dir(cblock) =",dir(c)
+	print "remap_level =",i.remap_level,"call_level=",i.call_level
+	print "c.__class_ =",c.__class__
+	print "c.p_flag =",c.p_flag
+	print "c.p_number =",c.p_number
+	print "c.m_count =",c.m_count
+	print "c.line_number =",c.line_number
+
+	print "e.p_flag =",e.p_flag
+	print "e.p_number =",e.p_number
+	print "e.m_count =",e.m_count
+	print "e.line_number =",e.line_number
+
+
+def g887(callargs,**words):
+	i = InterpMod.interp
+	c = i.cblock
+	e = i.eblock
+	#print "dir(cblock) =",dir(c)
+	print "remap_level =",i.remap_level,"call_level=",i.call_level
+	printobj(c,"cblock")
+	printobj(e,"eblock")
+
+def printobj(b,header=""):
+	print "object ",header,":"
+	for a in dir(b):
+		if not a.startswith('_'):
+			if hasattr(b,a):
+				print a,getattr(b,a)
+
+
 def pytdemo(args,**words):
 	print "pytdemo pocket=", args[0]
 #	if True: #success
