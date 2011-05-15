@@ -527,7 +527,6 @@ private:
 
     // const char *fmt, ...) __attribute__((format(printf,2,3)));
 
-    int drop_from_remap(int status);
  const char *interp_status(int status);
 
     //technically this violates encapsulation rules but is needed for
