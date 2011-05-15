@@ -132,7 +132,7 @@ arranged in alphabetical order. They are arranged by their relationship
 or flow in the HAL way of things.
 
 Component::
-     (((HAL Component))): When we talked about hardware design, we referred
+     (((HAL Component)))When we talked about hardware design, we referred
     to the individual pieces as "parts", "building blocks", "black boxes",
     etc. The HAL equivalent is a "component" or "HAL component". (This
     document uses "HAL component" when there is likely to be confusion with
@@ -141,7 +141,7 @@ Component::
     behavior, that can be installed and interconnected as needed. 
 
 Parameter::
-     (((HAL Parameter))): Many hardware components have adjustments that
+     (((HAL Parameter)))Many hardware components have adjustments that
     are not connected to any other components but still need to be
     accessed. For example, servo amps often have trim pots to allow for
     tuning adjustments, and test points where a meter or scope can be
@@ -153,21 +153,21 @@ Parameter::
     equivalent to test points that allow internal signals to be monitored.
 
 Pin::
-     (((HAL Pin))): Hardware components have terminals which are used to
+     (((HAL Pin)))Hardware components have terminals which are used to
     interconnect them. The HAL equivalent is a "pin" or "HAL pin". ("HAL
     pin" is used when needed to avoid confusion.) All HAL pins are named,
     and the pin names are used when interconnecting them. HAL pins are
     software entities that exist only inside the computer. 
 
 Physical_Pin::
-     (((HAL Physical-Pin))): Many I/O devices have real physical pins or
+     (((HAL Physical-Pin)))Many I/O devices have real physical pins or
     terminals that connect to external hardware, for example the pins of a
     parallel port connector. To avoid confusion, these are referred to as
     "physical pins". These are the things that “stick out” into the real
     world.
 
 Signal::
-     (((HAL Signal))): In a physical machine, the terminals of real
+     (((HAL Signal)))In a physical machine, the terminals of real
     hardware components are interconnected by wires. The HAL equivalent of
     a wire is a "signal" or "HAL signal". HAL signals connect HAL pins
     together as required by the machine builder. HAL signals can be
@@ -175,21 +175,21 @@ Signal::
     running).
 
 Type::
-     (((HAL Type))): When using real hardware, you would not connect a 24
+     (((HAL Type)))When using real hardware, you would not connect a 24
     volt relay output to the +/-10V analog input of a servo amp. HAL pins
     have the same restrictions, which are based upon their type. Both pins
     and signals have types, and signals can only be connected to pins of
     the same type. Currently there are 4 types, as follows:
 
  - bit - a single TRUE/FALSE or ON/OFF value
- - float  - a 64 bit floating point value, with approximately 53 bits of
+ - float - a 64 bit floating point value, with approximately 53 bits of
    resolution and over 1000 bits of dynamic range.
- - u32 - a 32 bit unsigned integer, legal values are 0 to +4294967295
- -  s32 - a 32 bit signed integer, legal values are -2147483648 to
-   +2147483647
+ - u32 - a 32 bit unsigned integer, legal values are 0 to 4,294,967,295
+ - s32 - a 32 bit signed integer, legal values are -2,147,483,647 to
+   +2,147,483,647
 
 Function::
-     [[des:Function]](((HAL Function))): Real hardware components tend to
+     [[des:Function]](((HAL Function)))Real hardware components tend to
     act immediately on their inputs. For example, if the input voltage to a
     servo amp changes, the output also changes automatically. However
     software components cannot act "automatically". Each component has
@@ -206,7 +206,7 @@ Function::
     particular order and at specific time intervals.
 
 Thread::
-     [[des:Thread]](((HAL Thread))): A "thread" is a list of functions that
+     [[des:Thread]](((HAL Thread)))A "thread" is a list of functions that
     runs at specific intervals as part of a realtime task. When a thread is
     first created, it has a specific time interval (period), but no
     functions. Functions can be added to the thread, and will be executed
@@ -326,36 +326,42 @@ played with as kids can be an aid to building things with the HAL.
 
 === Tower
 
-     I'm watching as my son and his six year old daughter build a tower
-    from a box full of random sized blocks, rods, jar lids and such. The
-    aim is to see how tall they can make the tower. The narrower the base
-    the more blocks left to stack on top. But the narrower the base, the
-    less stable the tower. I see them studying both the next block and the
-    shelf where they want to place it to see how it will balance out with
-    the rest of the tower. 
+.Tower
+*********************************************************************
+I'm watching as my son and his six year old daughter build a tower
+from a box full of random sized blocks, rods, jar lids and such. The
+aim is to see how tall they can make the tower. The narrower the base
+the more blocks left to stack on top. But the narrower the base, the
+less stable the tower. I see them studying both the next block and the
+shelf where they want to place it to see how it will balance out with
+the rest of the tower. 
+*********************************************************************
 
 The notion of stacking cards to see how tall you can make a tower is a
 very old and honored way of spending spare time. At first read, the
 integrator may have gotten the impression that building a HAL was a bit
-like that. It can be but with proper planning an integrator can build a
+like that. It can be, but with proper planning an integrator can build a
 stable system as complex as the machine at hand requires.
 
-=== Erector Sets footnote:[The Erector Set was an invention of AC Gilbert ]
+=== Erector Sets footnote:[The Erector Set was an invention of A.C Gilbert]
 
 What was great about the sets was the building blocks, metal struts
 and angles and plates, all with regularly spaced holes. You could
 design things and hold them together with the little screws and nuts.
 
-     I got my first erector set for my fourth birthday. I know the box
-    suggested a much older age than I was. Perhaps my father was really
-    giving himself a present. I had a hard time with the little screws and
-    nuts. I really needed four arms, one each for the screwdriver, screw,
-    parts to be bolted together, and nut. Perseverance, along with father's
-    eventual boredom, got me to where I had built every project in the
-    booklet. Soon I was lusting after the bigger sets that were also
-    printed on that paper. Working with those regular sized pieces opened
-    up a world of construction for me and soon I moved well beyond the
-    illustrated projects. 
+.Erector Sets
+*********************************************************************
+I got my first erector set for my fourth birthday. I know the box
+suggested a much older age than I was. Perhaps my father was really
+giving himself a present. I had a hard time with the little screws and
+nuts. I really needed four arms, one each for the screwdriver, screw,
+parts to be bolted together, and nut. Perseverance, along with father's
+eventual boredom, got me to where I had built every project in the
+booklet. Soon I was lusting after the bigger sets that were also
+printed on that paper. Working with those regular sized pieces opened
+up a world of construction for me and soon I moved well beyond the
+illustrated projects. 
+*********************************************************************
 
 Hal components are not all the same size and shape but they allow for
 grouping into larger units that will do useful work.In this sense they
@@ -368,24 +374,27 @@ that are unique to them.
 
 === Tinkertoys footnote:[Tinkertoy is now a registered trademark of the Hasbro company. ]
 
-     Wooden Tinker toys had a more humane feel that the cold steel of
-    Erector Sets. The heart of construction with Tinker Toys was a round
-    connector with eight holes equally spaced around the circumference. It
-    also had a hole in the center that was perpendicular to all the holes
-    around the hub.
+.Tinkertoys
+*********************************************************************
+Wooden Tinkertoys had a more humane feel than the cold steel of
+Erector Sets. The heart of construction with Tinkertoys was a round
+connector with eight holes equally spaced around the circumference. It
+also had a hole in the center that was perpendicular to all the holes
+around the hub.
 
-     Hubs were connected with rods of several different lengths. Builders
-    would make large wheels by using these rods as spokes sticking out from
-    the center hub. 
+Hubs were connected with rods of several different lengths. Builders
+would make large wheels by using these rods as spokes sticking out from
+the center hub. 
 
-     My favorite project was a rotating space station. Short spokes
-    radiated from all the holes in the center hub and connected with hubs
-    on the ends of each spoke. These outer hubs were connected to each
-    other with longer spokes. I'd spend hours dreaming of living in such a
-    device, walking from hub to hub around the outside as it slowly rotated
-    producing near gravity in weightless space. Supplies traveled through
-    the spokes in elevators that transferred them to an from rockets docked
-    at the center hub while they transferred their precious cargoes.
+My favorite project was a rotating space station. Short spokes
+radiated from all the holes in the center hub and connected with hubs
+on the ends of each spoke. These outer hubs were connected to each
+other with longer spokes. I'd spend hours dreaming of living in such a
+device, walking from hub to hub around the outside as it slowly rotated
+producing near gravity in weightless space. Supplies traveled through
+the spokes in elevators that transferred them to and from rockets docked
+at the center hub while they transferred their precious cargoes.
+*********************************************************************
 
 The idea of one pin or component being the hub for many connections is
 also an easy concept within the HAL. Examples two and four (see section
@@ -421,15 +430,18 @@ Lego blocks interconnected by snapping the holes in the underside of
 one onto the pins that stuck up on another. By overlapping layers, the
 joints between could be made very strong, even around corners or tees.
 
-     I watched my children and grandchildren build with legos -- the same
-    legos. There are a few thousand of them in an old ratty but heavy duty
-    cardboard box that sits in a corner of the recreation room. It stays
-    there in the open because it was too much trouble to put the box away
-    and then get it back out for every visit and it is always used during a
-    visit. There must be Lego parts in there from a couple dozen different
-    sets. The little booklets that came with them are long gone but the
-    magic of building with interlocking pieces all the same size is
-    something to watch. 
+.Legos
+*********************************************************************
+I watched my children and grandchildren build with legos -- the same
+legos. There are a few thousand of them in an old ratty but heavy duty
+cardboard box that sits in a corner of the recreation room. It stays
+there in the open because it was too much trouble to put the box away
+and then get it back out for every visit and it is always used during a
+visit. There must be Lego parts in there from a couple dozen different
+sets. The little booklets that came with them are long gone but the
+magic of building with interlocking pieces all the same size is
+something to watch. 
+*********************************************************************
 
 ==  [[sec:Timing-Issues]]Timing Issues In HAL
 

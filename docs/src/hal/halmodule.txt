@@ -60,15 +60,15 @@ microseconds, no matter what).
 
 == Create pins and parameters
 
-    h = hal.component("passthrough")
+`h = hal.component("passthrough")`
 
 The component itself is created by a call to the constructor
-'`hal.component` '. The arguments are the HAL component name and
+'`hal.component`'. The arguments are the HAL component name and
 (optionally) the
 prefix used for pin and parameter names. If the prefix is not
 specified, the component name is used.
 
-    h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+`h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)`
 
 Then pins are created by calls to methods on the component object. The
 arguments are: pin name suffix, pin type, and pin direction. For
@@ -80,15 +80,15 @@ and parameter direction.
 [width="80%", options="header"]
 |========================================
 |*Pin and Parameter Types:* | HAL_BIT | HAL_FLOAT | HAL_S32 | HAL_U32
-|*Pin Directions:* | HAL_IN | HAL_OUT | HAL_IO | 
-|*Parameter Directions:* | HAL_RO | HAL_RW |  | 
+|*Pin Directions:*          | HAL_IN  | HAL_OUT   | HAL_IO  | 
+|*Parameter Directions:*    | HAL_RO  | HAL_RW    |         | 
 |========================================
 
 The full pin or parameter name is formed by joining the prefix and the
 suffix with a “.”, so in the example the pin created is called
 `passthrough.in`.
 
-    h.ready()
+`h.ready()`
 
 Once all the pins and parameters have been created, call the
 `.ready()` method.
@@ -103,12 +103,12 @@ current prefix can be retrieved by calling the `.getprefix()` method.
 For pins and parameters which are also proper Python identifiers, the
 value may be accessed or set using the attribute syntax:
 
-    h.out = h.in
+`h.out = h.in`
 
 For all pins, whether or not they are also proper Python identifiers,
 the value may be accessed or set using the subscript syntax:
 
-    h['out'] = h['in']
+`h['out'] = h['in']`
 
 === Driving output (HAL_OUT) pins
 
@@ -128,16 +128,15 @@ encoder interface, the encoder component only sets the *index-enable*
 pin to *FALSE* (when an index pulse is seen and the old value is
 *TRUE*), but never sets it to *TRUE*. Repeatedly driving the pin
 *FALSE*  might cause the other connected component to act as though
-another
-index pulse had been seen.
+another index pulse had been seen. 
 
 == Exiting
 
-A “`halcmd unload`” request for the component is delivered as a
-`KeyboardInterrupt`  exception. When an unload request arrives, the
-process should either
- exit in a short time, or call the `.exit()`  method on the component
-if substantial work (such as reading or
+A “`halcmd unload`” request for the component is delivered as a 
+`KeyboardInterrupt`  exception. When an unload request arrives, the 
+process should either 
+exit in a short time, or call the `.exit()` method on the component 
+if substantial work (such as reading or 
 writing files) must be done to complete the shutdown process.
 
 == Project ideas
@@ -146,11 +145,12 @@ writing files) must be done to complete the shutdown process.
    indicators. Connect everything to a microcontroller, and connect the
    microcontroller to the PC using a serial interface. Python has a very
    capable serial interface module called
-   http://pyserial.sourceforge.net/[pyserial] (Ubuntu package name
-   “python-serial”, in the universe repository)
+   http://pyserial.sourceforge.net/[pyserial] 
+   (Ubuntu package name “python-serial”, in the universe repository)
  -  Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
    and use it to display a digital readout with information of your choice
    (Ubuntu package name “lcdproc”, in the universe repository)
  -  Create a virtual control panel using any GUI library supported by
    Python (gtk, qt, wxwindows, etc)
+
 
