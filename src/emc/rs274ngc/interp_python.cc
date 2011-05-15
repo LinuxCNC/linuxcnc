@@ -225,28 +225,15 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("offset",&wrap_block::offset)
 	.def_readwrite("o_type",&wrap_block::o_type)
 
+	// currently read-only
 	.add_property("comment", &wrap_block::get_comment)
 	.add_property("o_name", &wrap_block::get_o_name)
 	.add_property("g_modes", &wrap_block::get_g_modes)
 	.add_property("m_modes", &wrap_block::get_m_modes)
 	.add_property("params", &wrap_block::get_params)
 
-
-	// MISSING:
-
-  //    params[ERP_SUB_PARAMS]
-
-  //  g_modes[16]
-  // char comment[256]
-  //  m_modes[11]
-
 	;
 
-
-
-
-
-	;
     class_< Interp, interp_ptr,
         noncopyable >("Interp",no_init)
 
@@ -256,24 +243,23 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 	// .def_readonly("name", &Var::name)
 
+
+	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
 	.def_readwrite("call_level", &current_setup->call_level)
+	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
 	.def_readwrite("current_pocket", &current_setup->current_pocket)
 	.def_readwrite("debugmask", &current_setup->debugmask)
-	.def_readwrite("mdi_interrupt", &current_setup->mdi_interrupt)
+	.def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+	.def_readwrite("input_digital", &current_setup->input_digital)
 	.def_readwrite("input_flag", &current_setup->input_flag)
 	.def_readwrite("input_index", &current_setup->input_index)
-	.def_readwrite("input_digital", &current_setup->input_digital)
+	.def_readwrite("mdi_interrupt", &current_setup->mdi_interrupt)
+	.def_readwrite("pockets_max", &current_setup->pockets_max)
 	.def_readwrite("probe_flag", &current_setup->probe_flag)
 	.def_readwrite("remap_level", &current_setup->remap_level)
 	.def_readwrite("return_value", &current_setup->return_value)
 	.def_readwrite("selected_pocket", &current_setup->selected_pocket)
 	.def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
-	.def_readwrite("pockets_max", &current_setup->pockets_max)
-	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
-
-	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
-	.def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
-
 
 	;
 

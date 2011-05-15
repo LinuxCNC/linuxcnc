@@ -342,10 +342,9 @@ typedef struct block_struct
   double   params[INTERP_SUB_PARAMS];
 
   // bitmap of steps already executed
-  // we have some 25 or so different steps in a block. We must remember
+  // we have some 31 or so different steps in a block. We must remember
   // which one is done when we reexecute a block after a remap.
     std::bitset<32>  breadcrumbs;
-
 
 #define tickoff(step) block->breadcrumbs[step] = 1
 #define todo(step) (block->breadcrumbs[step] == 0)
@@ -357,8 +356,7 @@ block;
 
 typedef block *block_pointer;
 
-enum steps  {STEP_NONE,
-	     STEP_COMMENT,
+enum steps  {STEP_COMMENT,
 	     STEP_SPINDLE_MODE,
 	     STEP_FEED_MODE,
 	     STEP_FEED_NOT_INVERSE_TIME,
