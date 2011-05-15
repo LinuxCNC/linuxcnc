@@ -420,6 +420,7 @@ int Interp::_execute(const char *command)
 			  _setup.mdi_interrupt = false;
 			  MDImode = 1;
 		      }
+		      status = INTERP_OK;
 		      while(MDImode && _setup.call_level) { // we are still in a subroutine
 			  status = read(0);  // reads from current file and calls parse
 			  if (status != INTERP_OK) {
@@ -429,13 +430,20 @@ int Interp::_execute(const char *command)
 			  if (status != INTERP_OK) {
 			      if (status == INTERP_EXECUTE_FINISH) {
 				  _setup.mdi_interrupt = true;
-			      } else
+			      } else {
+				  logRemap("execute() returned %s, RESETTING!\n",interp_status(status));
 				  reset();
+			      }
 			      CHP(status);
 			  }
 		      }
 		      _setup.mdi_interrupt = false;
 		      // at this point the MDI execution of a remapped block is complete.
+		      logRemap("MDI remap execution complete status=%s\n",interp_status(status));
+		      // NB: need to drop a remap level here!! FIXME mah
+		      // no we dont!
+		      // drop_from_remap(status);
+
 		      write_g_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
 		      write_m_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
 		      write_settings(&_setup);
