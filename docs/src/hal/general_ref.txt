@@ -73,8 +73,8 @@ follow these rules:
    of mixed case, for example “pid.0.Pgain” instead of “pid.0.p-gain”.]
  - Use only lowercase letters and numbers in names.
 
-==   [[sec:GR-Driver-Naming]]Hardware Driver Naming Conventions
-footnote:[Most drivers do not follow these conventions as of version 2.0. 
+==   [[sec:GR-Driver-Naming]]Hardware Driver Naming Conventionsfootnote:[Most 
+drivers do not follow these conventions as of version 2.0. 
 This chapter is really a guide for future development.]
 
 === Pin/Parameter names
@@ -208,9 +208,11 @@ ppmc.0.write::
 
 =   [[cha:Canonical-Device-Interfaces]]Canonical Device Interfaces
 
-footnote:[As of version 2.0, most of the HAL drivers don't quite 
-match up to the canonical interfaces defined here. 
-In version 2.1, the drivers will be changed to match these specs.] 
+.Note
+*********************************************************************
+By version 2.1, the HAL drivers should have all been updated to 
+match these specs. Send an email if you spot any problems. 
+********************************************************************* 
 
 The following sections show the pins, parameters, and functions that 
 are supplied by “canonical devices”. All HAL device drivers should 

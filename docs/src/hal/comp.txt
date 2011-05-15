@@ -115,10 +115,10 @@ the same length as the number of # characters.
 When used to create a C identifier, the following changes are applied
 to the HALNAME:
     
- . Any # characters, and any ".", "_" or "-" characters immediately
+ . Any "`#`" characters, and any "`.`", "`_`" or "`-`" characters immediately
    before them, are removed.
- . Any remaining "." and "-" characters are replaced with ""_"". 
- . Repeated ""_"" characters are changed to a single ""_"" character.
+ . Any remaining "`.`" and "`-`" characters are replaced with "`_`". 
+ . Repeated "`_`" characters are changed to a single "`_`" character.
 
 A trailing _ is retained, so that HAL identifiers which would otherwise 
 collide with reserved names or keywords (e.g., 'min') can be used. 
@@ -157,6 +157,7 @@ or a Python-style "triple quoted" string, which
 may include embedded newlines and quote characters, such as: 
 
 `param rw bit zot=TRUE` 
+
 `"""The effect of this parameter, also known as "the orb of zot",` 
 `will require at least two paragraphs to explain.` 
 
@@ -238,14 +239,14 @@ and without `singleton`, items for numbered instances are named:
         If specified, each instance of the component will have an associated
         data block of 'type' (which can be a simple type like `float` or the
         name of a type created with `typedef`). 
-        In new components, 'variable' should be used instead.
+        In new components, 'variable' should be used instead. 
 
-option extra_setup yes::
-    (default: no)
-    If specified, call the function defined by `EXTRA_SETUP` for each
-    instance. If using the automatically defined `rtapi_app_main`,
-    `extra_arg` is the number of this instance.
-    
+    option extra_setup yes::
+        (default: no)
+        If specified, call the function defined by `EXTRA_SETUP` for each
+        instance. If using the automatically defined `rtapi_app_main`,
+        `extra_arg` is the number of this instance.
+
     option extra_cleanup yes;;
         (default: no)
         If specified, call the function defined by `EXTRA_CLEANUP` from the
@@ -254,7 +255,7 @@ option extra_setup yes::
     
     option userspace yes;;
         (default: no)
-         If specified, this file describes a userspace component, rather
+        If specified, this file describes a userspace component, rather
         than a real one. A userspace component may not have functions 
         defined by the `function`  directive. Instead, after all the 
         instances are constructed, the C function `user_mainloop()` 
@@ -325,8 +326,8 @@ but the following are not:
     variable int \* badexample;
 
 C++-style one-line comments (`// … `) and 
-C-style multi-line comments (`/* … … */`) are 
-both supported in the declaration section. 
+
+C-style multi-line comments (`/* … … */`) are both supported in the declaration section. 
 
 == Other restrictions on comp files
 
