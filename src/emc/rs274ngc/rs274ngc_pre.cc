@@ -107,6 +107,7 @@ Interp::Interp()
     : log_file(0)
 {
     _setup.pymodule_stat = PYMOD_NONE;
+    init_named_parameters();  // need this before Python init
     // fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
 
@@ -829,7 +830,6 @@ int Interp::init()
       {
           const char *inistring;
 
-	  CHP(init_named_parameters());  // need this before Python init
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
