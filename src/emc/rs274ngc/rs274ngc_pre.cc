@@ -554,7 +554,7 @@ int Interp::remap_finished(int finished_remap)
 		    _setup.remap_level,_setup.call_level);
 
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
-				   &_setup, true); // remove trail
+				   &_setup);
 
 	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
 		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
@@ -565,32 +565,32 @@ int Interp::remap_finished(int finished_remap)
 		if (status < 0)
 		    ERS("BUG - check next_remapping() status=%d nesting=%d",status,level);
 	    } else {
+		drop_from_remap(status);
+		// // we're done with this remapped block.
+		// // execute_block may return INTERP_EXECUTE_FINISH if a probe, input or toolchange
+		// // command was executed.
+		// // not sure what INTERP_ENDFILE & INTERP_EXIT really mean here.
+		// // if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
+		// // leftover items finished. Drop a remapping level.
+		// logRemap("executing block leftover items complete, status=%s  remap_level=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
+		// 	interp_status(status),_setup.remap_level,_setup.toolchange_flag,
+		// 	_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
+		// 	CONTROLLING_BLOCK(_setup).line_number);
 
-		// we're done with this remapped block.
-		// execute_block may return INTERP_EXECUTE_FINISH if a probe, input or toolchange
-		// command was executed.
-		// not sure what INTERP_ENDFILE & INTERP_EXIT really mean here.
-		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
-		// leftover items finished. Drop a remapping level.
-		logRemap("executing block leftover items complete, status=%s  nesting=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
-			interp_status(status),_setup.remap_level,_setup.toolchange_flag,
-			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
-			CONTROLLING_BLOCK(_setup).line_number);
-
-		// restore the line number where remap was found
-		if (_setup.remap_level == 1) {
-		    // dropping to top level
-		    _setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
-		} else {
-		    // just dropping a nesting level
-		    EXECUTING_BLOCK(_setup).line_number = CONTROLLING_BLOCK(_setup).line_number ;
-		}
-		_setup.remap_level--; // drop one nesting level
-		if (_setup.remap_level < 0) {
-		    Log("BUG: remap_level %d (<0) after dropping!!",
-			    _setup.remap_level);
-		    ERS("BUG: remap_level < 0");
-		}
+		// // restore the line number where remap was found
+		// if (_setup.remap_level == 1) {
+		//     // dropping to top level
+		//     _setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
+		// } else {
+		//     // just dropping a nesting level
+		//     EXECUTING_BLOCK(_setup).line_number = CONTROLLING_BLOCK(_setup).line_number ;
+		// }
+		// _setup.remap_level--; // drop one nesting level
+		// if (_setup.remap_level < 0) {
+		//     Log("BUG: remap_level %d (<0) after dropping!!",
+		// 	    _setup.remap_level);
+		//     ERS("BUG: remap_level < 0");
+		// }
 	    }
 	}
 	return status;
@@ -603,6 +603,37 @@ int Interp::remap_finished(int finished_remap)
     }
     return INTERP_OK;
 }
+
+int Interp::drop_from_remap(int status)
+{
+    // we're done with this remapped block.
+    // execute_block may return INTERP_EXECUTE_FINISH if a probe, input or toolchange
+    // command was executed.
+    // not sure what INTERP_ENDFILE & INTERP_EXIT really mean here.
+    // if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
+    // leftover items finished. Drop a remapping level.
+    logRemap("drop_from_remap: executing block leftover items complete, status=%s  remap_level=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
+	     interp_status(status),_setup.remap_level,_setup.toolchange_flag,
+	     _setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
+	     CONTROLLING_BLOCK(_setup).line_number);
+
+    // restore the line number where remap was found
+    if (_setup.remap_level == 1) {
+	// dropping to top level
+	_setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
+    } else {
+	// just dropping a nesting level
+	EXECUTING_BLOCK(_setup).line_number = CONTROLLING_BLOCK(_setup).line_number ;
+    }
+    _setup.remap_level--; // drop one nesting level
+    if (_setup.remap_level < 0) {
+	Log("BUG: remap_level %d (<0) after dropping!!",
+	    _setup.remap_level);
+	ERS("BUG: remap_level < 0");
+    }
+    return INTERP_OK;
+}
+
 
 // examine a block in execution sequence for an active item which is
 // remapped to an oword subroutine.
