@@ -270,6 +270,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     char *r = required;
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
+    bool ignore_others = false;
 
     if (pydict) {
 	try {
@@ -299,6 +300,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     while (*s) {
 	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
 	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
+	if (*s == '-') ignore_others = true;
 	s++;
     }
     o = optional;
@@ -329,9 +331,11 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
 	if (strchr(required,spec) || strchr(optional,spec)) {	\
 	    STORE(name,value);					\
 	} else {						\
-	    /* superfluous */					\
-	    errored = true;					\
-	    *u++ = spec;					\
+	    if (!ignore_others) {				\
+		/* superfluous */				\
+		errored = true;					\
+		*u++ = spec;					\
+	    }							\
 	}							\
     } else {							\
 	if (strchr(required,spec)) { /* missing */		\
