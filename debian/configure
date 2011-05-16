@@ -83,6 +83,10 @@ else
 fi
 
 case $DISTRIB_NAME in
+Ubuntu-11.04) # natty
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
 Ubuntu-10.04)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-font-utils
 	TCLTK_VERSION=8.5
