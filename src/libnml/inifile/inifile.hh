@@ -59,9 +59,10 @@ public:
                                      const char *tag,const char *section,
                                      int num=1);
     ErrorCode                   Find(double *result, const char *tag,
-                                     const char *section=NULL, int num = 1);
+                                     const char *section=NULL, int num = 1,
+				     int *lineno = NULL);
     const char *                Find(const char *tag, const char *section=NULL,
-                                     int num = 1);
+                                     int num = 1, int *lineno = NULL);
     void                        EnableExceptions(int _errMask){
                                     errMask = _errMask;
                                 }
@@ -81,10 +82,10 @@ protected:
 
     ErrorCode                   Find(double *result, StrDoublePair *,
                                      const char *tag, const char *section=NULL,
-                                     int num = 1);
+                                     int num = 1, int *lineno = NULL);
     ErrorCode                   Find(int *result, StrIntPair *,
                                      const char *tag, const char *section=NULL,
-                                     int num = 1);
+                                     int num = 1, int *lineno = NULL);
 
 
 private:
