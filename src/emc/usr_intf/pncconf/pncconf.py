@@ -1039,6 +1039,7 @@ class Data:
         # spindle at speed near settings
         self.snearscale = .95
         self.sfiltergain = .1
+        self.suseatspeed = False
 
     def load(self, filename, app=None, force=False):
         self.pncconf_version = 0.0
@@ -1706,7 +1707,7 @@ class Data:
                 print >>file
                 print >>file, "# ---Setup spindle at speed signals---"
                 print >>file
-                if encoderpinname:
+                if encoderpinname and self.suseatspeed:
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
@@ -1994,7 +1995,7 @@ class Data:
             print >>file, "loadrt scale names=%s"% self.scalenames
         if pump:
             print >>file, "loadrt charge_pump"
-        if not at_speed:
+        if not at_speed and self.susesatspeed:
             print >>file, "loadrt near"
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
@@ -2122,7 +2123,7 @@ class Data:
         for i in self.addcompservo:
             if not i == '':
                 print >>file, i +" servo-thread"
-        if not at_speed:
+        if not at_speed and self.suseatspeed:
             print >>file, "addf near.0                   servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
@@ -5470,6 +5471,7 @@ class App:
             if encoder:
                 if self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1:
                     w["sfiltergainframe"].show()
+            set_active["useatspeed"]
             w["snearscale"].set_value(d["snearscale"]*100)
             set_value("filtergain")
         else:
@@ -5752,6 +5754,7 @@ class App:
             get_active("usecomp")
             get_active("usebacklash")
         else:
+            set_active["useatspeed"]
             get_pagevalue("nearscale")
             d["snearscale"] = w["snearscale"].get_value()/100
             get_pagevalue("filtergain")
