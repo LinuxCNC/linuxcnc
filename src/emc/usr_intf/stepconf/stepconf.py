@@ -341,6 +341,9 @@ class Data:
         self.spindlespeed2 = 800
         self.spindlepwm1 = .2
         self.spindlepwm2 = .8
+        self.spindlefiltergain = .01
+        self.spindlenearscale = 1.5
+        self.usespindleatspeed = False
 
         self.digitsin = 15
         self.digitsout = 15
@@ -820,6 +823,8 @@ class Data:
             if encoder:
                print >>file, "loadrt scale count=1"
                print >>file, "loadrt lowpass count=1"
+               if self.usespindleatspeed:
+                   print >>file, "loadrt near"
         if pump:
             print >>file, "loadrt charge_pump"
             print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
@@ -871,6 +876,8 @@ class Data:
             if encoder:
                print >>file, "addf scale.0 servo-thread"
                print >>file, "addf lowpass.0 servo-thread"
+               if self.usespindleatspeed:
+                   print >>file, "addf near.0 servo-thread"
         if pwm:
             x1 = self.spindlepwm1
             x2 = self.spindlepwm2
@@ -1036,22 +1043,39 @@ class Data:
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
-                      print >>f1, ("setp scale.0.gain .01667")
-                      print >>f1, ("setp lowpass.0.gain 0.01")
+                      print >>f1, ("setp scale.0.gain 60")
+                      print >>f1, ("setp lowpass.0.gain %f")% self.spindlefiltergain
                       print >>f1, ("net spindle-velocity => lowpass.0.in")
-                      print >>f1, ("net spindle-rps-filtered <= lowpass.0.out")
-                      print >>f1, ("net spindle-rps-filtered => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
-                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
+                      print >>f1, ("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
+                      print >>f1, ("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed")
+                      print >>f1
+                      print >>f1, _("# **** set up spindle at speed indicator ****")
+                      if self.usespindleatspeed:
+                          print >>f1
+                          print >>f1, ("net spindle-cmd            =>  near.0.in1")
+                          print >>f1, ("net spindle-velocity       =>  near.0.in2")
+                          print >>f1, ("net spindle-at-speed       <=  near.0.out")
+                          print >>f1, ("setp near.0.scale %f")% self.spindlenearscale
+                      else:
+                          print >>f1, ("# **** force spindle at speed indicator true because we chose no feedback ****")
+                          print >>f1
+                          print >>f1, ("sets spindle-at-speed true")
+                      print >>f1, ("net spindle-at-speed       => pyvcp.spindle-at-speed-led")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
+                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
+                      print >>f1
+                      print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
+                      print >>f1
+                      print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
+                      print >>f1, ("sets spindle-at-speed true")
 
         if self.customhal or self.classicladder or self.halui:
             custom = os.path.join(base, "custom.hal")
@@ -1638,12 +1662,28 @@ class App:
         self.widgets['spindlepwm1'].set_text("%s" % self.data.spindlepwm1)
         self.widgets['spindlepwm2'].set_text("%s" % self.data.spindlepwm2)
         self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
+        self.widgets['spindlenearscale'].set_value(self.data.spindlenearscale * 100)
+        self.widgets['spindlefiltergain'].set_value(self.data.spindlefiltergain)
+        self.widgets['usespindleatspeed'].set_active(self.data.usespindleatspeed)
 
         data = self.data
         if PHA in (data.pin10, data.pin11, data.pin12, data.pin13, data.pin15):
             self.widgets.spindlecpr.set_sensitive(1)
+            self.widgets.spindlefiltergain.show()
+            self.widgets.spindlefiltergainlabel.show()
+            self.widgets.spindlenearscale.show()
+            self.widgets.usespindleatspeed.show()
+            self.widgets.spindlenearscaleunitlabel.show()
         else:
             self.widgets.spindlecpr.set_sensitive(0)
+            self.widgets.spindlefiltergain.hide()
+            self.widgets.spindlefiltergainlabel.hide()
+            self.widgets.spindlenearscale.hide()
+            self.widgets.usespindleatspeed.hide()
+            self.widgets.spindlenearscaleunitlabel.hide()
+
+    def on_usespindleatspeed_toggled(self,*args):
+        self.widgets.spindlenearscale.set_sensitive(self.widgets.usespindleatspeed.get_active())
 
     def on_spindle_next(self, *args):
         self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
@@ -1652,6 +1692,9 @@ class App:
         self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
         self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
         self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
+        self.data.spindlenearscale = self.widgets.spindlenearscale.get_value()/100
+        self.data.spindlefiltergain = self.widgets.spindlefiltergain.get_value()
+        self.data.usespindleatspeed = self.widgets['usespindleatspeed'].get_active()
         
 
     def on_spindle_back(self, *args):
