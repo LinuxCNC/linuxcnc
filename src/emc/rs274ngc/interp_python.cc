@@ -632,3 +632,34 @@ int Interp::pycall(setup_pointer settings,
     //    PyGILState_Release(gstate);
     return INTERP_OK;
 }
+
+// called by  (py, ....) comments
+int Interp::py_execute(const char *cmd)
+{
+    std::string msg;
+
+
+    bp::object main_module = bp::import("__main__");
+    bp::object main_namespace = main_module.attr("__dict__");
+
+    logPy("py_execute(%s)",cmd);
+    // PyGILState_STATE gstate = PyGILState_Ensure();
+
+
+    bp::object retval;
+
+    try {
+	retval = bp::exec(cmd,_setup.module_namespace,
+			  _setup.module_namespace);
+    }
+    catch (bp::error_already_set) {
+        if (PyErr_Occurred())
+	    msg = handle_pyerror();
+	bp::handle_exception();
+	PyErr_Clear();
+    }
+    //PyGILState_Release(gstate);
+    logPy("py_execute(%s):  %s", cmd, msg.c_str());
+
+    return INTERP_OK;
+}

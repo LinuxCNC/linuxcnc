@@ -1358,6 +1358,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   char LOGOPEN_STR[] = "logopen,";
   char LOGAPPEND_STR[] = "logappend,";
   char LOGCLOSE_STR[] = "logclose";
+  char PY_STR[] = "py,";
   int m, n, start;
 
   // step over leading white space in comment
@@ -1407,6 +1408,11 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   else if (startswith(lc, LOGAPPEND_STR))
   {
       LOGAPPEND(comment + start + strlen(LOGAPPEND_STR));
+      return INTERP_OK;
+  }
+  else if (startswith(lc, PY_STR))
+  {
+      py_execute(comment + start + strlen(PY_STR));
       return INTERP_OK;
   }
   else if (streq(lc, LOGCLOSE_STR))
