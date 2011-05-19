@@ -1,6 +1,8 @@
 o<m75> sub
 (debug, in M75.ngc)
 
+(debug, in M75: call_level=#<_call_level> remap_level=#<_remap_level>)
+
 o<g881_havex> if [EXISTS[#<x>]]
 (debug, X param set: #<x>)
 o<g881_havex> endif
@@ -25,7 +27,7 @@ o<g881_haver> if [EXISTS[#<r>]]
 (debug, R param set: #<r>)
 o<g881_haver> endif
 
-m76P#<p>Q[#<q>*5]
+;m76P#<p>Q[#<q>*5]
 
 o<m75> endsub
 m2

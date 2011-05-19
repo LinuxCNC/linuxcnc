@@ -25,7 +25,10 @@ o<g881_haver> if [EXISTS[#<r>]]
 (debug, R param set: #<r>)
 o<g881_haver> endif
 
-m250
+;m250
+
+(debug, end g881)
+
 
 o<g881> endsub [1]
 m2
