@@ -1,7 +1,9 @@
 import sys
 import traceback
 
-#import bullshit  # test exceptions during import properly passed on
+#import bullshit  # test  import failure
+
+#def xxx():        # test syntax failure
 
 def pym6demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
@@ -83,26 +85,51 @@ def m313(callargs,**words):
 	InterpMod.params['_foo'] = 4711.0
 
 
+def m250(callargs,**words):
+	i = InterpMod.interp
+	print "py M250 call_level=",i.call_level,"remap_level=",i.remap_level
+	#printobj(callargs,"callargs")
+	#printobj(words,"words")
+
+def fooprolog(*args,**words):
+	print "py fooprolog args=",args
+	i = InterpMod.interp
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
+	for key in words:
+		print  "word '%s' = %f" % (key, words[key])
+
+def fooepilog(*args,**words):
+	print "py fooepillog args=",args
+	i = InterpMod.interp
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
+	for key in words:
+		print  "word '%s' = %f" % (key, words[key])
+
+
+def whoami(*args,**words):
+	print "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
+	i = InterpMod.interp
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
+
+	print "args = ",args
+#	for i in range(5):
+#		print "args[%d] = " % (i), args[i]
+	for key in words:
+		print  "word '%s' = %f" % (key, words[key])
 
 def m314(callargs,**words):
-	print "p['_foo']=",InterpMod.params['_foo']
+	i = InterpMod.interp
+	print "m314:call_level=",i.call_level,"remap_level=",i.remap_level
 
 def m315(callargs,**words):
 	i = InterpMod.interp
 	c = i.cblock
 	e = i.eblock
-	#print "dir(cblock) =",dir(c)
-	print "remap_level =",i.remap_level,"call_level=",i.call_level
-	print "c.__class_ =",c.__class__
-	print "c.p_flag =",c.p_flag
-	print "c.p_number =",c.p_number
-	print "c.m_count =",c.m_count
-	print "c.line_number =",c.line_number
-
-	print "e.p_flag =",e.p_flag
-	print "e.p_number =",e.p_number
-	print "e.m_count =",e.m_count
-	print "e.line_number =",e.line_number
+	#r = i.remap
+	print "---> in py.m315()"
+	#printobj(i.remap,"Remap:")
+#	printobj(c,"cblock")
+#	printobj(e,"eblock")
 
 
 def g887(callargs,**words):
@@ -111,8 +138,10 @@ def g887(callargs,**words):
 	e = i.eblock
 	#print "dir(cblock) =",dir(c)
 	print "remap_level =",i.remap_level,"call_level=",i.call_level
-	printobj(c,"cblock")
-	printobj(e,"eblock")
+	#printobj(c,"cblock")
+	#printobj(e,"eblock")
+
+
 
 def printobj(b,header=""):
 	print "object ",header,":"
@@ -123,7 +152,9 @@ def printobj(b,header=""):
 
 
 def pytdemo(args,**words):
-	print "pytdemo pocket=", args[0]
+	for i in range(5):
+		print >> sys.stderr, "args[%d] = %f" % (i,args[i])
+	print >> sys.stderr, "pytdemo pocket=", args[0]
 #	if True: #success
 	if args[0] > 2:
 		InterpMod.interp.selected_pocket = int(args[0])
@@ -166,3 +197,10 @@ except Exception,err:
 
 
 
+def add_args(code,):
+	# access argspec -> need code
+	# accesss cblock - ok
+	# store into current callframe  dict - dict should be in place
+	# report failure with message
+	# incicate success to continue
+	pass
