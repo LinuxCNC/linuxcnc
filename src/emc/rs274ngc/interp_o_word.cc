@@ -27,16 +27,7 @@
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
-void klfree(const void *m)
-{
-    // fprintf(stderr, "--------- klfree %p\n",m);
-    // abort();
-}
-#define strdup(x) strstore(x)
-// const char *strdup (__const char *__s)
-// {
-//     return strstore(__s);
-// }
+
 //========================================================================
 // Functions for control stuff (O-words)
 //========================================================================
@@ -126,7 +117,7 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   //logOword("index: %d offset: %ld", index, block->offset);
 
   //  settings->oword_offset[index].o_word = line;
-  settings->oword_offset[index].o_word_name = strstore(block->o_name);
+  settings->oword_offset[index].o_word_name = block->o_name;
   settings->oword_offset[index].type = block->o_type;
   settings->oword_offset[index].offset = block->offset;
   settings->oword_offset[index].filename = strstore(settings->filename);
@@ -138,12 +129,12 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
     settings->sequence_number - 1;
 
   logOword("control_save_offset: o_word_name=%s type=%d offset=%ld filename=%s repeat_count=%d sequence_number=%d\n",
-	  settings->oword_offset[index].o_word_name = strstore(block->o_name),
-	  settings->oword_offset[index].type,
-	  settings->oword_offset[index].offset,
-	  settings->oword_offset[index].filename,
-	  settings->oword_offset[index].repeat_count,
-	  settings->oword_offset[index].sequence_number);
+	   settings->oword_offset[index].o_word_name = block->o_name,
+	   settings->oword_offset[index].type,
+	   settings->oword_offset[index].offset,
+	   settings->oword_offset[index].filename,
+	   settings->oword_offset[index].repeat_count,
+	   settings->oword_offset[index].sequence_number);
 
   return INTERP_OK;
 }
@@ -304,12 +295,8 @@ int Interp::control_back_to( /* ARGUMENTS                       */
      ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
   }
 
-  // if(settings->skipping_o)klfree(settings->skipping_o);
-  settings->skipping_o = strstore(block->o_name); // start skipping
-
-  //if(settings->skipping_to_sub)klfree(settings->skipping_to_sub);
-  settings->skipping_to_sub = strstore(block->o_name); // start skipping
-
+  settings->skipping_o = block->o_name; // start skipping
+  settings->skipping_to_sub = block->o_name; // start skipping
   settings->skipping_start = settings->sequence_number;
   //ERS(NCE_UNKNOWN_OWORD_NUMBER);
 
@@ -388,14 +375,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       if(settings->skipping_o)
 	{
 	  logOword("no longer skipping to:|%s|", settings->skipping_o);
-	  klfree(settings->skipping_o);
-          settings->skipping_o = 0; // this IS our block number
+          settings->skipping_o = NULL; // this IS our block number
 	}
-      if(settings->skipping_to_sub)
-	{
-	  klfree(settings->skipping_to_sub);
-          settings->skipping_to_sub = 0; // this IS our block number
-	}
+      settings->skipping_to_sub = NULL; // this IS our block number
+
       if(settings->call_level != 0)
 	{
 	  logOword("call:%f:%f:%f",
@@ -409,13 +392,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // a definition
 	  CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
 	  CHP(control_save_offset(block->o_number, block, settings));
-          if(settings->skipping_o)klfree(settings->skipping_o);
-          settings->skipping_o = strstore(block->o_name); // start skipping
 
+          settings->skipping_o = block->o_name; // start skipping
           settings->skipping_start = settings->sequence_number;
 	  settings->defining_sub = 1;
-	  if(settings->sub_name)klfree(settings->sub_name);
-	  settings->sub_name = strstore(block->o_name);
+	  settings->sub_name = block->o_name;
 	  logOword("will now skip to: |%s| %d", settings->sub_name,
 		   block->o_number);
 	}
@@ -430,8 +411,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  logOword("case O_%s -- no longer skipping to:|%s|",
 		   (block->o_type == O_endsub) ? "endsub" : "return",
 		   settings->skipping_o);
-	  klfree(settings->skipping_o);
-          settings->skipping_o = 0;
+          settings->skipping_o = NULL;
       }
       if (settings->call_level != 0) {
 	  //  some shorthands to make this readable
@@ -440,12 +420,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	  // free local variables
 	  free_named_parameters(leaving_frame);
+	  leaving_frame->subName = NULL;
 
-	  // free subroutine name
-	  if (leaving_frame->subName) {
-	      klfree(leaving_frame->subName);
-	      leaving_frame->subName = 0;
-	  }
 	  // drop one call level.
 	  settings->call_level--;
 
@@ -509,22 +485,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      leaving_frame->context_status &=  ~CONTEXT_VALID;
 
 	  }
-
-	  if(settings->sub_name)
-	    {
-	      klfree(settings->sub_name);
-	      settings->sub_name = 0;
-	    }
-
-	  if(returnto_frame->subName)
-	    {
-	      settings->sub_name =
-		strstore(returnto_frame->subName);
-	    }
-	  else
-	    {
-	      settings->sub_name = 0;
-	    }
+	  settings->sub_name = 0;
+	  if (returnto_frame->subName)  {
+	      settings->sub_name = returnto_frame->subName;
+	  } else {
+	      settings->sub_name = NULL;
+	  }
 	}
       else
        {
@@ -532,16 +498,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	 if (block->o_type == O_endsub) {
 	     CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
 	     // no longer skipping or defining
-	     if(settings->skipping_o)
+	     if (settings->skipping_o)
 		 {
 		     logOword("case O_endsub in defn -- no longer skipping to:|%s|",
 			      settings->skipping_o);
-		     klfree(settings->skipping_o);
-		     settings->skipping_o = 0;
+		     settings->skipping_o = NULL;
 		 }
-	     settings->defining_sub = 0;
-	     if (settings->sub_name) klfree(settings->sub_name);
-	     settings->sub_name = 0;
+	     settings->defining_sub = NULL;
+	     settings->sub_name = NULL;
 	 }
        }
       break;
@@ -557,8 +521,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    if (settings->skipping_o) {
 		logOword("case O_call -- no longer skipping to:|%s|",
 			 settings->skipping_o);
-		klfree(settings->skipping_o);
-		settings->skipping_o = 0;
+		settings->skipping_o = NULL;
 	    }
 	    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
 		ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
@@ -579,10 +542,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		current_frame->position = ftell(settings->file_pointer);
 	    }
 
-	    if(current_frame->filename)	{
-		// if there is a string here, free it
-		klfree(current_frame->filename);
-	    }
 	    // save the previous filename
 	    logOword("Duping |%s|", settings->filename);
 	    current_frame->filename = strstore(settings->filename);
@@ -603,7 +562,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	    // set the new subName
 	    // !!!KL do we need to free old subName?
-	    new_frame->subName = strstore(block->o_name);
+	    new_frame->subName = block->o_name;
 #if 0
 	    // just curious: detect recursion
 	    if ((settings->call_level > 0) &&
@@ -626,8 +585,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    // we're terminating the call in progress as we were setting it up.
 		    // need to unwind setup so far.
 		    logRemap("O_call: prologue failed, unwinding\n");
-		    if (new_frame->subName)
-			klfree(new_frame->subName);
+		    new_frame->subName = NULL;
 		    settings->call_level--;
 
 		    // FIXME mah dubious - think this through; better to unwind by return status only
@@ -661,7 +619,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // pass that frame to Python to handle.
 	    settings->call_level++;
 
-	    new_frame->subName = strstore(block->o_name);
+	    new_frame->subName = block->o_name;
 	    new_frame->remap_info =  EXECUTING_BLOCK(*settings).current_remap;
 	    EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
 
@@ -751,8 +709,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     case O_do:
       // if we were skipping, no longer
-      if(settings->skipping_o)klfree(settings->skipping_o);
-      settings->skipping_o = 0;
+      settings->skipping_o = NULL;
       // save the loop point
       // we hit this again on loop back -- so test first
       if(INTERP_OK != control_find_oword(block, settings, &index))
@@ -763,8 +720,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     case O_repeat:
       // if we were skipping, no longer
-      if(settings->skipping_o)klfree(settings->skipping_o);
-      settings->skipping_o = 0;
+      settings->skipping_o = NULL;
       status = control_find_oword(block, settings, &index);
 
       // test if not already seen OR
@@ -794,8 +750,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      // skip forward
 	      logOword("skipping forward: [%s] in 'repeat'",
 		       block->o_name);
-              if(settings->skipping_o)klfree(settings->skipping_o);
-	      settings->skipping_o = strstore(block->o_name);
+	      settings->skipping_o = block->o_name;
               settings->skipping_start = settings->sequence_number;
               // cause the repeat count to be recalculated
 	      // if we do this loop again
@@ -806,8 +761,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     case O_while:
       // if we were skipping, no longer
-      if(settings->skipping_o)klfree(settings->skipping_o);
-      settings->skipping_o = 0;
+      settings->skipping_o = NULL;
       status = control_find_oword(block, settings, &index);
 
       // test if not already seen OR
@@ -838,8 +792,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      // skip forward
 	      logOword("skipping forward: [%s] in 'while'",
 		       block->o_name);
-              if(settings->skipping_o)klfree(settings->skipping_o);
-	      settings->skipping_o = strstore(block->o_name);
+	      settings->skipping_o = block->o_name;
               settings->skipping_start = settings->sequence_number;
 	    }
 	}
@@ -872,8 +825,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  //true
 	  logOword("executing forward: [%s] in 'if'",
 	      block->o_name);
-          if(settings->skipping_o)klfree(settings->skipping_o);
-          settings->skipping_o = 0;
+          settings->skipping_o = NULL;
 	  settings->executed_if = 1;
 	}
       else
@@ -881,8 +833,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  //false
           logOword("skipping forward: [%s] in 'if'",
 	      block->o_name);
-          if(settings->skipping_o)klfree(settings->skipping_o);
-          settings->skipping_o = strstore(block->o_name);
+          settings->skipping_o = block->o_name;
           settings->skipping_start = settings->sequence_number;
 	  settings->executed_if = 0;
 	}
@@ -900,8 +851,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // we were not skipping -- start skipping
           logOword("start skipping forward: [%s] in 'elseif'",
 	      block->o_name);
-          if(settings->skipping_o)klfree(settings->skipping_o);
-	  settings->skipping_o = strstore(block->o_name);
+	  settings->skipping_o = block->o_name;
           settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
 #else
@@ -921,8 +871,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		   "skipping forward: [%s] in 'elseif'",
 	      block->o_name);
 	  //settings->skipping_0 = block->o_number;
-          if(settings->skipping_o)klfree(settings->skipping_o);
-          settings->skipping_o = strstore(block->o_name);
+          settings->skipping_o = block->o_name;
           settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
 	}
@@ -932,8 +881,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  //true -- start executing
           logOword("start executing forward: [%s] in 'elseif'",
 	      block->o_name);
-         if(settings->skipping_o)klfree(settings->skipping_o);
-	  settings->skipping_o = 0;
+	  settings->skipping_o = NULL;
 	  settings->executed_if = 1;
 	}
       else
@@ -952,8 +900,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           logOword("already executed, "
 		   "skipping forward: [%s] in 'else'",
 	      block->o_name);
-          if(settings->skipping_o)klfree(settings->skipping_o);
-	  settings->skipping_o = strstore(block->o_name);
+	  settings->skipping_o = block->o_name;
           settings->skipping_start = settings->sequence_number;
           return INTERP_OK;
 	}
@@ -965,8 +912,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           logOword("stop skipping forward: [%s] in 'else'",
 	      block->o_name);
           settings->executed_if = 1;
-         if(settings->skipping_o)klfree(settings->skipping_o);
-	  settings->skipping_o = 0;
+	  settings->skipping_o = NULL;
 	}
       else
 	{
@@ -978,8 +924,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     case O_endif:
       // stop skipping if we were
-      if(settings->skipping_o)klfree(settings->skipping_o);
-      settings->skipping_o = 0;
+      settings->skipping_o = NULL;
       logOword("stop skipping forward: [%s] in 'endif'",
 	      block->o_name);
       // the KEY -- outside if clearly must have executed
@@ -989,8 +934,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     case O_break:
       // start skipping
-      if(settings->skipping_o)klfree(settings->skipping_o);
-      settings->skipping_o = strstore(block->o_name);
+      settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
       settings->doing_break = 1;
       logOword("start skipping forward: [%s] in 'break'",
@@ -1008,8 +952,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  return INTERP_OK;
 	}
       // start skipping
-      if(settings->skipping_o)klfree(settings->skipping_o);
-      settings->skipping_o = strstore(block->o_name);
+      settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
       settings->doing_continue = 1;
       logOword("start skipping forward: [%s] in 'continue'",
@@ -1024,8 +967,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	 (0 == strcmp(settings->skipping_o, block->o_name)))
 	{
 	  // we were skipping, so this is the end
-          if(settings->skipping_o)klfree(settings->skipping_o);
-	  settings->skipping_o = 0;
+	  settings->skipping_o = NULL;
 
 	  if(settings->doing_continue)
 	    {
