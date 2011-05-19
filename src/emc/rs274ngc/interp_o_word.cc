@@ -457,7 +457,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 
 	      // aquire the remapped block
-	      r_block = &CONTROLLING_BLOCK(*settings);
+	      //r_block = &CONTROLLING_BLOCK(*settings);
+	      r_block = &CONTROLLING_BLOCK(_setup);
 
 	      if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
 		  logRemap("O_call: py epilog %s for NGC remap %s",
@@ -619,7 +620,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    settings->call_level++;
 
 	    // aquire the remap_frame
-	    r_block = &CONTROLLING_BLOCK(*settings);
+	    r_block = &_setup.blocks[_setup.remap_level];// &CONTROLLING_BLOCK(_setup);
 
 	    new_frame->subName = block->o_name;
 	    // new_frame->remap_info =  EXECUTING_BLOCK(*settings).current_remap;
@@ -668,7 +669,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 
 	    status =  pycall(settings, r_block,
-			     r_block->executing_remap->prolog_func,
+			     r_block->executing_remap->remap_py,
 			     block->params);
 
 	    // this breaks T,M6,M61 - rely on posargs !! fix this with a Python prolog for T/M6/M61

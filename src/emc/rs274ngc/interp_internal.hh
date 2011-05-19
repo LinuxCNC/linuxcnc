@@ -575,8 +575,8 @@ typedef struct setup_struct
   // index into blocks, points to currently controlling block
   int remap_level;
 
-#define CONTROLLING_BLOCK(s) (s).blocks[(s).remap_level]
-#define EXECUTING_BLOCK(s)   (s).blocks[0]
+#define CONTROLLING_BLOCK(s) ((s).blocks[(s).remap_level])
+#define EXECUTING_BLOCK(s)   ((s).blocks[0])
 
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode

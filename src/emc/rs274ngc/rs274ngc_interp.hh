@@ -471,12 +471,8 @@ private:
 		     const char *cmd,
 		     remap_pointer rptr);
 
-		     // int (Interp::*prolog)(setup_pointer settings, const char *code,
-		     // 			   bool pydict) = NULL,
-		     // int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
-		     // int remap_op = 0, // really NO_REMAP but rather keep internal
-		     // const char *code = 0,
-		     // bool pydict = false);
+ // parse a REMAP= descriptor from the ini file
+ int parse_remap(const char *inistring, int lineno);
 
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
