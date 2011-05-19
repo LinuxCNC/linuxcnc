@@ -246,8 +246,11 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   int n;
   block->breadcrumbs = 0; // clear execution trail
   // if set in the executing block, current_remap
-  block->current_remap = NULL;
-  block->py_callback = NULL;
+
+  block->remap_command = NULL;
+  block->executing_remap = NULL;
+  block->remap_py_callback = NULL;
+  // FIXME mah unclear how to reset a boost::python::dict() object
 
   block->a_flag = false;
   block->b_flag = false;

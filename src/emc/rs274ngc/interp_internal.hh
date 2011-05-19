@@ -301,6 +301,49 @@ enum steps  {STEP_COMMENT, //=1,
 	     MAX_STEPS
 };
 
+
+typedef struct remap_struct remap;
+typedef remap *remap_pointer;
+
+typedef struct remap_struct {
+    const char *name;
+    int op;
+    const char *argspec;
+    int modal_group;
+    // the following functions are in execution order:
+    int (Interp::*builtin_prolog)(setup_pointer settings,
+				  block_pointer r_block);
+    const char *prolog_func; // Py function or null
+    const char *remap_py;    // Py function maybe  null, OR
+    const char *remap_ngc;   // NGC file, maybe  null
+    const char *epilog_func; // Py function or null
+    int (Interp::*builtin_epilog)(setup_pointer settings,
+				  block_pointer r_block);
+} remap;
+
+
+
+#define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
+		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
+
+#define HAS_BUILTIN_PROLOG(r)			\
+    (((r) != NULL) &&				\
+     (r)->builtin_prolog)
+
+#define HAS_BUILTIN_EPILOG(r)			\
+    (((r) != NULL) &&				\
+     (r)->builtin_epilog)
+
+#define HAS_PYTHON_PROLOG(r)					\
+    (((r) != NULL) &&						\
+     (r)->prolog_func)
+
+#define HAS_PYTHON_EPILOG(r)					\
+    (((r) != NULL) &&						\
+     (r)->epilog_func)
+
+
+
 typedef struct block_struct
 {
   bool a_flag;
@@ -398,10 +441,15 @@ typedef struct block_struct
 #define once(step) (todo(step) ? tickoff(step),1 : 0)
 #define once_M(step) (todo(STEP_M_ ## step) ? tickoff(STEP_M_ ## step),1 : 0)
 
-    // refers to the current remap in progress
+
+    // refers to the current remap in progress, part of block
     // there might be several remapped items in a block, but at any point
     // in time there's only one excuting
-    remap_pointer current_remap;
+    // conceptually this is the 'remap frame'
+
+    const char *remap_command; // debug aid
+    boost::python::object remap_kwargs; // the args dict for Py functions
+    remap_pointer executing_remap; // refers to config descriptor
 
     // denotes a Python function to call after a synch()
     // if py function returns INTERP_EXECUTE_FINISH, and a callback,
@@ -409,7 +457,8 @@ typedef struct block_struct
     // the next execute(0) will call the callback first before
     // proceeding with other items. The callback may in turn
     // INTERP_EXECUTE_FINISH, and a callback etc
-    const char *py_callback;
+
+    const char *remap_py_callback;
 }
 block;
 
@@ -432,43 +481,6 @@ struct named_parameters_struct {
 // optional 3rd arg to store_named_param()
 // flag initialization of r/o parameter
 #define OVERRIDE_READONLY 1
-
-typedef struct remap_struct remap;
-typedef remap *remap_pointer;
-
-typedef struct remap_struct {
-    const char *name;
-    int op;
-    const char *argspec;
-    int modal_group;
-    // the following functions are in execution order:
-    int (Interp::*builtin_prolog)(setup_pointer settings, context_pointer cptr);
-    const char *prolog_func; // Py function or null
-    const char *remap_py;    // Py function maybe  null, OR
-    const char *remap_ngc;   // NGC file, maybe  null
-    const char *epilog_func; // Py function or null
-    int (Interp::*builtin_epilog)(setup_pointer settings, context_pointer cptr);
-} remap;
-
-#define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
-		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
-
-#define HAS_BUILTIN_PROLOG(r)			\
-    (((r) != NULL) &&				\
-     (r)->builtin_prolog)
-
-#define HAS_BUILTIN_EPILOG(r)			\
-    (((r) != NULL) &&				\
-     (r)->builtin_epilog)
-
-#define HAS_PYTHON_PROLOG(r)					\
-    (((r) != NULL) &&						\
-     (r)->prolog_func)
-
-#define HAS_PYTHON_EPILOG(r)					\
-    (((r) != NULL) &&						\
-     (r)->epilog_func)
-
 
 #define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
@@ -496,8 +508,8 @@ typedef struct context_struct {
   int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-    remap_pointer remap_info;
-    boost::python::object kwargs;
+    // remap_pointer remap_info;
+    // boost::python::object kwargs;
 } context;
 
 typedef context *context_pointer;
@@ -562,6 +574,7 @@ typedef struct setup_struct
   block blocks[MAX_NESTED_REMAPS];
   // index into blocks, points to currently controlling block
   int remap_level;
+
 #define CONTROLLING_BLOCK(s) (s).blocks[(s).remap_level]
 #define EXECUTING_BLOCK(s)   (s).blocks[0]
 

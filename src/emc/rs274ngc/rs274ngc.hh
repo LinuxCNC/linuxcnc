@@ -45,7 +45,6 @@ typedef struct context_struct context;
 typedef context *context_pointer;
 
 
-
 // Declare class so that we can use it in the typedef.
 class Interp;
 typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);

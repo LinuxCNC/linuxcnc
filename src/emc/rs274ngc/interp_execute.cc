@@ -227,62 +227,6 @@ int Interp::report_error(setup_pointer settings,int status,const char *text)
     return status;
 }
 
-// Tx epiplogue - executed past T_COMMAND
-int Interp::finish_t_command(setup_pointer settings, context_pointer callframe)
-{
-    // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
-    // commit the tool prepare to that value.
-
-    if (settings->return_value > - TOLERANCE_EQUAL) {
-	settings->selected_pocket = round_to_int(settings->return_value);
-	SELECT_POCKET(settings->selected_pocket);
-    } else {
-
-	char msg[LINELEN];
-	snprintf(msg, sizeof(msg), "T<tool> - prepare failed (%f)",
-		 settings->return_value);
-	INTERP_ABORT(round_to_int(settings->return_value),msg);
-	return INTERP_EXECUTE_FINISH;
-    }
-    return remap_finished(callframe->remap_info->op);
-}
-
-
-// common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
-int Interp::execute_handler(setup_pointer settings, const char *cmd,
-			    remap_pointer rptr)
-
-{
-
-    settings->sequence_number = 1; // FIXME not sure..
-
-    // just read and parse into _setup.blocks[0] (EXECUTING_BLOCK)
-    // NB: we're NOT triggering MDI handling in execute()
-    // NB: cmd MUST be a call of the form 'o<remapfunc> call ...args..'
-
-    int status = read(cmd);
-
-    // some remapped handlers may need c/c++ or Python code to
-    // setup environment before, and finish work after doing theirs.
-    // That's what prolog and epilog functions are for, which are
-    // described in the remap descriptor.
-    // to effect this, the remap descriptor is stored in the current
-    // block. The next execute() will cause the osub call to execute.
-
-    // the O_call code will pick up the descriptor, store it in the
-    // call frame, and call any prolog function before passing control
-    // to the actual handler procedure.
-
-    // On the corresponding O_endsub/O_return, an epilog function
-    // will be executed, doing any work not doable in an NGC file.
-    // the remap structure is essentially a hidden param to the call
-
-    EXECUTING_BLOCK(_setup).current_remap = rptr;
-
-    return status;
-}
-
-
 /****************************************************************************/
 
 /*! execute_block

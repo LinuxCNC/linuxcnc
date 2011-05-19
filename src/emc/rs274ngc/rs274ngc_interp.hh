@@ -490,13 +490,13 @@ private:
  // given a settings and some opaque userdata, 'do the right thing'
  // present optional words to the subroutine's local variables
  // userdata would typically be a gcode or mcode
-    int add_parameters(setup_pointer settings, context_pointer callframe);
+    int add_parameters(setup_pointer settings, block_pointer r_block);
 
  // epilog routines called post G-code handler procedure
- int finish_t_command(setup_pointer settings, context_pointer callframe);
- int finish_m6_command(setup_pointer settings, context_pointer callframe);
- int finish_m61_command(setup_pointer settings, context_pointer callframe);
- int finish_user_command(setup_pointer settings, context_pointer callframe);
+ int finish_t_command(setup_pointer settings, block_pointer r_block);
+ int finish_m6_command(setup_pointer settings,block_pointer r_block);
+ int finish_m61_command(setup_pointer settings, block_pointer r_block);
+ int finish_user_command(setup_pointer settings, block_pointer r_block);
 
  // user-defined g/mcode support
  int define_gcode(double gcode, int modal_group,const char *argspec);
@@ -508,12 +508,7 @@ private:
 
  int init_named_parameters();
 
-    //  const char *usercode_argspec(setup_pointer settings,int ccode, bool mcode = false );
-    //  int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
-
     bool has_user_mcode(setup_pointer settings,block_pointer block);
-
-    // #define is_user_mcode(s,x) (usercode_mgroup(s,x,true) != -1)
 
     // range for user-remapped M-codes
     // M6,M61 are handled separately
@@ -536,13 +531,14 @@ private:
 			       setup_pointer settings,
 			      char letter,
 			      int number = -1);
- int convert_remapped_mcode(block_pointer block, setup_pointer settings,
-	    int mode);
- const char *remap_name(setup_pointer settings,int type, int code);
+    // int convert_remapped_mcode(block_pointer block, setup_pointer settings,
+    // 			       int mode);
+ // const char *remap_name(setup_pointer settings,int type, int code);
 
  int init_python(setup_pointer settings);
- bool is_pycallable(setup_pointer settings,const char *funcname);
+ bool is_pycallable(setup_pointer settings, const char *funcname);
  int pycall(setup_pointer settings,
+	    block_pointer block,
 	    const char *funcname,
 	    double *params);
     int py_execute(const char *cmd); // for (py, ....) comments

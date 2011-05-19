@@ -257,8 +257,8 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 // if preparing for an NGC file, add local variables to
 // the current oword subroutine call frame
 //
-// if preparing for a Python function, generate a kwargs style
-// dictionary of required and optional items
+// also, generate a kwargs style dictionary of required and optional items
+// in case a Python prolog is called
 //
 // 1. add all requried and  present optional words.
 // 2. error on missing but required words.
@@ -270,7 +270,7 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 // return INTERP_ERROR and propagate appropriate message if any errors so far
 // else return INTERP_OK
 
-int Interp::add_parameters(setup_pointer settings, context_pointer callframe)
+int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
 {
     const char *s,*argspec, *code;
     block_pointer block;
@@ -282,26 +282,26 @@ int Interp::add_parameters(setup_pointer settings, context_pointer callframe)
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
     bool ignore_others = false;
-    remap_pointer rptr = callframe->remap_info;
+    remap_pointer rptr = r_block->executing_remap;
 
     if (!rptr) {
-	ERS("BUG: add_parameters: callframe: remap_info == NULL ");
+	ERS("BUG: add_parameters: remap_frame: executing_remap == NULL ");
     }
     code = rptr->name;
 
-    // the remapping function is Python, so create a kwargs dict
-    bool pydict = rptr->remap_py && is_pycallable(settings,rptr->remap_py);
+    // if any Python handlers are present, create a kwargs dict
+    bool pydict = rptr->remap_py || rptr->prolog_func || rptr->epilog_func;
 
-    if (pydict) {
-	try {
-	    callframe->kwargs = bp::dict();  // FIXME does this leak?
-	}
-	catch (bp::error_already_set) {
-	    PyErr_Print();
-	    PyErr_Clear();
-	    ERS("add_parameters: cant create dictionary");
-	}
-    }
+    // if (pydict) {
+    // 	try {
+    // 	    r_block->remap_kwargs = bp::dict();  // FIXME does this leak?
+    // 	}
+    // 	catch (bp::error_already_set) {
+    // 	    PyErr_Print();
+    // 	    PyErr_Clear();
+    // 	    ERS("add_parameters: cant create dictionary");
+    // 	}
+    // }
 
     memset(missing,0,sizeof(missing));
     memset(superfluous,0,sizeof(superfluous));
@@ -323,23 +323,23 @@ int Interp::add_parameters(setup_pointer settings, context_pointer callframe)
     r = required;
     block = &CONTROLLING_BLOCK((*settings));
 
-    logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
+    logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s pydict=%d\n",
 	    code,argspec,settings->call_level,required,optional,pydict);
 
 #define STORE(name,value)						\
     if (pydict) {							\
 	try {								\
-	    callframe->kwargs[name] = value;				\
+	    r_block->remap_kwargs[name] = value;				\
         }								\
         catch (bp::error_already_set) {					\
 	    PyErr_Print();						\
 	    PyErr_Clear();						\
 	    ERS("add_parameters: cant add '%s' to args",name);		\
 	}								\
-    } else {					\
-	add_named_param(name,0);		\
-	store_named_param(settings,name,value,0); 	\
-    }
+    }									\
+    add_named_param(name,0);						\
+    store_named_param(settings,name,value,0);				\
+
 
 #define PARAM(spec,name,flag,value) 	                    	\
     if ((flag)) { /* present */	                    	        \

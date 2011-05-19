@@ -190,7 +190,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("filename",  &wrap_context::filename)
 	.def_readwrite("subname",  &wrap_context::subName)
 	// need wrapper for saved_params
-	.def_readwrite("kwargs", &wrap_context::kwargs)
+	//.def_readwrite("kwargs", &wrap_context::kwargs)
     ;
 
     class_ <wrap_remap,noncopyable>("wrap_remap",no_init)
@@ -629,6 +629,7 @@ static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
 }
 
 int Interp::pycall(setup_pointer settings,
+		   block_pointer block,
 		   const char *funcname,
 		   double *params
 		   )
@@ -664,7 +665,7 @@ int Interp::pycall(setup_pointer settings,
 	    posarg = bp::tuple();
 	}
 	retval = callobject(function,posarg,
-			    settings->sub_context[settings->call_level].kwargs);
+			    block->remap_kwargs);
     }
     catch (bp::error_already_set) {
 	// NB: see py_execute exception handler - handle_exception() ??

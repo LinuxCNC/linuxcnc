@@ -325,6 +325,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   int index;
   int i;
   context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
+  block_pointer r_block;
 
   logOword("convert_control_functions");
 
@@ -454,22 +455,27 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      // if we have an epilog function - execute it, passing the
 	      // current call frame
 
-	      if (HAS_PYTHON_EPILOG(leaving_frame->remap_info)) {
+
+	      // aquire the remapped block
+	      r_block = &CONTROLLING_BLOCK(*settings);
+
+	      if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
 		  logRemap("O_call: py epilog %s for NGC remap %s",
-			   leaving_frame->remap_info->epilog_func,
-			   leaving_frame->remap_info->remap_ngc);
-		  status = pycall(settings, leaving_frame->remap_info->epilog_func,
+			   r_block->executing_remap->epilog_func,
+			   r_block->executing_remap->remap_ngc);
+		  status = pycall(settings,r_block,
+				  r_block->executing_remap->epilog_func,
 				  NULL);
 	      }
 
-	      if (HAS_BUILTIN_EPILOG(leaving_frame->remap_info)) {
+	      if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
 		  logRemap("O_call: calling builtin epilogue\n");
-		  status = (*this.*leaving_frame->remap_info->builtin_epilog)(settings, leaving_frame);
+		  status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
+
 		  if (status > INTERP_MIN_ERROR) {
 		      logRemap("O_call: builtin epilogue failed: %s \n", interp_status(status));
 		  }
 	      }
-	      leaving_frame->remap_info = NULL; // strike off
 
 	      // a valid previous context was marked by an M73 as auto-restore
 	      if ((leaving_frame->context_status &
@@ -551,14 +557,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	    settings->call_level++;
 
-	    // aquire the remap descriptor which was passed through the
-	    // executing block, if so set by execute_handler()
-	    // pick it up here and store in call frame
-	    // the remap descriptor has all the information needed for
-	    // calling any prolog and epilog
-
-	    new_frame->remap_info = EXECUTING_BLOCK(*settings).current_remap;
-	    EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
+	    // aquire the remap_frame
+	    r_block = &CONTROLLING_BLOCK(*settings);
 
 	    // set the new subName
 	    new_frame->subName = block->o_name;
@@ -573,10 +573,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		}
 	    }
 #endif
+
 	    // this is the place to call a prolog function.
-	    if (HAS_BUILTIN_PROLOG(new_frame->remap_info)) {
+	    if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
+
 		logRemap("O_call: calling builtin prolog\n");
-		status = (*this.*new_frame->remap_info->builtin_prolog)(settings, new_frame);
+		status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
 
 		// prolog is exepected to set an appropriate
 		// error string on failure
@@ -591,16 +593,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    settings->remap_level = 0;
 		    return status;
 		}
-	    } else {
-		new_frame->kwargs = boost::python::dict();
 	    }
 
-	    if (HAS_PYTHON_PROLOG(new_frame->remap_info)) {
+	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
 		logRemap("O_call: py prologue %s for NGC remap %s ",
-			 new_frame->remap_info->prolog_func,
-			 new_frame->remap_info->remap_ngc);
-		status = pycall(settings,
-				new_frame->remap_info->prolog_func,
+			 r_block->executing_remap->prolog_func,
+			 r_block->executing_remap->remap_ngc);
+		status = pycall(settings, r_block,
+				r_block->executing_remap->prolog_func,
 				NULL);
 	    }
 
@@ -618,9 +618,12 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // pass that frame to Python to handle.
 	    settings->call_level++;
 
+	    // aquire the remap_frame
+	    r_block = &CONTROLLING_BLOCK(*settings);
+
 	    new_frame->subName = block->o_name;
-	    new_frame->remap_info =  EXECUTING_BLOCK(*settings).current_remap;
-	    EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
+	    // new_frame->remap_info =  EXECUTING_BLOCK(*settings).current_remap;
+	    // EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
 
 	    // The 'O word sub' is actually a python callable function.
 	    // call a prolog function if applicable
@@ -636,32 +639,37 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // generator add_parameters()
 
 
-	    if (HAS_BUILTIN_PROLOG(new_frame->remap_info)) {
-		logRemap("O_call: calling builtin prolog for py remap %s",new_frame->remap_info->name);
-		status = (*this.*new_frame->remap_info->builtin_prolog)(settings, new_frame);
+	    if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
+		logRemap("O_call: calling builtin prolog for py remap %s",
+			 r_block->executing_remap->name);
+		// now done in add_parameters
+		// // always create a dict as well in case a py prolog is called
+		// new_frame->kwargs = boost::python::dict();
+		status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
 
 		// prolog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_call: builtin prologue for %s failed, unwinding\n",new_frame->remap_info->name);
+		    logRemap("O_call: builtin prologue for %s failed, unwinding\n",
+			     r_block->executing_remap->name);
 		    settings->call_level--;
 
 		    // end any remappings in progress
 		    settings->remap_level = 0;  // FIXME mah better unwind just by return code
 		    return status;
 		}
-	    } else {
-		new_frame->kwargs = boost::python::dict();
 	    }
-	    if (HAS_PYTHON_PROLOG(new_frame->remap_info)) {
+	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
 		logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
-			 new_frame->remap_info->prolog_func,
-			 new_frame->remap_info->remap_py);
-		status = pycall(settings,
-				  new_frame->remap_info->prolog_func,
-				  NULL);
+			 r_block->executing_remap->prolog_func,
+			 r_block->executing_remap->remap_py);
+		status = pycall(settings, r_block,
+				r_block->executing_remap->prolog_func,
+				NULL);
 	    }
 
-	    status =  pycall(settings, new_frame->remap_info->remap_py, block->params);
+	    status =  pycall(settings, r_block,
+			     r_block->executing_remap->prolog_func,
+			     block->params);
 
 	    // this breaks T,M6,M61 - rely on posargs !! fix this with a Python prolog for T/M6/M61
 	    // predef named params to the rescue?
@@ -679,26 +687,26 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    block->o_name, settings->return_value);
 
 
-	    if (HAS_PYTHON_EPILOG(new_frame->remap_info)) {
+	    if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
 		logRemap("O_call: py epilog %s for py remap %s - useless.. but doing it",
-			 new_frame->remap_info->epilog_func,
-			 new_frame->remap_info->remap_py);
-		  status = pycall(settings,
-				  new_frame->remap_info->epilog_func,
+			 r_block->executing_remap->epilog_func,
+			 r_block->executing_remap->remap_py);
+		status = pycall(settings, r_block,
+				  r_block->executing_remap->epilog_func,
 				  NULL);
 	    }
 	    settings->call_level--;
 
 	    // now the epilogue
-	    if (HAS_BUILTIN_EPILOG(new_frame->remap_info)) {
-		logRemap("O_call: calling builtin epilogue for pyremap %s",new_frame->remap_info->name );
-		status = (*this.*new_frame->remap_info->builtin_epilog)(settings, new_frame);
-		new_frame->remap_info  = NULL; // strike off
+	    if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
+		logRemap("O_call: calling builtin epilogue for pyremap %s",
+			 r_block->executing_remap->name );
+		status = (*this.*r_block->executing_remap->builtin_epilog)(settings,r_block);
 
 		// epilog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
 		    logRemap("O_call: builtin  epilogue for pyremap %s failed: %s",
-			     new_frame->remap_info->name,
+			     r_block->executing_remap->name,
 			     interp_status(status));
 		}
 	    }

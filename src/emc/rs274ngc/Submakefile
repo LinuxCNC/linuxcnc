@@ -21,6 +21,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
 	interp_python.cc \
+	interp_remap.cc \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
