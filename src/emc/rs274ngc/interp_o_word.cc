@@ -340,7 +340,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
     }
 
   // must skip if skipping
-  if(settings->skipping_o && (0!=strcmp(settings->skipping_o, block->o_name)))
+  if(settings->skipping_o && (0 != strcmp(settings->skipping_o, block->o_name)))
   {
       logOword("skipping to line: |%s|", settings->skipping_o);
       return INTERP_OK;
@@ -561,7 +561,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
 
 	    // set the new subName
-	    // !!!KL do we need to free old subName?
 	    new_frame->subName = block->o_name;
 #if 0
 	    // just curious: detect recursion

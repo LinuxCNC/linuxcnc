@@ -294,11 +294,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->o_type = O_none;
   block->o_number = 0;
 
-  if(block->o_name)
-    {
-	// free(block->o_name); // FIXME mah
-      block->o_name = 0;
-    }
+  block->o_name = 0;
 
   return INTERP_OK;
 }
