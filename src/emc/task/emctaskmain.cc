@@ -132,7 +132,6 @@ NMLmsg *emcTaskCommand = 0;
 static int done;
 static int emctask_shutdown(void);
 static int pseudoMdiLineNumber = INT_MIN;
-char *t_command,*m6_command;
 
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
@@ -3060,12 +3059,6 @@ static int iniLoad(const char *filename)
     // configurable template for iocontrol reason display
     if (NULL != (inistring = inifile.Find("IO_ERROR", "TASK"))) {
 	io_error = strdup(inistring);
-    }
-    if ((inistring = inifile.Find("T_COMMAND", "RS274NGC")) != NULL) {
-	t_command = strdup(inistring);
-    }
-    if ((inistring = inifile.Find("M6_COMMAND", "RS274NGC")) != NULL) {
-	m6_command = strdup(inistring);
     }
     // close it
     inifile.Close();
