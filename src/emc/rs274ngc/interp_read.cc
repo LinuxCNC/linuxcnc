@@ -532,12 +532,8 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
   // mode = usercode_mgroup(&(_setup),value);
   // if (mode != -1) {
 
-  if (_setup.g_remapped[value]) {
-      char key[10];  // improve this..
-
-      sprintf(key,"g%d",value);
-      remap_pointer r = remapping(key);
-      CHKS ((r == NULL),"BUG: G remapping not found"); // real bad
+  remap_pointer r = _setup.g_remapped[value];
+  if (r) {
       mode =  r->modal_group;
       CHKS ((mode < 0),"BUG: G remapping: modal group < 0"); // real bad
 
@@ -1042,12 +1038,8 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   CHP(read_integer_value(line, counter, &value, parameters));
   CHKS((value < 0), NCE_NEGATIVE_M_CODE_USED);
 
-  if (_setup.m_remapped[value]) {
-      char key[10];  // improve this..
-
-      sprintf(key,"m%d",value);
-      remap_pointer r = remapping(key);
-      CHKS ((r == NULL),"BUG: M remapping not found"); // real bad
+  remap_pointer r = _setup.m_remapped[value];
+  if (r) {
       mode =  r->modal_group;
       CHKS ((mode < 0),"BUG: M remapping: modal group < 0"); // real bad
 
@@ -1058,16 +1050,6 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
       return INTERP_OK;
   }
 
-  // was:
-  // mode = usercode_mgroup(&(_setup),value,true);  // FIXME mah _setup .. settings
-  // if (mode != -1) {
-  //     // a user-defined M-code.
-  //     CHKS((block->m_modes[mode] != -1),
-  // 	   NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
-  //     block->m_modes[mode] = value;
-  //     block->m_count++;
-  //     return INTERP_OK;
-  // }
   CHKS((value > 199), NCE_M_CODE_GREATER_THAN_199);
   mode = _ems[value];
   CHKS((mode == -1), NCE_UNKNOWN_M_CODE_USED);
