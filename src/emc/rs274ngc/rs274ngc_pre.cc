@@ -1495,6 +1495,10 @@ int Interp::reset()
       //free(_setup.sub_name);
     _setup.sub_name = 0;
   }
+
+  // reset remapping stack
+  _setup.remap_level = 0;
+  // reset call level if a sub aborted
   _setup.call_level = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
@@ -2221,11 +2225,6 @@ int Interp::on_abort(int reason, const char *message)
     _setup.toolchange_flag = false;
     _setup.probe_flag = false;
     _setup.input_flag = false;
-
-    // reset remapping stack
-    _setup.remap_level = 0;
-    // reset call level if a sub aborted
-    _setup.call_level = 0;
 
     if (_setup.on_abort_command == NULL)
 	return -1;
