@@ -448,6 +448,7 @@ typedef struct block_struct
     // conceptually this is the 'remap frame'
 
     const char *remap_command; // debug aid
+    boost::python::object remap_tupleargs; // the args tuple for Py functions
     boost::python::object remap_kwargs; // the args dict for Py functions
     remap_pointer executing_remap; // refers to config descriptor
 
