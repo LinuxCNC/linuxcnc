@@ -201,11 +201,11 @@ int Interp::execute_handler(setup_pointer settings,
     block->remap_py_callback = NULL;
 
     // build positional args for any Python pro/epilogs here
-    block->remap_tupleargs = bp::make_tuple(plist);
+    block->tupleargs = bp::make_tuple(plist);
 
     // build kwargs for  any Python pro/epilogs if an argspec
     // was given - add_parameters will decorate remap_kwargs as per argspec
-    block->remap_kwargs = boost::python::dict();
+    block->kwargs = boost::python::dict();
     if (rptr->argspec) {
 	CHKS(add_parameters(settings, block),
 	     "%s: add_parameters(argspec=%s) for remap body %s failed ",

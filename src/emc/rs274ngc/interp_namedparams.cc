@@ -318,7 +318,7 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
 #define STORE(name,value)						\
     if (pydict) {							\
 	try {								\
-	    r_block->remap_kwargs[name] = value;				\
+	    r_block->kwargs[name] = value;				\
         }								\
         catch (bp::error_already_set) {					\
 	    PyErr_Print();						\

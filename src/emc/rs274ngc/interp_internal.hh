@@ -444,14 +444,10 @@ typedef struct block_struct
 #define once_M(step) (todo(STEP_M_ ## step) ? tickoff(STEP_M_ ## step),1 : 0)
 
 
-    // refers to the current remap in progress, part of block
     // there might be several remapped items in a block, but at any point
     // in time there's only one excuting
-    // conceptually this is the 'remap frame'
-
+    // conceptually the block is also the 'remap frame'
     const char *remap_command; // debug aid
-    boost::python::object remap_tupleargs; // the args tuple for Py functions
-    boost::python::object remap_kwargs; // the args dict for Py functions
     remap_pointer executing_remap; // refers to config descriptor
 
     // denotes a Python function to call after a synch()
@@ -460,8 +456,10 @@ typedef struct block_struct
     // the next execute(0) will call the callback first before
     // proceeding with other items. The callback may in turn
     // INTERP_EXECUTE_FINISH, and a callback etc
-
     const char *remap_py_callback;
+
+    boost::python::object tupleargs; // the args tuple for Py functions
+    boost::python::object kwargs; // the args dict for Py functions
 }
 block;
 

@@ -5,6 +5,27 @@ import traceback
 
 #def xxx():        # test syntax failure
 
+class MsgOut(object):
+	def __init__(self, f):
+		self.data = ''
+
+	def write(self, txt=''):
+		self.data += txt
+		tmp = str(self.data)
+		if '\x0a' in tmp or '\x0d' in tmp:
+			tmp = tmp.rstrip('\x0a\x0d')
+			CanonMod.MESSAGE(tmp)
+			self.data = ''
+
+	def flush(self):
+		pass
+
+# Replace stdout with text redirected to operator messages
+sys.stdout = MsgOut(sys.__stdout__)
+
+print "CanonMsg, here?"
+
+
 def pym6demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	for i in range(5):

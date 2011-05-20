@@ -1,3 +1,6 @@
+// FIXME mah - exception handling still a mess.
+
+
 // Support for Python oword subroutines
 //
 // proof-of-concept for access to Interp and canon
@@ -653,22 +656,10 @@ int Interp::pycall(setup_pointer settings,
     //   PyGILState_STATE gstate = PyGILState_Ensure();
 
     try {
-
-
 	bp::object function = settings->module_namespace[funcname];
-	// bp::object posarg;
-
-	// if (params) {
-	//     bp::list plist;
-	//     for (int i = 0; i < INTERP_SUB_PARAMS; i++) {
-	// 	plist.append(params[i]);
-	//     }
-	//     posarg = bp::make_tuple(plist);
-	// } else {
-	//     posarg = bp::tuple();
-	// }
-	retval = callobject(function, bp::make_tuple(),// block->remap_tupleargs),
-			    block->remap_kwargs);
+	retval = callobject(function,
+			    block->tupleargs,
+			    block->kwargs);
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
@@ -679,14 +670,11 @@ int Interp::pycall(setup_pointer settings,
 	bp::handle_exception();
 	PyErr_Clear();
 
-
-
 	// bp::handle_exception();
 	// // NB: see py_execute exception handler - handle_exception() ??
 	// // std::string msg = handle_pyerror();
 	// PyErr_Clear();
 	ERS("pycall:");
-
 	//	PyGILState_Release(gstate);
     }
 
@@ -740,6 +728,6 @@ int Interp::py_execute(const char *cmd)
     }
     //PyGILState_Release(gstate);
     logPy("py_execute(%s):  %s", cmd, msg.c_str());
-
+    MESSAGE((char *) msg.c_str());
     return INTERP_OK;
 }
