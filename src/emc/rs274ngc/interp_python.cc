@@ -174,7 +174,11 @@ struct wrap_context : public context {
     // logPy("this=%lx interp_instance=%lx x=%lx",(void *)this,(void *)&interp_instance,(void *)&x);
 
 
-
+static void wrap_canon_error(const char *s)
+{
+    if ((s != NULL) && strlen(s))
+	CANON_ERROR(s);
+}
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -331,6 +335,7 @@ BOOST_PYTHON_MODULE(CanonMod) {
     //def("CANON_AXIS;",&CANON_AXIS);
     //def("CANON_CONTINUOUS.",&CANON_CONTINUOUS);
     //def("CANON_DIRECTION;",&CANON_DIRECTION);
+    def("CANON_ERROR",&wrap_canon_error);
     //def("CANON_FEED_REFERENCE;",&CANON_FEED_REFERENCE);
     //def("CANON_MOTION_MODE;",&CANON_MOTION_MODE);
     //def("CANON_PLANE;",&CANON_PLANE);

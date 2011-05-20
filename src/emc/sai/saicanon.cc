@@ -1145,3 +1145,15 @@ void INTERP_ABORT(int reason, const char *message)
     PRINT1("INTERP_ABORT(%d)\n",reason);
 }
 
+/* Sends error message */
+void CANON_ERROR(const char *fmt, ...)
+{
+    va_list ap;
+#if 0 // FIXME
+    if (fmt != NULL) {
+	va_start(ap, fmt);
+	vfprintf(, fmt, ap);
+	va_end(ap);
+    }
+#endif
+}

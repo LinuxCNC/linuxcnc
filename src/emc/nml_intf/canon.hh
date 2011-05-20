@@ -929,4 +929,8 @@ extern void FINISH(void);
 // queue a suicide message.
 extern void INTERP_ABORT(int reason,const char *message);
 
+// expose CANON_ERROR
+extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
+
+
 #endif				/* ifndef CANON_HH */
