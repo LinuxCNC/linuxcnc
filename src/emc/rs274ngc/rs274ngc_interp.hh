@@ -540,8 +540,7 @@ private:
  bool is_pycallable(setup_pointer settings, const char *funcname);
  int pycall(setup_pointer settings,
 	    block_pointer block,
-	    const char *funcname,
-	    double *params);
+	    const char *funcname);
     int py_execute(const char *cmd); // for (py, ....) comments
 
  int convert_straight_indexer(int, block*, setup*);

@@ -171,6 +171,8 @@ struct wrap_context : public context {
     // logPy("this=%lx interp_instance=%lx x=%lx",(void *)this,(void *)&interp_instance,(void *)&x);
 
 
+
+
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
     using namespace boost;
@@ -178,6 +180,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope().attr("__doc__") =
         "Interpreter introspection\n"
         ;
+
 
     // def("remapping", (wrap_remap *)&wrap_remapping);
 
@@ -630,9 +633,7 @@ static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
 
 int Interp::pycall(setup_pointer settings,
 		   block_pointer block,
-		   const char *funcname,
-		   double *params
-		   )
+		   const char *funcname)
 {
     bp::object retval;
 
@@ -652,28 +653,41 @@ int Interp::pycall(setup_pointer settings,
     //   PyGILState_STATE gstate = PyGILState_Ensure();
 
     try {
-	bp::object function = settings->module_namespace[funcname];
-	bp::object posarg;
 
-	if (params) {
-	    bp::list plist;
-	    for (int i = 0; i < INTERP_SUB_PARAMS; i++) {
-		plist.append(params[i]);
-	    }
-	    posarg = bp::make_tuple(plist);
-	} else {
-	    posarg = bp::tuple();
-	}
-	retval = callobject(function,posarg,
+
+	bp::object function = settings->module_namespace[funcname];
+	// bp::object posarg;
+
+	// if (params) {
+	//     bp::list plist;
+	//     for (int i = 0; i < INTERP_SUB_PARAMS; i++) {
+	// 	plist.append(params[i]);
+	//     }
+	//     posarg = bp::make_tuple(plist);
+	// } else {
+	//     posarg = bp::tuple();
+	// }
+	retval = callobject(function, bp::make_tuple(),// block->remap_tupleargs),
 			    block->remap_kwargs);
     }
     catch (bp::error_already_set) {
-	// NB: see py_execute exception handler - handle_exception() ??
-	std::string msg = handle_pyerror();
-	ERS("pycall: pid=%d %s", getpid(),msg.c_str());
+	if (PyErr_Occurred()) {
+	    // msg = handle_pyerror();
+	    PyErr_Print();
+	    //  err = true;
+	}
+	bp::handle_exception();
 	PyErr_Clear();
+
+
+
+	// bp::handle_exception();
+	// // NB: see py_execute exception handler - handle_exception() ??
+	// // std::string msg = handle_pyerror();
+	// PyErr_Clear();
+	ERS("pycall:");
+
 	//	PyGILState_Release(gstate);
-	return INTERP_OK;
     }
 
     if (retval.ptr() != Py_None) {

@@ -465,8 +465,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			   r_block->executing_remap->epilog_func,
 			   r_block->executing_remap->remap_ngc);
 		  status = pycall(settings,r_block,
-				  r_block->executing_remap->epilog_func,
-				  NULL);
+				  r_block->executing_remap->epilog_func);
 	      }
 
 	      if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
@@ -601,8 +600,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			 r_block->executing_remap->prolog_func,
 			 r_block->executing_remap->remap_ngc);
 		status = pycall(settings, r_block,
-				r_block->executing_remap->prolog_func,
-				NULL);
+				r_block->executing_remap->prolog_func);
 	    }
 
 
@@ -664,13 +662,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			 r_block->executing_remap->prolog_func,
 			 r_block->executing_remap->remap_py);
 		status = pycall(settings, r_block,
-				r_block->executing_remap->prolog_func,
-				NULL);
+				r_block->executing_remap->prolog_func);
 	    }
 
 	    status =  pycall(settings, r_block,
-			     r_block->executing_remap->remap_py,
-			     block->params);
+			     r_block->executing_remap->remap_py);
 
 	    // this breaks T,M6,M61 - rely on posargs !! fix this with a Python prolog for T/M6/M61
 	    // predef named params to the rescue?
@@ -693,8 +689,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			 r_block->executing_remap->epilog_func,
 			 r_block->executing_remap->remap_py);
 		status = pycall(settings, r_block,
-				  r_block->executing_remap->epilog_func,
-				  NULL);
+				  r_block->executing_remap->epilog_func);
 	    }
 	    settings->call_level--;
 
