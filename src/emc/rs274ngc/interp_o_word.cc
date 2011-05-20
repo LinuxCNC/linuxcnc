@@ -532,11 +532,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
 		ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
 	    }
-	    for(i=0; i<INTERP_SUB_PARAMS; i++)	{
+	    for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
 		current_frame->saved_params[i] =
-		    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM];
+		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
 
-		settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
 		    block->params[i];
 	    }
 
@@ -573,28 +573,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		}
 	    }
 #endif
-
-	    // // this is the place to call a prolog function.
-	    // if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
-
-	    // 	logRemap("O_call: calling builtin prolog\n");
-	    // 	status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
-
-	    // 	// prolog is exepected to set an appropriate
-	    // 	// error string on failure
-	    // 	if (status > INTERP_MIN_ERROR) {
-	    // 	    // we're terminating the call in progress as we were setting it up.
-	    // 	    // need to unwind setup so far.
-	    // 	    logRemap("O_call: prologue failed, unwinding\n");
-	    // 	    new_frame->subName = NULL;
-	    // 	    settings->call_level--;
-
-	    // 	    // FIXME mah dubious - think this through; better to unwind by return status only
-	    // 	    settings->remap_level = 0;
-	    // 	    return status;
-	    // 	}
-	    // }
-
 	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
 		logRemap("O_call: py prologue %s for NGC remap %s ",
 			 r_block->executing_remap->prolog_func,
@@ -602,7 +580,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		status = pycall(settings, r_block,
 				r_block->executing_remap->prolog_func);
 	    }
-
 
 	    if (control_back_to(block,settings) == INTERP_ERROR) {
 		settings->call_level--;
@@ -617,12 +594,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // pass that frame to Python to handle.
 	    settings->call_level++;
 
-	    // aquire the remap_frame
-	    r_block = &_setup.blocks[_setup.remap_level];// &CONTROLLING_BLOCK(_setup);
-
 	    new_frame->subName = block->o_name;
-	    // new_frame->remap_info =  EXECUTING_BLOCK(*settings).current_remap;
-	    // EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
+
+	    // aquire the remap_frame
+	    r_block = &CONTROLLING_BLOCK(_setup);
+
 
 	    // The 'O word sub' is actually a python callable function.
 	    // call a prolog function if applicable
@@ -637,26 +613,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // for now, the only builtin prolog we have is the kwargs-dict
 	    // generator add_parameters()
 
-
-	    // if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
-	    // 	logRemap("O_call: calling builtin prolog for py remap %s",
-	    // 		 r_block->executing_remap->name);
-	    // 	// now done in add_parameters
-	    // 	// // always create a dict as well in case a py prolog is called
-	    // 	// new_frame->kwargs = boost::python::dict();
-	    // 	status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
-
-	    // 	// prolog is exepected to set an appropriate error string
-	    // 	if (status > INTERP_MIN_ERROR) {
-	    // 	    logRemap("O_call: builtin prologue for %s failed, unwinding\n",
-	    // 		     r_block->executing_remap->name);
-	    // 	    settings->call_level--;
-
-	    // 	    // end any remappings in progress
-	    // 	    settings->remap_level = 0;  // FIXME mah better unwind just by return code
-	    // 	    return status;
-	    // 	}
-	    // }
 	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
 		logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
 			 r_block->executing_remap->prolog_func,
@@ -667,11 +623,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	    status =  pycall(settings, r_block,
 			     r_block->executing_remap->remap_py);
-
-	    // this breaks T,M6,M61 - rely on posargs !! fix this with a Python prolog for T/M6/M61
-	    // predef named params to the rescue?
-	    //status =  pycall(settings, block->o_name, new_frame->remap_info ? NULL : block->params);
-
 
 	    if (status >  INTERP_MIN_ERROR) {
 		// end any remappings in progress
