@@ -78,7 +78,8 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
         }                                       \
     } while(0)
 
-#define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,LOG_FILENAME,1,fmt, ## args)
+//#define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,LOG_FILENAME,1,fmt, ## args)
+#define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,0,1,fmt, ## args)
 
 #define logConfig(fmt, args...) _logDebug(EMC_DEBUG_CONFIG,0,1,fmt, ## args)
 #define logOword(fmt, args...)  _logDebug(EMC_DEBUG_OWORD,0,1,fmt, ## args)
