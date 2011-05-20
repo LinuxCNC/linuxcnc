@@ -377,27 +377,7 @@ int Interp::_execute(const char *command)
 	  logRemap("found remap %s in '%s', level=%d filename=%s line=%d",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
-          _setup.remap_level++;
-	  if (_setup.remap_level == MAX_NESTED_REMAPS) {
-	      _setup.remap_level = 0;
-	      ERS("maximum nesting of remapped blocks execeeded");
-	      return INTERP_ERROR;
-	  }
-
-
-	  // push onto block stack
-	  CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
-	  CONTROLLING_BLOCK(_setup).breadcrumbs = 0; // clear trail
-
-	  // remember the line where remap was discovered
-	  if (_setup.remap_level == 1) {
-	      CONTROLLING_BLOCK(_setup).line_number  = _setup.sequence_number;
-	  } else {
-	      CONTROLLING_BLOCK(_setup).line_number  = EXECUTING_BLOCK(_setup).line_number;
-	  }
-
-	  logRemap("enter remap nesting (now level %d) remapline=%d", _setup.remap_level,CONTROLLING_BLOCK(_setup).line_number);
-
+	  CHP(enter_remap());
 	  // execute up to the first remap including read() of its handler
 	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup);
 
@@ -584,21 +564,7 @@ int Interp::remap_finished(int finished_remap)
 			interp_status(status),_setup.remap_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
 			CONTROLLING_BLOCK(_setup).line_number);
-
-		// restore the line number where remap was found
-		if (_setup.remap_level == 1) {
-		    // dropping to top level
-		    _setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
-		} else {
-		    // just dropping a nesting level
-		    EXECUTING_BLOCK(_setup).line_number = CONTROLLING_BLOCK(_setup).line_number ;
-		}
-		_setup.remap_level--; // drop one nesting level
-		if (_setup.remap_level < 0) {
-		    Log("BUG: remap_level %d (<0) after dropping!!",
-			    _setup.remap_level);
-		    ERS("BUG: remap_level < 0");
-		}
+		CHP(leave_remap());
 	    }
 	}
 	return status;
@@ -2189,6 +2155,54 @@ int Interp::set_tool_parameters()
   return 0;
 }
 
+int Interp::enter_remap(void)
+{
+    _setup.remap_level++;
+    if (_setup.remap_level == MAX_NESTED_REMAPS) {
+	_setup.remap_level = 0;
+	ERS("maximum nesting of remapped blocks execeeded");
+    }
+
+    // push onto block stack
+    CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
+    CONTROLLING_BLOCK(_setup).breadcrumbs = 0; // clear trail
+
+    // remember the line where remap was discovered
+    if (_setup.remap_level == 1) {
+	CONTROLLING_BLOCK(_setup).line_number  =
+	    _setup.sequence_number;
+    } else {
+	CONTROLLING_BLOCK(_setup).line_number  =
+	    EXECUTING_BLOCK(_setup).line_number;
+    }
+    logRemap("enter_remap %d->%d remapline=%d",
+	     _setup.remap_level-1,
+	     _setup.remap_level,
+	     CONTROLLING_BLOCK(_setup).line_number);
+    return INTERP_OK;
+}
+
+int Interp::leave_remap(void)
+{
+    // restore the line number where remap was found
+    if (_setup.remap_level == 1) {
+	// dropping to top level, so pass onto _setup
+	_setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
+    } else {
+	// just dropping a nesting level
+	EXECUTING_BLOCK(_setup).line_number =
+	    CONTROLLING_BLOCK(_setup).line_number ;
+    }
+    _setup.remap_level--; // drop one nesting level
+    logRemap("leave_remap %d<-%d remapline=%d",
+	     _setup.remap_level,
+	     _setup.remap_level + 1,
+	     CONTROLLING_BLOCK(_setup).line_number);
+    if (_setup.remap_level < 0) {
+	ERS("BUG: remap_level < 0 : %d",_setup.remap_level);
+    }
+    return INTERP_OK;
+}
 
 int Interp::on_abort(int reason, const char *message)
 {

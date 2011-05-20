@@ -477,6 +477,11 @@ private:
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
 
+ // establish a new remapping context
+ int enter_remap(void);
+    // leave current remapping context
+    int leave_remap(void);
+
  // callback when remapping handler done
  int remap_finished( int status);
 
