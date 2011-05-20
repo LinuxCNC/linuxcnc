@@ -296,13 +296,13 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 
   }
   if (block->f_flag){
-	  if ((settings->feed_mode != INVERSE_TIME) && once(STEP_FEED_NOT_INVERSE_TIME))  {
+	  if ((settings->feed_mode != INVERSE_TIME) && once(STEP_SET_FEED_RATE))  {
 	status = convert_feed_rate(block, settings);
 	CHP(status);
     }
     /* INVERSE_TIME is handled elsewhere */
   }
-  if ((block->s_flag) && once(STEP_SPINDLE_SPEED)){
+  if ((block->s_flag) && once(STEP_SET_SPINDLE_SPEED)){
       status = convert_speed(block, settings);
 	CHP(status);
   }

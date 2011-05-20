@@ -258,21 +258,26 @@ RETRACT_MODE;
 const char *strstore(const char *s);
 
 
-// Block execution steps
-// used to record execution trail in breadcrumbs
-// FIXME unify with exec_phase steps in next_remapping
-enum steps  {STEP_COMMENT, //=1,
-	     STEP_FEED_MODE, // =2,
-	     STEP_FEED_NOT_INVERSE_TIME, //=3, //FIXME naming
-	     STEP_SPINDLE_SPEED, //=4,
-	     STEP_PREPARE, // =5,
-	     // 6 - // User defined M-Codes in group 5  FIXME
-	     // 7 - HAL I7O M62-M68
-	     // 8 - // User defined M-Codes in group 6  FIXME
+// Block execution steps in execution order
+// very carefully check code for sequencing when
+// adding steps!
 
+// used to record execution trail in breadcrumbs
+enum steps  {FIRST_STEP,
+             STEP_COMMENT,
 	     STEP_SPINDLE_MODE,
-	     STEP_STOP,
-	     STEP_MGROUP4,
+	     STEP_FEED_MODE,
+	     STEP_SET_FEED_RATE,
+	     STEP_SET_SPINDLE_SPEED,
+	     STEP_PREPARE,
+
+	     STEP_M_5,
+	     STEP_M_6,
+	     STEP_M_7,
+	     STEP_M_8,
+	     STEP_M_9,
+	     STEP_M_10,
+
 	     STEP_DWELL,
 	     STEP_SET_PLANE,
 	     STEP_LENGTH_UNITS,
@@ -286,18 +291,9 @@ enum steps  {STEP_COMMENT, //=1,
 	     STEP_RETRACT_MODE,
 	     STEP_MODAL_0,
 	     STEP_MOTION,
-	     STEP_M_0,
-	     STEP_M_1,
-	     STEP_M_2,
-	     STEP_M_3,
-	     STEP_M_4,
-	     STEP_M_5,
-	     STEP_M_6,
-	     STEP_M_7,
-	     STEP_M_8,
-	     STEP_M_9,
-	     STEP_M_10,
-	     // add any more steps before MAX_STEPS
+
+	     STEP_MGROUP4,
+
 	     MAX_STEPS
 };
 

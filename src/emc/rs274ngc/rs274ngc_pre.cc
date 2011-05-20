@@ -590,83 +590,84 @@ int Interp::remap_finished(int finished_remap)
 // http://www.linuxcnc.org/docs/2.4/html/gcode_overview.html#sec:Order-of-Execution
 // return NO_REMAP if no remapped item found.
 // return remap_op of the first remap in execution sequence.
+
+// test add S,F remaps - interception missing FIXME mah
 int Interp::next_remapping(block_pointer block, setup_pointer settings)
 {
     int exec_phase, mode;
 
-    for (exec_phase = 1; exec_phase < 31; exec_phase++) {
+    for (exec_phase = FIRST_STEP; exec_phase < MAX_STEPS; exec_phase++) {
 	switch (exec_phase) {
-	case 1: // Comment (including message)
-	case 2: // Set feed rate mode (G93, G94).
-	case 3: // Set feed rate (F).
-	case 4: // Set spindle speed (S).
+
+#ifdef NOTYET
+	case STEP_SET_FEED_RATE:
+	    if (block->f_flag && todo(STEP_SET_FEED_RATE) &&
+		remapping("F"))
+		return F_REMAP;
 	    break;
-	case 5: // Select tool (T).
+
+	case STEP_SET_SPINDLE_SPEED:
+	    if (block->s_flag && todo(STEP_SPINDLE_SPEED) &&
+		remapping("S"))
+		return S_REMAP;
+	    break;
+#endif
+
+	case STEP_PREPARE: // Select tool (T).
 	    if (block->t_flag && todo(STEP_PREPARE) &&
 		remapping("T"))
 		return T_REMAP;
 	    break;
-	case 6: // User defined M-Codes in group 5
+
+	case STEP_M_5:
 	    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
 		return M_USER_REMAP;
 	    break;
-	case 7: // HAL pin I/O (M62-M68)
-	case 8: // User defined M-Codes in group 6 which are NOT M6 or M61
+
+	case STEP_M_6:
 	    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
 		return M_USER_REMAP;
-	    break;
-	case 9: // Change tool (M6), Set Tool Number (M61)
+
+	    // Change tool (M6), Set Tool Number (M61)
 	    if ((block->m_modes[6] == 6) && todo(STEP_M_6) &&
 		remapping("M6"))
 		return M6_REMAP;
+
 	    if ((block->m_modes[6] == 61) && todo(STEP_M_6) &&
 		remapping("M61"))
 		return M61_REMAP;
 	    break;
-	case 10: // User defined M-Codes in group 7
+
+	case STEP_M_7: // User defined M-Codes in group 7
 	    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
 		return M_USER_REMAP;
 	    break;
 
-	case 11: // Spindle on or off (M3, M4, M5).
-	case 12: // Save State (M70, M73), Restore State (M72), Invalidate State (M71)
-	case 13: // User defined M-Codes in group 8
+	case STEP_M_8: // User defined M-Codes in group 8
 	    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
 		return M_USER_REMAP;
 	    break;
-	case 14: // Coolant on or off (M7, M8, M9).
-	    break;
-	case 15: // User defined M-Codes in group 9
+
+	case STEP_M_9: // User defined M-Codes in group 9
 	    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
 		return M_USER_REMAP;
 	    break;
-	case 16: // Enable or disable overrides (M48, M49,M50,M51,M52,M53).
-	case 17: // User defined M-Codes in group 10
+
+	case STEP_M_10: // User defined M-Codes in group 10
 	    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
 		return M_USER_REMAP;
 	    break;
-        case 18: // User-defined Commands (M100-M199)
-	case 19: // Dwell (G4).
-	case 20: // Set active plane (G17, G18, G19).
-	case 21: // Set length units (G20, G21).
-	case 22: // Cutter radius compensation on or off (G40, G41, G42)
-	case 23: // Cutter length compensation on or off (G43, G49)
-	case 24: // Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
-	case 25: // Set path control mode (G61, G61.1, G64)
-	case 26: // Set distance mode (G90, G91).
-	case 27: // Set retract mode (G98, G99).
-	case 28: // Go to reference location (G28, G30) or change coordinate system data (G10) or set axis offsets (G92, G92.1, G92.2, G94).
-	    break;
-	case 29: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
+
+	case STEP_MOTION: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
 	    mode = block->g_modes[GM_MOTION];
 	    if ((mode != -1) && IS_USER_GCODE(mode) &&
 		todo(STEP_MOTION)) {
 		return G_USER_REMAP;
 	    }
 	    break;
-	case 30: // Stop (M0, M1, M2, M30, M60).
+
+	default:
 	    break;
-	    // when adding cases, dont forget to increase exec_phase upper limit
 	}
     }
     return NO_REMAP;
