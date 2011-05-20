@@ -292,17 +292,6 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
     // if any Python handlers are present, create a kwargs dict
     bool pydict = rptr->remap_py || rptr->prolog_func || rptr->epilog_func;
 
-    // if (pydict) {
-    // 	try {
-    // 	    r_block->remap_kwargs = bp::dict();  // FIXME does this leak?
-    // 	}
-    // 	catch (bp::error_already_set) {
-    // 	    PyErr_Print();
-    // 	    PyErr_Clear();
-    // 	    ERS("add_parameters: cant create dictionary");
-    // 	}
-    // }
-
     memset(missing,0,sizeof(missing));
     memset(superfluous,0,sizeof(superfluous));
     memset(optional,0,sizeof(optional));
