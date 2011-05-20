@@ -574,26 +574,26 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 #endif
 
-	    // this is the place to call a prolog function.
-	    if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
+	    // // this is the place to call a prolog function.
+	    // if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
 
-		logRemap("O_call: calling builtin prolog\n");
-		status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
+	    // 	logRemap("O_call: calling builtin prolog\n");
+	    // 	status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
 
-		// prolog is exepected to set an appropriate
-		// error string on failure
-		if (status > INTERP_MIN_ERROR) {
-		    // we're terminating the call in progress as we were setting it up.
-		    // need to unwind setup so far.
-		    logRemap("O_call: prologue failed, unwinding\n");
-		    new_frame->subName = NULL;
-		    settings->call_level--;
+	    // 	// prolog is exepected to set an appropriate
+	    // 	// error string on failure
+	    // 	if (status > INTERP_MIN_ERROR) {
+	    // 	    // we're terminating the call in progress as we were setting it up.
+	    // 	    // need to unwind setup so far.
+	    // 	    logRemap("O_call: prologue failed, unwinding\n");
+	    // 	    new_frame->subName = NULL;
+	    // 	    settings->call_level--;
 
-		    // FIXME mah dubious - think this through; better to unwind by return status only
-		    settings->remap_level = 0;
-		    return status;
-		}
-	    }
+	    // 	    // FIXME mah dubious - think this through; better to unwind by return status only
+	    // 	    settings->remap_level = 0;
+	    // 	    return status;
+	    // 	}
+	    // }
 
 	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
 		logRemap("O_call: py prologue %s for NGC remap %s ",
@@ -638,25 +638,25 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // generator add_parameters()
 
 
-	    if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
-		logRemap("O_call: calling builtin prolog for py remap %s",
-			 r_block->executing_remap->name);
-		// now done in add_parameters
-		// // always create a dict as well in case a py prolog is called
-		// new_frame->kwargs = boost::python::dict();
-		status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
+	    // if (HAS_BUILTIN_PROLOG(r_block->executing_remap)) {
+	    // 	logRemap("O_call: calling builtin prolog for py remap %s",
+	    // 		 r_block->executing_remap->name);
+	    // 	// now done in add_parameters
+	    // 	// // always create a dict as well in case a py prolog is called
+	    // 	// new_frame->kwargs = boost::python::dict();
+	    // 	status = (*this.*r_block->executing_remap->builtin_prolog)(settings, r_block);
 
-		// prolog is exepected to set an appropriate error string
-		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_call: builtin prologue for %s failed, unwinding\n",
-			     r_block->executing_remap->name);
-		    settings->call_level--;
+	    // 	// prolog is exepected to set an appropriate error string
+	    // 	if (status > INTERP_MIN_ERROR) {
+	    // 	    logRemap("O_call: builtin prologue for %s failed, unwinding\n",
+	    // 		     r_block->executing_remap->name);
+	    // 	    settings->call_level--;
 
-		    // end any remappings in progress
-		    settings->remap_level = 0;  // FIXME mah better unwind just by return code
-		    return status;
-		}
-	    }
+	    // 	    // end any remappings in progress
+	    // 	    settings->remap_level = 0;  // FIXME mah better unwind just by return code
+	    // 	    return status;
+	    // 	}
+	    // }
 	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
 		logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
 			 r_block->executing_remap->prolog_func,
