@@ -2982,7 +2982,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
 	    // tool_change_at_g30 - can be handled in g-code if needed
 
-	    char cmd[LINELEN];
 	    // all the remapped M6 does is call the procedure with the
 	    // following argument list:
 	    // #1 - current tool
@@ -2996,20 +2995,16 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    // does NOT change the tool number. The procedure is
 	    // expected to return a value > 0 by the new 'return [expression]' or
 	    // 'endsub [expression]' feature to actually commit the change.
-	    snprintf(cmd, sizeof(cmd),"O <%s> call [%d] [%d] [%d]",
-		     REMAP_FUNC(rptr),
-		     settings->tool_table[0].toolno,
-		     block->t_number,
-		     settings->selected_pocket);
-	    int status = execute_handler(settings, cmd, rptr);
-					 // NULL,
-					 // &Interp::finish_m6_command,
-					 // M6_REMAP);
-	    // just parsing the 'o<foo>call[param]..' command is expected to
-	    // return INTERP_OK; if not, something's badly wrong
-	    if (status != INTERP_OK) {
-		ERS("M6 sub: reading '%s' failed (%d)", cmd, status);
-	    }
+
+	    CHP( execute_handler(settings, rptr, 3,
+					 (double) settings->tool_table[0].toolno,
+					 (double) block->t_number,
+				 (double) settings->selected_pocket));
+
+	    // just parsing the 'o <foo> call [param]..' command is expected to
+	    // return INTERP_OK; if not, something's badly wrong but error
+	    // message will be set  in execute_handler
+
 	    return(-M6_REMAP);
 	} else {
 	    CHP(convert_tool_change(settings));
@@ -3019,7 +3014,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     // (for example on startup)
       if (block->m_modes[6] == 61) { // covered above  && once_M(6)) {
 	int toolno, pocket;
-	char cmd[LINELEN];
 	int status = INTERP_OK;
 
 	toolno = round_to_int(block->q_number);
@@ -3030,19 +3024,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
 	remap_pointer rptr = remapping("M61");
 
-	// this handler is expected to return the pocket number on success
 	if (rptr != NULL) {
-	    snprintf(cmd, sizeof(cmd), "O<%s> call [%d] [%d]",
-		     REMAP_FUNC(rptr),
-		     toolno,
-		     pocket);
-	    status = execute_handler(settings, cmd, rptr);
-				     // NULL,
-				     // &Interp::finish_m61_command,
-				     // M61_REMAP);
-	    if (status != INTERP_OK) {
-		ERS("M61 sub: reading '%s' failed (%d)",cmd,status);
-	    }
+	    // this handler is expected to return the pocket number on success
+	    CHP(execute_handler(settings, rptr, 2,
+				(double) toolno, (double) pocket));
 	    return(-M61_REMAP);
 	} else {
 	    settings->current_pocket = pocket;

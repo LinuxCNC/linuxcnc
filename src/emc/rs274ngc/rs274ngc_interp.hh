@@ -468,8 +468,10 @@ private:
   setup_pointer settings);   /* pointer to machine settings */
 
  int execute_handler(setup_pointer settings,  /* pointer to machine settings */
-		     const char *cmd,
-		     remap_pointer rptr);
+		     remap_pointer rptr,
+		     int count, // number of double args
+		     ...); // double's     const char *cmd,
+
 
  // parse a REMAP= descriptor from the ini file
  int parse_remap(const char *inistring, int lineno);

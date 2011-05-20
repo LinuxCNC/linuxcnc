@@ -307,27 +307,19 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 	CHP(status);
   }
   if ((block->t_flag) && once(STEP_PREPARE)){
-      //    if (settings->t_command) {
-    remap_pointer rptr = remapping("T");
-    if (rptr != NULL) {
-	char cmd[LINELEN];
+
+      remap_pointer rptr;
+
+      if ((rptr = remapping("T")) != NULL) {
 	int pocket;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
 	// pocket will start making sense once tooltable I/O is folded into
 	// interp and iocontrol is gone.
-	snprintf(cmd,sizeof(cmd), "O<%s> call [%d] [%d]",
-		 REMAP_FUNC(rptr),
-		 block->t_number,
-		 pocket);
-
-	status = execute_handler(settings, cmd, rptr);
-				 // NULL, // no prolog
-				 // &Interp::finish_t_command, // std epilog
-				 // T_REMAP, "T");
-
+	CHP(execute_handler(settings, rptr, 2,
+				 (double) block->t_number,
+			    (double) pocket));
 	return (-T_REMAP);
-	CHP(status);
 
     } else {
 	CHP(convert_tool_select(block, settings));
