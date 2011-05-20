@@ -493,6 +493,11 @@ int Interp::execute(const char *command, int line_number)
     status = Interp::execute(command);
     logDebug("<-- execute() remap remap_level=%d call_level=%d status=%s mdi_interrupt=%d",
 	    _setup.remap_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
+
+    if (status > INTERP_MIN_ERROR) {
+	_setup.remap_level = 0;
+	logDebug("<-- execute(): error returned, clearing remap stack");
+    }
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
