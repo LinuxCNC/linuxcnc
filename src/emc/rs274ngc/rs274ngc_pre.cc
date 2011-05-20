@@ -2255,28 +2255,4 @@ const char *strstore(const char *s)
     return string(*pair.first).c_str();
 }
 
-remap_pointer Interp::g_remapping(int number)
-{
-    char key[10];
-    snprintf(key, sizeof(key), "g%d", number);
-    return remapping(key);
-}
-
-
-remap_pointer Interp::m_remapping(int number)
-{
-    char key[10];
-    snprintf(key, sizeof(key), "m%d", number);
-    return remapping(key);
-}
-
-remap_pointer Interp::remapping(const char *code)
-{
-    std::map<const char *,remap_pointer>::iterator n =
-	_setup.remaps.find(code);
-    if (n !=  _setup.remaps.end())
-	return n->second;
-    else
-	return NULL;
-}
 
