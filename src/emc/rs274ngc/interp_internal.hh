@@ -311,8 +311,10 @@ typedef struct remap_struct {
     const char *argspec;
     int modal_group;
     // the following functions are in execution order:
-    int (Interp::*builtin_prolog)(setup_pointer settings,
-				  block_pointer r_block);
+
+    // currently unused:
+    // int (Interp::*builtin_prolog)(setup_pointer settings,
+    // 				  block_pointer r_block);
     const char *prolog_func; // Py function or null
     const char *remap_py;    // Py function maybe  null, OR
     const char *remap_ngc;   // NGC file, maybe  null
@@ -692,12 +694,11 @@ typedef struct setup_struct
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
 
-    const char *py_callback;     // for continuing after EXECUTE_FINISH
+    // const char *py_callback;     // for continuing after EXECUTE_FINISH
 
     const char *on_abort_command;
 
-    // fast lookup for g and m
-    std::bitset<1000>  g_remapped,m_remapped;
+    std::map<int, remap_pointer>  g_remapped,m_remapped;
     std::map<const char *,remap_pointer,nocase_cmp>  remaps;
 
   const char *pymodule, *pydir;
