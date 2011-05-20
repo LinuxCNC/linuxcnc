@@ -118,6 +118,7 @@ public:
  int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
  int add_named_param(const char *nameBuf, int attr = 0);
     remap_pointer remapping(const char *code);
+    remap_pointer remapping(const char letter, int number = -1);
 private:
 
 /* Function prototypes for all  functions */
@@ -489,10 +490,8 @@ private:
 
  int report_error(setup_pointer settings,int status,const char *text);
 
-    // standard prolog to add named params/param dict
- // given a settings and some opaque userdata, 'do the right thing'
- // present optional words to the subroutine's local variables
- // userdata would typically be a gcode or mcode
+ //  add named params/param dict if argspec given
+ // present optional words to the subroutine's local variables and Py dict
     int add_parameters(setup_pointer settings, block_pointer r_block);
 
  // epilog routines called post G-code handler procedure
@@ -501,13 +500,8 @@ private:
  int finish_m61_command(setup_pointer settings, block_pointer r_block);
  int finish_user_command(setup_pointer settings, block_pointer r_block);
 
- // user-defined g/mcode support
- int define_gcode(double gcode, int modal_group,const char *argspec);
- int define_mcode(int mcode, int modal_group,const char *argspec);
-
  // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
  bool check_args(block_pointer block,const char *argspec);
-
 
  int init_named_parameters();
 
@@ -562,8 +556,6 @@ private:
     void print_remaps(void);
     void print_remap(const char *key);
 
-    remap_pointer m_remapping(int number);
-    remap_pointer g_remapping(int number);
 
  FILE *log_file;
 
