@@ -1,6 +1,8 @@
 o<g881> sub
 (debug, in g881); x=[#1] y=[#2] z=[#3] r=[#4])
 
+(debug, g881 call_level= #<_call_level> remap_level=#<_remap_level>)
+
 o<g881_havex> if [EXISTS[#<x>]]
 (debug, X param set: #<x>)
 o<g881_havex> endif
