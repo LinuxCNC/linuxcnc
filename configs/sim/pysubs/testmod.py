@@ -21,10 +21,10 @@ class MsgOut(object):
 		pass
 
 # Replace stdout with text redirected to operator messages
-sys.stdout = MsgOut(sys.__stdout__)
+#sys.stdout = MsgOut(sys.__stdout__)
 
-print "CanonMsg, here?"
-
+#print dir(CanonMod)
+#CanonMod.MESSAGE("foomsg")
 
 def pym6demo(args,**words):
 	print >> sys.stderr, "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
@@ -137,6 +137,8 @@ def whoami(*args,**words):
 #		print "args[%d] = " % (i), args[i]
 	for key in words:
 		print  "word '%s' = %f" % (key, words[key])
+	i.push_errormsg("set error entry in whoami")
+	#CanonMod.CANON_ERROR("whoami CANON_ERROR")
 
 def m314(callargs,**words):
 	i = InterpMod.interp

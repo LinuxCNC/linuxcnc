@@ -176,8 +176,23 @@ struct wrap_context : public context {
 
 static void wrap_canon_error(const char *s)
 {
-    if ((s != NULL) && strlen(s))
-	CANON_ERROR(s);
+    if ((s == NULL) && !strlen(s))
+	return;
+    CANON_ERROR(s);
+}
+
+static void wrapERS(Interp &x, const char *s)
+{
+    if ((s == NULL) && !strlen(s))
+	s = "###";
+
+    current_interp->setError (s);
+    current_setup->stack_index = 0;
+    strncpy(current_setup->stack[current_setup->stack_index],
+	    "Python", STACK_ENTRY_LEN);
+    current_setup->stack[current_setup->stack_index][STACK_ENTRY_LEN-1] = 0;
+    current_setup->stack_index++;
+    current_setup->stack[current_setup->stack_index][0] = 0;
 }
 
 BOOST_PYTHON_MODULE(InterpMod) {
@@ -289,6 +304,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def("sequence_number", &Interp::sequence_number)
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("synch", &Interp::synch)
+	.def("push_errormsg", &wrapERS)
 
 	// .def_readonly("name", &Var::name)
 
