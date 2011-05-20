@@ -1,0 +1,554 @@
+/********************************************************************
+ * Description: interp_remap.cc
+ *
+ *  Remapping support
+ *
+ * Author: Michael Haberler
+ * License: GPL Version 2
+ * System: Linux
+ *
+ * Copyright (c) 2011 All rights reserved.
+ *
+ ********************************************************************/
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "rs274ngc.hh"
+#include "rs274ngc_return.hh"
+#include "rs274ngc_interp.hh"
+#include "interp_internal.hh"
+
+namespace bp = boost::python;
+
+
+bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
+{
+    unsigned i;
+    for(i = 0; i < sizeof(block->m_modes)/sizeof(int); i++) {
+	if (block->m_modes[i] == -1)
+	    continue;
+	if (M_REMAPPABLE(block->m_modes[i]) &&
+	    settings->m_remapped[block->m_modes[i]])
+	    return true;
+    }
+    return false;
+}
+
+int Interp::convert_remapped_code(block_pointer block,
+				  setup_pointer settings,
+				  char letter,
+				  int number)
+{
+    remap_pointer rptr;
+    char key[2];
+
+    logRemap("convert_remapped_code '%c%d'", letter, number);
+    switch (toupper(letter)) {
+    case 'M':
+	rptr = settings->m_remapped[number];
+	break;
+    case 'G':
+	rptr = settings->g_remapped[number];
+	break;
+    default:
+	key[0] = letter;
+	key[1] = '\0';
+	rptr = remapping((const char *)key);
+    }
+    CHKS((rptr == NULL), "BUG: convert_remapped_code: no remapping");
+    CHP(execute_handler(settings, rptr, 0)); // no posargs
+    return(- rptr->op);
+}
+
+
+// builtin handler epilogues
+
+// handler epilogue for remapped user m + g codes
+int Interp::finish_user_command(setup_pointer settings, block_pointer r_block)
+{
+    return remap_finished(r_block->executing_remap->op);
+}
+
+int Interp::finish_m6_command(setup_pointer settings, block_pointer r_block)
+{
+    // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
+    // commit the tool change
+    if (settings->return_value >= TOLERANCE_EQUAL) {
+	CHANGE_TOOL(settings->selected_pocket);
+	settings->current_pocket = settings->selected_pocket;
+	// this will cause execute to return INTERP_EXECUTE_FINISH
+	settings->toolchange_flag = true;
+    } else {
+	char msg[LINELEN];
+	snprintf(msg, sizeof(msg), "M6 failed (%f)", settings->return_value);
+	INTERP_ABORT(round_to_int(settings->return_value),msg);
+	return INTERP_EXECUTE_FINISH;
+    }
+    return remap_finished(r_block->executing_remap->op);
+}
+
+int Interp::finish_m61_command(setup_pointer settings,  block_pointer r_block)
+{
+    // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
+    // set that as the new tool' pocket number
+    // a negative return value will leave it untouched
+
+    if (settings->return_value > - TOLERANCE_EQUAL) {
+	settings->current_pocket = round_to_int(settings->return_value);
+	CHANGE_TOOL_NUMBER(settings->current_pocket);
+	// this will cause execute to return INTERP_EXECUTE_FINISH
+	settings->toolchange_flag = true;
+    } else {
+	char msg[LINELEN];
+	snprintf(msg,sizeof(msg),"M61 failed (%f)", settings->return_value);
+	INTERP_ABORT(round_to_int(settings->return_value),msg);
+	return INTERP_EXECUTE_FINISH;
+    }
+    return remap_finished(r_block->executing_remap->op);
+}
+
+
+// Tx epiplogue - executed past T_COMMAND
+int Interp::finish_t_command(setup_pointer settings,   block_pointer r_block)
+{
+    // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
+    // commit the tool prepare to that value.
+
+    if (settings->return_value > - TOLERANCE_EQUAL) {
+	settings->selected_pocket = round_to_int(settings->return_value);
+	SELECT_POCKET(settings->selected_pocket);
+    } else {
+
+	char msg[LINELEN];
+	snprintf(msg, sizeof(msg), "T<tool> - prepare failed (%f)",
+		 settings->return_value);
+	INTERP_ABORT(round_to_int(settings->return_value),msg);
+	return INTERP_EXECUTE_FINISH;
+    }
+    return remap_finished(r_block->executing_remap->op);
+}
+
+// prepare execution of a remapped code
+// - construct oword call line with params
+// - construct tupleargs, kwargs
+// - pass control to interpreter by read()
+int Interp::execute_handler(setup_pointer settings,
+			    remap_pointer rptr,
+			    int count, // number of double args
+			    ...) // double's
+{
+    int status;
+    block_pointer block;
+    bp::list plist;
+    va_list ap;
+    int j;
+    double val;
+    char cmd[LINELEN];
+    char actual[20];
+
+    CHKS(rptr == NULL,"BUG: execute_handler: rptr == NULL");
+
+
+    settings->sequence_number = 1; // FIXME not sure..
+
+    // some remapped handlers may need c/c++ or Python code to
+    // setup environment before, and finish work after doing theirs.
+    // That's what prolog and epilog functions are for.
+    // Statically these are described in the remap descriptor (read from ini).
+
+    // Since a remap is always executed in the context of a block,
+    // block now contains fields which hold dynamic remap information.
+    // information. Some of these fields are initialized here -
+    // conceptually the block stack is also a 'remap frame stack'.
+
+    // the O_call code will pick up the static descriptor and
+    // dynamic information through the block and call any prolog
+    // function before passing control to the actual handler procedure.
+
+    // On the corresponding O_endsub/O_return, any epilog function
+    // will be executed, doing any work not doable in an NGC file.
+    // the remap_* fields are  essentially hidden parameters to the call
+    // (we do not want to expose boost.python objects in method paramters -
+    // this impacts too much code)
+
+    // Note that even Python-remapped execution is pulled through the
+    // oword mechanism - so no duplication of handler calling code
+    // is needed.
+
+    snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(rptr));
+
+    va_start(ap, count);
+    for(j = 0; j < count; j++) {
+	val = va_arg(ap, double);
+	snprintf(actual, sizeof(actual),"[%lf] ", val);
+	// strncat(cmd, actual, sizeof(cmd));
+	strcat(cmd, actual);  // fire & forget
+	plist.append(val);
+    }
+    va_end(ap);
+
+    // the controlling block holds all dynamic remap information.
+    block = &CONTROLLING_BLOCK(*settings);
+    block->remap_command = strstore(cmd); // informational only
+    block->executing_remap = rptr; // the static descriptor
+    block->remap_py_callback = NULL;
+
+    // build positional args for any Python pro/epilogs here
+    block->remap_tupleargs = bp::make_tuple(plist);
+
+    // build kwargs for  any Python pro/epilogs if an argspec
+    // was given - add_parameters will decorate remap_kwargs as per argspec
+    block->remap_kwargs = boost::python::dict();
+    if (rptr->argspec) {
+	CHKS(add_parameters(settings, block),
+	     "%s: add_parameters(argspec=%s) for remap body %s failed ",
+	     rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+    }
+
+    if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
+	(_setup.loggingLevel > 2)) {
+	logRemap("execute_handler(%s)", cmd);
+	print_remap(rptr->name);
+    }
+
+    // good to go, pass to o-word call handling mechanism
+    // NB: we're NOT triggering MDI handling in execute()
+    status = read(cmd);
+    return status;
+}
+
+// this looks up a remapping by unnormalized code (like G88.1)
+remap_pointer Interp::remapping(const char *code)
+{
+    logRemap("lookup remapping(code=%s)",code);
+    std::map<const char *,remap_pointer>::iterator n =
+	_setup.remaps.find(code);
+    if (n !=  _setup.remaps.end())
+	return n->second;
+    else
+	return NULL;
+}
+
+// debug aid
+void Interp::print_remap(const char *key)
+{
+    if (!key)
+	return;
+    remap_pointer r = remapping(key);
+    if (r) {
+	logRemap("----- remap '%s' :",key);
+	logRemap("argspec = '%s'", r->argspec);
+	logRemap("modalgroup = %d", r->modal_group);
+	// logRemap("builtin_prolog = %p",(void *)r->builtin_prolog);
+	logRemap("prolog_func = %s",
+		 (r->prolog_func ? r->prolog_func : ""));
+
+	logRemap("remap_py = %s",
+		 (r->remap_py ? r->remap_py : ""));
+	logRemap("remap_ngc = %s",
+		 (r->remap_ngc ? r->remap_ngc : ""));
+	logRemap("epilog_func = %s",
+		 (r->epilog_func ? r->epilog_func : ""));
+	logRemap("builtin_epilog = %p",(void *)&r->builtin_epilog);
+
+    } else {
+	logRemap("print_remap: no such remap: '%s'",key);
+    }
+}
+
+void Interp::print_remaps(void)
+{
+    std::map<const char *,remap_pointer>::iterator n =
+	_setup.remaps.begin();
+
+    logRemap("-----  remaps:");
+    for ( ; n  != _setup.remaps.end(); ++n ) {
+	print_remap(n->first);
+    }
+    logRemap("-------------");
+}
+
+// parse options of the form:
+// REMAP= M420 modalgroup=6 argspec=pq prolog=setnamedvars ngc=m43.ngc epilog=ignore_retvalue
+// REMAP= M421 modalgroup=6 argspec=- prolog=setnamedvars python=m43func epilog=ignore_retvalue
+
+int Interp::parse_remap(const char *inistring, int lineno)
+{
+
+    char iniline[LINELEN];
+    char *argv[MAX_REMAPOPTS];
+    int   argc = 0;
+    const char *code;
+    remap_pointer r;
+    bool errored = false;
+    int g1 = 0, g2 = 0;
+    int mcode = -1;
+    int gcode = -1;
+
+    if ((r = (remap_pointer) malloc(sizeof(remap))) == NULL) {
+	Error("cant malloc remap_struct");
+	return INTERP_ERROR;
+    }
+    memset((void *)r, 0, sizeof(remap));
+    r->modal_group = -1; // mark as unset, required param for m/g
+    strcpy(iniline, inistring);
+    char* token = strtok((char *) iniline, " \t");
+
+    while( token != NULL && argc < MAX_REMAPOPTS - 1) {
+	argv[argc++] = token;
+	token = strtok( NULL, " \t" );
+    }
+    if (argc == MAX_REMAPOPTS) {
+	Error("parse_remap: too many arguments (max %d)", MAX_REMAPOPTS);
+	goto fail;
+    }
+    argv[argc] = NULL;
+    code = strstore(argv[0]);
+
+
+    r->name = code;
+
+    for (int i = 1; i < argc; i++) {
+	int kwlen = 0;
+	char *kw = argv[i];
+	char *arg = strchr(argv[i],'=');
+	if (arg != NULL) {
+	    kwlen = arg - argv[i];
+	    arg++;
+	    if (!strlen(arg)) { // 'kw='
+		Error("option '%s' - zero length value: %d:REMAP = %s",
+		      kw,lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	} else { // 'kw'
+	    Error("option '%s' - missing '=<value>: %d:REMAP = %s",
+		  kw,lineno,inistring);
+	    errored = true;
+	    continue;;
+	}
+	if (!strncasecmp(kw,"modalgroup",kwlen)) {
+	    r->modal_group = atoi(arg);
+	    continue;
+	}
+	if (!strncasecmp(kw,"argspec",kwlen)) {
+	    size_t pos = strspn (arg,
+				 "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz-");
+	    if (pos != strlen(arg)) {
+		Error("argspec: illegal word '%c' - %d:REMAP = %s",
+		      arg[pos],lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	    r->argspec = strstore(arg);
+	    continue;
+	}
+	if (!strncasecmp(kw,"prolog",kwlen)) {
+	    r->prolog_func = strstore(arg);
+	    continue;
+	}
+	if (!strncasecmp(kw,"epilog",kwlen)) {
+	    r->epilog_func = strstore(arg);
+	    continue;
+	}
+	if (!strncasecmp(kw,"ngc",kwlen)) {
+	    if (r->remap_py) {
+		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		      lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	    r->remap_ngc = strstore(arg);
+	    continue;
+	}
+	if (!strncasecmp(kw,"python",kwlen)) {
+	    if (r->remap_ngc ) {
+		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		      lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	    if (!is_pycallable(&_setup,arg)) {
+		Error("'%s' is not a Python callable function - %d:REMAP = %s",
+		      arg,lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	    r->remap_py = strstore(arg);
+	    continue;
+	}
+	Error("unrecognized option '%*s' in  %d:REMAP = %s",
+	      kwlen,kw,lineno,inistring);
+    }
+    if (errored) {
+	goto fail;
+    }
+
+    if (remapping(code)) {
+	Error("code '%s' already remapped : %d:REMAP = %s",
+	      code,lineno,inistring);
+	goto fail;
+    }
+
+    // it is an error not to define a remap function to call.
+    if ((r->remap_ngc == NULL) && (r->remap_py == NULL)) {
+	Error("code '%s' - no remap function given, use either 'python=<function>' or 'ngc=<basename>' : %d:REMAP = %s",
+	      code,lineno,inistring);
+	goto fail;
+    }
+
+    // dead code - now automatically done in execute_handler()
+
+    // // if an argspec is given, the builtin prolog add_parameters()
+    // // is called automatically.
+    // // for ngc files, this adds local variables as per argspec
+    // // for Python, adds variables to the  kwargs dict
+    // if (r->argspec) {
+    // 	r->builtin_prolog = &Interp::add_parameters;
+    // }
+
+#define CHECK(bad, fmt)				\
+    do {					\
+	if (bad) {				\
+	    Log(fmt);				\
+	    goto fail;				\
+	}					\
+    } while(0)
+
+    switch (towlower(*code)) {
+
+    case 't':
+	CHECK((strlen(code) > 1),"T remap - only single letter code allowed");
+	CHECK((r->modal_group != -1), "T remap - modal group setting ignored - fixed sequencing");
+
+	// prepare has a default builtin epilog for ngc files
+	// which sets the pocket to a nonnegative return value
+	// and aborts on negative values
+
+	// can be overridden by epilog=pyfunc
+	r->op = T_REMAP;
+	if (r->epilog_func) {
+	    // finish_user_command just ends a remap in progress
+	    // without any side effects
+	    r->builtin_epilog = &Interp::finish_user_command;
+	} else {
+	    r->builtin_epilog = &Interp::finish_t_command;
+	}
+	_setup.remaps["T"] = r;
+	break;
+
+    case 's':
+	CHECK(strlen(code) > 1,"S remap - only single letter code allowed");
+	CHECK((r->modal_group != -1), "S remap - modal group setting ignored - fixed sequencing");
+
+	r->op = S_REMAP;
+	_setup.remaps["S"] = r;
+	r->builtin_epilog = &Interp::finish_user_command;
+	break;
+
+    case 'f':
+	CHECK(strlen(code) > 1,"F remap - only single letter code allowed");
+	CHECK((r->modal_group != -1), "F remap - modal group setting ignored - fixed sequencing");
+
+	r->op = F_REMAP;
+	_setup.remaps["F"] = r;
+	r->builtin_epilog = &Interp::finish_user_command;
+	break;
+
+    case 'm':
+	if (sscanf(code + 1, "%d", &mcode) == 1) {
+	    // change_tool, set tool number have default builtin epilogs for ngc files
+	    // which can be overridden by a py epilog
+	    if (r->epilog_func) {
+		r->op = M_USER_REMAP;
+		r->builtin_epilog = &Interp::finish_user_command;
+	    } else {
+		switch (mcode) {
+		case 6:
+		    r->builtin_epilog = &Interp::finish_m6_command ;
+		    r->op = M6_REMAP;
+		    break;
+		case 61:
+		    r->builtin_epilog = &Interp::finish_m61_command;
+		    r->op = M61_REMAP;
+		    break;
+		default:
+		    r->op = M_USER_REMAP;
+		    r->builtin_epilog =  &Interp::finish_user_command;
+		}
+	    }
+	    _setup.remaps[code] = r;
+	    _setup.m_remapped[mcode] = r;
+	} else {
+	    Error("parsing M-code: expecting integer like 'M420', got '%s' : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (r->modal_group == -1) {
+	    Error("code '%s' : no modalgroup=<int> given : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (!M_MODE_OK(r->modal_group)) {
+	    Error("code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	break;
+    case 'g':
+
+	// code may be G88.1 or so - normalize to use 'G881' instead
+	// (multiply by 10, no dots)
+	if (sscanf(code + 1, "%d.%d", &g1, &g2) == 2) {
+	    gcode = g1 * 10 + g2;
+	}
+	if (( gcode == -1) &&  (sscanf(code + 1, "%d", &gcode) != 1)) {
+	    Error("code '%s' : cant parse G-code : %d:REMAP = %s",
+		  code, lineno, inistring);
+	    goto fail;
+	}
+	r->op = G_USER_REMAP;
+	r->builtin_epilog =  &Interp::finish_user_command;
+	if (!G_MODE_OK(r->modal_group)) {
+	    Error("code '%s' : %s modalgroup=<int> given, def : %d:REMAP = %s",
+		  argv[0],
+		  r->modal_group == -1 ? "no" : "invalid",
+		  lineno,
+		  inistring);
+	    goto fail;
+	}
+	if (r->modal_group == -1) {
+	    Error("code '%s' : no modalgroup=<int> given : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	if (!G_MODE_OK(r->modal_group)) {
+	    Error("code '%s' : invalid modalgroup=<int> given (currently valid: 1) : %d:REMAP = %s",
+		  code,lineno,inistring);
+	    goto fail;
+	}
+	_setup.remaps[code] = r;
+	_setup.g_remapped[gcode] = r;
+	break;
+
+    default:
+	Log("REMAP BUG=%s %d:REMAP = %s",
+	    code,lineno,inistring);
+    }
+    // success
+    logRemap("success: %d: REMAP=%s line=%s",
+	     lineno, code, inistring);
+
+    return INTERP_OK;
+
+ fail:
+    free(r);
+    return INTERP_ERROR;
+}
