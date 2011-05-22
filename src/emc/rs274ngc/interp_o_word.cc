@@ -624,6 +624,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			    r_block->executing_remap->prolog_func);
 	}
 
+	settings->call_level++;
+
 	// a try::
 	if (!strcmp(new_frame->subName,"dnc")) {
 	    static int cnt;
@@ -631,19 +633,22 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // logRemap("O_call: DO NOT CALL - just return call_level=%d",
 	    if (++cnt < 5) {
 		if (block->call_again) {
+		    settings->call_level--; // stay on current call level (1)
+
 		    logRemap("O_call: dnc - SEQUEL return INTERP_EXECUTE_FINISH, call_level=%d",
 			     settings->call_level);
 
 		    return INTERP_EXECUTE_FINISH;
 		} else {
-		    settings->call_level++;
 		    block->call_again = true;
+		    // call level was increased above , now at 1
 		    logRemap("O_call: dnc - FIRST return INTERP_EXECUTE_FINISH, call_level=%d",
 			     settings->call_level);
 		    return INTERP_EXECUTE_FINISH;
 		}
 	    } else {
-		settings->call_level--;
+		settings->call_level--; // compensate bump above
+		settings->call_level--; // and return to level 0
 
 		logRemap("O_call: dnc - FINALLY return INTERP_OK, call_level=%d",
 			 settings->call_level);
@@ -653,7 +658,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		return INTERP_OK;
 	    }
 	}
-	settings->call_level++;
 
 	if (control_back_to(block,settings) == INTERP_ERROR) {
 	    settings->call_level--;
