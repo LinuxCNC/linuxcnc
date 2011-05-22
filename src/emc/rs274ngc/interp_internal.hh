@@ -428,6 +428,7 @@ typedef struct block_struct
   int      o_number;
   const char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
+  int param_cnt;
 
   // bitmap of steps already executed
   // we have some 31 or so different steps in a block. We must remember

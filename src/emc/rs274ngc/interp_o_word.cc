@@ -565,9 +565,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    py_exception = false;
 	    try {
 		// call with list of positional parameters
+		// no saving needed - this is call by value
 		bp::list plist;
-		// no saving needed - call by value
-		for(int i = 0; i < INTERP_SUB_PARAMS; i++)
+		for(int i = 0; i < block->param_cnt; i++)
 		    plist.append(block->params[i]);
 		block->tupleargs = bp::make_tuple(plist);
 		block->kwargs = bp::dict();
@@ -656,7 +656,27 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		cnt = 0;
 		block->call_again = false;
 		return INTERP_OK;
+	// let called Oword sub know the number of parameters
+	if (!is_py_osub) {
+	    CHP(add_named_param("n_args", PA_READONLY));
+	    CHP(store_named_param(settings, "n_args",
+				  (double )block->param_cnt,
+				  OVERRIDE_READONLY));
+	}
+
+	// a Python oword sub can be executed inline -
+	// no control_back_to() needed
+
+	// FIXME mah: think through queuebusters in Python oword sub
+
+	if (is_py_osub) {
+	    status = pycall(settings, block, block->o_name);
+	    if (status > INTERP_MIN_ERROR) {
+		logOword("O_call: vanilla osub pycall(%s) failed, unwinding",
+			 block->o_name);
 	    }
+	    settings->call_level--;  // drop back
+	    return status;
 	}
 
 	if (control_back_to(block,settings) == INTERP_ERROR) {
@@ -664,6 +684,41 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
 	    return INTERP_ERROR;
 	}
+
+	// // a try::
+	// if (!strcmp(new_frame->subName,"dnc")) {
+	//     static int cnt;
+
+	//     // logRemap("O_call: DO NOT CALL - just return call_level=%d",
+	//     if (++cnt < 5) {
+	// 	if (block->call_again) {
+	// 	    settings->call_level--; // stay on current call level (1)
+
+	// 	    logRemap("O_call: dnc - SEQUEL return INTERP_EXECUTE_FINISH, call_level=%d",
+	// 		     settings->call_level);
+
+	// 	    return INTERP_EXECUTE_FINISH;
+	// 	} else {
+	// 	    block->call_again = true;
+	// 	    // call level was increased above , now at 1
+	// 	    logRemap("O_call: dnc - FIRST return INTERP_EXECUTE_FINISH, call_level=%d",
+	// 		     settings->call_level);
+	// 	    return INTERP_EXECUTE_FINISH;
+	// 	}
+	//     } else {
+	// 	settings->call_level--; // compensate bump above
+	// 	settings->call_level--; // and return to level 0
+
+	// 	logRemap("O_call: dnc - FINALLY return INTERP_OK, call_level=%d",
+	// 		 settings->call_level);
+
+	// 	cnt = 0;
+	// 	block->call_again = false;
+	// 	return INTERP_OK;
+	//     }
+	// }
+
+
 
 	// } else {
 

@@ -1631,6 +1631,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  param_cnt++;
 	}
       logDebug("set arg params:%d", param_cnt);
+      block->param_cnt = param_cnt;
 
       // zero the remaining params
       for(;param_cnt < INTERP_SUB_PARAMS; param_cnt++)
