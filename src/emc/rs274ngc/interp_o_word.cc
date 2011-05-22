@@ -527,146 +527,153 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	current_frame = &settings->sub_context[settings->call_level];
 	new_frame = &settings->sub_context[settings->call_level + 1];
 
-	if (!is_pycallable(settings, block->o_name)) {
-	    // copy parameters from context
-	    // save old values of parameters
-	    // save current file position in context
-	    // if we were skipping, no longer
-	    if (settings->skipping_o) {
-		logOword("case O_call -- no longer skipping to:|%s|",
-			 settings->skipping_o);
-		settings->skipping_o = NULL;
-	    }
-	    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
-		ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
-	    }
-	    for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
-		current_frame->saved_params[i] =
-		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
+	// determine if this sub is the remap body executing on behalf of a remapped code
+	// we're loosing a bit of context by funneling everything through the osub call
+	// interface, which needs to be reestablished here but it's more general
+	is_remap_handler =
+	    (r_block->executing_remap != NULL) &&
+	    (((r_block->executing_remap->remap_py != NULL) &&
+	      (!strcmp(r_block->executing_remap->remap_py, block->o_name))) ||
+	     (((r_block->executing_remap->remap_ngc != NULL) &&
+	       (!strcmp(r_block->executing_remap->remap_ngc, block->o_name)))));
 
-		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
-		    block->params[i];
-	    }
+	is_py_callable = is_pycallable(settings, block->o_name);
 
-	    // if the previous file was NULL, mark positon as -1 so as not to
-	    // reopen it on return.
-	    if (settings->file_pointer == NULL) {
-		current_frame->position = -1;
-	    } else {
-		current_frame->position = ftell(settings->file_pointer);
-	    }
+	// aquire the 'remap_frame' a.k.a controlling block
+	r_block = &CONTROLLING_BLOCK(*settings);
 
-	    // save the previous filename
-	    logOword("Duping |%s|", settings->filename);
-	    current_frame->filename = strstore(settings->filename);
-	    current_frame->sequence_number = settings->sequence_number;
-	    logOword("(in call)set params[%d] return file:%s offset:%ld",
-		     settings->call_level, current_frame->filename, current_frame->position);
-
-	    settings->call_level++;
-
-	    // aquire the remap_frame
-	    r_block = &CONTROLLING_BLOCK(*settings);
-
-	    // set the new subName
-	    new_frame->subName = block->o_name;
-#if 0
-	    // just curious: detect recursion
-	    if ((settings->call_level > 0) &&
-		(new_frame->subName != NULL) &&
-		(current_frame->subName  != NULL)) {
-		if (!strcmp(new_frame->subName, current_frame->subName)) {
-		    logOword("recursive call: '%s' call_level %d\n",
-			     new_frame->subName, settings->call_level);
-		}
-	    }
-#endif
-	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-		logRemap("O_call: py prologue %s for NGC remap %s ",
-			 r_block->executing_remap->prolog_func,
-			 r_block->executing_remap->remap_ngc);
-		status = pycall(settings, r_block,
-				r_block->executing_remap->prolog_func);
-	    }
-
-	    if (control_back_to(block,settings) == INTERP_ERROR) {
-		settings->call_level--;
-		ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
-		return INTERP_ERROR;
-	    }
-	} else {
-
-	    // the subname in 'o<subname> call' turned out to be a Python callable.
-
-	    // we establish a new call frame with all relevant information, and
-	    // pass that frame to Python to handle.
-	    settings->call_level++;
-
-	    new_frame->subName = block->o_name;
-
-	    // aquire the remap_frame
-	    r_block = &CONTROLLING_BLOCK(_setup);
-
-
-	    // The 'O word sub' is actually a python callable function.
-	    // call a prolog function if applicable
-	    //   NB: add_parameters will prepare a word dict if called with pydict = true,
-	    //   stored in settings->kwargs
-	    //   pycall will add this as kwarg type dict to the parameters
-	    // call python callable, and save return_value
-	    // call epilogue of applicable
-
-	    // a user-defined Python prolog to a user-defined Python function
-	    // doesnt make a whole lot of sense.
-	    // for now, the only builtin prolog we have is the kwargs-dict
-	    // generator add_parameters()
-
-	    if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-		logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
-			 r_block->executing_remap->prolog_func,
-			 r_block->executing_remap->remap_py);
-		status = pycall(settings, r_block,
-				r_block->executing_remap->prolog_func);
-	    }
-
-	    status =  pycall(settings, r_block,
-			     r_block->executing_remap->remap_py);
-
-	    if (status >  INTERP_MIN_ERROR) {
-		// end any remappings in progress
-		logRemap("O_call: pycall failed, unwinding\n");
-		settings->call_level--;
-		settings->remap_level = 0;  // FIXME mah dubious
-		return status;
-	    }
-	    logRemap("O_call(%s) return value=%f\n",
-		    block->o_name, settings->return_value);
-
-
-	    if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
-		logRemap("O_call: py epilog %s for py remap %s - useless.. but doing it",
-			 r_block->executing_remap->epilog_func,
-			 r_block->executing_remap->remap_py);
-		status = pycall(settings, r_block,
-				  r_block->executing_remap->epilog_func);
-	    }
-	    settings->call_level--;
-
-	    // now the epilogue
-	    if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-		logRemap("O_call: calling builtin epilogue for pyremap %s",
-			 r_block->executing_remap->name );
-		status = (*this.*r_block->executing_remap->builtin_epilog)(settings,r_block);
-
-		// epilog is exepected to set an appropriate error string
-		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_call: builtin  epilogue for pyremap %s failed: %s",
-			     r_block->executing_remap->name,
-			     interp_status(status));
-		}
-	    }
-	    // fall through -  return status;
+	// if (!is_pycallable(settings, block->o_name)) {
+	// copy parameters from context
+	// save old values of parameters
+	// save current file position in context
+	// if we were skipping, no longer
+	if (settings->skipping_o) {
+	    logOword("case O_call -- no longer skipping to:|%s|",
+		     settings->skipping_o);
+	    settings->skipping_o = NULL;
 	}
+	if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
+	    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
+	}
+	for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
+	    current_frame->saved_params[i] =
+		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
+
+	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
+		block->params[i];
+	}
+
+	// if the previous file was NULL, mark positon as -1 so as not to
+	// reopen it on return.
+	if (settings->file_pointer == NULL) {
+	    current_frame->position = -1;
+	} else {
+	    current_frame->position = ftell(settings->file_pointer);
+	}
+
+	// save the previous filename
+	logOword("Duping |%s|", settings->filename);
+	current_frame->filename = strstore(settings->filename);
+	current_frame->sequence_number = settings->sequence_number;
+	logOword("(in call)set params[%d] return file:%s offset:%ld",
+		 settings->call_level, current_frame->filename, current_frame->position);
+
+	// settings->call_level++;
+
+	// aquire the remap_frame
+	r_block = &CONTROLLING_BLOCK(*settings);
+
+	// set the new subName
+	new_frame->subName = block->o_name;
+
+	if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
+	    logRemap("O_call: py prologue %s for NGC remap %s ",
+		     r_block->executing_remap->prolog_func,
+		     r_block->executing_remap->remap_ngc);
+	    status = pycall(settings, r_block,
+			    r_block->executing_remap->prolog_func);
+	}
+
+	if (control_back_to(block,settings) == INTERP_ERROR) {
+	    // settings->call_level--;
+	    ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
+	    return INTERP_ERROR;
+	}
+	settings->call_level++;
+
+	// } else {
+
+	//     // the subname in 'o<subname> call' turned out to be a Python callable.
+
+	//     // we establish a new call frame with all relevant information, and
+	//     // pass that frame to Python to handle.
+	//     settings->call_level++;
+
+	//     new_frame->subName = block->o_name;
+
+	//     // aquire the remap_frame
+	//     r_block = &CONTROLLING_BLOCK(_setup);
+
+
+	//     // The 'O word sub' is actually a python callable function.
+	//     // call a prolog function if applicable
+	//     //   NB: add_parameters will prepare a word dict if called with pydict = true,
+	//     //   stored in settings->kwargs
+	//     //   pycall will add this as kwarg type dict to the parameters
+	//     // call python callable, and save return_value
+	//     // call epilogue of applicable
+
+	//     // a user-defined Python prolog to a user-defined Python function
+	//     // doesnt make a whole lot of sense.
+	//     // for now, the only builtin prolog we have is the kwargs-dict
+	//     // generator add_parameters()
+
+	//     if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
+	// 	logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
+	// 		 r_block->executing_remap->prolog_func,
+	// 		 r_block->executing_remap->remap_py);
+	// 	status = pycall(settings, r_block,
+	// 			r_block->executing_remap->prolog_func);
+	//     }
+
+	//     status =  pycall(settings, r_block,
+	// 		     r_block->executing_remap->remap_py);
+
+	//     if (status >  INTERP_MIN_ERROR) {
+	// 	// end any remappings in progress
+	// 	logRemap("O_call: pycall failed, unwinding\n");
+	// 	settings->call_level--;
+	// 	settings->remap_level = 0;  // FIXME mah dubious
+	// 	return status;
+	//     }
+	//     logRemap("O_call(%s) return value=%f\n",
+	// 	    block->o_name, settings->return_value);
+
+
+	//     if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
+	// 	logRemap("O_call: py epilog %s for py remap %s - useless.. but doing it",
+	// 		 r_block->executing_remap->epilog_func,
+	// 		 r_block->executing_remap->remap_py);
+	// 	status = pycall(settings, r_block,
+	// 			  r_block->executing_remap->epilog_func);
+	//     }
+	//     settings->call_level--;
+
+	//     // now the epilogue
+	//     if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
+	// 	logRemap("O_call: calling builtin epilogue for pyremap %s",
+	// 		 r_block->executing_remap->name );
+	// 	status = (*this.*r_block->executing_remap->builtin_epilog)(settings,r_block);
+
+	// 	// epilog is exepected to set an appropriate error string
+	// 	if (status > INTERP_MIN_ERROR) {
+	// 	    logRemap("O_call: builtin  epilogue for pyremap %s failed: %s",
+	// 		     r_block->executing_remap->name,
+	// 		     interp_status(status));
+	// 	}
+	//     }
+	//     // fall through -  return status;
+	// }
 	break;
 
 
