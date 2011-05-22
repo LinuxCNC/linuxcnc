@@ -152,7 +152,7 @@ def plainsub(args,**words):
 def whoami(userdata,**words):
 	print "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	i = InterpMod.interp
-	print "call_level=",i.call_level,"remap_level=",i.remap_level
+	print "call_level=",i.call_level,"remap_level=",i.remap_level,"param 5399 = ",InterpMod.params[5399]
 
 	print "userdata = ",userdata
 #	for i in range(5):
@@ -164,6 +164,9 @@ def whoami(userdata,**words):
 		return (INTERP_OK,)
 
 	if userdata > 0:
+		pin = CanonMod.GET_EXTERNAL_DIGITAL_INPUT(0,0);
+		print "pin=",pin
+
 		return (INTERP_OK,)
 	else:
 		# wait for digital-input 00 to go hi for 5secs

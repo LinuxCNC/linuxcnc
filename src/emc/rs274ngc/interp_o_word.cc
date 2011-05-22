@@ -328,7 +328,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
   block_pointer r_block;
   bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
-  bool is_ngc_remap_handler; // the sub is executing on behalf of a remapped code
   bool is_remap_handler; // the sub is executing on behalf of a remapped code
   bool is_py_callable;   // the sub name is actually Python
   bool is_py_osub;  // a plain osub whose name is a python callable
@@ -533,9 +532,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	// aquire the 'remap_frame' a.k.a controlling block
 	r_block = &CONTROLLING_BLOCK(*settings);
 
-	// determine if this sub is the remap body executing on behalf of a remapped code
+	// determine if this sub is the  body executing on behalf of a remapped code
 	// we're loosing a bit of context by funneling everything through the osub call
-	// interface, which needs to be reestablished here but it's more general
+	// interface, which needs to be reestablished here but it's worth the generality
 	is_remap_handler =
 	    (r_block->executing_remap != NULL) &&
 	    (((r_block->executing_remap->remap_py != NULL) &&
@@ -548,14 +547,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    ((r_block->executing_remap->remap_py != NULL) &&
 	     (!strcmp(r_block->executing_remap->remap_py, block->o_name)));
 
-	is_ngc_remap_handler =
-	    (r_block->executing_remap != NULL) &&
-	    ((r_block->executing_remap->remap_ngc != NULL) &&
-	     (!strcmp(r_block->executing_remap->remap_ngc, block->o_name)));
-
-
 	is_py_callable = is_pycallable(settings, block->o_name);
-	// use positional args 1..30
 	is_py_osub = is_py_callable && ! is_remap_handler;
 
 	// copy parameters from context
@@ -625,9 +617,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	new_frame->subName = block->o_name;
 
 	if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-	    logRemap("O_call: py prologue %s for NGC remap %s ",
+	    logRemap("O_call: py prologue %s for NGC remap %s (%s)",
 		     r_block->executing_remap->prolog_func,
-		     r_block->executing_remap->remap_ngc);
+		     r_block->executing_remap->remap_ngc,
+		     r_block->executing_remap->name);
 	    status = pycall(settings, r_block,
 			    r_block->executing_remap->prolog_func);
 	}
@@ -643,9 +636,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	}
 
 	if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-	    logRemap("O_call: py prologue %s for remap %s",
+	    logRemap("O_call: py prologue %s for remap %s (%s)",
 		     r_block->executing_remap->prolog_func,
-		     REMAP_FUNC(r_block->executing_remap));
+		     REMAP_FUNC(r_block->executing_remap),
+		     r_block->executing_remap->name);
 	    status = pycall(settings, r_block,
 			    r_block->executing_remap->prolog_func);
 	}
@@ -671,21 +665,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	}
 
 	if (is_py_remap_handler) {
-   // 	if (is_remap_handler) {
-
-    // 	    // execute_handler has everything set up already (name, tupleargs, kwargs)
-    // 	    // FIXME mah fix execute_handler -> named params!!
 	    r_block->tupleargs = bp::make_tuple(r_block->user_data);
-
-    // 	    status = pycall(settings, r_block, block->o_name);
-
-
 	    status =  pycall(settings, r_block,
 			     r_block->executing_remap->remap_py);
 	    if (status >  INTERP_MIN_ERROR) {
-		logRemap("O_call: pycall %s returned %s, unwinding\n",
+		logRemap("O_call: pycall %s returned %s, unwinding (%s)",
 			 r_block->executing_remap->remap_py,
-			 interp_status(status));
+			 interp_status(status),
+			 r_block->executing_remap->name);
 		settings->call_level--;
 		return status;
 	    }
@@ -695,14 +682,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 		if (block->call_again) {
 		    settings->call_level--; // stay on current call level (1)
-		    logRemap("O_call: dnc - SEQUEL return INTERP_EXECUTE_FINISH, call_level=%d",
-			     settings->call_level);
+		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
+			     block->o_name, settings->call_level);
 		    return INTERP_EXECUTE_FINISH;
 		} else {
 		    block->call_again = true;
 		    // call level was increased above , now at 1
-		    logRemap("O_call: dnc - FIRST return INTERP_EXECUTE_FINISH, call_level=%d",
-			     settings->call_level);
+		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (first), call_level=%d",
+			     block->o_name, settings->call_level);
 		    return INTERP_EXECUTE_FINISH;
 		}
 	    }
@@ -711,11 +698,15 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		settings->call_level--; // compensate bump above
 
 		if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-		    logRemap("O_call: calling builtin epilogue");
-		    status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
+		    logRemap("O_call: %s - calling builtin epilogue (%s)",
+			     block->o_name, r_block->executing_remap->name);
 
+		    status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
 		    if (status > INTERP_MIN_ERROR) {
-			logRemap("O_call: builtin epilogue failed: %s \n", interp_status(status));
+			logRemap("O_call: %s - builtin epilogue failed: %s (%s)",
+				 block->o_name,
+				 interp_status(status),
+				 r_block->executing_remap->name);
 		    }
 		}
 		settings->call_level--; // and return to previous level
@@ -728,290 +719,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
 	    return INTERP_ERROR;
 	}
-
-	// // a try::
-	// if (!strcmp(new_frame->subName,"dnc")) {
-	//     static int cnt;
-
-	//     // logRemap("O_call: DO NOT CALL - just return call_level=%d",
-	//     if (++cnt < 5) {
-	// 	if (block->call_again) {
-	// 	    settings->call_level--; // stay on current call level (1)
-
-	// 	    logRemap("O_call: dnc - SEQUEL return INTERP_EXECUTE_FINISH, call_level=%d",
-	// 		     settings->call_level);
-
-	// 	    return INTERP_EXECUTE_FINISH;
-	// 	} else {
-	// 	    block->call_again = true;
-	// 	    // call level was increased above , now at 1
-	// 	    logRemap("O_call: dnc - FIRST return INTERP_EXECUTE_FINISH, call_level=%d",
-	// 		     settings->call_level);
-	// 	    return INTERP_EXECUTE_FINISH;
-	// 	}
-	//     } else {
-	// 	settings->call_level--; // compensate bump above
-	// 	settings->call_level--; // and return to level 0
-
-	// 	logRemap("O_call: dnc - FINALLY return INTERP_OK, call_level=%d",
-	// 		 settings->call_level);
-
-	// 	cnt = 0;
-	// 	block->call_again = false;
-	// 	return INTERP_OK;
-	//     }
-	// }
-
-
-
-	// } else {
-
-	//     // the subname in 'o<subname> call' turned out to be a Python callable.
-
-	//     // we establish a new call frame with all relevant information, and
-	//     // pass that frame to Python to handle.
-	//     settings->call_level++;
-
-	//     new_frame->subName = block->o_name;
-
-	//     // aquire the remap_frame
-	//     r_block = &CONTROLLING_BLOCK(_setup);
-
-
-	//     // The 'O word sub' is actually a python callable function.
-	//     // call a prolog function if applicable
-	//     //   NB: add_parameters will prepare a word dict if called with pydict = true,
-	//     //   stored in settings->kwargs
-	//     //   pycall will add this as kwarg type dict to the parameters
-	//     // call python callable, and save return_value
-	//     // call epilogue of applicable
-
-	//     // a user-defined Python prolog to a user-defined Python function
-	//     // doesnt make a whole lot of sense.
-	//     // for now, the only builtin prolog we have is the kwargs-dict
-	//     // generator add_parameters()
-
-	//     if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-	// 	logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
-	// 		 r_block->executing_remap->prolog_func,
-	// 		 r_block->executing_remap->remap_py);
-	// 	status = pycall(settings, r_block,
-	// 			r_block->executing_remap->prolog_func);
-	//     }
-
-	//     status =  pycall(settings, r_block,
-	// 		     r_block->executing_remap->remap_py);
-
-	//     if (status >  INTERP_MIN_ERROR) {
-	// 	// end any remappings in progress
-	// 	logRemap("O_call: pycall failed, unwinding\n");
-	// 	settings->call_level--;
-	// 	settings->remap_level = 0;  // FIXME mah dubious
-	// 	return status;
-	//     }
-	//     logRemap("O_call(%s) return value=%f\n",
-	// 	    block->o_name, settings->return_value);
-
-
-	//     if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
-	// 	logRemap("O_call: py epilog %s for py remap %s - useless.. but doing it",
-	// 		 r_block->executing_remap->epilog_func,
-	// 		 r_block->executing_remap->remap_py);
-	// 	status = pycall(settings, r_block,
-	// 			  r_block->executing_remap->epilog_func);
-	//     }
-	//     settings->call_level--;
-
-	//     // now the epilogue
-	//     if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-	// 	logRemap("O_call: calling builtin epilogue for pyremap %s",
-	// 		 r_block->executing_remap->name );
-	// 	status = (*this.*r_block->executing_remap->builtin_epilog)(settings,r_block);
-
-	// 	// epilog is exepected to set an appropriate error string
-	// 	if (status > INTERP_MIN_ERROR) {
-	// 	    logRemap("O_call: builtin  epilogue for pyremap %s failed: %s",
-	// 		     r_block->executing_remap->name,
-	// 		     interp_status(status));
-	// 	}
-	//     }
-	//     // fall through -  return status;
-	// }
 	break;
-
-
-
-    // case O_call:
-
-    // 	// all O_call code is executed in the context of the old frame.
-    // 	if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
-    // 	    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
-    // 	}
-
-    // 	current_frame = &settings->sub_context[settings->call_level];
-    // 	new_frame = &settings->sub_context[settings->call_level + 1];
-    // 	is_py_callable = is_pycallable(settings, block->o_name);
-    // 	// aquire the 'remap_frame' a.k.a controlling block
-    // 	r_block = &CONTROLLING_BLOCK(*settings);
-
-    // 	// determine if this sub is the remap body executing on behalf of a remapped code
-    // 	// we're loosing a bit of context by funneling everything through the osub call
-    // 	// interface, which needs to be reestablished here but it's more general
-    // 	is_remap_handler =
-    // 	    (r_block->executing_remap != NULL) &&
-    // 	    (((r_block->executing_remap->remap_py != NULL) &&
-    // 	     (!strcmp(r_block->executing_remap->remap_py, block->o_name))) ||
-    // 	     (((r_block->executing_remap->remap_ngc != NULL) &&
-    // 	       (!strcmp(r_block->executing_remap->remap_ngc, block->o_name)))));
-
-    // 	// standard oword call incantations:
-    // 	// copy parameters from context
-    // 	// save old values of parameters
-    // 	// save current file position in context
-    // 	// if we were skipping, no longer
-    // 	if (settings->skipping_o) {
-    // 	    logOword("case O_call -- no longer skipping to:|%s|",
-    // 		     settings->skipping_o);
-    // 		settings->skipping_o = NULL;
-    // 	}
-    // 	if (!is_py_callable) {
-
-    // 	    for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
-    // 		current_frame->saved_params[i] =
-    // 		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
-    // 		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
-    // 		    block->params[i];
-    // 	    }
-    // 	}
-    // 	// if the previous file was NULL, mark positon as -1 so as not to
-    // 	// reopen it on return.
-    // 	if (settings->file_pointer == NULL) {
-    // 	    current_frame->position = -1;
-    // 	} else {
-    // 	    current_frame->position = ftell(settings->file_pointer);
-    // 	}
-    // 	// save the previous filename
-    // 	logOword("Duping |%s|", settings->filename);
-    // 	current_frame->filename = strstore(settings->filename);
-    // 	current_frame->sequence_number = settings->sequence_number;
-    // 	logOword("(in call)set params[%d] return file:%s offset:%ld",
-    // 		 settings->call_level, current_frame->filename, current_frame->position);
-
-    // 	// done with NGC call incantation
-
-
-    // 	// set the new subName
-    // 	new_frame->subName = block->o_name;
-
-    // 	if (is_remap_handler && HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-    // 	    logRemap("O_call: py prologue %s for NGC remap %s ",
-    // 		     r_block->executing_remap->prolog_func,
-    // 		     r_block->executing_remap->remap_ngc);
-    // 	    status = pycall(settings, r_block,
-    // 			    r_block->executing_remap->prolog_func);
-    // 	}
-    // 	if (control_back_to(block,settings) == INTERP_ERROR) {
-    // 	    ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
-    // 	    return INTERP_ERROR;
-    // 	}
-    // 	settings->call_level++;
-    // 	//} else {
-    // 	// the o_name is Python callable. Depending wether it's a
-    // 	// remap handler, or a Osub replacement, arguments are
-    // 	// passed a bit differently.
-
-    // 	if (is_remap_handler) {
-
-    // 	    // execute_handler has everything set up already (name, tupleargs, kwargs)
-    // 	    // FIXME mah fix execute_handler -> named params!!
-    // 	    r_block->tupleargs = bp::make_tuple(r_block->user_data);
-
-    // 	    status = pycall(settings, r_block, block->o_name);
-    // 	    if (status > INTERP_MIN_ERROR) {
-    // 		ERS("O_call: %s: remap pycall(%s) returned %d, userdata=%d",
-    // 		    r_block->executing_remap->name,
-    // 			     block->o_name, status, r_block->user_data);
-
-    // 		return INTERP_ERROR;
-    // 	    }
-    // 		// settings->call_level++;
-    // 	    if (status == INTERP_EXECUTE_FINISH) {
-    // 		_setup.mdi_interrupt = true; //settings->call_level++;
-
-
-    // 		r_block->user_data = r_block->py_returned_userdata;
-    // 		logRemap("O_call: %s: remap pycall(%s) returned %s, userdata=%d",
-    // 			 r_block->executing_remap->name,
-    // 			 block->o_name, interp_status(status),
-    // 			 r_block->user_data);
-
-    // 		return status;
-    // 	    }
-
-    // 	    if (status == INTERP_OK) {
-    // 		//settings->call_level--;
-
-    // 		block->o_name = NULL;
-    // 		r_block->user_data = 0;
-    // 		if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-    // 		    status = (*this.*r_block->executing_remap->builtin_epilog)(settings,r_block);
-    // 		    if (status > INTERP_MIN_ERROR) {
-    // 			ERS("O_call: %s: builtin  epilogue for remap pycall(%s) failed: %s",
-    // 			    r_block->executing_remap->name,
-    // 			    block->o_name,   // FIXME IS NULL
-    // 			    interp_status(status));
-    // 			return INTERP_ERROR;
-    // 		    }
-    // 		}
-    // 		return status;
-    // 		    //CHP(control_back_to(block,settings));
-    // 		    // 	== INTERP_ERROR) {
-    // 		    // 	ERS("ERROR RETURNING FROM PYSUB %s", block->o_name);
-    // 		    // 	return INTERP_ERROR;
-    // 		    // }
-    // 		}
-
-    // 	} else {
-    // 	    logDebug("O_call: vanilla osub pycall(%s)", block->o_name);
-    // 		try {
-    // 		    // call with list of positional parameters
-    // 		    bp::list plist;
-
-    // 		    for(int i = 0; i < INTERP_SUB_PARAMS; i++)
-    // 			plist.append(block->params[i]);
-    // 		    block->tupleargs = bp::make_tuple(plist);
-    // 		    block->kwargs = bp::dict();
-    // 		}
-    // 		catch (bp::error_already_set) {
-    // 		    if (PyErr_Occurred()) {
-    // 			PyErr_Print();
-    // 		    }
-    // 		    bp::handle_exception();
-    // 		    PyErr_Clear();
-    // 		    py_exception = true;
-    // 		}
-    // 		if (py_exception) {
-    // 		    CHKS(py_exception,"O_call: Py exception preparing arguments for %s",
-    // 			 block->o_name);
-    // 		}
-    // 		status = pycall(settings, block, block->o_name);
-    // 		if (status > INTERP_MIN_ERROR) {
-    // 		    ERS("O_call: vanilla osub pycall(%s) failed, unwinding",block->o_name);
-    // 		    settings->call_level--;  // drop back
-    // 		    return INTERP_ERROR;
-    // 		}
-    // 		CHP(control_back_to(block,settings));
-    // 		// if (control_back_to(block,settings) == INTERP_ERROR) {
-    // 		//     ERS("ERROR RETURNING FROM PYSUB %s", block->o_name);
-    // 		//     return INTERP_ERROR;
-    // 		// }
-    // 		settings->call_level++;  // drop back
-
-    // 		return status;
-    // 	    }
-
-    // 	return status;
-    // 	break;
 
     case O_do:
       // if we were skipping, no longer

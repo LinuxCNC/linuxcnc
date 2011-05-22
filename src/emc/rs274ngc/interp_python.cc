@@ -710,8 +710,6 @@ int Interp::pycall(setup_pointer settings,
 	    return INTERP_OK;
 	}
 
-	// enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_CALLBACK );
-
 	if (PyTuple_Check(retval.ptr())) {
 	    bp::tuple tret = bp::extract<bp::tuple>(retval);
 	    int len = bp::len(tret);
