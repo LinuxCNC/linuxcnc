@@ -1592,6 +1592,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	// optional return value expression
 	if (line[*counter] == '[') {
 	    CHP(read_real_expression(line, counter, &value, parameters));
+	    logOword("%s %s value %lf",
+		     (block->o_type == O_endsub) ? "endsub" : "return",
+		     block->o_name,
+		     value);
 	    _setup.return_value = value;
 	} else {
 	    _setup.return_value = 0;

@@ -453,15 +453,32 @@ typedef struct block_struct
     // the next execute(0) will call the callback first before
     // proceeding with other items. The callback may in turn
     // INTERP_EXECUTE_FINISH, and a callback etc
-    const char *remap_py_callback;
+
 
     boost::python::object tupleargs; // the args tuple for Py functions
     boost::python::object kwargs; // the args dict for Py functions
+    std::bitset<32>  returned;
+    double py_returned_value;
+    int py_returned_status;
+    int py_returned_userdata;
+    // const char *py_callback;
+    // const char *on_behalf;
+    // passed as tupleargs again if by (INTERP_EXECUTE_FINISH, <userdata-value>)
+    int user_data;
+    bool call_again; // a py osub returned INTERP_EXECUTE_FINISH
 }
 block;
+enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_USERDATA};
 
 typedef block *block_pointer;
 
+// parameters will go to a std::map<const char *,paramter_value_pointer>
+typedef struct parameter_value_struct {
+    double param_value;
+    std::bitset<32> param_attr;
+} parameter_value;
+
+typedef parameter_value *parameter_value_pointer;
 
 #define NAMED_PARAMETERS_ALLOC_UNIT 20
 struct named_parameters_struct {
@@ -506,8 +523,7 @@ typedef struct context_struct {
   int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-    // remap_pointer remap_info;
-    // boost::python::object kwargs;
+
 } context;
 
 typedef context *context_pointer;

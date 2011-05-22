@@ -198,8 +198,8 @@ int Interp::execute_handler(setup_pointer settings,
     block = &CONTROLLING_BLOCK(*settings);
     block->remap_command = strstore(cmd); // informational only
     block->executing_remap = rptr; // the static descriptor
-    block->remap_py_callback = NULL;
-
+    block->py_returned_userdata = 0;
+    // FIXME
     // build positional args for any Python pro/epilogs here
     block->tupleargs = bp::make_tuple(plist);
 

@@ -249,7 +249,13 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
 
   block->remap_command = NULL;
   block->executing_remap = NULL;
-  block->remap_py_callback = NULL;
+  block->py_returned_userdata = 0;
+  block->py_returned_status = -255; // trigger errors if it slips through
+  block->py_returned_value = 0.0;
+  block->returned = 0;
+  block->param_cnt = 0;
+  block->call_again = false;
+
   // FIXME mah unclear how to reset a boost::python::dict() object
 
   block->a_flag = false;

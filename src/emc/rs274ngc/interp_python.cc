@@ -667,6 +667,7 @@ int Interp::pycall(setup_pointer settings,
     // &this->_setup wont work, _setup is private
     current_setup = get_setup(this);
     current_interp = this;
+    block->returned = 0;
 
     if (settings->pymodule_stat != PYMOD_OK) {
 	ERS("function '%s.%s' : module not initialized",
@@ -700,20 +701,61 @@ int Interp::pycall(setup_pointer settings,
     }
 
     if (retval.ptr() != Py_None) {
-	if (!PyFloat_Check(retval.ptr())) {
-	    PyObject *res_str = PyObject_Str(retval.ptr());
-	    ERS("function '%s.%s' returned '%s' - expected float, got %s",
-		settings->pymodule,funcname,
-		PyString_AsString(res_str),
-		retval.ptr()->ob_type->tp_name);
-	    Py_XDECREF(res_str);
+	if (PyFloat_Check(retval.ptr())) {
+	    block->py_returned_value = bp::extract<double>(retval);
+	    block->returned[RET_DOUBLE] = 1;
+	    logPy("pycall: '%s' returned %f", funcname, block->py_returned_value);
 	    //	    PyGILState_Release(gstate);
+
 	    return INTERP_OK;
-	} else {
-	    settings->return_value = bp::extract<double>(retval);
-	    logPy("pycall: '%s' returned %f", funcname,settings->return_value);
 	}
-    } else {
+
+	// enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_CALLBACK );
+
+	if (PyTuple_Check(retval.ptr())) {
+	    bp::tuple tret = bp::extract<bp::tuple>(retval);
+	    int len = bp::len(tret);
+	    if (!len)  {
+		logPy("pycall: empty tuple detected");
+		block->returned[RET_NONE] = 1;
+		return INTERP_OK;
+	    }
+	    logPy("pycall: tuple len %d detected",len);
+	    bp::object item0 = tret[0];
+	    if (PyInt_Check(item0.ptr())) {
+		block->returned[RET_STATUS] = 1;
+		block->py_returned_status = bp::extract<int>(item0);
+		logPy("pycall: item 0 - int=%d detected",
+		      block->py_returned_status);
+	    }
+	    if (len > 1) {
+		bp::object item1 = tret[1];
+		if (PyInt_Check(item1.ptr())) {
+		    block->py_returned_userdata = bp::extract<int>(item1);
+		    block->returned[RET_USERDATA] = 1;
+		    logPy("pycall: item 1 - userdata=%d detected",
+			  block->py_returned_userdata);
+		}
+	    }
+	    if (block->returned[RET_STATUS])
+		return block->py_returned_status;
+	    //	    PyGILState_Release(gstate);
+
+	    return INTERP_OK;
+	}
+
+	PyObject *res_str = PyObject_Str(retval.ptr());
+	ERS("function '%s.%s' returned '%s' - expected float or tuple, got %s",
+	    settings->pymodule,funcname,
+	    PyString_AsString(res_str),
+	    retval.ptr()->ob_type->tp_name);
+	Py_XDECREF(res_str);
+
+	//	    PyGILState_Release(gstate);
+
+	return INTERP_OK;
+    }	else {
+	block->returned[RET_NONE] = 1;
 	logPy("pycall: '%s' returned no value",funcname);
     }
 
@@ -743,12 +785,17 @@ int Interp::py_execute(const char *cmd)
     }
     catch (bp::error_already_set) {
         if (PyErr_Occurred())
-	    msg = handle_pyerror();
+	    PyErr_Print();
+
+	    // msg = handle_pyerror();
 	bp::handle_exception();
 	PyErr_Clear();
     }
     //PyGILState_Release(gstate);
-    logPy("py_execute(%s):  %s", cmd, msg.c_str());
-    MESSAGE((char *) msg.c_str());
+    // logPy("py_execute(%s):  %s", cmd, msg.c_str());
+    // msg.erase(std::remove(msg.begin(), msg.end(), '\n'), msg.end());
+    // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
+    // if (msg.length())
+    // 	MESSAGE((char *) msg.c_str());
     return INTERP_OK;
 }

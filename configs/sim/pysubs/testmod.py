@@ -5,6 +5,14 @@ import traceback
 
 #def xxx():        # test syntax failure
 
+INTERP_OK = 0
+INTERP_EXIT =  1
+INTERP_EXECUTE_FINISH = 2
+INTERP_ENDFILE = 3
+INTERP_FILE_NOT_OPEN = 4
+INTERP_ERROR =  5
+
+
 class MsgOut(object):
 	def __init__(self, f):
 		self.data = ''
@@ -126,18 +134,42 @@ def fooepilog(*args,**words):
 	for key in words:
 		print  "word '%s' = %f" % (key, words[key])
 
-
-def whoami(*args,**words):
+def plainsub(args,**words):
 	print "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	i = InterpMod.interp
 	print "call_level=",i.call_level,"remap_level=",i.remap_level
 
 	print "args = ",args
+	for i in range(len(args)):
+		print "args[%d] = " % (i), args[i]
+	if words:
+		for key in words:
+			print  "word '%s' = %f" % (key, words[key])
+	else:
+		print "no words passed"
+	return 47.11
+
+def whoami(userdata,**words):
+	print "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
+	i = InterpMod.interp
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
+
+	print "userdata = ",userdata
 #	for i in range(5):
 #		print "args[%d] = " % (i), args[i]
 	for key in words:
 		print  "word '%s' = %f" % (key, words[key])
 	i.push_errormsg("set error entry in whoami")
+	if (words.has_key('p')):
+		return (INTERP_OK,)
+
+	if userdata > 0:
+		return (INTERP_OK,)
+	else:
+		# wait for digital-input 00 to go hi for 5secs
+		CanonMod.WAIT(0,1,2,5.0)
+		return (INTERP_EXECUTE_FINISH,userdata + 1)
+#	return (INTERP_OK,)
 	#CanonMod.CANON_ERROR("whoami CANON_ERROR")
 
 def m314(callargs,**words):
