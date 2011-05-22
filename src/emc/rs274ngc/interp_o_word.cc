@@ -327,8 +327,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   int i;
   context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
   block_pointer r_block;
-  bool is_remap_handler = false; // the sub is executing on behalf of a remapped code
-  bool is_py_callable = false;   // the sub name is actually Python
+  bool is_remap_handler; // the sub is executing on behalf of a remapped code
+  bool is_py_callable;   // the sub name is actually Python
+  bool is_py_osub;  // a plain osub whose name is a python callable
   bool py_exception = false;
 
   logOword("convert_control_functions");
@@ -527,6 +528,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	current_frame = &settings->sub_context[settings->call_level];
 	new_frame = &settings->sub_context[settings->call_level + 1];
 
+
+	// aquire the 'remap_frame' a.k.a controlling block
+	r_block = &CONTROLLING_BLOCK(*settings);
+
 	// determine if this sub is the remap body executing on behalf of a remapped code
 	// we're loosing a bit of context by funneling everything through the osub call
 	// interface, which needs to be reestablished here but it's more general
@@ -538,9 +543,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	       (!strcmp(r_block->executing_remap->remap_ngc, block->o_name)))));
 
 	is_py_callable = is_pycallable(settings, block->o_name);
+	// use positional args 1..30
+	is_py_osub = is_py_callable && ! is_remap_handler;
 
-	// aquire the 'remap_frame' a.k.a controlling block
-	r_block = &CONTROLLING_BLOCK(*settings);
 
 	// if (!is_pycallable(settings, block->o_name)) {
 	// copy parameters from context
@@ -555,12 +560,37 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
 	    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
 	}
-	for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
-	    current_frame->saved_params[i] =
-		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
-
-	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
-		block->params[i];
+	if (is_py_osub) {
+	    logDebug("O_call: vanilla osub pycall(%s), preparing positional args", block->o_name);
+	    py_exception = false;
+	    try {
+		// call with list of positional parameters
+		bp::list plist;
+		// no saving needed - call by value
+		for(int i = 0; i < INTERP_SUB_PARAMS; i++)
+		    plist.append(block->params[i]);
+		block->tupleargs = bp::make_tuple(plist);
+		block->kwargs = bp::dict();
+	    }
+	    catch (bp::error_already_set) {
+		if (PyErr_Occurred()) {
+		    PyErr_Print();
+		}
+		bp::handle_exception();
+		PyErr_Clear();
+		py_exception = true;
+	    }
+	    if (py_exception) {
+		CHKS(py_exception,"O_call: Py exception preparing arguments for %s",
+		     block->o_name);
+	    }
+	} else {
+	    for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
+		current_frame->saved_params[i] =
+		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
+		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
+		    block->params[i];
+	    }
 	}
 
 	// if the previous file was NULL, mark positon as -1 so as not to
@@ -580,8 +610,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	// settings->call_level++;
 
-	// aquire the remap_frame
-	r_block = &CONTROLLING_BLOCK(*settings);
+	// // aquire the remap_frame
+	// r_block = &CONTROLLING_BLOCK(*settings);
 
 	// set the new subName
 	new_frame->subName = block->o_name;
