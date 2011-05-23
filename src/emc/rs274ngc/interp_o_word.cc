@@ -678,7 +678,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 	    if (status == INTERP_EXECUTE_FINISH) {
 		if (r_block->returned[RET_USERDATA])
-		    r_block->user_data = r_block->py_returned_status;
+		    r_block->user_data = r_block->py_returned_userdata;
 
 		if (block->call_again) {
 		    settings->call_level--; // stay on current call level (1)
