@@ -227,7 +227,7 @@ int Interp::_execute(const char *command)
   int n;
   int MDImode = 0;
 
-  logDebug("execute: command=%s mdi_interrupt=%d Cuser_data=%dEo_name=%s",
+  logDebug("execute: command=%s mdi_interrupt=%d C:user_data=%d E:o_name=%s",
 	   command,_setup.mdi_interrupt,CONTROLLING_BLOCK(_setup).user_data,
 	   EXECUTING_BLOCK(_setup).o_name);
   if (NULL != command) {
