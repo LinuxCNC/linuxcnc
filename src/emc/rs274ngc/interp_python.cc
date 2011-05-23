@@ -517,15 +517,40 @@ std::string handle_pyerror()
     using namespace boost;
 
     PyObject *exc,*val,*tb;
+	fprintf(stderr,"handle_pyerror: start \n");
+
     PyErr_Fetch(&exc,&val,&tb);
-    handle<> hexc(exc),hval(val),htb(tb);
-    if(!htb || !hval) {
+	fprintf(stderr,"handle_pyerror: PyErr_Fetch done \n");
+
+	if (!exc) {
+		fprintf(stderr,"handle_pyerror: exc null!! \n");
+		return std::string("----- booo ----");
+	}
+	if (!val) {
+		fprintf(stderr,"handle_pyerror: val null!! \n");
+		return std::string("----- booo ----");
+	}
+	// if (!tb) {
+	//     	fprintf(stderr,"handle_pyerror: tb null!! \n");
+	// 	return std::string("----- booo ----");
+	// }
+
+	handle<> hexc(exc),hval(val),htb(allow_null(tb));  // <--- this bombs!!
+	fprintf(stderr,"handle_pyerror: handle done \n");
+
+	//if(!htb || !hval) {
+    if(0) {
 	fprintf(stderr,"handle_pyerror: BUG \n");
 	return extract<std::string>(str(hexc));
     } else {
+	fprintf(stderr,"handle_pyerror: importing traceback..\n");
+
 	object traceback(import("traceback"));
+	fprintf(stderr,"handle_pyerror: get traceback.attr(..)\n");
 	object format_exception(traceback.attr("format_exception"));
+	fprintf(stderr,"handle_pyerror: format_exception(..)\n");
 	object formatted_list(format_exception(hexc,hval,htb));
+	fprintf(stderr,"handle_pyerror: join(..)\n");
 	object formatted(str("\n").join(formatted_list));
 	return extract<std::string>(formatted);
     }
@@ -595,8 +620,11 @@ int Interp::init_python(setup_pointer settings)
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
-	    // msg = handle_pyerror();
-	    PyErr_Print();
+	    fprintf(stderr,"PyErr_Occured, before he: \n");
+
+	    msg = handle_pyerror();
+	    fprintf(stderr,"back after he: %s\n",msg.c_str());
+	    // PyErr_Print();
 	    err = true;
 	}
 	bp::handle_exception();
