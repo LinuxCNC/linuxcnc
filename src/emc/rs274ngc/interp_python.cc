@@ -167,15 +167,6 @@ struct wrap_remap : public remap {
 struct wrap_context : public context {
 };
 
-// remap_pointer *wrap_remapping(const char *key)
-// {
-//     return  current_interp->remapping( key);
-// }
-
-    //  // inverse to interp_ptr(this...)
-    // logPy("this=%lx interp_instance=%lx x=%lx",(void *)this,(void *)&interp_instance,(void *)&x);
-
-
 static void wrap_canon_error(const char *s)
 {
     if ((s == NULL) && !strlen(s))
@@ -531,52 +522,29 @@ std::string handle_pyerror()
     using namespace boost;
 
     PyObject *exc,*val,*tb;
-	fprintf(stderr,"handle_pyerror: start \n");
-
+    object formatted_list, formatted;
     PyErr_Fetch(&exc,&val,&tb);
-	fprintf(stderr,"handle_pyerror: PyErr_Fetch done \n");
-
-	if (!exc) {
-		fprintf(stderr,"handle_pyerror: exc null!! \n");
-		return std::string("----- booo ----");
-	}
-	if (!val) {
-		fprintf(stderr,"handle_pyerror: val null!! \n");
-		return std::string("----- booo ----");
-	}
-	// if (!tb) {
-	//     	fprintf(stderr,"handle_pyerror: tb null!! \n");
-	// 	return std::string("----- booo ----");
-	// }
-
-	handle<> hexc(exc),hval(val),htb(allow_null(tb));  // <--- this bombs!!
-	fprintf(stderr,"handle_pyerror: handle done \n");
-
-	//if(!htb || !hval) {
-    if(0) {
-	fprintf(stderr,"handle_pyerror: BUG \n");
-	return extract<std::string>(str(hexc));
+    handle<> hexc(exc),hval(val),htb(allow_null(tb));
+    object traceback(import("traceback"));
+    if (!tb) {
+	object format_exception_only(traceback.attr("format_exception_only"));
+	formatted_list = format_exception_only(hexc,hval);
+	// FIXME mah unsure how to correctly format this:
+	formatted = str(formatted_list);
     } else {
-	fprintf(stderr,"handle_pyerror: importing traceback..\n");
-
-	object traceback(import("traceback"));
-	fprintf(stderr,"handle_pyerror: get traceback.attr(..)\n");
 	object format_exception(traceback.attr("format_exception"));
-	fprintf(stderr,"handle_pyerror: format_exception(..)\n");
-	object formatted_list(format_exception(hexc,hval,htb));
-	fprintf(stderr,"handle_pyerror: join(..)\n");
-	object formatted(str("\n").join(formatted_list));
-	return extract<std::string>(formatted);
+	formatted_list = format_exception(hexc,hval,htb);
+	formatted = str("\n").join(formatted_list);
     }
+    return extract<std::string>(formatted);
 }
 
 int Interp::init_python(setup_pointer settings)
 {
     char cmd[LINELEN], path[PATH_MAX];
-    // char *path;
     interp_ptr  interp_instance;  // the wrapped instance
     std::string msg;
-    bool err = false;
+    bool py_exception = false;
     PyGILState_STATE gstate;
 
     current_setup = get_setup(this); // // &this->_setup;
@@ -587,21 +555,18 @@ int Interp::init_python(setup_pointer settings)
 	return INTERP_OK;  // already done, or failed
     }
     logPy("init_python(this=%lx  pid=%d pymodule_stat=%d PyInited=%d",
-	  (unsigned long)this,getpid(),settings->pymodule_stat,Py_IsInitialized());
+	  (unsigned long)this, getpid(), settings->pymodule_stat, Py_IsInitialized());
+
+    // the null deallocator avoids destroying the Interp instance on
+    // leaving scope (or shutdown)
     interp_instance = interp_ptr(this,interpDeallocFunc  );
 
-    // Interp &x = bp::extract<Interp &>(interp_instance); // inverse to interp_ptr(this...)
-    // logPy("this=%lx interp_instance=%lx x=%lx",(void *)this,(void *)&interp_instance,(void *)&x);
-
-    PYCHK((settings->pymodule == NULL),
-	  "init_python: no module defined");
+    PYCHK((settings->pymodule == NULL), "init_python: no module defined");
     if (settings->pydir) {
 	snprintf(cmd,sizeof(cmd),"%s/%s", settings->pydir,settings->pymodule);
     } else
 	strcpy(cmd,settings->pymodule);
-    PYCHK(((realpath(cmd,path)) == NULL),
-	  "init_python: can resolve path to '%s'",cmd);
-    logPy("module path='%s'",path);
+    PYCHK(((realpath(cmd,path)) == NULL), "init_python: can resolve path to '%s'",cmd);
     Py_SetProgramName(path);
     PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
     PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
@@ -676,16 +641,19 @@ bool Interp::is_pycallable(setup_pointer settings,
 	result = PyCallable_Check(function.ptr());
     }
     catch (bp::error_already_set) {
-	// KeyError expected if not callable
+	// KeyError expected if not a callable
 	if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
 	    // something else, strange
-	    std::string msg = handle_pyerror();
-	    logPy("is_pycallable: %s",msg.c_str());
+	    msg = handle_pyerror();
+	    py_unexpected = true;
 	}
 	result = false;
 	PyErr_Clear();
     }
-    if (_setup.loggingLevel > 3)
+    if (py_unexpected)
+	logPy("is_pycallable: %s",msg.c_str());
+
+    if (_setup.loggingLevel > 5)
 	logPy("py_iscallable(%s) = %s",funcname,result ? "TRUE":"FALSE");
     return result;
 }
@@ -812,15 +780,18 @@ int Interp::py_execute(const char *cmd)
 			  _setup.module_namespace);
     }
     catch (bp::error_already_set) {
-        if (PyErr_Occurred())
-	    PyErr_Print();
-
-	    // msg = handle_pyerror();
+        if (PyErr_Occurred())  {
+	    py_exception = true;
+	    msg = handle_pyerror();
+	}
 	bp::handle_exception();
 	PyErr_Clear();
     }
     if (useGIL)
 	PyGILState_Release(gstate);
+
+    if (py_exception)
+	logPy("py_execute(%s):  %s", cmd, msg.c_str());
     // msg.erase(std::remove(msg.begin(), msg.end(), '\n'), msg.end());
     // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
     // if (msg.length())
