@@ -1433,7 +1433,7 @@ class _prompt_float:
         t.wm_title(title)
         t.wm_transient(root_window)
         t.wm_resizable(0, 0)
-        m = Message(t, text=text, aspect=500, anchor="w", justify="left")
+        self.m = m = Message(t, text=text, aspect=500, anchor="w", justify="left")
         self.v = v = StringVar(t)
         self.u = u = BooleanVar(t)
         self.w = w = StringVar(t)
@@ -1456,6 +1456,9 @@ class _prompt_float:
         f.pack(side="bottom", anchor="e")
         self.ok.pack(side="left", padx=3, pady=3)
         self.cancel.pack(side="left", padx=3, pady=3)
+
+    def set_text(self, text):
+        self.m.configure(text=text)
 
     def do_ok(self):
         self.u.set(True)
