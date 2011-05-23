@@ -1,8 +1,10 @@
 import sys
-import traceback
+
+# see http://boost.2283326.n4.nabble.com/Boost-python-exception-translation-failure-on-BlueGene-P-td2702424.html
+#import dl
+#sys.setdlopenflags(dl.RTLD_NOW | dl.RTLD_GLOBAL)
 
 #import bullshit  # test  import failure
-
 #def xxx():        # test syntax failure
 
 INTERP_OK = 0
@@ -127,6 +129,18 @@ def fooprolog(*args,**words):
 	for key in words:
 		print  "word '%s' = %f" % (key, words[key])
 
+def addlocals(args,**words):
+	print "py addlocals args=",args
+	i = InterpMod.interp
+	print "seqno=",i.sequence_number()
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
+	for key in words:
+		print  "word '%s' = %f" % (key, words[key])
+
+	InterpMod.params[123] =2.71828
+	InterpMod.params["fooparam"] = 4711.0
+
+
 def fooepilog(*args,**words):
 	print "py fooepillog args=",args
 	i = InterpMod.interp
@@ -149,31 +163,53 @@ def plainsub(args,**words):
 		print "no words passed"
 	return 47.11
 
-def whoami(userdata,**words):
+
+#REMAP=T argspec=tq-  python=prepare
+
+def prepare(userdata,**words):
 	print "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	i = InterpMod.interp
-	print "call_level=",i.call_level,"remap_level=",i.remap_level,"param 5399 = ",InterpMod.params[5399]
+	p = InterpMod.params
+	e = i.eblock
 
-	print "userdata = ",userdata
-#	for i in range(5):
-#		print "args[%d] = " % (i), args[i]
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
 	for key in words:
 		print  "word '%s' = %f" % (key, words[key])
-	i.push_errormsg("set error entry in whoami")
+	toolno = e.t_number
+	print "t_number=",toolno
+	(status,pocket) = i.find_tool_pocket(toolno)
+	if status != INTERP_OK:
+		i.push_errormsg("py: pocket not found")
+		return (status,)
+	InterpMod.interp.selected_pocket = pocket
+	CanonMod.SELECT_POCKET(pocket)
+	return (INTERP_OK,)
+
+
+def whoami(userdata,**words):
+	print "executing Python function: %s.%s(%d,words)" % (globals()['__name__'],sys._getframe(0).f_code.co_name,userdata)
+	i = InterpMod.interp
+	print "call_level=",i.call_level,"remap_level=",i.remap_level
+	for key in words:
+		print  "word '%s' = %f" % (key, words[key])
+
+	# test OK return on first call
 	if (words.has_key('p')):
 		return (INTERP_OK,)
 
 	if userdata > 0:
-		pin = CanonMod.GET_EXTERNAL_DIGITAL_INPUT(0,0);
-		print "pin=",pin
-
-		return (INTERP_OK,)
+		# we were called post-sync():
+		pin_status = CanonMod.GET_EXTERNAL_DIGITAL_INPUT(0,0);
+		print "pin status=",pin_status
+		return (INTERP_OK,) # done
 	else:
 		# wait for digital-input 00 to go hi for 5secs
 		CanonMod.WAIT(0,1,2,5.0)
+		# pls call again after sync() with new userdata value
 		return (INTERP_EXECUTE_FINISH,userdata + 1)
-#	return (INTERP_OK,)
-	#CanonMod.CANON_ERROR("whoami CANON_ERROR")
+
+#	i.push_errormsg("set error entry in whoami")
+
 
 def m314(callargs,**words):
 	i = InterpMod.interp
@@ -223,8 +259,8 @@ def pytdemo(args,**words):
 	return args[1] # return pocket number (#2) to commit or -1 to fail
 
 
-try:
-	print "dir(InterpMod)=",dir(InterpMod)
+#try:
+print "dir(InterpMod)=",dir(InterpMod)
 	#print "dir(InterpMod.interp)=",dir(InterpMod.interp)
 	#print "dir(InterpMod.interp.do)=",dir(InterpMod.interp.do)
 	#print "do = ",InterpMod.interp.do(123)
@@ -242,15 +278,15 @@ try:
 	#InterpMod.interp.value = True
 	#print "set true: InterpMod.interp.value=",InterpMod.interp.value
 
-	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
-		print "param",i,"=",InterpMod.params[i]
+for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
+	print "param",i,"=",InterpMod.params[i]
 
 
 
 
 
-except Exception,err:
-	print "exception: " + str(err) + ":" + traceback.format_exc()
+#except Exception,err:
+#	print "exception: " + str(err) + ":" + traceback.format_exc()
 
 
 
