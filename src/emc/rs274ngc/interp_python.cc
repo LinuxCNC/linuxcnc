@@ -49,6 +49,8 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include "units.h"
 
+static bool useGIL;     // not sure if this is needed
+
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
         if (bad) {                                             \
@@ -572,10 +574,10 @@ int Interp::init_python(setup_pointer settings)
 {
     char cmd[LINELEN], path[PATH_MAX];
     // char *path;
-    // PyGILState_STATE gstate;
     interp_ptr  interp_instance;  // the wrapped instance
     std::string msg;
     bool err = false;
+    PyGILState_STATE gstate;
 
     current_setup = get_setup(this); // // &this->_setup;
     current_interp = this;
@@ -605,7 +607,8 @@ int Interp::init_python(setup_pointer settings)
     PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
     Py_Initialize();
 
-    // gstate = PyGILState_Ensure();
+    if (useGIL)
+	gstate = PyGILState_Ensure();
 
     try {
 	settings->module = bp::import("__main__");
@@ -632,32 +635,27 @@ int Interp::init_python(setup_pointer settings)
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
-	    fprintf(stderr,"PyErr_Occured, before he: \n");
-
 	    msg = handle_pyerror();
-	    fprintf(stderr,"back after he: %s\n",msg.c_str());
-	    // PyErr_Print();
-	    err = true;
+	    py_exception = true;
 	}
 	bp::handle_exception();
 	settings->pymodule_stat = PYMOD_FAILED;
 	PyErr_Clear();
     }
-    // hm...
-    catch (std::exception& e) {
-	msg = e.what();
-	err = true;
-
-    }
-    if (err) {
+    if (py_exception) {
 	logPy("init_python: module '%s' init failed: %s\n",path,msg.c_str());
+	if (useGIL)
+	    PyGILState_Release(gstate);
 	ERS("init_python: %s",msg.c_str());
     }
-    //PyGILState_Release(gstate);
+    if (useGIL)
+	PyGILState_Release(gstate);
 
     return INTERP_OK;
 
  error:  // come here if PYCHK() macro fails
+    if (useGIL)
+	PyGILState_Release(gstate);
     return INTERP_ERROR;
 }
 
@@ -665,6 +663,8 @@ bool Interp::is_pycallable(setup_pointer settings,
 			   const char *funcname)
 {
     bool result = false;
+    bool py_unexpected = false;
+    std::string msg;
 
     if ((settings->pymodule_stat != PYMOD_OK) ||
 	(funcname == NULL)) {
@@ -700,11 +700,14 @@ int Interp::pycall(setup_pointer settings,
 		   const char *funcname)
 {
     bp::object retval;
+    PyGILState_STATE gstate;
+    std::string msg;
+    bool py_exception = false;
 
     if (_setup.loggingLevel > 2)
 	logPy("pycall %s \n", funcname);
 
-    // &this->_setup wont work, _setup is private
+    // &this->_setup wont work, _setup is currently private
     current_setup = get_setup(this);
     current_interp = this;
     block->returned = 0;
@@ -714,8 +717,9 @@ int Interp::pycall(setup_pointer settings,
 	    settings->pymodule,funcname);
 	return INTERP_OK;
     }
-    // not sure if this is needed
-    //   PyGILState_STATE gstate = PyGILState_Ensure();
+    if (useGIL)
+	gstate = PyGILState_Ensure();
+
 
     try {
 	bp::object function = settings->module_namespace[funcname];
@@ -725,31 +729,24 @@ int Interp::pycall(setup_pointer settings,
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
-	    // msg = handle_pyerror();
-	    PyErr_Print();
-	    //  err = true;
+	    msg = handle_pyerror();
+	    py_exception = true;
 	}
 	bp::handle_exception();
 	PyErr_Clear();
-
-	// bp::handle_exception();
-	// // NB: see py_execute exception handler - handle_exception() ??
-	// // std::string msg = handle_pyerror();
-	// PyErr_Clear();
-	ERS("pycall:");
-	//	PyGILState_Release(gstate);
     }
-
+    if (useGIL)
+	    PyGILState_Release(gstate);
+    if (py_exception) {
+	ERS("pycall: %s", msg.c_str());
+    }
     if (retval.ptr() != Py_None) {
 	if (PyFloat_Check(retval.ptr())) {
 	    block->py_returned_value = bp::extract<double>(retval);
 	    block->returned[RET_DOUBLE] = 1;
 	    logPy("pycall: '%s' returned %f", funcname, block->py_returned_value);
-	    //	    PyGILState_Release(gstate);
-
 	    return INTERP_OK;
 	}
-
 	if (PyTuple_Check(retval.ptr())) {
 	    bp::tuple tret = bp::extract<bp::tuple>(retval);
 	    int len = bp::len(tret);
@@ -777,27 +774,19 @@ int Interp::pycall(setup_pointer settings,
 	    }
 	    if (block->returned[RET_STATUS])
 		return block->py_returned_status;
-	    //	    PyGILState_Release(gstate);
-
 	    return INTERP_OK;
 	}
-
 	PyObject *res_str = PyObject_Str(retval.ptr());
 	ERS("function '%s.%s' returned '%s' - expected float or tuple, got %s",
 	    settings->pymodule,funcname,
 	    PyString_AsString(res_str),
 	    retval.ptr()->ob_type->tp_name);
 	Py_XDECREF(res_str);
-
-	//	    PyGILState_Release(gstate);
-
 	return INTERP_OK;
     }	else {
 	block->returned[RET_NONE] = 1;
 	logPy("pycall: '%s' returned no value",funcname);
     }
-
-    //    PyGILState_Release(gstate);
     return INTERP_OK;
 }
 
@@ -805,14 +794,15 @@ int Interp::pycall(setup_pointer settings,
 int Interp::py_execute(const char *cmd)
 {
     std::string msg;
-
+    PyGILState_STATE gstate;
+    bool py_exception = false;
 
     bp::object main_module = bp::import("__main__");
     bp::object main_namespace = main_module.attr("__dict__");
 
     logPy("py_execute(%s)",cmd);
-    // PyGILState_STATE gstate = PyGILState_Ensure();
-
+    if (useGIL)
+	gstate = PyGILState_Ensure();
 
     bp::object retval;
 
@@ -829,8 +819,8 @@ int Interp::py_execute(const char *cmd)
 	bp::handle_exception();
 	PyErr_Clear();
     }
-    //PyGILState_Release(gstate);
-    // logPy("py_execute(%s):  %s", cmd, msg.c_str());
+    if (useGIL)
+	PyGILState_Release(gstate);
     // msg.erase(std::remove(msg.begin(), msg.end(), '\n'), msg.end());
     // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
     // if (msg.length())
