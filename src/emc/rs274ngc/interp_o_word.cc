@@ -616,19 +616,23 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	// set the new subName
 	new_frame->subName = block->o_name;
 
-	if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
-	    logRemap("O_call: py prologue %s for NGC remap %s (%s)",
-		     r_block->executing_remap->prolog_func,
-		     r_block->executing_remap->remap_ngc,
-		     r_block->executing_remap->name);
-	    status = pycall(settings, r_block,
-			    r_block->executing_remap->prolog_func);
-	}
-
 	settings->call_level++;
 
-	// let a plain py Oword sub know the number of parameters
-	if (!is_py_osub && !is_remap_handler) {
+    // 	// if remap + NGC
+    // // build kwargs for  any Python pro/epilogs if an argspec
+    // // was given - add_parameters will decorate remap_kwargs as per argspec
+    // block->kwargs = boost::python::dict();
+    // if (rptr->argspec) {
+    // 	CHKS(add_parameters(settings, block),
+    // 	     "%s: add_parameters(argspec=%s) for remap body %s failed ",
+    // 	     rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+    // }
+
+
+
+
+	// let any  Oword sub know the number of parameters
+	if (!is_py_osub) {
 	    CHP(add_named_param("n_args", PA_READONLY));
 	    CHP(store_named_param(settings, "n_args",
 				  (double )block->param_cnt,
