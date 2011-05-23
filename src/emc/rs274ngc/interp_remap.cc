@@ -207,9 +207,14 @@ int Interp::execute_handler(setup_pointer settings,
     // was given - add_parameters will decorate remap_kwargs as per argspec
     block->kwargs = boost::python::dict();
     if (rptr->argspec) {
-	CHKS(add_parameters(settings, block),
-	     "%s: add_parameters(argspec=%s) for remap body %s failed ",
-	     rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+	// WART ALERT
+	// we're inserting locals into a callframe which isnt used yet..
+	settings->call_level++;
+	CHP(add_parameters(settings, block));
+	// CHKS(add_parameters(settings, block),
+	//      "%s: add_parameters(argspec=%s) for remap body %s failed ",
+	//      rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+	settings->call_level--;
     }
 
     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
