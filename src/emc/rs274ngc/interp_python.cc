@@ -195,6 +195,13 @@ static void wrapERS(Interp &x, const char *s)
     current_setup->stack[current_setup->stack_index][0] = 0;
 }
 
+static bp::object wrap_find_tool_pocket(Interp &x, int toolno)
+{
+    int status, pocket;
+    status = current_interp->find_tool_pocket(current_setup, toolno, &pocket);
+    return bp::make_tuple(status, pocket);
+}
+
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
     using namespace boost;
@@ -305,6 +312,11 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("synch", &Interp::synch)
 	.def("push_errormsg", &wrapERS)
+
+	.def("find_tool_pocket", &wrap_find_tool_pocket)
+
+	// .def("add_named_param", &Interp::add_named_param)
+	// .def("store_named_param", &Interp::store_named_param)
 
 	// .def_readonly("name", &Var::name)
 

@@ -119,6 +119,8 @@ public:
  int add_named_param(const char *nameBuf, int attr = 0);
     remap_pointer remapping(const char *code);
     remap_pointer remapping(const char letter, int number = -1);
+ int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
+
 private:
 
 /* Function prototypes for all  functions */
@@ -314,7 +316,6 @@ private:
                              double x1, double y1, double z1,
                              double AA_1, double BB_1, double CC_1,
                              double u_1, double v_1, double w_1);
- int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  double find_turn(double x1, double y1, double center_x,
                         double center_y, int turn, double x2, double y2);
  int init_block(block_pointer block);
