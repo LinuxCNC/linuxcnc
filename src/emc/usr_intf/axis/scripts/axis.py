@@ -1533,7 +1533,7 @@ all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
             _('T    Tool Table')]
 
 class _prompt_touchoff(_prompt_float):
-    def __init__(self, title, text, default, defaultsystem):
+    def __init__(self, title, text_pattern, default, defaultsystem):
         systems = all_systems[:]
         if s.tool_in_spindle == 0:
             del systems[-1]
@@ -1548,11 +1548,14 @@ class _prompt_touchoff(_prompt_float):
                 else:
                     unit_str += _(" diameter")
         else: unit_str = _(u"\xb0")
+        self.text_pattern = text_pattern
+        text = text_pattern % self.workpiece_or_fixture(defaultsystem)
         _prompt_float.__init__(self, title, text, default, unit_str)
         t = self.t
         f = Frame(t)
         self.c = c = StringVar(t)
         c.set(defaultsystem)
+        c.trace_variable("w", self.change_system)
         l = Label(f, text=_("Coordinate System:"))
         mb = OptionMenu(f, c, *systems)
         mb.tk.call("size_menubutton_to_entries", mb)
@@ -1566,6 +1569,16 @@ class _prompt_touchoff(_prompt_float):
         if current_tool.id > 0:
             t.bind("<Alt-t>", lambda event: c.set(systems[9]))
             t.bind("<Alt-0>", lambda event: c.set(systems[9]))
+
+    def workpiece_or_fixture(self, s):
+        if s.startswith('T') and vars.tto_g11.get():
+            return _("fixture")
+        return _("workpiece")
+
+    def change_system(self, *args):
+        system = self.c.get()
+        text = self.text_pattern % self.workpiece_or_fixture(system)
+        self.set_text(text)
 
     def result(self):
         if self.u.get(): return self.v.get(), self.c.get()
@@ -2280,7 +2293,7 @@ class TclCommands(nf.TclCommands):
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(_("Touch Off"),
-                _("Enter %s coordinate relative to workpiece:")
+                _("Enter %s coordinate relative to %%s:")
                         % vars.current_axis.get().upper(), 0.0, vars.touch_off_system.get())
         else:
             system = vars.touch_off_system.get()
