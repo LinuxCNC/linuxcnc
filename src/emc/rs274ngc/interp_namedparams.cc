@@ -354,6 +354,7 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
     PARAM('c',"c",block->c_flag,block->c_number);
     PARAM('d',"d",block->d_flag,block->d_number_float);
     PARAM('e',"e",block->e_flag,block->e_number);
+    PARAM('f',"f",block->f_flag,block->f_number);
     PARAM('h',"h",block->h_flag,block->h_number);
     PARAM('i',"i",block->i_flag,block->i_number);
     PARAM('j',"j",block->j_flag,block->j_number);
@@ -361,6 +362,8 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
     PARAM('p',"p",block->p_flag,block->p_number);
     PARAM('q',"q",block->q_flag,block->q_number);
     PARAM('r',"r",block->r_flag,block->r_number);
+    PARAM('s',"s",block->s_flag,block->s_number);
+    PARAM('t',"t",block->t_flag,block->t_number);
     PARAM('u',"u",block->u_flag,block->u_number);
     PARAM('v',"v",block->v_flag,block->v_number);
     PARAM('w',"w",block->w_flag,block->w_number);
@@ -396,8 +399,11 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
     if (strchr(required,'n')) {
 	STORE("n",block->n_number);
     }
-    // F...require positive feed
-    if (strchr(required,'f')) {
+
+    // FIXME mah test this!!
+
+    // >...require positive feed
+    if (strchr(required,'>')) {
 	if (settings->feed_rate > 0.0) {
 	    STORE("f",settings->feed_rate);
 	} else {
@@ -405,8 +411,8 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
 	    errored = true;
 	}
     }
-    // S...require positive speed
-    if (strchr(required,'s')) {
+    // ^...require positive speed
+    if (strchr(required,'^')) {
 	if (settings->speed > 0.0) {
 	    STORE("s",settings->speed);
 	} else {
@@ -414,6 +420,7 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
 	    errored = true;
 	}
     }
+
     if (errored) {
 	ERS("user-defined %s:%s",
 	    code, tail);
