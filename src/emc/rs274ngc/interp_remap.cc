@@ -64,7 +64,7 @@ int Interp::convert_remapped_code(block_pointer block,
     }
     CHKS((rptr == NULL), "BUG: convert_remapped_code: no remapping");
     CHP(execute_handler(settings, rptr, 0)); // no posargs
-    return(- rptr->op);
+    return(- USER_REMAP);
 }
 
 
@@ -73,67 +73,67 @@ int Interp::convert_remapped_code(block_pointer block,
 // handler epilogue for remapped user m + g codes
 int Interp::finish_user_command(setup_pointer settings, block_pointer r_block)
 {
-    return remap_finished(r_block->executing_remap->op);
+    return remap_finished(USER_REMAP); //r_block->executing_remap->op);
 }
 
-int Interp::finish_m6_command(setup_pointer settings, block_pointer r_block)
-{
-    // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
-    // commit the tool change
-    if (settings->return_value >= TOLERANCE_EQUAL) {
-	CHANGE_TOOL(settings->selected_pocket);
-	settings->current_pocket = settings->selected_pocket;
-	// this will cause execute to return INTERP_EXECUTE_FINISH
-	settings->toolchange_flag = true;
-    } else {
-	char msg[LINELEN];
-	snprintf(msg, sizeof(msg), "M6 failed (%f)", settings->return_value);
-	INTERP_ABORT(round_to_int(settings->return_value),msg);
-	return INTERP_EXECUTE_FINISH;
-    }
-    return remap_finished(r_block->executing_remap->op);
-}
+// int Interp::finish_m6_command(setup_pointer settings, block_pointer r_block)
+// {
+//     // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
+//     // commit the tool change
+//     if (settings->return_value >= TOLERANCE_EQUAL) {
+// 	CHANGE_TOOL(settings->selected_pocket);
+// 	settings->current_pocket = settings->selected_pocket;
+// 	// this will cause execute to return INTERP_EXECUTE_FINISH
+// 	settings->toolchange_flag = true;
+//     } else {
+// 	char msg[LINELEN];
+// 	snprintf(msg, sizeof(msg), "M6 failed (%f)", settings->return_value);
+// 	INTERP_ABORT(round_to_int(settings->return_value),msg);
+// 	return INTERP_EXECUTE_FINISH;
+//     }
+//     return remap_finished(r_block->executing_remap->op);
+// }
 
-int Interp::finish_m61_command(setup_pointer settings,  block_pointer r_block)
-{
-    // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
-    // set that as the new tool' pocket number
-    // a negative return value will leave it untouched
+// int Interp::finish_m61_command(setup_pointer settings,  block_pointer r_block)
+// {
+//     // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
+//     // set that as the new tool' pocket number
+//     // a negative return value will leave it untouched
 
-    if (settings->return_value > - TOLERANCE_EQUAL) {
-	settings->current_pocket = round_to_int(settings->return_value);
-	CHANGE_TOOL_NUMBER(settings->current_pocket);
-	// this will cause execute to return INTERP_EXECUTE_FINISH
-	settings->toolchange_flag = true;
-    } else {
-	char msg[LINELEN];
-	snprintf(msg,sizeof(msg),"M61 failed (%f)", settings->return_value);
-	INTERP_ABORT(round_to_int(settings->return_value),msg);
-	return INTERP_EXECUTE_FINISH;
-    }
-    return remap_finished(r_block->executing_remap->op);
-}
+//     if (settings->return_value > - TOLERANCE_EQUAL) {
+// 	settings->current_pocket = round_to_int(settings->return_value);
+// 	CHANGE_TOOL_NUMBER(settings->current_pocket);
+// 	// this will cause execute to return INTERP_EXECUTE_FINISH
+// 	settings->toolchange_flag = true;
+//     } else {
+// 	char msg[LINELEN];
+// 	snprintf(msg,sizeof(msg),"M61 failed (%f)", settings->return_value);
+// 	INTERP_ABORT(round_to_int(settings->return_value),msg);
+// 	return INTERP_EXECUTE_FINISH;
+//     }
+//     return remap_finished(r_block->executing_remap->op);
+// }
 
 
 // Tx epiplogue - executed past T_COMMAND
-int Interp::finish_t_command(setup_pointer settings,   block_pointer r_block)
-{
-    // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
-    // commit the tool prepare to that value.
+// int Interp::finish_t_command(setup_pointer settings,   block_pointer r_block)
+// {
+//     // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
+//     // commit the tool prepare to that value.
 
-    if (settings->return_value > - TOLERANCE_EQUAL) {
-	settings->selected_pocket = round_to_int(settings->return_value);
-	SELECT_POCKET(settings->selected_pocket);
-    } else {
+//     if (settings->return_value > - TOLERANCE_EQUAL) {
+// 	settings->selected_pocket = round_to_int(settings->return_value);
+// 	SELECT_POCKET(settings->selected_pocket);
+//     } else {
 
-	char msg[LINELEN];
-	snprintf(msg, sizeof(msg), "T<tool> - prepare failed (%f)",
-		 settings->return_value);
-	INTERP_ABORT(round_to_int(settings->return_value),msg);
-	return INTERP_EXECUTE_FINISH;
-    }
-    return remap_finished(r_block->executing_remap->op);
-}
+// 	char msg[LINELEN];
+// 	snprintf(msg, sizeof(msg), "T<tool> - prepare failed (%f)",
+// 		 settings->return_value);
+// 	INTERP_ABORT(round_to_int(settings->return_value),msg);
+// 	return INTERP_EXECUTE_FINISH;
+//     }
+//     return remap_finished(r_block->executing_remap->op);
+// }
 
 // prepare execution of a remapped code
 // - construct oword call line with params
@@ -433,19 +433,24 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	CHECK((strlen(code) > 1),"T remap - only single letter code allowed");
 	CHECK((r->modal_group != -1), "T remap - modal group setting ignored - fixed sequencing");
 
-	// prepare has a default builtin epilog for ngc files
-	// which sets the pocket to a nonnegative return value
-	// and aborts on negative values
+	// // prepare has a default builtin epilog for ngc files
+	// // which sets the pocket to a nonnegative return value
+	// // and aborts on negative values
 
-	// can be overridden by epilog=pyfunc
-	r->op = T_REMAP;
-	if (r->epilog_func) {
-	    // finish_user_command just ends a remap in progress
-	    // without any side effects
-	    r->builtin_epilog = &Interp::finish_user_command;
-	} else {
-	    r->builtin_epilog = &Interp::finish_t_command;
-	}
+	// // can be overridden by epilog=pyfunc
+	// r->op = T_REMAP;
+	// if (r->epilog_func) {
+	//     // finish_user_command just ends a remap in progress
+	//     // without any side effects
+	//     r->builtin_epilog = &Interp::finish_user_command;
+	// } else {
+	//     r->builtin_epilog = &Interp::finish_t_command;
+	// }
+
+	// remove special-casing Tx
+	r->builtin_epilog = &Interp::finish_user_command;
+	// r->op = T_REMAP;
+
 	_setup.remaps["T"] = r;
 	break;
 
@@ -453,7 +458,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	CHECK(strlen(code) > 1,"S remap - only single letter code allowed");
 	CHECK((r->modal_group != -1), "S remap - modal group setting ignored - fixed sequencing");
 
-	r->op = S_REMAP;
+	// r->op = S_REMAP;
 	_setup.remaps["S"] = r;
 	r->builtin_epilog = &Interp::finish_user_command;
 	break;
@@ -462,7 +467,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	CHECK(strlen(code) > 1,"F remap - only single letter code allowed");
 	CHECK((r->modal_group != -1), "F remap - modal group setting ignored - fixed sequencing");
 
-	r->op = F_REMAP;
+	// r->op = F_REMAP;
 	_setup.remaps["F"] = r;
 	r->builtin_epilog = &Interp::finish_user_command;
 	break;
@@ -472,20 +477,20 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    // change_tool, set tool number have default builtin epilogs for ngc files
 	    // which can be overridden by a py epilog
 	    if (r->epilog_func) {
-		r->op = M_USER_REMAP;
+		// r->op = M_USER_REMAP;
 		r->builtin_epilog = &Interp::finish_user_command;
 	    } else {
 		switch (mcode) {
-		case 6:
-		    r->builtin_epilog = &Interp::finish_m6_command ;
-		    r->op = M6_REMAP;
-		    break;
-		case 61:
-		    r->builtin_epilog = &Interp::finish_m61_command;
-		    r->op = M61_REMAP;
-		    break;
+		// case 6:
+		//     r->builtin_epilog = &Interp::finish_m6_command ;
+		//     r->op = M6_REMAP;
+		//     break;
+		// case 61:
+		//     r->builtin_epilog = &Interp::finish_m61_command;
+		//     r->op = M61_REMAP;
+		//     break;
 		default:
-		    r->op = M_USER_REMAP;
+		    // r->op = M_USER_REMAP;
 		    r->builtin_epilog =  &Interp::finish_user_command;
 		}
 	    }
@@ -519,7 +524,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code, lineno, inistring);
 	    goto fail;
 	}
-	r->op = G_USER_REMAP;
+	// r->op = G_USER_REMAP;
 	r->builtin_epilog =  &Interp::finish_user_command;
 	if (!G_MODE_OK(r->modal_group)) {
 	    Error("code '%s' : %s modalgroup=<int> given, def : %d:REMAP = %s",

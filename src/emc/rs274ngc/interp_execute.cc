@@ -280,6 +280,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 			  setup_pointer settings) //!< pointer to machine settings
 {
   int status;
+  remap_pointer rptr;
 
   block->line_number = settings->sequence_number;
   if ((block->comment[0] != 0) && once(STEP_COMMENT)) {
@@ -296,30 +297,40 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 
   }
   if (block->f_flag){
-	  if ((settings->feed_mode != INVERSE_TIME) && once(STEP_SET_FEED_RATE))  {
-	status = convert_feed_rate(block, settings);
-	CHP(status);
-    }
-    /* INVERSE_TIME is handled elsewhere */
+      if ((settings->feed_mode != INVERSE_TIME) && once(STEP_SET_FEED_RATE))  {
+	  if ((rptr = remapping("F")) != NULL) {
+	      return (convert_remapped_code(block,settings,'F'));
+	  } else {
+	      status = convert_feed_rate(block, settings);
+	      CHP(status);
+	  }
+      }
+      /* INVERSE_TIME is handled elsewhere */
   }
   if ((block->s_flag) && once(STEP_SET_SPINDLE_SPEED)){
-      status = convert_speed(block, settings);
-	CHP(status);
+      if ((rptr = remapping("S")) != NULL) {
+	  return (convert_remapped_code(block,settings,'S'));
+      } else {
+	  status = convert_speed(block, settings);
+	  CHP(status);
+      }
   }
   if ((block->t_flag) && once(STEP_PREPARE)){
-
-      remap_pointer rptr;
-
       if ((rptr = remapping("T")) != NULL) {
-	int pocket;
-	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
+	  // switch to generic remap using Python pro/epilogs
+	  return (convert_remapped_code(block,settings,'T'));
 
-	// pocket will start making sense once tooltable I/O is folded into
-	// interp and iocontrol is gone.
-	CHP(execute_handler(settings, rptr, 2,
-				 (double) block->t_number,
-			    (double) pocket));
-	return (-T_REMAP);
+	  // this was the hand-crafted remap
+	// int pocket;
+
+	// CHP((find_tool_pocket(settings, block->t_number, &pocket)));
+
+	// // pocket will start making sense once tooltable I/O is folded into
+	// // interp and iocontrol is gone.
+	// CHP(execute_handler(settings, rptr, 2,
+	// 			 (double) block->t_number,
+	// 		    (double) pocket));
+	// return (-T_REMAP);
 
     } else {
 	CHP(convert_tool_select(block, settings));

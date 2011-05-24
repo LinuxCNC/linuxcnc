@@ -195,8 +195,10 @@ int Interp::close()
   return INTERP_OK;
 }
 
-const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP",
-			"M_USER_REMAP","G_USER_REMAP"};
+// const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP",
+// 			"M_USER_REMAP","G_USER_REMAP"};
+
+const char *remaps[] = {"NONE","USER_REMAP" };
 
 
 /***********************************************************************/
@@ -388,11 +390,12 @@ int Interp::_execute(const char *command)
 	  // after parsing a handler, execute_block() either fails to toplevel or
 	  // returns the negative value of the handler ID it parsed.
 	  switch (status) {
-	  case -T_REMAP:
-	  case -M6_REMAP:
-	  case -M61_REMAP:
-	  case -M_USER_REMAP:
-	  case -G_USER_REMAP:
+	  case -USER_REMAP:
+	  // case -T_REMAP:
+	  // case -M6_REMAP:
+	  // case -M61_REMAP:
+	  // case -M_USER_REMAP:
+	  // case -G_USER_REMAP:
 	      logRemap("handler armed: %s",remaps[-status]);
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
@@ -497,13 +500,14 @@ int Interp::execute(const char *command, int line_number)
 
     if (status > INTERP_MIN_ERROR) {
 	_setup.remap_level = 0;
-	logDebug("<-- execute(): error returned, clearing remap stack");
+	_setup.call_level = 0;
+	logDebug("<-- execute(): error returned, clearing remap and call stack");
     }
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
 	logRemap("<-- execute() clearing mdi_interrupt");
-	_setup.mdi_interrupt = false;  // seems to work ok!
+	_setup.mdi_interrupt = false;  // seems to work ok! FIXME mah
     }
     return status;
 }
@@ -518,17 +522,18 @@ int Interp::remap_finished(int finished_remap)
 	  remaps[finished_remap],_setup.remap_level,_setup.call_level,_setup.filename);
 
     switch (finished_remap) {
-    case T_REMAP:
-    case M6_REMAP:
-    case M61_REMAP:
-    case M_USER_REMAP:
-    case G_USER_REMAP:
+    case USER_REMAP:
+    // case T_REMAP:
+    // case M6_REMAP:
+    // case M61_REMAP:
+    // case M_USER_REMAP:
+    // case G_USER_REMAP:
 	// the controlling block had a remapped item, which just finished and the
 	// epilogue handler called in here.
 	// check the current block for the next remapped item
 	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)), &_setup);
 	if (next_remap) {
-	    logRemap("arming %s",remaps[next_remap]);
+	    logRemap("arming %s  (remap_level=%d call_level=%d)",remaps[next_remap],_setup.remap_level,_setup.call_level);
 
 	    // this will execute up to the next remap, and return
 	    // after parsing the handler with read()
@@ -545,7 +550,7 @@ int Interp::remap_finished(int finished_remap)
 	} else {
 	    // execution of controlling block finished executing a remap, and it contains no more
 	    // remapped items. Execute any leftover items.
-	    logRemap("no more remaps in controlling_block found (nesting=%d call_level=%d), dropping",
+	    logRemap("no more remaps in controlling_block found (remap_level=%d call_level=%d), dropping",
 		    _setup.remap_level,_setup.call_level);
 
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
@@ -553,8 +558,8 @@ int Interp::remap_finished(int finished_remap)
 
 	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
 		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
-		logRemap("executing block leftover items: %s status=%s  nesting=%d (failing)",
-			status < 0 ? "BUG":"ERROR", interp_status(status),_setup.remap_level);
+		logRemap("executing block leftover items: %s status=%s  remap_level=%d call_level=%d (failing)",
+			 status < 0 ? "BUG":"ERROR", interp_status(status),_setup.remap_level,_setup.call_level);
 		int level = _setup.remap_level;
 		_setup.remap_level = 0;
 		if (status < 0)
@@ -566,11 +571,12 @@ int Interp::remap_finished(int finished_remap)
 		// not sure what INTERP_ENDFILE & INTERP_EXIT really mean here.
 		// if ((status == INTERP_OK) || (status == INTERP_ENDFILE) || (status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH)) {
 		// leftover items finished. Drop a remapping level.
-		logRemap("executing block leftover items complete, status=%s  remap_level=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
-			interp_status(status),_setup.remap_level,_setup.toolchange_flag,
+
+		CHP(leave_remap());
+		logRemap("executing block leftover items complete, status=%s  remap_level=%d call_level=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
+			 interp_status(status),_setup.remap_level,_setup.call_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
 			CONTROLLING_BLOCK(_setup).line_number);
-		CHP(leave_remap());
 	    }
 	}
 	return status;
@@ -600,70 +606,68 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
     for (exec_phase = FIRST_STEP; exec_phase < MAX_STEPS; exec_phase++) {
 	switch (exec_phase) {
 
-#ifdef NOTYET
 	case STEP_SET_FEED_RATE:
 	    if (block->f_flag && todo(STEP_SET_FEED_RATE) &&
 		remapping("F"))
-		return F_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_SET_SPINDLE_SPEED:
-	    if (block->s_flag && todo(STEP_SPINDLE_SPEED) &&
+	    if (block->s_flag && todo(STEP_SET_SPINDLE_SPEED) &&
 		remapping("S"))
-		return S_REMAP;
+		return USER_REMAP;
 	    break;
-#endif
 
 	case STEP_PREPARE: // Select tool (T).
 	    if (block->t_flag && todo(STEP_PREPARE) &&
 		remapping("T"))
-		return T_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_M_5:
 	    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
-		return M_USER_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_M_6:
 	    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
-		return M_USER_REMAP;
+		return USER_REMAP;
 
 	    // Change tool (M6), Set Tool Number (M61)
 	    if ((block->m_modes[6] == 6) && todo(STEP_M_6) &&
 		remapping("M6"))
-		return M6_REMAP;
+		return USER_REMAP;
 
 	    if ((block->m_modes[6] == 61) && todo(STEP_M_6) &&
 		remapping("M61"))
-		return M61_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_M_7: // User defined M-Codes in group 7
 	    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
-		return M_USER_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_M_8: // User defined M-Codes in group 8
 	    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
-		return M_USER_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_M_9: // User defined M-Codes in group 9
 	    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
-		return M_USER_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_M_10: // User defined M-Codes in group 10
 	    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
-		return M_USER_REMAP;
+		return USER_REMAP;
 	    break;
 
 	case STEP_MOTION: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
 	    mode = block->g_modes[GM_MOTION];
 	    if ((mode != -1) && IS_USER_GCODE(mode) &&
 		todo(STEP_MOTION)) {
-		return G_USER_REMAP;
+		return USER_REMAP;
 	    }
 	    break;
 
@@ -1315,7 +1319,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   {
       EXECUTING_BLOCK(_setup).offset = ftell(_setup.file_pointer);
   }
-  EXECUTING_BLOCK(_setup).breadcrumbs = 0; // clear trail
+  EXECUTING_BLOCK(_setup).breadcrumbs = 0; // clear trail FIXME mah also done in init_bloc
 
   read_status =
     read_text(command, _setup.file_pointer, _setup.linetext,

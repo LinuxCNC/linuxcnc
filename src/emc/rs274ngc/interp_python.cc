@@ -220,7 +220,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
     class_ <wrap_remap,noncopyable>("wrap_remap",no_init)
 	.def_readwrite("name",&wrap_remap::name)
-	.def_readwrite("op",&wrap_remap::op)
+	//	.def_readwrite("op",&wrap_remap::op)
 	.def_readwrite("modal_group",&wrap_remap::modal_group)
 	.def_readwrite("prolog_func",&wrap_remap::prolog_func)
 	.def_readwrite("remap_py",&wrap_remap::remap_py)
@@ -741,7 +741,7 @@ int Interp::pycall(setup_pointer settings,
 		}
 	    }
 	    if (block->returned[RET_STATUS])
-		return block->py_returned_status;
+		ERP(block->py_returned_status);
 	    return INTERP_OK;
 	}
 	PyObject *res_str = PyObject_Str(retval.ptr());
@@ -796,5 +796,7 @@ int Interp::py_execute(const char *cmd)
     // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
     // if (msg.length())
     // 	MESSAGE((char *) msg.c_str());
-    return INTERP_OK;
+    ERP(INTERP_OK);
 }
+
+
