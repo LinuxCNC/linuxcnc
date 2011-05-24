@@ -2961,94 +2961,49 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }
 
   if ((block->m_modes[6] != -1)  && once_M(6)){
-      if (IS_USER_MCODE(block,settings,6)) {
-	  return convert_remapped_code(block,settings,'m',
-				       block->m_modes[6]);
-      // return convert_remapped_mcode(block, settings, 6);
+      if (block->m_modes[6] == 6) {
+
+	  // replicate preconditions form convert_tool_change
+	  if (settings->selected_pocket < 0) {
+	      ERS(NCE_TXX_MISSING_FOR_M6);
+	  }
+	  CHKS((settings->cutter_comp_side),
+	       (_("Cannot change tools with cutter radius compensation on")));
+
+	  if (IS_USER_MCODE(block,settings,6)) {
+	      return convert_remapped_code(block,settings,'m',
+					   block->m_modes[6]);
+	  }  else {
+	      CHP(convert_tool_change(settings));
+	  }
       }
-// else  if (block->m_modes[6] == 6) {
-// 	    // when we have M6 do the actual toolchange
-
-// 	    remap_pointer rptr = remapping("M6");
-
-// 	    if (rptr != NULL) {
-
-// 	      // replicate preconditions form convert_tool_change
-// 	    if (settings->selected_pocket < 0) {
-// 	      ERS(NCE_TXX_MISSING_FOR_M6);
-// 	    }
-// 	    CHKS((settings->cutter_comp_side),
-// 	          (_("Cannot change tools with cutter radius compensation on")));
-
-// 	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
-// 	    // tool_change_at_g30 - can be handled in g-code if needed
-
-// 	    // all the remapped M6 does is call the procedure with the
-// 	    // following argument list:
-// 	    // #1 - current tool
-// 	    // #2 - new tool
-// 	    // #3 - pocket of new tool
-
-// 	    // #3 will start making sense once tooltable I/O is moved
-// 	    // to the interpreter and iocontrol deprecated. Dont use for now.
-
-// 	    // NB: just executing and returning from the procedure
-// 	    // does NOT change the tool number. The procedure is
-// 	    // expected to return a value > 0 by the new 'return [expression]' or
-// 	    // 'endsub [expression]' feature to actually commit the change.
-
-// 	    CHP( execute_handler(settings, rptr, 3,
-// 					 (double) settings->tool_table[0].toolno,
-// 					 (double) block->t_number,
-// 				 (double) settings->selected_pocket));
-
-// 	    // just parsing the 'o <foo> call [param]..' command is expected to
-// 	    // return INTERP_OK; if not, something's badly wrong but error
-// 	    // message will be set  in execute_handler
-
-// 	    return(-M6_REMAP);
-// 	}
-	    else {
-	    CHP(convert_tool_change(settings));
-	}
-    }
-    // when we have M61 we only change the number of the loaded tool
-    // (for example on startup)
-      if (block->m_modes[6] == 61) { // covered above  && once_M(6)) {
-
-      if (IS_USER_MCODE(block,settings,61)) {
-
-	  return convert_remapped_code(block,settings,'m',
-				       block->m_modes[6]);
-	// int toolno, pocket;
-	// int status = INTERP_OK;
-
-	// toolno = round_to_int(block->q_number);
-	// // now also accept M61 Q0 - unload tool
-	// CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
-	// // make sure selected tool exists
-	// CHP((find_tool_pocket(settings, toolno, &pocket)));
-
-	// remap_pointer rptr = remapping("M61");
-
-	// if (rptr != NULL) {
-	//     // this handler is expected to return the pocket number on success
-	//     CHP(execute_handler(settings, rptr, 2,
-	// 			(double) toolno, (double) pocket));
-	//     return(-M61_REMAP);
-      } else {
+      if (block->m_modes[6] == 61) {
 	  int toolno, pocket;
-	  int status = INTERP_OK;
 
 	  toolno = round_to_int(block->q_number);
-	  settings->current_pocket = pocket;
-	  CHANGE_TOOL_NUMBER(settings->current_pocket);
-	  // this will cause a synch() and re-reading of offset of tool 0
-	  settings->toolchange_flag = true;
-	  status = INTERP_OK;
-	  CHP(status);
+	  // now also accept M61 Q0 - unload tool
+	  CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
+
+	  if (IS_USER_MCODE(block,settings,6)) {
+	      return convert_remapped_code(block,settings,'m',
+					   block->m_modes[6]);
+	  } else {
+	      int status = INTERP_OK;
+
+	      // make sure selected tool exists
+	      CHP((find_tool_pocket(settings, toolno, &pocket)));
+
+	      settings->current_pocket = pocket;
+	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      // this will cause a synch() and re-reading of offset of tool 0
+	      settings->toolchange_flag = true;
+	      status = INTERP_OK;
+	      CHP(status);
+	  }
       }
+      // Hmm
   }
+
 #ifdef DEBATABLE
     // I would like this, but it's a big change.  It changes the
     // operation of legal ngc programs, but it could be argued that
@@ -5208,3 +5163,83 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
   settings->selected_pocket = pocket;
   return INTERP_OK;
 }
+
+
+// else   {
+// 	    // when we have M6 do the actual toolchange
+
+// 	    remap_pointer rptr = remapping("M6");
+
+// 	    if (rptr != NULL) {
+
+// 	      // replicate preconditions form convert_tool_change
+// 	    if (settings->selected_pocket < 0) {
+// 	      ERS(NCE_TXX_MISSING_FOR_M6);
+// 	    }
+// 	    CHKS((settings->cutter_comp_side),
+// 	          (_("Cannot change tools with cutter radius compensation on")));
+
+// 	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
+// 	    // tool_change_at_g30 - can be handled in g-code if needed
+
+// 	    // all the remapped M6 does is call the procedure with the
+// 	    // following argument list:
+// 	    // #1 - current tool
+// 	    // #2 - new tool
+// 	    // #3 - pocket of new tool
+
+// 	    // #3 will start making sense once tooltable I/O is moved
+// 	    // to the interpreter and iocontrol deprecated. Dont use for now.
+
+// 	    // NB: just executing and returning from the procedure
+// 	    // does NOT change the tool number. The procedure is
+// 	    // expected to return a value > 0 by the new 'return [expression]' or
+// 	    // 'endsub [expression]' feature to actually commit the change.
+
+// 	    CHP( execute_handler(settings, rptr, 3,
+// 					 (double) settings->tool_table[0].toolno,
+// 					 (double) block->t_number,
+// 				 (double) settings->selected_pocket));
+
+// 	    // just parsing the 'o <foo> call [param]..' command is expected to
+// 	    // return INTERP_OK; if not, something's badly wrong but error
+// 	    // message will be set  in execute_handler
+
+// 	    return(-M6_REMAP);
+// 	}
+
+
+
+
+  //   // when we have M61 we only change the number of the loaded tool
+
+  //     if (
+  // 	// int toolno, pocket;
+  // 	// int status = INTERP_OK;
+
+  // 	// toolno = round_to_int(block->q_number);
+  // 	// // now also accept M61 Q0 - unload tool
+  // 	// CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
+  // 	// // make sure selected tool exists
+  // 	// CHP((find_tool_pocket(settings, toolno, &pocket)));
+
+  // 	// remap_pointer rptr = remapping("M61");
+
+  // 	// if (rptr != NULL) {
+  // 	//     // this handler is expected to return the pocket number on success
+  // 	//     CHP(execute_handler(settings, rptr, 2,
+  // 	// 			(double) toolno, (double) pocket));
+  // 	//     return(-M61_REMAP);
+  //     } else {
+  // 	  int toolno, pocket;
+  // 	  int status = INTERP_OK;
+
+  // 	  toolno = round_to_int(block->q_number);
+  // 	  settings->current_pocket = pocket;
+  // 	  CHANGE_TOOL_NUMBER(settings->current_pocket);
+  // 	  // this will cause a synch() and re-reading of offset of tool 0
+  // 	  settings->toolchange_flag = true;
+  // 	  status = INTERP_OK;
+  // 	  CHP(status);
+  //     }
+  // }

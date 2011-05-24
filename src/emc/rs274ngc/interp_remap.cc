@@ -67,16 +67,6 @@ int Interp::convert_remapped_code(block_pointer block,
     return(- USER_REMAP);
 }
 
-
-// // builtin handler epilogues
-
-// // handler epilogue for remapped user m + g codes
-// int Interp::finish_user_command(setup_pointer settings, block_pointer r_block)
-// {
-//     return remap_finished(USER_REMAP);
-// }
-
-
 // prepare execution of a remapped code
 // - construct oword call line with params
 // - construct tupleargs, kwargs
@@ -193,18 +183,14 @@ void Interp::print_remap(const char *key)
 	logRemap("----- remap '%s' :",key);
 	logRemap("argspec = '%s'", r->argspec);
 	logRemap("modalgroup = %d", r->modal_group);
-	// logRemap("builtin_prolog = %p",(void *)r->builtin_prolog);
 	logRemap("prolog_func = %s",
 		 (r->prolog_func ? r->prolog_func : ""));
-
 	logRemap("remap_py = %s",
 		 (r->remap_py ? r->remap_py : ""));
 	logRemap("remap_ngc = %s",
 		 (r->remap_ngc ? r->remap_ngc : ""));
 	logRemap("epilog_func = %s",
 		 (r->epilog_func ? r->epilog_func : ""));
-	logRemap("builtin_epilog = %p",(void *)&r->builtin_epilog);
-
     } else {
 	logRemap("print_remap: no such remap: '%s'",key);
     }
@@ -258,8 +244,6 @@ int Interp::parse_remap(const char *inistring, int lineno)
     }
     argv[argc] = NULL;
     code = strstore(argv[0]);
-
-
     r->name = code;
 
     for (int i = 1; i < argc; i++) {
@@ -287,7 +271,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"argspec",kwlen)) {
 	    size_t pos = strspn (arg,
-				 "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz-");
+				 "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz->^");
 	    if (pos != strlen(arg)) {
 		Error("argspec: illegal word '%c' - %d:REMAP = %s",
 		      arg[pos],lineno,inistring);
@@ -351,20 +335,10 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	goto fail;
     }
 
-    // dead code - now automatically done in execute_handler()
-
-    // // if an argspec is given, the builtin prolog add_parameters()
-    // // is called automatically.
-    // // for ngc files, this adds local variables as per argspec
-    // // for Python, adds variables to the  kwargs dict
-    // if (r->argspec) {
-    // 	r->builtin_prolog = &Interp::add_parameters;
-    // }
-
-#define CHECK(bad, fmt)				\
+#define CHECK(bad, fmt, ...)			\
     do {					\
 	if (bad) {				\
-	    Log(fmt);				\
+	    Log(fmt, ## __VA_ARGS__);		\
 	    goto fail;				\
 	}					\
     } while(0)
@@ -372,46 +346,15 @@ int Interp::parse_remap(const char *inistring, int lineno)
     switch (towlower(*code)) {
 
     case 't':
-	CHECK((strlen(code) > 1),"T remap - only single letter code allowed");
-	CHECK((r->modal_group != -1), "T remap - modal group setting ignored - fixed sequencing");
-	// remove special-casing Tx
-	// r->builtin_epilog = &Interp::finish_user_command;
-	// r->op = T_REMAP;
-
-	_setup.remaps["T"] = r;
-	break;
-
     case 's':
-	CHECK(strlen(code) > 1,"S remap - only single letter code allowed");
-	CHECK((r->modal_group != -1), "S remap - modal group setting ignored - fixed sequencing");
-
-	_setup.remaps["S"] = r;
-	// r->builtin_epilog = &Interp::finish_user_command;
-	break;
-
     case 'f':
-	CHECK(strlen(code) > 1,"F remap - only single letter code allowed");
-	CHECK((r->modal_group != -1), "F remap - modal group setting ignored - fixed sequencing");
-
-	_setup.remaps["F"] = r;
-	// r->builtin_epilog = &Interp::finish_user_command;
+	CHECK((strlen(code) > 1),"%d: %c remap - only single letter code allowed", lineno, *code);
+	CHECK((r->modal_group != -1), "%d: %c remap - modal group setting ignored - fixed sequencing", lineno, *code);
+	_setup.remaps[code] = r;
 	break;
 
     case 'm':
 	if (sscanf(code + 1, "%d", &mcode) == 1) {
-	    // change_tool, set tool number have default builtin epilogs for ngc files
-	    // which can be overridden by a py epilog
-	    if (r->epilog_func) {
-		// r->op = M_USER_REMAP;
-		// r->builtin_epilog = &Interp::finish_user_command;
-	    } else {
-		switch (mcode) {
-		default:
-		    // r->op = M_USER_REMAP;
-		    // r->builtin_epilog =  &Interp::finish_user_command;
-		    ;
-		}
-	    }
 	    _setup.remaps[code] = r;
 	    _setup.m_remapped[mcode] = r;
 	} else {
@@ -442,8 +385,6 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code, lineno, inistring);
 	    goto fail;
 	}
-	// r->op = G_USER_REMAP;
-	// r->builtin_epilog =  &Interp::finish_user_command;
 	if (!G_MODE_OK(r->modal_group)) {
 	    Error("code '%s' : %s modalgroup=<int> given, def : %d:REMAP = %s",
 		  argv[0],
