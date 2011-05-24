@@ -1,0 +1,11 @@
+o<r_prepare> sub
+(debug, r_prepare call_level= #<_call_level> remap_level=#<_remap_level>)
+(debug, n_args=#<n_args> tool=#<tool> pocket=#<pocket>)
+
+	; show aborting a prepare on tool 2 by returning a negative value
+	o<testabort> if [#<tool> EQ 2]
+		     o<testabort> return [-1]
+	o<testabort> endif
+
+o<r_prepare> endsub [#<pocket>]
+m2

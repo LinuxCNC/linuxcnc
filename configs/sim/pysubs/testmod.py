@@ -163,9 +163,46 @@ def plainsub(args,**words):
 		print "no words passed"
 	return 47.11
 
+# prolog for prepare NGC file
+def p_prepare(userdata,**words):
+	i = InterpMod.interp
+	e = i.eblock
+	toolno = e.t_number
+	p = InterpMod.params
+	(status,pocket) = i.find_tool_pocket(toolno)
+	if status != INTERP_OK:
+		i.push_errormsg("py: pocket not found")
+		return (status,)
+	CanonMod.MESSAGE("p_prepare: call_level="+str(i.call_level)+" remap_level="+str(i.remap_level)+" t_number=" + str(toolno) + " pocket=" + str(pocket))
+
+	p["tool"] = toolno
+	p["pocket"] = pocket
+	print "tool=",	p["tool"],"pocket=", p["pocket"]
+	return (INTERP_OK,)
+
+# epilog for prepare NGC file
+def e_prepare(userdata,**words):
+	i = InterpMod.interp
+	retval = InterpMod.interp.return_value
+
+	CanonMod.MESSAGE("p_prepare: call_level="+str(i.call_level)+" remap_level="+str(i.remap_level) + " retval=" + str(retval))
+
+	if retval > 0:
+		InterpMod.interp.selected_pocket = int(retval)
+		CanonMod.SELECT_POCKET(int(retval))
+	else:
+		CanonMod.INTERP_ABORT(-4711,"e_prepare abort")
+	return (INTERP_OK,)
+
+
+
+def null_remap(userdata,**words):
+	print "--null_remap"
+	return (INTERP_OK,)
 
 #REMAP=T argspec=tq-  python=prepare
 
+# handle prepare completely in Python
 def prepare(userdata,**words):
 	print "executing Python function: %s.%s " % (globals()['__name__'],sys._getframe(0).f_code.co_name)
 	i = InterpMod.interp
@@ -184,7 +221,6 @@ def prepare(userdata,**words):
 	InterpMod.interp.selected_pocket = pocket
 	CanonMod.SELECT_POCKET(pocket)
 	return (INTERP_OK,)
-
 
 def whoami(userdata,**words):
 	print "executing Python function: %s.%s(%d,words)" % (globals()['__name__'],sys._getframe(0).f_code.co_name,userdata)
