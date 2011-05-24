@@ -668,6 +668,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    return status;
 	}
 
+	// a Python remap handler can be executed inline too -
+	// no control_back_to() needed
 	if (is_py_remap_handler) {
 	    r_block->tupleargs = bp::make_tuple(r_block->user_data);
 	    status =  pycall(settings, r_block,
@@ -698,8 +700,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		}
 	    }
 	    if (status == INTERP_OK) {
-		block->call_again = false;
-		settings->call_level--; // compensate bump above
+		if (block->call_again) {
+		    block->call_again = false;
+		    settings->call_level--; // compensate bump above
+		}
 
 		if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
 		    logRemap("O_call: %s - calling builtin epilogue (%s)",
