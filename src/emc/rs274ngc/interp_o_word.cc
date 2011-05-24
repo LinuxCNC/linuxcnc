@@ -477,14 +477,16 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 				  r_block->executing_remap->epilog_func);
 	      }
 
-	      if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-		  logRemap("O_call: calling builtin epilogue\n");
-		  status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
+	      ERP(remap_finished(USER_REMAP));
 
-		  if (status > INTERP_MIN_ERROR) {
-		      logRemap("O_call: builtin epilogue failed: %s \n", interp_status(status));
-		  }
-	      }
+	      // if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
+	      // 	  logRemap("O_call: calling builtin epilogue\n");
+	      // 	  status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
+
+	      // 	  if (status > INTERP_MIN_ERROR) {
+	      // 	      logRemap("O_call: builtin epilogue failed: %s \n", interp_status(status));
+	      // 	  }
+	      // }
 
 	      // a valid previous context was marked by an M73 as auto-restore
 	      if ((leaving_frame->context_status &
@@ -705,18 +707,20 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    settings->call_level--; // compensate bump above
 		}
 
-		if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-		    logRemap("O_call: %s - calling builtin epilogue (%s)",
-			     block->o_name, r_block->executing_remap->name);
+		ERP(remap_finished(USER_REMAP));
 
-		    status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
-		    if (status > INTERP_MIN_ERROR) {
-			logRemap("O_call: %s - builtin epilogue failed: %s (%s)",
-				 block->o_name,
-				 interp_status(status),
-				 r_block->executing_remap->name);
-		    }
-		}
+		// if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
+		//     logRemap("O_call: %s - calling builtin epilogue (%s)",
+		// 	     block->o_name, r_block->executing_remap->name);
+
+		//     status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
+		//     if (status > INTERP_MIN_ERROR) {
+		// 	logRemap("O_call: %s - builtin epilogue failed: %s (%s)",
+		// 		 block->o_name,
+		// 		 interp_status(status),
+		// 		 r_block->executing_remap->name);
+		//     }
+		// }
 		settings->call_level--; // and return to previous level
 		return status;
 	    }
