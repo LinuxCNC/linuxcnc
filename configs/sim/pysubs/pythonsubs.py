@@ -1,4 +1,5 @@
 import sys
+from InterpMod import *
 
 INTERP_OK = 0
 INTERP_EXIT =  1
@@ -6,7 +7,7 @@ INTERP_EXECUTE_FINISH = 2
 INTERP_ENDFILE = 3
 INTERP_FILE_NOT_OPEN = 4
 INTERP_ERROR =  5
-
+TOLERANCE_EQUAL = 0.0001
 
 # [RS274NGC]
 # import Python module(s) from this directory
@@ -35,12 +36,11 @@ INTERP_ERROR =  5
 
 
 def prepare_prolog(userdata,**words):
-	i = InterpMod.interp
 	toolno = words['t']
-	p = InterpMod.params
-	(status,pocket) = i.find_tool_pocket(toolno)
+	p = params
+	(status,pocket) = interp.find_tool_pocket(toolno)
 	if status != INTERP_OK:
-		i.push_errormsg("T%d: pocket not found" % (toolno))
+		interp.push_errormsg("T%d: pocket not found" % (toolno))
 		return (status,)
 
 	# these variables will be visible in the following ngc oword sub
@@ -62,74 +62,60 @@ def prepare_prolog(userdata,**words):
 #
 # o<r_prepare> endsub [#<pocket>]
 # m2
-
 def prepare_epilog(userdata,**words):
-	i = InterpMod.interp
-	retval = InterpMod.interp.return_value
+	retval = interp.return_value
 	if retval > 0:
-		InterpMod.interp.selected_pocket = int(retval)
+		interp.selected_pocket = int(retval)
 		CanonMod.SELECT_POCKET(int(retval))
 	else:
-		CanonMod.INTERP_ABORT(int(retval),"T%d: aborted (return code %.1f)" % (words['t'],retval))
+		CanonMod.INTERP_ABORT(int(retval),"T%d: aborted (return code %.4f)" % (words['t'],retval))
+	return (INTERP_OK,)
+
+# M61 remapped to a python handler
+# Incantation:
+#
+# REMAP=M61  modalgroup=6  argspec=Q-  python=set_tool_number
+#
+# This means:
+#
+# argspec=Q- :
+#     a mandatory Q parameter word is required, others are ignored
+#
+# python=set_tool_number
+#     the following function is executed on M61:
+#
+def set_tool_number(userdata,**words):
+	toolno = words['q']
+	(status,pocket) = interp.find_tool_pocket(toolno)
+	if status != INTERP_OK:
+		return (status,)
+	if toolno > -TOLERANCE_EQUAL:
+		interp.current_pocket = int(toolno)
+		CanonMod.SELECT_POCKET(int(retval))
+		# cause a sync()
+		interp.tool_change_flag = True
+		return (INTERP_OK,)
+	else:
+		interp.push_errormsg("M61 failed: Q=%4f" % (toolno))
+		return (INTERP_ERROR,)
+
+
+# REMAP=M6   modalgroup=6  argspec=-     prolog=change_prolog ngc=change epilog=change_epilog
+# (DEBUG, executing M6 O-word sub, tool-in-spindle=#1 prepared=#2 pocket=#3)
+def change_prolog(userdata,**words):
+	pass
+
+def change_epilog(userdata,**words):
+	retval = interp.return_value
+	if retval > 0:
+		# commit change
+		CanonMod.CHANGE_TOOL(interp.selected_pocket)
+		interp.current_pocket = interp.selected_pocket
+		# cause a sync()
+		interp.tool_change_flag = True
+	else:
+		# abort
+		CanonMod.INTERP_ABORT(int(retval),"M6 aborted (return code %.4f)" % (retval))
 	return (INTERP_OK,)
 
 
-
-# // int Interp::finish_m6_command(setup_pointer settings, block_pointer r_block)
-# // {
-# //     // if M6_COMMAND 'return'ed or 'endsub'ed a #<_value> > 0,
-# //     // commit the tool change
-# //     if (settings->return_value >= TOLERANCE_EQUAL) {
-# // 	CHANGE_TOOL(settings->selected_pocket);
-# // 	settings->current_pocket = settings->selected_pocket;
-# // 	// this will cause execute to return INTERP_EXECUTE_FINISH
-# // 	settings->toolchange_flag = true;
-# //     } else {
-# // 	char msg[LINELEN];
-# // 	snprintf(msg, sizeof(msg), "M6 failed (%f)", settings->return_value);
-# // 	INTERP_ABORT(round_to_int(settings->return_value),msg);
-# // 	return INTERP_EXECUTE_FINISH;
-# //     }
-# //     return remap_finished(r_block->executing_remap->op);
-# // }
-
-# // int Interp::finish_m61_command(setup_pointer settings,  block_pointer r_block)
-# // {
-# //     // if M61_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
-# //     // set that as the new tool' pocket number
-# //     // a negative return value will leave it untouched
-
-# //     if (settings->return_value > - TOLERANCE_EQUAL) {
-# // 	settings->current_pocket = round_to_int(settings->return_value);
-# // 	CHANGE_TOOL_NUMBER(settings->current_pocket);
-# // 	// this will cause execute to return INTERP_EXECUTE_FINISH
-# // 	settings->toolchange_flag = true;
-# //     } else {
-# // 	char msg[LINELEN];
-# // 	snprintf(msg,sizeof(msg),"M61 failed (%f)", settings->return_value);
-# // 	INTERP_ABORT(round_to_int(settings->return_value),msg);
-# // 	return INTERP_EXECUTE_FINISH;
-# //     }
-# //     return remap_finished(r_block->executing_remap->op);
-# // }
-
-
-# // Tx epiplogue - executed past T_COMMAND
-# // int Interp::finish_t_command(setup_pointer settings,   block_pointer r_block)
-# // {
-# //     // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
-# //     // commit the tool prepare to that value.
-
-# //     if (settings->return_value > - TOLERANCE_EQUAL) {
-# // 	settings->selected_pocket = round_to_int(settings->return_value);
-# // 	SELECT_POCKET(settings->selected_pocket);
-# //     } else {
-
-# // 	char msg[LINELEN];
-# // 	snprintf(msg, sizeof(msg), "T<tool> - prepare failed (%f)",
-# // 		 settings->return_value);
-# // 	INTERP_ABORT(round_to_int(settings->return_value),msg);
-# // 	return INTERP_EXECUTE_FINISH;
-# //     }
-# //     return remap_finished(r_block->executing_remap->op);
-# // }
