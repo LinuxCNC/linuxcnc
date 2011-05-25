@@ -2637,7 +2637,6 @@ void *readClient(void *arg)
   connectionRecType *context;
   
   
-//  res = 1;
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
