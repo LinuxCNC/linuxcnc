@@ -476,8 +476,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		  status = pycall(settings,r_block,
 				  r_block->executing_remap->epilog_func);
 	      }
-
-	      ERP(remap_finished(USER_REMAP));
+	      if (r_block->executing_remap)
+		  ERP(remap_finished(USER_REMAP));
 
 	      // if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
 	      // 	  logRemap("O_call: calling builtin epilogue\n");
