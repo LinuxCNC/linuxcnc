@@ -37,7 +37,6 @@ TOLERANCE_EQUAL = 0.0001
 
 def prepare_prolog(userdata,**words):
 	toolno = words['t']
-	p = params
 	(status,pocket) = interp.find_tool_pocket(toolno)
 	if status != INTERP_OK:
 		interp.push_errormsg("T%d: pocket not found" % (toolno))
@@ -45,15 +44,14 @@ def prepare_prolog(userdata,**words):
 
 	# these variables will be visible in the following ngc oword sub
 	# as #<tool> and #<pocket> as local variables
-	p["tool"] = toolno
-	p["pocket"] = pocket
+	params["tool"] = toolno
+	params["pocket"] = pocket
 	return (INTERP_OK,)
 
 # The actual ngc procedure looks like so:
 #
 # o<r_prepare> sub
-# (debug, r_prepare call_level= #<_call_level> remap_level=#<_remap_level>)
-# (debug, n_args=#<n_args> tool=#<tool> pocket=#<pocket>)
+# (debug, r_prepare call_level= #<_call_level> remap_level=#<_remap_level> tool=#<tool> pocket=#<pocket>)
 #
 # 	; show aborting a prepare on tool 2 by returning a negative value
 # 	o<testabort> if [#<tool> EQ 2]
@@ -71,7 +69,50 @@ def prepare_epilog(userdata,**words):
 		CanonMod.INTERP_ABORT(int(retval),"T%d: aborted (return code %.4f)" % (words['t'],retval))
 	return (INTERP_OK,)
 
-# M61 remapped to a python handler
+
+#
+# M6 remapped to a NGC handler, with Python prolog+epilog
+#
+# Incantation:
+# REMAP=M6   modalgroup=6  argspec=-     prolog=change_prolog ngc=change epilog=change_epilog
+#
+def change_prolog(userdata,**words):
+	if interp.selected_pocket < 0:
+		interp.push_errormsg("Need tool prepared -Txx- for toolchange")
+		return (INTERP_ERROR,)
+	if interp.cutter_comp_side:
+		interp.push_errormsg("Cannot change tools with cutter radius compensation on")
+		return (INTERP_ERROR,)
+	params["tool_in_spindle" ] = interp.current_tool
+
+	# bug in interp_convert.cc: WONT WORK - isnt valid anymore
+	## 	    settings->selected_pocket);
+	## 	    settings->tool_table[0].toolno, <--- BROKEN
+	## 	    block->t_number,
+	#params["prepared" ] = 2
+
+	params["pocket" ] = interp.selected_pocket
+	return (INTERP_OK,)
+
+def change_epilog(userdata,**words):
+	retval = interp.return_value
+	if retval > 0:
+		# commit change
+		CanonMod.CHANGE_TOOL(interp.selected_pocket)
+		interp.current_pocket = interp.selected_pocket
+		# cause a sync()
+		interp.tool_change_flag = True
+		interp.set_tool_parameters();
+	else:
+		# abort
+		CanonMod.INTERP_ABORT(int(retval),"M6 aborted (return code %.4f)" % (retval))
+	return (INTERP_OK,)
+
+
+#
+# M61 remapped to an all-Python handler
+# demo - this really does the same thing as the builtin (non-remapped) M61
+#
 # Incantation:
 #
 # REMAP=M61  modalgroup=6  argspec=Q-  python=set_tool_number
@@ -90,36 +131,12 @@ def set_tool_number(userdata,**words):
 	if status != INTERP_OK:
 		return (status,)
 	if words['q'] > -TOLERANCE_EQUAL:
-		interp.current_pocket = toolno
-		CanonMod.SELECT_POCKET(toolno)
+		interp.current_pocket = pocket
+		CanonMod.CHANGE_TOOL_NUMBER(pocket)
 		# cause a sync()
 		interp.tool_change_flag = True
 		return (INTERP_OK,)
 	else:
 		interp.push_errormsg("M61 failed: Q=%4" % (toolno))
 		return (INTERP_ERROR,)
-
-
-# REMAP=M6   modalgroup=6  argspec=-     prolog=change_prolog ngc=change epilog=change_epilog
-# (DEBUG, executing M6 O-word sub, tool-in-spindle=#1 prepared=#2 pocket=#3)
-def change_prolog(userdata,**words):
-
-	p["tool_in_spindle" ] = 1
-	p["prepared" ] = 2
-	p["pocket" ] = 3
-	return (INTERP_OK,)
-
-def change_epilog(userdata,**words):
-	retval = interp.return_value
-	if retval > 0:
-		# commit change
-		CanonMod.CHANGE_TOOL(interp.selected_pocket)
-		interp.current_pocket = interp.selected_pocket
-		# cause a sync()
-		interp.tool_change_flag = True
-	else:
-		# abort
-		CanonMod.INTERP_ABORT(int(retval),"M6 aborted (return code %.4f)" % (retval))
-	return (INTERP_OK,)
-
 
