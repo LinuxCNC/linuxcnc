@@ -333,7 +333,9 @@ int Interp::_execute(const char *command)
   _setup.named_parameter_occurrence = 0;
 
   if (_setup.line_length != 0) {        /* line not blank */
-      int next_remap = next_remapping(&(EXECUTING_BLOCK(_setup)), &_setup);
+      int next_remap = next_remapping(&(EXECUTING_BLOCK(_setup)),
+				      &_setup,
+				      FIRST_STEP);
 
       // at this point we have a parsed block
       // if items are to be remapped the flow is as follows:
@@ -376,9 +378,9 @@ int Interp::_execute(const char *command)
       // 9. When a replacment sub finishes, remap_finished() continues execution of
       //   the current remapped block until done.
       //
-      if (next_remap != NO_REMAP) {
-	  logRemap("found remap %s in '%s', level=%d filename=%s line=%d",
-		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
+      if (next_remap != NO_REMAPPED_STEPS) {
+	  logRemap("found remap %d in '%s', level=%d filename=%s line=%d",
+		  next_remap,_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
 	  CHP(enter_remap());
 	  // execute up to the first remap including read() of its handler
@@ -396,7 +398,7 @@ int Interp::_execute(const char *command)
 	  // case -M61_REMAP:
 	  // case -M_USER_REMAP:
 	  // case -G_USER_REMAP:
-	      logRemap("handler armed: %s",remaps[-status]);
+	      logRemap("FIXME handler armed: %s",remaps[-status]);
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
@@ -518,8 +520,8 @@ int Interp::remap_finished(int finished_remap)
 {
     int next_remap,status;
 
-    logRemap("remap_finished finished=%s remap_level=%d call_level=%d filename=%s",
-	  remaps[finished_remap],_setup.remap_level,_setup.call_level,_setup.filename);
+    logRemap("remap_finished finished=%d remap_level=%d call_level=%d filename=%s",
+	  finished_remap,_setup.remap_level,_setup.call_level,_setup.filename);
 
     switch (finished_remap) {
     case USER_REMAP:
@@ -531,7 +533,9 @@ int Interp::remap_finished(int finished_remap)
 	// the controlling block had a remapped item, which just finished and the
 	// epilogue handler called in here.
 	// check the current block for the next remapped item
-	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)), &_setup);
+	//FIXME start where we just ended
+	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)),
+				    &_setup, FIRST_STEP);
 	if (next_remap) {
 	    logRemap("arming %s  (remap_level=%d call_level=%d)",remaps[next_remap],_setup.remap_level,_setup.call_level);
 
@@ -599,40 +603,42 @@ int Interp::remap_finished(int finished_remap)
 // return remap_op of the first remap in execution sequence.
 
 // test add S,F remaps - interception missing FIXME mah
-int Interp::next_remapping(block_pointer block, setup_pointer settings)
+int Interp::next_remapping(block_pointer block, setup_pointer settings,
+			   int after_step)
 {
     int exec_phase, mode;
 
-    for (exec_phase = FIRST_STEP; exec_phase < MAX_STEPS; exec_phase++) {
+    for (exec_phase = after_step; exec_phase < MAX_STEPS; exec_phase++) {
 	switch (exec_phase) {
 
 	case STEP_SET_FEED_RATE:
 	    if (block->f_flag && todo(STEP_SET_FEED_RATE) &&
 		remapping("F"))
-		return USER_REMAP;
+		return STEP_SET_FEED_RATE;
 	    break;
 
 	case STEP_SET_SPINDLE_SPEED:
 	    if (block->s_flag && todo(STEP_SET_SPINDLE_SPEED) &&
 		remapping("S"))
-		return USER_REMAP;
+		return STEP_SET_SPINDLE_SPEED;
 	    break;
 
 	case STEP_PREPARE: // Select tool (T).
 	    if (block->t_flag && todo(STEP_PREPARE) &&
 		remapping("T"))
-		return USER_REMAP;
+		return STEP_PREPARE;
 	    break;
 
 	case STEP_M_5:
 	    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
-		return USER_REMAP;
+		return STEP_M_5;
 	    break;
 
 	case STEP_M_6:
 	    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
-		return USER_REMAP;
+		return STEP_M_6;
 
+#if 0 // FIXME i think not needed anymore
 	    // Change tool (M6), Set Tool Number (M61)
 	    if ((block->m_modes[6] == 6) && todo(STEP_M_6) &&
 		remapping("M6"))
@@ -641,33 +647,34 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 	    if ((block->m_modes[6] == 61) && todo(STEP_M_6) &&
 		remapping("M61"))
 		return USER_REMAP;
+#endif
 	    break;
 
 	case STEP_M_7: // User defined M-Codes in group 7
 	    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
-		return USER_REMAP;
+		return STEP_M_7;
 	    break;
 
 	case STEP_M_8: // User defined M-Codes in group 8
 	    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
-		return USER_REMAP;
+		return STEP_M_8;
 	    break;
 
 	case STEP_M_9: // User defined M-Codes in group 9
 	    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
-		return USER_REMAP;
+		return STEP_M_9;
 	    break;
 
 	case STEP_M_10: // User defined M-Codes in group 10
 	    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
-		return USER_REMAP;
+		return STEP_M_10;
 	    break;
 
 	case STEP_MOTION: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
 	    mode = block->g_modes[GM_MOTION];
 	    if ((mode != -1) && IS_USER_GCODE(mode) &&
 		todo(STEP_MOTION)) {
-		return USER_REMAP;
+		return STEP_MOTION;
 	    }
 	    break;
 
@@ -675,7 +682,7 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 	    break;
 	}
     }
-    return NO_REMAP;
+    return NO_REMAPPED_STEPS;
 }
 
 /***********************************************************************/

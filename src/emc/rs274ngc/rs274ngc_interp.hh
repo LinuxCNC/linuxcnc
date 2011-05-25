@@ -478,8 +478,8 @@ private:
  // parse a REMAP= descriptor from the ini file
  int parse_remap(const char *inistring, int lineno);
 
- // step through parsed block and find first active remapped item
- int next_remapping(block_pointer block, setup_pointer settings);
+ // step through parsed block and find first active remapped item after a given step
+    int next_remapping(block_pointer block, setup_pointer settings, int after_step);
 
  // establish a new remapping context
  int enter_remap(void);

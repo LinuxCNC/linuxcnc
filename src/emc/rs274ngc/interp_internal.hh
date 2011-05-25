@@ -263,8 +263,9 @@ const char *strstore(const char *s);
 // adding steps!
 
 // used to record execution trail in breadcrumbs
-enum steps  {FIRST_STEP,
-             STEP_COMMENT,
+enum steps  {NO_REMAPPED_STEPS,
+	     FIRST_STEP,
+	     STEP_COMMENT,
 	     STEP_SPINDLE_MODE,
 	     STEP_FEED_MODE,
 	     STEP_SET_FEED_RATE,
