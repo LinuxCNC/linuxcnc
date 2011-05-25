@@ -1,0 +1,10 @@
+
+# sample where motion tells us to go
+
+loadrt sampler depth=5000 cfg=ff
+
+addf sampler.0              servo-thread
+
+net Xpos => sampler.0.pin.0
+net Ypos => sampler.0.pin.1
+
