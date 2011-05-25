@@ -85,25 +85,29 @@ def prepare_epilog(userdata,**words):
 #     the following function is executed on M61:
 #
 def set_tool_number(userdata,**words):
-	toolno = words['q']
+	toolno = int(words['q'])
 	(status,pocket) = interp.find_tool_pocket(toolno)
 	if status != INTERP_OK:
 		return (status,)
-	if toolno > -TOLERANCE_EQUAL:
-		interp.current_pocket = int(toolno)
-		CanonMod.SELECT_POCKET(int(retval))
+	if words['q'] > -TOLERANCE_EQUAL:
+		interp.current_pocket = toolno
+		CanonMod.SELECT_POCKET(toolno)
 		# cause a sync()
 		interp.tool_change_flag = True
 		return (INTERP_OK,)
 	else:
-		interp.push_errormsg("M61 failed: Q=%4f" % (toolno))
+		interp.push_errormsg("M61 failed: Q=%4" % (toolno))
 		return (INTERP_ERROR,)
 
 
 # REMAP=M6   modalgroup=6  argspec=-     prolog=change_prolog ngc=change epilog=change_epilog
 # (DEBUG, executing M6 O-word sub, tool-in-spindle=#1 prepared=#2 pocket=#3)
 def change_prolog(userdata,**words):
-	pass
+
+	p["tool_in_spindle" ] = 1
+	p["prepared" ] = 2
+	p["pocket" ] = 3
+	return (INTERP_OK,)
 
 def change_epilog(userdata,**words):
 	retval = interp.return_value
