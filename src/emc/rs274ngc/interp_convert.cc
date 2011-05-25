@@ -2963,17 +2963,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   if ((block->m_modes[6] != -1)  && once_M(6)){
       if (block->m_modes[6] == 6) {
 
-	  // replicate preconditions form convert_tool_change
-	  if (settings->selected_pocket < 0) {
-	      ERS(NCE_TXX_MISSING_FOR_M6);
-	  }
-	  CHKS((settings->cutter_comp_side),
-	       (_("Cannot change tools with cutter radius compensation on")));
-
 	  if (IS_USER_MCODE(block,settings,6)) {
+	      // NB: no checks - you're on your own
 	      return convert_remapped_code(block,settings,'m',
 					   block->m_modes[6]);
 	  }  else {
+
 	      CHP(convert_tool_change(settings));
 	  }
       }
