@@ -307,6 +307,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def("push_errormsg", &wrapERS)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
+	.def("set_tool_parameters", &Interp::set_tool_parameters)
 
 	// .def("add_named_param", &Interp::add_named_param)
 	// .def("store_named_param", &Interp::store_named_param)
@@ -320,6 +321,8 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
 	.def_readwrite("current_pocket", &current_setup->current_pocket)
+	.def_readwrite("current_tool", &current_setup->tool_table[0].toolno)
+	.def_readwrite("cutter_comp_side", &current_setup->cutter_comp_side)
 	.def_readwrite("debugmask", &current_setup->debugmask)
 	.def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
 	.def_readwrite("input_digital", &current_setup->input_digital)
