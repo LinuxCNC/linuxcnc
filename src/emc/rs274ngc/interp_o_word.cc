@@ -415,117 +415,105 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	// this case is executed only for bona-fide NGC subs
 	// subs whose name is a Py callable are handled inline during O_call
 
-      // if level is not zero, in a call
-      // otherwise in a defn
-      // if we were skipping, no longer
-      if (settings->skipping_o) 	{
-	  logOword("case O_%s -- no longer skipping to:|%s|",
-		   (block->o_type == O_endsub) ? "endsub" : "return",
-		   settings->skipping_o);
-          settings->skipping_o = NULL;
-      }
-      if (settings->call_level != 0) {
-	  //  some shorthands to make this readable
-	  leaving_frame = &settings->sub_context[settings->call_level];
-	  returnto_frame = &settings->sub_context[settings->call_level - 1];
-
-	  // free local variables
-	  free_named_parameters(leaving_frame);
-	  leaving_frame->subName = NULL;
-
-	  // drop one call level.
-	  settings->call_level--;
-
-	  // restore subroutine parameters.
-	  for(i = 0; i < INTERP_SUB_PARAMS; i++) {
-	      settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-		  returnto_frame->saved_params[i];
-	  }
-
-	  // file at this level was marked as closed, so dont reopen.
-	  // if (settings->sub_context[settings->call_level].position == -1) {
-	  if (returnto_frame->position == -1) {
-	      settings->file_pointer = NULL;
-	      strcpy(settings->filename, "");
-	  } else {
-	      logOword("seeking to: %ld", returnto_frame->position);
-	      if(settings->file_pointer == NULL) {
-		  ERS(NCE_FILE_NOT_OPEN);
-	      }
-	      //!!!KL must open the new file, if changed
-	      if (0 != strcmp(settings->filename, returnto_frame->filename))  {
-		  fclose(settings->file_pointer);
-		  settings->file_pointer = fopen(returnto_frame->filename, "r");
-		  strcpy(settings->filename, returnto_frame->filename);
-	      }
-	      fseek(settings->file_pointer, returnto_frame->position, SEEK_SET);
-	      settings->sequence_number = returnto_frame->sequence_number;
-
-	      // cleanups on return
-	      // if we have an epilog function - execute it, passing the
-	      // current call frame
-
-
-	      // aquire the remapped block
-	      r_block = &CONTROLLING_BLOCK(_setup);
-
-	      if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
-		  logRemap("O_call: py epilog %s for NGC remap %s",
-			   r_block->executing_remap->epilog_func,
-			   r_block->executing_remap->remap_ngc);
-		  status = pycall(settings,r_block,
-				  r_block->executing_remap->epilog_func);
-	      }
-	      if (r_block->executing_remap)
-		  ERP(remap_finished(USER_REMAP));
-
-	      // if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-	      // 	  logRemap("O_call: calling builtin epilogue\n");
-	      // 	  status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
-
-	      // 	  if (status > INTERP_MIN_ERROR) {
-	      // 	      logRemap("O_call: builtin epilogue failed: %s \n", interp_status(status));
-	      // 	  }
-	      // }
-
-	      // a valid previous context was marked by an M73 as auto-restore
-	      if ((leaving_frame->context_status &
-		   (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
-		  (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
-
-		  // NB: this means an M71 invalidate context will prevent an
-		  // auto-restore on return/endsub
-		  restore_context(settings, settings->call_level + 1);
-	      }
-	      // always invalidate on leaving a context so we dont accidentially
-	      // 'run into' a valid context when growing the stack upwards again
-	      leaving_frame->context_status &=  ~CONTEXT_VALID;
-
-	  }
-	  settings->sub_name = 0;
-	  if (returnto_frame->subName)  {
-	      settings->sub_name = returnto_frame->subName;
-	  } else {
-	      settings->sub_name = NULL;
-	  }
+	// if level is not zero, in a call
+	// otherwise in a defn
+	// if we were skipping, no longer
+	if (settings->skipping_o) {
+	    logOword("case O_%s -- no longer skipping to:|%s|",
+		     (block->o_type == O_endsub) ? "endsub" : "return",
+		     settings->skipping_o);
+	    settings->skipping_o = NULL;
 	}
-      else
-       {
-	 // a definition
-	 if (block->o_type == O_endsub) {
-	     CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
-	     // no longer skipping or defining
-	     if (settings->skipping_o)
-		 {
-		     logOword("case O_endsub in defn -- no longer skipping to:|%s|",
-			      settings->skipping_o);
-		     settings->skipping_o = NULL;
-		 }
-	     settings->defining_sub = NULL;
-	     settings->sub_name = NULL;
-	 }
-       }
-      break;
+	if (settings->call_level != 0) {
+	    //  some shorthands to make this readable
+	    leaving_frame = &settings->sub_context[settings->call_level];
+	    returnto_frame = &settings->sub_context[settings->call_level - 1];
+
+	    // free local variables
+	    free_named_parameters(leaving_frame);
+	    leaving_frame->subName = NULL;
+
+	    // drop one call level.
+	    settings->call_level--;
+
+	    // restore subroutine parameters.
+	    for(i = 0; i < INTERP_SUB_PARAMS; i++) {
+		settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		    returnto_frame->saved_params[i];
+	    }
+
+	    // file at this level was marked as closed, so dont reopen.
+	    // if (settings->sub_context[settings->call_level].position == -1) {
+	    if (returnto_frame->position == -1) {
+		settings->file_pointer = NULL;
+		strcpy(settings->filename, "");
+	    } else {
+		logOword("seeking to: %ld", returnto_frame->position);
+		if(settings->file_pointer == NULL) {
+		    ERS(NCE_FILE_NOT_OPEN);
+		}
+		//!!!KL must open the new file, if changed
+		if (0 != strcmp(settings->filename, returnto_frame->filename))  {
+		    fclose(settings->file_pointer);
+		    settings->file_pointer = fopen(returnto_frame->filename, "r");
+		    strcpy(settings->filename, returnto_frame->filename);
+		}
+		fseek(settings->file_pointer, returnto_frame->position, SEEK_SET);
+		settings->sequence_number = returnto_frame->sequence_number;
+
+		// cleanups on return
+		// if we have an epilog function - execute it, passing the
+		// current call frame
+
+
+		// aquire the remapped block
+		r_block = &CONTROLLING_BLOCK(_setup);
+
+		if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
+		    logRemap("O_call: py epilog %s for NGC remap %s",
+			     r_block->executing_remap->epilog_func,
+			     r_block->executing_remap->remap_ngc);
+		    status = pycall(settings,r_block,
+				    r_block->executing_remap->epilog_func);
+		}
+		if (r_block->executing_remap)
+		    ERP(remap_finished(USER_REMAP));
+
+		// a valid previous context was marked by an M73 as auto-restore
+		if ((leaving_frame->context_status &
+		     (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+		    (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
+
+		    // NB: this means an M71 invalidate context will prevent an
+		    // auto-restore on return/endsub
+		    restore_context(settings, settings->call_level + 1);
+		}
+		// always invalidate on leaving a context so we dont accidentially
+		// 'run into' a valid context when growing the stack upwards again
+		leaving_frame->context_status &=  ~CONTEXT_VALID;
+	    }
+
+	    settings->sub_name = 0;
+	    if (returnto_frame->subName)  {
+		settings->sub_name = returnto_frame->subName;
+	    } else {
+		settings->sub_name = NULL;
+	    }
+	} else {
+	    // a definition
+	    if (block->o_type == O_endsub) {
+		CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
+		// no longer skipping or defining
+		if (settings->skipping_o)  {
+		    logOword("case O_endsub in defn -- no longer skipping to:|%s|",
+			     settings->skipping_o);
+		    settings->skipping_o = NULL;
+		}
+		settings->defining_sub = NULL;
+		settings->sub_name = NULL;
+	    }
+	}
+	break;
 
     case O_call:
 	current_frame = &settings->sub_context[settings->call_level];
@@ -565,7 +553,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
 	}
 	if (is_py_osub) {
-
 	    logDebug("O_call: vanilla osub pycall(%s), preparing positional args", block->o_name);
 	    py_exception = false;
 	    try {
@@ -620,18 +607,15 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	settings->call_level++;
 
-    // 	// if remap + NGC
-    // // build kwargs for  any Python pro/epilogs if an argspec
-    // // was given - add_parameters will decorate remap_kwargs as per argspec
-    // block->kwargs = boost::python::dict();
-    // if (rptr->argspec) {
-    // 	CHKS(add_parameters(settings, block),
-    // 	     "%s: add_parameters(argspec=%s) for remap body %s failed ",
-    // 	     rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
-    // }
-
-
-
+	// 	// if remap + NGC
+	// // build kwargs for  any Python pro/epilogs if an argspec
+	// // was given - add_parameters will decorate remap_kwargs as per argspec
+	// block->kwargs = boost::python::dict();
+	// if (rptr->argspec) {
+	// 	CHKS(add_parameters(settings, block),
+	// 	     "%s: add_parameters(argspec=%s) for remap body %s failed ",
+	// 	     rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+	// }
 
 	// let any  Oword sub know the number of parameters
 	if (!is_py_osub) {
@@ -706,21 +690,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    block->call_again = false;
 		    settings->call_level--; // compensate bump above
 		}
-
 		ERP(remap_finished(USER_REMAP));
-
-		// if (HAS_BUILTIN_EPILOG(r_block->executing_remap)) {
-		//     logRemap("O_call: %s - calling builtin epilogue (%s)",
-		// 	     block->o_name, r_block->executing_remap->name);
-
-		//     status = (*this.*r_block->executing_remap->builtin_epilog)(settings, r_block);
-		//     if (status > INTERP_MIN_ERROR) {
-		// 	logRemap("O_call: %s - builtin epilogue failed: %s (%s)",
-		// 		 block->o_name,
-		// 		 interp_status(status),
-		// 		 r_block->executing_remap->name);
-		//     }
-		// }
 		settings->call_level--; // and return to previous level
 		return status;
 	    }
