@@ -690,8 +690,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    block->call_again = false;
 		    settings->call_level--; // compensate bump above
 		}
-		ERP(remap_finished(USER_REMAP));
 		settings->call_level--; // and return to previous level
+		ERP(remap_finished(USER_REMAP));
 		return status;
 	    }
 	}
