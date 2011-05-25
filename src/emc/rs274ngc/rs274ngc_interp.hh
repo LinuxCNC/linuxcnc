@@ -509,9 +509,9 @@ private:
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
     // range for user-remapped M-codes
-    // M6,M61 are handled separately
+    // and M6,M61
 #define M_REMAPPABLE(m)				\
-    ((((m > 73) && (m < 100)) ||		\
+    (( (m == 6) || (m == 61) || ((m > 73) && (m < 100)) ||	\
       ((m > 199) && (m < 1000))))
 
     // range for user-remapped G-codes
