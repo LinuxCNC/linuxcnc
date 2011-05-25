@@ -3,7 +3,7 @@ o<change> sub
 (debug, change tool_in_spindle=#<tool_in_spindle> pocket=#<pocket>)
 
 ; demonstrate aborting a change on pocket  3 by returning a negative value
-	o<testabort> if [#<tool> EQ 3]
+	o<testabort> if [#<pocket> EQ 3]
 		     o<testabort> return [-1]
 	o<testabort> endif
 
