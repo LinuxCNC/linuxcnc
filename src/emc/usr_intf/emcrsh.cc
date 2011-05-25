@@ -2636,6 +2636,7 @@ void *readClient(void *arg)
   int len;
   connectionRecType *context;
   
+  signal(SIGPIPE, SIG_IGN);
   
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
