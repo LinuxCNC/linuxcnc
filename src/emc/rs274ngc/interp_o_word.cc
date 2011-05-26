@@ -993,11 +993,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
     default:
       // FIXME !!!KL should probably be an error
-	status = INTERP_ERROR; // mah
+	return INTERP_ERROR; // mah
       break;
     }
-  return status;
-  //    return INTERP_OK;
+  // return status;
+  return INTERP_OK;
 }
 //========================================================================
 // End of functions for control stuff (O-words)
