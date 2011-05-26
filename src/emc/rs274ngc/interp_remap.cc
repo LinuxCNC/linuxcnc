@@ -48,6 +48,14 @@ int Interp::convert_remapped_code(block_pointer block,
 {
     remap_pointer rptr;
     char key[2];
+    int status;
+    block_pointer cblock;
+    bp::list plist;
+    va_list ap;
+    int j;
+    double val;
+    char cmd[LINELEN];
+    char actual[20];
 
     logRemap("convert_remapped_code '%c%d'", letter, number);
     switch (toupper(letter)) {
@@ -63,29 +71,10 @@ int Interp::convert_remapped_code(block_pointer block,
 	rptr = remapping((const char *)key);
     }
     CHKS((rptr == NULL), "BUG: convert_remapped_code: no remapping");
-    CHP(execute_handler(settings, rptr, 0)); // no posargs
-    return(- USER_REMAP);
-}
 
-// prepare execution of a remapped code
-// - construct oword call line with params
-// - construct tupleargs, kwargs
-// - pass control to interpreter by read()
-int Interp::execute_handler(setup_pointer settings,
-			    remap_pointer rptr,
-			    int count, // number of double args
-			    ...) // double's
-{
-    int status;
-    block_pointer block;
-    bp::list plist;
-    va_list ap;
-    int j;
-    double val;
-    char cmd[LINELEN];
-    char actual[20];
+    //    CHP(execute_handler(settings, rptr, 0)); // no posargs
 
-    CHKS(rptr == NULL,"BUG: execute_handler: rptr == NULL");
+  CHKS(rptr == NULL,"BUG: execute_handler: rptr == NULL");
 
 
     settings->sequence_number = 1; // FIXME not sure..
@@ -116,34 +105,34 @@ int Interp::execute_handler(setup_pointer settings,
 
     snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(rptr));
 
-    va_start(ap, count);
-    for(j = 0; j < count; j++) {
-	val = va_arg(ap, double);
-	snprintf(actual, sizeof(actual),"[%lf] ", val);
-	// strncat(cmd, actual, sizeof(cmd));
-	strcat(cmd, actual);  // fire & forget
-	plist.append(val);
-    }
-    va_end(ap);
+    // va_start(ap, count);
+    // for(j = 0; j < count; j++) {
+    // 	val = va_arg(ap, double);
+    // 	snprintf(actual, sizeof(actual),"[%lf] ", val);
+    // 	// strncat(cmd, actual, sizeof(cmd));
+    // 	strcat(cmd, actual);  // fire & forget
+    // 	plist.append(val);
+    // }
+    // va_end(ap);
 
     // the controlling block holds all dynamic remap information.
-    block = &CONTROLLING_BLOCK(*settings);
-    block->remap_command = strstore(cmd); // informational only
-    block->executing_remap = rptr; // the static descriptor
-    block->py_returned_userdata = 0;
+    cblock = &CONTROLLING_BLOCK(*settings);
+    cblock->remap_command = strstore(cmd); // informational only
+    cblock->executing_remap = rptr; // the static descriptor
+    cblock->py_returned_userdata = 0;
     // FIXME
     // build positional args for any Python pro/epilogs here
-    block->tupleargs = bp::make_tuple(plist);
+    cblock->tupleargs = bp::make_tuple(plist);
 
     // build kwargs for  any Python pro/epilogs if an argspec
     // was given - add_parameters will decorate remap_kwargs as per argspec
-    block->kwargs = boost::python::dict();
+    cblock->kwargs = boost::python::dict();
     if (rptr->argspec) {
 	// WART ALERT
 	// we're inserting locals into a callframe which isnt used yet..
 	settings->call_level++;
-	CHP(add_parameters(settings, block));
-	// CHKS(add_parameters(settings, block),
+	CHP(add_parameters(settings, cblock));
+	// CHKS(add_parameters(settings, cblock),
 	//      "%s: add_parameters(argspec=%s) for remap body %s failed ",
 	//      rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
 	settings->call_level--;
@@ -158,8 +147,103 @@ int Interp::execute_handler(setup_pointer settings,
     // good to go, pass to o-word call handling mechanism
     // NB: we're NOT triggering MDI handling in execute()
     status = read(cmd);
-    return status;
+    CHKS(status != INTERP_OK, "convert_remapped_code: inital read returned %s",interp_status(status));
+    return(- USER_REMAP);
 }
+
+// // prepare execution of a remapped code
+// // - construct oword call line with params
+// // - construct tupleargs, kwargs
+// // - pass control to interpreter by read()
+// int Interp::execute_handler(setup_pointer settings,
+// 			    remap_pointer rptr,
+// 			    int count, // number of double args
+// 			    ...) // double's
+// {
+//     int status;
+//     block_pointer cblock;
+//     bp::list plist;
+//     va_list ap;
+//     int j;
+//     double val;
+//     char cmd[LINELEN];
+//     char actual[20];
+
+//     CHKS(rptr == NULL,"BUG: execute_handler: rptr == NULL");
+
+
+//     settings->sequence_number = 1; // FIXME not sure..
+
+//     // some remapped handlers may need c/c++ or Python code to
+//     // setup environment before, and finish work after doing theirs.
+//     // That's what prolog and epilog functions are for.
+//     // Statically these are described in the remap descriptor (read from ini).
+
+//     // Since a remap is always executed in the context of a block,
+//     // block now contains fields which hold dynamic remap information.
+//     // information. Some of these fields are initialized here -
+//     // conceptually the block stack is also a 'remap frame stack'.
+
+//     // the O_call code will pick up the static descriptor and
+//     // dynamic information through the block and call any prolog
+//     // function before passing control to the actual handler procedure.
+
+//     // On the corresponding O_endsub/O_return, any epilog function
+//     // will be executed, doing any work not doable in an NGC file.
+//     // the remap_* fields are  essentially hidden parameters to the call
+//     // (we do not want to expose boost.python objects in method paramters -
+//     // this impacts too much code)
+
+//     // Note that even Python-remapped execution is pulled through the
+//     // oword mechanism - so no duplication of handler calling code
+//     // is needed.
+
+//     snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(rptr));
+
+//     va_start(ap, count);
+//     for(j = 0; j < count; j++) {
+// 	val = va_arg(ap, double);
+// 	snprintf(actual, sizeof(actual),"[%lf] ", val);
+// 	// strncat(cmd, actual, sizeof(cmd));
+// 	strcat(cmd, actual);  // fire & forget
+// 	plist.append(val);
+//     }
+//     va_end(ap);
+
+//     // the controlling block holds all dynamic remap information.
+//     cblock = &CONTROLLING_BLOCK(*settings);
+//     cblock->remap_command = strstore(cmd); // informational only
+//     cblock->executing_remap = rptr; // the static descriptor
+//     cblock->py_returned_userdata = 0;
+//     // FIXME
+//     // build positional args for any Python pro/epilogs here
+//     cblock->tupleargs = bp::make_tuple(plist);
+
+//     // build kwargs for  any Python pro/epilogs if an argspec
+//     // was given - add_parameters will decorate remap_kwargs as per argspec
+//     cblock->kwargs = boost::python::dict();
+//     if (rptr->argspec) {
+// 	// WART ALERT
+// 	// we're inserting locals into a callframe which isnt used yet..
+// 	settings->call_level++;
+//     	CHP(add_parameters(settings, cblock));
+//     	// CHKS(add_parameters(settings, cblock),
+//     	//      "%s: add_parameters(argspec=%s) for remap body %s failed ",
+//     	//      rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+// 	settings->call_level--;
+//     }
+
+//     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
+// 	(_setup.loggingLevel > 2)) {
+// 	logRemap("execute_handler(%s)", cmd);
+// 	print_remap(rptr->name);
+//     }
+
+//     // good to go, pass to o-word call handling mechanism
+//     // NB: we're NOT triggering MDI handling in execute()
+//     status = read(cmd);
+//     return status;
+// }
 
 // this looks up a remapping by unnormalized code (like G88.1)
 remap_pointer Interp::remapping(const char *code)

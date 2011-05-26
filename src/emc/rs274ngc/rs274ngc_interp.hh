@@ -469,10 +469,10 @@ private:
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
- int execute_handler(setup_pointer settings,  /* pointer to machine settings */
-		     remap_pointer rptr,
-		     int count, // number of double args
-		     ...); // double's     const char *cmd,
+ // int execute_handler(setup_pointer settings,  /* pointer to machine settings */
+ // 		     remap_pointer rptr,
+ // 		     int count, // number of double args
+ // 		     ...); // double's     const char *cmd,
 
 
  // parse a REMAP= descriptor from the ini file
