@@ -1,14 +1,6 @@
 import sys
 from InterpMod import *
 
-INTERP_OK = 0
-INTERP_EXIT =  1
-INTERP_EXECUTE_FINISH = 2
-INTERP_ENDFILE = 3
-INTERP_FILE_NOT_OPEN = 4
-INTERP_ERROR =  5
-TOLERANCE_EQUAL = 0.0001
-
 # [RS274NGC]
 # import Python module(s) from this directory
 # PYDIR=pysubs
@@ -39,7 +31,7 @@ def prepare_prolog(userdata,**words):
 	toolno = words['t']
 	(status,pocket) = interp.find_tool_pocket(toolno)
 	if status != INTERP_OK:
-		interp.push_errormsg("T%d: pocket not found" % (toolno))
+		interp.set_errormsg("T%d: pocket not found" % (toolno))
 		return (status,)
 
 	# these variables will be visible in the following ngc oword sub
@@ -78,10 +70,10 @@ def prepare_epilog(userdata,**words):
 #
 def change_prolog(userdata,**words):
 	if interp.selected_pocket < 0:
-		interp.push_errormsg("Need tool prepared -Txx- for toolchange")
+		interp.set_errormsg("Need tool prepared -Txx- for toolchange")
 		return (INTERP_ERROR,)
 	if interp.cutter_comp_side:
-		interp.push_errormsg("Cannot change tools with cutter radius compensation on")
+		interp.set_errormsg("Cannot change tools with cutter radius compensation on")
 		return (INTERP_ERROR,)
 	params["tool_in_spindle" ] = interp.current_tool
 
@@ -129,6 +121,7 @@ def set_tool_number(userdata,**words):
 	toolno = int(words['q'])
 	(status,pocket) = interp.find_tool_pocket(toolno)
 	if status != INTERP_OK:
+		interp.set_errormsg("M61 failed: requested tool %d not in table" % (toolno))
 		return (status,)
 	if words['q'] > -TOLERANCE_EQUAL:
 		interp.current_pocket = pocket
@@ -137,6 +130,6 @@ def set_tool_number(userdata,**words):
 		interp.tool_change_flag = True
 		return (INTERP_OK,)
 	else:
-		interp.push_errormsg("M61 failed: Q=%4" % (toolno))
+		interp.set_errormsg("M61 failed: Q=%4" % (toolno))
 		return (INTERP_ERROR,)
 

@@ -203,6 +203,14 @@ BOOST_PYTHON_MODULE(InterpMod) {
         "Interpreter introspection\n"
         ;
 
+    scope().attr("INTERP_OK") = INTERP_OK;
+    scope().attr("INTERP_EXIT") = INTERP_EXIT;
+    scope().attr("INTERP_EXECUTE_FINISH") = INTERP_EXECUTE_FINISH;
+    scope().attr("INTERP_ENDFILE") = INTERP_ENDFILE;
+    scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
+    scope().attr("INTERP_ERROR") = INTERP_ERROR;
+    scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
+
 
     // def("remapping", (wrap_remap *)&wrap_remapping);
 
@@ -301,10 +309,12 @@ BOOST_PYTHON_MODULE(InterpMod) {
     class_< Interp, interp_ptr,
         noncopyable >("Interp",no_init)
 
+
+
 	.def("sequence_number", &Interp::sequence_number)
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("synch", &Interp::synch)
-	.def("push_errormsg", &wrapERS)
+	.def("set_errormsg", &wrapERS)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
