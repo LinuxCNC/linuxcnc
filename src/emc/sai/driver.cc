@@ -616,7 +616,9 @@ usage:
     }
   if (inifile!= 0) {
       setenv("INI_FILE_NAME",inifile,1);
-  }
+  } else
+      unsetenv("INI_FILE_NAME");
+
   if ((status = interp_init()) != INTERP_OK)
     {
       report_error(status, print_stack);
