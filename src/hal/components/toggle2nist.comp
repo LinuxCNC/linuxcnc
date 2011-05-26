@@ -1,4 +1,15 @@
 component toggle2nist "toggle button to nist logic";
+
+description
+"""
+toggle2nist can be used with a momentary push button connected to a
+toggle component to control a device that has seperate on and off inputs
+and has an is-on output. 
+If in changes states via the toggle output
+  If is-on is true then on is false and off is true. 
+  If is-on is false the on true and off is false.
+""";
+
 pin in  bit in;
 pin in  bit is_on;
 pin out bit on;
