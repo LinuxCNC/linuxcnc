@@ -304,7 +304,6 @@ typedef remap *remap_pointer;
 
 typedef struct remap_struct {
     const char *name;
-    //    int op;
     const char *argspec;
     int modal_group;
     // the following functions are in execution order:
@@ -713,9 +712,10 @@ typedef struct setup_struct
     std::map<int, remap_pointer>  g_remapped,m_remapped;
     std::map<const char *,remap_pointer,nocase_cmp>  remaps;
 
-  const char *pymodule, *pydir;
-  int pymodule_stat;
-  bool py_reload_on_error;
+    const char *py_module;
+  int py_module_stat;
+  time_t    module_mtime;   /* time of last modification */
+  int py_reload_on_change;
   boost::python::object module, module_namespace;
 
 }

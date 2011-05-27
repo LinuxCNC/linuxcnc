@@ -533,13 +533,13 @@ private:
     // 			       int mode);
  // const char *remap_name(setup_pointer settings,int type, int code);
 
- int init_python(setup_pointer settings);
+    int init_python(setup_pointer settings, bool reload = false);
  bool is_pycallable(setup_pointer settings, const char *funcname);
  int pycall(setup_pointer settings,
 	    block_pointer block,
 	    const char *funcname);
     int py_execute(const char *cmd); // for (py, ....) comments
-
+    int py_reload_on_change(setup_pointer settings);
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 

@@ -111,7 +111,7 @@ int trace;
 Interp::Interp() 
     : log_file(0)
 {
-    _setup.pymodule_stat = PYMOD_NONE;
+    _setup.py_module_stat = PYMOD_NONE;
     init_named_parameters();  // need this before Python init
     if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
@@ -908,24 +908,19 @@ int Interp::init()
           }
 
 	  // not used yet
-	  if (NULL != (inistring = inifile.Find("PY_RELOAD_AFTER_ERROR", "RS274NGC")))
-	      _setup.py_reload_on_error = (atoi(inistring) > 0);
+	  if (NULL != (inistring = inifile.Find("PY_RELOAD_ON_CHANGE", "RS274NGC")))
+	      _setup.py_reload_on_change = (atoi(inistring) > 0);
 	  else
-	      _setup.py_reload_on_error = false;
+	      _setup.py_reload_on_change = false;
 
-	  if (NULL != (inistring = inifile.Find("PYDIR", "RS274NGC")))
-	      _setup.pydir = strdup(inistring);
-	  else
-	      _setup.pydir = NULL;
-
-          if (NULL != (inistring = inifile.Find("PYIMPORT", "RS274NGC"))) {
-	      _setup.pymodule = strdup(inistring);
+          if (NULL != (inistring = inifile.Find("PYMODULE", "RS274NGC"))) {
+	      _setup.py_module = strdup(inistring);
 	      int status;
 	      if ((status = init_python(&(_setup))) != INTERP_OK) {
-		  logDebug("PYIMPORT: import of module %s failed",_setup.pymodule);
+		  logDebug("PYIMPORT: import of module %s failed",_setup.py_module);
 	      }
           } else {
-	      _setup.pymodule = NULL;
+	      _setup.py_module = NULL;
           }
 
 	  int n = 1;
