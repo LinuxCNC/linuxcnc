@@ -216,6 +216,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     int g1 = 0, g2 = 0;
     int mcode = -1;
     int gcode = -1;
+    char *s;
 
     if ((r = (remap_pointer) malloc(sizeof(remap))) == NULL) {
 	Error("cant malloc remap_struct");
@@ -224,11 +225,15 @@ int Interp::parse_remap(const char *inistring, int lineno)
     memset((void *)r, 0, sizeof(remap));
     r->modal_group = -1; // mark as unset, required param for m/g
     strcpy(iniline, inistring);
-    char* token = strtok((char *) iniline, " \t");
+    // strip trailing comments
+    if ((s = strchr(iniline, '#')) != NULL) {
+	*s = '\0';
+    }
+    s = strtok((char *) iniline, " \t");
 
-    while( token != NULL && argc < MAX_REMAPOPTS - 1) {
-	argv[argc++] = token;
-	token = strtok( NULL, " \t" );
+    while( s != NULL && argc < MAX_REMAPOPTS - 1) {
+	argv[argc++] = s;
+	s = strtok( NULL, " \t" );
     }
     if (argc == MAX_REMAPOPTS) {
 	Error("parse_remap: too many arguments (max %d)", MAX_REMAPOPTS);
