@@ -1,7 +1,4 @@
-// FIXME mah - exception handling still a mess.
-
-
-// Support for Python oword subroutines
+// Support for Python plugin
 //
 // proof-of-concept for access to Interp and canon
 //
@@ -19,11 +16,6 @@
 //
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
-
-// TODO:
-// method to re-import the py module (easier to debug without restarting Axis)
-// block access
-
 
 #include <boost/python.hpp>
 #include <boost/make_shared.hpp>
@@ -52,6 +44,8 @@ namespace bp = boost::python;
 
 
 static bool useGIL;     // not sure if this is needed
+
+extern "C" void initCanonMod();
 
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
@@ -85,11 +79,10 @@ typedef boost::shared_ptr< Interp > interp_ptr;
 
 typedef boost::shared_ptr< block > block_ptr;
 
-
-
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
+// access to named and numbered parameters via a pseudo-dictionary
 struct ParamClass
 {
     double getitem(bp::object sub)
@@ -139,8 +132,6 @@ struct wrap_block : public block
     char const *get_comment() const { return comment; }
     char const *get_o_name() const { return o_name; }
 
-    //const bp::object get_tuple() const {return bp::make_tuple(123, 'D', "Hello, World", 0.0);}
-
     //http://mail.python.org/pipermail/cplusplus-sig/2007-January/011602.html
     const bp::list get_g_modes() {
 	bp::list g_modes_list;
@@ -169,14 +160,7 @@ struct wrap_remap : public remap {
 struct wrap_context : public context {
 };
 
-static void wrap_canon_error(const char *s)
-{
-    if ((s == NULL) && !strlen(s))
-	return;
-    CANON_ERROR(s);
-}
-
-static void wrapERS(Interp &x, const char *s)
+static void wrap_setError(Interp &x, const char *s)
 {
     if ((s == NULL) && !strlen(s))
 	s = "###";
@@ -197,6 +181,31 @@ static bp::object wrap_find_tool_pocket(Interp &x, int toolno)
     return bp::make_tuple(status, pocket);
 }
 
+// http://developer.valvesoftware.com/wiki/HLGameRules
+// #include <boost/python.hpp>
+// namespace bp = boost::python;
+
+// CTeam* pyGetTeam(int index)
+// {
+// 	return GetGlobalTeam(index);
+// }
+
+// BOOST_PYTHON_MODULE(HLGameRules)
+// {
+// 	bp::def("GetTeam", pyGetTeam, bp::return_value_policy<bp::reference_existing_object>());
+
+// 	bp::class_<CTeam, boost::noncopyable>("CTeam", bp::no_init)
+// 		.def("GetRoundsWon", &CTeam::GetRoundsWon)
+// 		.def("SetRoundsWon", &CTeam::SetRoundsWon)
+// 		.def("IncrementRoundsWon", &CTeam::IncrementRoundsWon)
+// 		.def("ResetScores", &CTeam::ResetScores)
+// 		.def("GetScore", &CTeam::GetScore)
+// 		.def("SetScore", &CTeam::SetScore)
+// 		.def("AddScore", &CTeam::AddScore)
+// 		.def("GetNumPlayers", &CTeam::GetNumPlayers)
+// 		.def("GetName", &CTeam::GetName)
+// 		.def("GetTeamNumber", &CTeam::GetTeamNumber);
+// }
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
     using namespace boost;
@@ -214,29 +223,29 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
 
-    // def("remapping", (wrap_remap *)&wrap_remapping);
 
     // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
     //class_<block,boost::noncopyable,bases<block>>("block", no_init);
 
+    // this be better an array!
     class_ <wrap_context,noncopyable>("wrap_context",no_init)
-	.def_readwrite("position", &wrap_context::position)
-	.def_readwrite("sequence_number", &wrap_context::sequence_number)
-	.def_readwrite("filename",  &wrap_context::filename)
-	.def_readwrite("subname",  &wrap_context::subName)
+	.def_readwrite("position",&current_setup->sub_context[current_setup->call_level].position)
+	.def_readwrite("sequence_number",&current_setup->sub_context[current_setup->call_level].sequence_number)
+	.def_readwrite("filename",  &current_setup->sub_context[current_setup->call_level].filename)
+	.def_readwrite("subname",  &current_setup->sub_context[current_setup->call_level].subName)
 	// need wrapper for saved_params
-	//.def_readwrite("kwargs", &wrap_context::kwargs)
-    ;
+	.def_readwrite("context_status", &current_setup->sub_context[current_setup->call_level].context_status)
+	;
 
     class_ <wrap_remap,noncopyable>("wrap_remap",no_init)
 	.def_readwrite("name",&wrap_remap::name)
-	//	.def_readwrite("op",&wrap_remap::op)
+	.def_readwrite("argspec",&wrap_remap::argspec)
 	.def_readwrite("modal_group",&wrap_remap::modal_group)
 	.def_readwrite("prolog_func",&wrap_remap::prolog_func)
 	.def_readwrite("remap_py",&wrap_remap::remap_py)
 	.def_readwrite("remap_ngc",&wrap_remap::remap_ngc)
 	.def_readwrite("epilog_func",&wrap_remap::epilog_func)
-    ;
+	;
 
     class_ <wrap_block,noncopyable>("wrap_block",no_init)
 	.def_readwrite("f_flag",&wrap_block::f_flag)
@@ -299,6 +308,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	//http://mail.python.org/pipermail/cplusplus-sig/2005-July/008840.html
 	.def_readwrite("offset",&wrap_block::offset)
 	.def_readwrite("o_type",&wrap_block::o_type)
+	.def_readwrite("executing_remap",&wrap_block::executing_remap)
 
 	// currently read-only
 	.add_property("comment", &wrap_block::get_comment)
@@ -306,32 +316,35 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.add_property("g_modes", &wrap_block::get_g_modes)
 	.add_property("m_modes", &wrap_block::get_m_modes)
 	.add_property("params", &wrap_block::get_params)
+
 	;
 
     class_< Interp, interp_ptr,
         noncopyable >("Interp",no_init)
 
-
-
-	.def("sequence_number", &Interp::sequence_number)
-	.def("load_tool_table", &Interp::load_tool_table)
-	.def("synch", &Interp::synch)
-	.def("set_errormsg", &wrapERS)
-
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
+	.def("load_tool_table", &Interp::load_tool_table)
+	.def("set_errormsg", &wrap_setError)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
+	.def("sequence_number", &Interp::sequence_number)
+	.def("synch", &Interp::synch)
 
 	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
 	.def_readwrite("call_level", &current_setup->call_level)
 	.def_readwrite("callframe",
 		       (wrap_context *)&current_setup->sub_context[current_setup->call_level])
 
+
+
 	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
+
+	//,     return_value_policy<bp::reference_existing_object>())
 	.def_readwrite("current_pocket", &current_setup->current_pocket)
 	.def_readwrite("current_tool", &current_setup->tool_table[0].toolno)
 	.def_readwrite("cutter_comp_side", &current_setup->cutter_comp_side)
 	.def_readwrite("debugmask", &current_setup->debugmask)
 	.def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+	//,	       return_value_policy<bp::reference_existing_object>())
 	.def_readwrite("input_digital", &current_setup->input_digital)
 	.def_readwrite("input_flag", &current_setup->input_flag)
 	.def_readwrite("input_index", &current_setup->input_index)
@@ -343,186 +356,22 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("selected_pocket", &current_setup->selected_pocket)
 	.def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
 	.def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
-
-	// still broken
-	//.def_readwrite("remap", (wrap_remap *)&current_setup->blocks[0].current_remap)
-
-
+	// .def_readwrite("remap", (wrap_remap *)&current_setup->blocks[current_setup->remap_level].executing_remap)
 	;
 
     class_<ParamClass,noncopyable>("ParamClass","Interpreter parameters",no_init)
 	.def("__getitem__", &ParamClass::getitem)
 	.def("__setitem__", &ParamClass::setitem);
     ;
+
+    // enum_< theora_colorspace >("theora_colorspace")
+    //     .value("OC_CS_UNSPECIFIED", OC_CS_UNSPECIFIED)
+    //     .value("OC_CS_ITU_REC_470M", OC_CS_ITU_REC_470M)
+    //     .value("OC_CS_ITU_REC_470BG", OC_CS_ITU_REC_470BG)
+    // ;
+
 }
 
-BOOST_PYTHON_MODULE(CanonMod) {
-    using namespace boost::python;
-
-    // first stab - result of an awk-based mass conversion.
-    // just keeping those without compile errors (no missing type converters)
-    def("ARC_FEED",&ARC_FEED);
-    //def("CANON_AXIS;",&CANON_AXIS);
-    //def("CANON_CONTINUOUS.",&CANON_CONTINUOUS);
-    //def("CANON_DIRECTION;",&CANON_DIRECTION);
-    def("CANON_ERROR",&wrap_canon_error);
-    //def("CANON_FEED_REFERENCE;",&CANON_FEED_REFERENCE);
-    //def("CANON_MOTION_MODE;",&CANON_MOTION_MODE);
-    //def("CANON_PLANE;",&CANON_PLANE);
-    //def("CANON_SIDE;",&CANON_SIDE);
-    //def("CANON_SPEED_FEED_MODE;",&CANON_SPEED_FEED_MODE);
-    //def("CANON_UNITS;",&CANON_UNITS);
-    // def("CANON_UPDATE_END_POINT",&CANON_UPDATE_END_POINT);
-    def("CHANGE_TOOL",&CHANGE_TOOL);
-    def("CHANGE_TOOL_NUMBER",&CHANGE_TOOL_NUMBER);
-    def("CLAMP_AXIS",&CLAMP_AXIS);
-    def("CLEAR_AUX_OUTPUT_BIT",&CLEAR_AUX_OUTPUT_BIT);
-    def("CLEAR_MOTION_OUTPUT_BIT",&CLEAR_MOTION_OUTPUT_BIT);
-    def("COMMENT",&COMMENT);
-    def("DISABLE_ADAPTIVE_FEED",&DISABLE_ADAPTIVE_FEED);
-    def("DISABLE_FEED_HOLD",&DISABLE_FEED_HOLD);
-    def("DISABLE_FEED_OVERRIDE",&DISABLE_FEED_OVERRIDE);
-    def("DISABLE_SPEED_OVERRIDE",&DISABLE_SPEED_OVERRIDE);
-    def("DWELL",&DWELL);
-    def("ENABLE_ADAPTIVE_FEED",&ENABLE_ADAPTIVE_FEED);
-    def("ENABLE_FEED_HOLD",&ENABLE_FEED_HOLD);
-    def("ENABLE_FEED_OVERRIDE",&ENABLE_FEED_OVERRIDE);
-    def("ENABLE_SPEED_OVERRIDE",&ENABLE_SPEED_OVERRIDE);
-    def("FINISH",&FINISH);
-    def("FLOOD_OFF",&FLOOD_OFF);
-    def("FLOOD_ON",&FLOOD_ON);
-    def("GET_BLOCK_DELETE",&GET_BLOCK_DELETE);
-    def("GET_EXTERNAL_ADAPTIVE_FEED_ENABLE",&GET_EXTERNAL_ADAPTIVE_FEED_ENABLE);
-    def("GET_EXTERNAL_ANALOG_INPUT",&GET_EXTERNAL_ANALOG_INPUT);
-    //    def("GET_EXTERNAL_ANGLE_UNIT_FACTOR",&GET_EXTERNAL_ANGLE_UNIT_FACTOR);
-    def("GET_EXTERNAL_ANGLE_UNITS",&GET_EXTERNAL_ANGLE_UNITS);
-    def("GET_EXTERNAL_AXIS_MASK",&GET_EXTERNAL_AXIS_MASK);
-    def("GET_EXTERNAL_DIGITAL_INPUT",&GET_EXTERNAL_DIGITAL_INPUT);
-    def("GET_EXTERNAL_FEED_HOLD_ENABLE",&GET_EXTERNAL_FEED_HOLD_ENABLE);
-    def("GET_EXTERNAL_FEED_OVERRIDE_ENABLE",&GET_EXTERNAL_FEED_OVERRIDE_ENABLE);
-    def("GET_EXTERNAL_FEED_RATE",&GET_EXTERNAL_FEED_RATE);
-    def("GET_EXTERNAL_FLOOD",&GET_EXTERNAL_FLOOD);
-    //    def("GET_EXTERNAL_LENGTH_UNIT_FACTOR",&GET_EXTERNAL_LENGTH_UNIT_FACTOR);
-    def("GET_EXTERNAL_LENGTH_UNITS",&GET_EXTERNAL_LENGTH_UNITS);
-    def("GET_EXTERNAL_MIST",&GET_EXTERNAL_MIST);
-    def("GET_EXTERNAL_MOTION_CONTROL_MODE",&GET_EXTERNAL_MOTION_CONTROL_MODE);
-    def("GET_EXTERNAL_MOTION_CONTROL_TOLERANCE",&GET_EXTERNAL_MOTION_CONTROL_TOLERANCE);
-    // def("GET_EXTERNAL_ORIGIN_A",&GET_EXTERNAL_ORIGIN_A);
-    // def("GET_EXTERNAL_ORIGIN_B",&GET_EXTERNAL_ORIGIN_B);
-    // def("GET_EXTERNAL_ORIGIN_C",&GET_EXTERNAL_ORIGIN_C);
-    // def("GET_EXTERNAL_ORIGIN_X",&GET_EXTERNAL_ORIGIN_X);
-    // def("GET_EXTERNAL_ORIGIN_Y",&GET_EXTERNAL_ORIGIN_Y);
-    // def("GET_EXTERNAL_ORIGIN_Z",&GET_EXTERNAL_ORIGIN_Z);
-    def("GET_EXTERNAL_PARAMETER_FILE_NAME",&GET_EXTERNAL_PARAMETER_FILE_NAME);
-    def("GET_EXTERNAL_PLANE",&GET_EXTERNAL_PLANE);
-    def("GET_EXTERNAL_POCKETS_MAX",&GET_EXTERNAL_POCKETS_MAX);
-    def("GET_EXTERNAL_POSITION_A",&GET_EXTERNAL_POSITION_A);
-    def("GET_EXTERNAL_POSITION_B",&GET_EXTERNAL_POSITION_B);
-    def("GET_EXTERNAL_POSITION_C",&GET_EXTERNAL_POSITION_C);
-    def("GET_EXTERNAL_POSITION_U",&GET_EXTERNAL_POSITION_U);
-    def("GET_EXTERNAL_POSITION_V",&GET_EXTERNAL_POSITION_V);
-    def("GET_EXTERNAL_POSITION_W",&GET_EXTERNAL_POSITION_W);
-    def("GET_EXTERNAL_POSITION_X",&GET_EXTERNAL_POSITION_X);
-    def("GET_EXTERNAL_POSITION_Y",&GET_EXTERNAL_POSITION_Y);
-    def("GET_EXTERNAL_POSITION_Z",&GET_EXTERNAL_POSITION_Z);
-    def("GET_EXTERNAL_PROBE_POSITION_A",&GET_EXTERNAL_PROBE_POSITION_A);
-    def("GET_EXTERNAL_PROBE_POSITION_B",&GET_EXTERNAL_PROBE_POSITION_B);
-    def("GET_EXTERNAL_PROBE_POSITION_C",&GET_EXTERNAL_PROBE_POSITION_C);
-    def("GET_EXTERNAL_PROBE_POSITION_U",&GET_EXTERNAL_PROBE_POSITION_U);
-    def("GET_EXTERNAL_PROBE_POSITION_V",&GET_EXTERNAL_PROBE_POSITION_V);
-    def("GET_EXTERNAL_PROBE_POSITION_W",&GET_EXTERNAL_PROBE_POSITION_W);
-    def("GET_EXTERNAL_PROBE_POSITION_X",&GET_EXTERNAL_PROBE_POSITION_X);
-    def("GET_EXTERNAL_PROBE_POSITION_Y",&GET_EXTERNAL_PROBE_POSITION_Y);
-    def("GET_EXTERNAL_PROBE_POSITION_Z",&GET_EXTERNAL_PROBE_POSITION_Z);
-    def("GET_EXTERNAL_PROBE_TRIPPED_VALUE",&GET_EXTERNAL_PROBE_TRIPPED_VALUE);
-    def("GET_EXTERNAL_PROBE_VALUE",&GET_EXTERNAL_PROBE_VALUE);
-    def("GET_EXTERNAL_QUEUE_EMPTY",&GET_EXTERNAL_QUEUE_EMPTY);
-    def("GET_EXTERNAL_SELECTED_TOOL_SLOT",&GET_EXTERNAL_SELECTED_TOOL_SLOT);
-    def("GET_EXTERNAL_SPEED",&GET_EXTERNAL_SPEED);
-    def("GET_EXTERNAL_SPINDLE",&GET_EXTERNAL_SPINDLE);
-    def("GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE",&GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE);
-    def("GET_EXTERNAL_TC_FAULT",&GET_EXTERNAL_TC_FAULT);
-    def("GET_EXTERNAL_TOOL_LENGTH_AOFFSET",&GET_EXTERNAL_TOOL_LENGTH_AOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_BOFFSET",&GET_EXTERNAL_TOOL_LENGTH_BOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_COFFSET",&GET_EXTERNAL_TOOL_LENGTH_COFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_UOFFSET",&GET_EXTERNAL_TOOL_LENGTH_UOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_VOFFSET",&GET_EXTERNAL_TOOL_LENGTH_VOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_WOFFSET",&GET_EXTERNAL_TOOL_LENGTH_WOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_XOFFSET",&GET_EXTERNAL_TOOL_LENGTH_XOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_YOFFSET",&GET_EXTERNAL_TOOL_LENGTH_YOFFSET);
-    def("GET_EXTERNAL_TOOL_LENGTH_ZOFFSET",&GET_EXTERNAL_TOOL_LENGTH_ZOFFSET);
-    def("GET_EXTERNAL_TOOL_SLOT",&GET_EXTERNAL_TOOL_SLOT);
-    def("GET_EXTERNAL_TOOL_TABLE",&GET_EXTERNAL_TOOL_TABLE);
-    def("GET_EXTERNAL_TRAVERSE_RATE",&GET_EXTERNAL_TRAVERSE_RATE);
-    def("GET_OPTIONAL_PROGRAM_STOP",&GET_OPTIONAL_PROGRAM_STOP);
-    def("INIT_CANON",&INIT_CANON);
-    def("INTERP_ABORT",&INTERP_ABORT);
-    def("LOCK_ROTARY",&LOCK_ROTARY);
-    //    def("LOCK_SPINDLE_Z",&LOCK_SPINDLE_Z);
-    def("LOGAPPEND",&LOGAPPEND);
-    def("LOGCLOSE",&LOGCLOSE);
-    def("LOG",&LOG);
-    def("LOGOPEN",&LOGOPEN);
-    def("MESSAGE",&MESSAGE);
-    def("MIST_OFF",&MIST_OFF);
-    def("MIST_ON",&MIST_ON);
-    // def("NURB_CONTROL_POINT",&NURB_CONTROL_POINT);
-    //  def("NURB_FEED",&NURB_FEED);
-    // def("NURB_KNOT_VECTOR",&NURB_KNOT_VECTOR);
-    def("NURBS_FEED",&NURBS_FEED);
-    def("OPTIONAL_PROGRAM_STOP",&OPTIONAL_PROGRAM_STOP);
-    // def("ORIENT_SPINDLE",&ORIENT_SPINDLE);
-    def("PALLET_SHUTTLE",&PALLET_SHUTTLE);
-    def("PROGRAM_END",&PROGRAM_END);
-    def("PROGRAM_STOP",&PROGRAM_STOP);
-    def("RIGID_TAP",&RIGID_TAP);
-    def("SELECT_PLANE",&SELECT_PLANE);
-    def("SELECT_POCKET",&SELECT_POCKET);
-    def("SET_AUX_OUTPUT_BIT",&SET_AUX_OUTPUT_BIT);
-    def("SET_AUX_OUTPUT_VALUE",&SET_AUX_OUTPUT_VALUE);
-    def("SET_BLOCK_DELETE",&SET_BLOCK_DELETE);
-    def("SET_CUTTER_RADIUS_COMPENSATION",&SET_CUTTER_RADIUS_COMPENSATION);
-    def("SET_FEED_MODE",&SET_FEED_MODE);
-    def("SET_FEED_RATE",&SET_FEED_RATE);
-    //    def("SET_FEED_REFERENCE",&SET_FEED_REFERENCE);
-    def("SET_G5X_OFFSET",&SET_G5X_OFFSET);
-    def("SET_G92_OFFSET",&SET_G92_OFFSET);
-    //   def("SET_MOTION_CONTROL_MODE",&SET_MOTION_CONTROL_MODE);
-    def("SET_MOTION_OUTPUT_BIT",&SET_MOTION_OUTPUT_BIT);
-    def("SET_MOTION_OUTPUT_VALUE",&SET_MOTION_OUTPUT_VALUE);
-    def("SET_NAIVECAM_TOLERANCE",&SET_NAIVECAM_TOLERANCE);
-    def("SET_OPTIONAL_PROGRAM_STOP",&SET_OPTIONAL_PROGRAM_STOP);
-    def("SET_SPINDLE_MODE",&SET_SPINDLE_MODE);
-    def("SET_SPINDLE_SPEED",&SET_SPINDLE_SPEED);
-    def("SET_TOOL_TABLE_ENTRY",&SET_TOOL_TABLE_ENTRY);
-    def("SET_TRAVERSE_RATE",&SET_TRAVERSE_RATE);
-    def("SET_XY_ROTATION",&SET_XY_ROTATION);
-    def("SPINDLE_RETRACT",&SPINDLE_RETRACT);
-    def("SPINDLE_RETRACT_TRAVERSE",&SPINDLE_RETRACT_TRAVERSE);
-    def("START_CHANGE",&START_CHANGE);
-    def("START_CUTTER_RADIUS_COMPENSATION",&START_CUTTER_RADIUS_COMPENSATION);
-    def("START_SPEED_FEED_SYNCH",&START_SPEED_FEED_SYNCH);
-    def("START_SPINDLE_CLOCKWISE",&START_SPINDLE_CLOCKWISE);
-    def("START_SPINDLE_COUNTERCLOCKWISE",&START_SPINDLE_COUNTERCLOCKWISE);
-    def("STOP_CUTTER_RADIUS_COMPENSATION",&STOP_CUTTER_RADIUS_COMPENSATION);
-    def("STOP_SPEED_FEED_SYNCH",&STOP_SPEED_FEED_SYNCH);
-    def("STOP_SPINDLE_TURNING",&STOP_SPINDLE_TURNING);
-    // def("STOP",&STOP);
-    def("STRAIGHT_FEED",&STRAIGHT_FEED);
-    def("STRAIGHT_PROBE",&STRAIGHT_PROBE);
-    def("STRAIGHT_TRAVERSE",&STRAIGHT_TRAVERSE);
-    def("TURN_PROBE_OFF",&TURN_PROBE_OFF);
-    def("TURN_PROBE_ON",&TURN_PROBE_ON);
-    // def("UNCLAMP_AXIS",&UNCLAMP_AXIS);
-    def("UNLOCK_ROTARY",&UNLOCK_ROTARY);
-    def("USE_LENGTH_UNITS",&USE_LENGTH_UNITS);
-    def("USE_NO_SPINDLE_FORCE",&USE_NO_SPINDLE_FORCE);
-    // def("USER_DEFINED_FUNCTION_ADD",&USER_DEFINED_FUNCTION_ADD);
-    // def("USE_SPINDLE_FORCE",&USE_SPINDLE_FORCE);
-    def("USE_TOOL_LENGTH_OFFSET",&USE_TOOL_LENGTH_OFFSET);
-    def("WAIT",&WAIT);
-    //    def("XYZ",&XYZ);
-}
 
 // decode a Python exception into a string.
 std::string handle_pyerror()
@@ -771,20 +620,19 @@ int Interp::pycall(setup_pointer settings,
 		block->returned[RET_NONE] = 1;
 		return INTERP_OK;
 	    }
-	    logPy("pycall: tuple len %d detected",len);
 	    bp::object item0 = tret[0];
 	    if (PyInt_Check(item0.ptr())) {
 		block->returned[RET_STATUS] = 1;
 		block->py_returned_status = bp::extract<int>(item0);
-		logPy("pycall: item 0 - int=%d detected",
-		      block->py_returned_status);
+		logPy("pycall: tuple item 0 - int: (%s)",
+		      interp_status(block->py_returned_status));
 	    }
 	    if (len > 1) {
 		bp::object item1 = tret[1];
 		if (PyInt_Check(item1.ptr())) {
 		    block->py_returned_userdata = bp::extract<int>(item1);
 		    block->returned[RET_USERDATA] = 1;
-		    logPy("pycall: item 1 - userdata=%d detected",
+		    logPy("pycall: tuple item 1: int userdata=%d",
 			  block->py_returned_userdata);
 		}
 	    }

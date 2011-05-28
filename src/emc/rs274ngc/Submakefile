@@ -1,6 +1,6 @@
 PY=python2.6
 BOOST=boost_python
-POPT=popt
+
 
 INCLUDES += emc/rs274ngc
 
@@ -22,6 +22,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_namedparams.cc \
 	interp_python.cc \
 	interp_remap.cc \
+	canonmodule.cc \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
@@ -45,7 +46,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)  -l$(POPT)
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
 
 # this didnt fix the segfault either
 #	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ \
