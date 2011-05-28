@@ -31,46 +31,73 @@ namespace bp = boost::python;
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
 
+static void wrap_setError(Interp &x, const char *s)
+{
+    if ((s == NULL) && !strlen(s))
+	s = "###";
+
+    current_interp->setError (s);
+    current_setup->stack_index = 0;
+    strncpy(current_setup->stack[current_setup->stack_index],
+	    "Python", STACK_ENTRY_LEN);
+    current_setup->stack[current_setup->stack_index][STACK_ENTRY_LEN-1] = 0;
+    current_setup->stack_index++;
+    current_setup->stack[current_setup->stack_index][0] = 0;
+}
+
+
+static bp::object wrap_find_tool_pocket(Interp &x, int toolno)
+{
+    int status, pocket;
+    status = current_interp->find_tool_pocket(current_setup, toolno, &pocket);
+    return bp::make_tuple(status, pocket);
+}
+
+
 // access to named and numbered parameters via a pseudo-dictionary
-double ParamClass::getitem(bp::object sub) {
-    double retval = 0;
-    if (IS_STRING(sub)) {
-	char const* varname = bp::extract < char const* > (sub);
-	int status;
-	current_interp->find_named_param(varname, &status, &retval);
-	if (!status)
-	    throw std::runtime_error("parameter does not exist: " + std::string(varname));
+struct ParamClass
+{
+    double getitem(bp::object sub)
+    {
+	double retval = 0;
+	if (IS_STRING(sub)) {
+	    char const* varname = bp::extract < char const* > (sub);
+	    int status;
+	    current_interp->find_named_param(varname, &status, &retval);
+	    if (!status)
+		throw std::runtime_error("parameter does not exist: " + std::string(varname));
+	} else
+	    if (IS_INT(sub)) {
+		int index = bp::extract < int > (sub);
+		retval = current_setup->parameters[index];
+	    } else {
+		throw std::runtime_error("params subscript type must be integer or string");
+	    }
 	return retval;
     }
-    if (IS_INT(sub)) {
-	int index = bp::extract < int > (sub);
-	return current_setup->parameters[index];
-    } else {
-	throw std::runtime_error("params subscript type must be integer or string");
-    }
-}
 
-double ParamClass::setitem(bp::object sub, double dvalue)
-{
-    if (IS_STRING(sub)) {
-	char const* varname = bp::extract < char const* > (sub);
-	int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
-	status = current_interp->store_named_param(current_setup,varname,
-						   dvalue, 0);
-	if (status != INTERP_OK)
-	    throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
+    double setitem(bp::object sub, double dvalue)
+    {
+	if (IS_STRING(sub)) {
+	    char const* varname = bp::extract < char const* > (sub);
+	    int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
+	    status = current_interp->store_named_param(current_setup,varname,
+							   dvalue, 0);
+	    if (status != INTERP_OK)
+		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
 
-    } else
-	if (IS_INT(sub)) {
-	    int index = bp::extract < int > (sub);
-	    current_setup->parameters[index] = dvalue;
-	    return dvalue;
 	} else
-	    throw std::runtime_error("params subscript type must be integer or string");
-    return dvalue;
-}
+	    if (IS_INT(sub)) {
+		int index = bp::extract < int > (sub);
+		current_setup->parameters[index] = dvalue;
+		return dvalue;
+	    } else
+		throw std::runtime_error("params subscript type must be integer or string");
+	return dvalue;
+    }
+};
 
-// static ParamClass paramclass;
+static ParamClass paramclass;
 
 struct wrap_block : public block
 {
@@ -105,52 +132,24 @@ struct wrap_remap : public remap {
 struct wrap_context : public context {
 };
 
-static void wrap_setError(Interp &x, const char *s)
+struct SubcontextClass
 {
-    if ((s == NULL) && !strlen(s))
-	s = "###";
+    struct wrap_context *getitem(bp::object sub) {
+	if (IS_INT(sub)) {
+	    int index = bp::extract < int > (sub);
+	    return (wrap_context *)&current_setup->sub_context[index];
+	} else
+	    throw std::runtime_error("sub_context subscript type must be integer");
 
-    current_interp->setError (s);
-    current_setup->stack_index = 0;
-    strncpy(current_setup->stack[current_setup->stack_index],
-	    "Python", STACK_ENTRY_LEN);
-    current_setup->stack[current_setup->stack_index][STACK_ENTRY_LEN-1] = 0;
-    current_setup->stack_index++;
-    current_setup->stack[current_setup->stack_index][0] = 0;
-}
+    }
+};
 
-static bp::object wrap_find_tool_pocket(Interp &x, int toolno)
-{
-    int status, pocket;
-    status = current_interp->find_tool_pocket(current_setup, toolno, &pocket);
-    return bp::make_tuple(status, pocket);
-}
+struct SubcontextClass sub_context_class;
 
-// http://developer.valvesoftware.com/wiki/HLGameRules
-// #include <boost/python.hpp>
-// namespace bp = boost::python;
+struct cblock : public block {
 
-// CTeam* pyGetTeam(int index)
-// {
-// 	return GetGlobalTeam(index);
-// }
+};
 
-// BOOST_PYTHON_MODULE(HLGameRules)
-// {
-// 	bp::def("GetTeam", pyGetTeam, bp::return_value_policy<bp::reference_existing_object>());
-
-// 	bp::class_<CTeam, boost::noncopyable>("CTeam", bp::no_init)
-// 		.def("GetRoundsWon", &CTeam::GetRoundsWon)
-// 		.def("SetRoundsWon", &CTeam::SetRoundsWon)
-// 		.def("IncrementRoundsWon", &CTeam::IncrementRoundsWon)
-// 		.def("ResetScores", &CTeam::ResetScores)
-// 		.def("GetScore", &CTeam::GetScore)
-// 		.def("SetScore", &CTeam::SetScore)
-// 		.def("AddScore", &CTeam::AddScore)
-// 		.def("GetNumPlayers", &CTeam::GetNumPlayers)
-// 		.def("GetName", &CTeam::GetName)
-// 		.def("GetTeamNumber", &CTeam::GetTeamNumber);
-// }
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
     using namespace boost;
@@ -167,19 +166,15 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-
-
     // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
-    //class_<block,boost::noncopyable,bases<block>>("block", no_init);
 
-    // this be better an array!
     class_ <wrap_context,noncopyable>("wrap_context",no_init)
-	.def_readwrite("position",&current_setup->sub_context[current_setup->call_level].position)
-	.def_readwrite("sequence_number",&current_setup->sub_context[current_setup->call_level].sequence_number)
-	.def_readwrite("filename",  &current_setup->sub_context[current_setup->call_level].filename)
-	.def_readwrite("subname",  &current_setup->sub_context[current_setup->call_level].subName)
+	.def_readwrite("position",&wrap_context::position)
+	.def_readwrite("sequence_number",&wrap_context::sequence_number)
+	.def_readwrite("filename",  &wrap_context::filename)
+	.def_readwrite("subname",  &wrap_context::subName)
 	// need wrapper for saved_params
-	.def_readwrite("context_status", &current_setup->sub_context[current_setup->call_level].context_status)
+	.def_readwrite("context_status", &wrap_context::context_status)
 	;
 
     class_ <wrap_remap,noncopyable>("wrap_remap",no_init)
@@ -264,6 +259,8 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 	;
 
+    scope interp_class(
+
     class_< Interp, interp_ptr,
         noncopyable >("Interp",no_init)
 
@@ -281,14 +278,10 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 
 
-	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
-
-	//,     return_value_policy<bp::reference_existing_object>())
 	.def_readwrite("current_pocket", &current_setup->current_pocket)
 	.def_readwrite("current_tool", &current_setup->tool_table[0].toolno)
 	.def_readwrite("cutter_comp_side", &current_setup->cutter_comp_side)
 	.def_readwrite("debugmask", &current_setup->debugmask)
-	.def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
 	//,	       return_value_policy<bp::reference_existing_object>())
 	.def_readwrite("input_digital", &current_setup->input_digital)
 	.def_readwrite("input_flag", &current_setup->input_flag)
@@ -302,12 +295,27 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
 	.def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
 	// .def_readwrite("remap", (wrap_remap *)&current_setup->blocks[current_setup->remap_level].executing_remap)
-	;
+	);
 
     class_<ParamClass,noncopyable>("ParamClass","Interpreter parameters",no_init)
 	.def("__getitem__", &ParamClass::getitem)
-	.def("__setitem__", &ParamClass::setitem);
+	.def("__setitem__", &ParamClass::setitem)
     ;
+    class_ <SubcontextClass,noncopyable>("SubcontextClass","Interpreter call stack",no_init)
+	.def("__getitem__", &SubcontextClass::getitem,
+	     return_value_policy<reference_existing_object>())
+
+    ;
+    scope(interp_class).attr("params") = ptr(&paramclass);
+    scope(interp_class).attr("sub_context") = ptr(&sub_context_class);
+    scope(interp_class).attr("cblock") = ptr((struct wrap_block *)&current_setup->blocks[current_setup->remap_level]);
+    scope(interp_class).attr("eblock") = ptr((struct wrap_block *)&current_setup->blocks[0]);
+	// .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
+	// .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+
+	//,     return_value_policy<bp::reference_existing_object>())
+	// .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
+	// .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
 
     // enum_< theora_colorspace >("theora_colorspace")
     //     .value("OC_CS_UNSPECIFIED", OC_CS_UNSPECIFIED)
@@ -316,3 +324,29 @@ BOOST_PYTHON_MODULE(InterpMod) {
     // ;
 
 }
+
+// http://developer.valvesoftware.com/wiki/HLGameRules
+// #include <boost/python.hpp>
+// namespace bp = boost::python;
+
+// CTeam* pyGetTeam(int index)
+// {
+// 	return GetGlobalTeam(index);
+// }
+
+// BOOST_PYTHON_MODULE(HLGameRules)
+// {
+// 	bp::def("GetTeam", pyGetTeam, bp::return_value_policy<bp::reference_existing_object>());
+
+// 	bp::class_<CTeam, boost::noncopyable>("CTeam", bp::no_init)
+// 		.def("GetRoundsWon", &CTeam::GetRoundsWon)
+// 		.def("SetRoundsWon", &CTeam::SetRoundsWon)
+// 		.def("IncrementRoundsWon", &CTeam::IncrementRoundsWon)
+// 		.def("ResetScores", &CTeam::ResetScores)
+// 		.def("GetScore", &CTeam::GetScore)
+// 		.def("SetScore", &CTeam::SetScore)
+// 		.def("AddScore", &CTeam::AddScore)
+// 		.def("GetNumPlayers", &CTeam::GetNumPlayers)
+// 		.def("GetName", &CTeam::GetName)
+// 		.def("GetTeamNumber", &CTeam::GetTeamNumber);
+// }
