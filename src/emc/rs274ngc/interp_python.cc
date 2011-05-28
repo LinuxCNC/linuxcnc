@@ -80,7 +80,7 @@ static void interpDeallocFunc(Interp *interp) {}
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
 
-static ParamClass paramclass;
+//static ParamClass paramclass;
 
 
 
@@ -160,7 +160,7 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	if (!reload) {
 	    bp::object interp_module = bp::import("InterpMod");
 	    bp::scope(interp_module).attr("interp") = interp_instance;
-	    bp::scope(interp_module).attr("params") = bp::ptr(&paramclass);
+	    // bp::scope(interp_module).attr("params") = bp::ptr(&paramclass);
 	    settings->module_namespace["InterpMod"] = interp_module;
 	    bp::object canon_module = bp::import("CanonMod");
 	    settings->module_namespace["CanonMod"] = canon_module;
