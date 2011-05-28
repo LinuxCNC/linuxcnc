@@ -263,16 +263,11 @@ bool Interp::is_pycallable(setup_pointer settings,
     return result;
 }
 
-static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
-{
-    return c(*args, **kwds);
-}
-
 int Interp::pycall(setup_pointer settings,
 		   block_pointer block,
 		   const char *funcname)
 {
-    bp::object retval;
+    bp::object retval, function;
     PyGILState_STATE gstate;
     std::string msg;
     bool py_exception = false;
@@ -298,16 +293,14 @@ int Interp::pycall(setup_pointer settings,
 
 
     try {
-	bp::object function = settings->module_namespace[funcname];
-	retval = callobject(function,
-			    block->tupleargs,
-			    block->kwargs);
+	function = settings->module_namespace[funcname];
+	retval = function(*block->tupleargs,**block->kwargs);
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
 	    msg = handle_pyerror();
-	    py_exception = true;
 	}
+	py_exception = true;
 	bp::handle_exception();
 	PyErr_Clear();
     }
@@ -315,6 +308,7 @@ int Interp::pycall(setup_pointer settings,
 	    PyGILState_Release(gstate);
     if (py_exception) {
 	ERS("pycall: %s", msg.c_str());
+	return INTERP_ERROR;
     }
     if (retval.ptr() != Py_None) {
 	if (PyFloat_Check(retval.ptr())) {
