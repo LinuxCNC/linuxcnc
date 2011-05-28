@@ -630,8 +630,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		     r_block->executing_remap->prolog_func,
 		     REMAP_FUNC(r_block->executing_remap),
 		     r_block->executing_remap->name);
-	    status = pycall(settings, r_block,
-			    r_block->executing_remap->prolog_func);
+	    CHP(pycall(settings, r_block,
+		       r_block->executing_remap->prolog_func));
 	}
 
 	// a Python oword sub can be executed inline -
