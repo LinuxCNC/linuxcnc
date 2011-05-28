@@ -31,25 +31,27 @@ namespace bp = boost::python;
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
 
-static void wrap_setError(Interp &x, const char *s)
+static void wrap_setError(Interp &interp, const char *s)
 {
+    setup *settings  = get_setup(&interp);
+
     if ((s == NULL) && !strlen(s))
 	s = "###";
-
-    current_interp->setError (s);
-    current_setup->stack_index = 0;
-    strncpy(current_setup->stack[current_setup->stack_index],
+    interp.setError (s);
+    settings->stack_index = 0;
+    strncpy(settings->stack[settings->stack_index],
 	    "Python", STACK_ENTRY_LEN);
-    current_setup->stack[current_setup->stack_index][STACK_ENTRY_LEN-1] = 0;
-    current_setup->stack_index++;
-    current_setup->stack[current_setup->stack_index][0] = 0;
+    settings->stack[settings->stack_index][STACK_ENTRY_LEN-1] = 0;
+    settings->stack_index++;
+    settings->stack[settings->stack_index][0] = 0;
 }
 
-
-static bp::object wrap_find_tool_pocket(Interp &x, int toolno)
+static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 {
     int status, pocket;
-    status = current_interp->find_tool_pocket(current_setup, toolno, &pocket);
+    setup *settings  = get_setup(&interp);
+
+    status = interp.find_tool_pocket(settings, toolno, &pocket);
     return bp::make_tuple(status, pocket);
 }
 
@@ -310,6 +312,8 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope(interp_class).attr("sub_context") = ptr(&sub_context_class);
     scope(interp_class).attr("cblock") = ptr((struct wrap_block *)&current_setup->blocks[current_setup->remap_level]);
     scope(interp_class).attr("eblock") = ptr((struct wrap_block *)&current_setup->blocks[0]);
+
+
 	// .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
 	// .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
 
