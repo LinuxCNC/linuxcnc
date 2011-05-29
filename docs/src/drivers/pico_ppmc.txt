@@ -52,6 +52,9 @@ on the board, so it may be non-zero even if there is only one board.
    bidirectional hal signal. Setting it to true causes the encoder
    hardware to reset the count to zero on the next encoder index pulse.
    The driver will detect this and set the signal back to false.
+ -  `(PPMC float output) ppmc.<port>.DAC.<channel>.value` -- sends a
+    signed value to the 16-bit Digital to Analog Converter on the PPMC DAC16
+    board commanding the analog output voltage of that DAC channel.
  -  `(UPC bit input) ppmc.<port>.pwm.<channel>.enable` -- Enables a
    PWM generator.
  -  `(UPC float input) ppmc.<port>.pwm.<channel>.value`  -- Value
@@ -99,6 +102,10 @@ on the board, so it may be non-zero even if there is only one board.
    carrier frequency, in Hz. Applies to a group of four
     consecutive PWM generators, as indicated by `<channel-range>`. Minimum
    is 610Hz, maximum is 500KHz.
+ -  `(PPMC float) ppmc.<port>.DAC.<channel>.scale`  -- Sets scale
+   of DAC16 output channel such that an output value equal to the 1/scale
+   value will produce an output of + or -- value Volts.  So, if the scale
+   parameter is 0.1 and you send a value of 0.5, the output will be 5.0 Volts.
  -  `(UPC float) ppmc.<port>.pwm.<channel>.scale` -- Scaling for PWM
    generator. If `scale` is X, then the duty cycle will be 100% when the
    `value` pin is X (or -X).
