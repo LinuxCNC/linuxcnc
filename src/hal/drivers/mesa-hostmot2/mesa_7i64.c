@@ -17,6 +17,7 @@
 //
 
 #include "rtapi_math.h"
+#include <linux/slab.h>
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
