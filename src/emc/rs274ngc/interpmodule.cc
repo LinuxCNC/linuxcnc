@@ -179,23 +179,16 @@ struct wrap_context_array {
 
 struct wrap_context_array sub_context_class;
 
-struct cblock : public block {
-
-};
-
-wrap_block * get_cblock(Interp &interp)
+wrap_block *get_cblock(Interp *interp)
 {
-    //setup_pointer settings = get_setup(interp);
-
-    return  (wrap_block *)&current_setup->blocks[current_setup->remap_level];
-    //return  boost::shared_ptr<wrap_block>((wrap_block *)&current_setup->blocks[current_setup->remap_level]);
+    setup_pointer settings = get_setup(interp);
+    return  (wrap_block *)&settings->blocks[settings->remap_level];
 }
 
-wrap_block * get_eblock()//Interp &interp)
+wrap_block * get_eblock(Interp *interp)
 {
-    // setup_pointer settings;// = get_setup(interp);
-
-    return  (wrap_block *)&current_setup->blocks[0];
+    setup_pointer settings = get_setup(interp);
+    return  (wrap_block *)&settings->blocks[0];
 }
 
 BOOST_PYTHON_MODULE(InterpMod) {
@@ -352,26 +345,13 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
 		       .def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
 
-
-		       // .add_property("activeTool",
-		       // 		     make_function((wrap_block *) &get_cblock)
-//
-		       //.add_property("fooo", &WrapInterp::getcblock, return_value_policy<reference_existing_object>())
-
-
-		       //// .def_readwrite("cblock", (wrap_block *) &get_cblock)
-		       //				      (wrap_block *)&current_setup->blocks[1]) //current_setup->remap_level])
-		       //// .def_readwrite("eblock",(wrap_block *)&get_eblock)
-				      // (wrap_block *)&current_setup->blocks[0])
-
-
-		       // .def("params", ptr(&paramclass))
-
-
 		       .add_property("cblock", make_function(&get_cblock,
 							     return_value_policy<reference_existing_object>()))
 		       .add_property("eblock", make_function(&get_eblock,
 						    return_value_policy<reference_existing_object>()))
+
+		       // .add_property("sub_context", make_function(&get_eblock,
+		       // 				    return_value_policy<reference_existing_object>()))
 
 		       );
 
