@@ -2656,7 +2656,7 @@ void *readClient(void *arg)
     if (len <= 0) goto finished;
     str[len] = 0;
     strcat(buf, str);
-    if (!memchr(str, 0x0d, strlen(str))) continue;
+    if ((!memchr(str, '\r', strlen(str))) && (!memchr(str, '\n', strlen(str)))) continue;
     if (context->echo && context->linked)
       if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
         fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));

@@ -108,8 +108,9 @@ Requests consist of a command word followed by optional command-specific
 parameters.  Requests and most request parameters are case
 insensitive. The exceptions are passwords, file paths and text strings.
 .P
-Requests and replies are terminated with the sequence \'\\r\\n\'.
-\'\\n\' alone won't cut it.
+Requests to emcrsh are terminated with line endings, any combination of
+one or more '\\r' and '\\n' characters.  Replies from emcrsh are terminated
+with the sequence \'\\r\\n\'.
 .P
 The supported commands are as follows:
 .P
