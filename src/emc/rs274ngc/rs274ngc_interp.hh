@@ -121,7 +121,8 @@ public:
     remap_pointer remapping(const char letter, int number = -1);
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
 
-private:
+    // private:
+protected:  // for boost wrapper access
 
 /* Function prototypes for all  functions */
 
@@ -554,6 +555,7 @@ private:
     // the Python introspection module // FIXME mah deleatur
 
     friend setup *get_setup(const Interp *x) { return &x->_setup;};
+
     void print_remaps(void);
     void print_remap(const char *key);
 
