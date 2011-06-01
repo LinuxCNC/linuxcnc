@@ -1,36 +1,18 @@
 
 
 #include <boost/python.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/python/object.hpp>
-#include <boost/python/raw_function.hpp>
-#include <boost/python/call.hpp>
-//#include <boost/python/def_visitor.hpp>
-#include <boost/python/return_internal_reference.hpp>
 
 namespace bp = boost::python;
 
-#include <unistd.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include <string.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <exception>
 
 #include "rs274ngc.hh"
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 #include "units.h"
-
 #include "interpmodule.hh"
-
-typedef boost::shared_ptr< remap > remap_ptr;
-
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
@@ -59,31 +41,9 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
     return bp::make_tuple(status, pocket);
 }
 
-class WrapInterp :  Interp,boost::python::wrapper<Interp> {
-
-public:
-    bp::object wrap_find_tool_pocket2(int toolno) {
-	int status, pocket;
-	status = find_tool_pocket(&(_setup), toolno, &pocket);
-	return bp::make_tuple(status, pocket);
-    }
-
-
-
-    block * getcblock()//Interp &interp)
-    {
-	//setup_pointer settings = get_setup(interp);
-
-	return  &_setup.blocks[current_setup->remap_level];
-	//return  boost::shared_ptr<wrap_block>((wrap_block *)&current_setup->blocks[current_setup->remap_level]);
-    }
-};
-
 // access to named and numbered parameters via a pseudo-dictionary
 struct ParamClass
 {
-    // void init(ParamClass &p, Interp *x) {}
-
     double getitem( bp::object sub)
     {
 	double retval = 0;
@@ -124,14 +84,16 @@ struct ParamClass
     }
 };
 
-static ParamClass paramclass;
+static ParamClass params;
 
-struct wrap_block : public block,boost::python::wrapper<block> {
+struct wrap_remap : public remap {
+};
+
+struct wrap_block : public block {// ,boost::python::wrapper<block> {
 
     char const *get_comment() const { return comment; }
     char const *get_o_name() const { return o_name; }
 
-    //http://mail.python.org/pipermail/cplusplus-sig/2007-January/011602.html
     const bp::list get_g_modes() {
 	bp::list g_modes_list;
 	for (unsigned int i = 0; i < sizeof(g_modes)/sizeof(g_modes[0]); i++)
@@ -145,6 +107,7 @@ struct wrap_block : public block,boost::python::wrapper<block> {
 	    m_modes_list.append(m_modes[i]);
 	return m_modes_list;
     }
+
     const bp::list get_params() {
 	bp::list params_list;
 	for (unsigned int i = 0; i < sizeof(params)/sizeof(params[0]); i++)
@@ -152,15 +115,11 @@ struct wrap_block : public block,boost::python::wrapper<block> {
 	return params_list;
     }
 
-
+    wrap_remap *get_remap() {
+	return (wrap_remap *) executing_remap;
+    }
 };
 
-typedef boost::shared_ptr< wrap_block > wrap_block_ptr;
-
-
-struct wrap_remap : public remap {
-};
-typedef boost::shared_ptr< wrap_remap > wrap_remap_ptr;
 
 struct wrap_context : public context {
 };
@@ -173,19 +132,35 @@ struct wrap_context_array {
 	    return (wrap_context *) &current_setup->sub_context[index];
 	} else
 	    throw std::runtime_error("sub_context subscript type must be integer");
+    }
 
+    long len() {
+	return current_setup->call_level;
     }
 };
+static struct wrap_context_array sub_context_array;
 
-struct wrap_context_array sub_context_class;
 
-wrap_block *get_cblock(Interp *interp)
+struct wrap_block_array {
+    wrap_block *getitem(bp::object sub) {
+	int index = bp::extract < int > (sub);
+	return (wrap_block *) &current_setup->blocks[index];
+    }
+
+    long len() {
+	return current_setup->remap_level;
+    }
+};
+static struct wrap_block_array block_array;
+
+
+static wrap_block *get_cblock(Interp *interp)
 {
     setup_pointer settings = get_setup(interp);
     return  (wrap_block *)&settings->blocks[settings->remap_level];
 }
 
-wrap_block * get_eblock(Interp *interp)
+static wrap_block * get_eblock(Interp *interp)
 {
     setup_pointer settings = get_setup(interp);
     return  (wrap_block *)&settings->blocks[0];
@@ -207,8 +182,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-    // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
-
     class_ <wrap_context, noncopyable>("wrap_context",no_init)
 	.def_readwrite("position",&wrap_context::position)
 	.def_readwrite("sequence_number",&wrap_context::sequence_number)
@@ -216,6 +189,18 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("subname",  &wrap_context::subName)
 	// need wrapper for saved_params
 	.def_readwrite("context_status", &wrap_context::context_status)
+	;
+
+    class_ <wrap_context_array, noncopyable>("wrap_context_array","Interpreter call stack",no_init)
+	.def("__getitem__", &wrap_context_array::getitem,
+	     return_value_policy<reference_existing_object>())
+	.def("__len__", &wrap_context_array::len)
+	;
+
+    class_ <wrap_block_array, noncopyable>("wrap_block_array","Interpreter remap stack",no_init)
+	.def("__getitem__", &wrap_block_array::getitem,
+	     return_value_policy<reference_existing_object>())
+	.def("__len__", &wrap_block_array::len)
 	;
 
     class_ <wrap_remap,noncopyable>("wrap_remap",no_init)
@@ -227,8 +212,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("remap_ngc",&wrap_remap::remap_ngc)
 	.def_readwrite("epilog_func",&wrap_remap::epilog_func)
 	;
-
-    //    class_ <wrap_block, boost::shared_ptr<wrap_block>,noncopyable>("wrap_block",no_init)
 
     class_ <wrap_block, noncopyable, std::auto_ptr<wrap_block> >("wrap_block",no_init)
 	.def_readwrite("f_flag",&wrap_block::f_flag)
@@ -291,17 +274,17 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	//http://mail.python.org/pipermail/cplusplus-sig/2005-July/008840.html
 	.def_readwrite("offset",&wrap_block::offset)
 	.def_readwrite("o_type",&wrap_block::o_type)
-	.def_readwrite("executing_remap",&wrap_block::executing_remap)
-	// ,		       return_internal_reference<>())
 
-
-	// currently read-only
+	//  read-only
 	.add_property("comment", &wrap_block::get_comment)
 	.add_property("o_name", &wrap_block::get_o_name)
 	.add_property("g_modes", &wrap_block::get_g_modes)
 	.add_property("m_modes", &wrap_block::get_m_modes)
 	.add_property("params", &wrap_block::get_params)
 
+	.add_property("executing_remap",
+		      make_function(&wrap_block::get_remap,
+				    return_value_policy<reference_existing_object>()))
 	;
 
     class_<ParamClass, noncopyable>("ParamClass","Interpreter parameters",no_init)
@@ -314,12 +297,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       class_< Interp, interp_ptr,
 		       noncopyable >("Interp",no_init)
 
-		       .def("find_tool_pocket", &wrap_find_tool_pocket)
-// make_function(
-// 							      (bp::object (WrapInterp::*)(int))
-// 							      &WrapInterp::wrap_find_tool_pocket2))
-
-
+		        .def("find_tool_pocket", &wrap_find_tool_pocket)
 
 		       .def("load_tool_table", &Interp::load_tool_table)
 		       .def("set_errormsg", &wrap_setError)
@@ -345,168 +323,19 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
 		       .def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
 
-		       .add_property("cblock", make_function(&get_cblock,
-							     return_value_policy<reference_existing_object>()))
-		       .add_property("eblock", make_function(&get_eblock,
-						    return_value_policy<reference_existing_object>()))
-
-		       // .add_property("sub_context", make_function(&get_eblock,
-		       // 				    return_value_policy<reference_existing_object>()))
+		       .add_property("cblock",
+				     make_function(&get_cblock,
+						   return_value_policy<reference_existing_object>()))
+		       .add_property("eblock",
+				     make_function(&get_eblock,
+						   return_value_policy<reference_existing_object>()))
 
 		       );
 
-
-    class_ <wrap_context_array, noncopyable>("wrap_context_array","Interpreter call stack",no_init)
-	.def("__getitem__", &wrap_context_array::getitem,
-	     return_value_policy<reference_existing_object>())
-
-	;
-    // scope(interp_class).attr("params") = ptr(&paramclass);
-    //    scope(interp_class).attr("sub_context") = ptr(&sub_context_class);
+    scope(interp_class).attr("params") = ptr(&params);
+    scope(interp_class).attr("sub_context") = ptr(&sub_context_array);
+    scope(interp_class).attr("blocks") = ptr(&block_array);
 
 
-    //  register_ptr_to_python< shared_ptr<wrap_block> >();
+   }
 
-    // scope(interp_class).attr("cblock") = &get_cblock;
-    // scope(interp_class).attr("eblock") = &get_eblock;
-
-    // scope(interp_class).attr("cblock") =
-    // 	ptr((struct wrap_block *)&current_setup->blocks[current_setup->remap_level]);
-
-    // scope(interp_class).attr("eblock") = ptr((struct wrap_block *)&current_setup->blocks[0]);
-
-    //register_ptr_to_python< wrap_remap_ptr< wrap_remap > >();
-
-    // .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
-    // .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
-
-    //,     return_value_policy<bp::reference_existing_object>())
-    // .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
-    // .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
-
-    // enum_< theora_colorspace >("theora_colorspace")
-    //     .value("OC_CS_UNSPECIFIED", OC_CS_UNSPECIFIED)
-    //     .value("OC_CS_ITU_REC_470M", OC_CS_ITU_REC_470M)
-    //     .value("OC_CS_ITU_REC_470BG", OC_CS_ITU_REC_470BG)
-    // ;
-
-}
-
-// http://developer.valvesoftware.com/wiki/HLGameRules
-// #include <boost/python.hpp>
-// namespace bp = boost::python;
-
-// CTeam* pyGetTeam(int index)
-// {
-// 	return GetGlobalTeam(index);
-// }
-
-// BOOST_PYTHON_MODULE(HLGameRules)
-// {
-// 	bp::def("GetTeam", pyGetTeam, bp::return_value_policy<bp::reference_existing_object>());
-
-// 	bp::class_<CTeam, boost::noncopyable>("CTeam", bp::no_init)
-// 		.def("GetRoundsWon", &CTeam::GetRoundsWon)
-// 		.def("SetRoundsWon", &CTeam::SetRoundsWon)
-// 		.def("IncrementRoundsWon", &CTeam::IncrementRoundsWon)
-// 		.def("ResetScores", &CTeam::ResetScores)
-// 		.def("GetScore", &CTeam::GetScore)
-// 		.def("SetScore", &CTeam::SetScore)
-// 		.def("AddScore", &CTeam::AddScore)
-// 		.def("GetNumPlayers", &CTeam::GetNumPlayers)
-// 		.def("GetName", &CTeam::GetName)
-// 		.def("GetTeamNumber", &CTeam::GetTeamNumber);
-// }
-
-// Okay, more searching of the archives brought me an answer.  I'll attach
-// a complete, short, and silly example for the next person who runs into
-// this problem.  My thanks to whomever provided the "Vector2d" example
-// from which I liberally stole.
-
-// -g2boojum-
-// --
-// Grant Goodyear
-// web: http://www.grantgoodyear.org
-// e-mail: grant at grantgoodyear.org
-// -------------- next part --------------
-// class Vector2d {
-//     public:
-//         Vector2d():x(0.0),y(0.0) {}
-//         Vector2d(const double xval, const double yval): x(xval),y(yval) {}
-//         ~Vector2d() {}
-//         double& operator[](const int i);
-//     protected:
-//         double x, y;
-// };
-
-// -------------- next part --------------
-// #include "foo.h"
-
-// double& Vector2d::operator[](const int i) { return i==0? x : y; }
-
-// -------------- next part --------------
-// #include "foo.h"
-// #include <boost/python.hpp>
-
-// #ifndef FOO_WRAP_H_
-// #define FOO_WRAP_H_
-
-// using boost::python::object;
-
-// object vec2dget(object self, object key);
-// void vec2dset(object self, object key, object val);
-
-// #endif // FOO_WRAP_H_
-// -------------- next part --------------
-// #include "foo_wrap.h"
-// #include "foo.h"
-
-// #ifndef FOO_H_
-// #define FOO_H_
-
-// using namespace boost::python;
-
-// object vec2dget(object self, object key) {
-//     int i = extract<int>(key);
-//     Vector2d& s = extract<Vector2d&>(self);
-//     return object(s[i]);
-// }
-
-// void vec2dset(object self, object key, object val) {
-//     Vector2d& s = extract<Vector2d&>(self);
-//     int i = extract<int>(key);
-//     double v = extract<double>(val);
-//     s[i] = v;
-// }
-
-// #endif // FOO_H
-// -------------- next part --------------
-// Include("foo_wrap.h")
-// Vector2d = Class("Vector2d", "foo_wrap.h")
-// add_method(Vector2d, "vec2dget")
-// rename(Vector2d.vec2dget, "__getitem__")
-// add_method(Vector2d, "vec2dset")
-// rename(Vector2d.vec2dset, "__setitem__")
-// -------------- next part --------------
-
-// // Boost Includes ==============================================================
-// #include <boost/python.hpp>
-// #include <boost/cstdint.hpp>
-
-// // Includes ====================================================================
-// #include <foo_wrap.h>
-
-// // Using =======================================================================
-// using namespace boost::python;
-
-// // Module ======================================================================
-// BOOST_PYTHON_MODULE(libpyfoo)
-// {
-//     class_< Vector2d >("Vector2d", init<  >())
-//         .def(init< const Vector2d& >())
-//         .def(init< const double, const double >())
-//         .def("__getitem__", &vec2dget)
-//         .def("__setitem__", &vec2dset)
-//     ;
-
-// }
