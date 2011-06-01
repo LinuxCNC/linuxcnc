@@ -36,8 +36,8 @@ def prepare_prolog(userdata,**words):
 
 	# these variables will be visible in the following ngc oword sub
 	# as #<tool> and #<pocket> as local variables
-	params["tool"] = toolno
-	params["pocket"] = pocket
+	interp.params["tool"] = toolno
+	interp.params["pocket"] = pocket
 	return (INTERP_OK,)
 
 # The actual ngc procedure looks like so:
@@ -75,15 +75,15 @@ def change_prolog(userdata,**words):
 	if interp.cutter_comp_side:
 		interp.set_errormsg("Cannot change tools with cutter radius compensation on")
 		return (INTERP_ERROR,)
-	params["tool_in_spindle" ] = interp.current_tool
+	interp.params["tool_in_spindle" ] = interp.current_tool
 
 	# bug in interp_convert.cc: WONT WORK - isnt valid anymore
 	## 	    settings->selected_pocket);
 	## 	    settings->tool_table[0].toolno, <--- BROKEN
 	## 	    block->t_number,
-	#params["prepared" ] = 2
+	#interp.params["prepared" ] = 2
 
-	params["pocket" ] = interp.selected_pocket
+	interp.params["pocket" ] = interp.selected_pocket
 	return (INTERP_OK,)
 
 def change_epilog(userdata,**words):
@@ -101,7 +101,6 @@ def change_epilog(userdata,**words):
 	return (INTERP_OK,)
 
 
-#
 # M61 remapped to an all-Python handler
 # demo - this really does the same thing as the builtin (non-remapped) M61
 #
@@ -133,3 +132,54 @@ def set_tool_number(userdata,**words):
 		interp.set_errormsg("M61 failed: Q=%4" % (toolno))
 		return (INTERP_ERROR,)
 
+
+def introspect(args,**kwargs):
+	print "----- introspect:"
+	print "call_level=",interp.call_level, "remap_level=",interp.remap_level
+
+	print str(interp.cblock)
+	print str(interp.eblock)
+	print "cblock.comment=",interp.cblock.comment
+	print "eblock.line_number=",interp.eblock.line_number
+
+	print "selected_pocket=",interp.selected_pocket
+
+	print "cblock.seq=",interp.cblock.line_number
+	print "cblock.p_flag=",interp.cblock.p_flag
+	print "cblock.p_number=",interp.cblock.p_number
+	print "eblock.seq=",interp.eblock.line_number
+	print "eblock.p_flag=",interp.eblock.p_flag
+	print "eblock.p_number=",interp.eblock.p_number
+	print "eblock.q_flag=",interp.eblock.q_flag
+	print "eblock.q_number=",interp.eblock.q_number
+	print "eblock.comment=",interp.eblock.comment
+
+	## print "current remap:"
+	## print "  name=",interp.remap.name,"modal_group=",interp.remap.modal_group
+	## print "  argspec=",interp.remap.argspec
+	## print "  prolog=",interp.remap.prolog_func
+	## print "  ngc=",interp.remap.remap_ngc
+	## print "  py=",interp.remap.remap_py
+	## print "  epilog=",interp.remap.epilog_func
+	callstack()
+	print "dir(interp.sub_context[0]):",dir(interp.sub_context[0])
+
+	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
+		print "param",i,"=",interp.params[i]
+
+	#print "cblock.executing_remap=",interp.cblock.executing_remap
+
+	return (INTERP_OK,)
+
+def null(args,**kwargs):
+	return (INTERP_OK,)
+
+def callstack():
+	for i in range(interp.call_level+1):
+		print "-------- call_level: ",i
+		print "position=",interp.sub_context[i].position
+		print "sequence_number=",interp.sub_context[i].sequence_number
+		print "filenameposition=",interp.sub_context[i].filename
+		print "subname=",interp.sub_context[i].subname
+		print "context_status=",interp.sub_context[i].context_status
+	return (INTERP_OK,)

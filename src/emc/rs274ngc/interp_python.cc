@@ -307,6 +307,7 @@ int Interp::pycall(setup_pointer settings,
     if (useGIL)
 	    PyGILState_Release(gstate);
     if (py_exception) {
+	fprintf(stderr,"-->%s\n",msg.c_str());
 	ERS("pycall: %s", msg.c_str());
 	return INTERP_ERROR;
     }

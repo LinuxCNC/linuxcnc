@@ -5,6 +5,8 @@
 #include <boost/python/object.hpp>
 #include <boost/python/raw_function.hpp>
 #include <boost/python/call.hpp>
+//#include <boost/python/def_visitor.hpp>
+#include <boost/python/return_internal_reference.hpp>
 
 namespace bp = boost::python;
 
@@ -27,9 +29,11 @@ namespace bp = boost::python;
 
 #include "interpmodule.hh"
 
+typedef boost::shared_ptr< remap > remap_ptr;
+
+
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
-
 
 static void wrap_setError(Interp &interp, const char *s)
 {
@@ -49,12 +53,31 @@ static void wrap_setError(Interp &interp, const char *s)
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 {
     int status, pocket;
-    setup *settings  = get_setup(&interp);
+    setup *settings  =  get_setup(&interp); //&interp._setup;
 
     status = interp.find_tool_pocket(settings, toolno, &pocket);
     return bp::make_tuple(status, pocket);
 }
 
+class WrapInterp :  Interp,boost::python::wrapper<Interp> {
+
+public:
+    bp::object wrap_find_tool_pocket2(int toolno) {
+	int status, pocket;
+	status = find_tool_pocket(&(_setup), toolno, &pocket);
+	return bp::make_tuple(status, pocket);
+    }
+
+
+
+    block * getcblock()//Interp &interp)
+    {
+	//setup_pointer settings = get_setup(interp);
+
+	return  &_setup.blocks[current_setup->remap_level];
+	//return  boost::shared_ptr<wrap_block>((wrap_block *)&current_setup->blocks[current_setup->remap_level]);
+    }
+};
 
 // access to named and numbered parameters via a pseudo-dictionary
 struct ParamClass
@@ -84,7 +107,7 @@ struct ParamClass
 	    char const* varname = bp::extract < char const* > (sub);
 	    int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
 	    status = current_interp->store_named_param(current_setup,varname,
-							   dvalue, 0);
+						       dvalue, 0);
 	    if (status != INTERP_OK)
 		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
 
@@ -101,8 +124,8 @@ struct ParamClass
 
 static ParamClass paramclass;
 
-struct wrap_block : public block
-{
+struct wrap_block : public block,boost::python::wrapper<block> {
+
     char const *get_comment() const { return comment; }
     char const *get_o_name() const { return o_name; }
 
@@ -126,31 +149,52 @@ struct wrap_block : public block
 	    params_list.append(params[i]);
 	return params_list;
     }
+
+
 };
+
+typedef boost::shared_ptr< wrap_block > wrap_block_ptr;
+
 
 struct wrap_remap : public remap {
 };
+typedef boost::shared_ptr< wrap_remap > wrap_remap_ptr;
 
 struct wrap_context : public context {
 };
 
-struct SubcontextClass
-{
-    struct wrap_context *getitem(bp::object sub) {
+struct wrap_context_array {
+
+    wrap_context *getitem(bp::object sub) {
 	if (IS_INT(sub)) {
 	    int index = bp::extract < int > (sub);
-	    return (wrap_context *)&current_setup->sub_context[index];
+	    return (wrap_context *) &current_setup->sub_context[index];
 	} else
 	    throw std::runtime_error("sub_context subscript type must be integer");
 
     }
 };
 
-struct SubcontextClass sub_context_class;
+struct wrap_context_array sub_context_class;
 
 struct cblock : public block {
 
 };
+
+block * get_cblock()//Interp &interp)
+{
+    //setup_pointer settings = get_setup(interp);
+
+    return  &current_setup->blocks[current_setup->remap_level];
+    //return  boost::shared_ptr<wrap_block>((wrap_block *)&current_setup->blocks[current_setup->remap_level]);
+}
+
+block * get_eblock()//Interp &interp)
+{
+    // setup_pointer settings;// = get_setup(interp);
+
+    return &current_setup->blocks[0];
+}
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -170,7 +214,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
     // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
 
-    class_ <wrap_context,noncopyable>("wrap_context",no_init)
+    class_ <wrap_context, noncopyable>("wrap_context",no_init)
 	.def_readwrite("position",&wrap_context::position)
 	.def_readwrite("sequence_number",&wrap_context::sequence_number)
 	.def_readwrite("filename",  &wrap_context::filename)
@@ -189,7 +233,9 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("epilog_func",&wrap_remap::epilog_func)
 	;
 
-    class_ <wrap_block,noncopyable>("wrap_block",no_init)
+    //    class_ <wrap_block, boost::shared_ptr<wrap_block>,noncopyable>("wrap_block",no_init)
+
+    class_ <wrap_block, noncopyable, std::auto_ptr<wrap_block> >("wrap_block",no_init)
 	.def_readwrite("f_flag",&wrap_block::f_flag)
 	.def_readwrite("p_flag",&wrap_block::p_flag)
 	.def_readwrite("p_number",&wrap_block::p_number)
@@ -251,6 +297,8 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("offset",&wrap_block::offset)
 	.def_readwrite("o_type",&wrap_block::o_type)
 	.def_readwrite("executing_remap",&wrap_block::executing_remap)
+	// ,		       return_internal_reference<>())
+
 
 	// currently read-only
 	.add_property("comment", &wrap_block::get_comment)
@@ -263,63 +311,89 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
     scope interp_class(
 
-    class_< Interp, interp_ptr,
-        noncopyable >("Interp",no_init)
+		       class_< Interp, interp_ptr,
+		       noncopyable >("Interp",no_init)
 
-	.def("find_tool_pocket", &wrap_find_tool_pocket)
-	.def("load_tool_table", &Interp::load_tool_table)
-	.def("set_errormsg", &wrap_setError)
-	.def("set_tool_parameters", &Interp::set_tool_parameters)
-	.def("sequence_number", &Interp::sequence_number)
-	.def("synch", &Interp::synch)
-
-	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
-	.def_readwrite("call_level", &current_setup->call_level)
-	.def_readwrite("callframe",
-		       (wrap_context *)&current_setup->sub_context[current_setup->call_level])
+		       .def("find_tool_pocket", &wrap_find_tool_pocket)
+// make_function(
+// 							      (bp::object (WrapInterp::*)(int))
+// 							      &WrapInterp::wrap_find_tool_pocket2))
 
 
 
-	.def_readwrite("current_pocket", &current_setup->current_pocket)
-	.def_readwrite("current_tool", &current_setup->tool_table[0].toolno)
-	.def_readwrite("cutter_comp_side", &current_setup->cutter_comp_side)
-	.def_readwrite("debugmask", &current_setup->debugmask)
-	//,	       return_value_policy<bp::reference_existing_object>())
-	.def_readwrite("input_digital", &current_setup->input_digital)
-	.def_readwrite("input_flag", &current_setup->input_flag)
-	.def_readwrite("input_index", &current_setup->input_index)
-	.def_readwrite("mdi_interrupt", &current_setup->mdi_interrupt)
-	.def_readwrite("pockets_max", &current_setup->pockets_max)
-	.def_readwrite("probe_flag", &current_setup->probe_flag)
-	.def_readwrite("remap_level", &current_setup->remap_level)
-	.def_readwrite("return_value", &current_setup->return_value)
-	.def_readwrite("selected_pocket", &current_setup->selected_pocket)
-	.def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
-	.def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
-	// .def_readwrite("remap", (wrap_remap *)&current_setup->blocks[current_setup->remap_level].executing_remap)
-	);
+		       .def("load_tool_table", &Interp::load_tool_table)
+		       .def("set_errormsg", &wrap_setError)
+		       .def("set_tool_parameters", &Interp::set_tool_parameters)
+		       .def("sequence_number", &Interp::sequence_number)
+		       .def("synch", &Interp::synch)
 
-    class_<ParamClass,noncopyable>("ParamClass","Interpreter parameters",no_init)
+		       .def_readwrite("blocktext", (char *) &current_setup->blocktext)
+		       .def_readwrite("call_level", &current_setup->call_level)
+		       .def_readwrite("current_pocket", &current_setup->current_pocket)
+		       .def_readwrite("current_tool", &current_setup->tool_table[0].toolno)
+		       .def_readwrite("cutter_comp_side", &current_setup->cutter_comp_side)
+		       .def_readwrite("debugmask", &current_setup->debugmask)
+		       .def_readwrite("input_digital", &current_setup->input_digital)
+		       .def_readwrite("input_flag", &current_setup->input_flag)
+		       .def_readwrite("input_index", &current_setup->input_index)
+		       .def_readwrite("mdi_interrupt", &current_setup->mdi_interrupt)
+		       .def_readwrite("pockets_max", &current_setup->pockets_max)
+		       .def_readwrite("probe_flag", &current_setup->probe_flag)
+		       .def_readwrite("remap_level", &current_setup->remap_level)
+		       .def_readwrite("return_value", &current_setup->return_value)
+		       .def_readwrite("selected_pocket", &current_setup->selected_pocket)
+		       .def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
+		       .def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
+
+
+		       // .add_property("activeTool",
+		       // 		     make_function((wrap_block *) &get_cblock)
+//
+		       //.add_property("fooo", &WrapInterp::getcblock, return_value_policy<reference_existing_object>())
+
+
+		       .def_readwrite("cblock", (wrap_block *) &get_cblock)
+		       //				      (wrap_block *)&current_setup->blocks[1]) //current_setup->remap_level])
+		       .def_readwrite("eblock",(wrap_block *)&get_eblock)
+				      // (wrap_block *)&current_setup->blocks[0])
+
+
+
+
+
+		       );
+
+    class_<ParamClass, noncopyable>("ParamClass","Interpreter parameters",no_init)
 	.def("__getitem__", &ParamClass::getitem)
 	.def("__setitem__", &ParamClass::setitem)
-    ;
-    class_ <SubcontextClass,noncopyable>("SubcontextClass","Interpreter call stack",no_init)
-	.def("__getitem__", &SubcontextClass::getitem,
+	;
+    class_ <wrap_context_array, noncopyable>("wrap_context_array","Interpreter call stack",no_init)
+	.def("__getitem__", &wrap_context_array::getitem,
 	     return_value_policy<reference_existing_object>())
 
-    ;
+	;
     scope(interp_class).attr("params") = ptr(&paramclass);
     scope(interp_class).attr("sub_context") = ptr(&sub_context_class);
-    scope(interp_class).attr("cblock") = ptr((struct wrap_block *)&current_setup->blocks[current_setup->remap_level]);
-    scope(interp_class).attr("eblock") = ptr((struct wrap_block *)&current_setup->blocks[0]);
 
 
-	// .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
-	// .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+    //  register_ptr_to_python< shared_ptr<wrap_block> >();
 
-	//,     return_value_policy<bp::reference_existing_object>())
-	// .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
-	// .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+    // scope(interp_class).attr("cblock") = ptr(&get_cblock);
+    // scope(interp_class).attr("eblock") = ptr(&get_eblock);
+
+    // scope(interp_class).attr("cblock") =
+    // 	ptr((struct wrap_block *)&current_setup->blocks[current_setup->remap_level]);
+
+    // scope(interp_class).attr("eblock") = ptr((struct wrap_block *)&current_setup->blocks[0]);
+
+    //register_ptr_to_python< wrap_remap_ptr< wrap_remap > >();
+
+    // .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
+    // .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
+
+    //,     return_value_policy<bp::reference_existing_object>())
+    // .def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
+    // .def_readwrite("eblock",  (wrap_block *)&current_setup->blocks[0])
 
     // enum_< theora_colorspace >("theora_colorspace")
     //     .value("OC_CS_UNSPECIFIED", OC_CS_UNSPECIFIED)
