@@ -154,18 +154,6 @@ struct wrap_block_array {
 static struct wrap_block_array block_array;
 
 
-static wrap_block *get_cblock(Interp *interp)
-{
-    setup_pointer settings = get_setup(interp);
-    return  (wrap_block *)&settings->blocks[settings->remap_level];
-}
-
-static wrap_block * get_eblock(Interp *interp)
-{
-    setup_pointer settings = get_setup(interp);
-    return  (wrap_block *)&settings->blocks[0];
-}
-
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
     using namespace boost;
@@ -322,14 +310,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("selected_pocket", &current_setup->selected_pocket)
 		       .def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
 		       .def_readwrite("reload_on_change", &current_setup->py_reload_on_change)
-
-		       .add_property("cblock",
-				     make_function(&get_cblock,
-						   return_value_policy<reference_existing_object>()))
-		       .add_property("eblock",
-				     make_function(&get_eblock,
-						   return_value_policy<reference_existing_object>()))
-
 		       );
 
     scope(interp_class).attr("params") = ptr(&params);

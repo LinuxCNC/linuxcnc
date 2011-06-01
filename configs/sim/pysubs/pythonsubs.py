@@ -135,25 +135,23 @@ def set_tool_number(userdata,**words):
 
 def introspect(args,**kwargs):
 	print "----- introspect:"
+	r = interp.remap_level
 	print "call_level=",interp.call_level, "remap_level=",interp.remap_level
 
-	print str(interp.cblock)
-	print str(interp.eblock)
-	print "cblock.comment=",interp.cblock.comment
-	print "eblock.line_number=",interp.eblock.line_number
 
 	print "selected_pocket=",interp.selected_pocket
-
-	print "cblock.seq=",interp.cblock.line_number
-	print "cblock.p_flag=",interp.cblock.p_flag
-	print "cblock.p_number=",interp.cblock.p_number
-	print "eblock.seq=",interp.eblock.line_number
-	print "eblock.p_flag=",interp.eblock.p_flag
-	print "eblock.p_number=",interp.eblock.p_number
-	print "eblock.q_flag=",interp.eblock.q_flag
-	print "eblock.q_number=",interp.eblock.q_number
-	print "eblock.comment=",interp.eblock.comment
-
+	print "blocks[r].comment=",interp.blocks[r].comment
+	print "blocks[r].seq=",interp.blocks[r].line_number
+	print "blocks[r].p_flag=",interp.blocks[r].p_flag
+	print "blocks[r].p_number=",interp.blocks[r].p_number
+	print "blocks[0].line_number=",interp.blocks[0].line_number
+	print "blocks[0].p_flag=",interp.blocks[0].p_flag
+	print "blocks[0].p_number=",interp.blocks[0].p_number
+	print "blocks[0].q_flag=",interp.blocks[0].q_flag
+	print "blocks[0].q_number=",interp.blocks[0].q_number
+	print "blocks[0].comment=",interp.blocks[0].comment
+#	print "dir(blocks)=",dir(interp.blocks)
+#	print "dir(blocks[0])=",dir(interp.blocks[0])
 	## print "current remap:"
 	## print "  name=",interp.remap.name,"modal_group=",interp.remap.modal_group
 	## print "  argspec=",interp.remap.argspec
@@ -162,12 +160,15 @@ def introspect(args,**kwargs):
 	## print "  py=",interp.remap.remap_py
 	## print "  epilog=",interp.remap.epilog_func
 	callstack()
-	print "dir(interp.sub_context[0]):",dir(interp.sub_context[0])
-
 	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
 		print "param",i,"=",interp.params[i]
-
-	#print "cblock.executing_remap=",interp.cblock.executing_remap
+	print "blocks[r].executing_remap:",
+	print "name=",interp.blocks[r].executing_remap.name
+	print "argspec=",interp.blocks[r].executing_remap.argspec
+	print "prolog=",interp.blocks[r].executing_remap.prolog_func
+	print "py=",interp.blocks[r].executing_remap.remap_py
+	print "ngc=",interp.blocks[r].executing_remap.remap_ngc
+	print "epilog=",interp.blocks[r].executing_remap.epilog_func
 
 	return (INTERP_OK,)
 
@@ -175,7 +176,7 @@ def null(args,**kwargs):
 	return (INTERP_OK,)
 
 def callstack():
-	for i in range(interp.call_level+1):
+	for i in range(len(interp.sub_context)):
 		print "-------- call_level: ",i
 		print "position=",interp.sub_context[i].position
 		print "sequence_number=",interp.sub_context[i].sequence_number
