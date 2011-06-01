@@ -82,7 +82,9 @@ public:
 // access to named and numbered parameters via a pseudo-dictionary
 struct ParamClass
 {
-    double getitem(bp::object sub)
+    // void init(ParamClass &p, Interp *x) {}
+
+    double getitem( bp::object sub)
     {
 	double retval = 0;
 	if (IS_STRING(sub)) {
@@ -181,19 +183,19 @@ struct cblock : public block {
 
 };
 
-block * get_cblock()//Interp &interp)
+wrap_block * get_cblock(Interp &interp)
 {
     //setup_pointer settings = get_setup(interp);
 
-    return  &current_setup->blocks[current_setup->remap_level];
+    return  (wrap_block *)&current_setup->blocks[current_setup->remap_level];
     //return  boost::shared_ptr<wrap_block>((wrap_block *)&current_setup->blocks[current_setup->remap_level]);
 }
 
-block * get_eblock()//Interp &interp)
+wrap_block * get_eblock()//Interp &interp)
 {
     // setup_pointer settings;// = get_setup(interp);
 
-    return &current_setup->blocks[0];
+    return  (wrap_block *)&current_setup->blocks[0];
 }
 
 BOOST_PYTHON_MODULE(InterpMod) {
@@ -309,6 +311,11 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 	;
 
+    class_<ParamClass, noncopyable>("ParamClass","Interpreter parameters",no_init)
+	.def("__getitem__", &ParamClass::getitem)
+	.def("__setitem__", &ParamClass::setitem)
+	;
+
     scope interp_class(
 
 		       class_< Interp, interp_ptr,
@@ -352,34 +359,36 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       //.add_property("fooo", &WrapInterp::getcblock, return_value_policy<reference_existing_object>())
 
 
-		       .def_readwrite("cblock", (wrap_block *) &get_cblock)
+		       //// .def_readwrite("cblock", (wrap_block *) &get_cblock)
 		       //				      (wrap_block *)&current_setup->blocks[1]) //current_setup->remap_level])
-		       .def_readwrite("eblock",(wrap_block *)&get_eblock)
+		       //// .def_readwrite("eblock",(wrap_block *)&get_eblock)
 				      // (wrap_block *)&current_setup->blocks[0])
 
 
+		       // .def("params", ptr(&paramclass))
 
 
+		       .add_property("cblock", make_function(&get_cblock,
+							     return_value_policy<reference_existing_object>()))
+		       .add_property("eblock", make_function(&get_eblock,
+						    return_value_policy<reference_existing_object>()))
 
 		       );
 
-    class_<ParamClass, noncopyable>("ParamClass","Interpreter parameters",no_init)
-	.def("__getitem__", &ParamClass::getitem)
-	.def("__setitem__", &ParamClass::setitem)
-	;
+
     class_ <wrap_context_array, noncopyable>("wrap_context_array","Interpreter call stack",no_init)
 	.def("__getitem__", &wrap_context_array::getitem,
 	     return_value_policy<reference_existing_object>())
 
 	;
-    scope(interp_class).attr("params") = ptr(&paramclass);
-    scope(interp_class).attr("sub_context") = ptr(&sub_context_class);
+    // scope(interp_class).attr("params") = ptr(&paramclass);
+    //    scope(interp_class).attr("sub_context") = ptr(&sub_context_class);
 
 
     //  register_ptr_to_python< shared_ptr<wrap_block> >();
 
-    // scope(interp_class).attr("cblock") = ptr(&get_cblock);
-    // scope(interp_class).attr("eblock") = ptr(&get_eblock);
+    // scope(interp_class).attr("cblock") = &get_cblock;
+    // scope(interp_class).attr("eblock") = &get_eblock;
 
     // scope(interp_class).attr("cblock") =
     // 	ptr((struct wrap_block *)&current_setup->blocks[current_setup->remap_level]);
@@ -427,4 +436,97 @@ BOOST_PYTHON_MODULE(InterpMod) {
 // 		.def("GetNumPlayers", &CTeam::GetNumPlayers)
 // 		.def("GetName", &CTeam::GetName)
 // 		.def("GetTeamNumber", &CTeam::GetTeamNumber);
+// }
+
+// Okay, more searching of the archives brought me an answer.  I'll attach
+// a complete, short, and silly example for the next person who runs into
+// this problem.  My thanks to whomever provided the "Vector2d" example
+// from which I liberally stole.
+
+// -g2boojum-
+// --
+// Grant Goodyear
+// web: http://www.grantgoodyear.org
+// e-mail: grant at grantgoodyear.org
+// -------------- next part --------------
+// class Vector2d {
+//     public:
+//         Vector2d():x(0.0),y(0.0) {}
+//         Vector2d(const double xval, const double yval): x(xval),y(yval) {}
+//         ~Vector2d() {}
+//         double& operator[](const int i);
+//     protected:
+//         double x, y;
+// };
+
+// -------------- next part --------------
+// #include "foo.h"
+
+// double& Vector2d::operator[](const int i) { return i==0? x : y; }
+
+// -------------- next part --------------
+// #include "foo.h"
+// #include <boost/python.hpp>
+
+// #ifndef FOO_WRAP_H_
+// #define FOO_WRAP_H_
+
+// using boost::python::object;
+
+// object vec2dget(object self, object key);
+// void vec2dset(object self, object key, object val);
+
+// #endif // FOO_WRAP_H_
+// -------------- next part --------------
+// #include "foo_wrap.h"
+// #include "foo.h"
+
+// #ifndef FOO_H_
+// #define FOO_H_
+
+// using namespace boost::python;
+
+// object vec2dget(object self, object key) {
+//     int i = extract<int>(key);
+//     Vector2d& s = extract<Vector2d&>(self);
+//     return object(s[i]);
+// }
+
+// void vec2dset(object self, object key, object val) {
+//     Vector2d& s = extract<Vector2d&>(self);
+//     int i = extract<int>(key);
+//     double v = extract<double>(val);
+//     s[i] = v;
+// }
+
+// #endif // FOO_H
+// -------------- next part --------------
+// Include("foo_wrap.h")
+// Vector2d = Class("Vector2d", "foo_wrap.h")
+// add_method(Vector2d, "vec2dget")
+// rename(Vector2d.vec2dget, "__getitem__")
+// add_method(Vector2d, "vec2dset")
+// rename(Vector2d.vec2dset, "__setitem__")
+// -------------- next part --------------
+
+// // Boost Includes ==============================================================
+// #include <boost/python.hpp>
+// #include <boost/cstdint.hpp>
+
+// // Includes ====================================================================
+// #include <foo_wrap.h>
+
+// // Using =======================================================================
+// using namespace boost::python;
+
+// // Module ======================================================================
+// BOOST_PYTHON_MODULE(libpyfoo)
+// {
+//     class_< Vector2d >("Vector2d", init<  >())
+//         .def(init< const Vector2d& >())
+//         .def(init< const double, const double >())
+//         .def("__getitem__", &vec2dget)
+//         .def("__setitem__", &vec2dset)
+//     ;
+
 // }
