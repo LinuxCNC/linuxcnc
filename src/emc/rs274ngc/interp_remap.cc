@@ -72,11 +72,6 @@ int Interp::convert_remapped_code(block_pointer block,
     }
     CHKS((rptr == NULL), "BUG: convert_remapped_code: no remapping");
 
-    //    CHP(execute_handler(settings, rptr, 0)); // no posargs
-
-  CHKS(rptr == NULL,"BUG: execute_handler: rptr == NULL");
-
-
     settings->sequence_number = 1; // FIXME not sure..
 
     // some remapped handlers may need c/c++ or Python code to
@@ -141,7 +136,7 @@ int Interp::convert_remapped_code(block_pointer block,
     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
 	(_setup.loggingLevel > 2)) {
 	logRemap("execute_handler(%s)", cmd);
-	print_remap(rptr->name);
+	// print_remap(rptr->name);
     }
 
     // good to go, pass to o-word call handling mechanism
