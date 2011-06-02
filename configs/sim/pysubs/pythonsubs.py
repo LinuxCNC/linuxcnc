@@ -132,6 +132,29 @@ def set_tool_number(userdata,**words):
 		interp.set_errormsg("M61 failed: Q=%4" % (toolno))
 		return (INTERP_ERROR,)
 
+#
+# This demonstrates how queuebusters
+# (toolchange, wait for input, probe) can be dealt with in Python handlers.
+#
+# on the initial call, userdata equals zero.
+# if a queuebuster is executed, the function is expected to return
+# (INTERP_EXECUTE_FINISH,<optional new userdata value>
+#
+# Post sync, the function is called again with the userdata value
+# returned previously for continuation.
+#
+def test_reschedule(userdata,**words):
+	if userdata > 0:
+		# we were called post-sync():
+		pin_status = CanonMod.GET_EXTERNAL_DIGITAL_INPUT(0,0);
+		print "pin status=",pin_status
+		return (INTERP_OK,) # done
+	else:
+		# wait for digital-input 00 to go hi for 5secs
+		CanonMod.WAIT(0,1,2,5.0)
+		# pls call again after sync() with new userdata value
+		return (INTERP_EXECUTE_FINISH,userdata + 1)
+
 
 def printobj(b,header=""):
 	print "object ",header,":"
