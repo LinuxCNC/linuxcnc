@@ -44,7 +44,7 @@ namespace bp = boost::python;
 #include "interpmodule.hh"
 
 
-static bool useGIL;     // not sure if this is needed
+static bool useGIL = false;     // not sure if this is needed
 
 extern "C" void initCanonMod();
 extern "C" void initInterpMod();
@@ -79,11 +79,6 @@ static void interpDeallocFunc(Interp *interp) {}
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
-
-//static ParamClass paramclass;
-
-
-
 // decode a Python exception into a string.
 std::string handle_pyerror()
 {
@@ -98,31 +93,30 @@ std::string handle_pyerror()
     if (!tb) {
 	object format_exception_only(traceback.attr("format_exception_only"));
 	formatted_list = format_exception_only(hexc,hval);
-	// FIXME mah unsure how to correctly format this:
-	formatted = str(formatted_list);
     } else {
 	object format_exception(traceback.attr("format_exception"));
 	formatted_list = format_exception(hexc,hval,htb);
-	formatted = str("\n").join(formatted_list);
     }
+    formatted = str("\n").join(formatted_list);
     return extract<std::string>(formatted);
 }
 
 int Interp::init_python(setup_pointer settings, bool reload)
 {
     char path[PATH_MAX];
-    interp_ptr  interp_instance;  // the wrapped instance
     std::string msg;
     bool py_exception = false;
     PyGILState_STATE gstate;
 
-    current_setup = get_setup(this); // // &this->_setup;
-    current_interp = this;
 
     if ((settings->py_module_stat != PYMOD_NONE) && !reload) {
 	logPy("init_python RE-INIT %d pid=%d",settings->py_module_stat,getpid());
 	return INTERP_OK;  // already done, or failed
     }
+
+    current_setup = get_setup(this); //  &this->_setup;
+    current_interp = this;
+
     logPy("init_python(this=%lx  pid=%d py_module_stat=%d PyInited=%d reload=%d",
 	  (unsigned long)this, getpid(), settings->py_module_stat, Py_IsInitialized(),reload);
 
@@ -141,9 +135,6 @@ int Interp::init_python(setup_pointer settings, bool reload)
     }
 
     if (!reload) {
-	// the null deallocator avoids destroying the Interp instance on
-	// leaving scope (or shutdown)
-	interp_instance = interp_ptr(this,interpDeallocFunc  );
 
 	Py_SetProgramName(path);
 	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
@@ -159,11 +150,14 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	settings->module_namespace = settings->module.attr("__dict__");
 	if (!reload) {
 	    bp::object interp_module = bp::import("InterpMod");
-	    bp::scope(interp_module).attr("interp") = interp_instance;
-	    // bp::scope(interp_module).attr("params") = bp::ptr(&paramclass);
-	    settings->module_namespace["InterpMod"] = interp_module;
 	    bp::object canon_module = bp::import("CanonMod");
+	    settings->module_namespace["InterpMod"] = interp_module;
 	    settings->module_namespace["CanonMod"] = canon_module;
+	    // the null deallocator avoids destroying the Interp instance on
+	    // leaving scope (or shutdown)
+	    bp::scope(interp_module).attr("interp") =
+		interp_ptr(this, interpDeallocFunc);
+
 	}
 	bp::object result = bp::exec_file(path,
 					  settings->module_namespace,
@@ -180,7 +174,7 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	PyErr_Clear();
     }
     if (py_exception) {
-	logPy("init_python: module '%s' init failed: %s\n",path,msg.c_str());
+	logPy("init_python: module '%s' init failed: \n%s",path,msg.c_str());
 	if (useGIL)
 	    PyGILState_Release(gstate);
 	ERS("init_python: %s",msg.c_str());
