@@ -306,7 +306,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def("load_tool_table", &Interp::load_tool_table)
 		       .def("set_errormsg", &wrap_setError)
 		       .def("set_tool_parameters", &Interp::set_tool_parameters)
-		       .def("sequence_number", &Interp::sequence_number)
 		       .def("synch", &Interp::synch)
 
 		       // // // CANON_TOOL_TABLE missing
@@ -379,6 +378,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("return_value", &Interp::_setup.return_value)
 		       .def_readwrite("rotation_xy", &Interp::_setup.rotation_xy)
 		       .def_readwrite("selected_pocket", &Interp::_setup.selected_pocket)
+		       .def_readwrite("sequence_number", &Interp::sequence_number)
 		       .def_readwrite("speed", &Interp::_setup.speed)
 		       .def_readwrite("speed_feed_mode", &Interp::_setup.speed_feed_mode)
 		       .def_readwrite("speed_override", &Interp::_setup.speed_override)
