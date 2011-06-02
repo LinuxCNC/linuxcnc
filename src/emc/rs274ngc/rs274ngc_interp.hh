@@ -122,7 +122,7 @@ public:
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
 
     // private:
-protected:  // for boost wrapper access
+    //protected:  // for boost wrapper access
 
 /* Function prototypes for all  functions */
 
