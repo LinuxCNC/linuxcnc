@@ -907,7 +907,6 @@ int Interp::init()
 	      _setup.on_abort_command = NULL;
           }
 
-	  // not used yet
 	  if (NULL != (inistring = inifile.Find("PY_RELOAD_ON_CHANGE", "RS274NGC")))
 	      _setup.py_reload_on_change = (atoi(inistring) > 0);
 	  else
@@ -916,8 +915,13 @@ int Interp::init()
           if (NULL != (inistring = inifile.Find("PYMODULE", "RS274NGC"))) {
 	      _setup.py_module = strdup(inistring);
 	      int status;
-	      if ((status = init_python(&(_setup))) != INTERP_OK) {
-		  logDebug("PYIMPORT: import of module %s failed",_setup.py_module);
+	      if (_setup.py_module_stat == PYMOD_OK) {
+		  logDebug("PYMODULE: module %s already imported OK, skipping",
+			   _setup.py_module);
+	      } else {
+		  if ((status = init_python(&(_setup))) != INTERP_OK) {
+		      logDebug("PYMODULE: import of module %s failed",_setup.py_module);
+		  }
 	      }
           } else {
 	      _setup.py_module = NULL;
