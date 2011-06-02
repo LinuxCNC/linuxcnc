@@ -133,6 +133,13 @@ def set_tool_number(userdata,**words):
 		return (INTERP_ERROR,)
 
 
+def printobj(b,header=""):
+	print "object ",header,":"
+	for a in dir(b):
+		if not a.startswith('_'):
+			if hasattr(b,a):
+				print a,getattr(b,a)
+
 def introspect(args,**kwargs):
 	print "----- introspect:"
 	r = interp.remap_level
@@ -149,19 +156,9 @@ def introspect(args,**kwargs):
 	print "blocks[0].q_number=",interp.blocks[0].q_number
 	print "blocks[0].comment=",interp.blocks[0].comment
 
-	if True:
-		print "tool_offset.x=",interp.tool_offset.tran.x
-		print "tool_offset.y=",interp.tool_offset.tran.y
-		print "tool_offset.z=",interp.tool_offset.tran.z
-		print "tool_offset.a=",interp.tool_offset.a
+	printobj(interp,"interp")
+	printobj(interp.tool_offset,"tool_offset")
 
-
-	print "program_x=",interp.program_x
-	interp.program_x = interp.program_x+1
-	print "program_x=",interp.program_x
-	print "ccompside=",interp.cutter_comp_side
-	print "BB_axis_offset=",interp.BB_axis_offset
-	print "AA_axis_offset=",interp.AA_axis_offset
 
 
 	callstack()
