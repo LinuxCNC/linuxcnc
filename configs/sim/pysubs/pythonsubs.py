@@ -137,8 +137,6 @@ def introspect(args,**kwargs):
 	print "----- introspect:"
 	r = interp.remap_level
 	print "call_level=",interp.call_level, "remap_level=",interp.remap_level
-
-
 	print "selected_pocket=",interp.selected_pocket
 	print "blocks[r].comment=",interp.blocks[r].comment
 	print "blocks[r].seq=",interp.blocks[r].line_number
@@ -150,15 +148,22 @@ def introspect(args,**kwargs):
 	print "blocks[0].q_flag=",interp.blocks[0].q_flag
 	print "blocks[0].q_number=",interp.blocks[0].q_number
 	print "blocks[0].comment=",interp.blocks[0].comment
-#	print "dir(blocks)=",dir(interp.blocks)
-#	print "dir(blocks[0])=",dir(interp.blocks[0])
-	## print "current remap:"
-	## print "  name=",interp.remap.name,"modal_group=",interp.remap.modal_group
-	## print "  argspec=",interp.remap.argspec
-	## print "  prolog=",interp.remap.prolog_func
-	## print "  ngc=",interp.remap.remap_ngc
-	## print "  py=",interp.remap.remap_py
-	## print "  epilog=",interp.remap.epilog_func
+
+	if True:
+		print "tool_offset.x=",interp.tool_offset.tran.x
+		print "tool_offset.y=",interp.tool_offset.tran.y
+		print "tool_offset.z=",interp.tool_offset.tran.z
+		print "tool_offset.a=",interp.tool_offset.a
+
+
+	print "program_x=",interp.program_x
+	interp.program_x = interp.program_x+1
+	print "program_x=",interp.program_x
+	print "ccompside=",interp.cutter_comp_side
+	print "BB_axis_offset=",interp.BB_axis_offset
+	print "AA_axis_offset=",interp.AA_axis_offset
+
+
 	callstack()
 	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
 		print "param",i,"=",interp.params[i]
