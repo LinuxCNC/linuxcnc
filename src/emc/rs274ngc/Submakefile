@@ -27,7 +27,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
-$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON -I/usr/local/include
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
