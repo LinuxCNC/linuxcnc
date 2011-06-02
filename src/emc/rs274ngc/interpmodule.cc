@@ -303,155 +303,101 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       noncopyable >("Interp",no_init)
 
 		       .def("find_tool_pocket", &wrap_find_tool_pocket)
-
 		       .def("load_tool_table", &Interp::load_tool_table)
 		       .def("set_errormsg", &wrap_setError)
 		       .def("set_tool_parameters", &Interp::set_tool_parameters)
 		       .def("sequence_number", &Interp::sequence_number)
 		       .def("synch", &Interp::synch)
 
-		       .def_readwrite("AA_axis_offset", &Interp::_setup.AA_axis_offset)
-		       .def_readwrite("BB_axis_offset", &Interp::_setup.BB_axis_offset)
-		       .def_readwrite("CC_axis_offset", &Interp::_setup.CC_axis_offset)
-
-		       .def_readwrite("AA_current",     &Interp::_setup.AA_current)
-		       .def_readwrite("BB_current",     &Interp::_setup.BB_current)
-		       .def_readwrite("CC_current",     &Interp::_setup.CC_current)
-
-		       .def_readwrite("AA_origin_offset", &Interp::_setup.AA_origin_offset)
-		       .def_readwrite("BB_origin_offset", &Interp::_setup.BB_origin_offset)
-		       .def_readwrite("CC_origin_offset", &Interp::_setup.CC_origin_offset)
-
-		       .def_readwrite("u_axis_offset", &Interp::_setup.u_axis_offset)
-		       .def_readwrite("u_current", &Interp::_setup.u_current)
-		       .def_readwrite("u_origin_offset", &Interp::_setup.u_origin_offset)
-
-		       .def_readwrite("v_axis_offset", &Interp::_setup.v_axis_offset)
-		       .def_readwrite("v_current", &Interp::_setup.v_current)
-		       .def_readwrite("v_origin_offset", &Interp::_setup.v_origin_offset)
-
-		       .def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
-		       .def_readwrite("w_current", &Interp::_setup.w_current)
-		       .def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
-
+		       // // // CANON_TOOL_TABLE missing
 		       // // // active m/g codes, settings missing
 
-		       .def_readwrite("arc_not_allowed", &Interp::_setup.arc_not_allowed)
+		       .def_readonly("filename", (char *) &Interp::_setup.filename)
+		       .def_readonly("linetext", (char *) &Interp::_setup.linetext)
+		       .def_readonly( "current_tool", &Interp::_setup.tool_table[0].toolno)
 
+		       .def_readwrite("AA_axis_offset", &Interp::_setup.AA_axis_offset)
+		       .def_readwrite("AA_current", &Interp::_setup.AA_current)
+		       .def_readwrite("AA_origin_offset", &Interp::_setup.AA_origin_offset)
+		       .def_readwrite("BB_axis_offset", &Interp::_setup.BB_axis_offset)
+		       .def_readwrite("BB_current", &Interp::_setup.BB_current)
+		       .def_readwrite("BB_origin_offset", &Interp::_setup.BB_origin_offset)
+		       .def_readwrite("CC_axis_offset", &Interp::_setup.CC_axis_offset)
+		       .def_readwrite("CC_current", &Interp::_setup.CC_current)
+		       .def_readwrite("CC_origin_offset", &Interp::_setup.CC_origin_offset)
+		       .def_readwrite("arc_not_allowed", &Interp::_setup.arc_not_allowed)
 		       .def_readwrite("axis_offset_x", &Interp::_setup.axis_offset_x)
 		       .def_readwrite("axis_offset_y", &Interp::_setup.axis_offset_y)
 		       .def_readwrite("axis_offset_z", &Interp::_setup.axis_offset_z)
-
+		       .def_readwrite("call_level", &Interp::_setup.call_level)
+		       .def_readwrite("current_pocket", &Interp::_setup.current_pocket)
 		       .def_readwrite("current_x", &Interp::_setup.current_x)
 		       .def_readwrite("current_y", &Interp::_setup.current_y)
 		       .def_readwrite("current_z", &Interp::_setup.current_z)
-
-
-		       // .add_static_property("cutter_comp_side",
-		       // 			     make_getter( &Interp::_setup.cutter_comp_side),
-		       // 			     make_setter( &Interp::_setup.cutter_comp_side))
-
-// init_python: module '/home/mah/emc2-tc/configs/sim/pysubs/pythonsubs.py' init failed: ['ArgumentError: Python argument types in    None.None(Boost.Python.StaticProperty) did not match C++ signature:    None(int)']
-// init_python: module '/home/mah/emc2-tc/configs/sim/pysubs/pythonsubs.py' init failed: ['ArgumentError: Python argument types in\n    None.None(Boost.Python.StaticProperty)\ndid not match C++ signature:\n    None(int)\n']
-
-
+		       .def_readwrite("cutter_comp_firstmove", &Interp::_setup.cutter_comp_firstmove)
+		       .def_readwrite("cutter_comp_orientation", &Interp::_setup.cutter_comp_orientation)
+		       .def_readwrite("cutter_comp_radius", &Interp::_setup.cutter_comp_radius)
+		       .def_readwrite("cutter_comp_side", &Interp::_setup.cutter_comp_side)
 		       .def_readwrite("cycle_cc", &Interp::_setup.cycle_cc)
 		       .def_readwrite("cycle_i", &Interp::_setup.cycle_i)
+		       .def_readwrite("cycle_il", &Interp::_setup.cycle_il)
+		       .def_readwrite("cycle_il_flag", &Interp::_setup.cycle_il_flag)
 		       .def_readwrite("cycle_j", &Interp::_setup.cycle_j)
 		       .def_readwrite("cycle_k", &Interp::_setup.cycle_k)
 		       .def_readwrite("cycle_l", &Interp::_setup.cycle_l)
 		       .def_readwrite("cycle_p", &Interp::_setup.cycle_p)
 		       .def_readwrite("cycle_q", &Interp::_setup.cycle_q)
 		       .def_readwrite("cycle_r", &Interp::_setup.cycle_r)
-		       .def_readwrite("cycle_il", &Interp::_setup.cycle_il)
-		       .def_readwrite("cycle_il_flag", &Interp::_setup.cycle_il_flag)
-
-
-		       .def_readwrite("feed_mode", (int *)&Interp::_setup.feed_mode)
-		       .def_readwrite("feed_override", (int *)&Interp::_setup.feed_override)
-		       .def_readwrite("feed_rate", (int *)&Interp::_setup.feed_rate)
-
-		       .def_readwrite("filename", (char *)&Interp::_setup.filename)
-		       .def_readwrite("tool_offset_index",&Interp::_setup.tool_offset_index)
+		       .def_readwrite("debugmask", &Interp::_setup.debugmask)
+		       .def_readwrite("distance_mode", &Interp::_setup.distance_mode)
+		       .def_readwrite("feed_mode", &Interp::_setup.feed_mode)
+		       .def_readwrite("feed_override", &Interp::_setup.feed_override)
+		       .def_readwrite("feed_rate", &Interp::_setup.feed_rate)
+		       .def_readwrite("ijk_distance_mode", &Interp::_setup.ijk_distance_mode)
+		       .def_readwrite("input_digital", &Interp::_setup.input_digital)
+		       .def_readwrite("input_flag", &Interp::_setup.input_flag)
+		       .def_readwrite("input_index", &Interp::_setup.input_index)
 		       .def_readwrite("length_units", &Interp::_setup.length_units)
-
-		       .def_readwrite("linetext", (char *)&Interp::_setup.linetext)
+		       .def_readwrite("mdi_interrupt", &Interp::_setup.mdi_interrupt)
 		       .def_readwrite("mist", &Interp::_setup.mist)
 		       .def_readwrite("motion_mode", &Interp::_setup.motion_mode)
 		       .def_readwrite("origin_index", &Interp::_setup.origin_index)
 		       .def_readwrite("origin_offset_x", &Interp::_setup.origin_offset_x)
 		       .def_readwrite("origin_offset_y", &Interp::_setup.origin_offset_y)
 		       .def_readwrite("origin_offset_z", &Interp::_setup.origin_offset_z)
-		       .def_readwrite("rotation_xy", &Interp::_setup.rotation_xy)
-
-
-
-		       // .def_readwrite("distance_mode", (int *)&Interp::_setup.distance_mode)
-		       //  .def_readwrite("ijk_distance_mode", (int *)&Interp::_setup.ijk_distance_mode)
-
-		       // .def_readwrite("cutter_comp_radius", &Interp::_setup.cutter_comp_radius)
-		       // .def_readwrite("cutter_comp_orientation", &Interp::_setup.cutter_comp_orientation)
-		       // .def_readwrite("cutter_comp_side", &Interp::_setup.cutter_comp_side)  //<<<!!!
-
-		       .add_property( "cutter_comp_side",
-					     make_getter(&Interp::_setup.cutter_comp_side),
-					     make_setter(&Interp::_setup.cutter_comp_side))
-
-		       // .def_readwrite("percent_flag", &Interp::_setup.percent_flag)
-		       // .def_readwrite("plane", &Interp::_setup.plane)
-
-		       // .def_readwrite("input_index", &Interp::_setup.input_index) // <<<<<!!!
-
-
-		       // .def_readwrite("input_digital", &Interp::_setup.input_digital)
-		       // .def_readwrite("cutter_comp_firstmove", &Interp::_setup.cutter_comp_firstmove)
-
+		       .def_readwrite("percent_flag", &Interp::_setup.percent_flag)
+		       .def_readwrite("plane", &Interp::_setup.plane)
+		       .def_readwrite("pockets_max", &Interp::_setup.pockets_max)
+		       .def_readwrite("probe_flag", &Interp::_setup.probe_flag)
 		       .def_readwrite("program_x", &Interp::_setup.program_x)
 		       .def_readwrite("program_y", &Interp::_setup.program_y)
 		       .def_readwrite("program_z", &Interp::_setup.program_z)
-		       .def_readwrite("retract_mode", (int *) &Interp::_setup.retract_mode)
+		       .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
 		       .def_readwrite("random_toolchanger", &Interp::_setup.random_toolchanger)
-		       .def_readwrite("speed", &Interp::_setup.speed)
-		       .def_readwrite("spindle_mode", (int *) &Interp::_setup.spindle_mode)
-		       .def_readwrite("speed_feed_mode", (int *)&Interp::_setup.speed_feed_mode)
-		       .def_readwrite("speed_override", &Interp::_setup.speed_override)
-		       .def_readwrite("spindle_turning", (int *) &Interp::_setup.spindle_turning)
-
-
-		       .def_readwrite("pockets_max", &Interp::_setup.pockets_max)
-
-		       // // // CANON_TOOL_TABLE missing
-
-		       .def_readwrite("traverse_rate", &Interp::_setup.traverse_rate)
-
-		       // .add_static_property( "program_x",
-		       // 			     make_getter(&Interp::_setup.program_x),
-		       // 			     make_setter(&Interp::_setup.program_x))
-		       //scope(interp_class).attr("tool_offset") = Interp::_setup.tool_offset;
-
-		       .def_readwrite("tool_offset", &Interp::_setup.tool_offset)
-
-		       // .add_static_property( "tool_offset",
-		       // 			     make_getter( &Interp::_setup.tool_offset), //, return_value_policy<return_by_value>()),
-		       // 			     make_setter( &Interp::_setup.tool_offset)) //, return_value_policy<return_internal_reference>() ) )
-
-
-		       .def_readwrite("blocktext", (char *) &Interp::_setup.blocktext)
-		       .def_readwrite("call_level", &Interp::_setup.call_level)
-		       .def_readwrite("current_pocket", &Interp::_setup.current_pocket)
-		       .def_readwrite("current_tool", &Interp::_setup.tool_table[0].toolno)
-		       .def_readwrite("cutter_comp_side", &Interp::_setup.cutter_comp_side)
-		       .def_readwrite("debugmask", &Interp::_setup.debugmask)
-		       .def_readwrite("input_digital", &Interp::_setup.input_digital)
-		       .def_readwrite("input_flag", &Interp::_setup.input_flag)
-		       .def_readwrite("input_index", &Interp::_setup.input_index)
-		       .def_readwrite("mdi_interrupt", &Interp::_setup.mdi_interrupt)
-		       .def_readwrite("probe_flag", &Interp::_setup.probe_flag)
 		       .def_readwrite("remap_level", &Interp::_setup.remap_level)
+		       .def_readwrite("retract_mode", &Interp::_setup.retract_mode)
 		       .def_readwrite("return_value", &Interp::_setup.return_value)
+		       .def_readwrite("rotation_xy", &Interp::_setup.rotation_xy)
 		       .def_readwrite("selected_pocket", &Interp::_setup.selected_pocket)
+		       .def_readwrite("speed", &Interp::_setup.speed)
+		       .def_readwrite("speed_feed_mode", &Interp::_setup.speed_feed_mode)
+		       .def_readwrite("speed_override", &Interp::_setup.speed_override)
+		       .def_readwrite("spindle_mode", &Interp::_setup.spindle_mode)
+		       .def_readwrite("spindle_turning", &Interp::_setup.spindle_turning)
+		       .def_readwrite("tool_offset", &Interp::_setup.tool_offset)
+		       .def_readwrite("tool_offset_index", &Interp::_setup.tool_offset_index)
 		       .def_readwrite("toolchange_flag", &Interp::_setup.toolchange_flag)
-		       .def_readwrite("reload_on_change", &Interp::_setup.py_reload_on_change)
+		       .def_readwrite("traverse_rate", &Interp::_setup.traverse_rate)
+		       .def_readwrite("u_axis_offset", &Interp::_setup.u_axis_offset)
+		       .def_readwrite("u_current", &Interp::_setup.u_current)
+		       .def_readwrite("u_origin_offset", &Interp::_setup.u_origin_offset)
+		       .def_readwrite("v_axis_offset", &Interp::_setup.v_axis_offset)
+		       .def_readwrite("v_current", &Interp::_setup.v_current)
+		       .def_readwrite("v_origin_offset", &Interp::_setup.v_origin_offset)
+		       .def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
+		       .def_readwrite("w_current", &Interp::_setup.w_current)
+		       .def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
+
 		       );
 
     scope(interp_class).attr("params") = ptr(&params);
