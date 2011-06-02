@@ -271,14 +271,12 @@ enum steps  {NO_REMAPPED_STEPS,
 	     STEP_SET_FEED_RATE,
 	     STEP_SET_SPINDLE_SPEED,
 	     STEP_PREPARE,
-
 	     STEP_M_5,
 	     STEP_M_6,
 	     STEP_M_7,
 	     STEP_M_8,
 	     STEP_M_9,
 	     STEP_M_10,
-
 	     STEP_DWELL,
 	     STEP_SET_PLANE,
 	     STEP_LENGTH_UNITS,
@@ -292,9 +290,7 @@ enum steps  {NO_REMAPPED_STEPS,
 	     STEP_RETRACT_MODE,
 	     STEP_MODAL_0,
 	     STEP_MOTION,
-
 	     STEP_MGROUP4,
-
 	     MAX_STEPS
 };
 
@@ -306,11 +302,6 @@ typedef struct remap_struct {
     const char *name;
     const char *argspec;
     int modal_group;
-    // the following functions are in execution order:
-
-    // currently unused:
-    // int (Interp::*builtin_prolog)(setup_pointer settings,
-    // 				  block_pointer r_block);
     const char *prolog_func; // Py function or null
     const char *remap_py;    // Py function maybe  null, OR
     const char *remap_ngc;   // NGC file, maybe  null
@@ -319,6 +310,16 @@ typedef struct remap_struct {
 				  block_pointer r_block);
 } remap;
 
+// case insensitive compare for std::map etc
+struct nocase_cmp
+{
+    bool operator()(const char* s1, const char* s2) const
+    {
+        return strcasecmp(s1, s2) < 0;
+    }
+};
+
+typedef std::map<const char *,remap_pointer,nocase_cmp> Remap;
 
 
 #define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
@@ -461,8 +462,6 @@ typedef struct block_struct
     double py_returned_value;
     int py_returned_status;
     int py_returned_userdata;
-    // const char *py_callback;
-    // const char *on_behalf;
     // passed as tupleargs again if by (INTERP_EXECUTE_FINISH, <userdata-value>)
     int user_data;
     bool call_again; // a py osub returned INTERP_EXECUTE_FINISH
@@ -502,15 +501,6 @@ struct named_parameters_struct {
 // for M and G codes
 #define M_MODE_OK(m) ((m > 4) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
-
-// case insensitive compare for std::map etc
-struct nocase_cmp
-{
-    bool operator()(const char* s1, const char* s2) const
-    {
-        return strcasecmp(s1, s2) < 0;
-    }
-};
 
 typedef struct context_struct {
   long position;       // location (ftell) in file
@@ -710,7 +700,8 @@ typedef struct setup_struct
     const char *on_abort_command;
 
     std::map<int, remap_pointer>  g_remapped,m_remapped;
-    std::map<const char *,remap_pointer,nocase_cmp>  remaps;
+    // std::map<const char *,remap_pointer,nocase_cmp>  remaps;
+    Remap remaps;
 
     const char *py_module;
   int py_module_stat;
