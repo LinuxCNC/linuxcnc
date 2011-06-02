@@ -52,6 +52,7 @@ extern "C" void initInterpMod();
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
         if (bad) {                                             \
+	    logPy(fmt, ## __VA_ARGS__);			       \
 	    ERS(fmt, ## __VA_ARGS__);                          \
 	    goto error;					       \
         }                                                      \
@@ -122,7 +123,7 @@ int Interp::init_python(setup_pointer settings, bool reload)
 
     PYCHK((settings->py_module == NULL), "init_python: no module defined");
     PYCHK(((realpath(settings->py_module, path)) == NULL),
-	  "init_python: can resolve path to '%s'", settings->py_module);
+	  "init_python: cant resolve path to '%s'", settings->py_module);
 
     // record timestamp first time around
     if (settings->module_mtime == 0) {
@@ -135,10 +136,9 @@ int Interp::init_python(setup_pointer settings, bool reload)
     }
 
     if (!reload) {
-
 	Py_SetProgramName(path);
-	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
 	PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
+	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
 	Py_Initialize();
     }
 
@@ -278,13 +278,13 @@ int Interp::pycall(setup_pointer settings,
     block->returned = 0;
 
     if (settings->py_module_stat != PYMOD_OK) {
-	ERS("function '%s.%s' : module not initialized",
-	    settings->py_module,funcname);
+	ERS("function '%s.%s' : module %s",
+	    settings->py_module,funcname,
+	    (settings->py_module_stat == PYMOD_FAILED) ? "initialization failed" : " not initialized");
 	return INTERP_OK;
     }
     if (useGIL)
 	gstate = PyGILState_Ensure();
-
 
     try {
 	function = settings->module_namespace[funcname];
