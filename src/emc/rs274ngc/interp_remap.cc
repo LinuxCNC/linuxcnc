@@ -151,7 +151,7 @@ int Interp::convert_remapped_code(block_pointer block,
 // this looks up a remapping by unnormalized code (like G88.1)
 remap_pointer Interp::remapping(const char *code)
 {
-    logRemap("lookup remapping(code=%s)",code);
+    //logRemap("lookup remapping(code=%s)",code);
     std::map<const char *,remap_pointer>::iterator n =
 	_setup.remaps.find(code);
     if (n !=  _setup.remaps.end())
@@ -403,9 +403,8 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	Log("REMAP BUG=%s %d:REMAP = %s",
 	    code,lineno,inistring);
     }
-    // success
-    logRemap("success: %d: REMAP=%s line=%s",
-	     lineno, code, inistring);
+    // logRemap("success: %d: REMAP=%s line=%s",
+    // 	     lineno, code, inistring);
 
     return INTERP_OK;
 
