@@ -80,6 +80,7 @@ static void interpDeallocFunc(Interp *interp) {}
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
+
 // decode a Python exception into a string.
 std::string handle_pyerror()
 {
@@ -115,7 +116,8 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	return INTERP_OK;  // already done, or failed
     }
 
-    current_setup = get_setup(this); //  &this->_setup;
+    // this crap has to go.
+    current_setup = get_setup(this);
     current_interp = this;
 
     logPy("init_python(this=%lx  pid=%d py_module_stat=%d PyInited=%d reload=%d",
@@ -136,6 +138,7 @@ int Interp::init_python(setup_pointer settings, bool reload)
     }
 
     if (!reload) {
+
 	Py_SetProgramName(path);
 	PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
 	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
@@ -280,7 +283,8 @@ int Interp::pycall(setup_pointer settings,
     if (settings->py_module_stat != PYMOD_OK) {
 	ERS("function '%s.%s' : module %s",
 	    settings->py_module,funcname,
-	    (settings->py_module_stat == PYMOD_FAILED) ? "initialization failed" : " not initialized");
+	    (settings->py_module_stat == PYMOD_FAILED) ?
+	    "initialization failed" : " not initialized");
 	return INTERP_OK;
     }
     if (useGIL)
