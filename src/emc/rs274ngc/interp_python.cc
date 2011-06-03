@@ -138,7 +138,6 @@ int Interp::init_python(setup_pointer settings, bool reload)
     }
 
     if (!reload) {
-
 	Py_SetProgramName(path);
 	PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
 	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
@@ -160,7 +159,6 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	    // leaving scope (or shutdown)
 	    bp::scope(interp_module).attr("interp") =
 		interp_ptr(this, interpDeallocFunc);
-
 	}
 	bp::object result = bp::exec_file(path,
 					  settings->module_namespace,
@@ -184,7 +182,6 @@ int Interp::init_python(setup_pointer settings, bool reload)
     }
     if (useGIL)
 	PyGILState_Release(gstate);
-
     return INTERP_OK;
 
  error:  // come here if PYCHK() macro fails
@@ -232,12 +229,10 @@ bool Interp::is_pycallable(setup_pointer settings,
 
     if (settings->py_reload_on_change)
 	py_reload_on_change(settings);
-
     if ((settings->py_module_stat != PYMOD_OK) ||
 	(funcname == NULL)) {
 	return false;
     }
-
     try {
 	bp::object function = settings->module_namespace[funcname];
 	result = PyCallable_Check(function.ptr());
@@ -253,7 +248,7 @@ bool Interp::is_pycallable(setup_pointer settings,
 	PyErr_Clear();
     }
     if (py_unexpected)
-	logPy("is_pycallable: %s",msg.c_str());
+	logPy("is_pycallable: unexpected exception:\n%s",msg.c_str());
 
     if (_setup.loggingLevel > 5)
 	logPy("py_iscallable(%s) = %s",funcname,result ? "TRUE":"FALSE");
