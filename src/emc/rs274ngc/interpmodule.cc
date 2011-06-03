@@ -90,7 +90,7 @@ static ParamClass params;
 struct WrapRemap : public remap {
 };
 
-struct BlockWrap : public block {// ,boost::python::wrapper<block> {
+struct BlockWrap : public block {
 
     char const *get_comment() const { return comment; }
     char const *get_o_name() const { return o_name; }
@@ -153,9 +153,7 @@ struct BlockArray {
 
 	} else
 	    throw std::runtime_error("blocks subscript type must be integer");
-
     }
-
     long len() {
 	return current_setup->remap_level;
     }
@@ -178,6 +176,54 @@ struct ToolArray {
     }
 };
 static struct ToolArray tool_array;
+
+struct InterpWrap : public Interp {
+};
+
+
+struct GcodesArray {
+    int getitem(bp::object sub) {
+	int index = bp::extract < int > (sub);
+	if ((index < 0) || (index > ACTIVE_G_CODES - 1)) {
+	    throw std::runtime_error("Gcodes subscript out of range");
+	} else
+	    return  current_setup->active_g_codes[index];
+    }
+    long len() {
+	return  ACTIVE_G_CODES;
+    }
+};
+static struct GcodesArray active_g_codes_array;
+
+
+struct McodesArray {
+    int getitem(bp::object sub) {
+	int index = bp::extract < int > (sub);
+	if ((index < 0) || (index > ACTIVE_M_CODES - 1)) {
+	    throw std::runtime_error("Mcodes subscript out of range");
+	} else
+	    return  current_setup->active_m_codes[index];
+    }
+    long len() {
+	return ACTIVE_M_CODES;
+    }
+};
+static struct McodesArray active_m_codes_array;
+
+struct SettingsArray {
+    double getitem(bp::object sub) {
+	int index = bp::extract < int > (sub);
+	if ((index < 0) || (index > ACTIVE_SETTINGS - 1)) {
+	    throw std::runtime_error("Settings subscript out of range");
+	} else
+	    return  current_setup->active_settings[index];
+    }
+    long len() {
+	return ACTIVE_SETTINGS;
+    }
+};
+static struct SettingsArray active_settings_array;
+
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -221,6 +267,22 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	     return_value_policy<reference_existing_object>())
 	.def("__len__", &ToolArray::len)
 	;
+
+    class_ <GcodesArray, noncopyable>("GcodesArray","active G-codes",no_init)
+	.def("__getitem__", &GcodesArray::getitem)
+	.def("__len__", &GcodesArray::len)
+	;
+
+    class_ <McodesArray, noncopyable>("McodesArray","active M-codes",no_init)
+	.def("__getitem__", &McodesArray::getitem)
+	.def("__len__", &McodesArray::len)
+	;
+
+    class_ <SettingsArray, noncopyable>("SettingsArray","active settings",no_init)
+	.def("__getitem__", &SettingsArray::getitem)
+	.def("__len__", &SettingsArray::len)
+	;
+
 
     class_ <WrapRemap,noncopyable>("Remap",no_init)
 	.def_readwrite("name",&WrapRemap::name)
@@ -341,99 +403,98 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       noncopyable >("Interp",no_init)
 
 		       .def("find_tool_pocket", &wrap_find_tool_pocket)
-		       .def("load_tool_table", &Interp::load_tool_table)
+		       .def("load_tool_table", &InterpWrap::load_tool_table)
 		       .def("set_errormsg", &wrap_setError)
-		       .def("set_tool_parameters", &Interp::set_tool_parameters)
-		       .def("synch", &Interp::synch)
+		       .def("set_tool_parameters", &InterpWrap::set_tool_parameters)
+		       .def("synch", &InterpWrap::synch)
 
-		       // // // active m/g codes, settings missing
 
-		       .def_readonly("filename", (char *) &Interp::_setup.filename)
-		       .def_readonly("linetext", (char *) &Interp::_setup.linetext)
-		       .def_readonly( "current_tool", &Interp::_setup.tool_table[0].toolno)
+		       .def_readonly("filename", (char *) &InterpWrap::_setup.filename)
+		       .def_readonly("linetext", (char *) &InterpWrap::_setup.linetext)
+		       .def_readonly( "current_tool", &InterpWrap::_setup.tool_table[0].toolno)
 
-		       .def_readwrite("AA_axis_offset", &Interp::_setup.AA_axis_offset)
-		       .def_readwrite("AA_current", &Interp::_setup.AA_current)
-		       .def_readwrite("AA_origin_offset", &Interp::_setup.AA_origin_offset)
-		       .def_readwrite("BB_axis_offset", &Interp::_setup.BB_axis_offset)
-		       .def_readwrite("BB_current", &Interp::_setup.BB_current)
-		       .def_readwrite("BB_origin_offset", &Interp::_setup.BB_origin_offset)
-		       .def_readwrite("CC_axis_offset", &Interp::_setup.CC_axis_offset)
-		       .def_readwrite("CC_current", &Interp::_setup.CC_current)
-		       .def_readwrite("CC_origin_offset", &Interp::_setup.CC_origin_offset)
-		       .def_readwrite("arc_not_allowed", &Interp::_setup.arc_not_allowed)
-		       .def_readwrite("axis_offset_x", &Interp::_setup.axis_offset_x)
-		       .def_readwrite("axis_offset_y", &Interp::_setup.axis_offset_y)
-		       .def_readwrite("axis_offset_z", &Interp::_setup.axis_offset_z)
-		       .def_readwrite("call_level", &Interp::_setup.call_level)
-		       .def_readwrite("current_pocket", &Interp::_setup.current_pocket)
-		       .def_readwrite("current_x", &Interp::_setup.current_x)
-		       .def_readwrite("current_y", &Interp::_setup.current_y)
-		       .def_readwrite("current_z", &Interp::_setup.current_z)
-		       .def_readwrite("cutter_comp_firstmove", &Interp::_setup.cutter_comp_firstmove)
-		       .def_readwrite("cutter_comp_orientation", &Interp::_setup.cutter_comp_orientation)
-		       .def_readwrite("cutter_comp_radius", &Interp::_setup.cutter_comp_radius)
-		       .def_readwrite("cutter_comp_side", &Interp::_setup.cutter_comp_side)
-		       .def_readwrite("cycle_cc", &Interp::_setup.cycle_cc)
-		       .def_readwrite("cycle_i", &Interp::_setup.cycle_i)
-		       .def_readwrite("cycle_il", &Interp::_setup.cycle_il)
-		       .def_readwrite("cycle_il_flag", &Interp::_setup.cycle_il_flag)
-		       .def_readwrite("cycle_j", &Interp::_setup.cycle_j)
-		       .def_readwrite("cycle_k", &Interp::_setup.cycle_k)
-		       .def_readwrite("cycle_l", &Interp::_setup.cycle_l)
-		       .def_readwrite("cycle_p", &Interp::_setup.cycle_p)
-		       .def_readwrite("cycle_q", &Interp::_setup.cycle_q)
-		       .def_readwrite("cycle_r", &Interp::_setup.cycle_r)
-		       .def_readwrite("debugmask", &Interp::_setup.debugmask)
-		       .def_readwrite("distance_mode", &Interp::_setup.distance_mode)
-		       .def_readwrite("feed_mode", &Interp::_setup.feed_mode)
-		       .def_readwrite("feed_override", &Interp::_setup.feed_override)
-		       .def_readwrite("feed_rate", &Interp::_setup.feed_rate)
-		       .def_readwrite("ijk_distance_mode", &Interp::_setup.ijk_distance_mode)
-		       .def_readwrite("input_digital", &Interp::_setup.input_digital)
-		       .def_readwrite("input_flag", &Interp::_setup.input_flag)
-		       .def_readwrite("input_index", &Interp::_setup.input_index)
-		       .def_readwrite("length_units", &Interp::_setup.length_units)
-		       .def_readwrite("mdi_interrupt", &Interp::_setup.mdi_interrupt)
-		       .def_readwrite("mist", &Interp::_setup.mist)
-		       .def_readwrite("motion_mode", &Interp::_setup.motion_mode)
-		       .def_readwrite("origin_index", &Interp::_setup.origin_index)
-		       .def_readwrite("origin_offset_x", &Interp::_setup.origin_offset_x)
-		       .def_readwrite("origin_offset_y", &Interp::_setup.origin_offset_y)
-		       .def_readwrite("origin_offset_z", &Interp::_setup.origin_offset_z)
-		       .def_readwrite("percent_flag", &Interp::_setup.percent_flag)
-		       .def_readwrite("plane", &Interp::_setup.plane)
-		       .def_readwrite("pockets_max", &Interp::_setup.pockets_max)
-		       .def_readwrite("probe_flag", &Interp::_setup.probe_flag)
-		       .def_readwrite("program_x", &Interp::_setup.program_x)
-		       .def_readwrite("program_y", &Interp::_setup.program_y)
-		       .def_readwrite("program_z", &Interp::_setup.program_z)
-		       .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
-		       .def_readwrite("random_toolchanger", &Interp::_setup.random_toolchanger)
-		       .def_readwrite("remap_level", &Interp::_setup.remap_level)
-		       .def_readwrite("retract_mode", &Interp::_setup.retract_mode)
-		       .def_readwrite("return_value", &Interp::_setup.return_value)
-		       .def_readwrite("rotation_xy", &Interp::_setup.rotation_xy)
-		       .def_readwrite("selected_pocket", &Interp::_setup.selected_pocket)
-		       .def_readwrite("sequence_number", &Interp::sequence_number)
-		       .def_readwrite("speed", &Interp::_setup.speed)
-		       .def_readwrite("speed_feed_mode", &Interp::_setup.speed_feed_mode)
-		       .def_readwrite("speed_override", &Interp::_setup.speed_override)
-		       .def_readwrite("spindle_mode", &Interp::_setup.spindle_mode)
-		       .def_readwrite("spindle_turning", &Interp::_setup.spindle_turning)
-		       .def_readwrite("tool_offset", &Interp::_setup.tool_offset)
-		       .def_readwrite("tool_offset_index", &Interp::_setup.tool_offset_index)
-		       .def_readwrite("toolchange_flag", &Interp::_setup.toolchange_flag)
-		       .def_readwrite("traverse_rate", &Interp::_setup.traverse_rate)
-		       .def_readwrite("u_axis_offset", &Interp::_setup.u_axis_offset)
-		       .def_readwrite("u_current", &Interp::_setup.u_current)
-		       .def_readwrite("u_origin_offset", &Interp::_setup.u_origin_offset)
-		       .def_readwrite("v_axis_offset", &Interp::_setup.v_axis_offset)
-		       .def_readwrite("v_current", &Interp::_setup.v_current)
-		       .def_readwrite("v_origin_offset", &Interp::_setup.v_origin_offset)
-		       .def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
-		       .def_readwrite("w_current", &Interp::_setup.w_current)
-		       .def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
+		       .def_readwrite("AA_axis_offset", &InterpWrap::_setup.AA_axis_offset)
+		       .def_readwrite("AA_current", &InterpWrap::_setup.AA_current)
+		       .def_readwrite("AA_origin_offset", &InterpWrap::_setup.AA_origin_offset)
+		       .def_readwrite("BB_axis_offset", &InterpWrap::_setup.BB_axis_offset)
+		       .def_readwrite("BB_current", &InterpWrap::_setup.BB_current)
+		       .def_readwrite("BB_origin_offset", &InterpWrap::_setup.BB_origin_offset)
+		       .def_readwrite("CC_axis_offset", &InterpWrap::_setup.CC_axis_offset)
+		       .def_readwrite("CC_current", &InterpWrap::_setup.CC_current)
+		       .def_readwrite("CC_origin_offset", &InterpWrap::_setup.CC_origin_offset)
+		       .def_readwrite("arc_not_allowed", &InterpWrap::_setup.arc_not_allowed)
+		       .def_readwrite("axis_offset_x", &InterpWrap::_setup.axis_offset_x)
+		       .def_readwrite("axis_offset_y", &InterpWrap::_setup.axis_offset_y)
+		       .def_readwrite("axis_offset_z", &InterpWrap::_setup.axis_offset_z)
+		       .def_readwrite("call_level", &InterpWrap::_setup.call_level)
+		       .def_readwrite("current_pocket", &InterpWrap::_setup.current_pocket)
+		       .def_readwrite("current_x", &InterpWrap::_setup.current_x)
+		       .def_readwrite("current_y", &InterpWrap::_setup.current_y)
+		       .def_readwrite("current_z", &InterpWrap::_setup.current_z)
+		       .def_readwrite("cutter_comp_firstmove", &InterpWrap::_setup.cutter_comp_firstmove)
+		       .def_readwrite("cutter_comp_orientation", &InterpWrap::_setup.cutter_comp_orientation)
+		       .def_readwrite("cutter_comp_radius", &InterpWrap::_setup.cutter_comp_radius)
+		       .def_readwrite("cutter_comp_side", &InterpWrap::_setup.cutter_comp_side)
+		       .def_readwrite("cycle_cc", &InterpWrap::_setup.cycle_cc)
+		       .def_readwrite("cycle_i", &InterpWrap::_setup.cycle_i)
+		       .def_readwrite("cycle_il", &InterpWrap::_setup.cycle_il)
+		       .def_readwrite("cycle_il_flag", &InterpWrap::_setup.cycle_il_flag)
+		       .def_readwrite("cycle_j", &InterpWrap::_setup.cycle_j)
+		       .def_readwrite("cycle_k", &InterpWrap::_setup.cycle_k)
+		       .def_readwrite("cycle_l", &InterpWrap::_setup.cycle_l)
+		       .def_readwrite("cycle_p", &InterpWrap::_setup.cycle_p)
+		       .def_readwrite("cycle_q", &InterpWrap::_setup.cycle_q)
+		       .def_readwrite("cycle_r", &InterpWrap::_setup.cycle_r)
+		       .def_readwrite("debugmask", &InterpWrap::_setup.debugmask)
+		       .def_readwrite("distance_mode", &InterpWrap::_setup.distance_mode)
+		       .def_readwrite("feed_mode", &InterpWrap::_setup.feed_mode)
+		       .def_readwrite("feed_override", &InterpWrap::_setup.feed_override)
+		       .def_readwrite("feed_rate", &InterpWrap::_setup.feed_rate)
+		       .def_readwrite("ijk_distance_mode", &InterpWrap::_setup.ijk_distance_mode)
+		       .def_readwrite("input_digital", &InterpWrap::_setup.input_digital)
+		       .def_readwrite("input_flag", &InterpWrap::_setup.input_flag)
+		       .def_readwrite("input_index", &InterpWrap::_setup.input_index)
+		       .def_readwrite("length_units", &InterpWrap::_setup.length_units)
+		       .def_readwrite("mdi_interrupt", &InterpWrap::_setup.mdi_interrupt)
+		       .def_readwrite("mist", &InterpWrap::_setup.mist)
+		       .def_readwrite("motion_mode", &InterpWrap::_setup.motion_mode)
+		       .def_readwrite("origin_index", &InterpWrap::_setup.origin_index)
+		       .def_readwrite("origin_offset_x", &InterpWrap::_setup.origin_offset_x)
+		       .def_readwrite("origin_offset_y", &InterpWrap::_setup.origin_offset_y)
+		       .def_readwrite("origin_offset_z", &InterpWrap::_setup.origin_offset_z)
+		       .def_readwrite("percent_flag", &InterpWrap::_setup.percent_flag)
+		       .def_readwrite("plane", &InterpWrap::_setup.plane)
+		       .def_readwrite("pockets_max", &InterpWrap::_setup.pockets_max)
+		       .def_readwrite("probe_flag", &InterpWrap::_setup.probe_flag)
+		       .def_readwrite("program_x", &InterpWrap::_setup.program_x)
+		       .def_readwrite("program_y", &InterpWrap::_setup.program_y)
+		       .def_readwrite("program_z", &InterpWrap::_setup.program_z)
+		       .def_readwrite("py_reload_on_change", &InterpWrap::_setup.py_reload_on_change)
+		       .def_readwrite("random_toolchanger", &InterpWrap::_setup.random_toolchanger)
+		       .def_readwrite("remap_level", &InterpWrap::_setup.remap_level)
+		       .def_readwrite("retract_mode", &InterpWrap::_setup.retract_mode)
+		       .def_readwrite("return_value", &InterpWrap::_setup.return_value)
+		       .def_readwrite("rotation_xy", &InterpWrap::_setup.rotation_xy)
+		       .def_readwrite("selected_pocket", &InterpWrap::_setup.selected_pocket)
+		       .def_readwrite("sequence_number", &InterpWrap::sequence_number)
+		       .def_readwrite("speed", &InterpWrap::_setup.speed)
+		       .def_readwrite("speed_feed_mode", &InterpWrap::_setup.speed_feed_mode)
+		       .def_readwrite("speed_override", &InterpWrap::_setup.speed_override)
+		       .def_readwrite("spindle_mode", &InterpWrap::_setup.spindle_mode)
+		       .def_readwrite("spindle_turning", &InterpWrap::_setup.spindle_turning)
+		       .def_readwrite("tool_offset", &InterpWrap::_setup.tool_offset)
+		       .def_readwrite("tool_offset_index", &InterpWrap::_setup.tool_offset_index)
+		       .def_readwrite("toolchange_flag", &InterpWrap::_setup.toolchange_flag)
+		       .def_readwrite("traverse_rate", &InterpWrap::_setup.traverse_rate)
+		       .def_readwrite("u_axis_offset", &InterpWrap::_setup.u_axis_offset)
+		       .def_readwrite("u_current", &InterpWrap::_setup.u_current)
+		       .def_readwrite("u_origin_offset", &InterpWrap::_setup.u_origin_offset)
+		       .def_readwrite("v_axis_offset", &InterpWrap::_setup.v_axis_offset)
+		       .def_readwrite("v_current", &InterpWrap::_setup.v_current)
+		       .def_readwrite("v_origin_offset", &InterpWrap::_setup.v_origin_offset)
+		       .def_readwrite("w_axis_offset", &InterpWrap::_setup.w_axis_offset)
+		       .def_readwrite("w_current", &InterpWrap::_setup.w_current)
+		       .def_readwrite("w_origin_offset", &InterpWrap::_setup.w_origin_offset)
 
 		       );
 
@@ -441,6 +502,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope(interp_class).attr("sub_context") = ptr(&sub_context_array);
     scope(interp_class).attr("blocks") = ptr(&block_array);
     scope(interp_class).attr("tool_table") = ptr(&tool_array);
-
-
+    scope(interp_class).attr("active_g_codes") = ptr(&active_g_codes_array);
+    scope(interp_class).attr("active_m_codes") = ptr(&active_m_codes_array);
+    scope(interp_class).attr("active_settings") = ptr(&active_settings_array);
 }

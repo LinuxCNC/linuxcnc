@@ -1,4 +1,3 @@
-
 typedef boost::shared_ptr< Interp > interp_ptr;
 
 extern setup_pointer current_setup;
