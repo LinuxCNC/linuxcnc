@@ -94,7 +94,7 @@ def change_epilog(userdata,**words):
 		interp.current_pocket = interp.selected_pocket
 		# cause a sync()
 		interp.tool_change_flag = True
-		interp.set_tool_parameters();
+		interp.set_tool_parameters()
 	else:
 		# abort
 		CanonMod.INTERP_ABORT(int(retval),"M6 aborted (return code %.4f)" % (retval))
@@ -155,6 +155,24 @@ def test_reschedule(userdata,**words):
 		# pls call again after sync() with new userdata value
 		return (INTERP_EXECUTE_FINISH,userdata + 1)
 
+# tool table access
+def print_tool(userdata, **words):
+	n = 0
+	if words['p']:
+		n = int(words['p'])
+	print "tool %d:" % (n)
+	print "tool number:", interp.tool_table[n].toolno
+	print "tool offset x:", interp.tool_table[n].offset.tran.x
+	print "tool offset y:", interp.tool_table[n].offset.tran.y
+	print "tool offset z:", interp.tool_table[n].offset.tran.z
+	return (INTERP_OK,)
+
+def set_tool_zoffset(userdata, **words):
+	n = int(words['p'])
+	interp.tool_table[n].offset.tran.z = words['q']
+	if n == 0:
+		interp.set_tool_parameters()
+	return (INTERP_OK,)
 
 def printobj(b,header=""):
 	print "object ",header,":"
@@ -181,9 +199,6 @@ def introspect(args,**kwargs):
 
 	printobj(interp,"interp")
 	printobj(interp.tool_offset,"tool_offset")
-
-
-
 	callstack()
 	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
 		print "param",i,"=",interp.params[i]

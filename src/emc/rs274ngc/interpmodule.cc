@@ -144,8 +144,16 @@ static struct ContextArray sub_context_array;
 
 struct BlockArray {
     BlockWrap *getitem(bp::object sub) {
-	int index = bp::extract < int > (sub);
-	return (BlockWrap *) &current_setup->blocks[index];
+	if (IS_INT(sub)) {
+	    int index = bp::extract < int > (sub);
+	    if ((index < 0) || (index > MAX_NESTED_REMAPS - 1)) {
+		throw std::runtime_error("blocks subscript out of range");
+	    } else
+		return (BlockWrap *) &current_setup->blocks[index];
+
+	} else
+	    throw std::runtime_error("blocks subscript type must be integer");
+
     }
 
     long len() {
@@ -154,7 +162,22 @@ struct BlockArray {
 };
 static struct BlockArray block_array;
 
+struct ToolWrap : public CANON_TOOL_TABLE {
+};
+struct ToolArray {
+    ToolWrap *getitem(bp::object sub) {
+	int index = bp::extract < int > (sub);
+	if ((index < 0) || (index > CANON_POCKETS_MAX - 1)) {
+	    throw std::runtime_error("tool subscript out of range");
+	} else
+	    return (ToolWrap *) &current_setup->tool_table[index];
+    }
 
+    long len() {
+	return current_setup->pockets_max;
+    }
+};
+static struct ToolArray tool_array;
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -191,6 +214,12 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def("__getitem__", &BlockArray::getitem,
 	     return_value_policy<reference_existing_object>())
 	.def("__len__", &BlockArray::len)
+	;
+
+    class_ <ToolArray, noncopyable>("ToolArray","tool table",no_init)
+	.def("__getitem__", &ToolArray::getitem,
+	     return_value_policy<reference_existing_object>())
+	.def("__len__", &ToolArray::len)
 	;
 
     class_ <WrapRemap,noncopyable>("Remap",no_init)
@@ -298,6 +327,15 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("w",&EmcPose::w)
 	;
 
+    class_<ToolWrap, noncopyable>("Tool","Tool description",no_init)
+	.def_readwrite("toolno", &CANON_TOOL_TABLE::toolno)
+	.def_readwrite("offset", &CANON_TOOL_TABLE::offset)
+	.def_readwrite("diameter", &CANON_TOOL_TABLE::diameter)
+	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)
+	.def_readwrite("backangle", &CANON_TOOL_TABLE::backangle)
+	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
+	;
+
     scope interp_class(
 		       class_< Interp, interp_ptr,
 		       noncopyable >("Interp",no_init)
@@ -308,7 +346,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def("set_tool_parameters", &Interp::set_tool_parameters)
 		       .def("synch", &Interp::synch)
 
-		       // // // CANON_TOOL_TABLE missing
 		       // // // active m/g codes, settings missing
 
 		       .def_readonly("filename", (char *) &Interp::_setup.filename)
@@ -403,6 +440,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope(interp_class).attr("params") = ptr(&params);
     scope(interp_class).attr("sub_context") = ptr(&sub_context_array);
     scope(interp_class).attr("blocks") = ptr(&block_array);
+    scope(interp_class).attr("tool_table") = ptr(&tool_array);
 
 
 }
