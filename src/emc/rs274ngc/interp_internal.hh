@@ -259,13 +259,12 @@ RETRACT_MODE;
 const char *strstore(const char *s);
 
 
-// Block execution steps in execution order
+// Block execution phases in execution order
 // very carefully check code for sequencing when
-// adding steps!
+// adding phases!
 
 // used to record execution trail in breadcrumbs
-enum steps  {NO_REMAPPED_STEPS,
-	     FIRST_STEP,
+enum phases  {NO_REMAPPED_STEPS,
 	     STEP_COMMENT,
 	     STEP_SPINDLE_MODE,
 	     STEP_FEED_MODE,
@@ -432,7 +431,7 @@ typedef struct block_struct
   double   params[INTERP_SUB_PARAMS];
   int param_cnt;
 
-  // bitmap of steps already executed
+  // bitmap of phases already executed
   // we have some 31 or so different steps in a block. We must remember
   // which one is done when we reexecute a block after a remap.
     std::bitset<MAX_STEPS>  breadcrumbs;
