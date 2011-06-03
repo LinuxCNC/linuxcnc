@@ -255,6 +255,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->returned = 0;
   block->param_cnt = 0;
   block->call_again = false;
+  block->remappings.clear();
 
   // FIXME mah unclear how to reset a boost::python::dict() object
 
@@ -341,6 +342,8 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
   {
     CHP(enhance_block(block, settings));
     CHP(check_items(block, settings));
+    int n = find_remappings(block,settings);
+    if (n) logRemap("parse_line: found %d remappings",n);
   }
   return INTERP_OK;
 }

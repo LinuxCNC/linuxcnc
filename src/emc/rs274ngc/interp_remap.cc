@@ -43,6 +43,7 @@ bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
 
 int Interp::convert_remapped_code(block_pointer block,
 				  setup_pointer settings,
+				  int phase,
 				  char letter,
 				  int number)
 {
@@ -143,7 +144,8 @@ int Interp::convert_remapped_code(block_pointer block,
     // NB: we're NOT triggering MDI handling in execute()
     status = read(cmd);
     CHKS(status != INTERP_OK, "convert_remapped_code: inital read returned %s",interp_status(status));
-    return(- USER_REMAP);
+    return(- phase);
+    //    return(- USER_REMAP);
 }
 
 

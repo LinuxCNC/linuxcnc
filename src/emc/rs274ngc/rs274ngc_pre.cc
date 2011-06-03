@@ -228,10 +228,11 @@ int Interp::_execute(const char *command)
   int status;
   int n;
   int MDImode = 0;
+  block_pointer eblock = &EXECUTING_BLOCK(_setup);
+  block_pointer cblock = &CONTROLLING_BLOCK(_setup);
 
   logDebug("execute: command=%s mdi_interrupt=%d C:user_data=%d E:o_name=%s",
-	   command,_setup.mdi_interrupt,CONTROLLING_BLOCK(_setup).user_data,
-	   EXECUTING_BLOCK(_setup).o_name);
+	   command, _setup.mdi_interrupt, cblock->user_data, eblock->o_name);
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
@@ -249,12 +250,11 @@ int Interp::_execute(const char *command)
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   //  if (_setup.block1.o_number != 0)
-  if ((EXECUTING_BLOCK(_setup).o_number != 0) ||
-      (EXECUTING_BLOCK(_setup).o_name != 0) ||
-      (_setup.mdi_interrupt))
-    {
+  if ((eblock->o_number != 0) ||
+      (eblock->o_name != 0) ||
+      (_setup.mdi_interrupt))  {
       logDebug("Convert control functions");
-      CHP(convert_control_functions(&(EXECUTING_BLOCK(_setup)), &_setup));
+      CHP(convert_control_functions(eblock, &_setup));
 
 #if 1
       // let MDI code call subroutines.
@@ -333,9 +333,6 @@ int Interp::_execute(const char *command)
   _setup.named_parameter_occurrence = 0;
 
   if (_setup.line_length != 0) {        /* line not blank */
-      int next_remap = next_remapping(&(EXECUTING_BLOCK(_setup)),
-				      &_setup,
-				      FIRST_STEP);
 
       // at this point we have a parsed block
       // if items are to be remapped the flow is as follows:
@@ -345,29 +342,26 @@ int Interp::_execute(const char *command)
       //    executed by the oword subs. The top-of-stack block is the 'current
       //    remapped block' or CONTROLLING_BLOCK.
       //
-      // 2. execute the remap stack top level block, ticking off (zeroing) all items which are done.
+      // 2. execute the remap stack top level block, ticking off all items which are done.
       //
       // 3. when a remap operation is encountered, this will result in a call like so:
-      //   'o<replacement>call ..params..' OR a call to a Python function if so defined.
+      //   'o<replacement>call'.
       //
       //   this replacement call is parsed with read() into _setup.blocks[0] by the
       //   corresponding routine (see e.g. handling of T in interp_execute.cc)
-      //   through calling into execute_handler()
+      //   through calling into convert_remapped_code()
       //
-      // 4. execute_handler() sets an optional prologue handler which is called
+      // 4. The oword call code might execute an optional prologue handler which is called
       //    when the subroutine environment is set up (parameters set, execution of
       //    body to begin). This is the way to set local named parameters e.g. for canned cycles.
       //
-      // 5. execute_handler() also sets up an epilogue handler for the replacement sub
-      //   which finishes any work at the C or Python level on endsub/return, and thereafter a callback
-      //   into remap_finished().
+      // 5. The oword endsub/return code might call an epilogue handler
+      //   which finishes any work at the Python level on endsub/return, and thereafter
+      //   calls back into remap_finished().
       //
-      // 6. The execution stops after parsing, and returns with an indication which
-      //   remapping operation was parsed.
-      //
-      //   NB: it is important that a convert_xxx function encountering a remapped
-      //   item does not return a INTERP_* type code but the negative value of the
-      //   the remapping operation so the right thing can be done after parsing.
+      // 6. The execution stops after parsing, and returns with an indication of the
+      //   execution phase. We use negative values of enum steps to distinguish them
+      //   from normal INTERP_* type codes which are all >= 0.
       //
       // 7. In MDI mode, we have to kick execution by replicating code from above
       //   to get the osub call going.
@@ -378,34 +372,38 @@ int Interp::_execute(const char *command)
       // 9. When a replacment sub finishes, remap_finished() continues execution of
       //   the current remapped block until done.
       //
-      if (next_remap != NO_REMAPPED_STEPS) {
+      if (eblock->remappings.size() > 0) {
+	  std::set<int>::iterator it;
+	  int next_remap = *eblock->remappings.begin();
 	  logRemap("found remap %d in '%s', level=%d filename=%s line=%d",
 		  next_remap,_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
 	  CHP(enter_remap());
+	  cblock = &CONTROLLING_BLOCK(_setup);
+	  cblock->phase = next_remap;
 	  // execute up to the first remap including read() of its handler
-	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup);
+	  status = execute_block(cblock, &_setup);
 
 	  // All items up to the first remap item have been executed.
 	  // The remap item procedure call has been parsed into _setup.blocks[0],
 	  // the EXECUTING_BLOCK.
 	  // after parsing a handler, execute_block() either fails to toplevel or
-	  // returns the negative value of the handler ID it parsed.
-	  switch (status) {
-	  case -USER_REMAP:
-	  // case -T_REMAP:
-	  // case -M6_REMAP:
-	  // case -M61_REMAP:
-	  // case -M_USER_REMAP:
-	  // case -G_USER_REMAP:
-	      logRemap("FIXME handler armed: %s",remaps[-status]);
+	  // returns the negative value of phase (to distinguish them from INTERP_* codes which are all > 0)
+
+	  if (status < 0) {
+	      // the remap phase indicator was returned.
+	      // sanity:
+	      if (cblock->remappings.find(- status) == cblock->remappings.end()) {
+		  ERS("BUG: execute_block: got %d - not in remappings() !! (next_remap=%d)",- status,next_remap);
+	      }
+	      logRemap("inital phase %d",-status);
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-		  if ((EXECUTING_BLOCK(_setup).o_number != 0) ||
-		      (EXECUTING_BLOCK(_setup).o_name != 0) ||
+		  if ((eblock->o_number != 0) ||
+		      (eblock->o_name != 0) ||
 		      (_setup.mdi_interrupt)) {
-		      CHP(convert_control_functions(&(EXECUTING_BLOCK(_setup)), &_setup));
+		      CHP(convert_control_functions(eblock, &_setup));
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
 			  MDImode = 1;
@@ -430,8 +428,8 @@ int Interp::_execute(const char *command)
 		      _setup.mdi_interrupt = false;
 		      // at this point the MDI execution of a remapped block is complete.
 		      logRemap("MDI remap execution complete status=%s\n",interp_status(status));
-		      write_g_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
-		      write_m_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
+		      write_g_codes(eblock, &_setup);
+		      write_m_codes(eblock, &_setup);
 		      write_settings(&_setup);
 		      return INTERP_OK;
 		  }
@@ -444,16 +442,15 @@ int Interp::_execute(const char *command)
 	      if ((status != INTERP_OK) &&
 		  (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
 		  ERP(status);
-	      break;
-	  default:
-	      logRemap("------------------------ BUG? --------------execute_block status = %d",status);
+	  } else {
+	      ERS("BUG: remapping indicated but execute_block() returned status = %d",status);
 	  }
       } else {
 	  // standard case: unremapped block execution
-	  status = execute_block(&(EXECUTING_BLOCK(_setup)), &_setup);
+	  status = execute_block(eblock, &_setup);
 
-	  write_g_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
-	  write_m_codes(&(EXECUTING_BLOCK(_setup)), &_setup);
+	  write_g_codes(eblock, &_setup);
+	  write_m_codes(eblock, &_setup);
 	  write_settings(&_setup);
 
 	  if ((status == INTERP_EXIT) &&
@@ -466,8 +463,6 @@ int Interp::_execute(const char *command)
 		      _setup.filename,
 		      _setup.sub_context[0].filename,
 		      _setup.sub_context[1].filename);
-
-
 	  }
       }
     if ((status != INTERP_OK) &&
@@ -516,35 +511,37 @@ int Interp::execute(const char *command, int line_number)
 
 // when a remapping sub finishes, the oword return/endsub handling code
 // calls back in here to continue block execution
-int Interp::remap_finished(int finished_remap)
+int Interp::remap_finished(int phase)
 {
     int next_remap,status;
+    block_pointer cblock = &CONTROLLING_BLOCK(_setup);
 
-    logRemap("remap_finished finished=%d remap_level=%d call_level=%d filename=%s",
-	  finished_remap,_setup.remap_level,_setup.call_level,_setup.filename);
+    logRemap("remap_finished phase=%d remap_level=%d call_level=%d filename=%s",
+	  phase, _setup.remap_level,_setup.call_level,_setup.filename);
 
-    switch (finished_remap) {
-    case USER_REMAP:
-    // case T_REMAP:
-    // case M6_REMAP:
-    // case M61_REMAP:
-    // case M_USER_REMAP:
-    // case G_USER_REMAP:
-	// the controlling block had a remapped item, which just finished and the
-	// epilogue handler called in here.
-	// check the current block for the next remapped item
-	//FIXME start where we just ended
-	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)),
-				    &_setup, FIRST_STEP);
-	if (next_remap) {
-	    logRemap("arming %d  (remap_level=%d call_level=%d)",next_remap,_setup.remap_level,_setup.call_level);
+    // the controlling block had a remapped item, which just finished and the
+    // oword return/endsub code called in here.
+    if (phase < 0) {
+	// paranoia.
+	if (cblock->remappings.find(-phase) == cblock->remappings.end()) {
+	    ERS("remap_finished: got %d - not in cblock.remappings!",phase);
+	}
+	// done with this phase.
+	cblock->remappings.erase(-phase);
+	// check the controlling block for the next remapped item
+	std::set<int>::iterator it  = cblock->remappings.begin();
+
+	if (it != cblock->remappings.end()) {
+	    next_remap = *it;
+	    cblock->phase = next_remap;
+
+	    logRemap("starting phase %d  (remap_level=%d call_level=%d)",next_remap,_setup.remap_level,_setup.call_level);
 
 	    // this will execute up to the next remap, and return
 	    // after parsing the handler with read()
 	    // so blocks[0] is armed (meaning: a osub call is parsed, but not executed yet)
-	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
-				   &_setup);
-	    logRemap("post-arming: execute_block() returns %d",status);
+	    status = execute_block(cblock, &_setup);
+	    logRemap("phase %d started,  execute_block() returns %d", next_remap, status);
 
 	    if (status < 0) {
 		// a remap was parsed, get the block going
@@ -552,22 +549,22 @@ int Interp::remap_finished(int finished_remap)
 	    } else
 		return status;
 	} else {
+	    if (cblock->remappings.size()) {
+		ERS("BUG - remappings not empty");
+	    }
 	    // execution of controlling block finished executing a remap, and it contains no more
 	    // remapped items. Execute any leftover items.
-	    logRemap("no more remaps in controlling_block found (remap_level=%d call_level=%d), dropping",
-		    _setup.remap_level,_setup.call_level);
+	    logRemap("no more remaps in controlling_block found (remap_level=%d call_level=%d), remappings size=%d, dropping",
+		     _setup.remap_level,_setup.call_level,cblock->remappings.size());
 
-	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
-				   &_setup);
+	    status = execute_block(cblock,  &_setup);
 
 	    if ((status < 0) ||  (status > INTERP_MIN_ERROR)) {
-		// status < 0 is a bug; might happen if next_remapping() failed to indicate the next remap
+		// status < 0 is a bug; might happen if find_remappings() failed to indicate the next remap
 		logRemap("executing block leftover items: %s status=%s  remap_level=%d call_level=%d (failing)",
 			 status < 0 ? "BUG":"ERROR", interp_status(status),_setup.remap_level,_setup.call_level);
-		int level = _setup.remap_level;
-		_setup.remap_level = 0;
 		if (status < 0)
-		    ERS("BUG - check next_remapping() status=%d nesting=%d",status,level);
+		    ERS("BUG - check find_remappings()!! status=%d nesting=%d",status,_setup.remap_level);
 	    } else {
 		// we're done with this remapped block.
 		// execute_block may return INTERP_EXECUTE_FINISH if a probe, input or toolchange
@@ -580,109 +577,71 @@ int Interp::remap_finished(int finished_remap)
 		logRemap("executing block leftover items complete, status=%s  remap_level=%d call_level=%d tc=%d probe=%d input=%d mdi_interrupt=%d  line=%d backtoline=%d",
 			 interp_status(status),_setup.remap_level,_setup.call_level,_setup.toolchange_flag,
 			_setup.probe_flag,_setup.input_flag,_setup.mdi_interrupt,_setup.sequence_number,
-			CONTROLLING_BLOCK(_setup).line_number);
+			 cblock->line_number);
 	    }
 	}
 	return status;
-	break;
-
-    default: ;
+    } else {
 	// "should not happen"
-	Log("BUG: remap_finished(): finished_remap=%d nesting=%d",
-	    finished_remap, _setup.remap_level);
+	ERS("BUG: remap_finished(): phase=%d nesting=%d",
+	    phase, _setup.remap_level);
     }
     return INTERP_OK;
 }
 
 
-// examine a block in execution sequence for an active item which is
-// remapped to an oword subroutine.
-// execution sequence as described in:
-// http://www.linuxcnc.org/docs/2.4/html/gcode_overview.html#sec:Order-of-Execution
-// return NO_REMAP if no remapped item found.
-// return remap_op of the first remap in execution sequence.
-
-// test add S,F remaps - interception missing FIXME mah
-int Interp::next_remapping(block_pointer block, setup_pointer settings,
-			   int after_step)
+// examine a block for an active items which are remapped
+// insert all remapped item phases into block.remapping set
+// return number of remaps found
+int Interp::find_remappings(block_pointer block, setup_pointer settings)
 {
-    int exec_phase, mode;
+    if (block->f_flag &&
+	todo(STEP_SET_FEED_RATE) &&
+	remapping("F"))
+	block->remappings.insert(STEP_SET_FEED_RATE);
 
-    for (exec_phase = after_step; exec_phase < MAX_STEPS; exec_phase++) {
-	switch (exec_phase) {
+    if (block->s_flag &&
+	todo(STEP_SET_SPINDLE_SPEED) &&
+	remapping("S"))
+	block->remappings.insert(STEP_SET_SPINDLE_SPEED);
 
-	case STEP_SET_FEED_RATE:
-	    if (block->f_flag && todo(STEP_SET_FEED_RATE) &&
-		remapping("F"))
-		return STEP_SET_FEED_RATE;
-	    break;
+    if (block->t_flag &&
+	todo(STEP_PREPARE) &&
+	remapping("T"))
+	block->remappings.insert(STEP_PREPARE);
 
-	case STEP_SET_SPINDLE_SPEED:
-	    if (block->s_flag && todo(STEP_SET_SPINDLE_SPEED) &&
-		remapping("S"))
-		return STEP_SET_SPINDLE_SPEED;
-	    break;
+    // User defined M-Codes in group 5
+    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
+	block->remappings.insert(STEP_M_5);
 
-	case STEP_PREPARE: // Select tool (T).
-	    if (block->t_flag && todo(STEP_PREPARE) &&
-		remapping("T"))
-		return STEP_PREPARE;
-	    break;
+    // User defined M-Codes in group 6 (including M6, M61)
+    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
+	block->remappings.insert(STEP_M_6);
 
-	case STEP_M_5:
-	    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
-		return STEP_M_5;
-	    break;
+    // User defined M-Codes in group 7
+    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
+	block->remappings.insert(STEP_M_7);
 
-	case STEP_M_6:
-	    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
-		return STEP_M_6;
+    // User defined M-Codes in group 8
+    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
+	block->remappings.insert(STEP_M_8);
 
-#if 0 // FIXME i think not needed anymore
-	    // Change tool (M6), Set Tool Number (M61)
-	    if ((block->m_modes[6] == 6) && todo(STEP_M_6) &&
-		remapping("M6"))
-		return USER_REMAP;
+    // User defined M-Codes in group 9
+    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
+	block->remappings.insert(STEP_M_9);
 
-	    if ((block->m_modes[6] == 61) && todo(STEP_M_6) &&
-		remapping("M61"))
-		return USER_REMAP;
-#endif
-	    break;
+    // User defined M-Codes in group 10
+    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
+	block->remappings.insert(STEP_M_10);
 
-	case STEP_M_7: // User defined M-Codes in group 7
-	    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
-		return STEP_M_7;
-	    break;
+    // User-defined motion codes (G0 to G3, G33, G73, G76, G80 to G89)
+    // as modified (possibly) by G53.
+    int mode = block->g_modes[GM_MOTION];
+    if ((mode != -1) && IS_USER_GCODE(mode) &&
+	todo(STEP_MOTION))
+	block->remappings.insert(STEP_MOTION);
 
-	case STEP_M_8: // User defined M-Codes in group 8
-	    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
-		return STEP_M_8;
-	    break;
-
-	case STEP_M_9: // User defined M-Codes in group 9
-	    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
-		return STEP_M_9;
-	    break;
-
-	case STEP_M_10: // User defined M-Codes in group 10
-	    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
-		return STEP_M_10;
-	    break;
-
-	case STEP_MOTION: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
-	    mode = block->g_modes[GM_MOTION];
-	    if ((mode != -1) && IS_USER_GCODE(mode) &&
-		todo(STEP_MOTION)) {
-		return STEP_MOTION;
-	    }
-	    break;
-
-	default:
-	    break;
-	}
-    }
-    return NO_REMAPPED_STEPS;
+    return block->remappings.size();
 }
 
 /***********************************************************************/
@@ -1325,7 +1284,6 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   {
       EXECUTING_BLOCK(_setup).offset = ftell(_setup.file_pointer);
   }
-  EXECUTING_BLOCK(_setup).breadcrumbs = 0; // clear trail FIXME mah also done in init_bloc
 
   read_status =
     read_text(command, _setup.file_pointer, _setup.linetext,

@@ -477,7 +477,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 				    r_block->executing_remap->epilog_func);
 		}
 		if (r_block->executing_remap)
-		    ERP(remap_finished(USER_REMAP));
+		    ERP(remap_finished(-r_block->phase));
 
 		// a valid previous context was marked by an M73 as auto-restore
 		if ((leaving_frame->context_status &
@@ -691,7 +691,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    settings->call_level--; // compensate bump above
 		}
 		settings->call_level--; // and return to previous level
-		ERP(remap_finished(USER_REMAP));
+		ERP(remap_finished(-r_block->phase));
 		return status;
 	    }
 	}

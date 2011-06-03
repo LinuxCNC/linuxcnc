@@ -2860,9 +2860,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (IS_USER_MCODE(block,settings,5) && once_M(5))  {
 
-      return convert_remapped_code(block,settings,'m',
+      return convert_remapped_code(block, settings, STEP_M_5, 'm',
 				   block->m_modes[5]);
-  // return convert_remapped_mcode(block, settings, 5);
 
   } else if ((block->m_modes[5] == 62) && once_M(5)) {
       CHKS((settings->cutter_comp_side),
@@ -2971,7 +2970,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
 	  if (IS_USER_MCODE(block,settings,6)) {
 	      // NB: no checks - you're on your own
-	      return convert_remapped_code(block,settings,'m',
+	      return convert_remapped_code(block,settings,
+					   STEP_M_6,
+					   'm',
 					   block->m_modes[6]);
 	  }  else {
 
@@ -2986,7 +2987,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	  CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
 
 	  if (IS_USER_MCODE(block,settings,6)) {
-	      return convert_remapped_code(block,settings,'m',
+	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
 	      int status = INTERP_OK;
@@ -3031,7 +3032,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 #endif
 
  if (IS_USER_MCODE(block,settings,7) && once_M(7)) {
-    return convert_remapped_code(block,settings,'m',
+    return convert_remapped_code(block, settings, STEP_M_7, 'm',
 				   block->m_modes[7]);
  } else if ((block->m_modes[7] == 3)  && once_M(7)) {
     enqueue_START_SPINDLE_CLOCKWISE();
@@ -3086,7 +3087,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }
 
   if (IS_USER_MCODE(block,settings,8) && once_M(8)) {
-     return convert_remapped_code(block,settings,'m',
+     return convert_remapped_code(block, settings, STEP_M_8, 'm',
 				   block->m_modes[8]);
 //return convert_remapped_mcode(block, settings, 8);
   } else if ((block->m_modes[8] == 7) && once_M(8)){
@@ -3119,7 +3120,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
 */
 if (IS_USER_MCODE(block,settings,9) && once_M(9)) {
-     return convert_remapped_code(block,settings,'m',
+     return convert_remapped_code(block, settings, STEP_M_9, 'm',
 				   block->m_modes[9]);
 // return convert_remapped_mcode(block, settings, 9);
  } else if ((block->m_modes[9] == 48)  && once_M(9)){
@@ -3196,10 +3197,9 @@ if ((block->m_modes[9] == 53)  && once_M(9)){
   }
 
 if (IS_USER_MCODE(block,settings,10) && once_M(10)) {
-    return convert_remapped_code(block,settings,'m',
+    return convert_remapped_code(block,settings,STEP_M_10,'m',
 				   block->m_modes[10]);
 
-//    return convert_remapped_mcode(block, settings, 10);
  } else if ((block->m_modes[10] != -1)  && once_M(10)){
      /* user-defined M codes */
     int index = block->m_modes[10];
@@ -3329,7 +3329,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
 #endif
     settings->motion_mode = G_80;
   } else if (IS_USER_GCODE(motion)) {
-      CHP(convert_remapped_code(block,settings,'g',motion));
+      CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {

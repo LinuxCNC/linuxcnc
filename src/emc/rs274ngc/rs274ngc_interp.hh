@@ -479,8 +479,9 @@ public:
  // parse a REMAP= descriptor from the ini file
  int parse_remap(const char *inistring, int lineno);
 
- // step through parsed block and find first active remapped item after a given step
-    int next_remapping(block_pointer block, setup_pointer settings, int after_step);
+ // step through parsed block and collect remapped items in
+ // block.remappings set
+    int find_remappings(block_pointer block, setup_pointer settings);
 
  // establish a new remapping context
  int enter_remap(void);
@@ -528,6 +529,7 @@ public:
 
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
+			      int phase,
 			      char letter,
 			      int number = -1);
     // int convert_remapped_mcode(block_pointer block, setup_pointer settings,

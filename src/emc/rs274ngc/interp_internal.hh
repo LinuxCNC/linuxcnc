@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <map>
+#include <set>
 #include <bitset>
 #include "canon.hh"
 #include "emcpos.h"
@@ -465,6 +466,8 @@ typedef struct block_struct
     // passed as tupleargs again if by (INTERP_EXECUTE_FINISH, <userdata-value>)
     int user_data;
     bool call_again; // a py osub returned INTERP_EXECUTE_FINISH
+    std::set<int> remappings; // all remappings in this block
+    int phase; // current execution phase
 }
 block;
 enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_USERDATA};

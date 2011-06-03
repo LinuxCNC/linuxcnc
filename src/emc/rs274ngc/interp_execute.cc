@@ -299,7 +299,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (block->f_flag){
       if ((settings->feed_mode != INVERSE_TIME) && once(STEP_SET_FEED_RATE))  {
 	  if ((rptr = remapping("F")) != NULL) {
-	      return (convert_remapped_code(block,settings,'F'));
+	      return (convert_remapped_code(block, settings, STEP_SET_FEED_RATE, 'F'));
 	  } else {
 	      status = convert_feed_rate(block, settings);
 	      CHP(status);
@@ -309,7 +309,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   }
   if ((block->s_flag) && once(STEP_SET_SPINDLE_SPEED)){
       if ((rptr = remapping("S")) != NULL) {
-	  return (convert_remapped_code(block,settings,'S'));
+	  return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
       } else {
 	  status = convert_speed(block, settings);
 	  CHP(status);
@@ -318,7 +318,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if ((block->t_flag) && once(STEP_PREPARE)){
       if ((rptr = remapping("T")) != NULL) {
 	  // switch to generic remap using Python pro/epilogs
-	  return (convert_remapped_code(block,settings,'T'));
+	  return (convert_remapped_code(block,settings,STEP_PREPARE,'T'));
 
 	  // this was the hand-crafted remap
 	// int pocket;
