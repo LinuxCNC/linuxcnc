@@ -306,10 +306,13 @@ int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being
                            block_pointer block,    //!< pointer to a block being filled from the line
                            double *parameters)     //!< array of system parameters                   
 {
-
-  CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
-  (*counter) = strlen(line);
-  return INTERP_OK;
+    char *s;
+    CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter) = strlen(line);
+    // pass unmutilated line to convert_comment - FIXME access to _setup
+    if (( s = strchr(_setup.linetext,';')) != NULL)
+	CHP(convert_comment(s+1));
+    return INTERP_OK;
 }
 
 /****************************************************************************/
