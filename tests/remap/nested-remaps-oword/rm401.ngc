@@ -1,5 +1,5 @@
 o<rm401> sub
-(debug, call_level=#<_call_level> remap_level=#<_remap_level>)
+(debug,m401 handler call_level=#<_call_level> remap_level=#<_remap_level>)
 m402
 o<rm401> endsub
 m2
