@@ -178,6 +178,29 @@ struct ToolArray {
 static struct ToolArray tool_array;
 
 struct InterpWrap : public Interp {
+    // FIXME find out how to unwrap base class 'this' properly
+    // bp::object wrap_find_tool_pocket(int toolno)
+    // {
+    // 	int status, pocket;
+    // 	setup *settings  =  &_setup;
+
+    // 	status = this->find_tool_pocket(settings, toolno, &pocket);
+    // 	return bp::make_tuple(status, pocket);
+    // }
+    // void wrap_setError(const char *s)
+    // {
+    // 	setup *settings  =  &_setup;
+
+    // 	if ((s == NULL) && !strlen(s))
+    // 	    s = "###";
+    // 	this->setError (s);
+    // 	settings->stack_index = 0;
+    // 	strncpy(settings->stack[settings->stack_index],
+    // 		"Python", STACK_ENTRY_LEN);
+    // 	settings->stack[settings->stack_index][STACK_ENTRY_LEN-1] = 0;
+    // 	settings->stack_index++;
+    // 	settings->stack[settings->stack_index][0] = 0;
+    // }
 };
 
 
@@ -246,7 +269,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("sequence_number",&ContextWrap::sequence_number)
 	.def_readwrite("filename",  &ContextWrap::filename)
 	.def_readwrite("subname",  &ContextWrap::subName)
-	// need wrapper for saved_params
+	// FIXME need wrapper for saved_params
 	.def_readwrite("context_status", &ContextWrap::context_status)
 	;
 
@@ -283,7 +306,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def("__len__", &SettingsArray::len)
 	;
 
-
     class_ <WrapRemap,noncopyable>("Remap",no_init)
 	.def_readwrite("name",&WrapRemap::name)
 	.def_readwrite("argspec",&WrapRemap::argspec)
@@ -293,7 +315,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("remap_ngc",&WrapRemap::remap_ngc)
 	.def_readwrite("epilog_func",&WrapRemap::epilog_func)
 	;
-
 
     class_ <BlockWrap, noncopyable>("Block",no_init)
 	.def_readwrite("f_flag",&BlockWrap::f_flag)
@@ -357,6 +378,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("o_type",&BlockWrap::o_type)
 
 	//  read-only
+	//  FIXME simplify this
 	.add_property("comment", &BlockWrap::get_comment)
 	.add_property("o_name", &BlockWrap::get_o_name)
 	.add_property("g_modes", &BlockWrap::get_g_modes)
@@ -411,7 +433,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 		       .def_readonly("filename", (char *) &InterpWrap::_setup.filename)
 		       .def_readonly("linetext", (char *) &InterpWrap::_setup.linetext)
-		       .def_readonly( "current_tool", &InterpWrap::_setup.tool_table[0].toolno)
+		       .def_readonly("current_tool", &InterpWrap::_setup.tool_table[0].toolno)
 
 		       .def_readwrite("AA_axis_offset", &InterpWrap::_setup.AA_axis_offset)
 		       .def_readwrite("AA_current", &InterpWrap::_setup.AA_current)
