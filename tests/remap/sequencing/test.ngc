@@ -1,5 +1,5 @@
 ; one G, 4 M-codes per line
-
+#<_seq> = 1
 g88.1x1 m405 m406 m407 m408
 g88.1x1 m405 m406 m408 m407
 g88.1x1 m405 m407 m406 m408

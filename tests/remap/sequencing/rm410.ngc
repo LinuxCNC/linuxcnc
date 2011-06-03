@@ -1,5 +1,10 @@
 o<rm410> sub
-(debug,m410 call_level=#<_call_level> remap_level=#<_remap_level>)
+o100 if [[#<_seq>] GT 10]
+     (debug,M410 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq>)
+o100 endif
+#<_seq> = 10
 o<rm410> endsub
 m2
 %

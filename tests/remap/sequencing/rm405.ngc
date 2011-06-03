@@ -1,5 +1,10 @@
 o<rm405> sub
-(debug,m405 call_level=#<_call_level> remap_level=#<_remap_level>)
+o100 if [[#<_seq>] GT  5]
+     (debug,M405 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq>)
+o100 endif
+#<_seq> = 5
 o<rm405> endsub
 m2
 %

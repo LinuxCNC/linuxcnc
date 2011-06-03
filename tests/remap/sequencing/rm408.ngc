@@ -1,5 +1,10 @@
 o<rm408> sub
-(debug,m408 call_level=#<_call_level> remap_level=#<_remap_level>)
+o100 if [[#<_seq>] GT 8]
+     (debug,M408 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq>)
+o100 endif
+#<_seq> = 8
 o<rm408> endsub
 m2
 %
