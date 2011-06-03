@@ -2966,8 +2966,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }
 
   if ((block->m_modes[6] != -1)  && ONCE_M(6)){
-      if (block->m_modes[6] == 6) {
-
+      int toolno, pocket;
+      switch (block->m_modes[6]) {
+      case 6:
 	  if (IS_USER_MCODE(block,settings,6)) {
 	      // NB: no checks - you're on your own
 	      return convert_remapped_code(block,settings,
@@ -2975,13 +2976,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 					   'm',
 					   block->m_modes[6]);
 	  }  else {
-
 	      CHP(convert_tool_change(settings));
 	  }
-      }
-      if (block->m_modes[6] == 61) {
-	  int toolno, pocket;
-
+	  break;
+      case 61:
 	  toolno = round_to_int(block->q_number);
 	  // now also accept M61 Q0 - unload tool
 	  CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
@@ -3002,8 +3000,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      status = INTERP_OK;
 	      CHP(status);
 	  }
+	  break;
+      default:
+	  if (IS_USER_MCODE(block,settings,6)) {
+	      return convert_remapped_code(block, settings, STEP_M_6,'m',
+					   block->m_modes[6]);
+	  }
       }
-      // Hmm
   }
 
 #ifdef DEBATABLE
