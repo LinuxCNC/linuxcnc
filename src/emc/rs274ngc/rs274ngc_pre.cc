@@ -443,7 +443,8 @@ int Interp::_execute(const char *command)
 		  (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
 		  ERP(status);
 	  } else {
-	      ERS("BUG: remapping indicated but execute_block() returned status = %d",status);
+	      CHP(status);
+	      // ERS("BUG: remapping indicated but execute_block() returned status = %d",status);
 	  }
       } else {
 	  // standard case: unremapped block execution
@@ -1451,7 +1452,7 @@ int Interp::reset()
     // When called from Interp::close this one is NULL
     if (!_setup.file_pointer) continue;
 
-    if(0 != strcmp(_setup.filename, sub->filename)) {
+    if (sub->filename && !strcmp(_setup.filename, sub->filename)) {
       fclose(_setup.file_pointer);
       _setup.file_pointer = fopen(sub->filename, "r");
 
