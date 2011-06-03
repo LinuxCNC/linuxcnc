@@ -537,7 +537,7 @@ int Interp::remap_finished(int finished_remap)
 	next_remap = next_remapping(&(CONTROLLING_BLOCK(_setup)),
 				    &_setup, FIRST_STEP);
 	if (next_remap) {
-	    logRemap("arming %s  (remap_level=%d call_level=%d)",remaps[next_remap],_setup.remap_level,_setup.call_level);
+	    logRemap("arming %d  (remap_level=%d call_level=%d)",next_remap,_setup.remap_level,_setup.call_level);
 
 	    // this will execute up to the next remap, and return
 	    // after parsing the handler with read()
