@@ -110,7 +110,6 @@ int Interp::init_python(setup_pointer settings, bool reload)
     bool py_exception = false;
     PyGILState_STATE gstate;
 
-
     if ((settings->py_module_stat != PYMOD_NONE) && !reload) {
 	logPy("init_python RE-INIT %d pid=%d",settings->py_module_stat,getpid());
 	return INTERP_OK;  // already done, or failed
@@ -133,8 +132,9 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	if (stat(path, &sub_stat)) {
 	    logPy("init_python(): stat(%s) returns %s",
 		  settings->py_module, sys_errlist[errno]);
-	} else
+	} else {
 	    settings->module_mtime = sub_stat.st_mtime;
+	}
     }
 
     if (!reload) {
@@ -203,6 +203,7 @@ int Interp::py_reload_on_change(setup_pointer settings)
 	return INTERP_ERROR;
     }
     if (current_stat.st_mtime > settings->module_mtime) {
+	settings->module_mtime = current_stat.st_mtime;
 	int status;
 	if ((status = init_python(settings,true)) != INTERP_OK) {
 	    // init_python() set the error text already
