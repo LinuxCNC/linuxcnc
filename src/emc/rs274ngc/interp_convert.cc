@@ -1342,7 +1342,7 @@ static int startswith(char *haystack, char *needle) {
     return !strncmp(haystack, needle, strlen(needle));
 }
 
-int Interp::convert_comment(char *comment)       //!< string with comment
+int Interp::convert_comment(char *comment, bool enqueue)       //!< string with comment
 {
   enum
   { LC_SIZE = 256, EX_SIZE = 2*LC_SIZE};            // 256 from comment[256] in rs274ngc.hh
@@ -1426,7 +1426,8 @@ int Interp::convert_comment(char *comment)       //!< string with comment
       return INTERP_OK;
   }
   // else it's a real comment
-  enqueue_COMMENT(comment + start);
+  if (enqueue)
+      enqueue_COMMENT(comment + start);
   return INTERP_OK;
 }
 
