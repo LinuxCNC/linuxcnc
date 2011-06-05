@@ -254,8 +254,13 @@ int Interp::_execute(const char *command)
       (eblock->o_name != 0) ||
       (_setup.mdi_interrupt))  {
       logDebug("Convert control functions");
-      CHP(convert_control_functions(eblock, &_setup));
-
+      status = convert_control_functions(eblock, &_setup);
+      if (status > INTERP_MIN_ERROR) {
+	  logRemap("-- clearing remap stack (current level=%d) due to convert_control_functions() status %s, blocktext='%s' MDImode=%d",
+		   _setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
+	  _setup.remap_level = 0;
+      }
+      CHP(status);
 #if 1
       // let MDI code call subroutines.
       // !!!KL not clear what happens if last execution failed while in
@@ -441,6 +446,11 @@ int Interp::_execute(const char *command)
 	      }
 	      if ((status != INTERP_OK) &&
 		  (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
+		  if (status > INTERP_MIN_ERROR) {
+		      _setup.remap_level = 0;
+		      _setup.call_level = 0;
+		      logDebug("execute(): error %d returned, clearing remap and call stack",status);
+		  }
 		  ERP(status);
 	  } else {
 	      CHP(status);
