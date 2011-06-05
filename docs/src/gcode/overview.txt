@@ -878,7 +878,7 @@ position of each item on the line, but by the following list:
  . Set retract mode (G98, G99).
  .  Go to reference location (G28, G30) or change coordinate system data
    (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
- .  Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified
+ .  Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified
    (possibly) by G53. 
  . Stop (M0, M1, M2, M30, M60).
 
