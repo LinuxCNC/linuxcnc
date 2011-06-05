@@ -1,6 +1,7 @@
 import sys
 from InterpMod import *
 
+
 # [RS274NGC]
 # import Python module(s) from this directory
 # PYDIR=pysubs
@@ -25,8 +26,7 @@ from InterpMod import *
 #
 # epilog=prepare_epilog
 #     after calling prepare.ngc, execute the Python function 'prepare_epilog'
-
-
+#
 def prepare_prolog(userdata,**words):
 	toolno = words['t']
 	(status,pocket) = interp.find_tool_pocket(toolno)
@@ -165,6 +165,7 @@ def print_tool(userdata, **words):
 	print "tool offset x:", interp.tool_table[n].offset.tran.x
 	print "tool offset y:", interp.tool_table[n].offset.tran.y
 	print "tool offset z:", interp.tool_table[n].offset.tran.z
+
 	return (INTERP_OK,)
 
 def set_tool_zoffset(userdata, **words):
@@ -173,6 +174,7 @@ def set_tool_zoffset(userdata, **words):
 	if n == 0:
 		interp.set_tool_parameters()
 	return (INTERP_OK,)
+
 
 def printobj(b,header=""):
 	print "object ",header,":"
@@ -190,14 +192,18 @@ def introspect(args,**kwargs):
 	print "blocks[r].seq=",interp.blocks[r].line_number
 	print "blocks[r].p_flag=",interp.blocks[r].p_flag
 	print "blocks[r].p_number=",interp.blocks[r].p_number
-	print "blocks[0].line_number=",interp.blocks[0].line_number
-	print "blocks[0].p_flag=",interp.blocks[0].p_flag
-	print "blocks[0].p_number=",interp.blocks[0].p_number
-	print "blocks[0].q_flag=",interp.blocks[0].q_flag
-	print "blocks[0].q_number=",interp.blocks[0].q_number
-	print "blocks[0].comment=",interp.blocks[0].comment
+	print "blocks[r].q_flag=",interp.blocks[r].q_flag
+	print "blocks[r].q_number=",interp.blocks[r].q_number
 
-	printobj(interp,"interp")
+#	print "blocks[0].line_number=",interp.blocks[0].line_number
+#	print "blocks[0].p_flag=",interp.blocks[0].p_flag
+#	print "blocks[0].p_number=",interp.blocks[0].p_number
+#	print "blocks[0].q_flag=",interp.blocks[0].q_flag
+#	print "blocks[0].q_number=",interp.blocks[0].q_number
+#	print "blocks[0].comment=",interp.blocks[0].comment
+
+
+	#printobj(interp,"interp")
 	printobj(interp.tool_offset,"tool_offset")
 	callstack()
 	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
