@@ -1,0 +1,144 @@
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+// begin a listing of ini/hal/ngc files like so:
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
+
+
+= Remapping Codes: Principles of Operations
+
+First, a definition: by 'remapping codes' we mean one of the following:
+1. define the semantics of new - that is, currently unallocated - M- or G-codes
+2. redefine the semantics of a - currently limited - set of existing codes.
+
+== Why would I want to 'remap a code'?
+
+The set of codes (M,G,T,S,F) currently understood by the RS274NGC
+interpreter is fixed and cannot be extended by configuration options.
+In particular, some of these codes implement a fixed sequence of steps
+to be executed. While some of these, like M6, can be moderately
+configured by activating or skipping some of these steps through ini
+file options, overall the behaviour is fairly rigid.
+
+In many cases, this means that supporting a non 'out of the box'
+configuration or machine is either cumbersome or impossible, or
+requires resorting to changes at the C/C++ language level. The latter
+is unpopular for good reasons - changing internals requires in-depth
+understanding of interpreter internals, and moreover brings its own
+set of support issues. While it is conceivable that certain patches
+might make their way into the main EMC2 distribution, the result of
+this approach is a hodge-podge of special-case solutions.
+
+A good example for this deficiency is tool change support in EMC2:
+while random toolchangers are well supported, it is next to impossible
+to reasonably define a configuration for a manual-toolchange machine
+with, for example, an automatic tool length offset switch being
+visited after a toolchange, and offsets set accordingly. Also, while a
+patch for a very specific rack toolchanger exists, it has not found
+its way back into the main code base.
+
+However, many of these things may be fixed by using an O-word
+procedure instead of a builtin code - whenever the - insufficient -
+builtin code is to be executed, call the O-word procedure
+instead. While possible, it is cumbersome - it requires source-editing
+of NGC programs, replacing all calls to the deficient code by a an
+O-word procedure call.
+
+In it's simplest form a remapped code isnt much more than a
+spontaneous call to an O-word procedure. This happens behind the scenes
+- the procedure is visible at the configuration level, but not at the
+NGC program level.
+
+== The overall idea
+Let's assume you are unhappy with the way EMC handles a certain situation.
+
+Remapping gives you the capability to either redefine an existing
+code's behaviour, or define a new code, which implements the behaviour
+you want.
+
+The new behaviour may be defined in the following ways:
+- you define a O-word subroutine which implements the desired behaviour
+- alternatively, you may use a Python function which extends the interpreter's behaviour.
+
+== How to glue things together
+M- and G-codes, and O-words have some fairly different syntax.
+
+O-word procedures, for example, take positional parameters
+with a specific syntax like so:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o<test> call [parameter1] [parameter2] ..
+---------------------------------------------------------------------
+
+whereas M- or G-codes typically take required or optional 'word'
+parameters. For istance, G76 (threading) requires the P,Z,I,J and K
+words, and optionally takes the R,Q,H, E and L words.
+
+So it isnt simply enough to say 'whenever you encounter code X, please
+call procedure Y' - at least some checking and conversion of paramters
+needs to happen. This calls for some 'glue code' between the new code,
+and its corresponding NGC procedure to execute before passing control
+to the NGC procedure.
+
+This glue code is impossible to write as an O-word procedure itself
+since the RS274NGC language lacks the introspective cabailities and
+access into interpreter internal data structures to achieve the
+required effect. Doing the glue code in - again - C/C++ would be an
+inflexible and therefore unsatisfactory solution.
+
+I have therefore chosen to extend the RS274NGC interpreter by
+optionally calling Python functions which may act as glue code, and -
+potentially, and as a side effect of the better expressive
+capabilities of Python - might altogether replace the O-word
+procedure. While possible, this requires some understanding of
+interpreter execution and data structures. Fortunately, common cases
+may be handled without resorting to writing new Python code.
+
+In summary, it's not about 'Python or NGC procedure' - glue code is
+required and is easily handled by some simple Python code. For many
+tasks, like defining a new cycle, it is not necessary to touch any
+Python at all - parameter checks and conversion may be achieved by
+predefined glue code referred to in the configuration, and the rest is
+a plain O-word procedure.
+
+== An example remapped code
+
+Without much more theory, let's explore our first remapped code. We
+choose an unallocated M-code (see permitted ranges below) and add the
+following option to the ini file:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[RS274NGC]
+REMAP=M400  modalgroup=10 argspec=- ngc=myprocedure
+---------------------------------------------------------------------
+
+Assuming that the file myprocedure.ngc exists in the NC_FILES or
+SUBROUTINE_PATH directory, this will cause a call just like
+'O<myprocedure> call' whenever M400 is encountered in your program.
+
+We defer the detailed discussion of REMAP parameters to the
+reference section, but in a nutshell, these options mean:
+- execute M400 along the other modal group 10 M-codes as per prescribed
+execution sequence (LINK)
+- do not require any word parameters, and ignore
+any parameters present in the current block.
+
+== Which codes are subject to remapping?
+
+The current set of unused M-codes open to user definition is:
+- codes 74..99
+- codes 200..999
+
+The current set of unused G-codes open to user definition is:
+- codes G64.9 through G97.9
+
+The current set of built-in codes open to redefinition is:
+- Tx (Prepare)
+- M6 (Change tool)
+- M61 (Set tool number)
+- Sx  (set spindle speed)
+- Fx  (set feed)
