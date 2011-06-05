@@ -16,7 +16,7 @@ First, a definition: by 'remapping codes' we mean one of the following:
 == Why would I want to 'remap a code'?
 
 The set of codes (M,G,T,S,F) currently understood by the RS274NGC
-interpreter is fixed and cannot be extended by configuration options.
+interpreter is fixed and cannot be extendedd by configuration options.
 In particular, some of these codes implement a fixed sequence of steps
 to be executed. While some of these, like M6, can be moderately
 configured by activating or skipping some of these steps through ini
@@ -59,6 +59,7 @@ code's behaviour, or define a new code, which implements the behaviour
 you want.
 
 The new behaviour may be defined in the following ways:
+
 - you define a O-word subroutine which implements the desired behaviour
 - alternatively, you may use a Python function which extends the interpreter's behaviour.
 
@@ -122,6 +123,7 @@ SUBROUTINE_PATH directory, this will cause a call just like
 
 We defer the detailed discussion of REMAP parameters to the
 reference section, but in a nutshell, these options mean:
+
 - execute M400 along the other modal group 10 M-codes as per prescribed
 execution sequence (LINK)
 - do not require any word parameters, and ignore

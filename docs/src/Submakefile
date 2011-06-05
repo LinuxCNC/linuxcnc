@@ -343,7 +343,9 @@ DOC_SRCS := \
 	Master_Integrator_es.txt \
 	Master_Integrator_fr.txt \
 	Master_Developer.txt \
-	remap/remapping.txt
+	remap/remapping.txt \
+	remap/fundamentals.txt \
+	remap/internals.txt
 
 # DOC_SRCS_TXT := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))

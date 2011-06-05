@@ -137,15 +137,21 @@ during textual input looks promising at first look:
 
 [source,{ngc}]
 ---------------------------------------------------------------------
-; if the line reads like so: M400 ; just replace it by this:
+; if the line reads like so:
+M400
+; just replace it by this:
 o<myprocedure> call
 ---------------------------------------------------------------------
 This scheme works only in a one-code-per line scenario; if multiple
 codes were involved in a block, this fails because it's syntactically
-invalid, as an O-word must be the only word on a line: [source,{ngc}]
+invalid, as an O-word must be the only word on a line:
+
+[source,{ngc}]
 ---------------------------------------------------------------------
-; if the line reads like so: T4 M6 M400 G91 G38.2 Z1 ; just replace it
-by this?  T4 M6 o<myprocedure> call G91 G38.2 Z1
+; if the line reads like so:
+T4 M6 M400 G91 G38.2 Z1
+; just replace it by this?
+T4 M6 o<myprocedure> call G91 G38.2 Z1
 ---------------------------------------------------------------------
 
 Well, let's split these codes over several lines and insert the O-word
@@ -157,6 +163,7 @@ So, macro expansion doesnt work - clearly a bigger hammer is needed.
 == Current solution, part 1: Executing the replacement in the right moment
 
 What would work is an approach which begins as follows:
+
 - if a *new* code was defined, parsing (actually the appropriate 'item readers' like read_m() etc)
    will accept these codes  and record them in their respective modal group.
 - a redefined *existing* code is treated in the item reader as before even if remapped.
@@ -337,7 +344,7 @@ Here's an example of reading a HAL pin in Python:
 #
 # activate by:
 # [RS274NGC]
-# REMAP=M402  modalgroup=10 argspec=p- py=test_reschedule
+# REMAP=M402  modalgroup=10 argspec=- py=test_reschedule
 #
 # on the initial call, userdata equals zero.
 # if a queuebuster is executed, the function is expected to return
@@ -382,21 +389,23 @@ access to the Interp instance pointer and _setup).
 A common case of argument handling is the following:
 
 A new code might:
+
 - take zero or more required parameter words
 - take zero or more optional parameter words
 - flag or ignore superfluous parameter words on the same line
-- require some standard precodition like feed greater than zero, or speed greater than zero
+- require some standard precondition like feed greater than zero, or speed greater than zero
 
 For this common case, there's the *argspec* builtin prolog. This enables parameter passing from the block which contains a remapped code, to a remap procedure as follows:
 
 If an argspec=<string> is present in the REMAP line, it is treated as follows:
+
 - any letters in the set 'abcdefhijkpqrstuvwxyz' designate parameter words.
 - if the letter is uppercase, that word is required.
 - if the letter is lowercase, that word is optional.
 - if a dash ('-') is present, other words are ignored, else they are flagged as superfluous.
 - a greater-sign  ('>') denotes 'requires feed greater than zero'
 
-The NGC procedure will find the parameter words as local variables -
+The NGC procedure will then find the parameter words as local variables -
 required parameters must be present, optional paramters may be tested
 for by the 'EXISTS()' function.
 
@@ -454,6 +463,6 @@ def g886(userdata,**words):
 			   0,0,0,0,0,0)
 ---------------------------------------------------------------------
 
-== Configuring remaps: the REMAP line
+// == Configuring remaps: the REMAP line
 
-== Lessons learned
+//== Lessons learned
