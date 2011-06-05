@@ -482,6 +482,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			     r_block->executing_remap->remap_ngc);
 		    status = pycall(settings,r_block,
 				    r_block->executing_remap->epilog_func);
+		    if (status > INTERP_MIN_ERROR)
+			ERP(status);
 		}
 		if (r_block->executing_remap)
 		    ERP(remap_finished(-r_block->phase));
