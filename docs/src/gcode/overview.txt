@@ -854,6 +854,7 @@ special comments.
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
+ . O-word commands (optionally followed by a comment but no other words allowed on the same line)
  . Comment (including message)
  . Set feed rate mode (G93, G94). 
  . Set feed rate (F). 
