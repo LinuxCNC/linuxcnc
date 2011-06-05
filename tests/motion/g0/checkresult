@@ -110,7 +110,7 @@ for i in range(i, len(samples)):
     # i hate floating point
     if ((accel_ipc2 * cycles_per_second) - max_acceleration_ipspc) > 0.0000001: 
         print "line %d: detected accel constraint violation!" % i
-        print "detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, (accel * cycles_per_second * cycles_per_second))
+        print "detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second))
         print "max accel %.6f i/s^2)" % max_acceleration_ips2
         sys.exit(1)
 
@@ -168,7 +168,7 @@ for i in range(i, len(samples)):
     # i hate floating point
     if ((accel_ipc2 * cycles_per_second) - max_acceleration_ipspc) > 0.0000001: 
         print "line %d: detected accel constraint violation!" % i
-        print "detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, accel * cycles_per_second * cycles_per_second)
+        print "detected accel %.6f i/c^2 (%.6f i/s^2)" % (accel_ipc2, accel_ipc2 * cycles_per_second * cycles_per_second)
         print "max accel %.6f i/s^2)" % max_acceleration_ips2
         sys.exit(1)
 
