@@ -359,6 +359,7 @@ int Interp::add_parameters(setup_pointer settings, block_pointer cblock)
     PARAM('i',"i",block->i_flag,block->i_number);
     PARAM('j',"j",block->j_flag,block->j_number);
     PARAM('k',"k",block->k_flag,block->k_number);
+    PARAM('l',"l",block->l_flag,block->l_number);
     PARAM('p',"p",block->p_flag,block->p_number);
     PARAM('q',"q",block->q_flag,block->q_number);
     PARAM('r',"r",block->r_flag,block->r_number);
