@@ -335,9 +335,16 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
   logOword("convert_control_functions");
 
+  // aquire the 'remap_frame' a.k.a controlling block
+  r_block = &CONTROLLING_BLOCK(*settings);
+  is_py_remap_handler =
+      (r_block->executing_remap != NULL) &&
+      ((r_block->executing_remap->remap_py != NULL) &&
+       (!strcmp(r_block->executing_remap->remap_py, block->o_name)));
+
   // if there is an oword, must get the block->o_number
   // !!!KL
-  if(block->o_name)
+  if(block->o_name  && !is_py_remap_handler) // suppress error msg if 'py oword' not found
     {
       control_find_oword(block, settings, &(block->o_number));
     }
@@ -532,10 +539,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	     (((r_block->executing_remap->remap_ngc != NULL) &&
 	       (!strcmp(r_block->executing_remap->remap_ngc, block->o_name)))));
 
-	is_py_remap_handler =
-	    (r_block->executing_remap != NULL) &&
-	    ((r_block->executing_remap->remap_py != NULL) &&
-	     (!strcmp(r_block->executing_remap->remap_py, block->o_name)));
+
 
 	is_py_callable = is_pycallable(settings, block->o_name);
 	is_py_osub = is_py_callable && ! is_remap_handler;
