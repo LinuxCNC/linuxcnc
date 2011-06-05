@@ -263,8 +263,8 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 // 1. add all requried and  present optional words.
 // 2. error on missing but required words.
 // 3. error on superfluous words (present but not in argspec).
-// 4. handle 'F' as to require a positive feed.
-// 5. handle 'S' as to require a positive speed.
+// 4. handle '>' as to require a positive feed.
+// 5. handle '^' as to require a positive speed.
 // 6. handle 'N' as to add the line number.
 //
 // return INTERP_ERROR and propagate appropriate message if any errors so far
