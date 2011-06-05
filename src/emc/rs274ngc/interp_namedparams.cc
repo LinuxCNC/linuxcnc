@@ -270,7 +270,7 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 // return INTERP_ERROR and propagate appropriate message if any errors so far
 // else return INTERP_OK
 
-int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
+int Interp::add_parameters(setup_pointer settings, block_pointer cblock)
 {
     const char *s,*argspec, *code;
     block_pointer block;
@@ -282,7 +282,7 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
     bool ignore_others = false;
-    remap_pointer rptr = r_block->executing_remap;
+    remap_pointer rptr = cblock->executing_remap;
 
     if (!rptr) {
 	ERS("BUG: add_parameters: remap_frame: executing_remap == NULL ");
@@ -318,7 +318,7 @@ int Interp::add_parameters(setup_pointer settings, block_pointer r_block)
 #define STORE(name,value)						\
     if (pydict) {							\
 	try {								\
-	    r_block->kwargs[name] = value;				\
+	    cblock->kwargs[name] = value;				\
         }								\
         catch (bp::error_already_set) {					\
 	    PyErr_Print();						\

@@ -326,7 +326,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   int index;
   int i;
   context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
-  block_pointer r_block;
+  block_pointer cblock;
   bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
   bool is_remap_handler; // the sub is executing on behalf of a remapped code
   bool is_py_callable;   // the sub name is actually Python
@@ -336,11 +336,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   logOword("convert_control_functions");
 
   // aquire the 'remap_frame' a.k.a controlling block
-  r_block = &CONTROLLING_BLOCK(*settings);
+  cblock = &CONTROLLING_BLOCK(*settings);
   is_py_remap_handler =
-      (r_block->executing_remap != NULL) &&
-      ((r_block->executing_remap->remap_py != NULL) &&
-       (!strcmp(r_block->executing_remap->remap_py, block->o_name)));
+      (cblock->executing_remap != NULL) &&
+      ((cblock->executing_remap->remap_py != NULL) &&
+       (!strcmp(cblock->executing_remap->remap_py, block->o_name)));
 
   // if there is an oword, must get the block->o_number
   // !!!KL
@@ -474,19 +474,19 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 
 		// aquire the remapped block
-		r_block = &CONTROLLING_BLOCK(_setup);
+		cblock = &CONTROLLING_BLOCK(_setup);
 
-		if (HAS_PYTHON_EPILOG(r_block->executing_remap)) {
+		if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
 		    logRemap("O_call: py epilog %s for NGC remap %s",
-			     r_block->executing_remap->epilog_func,
-			     r_block->executing_remap->remap_ngc);
-		    status = pycall(settings,r_block,
-				    r_block->executing_remap->epilog_func);
+			     cblock->executing_remap->epilog_func,
+			     cblock->executing_remap->remap_ngc);
+		    status = pycall(settings,cblock,
+				    cblock->executing_remap->epilog_func);
 		    if (status > INTERP_MIN_ERROR)
 			ERP(status);
 		}
-		if (r_block->executing_remap)
-		    ERP(remap_finished(-r_block->phase));
+		if (cblock->executing_remap)
+		    ERP(remap_finished(-cblock->phase));
 
 		// a valid previous context was marked by an M73 as auto-restore
 		if ((leaving_frame->context_status &
@@ -529,17 +529,17 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	new_frame = &settings->sub_context[settings->call_level + 1];
 
 	// aquire the 'remap_frame' a.k.a controlling block
-	r_block = &CONTROLLING_BLOCK(*settings);
+	cblock = &CONTROLLING_BLOCK(*settings);
 
 	// determine if this sub is the  body executing on behalf of a remapped code
 	// we're loosing a bit of context by funneling everything through the osub call
 	// interface, which needs to be reestablished here but it's worth the generality
 	is_remap_handler =
-	    (r_block->executing_remap != NULL) &&
-	    (((r_block->executing_remap->remap_py != NULL) &&
-	      (!strcmp(r_block->executing_remap->remap_py, block->o_name))) ||
-	     (((r_block->executing_remap->remap_ngc != NULL) &&
-	       (!strcmp(r_block->executing_remap->remap_ngc, block->o_name)))));
+	    (cblock->executing_remap != NULL) &&
+	    (((cblock->executing_remap->remap_py != NULL) &&
+	      (!strcmp(cblock->executing_remap->remap_py, block->o_name))) ||
+	     (((cblock->executing_remap->remap_ngc != NULL) &&
+	       (!strcmp(cblock->executing_remap->remap_ngc, block->o_name)))));
 
 
 
@@ -631,13 +631,13 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 				  OVERRIDE_READONLY));
 	}
 
-	if (HAS_PYTHON_PROLOG(r_block->executing_remap)) {
+	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
 	    logRemap("O_call: py prologue %s for remap %s (%s)",
-		     r_block->executing_remap->prolog_func,
-		     REMAP_FUNC(r_block->executing_remap),
-		     r_block->executing_remap->name);
-	    CHP(pycall(settings, r_block,
-		       r_block->executing_remap->prolog_func));
+		     cblock->executing_remap->prolog_func,
+		     REMAP_FUNC(cblock->executing_remap),
+		     cblock->executing_remap->name);
+	    CHP(pycall(settings, cblock,
+		       cblock->executing_remap->prolog_func));
 	}
 
 	// a Python oword sub can be executed inline -
@@ -663,20 +663,20 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	// a Python remap handler can be executed inline too -
 	// no control_back_to() needed
 	if (is_py_remap_handler) {
-	    r_block->tupleargs = bp::make_tuple(r_block->user_data);
-	    status =  pycall(settings, r_block,
-			     r_block->executing_remap->remap_py);
+	    cblock->tupleargs = bp::make_tuple(cblock->user_data);
+	    status =  pycall(settings, cblock,
+			     cblock->executing_remap->remap_py);
 	    if (status >  INTERP_MIN_ERROR) {
 		logRemap("O_call: pycall %s returned %s, unwinding (%s)",
-			 r_block->executing_remap->remap_py,
+			 cblock->executing_remap->remap_py,
 			 interp_status(status),
-			 r_block->executing_remap->name);
+			 cblock->executing_remap->name);
 		settings->call_level--;
 		return status;
 	    }
 	    if (status == INTERP_EXECUTE_FINISH) {
-		if (r_block->returned[RET_USERDATA])
-		    r_block->user_data = r_block->py_returned_userdata;
+		if (cblock->returned[RET_USERDATA])
+		    cblock->user_data = cblock->py_returned_userdata;
 
 		if (block->call_again) {
 		    settings->call_level--; // stay on current call level (1)
@@ -697,7 +697,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		    settings->call_level--; // compensate bump above
 		}
 		settings->call_level--; // and return to previous level
-		ERP(remap_finished(-r_block->phase));
+		ERP(remap_finished(-cblock->phase));
 		return status;
 	    }
 	}

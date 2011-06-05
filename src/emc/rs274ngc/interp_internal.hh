@@ -307,7 +307,7 @@ typedef struct remap_struct {
     const char *remap_ngc;   // NGC file, maybe  null
     const char *epilog_func; // Py function or null
     int (Interp::*builtin_epilog)(setup_pointer settings,
-				  block_pointer r_block);
+				  block_pointer cblock);
 } remap;
 
 // case insensitive compare for std::map etc
