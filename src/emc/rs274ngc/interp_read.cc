@@ -1044,7 +1044,8 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   remap_pointer r = _setup.m_remapped[value];
   if (r) {
       mode =  r->modal_group;
-      CHKS ((mode < 0),"BUG: M remapping: modal group < 0"); // real bad
+      CHKS ((mode < 0),"BUG: M remapping: modal group < 0");
+      CHKS ((mode > 10),"BUG: M remapping: modal group > 10");
 
       CHKS((block->m_modes[mode] != -1),
 	   NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
