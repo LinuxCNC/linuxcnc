@@ -610,18 +610,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	// set the new subName
 	new_frame->subName = block->o_name;
-
 	settings->call_level++;
-
-	// 	// if remap + NGC
-	// // build kwargs for  any Python pro/epilogs if an argspec
-	// // was given - add_parameters will decorate remap_kwargs as per argspec
-	// block->kwargs = boost::python::dict();
-	// if (rptr->argspec) {
-	// 	CHKS(add_parameters(settings, block),
-	// 	     "%s: add_parameters(argspec=%s) for remap body %s failed ",
-	// 	     rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
-	// }
 
 	// let any  Oword sub know the number of parameters
 	if (!is_py_osub) {
