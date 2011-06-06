@@ -5,7 +5,7 @@
 
 (generates roughing and finish paths for turning a cone)
 (the line from X1/Z1 to X2/Z2 defines the cone)
-(
+
 ( o<cone> call [X1][Z1][X2][Z2][step][feed][EngageZ][ClearAxial][ClearRadial][feedF][outflag])
 
 O<cone> sub
