@@ -104,6 +104,7 @@ valid on a machine which does not have the corresponding axis.
 |J | Y offset for arcs and G87 canned cycles
 |K | Z offset for arcs and G87 canned cycles.
 | | Spindle-Motion Ratio for G33 synchronized movements.
+|L | generic parameter word for G10, M66 and others
 |M | Miscellaneous function (See table  <<cap:Modal-Groups,Modal Groups>>)
 |N | Line number
 |P | Dwell time in canned cycles and with G4.
@@ -175,7 +176,10 @@ Syntax:: There are three kinds of syntactic appearance:
 Scope:: The scope of a parameter is either global, or local within a
 subroutine. Subroutine parameters and local named variables have local
 scope. Global named parameters and numbered parameters starting from
-number 31 are global in scope.
+number 31 are global in scope. RS274NGC uses 'lexical scoping' - 
+in a subroutine only the local variables defined therein, and any
+global variables are visible. The local variables of a
+calling procedure are not visible in a called procedure.
 
 Behaviour of uninitialized parameters::
  . unitialized global parameters, and unused subroutine parameters 
