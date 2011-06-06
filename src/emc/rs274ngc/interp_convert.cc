@@ -2995,6 +2995,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
 	      settings->current_pocket = pocket;
 	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      set_tool_parameters(); // unsure.. I guess yes
 	      // this will cause a synch() and re-reading of offset of tool 0
 	      settings->toolchange_flag = true;
 	      status = INTERP_OK;
