@@ -47,31 +47,31 @@ int Interp::convert_remapped_code(block_pointer block,
 				  char letter,
 				  int number)
 {
-    remap_pointer rptr;
+    remap_pointer remap;
     char key[2];
     int status;
     block_pointer cblock;
     bp::list plist;
-    va_list ap;
-    int j;
-    double val;
     char cmd[LINELEN];
-    char actual[20];
 
-    logRemap("convert_remapped_code '%c%d'", letter, number);
+    if (number == -1)
+	logRemap("convert_remapped_code '%c'", letter);
+    else
+	logRemap("convert_remapped_code '%c%d'", letter, number);
+
     switch (toupper(letter)) {
     case 'M':
-	rptr = settings->m_remapped[number];
+	remap = settings->m_remapped[number];
 	break;
     case 'G':
-	rptr = settings->g_remapped[number];
+	remap = settings->g_remapped[number];
 	break;
     default:
 	key[0] = letter;
 	key[1] = '\0';
-	rptr = remapping((const char *)key);
+	remap = remapping((const char *)key);
     }
-    CHKS((rptr == NULL), "BUG: convert_remapped_code: no remapping");
+    CHKS((remap == NULL), "BUG: convert_remapped_code: no remapping");
 
     settings->sequence_number = 1; // FIXME not sure..
 
@@ -99,52 +99,43 @@ int Interp::convert_remapped_code(block_pointer block,
     // oword mechanism - so no duplication of handler calling code
     // is needed.
 
-    snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(rptr));
-
-    // va_start(ap, count);
-    // for(j = 0; j < count; j++) {
-    // 	val = va_arg(ap, double);
-    // 	snprintf(actual, sizeof(actual),"[%lf] ", val);
-    // 	// strncat(cmd, actual, sizeof(cmd));
-    // 	strcat(cmd, actual);  // fire & forget
-    // 	plist.append(val);
-    // }
-    // va_end(ap);
+    snprintf(cmd, sizeof(cmd),"O <%s> call ", REMAP_FUNC(remap));
 
     // the controlling block holds all dynamic remap information.
     cblock = &CONTROLLING_BLOCK(*settings);
-    cblock->executing_remap = rptr; // the static descriptor
+    cblock->executing_remap = remap; // the current descriptor
     cblock->py_returned_userdata = 0;
-    // FIXME
+    cblock->user_data = 0;
+    cblock->param_cnt = 0;
+
     // build positional args for any Python pro/epilogs here
     cblock->tupleargs = bp::make_tuple(plist);
 
     // build kwargs for  any Python pro/epilogs if an argspec
     // was given - add_parameters will decorate remap_kwargs as per argspec
     cblock->kwargs = boost::python::dict();
-    if (rptr->argspec) {
-	// WART ALERT
-	// we're inserting locals into a callframe which isnt used yet..
+    if (remap->argspec) {
+	// we're inserting locals into a callframe which isnt used yet
+	// NB: this assumes read() doesnt clear the callframe
 	settings->call_level++;
-	CHP(add_parameters(settings, cblock));
-	// CHKS(add_parameters(settings, cblock),
-	//      "%s: add_parameters(argspec=%s) for remap body %s failed ",
-	//      rptr->name, rptr->argspec,  REMAP_FUNC(rptr));
+	// create a positional argument list instead of local variables
+	// if user specified 'posargs=true'
+	CHP(add_parameters(settings, cblock,
+			   remap->posarg ? &cmd[strlen(cmd)] : NULL));
 	settings->call_level--;
     }
 
     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
 	(_setup.loggingLevel > 2)) {
-	logRemap("execute_handler(%s)", cmd);
-	// print_remap(rptr->name);
+	logRemap("convert_remapped_code(%s)", cmd);
     }
 
     // good to go, pass to o-word call handling mechanism
-    // NB: we're NOT triggering MDI handling in execute()
     status = read(cmd);
-    CHKS(status != INTERP_OK, "convert_remapped_code: inital read returned %s",interp_status(status));
+    CHKS(status != INTERP_OK,
+	 "convert_remapped_code: inital read returned %s",
+	 interp_status(status));
     return(- phase);
-    //    return(- USER_REMAP);
 }
 
 
@@ -264,7 +255,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"argspec",kwlen)) {
 	    size_t pos = strspn (arg,
-				 "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz->^");
+				 "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz->^");
 	    if (pos != strlen(arg)) {
 		Error("argspec: illegal word '%c' - %d:REMAP = %s",
 		      arg[pos],lineno,inistring);
@@ -272,6 +263,16 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		continue;
 	    }
 	    r->argspec = strstore(arg);
+	    continue;
+	}
+	if (!strncasecmp(kw,"posargs",kwlen)) {
+	    if (strcasecmp(arg,"true")) {
+		Error("posarg: '%s': unrecognized option - %d:REMAP = %s",
+		      arg,lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	    r->posarg = true;
 	    continue;
 	}
 	if (!strncasecmp(kw,"prolog",kwlen)) {

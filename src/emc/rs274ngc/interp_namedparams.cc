@@ -243,19 +243,19 @@ int Interp::store_named_param(setup_pointer settings,
 }
 
 
-// test a block against an argspec string ([A-KMNP-Za-kmnp-z])
-bool Interp::check_args(block_pointer block, const char *argspec)
-{
-    return false;
-}
-
-// add_parameters - built-in prolog function
+// add_parameters - a built-in prolog function
 //
 // handles argspec and extracts required and optional items from the
 // controlling block.
 //
 // if preparing for an NGC file, add local variables to
 // the current oword subroutine call frame
+//
+// if posargs == NULL:
+//      add the named parameters as local variables to  the current call frame
+// if posargs != NULL:
+//      create a positional argument list as per argspec order
+//      instead of adding local variables
 //
 // also, generate a kwargs style dictionary of required and optional items
 // in case a Python prolog is called
@@ -270,7 +270,9 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 // return INTERP_ERROR and propagate appropriate message if any errors so far
 // else return INTERP_OK
 
-int Interp::add_parameters(setup_pointer settings, block_pointer cblock)
+int Interp::add_parameters(setup_pointer settings,
+			   block_pointer cblock,
+			   char *posarglist)
 {
     const char *s,*argspec, *code;
     block_pointer block;
@@ -326,8 +328,15 @@ int Interp::add_parameters(setup_pointer settings, block_pointer cblock)
 	    ERS("add_parameters: cant add '%s' to args",name);		\
 	}								\
     }									\
-    add_named_param(name,0);						\
-    store_named_param(settings,name,value,0);				\
+    if (posarglist) {							\
+	char actual[LINELEN];						\
+	snprintf(actual, sizeof(actual),"[%.4lf]", value);		\
+	strcat(posarglist, actual);					\
+	cblock->param_cnt++;						\
+    } else {								\
+	add_named_param(name,0);					\
+	store_named_param(settings,name,value,0);			\
+    }
 
 
 #define PARAM(spec,name,flag,value) 	                    	\
@@ -355,16 +364,16 @@ int Interp::add_parameters(setup_pointer settings, block_pointer cblock)
     PARAM('d',"d",block->d_flag,block->d_number_float);
     PARAM('e',"e",block->e_flag,block->e_number);
     PARAM('f',"f",block->f_flag,block->f_number);
-    PARAM('h',"h",block->h_flag,block->h_number);
+    PARAM('h',"h",block->h_flag,(double) block->h_number);
     PARAM('i',"i",block->i_flag,block->i_number);
     PARAM('j',"j",block->j_flag,block->j_number);
     PARAM('k',"k",block->k_flag,block->k_number);
-    PARAM('l',"l",block->l_flag,block->l_number);
+    PARAM('l',"l",block->l_flag,(double) block->l_number);
     PARAM('p',"p",block->p_flag,block->p_number);
     PARAM('q',"q",block->q_flag,block->q_number);
     PARAM('r',"r",block->r_flag,block->r_number);
     PARAM('s',"s",block->s_flag,block->s_number);
-    PARAM('t',"t",block->t_flag,block->t_number);
+    PARAM('t',"t",block->t_flag, (double) block->t_number);
     PARAM('u',"u",block->u_flag,block->u_number);
     PARAM('v',"v",block->v_flag,block->v_number);
     PARAM('w',"w",block->w_flag,block->w_number);
@@ -398,10 +407,8 @@ int Interp::add_parameters(setup_pointer settings, block_pointer cblock)
     // special cases:
     // N...add line number
     if (strchr(required,'n')) {
-	STORE("n",block->n_number);
+	STORE("n",(double) block->n_number);
     }
-
-    // FIXME mah test this!!
 
     // >...require positive feed
     if (strchr(required,'>')) {

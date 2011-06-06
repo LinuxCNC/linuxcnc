@@ -495,16 +495,8 @@ public:
 
  //  add named params/param dict if argspec given
  // present optional words to the subroutine's local variables and Py dict
-    int add_parameters(setup_pointer settings, block_pointer cblock);
-
- // epilog routines called post G-code handler procedure
- int finish_t_command(setup_pointer settings, block_pointer cblock);
- int finish_m6_command(setup_pointer settings,block_pointer cblock);
- int finish_m61_command(setup_pointer settings, block_pointer cblock);
- int finish_user_command(setup_pointer settings, block_pointer cblock);
-
- // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
- bool check_args(block_pointer block,const char *argspec);
+    int add_parameters(setup_pointer settings, block_pointer cblock,
+		       char *posarglist);
 
  int init_named_parameters();
 
