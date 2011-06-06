@@ -255,7 +255,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"argspec",kwlen)) {
 	    size_t pos = strspn (arg,
-				 "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz->^");
+				 "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz>^");
 	    if (pos != strlen(arg)) {
 		Error("argspec: illegal word '%c' - %d:REMAP = %s",
 		      arg[pos],lineno,inistring);

@@ -262,7 +262,6 @@ int Interp::store_named_param(setup_pointer settings,
 //
 // 1. add all requried and  present optional words.
 // 2. error on missing but required words.
-// 3. error on superfluous words (present but not in argspec).
 // 4. handle '>' as to require a positive feed.
 // 5. handle '^' as to require a positive speed.
 // 6. handle 'N' as to add the line number.
@@ -276,14 +275,13 @@ int Interp::add_parameters(setup_pointer settings,
 {
     const char *s,*argspec, *code;
     block_pointer block;
-    char missing[30],superfluous[30],optional[30],required[30];
+    char missing[30],optional[30],required[30];
     char *m = missing;
-    char *u = superfluous;
+    // char *u = superfluous;
     char *o = optional;
     char *r = required;
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
-    bool ignore_others = false;
     remap_pointer rptr = cblock->executing_remap;
 
     if (!rptr) {
@@ -295,7 +293,6 @@ int Interp::add_parameters(setup_pointer settings,
     bool pydict = rptr->remap_py || rptr->prolog_func || rptr->epilog_func;
 
     memset(missing,0,sizeof(missing));
-    memset(superfluous,0,sizeof(superfluous));
     memset(optional,0,sizeof(optional));
     memset(required,0,sizeof(required));
     memset(msg,0,sizeof(msg));
@@ -307,7 +304,6 @@ int Interp::add_parameters(setup_pointer settings,
     while (*s) {
 	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
 	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
-	if (*s == '-') ignore_others = true;
 	s++;
     }
     o = optional;
@@ -344,12 +340,6 @@ int Interp::add_parameters(setup_pointer settings,
 	/* required or optional */ 	                    	\
 	if (strchr(required,spec) || strchr(optional,spec)) {	\
 	    STORE(name,value);					\
-	} else {						\
-	    if (!ignore_others) {				\
-		/* superfluous */				\
-		errored = true;					\
-		*u++ = spec;					\
-	    }							\
 	}							\
     } else {							\
 	if (strchr(required,spec)) { /* missing */		\
@@ -358,41 +348,50 @@ int Interp::add_parameters(setup_pointer settings,
 	}							\
     }
 
-    PARAM('a',"a",block->a_flag,block->a_number);
-    PARAM('b',"b",block->b_flag,block->b_number);
-    PARAM('c',"c",block->c_flag,block->c_number);
-    PARAM('d',"d",block->d_flag,block->d_number_float);
-    PARAM('e',"e",block->e_flag,block->e_number);
-    PARAM('f',"f",block->f_flag,block->f_number);
-    PARAM('h',"h",block->h_flag,(double) block->h_number);
-    PARAM('i',"i",block->i_flag,block->i_number);
-    PARAM('j',"j",block->j_flag,block->j_number);
-    PARAM('k',"k",block->k_flag,block->k_number);
-    PARAM('l',"l",block->l_flag,(double) block->l_number);
-    PARAM('p',"p",block->p_flag,block->p_number);
-    PARAM('q',"q",block->q_flag,block->q_number);
-    PARAM('r',"r",block->r_flag,block->r_number);
-    PARAM('s',"s",block->s_flag,block->s_number);
-    PARAM('t',"t",block->t_flag, (double) block->t_number);
-    PARAM('u',"u",block->u_flag,block->u_number);
-    PARAM('v',"v",block->v_flag,block->v_number);
-    PARAM('w',"w",block->w_flag,block->w_number);
-    PARAM('x',"x",block->x_flag,block->x_number);
-    PARAM('y',"y",block->y_flag,block->y_number);
-    PARAM('z',"z",block->z_flag,block->z_number);
-
-    // collect dead bodies
-    s = superfluous;
-    if (*s) {
-	strcpy(tail," superfluous: ");
-    }
+    s =  rptr->argspec;
+    // step through argspec in order so positional args are built
+    // in the correct order
     while (*s) {
-	errored = true;
-	char c  = toupper(*s);
-	strncat(tail,&c,1);
-	if (*(s+1)) strcat(tail,",");
+	switch (tolower(*s)) {
+	case 'a' : PARAM('a',"a",block->a_flag,block->a_number); break;
+	case 'b' : PARAM('b',"b",block->b_flag,block->b_number); break;
+	case 'c' : PARAM('c',"c",block->c_flag,block->c_number); break;
+	case 'd' : PARAM('d',"d",block->d_flag,block->d_number_float); break;
+	case 'e' : PARAM('e',"e",block->e_flag,block->e_number); break;
+	case 'f' : PARAM('f',"f",block->f_flag,block->f_number); break;
+	case 'h' : PARAM('h',"h",block->h_flag,(double) block->h_number); break;
+	case 'i' : PARAM('i',"i",block->i_flag,block->i_number); break;
+	case 'j' : PARAM('j',"j",block->j_flag,block->j_number); break;
+	case 'k' : PARAM('k',"k",block->k_flag,block->k_number); break;
+	case 'l' : PARAM('l',"l",block->l_flag,(double) block->l_number); break;
+	case 'p' : PARAM('p',"p",block->p_flag,block->p_number); break;
+	case 'q' : PARAM('q',"q",block->q_flag,block->q_number); break;
+	case 'r' : PARAM('r',"r",block->r_flag,block->r_number); break;
+	case 's' : PARAM('s',"s",block->s_flag,block->s_number); break;
+	case 't' : PARAM('t',"t",block->t_flag, (double) block->t_number); break;
+	case 'u' : PARAM('u',"u",block->u_flag,block->u_number); break;
+	case 'v' : PARAM('v',"v",block->v_flag,block->v_number); break;
+	case 'w' : PARAM('w',"w",block->w_flag,block->w_number); break;
+	case 'x' : PARAM('x',"x",block->x_flag,block->x_number); break;
+	case 'y' : PARAM('y',"y",block->y_flag,block->y_number); break;
+	case 'z' : PARAM('z',"z",block->z_flag,block->z_number); break;
+	default: ;
+	}
 	s++;
     }
+
+    // // collect dead bodies
+    // s = superfluous;
+    // if (*s) {
+    // 	strcpy(tail," superfluous: ");
+    // }
+    // while (*s) {
+    // 	errored = true;
+    // 	char c  = toupper(*s);
+    // 	strncat(tail,&c,1);
+    // 	if (*(s+1)) strcat(tail,",");
+    // 	s++;
+    // }
     s = missing;
     if (*s) {
 	strcat(tail," missing: ");
