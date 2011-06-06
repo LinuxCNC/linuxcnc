@@ -445,7 +445,6 @@ typedef struct block_struct
     // there might be several remapped items in a block, but at any point
     // in time there's only one excuting
     // conceptually the block is also the 'remap frame'
-    const char *remap_command; // debug aid
     remap_pointer executing_remap; // refers to config descriptor
 
     // denotes a Python function to call after a synch()

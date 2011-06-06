@@ -113,7 +113,6 @@ int Interp::convert_remapped_code(block_pointer block,
 
     // the controlling block holds all dynamic remap information.
     cblock = &CONTROLLING_BLOCK(*settings);
-    cblock->remap_command = strstore(cmd); // informational only
     cblock->executing_remap = rptr; // the static descriptor
     cblock->py_returned_userdata = 0;
     // FIXME

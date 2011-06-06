@@ -247,7 +247,6 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->breadcrumbs = 0; // clear execution trail
   // if set in the executing block, current_remap
 
-  block->remap_command = NULL;
   block->executing_remap = NULL;
   block->py_returned_userdata = 0;
   block->py_returned_status = -255; // trigger errors if it slips through
