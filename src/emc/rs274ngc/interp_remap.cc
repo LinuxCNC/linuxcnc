@@ -53,6 +53,7 @@ int Interp::convert_remapped_code(block_pointer block,
     block_pointer cblock;
     bp::list plist;
     char cmd[LINELEN];
+    bool use_posargs = false;
 
     if (number == -1)
 	logRemap("convert_remapped_code '%c'", letter);
@@ -115,13 +116,14 @@ int Interp::convert_remapped_code(block_pointer block,
     // was given - add_parameters will decorate remap_kwargs as per argspec
     cblock->kwargs = boost::python::dict();
     if (remap->argspec) {
+	use_posargs = (strchr(remap->argspec, '@') != NULL);
 	// we're inserting locals into a callframe which isnt used yet
 	// NB: this assumes read() doesnt clear the callframe
 	settings->call_level++;
 	// create a positional argument list instead of local variables
 	// if user specified 'posargs=true'
 	CHP(add_parameters(settings, cblock,
-			   remap->posarg ? &cmd[strlen(cmd)] : NULL));
+			   use_posargs ? &cmd[strlen(cmd)] : NULL));
 	settings->call_level--;
     }
 
@@ -255,7 +257,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"argspec",kwlen)) {
 	    size_t pos = strspn (arg,
-				 "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz>^");
+				 "ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz>^@");
 	    if (pos != strlen(arg)) {
 		Error("argspec: illegal word '%c' - %d:REMAP = %s",
 		      arg[pos],lineno,inistring);
@@ -263,16 +265,6 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		continue;
 	    }
 	    r->argspec = strstore(arg);
-	    continue;
-	}
-	if (!strncasecmp(kw,"posargs",kwlen)) {
-	    if (strcasecmp(arg,"true")) {
-		Error("posarg: '%s': unrecognized option - %d:REMAP = %s",
-		      arg,lineno,inistring);
-		errored = true;
-		continue;
-	    }
-	    r->posarg = true;
 	    continue;
 	}
 	if (!strncasecmp(kw,"prolog",kwlen)) {

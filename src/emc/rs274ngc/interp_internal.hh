@@ -302,7 +302,6 @@ typedef remap *remap_pointer;
 typedef struct remap_struct {
     const char *name;
     const char *argspec;
-    bool posarg;
     int modal_group;
     const char *prolog_func; // Py function or null
     const char *remap_py;    // Py function maybe  null, OR
