@@ -96,7 +96,7 @@ Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [units, double]
 
 Description, NML Type: Set the PID gains, 103
 
-Obs: currently not used in emc2, needs to go to HAL
+Obs: currently not used in EMC2, needs to go to HAL
 
 Written From: none
 
@@ -162,8 +162,7 @@ Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [limit, double]
 
 Description, NML Type: sets max limit, 108
 
-Obs: also handled by iniaxis which directly calls
-emcAxisSetMaxPositionLimit
+Obs: also handled by iniaxis which directly calls emcAxisSetMaxPositionLimit
 
 Written From: none
 
@@ -353,7 +352,7 @@ Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
 === EMC_AXIS_JOG_TYPE
 
-Description, NML Type: jogs an axis continuosly, 124
+Description, NML Type: jogs an axis continuously, 124
 
 Obs: used on jogging
 
@@ -437,7 +436,7 @@ Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int]
 
 Description, NML Type: sets an DAC output value, 130
 
-Obs: currently not used in emc2, needs to go to HAL
+Obs: currently not used in EMC2, needs to go to HAL
 
 Written From: sendAxisSetOutput (emcsh.cc)
 
@@ -451,7 +450,7 @@ Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [output, double]
 
 Description, NML Type: loads compensation values from a file, 131
 
-Obs: currently usrmotLoadComp if 0'ed in emc2
+Obs: currently usrmotLoadComp if 0'ed in EMC2
 
 Written From: sendAxisLoadComp (emcsh.cc)
 
@@ -478,7 +477,7 @@ Parameter, Type: [axis (in EMC_AXIS_CMD_MSG), int] [alter, double]
 
 Description, NML Type: was used to set step related params, 133
 
-Obs: currently not used in emc2, needs to go to HAL +
+Obs: currently not used in EMC2, needs to go to HAL +
         (maybe directly from the ini, not through NML)
 
 Written From: none
@@ -771,7 +770,7 @@ Parameter, Type: [end, EmcPose] [center, PM_CARTESIAN]
 
 === EMC_TRAJ_SET_TERM_COND_TYPE
 
-Description, NML Type: choses between blending or exact path mode, 222
+Description, NML Type: chooses between blending or exact path mode, 222
 
 Obs: used, seems the interp knows exact PATH, STOP and BLEND, motion
 however knows only BLEND or STOP
@@ -961,7 +960,7 @@ Parameter, Type:
 
 Description, NML Type: sets an analog output value coordinated with motion, 304
 
-Obs: emccanon.cc currently lacks this in emc2, not used in emc2, needs to go to HAL
+Obs: emccanon.cc currently lacks this in EMC2, not used in EMC2, needs to go to HAL
 
 Written From: none
 
@@ -976,7 +975,7 @@ Parameter, Type: [index, unsigned char] [start, double]
 
 Description, NML Type: sets an digital output value coordinated with motion, 305
 
-Obs: emccanon.cc currently lacks this in emc2, not used in emc2, needs to go to HAL
+Obs: emccanon.cc currently lacks this in EMC2, not used in EMC2, needs to go to HAL
 
 Written From: none
 
@@ -1555,7 +1554,7 @@ Parameter, Type: [speed, double] +
 Description, NML Type: initializes the COOLANT controller (currently
 part of the IO controller), 1401
 
-Obs: not written in emc2, only read, in EMC1 it was sent when
+Obs: not written in EMC2, only read, in EMC1 it was sent when
 TOOL_INIT was sent
 
 Written From: none
@@ -1569,7 +1568,7 @@ Parameter, Type: none
 
 Description, NML Type: stops the COOLANT, 1402
 
-Obs: not written in emc2, only read, in EMC1 it was sent when TOOL_HALT was sent
+Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_HALT was sent
 
 Written From: none
 
@@ -1582,7 +1581,7 @@ Parameter, Type: none
 
 Description, NML Type: aborts the COOLANT, 1403
 
-Obs: not written in emc2, only read, in EMC1 it was sent when TOOL_ABORT was sent
+Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_ABORT was sent
 
 Written From: none
 
@@ -1667,7 +1666,7 @@ Parameter, Type: [mist, int] [flood, int]
 
 Description, NML Type: initializes the LUBE controller (currently part of the IO controller), 1501
 
-Obs: not written in emc2, only read, in EMC1 it was sent when TOOL_INIT was sent
+Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_INIT was sent
 
 Written From: none
 
@@ -1680,7 +1679,7 @@ Parameter, Type: none
 
 Description, NML Type: stops the LUBE, 1502
 
-Obs: not written in emc2, only read, in EMC1 it was sent when TOOL_HALT was sent
+Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_HALT was sent
 
 Written From: none
 
@@ -1693,7 +1692,7 @@ Parameter, Type: none
 
 Description, NML Type: aborts the LUBE, 1503
 
-Obs: not written in emc2, only read, in EMC1 it was sent when TOOL_ABORT was sent
+Obs: not written in EMC2, only read, in EMC1 it was sent when TOOL_ABORT was sent
 
 Written From: none
 
@@ -1706,7 +1705,7 @@ Parameter, Type: none
 
 Description, NML Type: starts LUBE, 1504
 
-Obs: written only by the GUI's (emcsh.cc)
+Obs: written only by the GUIs (emcsh.cc)
 
 Written From: sendLubeOn (emcsh.cc)
 
@@ -1722,7 +1721,7 @@ Parameter, Type: none
 
 Description, NML Type: stops LUBE, 1505
 
-Obs: written only by the GUI's (emcsh.cc)
+Obs: written only by the GUIs (emcsh.cc)
 
 Written 
 
@@ -1790,7 +1789,7 @@ Parameter, Type: [value, int] [polarity, int]
 
 Description, NML Type: , 1601
 
-Obs: not written in emc2, only read
+Obs: not written in EMC2, only read
 
 Written From: none
 
@@ -1894,7 +1893,7 @@ Parameter, Type:
 
 Description, NML Type: opens the log file, 1904
 
-Obs: not used in emc2, it was used in EMC[1] from emclog.tcl
+Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 
 Written From: sendLogOpen (emcsh.cc)
 
@@ -1915,7 +1914,7 @@ Parameter, Type: [file, char[LINELEN]] +
 
 Description, NML Type: starts logging, 1905
 
-Obs: not used in emc2, it was used in EMC[1] from emclog.tcl
+Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 
 Written From: sendLogStart (emcsh.cc)
 
@@ -1929,7 +1928,7 @@ Parameter, Type: none
 
 Description, NML Type: stops logging, 1906
 
-Obs: not used in emc2, it was used in EMC[1] from emclog.tcl
+Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 
 Written From: sendLogStop (emcsh.cc)
 
@@ -1943,7 +1942,7 @@ Parameter, Type: none
 
 Description, NML Type: closes the log file, 1907
 
-Obs: not used in emc2, it was used in EMC[1] from emclog.tcl
+Obs: not used in EMC2, it was used in EMC[1] from emclog.tcl
 
 Written From: sendLogClose (emcsh.cc)
 
