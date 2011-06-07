@@ -1,6 +1,6 @@
 = Les bases de la configuration pour système pas/direction “dir/step”
 
-==  [[sec:Introduction]]Introduction
+== [[sec:Introduction]]Introduction
 
 Ce chapitre décrit quelques uns des réglages les plus fréquents, sur
 lesquels l'utilisateur aura à agir lors de la mise au point d'EMC2. En
@@ -20,7 +20,7 @@ Ce chapitre s'appuie sur la configuration fournie d'origine avec EMC2
 appelée «stepper»(((stepper))) et qui se trouve habituellement dans
 `/etc/emc2/sample-configs/stepper`.
 
-==   [[sec:Maximum-step-rate]]Fréquence de pas maximum(((Frequence de pas maximum)))
+== [[sec:Maximum-step-rate]]Fréquence de pas maximum(((Frequence de pas maximum)))
 
 Avec la génération logicielle des pas la fréquence maximale en sortie,
 pour les impulsions de pas et de direction, est de une impulsion pour
@@ -47,20 +47,19 @@ n'est fonctionnelle, il faut alors envisager un générateur de pas
 externe (parmis les contrôleurs de moteurs pas à pas universels
 supportés par EMC2)
 
-==  [[sec:Brochage]]Brochage(((brochage)))
+== [[sec:Brochage]]Brochage(((brochage)))
 
 EMC2 est très flexible et grâce à la couche d'abstraction de HAL
 (Hardware Abstraction Layer) il est facile de spécifier que tel signal
-ira sur telle broche. (voir la section  <<sec:Qu-est-ce que HAL>> pour
+ira sur telle broche. (voir la section <<sec:Qu-est-ce que HAL>> pour
 des informations complètes à propos de HAL(((HAL)))).
 
 Comme décrit dans l'introduction et la manuel de HAL, il comporte des
 composants dont il fourni les signaux, les pins et les paramètres.
 
-Les premiers signaux et pin relatifs au brochage sontfootnote:[Note:
+Les premiers signaux et pin relatifs au brochage sont:footnote:[Note:
 pour rester concis, nous ne présenterons qu'un seul axe, tous
-les autres sont similaires.
-]:
+les autres sont similaires.]
 
     signaux: Xstep, Xdir et Xen
 
@@ -71,11 +70,10 @@ deux fichiers indiquent à HAL comment raccorder les différents signaux
 aux différentes pins. Dans la suite, nous nous concentrerons sur le
 brochage «standard_pinout.hal».
 
-===   [[sub:standard_pinout.hal]]Le fichier «standard_pinout.hal»(((standard pinout))) 
+=== [[sub:standard_pinout.hal]]Le fichier «standard_pinout.hal»(((standard pinout))) 
 
 Ce fichier contient certaines commandes de HAL et habituellement
 ressemble à celà:
-
 
 ----------------------------------------
 # standard pinout config file for 3-axis steppers
@@ -161,26 +159,25 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 Les lignes commençant par '#' sont des commentaires, aidant à la
 lecture du fichier.
 
-===   [[sub:Vue-d_ensemble-standard_pinout.hal]]Vue d'ensemble du fichier «standard_pinout.hal»
+=== [[sub:Vue-d_ensemble-standard_pinout.hal]]Vue d'ensemble du fichier «standard_pinout.hal»
 
 Voici les opérations qui sont exécutées quand le fichier
 standard_pinout.hal est lu par l'interpréteur:
 
- .  Le pilote du port parallèle est chargé (voir  <<sec:Parport>> pour
+ . Le pilote du port parallèle est chargé (voir <<sec:Parport>> pour
    plus de détails)
- .  Les fonctions de lecture/écriture du pilote sont assignée au thread
+ . Les fonctions de lecture/écriture du pilote sont assignée au thread
    «Base thread» footnote:[Le thread le plus rapide parmis les réglages
    d'EMC2, habituellement il
-   n'y a que quelques microsecondes entre les exécutions de ce code.
-   ]
- .  Les signaux du générateur de pas et de direction des axes X,Y,Z...
+   n'y a que quelques microsecondes entre les exécutions de ce code.]
+ . Les signaux du générateur de pas et de direction des axes X,Y,Z...
    sont raccordés aux broches du port parallèle
- .  D'autres signaux d'entrées/sorties sont connectés (boucle d'arrêt
+ . D'autres signaux d'entrées/sorties sont connectés (boucle d'arrêt
    d'urgence, boucle du changeur d'outil...)
- .  Un signal de marche broche est défini et raccordé à une broche du port
+ . Un signal de marche broche est défini et raccordé à une broche du port
    parallèle
 
-===   [[sub:Modifier-standard_pinout.hal]]Modifier le fichier «standard_pinout.hal»
+=== [[sub:Modifier-standard_pinout.hal]]Modifier le fichier «standard_pinout.hal»
 
 Pour modifier le fichier standard_pinout.hal, il suffit de l'ouvrir
 dans un éditeur de texte puis d'y localiser les parties à modifier.
@@ -200,7 +197,7 @@ ou de manière générale n'importe quel numéro que vous souaîteriez.
 Attention: il faut être certain de n'avoir qu'un seul signal connecté
 à une broche.
 
-===   [[sub:Modifier-la-polarite]]Modifier la polarité d'un signal(((signal polarite)))
+=== [[sub:Modifier-la-polarite]]Modifier la polarité d'un signal(((signal polarite)))
 
 Si une interface attends un signal “actif bas”, ajouter une ligne avec
 le paramètre d'inversion de la sortie, `-invert`. Par exemple, pour
@@ -208,7 +205,7 @@ inverser le signal de rotation de la broche:
 
     setp parport.0.pin-09-invert TRUE
 
-===   [[sub:PWM-Vitesse-broche]]Ajouter le contrôle de vitesse broche en PWM(((Vitesse broche PWM)))
+=== [[sub:PWM-Vitesse-broche]]Ajouter le contrôle de vitesse broche en PWM(((Vitesse broche PWM)))
 
 Si votre vitesse de broche peut être contrôlée par un signal de PWM,
 utilisez le composant `«pwmgen»` pour créer ce signal:
@@ -221,7 +218,7 @@ signal PWM supérieur à 0% est requis pour que la broche commence à
 tourner, suivez l'exemple du fichier de configuration 'nist-lathe' qui
 utilise un composant d'échelle (`scale`).
 
-===   [[sub:Ajouter-signal-enable]]Ajouter un signal de validation «enable»(((signal enable)))
+=== [[sub:Ajouter-signal-enable]]Ajouter un signal de validation «enable»(((signal enable)))
 
 Certains pilotes de moteurs requiert un signal de validation «enable»
 avant d'autoriser tout mouvement du moteur. Pour celà des signaux sont
@@ -239,13 +236,11 @@ validation pour l'ensemble est parfaitement sécurisé.
 
 === Ajouter un bouton d'Arrêt d'Urgence externe (((A/U)))
 
-Comme vous pouvez le voir à la section  <<sub:standard_pinout.hal>>,
+Comme vous pouvez le voir à la section <<sub:standard_pinout.hal>>,
 par défaut la configuration standard n'utilise pas de bouton d'Arrêt
 d'Urgence externe. footnote:[Une explication complète sur la manière de
-gérer les circuiteries
-d'Arrêt d'Urgence se trouve sur le wiki.linuxcnc.org (en) et dans le
-Manuel de l'intégrateur
-]
+gérer les circuiteries d'Arrêt d'Urgence se trouve sur le 
+http://wiki.linuxcnc.org/ (en) et dans le Manuel de l'intégrateur]
 
 Pour ajouter un simple bouton externe (ou plusieurs en série) vous
 devez compléter les lignes suivantes:
@@ -256,16 +251,18 @@ devez compléter les lignes suivantes:
 avec
 
     net estop-out <= iocontrol.0.user-enable-out
-    net estop-ext     <= parport.0.pin-01-in
+    net estop-ext <= parport.0.pin-01-in
     net estop-ext => iocontrol.0.emc-enable-in
 
 Ce qui implique qu'un bouton d'Arrêt d'Urgence soit connecté sur la
 broche 01 du port parallèle. Tant que le bouton est enfoncé (le contact
 ouvert)footnote:[Utiliser exclusivement des contacts normalement fermés
-pour les A/U.
- ], EMC2 restera dans l'état «Arrêt d'Urgence» (ESTOP). Quand le bouton
-externe sera relâché, EMC2 passera immédiatement dans l'état «Arrêt
-d'Urgence Relâché» (ESTOP-RESET) vous pourrez ensuite mettre la machine
-en marche en pressant le bouton «Marche machine»(((marche machine))) et
+pour les A/U.], 
+EMC2 restera dans l'état «Arrêt d'Urgence» (ESTOP). Quand le bouton
+externe sera relâché, EMC2 passera immédiatement dans l'état 
+«Arrêt d'Urgence Relâché» (ESTOP-RESET) vous pourrez ensuite mettre 
+la machine en marche en pressant 
+le bouton «Marche machine»(((marche machine))) et
 vous êtes alors prêt à continuer votre travail avec EMC2.
+
 

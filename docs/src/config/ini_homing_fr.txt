@@ -1,4 +1,4 @@
-=  [[sec:Prises-d-origine]]Prise d'origine
+= [[sec:Prises-d-origine]]Prise d'origine
 
 == Vue d'ensemble
 
@@ -10,15 +10,15 @@ complexe.
 
 === Séquence de prise d'origine
 
-La figure  <<fig: Sequences de prise d-origine>> montre les quatre
+La figure  <<fig:Sequences de prise d-origine>> montre les quatre
 séquences de prise d'origine possibles, avec les variables de
 configuration associées  <<cap:Variables sequences de POM>>. Une
 description détaillée de ces paramètres sera faite au chapitre suivant.
 
-<<fig: Sequences de prise d-origine>>
+<<fig:Sequences de prise d-origine>>
 
 .[[fig: Sequences de prise d-origine]] Les séquences de POM possibles
-image::emc2-motion-homing-diag.eps[]
+image::images/emc2-motion-homing-diag.eps[]
 
 === Configuration
 
@@ -118,7 +118,7 @@ de “HOME_OFFSET”. La valeur par défaut est zéro.
 C'est la position sur laquelle ira le mobile à la fin de la séquence
 de prise d'origine. Après avoir détecté le contact d'origine, avoir
 ajusté les coordonnées de ce point à la valeur de “HOME_OFFSET”, le
-mobile va se déplacer sur la valeur de “HOME, c'est le point final de
+mobile va se déplacer sur la valeur de “HOME”, c'est le point final de
 la séquence de prise d'origine. La valeur par défaut est zéro. Notez
 que même si ce paramètre est égal à la valeur de “HOME_OFFSET”, le
 mobile dépassera très légérement la position du point d'aquisition de
@@ -131,8 +131,7 @@ mouvement rapide est donc la façon la plus rapide de finir la séquence
 de prise d'origine.footnote:[La distinction entre l'origine machine et
 le décalage d'origine n'est
 pas aussi claire que je le voudrais. J'envisage de faire un petit
-dessin et un exemple pour la clarifier.
-]
+dessin et un exemple pour la clarifier.]
 
 ==== HOME_IS_SHARED (((HOME IS SHARED)))
 
@@ -153,4 +152,5 @@ valeur de “HOME_SEQUENCE”, leur POM s'effectueront simultanément. Si
 “HOME_SEQUENCE” est égale à -1 ou non spécifiée, l'axe ne sera pas
 compris dans la séquence “HOME ALL”. Les valeurs de “HOME_SEQUENCE”
 débutent à 0, il ne peut pas y avoir de valeur inutilisée.
+
 

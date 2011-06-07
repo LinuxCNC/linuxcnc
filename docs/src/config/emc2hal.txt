@@ -9,17 +9,18 @@ See also the manual pages *motion(9)* and *iocontrol(1)*.
 Motion is loaded with the motmod command. A kins should be loaded
 before motion.
 
-    loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
+    loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] \ +
+    [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
 
-If the number of digital I/O needed is above the default of 4 you can
-add up to 64 digital I/O by using the num_dio option when loading
+If the number of digital I/O needed is more than the default of 4 you 
+can add up to 64 digital I/O by using the num_dio option when loading
 motmod.
 
-If the number of analog I/O needed is more that the default of 4 you
+If the number of analog I/O needed is more than the default of 4 you
 can add up to 16 analog I/O by using the num_aio option when loading
 motmod.
 
-=== Pins (((motion (hal pins))))
+=== Pins (((motion (HAL pins))))
 
 These pins, parameters, and functions are created by the realtime
 `motmod` module.
@@ -80,9 +81,9 @@ motion.on-soft-limit::
 
 motion.probe-input::
      (bit, in) `G38.x`  uses the value on this pin to determine when the
-    probe has made
-    contact. TRUE for probe contact closed (touching), FALSE for probe
-    contact open.
+    probe has made contact. 
+    TRUE for probe contact closed (touching), 
+    FALSE for probe contact open.
 
 motion.program-line::
      (s32, out) The current program line while executing. Zero if not
@@ -226,11 +227,10 @@ motion-controller::
 These pins and parameters are created by the realtime `motmod` 
 module. These are actually joint values, but the pins and parameters
 are still called "axis.N".footnote:[In "trivial kinematics" machines,
-there is a one-to-one correspondence
-between joints and axes.
-] They are read and updated by the 'motion-controller' function.
+there is a one-to-one correspondence between joints and axes.] 
+They are read and updated by the 'motion-controller' function.
 
-=== Pins (((axis (hal pins))))
+=== Pins (((axis (HAL pins))))
 
 axis.N.active::
     (bit, out)
@@ -338,14 +338,14 @@ axis.N.neg-hard-limit::
 
 axis.N.pos-lim-sw-in::
      (bit, in) Should be driven TRUE if the positive limit switch for this
-    joint is closed
+    joint is closed. 
 
 axis.N.pos-hard-limit::
     (bit, out)
 
 axis.N.neg-lim-sw-in::
      (bit, in) Should be driven TRUE if the negative limit switch for this
-    joint is closed
+    joint is closed. 
 
 axis.N.wheel-jog-active::
     (bit, out) 
@@ -353,52 +353,52 @@ axis.N.wheel-jog-active::
 === Parameters
 
 axis.N.home-state::
-    Reflects the step of homing currently taking place
+    Reflects the step of homing currently taking place. 
 
 == iocontrol (userspace)
 
-These pins are created by the userspace IO controller, usually called
-`io`.
+These pins are created by the userspace IO controller, usually called `io`. 
 
 === Pins (((iocontrol (HAL pins))))
 
 iocontrol.0.coolant-flood::
-    (bit, out) TRUE when flood coolant is requested
+    (bit, out) TRUE when flood coolant is requested. 
 
 iocontrol.0.coolant-mist::
-    (bit, out) TRUE when mist coolant is requested
+    (bit, out) TRUE when mist coolant is requested. 
 
 iocontrol.0.emc-enable-in::
      (bit, in) Should be driven FALSE when an external E-Stop condition
-    exists
+    exists. 
 
 iocontrol.0.lube::
-    (bit, out) TRUE when lube is commanded
+    (bit, out) TRUE when lube is commanded. 
 
 iocontrol.0.lube_level::
-    (bit, in) Should be driven TRUE when lube level is high enough
+    (bit, in) Should be driven TRUE when lube level is high enough. 
 
 iocontrol.0.tool-change::
-    (bit, out) TRUE when a tool change is requested
+    (bit, out) TRUE when a tool change is requested. 
 
 iocontrol.0.tool-changed::
-    (bit, in) Should be driven TRUE when a tool change is completed
+    (bit, in) Should be driven TRUE when a tool change is completed. 
 
 iocontrol.0.tool-number::
-    (s32, out) The current tool number
+    (s32, out) The current tool number. 
 
 iocontrol.0.tool-prep-number::
-    (s32, out) The number of the next tool, from the RS274NGC T-word
+    (s32, out) The number of the next tool, from the RS274NGC T-word. 
 
 iocontrol.0.tool-prepare::
-    (bit, out) TRUE when a tool prepare is requested
+    (bit, out) TRUE when a tool prepare is requested. 
 
 iocontrol.0.tool-prepared::
-    (bit, in) Should be driven TRUE when a tool prepare is completed 
+    (bit, in) Should be driven TRUE when a tool prepare is completed. 
 
 iocontrol.0.user-enable-out::
-    (bit, out) FALSE when an internal E-Stop condition exists
+    (bit, out) FALSE when an internal E-Stop condition exists. 
 
 iocontrol.0.user-request-enable::
-    (bit, out) TRUE when the user has requested that E-Stop be cleared
+    (bit, out) TRUE when the user has requested that E-Stop be cleared. 
+
 

@@ -5,9 +5,7 @@
 A proportional-integral-derivative controller (PID controller) is a
 common feedback loop component in industrial control
 systems.footnote:[This Subsection is taken from an much more extensive
-article found at
-http://en.wikipedia.org/wiki/PID_controller
-]
+article found at http://en.wikipedia.org/wiki/PID_controller]
 
 The Controller compares a measured value from a process (typically an
 industrial process) with a reference set point value. The difference
@@ -155,7 +153,7 @@ quickly; however, some systems cannot accept overshoot.
 
 [width="90%", options="header"]
 |========================================
-|Parameter | Rise Time | Overshoot | Settling Time | S.S. Error
+|Parameter | Rise Time | Overshoot | Settling Time | Steady State Error
 |P | Decrease | Increase | Small Change | Decrease
 |I | Decrease | Increase | Increase | Eliminate
 |D | Small Change | Decrease | Decrease | Small Change
@@ -186,7 +184,7 @@ controls as the table shows:
 
 ==== Final Steps
 
-After tuning the axis check the following error with Hal Scope to make
-sure it is within your machine requirements. More information on Hal
-Scope is in the HAL User manual.
+After tuning the axis check the following error with Halscope to make
+sure it is within your machine requirements. More information on 
+Halscope is in the HAL User manual. 
 

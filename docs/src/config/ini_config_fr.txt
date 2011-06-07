@@ -4,15 +4,15 @@
 
 EMC est entièrement configuré avec des fichiers textes classiques.
 Tous ces fichiers peuvent être lus et modifiés dans n'importe quel
-éditeur de texte disponible dans toute distribution Linuxfootnote:[Ne
+éditeur de texte disponible dans toute distribution Linux.footnote:[Ne
 confondez pas un éditeur de texte et un traitement de texte. Un
 éditeur de texte comme gedit ou kwrite produisent des fichiers
 uniquement en texte. Les lignes de textes sont séparées les unes des
 autres. Un traitement de texte comme Open Office produit des fichiers
 avec des paragraphes, des mises en formes des mots. Ils ajoutent des
 codes de contrôles, des polices de formes et de tailles variées etc. Un
-éditeur de texte n'a rien de tout cela.
- ] . Soyez prudent lorsque vous modifierez ces fichiers, certaines
+éditeur de texte n'a rien de tout cela.] 
+Soyez prudent lorsque vous modifierez ces fichiers, certaines
 erreurs pourraient empêcher le démarrage d'EMC. Ces fichiers sont lus à
 chaque fois que le logiciel démarre. Certains d'entre eux sont lus de
 nombreuses fois pendant l'exécution d'CNC.
@@ -50,11 +50,9 @@ NML::
     l'utilisateur, il a été créé pour enregistrer le nom du répertoire
     lorsque l'utilisateur choisit sa première configuration
     d'EMC.footnote:[Habituellement, ce fichier est dans le répertoire home
-    de
-    l'utilisateur (ex: /home/user/ )
-    ]
+    de l'utilisateur (ex: /home/user/ )]
 
-Les éléments avec le repère *(hal)*  sont utilisés seulement pour les
+Les éléments avec le repère *(hal)* sont utilisés seulement pour les
 fichiers de HAL en exemples. C'est
 une bonne convention. D'autres éléments sont utilisés directement par
 EMC et doivent toujours avoir la section et le nom donné à l'item.
@@ -89,8 +87,8 @@ axis puisque toutes les autres sont commentées. Si quelqu'un édite une
 liste comme celle-ci et par erreur, décommente deux lignes, c'est la
 première rencontrée qui sera utilisée.
 
-Notez que dans une ligne de variables, les caractères ```#`” et ``
-`;`” n'indiquent pas un commentaire.
+Notez que dans une ligne de variables, les caractères `#` et `;` 
+n'indiquent pas un commentaire.
 
     INCORRECT = value     # and a comment
 
@@ -101,23 +99,22 @@ sections. Une section commence par son nom en majuscules entre crochets
 [UNE_SECTION]. L'ordre des sections est sans importance. Les sections
 suivantes sont utilisées par emc:
 
- - [EMC] informations générales ( <<sub:Section-[EMC]>>)
- -  [DISPLAY] sélection du type d'interface graphique (
-   <<sub:Section-[DISPLAY]>>)
+ - [EMC] informations générales (<<sub:Section-[EMC]>>)
+ - [DISPLAY] sélection du type d'interface graphique (<<sub:Section-[DISPLAY]>>)
  - [RS274NGC] ajustements utilisés par l'interpréteur de g-code
- -  [EMCMOT] Réglages utilisés par le contrôleur de mouvements temps réel
-   ( <<sub:Section-[EMCMOT]>>)
- - [HAL] spécifications des fichiers .hal ( <<sub:Section-[HAL]>>)
- -  [TASK] Réglages utilisés par le contrôleur de tâche (
-   <<sub:Section-[TASK]>>)
- -  [TRAJ] Réglages additionnels utilisés par le contrôleur de mouvements
-   temps réel ( <<sub:Section-[TRAJ]>>)
- -  [AXIS_0] ... [AXIS_n] Groupes de variables pour AXIS (
-   <<sub:Section-[AXIS]>>)
- -  [EMCIO] Réglages utilisés par le contrôleur d'entrées/sorties (
-   <<sub:Section-[EMCIO]>>)
- -  [HALUI] Commandes MDI utilisées par HALUI. Voir le chapitre sur HALUI
-   pour plus d'informations ( <<sub:MDI>>)
+ - [EMCMOT] Réglages utilisés par le contrôleur de mouvements temps réel
+   (<<sub:Section-[EMCMOT]>>)
+ - [HAL] spécifications des fichiers .hal (<<sub:Section-[HAL]>>)
+ - [TASK] Réglages utilisés par le contrôleur de tâche 
+   (<<sub:Section-[TASK]>>)
+ - [TRAJ] Réglages additionnels utilisés par le contrôleur de mouvements
+   temps réel (<<sub:Section-[TRAJ]>>)
+ - [AXIS_0] ... [AXIS_n] Groupes de variables pour AXIS 
+   (<<sub:Section-[AXIS]>>)
+ - [EMCIO] Réglages utilisés par le contrôleur d'entrées/sorties 
+   (<<sub:Section-[EMCIO]>>)
+ - [HALUI] Commandes MDI utilisées par HALUI. Voir le chapitre sur HALUI
+   pour plus d'informations (<<sub:MDI>>)
 
 === Variables
 
@@ -137,9 +134,9 @@ appellation. D'autres variables ne sont utilisées que par HAL. Les noms
 des sections et les noms des variables indiquées sont celles qui sont
 utilisées dans les exemples de fichiers de configuration.
 
-==  [[sub:Details fichier INI]]Définition des variables du fichier INI
+== [[sub:Details fichier INI]]Définition des variables du fichier INI
 
-===  Section [EMC][[sub:Section-[EMC]]](((Sections du fichier INI)))
+=== Section [EMC][[sub:Section-[EMC]]](((Sections du fichier INI)))
 
 VERSION = $Revision: 1.3 $::
      Le numéro de version du fichier INI. La valeur indiquée ici semble
@@ -161,7 +158,7 @@ RS274NGC_STARTUP_CODE = G21 G90::
     codes modaux des machines diffèrent, ils pourraient être modifiés par
     les gcodes interprétés plus tôt dans la session. 
 
-===  Section [DISPLAY][[sub:Section-[DISPLAY]]](((Fichier INI-DISPLAY)))
+=== Section [DISPLAY][[sub:Section-[DISPLAY]]](((Fichier INI-DISPLAY)))
 
 Les différentes interfaces du programme utilisent différentes options.
 Toutes les options ne sont pas supportées par toutes les interfaces.
@@ -226,7 +223,7 @@ PROGRAM_PREFIX = ~/emc2/nc_files::
 
 INCREMENTS = 1 mm, .5 mm, …::
      Définit les incréments disponibles pour le jog incremental. Voir la
-    section  <<sub:Section-[DISPLAY]>> pour plus d'informations. Seulement
+    section <<sub:Section-[DISPLAY]>> pour plus d'informations. Seulement
     utilisé dans l'interface AXIS.
 
 INTRO_GRAPHIC = emc2.gif::
@@ -238,7 +235,7 @@ INTRO_TIME = 5::
 OPEN_FILE = /full/path/to/file.ngc::
     Le fichier NC à utiliser au démarrage d'AXIS.
 
-===  Section [EMCMOT][[sub:Section-[EMCMOT]]](((Fichier INI-EMCMOT)))
+=== Section [EMCMOT][[sub:Section-[EMCMOT]]](((Fichier INI-EMCMOT)))
 
 BASE_PERIOD = 50000::
     (hal)  (((BASE PERIOD)))“Période de base” des tâches, exprimée en
@@ -253,9 +250,9 @@ BASE_PERIOD = 50000::
      par *BASE_PERIOD*. Ainsi, la *BASE_PERIOD*  utilisée ici donnera une
     fréquence de pas maximum absolue de 20000
     pas par seconde. 50000ns est une valeur assez large. La plus petite
-    valeur utilisable est liée au résultat du test de latence ( <<sec:Test
-    de latence>>), à la longueur des impulsions de pas nécessaire et à la
-    vitesse du µP. 
+    valeur utilisable est liée au résultat du test de latence 
+    (<<sec:Test de latence>>), à la longueur des impulsions de pas 
+    nécessaire et à la vitesse du µP. 
      Choisir une BASE_PERIOD trop basse peut amener à des messages
     “Unexpected realtime delay”, des bloquages ou des reboots spontanés.
 
@@ -323,7 +320,7 @@ POSTGUI_HALFILE = example2.hal::
     l'interface graphique ait créé ses
     HAL pins. 
 
-===  Section [TRAJ][[sub:Section-[TRAJ]]](((Fichier INI-TRAJ )))
+=== Section [TRAJ][[sub:Section-[TRAJ]]](((Fichier INI-TRAJ )))
 
 La section [TRAJ] contient les paramètres généraux du module
 planificateur de trajectoires d' EMCMOT. Vous n'aurez pas à modifier
@@ -411,7 +408,7 @@ franchir les
 limites logicielles pendant les mouvements ce qui n'est pas souhaîtable
 pour un fonctionnement normal!
 
-===  Section [AXIS_<num>][[sub:Section-[AXIS]]](((Fichier INI-AXIS)))
+=== Section [AXIS_<num>][[sub:Section-[AXIS]]](((Fichier INI-AXIS)))
 
 Les sections [AXIS_0], [AXIS_1], etc. contiennent les paramètres
 généraux des composants individuels du module de contrôle. La
@@ -558,9 +555,9 @@ HOME_IS_SHARED = <n>::
 
 HOME_SEQUENCE = <n>::
      Utilisé pour définir l'ordre dans lequel les axes se succéderont lors
-    d'une séquence de "POM générale". <n> commence à 0, aucun numéro ne
+    d'une séquence de «POM générale». <n> commence à 0, aucun numéro ne
     peut être sauté. Si cette variable est absente ou à -1, la POM de l'axe
-    ne pourra pas être exécutée par la commande "POM générale". La POM de
+    ne pourra pas être exécutée par la commande «POM générale». La POM de
     plusieurs axes peut se dérouler simultanément.
 
 ==== Variables relatives aux servomoteurs [[sub:Variables relatives aux servomoteurs]]
@@ -569,8 +566,8 @@ Les entrées suivantes concernent les systèmes à servomoteurs, comme la
 carte du système univstep de Pico Systems.footnote:[Référez vous au
 “Manuel de l'intégrateur d'EMC2” pour des informations
 complémentaires sur les systèmes à servomoteurs et leur contrôle en
-PID.
- ] Cette description suppose que les unités en sortie du composant PID
+PID.] 
+Cette description suppose que les unités en sortie du composant PID
 sont des Volts.
 
 P = 50::
@@ -587,7 +584,7 @@ I = 0::
     axe. Cette valeur multiplie
     l'erreur cumulative entre la position commandée et la position actuelle
     en unités machine, elle entre dans le calcul de la tension appliquée à
-     l'ampli moteur. Les unités du gain *I*  sont des Volts sur des unités
+     l'ampli moteur. Les unités du gain *I* sont des Volts sur des unités
     machine par seconde, exemple:
     latexmath:[$\frac{volt}{mm\, s}$] si l'unité machine est le millimètre.
 
@@ -596,11 +593,11 @@ D = 0::
     Cette valeur multiplie la
     différence entre l'erreur courante et les précédentes, elle entre dans
      le calcul de la tension appliquée à l'ampli moteur. Les unités du gain
-    *D*  sont des Volts sur des unités machine sur des secondes, exemple:
+    *D* sont des Volts sur des unités machine sur des secondes, exemple:
     latexmath:[$\frac{volt}{mm/s}$] si l'unité machine est le millimètre.
 
 FF0 = 0::
-      (hal)  Gain à priori (feedforward) d'orde 0. Cette valeur est
+      (hal) Gain à priori (feedforward) d'orde 0. Cette valeur est
     multipliée par
     la position commandée, elle entre dans le calcul de la tension
     appliquée à l'ampli moteur. Les unités du gain FF0 sont des Volts sur
@@ -608,7 +605,7 @@ FF0 = 0::
     machine est le millimètre.
 
 FF1 = 0::
-     (hal)  Gain à priori (feedforward) de premier orde. Cette valeur est
+     (hal) Gain à priori (feedforward) de premier orde. Cette valeur est
     multipliée par l'écart de la position commandée par seconde, elle entre
     dans le calcul de la tension appliquée à l'ampli moteur. Les unités du
     gain FF1 sont des Volts sur des unités machine par seconde, exemple:
@@ -643,8 +640,7 @@ OUTPUT_OFFSET = 0.000::
     une machine sur laquelle une tension de consigne de l'ampli de 1 Volt
     donne une vitesse de 250 mm/sec :
     
-    latexmath:[[amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec\,
-    volt}\]]
+    latexmath:[[amplifier[volts]=(output[\frac{mm}{sec}]-offset[\frac{mm}{sec}])/250\frac{mm}{sec\ volt}\]]
     
     Notez que les unités d'offset sont en unités machine, exemple:
     mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
@@ -655,22 +651,19 @@ OUTPUT_OFFSET = 0.000::
     d'où des valeurs qui reflètent les effets combinés du gain de l'ampli,
     de la non linéarité du DAC, des unités du DAC, etc. Pour ce faire,
     suivez cette procédure: 
-      .  Construire un tableau de calibrage pour la sortie, piloter le DAC
-    avec
-       la tension souhaitée et mesurer le résultat. Voir le tableau 
+      . Construire un tableau de calibrage pour la sortie, piloter le DAC
+       avec la tension souhaitée et mesurer le résultat. Voir le tableau 
        <<cap:Mesure des tensions de sortie>> pour un exemple de mesures de
        tension.
-      .  Effectuer un “least squares” linéaire pour obtenir les
-    coefficients a,
-       b tels que:latexmath:[meas=a*raw+b]
-     .  Notez que nous voulons des sorties brutes de sorte que nos résultats
+      . Effectuer un “least squares” linéaire pour obtenir les
+       coefficients a,b tels que:latexmath:[meas=a*raw+b]
+      . Notez que nous voulons des sorties brutes de sorte que nos résultats
        mesurés soient identiques à la sortie commandée. Ce qui signifie:
         . latexmath:[cmd=a*raw+b]
         . latexmath:[raw=(cmd-b)/a]
       .  En conséquence, les coefficients a et b d'ajustement linéaire
-    peuvent
-       être directement utilisés comme valeurs d'échelle et d'offset pour le
-       contrôleur. 
+       peuvent être directement utilisés comme valeurs d'échelle et 
+       d'offset pour le contrôleur. 
 
 MAX_OUTPUT = 10::
       (hal)  La valeur maximale pour la sortie de la compensation PID
@@ -705,8 +698,7 @@ INPUT_SCALE = 20000::
     mouvement d'une unité machine. Un second chiffre, si spécifié, sera
     ignoré. 
      Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
-    réducteur de 10 tours/pouce et des unités demandées en mm, nous
-    avons:
+    réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
     
     latexmath:[\begin{array}{ccc} input\_ scale & = &
     2000\frac{impulsions}{tour}*10\frac{tours}{pouce}\\ & = &
@@ -734,18 +726,16 @@ SCALE = 4000::
     configuration .ini et .hal utilisaient INPUT_SCALE pour cette valeur.
 
 STEPGEN_MAXACCEL = 21.0::
-     (hal)  Limite d'accélération pour le générateur de pas. Elle doit être
-    1% à
-    10% supérieure à celle de l'axe MAX_ACCELERATION. Cette valeur améliore
+     (hal) Limite d'accélération pour le générateur de pas. Elle doit être
+    1% à 10% supérieure à celle de l'axe MAX_ACCELERATION. Cette valeur améliore
     les réglages de la “boucle de position” de stepgen. Si une correction
     de backlash a été appliquée sur un axe, alors STEPGEN_MAXACCEL doit
     être 1,5 à 2 fois plus grande que MAX_ACCELERATION.
 
 STEPGEN_MAXVEL = 1.4::
-     (hal)  Les anciens fichiers de configuration avaient également une
-    limite de
-    vitesse du générateur de pas. Si spécifiée, elle doit auss être 1% à
-    10% supérieure à celle de l'axe MAX_VELOCITY. Des tests ultérieurs ont
+     (hal) Les anciens fichiers de configuration avaient également une
+    limite de vitesse du générateur de pas. Si spécifiée, elle doit auss être 
+    1% à 10% supérieure à celle de l'axe MAX_VELOCITY. Des tests ultérieurs ont
     montré que l'utilisation de STEPGEN_MAXVEL n'améliore pas le réglage de
     la boucle de position de stepgen. 
 

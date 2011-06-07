@@ -13,7 +13,7 @@ latexmath:[10/5000=0.002] notre facteur d'échelle sera donc de 0.002
 
 Si votre carte DAC ne dispose pas d'une fonction échelle, nous devrons
 ajouter un composant «scale» (echelle) au fichier hal pour calibrer
-«motion.spindle-speed-out» entre 0 et 10 comme demandé par le variateur
+`motion.spindle-speed-out` entre 0 et 10 comme demandé par le variateur
 de fréquence.
 
     *loadrt scale count=1*
@@ -24,15 +24,14 @@ de fréquence.
 
     *net spindle-speed-scale motion.spindle-speed-out => scale.0.in*
 
-     *net spindle-speed-DAC scale.0.out => <le nom de la sortie de votre
-    DAC>*
+    *net spindle-speed-DAC scale.0.out => «le nom de la sortie de votre DAC»*
 
 == Vitesse de broche en PWM
 
 Si la vitesse de votre broche peut être contrôlée par un signal de
 PWM, utilisez le composant «pwmgen» pour créer le signal:
 
-    *loadrt pwmgen output_type=0 *
+    *loadrt pwmgen output_type=0*
 
     *addf pwmgen.update servo-thread*
 
@@ -44,8 +43,8 @@ PWM, utilisez le composant «pwmgen» pour créer le signal:
 
     *net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out*
 
-    * setp pwmgen.0.scale 1800 # Adaptez selon la vitesse maximale de votre
-    broche en tr/mn *
+    *setp pwmgen.0.scale 1800 # Adaptez selon la vitesse maximale de votre
+    broche en tr/mn*
 
 La réponse du contrôleur de PWM est simple: 0% donne 0tr/mn, 10%
 donnent 180 tr/mn... 100% donnent 1800 tr/mn. Si un minimum est
@@ -55,7 +54,7 @@ d'échelle.
 
 == Marche broche
 
-Si vous voulez un signal de marche broche reliant «motion.spindle-on»
+Si vous voulez un signal de marche broche reliant `motion.spindle-on` 
 à une broche de sortie physique. Pour relier ces pins à une broche du
 port parallèle, ajouter une ligne comme la suivante dans votre fichier
 .hal, il faut bien sûr qu'elle soit câblée à votre interface de
@@ -66,7 +65,7 @@ contrôle.
 == Sens de rotation de la broche
 
 Si vous voulez contrôler le sens de rotation de votre broche, les pins
-de HAL «motion.spindle-forward» et «motion.spindle-reverse» étant
+de HAL `motion.spindle-forward` et `motion.spindle-reverse` étant 
 contrôlées par M3 et M4, peuvent être mise à une valeur positive
 différente de zéro pour que M3/4 inverse le sens de la broche.
 
@@ -83,30 +82,31 @@ broches doivent être câblées à votre interface de contrôle.
 Une information de retour est nécessaire pour qu'EMC puisse réaliser
 les mouvements synchronisés avec la broche comme le filetage ou la
 vitesse de coupe constante. L'assistant de configuration StepConf peut
-réaliser les connections lui même si les signaux «Canal A codeur
-broche» et «Index codeur broche» sont choisis parmi les entrées.
+réaliser les connections lui même si les 
+signaux «Canal A codeur broche» et «Index codeur broche» sont 
+choisis parmi les entrées.
 
 Matériel supposé présent:
 
- -  Un codeur est monté sur la broche et délivre 100 impulsions par tour
+ - Un codeur est monté sur la broche et délivre 100 impulsions par tour
    sur son canal A.
  - Ce canal A est raccordé à la pin 10 du port parallèle.
  - L'index de ce codeur est connecté à la pin 11 du port parallèle.
 
 Configuration de base pour ajouter ces composants:
 
-    *loadrt encoder num_chan=1 
+    loadrt encoder num_chan=1 
     addf encoder.update-counters base-thread 
     addf encoder.capture-position servo-thread 
     setp encoder.0.position-scale 100 
     setp encoder.0.counter-mode 1 
     net spindle-position encoder.0.position => motion.spindle-revs 
     net spindle-velocity encoder.0.velocity => motion.spindle-speed-in 
-     net spindle-index-enable encoder.0.index-enable <=>
-    motion.spindle-index-enable 
+    net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable 
     net spindle-phase-a encoder.0.phase-A 
     net spindle-phase-b encoder.0.phase-B 
     net spindle-index encoder.0.phase-Z 
     net spindle-phase-a <= parport.0.pin-10-in 
-    net spindle-index <= parport.0.pin-11-in*
+    net spindle-index <= parport.0.pin-11-in
+
 

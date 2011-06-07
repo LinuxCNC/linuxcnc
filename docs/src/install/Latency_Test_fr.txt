@@ -61,8 +61,7 @@ cas, rien ne provoque de latence ou seulement des actions
 particulières. Par exemple, une carte mère Intel marchait très bien
 la plupart du temps, mais toutes les 64 secondes elle avait une
 très mauvaise latence de 300s. Heureusement, il existe un
-correctif (voir Fixing Dapper SMI Issues
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues)
+correctif (voir http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues[Fixing Dapper SMI Issues])
 
 Alors, que signifient les résultats ? Si le résultat de votre Max
 Jitter est en dessous d'environ 15-20 microsecondes (15000-20000
@@ -132,7 +131,6 @@ machine et d'insérer l'adresse trouvée à l'endroit approprié.
 
     loadrt hal\_parport cfg=0x378 0xc000
 
-
 Noter la présence des guillemets () encadrant les deux adresses,
 ils sont obligatoires dès qu'il y a plus d'une carte.
 
@@ -144,11 +142,11 @@ exemple,
 
     addf parport.1.write base-thread -1
 
-
 Noter que les valeurs peuvent être différentes de celles de cet
 exemple. Les cartes Netmos sont Plug-N-Play, elles peuvent donc
 changer leur adressage selon le connecteur PCI dans lequel elles
 sont placées. Si vous modifiez l'installation des cartes PCI de
 votre machine, n'oubliez pas de vérifier leurs adresses avant de
 lancer EMC.
+
 

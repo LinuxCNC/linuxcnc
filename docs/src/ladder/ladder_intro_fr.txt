@@ -8,8 +8,8 @@ d'un langage graphique vraiment populaire pour la programmation des
 automates programmables industriels (API). Il a été à l'origine inventé
 pour décrire la logique à relais. Son nom est fondé sur la constatation
 que les programmes dans cette langue ressemblent à une échelle
-(ladder), avec deux "rails" verticaux et, entre eux, une série
-"d'échelons". En Allemagne et ailleurs en Europe, le style consiste à
+(ladder), avec deux «rails» verticaux et, entre eux, une série
+«d'échelons». En Allemagne et ailleurs en Europe, le style consiste à
 placer les rails horizontaux, un en haut de la page et l'autre en bas
 avec les échelons verticaux dessinés séquentiellement de la gauche vers
 la droite.
@@ -30,9 +30,9 @@ ils ont aussi été utilisés avec succès dans des systèmes
 d'automatisation très complexes.
 
 Le langage Ladder peut être considéré comme un langage basé sur les
-règles, plutôt que comme un langage procédural. Un "échelon" en Ladder
+règles, plutôt que comme un langage procédural. Un «échelon» en Ladder
 représente une règle. Quand elles sont mises en application avec des
-éléments électromécaniques, les diverses règles "s'exécutent" toutes
+éléments électromécaniques, les diverses règles «s'exécutent» toutes
 simultanément et immédiatement. Quand elle sont mises en application
 dans la logique d'un automate programmable, les règles sont exécutées
 séquentiellement par le logiciel, dans une boucle. En exécutant la

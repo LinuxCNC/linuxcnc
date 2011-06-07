@@ -41,6 +41,8 @@ command:
 
 You should see something like this:
 
+.HAL Latency Test
+
 image::images/latency.png[]
 
 While the test is running, you should "abuse" the computer. Move 
@@ -53,7 +55,7 @@ the latency test checks to see what the worst case numbers are.
 Do not run EMC2 or Stepconf while the latency test is running.
 
 The important numbers are the "max jitter". In the example above, 
-that is 7555 nanoseconds, or 7.5 microseconds. Record this 
+that is 7555 nanoseconds, or 7.555 microseconds. Record this 
 number, and enter it in Stepconf when it is requested.
 
 In the example above, latency-test only ran for a few seconds. 
@@ -61,8 +63,8 @@ You should run the test for at least several minutes; sometimes
 the worst case latency doesn't happen very often, or only happens 
 when you do some particular action. For instance, one Intel 
 motherboard worked pretty well most of the time, but every 64 
-seconds it had a very bad 300uS latency. Fortunately that was 
-fixable see http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
+seconds it had a very bad 300 us  latency. Fortunately that was 
+fixable, see http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
 
 So, what do the results mean? If your Max Jitter number is less 
 than about 15-20 microseconds (15000-20000 nanoseconds), the 
@@ -70,7 +72,7 @@ computer should give very nice results with software stepping. If
 the max latency is more like 30-50 microseconds, you can still 
 get good results, but your maximum step rate might be a little 
 disappointing, especially if you use microstepping or have very 
-fine pitch leadscrews. If the numbers are 100uS or more (100,000 
+fine pitch leadscrews. If the numbers are 100 us  or more (100,000 
 nanoseconds), then the PC is not a good candidate for software 
 stepping. Numbers over 1 millisecond (1,000,000 nanoseconds) mean 
 the PC is not a good candidate for EMC, regardless of whether you 
@@ -100,10 +102,11 @@ and use the list pci command:
 
   lspci -v
 
-Look for the entry with "NetMos" in it. Example of a 2-port card:
+Look for the entry with "Netmos" in it. Example of a 2-port card:
 
-  0000:01:0a.0 Communication controller: Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
-	Subsystem: LSI Losgic / Symbios Logic 2POS (2 port parallel adapter) 
+  0000:01:0a.0 Communication controller: \
+        Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
+	Subsystem: LSI Logic / Symbios Logic 2POS (2 port parallel adapter) 
 	Flags: medium devsel, IRQ 5
 	I/O ports at b800 [size=8]
 	I/O ports at bc00 [size=8] 

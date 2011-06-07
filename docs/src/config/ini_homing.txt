@@ -1,4 +1,4 @@
-==  [[sec:Homing]]Homing
+== [[sec:Homing]]Homing
 
 === Overview
 
@@ -15,14 +15,17 @@ detailed description of what each configuration parameter does, see the
 following section.
 
 [width="90%", options="header"]
-|========================================
-|SEARCH_VEL | LATCH_VEL | USE_INDEX | Homing Type
-|nonzero | nonzero | NO | Switch-only
-|nonzero | nonzero | YES | Switch + Index
-|0 | nonzero | YES | Index-only
-|0 | 0 | NO | None
-|Other combinations |  |  | Error
-|========================================
+|==========================================================
+|Homing Type      |SEARCH_VEL |LATCH_VEL    |USE_INDEX
+|Immediate        |0          |0            |NO
+|error            |0          |0            |YES
+|error            |0          |nonzero      |NO
+|Index-only       |0          |nonzero      |YES
+|error            |nonzero    |0            |NO
+|error            |nonzero    |0            |YES
+|Switch-only      |nonzero    |nonzero      |NO
+|Switch and Index |nonzero    |nonzero      |YES
+|==========================================================
 
 === Configuration
 
@@ -53,7 +56,7 @@ long time.
 Specifies the speed and direction that EMC uses when it makes its
 final accurate determination of the home switch (if present) and index
 pulse location (if present). It will usually be slower than the search
-velocity to maximise accuracy. If HOME_SEARCH_VEL and HOME_LATCH_VEL
+velocity to maximize accuracy. If HOME_SEARCH_VEL and HOME_LATCH_VEL
 have the same sign, then the latch phase is done while moving in the
 same direction as the search phase. (In that case, EMC first backs off
 the switch, before moving towards it again at the latch velocity.) If
@@ -71,7 +74,7 @@ zero.
 It specifies the speed that EMC uses when it makes its move from
 HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from
 the ini file, then the maximum joint speed is used to make this move.
-The value must a positive number.
+The value must be a positive number.
 
 ==== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
 
@@ -106,17 +109,17 @@ The position that the joint will go to upon completion of the homing
 sequence. After detecting the index pulse, and setting the coordinate
 of that point to HOME_OFFSET, EMC makes a move to HOME as the final
 step of the homing process. The default value is zero. Note that even
-if this parameter is the same as HOME_OFFSET, the axis will slightly
+if this parameter is the same as HOME_OFFSET, the joint will slightly
 overshoot the latched position as it stops. Therefore there will always
 be a small move at this time (unless HOME_SEARCH_VEL is zero, and the
 entire search/latch stage was skipped). This final move will be made at
-the joint's maximum velocity. Since the axis is now homed, there should
+the joint's maximum velocity. Since the joint is now homed, there should
 be no risk of crashing the machine, and a rapid move is the quickest
 way to finish the homing sequence. footnote:[The distinction between
-'home' and 'home_offset' is not as clear as I
-would like. I intend to make a small drawing and example to help
-clarify it.
-]
+'home_offset' and 'home' is that 'home_offset' first establishes the 
+scale location on the machine by applying the 'home_offset' value to 
+the location where home was found, and then 'home' says where 
+the joint should move to on that scale.]
 
 ==== HOME_IS_SHARED (((HOME IS SHARED)))
 
@@ -140,7 +143,7 @@ numbers.
 ==== VOLATILE_HOME (((VOLATILE HOME)))
 
 If this setting is true, this axis becomes unhomed whenever the
-machine transitions into the OFF state.  This is appropriate for
+machine transitions into the OFF state. This is appropriate for
 any axis that does not maintain position when the axis drive is
 off.  Some stepper drives, especially microstep drives, may need
 this.
@@ -150,8 +153,8 @@ this.
 If this axis is a locking rotary indexer, it will unlock before
 homing, and lock afterward.
 
-.[[fig:motion-homing-sequence-diagram]]Homing Sequences
-image::emc2-motion-homing-diag.eps[]
+.Homing Sequences[[fig:motion-homing-sequence-diagram]]
 
+image::images/emc2-motion-homing-diag.eps[]
 
 

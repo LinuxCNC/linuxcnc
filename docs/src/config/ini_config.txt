@@ -1,8 +1,8 @@
-= Starting EMC
+= Starting EMC2
 
 == Files
 
-EMC is started with the script file emc. 
+EMC2 is started with the script file emc. 
 
     usage: emc [options] [<ini-file>]
 
@@ -11,14 +11,14 @@ EMC is started with the script file emc.
         -d = echos script commands to screen for debugging
   
 The emc script file reads the ini file and starts emc. The ini file
-[HAL] section specifies the order of loading up hal files if more than
+[HAL] section specifies the order of loading up HAL files if more than
 one is used. Once the HAL=xxx.hal files are loaded then the GUI is loaded
 then the POSTGUI=.xxx.hal file is loaded. If you create pyvcp objects
-with hal pins you must use the postgui hal file to make any connections
+with HAL pins you must use the postgui HAL file to make any connections
 to those pins.
 
-If no ini file is passed to the emc script it loads the configuration picker
-so you can choose a sample configuration.
+If no ini file is passed to the emc script it loads the configuration 
+selector so you can choose a sample configuration.
 
 
 = Config Files
@@ -31,7 +31,7 @@ available with most any Linux distribution.footnote:[Don't confuse a
 text editor with a word processor. A text editor like
 gedit or kwrite produce files that are plain text. They also produce
 lines of text that are separated from each other. A word processor like
-Open Office produce files with paragraphs and word wrapping and lots of
+Libre Office produces files with paragraphs and word wrapping and lots of
 embedded codes that control font size and such. A text editor does none
 of this.] You'll need to be a bit careful when you edit these files. Some
 mistakes will cause the start up to fail. These files are read whenever
@@ -69,13 +69,12 @@ emcrc::
      (((.emcrc))) This file saves user specific information and is created
     to save the name of the directory when the user first selects an EMC
     configuration.footnote:[Usually this file is in the users home
-    directory (e.g. /home/user/ )
-    ]
+    directory (e.g. /home/user/ )]
 
-Items marked *(hal)*  are used only by the sample HAL files and are
-suggested as a good
-convention. Other items are used by EMC directly, and must always have
-the section and item names given.
+Items marked *(in HAL)* are used by the sample HAL files and are 
+suggested as a good convention. 
+Other items are used by EMC directly, and must always have 
+the section and item names given. 
 
 = INI File
 
@@ -130,22 +129,17 @@ at the next section name.
 The following sections are used by EMC:
 
  - [EMC] general information (<<sub:[EMC]-section>>)
- -  [DISPLAY] settings related to the graphical user interface (
-   <<sub:[DISPLAY]-section>>)
+ - [DISPLAY] settings related to the graphical user interface (<<sub:[DISPLAY]-section>>)
  - [FILTER] settings input filter programs ([sub:[FILTER]-Section])
- -  [RS274NGC] settings used by the g-code interpreter (
-   <<sub:[RS274NGC]-section>>)
- -  [EMCMOT] settings used by the real time motion controller (
-   <<sub:[EMCMOT]-section>>)
- - [HAL] specifies .hal files ( <<sub:[HAL]-section>>)
- - [TASK] settings used by the task controller ( <<sub:[TASK]-section>>)
- -  [TRAJ] additional settings used by the real time motion controller (
-   <<sub:[TRAJ]-section>>)
- -  [AXIS_0] ... [AXIS_n] individual axis variables (
-   <<sub:[AXIS]-section>>)
- - [EMCIO] settings used by the I/O Controller ( <<sub:[EMCIO]-Section>>)
- -  [HALUI] MDI commands used by HALUI. ( <<sub:[HALUI]-section>>)
-    See the HALUI chapter for more information ( <<sub:MDI>>)
+ - [RS274NGC] settings used by the g-code interpreter (<<sub:[RS274NGC]-section>>)
+ - [EMCMOT] settings used by the real time motion controller (<<sub:[EMCMOT]-section>>)
+ - [HAL] specifies .hal files (<<sub:[HAL]-section>>)
+ - [TASK] settings used by the task controller (<<sub:[TASK]-section>>)
+ - [TRAJ] additional settings used by the real time motion controller (<<sub:[TRAJ]-section>>)
+ - [AXIS_0] ... [AXIS_n] individual axis variables (<<sub:[AXIS]-section>>)
+ - [EMCIO] settings used by the I/O Controller (<<sub:[EMCIO]-Section>>)
+ - [HALUI] MDI commands used by HALUI. See the HALUI chapter for 
+   more information. (<<sub:[HALUI]-section>>)
 
 === Variables
 
@@ -174,7 +168,7 @@ Machine Unit::
     the [TRAJ] section. A machine unit is equal to one unit as specified by
     LINEAR_UNITS or ANGULAR_UNITS. 
 
-==  [[sub:INI-Detail]]Sections
+== [[sub:INI-Detail]]Sections
 
 === [EMC] Section  [[sub:[EMC]-section]](((EMC (inifile section))))
 
@@ -206,17 +200,10 @@ computer and monitor, Touchy is for use with touch screens.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
-*DISPLAY = axis* The name of the user interface to use. Valid options
-may include:
-
- - axis(((axis)))
- - touchy(((touchy)))
- - keystick(((keystick)))
- - mini(((mini)))
- - tkemc(((tkemc)))
- - xemc(((xemc)))
-
-//
+DISPLAY = axis:: 
+     The name of the user interface to use. Valid options
+    may include: axis,(((axis))) touchy,(((touchy))) keystick,(((keystick))) 
+    mini,(((mini))) tkemc,(((tkemc))) xemc,(((xemc)))
 
 POSITION_OFFSET = RELATIVE::
      The coordinate system (RELATIVE or MACHINE) to show when the user
@@ -231,7 +218,7 @@ POSITION_FEEDBACK = ACTUAL::
 
 MAX_FEED_OVERRIDE = 1.2::
      The maximum feed override the user may select. 1.2 means 120% of the
-    programmed feed rate
+    programmed feed rate.
 
 MIN_SPINDLE_OVERRIDE = 0.5::
      The minimum spindle override the user may select. 0.5 means 50% of the
@@ -240,19 +227,19 @@ MIN_SPINDLE_OVERRIDE = 0.5::
 
 MAX_SPINDLE_OVERRIDE = 1.0::
      The maximum spindle override the user may select. 1.0 means 100% of
-    the programmed spindle speed
+    the programmed spindle speed.
 
 PROGRAM_PREFIX = ~/emc2/nc_files::
      The default location for g-code files and the location for
-    user-defined M-codes
+    user-defined M-codes.
 
 INTRO_GRAPHIC = emc2.gif::
-    The image shown on the splash screen
+    The image shown on the splash screen.
 
 INTRO_TIME = 5::
-    The maximum time to show the splash screen
+    The maximum time to show the splash screen, in seconds.
 
-CYCLE_TIME = 0.0500::
+CYCLE_TIME = 0.05::
     Cycle time in seconds that display will sleep between polls.
 
 The following [DISPLAY] items are used only if you select AXIS as your
@@ -285,6 +272,7 @@ INCREMENTS = 1 mm, .5 in, ...::
     (e.g., 0.1000) or fractional numbers (e.g., 1/16), optionally followed
     by a unit (cm, mm, um, inch, in or mil). If a unit is not specified the
     machine unit is assumed. Metric and imperial distances may be mixed:
+
     INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a valid entry.
 
 OPEN_FILE = /full/path/to/file.ngc::
@@ -292,12 +280,12 @@ OPEN_FILE = /full/path/to/file.ngc::
     string "" and no file will be loaded at start up.
 
 EDITOR = gedit::
-     The editor to use when selecting File > Edit or File Edit Tool Table
-    from the AXIS menu. This must be configured for these menu items to
-    work. Another valid entry is gnome-terminal -e vim.
+     The editor to use when selecting File > Edit to edit the gcode 
+    from the AXIS menu. This must be configured for this menu item to
+    work. Another valid entry is gnome-terminal -e vim. 
 
 PYVCP = /filename.xml::
-     The pyVCP panel description file. See the pyVCP section for more
+     The PyVCP panel description file. See the PyVCP section for more
     information.
 
 LATHE = 1::
@@ -328,9 +316,8 @@ ARCDIVISION = 64::
     load and result in a more sluggish display. Smaller values give a less
     accurate preview, but take less time to load and may result in a faster
     display. The default value of 64 means a circle of up to 3 inches will
-    be displayed to within 1 mil (.03%).footnote:[In emc2.4 and earlier,
-    the default value was 128.
-    ]
+    be displayed to within 1 mil (.03%).footnote:[In EMC 2.4 and earlier,
+    the default value was 128.]
 
 MDI_HISTORY_FILE =::
      The name of a local MDI history file. If this is not specified Axis
@@ -368,9 +355,10 @@ the following line:
 The following lines add support for the image-to-gcode converter
 included with EMC2:
 
-    PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+    PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
     png = image-to-gcode
     gif = image-to-gcode
+    jpg = image-to-gcode
 
 It is also possible to specify an interpreter:
 
@@ -381,7 +369,7 @@ In this way, any Python script can be opened, and its output is
 treated as g-code. One such example script is available at
 nc_files/holecircle.py. This script creates g-code for drilling a
 series of holes along the circumference of a circle. Many more g-code
-generators are on the EMC Wiki site
+generators are on the EMC Wiki site 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl].
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
@@ -456,38 +444,50 @@ You may find other entries in this section and they should not be
 changed.
 
 BASE_PERIOD::
-     (((BASE PERIOD))) = 50000 (hal)  "Base" task period, in nanoseconds -
-    this is the fastest thread in
-    the machine. 
-     On servo-based systems, there is generally no reason for *BASE_PERIOD*
-    to be smaller than *SERVO_PERIOD*.  
-     On machines with software step generation, the *BASE_PERIOD* 
-    determines the maximum number of steps per second. In the absence of
-    long step length and step space requirements, the absolute maximum step
-     rate is one step per *BASE_PERIOD*. Thus, the *BASE_PERIOD*  shown
-    above gives an absolute maximum step rate of 20000 steps per
-    second. 50000ns is a fairly conservative value. The smallest usable
-    value is related to the Latency Test result, the necessary step length,
-    and the processor speed. 
-     Choosing a BASE_PERIOD that is too low can lead to the "Unexpected
-    real time delay" message, lockups, or spontaneous reboots.
+     (((BASE PERIOD))) 
+
+    BASE_PERIOD = 50000 
+
+This is the "Base" task period (in HAL), in nanoseconds - 
+this is the fastest thread in the machine. 
+
+On servo-based systems, there is generally no reason for 
+*BASE_PERIOD* to be smaller than *SERVO_PERIOD*.  
+On machines with software step generation, the *BASE_PERIOD* 
+determines the maximum number of steps per second. In the absence of
+long step length and step space requirements, the absolute maximum step
+rate is one step per *BASE_PERIOD*. Thus, the *BASE_PERIOD*  shown
+above gives an absolute maximum step rate of 20,000 steps per
+second. 50,000 ns (50 us) is a fairly conservative value. The 
+smallest usable value is related to the Latency Test result, the 
+necessary step length, and the processor speed. 
+Choosing a BASE_PERIOD that is too low can lead to the "Unexpected
+real time delay" message, lockups, or spontaneous reboots.
 
 SERVO_PERIOD::
-     (((SERVO PERIOD))) = 1000000 (hal)  "Servo" task period is also in
-    nanoseconds. This value will be
-     rounded to an integer multiple of *BASE_PERIOD*. This value is used
-    even on systems based on stepper motors. 
-     This is the rate at which new motor positions are computed, following
-    error is checked, PID output values are updated, and so on. 
-     Most systems will not need to change this value. It is the update rate
-    of the low level motion planner.
+    (((SERVO PERIOD))) 
+
+    SERVO_PERIOD = 1000000 
+
+This is the "Servo" task period (in HAL), in nanoseconds. This value will be
+rounded to an integer multiple of *BASE_PERIOD*. This value is used
+even on systems based on stepper motors. 
+
+This is the rate at which new motor positions are computed, following
+error is checked, PID output values are updated, and so on. 
+Most systems will not need to change this value. It is the update rate
+of the low level motion planner.
 
 TRAJ_PERIOD::
-     (((TRAJ PERIOD))) = *1000000 *(hal)  Trajectory Planner task period in
-    nanoseconds This value will be
-    rounded to an integer multiple of *SERVO_PERIOD*. 
-     Except for machines with unusual kinematics (e.g., hexapods) there is
-    no reason to make this value larger than *SERVO_PERIOD*.
+     (((TRAJ PERIOD))) 
+
+    TRAJ_PERIOD = 1000000 
+
+This is the "Trajectory Planner" task period (in HAL), in nanoseconds. 
+This value will be rounded to an integer multiple of *SERVO_PERIOD*. 
+
+Except for machines with unusual kinematics (e.g., hexapods) there is
+no reason to make this value larger than *SERVO_PERIOD*.
 
 === [TASK] Section  [[sub:[TASK]-section]](((TASK (inifile section))))
 
@@ -501,11 +501,13 @@ TASK = milltask::
     version of things like task, io, and motion for a specific machine.
 
 CYCLE_TIME ::
-     *=* *0.0* 01 The period, in seconds, at which EMCTASK will run. This
-    parameter
-    affects the polling interval when waiting for motion to complete, when
-    executing a pause instruction, and when accepting a command from a user
-    interface. There is usually no need to change this number.
+
+    CYCLE_TIME = 0.010
+
+The period, in seconds, at which EMCTASK will run. This parameter 
+affects the polling interval when waiting for motion to complete, when
+executing a pause instruction, and when accepting a command from a user
+interface. There is usually no need to change this number.
 
 === [HAL] section  [[sub:[HAL]-section]](((HAL (inifile section))))
 
@@ -513,13 +515,13 @@ HALFILE = example.hal::
      Execute the file 'example.hal' at start up. If *HALFILE*  is specified
     multiple times, the files are executed in the order they
     appear in the ini file. Almost all configurations will have at least
-     one *HALFILE* , and stepper systems typically have two such files, one
+     one *HALFILE*, and stepper systems typically have two such files, one
     which
      specifies the generic stepper configuration (`core_stepper.hal`) and
     one which specifies the machine pin out (`xxx_pinout.hal`)
 
 HALCMD = command::
-     Execute 'command' as a single hal command. If *HALCMD*  is specified
+     Execute 'command' as a single HAL command. If *HALCMD*  is specified
     multiple times, the commands are executed in the order
      they appear in the ini file. *HALCMD* lines are executed after all
     *HALFILE* lines.
@@ -535,12 +537,12 @@ SHUTDOWN = shutdown.hal::
 POSTGUI_HALFILE = example2.hal::
      '(Only with the AXIS GUI)'  Execute 'example2.hal' after the GUI has
     created its HAL pins. See
-    section  <<sec:pyvcp-with-axis>> for more information.
+    section <<sec:pyvcp-with-axis>> for more information.
     
 === [HALUI] section  [[sub:[HALUI]-section]](((HALUI (inifile section))))
 
 MDI_COMMAND = G53 G0 X0 Y0 Z0::
-     A MDI command can be executed by using halui.mdi-command-00. Increment
+     An MDI command can be executed by using halui.mdi-command-00. Increment 
     the number for each command listed in the [HALUI] section.
 
 === [TRAJ] Section  [[sub:[TRAJ]-section]](((TRAJ (inifile section))))
@@ -548,11 +550,10 @@ MDI_COMMAND = G53 G0 X0 Y0 Z0::
 The [TRAJ] section contains general parameters for the trajectory
 planning module in EMCMOT.
 
-COORDINATES ::
-     *=* *X* Y* Z*  The names of the axes being controlled. X, Y, Z, A, B,
-    C, U, V, and W
-     are all valid. Only axis named in *COORDINATES*  are accepted in
-    g-code. This has no effect on the mapping from G-code
+COORDINATES = X Y Z:: 
+The names of the axes being controlled. Only X, Y, Z, A, B, C, U, V, W are valid. 
+Only axes named in *COORDINATES*  are accepted in g-code. 
+This has no effect on the mapping from G-code
     axis names (X- Y- Z-) to joint numbers--for "trivial kinematics", X is
     always joint 0, A is always joint 4, and U is always joint 7, and so
     on. It is permitted to write an axis name twice (e.g., X Y Y Z for a
@@ -566,9 +567,9 @@ AXES = 3::
     nontrivial kinematics (e.g., scarakins) this will generally be the
     number of controlled joints.
 
-HOME ::
-     *=* *0* *0* *0*  Coordinates of the homed position of each axis. Again
-    for a fourth
+HOME = 0 0 0:: 
+     Coordinates of the homed position of each axis. Again
+    for a fourth 
     axis you will need 0 0 0 0. This value is only used for machines with
     nontrivial kinematics. On machines with trivial kinematics this value
     is ignored.
@@ -619,11 +620,12 @@ NO_FORCE_HOMING = 1::
     before any MDI command or a program is run. Normally jogging only is
     allowed before homing. Setting NO_FORCE_HOMING = 1 allows the user to
     make MDI moves and run programs without homing the machine first.
-    Interfaces without homing ability will need to have this option set to
-    1. * 
-     Warning* : Using this will allow the machine to run past soft limits
-    while in
-    operation and is not generally desirable to allow this. 
+    Interfaces without homing ability will need to have this option set to 1. 
+
+[WARNING]
+Using this will allow the machine to go beyond the soft limits
+while in operation. +
+It is not generally desirable to allow this. 
 
 === [AXIS_<num>] Section  [[sub:[AXIS]-section]](((AXIS (inifile section))))
 
@@ -647,11 +649,11 @@ TYPE = LINEAR::
 
 WRAPPED_ROTARY = 1::
      When this is set to 1 for an ANGULAR axis the axis will move 0-359.999
-    degrees. Plus Numbers will move the axis in a positive direction and
-    minus numbers will move the axis in the opposite direction.
+    degrees. Positive Numbers will move the axis in a positive direction and
+    negative numbers will move the axis in the negative direction.
 
-UNITS::
-     (((UNITS))) = inch If specified, this setting overrides the related
+UNITS = INCH::
+     (((UNITS)))If specified, this setting overrides the related
     [TRAJ] UNITS setting.  
      (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR,
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
@@ -659,12 +661,12 @@ UNITS::
 MAX_VELOCITY = 1.2::
     Maximum velocity for this axis in machine units per second.
 
-MAX_ACCELERATION ::
-     *=* *20.0* Maximum acceleration for this axis in machine units per
+MAX_ACCELERATION = 20.0::
+     Maximum acceleration for this axis in machine units per
     second squared.
 
-BACKLASH ::
-     *=* *0.000*  (((Backlash)))Backlash in machine units. Backlash
+BACKLASH = 0.0000:: 
+     (((Backlash)))Backlash in machine units. Backlash
     compensation value
     can be used to make up for small deficiencies in the hardware used to
     drive an axis. If backlash is added to an axis and you are using
@@ -673,39 +675,35 @@ BACKLASH ::
 
 COMP_FILE = file.extension::
      (((Compensation)))A file holding compensation structure for the axis.
-    The file could be named xscrew.comp for example for the X axis. File
-    names are case sensitive and can contain letters and or numbers. The
+    The file could be named xscrew.comp, for example, for the X axis. File
+    names are case sensitive and can contain letters and/or numbers. The
     values are triplets per line separated by a space. The first value is
     nominal (where it should be). The second and third values depend on the
     setting of COMP_FILE_TYPE. Currently the limit inside EMC2 is for 256
     triplets per axis. If COMP_FILE is specified, BACKLASH is ignored.
-    Compensation file values are in machine units.
+    Compensation file values are in machine units. 
 
- -  COMP_FILE_TYPE=0 the second and third values specify the forward
-   position (where the axis is while traveling forward) and reverse
-   position (where the axis is while traveling reverse) positions which
-   correspond to the nominal position. 
- -  COMP_FILE_TYPE=1 the second and third values specify the forward trim
-   (how far from nominal while traveling forward) and the reverse trim
-   (how far from nominal while traveling in reverse).
+COMP_FILE_TYPE = 0 or 1::
+     *If 0:* The second and third values specify the 
+    forward position (where the axis is while traveling forward) and 
+    reverse position (where the axis is while traveling reverse) 
+    positions which correspond to the nominal position. +
+    *If 1:* The second and third values specify the 
+    forward trim (how far from nominal while traveling forward) and the 
+    reverse trim (how far from nominal while traveling in reverse).
 
-COMP_FILE_TYPE = 0::
-     For COMP_FILE_TYPE of zero, the values in the compensation file are
-    nominal, forward & reverse. For COMP_FILE_TYPE of non-zero the values
-    in the compensation file are nominal, forward_trim and reverse_trim. 
-
-MIN_LIMIT::
-     (((MIN LIMIT))) = *-1000*  The minimum limit (soft limit) for axis
+MIN_LIMIT = -1000:: 
+     (((MIN LIMIT))) The minimum limit (soft limit) for axis
     motion, in machine units.
     When this limit is exceeded, the controller aborts axis motion. 
 
-MAX_LIMIT::
-     (((MAX LIMIT))) *= 1000*  The maximum limit (soft limit) for axis
+MAX_LIMIT = 1000::
+     (((MAX LIMIT))) The maximum limit (soft limit) for axis
     motion, in machine units.
     When this limit is exceeded, the controller aborts axis motion. 
 
-MIN_FERROR::
-     (((MIN FERROR))) *=* *0.010*  This is the value in machine units by
+MIN_FERROR = 0.010::
+     (((MIN FERROR))) This is the value in machine units by
     which the axis is permitted to
     deviate from commanded position at very low speeds. If MIN_FERROR is
     smaller than FERROR, the two produce a ramp of error trip points. You
@@ -713,8 +711,8 @@ MIN_FERROR::
     other is permitted following error. As speed increases the amount of
     following error also increases toward the FERROR value. 
 
-FERROR::
-     (((FERROR))) *= 1.0*  FERROR is the maximum allowable following error,
+FERROR = 1.0::
+     (((FERROR))) FERROR is the maximum allowable following error,
     in machine units. If
     the difference between commanded and sensed position exceeds this
     amount, the controller disables servo calculations, sets all the
@@ -738,46 +736,47 @@ FERROR::
 ==== Homing  [[sub:Homing-related-items]]
 
 These parameters are Homing related, for a better explanation read the
-Homing Section ( <<sec:Homing>>).
+Homing Section (<<sec:Homing>>).
 
 HOME = 0.0::
      The position that the joint will go to upon completion of the homing
     sequence.
 
-HOME_OFFSET ::
-     *= 0.0* The axis position of the home switch or index pulse, in
-    machine units.
+HOME_OFFSET = 0.0::
+     The axis position of the home switch or index pulse, in
+    machine units. In other words, when the home point is found during 
+    the homing process, this is the value or position that should be 
+    assigned to the home point, or initialized at the home point. 
 
-HOME_SEARCH_VEL::
-     (((HOME SEARCH VEL))) *=* *0.0*  Initial homing velocity in machine
+HOME_SEARCH_VEL = 0.0::
+     (((HOME SEARCH VEL))) Initial homing velocity in machine
     units per second. Sign denotes
     direction of travel. A value of zero means assume that the current
     location is the home position for the machine. If your machine has no
-    home switches you will want to leave this value alone.
+    home switches you will want to leave this value at zero.
 
-HOME_LATCH_VEL ::
-     *=* *0.0*  Homing velocity in machine units per second to the home
-    switch latch
-    position. Sign denotes direction of travel.
+HOME_LATCH_VEL = 0.0::
+     Homing velocity in machine units per second to the home
+    switch latch position. Sign denotes direction of travel.
 
 HOME_FINAL_VEL = 0.0::
      Velocity in machine units per second from home latch position to home
     position. If left at 0 or not included in the axis rapid velocity is
     used. Must be a positive number.
 
-HOME_USE_INDEX ::
-     *=* *NO*  If the encoder used for this axis has an index pulse, and
+HOME_USE_INDEX = NO::
+     If the encoder used for this axis has an index pulse, and
     the motion
     card has provision for this signal you may set it to yes. When it is
     yes, it will affect the kind of home pattern used. Currently, you can't
-    home to index with steppers unless your using stepgen in velocity mode
-    and pid.
+    home to index with steppers unless you're using stepgen in velocity mode
+    and PID.
 
-HOME_IGNORE_LIMITS ::
-     *= NO*  Some machines use a single switch per axis as a home switch 
-     and limit switch. This variable should be set to YES if the machine 
-     configured this way. When set to YES the limit switch for this axis
-     only is ignored when homing.
+HOME_IGNORE_LIMITS = NO::
+     Some machines use a single switch per axis as a home switch 
+    and limit switch. This variable should be set to YES if the machine 
+    configured this way. When set to YES the limit switch for this axis
+    only is ignored when homing.
 
 HOME_IS_SHARED = <n>::
      If the home input is shared by more than one axis set <n> to 1 to
@@ -794,7 +793,7 @@ VOLATILE_HOME = 0::
      When enabled (set to 1) this joint will be unhomed if the Machine
     Power is off or if E-Stop is on. This is useful if your machine has
     home switches and does not have position feedback such as a step and
-    direction driven machine.
+    direction driven machine. 
 
 ==== Servo [[sub:Servo-related-items]]
 
@@ -803,67 +802,87 @@ systems. This description assumes that the units of output from the PID
 component are volts.
 
 DEADBAND = 0.000015::
-    *(HAL)* How close is close enough the consider the motor in position.
+    (in HAL) How close is close enough to consider the motor in position, 
+in machine units. This is often set to a distance equivalent to 1, 1.5, 2, 
+or 3 encoder counts, but there are no strict rules. 
+Looser (larger) settings allow less servo "hunting" at the expense of lower accuracy. 
+Tighter (smaller) settings attempt higher accuracy at the expense of more servo "hunting". 
+Is it really more accurate if it's also more uncertain? 
+As a general rule, it's good to avoid, or at least limit, servo "hunting" if you can. 
+
+Be careful about going below 1 encoder count, since you may create a condition where 
+there is no place that your servo is happy. This can go beyond "hunting" (slow) to 
+"nervous" (rapid), and even to "squealing" which is easy to confuse with 
+oscillation caused by improper tuning. Better to be a count or two loose 
+here at first, until you've been through "gross tuning" at least. 
+
+Example of calculating machine units per encoder count to use in deciding DEADBAND value: 
+
+latexmath:[$ \frac{X\, inches}{1\, encoder\, count} = 
+\frac{1\, revolution}{1000\, encoder\, lines} \times 
+\frac{1\, encoder\, line}{4\, quadrature\, counts} \times 
+\frac{0.200\, inches}{1\, revolution} = 
+\frac{0.200\, inches}{4000\, encoder\, counts} = 
+\frac{0.000050\, inches}{1\, encoder\, count} $]
 
 BIAS = 0.000::
-     *(HAL)*  This is used by hm2-servo and some others. Bias is a constant
-    amount
+     (in HAL) '(Sometimes called *offset*)' This is used by hm2-servo and some others. 
+    Bias is a constant amount 
     that is added to the output. In most cases it should be left at zero.
     However, it can sometimes be useful to compensate for offsets in servo
     amplifiers, or to balance the weight of an object that moves
     vertically. bias is turned off when the PID loop is disabled, just like
     all other components of the output.
 
-P ::
-     *=* *50* (hal)  The proportional gain for the axis servo. This value
+P = 50::
+     (in HAL) The proportional gain for the axis servo. This value
     multiplies the
     error between commanded and actual position in machine units, resulting
     in a contribution to the computed voltage for the motor amplifier. The
     units on the P gain are volts per machine unit, e.g., latexmath:[$\frac{volt}{mu}$]. 
 
-I ::
-     *= 0* (hal)  The integral gain for the axis servo. The value
+I = 0::
+     (in HAL) The integral gain for the axis servo. The value
     multiplies the
     cumulative error between commanded and actual position in machine
     units, resulting in a contribution to the computed voltage for the
     motor amplifier. The units on the I gain are volts per machine unit
     second, e.g., latexmath:[$\frac{volt}{mu\, s}$].
 
-D ::
-     *= 0* (hal)  The derivative gain for the axis servo. The value
+D = 0::
+     (in HAL) The derivative gain for the axis servo. The value
     multiplies the
     difference between the current and previous errors, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
     on the D gain are volts per machine unit per second, e.g.,
     latexmath:[$\frac{volt}{mu/s}$].
 
-FF0 ::
-     *= 0* (hal)  The 0th order feed forward gain. This number is
+FF0 = 0::
+     (in HAL) The 0th order feed forward gain. This number is
     multiplied by the
     commanded position, resulting in a contribution to the computed voltage
     for the motor amplifier. The units on the FF0 gain are volts per
     machine unit, e.g., latexmath:[$\frac{volt}{mu}$].
 
-FF1 ::
-     *= 0* (hal)  The 1st order feed forward gain. This number is
+FF1 = 0::
+     (in HAL) The 1st order feed forward gain. This number is
     multiplied by the
     change in commanded position per second, resulting in a contribution to
     the computed voltage for the motor amplifier. The units on the FF1 gain
     are volts per machine unit per second, e.g., latexmath:[$\frac{volt}{mu\, s}$].
 
-FF2 ::
-     *= 0* (hal)  The 2nd order feed forward gain. This number is
+FF2 = 0::
+     (in HAL) The 2nd order feed forward gain. This number is
     multiplied by the
     change in commanded position per second per second, resulting in a
     contribution to the computed voltage for the motor amplifier. The units
     on the FF2 gain are volts per machine unit per second per second, e.g.,
     latexmath:[$\frac{volt}{mu\, s^{2}}$].
 
-OUTPUT_SCALE ::
-    *=* *1.000*
+OUTPUT_SCALE = 1.000::
 
-OUTPUT_OFFSET = ::
-     *0.000* (hal)  These two values are the scale and offset factors for
+OUTPUT_OFFSET = 0.000::
+     (in HAL) These two values are the scale and offset factors for
     the axis output
     to the motor amplifiers. The second value (offset) is subtracted from
     the computed output (in volts), and divided by the first value (scale
@@ -873,47 +892,39 @@ OUTPUT_OFFSET = ::
      Specifically, when writing outputs, the EMC first converts the desired
     output in quasi-SI units to raw actuator values, e.g., volts for an
     amplifier DAC. This scaling looks like:
-    
-    latexmath:[$[raw=\frac{{output-offset}}{scale}\]$]
-    
-    The value for scale
-    can be obtained analytically by doing a unit analysis, i.e., units are
+
+latexmath:[$raw=\frac{output-offset}{scale}$]
+
+The value for scale
+can be obtained analytically by doing a unit analysis, i.e., units are
     [output SI units]/[actuator units]. For example, on a machine with a
     velocity mode amplifier such that 1 volt results in 250 mm/sec
     velocity,
-    
-    latexmath:[[amplifier[volts\]=(output[\frac{mm}{sec}\]-offset[\frac{mm}{sec}\])/250\frac{mm}{sec\, volt}\]]
-    
-    Note that the units of the offset are in machine units, e.g.,
-    mm/sec, and they are pre-subtracted from the sensor readings. The value
-    for this offset is obtained by finding the value of your output which
-    yields 0.0 for the actuator output. If the DAC is linearized, this
-    offset is normally 0.0.  
-     The scale and offset can be used to linearize the DAC as well,
-    resulting in values that reflect the combined effects of amplifier
-    gain, DAC non-linearity, DAC units, etc. To do this, follow this
-    procedure: 
-     .  Build a calibration table for the output, driving the DAC with a
-       desired voltage and measuring the result. See table 
-       <<cap:Output-Voltage-Measurements>> for an example of voltage
-       measurements.
-     .  Do a least-squares linear fit to get coefficients a, b such
-       that latexmath:[$meas=a*raw+b$]
-     .  Note that we want raw output such that our measured result is
-       identical to the commanded output. This means 
+
+latexmath:[$ amplifier [ volts ] = ( output [ \frac{mm}{sec} ] - offset [ \frac{mm}{sec} ] ) / 250 \frac{mm}{sec\, volt} ] $]
+
+Note that the units of the offset are in machine units, e.g.,
+mm/sec, and they are pre-subtracted from the sensor readings. The value
+for this offset is obtained by finding the value of your output which
+yields 0.0 for the actuator output. If the DAC is linearized, this
+offset is normally 0.0.  
+
+The scale and offset can be used to linearize the DAC as well,
+resulting in values that reflect the combined effects of amplifier
+gain, DAC non-linearity, DAC units, etc. To do this, follow this
+procedure: 
+    . Build a calibration table for the output, driving the DAC with a
+      desired voltage and measuring the result. See table 
+      <<cap:Output-Voltage-Measurements>> for an example of voltage
+      measurements.
+    . Do a least-squares linear fit to get coefficients a, b such
+      that latexmath:[$meas=a*raw+b$]
+    . Note that we want raw output such that our measured result is
+      identical to the commanded output. This means 
         . latexmath:[$cmd=a*raw+b$]
         . latexmath:[$raw=(cmd-b)/a$]
-      .  As a result, the a and b coefficients from the linear fit can be
-    used
-       as the scale and offset for the controller directly. 
-
-MAX_OUTPUT ::
-     *= 10 *(hal)  The maximum value for the output of the PID compensation
-    that is
-    written to the motor amplifier, in volts. The computed output value is
-    clamped to this limit. The limit is applied before scaling to raw
-    output units. The value is applied symmetrically to both the plus and
-    the minus side.
+        . As a result, the a and b coefficients from the linear fit can be
+        used as the scale and offset for the controller directly. 
 
 [[cap:Output-Voltage-Measurements]]Output Voltage Measurements
 
@@ -928,8 +939,16 @@ MAX_OUTPUT ::
 |10 | 10.87
 |========================================
 
-INPUT_SCALE::
-     (((INPUT SCALE))) = 20000 (hal)  Specifies the number of pulses that
+MAX_OUTPUT = 10::
+     (in HAL) The maximum value for the output of the PID compensation
+    that is
+    written to the motor amplifier, in volts. The computed output value is
+    clamped to this limit. The limit is applied before scaling to raw
+    output units. The value is applied symmetrically to both the plus and
+    the minus side.
+
+INPUT_SCALE = 20000::
+     (((INPUT SCALE))) (in HAL) Specifies the number of pulses that
     corresponds to a move of one
     machine unit as set in the [TRAJ] section. For a linear axis one
     machine unit will be equal to the setting of LINEAR_UNITS. For an
@@ -937,19 +956,19 @@ INPUT_SCALE::
     A second number, if specified, is ignored. 
      For example, on a 2000 counts per rev encoder(((encoder))), and 10
     revs/inch gearing, and desired units of inch, we
-    have
-    
-    latexmath:[\begin{array}{ccc} input\_scale & = &
-    2000\frac{counts}{rev}*10\frac{rev}{inch}\\ & = &
-    20000\frac{counts}{inch}\end{array}]
+    have: 
+
+latexmath:[$ INPUT\_SCALE = 
+\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
+\frac{20000\, counts}{inch} $]
 
 ==== Stepper [[sub:Stepper-related-items]]
 
 The following items are Stepper related items.
 
-SCALE::
-     (((INPUT SCALE))) = 4000 (hal)  Specifies the number of pulses that
-    corresponds to a move of one
+SCALE = 4000::
+     (((INPUT SCALE))) (in HAL) Specifies the number of pulses that
+    corresponds to a move of one 
     machine unit as set in the [TRAJ] section. For stepper systems, this is
     the number of step pulses issued per machine unit. For a linear axis
     one machine unit will be equal to the setting of LINEAR_UNITS. For an
@@ -959,23 +978,24 @@ SCALE::
      For example, on a 1.8 degree stepper motor with half-stepping, and 10
     revs/inch gearing, and desired machine units of inch, we
     have
-    
-    latexmath:[\begin{array}{cccc} input\_scale & = & \frac{{2\, steps}}{1.8\, degree}
-    *360\frac{{degree}}{rev}*10\frac{rev}{inch}\\ & = & 4000\frac{steps}{inch}\end{array}]
-    
-    Older stepper configuration
-    .ini and .hal used INPUT_SCALE for this value.
 
-STEPGEN_MAXACCEL ::
-     *= 21.0* (hal)  Acceleration limit for the step generator. This should
+latexmath:[$ scale = 
+\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
+\frac{4000\, steps}{inch} $]
+
+Older stepper configuration
+.ini and .hal used INPUT_SCALE for this value.
+
+STEPGEN_MAXACCEL - 21.0::
+     (in HAL) Acceleration limit for the step generator. This should
     be 1% to 10%
     larger than the axis MAX_ACCELERATION. This value improves the tuning
     of stepgen's "position loop". If you have added backlash compensation
     to an axis then this should be 1.5 to 2 times greater than
     MAX_ACCELERATION.
 
-STEPGEN_MAXVEL ::
-     *=* *1.4* (hal)  Older configuration files have a velocity limit for
+STEPGEN_MAXVEL = 1.4::
+     (in HAL) Older configuration files have a velocity limit for
     the step
     generator as well. If specified, it should also be 1% to 10% larger
     than the axis MAX_VELOCITY. Subsequent testing has shown that use of
@@ -983,28 +1003,27 @@ STEPGEN_MAXVEL ::
 
 === [EMCIO] Section  [[sub:[EMCIO]-Section]](((EMCIO (inifile section))))
 
-CYCLE_TIME ::
-     *=* *0.100*  The period, in seconds, at which EMCIO will run. Making
+CYCLE_TIME = 0.100::
+     The period, in seconds, at which EMCIO will run. Making
     it 0.0 or a
     negative number will tell EMCIO not to sleep at all. There is usually
     no need to change this number.
 
-TOOL_TABLE ::
-     *=* *tool.tbl* The file which contains tool information, described in
+TOOL_TABLE = tool.tbl::
+     The file which contains tool information, described in
     the User Manual.
 
-TOOL_CHANGE_POSITION ::
-     *= 0 0 2*  Specifies the X Y Z location to move to when performing a
+TOOL_CHANGE_POSITION = 0 0 2::
+     Specifies the X Y Z location to move to when performing a
     tool change
     if three digits are used. Specifies the X Y Z A B C location when 6
     digits are used. Specifies the X Y Z A B C U V W location when 9 digits
     are used. Tool Changes can be combined. For example if you combine the
-    quill up with change position you can move the Z first then the X and
-    Y.
+    quill up with change position you can move the Z first then the X and Y. 
 
 TOOL_CHANGE_WITH_SPINDLE_ON = 1::
-     The spindle will be left on during the tool change when the value is
-    1. Useful for lathes or machines where the material is in the spindle
+     The spindle will be left on during the tool change when the value is 1. 
+    Useful for lathes or machines where the material is in the spindle
     not the tool.
 
 TOOL_CHANGE_QUILL_UP = 1::
