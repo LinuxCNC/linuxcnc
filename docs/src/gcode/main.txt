@@ -894,9 +894,10 @@ information on cutter orientation see Section (
 
 It is an error if:
 
- - the YZ plane is active,
+ - the YZ plane is active.
  - the L number is not in the range from 0 to 9 inclusive.
- - or cutter compensation is commanded to turn on when it is already on
+ - the L number is used when the XZ plane is not active.
+ - or cutter compensation is commanded to turn on when it is already on.
 
 == G43, G43.1, G49 Tool Length Offsets (((G43, G43.1, G49 Tool Length Offsets)))[["sub:G43,-G49:-Tool"]]
 
