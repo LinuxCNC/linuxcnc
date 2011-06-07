@@ -195,11 +195,6 @@ int Interp::close()
   return INTERP_OK;
 }
 
-// const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP",
-// 			"M_USER_REMAP","G_USER_REMAP"};
-
-const char *remaps[] = {"NONE","USER_REMAP" };
-
 
 /***********************************************************************/
 

@@ -718,10 +718,6 @@ setup;
 
 enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
 
-enum remap_op {NO_REMAP=0, USER_REMAP=1};
-// T_REMAP=1, M6_REMAP=2, M61_REMAP=3,
-// 	       M_USER_REMAP=4,G_USER_REMAP=5, S_REMAP=6, F_REMAP=7};
-
 typedef setup *setup_pointer;
 
 
