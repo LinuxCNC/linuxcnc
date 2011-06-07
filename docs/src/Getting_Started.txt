@@ -1,21 +1,16 @@
+/////
+
 Getting Started V2.5, {localdate}
 =================================
 The EMC Team
-
-/////////////////////////////////////////////////
-This might be nicer than the above if I could 
-get it to work, but I haven't been able to: 
-
-Getting Started V2.5
-====================
-:Date:	{localdate}
-/////////////////////////////////////////////////
 
 :masterdir: {indir}
 
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
+
+/////
 
 :leveloffset: 1
 
@@ -35,8 +30,13 @@ include::config/copy_and_run.txt[]
 
 include::common/Linux_FAQ.txt[]
 
+:leveloffset: 0
+= Legal Section
+:leveloffset: 1
+
 include::common/GPLD_Copyright.txt[]
 
+/////
 = Index
 
 The End
