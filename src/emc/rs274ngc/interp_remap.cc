@@ -76,14 +76,14 @@ int Interp::convert_remapped_code(block_pointer block,
 
     settings->sequence_number = 1; // FIXME not sure..
 
-    // some remapped handlers may need c/c++ or Python code to
+    // some remapped handlers may Python code to
     // setup environment before, and finish work after doing theirs.
     // That's what prolog and epilog functions are for.
     // Statically these are described in the remap descriptor (read from ini).
 
-    // Since a remap is always executed in the context of a block,
-    // block now contains fields which hold dynamic remap information.
-    // information. Some of these fields are initialized here -
+    // Since a remap is always executed in the context of a controlling block,
+    // this block now contains fields which hold dynamic remap information.
+    // Some of these fields are initialized here -
     // conceptually the block stack is also a 'remap frame stack'.
 
     // the O_call code will pick up the static descriptor and
@@ -92,7 +92,6 @@ int Interp::convert_remapped_code(block_pointer block,
 
     // On the corresponding O_endsub/O_return, any epilog function
     // will be executed, doing any work not doable in an NGC file.
-    // the remap_* fields are  essentially hidden parameters to the call
     // (we do not want to expose boost.python objects in method paramters -
     // this impacts too much code)
 
