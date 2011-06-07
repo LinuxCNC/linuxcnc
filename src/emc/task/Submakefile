@@ -19,6 +19,7 @@ MILLTASKSRCS := \
 	emc/task/dummyiotaskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
+	emc/rs274ngc/tool_parse.cc \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
