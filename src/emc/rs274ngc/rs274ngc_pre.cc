@@ -900,6 +900,31 @@ int Interp::init()
 	      parse_remap( inistring,  lineno);
 	      n++;
 	  }
+	  if (NULL != (inistring = inifile.Find("PRINT_CODES", "RS274NGC"))) {
+	      int i;
+
+	      for (i = 0; i < 1000; i++) {
+		  if (i % 10 == 0)
+		      printf("\n");
+
+		  if (_gees[i] == -1) {
+		      if (i % 10 == 0) {
+			  printf("G%d ",i/10);
+		      } else {
+			  printf("G%d.%d ",i/10,i % 10);
+		      }
+		  }
+	      }
+	      printf("\n");
+	      for (i = 0; i < 1000; i++) {
+		  if (_ems[i] == -1) {
+		      printf("M%d ",i);
+		      if (i % 10 == 0) {
+			  printf("\n");
+		      }
+		  }
+	      }
+	  }
           // close it
           inifile.Close();
       }
