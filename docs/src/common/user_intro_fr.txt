@@ -1,4 +1,4 @@
-=  [[first-section]]Le concept d'EMC 
+= [[first-section]]Le concept d'EMC 
 
 == Introduction [[sec:Introduction]]
 

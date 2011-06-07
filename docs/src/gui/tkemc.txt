@@ -28,17 +28,17 @@ When you start EMC2 with TkEMC, a window like the one in Figure
 === A typical session with TkEMC
 
  . Start EMC2 and select a configuration file.
- .  Clear the “E-STOP(((ESTOP)))” condition and turn the machine on (by
+ . Clear the “E-STOP(((ESTOP)))” condition and turn the machine on (by
    pressing F1 then F2).
  . “Home(((home)))” each axis.
  . Load the file to be milled.
  . Put the stock to be milled on the table.
- .  Set the proper offsets for each axis by jogging and either homing
+ . Set the proper offsets for each axis by jogging and either homing
    again or right-clicking an axis name and entering an offset value.
    footnote:[For some of these actions it might be necessary to change the
    mode EMC2 is currently running in.]
  . Run the program.
- .  To mill the same file again, return to step 6. To mill a different
+ . To mill the same file again, return to step 6. To mill a different
    file, return to step 4. When you're done, exit EMC2.
 
 == Elements of the TkEMC window
@@ -46,11 +46,11 @@ When you start EMC2 with TkEMC, a window like the one in Figure
 The TkEMC window contains the following elements:
 
  - A menubar that allows you to perform various actions ;
- -  A set of buttons that allow you to change the current working mode,
+ - A set of buttons that allow you to change the current working mode,
    start/stop spindle and other relevant I/O ;
  - Status bar for various offset related displays ;
  - Coordinate display area ;
- -  A set of sliders which control “Jogging speed(((jog speed)))”, “Feed
+ - A set of sliders which control “Jogging speed(((jog speed)))”, “Feed
    Override(((feed override)))”, and “Spindle speed Override(((spindle
    speed override)))” which allow you to increase or decrease those
    settings ;
@@ -86,7 +86,7 @@ work offsets (set by right-clicking the coordinates).
 === Coordinate Display Area
 
 The main part of the display shows the current position of the tool.
-The colour of the position readout depends on the state of the axis. If
+The color of the position readout depends on the state of the axis. If
 the axis is unhomed the axis will be displayed in yellow letters. Once
 homed it will be displayed in green letters. If there is an error with
 the current axis TkEMC will use red letter to show that. (for example
@@ -165,12 +165,12 @@ By pressing “Home” or the HOME key, the selected axis will be homed.
 Depending on your configuration, this may just set the axis value to be
 the absolute position 0.0, or it may make the machine move to a
 specific home location through use of “home switches”. See the
-Integrators Manual for more information on homing.
+Integrator Manual for more information on homing.
 
 By pressing “Override Limits”, the machine will temporarily be
 permitted to jog outside the limits defined in the .ini file. (Note: if
 “Override Limits” is active the button will be displayed using a red
-colour).
+color).
 
 . TkEMC Override Limits & Jogging increments example
 [[cap:Override-Limits]]

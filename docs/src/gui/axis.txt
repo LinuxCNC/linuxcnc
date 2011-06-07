@@ -52,12 +52,12 @@ The AXIS window contains the following elements:
  *  "Feed Override" (((feed override))), which allows you to scale
    the speed of programmed motions. The default maximum is 120% 
    and can be set to a different
-   value in the ini file. See the Integrators Manual for more information
+   value in the ini file. See the Integrator Manual for more information
    on this setting.
  *  "Spindle Override" (((Spindle Override))), which allows you to
    scale the spindle speed up or down.
  *  "Jog Speed" (((Jog Speed))), which allows you to set the jog speed
-   within the limits set in the ini file. See the Integrators Manual for
+   within the limits set in the ini file. See the Integrator Manual for
    more information on the ini file.
  *  "Max Velocity", which allows you to restrict the maximum velocity of all
    programmed motions (except spindle synchronized motion).
@@ -71,21 +71,21 @@ The AXIS window contains the following elements:
 
 Some menu items might be grayed out depending on how you have your
 .ini file configured. For more information on configuration see the
-Integrators Manual.
+Integrator Manual.
 
 ==== File Menu
 
 Open...::
      Opens a standard dialog box to open a g code file to load in AXIS. If
     you have configured EMC to use a filter program you can also open it
-    up. See the Integrators manual for more information on filter programs.
+    up. See the Integrator manual for more information on filter programs.
 
 Recent Files::
     Displays a list of recently opened files.
 
 Edit...::
      Open the current g code file for editing if you have an editor
-    configured in your ini file. See the Integrators Manual for more
+    configured in your ini file. See the Integrator Manual for more
     information on specifying an editor to use.
 
 Reload::
@@ -109,7 +109,7 @@ Reload tool table::
 
 Ladder editor::
      If you have loaded Classic Ladder you can edit it from here. See the
-    Integrators Manual on setting up Classic Ladder
+    Integrator Manual on setting up Classic Ladder
 
 Quit::
     Terminates the current EMC session.
@@ -471,7 +471,6 @@ image::images/axis-currentandselected.png[]
 
 === Manual Control (((Manual)))
 
-
 While the machine is turned on but not running a program, the items in
 the "Manual Control" tab can be used to move the machine or control
 its spindle and coolant.
@@ -506,7 +505,7 @@ ________________________________________
 ________________________________________
 
 
-See the Configure section of the Integrators Manual for more
+See the Configure section of the Integrator Manual for more
 information on setting the increments.
 
 ==== Homing
@@ -527,7 +526,7 @@ configuration the "Home" button will set the current selected axis
 current position to be the absolute position 0 for that axis and will
 set the "is-homed" bit for that axis.
 
-See the Integrators Manual for more information on homing.
+See the Integrator Manual for more information on homing.
 
 ==== Touch Off
 
@@ -558,7 +557,7 @@ on an axis is to Unhome it._
 
 The buttons on the first row select the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. Counterclockwise will
-only show up if the pin `motion.spindle-reverse` is in the hal file (it
+only show up if the pin `motion.spindle-reverse` is in the HAL file (it
 can be `net trick-axis motion.spindle-reverse` ). The buttons on the
 next row increase or decrease the rotation
 speed. The checkbox on the third row allows the spindle brake to be
@@ -719,18 +718,17 @@ This is a sample session of mdi.
 
 AXIS includes a program called "axis-remote" which can send certain
 commands to a running AXIS. The available commands are shown by running
-`axis-remote ---help` and include checking whether AXIS is running
-(`---ping`), loading a file by name, reloading the currently loaded
-file (`---reload`), and making AXIS exit (`---quit`).
+`axis-remote --help` and include checking whether AXIS is running
+(`--ping`), loading a file by name, reloading the currently loaded
+file (`--reload`), and making AXIS exit (`--quit`).
 
 == Manual Tool Change
 (((Manual Tool Change))) [[sec:Manual-Tool-Change]]
 
-EMC2 includes a userspace hal component called "hal_manualtoolchange",
-which shows a window (Figure  <<cap:The-Manual-Toolchange>>) when a
-`M6`  command is issued. After the OK button is pressed, execution of
-the
-program will continue.
+EMC2 includes a userspace HAL component called "hal_manualtoolchange",
+which shows a window (Figure <<cap:The-Manual-Toolchange>>) when a
+`M6` command is issued. After the OK button is pressed, execution of
+the program will continue.
 
 The HAL configuration file `configs/sim/axis_manualtoolchange.hal`
 shows the HAL commands necessary to use this component.
@@ -754,7 +752,7 @@ AXIS(((AXIS))) includes several Python(((Python))) modules which may
 be useful to others. For more information on one of these modules, use
 `"pydoc <module name>"` or read the source code. These modules include:
 
- - `emc` provides access to the emc command, status, and error channels
+ - `emc` provides access to the EMC command, status, and error channels
  - `gcode` provides access to the rs274ngc interpreter
  - `rs274` provides additional tools for working with rs274ngc files
  - `hal` allows the creation of userspace HAL components written in Python
@@ -793,7 +791,7 @@ image::axis-lathe-tool.png[]
 
 For more information on ini file settings that can change how AXIS
 works see the INI File/Sections/[DISPLAY] Section of Configuration
-chapter in the Integrators manual.
+chapter in the Integrator manual.
 
 === Program Filters
 
@@ -844,10 +842,10 @@ should be used by any filter that runs for a long time.
 
 The colors of most elements of the AXIS user interface can be
 customized through the X Resource Database. The sample file
-`axis_light_background`  changes the colors of the backplot window to a
-"dark lines on white
+`axis_light_background` changes the colors of the backplot window to a
+"dark lines on white 
 background" scheme, and also serves as a reference for the configurable
- items in the display area. The sample file `axis_big_dro` changes the
+items in the display area. The sample file `axis_big_dro` changes the
 position readout to a larger size font. To use these files:
 
     xrdb -merge /usr/share/doc/emc2/axis_light_background
@@ -862,27 +860,33 @@ in the X Resource Database that adversely affect AXIS, by default these
 settings are ignored. To make the X Resource Database items override
 AXIS defaults, include the following line in your X Resources:
 
-    *Axis*optionLevel: widgetDefault
+///////////////////////////////////////////////////////////
+The backslashes escape the asterisks to avoid "bold", 
+///////////////////////////////////////////////////////////
+    \*Axis\*optionLevel: widgetDefault
+///////////////////////////////////////////////////////////
+in this case, we want the asterisks to actually appear. 
+///////////////////////////////////////////////////////////
 
 this causes the built-in options to be created at the option level
 "widgetDefault", so that X Resources (which are level "userDefault")
 can override them.
 
-===  [[sub:Physical-jog-wheels]]Physical jog wheels
+=== [[sub:Physical-jog-wheels]]Physical jog wheels
 
 To improve the interaction of AXIS with physical jog wheels, the axis
 currently selected in the GUI is also reported on a pin with a name
-like `axisui.jog.x`.  One of these pins is `TRUE` at one time, and the rest are
-`FALSE`.  These are meant to control motion's jog-enable pins.
+like `axisui.jog.x`. One of these pins is `TRUE` at one time, and the rest are
+`FALSE`. These are meant to control motion's jog-enable pins.
 
-After AXIS has created these HAL pins, it executes the halfile named
+After AXIS has created these HAL pins, it executes the HAL file named
 in `[HAL]POSTGUI_HALFILE`. Unlike `[HAL]HALFILE`, only one such file
 may be used.
 
 === axisrc (((.axisrc)))
 
 If it exists, the contents of `~/.axisrc`  are executed as Python
-source code just before the AXIS gui is
+source code just before the AXIS GUI is
 displayed. The details of what may be written in the axisrc are subject
 to change during the development cycle.
 
@@ -897,13 +901,13 @@ The menu options File > Edit... and File > Edit Tool Table... become
 available after defining the editor in the ini section [DISPLAY].
 Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
 For more information, see the DISPLAY section of the INI Configuration
-Chapter in the Integrators Manual.
+Chapter in the Integrator Manual.
 
 === Virtual Control Panel (((Virtual Control Panel)))
 
 AXIS can display a custom virtual control panel in the right-hand
 pane. You can program buttons, indicators, data displays and more. For
-more information, see the Integrators Manual.
+more information, see the Integrator Manual.
 
 === Special Comments (((Special Comments)))
 

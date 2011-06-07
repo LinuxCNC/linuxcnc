@@ -143,7 +143,7 @@ revert to the default value of 1.00000 on start up.
 === Setting coordinate (fixture) offsets from G-code
 
 The G10 L2x command can be used to set coordinate (fixture) offsets: 
-  (these are just quick summaries, see the Gcode section for full details)
+  (these are just quick summaries, see the gcode section for full details)
 
 G10 L2  P(fixture 1-9) - Set offset(s) to a value. Current position irrelevant. 
                          (see <<sec:G10-L2->> for details)(((G10 L2)))

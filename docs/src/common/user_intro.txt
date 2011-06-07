@@ -57,7 +57,7 @@ image:images/axis_2.3.png[]
    minimal installations (without the X server running).
  - *Xemc*, an X Windows program
  - two Tcl/Tk-based GUIs named *TkEMC* and *Mini* 
- -  a HAL based user interface called *halui*, which allows to control emc2
+ -  a HAL based user interface called *halui*, which allows to control EMC2
    using knobs and switches
  -  a telnet based user interface called *emcrsh*, which allows commands to
    be sent to EMC2 from remote computers

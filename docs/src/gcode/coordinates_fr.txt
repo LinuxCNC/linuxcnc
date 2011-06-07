@@ -13,12 +13,9 @@ machine pendant l'usinage.
 Ce chapitre va introduire les décalages et comment ils sont utilisés
 par EMC. Ce qui inclus:
 
- - Les coordonnées machine (G53(((G53)))) 
- -  Les neuf décalages d'origine pièce (G54 à
-   
-   G59.3(((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2)))(((G59.3)))
-   ) 
- - Un jeu de décalages globaux (G92(((G92)))).
+ - Les coordonnées machine (G53)(((G53))). 
+ - Les neuf décalages d'origine pièce (G54 à G59.3)(((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2)))(((G59.3))). 
+ - Un jeu de décalages globaux (G92)(((G92))). 
 
 == Commande en coordonnées machine: G53 
 
@@ -39,7 +36,7 @@ zone de travail et accéder à la pièce dans l'étau.
 G53 est une commande non modale. Elle doit être utilisée sur chaque
 ligne où un mouvement basé sur les coordonnées machine est souhaité.
 
-== Décalages pièce (G54 à G59.3  (((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2))) (((G59.3))))
+== Décalages pièce (G54 à G59.3)(((G54)))(((G55)))(((G56)))(((G57)))(((G58)))(((G59)))(((G59.1)))(((G59.2)))(((G59.3))). 
 
 image::images/offsets.png[]
 
@@ -139,17 +136,17 @@ d'arriver au même endroit, mais la commande n'aurait pas été modale,
 les commandes suivantes auraient voulu retourner dans le système de
 coordonnées du G55 toujours actif.
 
-    (((G54)))G54     utilise les réglages du système de coordonnées 1
+    G54(((G54)))     utilise les réglages du système de coordonnées 1
 
-    (((G55)))G55     utilise les réglages du système de coordonnées 2
+    G55(((G55)))     utilise les réglages du système de coordonnées 2
 
-    (((G56)))G56     utilise les réglages du système de coordonnées 3
+    G56(((G56)))     utilise les réglages du système de coordonnées 3
 
-    (((G57)))G57     utilise les réglages du système de coordonnées 4
+    G57(((G57)))     utilise les réglages du système de coordonnées 4
 
-    (((G58)))G58     utilise les réglages du système de coordonnées 5
+    G58(((G58)))     utilise les réglages du système de coordonnées 5
 
-    (((G59)))G59     utilise les réglages du système de coordonnées 6
+    G59(((G59)))     utilise les réglages du système de coordonnées 6
 
     G59.1(((G59.1)))   utilise les réglages du système de coordonnées 7
 

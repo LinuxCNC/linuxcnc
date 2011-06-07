@@ -3,7 +3,7 @@
 == Fichier d'outils
 
 Les longueurs et diamètres d'outils peuvent être lus dans un fichier
-d'outils (voir la section  <<sub:-Fichier-d-outils>>) ou provenir d'un
+d'outils (voir la section  <<sub:Fichier-d-outils>>) ou provenir d'un
 mot spécifié pour activer la compensation d'outil.
 
 == Compensation d'outil
@@ -137,7 +137,7 @@ au contour programmé.
 
  -  Pour activer la compensation de rayon d'outil, programmer soit, G41
    (pour maintenir l'outil à gauche du profil à usiner) soit, G42 (pour
-   maintenir l'outil à droite du profil). Dans la figure  <<figure:7>>,
+   maintenir l'outil à droite du profil). Dans la figure  «figure:7», 
    par exemple, si G41 était programmé, l'outil devrait tourner en sens
    horaire autour du triangle et dans le sens contraire si G42 était
    programmé.
@@ -173,11 +173,11 @@ d'outils” pour savoir comment remplir ces fichiers.
 L'interpréteur contrôle la compensation pour deux types de contour:
 
  -  1) Le contour donné dans le code NC correspond au bord extérieur du
-   matériau après usinage. Nous l'appellerons "contour sur le profil du
-   matériau". 
+   matériau après usinage. Nous l'appellerons «contour sur le profil du
+   matériau». 
  -  2) Le contour donné dans le code NC correspond à la trajectoire suivie
-   par le centre d'un outil de rayon nominal. Nous l'appellerons "contour
-   sur le parcours d'outil".
+   par le centre d'un outil de rayon nominal. Nous l'appellerons «contour
+   sur le parcours d'outil».
 
 L'interpréteur ne dispose d'aucun paramètre pour déterminer quel type
 de contour est utilisé, mais la description des contours est différente
@@ -201,16 +201,11 @@ des triangles de la figure précédente. Dans cet exemple, la
 compensation de rayon est celle du rayon actuel de l'outil, soit 0.5”.
 La valeur pour le diamètre dans la table d'outil est de 1.0” .
 
-` N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement
-d'entrée)`
-
-`N0020 Y-1 (suit la face droite du triangle)`
-
-`N0030 X-2 (suit la base du triangle)`
-
-`N0040 X2 Y2 (suit l'hypoténuse du triangle)`
-
-`N0050 G40 (désactive la compensation)`
+`N0010 G41 G1 X2 Y2 (active la compensation et fait le mouvement d'entrée)` +
+`N0020 Y-1 (suit la face droite du triangle)` +
+`N0030 X-2 (suit la base du triangle)` +
+`N0040 X2 Y2 (suit l'hypoténuse du triangle)` +
+`N0050 G40 (désactive la compensation)` +
 
 Avec ce programme, l'outil suit cette trajectoire: un mouvement
 d'entrée, puis la trajectoire montrée dans la partie gauche de la
@@ -253,19 +248,17 @@ de 0.97 et le diamètre utilisé en générant le parcours d'outil a été de
 est de -0.03. Voici un programme NC qui va usiner l'extérieur d'un
 triangle de la figure 7.
 
-`N0010 G1 X1 Y4.5 (mouvement d'alignement) 
- N0020 G41 G1 Y3.5 (active la compensation et premier mouvement
-d'entrée) 
-N0030 G3 X2 Y2.5 I1 (deuxième mouvement d'entrée) 
- N0040 G2 X2.5 Y2 J-0.5 (usinage le long de l'arc en haut du parcours
-d'outil) 
-N0050 G1 Y-1 (usinage le long du côté droit du parcours d'outil) 
-N0060 G2 X2 Y-1.5 I-0.5 (usinage de l'arc en bas à droite) 
-N0070 G1 X-2 (usinage de la base du parcours d'outil) 
-N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche) 
-N0090 G1 X1.7 Y2.4 (usinage de l'hypoténuse) 
-N0100 G2 X2 Y2.5 I0.3 J-0.4 (usinage de l'arc en haut à droite) 
-N0110 G40 (désactive la compensation)`
+`N0010 G1 X1 Y4.5 (mouvement d'alignement)` +
+`N0020 G41 G1 Y3.5 (active la compensation et premier mouvement d'entrée)` +
+`N0030 G3 X2 Y2.5 I1 (deuxième mouvement d'entrée)` +
+`N0040 G2 X2.5 Y2 J-0.5 (usinage le long de l'arc en haut du parcours d'outil)` +
+`N0050 G1 Y-1 (usinage le long du côté droit du parcours d'outil)` +
+`N0060 G2 X2 Y-1.5 I-0.5 (usinage de l'arc en bas à droite)` +
+`N0070 G1 X-2 (usinage de la base du parcours d'outil)` +
+`N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche)` +
+`N0090 G1 X1.7 Y2.4 (usinage de l'hypoténuse)` +
+`N0100 G2 X2 Y2.5 I0.3 J-0.4 (usinage de l'arc en haut à droite)` +
+`N0110 G40 (désactive la compensation)` +
 
 Avec ce programme, l'outil suit cette trajectoire: un mouvement
 d'alignement, deux mouvements d'entrée, puis il suit une trajectoire
@@ -279,27 +272,24 @@ programmé, en raison de la valeur négative du diamètre.
 Les messages en rapport avec la compensation de rayon d'outil,
 délivrés par l'interpréteur sont les suivants:
 
- .  Impossible de changer les décalages d'axes avec la compensation de
-   rayon d'outil
+ . Impossible de changer les décalages d'axes avec la compensation de rayon d'outil
  . Impossible de changer d'unité avec la compensation de rayon d'outil
- .  Impossible d'activer la compensation de rayon d'outil en dehors du
-   plan XY
+ . Impossible d'activer la compensation de rayon d'outil en dehors du plan XY
  . Action impossible, la compensation de rayon d'outil est déjà active
  . Impossible d'utiliser G28 ou G30 avec la compensation de rayon d'outil
  . Impossible d'utiliser G53 avec la compensation de rayon d'outil
  . Impossible d'utiliser le plan XZ avec la compensation de rayon d'outil
  . Impossible d'utiliser le plan YZ avec la compensation de rayon d'outil
  . Coin concave avec la compensation de rayon d'outil
- .  Interférence de l'outil avec une partie finie de la pièce avec la
+ . Interférence de l'outil avec une partie finie de la pièce avec la
    compensation de rayon d'outilfootnote:[Le terme anglais “gouging”
    indique une interférence entre l'outil et
    une partie finie de la pièce ou la paroi d'une cavité. Par extension,
    le terme est parfois repris pour une interférence entre le porte-outil
-   ou la broche et la pièce.
-   ]
+   ou la broche et la pièce.]
  . Mot D sur une ligne sans mot de commande G41 ni G42
  . Index de rayon d'outil trop grand
- .  Le rayon de l'outil n'est pas inférieur au rayon de l'arc avec la
+ . Le rayon de l'outil n'est pas inférieur au rayon de l'arc avec la 
    compensation de rayon
  . Deux G-codes du même groupe modal sont utilisés.
 
@@ -349,11 +339,11 @@ d'emplacements disponibles dans le carrousel, un message d'erreur sera
 affiché. Dans l'implémentation actuelle, le nombre d'emplacements
 maximum est de 68.
 
-Le message d'erreur "Deux G-codes du même groupe modal sont utilisés"
-est un message générique utilisé pour plusieurs jeux de G-codes. Il
-s'applique à la compensation de rayon d'outil, il signifie que plus
-d'un code G40, G41 ou G42 apparaît sur la même ligne de progamme NC, ce
-qui n'est pas permis.
+Le message d'erreur «Deux G-codes du même groupe modal sont utilisés» 
+est un message générique utilisé pour plusieurs jeux de G-codes. Il 
+s'applique à la compensation de rayon d'outil, il signifie que plus 
+d'un code G40, G41 ou G42 apparaît sur la même ligne de progamme NC, 
+ce qui n'est pas permis.
 
 === Premier mouvement
 
@@ -506,10 +496,10 @@ d'outil: Le réglage lui même (gauche, droite ou arrêt), program_x et
 program_y. Les deux dernières représentent les positions en X et en Y
 données dans le code NC quand la compensation est active. Quand elle
 est désactivée, les deux entrées sont fixées à de très petites valeurs
-(10 e-20 ) dont la valeur symbolique (dans un #define) est "unknown".
-L'interpréteur utilise, les items current_x et current_y qui
-représentent, le centre de la pointe de l'outil (dans le système de
-coordonnées courant), à tout moment.
+(10 e-20 ) dont la valeur symbolique (dans un #define) est «unknown». 
+L'interpréteur utilise, les items current_x et current_y qui 
+représentent, le centre de la pointe de l'outil (dans le système de 
+coordonnées courant), à tout moment. 
 
 === Exemples de Jon Elson
 
@@ -549,9 +539,9 @@ doivent être choisis avec un rayon approximatif bien réfléchi.
 
 Les commandes sont:
 
-G40 - Annuler la compensation de rayon d'outil 
-G41 - Activer la compensation, outil à gauche du profil 
-G42 - Activer la compensation, outil à droite du profil
+G40 - Annuler la compensation de rayon d'outil +
+G41 - Activer la compensation, outil à gauche du profil +
+G42 - Activer la compensation, outil à droite du profil +
 
 Voici un petit fichier qui usine le côté d'une pièce avec de multiples
 arcs convexes et concaves et plusieurs lignes droites. La plupart de
@@ -559,18 +549,18 @@ ces commandes ont été tracées depuis Bobcad/CAM, mais les lignes N15 et
 N110 ont été ajoutées par moi et certaines coordonnées dans ce contour
 ont été bricolées un peu par moi.
 
-`N10 G01 G40 X-1.3531 Y3.4 
-N15 F10 G17 G41 D4 X-0.7 Y3.1875 (ligne d'entrée) 
-N20 X0. Y3.1875 
-N40 X0.5667 F10 
-N50 G03 X0.8225 Y3.3307 R0.3 
-N60 G02 X2.9728 Y4.3563 R2.1875 
-N70 G01 X7.212 Y3.7986 
-N80 G02 X8.1985 Y3.2849 R1.625 
-N90 G03 X8.4197 Y3.1875 R0.3 
-N100 G01 X9. 
-N110 G40 X10.1972 Y3.432 (ligne de sortie) 
-N220 M02`
+`N10 G01 G40 X-1.3531 Y3.4` +
+`N15 F10 G17 G41 D4 X-0.7 Y3.1875 (ligne d'entrée)` +
+`N20 X0. Y3.1875` +
+`N40 X0.5667 F10` +
+`N50 G03 X0.8225 Y3.3307 R0.3` +
+`N60 G02 X2.9728 Y4.3563 R2.1875` +
+`N70 G01 X7.212 Y3.7986` +
+`N80 G02 X8.1985 Y3.2849 R1.625` +
+`N90 G03 X8.4197 Y3.1875 R0.3` +
+`N100 G01 X9.` +
+`N110 G40 X10.1972 Y3.432 (ligne de sortie)` +
+`N220 M02` 
 
 La ligne 15 contient G41 D4, qui signifie que le diamètre de l'outil
 est celui de l'outil #4 dans la table d'outils, il sera utilisé pour
@@ -610,4 +600,5 @@ de chiffres significatifs, ou si l'arc à un nombre étrange de degrès,
 alors les problèmes commencent avec EMC. Le mot R supprime tous ce
 désordre et il est beaucoup plus facile de travailler avec lui, de
 toute façon. Si l'arc est de plus de 180 degrés, R doit être négatif.
+
 

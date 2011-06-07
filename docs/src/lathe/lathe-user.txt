@@ -38,7 +38,7 @@ The "Tool Table" is a text file that contains information about each
 tool. The file is located in the same directory as your configuration 
 and is called "tool.tbl" by default. 
 The tools might be in a tool changer or just changed manually. 
-The file can be edited with a text editor or be updated using G10 L1. 
+The file can be edited with a text editor or be updated using G10 L1,L10,L11. 
 There is also a built-in tool table editor in the Axis display. 
 The maximum number of entries in the tool table is 56. 
 The maximum tool and pocket number is 99999. 
@@ -46,32 +46,9 @@ The maximum tool and pocket number is 99999.
 Earlier versions of EMC2 had two different tool table formats for 
 mills and lathes, but since the 2.4.x release, one tool table format 
 is used for all machines. Just ignore the parts of the tool table 
-that don't pertain to your machine, or which you don't neeed to use. 
-
-=== Tool Table Format
-
-.Tool Table Format[[cap:Tool-Table-Format]](((Tool-Table-Format)))
-
-[width="100%", options="header"]
-|========================================
-|T# |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
-|;  |    |   |   |   |   |   |   |   |   |   |    |   |   |    |
-|T1 |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
-|T2 |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
-|T3 |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
-|========================================
-
-In general, the new tool table line format is:
-
- - ; - opening semicolon, no data
- - T - tool number, 0-99999 (you can have a large number of tools in inventory)
- - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
- - X..W - tool offset on specified axis - floating-point
- - D - tool diameter - floating-point, absolute value
- - I - front angle (lathe only) - floating-point 
- - J - back angle (lathe only) - floating-point 
- - Q - tool orientation (lathe only) - integer, 0-9 
- - ; - beginning of comment or remark
+that don't pertain to your machine, or which you don't need to use. 
+For more information on the specifics of the tool table format, see 
+the <<sec:Tool-Table-Format>> section. 
 
 == Lathe Tool Orientation
 
@@ -86,21 +63,19 @@ image::images/tool_positions.png[]
 In AXIS the following figures show what the Tool Positions look like from
 the above tool table.
 
-Tool Positions 1, 2, 3 & 4
+.Tool Positions 1, 2, 3 & 4 [[fig:Tool-Positions-1-2-3-4]]
 
-.[["cap:Tool-Positions-1, 2, 3 & 4"]]
+image:images/tool_pos_1.png[] 
+image:images/tool_pos_2.png[] 
+image:images/tool_pos_3.png[] 
+image:images/tool_pos_4.png[]
 
-image:images/tool_pos_1.png[] image:images/tool_pos_2.png[] 
+.Tool Positions 5, 6, 7 & 8 [[fig:Tool-Positions-5-6-7-8]]
 
-image:images/tool_pos_3.png[] image:images/tool_pos_4.png[]
-
-Tool Positions 5, 6, 7 & 8
-
-.[["fig:Tool-Position-5, 6, 7 & 8"]]
-
-image:images/tool_pos_5.png[] image:images/tool_pos_6.png[] 
-
-image:images/tool_pos_7.png[] image:images/tool_pos_8.png[]
+image:images/tool_pos_5.png[] 
+image:images/tool_pos_6.png[] 
+image:images/tool_pos_7.png[] 
+image:images/tool_pos_8.png[]
 
 == Tool Touch Off
 

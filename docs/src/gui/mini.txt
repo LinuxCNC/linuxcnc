@@ -46,7 +46,7 @@ it.
 
 The first row is the menu bar across the top. Here you can configure
 the screen to display additional information. Some of the items in this
-menu are very different from what you may be acustomed to with other
+menu are very different from what you may be accustomed to with other
 programs. You should take a few minutes and look under each menu item
 in order to familiarize yourself with the features that are there.
 
@@ -61,13 +61,13 @@ Program::
 View::
      This menu includes several screen elements that can be added so that
     you can see additional information during a run. These include
+
     Position_Type;;
-          This menu item adds a line above the main position displays that
-    shows
-        whether the displays are in inches or metric and whether they are
-        Machine or Relative location and if they are Actual positions or
-        Commanded positions. These can be changed using the Settings menu
-        described below.
+         This menu item adds a line above the main position displays that
+        shows whether the displays are in inches or metric and whether 
+        they are Machine or Relative location and if they are 
+        Actual positions or Commanded positions. These can be changed 
+        using the Settings menu described below.
     
     Tool_Info;;
          This adds a line immediately below the main position displays that
@@ -75,18 +75,15 @@ View::
     
     Offset_Info;;
          adds a line immediately below the tool info that shows what offsets
-         have been applied. This is a total distance for each axis from
-    machine
-        zero.
+        have been applied. This is a total distance for each axis from
+        machine zero.
     
     Show_Restart;;
          adds a block of buttons to the right of the program display in auto
-         mode. These allow the operator to restart a program after an abort
-    or
-         estop. These will pop in whenever estop or abort is pressed but
-    can be
-        shows by the operator anytime auto mode is active by selecting this
-        menu item.
+        mode. These allow the operator to restart a program after an abort
+        or estop. These will pop in whenever estop or abort is pressed but
+        can be shows by the operator anytime auto mode is active by 
+        selecting this menu item. 
     
     Hide_Restart;;
          removes the block of buttons that control the restart of a program
@@ -99,27 +96,24 @@ View::
     
     Show_Mode_Full;;
          changes the right hand column so that the mode buttons or displays
-         fill the entire right side of the screen. In manual mode, running
-    with
-         mode full you will see spindle and lube control buttons as well as
-    the
-        motion buttons.
+        fill the entire right side of the screen. In manual mode, running
+        with mode full you will see spindle and lube control buttons as well as
+        the motion buttons.
     
     Show_Popin_Full;;
-          changes the right hand column so that the popin fills the entire
-    right
-        side of the screen.
+         changes the right hand column so that the popin fills the entire
+        right side of the screen.
 
 Settings::
      These menu items allow the operator to control certain parameters
     during a run.
+
     Actual_Position;;
-        sets the main position displays to actual(machine based) values.
+         sets the main position displays to actual(machine based) values.
     
     Commanded_Position;;
-          sets the main position displays to the values that they were
-    commanded
-        to.
+         sets the main position displays to the values that they were
+        commanded to. 
     
     Machine_Position;;
          sets the main position displays to the absolute distance from where
@@ -127,15 +121,15 @@ Settings::
     
     Relative_Position;;
           sets the main position displays to show the current position
-    including
-        any offsets like part zeros that are active. For more information on
-        offsets see the chapter on coordinate systems.
+        including any offsets like part zeros that are active. For more 
+        information on offsets see the chapter on coordinate systems.
 
 Info::
      lets you see a number of active things by writing their values into
     the MESSAGE pad.
+
     Program_File;;
-        will write the currently active program file name.
+         will write the currently active program file name.
     
     Editor_File;;
          will write the currently active file if the editor pop in is active
@@ -143,9 +137,8 @@ Info::
     
     Parameter_File;;
           will write the name of the file being used for program
-    parameters. You
-        can find more on this in the chapters on offsets and using variables
-        for programming.
+        parameters. You can find more on this in the chapters on offsets 
+        and using variables for programming. 
     
     Tool_File;;
          will write the name of the tool file that is being used during
@@ -153,9 +146,8 @@ Info::
     
     Active_G-Codes;;
          will write a list of all of the modal program codes that are active
-         whenever this item is selected. For more information about modal
-    codes
-        see the introductory part programming chapter.
+        whenever this item is selected. For more information about modal
+        codes see the introductory part programming chapter.
 
 Help::
     opens a text window pop in that displays the contents of the help file.
@@ -181,7 +173,7 @@ control a programmed move.
 === MANUAL (((Manual)))
 
 This button or pressing <F3> sets the EMC to Manual mode and displays
-an abreviated set of buttons the operator can use to issue manual
+an abbreviated set of buttons the operator can use to issue manual
 motion commands. The labels of the jog buttons change to match the
 active axis. Whenever Show_Mode_Full is active in in manual mode, you
 will see spindle and lube control buttons as well as the motion
@@ -332,7 +324,7 @@ bindings that were available in auto mode are not available here.
 
 Feedhold is a toggle. When the EMC is ready to handle or is handling a
 motion command this button shows the feedhold label on a red
-backgrouund. If feedhold has been pressed then it will show the
+background. If feedhold has been pressed then it will show the
 continue label. Using it to pause motion has the advantage of being
 able to restart the program from where you stopped it. Feedhold will
 toggle between zero speed and whatever feed rate override was active
@@ -520,7 +512,7 @@ is running or when the program is paused.
 image::minitool.png[]
 
 The [Add Tools] and [Remove Tools] buttons work on the bottom of the
-tool list so you will want to fill in tool information in decending
+tool list so you will want to fill in tool information in descending
 order. Once a new tool has been added, you can use it in a program with
 the usual G-code commands. There is a 32 tool limit in the current EMC
 configuration files but you will run out of display space in Mini long

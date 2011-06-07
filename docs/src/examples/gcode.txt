@@ -16,7 +16,7 @@ Description: Subroutine for milling a hole using parameters.
 
 File Name: useful-subroutines.ngc
 
-Decription: Subroutine for milling a slot using parameters.
+Description: Subroutine for milling a slot using parameters.
 
 === Grid Probe
 

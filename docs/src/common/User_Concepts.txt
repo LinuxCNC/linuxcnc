@@ -198,12 +198,12 @@ or running a MDI command.
 If you want to deviate from the default behavior, or want to use the
 Mini interface you will need to set the option NO_FORCE_HOMING = 1 in
 the [TRAJ] section of your ini file. More information on homing can be
-found in the Integrators Manual.
+found in the Integrator Manual.
 
 == Tool Changes
 
 There are several options when doing manual tool changes. See the
-[EMCIO] section of the Integrators Manual for information on
+[EMCIO] section of the Integrator Manual for information on
 configuration of these options. Also see the G28 and G30 section of the
 User Manual.
 
