@@ -504,13 +504,15 @@ public:
 
     // range for user-remapped M-codes
     // and M6,M61
-#define M_REMAPPABLE(m)				\
-    (( (m == 6) || (m == 61) || ((m > 73) && (m < 100)) ||	\
-      ((m > 199) && (m < 1000))))
+#define M_REMAPPABLE(m)					\
+    (((m > 199) && (m < 1000)) ||			\
+     ((m > 0) && (m < 100) && (_ems[m] == -1)) ||	\
+     (m == 6) ||					\
+     (m == 61))
 
     // range for user-remapped G-codes
-#define G_REMAPPABLE(g)				\
-    ((g > 649) && (g < 980))
+#define G_REMAPPABLE(g)	 \
+    ((g > 0) && (g < 1000) && (_gees[g] == -1))
 
 #define IS_USER_GCODE(x) (G_REMAPPABLE(x) && _setup.g_remapped[x])
 
