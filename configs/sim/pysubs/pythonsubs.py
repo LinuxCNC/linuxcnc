@@ -2,16 +2,6 @@ import sys
 from InterpMod import *
 
 
-# [RS274NGC]
-# import Python module(s) from this directory
-# PYDIR=pysubs
-# import the following Python modules
-# PYIMPORT=pythonsubs.py
-# any callables in this module will be available as
-# o<callable_name> call or handler names.
-
-
-
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
 #
 # REMAP=T  prolog=prepare_prolog epilog=prepare_epilog ngc=prepare
@@ -72,7 +62,6 @@ def change_prolog(userdata,**words):
 	if interp.cutter_comp_side:
 		interp.set_errormsg("Cannot change tools with cutter radius compensation on")
 		return (INTERP_ERROR,)
-	interp.params["tool_in_spindle" ] = interp.current_tool
 
 	# bug in interp_convert.cc: WONT WORK - isnt valid anymore
 	## 	    settings->selected_pocket);
@@ -80,7 +69,8 @@ def change_prolog(userdata,**words):
 	## 	    block->t_number,
 	#interp.params["prepared" ] = 2
 
-	interp.params["selected_pocket" ] = interp.selected_pocket
+	interp.params["tool_in_spindle"] = interp.current_tool
+	interp.params["selected_pocket"] = interp.selected_pocket
 	return (INTERP_OK,)
 
 def change_epilog(userdata,**words):
@@ -123,7 +113,7 @@ def set_tool_number(userdata,**words):
 		interp.current_pocket = pocket
 
 		CanonMod.CHANGE_TOOL_NUMBER(pocket)
-		interp.tool_table[0].offset.tran.z = interp.tool_table[pocket].offset.tran.z
+		# test: interp.tool_table[0].offset.tran.z = interp.tool_table[pocket].offset.tran.z
 		# cause a sync()
 		interp.tool_change_flag = True
 		interp.set_tool_parameters()
@@ -195,14 +185,6 @@ def introspect(args,**kwargs):
 	print "blocks[r].q_flag=",interp.blocks[r].q_flag
 	print "blocks[r].q_number=",interp.blocks[r].q_number
 
-#	print "blocks[0].line_number=",interp.blocks[0].line_number
-#	print "blocks[0].p_flag=",interp.blocks[0].p_flag
-#	print "blocks[0].p_number=",interp.blocks[0].p_number
-#	print "blocks[0].q_flag=",interp.blocks[0].q_flag
-#	print "blocks[0].q_number=",interp.blocks[0].q_number
-#	print "blocks[0].comment=",interp.blocks[0].comment
-
-
 	#printobj(interp,"interp")
 	printobj(interp.tool_offset,"tool_offset")
 	callstack()
@@ -230,3 +212,4 @@ def callstack():
 		print "subname=",interp.sub_context[i].subname
 		print "context_status=",interp.sub_context[i].context_status
 	return (INTERP_OK,)
+
