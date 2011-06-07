@@ -1,21 +1,16 @@
+/////
+
 Integrator Manual V2.5, {localdate}
 ===================================
 The EMC Team
-
-/////////////////////////////////////////////////
-This might be nicer than the above if I could 
-get it to work, but I haven't been able to: 
-
-Integrator Manual V2.5
-======================
-:Date:	{localdate}
-/////////////////////////////////////////////////
 
 :masterdir: {indir}
 
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
+
+/////
 
 :leveloffset: 1
 
@@ -35,60 +30,20 @@ include::config/lathe_config.txt[]
 
 include::config/emc2hal.txt[]
 
+include::config/stepper.txt[]
+
 :leveloffset: 0
 = GUI
 :leveloffset: 1
-
-include::gui/gladevcp.txt[]
-
-:leveloffset: 0
-= HAL
-:leveloffset: 1
-
-include::hal/basic_hal.txt[]
-
-include::hal/halshow.txt[]
-
-include::config/stepper.txt[]
-
-include::hal/components.txt[]
-
-include::hal/rtcomps.txt[]
-
-include::hal/parallel_port.txt[]
-
-include::gui/halui.txt[]
-
-include::hal/hal-examples.txt[]
 
 include::hal/pyvcp.txt[]
 
 include::hal/pyvcp_examples.txt[]
 
-:leveloffset: 0
-= Hardware Drivers
-:leveloffset: 1
-
-include::drivers/AX5214H.txt[]
-
-include::drivers/GS2.txt[]
-
-include::drivers/hostmot2.txt[]
-
-include::drivers/m5i20.txt[]
-
-include::drivers/motenc.txt[]
-
-include::drivers/opto22.txt[]
-
-include::drivers/pico_ppmc.txt[]
-
-include::drivers/pluto_p.txt[]
-
-include::drivers/servo_to_go.txt[]
+include::gui/gladevcp.txt[]
 
 :leveloffset: 0
-= Advanced topics
+= Advanced Topics
 :leveloffset: 1
 
 include::motion/kinematics.txt[]
@@ -124,7 +79,7 @@ include::examples/mpg.txt[]
 include::examples/gs2_example.txt[]
 
 :leveloffset: 0
-Diagnostics
+= Diagnostics
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics.txt[]
@@ -142,4 +97,8 @@ include::common/Linux_FAQ.txt[]
 include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
+
+/////
+=Index
+
 
