@@ -10,23 +10,19 @@ depuis le sous-menu {\\textbf{Applications -> CNC}}.
 
 Par défaut, le dialogue Sélecteur de configuration s'affichera la
 première fois que vous lancerez emc. Vos propres configurations
-personnalisées s'affichent dans le haut de la liste, suivies par
-les différentes configurations fournies en exemple.
+personnalisées s'affichent dans le haut de la liste, suivies 
+par les différentes configurations fournies en exemple.footnote:[
+Etant donné que chaque exemple de configuration utilise 
+un type différent d'interface matérielle, la plupart ne 
+fonctionneront pas sur votre système. Les configurations 
+listées dans la catégorie øg Sim (simulation) fonctionneront 
+toutes, même sans matériel raccordé.] Figure 
+<<cap:Selecteur-de-configuration>> montre l'apparence de la 
+fenêtre du sélecteur de configuration.
 
-footnote:[Etant donné que chaque exemple de configuration utilise
-          un type différent d'interface matérielle, la plupart ne
-          fonctionneront pas sur votre système. Les configurations listées
-          dans la catégorie øg Sim (simulation) fonctionneront toutes, même
-          sans matériel raccordé.
-]Figure
-<<cap:Selecteur-de-configuration>> montre l'apparence de la fenêtre
-du sélecteur de configuration.
-
-\\label{cap:Selecteur-de-configurationSélecteur de configuration
-pour EMC2}
+.Sélecteur de configuration pour EMC2[[cap:Selecteur-de-configuration]]
 
 image::images/configuration-selector1_fr.png[]
-
 
 Cliquez dans la liste, sur les différentes configurations pour
 afficher les informations les concernant. Double-cliquez sur une
@@ -49,10 +45,9 @@ comportement est lié à ce moment, à l'absence de répertoire
 autorisé en écriture sans lequel les paramètres ne peuvent être
 enregistrés.
 
-Dialogue de copie de la configuration
+.Dialogue de copie de la configuration
 
 image::images/copy-configuration_fr.png[]
-
 
 == Les étapes suivantes dans la configuration
 

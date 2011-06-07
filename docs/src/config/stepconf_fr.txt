@@ -37,8 +37,8 @@ Caractéristiques du pilote::
     signaux, il convient de les ajouter à celles du pilote.
 
 Résultat du test de latence::
-     Entrez ici, le résultat du test de latence. (voir la section 
-    <<sec:Test de latence>>)
+     Entrez ici, le résultat du test de latence. 
+    (voir la section <<sec:Test de latence>>)
 
 Fréquence maxi des pas::
      Affiche la valeur calculée de la fréquence maximum des pas que la
@@ -126,9 +126,9 @@ Vitesse maximum::
 
 Accélération maximum::
      Les valeurs correctes pour ces deux entrées ne peuvent être
-    déterminées que par l'expérimentation. Consultez  <<sub:Definir la
-    vitesse maximum>> pour définir la vitesse et  <<sub:Definir
-    l-acceleration maximum>> pour définir l'accélération. 
+    déterminées que par l'expérimentation. Consultez 
+    <<sub:Definir la vitesse maximum>> pour définir la vitesse et 
+    <<sub:Definir l-acceleration maximum>> pour définir l'accélération. 
 
 Emplacement de l'origine machine::
      La position sur laquelle la machine se place après avoir terminé la
@@ -245,7 +245,6 @@ Cycles par tour::
      Le nombre d'impulsions par tour sur la pin
     *Phase A codeur broche.*
 
-    
     Vitesse maximum en filetage:;;
           La vitesse de broche maximum utilisable en filetage. Pour un
     moteur de
@@ -302,10 +301,9 @@ déplace pas, cale, ou perd des pas même à faible vitesse, vérifiez les
 éléments suivants:
 
  - Timings des impulsions de pas corrects
- -  Brochage des sorties correct, inclus les cases `Inverser` des pins du
-   port
+ - Brochage des sorties correct, inclus les cases `Inverser` des pins du port
  - Câbles blindés et correctement raccordés
- -  Problème physique avec le moteur, le couplage du moteur, l'écrou de la
+ - Problème physique avec le moteur, le couplage du moteur, l'écrou de la
    vis, point dur des glissières, etc.
 
 Une fois que vous avez trouvé une vitesse à laquelle l'axe ne perd
@@ -329,7 +327,7 @@ Entrez les valeurs suivantes dans la page de configuration de la broche:
 
 [width="90%", options="header"]
 |========================================
-|Vitesse 1: | *0* | PWM 1: | *0*
+|Vitesse 1: | *0*    | PWM 1: | *0*
 |Vitesse 2: | *1000* | PWM 1: | *1*
 |========================================
 
@@ -341,62 +339,58 @@ comme: `S800`. Les valeurs permises vont de 1 à 1000.
 
 Pour deux différentes valeurs de `S` xxx, mesurez la vitesse de
 rotation réelle de la broche en tours/mn.
-Enregistrez ces vitesses réelles de la broche. Relancez Stepconf. Pour
- les `Vitesses`, entrez les valeurs réelles mesurées et pour les `PWM`,
-entrez la valeur `S`xxx divisée par 1000.
+Enregistrez ces vitesses réelles de la broche. Relancez Stepconf. Pour 
+les `Vitesses`, entrez les valeurs réelles mesurées et pour les `PWM`, 
+entrez la valeur `S` xxx divisée par 1000.
 
 Parce que la plupart des interfaces ne sont pas linéaires dans leurs
 courbes de réponse, il est préférable de:
 
- -  S'assurer que les deux points de mesure des vitesses en tr/mn ne
+ - S'assurer que les deux points de mesure des vitesses en tr/mn ne
    soient pas trop rapprochés 
- -  S'assurer que les deux vitesses utilisées sont dans la gamme des
+ - S'assurer que les deux vitesses utilisées sont dans la gamme des
    vitesses utilisées généralement par la machine.
 
 Par exemple, si votre broche tourne entre 0tr/mn et 8000tr/mn, mais
 que vous l'utilisez généralement entre 400tr/mn et 4000tr/mn, prenez
 alors des valeurs qui donneront 1600tr/mn et 2800tr/mn.
 
-== Fin de course des axes, position de l'origine machine et emplacements des contacts d'origine machine [["sec:Fin de course, origine machine"]]
+== Fin de course des axes, position de l'origine machine et emplacements des contacts d'origine machine [[sec:Fin de course, origine machine]]
 
 La course de chaque axe est bien délimitée. Les extrémités physiques
 d'une course sont appelées *les butées mécanique*s.
 
 Avant la *butée mécanique* se trouve un *contact de fin de course* .
-Si ce contact est rencontré pendant les opérations normales, EMC
- coupe la puissance du moteur. La distance entre *le fin de course* et
-*la butée mécanique*  doit être suffisante pour permettre au moteur,
-dont la puissance a
-été coupée, de s'arrêter malgré l'inertie du mobile.
+Si ce contact est rencontré pendant les opérations normales, EMC 
+coupe la puissance du moteur. La distance entre *le fin de course* et
+*la butée mécanique* doit être suffisante pour permettre au moteur,
+dont la puissance a été coupée, de s'arrêter malgré l'inertie du mobile.
 
-Avant le *contact de fin de course* se trouve une *limite soft* .
+Avant le *contact de fin de course* se trouve une *limite soft*. 
 Cette limite logicielle est introduite après la prise d'origine
 machine. Si une commande manuelle ou un programme gcode dépasse cette
 limite, ils ne seront pas éxécutés. Si un mouvement en jog cherche à
 dépasser la limite logicielle, il sera interrompu sur cette limite.
 
-Le *contact d'origine machine*  peut être positionné n'importe où, le
-long d'une course (entre les
-butées mécaniques).
+Le *contact d'origine machine* peut être positionné n'importe où, le
+long d'une course (entre les butées mécaniques). 
 
 Si aucun mécanisme externe ne désactive la puissance moteur quand un
 contact de limite est enfoncé, un des contacts de fin de course peut
 être utilisé comme contact d'origine machine.
 
-La *position zéro*  est la position correspondante au 0 de l'axe dans
-le système de
- coordonnées machine. Habituellement la *position zéro* doit se trouver
-entre les deux *limites soft* . Sur les tours, le mode vitesse de
-surface constante requiert que la
- coordonnée *X=0*  corresponde au centre de rotation de la broche quand
-aucun correcteur
-d'outil n'est actif.
+La *position zéro* est la position correspondante au 0 de l'axe dans
+le système de coordonnées machine. Habituellement la *position zéro* 
+doit se trouver entre les deux *limites soft*. Sur les tours, le 
+mode vitesse de surface constante requiert que la 
+coordonnée *X=0* corresponde au centre de rotation de la broche 
+quand aucun correcteur d'outil n'est actif.
 
-La *position de l'origine*  est la position, située le long de l'axe,
-sur laquelle le mobile sera
-déplacé à la fin de la séquence de prise d'origine. Cette position doit
- se situer entre les *limites soft*. En particulier, la *position de
-l'origine* ne doit jamais être égale à une *limite soft*.
+La *position de l'origine* est la position, située le long de l'axe,
+sur laquelle le mobile sera déplacé à la fin de la séquence de 
+prise d'origine. Cette position doit  se situer entre les 
+*limites soft*. En particulier, la *position de l'origine* ne 
+doit jamais être égale à une *limite soft*.
 
 a diagram of all these limits would be nice
 
@@ -404,12 +398,12 @@ a diagram of all these limits would be nice
 
 Une machine peut être utilisée sans contact de fin de course. Dans ce
 cas, seules les *limites soft* empêcheront la machine d'atteindre les
-*butées mécaniques*. Les *limites soft*  n'opérent qu'après que la POM
+*butées mécaniques*. Les *limites soft* n'opérent qu'après que la POM
 soit faite sur la machine. Puisqu'il
 n'y a pas de contact, la machine doit être déplacée à la main et à
- l'oeil, à sa position d'origine machine avant de presser le bouton
-`POM des axes` ou le sous-menu `Machine->Prises d'origines machine->POM
-de l'axe`.
+l'oeil, à sa position d'origine machine avant de presser le bouton 
+`POM des axes` ou le sous-menu 
+`Machine -> Prises d'origines machine -> POM de l'axe`.
 
 === Travail sans contact d'origine machine [[sub:Travail sans contact d-origine machine]]
 
@@ -417,12 +411,12 @@ Un machine peut être utilisée sans contact d'origine machine. Si la
 machine dispose de contacts de fin de courses, mais pas de contact
 d'origine machine, il est préférable d'utiliser le contact de fin de
 course comme contact d'origine machine (exemple, choisissez *Limite
-mini + origine X*  dans le réglage du port). Si la machine ne dispose
+mini + origine X* dans le réglage du port). Si la machine ne dispose
 d'aucun contact,
 ou que le contact de fin de course n'est pas utilisable pour une autre
 raison, alors la prise d'origine machine peut être réalisée à la main.
 Faire la prise d'origine à la main n'est certes pas aussi reproductible
- que sur des contacts, mais elle permet tout de même aux *limites soft*
+que sur des contacts, mais elle permet tout de même aux *limites soft*
 d'être utilisables.
 
 == Test de latence [[sec:Test de latence]]
@@ -463,13 +457,12 @@ image:images/latency.png[]
 Pendant que le test est en cours d'exécution, il faut «abuser» de
 l'ordinateur. Déplacez les fenêtres sur l'écran. Connectez vous à
 l'Internet. Copiez quelques gros fichiers sur le disque dur. Jouer de
-la musique. Lancez une démo OpenGL telle que `glxgears` . L'idée est de
-charger le PC au maximum pour que le temps de latence
- soit mesuré dans le pire des cas. ` Ne pas exécuter EMC2 ou Stepconf
-pendant que latency-test est en cours
-d'exécution.`
+la musique. Lancez une démo OpenGL telle que `glxgears`. L'idée est de
+charger le PC au maximum pour que le temps de latence 
+soit mesuré dans le pire des cas. `Ne pas exécuter EMC2 ou Stepconf 
+pendant que latency-test est en cours d'exécution.`
 
-Le chiffre `max jitter`  dans cet exemple est de 17894 nanosecondes,
+Le chiffre `max jitter` dans cet exemple est de 17894 nanosecondes,
 soit 17.9 microsecondes.
 Enregistrer ce chiffre et entrez le dans Stepconf quand il le demande.
 
@@ -480,8 +473,7 @@ provoque de latence ou seulement des actions particulières. Par
 exemple, une carte mère Intel marchait très bien la plupart du temps,
 mais toutes les 64 secondes elle avait une très mauvaise latence de
 300µs. Heureusement, il existe un correctif (voir
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues[Fixing
-Dapper SMI Issues])
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[Fixing SMI Issues])
 
 Alors, que signifient les résultats ? Si le résultat de votre Max
 Jitter est en dessous d'environ 15-20 microsecondes (15000-20000
@@ -501,7 +493,7 @@ millisecondes) en utilisant la carte graphique interne. Un carte
 graphique Matrox d'occasion à $5US a résolu le problème. EMC n'exige
 pas de matériel de pointe.
 
-== Câblage des contacts de fin de course et d'origine machine [[sec:Contacts de fin de course et d-origine machine]]
+== Câblage des contacts de fin de course et d'origine machine[[sec:Contacts de fin de course et d-origine machine]]
 
 Le câblage idéal des contacts externes serait une entrée par contact.
 Toutefois, un seul port parallèle d'ordinateur offre un total de 5
@@ -514,9 +506,8 @@ plusieurs contacts à une seule broche d'entrée. Dans chaque cas,
 lorsqu'un contact est actionné, la valeur vue sur l'entrée va passer
 d'une logique `haute` à une logique `basse`. Cependant, EMC s'attend à
 une valeur `VRAIE` quand un contact est fermé, de sorte que les cases
-`Inverser`  correspondantes devront être cochées sur la page de réglage
-du port
-parallèle.
+`Inverser` correspondantes devront être cochées sur la page de réglage
+du port parallèle.
 
 image::images/switch-nc-series.eps[]
 
@@ -538,4 +529,5 @@ Les combinaisons suivantes sont permises dans Stepconf:
 
 Les deux dernières combinaisons sont également appropriées quand le
 type `contact + origine` est utilisé.
+
 

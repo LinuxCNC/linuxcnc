@@ -129,25 +129,24 @@ La commande md5sum doit retourner une simple ligne après le calcul de
 la somme de contrôle. Sur une machine lente le calcul peut prendre
 plusieurs minutes, exemple de retour:
 
-`91c5abb84386091e0ff056e9ebc40fdb
-ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+`91c5abb84386091e0ff056e9ebc40fdb *ubuntu-8.04-desktop-emc2-aj07-i386.iso`
 
 Il reste à comparer avec la somme md5 fournie sur la page de
 téléchargement d'EMC2.
 
 Graver l'image ISO sur un CD
 
- .  Inserez un CD vierge dans votre graveur. Une fenêtre surgissante
-   "CD/DVD Creator" ou "Choisissez le type de disque" va s'ouvrir. Fermez
-   la, elle ne sera pas utilisée.
+ . Inserez un CD vierge dans votre graveur. Une fenêtre surgissante
+   «CD/DVD Creator» ou «Choisissez le type de disque» va s'ouvrir. 
+   Fermez la, elle ne sera pas utilisée.
  . Naviguez jusqu'au répertoire contenant l'image ISO.
- .  Faites un click droit sur le fichier de l'image ISO et choisissez
+ . Faites un click droit sur le fichier de l'image ISO et choisissez
    Graver le Disque.
- .  Sélectionnez la vitesse de gravure. Pour graver le CD Live d'EMC2 il
+ . Sélectionnez la vitesse de gravure. Pour graver le CD Live d'EMC2 il
    est recommandé de graver à la vitesse la plus lente possible pour
    éviter toute erreur de gravure.
  . Lancez la gravure.
- .  Si le choix d'un nom de fichier est demandé pour l'image disque,
+ . Si le choix d'un nom de fichier est demandé pour l'image disque,
    cliquez juste OK.
 
 === Sous Windows
@@ -184,7 +183,7 @@ essayez le.
 
 Pour savoir si votre ordinateur est utilisable par le générateur de
 trains d'impulsions du logiciel, lancez un test de latence comme
-indiqué à la section ( <<sec:Test de latence>>)
+indiqué à la section (<<sec:Test de latence>>)
 
 == Installer EMC2
 

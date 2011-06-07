@@ -4,7 +4,7 @@ This section assumes you have done a standard install from the Live
 CD. After installation it is recommended that you connect the computer
 to the Internet and wait for the update manager to pop up and get the
 latest updates for EMC and Ubuntu before continuing. For more complex
-installations see the Integrators Manual.
+installations see the Integrator Manual.
 
 == Latency Test
 
@@ -12,7 +12,7 @@ The Latency Test determines how late your computer processor is in
 responding to a request. Some hardware can interrupt the processing
 which could cause missed steps when running a CNC machine. This is the
 first thing you need to do. Follow the instructions in section 
-(<<sub:Latency-Test>>) to run the latency test.
+(<<sec:Latency-Test>>) to run the latency test.
 
 == Sherline [[sec:Sherline]](((Sherline)))
 
@@ -77,37 +77,74 @@ per user unit which is used for SCALE in the .ini file.
 
 [width="100%", options="header"]
 |========================================
-|Axis | Steps/Rev. | Micro steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
+|Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
 |X |  |  |  |  | 
 |Y |  |  |  |  | 
 |Z |  |  |  |  | 
 |  |  |  |  |  | 
 |========================================
 
-Steps per revolution is how many steps it takes to turn the stepper
-one revolution. Typical is 200.
+*Steps per revolution* is how many stepper-motor-steps it takes to turn 
+the stepper motor one revolution. Typical is 200.
 
-Micro steps is how many steps the drive needs to move the stepper one
-step.
+*Micro Steps* is how many CNC-output-steps the drive needs to move the 
+stepper motor one stepper-motor-step. If microstepping is not used, 
+this number will be 1. If microstepping is used, typical values will be 
+near 4-16, perhaps 8 or 10. footnote:[Smaller values don't help that much, 
+because the approximation of the sine and cosine waves involved is 
+too coarse. Larger values don't help by requiring too many steps 
+from the CNC output and slowing down the maximum speed.]
 
-Motor & Leadscrew Teeth is if you have some reduction between the
-motor and the leadscrew. If not set these to 1.
+*Motor Teeth* and *Leadscrew Teeth* is if you have some reduction 
+(gears, chain, timing belt, etc.) between the motor and the leadscrew. 
+If not, then set these both to 1. 
 
-Leadscrew pitch is how many turns it takes to move your table one user
-unit. If you're setting up in inches then it is turns per inch. If
-you're setting up in millimeters then how many millimeters per turn.
+*Leadscrew Pitch* is how much movement occurs (in user units) in one leadscrew turn. +
+If you're setting up in inches then it is inches per turn. +
+If you're setting up in millimeters then it is millimeters per turn.
 
-The net result your looking for is how many steps it takes to move one 
-user unit (inches or mm).
+The net result you're looking for is how many CNC-output-steps it takes 
+to move one user unit (inches or mm).
 
-For Example:
-  Stepper         = 200 steps per revolution
-  Drive           = 10 micro steps
-  Motor Teeth     = 10
-  Leadscrew Teeth = 20
-  Leadscrew Pitch =  5 TPI
+For Example (inches):
 
-From the above information you have to turn the leadscrew 5 turns to move one inch. The motor to leadscrew reduction is 2:1 so the motor turns twice per reveloution of the leadscrew, so the motor turns 10 times per inch. The drive takes 10 step inputs to make the stepper step once. The drive needs 2000 steps to turn the stepper one revolution. 2000 x 10 = 20,000 is the final scale number.
+    Stepper         = 200 steps per revolution
+    Drive           =  10 micro steps per step
+    Motor Teeth     =  20
+    Leadscrew Teeth =  40
+    Leadscrew Pitch =   0.2000 inches per turn
+
+From the above information, the leadscrew moves 0.200 inches per turn. +
+The motor turns 2.000 times per 1 leadscrew turn. +
+The drive takes 10 microstep inputs to make the stepper step once. +
+The drive needs 2000 steps to turn the stepper one revolution. +
+So the scale needed is: latexmath:[$ 
+\frac{200 motor steps}{1 motor rev} \times 
+\frac{10 microsteps}{1 motor step} \times
+\frac{2 motor revs}{1 leadscrew rev} \times 
+\frac{1 leadscrew revs}{0.2000 inch} 
+= \frac{20,000 microsteps}{inch} $].
+
+Here's another example, in millimeters this time: 
+
+For Example (mm):
+
+    Stepper         = 200 steps per revolution
+    Drive           =   8 micro steps per step
+    Motor Teeth     =  30 
+    Leadscrew Teeth =  90
+    Leadscrew Pitch =   5.00 mm per turn
+
+From the above information, the leadscrew moves 5.00 mm per turn. +
+The motor turns 3.000 times per 1 leadscrew turn. +
+The drive takes 8 microstep inputs to make the stepper step once. +
+The drive needs 1600 steps to turn the stepper one revolution. +
+So the scale needed is: latexmath:[$ 
+\frac{200 motor steps}{1 motor rev} \times 
+\frac{8 microsteps}{1 motor step} \times
+\frac{3 motor revs}{1 leadscrew rev} \times 
+\frac{1 leadscrew revs}{5.000 mm} 
+= \frac{960 microsteps}{mm} $].
 
 == Configuration Wizard
 

@@ -12,17 +12,17 @@ Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsqu'ils pilotent une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
-Pour le lancer, suivre les instructions de la section (<<sec:Test de
-latence>>).
+Pour le lancer, suivre les instructions de la 
+section (<<sec:Test de latence>>).
 
 == Sherline et Xylotex [[sec:Sherline-and-Xylotex]]
 
 Si vous avez une machine Sherline ou Xylotex, vous pouvez sauter cette
 section et aller directement à la section relative à l'assistant
-graphique ( <<cha:Assistant-graphique>>). EMC fourni une configuration
+graphique (<<cha:Assistant-graphique>>). EMC fourni une configuration
 rapide pour les machines Sherline et Xylotex.
 
-==  Informations relatives à la machine
+== Informations relatives à la machine
 
 Regroupe les informations à propos des axes de la machine.
 
@@ -32,15 +32,15 @@ caractèristiques des plus populaires sont incluses dans l'assistant
 graphique de configuration. Notez que les pilotes Gecko ont des timings
 différents les uns des autres. Une liste des caractèristiques courantes
 est également maintenue sur le Wiki
-http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
+[http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
 
 [width="90%", options="header"]
 |========================================
 |Axes | Type de pilote | Step Time ns | Step Space ns | Direction Hold ns | Direction Setup ns
-|X |  |  |  |  | 
-|Y |  |  |  |  | 
-|Z |  |  |  |  | 
-|  |  |  |  |  | 
+|X    |                |              |               |                   | 
+|Y    |                |              |               |                   | 
+|Z    |                |              |               |                   | 
+|     |                |              |               |                   | 
 |========================================
 
 footnote:[ndt: les termes sont laissés dans la langue d'origine pour
@@ -53,19 +53,19 @@ parallèle utilisées.
 
 [width="90%", options="header"]
 |========================================
-|Pin de sortie | Fonction | Si différent | Pin d'entrée | Fonction | Si différent
-|1 | Sortie A/U  |  | 10 | Limite et OM X | 
-|2 | X Step      |  | 11 | Limite et OM Y | 
-|3 | X Direction |  | 12 | Limite et OM Z | 
-|4 | Y Step      |  | 13 | Limite et OM A | 
-|5 | Y Direction |  | 15 | Entrée palpeur | 
-|6 | Z Step      |  |    |  | 
-|7 | Z Direction |  |    |  | 
-|8 | A Step      |  |  |  | 
-|9 | A Direction |  |  |  | 
-|14 | Broche sens horaire |  |  |  | 
-|16 | PWM broche |  |  |  | 
-|17 | Enable puissance |  |  |  | 
+|Pin de sortie | Fonction            | Si différent | Pin d'entrée | Fonction       | Si différent
+|1             | Sortie A/U          |              | 10           | Limite et OM X | 
+|2             | X Step              |              | 11           | Limite et OM Y | 
+|3             | X Direction         |              | 12           | Limite et OM Z | 
+|4             | Y Step              |              | 13           | Limite et OM A | 
+|5             | Y Direction         |              | 15           | Entrée palpeur | 
+|6             | Z Step              |              |              |                | 
+|7             | Z Direction         |              |              |                | 
+|8             | A Step              |              |              |                | 
+|9             | A Direction         |              |              |                | 
+|14            | Broche sens horaire |              |              |                | 
+|16            | PWM broche          |              |              |                | 
+|17            | Enable puissance    |              |              |                | 
 |========================================
 
 Noter que toutes les broches inutilisées doivent être explicitement
@@ -81,10 +81,10 @@ taille du pas est utilisée par SCALE dans le fichier .ini.
 [width="90%", options="header"]
 |========================================
 |Axes | Pas par tour | Micropas | Dents moteur | Dents vis | Pas de la vis
-| |  |  |  |  | 
-| |  |  |  |  | 
-| |  |  |  |  | 
-| |  |  |  |  | 
+|     |              |          |              |           | 
+|     |              |          |              |           | 
+|     |              |          |              |           | 
+|     |              |          |              |           | 
 |========================================
 
 Pas pas tour: indique combien de pas moteur sont nécessaires pour que
@@ -106,23 +106,23 @@ millimètre. Par exemple, pour une vis avec un pas de 5.08mm, il faut
 
 == Assistant de configuration graphique
 
-Voir l'utilisation de l'assistant Stepconf au chapitre ( <<sec:pas a
-pas>>)
+Voir l'utilisation de l'assistant Stepconf au chapitre (<<sec:pas a pas>>)
 
 == Lien sur le bureau (raccourci)
 
 Il est possible de créer un lien sur le bureau après utilisation de
 l'assistant Stepconf. Depuis le menu CNC lancer EMC2 et choisir la
-configuration nouvellement créée dans la liste. Cocher la case «Créer
-un raccourci sur le bureau» et valider avec OK. Il est désormais
-possible de lancer directement cette configuration depuis le lien créé
-sur le bureau.
+configuration nouvellement créée dans la liste. Cocher la case 
+«Créer un raccourci sur le bureau» et valider avec OK. Il est 
+désormais possible de lancer directement cette configuration depuis 
+le lien créé sur le bureau.
 
 == Modification
 
 Pour modifier quelque chose dans une configuration créée à l'aide de
-l'assistant Stepconf, relancer celui-ci. Sélectionner «Modifier une
-configuration...» Puis choisir le fichier .stepconf à modifier dans le
-répertoire emc2/configs. L'entête du fichier indique si le fichier peut
-être édité manuellement ou non.
+l'assistant Stepconf, relancer celui-ci. Sélectionner 
+«Modifier une configuration...» Puis choisir le fichier. Stepconf à 
+modifier dans le répertoire emc2/configs. L'entête du fichier 
+indique si le fichier peut être édité manuellement ou non. 
+
 

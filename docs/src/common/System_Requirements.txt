@@ -8,7 +8,7 @@ generate step pulses than servo systems. Using the Live-CD you can test
 the software before committing a computer. Keep in mind that the
 Latency Test numbers are more important than the processor speed for
 software step generation. More information on the Latency Test is in
-Section (<<sub:Latency-Test>>).
+Section (<<sec:Latency-Test>>).
 
 Additional information is on the EMC Wiki site:
 

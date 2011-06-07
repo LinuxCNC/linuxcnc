@@ -10,11 +10,11 @@ partir du CD-Live avant de l'installer sur un ordinateur. Guarder à
 l'esprit que les valeurs retournées par le test de latence (Latency
 Test), sont plus importantes que la vitesse du µP pour la génération
 logicielle des pas. Plus d'informations à propos du test de latence
-dans la section ( <<sec:Test de latence>>).
+dans la section (<<sec:Test de latence>>).
 
 Autres informations additionnelles sur le Wiki d'EMC2:
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements]
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiky linuxcnc.org - Matériel requis]
 
 EMC2 et Ubuntu doivent fonctionner raisonnablement bien sur la
 configuration matérielle minimale suivante. Ces valeurs ne sont pas des
@@ -25,7 +25,7 @@ de la plupart des systèmes à moteurs pas à pas.
  - 384 Mio de RAM (512 Mio ou plus de 1 Gio recommandé)
  - 8 GB d'espace disque
  - Carte graphique avec une résolution minimale de 1024x768
- -  Une connection Internet ou réseau (optionnelle mais très pratique pour
+ - Une connection Internet ou réseau (optionnelle mais très pratique pour
    les mises à jour)
  - Carte son (optionnelle)
 
@@ -45,4 +45,5 @@ Si votre installation se termine par un écran avec une résolution de
 800 x 600 il est alors probable que Ubuntu n'a pas reconnu votre carte
 graphique. Les cartes graphiques intégrées aux cartes mères donnent
 souvent de mauvaises performances temps réel.
+
 

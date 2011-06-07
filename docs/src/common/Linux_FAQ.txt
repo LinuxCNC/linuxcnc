@@ -17,9 +17,9 @@ Automatic Login and pick a user name from the list (that would be you).
 == Automatic Startup (((Automatic Startup)))
 
 To have EMC start automatically with your config after turning on the
-computer go to System/Preferences/Sessions Startup Programs , add new.
+computer go to System/Preferences/Sessions Startup Programs, add new.
 Navigate to your config and select the .ini file. When the file picker
-dialog closes add emc and a space in front of the path to your .ini
+dialog closes, add emc and a space in front of the path to your .ini
 file.
 
 Example:
@@ -60,8 +60,8 @@ it will be named mymod.txt or what ever you named it.
 
 When you open the file browser and you see the Owner of the file is
 root you must do extra steps to edit that file. Editing some root files
-can have bad results. Be careful when editing root files. You can open
-and view most root files normally but they will open in “read only”
+can have bad results. Be careful when editing root files. Generally, you 
+can open and view most root files, but they will open in “read only”
 mode.
 
 === The Command Line Way (((sudo gedit)))
@@ -85,8 +85,8 @@ Open the file with File, Open then edit
 === Root Access
 
 In Ubuntu you can become root by typing in "sudo -i" in a terminal
-window then typing in your password. You can really foul up things if
-you don't know what your doing as root.
+window then typing in your password. Be careful, because you can really 
+foul things up as root if you don't know what you're doing. 
 
 == Terminal Commands (((Terminal Commands)))[[sec:Terminal-Commands]]
 
@@ -114,8 +114,7 @@ type:
 
 === Listing files in a directory (((Listing files in a directory)))(((dir)))(((ls)))
 
-To view a list of all the files and subdirectories in the terminal
-window type:
+To view a list of all the files and subdirectories in the terminal window type: 
 
     dir
 
@@ -131,12 +130,12 @@ syntax is:
     find starting-directory parameters actions
 
 For example to find all the .ini files in your emc2 directory you
-first need to use the pwd command to find out the directory. Open a new
-terminal window and type:
+first need to use the pwd command to find out the directory. +
+Open a new terminal window and type:
 
     pwd
 
-might return the following result
+And pwd might return the following result: 
 
     /home/joe
 
@@ -145,11 +144,11 @@ With this information put the command together like this:
     find /home/joe/emc2 -name *.ini -print
 
 The -name is the name of the file your looking for and the -print
-tells it to print out the result to the terminal window. The *.ini
-tells find to return all files that have the .ini extension.
+tells it to print out the result to the terminal window. +
+The *.ini tells find to return all files that have the .ini extension.
 
-To find all the files in the directory named and all the
-subdirectories under that add the -L option to the find command like
+To find all the files in the named directory and all the
+subdirectories under that, add the -L option to the find command, like
 this:
 
     find -L /home/joe/emc2 -name *.ini -print
@@ -158,8 +157,8 @@ this:
 
     grep -i -r 'text to search for' * 
 
-To find all the files that contain the 'text to search for' in the
-current directory and all the subdirectories below the current while
+This will find all the files that contain the 'text to search for' in the
+current directory and all the subdirectories below it, while
 ignoring the case. The -i is for ignore case and the -r is for
 recursive (include all subdirectories in the search). The * is a wild
 card for search all files.
@@ -167,7 +166,7 @@ card for search all files.
 === Bootup Messages
 
 To view the bootup messages use "dmesg" from the command window. To
-save the bootup messages to a file use the redirection operator like
+save the bootup messages to a file use the redirection operator, like
 this:
 
     dmesg > bootmsg.txt
@@ -179,10 +178,10 @@ To clear the message buffer type this:
 
     sudo dmesg -c
 
-This can be useful to do just before you launch EMC to only show the
-infomation related to the start up of EMC.
+This can be helpful to do just before launching EMC, so that there will 
+only be a record of information related to the current launch of EMC. 
 
-To find the built in parallal port address use grep to filter the information
+To find the built in parallel port address use grep to filter the information
 out of dmesg. 
 
 After boot up open a terminal and type:
@@ -216,4 +215,5 @@ resolution of 800x600.
 Instructions for fixing this are located here:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
+
 

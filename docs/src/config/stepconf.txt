@@ -4,9 +4,8 @@ EMC2 is capable of controlling a wide range of machinery using many
 different hardware interfaces. Stepconf is a program which generates
 EMC configuration files for a specific class of CNC machine: those
 connected to the PC using a standard *parallel port* and controlled
-with *step & direction*  signals. Stepconf is installed when you
-install EMC2 and is in the
-CNC menu.
+with *step & direction* signals. Stepconf is installed when you
+install EMC2 and is in the CNC menu.
 
 Stepconf places a file in the emc2/config directory to store the
 choices for each configuration you create. When you change something
@@ -19,7 +18,6 @@ the buttons on the bottom of the pages.
 [float]
 Step by Step Instructions
 =========================
-
 
 == Entry Page [[sec:Entry-Page]]
 
@@ -94,9 +92,9 @@ First Parport::
     Usually the default of Ox378 is correct.
 
 Second Parport::
-     If you need to specify addional parallel ports enter the address and
+     If you need to specify additional parallel ports enter the address and
     the type. For information on finding the address of PCI parallel ports
-    see the Port Address in the Integrators Manual.
+    see the Port Address in the Integrator Manual.
 
 Base Period Maximum Jitter::
      (((Base Period Maximum Jitter))) Enter the result of the Latency Test
@@ -117,9 +115,9 @@ Onscreen Prompt For Tool Change::
      (((Onscreen Prompt For Tool Change))) If this box is checked, EMC will
     pause and prompt you to change the tool when *M6*  is encountered.
     Leave this box checked unless you plan to add support
-    for an automatic tool changer in a custom hal file
+    for an automatic tool changer in a custom HAL file
 
-=== Latency Test [[sec:Latency-Test]](((Latency Test)))
+=== Latency Test[[sec:Latency-Test]](((Latency Test)))
 
 While the test is running, you should "abuse" the computer. Move
 windows around on the screen. Surf the web. Copy some large files
@@ -164,7 +162,7 @@ with software stepping. If the max latency is more like 30-50
 microseconds, you can still get good results, but your maximum step
 rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
-100uS or more (100,000 nanoseconds), then the PC is not a good
+100 us  or more (100,000 nanoseconds), then the PC is not a good
 candidate for software stepping. Numbers over 1 millisecond (1,000,000
 nanoseconds) mean the PC is not a good candidate for EMC, regardless of
 whether you use software stepping or not.
@@ -450,23 +448,23 @@ For instance, if your spindle will go from 0RPM to 8000RPM, but you
 generally use speeds from 400RPM to 4000RPM, then find the PWM values
 that give 1600RPM and 2800RPM.
 
-== Advanced Configuration Options  (((Advanced Configuration Options)))[[sec:Advanced-Configuration-Options]]
+== Advanced Configuration Options (((Advanced Configuration Options)))[[sec:Advanced-Configuration-Options]]
 
 .Advanced Configuration[[cap:Advanced-Configuration]]
 
 image::images/stepconf-advanced.png[]
 
 Include Halui::
-     This will add the Halui user interface component. See the Integrators
+     This will add the Halui user interface component. See the Integrator
     Manual for more information on Halui.
 
 Include pyVCP::
      This option adds the pyVCP panel base file or a sample file to work
-    on. See the Integrators Manual for more information on pyVCP.
+    on. See the Integrator Manual for more information on pyVCP.
 
 Include ClassicLadder PLC::
      This option will add the ClassicLadder PLC (Programmable Logic
-    Controller). See the Integrators Manual for more information on
+    Controller). See the Integrator Manual for more information on
     ClassicLadder.
 
 == Machine Configuration Complete [[sub:Machine-Configuration-Complete]]
@@ -474,7 +472,7 @@ Include ClassicLadder PLC::
 Click “Apply” to write the configuration files. Later, you can re-run
 this program and tweak the settings you entered before.
 
-== Axis Travel, Home Location, and Home Switch Location  (((Axis Travel)))(((Home Location)))(((Home Switch Location)))[[sec:Axis-Travel-Home]]
+== Axis Travel, Home Location, and Home Switch Location (((Axis Travel)))(((Home Location)))(((Home Switch Location)))[[sec:Axis-Travel-Home]]
 
 For each axis, there is a limited range of travel. The physical end of
 travel is called the *hard stop*.
@@ -486,8 +484,8 @@ and *limit switch* must be long enough to allow an unpowered motor to
 coast to a stop.
 
 Before the *limit switch* there is a *soft limit* . This is a limit
-enforced in software after homing. If a MDI command,
-or g code program would pass the soft limit, it is not executed. If a
+enforced in software after homing. If a MDI command or g code program 
+would pass the soft limit, it is not executed. If a
 jog would pass the soft limit, it is terminated at the soft limit.
 
 The *home switch*  can be placed anywhere within the travel (between
