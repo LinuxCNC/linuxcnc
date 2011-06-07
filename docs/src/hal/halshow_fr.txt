@@ -12,11 +12,11 @@ lui même est un des facteurs clés pour arriver à un système CNC
 optimum.
 
 On peut accéder à Halshow depuis Axis, pour cela, aller dans le menu
-“Machine” puis choisir “Afficher la configuration de HAL”.
+«Machine» puis choisir «Afficher la configuration de HAL».
 
 === Zone de l'arborescence de Hal
 
-La gauche de l'écran que montre la figure  <<cap:-Fentre-Halshow>> est
+La gauche de l'écran que montre la figure  <<cap:Fentre-Halshow>> est
 une arborescence, un peu comme vous pouvez le voir avec certains
 navigateurs de fichiers. Sur la droite, une zone avec deux onglets:
 MONTRER et WATCH.
@@ -32,7 +32,7 @@ l'arborescence et affichera son contenu. Si cette case affiche un signe
 moins, cliquer dessus repliera cette section de l'arborescence.
 
 Il est également possible de déployer et de replier l'arborescence
-complète depuis le menu “Arborescence”.
+complète depuis le menu «Arborescence».
 
 .[[cap:-L-onglet-Montrer]]L'onglet Montrer
 
@@ -41,10 +41,10 @@ image::halshow-3.png[]
 === Zone de l'onglet MONTRER
 
 En cliquant sur un nom dans l'arborescence plutôt que sur son signe
-plus ou moins, par exemple le mot “Components”, HAL affichera tout ce
+plus ou moins, par exemple le mot «Components», HAL affichera tout ce
 qu'il connait du contenu de celui-ci. La figure 
-<<cap:-Fentre-Halshow>> montre une liste comme celle que vous verrez si
-vous cliquez sur “Components” avec une carte servo standard m5i20 en
+<<cap:Fentre-Halshow>> montre une liste comme celle que vous verrez si
+vous cliquez sur «Components» avec une carte servo standard m5i20 en
 fonctionnement. L'affichage des informations est exactement le même que
 celui des traditionnels outils d'analyse de HAL en mode texte.
 L'avantage ici, c'est que nous y avons accès d'un clic de souris. Accès
@@ -68,7 +68,7 @@ sur le fonctionnement de HAL. Les commandes que vous entrez ici et leur
 effet sur HAL, ne sont pas enregistrés. Elles persisteront tant qu'EMC
 tournera, mais disparaîtront dès son arrêt.
 
-Le champ de saisie marqué “Tester une commande HAL:” acceptera
+Le champ de saisie marqué «Tester une commande HAL:» acceptera
 n'importe quelle commande valide pour halcmd. Elles incluent:
 
  - loadrt, unloadrt
@@ -78,7 +78,7 @@ n'importe quelle commande valide pour halcmd. Elles incluent:
  - setp, sets
 
 Ce petit éditeur entrera une commande à chaque fois que vous presserez
-<Entrée> ou que vous cliquerez sur le bouton “Exécuter”. Si une
+«Entrée» ou que vous cliquerez sur le bouton «Exécuter». Si une
 commande y est mal formée, un dialogue d'erreur s'affichera. Si vous
 n'êtes pas sûr de savoir comment formuler une commande, vous trouverez
 la réponse dans la documentation de halcmd et des modules spécifiques
@@ -124,7 +124,7 @@ pas critique. Passons la commande:
 
 Comme c'est juste pour visualiser, nous laissons la position en blanc
 pour obtenir la dernière position dans le thread. La figure 
-<<cap:-Commande-addf>> montre l'état de halshow après que cette
+<<cap:Commande-addf>> montre l'état de halshow après que cette
 commande a été exécutée.
 
 .[[cap:-Commande-addf]]Commande Addf
@@ -158,7 +158,7 @@ fois, sur ddt.0.in et sur stepgen.0.position-cmd. En connectant notre
 block au signal nous avons évité les complications avec le flux normal
 de cette commande de mouvement.
 
-La zone de l'onglet “Montrer” utilise halcmd pour découvrir ce qui se
+La zone de l'onglet «Montrer» utilise halcmd pour découvrir ce qui se
 passe à l'intérieur de HAL pendant son fonctionnement. Il vous donne
 une information complète de ce qu'il découvre. Il met aussi à jour dès
 qu'une commande est envoyée depuis le petit éditeur pour modifier ce
@@ -173,12 +173,12 @@ ajouter des signaux et des pins dans cette zone et visualiser leurs
 valeurs.footnote:[Le taux de rafraîchissement de la zone Watch est plus
 lent que celui
 de Halmeter ou de Halscope. Si vous avez besoin d'une bonne résolution
-dans le timming des signaux, ces outils sont plus efficaces.
- ] Vous pouvez ajouter des pins ou des signaux quand l'onglet Watch est
-ouvert, en cliquant sur leurs noms. La figure  <<cap:-L-onglet-Watch>>
-Montre cette zone avec plusieurs signaux de type “bit”. Parmis ces
+dans le timming des signaux, ces outils sont plus efficaces.] 
+Vous pouvez ajouter des pins ou des signaux quand l'onglet Watch est
+ouvert, en cliquant sur leurs noms. La figure <<cap:L-onglet-Watch>>
+Montre cette zone avec plusieurs signaux de type «bit». Parmis ces
 signaux, les enable-out pour les trois premiers axes et deux de la
-branche iocontrol, les signaux “estop”. Notez que les axes ne sont pas
+branche iocontrol, les signaux «estop». Notez que les axes ne sont pas
 activés même si les signaux estop disent qu'EMC n'est pas en estop. Un
 bref regard sur themc en arrière plan, montre que l'état d'EMC est
 ESTOP RESET. L'activation des amplis ne deviendra pas vraie tant que la

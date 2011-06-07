@@ -1,4 +1,4 @@
-=  'comp': a tool for creating HAL modules
+= 'comp': a tool for creating HAL modules
 
 == Introduction
 
@@ -7,7 +7,7 @@ calls to `rtapi_` and `hal_` functions and associated error checking.
 'comp' will write all this code for you, automatically.
 
 Compiling a HAL component is also much easier when using 'comp',
-whether the component is part of the emc2 source tree, or outside it.
+whether the component is part of the EMC2 source tree, or outside it.
 
 For instance, the "ddt" portion of `blocks`  is around 80 lines of
 code. The equivalent component is very short
@@ -59,7 +59,7 @@ many numbered instances are created.
 
 == Parameters
 
-Comp's are passed the `"period"`  parameter which is the time in
+Components are passed the `"period"` parameter which is the time in
 nanoseconds of the last period to
 execute the comp. This can be useful in comps that need the timing
 information.
@@ -271,7 +271,7 @@ and without `singleton`, items for numbered instances are named:
         `rtapi_app_main()` (and thus before the call to `hal_init()` ). This
         function may process the commandline arguments or take other 
         actions. Its return type is `void`; it may call `exit()` if it
-        wishes to terminate rather than create a hal component 
+        wishes to terminate rather than create a HAL component 
         (for instance, because the commandline arguments were invalid).
     
 If an option's VALUE is not specified, then it is equivalent to 
@@ -289,7 +289,7 @@ LICENSE::
 For additional information on the meaning of MODULE_LICENSE() and
 additional license identifiers, see `<linux/module.h>`.
     
-Starting in emc 2.3, this declaration is required.
+Starting in EMC 2.3, this declaration is required.
 
 AUTHOR::
     Specify the author of the module for the documentation.
@@ -315,19 +315,19 @@ an array of 'SIZE' items, and optionally with a default value
 int, etc. Access to array variables uses square brackets. 
 
 If a variable is to be of a pointer type, there may not be any space
-between the "\*" and the variable name. 
+between the "*" and the variable name. 
 Therefore, the following is acceptable: 
 
-    variable int \*example; 
+    variable int *example; 
 
 but the following are not: 
 
-    variable int\* badexample;
-    variable int \* badexample;
+    variable int* badexample;
+    variable int * badexample;
 
-C++-style one-line comments (`// … `) and 
+C++-style one-line comments `//... ` and 
 
-C-style multi-line comments (`/* … … */`) are both supported in the declaration section. 
+C-style multi-line comments `/\*... ...\*/` are both supported in the declaration section. 
 
 == Other restrictions on comp files
 
@@ -338,7 +338,7 @@ name, comp does not.
 
 Based on the items in the declaration section, 'comp' creates a C
 structure called `struct state`. However, instead of referring to the
-members of this structure (e.g., `\*(inst->name)` ), they will generally
+members of this structure (e.g., `*(inst->name)` ), they will generally
 be referred to using the macros below. The 
 details of `struct state` and these macros may change from one version
 of 'comp' to the next.
@@ -373,7 +373,7 @@ parameter_name::
     into the pin array. When the array is a variable-sized
     array, it is only legal to refer to items up to its 'condsize'.
     
-    When the item is a conditional item, it is only legal to refer to it
+     When the item is a conditional item, it is only legal to refer to it
     when its 'condition' evaluated to a nonzero value.
 
 variable_name::
@@ -392,7 +392,7 @@ fperiod::
 
 FOR_ALL_INSTS() {`…`} ::
      For userspace components. This macro uses the variable `struct
-    state \*inst` to iterate over all the defined instances. Inside the
+    state *inst` to iterate over all the defined instances. Inside the
     body of the 
      loop, the *'pin_name'*, *'parameter_name'*, and *data* macros work as they
     do in realtime functions.
@@ -414,20 +414,20 @@ for a variable number of input pins to each logic gate and to allow
 for a selection of any of the basic boolean logic functions *and*, 
 *or*, and *xor*. 
 
-== Compiling  `.comp` files in the source tree
+== Compiling `.comp` files in the source tree
 
 Place the `.comp` file in the source directory
 `emc2/src/hal/components` and re-run `make`. 
 `Comp` files are automatically detected by the build system.
 
 If a `.comp` file is a driver for hardware, it may be placed in
-`emc2/src/hal/components` and will be built unless emc2 is 
+`emc2/src/hal/components` and will be built unless EMC2 is 
 configured as a userspace simulator.
 
 == Compiling realtime components outside the source tree [[sec:Compiling-realtime-components]]
 
 `comp` can process, compile, and install a realtime component 
-in a single step, placing `rtexample.ko` in the emc2 realtime 
+in a single step, placing `rtexample.ko` in the EMC2 realtime 
 module directory:
 
     comp --install rtexample.comp
@@ -476,8 +476,8 @@ This component functions like the one in "blocks", including the
 default value of 1.0. The declaration "function _" creates functions
 named "constant.0", etc.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+---------------------------------------
     component constant;
     pin out float out;
     param r float value = 1.0;
@@ -485,7 +485,7 @@ named "constant.0", etc.
     license "GPL";
     ;;
     FUNCTION(_) { out = value; }
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------
 
 === sincos
 
@@ -498,8 +498,8 @@ The pins are declared with the names `sin_` and `cos_` in the source
 code so that they do not interfere with the functions `sin()` and
 `cos()`. The HAL pins are still called `sincos.<num>.sin`.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+---------------------------------------------------------------------
     component sincos;
     pin out float sin_;
     pin out float cos_;
@@ -509,7 +509,7 @@ code so that they do not interfere with the functions `sin()` and
     ;;
     #include <rtapi_math.h>
     FUNCTION(_) { sin_ = sin(theta); cos_ = cos(theta); }
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------------------------------------
 
 === out8
 
@@ -522,8 +522,8 @@ illustrates the use of `EXTRA_SETUP` and `EXTRA_CLEANUP`  to request an
 I/O region and then free it in case of error or when
 the module is unloaded.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-----------------------------------------------------------
 component out8;
 pin out unsigned out_ "Output value; only low 8 bits are used";
 param r unsigned ioaddr;
@@ -566,16 +566,16 @@ EXTRA_CLEANUP() {
 }
 
 FUNCTION(_) { outb(out_, ioaddr); }
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------------------------
 
 
 === hal_loop
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+---------------------------------------
     component hal_loop;
     pin out float example;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------------
 
 This fragment of a component illustrates the use of the `hal_` prefix
 in a component name. `loop` is the name of a standard Linux kernel
@@ -590,8 +590,8 @@ When loaded, `halcmd show comp` will show a component called
 
 This realtime component illustrates use of fixed-size arrays:
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
     component arraydemo "4-bit Shift register";
     pin in bit in;
     pin out bit out-# [4];
@@ -601,15 +601,15 @@ This realtime component illustrates use of fixed-size arrays:
     int i;
     for(i=3; i>0; i--) out(i) = out(i-1);
     out(0) = in;
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 === rand
 
 This userspace component changes the value on its output pin to a new
 random value in the range latexmath:[[0,1)] about once every 1ms.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component rand;
 option userspace;
 
@@ -624,15 +624,15 @@ void user_mainloop(void) {
         FOR_ALL_INSTS() out = drand48();
     }
 }
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 === logic
 
 This realtime component shows how to use "personality" to create
 variable-size arrays and optional pins.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component logic "EMC2 HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
@@ -663,7 +663,7 @@ FUNCTION(_) {
     if(personality & 0x200) or = o;
     if(personality & 0x400) xor = x;
 }
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 A typical load line for this component might be
 

@@ -1,6 +1,6 @@
-=  [[cha:Halui]]Halui
+= [[cha:Halui]]Halui
 
-==  [[sec:HaluiIntroduction]]Introduction
+== [[sec:HaluiIntroduction]]Introduction
 
 Halui est une interface utilisateur pour EMC s'appuyant sur HAL, elle
 connecte les pins de HAL à des commandes NML. La plupart des
@@ -22,162 +22,143 @@ config avec stepconf) est d'inclure
 
 dans votre fichier custom.hal.
 
-==  [[sec:Halui-pin-reference]]Nomenclature des pins d'Halui
+== [[sec:Halui-pin-reference]]Nomenclature des pins d'Halui
 
 === Abandon (abort)
 
- - (`bit`) halui.abort (in) - pin de requête d'abandon (efface les erreurs)
+ - (bit) halui.abort (in) - pin de requête d'abandon (efface les erreurs)
 
 === Axes (axis)
 
- -  (float ) halui.axis.n.pos-commanded (out) - Position de l'axe
-   commandée, en
+ - (float) halui.axis.n.pos-commanded (out) - Position de l'axe
+   commandée, en coordonnées machine
+ - (float) halui.axis.n.pos-feedback (out) - Position de l'axe lue, en
    coordonnées machine
- - (float ) halui.axis.n.pos-feedback (out) - Position de l'axe lue, en
-   coordonnées machine
- -  (float ) halui.axis.n.pos-relative (out) - Position de l'axe, en
-   coordonnées
-   relatives
+ - (float) halui.axis.n.pos-relative (out) - Position de l'axe, en
+   coordonnées relatives
 
 === Arrêt d'urgence (E-Stop)
 
- - (`bit`) halui.estop.activate - pin de requête d'arrêt d'urgence (E-Stop)
- - (`bit` ) halui.estop.reset - pin de requête de relâchement de l'arrêt
+ - (bit) halui.estop.activate - pin de requête d'arrêt d'urgence (E-Stop)
+ - (bit) halui.estop.reset - pin de requête de relâchement de l'arrêt
    d'urgence (E-Stop reset)
- -  (`bit`) halui.estop.is-activated - indique si l'arrêt d'urgence est
+ - (bit) halui.estop.is-activated - indique si l'arrêt d'urgence est
    actif
 
 === Correcteur de vitesse d'avance (Feed override)
 
- -  (bit ) halui.feed-override.count-enable (in) - doit être vraie pour
-   activer
-   le comptage.
- - (float ) halui.feed-override.value - Valeur de la correction courante de
+ - (bit) halui.feed-override.count-enable (in) - doit être vraie pour
+   activer le comptage.
+ - (float) halui.feed-override.value - Valeur de la correction courante de
    vitesse d'avance
- - (float ) halui.feed-override.scale - pin pour positionner l'échelle des
+ - (float) halui.feed-override.scale - pin pour positionner l'échelle des
    corrections possibles
- -  (s32 ) halui.feed-override.counts - comptage depuis un codeur, par
-   exemple
-   pour modifier la correction de vitesse d'avance
- - (bit ) halui.feed-override.increase - pin pour augmenter la correction
+ - (s32) halui.feed-override.counts - comptage depuis un codeur, par
+   exemple pour modifier la correction de vitesse d'avance
+ - (bit) halui.feed-override.increase - pin pour augmenter la correction
    (+=scale)
- - (bit ) halui.feed-override.decrease - pin pour diminuer la correction
+ - (bit) halui.feed-override.decrease - pin pour diminuer la correction
    (-=scale)
 
 === Brouillard (Mist) 
 
- - (`bit`) halui.mist.on - pin de requête du brouillard
- - (`bit`) halui.mist.is-on - indique si le brouillard est actif
- - (`bit`) halui.mist.off - pin de requête d'arrêt du brouillard
+ - (bit) halui.mist.on - pin de requête du brouillard
+ - (bit) halui.mist.is-on - indique si le brouillard est actif
+ - (bit) halui.mist.off - pin de requête d'arrêt du brouillard
 
 === Arrosage (Flood)
 
- - (`bit`) halui.flood.on - pin de requête d'arrosage
- - (`bit`) halui.flood.is-on - indique si l'arrosage est actif
- - (`bit`) halui.flood.off - pin de requête d'arrêt d'arrosage
+ - (bit) halui.flood.on - pin de requête d'arrosage
+ - (bit) halui.flood.is-on - indique si l'arrosage est actif
+ - (bit) halui.flood.off - pin de requête d'arrêt d'arrosage
 
 === Lubrifiant (Lube)
 
- - (`bit`) halui.lube.on - pin de requête de graissage
- - (`bit`) halui.lube.is-on - indique si le graissage est actif
- - (`bit`) halui.lube.off - pin de requête d'arrêt du graissage
+ - (bit) halui.lube.on - pin de requête de graissage
+ - (bit) halui.lube.is-on - indique si le graissage est actif
+ - (bit) halui.lube.off - pin de requête d'arrêt du graissage
 
 === Jog
 
 <n> est un nombre compris entre 0 et 7, ou <selected>.
 
  - (float) halui.jog.speed - positionne la vitesse de jog
- -  (float ) halui.jog-deadband - bande morte pour le jogging analogique
-   (les
-   petites vitesses de jog sont sans effet)
- - (`bit`) halui.jog.<n>.minus - jog en direction négative
- - (`bit`) halui.jog.<n>.plus - jog en direction positive
- -  (bit ) halui.jog.<n>.analog - entrée analogique de vitesse de jog
-   (utilisé
-   avec les joysticks ou autres matériels analogiques)
- -  (bit ) halui.jog.<selected>.minus (in) - jog l'axe «selected» en
-   direction
-   négative et à la vitesse de halui.jog.speed velocity
- -  (bit ) halui.jog.<selected>.plus (in) - jog l'axe «selected» en
-   direction
-   positive et à la vitesse de halui.jog.speed velocity
+ - (float) halui.jog-deadband - bande morte pour le jogging analogique
+   (les petites vitesses de jog sont sans effet)
+ - (bit) halui.jog.<n>.minus - jog en direction négative
+ - (bit) halui.jog.<n>.plus - jog en direction positive
+ - (bit) halui.jog.<n>.analog - entrée analogique de vitesse de jog
+   (utilisé avec les joysticks ou autres matériels analogiques)
+ - (bit) halui.jog.<selected>.minus (in) - jog l'axe <selected> en
+   direction négative et à la vitesse de halui.jog.speed velocity
+ - (bit) halui.jog.<selected>.plus (in) - jog l'axe <selected> en
+   direction positive et à la vitesse de halui.jog.speed velocity
 
 === Joints 
 
-<n> est un nombre compris entre 0 et 7, ou 'selected'.
+<n> est un nombre compris entre 0 et 7, ou <selected>.
 
- -  (`bit` ) halui.joint.<n>.home (out) - pin pour la prise d'origine d'un
-   joint
-   spécifique 
- -  (`bit` ) halui.joint.<n>.on-soft-min-limit - pin de status indiquant
-   que le
-   joint est sur sa limite logicielle négative
- -  (`bit` ) halui.joint.<n>.on-soft-max-limit - pin de status indiquant
-   que le
-   joint est sur sa limite logicielle positive
- -  (`bit` ) halui.joint.<n>.on-hard-min-limit - pin de status indiquant
-   que le
-   joint est sur son fin de course de limite négative
- -  (`bit` ) halui.joint.<n>.on-hard-max-limit - pin de status indiquant
-   que le
-   joint est sur son fin de course de limite positive
- -  (`bit` ) halui.joint.<n>.has-fault (out) - pin de status indiquant que
-   le
-   joint est en défaut
- - (`bit` ) halui.joint.<n>.is-homed (out) - pin de status indiquant que le
+ - (bit) halui.joint.<n>.home (out) - pin pour la prise d'origine d'un
+   joint spécifique 
+ - (bit) halui.joint.<n>.on-soft-min-limit - pin de status indiquant
+   que le joint est sur sa limite logicielle négative
+ - (bit) halui.joint.<n>.on-soft-max-limit - pin de status indiquant
+   que le joint est sur sa limite logicielle positive
+ - (bit) halui.joint.<n>.on-hard-min-limit - pin de status indiquant
+   que le joint est sur son fin de course de limite négative
+ - (bit) halui.joint.<n>.on-hard-max-limit - pin de status indiquant
+   que le joint est sur son fin de course de limite positive
+ - (bit) halui.joint.<n>.has-fault (out) - pin de status indiquant que
+   le joint est en défaut
+ - (bit) halui.joint.<n>.is-homed (out) - pin de status indiquant que le
    joint est référencé
- -  (`bit` ) halui.joint.<n>.is-selected bit (out) - pin indiquant que le
-   joint
-   est «selected» - interne à halui
- -  (`bit`) halui.joint.<n>.select (in) - select joint (0..7) - interne à
+ - (bit) halui.joint.<n>.is-selected bit (out) - pin indiquant que le
+   joint est <selected> - interne à halui
+ - (bit) halui.joint.<n>.select (in) - select joint (0..7) - interne à
    halui
- -  (`u32`) halui.joint.selected (out) - selected joint (0..7) - interne à
+ - (u32) halui.joint.selected (out) - selected joint (0..7) - interne à
    halui
- -  (`bit` ) halui.joint.selected.has-fault (out) - pin de status
-   indiquant que
-   le joint <n> est en défaut
- - (`bit` ) halui.joint.selected.home (in) - pin pour la prise d'origine du
-   joint «selected» 
- -  (`bit` ) halui.joint.selected.is-homed (out) - pin de status indiquant
-   que le
-   joint «selected» est référencé
- -  (`bit` ) halui.joint.selected.on-hard-max-limit (out) - status pin
-   telling
-   that the selected joint is on the positive hardware limit
- - (`bit` ) halui.joint.selected.on-hard-min-limit (out) - pin de status
-   indiquant que le joint «selected» est sur son fin de course de limite
+ - (bit) halui.joint.selected.has-fault (out) - pin de status
+   indiquant que le joint <n> est en défaut
+ - (bit) halui.joint.selected.home (in) - pin pour la prise d'origine du
+   joint <selected> 
+ - (bit) halui.joint.selected.is-homed (out) - pin de status indiquant
+   que le joint <selected> est référencé
+ - (bit) halui.joint.selected.on-hard-max-limit (out) - pin de status
+   indiquant que le joint <selected> est sur son fin de course de limite
+   positive
+ - (bit) halui.joint.selected.on-hard-min-limit (out) - pin de status
+   indiquant que le joint <selected> est sur son fin de course de limite
    négative
- - (`bit` ) halui.joint.selected.on-soft-max-limit (out) - pin de status
-   indiquant que le joint «selected» est sur sa limite logicielle positive
- - (`bit` ) halui.joint.selected.on-soft-min-limit (out) - pin de status
-   indiquant que le joint «selected» est sur sa limite logicielle négative
+ - (bit) halui.joint.selected.on-soft-max-limit (out) - pin de status
+   indiquant que le joint <selected> est sur sa limite logicielle positive
+ - (bit) halui.joint.selected.on-soft-min-limit (out) - pin de status
+   indiquant que le joint <selected> est sur sa limite logicielle négative
 
 === Marche machine
 
- - (`bit`) halui.machine.on - pin de requête de marche machine
- - (`bit`) halui.machine.off - pin de requête d'arrêt machine
- - (`bit`) halui.machine.is-on - indique que la machine est en marche
+ - (bit) halui.machine.on - pin de requête de marche machine
+ - (bit) halui.machine.off - pin de requête d'arrêt machine
+ - (bit) halui.machine.is-on - indique que la machine est en marche
 
 === Vitesse maximum
 
 La vitesse linéaire maximum peut être ajustée entre 0 et la valeur de
 la variable MAX_VELOCITY dans la section [TRAJ] du fichier ini.
 
- -  (`bit` ) halui.max-velocity.count-enable (in) - Si TRUE, la vitesse
-   max est
-   modifiée quand le comptage change
- - (s32 ) halui.max-velocity.counts (in) - vous permet, en agissant sur un
+ - (bit) halui.max-velocity.count-enable (in) - Si TRUE, la vitesse
+   max est modifiée quand le comptage change
+ - (s32) halui.max-velocity.counts (in) - vous permet, en agissant sur un
    codeur, de modifier la vitesse max
- -  (`bit`) halui.max-velocity.decrease (in) - pin pour diminuer la
+ - (bit) halui.max-velocity.decrease (in) - pin pour diminuer la
    vitesse max
- -  (`bit`) halui.max-velocity.increase (in) - pin pour augmenter la
+ - (bit) halui.max-velocity.increase (in) - pin pour augmenter la
    vitesse max
- -  (float ) halui.max-velocity.scale (in) - Valeur appliquée sur le
-   nombre de
-   fronts montants des pins increase ou decrease en unités machine par
-   seconde.
- - (float ) halui.max-velocity.value (out) - Valeur de la vitesse linéaire
-   maximum en unités machine par seconde.
+ - (float) halui.max-velocity.scale (in) - Valeur appliquée sur le
+   nombre de fronts montants des pins increase ou decrease en 
+   unités machine par seconde.
+ - (float) halui.max-velocity.value (out) - Valeur de la vitesse 
+   linéaire maximum en unités machine par seconde.
 
 === Données manuelles (MDI) [[sub:MDI]]
 
@@ -186,14 +167,14 @@ devant être effectuées par l'activation d'une pin de HAL. C'est
 possible en utilisant le schéma de commande en données manuelles (MDI)
 suivant:
 
- -  Une MDI_COMMAND est ajoutée dans la section [HALUI] du fichier ini,
+ - Une MDI_COMMAND est ajoutée dans la section [HALUI] du fichier ini,
    par exemple [HALUI] MDI_COMMAND = G0 X0
- -  Quand halui démarre il va lire/détecter le champ MDI_COMMAND dans le
-   fichier ini et exporter les pins de type (`bit` )
+ - Quand halui démarre il va lire/détecter le champ MDI_COMMAND dans le
+   fichier ini et exporter les pins de type (bit)
    halui.mdi-command-<nr>, <nr> est un nombre compris entre 00 et le
    nombre de MDI_COMMAND trouvées dans le fichier ini, avec un maximum de
    64 commandes.
- -  Quand la pin halui.mdi-command-<nr> est activée, halui va essayer
+ - Quand la pin halui.mdi-command-<nr> est activée, halui va essayer
    d'envoyer au MDI la commande définie dans le fichier ini. Ca ne
    fonctionnera pas dans tous les modes de fonctionnement où se trouve
    emc2, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
@@ -201,99 +182,92 @@ suivant:
 
 === Mode de fonctionnement
 
- - (`bit`) halui.mode.manual (in) - pin de requête du mode manuel
- - (`bit`) halui.mode.is_manual (out) - indique si le mode manuel est actif
- - (`bit`) halui.mode.auto (in) - pin de requête du mode auto
- - (`bit`) halui.mode.is_auto (out)- indique si le mode auto est actif
- - (`bit`) halui.mode.mdi (in) - pin de requête du mode données manuelles
- -  (`bit` ) halui.mode.is_mdi (out) - indique si le mode données
-   manuelles est
-   actif
- -  (`bit`) halui.mode.joint (in) - pin de requête du mode jog joint par
+ - (bit) halui.mode.manual (in) - pin de requête du mode manuel
+ - (bit) halui.mode.is_manual (out) - indique si le mode manuel est actif
+ - (bit) halui.mode.auto (in) - pin de requête du mode auto
+ - (bit) halui.mode.is_auto (out)- indique si le mode auto est actif
+ - (bit) halui.mode.mdi (in) - pin de requête du mode données manuelles
+ - (bit) halui.mode.is_mdi (out) - indique si le mode données
+   manuelles est actif
+ - (bit) halui.mode.joint (in) - pin de requête du mode jog joint par
    joint
- -  (`bit` ) halui.mode.is-joint (out) - pin indiquant si le mode joint
-   par joint
-   est actif
- -  (`bit` ) halui.mode.is-teleop (out) - pin indiquant que le mode jog
-   coordonné
-   est actif
+ - (bit) halui.mode.is-joint (out) - pin indiquant si le mode joint
+   par joint est actif
+ - (bit) halui.mode.is-teleop (out) - pin indiquant que le mode jog
+   coordonné est actif
 
 === Broche (Spindle)
 
- - (`bit`) halui.spindle.start (in) - Marche de la broche
- - (`bit`) halui.spindle.is-on (out) -
- - (`bit`) halui.spindle.stop (in) - Arrêt de la broche
- - (`bit`) halui.spindle.forward (in) - Marche broche en sens horaire
- - (`bit`) halui.spindle.runs-forward (out) -
- - (`bit`) halui.spindle.reverse (in) - Marche broche en sens anti-horaire
- - (`bit`) halui.spindle.runs-backward (out) -
- - (`bit`) halui.spindle.increase (in) - Augmente la vitesse de broche
- - (`bit`) halui.spindle.decrease (in) - Diminue la vitesse de broche
- -  (`bit`) halui.spindle.brake-on (in) - pin d'activation du frein de
+ - (bit) halui.spindle.start (in) - Marche de la broche
+ - (bit) halui.spindle.is-on (out) -
+ - (bit) halui.spindle.stop (in) - Arrêt de la broche
+ - (bit) halui.spindle.forward (in) - Marche broche en sens horaire
+ - (bit) halui.spindle.runs-forward (out) -
+ - (bit) halui.spindle.reverse (in) - Marche broche en sens anti-horaire
+ - (bit) halui.spindle.runs-backward (out) -
+ - (bit) halui.spindle.increase (in) - Augmente la vitesse de broche
+ - (bit) halui.spindle.decrease (in) - Diminue la vitesse de broche
+ - (bit) halui.spindle.brake-on (in) - pin d'activation du frein de
    broche
- - (`bit`) halui.spindle.brake-is-on (out) - indique si le frein est actif
- -  (`bit`) halui.spindle.brake-off (in) - pin de désactivation du frein
+ - (bit) halui.spindle.brake-is-on (out) - indique si le frein est actif
+ - (bit) halui.spindle.brake-off (in) - pin de désactivation du frein
    de broche
 
 === Sélection d'un joint
 
  - (u32) halui.joint.select - sélectionne le joint (0..7) - internal halui
  - (u32) halui.joint.selected - joint (0..7) sélectionné - internal halui
- -  (bit ) halui.joint.x.select bit - pins pour sélectinner un joint -
-   internal
-   halui
- - (bit ) halui.joint.x.is-selected bit - pin de status indiquant un joint
+ - (bit) halui.joint.x.select bit - pins pour sélectinner un joint -
+   internal halui
+ - (bit) halui.joint.x.is-selected bit - pin de status indiquant un joint
    sélectionné - internal halui
 
 === Correcteur de vitesse de broche (Spindle override)
 
- - (float ) halui.spindle-override.value (out) - Valeur courante de la
+ - (float) halui.spindle-override.value (out) - Valeur courante de la
    correction de vitesse de broche
- -  (float ) halui.spindle-override.scale (in) - pin pour positionner
+ - (float) halui.spindle-override.scale (in) - pin pour positionner
    l'échelle
    des corrections de vitesse de broche possibles
- -  (s32 ) halui.spindle-override.counts (in) - comptage depuis un codeur,
-   par
-   exemple pour modifier la correction de vitesse de broche
- - (bit ) halui.spindle-override.increase (in) - pin pour augmenter la
+ - (s32) halui.spindle-override.counts (in) - comptage depuis un codeur,
+   par exemple pour modifier la correction de vitesse de broche
+ - (bit) halui.spindle-override.increase (in) - pin pour augmenter la
    correction de vitesse de broche (+=scale)
- - (bit ) halui.spindle-override.decrease (in) - pin pour diminuer la
+ - (bit) halui.spindle-override.decrease (in) - pin pour diminuer la
    correction de vitesse de broche (-=scale)
- -  (bit ) halui.spindle-override.count-enable (in) - Si TRUE, la
-   correction de
-   vitesse broche varie quand le comptage change.
+ - (bit) halui.spindle-override.count-enable (in) - Si TRUE, la
+   correction de vitesse broche varie quand le comptage change.
 
 === Outil (Tool)
 
  - (u32) halui.tool.number (out) - indique l'outil courant sélectionné
- -  (float ) halui.tool.length-offset (out) - indique la correction de
-   longueur
-   d'outil appliquée
+ - (float) halui.tool.length-offset (out) - indique la correction de
+   longueur d'outil appliquée
 
 === Programme
 
- - (`bit` ) halui.program.is-idle (out) - pin de status indiquant qu'aucun
+ - (bit) halui.program.is-idle (out) - pin de status indiquant qu'aucun
    programme n'est lancé
- - (`bit` ) halui.program.is-running (out) - pin de status indiquant qu'un
+ - (bit) halui.program.is-running (out) - pin de status indiquant qu'un
    programme est lancé
- - (`bit` ) halui.program.is-paused (out) - pin de status indiquant qu'un
+ - (bit) halui.program.is-paused (out) - pin de status indiquant qu'un
    programme est en pause
- - (`bit`) halui.program.run (in) - pin de lancement d'un programme
- - (`bit`) halui.program.pause (in) - pin pour passer un programme en pause
- -  (`bit`) halui.program.resume (in) - pin pour lancer la reprise d'un
+ - (bit) halui.program.run (in) - pin de lancement d'un programme
+ - (bit) halui.program.pause (in) - pin pour passer un programme en pause
+ - (bit) halui.program.resume (in) - pin pour lancer la reprise d'un
    programme
- -  (`bit`) halui.program.step (in) - pin pour avancer d'une ligne de
+ - (bit) halui.program.step (in) - pin pour avancer d'une ligne de
    programme
- - (`bit`) halui.program.block-delete.is-on (out) -
- - (`bit`) halui.program.block-delete.off (in) -
- - (`bit`) halui.program.block-delete.on (in) -
- - (`bit`) halui.program.optional-stop.is-on (out) -
- - (`bit`) halui.program.optional-stop.off (in) -
- - (`bit`) halui.program.optional-stop.on (in) -
- - (`bit`) halui.program.stop (in) - pin pour stopper un programme
+ - (bit) halui.program.block-delete.is-on (out) -
+ - (bit) halui.program.block-delete.off (in) -
+ - (bit) halui.program.block-delete.on (in) -
+ - (bit) halui.program.optional-stop.is-on (out) -
+ - (bit) halui.program.optional-stop.off (in) -
+ - (bit) halui.program.optional-stop.on (in) -
+ - (bit) halui.program.stop (in) - pin pour stopper un programme
 
 === Général
 
- - (bit ) halui.abort - pin pour envoyer un message d'abandon (efface les
+ - (bit) halui.abort - pin pour envoyer un message d'abandon (efface les
    autres messages d'erreur)
 

@@ -1,4 +1,4 @@
-=  'comp': un outil pour créer les modules HAL
+= 'comp': un outil pour créer les modules HAL
 
 == Introduction
 
@@ -16,11 +16,11 @@ Par exemple, cette portion des blocks «ddt» fait environ 80 lignes de
 code. Le composant équivalent est vraiment très court quand il est
 écrit en utilisant le préprocesseur 'comp':
 
-    component ddt "Calcule la dérivée de la fonction d'entrée";
+    component ddt «Calcule la dérivée de la fonction d'entrée»;
 
 et il peut être compilé et installé très facilement en plaçant
 simplement `ddt.comp` dans `«src/hal/components»` puis en lançant
-`«make`», ou en le plaçant quelque part sur le système et en lançant
+`«make»`, ou en le plaçant quelque part sur le système et en lançant
 `«comp --install ddt.comp»`
 
 == Définitions
@@ -140,9 +140,9 @@ MAXSIZE : CONDSIZE::
 
 DOC::
      Une chaine qui documente l'item. La chaine doit être au format C,
-    «entre guillemets», comme `"Sélectionnez le front désiré: TRUE pour
-    descendant, FALSE pour montant"`  ou au format Python «triples
-    guillemets», pouvant inclure des
+    «entre guillemets», comme `«Sélectionnez le front désiré: TRUE pour
+    descendant, FALSE pour montant»` ou au format Python «triples
+    guillemets», pouvant inclure des 
     caractères newlines et des guillements, comme:
         param rw bit zot=TRUE
     
@@ -381,7 +381,7 @@ Si un composant a seulement une fonction et que la chaine «FUNCTION»
 n'apparaît nulle part après `;;`, alors la portion après `;;` est
 considérée comme étant le corps d'un composant simple fonction.
 
-==  «Personnalité» du composant
+== «Personnalité» du composant
 
 Si un composant a n'importe combien de pins ou de paramètres avec un
 «if 'condition'» ou «['maxsize : condsize']», il est appelé un
@@ -487,8 +487,8 @@ cette région en
 cas d'erreur ou quand le module est déchargé.
 
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component out8;
 pin out unsigned out_ "Output value; only low 8 bits are used";
 param r unsigned ioaddr;
@@ -534,7 +534,7 @@ EXTRA_CLEANUP() {
 
 FUNCTION(_) { outb(out_, ioaddr); }
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 === hal_loop
 
@@ -563,8 +563,8 @@ Ce composant de l'espace utilisateur modifie la valeur de ses pins de
 sortie vers une nouvelle valeur aléatoire dans l'étendue
 latexmath:[[0,1)] à chaque ms.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component rand;
 option userspace;
 
@@ -580,15 +580,15 @@ void user_mainloop(void) {
     }
 }
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 ==== logic
 
 Ce composant temps réel montre l'utilisation de la «personnalité» pour
 créer un tableau de taille variable et des pins optionnelles.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component logic "EMC2 HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
@@ -620,7 +620,7 @@ FUNCTION(_) {
     if(personality & 0x400) xor = x;
 }
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 Une ligne de chargement typique pourrait être:
 
@@ -634,4 +634,5 @@ qui créerait les pins suivantes:
    logic.1.in-04, 
  -  des portes AND et XOR à 3 entrées: logic.2.and, logic.2.xor,
    logic.2.in-00, logic.2.in-01, logic.2.in-02
+
 

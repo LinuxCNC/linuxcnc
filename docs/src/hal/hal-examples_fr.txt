@@ -7,7 +7,7 @@ et de “servo-thread”.
 
 == Calculer la vitesse
 
-Cet exemple utilise "ddt" pour calculer la vitesse d'un axe.
+Cet exemple utilise `ddt` pour calculer la vitesse d'un axe.
 
     *loadrt ddt count=1 
     loadrt hypot count =1*

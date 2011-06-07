@@ -4,23 +4,23 @@ All of these examples assume you are starting with a stepconf based
 configuration and have two threads base-thread and servo-thread. The
 stepconf wizard will create an empty custom.hal and a
 custom_postgui.hal file. The custom.hal file will be loaded after the
-configuration hal file and the custom_postgui.hal file is loaded after
+configuration HAL file and the custom_postgui.hal file is loaded after
 the GUI has been loaded.
 
 == Manual Toolchange
 
-In this example it is assumed that your "rolling your own"
+In this example it is assumed that you're "rolling your own"
 configuration and wish to add the HAL Manual Toolchange window. The HAL
 Manual Toolchange is primarily useful if you have presettable tools and
 you store the offsets in the tool table. If you need to touch off for
 each tool change then it is best just to split up your g code. To use
-the HAL Manual Toolchange window you basically have to load the hal
-manualtoolchange component then send the iocontrol "tool change" to the
-hal manualtoolchange "change" and send the hal manualtoolchange
+the HAL Manual Toolchange window you basically have to load the 
+hal_manualtoolchange component then send the iocontrol "tool change" to 
+the hal_manualtoolchange "change" and send the hal_manualtoolchange 
 "changed" back to the iocontrol "tool changed".
 
-This is an example of *with* the HAL Manual Toolchange from the
-stepconf wizard
+This is an example of manual toolchange *with* 
+the HAL Manual Toolchange component: 
 
     loadusr -W hal_manualtoolchange 
     net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
@@ -28,8 +28,8 @@ stepconf wizard
     net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number 
     net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
-This is an example of *without* the HAL Manual Toolchange from the
-stepconf wizard
+This is an example of manual toolchange *without* 
+the HAL Manual Toolchange component: 
 
     net tool-number <= iocontrol.0.tool-prep-number
     net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed
@@ -39,8 +39,7 @@ stepconf wizard
 
 This example uses "ddt", "mult2" and "abs" to compute the velocity of
 a single axis. For more information on the real time components see the
-man pages or the Realtime Components section (
-<<sec:Realtime-Components>>).
+man pages or the Realtime Components section (<<sec:Realtime-Components>>).
 
 The first thing is to check your configuration to make sure you are
 not using any of the real time components all ready. You can do this by
@@ -52,7 +51,7 @@ correct value. Add the following to your custom.hal file.
 Load the realtime components.
 
     loadrt ddt count=1 
-    loadrt mult2 count =1 
+    loadrt mult2 count=1 
     loadrt abs count=1
 
 Add the functions to a thread so it will get updated.
@@ -72,10 +71,10 @@ Make the connections.
 In this last section we are setting the mult2.0.in1 to 60 to convert
 the inch per second to inch per minute that we get from the ddt.0.out.
 
-The xpos-cmd sends the comanded position to the ddt.0.in. The ddt
+The xpos-cmd sends the commanded position to the ddt.0.in. The ddt
 computes the derivative of the change of the input.
 
-The ddt2.0.out is multiplyed by 60 to give IPM.
+The ddt2.0.out is multiplied by 60 to give IPM.
 
 The mult2.0.out is sent to the abs to get the absolute value.
 
@@ -93,11 +92,11 @@ This example shows how the HAL components "lowpass", "limit2" or
 "limit3" can be used to limit how fast a signal changes.
 
 In this example we have a servo motor driving a lathe spindle. If we
-just used the commanded spindle speeds on the servo it will try and go
+just used the commanded spindle speeds on the servo it will try to go
 from present speed to commanded speed as fast as it can. This could
 cause a problem or damage the drive. To slow the rate of change we can
 send the motion.spindle-speed-out through a limiter before the PID, so
-that the PID command value varies slowly.
+that the PID command value changes to new settings more slowly.
 
 Three built-in components that limit a signal are:
 
@@ -115,7 +114,7 @@ To find more information on these HAL components check the man pages.
 Place the following in a text file called softstart.hal. If you're not
 familiar with Linux place the file in your home directory.
 
-    ############################## 
+-------------------------------------------------
     loadrt threads period1=1000000 name1=thread  
     loadrt siggen  
     loadrt lowpass  
@@ -136,7 +135,7 @@ familiar with Linux place the file in your home directory.
     addf limit3.0 thread  
     start  
     loadusr halscope 
-    ##############################
+-------------------------------------------------
 
 Open a terminal window and run the file with the following command.
 
@@ -176,5 +175,6 @@ halrun and close the halscope. Don't close the terminal window with
 halrun running as it might leave some things in memory that could
 prevent EMC from loading.
 
-For more information on HalScope see the HAL manual.
+For more information on Halscope see the HAL manual.
+
 

@@ -1,6 +1,6 @@
-= Hal User Interface [[cha:Hal-User-Interface]]
+= HAL User Interface [[cha:Hal-User-Interface]]
 
-==  [[sec:HaluiIntroduction]]Introduction
+== [[sec:HaluiIntroduction]]Introduction
 
 Halui is a HAL based user interface for EMC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
@@ -20,20 +20,19 @@ file. Make sure you use the actual path to your ini file.
 
 in your custom.hal file.
 
-==  [[sec:Halui-pin-reference]]Halui pin reference
+== [[sec:Halui-pin-reference]]Halui pin reference
 
 === Abort
 
- -  halui.abort (bit, in) - pin to send an abort message (clears out most
-   errors)
+ - halui.abort (bit, in) - pin to send an abort message (clears out most errors)
 
 === Axis
 
- -  halui.axis.n.pos-commanded (float, out) - Commanded axis position in
+ - halui.axis.n.pos-commanded (float, out) - Commanded axis position in
    machine coordinates
- -  halui.axis.n.pos-feedback (float, out) - Feedback axis position in
+ - halui.axis.n.pos-feedback (float, out) - Feedback axis position in
    machine coordinates
- -  halui.axis.n.pos-relative (float, out) - Commanded axis position in
+ - halui.axis.n.pos-relative (float, out) - Commanded axis position in
    relative coordinates
 
 === E-Stop
@@ -42,19 +41,18 @@ in your custom.hal file.
  - halui.estop.is-activated (bit, out)- indicates E-stop reset
  - halui.estop.reset (bit, in) - pin for requesting E-Stop reset
 
-=== Feed Override
+=== Feed Override (FO)
 
- -  halui.feed-override.count-enable (bit, in) - must be true for counts
-   to work.
+ - halui.feed-override.count-enable (bit, in) - must be true for counts to work.
  - halui.feed-override.counts (s32, in) - counts * scale = FO percentage
- -  halui.feed-override.decrease (bit, in) - pin for decreasing the FO
-   (-=scale)
- -  halui.feed-override.direct-value (bit, in) - false when using encoder
-   to change counts, true when setting counts directly. The `count-enable`
-   pin must be true.
- -  halui.feed-override.increase (bit, in) - pin for increasing the FO
-   (+=scale)
- -  halui.feed-override.scale (float, in) - pin for setting the scale for
+ - halui.feed-override.decrease (bit, in) - pin for decreasing the FO (-=scale)
+ - halui.feed-override.increase (bit, in) - pin for increasing the FO (+=scale)
+ - halui.feed-override.direct-value (bit, in) - false when using encoder
+   to change counts, true when setting counts directly. +
+   The `count-enable` pin must be true. footnote:[This function had been released, 
+   but is currently withdrawn for further development. It may or may not be 
+   present in your version of EMC2. Consider this a *FIXME*/TODO.] 
+ - halui.feed-override.scale (float, in) - pin for setting the scale for 
    increase and decrease
  - halui.feed-override.value (float, out) - current FO value
 
@@ -66,66 +64,64 @@ in your custom.hal file.
 
 === Homing
 
- -  halui.home-all (bit, in) - pin for requesting all axis to home. This
-   pin will only be there is HOME_SEQUENCE is set in the ini file.
- - 
+ - halui.home-all (bit, in) - pin for requesting all axis to home. This
+   pin will only be there if HOME_SEQUENCE is set in the ini file.
 
 === Jog
 
 <n> is a number between 0 and 8 and 'selected'.
 
- -  halui.jog-deadband (float, in) - deadband for analog jogging (smaller
+ - halui.jog-deadband (float, in) - deadband for analog jogging (smaller
    jogging speed requests are not performed)
- -  halui.jog-speed (float, in) - pin for setting jog speed for minus/plus
+ - halui.jog-speed (float, in) - pin for setting jog speed for minus/plus
    jogging
- -  halui.jog.<n>.analog (float, in) - analog velocity input for jogging
-   (usefull with joysticks or other analog devices)
- -  halui.jog.<n>.minus (bit, in)- pin for jogging axis <n> in negative
+ - halui.jog.<n>.analog (float, in) - analog velocity input for jogging
+   (useful with joysticks or other analog devices)
+ - halui.jog.<n>.minus (bit, in)- pin for jogging axis <n> in negative
    direction at the halui.jog.speed velocity
- -  halui.jog.<n>.plus (bit, in) - pin for jogging axis <n> in positive
+ - halui.jog.<n>.plus (bit, in) - pin for jogging axis <n> in positive
    direction at the halui.jog.speed velocity
- -  halui.jog.selected.minus (bit, in) - pin for jogging the selected axis
+ - halui.jog.selected.minus (bit, in) - pin for jogging the selected axis
    in negative direction at the halui.jog.speed velocity
- -  halui.jog.selected.plus (bit, in) - pin for jogging the selected axis
+ - halui.jog.selected.plus (bit, in) - pin for jogging the selected axis
    in positive direction at the halui.jog.speed velocity
 
 === Joint
 
 <n> is a number between 0 and 8 and 'selected'.
 
- -  halui.joint.<n>.has-fault (bit, out) - status pin telling the joint
+ - halui.joint.<n>.has-fault (bit, out) - status pin telling the joint
    has a fault
  - halui.joint.<n>.home (bit, in) - pin for homing the specific joint 
- -  halui.joint.<n>.is-homed (bit, out) - status pin telling that the
+ - halui.joint.<n>.is-homed (bit, out) - status pin telling that the
    joint is homed
- -  halui.joint.<n>.is-selected bit (bit, out) - status pin a joint is
+ - halui.joint.<n>.is-selected bit (bit, out) - status pin a joint is
    selected - internal halui
- -  halui.joint.<n>.on-hard-max-limit (bit, out) - status pin telling
+ - halui.joint.<n>.on-hard-max-limit (bit, out) - status pin telling
    joint <n> is on the positive hardware limit switch
- -  halui.joint.<n>.on-hard-min-limit (bit, out) - status pin telling
+ - halui.joint.<n>.on-hard-min-limit (bit, out) - status pin telling
    joint <n> is on the negative hardware limit switch
- -  halui.joint.<n>.on-soft-max-limit (bit, out) - status pin telling
+ - halui.joint.<n>.on-soft-max-limit (bit, out) - status pin telling
    joint <n> is at the positive software limit
- -  halui.joint.<n>.on-soft-min-limit (bit, out) - status pin telling
+ - halui.joint.<n>.on-soft-min-limit (bit, out) - status pin telling
    joint <n> is at the negative software limit
  - halui.joint.<n>.select (bit, in) - select joint (0..7) - internal halui
  - halui.joint.<n>.unhome (bit, in) - unhomes this joint
  - halui.joint.selected (u32, out) - selected joint (0..7) - internal halui
- -  halui.joint.selected.has-fault (bit, out) - status pin telling that
+ - halui.joint.selected.has-fault (bit, out) - status pin telling that
    the joint <n> has a fault
  - halui.joint.selected.home (bit, in) - pin for homing the selected joint 
- -  halui.joint.selected.is-homed (bit, out) - status pin telling that the
+ - halui.joint.selected.is-homed (bit, out) - status pin telling that the
    selected joint is homed
- -  halui.joint.selected.on-hard-max-limit (bit, out) - status pin telling
+ - halui.joint.selected.on-hard-max-limit (bit, out) - status pin telling
    that the selected joint is on the positive hardware limit
- -  halui.joint.selected.on-hard-min-limit (bit, out) - status pin telling
+ - halui.joint.selected.on-hard-min-limit (bit, out) - status pin telling
    that the selected joint is on the negative hardware limit
- -  halui.joint.selected.on-soft-max-limit (bit, out) - status pin telling
+ - halui.joint.selected.on-soft-max-limit (bit, out) - status pin telling
    that the selected joint is on the positive software limit
- -  halui.joint.selected.on-soft-min-limit (bit, out) - status pin telling
+ - halui.joint.selected.on-soft-min-limit (bit, out) - status pin telling
    that the selected joint is on the negative software limit
- -  halui.joint.selected.unhome (bit, in) - pin for unhoming the selected
-   joint
+ - halui.joint.selected.unhome (bit, in) - pin for unhoming the selected joint. 
 
 === Lube
 
@@ -144,19 +140,19 @@ in your custom.hal file.
 The maximum linear velocity can be adjusted from 0 to the MAX_VELOCITY
 that is set in the [TRAJ] section of the ini file.
 
- -  halui.max-velocity.count-enable (bit, in) - when TRUE, modify max
+ - halui.max-velocity.count-enable (bit, in) - when TRUE, modify max
    velocity when counts changes
- -  halui.max-velocity.counts (s32, in) - lets you hook up an encoder to
+ - halui.max-velocity.counts (s32, in) - lets you hook up an encoder to
    change the max velocity
  - halui.max-velocity.decrease (bit, in) - pin for decreasing max velocity
  - halui.max-velocity.increase (bit, in) - pin for increasing max velocity
- -  halui.max-velocity.scale (float, in) - the amount applied to the
+ - halui.max-velocity.scale (float, in) - the amount applied to the
    current maximum velocity with each transition from off to on of the
    increase or decrease pin in machine units per second.
- -  halui.max-velocity.value (float, out) - is the maximum linear velocity
+ - halui.max-velocity.value (float, out) - is the maximum linear velocity
    in machine units per second.
 
-=== MDI [[sub:MDI]]
+=== MDI[[MDI]](((MDI)))
 
 Sometimes the user wants to add more complicated tasks to be performed
 by the activation of a HAL pin. This is possible using the following
@@ -167,10 +163,10 @@ MDI commands scheme:
     [HALUI] 
     MDI_COMMAND = G0 X0
 
- -  When halui starts it will read the MDI_COMMAND fields in the ini, and
+ - When halui starts it will read the MDI_COMMAND fields in the ini, and
    export pins from 00 to the number of MDI_COMMAND's found in the ini up
    to a maximum of 64 commands.
- -  halui.mdi-command-<nn> (bit, in) - halui will try to send the MDI
+ - halui.mdi-command-<nn> (bit, in) - halui will try to send the MDI
    command defined in the ini. This will not always succeed, depending on
    the operating mode emc2 is in (e.g. while in AUTO halui can't
    successfully send MDI commands). If the command succeeds then it will
@@ -186,7 +182,7 @@ MDI commands scheme:
 
  - halui.mode.auto (bit, in) - pin for requesting auto mode
  - halui.mode.is-auto (bit, out) - indicates auto mode is on
- -  halui.mode.is-joint (bit, out) - pin showing joint by joint jog mode
+ - halui.mode.is-joint (bit, out) - pin showing joint by joint jog mode
    is on
  - halui.mode.manual (bit, in) - pin for requesting manual mode
  - halui.mode.is-manual (bit, out) - indicates manual mode is on
@@ -201,11 +197,11 @@ MDI commands scheme:
  - halui.program.block-delete.is-on (bit, out) -
  - halui.program.block-delete.off (bit, in) -
  - halui.program.block-delete.on (bit, in) -
- -  halui.program.is-idle (bit, out) - status pin telling that no program
+ - halui.program.is-idle (bit, out) - status pin telling that no program
    is running
- -  halui.program.is-paused (bit, out) - status pin telling that a program
+ - halui.program.is-paused (bit, out) - status pin telling that a program
    is paused
- -  halui.program.is-running (bit, out) - status pin telling that a
+ - halui.program.is-running (bit, out) - status pin telling that a
    program is running
  - halui.program.optional-stop.is-on (bit, out) -
  - halui.program.optional-stop.off (bit, in) -
@@ -216,21 +212,19 @@ MDI commands scheme:
  - halui.program.step (bit, in) - pin for stepping in a program
  - halui.program.stop (bit, in) - pin for stopping a program
 
-=== Spindle Override
+=== Spindle Override (SO)
 
- -  halui.spindle-override.count-enable (bit, in) - when TRUE, modify
+ - halui.spindle-override.count-enable (bit, in) - when TRUE, modify
    spindle override when counts changes.
  - halui.spindle-override.counts (s32, in) - counts * scale = SO percentage
- -  halui.spindle-override.decrease (bit, in)- pin for decreasing the SO
-   (-=scale)
- -  halui.spindle-override.direct-value (bit, in) - false when using
+ - halui.spindle-override.decrease (bit, in)- pin for decreasing the SO (-=scale)
+ - halui.spindle-override.direct-value (bit, in) - false when using
    encoder to change counts, true when setting counts directly. The
    `count-enable` pin must be true.
- -  halui.spindle-override.increase (bit, in) - pin for increasing the SO
-   (+=scale)
- -  halui.spindle-override.scale (float, in) - pin for setting the scale
+ - halui.spindle-override.increase (bit, in) - pin for increasing the SO (+=scale)
+ - halui.spindle-override.scale (float, in) - pin for setting the scale 
    on changing the SO
- - halui.spindle-override.value (float, out) - current SO value
+ - halui.spindle-override.value (float, out) - current SO value 
 
 === Spindle
 
@@ -240,16 +234,16 @@ MDI commands scheme:
  - halui.spindle.decrease (bit, in) - decreases spindle speed
  - halui.spindle.forward (bit, in) - starts the spindle with CW motion
  - halui.spindle.increase (bit, in)- increases spindle speed
- - halui.spindle.is-on (bit, out) -
+ - halui.spindle.is-on (bit, out) - indicates spindle is on (either direction)
  - halui.spindle.reverse (bit, in)- starts the spindle with a CCW motion
- - halui.spindle.runs-backward (bit, out) -
- - halui.spindle.runs-forward (bit, out) -
+ - halui.spindle.runs-backward (bit, out) - indicates spindle is on, and in reverse
+ - halui.spindle.runs-forward (bit, out) - indicates spindle is on, and in forward
  - halui.spindle.start (bit, in) - starts the spindle
  - halui.spindle.stop (bit, in) - stops the spindle
 
 === Tool
 
- -  halui.tool.length-offset (float, out) - indicates current applied
-   tool-length-offset
+ - halui.tool.length-offset (float, out) - indicates current applied tool-length-offset
  - halui.tool.number (u32, out) - indicates current selected tool
+
 

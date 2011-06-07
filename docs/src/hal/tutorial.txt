@@ -1,4 +1,4 @@
-=  [[cha:HAL-Tutorial]]HAL Tutorial
+= HAL Tutorial[[cha:HAL-Tutorial]](((HAL Tutorial)))
 
 == Introduction [[sec:Tutorial - Intro]]
 
@@ -13,7 +13,7 @@ tuning. The following examples illustrate its setup and operation.
 Command line examples are presented in *`bold typewriter`* font.
 Responses from the computer will be in `typewriter` font. Text inside
 square brackets `[like-this]` is optional. Text inside angle brackets
-`<like-this>`  represents a field that can take on different values,
+`<like-this>` represents a field that can take on different values,
 and the adjacent paragraph will explain the appropriate values. 
 Text items separated by a vertical bar "|"means that one or the other, 
 but not both, should be present. All command line examples assume that 
@@ -27,15 +27,11 @@ completing file names as a shell does, it completes commands with HAL
 identifiers. You will have to type enough letters for a unique match.
 Try pressing tab after starting a HAL command:
 
-`halcmd:` *`loa<TAB>`*
-
-`halcmd:` *`load`*
-
-`halcmd:` *`loadrt`*
-
-`halcmd:` *`loadrt deb<TAB>`*
-
-`halcmd:` *`loadrt debounce`*
+`halcmd:` *`loa<TAB>`* +
+`halcmd:` *`load`* +
+`halcmd:` *`loadrt`* +
+`halcmd:` *`loadrt deb<TAB>`* +
+`halcmd:` *`loadrt debounce`* +
 
 === The RTAPI environment
 
@@ -66,11 +62,9 @@ In that case, all you need to do is
 load the required RTOS and RTAPI modules into memory. Just run the
 following command from a terminal window:
 
-`~$` *`cd emc2`*
-
-`~/emc2$` *`halrun`*
-
- `halcmd:`
+`~$` *`cd emc2`* +
+`~/emc2$` *`halrun`* +
+`halcmd:`
 
 With the realtime OS and RTAPI loaded, we can move into the first
 example. Notice that the prompt has changed from the shell's "$" to
@@ -79,8 +73,8 @@ HAL commands, not shell commands.
 
 For the first example, we will use a HAL component called `siggen`,
 which is a simple signal generator. A complete description of the
-`siggen`  component can be found in Siggen section of the Integrators
-Manual. 
+`siggen` component can be found in the <<sec:Siggen>> section of 
+this Manual. 
 It is a realtime component, implemented as a Linux kernel module. To
 load `siggen` use the `halcmd loadrt` command:
 
@@ -91,17 +85,17 @@ load `siggen` use the `halcmd loadrt` command:
 Now that the module is loaded, it is time to introduce `halcmd` , the
 command line tool used to configure the HAL. This tutorial will
  introduce some halcmd features, for a more complete description try
-`man halcmd`, or see the `halcmd`  reference in section  <<sec:Halcmd>>
+`man halcmd`, or see the `halcmd` reference in section  <<sec:Halcmd>>
 of this document. The first 
 halcmd feature is the show command. This command displays information
 about the current state of the HAL. To show all installed components:
 
-`halcmd:` *`show comp`*
-
-    Loaded HAL Components:
-    ID      Type  Name                                      PID   State
-         3  RT    siggen                                          ready
-         2  User  halcmd2177                                 2177 ready
+`halcmd:` *`show comp`* +
+ +
+`    Loaded HAL Components:` +
+`    ID     Type  Name          PID   State` +
+`    3      RT    siggen              ready` +
+`    2      User  halcmd2177    2177  ready` +
 
 Since `halcmd`  itself is a HAL component, it will always show up in
 the list. The 
@@ -131,8 +125,7 @@ This command displays all of the pins in the HAL - a complex system
 could have dozens or hundreds of pins. But right now there are only
 eight pins. All eight of these pins are floating point, and carry data
 out of the `siggen`  component. Since we have not yet executed the code
-contained within 
-the component, some the pins have a value of zero.
+contained within the component, some the pins have a value of zero.
 
 The next step is to look at parameters:
 
@@ -176,7 +169,7 @@ should probably be removed from the halcmd listing.]
 To actually run the code contained in the function `siggen.0.update`,
 we need a realtime thread. The component called `threads` that is used
 to create a new thread. Lets create a thread called `test-thread` with
-a period of 1mS (1000000nS):
+a period of 1 ms (1,000 us or 1,000,000 ns):
 
 `halcmd:` *`loadrt threads name1=test-thread period1=1000000`*
 
@@ -184,11 +177,11 @@ Let's see if that worked:
 
 `halcmd:` *`show thread`*
 
-    Realtime Threads:
-         Period  FP     Name               (     Time, Max-Time )
-         999855  YES           test-thread (        0,        0 )
+`    Realtime Threads:`
+`         Period  FP     Name               (     Time, Max-Time )` +
+`         999855  YES           test-thread (        0,        0 )` +
 
-It did. The period is not exactly 1000000nS because of hardware
+It did. The period is not exactly 1,000,000 ns because of hardware
 limitations, but we have a thread that runs at approximately the
 correct rate, and which can handle floating point functions. The next
 step is to connect the function to the thread:
@@ -196,20 +189,20 @@ step is to connect the function to the thread:
 `halcmd:` *`addf siggen.0.update test-thread`*
 
 Up till now, we've been using `halcmd` only to look at the HAL.
-However, this time we used the `addf`  (add function) command to
+However, this time we used the `addf` (add function) command to
 actually change something in the HAL. We
- told `halcmd` to add the function `siggen.0.update` to the thread
+told `halcmd` to add the function `siggen.0.update` to the thread
 `test-thread`, and if we look at the thread list again, we see that it
 succeeded:
 
 `halcmd:` *`show thread`* 
 
-    Realtime Threads:
-         Period  FP     Name               (     Time, Max-Time )
-         999855  YES           test-thread (        0,        0 )
-                    1 siggen.0.update
+`Realtime Threads:` +
+`         Period  FP     Name          (     Time, Max-Time )` +
+`         999855  YES    test-thread   (        0,        0 )` +
+`                    1 siggen.0.update`
 
-There is one more step needed before the `siggen`  component starts
+There is one more step needed before the `siggen` component starts
 generating signals. When the HAL is first started,
 the thread(s) are not actually running. This is to allow you to
 completely configure the system before the realtime code starts. Once
@@ -320,7 +313,7 @@ redirect the output to a file:
 
 `halcmd:` *`save all saved.hal`*
 
-=== Exiting HalRun
+=== Exiting halrun
 
 When you're finished with your HAL session type "exit" at the halcmd:
 prompt. Do not simply close the terminal window without shutting down
@@ -334,7 +327,7 @@ the HAL session.
 
 To restore the HAL configuration stored in `saved.hal`, we need to
 execute all of those HAL commands. To do that, we use `-f <file name>`
-which reads commands from a file, and `-I`  (upper case i) which shows
+which reads commands from a file, and `-I` (upper case i) which shows
 the halcmd prompt after executing the
 commands:
 
@@ -357,7 +350,7 @@ following command in a terminal window:
 
 `~/emc2$` *`halrun -U`*
 
-== Halmeter [[sec:Tutorial - Halmeter]]
+== Halmeter-Siggen Demo[[Halmeter-Siggen Demo]](((Halmeter,Halmeter-Siggen Demo)))(((Siggen,Halmeter-Siggen Demo)))
 
 You can build very complex HAL systems without ever using a graphical
 interface. However there is something satisfying about seeing the
@@ -390,7 +383,7 @@ time to start halmeter. Since halmeter is a GUI app, X must be running.
 
 The first window you will see is the "Select Item to Probe" window.
 
-.HAL Meter Select Window[[cap:HAL-Meter-Select-Window]]
+.Halmeter Select Window[[cap:HAL-Meter-Select-Window]]
 
 image::images/halmeter-select.png[]
 
@@ -419,7 +412,7 @@ time, you can just start more halmeters. The halmeter window was
 intentionally made very small so you could have a lot of them on the
 screen at once.
 
-== Stepgen Example [[sec:Tutorial - More Complex]]
+== Stepgen Example(((stepgen)))
 
 Up till now we have only loaded one HAL component. But the whole idea
 behind the HAL is to allow you to load and connect a number of simple
@@ -437,13 +430,20 @@ to remove the all components and reload the RTAPI and HAL libraries:
 === Installing the components
 
 Now we are going to load the step pulse generator component. For a
-detailed description of this component refer to Stepgen section of the
-Integrators Manual. For now, we can skip the details, and just run the
-following commands:footnote:[The “\” at the end of a long line
-indicates line wrapping (needed for 
+detailed description of this component refer to the stepgen section of the
+Integrator Manual. For now, we can skip the details, 
+and just run the following commands:
+
+/////////////////////////////////////////////////
+I removed this because it didn't seem to be needed. 
+I'll keep it a little longer just in case. 
+
+footnote:[The “\” at the end 
+of a long line indicates line wrapping (needed for 
 formatting this document). When entering the commands at the command
 line, simply skip the “\” (do not hit enter) and keep typing from the
 following line.]
+/////////////////////////////////////////////////
 
 In this example we will use the "velocity" control type of stepgen.
 
@@ -456,7 +456,7 @@ In this example we will use the "velocity" control type of stepgen.
 The first command loads two step generators, both configured to
 generate stepping type 0. The second command loads our old friend
 siggen, and the third one creates two threads, a fast one with a period
-of 50 micro-seconds and a slow one with a period of 1mS. The fast
+of 50 micro-seconds and a slow one with a period of 1 millisecond. The fast
 thread doesn't support floating point functions.
 
 As before, we can use `halcmd show`  to take a look at the HAL. This
@@ -751,7 +751,7 @@ function not linked" dialog that looks like the following figure .
 image::images/halscope-01.png[]
 
 This dialog is where you set the sampling rate for the oscilloscope.
-For now we want to sample once per millisecond, so click on the 989uS
+For now we want to sample once per millisecond, so click on the 989 us
 thread "slow" and leave the multiplier at 1. We will also leave the
 record length at 4000 samples, so that we can use up to four channels
 at one time. When you select a thread and then click "OK", the dialog
@@ -890,11 +890,11 @@ position slider to determine which part of the zoomed waveform is
 visible. However, sometimes simply expanding the waveforms isn't enough
 and you need to increase the sampling rate. For example, we would like
 to look at the actual step pulses that are being generated in our
-example. Since the step pulses may be only 50uS long, sampling at 1KHz
+example. Since the step pulses may be only 50 us long, sampling at 1KHz
 isn't fast enough. To change the sample rate, click on the button that
 displays the number of samples and sample rate to bring up the "Select
 Sample Rate" dialog, figure . For this example, we will click on the
-50uS thread, "fast", which gives us a sample rate of about 20KHz. Now
+50 us thread, "fast", which gives us a sample rate of about 20KHz. Now
 instead of displaying about 4 seconds worth of data, one record is 4000
 samples at 20KHz, or about 0.20 seconds.
 
@@ -914,7 +914,7 @@ are connected to, and in fact we will continue to use channel 3 as the
 trigger source. To add new channels, select channel 5, and choose pin
 "stepgen.0.dir", then channel 6, and select "stepgen.0.step". Then
 click run mode "Normal" to start the scope, and adjust the horizontal
-zoom to 5mS per division. You should see the step pulses slow down as
+zoom to 5 ms per division. You should see the step pulses slow down as
 the velocity command (channel 1) approaches zero, then the direction
 pin changes state and the step pulses speed up again. You might want to
 increase the gain on channel 1 to about 20m per division to better see

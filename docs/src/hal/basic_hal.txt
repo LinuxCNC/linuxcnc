@@ -1,6 +1,6 @@
 = Getting Started
 
-== Hal Commands [[sec:Hal-Commands]]
+== HAL Commands [[sec:Hal-Commands]]
 
 More detailed information can be found in the man page for halcmd "man
 halcmd" in a terminal window. To see the HAL configuration and check
@@ -187,7 +187,7 @@ The syntax and an example:
 More information can be found in the HAL manual or the man pages for
 halrun.
 
-== Hal Data [[sec:Hal-Data]]
+== HAL Data [[sec:Hal-Data]]
 
 === Bit (((Bit)))
 
@@ -220,7 +220,7 @@ A "u32" number is a whole number that is positive only.
 
  - u32 values = integer numbers 0 to 4294967295
 
-== Hal Files
+== HAL Files
 
 If you used the Stepper Config Wizard to generate your config you will
 have up to three HAL files in your config directory.
@@ -253,7 +253,7 @@ time.
 
 == Logic Components
 
-Hal contains several real time logic components. Logic components
+HAL contains several real time logic components. Logic components
 follow a "Truth Table" that states what the output is for any given
 input. Typically these are bit manipulators and follow electrical logic
 gate truth tables.
@@ -418,6 +418,19 @@ Axis the bits "0" and "2" are true and there is no offset. The "weight"
 of 0 is 1 and the "weight" of 2 is 4 so the sum is 5.
 
 .weighted_sum[[fig:weighted_sum]]
-
-image::images/wsum01.png[]
+-------------------------------------------------------------
+Component Pins:
+Owner   Type  Dir         Value  Name
+    10  bit   In           TRUE  wsum.0.bit.0.in
+    10  s32   I/O             1  wsum.0.bit.0.weight
+    10  bit   In          FALSE  wsum.0.bit.1.in
+    10  s32   I/O             2  wsum.0.bit.1.weight
+    10  bit   In           TRUE  wsum.0.bit.2.in
+    10  s32   I/O             4  wsum.0.bit.2.weight
+    10  bit   In          FALSE  wsum.0.bit.3.in
+    10  s32   I/O             8  wsum.0.bit.3.weight
+    10  bit   In          FALSE  wsum.0.hold
+    10  s32   I/O             0  wsum.0.offset
+    10  s32   Out             5  wsum.0.sum
+-------------------------------------------------------------
 

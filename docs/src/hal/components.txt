@@ -2,86 +2,55 @@
 
 == Commands and Userspace Components [[sec:Commands-and-Userspace-Components]]
 
-Some of these will have expanded descriptions from the man pages. Some
-will have limited descriptions. All of the components have man pages.
-From this list you know what components exist and can use man n name to
-get additional information. For example in a terminal window type
+All of the commands in the following list have man pages. 
+Some will have expanded descriptions, some will have limited descriptions. 
+Also, all of the components listed below have man pages.
+From these two lists you know what components exist, 
+and you can use `man n name` to get additional information. 
+To view the information in the man page, in a terminal window type: 
 
-    man 1 axis 
+`man axis` (or perhaps `man 1 axis` if your system requires it.)
 
-to view the information in the man page.
-
- - = AXIS Remote Interface
- - = AXIS EMC (The Enhanced Machine Controller) Graphical User Interface
- -  = A program for loading a Xilinx Bitfile program into the FPGA of an
-   Anything I/O board from Mesa
- - = Build, compile and install EMC HAL components
- - = EMC (The Enhanced Machine Controller)
- -  = control HAL pins with any Linux input device, including USB HID
-   devices
- - = manipulate the Enhanced Machine Controller HAL from the command line
- - = observe HAL pins, signals, and parameters
- - = manipulate the Enhanced Machine Controller HAL from the command line
- - = sample data from HAL in realtime
- - = stream file data into HAL in real time
- - = observe HAL pins and command EMC through NML
- - = accepts NML I/O commands, interacts with HAL in userspace
- - = accepts NML I/O commands, interacts with HAL in userspace
- - = Virtual Control Panel for EMC2
+*axis* = AXIS EMC (The Enhanced Machine Controller) Graphical User Interface. +
+*axis-remote* = AXIS Remote Interface. +
+*comp* = Build, compile and install EMC HAL components. +
+*emc* = EMC (The Enhanced Machine Controller). +
+*gladevcp* = Virtual Control Panel for EMC2 based on Glade, Gtk and HAL widgets. +
+*gs2* = HAL userspace component for Automation Direct GS2 VFD's. +
+*halcmd* = Manipulate the Enhanced Machine Controller HAL from the command line. +
+*hal_input* = Control HAL pins with any Linux input device, including USB HID devices. +
+*halmeter* = Observe HAL pins, signals, and parameters. +
+*halrun* = Manipulate the Enhanced Machine Controller HAL from the command line. +
+*halsampler* = Sample data from HAL in realtime. +
+*halstreamer* = Stream file data into HAL in real time. +
+*halui* = Observe HAL pins and command EMC through NML. +
+*io* = Accepts NML I/O commands, interacts with HAL in userspace. +
+*iocontrol* = Accepts NML I/O commands, interacts with HAL in userspace. +
+*pyvcp* = Virtual Control Panel for EMC2. +
+*shuttlexpress* = control HAL pins with the ShuttleXpress device made by Contour Design. +
 
 == Realtime Components [[sec:Realtime-Components]]
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
-From this list you know what components exist and can use man n name to
+From this list you know what components exist and can use `man n name` to
 get additional information in a terminal window.
 
 === abs (((abs)))
 
-Compute the absolute value and sign of the input signal
-
-==== Loading
-
-    loadrt abs [count=N|names=name1[,name2...]]
-
-==== Functions
-
-    addf abs.N|name thread-name
-
-==== Pins
-
-    abs.N.in (float in) Input value
-    abs.N.out (float out) Output Value, always positive
-    abs.N.sign (bit out) Sign of Input, false = positive, true = negative
-
-The first abs loaded will be abs.0 and each one after that the "N"
-number will increment.
+Compute the absolute value and sign of the input signal. 
 
 === and2 (((and2)))
 
-Two-input AND gate. For out to be true both inputs must be true
-
-==== Loading
-
-    loadrt and2 [count=N|names=name1[,name2...]]
-
-==== Functions
-
-    addf and2.N|name thread-name
-
-==== Pins
-
-    and2.N.in0 (bit in) Input 0
-    and2.N.in1 (bit in) Input 1
-    and2.N.out (bit out) Output
+Two-input AND gate. For out to be true both inputs must be true. 
 
 === at_pid (((at_pid)))
 
-proportional/integral/derivative controller with auto tuning
+Proportional/integral/derivative controller with auto tuning. 
 
 === axis (((axis)))
 
-accepts NML motion commands, interacts with HAL in realtime
+Accepts NML motion commands, interacts with HAL in realtime. 
 
 === biquad (((biquad)))
 
@@ -89,335 +58,212 @@ Biquad IIR filter
 
 === bldc_hall3 (((bldc_hall3)))
 
-3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall
-sensors
+3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors. 
 
 === blend (((blend)))
 
-Perform linear interpolation between two values
-
-==== Loading
-
-    loadrt blend [count=N|names=name1[,name2...]]
-
-==== Functions
-
-    addf blend.N|name thread-name
-
-==== Pins
-
-    blend.N.in1 (float in) First input.
-    blend.N.in2 (float in) Second input.
-    blend.N.select (float in) Select input.
-    blend.N.out (float out) Output value.
-
-==== Parameters
-
-    blend.N.open (bit r/w)
-
-==== Description
-
-If select is equal to 0.0 output is equal to in1.
-
-If select is equal to 1.0, the output is equal to in2.
-
-For select values between 0.0 and 1.0, the output changes linearly
-from in1 to in2.
-
-If blend.N.open is true, select values outside the range 0.0 to 1.0
-give values outside the range in1 to in2. If false, outputs are clamped
-to the the range in1 to in2
+Perform linear interpolation between two values. 
 
 === charge_pump (((charge_pump)))
 
-Create a square-wave for the "charge pump" input of some controller
-boards
-
-==== Loading
-
-    loadrt charge_pump
-
-==== Functions
-
-    addf charge-pump
-
-==== Pins
-
-    charge-pump.out (bit out)
-    charge-pump.enable (bit in) default = TRUE
-
-==== Description
-
-Outputs a square wave if enable is TRUE or unconnected, low if enable
-is FALSE
+Create a square-wave for the "charge pump" input of some controller boards. 
 
 === clarke2 (((clarke2)))
 
-Two input version of Clarke transform
-
-==== Loading
-
-    loadrt clarke2 [count=N|names=name1[,name2...]]
-
-==== Functions
-
-    addf clarke2.N | name
-
-==== Pins
-
-    clarke2.N.a (float in) phase a input
-    clarke2.N.b (float in) phase b input
-    clarke2.N.x (float out) cartesian components of output
-    clarke2.N.y (float out) cartesian components of output
-
-==== Description
-
-The Clarke transform can be used to translate a vector quantity from a
-three phase system (three components 120 degrees apart) to a two phase
-Cartesian system.
-
-clarke2 implements a special case of the Clarke transform, which only
-needs two of the three input phases. In a three wire three phase
-system, the sum of the three phase currents or voltages must always be
-zero. As a result only two of the three are needed to completely define
-the current or voltage. clarke2 assumes that the sum is zero, so it
-only uses phases A and B of the input. Since the H (homopolar) output
-will always be zero in this case, it is not generated.
+Two input version of Clarke transform. 
 
 === clarke3 (((clarke3)))
 
-Clarke (3 phase to cartesian) transform
-
-==== Loading
-
-    loadrt clarke3 [count=N|names=name1[,name2...]]
-
-==== Functions
-
-    addf clarke3.N | name
-
-==== Pins
-
-    clarke3.N.a (float in) three phase input vector
-    clarke3.N.b (float in) three phase input vector
-    clarke3.N.c (float in) three phase input vector
-    clarke3.N.x (float out) cartesian components of output
-    clarke3.N.y (float out) cartesian components of output
-    clarke3.N.h (float out) homopolar component of output
-
-==== Description
-
-The Clarke transform can be used to translate a vector quantity from a
-three phase system (three components 120 degrees apart) to a two phase
-Cartesian system (plus a homopolar component if the three phases don't
-sum to zero).
-
-clarke3 implements the general case of the transform, using all three
-phases. If the three phases are known to sum to zero, see clarke2 for a
-simpler version.
+Clarke (3 phase to cartesian) transform. 
 
 === clarkeinv (((clarkeinv)))
 
-Inverse Clarke transform
-
-==== Loading
-
-    loadrt clarkeinv [count=N|names=name1[,name2...]]
-
-==== Functions
-
-    addf clarkeinv.N | name
-
-==== Pins
-
-    clarkeinv.N.x (float in) cartesian components of input
-    clarkeinv.N.y (float in) cartesian components of input
-    clarkeinv.N.h (float in) homopolar component of input (usually zero)
-    clarkeinv.N.a (float out) three phase output vector
-    clarkeinv.N.b (float out) three phase output vector
-    clarkeinv.N.c (float out) three phase output vector
-
-==== Parameters
-.
-
-==== Description
-
-The inverse Clarke transform can be used to translate a vector
-quantity from Cartesian coordinate system to a three phase system
-(three components 120 degrees apart).
+Inverse Clarke transform. 
 
 === classicladder (((classicladder)))
 
-Realtime software plc based on ladder logic
+Realtime software PLC based on ladder logic. See Classic Ladder manual for more information. 
 
 === comp (((comp)))
 
-Two input comparator with hysteresis
+Two input comparator with hysteresis. 
 
 === constant (((constant)))
 
-Use a parameter to set the value of a pin
+Use a parameter to set the value of a pin. 
 
 === conv_bit_s32 (((conv_bit_s32)))
 
-Convert a value from bit to s32
+Convert a value from bit to s32. 
 
 === conv_bit_u32 (((conv_bit_u32)))
 
-Convert a value from bit to u32
+Convert a value from bit to u32. 
 
 === conv_float_s32 (((conv_float_s32)))
 
-Convert a value from float to s32
+Convert a value from float to s32. 
 
 === conv_float_u32 (((conv_float_u32)))
 
-Convert a value from float to u32
+Convert a value from float to u32. 
 
 === conv_s32_bit (((conv_s32_bit)))
 
-Convert a value from s32 to bit
+Convert a value from s32 to bit. 
 
 === conv_s32_float (((conv_s32_float)))
 
-Convert a value from u32 to bit
+Convert a value from s32 to float. 
 
 === conv_s32_u32 (((conv_s32_u32)))
 
-Convert a value from s32 to u32
+Convert a value from s32 to u32. 
 
 === conv_u32_bit (((conv_u32_bit)))
 
-Convert a value from u32 to bit
+Convert a value from u32 to bit. 
 
 === conv_u32_float (((conv_u32_float)))
 
-Convert a value from u32 to float
+Convert a value from u32 to float. 
 
 === conv_u32_s32 (((conv_u32_s32)))
 
-Convert a value from u32 to s32
+Convert a value from u32 to s32. 
 
 === counter (((counter)))
 
-counts input pulses (deprecated)
+Counts input pulses (deprecated). +
+Use the *encoder* component with "...counter-mode" = TRUE. See <<sec:Encoder>>. 
 
 === ddt (((ddt)))
 
-Compute the derivative of the input function
+Compute the derivative of the input function. 
 
 === deadzone (((deadzone)))
 
-Return the center if within the threshold
+Return the center if within the threshold. 
 
 === debounce (((debounce)))
 
-filter noisy digital inputs, for more information see  <<sec:Debounce>>
+Filter noisy digital inputs, for more information see <<sec:Debounce>>. 
 
 === edge (((edge)))
 
-Edge detector
+Edge detector. 
 
 === encoder (((encoder)))
 
-software counting of quadrature encoder signals, for more information
-see  <<sec:Encoder>>
+Software counting of quadrature encoder signals, for more information
+see <<sec:Encoder>>. 
 
 === encoder_ratio (((encoder_ratio)))
 
-an electronic gear to synchronize two axes
+An electronic gear to synchronize two axes. 
 
 === estop_latch (((estop_latch)))
 
-ESTOP latch
+ESTOP latch. 
 
 === feedcomp (((feedcomp)))
 
-Multiply the input by the ratio of current velocity to the feed rate
+Multiply the input by the ratio of current velocity to the feed rate. 
 
 === flipflop (((flipflop)))
 
-D type flip-flop
+D type flip-flop. 
 
 === freqgen (((freqgen)))
 
-software step pulse generation
+Software step pulse generation. 
 
-=== gantrykins
+=== gantrykins (((gantrykins)))
 
-A kinematics module that maps one axis to multiple joints
+A kinematics module that maps one axis to multiple joints. 
 
 === gearchange (((gearchange)))
 
-Select from one two speed ranges
+Select from one of two speed ranges. 
 
 === genhexkins (((genhexkins)))
 
-Gives six degrees of freedom in position and orientation (XYZABC). The
-location of the motors is defined at compile time.
+Gives six degrees of freedom in position and orientation (XYZABC). 
+The location of the motors is defined at compile time.
 
-=== genserkins
+=== genserkins (((genserkins)))
 
 Kinematics that can model a general serial-link manipulator with up to
 6 angular joints.
 
+=== gladevcp (((gladevcp)))
+
+Displays Virtual Control Panels built with GTK/Glade. 
+
 === hm2_7i43 (((hm2_7i43)))
 
 HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
-HostMot2
+HostMot2. 
 
 === hm2_pci (((hm2_pci)))
 
 HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68
-Anything IO boards, with HostMot2 firmware
+Anything I/O boards, with HostMot2 firmware. 
 
 === hostmot2 (((hostmot2)))
 
-HAL driver for the Mesa Electronics HostMot2 firmware
+HAL driver for the Mesa Electronics HostMot2 firmware. 
 
 === hypot (((hypot)))
 
-Three-input hypotenuse (Euclidean distance) calculator
+Three-input hypotenuse (Euclidean distance) calculator. 
 
 === ilowpass (((ilowpass)))
 
-Low-pass filter with integer inputs and outputs
+Low-pass filter with integer inputs and outputs. 
 
 === integ (((integ)))
 
-Integrator
+Integrator. 
 
 === invert (((invert)))
 
-Compute the inverse of the input signal
+Compute the inverse of the input signal. 
 
 === joyhandle (((joyhandle)))
 
-sets nonlinear joypad movements, deadbands and scales
+Sets nonlinear joypad movements, deadbands and scales. 
 
 === kins (((kins)))
 
-kinematics definitions for emc2
+kinematics definitions for EMC2. 
 
 === knob2float (((knob2float)))
 
-Convert counts (probably from an encoder) to a float value
+Convert counts (probably from an encoder) to a float value. 
 
 === limit1 (((limit1)))
 
-Limit the output signal to fall between min and max
+1) Limit the output signal to fall between min and max. footnote:[When the input 
+is a position, this means that the *position* is limited.] 
 
 === limit2 (((limit2)))
 
-Limit the output signal to fall between min and max
+1) Limit the output signal to fall between min and max. +
+2) Limit its slew rate to less than maxv per second. footnote:[When the input 
+is a position, this means that *position* and *velocity* are limited.] 
 
 === limit3 (((limit3)))
 
-Limit the output signal to fall between min and max
+1) Limit the output signal to fall between min and max. +
+2) Limit its slew rate to less than maxv per second. +
+3) Limit its second derivative to less than MaxA per second squared. footnote:[When 
+the input is a position, this means that the *position*, *velocity*, and 
+*acceleration* are limited.]
 
 === logic (((logic)))
 
-Experimental general logic function component
+Experimental general logic function component. 
 
 === lowpass (((lowpass)))
 
@@ -425,149 +271,157 @@ Low-pass filter
 
 === lut5 (((lut5)))
 
-Arbitrary 5-input logic function based on a look-up table
+Arbitrary 5-input logic function based on a look-up table. 
 
 === maj3 (((maj3)))
 
-Compute the majority of 3 inputs
+Compute the majority of 3 inputs. 
 
 === match8 (((match8)))
 
-8-bit binary match detector
+8-bit binary match detector. 
 
 === maxkins (((maxkins)))
 
-Kinematics for a tabletop 5 axis mill named "max" with tilting head (B
-axis) and horizintal rotary mounted to the table (C axis). Provides UVW
-motion in the rotated coordinate system. The source file, maxkins.c,
-may be a useful starting point for other 5-axis systems.
+Kinematics for a tabletop 5 axis mill named "max" with tilting head (B axis) and 
+horizontal rotary mounted to the table (C axis). 
+Provides UVW motion in the rotated coordinate system. 
+The source file, maxkins.c, may be a useful starting point for other 5-axis systems. 
+
+=== mesa_7i65 (((7i65)))
+
+Support for the Mesa 7i65 eight-axis servo card. 
 
 === minmax (((minmax)))
 
-Track the minimum and maximum values of the input to the outputs
+Track the minimum and maximum values of the input to the outputs. 
 
 === motion (((motion)))
 
-accepts NML motion commands, interacts with HAL in realtime
+Accepts NML motion commands, interacts with HAL in realtime. 
 
 === mult2 (((mult2)))
 
-Product of two inputs
+Product of two inputs. 
+
+=== mux16 (((mux16)))
+
+Select from one of sixteen input values. 
 
 === mux2 (((mux2)))
 
-Select from one of two input values
+Select from one of two input values. 
 
 === mux4 (((mux4)))
 
-Select from one of four input values
+Select from one of four input values. 
 
 === mux8 (((mux8)))
 
-Select from one of eight input values
+Select from one of eight input values. 
 
 === near (((near)))
 
-Determine whether two values are roughly equal
+Determine whether two values are roughly equal. 
 
 === not (((not)))
 
-Inverter
+Inverter. 
 
 === offset (((offset)))
 
-Adds an offset to an input, and subtracts it from the feedback value
+Adds an offset to an input, and subtracts it from the feedback value. 
 
 === oneshot (((oneshot)))
 
-one-shot pulse generator
+One-shot pulse generator. 
 
 === or2 (((or2)))
 
-Two-input OR gate
+Two-input OR gate. 
 
 === pid (((pid)))
 
-proportional/integral/derivative controller, for more information see 
-<<sec:PID>>
+Proportional/integral/derivative controller, for more information 
+see <<sec:PID>>. 
 
 === pluto_servo (((pluto_servo)))
 
 Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
-use with servos
+use with servos. 
 
 === pluto_step (((pluto_step)))
 
 Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
-use with steppers
+use with steppers. 
+
+=== pumakins (((pumakins)))
+
+Kinematics for PUMA-style robots. 
 
 === pwmgen (((pwmgen)))
 
-software PWM/PDM generation, for more information see  <<sec:PWMgen>>
+Software PWM/PDM generation, for more information see  <<sec:PWMgen>>. 
 
 === rotatekins (((rotatekins)))
 
-The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
+The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. 
 
 === sample_hold (((sample_hold)))
 
-Sample and Hold
+Sample and Hold. 
 
 === sampler (((sampler)))
 
-sample data from HAL in real time
+Sample data from HAL in real time. 
 
 === scale (((scale)))
 
-applies a scale and offset to its input
+Applies a scale and offset to its input. 
 
 === scarakins (((scarakins)))
 
-kinematics for SCARA-type robots
+Kinematics for SCARA-type robots. 
 
 === select8 (((select8)))
 
-8-bit binary match detector
+8-bit binary match detector. 
 
 === serport (((serport)))
 
-Hardware driver for the digital I/O bits of the 8250 and 16550 serial
-port
+Hardware driver for the digital I/O bits of the 8250 and 16550 serial port. 
 
 === siggen (((siggen)))
 
-signal generator, for more information see  <<sec:Siggen>>
+Signal generator, for more information see <<sec:Siggen>>. 
 
 === sim_encoder (((sim_encoder)))
 
-simulated quadrature encoder, for more information see 
-<<sec:Simulated-Encoder>>
+Simulated quadrature encoder, for more information see <<sec:Simulated-Encoder>>. 
 
 === sphereprobe (((sphereprobe)))
 
-Probe a pretend hemisphere
+Probe a pretend hemisphere. 
 
 === stepgen (((stepgen)))
 
-software step pulse generation, for more information see 
-<<sec:Stepgen>>
+Software step pulse generation, for more information see <<sec:Stepgen>>. 
 
 === steptest (((steptest)))
 
-Used by Stepconf to allow testing of acceleration and velocity values
-for an axis
+Used by Stepconf to allow testing of acceleration and velocity values for an axis. 
 
 === streamer (((streamer)))
 
-stream file data into HAL in real time
+Stream file data into HAL in real time. 
 
 === sum2 (((sum2)))
 
-Sum of two inputs (each with a gain) and an offset
+Sum of two inputs (each with a gain) and an offset. 
 
-=== supply (((supply)))
+=== sum2 (((sum2)))
 
-set output pins with values from parameters (deprecated)
+Set output pins with values from parameters (deprecated). 
 
 === thc
 
@@ -575,43 +429,47 @@ Torch Height Control using a Mesa THC card.
 
 === threads (((threads)))
 
-creates hard realtime HAL threads
+Creates hard realtime HAL threads. 
 
 === threadtest (((threadtest)))
 
-component for testing thread behavior
+Component for testing thread behavior. 
+
+=== time (((time)))
+
+Accumulated run-time timer counts HH:MM:SS of "active" input. 
 
 === timedelay (((timedelay)))
 
-The equivalent of a time-delay relay
+The equivalent of a time-delay relay. 
 
 === timedelta (((timedelta)))
 
-component that measures thread scheduling timing behavior
-
-=== toggle (((toggle)))
-
-push-on, push-off from momentary pushbuttons
+Component that measures thread scheduling timing behavior. 
 
 === toggle2nist (((toggle2nist)))
 
-toggle button to nist logic
+Toggle button to nist logic. 
+
+=== toggle (((toggle)))
+
+Push-on, push-off from momentary pushbuttons. 
 
 === tripodkins (((tripodkins)))
 
 The joints represent the distance of the controlled point from three
 predefined locations (the motors), giving three degrees of freedom in
-position (XYZ)
+position (XYZ). 
 
 === tristate_bit (((tristate_bit)))
 
 Place a signal on an I/O pin only when enabled, similar to a tristate
-buffer in electronics
+buffer in electronics. 
 
 === tristate_float (((tristate_float)))
 
 Place a signal on an I/O pin only when enabled, similar to a tristate
-buffer in electronics
+buffer in electronics. 
 
 === trivkins (((trivkins)))
 
@@ -620,32 +478,126 @@ milling machines and lathes use the trivial kinematics module.
 
 === updown (((updown)))
 
-Counts up or down, with optional limits and wraparound behavior
+Counts up or down, with optional limits and wraparound behavior. 
+
+=== watchdog (((watchdog)))
+
+Monitor one to thirty-two inputs for a "heartbeat". 
 
 === wcomp (((wcomp)))
 
-Window comparator
+Window comparator. 
 
 === weighted_sum (((weighted_sum)))
 
-convert a group of bits to an integer
+Convert a group of bits to an integer. 
 
 === xor2 (((xor2)))
 
-Two-input XOR (exclusive OR) gate
+Two-input XOR (exclusive OR) gate. 
 
-==== Loading
-.
 
-==== Functions
-.
+== HAL and RTAPI (list of man 3 pages)
 
-==== Pins
-.
+As long as we have just given a list of man 1 and man 9 pages, 
+let's finish the job and give a list of the man 3 pages. 
+Maybe some of the files are for housekeeping and don't really belong here. 
+This should probably be fixed up later somehow. 
+Consider this a *FIX ME* note, or a TODO note. 
+Anyway, here's the list: 
 
-==== Parameters
-.
+EXPORT_FUNCTION.3rtapi +
+hal_add_funct_to_thread.3hal +
+hal_bit_t.3hal +
+hal_create_thread.3hal +
+hal_del_funct_from_thread.3hal +
+hal_exit.3hal +
+hal_export_funct.3hal +
+hal_float_t.3hal +
+hal_get_lock.3hal +
+hal_init.3hal +
+hal_link.3hal +
+hal_malloc.3hal +
+hal_param_bit_new.3hal +
+hal_param_bit_newf.3hal +
+hal_param_float_new.3hal +
+hal_param_float_newf.3hal +
+hal_param_new.3hal +
+hal_param_s32_new.3hal +
+hal_param_s32_newf.3hal +
+hal_param_u32_new.3hal +
+hal_param_u32_newf.3hal +
+hal_parport.3hal +
+hal_pin_bit_new.3hal +
+hal_pin_bit_newf.3hal +
+hal_pin_float_new.3hal +
+hal_pin_float_newf.3hal +
+hal_pin_new.3hal +
+hal_pin_s32_new.3hal +
+hal_pin_s32_newf.3hal +
+hal_pin_u32_new.3hal +
+hal_pin_u32_newf.3hal +
+hal_ready.3hal +
+hal_s32_t.3hal +
+hal_set_constructor.3hal +
+hal_set_lock.3hal +
+hal_signal_delete.3hal +
+hal_signal_new.3hal +
+hal_start_threads.3hal +
+hal_type_t.3hal +
+hal_u32_t.3hal +
+hal_unlink.3hal +
+intro.3hal +
+intro.3rtapi +
+MODULE_AUTHOR.3rtapi +
+MODULE_DESCRIPTION.3rtapi +
+MODULE_LICENSE.3rtapi +
+PM_ROTATION_VECTOR.3 +
+rtapi_app_exit.3rtapi +
+rtapi_app_main.3rtapi +
+rtapi_clock_set_period.3rtapi +
+rtapi_delay.3rtapi +
+rtapi_delay_max.3rtapi +
+rtapi_exit.3rtapi +
+rtapi_get_clocks.3rtapi +
+rtapi_get_msg_level.3rtapi +
+rtapi_get_time.3rtapi +
+rtapi_inb.3rtapi +
+rtapi_init.3rtapi +
+rtapi_module_param.3rtapi +
+RTAPI_MP_ARRAY_INT.3rtapi +
+RTAPI_MP_ARRAY_LONG.3rtapi +
+RTAPI_MP_ARRAY_STRING.3rtapi +
+RTAPI_MP_INT.3rtapi +
+RTAPI_MP_LONG.3rtapi +
+RTAPI_MP_STRING.3rtapi +
+rtapi_mutex.3rtapi +
+rtapi_outb.3rtapi +
+rtapi_print.3rtapi +
+rtapi_prio.3rtapi +
+rtapi_prio_highest.3rtapi +
+rtapi_prio_lowest.3rtapi +
+rtapi_prio_next_higher.3rtapi +
+rtapi_prio_next_lower.3rtapi +
+rtapi_region.3rtapi +
+rtapi_release_region.3rtapi +
+rtapi_request_region.3rtapi +
+rtapi_set_msg_level.3rtapi +
+rtapi_shmem.3rtapi +
+rtapi_shmem_delete.3rtapi +
+rtapi_shmem_getptr.3rtapi +
+rtapi_shmem_new.3rtapi +
+rtapi_snprintf.3rtapi +
+rtapi_task_delete.3rtpi +
+rtapi_task_new.3rtapi +
+rtapi_task_pause.3rtapi +
+rtapi_task_resume.3rtapi +
+rtapi_task_start.3rtapi +
+rtapi_task_wait.3rtapi +
+skeleton.3hal +
+skeleton.3rtapi +
+undocumented.3hal +
+undocumented.3rtapi +
 
-==== Description
-.
+
 
