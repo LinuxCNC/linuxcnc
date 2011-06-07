@@ -1,21 +1,16 @@
+/////
+
 User Manual V2.5, {localdate}
 =============================
 The EMC Team
-
-/////////////////////////////////////////////////
-This might be nicer than the above if I could 
-get it to work, but I haven't been able to: 
-
-User Manual V2.5
-================
-:Date:	{localdate}
-/////////////////////////////////////////////////
 
 :masterdir: {indir}
 
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
+
+/////
 
 :leveloffset: 1
 
@@ -66,12 +61,6 @@ include::examples/gcode.txt[]
 include::gui/image-to-gcode.txt[]
 
 :leveloffset: 0
-= Diagnostics
-:leveloffset: 1
-
-include::common/Stepper_Diagnostics.txt[]
-
-:leveloffset: 0
 = Appendices
 :leveloffset: 1
 
@@ -79,6 +68,7 @@ include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
+/////
 = Index
 
 
