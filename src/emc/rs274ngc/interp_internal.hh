@@ -264,34 +264,36 @@ const char *strstore(const char *s);
 // adding phases!
 
 // used to record execution trail in breadcrumbs
-enum phases  {NO_REMAPPED_STEPS,
-	     STEP_COMMENT,
-	     STEP_SPINDLE_MODE,
-	     STEP_FEED_MODE,
-	     STEP_SET_FEED_RATE,
-	     STEP_SET_SPINDLE_SPEED,
-	     STEP_PREPARE,
-	     STEP_M_5,
-	     STEP_M_6,
-	     STEP_M_7,
-	     STEP_M_8,
-	     STEP_M_9,
-	     STEP_M_10,
-	     STEP_DWELL,
-	     STEP_SET_PLANE,
-	     STEP_LENGTH_UNITS,
-	     STEP_LATHE_DIAMETER_MODE,
-	     STEP_CUTTER_COMP,
-	     STEP_TOOL_LENGTH_OFFSET,
-	     STEP_COORD_SYSTEM,
-	     STEP_CONTROL_MODE,
-	     STEP_DISTANCE_MODE,
-	     STEP_IJK_DISTANCE_MODE,
-	     STEP_RETRACT_MODE,
-	     STEP_MODAL_0,
-	     STEP_MOTION,
-	     STEP_MGROUP4,
-	     MAX_STEPS
+enum phases  {
+    NO_REMAPPED_STEPS,
+    STEP_COMMENT,
+    STEP_SPINDLE_MODE,
+    STEP_FEED_MODE,
+    STEP_SET_FEED_RATE,
+    STEP_SET_SPINDLE_SPEED,
+    STEP_PREPARE,
+    STEP_M_5,
+    STEP_M_6,
+    STEP_RETAIN_G43,
+    STEP_M_7,
+    STEP_M_8,
+    STEP_M_9,
+    STEP_M_10,
+    STEP_DWELL,
+    STEP_SET_PLANE,
+    STEP_LENGTH_UNITS,
+    STEP_LATHE_DIAMETER_MODE,
+    STEP_CUTTER_COMP,
+    STEP_TOOL_LENGTH_OFFSET,
+    STEP_COORD_SYSTEM,
+    STEP_CONTROL_MODE,
+    STEP_DISTANCE_MODE,
+    STEP_IJK_DISTANCE_MODE,
+    STEP_RETRACT_MODE,
+    STEP_MODAL_0,
+    STEP_MOTION,
+    STEP_MGROUP4,
+    MAX_STEPS
 };
 
 
@@ -696,6 +698,7 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
+  int retain_g43;
 
     // const char *py_callback;     // for continuing after EXECUTE_FINISH
 

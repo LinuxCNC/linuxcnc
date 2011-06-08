@@ -2988,18 +2988,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
-	      int status = INTERP_OK;
-
 	      // make sure selected tool exists
 	      CHP((find_tool_pocket(settings, toolno, &pocket)));
-
 	      settings->current_pocket = pocket;
-	      CHANGE_TOOL_NUMBER(settings->current_pocket);
-	      set_tool_parameters(); // unsure.. I guess yes
-	      // this will cause a synch() and re-reading of offset of tool 0
 	      settings->toolchange_flag = true;
-	      status = INTERP_OK;
-	      CHP(status);
+	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      set_tool_parameters();
 	  }
 	  break;
       default:
@@ -3010,30 +3004,36 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       }
   }
 
-#ifdef DEBATABLE
-    // I would like this, but it's a big change.  It changes the
-    // operation of legal ngc programs, but it could be argued that
-    // those programs are buggy or likely to be not what the author
-    // intended.
+  // needs more testing.. once? test tool_change_flag!
+  // //#ifdef DEBATABLE
+  // if (settings->retain_g43) {
+  //   // I consider this useful, so make it configurable.
+  //   // Turn it on with RS274NGC/RETAIN_G43=1 . -mah
 
-    // It would allow you to turn on G43 after loading the first tool,
-    // and then not worry about it through the program.  When you
-    // finally unload the last tool, G43 mode is canceled.
+  //   // I would like this, but it's a big change.  It changes the
+  //   // operation of legal ngc programs, but it could be argued that
+  //   // those programs are buggy or likely to be not what the author
+  //   // intended.
 
-    if(settings->active_g_codes[9] == G_43) {
-        if(settings->selected_tool_slot > 0) {
-            struct block_struct g43;
-            init_block(&g43);
-            block->g_modes[_gees[G_43]] = G_43;
-            CHP(convert_tool_length_offset(G_43, &g43, settings));
-        } else {
-            struct block_struct g49;
-            init_block(&g49);
-            block->g_modes[_gees[G_49]] = G_49;
-            CHP(convert_tool_length_offset(G_49, &g49, settings));
-        }
-    }
-#endif
+  //   // It would allow you to turn on G43 after loading the first tool,
+  //   // and then not worry about it through the program.  When you
+  //   // finally unload the last tool, G43 mode is canceled.
+
+  //     if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
+  //       if(settings->selected_pocket > 0) {
+  //           struct block_struct g43;
+  //           init_block(&g43);
+  //           block->g_modes[_gees[G_43]] = G_43;
+  //           CHP(convert_tool_length_offset(G_43, &g43, settings));
+  //       } else {
+  //           struct block_struct g49;
+  //           init_block(&g49);
+  //           block->g_modes[_gees[G_49]] = G_49;
+  //           CHP(convert_tool_length_offset(G_49, &g49, settings));
+  //       }
+  //   }
+  // }
+  // //#endif
 
  if (IS_USER_MCODE(block,settings,7) && ONCE_M(7)) {
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
@@ -5075,13 +5075,20 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
       if(block->h_flag) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
-    } else if (settings->toolchange_flag) {
-        // we haven't loaded the tool and swapped pockets quite yet
-        index = settings->current_pocket;
-    } else {
-        // tool change is done so pockets are swapped
-        index = 0;
-    }
+
+	// FIXME mah:
+      } else
+	  index = settings->current_pocket;
+    // } else if (settings->toolchange_flag) {
+    //     // we haven't loaded the tool and swapped pockets quite yet
+    //     index = settings->current_pocket;
+    // } else {
+    //     // tool change is done so pockets are swapped
+    //     index = 0;
+    // }
+    logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
+	     index, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
+
 
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);

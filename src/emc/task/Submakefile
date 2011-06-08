@@ -16,7 +16,7 @@ MILLTASKSRCS := \
 	emc/motion/usrmotintf.cc \
 	emc/motion/emcmotutil.c \
 	emc/task/taskintf.cc \
-	emc/task/dummyiotaskintf.cc \
+	emc/task/iotaskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
 	emc/rs274ngc/tool_parse.cc \

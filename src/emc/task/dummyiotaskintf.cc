@@ -564,27 +564,27 @@ int emcCoolantFloodOff()
     return 0;
 }
 
-int emcLubeOn()
-{
-    EMC_LUBE_ON lubeOnMsg;
+// int emcLubeOn()
+// {
+//     EMC_LUBE_ON lubeOnMsg;
 
-    sendCommand(&lubeOnMsg);
-    fprintf(stderr,"emcLubeOn()\n");
-    emcIoStatus->lube.on = 1;
-    emcIoStatus->lube.level = 1;
-    return 0;
-}
+//     sendCommand(&lubeOnMsg);
+//     fprintf(stderr,"emcLubeOn()\n");
+//     emcIoStatus->lube.on = 1;
+//     emcIoStatus->lube.level = 1;
+//     return 0;
+// }
 
-int emcLubeOff()
-{
-    EMC_LUBE_OFF lubeOffMsg;
+// int emcLubeOff()
+// {
+//     EMC_LUBE_OFF lubeOffMsg;
 
-    sendCommand(&lubeOffMsg);
-    fprintf(stderr,"emcLubeOff()\n");
-    emcIoStatus->lube.on = 0;
+//     sendCommand(&lubeOffMsg);
+//     fprintf(stderr,"emcLubeOff()\n");
+//     emcIoStatus->lube.on = 0;
 
-    return 0;
-}
+//     return 0;
+// }
 
 /********************************************************************
  *
@@ -650,7 +650,7 @@ static int saveToolTable(const char *filename,
     fclose(fp);
     return 0;
 }
-void load_tool(int pocket) {
+static void load_tool(int pocket) {
     if(random_toolchanger) {
 	// swap the tools between the desired pocket and the spindle pocket
 	CANON_TOOL_TABLE temp;
@@ -694,7 +694,7 @@ int emcToolPrepare(int tool)
 	return 0;
 
 
-	    /* set tool number first */
+    /* set tool number first */
     int prep_number;
     //*(iocontrol_data->tool_prep_pocket) = p;
     if (!random_toolchanger && p == 0) {
@@ -803,7 +803,7 @@ int emcToolUnload()
     return 0;
 }
 
-void reload_tool_number(int toolno) {
+static void reload_tool_number(int toolno) {
     if(random_toolchanger) return; // doesn't need special handling here
     for(int i=1; i<CANON_POCKETS_MAX; i++) {
 	if(emcIoStatus->tool.toolTable[i].toolno == toolno) {
@@ -913,7 +913,6 @@ int emcIoUpdate(EMC_IO_STAT * stat)
 
     // FIXME a stupid idea!!
 
-    stat->status = RCS_DONE;
     return 0;
 
     if (stat->echo_serial_number != emcIoCommandSerialNumber) {

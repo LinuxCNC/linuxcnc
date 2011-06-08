@@ -10,4 +10,4 @@ USERSRCS += $(IOSRCS) $(IOV2SRCS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^
 
-TARGETS += ../bin/io ../bin/iov2
+#TARGETS += ../bin/io ../bin/iov2
