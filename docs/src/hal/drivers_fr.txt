@@ -1,6 +1,6 @@
 = Pilotes de périphériques
 
-==  [[sec:Parport]]Parport(((parallel port)))
+== Parport[[sec:Parport]](((parallel port)))
 
 Parport est un pilote pour le port parallèle traditionnel des PC. Le
 port dispose d'un total de 17 broches physiques. Le port parallèle
@@ -189,7 +189,7 @@ concernés.
 SI le module est chargé mais ne semble pas fonctionner, l'adresse du
 port est incorrecte ou le module `probe_parport` est requis.
 
-==  [[sec:probe_parport]]probe_parport
+== [[sec:probe_parport]]probe_parport
 
 Dans les PC récents, le port parallèle peut exiger une configuration
 plug and play (PNP) avant d'être utilisable. Le module `probe_parport` 
@@ -219,7 +219,7 @@ The commercial modules below could be translated into French on request.
 
 .
 
-==  [[sec:AX5214]]AX5214H
+== [[sec:AX5214]]AX5214H
 
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O
 board. It plugs into an ISA bus, and resembles a pair of 8255
@@ -290,7 +290,7 @@ physical pin high and turn the module OFF.
  -  `(funct) ``ax5214.<boardnum>.write `-- Writes all digital outputs on
    one board.
 
-==  [[sec:Servo-To-Go]]Servo-To-Go
+== [[sec:Servo-To-Go]]Servo-To-Go
 
 The Servo-To-Go is one of the first PC motion control cardsfootnote:[a
 motion control card usually is a board containing devices to control
@@ -879,7 +879,7 @@ board.
  -  `(funct) ``ppmc.<port>.write `-- Writes all outputs (digital outputs,
    stepgens, PWMs) on one port.
 
-==  [[sec:Pluto-P:-generalities]]Pluto-P(((Pluto-P))): generalities
+== [[sec:Pluto-P:-generalities]]Pluto-P(((Pluto-P))): generalities
 
 The Pluto-P is an inexpensive ($60) FPGA board featuring the
 ACEX1K(((ACEX1K))) chip from Altera.
@@ -980,7 +980,7 @@ information about it is available from
 http://www.fpga4fun.com/board_pluto-P.html[http://www.fpga4fun.com/board_pluto-P.html]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
-==   [[sec:pluto-servo]]pluto-servo(((pluto-servo))): Hardware PWM and quadrature counting
+== [[sec:pluto-servo]]pluto-servo(((pluto-servo))): Hardware PWM and quadrature counting
 
 The pluto_servo system is suitable for control of a 4-axis CNC mill
 with servo motors, a 3-axis mill with PWM spindle control, a lathe with
@@ -1110,7 +1110,7 @@ voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
 (http://www.cnczone.com/forums/showthread.php?t=25929[http://www.cnczone.com/forums/showthread.php?t=25929])
 
-==   [[sec:Pluto-step:-Hardware-step]]Pluto-step(((pluto-step))): 300kHz Hardware Step Generator
+== [[sec:Pluto-step:-Hardware-step]]Pluto-step(((pluto-step))): 300kHz Hardware Step Generator
 
 Pluto-step is suitable for control of a 3- or 4-axis CNC mill with
 stepper motors. The large number of inputs allows for a full set of

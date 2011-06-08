@@ -1,12 +1,12 @@
-=  [[cha:Introduction]]Introduction
+= [[cha:Introduction]]Introduction
 
-==  [[sec:Qu-est-ce que HAL]]Qu'est-ce que HAL ?
+== [[sec:Qu-est-ce que HAL]]Qu'est-ce que HAL ?
 
 HAL(((HAL))) est le sigle de Hardware Abstraction Layer, le terme
-Anglais pour Couche d'Abstraction Matérielfootnote:[Note du traducteur:
-nous garderons le sigle HAL dans toute la
-documentation.
- ]. Au plus haut niveau, il s'agit simplement d'une méthode pour
+Anglais pour Couche d'Abstraction Matériel.footnote:[Note du 
+traducteur: nous garderons le sigle HAL dans toute la
+documentation.] 
+Au plus haut niveau, il s'agit simplement d'une méthode pour
 permettre à un grand nombre de “modules” d'être chargés et
 interconnectés pour assembler un système complexe. La partie “matériel”
 devient abstraite parce que HAL a été conçu à l'origine pour faciliter
@@ -145,7 +145,7 @@ d'interconnecter des boîtes noires matérielles, vous n'aurez sans doute
 aucune difficulté à utiliser HAL pour interconnecter des boites noires
 logicielles.
 
-==  [[sec:Concept de HALL]]Concept de HAL
+== [[sec:Concept de HALL]]Concept de HAL
 
 Cette section est un glossaire qui définit les termes clés de HAL mais
 il est différent d'un glossaire traditionnel en ce sens que les termes
@@ -155,10 +155,10 @@ relation ou par le sens du flux à l'intérieur de HAL.
 Component::
      (((HAL Composant))): (Composant) Lorsque nous avons parlé de la
     conception du matériel, nous avons évoqué les différents éléments
-    individuels comme "pièces", "modules", "boîtes noires", etc.
-    L'équivalent HAL est un "component" ou "HAL component". (ce document
-    utilisera: "HAL component" quand la confusion avec un autre type de
-    composant est possible, mais normalement, utilisez juste: "component".)
+    individuels comme «pièces», «modules», «boîtes noires», etc.
+    L'équivalent HAL est un «component» ou «HAL component». (ce document
+    utilisera: «HAL component» quand la confusion avec un autre type de
+    composant est possible, mais normalement, utilisez juste: «component».)
     Un HAL component est une pièce logicielle avec, bien définis, des
     entrées, des sorties, un comportement, qui peuvent éventuellement être
     interconnectés. 
@@ -170,18 +170,18 @@ Parameter::
     potentiomètres de réglage et des points tests sur lesquels on peut
     poser une pointe de touche de voltmètre ou une sonde d'oscilloscope
     pour visualiser le résultat des réglages. Les HAL components aussi
-    peuvent avoir de tels éléments, ils sont appelés "parameters". Il y a
-    deux types de paramètres: “Input parameters” qui sont des équivalents
+    peuvent avoir de tels éléments, ils sont appelés «parameters». Il y a
+    deux types de paramètres: «Input parameters» qui sont des équivalents
     des potentiomètres. Ce sont des valeurs qui peuvent être réglées par
     l'utilisateur, elles gardent leur valeur jusqu'à un nouveau réglage.
-    “Output parameters” qui ne sont pas ajustables. Ils sont équivalents
+    «Output parameters» qui ne sont pas ajustables. Ils sont équivalents
     aux points tests qui permettent de mesurer la valeur d'un signal
     interne.
 
 Pin::
      (((HAL Broche))): (Broche) Les composants matériels ont des broches
     qui peuvent être interconnectées entre elles. L'équivalent HAL est une
-    "pin" ou "HAL pin". ("HAL pin" est utilisé quand c'est nécessaire pour
+    «pin» ou «HAL pin». («HAL pin» est utilisé quand c'est nécessaire pour
     éviter la confusion.) Toutes les HAL pins sont nommées et les noms des
     pins sont utilisés lors des interconnexions entre elles. Les HAL pins
     sont des entités logicielles qui n'existent qu'à l'intérieur de
@@ -192,7 +192,7 @@ Physical_Pin::
     interfaces d'entrées/sorties ont des broches physiques réelles pour
     leur connection avec l'extérieur, par exemple, les broches du port
     parallèle. Pour éviter la confusion, elles sont appelées
-    "physical_pins". Ce sont des repères pour faire penser au monde
+    «physical_pins». Ce sont des repères pour faire penser au monde
     physique réel.
     Vous vous demandez peut être quelle relation il y a entre les
     HAL_pins, les Physical_pins et les éléments extérieurs comme les
@@ -202,27 +202,26 @@ Physical_Pin::
 Signal::
      (((HAL Signal))): Dans une machine physique réelle, les terminaisons
     des différents organes sont reliées par des fils. L'équivalent HAL d'un
-    fil est un "signal" ou "HAL signal". Ces signaux connectent les “HAL
-    pins” entre elles comme le requiert le concepteur de la machine. Les
-    “HAL signals” peuvent être connectés et déconnectés à volonté (même
+    fil est un «signal» ou «HAL signal». Ces signaux connectent les «HAL
+    pins» entre elles comme le requiert le concepteur de la machine. Les
+    «HAL signals» peuvent être connectés et déconnectés à volonté (même
     avec la machine en marche).
 
 Type::
      (((HAL Type))): Quand on utilise un matériel réel, il ne viendrait pas
     à l'idée de connecter la sortie 24V d'un relais à l'entrée analogique
-    +/-10V de l'ampli d'un servomoteur. Les “HAL pins” ont les même
-    restrictions, qui sont fondées sur leur type. Les “pins” et les
-    “signals” ont tous un type, un “signals” ne peux être connecté qu'à une
-    “pins” de même type. Il y a actuellement les 4 types suivants:
+    +/-10V de l'ampli d'un servomoteur. Les «HAL pins» ont les même
+    restrictions, qui sont fondées sur leur type. Les «pins» et les
+    «signals» ont tous un type, un «signals» ne peux être connecté qu'à une
+    «pins» de même type. Il y a actuellement les 4 types suivants:
 
  - bit - une simple valeur vraie ou fausse TRUE/FALSE ou ON/OFF
- - float  - un flottant de 32 bits, avec approximativement 24 bits de
+ - float - un flottant de 32 bits, avec approximativement 24 bits de
    résolution et plus de 200 bits d'échelle dynamique.
- - u32  - un entier non signé de 32 bits, les valeurs légales vont de 0 à
-   +4294967295
- -  s32  - un entier signé de 32 bits, les valeurs légales vont de
-   -2147483648
-   à +2147483647
+ - u32 - un entier non signé de 32 bits, les valeurs légales vont 
+   de 0 à +4,294,967,295
+ - s32 - un entier signé de 32 bits, les valeurs légales vont 
+   de -2,147,483,648 à +2,147,483,647
 
 Function::
      [[des:Function]](((HAL Fonction))): (Fonction) Les composants
@@ -238,35 +237,35 @@ Function::
     en entrée doivent d'abord être lues avant qu'un calcul ne puisse être
     effectué sur elles et les données en sortie ne peuvent pas être écrites
     tant que le calcul sur les données d'entrée n'est pas terminé. Dans ces
-    cas, le code est confié au système sous forme de "functions". Chaque
-    “function” est un bloc de code qui effectue une action spécifique.
-    L'intégrateur peut utiliser des "threads" pour combiner des séries de
-    “functions” qui seront exécutées dans un ordre particulier et selon des
+    cas, le code est confié au système sous forme de «functions». Chaque
+    «function» est un bloc de code qui effectue une action spécifique.
+    L'intégrateur peut utiliser des «threads» pour combiner des séries de
+    «functions» qui seront exécutées dans un ordre particulier et selon des
     intervalles de temps spécifiques.
 
 Thread::
-     [[des:Thread]](((HAL Fil))): (Fil) Un "thread" est une liste de
-    “functions” qui sont lancées à intervalles spécifiques par une tâche
-    temps réel. Quand un “thread” est créé pour la première fois, il a son
-    cadencement spécifique (période), mais pas de “functions”. Les
-    “functions” seront ajoutées au “thread” et elle seront exécutées dans
-    le même ordre, chaque fois que le “tread” tournera.
+     [[des:Thread]](((HAL Fil))): (Fil) Un «thread» est une liste de
+    «functions» qui sont lancées à intervalles spécifiques par une tâche
+    temps réel. Quand un «thread» est créé pour la première fois, il a son
+    cadencement spécifique (période), mais pas de «functions». Les
+    «functions» seront ajoutées au «thread» et elle seront exécutées dans
+    le même ordre, chaque fois que le «tread» tournera.
 
 Prenons un exemple, supposons que nous avons un composant de port
-parallèle nommé “hal_parport”. Ce composant défini une ou plusieurs
-“HAL pins” pour chaque “physical pin”. Les “pins” sont décrites dans ce
-composant, comme expliqué dans la section “component“de cette doc, par:
-leurs noms, comment chaque “pin” est en relation avec la “physical
-pin”, est-elle inversée, peut-on changer sa polarité, etc. Mais ça ne
-permet pas d'obtenir les données des “HAL pins” aux “physical pins”. Le
-code est utilisé pour faire ça, et c'est la où les “functions” entrent
-en oeuvre. Le composant parport nécessite deux “functions”: une pour
-lire les broches d'entrée et mettre à jour les “HAL pins”, l'autre pour
-prendre les données des “HAL pins” et les écrire sur les broches de
-sortie “physical pins”. Ce deux fonctions font partie du pilote
-“hal_parport”.
+parallèle nommé «hal_parport». Ce composant défini une ou plusieurs
+«HAL pins» pour chaque «physical pin». Les «pins» sont décrites dans ce
+composant, comme expliqué dans la section «component» de cette doc, par:
+leurs noms, comment chaque «pin» est en relation avec la «physical
+pin», est-elle inversée, peut-on changer sa polarité, etc. Mais ça ne
+permet pas d'obtenir les données des «HAL pins» aux «physical pins». Le
+code est utilisé pour faire ça, et c'est la où les «functions» entrent
+en oeuvre. Le composant parport nécessite deux «functions»: une pour
+lire les broches d'entrée et mettre à jour les «HAL pins», l'autre pour
+prendre les données des «HAL pins» et les écrire sur les broches de
+sortie «physical pins». Ce deux fonctions font partie du pilote
+«hal_parport».
 
-==  [[sec:Intro-Composants-HAL]]Composants HAL
+== [[sec:Intro-Composants-HAL]]Composants HAL
 
 Chaque composant HAL est un morceau de logiciel avec, bien définis,
 des entrées, des sorties et un comportement. Ils peuvent être installés
@@ -275,7 +274,7 @@ composants actuellement disponibles et décrit brièvement ce que chacun
 fait. Les détails complets sur chacun seront donnés plus loin dans ce
 document.
 
-===  [[sub:Programmes-externes]]Programmes externes attachés à HAL
+=== [[sub:Programmes-externes]]Programmes externes attachés à HAL
 
 motion::
      (((motion))) Un module temps réel qui accepte les commandes de
@@ -295,16 +294,16 @@ halui::
     comme une interface utilisateur en utilisant les boutons et
     interrupteurs externes.
 
-===  [[sub:Composants-internes]]Composants internes
+=== [[sub:Composants-internes]]Composants internes
 
 stepgen::
-    (((stepgen))) Générateur d'impulsions de pas avec boucle de position. 
+     Générateur d'impulsions de pas avec boucle de position. Voir section <<sec:Stepgen>>.(((stepgen)))
 
 encoder::
-    (((encoder))) Codeur/compteur logiciel. 
+     Codeur/compteur logiciel. Voir section <<sec:Encoder>>.(((Codeur)))(((encoder)))
 
 pid::
-    (((pid))) Boucle de contrôle Proportionnelle/Intégrale/Dérivée. 
+     Boucle de contrôle Proportionnelle/Intégrale/Dérivée. Voir section <<sec:PID>>.(((pid)))
 
 siggen::
      (((siggen))) Générateur d'ondes:
@@ -317,7 +316,7 @@ blocks::
      (((blocks))) Un assortiment de composants (mux, demux, or, and, integ,
     ddt, limit, wcomp, etc.)
 
-===  [[sub:Pilotes de materiels]]Pilotes de matériels
+=== [[sub:Pilotes de materiels]]Pilotes de matériels
 
 hal_ax5214h::
      (((hal-ax5214h))) Un pilote pour la carte d'entrées/sorties Axiom
@@ -343,7 +342,7 @@ hal_vti::
      (((hal-vti))) Un pilote pour le contrôleur Vigilant Technologies PCI
     ENCDAC-4
 
-===  [[sub:Outils-Utilitaires]]Outils-Utilitaires
+=== [[sub:Outils-Utilitaires]]Outils-Utilitaires
 
 halcmd::
     (((halcmd))) Ligne de commande pour la configuration et les réglages. 
@@ -361,7 +360,7 @@ halscope::
 
 Chacun de ces modules est décrit en détail dans les chapitres suivants.
 
-==  [[sec:Legos]]Tinkertoys, Erector Sets, Legos et le HAL
+== [[sec:Legos]]Tinkertoys, Erector Sets, Legos et le HAL
 
 Cette première introduction au concept de HAL peut être un peu
 déconcertante pour l'esprit. Construire quelque chose avec des blocs
@@ -387,7 +386,7 @@ est un peu comme ça. C'est possible avec une bonne planification, mais
 l'intégrateur peut avoir à construire un système stable aussi complexe
 qu'une machine actuelle l'exige.
 
-=== Erector Sets footnote:[Le jeu Erector Set est une invention de AC Gilbert ] (Meccano en France)
+=== Erector Sets footnote:[Le jeu Erector Set est une invention de AC Gilbert] (Meccano en France)
 
 C'était une grande série de boites de construction en métal, des tôles
 perforées, plates ou en cornières, toutes avaient des trous
@@ -469,7 +468,7 @@ peut aussi être changée en jouant sur la longueur des tiges pour
 connecter les modules. L'ordre des opérations est le même mais le temps
 mis pour aller d'un bout à l'autre est très différent.
 
-===   [[sub:Un-Exemple-en-Lego]]Un exemple en Legofootnote:[The Lego name is a trademark of the Lego company. ]
+=== [[sub:Un-Exemple-en-Lego]]Un exemple en Legofootnote:[The Lego name is a trademark of the Lego company. ]
 
 Lorsque les blocs de Lego sont arrivés dans nos magasins, ils étaient
 à peu près tous de la même taille et de la même forme. Bien sûr il y
@@ -490,7 +489,7 @@ solides, même aux coins et aux tés.
     construction avec l'imbrication de ces pièces toutes de la même taille
     est quelque chose à observer. 
 
-==  [[sec:Problemes-de-Timing-dans-HALL]]Problèmes de timming dans HAL
+== [[sec:Problemes-de-Timing-dans-HALL]]Problèmes de timming dans HAL
 
 Contrairement aux modèles physiques du câblage entre les boîtes noires
 sur lequel, nous l'avons dit, HAL est basé, il suffit de relier deux
@@ -519,7 +518,7 @@ désactive la bobine. Donc, le relais va battre rapidement entre on et
 off à la vitesse à laquelle l'automate évalue le programme.
 
 Dans HAL, c'est le code qui évalue. En fait, la version Ladder HAL
-temps réel de ClassicLadder exporte une fonction pour faire exactement
+temps réel de Classic Ladder exporte une fonction pour faire exactement
 cela. Pendant ce temps, un thread exécute les fonctions spécifiques à
 intervalle régulier. Juste comme on peut choisir de régler la durée de
 la boucle de programme d'un automate programmable à 10ms, ou à 1
@@ -530,7 +529,7 @@ Ce qui distingue un thread d'un autre n'est pas ce qu'il fait mais
 quelles fonctions lui sont attachées. La vraie distinction est
 simplement combien de fois un thread tourne.
 
-Dans EMC on peut avoir un thread à 50latexmath:[μ]s et un thread à
+Dans EMC on peut avoir un thread à latexmath:50[μ]s et un thread à
 1ms. En se basant sur les valeurs de BASE_PERIOD et de SERVO_PERIOD.
 Valeurs fixées dans le fichier ini.
 
