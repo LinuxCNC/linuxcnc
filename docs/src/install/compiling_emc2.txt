@@ -2,9 +2,9 @@
 
 == Introduction
 
-The Live CD is the preferred way to install EMC. Compliling from
+The Live CD is the preferred way to install EMC. Compiling from
 source is not normally needed. See the Getting Started Manual for
-infomation on getting and installing EMC.
+information on getting and installing EMC.
 
 The third hurdle that you face when you begin to set up EMC from
 scratch is getting and installing the EMC2 software itself. All of EMC2
@@ -16,7 +16,7 @@ site.
 
 You will find the most recent releases of EMC2 announced on
 www.linuxcnc.org. The releases of EMC2 will be done in two ways
-(sources and binary package). The sources (described furtheron) consist
+(sources and binary package). The sources (described further on) consist
 of a tarball (emc2-version.tar.gz), which you should download and
 unpack into your home directory.
 
@@ -61,7 +61,7 @@ motion and voting on the board mailing list or board IRC channel.
 *TRUNK* can be broken at any time. When *TRUNK*  reaches a state that
 is deemed worthy of testing by a larger number
  of people, the *"Testing"*  tag will be moved. This is an informal
-decision, made by concensus of
+decision, made by consensus of 
 lead developers, usually on IRC. Development will immediately continue,
  and *TRUNK* will once again diverge from *Testing*. *TRUNK*  has no
 "version number", and on a busy weekend it can literally
@@ -83,6 +83,7 @@ Next you'll need to decide what kind of install you want. There are
 two ways to try EMC2 out:
 
 Installed::
+
      Like most other software on Linux, the files are placed in system
     directories, and is automatically available to all users of that
     computer.footnote:[The pre-built packages for Ubuntu Linux use the
@@ -96,13 +97,13 @@ Run-in-place::
 
 === Downloading the development version
 
-If you wish to use the development version of emc2, please follow the
+If you wish to use the development version of EMC2, please follow the
 instructions on our wiki to obtain the source code:
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git]
 
 == Installed
 
-EMC2 followes the standard way of compiling linux software. To compile
+EMC2 follows the standard way of compiling linux software. To compile
 it simply go to the sources folder:
 
     $ cd ~/emc2/src
@@ -130,11 +131,9 @@ and issue these commands:
     $ make && sudo make setuid
 
 In a shell session where you want to use the run-in-place version of
-emcfootnote:[By putting this command in a shell start-up script, such
-as
-`~/.bash_profile`, you do not need to manually run it in each terminal
-window.
-], execute
+EMC2footnote:[By putting this command in a shell start-up script, such
+as `~/.bash_profile`, you do not need to manually run it in each terminal
+window.], execute: 
 
     $ . ~/emc2/scripts/emc-environment
 

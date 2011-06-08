@@ -56,7 +56,7 @@ Manuel du développeur ou demandez de l'aide sur la
 http://sourceforge.net/mail/?group_id=6744[Liste de diffusion].
 ].
 
-==   [[sec:Le live CD d-EMC2]]Le live CD d'EMC2(((Installation: Le live CD d'EMC2)))
+== [[sec:Le live CD d-EMC2]]Le live CD d'EMC2(((Installation: Le live CD d'EMC2)))
 
 Les développeurs d'EMC2 ont créé un Live-CD basé sur Ubuntu 6.06 qui
 vous permet d'essayer EMC2 avant de l'installer, c'est également une
@@ -80,7 +80,7 @@ communauté Ubuntu avec la configuration automatique d'EMC2. Quand une
 mise à jour d'EMC2 sera publiée, le gestionnaire de paquets vous le
 fera savoir et vous permettra une mise à jour aisée.
 
-==   [[sec:Script d-installation d-EMC2]]Script d'installation d'EMC2(((Script d'installation d'EMC2)))
+== [[sec:Script d-installation d-EMC2]]Script d'installation d'EMC2(((Script d'installation d'EMC2)))
 
 Il est également possible d'utiliser un simple script d'installation
 d'emc2 sur Ubuntu pour les utilisateurs ayant déjà une installation
@@ -114,7 +114,7 @@ Pour l'utiliser vous devez:
    pourrez mettre à jour facilement et automatiquement avec le
    gestionnaire de mises à jour.
 
-==   [[sec:Installation manuelle avec apt]]Installation manuelle par apt-get.(((Installation manuelle)))
+== [[sec:Installation manuelle avec apt]]Installation manuelle par apt-get.(((Installation manuelle)))
 
 Cette petite section décrira comment installer EMC2 sur Ubuntu 6.06
 “Dapper Dreake” en utilisant les commandes apt dans une console. Si
@@ -123,11 +123,7 @@ devriez peut être lire  <<sec:Script d-installation d-EMC2>>.
 
 Premièrement, ajoutez le dépôt à /etc/apt/sources.list:
 
-    
-
 Puis faites les mises à jour et l'installation d'emc2 avec:
-
-    
 
 Ces commandes vont installer correctement les paquets emc2 avec toutes
 leurs dépendancesfootnote:[Les dépendances sont un des atouts majeurs
