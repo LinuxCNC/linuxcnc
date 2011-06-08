@@ -910,6 +910,9 @@ int emcIoUpdate(EMC_IO_STAT * stat)
        RCS_EXEC. */
 
     // force done -mah
+
+    // FIXME a stupid idea!!
+
     stat->status = RCS_DONE;
     return 0;
 
