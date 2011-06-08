@@ -37,7 +37,7 @@ When L>1 in incremental mode, the X and Y positions are determined by
 adding the given X and Y values either to the current X and Y positions
 (on the first go-around) or to the X and Y positions at the end of the
 previous go-around (on the second and successive go-arounds). The R and
-Z positions do not change during the repeats.
+Z positions do not change during the repeats. 
 
 The number of repeats of a canned cycle only works for in the block
 containing L word. If you want to repeat a canned cycle using the
