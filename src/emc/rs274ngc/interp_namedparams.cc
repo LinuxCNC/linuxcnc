@@ -67,6 +67,7 @@ enum named_params {
     NP_RPM,
     NP_CURRENT_TOOL,
     NP_SELECTED_POCKET,
+    NP_CURRENT_POCKET,
     NP_X,
     NP_Y,
     NP_Z,
@@ -754,6 +755,10 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.selected_pocket;
 	break;
 
+    case NP_CURRENT_POCKET:
+	*value = _setup.current_pocket;
+	break;
+
     case NP_SELECTED_TOOL:
 	*value = _setup.selected_tool;
 	break;
@@ -921,6 +926,7 @@ int Interp::init_named_parameters()
 
   // tool related
   init_readonly_param("_current_tool", NP_CURRENT_TOOL, PA_USE_LOOKUP);
+  init_readonly_param("_current_pocket", NP_CURRENT_POCKET, PA_USE_LOOKUP);
   init_readonly_param("_selected_pocket", NP_SELECTED_POCKET, PA_USE_LOOKUP);
   init_readonly_param("_selected_tool", NP_SELECTED_TOOL, PA_USE_LOOKUP);
 
