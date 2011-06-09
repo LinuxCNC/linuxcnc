@@ -1,0 +1,4 @@
+(debug, before square: call_level= #<_call_level>)
+o<square> call [25.0]
+(debug, after square: return value=#<_value> call_level= #<_call_level>)
+M2
