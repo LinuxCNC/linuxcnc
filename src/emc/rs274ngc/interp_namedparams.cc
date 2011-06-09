@@ -33,7 +33,53 @@ namespace bp = boost::python;
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
-
+enum named_params {
+    NP_LINE,
+    NP_MOTION_MODE,
+    NP_PLANE,
+    NP_CCOMP,
+    NP_METRIC,
+    NP_IMPERIAL,
+    NP_ABSOLUTE,
+    NP_INCREMENTAL,
+    NP_INVERSE_TIME,
+    NP_UNITS_PER_MINUTE,
+    NP_UNITS_PER_REV,
+    NP_COORD_SYSTEM,
+    NP_TOOL_OFFSET,
+    NP_RETRACT_R_PLANE,
+    NP_RETRACT_OLD_Z,
+    NP_SPINDLE_RPM_MODE,
+    NP_SPINDLE_CSS_MODE,
+    NP_IJK_ABSOLUTE_MODE,
+    NP_LATHE_DIAMETER_MODE,
+    NP_LATHE_RADIUS_MODE,
+    NP_SPINDLE_ON,
+    NP_SPINDLE_CW,
+    NP_MIST,
+    NP_FLOOD,
+    NP_SPEED_OVERRIDE,
+    NP_FEED_OVERRIDE,
+    NP_ADAPTIVE_FEED,
+    NP_FEED_HOLD,
+    NP_FEED,
+    NP_SPEED,
+    NP_RPM,
+    NP_CURRENT_TOOL,
+    NP_SELECTED_POCKET,
+    NP_X,
+    NP_Y,
+    NP_Z,
+    NP_A,
+    NP_B,
+    NP_C,
+    NP_U,
+    NP_V,
+    NP_W,
+    NP_VALUE,
+    NP_CALL_LEVEL,
+    NP_REMAP_LEVEL
+};
 /****************************************************************************/
 
 /*! read_named_parameter
@@ -551,15 +597,15 @@ int Interp::lookup_named_param(const char *nameBuf,
 
 	// some active_g_codes fields
 
-    case 10: // _line - sequence number
+    case NP_LINE: // _line - sequence number
 	*value = _setup.sequence_number;
 	break;
 
-    case 20: // _motion_mode
+    case NP_MOTION_MODE: // _motion_mode
 	*value = _setup.motion_mode;
 	break;
 
-    case 30: // _plane
+    case NP_PLANE: // _plane
 	switch(_setup.plane) {
 	case CANON_PLANE_XY:
 	    *value = G_17;
@@ -582,184 +628,184 @@ int Interp::lookup_named_param(const char *nameBuf,
 	}
 	break;
 
-    case 40: // _ccomp - cutter compensation
+    case NP_CCOMP: // _ccomp - cutter compensation
 	*value =
 	    (_setup.cutter_comp_side == RIGHT) ? G_42 :
 	(_setup.cutter_comp_side == LEFT) ? G_41 : G_40;
 	break;
 
-    case 50: // _metric
+    case NP_METRIC: // _metric
 	*value = (_setup.length_units == CANON_UNITS_MM);
 	break;
 
-    case 51: // _imperial
+    case NP_IMPERIAL: // _imperial
 	*value = (_setup.length_units == CANON_UNITS_INCHES);
 	break;
 
-    case 60: // _absolute - distance mode
+    case NP_ABSOLUTE: // _absolute - distance mode
 	*value = (_setup.distance_mode == MODE_ABSOLUTE);
 	break;
 
-    case 61: // _incremental - distance mode
+    case NP_INCREMENTAL: // _incremental - distance mode
 	*value = (_setup.distance_mode == MODE_INCREMENTAL);
 	break;
 
-    case 70: // _inverse_time - feed mode
+    case NP_INVERSE_TIME: // _inverse_time - feed mode
 	*value = (_setup.feed_mode == INVERSE_TIME);
 	break;
 
-    case 71: // _units_per_minute - feed mode
+    case NP_UNITS_PER_MINUTE: // _units_per_minute - feed mode
 	*value = (_setup.feed_mode == UNITS_PER_MINUTE);
 	break;
 
-    case 72: // _units_per_rev - feed mode
+    case NP_UNITS_PER_REV: // _units_per_rev - feed mode
 	*value = (_setup.feed_mode == UNITS_PER_REVOLUTION);
 	break;
 
-    case 80: // _coord_system - 0-9
+    case NP_COORD_SYSTEM: // _coord_system - 0-9
 	*value =
 	    (_setup.origin_index < 7) ? (530 + (10 * _setup.origin_index)) :
 	    (584 + _setup.origin_index);
 	break;
 
-    case 90: // _tool_offset
+    case NP_TOOL_OFFSET: // _tool_offset
 	*value =  (_setup.tool_offset.tran.x || _setup.tool_offset.tran.y || _setup.tool_offset.tran.z ||
 		   _setup.tool_offset.a || _setup.tool_offset.b || _setup.tool_offset.c ||
 		   _setup.tool_offset.u || _setup.tool_offset.v || _setup.tool_offset.w) ;
 	break;
 
-    case 100: // _retract_r_plane - G98
+    case NP_RETRACT_R_PLANE: // _retract_r_plane - G98
 	*value = (_setup.retract_mode == R_PLANE);
 	break;
 
-    case 101: // _retract_old_z - G99
+    case NP_RETRACT_OLD_Z: // _retract_old_z - G99
 	*value = (_setup.retract_mode == OLD_Z);
 	break;
 
-    case 120: // _spindle_rpm_mode G97
+    case NP_SPINDLE_RPM_MODE: // _spindle_rpm_mode G97
 	*value = (_setup.spindle_mode == CONSTANT_RPM);
 	break;
 
-    case 121: // _spindle_css_mode G96
+    case NP_SPINDLE_CSS_MODE: // _spindle_css_mode G96
 	*value = (_setup.spindle_mode == CONSTANT_SURFACE);
 	break;
 
-    case 130: //_ijk_absolute_mode - G90.1
+    case NP_IJK_ABSOLUTE_MODE: //_ijk_absolute_mode - G90.1
 	*value = (_setup.ijk_distance_mode == MODE_ABSOLUTE);
 	break;
 
-    case 140: // _lathe_diameter_mode - G7
+    case NP_LATHE_DIAMETER_MODE: // _lathe_diameter_mode - G7
 	*value = _setup.lathe_diameter_mode;
 	break;
 
-    case 141: // _lathe_radius_mode - G8
+    case NP_LATHE_RADIUS_MODE: // _lathe_radius_mode - G8
 	*value = (_setup.lathe_diameter_mode == 0);
 	break;
 
 	// some active_m_codes fields
 
-    case 150: // _spindle_on
+    case NP_SPINDLE_ON: // _spindle_on
 	*value = (_setup.spindle_turning != CANON_STOPPED);
 	break;
 
-    case 151: // spindle_cw
+    case NP_SPINDLE_CW: // spindle_cw
 	*value = (_setup.spindle_turning == CANON_CLOCKWISE);
 	break;
 
-    case 160: // mist
+    case NP_MIST: // mist
 	*value = _setup.mist;
 	break;
 
-    case 170: // flood
+    case NP_FLOOD: // flood
 	*value = _setup.flood;
 	break;
 
-    case 180: // speed override
+    case NP_SPEED_OVERRIDE: // speed override
 	*value = _setup.speed_override;
 	break;
 
-    case 181: // feed override
+    case NP_FEED_OVERRIDE: // feed override
 	*value = _setup.feed_override;
 	break;
 
-    case 190: // adaptive feed
+    case NP_ADAPTIVE_FEED: // adaptive feed
 	*value = _setup.adaptive_feed;
 	break;
 
-    case 200: // feed hold
+    case NP_FEED_HOLD: // feed hold
 	*value = _setup.feed_hold;
 	break;
 
 	// from active_settings:
-    case 210: // feed
+    case NP_FEED: // feed
 	*value = _setup.feed_rate;
 	break;
 
-    case 220: // speed (rpm)
+    case NP_SPEED: // speed (rpm)
 	*value = abs(_setup.speed);
 	break;
 
-    case 221:
+    case NP_CURRENT_TOOL:
 	*value = _setup.tool_table[0].toolno;
 	break;
 
-    case 222:
+    case NP_SELECTED_POCKET:
 	*value = _setup.selected_pocket;
 	break;
 
-    case 240:  // current position
+    case NP_X:  // current position
 	*value = _setup.current_x;
 	break;
 
-    case 241:  // current position
+    case NP_Y:  // current position
 	*value = _setup.current_y;
 	break;
 
-    case 242:  // current position
+    case NP_Z:  // current position
 	*value = _setup.current_z;
 	break;
 
-    case 243:  // current position
+    case NP_A:  // current position
 	*value = _setup.AA_current;
 	break;
 
-    case 244:  // current position
+    case NP_B:  // current position
 	*value = _setup.BB_current;
 	break;
 
-    case 245:  // current position
+    case NP_C:  // current position
 	*value = _setup.CC_current;
 	break;
 
-    case 246:  // current position
+    case NP_U:  // current position
 	*value = _setup.u_current;
 	break;
 
-    case 247:  // current position
+    case NP_V:  // current position
 	*value = _setup.v_current;
 	break;
 
-    case 248:  // current position
+    case NP_W:  // current position
 	*value = _setup.w_current;
 	break;
 
 	// o-word subs may optionally have an
 	// expression after endsub and return
 	// this 'function return value' is accessible as '_value'
-    case 249:
+    case NP_VALUE:
 	*value = _setup.return_value;
 	break;
 
-    case 250:
+    case NP_CALL_LEVEL:
 	*value = _setup.call_level;
 	break;
 
-    case 251:
+    case NP_REMAP_LEVEL:
 	*value = _setup.remap_level;
 	break;
 
     default:
-	MSG("---BUG: lookup_named_param(%s) UNHANDLED INDEX=%f \n",
+	MSG("---BUG: lookup_named_param(%s): unhandled index=%f \n",
 	       nameBuf,index);
 	return 0;
     }
@@ -787,108 +833,108 @@ int Interp::init_named_parameters()
   // the active_g_codes fields
 
   // I guess this is the line number
-  init_readonly_param("_line", 10, PA_USE_LOOKUP);
+  init_readonly_param("_line", NP_LINE, PA_USE_LOOKUP);
 
   // any of G1 G2 G3 G5.2 G73 G80 G82 G83 G86 G87 G88 G89
   // value is number after 'G' mutiplied by 10 (10,20,30,52..)
 
-  init_readonly_param("_motion_mode", 20, PA_USE_LOOKUP);
+  init_readonly_param("_motion_mode", NP_MOTION_MODE, PA_USE_LOOKUP);
 
   // G17/18/19/17.1/18.1/19.1 -> return 170/180/190/171/181/191
-  init_readonly_param("_plane", 30, PA_USE_LOOKUP);
+  init_readonly_param("_plane", NP_PLANE, PA_USE_LOOKUP);
 
   // return 400,410,420 depending if (G40,G41,G42) is on
-  init_readonly_param("_ccomp", 40, PA_USE_LOOKUP);
+  init_readonly_param("_ccomp", NP_CCOMP, PA_USE_LOOKUP);
 
   // 1.0 if G21 is on
-  init_readonly_param("_metric", 50, PA_USE_LOOKUP);
+  init_readonly_param("_metric", NP_METRIC, PA_USE_LOOKUP);
 
   // 1.0 if G20 is on
-  init_readonly_param("_imperial", 51, PA_USE_LOOKUP);
+  init_readonly_param("_imperial", NP_IMPERIAL, PA_USE_LOOKUP);
 
   //1.0 if G90 is on
-  init_readonly_param("_absolute", 60, PA_USE_LOOKUP);
+  init_readonly_param("_absolute", NP_ABSOLUTE, PA_USE_LOOKUP);
 
   //1.0 if G91 is on
-  init_readonly_param("_incremental", 61, PA_USE_LOOKUP);
+  init_readonly_param("_incremental", NP_INCREMENTAL, PA_USE_LOOKUP);
 
   // 1.0 if G93 is on
-  init_readonly_param("_inverse_time", 70, PA_USE_LOOKUP);
+  init_readonly_param("_inverse_time", NP_INVERSE_TIME, PA_USE_LOOKUP);
 
   // 1.0 if G94 is on
-  init_readonly_param("_units_per_minute", 71, PA_USE_LOOKUP);
+  init_readonly_param("_units_per_minute", NP_UNITS_PER_MINUTE, PA_USE_LOOKUP);
 
   // 1.0 if G95 is on
-  init_readonly_param("_units_per_rev", 72, PA_USE_LOOKUP);
+  init_readonly_param("_units_per_rev", NP_UNITS_PER_REV, PA_USE_LOOKUP);
 
   // 0..9 for G54..G59.3
-  init_readonly_param("_coord_system", 80, PA_USE_LOOKUP);
+  init_readonly_param("_coord_system", NP_COORD_SYSTEM, PA_USE_LOOKUP);
 
   // 1.0 if G43 is on
-  init_readonly_param("_tool_offset", 90, PA_USE_LOOKUP);
+  init_readonly_param("_tool_offset", NP_TOOL_OFFSET, PA_USE_LOOKUP);
 
   // 1 if G98 set
-  init_readonly_param("_retract_r_plane", 100, PA_USE_LOOKUP);
+  init_readonly_param("_retract_r_plane", NP_RETRACT_R_PLANE, PA_USE_LOOKUP);
 
   // 1 if G99 set
-  init_readonly_param("_retract_old_z", 101, PA_USE_LOOKUP);
+  init_readonly_param("_retract_old_z", NP_RETRACT_OLD_Z, PA_USE_LOOKUP);
 
   // really esoteric
   // init_readonly_param("_control_mode", 110, PA_USE_LOOKUP);
 
 
   // 1 if G97 is on
-  init_readonly_param("_spindle_rpm_mode", 120, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_rpm_mode", NP_SPINDLE_RPM_MODE, PA_USE_LOOKUP);
 
-  init_readonly_param("_spindle_css_mode", 121, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_css_mode", NP_SPINDLE_CSS_MODE, PA_USE_LOOKUP);
 
   // 1 if G90.1 is on
-  init_readonly_param("_ijk_absolute_mode", 130, PA_USE_LOOKUP);
+  init_readonly_param("_ijk_absolute_mode", NP_IJK_ABSOLUTE_MODE, PA_USE_LOOKUP);
 
   // 1 if G7 is on
-  init_readonly_param("_lathe_diameter_mode", 140, PA_USE_LOOKUP);
+  init_readonly_param("_lathe_diameter_mode", NP_LATHE_DIAMETER_MODE, PA_USE_LOOKUP);
 
   // 1 if G8 is on
-  init_readonly_param("_lathe_radius_mode", 141, PA_USE_LOOKUP);
+  init_readonly_param("_lathe_radius_mode", NP_LATHE_RADIUS_MODE, PA_USE_LOOKUP);
 
 
   // the active_m_codes fields
-  init_readonly_param("_spindle_on", 150, PA_USE_LOOKUP);
-  init_readonly_param("_spindle_cw", 151, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_on", NP_SPINDLE_ON, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_cw", NP_SPINDLE_CW, PA_USE_LOOKUP);
 
-  init_readonly_param("_mist", 160, PA_USE_LOOKUP);
-  init_readonly_param("_flood", 170, PA_USE_LOOKUP);
-  init_readonly_param("_speed_override", 180, PA_USE_LOOKUP);
-  init_readonly_param("_feed_override", 181, PA_USE_LOOKUP);
-  init_readonly_param("_adaptive_feed", 190, PA_USE_LOOKUP);
-  init_readonly_param("_feed_hold", 200, PA_USE_LOOKUP);
+  init_readonly_param("_mist", NP_MIST, PA_USE_LOOKUP);
+  init_readonly_param("_flood", NP_FLOOD, PA_USE_LOOKUP);
+  init_readonly_param("_speed_override", NP_SPEED_OVERRIDE, PA_USE_LOOKUP);
+  init_readonly_param("_feed_override", NP_FEED_OVERRIDE, PA_USE_LOOKUP);
+  init_readonly_param("_adaptive_feed", NP_ADAPTIVE_FEED, PA_USE_LOOKUP);
+  init_readonly_param("_feed_hold", NP_FEED_HOLD, PA_USE_LOOKUP);
 
   // active_settings
-  init_readonly_param("_feed", 210, PA_USE_LOOKUP);
-  init_readonly_param("_rpm", 220, PA_USE_LOOKUP);
+  init_readonly_param("_feed", NP_FEED, PA_USE_LOOKUP);
+  init_readonly_param("_rpm", NP_RPM, PA_USE_LOOKUP);
 
 
   // tool related
-  init_readonly_param("_current_tool", 221, PA_USE_LOOKUP);
-  init_readonly_param("_selected_pocket", 222, PA_USE_LOOKUP);
+  init_readonly_param("_current_tool", NP_CURRENT_TOOL, PA_USE_LOOKUP);
+  init_readonly_param("_selected_pocket", NP_SELECTED_POCKET, PA_USE_LOOKUP);
 
   // current position - alias to #5420-#5429
-  init_readonly_param("_x", 240, PA_USE_LOOKUP);
-  init_readonly_param("_y", 241, PA_USE_LOOKUP);
-  init_readonly_param("_z", 242, PA_USE_LOOKUP);
-  init_readonly_param("_a", 243, PA_USE_LOOKUP);
-  init_readonly_param("_b", 244, PA_USE_LOOKUP);
-  init_readonly_param("_c", 245, PA_USE_LOOKUP);
-  init_readonly_param("_u", 246, PA_USE_LOOKUP);
-  init_readonly_param("_v", 247, PA_USE_LOOKUP);
-  init_readonly_param("_w", 248, PA_USE_LOOKUP);
+  init_readonly_param("_x", NP_X, PA_USE_LOOKUP);
+  init_readonly_param("_y", NP_Y, PA_USE_LOOKUP);
+  init_readonly_param("_z", NP_Z, PA_USE_LOOKUP);
+  init_readonly_param("_a", NP_A, PA_USE_LOOKUP);
+  init_readonly_param("_b", NP_B, PA_USE_LOOKUP);
+  init_readonly_param("_c", NP_C, PA_USE_LOOKUP);
+  init_readonly_param("_u", NP_U, PA_USE_LOOKUP);
+  init_readonly_param("_v", NP_V, PA_USE_LOOKUP);
+  init_readonly_param("_w", NP_W, PA_USE_LOOKUP);
 
   // last (optional) endsub/return value
-  init_readonly_param("_value", 249, PA_USE_LOOKUP);
+  init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);
 
   // debugging aids
-  init_readonly_param("_call_level", 250, PA_USE_LOOKUP);
-  init_readonly_param("_remap_level", 251, PA_USE_LOOKUP);
+  init_readonly_param("_call_level", NP_CALL_LEVEL, PA_USE_LOOKUP);
+  init_readonly_param("_remap_level", NP_REMAP_LEVEL, PA_USE_LOOKUP);
 
   return INTERP_OK;
 }
