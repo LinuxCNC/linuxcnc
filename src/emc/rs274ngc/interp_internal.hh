@@ -699,20 +699,20 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
-  int retain_g43;
+
+    int retain_g43;  // experimental
 
 
     const char *on_abort_command;
 
     std::map<int, remap_pointer>  g_remapped,m_remapped;
-    // std::map<const char *,remap_pointer,nocase_cmp>  remaps;
     Remap remaps;
 
     const char *py_module;
-  int py_module_stat;
-  time_t    module_mtime;   /* time of last modification */
-  int py_reload_on_change;
-  boost::python::object module, module_namespace;
+    int py_module_stat;
+    time_t    module_mtime;   /* time of last modification */
+    int py_reload_on_change;
+    boost::python::object module, module_namespace;
 
 }
 setup;
