@@ -258,12 +258,15 @@ bool Interp::is_pycallable(setup_pointer settings,
 
 int Interp::pycall(setup_pointer settings,
 		   block_pointer block,
-		   const char *funcname)
+		   const char *funcname,
+		   int calltype)
 {
     bp::object retval, function;
     PyGILState_STATE gstate;
     std::string msg;
     bool py_exception = false;
+    int status;
+    PyObject *res_str;
 
     if (_setup.loggingLevel > 2)
 	logPy("pycall %s \n", funcname);
@@ -299,57 +302,101 @@ int Interp::pycall(setup_pointer settings,
 	PyErr_Clear();
     }
     if (useGIL)
-	    PyGILState_Release(gstate);
+	PyGILState_Release(gstate);
     if (py_exception) {
 	fprintf(stderr,"-->%s\n",msg.c_str());
 	ERS("pycall: %s", msg.c_str());
 	return INTERP_ERROR;
     }
-    if (retval.ptr() != Py_None) {
-	if (PyFloat_Check(retval.ptr())) {
-	    block->py_returned_value = bp::extract<double>(retval);
-	    block->returned[RET_DOUBLE] = 1;
-	    logPy("pycall: '%s' returned %f", funcname, block->py_returned_value);
-	    return INTERP_OK;
-	}
-	if (PyTuple_Check(retval.ptr())) {
-	    bp::tuple tret = bp::extract<bp::tuple>(retval);
-	    int len = bp::len(tret);
-	    if (!len)  {
-		logPy("pycall: empty tuple detected");
-		block->returned[RET_NONE] = 1;
-		return INTERP_OK;
-	    }
-	    bp::object item0 = tret[0];
-	    if (PyInt_Check(item0.ptr())) {
-		block->returned[RET_STATUS] = 1;
-		block->py_returned_status = bp::extract<int>(item0);
-		logPy("pycall: tuple item 0 - int: (%s)",
-		      interp_status(block->py_returned_status));
-	    }
-	    if (len > 1) {
-		bp::object item1 = tret[1];
-		if (PyInt_Check(item1.ptr())) {
-		    block->py_returned_userdata = bp::extract<int>(item1);
-		    block->returned[RET_USERDATA] = 1;
-		    logPy("pycall: tuple item 1: int userdata=%d",
-			  block->py_returned_userdata);
+    try {
+	switch  (calltype) {
+	case PY_OWORDCALL:
+	    // if this was called as "o<pythoncallable> call",
+	    // expect either a float or no value.
+	    status = INTERP_OK;
+	    if (retval.ptr() != Py_None) {
+		if (PyFloat_Check(retval.ptr())) {
+		    block->py_returned_value = bp::extract<double>(retval);
+		    block->returned[RET_DOUBLE] = 1;
+		    logPy("pycall: O <%s> call returned %f", funcname, block->py_returned_value);
+		} else {
+		    // not a float, strange
+		    PyObject *res_str = PyObject_Str(retval.ptr());
+		    ERS("Python call for 'O<%s> call returned '%s' - expected float value, got %s",
+			funcname,
+			PyString_AsString(res_str),
+			retval.ptr()->ob_type->tp_name);
+		    Py_XDECREF(res_str);
+		    status = INTERP_ERROR;
 		}
+	    } else {
+		// no value was returned by Python callable
 	    }
+	    if (useGIL)
+		PyGILState_Release(gstate);
+	    CHP(status);
+	    break;
+
+	case PY_PROLOG:
+	case PY_REMAP:
+	case PY_EPILOG:
+	    // these may return values in two flavours:
+	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...)
+	    // - a tuple (returncode, userdata)
+	    // - returning no value is considered bad practice and raises an error
+	    if (retval.ptr() != Py_None) {
+		if (PyTuple_Check(retval.ptr())) {
+		    // this will raise a Python exception on type mismatch
+		    bp::tuple rtuple = bp::extract<bp::tuple>(retval);
+		    block->py_returned_status = bp::extract<int>(rtuple[0]);
+		    block->returned[RET_STATUS] = 1;
+		    block->py_returned_userdata = bp::extract<int>(rtuple[1]);
+		    block->returned[RET_USERDATA] = 1;
+		} else {
+		    block->py_returned_status = bp::extract<int>(retval);
+		    block->returned[RET_STATUS] = 1;
+		}
+
+	    }
+	    if (useGIL)
+		PyGILState_Release(gstate);
 	    if (block->returned[RET_STATUS])
-		ERP(block->py_returned_status);
-	    return INTERP_OK;
+		return block->py_returned_status;
+
+	    res_str = PyObject_Str(retval.ptr());
+	    ERS("Python %s function '%s' expected tuple or int return value, got '%s' (%s)",
+		(calltype == PY_PROLOG ? "prolog" : (calltype == PY_EPILOG) ? "epilog" : "remap"),
+		funcname,
+		PyString_AsString(res_str),
+		retval.ptr()->ob_type->tp_name);
+	    Py_XDECREF(res_str);
+	    return INTERP_ERROR;
+	    break;
+
+	case PY_INTERNAL:
+	    // a plain int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...) is expected
+	    ERS("PY_INTERNAL: not implemented yet");
+	    if (useGIL)
+		PyGILState_Release(gstate);
+	    CHP(INTERP_ERROR);
+	    break;
+	default: ;
 	}
-	PyObject *res_str = PyObject_Str(retval.ptr());
-	ERS("function '%s.%s' returned '%s' - expected float or tuple, got %s",
-	    settings->py_module,funcname,
-	    PyString_AsString(res_str),
-	    retval.ptr()->ob_type->tp_name);
-	Py_XDECREF(res_str);
-	return INTERP_OK;
-    }	else {
-	block->returned[RET_NONE] = 1;
-	logPy("pycall: '%s' returned no value",funcname);
+    }
+    catch (bp::error_already_set) {
+	if (PyErr_Occurred()) {
+	    msg = handle_pyerror();
+	}
+	py_exception = true;
+	bp::handle_exception();
+	PyErr_Clear();
+    }
+    if (useGIL)
+	PyGILState_Release(gstate);
+    if (py_exception) {
+	fprintf(stderr,"-->%s\n",msg.c_str());
+	ERS("pycall: %s", msg.c_str());
+	return INTERP_ERROR;
     }
     return INTERP_OK;
 }

@@ -481,7 +481,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 			     cblock->executing_remap->epilog_func,
 			     cblock->executing_remap->remap_ngc);
 		    status = pycall(settings,cblock,
-				    cblock->executing_remap->epilog_func);
+				    cblock->executing_remap->epilog_func,
+				    PY_EPILOG);
 		    if (status > INTERP_MIN_ERROR)
 			ERP(status);
 		}
@@ -626,7 +627,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		     REMAP_FUNC(cblock->executing_remap),
 		     cblock->executing_remap->name);
 	    CHP(pycall(settings, cblock,
-		       cblock->executing_remap->prolog_func));
+		       cblock->executing_remap->prolog_func,
+		       PY_PROLOG));
 	}
 
 	// a Python oword sub can be executed inline -
@@ -635,7 +637,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	// FIXME mah: think through queuebusters in Python oword sub
 
 	if (is_py_osub) {
-	    status = pycall(settings, block, block->o_name);
+	    status = pycall(settings, block, block->o_name, PY_OWORDCALL);
 	    if (status > INTERP_MIN_ERROR) {
 		logOword("O_call: vanilla osub pycall(%s) failed, unwinding",
 			 block->o_name);
@@ -654,7 +656,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	if (is_py_remap_handler) {
 	    cblock->tupleargs = bp::make_tuple(cblock->user_data);
 	    status =  pycall(settings, cblock,
-			     cblock->executing_remap->remap_py);
+			     cblock->executing_remap->remap_py,
+			     PY_REMAP);
 	    if (status >  INTERP_MIN_ERROR) {
 		logRemap("O_call: pycall %s returned %s, unwinding (%s)",
 			 cblock->executing_remap->remap_py,

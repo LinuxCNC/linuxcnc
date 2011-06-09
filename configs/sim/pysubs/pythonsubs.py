@@ -1,4 +1,5 @@
 import sys
+# InterpMod, CanonMod are automatically imported
 from InterpMod import *
 
 
@@ -19,12 +20,12 @@ def prepare_prolog(userdata,**words):
 	(status,pocket) = interp.find_tool_pocket(tool)
 	if status != INTERP_OK:
 		interp.set_errormsg("T%d: pocket not found" % (tool))
-		return (status,)
+		return status
 	# these variables will be visible in the following ngc oword sub
 	# as #<tool> and #<pocket> as local variables
 	interp.params["tool"] = tool
 	interp.params["pocket"] = pocket
-	return (INTERP_OK,)
+	return INTERP_OK
 
 # The minimal ngc prepare procedure looks like so:
 #
@@ -44,10 +45,10 @@ def prepare_epilog(userdata,**words):
 		interp.selected_pocket = int(retval)
 		interp.selected_tool = int(words['t'])
 		CanonMod.SELECT_POCKET(int(retval),int(words['t']))
-		return (INTERP_OK,)
+		return INTERP_OK
 	else:
 		interp.set_errormsg("T%d: aborted (return code %.4f)" % (int(words['t']),retval))
-		return (INTERP_ERROR,)
+		return INTERP_ERROR
 
 
 #
@@ -59,10 +60,10 @@ def prepare_epilog(userdata,**words):
 def change_prolog(userdata,**words):
 	if interp.selected_pocket < 0:
 		interp.set_errormsg("Need tool prepared -Txx- for toolchange")
-		return (INTERP_ERROR,)
+		return INTERP_ERROR
 	if interp.cutter_comp_side:
 		interp.set_errormsg("Cannot change tools with cutter radius compensation on")
-		return (INTERP_ERROR,)
+		return INTERP_ERROR
 
 	# bug in interp_convert.cc: WONT WORK - isnt valid anymore
 	## 	    settings->selected_pocket);
@@ -72,10 +73,11 @@ def change_prolog(userdata,**words):
 
 	interp.params["tool_in_spindle"] = interp.current_tool
 	interp.params["selected_pocket"] = interp.selected_pocket
-	return (INTERP_OK,)
+	return INTERP_OK
 
 def change_epilog(userdata,**words):
 	retval = interp.return_value
+	print "change_epilog retval=",retval
 	if retval > 0:
 		# commit change
 		CanonMod.CHANGE_TOOL(interp.selected_pocket)
@@ -83,10 +85,10 @@ def change_epilog(userdata,**words):
 		# cause a sync()
 		interp.tool_change_flag = True
 		interp.set_tool_parameters()
-		return (INTERP_OK,)
+		return INTERP_OK
 	else:
 		interp.set_errormsg("M6 aborted (return code %.4f)" % (retval))
-		return (INTERP_ERROR,)
+		return INTERP_ERROR
 
 
 # M61 remapped to an all-Python handler
@@ -109,7 +111,7 @@ def set_tool_number(userdata,**words):
 	(status,pocket) = interp.find_tool_pocket(toolno)
 	if status != INTERP_OK:
 		interp.set_errormsg("M61 failed: requested tool %d not in table" % (toolno))
-		return (status,)
+		return status
 	if words['q'] > -TOLERANCE_EQUAL:
 		interp.current_pocket = pocket
 
@@ -118,10 +120,10 @@ def set_tool_number(userdata,**words):
 		# cause a sync()
 		interp.tool_change_flag = True
 		interp.set_tool_parameters()
-		return (INTERP_OK,)
+		return INTERP_OK
 	else:
 		interp.set_errormsg("M61 failed: Q=%4" % (toolno))
-		return (INTERP_ERROR,)
+		return INTERP_ERROR
 
 #
 # This demonstrates how queuebusters
@@ -139,12 +141,26 @@ def test_reschedule(userdata,**words):
 		# we were called post-sync():
 		pin_status = CanonMod.GET_EXTERNAL_DIGITAL_INPUT(0,0);
 		print "pin status=",pin_status
-		return (INTERP_OK,) # done
+		return INTERP_OK # done
 	else:
 		# wait for digital-input 00 to go hi for 5secs
 		CanonMod.WAIT(0,1,2,5.0)
 		# pls call again after sync() with new userdata value
 		return (INTERP_EXECUTE_FINISH,userdata + 1)
+
+
+# Demo Python O-word subroutine - call as:
+# o<square> [5]
+# (debug, #<_value>)
+def square(args):
+	return args[0]*args[0]
+
+
+#----------------  debugging fluff ----------
+
+
+
+
 
 # tool table access
 def print_tool(userdata, **words):
@@ -157,14 +173,14 @@ def print_tool(userdata, **words):
 	print "tool offset y:", interp.tool_table[n].offset.tran.y
 	print "tool offset z:", interp.tool_table[n].offset.tran.z
 
-	return (INTERP_OK,)
+	return INTERP_OK
 
 def set_tool_zoffset(userdata, **words):
 	n = int(words['p'])
 	interp.tool_table[n].offset.tran.z = words['q']
 	if n == 0:
 		interp.set_tool_parameters()
-	return (INTERP_OK,)
+	return INTERP_OK
 
 
 def printobj(b,header=""):
@@ -199,10 +215,11 @@ def introspect(args,**kwargs):
 	print "ngc=",interp.blocks[r].executing_remap.remap_ngc
 	print "epilog=",interp.blocks[r].executing_remap.epilog_func
 
-	return (INTERP_OK,)
+	return INTERP_OK
 
 def null(args,**kwargs):
-	return (INTERP_OK,)
+	return INTERP_OK
+
 
 def callstack():
 	for i in range(len(interp.sub_context)):
@@ -212,5 +229,5 @@ def callstack():
 		print "filenameposition=",interp.sub_context[i].filename
 		print "subname=",interp.sub_context[i].subname
 		print "context_status=",interp.sub_context[i].context_status
-	return (INTERP_OK,)
+	return INTERP_OK
 

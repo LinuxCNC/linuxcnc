@@ -520,10 +520,20 @@ public:
 			      int number = -1);
 
     int init_python(setup_pointer settings, bool reload = false);
- bool is_pycallable(setup_pointer settings, const char *funcname);
+    bool is_pycallable(setup_pointer settings, const char *funcname);
+
+    // describes intented use, and hence parameter and return value
+    // interpretation
+    enum py_calltype { PY_OWORDCALL,
+		       PY_PROLOG,
+		       PY_REMAP,
+		       PY_EPILOG,
+		       PY_INTERNAL
+    };
  int pycall(setup_pointer settings,
 	    block_pointer block,
-	    const char *funcname);
+	    const char *funcname,
+	    int calltype);
     int py_execute(const char *cmd); // for (py, ....) comments
     int py_reload_on_change(setup_pointer settings);
  int convert_straight_indexer(int, block*, setup*);
