@@ -744,6 +744,17 @@ macros totally crash-proof. If the function call stack is deeper than
 
 */
 
+// Just set an error string using printf-style formats, do NOT return
+#define ERM(fmt, ...)                                      \
+    do {                                                   \
+        setError (fmt, ## __VA_ARGS__);                    \
+        _setup.stack_index = 0;                            \
+        strncpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN); \
+        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
+        _setup.stack_index++; \
+        _setup.stack[_setup.stack_index][0] = 0;           \
+    } while(0)
+
 // Set an error string using printf-style formats and return
 #define ERS(fmt, ...)                                      \
     do {                                                   \

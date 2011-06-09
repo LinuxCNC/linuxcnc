@@ -1,6 +1,5 @@
-// Support for Python plugin
-//
-// proof-of-concept for access to Interp and canon
+// Support for embedding Python in the RS274NGC interpreter
+// with access to Interp and Canon
 //
 // NB: all this is executed at readahead time
 //
@@ -53,7 +52,7 @@ extern "C" void initInterpMod();
     do {                                                       \
         if (bad) {                                             \
 	    logPy(fmt, ## __VA_ARGS__);			       \
-	    ERS(fmt, ## __VA_ARGS__);                          \
+	    ERM(fmt, ## __VA_ARGS__);                          \
 	    goto error;					       \
         }                                                      \
     } while(0)
@@ -174,12 +173,9 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	settings->py_module_stat = PYMOD_FAILED;
 	PyErr_Clear();
     }
-    if (py_exception) {
-	logPy("init_python: module '%s' init failed: \n%s",path,msg.c_str());
-	if (useGIL)
-	    PyGILState_Release(gstate);
-	ERS("init_python: %s",msg.c_str());
-    }
+    PYCHK(py_exception, "init_python: module '%s' init failed: \n%s",
+	  path, msg.c_str());
+
     if (useGIL)
 	PyGILState_Release(gstate);
     return INTERP_OK;
@@ -265,7 +261,7 @@ int Interp::pycall(setup_pointer settings,
     PyGILState_STATE gstate;
     std::string msg;
     bool py_exception = false;
-    int status;
+    int status = INTERP_OK;
     PyObject *res_str;
 
     if (_setup.loggingLevel > 2)
@@ -284,7 +280,6 @@ int Interp::pycall(setup_pointer settings,
 	    settings->py_module,funcname,
 	    (settings->py_module_stat == PYMOD_FAILED) ?
 	    "initialization failed" : " not initialized");
-	return INTERP_OK;
     }
     if (useGIL)
 	gstate = PyGILState_Ensure();
@@ -301,18 +296,15 @@ int Interp::pycall(setup_pointer settings,
 	bp::handle_exception();
 	PyErr_Clear();
     }
-    if (useGIL)
-	PyGILState_Release(gstate);
     if (py_exception) {
-	fprintf(stderr,"-->%s\n",msg.c_str());
-	ERS("pycall: %s", msg.c_str());
-	return INTERP_ERROR;
+	ERM("pycall: %s:\n%s", funcname, msg.c_str());
+	goto done;
     }
     try {
 	switch  (calltype) {
 	case PY_OWORDCALL:
 	    // if this was called as "o<pythoncallable> call",
-	    // expect either a float or no value.
+	    // expect either a float or no return value.
 	    status = INTERP_OK;
 	    if (retval.ptr() != Py_None) {
 		if (PyFloat_Check(retval.ptr())) {
@@ -322,19 +314,16 @@ int Interp::pycall(setup_pointer settings,
 		} else {
 		    // not a float, strange
 		    PyObject *res_str = PyObject_Str(retval.ptr());
-		    ERS("Python call for 'O<%s> call returned '%s' - expected float value, got %s",
+		    Py_XDECREF(res_str);
+		    ERM("Python call for 'O<%s> call returned '%s' - expected float value, got %s",
 			funcname,
 			PyString_AsString(res_str),
 			retval.ptr()->ob_type->tp_name);
-		    Py_XDECREF(res_str);
 		    status = INTERP_ERROR;
 		}
 	    } else {
 		// no value was returned by Python callable
 	    }
-	    if (useGIL)
-		PyGILState_Release(gstate);
-	    CHP(status);
 	    break;
 
 	case PY_PROLOG:
@@ -356,30 +345,27 @@ int Interp::pycall(setup_pointer settings,
 		    block->py_returned_status = bp::extract<int>(retval);
 		    block->returned[RET_STATUS] = 1;
 		}
-
 	    }
-	    if (useGIL)
-		PyGILState_Release(gstate);
-	    if (block->returned[RET_STATUS])
-		return block->py_returned_status;
-
+	    if (block->returned[RET_STATUS]) {
+		status = block->py_returned_status;
+		goto done;
+	    }
 	    res_str = PyObject_Str(retval.ptr());
-	    ERS("Python %s function '%s' expected tuple or int return value, got '%s' (%s)",
+	    Py_XDECREF(res_str);
+	    ERM("Python %s function '%s' expected tuple or int return value, got '%s' (%s)",
 		(calltype == PY_PROLOG ? "prolog" : (calltype == PY_EPILOG) ? "epilog" : "remap"),
 		funcname,
 		PyString_AsString(res_str),
 		retval.ptr()->ob_type->tp_name);
-	    Py_XDECREF(res_str);
-	    return INTERP_ERROR;
+	    status = INTERP_ERROR;
 	    break;
 
 	case PY_INTERNAL:
 	    // a plain int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...) is expected
-	    ERS("PY_INTERNAL: not implemented yet");
-	    if (useGIL)
-		PyGILState_Release(gstate);
-	    CHP(INTERP_ERROR);
+	    ERM("PY_INTERNAL: not implemented yet");
+	    status = INTERP_ERROR;
 	    break;
+
 	default: ;
 	}
     }
@@ -391,14 +377,14 @@ int Interp::pycall(setup_pointer settings,
 	bp::handle_exception();
 	PyErr_Clear();
     }
+    if (py_exception) {
+	ERM("pycall: %s:\n%s", funcname, msg.c_str());
+	status = INTERP_ERROR;
+    }
+ done:
     if (useGIL)
 	PyGILState_Release(gstate);
-    if (py_exception) {
-	fprintf(stderr,"-->%s\n",msg.c_str());
-	ERS("pycall: %s", msg.c_str());
-	return INTERP_ERROR;
-    }
-    return INTERP_OK;
+    return status;
 }
 
 // called by  (py, ....) comments
@@ -443,7 +429,7 @@ int Interp::py_execute(const char *cmd)
     // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
     // if (msg.length())
     // 	MESSAGE((char *) msg.c_str());
-    ERP(INTERP_OK);
+    return INTERP_OK;
 }
 
 
