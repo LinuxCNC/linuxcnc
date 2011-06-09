@@ -710,14 +710,11 @@ int Interp::init()
   int k;                        // starting index in parameters of origin offsets
   char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
-
   char *iniFileName;
 
   INIT_CANON();
 
   iniFileName = getenv("INI_FILE_NAME");
-
-  // logDebug("Interp.init() called pid=%d ini=%s\n",getpid(),iniFileName);
 
   // the default log file
   _setup.loggingLevel = 0;
@@ -755,7 +752,6 @@ int Interp::init()
       else
       {
           const char *inistring;
-
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
@@ -2050,7 +2046,7 @@ Side Effects:
    update the globals
 
 Called By:
-   Interp::init()
+   emctask before calling Interp::init()
 
 The file looks like this:
 

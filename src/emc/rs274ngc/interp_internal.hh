@@ -701,7 +701,6 @@ typedef struct setup_struct
   bool mdi_interrupt;
   int retain_g43;
 
-    // const char *py_callback;     // for continuing after EXECUTE_FINISH
 
     const char *on_abort_command;
 
