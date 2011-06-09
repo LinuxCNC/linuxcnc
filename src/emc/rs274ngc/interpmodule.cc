@@ -499,6 +499,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("return_value", &InterpWrap::_setup.return_value)
 		       .def_readwrite("rotation_xy", &InterpWrap::_setup.rotation_xy)
 		       .def_readwrite("selected_pocket", &InterpWrap::_setup.selected_pocket)
+		       .def_readwrite("selected_tool", &InterpWrap::_setup.selected_tool)
 		       .def_readwrite("sequence_number", &InterpWrap::sequence_number)
 		       .def_readwrite("speed", &InterpWrap::_setup.speed)
 		       .def_readwrite("speed_feed_mode", &InterpWrap::_setup.speed_feed_mode)
