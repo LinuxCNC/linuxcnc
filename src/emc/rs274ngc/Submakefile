@@ -24,6 +24,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_remap.cc \
 	canonmodule.cc \
 	interpmodule.cc \
+	configmodule.cc \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
