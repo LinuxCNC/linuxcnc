@@ -732,25 +732,13 @@ int Interp::init()
   _setup.remap_level = 0; // remapped blocks stack index
 
 
-  // not clear -- but this is fn is called a second time without an INI.
-  if(NULL == iniFileName)
-  {
-      // log_file not yet setup here
-      if (trace) fprintf(stderr,"INI_FILE_NAME not found pid=%d\n",getpid());
-  }
-  else
-  {
-      if (trace) fprintf(stderr,"Interp.init(%d) getenv(INI_FILE_NAME)=%s\n",
-			 getpid(),iniFileName);
+  if(iniFileName != NULL) {
+
       IniFile inifile;
-
-      if (trace) fprintf(stderr,"iniFileName:%s:\n", iniFileName);
-
       if (inifile.Open(iniFileName) == false) {
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
-      }
-      else
-      {
+      } else {
+
           const char *inistring;
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
