@@ -4,13 +4,14 @@ namespace bp = boost::python;
 
 #include "rs274ngc_interp.hh"
 
-
+#pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_canon_error(const char *s)
 {
     if ((s == NULL) && !strlen(s))
 	return;
     CANON_ERROR(s);
 }
+#pragma GCC diagnostic warning "-Wformat-security"
 
 
 BOOST_PYTHON_MODULE(CanonMod) {

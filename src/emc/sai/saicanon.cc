@@ -1148,8 +1148,9 @@ void INTERP_ABORT(int reason, const char *message)
 /* Sends error message */
 void CANON_ERROR(const char *fmt, ...)
 {
-    va_list ap;
 #if 0 // FIXME
+    va_list ap;
+
     if (fmt != NULL) {
 	va_start(ap, fmt);
 	vfprintf(, fmt, ap);

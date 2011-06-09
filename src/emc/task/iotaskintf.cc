@@ -36,18 +36,12 @@
 #include "initool.hh"
 #include "tool_parse.h"
 
-// IO INTERFACE
 
-// // the NML channels to the EMCIO controller
-// static RCS_CMD_CHANNEL *emcIoCommandBuffer = 0;
-// static RCS_STAT_CHANNEL *emcIoStatusBuffer = 0;
-
-// global status structure
+// we just keep emcIoStatus to keep task happy
 static EMC_IO_STAT eio;
 EMC_IO_STAT *emcIoStatus = &eio;
 
 
-// mah temps
 static int readToolChange(IniFile *toolInifile);
 static int loadTool(IniFile *toolInifile);
 static int saveToolTable(const char *filename,
@@ -61,8 +55,6 @@ static char *ttcomments[CANON_POCKETS_MAX];
 static int fms[CANON_POCKETS_MAX];
 static const char *progname = "task-dummy";
 
-
-
 int emcIoInit()
 {
     fprintf(stderr,"emcIOInit() start\n");
@@ -71,7 +63,7 @@ int emcIoInit()
     if (0 != DummyiniTool(EMC_INIFILE)) {
 	return -1;
     }
-   for(int i = 0; i < CANON_POCKETS_MAX; i++) {
+    for(int i = 0; i < CANON_POCKETS_MAX; i++) {
 	ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
     }
 

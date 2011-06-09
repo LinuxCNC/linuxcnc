@@ -56,7 +56,7 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
       }                                         \
     } while (0)
 
-// print to if RS27$NGC/LOG_LEVEL > 1:
+// print to if RS274NGC/LOG_LEVEL > 1:
 
 #define MSG(fmt,args...)                        \
     do {                                        \
@@ -66,16 +66,17 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 
 #undef DEBUG_EMC
 
+
 #define _logDebug(mask,dlflags,level, fmt, args...)	\
-    do {                                        \
-    if ((mask & _setup.debugmask) &&		\
-	(level < _setup.loggingLevel)) {	\
-	doLog(dlflags,				\
-	      __FILE__,				\
-	      __LINE__ ,			\
-	      fmt "\n",				\
-	      ## args);				\
-        }                                       \
+    do {						\
+	if ((mask & _setup.debugmask) &&		\
+	    (level < _setup.loggingLevel)) {		\
+	    doLog(dlflags,				\
+		  __FILE__,				\
+		  __LINE__ ,				\
+		  fmt "\n",				\
+		  ## args);				\
+        }						\
     } while(0)
 
 //#define logDebug(fmt, args...)  _logDebug(EMC_DEBUG_INTERP,LOG_FILENAME,1,fmt, ## args)

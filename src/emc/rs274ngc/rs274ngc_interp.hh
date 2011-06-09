@@ -24,8 +24,6 @@ public:
 
  int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
 
-
-
 // stop running
  int exit();
 
@@ -470,12 +468,6 @@ public:
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
- // int execute_handler(setup_pointer settings,  /* pointer to machine settings */
- // 		     remap_pointer rptr,
- // 		     int count, // number of double args
- // 		     ...); // double's     const char *cmd,
-
-
  // parse a REMAP= descriptor from the ini file
  int parse_remap(const char *inistring, int lineno);
 
@@ -485,8 +477,8 @@ public:
 
  // establish a new remapping context
  int enter_remap(void);
-    // leave current remapping context
-    int leave_remap(void);
+ // leave current remapping context
+ int leave_remap(void);
 
  // callback when remapping handler done
  int remap_finished( int status);
@@ -526,9 +518,6 @@ public:
 			      int phase,
 			      char letter,
 			      int number = -1);
-    // int convert_remapped_mcode(block_pointer block, setup_pointer settings,
-    // 			       int mode);
- // const char *remap_name(setup_pointer settings,int type, int code);
 
     int init_python(setup_pointer settings, bool reload = false);
  bool is_pycallable(setup_pointer settings, const char *funcname);
@@ -542,8 +531,6 @@ public:
 
  void doLog(unsigned int flags, const char *file, int line,
 	    const char *fmt, ...) __attribute__((format(printf,5,6)));
-
-    // const char *fmt, ...) __attribute__((format(printf,2,3)));
 
  const char *interp_status(int status);
 

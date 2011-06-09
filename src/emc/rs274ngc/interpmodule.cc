@@ -17,7 +17,7 @@ namespace bp = boost::python;
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
-
+#pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_setError(Interp &interp, const char *s)
 {
     setup *settings  = get_setup(&interp);
@@ -32,6 +32,7 @@ static void wrap_setError(Interp &interp, const char *s)
     settings->stack_index++;
     settings->stack[settings->stack_index][0] = 0;
 }
+#pragma GCC diagnostic warning "-Wformat-security"
 
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 {
