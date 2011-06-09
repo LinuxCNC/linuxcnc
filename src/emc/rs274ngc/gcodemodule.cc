@@ -398,7 +398,7 @@ void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
-void SELECT_POCKET(int tool) {}
+void SELECT_POCKET(int pocket, int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}

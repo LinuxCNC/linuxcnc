@@ -123,7 +123,7 @@ int emcIoSetDebug(int debug)
     return 0;
 }
 
-int emcToolPrepare(int p)
+int emcToolPrepare(int p, int tool)
 {
 
     // it doesn't make sense to prep the spindle pocket

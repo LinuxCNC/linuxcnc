@@ -42,7 +42,8 @@ def prepare_epilog(userdata,**words):
 	retval = interp.return_value
 	if retval > 0:
 		interp.selected_pocket = int(retval)
-		CanonMod.SELECT_POCKET(int(retval))
+		interp.selected_tool = int(words['t'])
+		CanonMod.SELECT_POCKET(int(retval),int(words['t']))
 		return (INTERP_OK,)
 	else:
 		interp.set_errormsg("T%d: aborted (return code %.4f)" % (int(words['t']),retval))

@@ -541,7 +541,7 @@ a change_tool command, the select_tool command must have been given
 before the change_tool command, and the value of slot must be the slot
 number of the selected tool. */
 
-extern void SELECT_POCKET(int i);	/* i is slot number */
+extern void SELECT_POCKET(int i, int tool);	/* i is slot number, tool is tool number */
 
 extern void CHANGE_TOOL_NUMBER(int number);
 

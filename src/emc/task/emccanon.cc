@@ -1894,11 +1894,12 @@ void CHANGE_TOOL(int slot)
 }
 
 /* SELECT_POCKET results from T1, for example */
-void SELECT_POCKET(int slot)
+void SELECT_POCKET(int slot, int tool)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
 
-    prep_for_tool_msg.tool = slot;
+    prep_for_tool_msg.pocket = slot;
+    prep_for_tool_msg.tool = tool;
 
     interp_list.append(prep_for_tool_msg);
 }

@@ -642,7 +642,7 @@ void CHANGE_TOOL(int slot)
   _tools[0] = _tools[slot];
 }
 
-void SELECT_POCKET(int slot)
+void SELECT_POCKET(int slot, int tool)
 {PRINT1("SELECT_POCKET(%d)\n", slot);}
 
 void CHANGE_TOOL_NUMBER(int slot)

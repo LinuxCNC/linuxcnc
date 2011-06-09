@@ -1937,7 +1937,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
-	retval = emcToolPrepare(tool_prepare_msg->tool);
+	retval = emcToolPrepare(tool_prepare_msg->pocket,tool_prepare_msg->tool);
 	break;
 
     case EMC_TOOL_START_CHANGE_TYPE:
