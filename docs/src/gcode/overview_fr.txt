@@ -1,228 +1,211 @@
-= G Code Overview [[cha:Language-Overview]]
+= Vue d'ensemble du langage [[cha:Vue-d-ensemble-du-langage]]
 
-The EMC2 G Code language is based on the RS274/NGC language. The G
-Code language is based on lines of code. Each line (also called a
-"block") may include commands to do several different things. Lines of
-code may be collected in a file to make a program.
+Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
+(également appelée un “block”) peut inclure des commandes pour faire
+produire diverses actions au centre d'usinage. Plusieurs lignes de code
+peuvent être regroupées dans un fichier pour créer un programme.
 
-A typical line of code consists of an optional line number at the
-beginning followed by one or more "words". A word consists of a letter
-followed by a number (or something that evaluates to a number). A word
-may either give a command or provide an argument to a command. For
-example, "`G1 X3`" is a valid line of code with two words. "`G1`" is a
-command meaning "move in a straight line at the programmed feed
- rate to the programmed end point", and "`X3`" provides an argument
-value (the value of X should be 3 at the end of 
-the move). Most EMC2 G Code commands start with either G or M (for
-General and Miscellaneous). The words for these commands are called "G
-codes" and "M codes."
+Une ligne de code typique commence par un numéro de ligne optionnel
+suivi par un ou plusieurs “mots”. Un mot commence par une lettre suivie
+d'un nombre (ou quelque chose qui permet d'évaluer un nombre). Un mot
+peut, soit donner une commande, soit fournir un argument à une
+commande. Par exemple, “`G1 X3`” est une ligne de code valide avec deux
+mots. “`G1`” est une commande qui signifie “déplaces toi en ligne
+droite à la
+ vitesse programmée” et “`X3`” fournit la valeur d'argument 
+(la valeur de X doit être 3 à la fin du mouvement). La plupart des 
+commandes RS274/NGC commencent avec G ou M
+(G pour Général et M pour Miscellaneous (auxiliaire)). 
+Les termes pour ces commandes sont “G codes” et “M codes.” 
 
-The EMC2 language has no indicator for the start of a program. The
-Interpreter, however, deals with files. A single program may be in a
-single file, or a program may be spread across several files. A file
-may demarcated with percents in the following way. The first non-blank
-line of a file may contain nothing but a percent sign, "%", possibly
-surrounded by white space, and later in the file (normally at the end
-of the file) there may be a similar line. Demarcating a file with
-percents is optional if the file has an `M2` or `M30` in it, but is
-required if not. An error will be signalled if a file
-has a percent line at the beginning but not at the end. The useful
-contents of a file demarcated by percents stop after the second percent
-line. Anything after that is ignored.
+Le langage RS274/NGC(((RS274NGC))) n'a pas d'indicateur de début et de
+fin de programme. L'interpréteur cependant traite les fichiers. Un
+programme simple peut être en un seul fichier, mais il peut aussi être
+partagé sur plusieurs fichiers. Un fichier peut être délimité par le
+signe pourcent de la manière suivante. La première ligne non vide d'un
+fichier peut contenir un signe “%” seul, éventuellement encadré
+d'espaces blancs, ensuite, à la fin du fichier on doit trouver une
+ligne similaire. Délimiter un fichier avec des % est facultatif si le
+fichier comporte un `M2` ou un `M30` , mais est requis sinon. Une
+erreur sera signalée si un fichier a une
+ligne pourcent au début, mais pas à la fin. Le contenu utile d'un
+fichier délimité par pourcent s'arrête après la seconde ligne pourcent.
+Tout le reste est ignoré.
 
-The EMC2 G Code language has two commands (`M2` or `M30`), either of
-which ends a program. A program may end before the end of
-a file. Lines of a file that occur after the end of a program are not
-to be executed. The interpreter does not even read them.
+Le langage RS274/NGC prévoit les deux commandes (`M2` ou `M30` ) pour
+finir un programme. Le programme peut se terminer avant la fin
+du fichier. Les lignes placées après la fin d'un programme ne seront
+pas exécutées. L'interpréteur ne les lit même pas.
 
-== Format of a line
+== Format d'une ligne
 
-A permissible line of input code consists of the following, in order,
-with the restriction that there is a maximum (currently 256) to the
-number of characters allowed on a line.
+Une ligne de code permise par la norme RS274/NGC est construite de la
+façon suivante, dans l'ordre avec la restriction à un maximum de 256
+caractères sur la même ligne.
 
- . an optional block delete character, which is a slash "/" . 
- . an optional line number.
- . any number of words, parameter settings, and comments.
- . an end of line marker (carriage return or line feed or both). 
+ . Un block optionnel contenant le caractère d'effacement de ligne, barre
+   de fraction “/”. 
+ . Un numéro de ligne optionnel.
+ . N'importe quel nombre de mots, valeurs de paramètres et commentaires.
+ . Un caractère de fin de ligne (retour chariot ou saut de ligne ou les
+   deux).
 
-Any input not explicitly allowed is illegal and will cause the
-Interpreter to signal an error.
+Toute entrée non explicitement permise est illégale, elle provoquera
+un message d'erreur de l'interpréteur.
 
-Spaces and tabs are allowed anywhere on a line of code and do not
-change the meaning of the line, except inside comments. This makes some
-strange-looking input legal. The line "`G0X +0. 12 34Y 7`" is
-equivalent to "`G0 x+0.1234 Y7`", for example.
+Les espaces sont permis ainsi que les tabulations dans une ligne de
+code dont ils ne changent pas la signification, excepté dans les
+commentaires. Ceci peut donner d'étranges lignes, mais elles sont
+autorisées. La ligne “`g0x +0. 12 34y 7`” est équivalente à“`g0
+x+0.1234 y7`”, par exemple.
 
-Blank lines are allowed in the input. They are to be ignored.
+Les lignes vides sont permises, elles seront ignorées.
 
-Input is case insensitive, except in comments, i.e., any letter
-outside a comment may be in upper or lower case without changing the
-meaning of a line.
+La casse des caractères est ignorée, excepté dans les commentaires.
+Toutes les lettres en dehors des commentaires peuvent être,
+indifféremment des majuscules ou des minuscules sans changer la
+signification de la ligne.
 
-== Line Number (((Line Number)))
+== Numéro de ligne
 
-A line number is the letter N followed by an integer (with no sign)
-between 0 and 99999 written with no more than five digits (000009 is
-not OK, for example). Line numbers may be repeated or used out of
-order, although normal practice is to avoid such usage. Line numbers
-may also be skipped, and that is normal practice. A line number is not
-required to be used, but must be in the proper place if used.
+Un numéro de ligne commence par la lettre N suivie d'un nombre entier
+non signé compris entre 0 et 99999 écrit avec moins de six caractères
+(par exemple: 000009 est interdit). Les numéros de ligne peuvent se
+suivre ou être dans le désordre, bien qu'une pratique normale évite ce
+genre d'usage. Les numéros de ligne peuvent être sautés, c'est une
+pratique normale. L'utilisation d'un numéro de ligne n'est pas
+obligatoire, mais si il est utilisé, il doit être à sa place.
 
-== Word (((Word)))
+== Les mots
 
-A word is a letter other than N followed by a real value.
+Un mot est une lettre, autre que N, suivie d'un nombre réel.
 
-Words may begin with any of the letters shown in Table 
-<<cap:Words-and-their>>. The table includes N for completeness, even
-though, as defined above, line numbers are not words. Several letters
-(I, J, K, L, P, R) may have different meanings in different contexts.
-Letters which refer to axis names are not valid on a machine which does
-not have the corresponding axis.
+Les mots peuvent commencer avec l'une ou l'autre des lettres indiquées
+dans le tableau <<cap:Les-mots-et-leur-significations>>. Le tableau
+inclus N pour être complet, même si, comme défini précédemment, les
+numéros de lignes ne sont pas des mots. Plusieurs lettres (I, J, K, L,
+P, R) peuvent avoir différentes significations dans des contextes
+différents. Les lettres qui se réfèrent aux noms d'axes ne sont pas
+valides sur une machine n'ayant pas les axes correspondants.
 
-.Words and their meanings[[cap:Words-and-their]]
+.Les mots et leur signification[[cap:Les-mots-et-leur-significations]]
 
 [width="90%", options="header"]
 |========================================
-|Letter | Meaning
-|A | A axis of machine
-|B | B axis of machine
-|C | C axis of machine
-|D | Tool radius compensation number
-|F | Feed rate
-|G | General function (See table <<cap:Modal-Groups>>)
-|H | Tool length offset index
-|I | X offset for arcs and G87 canned cycles
-|J | Y offset for arcs and G87 canned cycles
-|K | Z offset for arcs and G87 canned cycles.
-| | Spindle-Motion Ratio for G33 synchronized movements.
-|M | Miscellaneous function (See table <<cap:Modal-Groups>>)
-|N | Line number
-|P | Dwell time in canned cycles and with G4.
-| | Key used with G10.
-|Q | Feed increment in G73, G83 canned cycles
-|R | Arc radius or canned cycle plane
-|S | Spindle speed
-|T | Tool selection
-|U | U axis of machine
-|V | V axis of machine
-|W | W axis of machine
-|X | X axis of machine
-|Y | Y axis of machine
-|Z | Z axis of machine
+|Lettre | Signification
+|A      | Axe A de la machine
+|B      | Axe B de la machine
+|C      | Axe C de la machine
+|D      | Valeur de la compensation de rayon d'outil
+|F      | Vitesse d'avance travail
+|G      | Fonction Générale (voir la table 5)
+|H      | Index d'offset de longueur d'outil
+|I      | Décalage en X pour les arcs et dans les cycles préprogrammés G87
+|J      | Décalage en Y pour les arcs et dans les cycles préprogrammés G87
+|K      | Décalage en Z pour les arcs et dans les cycles préprogrammés G87
+|       | Distance de déplacement par tour de broche avec G33
+|M      | Fonction auxiliaire (voir la table 7)
+|N      | Numéro de ligne
+|P      | Temporisation utilisée dans les cycles préprogrammés et avec G4.
+|       | Mot clé utilisé avec G10.
+|Q      | Incrément Delta en Z dans un cycle préprogrammé G73, G83
+|R      | Rayon d'arc ou plan de retrait dans un cycle préprogrammé
+|S      | Vitesse de rotation de la broche
+|T      | Numéro d'outil
+|U      | Axe U de la machine
+|V      | Axe V de la machine
+|W      | Axe W de la machine
+|X      | Axe X de la machine
+|Y      | Axe Y de la machine
+|Z      | Axe Z de la machine
 |========================================
 
-== Number [[sub:Number]]
+=== Nombres [[sub:Nombres]]
 
-The following rules are used for (explicit) numbers. In these rules a
-digit is a single character between 0 and 9.
+Les règles suivantes sont employées pour des nombres (explicites).
+Dans ces règles un chiffre est un caractère simple entre 0 et 9.
 
- -  A number consists of (1) an optional plus or minus sign, followed by
-   (2) zero to many digits, followed, possibly, by (3) one decimal point,
-   followed by (4) zero to many digits - provided that there is at least
-   one digit somewhere in the number.
- -  There are two kinds of numbers: integers and decimals. An integer does
-   not have a decimal point in it; a decimal does.
- -  Numbers may have any number of digits, subject to the limitation on
-   line length. Only about seventeen significant figures will be retained,
-   however (enough for all known applications).
- -  A non-zero number with no sign as the first character is assumed to be
-   positive.
+ - Un nombre commence par: (1) un signe plus ou un signe moins optionnel,
+   suivi par (2) de zéro à plusieurs chiffres, peut être suivis par, (3)
+   un point décimal, suivi par (4) de zéro à plusieurs chiffres, il doit
+   au moins y avoir un chiffre.
+ - Il existe deux types de nombres: les entiers et les décimaux. Un
+   entier n'a pas de point décimal; un décimal en a un.
+ - Les nombres peuvent avoir n'importe quel nombre de chiffres, sous
+   réserve de la limitation de longueur d'une ligne. Seulement environ
+   dix-sept chiffres significatifs seront retenus, c'est toutefois
+   suffisant pour toutes les applications connues.
+ - Un nombre non nul sans autre signe que le premier caractère est
+   considéré positif.
 
-Notice that initial (before the decimal point and the first non-zero
-digit) and trailing (after the decimal point and the last non-zero
-digit) zeros are allowed but not required. A number written with
-initial or trailing zeros will have the same value when it is read as
-if the extra zeros were not there.
+Les zéros non significatifs, ne sont pas nécessaires.
 
-Numbers used for specific purposes in RS274/NGC are often restricted
-to some finite set of values or some to some range of values. In many
-uses, decimal numbers must be close to integers; this includes the
-values of indexes (for parameters and carousel slot numbers, for
-example), M codes, and G codes multiplied by ten. A decimal number
-which is supposed be close to an integer is considered close enough if
-it is within 0.0001 of an integer.
+Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur
+entière à moins de quatre décimales, il est considéré comme entier, par
+exemple 0.9999.
 
-== Numbered Parameters [[sub:Numbered-Parameters]]
+=== Paramètres numérotés [[sub:Parametres-numerotes]]
 
-A numbered parameter is the pound character `#` followed by an
-integer between 1 and 5399. The parameter is referred
-to by this integer, and its value is whatever number is stored in the
-parameter.
+Un paramètre numéroté commence par le caractère `#` suivi par un
+entier compris entre 1 et 5399. Le paramètre est
+référencé par cet entier, sa valeur est la valeur stockée dans le
+paramètre.
 
-A value is stored in a parameter with the = operator; for example "`#3
-= 15`" means "set parameter 3 to 15." A parameter setting does not
-take
-effect until after all parameter values on the same line have been
-found. For example, if parameter 3 has been previously set to 15 and
- the line "`#3=6 G1 X#3`" is interpreted, a straight move to a point
-where X equals 15 will
-occur and the value of parameter 3 will be 6.
+Une valeur est stockée dans un paramètre avec l'opérateur = par
+exemple «`#3 = 15`» signifie que la valeur 15 est stockée dans le
+paramètre numéro 3.
 
-The `#`  character takes precedence over other operations, so that, for
- example, "`#1+2`" means the number found by adding 2 to the value of
-parameter 1, not 
- the value found in parameter 3. Of course, `#[1+2]` does mean the
-value found in parameter 3. The `#` character may be repeated; for
-example `##2`  means the value of the parameter whose index is the
-(integer) value of parameter 2.
+Le caractère `#` a une précédence supérieure à celle des autres
+opérations, ainsi par
+ exemple, «`#1+2`» signifie la valeur trouvée en ajoutant 2 à la
+valeur contenue dans
+ le paramètre 1 et non la valeur trouvée dans le paramètre 3. Bien sûr,
+`#[1+2]` signifie la valeur trouvée dans le paramètre 3. Le caractère
+`#` peut être répété, par exemple `##2` signifie le paramètre dont le
+numéro est égal à la valeur entière
+trouvée dans le paramètre 2.
 
-The interpreter maintains a number of read-only parameters for a loaded
-tool:
+=== Paramètres nommés [[sub:Parametres-nommes]]
 
- - #5400 Tool number 
- - #5401 Tool X offset 
- - #5402 Tool Y offset 
- - #5403 Tool Z offset 
- - #5404 Tool A offset 
- - #5405 Tool B offset 
- - #5406 Tool C offset 
- - #5407 Tool U offset 
- - #5408 Tool V offset 
- - #5409 Tool W offset 
- - #5410 Tool Diameter 
- - #5411 Tool Frontangle 
- - #5412 Tool Backangle 
- - #5413 Tool Orientation
+Les paramètres nommés fonctionnent comme les paramètres numérotés mais
+sont plus faciles à lire. Les paramètres nommés sont convertis en
+minuscules, les espaces et tabulations sont supprimés. Les paramètres
+nommés doivent être encadrés des signes `<` et `>`.
 
-== Named Parameters [[sub:Named-Parameters]]
+`#<Un paramètre nommé>` est un paramètre nommé local. Par défaut, un
+paramètre nommé est
+local à l'étendue dans laquelle il est assigné. L'accès à un paramètre
+local, en dehors de son sous-programme est impossible, de sorte que
+deux sous-programmes puissent utiliser le même nom de paramètre sans
+craindre qu'un des deux n'écrase la valeur de l'autre.
 
-Named parameters work like numbered parameters but are easier to read.
-All parameter names are converted to lower case and have spaces and
-tabs removed. Named parameters must be enclosed with `< >` marks.
+`#<_un paramètre global>` est un paramètre nommé global. Ils sont
+accessibles depuis des
+sous-programmes appelés et peuvent placer des valeurs dans tous les
+sous-programmes accessibles à l'appelant. En ce qui concerne la portée,
+ils agissent comme des paramètres numérotés. Ils ne sont pas
+enregistrés dans des fichiers.
 
-`#<named parameter here>`  is a local named parameter. By default, a
-named parameter is local to 
-the scope in which it is assigned. You can't access a local parameter
-outside of its subroutine - this is so that two subroutines can use the
-same parameter names without fear of one subroutine overwriting the
-values in another.
+Exemples:
 
-`#<_global named parameter here>`  is a global named parameter. They
-are accessible from within called 
-subroutines and may set values within subroutines that are accessible
-to the caller. As far as scope is concerned, they act just like regular
-numeric parameters. They are not stored in files.
+ - Déclaration d'une variable nommée globale
 
-Examples:
+`#<_troisdents_dia> = 10.00`
 
- - Declaration of named global variable
+ - Référence à la variable globale précédemment déclarée
 
-    #<_endmill_dia> = 0.049 
+`#<_troisdents_rayon> = [#<_troisdents_dia>/2.0]`
 
- - Reference to previously declared global variable
+ - Mélange de paramètres nommés et de valeurs littérales
 
-    #<_endmill_rad> = [#<_endmill_dia>/2.0] 
-
- - Mixed literal and named parameters
-
-    o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
+` o100 call [0.0] [0.0] [#<_interieur_decoupe>-#<_troisdents_dia>]
+[#<_Zprofondeur>] [#<_vitesse>]`
 
 Notes:
 
-The global parameters _a, _b, _c, ... _z have been reserved for
-special use. In the future, they may provide access to the last Aword,
-Bword, Cword, etc.
+Les paramètres globaux _a, _b, _c, ... _z sont réservés pour une
+utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
+derniers Aword, Bword, Cword, ... Zword etc.
 
 === System Parameters [[sec:System-Parameters]]
 
@@ -235,87 +218,93 @@ version is running from G Code.
 #<_vminor>::
     Minor package version. If current version was 2.6.2 would return 0.2.
 
-== Expressions [[sub:Expressions]]
+=== Expressions [[sub:Expressions]]
 
-An expression is a set of characters starting with a left bracket `[`
-and ending with a balancing right bracket `]` . In between the brackets
-are numbers, parameter values, mathematical
-operations, and other expressions. An expression is evaluated to
-produce a number. The expressions on a line are evaluated when the line
-is read, before anything on the line is executed. An example of an
-expression is `[1 + acos[0] - [#3 ** [4.0/2]]]`.
+Une expression est un groupe de caractères commençant avec le crochet
+gauche `[` et se terminant avec le crocher droit `]` . Entre les
+crochets, on trouve des nombres, des valeurs de paramètre,
+des opérations mathématiques et d'autres expressions. Une expression
+est évaluée pour produire un nombre. Les expressions sur une ligne sont
+évaluées quand la ligne est lue et avant que quoi que ce soit ne soit
+ éxécuté sur cette ligne. 
+Un exemple d'expression: `[1 + acos[0] - [#3 ** [4.0/2]]]`.
 
-== Binary Operators [[sub:Binary-Operators]]
+=== Opérateurs binaires [[sub:Operateurs-binaires]]
 
-Binary operators only appear inside expressions. There are four basic
-mathematical operations: addition (`+`), subtraction (`-`),
-multiplication (`*`), and division (`/`). There are three logical
-operations: non-exclusive or (`OR`), exclusive or (`XOR`), and logical
-and (`AND`). The eighth operation is the modulus operation (`MOD`). The
-ninth operation is the "power" operation (`**`) of raising the number
-on the left of the operation to the power on 
- the right. The relational operators are equality (`EQ`), inequality
-(`NE`), strictly greater than (`GT`), greater than or equal to (`GE`),
-strictly less than (`LT`), and less than or equal to (`LE`).
+Les opérateurs binaires ne se rencontrent que dans les expressions. Il
+y a quatre opérateurs mathématiques de base: addition (`+`),
+soustraction (`-`), multiplication (`*`) et division (`/`). Il y a
+trois opérateurs logiques: ou (`OR`), ou exclusif (`XOR`) et logique
+(`AND`). Le huitième opérateur est le modulo (`MOD`). Le neuvième
+opérateur est l'élévation à la puissance (`**` ) qui éléve le nombre
+situé à sa gauche à la puissance du nombre situé
+ à sa droite. Les opérateurs de relation sont: égalité (`EQ`), non
+égalité (`NE`), strictement supérieur (`GT`), supérieur ou égal (`GE`),
+strictement inférieur (`LT`) et inférieur ou égal (`LE`).
 
-The binary operations are divided into several groups according to
-their precedence. (see table  <<cap:Operator-Precedence>>) If
-operations in different precedence groups are strung together (for
-example in the expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]`), operations
-in a higher group are to be performed before operations
-in a lower group. If an expression contains more than one operation
- from the same group (such as the first `/` and `*`  in the example),
-the operation on the left is performed first. Thus,
- the example is equivalent to: `[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]` ,
-which is equivalent to to `[1.0 - 0.5]` , which is `0.5`.
+Les opérations binaires sont divisées en plusieurs groupes selon leur
+précédence. (voir la table <<cap:Precedence-des-operateurs>>) Si dans
+une opération se trouvent différents groupes de précédence (par exemple
+dans l'expression `[2.0 / 3 * 1.5 - 5.5 / 11.0]` ), les opérations du
+groupe supérieur seront effectuées avant celles
+des groupes inférieurs. Si une expression contient plusieurs opérations
+ du même groupe (comme les premiers `/` et `*` dans l'exemple),
+l'opération de gauche est effectuée en premier.
+ Notre exemple est équivalent à: `[[[2.0 / 3] * 1.5] - [5.5 / 11.0]]` ,
+qui est équivalent à `[1.0 - 0.5]` , le résultat est: `0.5` .
 
-The logical operations and modulus are to be performed on any real
-numbers, not just on integers. The number zero is equivalent to logical
-false, and any non-zero number is equivalent to logical true.
+Les opérations logiques et le modulo sont exécutés sur des nombres
+réels et non pas seulement sur des entiers. Le zéro est équivalent à un
+état logique faux (FALSE), tout nombre différent de zéro est équivalent
+à un état logique vrai (TRUE).
 
-.Operator Precedence[[cap:Operator-Precedence]](((operator precedence)))
+. Précédence des opérateurs[[cap:Precedence-des-operateurs]](((Precedence des operateurs)))
 
 [width="90%", options="header"]
 |========================================
-|Operators | Precedence
-|** | 'highest'
-|* / MOD | 
-|+ - | 
+|Opérateurs        | Précédence
+|**                | 'haute'
+|* / MOD           | 
+|+ -               | 
 |EQ NE GT GE LT LE | 
-|AND OR XOR | 'lowest'
+|AND OR XOR        | 'basse'
 |========================================
 
-== Functions [[sub:Unary-Operation-Value]]
+=== Fonctions [[sub:Operations-unaires]]
 
-A function is either "`ATAN` " followed by one expression divided by
-another expression (for
- example "`ATAN[2]/[1+3]`") or any other function name followed by an
-expression (for example "`SIN[90]` "). The available functions are
-shown in table  <<cap:Functions>>.
- Arguments to unary operations which take angle measures (`COS`, `SIN`,
-and `TAN` ) are in degrees. Values returned by unary operations which
-return
-angle measures (`ACOS`, `ASIN`, and `ATAN`) are also in degrees.
+Une fonction commence par son nom, ex: “`ATAN` ” suivi par une
+expression divisée par une autre expression (par
+ exemple “`ATAN[2]/[1+3]`”) ou tout autre nom de fonction suivi par une
+expression (par exemple “`SIN[90]` ”). Les fonctions disponibles sont
+visibles dans le tableau 
+<<cap:Fonctions>>. Les arguments pour les opérations unaires sur des
+ angles (`COS`, `SIN` et `TAN` ) sont en degrés. Les valeurs retournées
+par les opérations sur les
+angles (`ACOS`, `ASIN` et `ATAN`) sont également en degrés.
 
-.Functions[[cap:Functions]]
+L'opérateur `FIX` arrondi vers la gauche (moins positif ou plus
+négatif), par exemple: `FIX[2.8] =2` et `FIX[-2.8] = -3` . L'opérateur
+`FUP` arrondi vers la droite (plus positif ou moins négatif), par
+exemple: `FUP[2.8] = 3` et `FUP[-2.8] = -2` .
+
+.Fonctions[[cap:Fonctions]]
 
 [width="90%", options="header"]
 |========================================
-|Function Name | Function result
-|ATAN[Y]/[X] | Four quadrant inverse tangent
-|ABS[arg] | Absolute value
-|ACOS[arg] | Inverse cosine
-|ASIN[arg] | Inverse sine
-|COS[arg] | Cosine
-|EXP[arg] | e raised to the given power
-|FIX[arg] | Round down to integer
-|FUP[arg] | Round up to integer
-|ROUND[arg] | Round to nearest integer
-|LN[arg] | Base-e logarithm
-|SIN[arg] | Sine
-|SQRT[arg] | Square Root
-|TAN[arg] | Tangent
-|EXISTS[arg] | Check named Parameter
+|Nom de fonction | Fonction
+|ATAN[Y]/[X] | Tangente quatre quadrants
+|ABS[arg] | Valeur absolue
+|ACOS[arg] | Arc cosinus
+|ASIN[arg] | Arc sinus
+|COS[arg] | Cosinus
+|EXP[arg] | Exposant
+|FIX[arg] | Arrondi à l'entier immédiatement inférieur
+|FUP[arg] | Arrondi à l'entier immédiatement supérieur
+|ROUND[arg] | Arrondi à l'entier le plus proche
+|LN[arg] | Logarithme Néperien
+|SIN[arg] | Sinus
+|SQRT[arg] | Racine carrée
+|TAN[arg] | Tangente
 |========================================
 
 The `FIX`  function rounds towards the left (less positive or more
@@ -330,143 +319,150 @@ parameter. It takes only one named parameter and returns 1 if it exists
 and 0 if it does not exist. It is an error if you use a numbered
 parameter or an expression.
 
-== Repeated Items
+== Répétitions d'items
 
-A line may have any number of G words, but two G words from the same
-modal group (see Section  <<sec:Modal-Groups>>) may not appear on the
-same line.
+Une ligne peut contenir autant de mots G que voulu, mais seulement
+deux mots G du même groupe modal peuvent apparaître sur la même ligne.
+(voir la section <<sec:Groupes-modaux>>)
 
-A line may have zero to four M words. Two M words from the same modal
-group may not appear on the same line.
+Une ligne peut avoir de zéro à quatre mots M. Mais pas deux mots M du
+même groupe modal.
 
-For all other legal letters, a line may have only one word beginning
-with that letter.
+Pour toutes les autres lettres légales, un seul mot commençant par
+cette lettre peut se trouver sur la même ligne.
 
-If a parameter setting of the same parameter is repeated on a line,
-"`#3=15 #3=6`", for example, only the last setting will take effect.
-It is silly,
-but not illegal, to set the same parameter twice on the same line.
+Si plusieurs valeurs de paramètre se répétent sur la même ligne, par
+exemple: “`#3=15 #3=6` ”, seule la dernière valeur prendra effet. Il
+est absurde, mais pas
+illégal, de fixer le même paramètre deux fois sur la même ligne.
 
-If more than one comment appears on a line, only the last one will be
-used; each of the other comments will be read and its format will be
-checked, but it will be ignored thereafter. It is expected that putting
-more than one comment on a line will be very rare.
+Si plus d'un commentaire apparaît sur la même ligne, seul le dernier
+sera utilisé, chacun des autres sera lu et son format vérifié, mais il
+sera ignoré. Placer plusieurs commentaires sur la même ligne est très
+rare.
 
-== Item order
+== Ordre des items
 
-The three types of item whose order may vary on a line (as given at
-the beginning of this section) are word, parameter setting, and
-comment. Imagine that these three types of item are divided into three
-groups by type.
+Les trois types d'item dont la commande peut varier sur une ligne
+(comme indiqué au début de cette section) sont les mots, les paramètres
+et les commentaires. Imaginez que ces trois types d'éléments sont
+divisés en trois groupes selon leur type.
 
-The first group (the words) may be reordered in any way without
-changing the meaning of the line.
+Dans le premier groupe les mots, peuvent être arrangés dans n'importe
+quel ordre sans changer la signification de la ligne.
 
-If the second group (the parameter settings) is reordered, there will
-be no change in the meaning of the line unless the same parameter is
-set more than once. In this case, only the last setting of the
-parameter will take effect. For example, after the line "`#3=15 #3=6` "
-has been interpreted, the value of parameter 3 will be 6. If the
- order is reversed to "`#3=6 #3=15`" and the line is interpreted, the
-value of parameter 3 will be 15.
+Dans le second groupe les valeurs de paramètre, quelque soit leur
+arrangement, il n'y aura pas de changement dans la signification de la
+ligne sauf si le même paramètre est présent plusieurs fois. Dans ce
+cas, seule la valeur du dernier paramètre prendra effet. Par exemple,
+quand la ligne “`#3=15 #3=6` ” aura été interprétée, la valeur du
+paramètre 3 vaudra 6. Si l'ordre
+ est inversé, “`#3=6 #3=15`” après interprétation, la valeur du
+paramètre 3 vaudra 15.
 
-If the third group (the comments) contains more than one comment and
-is reordered, only the last comment will be used.
+Enfin dans le troisième groupe les commentaires, si plusieurs
+commentaires sont présents sur une ligne, seul le dernier commentaire
+sera utilisé.
 
-If each group is kept in order or reordered without changing the
-meaning of the line, then the three groups may be interleaved in any
-way without changing the meaning of the line. For example, the line
-"`g40 g1 #3=15 (foo) #4=-7.0`" has five items and means exactly the
-same thing in any of the 120
- possible orders (such as "`#4=-7.0 g1 #3=15 g40 (foo)`") for the five
-items.
+Si chaque groupe est laissé, ou réordonné, dans l'ordre recommandé, la
+signification de la ligne ne changera pas, alors les trois groupes
+peuvent être entrecroisés n'importe comment sans changer la
+signification de la ligne. Par exemple, la ligne “`g40 g1 #3=15 (foo)
+#4=-7.0` ” à cinq items est signifiera exactement la même chose dans
+les 120
+ ordres d'arrangement possibles des cinq items comme “`#4=-7.0 g1 #3=15
+g40 (foo)`”.
 
-== Commands and Machine Modes
+== Commandes et modes machine
 
-Many commands cause the controller to change from one mode to another,
-and the mode stays active until some other command changes it
-implicitly or explicitly. Such commands are called "modal". For
-example, if coolant is turned on, it stays on until it is explicitly
-turned off. The G codes for motion are also modal. If a G1 (straight
-move) command is given on one line, for example, it will be executed
-again on the next line if one or more axis words is available on the
-line, unless an explicit command is given on that next line using the
-axis words or canceling motion.
+En RS274/NGC, de nombreuses commandes produisent, d'un mode à un
+autre, quelque chose de différent au niveau de la machine, le mode
+reste actif jusqu'à ce qu'une autre commande ne le révoque,
+implicitement ou explicitement. Ces commandes sont appelées “modales”.
+Par exemple, si l'arrosage est mis en marche, il y reste jusqu'à ce
+qu'il soit explicitement arrêté. Les G-codes pour les mouvements sont
+également modaux. Si, par exemple, une commande G1 (déplacement
+linéaire) se trouve sur une ligne, elle peut être utilisée sur la ligne
+suivante avec seulement un mot d'axe, tant qu'une commande explicite
+est donnée sur la ligne suivante en utilisant des axes ou un arrêt de
+mouvement.
 
-"Non-modal" codes have effect only on the lines on which they occur.
-For example, G4 (dwell) is non-modal.
+Les codes “non modaux” n'ont d'effet que sur la ligne ou ils se
+présentent. Par exemple, G4 (tempo) est non modale.
 
-== Modal Groups (((Modal Groups)))[[sec:Modal-Groups]]
+== Groupes modaux [[sec:Groupes-modaux]]
 
-Modal commands are arranged in sets called "modal groups", and only
-one member of a modal group may be in force at any given time. In
-general, a modal group contains commands for which it is logically
-impossible for two members to be in effect at the same time - like
-measure in inches vs. measure in millimeters. A machining center may be
-in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in Table 
-<<cap:Modal-Groups>>.
+Les commandes modales sont arrangées par lots appelés “groupes
+modaux”, à tout moment, un seul membre d'un groupe modal peut être
+actif. En général, un groupe modal contient des commandes pour
+lesquelles il est logiquement impossible que deux membres soient actifs
+simultanément, comme les unités en pouces et les unités en millimètres.
+Un centre d'usinage peut être dans plusieurs modes simultanément, si
+seulement un mode pour chaque groupe est actif. Les groupes modaux sont
+visibles dans le tableau <<cap:Groupes-modaux>>.
 
-.Modal Groups[[cap:Modal-Groups]]
+.Groupes modaux[[cap:Groupes-modaux]]
 
-[width="90%", cols="1,2", options="header"]
-|========================================
-|Modal Group Meaning          | Member Words
-|Motion ("Group 1")           | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
-|                             | G82, G83, G84, G85, G86, G87, G88, G89
-|Plane selection              | G17, G18, G19, G17.1, G18.1, G19.1
-|Distance Mode                | G90, G91
-|Arc IJK Distance Mode        | G90.1, G91.1
-|Feed Rate Mode               | G93, G94, G95
-|Units                        | G20, G21
-|Cutter Diameter Compensation | G40, G41, G42, G41.1, G42.1
-|Tool Length Offset           | G43, G43.1, G49
-|Return Mode in Canned Cycles | G98, G99
-|Coordinate System Selection  | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Control Mode                 | G61, G61.1, G64
-|Spindle Speed Mode           | G96, G97
-|Lathe Diameter Mode          | G7, G8
-|Stopping                     | M0, M1, M2, M30, M60
-|Tool Change                  | M6 Tn
-|Spindle                      | M3, M4, M5
-|Coolant                      | (M7 M8 can both be on), M9
-|Override Switches            | M48, M49
-|Flow Control                 | O-
-|Non-modal codes ("Group 0")  | G4, G10 G28, G30, G53 G92, G92.1, G92.2, G92.3, M100-M199
-|========================================
+[width="90%", options="header"]
+|================================================
+||Signification du groupe modal        | Mots des membres
+||Mouvements (“Groupe 1”)       .2+^.^ | G0 G1 G2 G3 G33 G38.x G73 G80 G81
+||                                     | G82 G83 G84 G85 G86 G87 G88 G89
+||Choix du plan de travail             | G17 G18 G19
+||Mode diamètre/rayon sur les tours    | G7, G8
+||Mode de déplacements                 | G90, G91
+||Mode de vitesses                     | G93, G94
+||Unités machine                       | G20, G21
+||Correcteurs de rayon d'outil         | G40, G41, G42, G41.1, G42.1
+||Correcteurs de longueur d'outil      | G43, G43.1, G49
+||Options plan de retrait              | G98, G99
+||Systèmes de coordonnées       .2+^.^ | G54, G55, G56, G57, G58,
+||                                     | G59, G59.1, G59.2, G59.3
+||Types d'arrêt de programme           | M0, M1, M2, M30, M60
+||Appel d'outil                        | M6
+||Types de rotation de la broche       | M3, M4, M5
+||Arrosages                     .2+^.^ | M7, M8, M9. Cas spéciaux: M7, M8
+||                                     | peuvent être actifs simultanément
+||Boutons de correction de vitesse     | M48, M49, M50, M51
+||Contrôle de flux                     | O-
+||Codes non modaux (“Groupe 0”) .3+^.^ | G4, G10, G28, G28.1, G30, G30.1, G53
+||                                     | G92, G92.1, G92.2, G92.3
+||                                     | M100 à M199
+|================================================
 
-For several modal groups, when a machining center is ready to accept
-commands, one member of the group must be in effect. There are default
-settings for these modal groups. When the machining center is turned on
-or otherwise re-initialized, the default values are automatically in
-effect.
+Pour plusieurs groupes modaux, quand la machine est prête à accepter
+des commandes, un membre du groupe doit être en vigueur. Il y a des
+paramètres par défaut pour ces groupes modaux. Lorsque la machine est
+mise en marche ou ré-initialisées, les valeurs par défaut sont
+automatiquement actives.
 
-Group 1, the first group on the table, is a group of G codes for
-motion. One of these is always in effect. That one is called the
-current motion mode.
+Groupe 1, le premier groupe du tableau, est un groupe de G-codes pour
+les mouvements. À tout moment, un seul d'entre eux est actif. Il est
+appelé le mode de mouvement courant.
 
-It is an error to put a G-code from group 1 and a G-code from group 0
-on the same line if both of them use axis words. If an axis word-using
-G-code from group 1 is implicitly in effect on a line (by having been
-activated on an earlier line), and a group 0 G-code that uses axis
-words appears on the line, the activity of the group 1 G-code is
-suspended for that line. The axis word-using G-codes from group 0 are
-G10, G28, G30, and G92.
+C'est une erreur que de mettre un G-code du groupe 1 et un G-code du
+groupe 0 sur la même ligne si les deux utilisent les mêmes axes. Si un
+mot d'axe utilisant un G-code du groupe 1 est implicitement actif sur
+la ligne (en ayant été activé sur une ancienne ligne) et qu'un G-code
+du groupe 0 utilisant des mots d'axes apparaît sur la même ligne,
+l'activité du G-code du groupe 1 est révoquée pour le reste de la
+ligne. Les mots d'axes utilisant des G-codes du groupe 0 sont G10, G28,
+G30 et G92.
 
-It is an error to include any unrelated words on a line with `O-` flow
-control.
+C'est une erreur d'inclure des mots sans rapport sur une ligne avec le
+contrôle de flux `O`.
 
-== Comments
+== Commentaires
 
-Comments can be added to lines of G code to help clear up the
-intention of the programmer. Comments can be embedded in a line using
-parentheses () or for the remainder of a line using a semi-colon. The
-semi-colon is not treated as the start of a comment when enclosed in
-parentheses.
+Les commentaires peuvent être ajoutés aux lignes de code G pour aider à nettoyer le
+l'intention du programmeur. Les commentaires peuvent être intégrés dans une ligne à l'aide
+entre parenthèses () ou pour le reste d'une ligne en utilisant un point-virgule. L'
+point-virgule n'est pas considéré comme le début d'un commentaire lorsque joint en
+parenthèses.
 
-    G0 (Rapid to start) X1 Y1 
-    G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
-    M2 ; End of program.
+    G0 (Rapide à démarrer.) X1 Y1 
+    G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas le liquide de refroidissement.) 
+    M2 ; Fin du programme.
 
 == File Size
 
@@ -479,101 +475,107 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 special comments.
 
-= G Code Order of Execution[[sec:Order-of-Execution]](((G Code Order of Execution)))
+= Ordre d'exécution [[sec:Ordre-d-execution]]
 
-The order of execution of items on a line is defined not by the
-position of each item on the line, but by the following list:
+L'ordre d'exécution des éléments d'une ligne est essentiel à la
+sécurité et l'efficacité d'une machine. Les éléments sont exécutés dans
+l'ordre indiqué ci-dessous, si ils se trouvent sur la même ligne.
 
- . Comment (including message)
- . Set feed rate mode (G93, G94). 
- . Set feed rate (F). 
- . Set spindle speed (S). 
- . Select tool (T). 
- . HAL pin I/O (M62-M68).
- . Change tool (M6) and Set Tool Number (M61).
- . Spindle on or off (M3, M4, M5).
- . Save State (M70, M73), Restore State (M72), Invalidate State (M71).
- . Coolant on or off (M7, M8, M9).
- . Enable or disable overrides (M48, M49,M50,M51,M52,M53).
- . User-defined Commands (M100-M199).
- . Dwell (G4). 
- . Set active plane (G17, G18, G19). 
- . Set length units (G20, G21).
- . Cutter radius compensation on or off (G40, G41, G42) 
- . Cutter length compensation on or off (G43, G49) 
- . Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
- . Set path control mode (G61, G61.1, G64)
- . Set distance mode (G90, G91). 
- . Set retract mode (G98, G99).
- . Go to reference location (G28, G30) or change coordinate system 
-   data (G10) or set axis offsets (G92, G92.1, G92.2, G94). 
- . Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53. 
- . Stop (M0, M1, M2, M30, M60).
+ . Commentaire (message inclu)
+ . Positionnement du mode de vitesses (G93, G94). 
+ . Réglage de la vitesse travail (F). 
+ . Réglage de la vitesse de rotation de la broche (S). 
+ . Sélection de l'outil (T). 
+ . Appel d'outil (M6).
+ . Marche/Arrêt broche (M3, M4, M5).
+ . Marche/Arrêt arrosages (M7, M8, M9).
+ . Activation/Inhibition correcteurs de vitesse (M48, M49). 
+ . Temporisation (G4). 
+ . Choix du plan de travail (G17, G18, G19). 
+ . Choix de l'unité de longueur (G20, G21).
+ . Activation/Désactivation de la compensation de rayon d'outil (G40, G41, G42) 
+ . Activation/Désactivation de la compensation de longueur d'outil (G43, G49) 
+ . Sélection du système de coordonnées (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3). 
+ . Réglage du mode de trajectoire (G61, G61.1, G64)
+ . Réglage du mode de déplacement (G90, G91). 
+ . Réglage du type de retrait (G98, G99).
+ . Prise d'origine machine (G28, G30) ou établissement du système de
+   coordonnées (G10) ou encore, réglage des décalages d'axes (G92, G92.1, G92.2, G94). 
+ . Effectuer les mouvements (G0 à G3, G33, G80 à G89), tels que modifiés
+   (éventuellement) par G53. 
+ . Arrêt (M0, M1, M2, M30, M60).
 
-= G Code Best Practices (((G Code Best Practices)))
+= G-Code: Bonnes pratiques
 
-== Use an appropriate decimal precision
+== Utiliser un nombre de décimales approprié
 
-Use at least 3 digits after the decimal when milling in millimeters,
-and at least 4 digits after the decimal when milling in inches. In
-particular, arc tolerance checks are made to .001 and .0001 depending
-on the active units.
+Utilisez au plus 3 chiffres après la virgule pour l'usinage en
+millimètres et au plus 4 chiffres après la virgule pour l'usinage en
+pouces. En particulier, les contrôles de tolérance des arcs sont faits
+pour .001 et .0001 selon les unités actives.
 
-== Use consistent white space
+== Utiliser les espaces de façon cohérente
 
-G-code is most legible when at least one space appears before words.
-While it is permitted to insert white space in the middle of numbers,
-there is no reason to do so.
+Le G-code est plus lisible quand au moins un espace apparaît avant les
+mots. S'il est permis d' insérer des espaces blancs au milieu des
+chiffres, il faut éviter de le faire.
 
-== Use "Center-format" arcs
+== Préférer le “format centre” pour les arcs
 
-Center-format arcs (which use `I- J- K-` instead of `R-` ) behave more
-consistently than R-format arcs, particularly for
-included angles near 180 or 360 degrees.
+Les arcs en format centre (qui utilisent `I- J- K-` au lieu de `R-` )
+se comportent de façon plus précise que ceux en format rayon,
+particulièrement pour des angles proche de 180 et 360 degrés.
 
-== Put important modal settings at the top of the file
+== Placer les codes modaux importants au début des programmes
 
-When correct execution of your program depends on modal settings, be
-sure to set them at the beginning of the part program. Modes can carry
-over from previous programs and from the MDI commands.
+Lorsque l'exécution correcte de votre programme dépend de paramètres
+modaux, n'oubliez pas de les mettre au début du programme. Des modes
+incorrects peuvent provenir d'un programme précédent ou depuis des
+entrées manuelles.
 
-As a good preventative measure, put a line similar to the following at
-the top of all your programs:
+Une bonne mesure préventive consiste à placer la ligne suivante au
+début de tous les programmes:
 
-    G17 G20 G40 G49 G54 G80 G90 G94 
+    G17 G21 G40 G49 G54 G80 G90 G94 
 
-(XY plane, inch mode, cancel diameter compensation, cancel length
-offset, coordinate system 1, cancel motion, non-incremental motion,
-feed/minute mode)
+(plan XY, mode mm, annulation de la compensation de rayon, et de
+longueur, sytème de coordonnées numéro 1, arrêt des mouvements,
+déplacements absolus, mode vitesse/minute)
 
-Perhaps the most critical modal setting is the distance units--If you
-do not include G20 or G21, then different machines will mill the
-program at different scales. Other settings, such as the return mode in
-canned cycles may also be important.
+Peut-être que le code modal le plus important est le réglage des
+unités machine. Si les codes G20 ou G21, ne sont pas inclus, selon les
+machines l'échelle d'usinage sera différente. D'autres valeurs comme le
+plan de retrait des cycles préprogrammés peuvent être importantes.
 
-== Don't put too many things on one line
+== Ne pas mettre trop de choses sur une ligne
 
-Ignore everything in Section <<sec:Order-of-Execution>>, and instead
-write no line of code that is the slightest bit ambiguous.
+Ignorer le contenu de la section <<sec:Ordre-d-execution>> et ne pas
+écrire de ligne de code qui laisse la moindre ambiguïté. 
 
-== Don't set & use a parameter on the same line
+== Ne pas régler et utiliser un paramètre sur la même ligne
 
-Don't use and set a parameter on the same line, even though the
-semantics are well defined. Updating a variable to a new value, such as
-`#1=[#1+#2`] is ok.
+Ne pas utiliser et de définir un paramètre sur la même ligne, même si 
+le la sémantique est bien définie. Mise à jour une variable à une 
+nouvelle valeur, tels que `#1 = [#1 + #2]` est ok.
 
-== Don't use line numbers
+== Ne pas utiliser les numéros de ligne
 
-Line numbers offer no benefits. When line numbers are reported in
-error messages, the numbers refer to the line number in the file, not
-the N-word value.
+Les numéros de ligne n'apportent rien. Quand des numéros de ligne sont
+rapportés dans les messages d'erreur, ces numéros font référence aux
+numéros de lignes à l'intérieur du programme, pas aux valeurs des mots
+N.
 
-== When moving more than one coordinate system, consider inverse time feed mode
+== Lorsque plusieurs systèmes de coordonnées sont déplacés, envisager 
+le mode vitesse inverse du temps
 
-Because the meaning of an F-word in feed-per-minute mode varies
-depending on which axes are commanded to move, and because the amount
-of material removed does not depend only on the feed rate, it may be
-easier to use G93 inverse time feed mode to achieve the desired
-material removal rate.
+Parce que la signification d'un mot F en mètres par minute varie selon
+les axes à déplacer et parce que la quantité de matière enlevée ne
+dépend pas que de la vitesse travail, il peut être plus simple
+d'utiliser G93, vitesse inverse du temps pour atteindre l'enlévement de
+matière souhaîté.
+
+= Fichier d'outils et compensations 
+
+Voir section <<sec:Outils-et-Compensations>>
 
 

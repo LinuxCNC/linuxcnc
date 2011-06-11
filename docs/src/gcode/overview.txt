@@ -8,12 +8,12 @@ code may be collected in a file to make a program.
 A typical line of code consists of an optional line number at the
 beginning followed by one or more "words". A word consists of a letter
 followed by a number (or something that evaluates to a number). A word
-may either give a command or provide an argument to a command. For
+may either give a command or provide an argument to a command. For 
 example, "`G1 X3`" is a valid line of code with two words. "`G1`" is a
-command meaning "move in a straight line at the programmed feed
- rate to the programmed end point", and "`X3`" provides an argument
-value (the value of X should be 3 at the end of 
-the move). Most EMC2 G Code commands start with either G or M (for
+command meaning "move in a straight line at the programmed feed 
+rate to the programmed end point", and "`X3`" provides an argument
+value (the value of X should be 3 at the end of the move). 
+Most EMC2 G Code commands start with either G or M (for
 General and Miscellaneous). The words for these commands are called "G
 codes" and "M codes."
 
@@ -95,11 +95,11 @@ not have the corresponding axis.
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 |K | Z offset for arcs and G87 canned cycles.
-| | Spindle-Motion Ratio for G33 synchronized movements.
+|  | Spindle-Motion Ratio for G33 synchronized movements.
 |M | Miscellaneous function (See table <<cap:Modal-Groups>>)
 |N | Line number
 |P | Dwell time in canned cycles and with G4.
-| | Key used with G10.
+|  | Key used with G10.
 |Q | Feed increment in G73, G83 canned cycles
 |R | Arc radius or canned cycle plane
 |S | Spindle speed
@@ -117,16 +117,16 @@ not have the corresponding axis.
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
 
- -  A number consists of (1) an optional plus or minus sign, followed by
+ - A number consists of (1) an optional plus or minus sign, followed by
    (2) zero to many digits, followed, possibly, by (3) one decimal point,
    followed by (4) zero to many digits - provided that there is at least
    one digit somewhere in the number.
- -  There are two kinds of numbers: integers and decimals. An integer does
+ - There are two kinds of numbers: integers and decimals. An integer does
    not have a decimal point in it; a decimal does.
- -  Numbers may have any number of digits, subject to the limitation on
+ - Numbers may have any number of digits, subject to the limitation on
    line length. Only about seventeen significant figures will be retained,
    however (enough for all known applications).
- -  A non-zero number with no sign as the first character is assumed to be
+ - A non-zero number with no sign as the first character is assumed to be
    positive.
 
 Notice that initial (before the decimal point and the first non-zero
@@ -318,9 +318,9 @@ angle measures (`ACOS`, `ASIN`, and `ATAN`) are also in degrees.
 |EXISTS[arg] | Check named Parameter
 |========================================
 
-The `FIX`  function rounds towards the left (less positive or more
-negative) on
- a number line, so that `FIX[2.8] =2` and `FIX[-2.8] = -3`, for
+The `FIX` function rounds towards the left (less positive or more
+negative) on 
+a number line, so that `FIX[2.8] =2` and `FIX[-2.8] = -3`, for
 example. The `FUP`  operation rounds towards the right (more positive
 or less negative)
 on a number line; `FUP[2.8] = 3` and `FUP[-2.8] = -2`, for example.

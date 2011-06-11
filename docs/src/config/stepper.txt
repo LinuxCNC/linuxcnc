@@ -161,13 +161,14 @@ guide the reader through the file.
 There are a couple of operations that get executed when the
 standard_pinout.hal gets executed / interpreted:
 
- . The Parport driver gets loaded (see <<sec:Parport>> for details)
+ . The Parport driver gets loaded (see the Parport section of 
+   the HAL Manual for details)
  . The read & write functions of the parport driver get assigned to the
    base thread footnote:[the fastest thread in the EMC2 setup, usually the
-   code gets executed every few microseconds]
+   code gets executed every few tens of microseconds]
  . The step & direction signals for axes X,Y,Z get linked to pins on the
    parport
- . Further IO signals get connected (estop loopback, toolchanger loopback)
+ . Further I/O signals get connected (estop loopback, toolchanger loopback)
  . A spindle-on signal gets defined and linked to a parport pin
 
 === [[sub:Changing-standard_pinout.hal]]Changing the standard_pinout.hal

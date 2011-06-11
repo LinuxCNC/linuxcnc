@@ -22,7 +22,7 @@ Regardless of any offsets that may be in effect, putting a G53 in a
 block of code tells the interpreter to go to the real or absolute axis
 positions commanded in the block. For example
 
-    g53 g0 x0 y0 z0 
+    G53 G0 X0 Y0 Z0 
 
 will get you to the actual position where these three axes are zero.
 You might use a command like this if you have a favorite position for
@@ -146,10 +146,10 @@ The G10 L2x command can be used to set coordinate (fixture) offsets:
   (these are just quick summaries, see the gcode section for full details)
 
 G10 L2  P(fixture 1-9) - Set offset(s) to a value. Current position irrelevant. 
-                         (see <<sec:G10-L2->> for details)(((G10 L2)))
+                         (see <<sec:G10-L2_>> for details)(((G10 L2)))
 
 G10 L20 P(fixture 1-9) - Set offset(s) so current position becomes a value. 
-                         (see <<sec:G10-L20->> for details)(((G10 L20)))
+                         (see <<sec:G10-L20>> for details)(((G10 L20)))
 
 == G92 (((G92))) Offsets[[sec:G92-Offsets]]
 
@@ -178,28 +178,28 @@ G92.3::
 When the commands are used as described above, they will work pretty
 much as you would expect.
 
-A user must understand the correct ways that the g92 values work. They
-are set based upon the location of each axis when the g92 command is
+A user must understand the correct ways that the G92 values work. They
+are set based upon the location of each axis when the G92 command is
 invoked. The NIST document is clear that, "To make the  current point
-have the coordinates" x0, y0, and z0 you would use g92 x0 y0 z0. 
+have the coordinates" X0, Y0, and Z0 you would use G92 X0 Y0 Z0. 
 G92 'does not work from absolute machine coordinates'. 
 It works from 'current location'. 
 
 G92 also works from current location as modified by any other offsets
-that are in effect when the g92 command is invoked. While testing for
+that are in effect when the G92 command is invoked. While testing for
 differences between work offsets and actual offsets it was found that a
-g54 offset could cancel out a g92 and thus give the appearance that no
-offsets were in effect. However, the g92 was still in effect for all
+G54 offset could cancel out a G92 and thus give the appearance that no
+offsets were in effect. However, the G92 was still in effect for all
 coordinates and did produce expected work offsets for the other
 coordinate systems. 
 
 It is likely that the absence of home switches and proper home
-procedures will result in very large errors in the application of g92
+procedures will result in very large errors in the application of G92
 values if they exist in the var file. Many EMC users do not have home
 switches in place on their machines. For them home should be found by
 moving each axis to a location and issuing the home command. When each
 axis is in a known location, the home command will recalculate how the
-g92 values are applied and will produce consistent results. Without a
+G92 values are applied and will produce consistent results. Without a
 home sequence, the values are applied to the position of the machine
 when the EMC begins to run.
 
@@ -250,7 +250,7 @@ unexpected positions as the result of a commanded move, as a result of
 storing an offset in a previous progam and not clearing them at the end
 then issue a G92.1 in the MDI widow to clear the stored offsets.
 
-If G92 values exist in the VAR file when the EMC starts up the g92
+If G92 values exist in the VAR file when the EMC starts up the G92
 values in the var file is that it will apply the values to current
 location of each axis. If this is home position and home position is
 set as machine zero everything will be correct. Once home has been

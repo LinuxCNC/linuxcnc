@@ -263,7 +263,7 @@ pid::
 
 siggen::
      A sine/cosine/triangle/square wave generator for testing.
-    See section <<siggen>>(((siggen)))
+    See section <<sec:Siggen>>(((siggen)))
 
 supply::
      a simple source for testing(((supply)))

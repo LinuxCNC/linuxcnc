@@ -1,9 +1,176 @@
-= Fichier d'outils et compensations
+= Tool Compensation
+
+== Tool Length Offsets
+
+=== Touch Off (((Touch Off)))
+
+Using the Touch Off Screen in the AXIS interface you can update the
+tool table automatically.
+
+Typical steps for updating the tool table:
+
+ . After homing load a tool with "Tn M6" where "n" is the tool number. 
+ . Move tool to an established point using a gauge or take a test cut and
+   measure.
+ . Select "Tool Table" in the Coordinate System drop down box.
+ . Enter the gauge or measured dimension and select OK.
+
+The Tool Table will be changed with the correct Z length to make the
+DRO display the correct Z position and a G43 command will be issued so
+the new tool Z length will be in effect. Tool table touch off is only
+available when a tool is loaded with "TnM6".
+
+.Touch Off Tool Table[[cap:Touch-Off-Tool]]
+
+image::images/ToolTable-TouchOff.png[]
+
+=== Using G10 L1
+
+The G10 L1x command can be used to set tool table offsets:
+  (these are just quick summaries, see the gcode section for full details)
+
+G10 L1  P(tool no.) - Set offset(s) to a value. Current position irrelevant. 
+                      (see <<sec:G10-L1_>> for details)(((G10 L1)))
+
+G10 L10 P(tool no.) - Set offset(s) so current position w/ fixture 1-8 becomes a value. 
+                      (see <<sec:G10-L10>> for details)(((G10 L10)))
+
+G10 L11 P(tool no.) - Set offset(s) so current position w/ fixture 9 becomes a value. 
+                      (see <<sec:G10-L11>> for details)(((G10 L11)))
+
+== Tool Table
+
+The "Tool Table" is a text file that contains information about each
+tool. The file is located in the same directory as your configuration
+and is called "tool.tbl". The tools might be in a tool changer or just
+changed manually. The file can be edited with a text editor or be
+updated using G10 L1. See the Lathe Specifics Section for lathe tool
+table example. The maximum number of entries in the tool table is 56.
+The maximum tool and pocket number is 99999. 
+
+=== Tool Table Format
+
+.Tool Table Format[[sec:Tool-Table-Format]](((Tool-Table-Format)))
+
+[width="100%", options="header"]
+|========================================
+|T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|; 15+^|(no data after opening semicolon)
+|T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
+|========================================
+
+In general, the new tool table line format is:
+
+ - ; - opening semicolon, no data
+ - T - tool number, 0-99999 (you can have a large number of tools in inventory)
+ - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
+ - X..W - tool offset on specified axis - floating-point
+ - D - tool diameter - floating-point, absolute value
+ - I - front angle (lathe only) - floating-point 
+ - J - back angle (lathe only) - floating-point 
+ - Q - tool orientation (lathe only) - integer, 0-9 
+ - ; - beginning of comment or remark - text
+
+The file consists of one opening semicolon on the first line, 
+followed by up to a maximum of 56 tool entries. 
+footnote:[Although tool numbers up to 99999 are allowed, the number 
+of entries in the tool table, at the moment, is still limited to a 
+maximum of 56 tools for technical reasons. The EMC2 developers plan 
+to remove that limitation eventually. If you have a very large 
+toolchanger, please be patient.]
+
+Earlier versions of EMC2 had two different tool table formats for 
+mills and lathes, but since the 2.4.x release, one tool table format 
+is used for all machines. Just ignore the parts of the tool table 
+that don't pertain to your machine, or which you don't need to use. 
+
+Each line of the tool table file after the opening semicolon contains 
+the data for one tool. One line may contain as many as 16 entries, 
+but will likely contain much fewer. 
+
+The units used for the length, diameter, etc., are in machine units.
+
+You will probably want to keep the tool entries in ascending order, 
+especially if you are going to be using a randomizing tool changer. 
+Although the tool table does allow for tool numbers in any order. 
+
+Each line may have up to 16 entries. The first two entries are required. 
+The last entry (a remark or comment, preceded by a semicolon) is 
+optional. It makes reading easier if the entries are arranged in 
+columns, as shown in the table, but the only format requirement is 
+that there be at least one space or tab after each of the entries on 
+a line and a newline character at the end of each entry. 
+
+The meanings of the entries and the type of data to be put in each are 
+as follows.
+
+.Tool Number (required)
+The “T” column contains the number (unsigned integer) which
+represents a code number for the tool. The user may use any code for
+any tool, as long as the codes are unsigned integers. 
+
+.Pocket Number (required)
+The “P” column contains the number (unsigned integer) which
+represents the pocket number (slot number) of the tool changer slot 
+where the tool can be found. The entries in this column must all be 
+different. 
+
+The pocket numbers will typically start at 1 and go up to the highest 
+available pocket on your toolchanger. But not all toolchangers follow 
+this pattern. Your pocket numbers will be determined by the numbers 
+that your toolchanger uses to refer to the pockets. So all this is to 
+say that the pocket numbers you use will be determined by the numbering 
+scheme used in your toolchanger, and the pocket numbers you use must 
+make sense on your machine.  
+
+.Data Offset Numbers (optional)
+The "Data Offset" columns (XYZABCUVW) contain real numbers which 
+represent tool offsets in each axis. This number will be used if tool 
+length offsets are being used and this tool is selected. 
+These numbers can be positive, zero, or negative, and are in fact 
+completely optional. Although you will probably want to make at least 
+one entry here, otherwise there would be little point in making an 
+entry in the tool table to begin with. 
+
+In a typical mill, you probably want an entry for Z (tool length 
+offset). In a typical lathe, you probably want an entry for X 
+(X tool offset) and Z (Z tool offset). In a typical mill using 
+cutter diameter compensation (cutter comp), you probably also want 
+to add an entry for D (cutter diameter). In a typical lathe using 
+tool nose diameter compensation (tool comp), you probably also want 
+to add an entry for D (tool nose diameter). 
+
+A lathe also requires some additional information to describe the 
+shape and orientation of the tool. So you probably want to have entries 
+for I (tool front angle) and J (tool back angle). 
+You probably also want an entry for Q (tool orientation). 
+
+A complete description of the lathe entries can be found in the lathe 
+section of the user manual (<<cha:Lathe-Specifics>>). 
+
+The “Diameter” column contains a real number. This number is used only
+if tool radius compensation is turned on using this tool. If the
+programmed path during compensation is the edge of the material being
+cut, this should be a positive real number representing the measured
+diameter of the tool. If the programmed path during compensation is the
+path of a tool whose diameter is nominal, this should be a small number
+(positive or negative, but near zero) representing only the difference 
+between the measured diameter of the tool and the nominal diameter. 
+If cutter radius compensation is not used with a tool, it does not 
+matter what number is in this column.
+
+The “Comment” column may optionally be used to describe the tool. Any 
+type of description is OK. This column is for the benefit of human
+readers only. The comment must be preceded by a semicolon. 
+
+= Fichier d'outils et compensations[[sec:Outils-et-Compensations]]
 
 == Fichier d'outils
 
 Les longueurs et diamètres d'outils peuvent être lus dans un fichier
-d'outils (voir la section  <<sub:Fichier-d-outils>>) ou provenir d'un
+d'outils (voir la section <<sub:Fichier-d-outils>>) ou provenir d'un
 mot spécifié pour activer la compensation d'outil.
 
 == Compensation d'outil
@@ -119,7 +286,7 @@ parcours généralement interprété. Dans la méthode de droite (celle
 marquée Not this way), l'outil ne reste pas en contact avec les angles
 vifs du triangle gris.
 
-[[figure:7]]
+.[[figure:7]]
 image::radius_comp.png[]
 
 Des mouvements sur l'axe Z peuvent avoir lieu pendant que le contour
@@ -135,14 +302,14 @@ au contour programmé.
 
 ==== Instructions de programmation
 
- -  Pour activer la compensation de rayon d'outil, programmer soit, G41
+ - Pour activer la compensation de rayon d'outil, programmer soit, G41
    (pour maintenir l'outil à gauche du profil à usiner) soit, G42 (pour
-   maintenir l'outil à droite du profil). Dans la figure  «figure:7», 
+   maintenir l'outil à droite du profil). Dans la figure «figure:7»,
    par exemple, si G41 était programmé, l'outil devrait tourner en sens
    horaire autour du triangle et dans le sens contraire si G42 était
    programmé.
  - Pour désactiver la compensation de rayon d'outil, programmer G40.
- -  Si un G40, G41, ou G42 est programmé dans la même ligne qu'un
+ - Si un G40, G41, ou G42 est programmé dans la même ligne qu'un
    mouvement d'axe, la compensation de rayon sera activée ou désactivée
    avant que le mouvement ne soit fait. Pour que le mouvement s'effectue
    en premier, il doit être programmé séparément et avant.
@@ -172,12 +339,12 @@ d'outils” pour savoir comment remplir ces fichiers.
 
 L'interpréteur contrôle la compensation pour deux types de contour:
 
- -  1) Le contour donné dans le code NC correspond au bord extérieur du
-   matériau après usinage. Nous l'appellerons «contour sur le profil du
-   matériau». 
- -  2) Le contour donné dans le code NC correspond à la trajectoire suivie
-   par le centre d'un outil de rayon nominal. Nous l'appellerons «contour
-   sur le parcours d'outil».
+ - 1) Le contour donné dans le code NC correspond au bord extérieur du
+   matériau après usinage. Nous l'appellerons 
+   «contour sur le profil du matériau». 
+ - 2) Le contour donné dans le code NC correspond à la trajectoire suivie
+   par le centre d'un outil de rayon nominal. Nous l'appellerons 
+   «contour sur le parcours d'outil».
 
 L'interpréteur ne dispose d'aucun paramètre pour déterminer quel type
 de contour est utilisé, mais la description des contours est différente
@@ -258,7 +425,7 @@ triangle de la figure 7.
 `N0080 G2 X-2.3 Y-0.6 J0.5 (usinage de l'arc en bas à gauche)` +
 `N0090 G1 X1.7 Y2.4 (usinage de l'hypoténuse)` +
 `N0100 G2 X2 Y2.5 I0.3 J-0.4 (usinage de l'arc en haut à droite)` +
-`N0110 G40 (désactive la compensation)` +
+`N0110 G40 (désactive la compensation)` 
 
 Avec ce programme, l'outil suit cette trajectoire: un mouvement
 d'alignement, deux mouvements d'entrée, puis il suit une trajectoire
@@ -339,9 +506,9 @@ d'emplacements disponibles dans le carrousel, un message d'erreur sera
 affiché. Dans l'implémentation actuelle, le nombre d'emplacements
 maximum est de 68.
 
-Le message d'erreur «Deux G-codes du même groupe modal sont utilisés» 
-est un message générique utilisé pour plusieurs jeux de G-codes. Il 
-s'applique à la compensation de rayon d'outil, il signifie que plus 
+Le message d'erreur «Deux G-codes du même groupe modal sont utilisés»
+est un message générique utilisé pour plusieurs jeux de G-codes. Il
+s'applique à la compensation de rayon d'outil, il signifie que plus
 d'un code G40, G41 ou G42 apparaît sur la même ligne de progamme NC, 
 ce qui n'est pas permis.
 
@@ -541,7 +708,7 @@ Les commandes sont:
 
 G40 - Annuler la compensation de rayon d'outil +
 G41 - Activer la compensation, outil à gauche du profil +
-G42 - Activer la compensation, outil à droite du profil +
+G42 - Activer la compensation, outil à droite du profil 
 
 Voici un petit fichier qui usine le côté d'une pièce avec de multiples
 arcs convexes et concaves et plusieurs lignes droites. La plupart de

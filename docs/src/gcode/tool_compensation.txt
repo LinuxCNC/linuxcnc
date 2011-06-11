@@ -30,13 +30,13 @@ The G10 L1x command can be used to set tool table offsets:
   (these are just quick summaries, see the gcode section for full details)
 
 G10 L1  P(tool no.) - Set offset(s) to a value. Current position irrelevant. 
-                      (see <<sec:G10-L1->> for details)(((G10 L1)))
+                      (see <<sec:G10-L1_>> for details)(((G10 L1)))
 
 G10 L10 P(tool no.) - Set offset(s) so current position w/ fixture 1-8 becomes a value. 
-                      (see <<sec:G10-L10->> for details)(((G10 L10)))
+                      (see <<sec:G10-L10>> for details)(((G10 L10)))
 
 G10 L11 P(tool no.) - Set offset(s) so current position w/ fixture 9 becomes a value. 
-                      (see <<sec:G10-L11->> for details)(((G10 L11)))
+                      (see <<sec:G10-L11>> for details)(((G10 L11)))
 
 == Tool Table
 

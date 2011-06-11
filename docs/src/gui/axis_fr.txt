@@ -478,8 +478,7 @@ composant.
 hal_manualtoolchange peut être utilisé même si l'interface graphique
 AXIS n'est pas en service.
 
-.La fenêtre de changement manuel d'outil[[cap:Changement manuel
-d-outil]]
+.La fenêtre de changement manuel d'outil[[cap:Changement manuel d-outil]]
 
 image::images/manualtoolchange_fr.png[]
 

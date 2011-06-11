@@ -1,4 +1,4 @@
-= Systèmes de coordonnées et décalage G92
+= Systèmes de coordonnées et décalage G92[[cha:Systemes-de-coordonnees]]
 
 == Introduction
 
@@ -24,7 +24,7 @@ dans une ligne de code indique à l'interpréteur de se déplacer aux
 positions réelles des axes (positions absolues), commandées dans la
 ligne. Par exemple:
 
-G53 G0 X0 Y0 Z0
+    G53 G0 X0 Y0 Z0
 
 déplacera le mobile depuis la position actuelle vers la position où
 les coordonnées machine des trois axes seront à zéro. Vous pouvez
@@ -42,7 +42,7 @@ image::images/offsets.png[]
 
 .[[fig:decalages-ilots]]Décalages pour 8 ilots
 
-Ndt: le terme anglais fixture, souvent rencontré, signifie porte-pièce.
+Note du tradtucteur: le terme anglais fixture, souvent rencontré, signifie porte-pièce.
 
 Le décalage d'origine est utilisé pour séparer le point de référence
 de la pièce, de l'origine machine, créant ainsi un système de
@@ -210,31 +210,31 @@ Lorsque les commandes sont utilisées comme décrit ci-dessus, elles
 fonctionneront à peu près comme vous vous y attendiez.
 
      L'utilisateur doit bien comprendre le fonctionnement des valeurs de
-    g92. Elles sont basées sur l'emplacement de chaque axe au moment où la
-    commande g92 est invoquée. Le document du NIST est clair, `` pour faire
-    en sorte que le point actuel ait les coordonnées'' x0, y0 et z0 nous
-    utiliserons g92 x0 y0 z0. G92 'ne fonctionne pas depuis le système de
+    G92. Elles sont basées sur l'emplacement de chaque axe au moment où la
+    commande G92 est invoquée. Le document du NIST est clair, `` pour faire
+    en sorte que le point actuel ait les coordonnées'' X0, Y0 et Z0 nous
+    utiliserons G92 X0 Y0 Z0. G92 'ne fonctionne pas depuis le système de
     coordonnées machine absolues'. 'Il fonctionne à partir de l'emplacement
     actuel.'
 
      G92 travaille également à partir d'un emplacement actuel déjà modifié
-    par tout autre décalage actif au moment où la commande g92 est
+    par tout autre décalage actif au moment où la commande G92 est
     invoquée. Lors de test des différences entre les décalages de travail
     et les décalages réels, il a été constaté qu'un décalage g54 pouvait
-    annuler un g92 et ainsi, donner l'apparence qu'aucun décalage n'était
-    actif. Toutefois, le g92 était toujours actif, pour toutes les
+    annuler un G92 et ainsi, donner l'apparence qu'aucun décalage n'était
+    actif. Toutefois, le G92 était toujours actif, pour toutes les
     coordonnées et il a produit les décalages attendus pour tous les autres
     systèmes de coordonnées.
 
      Il est probable que l'absence de contact d'origine machine et d'une
     bonne procédure de prise d'origine machine se traduira par de très
-    grandes erreurs dans l'application des valeurs de g92 si elles existent
+    grandes erreurs dans l'application des valeurs de G92 si elles existent
     dans le fichier VAR. Beaucoup d'utilisateurs d'EMC n'ont pas de contact
     d'origine machine sur leurs machines. Pour eux, l'origine machine
     devrait être trouvée en déplaçant chaque axe à l'emplacement supposé et
     en utilisant la commande de prise d'origine. Lorsque chaque axe est
     dans une position connue, la commande de prise d'origine recalculera
-    comment les valeurs de g92 doivent être appliquées pour produire des
+    comment les valeurs de G92 doivent être appliquées pour produire des
     résultats cohérents. Sans séquence de prise d'origine machine, les
     valeurs sont appliquées à la position de la machine au démarrage d'EMC.
 
@@ -250,14 +250,14 @@ Il y a au moins deux façons d'établir les valeurs de G92.
 Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe
 auquel le déplacement doit être appliqué.
 
-     Programmer g92 x- y- z- a- b- c- fixe les valeurs des variables de G92
+     Programmer G92 X- Y- Z- A- B- C- fixe les valeurs des variables de G92
     de sorte que chaque axe prenne la valeur associée à son nom. Ces
     valeurs sont assignées à la position courante des axes. Ces résultats
     satisfont les paragraphes un et deux du document du NIST.
 
      Les commandes G92 fonctionnent à partir de la position courante de
     l'axe, à laquelle elles ajoutent ou soustraient des valeurs pour donner
-    à la position courante la valeur assignée par la commande g92. Elles
+    à la position courante la valeur assignée par la commande G92. Elles
     prennent effet même si d'autres décalages sont déjà actifs.
 
 Ainsi, si l'axe X est actuellement en position X=2.0000, un G92 x0
@@ -309,7 +309,7 @@ les mettre à zéro devrait solutionner le problème.
 D'autre part, si les valeurs de G92 existent dans le fichier VAR
 lorsque EMC a démarré
 
-     ... À partir d'EMC avec les valeurs de g92 dans le fichier de
+     ... À partir d'EMC avec les valeurs de G92 dans le fichier de
     variables, EMC appliquera ces valeurs à partir de l'emplacement actuel
     de chaque axe. Si la prise d'origine machine a été faite et que
     l'origine machine correspond bien au zéro des axes, tout sera correct.
@@ -320,8 +320,8 @@ lorsque EMC a démarré
 
      Ces tests n'ont pas étudié l'effet produit par la lecture des
     variables dans le fichier alors qu'il contient des valeurs. Cela
-    pourrait poser des problèmes si les décalages g92 avaient été enlevés
-    avec g92.1 alors que le fichier de variables contenait encore les
+    pourrait poser des problèmes si les décalages G92 avaient été enlevés
+    avec G92.1 alors que le fichier de variables contenait encore les
     valeurs précédentes. 
 
 C'est cette complexité qui nous amène à dire que les valeurs de G92

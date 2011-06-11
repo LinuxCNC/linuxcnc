@@ -21,7 +21,7 @@ pour tour.
 .Fichier d'outils pour tour
 
 [width="90%", options="header"]
-|==========================================================
+|==============================================================================
 |Pocket | FMS | ZOFFSET | XOFFSET | DIA  | FRONTANGLE | BACKANGLE | ORIENT | COMMENT
 |1      | 1   | 0.000   | 0.000   | 0.10 | 105.0      | 165.0     | 1      | 60 deg
 |2      | 2   | 0.000   | 0.000   | 0.05 | 22.5       | 67.5      | 2      | 45 deg
@@ -33,7 +33,7 @@ pour tour.
 |8      | 8   | 0.000   | 0.000   | 0.10 | 247.5      | 292.5     | 8      | 45 deg
 |9      | 9   | 0.000   | 0.000   | 0.10 | 0          | 0         | 9      | 
 |       |     |         |         |      |            |           |        | 
-|==========================================================
+|==============================================================================
 
 Les valeurs du fichier d'outils peuvent être ajustées en utilisant G10
 L1, à l'exception de FRONTANGLE, BACKANGLE et COMMENT qui doivent être,
@@ -90,5 +90,5 @@ le codeur de broche.
 
 Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage
 intérieur qu'en filetage extérieur, voir G76
-<<sub:G76-Filetage-preprogramme>> dans la section G-code.
+<<sec:G76-Filetage>> dans la section G-code.
 

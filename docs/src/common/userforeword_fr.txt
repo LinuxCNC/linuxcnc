@@ -30,8 +30,9 @@ premiers auteurs d'EMC ont suivi cette voie.
     reliés à  d'autres programmes.
 
     * Règle de séparation: Séparer les règles du fonctionnement; Séparer
-    les interfaces du mécanisme. footnote:[Trouvé sur
-    http://fr.wikipedia.org/wiki/Philosophie_d Unix ,09/09/2008]
+    les interfaces du mécanisme.footnote:[Trouvé sur
+    link:[http://fr.wikipedia.org/wiki/Philosophie_d Unix,Philosophie 
+    d'Unix] ,09/09/2008]
 
 M. Raymond offre d'autres règles mais ces quatre décrivent les
 caractéristiques essentielles du système de contrôle de mouvement EMC2.
@@ -44,7 +45,7 @@ module ou un ensemble de modules. Cette modularité vous permettra de ne
 connecter entre elles que les parties dont vous avez besoin pour le bon
 fonctionnement de votre machine.
 
-La règle de *clarté*  est essentielle. EMC2 est en perpétuelle
+La règle de *clarté* est essentielle. EMC2 est en perpétuelle
 évolution, il n'est pas
 terminé et ne le sera jamais. Il est assez complet pour piloter toutes
 les machines que nous avons voulu qu'il pilote. Une bonne partie de

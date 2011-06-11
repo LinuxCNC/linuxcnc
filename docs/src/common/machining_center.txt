@@ -55,7 +55,7 @@ not be controlled by the CNC software.
 If a CNC machine has components to provide mist coolant and/or flood
 coolant they can be controlled by G-Codes.
 
-=== Feed  (((feed override))) and Speed(((spindle speed override))) Override[[sub:Feed-and-Speed]]
+=== Feed(((feed override))) and Speed(((spindle speed override))) Override[[sub:Feed-and-Speed]]
 
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
@@ -220,7 +220,7 @@ The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
 both switches and one command that disables both (see Section 
-<<sub:M48,-M49:-Override>>). See Section  <<sub:Feed-Interaction>>
+<<sub:M48-M49-Overrides>>). See Section  <<sub:Feed-Interaction>>
 for further details.
 
 === Path Control Mode (((path control mode)))[[sub:Path-Control-Mode]]
@@ -233,7 +233,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Section <<sub:G61-G61.1-G64,Controle-trajectoire>>. 
+Section <<sec:G61-G61.1-G64>>. 
 
 == Interpreter Interaction with Switches
 

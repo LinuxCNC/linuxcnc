@@ -308,6 +308,7 @@ pid::
 siggen::
      (((siggen))) Générateur d'ondes:
     sinusoïdale/cosinusoïdale/triangle/carrée, pour la mise au point. 
+    Voir section <<sec:Siggen>>
 
 supply::
     (((supply))) Une simple alimentation, pour la mise au point

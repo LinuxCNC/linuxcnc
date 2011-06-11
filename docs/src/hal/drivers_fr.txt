@@ -1,6 +1,6 @@
 = Pilotes de périphériques
 
-== Parport[[sec:Parport]](((parallel port)))
+== Parport<<sec:Parport>>(((parallel port)))
 
 Parport est un pilote pour le port parallèle traditionnel des PC. Le
 port dispose d'un total de 17 broches physiques. Le port parallèle
@@ -34,12 +34,12 @@ peut détériorer le matériel.
 Pour déterminer si votre port a des broches de contrôle en “collecteur
 ouvert”, charger hal_parport en mode “x”, positionner les broches de
 contrôle à une valeur HAUTE. HAL doit lire des pins à l'état VRAI.
-Ensuite, insérer une résistance de 470latexmath:[Ω] entre une des
+Ensuite, insérer une résistance de 470 Ohms entre une des 
 broches de contrôle et GND du port parallèle. Si la tension de cette
 broche de contrôle est maintenant proche de 0V et que HAL la lit comme
 une pin FAUSSE, alors vous avez un port OC. Si la tension résultante
 est loin de 0V ou que HAL ne la lit pas comme étant FAUSSE, votre port
-ne ne peut pas être utilisé en mode “x”.
+ne ne peut pas être utilisé en mode “x”. 
 
 Le matériel extérieur qui pilote les broches de contrôle devrait
 également utiliser des portes en collecteur ouvert (ex: 74LS05...).

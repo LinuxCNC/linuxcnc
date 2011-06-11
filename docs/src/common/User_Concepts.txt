@@ -246,17 +246,12 @@ If you're having trouble getting 0,0,0 on the DRO when you think you
 should, you may have some offsets programmed in and need to remove
 them.
 
- - Move to the Machine origin with  
-   G53 G0 X0 Y0 Z0
- - Clear any G92 offset with 
-   G92.1
- - Use the G54 coordinate system with 
-   G54
- -  Set the G54 coordinate system to be the same as the machine coordinate
-   system with 
-   G10 L2 P1 X0 Y0 Z0
- - Turn off tool offsets with 
-   G49
+ - Move to the Machine origin with G53 G0 X0 Y0 Z0
+ - Clear any G92 offset with G92.1
+ - Use the G54 coordinate system with G54
+ - Set the G54 coordinate system to be the same as the 
+   machine coordinate system with G10 L2 P1 X0 Y0 Z0
+ - Turn off tool offsets with G49
  - Turn on the Relative Coordinate Display from the menu
 
 Now you should be at the machine origin X0 Y0 Z0 and the relative

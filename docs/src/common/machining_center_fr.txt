@@ -1,274 +1,291 @@
-= CNC Machine Overview
+= Aperçu machine CNC
 
-This section gives a brief description of how a CNC machine is viewed
-from the input and output ends of the Interpreter.
+Cette section donne une brève description de la façon dont une 
+machine CNC est considéré à partir des extrémités d'entrée et 
+de sortie de l'interprète.
 
-== Mechanical Components
+== Composants mécaniques
 
-A CNC machine has many mechanical components that may be controlled or
-may affect the way in which control is exercised. This section
-describes the subset of those components that interact with the
-Interpreter. Mechanical components that do not interact directly with
-the Interpreter, such as the jog buttons, are not described here, even
-if they affect control.
+Un centre d'usinage dispose de beaucoup de composants mécaniques
+pouvant être contrôlés ou qui peuvent avoir une incidence sur la façon
+dont le contrôle de la machine s'effectue. Cette section décrit les
+composants qui interagissent avec l'interpréteur. Les composants
+mécaniques, qui n'interagissent pas avec l'interpréteur, comme les
+boutons du jog, ne seront pas décrits ici, même si ils affectent le
+contrôle.
 
 === Axes (((axes)))
 
-Any CNC machine has one or more Axes. Different types of CNC machines
-have different combinations. For instance, a "4-axis milling machine"
-may have XYZA or XYZB axes. A lathe typically has XZ axes. A
-foam-cutting machine may have XYUV axes. In EMC, the case of a XYYZ
-"gantry" machine with two motors for one axis is better handled by
-kinematics rather than by a second linear axis. footnote:[If the 
-motion of mechanical components is not independent, as with 
-hexapod machines, the RS274/NGC language and the canonical machining
-functions will still be usable, as long as the lower levels of control
-know how to control the actual mechanisms to produce the same relative
-motion of tool and workpiece as would be produced by independent axes.
-This is called 'kinematics'.]
+Tout centre d'usinage dispose d'un ou de plusieurs axes. Les
+différents types de machines ont différentes combinaisons d'axes. Par
+exemple, une fraiseuse 4 axes peut avoir la combinaison d'axes XYZA ou
+XYZB. Un tour classique aura les axes XZ. Une machine de découpe à fil
+chaud aura les axes XYUV.footnote:[Si le mouvement des composants
+mécaniques n'est pas indépendant, comme
+sur une machine hexapode, le langage RS274/NGC et les fonctions
+standards seront quand même utilisables, tant que le contrôle de bas
+niveau sait comment contrôler les mécanismes actuels pour produire le
+mouvement relatif de l'outil et de la pièce qui auraient été produits
+par des axes indépendants. C'est appelé, la cinématique.]
+footnote:[Avec EMC, le cas de la machine à portique XYYZ avec deux
+moteurs pour un axe est mieux traité par la cinématique que par un 
+axe linéaire supplémentaire.]
 
-==== Primary Linear Axes (((axes, primary linear)))
+==== Axes linéaires primaires (((axes lineaires primaires)))
 
-The X, Y, and Z axes produce linear motion in three mutually
-orthogonal directions.
+Les axes X, Y et Z produisent des mouvements linéaires dans trois
+directions, mutuellement orthogonales.
 
-==== Secondary Linear Axes (((axes, secondary linear)))
+==== Axes linéaires secondaires (((axes lineaires secondaires)))
 
-The U, V, and W axes produce linear motion in three mutually
-orthogonal directions. Typically, X and U are parallel, Y and V are
-parallel, and Z and W are parallel.
+Les axes U, V et W produisent des mouvements linéaires dans trois
+directions mutuellement orthogonales. Habituellement, X et U sont
+parallèles, Y et V sont parallèles et Z et W sont parallèles.
 
-==== Rotational Axes (((axes, rotational)))
+==== Axes rotatifs (((Axes rotatifs)))
 
-The A, B and C axes produce angular motion (rotation). Typically, A
-rotates around a line parallel to X, B rotates around a line parallel
-to Y, and C rotates around a line parallel to Z.
+Les axes A, B et C produisent des mouvements angulaires (rotations).
+Habituellement, l'axe de rotation de A est parallèle à X, l'axe de
+rotation de B est parallèle à Y et l'axe de rotation de C est parallèle
+à Z.
 
-=== Spindle (((spindle)))
+=== Broche (((broche)))
 
-A CNC machine typically has a spindle which holds one cutting tool,
-probe, or the material in the case of a lathe. The spindle may or may
-not be controlled by the CNC software.
+Un centre d'usinage est équipé d'une broche qui maintient un outil
+coupant, un palpeur ou d'autres outils. La broche peut tourner dans les
+deux sens. Elle peut être conçue pour tourner à vitesse constante mais
+réglable. Excepté sur les machines dont la broche est montée sur un axe
+rotatif, l'axe de la broche est maintenu parallèle à l'axe Z et il est
+coïncident avec l'axe Z quand X et Y sont à zéro. La broche peut être
+stoppée sur une position fixée ou non.
 
-=== Coolant (((coolant)))
+=== Arrosages (((arrosage)))
 
-If a CNC machine has components to provide mist coolant and/or flood
-coolant they can be controlled by G-Codes.
+Un centre d'usinage peut être équipé d'un composant fournissant
+l'arrosage fuide ou en brouillard.
 
-=== Feed  (((feed override))) and Speed(((spindle speed override))) Override[[sub:Feed-and-Speed]]
+=== Correcteurs de vitesse (((correcteurs vitesse))) d'avance et de broche(((correcteur v. broche)))
 
-A CNC machine can have separate feed and speed override controls,
-which let the operator specify that the actual feed rate or spindle
-speed used in machining at some percentage of the programmed rate. See
-Section  <<sub:Feed-Interaction>>.
+Un centre d'usinage est équipé de boutons de réglage de la vitesse
+d'avance et de la vitesse de rotation de la broche, ils laissent
+l'opérateur corriger les vitesses nécessaires pour la broche et
+l'avance travail, il peut ainsi augmenter ou réduire les vitesses
+programmées.
 
-=== Block Delete Switch (((optional block delete)))[[sub:Block-Delete-Switch]]
+=== Bouton d'effacement de block (((Bouton effacement de block)))[[sub:Bouton-effacement-de-block]]
 
-A CNC machine can have a block delete switch. See Section 
-<<sub:Block-Delete-Switch-Interaction>>.
+Un centre d'usinage peut être équipé d'un bouton d'effacement de
+block. Voir la section <<sub:Interaction-effacement-de-block>>.
 
-=== Optional Program Stop (((optional program stop))) Switch[[sub:Optional-Program-Stop]]
+=== Bouton d'arrêt optionnel du programme(((arrêt optionnel)))[[sub:arret-optionnel]]
 
-A CNC machine can have an optional program stop switch. See Section 
-<<sub:Optional-Program-Stop-Interaction>>.
+Un centre d'usinage peut être équipé d'un bouton d'arrêt du programme.
+Voir la section <<sub:Interaction-arrets-optionnels>>.
 
-== Control and Data Components
+== Composants de contrôle et de données
 
-=== Linear Axes
+=== Axes linéaires
 
-The X, Y, and Z axes form a standard right-handed coordinate system of
-orthogonal linear axes. Positions of the three linear motion mechanisms
-are expressed using coordinates on these axes.
+Les axes X, Y et Z forment un système de coordonnées orthogonales
+standard. La position d'un axe s'exprime en utilisant ses coordonnées.
 
-The U, V and W axes also form a standard right-handed coordinate
-system. X and U are parallel, Y and V are parallel, and Z and W are
-parallel (when A, B, and C are rotated to zero).
+Les axes U, V et W forment également un système de coordonnées
+standard. X et U sont parallèles, Y et V sont parallèles enfin Z et W
+sont parallèles.
 
-=== Rotational Axes
+=== Axes rotatifs
 
-The rotational axes are measured in degrees as wrapped linear axes in
-which the direction of positive rotation is counterclockwise when
-viewed from the positive end of the corresponding X, Y, or Z-axis. By
-“wrapped linear axis,” we mean one on which the angular position
-increases without limit (goes towards plus infinity) as the axis turns
-counterclockwise and deceases without limit (goes towards minus
-infinity) as the axis turns clockwise. Wrapped linear axes are used
-regardless of whether or not there is a mechanical limit on rotation.
+Les axes rotatifs se mesurent en degrés. Leur sens de rotation positif
+est le sens anti-horaire quand l'observateur est placé face à l'axe.
+footnote:[Si les parallèlismes sont particuliers, le constructeur du
+système devra indiquer à quels sens de rotation correspondent 
+horaire et anti-horaire.]
 
-Clockwise or counterclockwise is from the point of view of the
-workpiece. If the workpiece is fastened to a turntable which turns on a
-rotational axis, a counterclockwise turn from the point of view of the
+== Ne pas utiliser les numéros de ligne
+
+Les numéros de ligne n'apportent rien. Quand des numéros de ligne sont
+rapportés dans les messages d'erreur, ces numéros font référence aux
+numéros de lignes àterclockwise turn from the point of view of the
 workpiece is accomplished by turning the turntable in a direction that
 (for most common machine configurations) looks clockwise from the point
 of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
 have to say how to distinguish clockwise from counterclockwise.]
 
-=== Controlled Point [[sub:Controlled-Point]](((controlled point)))
+=== Point contrôlé [[sub:Point-controle]](((point contrôlé)))
 
-The controlled point is the point whose position and rate of motion
-are controlled. When the tool length offset is zero (the default
-value), this is a point on the spindle axis (often called the gauge
-point) that is some fixed distance beyond the end of the spindle,
-usually near the end of a tool holder that fits into the spindle. The
-location of the controlled point can be moved out along the spindle
-axis by specifying some positive amount for the tool length offset.
-This amount is normally the length of the cutting tool in use, so that
-the controlled point is at the end of the cutting tool. On a lathe,
-tool length offsets can be specified for X and Z axes, and the
-controlled point is either at the tool tip or slightly outside it
-(where the perpendicular, axis-aligned lines touched by the “front” and
-“side” of the tool intersect).
+Le point contrôlé est le point dont la position et la vitesse de
+déplacement sont contrôlés. Quand la compensation de longueur d'outil
+est zéro (valeur par défaut), c'est un point situé sur l'axe de la
+broche et proche de la fin de celle-ci. Cette position peut être
+déplacée le long de l'axe de la broche en spécifiant une compensation
+de longueur d'outil. Cette compensation correspond généralement à la
+longueur de l'outil coupant courant. Ainsi, le point contrôlé est à la
+pointe de l'outil. Sur un tour, les correcteurs d'outil peuvent être
+spécifiés pour les axes X et Z, le point contrôlé est à la pointe de
+l'outil ou (correction du rayon de bec) légèrement en retrait du point
+d'intersection des droites perpendiculaires formées par l'axe des
+points de tangence à la pièce, de face et sur le côté de l'outil.
 
-=== Coordinated Linear Motion [[sub:Coordinate-Linear-Motion]]
+=== Mouvement linéaire coordonné [[sub:Mouvement-lineaire-coordonne]]
 
-To drive a tool along a specified path, a machining center must often
-coordinate the motion of several axes. We use the term “coordinated
-linear motion” to describe the situation in which, nominally, each axis
-moves at constant speed and all axes move from their starting positions
-to their end positions at the same time. If only the X, Y, and Z axes
-(or any one or two of them) move, this produces motion in a straight
-line, hence the word “linear” in the term. In actual motions, it is
-often not possible to maintain constant speed because acceleration or
-deceleration is required at the beginning and/or end of the motion. It
-is feasible, however, to control the axes so that, at all times, each
-axis has completed the same fraction of its required motion as the
-other axes. This moves the tool along same path, and we also call this
-kind of motion coordinated linear motion.
+Pour mener un outil sur une trajectoire spécifiée, un centre d'usinage
+doit coordonner les mouvements de plusieurs axes. Nous utilisons le
+terme “mouvement linéaire coordonné” pour décrire une situation dans
+laquelle, nominalement, chacun des axes se déplace à vitesse constante
+et tous les axes se déplacent de leur point de départ à leur point
+d'arrivée en même temps. Si deux des axes X, Y, Z (ou les trois) se
+déplacent, ceci produit un mouvement en ligne droite, d'où le mot
+“linéaire” dans le terme. Dans les véritables mouvements, ce n'est
+souvent pas possible de maintenir la vitesse constante à cause des
+accélérations et décélérations nécessaires en début et fin de
+mouvement. C'est faisable, cependant, de contrôler les axes ainsi,
+chaque axe doit en permanence faire la même fraction du mouvement
+requis que les autres axes. Ceci déplace l'outil le long du même
+parcours et nous appelons aussi ce genre de mouvement, mouvement
+linéaire coordonné.
 
-Coordinated linear motion can be performed either at the prevailing
-feed rate, or at traverse rate, or it may be synchronized to the
-spindle rotation. If physical limits on axis speed make the desired
-rate unobtainable, all axes are slowed to maintain the desired path.
+Un mouvement linéaire coordonné peut être exécuté soit en vitesse
+travail, soit en vitesse rapide, ou il peut être synchronisé à la
+rotation de la broche. Si les limites physique de l'axe rendent le
+déplacement impossible, tous les axes seront ralentis pour maintenir 
+le chemin prévu.
 
-=== Feed Rate (((feed rate)))[[sub:Feed-Rate]]
+=== Vitesse (((vitesse d'avance)))[[sub:Vitesse-d-avance]]
 
-The rate at which the controlled point or the axes move is nominally a
-steady rate which may be set by the user. In the Interpreter, the
-interpretation of the feed rate is as follows unless “inverse time
-feed” or “feed per revolution” modes are being used (see Section 
-<<sub:G93,-G94:-Set>>).
+La vitesse à laquelle le point contrôlé se déplace est ajustable par
+l'opérateur. Sauf cas particulier, (vitesse inverse du temps, vitesse
+par tour, voir la section <<sec:G93-G94-G95-Set>>), dans
+l'interpréteur, l'interprétation des vitesses est la suivante:
 
- .  If any of XYZ are moving, F is in units per minute in the XYZ
-   cartesian system, and all other axes (ABCUVW) move so as to start and
-   stop in coordinated fashion. 
- .  Otherwise, if any of UVW are moving, F is in units per minute in the
-   UVW cartesian system, and all other axes (ABC) move so as to start and
-   stop in coordinated fashion. 
- .  Otherwise, the move is pure rotary motion and the F word is in rotary
-   units in the ABC “pseudo-cartesian” system.
+ . Si le déplacement concerne un des axes XYZ, F est en unités machine
+   par minute dans le système Cartésien XYZ et les mouvements des autres
+   axes (UVWABC) sont également dans un même mode de coordonnées.
+ . Autrement, si le déplacement concerne un des axes UVW, F est en unités
+   machine par minute dans le système Cartésien UVW, tous les autres axes
+   (ABC) se déplacent dans un même mode de coordonnées.
+ . Autrement, le mouvement est purement rotatif et le mot F est en unités
+   de rotation dans le système pseudo-Cartésien ABC.
 
-=== Coolant (((coolant)))
+=== Arrosage (((arrosage)))
 
-Flood coolant and mist coolant may each be turned on independently.
-The RS274/NGC language turns them off together (see Section 
-<<sub:M7,-M8,-M9>>).
+Arrosage fluide ou brouillard (gouttelettes) peuvent être activés
+séparément. Le langage RS274/NGC les arrête ensemble (voir la section 
+<<sec:M7-M8-M9>>).
 
-=== Dwell (((dwell)))
+=== Temporisation (((tempo)))
 
-A machining center may be commanded to dwell (i.e., keep all axes
-unmoving) for a specific amount of time. The most common use of dwell
-is to break and clear chips, so the spindle is usually turning during a
-dwell. Regardless of the Path Control Mode (see Section 
-<<sub:Path-Control-Mode>>) the machine will stop exactly at the end of
-the previous programmed move, as though it was in exact path mode.
+Une temporisation peut être commandée (ex: pour immobiliser tous les
+axes) pendant une durée spécifique. La broche n'est pas arrêtée pendant
+une temporisation! Sans s'occuper du mode de contrôle de trajectoire
+(voir la section <<sub:Modes-de-controle-trajectoires>>) la machine
+s'arrêtera exactement à la fin du dernier mouvement avant la
+temporisation.
 
-=== Units (((units)))
+=== Unités (((unites)))
 
-Units used for distances along the X, Y, and Z axes may be measured in
-millimeters or inches. Units for all other quantities involved in
-machine control cannot be changed. Different quantities use different
-specific units. Spindle speed is measured in revolutions per minute.
-The positions of rotational axes are measured in degrees. Feed rates
-are expressed in current length units per minute, or degrees per
-minute, or length units per spindle revolution, as described in Section 
-<<sub:Feed-Rate>>. 
+Les unités utilisées pour les distances le long des axes X, Y et Z
+peuvent être les pouces ou les millimètres. La vitesse de rotation de
+la broche est en tours par minute. Les positions des axes rotatifs sont
+exprimées en degrés. Les vitesses d'avance sont exprimées en unités
+machine par minute ou en degrés par minute ou en unités de longueur par
+tour de broche, comme décrit dans la section 
+<<sub:Vitesse-d-avance>>.
 
-=== Current Position
+=== Position courante
 
-The controlled point is always at some location called the “current
-position,” and the controller always knows where that is. The numbers
-representing the current position must be adjusted in the absence of
-any axis motion if any of several events take place:
+Le point contrôlé est toujours à un emplacement appelé la «position
+courante», et le contrôleur sait toujours où est cette position. Les
+valeurs représentant la position courante doivent être ajustées en
+l'absence de tout mouvement des axes si un de ces événements a lieu:
 
- . Length units are changed.
- . Tool length offset is changed.
- . Coordinate system offsets are changed. 
+ . Les unités de longueur ont changé.
+ . La compensation de longueur d'outil a changé.
+ . Le décalage d'origine a changé. 
 
-=== Selected Plane [[sub:Selected-Plane]]
+=== Choix du plan de travail [[sub:Choix-du-plan-de-travail]]
 
-There is always a “selected plane”, which must be the XY-plane, the
-YZ-plane, or the XZ-plane of the machining center. The Z-axis is, of
-course, perpendicular to the XY-plane, the X-axis to the YZ-plane, and
-the Y-axis to the XZ-plane.
+Il y a toujours un plan sélectionné, qui doit être le plan XY, le plan
+YZ, ou le plan XZ de la machine. L'axe Z est, bien sûr, perpendiculaire
+au plan XY, l'axe X perpendiculaire au plan YZ et l'axe Y
+perpendiculaire au plan XZ.
 
-=== Tool Carousel
+=== carrousel d'outils
 
-Zero or one tool is assigned to each slot in the tool carousel.
+Aucun ou un outil est assigné à chaque emplacement dans le carrousel.
 
-=== Tool Change
+=== Changeur d'outil
 
-A machining center may be commanded to change tools.
+Un centre d'usinage peut commander un changeur d'outils.
 
-=== Pallet Shuttle
+=== Chargeur de pièce
 
-The two pallets may be exchanged by command.
+Les deux porte-pièces peuvent être intervertis par commande.
 
-=== Feed and Speed Override Switches
+=== Chargeur de pièces (((chargement)))
 
-The feed and speed override switches may be enabled (so they work as
-expected) or disabled (so they have no effect on the feed rate or
-spindle speed). The RS274/NGC language has one command that enables
-both switches and one command that disables both (see Section 
-<<sub:M48,-M49:-Override>>). See Section  <<sub:Feed-Interaction>>
-for further details.
+Un centre d'usinage peut être équipé d'un système de chargement des
+pièces. Le système se compose de deux porte-pièces sur lesquels sont
+fixés les bruts des pièces à usiner. Un seul porte-pièce à la fois est
+en position d'usinage.
 
-=== Path Control Mode (((path control mode)))[[sub:Path-Control-Mode]]
+=== Boutons des correcteurs de vitesses
 
-The machining center may be put into any one of three path control
-modes: (1) exact stop mode, (2) exact path mode, or (3) continuous mode
-with optional tolerance. In exact stop mode, the machine stops briefly
-at the end of each programmed move. In exact path mode, the machine
-follows the programmed path as exactly as possible, slowing or stopping
-if necessary at sharp corners of the path. In continuous mode, sharp
-corners of the path may be rounded slightly so that the feed rate may
-be kept up (but by no more than the tolerance, if specified). See
-Section <<sub:G61-G61.1-G64,Controle-trajectoire>>. 
+Les boutons des correcteurs de vitesses peuvent être activés (ils
+fonctionnent normalement) ou rendus inopérents (Ils n'ont plus aucun
+effet). Le langage RS274/NGC dispose d'une commande qui active tous les
+boutons et une autre qui les désactive. Voir la sections 
+<<sub:M48-Deux-Correcteurs>> et <<sub:M49-Ni-Correcteurs>>. 
+Voir la section <<sub:Interaction-vitesses>> pour d'autres détails. 
 
-== Interpreter Interaction with Switches
+=== Modes de contrôle de trajectoire [[sub:Modes-de-controle-trajectoires]]
 
-The Interpreter interacts with several switches. This section
-describes the interactions in more detail. In no case does the
-Interpreter know what the setting of any of these switches is.
+La machine peut être placée dans un de ces trois modes de contrôle de
+trajectoire: (1) mode arrêt exact, (2) mode trajectoire exacte ou (3)
+mode trajectoire continue avec tolérance optionnelle. En mode arrêt
+exact, le mobile s'arrête brièvement à la fin de chaque mouvement
+programmé. En mode trajectoire exacte, le mobile suit la trajectoire
+programmée aussi précisément que possible, ralentissant ou s'arrêtant
+si nécessaire aux angles vifs du parcours. En mode trajectoire
+continue, les angles vifs du parcours peuvent être légèrement arrondis
+pour que la vitesse soit maintenue (sans dépasser la tolérance, si elle
+est spécifiée). Voir la section <<sec:G61-G61.1-G64>>.
 
-=== Feed and Speed Override Switches [[sub:Feed-Interaction]]
+== Interaction de l'interpréteur avec les boutons
 
-The Interpreter will interpret RS274/NGC commands which enable (`M48`)
-or disable (`M49`) the feed and speed override switches. For certain
-moves, such as the
-traverse out of the end of a thread during a threading cycle, the
-switches are disabled automatically.
+L'interpréteur interagit avec plusieurs boutons de commande. Cette
+section décrit ces interactions plus en détail. En aucun cas
+l'interpréteur ne connait ce que sont les réglages de ces boutons.
 
-EMC2 reacts to the speed and feed override settings when these
-switches are enabled.
+=== Boutons de correction de vitesses [[sub:Interaction-vitesses]]
 
-=== Block Delete (((block delete))) Switch[[sub:Block-Delete-Switch-Interaction]]
+L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
+l'action des boutons d'ajustement des vitesses. Pour certains
+mouvements, tels que la sortie de filet à la fin d'un cycle de
+filetage, les boutons sont neutralisés automatiquement.
 
-If the block delete switch is on, lines of RS274/NGC code which start
-with a slash (the block delete character) are not interpreted. If the
-switch is off, such lines are interpreted. Normally the block delete
-switch should be set before starting the NGC program.
+EMC2 réagit aux réglages de ces boutons seulement quand ils sont
+autorisés.
 
-=== Optional Program Stop  (((optional program stop))) Switch[[sub:Optional-Program-Stop-Interaction]]
+=== Bouton d'effacement de block Switch [[sub:Interaction-effacement-de-block]](((effacement de block)))
 
-If this switch is on and an M1 code is encountered, program execution
-is paused.
+Si le bouton “Effacement de block” est actif, les lignes de code
+RS274/NGC commençant par le caractère barre de fraction (caractère
+d'effacement de block) ne sont pas interprétées. Si le bouton est
+désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
+d'effacement de block doit être positionné avant de lancer le programme
+NGC.
 
-== Tool Table [[sub:Tool-Table]]
+=== Bouton d'arrêt optionnel du programme[[sub:Interaction-arrets-optionnels]](((Arrets optionnels)))
 
-A tool table is required to use the Interpreter. The file tells which 
-tools are in which tool changer slots and what the size and type of 
-each tool is. The name of the tool table is defined in the ini file: 
+Si ce bouton est actif et qu'un code M1 est rencontré, le programme
+est mis en pause.
+
+== Fichier d'outils [[sub:Fichier-d-outils]]
+
+Un fichier d'outils est requis par l'interpréteur. Le fichier indique
+dans quels emplacements du carrousel sont placés les outils, la
+longueur et le diamètre de chacun des outils.
 
 ---------------------------------------
 [EMCIO]
@@ -277,9 +294,10 @@ each tool is. The name of the tool table is defined in the ini file:
 TOOL_TABLE = tooltable.tbl
 ---------------------------------------
 
-The default filename probably looks something like the above, but 
-you may prefer to give your machine its own tool table, using the 
-same name as your ini file, but with a tbl extension: 
+Le fichier par défaut ressemble probablement quelque chose comme ce qui 
+précède, mais vous préférerez peut-être pour donner à votre machine son 
+propre outil de table, en utilisant le même nom que votre fichier ini, 
+mais avec une extension tbl:
 
 ---------------------------------------
 TOOL_TABLE = acme_300.tbl
@@ -291,157 +309,156 @@ or
 TOOL_TABLE = EMC-AXIS-SIM.tbl
 ---------------------------------------
 
-For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format>> section. 
+Pour plus d'informations sur les spécificités du format de tableau outil, 
+voir les <<sec:Tool-Table-Format>> section.
 
-== Parameters (((parameters)))[[sub:Parameters]]
+== Paramètres (((parametres)))[[sub:Parametres]]
 
-In the RS274/NGC language view, a machining center maintains an array
-of numerical parameters defined by a system definition
-(RS274NGC_MAX_PARAMETERS). Many of them have specific uses especially
-in defining coordinate systems. The number of numerical parameters can
-increase as development adds support for new parameters. The parameter
-array persists over time, even if the machining center is powered down.
-EMC2 uses a parameter file to ensure persistence and gives the
-Interpreter the responsibility for maintaining the file. The
-Interpreter reads the file when it starts up, and writes the file when
-it exits.
+Dans le language RS274/NGC, le centre d'usinage maintient un tableau
+de 5400 paramètres numériques. La plupart d'entre eux ont un usage
+spécifique. Le tableau de paramètres est persistant, même quand la
+machine est mise hors tension. EMC2 utilise un fichier de paramètres et
+assure sa persistance, il donne à l'interpréteur la responsabilité
+d'actualiser le fichier. L'interpréteur lit le fichier quand il démarre
+et l'écrit juste avant de s'arrêter.
 
-All parameters are available for use in G Code programs.
+Tous les paramètres sont disponibles pour une utilisation dans les 
+programmes de Code G.
 
 1-30::
-     Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. See  <<cha:O-Codes>>
+     Subroutine paramètres locaux des arguments d'appel. Ces paramètres 
+     sont locales à la sous-routine. Voir <<cha:O-Codes>>
 
 1-5000::
-    G-Code user parameters. These parameters are global in the G Code file.
+     Paramètres de l'utilisateur G-Code. Ces paramètres sont globales 
+     dans le fichier G Code.
 
 5061-5070::
-    Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
+     Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
 
 5161-5169::
-    "G28" Home for X, Y, Z, A, B, C, U, V & W.
+     "G28" Home for X, Y, Z, A, B, C, U, V & W.
 
 5181-5189::
-    "G30" Home for X, Y, Z, A, B, C, U, V & W.
+     "G30" Home for X, Y, Z, A, B, C, U, V & W.
 
 5211-5219::
-    "G92" offset for X, Y, Z, A, B, C, U, V & W.
+     "G92" offset for X, Y, Z, A, B, C, U, V & W.
 
 5220::
-    Coordinate System number 1 - 9 for G54 - G59.3.
+     Coordinate System number 1 - 9 for G54 - G59.3.
 
 5221-5229::
-    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
 
 5241-5249::
-    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
 
 5261-5269::
-    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
 
 5281-5289::
-    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
 
 5301-5309::
-    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
 
 5321-5329::
-    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
 
 5341-5349::
-    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
 
 5361-5369::
-    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
 
 5381-5389::
-    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
+     Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
 
 5399::
-    Result of M66 - Check or wait for input
+     Result of M66 - Check or wait for input
 
 5400::
-    Tool Number
+     Tool Number
 
 5401::
-    Tool X Offset
+     Tool X Offset
 
 5402::
-    Tool Y Offset
+     Tool Y Offset
 
 5403::
-    Tool Z Offset
+     Tool Z Offset
 
 5404::
-    Tool A Offset
+     Tool A Offset
 
 5405::
-    Tool B Offset
+     Tool B Offset
 
 5406::
-    Tool C Offset
+     Tool C Offset
 
 5407::
-    Tool U Offset
+     Tool U Offset
 
 5408::
-    Tool V Offset
+     Tool V Offset
 
 5409::
-    Tool W Offset
+     Tool W Offset
 
 5410::
-    Tool Diameter
+     Tool Diameter
 
 5411::
-    Tool Front Angle
+     Tool Front Angle
 
 5412::
-    Tool Back Angle
+     Tool Back Angle
 
 5413::
-    Tool Orientation
+     Tool Orientation
 
 5420-5428::
-     Current Position including all offsets and in the current program
-    units for X, Y, Z, A, B, C, U, V & W.
+     Current Position including all offsets and in the current program 
+     units for X, Y, Z, A, B, C, U, V & W.
 
-The format of a parameter file is shown in Table 
-<<cap:Parameter-File-Format>>. The file consists of any number of
-header lines, followed by one blank line, followed by any number of
-lines of data. The Interpreter skips over the header lines. It is
-important that there be exactly one blank line (with no spaces or tabs,
-even) before the data. The header line shown in Table 
-<<cap:Parameter-File-Format>> describes the data columns, so it is
-suggested (but not required) that that line always be included in the
-header.
+Le format d'un fichier de paramètres est visible dans la table 
+<<cap:Format-fichier-de-parametres>>. Le fichier est composé d'un
+certain nombre de lignes d'en-tête, suivie par une ligne vide, suivie
+d'un nombre quelconque de lignes de données. Les lignes d'en-tête sont
+ignorées par l'interpréteur. Il est important qu'il y ait une ligne
+vide (sans espace ni tabulation), avant les données. La ligne d'en-tête
+montrée dans ce tableau <<cap:Format-fichier-de-parametres>>, décrit
+les colonnes de données, il est donc proposé (mais pas obligatoire) que
+cette ligne soit toujours présente.
 
-The Interpreter reads only the first two columns of the table. The
-third column, "Comment," is not read by the Interpreter.
+L'interpréteur lit seulement les deux premières colonnes du tableau.
+Il ignore la troisième colonne, Commentaire.
 
-Each line of the file contains the index number of a parameter in the
-first column and the value to which that parameter should be set in the
-second column. The value is represented as a double-precision floating
-point number inside the Interpreter, but a decimal point is not
-required in the file. All of the parameters shown in Table 
-<<cap:Parameter-File-Format>> are required parameters and must be
-included in any parameter file, except that any parameter representing
-a rotational axis value for an unused axis may be omitted. An error
-will be signalled if any required parameter is missing. A parameter
-file may include any other parameter, as long as its number is in the
-range 1 to 5400. The parameter numbers must be arranged in ascending
-order. An error will be signalled if not. Any parameter included in the
-file read by the Interpreter will be included in the file it writes as
-it exits. The original file is saved as a backup file when the new file
-is written. Comments are not preserved when the file is written.
+Chaque ligne du fichier contient le numéro d'index d'un paramètre dans
+la première colonne et la valeur attribuée à ce paramètre, dans la
+deuxième colonne. La valeur est représentée par une nombre flottant en
+double précision à l'intérieur de l'interpréteur, mais le point décimal
+n'est pas exigé dans le fichier. Le format des paramètres visible dans
+le tableau <<cap:Format-fichier-de-parametres>> est obligatoire et
+doit être utilisé pour tous les fichiers de paramètres, à l'exception
+des paramètres représentant une valeur sur un axe rotatif inutilisé,
+qui peuvent être omis. Une erreur sera signalée si un paramètre requis
+est absent. Un fichier de paramètres peut inclure tout autre paramètre,
+tant que son numéro est compris dans une fourchette de 1 à 5400. Les
+numéros de paramètre doivent être disposés dans l'ordre croîssant.
+Sinon, une erreur sera signalée. Le fichier original est copié comme
+fichier de sauvegarde lorsque le nouveau fichier est écrit. Les
+commentaires ne sont pas conservés lorsque le fichier est écrit.
 
-.Parameter File Format[[cap:Parameter-File-Format]]
+.Format d'un fichier de paramètres[[cap:Format-fichier-de-parametres]]
 
 [width="90%", options="header"]
 |========================================
-|Parameter Number | Parameter Value | Comment
-|5161 | 0.0 | G28 Home X
-|5162 | 0.0 | G28 Home Y
+|Numéro d'index | Valeur | Commentaire
+|5161 | 0.0 | G28 pom X
+|5162 | 0.0 | G28 pom Y
 |========================================
 

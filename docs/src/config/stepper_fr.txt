@@ -164,8 +164,8 @@ lecture du fichier.
 Voici les opérations qui sont exécutées quand le fichier
 standard_pinout.hal est lu par l'interpréteur:
 
- . Le pilote du port parallèle est chargé (voir <<sec:Parport>> pour
-   plus de détails)
+ . Le pilote du port parallèle est chargé (voir le Parport section de 
+   le Manuel de HAL pour plus de détails)
  . Les fonctions de lecture/écriture du pilote sont assignée au thread
    «Base thread» footnote:[Le thread le plus rapide parmis les réglages
    d'EMC2, habituellement il
