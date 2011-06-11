@@ -1,3 +1,5 @@
+ :language: en
+
 Developer Manual V2.5, {localdate}
 ====================================
 The EMC Team
@@ -7,6 +9,8 @@ The EMC Team
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
+
+// (No French outdated-notice here)
 
 = EMC2 Code Notes
 
@@ -26,7 +30,6 @@ include::code/NML_Messages.txt[]
 
 include::code/Style_Guide.txt[]
 
-
 :leveloffset: 0
 include::common/Glossary.txt[]
 
@@ -35,5 +38,6 @@ include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
+:leveloffset: 0
 
 

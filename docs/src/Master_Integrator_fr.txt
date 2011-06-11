@@ -101,4 +101,6 @@ include::common/GPLD_Copyright.txt[]
 [index]
 = Index de l'ouvrage
 
+:leveloffset: 0
+
 
