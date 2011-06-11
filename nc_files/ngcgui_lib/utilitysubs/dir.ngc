@@ -1,0 +1,102 @@
+(determine direction for polygon described by ordered points)
+(minimum 3 points, up to 6 points,may fail for pathological cases)
+
+(return: _dir: == 2 for cw, 3 for ccw)
+
+o<dir> sub
+(not_a_subfile)
+#<n>  =  #1 (=4 no. of points)
+#<x1> =  #2 (minimum 3 points)
+#<y1> =  #3
+#<x2> =  #4
+#<y2> =  #5
+#<x3> =  #6
+#<y3> =  #7
+#<x4> =  #8 (=0 0 if not used)
+#<y4> =  #9 (=0)
+#<x5> = #10 (=0)
+#<y5> = #11 (=0)
+#<x6> = #12 (=0)
+#<y6> = #13 (=0)
+
+         (print dir:n=#<n> #<x1> #<y1> #<x2> #<y2> #<x3> #<y3> #<x4> #<y4>)
+         (compute direction using cross product: _cross:dir, ignore if EQ 0)
+         #<dir> = 0
+         o<cross> call [#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>]
+         #<dir> = [#<dir> + #<_cross:dir>]
+         o<cross> call [#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>]
+         #<dir> = [#<dir> + #<_cross:dir>]
+
+o<l10>   if [#<n> EQ 4]
+           o<cross> call [#<x3>][#<y3>][#<x4>][#<y4>][#<x1>][#<y1>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+           o<cross> call [#<x4>][#<y4>][#<x1>][#<y1>][#<x2>][#<y2>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+o<l10>   endif
+
+o<l20>   if [#<n> EQ 5]
+           o<cross> call [#<x3>][#<y3>][#<x4>][#<y4>][#<x5>][#<y5>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+           o<cross> call [#<x4>][#<y4>][#<x5>][#<y5>][#<x1>][#<y1>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+           o<cross> call [#<x5>][#<y5>][#<x1>][#<y1>][#<x2>][#<y2>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+o<l20>   endif
+
+o<l30>   if [#<n> EQ 6]
+           o<cross> call [#<x3>][#<y3>][#<x4>][#<y4>][#<x5>][#<y5>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+           o<cross> call [#<x4>][#<y4>][#<x5>][#<y5>][#<x6>][#<y6>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+           o<cross> call [#<x5>][#<y5>][#<x6>][#<y6>][#<x1>][#<y1>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+           o<cross> call [#<x6>][#<y6>][#<x1>][#<y1>][#<x2>][#<y2>]
+           #<dir> = [#<dir> + #<_cross:dir>]
+o<l30>   endif
+
+o<l40>   if [[#<n> GE 7] or [#<n> LE 0]]
+           (print, dir:problem bad n=#<n>)
+           (debug, dir:problem bad n=#<n>)
+o<l40>   endif
+
+;o<l60>   if [#<dir> eq 0]
+;           (print, dir:problem dir=#<dir>)
+;           (debug, dir:problem dir=#<dir>)
+;           m2
+;o<l60>   endif
+
+         (above computes cross product, to give traversal direction, swap)
+o<l70>   if [#<dir> GT 0]
+           #<_dir:> = 2 (cw)
+o<l70>   else
+           #<_dir:> = 3 (ccw)
+o<l70>   endif
+o<l80>   if [#<dir> EQ 0]
+           #<_dir:> = 3 (use ccw)
+o<l80>   endif
+         (print  dir:direction=#<_dir:>)
+         (debug  dir:direction=#<_dir:>)
+
+o<dir> endsub
+
+;wikipedia
+;convex polygon: any line drawn through the polygon and not tangent to
+;                an edge or corner) meets its boundary exactly twice.
+
+;above uses cross product 1-2 X 3-2
+;below uses cross product 2-1 X 3-2 (negative of above, opposite test)
+
+;rhttp://debian.fmi.uni-sofia.bg/~sergei/cgsr/docs/clockwise.htm
+;If the polygon is known to be convex then one only has to consider the
+;cross product between any two adjacent edges. A positive cross product
+;means we have a counterclockwise polygon. There are some tests that may
+;need to be done if the polygons may not be "clean". In particular two
+;vertices must not be coincident and two edges must not be colinear.
+
+;For the more general case where the polygons may be convex, it is
+;necessary to consider the sign of the cross product between adjacent
+;edges as one moves around the polygon. If there are more positive cross
+;products then the overall polygon is ordered counterclockwise. There are
+;pathological cases to consider here as well, all the edges cannot be
+;colinear, there must be at least 3 vertices, the polygon must be simple,
+;that is, it cannot intersect itself or have holes.

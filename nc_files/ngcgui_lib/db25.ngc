@@ -1,0 +1,32 @@
+(info: db25 connector -- uses iquad.ngc)
+o<db25>  sub
+#<toolno>   =  #1 (=1)
+#<rpm>      =  #2 (=2000)
+#<dir>      =  #3 (=2 2conv|3climb)
+#<feedrate> =  #4 (=10)
+#<cutdepth> =  #5 (=.1)
+#<zincr>    =  #6 (=.02)
+#<zsafe>    =  #7 (=0.2)
+#<zstart>   =  #8 (=0)
+#<xctr>     =  #9 (=5)
+#<ytop>     = #10 (=2)
+#<rotate>   = #11 (=90)
+
+; todo: check these dimensions
+;       center at cg ?
+;       reject too big tools
+#<x1>       =  0.5465
+#<y1>       =  0.0
+#<x2>       =  0.4567
+#<y2>       = -0.509
+#<x3>       = -0.4567
+#<y3>       = -0.509
+#<x4>       = -0.5465
+#<y4>       =  0.0
+
+#<scale>    = 1.0
+
+
+o<iquad>call[#<toolno>][#<rpm>][#<dir>][#<feedrate>][#<cutdepth>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xctr>][#<ytop>]
+
+o<db25>  endsub

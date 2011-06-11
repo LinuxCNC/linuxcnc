@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Jeff Epler <jepler@unpythonic.net>
 Build-Depends: debhelper (>> 4.0.0),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
-    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget,
+    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget, libtk-img,
     libxaw7-dev, libncurses-dev, libreadline5-dev,
     asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
     python, python-dev, python-support, python-tk,
@@ -37,7 +37,7 @@ Provides: emc2, emc2-axis
 Architecture: any
 Recommends: hostmot2-firmware, emc2-doc-en | emc2-doc-fr
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
-    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7),
+    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     libreadline5,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends},

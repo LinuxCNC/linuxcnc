@@ -1,0 +1,82 @@
+(info: xyz -- x,y,z axis exerciser, type 0: line, type 1: box)
+o<xyz> sub
+(for testing, tuning servo, etc)
+(for single axis, set axes for zero travel)
+(type 0: simple motion between two points)
+(type 1: series of moves one,two,or three axes at a time)
+
+  #<feedrate> = #1 (=60 feedrate)
+  #<type>     = #2 (=1 type: 0|1)
+  #<xmin>     = #3 (=-0.5 x distance)
+  #<xmax>     = #4 (=+0.5 x distance)
+  #<ymin>     = #5 (=+2.0 y distance)
+  #<ymax>     = #6 (=+3.5 y distance)
+  #<zmin>     = #7 (=+1.0 z distance)
+  #<zmax>     = #8 (=+2.0 z distance)
+  #<ct>       = #9 (=5 iterations)
+
+       #<i> = 0
+       #<x0> = #<xmin>
+       #<x1> = #<xmax>
+       #<y0> = #<ymin>
+       #<y1> = #<ymax>
+       #<z0> = #<zmin>
+       #<z1> = #<zmax>
+
+       f #<feedrate>
+       g1 x #<x0> y #<y0> z #<z0>
+
+o<l50> while [#<i> LT #<ct>]
+
+o<l60>   if [#<type> EQ 0]
+           x #<x1> y #<y1> z #<z1>
+           x #<x0> y #<y0> z #<z0>
+o<l60>   endif
+
+o<l70>   if [#<type> EQ 1]
+           (gray)
+           x #<x0> y #<y0> z #<z0>
+           x #<x1> y #<y0> z #<z0>
+           x #<x1> y #<y1> z #<z0>
+           x #<x0> y #<y1> z #<z0>
+           x #<x0> y #<y1> z #<z1>
+           x #<x1> y #<y1> z #<z1>
+           x #<x1> y #<y0> z #<z1>
+           x #<x0> y #<y0> z #<z1>
+
+           (gray)
+           x #<x0> y #<y0> z #<z0>
+           x #<x0> y #<y0> z #<z1>
+           x #<x0> y #<y1> z #<z1>
+           x #<x0> y #<y1> z #<z0>
+           x #<x1> y #<y1> z #<z0>
+           x #<x1> y #<y1> z #<z1>
+           x #<x1> y #<y0> z #<z1>
+           x #<x1> y #<y0> z #<z0>
+
+           (gray)
+           x #<x0> y #<y0> z #<z0>
+           x #<x0> y #<y0> z #<z1>
+           x #<x1> y #<y0> z #<z1>
+           x #<x1> y #<y0> z #<z0>
+
+           x #<x1> y #<y1> z #<z0>
+           x #<x1> y #<y1> z #<z1>
+           x #<x0> y #<y1> z #<z1>
+           x #<x0> y #<y1> z #<z0>
+
+           (binary)
+           x #<x0> y #<y0> z #<z0>
+           x #<x0> y #<y0> z #<z1>
+           x #<x0> y #<y1> z #<z0>
+           x #<x0> y #<y1> z #<z1>
+           x #<x1> y #<y0> z #<z0>
+           x #<x1> y #<y0> z #<z1>
+           x #<x1> y #<y1> z #<z0>
+           x #<x1> y #<y1> z #<z1>
+o<l70>   endif
+
+         #<i> = [#<i> + 1]
+o<l50> endwhile
+
+o<xyz> endsub
