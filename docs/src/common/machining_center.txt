@@ -219,9 +219,9 @@ The two pallets may be exchanged by command.
 The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
-both switches and one command that disables both (see Section 
-<<sub:M48-M49-Overrides>>). See Section  <<sub:Feed-Interaction>>
-for further details.
+both switches and one command that disables both (see Sections 
+<<sub:M48-Both-Override>> and <<sub:M49-Neither-Override>>). 
+See Section  <<sub:Feed-Interaction>> for further details.
 
 === Path Control Mode (((path control mode)))[[sub:Path-Control-Mode]]
 

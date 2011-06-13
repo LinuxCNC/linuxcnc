@@ -235,7 +235,7 @@ Les boutons des correcteurs de vitesses peuvent être activés (ils
 fonctionnent normalement) ou rendus inopérents (Ils n'ont plus aucun
 effet). Le langage RS274/NGC dispose d'une commande qui active tous les
 boutons et une autre qui les désactive. Voir la sections 
-<<sub:M48-Deux-Correcteurs>> et <<sub:M49-Ni-Correcteurs>>. 
+<<sec:M48-Deux-Correcteur>> et <<sec:M49-Ni-Correcteur>>. 
 Voir la section <<sub:Interaction-vitesses>> pour d'autres détails. 
 
 === Modes de contrôle de trajectoire [[sub:Modes-de-controle-trajectoires]]

@@ -1570,7 +1570,7 @@ Pour arrêter tous les arrosages, programmer `M9`.
 Il est toujours permis d'utiliser une de ces commandes, que les
 arrosages soient arrêtés ou non.
 
-== M48 (((M48 Controle correcteur de vitesse))), M49(((M49))): Contrôle des correcteurs de vitesse[[sec:M48-Deux-Correcteur]][[sub:M49-Ni-Correcteur]]
+== M48 (((M48 Controle correcteur de vitesse))), M49(((M49))): Contrôle des correcteurs de vitesse[[sec:M48-Deux-Correcteur]][[sec:M49-Ni-Correcteur]]
 
 Pour autoriser les potentiomètres de corrections de vitesses de broche
 et celui de vitesse travail, programmer `M48`. Pour les inhiber tous

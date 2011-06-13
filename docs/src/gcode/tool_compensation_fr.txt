@@ -148,7 +148,7 @@ for I (tool front angle) and J (tool back angle).
 You probably also want an entry for Q (tool orientation). 
 
 A complete description of the lathe entries can be found in the lathe 
-section of the user manual (<<cha:Lathe-Specifics>>). 
+section of the user manual (<<cha:Tour-Specifiques>>). 
 
 The “Diameter” column contains a real number. This number is used only
 if tool radius compensation is turned on using this tool. If the
