@@ -36,11 +36,10 @@ include::common/Linux_FAQ.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
+:leveloffset: 0
+
 // 
 = Index
 
 The End
-
-:leveloffset: 0
-
 
