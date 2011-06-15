@@ -159,12 +159,21 @@ DONE - jogging:
    halui.jog.0.minus                   bit
    halui.jog.0.plus                    bit
    halui.jog.0.analog                  float //pin for jogging the axis 0
+   halui.jog.0.increment               float
+   halui.jog.0.increment-plus          bit
+   halui.jog.0.increment-minus         bit
    ..
    halui.jog.7.minus                   bit
    halui.jog.7.plus                    bit
    halui.jog.7.analog                  float //pin for jogging the axis 7
+   halui.jog.7.increment               float
+   halui.jog.7.increment-plus          bit
+   halui.jog.7.increment-minus         bit
    halui.jog.selected.minus            bit
    halui.jog.selected.plus             bit
+   halui.jog.selected.increment        float
+   halui.jog.selected.increment-plus   bit
+   halui.jog.selected.increment-minus  bit
 
 DONE - tool:
    halui.tool.number                   u32  //current selected tool
@@ -304,6 +313,9 @@ DONE: - spindle-override
     ARRAY(hal_bit_t,jog_minus,EMCMOT_MAX_JOINTS+1) /* pin to jog in positive direction */ \
     ARRAY(hal_bit_t,jog_plus,EMCMOT_MAX_JOINTS+1) /* pin to jog in negative direction */ \
     ARRAY(hal_float_t,jog_analog,EMCMOT_MAX_JOINTS+1) /* pin for analog jogging (-1..0..1) */ \
+    ARRAY(hal_float_t,jog_increment,EMCMOT_MAX_JOINTS+1) /* Incremental jogging */ \
+    ARRAY(hal_bit_t,jog_increment_plus,EMCMOT_MAX_JOINTS+1) /* Incremental jogging, positive direction */ \
+    ARRAY(hal_bit_t,jog_increment_minus,EMCMOT_MAX_JOINTS+1) /* Incremental jogging, negative direction */ \
     FIELD(hal_float_t,jog_deadband) /* pin for setting the jog analog deadband (where not to move) */ \
 \
     FIELD(hal_s32_t,mv_counts) /* pin for the Max Velocity counting */ \
@@ -950,6 +962,12 @@ int halui_hal_init(void)
 	if (retval < 0) return retval;
 	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jog_analog[joint]), comp_id, "halui.jog.%d.analog", joint); 
 	if (retval < 0) return retval;
+	retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jog_increment[joint]), comp_id, "halui.jog.%d.increment", joint);
+	if (retval < 0) return retval;
+	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_increment_plus[joint]), comp_id, "halui.jog.%d.increment-plus", joint);
+	if (retval < 0) return retval;
+	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_increment_minus[joint]), comp_id, "halui.jog.%d.increment-minus", joint);
+	if (retval < 0) return retval;
     }
 
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_axes]), comp_id, "halui.joint.selected.home"); 
@@ -959,6 +977,12 @@ int halui_hal_init(void)
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_plus[num_axes]), comp_id, "halui.jog.selected.plus"); 
     if (retval < 0) return retval;
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_minus[num_axes]), comp_id, "halui.jog.selected.minus"); 
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_IN, &(halui_data->jog_increment[num_axes]), comp_id, "halui.jog.selected.increment");
+    if (retval < 0) return retval;
+    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_increment_plus[num_axes]), comp_id, "halui.jog.selected.increment-plus");
+    if (retval < 0) return retval;
+    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_increment_minus[num_axes]), comp_id, "halui.jog.selected.increment-minus");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_float(&(halui_data->jog_speed), "halui.jog-speed");
     if (retval < 0) return retval;
@@ -1404,6 +1428,29 @@ static int sendJogCont(int axis, double speed)
 }
 
 
+static int sendJogInc(int axis, double speed, double inc)
+{
+    EMC_AXIS_INCR_JOG emc_axis_jog_msg;
+
+    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
+	return -1;
+
+    if (axis < 0 || axis >= EMC_AXIS_MAX)
+	return -1;
+
+    if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
+    	return -1;
+
+    emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_jog_msg.axis = axis;
+    emc_axis_jog_msg.vel = speed / 60.0;
+    emc_axis_jog_msg.incr = inc;
+    emcCommandBuffer->write(emc_axis_jog_msg);
+
+    return emcCommandWaitReceived(emcCommandSerialNumber);
+}
+
+
 static int sendFeedOverride(double override)
 {
     EMC_TRAJ_SET_SCALE emc_traj_set_scale_msg;
@@ -1572,11 +1619,17 @@ static void hal_init_pins()
 	*(halui_data->jog_minus[joint]) = old_halui_data.jog_minus[joint] = 0;
 	*(halui_data->jog_plus[joint]) = old_halui_data.jog_plus[joint] = 0;
 	*(halui_data->jog_analog[joint]) = old_halui_data.jog_analog[joint] = 0;
+	*(halui_data->jog_increment[joint]) = old_halui_data.jog_increment[joint] = 0.0;
+	*(halui_data->jog_increment_plus[joint]) = old_halui_data.jog_increment_plus[joint] = 0;
+	*(halui_data->jog_increment_minus[joint]) = old_halui_data.jog_increment_minus[joint] = 0;
     }
 
     *(halui_data->joint_home[num_axes]) = old_halui_data.joint_home[num_axes] = 0;
     *(halui_data->jog_minus[num_axes]) = old_halui_data.jog_minus[num_axes] = 0;
     *(halui_data->jog_plus[num_axes]) = old_halui_data.jog_plus[num_axes] = 0;
+    *(halui_data->jog_increment[num_axes]) = old_halui_data.jog_increment[num_axes] = 0.0;
+    *(halui_data->jog_increment_plus[num_axes]) = old_halui_data.jog_increment_plus[num_axes] = 0;
+    *(halui_data->jog_increment_minus[num_axes]) = old_halui_data.jog_increment_minus[num_axes] = 0;
     *(halui_data->jog_deadband) = 0.2;
     *(halui_data->jog_speed) = 0;
 
@@ -1840,7 +1893,21 @@ static void check_hal_changes()
 		sendJogStop(joint);
 	    old_halui_data.jog_analog[joint] = floatt;
 	}
-	
+
+	bit = new_halui_data.jog_increment_plus[joint];
+	if (bit != old_halui_data.jog_increment_plus[joint]) {
+	    if (bit)
+		sendJogInc(joint, new_halui_data.jog_speed, new_halui_data.jog_increment[joint]);
+	    old_halui_data.jog_increment_plus[joint] = bit;
+	}
+
+	bit = new_halui_data.jog_increment_minus[joint];
+	if (bit != old_halui_data.jog_increment_minus[joint]) {
+	    if (bit)
+		sendJogInc(joint, new_halui_data.jog_speed, -(new_halui_data.jog_increment[joint]));
+	    old_halui_data.jog_increment_minus[joint] = bit;
+	}
+
 	// check to see if another joint has been selected
 	bit = new_halui_data.joint_nr_select[joint];
 	if (bit != old_halui_data.joint_nr_select[joint]) {
@@ -1886,6 +1953,22 @@ static void check_hal_changes()
 	else
 	    sendJogStop(js);
 	old_halui_data.jog_plus[num_axes] = bit;
+    }
+
+    bit = new_halui_data.jog_increment_plus[num_axes];
+    js = new_halui_data.joint_selected;
+    if (bit != old_halui_data.jog_increment_plus[num_axes]) {
+	if (bit)
+	    sendJogInc(js, new_halui_data.jog_speed, new_halui_data.jog_increment[num_axes]);
+	old_halui_data.jog_increment_plus[num_axes] = bit;
+    }
+
+    bit = new_halui_data.jog_increment_minus[num_axes];
+    js = new_halui_data.joint_selected;
+    if (bit != old_halui_data.jog_increment_minus[num_axes]) {
+	if (bit)
+	    sendJogInc(js, new_halui_data.jog_speed, -(new_halui_data.jog_increment[num_axes]));
+	old_halui_data.jog_increment_minus[num_axes] = bit;
     }
 
     for(int n = 0; n < num_mdi_commands; n++) {
