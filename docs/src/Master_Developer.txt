@@ -6,14 +6,18 @@ The EMC Team
 
 :masterdir: {indir}
 
+:leveloffset: 1
+
+Here's some text. 
+
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
 // (No French outdated-notice here)
 
-= EMC2 Code Notes
-
+:leveloffset: 0
+== EMC2 Code Notes
 :leveloffset: 1
 
 include::code/Code_Notes.txt[]
@@ -38,6 +42,7 @@ include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
-:leveloffset: 0
+//
+= Index
 
 

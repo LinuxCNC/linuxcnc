@@ -1,4 +1,4 @@
-:language: fr
+// :language: fr
 
 Manuel de l'utilisateur V2.3, {localdate}
 =========================================
@@ -6,13 +6,15 @@ The EMC Team
 
 :masterdir: {indir}
 
+:leveloffset: 1
+
+Here's some text. 
+
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
 include::common/outdated-notice_fr.txt[]
-
-:leveloffset: 1
 
 include::common/userforeword_fr.txt[]
 
@@ -48,6 +50,8 @@ include::gcode/tool_compensation_fr.txt[]
 
 include::gcode/main_fr.txt[]
 
+include::Gcode/mill_canned_fr.txt[]
+
 include::lathe/lathe-user_fr.txt[]
 
 include::gcode/rs274ngc_fr.txt[]
@@ -70,7 +74,5 @@ include::common/GPLD_Copyright.txt[]
 
 [index]
 = Index de l'ouvrage
-
-:leveloffset: 0
 
 

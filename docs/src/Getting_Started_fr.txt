@@ -1,4 +1,4 @@
-:language: fr
+// :language: fr
 
 Guide du débutant V2.3, {localdate}
 ===================================
@@ -6,13 +6,15 @@ The EMC Team
 
 :masterdir: {indir}
 
+:leveloffset: 1
+
+Here's some text. 
+
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
 include::common/outdated-notice_fr.txt[]
-
-:leveloffset: 1
 
 include::common/System_Requirements_fr.txt[]
 
@@ -36,10 +38,7 @@ include::common/Linux_FAQ_fr.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
-:leveloffset: 0
-
 [index]
 = Index de l'ouvrage
 
-Fin
 
