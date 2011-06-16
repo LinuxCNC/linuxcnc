@@ -35,9 +35,11 @@ DOC_SRCS := \
 	gui/tkemc.lyx \
 	gui/tkemc_fr.lyx \
 	gui/touchy.lyx \
+	gui/touchy_fr.lyx \
 	gui/image-to-gcode.lyx \
 	gui/image-to-gcode_fr.lyx \
 	gui/gladevcp.lyx \
+	gui/gladevcp_fr.lyx \
 	Master_Developer.lyx \
 	Master_Integrator.lyx \
 	Master_Integrator_fr.lyx \
@@ -49,10 +51,15 @@ DOC_SRCS := \
 	common/Getting_EMC_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
+	common/Glossary_fr.lyx \
 	common/Integrator_Concepts.lyx \
+	common/Integrator_Concepts_fr.lyx \
 	common/Linux_FAQ.lyx \
 	common/Linux_FAQ_fr.lyx \
 	common/machining_center.lyx \
+	common/machining_center_fr.lyx \
+	common/outdated-notice_fr.lyx \
+	common/overleaf.lyx \
 	common/Stepper_Diagnostics.lyx \
 	common/Stepper_Diagnostics_fr.lyx \
 	common/System_Requirements.lyx \
@@ -63,6 +70,12 @@ DOC_SRCS := \
 	common/User_Concepts_fr.lyx \
 	common/user_intro.lyx \
 	common/user_intro_fr.lyx \
+	common/Updating_EMC.lyx \
+	common/Updating_EMC_fr.lyx \
+	config/copy_and_run.lyx \
+	config/copy_and_run_fr.lyx \
+	config/emc2hal.lyx \
+	config/emc2hal_fr.lyx \
 	config/ini_config.lyx \
 	config/ini_config_fr.lyx \
 	config/ini_homing.lyx \
@@ -70,20 +83,29 @@ DOC_SRCS := \
 	config/lathe_config.lyx \
 	config/lathe_config_fr.lyx \
 	config/pncconf.lyx \
-	config/emc2hal.lyx \
-	config/emc2hal_fr.lyx \
+	config/pncconf_fr.lyx \
 	config/stepper.lyx \
 	config/stepper_fr.lyx \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
 	drivers/AX5214H.lyx \
+	drivers/AX5214H_fr.lyx \
 	drivers/GS2.lyx \
+	drivers/GS2_fr.lyx \
 	drivers/hostmot2.lyx \
+	drivers/hostmot2_fr.lyx \
 	drivers/motenc.lyx \
+	drivers/motenc_fr.lyx \
+	drivers/m5i20.lyx \
+	drivers/m5i20_fr.lyx \
 	drivers/opto22.lyx \
+	drivers/opto22_fr.lyx \
 	drivers/pico_ppmc.lyx \
+	drivers/pico_ppmc_fr.lyx \
 	drivers/pluto_p.lyx \
+	drivers/pluto_p_fr.lyx \
 	drivers/servo_to_go.lyx \
+	drivers/servo_to_go_fr.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \
 	gcode/main.lyx \
@@ -91,6 +113,9 @@ DOC_SRCS := \
 	gcode/mill_canned.lyx \
 	gcode/mill_canned_fr.lyx \
 	gcode/overview.lyx \
+	gcode/overview_fr.lyx \
+	gcode/rs274ngc.lyx \
+	gcode/rs274ngc_fr.lyx \
 	gcode/tool_compensation.lyx \
 	gcode/tool_compensation_fr.lyx \
 	hal/basic_hal.lyx \
@@ -99,34 +124,37 @@ DOC_SRCS := \
 	hal/comp_fr.lyx \
 	hal/components.lyx \
 	hal/components_fr.lyx \
-	hal/parallel_port.lyx \
 	hal/drivers_fr.lyx \
 	hal/general_ref.lyx \
 	hal/general_ref_fr.lyx \
 	hal/hal-examples.lyx \
 	hal/hal-examples_fr.lyx \
-	hal/halshow.lyx \
-	hal/halshow_fr.lyx \
 	hal/halmodule.lyx \
 	hal/halmodule_fr.lyx \
+	hal/halshow.lyx \
+	hal/halshow_fr.lyx \
 	hal/intro.lyx \
 	hal/intro_fr.lyx \
+	hal/parallel_port.lyx \
+	hal/parallel_port_fr.lyx \
 	hal/pyvcp.lyx \
 	hal/pyvcp_fr.lyx \
 	hal/pyvcp_examples.lyx \
+	hal/pyvcp_examples_fr.lyx \
 	hal/rtcomps.lyx \
 	hal/rtcomps_fr.lyx \
 	hal/tools.lyx \
 	hal/tools_fr.lyx \
 	hal/tutorial.lyx \
 	hal/tutorial_fr.lyx \
-	install/compiling_emc2.lyx \
-	install/compiling_emc2_fr.lyx \
-	install/installing_emc2_fr.lyx \
+	install/Latency_Test.lyx \
+	install/Latency_Test_fr.lyx \
+	ladder/classic_ladder.lyx \
+	ladder/classic_ladder_fr.lyx \
+	ladder/ladder_examples.lyx \
+	ladder/ladder_examples_fr.lyx \
 	ladder/ladder_intro.lyx \
 	ladder/ladder_intro_fr.lyx \
-	ladder/classic_ladder.lyx \
-	ladder/ladder_examples.lyx \
 	lathe/lathe-user.lyx \
 	lathe/lathe-user_fr.lyx \
 	motion/kinematics.lyx \
@@ -144,8 +172,15 @@ DOC_SRCS := \
 	examples/gcode.lyx \
 	examples/gcode_fr.lyx \
 	examples/gs2_example.lyx \
+	examples/gs2_example_fr.lyx \
+	examples/misc.lyx \
+	examples/misc_fr.lyx \
+	examples/mpg.lyx \
+	examples/mpg_fr.lyx \
 	examples/pci_parallel_port.lyx \
 	examples/pci_parallel_port_fr.lyx \
+	examples/spindle.lyx \
+	examples/spindle_fr.lyx \
 	quickstart/stepper_quickstart.lyx \
 	quickstart/stepper_quickstart_fr.lyx \
 	Master_HAL.lyx \
@@ -231,9 +266,9 @@ $(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+$(DOC_DIR)/EMC2_HAL_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
 	@ln -f $< $@
-$(DOC_DIR)/HAL_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
+$(DOC_DIR)/EMC2_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
@@ -423,8 +458,8 @@ docs:
 endif
     
 docclean:
-	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
-	-rm -f $(DOC_DIR)/HAL_User_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
 	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
