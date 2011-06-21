@@ -308,8 +308,8 @@ base Gtk classes.
 
 .Buttons
 
-image:images/checkbutton.png[]
-image:images/radiobutton.png[]
+image::images/checkbutton.png[]
+image::images/radiobutton.png[]
 
 [TIP]
 ======================================
@@ -532,8 +532,8 @@ Examples:
 
 .Bars
 
-image:images/hal_hbar.png[]
-image:images/vscale.png[]
+image::images/hal_hbar.png[]
+image::images/vscale.png[]
 
 === Meter [[gladevcp:HAL_Meter]]
 

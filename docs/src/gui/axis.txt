@@ -337,25 +337,25 @@ Quick Reference::
 
 From left to right, the toolbar buttons (keyboard shortcuts shown [in brackets]).
 
- . image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
- . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
- . image:images/tool_open.gif[] Open G Code file [O]
- . image:images/tool_reload.gif[] Reload current file [Ctrl-R]
- . image:images/tool_run.gif[] Begin executing the current file [R]
- . image:images/tool_step.gif[] Execute next line [T]
- . image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
- . image:images/tool_stop.gif[] Stop Program Execution [ESC]
- . image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
- . image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
- . image:images/tool_zoomin.gif[] Zoom In
- . image:images/tool_zoomout.gif[] Zoom Out
- . image:images/tool_axis_z.gif[] Top view 
- . image:images/tool_axis_z2.gif[] Rotated Top view 
- . image:images/tool_axis_x.gif[] Side view 
- . image:images/tool_axis_y.gif[] Front view 
- . image:images/tool_axis_p.gif[] Perspective view 
- . image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
- . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
+ . image::images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
+ . image::images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
+ . image::images/tool_open.gif[] Open G Code file [O]
+ . image::images/tool_reload.gif[] Reload current file [Ctrl-R]
+ . image::images/tool_run.gif[] Begin executing the current file [R]
+ . image::images/tool_step.gif[] Execute next line [T]
+ . image::images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
+ . image::images/tool_stop.gif[] Stop Program Execution [ESC]
+ . image::images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
+ . image::images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
+ . image::images/tool_zoomin.gif[] Zoom In
+ . image::images/tool_zoomout.gif[] Zoom Out
+ . image::images/tool_axis_z.gif[] Top view 
+ . image::images/tool_axis_z2.gif[] Rotated Top view 
+ . image::images/tool_axis_x.gif[] Side view 
+ . image::images/tool_axis_y.gif[] Front view 
+ . image::images/tool_axis_p.gif[] Perspective view 
+ . image::images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
+ . image::images/tool_clear.gif[] Clear live backplot [Ctrl-K]
 
 === Graphical Display Area
 
@@ -363,9 +363,9 @@ From left to right, the toolbar buttons (keyboard shortcuts shown [in brackets])
 
 In the upper-left corner of the program display is the coordinate
 display. It shows the position of the machine. To the left of the axis
-name, an origin symbol (image:images/axis-homed.png[]) is shown if the
+name, an origin symbol (image::images/axis-homed.png[]) is shown if the
 axis has been homed, and/or a limit
-symbol (image:images/axis-limit.png[]) is shown if the axis is on one
+symbol (image::images/axis-limit.png[]) is shown if the axis is on one
 of its limit switches.
 
 To properly interpret these numbers, refer to the "Position:"
@@ -374,7 +374,7 @@ displayed number is in the machine coordinate system. If it is
 "Relative", then the displayed number is in the offset coordinate
 system. When the coordinates displayed are relative and an offset has
 been set, the display will include a cyan "machine origin" marker
-(image:images/axis-machineorigin.png[]). If the position is
+(image::images/axis-machineorigin.png[]). If the position is
 "Commanded", then it is the ideal position--for instance, the exact
 coordinate given in a `G0`  command. If it is "Actual", then it is the
 position the machine has

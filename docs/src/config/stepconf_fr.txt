@@ -450,9 +450,9 @@ savoir ce qu'il en est sur votre PC est de lancer un `latency test` de
 HAL.
 
 Pour exécuter le test, il suffit d'ouvrir une console et de taper:
-`latency-test` . Vous devriez voir quelque chose comme ceci:
+`latency-test`. Vous devriez voir quelque chose comme ceci:
 
-image:images/latency.png[]
+image::images/latency.png[]
 
 Pendant que le test est en cours d'exécution, il faut «abuser» de
 l'ordinateur. Déplacez les fenêtres sur l'écran. Connectez vous à

@@ -45,9 +45,9 @@ Les composants les plus communs du Ladder sont les contacts (entrées),
 ceux-ci sont habituellement NC (normalement clos) ou NO (normalement
 ouvert) et les bobines (sorties).
 
- - Le contact NO image:images/ladder_action_load.png[]
- - Le contact NC image:images/ladder_action_loadbar.png[]
- - La bobine (sortie) image:images/ladder_action_out.png[]
+ - Le contact NO image::images/ladder_action_load.png[]
+ - Le contact NC image::images/ladder_action_loadbar.png[]
+ - La bobine (sortie) image::images/ladder_action_out.png[]
 
 Bien sûr, il y a beaucoup plus de composants dans le langage Ladder
 complet, mais la compréhension de ceux-ci aidera à appréhender le
@@ -59,7 +59,8 @@ sorties et autres), les composants sont évalués de la gauche vers la
 droite.
 
 Cet exemple est un simple échelon:
-image:images/example_link_contact_coil.png[]
+
+image::images/example_link_contact_coil.png[]
 
 L'entrée B0 sur la gauche et un contact normalement ouvert, il est
 connecté sur la sortie Q0 sur la droite. Imaginez maintenant qu'une
@@ -67,4 +68,5 @@ tension soit appliquée à l'extrême gauche, dès que B0 devient vraie
 (par exemple: l'entrée est activée, ou l'utilisateur a pressé le
 contact NO), la tension atteint l'extrême droite en traversant la
 bobine Q0. Avec comme conséquence que la sortie Q0 passe de 0 à 1.
+
 

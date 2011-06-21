@@ -81,29 +81,25 @@ finish menu descriptions
 
 Signification des boutons, de gauche à droite:
 
- . image:images/tool_estop.gif[] «Arrêt d'urgence» (A/U) (en Anglais, 
-   E-Stop)(((Arret d'urgence)))
- . image:images/tool_power.gif[] Marche/Arrêt puissance machine
-   (((Marche/Arret)))
- . image:images/tool_open.gif[] Ouvrir un fichier
- . image:images/tool_reload.gif[] Recharger le fichier courant
- . image:images/tool_run.gif[] Départ cycle
- . image:images/tool_step.gif[] Cycle en pas à pas
- . image:images/tool_pause.gif[] Pause/Reprise
- . image:images/tool_stop.gif[] Stopper l'exécution du programme
- . image:images/tool_blockdelete.gif[] Sauter ou non les lignes
-   commençant par «/»
- . image:images/tool_optpause.gif[] Avec ou sans pause optionelle 
- . image:images/tool_zoomin.gif[] Zoom plus
- . image:images/tool_zoomout.gif[] Zoom moins
- . image:images/tool_axis_z.gif[] Vue prédéfinie «Z» (vue de dessus)
- . image:images/tool_axis_z2.gif[] Vue prédéfinie «Z basculée»
- . image:images/tool_axis_x.gif[] Vue prédéfinie «X» (vue de côté)
- . image:images/tool_axis_y.gif[] Vue prédéfinie «Y» (vue de face) 
- . image:images/tool_axis_p.gif[] Vue prédéfinie «P» (vue en perspective)
- . image:images/tool_rotate.gif[] Orienter la vue avec le bouton gauche
-   de la souris
- . image:images/tool_clear.gif[] Rafraîchir le parcours d'outil
+ . image::images/tool_estop.gif[] «Arrêt d'urgence» (A/U) (en Anglais, E-Stop)(((Arret d'urgence)))
+ . image::images/tool_power.gif[] Marche/Arrêt puissance machine(((Marche/Arret)))
+ . image::images/tool_open.gif[] Ouvrir un fichier
+ . image::images/tool_reload.gif[] Recharger le fichier courant
+ . image::images/tool_run.gif[] Départ cycle
+ . image::images/tool_step.gif[] Cycle en pas à pas
+ . image::images/tool_pause.gif[] Pause/Reprise
+ . image::images/tool_stop.gif[] Stopper l'exécution du programme
+ . image::images/tool_blockdelete.gif[] Sauter ou non les lignes commençant par «/»
+ . image::images/tool_optpause.gif[] Avec ou sans pause optionelle 
+ . image::images/tool_zoomin.gif[] Zoom plus
+ . image::images/tool_zoomout.gif[] Zoom moins
+ . image::images/tool_axis_z.gif[] Vue prédéfinie «Z» (vue de dessus)
+ . image::images/tool_axis_z2.gif[] Vue prédéfinie «Z basculée»
+ . image::images/tool_axis_x.gif[] Vue prédéfinie «X» (vue de côté)
+ . image::images/tool_axis_y.gif[] Vue prédéfinie «Y» (vue de face) 
+ . image::images/tool_axis_p.gif[] Vue prédéfinie «P» (vue en perspective)
+ . image::images/tool_rotate.gif[] Orienter la vue avec le bouton gauche de la souris
+ . image::images/tool_clear.gif[] Rafraîchir le parcours d'outil
 
 === Zones d'affichage graphique du programme
 
@@ -111,9 +107,9 @@ Signification des boutons, de gauche à droite:
 
 L'affichage des coordonnées est situé en haut à gauche de l'écran
 graphique. Il montre les positions de la machine. A gauche du nom de
-l'axe, un symbole d'origine (image:images/axis-homed.png[]) est visible
+l'axe, un symbole d'origine (image::images/axis-homed.png[]) est visible
 si la prise d'origine de l'axe a été faite. A droite du nom de l'axe,
-un symbole de limite (image:images/axis-limit.png[]) est visible si
+un symbole de limite (image::images/axis-limit.png[]) est visible si
 l'axe est sur un de ses capteurs de limite.
 
 Pour interpréter correctement ces valeurs, référez vous à l'indicateur
@@ -123,7 +119,7 @@ est «Relative», alors les valeurs affichées sont exprimées en
 coordonnées relatives à la pièce. Quand les coordonnées affichées sont
 relatives, une marque d'origine de couleur cyan est visible pour
 représenter «l'origine machine» 
-(image:images/axis-machineorigin.png[]). Si la position est
+(image::images/axis-machineorigin.png[]). Si la position est
 «Commandée», alors il s'agit de la position à atteindre -- par exemple,
 les coordonnées passées dans une commande `G0`. Si la position est 
 «Actuelle», alors il s'agit de la position à 
@@ -158,7 +154,7 @@ Quand une coordonnée excède une «soft limits» établie dans le fichier
 .ini, la dimension correspondante est affichée dans une couleur
 différente. Ici, la limite maximale est dépassée sur l'axe X:
 
-image:images/axis-outofrange.png[]
+image::images/axis-outofrange.png[]
 
 ==== Le cône d'outil
 

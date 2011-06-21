@@ -51,7 +51,7 @@ interfaces:
    interactive G-Code previewer. This interface is one of the few that are
    still under active development and improvement. 
 
-image:images/axis_2.3.png[]
+image::images/axis_2.3.png[]
 
  -  *Keystick*, a character-based screen graphics program suitable for
    minimal installations (without the X server running).

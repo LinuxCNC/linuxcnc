@@ -52,11 +52,11 @@ positions d'outil du fichier précédent.
 
 .Tool Positions 1, 2, 3, & 4
 
-image:images/tool_pos_1.png[] image:images/tool_pos_2.png[] image:images/tool_pos_3.png[] image:images/tool_pos_4.png[]
+image::images/tool_pos_1.png[] image::images/tool_pos_2.png[] image::images/tool_pos_3.png[] image::images/tool_pos_4.png[]
 
 .Tool Positions 5, 6, 7, & 8
 
-image:images/tool_pos_5.png[] image:images/tool_pos_6.png[] image:images/tool_pos_7.png[] image:images/tool_pos_8.png[]
+image::images/tool_pos_5.png[] image::images/tool_pos_6.png[] image::images/tool_pos_7.png[] image::images/tool_pos_8.png[]
 
 == Tangenter et corriger l'outil
 

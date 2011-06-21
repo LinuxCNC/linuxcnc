@@ -335,7 +335,7 @@ being developed.
 
 .Axis User Interface[[cap:Axis-User-Interface]]
 
-image:images/axis_2.3.png[]
+image::images/axis_2.3.png[]
 
 == Updates to EMC2 (((Updates to EMC2)))
 
