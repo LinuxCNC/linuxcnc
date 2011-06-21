@@ -32,26 +32,26 @@ those ways.
 Mr. Raymond offered several more rules but these four describe
 essential characteristics of the EMC2 motion control system.
 
-The *Modularity*  rule is critical. Throughout these handbooks you
+The *Modularity* rule is critical. Throughout these handbooks you
 will find talk of
 the interpreter or task planner or motion or HAL. Each of these is a
 module or collection of modules. It's modularity that allows you to
 connect together just the parts you need to run your machine.
 
-The *Clarity*  rule is essential. EMC2 is a work in progress -- it is
+The *Clarity* rule is essential. EMC2 is a work in progress -- it is
 not finished
 nor will it ever be. It is complete enough to run most of the machines
 we want it to run. Much of that progress is achieved because many users
 and code developers are able to look at the work of others and build on
 what they have done.
 
-The *Composition*  rule allows us to build a predictable control
+The *Composition* rule allows us to build a predictable control
 system from the many
 modules available by making them connectable. We achieve connectability
 by setting up standard interfaces to sets of modules and following
 those standards.
 
-The *Separation*  rule requires that we make distinct parts that do
+The *Separation* rule requires that we make distinct parts that do
 little things. By
 separating functions debugging is much easier and replacement modules
 can be dropped into the system and comparisons easily made.
@@ -68,9 +68,10 @@ handbooks we describe the range of abilities currently available.
 As you begin your journey into using EMC2 we offer two cautionary
 notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
- -  Paraphrasing the words of Doug Gwyn on UNIX: "EMC2 was not designed to
+ - Paraphrasing the words of Doug Gwyn on UNIX: "EMC2 was not designed to
    stop its users from doing stupid things, as that would also stop them
    from doing clever things."
- -  Likewise the words of Steven King: "EMC2 is user-friendly. It just
+ - Likewise the words of Steven King: "EMC2 is user-friendly. It just
    isn't promiscuous about which users it's friendly with."
+
 

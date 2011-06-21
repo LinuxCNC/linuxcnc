@@ -19,7 +19,7 @@ the buttons on the bottom of the pages.
 Step by Step Instructions
 =========================
 
-== Entry Page [[sec:Entry-Page]]
+== Entry Page[[sec:Entry-Page]]
 
 .Entry Page[[cap:Entry-Page]]
 
@@ -41,7 +41,7 @@ Create Desktop Shortcut::
 Create Desktop Launcher::
     This will place a launcher on your desktop to start your application.
 
-== Basic Information [[sec:Basic-Information]]
+== Basic Information[[sec:Basic-Information]]
 
 .Basic Information Page[[cap:Basic-Information-Page]]
 
@@ -153,7 +153,8 @@ http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
 ****
 
 The important numbers are the "max jitter". In the example above 7085
-nanoseconds is the highest jitter. Record this number, and enter it in
+nanoseconds, or 7.085 microseconds, is the highest jitter. 
+Record this number, and enter it in
 the Base Period Maximum Jitter box.
 
 If your Max Jitter number is less than about 15-20 microseconds
@@ -167,7 +168,7 @@ candidate for software stepping. Numbers over 1 millisecond (1,000,000
 nanoseconds) mean the PC is not a good candidate for EMC, regardless of
 whether you use software stepping or not.
 
-== Parallel Port Setup (((Parallel Port Setup)))[[sec:Parallel-Port-Setup]]
+== Parallel Port Setup[[sec:Parallel-Port-Setup]](((Parallel Port Setup)))
 
 .Parallel Port Setup Page[[cap:Parallel-Port-Setup]]
 
@@ -350,7 +351,7 @@ Once you have found a speed at which the axis does not stall or lose
 steps during this testing procedure, reduce it by 10% and use that as
 the axis Maximum Velocity.
 
-==== Finding Maximum Acceleration (((Finding Maximum Acceleration)))[[sub:Finding-Maximum-Acceleration]]
+==== Finding Maximum Acceleration[[sub:Finding-Maximum-Acceleration]](((Finding Maximum Acceleration)))
 
 With the Maximum Velocity you found in the previous step, enter the
 acceleration value to test. procedure as above, adjusting the
@@ -361,7 +362,7 @@ which the axis does not stall or lose steps during this testing
 procedure, reduce it by 10% and use that as the axis Maximum
 Acceleration.
 
-== Spindle Configuration (((Spindle Configuration)))[[sub:Spindle-Configuration]]
+== Spindle Configuration[[sub:Spindle-Configuration]](((Spindle Configuration)))
 
 .Spindle Configuration Page[[cap:Spindle-Configuration-Page]]
 
@@ -370,7 +371,7 @@ image::images/stepconf-spindle.png[]
 This page only appears when "Spindle PWM" is chosen in the *Parallel
 Port Pinout* page for one of the outputs.
 
-=== Spindle Speed Control (((spindle speed control)))[[sub:Spindle-Speed-Control]]
+=== Spindle Speed Control[[sub:Spindle-Speed-Control]](((spindle speed control)))
 
 If "Spindle PWM" appears on the pinout, the following information
 should be entered:
@@ -388,7 +389,7 @@ Speed 1 and 2, PWM 1 and 2::
     For more information see section (
     <<sub:Determining-Spindle-Calibration>>)
 
-==== Spindle-synchronized motion (lathe threading)  [[sub:Spindle-synchronized-motion-(lathe]](((spindle-synchronized motion)))(((Lathe Threading)))
+==== Spindle-synchronized motion (lathe threading)[[sub:Spindle-synchronized-motion-(lathe]](((spindle-synchronized motion)))(((Lathe Threading)))
 
 When the appropriate signals from a spindle encoder are connected to
 the parallel port, EMC supports lathe threading. These signals are:
@@ -416,13 +417,13 @@ Cycles per revolution::
 
     
 
-=== Determining Spindle Calibration  (((Determining Spindle Calibration)))[[sub:Determining-Spindle-Calibration]]
+=== Determining Spindle Calibration[[sub:Determining-Spindle-Calibration]](((Determining Spindle Calibration)))
 
 Enter the following values in the Spindle Configuration page:
 
 [width="100%", options="header"]
 |========================================
-|Speed 1: | *0* | PWM 1: | *0*
+|Speed 1: | *0*    | PWM 1: | *0*
 |Speed 2: | *1000* | PWM 1: | *1*
 |========================================
 
@@ -441,14 +442,14 @@ Because most spindle drivers are somewhat nonlinear in their response
 curves, it is best to:
 
  - Make sure the two calibration speeds are not too close together in RPM
- -  Make sure the two calibration speeds are in the range of speeds you
+ - Make sure the two calibration speeds are in the range of speeds you
    will typically use while milling
 
 For instance, if your spindle will go from 0RPM to 8000RPM, but you
 generally use speeds from 400RPM to 4000RPM, then find the PWM values
 that give 1600RPM and 2800RPM.
 
-== Advanced Configuration Options (((Advanced Configuration Options)))[[sec:Advanced-Configuration-Options]]
+== Advanced Configuration Options[[sec:Advanced-Configuration-Options]](((Advanced Configuration Options)))
 
 .Advanced Configuration[[cap:Advanced-Configuration]]
 
@@ -472,7 +473,7 @@ Include ClassicLadder PLC::
 Click “Apply” to write the configuration files. Later, you can re-run
 this program and tweak the settings you entered before.
 
-== Axis Travel, Home Location, and Home Switch Location (((Axis Travel)))(((Home Location)))(((Home Switch Location)))[[sec:Axis-Travel-Home]]
+== Axis Travel, Home Location, and Home Switch Location[[sec:Axis-Travel-Home]](((Axis Travel)))(((Home Location)))(((Home Switch Location)))
 
 For each axis, there is a limited range of travel. The physical end of
 travel is called the *hard stop*.
@@ -509,13 +510,13 @@ equal to a *soft limit*.
 
 
 
-=== Operating without Limit Switches (((Operating without Limit Switches)))[[sub:Operating-without-Limit]]
+=== Operating without Limit Switches[[sub:Operating-without-Limit]](((Operating without Limit Switches)))
 
 A machine can be operated without limit switches. In this case, only
 the soft limits stop the machine from reaching the hard stop. Soft
 limits only operate after the machine has been homed.
 
-=== Operating without Home Switches (((Operating without Home Switches)))[[sub:Operating-without-Home]]
+=== Operating without Home Switches[[sub:Operating-without-Home]](((Operating without Home Switches)))
 
 A machine can be operated without home switches. If the machine has
 limit switches, but no home switches, it is best to use a limit switch
@@ -526,7 +527,7 @@ machine must be homed "by eye" or by using match marks. Homing by eye
 is not as repeatable as homing to switches, but it still allows the
 soft limits to be useful.
 
-== Home and Limit Switch wiring options (((Home and Limit Switch wiring options)))[[sec:Home-and-Limit]]
+== Home and Limit Switch wiring options[[sec:Home-and-Limit]](((Home and Limit Switch wiring options)))
 
 The ideal wiring for external switches would be one input per switch.
 However, the PC parallel port only offers a total of 5 inputs, while
@@ -566,4 +567,5 @@ The following combinations of switches are permitted in Stepconf:
 
 The last two combinations are also appropriate when a "home to limit"
 is used.
+
 

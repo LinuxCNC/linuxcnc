@@ -72,18 +72,16 @@ functions.
 
 Declarations include:
 
- - `component` `HALNAME` `(DOC``);`
- - `pin` `PINDIRECTION` `TYPE` `HALNAME` `([``SIZE``]|[``MAXSIZE` `:` `CONDSIZE]``)+ 
-    (if` `CONDITION``) (=` `STARTVALUE``) (``DOC``) ;`
- -  `param` `PARAMDIRECTION` `TYPE` `HALNAME` `([``SIZE``]|[``MAXSIZE` `:` `CONDSIZE]``)+ 
-    (if` `CONDITION)` `(=` `STARTVALUE``) (``DOC``) ;`
- - `function` `HALNAME` `(fp | nofp) (``DOC``);`
- - `option` `OPT` `(``VALUE``);`
- - `variable` `CTYPE STARREDNAME` `([``SIZE``]);`
- - `description` `DOC``;`
- - `see_also` `DOC``;`
- - `license` `LICENSE``;`
- - `author` `AUTHOR``;`
+ - `component HALNAME (DOC);`
+ - `pin PINDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE: CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC) ;`
+ - `param PARAMDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE: CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC) ;`
+ - `function HALNAME (fp | nofp) (DOC);`
+ - `option OPT (VALUE);`
+ - `variable CTYPE STARREDNAME ([SIZE]);`
+ - `description DOC;`
+ - `see_also DOC;`
+ - `license LICENSE;`
+ - `author AUTHOR;`
 
 Parentheses indicate optional items. A vertical bar indicates
 alternatives. Words in 'CAPITALS' indicate variable text, as follows:
@@ -424,7 +422,7 @@ If a `.comp` file is a driver for hardware, it may be placed in
 `emc2/src/hal/components` and will be built unless EMC2 is 
 configured as a userspace simulator.
 
-== Compiling realtime components outside the source tree [[sec:Compiling-realtime-components]]
+== Compiling realtime components outside the source tree[[sec:Compiling-realtime-components]]
 
 `comp` can process, compile, and install a realtime component 
 in a single step, placing `rtexample.ko` in the EMC2 realtime 
@@ -513,12 +511,12 @@ code so that they do not interfere with the functions `sin()` and
 
 === out8
 
-This component is a driver for a 'fictional'  card called "out8",
+This component is a driver for a 'fictional' card called "out8",
 which has 8 pins of digital output which are
 treated as a single 8-bit value. There can be a varying number of such
 cards in the system, and they can be at various addresses. The pin is
- called `out_` because `out` is an identifier used in `<asm/io.h>`. It
-illustrates the use of `EXTRA_SETUP` and `EXTRA_CLEANUP`  to request an
+called `out_` because `out` is an identifier used in `<asm/io.h>`. It
+illustrates the use of `EXTRA_SETUP` and `EXTRA_CLEANUP` to request an
 I/O region and then free it in case of error or when
 the module is unloaded.
 
@@ -606,7 +604,7 @@ This realtime component illustrates use of fixed-size arrays:
 === rand
 
 This userspace component changes the value on its output pin to a new
-random value in the range latexmath:[[0,1)] about once every 1ms.
+random value in the range latexmath:[(0,1)] about once every 1ms.
 
 [source,c]
 -------------------------------------------------
@@ -672,7 +670,7 @@ A typical load line for this component might be
 which creates the following pins:
 
  - A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
- -  5-input AND and OR gates: logic.1.and, logic.1.or, logic.1.in-00,
+ - 5-input AND and OR gates: logic.1.and, logic.1.or, logic.1.in-00,
    logic.1.in-01, logic.1.in-02, logic.1.in-03, logic.1.in-04, 
  - 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00,
    logic.2.in-01, logic.2.in-02

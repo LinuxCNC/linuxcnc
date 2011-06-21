@@ -38,20 +38,21 @@ un test de latence de HAL. Pour exécuter ce test, il suffit
 d'ouvrir une console et de taper: {\\textbf{latency-test}}. Vous
 devriez voir quelque chose comme ceci:
 
-. 
 image::images/latency.png[]
-
 
 Pendant que le test est en cours d'exécution, il faut øg abuser
 de l'ordinateur. Déplacez les fenêtres sur l'écran. Connectez
 vous à l'Internet. Copiez quelques gros fichiers sur le disque dur.
 Jouer de la musique. Lancez une démo OpenGL telle que
-{\\textbf{glxgears}}. L'idée est de charger le PC au maximum pour
+*glxgears*. L'idée est de charger le PC au maximum pour
 que le temps de latence soit mesuré dans le pire des cas.
-{\\textbf{Ne pas exécuter
-EMC2 ou Stepconf pendant que latency-test est en cours d'exécution.}}Le
-chiffre {\\textbf{max jitter}}dans cet exemple est de 17894
-nanosecondes, soit 17.9 microsecondes. Enregistrer ce chiffre et
+
+[NOTE]
+Ne pas exécuter EMC2 ou Stepconf pendant que latency-test est 
+en cours d'exécution. 
+
+Le chiffre *max jitter* dans cet exemple est de 17894
+nanosecondes, soit 17.894 microsecondes. Enregistrer ce chiffre et
 entrez le dans Stepconf quand il le demande.
 
 Dans cet exemple de test de latence il n'a fallu que quelques
@@ -63,7 +64,7 @@ la plupart du temps, mais toutes les 64 secondes elle avait une
 très mauvaise latence de 300s. Heureusement, il existe un
 correctif (voir http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues[Fixing Dapper SMI Issues])
 
-Alors, que signifient les résultats ? Si le résultat de votre Max
+Alors, que signifient les résultats? Si le résultat de votre Max
 Jitter est en dessous d'environ 15-20 microsecondes (15000-20000
 nanosecondes), l'ordinateur pourra donner d'excellents résultats
 avec la génération logicielle des pas. Si le temps de latence est à

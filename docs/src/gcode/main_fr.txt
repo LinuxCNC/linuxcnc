@@ -879,10 +879,10 @@ C'est une erreur si:
 Voir la section <<cha:Systemes-de-coordonnees>> pour une vue
 complète des systèmes de coordonnées.
 
-== G54-G59.3 :(((G54 Origine piece 1)))(((G55 Origine piece 2)))(((G56 Origine piece 3))) +
-(((G57 Origine piece 4)))(((G58 Origine piece 5)))(((G59 Origine piece 6))) +
-(((G59.1 Origine piece 7)))(((G59.2 Origine piece 8))) à G59.3(((G59.3 Origine piece 9))) +
-Choix du système de coordonnées[[sec:G54-a-G59.3]]
+== G54-G59.3 : Choix du système de coordonnées[[sec:G54-a-G59.3]]
+(((G54 Origine piece 1)))(((G55 Origine piece 2)))(((G56 Origine piece 3))) 
+(((G57 Origine piece 4)))(((G58 Origine piece 5)))(((G59 Origine piece 6))) 
+(((G59.1 Origine piece 7)))(((G59.2 Origine piece 8)))(((G59.3 Origine piece 9)))
 
 Le code G54 est apparié avec le système de coordonnées pièce N°1, pour
 le choisir programmer G54 et ainsi de suite pour les autres systèmes.
@@ -899,9 +899,9 @@ C'est une erreur si:
 Voir la section <<cha:Systemes-de-coordonnees>> pour une vue
 complète des systèmes de coordonnées.
 
-== G61 (((G61 Trajectoire exacte))), G61.1(((G61.1 Arret exact))), G64:(((G64 Trajectoire continue))) +
-(((Path Control)))(((Controle-trajectoire))) +
-Types de contrôle de trajectoire[[sec:G61-G61.1-G64]]
+== G61, G61.1, G64 : Types de contrôle de trajectoire[[sec:G61-G61.1-G64]]
+(((G61 Trajectoire exacte)))(((G61.1 Arret exact)))(((G64 Trajectoire continue))) 
+(((Path Control)))(((Controle-trajectoire)))
 
 Programmer `G61` pour passer la machine en mode de trajectoire exacte,
 `G61.1` pour la passer en mode arrêt exact, ou `G64 P-` pour le mode
@@ -1079,17 +1079,18 @@ Y-, R-, et Z- sont des positions absolues dans le système de
 coordonnées courant.
 
 La valeur L- est optionnelle, elle représente le nombre de
-répétitions. latexmath:[L=0] n'est pas permis. Si les répétitions sont
+répétitions. L=0 n'est pas permis. Si les répétitions sont 
 utilisées, elles le sont normalement en mode incrémental, de sorte que
 la même séquence de mouvements puisse être répétée à plusieurs
 endroits, égalements espacés, le long d'un ligne droite. En mode de
-déplacements absolus, latexmath:[L>1] signifie “faire le même cycle au
-même endroit, plusieurs fois”. L'omission du mot L revient à spécifier
-latexmath:[L=1]. La valeur de L n'est pas “sticky”.
+déplacements absolus, L>1 signifie “faire le même cycle au
+même endroit, plusieurs fois”. 
+L'omission du mot L revient à spécifier L=1. 
+La valeur de L n'est pas “sticky”.
 
 === Répétition de cycle
 
-Quand latexmath:[L>1] en mode incrémental et XY comme plan courant,
+Quand L>1 en mode incrémental et XY comme plan courant,
 les positions X et Y sont déterminées en ajoutant les valeurs X et Y de
 la commande à celles de la position courante, pour le premier trajet ou
 ensuite, à celles de la position finale du précédent trajet, pour les

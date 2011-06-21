@@ -63,14 +63,12 @@ les fonctions du module.
 
 Déclarations d'include:
 
- - `component ``HALNAME`` ``(DOC``);`
- -  `pin ``PINDIRECTION`` ``TYPE`` ``HALNAME`` ([``SIZE``]|[``MAXSIZE ``:
-   ``CONDSIZE]``) (if ``CONDITION``) (= ``STARTVALUE``) (``DOC``);`
- -  `param ``PARAMDIRECTION`` ``TYPE`` ``HALNAME`` ([``SIZE``]|[``MAXSIZE
-   ``: ``CONDSIZE]``) (if ``CONDITION) ``(= ``STARTVALUE``) (``DOC``) ;`
- - `function ``HALNAME`` (fp | nofp) (``DOC``);`
- - `option ``OPT`` (``VALUE``);`
- - `variable ``CTYPE NAME ``([``SIZE``]);`
+ - `component HALNAME (DOC);`
+ - `pin PINDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC);`
+ - `param PARAMDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC) ;`
+ - `function HALNAME (fp | nofp) (DOC);`
+ - `option OPT (VALUE);`
+ - `variable CTYPE NAME ([SIZE]);`
  - `description DOC;`
  - `see_also DOC;`
  - `license LICENSE;`
@@ -88,40 +86,37 @@ HALNAME::
     «ce-nom» et si le nom `«_`», alors le point final est enlevé aussi,
     ainsi `«function _`» donne un nom de fonction HAL tel que
     `component.<num>` au lieu de `component.<num>.`
-    
-    S'il est présent, le préfixe `hal_`  est enlevé du début d'un nom de
-    composant pour la création des pins
-    des paramètres et des fonctions.
-    
-    Dans l'identifiant de HAL pour une pin ou un paramètre, # indique un
-    membre de tableau, il doit être utilisé conjointement avec une
-    déclaration `[SIZE]` . Les «hash marks» sont remplacées par des nombres
-    de 0-barrés
-    équivalents aux nombres de caractères #.
-    
-    Quand ils sont utilisés pour créer des identifiants C, les changements
-    de caractères suivants sont appliqués au HALNAME:
-    
-      .  Tous les caractères # sont enlevés ainsi que tous les caractères
-    «.»,
-       «_» ou «-» immédiatement devant eux.
-     . Dans un nom, tous les carcatères «.» et «-» sont remplacés par «_»
-      . Les caractères «_» répétitifs sont remplacés par un seul caractère
-    «_».
-    
-    Un «_» final est maintenu, de sorte que les identifiants de HAL, qui
-    autrement seraient en conflit avec les noms ou mots clé réservés (par
-    exemple: «min»), puissent être utilisés.
-    
-    [width="90%", options="header"]
-    |========================================
-    |HALNAME | Identifiant C | Identifiant HAL
-    |x_y_z | x_y_z | x-y-z
-    |x-y.z | x_y_z | x-y.z
-    |x_y_z_ | x_y_z_ | x-y-z
-    |x.##.y | x_y(MM) | x.MM.z
-    |x.## | x(MM) | x.MM
-    |========================================
+
+S'il est présent, le préfixe `hal_`  est enlevé du début d'un nom de
+composant pour la création des pins
+des paramètres et des fonctions.
+
+Dans l'identifiant de HAL pour une pin ou un paramètre, # indique un
+membre de tableau, il doit être utilisé conjointement avec une
+déclaration `[SIZE]` . Les «hash marks» sont remplacées par des nombres
+de 0-barrés équivalents aux nombres de caractères #.
+
+Quand ils sont utilisés pour créer des identifiants C, les changements
+de caractères suivants sont appliqués au HALNAME:
+
+ . Tous les caractères # sont enlevés ainsi que tous les caractères
+   «.», «_» ou «-» immédiatement devant eux. 
+ . Dans un nom, tous les carcatères «.» et «-» sont remplacés par «_». 
+ . Les caractères «_» répétitifs sont remplacés par un seul caractère «_». 
+
+Un «_» final est maintenu, de sorte que les identifiants de HAL, qui
+autrement seraient en conflit avec les noms ou mots clé réservés (par
+exemple: «min»), puissent être utilisés.
+
+[width="90%", options="header"]
+|========================================
+|HALNAME | Identifiant C | Identifiant HAL
+|x_y_z   | x_y_z         | x-y-z
+|x-y.z   | x_y_z         | x-y.z
+|x_y_z_  | x_y_z_        | x-y-z
+|x.##.y  | x_y(MM)       | x.MM.z
+|x.##    | x(MM)         | x.MM
+|========================================
 
 if CONDITION::
      Une expression impliquant la 'personnalité'  d'une variable non nulle
@@ -367,12 +362,11 @@ fperiod::
      Le nombre de secondes en virgule flottante entre les appels à cette
     fonction temps réel.
 
-FOR_ALL_INSTS() {::
-     `…` } Pour les composants de l'espace utilisateur. Cette macro utilise
-    la
-     variable `struct state *inst`  pour itérer au dessus de toutes les
-    instances définies. Dans le corps
-     de la boucle, les macros 'pin_name', 'parameter_name' et *data*
+FOR_ALL_INSTS() {`…`}:: 
+    Pour les composants de l'espace utilisateur. Cette macro utilise
+    la variable `struct state *inst` pour itérer au dessus de toutes 
+    les instances définies. Dans le corps 
+    de la boucle, les macros 'pin_name', 'parameter_name' et *data*
     travaillent comme elles le font dans les fonctions temps réel.
 
 == Composants avec une seule fonction
@@ -561,7 +555,7 @@ fixe:
 
 Ce composant de l'espace utilisateur modifie la valeur de ses pins de
 sortie vers une nouvelle valeur aléatoire dans l'étendue
-latexmath:[[0,1)] à chaque ms.
+latexmath:[(0,1)] à chaque 1ms.
 
 [source,c]
 -------------------------------------------------
