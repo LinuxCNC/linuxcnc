@@ -1,14 +1,12 @@
-// :language: en
-
 Getting Started V2.5, {localdate}
 =================================
 The EMC Team
 
+:language: en
+
 :masterdir: {indir}
 
 :leveloffset: 1
-
-Here's some text.
 
 image::common/emc2-intro.*[]
 

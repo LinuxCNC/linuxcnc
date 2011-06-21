@@ -1,14 +1,12 @@
-// :language: en
-
 HAL Manual V2.5, {localdate}
 ============================
 The EMC Team
 
+:language: en
+
 :masterdir: {indir}
 
 :leveloffset: 1
-
-Here's some text. 
 
 image::common/emc2-intro.*[]
 
@@ -38,9 +36,11 @@ include::hal/rtcomps.txt[]
 
 include::hal/parallel_port.txt[]
 
+include::hal/hal-examples.txt[]
+
 include::gui/halui.txt[]
 
-include::hal/hal-examples.txt[]
+include::hal/halui_examples.txt[]
 
 include::hal/comp.txt[]
 

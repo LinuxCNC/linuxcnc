@@ -1,14 +1,12 @@
-// :language: fr
-
 Guide du débutant V2.3, {localdate}
 ===================================
 The EMC Team
 
+:language: fr
+
 :masterdir: {indir}
 
 :leveloffset: 1
-
-Here's some text. 
 
 image::common/emc2-intro.*[]
 
