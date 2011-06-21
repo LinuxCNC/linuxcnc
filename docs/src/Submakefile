@@ -19,196 +19,206 @@ endif
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS := \
-	code/Code_Notes.lyx \
-	code/Style_Guide.lyx \
-	code/NML_Messages.lyx \
-	Getting_Started.lyx \
-	Getting_Started_fr.lyx \
-	gui/axis.lyx \
-	gui/axis_fr.lyx \
-	gui/halui.lyx \
-	gui/halui_fr.lyx \
-	gui/keystick.lyx \
-	gui/keystick_fr.lyx \
-	gui/mini.lyx \
-	gui/mini_fr.lyx \
-	gui/tkemc.lyx \
-	gui/tkemc_fr.lyx \
-	gui/touchy.lyx \
-	gui/touchy_fr.lyx \
-	gui/image-to-gcode.lyx \
-	gui/image-to-gcode_fr.lyx \
-	gui/gladevcp.lyx \
-	gui/gladevcp_fr.lyx \
-	Master_Developer.lyx \
-	Master_Integrator.lyx \
-	Master_Integrator_fr.lyx \
-	Master_User.lyx \
-	Master_User_fr.lyx \
-	common/Document_Header.lyx \
-	common/Document_Header_fr.lyx \
-	common/Getting_EMC.lyx \
-	common/Getting_EMC_fr.lyx \
-	common/GPLD_Copyright.lyx \
-	common/Glossary.lyx \
-	common/Glossary_fr.lyx \
-	common/Integrator_Concepts.lyx \
-	common/Integrator_Concepts_fr.lyx \
-	common/Linux_FAQ.lyx \
-	common/Linux_FAQ_fr.lyx \
-	common/machining_center.lyx \
-	common/machining_center_fr.lyx \
-	common/outdated-notice_fr.lyx \
-	common/overleaf.lyx \
-	common/Stepper_Diagnostics.lyx \
-	common/Stepper_Diagnostics_fr.lyx \
-	common/System_Requirements.lyx \
-	common/System_Requirements_fr.lyx \
-	common/userforeword.lyx \
-	common/userforeword_fr.lyx \
-	common/User_Concepts.lyx \
-	common/User_Concepts_fr.lyx \
-	common/user_intro.lyx \
-	common/user_intro_fr.lyx \
-	common/Updating_EMC.lyx \
-	common/Updating_EMC_fr.lyx \
-	config/copy_and_run.lyx \
-	config/copy_and_run_fr.lyx \
-	config/emc2hal.lyx \
-	config/emc2hal_fr.lyx \
-	config/ini_config.lyx \
-	config/ini_config_fr.lyx \
-	config/ini_homing.lyx \
-	config/ini_homing_fr.lyx \
-	config/lathe_config.lyx \
-	config/lathe_config_fr.lyx \
-	config/pncconf.lyx \
-	config/pncconf_fr.lyx \
-	config/stepper.lyx \
-	config/stepper_fr.lyx \
-	config/stepconf.lyx \
-	config/stepconf_fr.lyx \
-	drivers/AX5214H.lyx \
-	drivers/AX5214H_fr.lyx \
-	drivers/GS2.lyx \
-	drivers/GS2_fr.lyx \
-	drivers/hostmot2.lyx \
-	drivers/hostmot2_fr.lyx \
-	drivers/motenc.lyx \
-	drivers/motenc_fr.lyx \
-	drivers/m5i20.lyx \
-	drivers/m5i20_fr.lyx \
-	drivers/opto22.lyx \
-	drivers/opto22_fr.lyx \
-	drivers/pico_ppmc.lyx \
-	drivers/pico_ppmc_fr.lyx \
-	drivers/pluto_p.lyx \
-	drivers/pluto_p_fr.lyx \
-	drivers/servo_to_go.lyx \
-	drivers/servo_to_go_fr.lyx \
-	gcode/coordinates.lyx \
-	gcode/coordinates_fr.lyx \
-	gcode/main.lyx \
-	gcode/main_fr.lyx \
-	gcode/mill_canned.lyx \
-	gcode/mill_canned_fr.lyx \
-	gcode/overview.lyx \
-	gcode/overview_fr.lyx \
-	gcode/rs274ngc.lyx \
-	gcode/rs274ngc_fr.lyx \
-	gcode/tool_compensation.lyx \
-	gcode/tool_compensation_fr.lyx \
-	hal/basic_hal.lyx \
-	hal/basic_hal_fr.lyx \
-	hal/comp.lyx \
-	hal/comp_fr.lyx \
-	hal/components.lyx \
-	hal/components_fr.lyx \
-	hal/drivers_fr.lyx \
-	hal/general_ref.lyx \
-	hal/general_ref_fr.lyx \
-	hal/hal-examples.lyx \
-	hal/hal-examples_fr.lyx \
-	hal/halmodule.lyx \
-	hal/halmodule_fr.lyx \
-	hal/halshow.lyx \
-	hal/halshow_fr.lyx \
-	hal/intro.lyx \
-	hal/intro_fr.lyx \
-	hal/parallel_port.lyx \
-	hal/parallel_port_fr.lyx \
-	hal/pyvcp.lyx \
-	hal/pyvcp_fr.lyx \
-	hal/pyvcp_examples.lyx \
-	hal/pyvcp_examples_fr.lyx \
-	hal/rtcomps.lyx \
-	hal/rtcomps_fr.lyx \
-	hal/tools.lyx \
-	hal/tools_fr.lyx \
-	hal/tutorial.lyx \
-	hal/tutorial_fr.lyx \
-	install/Latency_Test.lyx \
-	install/Latency_Test_fr.lyx \
-	ladder/classic_ladder.lyx \
-	ladder/classic_ladder_fr.lyx \
-	ladder/ladder_examples.lyx \
-	ladder/ladder_examples_fr.lyx \
-	ladder/ladder_intro.lyx \
-	ladder/ladder_intro_fr.lyx \
-	lathe/lathe-user.lyx \
-	lathe/lathe-user_fr.lyx \
-	motion/kinematics.lyx \
-	motion/kinematics_fr.lyx \
-	motion/pid_theory.lyx \
-	motion/pid_theory_fr.lyx \
-	motion/tweaking_steppers.lyx \
-	motion/tweaking_steppers_fr.lyx \
-	examples/spindle.lyx \
-	examples/spindle_fr.lyx \
-	examples/misc.lyx \
-	examples/misc_fr.lyx \
-	examples/mpg.lyx \
-	examples/mpg_fr.lyx \
-	examples/gcode.lyx \
-	examples/gcode_fr.lyx \
-	examples/gs2_example.lyx \
-	examples/gs2_example_fr.lyx \
-	examples/misc.lyx \
-	examples/misc_fr.lyx \
-	examples/mpg.lyx \
-	examples/mpg_fr.lyx \
-	examples/pci_parallel_port.lyx \
-	examples/pci_parallel_port_fr.lyx \
-	examples/spindle.lyx \
-	examples/spindle_fr.lyx \
-	quickstart/stepper_quickstart.lyx \
-	quickstart/stepper_quickstart_fr.lyx \
-	Master_HAL.lyx \
-	Master_HAL_fr.lyx
+	code/Code_Notes.txt \
+	code/Style_Guide.txt \
+	code/NML_Messages.txt \
+	common/Document_Header.txt \
+	common/Document_Header_fr.txt \
+	common/Getting_EMC.txt \
+	common/Getting_EMC_fr.txt \
+	common/Glossary.txt \
+	common/Glossary_fr.txt \
+	common/GPLD_Copyright.txt \
+	common/Integrator_Concepts.txt \
+	common/Integrator_Concepts_fr.txt \
+	common/Linux_FAQ.txt \
+	common/Linux_FAQ_fr.txt \
+	common/machining_center.txt \
+	common/machining_center_fr.txt \
+	common/outdated-notice_fr.txt \
+	common/overleaf.txt \
+	common/Stepper_Diagnostics.txt \
+	common/Stepper_Diagnostics_fr.txt \
+	common/System_Requirements.txt \
+	common/System_Requirements_fr.txt \
+	common/Updating_EMC.txt \
+	common/Updating_EMC_fr.txt \
+	common/User_Concepts.txt \
+	common/User_Concepts_fr.txt \
+	common/userforeword.txt \
+	common/userforeword_fr.txt \
+	common/user_intro.txt \
+	common/user_intro_fr.txt \
+	config/copy_and_run.txt \
+	config/copy_and_run_fr.txt \
+	config/emc2hal.txt \
+	config/emc2hal_fr.txt \
+	config/ini_config.txt \
+	config/ini_config_fr.txt \
+	config/ini_homing.txt \
+	config/ini_homing_fr.txt \
+	config/lathe_config.txt \
+	config/lathe_config_fr.txt \
+	config/pncconf.txt \
+	config/pncconf_fr.txt \
+	config/stepconf.txt \
+	config/stepconf_fr.txt \
+	config/stepper.txt \
+	config/stepper_fr.txt \
+	drivers/AX5214H.txt \
+	drivers/AX5214H_fr.txt \
+	drivers/GS2.txt \
+	drivers/GS2_fr.txt \
+	drivers/hostmot2.txt \
+	drivers/hostmot2_fr.txt \
+	drivers/m5i20.txt \
+	drivers/m5i20_fr.txt \
+	drivers/motenc.txt \
+	drivers/motenc_fr.txt \
+	drivers/opto22.txt \
+	drivers/opto22_fr.txt \
+	drivers/pico_ppmc.txt \
+	drivers/pico_ppmc_fr.txt \
+	drivers/pluto_p.txt \
+	drivers/pluto_p_fr.txt \
+	drivers/servo_to_go.txt \
+	drivers/servo_to_go_fr.txt \
+	examples/gcode.txt \
+	examples/gcode_fr.txt \
+	examples/gs2_example.txt \
+	examples/gs2_example_fr.txt \
+	examples/misc.txt \
+	examples/misc_fr.txt \
+	examples/mpg.txt \
+	examples/mpg_fr.txt \
+	examples/pci_parallel_port.txt \
+	examples/pci_parallel_port_fr.txt \
+	examples/spindle.txt \
+	examples/spindle_fr.txt \
+	gcode/coordinates.txt \
+	gcode/coordinates_fr.txt \
+	gcode/main.txt \
+	gcode/main_fr.txt \
+	gcode/mill_canned.txt \
+	gcode/mill_canned_fr.txt \
+	gcode/overview.txt \
+	gcode/overview_fr.txt \
+	gcode/rs274ngc.txt \
+	gcode/rs274ngc_fr.txt \
+	gcode/tool_compensation.txt \
+	gcode/tool_compensation_fr.txt \
+	gui/axis.txt \
+	gui/axis_fr.txt \
+	gui/gladevcp.txt \
+	gui/gladevcp_fr.txt \
+	gui/halui.txt \
+	gui/halui_fr.txt \
+	gui/image-to-gcode.txt \
+	gui/image-to-gcode_fr.txt \
+	gui/keystick.txt \
+	gui/keystick_fr.txt \
+	gui/mini.txt \
+	gui/mini_fr.txt \
+	gui/tkemc.txt \
+	gui/tkemc_fr.txt \
+	gui/touchy.txt \
+	gui/touchy_fr.txt \
+	hal/basic_hal.txt \
+	hal/basic_hal_fr.txt \
+	hal/comp.txt \
+	hal/comp_fr.txt \
+	hal/components.txt \
+	hal/components_fr.txt \
+	hal/drivers_fr.txt \
+	hal/general_ref.txt \
+	hal/general_ref_fr.txt \
+	hal/hal-examples.txt \
+	hal/hal-examples_fr.txt \
+	hal/halmodule.txt \
+	hal/halmodule_fr.txt \
+	hal/halshow.txt \
+	hal/halshow_fr.txt \
+	hal/halui_examples.txt \
+	hal/halui_examples_fr.txt \
+	hal/intro.txt \
+	hal/intro_fr.txt \
+	hal/parallel_port.txt \
+	hal/parallel_port_fr.txt \
+	hal/pyvcp.txt \
+	hal/pyvcp_fr.txt \
+	hal/pyvcp_examples.txt \
+	hal/pyvcp_examples_fr.txt \
+	hal/rtcomps.txt \
+	hal/rtcomps_fr.txt \
+	hal/tools.txt \
+	hal/tools_fr.txt \
+	hal/tutorial.txt \
+	hal/tutorial_fr.txt \
+	install/Latency_Test.txt \
+	install/Latency_Test_fr.txt \
+	ladder/classic_ladder.txt \
+	ladder/classic_ladder_fr.txt \
+	ladder/ladder_examples.txt \
+	ladder/ladder_examples_fr.txt \
+	ladder/ladder_intro.txt \
+	ladder/ladder_intro_fr.txt \
+	lathe/lathe-user.txt \
+	lathe/lathe-user_fr.txt \
+	motion/kinematics.txt \
+	motion/kinematics_fr.txt \
+	motion/pid_theory.txt \
+	motion/pid_theory_fr.txt \
+	motion/tweaking_steppers.txt \
+	motion/tweaking_steppers_fr.txt \
+	quickstart/stepper_quickstart.txt \
+	quickstart/stepper_quickstart_fr.txt \
+	Getting_Started.txt \
+	Getting_Started_fr.txt \
+	Master_User.txt \
+	Master_User_fr.txt \
+	Master_HAL.txt \
+	Master_HAL_fr.txt \
+	Master_Integrator.txt \
+	Master_Integrator_fr.txt \
+	Master_Developer.txt \
 
-DOC_SRCS_TXT  := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 
-DOC_SRCS_FR   := $(filter %_fr.txt, $(DOC_SRCS_TXT))
-DOC_SRCS_EN   := $(filter-out $(DOC_SRCS_FR), $(DOC_SRCS_TXT))
+# DOC_SRCS_TXT := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
+DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
+
+DOC_SRCS_FR := $(filter %_fr.txt, $(DOC_SRCS_TXT))
+DOC_SRCS_EN := $(filter-out $(DOC_SRCS_FR), $(DOC_SRCS_TXT))
 
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
 
-DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
-DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
-DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
-	 $(DOC_TARGETS_HTML))
-DOC_TARGETS_XML := 
+# DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
+DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf \
-	EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf \
-	EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf EMC2_Getting_Started_fr.pdf)
+PDF_TARGETS := $(addprefix $(DOC_DIR)/, \
+	EMC2_Getting_Started.pdf \
+	EMC2_Getting_Started_fr.pdf \
+	EMC2_User_Manual.pdf \
+	EMC2_User_Manual_fr.pdf \
+	EMC2_HAL_Manual.pdf \
+	EMC2_HAL_Manual_fr.pdf \
+	EMC2_Integrator_Manual.pdf \
+	EMC2_Integrator_Manual_fr.pdf \
+	EMC2_Developer_Manual.pdf \
+	)
+# The following was removed from the above for now
+#	EMC2_Manual_Pages.pdf \
+# 
+# It's better to keep the above on separate lines for troubleshooting by swapping
+# (Don't ask me how I know this.)
 
-HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html #$(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
+HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html #$(DOC_DIR)/html/xref.html #$(DOC_DIR)/html/xref_fr.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
-	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
+	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table
 
 A2X = $(DOC_SRCDIR)/a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
@@ -266,19 +276,19 @@ $(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
-	@ln -f $< $@
-$(DOC_DIR)/EMC2_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
-	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+$(DOC_DIR)/EMC2_HAL_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -326,25 +336,23 @@ endef
 XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
 
 SUBXML := \
-    $(filter objects/hal_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/code_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/drivers_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/lathe_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
+	$(filter objects/hal_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/code_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/drivers_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/lathe_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
 
 $(filter-out $(SUBXML),$(DOC_TARGETS_XML)): objects/%.xml: $(DOC_SRCDIR)/%.lyx $(XMLDEP)
 	python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$*.xml $<
 
-$(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
-	$(call lyx2xml,hal,$*,$<)
 $(filter objects/code_%.xml,$(DOC_TARGETS_XML)): objects/code_%.xml: $(DOC_SRCDIR)/code/%.lyx $(XMLDEP)
 	$(call lyx2xml,code,$*,$<)
 $(filter objects/common_%.xml,$(DOC_TARGETS_XML)): objects/common_%.xml: $(DOC_SRCDIR)/common/%.lyx $(XMLDEP)
@@ -353,10 +361,14 @@ $(filter objects/config_%.xml,$(DOC_TARGETS_XML)): objects/config_%.xml: $(DOC_S
 	$(call lyx2xml,config,$*,$<)
 $(filter objects/drivers_%.xml,$(DOC_TARGETS_XML)): objects/drivers_%.xml: $(DOC_SRCDIR)/drivers/%.lyx $(XMLDEP)
 	$(call lyx2xml,drivers,$*,$<)
+$(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
+	$(call lyx2xml,examples,$*,$<)
 $(filter objects/gcode_%.xml,$(DOC_TARGETS_XML)): objects/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx $(XMLDEP)
 	$(call lyx2xml,gcode,$*,$<)
 $(filter objects/gui_%.xml,$(DOC_TARGETS_XML)): objects/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx $(XMLDEP)
 	$(call lyx2xml,gui,$*,$<)
+$(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
+	$(call lyx2xml,hal,$*,$<)
 $(filter objects/install_%.xml,$(DOC_TARGETS_XML)): objects/install_%.xml: $(DOC_SRCDIR)/install/%.lyx $(XMLDEP)
 	$(call lyx2xml,install,$*,$<)
 $(filter objects/ladder_%.xml,$(DOC_TARGETS_XML)): objects/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx $(XMLDEP)
@@ -365,8 +377,6 @@ $(filter objects/lathe_%.xml,$(DOC_TARGETS_XML)): objects/lathe_%.xml: $(DOC_SRC
 	$(call lyx2xml,lathe,$*,$<)
 $(filter objects/motion_%.xml,$(DOC_TARGETS_XML)): objects/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
 	$(call lyx2xml,motion,$*,$<)
-$(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
-	$(call lyx2xml,examples,$*,$<)
 $(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx $(XMLDEP)
 	$(call lyx2xml,quickstart,$*,$<)
 
@@ -401,7 +411,7 @@ objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
 objects/%.links: objects/%.links-stamp
 	@:
 
-# Scondary is not working here.
+# Secondary is not working here.
 # See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
 .PRECIOUS: objects/%.links-stamp
 
@@ -456,17 +466,17 @@ docs:
 	$(error Cannot build documents, missing LyX or some other required program, or explicitly disabled in configure)
 
 endif
-    
+
 docclean:
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/EMC2_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
