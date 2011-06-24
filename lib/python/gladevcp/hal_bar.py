@@ -36,6 +36,8 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     __gproperties__ = {
         'invert' : ( gobject.TYPE_BOOLEAN, 'Inverted', 'Invert min-max direction',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_limits' : ( gobject.TYPE_BOOLEAN, 'Show Limits', 'Display upper and lower limit text',
+                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'min' : ( gobject.TYPE_FLOAT, 'Min', 'Minimum value',
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'max'  : ( gobject.TYPE_FLOAT, 'Max', 'Maximum value',
@@ -235,12 +237,13 @@ class HAL_HBar(HAL_Bar):
         set_color(gtk.gdk.Color('black'))
 
         tmpl = lambda s: self.text_template % s
-        if not self.invert:
-            self.text_at(cr, tmpl(self.min), 5, h/2, 'left')
-            self.text_at(cr, tmpl(self.max), w-5, h/2, 'right')
-        else:
-            self.text_at(cr, tmpl(self.max), 5, h/2, 'left')
-            self.text_at(cr, tmpl(self.min), w-5, h/2, 'right')
+        if self.show_limits:
+            if not self.invert:
+                self.text_at(cr, tmpl(self.min), 5, h/2, 'left')
+                self.text_at(cr, tmpl(self.max), w-5, h/2, 'right')
+            else:
+                self.text_at(cr, tmpl(self.max), 5, h/2, 'left')
+                self.text_at(cr, tmpl(self.min), w-5, h/2, 'right')
         self.text_at(cr, tmpl(self.value), w/2, h/2, 'center')
 
         return False
@@ -275,12 +278,13 @@ class HAL_VBar(HAL_Bar):
         set_color(gtk.gdk.Color('black'))
 
         tmpl = lambda s: self.text_template % s
-        if not self.invert:
-            self.text_at(cr, tmpl(self.max), w/2, 5,  yalign='top')
-            self.text_at(cr, tmpl(self.min), w/2, h-5, yalign='bottom')
-        else:
-            self.text_at(cr, tmpl(self.min), w/2, 5,  yalign='top')
-            self.text_at(cr, tmpl(self.max), w/2, h-5, yalign='bottom')
+        if self.show_limits:
+            if not self.invert:
+                self.text_at(cr, tmpl(self.max), w/2, 5,  yalign='top')
+                self.text_at(cr, tmpl(self.min), w/2, h-5, yalign='bottom')
+            else:
+                self.text_at(cr, tmpl(self.min), w/2, 5,  yalign='top')
+                self.text_at(cr, tmpl(self.max), w/2, h-5, yalign='bottom')
         self.text_at(cr, tmpl(self.value), w/2, h/2)
 
         return False

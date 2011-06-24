@@ -1995,7 +1995,7 @@ class Data:
             print >>file, "loadrt scale names=%s"% self.scalenames
         if pump:
             print >>file, "loadrt charge_pump"
-        if not at_speed and self.susesatspeed:
+        if not at_speed and self.suseatspeed:
             print >>file, "loadrt near"
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
@@ -5471,7 +5471,7 @@ class App:
             if encoder:
                 if self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1:
                     w["sfiltergainframe"].show()
-            set_active["useatspeed"]
+            set_active("useatspeed")
             w["snearscale"].set_value(d["snearscale"]*100)
             set_value("filtergain")
         else:
@@ -5754,7 +5754,7 @@ class App:
             get_active("usecomp")
             get_active("usebacklash")
         else:
-            set_active["useatspeed"]
+            get_active("useatspeed")
             get_pagevalue("nearscale")
             d["snearscale"] = w["snearscale"].get_value()/100
             get_pagevalue("filtergain")
