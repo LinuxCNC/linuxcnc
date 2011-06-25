@@ -1642,8 +1642,8 @@ class Data:
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "setp   " + steppinname + ".maxaccel         0"
-                print >>file, "setp   " + steppinname + ".maxvel           0"
+                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxvel"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxacc"]*1.25) )
             if let == "s":
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
