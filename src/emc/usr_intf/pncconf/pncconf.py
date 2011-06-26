@@ -5462,8 +5462,8 @@ class App:
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
-            w["smaxvel"].set_sensitive(False)
-            w["smaxacc"].set_sensitive(False)
+            w["smaxvel"].set_sensitive(stepdriven)
+            w["smaxacc"].set_sensitive(stepdriven)
             w["satspeedframe"].hide()
             w["sfiltergainframe"].hide()
             if not digital_at_speed and encoder:
