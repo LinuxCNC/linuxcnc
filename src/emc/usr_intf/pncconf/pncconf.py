@@ -2279,7 +2279,7 @@ class Data:
                 print >>file, "net jog-incr-d           =>  jogincr.sel3"
                 print >>file, "net selected-jog-incr    <=  jogincr.out-f"
                 if self.mpgdebounce:
-                    print >>file, "    setp jogincr.debouncetime      %f"% self.mpgdebouncetime
+                    print >>file, "    setp jogincr.debounce-time      %f"% self.mpgdebouncetime
                 print >>file, "    setp jogincr.use-graycode      %s"% self.mpggraycode
                 print >>file, "    setp jogincr.suppress-no-input %s" % self.mpgignorefalse
                 for i in range(0,16):
@@ -2319,7 +2319,7 @@ class Data:
                 print >>file, "net fo-incr-d           =>  foincr.sel3"
                 print >>file, "net feedoverride-incr   <=  foincr.out-s"
                 if self.fodebounce:
-                    print >>file, "    setp foincr.debouncetime      %f"% self.fodebouncetime
+                    print >>file, "    setp foincr.debounce-time      %f"% self.fodebouncetime
                 print >>file, "    setp foincr.use-graycode      %s"% self.fograycode
                 print >>file, "    setp foincr.suppress-no-input %s" % self.foignorefalse
                 for i in range(0,16):
@@ -2357,7 +2357,7 @@ class Data:
                 print >>file, "net so-incr-d             =>  soincr.sel3"
                 print >>file, "net spindleoverride-incr  <=  soincr.out-s"
                 if self.sodebounce:
-                    print >>file, "    setp soincr.debouncetime      %f"% self.sodebouncetime
+                    print >>file, "    setp soincr.debounce-time      %f"% self.sodebouncetime
                 print >>file, "    setp soincr.use-graycode      %s"% self.sograycode
                 print >>file, "    setp soincr.suppress-no-input %s" % self.soignorefalse
                 for i in range(0,16):
