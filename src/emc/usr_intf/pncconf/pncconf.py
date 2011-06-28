@@ -3683,7 +3683,9 @@ class App:
         buttonlist=""
         for index,i in enumerate(temp):
             if "bit" in i and "OUT" in temp[index+1]:
-                buttonlist = buttonlist + "  %s  %s      %s"% ( i,temp[index+1],temp[index+3] )
+                buttonlist = buttonlist + "  Digital:    %s"% ( temp[index+3] )
+            if "float" in i and "OUT" in temp[index+1]:
+                buttonlist = buttonlist + "                                                            Analog:     %s"% ( temp[index+3] )
         if buttonlist =="": return
         textbuffer = self.widgets.textoutput.get_buffer()
         try :         
