@@ -2657,6 +2657,7 @@ class Data:
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
         print "%s" % base
 
+        # write pncconf hidden preference file
         filename = os.path.expanduser("~/.pncconf-preferences")
         print filename
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
@@ -2701,6 +2702,15 @@ class Data:
 
         d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
 
+        # write AXIS rc file to force full screen
+        filename = os.path.expanduser("~/.axisrc")
+        if not os.path.exists(filename):
+            f1 = open(filename, "w")
+            print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
+            print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+            print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
+
+        # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
         desktop = commands.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
