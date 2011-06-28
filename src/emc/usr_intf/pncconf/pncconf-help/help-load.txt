@@ -7,5 +7,5 @@ Check the option boxes to put a system-link
 on your Desktop. 
 
 Pncconf writes a hidden file to remember your last
-choice. If you press help and then look at the
-output page you will see a copy of the raw file.
+choice. If you press the 'output' tab, you will see 
+a copy of the raw file.

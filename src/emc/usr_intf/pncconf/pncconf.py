@@ -1642,8 +1642,8 @@ class Data:
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "setp   " + steppinname + ".maxaccel         0"
-                print >>file, "setp   " + steppinname + ".maxvel           0"
+                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxvel"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxacc"]*1.25) )
             if let == "s":
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
@@ -2279,7 +2279,7 @@ class Data:
                 print >>file, "net jog-incr-d           =>  jogincr.sel3"
                 print >>file, "net selected-jog-incr    <=  jogincr.out-f"
                 if self.mpgdebounce:
-                    print >>file, "    setp jogincr.debouncetime      %f"% self.mpgdebouncetime
+                    print >>file, "    setp jogincr.debounce-time      %f"% self.mpgdebouncetime
                 print >>file, "    setp jogincr.use-graycode      %s"% self.mpggraycode
                 print >>file, "    setp jogincr.suppress-no-input %s" % self.mpgignorefalse
                 for i in range(0,16):
@@ -2319,7 +2319,7 @@ class Data:
                 print >>file, "net fo-incr-d           =>  foincr.sel3"
                 print >>file, "net feedoverride-incr   <=  foincr.out-s"
                 if self.fodebounce:
-                    print >>file, "    setp foincr.debouncetime      %f"% self.fodebouncetime
+                    print >>file, "    setp foincr.debounce-time      %f"% self.fodebouncetime
                 print >>file, "    setp foincr.use-graycode      %s"% self.fograycode
                 print >>file, "    setp foincr.suppress-no-input %s" % self.foignorefalse
                 for i in range(0,16):
@@ -2357,7 +2357,7 @@ class Data:
                 print >>file, "net so-incr-d             =>  soincr.sel3"
                 print >>file, "net spindleoverride-incr  <=  soincr.out-s"
                 if self.sodebounce:
-                    print >>file, "    setp soincr.debouncetime      %f"% self.sodebouncetime
+                    print >>file, "    setp soincr.debounce-time      %f"% self.sodebouncetime
                 print >>file, "    setp soincr.use-graycode      %s"% self.sograycode
                 print >>file, "    setp soincr.suppress-no-input %s" % self.soignorefalse
                 for i in range(0,16):
@@ -2657,6 +2657,7 @@ class Data:
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
         print "%s" % base
 
+        # write pncconf hidden preference file
         filename = os.path.expanduser("~/.pncconf-preferences")
         print filename
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
@@ -2701,6 +2702,15 @@ class Data:
 
         d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
 
+        # write AXIS rc file to force full screen
+        filename = os.path.expanduser("~/.axisrc")
+        if not os.path.exists(filename):
+            f1 = open(filename, "w")
+            print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
+            print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+            print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
+
+        # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
         desktop = commands.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
@@ -3683,7 +3693,9 @@ class App:
         buttonlist=""
         for index,i in enumerate(temp):
             if "bit" in i and "OUT" in temp[index+1]:
-                buttonlist = buttonlist + "  %s  %s      %s"% ( i,temp[index+1],temp[index+3] )
+                buttonlist = buttonlist + "  Digital:    %s"% ( temp[index+3] )
+            if "float" in i and "OUT" in temp[index+1]:
+                buttonlist = buttonlist + "                                                            Analog:     %s"% ( temp[index+3] )
         if buttonlist =="": return
         textbuffer = self.widgets.textoutput.get_buffer()
         try :         
@@ -5449,21 +5461,52 @@ class App:
         w[axis + "outputscale"].set_sensitive(pwmgen)
         w[axis + "outputoffset"].set_sensitive(pwmgen)
         w[axis + "maxoutput"].set_sensitive(pwmgen)
+
+        if axis == "s":
+            unit = "rev"
+            pitchunit =_("Gearbox Reduction Ratio")
+        elif axis == "a":
+            unit = "degree"
+            pitchuint = _("Reduction Ratio")
+        elif d.units ==_METRIC:
+            unit = "mm"
+            pitchunit =_("Leadscrew Pitch")
+        else:
+            unit = "inch"
+            pitchunit =_("Leadscrew TPI")
+
+        w["labelmotor_pitch"].set_text(pitchunit)
+        w["labelencoder_pitch"].set_text(pitchunit)
+        w["motor_screwunits"].set_text(_("("+unit+" / rev)"))
+        w["encoder_screwunits"].set_text(_("("+unit+" / rev)"))
+        w[axis + "velunits"].set_text(_(unit+" / min"))
+        w[axis + "accunits"].set_text(_(unit+" / sec²"))
+        w["accdistunits"].set_text(unit)
+        if stepdriven:
+            w[ "resolutionunits1"].set_text(_(unit+" / Step"))
+            w["scaleunits"].set_text(_("Steps / "+unit))
+        else:
+            w["resolutionunits1"].set_text(_(unit+" / encoder pulse"))
+            w["scaleunits"].set_text(_("Encoder pulses / "+unit))
+        if not axis =="s":
+            w[axis + "homevelunits"].set_text(_(unit+" / min"))
+            w[axis + "homelatchvelunits"].set_text(_(unit+" / min"))
+            w[axis + "homefinalvelunits"].set_text(_(unit+" / min"))
+        w[axis + "minfollowunits"].set_text(unit)
+        w[axis + "maxfollowunits"].set_text(unit)
+
         if axis == 's':
-            w["labelmotor_pitch"].set_text(_("Gearbox Reduction Ratio"))
-            w["labelencoder_pitch"].set_text(_("Gearbox Reduction Ratio"))
             w["motor_screwunits"].set_text((""))
             w["encoder_screwunits"].set_text((""))        
             w.sencodercounts.set_sensitive(encoder)
             w[axis + "invertencoder"].set_sensitive(encoder)
-            
             w["sservo_info"].set_sensitive(pwmgen)
             w["saxistest"].set_sensitive(pwmgen)
             w["sstepper_info"].set_sensitive(stepdriven)
             w["smaxferror"].set_sensitive(False)
             w["sminferror"].set_sensitive(False)
-            w["smaxvel"].set_sensitive(False)
-            w["smaxacc"].set_sensitive(False)
+            w["smaxvel"].set_sensitive(stepdriven)
+            w["smaxacc"].set_sensitive(stepdriven)
             w["satspeedframe"].hide()
             w["sfiltergainframe"].hide()
             if not digital_at_speed and encoder:
@@ -5493,66 +5536,7 @@ class App:
             set_active("searchdir")
             set_active("latchdir")
             set_active("usehomeindex")
-            if axis == "a":
-                w["labelmotor_pitch"].set_text(_("Reduction Ratio"))
-                w["labelencoder_pitch"].set_text(_("Reduction Ratio"))
-                w["motor_screwunits"].set_text(_("degrees / rev"))
-                w["encoder_screwunits"].set_text(_("degrees / rev"))
-                w[axis + "velunits"].set_text(_("degrees / min"))
-                w[axis + "accunits"].set_text(_("degrees / sec²"))
-                w[axis + "homevelunits"].set_text(_("degrees / min"))
-                w[axis + "homelatchvelunits"].set_text(_("degrees / min"))
-                w[axis + "homefinalvelunits"].set_text(_("degrees / min"))
-                w["accdistunits"].set_text(_("degrees"))
-                if stepdriven:
-                    w["resolutionunits1"].set_text(_("degree / Step"))        
-                    w["scaleunits"].set_text(_("Steps / degree"))
-                else:
-                    w[ "resolutionunits1"].set_text(_("degrees / encoder pulse"))
-                    w["scaleunits"].set_text(_("Encoder pulses / degree"))
-                w[axis + "minfollowunits"].set_text(_("degrees"))
-                w[axis + "maxfollowunits"].set_text(_("degrees"))
-    
-            elif d.units == _METRIC:
-                w["labelmotor_pitch"].set_text(_("Leadscrew Pitch"))
-                w["labelencoder_pitch"].set_text(_("Leadscrew Pitch"))
-                w["motor_screwunits"].set_text(_("(mm / rev)"))
-                w["encoder_screwunits"].set_text(_("(mm / rev)"))
-                w[axis + "velunits"].set_text(_("mm / min"))
-                w[axis + "accunits"].set_text(_("mm / sec²"))
-                w[axis + "homevelunits"].set_text(_("mm / min"))
-                w[axis + "homelatchvelunits"].set_text(_("mm / min"))
-                w[axis + "homefinalvelunits"].set_text(_("mm / min"))
-                if stepdriven:
-                    w[ "resolutionunits1"].set_text(_("mm / Step"))        
-                    w["scaleunits"].set_text(_("Steps / mm"))
-                else:
-                    w["resolutionunits1"].set_text(_("mm / encoder pulse"))          
-                    w["scaleunits"].set_text(_("Encoder pulses / mm"))
-               
-                w[axis + "minfollowunits"].set_text(_("mm"))
-                w[axis + "maxfollowunits"].set_text(_("mm"))
-               
-            else:
-                w["labelmotor_pitch"].set_text(_("Leadscrew TPI"))
-                w["labelencoder_pitch"].set_text(_("Leadscrew TPI"))
-                w["motor_screwunits"].set_text(_("(rev / inch)"))
-                w["encoder_screwunits"].set_text(_("(rev / inch)"))
-                w[axis + "velunits"].set_text(_("inches / min"))
-                w[axis + "accunits"].set_text(_("inches / sec²"))
-                w[axis + "homevelunits"].set_text(_("inches / min"))
-                w[axis + "homelatchvelunits"].set_text(_("inches / min"))
-                w[axis + "homefinalvelunits"].set_text(_("inches / min"))
-                w["accdistunits"].set_text(_("inches"))
-                if stepdriven:
-                    w[ "resolutionunits1"].set_text(_("inches / Step"))        
-                    w[ "scaleunits"].set_text(_("Steps / inch"))
-                else:
-                    w[ "resolutionunits1"].set_text(_("inches / encoder pulse"))        
-                    w["scaleunits"].set_text(_("Encoder pulses / inch"))
-               
-                w[axis + "minfollowunits"].set_text(_("inches"))
-                w[axis + "maxfollowunits"].set_text(_("inches"))
+
             thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
             homes = False
             for i in thisaxishome:
@@ -5570,8 +5554,8 @@ class App:
             w[axis + "compfilename"].set_sensitive(i)
             i = d[axis + "usebacklash"]
             w[axis + "backlash"].set_sensitive(i)
-            self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
-            self.motor_encoder_sanity_check(None,axis)
+        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+        self.motor_encoder_sanity_check(None,axis)
 
     def on_xusecomp_toggled(self, *args): self.comp_toggle('x')
     def on_yusecomp_toggled(self, *args): self.comp_toggle('y')
@@ -5904,8 +5888,7 @@ class App:
             else:
                 maxrpm = int(maxvps * 60 * (scale/(microstepfactor * motor_steps)))
             w["acctime"].set_text("%.4f" % acctime)
-            if not axis == 's':
-                w["accdist"].set_text("%.4f" % accdist)                 
+            w["accdist"].set_text("%.4f" % accdist)
             w["chartresolution"].set_text("%.7f" % (1.0 / scale))
             w["calscale"].set_text(str(scale))
             w["maxrpm"].set_text("%d" % maxrpm)
