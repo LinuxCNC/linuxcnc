@@ -467,6 +467,8 @@ const char *emc_symbol_lookup(long type)
 	return "EMC_ABORT";
     case EMC_INTERP_ABORT_TYPE:
 	return "EMC_INTERP_ABORT";
+    case EMC_EXEC_PLUGIN_CALL_TYPE:
+	return "EMC_EXEC_PLUGIN_CALL";
     case EMC_AUX_ESTOP_RESET_TYPE:
 	return "EMC_AUX_ESTOP_RESET";
     case EMC_AUX_ESTOP_OFF_TYPE:
@@ -1702,6 +1704,20 @@ void EMC_INTERP_ABORT::update(CMS * cms)
     cms->update(reason);
     cms->update(message,sizeof(message));
 }
+
+/*
+*	NML/CMS Update function for EMC_EXEC_PLUGIN_CALL
+*	Manually added by Michael Haberler
+*	on Wed Jun 29 20:00:36 CEST 2011
+*/
+void EMC_EXEC_PLUGIN_CALL::update(CMS * cms)
+{
+
+    EMC_CMD_MSG::update(cms);
+    cms->update(method,sizeof(method));
+    cms->update(args,sizeof(args));
+}
+
 
 /*
 *	NML/CMS Update function for EMC_TOOL_STAT_MSG

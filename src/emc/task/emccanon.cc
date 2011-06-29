@@ -3043,3 +3043,16 @@ void INTERP_ABORT(int reason, const char *message)
 		sizeof(interp_abort_msg.message));
     interp_list.append(interp_abort_msg);
 }
+
+void PLUGIN_CALL(const char *method, const char *args)
+{
+    EMC_EXEC_PLUGIN_CALL call_msg;
+    call_msg.method[0] = '\0';
+    call_msg.args[0] = '\0';
+
+    if (method) strncpy(call_msg.method, method, sizeof(call_msg.method));
+    if (args) strncpy(call_msg.args, args, sizeof(call_msg.args));
+    printf("canon: PLUGIN_CALL(%s,%s)\n",method,args);
+
+    interp_list.append(call_msg);
+}

@@ -2004,6 +2004,23 @@ class EMC_INTERP_ABORT: public EMC_CMD_MSG {
     int reason;
     char message[LINELEN];
 };
+/**
+ * Send a textual information message to the operator.
+ * This is similiar to EMC_OPERATOR_ERROR message except that the messages are
+ * sent in situations not necessarily considered to be errors.
+ */
+class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
+  public:
+    EMC_EXEC_PLUGIN_CALL():EMC_CMD_MSG(EMC_EXEC_PLUGIN_CALL_TYPE,
+				    sizeof(EMC_EXEC_PLUGIN_CALL)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    char method[LINELEN];
+    char args[LINELEN];
+};
 
 // EMC status base class
 

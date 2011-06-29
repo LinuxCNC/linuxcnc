@@ -1158,3 +1158,7 @@ void CANON_ERROR(const char *fmt, ...)
     }
 #endif
 }
+void PLUGIN_CALL(const char *method, const char *args)
+{
+    printf("PLUGIN_CALL(%s,%s)\n",method,args);
+}

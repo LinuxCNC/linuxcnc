@@ -1507,6 +1507,9 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_DONE;
 	break;
 
+    case EMC_EXEC_PLUGIN_CALL_TYPE:
+	return emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
+
     default:
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {

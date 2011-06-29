@@ -451,6 +451,12 @@ int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
 int LOCK_ROTARY(int line_no, int axis) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
 
+void PLUGIN_CALL(const char *method, const char *args)
+{
+    printf("gcode: PLUGIN_CALL(%s,%s)\n",method,args);
+}
+
+
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 
                     double a, double b, double c,

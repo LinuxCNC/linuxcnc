@@ -195,7 +195,7 @@ class PM_CARTESIAN;
 
 // a oword procedure handler failed (gcode toolchange)
 #define EMC_INTERP_ABORT_TYPE                       ((NMLTYPE) 1111)
-
+#define EMC_EXEC_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1112)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations

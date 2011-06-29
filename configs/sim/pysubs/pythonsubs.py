@@ -158,6 +158,11 @@ def square(args):
 	return args[0]*args[0]
 
 
+#----------------  exec-time plugin ----------
+def task(args):
+	print "python: issuing PLUGIN_CALL"
+	CanonMod.PLUGIN_CALL("demo","demo_args")
+
 #----------------  debugging fluff ----------
 
 # tool table access

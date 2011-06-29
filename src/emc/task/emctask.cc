@@ -648,3 +648,9 @@ int emcAbortCleanup(int reason, const char *message)
 	print_interp_error(status);
     return status;
 }
+
+int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
+{
+    printf("task: PLUGIN_CALL(%s,%s)\n",call_msg->method,call_msg->args);
+    return EMC_TASK_EXEC_DONE;
+}
