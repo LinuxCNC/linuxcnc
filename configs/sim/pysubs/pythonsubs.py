@@ -161,6 +161,9 @@ def square(args):
 
 #----------------  exec-time plugin support ----------
 
+# this function is called at execution time if a EMC_EXEC_PLUGIN_CALL
+# NML message is encountered
+# unwrap method name and arguments, and call the method
 def _plugin_call_(s):
     global _execute
     call = pickle.loads(s)
@@ -170,6 +173,8 @@ def _plugin_call_(s):
     else:
         raise AttributeError, "no such method: " + call[0]
 
+# support queuing calls to Python methods:
+# trap call, pickle name and arguments and enqueue with canon PLUGIN_CALL
 class EnqueueCall(object):
     def __init__(self,e):
         self.e = e
@@ -186,6 +191,8 @@ class EnqueueCall(object):
         self.name = name
         return self.__encode
 
+# methods in this class will be executed task-time if
+# queued like in the task example below
 class Execute(object):
 
     def demo(self,s):
