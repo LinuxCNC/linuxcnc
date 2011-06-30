@@ -1,6 +1,7 @@
 import sys
 # InterpMod, CanonMod are automatically imported
 from InterpMod import *
+import pickle
 
 
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
@@ -158,10 +159,47 @@ def square(args):
 	return args[0]*args[0]
 
 
-#----------------  exec-time plugin ----------
+#----------------  exec-time plugin support ----------
+
+def _plugin_call_(s):
+    global _execute
+    call = pickle.loads(s)
+    func = getattr(_execute, call[0], None)
+    if func:
+	    return func(*call[1],**call[2])
+    else:
+        raise AttributeError, "no such method: " + call[0]
+
+class EnqueueCall(object):
+    def __init__(self,e):
+        self.e = e
+
+    def __encode(self,*args,**kwargs):
+        if hasattr(self.e,self.name):# and callable(getattr(self.e,self.name)):
+            p = pickle.dumps(args)
+            k = pickle.dumps(kwargs)
+            CanonMod.PLUGIN_CALL(pickle.dumps((self.name,args,kwargs)))
+        else:
+            raise AttributeError,"no such method: " + self.name
+
+    def __getattr__(self, name):
+        self.name = name
+        return self.__encode
+
+class Execute(object):
+
+    def demo(self,s):
+	    print "demo(%s)" % s
+	    return 0 # return -1 to fail execution
+
+_execute = Execute()
+_callq = EnqueueCall(_execute)
+
+#----------------  queue a call for task-time execution ------------
+
 def task(args):
 	print "python: issuing PLUGIN_CALL"
-	CanonMod.PLUGIN_CALL("demo","demo_args")
+	_callq.demo(args)
 
 #----------------  debugging fluff ----------
 

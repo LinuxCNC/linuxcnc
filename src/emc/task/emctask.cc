@@ -649,8 +649,9 @@ int emcAbortCleanup(int reason, const char *message)
     return status;
 }
 
+
 int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 {
-    printf("task: PLUGIN_CALL(%s,%s)\n",call_msg->method,call_msg->args);
-    return EMC_TASK_EXEC_DONE;
+    // reuses interpreter Python environment for task
+    return interp.plugin_call("plugin_call",call_msg->call);
 }

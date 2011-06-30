@@ -451,9 +451,9 @@ int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
 int LOCK_ROTARY(int line_no, int axis) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
 
-void PLUGIN_CALL(const char *method, const char *args)
+void PLUGIN_CALL(const char *call)
 {
-    printf("gcode: PLUGIN_CALL(%s,%s)\n",method,args);
+    printf("gcode: PLUGIN_CALL(%s)\n",call);
 }
 
 

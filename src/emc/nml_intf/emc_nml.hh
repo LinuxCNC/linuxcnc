@@ -2004,10 +2004,8 @@ class EMC_INTERP_ABORT: public EMC_CMD_MSG {
     int reason;
     char message[LINELEN];
 };
-/**
- * Send a textual information message to the operator.
- * This is similiar to EMC_OPERATOR_ERROR message except that the messages are
- * sent in situations not necessarily considered to be errors.
+/** queue a call to a task-time Python plugin method
+ * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
  */
 class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
   public:
@@ -2018,8 +2016,7 @@ class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    char method[LINELEN];
-    char args[LINELEN];
+    char call[900]; // MAX_NML_COMMAND_SIZE-100;
 };
 
 // EMC status base class

@@ -535,7 +535,11 @@ public:
 	    const char *funcname,
 	    int calltype);
     int py_execute(const char *cmd); // for (py, ....) comments
+    int plugin_call(const char *name, const char *call);
+
     int py_reload_on_change(setup_pointer settings);
+
+
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 

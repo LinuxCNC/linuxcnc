@@ -1508,7 +1508,8 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_EXEC_PLUGIN_CALL_TYPE:
-	return emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
+	return EMC_TASK_EXEC_DONE;
+	break;
 
     default:
 	// unrecognized command
@@ -2226,6 +2227,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
+    case EMC_EXEC_PLUGIN_CALL_TYPE:
+	retval =  emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
+	break;
+
      default:
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
@@ -2338,6 +2343,10 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	break;
 
     case EMC_INTERP_ABORT_TYPE:
+	return EMC_TASK_EXEC_DONE;
+	break;
+
+    case EMC_EXEC_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 

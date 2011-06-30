@@ -429,7 +429,55 @@ int Interp::py_execute(const char *cmd)
     // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
     // if (msg.length())
     // 	MESSAGE((char *) msg.c_str());
+
     return INTERP_OK;
 }
 
 
+// we borrow the interp Python environment for task-time calls
+int Interp::plugin_call(const char *name, const char *call)
+{
+    std::string msg;
+    PyGILState_STATE gstate;
+    bool py_exception = false;
+
+    logPy("plugin_call(%s)",call);
+
+    if (_setup.py_reload_on_change)
+	py_reload_on_change(&_setup);
+
+    if (useGIL)
+	gstate = PyGILState_Ensure();
+
+    bp::object retval, function;
+
+    try {
+	bp::object args(call);
+	function = _setup.module_namespace[name];
+	retval = function(args);
+    }
+    catch (bp::error_already_set) {
+        if (PyErr_Occurred())  {
+	    py_exception = true;
+	    msg = handle_pyerror();
+	}
+	bp::handle_exception();
+	PyErr_Clear();
+    }
+    if (useGIL)
+	PyGILState_Release(gstate);
+
+    if (py_exception)
+	logPy("py_execute(%s):  %s", call, msg.c_str());
+
+
+    // must have returned an int
+    if ((retval.ptr() != Py_None) &&
+	(PyInt_Check(retval.ptr()))) {
+	return  bp::extract<int>(retval);
+    } else {
+	logPy("py_execute(%s):  expected an int return code", call);
+	// the EMC_TASK_EXEC_xxx codes are all > 0
+	return -1;
+    }
+}
