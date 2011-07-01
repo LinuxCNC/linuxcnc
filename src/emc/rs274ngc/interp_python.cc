@@ -337,17 +337,14 @@ int Interp::pycall(setup_pointer settings,
 		if (PyTuple_Check(retval.ptr())) {
 		    // this will raise a Python exception on type mismatch
 		    bp::tuple rtuple = bp::extract<bp::tuple>(retval);
-		    block->py_returned_status = bp::extract<int>(rtuple[0]);
+		    status = block->py_returned_status = bp::extract<int>(rtuple[0]);
 		    block->returned[RET_STATUS] = 1;
 		    block->py_returned_userdata = bp::extract<int>(rtuple[1]);
 		    block->returned[RET_USERDATA] = 1;
 		} else {
-		    block->py_returned_status = bp::extract<int>(retval);
+		    status = block->py_returned_status = bp::extract<int>(retval);
 		    block->returned[RET_STATUS] = 1;
 		}
-	    }
-	    if (block->returned[RET_STATUS]) {
-		status = block->py_returned_status;
 		goto done;
 	    }
 	    res_str = PyObject_Str(retval.ptr());
@@ -362,8 +359,21 @@ int Interp::pycall(setup_pointer settings,
 
 	case PY_INTERNAL:
 	    // a plain int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...) is expected
-	    ERM("PY_INTERNAL: not implemented yet");
-	    status = INTERP_ERROR;
+	    // must have returned an int
+	    if ((retval.ptr() != Py_None) &&
+		(PyInt_Check(retval.ptr()))) {
+		status = block->py_returned_status = bp::extract<int>(retval);
+		block->returned[RET_STATUS] = 1;
+	    } else {
+		logPy("pycall(%s):  PY_INTERNAL: expected an int return code", funcname);
+		res_str = PyObject_Str(retval.ptr());
+		Py_XDECREF(res_str);
+		ERM("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
+		    funcname,
+		    PyString_AsString(res_str),
+		    retval.ptr()->ob_type->tp_name);
+		status = INTERP_ERROR;
+	    }
 	    break;
 
 	default: ;
@@ -468,7 +478,7 @@ int Interp::plugin_call(const char *name, const char *call)
 	PyGILState_Release(gstate);
 
     if (py_exception)
-	logPy("py_execute(%s):  %s", call, msg.c_str());
+	logPy("plugin_call(%s):  %s", call, msg.c_str());
 
 
     // must have returned an int
@@ -476,8 +486,28 @@ int Interp::plugin_call(const char *name, const char *call)
 	(PyInt_Check(retval.ptr()))) {
 	return  bp::extract<int>(retval);
     } else {
-	logPy("py_execute(%s):  expected an int return code", call);
+	logPy("plugin_call(%s):  expected an int return code", call);
 	// the EMC_TASK_EXEC_xxx codes are all > 0
 	return -1;
     }
+}
+
+#define TASK_INIT "task_init"
+int Interp::task_init()
+{
+    int status;
+    block b;
+
+    logPy("task_init()");
+    init_block(&b);
+
+    if (is_pycallable(&_setup, TASK_INIT)) {
+	status = pycall(&_setup, &b, TASK_INIT, PY_INTERNAL);
+	if (status == INTERP_OK)
+	    return b.py_returned_status;
+	else
+	    return INTERP_ERROR;
+    } else
+	return INTERP_OK;
+
 }

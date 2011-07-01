@@ -88,7 +88,6 @@ static EmcPose _tool_offset;
 static bool _toolchanger_fault;
 static int  _toolchanger_reason;
 
-
 /************************************************************************/
 
 /* Canonical "Do it" functions

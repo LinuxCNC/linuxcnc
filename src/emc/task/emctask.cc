@@ -374,6 +374,11 @@ static void print_interp_error(int retval)
     }
 }
 
+int emcTaskOnce()
+{
+    return interp.task_init();  // let Interpreter know it's running under task
+}
+
 int emcTaskPlanInit()
 {
     interp.ini_load(EMC_INIFILE);

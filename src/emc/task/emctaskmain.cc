@@ -2894,6 +2894,8 @@ static int emctask_startup()
 	rcs_print_error("can't initialize interpreter\n");
 	return -1;
     }
+    // let her know she's running under task
+    emcTaskOnce();
 
     if (done) {
 	emctask_shutdown();

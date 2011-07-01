@@ -25,6 +25,7 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
+
 char _parameter_file_name[LINELEN];
 
 static PyObject *int_array(int *arr, int sz) {

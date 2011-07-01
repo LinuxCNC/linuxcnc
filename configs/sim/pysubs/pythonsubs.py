@@ -2,6 +2,21 @@ import sys
 # InterpMod, CanonMod are automatically imported
 from InterpMod import *
 import pickle
+import hal
+
+
+h = None
+
+# this is called by task once after startup
+def task_init():
+	global h
+	print "---- Python task_init()"
+	h = hal.component("taskhal")
+	h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+	h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+	h.newpin("bit", hal.HAL_BIT, hal.HAL_OUT)
+	h.ready()
+	return 1
 
 
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
@@ -174,15 +189,13 @@ def _plugin_call_(s):
         raise AttributeError, "no such method: " + call[0]
 
 # support queuing calls to Python methods:
-# trap call, pickle name and arguments and enqueue with canon PLUGIN_CALL
+# trap call, pickle a tuple of name and arguments and enqueue with canon PLUGIN_CALL
 class EnqueueCall(object):
     def __init__(self,e):
         self.e = e
 
     def __encode(self,*args,**kwargs):
         if hasattr(self.e,self.name):# and callable(getattr(self.e,self.name)):
-            p = pickle.dumps(args)
-            k = pickle.dumps(kwargs)
             CanonMod.PLUGIN_CALL(pickle.dumps((self.name,args,kwargs)))
         else:
             raise AttributeError,"no such method: " + self.name
@@ -196,7 +209,14 @@ class EnqueueCall(object):
 class Execute(object):
 
     def demo(self,s):
-	    print "demo(%s)" % s
+	    global h
+	    if h: # running under interp
+		    print "TASK: demo(%s)" % s
+		    for i in range(int(s[0])):
+			    h['bit'] = not  h['bit']
+	    else:
+		    print "NON-task: demo(%s)" % s
+
 	    return 0 # return -1 to fail execution
 
 _execute = Execute()

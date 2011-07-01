@@ -5,6 +5,7 @@ extern int stepping;
 extern int steppingWait;
 extern int emcTaskQueueCommand(NMLmsg *cmd);
 extern int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg);
+extern int emcTaskOnce();
 
 #endif
 

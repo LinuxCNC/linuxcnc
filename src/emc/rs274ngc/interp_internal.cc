@@ -25,6 +25,8 @@
 #include "interp_internal.hh"	// interpreter private definitions
 #include "rs274ngc_interp.hh"
 
+namespace bp = boost::python;
+
 /****************************************************************************/
 
 /*! close_and_downcase
@@ -256,7 +258,8 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->call_again = false;
   block->remappings.clear();
 
-  // FIXME mah unclear how to reset a boost::python::dict() object
+  block->tupleargs = bp::tuple();
+  block->kwargs = bp::dict();
 
   block->a_flag = false;
   block->b_flag = false;
