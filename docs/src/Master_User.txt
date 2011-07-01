@@ -31,6 +31,8 @@ include::common/User_Concepts.txt[]
 
 include::gui/axis.txt[]
 
+include::gui/ngcgui.txt[]
+
 include::gui/touchy.txt[]
 
 include::gui/tkemc.txt[]

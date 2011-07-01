@@ -32,6 +32,7 @@ DOC_SRCS := \
 	gui/keystick_fr.lyx \
 	gui/mini.lyx \
 	gui/mini_fr.lyx \
+	gui/ngcgui.lyx \
 	gui/tkemc.lyx \
 	gui/tkemc_fr.lyx \
 	gui/touchy.lyx \

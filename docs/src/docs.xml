@@ -24,6 +24,7 @@
 
 <doc name="gui_mini" title="MINI"/>
 <doc name="gui_axis" title="AXIS"/>
+<doc name="gui_ngcgui" title="NGCGUI"/>
 <doc name="gui_halui" title="halui"/>
 <doc name="gui_tkemc" title="TkEmc"/>
 <doc name="gui_touchy" title="Touchy"/>
