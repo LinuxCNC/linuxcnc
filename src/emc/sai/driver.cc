@@ -55,6 +55,7 @@ const char *history = "dothistory"; // FIXME -> homedir?
 #define interp_read	 interp_new.read
 #define interp_load_tool_table interp_new.load_tool_table
 #define interp_set_loglevel interp_new.set_loglevel
+#define interp_task_init interp_new.task_init
 
 /*
 
@@ -514,6 +515,7 @@ int main (int argc, char ** argv)
   int go_flag;
   char *inifile = NULL;
   int log_level = -1;
+  int do_task_init = 0;
 
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
@@ -524,7 +526,7 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
   while(1) {
-      int c = getopt(argc, argv, "t:v:bsn:gi:l:");
+      int c = getopt(argc, argv, "Tt:v:bsn:gi:l:");
       if(c == -1) break;
 
       switch(c) {
@@ -536,6 +538,7 @@ int main (int argc, char ** argv)
           case 'l': log_level = atoi(optarg); break;
           case 'g': go_flag = !go_flag; break;
           case 'i': inifile = optarg; break;
+          case 'T': do_task_init = 1; break;
           case '?': default: goto usage;
       }
   }
@@ -557,6 +560,7 @@ usage:
             "    -s: Toggle the 'print stack' flag (default: OFF)\n"
             "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
             "    -i: specify the .ini file (default: no ini file)\n"
+            "    -T: call task_init()\n"
             "    -l: specify the log_level (default: -1)\n"
             , argv[0]);
       exit(1);
@@ -627,6 +631,9 @@ usage:
 
   if (log_level != -1)
       interp_set_loglevel(log_level);
+
+  if (do_task_init)
+      status = interp_task_init();
 
   if (argc == 1)
     status = interpret_from_keyboard(block_delete, print_stack);
