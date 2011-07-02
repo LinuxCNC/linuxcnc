@@ -247,6 +247,7 @@ struct SettingsArray {
     }
 };
 static struct SettingsArray active_settings_array;
+extern int under_task;
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -255,6 +256,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope().attr("__doc__") =
         "Interpreter introspection\n"
         ;
+    scope().attr("under_task") = under_task;
 
     scope().attr("INTERP_OK") = INTERP_OK;
     scope().attr("INTERP_EXIT") = INTERP_EXIT;

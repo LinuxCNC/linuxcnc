@@ -20,6 +20,7 @@ MILLTASKSRCS := \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
 	emc/rs274ngc/tool_parse.cc \
+	emc/task/taskmodule.cc \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
@@ -27,7 +28,6 @@ USERSRCS += $(MILLTASKSRCS)
 
 ../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0
 
-#/usr/lib/libpython2.6.a /usr/lib/libssl.a /usr/lib/libcrypto.a /usr/lib/libz.a /usr/lib/libdl.a
 
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) $(LDFLAGS) -o $@ $^

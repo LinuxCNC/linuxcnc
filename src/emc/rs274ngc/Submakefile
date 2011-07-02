@@ -25,6 +25,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	canonmodule.cc \
 	interpmodule.cc \
 	configmodule.cc \
+	python_plugin.cc \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
@@ -72,6 +73,7 @@ PYSRCS += $(GCODEMODULESRCS)
 
 #/usr/bin/g++ -L/home/mah/emc2-tc/lib -Wl,-rpath,/home/mah/emc2-tc/lib -shared -o ../lib/python/gcode.so objects/emc/rs274ngc/gcodemodule.o ../lib/librs274.so.0 -lstdc++
 
+# ../lib/libemc.a ../lib/libnml.so.0
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking python module $(notdir $@)

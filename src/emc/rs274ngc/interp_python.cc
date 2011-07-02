@@ -47,6 +47,7 @@ static bool useGIL = false;     // not sure if this is needed
 
 extern "C" void initCanonMod();
 extern "C" void initInterpMod();
+extern "C" void initTaskMod();
 
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
@@ -103,6 +104,7 @@ std::string handle_pyerror()
 }
 
 static  char module_path[PATH_MAX];
+extern int under_task;
 
 int Interp::init_python(setup_pointer settings, bool reload)
 {
@@ -125,8 +127,12 @@ int Interp::init_python(setup_pointer settings, bool reload)
 
     PYCHK((settings->py_module == NULL), "init_python: no module defined");
 
-    strcpy(module_path, settings->py_path);
-    strcat(module_path,"/");
+    if (settings->py_path) {
+	strcpy(module_path, settings->py_path);
+	strcat(module_path,"/");
+    } else {
+	module_path[0] = '\0';
+    }
     strcat(module_path, settings->py_module);
     strcat(module_path,".py");
 
@@ -148,6 +154,8 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	Py_SetProgramName(module_path);
 	PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
 	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
+	if (under_task)
+	    PyImport_AppendInittab( (char *) "TaskMod", &initTaskMod);
 	Py_Initialize();
 	if (settings->py_path) {
 	    char pathcmd[PATH_MAX];

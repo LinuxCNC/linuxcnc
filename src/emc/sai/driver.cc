@@ -498,6 +498,7 @@ instructions are printed to stdout (with printf), the instructions get
 redirected and the user does not see them.
 
 */
+int under_task; // drive import of TaskMod
 
 int main (int argc, char ** argv)
 {
@@ -538,7 +539,7 @@ int main (int argc, char ** argv)
           case 'l': log_level = atoi(optarg); break;
           case 'g': go_flag = !go_flag; break;
           case 'i': inifile = optarg; break;
-          case 'T': do_task_init = 1; break;
+          case 'T': do_task_init = 1; under_task = 1; break;
           case '?': default: goto usage;
       }
   }

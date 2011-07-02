@@ -28,6 +28,10 @@
 
 char _parameter_file_name[LINELEN];
 
+extern "C" void initTaskMod();
+void initTaskMod() {}
+int under_task = 0; // drives import of TaskMod
+
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {

@@ -374,6 +374,7 @@ static void print_interp_error(int retval)
     }
 }
 
+int under_task = 1; // drives import of TaskMod
 int emcTaskOnce()
 {
     return interp.task_init();  // let Interpreter know it's running under task
