@@ -1,11 +1,16 @@
 import hal
 import CanonMod
 import InterpMod
-import pickle
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 h = None
 
 # this is called by task once after startup
+# task_init() is NOT called when running in the UI
 def task_init():
 	global h
 	h = hal.component("iocontrol-task")
@@ -29,12 +34,30 @@ def task_init():
 	h.ready()
 	return 1
 
-
-
 #----------------  exec-time plugin support ----------
 
+# methods in this class will be executed task-time if
+# queued like in the oword.task example
+class Execute(object):
+
+    def demo(self,s):
+	    global h
+	    if h:
+                print "TASK: demo(%s)" % s
+                for i in range(int(s[0])):
+                    h['bit'] = not  h['bit']
+            return 0
+            # return -1 to fail execution
+            #InterpMod.interp.set_errormsg("really bad")
+	    #return -1
+
+    def notify(self, s):
+        print "notify s=",s
+        return 0
+
+
 # this function is called at execution time if a EMC_EXEC_PLUGIN_CALL
-# NML message is encountered
+# NML message is encountered by task
 # unwrap method name and arguments, and call the method
 def plugin_call(s):
     global execute
@@ -52,8 +75,8 @@ class EnqueueCall(object):
         self._e = e
 
     def _encode(self,*args,**kwargs):
-        if hasattr(self._e,self._name):# and callable(getattr(self.e,self.name)):
-            CanonMod.PLUGIN_CALL(pickle.dumps((self._name,args,kwargs)))
+        if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
+            CanonMod.PLUGIN_CALL(pickle.dumps((self._name,args,kwargs),-1))
         else:
             raise AttributeError,"no such method: " + self._name
 
@@ -61,20 +84,8 @@ class EnqueueCall(object):
         self._name = name
         return self._encode
 
-# methods in this class will be executed task-time if
-# queued like in the oword.task example
-class Execute(object):
 
-    def demo(self,s):
-	    global h
-	    if h: # running under interp
-		    print "TASK: demo(%s)" % s
-		    for i in range(int(s[0])):
-			    h['bit'] = not  h['bit']
-            return 0
-            # return -1 to fail execution
-            #InterpMod.interp.set_errormsg("FoooooooO!!")
-	    #return -1
 
 execute = Execute()
 enqueue = EnqueueCall(execute)
+
