@@ -316,6 +316,8 @@ int Interp::store_named_param(setup_pointer settings,
 //
 // return INTERP_ERROR and propagate appropriate message if any errors so far
 // else return INTERP_OK
+//
+// handling '@' (positional params) is dealt with in the calling procedure
 
 int Interp::add_parameters(setup_pointer settings,
 			   block_pointer cblock,
@@ -325,7 +327,6 @@ int Interp::add_parameters(setup_pointer settings,
     block_pointer block;
     char missing[30],optional[30],required[30];
     char *m = missing;
-    // char *u = superfluous;
     char *o = optional;
     char *r = required;
     char msg[LINELEN], tail[LINELEN];
@@ -428,18 +429,6 @@ int Interp::add_parameters(setup_pointer settings,
 	s++;
     }
 
-    // // collect dead bodies
-    // s = superfluous;
-    // if (*s) {
-    // 	strcpy(tail," superfluous: ");
-    // }
-    // while (*s) {
-    // 	errored = true;
-    // 	char c  = toupper(*s);
-    // 	strncat(tail,&c,1);
-    // 	if (*(s+1)) strcat(tail,",");
-    // 	s++;
-    // }
     s = missing;
     if (*s) {
 	strcat(tail," missing: ");
