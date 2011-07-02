@@ -708,17 +708,16 @@ typedef struct setup_struct
     std::map<int, remap_pointer>  g_remapped,m_remapped;
     Remap remaps;
 
-    const char *py_module;
+    const char *py_module;   // top level module to import
+    const char *py_path;     // prepended to PYTHONPATH
+
     int py_module_stat;
-    time_t    module_mtime;   /* time of last modification */
     int py_reload_on_change;
-    boost::python::object module, module_namespace;
+    time_t    module_mtime;   // top level module - last modification time
+    boost::python::object module_namespace;
 
 }
 setup;
-
-
-
 enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
 
 typedef setup *setup_pointer;

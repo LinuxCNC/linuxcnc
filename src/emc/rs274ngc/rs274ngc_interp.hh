@@ -520,7 +520,11 @@ public:
 			      int number = -1);
 
     int init_python(setup_pointer settings, bool reload = false);
-    bool is_pycallable(setup_pointer settings, const char *funcname);
+
+#define OWORD_MODULE "oword"
+#define REMAP_MODULE "remap"
+#define TASK_MODULE  "task"
+    bool is_pycallable(setup_pointer settings, const char *module, const char *funcname);
 
     // describes intented use, and hence parameter and return value
     // interpretation
@@ -528,17 +532,26 @@ public:
 		       PY_PROLOG,
 		       PY_REMAP,
 		       PY_EPILOG,
-		       PY_INTERNAL
+		       PY_INTERNAL,
+		       PY_EXECUTE,
+		       PY_PLUGIN_CALL
     };
- int pycall(setup_pointer settings,
-	    block_pointer block,
-	    const char *funcname,
-	    int calltype);
+    int pycall(setup_pointer settings,
+	       block_pointer block,
+	       const char *module,
+	       const char *funcname,
+	       int calltype);
     int py_execute(const char *cmd); // for (py, ....) comments
-    int plugin_call(const char *name, const char *call);
+#define PLUGINCALL "plugin_call"
+    int plugin_call(const char *module, const char *name, const char *call);
 
     int py_reload_on_change(setup_pointer settings);
+
+    // this method is called by task once after startup to let the
+    // interpreter know it's the one running under task
     int task_init();
+    // name of corresponding Python callabled called by task_init()
+#define TASK_INIT "task_init"
 
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);

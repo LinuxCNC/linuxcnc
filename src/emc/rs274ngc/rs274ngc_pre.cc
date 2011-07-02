@@ -858,6 +858,11 @@ int Interp::init()
 	  else
 	      _setup.py_reload_on_change = false;
 
+	  if (NULL != (inistring = inifile.Find("PYTHONPATH", "RS274NGC")))
+	      _setup.py_path = strdup(inistring);
+	  else
+	      _setup.py_path = NULL;
+
           if (NULL != (inistring = inifile.Find("PYMODULE", "RS274NGC"))) {
 	      _setup.py_module = strdup(inistring);
 	      int status;

@@ -291,7 +291,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		errored = true;
 		continue;
 	    }
-	    if (!is_pycallable(&_setup,arg)) {
+	    if (!is_pycallable(&_setup, REMAP_MODULE, arg)) {
 		Error("'%s' is not a Python callable function - %d:REMAP = %s",
 		      arg,lineno,inistring);
 		errored = true;
