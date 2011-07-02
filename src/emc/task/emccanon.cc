@@ -3044,12 +3044,17 @@ void INTERP_ABORT(int reason, const char *message)
     interp_list.append(interp_abort_msg);
 }
 
+/* PLUGIN_CALL queues a Python tuple for execution by task
+ * the tuple is expected to be already pickled
+ * The tuple format is: (callable,tupleargs,keywordargs)
+ */
 void PLUGIN_CALL(const char *call)
 {
     EMC_EXEC_PLUGIN_CALL call_msg;
     call_msg.call[0] = '\0';
-    if (call) strncpy(call_msg.call, call, sizeof(call_msg.call));
-    printf("canon: PLUGIN_CALL(%s)\n",call);
-
+    if (call) {
+	strncpy(call_msg.call, call, sizeof(call_msg.call));
+	printf("canon: PLUGIN_CALL(arglen=%d)\n",strlen(call));
+    }
     interp_list.append(call_msg);
 }
