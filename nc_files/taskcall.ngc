@@ -1,3 +1,4 @@
 ; test plugin call
-o<task> call [1] [2]
+o<qdemo> call [100000] [2]
 m2
+

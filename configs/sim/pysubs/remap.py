@@ -1,14 +1,3 @@
-import sys
-# InterpMod, CanonMod are automatically imported
-from InterpMod import *
-
-sys.path.append("/home/mah/emc2-tc/configs/sim/pysubs")
-#import hal
-import task
-import oword
-import remap
-import pickle
-
 
 #
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
@@ -157,69 +146,6 @@ def test_reschedule(userdata,**words):
 		return (INTERP_EXECUTE_FINISH,userdata + 1)
 
 
-# Demo Python O-word subroutine - call as:
-# o<square> [5]
-# (debug, #<_value>)
-#
-# len(args) reflects the number of actual parameters passed
-def square(args):
-	return args[0]*args[0]
-
-
-#----------------  exec-time plugin support ----------
-
-# this function is called at execution time if a EMC_EXEC_PLUGIN_CALL
-# NML message is encountered
-# unwrap method name and arguments, and call the method
-def _plugin_call_(s):
-    global _execute
-    call = pickle.loads(s)
-    func = getattr(_execute, call[0], None)
-    if func:
-	    return func(*call[1],**call[2])
-    else:
-        raise AttributeError, "no such method: " + call[0]
-
-# support queuing calls to Python methods:
-# trap call, pickle a tuple of name and arguments and enqueue with canon PLUGIN_CALL
-class EnqueueCall(object):
-    def __init__(self,e):
-        self.e = e
-
-    def __encode(self,*args,**kwargs):
-        if hasattr(self.e,self.name):# and callable(getattr(self.e,self.name)):
-            CanonMod.PLUGIN_CALL(pickle.dumps((self.name,args,kwargs)))
-        else:
-            raise AttributeError,"no such method: " + self.name
-
-    def __getattr__(self, name):
-        self.name = name
-        return self.__encode
-
-# methods in this class will be executed task-time if
-# queued like in the task example below
-class Execute(object):
-
-    def demo(self,s):
-	    global h
-	    if h: # running under interp
-		    print "TASK: demo(%s)" % s
-		    for i in range(int(s[0])):
-			    h['bit'] = not  h['bit']
-	    else:
-		    print "NON-task: demo(%s)" % s
-
-	    return 0 # return -1 to fail execution
-
-_execute = Execute()
-_callq = EnqueueCall(_execute)
-
-#----------------  queue a call for task-time execution ------------
-
-def task(args):
-	print "python: issuing PLUGIN_CALL"
-	_callq.demo(args)
-
 #----------------  debugging fluff ----------
 
 # tool table access
@@ -232,7 +158,6 @@ def print_tool(userdata, **words):
 	print "tool offset x:", interp.tool_table[n].offset.tran.x
 	print "tool offset y:", interp.tool_table[n].offset.tran.y
 	print "tool offset z:", interp.tool_table[n].offset.tran.z
-
 	return INTERP_OK
 
 def set_tool_zoffset(userdata, **words):
@@ -290,4 +215,3 @@ def callstack():
 		print "subname=",interp.sub_context[i].subname
 		print "context_status=",interp.sub_context[i].context_status
 	return INTERP_OK
-
