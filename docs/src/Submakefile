@@ -119,6 +119,8 @@ DOC_SRCS := \
 	gui/keystick_fr.txt \
 	gui/mini.txt \
 	gui/mini_fr.txt \
+	gui/ngcgui.txt \
+	gui/ngcgui_fr.txt \
 	gui/tkemc.txt \
 	gui/tkemc_fr.txt \
 	gui/touchy.txt \

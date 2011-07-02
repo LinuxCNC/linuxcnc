@@ -397,7 +397,7 @@ limit = [_("X Minimum Limit"), _("Y Minimum Limit"), _("Z Minimum Limit"), _("A 
 home = [_("X Home"), _("Y Home"), _("Z Home"), _("A Home"),_("All Home") ]
 home_limits_shared = [ _("X Minimum Limit + Home"), _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"), _("A Minimum Limit + Home"),
     _("X Maximum Limit + Home"), _("Y Maximum Limit + Home"), _("Z Maximum Limit + Home"), _("A Maximum Limit + Home"),
-    _("X Both Limit + Home"), _("Y Both Limit + Home"), _("Y Both Limit + Home"), _("A Both Limit + Home") ]
+    _("X Both Limit + Home"), _("Y Both Limit + Home"), _("Z Both Limit + Home"), _("A Both Limit + Home") ]
 digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3") ]
 axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
 override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
