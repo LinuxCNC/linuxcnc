@@ -172,8 +172,7 @@ permitted to jog outside the limits defined in the .ini file. (Note: if
 “Override Limits” is active the button will be displayed using a red
 color).
 
-. TkEMC Override Limits & Jogging increments example
-[[cap:Override-Limits]]
+.TkEMC Override Limits & Jogging increments example[[cap:Override-Limits]]
 
 image::tkemc_override_limits.png[]
 
@@ -266,4 +265,5 @@ The most frequently used keyboard shortcuts are shown in Table
 |[, ] | Jog fourth axis
 |ESC | Stop execution
 |========================================
+
 

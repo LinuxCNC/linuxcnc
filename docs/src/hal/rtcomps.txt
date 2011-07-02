@@ -11,7 +11,9 @@ the man page for more options. See section <<Halmeter>>.
     loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
     
 .Halmeter
+
 image::images/hal-meter01.png[]
+
 image::images/hal-meter02.png[]
 
 == Stepgen[[sec:Stepgen]](((stepgen)))
@@ -95,11 +97,9 @@ on the step type and control type selected.
 === Parameters
 
  -  `(float) stepgen.<chan>.position-scale`  -- Steps per position unit.
-   This parameter is used for both output
-   and feedback.
+   This parameter is used for both output and feedback.
  -  `(float) stepgen.<chan>.maxvel`  -- Maximum velocity, in position
-   units per second. If 0.0, has no
-   effect.
+   units per second. If 0.0, has no effect.
  -  `(float) stepgen.<chan>.maxaccel` -- Maximum accel/decel rate, in
    positions units per second squared.
    If 0.0, has no effect.
@@ -180,12 +180,15 @@ and as in the other modes, `maxfreq` will be lowered if it is above the
 limit.
 
 .Two-and-Three-Phase Step Types[[fig:Two-and-Three-Phase]]
+
 image::stepgen-type2-4.eps[]
 
 .Four-Phase Step Types[[fig:Four-Phase]]
+
 image::stepgen-type5-10.eps[]
 
 .Five-Phase Step Types[[fig:Five-Phase]]
+
 image::stepgen-type11-14.eps[]
 
 === Functions
@@ -222,7 +225,7 @@ perhaps 10KHz with limited resolution.
 
     emc2$ halcmd loadrt pwmgen output_type=<config-array>
 
-`<config-array>`  is a series of comma separated decimal integers.
+`<config-array>` is a series of comma separated decimal integers.
 Each number causes a
 single PWM generator to be loaded, the value of the number determines
 the output type. For example:
@@ -248,43 +251,43 @@ number 0.
 
 Each PWM generator will have the following pins:
 
- -  `(float) pwmgen.<chan>.value` -- Command value, in arbitrary units.
+ - `(float) pwmgen.<chan>.value` -- Command value, in arbitrary units.
    Will be scaled by the `scale` parameter (see below).
- -  `(bit) pwmgen.<chan>.enable` -- Enables or disables the PWM
+ - `(bit) pwmgen.<chan>.enable` -- Enables or disables the PWM
    generator outputs.
 
 Each PWM generator will also have some of these pins, depending on the
 output type selected:
 
- -  `(bit) pwmgen.<chan>.pwm` -- PWM (or PDM) output, (output types 0
+ - `(bit) pwmgen.<chan>.pwm` -- PWM (or PDM) output, (output types 0
    and 1 only).
  - `(bit) pwmgen.<chan>.dir` -- Direction output (output type 1 only).
- -  `(bit) pwmgen.<chan>.up` -- PWM/PDM output for positive input value
+ - `(bit) pwmgen.<chan>.up` -- PWM/PDM output for positive input value
    (output type 2 only).
- -  `(bit) pwmgen.<chan>.down` -- PWM/PDM output for negative input
+ - `(bit) pwmgen.<chan>.down` -- PWM/PDM output for negative input
    value (output type 2 only).
 
 === Parameters
 
- -  `(float) pwmgen.<chan>.scale` -- Scaling factor to convert `value`
+ - `(float) pwmgen.<chan>.scale` -- Scaling factor to convert `value`
    from arbitrary units to duty cycle.
- -  `(float) pwmgen.<chan>.pwm-freq`  -- Desired PWM frequency, in Hz.
+ - `(float) pwmgen.<chan>.pwm-freq`  -- Desired PWM frequency, in Hz.
    If 0.0, generates PDM instead of
     PWM. If set higher than internal limits, next call of `update_freq()`
    will set it to the internal limit. If non-zero, and `dither` is false,
    next call of `update_freq()` will set it to the nearest integer
    multiple of the `make_pulses()` function period.
- -  `(bit) pwmgen.<chan>.dither-pwm`  -- If true, enables dithering to
+ - `(bit) pwmgen.<chan>.dither-pwm`  -- If true, enables dithering to
    achieve average PWM frequencies or
    duty cycles that are unobtainable with pure PWM. If false, both the PWM
    frequency and the duty cycle will be rounded to values that can be
    achieved exactly.
- -  `(float) pwmgen.<chan>.min-dc`  -- Minimum duty cycle, between 0.0
+ - `(float) pwmgen.<chan>.min-dc`  -- Minimum duty cycle, between 0.0
    and 1.0 (duty cycle will go to
    zero when disabled, regardless of this setting).
- -  `(float) pwmgen.<chan>.max-dc` -- Maximum duty cycle, between 0.0
+ - `(float) pwmgen.<chan>.max-dc` -- Maximum duty cycle, between 0.0
    and 1.0.
- -  `(float) pwmgen.<chan>.curr-dc` -- Current duty cycle - after all
+ - `(float) pwmgen.<chan>.curr-dc` -- Current duty cycle - after all
    limiting and rounding (read only).
 
 === Output Types
@@ -308,19 +311,16 @@ The component exports two functions. Each function acts on all of the
 PWM generators - running different generators in different threads is
 not supported.
 
- -  `(funct) pwmgen.make-pulses` -- High speed function to generate PWM
+ - `(funct) pwmgen.make-pulses` -- High speed function to generate PWM
    waveforms (no floating point).
- -  `(funct) pwmgen.update`  -- Low speed function to scale and limit
-   value and handle other
-   paremeters.
+ - `(funct) pwmgen.update`  -- Low speed function to scale and limit
+   value and handle other parameters.
 
 The high speed function `pwmgen.make-pulses`  should be run in a very
 fast thread, from 10 to 50 us depending on the
 capabilities of the computer. That thread's period determines the
 maximum PWM carrier frequency, as well as the resolution of the PWM or
 PDM signals. The other function can be called at a much lower rate.
-
-
 
 == Encoder[[sec:Encoder]](((encoder)))
 
@@ -331,6 +331,7 @@ perhaps up to 50kHz. Figure <<fig:Encoder-Block-Diag>> is a block
 diagram of one channel of encoder counter. 
 
 .Encoder Counter Block Diagram[[fig:Encoder-Block-Diag]]
+
 image::encoder-block-diag.eps[]
 
 === Installing
@@ -380,26 +381,22 @@ of a specific counter. The first counter is number 0.
    this parameter too
    low will cause it to take a long time for velocity to go to 0 after
    encoder pulses have stopped arriving.
- - `encoder.<chan>.phase-A` (bit, In) -- Phase A of the quadrature
-   encoder signal.
- - `encoder.<chan>.phase-B` (bit, In) -- Phase B of the quadrature
-   encoder signal.
- - `encoder.<chan>.phase-Z` (bit, In) -- Phase Z (index pulse) of the
-   quadrature encoder signal.
- - `encoder.<chan>.position` (float, Out) -- Position in scaled units
-   (see `position-scale`).
- - `encoder.<chan>.position-interpolated`  (float, Out) -- Position in
+ - `encoder.<chan>.phase-A` (bit, In) -- Phase A of the quadrature encoder signal.
+ - `encoder.<chan>.phase-B` (bit, In) -- Phase B of the quadrature encoder signal.
+ - `encoder.<chan>.phase-Z` (bit, In) -- Phase Z (index pulse) of the quadrature encoder signal.
+ - `encoder.<chan>.position` (float, Out) -- Position in scaled units (see `position-scale`).
+ - `encoder.<chan>.position-interpolated` (float, Out) -- Position in
    scaled units, interpolated between
-   encoder counts. The `position-interpolated`  attempts to interpolate
+   encoder counts. The `position-interpolated` attempts to interpolate
    between encoder counts, based on the most
    recently measured velocity. Only valid when velocity is approximately
-   constant and above `min-speed-estimate` . Do not be used for position
+   constant and above `min-speed-estimate`. Do not use for position
    control, since its value is incorrect at
    low speeds, during direction reversals, and during speed changes.
    However, it allows a low ppr encoder (including a one pulse per
    revolution "encoder") to be used for lathe threading, and may have
    other uses as well.
- - `encoder.<chan>.position-latched (float, Out)` -- `Not used at this time.`
+ - `encoder.<chan>.position-latched (float, Out)` -- Not used at this time.
  - `encoder.<chan>.position-scale (float, I/O)`  -- Scale factor, in
    counts per length unit. For example, if
    position-scale is 500, then 1000 counts of the encoder will be reported
@@ -450,6 +447,7 @@ torch height, temperature, etc. Figure  <<fig:PID-block-diag>> is a
 block diagram of a single PID loop.
 
 .PID Loop Block Diagram[[fig:PID-block-diag]]
+
 image::pid-block-diag.eps[]
 
 === Installing
@@ -480,11 +478,9 @@ The three most important pins are
  - `(float) pid.<loopnum>.command` -- The desired position, as
    commanded by another system component.
  - `(float) pid.<loopnum>.feedback`  -- The present position, as
-   measured by a feedback device such as an
-   encoder.
+   measured by a feedback device such as an encoder.
  - `(float) pid.<loopnum>.output`  -- A velocity command that attempts
-   to move from the present position
-   to the desired position. 
+   to move from the present position to the desired position. 
 
 For a position loop, 'command' and 'feedback' are in position units.
 For a linear axis, this could be inches, mm, meters, or whatever is
@@ -536,7 +532,7 @@ implemented as parameters.
  - `(float) pid.<loopnum>.maxcmdDD` -- Limit on command 2nd derivative 
  - `(float) pid.<loopnum>.maxoutput` -- Limit on output value
 
-All of the `max???`  limits are implemented such that if the parameter
+All of the `max???` limits are implemented such that if the parameter
 value is zero, there is no limit.
 
 If `debug=1` was specified when the component was installed, four
@@ -612,8 +608,6 @@ simulated encoders.
    generate quadrature pulses (no floating point).
  - `(funct) sim-encoder.update-speed` -- Low speed function to read
    `speed`, do scaling, and set up `make-pulses`.
-
-
 
 == Debounce[[sec:Debounce]](((debounce)))
 
@@ -715,11 +709,11 @@ All five outputs have the same frequency, amplitude, and offset.
 
 In addition to the output pins, there are three control pins:
 
- -  `(float) siggen.<chan>.frequency` -- Sets the frequency in Hertz,
+ - `(float) siggen.<chan>.frequency` -- Sets the frequency in Hertz,
    default value is 1 Hz.
- -  `(float) siggen.<chan>.amplitude` -- Sets the peak amplitude of the
+ - `(float) siggen.<chan>.amplitude` -- Sets the peak amplitude of the
    output waveforms, default is 1.
- -  `(float) siggen.<chan>.offset` -- Sets DC offset of the output
+ - `(float) siggen.<chan>.offset` -- Sets DC offset of the output
    waveforms, default is 0.
 
 For example, if `siggen.0.amplitude` is 1.0 and `siggen.0.offset` is

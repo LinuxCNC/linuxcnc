@@ -1,6 +1,6 @@
 = Informations générales
 
-== [[sec:GR-Notation]]Notation
+== Notation[[sec:GR-Notation]]
 
 === Conventions typographiques
 
@@ -41,7 +41,7 @@ De temps en temps, une version abrégée du nom peut être utilisée, par
 exemple la deuxième pin ci-dessus pourrait être appelée simplement
 `avec .output` quand cela peut être fait sans prêter à confusion.
 
-== [[sec:GR-Conventions-nommage]]Conventions générales de nommage
+== Conventions générales de nommage[[sec:GR-Conventions-nommage]]
 
 Le but des conventions de nommage est de rendre l'utilisation de HAL
 plus facile. Par exemple, si plusieurs interfaces de codeur fournissent
@@ -177,6 +177,8 @@ HAL, l'autre qui écrit sur le matériel en utilisant les données
 fournies sur les pins HAL. Ce qui devrait être nommé de la façon
 suivante:
 
+     *`<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write`*
+
 <device-name>::
      Le même que celui utilisé pour les pins et les paramètres.
 
@@ -219,7 +221,13 @@ ppmc.0.write::
       -- écrit toutes les sorties (générateur de pas, pwm, DAC et ADC) sur
     la première carte ppmc.
 
-= [[cha:Priphriques-canoniques]]Périphériques d'interfaces canoniques
+= Périphériques d'interfaces canoniques[[cha:Priphriques-canoniques]]
+
+.Note
+*********************************************************************
+En version 2.1, les pilotes HAL devrait avoir tous été mis à jour
+correspondent à ces spécifications. Envoyer un e-mail si vous repérez tous les problèmes.
+*********************************************************************
 
 Les sections qui suivent expliquent les pins, paramètres et functions
 qui sont fournies par les «périphériques canoniques». Tous les pilotes
@@ -231,7 +239,7 @@ définis pour un périphérique canonique. Les champs `<device-name>`,
 `<device-num>` et `<chan-num>` sont définis en fonction des
 caractéristiques du périphérique réel.
 
-== [[sec:CanonDigIn]]Entrée numérique (Digital Input)
+== Entrée numérique (Digital Input)[[sec:CanonDigIn]]
 
 L'entrée numérique canonique (I/O type: `digin`) est assez simple.
 
@@ -248,7 +256,7 @@ L'entrée numérique canonique (I/O type: `digin`) est assez simple.
 
  - (funct) `read` -- lire le matériel et ajuster les HAL pins `in` et `in-not`.
 
-== [[sec:CanonDigOut]]Sortie numérique (Digital Output)
+== Sortie numérique (Digital Output)[[sec:CanonDigOut]]
 
 La sortie numérique canonique est également très simple (I/O type: `digout`).
 
@@ -341,7 +349,7 @@ alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
 enable est faux, la sortie passe
 à 0.
 
-== [[sec:CanonEncoder]]Codeur
+== Codeur[[sec:CanonEncoder]]
 
 L'interface de codeur canonique (I/O type: `encoder`) fournit les 
 fonctionnalités nécessaires pour une prise d'origine 
@@ -360,7 +368,7 @@ de fluctuation sur la pin de vitesse).
  - (float) `velocity` -- Vitesse en unités de longueur par seconde.
  - (bit) `reset` -- Quand il est vrai, force le compteur à zéro.
  - (bit) `index-enable` -- (bidirectionnel) Quand il est vrai, remise à
-  zéro à la prochaine impulsion d'index et passe les pins sur faux.
+   zéro à la prochaine impulsion d'index et passe les pins sur faux.
 
 La pin «index-enable» est bi-directionnelle, elle exige un peu plus
 d'explications. Si «index-enable» est faux, le canal d'index du codeur
@@ -413,6 +421,6 @@ le pilote le repasse sur faux quand la requête à été satisfaite.
 Il n'y a qu'une fonction pour lire les codeurs.
 
  - `(funct)` `read` -- Capture le comptage (counts) et mets à jour la
-   position et la
-   vitesse.
+   position et la vitesse.
+
 

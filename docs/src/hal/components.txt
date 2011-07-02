@@ -1,6 +1,6 @@
-= HAL Components [[cha:HAL-Components]]
+= HAL Components[[cha:HAL-Components]]
 
-== Commands and Userspace Components [[sec:Commands-and-Userspace-Components]]
+== Commands and Userspace Components[[sec:Commands-and-Userspace-Components]]
 
 All of the commands in the following list have man pages. 
 Some will have expanded descriptions, some will have limited descriptions. 
@@ -29,7 +29,7 @@ To view the information in the man page, in a terminal window type:
 *pyvcp* = Virtual Control Panel for EMC2. +
 *shuttlexpress* = control HAL pins with the ShuttleXpress device made by Contour Design. +
 
-== Realtime Components [[sec:Realtime-Components]]
+== Realtime Components[[sec:Realtime-Components]]
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
@@ -598,6 +598,5 @@ skeleton.3hal +
 skeleton.3rtapi +
 undocumented.3hal +
 undocumented.3rtapi +
-
 
 

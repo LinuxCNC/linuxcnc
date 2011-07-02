@@ -434,7 +434,7 @@ In this example we will use the "velocity" control type of stepgen.
 The first command loads two step generators, both configured to
 generate stepping type 0. The second command loads our old friend
 siggen, and the third one creates two threads, a fast one with a period
-of 50 micro-seconds and a slow one with a period of 1 millisecond. The fast
+of 50 microseconds and a slow one with a period of 1 millisecond. The fast
 thread doesn't support floating point functions.
 
 As before, we can use `halcmd show` to take a look at the HAL. This
@@ -887,7 +887,7 @@ click run mode "Normal" to start the scope, and adjust the horizontal
 zoom to 5 ms per division. You should see the step pulses slow down as
 the velocity command (channel 1) approaches zero, then the direction
 pin changes state and the step pulses speed up again. You might want to
-increase the gain on channel 1 to about 20m per division to better see
+increase the gain on channel 1 to about 20 milli per division to better see
 the change in the velocity command. The result should look like 
 figure <<cap:Step-Pulses>>.
 

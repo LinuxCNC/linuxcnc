@@ -1,11 +1,20 @@
-= [[cha:Composants-internes]]Composants internes
+== Halmeter(((halmeter)))
 
-La plupart des composants ont leurs pages de manuel, style *nix. Pour
-afficher ces “man pages” pour les composants temps réel, taper dans un
-terminal “man 9 'nomducomposant'”.
+Halmeter peut être chargé à partir d'un terminal ou d'Axis. Halmeter est
+plus rapide que l'affichage de valeurs au Halshow. Halmeter a deux fenêtres, une
+pour ramasser la broche, le signal, ou un paramètre à surveiller et celle qui affiche
+la valeur. Halmeters multiples peuvent être ouverts en même temps. Si vous utilisez
+un script pour ouvrir Halmeters multiples, vous pouvez définir la position de chaque
+l'un avec-g par rapport au coin supérieur gauche de votre écran XY. Voir
+la page de manuel pour plus d'options. Voir la section <<Halmeter>>.
 
-Le présent document se concentre sur les composants les plus complexes
-qui demandent des figures difficiles à reproduire dans une man page.
+    loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
+    
+.Halmeter
+
+image::images/hal-meter01.png[]
+
+image::images/hal-meter02.png[]
 
 == Stepgen[[sec:Stepgen]](((stepgen)))
 
@@ -29,17 +38,15 @@ pas, se réglent indépendamment et n'importe quelle combinaison peut
 
 image::stepgen-block-diag.eps[]
 
-. [[fig:Diagramme-bloc-stepgen]]Diagramme bloc du générateur de pas (en
-mode position)
+.Diagramme bloc du générateur de pas (en mode position)[[fig:Diagramme-bloc-stepgen]]
 
 image::freqgen-block-diag.eps[]
 
-. [[fig:Diagramme-bloc-freqgen]]Diagramme bloc du générateur de pas (en
-mode vitesse)
+.Diagramme bloc du générateur de pas (en mode vitesse)[[fig:Diagramme-bloc-freqgen]]
 
 === L'installer
 
-    emc2$ 
+     emc2$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
 
 `<type-array>` est une série d'entiers décimaux séparés par des
 virgules. Chaque
@@ -51,7 +58,7 @@ vitesse. `ctrl_type` est optionnel, si il est omis, tous les
 générateurs de pas seront en
 mode position. Par exemple, la commande:
 
-    emc2# 
+    emc2$ halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
 
 va installer trois générateurs de pas. Les deux premiers utilisent le
 type de pas '0' (pas et direction) et fonctionnent en mode position. Le
@@ -67,7 +74,7 @@ générateurs commence à 0.
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt stepgen
 
 === Pins
 
@@ -82,24 +89,15 @@ pins, selon le type de pas et le mode de contrôle sélectionné.
    unités de comptage, actualisée par la fonction `capture_position()`.
  - `(float) stepgen.<chan>.position-fb` -- Rétroaction de la position
    en unités de longueur, actualisée par la fonction `capture_position()`.
- - `(bit) stepgen.<chan>.step` -- Sortie des impulsions de pas (type de
-   pas 0 seulement).
- - `(bit) stepgen.<chan>.dir` -- Sortie direction (type de pas 0
-   seulement).
- - `(bit) stepgen.<chan>.up` -- Sortie UP en pseudo-PWM (type de pas 1
-   seulement).
- - `(bit) stepgen.<chan>.down` -- Sortie DOWN en pseudo-PWM (type de
-   pas 1 seulement).
- - `(bit) stepgen.<chan>.phase-A` -- Sortie phase A (séquences de pas 2
-   à 14 seulement).
- - `(bit) stepgen.<chan>.phase-B` -- Sortie phase B (séquences de pas 2
-   à 14 seulement).
- - `(bit) stepgen.<chan>.phase-C` -- Sortie phase C (séquences de pas 3
-   à 14 seulement).
- - `(bit) stepgen.<chan>.phase-D` -- Sortie phase D (séquences de pas 5
-   à 14 seulement).
- - `(bit) stepgen.<chan>.phase-E` -- Sortie phase E (séquences de pas
-   11 à 14 seulement).
+ - `(bit) stepgen.<chan>.step` -- Sortie des impulsions de pas (type de pas 0 seulement).
+ - `(bit) stepgen.<chan>.dir` -- Sortie direction (type de pas 0 seulement).
+ - `(bit) stepgen.<chan>.up` -- Sortie UP en pseudo-PWM (type de pas 1 seulement).
+ - `(bit) stepgen.<chan>.down` -- Sortie DOWN en pseudo-PWM (type de pas 1 seulement).
+ - `(bit) stepgen.<chan>.phase-A` -- Sortie phase A (séquences de pas 2 à 14 seulement).
+ - `(bit) stepgen.<chan>.phase-B` -- Sortie phase B (séquences de pas 2 à 14 seulement).
+ - `(bit) stepgen.<chan>.phase-C` -- Sortie phase C (séquences de pas 3 à 14 seulement).
+ - `(bit) stepgen.<chan>.phase-D` -- Sortie phase D (séquences de pas 5 à 14 seulement).
+ - `(bit) stepgen.<chan>.phase-E` -- Sortie phase E (séquences de pas 11 à 14 seulement).
 
 === Paramètres
 
@@ -110,8 +108,7 @@ pins, selon le type de pas et le mode de contrôle sélectionné.
  - `(float) stepgen.<chan>.maxaccel` -- Valeur maximale
    d'accélération, en unités de longueur par seconde
    au carré. Si égal à 0.0, n'a aucun effet.
- - `(float) stepgen.<chan>.frequency` -- Fréquence des pas, en pas par
-   seconde.
+ - `(float) stepgen.<chan>.frequency` -- Fréquence des pas, en pas par seconde.
  - `(float) stepgen.<chan>.steplen` -- Durée de l'impulsion de pas
    (types de pas 0 et 1) ou durée minimum
    dans un état donné (séquences de pas 2 à 14), en nanosecondes.
@@ -127,8 +124,7 @@ pins, selon le type de pas et le mode de contrôle sélectionné.
    dans une direction et un pas dans la
    direction opposée (séquences de pas 1 à 14 seulement), en nanosecondes.
  - `(s32) stepgen.<chan>.rawcounts` -- Valeur de comptage brute
-   (count) de la rétroaction, réactualisée
-   par la fonction `make_pulses()`. 
+   (count) de la rétroaction, réactualisée par la fonction `make_pulses()`. 
 
 En mode position, les valeurs de maxvel et de maxaccel sont utilisées
 par la boucle de position interne pour éviter de générer des trains
@@ -170,7 +166,7 @@ fréquence de sortie sera toujours limitée.
 
 image::stepgen-type0.eps[]
 
-.[[fig:StepDir-timing]]Timing pas et direction
+.Timing pas et direction[[fig:StepDir-timing]]
 
 Le type de pas 1 a deux sorties, up et down. Les impulsions
 apparaissent sur l'une ou l'autre, selon la direction du déplacement.
@@ -190,17 +186,17 @@ maximale est 1.000.000.000 divisé par `“steplen`” et comme dans les
 autres séquences, `“maxfreq”` sera abaissé si il est au dessus de cette
 limite.
 
+.Séquences de pas à trois phases[[fig:Trois-phases-quadrature]]
+
 image::stepgen-type2-4.eps[]
 
-.Séquences de pas à trois phases[[fig:Trois-phases-quadrature]]
+.Séquences de pas à quatre phases[[fig:Quatre-phases]]
 
 image::stepgen-type5-10.eps[]
 
-.[[fig:Quatre-phases]]Séquences de pas à quatre phases
+.Séquence de pas à cinq phases[[fig:Cinq-phases]]
 
 image::stepgen-type11-14.eps[]
-
-.[[fig:Cinq-phases]]Séquence de pas à cinq phases
 
 === Fonctions
 
@@ -209,8 +205,7 @@ les générateurs d'impulsions de pas. Lancer différents générateurs dans
 différents threads n'est pas supporté.
 
  - `(funct) stepgen.make-pulses` -- Fonction haute vitesse de
-   génération et de comptage des impulsions
-   (non flottant).
+   génération et de comptage des impulsions (non flottant).
  - `(funct) stepgen.update-freq` -- Fonction basse vitesse de
    conversion de position en vitesse, mise
    à l'échelle et traitement des limitations.
@@ -226,9 +221,7 @@ selon les capacités de l'ordinateur. C'est la période de ce thread qui
 entier de la période du thread en nanosecondes. Les deux
 autres fonctions peuvent être appelées beaucoup plus lentement.
 
-
-
-== [[sec:PWMgen]]PWMgen(((pwmgen)))
+== PWMgen[[sec:PWMgen]](((pwmgen)))
 
 Ce composant fournit un générateur logiciel de PWM (modulation de
 largeur d'impulsions) et PDM (modulation de densité d'impulsions).
@@ -239,14 +232,14 @@ résolution, à peut-être 10kHz avec une résolution limitée.
 
 === L'installer
 
-    emc2$ 
+    emc2$ halcmd loadrt pwmgen output_type=<config-array>
 
 `<config-array>` est une série d'entiers décimaux séparés par des
 virgules. Chaque
 chiffre provoquera le chargement d'un simple générateur de PWM, la
 valeur de ce chiffre determinera le type de sortie. Par exemple:
 
-    emc2$ 
+    emc2$ halcmd loadrt pwmgen output_type=0,1,2
 
 va installer trois générateurs de PWM. Le premier utilisera une sortie
 de type '0' (PWM seule), le suivant utilisera une sortie de type 1 (PWM
@@ -262,7 +255,7 @@ générateurs de PWM commence à 0.
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt pwmgen
 
 === Pins
 
@@ -279,14 +272,11 @@ le type de sortie choisi:
 
  - `(bit) pwmgen.<chan>.pwm` -- Sortie PWM (ou PDM), (types de sortie 0
    et 1 seulement).
- - `(bit) pwmgen.<chan>.dir` -- Sortie direction (type de sortie 1
-   seulement).
+ - `(bit) pwmgen.<chan>.dir` -- Sortie direction (type de sortie 1 seulement).
  - `(bit) pwmgen.<chan>.up` -- Sortie PWM/PDM pour une valeur positive
-   en entrée ( type de sortie
-   2 seulement).
+   en entrée (type de sortie 2 seulement).
  - `(bit) pwmgen.<chan>.down` -- Sortie PWM/PDM pour une valeur
-   négative en entrée (type de sortie
-   2 seulement).
+   négative en entrée (type de sortie 2 seulement).
 
 === Paramètres
 
@@ -300,8 +290,7 @@ le type de sortie choisi:
    ramenée aux limites internes. Si elle est différente de
    zéro et si `le lissage` est faux, au prochain appel de la fonction
    `update_freq()` elle sera réglée au plus proche entier multiple de la
-   période de la
-   fonction `make_pulses()`.
+   période de la fonction `make_pulses()`.
  - `(bit) pwmgen.<chan>.dither-pwm` -- Si vrai, active le lissage pour
    affiner la fréquence PWM ou le
    rapport cyclique qui ne pourraient pas être obtenus avec une pure PWM.
@@ -342,14 +331,12 @@ générateurs de PWM, lancer différents générateurs dans différents
 threads n'est pas supporté.
 
  - `(funct) pwmgen.make-pulses` -- Fonction haute vitesse de
-   génération de fréquences PWM (non
-   flottant).
+   génération de fréquences PWM (non flottant).
  - `(funct) pwmgen.update` -- Fonction basse vitesse de mise à
-   l'échelle, limitation des valeurs
-   et traitement d'autres paramètres.
+   l'échelle, limitation des valeurs et traitement d'autres paramètres.
 
 La fonction haute vitesse `“pwmgen.make-pulses”` devrait être lancée
-dans un thread très rapide, entre 10 et 50µs
+dans un thread très rapide, entre 10 et 50 us 
 selon les capacités de l'ordinateur. C'est la période de ce thread qui
 détermine la fréquence maximale de la porteuse PWM, ainsi que la
 résolution des signaux PWM ou PDM. L'autre fonction peut être appelée
@@ -365,13 +352,13 @@ entre 10kHz à peut être 50kHz. La figure
 <<fig:Diagramme-bloc-du-codeur>> est le diagramme bloc d'un canal de
 comptage de codeur.
 
-image::encoder-block-diag.eps[]
+.Diagramme bloc du compteur de codeur[[fig:Diagramme-bloc-du-codeur]]
 
-.[[fig:Diagramme-bloc-du-codeur]]Diagramme bloc du compteur de codeur
+image::encoder-block-diag.eps[]
 
 === L'installer
 
-    emc2$ 
+    emc2$ halcmd loadrt encoder [num_chan=<counters>]
 
 `<counters>` est le nombre de compteurs de codeur à installer. Si
 `numchan` n'est pas spécifié, trois compteurs seront installés. Le
@@ -384,36 +371,83 @@ numérotation des compteurs commence à 0.
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt encoder
 
 === Pins
 
- - `(bit) encoder.<chan>.phase-A` -- Signal de la phase A du codeur en
-   quadrature.
- - `(bit) encoder.<chan>.phase-B` -- Signal de la phase B du codeur en
-   quadrature.
- - `(bit) encoder.<chan>.phase-Z` -- Signal de la phase Z (impulsion
-   d'ndex) du codeur en quadrature.
- - `(bit) encoder.<chan>.reset` -- Voir l'interface canonique des
-   codeurs à la section 
-   <<sec:CanonEncoder>>.
- - `(bit) encoder.<chan>.velocity` -- Vitesse estimée du signal de
-   quadrature. 
- - `(bit) encoder.<chan>.index-enable` -- Voir l'interface canonique
-   des codeurs.
- - `(s32) encoder.<chan>.count` -- Voir l'interface canonique des
-   codeurs.
- - `(float) encoder.<chan>.position` -- Voir l'interface canonique des
-   codeurs.
+ - `Encodeur <chan> contre-mode` (bit, I/O) (par défaut: false) -- Permet
+    mode compteur. Lorsque vrai, le
+    compteur compte chaque front montant de la phase-A INPUT, ignorant les
+    la valeur de la phase-B. Ceci est utile pour le comptage de la sortie d'un single
+    canal (non quadrature) du capteur. Si false, elle compte en quadrature
+    Mode.
+  - `encoder.<chan>.counts` (s32, Out) -- Position de la numération codeur.
+  - `encoder.<chan>.counts-latched` (s32, Out) -- Non utilisé à ce moment.
+  - `encoder.<chan> index-enable` (bit, I/O) -- Si vrai, `counts` et 
+    `position` sont remis à zéro sur le bord de la hausse prochaine de la phase Z. 
+    Au même temps, `index-enable` est remis à zéro pour indiquer que la hausse des
+    bord a occoured. Le `index-enable` broches est bi-directionnelle. Si
+    `index-enable` est False, le canal de la phase Z de l'encodeur sera
+    ignorée, et la
+     compteur comptent normalement. Le conducteur encodeur jamais mis les
+    `index-enable` true. Cependant, un autre composant peut le faire.
+  - `encoder.<chan>.latch-falling` (bit, In) (par défaut: true) -- Non utilisé 
+    à ce moment.
+  - `encoder.<chan>.latch-input` (bit, In) (par défaut: true) -- Non utilisé
+    cette fois-ci.
+  - `encoder.<chan>.latch-rising` (bit, In) -- Non utilisé à ce moment.
+  - `encoder.<chan>.min-speed-estimate` (Float, In) -- Déterminer le
+    minimum l'ampleur vitesse réelle à laquelle 
+    vitesse sera estimée comme non nulle et postition-interpolées seront
+    être interpolées. Les unités de vitesse `min-speed-estimate` est le même que le 
+    unités de la `velocity`. Facteur d'échelle, en coups par unité de longueur. Réglage
+    ce paramètre trop
+    peu lui fera prendre beaucoup de temps pour la vitesse pour aller à 0 après
+    impulsions du codeur ont cessé d'arriver.
+ - `encoder.<chan>.phase-A` (bit, In) -- Signal de la phase A du codeur en quadrature.
+ - `encoder.<chan>.phase-B` (bit, In) -- Signal de la phase B du codeur en quadrature.
+ - `encoder.<chan>.phase-Z` (bit, In) -- Signal de la phase Z (impulsion d'ndex) du codeur en quadrature.
+ - `encoder.<chan>.position` (float, Out) - Position dans les unités de l'échelle (voir `position` échelle).
+ - `encoder.<chan>.position-interpolated` (float, Out) - Position dans
+   unités à l'échelle, interpolées entre
+   compte codeur. La position interpolée `` tentatives d'interpoler
+   entre le nombre de codeur, basée sur la plupart des
+   récemment mesuré la vitesse. Valable uniquement lorsque la vitesse est d'environ
+   constante et supérieure `min vitesse-estimer`. Ne pas être utilisé pour la position
+   contrôle, puisque sa valeur est incorrecte au
+   basse vitesse, lors des inversions de direction, et pendant les changements de vitesse.
+   Toutefois, il permet un encodeur PPR faibles (y compris une impulsion d'un pour
+   révolution "codeur") pour être utilisé pour tour à fileter, et peut avoir
+   d'autres usages aussi.
+ - `encoder.<chan>.position-latched` (float, Out) -- Non utilisé à ce moment.
+ - `encoder.<chan>.position-scale` (float, I/O) -- Le facteur d'échelle, en
+   comptages par unité de longueur. Par exemple, si
+   position de l'échelle est de 500, puis 1000 chefs d'accusation de l'encodeur sera signalé
+   comme une position de 2,0 unités.
+ - `encoder.<chan>.rawcounts` (s32, In) -- Le nombre de premières, tel que déterminé
+   par update-compteurs. Cette valeur est
+   mis à jour plus fréquemment que les chefs d'accusation et de position. Il est également affecté
+   par reset ou l'impulsion d'index.
+ - `encoder.<chan>.reset` (bit, In) -- Si vrai, la force et `compte` et 
+   `position` immédiatement à zéro.
+ - `encoder.<chan>.velocity` (float, Out) -- Vitesse dans les unités de l'échelle par
+   secondes. `encoder' utilise un algorithme qui réduit considérablement la quantification
+   du bruit par rapport 
+   simplement différencier la `position` sortie. Lorsque la magnitude
+   de la `velocity` est inférieure
+   `min-speed-estimate`, la sortie de `velocity` (vitesse) est 0.
+ - `encoder.<chan>.x4-mode` (bit, I/O) (par défaut: TRUE) -- Permet
+   fois-4 en mode. Lorsque vrai, le compteur compte de chaque bord de
+   la forme d'onde en quadrature (quatre points par cycle complet). Si false, il
+   compte qu'une seule fois par cycle complet. En contre-mode, ce paramètre est
+   ignorés. Le mode 1x est utile pour certaines jogwheels.
 
 === Paramètres
 
- - `(s32) encoder.<chan>.raw-count` -- Valeur de comptage brute,
-   actualisée par la fonction `update-counters()`. 
- - `(bit) encoder.<chan>.x4-mode` -- Ajuste le comptage en mode 4x
-   ou 1x. Le mode 1x est intéressant pour les manivelles de jog.
- - `(float) encoder.<chan>.position-scale` -- Voir l'interface
-   canonique des codeurs à la section <<sec:CanonEncoder>>. 
+ - `encoder.<chan>.capture-position.time (s32, RO)` 
+ - `encoder.<chan>.capture-position.tmax (s32, RW)`
+ - `encoder.<chan>.update-counters.time (s32, RO)`
+ - `encoder.<chan>.update-counter.tmax (s32, RW)`
 
 === Fonctions
 
@@ -427,9 +461,7 @@ différents threads n'est pas supporté.
    d'actualisation des latches et mise à
    l'échelle de la position.
 
-
-
-== [[sec:PID]]PID(((pid)))
+== PID[[sec:PID]](((pid)))
 
 Ce composant fournit une boucle de contrôle
 Proportionnel/Intégrale/Dérivée. C'est un composant temps réel
@@ -440,13 +472,13 @@ vitesse, hauteur de torche, température, etc. La figure
 <<fig:Diagramme-bloc-PID>> est le schéma fonctionnel d'une simple
 boucle PID.
 
-image::pid-block-diag.eps[]
+.Diagramme bloc d'une boucle PID[[fig:Diagramme-bloc-PID]]
 
-.[[fig:Diagramme-bloc-PID]]Diagramme bloc d'une boucle PID
+image::pid-block-diag.eps[]
 
 === L'installer
 
-    emc2$ 
+    emc2$ halcmd loadrt pid [num_chan=<loops>] [debug=1]
 
 `<loops>` est le nombre de boucles PID à installer. Si `numchan` 
 n'est pas spécifié, une seule boucle sera installée. Le nombre
@@ -464,7 +496,7 @@ liste des paramètres.
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt pid
 
 === Pins
 
@@ -498,13 +530,17 @@ surveiller ou contrôler le fonctionnement général du composant.
    sorties sont
    forcées à zéro. Si `.enable` est vrai, la boucle opère normalement.
 
-=== Paramètres
+Pins utilisé pour signaler la saturation. La saturation se produit lorsque 
+la sortie de le bloc PID est à son maximum ou limiter au minimum.
+
+ - `(bit) pid.<loopnum>.saturated` -- True lorsque la sortie est saturé.
+ - `(float) pid.<loopnum>.saturated_s` -- Le temps de la sortie a été saturé.
+ - `(s32) pid.<loopnum>.saturated_count` -- Le temps de la sortie a été saturé.=== Paramètres
 
 Le gain PID, les limites et autres caractèristiques 'accordables' de
 la boucle sont implémentés comme des paramètres.
 
- - `(float) pid.<loopnum>.Pgain` -- Gain de la composante
-   proportionnelle 
+ - `(float) pid.<loopnum>.Pgain` -- Gain de la composante proportionnelle 
  - `(float) pid.<loopnum>.Igain` -- Gain de la composante intégrale 
  - `(float) pid.<loopnum>.Dgain` -- Gain de la composante dérivée
  - `(float) pid.<loopnum>.bias` -- Constante du décalage de sortie 
@@ -518,14 +554,12 @@ la boucle sont implémentés comme des paramètres.
    la commande (accélération).footnote:[FF2 n'est actuellement pas 
    implémenté, mais il pourrait l'être. 
    Considérez cette note “FIXME” dans le code.]
- - `(float) pid.<loopnum>.deadband` -- Définit la bande morte
-   (tolérance) 
+ - `(float) pid.<loopnum>.deadband` -- Définit la bande morte (tolérance) 
  - `(float) pid.<loopnum>.maxerror` -- Limite d'erreur 
  - `(float) pid.<loopnum>.maxerrorI` -- Limite d'erreur intégrale 
  - `(float) pid.<loopnum>.maxerrorD` -- Limite d'erreur dérivée 
  - `(float) pid.<loopnum>.maxcmdD` -- Limite de la commande dérivée 
- - `(float) pid.<loopnum>.maxcmdDD` -- Limite de la commande dérivée
-   seconde 
+ - `(float) pid.<loopnum>.maxcmdDD` -- Limite de la commande dérivée seconde 
  - `(float) pid.<loopnum>.maxoutput` -- Limite de la valeur de sortie
 
 Toutes les limites `max???,` sont implémentées de sorte que si la
@@ -533,8 +567,7 @@ valeur de ce paramètre est à
 zéro, il n'y a pas de limite.
 
 Si `debug=1` est spécifié quand le composant est installé, quatre
-paramètres
-supplémentaires seront exportés:
+paramètres supplémentaires seront exportés:
 
  - `(float) pid.<loopnum>.errorI` -- Intégrale de l'erreur.
  - `(float) pid.<loopnum>.errorD` -- Dérivée de l'erreur.
@@ -559,7 +592,7 @@ emc2/src/hal/components/pid.c` et bien sûr, au code lui même. Les
 calculs de boucle sont dans la
 fonction C `calc_pid()`.
 
-== [[sec:Codeur-simul]]Codeur simulé(((sim-encoder)))
+== Codeur simulé[[sec:Codeur-simul]](((sim-encoder)))
 
 Le codeur simulé est exactement la même chose qu'un codeur. Il produit
 des impulsions en quadrature avec une impulsion d'index, à une vitesse
@@ -567,7 +600,7 @@ contrôlée par une pin de HAL. Surtout utile pour les essais.
 
 === L'installer
 
-    emc2$ 
+    emc2$ halcmd loadrt sim-encoder num_chan=<number>
 
 `<number>` est le nombre de codeurs à simuler. Si aucun n'est
 spécifié, un seul
@@ -576,7 +609,7 @@ définit par MAX_CHAN dans sim_encoder.c).
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt sim-encoder
 
 === Pins
 
@@ -615,7 +648,7 @@ codeurs simulés.
    lecture de `speed`, de mise à l'échelle et d'activation de
    `make-pulses`.
 
-== [[sec:Anti-rebond]]Anti-rebond(((Anti-rebond)))
+== Anti-rebond[[sec:Anti-rebond]](((Anti-rebond)))
 
 L'anti-rebond est un composant temps réel capable de filtrer les
 rebonds créés par les contacts mécaniques. Il est également très utile
@@ -624,14 +657,14 @@ supprimées.
 
 === L'installer
 
-    emc2$ 
+    emc2$ halcmd loadrt debounce cfg=<config-string>
 
 `<config-string>` est une série d'entiers décimaux séparés par des
 espaces. Chaque
 chiffre installe un groupe de filtres anti-rebond identiques, le
 chiffre détermine le nombre de filtres dans le groupe. Par exemple:
 
-    emc2$ 
+    emc2$ halcmd loadrt debounce cfg=1,4,2
 
 va installer trois groupes de filtres. Le groupe 0 contient un filtre,
 le groupe 1 en contient quatre et le groupe 2 en contient deux. La
@@ -649,15 +682,14 @@ filtre 0 dans le groupe 0.
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt debounce
 
 === Pins
 
 Chaque filtre individuel a deux pins.
 
  - `(bit) debounce.<G>.<F>.in` -- Entrée du filtre `<F>` du groupe `<G>`.
- - `(bit) debounce.<G>.<F>.out` -- Sortie du filtre `<F>` du groupe
-   `<G>`.
+ - `(bit) debounce.<G>.<F>.out` -- Sortie du filtre `<F>` du groupe `<G>`.
 
 === Paramètres
 
@@ -667,8 +699,7 @@ C'est un switch du compilateur qui peut exporter cette variable comme
 un paramètre. Ceci est prévu pour des essais et devrait juste être un
 gaspillage de mémoire partagée dans des circonstances normales.]
 
- - `(s32) debounce.<G>.delay` -- Délai de filtrage pour tous les
-   filtres du groupe `<G>`.
+ - `(s32) debounce.<G>.delay` -- Délai de filtrage pour tous les filtres du groupe `<G>`.
 
 Le délai du filtre est dans l'unité de la période du thread. Le délai
 minimum est de zéro. La sortie d'un filtre avec un délai de zéro, suit
@@ -694,7 +725,7 @@ essais.
 
 === L'installer
 
-    emc2$ 
+    emc2$ halcmd loadrt siggen [num_chan=<chans>]
 
 `<chans>` est le nombre de générateurs de signaux à installer. Si
 `numchan` n'est pas spécifié, un seul générateur de signaux sera
@@ -707,7 +738,7 @@ commencent à 0.
 
 === Le désinstaller
 
-    emc2$ 
+    emc2$ halcmd unloadrt siggen
 
 === Pins
 
@@ -746,4 +777,5 @@ contrôle par d'autres composants.]
 
  - `(funct) siggen.<chan>.update` -- Calcule les nouvelles valeurs pour
    les cinq sorties.
+
 

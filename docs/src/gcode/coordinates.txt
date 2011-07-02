@@ -63,8 +63,6 @@ In the VAR file scheme, the first variable number stores the X offset,
 the second the Y offset and so on for all six axes. There are numbered
 sets like this for each of the fixture offsets.
 
-
-
 Each of the graphical interfaces has a way to set values for these
 offsets. You can also set these values by editing the VAR file itself
 and then restarting EMC so that the EMC reads the new values however
@@ -96,15 +94,15 @@ there. The following code is offered as an example of making a square
 using the G55 offsets that we set above.
 
 -------------------
-G55 G0 x0 y0 z0
-g1 f2 z-0.2000
-x1
-y1
-x0
-y0
-g0 z0
-g54 x0 y0 z0
-m2
+G55 G0 X0 Y0 Z0
+G1 F2 Z-0.2000
+X1
+Y1
+X0
+Y0
+G0 Z0
+G54 X0 Y0 Z0
+M2
 -------------------
 
 "But," you say, "why is there a G54 in there near the end." Many
@@ -151,7 +149,7 @@ G10 L2  P(fixture 1-9) - Set offset(s) to a value. Current position irrelevant.
 G10 L20 P(fixture 1-9) - Set offset(s) so current position becomes a value. 
                          (see <<sec:G10-L20>> for details)(((G10 L20)))
 
-== G92 (((G92))) Offsets[[sec:G92-Offsets]]
+== G92 Offsets[[sec:G92-Offsets]](((G92)))
 
 The way that it works has changed just a bit from the early days to
 the current releases. It should be thought of as a temporary offset
@@ -166,10 +164,10 @@ G92::
     variables.
 
 G92.1::
-    (((G92.1))) This command sets zero values to the g92 variables.
+    (((G92.1))) This command sets zero values to the G92 variables.
 
 G92.2::
-     (((G92.2))) This command suspends but does not zero out the g92
+     (((G92.2))) This command suspends but does not zero out the G92
     variables.
 
 G92.3::
@@ -248,22 +246,22 @@ to become active again. The variables are named:
 where 5211 is the X axis offset and so on. If you are seeing
 unexpected positions as the result of a commanded move, as a result of
 storing an offset in a previous progam and not clearing them at the end
-then issue a G92.1 in the MDI widow to clear the stored offsets.
+then issue a G92.1 in the MDI window to clear the stored offsets.
 
-If G92 values exist in the VAR file when the EMC starts up the G92
-values in the var file is that it will apply the values to current
-location of each axis. If this is home position and home position is
-set as machine zero everything will be correct. Once home has been
-established using real machine switches or moving each axis to a known
-home position and issuing an axis home command any G92 offsets will be
+If G92 values exist in the VAR file when EMC2 starts up, the G92 
+values in the var file will be applied to the values of the current 
+location of each axis. If this is home position and home position is 
+set as machine zero everything will be correct. Once home has been 
+established using real machine switches, or by moving each axis to a known
+home position and issuing an axis home command, any G92 offsets will be 
 applied. If you have a G92 X1 in effect when you home the X axis the
 DRO will read "X: 1.000" instead of the expected "X: 0.000" because the
 G92 was applied to the machine origin. If you issue a G92.1 and the DRO
 now reads all zeros then you had a G92 offset in effect when you last
 ran EMC.
 
-Unless your intention is to use the same G92 offsets in the next
-program best practice is to issue a G92.1 at the end of any G Code
+Unless your intention is to use the same G92 offsets in the next 
+program, the best practice is to issue a G92.1 at the end of any G Code 
 files where you use G92 offsets.
 
 == Sample Program Using Offsets
@@ -273,7 +271,7 @@ roughly a star shape around a center circle. We can setup the
 individual circle pattern like this.
 
 ---------------------------------------------------------------------
-G10 L2 P1 X0 Y0 Z0 (ensure that g54 is set to machine zero) 
+G10 L2 P1 X0 Y0 Z0 (ensure that G54 is set to machine zero) 
 G0 X-0.1 Y0 Z0
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0

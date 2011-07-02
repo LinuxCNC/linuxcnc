@@ -56,7 +56,7 @@ ce que vous avez besoin de savoir à propos de RTAPI est qu'il doit être
 (avec le RTOS) chargé dans la mémoire de votre ordinateur avant de
 pouvoir faire n'importe quoi avec HAL.
 
-== Un exemple simple [[sec:Tutoriel - Exemple simple]]
+== Un exemple simple[[sec:Tutoriel - Exemple simple]]
 
 === Charger un composant temps réel
 
@@ -377,7 +377,7 @@ commande suivante dans une fenêtre de terminal:
 
 `~ / emc2 $ *halrun -U*`
 
-== [[sec:Tutoriel - Halmeter]]Visualiser HAL avec halmeter
+== Visualiser HAL avec halmeter[[sec:Tutoriel - Halmeter]]
 
 Vous pouvez construire des systèmes HAL vraiment complexes sans
 utiliser d'interface graphique. Mais il y a quelque chose de rassurant
@@ -481,7 +481,7 @@ d'oeil à HAL. Cette fois, nous aurons beaucoup
 plus de pins et de paramètres que précédemment:
 
 `halcmd: *show pin*` +
-
+` `
 `    Component Pins:`
 `    Owner   Type  Dir         Value  Name`
 `         4  float IN              1  siggen.0.amplitude`
@@ -506,7 +506,7 @@ plus de pins et de paramètres que précédemment:
 `         3  float IN              0  stepgen.1.velocity-cmd`
 
 `halcmd: *show param*`
-
+` `
 `    Parameters:`
 `    Owner   Type  Dir         Value  Name`
 `         4  s32   RO              0  siggen.0.update.time`
@@ -969,11 +969,11 @@ continuerons d'utiliser la voie 3 comme source de déclenchement. Pour
 ajouter de nouvelles voies, sélectionner la voie 5, choisir la pin 
 «stepgen.1.dir», puis la voie 6 et sélectionner «stepgen.1.step». 
 Ensuite, cliquer sur «mode Normal» pour lancer le scope, ajustez le
-zoom horizontal à 5ms par division. Vous devriez voir les impulsions de
+zoom horizontal à 5 ms par division. Vous devriez voir les impulsions de
 pas ralentir à la vitesse commandée (voie 1) approcher de zéro, puis la
 pin de direction changer d'état et les impulsions de pas reprendre de
 nouveau de la vitesse. Vous aurez peut être besoin d'augmenter le gain
-sur la voie 1 à environ 20ms par division afin de mieux voir 
+sur la voie 1 à environ 20 milli par division afin de mieux voir 
 l'évolution de la vitesse de commande. Le résultat devrait être proche 
 de celui de la figure <<fig:Halscope-demo-8>>. 
 

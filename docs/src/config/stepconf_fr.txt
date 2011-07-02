@@ -1,11 +1,11 @@
-= Assistant graphique de configuration [[cha:Assistant-graphique]] 
+= Assistant graphique de configuration[[cha:Assistant-graphique]] 
 
 Stepconf est un programme qui génère des fichiers de configuration EMC
 pour une classe spécifique de machine CNC: celles qui sont pilotées via
 un *port parallèle* standard et contrôlées par des signaux de type
 *step & direction*.
 
-== Instructions pas à pas [[sec:pas a pas]]
+== Instructions pas à pas[[sec:pas a pas]]
 
 === Informations sur la machine [[sub:Informations sur la machine]]
 
@@ -56,7 +56,7 @@ Prompt à l'écran au changement d'outil::
     sauf si vous envisagez d'ajouter la gestion personnalisées d'un
     changeur automatique d'outils dans un fichier halI.
 
-=== Réglage du port parallèle [[sub:Reglage du port parallele]]
+=== Réglage du port parallèle[[sub:Reglage du port parallele]]
 
 .Page de réglage du port parallèle[[cap:Reglage du port parallele]]
 
@@ -93,7 +93,7 @@ pompe de charge sera connectée en interne par Stepconf. Le signal de
 pompe de charge sera d'environ la moitié de la fréquence maxi des pas
 affichée sur la page des informations machine.
 
-=== Configuration des axes [[sub:Configuration des axes]]
+=== Configuration des axes[[sub:Configuration des axes]]
 
 .Page de configuration des axes[[cap:Configuration des axes]]
 
@@ -123,7 +123,6 @@ Pas de la vis::
 
 Vitesse maximum::
     
-
 Accélération maximum::
      Les valeurs correctes pour ces deux entrées ne peuvent être
     déterminées que par l'expérimentation. Consultez 
@@ -194,11 +193,10 @@ Fréquence des impulsions à la vitesse maxi::
 
 image::images/stepconf-spindle_fr.png[]
 
-Ces options ne sont accessibles que quand «PWM broche», «Phase A
-codeur broche» ou «index broche» sont configurés sur le brochage du
-port parallèle.
+Ces options ne sont accessibles que quand «PWM broche», «Phase A codeur broche» 
+ou «index broche» sont configurés sur le brochage du port parallèle.
 
-==== Contrôle de la vitesse de broche  (((Contrôle de la vitesse de broche)))[[sub:Controle de la vitesse de broche]]
+==== Contrôle de la vitesse de broche[[sub:Controle de la vitesse de broche]](((Contrôle de la vitesse de broche)))
 
 Si «PWM broche» apparaît dans le réglage du port parallèle, les
 informations suivantes doivent être renseignées:
@@ -216,7 +214,7 @@ Vitesse 1 et 2, PWM 1 et 2::
     rotation. Si les valeurs ne sont pas connues, elles peuvent être
     déterminées. Voir la section «Ajuster la vitesse de broche» ci-dessous.
 
-==== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)  [[sub:Mouvement avec broche synchronisee]](((Mouvement avec broche synchronisée)))
+==== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)[[sub:Mouvement avec broche synchronisee]](((Mouvement avec broche synchronisée)))
 
 Lorsque les signaux appropriés, provenants d'un codeur de broche, sont
 connectés au port parallèle, EMC peut être utilisé pour le filetage
@@ -251,13 +249,13 @@ Cycles par tour::
         broche rapide ou un codeur ayant une résolution élevée, une valeur
         basse de *BASE_PERIOD est requise*.
 
-=== Configuration machine complète [[sub:Configuration machine complete]]
+=== Configuration machine complète[[sub:Configuration machine complete]]
 
 Cliquez “Appliquer” pour enregistrer les fichiers de configuration.
 Ensuite, vous pourrez relancer ce programme et ajuster les réglages
 entrés précédemment.
 
-== Définir la vitesse et l'accélération [[sec:Definir la vitesse et l-acceleration]]
+== Définir la vitesse et l'accélération[[sec:Definir la vitesse et l-acceleration]]
 
 .Fenêtre du test d'axe[[cap:Fenetre du test d-axe]]
 
@@ -269,7 +267,7 @@ corrects pour les *Pas moteur*, les *Micropas*, les *Poulies*, et le
 *pas de vis*. Puis entrez une valeur aproximative de *Vitesse*.
 *Enfin,* cliquez sur *Tester cet axe*.
 
-=== Définir la vitesse maximum [[sub:Definir la vitesse maximum]]
+=== Définir la vitesse maximum[[sub:Definir la vitesse maximum]]
 
 Commencez avec une faible valeur d'accélération (par exemple, 2 in/s^{2}
 ou 50mm/s^{2}) et la vitesse que vous espérez atteindre. À l'aide des
@@ -310,7 +308,7 @@ Une fois que vous avez trouvé une vitesse à laquelle l'axe ne perd
 plus de pas et à laquelle les mesures sont exactes pendant le test,
 réduisez la de 10% et utilisez la comme vitesse maximum pour cet axe.
 
-=== Définir l'accélération maximum [[sub:Definir l-acceleration maximum]]
+=== Définir l'accélération maximum[[sub:Definir l-acceleration maximum]]
 
 Avec la vitesse maximale que vous avez trouvé à l'étape précédente,
 entrez une valeur d'accélération approximative. Procédez comme pour la
@@ -321,7 +319,7 @@ vitesse sélectionnée. Une fois que vous avez trouvé une valeur à
 laquelle l'axe ne perd plus de pas pendant le test, la réduire de 10%
 et l'utiliser comme accélération maximale pour cet axe.
 
-== Définir la calibration de la broche [[sec:Definir la calibration de la broche]]
+== Définir la calibration de la broche[[sec:Definir la calibration de la broche]]
 
 Entrez les valeurs suivantes dans la page de configuration de la broche:
 
@@ -355,7 +353,7 @@ Par exemple, si votre broche tourne entre 0tr/mn et 8000tr/mn, mais
 que vous l'utilisez généralement entre 400tr/mn et 4000tr/mn, prenez
 alors des valeurs qui donneront 1600tr/mn et 2800tr/mn.
 
-== Fin de course des axes, position de l'origine machine et emplacements des contacts d'origine machine [[sec:Fin de course, origine machine]]
+== Fin de course des axes, position de l'origine machine et emplacements des contacts d'origine machine[[sec:Fin de course, origine machine]]
 
 La course de chaque axe est bien délimitée. Les extrémités physiques
 d'une course sont appelées *les butées mécanique*s.
@@ -394,7 +392,7 @@ doit jamais être égale à une *limite soft*.
 
 a diagram of all these limits would be nice
 
-=== Travail sans contact de fin de course [[sub:Travail sans contact de fin de course]]
+=== Travail sans contact de fin de course[[sub:Travail sans contact de fin de course]]
 
 Une machine peut être utilisée sans contact de fin de course. Dans ce
 cas, seules les *limites soft* empêcheront la machine d'atteindre les
@@ -405,7 +403,7 @@ l'oeil, à sa position d'origine machine avant de presser le bouton
 `POM des axes` ou le sous-menu 
 `Machine -> Prises d'origines machine -> POM de l'axe`.
 
-=== Travail sans contact d'origine machine [[sub:Travail sans contact d-origine machine]]
+=== Travail sans contact d'origine machine[[sub:Travail sans contact d-origine machine]]
 
 Un machine peut être utilisée sans contact d'origine machine. Si la
 machine dispose de contacts de fin de courses, mais pas de contact
@@ -419,7 +417,7 @@ Faire la prise d'origine à la main n'est certes pas aussi reproductible
 que sur des contacts, mais elle permet tout de même aux *limites soft*
 d'être utilisables.
 
-== Test de latence [[sec:Test de latence]]
+== Test de latence[[sec:Test de latence]]
 
 Faire générer les impulsions de pas au logiciel présente un grand
 avantage, c'est gratuit. Quasiment chaque PC dispose d'un port
@@ -511,11 +509,11 @@ du port parallèle.
 
 image::images/switch-nc-series.eps[]
 
-.[[cap:Cablage NC]]Câblage de contacts NC en série (schéma simplifié)
+.Câblage de contacts NC en série (schéma simplifié)[[cap:Cablage NC]]
 
 image::images/switch-no-parallel.eps[]
 
-.[[cap:Cablage NO]]Câblage de contacts NO en parallèle (schéma simplifié)
+.Câblage de contacts NO en parallèle (schéma simplifié)[[cap:Cablage NO]]
 
 Les combinaisons suivantes sont permises dans Stepconf:
 

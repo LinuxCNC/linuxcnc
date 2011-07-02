@@ -184,12 +184,11 @@ jog temporaire pour même si l'axe à franchi une limite d'axe fixée dans
 le fichier .ini. Noter que si «Dépassement de limite» est activé il
 s'affiche en rouge.
 
-. Exemple de dépassement de limite et incréments de jog
-[[cap:Override-Limits]]
+.Exemple de dépassement de limite et incréments de jog[[cap:Override-Limits]]
 
 image::tkemc_override_limits.png[]
 
-==== Le groupe de boutons  «Broche»(((broche)))
+==== Le groupe de boutons «Broche»(((broche)))
 
 Le bouton central du dessus sélectionne le sens de rotation de la
 broche: Anti-horaire, Arrêt, Horaire. Les boutons fléchés augmentent ou
@@ -197,7 +196,7 @@ diminuent la vitesse de rotation. Le bouton central du dessous permet
 d'engager ou de relâcher le frein de broche. Selon la configuration de
 la machine, les items de ce groupe ne sont peut être pas tous visibles.
 
-==== Le groupe de boutons  «Arrosage»(((arrosage)))
+==== Le groupe de boutons «Arrosage»(((arrosage)))
 
 Ces deux boutons permettent d'activer ou non les lubrifiants
 «brouillard» et «Arrrosage». Selon la configuration de la machine, les
@@ -257,24 +256,24 @@ Beaucoup des raccourcis clavier ne sont pas accessibles en mode MDI.
 Les raccourcis clavier les plus fréquamment utilisés sont montrés dans
 la table <<cap:Raccourcis-clavier-frequents>>.
 
-.Les raccourcis clavier les plus
-utilisés[[cap:Raccourcis-clavier-frequents]]
+.Les raccourcis clavier les plus utilisés[[cap:Raccourcis-clavier-frequents]]
 
 [width="90%", options="header"]
 |========================================
-|Touche | Action
-|F1 | Bascule de l'Arrêt d'Urgence
-|F2 | Marche/Arrêt machine
-|`, 1 .. 9, 0 | Correcteur vitesse d'avance 0% à 100%
-|X, ` | Active le premier axe
-|Y, 1 | Active le deuxième axe
-|Z, 2 | Active le troisième axe
-|A, 3 | Active le quatrième axe
-|Origine | POM de l'axe actif
-|Gauche, Droite | Jog du premier axe
-|Haut, Bas | Jog du deuxième axe
+|Touche           | Action
+|F1               | Bascule de l'Arrêt d'Urgence
+|F2               | Marche/Arrêt machine
+|`, 1 .. 9, 0     | Correcteur vitesse d'avance 0% à 100%
+|X, `             | Active le premier axe
+|Y, 1             | Active le deuxième axe
+|Z, 2             | Active le troisième axe
+|A, 3             | Active le quatrième axe
+|Origine          | POM de l'axe actif
+|Gauche, Droite   | Jog du premier axe
+|Haut, Bas        | Jog du deuxième axe
 |Pg.prec, Pg.suiv | Jog du troisième axe
-|[, ] | Jog du quatrième ax
-|Echap | Arrête l'exécution
+|[, ]             | Jog du quatrième ax
+|Echap            | Arrête l'exécution
 |========================================
+
 

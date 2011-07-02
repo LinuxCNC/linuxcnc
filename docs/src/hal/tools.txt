@@ -45,7 +45,7 @@ window. The item name will be displayed in the title bar instead of
 under the value, and there will be no buttons. Useful when you want a
 lot of meters in a small amount of screen space.
 
-== [[sec:Halscope]]Halscope
+== Halscope[[sec:Halscope]]
 
 Halscope is an “oscilloscope” for the HAL. It lets you capture the
 value of pins, signals, and parameters as a function of time. Complete

@@ -94,7 +94,7 @@ Some additional information about it is available from
 http://www.fpga4fun.com/board_pluto-P.html[http://www.fpga4fun.com/board_pluto-P.html]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
-== [[sec:pluto-servo]]pluto-servo(((pluto-servo))): Hardware PWM and quadrature counting
+== pluto-servo: Hardware PWM and quadrature counting[[sec:pluto-servo]](((pluto-servo)))
 
 The pluto_servo system is suitable for control of a 4-axis CNC mill
 with servo motors, a 3-axis mill with PWM spindle control, a lathe with
@@ -160,46 +160,45 @@ VCC::
 
 image::images/pluto-pinout.eps[]
 
-. [[table:Pluto-Servo-Alternate-Pin]]Pluto-Servo Alternate Pin
-Functions(((pluto-servo alternate pin functions)))
+.Pluto-Servo Alternate Pin Functions[[table:Pluto-Servo-Alternate-Pin]](((pluto-servo alternate pin functions)))
 
 [width="90%", options="header"]
 |========================================
 |Primary function | Alternate Function | Behavior if both functions used
-|*UP0* | PWM0 | When pwm-0-pwmdir is TRUE, this pin is the PWM output
-| | OUT10 | XOR'd with UP0 or PWM0
-|*UP1* | PWM1 | When pwm-1-pwmdir is TRUE, this pin is the PWM output
-| | OUT12 | XOR'd with UP1 or PWM1
-|*UP2* | PWM2 | When pwm-2-pwmdir is TRUE, this pin is the PWM output
-| | OUT14 | XOR'd with UP2 or PWM2
-|*UP3* | PWM3 | When pwm-3-pwmdir is TRUE, this pin is the PWM output
-| | OUT16 | XOR'd with UP3 or PWM3
-|*DN0* | DIR0 | When pwm-0-pwmdir is TRUE, this pin is the DIR output
-| | OUT11 | XOR'd with DN0 or DIR0
-|*DN1* | DIR1 | When pwm-1-pwmdir is TRUE, this pin is the DIR output
-| | OUT13 | XOR'd with DN1 or DIR1
-|*DN2* | DIR2 | When pwm-2-pwmdir is TRUE, this pin is the DIR output
-| | OUT15 | XOR'd with DN2 or DIR2
-|*DN3* | DIR3 | When pwm-3-pwmdir is TRUE, this pin is the DIR output
-| | OUT17 | XOR'd with DN3 or DIR3
-|*QZ0* | IN8 | Read same value
-|*QZ1* | IN9 | Read same value
-|*QZ2* | IN10 | Read same value
-|*QZ3* | IN11 | Read same value
-|*QA0* | IN12 | Read same value
-|*QA1* | IN13 | Read same value
-|*QA2* | IN14 | Read same value
-|*QA3* | IN15 | Read same value
-|*QB0* | IN16 | Read same value
-|*QB1* | IN17 | Read same value
-|*QB2* | IN18 | Read same value
-|*QB3* | IN19 | Read same value
+|*UP0* | PWM0  | When pwm-0-pwmdir is TRUE, this pin is the PWM output
+|      | OUT10 | XOR'd with UP0 or PWM0
+|*UP1* | PWM1  | When pwm-1-pwmdir is TRUE, this pin is the PWM output
+|      | OUT12 | XOR'd with UP1 or PWM1
+|*UP2* | PWM2  | When pwm-2-pwmdir is TRUE, this pin is the PWM output
+|      | OUT14 | XOR'd with UP2 or PWM2
+|*UP3* | PWM3  | When pwm-3-pwmdir is TRUE, this pin is the PWM output
+|      | OUT16 | XOR'd with UP3 or PWM3
+|*DN0* | DIR0  | When pwm-0-pwmdir is TRUE, this pin is the DIR output
+|      | OUT11 | XOR'd with DN0 or DIR0
+|*DN1* | DIR1  | When pwm-1-pwmdir is TRUE, this pin is the DIR output
+|      | OUT13 | XOR'd with DN1 or DIR1
+|*DN2* | DIR2  | When pwm-2-pwmdir is TRUE, this pin is the DIR output
+|      | OUT15 | XOR'd with DN2 or DIR2
+|*DN3* | DIR3  | When pwm-3-pwmdir is TRUE, this pin is the DIR output
+|      | OUT17 | XOR'd with DN3 or DIR3
+|*QZ0* | IN8   | Read same value
+|*QZ1* | IN9   | Read same value
+|*QZ2* | IN10  | Read same value
+|*QZ3* | IN11  | Read same value
+|*QA0* | IN12  | Read same value
+|*QA1* | IN13  | Read same value
+|*QA2* | IN14  | Read same value
+|*QA3* | IN15  | Read same value
+|*QB0* | IN16  | Read same value
+|*QB1* | IN17  | Read same value
+|*QB2* | IN18  | Read same value
+|*QB3* | IN19  | Read same value
 |========================================
 
 === Input latching and output updating
 
  - PWM duty cycles for each channel are updated at different times.
- -  Digital outputs OUT0 through OUT9 are all updated at the same time.
+ - Digital outputs OUT0 through OUT9 are all updated at the same time.
    Digital outputs OUT10 through OUT17 are updated at the same time as the
    pwm function they are shared with.
  - Digital inputs IN0 through IN19 are all latched at the same time.
@@ -224,7 +223,7 @@ voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
 (http://www.cnczone.com/forums/showthread.php?t=25929[http://www.cnczone.com/forums/showthread.php?t=25929])
 
-== [[sec:Pluto-step:-Hardware-step]]Pluto-step(((pluto-step))): 300kHz Hardware Step Generator
+== Pluto-step: 300kHz Hardware Step Generator[[sec:Pluto-step:-Hardware-step]](((pluto-step)))
 
 Pluto-step is suitable for control of a 3- or 4-axis CNC mill with
 stepper motors. The large number of inputs allows for a full set of
@@ -264,7 +263,7 @@ inputs, and 6 general-purpose outputs--the layout on this header is
 different than the layout of a standard 26-pin ribbon cable to DB25
 connector.
 
-.[[fig:Pluto-Step-Pinout]]Pluto-Step Pinout(((pluto-step pinout)))
+.Pluto-Step Pinout[[fig:Pluto-Step-Pinout]](((pluto-step pinout)))
 
 image::images/pluto-step-pinout.eps[]
 
@@ -285,7 +284,7 @@ are the same as for the software stepgen component, except that
 “dirtime” which should be the maximum of the two, and that the same
 step timings are always applied to all channels.
 
-.[[fig:Pluto-Step-Timings]]Pluto-Step Timings(((pluto-step timings)))
+.Pluto-Step Timings[[fig:Pluto-Step-Timings]](((pluto-step timings)))
 
 image::images/pluto_step_waveform.eps[]
 
@@ -293,4 +292,5 @@ image::images/pluto_step_waveform.eps[]
 
 A list of all 'loadrt' arguments, HAL function names, pin names and
 parameter names is in the manual page, 'pluto_step.9'.
+
 

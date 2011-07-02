@@ -1,4 +1,4 @@
-= Stepconf Wizard [[cha:Stepconf-Wizard]](((Stepconf Wizard)))
+= Stepconf Wizard[[cha:Stepconf-Wizard]](((Stepconf Wizard)))
 
 EMC2 is capable of controlling a wide range of machinery using many
 different hardware interfaces. Stepconf is a program which generates
@@ -143,7 +143,6 @@ and the faster and smoother the step pulses will be.
 Latency is far more important than CPU speed. The CPU isn't the only
 factor in determining latency. Motherboards, video cards, USB ports, 
 SMI issues, and a number of other things can hurt the latency.
-
 
 .Troubleshooting SMI Issues (LinuxCNC.org Wiki)
 ****
@@ -313,7 +312,7 @@ image::images/stepconf-test.png[]
 With Stepconf it is easy to try different values for acceleration and
 velocity.
 
-==== Finding Maximum Velocity (((Finding Maximum Velocity)))[[sub:Finding-Maximum-Velocity]]
+==== Finding Maximum Velocity[[sub:Finding-Maximum-Velocity]](((Finding Maximum Velocity)))
 
 Begin with a low Acceleration (e.g., 2 in/s^2 or 50mm/s^2) and the
 velocity you hope to attain. Using the buttons provided, jog the axis
@@ -415,8 +414,6 @@ Cycles per revolution::
     signal during one revolution of the spindle. This option is only
     enabled when an input has be set to "Spindle Phase A"
 
-    
-
 === Determining Spindle Calibration[[sub:Determining-Spindle-Calibration]](((Determining Spindle Calibration)))
 
 Enter the following values in the Spindle Configuration page:
@@ -507,8 +504,6 @@ be moved to at the
  end of the homing sequence. This value must be within the *soft
 limits*. In particular, the *home position* should never be exactly
 equal to a *soft limit*.
-
-
 
 === Operating without Limit Switches[[sub:Operating-without-Limit]](((Operating without Limit Switches)))
 

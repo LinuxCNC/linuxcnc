@@ -1,4 +1,4 @@
-== [[sec:Homing]]Homing
+== Homing[[sec:Homing]]
 
 === Overview
 
@@ -14,6 +14,16 @@ configuration parameters as shown in the following table. For a more
 detailed description of what each configuration parameter does, see the
 following section.
 
+.Homing Sequences[[fig:motion-homing-sequence-diagram]]
+
+image::images/emc2-motion-homing-diag.eps[]
+
+=== Configuration
+
+There are six pieces of information that determine exactly how the
+home sequence behaves. They are defined in an [AXIS] section of the
+inifile.
+
 [width="90%", options="header"]
 |==========================================================
 |Homing Type      |SEARCH_VEL |LATCH_VEL    |USE_INDEX
@@ -26,12 +36,6 @@ following section.
 |Switch-only      |nonzero    |nonzero      |NO
 |Switch and Index |nonzero    |nonzero      |YES
 |==========================================================
-
-=== Configuration
-
-There are six pieces of information that determine exactly how the
-home sequence behaves. They are defined in an [AXIS] section of the
-inifile.
 
 ==== HOME_SEARCH_VEL (((HOME SEARCH VEL)))
 
@@ -152,9 +156,5 @@ this.
 
 If this axis is a locking rotary indexer, it will unlock before
 homing, and lock afterward.
-
-.Homing Sequences[[fig:motion-homing-sequence-diagram]]
-
-image::images/emc2-motion-homing-diag.eps[]
 
 

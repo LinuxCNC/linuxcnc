@@ -36,33 +36,33 @@ The sample configuration
 
 The AXIS window contains the following elements:
 
- *  A display area that shows one of the following:
+ * A display area that shows one of the following:
    ** a preview of the loaded file (in this case,
      "axis.ngc"), as well as the current location of the CNC(((CNC)))
      machine's "controlled point". Later, this area will display the path
      the CNC machine has moved through, called the "backplot"
    ** a large readout showing the current position and all offsets.
  * A menu bar and toolbar that allow you to perform various actions
- *  "Manual Control Tab" (((Manual))), which allows you to make the
+ * "Manual Control Tab" (((Manual))), which allows you to make the
    machine move, turn the spindle on or off, and turn the coolant on or
    off if included in the ini file.
- *  "MDI Tab” (((MDI))), where G-code programs can be entered manually,
+ * "MDI Tab” (((MDI))), where G-code programs can be entered manually,
    one line at a time. This also shows the "Active G Codes" which shows
    which modal G Codes are in effect.
- *  "Feed Override" (((feed override))), which allows you to scale
+ * "Feed Override" (((feed override))), which allows you to scale
    the speed of programmed motions. The default maximum is 120% 
    and can be set to a different
    value in the ini file. See the Integrator Manual for more information
    on this setting.
- *  "Spindle Override" (((Spindle Override))), which allows you to
+ * "Spindle Override" (((Spindle Override))), which allows you to
    scale the spindle speed up or down.
- *  "Jog Speed" (((Jog Speed))), which allows you to set the jog speed
+ * "Jog Speed" (((Jog Speed))), which allows you to set the jog speed
    within the limits set in the ini file. See the Integrator Manual for
    more information on the ini file.
- *  "Max Velocity", which allows you to restrict the maximum velocity of all
+ * "Max Velocity", which allows you to restrict the maximum velocity of all
    programmed motions (except spindle synchronized motion).
  * A text display area that shows the loaded G-Code.
- *  A status bar which shows the state of the machine. In this screen
+ * A status bar which shows the state of the machine. In this screen
    shot, the machine is turned on, does not have a tool inserted, and the
    displayed position is "Relative" (showing all offsets), and "Actual"
    (showing feedback position).
@@ -335,27 +335,46 @@ Quick Reference::
 
 === Toolbar buttons
 
-From left to right, the toolbar buttons (keyboard shortcuts shown [in brackets]).
+From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
- . image::images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
- . image::images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
- . image::images/tool_open.gif[] Open G Code file [O]
- . image::images/tool_reload.gif[] Reload current file [Ctrl-R]
- . image::images/tool_run.gif[] Begin executing the current file [R]
- . image::images/tool_step.gif[] Execute next line [T]
- . image::images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
- . image::images/tool_stop.gif[] Stop Program Execution [ESC]
- . image::images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
- . image::images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
- . image::images/tool_zoomin.gif[] Zoom In
- . image::images/tool_zoomout.gif[] Zoom Out
- . image::images/tool_axis_z.gif[] Top view 
- . image::images/tool_axis_z2.gif[] Rotated Top view 
- . image::images/tool_axis_x.gif[] Side view 
- . image::images/tool_axis_y.gif[] Front view 
- . image::images/tool_axis_p.gif[] Perspective view 
- . image::images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
- . image::images/tool_clear.gif[] Clear live backplot [Ctrl-K]
+   . image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
+
+   . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
+
+   . image:images/tool_open.gif[] Open G Code file [O]
+
+   . image:images/tool_reload.gif[] Reload current file [Ctrl-R]
+
+   . image:images/tool_run.gif[] Begin executing the current file [R]
+
+   . image:images/tool_step.gif[] Execute next line [T]
+
+   . image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
+
+   . image:images/tool_stop.gif[] Stop Program Execution [ESC]
+
+   . image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
+
+   . image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
+
+   . image:images/tool_zoomin.gif[] Zoom In
+
+   . image:images/tool_zoomout.gif[] Zoom Out
+
+   . image:images/tool_axis_z.gif[] Top view
+
+   . image:images/tool_axis_z2.gif[] Rotated Top view
+
+   . image:images/tool_axis_x.gif[] Side view
+
+   . image:images/tool_axis_y.gif[] Front view
+
+   . image:images/tool_axis_p.gif[] Perspective view
+
+   . image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
+
+   . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
+
 
 === Graphical Display Area
 
@@ -385,21 +404,22 @@ step of your stepper motor or one encoder count is 0.00125, then the
 "Commanded" position will be 0.0033 but the "Actual" position will be 
 0.0025 or 0.00375.
 
-==== Preview Plot (((preview plot)))
+==== Preview Plot(((preview plot)))
 
 When a file is loaded, a preview of it is shown in the display area.
-Fast moves (such as those produced by the `G0`  command) are shown as
-cyan lines. Moves at a feed rate (such as
- those produced by the `G1`  command) are shown as solid white lines.
-Dwells (such as those
-produced by the `G4` command) are shown as small pink "X" marks.
+Fast moves (such as those produced by the `G0` command) are shown as
+cyan lines. Moves at a feed rate 
+(such as those produced by the `G1` command) are 
+shown as solid white lines. Dwells 
+(such as those produced by the `G4` command) 
+are shown as small pink "X" marks.
 
 G0 (Rapid) moves prior to a feed move will not show on the preview
 plot. Rapid moves after a T<n> (Tool Change) will not show on the 
 preview until after the first feed move. To turn either of these features off
 program a G1 without any moves prior to the G0 moves.
 
-==== Program Extents (((program extents)))
+==== Program Extents(((program extents)))
 
 The "extents" of the program in each axis are shown. At the ends, the
 least and greatest coordinate values are indicated. In the middle, the
@@ -469,7 +489,7 @@ display will automatically scroll to show the current line.
 
 image::images/axis-currentandselected.png[]
 
-=== Manual Control (((Manual)))
+=== Manual Control(((Manual)))
 
 While the machine is turned on but not running a program, the items in
 the "Manual Control" tab can be used to move the machine or control
@@ -585,11 +605,11 @@ History:::
     This shows MDI commands that have been typed earlier in this session.
 
 MDI Command:::
-     This allows you to enter a g-code command to be executed. Execute the
+    This allows you to enter a g-code command to be executed. Execute the
     command by pressing Enter or by clicking "Go".
 
 Active G-Codes:::
-     This shows the "modal codes" that are active in the interpreter. For
+    This shows the "modal codes" that are active in the interpreter. For
     instance, "G54" indicates that the "G54 offset" is applied to all
     coordinates that are entered. When in Auto the Active G-Codes represent
     the codes after any read ahead by the interpreter.
@@ -636,7 +656,7 @@ Many of the shortcuts are unavailable when in MDI mode.
 
 The Feed Override keys behave differently when in Manual Mode. The
 keys `12345678 will select an axis if it is programed. If you have 3
-axis then ` will select axis 0, 1 will select axis 1 and 2 will select
+axis then ` will select axis 0, 1 will select axis 1, and 2 will select
 axis 2. The remainder of the number keys will still set the Feed
 Override. When running a program `1234567890 will set the Feed Override
 to 0% - 100%.
@@ -647,37 +667,37 @@ The most frequently used keyboard shortcuts are shown in Table
 .Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]
 
 [width="100%", options="header"]
-|========================================
-|Keystroke | Action Taken | Mode
-|F1 | Toggle Emergency Stop | All
-|F2 | Turn machine on/off | All
-|`, 1 .. 9, 0 | Set feed override from 0% to 100% | Varies
-|X, ` | Activate first axis | Manual
-|Y, 1 | Activate second axis | Manual
-|Z, 2 | Activate third axis | Manual
-|A, 3 | Activate fourth axis | Manual
-|I | Select jog increment | Manual
-|C | Continuous jog | Manual
-|Control-Home | Perform homing sequence | Manual
-|End | Touch off: Set G54 offset for active axis | Manual
-|Left, Right | Jog first axis | Manual
-|Up, Down | Jog second axis | Manual
-|Pg Up, Pg Dn | Jog third axis | Manual
-|[, ] | Jog fourth axis | Manual
-|O | Open File | Manual
-|Control-R | Reload File | Manual
-|R | Run file | Manual
-|P | Pause execution | Auto
-|S | Resume Execution | Auto
-|ESC | Stop execution | Auto
-|Control-K | Clear backplot | Auto/Manual
-|V | Cycle among preset views | Auto/Manual
-|Shift-Left,Right | Rapid X Axis | Manual
-|Shift-Up,Down | Rapid Y Axis | Manual
-|Shift-PgUp, PgDn | Rapid Z Axis | Manual
-|========================================
+|====================================================================
+|Keystroke        | Action Taken                              | Mode
+|F1               | Toggle Emergency Stop                     | All
+|F2               | Turn machine on/off                       | All
+|`, 1 .. 9, 0     | Set feed override from 0% to 100%         | Varies
+|X, `             | Activate first axis                       | Manual
+|Y, 1             | Activate second axis                      | Manual
+|Z, 2             | Activate third axis                       | Manual
+|A, 3             | Activate fourth axis                      | Manual
+|I                | Select jog increment                      | Manual
+|C                | Continuous jog                            | Manual
+|Control-Home     | Perform homing sequence                   | Manual
+|End              | Touch off: Set G54 offset for active axis | Manual
+|Left, Right      | Jog first axis                            | Manual
+|Up, Down         | Jog second axis                           | Manual
+|Pg Up, Pg Dn     | Jog third axis                            | Manual
+|[, ]             | Jog fourth axis                           | Manual
+|O                | Open File                                 | Manual
+|Control-R        | Reload File                               | Manual
+|R                | Run file                                  | Manual
+|P                | Pause execution                           | Auto
+|S                | Resume Execution                          | Auto
+|ESC              | Stop execution                            | Auto
+|Control-K        | Clear backplot                            | Auto/Manual
+|V                | Cycle among preset views                  | Auto/Manual
+|Shift-Left,Right | Rapid X Axis                              | Manual
+|Shift-Up,Down    | Rapid Y Axis                              | Manual
+|Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
+|====================================================================
 
-== Show EMC Status
+== Show EMC Status (emctop)
 
 AXIS includes a program called "emctop" which shows some of the
 details of EMC's state. You can run this program by invoking Machine >
@@ -699,13 +719,13 @@ opening a terminal and typing
 
     mdi /path/to/emc.nml
 
-Once it is running, it displays the prompt `MDI>` . When a blank line
-is entered, the machine's current position is
-shown. When a command is entered, it is sent to EMC to be executed.
+Once it is running, it displays the prompt `MDI>`. When a blank line
+is entered, the machine's current position is shown. 
+When a command is entered, it is sent to EMC to be executed.
 
 This is a sample session of mdi.
 
-    $ mdi ~/emc2/configs/sim/emc.nml
+    $ MDI ~/emc2/configs/sim/emc.nml
     MDI>
     (0.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
     MDI> G1 F5 X1 
@@ -722,8 +742,7 @@ commands to a running AXIS. The available commands are shown by running
 (`--ping`), loading a file by name, reloading the currently loaded
 file (`--reload`), and making AXIS exit (`--quit`).
 
-== Manual Tool Change
-(((Manual Tool Change))) [[sec:Manual-Tool-Change]]
+== Manual Tool Change[[sec:Manual-Tool-Change]](((Manual Tool Change)))
 
 EMC2 includes a userspace HAL component called "hal_manualtoolchange",
 which shows a window (Figure <<cap:The-Manual-Toolchange>>) when a
@@ -733,14 +752,16 @@ the program will continue.
 The HAL configuration file `configs/sim/axis_manualtoolchange.hal`
 shows the HAL commands necessary to use this component.
 
-hal_manualtoolchange can be used even when AXIS is not used as the
-GUI. This component is most useful if you have presettable tools and
+hal_manualtoolchange can be used even when AXIS is not used as the GUI. 
+This component is most useful if you have presettable tools and
 you use the tool table.
 
-Important Note: Rapids will not show on the preview after a T<n> is
-issued until the next feed move after the M6. This can be very
-confusing to most users. To turn this feature off for the current tool
-change program a G1 with no move after the T<n>.
+[NOTE]
+Important Note: Rapids will not show on the preview after 
+a T<n> is issued until the next feed move after the M6. 
+This can be very confusing to most users. 
+To turn this feature off for the current tool change 
+program a G1 with no move after the T<n>.
 
 .The Manual Toolchange Window[[cap:The-Manual-Toolchange]]
 
@@ -756,8 +777,7 @@ be useful to others. For more information on one of these modules, use
  - `gcode` provides access to the rs274ngc interpreter
  - `rs274` provides additional tools for working with rs274ngc files
  - `hal` allows the creation of userspace HAL components written in Python
- -  `_togl` provides an OpenGL widget that can be used in Tkinter
-   applications
+ - `_togl` provides an OpenGL widget that can be used in Tkinter applications
  - `minigl` provides access to the subset of OpenGL used by AXIS
 
 To use these modules in your own scripts, you must ensure that the
@@ -766,11 +786,11 @@ installed version of EMC2, this should happen automatically. When
 running "in-place", this can be done by using
 `scripts/emc-environment`.
 
-== Lathe Mode
+== Using AXIS in Lathe Mode
 
 By including the line
 
-    LATHE=1
+    LATHE = 1
 
 in the [DISPLAY] section of the ini file, AXIS selects lathe mode. The
 "Y" axis is not shown in coordinate readouts, the view is changed to
@@ -800,10 +820,9 @@ This filter can do any desired task: Something as simple as making sure
 the file ends with `M2`, or something as complicated as generating
 G-Code from an image.
 
-The `[FILTER]`  section of the ini file controls how filters work.
-First, for each
- type of file, write a `PROGRAM_EXTENSION`  line. Then, specify the
-program to execute for each type of file.
+The `[FILTER]`  section of the ini file controls how filters work. 
+First, for each type of file, write a `PROGRAM_EXTENSION` line. 
+Then, specify the program to execute for each type of file. 
 This program is given the name of the input file as its first argument,
 and must write rs274ngc code to standard output. This output is what
 will be displayed in the text area, previewed in the display area, and
@@ -823,8 +842,7 @@ It is also possible to specify an interpreter:
 In this way, any Python script can be opened, and its output is
 treated as g-code. One such example script is available at
 `nc_files/holecircle.py`. This script creates g-code for drilling a
-series of holes along the
-circumference of a circle.
+series of holes along the circumference of a circle.
 
 .Circular Holes[[cap:Circular-Holes]]
 
@@ -872,7 +890,7 @@ this causes the built-in options to be created at the option level
 "widgetDefault", so that X Resources (which are level "userDefault")
 can override them.
 
-=== [[sub:Physical-jog-wheels]]Physical jog wheels
+=== Physical jog wheels[[sub:Physical-jog-wheels]]
 
 To improve the interaction of AXIS with physical jog wheels, the axis
 currently selected in the GUI is also reported on a pin with a name
@@ -926,4 +944,5 @@ preview on certain parts that are already working OK).
  - (AXIS,hide) Stops the preview (must be first)
  - (AXIS,show) Resumes the preview (must follow a hide)
  - (AXIS,stop) Stops the preview from here to the end of the file.
+
 

@@ -236,7 +236,7 @@ practice.
 
 === Adding an external ESTOP button(((ESTOP)))
 
-As you can see in  <<sub:standard_pinout.hal>> by default the stepper
+As you can see in <<sub:standard_pinout.hal>> by default the stepper
 configuration assumes no external ESTOP button. footnote:[An extensive
 explanation of hooking up ESTOP circuitry is explained in
 the wiki.linuxcnc.org and elsewhere in the Integrator Manual]

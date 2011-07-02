@@ -1,11 +1,4 @@
-= [[cha:Introduction]]Introduction
-
-This manual is for the person who wants to know more about HAL than is
-needed to just set up an EMC configuration file. HAL can run without
-EMC so this manual focuses on the stand alone HAL. For information on
-EMC related HAL see the Integrator Manual.
-
-== [[sec:What-is-HAL?]]What is HAL?
+= Introduction[[cha:Introduction]]
 
 HAL(((HAL))) stands for Hardware Abstraction Layer. At the highest
 level, it is simply a way to allow a number of “building blocks” to be
@@ -15,7 +8,7 @@ configure EMC for a wide variety of hardware devices. Many of the
 building blocks are drivers for hardware devices. However, HAL can do
 more than just configure hardware drivers.
 
-=== HAL is based on traditional system design techniques
+== HAL is based on traditional system design techniques
 
 HAL is based on the same principles that are used to design hardware
 circuits and systems, so it is useful to examine those principles
@@ -28,7 +21,7 @@ limit switches, pushbutton pendants, perhaps a VFD for the spindle
 drive, a PLC to run a toolchanger, etc. The machine builder must
 select, mount and wire these pieces together to make a complete system.
 
-==== Part Selection
+=== Part Selection
 
 The machine builder does not need to worry about how each individual
 part works. He treats them as black boxes. During the design stage, he
@@ -47,7 +40,7 @@ needed. Usually every interface card will require a driver. Additional
 components may be needed for software generation of step pulses, PLC
 functionality, and a wide variety of other tasks.
 
-==== Interconnection Design
+=== Interconnection Design
 
 The designer of a hardware system not only selects the parts, he also
 decides how those parts will be interconnected. Each black box has
@@ -60,7 +53,7 @@ diagram that shows how all the parts should be interconnected.
 When using HAL, components are interconnected by signals. The designer
 must decide which signals are needed, and what they should connect.
 
-==== Implementation
+=== Implementation
 
 Once the wiring diagram is complete it is time to build the machine.
 The pieces need to be acquired and mounted, and then they are
@@ -74,7 +67,7 @@ tools allow you to save a complete list of all the parts, wires, and
 other information about the system, so that it can be “rebuilt” with a
 single command.
 
-==== Testing
+=== Testing
 
 Very few machines work right the first time. While testing, the
 builder may use a meter to see whether a limit switch is working or to
@@ -124,7 +117,7 @@ controller is what HAL is all about. If you are comfortable with the
 idea of interconnecting hardware black boxes, you will probably have
 little trouble using HAL to interconnect software black boxes.
 
-== [[sec:HAL-Concepts]]HAL Concepts
+== HAL Concepts[[sec:HAL-Concepts]]
 
 This section is a glossary that defines key HAL terms but it is a bit
 different than a traditional glossary because these terms are not
@@ -224,7 +217,7 @@ pins, the other to take data from the HAL pins and write it to the
 physical output pins. Both of these functions are part of the parport
 driver.
 
-== [[sec:Intro-HAL-components]]HAL components
+== HAL components[[sec:Intro-HAL-components]]
 
 Each HAL component is a piece of software with well-defined inputs,
 outputs, and behavior, that can be installed and interconnected as
@@ -232,7 +225,7 @@ needed. This section lists some of the available components and a brief
 description of what each does. Complete details for each component are
 available later in this document.
 
-=== [[sub:ExternalPrograms]]External Programs with HAL hooks
+=== External Programs with HAL hooks[[sub:ExternalPrograms]]
 
 motion::
      (((motion))) A realtime module that accepts NML motion commands and
@@ -250,7 +243,7 @@ halui::
     commands, it is intended to work as a full User Interface using
     external knobs & switches 
 
-=== [[sub:InternalComponents]]Internal Components
+=== Internal Components[[sub:InternalComponents]]
 
 stepgen::
      Software step pulse generator with position loop. See section <<sec:Stepgen>>(((stepgen)))
@@ -272,7 +265,7 @@ blocks::
      assorted useful components (mux, demux, or, and, integ,
     ddt, limit, wcomp, etc.)(((blocks)))
 
-=== [[sub:HardwareDrivers]]Hardware Drivers(((Hardware Drivers)))
+=== Hardware Drivers[[sub:HardwareDrivers]](((Hardware Drivers)))
 
 hal_ax5214h::
      (((hal-ax5214h))) A driver for the Axiom Measurement & Control AX5241H
@@ -296,7 +289,7 @@ hal_stg::
 hal_vti::
     (((hal-vti))) Vigilant Technologies PCI ENCDAC-4 controller
 
-=== [[sub:ToolsUtilities]]Tools and Utilities
+=== Tools and Utilities[[sub:ToolsUtilities]]
 
 halcmd::
      (((halcmd))) Command line tool for configuration and tuning. See
@@ -315,7 +308,7 @@ halscope::
 
 Each of these building blocks is described in detail in later chapters.
 
-== [[sec:Tinkertoys]]Tinkertoys, Erector Sets, Legos and the HAL
+== Tinkertoys, Erector Sets, Legos and the HAL[[sec:Tinkertoys]]
 
 A first introduction to HAL concepts can be mind boggling. Building
 anything with blocks can be a challenge but some of the toys that we
@@ -418,7 +411,7 @@ The total length of the backbone can be changed by the length of rods
 used to connect the hubs. The order of operations is the same but the
 time to get from beginning to end is very different.
 
-=== [[sub:A-Lego-Example]]A Lego Examplefootnote:[The Lego name 
+=== A Lego Example[[sub:A-Lego-Example]]footnote:[The Lego name 
 is a trademark of the Lego company.]
 
 When Lego blocks first arrived in our stores they were pretty much all
@@ -441,7 +434,7 @@ magic of building with interlocking pieces all the same size is
 something to watch. 
 *********************************************************************
 
-== [[sec:Timing-Issues]]Timing Issues In HAL
+== Timing Issues In HAL[[sec:Timing-Issues]]
 
 Unlike the physical wiring models between black boxes that we have
 said that HAL is based upon, simply connecting two pins with a

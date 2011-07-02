@@ -1,7 +1,7 @@
 = L'interface MINI
 
 == Introduction  footnote:[Much of this chapter quotes from a 
-chapater of the Sherline CNC operators manual.]
+chapter of the Sherline CNC operators manual.]
 
 .L'interface graphique Mini[[fig:startminif]]
 image::mini01_fr.png[]
@@ -18,7 +18,7 @@ instructions écrites par Joe Martin et Ray Henry.
 
 == L'écran
 
-.[[fig:runmini]]Affichage de Mini lors du fonctionnement d'EMC
+.Affichage de Mini lors du fonctionnement d'EMC[[fig:runmini]]
 image::../common/mini_fr.jpg[]
 
  L'écran de Mini est visible dans plusieurs sections, voir la figure
@@ -440,7 +440,7 @@ dans le menus «Réglages». Les réglages par défaut, ou de démarrage,
 peuvent être changés dans le fichier ini pour correspondre à vos
 besoins.
 
-=== Correcteur de vitesse travail (((correcteur vitesse)))
+=== Correcteur de vitesse travail(((correcteur vitesse)))
 
 Immédiatement sous les afficheurs de position on trouve un curseur,
 c'est le correcteur de vitesse travail. Vous pouvez agir sur le
@@ -508,7 +508,7 @@ avez lancé un fichier et que vous avez besoin de l'éditer, ce fichier
 sera placé dans l'éditeur quand vous cliquez sur le bouton «Editeur» du
 menu.
 
-=== Parcours d'outil (((trace d'outil )))
+=== Parcours d'outil(((trace d'outil )))
 
 .Parcours d'outil de Mini
 

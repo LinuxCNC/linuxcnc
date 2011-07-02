@@ -2,7 +2,7 @@
 
 == Introduction  footnote:[Much of this chapter quotes from a chapter of the Sherline CNC Operators Manual. ]
 
-.[[fig:startmini]]The Mini Graphical Interface (upon starting)
+.The Mini Graphical Interface (upon starting)[[fig:startmini]]
 
 image::mini01.png[]
 
@@ -18,7 +18,7 @@ written for that mill by Joe Martin and Ray Henry.
 
 == Screen layout
 
-.[[fig:runmini]]Mini Display for a Running EMC
+.Mini Display for a Running EMC[[fig:runmini]]
 
 image::mini02.png[]
 
@@ -32,15 +32,14 @@ When you compare figure <<fig:startmini>> with figure <<fig:runmini>>
 you will see many differences. In the second figure
 
  - each axis has been homed -- the display numbers are dark green
- -  the EMC mode is auto(((Auto))) -- the auto button has a light green
+ - the EMC mode is auto(((Auto))) -- the auto button has a light green
    background
- -  the backplotter has been turned on -- backplot(((backplot))) is
+ - the backplotter has been turned on -- backplot(((backplot))) is
    visible in the pop-in window
  - the tool path from the program is showing in the display. 
 
 Once you start working with Mini you will quickly discover how easily
-it shows the conditions of the EMC and allows you to make changes to
-it.
+it shows the conditions of the EMC and allows you to make changes to it.
 
 == Menu Bar
 
@@ -291,7 +290,7 @@ highlighted line. Some of the messages are not very helpful.
 Sometimes you will need to read a line or two ahead of the highlight 
 to see the problem. Occasionally the message will refer to something 
 well ahead of the highlight line. This often happens if you forget 
-to end your program with an acceptable code like %, m2, m30, or m60. 
+to end your program with an acceptable code like %, M2, M30, or M60. 
 ***********************************************************************
 
 
@@ -383,7 +382,6 @@ think through things like tool offsets, barriers to motion along a
 diagonal line, and such, before you press the [Restart] button. 
 ***********************************************************************
 
-
 == Left Column
 
 There are two columns below the control line. The left side of the
@@ -395,7 +393,7 @@ few buttons to press here.
 The axis position displays work exactly like they do with tkemc. The
 color of the letters is important.
 
- -  Red indicates that the machine is sitting on a limit switch or the
+ - Red indicates that the machine is sitting on a limit switch or the
    polarity of a min or max limit is set wrong in the ini file.
  - Yellow indicates that the machine is ready to be homed.
  - Green indicates that the machine has been homed.
@@ -468,7 +466,7 @@ load if the EMC is in Auto mode. If you have been running a file and
 find that you need to edit it, that file will be placed in the editor
 when you click on the editor button on the top menu.
 
-=== Backplot (((backplot))) Display
+=== Backplot Display(((backplot)))
 
 .Minis Backplotter[[cap:Minis-Backplotter]]
 
@@ -679,4 +677,5 @@ a/A::
 One of the features of Mini is that it displays any axis above number
 2 as a rotary and will display degree units for it. It also converts to
 degree units for incremental jogs when a rotary axis has the focus.
+
 

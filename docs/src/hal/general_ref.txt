@@ -1,6 +1,6 @@
 = General Reference Information
 
-== [[sec:GR-Notation]]Notation
+== Notation[[sec:GR-Notation]]
 
 === Typographical Conventions
 
@@ -39,7 +39,7 @@ At times, a shortened version of a name may be used. For example, the
 second pin above might be referred to simply as `.output` when it can
 be done without causing confusion.
 
-== [[sec:GR-Naming-Conventions]]General Naming Conventions
+== General Naming Conventions[[sec:GR-Naming-Conventions]]
 
 Consistent naming conventions would make HAL much easier to use. For
 example, if every encoder driver provided the same set of pins and
@@ -204,7 +204,7 @@ ppmc.0.write::
       -- writes all outputs (step generators, pwm, DACs, and digital) on
     the first ppmc board
 
-= [[cha:Canonical-Device-Interfaces]]Canonical Device Interfaces
+= Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
 
 .Note
 *********************************************************************
@@ -221,7 +221,7 @@ defined for a canonical device. The `<device-name>`, `<device-num>`,
 and `<chan-num>` fields are set based on the characteristics of the 
 real device.
 
-== [[sec:CanonDigIn]]Digital Input
+== Digital Input[[sec:CanonDigIn]]
 
 The canonical digital input (I/O type field: `digin`) is quite simple.
 
@@ -238,7 +238,7 @@ The canonical digital input (I/O type field: `digin`) is quite simple.
 
  - (funct) `read` -- Read hardware and set `in` and `in-not` HAL pins.
 
-== [[sec:CanonDigOut]]Digital Output
+== Digital Output[[sec:CanonDigOut]]
 
 The canonical digital output (I/O type field: `digout`) is also very
 simple.
@@ -289,33 +289,33 @@ convert e.g. voltage to a continuous range of values.
 
 == Analog Output
 
-The canonical analog output (I/O Type: `adcout` ). This is intended
+The canonical analog output (I/O Type: `adcout`). This is intended
 for any kind of hardware that can output a 
 more-or-less continuous range of values. Examples are digital to analog
 converters or PWM generators.
 
 === Pins
 
- -  (float) *value* -- The value to be written. The actual value output
+ - (float) *value* -- The value to be written. The actual value output
    to the hardware will depend on the scale and offset parameters.
- -  (bit) *enable* -- If false, then output 0 to the hardware, regardless
+ - (bit) *enable* -- If false, then output 0 to the hardware, regardless
    of the *value* pin.
 
 === Parameters
 
- -  (float) *offset* -- This will be added to the *value* before the
+ - (float) *offset* -- This will be added to the *value* before the
    hardware is updated
- -  (float) *scale* -- This should be set so that an input of 1 on the
+ - (float) *scale* -- This should be set so that an input of 1 on the
    *value* pin will cause 1V 
- -  (float) *high_limit* (optional) -- When calculating the value to
+ - (float) *high_limit* (optional) -- When calculating the value to
    output to the hardware, if *value* + *offset* is greater than
    *high_limit*, then *high_limit* will be used instead.
- -  (float) *low_limit* (optional) -- When calculating the value to output
+ - (float) *low_limit* (optional) -- When calculating the value to output
    to the hardware, if *value* + *offset* is less than *low_limit*, then
    *low_limit* will be used instead.
- -  (float) *bit_weight* (optional) -- The value of one least significant
+ - (float) *bit_weight* (optional) -- The value of one least significant
    bit (LSB), in volts (or mA, for current outputs)
- -  (float) *hw_offset*  (optional) -- The actual voltage (or current)
+ - (float) *hw_offset*  (optional) -- The actual voltage (or current)
    that will be output if 0 is written to the hardware.
 
 === Functions
@@ -328,4 +328,5 @@ bipolar 12-bit A/D may need to write 0x1FF (mid scale) to the D/A get 0
 volts from the hardware pin. If enable is true, read scale, offset and 
 value and output to the adc (*scale* * *value*) + *offset*. If enable
 is false, then output 0.
+
 

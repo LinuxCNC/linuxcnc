@@ -2,9 +2,8 @@
 
 == Introduction
 
+.L'interface utilisateur minimale[[fig:startkeystick]]
 image::images/keystick.png[]
-
-.[[fig:startkeystick]]L'interface utilisateur minimale
 
 Keystick est une interface minimaliste textuelle.
 

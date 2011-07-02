@@ -22,7 +22,7 @@ At the left of its display as shown in figure  <<cap:Halshow-Layout>>
 is a tree view, somewhat like you might see with some file browsers. At
 the right is a tabbed notebook with tabs for show and watch.
 
-.[[cap:Halshow-Layout]]Halshow Layout
+.Halshow Layout[[cap:Halshow-Layout]]
 
 image::halshow-1.png[]
 
@@ -37,7 +37,7 @@ find: Expand Tree, Collapse Tree; Expand Pins, Expand Parameters,
 Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
-.[[cap:Show-Menu]]Show Menu
+.Show Menu[[cap:Show-Menu]]
 
 image::halshow-3.png[]
 
@@ -153,7 +153,7 @@ This is just for viewing, so we leave position blank and get the last
 position in the thread. Figure  <<cap:Addf-Command>> shows the state of
 halshow after this command has been issued.
 
-.[[cap:Addf-Command]]Addf Command
+.Addf Command[[cap:Addf-Command]]
 
 image::halshow-2.png[]
 
@@ -237,4 +237,5 @@ Watch's refresh rate is a bit slow to see stepper pulses, but you can
 use it for these if you move an axis very slowly or in very small
 increments of distance. If you've used IO_Show in EMC, the watch page
 in halshow can be set up to watch a parport much as IO_Show did.
+
 

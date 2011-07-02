@@ -9,23 +9,25 @@ existent avec le nom et le N° de leur page man permettant d'avoir plus
 de détails. Par exemple dans une fenêtre de terminal tapez `man 1 axis` 
 pour accéder aux informations de cette page man.
 
- - = Interface de télécommande d'AXIS
- - = AXIS EMC (The Enhanced Machine Controller) Interface Graphique Utilisateur
- - = Pour charger un programme «Xilinx Bitfile» dans le FPGA de n'importe
-   quelle carte d'entrées/sorties de Mesa
- - = Créer, compiler et installer des composants de EMC HAL
- - = EMC (The Enhanced Machine Controller)
- - = Contrôler des pins d'entrée de HAL avec n'importe quel matériel y
-   compris les matériels USB HID
- - = Manipuler HAL depuis la ligne de commandes
- - = Observer les pins de HAL, ses signaux et ses paramètres
- - = Manipuler HAL depuis la ligne de commandes
- - = Echantillonner des données temps réel depuis HAL
- - = Créer un flux de données temps réel dans HAL depuis un fichier
- - = Observer des pins de HAL et commander EMC au travers d'NML
- - = Commandes NML I/O acceptées et interactions avec HAL dans l'espace utilisateur
- - = Commandes NML I/O acceptées et interactions avec HAL dans l'espace utilisateur
- - = Virtual Control Panel (Panneau de Contrôle Virtuel) pour EMC2
+`man axis` (ou peut-être `man 1 axis` si votre système il faut.)
+
+*axis* = Interface de télécommande d'AXIS +
+*axis-remote* = AXIS EMC (The Enhanced Machine Controller) Interface Graphique Utilisateur +
+*comp* = Créer, compiler et installer des composants de EMC HAL +
+*emc* = EMC (The Enhanced Machine Controller) +
+*gladevcp* = Panneau de contrôle virtuel pour EMC2 repose sur Glade, Gtk et widgets HAL. +
+*gs2* = HAL espace utilisateur de composants pour l'Automation Direct GS2 VFD. +
+*halcmd* = Manipuler HAL depuis la ligne de commandes +
+*hal_input* = Contrôler des pins d'entrée de HAL avec n'importe quel matériel y compris les matériels USB HID +
+*halmeter* = Observer les pins de HAL, ses signaux et ses paramètres +
+*halrun* = Manipuler HAL depuis la ligne de commandes +
+*halsampler* = Echantillonner des données temps réel depuis HAL +
+*halstreamer* = Créer un flux de données temps réel dans HAL depuis un fichier +
+*halui* = Observer des pins de HAL et commander EMC au travers d'NML +
+*io* = Commandes NML I/O acceptées et interactions avec HAL dans l'espace utilisateur +
+*iocontrol* = Commandes NML I/O acceptées et interactions avec HAL dans l'espace utilisateur +
+*pyvcp* = Virtual Control Panel (Panneau de Contrôle Virtuel) pour EMC2 +
+*shuttlexpress* = Le contrôle pins de HAL avec l'appareil ShuttleXpress faites par Contour Design. +
 
 == Composants temps réel et modules du noyau
 
@@ -135,7 +137,7 @@ Converti une valeur de u32 en s32
 === counter (((counter)))
 
 Impulsions d'entrée Comtes (obsolète). +
-Utilisez le composant *codeur* avec `... counter-mode = TRUE`. Voir <<sec:Codeur>>.
+Utilisez le composant *encoder* avec `... counter-mode = TRUE`. Voir <<sec:Codeur>>.
 
 === ddt (((ddt)))
 
@@ -593,6 +595,5 @@ skeleton.3hal +
 skeleton.3rtapi +
 undocumented.3hal +
 undocumented.3rtapi +
-
 
 
