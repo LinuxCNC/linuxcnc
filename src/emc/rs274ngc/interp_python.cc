@@ -420,11 +420,11 @@ int Interp::pycall(setup_pointer settings,
 	    } else {
 		logPy("pycall(%s):  PY_INTERNAL: expected an int return code", funcname);
 		res_str = PyObject_Str(retval.ptr());
-		Py_XDECREF(res_str);
-		logPy("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
+		ERM("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
 		    funcname,
 		    PyString_AsString(res_str),
 		    retval.ptr()->ob_type->tp_name);
+		Py_XDECREF(res_str);
 		status = INTERP_ERROR;
 	    }
 	    break;
