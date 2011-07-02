@@ -98,10 +98,9 @@ motor_pos_fb.
 
 image::emc2-motion-joint-controller-block-diag.png[]
 
-.[[fig:motion-joint-controller-block-diag]]Joint Controller Block
-Diagram
+.Joint Controller Block Diagram[[fig:motion-joint-controller-block-diag]]
 
-Figure  <<fig:motion-joint-controller-block-diag>> shows five of the
+Figure <<fig:motion-joint-controller-block-diag>> shows five of the
 seven sets of position information that form the main data flow through
 the motion controller. The seven forms of position data are as follows:
 
@@ -723,6 +722,8 @@ resolution of the system clock. If, for example, a process needs to be
 run every 5 seconds regardless of the time taken to run the process,
 the following code snippet demonstrates how :
 
+[source,c]
+-----------------------------------------------------------
     main()
     {
         timer = new Timer(5.0);    /* Initialize a timer with a 5 second loop */
@@ -732,6 +733,7 @@ the following code snippet demonstrates how :
         }
         delete timer;
     }
+-----------------------------------------------------------
 
 == Semaphore
 
@@ -764,7 +766,7 @@ internal view of the buffer space.
 
 image::CMS_buffer.eps[]
 
-.[[fig:CMS buffer]]CMS buffer
+.CMS buffer[[fig:CMS buffer]]
 
 The CMS base class is primarily responsible for creating the
 communications pathways and interfacing to the O.S.
@@ -786,64 +788,64 @@ Buffers, and a second for Processes that connect to the buffers.
 
 The original NIST format of the buffer line is:
 
-B name type host size neut RPC# buffer# max_procs key [type specific configs]
+*B name type host size neut RPC# buffer# max_procs key [type specific configs]*
 
- - B identifies this line as a Buffer configuration.
- - name is the identifier of the buffer.
- - type describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or GLOBMEM.
- - host is either an IP address or host name for the NML server
- - size is the size of the buffer
- - neut a boolean to indicate if the data in the buffer is encoded in a
-   machine independent format, or raw.
- - RPC# Obsolete - Place holder retained for backward compatibility only.
- - buffer# A unique ID number used if a server controls multiple buffers.
- - max_procs is the maximum processes allowed to connect to this buffer.
- - key is a numerical identifier for a shared memory buffer
+ - *B* identifies this line as a Buffer configuration.
+ - *name* is the identifier of the buffer.
+ - *type* describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or GLOBMEM.
+ - *host* is either an IP address or host name for the NML server
+ - *size* is the size of the buffer
+ - *neut* a boolean to indicate if the data in the buffer is encoded in a
+     machine independent format, or raw.
+ - *RPC#* Obsolete - Place holder retained for backward compatibility only.
+ - *buffer#* A unique ID number used if a server controls multiple buffers.
+ - *max_procs* is the maximum processes allowed to connect to this buffer.
+ - *key* is a numerical identifier for a shared memory buffer
 
 === Type specific configs
 
 The buffer type implies additional configuration options whilst the
 host operating system precludes certain combinations. In an attempt to
-distill published documentation in to a coherent format, only the SHMEM
+distill published documentation in to a coherent format, only the *SHMEM*
 buffer type will be covered.
 
- - mutex=os_sem - default mode for providing semaphore locking of the buffer memory.
- - mutex=none - Not used
- - mutex=no_interrupts - not applicable on a Linux system
- - mutex=no_switching - not applicable on a Linux system
- - mutex=mao split - Splits the buffer in to half (or more) and allows
-   one process to access part of the buffer whilst a second process is
-   writing to another part.
- - TCP=(port number) - Specifies which network port to use.
- - UDP=(port number) - ditto
- - STCP=(port number) - ditto
- - serialPortDevName=(serial port) - Undocumented.
- - passwd=file_name.pwd - Adds a layer of security to the buffer by
-   requiring each process to provide a password.
- - bsem - NIST documentation implies a key for a blocking semaphore, 
-   and if bsem=-1, blocking reads are prevented.
- - queue - Enables queued message passing.
- - ascii - Encode messages in a plain text format
- - disp - Encode messages in a format suitable for display (???)
- - xdr - Encode messages in External Data Representation. (see rpc/xdr.h for details).
- - diag - Enables diagnostics stored in the buffer (timings and byte counts ?)
+ - *mutex=os_sem* - default mode for providing semaphore locking of the buffer memory.
+ - *mutex=none* - Not used
+ - *mutex=no_interrupts* - not applicable on a Linux system
+ - *mutex=no_switching* - not applicable on a Linux system
+ - *mutex=mao split* - Splits the buffer in to half (or more) and allows
+     one process to access part of the buffer whilst a second process is
+     writing to another part.
+ - *TCP=(port number)* - Specifies which network port to use.
+ - *UDP=(port number)* - ditto
+ - *STCP=(port number)* - ditto
+ - *serialPortDevName=(serial port)* - Undocumented.
+ - *passwd=file_name.pwd* - Adds a layer of security to the buffer by
+     requiring each process to provide a password.
+ - *bsem* - NIST documentation implies a key for a blocking semaphore, 
+     and if bsem=-1, blocking reads are prevented.
+ - *queue* - Enables queued message passing.
+ - *ascii* - Encode messages in a plain text format
+ - *disp* - Encode messages in a format suitable for display (???)
+ - *xdr* - Encode messages in External Data Representation. (see rpc/xdr.h for details).
+ - *diag* - Enables diagnostics stored in the buffer (timings and byte counts ?)
 
 === Process line 
 
 The original NIST format of the process line is:
 
-P name buffer type host ops server timeout master c_num [type specific configs]
+*P name buffer type host ops server timeout master c_num [type specific configs]*
 
- - P identifies this line as a Process configuration.
- - name is the identifier of the process.
- - buffer is one of the buffers defined elsewhere in the config file.
- - type defines whether this process is local or remote relative to the buffer.
- - host specifies where on the network this process is running.
- - ops gives the process read only, write only, or read/write access to the buffer.
- - server specifies if this process will running a server for this buffer.
- - timeout sets the timeout characteristics for accesses to the buffer.
- - master indicates if this process is responsible for creating and destroying the buffer.
- - c_num an integer between zero and (max_procs -1)
+ - *P* identifies this line as a Process configuration.
+ - *name* is the identifier of the process.
+ - *buffer* is one of the buffers defined elsewhere in the config file.
+ - *type* defines whether this process is local or remote relative to the buffer.
+ - *host* specifies where on the network this process is running.
+ - *ops* gives the process read only, write only, or read/write access to the buffer.
+ - *server* specifies if this process will running a server for this buffer.
+ - *timeout* sets the timeout characteristics for accesses to the buffer.
+ - *master* indicates if this process is responsible for creating and destroying the buffer.
+ - *c_num* an integer between zero and (max_procs -1)
 
 === Configuration Comments
 
