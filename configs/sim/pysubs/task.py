@@ -1,5 +1,6 @@
 import hal
 import CanonMod
+import InterpMod
 import pickle
 
 h = None
@@ -7,7 +8,6 @@ h = None
 # this is called by task once after startup
 def task_init():
 	global h
-	print "---- Python _task_init()"
 	h = hal.component("iocontrol-task")
 	h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
 	h.newpin("coolant-mist", hal.HAL_BIT, hal.HAL_OUT)
@@ -52,7 +52,6 @@ class EnqueueCall(object):
         self._e = e
 
     def _encode(self,*args,**kwargs):
-        print "-- encode",self._name
         if hasattr(self._e,self._name):# and callable(getattr(self.e,self.name)):
             CanonMod.PLUGIN_CALL(pickle.dumps((self._name,args,kwargs)))
         else:
@@ -72,10 +71,10 @@ class Execute(object):
 		    print "TASK: demo(%s)" % s
 		    for i in range(int(s[0])):
 			    h['bit'] = not  h['bit']
-	    else:
-		    print "NON-task: demo(%s)" % s
-
-	    return 0 # return -1 to fail execution
+            return 0
+            # return -1 to fail execution
+            #InterpMod.interp.set_errormsg("FoooooooO!!")
+	    #return -1
 
 execute = Execute()
 enqueue = EnqueueCall(execute)

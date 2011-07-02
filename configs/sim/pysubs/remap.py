@@ -1,3 +1,4 @@
+from InterpMod import *
 
 #
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
