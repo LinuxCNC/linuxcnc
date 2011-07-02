@@ -552,6 +552,7 @@ public:
     int task_init();
     // name of corresponding Python callabled called by task_init()
 #define TASK_INIT "task_init"
+    const char *getSavedError();
 
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);

@@ -434,6 +434,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readonly("filename", (char *) &InterpWrap::_setup.filename)
 		       .def_readonly("linetext", (char *) &InterpWrap::_setup.linetext)
 		       .def_readonly("current_tool", &InterpWrap::_setup.tool_table[0].toolno)
+		       .def_readonly("running_under_task", &InterpWrap::_setup.running_under_task)
 
 		       .def_readwrite("AA_axis_offset", &InterpWrap::_setup.AA_axis_offset)
 		       .def_readwrite("AA_current", &InterpWrap::_setup.AA_current)

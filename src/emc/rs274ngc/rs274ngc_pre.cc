@@ -1856,6 +1856,10 @@ void Interp::setError(const char *fmt, ...)
     va_end(ap);
 }
 
+const char *Interp::getSavedError()
+{
+    return savedError;
+}
 /***********************************************************************/
 
 /*! Interp::error_text

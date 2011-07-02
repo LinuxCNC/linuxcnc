@@ -32,7 +32,6 @@ namespace bp = boost::python;
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <exception>
 
 #include "rs274ngc.hh"
@@ -110,14 +109,7 @@ int Interp::init_python(setup_pointer settings, bool reload)
     std::string msg;
     bool py_exception = false;
     PyGILState_STATE gstate;
-
-    static const char *orig_python_path;
-
-    if (orig_python_path == NULL) { // record original PYTHONPATH first time around
-	orig_python_path = getenv(PYTHONPATH);
-	if (orig_python_path == NULL)
-	    orig_python_path = "";
-    }
+    char path[PATH_MAX];
 
     if ((settings->py_module_stat != PYMOD_NONE) && !reload) {
 	logPy("init_python RE-INIT %d pid=%d",settings->py_module_stat,getpid());
@@ -132,13 +124,14 @@ int Interp::init_python(setup_pointer settings, bool reload)
 	  (unsigned long)this, getpid(), settings->py_module_stat, Py_IsInitialized(),reload);
 
     PYCHK((settings->py_module == NULL), "init_python: no module defined");
-    // PYCHK(((realpath(settings->py_module, path)) == NULL),
-    // 	  "init_python: cant resolve path to '%s'", settings->py_module);
 
     strcpy(module_path, settings->py_path);
     strcat(module_path,"/");
     strcat(module_path, settings->py_module);
     strcat(module_path,".py");
+
+    PYCHK(((realpath(module_path, path)) == NULL),
+	  "init_python: cant resolve path to '%s'", module_path);
 
     // record timestamp first time around
     if (settings->module_mtime == 0) {
@@ -152,18 +145,6 @@ int Interp::init_python(setup_pointer settings, bool reload)
     }
 
     if (!reload) {
-
-	//     char *newpath = (char *) malloc(strlen(orig_python_path) + strlen(settings->py_path)
-	// 			   + 20 + strlen(PYTHONPATH));
-	//     sprintf(newpath, "%s=%s", PYTHONPATH, settings->py_path);
-	//     // if (strlen(orig_python_path)) {
-	//     // 	strcat(newpath,":");
-	//     // 	strcat(newpath,orig_python_path);
-	//     // }
-	//     printf("putenv(%s)\n",newpath);
-	//     putenv(newpath);
-	//     free(newpath);
-	// }
 	Py_SetProgramName(module_path);
 	PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
 	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
@@ -246,7 +227,7 @@ int Interp::py_reload_on_change(setup_pointer settings)
     return INTERP_OK;
 }
 
-// determine wether module.funcname is callable
+// determine wether [module.]funcname is callable
 bool Interp::is_pycallable(setup_pointer settings,
 			   const char *module,
 			   const char *funcname)
@@ -286,10 +267,12 @@ bool Interp::is_pycallable(setup_pointer settings,
 	logPy("is_pycallable(%s.%s): unexpected exception:\n%s",module,funcname,msg.c_str());
 
     if (_setup.loggingLevel > 5)
-	logPy("py_iscallable(%s.%s) = %s",module ? module : "",funcname,result ? "TRUE":"FALSE");
+	logPy("is_pycallable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
     return result;
 }
 
+// all parameters to Python calls go through block, which looks a bit awkward
+// the reason is not to expose boost.python through the interpreter public interface
 int Interp::pycall(setup_pointer settings,
 		   block_pointer block,
 		   const char *module,
@@ -303,20 +286,21 @@ int Interp::pycall(setup_pointer settings,
     int status = INTERP_OK;
     PyObject *res_str;
 
-    if (_setup.loggingLevel > 2)
-	logPy("pycall %s \n", funcname);
+    if (_setup.loggingLevel > 4)
+	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
     if (settings->py_reload_on_change)
 	py_reload_on_change(settings);
 
     // &this->_setup wont work, _setup is currently private
+    // (well, it used to..)
     current_setup = get_setup(this);
     current_interp = this;
     block->returned = 0;
 
     if (settings->py_module_stat != PYMOD_OK) {
 	ERS("function '%s.%s' : module %s",
-	    settings->py_module,funcname,
+	    module ? module : "", funcname,
 	    (settings->py_module_stat == PYMOD_FAILED) ?
 	    "initialization failed" : " not initialized");
     }
@@ -327,13 +311,14 @@ int Interp::pycall(setup_pointer settings,
 	switch (calltype) {
 
 	case PY_EXECUTE:
+	    // just run a string
 	    retval = bp::exec(funcname,
 			      _setup.module_namespace,
 			      _setup.module_namespace);
 	    break;
 
 	default:
-	    if (module == NULL) {
+	    if (module == NULL) {  // default to function in toplevel module
 		function = settings->module_namespace[funcname];
 	    } else {
 		bp::object submod =  settings->module_namespace[module];
@@ -342,7 +327,6 @@ int Interp::pycall(setup_pointer settings,
 	    }
 	    retval = function(*block->tupleargs,**block->kwargs);
 	    break;
-
 	}
     }
     catch (bp::error_already_set) {
@@ -354,7 +338,9 @@ int Interp::pycall(setup_pointer settings,
 	PyErr_Clear();
     }
     if (py_exception) {
+	logPy("pycall: %s:\n%s", funcname, msg.c_str());
 	ERM("pycall: %s:\n%s", funcname, msg.c_str());
+	status = INTERP_ERROR;
 	goto done;
     }
     try {
@@ -416,18 +402,18 @@ int Interp::pycall(setup_pointer settings,
 
 	case PY_INTERNAL:
 	case PY_PLUGIN_CALL:
-
 	    // a plain int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...) is expected
 	    // must have returned an int
 	    if ((retval.ptr() != Py_None) &&
 		(PyInt_Check(retval.ptr()))) {
 		status = block->py_returned_status = bp::extract<int>(retval);
 		block->returned[RET_STATUS] = 1;
+		logPy("pycall(%s):  PY_INTERNAL/PY_PLUGIN_CALL: return code=%d", funcname,status);
 	    } else {
 		logPy("pycall(%s):  PY_INTERNAL: expected an int return code", funcname);
 		res_str = PyObject_Str(retval.ptr());
 		Py_XDECREF(res_str);
-		ERM("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
+		logPy("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
 		    funcname,
 		    PyString_AsString(res_str),
 		    retval.ptr()->ob_type->tp_name);
@@ -461,97 +447,15 @@ int Interp::pycall(setup_pointer settings,
 // called by  (py, ....) comments
 int Interp::py_execute(const char *cmd)
 {
-    std::string msg;
-    PyGILState_STATE gstate;
-    bool py_exception = false;
-
-    // bp::object main_module = bp::import("__main__");
-    // bp::object main_namespace = main_module.attr("__dict__");
+    block b;
 
     logPy("py_execute(%s)",cmd);
+    init_block(&b);
 
-    if (_setup.py_reload_on_change)
-	py_reload_on_change(&_setup);
-
-    if (useGIL)
-	gstate = PyGILState_Ensure();
-
-    bp::object retval;
-
-    try {
-	retval = bp::exec(cmd,
-			  _setup.module_namespace,
-			  _setup.module_namespace);
-    }
-    catch (bp::error_already_set) {
-        if (PyErr_Occurred())  {
-	    py_exception = true;
-	    msg = handle_pyerror();
-	}
-	bp::handle_exception();
-	PyErr_Clear();
-    }
-    if (useGIL)
-	PyGILState_Release(gstate);
-
-    if (py_exception)
-	logPy("py_execute(%s):  %s", cmd, msg.c_str());
-    // msg.erase(std::remove(msg.begin(), msg.end(), '\n'), msg.end());
-    // msg.erase(std::remove(msg.begin(), msg.end(), '\r'), msg.end());
-    // if (msg.length())
-    // 	MESSAGE((char *) msg.c_str());
-
-    return INTERP_OK;
+    return pycall(&_setup, &b,NULL, cmd, PY_EXECUTE);
 }
 
 
-// // we borrow the interp Python environment for task-time calls
-// int Interp::plugin_call(const char *name, const char *call)
-// {
-//     std::string msg;
-//     PyGILState_STATE gstate;
-//     bool py_exception = false;
-
-//     logPy("plugin_call(%s)",call);
-
-//     if (_setup.py_reload_on_change)
-// 	py_reload_on_change(&_setup);
-
-//     if (useGIL)
-// 	gstate = PyGILState_Ensure();
-
-//     bp::object retval, function;
-
-//     try {
-// 	bp::object args(call);
-// 	function = _setup.module_namespace[name];
-// 	retval = function(args);
-//     }
-//     catch (bp::error_already_set) {
-//         if (PyErr_Occurred())  {
-// 	    py_exception = true;
-// 	    msg = handle_pyerror();
-// 	}
-//     	bp::handle_exception();
-// 	PyErr_Clear();
-//     }
-//     if (useGIL)
-// 	PyGILState_Release(gstate);
-
-//     if (py_exception)
-// 	logPy("plugin_call(%s):  %s", call, msg.c_str());
-
-
-//     // must have returned an int
-//     if ((retval.ptr() != Py_None) &&
-// 	(PyInt_Check(retval.ptr()))) {
-// 	return  bp::extract<int>(retval);
-//     } else {
-// 	logPy("plugin_call(%s):  expected an int return code", call);
-// 	// the EMC_TASK_EXEC_xxx codes are all > 0
-// 	return -1;
-//     }
-// }
 
 // we borrow the interp Python environment for task-time calls
 int Interp::plugin_call(const char *module, const char *name, const char *call)
@@ -561,35 +465,36 @@ int Interp::plugin_call(const char *module, const char *name, const char *call)
 
     logPy("plugin_call(%s)",call);
     init_block(&b);
-    if (call != NULL)
-	b.tupleargs = bp::list(bp::object(call));
+
+    if (call != NULL) {
+	b.tupleargs = bp::make_tuple(bp::object(call));
+    }
 
     if (is_pycallable(&_setup, module, name)) {
 	status = pycall(&_setup, &b, module, name, PY_PLUGIN_CALL);
-	if (status == INTERP_OK)
+	// if function returned an int, return that
+	if (b.returned[RET_STATUS])
 	    return b.py_returned_status;
-	else
-	    return INTERP_ERROR;
+	return -1;
     } else
-	return INTERP_OK;
-
+	return 0;
 }
 
 int Interp::task_init()
 {
     int status;
     block b;
+    _setup.running_under_task = true;
 
     logPy("task_init()");
     init_block(&b);
 
     if (is_pycallable(&_setup, TASK_MODULE, TASK_INIT)) {
 	status = pycall(&_setup, &b,TASK_MODULE,  TASK_INIT, PY_PLUGIN_CALL);
-	if (status == INTERP_OK)
+	// if function returned an int, return that
+	if (b.returned[RET_STATUS])
 	    return b.py_returned_status;
-	else
-	    return INTERP_ERROR;
+	return -1;
     } else
-	return INTERP_OK;
-
+	return 0;
 }

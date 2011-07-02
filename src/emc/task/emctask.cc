@@ -657,7 +657,17 @@ int emcAbortCleanup(int reason, const char *message)
 
 int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 {
+    int status;
+    char error[LINELEN-30];
+
     // reuses interpreter Python environment for task
-    return interp.plugin_call(TASK_MODULE, PLUGINCALL, call_msg->call);
+    status = interp.plugin_call(TASK_MODULE, PLUGINCALL, call_msg->call);
+
+    if (status == -1) {
+	const char *s = interp.getSavedError();
+	strncpy(error,s, sizeof(error) - 1);
+	emcOperatorError(0, "emcPluginCall: %s",error);
+    }
+    return status;
 }
 

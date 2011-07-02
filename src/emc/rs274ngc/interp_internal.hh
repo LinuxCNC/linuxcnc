@@ -715,7 +715,7 @@ typedef struct setup_struct
     int py_reload_on_change;
     time_t    module_mtime;   // top level module - last modification time
     boost::python::object module_namespace;
-
+    bool running_under_task;
 }
 setup;
 enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
