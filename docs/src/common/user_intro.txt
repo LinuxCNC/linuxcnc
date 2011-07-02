@@ -4,29 +4,30 @@
 The Enhanced Machine Control
 ============================
 
-
 == This Manual
 
-The focus of this manual is on using EMC. It is intended to be used
-once EMC is installed and configured. For standard installations see
+The focus of this manual is on using EMC2. It is intended to be used
+once EMC2 is installed and configured. For standard installations see
 the Getting Started Guide for step by step instructions to get you up
 and going. For detailed information on installation and configuration
-of EMC see the Integrator Manual.
+of EMC2 see the Integrator Manual.
 
-== How EMC2 Works [[sec:How-EMC2-Works]]
+== How EMC2 Works[[sec:How-EMC2-Works]]
 
 The Enhanced Machine Controller (EMC2) is a lot more than just another
 CNC(((CNC))) mill program. It can control machine tools, robots, or
 other automated devices. It can control servo motors, stepper motors,
 relays, and other devices related to machine tools.
 
-There are four main components to the EMC2 software: a motion
-controller, a discrete I/O controller, a task executor which
-coordinates them, and graphical user interfaces. In addition there is a
-layer called HAL (Hardware Abstraction Layer) which allows
-configuration of EMC2 without the need of recompiling.
+There are four main components to the EMC2 software: 
+a motion controller (EMCMOT), 
+a discrete I/O controller (EMCIO), 
+a task executor which coordinates them (EMCTASK), 
+and graphical user interfaces. 
+In addition there is a layer called HAL (Hardware Abstraction Layer) 
+which allows configuration of EMC2 without the need of recompiling.
 
-.[[fig:Typical_machine]]Simple EMC2 Controlled Machine
+.Simple EMC2 Controlled Machine[[fig:Typical_machine]]
 
 image::whatstep1.png[]
 
@@ -41,25 +42,50 @@ to connect with external control boards. As we examine each of the
 components that make up an EMC2 system we will remind the reader of
 this typical machine.
 
-== User Interfaces [[sub:Graphical-User-Interfaces]]
+== Graphical User Interfaces[[sub:Graphical-User-Interfaces]]
 
 A user interface is the part of the EMC2 that the machine tool
 operator interacts with. The EMC2 comes with several types of user
 interfaces:
 
+
  - *AXIS*, an OpenGL-based GUI (Graphical User Interface), with an
    interactive G-Code previewer. This interface is one of the few that are
    still under active development and improvement. 
 
+.The AXIS GUI[[fig:The-Axis-GUI]]
+
 image::images/axis_2.3.png[]
 
- -  *Keystick*, a character-based screen graphics program suitable for
+
+ - *Mini*, a Tcl/Tk-based GUI 
+
+.The Mini GUI[[fig:The-Mini-GUI]]
+
+image::mini.png[]
+
+
+ - *TkEMC*, a Tcl/Tk-based GUI
+
+.The TkEmc GUI[[fig:The-TkEmc-GUI]]
+
+image::tkemc.png[]
+
+
+ - *Keystick*, a character-based screen graphics program suitable for
    minimal installations (without the X server running).
- - *Xemc*, an X Windows program
- - two Tcl/Tk-based GUIs named *TkEMC* and *Mini* 
- -  a HAL based user interface called *halui*, which allows to control EMC2
+
+.The Keystick GUI[[fig:The-Keystick-GUI]]
+
+image::keystick.png[]
+
+
+ - *Xemc*, an X-Windows program
+
+ - a HAL based user interface called *halui*, which allows to control EMC2
    using knobs and switches
- -  a telnet based user interface called *emcrsh*, which allows commands to
+
+ - a telnet based user interface called *emcrsh*, which allows commands to
    be sent to EMC2 from remote computers
 
 == Languages
@@ -70,7 +96,7 @@ and when you start up EMC it comes up in that language. If your
 language has not been translated contact a developer on the IRC or the
 mailing list if you can assist in the translation.
 
-== Thinking Like a Machine Operator [[sec:Thinking-Operator]]
+== Thinking Like a Machine Operator[[sec:Thinking-Operator]]
 
 This book will not even pretend that it can teach you to run a mill or
 a lathe. Becoming a machinist takes time and hard work. An author once
@@ -89,9 +115,9 @@ will help you become a good operator of the EMC2 system. You will need
 some information right up front here so that the following pages will
 make sense to you.
 
-== Modes of Operation [[sub:Modes-of-Operation]]
+== Modes of Operation[[sub:Modes-of-Operation]]
 
-When an EMC2 is running, there are three different major modes used
+When EMC2 is running, there are three different major modes used
 for inputting commands. These are *Manual*(((Manual))), *Auto*(((Auto))),
 and *MDI*(((MDI))). Changing from one mode to another makes a big
 difference in the way that the EMC2 control behaves. There are specific things
@@ -122,4 +148,5 @@ also blurs the distinction between Manual and MDI because some Manual
 commands like Touch Off are actually implemented by sending MDI
 commands. It does this by automatically changing to the mode that is
 needed for the action the user has requested.
+
 

@@ -125,9 +125,9 @@ or from the man pages, just enter "man limit2" or "man near".
     net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
 
 
-= Spindle Feedback (((Spindle Feedback)))[[cha:Spindle-Feedback]]
+= Spindle Feedback[[cha:Spindle-Feedback]](((Spindle Feedback)))
 
-== Spindle Synchronized Motion (((Spindle Synchronized Motion)))[[sec:Spindle-Synchronized-Motion]]
+== Spindle Synchronized Motion[[sec:Spindle-Synchronized-Motion]](((Spindle Synchronized Motion)))
 
 Spindle feedback is needed by EMC to perform any spindle coordinated
 motions like threading and constant surface speed. The StepConf Wizard
@@ -172,7 +172,7 @@ Basic Steps to add the components and configure them:
     B quadrature input.] 
     net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 
-== Spindle At Speed (((Spindle At Speed)))[[sec:Spindle-At-Speed]]
+== Spindle At Speed[[sec:Spindle-At-Speed]](((Spindle At Speed)))
 
 To enable EMC to wait for the spindle to be at speed before executing
 a series of moves you need to set motion.spindle-at-speed to true when

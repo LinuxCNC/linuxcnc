@@ -354,3 +354,4 @@ In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it can not recognize the hard drive during
 the boot up.
 
+

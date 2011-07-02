@@ -94,7 +94,7 @@ address, it is an error.
 
 image::parport-block-diag.eps[]
 
-.[[fig:Parport-block-diag]]Parport Block Diagram
+.Parport Block Diagram[[fig:Parport-block-diag]]
 
 === Pins
 
@@ -128,32 +128,32 @@ pins.
 
 === Parameters
 
- -  `(bit) parport.<portnum>.pin-<pinnum>-out-invert` -- Inverts an
+ - `(bit) parport.<portnum>.pin-<pinnum>-out-invert` -- Inverts an
    output pin.
- -  `(bit) parport.<portnum>.pin-<pinnum>-out-reset` (only for "out"
+ - `(bit) parport.<portnum>.pin-<pinnum>-out-reset` (only for "out"
    pins) -- TRUE if this pin should be reset when the `-reset` function is
    executed.
- -  `(U32) parport.<portnum>.reset-time` -- The time (in nanoseconds)
+ - `(U32) parport.<portnum>.reset-time` -- The time (in nanoseconds)
    between a pin is set by `write` and reset by the `reset` function if it
    is enabled.
 
-The `-invert`  parameter determines whether an output pin is active
-high or active
- low. If `-invert` is FALSE, setting the HAL `-out` pin TRUE drives the
+The `-invert` parameter determines whether an output pin is active
+high or active low. If `-invert` is FALSE, setting 
+the HAL `-out` pin TRUE drives the
 physical pin high, and FALSE drives it low. If `-invert` is TRUE, then
 setting the HAL `-out` pin TRUE will drive the physical pin low.
 
 === Functions
 
- -  `(funct) parport.<portnum>.read`-- Reads physical input pins of port
+ - `(funct) parport.<portnum>.read`-- Reads physical input pins of port
    `<portnum>` and updates HAL `-in` and `-in-not` pins.
- -  `(funct) parport.read-all` -- Reads physical input pins of all ports
+ - `(funct) parport.read-all` -- Reads physical input pins of all ports
    and updates HAL `-in` and `-in-not` pins.
- -  `(funct) parport.<portnum>.write` -- Reads HAL `-out` pins of port
+ - `(funct) parport.<portnum>.write` -- Reads HAL `-out` pins of port
    `<portnum>` and updates that port's physical output pins.
- -  `(funct) parport.write-all` -- Reads HAL `-out` pins of all ports
+ - `(funct) parport.write-all` -- Reads HAL `-out` pins of all ports
    and updates all physical output pins.
- -  `(funct) parport.<portnum>.reset` -- Waits until `reset-time` has
+ - `(funct) parport.<portnum>.reset` -- Waits until `reset-time` has
    elapsed since the associated `write`, then resets pins to values
    indicated by `-out-invert` and `-out-invert` settings. `reset` must be
    later in the same thread as `write. `If `-reset` is TRUE, then the
@@ -206,7 +206,7 @@ For example:
     setp stepgen.0.steplen 1
     setp stepgen.0.stepspace 0
 
-== [[sec:probe_parport]]probe_parport
+== probe_parport[[sec:probe_parport]]
 
 In modern PCs, the parallel port may require plug and play (PNP)
 configuration before it can be used. The `probe_parport`  module

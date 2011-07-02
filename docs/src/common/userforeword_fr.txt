@@ -27,14 +27,13 @@ premiers auteurs d'EMC2 ont suivi cette voie.
     * Règle de clarté: La Clarté vaut mieux que l'ingéniosité.
 
     * Règle de composition: Concevoir des programmes qui peuvent être
-      reliés à  d'autres programmes.
+      reliés à d'autres programmes.
 
     * Règle de séparation: Séparer les règles du fonctionnement; Séparer
       les interfaces du mécanisme.footnote:[Trouvé 
-      sur link:[http://fr.wikipedia.org/wiki/Philosophie_d%27Unix,
-      Philosophie d'Unix], 09/09/2008]
+      sur http://fr.wikipedia.org/wiki/Philosophie_d%27Unix, 09/09/2008] 
 
-M. Raymond offre d'autres règles mais ces quatre décrivent les
+M. Raymond offre d'autres règles mais ces quatre décrivent les 
 caractéristiques essentielles du système de contrôle de mouvement EMC2.
 
 La règle de *Modularité* est critique. Tout au long de ces manuels,
