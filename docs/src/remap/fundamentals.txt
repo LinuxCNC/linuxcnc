@@ -71,7 +71,7 @@ with a specific syntax like so:
 
 [source,{ngc}]
 ---------------------------------------------------------------------
-o<test> call [parameter1] [parameter2] ..
+o<test> call [1.234] [4.65]
 ---------------------------------------------------------------------
 
 whereas M- or G-codes typically take required or optional 'word'
@@ -85,7 +85,7 @@ and its corresponding NGC procedure to execute before passing control
 to the NGC procedure.
 
 This glue code is impossible to write as an O-word procedure itself
-since the RS274NGC language lacks the introspective cabailities and
+since the RS274NGC language lacks the introspective capabilities and
 access into interpreter internal data structures to achieve the
 required effect. Doing the glue code in - again - C/C++ would be an
 inflexible and therefore unsatisfactory solution.
@@ -114,7 +114,7 @@ following option to the ini file:
 [source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
-REMAP=M400  modalgroup=10 argspec=- ngc=myprocedure
+REMAP=M400  modalgroup=10 argspec= ngc=myprocedure
 ---------------------------------------------------------------------
 
 Assuming that the file myprocedure.ngc exists in the NC_FILES or
@@ -126,19 +126,22 @@ reference section, but in a nutshell, these options mean:
 
 - execute M400 along the other modal group 10 M-codes as per prescribed
 execution sequence (LINK)
-- do not require any word parameters, and ignore
-any parameters present in the current block.
+- do not require any word parameters, ignore
+any parameters present in the current block, and do not pass any values to 'myprocedure.ngc'.
 
 == Which codes are subject to remapping?
 
 The current set of unused M-codes open to user definition is:
-- codes 74..99
-- codes 200..999
+
+- codes M74..M99
+- codes M200..M999
 
 The current set of unused G-codes open to user definition is:
+
 - codes G64.9 through G97.9
 
 The current set of built-in codes open to redefinition is:
+
 - Tx (Prepare)
 - M6 (Change tool)
 - M61 (Set tool number)

@@ -2,6 +2,8 @@ User-defined Codes
 ==========================
 The EMC Team
 
+:masterdir: {indir}
+
 This handbook is a work in progress. If you are able to
 help with writing, editing, or graphic preparation please contact
 any member of the writing team or join and send an email to

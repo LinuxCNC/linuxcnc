@@ -6,7 +6,7 @@
 //[source,{hal}]
 //[source,{ngc}]
 
-= Remapping Codes: A Short Tour of Internals
+== Remapping Codes: A Short Tour of Internals
 
 This section gives a an overview of the changes to the interpreter to
 support remapped codes. It requires some familiarity with interpreter
@@ -53,13 +53,14 @@ interpreter. Now task can call the interpreter again to continue after
 this 'HAL pin read' command, and since the actual value is now
 available, parsing and execution can again run in parallel.
 
-These commands are called "Queue busters" and require special handling
-by task, and in the interpreter. They are: Tool change, Waiting for
-HAL input, and probing.
+These commands are called "queue busters" and require special handling
+by task, and in the interpreter. They are: 'Tool change', 'Waiting for
+HAL input', and 'Probe'.
 
 === Interpreter state
 Conceptually, the interpreter's state consist of variables which fall into
 the following categories:
+
 1. configuration information (typically from INI file)
 2. the 'World model' - a representation of actual machine state
 3. modal state
@@ -78,21 +79,23 @@ unsystematic - structure _setup (see interp_internals.hh)
 
 === Word order and execution order
 
-One or several 'words' may be present on an NGC code line if they are
+One or several 'words' may be present on an NGC 'block' if they are
 compatible (some are mutually exclusive and must be on different
 lines).  The execution model however prescribes a strict ordering of
 execution of codes, regardless of their appearance on the source line
-(LINK).
+(<<sec:Order-of-Execution, G-Code Order of Execution>>).
+
 
 === Parsing
 
 Once a line is read (in either MDI mode, or from the current NGC
 file), it is parsed and flags and parameters are set in a 'struct
-block' (struct setup, member block1). This struct hold all information
+block' (struct _setup, member block1). This struct holds all information
 about the current source line, but independent of different ordering
 of codes on the current line: as long as several codes are compatible,
 any source ordering will result in the same variables set in the
-struct block.
+struct block. Right after parsing, all codes on a block are checked for
+compatibility.
 
 === Execution
 
@@ -102,7 +105,8 @@ here the different items are handled according to execution order.
 If a "queue buster" is found, a corresponding flag is set in the
 interpreter state (toolchange_flag, input_flag, probe_flag) and the
 interpreter returns an INTERP_EXECUTE_FINISH return value, signaling
-'stop readahead for now, and resynch'. If no queue busters are found
+'stop readahead for now, and resynch' to the caller ('task').
+If no queue busters are found
 after all items are executed, INTERP_OK is returned, signalling that
 read-ahead may continue.
 
@@ -154,11 +158,11 @@ T4 M6 M400 G91 G38.2 Z1
 T4 M6 o<myprocedure> call G91 G38.2 Z1
 ---------------------------------------------------------------------
 
-Well, let's split these codes over several lines and insert the O-word
-call accordingly.. does not work either because splitting codes over
+Splitting these codes over several lines and insert the O-word
+call accordingly does not work either because splitting codes over
 several lines is not a semantically idempotent operation.
 
-So, macro expansion doesnt work - clearly a bigger hammer is needed.
+So, unfortunately macro expansion doesnt work - clearly a bigger hammer is needed.
 
 == Current solution, part 1: Executing the replacement in the right moment
 
@@ -176,14 +180,14 @@ Assume you are halfway through executing the items in a block, and
 then a remapped item is discovered, causing a call to an O-word
 procedure. So that implies constructing an appropriate call statement
 like 'o<myprocedure> call', parse that and then execute the result
-block. Dang, we werent done with executing the current block just yet.. and
+block. Unfortunately we werent done with executing the current block just yet - and
 suddenly it got overwritten by the result of our spontaneous procedure
 call.
 
-So we really need a new block, or better even a new interpreter
+So we really need a new block, or even better even a new interpreter
 instance for that matter, and execute the replacement procedure in the
 new interpreter instance, then throw it away. Sounds easy - let's
-instantiate a new Interp() instance. Nice approach, does not work -
+instantiate a new Interp() instance. That approach does not work either -
 the current Interp() implementation can create multiple instances,
 unfortunately they are useless for our problem because they all share
 the same execution state - all Interp variables are static class variables
@@ -238,15 +242,15 @@ codes, then executing and controlling blocks are identical
 
 When, after parsing and during execute() a block containing remappings is detected, the following happens:
 
-- the executing block is pushed onto the block stack (duplicated) and remap_level increased by one, and becomes the controlling block.
-- execute_block() as called by execute() works on the controlling block (the top-of-stack block) and steps through the items to
+- the executing block is pushed onto the block stack (duplicated) and remap_level increased by one. The top-of-stack block becomes the new controlling block.
+- execute_block() as called by execute() works on this controlling block and steps through the items to
   be done.
 - when execute_block() needs to execute an o-word call that is parsed into the executing block
 - the controlling block is not disturbed during execution of the replacement procedure (which results
   in recursive call to execute())
 - when we're done with executing the controlling block, the block stack pointer (remap_level) is reduced by one.
 
-This scheme naturally handles nested remaps - the top-of-stack is
+This scheme naturally handles nested remaps - the top-of-stack
 always holds the innermost executing remap. So the above example of
 nested remaps would result in the following stack layout (assume we
 are currently executing the remap for M402):
@@ -297,17 +301,17 @@ for example at the code handling an M6 you'll note it calls upon a
 member function 'convert_tool_change'. Some of this is possible in
 NGC, like spindle off, wiggle a HAL pin, move somewhere. Some stuff is
 plain impossible, namely accessing interpreter state (like accessing
-settings->selected_pocket and setting settings->current_pocket).
++settings->selected_pocket+ and setting +settings->current_pocket+).
 
 In my original attempt I used hand-crafted C glue code to prepare
 parameters for a limited set of remapped codes (Tx,M6,M61), and check
-their return values after finishing the NGC procedure. That doesnt
+their return values after finishing the NGC procedure. That works, but doesnt
 scale well when going for a generalized remapping solution which may
 add arbitrary new codes to the interpreter - I didnt like the idea of
 that - again - C code needs to be added just for functions which I
 didnt perceive as necessary myselves, but other people might.
 
-The basic scheme for calling a remap NGC procedure is always the same:
+The basic scheme for calling a remap NGC procedure is always as follows:
 
 - extract some values from interpreter state, like block or modal state, and prepare these as parameters for the NGC procedure (prolog)
 - actually call the procedure
@@ -316,21 +320,27 @@ The basic scheme for calling a remap NGC procedure is always the same:
 For configurable glue code, I chose the solution to decorate remap
 descriptions with optional prolog and epilog functions, which can be
 referenced in the ini file. These prologs and epilogs are actually
-Python callables (with the exception of the built-in argspec prolog,
+Python functions (with the exception of the built-in +argspec+ prolog,
 see below).
 
 With this tool, it's possible to completely drop any C/C++ based glue
 code and 'do it all in Python'. It might not be suited for the casual
 script writer, but it is an fairly powerful extension tool.
 
+Note that this is conceptually different from what user interfaces like Axis
+or Touchy do - these are written in Python and call upon C code to access,
+for instance, NML messages passed between components. This is called 'extending'
+a Python interpreter by C code. My scheme uses 'Python embedding' - C code is
+extended by optional Python procedures.
+
 Since it occured to me one could write remap procedures now completely
-in Python, not just NGC procedures. This is in fact possible,
+in Python, not just as NGC procedures. This is in fact possible,
 including handling of queue buster codes, which need special handling. See the exampke XXX.
 
 Since queue busters interrupt a procedure, the procedure needs to be
 called again after the interpreter synch(). So the procedure needs to
 know if it is restarted, and where. This is achieved by a 'userdata'
-type parameter. it is initially zero and always passed to a remapping
+ parameter. it is initially zero and always passed to a remapping
 procedure. If the procedure needs to return INTERP_EXECUTE_FINISH
 because of, say, reading a digital input it may return a new userdata
 value along with the return code which is passed in on the next call.
@@ -344,7 +354,7 @@ Here's an example of reading a HAL pin in Python:
 #
 # activate by:
 # [RS274NGC]
-# REMAP=M402  modalgroup=10 argspec=- py=test_reschedule
+# REMAP=M402  modalgroup=10 py=test_reschedule
 #
 # on the initial call, userdata equals zero.
 # if a queuebuster is executed, the function is expected to return
@@ -358,24 +368,24 @@ def test_reschedule(userdata,**words):
 		# we were called post-sync():
 		pin_status = CanonMod.GET_EXTERNAL_DIGITAL_INPUT(0,0);
 		print "pin status=",pin_status
-		return (INTERP_OK,) # done
+		return INTERP_OK # done
 	else:
 		# wait for digital-input 00 to go hi for 5secs
 		CanonMod.WAIT(0,1,2,5.0)
 		# pls call again after sync() with new userdata value
-		return (INTERP_EXECUTE_FINISH,userdata + 1)
+		return (INTERP_EXECUTE_FINISH, userdata + 1)
 ---------------------------------------------------------------------
 
 
 == Embedded Python and Access to Interpreter and Canon
 
-The current 'first cut' of extending the interpreter by Python
+The current 'first cut' of extending the interpreter by embedded Python
 functions provides access to most of the internal state, and some
 important interpreter functions. Also, a module provides access to a
 large part of the Canon layer from Python (actually it's the part
 which was easy to do and it should be completed).
 
-For access into the interpreter I used the boost.python method of
+For access into the interpreter I used the 'boost.python' method of
 using an embedded interpreter. This is some extremely powerful
 C++/Python middleware which is much easier to use than the
 Python/C-API. It is also already compatible with Python 3K.
@@ -386,13 +396,14 @@ should be done', but the dubious sections are fairly localized (mostly
 access to the Interp instance pointer and _setup).
 
 == The argspec prolog
-A common case of argument handling is the following:
+The argspec prolog exists to simplify a common situation, namely passing word
+parameters from the current block to the replacement procedure in an easy, standardized way.
 
-A new code might:
+A common case of argument handling is the following: A new code might:
 
 - take zero or more required parameter words
 - take zero or more optional parameter words
-- flag or ignore superfluous parameter words on the same line
+- ignore other parameter words on the same line
 - require some standard precondition like feed greater than zero, or speed greater than zero
 
 For this common case, there's the *argspec* builtin prolog. This enables parameter passing from the block which contains a remapped code, to a remap procedure as follows:
@@ -402,26 +413,66 @@ If an argspec=<string> is present in the REMAP line, it is treated as follows:
 - any letters in the set 'abcdefhijkpqrstuvwxyz' designate parameter words.
 - if the letter is uppercase, that word is required.
 - if the letter is lowercase, that word is optional.
-- if a dash ('-') is present, other words are ignored, else they are flagged as superfluous.
 - a greater-sign  ('>') denotes 'requires feed greater than zero'
+- a caret  ('^') denotes 'requires speed greater than zero'
+- an at-sign ('@') denotes 'use positional parameters, not local variables' (see below)
 
 The NGC procedure will then find the parameter words as local variables -
 required parameters must be present, optional paramters may be tested
 for by the 'EXISTS()' function.
 
-Example:
+Example:  [[G88.1-Remapping-example]]
 [source,{ini}]
 -------------------------------------------------------
 [RS274NGC]
-REMAP=G88.1 modalgroup=1  argspec=XYZpq-  ngc=g881
+REMAP=G88.1  argspec=XYZpq  ngc=g881 modalgroup=1
 -------------------------------------------------------
 
+This means:
+
+- Define the new code 'G88.1'
+- execute 'G88.1' only if the +X+,+Y+ and +Z+ words are present in the current block
+- *always* pass the values of +X+,+Y+ and +Z+ as parameters to the replacement procedure
+- if the words +P+ and/or +Q+ are present, also pass their values as parameters
+- the name of the replacement procedure to call is 'g881.ngc'
+- execute this code as modal group 1, which refers to the sequencing order of several
+ operations within a block.
+
+Here's an example where we try to execute the newly-defined 'G88.1':
 [source,{ngc}]
 ---------------------------------------------------------------------
-G88.1 X1 Y2 P4     ; this fails because Z is missing
-; this calls g881.ngc since parameter words match the argspec
-G88.1 X1 Y2 Z3 P4
+G88.1 X1 Y2 P4     ; this fails because Z is required, but missing
+G88.1 X1 Y2 Z3 P4  ; this calls g881.ngc since parameter words pass the argspec
 ---------------------------------------------------------------------
+
+=== NGC procedures: Passing and accessing parameters
+'argspec' defines a set of required and optional parameters for the remapped code.
+These parameters may be passed to an NGC replacement procedure in the following ways:
+
+1. as local named parameters (this is new)
+2. as positional parameters (traditional method)
+
+// make footnote
+The reason for introducing a new method (1) for passing parameters to NGC procedures is twofold:
+
+- with traditional positional parameters it is awkward to handle optional parameters - the NGC
+procedure cannot tell wether, say, +#3+ was optional, or required, and which word it referred to
+- named parameters provide better readability - for instance, the relation between variable +#<X>+ and
+the +X+ word on the block is fairly obvious
+- other than positional parameters, named parameters may exist, or not exist, and this can be
+tested for with the 'EXISTS()' interpreter function, providing an elegant method to decide within the NGC
+procedure wether an optional word was passed or not.
+
+Method 2 (positional parameters) is kept around despite its limitations. Assume you have a useful
+NGC procedure which you might want to wrap into a remapped code, like a canned cycle, and this procedure
+takes a fixed number of parameters. In that case you can tell 'argspec' to provide a traditional positional
+parameter list to the NGC procedure  by adding '@' to the argspec, see below - there's no need to rewrite
+your procedure to refer to named parameters.
+
+=== Passing parameters as local named variables to NGC procedures
+Let's take the <<G88.1-Remapping-example,example>> from above, which specifies 'pass as local named parameters'
+since it's the default method. It makes the passed parameters 'spring into existence' within the procedure
+automatically.
 
 The remap procedure may access parameter words as follows:
 
@@ -443,6 +494,82 @@ o<g881> endsub
 m2
 ---------------------------------------------------------------------
 
+=== Passing parameters as positional arguments to NGC procedures
+
+To specify positional parameters, proceed as follows (note '@' in argspec):
+[[G88.1-Remapping-example-positionalargs]]
+[source,{ini}]
+-------------------------------------------------------
+[RS274NGC]
+REMAP=G88.2  argspec=@PQr  ngc=g882 modalgroup=1
+-------------------------------------------------------
+
+This tells the interpreter to prepare arguments in the order specified, and pass them as positional arguments.
+The required words +P+ and +Q+ would be mapped to +#1+ and +#2+ respectively. If an +R+ word was
+present in the block, its value would be assigned to +#3+. Note that the default value of a parameter is '0',
+so the NGC procedure would not be able to tell the difference between the two following statements:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+G88.2 P1 Q2     ;  #1 = 1, #2 = 2,  #3 is 0 (default parameter value)
+G88.2 P1 Q2 R0  ;  #1 = 1, #2 = 2,  #3 is 0 (as assigned from R word)
+---------------------------------------------------------------------
+
+Note when using positional parameters with an '@' argspec, no named variables are set in the procedure.
+
+=== Feed and Speed preconditions
+
+If a remapped code assumes that the spindle is on, and/or the feed value needs to be greater than zero,
+this can tested for with the argspec as follows:
+
+- to require 'spindle on', specifiy the '^' (caret) argspec character
+- to require 'feed greater than zero', specifiy the '>' (greater-sign) argspec character
+
+Example:
+[source,{ini}]
+-------------------------------------------------------
+[RS274NGC]
+REMAP=M344  argspec=^> ngc=m344  modalgroup=9
+-------------------------------------------------------
+
+'m344.ngc' will be executed only if spindle is on, and feed is greater than zero, otherwise excecution will
+fail with an appropriate error message.
+
+=== Passing and evaluating return values from NGC remap procedures
+
+In some cases, returning values from NGC procedures, and taking appropriate action is required.
+Since NGC procedures may <<sec:Subroutine-return-values, optionally return a single float value>>,
+this can be used to decide wether a remapped procedure failed, or succeeded, or take some other
+action depending on the return value.
+
+By default, NGC procedure return values are ignored. To handle a return value, a Python epilog
+may be specified in the 'REMAP' statement:
+
+[source,{ini}]
+-------------------------------------------------------
+[RS274NGC]
+REMAP=M345  ngc=m345  epilog=demo_epilog modalgroup=9
+-------------------------------------------------------
+
+This refers to a Python function in the 'remap' module, which will be called after 'm345.ngc' finishes:
+
+[source,python]
+---------------------------------------------------------------------
+# this example epilog looks at the return value from the NGC procedure
+# and does the right thing:
+def demo_epilog(userdata,**words):
+	retval = interp.return_value
+	if retval > 0:
+		# let remapped code succeed if return value positive
+		return INTERP_OK
+	else:
+		# fail remapped code with an error message
+		interp.set_errormsg("M345: aborted (return value %.4f)" % (retval))
+		return INTERP_ERROR
+---------------------------------------------------------------------
+
+== Passing parameters to Python functions
+
 If the remap procedure is a Python function, it receives parameters
 through the *words* dictionary:
 
@@ -462,6 +589,13 @@ def g886(userdata,**words):
 			   words['x'],words['y'],words['z'],
 			   0,0,0,0,0,0)
 ---------------------------------------------------------------------
+
+== Returning values from Python remap procedures
+foo
+== Advanced Prologs and Epilogs: Accessing interpreter internals
+foo
+
+== Organisation of Python plugin modules
 
 // == Configuring remaps: the REMAP line
 
