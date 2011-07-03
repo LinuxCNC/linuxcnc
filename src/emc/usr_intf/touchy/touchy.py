@@ -129,6 +129,10 @@ class touchy:
                             temp = search+1
                     self.wTree.get_widget("theme_choice").set_active(temp)
 
+                self.abs_textcolor = self.prefs.getpref('abs_textcolor', 'default', str)
+                self.rel_textcolor = self.prefs.getpref('rel_textcolor', 'default', str)
+                self.dtg_textcolor = self.prefs.getpref('dtg_textcolor', 'default', str)
+
                 self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
                 if self.invisible_cursor:
                         self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
@@ -594,7 +598,14 @@ class touchy:
                           'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_widget(i)
-                        if w: w.modify_font(self.dro_font)
+                        if w:
+                            w.modify_font(self.dro_font)
+                            if "r" in i and not self.rel_textcolor == "default":
+                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.rel_textcolor))
+                            elif "a" in i and not self.abs_textcolor == "default":
+                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.abs_textcolor))
+                            elif "d" in i and not self.dtg_textcolor == "default":
+                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.dtg_textcolor))
 
                 # status bar
                 for i in ["error"]:
