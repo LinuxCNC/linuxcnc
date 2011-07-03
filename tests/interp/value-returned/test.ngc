@@ -1,0 +1,25 @@
+; return a value via endsub
+o<function1> sub
+o<function1> endsub [4711]
+
+; return a value via return
+o<function2> sub
+o100 return [4712]
+o<function2> endsub
+
+; a procedure without return value
+o<proc> sub
+o<proc> endsub
+
+(debug, starting state: value_returned=#<_value_returned> _value=#<_value>)
+
+o<function1> call
+(debug, function1: value_returned=#<_value_returned> _value=#<_value>)
+
+o<function2> call
+(debug, function2: value_returned=#<_value_returned> _value=#<_value>)
+
+o<proc> call
+(debug, proc: value_returned=#<_value_returned> return_value=#<_value>)
+
+m2

@@ -81,6 +81,7 @@ enum named_params {
     NP_CALL_LEVEL,
     NP_REMAP_LEVEL,
     NP_SELECTED_TOOL,
+    NP_VALUE_RETURNED,
 };
 /****************************************************************************/
 
@@ -795,6 +796,11 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.return_value;
 	break;
 
+	// predicate: the last NGC procedure did/did not return a value
+    case NP_VALUE_RETURNED:
+	*value = _setup.value_returned;
+	break;
+
     case NP_CALL_LEVEL:
 	*value = _setup.call_level;
 	break;
@@ -932,6 +938,9 @@ int Interp::init_named_parameters()
 
   // last (optional) endsub/return value
   init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);
+
+  // predicate: last NGC procedure did return a value on endsub/return
+  init_readonly_param("_value_returned", NP_VALUE_RETURNED, PA_USE_LOOKUP);
 
   // debugging aids
   init_readonly_param("_call_level", NP_CALL_LEVEL, PA_USE_LOOKUP);

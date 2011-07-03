@@ -729,6 +729,7 @@ int Interp::init()
   _setup.b_indexer = 0;
   _setup.c_indexer = 0;
   _setup.return_value = 0;
+  _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
 
 

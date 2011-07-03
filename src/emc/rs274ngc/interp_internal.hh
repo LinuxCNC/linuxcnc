@@ -671,6 +671,7 @@ typedef struct setup_struct
   int skipping_start;                // start of skipping (sequence)
   double test_value;                 // value for "if", "while", "elseif"
   double return_value;               // optional return value for "return", "endsub"
+  int value_returned;                // the last NGC procedure did/did not return a value
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int oword_labels;

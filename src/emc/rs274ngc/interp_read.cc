@@ -1601,8 +1601,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 		     block->o_name,
 		     value);
 	    _setup.return_value = value;
+	    _setup.value_returned = 1;
 	} else {
 	    _setup.return_value = 0;
+	    _setup.value_returned = 0;
 	}
     }
   else if(_setup.defining_sub == 1)

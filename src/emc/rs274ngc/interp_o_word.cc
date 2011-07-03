@@ -636,8 +636,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	// a Python oword sub can be executed inline -
 	// no control_back_to() needed
 
-	// FIXME mah: think through queuebusters in Python oword sub
-
 	if (is_py_osub) {
 	    status = pycall(settings, block,
 			    OWORD_MODULE,
@@ -650,6 +648,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		logOword("O_call: vanilla osub pycall(%s) returned %lf",
 			 block->o_name, block->py_returned_value);
 		settings->return_value = block->py_returned_value;
+		settings->value_returned = 1;
 	    }
 	    settings->call_level--;  // drop back
 	    return status;

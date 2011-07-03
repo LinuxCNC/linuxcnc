@@ -499,6 +499,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("remap_level", &InterpWrap::_setup.remap_level)
 		       .def_readwrite("retract_mode", &InterpWrap::_setup.retract_mode)
 		       .def_readwrite("return_value", &InterpWrap::_setup.return_value)
+		       .def_readwrite("value_returned", &InterpWrap::_setup.value_returned)
 		       .def_readwrite("rotation_xy", &InterpWrap::_setup.rotation_xy)
 		       .def_readwrite("selected_pocket", &InterpWrap::_setup.selected_pocket)
 		       .def_readwrite("selected_tool", &InterpWrap::_setup.selected_tool)
