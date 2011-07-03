@@ -17,8 +17,8 @@
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
-#include <map>
 #include <set>
+#include <map>
 #include <bitset>
 #include "canon.hh"
 #include "emcpos.h"
@@ -322,8 +322,11 @@ struct nocase_cmp
     }
 };
 
-typedef std::map<const char *,remap_pointer,nocase_cmp> Remap;
+typedef std::map<const char *,remap_pointer,nocase_cmp> remap_type;
+typedef remap_type::iterator remap_iterator;
 
+typedef std::map<int, remap_pointer> int_remap_type;
+typedef int_remap_type::iterator int_remap_iterator;
 
 #define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
 		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
@@ -468,6 +471,7 @@ typedef struct block_struct
     int user_data;
     bool call_again; // a py osub returned INTERP_EXECUTE_FINISH
     std::set<int> remappings; // all remappings in this block
+
     int phase; // current execution phase
 }
 block;
@@ -477,20 +481,23 @@ typedef block *block_pointer;
 
 // parameters will go to a std::map<const char *,paramter_value_pointer>
 typedef struct parameter_value_struct {
-    double param_value;
-    std::bitset<32> param_attr;
+    double value;
+    unsigned attr;
 } parameter_value;
 
-typedef parameter_value *parameter_value_pointer;
+typedef parameter_value *parameter_pointer;
+typedef std::map<const char *, parameter_value, nocase_cmp> parameter_map;
+typedef parameter_map::iterator parameter_map_iterator;
 
-#define NAMED_PARAMETERS_ALLOC_UNIT 20
-struct named_parameters_struct {
-  int named_parameter_alloc_size;
-  int named_parameter_used_size;
-  char **named_parameters;
-  double *named_param_values;
-  unsigned char *named_param_attr; // bitmap of attributes
-  };
+// #define NAMED_PARAMETERS_ALLOC_UNIT 20
+// struct named_parameters_struct {
+//   int named_parameter_alloc_size;
+//   int named_parameter_used_size;
+//   char **named_parameters;
+//   double *named_param_values;
+//   unsigned char *named_param_attr; // bitmap of attributes
+//   };
+
 #define PA_READONLY	1
 #define PA_GLOBAL	2
 #define PA_UNSET	4
@@ -512,7 +519,8 @@ typedef struct context_struct {
   const char *filename;      // name of file for this context
   const char *subName;       // name of the subroutine (oword)
   double saved_params[INTERP_SUB_PARAMS];
-  struct named_parameters_struct named_parameters;
+  // struct named_parameters_struct named_parameters;
+    parameter_map named_params;
   unsigned char context_status;		// see CONTEXT_ defines below
   int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
@@ -682,7 +690,7 @@ typedef struct setup_struct
   int debugmask;                     // from ini  EMC/DEBUG
   char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];            // program directory
-  char subroutines[MAX_SUB_DIRS][PATH_MAX]; // subroutines directories
+  const char *subroutines[MAX_SUB_DIRS];  // subroutines directories
   int use_lazy_close;                // wait until next open before closing
                                      // the input file
   int lazy_closing;                  // close has been called
@@ -705,9 +713,8 @@ typedef struct setup_struct
 
 
     const char *on_abort_command;
-
-    std::map<int, remap_pointer>  g_remapped,m_remapped;
-    Remap remaps;
+    int_remap_type  g_remapped,m_remapped;
+    remap_type remaps;
 
     const char *py_module;   // top level module to import
     const char *py_path;     // prepended to PYTHONPATH

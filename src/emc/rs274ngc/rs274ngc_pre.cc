@@ -815,21 +815,23 @@ int Interp::init()
             char tmpdirs[PATH_MAX+1];
 
             for (dct=0; dct < MAX_SUB_DIRS; dct++) {
-                 _setup.subroutines[dct][0] = 0;
+                 _setup.subroutines[dct] = NULL;
             }
 
             strcpy(tmpdirs,inistring);
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
-                if (realpath(nextdir,_setup.subroutines[dct]) == NULL){
-                   //realpath didn't find the file
+		char tmp_path[PATH_MAX];
+                if (realpath(nextdir, tmp_path) == NULL){
+                   //realpath didn't find the directory
                    logDebug("realpath failed to find subroutines[%d]:%s:",dct,nextdir);
-                    _setup.subroutines[dct][0] = 0;
+                    _setup.subroutines[dct] = NULL;
                 } else {
+		    _setup.subroutines[dct] = strstore(tmp_path);
                     logDebug("program prefix[%d]:%s",dct,_setup.subroutines[dct]);
+		    dct++;
                 }
-                dct++;
                 if (dct >= MAX_SUB_DIRS) {
                    logDebug("too many entries in SUBROUTINE_PATH, max=%d", MAX_SUB_DIRS);
                    break;

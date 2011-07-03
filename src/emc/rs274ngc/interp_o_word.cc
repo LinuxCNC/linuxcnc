@@ -250,7 +250,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   if(!newFP)
   {
       for (dct=0; dct < MAX_SUB_DIRS; dct++) {
-          if (!settings->subroutines[dct][0]) continue;
+          if (!settings->subroutines[dct]) continue;
           sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
           newFP = fopen(newFileName, "r");
           if (newFP) {

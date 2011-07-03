@@ -3,7 +3,7 @@
 *
 * collect all code related to named parameter handling
 *
-* Author: mostly K. Lerman, some by Michael Haberler
+* Author: mostly K. Lerman, rewrite by Michael Haberler to use STL containers
 * License: GPL Version 2
 * System: Linux
 *
@@ -33,7 +33,7 @@ namespace bp = boost::python;
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
-enum named_params {
+enum predefined_named_parameters {
     NP_LINE,
     NP_MOTION_MODE,
     NP_PLANE,
@@ -83,6 +83,7 @@ enum named_params {
     NP_SELECTED_TOOL,
     NP_VALUE_RETURNED,
 };
+
 /****************************************************************************/
 
 /*! read_named_parameter
@@ -131,56 +132,41 @@ int Interp::read_named_parameter(
     bool check_exists)    //!< test for existence, not value
 {
   static char name[] = "read_named_parameter";
-
   char paramNameBuf[LINELEN+1];
   int level;
-  int i;
-
-  struct named_parameters_struct *nameList;
+  context_pointer frame;
+  parameter_map_iterator pi;
 
   CHKS((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
-
   CHP(read_name(line, counter, paramNameBuf));
 
-  // now look it up
-  if(paramNameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
+  level = (paramNameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
+  frame = &_setup.sub_context[level];
+  pi = frame->named_params.find(paramNameBuf);
 
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], paramNameBuf))
-      {
-          if (check_exists) {
-              *double_ptr = 1.0;
-	  } else {
-	      if (nameList->named_param_attr[i] & PA_USE_LOOKUP) {
-		  lookup_named_param(paramNameBuf, nameList->named_param_values[i], double_ptr);
-	      } else {
-		  *double_ptr = nameList->named_param_values[i];
-	      }
-	  }
-          return INTERP_OK;
-      }
-  }
-
-  *double_ptr = 0.0;
-
-  if(check_exists) return INTERP_OK;
-
-  logNP("%s: level[%d] param:|%s| returning not defined", name, level,
+  if (pi == frame->named_params.end()) {
+      *double_ptr = 0.0;
+      if (check_exists)
+	  return INTERP_OK;
+      logNP("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
-  ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
+      ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
+  } else {
+      if (check_exists) {
+	  *double_ptr = 1.0;
+      } else {
+	  parameter_pointer pv = &pi->second;
+	  if (pv->attr & PA_USE_LOOKUP) {
+	      lookup_named_param(paramNameBuf, pv->value, double_ptr);
+	  } else {
+	      *double_ptr = pv->value;
+	  }
+      }
+      return INTERP_OK;
+  }
 }
+
 
 int Interp::find_named_param(
     const char *nameBuf, //!< pointer to name to be read
@@ -188,48 +174,31 @@ int Interp::find_named_param(
     double *value   //!< pointer to value of found parameter
     )
 {
-    //static char name[] = "find_named_param";
-  struct named_parameters_struct *nameList;
-
+  context_pointer frame;
+  parameter_map_iterator pi;
   int level;
-  int i;
 
-  // now look it up
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
+  level = (nameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
+  frame = &_setup.sub_context[level];
 
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-	  if (nameList->named_param_attr[i] & PA_UNSET) {
-	      logNP("warning: referencing unassigned variable '%s'\n",nameBuf);
-	  }
-	  if (nameList->named_param_attr[i] & PA_USE_LOOKUP) {
-	      *status = lookup_named_param(nameBuf, nameList->named_param_values[i], value);
-	  } else {
-	      *value = nameList->named_param_values[i];
-	      *status = 1;
-	  }
-          return INTERP_OK;
+  pi = frame->named_params.find(nameBuf);
+  if (pi == frame->named_params.end()) { // not found
+      logNP("warning: referencing undefined variable '%s'\n",nameBuf);
+      *value = 0.0;
+      *status = 0;
+  } else {
+      parameter_pointer pv = &pi->second;
+      if (pv->attr & PA_UNSET)
+	  logNP("warning: referencing unset variable '%s'\n",nameBuf);
+      if (pv->attr & PA_USE_LOOKUP) {
+	  *status = lookup_named_param(nameBuf, pv->value, value);
+      } else {
+	  *value = pv->value;
+	  *status = 1;
       }
   }
-
-  *value = 0.0;
-  *status = 0;
-
   return INTERP_OK;
 }
-
 
 
 int Interp::store_named_param(setup_pointer settings,
@@ -238,57 +207,33 @@ int Interp::store_named_param(setup_pointer settings,
     int override_readonly  //!< set to true to init a r/o parameter
     )
 {
-  struct named_parameters_struct *nameList;
-
+  context_pointer frame;
   int level;
-  int i;
+  parameter_map_iterator pi;
 
-  // now look it up
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = settings->call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
+  level = (nameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
+  frame = &settings->sub_context[level];
 
-  nameList = &settings->sub_context[level].named_parameters;
+  pi = frame->named_params.find(nameBuf);
+  if (pi == frame->named_params.end()) {
+      ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
+  } else {
+      parameter_pointer pv = &pi->second;
 
-  logNP("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
-           nameList, nameBuf);
-  logNP("store_named_parameter: named_parameter_used_size=%d",
-           nameList->named_parameter_used_size);
+      CHKS(((pv->attr & PA_GLOBAL)  && level),
+	   "BUG: variable '%s' marked global, but assigned at level %d", nameBuf, level);
 
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-#if 0
-      logNP("store_named_parameter: named_parameter[%d]=|%s|",
-               i, nameList->named_parameters[i]);
-#endif
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-	  CHKS((nameList->named_param_attr[i] & PA_GLOBAL) && level,
-	       "BUG: variable marked global, but assigned at level %d",level);
-	  if ((nameList->named_param_attr[i] & PA_READONLY) && !override_readonly) {
-	      ERS(_("Cannot assign to read-only parameter #<%s>"), nameBuf);
-	  } else {
-	      nameList->named_param_values[i] = value;
-	      nameList->named_param_attr[i] &= ~(PA_UNSET);
-	      logNP("store_named_parameter: level[%d] %s value=%lf",
-		       level, nameBuf, value);
-
-	      return INTERP_OK;
-	  }
+      if ((pv->attr & PA_READONLY) && !override_readonly) {
+	  ERS(_("Cannot assign to read-only parameter #<%s>"), nameBuf);
+      } else {
+	  pv->value = value;
+	  pv->attr &= ~PA_UNSET;
+	  logNP("store_named_parameter: level[%d] %s value=%lf",
+		level, nameBuf, value);
       }
+
   }
-
-  logNP("%s: param:|%s| returning not defined", "store_named_param",
-           nameBuf);
-
-  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
+  return INTERP_OK;
 }
 
 
@@ -474,77 +419,35 @@ int Interp::add_parameters(setup_pointer settings,
     return INTERP_OK;
 }
 
+
 int Interp::add_named_param(
     const char *nameBuf, //!< pointer to name to be added
-    int attr //!< see PA_* defs in interp_internal.hh
-    )
+    int attr) //!< see PA_* defs in interp_internal.hh
 {
   static char name[] = "add_named_param";
-  struct named_parameters_struct *nameList;
   int findStatus;
   double value;
   int level;
-  char *dup;
+  parameter_value param;
 
   // look it up to see if already exists
   CHP(find_named_param(nameBuf, &findStatus, &value));
 
-  if(findStatus)
-  {
+  if (findStatus) {
       logNP("%s: parameter:|%s| already exists", name, nameBuf);
       return INTERP_OK;
   }
   attr |= PA_UNSET;
 
-  // must do an add
-  if(nameBuf[0] != '_') // local scope
-  {
+  if (nameBuf[0] != '_') {  // local scope
       level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
+  } else {
+      level = 0;    // call level zero is global scope
       attr |= PA_GLOBAL;
   }
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  if(nameList->named_parameter_used_size >=
-     nameList->named_parameter_alloc_size)
-  {
-      // must realloc space
-      nameList->named_parameter_alloc_size += NAMED_PARAMETERS_ALLOC_UNIT;
-
-      logNP("realloc space level[%d] size:%d",
-               level, nameList->named_parameter_alloc_size);
-
-      nameList->named_parameters =
-          (char **)realloc((void *)nameList->named_parameters,
-                      sizeof(char *)*nameList->named_parameter_alloc_size);
-
-      nameList->named_param_values =
-          (double *)realloc((void *)nameList->named_param_values,
-                      sizeof(double)*nameList->named_parameter_alloc_size);
-
-      nameList->named_param_attr = (unsigned char *)realloc((void *)nameList->named_param_attr,
-              sizeof(nameList->named_param_attr[0])*nameList->named_parameter_alloc_size);
-
-      if((nameList->named_parameters == 0) ||
-         (nameList->named_param_values == 0))
-      {
-          ERS(NCE_OUT_OF_MEMORY);
-      }
-  }
-
-  dup = strdup(nameBuf);
-  if(dup == 0)
-  {
-      ERS(NCE_OUT_OF_MEMORY);
-  }
-  logNP("%s strdup[%p]:|%s|", name, dup, dup);
-  nameList->named_parameters[nameList->named_parameter_used_size] = dup;
-  nameList->named_param_attr[nameList->named_parameter_used_size] = attr;
-  nameList->named_parameter_used_size++;
+  param.value = 0.0;
+  param.attr = attr;
+  _setup.sub_context[level].named_params[strstore(nameBuf)] = param;
 
   return INTERP_OK;
 }
@@ -552,19 +455,10 @@ int Interp::add_named_param(
 
 int Interp::free_named_parameters(context_pointer frame)
 {
-    struct named_parameters_struct *nameList;
-    int i;
-
-    nameList = &frame->named_parameters;
-
-    for(i=0; i<nameList->named_parameter_used_size; i++)
-    {
-        free(nameList->named_parameters[i]);
-    }
-    nameList->named_parameter_used_size = 0;
-
+    frame->named_params.clear();
     return INTERP_OK;
 }
+
 
 // just a shorthand
 int Interp::init_readonly_param(
@@ -575,14 +469,13 @@ int Interp::init_readonly_param(
     CHP( add_named_param((char *) nameBuf, PA_READONLY|attr));
     CHP(store_named_param(&_setup, (char *) nameBuf, value, OVERRIDE_READONLY));
 
-    //MSG("(DEBUG, %s: = #<%s>)\n",nameBuf,nameBuf);
     return INTERP_OK;
 }
 
+
 int Interp::lookup_named_param(const char *nameBuf,
 			   double index,
-			   double *value
-			       )
+			   double *value)
 {
     int cmd = round_to_int(index);
 

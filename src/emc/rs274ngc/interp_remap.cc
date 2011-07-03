@@ -144,9 +144,7 @@ int Interp::convert_remapped_code(block_pointer block,
 // this looks up a remapping by unnormalized code (like G88.1)
 remap_pointer Interp::remapping(const char *code)
 {
-    //logRemap("lookup remapping(code=%s)",code);
-    std::map<const char *,remap_pointer>::iterator n =
-	_setup.remaps.find(code);
+    remap_iterator n = 	_setup.remaps.find(code);
     if (n !=  _setup.remaps.end())
 	return n->second;
     else
@@ -178,8 +176,7 @@ void Interp::print_remap(const char *key)
 
 void Interp::print_remaps(void)
 {
-    std::map<const char *,remap_pointer>::iterator n =
-	_setup.remaps.begin();
+    remap_iterator n = _setup.remaps.begin();
 
     logRemap("-----  remaps:");
     for ( ; n  != _setup.remaps.end(); ++n ) {
