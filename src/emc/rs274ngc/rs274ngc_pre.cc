@@ -712,6 +712,13 @@ int Interp::init()
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
 
+  // mah: ---------- sizeof(_setup) = 115652
+  // master:: ---------- sizeof(_setup) = 147480
+  // ---------- sizeof(offsets) = 28000
+
+  // printf("---------- sizeof(_setup) = %d\n", sizeof(_setup));
+  // printf("---------- sizeof(offsets) = %d\n", sizeof(offset) *INTERP_OWORD_LABELS);
+
   INIT_CANON();
 
   iniFileName = getenv("INI_FILE_NAME");
@@ -844,8 +851,6 @@ int Interp::init()
           {
               logDebug("SUBROUTINE_PATH not found");
           }
-          logDebug("_setup.subroutines:%p:", _setup.subroutines);
-
 
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins

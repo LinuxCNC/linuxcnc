@@ -452,29 +452,19 @@ typedef struct block_struct
     // in time there's only one excuting
     // conceptually the block is also the 'remap frame'
     remap_pointer executing_remap; // refers to config descriptor
-
-    // denotes a Python function to call after a synch()
-    // if py function returns INTERP_EXECUTE_FINISH, and a callback,
-    // the interpreter returns INTERP_EXECUTE_FINISH.
-    // the next execute(0) will call the callback first before
-    // proceeding with other items. The callback may in turn
-    // INTERP_EXECUTE_FINISH, and a callback etc
-
-
     boost::python::object tupleargs; // the args tuple for Py functions
     boost::python::object kwargs; // the args dict for Py functions
     std::bitset<32>  returned;
     double py_returned_value;
     int py_returned_status;
-    int py_returned_userdata;
-    // passed as tupleargs again if by (INTERP_EXECUTE_FINISH, <userdata-value>)
+    int py_returned_userdata; // passed as tupleargs again if re-called after (INTERP_EXECUTE_FINISH, <userdata-value>)
     int user_data;
     bool call_again; // a py osub returned INTERP_EXECUTE_FINISH
     std::set<int> remappings; // all remappings in this block
-
     int phase; // current execution phase
 }
 block;
+
 enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_USERDATA};
 
 typedef block *block_pointer;
@@ -488,15 +478,6 @@ typedef struct parameter_value_struct {
 typedef parameter_value *parameter_pointer;
 typedef std::map<const char *, parameter_value, nocase_cmp> parameter_map;
 typedef parameter_map::iterator parameter_map_iterator;
-
-// #define NAMED_PARAMETERS_ALLOC_UNIT 20
-// struct named_parameters_struct {
-//   int named_parameter_alloc_size;
-//   int named_parameter_used_size;
-//   char **named_parameters;
-//   double *named_param_values;
-//   unsigned char *named_param_attr; // bitmap of attributes
-//   };
 
 #define PA_READONLY	1
 #define PA_GLOBAL	2
@@ -514,18 +495,16 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define G_MODE_OK(m) (m == 1)
 
 typedef struct context_struct {
-  long position;       // location (ftell) in file
-  int sequence_number; // location (line number) in file
-  const char *filename;      // name of file for this context
-  const char *subName;       // name of the subroutine (oword)
-  double saved_params[INTERP_SUB_PARAMS];
-  // struct named_parameters_struct named_parameters;
+    long position;       // location (ftell) in file
+    int sequence_number; // location (line number) in file
+    const char *filename;      // name of file for this context
+    const char *subName;       // name of the subroutine (oword)
+    double saved_params[INTERP_SUB_PARAMS];
     parameter_map named_params;
-  unsigned char context_status;		// see CONTEXT_ defines below
-  int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
-  int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
-  double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-
+    unsigned char context_status;		// see CONTEXT_ defines below
+    int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
+    int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
+    double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
 } context;
 
 typedef context *context_pointer;
@@ -542,7 +521,7 @@ typedef struct offset_struct {
   long offset;     // the offset in the file
   int sequence_number;
   int repeat_count;
-}offset;
+} offset;
 
 /*
 

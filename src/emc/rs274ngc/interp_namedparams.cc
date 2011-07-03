@@ -3,13 +3,14 @@
 *
 * collect all code related to named parameter handling
 *
-* Author: mostly K. Lerman, rewrite by Michael Haberler to use STL containers
+* Author: mostly K. Lerman
+* rewrite by Michael Haberler to use STL containers
 * License: GPL Version 2
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
+* Last change: Juli 2011
 ********************************************************************/
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
