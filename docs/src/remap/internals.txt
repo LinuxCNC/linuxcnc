@@ -354,7 +354,7 @@ Here's an example of reading a HAL pin in Python:
 #
 # activate by:
 # [RS274NGC]
-# REMAP=M402  modalgroup=10 py=test_reschedule
+# REMAP=M402  modalgroup=10 python=test_reschedule
 #
 # on the initial call, userdata equals zero.
 # if a queuebuster is executed, the function is expected to return
@@ -415,7 +415,7 @@ If an argspec=<string> is present in the REMAP line, it is treated as follows:
 - if the letter is lowercase, that word is optional.
 - a greater-sign  ('>') denotes 'requires feed greater than zero'
 - a caret  ('^') denotes 'requires speed greater than zero'
-- an at-sign ('@') denotes 'use positional parameters, not local variables' (see below)
+- an at-sign ('@') denotes  <<argspec-positional-params,use positional parameters, not local variables>>  (see below)
 
 The NGC procedure will then find the parameter words as local variables -
 required parameters must be present, optional paramters may be tested
@@ -441,8 +441,8 @@ This means:
 Here's an example where we try to execute the newly-defined 'G88.1':
 [source,{ngc}]
 ---------------------------------------------------------------------
-G88.1 X1 Y2 P4     ; this fails because Z is required, but missing
 G88.1 X1 Y2 Z3 P4  ; this calls g881.ngc since parameter words pass the argspec
+G88.1 X1 Y2 P4     ; this fails because Z is required, but missing
 ---------------------------------------------------------------------
 
 === NGC procedures: Passing and accessing parameters
@@ -466,12 +466,12 @@ procedure wether an optional word was passed or not.
 Method 2 (positional parameters) is kept around despite its limitations. Assume you have a useful
 NGC procedure which you might want to wrap into a remapped code, like a canned cycle, and this procedure
 takes a fixed number of parameters. In that case you can tell 'argspec' to provide a traditional positional
-parameter list to the NGC procedure  by adding '@' to the argspec, see below - there's no need to rewrite
+parameter list to the NGC procedure  by adding <<argspec-positional-params,'@' to the argspec>>  - there's no need to rewrite
 your procedure to refer to named parameters.
 
 === Passing parameters as local named variables to NGC procedures
 Let's take the <<G88.1-Remapping-example,example>> from above, which specifies 'pass as local named parameters'
-since it's the default method. It makes the passed parameters 'spring into existence' within the procedure
+since it's the default method. It makes the passed parameters spring into existence within the procedure
 automatically.
 
 The remap procedure may access parameter words as follows:
@@ -480,21 +480,18 @@ The remap procedure may access parameter words as follows:
 ---------------------------------------------------------------------
 o<g881> sub
 (debug, g881: x=#<x> y=#<y> z=<z>) ; X,Y,Z must exist since they are required
-
 ; the optional P and Q words can be tested for with EXISTS:
 o100 if [EXISTS[#<p>]]
      (debug, optional P word set: #<p>)
 o100 endif
-
 o200 if [EXISTS[#<q>]]
      (debug, optional Q word set: #<q>)
 o200 endif
-
 o<g881> endsub
 m2
 ---------------------------------------------------------------------
 
-=== Passing parameters as positional arguments to NGC procedures
+=== Passing parameters as positional arguments to NGC procedures [[argspec-positional-params]]
 
 To specify positional parameters, proceed as follows (note '@' in argspec):
 [[G88.1-Remapping-example-positionalargs]]
@@ -558,6 +555,10 @@ This refers to a Python function in the 'remap' module, which will be called aft
 # this example epilog looks at the return value from the NGC procedure
 # and does the right thing:
 def demo_epilog(userdata,**words):
+	# error if last O-word procedure did not return a value at all
+	if not interp.value_returned:
+		interp.set_errormsg("M345: m345.ngc did not return a value at all")
+	        return INTERP_ERROR
 	retval = interp.return_value
 	if retval > 0:
 		# let remapped code succeed if return value positive
@@ -568,34 +569,64 @@ def demo_epilog(userdata,**words):
 		return INTERP_ERROR
 ---------------------------------------------------------------------
 
-== Passing parameters to Python functions
+== Remapping to Python functions
 
-If the remap procedure is a Python function, it receives parameters
-through the *words* dictionary:
+Executing an NGC procedure with a remapped code is optional - in some cases it might suffice
+to just execute some Python code. Due to the better introspective capabilities of Python,
+this is a much more powerful method. However, if you want to generate motion commands or work
+with coordinate values, note that you are responsible for handling offsets and unit conversion
+yourself.
 
-Example:
+If the remap procedure is a Python function, it receives parameters described in argspec
+through the *words* dictionary. However, much more detail is available by inspecting the
+executing block. See src/emc/rs274/interpmodule.cc for variables.
+
 [source,{ini}]
 -------------------------------------------------------
 [RS274NGC]
-REMAP=G88.6 modalgroup=1  argspec=XYZp-  python=g886
+REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886
 -------------------------------------------------------
+
+This instructs the interpreter to execute the Python function 'g886' in the 'remap' module
+which might look like so:
 
 [source,python]
 ---------------------------------------------------------------------
 def g886(userdata,**words):
-    if (words.has_key('r')):
-       print "r = ", words['r']
-    CanonMod.STRAIGHT_TRAVERSE(InterpMod.interp.sequence_number(),
-			   words['x'],words['y'],words['z'],
-			   0,0,0,0,0,0)
+    for key in words:
+	 print "word '%s' = %f" % (key, words[key])
+    if (words.has_key('p')):
+         print "the P word was present"
+    print "comment on this line: ", interp.blocks[0].comment
+    return INTERP_OK
 ---------------------------------------------------------------------
 
+Note that with Python remapping functions, no prolog or epilog functions are executed since it's
+executing in a Python context in the first place.
+
 == Returning values from Python remap procedures
+
 foo
+
 == Advanced Prologs and Epilogs: Accessing interpreter internals
+
+InterpMod
+CanonMod
+TaskMod
+
 foo
 
 == Organisation of Python plugin modules
+xxx
+
+== Execution-time Python procedures
+
+xxx
+
+== Oword Pyton bodies
+
+fooo
+
 
 // == Configuring remaps: the REMAP line
 
