@@ -150,8 +150,9 @@ class touchy:
                 self.wTree.get_widget("listingfontbutton").set_font_name(self.listing_font_name)
                 self.listing_font = pango.FontDescription(self.listing_font_name)
 
+                settings = gtk.settings_get_default()
+                self.system_theme = settings.get_property("gtk-theme-name")
                 if not self.theme_name == "Follow System Theme":
-                    settings = gtk.settings_get_default()
                     settings.set_string_property("gtk-theme-name", self.theme_name, "")
 
                 # interactive mdi command builder and issuer
@@ -544,10 +545,11 @@ class touchy:
 
         def change_theme(self,b):
             theme = self.wTree.get_widget("theme_choice").get_active_text()
-            if not theme == "Follow System Theme":
-                settings = gtk.settings_get_default()
-                settings.set_string_property("gtk-theme-name", theme, "")
             self.prefs.putpref('gtk_theme', theme, str)
+            if theme == "Follow System Theme":
+                theme = self.system_theme
+            settings = gtk.settings_get_default()
+            settings.set_string_property("gtk-theme-name", theme, "")
 
         def setfont(self):
                 # buttons
