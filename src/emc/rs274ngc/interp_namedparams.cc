@@ -425,6 +425,7 @@ int Interp::add_parameters(setup_pointer settings,
 	case 'x' : PARAM('x',"x",block->x_flag,block->x_number); break;
 	case 'y' : PARAM('y',"y",block->y_flag,block->y_number); break;
 	case 'z' : PARAM('z',"z",block->z_flag,block->z_number); break;
+	case '-' : break; // ignore - backwards compatibility
 	default: ;
 	}
 	s++;
