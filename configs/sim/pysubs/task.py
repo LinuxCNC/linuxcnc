@@ -76,7 +76,8 @@ class EnqueueCall(object):
 
     def _encode(self,*args,**kwargs):
         if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
-            CanonMod.PLUGIN_CALL(pickle.dumps((self._name,args,kwargs),-1))
+            p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
+            CanonMod.PLUGIN_CALL(int(len(p)),p)
         else:
             raise AttributeError,"no such method: " + self._name
 

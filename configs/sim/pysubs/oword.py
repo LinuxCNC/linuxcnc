@@ -19,7 +19,8 @@ def qdemo(args):
     print "in oword.qdemo() - enqueueing demo",args
     try:
         task.enqueue.demo(args)
-    except Exception:
+    except Exception,e:
+        print "uh,oh",e
         pass
 
 def notify(args):
