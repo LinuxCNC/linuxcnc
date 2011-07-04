@@ -54,6 +54,7 @@ Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
 use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position""")
           , Option( '-H', dest='halfile', metavar='FILE'
                   , help="execute hal statements from FILE with halcmd after the component is set up and ready")
+          , Option( '-m', dest='maximum', default=False, help="Force panel window to maxumize")
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
@@ -243,6 +244,10 @@ def main():
         print "**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme)
         settings = gtk.settings_get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
+
+    # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
+    if opts.maximum:
+        window.window.maximize()
 
     if opts.halfile:
         cmd = ["halcmd", "-f", opts.halfile]
