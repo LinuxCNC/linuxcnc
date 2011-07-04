@@ -2039,7 +2039,7 @@ int Interp::read_parameter_setting(
       {
           ERS(NCE_OUT_OF_MEMORY);
       }
-      logDebug("%s strdup[%p]:|%s|", name, dup, dup);
+      logDebug("%s |%s|", name,  dup);
       _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
 
       _setup.named_parameter_values[_setup.named_parameter_occurrence] = value;

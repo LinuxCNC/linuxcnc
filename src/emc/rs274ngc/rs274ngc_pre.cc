@@ -325,8 +325,7 @@ int Interp::_execute(const char *command)
                           _setup.named_parameter_values[n]));
 
     // free the string
-      logDebug("freeing param[%d]:|%s|:%p", n, _setup.named_parameters[n],
-               _setup.named_parameters[n]);
+      logDebug("freeing param[%d]:|%s|", n, _setup.named_parameters[n]);
     free(_setup.named_parameters[n]);
   }
 
