@@ -115,6 +115,12 @@ class touchy:
                 self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
                 self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
                 self.theme_name = self.prefs.getpref('gtk_theme', 'Follow System Theme', str)
+                self.abs_textcolor = self.prefs.getpref('abs_textcolor', 'default', str)
+                self.rel_textcolor = self.prefs.getpref('rel_textcolor', 'default', str)
+                self.dtg_textcolor = self.prefs.getpref('dtg_textcolor', 'default', str)
+                self.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
+                self.window_max = self.prefs.getpref('window_force_max', 'False', bool)
+
                 # initial screen setup
                 if os.path.exists(themedir):
                     model = self.wTree.get_widget("theme_choice").get_model()
@@ -129,9 +135,12 @@ class touchy:
                             temp = search+1
                     self.wTree.get_widget("theme_choice").set_active(temp)
 
-                self.abs_textcolor = self.prefs.getpref('abs_textcolor', 'default', str)
-                self.rel_textcolor = self.prefs.getpref('rel_textcolor', 'default', str)
-                self.dtg_textcolor = self.prefs.getpref('dtg_textcolor', 'default', str)
+                if self.window_geometry == "default":
+		            self.wTree.get_widget("MainWindow").window.maximize()
+                else:
+                    self.wTree.get_widget("MainWindow").parse_geometry(self.window_geometry)
+                    if self.window_max:
+                        self.wTree.get_widget("MainWindow").window.maximize()
 
                 self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
                 if self.invisible_cursor:
@@ -613,8 +622,6 @@ class touchy:
                 for i in ["error"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.error_font)
-
-		self.wTree.get_widget("MainWindow").window.maximize()
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
