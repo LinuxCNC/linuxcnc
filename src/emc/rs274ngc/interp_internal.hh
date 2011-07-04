@@ -240,6 +240,9 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define INTERP_SUB_ROUTINE_LEVELS 10
 #define INTERP_FIRST_SUBROUTINE_PARAM 1
 
+// max number of local variables saved (?)
+#define MAX_NAMED_PARAMETERS 50
+
 /**********************/
 /*      TYPEDEFS      */
 /**********************/
@@ -610,11 +613,11 @@ typedef struct setup_struct
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
   double parameters[RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
-  int parameter_numbers[50];    // parameter number buffer
-  double parameter_values[50];  // parameter value buffer
+  int parameter_numbers[MAX_NAMED_PARAMETERS];    // parameter number buffer
+  double parameter_values[MAX_NAMED_PARAMETERS];  // parameter value buffer
   int named_parameter_occurrence;
-  const char *named_parameters[50];
-  double named_parameter_values[50];
+  const char *named_parameters[MAX_NAMED_PARAMETERS];
+  double named_parameter_values[MAX_NAMED_PARAMETERS];
   bool percent_flag;          // true means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   bool probe_flag;            // flag indicating probing done

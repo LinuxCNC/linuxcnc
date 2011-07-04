@@ -321,12 +321,7 @@ int Interp::_execute(const char *command)
       logDebug("storing param:|%s|", _setup.named_parameters[n]);
       CHP(store_named_param(&_setup, _setup.named_parameters[n],
                           _setup.named_parameter_values[n]));
-
-    // free the string
-      logDebug("freeing param[%d]:|%s|", n, _setup.named_parameters[n]);
-      // free(_setup.named_parameters[n]);
   }
-
   _setup.named_parameter_occurrence = 0;
 
   if (_setup.line_length != 0) {        /* line not blank */

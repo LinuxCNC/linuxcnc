@@ -2026,7 +2026,7 @@ int Interp::read_parameter_setting(
       logDebug("setting up named param[%d]:|%s| value:%lf",
                _setup.named_parameter_occurrence, param, value);
 
-      dup = strstore(param);
+      dup = strstore(param); // no more need to free this
       if(dup == 0)
       {
           ERS(NCE_OUT_OF_MEMORY);
@@ -2978,7 +2978,6 @@ int Interp::read_text(
     int *length)       //!< a pointer to an integer to be set
 {
   int index;
-  int n;
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
@@ -3023,17 +3022,6 @@ int Interp::read_text(
   }
 
   _setup.parameter_occurrence = 0;      /* initialize parameter buffer */
-
-  // just in case free the strings
-  if(_setup.named_parameter_occurrence != 0)
-  {
-      for (n = 0; n < _setup.named_parameter_occurrence; n++)
-      {
-          // free the string
-          // free(_setup.named_parameters[n]);
-      }
-  }
-  _setup.named_parameter_occurrence = 0;      /* initialize parameter buffer */
 
   if ((line[0] == 0) || ((line[0] == '/') && (GET_BLOCK_DELETE())))
     *length = 0;
