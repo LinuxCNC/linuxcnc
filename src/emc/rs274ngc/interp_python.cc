@@ -90,7 +90,7 @@ std::string handle_pyerror()
     PyObject *exc,*val,*tb;
     object formatted_list, formatted;
     PyErr_Fetch(&exc,&val,&tb);
-    handle<> hexc(exc),hval(val),htb(allow_null(tb));
+    handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
     object traceback(import("traceback"));
     if (!tb) {
 	object format_exception_only(traceback.attr("format_exception_only"));
