@@ -2015,7 +2015,7 @@ class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
+    int len;
     char call[900]; // MAX_NML_COMMAND_SIZE-100;
 };
 

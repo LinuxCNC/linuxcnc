@@ -455,7 +455,7 @@ void TURN_PROBE_OFF() {}
 int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
 int LOCK_ROTARY(int line_no, int axis) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
-void PLUGIN_CALL(const char *call) {}
+void PLUGIN_CALL(int len, const char *call) {}
 
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 

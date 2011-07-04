@@ -1714,6 +1714,7 @@ void EMC_EXEC_PLUGIN_CALL::update(CMS * cms)
 {
 
     EMC_CMD_MSG::update(cms);
+    cms->update(len);
     cms->update(call,sizeof(call));
 }
 

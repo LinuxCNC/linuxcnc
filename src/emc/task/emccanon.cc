@@ -3048,13 +3048,18 @@ void INTERP_ABORT(int reason, const char *message)
  * the tuple is expected to be already pickled
  * The tuple format is: (callable,tupleargs,keywordargs)
  */
-void PLUGIN_CALL(const char *call)
+void PLUGIN_CALL(int len, const char *call)
 {
     EMC_EXEC_PLUGIN_CALL call_msg;
-    call_msg.call[0] = '\0';
-    if (call) {
-	strncpy(call_msg.call, call, sizeof(call_msg.call));
-	printf("canon: PLUGIN_CALL(arglen=%d)\n",strlen(call));
+    if (len > (int) sizeof(call_msg.call)) {
+	// really should call it quits here, this is going to fail
+	printf("PLUGIN_CALL: message size exceeded actual=%d max=%d\n",len,sizeof(call_msg.call));
     }
+    memset(call_msg.call, 0, sizeof(call_msg.call));
+    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
+    call_msg.len = len;
+
+    printf("canon: PLUGIN_CALL(arglen=%d)\n",strlen(call));
+
     interp_list.append(call_msg);
 }

@@ -934,6 +934,6 @@ extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2))
 
 // queue a call to a task-time Python plugin method
 // call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
-extern void PLUGIN_CALL(const char *call);
+extern void PLUGIN_CALL(int len, const char *call);
 
 #endif				/* ifndef CANON_HH */

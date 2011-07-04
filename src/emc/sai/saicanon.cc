@@ -1157,7 +1157,7 @@ void CANON_ERROR(const char *fmt, ...)
     }
 #endif
 }
-void PLUGIN_CALL(const char *call)
+void PLUGIN_CALL(int len, const char *call)
 {
-    printf("PLUGIN_CALL(%s)\n",call);
+    printf("PLUGIN_CALL(%d)\n",len);
 }
