@@ -1545,7 +1545,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     case O_endsub:
     case O_call:
     case O_return:
-      block->o_name = strdup(oNameBuf);
+	block->o_name = strstore(oNameBuf); // leak! strdup(oNameBuf);
       logDebug("global case:|%s|", block->o_name);
       break;
 
