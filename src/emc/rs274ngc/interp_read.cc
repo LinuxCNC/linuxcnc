@@ -1479,8 +1479,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
 
-  // FIXME block->o_number = 0;
-
   logDebug("In: %s line:%d |%s|", name, block->line_number, line);
 
   if(line[*counter] == '<')
@@ -1492,12 +1490,9 @@ int Interp::read_o(    /* ARGUMENTS                                     */
      CHP(read_integer_value(line, counter, &oNumber,
                             parameters));
      sprintf(oNameBuf, "%d", oNumber);
-     //    block->o_number = oNumber; //!!!KL keeps this for now
   }
 
   // We stash the text the offset part of setup
-  // And then store the index into block->o_number
-  // Just to be clean, we do not use index zero.
 
 #define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
   // characterize the type of o-word

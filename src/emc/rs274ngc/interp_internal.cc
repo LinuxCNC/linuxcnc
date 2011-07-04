@@ -304,8 +304,6 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->radius_flag = false;
 
   block->o_type = O_none;
-  // block->o_number = 0;
-
   block->o_name = 0;
 
   return INTERP_OK;

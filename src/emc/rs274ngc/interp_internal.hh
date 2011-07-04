@@ -309,8 +309,6 @@ typedef struct remap_struct {
     const char *remap_py;    // Py function maybe  null, OR
     const char *remap_ngc;   // NGC file, maybe  null
     const char *epilog_func; // Py function or null
-    int (Interp::*builtin_epilog)(setup_pointer settings,
-				  block_pointer cblock);
 } remap;
 
 // case insensitive compare for std::map etc
@@ -432,7 +430,6 @@ typedef struct block_struct
   // control (o-word) stuff
   long     offset;   // start of line in file
   int      o_type;
-    // int      o_number;
   const char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
   int param_cnt;

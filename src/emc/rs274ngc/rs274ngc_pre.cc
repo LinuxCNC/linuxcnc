@@ -244,9 +244,7 @@ int Interp::_execute(const char *command)
   logDebug("MDImode = %d",MDImode);
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
-  //  if (_setup.block1.o_number != 0)
-  if ( // (eblock->o_number != 0) ||
-      (eblock->o_name != 0) ||
+  if ((eblock->o_name != 0) ||
       (_setup.mdi_interrupt))  {
       logDebug("Convert control functions");
       status = convert_control_functions(eblock, &_setup);
@@ -390,6 +388,7 @@ int Interp::_execute(const char *command)
 	  // returns the negative value of phase (to distinguish them from INTERP_* codes which are all > 0)
 
 	  if (status < 0) {
+
 	      // the remap phase indicator was returned.
 	      // sanity:
 	      if (cblock->remappings.find(- status) == cblock->remappings.end()) {
@@ -399,9 +398,9 @@ int Interp::_execute(const char *command)
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-		  if ( // (eblock->o_number != 0) ||
-		      (eblock->o_name != 0) ||
+		  if ((eblock->o_name != 0) ||
 		      (_setup.mdi_interrupt)) {
+
 		      CHP(convert_control_functions(eblock, &_setup));
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
@@ -1336,15 +1335,12 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
              incremented to allow o-extensions to work. 
              Note that the the block is 'refreshed' by init_block(),
              not created new, so this is a legal operation on block1. */
-        if (EXECUTING_BLOCK(_setup).o_type != O_none)
-        {
+
+	// mah: FIXME test this - no idea what this is about; o_number is history
+        if (EXECUTING_BLOCK(_setup).o_type != O_none)  {
             // Clear o_type, this isn't line isn't a command...
             EXECUTING_BLOCK(_setup).o_type = 0;
-            // increment o_number
-
-	    // FIXME delete - useless code
-	    // EXECUTING_BLOCK(_setup).o_number++;
-        }
+	}
     }
   } else if (read_status == INTERP_ENDFILE);
   else
