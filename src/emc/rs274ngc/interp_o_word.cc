@@ -349,14 +349,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   // !!!KL
 
   // FIXME mah useless code?
-  if(block->o_name  && !is_py_remap_handler) // suppress error msg if 'py oword' not found
-    {
-	control_find_oword(block, settings, &op);// &(block->o_number));
-    }
-  else
-    {
-	//    block->o_number = 0;
-    }
+  // if(block->o_name  && !is_py_remap_handler) // suppress error msg if 'py oword' not found
+  //   {
+  // 	control_find_oword(block, settings, &op);// &(block->o_number));
+  //   }
+  // else
+  //   {
+  // 	//    block->o_number = 0;
+  //   }
 
   // must skip if skipping
   if(settings->skipping_o && (0 != strcmp(settings->skipping_o, block->o_name)))
