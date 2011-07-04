@@ -454,7 +454,7 @@ public:
 		     char *foundFileDirect); // where to store the result
 
  int control_save_offset(    /* ARGUMENTS                   */
-  int line,                  /* (o-word) line number        */
+			 // int line,                  /* (o-word) line number        */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 

@@ -91,7 +91,7 @@ int Interp::findFile( // ARGUMENTS
    fast data structure
 */
 int Interp::control_save_offset( /* ARGUMENTS                   */
- int line,                   /* (o-word) line number        */
+				//int line,                   /* (o-word) line number        */
  block_pointer block,        /* pointer to a block of RS274/NGC instructions */
  setup_pointer settings)     /* pointer to machine settings */
 {
@@ -383,7 +383,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           logOword("sub(o_|%s|) was skipping to here", settings->skipping_o);
 
           // skipping to a sub means that we must define this now
-	  CHP(control_save_offset(block->o_number, block, settings));
+	  CHP(control_save_offset( block, settings));
       }
 
       if(settings->skipping_o)
@@ -405,7 +405,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  logOword("started a subroutine defn");
 	  // a definition
 	  CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
-	  CHP(control_save_offset(block->o_number, block, settings));
+	  CHP(control_save_offset( block, settings));
 
           settings->skipping_o = block->o_name; // start skipping
           settings->skipping_start = settings->sequence_number;
@@ -712,7 +712,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       // we hit this again on loop back -- so test first
       if(INTERP_OK != control_find_oword(block, settings, &index))
       {
-          CHP(control_save_offset(block->o_number, block, settings));
+          CHP(control_save_offset( block, settings));
       }
       break;
 
@@ -728,7 +728,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // this is the beginning of a 'repeat' loop
 	  // add it to the table if not already there
 	  if(status != INTERP_OK)
-              CHP(control_save_offset(block->o_number, block, settings));
+              CHP(control_save_offset( block, settings));
 
           // note the repeat count.  it should only be calculated at the
           // start of the repeat loop.
@@ -772,7 +772,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  // add it to the table if not already there
 	  if(status != INTERP_OK)
 	    {
-               CHP(control_save_offset(block->o_number, block, settings));
+               CHP(control_save_offset( block, settings));
 	    }
 
 	  // test the condition
