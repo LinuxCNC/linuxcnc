@@ -30,26 +30,6 @@
 
 namespace bp = boost::python;
 
-
-const char *otypes[] = {
-    "O_none",
-    "O_sub"
-    "O_endsub",
-    "O_call",
-    "O_do",
-    "O_while",
-    "O_if",
-    "O_elseif",
-    "O_else",
-    "O_endif",
-    "O_break",
-    "O_continue",
-    "O_endwhile",
-    "O_return",
-    "O_repeat",
-    "O_endrepeat"
-};
-
 //========================================================================
 // Functions for control stuff (O-words)
 //========================================================================
@@ -98,16 +78,14 @@ int Interp::findFile( // ARGUMENTS
     ERS(NCE_FILE_NOT_OPEN);
 }
 
-/************************************************************************/
+
 /*
-   In the long run, this function will use a hash table or other
-   fast data structure
-*/
+ *  this now uses STL maps for offset access
+ */
 int Interp::control_save_offset(block_pointer block,        /* pointer to a block of RS274/NGC instructions */
 				setup_pointer settings)     /* pointer to machine settings */
 {
   static char name[] = "control_save_offset";
-  int index;
   offset_pointer op = NULL;
 
   logOword("Entered:%s for o_name:|%s|", name, block->o_name);
@@ -119,29 +97,16 @@ int Interp::control_save_offset(block_pointer block,        /* pointer to a bloc
 	  block->o_name,
 	  op->filename);
   }
+  offset new_offset;
 
-  CHKS((settings->oword_labels >= INTERP_OWORD_LABELS),
-      NCE_TOO_MANY_OWORD_LABELS);
-
-  index = settings->oword_labels++;
-
-  settings->oword_offset[index].o_word_name = block->o_name;
-  settings->oword_offset[index].type = block->o_type;
-  settings->oword_offset[index].offset = block->offset;
-  settings->oword_offset[index].filename = strstore(settings->filename);
-  settings->oword_offset[index].repeat_count = -1;
-
-  // the sequence number has already been bumped, so save the proper value
-  settings->oword_offset[index].sequence_number =
-      settings->sequence_number - 1;
-
-  logOword("control_save_offset: o_word_name=%s type=%s offset=%ld filename=%s repeat_count=%d sequence_number=%d\n",
-	   settings->oword_offset[index].o_word_name,
-	   otypes[settings->oword_offset[index].type],
-	   settings->oword_offset[index].offset,
-	   settings->oword_offset[index].filename,
-	   settings->oword_offset[index].repeat_count,
-	   settings->oword_offset[index].sequence_number);
+  new_offset.type = block->o_type;
+  new_offset.offset = block->offset;
+  new_offset.filename = strstore(settings->filename);
+  new_offset.repeat_count = -1;
+  // the sequence number has already been bumped, so save
+  // the proper value
+  new_offset.sequence_number = settings->sequence_number - 1;
+  settings->offset_map[block->o_name] = new_offset;
 
   return INTERP_OK;
 }
@@ -152,23 +117,16 @@ int Interp::control_find_oword(block_pointer block,      // pointer to block
 			       offset_pointer *op)       // pointer to offset descriptor
 {
     static char name[] = "control_find_oword";
-    int i;
+    offset_map_iterator it;
 
-    logOword("Entered:%s %s", name, block->o_name);
-    for (i = 0; i < settings->oword_labels; i++) {
-	if (0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name)) {
-	    logOword("----- found offset %s:%s %s %ld %d\n",
-		     block->o_name, settings->oword_offset[i].o_word_name,
-		     settings->oword_offset[i].filename,settings->oword_offset[i].offset,
-		     settings->oword_offset[i].sequence_number);
-
-	    *op = &settings->oword_offset[i];
-	    logOword("Found oword[%d]: |%s|", i, block->o_name);
-	    return INTERP_OK;
-	}
+    it = settings->offset_map.find(block->o_name);
+    if (it != settings->offset_map.end()) {
+	*op =  &it->second;
+	return INTERP_OK;
+    } else {
+	logOword("%s: Unknown oword name: |%s|", name, block->o_name);
+	ERS(NCE_UNKNOWN_OWORD_NUMBER);
     }
-    logOword("Unknown oword name: |%s|", block->o_name);
-    ERS(NCE_UNKNOWN_OWORD_NUMBER);
 }
 
 //
@@ -186,49 +144,48 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 			     setup_pointer settings)   // pointer to machine settings
 {
     static char name[] = "control_back_to";
-    int i,dct;
+    int  dct;
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     char tmpFileName[PATH_MAX+1];
     FILE *newFP;
+    offset_map_iterator it;
+    offset_pointer op;
 
     foundPlace[0] = 0;
     logOword("Entered:%s %s", name,block->o_name);
-    for( i= 0; i < settings->oword_labels; i++) {
-	if (0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name)) {
-	    if ((settings->filename[0] != 0) &
-		(settings->file_pointer == NULL))  {
-		ERS(NCE_FILE_NOT_OPEN);
-	    }
-	    if (0 != strcmp(settings->filename,
-			    settings->oword_offset[i].filename)) {
-		// open the new file...
-		logOword("%s newfile=%s", name,settings->oword_offset[i].filename);
-		newFP = fopen(settings->oword_offset[i].filename, "r");
 
-		// set the line number
-		settings->sequence_number = 0;
-		strcpy(settings->filename, settings->oword_offset[i].filename);
-
-		if (newFP) {
-		    // close the old file...
-		    if (settings->file_pointer) // only close if it was open
-			fclose(settings->file_pointer);
-		    settings->file_pointer = newFP;
-		} else {
-		    logOword("Unable to open file: %s", settings->filename);
-		    ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
-		}
-	    }
-	    if (settings->file_pointer) // only seek if it was open
-		fseek(settings->file_pointer,
-		      settings->oword_offset[i].offset, SEEK_SET);
-
-	    settings->sequence_number =
-		settings->oword_offset[i].sequence_number;
-
-	    return INTERP_OK;
+    it = settings->offset_map.find(block->o_name);
+    if (it != settings->offset_map.end()) {
+	op = &it->second;
+	if ((settings->filename[0] != 0) &
+	    (settings->file_pointer == NULL))  {
+	    ERS(NCE_FILE_NOT_OPEN);
 	}
+	if (0 != strcmp(settings->filename,
+			op->filename)) {
+	    // open the new file...
+	    newFP = fopen(op->filename, "r");
+	    // set the line number
+	    settings->sequence_number = 0;
+	    strcpy(settings->filename, op->filename);
+
+	    if (newFP) {
+		// close the old file...
+		if (settings->file_pointer) // only close if it was open
+		    fclose(settings->file_pointer);
+		settings->file_pointer = newFP;
+	    } else {
+		logOword("Unable to open file: %s", settings->filename);
+		ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
+	    }
+	}
+	if (settings->file_pointer) { // only seek if it was open
+	    fseek(settings->file_pointer,
+		  op->offset, SEEK_SET);
+	}
+	settings->sequence_number = op->sequence_number;
+	return INTERP_OK;
     }
 
     // NO o_word found
@@ -287,8 +244,6 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     settings->skipping_o = block->o_name; // start skipping
     settings->skipping_to_sub = block->o_name; // start skipping
     settings->skipping_start = settings->sequence_number;
-    //ERS(NCE_UNKNOWN_OWORD_NUMBER);
-
     return INTERP_OK;
 }
 
@@ -335,13 +290,12 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	return INTERP_OK;
     }
 
-    if (settings->skipping_to_sub && (block->o_type != O_sub))
-	{
-	    logOword("skipping to sub: |%s|", settings->skipping_to_sub);
-	    return INTERP_OK;
-	}
+    if (settings->skipping_to_sub && (block->o_type != O_sub)) {
+	logOword("skipping to sub: |%s|", settings->skipping_to_sub);
+	return INTERP_OK;
+    }
 
-    logOword("o_type:  %s\n", otypes[block->o_type]);
+    logOword("o_type:  %d\n", block->o_type);
     switch (block->o_type) {
 
     case O_none:

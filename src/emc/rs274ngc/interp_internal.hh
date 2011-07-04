@@ -237,7 +237,6 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 
 // Subroutine parameters
 #define INTERP_SUB_PARAMS 30
-#define INTERP_OWORD_LABELS 1000
 #define INTERP_SUB_ROUTINE_LEVELS 10
 #define INTERP_FIRST_SUBROUTINE_PARAM 1
 
@@ -310,6 +309,7 @@ typedef struct remap_struct {
     const char *remap_ngc;   // NGC file, maybe  null
     const char *epilog_func; // Py function or null
 } remap;
+
 
 // case insensitive compare for std::map etc
 struct nocase_cmp
@@ -509,16 +509,16 @@ typedef context *context_pointer;
 #define CONTEXT_VALID   1 // this was stored by M7*
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
 
-// !!!KL ???use the index to this as a surrogate for the o-word text
 typedef struct offset_struct {
-  int o_word;
-  const char *o_word_name; // or zero
   int type;
   const char *filename;  // the name of the file
   long offset;     // the offset in the file
   int sequence_number;
   int repeat_count;
 } offset;
+
+typedef std::map<const char *, offset, nocase_cmp> offset_map_type;
+typedef std::map<const char *, offset, nocase_cmp>::iterator offset_map_iterator;
 
 /*
 
@@ -613,7 +613,7 @@ typedef struct setup_struct
   int parameter_numbers[50];    // parameter number buffer
   double parameter_values[50];  // parameter value buffer
   int named_parameter_occurrence;
-  char *named_parameters[50];
+  const char *named_parameters[50];
   double named_parameter_values[50];
   bool percent_flag;          // true means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
@@ -659,7 +659,8 @@ typedef struct setup_struct
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int oword_labels;
-  offset oword_offset[INTERP_OWORD_LABELS];
+  offset_map_type offset_map;      // store label x name, file, line
+
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
@@ -700,11 +701,13 @@ typedef struct setup_struct
     time_t    module_mtime;   // top level module - last modification time
     boost::python::object module_namespace;
     bool running_under_task;
-}
-setup;
-enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
+} setup;
 
 typedef setup *setup_pointer;
+
+enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
+
+
 
 
 inline bool is_a_cycle(int motion) {

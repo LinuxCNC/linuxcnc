@@ -1562,20 +1562,16 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  logDebug("not defining_sub:|%s|", subName);
 	}
       sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
-      // block->o_name = strdup(fullNameBuf); FIXME mah
       block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
-  extern const char *otypes[];
-  logDebug("o_type:%s o_name: %s  line:%d %s", otypes[block->o_type], block->o_name,
+  logDebug("o_type:%d o_name: %s  line:%d %s", block->o_type, block->o_name,
 	   block->line_number, line);
 
-  // FIXME: whatzat? kinda idempotent..
-  if(block->o_type == O_sub)
+  if (block->o_type == O_sub)
     {
       block->o_type = O_sub;
     }
-
   // in terms of execution endsub and return do the same thing
   else if ((block->o_type == O_endsub) || (block->o_type == O_return))
     {
@@ -2012,7 +2008,7 @@ int Interp::read_parameter_setting(
   int index;
   double value;
   char *param;
-  char *dup;
+  const char *dup;
 
   CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
@@ -2030,7 +2026,7 @@ int Interp::read_parameter_setting(
       logDebug("setting up named param[%d]:|%s| value:%lf",
                _setup.named_parameter_occurrence, param, value);
 
-      dup = strdup(param);
+      dup = strstore(param);
       if(dup == 0)
       {
           ERS(NCE_OUT_OF_MEMORY);
@@ -3034,7 +3030,7 @@ int Interp::read_text(
       for (n = 0; n < _setup.named_parameter_occurrence; n++)
       {
           // free the string
-          free(_setup.named_parameters[n]);
+          // free(_setup.named_parameters[n]);
       }
   }
   _setup.named_parameter_occurrence = 0;      /* initialize parameter buffer */

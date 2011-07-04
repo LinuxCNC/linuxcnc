@@ -324,7 +324,7 @@ int Interp::_execute(const char *command)
 
     // free the string
       logDebug("freeing param[%d]:|%s|", n, _setup.named_parameters[n]);
-    free(_setup.named_parameters[n]);
+      // free(_setup.named_parameters[n]);
   }
 
   _setup.named_parameter_occurrence = 0;
@@ -710,12 +710,9 @@ int Interp::init()
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
 
-  // mah: ---------- sizeof(_setup) = 115652
-  // master:: ---------- sizeof(_setup) = 147480
-  // ---------- sizeof(offsets) = 28000
+
 
   // printf("---------- sizeof(_setup) = %d\n", sizeof(_setup));
-  // printf("---------- sizeof(offsets) = %d\n", sizeof(offset) *INTERP_OWORD_LABELS);
 
   INIT_CANON();
 
@@ -853,7 +850,7 @@ int Interp::init()
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
           if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
-	      _setup.on_abort_command = strdup(inistring);
+	      _setup.on_abort_command = strstore(inistring);
               logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
           } else {
 	      _setup.on_abort_command = NULL;
@@ -865,12 +862,12 @@ int Interp::init()
 	      _setup.py_reload_on_change = false;
 
 	  if (NULL != (inistring = inifile.Find("PYTHONPATH", "RS274NGC")))
-	      _setup.py_path = strdup(inistring);
+	      _setup.py_path = strstore(inistring);
 	  else
 	      _setup.py_path = NULL;
 
           if (NULL != (inistring = inifile.Find("PYMODULE", "RS274NGC"))) {
-	      _setup.py_module = strdup(inistring);
+	      _setup.py_module = strstore(inistring);
 	      int status;
 	      if (_setup.py_module_stat == PYMOD_OK) {
 		  logDebug("PYMODULE: module %s already imported OK, skipping",
@@ -1313,8 +1310,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
               _setup.blocktext, &_setup.line_length);
 
   if (read_status == INTERP_ERROR && _setup.skipping_to_sub) {
-      // free(_setup.skipping_to_sub);
-    _setup.skipping_to_sub = 0;
+    _setup.skipping_to_sub = NULL;
   }
 
   if(command)logDebug("%s:[cmd]:|%s|", name, command);
@@ -1464,9 +1460,8 @@ int Interp::reset()
     int i;
     context * sub = _setup.sub_context + _setup.call_level - 1;
     free_named_parameters(&_setup.sub_context[_setup.call_level]);
-    if(sub->subName) {
-	// FIXME mah free(sub->subName);
-      sub->subName = 0;
+    if (sub->subName) {
+	sub->subName = NULL;
     }
 
     for(i=0; i<INTERP_SUB_PARAMS; i++) {
@@ -1489,8 +1484,7 @@ int Interp::reset()
     _setup.sequence_number = sub->sequence_number;
   }
   if(_setup.sub_name) {
-      //free(_setup.sub_name);
-    _setup.sub_name = 0;
+    _setup.sub_name = NULL;
   }
 
   // reset remapping stack
