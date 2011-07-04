@@ -461,7 +461,8 @@ public:
  int control_find_oword(     /* ARGUMENTS                   */
   block_pointer block,       /* block pointer to get (o-word) name        */
   setup_pointer settings,    /* pointer to machine settings */
-  int *o_index);             /* the index of o-word (returned) */
+  offset_pointer *ppo);
+//  int *o_index);             /* the index of o-word (returned) */
 
  int control_back_to(        /* ARGUMENTS                   */
   block_pointer block, // pointer to block

@@ -97,16 +97,17 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
 {
   static char name[] = "control_save_offset";
   int index;
-
+  offset_pointer op = NULL;
   logOword("Entered:%s for o_name:|%s|", name, block->o_name);
 
-  if(control_find_oword(block, settings, &index) == INTERP_OK)
+  if(control_find_oword(block, settings, &op) == INTERP_OK)
   {
       // already exists
       ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
                settings->filename, settings->sequence_number,
 	       block->o_name,
-               settings->oword_offset[index].filename);
+	  op->filename);
+	  // settings->oword_offset[index].filename);
       //return INTERP_OK;
   }
 
@@ -130,7 +131,7 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
     settings->sequence_number - 1;
 
   logOword("control_save_offset: o_word_name=%s type=%d offset=%ld filename=%s repeat_count=%d sequence_number=%d\n",
-	   settings->oword_offset[index].o_word_name = block->o_name,
+	   settings->oword_offset[index].o_word_name,
 	   settings->oword_offset[index].type,
 	   settings->oword_offset[index].offset,
 	   settings->oword_offset[index].filename,
@@ -143,7 +144,8 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
 int Interp::control_find_oword( /* ARGUMENTS                       */
   block_pointer block,      /* pointer to block */
   setup_pointer settings,   /* pointer to machine settings      */
-  int *o_index)             /* the index of o-word (returned) */
+  offset_pointer *op)
+  // int *o_index)             /* the index of o-word (returned) */
 {
   static char name[] = "control_find_oword";
   int i;
@@ -153,7 +155,8 @@ int Interp::control_find_oword( /* ARGUMENTS                       */
     {
       if(0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name))
 	{
-	  *o_index = i;
+	    //*o_index = i;
+	    *op = &settings->oword_offset[i];
 	  logOword("Found oword[%d]: |%s|", i, block->o_name);
 	  return INTERP_OK;
 	}
@@ -323,7 +326,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
  setup_pointer settings)   /* pointer to machine settings                  */
 {
   int status = INTERP_OK;
-  int index;
+  //  int index;
   int i;
   context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
   block_pointer cblock;
@@ -332,7 +335,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   bool is_py_callable;   // the sub name is actually Python
   bool is_py_osub;  // a plain osub whose name is a python callable
   bool py_exception = false;
-
+  offset_pointer op = NULL;
   logOword("convert_control_functions");
 
   // aquire the 'remap_frame' a.k.a controlling block
@@ -346,11 +349,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   // !!!KL
   if(block->o_name  && !is_py_remap_handler) // suppress error msg if 'py oword' not found
     {
-      control_find_oword(block, settings, &(block->o_number));
+	control_find_oword(block, settings, &op);// &(block->o_number));
     }
   else
     {
-      block->o_number = 0;
+	//    block->o_number = 0;
     }
 
   // must skip if skipping
@@ -710,8 +713,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       settings->skipping_o = NULL;
       // save the loop point
       // we hit this again on loop back -- so test first
-      if(INTERP_OK != control_find_oword(block, settings, &index))
+      if(INTERP_OK != control_find_oword(block, settings, &op)) // &index))
       {
+	  // save offset if not found in offset table
           CHP(control_save_offset( block, settings));
       }
       break;
@@ -719,12 +723,13 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
     case O_repeat:
       // if we were skipping, no longer
       settings->skipping_o = NULL;
-      status = control_find_oword(block, settings, &index);
+      status = control_find_oword(block, settings, &op); // &index);
 
       // test if not already seen OR
       // if seen and this is a repeat
       if((status != INTERP_OK) ||
-	 (settings->oword_offset[index].type == block->o_type))	{
+	 //	 (settings->oword_offset[index].type == block->o_type))	{
+	 (op->type == block->o_type))	{
 	  // this is the beginning of a 'repeat' loop
 	  // add it to the table if not already there
 	  if(status != INTERP_OK)
@@ -732,18 +737,22 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
           // note the repeat count.  it should only be calculated at the
           // start of the repeat loop.
-          control_find_oword(block, settings, &index);
-          if(settings->oword_offset[index].repeat_count == -1)
-              settings->oword_offset[index].repeat_count = 
+          control_find_oword(block, settings, &op); // &index);
+          // if(settings->oword_offset[index].repeat_count == -1)
+          //     settings->oword_offset[index].repeat_count =
+          //         round_to_int(settings->test_value);
+          if(op->repeat_count == -1)
+              op->repeat_count =
                   round_to_int(settings->test_value);
-
 	  // are we still repeating?
-	  if(settings->oword_offset[index].repeat_count > 0) {
+	  // if(settings->oword_offset[index].repeat_count > 0) {
+	  if(op->repeat_count > 0) {
 	      // execute forward
 	      logOword("executing forward: [%s] in 'repeat' test value-- %g",
 		       block->o_name, settings->test_value);
               // one less repeat remains
-              settings->oword_offset[index].repeat_count--;
+              // settings->oword_offset[index].repeat_count--;
+              op->repeat_count--;
           } else {
 	      // skip forward
 	      logOword("skipping forward: [%s] in 'repeat'",
@@ -752,7 +761,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
               settings->skipping_start = settings->sequence_number;
               // cause the repeat count to be recalculated
 	      // if we do this loop again
-              settings->oword_offset[index].repeat_count = -1;
+              // settings->oword_offset[index].repeat_count = -1;
+              op->repeat_count = -1;
           }
       }
       break;
@@ -760,12 +770,13 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
     case O_while:
       // if we were skipping, no longer
       settings->skipping_o = NULL;
-      status = control_find_oword(block, settings, &index);
+      status = control_find_oword(block, settings, &op); //  &index);
 
       // test if not already seen OR
       // if seen and this is a while (alternative is that it is a do)
       if((status != INTERP_OK) ||
-	 (settings->oword_offset[index].type == block->o_type))
+	 // (settings->oword_offset[index].type == block->o_type))
+	 (op->type == block->o_type))
 	{
 	  // this is the beginning of a 'while' loop
 

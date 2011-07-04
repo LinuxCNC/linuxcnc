@@ -1492,7 +1492,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
      CHP(read_integer_value(line, counter, &oNumber,
                             parameters));
      sprintf(oNameBuf, "%d", oNumber);
-     block->o_number = oNumber; //!!!KL keeps this for now
+     //    block->o_number = oNumber; //!!!KL keeps this for now
   }
 
   // We stash the text the offset part of setup

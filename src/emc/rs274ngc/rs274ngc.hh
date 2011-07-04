@@ -44,6 +44,8 @@ typedef remap *remap_pointer;
 typedef struct context_struct context;
 typedef context *context_pointer;
 
+typedef struct offset_struct offset;
+typedef offset *offset_pointer;
 
 // Declare class so that we can use it in the typedef.
 class Interp;
