@@ -432,7 +432,7 @@ typedef struct block_struct
   // control (o-word) stuff
   long     offset;   // start of line in file
   int      o_type;
-  int      o_number;
+    // int      o_number;
   const char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
   int param_cnt;

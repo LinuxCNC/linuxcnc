@@ -347,6 +347,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
   // if there is an oword, must get the block->o_number
   // !!!KL
+
+  // FIXME mah useless code?
   if(block->o_name  && !is_py_remap_handler) // suppress error msg if 'py oword' not found
     {
 	control_find_oword(block, settings, &op);// &(block->o_number));
@@ -414,8 +416,9 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
           settings->skipping_start = settings->sequence_number;
 	  settings->defining_sub = 1;
 	  settings->sub_name = block->o_name;
-	  logOword("will now skip to: |%s| %d", settings->sub_name,
-		   block->o_number);
+	  logOword("will now skip to: |%s|", settings->sub_name);
+	  // logOword("will now skip to: |%s| %d", settings->sub_name,
+	  // 	   block->o_number); FIXME
 	}
       break;
 

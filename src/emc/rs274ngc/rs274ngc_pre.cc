@@ -245,7 +245,7 @@ int Interp::_execute(const char *command)
   logDebug("Interp::execute(%s)", command);
   // process control functions -- will skip if skipping
   //  if (_setup.block1.o_number != 0)
-  if ((eblock->o_number != 0) ||
+  if ( // (eblock->o_number != 0) ||
       (eblock->o_name != 0) ||
       (_setup.mdi_interrupt))  {
       logDebug("Convert control functions");
@@ -400,7 +400,7 @@ int Interp::_execute(const char *command)
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-		  if ((eblock->o_number != 0) ||
+		  if ( // (eblock->o_number != 0) ||
 		      (eblock->o_name != 0) ||
 		      (_setup.mdi_interrupt)) {
 		      CHP(convert_control_functions(eblock, &_setup));
@@ -1342,7 +1342,9 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
             // Clear o_type, this isn't line isn't a command...
             EXECUTING_BLOCK(_setup).o_type = 0;
             // increment o_number
-	    EXECUTING_BLOCK(_setup).o_number++;
+
+	    // FIXME delete - useless code
+	    // EXECUTING_BLOCK(_setup).o_number++;
         }
     }
   } else if (read_status == INTERP_ENDFILE);

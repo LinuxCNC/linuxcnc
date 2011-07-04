@@ -1479,7 +1479,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
 
-  block->o_number = 0;
+  // FIXME block->o_number = 0;
 
   logDebug("In: %s line:%d |%s|", name, block->line_number, line);
 
