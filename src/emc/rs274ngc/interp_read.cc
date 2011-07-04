@@ -1545,9 +1545,9 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     case O_endsub:
     case O_call:
     case O_return:
-	block->o_name = strstore(oNameBuf); // leak! strdup(oNameBuf);
-      logDebug("global case:|%s|", block->o_name);
-      break;
+	block->o_name = strstore(oNameBuf);
+	logDebug("global case:|%s|", block->o_name);
+	break;
 
       // the remainder are local cases
     default:
@@ -1571,10 +1571,11 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
-
-  logDebug("o_type:%d o_name:|%s| line:%d |%s|", block->o_type, block->o_name,
+  extern const char *otypes[];
+  logDebug("o_type:%s o_name: %s  line:%d %s", otypes[block->o_type], block->o_name,
 	   block->line_number, line);
 
+  // FIXME: whatzat? kinda idempotent..
   if(block->o_type == O_sub)
     {
       block->o_type = O_sub;
