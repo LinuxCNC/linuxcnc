@@ -108,12 +108,15 @@ int Interp::convert_remapped_code(block_pointer block,
     cblock->user_data = 0;
     cblock->param_cnt = 0;
 
-    // build positional args for any Python pro/epilogs here
-    cblock->tupleargs = bp::make_tuple(plist);
+    bool build_pyargs = (remap->remap_py || remap->prolog_func || remap->epilog_func);
 
-    // build kwargs for  any Python pro/epilogs if an argspec
-    // was given - add_parameters will decorate remap_kwargs as per argspec
-    cblock->kwargs = boost::python::dict();
+    if (build_pyargs) {
+	// for any Python pro/epilogs
+	cblock->tupleargs = bp::make_tuple(plist);
+
+	// add_parameters will decorate kwargs as per argspec
+	cblock->kwargs = boost::python::dict();
+    }
     if (remap->argspec) {
 	use_posargs = (strchr(remap->argspec, '@') != NULL);
 	// we're inserting locals into a callframe which isnt used yet
