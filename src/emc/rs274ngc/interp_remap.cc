@@ -115,7 +115,7 @@ int Interp::convert_remapped_code(block_pointer block,
 	cblock->tupleargs = bp::make_tuple(plist);
 
 	// add_parameters will decorate kwargs as per argspec
-	cblock->kwargs = boost::python::dict();
+	cblock->kwargs = bp::dict();
     }
     if (remap->argspec) {
 	use_posargs = (strchr(remap->argspec, '@') != NULL);
