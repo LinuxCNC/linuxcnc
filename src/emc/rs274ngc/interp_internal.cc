@@ -258,8 +258,9 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->call_again = false;
   block->remappings.clear();
 
-  block->tupleargs = bp::tuple();
-  block->kwargs = bp::dict();
+  // try effect on profiling FIXME
+  // block->tupleargs = bp::tuple();
+  // block->kwargs = bp::dict();
 
   block->a_flag = false;
   block->b_flag = false;
