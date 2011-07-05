@@ -136,6 +136,8 @@ static int pseudoMdiLineNumber = INT_MIN;
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
 
+extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
+
 static int all_homed(void) {
     for(int i=0; i<9; i++) {
         unsigned int mask = 1<<i;
@@ -2977,6 +2979,11 @@ static int iniLoad(const char *filename)
 	// set_rcs_print_flag(PRINT_EVERYTHING);
 	max_rcs_errors_to_print = -1;
     }
+    if (EMC_DEBUG & EMC_DEBUG_GDBONSIGNAL) {
+	// enable backtrace on USR2
+	// enable gdb in new window on SEGV or USR2
+	setup_signal_handlers();
+    }
 
    if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
@@ -3078,6 +3085,8 @@ static int iniLoad(const char *filename)
 
     return 0;
 }
+
+
 
 /*
   syntax: a.out {-d -ini <inifile>} {-nml <nmlfile>} {-shm <key>}

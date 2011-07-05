@@ -21,6 +21,7 @@ MILLTASKSRCS := \
 	emc/motion/stashf.c \
 	emc/rs274ngc/tool_parse.cc \
 	emc/task/taskmodule.cc \
+	emc/task/signalhandler.cc \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
