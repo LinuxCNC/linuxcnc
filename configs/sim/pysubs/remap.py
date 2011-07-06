@@ -1,3 +1,6 @@
+import os
+import signal
+
 from InterpMod import *
 
 #
@@ -146,6 +149,16 @@ def test_reschedule(userdata,**words):
 		# pls call again after sync() with new userdata value
 		return (INTERP_EXECUTE_FINISH,userdata + 1)
 
+#------ demonstrate task signal handlers --
+def gen_backtrace(userdata,**words):
+	if under_task:
+		os.kill(os.getpid(), signal.SIGUSR2)
+	return INTERP_OK
+
+def gdb_window(userdata,**words):
+	if under_task:
+		os.kill(os.getpid(), signal.SIGUSR1)
+	return INTERP_OK
 
 #----------------  debugging fluff ----------
 
