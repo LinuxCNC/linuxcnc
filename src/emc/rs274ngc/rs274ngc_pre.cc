@@ -878,6 +878,9 @@ int Interp::init()
 
 	  int n = 1;
 	  int lineno = -1;
+	  _setup.g_remapped.clear();
+	  _setup.m_remapped.clear();
+	  _setup.remaps.clear();
 	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
 						   n, &lineno))) {
 	      parse_remap( inistring,  lineno);
