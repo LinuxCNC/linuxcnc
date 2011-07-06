@@ -792,7 +792,7 @@ def document(filename, outfilename):
             print >>f, ".TP"
             print >>f, "\\fB%s\\fR" % to_hal_man(name),
             if fp:
-                print >>f, "(uses floating-point)"
+                print >>f, "(requires a floating-point thread)"
             else:
                 print >>f
             print >>f, doc

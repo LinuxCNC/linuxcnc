@@ -3029,7 +3029,7 @@ F1 S1</property>
                                 <child>
                                   <widget class="GtkTable" id="table3">
                                     <property name="visible">True</property>
-                                    <property name="n_rows">4</property>
+                                    <property name="n_rows">5</property>
                                     <property name="n_columns">3</property>
                                     <child>
                                       <widget class="GtkLabel" id="controlfont">
@@ -3170,7 +3170,7 @@ F1 S1</property>
                                     <child>
                                       <widget class="GtkTable" id="table23">
                                         <property name="visible">True</property>
-                                        <property name="n_rows">2</property>
+                                        <property name="n_rows">3</property>
                                         <child>
                                           <widget class="GtkToggleButton" id="pointer_hide">
                                             <property name="label" translatable="yes">Hide pointer</property>
@@ -3197,6 +3197,21 @@ F1 S1</property>
                                             <property name="bottom_attach">2</property>
                                           </packing>
                                         </child>
+                                        <child>
+                                          <widget class="GtkButton" id="change_theme">
+                                            <property name="label" translatable="yes">Change Theme</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="image_position">bottom</property>
+                                            <signal name="clicked" handler="on_changetheme_clicked"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="top_attach">2</property>
+                                            <property name="bottom_attach">3</property>
+                                          </packing>
+                                        </child>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">2</property>
@@ -3206,6 +3221,40 @@ F1 S1</property>
                                         <property name="x_padding">10</property>
                                         <property name="y_padding">10</property>
                                       </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label8">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0.89999997615814209</property>
+                                        <property name="label" translatable="yes">GTK Theme:</property>
+                                        <property name="justify">right</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="top_attach">4</property>
+                                        <property name="bottom_attach">5</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                        <property name="y_options"></property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkComboBox" id="theme_choice">
+                                        <property name="visible">True</property>
+                                        <property name="button_sensitivity">on</property>
+                                        <property name="items" translatable="yes">default
+</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">4</property>
+                                        <property name="bottom_attach">5</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                        <property name="y_options"></property>
+                                        <property name="x_padding">10</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
                                     </child>
                                   </widget>
                                 </child>
