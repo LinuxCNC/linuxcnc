@@ -1,5 +1,3 @@
-
-
 #include <boost/python.hpp>
 
 namespace bp = boost::python;
@@ -84,6 +82,7 @@ struct ParamClass
 		throw std::runtime_error("params subscript type must be integer or string");
 	return dvalue;
     }
+    int length() { return RS274NGC_MAX_PARAMETERS;}
 };
 
 static ParamClass params;
@@ -395,6 +394,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
     class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
 	.def("__getitem__", &ParamClass::getitem)
 	.def("__setitem__", &ParamClass::setitem)
+	.def("__len__", &ParamClass::length)
 	;
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
@@ -522,7 +522,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("w_axis_offset", &InterpWrap::_setup.w_axis_offset)
 		       .def_readwrite("w_current", &InterpWrap::_setup.w_current)
 		       .def_readwrite("w_origin_offset", &InterpWrap::_setup.w_origin_offset)
-
 		       );
 
     scope(interp_class).attr("params") = ptr(&params);
