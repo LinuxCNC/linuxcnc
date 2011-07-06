@@ -118,6 +118,7 @@ class touchy:
                 self.abs_textcolor = self.prefs.getpref('abs_textcolor', 'default', str)
                 self.rel_textcolor = self.prefs.getpref('rel_textcolor', 'default', str)
                 self.dtg_textcolor = self.prefs.getpref('dtg_textcolor', 'default', str)
+                self.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
                 self.window_geometry = self.prefs.getpref('window_geometry', 'default', str)
                 self.window_max = self.prefs.getpref('window_force_max', 'False', bool)
 
@@ -622,6 +623,8 @@ class touchy:
                 for i in ["error"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.error_font)
+                        if not self.err_textcolor == "default":
+                            w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.err_textcolor))
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)
