@@ -3152,7 +3152,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
 	   block->a_flag || block->b_flag || block->c_flag ||
-	   block->u_flag || block->v_flag || block->w_flag),
+	   block->u_flag || block->v_flag || block->w_flag ||
+	   block->r_flag || block->q_flag),
 	 _("G10 L1 without offsets has no effect"));
 
     if(direct) {
