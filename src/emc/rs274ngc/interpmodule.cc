@@ -510,7 +510,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("spindle_mode", &InterpWrap::_setup.spindle_mode)
 		       .def_readwrite("spindle_turning", &InterpWrap::_setup.spindle_turning)
 		       .def_readwrite("tool_offset", &InterpWrap::_setup.tool_offset)
-		       .def_readwrite("tool_offset_index", &InterpWrap::_setup.tool_offset_index)
+		       //unused,removed  .def_readwrite("tool_offset_index", &InterpWrap::_setup.tool_offset_index)
 		       .def_readwrite("toolchange_flag", &InterpWrap::_setup.toolchange_flag)
 		       .def_readwrite("traverse_rate", &InterpWrap::_setup.traverse_rate)
 		       .def_readwrite("u_axis_offset", &InterpWrap::_setup.u_axis_offset)

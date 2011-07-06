@@ -1003,7 +1003,7 @@ int Interp::init()
   _setup.filename[0] = 0;
   _setup.file_pointer = NULL;
 //_setup.flood set in Interp::synch
-  _setup.tool_offset_index = 1;
+//  _setup.tool_offset_index = 1;  // unused - removed, mah
 //_setup.length_units set in Interp::synch
   _setup.line_length = 0;
   _setup.linetext[0] = 0;
