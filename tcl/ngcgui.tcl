@@ -755,13 +755,14 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
             set ay($hdl,arg,comment,$num02) $cmt
           }
         }
-      }
-      # for --vwidth 0, make sure something exists for comment
-      if {   $ay(any,width,varname) == 0 \
-          && (   ![info exists ay($hdl,arg,comment,$num02)] \
-              || "$ay($hdl,arg,comment,$num02)" == "")
-         } {
-        set ay($hdl,arg,comment,$num02) $ay($hdl,arg,name,$num02)
+
+        # for --vwidth 0, make sure something exists for comment
+        if {   $ay(any,width,varname) == 0 \
+            && (   ![info exists ay($hdl,arg,comment,$num02)] \
+                || "$ay($hdl,arg,comment,$num02)" == "")
+           } {
+          set ay($hdl,arg,comment,$num02) $ay($hdl,arg,name,$num02)
+        }
       }
     }
 
