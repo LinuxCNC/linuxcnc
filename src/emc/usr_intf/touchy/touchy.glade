@@ -3170,7 +3170,7 @@ F1 S1</property>
                                     <child>
                                       <widget class="GtkTable" id="table23">
                                         <property name="visible">True</property>
-                                        <property name="n_rows">3</property>
+                                        <property name="n_rows">2</property>
                                         <child>
                                           <widget class="GtkToggleButton" id="pointer_hide">
                                             <property name="label" translatable="yes">Hide pointer</property>
@@ -3195,21 +3195,6 @@ F1 S1</property>
                                           <packing>
                                             <property name="top_attach">1</property>
                                             <property name="bottom_attach">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <widget class="GtkButton" id="change_theme">
-                                            <property name="label" translatable="yes">Change Theme</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_underline">True</property>
-                                            <property name="image_position">bottom</property>
-                                            <signal name="clicked" handler="on_changetheme_clicked"/>
-                                          </widget>
-                                          <packing>
-                                            <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
                                           </packing>
                                         </child>
                                       </widget>
@@ -3254,7 +3239,29 @@ F1 S1</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <placeholder/>
+                                      <widget class="GtkTable" id="table2">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <widget class="GtkButton" id="change_theme">
+                                            <property name="label" translatable="yes">Change Theme</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="image_position">bottom</property>
+                                            <signal name="clicked" handler="on_changetheme_clicked"/>
+                                          </widget>
+                                        </child>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">4</property>
+                                        <property name="bottom_attach">5</property>
+                                        <property name="y_options">GTK_FILL</property>
+                                        <property name="x_padding">10</property>
+                                        <property name="y_padding">10</property>
+                                      </packing>
                                     </child>
                                   </widget>
                                 </child>
