@@ -3211,7 +3211,7 @@ F1 S1</property>
                                       <widget class="GtkLabel" id="label8">
                                         <property name="visible">True</property>
                                         <property name="xalign">0.89999997615814209</property>
-                                        <property name="label" translatable="yes">GTK Theme:</property>
+                                        <property name="label" translatable="yes">Theme:</property>
                                         <property name="justify">right</property>
                                       </widget>
                                       <packing>
