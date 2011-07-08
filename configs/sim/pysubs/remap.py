@@ -2,6 +2,7 @@ import os
 import signal
 
 from InterpMod import *
+import CanonMod
 
 #
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
