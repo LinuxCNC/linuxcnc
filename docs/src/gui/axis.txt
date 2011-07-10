@@ -114,7 +114,7 @@ Ladder editor::
 Quit::
     Terminates the current EMC session.
 
-==== Machine
+==== Machine Menu
 
 Toggle Emergency Stop F1::
     
@@ -201,68 +201,123 @@ Tool touch off to fixture::
     tip of a zero-length tool is at the fixture's origin when the Relative
     coordinates are 0.  (See also `G10 L11`)
 
-==== View
+==== View Menu
+
+*******************************************************************************
+.It's all in your point of view
+
+The AXIS display pick menu "View" refers to "Top", "Front", and "Side" views. 
+These terms are correct if the CNC machine has its Z axis vertical, with 
+positive Z up. This is true for vertical mills, which is probably the most 
+popular application, and also true for almost all EDM machines, and even 
+vertical turret lathes, where the part is turning below the tool. 
+
+The terms "Top", "Front", and "Side" might be confusing however, in other 
+CNC machines, such as a standard lathe, where the Z axis is horizontal, or 
+a horizontal mill, again where the Z axis is horizontal, or even an inverted 
+vertical turret lathe, where the part is turning above the tool, and the Z axis 
+positive direction is down! 
+
+Just remember that positive Z axis is (almost) always away from the part. 
+So be familiar with your machine's design and interpret the display as needed.  
+*******************************************************************************
 
 Top View::
-    
+    The Top View (or Z view) displays the gcode looking along the Z axis from 
+    positive to negative. This view is best for looking at X & Y. 
 
 Rotated Top View::
-    
+    The Rotated Top View (or rotated Z view) also displays the gcode looking 
+    along the Z axis from positive to negative. But sometimes it's convenient 
+    to display the X & Y axes rotated 90 degrees to fit the display better. 
+    This view is also best for looking at X & Y. 
 
 Side View::
-    
+    The Side View (or X view) displays the gcode looking along the X axis from 
+    positive to negative. This view is best for looking at Y & Z. 
 
 Front View::
-    
+    The Front View (or Y view) displays the gcode looking along the Y axis from 
+    negative to positive. This view is best for looking at X & Z. 
 
 Perspective View::
-    
+    The Perpective View (or P view) displays the gcode looking at the part from 
+    an adjustable point of view, defaulting to X+, Y-, Z+. The position is 
+    adjustable using the mouse and the drag/rotate selector. This view is a 
+    compromise view, and while it does do a good job of trying to show three 
+    (to nine!) axes on a two-dimensional display, there will often be some 
+    feature that is hard to see, requiring a change in viewpoint. This view 
+    is best when you would like to see all three (to nine) axes at once. 
 
 Display Inches::
-    
+    Set the AXIS display scaling for inches. 
 
 Display MM::
-    
+    Set the AXIS display scaling for millimeters. 
 
 Show Program::
-    
+    The preview display of the loaded gcode program can be entirely 
+    disabled if desired. 
 
 Show Program Rapids::
-
+    The preview display of the loaded gcode program will always show the 
+    feedrate moves (G1,G2,G3) in white. But the display of rapid moves (G0) 
+    in cyan can be disabled if desired. 
 
 Alpha-blend Program::
     This option makes the preview of complex programs easier to see, but 
     may cause the preview to display more slowly.
-    
 
 Show Live Plot::
-    
+    The highlighting of the feedrate paths (G1,G2,G3) as the tool moves 
+    can be disabled if desired. 
 
 Show Tool::
-    
+    The display of the tool cone/cylinder can be disabled if desired. 
 
 Show Extents::
-
+    The display of the extents (maximum travel in each axis direction) 
+    of the loaded gcode program can be disabled if desired. 
 
 Show Offsets::
-    
+    The selected fixture offset (G54-G59.3) origin location can be shown 
+    as a set of three orthogonal lines, one each of red, blue, and green. 
+    This offset origin (or fixture zero) display can be disabled if desired. 
 
 Show Machine Limits::
-    
+    The machine's maximum travel limits for each axis, as set in the ini 
+    file, are shown as a rectangular box drawn in red dashed lines. This 
+    is useful when loading a new gcode program, or when checking for how 
+    much fixture offset would be needed to bring the gcode program within 
+    the travel limits of your machine. It can be shut off if not needed. 
 
 Show Velocity::
-    
+    A display of velocity is sometimes useful to see how close your 
+    machine is running to its design velocities. It can be disabled 
+    if desired.  
 
 Show Distance to Go::
-    
+    Distance to go is a very handy item to know when running an unknown 
+    gcode program for the first time. In combination with the rapid 
+    override and feedrate override controls, unwanted tool 
+    and machine damage can be avoided. Once the gcode program has 
+    been debugged and is running smoothly, the Distance to Go display 
+    can be disabled if desired. 
 
 Clear Live Plot::
-    
+    As the tool travels in the Axis display, the gcode path is highlighted. 
+    To repeat the program, or to better see an area of interest, the 
+    previously highlighted paths can be cleared.     
 
 Show Commanded Position::
+    This is the position that EMC will try to go to. Once motion 
+    has stopped, this is the position EMC will try to hold. 
 
 Show Actual Position::
-    Actual Position is the position read back from the system's encoders or step generators.  This may differ slightly from Commanded Position for many reasons including PID tuning, physical constraints, or position quantization.
+    Actual Position is the measured position as read back from the 
+    system's encoders or simulated by step generators. This may differ 
+    slightly from the Commanded Position for many reasons including PID 
+    tuning, physical constraints, or position quantization.
 
 Show Machine Position::
     This is the position in unoffset coordinates, as established by Homing.
@@ -270,7 +325,7 @@ Show Machine Position::
 Show Relative Position::
     This is the Machine Position modified by `G5x`, `G92`, and `G43` offsets.
     
-==== Help
+==== Help Menu
 
 About Axis::
     
@@ -280,10 +335,9 @@ Quick Reference::
 
 === Toolbar buttons
 
-From left to right, the toolbar buttons (keyboard shortcuts in []).
+From left to right, the toolbar buttons (keyboard shortcuts shown [in brackets]).
 
- .  image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called
-   E-Stop(((ESTOP))))
+ . image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
  . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
  . image:images/tool_open.gif[] Open G Code file [O]
  . image:images/tool_reload.gif[] Reload current file [Ctrl-R]
@@ -297,8 +351,8 @@ From left to right, the toolbar buttons (keyboard shortcuts in []).
  . image:images/tool_zoomout.gif[] Zoom Out
  . image:images/tool_axis_z.gif[] Top view 
  . image:images/tool_axis_z2.gif[] Rotated Top view 
- . image:images/tool_axis_x.gif[] Front view 
- . image:images/tool_axis_y.gif[] Side view 
+ . image:images/tool_axis_x.gif[] Side view 
+ . image:images/tool_axis_y.gif[] Front view 
  . image:images/tool_axis_p.gif[] Perspective view 
  . image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
  . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
@@ -353,7 +407,7 @@ difference between the coordinates is shown.
 
 When some coordinates exceed the "soft limits" in the .ini file, the
 relevant dimension is shown in a different color and enclosed by a box.
-In Figure ( <<cap:Soft-Limit>>) the maximum soft limit is exceeded on
+In Figure (<<cap:Soft-Limit>>) the maximum soft limit is exceeded on
 the X axis as indicated by the box surrounding the coordinate value.
 The minimum X travel of the program is -1.95, the maximum X travel
 is 1.88, and the program requires 3.83 inches of X travel.  To move
@@ -369,7 +423,7 @@ image::images/axis-outofrange.png[]
 When no tool is loaded, the location of the tip of the tool is
 indicated by the "tool cone".
 
-When a tool is loaded (for instance, with the MDI command `T1M6` ),
+When a tool is loaded (for instance, with the MDI command `T1 M6` ),
 the cone changes to a cylinder which shows the diameter of the tool
 given in the tool table file.
 
@@ -593,7 +647,7 @@ The most frequently used keyboard shortcuts are shown in Table
 
 .Most Common Keyboard Shortcuts[[cap:Most-Common-Keyboard]]
 
-[width="90%", options="header"]
+[width="100%", options="header"]
 |========================================
 |Keystroke | Action Taken | Mode
 |F1 | Toggle Emergency Stop | All

@@ -1,0 +1,14 @@
+(not_a_subfile)
+g17 (xy plane)
+g20 (inches)
+g40 (cancel cutter radius compensation)
+g49 (cancel tool lengthoffset)
+g90 (absolute distance mode)
+g94 (units/min feedrate)
+g61 (exact stop)
+
+#<_tol>  = 0.001
+
+g64 p#<_tol> (path control)
+
+g59

@@ -2,11 +2,13 @@
 
 == Files
 
-EMC is started with the script file emc.
-  usage: emc [options] [<ini-file>]
-  options:
-  -v = verbose - prints info as it works
-  -d = echos script commands to screen for debugging
+EMC is started with the script file emc. 
+
+    usage: emc [options] [<ini-file>]
+
+    options:
+        -v = verbose - prints info as it works
+        -d = echos script commands to screen for debugging
   
 The emc script file reads the ini file and starts emc. The ini file
 [HAL] section specifies the order of loading up hal files if more than
@@ -23,7 +25,7 @@ so you can choose a sample configuration.
 
 == Files Used for Configuration
 
-The EMC is configured with human readable text files. All of these
+EMC is configured with human readable text files. All of these
 files can be read and edited in any of the common text file editors
 available with most any Linux distribution.footnote:[Don't confuse a
 text editor with a word processor. A text editor like
@@ -111,6 +113,7 @@ Note that inside a variable, the "#" and ";" characters do not denote
 comments:
 
     INCORRECT = value     # and a comment
+
     # Correct Comment
     CORRECT = value
 
@@ -124,7 +127,7 @@ at the next section name.
 
 The following sections are used by EMC:
 
- - [EMC] general information ( <<sub:[EMC]-section>>)
+ - [EMC] general information (<<sub:[EMC]-section>>)
  -  [DISPLAY] settings related to the graphical user interface (
    <<sub:[DISPLAY]-section>>)
  - [FILTER] settings input filter programs ([sub:[FILTER]-Section])
@@ -353,7 +356,7 @@ must write rs274ngc code to standard output. This output is what will
 be displayed in the text area, previewed in the display area, and
 executed by EMC when Run.
 
-PROGRAM_EXTENSION = .extension Description
+    PROGRAM_EXTENSION = .extension Description
 
 If your post processor outputs files in all caps you might want to add
 the following line:
@@ -364,10 +367,13 @@ The following lines add support for the image-to-gcode converter
 included with EMC2:
 
     PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
+    png = image-to-gcode
+    gif = image-to-gcode
 
 It is also possible to specify an interpreter:
 
     PROGRAM_EXTENSION = .py Python Script
+    py = python
 
 In this way, any Python script can be opened, and its output is
 treated as g-code. One such example script is available at
@@ -404,7 +410,7 @@ RS274NGC_STARTUP_CODE::
 
 Example:
 
-    RS274NGC_STARTUP_CODE = G21
+    RS274NGC_STARTUP_CODE = G20 G90
 
 SUBROUTINE_PATH::
      (((SUBROUTINE PATH))) Specifies a colon (:) separated list of up to 10
@@ -769,10 +775,11 @@ HOME_USE_INDEX = NO::
     home to index with steppers unless your using stepgen in velocity mode
     and pid.
 
-HOME_IGNORE_LIMITS = NO::
-    Some machines use a single switch as a home switch and limit
-    switch.
-    This variable should be set to yes if the machine configured this way.
+HOME_IGNORE_LIMITS = NO::
+     Some machines use a single switch per axis as a home switch 
+     and limit switch. This variable should be set to YES if the machine 
+     configured this way. When set to YES the limit switch for this axis
+     only is ignored when homing.
 
 HOME_IS_SHARED = <n>::
      If the home input is shared by more than one axis set <n> to 1 to

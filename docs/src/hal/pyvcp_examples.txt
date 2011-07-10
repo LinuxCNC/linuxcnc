@@ -199,7 +199,67 @@ pyVCP and HAL.
 First create the ptest.xml file with the following code to create the
 panel description.
 
-    <!-- Test panel for the parallel port cfg for out -->
+[source,xml]
+<!-- Test panel for the parallel port cfg for out -->
+<pyvcp>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <button>
+      <halpin>"btn01"</halpin>
+      <text>"Pin 01"</text>
+    </button>
+    <led>
+      <halpin>"led-01"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <button>
+      <halpin>"btn02"</halpin>
+      <text>"Pin 02"</text>
+    </button>
+    <led>
+      <halpin>"led-02"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <label>
+      <text>"Pin 10"</text>
+      <font>("Helvetica",14)</font>
+    </label>
+    <led>
+      <halpin>"led-10"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+  <hbox>
+    <relief>RIDGE</relief>
+    <bd>2</bd>
+    <label>
+      <text>"Pin 11"</text>
+      <font>("Helvetica",14)</font>
+    </label>
+    <led>
+      <halpin>"led-11"</halpin>
+      <size>25</size>
+      <on_color>"green"</on_color>
+      <off_color>"red"</off_color>
+    </led>
+  </hbox>
+</pyvcp>
+    
 
 This will create the following floating panel which contains a couple
 of in pins and a couple of out pins.
@@ -211,12 +271,23 @@ image::images/ptest.png[]
 To run the HAL commands that we need to get everything up and running
 we put the following in our ptest.hal file.
 
-    loadrt hal_parport cfg="0x378 out"
+[source,c]
+loadrt hal_parport cfg="0x378 out"
+loadusr -Wn ptest pyvcp -c ptest ptest.xml
+loadrt threads name1=porttest period1=1000000
+addf parport.0.read porttest
+addf parport.0.write porttest
+net pin01 ptest.btn01 parport.0.pin-01-out ptest.led-01
+net pin02 ptest.btn02 parport.0.pin-02-out ptest.led-02
+net pin10 parport.0.pin-10-in ptest.led-10
+net pin11 parport.0.pin-11-in ptest.led-11
+start
     
 
 To run the HAL file we use the following command from a terminal window.
 
-    ~$ 
+
+`~$ halrun -I -f ptest.hal`
 
 The following figure shows what a complete panel might look like.
 
@@ -230,12 +301,41 @@ To add the rest of the parallel port pins just modify the .xml and
 To show the pins after running the HAL script use the following
 command at the halcmd prompt:
 
-    halcmd: 
+
+`halcmd: show pin
+Component Pins:
+Owner Type  Dir Value  Name
+    2 bit   IN  FALSE  parport.0.pin-01-out <== pin01
+    2 bit   IN  FALSE  parport.0.pin-02-out <== pin02
+    2 bit   IN  FALSE  parport.0.pin-03-out
+    2 bit   IN  FALSE  parport.0.pin-04-out
+    2 bit   IN  FALSE  parport.0.pin-05-out
+    2 bit   IN  FALSE  parport.0.pin-06-out
+    2 bit   IN  FALSE  parport.0.pin-07-out
+    2 bit   IN  FALSE  parport.0.pin-08-out
+    2 bit   IN  FALSE  parport.0.pin-09-out
+    2 bit   OUT TRUE   parport.0.pin-10-in ==> pin10
+    2 bit   OUT FALSE  parport.0.pin-10-in-not
+    2 bit   OUT TRUE   parport.0.pin-11-in ==> pin11
+    2 bit   OUT FALSE  parport.0.pin-11-in-not
+    2 bit   OUT TRUE   parport.0.pin-12-in
+    2 bit   OUT FALSE  parport.0.pin-12-in-not
+    2 bit   OUT TRUE   parport.0.pin-13-in
+    2 bit   OUT FALSE  parport.0.pin-13-in-not
+    2 bit   IN  FALSE  parport.0.pin-14-out
+    2 bit   OUT TRUE   parport.0.pin-15-in
+    2 bit   OUT FALSE  parport.0.pin-15-in-not
+    2 bit   IN  FALSE  parport.0.pin-16-out
+    2 bit   IN  FALSE  parport.0.pin-17-out
+    4 bit   OUT FALSE  ptest.btn01 ==> pin01
+    4 bit   OUT FALSE  ptest.btn02 ==> pin02
+    4 bit   IN  FALSE  ptest.led-01 <== pin01
+    4 bit   IN  FALSE  ptest.led-02 <== pin02
+    4 bit   IN  TRUE   ptest.led-10 <== pin10
+    4 bit   IN  TRUE   ptest.led-11 <== pin11`
 
 This will show you what pins are IN and what pins are OUT as well as
 any connections.
-
-    
 
 == GS2 RPM Meter [[sec:GS2-RPM-Meter]]
 
@@ -246,7 +346,7 @@ on the GS2 example in the Hardware Examples section this manual.
 === The Panel
 
 To create the panel we add the following to the .xml file.
-
+[source,xml]
     <pyvcp>
 
     <!-- the RPM meter --> 

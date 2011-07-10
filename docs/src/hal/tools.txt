@@ -8,7 +8,7 @@ have installed EMC2 from either source or a package. If you have
 compiled EMC2 for “run-in-place”, the man page is not installed, but it
 is accessible. From the main EMC2 directory, do:
 
-    $ *man -M docs/man halcmd*
+`$` *`man -M docs/man halcmd`*
 
 Chapter  <<cha:HAL-Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
@@ -34,10 +34,10 @@ convenient if you want to look at a number of different items quickly.
 You can have many halmeters running at the same time, if you want to
 monitor several items. If you want to launch a halmeter without tying
 up a shell window, type “`halmeter &` ” to run it in the background.
-You can also make halmeter start
- displaying a specific item immediately, by adding “`pin|sig|par[am]
+You can also make halmeter start 
+displaying a specific item immediately, by adding “`pin|sig|par[am]
 <name>` ” to the command line. It will display the pin, signal, or
-parameter
+parameter 
 <name> as soon as it starts. (If there is no such item, it will simply
 start normally.) And finally, if you specify an item to display, you
 can add “-s” before the pin|sig|param to tell halmeter to use a small

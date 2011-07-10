@@ -62,6 +62,7 @@ similar.
 ]:
 
     signals: Xstep, Xdir & Xen
+    pins: parport.0.pin-XX-out & parport.0.pin-XX-in
 
 Depending on what you have chosen in your .ini file you are using
 either standard_pinout.hal or xylotex_pinout.hal. These are two files
@@ -183,10 +184,12 @@ Directions signals, all you need to do is to change the number in the
 'parport.0.pin-XX-out' name:
 
     net Xstep parport.0.pin-03-out 
+    net Xdir  parport.0.pin-02-out
 
 can be changed to:
 
     net Xstep parport.0.pin-02-out 
+    net Xdir  parport.0.pin-03-out
 
 or basically any other numbers you like.
 
@@ -207,6 +210,12 @@ If your spindle can be controlled by a PWM signal, use the `pwmgen`
 component to create the signal:
 
     loadrt pwmgen output_type=0
+    addf pwmgen.update servo-thread
+    addf pwmgen.make-pulses base-thread
+    net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+    net spindle-on motion.spindle-on => pwmgen.0.enable
+    net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
+    setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
 
 This assumes that the spindle controller's response to PWM is simple:
 0% PWM gives 0 RPM, 10% PWM gives 180 RPM, etc. If there is a minimum

@@ -367,6 +367,8 @@ proc prompt_copy configname {
     if {![file exists $ncfiles]} {
 	file mkdir $ncfiles
 	file link -symbolic [file join $ncfiles/examples] $emc::NCFILES_DIR
+	file link -symbolic [file join $ncfiles/ngcgui_lib] \
+	                    [file join $emc::NCFILES_DIR ngcgui_lib]
     }
     while {1} {
         if [catch { exec mkdir $copydir }] {

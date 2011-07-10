@@ -4,19 +4,18 @@
 
 === Typographical Conventions
 
-Command line examples are presented in `bold typewriter` font.
-Responses from the computer will be in `typewriter`  font. As of early
-2006, there are no longer commands that require
+Command line examples are presented in *`bold typewriter`* font.
+Responses from the computer will be in `typewriter` font. As of early
+2006, there are no longer commands that require 
 root privileges, so all examples will be preceded by the normal user
- prompt, `$`. Text inside square brackets `[like-this]` is optional.
+prompt, `$`. Text inside square brackets `[like-this]` is optional.
 Text inside angle brackets `<like-this>`  represents a field that can
-take on different values, and the
+take on different values, and the 
 adjacent paragraph will explain the appropriate values. Text items
-separated by a vertical bar means that one or the other, but not both,
- should be present. All command line examples assume that you are in
+separated by a vertical bar means that one or the other, but not both, 
+should be present. All command line examples assume that you are in
 the`emc2/`  directory, and you configured/compiled emc2 for the
-run-in-place
-scenario. Paths will be shown accordingly when needed.
+run-in-place scenario. Paths will be shown accordingly when needed.
 
 === Names
 
@@ -64,25 +63,26 @@ level tools can be designed to recognize such structure, if the names
 provide the neccessary information. To do that, all HAL modules should
 follow these rules:
 
- -  Dots (“.”) separate levels of the heirarchy. This is analogous to the
+ - Dots (“.”) separate levels of the heirarchy. This is analogous to the
    slash (“/”) in a filename.
- -  Hypens (“-”) separate words or fields in the same level of the
+ - Hyphens (“-”) separate words or fields in the same level of the
    heirarchy.
- -  HAL modules should not use underscores or “MixedCase”.
+ - HAL modules should not use underscores or “MixedCase”.
    footnote:[Underscores have all been removed, but there are still a few
    instances
-   of mixed case, for example “pid.0.Pgain” instead of “pid.0.p-gain”.
-   ]
+   of mixed case, for example “pid.0.Pgain” instead of “pid.0.p-gain”.]
  - Use only lowercase letters and numbers in names.
 
-==   [[sec:GR-Driver-Naming]]Hardware Driver Naming Conventionsfootnote:[Most drivers do not follow these conventions as of version 2.0. This chapter is really a guide for future development. ]
+==   [[sec:GR-Driver-Naming]]Hardware Driver Naming Conventionsfootnote:[Most 
+drivers do not follow these conventions as of version 2.0. 
+This chapter is really a guide for future development.]
 
 === Pin/Parameter names
 
 Hardware drivers should use five fields (on three levels) to make up a
 pin or parameter name, as follows:
 
-    *<device-name>.<device-num>.<io-type>.<chan-num>.<specific-name>*
+` ` *`<device-name>.<device-num>.<io-type>.<chan-num>.<specific-name>`*
 
 The individual fields are:
 
@@ -101,8 +101,7 @@ The individual fields are:
     device numbers always start at 0. However at present some drivers use
     the board ID directly as the device number. That means it is possible
     to have a device number 2, without a device 0. This is a bug and will
-    be fixed in version 2.1.
-    ]
+    be fixed in version 2.1.]
 
 <io-type>::
       Most devices provide more than one type of I/O. Even the simple
@@ -121,12 +120,12 @@ The individual fields are:
       Virtually every I/O device has multiple channels, and the channel
     number identifies one of them. Like device numbers, channel numbers
     start at zero and increment.footnote:[One glaring exception to the
-    “channel numbers start at zero” rule is
+    “channel numbers start at zero” rule is 
     the parallel port. Its HAL pins are numbered with the corresponding pin
     number on the DB-25 connector. This is convenient for wiring, but
     inconsistent with other drivers. There is some debate over whether this
-    is a bug or a feature.
-     ] If more than one device is installed, the channel numbers on
+    is a bug or a feature.] 
+    If more than one device is installed, the channel numbers on
     additional devices start over at zero. If it is possible to have a
     channel number greater than 9, then channel numbers should be two
     digits, with a leading zero on numbers less than 10 to preserve sort
@@ -166,7 +165,7 @@ Hardware drivers usually only have two kinds of HAL functions, ones
 that read the hardware and update HAL pins, and ones that write to the
 hardware using data from HAL pins. They should be named as follows:
 
-    *<device-name>-<device-num>[.<io-type>[-<chan-num-range>]].read|write*
+` ` *`<device-name>-<device-num>[.<io-type>[-<chan-num-range>]].read|write`*
 
 <device-name>::
      The same as used for pins and parameters.
@@ -180,16 +179,15 @@ hardware using data from HAL pins. They should be named as follows:
     functions for reading encoder counters and reading digital I/O. If such
     independent functions exist, the <io-type> field identifies the type of
     I/O they access. If a single function reads all I/O provided by the
-    board, <io-type> is not used.footnote:[Note to driver programmers: do
-    NOT implement separate functions for
-    different I/O types unless they are interruptable and can work in
-    independent threads. If interrupting an encoder read, reading digital
-    inputs, and then resuming the encoder read will cause problems, then
-    implement a single function that does everything.
-    ] 
+    board, <io-type> is not used.
+    footnote:[Note to driver programmers: do NOT implement separate 
+    functions for different I/O types unless they are interruptable and can 
+    work in independent threads. If interrupting an encoder read, reading 
+    digital inputs, and then resuming the encoder read will cause problems, 
+    then implement a single function that does everything.] 
 
 <chan-num-range>::
-      Optional. Used only if the <io-type> I/O is broken into groups and
+    Optional. Used only if the <io-type> I/O is broken into groups and
     accessed by different functions.
 
 read|write::
@@ -208,15 +206,21 @@ ppmc.0.write::
       -- writes all outputs (step generators, pwm, DACs, and digital) on
     the first ppmc board
 
-=   [[cha:Canonical-Device-Interfaces]]Canonical Device Interfacesfootnote:[As of version 2.0, most of the HAL drivers don't quite match up to the canonical interfaces defined here. In version 2.1, the drivers will be changed to match these specs. ] 
+=   [[cha:Canonical-Device-Interfaces]]Canonical Device Interfaces
 
-The following sections show the pins, parameters, and functions that
-are supplied by “canonical devices”. All HAL device drivers should
+.Note
+*********************************************************************
+By version 2.1, the HAL drivers should have all been updated to 
+match these specs. Send an email if you spot any problems. 
+********************************************************************* 
+
+The following sections show the pins, parameters, and functions that 
+are supplied by “canonical devices”. All HAL device drivers should 
 supply the same pins and parameters, and implement the same behavior.
 
-Note that the only the `<io-type>` and `<specific-name>` fields are
-defined for a canonical device. The `<device-name>`, `<device-num>`,
-and `<chan-num>` fields are set based on the characteristics of the
+Note that the only the `<io-type>` and `<specific-name>` fields are 
+defined for a canonical device. The `<device-name>`, `<device-num>`, 
+and `<chan-num>` fields are set based on the characteristics of the 
 real device.
 
 ==  [[sec:CanonDigIn]]Digital Input
@@ -264,42 +268,38 @@ convert e.g. voltage to a continuous range of values.
 
 === Pins
 
- -  (float) *value* -- The hardware reading, scaled according to the
+ - (float) *value* -- The hardware reading, scaled according to the
    *scale* and *offset* parameters. *Value* = ((input reading, in
    hardware-dependent units) * *scale*) - *offset*
 
 === Parameters
 
- -  (float) *scale* -- The input voltage (or current) will be multiplied
+ - (float) *scale* -- The input voltage (or current) will be multiplied
    by *scale* before being output to *value*.
- -  (float) *offset*  -- This will be subtracted from the hardware input
-   voltage (or
-   current) after the scale multiplier has been applied.
- -  (float) *bit_weight*  -- The value of one least significant bit (LSB).
-   This is effectively
-   the granularity of the input reading.
- -  (float) *hw_offset*  -- The value present on the input when 0 volts is
-   applied to the
-   input pin(s).
+ - (float) *offset* -- This will be subtracted from the hardware input
+   voltage (or current) after the scale multiplier has been applied.
+ - (float) *bit_weight* -- The value of one least significant bit (LSB).
+   This is effectively the granularity of the input reading.
+ - (float) *hw_offset* -- The value present on the input when 0 volts is
+   applied to the input pin(s).
 
 === Functions
 
- -  (funct) *read*  -- Read the values of this analog input channel. This
+ - (funct) *read* -- Read the values of this analog input channel. This
    may be used for
    individual channel reads, or it may cause all channels to be read
 
 == Analog Output
 
 The canonical analog output (I/O Type: `adcout` ). This is intended
-for any kind of hardware that can output a
+for any kind of hardware that can output a 
 more-or-less continuous range of values. Examples are digital to analog
 converters or PWM generators.
 
 === Pins
 
- -  (float) *value*  -- The value to be written. The actual value output
-   to the hardware
-   will depend on the scale and offset parameters.
+ -  (float) *value* -- The value to be written. The actual value output
+   to the hardware will depend on the scale and offset parameters.
  -  (bit) *enable* -- If false, then output 0 to the hardware, regardless
    of the *value* pin.
 
@@ -315,22 +315,19 @@ converters or PWM generators.
  -  (float) *low_limit* (optional) -- When calculating the value to output
    to the hardware, if *value* + *offset* is less than *low_limit*, then
    *low_limit* will be used instead.
- -  (float) *bit_weight*  (optional) -- The value of one least significant
-   bit (LSB), in volts
-   (or mA, for current outputs)
+ -  (float) *bit_weight* (optional) -- The value of one least significant
+   bit (LSB), in volts (or mA, for current outputs)
  -  (float) *hw_offset*  (optional) -- The actual voltage (or current)
-   that will be output if
-   0 is written to the hardware.
+   that will be output if 0 is written to the hardware.
 
 === Functions
 
 (funct) *write*  -- This causes the calculated value to be output to
-the hardware. If
- enable is false, then the output will be 0, regardles of *value*,
-*scale*, and *offset* . The meaning of “0” is dependent on the
-hardware. For example, a
+the hardware. If enable is false, then the output will be 0, 
+regardless of *value*, *scale*, and *offset*. 
+The meaning of “0” is dependent on the hardware. For example, a
 bipolar 12-bit A/D may need to write 0x1FF (mid scale) to the D/A get 0
-volts from the hardware pin. If enable is true, read scale, offset and
- value and output to the adc (*scale* * *value*) + *offset*. If enable
+volts from the hardware pin. If enable is true, read scale, offset and 
+value and output to the adc (*scale* * *value*) + *offset*. If enable
 is false, then output 0.
 

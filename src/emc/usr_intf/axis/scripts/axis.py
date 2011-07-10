@@ -866,7 +866,17 @@ def running(do_poll=True):
     if do_poll: s.poll()
     return s.task_mode == emc.MODE_AUTO and s.interp_state != emc.INTERP_IDLE
 
+def manual_tab_visible():
+    page = root_window.tk.call(widgets.tabs, "raise")
+    return page == "manual"
+
 def manual_ok(do_poll=True):
+    """warning: deceptive function name.
+
+This function returns TRUE when not running a program, i.e., when a user-
+initiated action (whether an MDI command or a jog) is acceptable.
+
+This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != emc.STATE_ON: return False
     return s.interp_state == emc.INTERP_IDLE
@@ -1424,7 +1434,7 @@ class _prompt_float:
         t.wm_title(title)
         t.wm_transient(root_window)
         t.wm_resizable(0, 0)
-        m = Message(t, text=text, aspect=500, anchor="w", justify="left")
+        self.m = m = Message(t, text=text, aspect=500, anchor="w", justify="left")
         self.v = v = StringVar(t)
         self.u = u = BooleanVar(t)
         self.w = w = StringVar(t)
@@ -1447,6 +1457,9 @@ class _prompt_float:
         f.pack(side="bottom", anchor="e")
         self.ok.pack(side="left", padx=3, pady=3)
         self.cancel.pack(side="left", padx=3, pady=3)
+
+    def set_text(self, text):
+        self.m.configure(text=text)
 
     def do_ok(self):
         self.u.set(True)
@@ -1521,7 +1534,7 @@ all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
             _('T    Tool Table')]
 
 class _prompt_touchoff(_prompt_float):
-    def __init__(self, title, text, default, defaultsystem):
+    def __init__(self, title, text_pattern, default, defaultsystem):
         systems = all_systems[:]
         if s.tool_in_spindle == 0:
             del systems[-1]
@@ -1536,11 +1549,14 @@ class _prompt_touchoff(_prompt_float):
                 else:
                     unit_str += _(" diameter")
         else: unit_str = _(u"\xb0")
+        self.text_pattern = text_pattern
+        text = text_pattern % self.workpiece_or_fixture(defaultsystem)
         _prompt_float.__init__(self, title, text, default, unit_str)
         t = self.t
         f = Frame(t)
         self.c = c = StringVar(t)
         c.set(defaultsystem)
+        c.trace_variable("w", self.change_system)
         l = Label(f, text=_("Coordinate System:"))
         mb = OptionMenu(f, c, *systems)
         mb.tk.call("size_menubutton_to_entries", mb)
@@ -1554,6 +1570,16 @@ class _prompt_touchoff(_prompt_float):
         if current_tool.id > 0:
             t.bind("<Alt-t>", lambda event: c.set(systems[9]))
             t.bind("<Alt-0>", lambda event: c.set(systems[9]))
+
+    def workpiece_or_fixture(self, s):
+        if s.startswith('T') and vars.tto_g11.get():
+            return _("fixture")
+        return _("workpiece")
+
+    def change_system(self, *args):
+        system = self.c.get()
+        text = self.text_pattern % self.workpiece_or_fixture(system)
+        self.set_text(text)
 
     def result(self):
         if self.u.get(): return self.v.get(), self.c.get()
@@ -2268,7 +2294,7 @@ class TclCommands(nf.TclCommands):
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(_("Touch Off"),
-                _("Enter %s coordinate relative to workpiece:")
+                _("Enter %s coordinate relative to %%s:")
                         % vars.current_axis.get().upper(), 0.0, vars.touch_off_system.get())
         else:
             system = vars.touch_off_system.get()
@@ -2657,6 +2683,7 @@ except IOError:
 
 def jog(*args):
     if not manual_ok(): return
+    if not manual_tab_visible(): return
     ensure_mode(emc.MODE_MANUAL)
     c.jog(*args)
 
@@ -2666,6 +2693,7 @@ jog_cont  = [False] * 9
 jogging   = [0] * 9
 def jog_on(a, b):
     if not manual_ok(): return
+    if not manual_tab_visible(): return
     if isinstance(a, (str, unicode)):
         a = "xyzabcuvw".index(a)
     if a < 3:

@@ -11,6 +11,7 @@
 <doc name="config_pncconf" title="Point n Click Configurator for Mesa Servo and Stepper Machines"/>
 <doc name="config_ini_config" title="Basic Configuration"/>
 <doc name="config_ini_homing" title="Homing Configuration"/>
+<doc name="config_lathe_config" title="Lathe Configuration"/>
 <doc name="config_emc2hal" title="EMC2's interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 
@@ -23,6 +24,7 @@
 
 <doc name="gui_mini" title="MINI"/>
 <doc name="gui_axis" title="AXIS"/>
+<doc name="gui_ngcgui" title="NGCGUI"/>
 <doc name="gui_halui" title="halui"/>
 <doc name="gui_tkemc" title="TkEmc"/>
 <doc name="gui_touchy" title="Touchy"/>

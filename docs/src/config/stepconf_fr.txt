@@ -80,11 +80,12 @@ Inclure une configuration de HAL personnalisée::
     personnalisation de hal dans le fichier «custom.hal» après l'exécution
     de Stepconf.
 
-*Inclure un* *panneau* *PyVCP personnalisé(((Panneau PYVCP
-personnalise)))* Si coché, le panneau de contrôle PyVCP `«panel.xml»`
+Inclure un panneau PyVCP personnalisé::(((Panneau PYVCP personnalise)))
+Si coché, le panneau de contrôle PyVCP `«panel.xml»`
 sera affiché dans la partie droite de la fenêtre principale d'AXIS.
 
-*Pompe de charge(((Pompe de charge)))*  Si votre carte de contrôle
+Pompe de charge::(((Pompe de charge)))
+Si votre carte de contrôle
 gère une pompe de charge, dans la liste
 déroulante des sorties, sélectionner «Pompe de charge» sur la sortie
 qui doit correspondre à l'entrée Pompe de charge de la carte. La sortie
@@ -194,8 +195,8 @@ Fréquence des impulsions à la vitesse maxi::
 image::images/stepconf-spindle_fr.png[]
 
 Ces options ne sont accessibles que quand «PWM broche», «Phase A
-codeur broche» ou «index broche» sont configurés sur le *brochage du
-port parallèle*.
+codeur broche» ou «index broche» sont configurés sur le brochage du
+port parallèle.
 
 ==== Contrôle de la vitesse de broche  (((Contrôle de la vitesse de broche)))[[sub:Controle de la vitesse de broche]]
 
@@ -242,14 +243,14 @@ renseignée:
 
 Cycles par tour::
      Le nombre d'impulsions par tour sur la pin
-    *Phase* *A* *codeur* *broche.*
+    *Phase A codeur broche.*
 
     
     Vitesse maximum en filetage:;;
           La vitesse de broche maximum utilisable en filetage. Pour un
     moteur de
-        broche rapide ou un codeur ayant une résolution élevée*,* une valeur
-        basse de *BASE_PERIOD est requise.*
+        broche rapide ou un codeur ayant une résolution élevée, une valeur
+        basse de *BASE_PERIOD est requise*.
 
 === Configuration machine complète [[sub:Configuration machine complete]]
 
@@ -271,8 +272,8 @@ corrects pour les *Pas moteur*, les *Micropas*, les *Poulies*, et le
 
 === Définir la vitesse maximum [[sub:Definir la vitesse maximum]]
 
-Commencez avec une faible valeur d'accélération (par exemple, 2 in/s^2
-ou 50mm/s^2) et la vitesse que vous espérez atteindre. À l'aide des
+Commencez avec une faible valeur d'accélération (par exemple, 2 in/s^{2}
+ou 50mm/s^{2}) et la vitesse que vous espérez atteindre. À l'aide des
 boutons de jog, positionnez l'axe vers son centre. Soyez prudent, car
 avec peu d'accélération, l'axe peut prendre une surprenante longueur
 pour ralentir et s'arrêter.
@@ -286,7 +287,7 @@ Dans cet essai, il est important que la combinaison entre
 l'accélération et la zone de test, permette à la machine d'atteindre la
 vitesse sélectionnée et de s'y déplacer sur, au moins, une courte
 distance (plus cette distance sera longue, meilleur sera le test). La
-formule: distance=0.5*vitesse*vitesse/accélération donne la distance
+formule: distance=0.5 x vitesse x vitesse/accélération donne la distance
 minimum requise avec les vitesse et accélération spécifiées. Il est
 souhaitable de pousser sur la table dans la direction inverse du
 mouvement pour simuler les efforts de coupe. Si la machine cale,
@@ -523,17 +524,16 @@ image::images/switch-nc-series.eps[]
 
 image::images/switch-no-parallel.eps[]
 
- .[[cap:Cablage NO]]Câblage de contacts NO en parallèle (schéma
-simplifié)
+.[[cap:Cablage NO]]Câblage de contacts NO en parallèle (schéma simplifié)
 
 Les combinaisons suivantes sont permises dans Stepconf:
 
  - Les contacts d'origine machine de tous les axes combinés
  - Les contacts de fin de course de tous les axes combinés
  - Les contacts de fin de course d'un seul axe combinés
- -  Les contacts de fin de course et le contact d'origine machine d'un
+ - Les contacts de fin de course et le contact d'origine machine d'un
    seul axe combinés
- -  Un seul contact de fin de course et le contact d'origine machine d'un
+ - Un seul contact de fin de course et le contact d'origine machine d'un
    seul axe combinés
 
 Les deux dernières combinaisons sont également appropriées quand le

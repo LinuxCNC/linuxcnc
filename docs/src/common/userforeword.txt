@@ -6,7 +6,7 @@ This page attempts to answer that question before you get into the
 thick of things.
 
 EMC started at the National Institute of Standards and Technology in
-the USA. It grew up using Unix as it's operating system. Unix made it
+the USA. It grew up using Unix as its operating system. Unix made it
 different. Among early Unix developers there grew a set of code writing
 ideas that some call the Unix way. These early EMC authors followed
 those ways.
@@ -27,10 +27,9 @@ those ways.
 
      * Rule of Separation: Separate policy from mechanism; separate
     interfaces from engines.footnote:[Found at
-    http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008
-    ]
+    http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
-Mr Raymond offered several more rules but these four describe
+Mr. Raymond offered several more rules but these four describe
 essential characteristics of the EMC2 motion control system.
 
 The *Modularity*  rule is critical. Throughout these handbooks you
@@ -67,13 +66,11 @@ write part offsets this way rather than that way." Throughout these
 handbooks we describe the range of abilities currently available.
 
 As you begin your journey into using EMC2 we offer two cautionary
-notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy,
-07/06/2008
-]
+notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
- -  Praphrasing the words of Doug Gwyn on UNIX: "emc2 was not designed to
+ -  Paraphrasing the words of Doug Gwyn on UNIX: "EMC2 was not designed to
    stop its users from doing stupid things, as that would also stop them
    from doing clever things."
- -  Likewise the words of Steven King: "emc2 is user-friendly. It just
+ -  Likewise the words of Steven King: "EMC2 is user-friendly. It just
    isn't promiscuous about which users it's friendly with."
 

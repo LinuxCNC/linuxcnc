@@ -121,6 +121,9 @@ class _EMC_ToggleAction(gtk.ToggleAction, _EMC_ActionBase):
         self._stop_emission = False
         self.connect('toggled', self.safe_handler(self.on_toggled))
 
+    # XXX: Override nop in _EMC_Action
+    set_active_safe = _EMC_ActionBase.set_active_safe
+
     def on_toggled(self, w):
         return True
 
@@ -369,6 +372,7 @@ class EMC_ToggleAction_Pause(_EMC_ToggleAction, EMC_Action_Pause):
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(self.machine_on()))
         self.gstat.connect('interp-run', lambda w: self.set_active_safe(False))
         self.gstat.connect('interp-paused', lambda w: self.set_active_safe(True))
+        self.gstat.connect('interp-waiting', lambda w: self.set_active_safe(False))
 
     def on_toggled(self, w):
         if self.get_active():

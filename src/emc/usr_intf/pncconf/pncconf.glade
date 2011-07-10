@@ -5298,7 +5298,7 @@ Relative
                                                               <widget class="GtkRadioButton" id="pyvcp1">
                                                                 <property name="visible">True</property>
                                                                 <property name="can_focus">True</property>
-                                                                <property name="label" translatable="yes">Spindle speed/tool position display  </property>
+                                                                <property name="label" translatable="yes">Spindle speed display  </property>
                                                                 <property name="use_underline">True</property>
                                                                 <property name="response_id">0</property>
                                                                 <property name="draw_indicator">True</property>
@@ -5589,13 +5589,11 @@ panel</property>
                             </child>
                             <child>
                               <widget class="GtkAlignment" id="alignment40">
-                                <property name="visible">True</property>
                                 <property name="xalign">0.15000000596046448</property>
                                 <property name="xscale">0.28999999165534973</property>
                                 <child>
                                   <widget class="GtkFrame" id="frame21">
                                     <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
                                     <property name="label_xalign">0</property>
                                     <child>
                                       <widget class="GtkAlignment" id="alignment41">
@@ -5622,35 +5620,15 @@ panel</property>
                                                               <widget class="GtkRadioButton" id="gladeblank">
                                                                 <property name="visible">True</property>
                                                                 <property name="can_focus">True</property>
-                                                                <property name="label" translatable="yes">Blank program</property>
+                                                                <property name="label" translatable="yes">Sample display  </property>
                                                                 <property name="use_underline">True</property>
                                                                 <property name="response_id">0</property>
-                                                                <property name="active">True</property>
                                                                 <property name="draw_indicator">True</property>
                                                               </widget>
                                                               <packing>
                                                                 <property name="expand">False</property>
                                                                 <property name="fill">False</property>
                                                               </packing>
-                                                            </child>
-                                                            <child>
-                                                              <widget class="GtkRadioButton" id="glade1">
-                                                                <property name="visible">True</property>
-                                                                <property name="can_focus">True</property>
-                                                                <property name="label" translatable="yes">Spindle speed/tool position display  </property>
-                                                                <property name="use_underline">True</property>
-                                                                <property name="response_id">0</property>
-                                                                <property name="draw_indicator">True</property>
-                                                                <property name="group">gladeblank</property>
-                                                              </widget>
-                                                              <packing>
-                                                                <property name="expand">False</property>
-                                                                <property name="fill">False</property>
-                                                                <property name="position">1</property>
-                                                              </packing>
-                                                            </child>
-                                                            <child>
-                                                              <placeholder/>
                                                             </child>
                                                             <child>
                                                               <widget class="GtkRadioButton" id="gladeexist">
@@ -5664,30 +5642,180 @@ panel</property>
                                                                 <property name="group">gladeblank</property>
                                                               </widget>
                                                               <packing>
+                                                                <property name="position">1</property>
+                                                              </packing>
+                                                            </child>
+                                                            <child>
+                                                              <widget class="GtkExpander" id="expander12">
+                                                                <property name="visible">True</property>
+                                                                <property name="can_focus">True</property>
+                                                                <child>
+                                                                  <widget class="GtkVBox" id="vbox2">
+                                                                    <property name="visible">True</property>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="spindlespeedbar">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Spindle Speed Bar</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkHPaned" id="hpaned1">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <child>
+                                                                          <widget class="GtkSpinButton" id="maxspeeddisplay">
+                                                                            <property name="visible">True</property>
+                                                                            <property name="can_focus">True</property>
+                                                                            <property name="adjustment">1000 100 4000 100 0 0</property>
+                                                                          </widget>
+                                                                          <packing>
+                                                                            <property name="resize">False</property>
+                                                                            <property name="shrink">True</property>
+                                                                          </packing>
+                                                                        </child>
+                                                                        <child>
+                                                                          <widget class="GtkLabel" id="label945">
+                                                                            <property name="visible">True</property>
+                                                                            <property name="label" translatable="yes">Max RPM</property>
+                                                                          </widget>
+                                                                          <packing>
+                                                                            <property name="resize">True</property>
+                                                                            <property name="shrink">True</property>
+                                                                          </packing>
+                                                                        </child>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">1</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="spindleatspeed">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Spindle At Speed LED</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">2</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="zerox">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Zero X Button</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">3</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="zeroy">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Zero Y Button</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">4</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="zeroz">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Zero Z Button</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">5</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="zeroa">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Zero A Button</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">6</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                    <child>
+                                                                      <widget class="GtkCheckButton" id="autotouchz">
+                                                                        <property name="visible">True</property>
+                                                                        <property name="can_focus">True</property>
+                                                                        <property name="label" translatable="yes">Auto Z Touch Off Button</property>
+                                                                        <property name="response_id">0</property>
+                                                                        <property name="draw_indicator">True</property>
+                                                                      </widget>
+                                                                      <packing>
+                                                                        <property name="position">7</property>
+                                                                      </packing>
+                                                                    </child>
+                                                                  </widget>
+                                                                </child>
+                                                                <child>
+                                                                  <widget class="GtkLabel" id="label944">
+                                                                    <property name="visible">True</property>
+                                                                    <property name="label" translatable="yes">Sample Options</property>
+                                                                  </widget>
+                                                                  <packing>
+                                                                    <property name="type">label_item</property>
+                                                                  </packing>
+                                                                </child>
+                                                              </widget>
+                                                              <packing>
+                                                                <property name="position">2</property>
+                                                              </packing>
+                                                            </child>
+                                                            <child>
+                                                              <widget class="GtkRadioButton" id="embededgvcp">
+                                                                <property name="visible">True</property>
+                                                                <property name="can_focus">True</property>
+                                                                <property name="label" translatable="yes">Center Tab Embeded</property>
+                                                                <property name="response_id">0</property>
+                                                                <property name="active">True</property>
+                                                                <property name="draw_indicator">True</property>
+                                                                <signal name="group_changed" handler="on_embededgvcp_group_changed"/>
+                                                              </widget>
+                                                              <packing>
                                                                 <property name="position">3</property>
                                                               </packing>
                                                             </child>
                                                             <child>
-                                                              <widget class="GtkCheckButton" id="gladeconnect">
+                                                              <widget class="GtkRadioButton" id="sideembededgvcp">
                                                                 <property name="visible">True</property>
                                                                 <property name="can_focus">True</property>
-                                                                <property name="label" translatable="yes">Include connections to HAL</property>
-                                                                <property name="use_underline">True</property>
+                                                                <property name="label" translatable="yes">Rightside Embeded</property>
                                                                 <property name="response_id">0</property>
+                                                                <property name="active">True</property>
                                                                 <property name="draw_indicator">True</property>
+                                                                <property name="group">embededgvcp</property>
                                                               </widget>
                                                               <packing>
                                                                 <property name="position">4</property>
                                                               </packing>
                                                             </child>
                                                             <child>
-                                                              <widget class="GtkCheckButton" id="embedgladevcp">
+                                                              <widget class="GtkRadioButton" id="standalonegvcp">
                                                                 <property name="visible">True</property>
                                                                 <property name="can_focus">True</property>
-                                                                <property name="label" translatable="yes">Embed Gladevcp </property>
-                                                                <property name="use_underline">True</property>
+                                                                <property name="label" translatable="yes">Standalone Panel</property>
                                                                 <property name="response_id">0</property>
+                                                                <property name="active">True</property>
                                                                 <property name="draw_indicator">True</property>
+                                                                <property name="group">embededgvcp</property>
                                                               </widget>
                                                               <packing>
                                                                 <property name="position">5</property>
@@ -45882,7 +46010,6 @@ Test</property>
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkFrame" id="xatspeedframe">
-                            <property name="visible">False</property>
                             <property name="label_xalign">0</property>
                             <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
                             <child>
@@ -45928,10 +46055,18 @@ Test</property>
                               </widget>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="label320">
+                              <widget class="GtkCheckButton" id="xuseatspeed">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Spindle-at-speed settings&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                                <child>
+                                  <widget class="GtkLabel" id="label320">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Use Spindle-At-Speed&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </widget>
+                                </child>
                               </widget>
                               <packing>
                                 <property name="type">label_item</property>
@@ -45941,7 +46076,6 @@ Test</property>
                         </child>
                         <child>
                           <widget class="GtkFrame" id="xfiltergainframe">
-                            <property name="visible">False</property>
                             <property name="label_xalign">0</property>
                             <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
                             <child>
@@ -45964,7 +46098,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xfiltergain">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0.005 0.001 1.5 0.001 0 0</property>
+                                        <property name="adjustment">0.0050000000000000001 0.001 1.5 0.001 0 0</property>
                                         <property name="digits">3</property>
                                       </widget>
                                       <packing>
@@ -45989,7 +46123,7 @@ Test</property>
                             <child>
                               <widget class="GtkLabel" id="label943">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Spindle Display Filter settings&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Spindle Display Filter Settings&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -47565,7 +47699,7 @@ YES</property>
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0.039999999105930328</property>
                                                 <property name="ypad">5</property>
-                                                <property name="label" translatable="yes">Number of digital in pins:</property>
+                                                <property name="label" translatable="yes">Number of digital (bit) in pins:</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="mnemonic_widget">digitsin</property>
                                                 <property name="angle">0.019999999552965164</property>
@@ -47576,7 +47710,7 @@ YES</property>
                                                 <property name="visible">True</property>
                                                 <property name="xalign">0.039999999105930328</property>
                                                 <property name="ypad">3</property>
-                                                <property name="label" translatable="yes">Number of digital  out pins:</property>
+                                                <property name="label" translatable="yes">Number of digital (bit) out pins:</property>
                                                 <property name="use_underline">True</property>
                                                 <property name="mnemonic_widget">digitsout</property>
                                               </widget>
@@ -47783,6 +47917,22 @@ YES</property>
                                               </packing>
                                             </child>
                                             <child>
+                                              <widget class="GtkRadioButton" id="ladder3">
+                                                <property name="visible">False</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="label" translatable="yes">Z Auto Touch off program</property>
+                                                <property name="use_underline">True</property>
+                                                <property name="response_id">0</property>
+                                                <property name="draw_indicator">True</property>
+                                                <property name="group">ladderblank</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                            <child>
                                               <widget class="GtkRadioButton" id="ladder2">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
@@ -47795,7 +47945,7 @@ YES</property>
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
-                                                <property name="position">2</property>
+                                                <property name="position">3</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -47811,7 +47961,7 @@ YES</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="position">3</property>
+                                                <property name="position">4</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -47825,7 +47975,7 @@ YES</property>
                                                 <signal name="toggled" handler="on_ladderconnect_toggled"/>
                                               </widget>
                                               <packing>
-                                                <property name="position">4</property>
+                                                <property name="position">5</property>
                                               </packing>
                                             </child>
                                           </widget>

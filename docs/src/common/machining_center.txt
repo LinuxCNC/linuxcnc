@@ -17,18 +17,15 @@ if they affect control.
 Any CNC machine has one or more Axes. Different types of CNC machines
 have different combinations. For instance, a "4-axis milling machine"
 may have XYZA or XYZB axes. A lathe typically has XZ axes. A
-foam-cutting machine may have XYUZ axes. In EMC, the case of a XYYZ
+foam-cutting machine may have XYUV axes. In EMC, the case of a XYYZ
 "gantry" machine with two motors for one axis is better handled by
-kinematics rather than by a second linear axis.
-
-footnote:[If the motion of mechanical components is not independent,
-as with
+kinematics rather than by a second linear axis. footnote:[If the 
+motion of mechanical components is not independent, as with 
 hexapod machines, the RS274/NGC language and the canonical machining
 functions will still be usable, as long as the lower levels of control
 know how to control the actual mechanisms to produce the same relative
 motion of tool and workpiece as would be produced by independent axes.
-This is called 'kinematics'.
-]
+This is called 'kinematics'.]
 
 ==== Primary Linear Axes (((axes, primary linear)))
 
@@ -85,7 +82,7 @@ are expressed using coordinates on these axes.
 
 The U, V and W axes also form a standard right-handed coordinate
 system. X and U are parallel, Y and V are parallel, and Z and W are
-parallel.
+parallel (when A, B, and C are rotated to zero).
 
 === Rotational Axes
 
@@ -103,10 +100,9 @@ workpiece. If the workpiece is fastened to a turntable which turns on a
 rotational axis, a counterclockwise turn from the point of view of the
 workpiece is accomplished by turning the turntable in a direction that
 (for most common machine configurations) looks clockwise from the point
-of view of someone standing next to the machine.footnote:[If the
+of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
-have to say how to distinguish clockwise from counterclockwise.
-]
+have to say how to distinguish clockwise from counterclockwise.]
 
 === Controlled Point [[sub:Controlled-Point]](((controlled point)))
 
@@ -154,11 +150,11 @@ feed” or “feed per revolution” modes are being used (see Section
 <<"sub:G93,-G94:-Set">>).
 
  .  If any of XYZ are moving, F is in units per minute in the XYZ
-   cartesian system, and all other axes (UVWABC) move so as to start and
-   stop in coordinated fashion
+   cartesian system, and all other axes (ABCUVW) move so as to start and
+   stop in coordinated fashion. 
  .  Otherwise, if any of UVW are moving, F is in units per minute in the
    UVW cartesian system, and all other axes (ABC) move so as to start and
-   stop in coordinated fashion
+   stop in coordinated fashion. 
  .  Otherwise, the move is pure rotary motion and the F word is in rotary
    units in the ABC “pseudo-cartesian” system.
 
@@ -185,8 +181,8 @@ machine control cannot be changed. Different quantities use different
 specific units. Spindle speed is measured in revolutions per minute.
 The positions of rotational axes are measured in degrees. Feed rates
 are expressed in current length units per minute, or degrees per
-minute, or length units per spindle revolution, as described in Section
- <<sub:Feed-Rate>>.
+minute, or length units per spindle revolution, as described in Section 
+<<sub:Feed-Rate>>. 
 
 === Current Position
 
@@ -248,7 +244,7 @@ Interpreter know what the setting of any of these switches is.
 === Feed and Speed Override Switches [[sub:Feed-Interaction]]
 
 The Interpreter will interpret RS274/NGC commands which enable (`M48`)
-or disable (`M49` ) the feed and speed override switches. For certain
+or disable (`M49`) the feed and speed override switches. For certain
 moves, such as the
 traverse out of the end of a thread during a threading cycle, the
 switches are disabled automatically.
@@ -268,314 +264,301 @@ switch should be set before starting the NGC program.
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-== Tool Table [[sub:Tool-File]]
+== Tool Table [[sub:Tool-Table]]
+
+A tool table is required to use the Interpreter. The file tells which 
+tools are in which tool changer slots and what the size and type of 
+each tool is. The name of the tool table is defined in the ini file: 
+
+---------------------------------------
+[EMCIO]
+
+# tool table file
+TOOL_TABLE = tooltable.tbl
+---------------------------------------
+
+The default filename probably looks something like the above, but 
+you may prefer to give your machine its own tool table, using the 
+same name as your ini file, but with a tbl extension: 
+
+---------------------------------------
+TOOL_TABLE = acme_300.tbl
+---------------------------------------
+
+or
+
+---------------------------------------
+TOOL_TABLE = EMC-AXIS-SIM.tbl
+---------------------------------------
+
+See the Integrator Manual for more details. 
+
+The file consists of one opening semicolon on the first line, 
+followed by up to a maximum of 56 tool entries. 
+footnote:[Although tool numbers up to 99999 are allowed, the number 
+of entries in the tool table, at the moment, is still limited to a 
+maximum of 56 tools for technical reasons. The EMC2 developers plan 
+to remove that limitation eventually. If you have a very large 
+toolchanger, please be patient.]
+
+Earlier versions of EMC2 had two different tool table formats for 
+mills and lathes, but since the 2.4.x release, one tool table format 
+is used for all machines. Just ignore the parts of the tool table 
+that don't pertain to your machine, or which you don't neeed to use. 
+
+Each line of the tool table file after the opening semicolon contains 
+the data for one tool. One line may contain as many as 16 entries, 
+but will likely contain much fewer. 
+
+The units used for the length, diameter, etc., are in machine units.
+
+You will probably want to keep the tool entries in ascending order, 
+especially if you are going to be using a randomizing tool changer. 
+Although the tool table does allow for tool numbers in any order. 
+
+=== Tool Table Format
+
+.Tool Table Format[[cap:Tool-Table-Format]](((Tool-Table-Format)))
+
+[width="100%", options="header"]
+|========================================
+|T# |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|;  |    |   |   |   |   |   |   |   |   |   |    |   |   |    |
+|T1 |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem 
+|T2 |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem 
+|T3 |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem 
+|========================================
+
+In general, the new tool table line format is:
+
+ - ; - opening semicolon, no data
+ - T - tool number, 0-99999 (you can have a large number of tools in inventory)
+ - P - pocket number, 1-99999 (tool table has a lower number of entries, currently 56) 
+ - X..W - tool offset on specified axis - floating-point
+ - D - tool diameter - floating-point, absolute value
+ - I - front angle (lathe only) - floating-point 
+ - J - back angle (lathe only) - floating-point 
+ - Q - tool orientation (lathe only) - integer, 0-9 
+ - ; - beginning of comment or remark
+
+
+Each line may have up to 16 entries. The first two entries are required. 
+The last entry (a remark or comment, preceded by a semicolon) is 
+optional. It makes reading easier if the entries are arranged in 
+columns, as shown in the table, but the only format requirement is 
+that there be at least one space or tab after each of the entries on 
+a line and a newline character at the end of each entry. 
+
+The meanings of the entries and the type of data to be put in each are 
+as follows.
+
+.Tool Number (required)
+The “T” column contains the number (unsigned integer) which
+represents a code number for the tool. The user may use any code for
+any tool, as long as the codes are unsigned integers. 
+
+.Pocket Number (required)
+The “P” column contains the number (unsigned integer) which
+represents the pocket number (slot number) of the tool changer slot 
+where the tool can be found. The entries in this column must all be 
+different. 
+
+The pocket numbers will typically start at 1 and go up to the highest 
+available pocket on your toolchanger. But not all toolchangers follow 
+this pattern. Your pocket numbers will be determined by the numbers 
+that your toolchanger uses to refer to the pockets. So all this is to 
+say that the pocket numbers you use will be determined by the numbering 
+scheme used in your toolchanger, and the pocket numbers you use must 
+make sense on your machine.  
+
+.Data Offset Numbers (optional)
+The "Data Offset" columns (XYZABCUVW) contain real numbers which 
+represent tool offsets in each axis. This number will be used if tool 
+length offsets are being used and this tool is selected. 
+These numbers can be positive, zero, or negative, and are in fact 
+completely optional. Although you will probably want to make at least 
+one entry here, otherwise there would be little point in making an 
+entry in the tool table to begin with. 
+
+In a typical mill, you probably want an entry for Z (tool length 
+offset). In a typical lathe, you probably want an entry for X 
+(X tool offset) and Z (Z tool offset). In a typical mill using 
+cutter diameter compensation (cutter comp), you probably also want 
+to add an entry for D (cutter diameter). In a typical lathe using 
+tool nose diameter compensation (tool comp), you probably also want 
+to add an entry for D (tool nose diameter). 
+
+A lathe also requires some additional information to describe the 
+shape and orientation of the tool. So you probably want to have entries 
+for I (tool front angle) and J (tool back angle). 
+You probably also want an entry for Q (tool orientaion). 
+
+A complete description of the lathe entries can be found in the lathe 
+section of the user manual (<<cha:Lathe-Specifics>>). 
+
+The “Diameter” column contains a real number. This number is used only
+if tool radius compensation is turned on using this tool. If the
+programmed path during compensation is the edge of the material being
+cut, this should be a positive real number representing the measured
+diameter of the tool. If the programmed path during compensation is the
+path of a tool whose diameter is nominal, this should be a small number
+(positive or negative, but near zero) representing only the difference 
+between the measured diameter of the tool and the nominal diameter. 
+If cutter radius compensation is not used with a tool, it does not 
+matter what number is in this column.
 
-A tool file is required to use the Interpreter. The file lists the
-available tools and their geometry, like diameter and length. The
-units used for the geometry are in machine units.
+The “Comment” column may optionally be used to describe the tool. Any 
+type of description is OK. This column is for the benefit of human
+readers only. The comment must be preceded by a semicolon. 
 
-In emc, the location of the tool file is specified in the ini file.
-See the <<sub:[EMCIO]-Section,Integrator Manual - [EMCIO]TOOL_TABLE
-parameter >> for more details.
+== Parameters (((parameters)))[[sub:Parameters]]
 
-Due to different tool geometries, there are two different formats in
-use, the “mill format” and “lathe format” tool table. While it is not
-an error to mix lathe and mill tool type descriptions in a tool table,
-lathe tools will not make a lot of sense for a mill and vice versa.
+In the RS274/NGC language view, a machining center maintains an array
+of numerical parameters defined by a system definition
+(RS274NGC_MAX_PARAMETERS). Many of them have specific uses especially
+in defining coordinate systems. The number of numerical parameters can
+increase as development adds support for new parameters. The parameter
+array persists over time, even if the machining center is powered down.
+EMC2 uses a parameter file to ensure persistence and gives the
+Interpreter the responsibility for maintaining the file. The
+Interpreter reads the file when it starts up, and writes the file when
+it exits.
 
-For details about these tool table formats, see ee the
-<<sec:Mill-Tool-Table, Mill Tool Table>> and <<sec:Lathe-Tool-Table,
-Lathe Tool Table>> sections for details.
-
-=== Changing entries in the Tool Table [[sub:Change-Tool-Table]]
+All parameters are avalible for use in G Code programs.
 
-There are three ways to change entries:
-
- . edit the tool table with an editor of your choice. Note that the user
-   interface might need to be told to re-read the new table.
- . use a user interface function to manipulate the table, for instance
-   the Axis `Èdit tool table` function
- . use the  <<sec:G10-L1-Set-Tool-Table,G10 L1 G-code command>>
+1-30::
+     Subroutine local parameters of call arguments. These parameters are
+    local to the subroutine. See  <<cha:O-Codes>>
 
+1-5000::
+    G-Code user parameters. These parameters are global in the G Code file.
 
+5061-5070::
+    Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
 
-// A tool file is required to use the Interpreter. The file tells which
-// tools are in which carousel slots and what the length and diameter of
-// each tool are.
+5161-5169::
+    "G28" Home for X, Y, Z, A, B, C, U, V & W.
 
-// The file consists of any number of header lines, followed by one blank
-// line, followed by any number of lines of data. The header lines are
-// ignored by the interpreter. It is important that there be exactly one
-// blank line (with no spaces or tabs, even) before the data. The header
-// line shown in Table  <<cap:Sample-Tool-File>> describes the data
-// columns, so it is suggested (but not required) that such a line always
-// be included in the header.
-
-// Each data line of the file contains the data for one tool. The line
-// may contain 4 or 5 elements (“mill format”) or 8 or 9 elements (“lathe
-// format”).
-
-// The units used for the length and diameter are in machine units.
-
-// The lines do not have to be in any particular order. Switching the
-// order of lines has no effect unless the same slot number is used on two
-// or more lines, which should not normally be done, in which case the
-// data for only the last such line will be used.
-
-// In emc, the location of the tool file is specified in the ini file.
-// See the Integrator Manual for more details.
-
-// A tool file may have a mixture of “mill format” and “lathe format”
-// lines, though usually the “lathe format” lines are only required for
-// lathe-type tooling.
-
-
-
-// See the <<sec:Mill-Tool-Table, Mill Tool Table>> and 
-// <<sec:Lathe-Tool-Table, Lathe Tool Table>> sections for details.
-
-
-// === Mill Format Tool Files
-
-// The “mill format” of a tool file is shown in Table 
-// <<cap:Sample-Tool-File>>.
-
-// .Sample Tool File (mill format)[[cap:Sample-Tool-File]]
-
-// [width="90%", options="header"]
-// |========================================
-// |Pocket | FMS | TLO | Diameter | Comment
-// | |  |  |  | 
-// |1 | 1 | 2.0 | 1.0 | 
-// |2 | 2 | 1.0 | 0.2 | 
-// |5 | 5 | 1.5 | 0.25 | endmill
-// |10 | 10 | 2.4 | -0.3 | for testing
-// |========================================
-
-// Each line has five entries. The first four entries are required. The
-// last entry (a comment) is optional. It makes reading easier if the
-// entries are arranged in columns, as shown in the table, but the only
-// format requirement is that there be at least one space or tab after
-// each of the first three entries on a line and a space, tab, or newline
-// at the end of the fourth entry. The meanings of the columns and the
-// type of data to be put in each are as follows.
-
-// The “Pocket” column contains the number (unsigned integer) which
-// represents the pocket number (slot number) of the tool carousel slot in
-// which the tool is placed. The entries in this column must all be
-// different.
-
-// The “FMS” column contains the number (unsigned integer) which
-// represents a code number for the tool. The user may use any code for
-// any tool, as long as the codes are unsigned integers. This is typically
-// the same as the pocket number.
-
-// The “TLO” column contains a real number which represents the tool
-// length offset. This number will be used if tool length offsets are
-// being used and this pocket is selected. This is normally a positive
-// real number, but it may be zero or any other number if it is never to
-// be used.
-
-// The “Diameter” column contains a real number. This number is used only
-// if tool radius compensation is turned on using this pocket. If the
-// programmed path during compensation is the edge of the material being
-// cut, this should be a positive real number representing the measured
-// diameter of the tool. If the programmed path during compensation is the
-// path of a tool whose diameter is nominal, this should be a small number
-// (positive, negative, or zero) representing the difference between the
-// measured diameter of the tool and the nominal diameter. If cutter
-// radius compensation is not used with a tool, it does not matter what
-// number is in this column.
-
-// The “Comment” column may optionally be used to describe the tool. Any
-// type of description is OK. This column is for the benefit of human
-// readers only.
-
-// === Lathe Format Tool Files
-
-// The “lathe format” of a tool file is shown in Table 
-// <<cap:Lathe-Tool-File>>.
-
-// .Sample Tool File (lathe format)[[cap:Lathe-Tool-File]]
-
-// [width="90%", options="header"]
-// |========================================
-//  |Pocket | FMS | ZOFFSET | XOFFSET | DIA | FRONTANGLE | BACKANGLE |
-// ORIENTATION | Comment
-// | |  |  |  |  |  |  |  | 
-// |1 | 1 | 0.0 | 0.0 | 0.1 | 95.0 | 155.0 | 1 | 
-// |2 | 2 | 0.5 | 0.5 | 0.1 | 120 | 60 | 6 | 
-// |========================================
-
-// The Pocket, FMS, DIA and Comment fields are as for mill format tool
-// files. The ZOFFSET field is the same as the TLO field of mill format
-// tool files. The DIA is also used by the AXIS gui display.
-
-// The XOFFSET field gives an offset for the X coordinate when tool
-// length offsets are in effect.
-
-// The ORIENTATION field gives the orientation of the lathe tool, as
-// illustrated in  <<cap:Tool-Orientations>>. The red cross is the
-// controlled point. See  <<sub:Controlled-Point>>.
-
-// The FRONTANGLE and BACKANGLE fields are used by some user interfaces
-// to display a fancy representation of the lathe tool.
-
-// .Tool Orientations[[cap:Tool-Orientations]]
-
-// image::lathe_tool.png[]
-
-== Parameters (((parameters)))[[sub:Intro-Parameters]]
-
-For a complete overview of all forms of parameters, see the
-<<sec:Parameters, Parameters section>> of the G-Code overview document.
-
-// In the RS274/NGC language view, a machining center maintains an array
-// of numerical parameters defined by a system definition
-// (RS274NGC_MAX_PARAMETERS). Many of them have specific uses especially
-// in defining coordinate systems. The number of numerical parameters can
-// increase as development adds support for new parameters. The parameter
-// array persists over time, even if the machining center is powered down.
-// EMC2 uses a parameter file to ensure persistence and gives the
-// Interpreter the responsibility for maintaining the file. The
-// Interpreter reads the file when it starts up, and writes the file when
-// it exits.
-
-// All parameters are avalible for use in G Code programs.
-
-// 1-30::
-//      Subroutine local parameters of call arguments. These parameters are
-//     local to the subroutine. See  <<cha:O-Codes>>
-
-// 1-5000::
-//     G-Code user parameters. These parameters are global in the G Code file.
-
-// 5061-5070::
-//     Result of "G38.2" Probe for X, Y, Z, A, B, C, U, V & W.
-
-// 5161-5169::
-//     "G28" Home for X, Y, Z, A, B, C, U, V & W.
-
-// 5181-5189::
-//     "G30" Home for X, Y, Z, A, B, C, U, V & W.
-
-// 5211-5219::
-//     "G92" offset for X, Y, Z, A, B, C, U, V & W.
-
-// 5220::
-//     Coordinate System number 1 - 9 for G54 - G59.3.
-
-// 5221-5229::
-//     Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
-
-// 5241-5249::
-//     Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
-
-// 5261-5269::
-//     Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
-
-// 5281-5289::
-//     Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
-
-// 5301-5309::
-//     Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
-
-// 5321-5329::
-//     Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
-
-// 5341-5349::
-//     Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
-
-// 5361-5369::
-//     Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
-
-// 5381-5389::
-//     Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
-
-// 5399::
-//     Result of M66 - Check or wait for input
-
-// 5400::
-//     Tool Number
-
-// 5401::
-//     Tool X Offset
-
-// 5402::
-//     Tool Y Offset
-
-// 5403::
-//     Tool Z Offset
-
-// 5404::
-//     Tool A Offset
-
-// 5405::
-//     Tool B Offset
-
-// 5406::
-//     Tool C Offset
-
-// 5407::
-//     Tool U Offset
-
-// 5408::
-//     Tool V Offset
-
-// 5409::
-//     Tool W Offset
-
-// 5410::
-//     Tool Diameter
-
-// 5411::
-//     Tool Front Angle
-
-// 5412::
-//     Tool Back Angle
-
-// 5413::
-//     Tool Orientation
-
-// 5420-5428::
-//      Current Position including all offsets and in the current program
-//     units for X, Y, Z, A, B, C, U, V & W.
-
-// The format of a parameter file is shown in Table 
-// <<cap:Parameter-File-Format>>. The file consists of any number of
-// header lines, followed by one blank line, followed by any number of
-// lines of data. The Interpreter skips over the header lines. It is
-// important that there be exactly one blank line (with no spaces or tabs,
-// even) before the data. The header line shown in Table 
-// <<cap:Parameter-File-Format>> describes the data columns, so it is
-// suggested (but not required) that that line always be included in the
-// header.
-
-// The Interpreter reads only the first two columns of the table. The
-// third column, "Comment," is not read by the Interpreter.
-
-// Each line of the file contains the index number of a parameter in the
-// first column and the value to which that parameter should be set in the
-// second column. The value is represented as a double-precision floating
-// point number inside the Interpreter, but a decimal point is not
-// required in the file. All of the parameters shown in Table 
-// <<cap:Parameter-File-Format>> are required parameters and must be
-// included in any parameter file, except that any parameter representing
-// a rotational axis value for an unused axis may be omitted. An error
-// will be signalled if any required parameter is missing. A parameter
-// file may include any other parameter, as long as its number is in the
-// range 1 to 5400. The parameter numbers must be arranged in ascending
-// order. An error will be signalled if not. Any parameter included in the
-// file read by the Interpreter will be included in the file it writes as
-// it exits. The original file is saved as a backup file when the new file
-// is written. Comments are not preserved when the file is written.
-
-// .Parameter File Format[[cap:Parameter-File-Format]]
-
-// [width="90%", options="header"]
-// |========================================
-// |Parameter Number | Parameter Value | Comment
-// |5161 | 0.0 | G28 Home X
-// |5162 | 0.0 | G28 Home Y
-// |========================================
+5181-5189::
+    "G30" Home for X, Y, Z, A, B, C, U, V & W.
+
+5211-5219::
+    "G92" offset for X, Y, Z, A, B, C, U, V & W.
+
+5220::
+    Coordinate System number 1 - 9 for G54 - G59.3.
+
+5221-5229::
+    Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V & W.
+
+5241-5249::
+    Coordinate System 2, G55 for X, Y, Z, A, B, C, U, V & W.
+
+5261-5269::
+    Coordinate System 3, G56 for X, Y, Z, A, B, C, U, V & W.
+
+5281-5289::
+    Coordinate System 4, G57 for X, Y, Z, A, B, C, U, V & W.
+
+5301-5309::
+    Coordinate System 5, G58 for X, Y, Z, A, B, C, U, V & W.
+
+5321-5329::
+    Coordinate System 6, G59 for X, Y, Z, A, B, C, U, V & W.
+
+5341-5349::
+    Coordinate System 7, G59.1 for X, Y, Z, A, B, C, U, V & W.
+
+5361-5369::
+    Coordinate System 8, G59.2 for X, Y, Z, A, B, C, U, V & W.
+
+5381-5389::
+    Coordinate System 9, G59.3 for X, Y, Z, A, B, C, U, V & W.
+
+5399::
+    Result of M66 - Check or wait for input
+
+5400::
+    Tool Number
+
+5401::
+    Tool X Offset
+
+5402::
+    Tool Y Offset
+
+5403::
+    Tool Z Offset
+
+5404::
+    Tool A Offset
+
+5405::
+    Tool B Offset
+
+5406::
+    Tool C Offset
+
+5407::
+    Tool U Offset
+
+5408::
+    Tool V Offset
+
+5409::
+    Tool W Offset
+
+5410::
+    Tool Diameter
+
+5411::
+    Tool Front Angle
+
+5412::
+    Tool Back Angle
+
+5413::
+    Tool Orientation
+
+5420-5428::
+     Current Position including all offsets and in the current program
+    units for X, Y, Z, A, B, C, U, V & W.
+
+The format of a parameter file is shown in Table 
+<<cap:Parameter-File-Format>>. The file consists of any number of
+header lines, followed by one blank line, followed by any number of
+lines of data. The Interpreter skips over the header lines. It is
+important that there be exactly one blank line (with no spaces or tabs,
+even) before the data. The header line shown in Table 
+<<cap:Parameter-File-Format>> describes the data columns, so it is
+suggested (but not required) that that line always be included in the
+header.
+
+The Interpreter reads only the first two columns of the table. The
+third column, "Comment," is not read by the Interpreter.
+
+Each line of the file contains the index number of a parameter in the
+first column and the value to which that parameter should be set in the
+second column. The value is represented as a double-precision floating
+point number inside the Interpreter, but a decimal point is not
+required in the file. All of the parameters shown in Table 
+<<cap:Parameter-File-Format>> are required parameters and must be
+included in any parameter file, except that any parameter representing
+a rotational axis value for an unused axis may be omitted. An error
+will be signalled if any required parameter is missing. A parameter
+file may include any other parameter, as long as its number is in the
+range 1 to 5400. The parameter numbers must be arranged in ascending
+order. An error will be signalled if not. Any parameter included in the
+file read by the Interpreter will be included in the file it writes as
+it exits. The original file is saved as a backup file when the new file
+is written. Comments are not preserved when the file is written.
+
+.Parameter File Format[[cap:Parameter-File-Format]]
+
+[width="90%", options="header"]
+|========================================
+|Parameter Number | Parameter Value | Comment
+|5161 | 0.0 | G28 Home X
+|5162 | 0.0 | G28 Home Y
+|========================================
 

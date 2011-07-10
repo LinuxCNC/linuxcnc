@@ -37,11 +37,11 @@ calculates if it can keep up with the motion called for and if not then
 it gives a following error. Following errors usually are the result of
 one of the following on stepper systems.
 
- - FERROR to small
- - MIN_FERROR to small
- - MAX_VELOCITY to fast
- - MAX_ACCELERATION to fast
- - BASE_PERIOD set to long
+ - FERROR too small
+ - MIN_FERROR too small
+ - MAX_VELOCITY too fast
+ - MAX_ACCELERATION too fast
+ - BASE_PERIOD set too long
  - Backlash added to an axis
 
 Any of the above can cause the RT pulsing to not be able to keep up
@@ -80,8 +80,6 @@ NOTE: This error is only displayed once per session. If you had your
 BASE_PERIOD too low you could get hundreds of thousands of error
 messages per second if more than one was displayed.
 
-
-
 == Testing
 
 === Step Timing
@@ -118,8 +116,7 @@ G0 lines.
     M1 (stop here) 
     #1000=100 ( loop 100 times ) 
     ( the next loop has no delays after moves ) 
-     ( tests direction hold times on driver config and also max accel
-    setting ) 
+    ( tests direction hold times on driver config and also max accel setting ) 
     o101 while [#1000]  
     G0 Z1.000 
     G0 Z0.500 

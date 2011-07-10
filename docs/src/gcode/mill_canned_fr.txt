@@ -150,12 +150,12 @@ mouvement.
 
 Le cycle G81(((G81))) est destiné au perçage.
 
-0. Un mouvement préliminaire, comme il a été traité ci-dessus.
+1. Un mouvement préliminaire, comme il a été traité ci-dessus.
 
-1. Un déplacement de l'axe Z seul à la vitesse programmée, vers la
+2. Un déplacement de l'axe Z seul à la vitesse programmée, vers la
 position Z programmée.
 
-2. Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
+3. Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 
 Exemple 1: G81 en position absolue
 
@@ -269,14 +269,14 @@ Exemple 5 - Position relative R > Z
 
 Le cycle G82(((G82))) est destiné au perçage.
 
-0. Un mouvement préliminaire, comme il a été traité ci-dessus.
+1. Un mouvement préliminaire, comme il a été traité ci-dessus.
 
-1. Un déplacement de l'axe Z seul en vitesse programmée, vers la
+2. Un déplacement de l'axe Z seul en vitesse programmée, vers la
 position Z programmée.
 
-2. Une temporisation de P secondes.
+3. Une temporisation de P secondes.
 
-3. Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
+4. Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 
 Les mouvements du cycle G82 ressemblent à ceux de g81 avec une
 temporisation supplémentaire en fin de mouvement Z. La longueur de
@@ -296,21 +296,21 @@ copeaux du trou et fragmentent les copeaux longs (qui sont fréquents
 lors du perçage dans l'aluminum). Ce cycle utilise la valeur Q qui
 représente un incrément “delta” le long de l'axe Z.
 
-0. Un mouvement préliminaire, comme décrit précédemment.
+1. Un mouvement préliminaire, comme décrit précédemment.
 
-1. Un mouvement de l'axe Z seul, en vitesse travail, sur la position
+2. Un mouvement de l'axe Z seul, en vitesse travail, sur la position
 la moins profonde entre, un incrément delta, ou la position de Z
 programmée.
 
-2. Un mouvement en vitesse rapide au plan de retrait.
+3. Un mouvement en vitesse rapide au plan de retrait.
 
-3. Une plongée en vitesse rapide dans le même trou, presque jusqu'au
+4. Une plongée en vitesse rapide dans le même trou, presque jusqu'au
 fond.
 
-3. Répétition des étapes 2, 3 et 4 jusqu'à ce que la position
+5. Répétition des étapes 2, 3 et 4 jusqu'à ce que la position
 programmée de Z soit atteinte à l'étape 2.
 
-4. Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.
+6. Un mouvement de l'axe Z en vitesse rapide vers le plan de retrait.
 
 == Cycle G84
 
@@ -319,53 +319,53 @@ comportement n'est pas défini. Voir G33.1
 
 The G84(((G84))) cycle is intended for right-hand tapping.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Start speed-feed synchronization.
+2. Start speed-feed synchronization.
 
-2. Move the Z-axis only at the current feed rate to the Z position.
+3. Move the Z-axis only at the current feed rate to the Z position.
 
-3. Stop the spindle.
+4. Stop the spindle.
 
-4. Start the spindle counterclockwise.
+5. Start the spindle counterclockwise.
 
-5. Retract the Z-axis at the current feed rate to clear Z.
+6. Retract the Z-axis at the current feed rate to clear Z.
 
-6. If speed-feed synch was not on before the cycle started, stop it.
+7. If speed-feed synch was not on before the cycle started, stop it.
 
-7. Stop the spindle.
+8. Stop the spindle.
 
-8. Start the spindle clockwise.
+9. Start the spindle clockwise.
 
 == Cycle G85 (((G85)))
 
 Le cycle G85 est destiné à l'alésage, mais peut être utilisé pour le
 perçage ou le fraisage.
 
-0. Un mouvement préliminaire, comme décrit précédemment.
+1. Un mouvement préliminaire, comme décrit précédemment.
 
-1. Un déplacement de l'axe Z seul en vitesse travail, vers la position
+2. Un déplacement de l'axe Z seul en vitesse travail, vers la position
 Z programmée.
 
-2. Retrait de l'axe Z en vitesse travail vers le plan de retrait.
+3. Retrait de l'axe Z en vitesse travail vers le plan de retrait.
 
 == Cycle G86 (((G86))) 
 
 Le cycle G86 est destiné à l'alésage. Ce cycle utilise la valeur P
 pour une temporisation en secondes.
 
-0. Un mouvement préliminaire, comme décrit précédemment.
+1. Un mouvement préliminaire, comme décrit précédemment.
 
-1. Un déplacement de l'axe Z seul en vitesse travail, vers la position
+2. Un déplacement de l'axe Z seul en vitesse travail, vers la position
 Z programmée.
 
-2. Une temporisation de P secondes.
+3. Une temporisation de P secondes.
 
-3. L'arrêt de rotation de la broche.
+4. L'arrêt de rotation de la broche.
 
-4. Retrait de l'axe Z en vitesse rapide vers le plan de retrait.
+5. Retrait de l'axe Z en vitesse rapide vers le plan de retrait.
 
-5. Reprise de la rotation de la broche dans la même direction que
+6. Reprise de la rotation de la broche dans la même direction que
 précédemment.
 
 == Cycle G87 (((G87))) 
@@ -392,36 +392,36 @@ of the top of counterbore. The K value is an absolute Z-value in
 absolute distance mode, and an increment (from the Z position) in
 incremental distance mode.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move at traverse rate parallel to the XY-plane to the point
+2. Move at traverse rate parallel to the XY-plane to the point
 indicated by I and J.
 
-2. Stop the spindle in a specific orientation.
+3. Stop the spindle in a specific orientation.
 
-3. Move the Z-axis only at traverse rate downward to the Z position.
+4. Move the Z-axis only at traverse rate downward to the Z position.
 
-4. Move at traverse rate parallel to the XY-plane to the X,Y location.
+5. Move at traverse rate parallel to the XY-plane to the X,Y location.
 
-5. Start the spindle in the direction it was going before.
+6. Start the spindle in the direction it was going before.
 
-6. Move the Z-axis only at the given feed rate upward to the position
+7. Move the Z-axis only at the given feed rate upward to the position
 indicated by K.
 
-7. Move the Z-axis only at the given feed rate back down to the Z
+8. Move the Z-axis only at the given feed rate back down to the Z
 position.
 
-8. Stop the spindle in the same orientation as before.
+9. Stop the spindle in the same orientation as before.
 
-9. Move at traverse rate parallel to the XY-plane to the point
+10. Move at traverse rate parallel to the XY-plane to the point
 indicated by I and J.
 
-10. Move the Z-axis only at traverse rate to the clear Z.
+11. Move the Z-axis only at traverse rate to the clear Z.
 
-11. Move at traverse rate parallel to the XY-plane to the specified
+12. Move at traverse rate parallel to the XY-plane to the specified
 X,Y location.
 
-12. Restart the spindle in the direction it was going before.
+13. Restart the spindle in the direction it was going before.
 
 image:G87pre.png[]
 
@@ -478,17 +478,17 @@ comportement n'est pas défini.
 The G88(((G88))) cycle is intended for boring. This cycle uses a P
 value, where P specifies the number of seconds to dwell.
 
-0. Preliminary motion, as described above.
+1. Preliminary motion, as described above.
 
-1. Move the Z-axis only at the current feed rate to the Z position.
+2. Move the Z-axis only at the current feed rate to the Z position.
 
-2. Dwell for the given number of seconds.
+3. Dwell for the given number of seconds.
 
-3. Stop the spindle turning.
+4. Stop the spindle turning.
 
-4. Stop the program so the operator can retract the spindle manually.
+5. Stop the program so the operator can retract the spindle manually.
 
-5. Restart the spindle in the direction it was going. It is unclear
+6. Restart the spindle in the direction it was going. It is unclear
 how the operator is to manually move the tool because a change to
 manual mode resets the program to the top. We will attempt to clarify
 that step in this procedure.
@@ -498,14 +498,14 @@ that step in this procedure.
 Le cycle G89(((G89))) est destiné à l'alésage. Il utilise la valeur de
 P pour une temporisation en secondes.
 
-0. Un mouvement préliminaire, comme décrit précédemment.
+1. Un mouvement préliminaire, comme décrit précédemment.
 
-1. Un déplacement de l'axe Z seul en vitesse travail, vers la position
+2. Un déplacement de l'axe Z seul en vitesse travail, vers la position
 Z programmée.
 
-2. Temporisation de P secondes.
+3. Temporisation de P secondes.
 
-3. Retrait de l'axe Z en vitesse travail vers le plan de retrait.
+4. Retrait de l'axe Z en vitesse travail vers le plan de retrait.
 
 == Options G98 et G99
 

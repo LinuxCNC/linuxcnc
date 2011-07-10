@@ -14,13 +14,13 @@ GladeVCP.
 
 == Creating your first GladeVCP UI component
 
-Either modify an existing UI component, or start a new one with
+Either modify an existing UI component, or start a new one by 
 running glade. In the left tab, expand the 'HAL Python' components.
 Create a window as top level window from the 'Toplevels' section, which
 by default will be named window1. Leave that name as is - gladevcp
 assumes the top level window has this name. Add a HAL_Box or a
 HAL_Table from 'HAL Python' to the frame, and pick and place some
-elements like LED, button etc in its box.
+elements like LED, button, etc., in its box.
 
 This will look like so:
 
@@ -43,12 +43,15 @@ side-by-side with the Preview and DRO tabs is more elegant. To do so,
 edit your .ini file and add two variables to the DISPLAY section of ini
 file:
 
-    
-    
+   EMBED_TAB_NAME = GladeVCP 
+
+   EMBED_TAB_COMMAND = 
+        gladevcp -c gladevcp-test -w {XID} -H gladevcp-test.hal
 
 Try it out by running Axis - there should be a new tab called
 'GladeVCP' near the DRO tab. Select that tab, you should see the
 example panel nicely fit within Axis like so:
+
 
 .GladeVCP in Axis
 
@@ -73,7 +76,10 @@ exist. You therefore need to prepare a file of all HAL commands which
 refer to / link with your UI's pins and pass it to the gladevcp command
 in the `EMBED_TAB_COMMAND` statement like so:
 
-    EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -H gladevcp-test.hal -w {XID} gladevcp-test.glade
+------------------------------------------------------------------------
+EMBED_TAB_COMMAND = gladevcp -c gladevcp-test -H gladevcp-test.hal \ 
+    -w {XID} gladevcp-test.glade
+------------------------------------------------------------------------
 
 There is an example `gladevcp-test.hal` file in the
 `emc2-dev/lib/python/gladevcp` directory. Before using it in the
@@ -280,13 +286,14 @@ this is handled in Python.
 Here is an example how to set a hal-pin-changed signal for a HAL_LED
 in the glade UI editor:
 
+
 .Hal Pin Change
 
 image::images/hal-pin-change.png[]
 
 === Buttons [[gladevcp:HAL_Button]] [[gladevcp:HAL_RadioButton]] [[gladevcp:HAL_CheckButton]]
 
-This group of widget is derived from various Gtk buttons and consists
+This group of widgets are derived from various Gtk buttons and consists
 of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
 widgets. All of them have a single output BIT pin named identical to
 the widget. Buttons have no additional properties compared to their
@@ -301,7 +308,9 @@ base Gtk classes.
  - Important common methods: set_active(), get_active()
  - Important properties: label, image
 
+
 .Buttons
+
 image:images/checkbutton.png[]
 image:images/radiobutton.png[]
 
@@ -324,14 +333,14 @@ HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
 respectively. They have one output FLOAT pin with name equal to widget
 name. Scales have no additional properties.
 
+
 .Scale
 
 image::images/hscale.png[]
 
 Hint: To make a scale useful in glade, add an 'Adjustment'
 (General->Adjustment->New or existing adjustment) and edit the
-adjustment object. It defines the default/min/max/increment
-
+adjustment object. It defines the default/min/max/increment 
 values. Also, set adjustment 'Page size' and 'Page increment' to zero
 to avoid warnings.
 
@@ -341,6 +350,7 @@ HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
  - `{widgetname}-f`: out FLOAT pin
  - `{widgetname}-s`: out S32 pin
+
 
 .SpinButton
 
@@ -522,6 +532,7 @@ z0_border, z1_border::
 
 Examples:
 
+
 .Bars
 
 image:images/hal_hbar.png[]
@@ -529,8 +540,8 @@ image:images/vscale.png[]
 
 === Meter [[gladevcp:HAL_Meter]]
 
-HAL Meter is widget like PyVCP meter representing float value. It have
-one input FLOAT hal pin. Widget has following properties:
+HAL Meter is a widget like PyVCP meter representing a float value. It has 
+one input FLOAT hal pin. HAL Meter has the following properties:
 
 min, max::
    Minimum and maximum value of desired range. It is not an
@@ -561,6 +572,7 @@ z0_border, z1_border::
 
 Examples:
 
+
 .Hal Meter
 
 image::images/hal_meter.png[]
@@ -572,8 +584,8 @@ It assumes a running EMC environment like Axis or Touchy. To connect to
 it, inspects the INI_FILE_NAME environment variable. Gremlin displays
 the current .ngc file - it does monitor for changes and reloads the ngc
 file if the file name in Axis/Touchy changes. If you run it in a
-gladevcp application when EMC is not running you might get a traceback
-because the Gremlin widget cant find EMC status, like the current file
+gladevcp application when EMC is not running, you might get a traceback
+because the Gremlin widget can't find EMC status, like the current file
 name.
 
 Gremlin does not export any HAL pins. It has the following properties:
@@ -582,10 +594,11 @@ view ::
    may be any of `x`, `y`, `z`, `p` (perspective) . Defaults to
    `z` view.
 enable_dro ::
-   boolean; wether to draw a DRO on the plot or not.
+   boolean; whether to draw a DRO on the plot or not.
    Defaults to `True`.
 
 Example:
+
 
 .Gremlin
 
@@ -612,6 +625,7 @@ widget in a nutshell:
    Python programming.
 
 The appearance of EMC Actions in glade is roughly as follows:
+
 
 .Actions
 
@@ -667,6 +681,7 @@ hal_action_mdi1 Action and it's MDI command property - this just
 executes (MSG, "Hi, I'm an EMC_Action_MDI") so there should be a
 message popup in Axis like so:
 
+
 .Who Are You
 
 image::images/whoareyou.png[]
@@ -695,6 +710,7 @@ is how it works:
 
 Here's the example UI file for gladevcp: , and here's what you get:
 
+
 .Speed
 
 image::images/speed.png[]
@@ -707,6 +723,7 @@ upload:owordsub.ui and O-word sub:
 
 Place oword.ngc so Axis can find it, and run gladevcp owordsub.ui from
 a terminal window. This looks like so:
+
 
 .O Word
 

@@ -1,0 +1,9 @@
+(info: simp -- simple subroutine example -- Ctrl-U to edit)
+o<simp> sub
+  #<ra>       = #1 (=.6 Radius A) ;Example parm with    comment
+  #<radius_b> = #2 (=0.4)         ;Example parm with no comment
+  #<feedrate> = #3 (=100)
+  g0x0y0z1
+  g3 i#<ra> f#<feedrate>
+  g3 i[0-#<radius_b>]
+o<simp> endsub

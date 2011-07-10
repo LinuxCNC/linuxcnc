@@ -62,7 +62,7 @@ CNC::
      (((CNC)))[[CNC]] Computer Numerical Control. The general term used to
     refer to computer control of machinery. Instead of a human operator
     turning cranks to move a cutting tool, CNC uses a computer and motors
-    to move the tool, based on a part program .
+    to move the tool, based on a part program.
 
 Comp::
      (((comp)))[[comp]] A tool used to build, compile and install EMC2 HAL
@@ -288,7 +288,8 @@ Servo Loop::
 
 Signed Integer::
      (((Signed Integer))) A whole number that can have a positive or
-    negitive sign. (-12) In HAL it is known as s32.
+    negative sign. In HAL it is known as s32. (A signed 32-bit 
+    integer has a usable range of -2,147,483,647 to +2,147,483,647.)
 
 Spindle::
      (((spindle)))[[Spindle]] On a mill or drill, the spindle holds the
@@ -329,8 +330,9 @@ Units::
     (((units))) See "Machine Units", "Display Units", or "Program Units".
 
 Unsigned Integer::
-     (((Unsigned Integer))) A whole number that has no sign. (123) In HAL
-    it is known as u32.
+     (((Unsigned Integer))) A whole number that has no sign. In HAL 
+    it is known as u32. (An unsigned 32-bit integer has a usable range of 
+    zero to 4,294,967,296.)
 
 World Coordinates::
      (((world coordinates)))[[World_Coordinates]] This is the absolute

@@ -78,7 +78,7 @@ Open the file with File, Open then edit
 
  . Right click on the desktop and select Create Launcher
  . Type a name in like sudo edit
- .  Type `gksudo "gnome-open %u"` as the command and save the launcher to
+ . Type `gksudo "gnome-open %u"` as the command and save the launcher to
    your desktop
  . Drag a file onto your launcher to open and edit
 
@@ -181,6 +181,13 @@ To clear the message buffer type this:
 
 This can be useful to do just before you launch EMC to only show the
 infomation related to the start up of EMC.
+
+To find the built in parallal port address use grep to filter the information
+out of dmesg. 
+
+After boot up open a terminal and type:
+
+  dmesg|grep parport
 
 == Convenience Items
 

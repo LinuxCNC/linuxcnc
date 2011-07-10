@@ -46,9 +46,13 @@ External Button Jogging:
     The jog signal names must be designated on the mesa page.
     eg 'Jog X+','Jog X-' for separate buttons or
     'Jog Button Selected +' for selectable axis buttons.
+    These signals are under the heading 'Axis Rapid' of
+    GPIO input on the Mesa page.
     for selectable axis buttons signal names for the 
     select axis must be designated as well.
     eg 'Joint Select A'
+    These signals are under the heading 'Axis Selction' of
+    GPIO input on the Mesa page.
 
     External button jogging uses HALUI. See the manual for 
     more info.
@@ -88,8 +92,9 @@ External MPG Jogging:
     jog rate momentarily. This setting makes the mux not change
     the jog rate when all inputs are false. This also means the
     default jog rate is unusable. debounce is a better solution.  
-    The jog inc signals will need to be designated on the mesa
-    page.
+    The 'jog incr X' signals will need to be designated on the Mesa
+    page. These signals are under the heading 'Overrides' of
+    GPIO input on the Mesa page.
 
 External Spindle Override:
     allows spindle speed override to be set by MPG or switches.
@@ -119,7 +124,7 @@ External Spindle Override:
     binary coding.
     -ignore all inputs false: In the transition from one switch
     position to the next there can be no input connection for 
-    a brief period. This will falsely set the rate to the default
+    a brief period. This will wrongly set the rate to the default
     override rate momentarily. This setting makes the mux not change
     the rate when all inputs are false. This also means the
     default rate is unusable. debounce is a better solution.  

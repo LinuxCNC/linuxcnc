@@ -1,0 +1,64 @@
+(Adapted from Program to mill a flowsnake.ngc by K. Lerman)
+(info: gosper -- recursion demo -- line is x1,y1 to x2,y2)
+o<gosper> sub
+
+#<rpm>      =  #1 (=2000)
+#<zcut>     =  #2 (=.010 depth of cut)
+#<feedrate> =  #3 (=10)
+#<zsafe>    =  #4 (=0.5  safety height)
+#<x1>       =  #5 (=-0.866 line x1)
+#<y1>       =  #6 (=-0.5   line y1)
+#<x2>       =  #7 (= 0.866 line x2)
+#<y2>       =  #8 (=-0.5   line y2)
+#<level>    =  #9 (=3 recursion lvl)
+#<scale>    = #10 (=1)
+#<rotate>   = #11 (=0)
+#<xoff>     = #12 (=-3)
+#<yoff>     = #13 (=-3)
+
+o<i0> if [#<scale> EQ 0]
+        #<scale> = 1.0
+        (debug, scale was 0, setting #<scale>)
+o<i0> endif
+
+o<t1>   if [#<level> LT 0]
+           #<level> = 0
+           (debug, level set to #<level>)
+o<t1>   endif
+o<t2>   if [#<level> GT 4]
+           #<level> = 4
+           (debug, level reduced to #<level>)
+o<t2>   endif
+
+o<move> call [#<x1>][#<y1>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x1>      = #<_move:x>
+#<y1>      = #<_move:y>
+#<len1>    = #<_move:len>
+#<phi1>    = #<_move:phi>
+o<move> call [#<x2>][#<y2>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x2>      = #<_move:x>
+#<y2>      = #<_move:y>
+#<len2>    = #<_move:len>
+#<phi2>    = #<_move:phi>
+#<fr> = #<feedrate>
+
+        s#<rpm> M3 (spindle on)
+o<spin> call [#<rpm>]
+
+        g0 z #<zsafe>
+        g0 x #<x1>  y  #<y1>
+        f #<feedrate>
+        g1 z [0 - #<zcut>]
+        #<dely>  = [#<y2> - #<y1>]
+        #<delx>  = [#<x2> - #<x1>]
+        #<len>   = [SQRT[#<delx>*#<delx> + #<dely>*#<dely>]]
+        #<theta> = ATAN [#<dely>]/[#<delx>]  (degrees)
+        (compute p3 for equilateral triangle)
+        #<p3x>   = [#<x1> + #<len> * COS[#<theta> + 60]]
+        #<p3y>   = [#<y1> + #<len> * SIN[#<theta> + 60]]
+        (threee sides of equilateral triangle)
+        o<gosper_sub> call [#<level>][#<x1>] [#<y1>] [#<x2>] [#<y2>] [#<fr>]
+        o<gosper_sub> call [#<level>][#<x2>] [#<y2>] [#<p3x>][#<p3y>][#<fr>]
+        o<gosper_sub> call [#<level>][#<p3x>][#<p3y>][#<x1>] [#<y1>] [#<fr>]
+        g0 z #<zsafe>
+o<gosper> endsub

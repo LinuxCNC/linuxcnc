@@ -2,7 +2,7 @@
 
 == Introduction
 
-.[[fig:startmini]]The Mini Graphical Interface
+.[[fig:keystick]]The Mini Graphical Interface
 image::images/keystick.png[]
 
 Keystick is a minimal text based interface.

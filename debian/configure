@@ -83,28 +83,32 @@ else
 fi
 
 case $DISTRIB_NAME in
+Ubuntu-11.04) # natty
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
 Ubuntu-10.04)
-	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-font-utils
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-9.10)
-	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-8.04)
-	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
 	TCLTK_VERSION=8.4
 	;;
 Debian-testing|Debian-6.0)
-	EXTRA_BUILD=lyx
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.5
 	;;
 Debian-5.0*)
-	EXTRA_BUILD=lyx
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;
 *)
-	EXTRA_BUILD=lyx-qt
+	EXTRA_BUILD=dvipng
 	TCLTK_VERSION=8.4
 	;;
 esac

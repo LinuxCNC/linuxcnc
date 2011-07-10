@@ -2,7 +2,7 @@
 
 == Introduction  footnote:[Much of this chapter quotes from a chapater of the Sherline CNC operators manual. ]
 
-.[[fig:startmini]]L'interface graphique Mini
+.[[fig:startminif]]L'interface graphique Mini
 image::mini01_fr.png[]
 
 Mini(((mini))) a été prévu pour être une interface graphique plein
@@ -21,12 +21,12 @@ instructions écrites par Joe Martin et Ray Henry.
 image::../common/mini_fr.jpg[]
 
  L'écran de Mini est visible dans plusieurs sections, voir la figure
-<<fig:startmini>>. Il inclu une barre de menu, un jeu de boutons de
+<<fig:startminif>>. Il inclu une barre de menu, un jeu de boutons de
 contrôle juste en dessous et deux larges colonnes d'information
 montrant l'état de la machine et permettant à l'opérateur d'entrer des
 commandes ou des programmes.
 
-Quand on compare entre la figure <<fig:startmini>> et la figure 
+Quand on compare entre la figure <<fig:startminif>> et la figure 
 <<fig:runmini>> des différences apparaissent. Dans la seconde figure:
 
  -  Chaque axe a été référencé sur son origine -- L'affichage est vert
@@ -209,7 +209,7 @@ axes au point courant.
 
 
  Ce concentrer sur les axes est important ici. Noter que sur la capture
- <<fig:startmini>> qui est en mode manuel, on voit un cadre autour de
+ <<fig:startminif>> qui est en mode manuel, on voit un cadre autour de
 l'axe X pour mettre son affichage en évidence. Ce cadre (le focus)
 indique que l'axe X est l'axe actif. Il est l'axe cible pour les
 mouvements de jog faits par appui sur les boutons 'plus' ou 'moins' .

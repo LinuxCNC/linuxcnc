@@ -341,6 +341,9 @@ class Data:
         self.spindlespeed2 = 800
         self.spindlepwm1 = .2
         self.spindlepwm2 = .8
+        self.spindlefiltergain = .01
+        self.spindlenearscale = 1.5
+        self.usespindleatspeed = False
 
         self.digitsin = 15
         self.digitsout = 15
@@ -820,6 +823,8 @@ class Data:
             if encoder:
                print >>file, "loadrt scale count=1"
                print >>file, "loadrt lowpass count=1"
+               if self.usespindleatspeed:
+                   print >>file, "loadrt near"
         if pump:
             print >>file, "loadrt charge_pump"
             print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
@@ -871,6 +876,8 @@ class Data:
             if encoder:
                print >>file, "addf scale.0 servo-thread"
                print >>file, "addf lowpass.0 servo-thread"
+               if self.usespindleatspeed:
+                   print >>file, "addf near.0 servo-thread"
         if pwm:
             x1 = self.spindlepwm1
             x2 = self.spindlepwm2
@@ -1036,22 +1043,39 @@ class Data:
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
-                      print >>f1, ("setp scale.0.gain .01667")
-                      print >>f1, ("setp lowpass.0.gain 0.01")
+                      print >>f1, ("setp scale.0.gain 60")
+                      print >>f1, ("setp lowpass.0.gain %f")% self.spindlefiltergain
                       print >>f1, ("net spindle-velocity => lowpass.0.in")
-                      print >>f1, ("net spindle-rps-filtered <= lowpass.0.out")
-                      print >>f1, ("net spindle-rps-filtered => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
-                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
+                      print >>f1, ("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
+                      print >>f1, ("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed")
+                      print >>f1
+                      print >>f1, _("# **** set up spindle at speed indicator ****")
+                      if self.usespindleatspeed:
+                          print >>f1
+                          print >>f1, ("net spindle-cmd            =>  near.0.in1")
+                          print >>f1, ("net spindle-velocity       =>  near.0.in2")
+                          print >>f1, ("net spindle-at-speed       <=  near.0.out")
+                          print >>f1, ("setp near.0.scale %f")% self.spindlenearscale
+                      else:
+                          print >>f1, ("# **** force spindle at speed indicator true because we chose no feedback ****")
+                          print >>f1
+                          print >>f1, ("sets spindle-at-speed true")
+                      print >>f1, ("net spindle-at-speed       => pyvcp.spindle-at-speed-led")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
+                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
+                      print >>f1
+                      print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
+                      print >>f1
+                      print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
+                      print >>f1, ("sets spindle-at-speed true")
 
         if self.customhal or self.classicladder or self.halui:
             custom = os.path.join(base, "custom.hal")
@@ -1362,6 +1386,88 @@ class App:
         else:
             self.data.number_pports = 1
 
+
+    def on_advanced_prepare(self, *args):       
+        self.widgets.pyvcp.set_active(self.data.pyvcp)
+        self.on_pyvcp_toggled()
+        if  not self.widgets.createconfig.get_active():
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+                self.widgets.radiobutton8.set_active(True)
+        self.widgets.classicladder.set_active(self.data.classicladder)
+        self.widgets.modbus.set_active(self.data.modbus)
+        self.widgets.digitsin.set_value(self.data.digitsin)
+        self.widgets.digitsout.set_value(self.data.digitsout)
+        self.widgets.s32in.set_value(self.data.s32in)
+        self.widgets.s32out.set_value(self.data.s32out)
+        self.widgets.floatsin.set_value(self.data.floatsin)
+        self.widgets.floatsout.set_value(self.data.floatsout)
+        self.widgets.halui.set_active(self.data.halui)
+        self.widgets.ladderconnect.set_active(self.data.ladderconnect)
+        self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
+        self.on_classicladder_toggled()
+        if  not self.widgets.createconfig.get_active():
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                self.widgets.radiobutton4.set_active(True)
+
+    def on_advanced_next(self, *args):
+        self.data.pyvcp = self.widgets.pyvcp.get_active()
+        self.data.classicladder = self.widgets.classicladder.get_active()
+        self.data.modbus = self.widgets.modbus.get_active()
+        self.data.digitsin = self.widgets.digitsin.get_value()
+        self.data.digitsout = self.widgets.digitsout.get_value()
+        self.data.s32in = self.widgets.s32in.get_value()
+        self.data.s32out = self.widgets.s32out.get_value()
+        self.data.floatsin = self.widgets.floatsin.get_value()
+        self.data.floatsout = self.widgets.floatsout.get_value()
+        self.data.halui = self.widgets.halui.get_active()    
+        self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active()  
+        self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
+        if self.data.classicladder:
+           if self.widgets.radiobutton1.get_active() == True:
+              if self.data.tempexists:
+                   self.data.laddername='TEMP.clp'
+              else:
+                   self.data.laddername= 'blank.clp'
+                   self.data.ladderhaltype = 0
+           if self.widgets.radiobutton2.get_active() == True:
+              self.data.laddername = 'estop.clp'
+              inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
+              if ESTOP_IN not in inputs:
+                 self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
+                 self.widgets.druid1.set_page(self.widgets.advanced)
+                 return True
+              self.data.ladderhaltype = 1
+           if self.widgets.radiobutton3.get_active() == True:
+                 self.data.laddername = 'serialmodbus.clp'
+                 self.data.modbus = 1
+                 self.widgets.modbus.set_active(self.data.modbus) 
+                 self.data.ladderhaltype = 0          
+           if self.widgets.radiobutton4.get_active() == True:
+              self.data.laddername='custom.clp'
+           else:
+               if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
+                     self.widgets.druid1.set_page(self.widgets.advanced)
+                     return True 
+           if self.widgets.radiobutton1.get_active() == False:
+              if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
+                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
+                   self.widgets.druid1.set_page(self.widgets.advanced)
+                   return True       
+        if self.data.pyvcp == True:
+           if self.widgets.radiobutton5.get_active() == True:
+              self.data.pyvcpname = "blank.xml"
+              self.pyvcphaltype = 0
+           if self.widgets.radiobutton6.get_active() == True:
+              self.data.pyvcpname = "spindle.xml"
+              self.data.pyvcphaltype = 1
+           if self.widgets.radiobutton8.get_active() == True:
+              self.data.pyvcpname = "custompanel.xml"
+           else:
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
+                   return True
+
     def on_machinename_changed(self, *args):
         temp = self.widgets.machinename.get_text()
         self.widgets.confdir.set_text("~/emc2/configs/%s" % temp.replace(" ","_"))
@@ -1638,12 +1744,28 @@ class App:
         self.widgets['spindlepwm1'].set_text("%s" % self.data.spindlepwm1)
         self.widgets['spindlepwm2'].set_text("%s" % self.data.spindlepwm2)
         self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
+        self.widgets['spindlenearscale'].set_value(self.data.spindlenearscale * 100)
+        self.widgets['spindlefiltergain'].set_value(self.data.spindlefiltergain)
+        self.widgets['usespindleatspeed'].set_active(self.data.usespindleatspeed)
 
         data = self.data
         if PHA in (data.pin10, data.pin11, data.pin12, data.pin13, data.pin15):
             self.widgets.spindlecpr.set_sensitive(1)
+            self.widgets.spindlefiltergain.show()
+            self.widgets.spindlefiltergainlabel.show()
+            self.widgets.spindlenearscale.show()
+            self.widgets.usespindleatspeed.show()
+            self.widgets.spindlenearscaleunitlabel.show()
         else:
             self.widgets.spindlecpr.set_sensitive(0)
+            self.widgets.spindlefiltergain.hide()
+            self.widgets.spindlefiltergainlabel.hide()
+            self.widgets.spindlenearscale.hide()
+            self.widgets.usespindleatspeed.hide()
+            self.widgets.spindlenearscaleunitlabel.hide()
+
+    def on_usespindleatspeed_toggled(self,*args):
+        self.widgets.spindlenearscale.set_sensitive(self.widgets.usespindleatspeed.get_active())
 
     def on_spindle_next(self, *args):
         self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
@@ -1652,101 +1774,14 @@ class App:
         self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
         self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
         self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
+        self.data.spindlenearscale = self.widgets.spindlenearscale.get_value()/100
+        self.data.spindlefiltergain = self.widgets.spindlefiltergain.get_value()
+        self.data.usespindleatspeed = self.widgets['usespindleatspeed'].get_active()
         
 
     def on_spindle_back(self, *args):
         self.on_spindle_next()
         if self.data.axes != 1:
-            self.widgets.druid1.set_page(self.widgets.zaxis)
-        else:
-            self.widgets.druid1.set_page(self.widgets.aaxis)
-        return True
-
-    def on_advanced_prepare(self, *args):       
-        self.widgets.pyvcp.set_active(self.data.pyvcp)
-        self.on_pyvcp_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                self.widgets.radiobutton8.set_active(True)
-        self.widgets.classicladder.set_active(self.data.classicladder)
-        self.widgets.modbus.set_active(self.data.modbus)
-        self.widgets.digitsin.set_value(self.data.digitsin)
-        self.widgets.digitsout.set_value(self.data.digitsout)
-        self.widgets.s32in.set_value(self.data.s32in)
-        self.widgets.s32out.set_value(self.data.s32out)
-        self.widgets.floatsin.set_value(self.data.floatsin)
-        self.widgets.floatsout.set_value(self.data.floatsout)
-        self.widgets.halui.set_active(self.data.halui)
-        self.widgets.ladderconnect.set_active(self.data.ladderconnect)
-        self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
-        self.on_classicladder_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                self.widgets.radiobutton4.set_active(True)
-
-    def on_advanced_next(self, *args):
-        self.data.pyvcp = self.widgets.pyvcp.get_active()
-        self.data.classicladder = self.widgets.classicladder.get_active()
-        self.data.modbus = self.widgets.modbus.get_active()
-        self.data.digitsin = self.widgets.digitsin.get_value()
-        self.data.digitsout = self.widgets.digitsout.get_value()
-        self.data.s32in = self.widgets.s32in.get_value()
-        self.data.s32out = self.widgets.s32out.get_value()
-        self.data.floatsin = self.widgets.floatsin.get_value()
-        self.data.floatsout = self.widgets.floatsout.get_value()
-        self.data.halui = self.widgets.halui.get_active()    
-        self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active()  
-        self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
-        if self.data.classicladder:
-           if self.widgets.radiobutton1.get_active() == True:
-              if self.data.tempexists:
-                   self.data.laddername='TEMP.clp'
-              else:
-                   self.data.laddername= 'blank.clp'
-                   self.data.ladderhaltype = 0
-           if self.widgets.radiobutton2.get_active() == True:
-              self.data.laddername = 'estop.clp'
-              inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
-              if ESTOP_IN not in inputs:
-                 self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
-                 self.widgets.druid1.set_page(self.widgets.advanced)
-                 return True
-              self.data.ladderhaltype = 1
-           if self.widgets.radiobutton3.get_active() == True:
-                 self.data.laddername = 'serialmodbus.clp'
-                 self.data.modbus = 1
-                 self.widgets.modbus.set_active(self.data.modbus) 
-                 self.data.ladderhaltype = 0          
-           if self.widgets.radiobutton4.get_active() == True:
-              self.data.laddername='custom.clp'
-           else:
-               if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
-                     self.widgets.druid1.set_page(self.widgets.advanced)
-                     return True 
-           if self.widgets.radiobutton1.get_active() == False:
-              if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
-                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
-                   self.widgets.druid1.set_page(self.widgets.advanced)
-                   return True       
-        if self.data.pyvcp == True:
-           if self.widgets.radiobutton5.get_active() == True:
-              self.data.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
-           if self.widgets.radiobutton6.get_active() == True:
-              self.data.pyvcpname = "spindle.xml"
-              self.data.pyvcphaltype = 1
-           if self.widgets.radiobutton8.get_active() == True:
-              self.data.pyvcpname = "custompanel.xml"
-           else:
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
-                   return True
-
-    def on_advanced_back(self, *args):
-        if self.has_spindle_speed_control():
-            self.widgets.druid1.set_page(self.widgets.spindle)
-        elif self.data.axes != 1:
             self.widgets.druid1.set_page(self.widgets.zaxis)
         else:
             self.widgets.druid1.set_page(self.widgets.aaxis)
@@ -1814,7 +1849,7 @@ class App:
             if self.has_spindle_speed_control():
                 self.widgets.druid1.set_page(self.widgets.spindle)
             else:
-                self.widgets.druid1.set_page(self.widgets.advanced)
+                self.widgets.druid1.set_page(self.widgets.complete)
             return True
 
     def on_aaxis_next(self, *args):
@@ -1822,7 +1857,7 @@ class App:
         if self.has_spindle_speed_control():
             self.widgets.druid1.set_page(self.widgets.spindle)
         else:
-            self.widgets.druid1.set_page(self.widgets.advanced)
+            self.widgets.druid1.set_page(self.widgets.complete)
         return True
 
     def has_spindle_speed_control(self):
@@ -1928,6 +1963,15 @@ class App:
            else:
                   print "Master PYVCP files missing from configurable_options dir"
         gtk.main_quit()
+
+    def on_complete_back(self, *args):
+        if self.has_spindle_speed_control():
+            self.widgets.druid1.set_page(self.widgets.spindle)
+        elif self.data.axes != 1:
+            self.widgets.druid1.set_page(self.widgets.zaxis)
+        else:
+            self.widgets.druid1.set_page(self.widgets.aaxis)
+        return True
 
     def on_calculate_ideal_period(self, *args):
         steptime = self.widgets.steptime.get_value()

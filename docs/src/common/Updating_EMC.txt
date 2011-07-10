@@ -1,6 +1,44 @@
 Upgrading EMC2
 ==============
 
+== Upgrading from 2.4.x to 2.5.x
+
+Put
+
+some
+
+text
+
+here
+
+
+== Changes between 2.4.x and 2.5.x
+
+Put
+
+some
+
+text
+
+here
+
+
+=== Details on thing 1 changes (2.4.x to 2.5.x)
+
+Put some 
+
+text here
+
+
+=== Details on thing 2 changes (2.4.x to 2.5.x)
+
+Put some 
+
+text here
+
+
+== Upgrading from 2.3.x to 2.4.x
+
 The following instructions only apply to Ubuntu 8.04 "Hardy 
 Heron". EMC 2.4 is not available for older releases of Ubuntu.
 
@@ -30,9 +68,12 @@ For each of them:
 
  - Click "Mark All Upgrades"
    
-   If you use a mesa card, find the proper hostmot2-firmware package 
-   for your card and mark it for installation. Hint: do a search for 
-   "hostmot2-firmware in the synaptic package manager.
+.Mesa card and hostmot2 users:
+**********
+If you use a mesa card, find the proper hostmot2-firmware package 
+for your card and mark it for installation. Hint: do a search for 
+"hostmot2-firmware in the synaptic package manager.
+**********
 
  - Click "Apply" 
 
@@ -41,26 +82,29 @@ For each of them:
 Once you have done the upgrade, update any custom configurations 
 by following these instructions:
 
-=== emc.nml changes 
+=== emc.nml changes (2.3.x to 2.4.x)
 
-For configurations that have not customized emc.nml, remove the 
+For configurations that have not customized emc.nml, remove or 
+comment out the 
 inifile line NML_FILE = emc.nml. This will cause the most up to 
 date version of emc.nml to be used.
 
 For configurations that have customized emc.nml, a change similar 
 to this one is required.
 
-Failure to do this can cause an error like 
-`libnml/buffer/physmem.cc 143: PHYSMEM_HANDLE: Can't write 10748 
-bytes at offset 60 from buffer of size 10208.`
+Failure to do this can cause an error like this one: 
+---------------------------------- 
+libnml/buffer/physmem.cc 143: PHYSMEM_HANDLE: 
+Can't write 10748 bytes at offset 60 from buffer of size 10208.
+----------------------------------
 
-=== tool table changes 
+=== tool table changes (2.3.x to 2.4.x) 
 
 The format of the tool table has been changed incompatibly. The 
 documentation shows the new format. The tool table will 
 automatically be converted to the new format.
 
-=== hostmot2 firmware images 
+=== hostmot2 firmware images (2.3.x to 2.4.x)
 
 The hostmot2 firmware images are now a separate package. You can:
 

@@ -1812,7 +1812,7 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
 	  else
 	    if (emcStatus->motion.axis[i].maxHardLimit)
 	      strcpy(buf, " MAXHARD");
-	    else strcpy(buf, "OK");
+	    else strcpy(buf, " OK");
       strcat(context->outBuf, buf);
       }
     }
@@ -1838,7 +1838,7 @@ static cmdResponseType getJointLimit(char *s, connectionRecType *context)
 
 static cmdResponseType getJointFault(char *s, connectionRecType *context)
 {
-  const char *pJointFault = "JOINT_LIMIT";
+  const char *pJointFault = "JOINT_FAULT";
   char buf[16];
   int axis, i;
   
@@ -1862,7 +1862,7 @@ static cmdResponseType getJointFault(char *s, connectionRecType *context)
 
 static cmdResponseType getOverrideLimits(char *s, connectionRecType *context)
 {
-  const char *pOverrideLimits = "OVERRIDE_LIMITS %s";
+  const char *pOverrideLimits = "OVERRIDE_LIMITS %d";
   
   sprintf(context->outBuf, pOverrideLimits, emcStatus->motion.axis[0].overrideLimits);
   return rtNoError;
@@ -1968,7 +1968,7 @@ static cmdResponseType getJointType(char *s, connectionRecType *context)
       switch (emcStatus->motion.axis[i].axisType) {
         case EMC_AXIS_LINEAR: strcat(context->outBuf, " LINEAR"); break;
 	case EMC_AXIS_ANGULAR: strcat(context->outBuf, " ANGULAR"); break;
-	default: strcat(context->outBuf, "CUSTOM");
+	default: strcat(context->outBuf, " CUSTOM");
 	}
       }
     }
@@ -2636,8 +2636,8 @@ void *readClient(void *arg)
   int len;
   connectionRecType *context;
   
+  signal(SIGPIPE, SIG_IGN);
   
-//  res = 1;
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
@@ -2656,7 +2656,7 @@ void *readClient(void *arg)
     if (len <= 0) goto finished;
     str[len] = 0;
     strcat(buf, str);
-    if (!memchr(str, 0x0d, strlen(str))) continue;
+    if ((!memchr(str, '\r', strlen(str))) && (!memchr(str, '\n', strlen(str)))) continue;
     if (context->echo && context->linked)
       if(write(context->cliSock, buf, strlen(buf)) != (ssize_t)strlen(buf)) {
         fprintf(stderr, "emcrsh: write() failed: %s", strerror(errno));

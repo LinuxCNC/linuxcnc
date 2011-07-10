@@ -1,5 +1,4 @@
-Running EMC
-===========
+= Running EMC
 
 == Invoking EMC
 

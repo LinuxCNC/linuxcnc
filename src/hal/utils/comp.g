@@ -31,6 +31,7 @@ parser Hal:
     token PINDIRECTION: "in|out|io"
     token TYPE: "float|bit|signed|unsigned|u32|s32"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
+    token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
     token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
@@ -46,7 +47,7 @@ parser Hal:
         "pin" PINDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";"  {{ pin(HALNAME, TYPE, OptArray, PINDIRECTION, OptString, OptSAssign, OptPersonality) }}
       | "param" PARAMDIRECTION TYPE HALNAME OptArray OptSAssign OptPersonality OptString ";" {{ param(HALNAME, TYPE, OptArray, PARAMDIRECTION, OptString, OptSAssign, OptPersonality) }}
       | "function" NAME OptFP OptString ";"       {{ function(NAME, OptFP, OptString) }}
-      | "variable" NAME {{ NAME1=NAME; }} NAME OptSimpleArray OptAssign ";" {{ variable(NAME1, NAME, OptSimpleArray, OptAssign) }}
+      | "variable" NAME STARREDNAME OptSimpleArray OptAssign ";" {{ variable(NAME, STARREDNAME, OptSimpleArray, OptAssign) }}
       | "option" NAME OptValue ";"   {{ option(NAME, OptValue) }}
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
@@ -587,6 +588,7 @@ static int comp_id;
                 print >>f, "#define %s (inst->%s)" % (to_c(name), to_c(name))
 
         for type, name, array, value in variables:
+            name = name.replace("*", "")
             print >>f, "#undef %s" % name
             print >>f, "#define %s (inst->%s)" % (name, name)
 
@@ -790,7 +792,7 @@ def document(filename, outfilename):
             print >>f, ".TP"
             print >>f, "\\fB%s\\fR" % to_hal_man(name),
             if fp:
-                print >>f, "(uses floating-point)"
+                print >>f, "(requires a floating-point thread)"
             else:
                 print >>f
             print >>f, doc

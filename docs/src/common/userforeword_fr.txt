@@ -21,19 +21,17 @@ premiers auteurs d'EMC ont suivi cette voie.
     qu'on trouve sans surprise de graves entorses à la plupart des règles
     Unix suivantes:
 
-     * Règle de modularité: Ecrire des éléments simples reliés par de
+    * Règle de modularité: Ecrire des éléments simples reliés par de
     bonnes interfaces.
 
     * Règle de clarté: La Clarté vaut mieux que l'ingéniosité.
 
-     * Règle de composition: Concevoir des programmes qui peuvent être
+    * Règle de composition: Concevoir des programmes qui peuvent être
     reliés à  d'autres programmes.
 
-     * Règle de séparation: Séparer les règles du fonctionnement; Séparer
-    les interfaces du mécanisme.footnote:[Trouvé sur
-    http://fr.wikipedia.org/wiki/Philosophie_d%27Unix le
-    09/09/2008
-    ]
+    * Règle de séparation: Séparer les règles du fonctionnement; Séparer
+    les interfaces du mécanisme. footnote:[Trouvé sur
+    http://fr.wikipedia.org/wiki/Philosophie_d Unix ,09/09/2008]
 
 M. Raymond offre d'autres règles mais ces quatre décrivent les
 caractéristiques essentielles du système de contrôle de mouvement EMC2.
@@ -79,9 +77,7 @@ possibilités d'EMC2 actuellement disponibles.
 
 Puisque vous commencez votre voyage dans l'utilisation d'EMC2 nous
 vous proposons ces deux citations:footnote:[Trouvé sur
-http://fr.wikipedia.org/wiki/Philosophie_d%27Unix le
-06/07/2008
-]
+http://fr.wikipedia.org/wiki/Philosophie_d%27Unix le 06/07/2008]
 
  -  "Unix n'a pas été conçu pour empêcher ses utilisateurs de commettre
    des actes stupides, car cela les empêcherait aussi de réaliser des

@@ -40,7 +40,7 @@ as the .ini file. This is improved from the grid probe file.
 
 === Tool Length Probe
 
-File Name: tool-lenght-probe.ngc
+File Name: tool-length-probe.ngc
 
 Description: Tool Length Probing
 

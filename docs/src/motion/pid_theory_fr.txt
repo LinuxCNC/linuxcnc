@@ -74,7 +74,7 @@ autre. Tous agissent sur la quantité régulée. Les actions aboutissent
 finalement à des «soustractions» de l'erreur de mesure, parce que le
 signal proportionnel est habituellement négatif.
 
-===== Action Proportionelle
+==== Action Proportionelle
 
 Pour cette action, l'erreur est multipliée par la constante P (pour
 Proportionnel) qui est négative, puis ajoutée (soustraction de l'erreur
@@ -84,7 +84,7 @@ l'erreur du système. Noter que si l'erreur de mesure est égale à zéro,
 la partie proportionnelle de la sortie du régulateur est également à
 zéro.
 
-===== Action Intégrale
+==== Action Intégrale
 
 L'action intégrale fait intervenir la notion de temps. Elle tire
 profit du signal d'erreur passé qui est intégré (additionné) pendant un
@@ -102,7 +102,7 @@ réduire l'écart moyen entre la mesure en sortie et la consigne. Donc
 finalement, une boucle PI bien réglée verra sa sortie redescendre
 lentement à la valeur de la consigne.
 
-===== Action Dérivée
+==== Action Dérivée
 
 L'action dérivée utilise aussi la notion de temps. Elle cherche à
 anticiper l'erreur future. La dérivée première (la pente de l'erreur)
@@ -149,7 +149,7 @@ soumettre le système à un changement de consigne, à mesurer la réponse
 en fonction du temps et à l'aide de cette réponse à déterminer les
 paramètres de la régulation.
 
-===== Méthode simple
+==== Méthode simple
 
 Si le système doit rester en production, une méthode de réglage
 consiste à mettre les valeurs I et D à  zéro. Augmenter ensuite le gain
@@ -171,7 +171,7 @@ Error
 
 Effets de l'augmentation des paramètres
 
-===== Méthode de Ziegler-Nichols
+==== Méthode de Ziegler-Nichols
 
 Une autre méthode de réglage est la méthode dite de "Ziegler-Nichols",
 introduite par John G. Ziegler et Nathaniel B. Nichols. Elle commence
