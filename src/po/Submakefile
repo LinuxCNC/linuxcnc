@@ -33,7 +33,9 @@ TCLSRCS := \
 	../tcl/tkemc.tcl \
 	../tcl/scripts/Set_Coordinates.tcl \
 	../tcl/scripts/balloon.tcl \
-	../tcl/scripts/emchelp.tcl
+	../tcl/scripts/emchelp.tcl \
+	../tcl/ngcgui.tcl \
+	../tcl/ngcgui_ttt.tcl
 
 po/emc2.pot:
 	$(XGETTEXT) -k_ -o $@ $^ && touch $@

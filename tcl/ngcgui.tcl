@@ -438,6 +438,24 @@ namespace eval ::ngcgui {
   namespace export ngcgui ;# public interface
 }
 
+#-----------------------------------------------------------------------
+# Internationalization
+
+# use the tcl-package named Emc to set up I18n support
+if [catch {package require Emc} msg] {
+  # if user is trying to use as standalone in an unconfigured (non-Emc)
+  # environment, just continue without internationalization
+  puts stderr "Internationalization not available: <$msg>"
+}
+# use a command or proc named "_" for ::msgcat::mc
+# when embedded in axis, a command named "_" is predefined,
+# since "_" is not defined for standalone usage, make a proc named "_"
+if {"" == [info command "_"]} {
+  package require msgcat
+  proc _ {s} {return [::msgcat::mc $s]}
+}
+
+#-----------------------------------------------------------------------
 proc ::ngcgui::parse {hdl ay_name filename args} {
   # return 1 for ok
   # return 0 for error and lappend to (parse,msg)
@@ -448,7 +466,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   set ay($hdl,info) "Current subfile: $filename"
 
   if {"$filename" == ""} {
-    lappend ay($hdl,parse,msg) "Need non-null file name"
+    lappend ay($hdl,parse,msg) "[_ "Need non-null file name"]"
     return 0
   }
   if [catch {set fd [open $filename r]} msg] {
@@ -524,13 +542,13 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       set iscomment 1
       # match to theline for caps to find spaceFEATUREspace on a comment line
       if [string match "*\[ \]FEATURE\[ \]*"  $theline] {
-        lappend emsg "Disallowed use of ngcgui generated file as Subfile"
+        lappend emsg "[_ "Disallowed use of ngcgui generated file as Subfile"]"
         set ay($hdl,parse,msg) $emsg
         catch {unset ay($hdl,argct)} ;# make parmcheck fail
         return 0
       }
       if [string match "(not_a_subfile)"  $theline] {
-        lappend emsg "File <$filename> marked (not_a_subfile)\nNot intended for use as a subfile"
+        lappend emsg "[_ "File"] <$filename> [_ "marked (not_a_subfile)\nNot intended for use as a subfile"]"
         catch {unset ay($hdl,argct)} ;# make parmcheck fail
         set ay($hdl,parse,msg) $emsg
         return 0
@@ -545,7 +563,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
     # find subroutine start:
     if [string match o<*>sub* $line] {
       if [info exists found_sub_end] {
-        lappend emsg "Multiple subroutines in file not allowed"
+        lappend emsg "[_ "Multiple subroutines in file not allowed"]"
         set ay($hdl,parse,msg) $emsg
         return 0
       }
@@ -554,9 +572,9 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       set i2    [string first > $theline]
       set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
       if {"$label" != "$ay($hdl,subroutine,name)"} {
-        puts stderr "bogus:$lno<$theline>"
+        puts stderr "[_ "bogus"]:$lno<$theline>"
         lappend emsg \
-          "sub label: o<$label> does not match subroutine file name"
+          "[_ "sub label"]: o<$label> [_ "does not match subroutine file name"]"
       }
       continue ;# the sub line itself is not saved
     }
@@ -572,12 +590,12 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         if {[string first m2 [string trim [string tolower $theline]]] == 0} {
           set ::ngc_sub($hdl,$lct) \
               "($::ngc(any,app): ignoring M2 after endsub: <$theline>)"
-          puts stderr "ignoring M2 after endsub <$theline>"
+          puts stderr "[_ "ignoring M2 after endsub"] <$theline>"
           incr lct
           continue
         } else {
-          puts stderr "bogus:$lno<$theline>"
-          lappend emsg "file contains lines after subend"
+          puts stderr "[_ "bogus"]:$lno<$theline>"
+          lappend emsg "[_ "file contains lines after subend"]"
         }
       }
     }
@@ -589,8 +607,8 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         incr lct
         continue
        } else {
-         puts stderr "bogus:$lno<$theline>"
-         lappend emsg "file contains lines before sub"
+         puts stderr "[_ "bogus"]:$lno<$theline>"
+         lappend emsg "[_ "file contains lines before sub"]"
        }
     }
 
@@ -631,9 +649,9 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       set i2    [string first > $theline]
       set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
       if {"$label" != "$ay($hdl,subroutine,name)"} {
-        puts stderr "bogus:$lno<$theline>"
+        puts stderr "[_ "bogus"]:$lno<$theline>"
         lappend emsg \
-          "endsub label: o<$label> does not match subroutine file name"
+          "[_ "endsub label"]: o<$label> [_ "does not match subroutine file name"]"
       }
       continue ;# the endsub line is not saved
     }
@@ -736,9 +754,9 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         set expect_num [expr $last_num +1]
         # enforce these to appear in order to help prevent user errors
         if {$num != $expect_num && $num <= 30} {
-          puts stderr "bogus:$lno<$theline>"
+          puts stderr "[_ "bogus"]:$lno<$theline>"
           lappend emsg \
-            "out of sequence positional parameter $num expected: $expect_num "
+            "[_ "out of sequence positional parameter"] $num [_ "expected"]: $expect_num "
         } else {
           set last_num $num
         }
@@ -798,7 +816,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         set gline [string replace $gline 0 $i2]
         incr ct
         if {$ct > 20} {
-          puts stderr toomany
+          puts stderr "[_ "toomany"]"
           break
         }
       } ;# while
@@ -849,10 +867,10 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
     #puts stderr "No _globals or subroutine parms found in $filename"
   }
   if {![info exists found_sub_start]} {
-    lappend emsg "no sub found in file"
+    lappend emsg "[_ "no sub found in file"]"
   }
   if {[info exists found_sub_start] && ![info exists found_sub_end]} {
-    lappend emsg "no endsub found in file"
+    lappend emsg "[_ "no endsub found in file"]"
   }
   if [info exists emsg] {
     set ay($hdl,parse,msg) $emsg
@@ -1080,7 +1098,7 @@ proc ::ngcgui::gui {hdl mode args} {
       #pack [label $w.[qid] -anchor w -text "Input Files" \
       #    -width $::ngc($hdl,l,width)\
       #    -bg $::ngc(any,color,title) -relief groove] -fill x -expand 1
-      pack [label $w.[qid] -anchor w -text "Controls" \
+      pack [label $w.[qid] -anchor w -text "[_ "Controls"]" \
           -width $::ngc($hdl,l,width)\
           -bg $::ngc(any,color,title) -relief groove] -fill x -expand 1
 
@@ -1089,7 +1107,7 @@ proc ::ngcgui::gui {hdl mode args} {
       pack $w -fill x -expand 1
 
       set b [button $w.[qid] -font $::ngc(any,font) \
-            -pady 0 -width $bw -text "Preamble" \
+            -pady 0 -width $bw -text "[_ "Preamble"]" \
             -command "::ngcgui::gui $hdl getpreamble"]
       set ::ngc($hdl,begin,widget) $b
       pack $b -side left -expand 0
@@ -1102,7 +1120,7 @@ proc ::ngcgui::gui {hdl mode args} {
       set w [frame $wI.[qid]]
       pack $w -fill x -expand 1
       set b [button $w.[qid] -font $::ngc(any,font) \
-            -pady 0 -width $bw -text "Subfile" \
+            -pady 0 -width $bw -text "[_ "Subfile"]" \
             -command "::ngcgui::gui $hdl getsubfile"]
       pack $b -side left -expand 0
       set e [entry $w.e -width $tw -font $::ngc(any,font) \
@@ -1114,7 +1132,7 @@ proc ::ngcgui::gui {hdl mode args} {
       set w [frame $wI.[qid]]
       pack $w -fill x -expand 1
       set b [button $w.[qid] -font $::ngc(any,font) \
-            -pady 0 -width $bw -text "Postamble" \
+            -pady 0 -width $bw -text "[_ "Postamble"]" \
             -command "::ngcgui::gui $hdl  getpostamble"]
       pack $b -side left -expand 0
       set e [entry $w.e -width $tw -font $::ngc(any,font) \
@@ -1131,7 +1149,7 @@ proc ::ngcgui::gui {hdl mode args} {
       set w [frame $wI.[qid]]
       pack $w -fill x -expand 1
       set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
-            -text "Retain values on Subfile read" \
+            -text "[_ "Retain values on Subfile read"]" \
             -command [list ::ngcgui::aftertoggle $hdl retainvalues] \
             -variable ::ngc($hdl,retainvalues)]
       pack $b -side left -fill x -expand 1
@@ -1139,7 +1157,7 @@ proc ::ngcgui::gui {hdl mode args} {
       set w [frame $wI.[qid]]
       pack $w -fill x -expand 1
       set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
-            -text "Expand subroutine" \
+            -text "[_ "Expand subroutine"]" \
             -command [list ::ngcgui::aftertoggle $hdl expandsubroutine] \
             -variable ::ngc($hdl,expandsubroutine)]
       pack $b -side left -fill x -expand 1
@@ -1148,7 +1166,7 @@ if {1} {
       set w [frame $wI.[qid]]
       pack $w -fill x -expand 1
       set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
-            -text "Autosend" \
+            -text "[_ "Autosend"]" \
             -command [list ::ngcgui::aftertoggle $hdl auto] \
             -variable ::ngc($hdl,auto)]
       pack $b -side left -fill x -expand 1
@@ -1158,7 +1176,7 @@ if {0} {
       set w [frame $wI.[qid]]
       pack $w -fill x -expand 1
       set b [checkbutton $w.[qid] -anchor w -font $::ngc(any,font) \
-            -text "Verbose ngcfile" \
+            -text "[_ "Verbose ngcfile"]" \
             -command [list ::ngcgui::aftertoggle $hdl verbose] \
             -variable ::ngc($hdl,verbose)]
       pack $b -side left -fill x -expand 1
@@ -1168,13 +1186,13 @@ if {0} {
       # used fixed widths so buttons stay same when text is changed
       set w [frame $wC.[qid]]
       pack $w -side top -fill x -expand 1
-      set b [button $w.[qid] -text "Create Feature" -font $::ngc(any,font) \
+      set b [button $w.[qid] -text "[_ "Create Feature"]" -font $::ngc(any,font) \
             -width 14 -padx 1\
             -command "::ngcgui::gui $hdl savesection"]
       pack $b -side left -fill x -expand 1
       set ::ngc($hdl,save,widget) $b
 
-      set text "MakeFile"
+      set text "[_ "MakeFile"]"
       if $::ngc($hdl,auto) {set text Finalize}
       set b [button $w.[qid] -state disabled -font $::ngc(any,font) \
             -fg $::ngc(any,color,prompt) \
@@ -1192,7 +1210,7 @@ if {0} {
       if {!$::ngc(opt,noinput) || $::ngc($hdl,chooser)} {
         # reread notapplicable with no controls
         set b [button $w.[qid] -width 2 -font $::ngc(any,font) \
-             -padx 0 -pady 0 -text "Reread" \
+             -padx 0 -pady 0 -text "[_ "Reread"]" \
              -state disabled \
              -command [list ::ngcgui::reread $hdl] \
              ]
@@ -1201,7 +1219,7 @@ if {0} {
       }
 
       set b [button $w.[qid] -width 2 -font $::ngc(any,font) \
-           -padx 0 -pady 0 -text "Restart" \
+           -padx 0 -pady 0 -text "[_ "Restart"]" \
            -state disabled \
            -command [list ::ngcgui::message $hdl restart] \
            ]
@@ -1211,7 +1229,8 @@ if {0} {
       # use wC frame avoids problems with ctrl-a resizing app
       set b [button $wC.[qid] -state disabled -font $::ngc(any,font) \
             -pady 1 \
-            -text "SendFileToAxis" -command [list ::ngcgui::sendfile $hdl]]
+            -text "[_ "SendFileToAxis"]" \
+            -command [list ::ngcgui::sendfile $hdl]]
       pack $b -side bottom -fill x -expand 1
       set ::ngc($hdl,sendfile,widget) $b
 
@@ -1222,7 +1241,7 @@ if {0} {
 
       if $::ngc($hdl,standalone) {
         set b [button $w.[qid] -takefocus 0 -font $::ngc(any,font) \
-               -pady 0 -text "Exit" \
+               -pady 0 -text "[_ "Exit"]" \
                -command [list ::ngcgui::bye $hdl]]
         pack $b -side left -fill none -expand 0
       }
@@ -1253,7 +1272,7 @@ if {0} {
         ::ngcgui::gui $hdl readpostamble
       }
       if [info exists ::ngc($hdl,fail)] {
-        puts stderr "\n$::ngc(any,app):Unrecoverable problem:\n<$hdl>$::ngc($hdl,fail)"
+        puts stderr "\n$::ngc(any,app):[_ "Unrecoverable problem"]:\n<$hdl>$::ngc($hdl,fail)"
         ::ngcgui::deletepage $::ngc($hdl,axis,page)
         return
       }
@@ -1458,7 +1477,7 @@ if {0} {
 
       set w [frame $wP.[qid]]
       pack $w -side top -fill x -expand 1
-      pack [label $w.[qid] -text "Positional Parameters" \
+      pack [label $w.[qid] -text "[_ "Positional Parameters"]" \
            -bg $::ngc(any,color,title) -anchor w -relief groove] \
            -side top -fill x -expand 1
 
@@ -1563,7 +1582,7 @@ if {0} {
 # wG _global parameters
       pack $wG -fill x -expand 1 -side $::ngc($hdl,pack,global) -anchor n
       if {[array names ::ngc $hdl,global,name,*] != ""} {
-        pack [label $wG.[qid] -text "_Globals" \
+        pack [label $wG.[qid] -text "[_ "_Globals"]" \
              -bg $::ngc(any,color,title) \
              -anchor w  -relief groove] -fill x -expand 1
       }
@@ -1918,12 +1937,12 @@ if {0} {
       if {$::ngc($hdl,auto) && ![sendaxis $hdl ping]} {
         set ::ngc($hdl,auto) 0
         $::ngc($hdl,finalize,widget) conf -fg $::ngc(any,color,prompt)
-        lappend msg "Axis is not responding"
-        lappend msg "Error: $::ngc($hdl,axis,error)"
+        lappend msg "[_ "Axis is not responding"]"
+        lappend msg "[_ "Error: "]$::ngc($hdl,axis,error)"
         lappend msg ""
-        lappend msg "Autosend disabled, Ctrl-A toggles autosend"
+        lappend msg "[_ "Autosend disabled, Ctrl-A toggles autosend"]"
         lappend msg ""
-        lappend msg "File saving enabled -- Finalize to save"
+        lappend msg "[_ "File saving enabled -- Finalize to save"]"
         showerr $msg nosort
         message $hdl senderror
         return
@@ -1939,7 +1958,7 @@ if {0} {
           return
         }
         if {![string match *.ngc $::ngc($hdl,fname,outfile)]} {
-          lappend msg "Require .ngc suffix for filename"
+          lappend msg "[_ "Require .ngc suffix for filename"]"
           showerr $msg
           message $hdl writeerror
           return
@@ -1949,7 +1968,7 @@ if {0} {
             || "$::ngc($hdl,fname,outfile)" == "$::ngc($hdl,fname,postamble)" \
            } {
           set msg ""
-          lappend msg "Disallowed overwrite of $::ngc($hdl,fname,outfile)"
+          lappend msg "[_ "Disallowed overwrite of"] $::ngc($hdl,fname,outfile)"
           showerr $msg
           message $hdl writeerror
           return
@@ -1968,14 +1987,14 @@ if {0} {
       foreach thdl $hdllist {
         # the string FEATURE is used so files generated by ngcgui can
         # be detected and excluded as subfile candidates
-        puts $fout "($::ngc(any,app): FEATURE $date)"
+        puts $fout "($::ngc(any,app): [_ "FEATURE"] $date)"
 
         for {set i 0} {$i < [llength $::ngc($thdl,data,section)]} {incr i} {
           set line [lindex $::ngc($thdl,data,section) $i]
           if {[string first "#<_feature>" $line] >= 0} {
             # instead of current $line, output feature count (zero referenced)
             puts $fout \
-              "($::ngc(any,app): feature line added) #<_feature> = $featurect"
+              "($::ngc(any,app): [_ "feature line added"]) #<_feature> = $featurect"
             incr featurect 1
           } else {
             puts $fout $line
@@ -1984,9 +2003,9 @@ if {0} {
       } ;# for hdllist
 
       if $::ngc($endhdl,verbose) {
-        puts  $fout "($::ngc(any,app): m2 line added) m2 (g54 activated)"
+        puts  $fout "($::ngc(any,app): m2 [_ "line added"]) m2 (g54 [_ "activated"])"
       } else {
-        puts  $fout "m2 (m2 restores g54)"
+        puts  $fout "m2 (m2 [_ "restores"] g54)"
       }
       close $fout
 
@@ -2023,7 +2042,7 @@ if {0} {
     }
     default {return -code error "::ngcgui::gui: unknown mode <$mode>"}
   }
-  puts stderr "NOTREACHED reached mode=<$mode>"
+  puts stderr "[_ "NOTREACHED mode"]=<$mode>"
 } ;# gui
 
 proc ::ngcgui::conf {hdl wsuffix item value} {
@@ -2132,7 +2151,7 @@ proc ::ngcgui::debug {hdl} {
          -font $::ngc(any,font)\
          ] -fill x -expand 0 -side left
     pack [entry $f.[qid] -state readonly -relief ridge -width $ew \
--textvariable ::ngc($i) \
+         -textvariable ::ngc($i) \
          -font $::ngc(any,font)\
          ] -fill x -expand 1 -side left
     pack $f -side top -fill x -expand 1
@@ -2237,17 +2256,17 @@ proc ::ngcgui::message {hdl event} {
 
       # note: dont disable sendfile,widget (wanted if noauto)
       $::ngc($hdl,finalize,widget) conf -state disabled
-      $::ngc($hdl,save,widget) conf -text "Create Feature"
-      $mw conf -text "Enter parms for 1st feature" \
+      $::ngc($hdl,save,widget) conf -text "[_ "Create Feature"]"
+      $mw conf -text "[_ "Enter parms for 1st feature"]" \
                -fg $::ngc(any,color,prompt)
     }
     uwait {
       # alternate behavior: user must select "New Outfile"
       walktree $::ngc($hdl,varframe) disabled
       walktree $::ngc($hdl,iframe) disabled
-      $::ngc($hdl,save,widget)     conf -text "New Outfile"
+      $::ngc($hdl,save,widget)     conf -text "[_ "New Outfile"]"
       $::ngc($hdl,finalize,widget) conf -state disabled
-      $mw conf -text "Ready to make New Outfile" \
+      $mw conf -text "[_ "Ready to make New Outfile"]" \
                -fg $::ngc(any,color,prompt)
     }
     reset2 - uwait2 {
@@ -2261,10 +2280,10 @@ proc ::ngcgui::message {hdl event} {
      focus $::ngc($hdl,begin,widget)
      globalcheck $hdl
 
-     $::ngc($hdl,save,widget)     conf -text "Create Feature"
+     $::ngc($hdl,save,widget)     conf -text "[_ "Create Feature"]"
      $::ngc($hdl,sendfile,widget) conf -state disabled
      $::ngc($hdl,finalize,widget) conf -state normal
-     $mw conf -text "Enter parms for feature [expr 1 + $::ngc($hdl,savect)]" \
+     $mw conf -text "[_ "Enter parms for feature "][expr 1 + $::ngc($hdl,savect)]" \
               -fg $::ngc(any,color,prompt)
      after 0 [list ::ngcgui::message $hdl immediate]
     }
@@ -2289,15 +2308,15 @@ proc ::ngcgui::message {hdl event} {
       title $::ngc($hdl,top) "$t" ;# plural
       $::ngc($hdl,finalize,widget) conf -state normal
       if {$::ngc($hdl,savect) > 0} {
-        $::ngc($hdl,save,widget) conf -text "Create Next"
+        $::ngc($hdl,save,widget) conf -text "[_ "Create Next"]"
       } else {
-        $::ngc($hdl,save,widget) conf -text "Create Feature"
+        $::ngc($hdl,save,widget) conf -text "[_ "Create Feature"]"
       }
       $::ngc($hdl,sendfile,widget) conf -state disabled
-      $mw conf -text "Created feature $::ngc($hdl,savect)" \
+      $mw conf -text "[_ "Created feature "]$::ngc($hdl,savect)" \
               -fg $::ngc(any,color,ok)
       after 500 [list $::ngc($hdl,msg,widget) conf \
-             -text "Enter parms for feature [expr 1 + $::ngc($hdl,savect)]" \
+           -text "[_ "Enter parms for feature "][expr 1 + $::ngc($hdl,savect)]" \
              -fg $::ngc(any,color,prompt)
              ]
     }
@@ -2314,7 +2333,7 @@ proc ::ngcgui::showmessage {hdl type} {
   if {"$hdl" == "opt"} {
     # no message widget since opt is for all instances
     foreach w [array names ::ngc *,msg,widget] {
-      $::ngc($w) conf -text "option:$type $::ngc($hdl,$type)" \
+      $::ngc($w) conf -text "[_ "option"] :$type $::ngc($hdl,$type)" \
                       -fg $::ngc(any,color,ok)
     }
     return
@@ -2325,81 +2344,83 @@ proc ::ngcgui::showmessage {hdl type} {
   set mw $::ngc($hdl,msg,widget)
   switch $type {
     parmerr    {
-      $mw conf -text "Missing parameters" \
+      $mw conf -text "[_ "Missing parameters"]" \
                -fg $::ngc(any,color,error)
     }
     parseerror   {
-      $mw conf -text "Parse Error: $::ngc($hdl,dname,subfile)" \
+      $mw conf -text "[_ "Parse Error"]: $::ngc($hdl,dname,subfile)" \
                -fg $::ngc(any,color,error)
       $::ngc($hdl,finalize,widget)  conf -state disabled
       $::ngc($hdl,save,widget)      conf -state disabled
     }
     nullpreamble   {
       periodic_checks $hdl ;# resync
-      $mw conf -text "Null Preamble" \
+      $mw conf -text "[_ "Null Preamble"]" \
                -fg $::ngc(any,color,ok)
     }
     readpreamble   {
       periodic_checks $hdl ;# resync
-      $mw conf -text "Read Preamble: $::ngc($hdl,dname,preamble)" \
+      $mw conf -text "[_ "Read Preamble"]: $::ngc($hdl,dname,preamble)" \
                -fg $::ngc(any,color,ok)
     }
     preambleerror {
-      $mw conf -text "Preamble Error: $::ngc($hdl,dname,preamble)" \
+      $mw conf -text "[_ "Preamble Error"]: $::ngc($hdl,dname,preamble)" \
                -fg $::ngc(any,color,error)
     }
     nullpostamble   {
       periodic_checks $hdl ;# resync
-      $mw conf -text "Null Postamble" \
+      $mw conf -text "[_ "Null Postamble"]" \
                -fg $::ngc(any,color,ok)
     }
     readpostamble   {
       periodic_checks $hdl ;# resync
-      $mw conf -text "Read Postamble: $::ngc($hdl,dname,postamble)" \
+      $mw conf -text "[_ "Read Postamble"]: $::ngc($hdl,dname,postamble)" \
                -fg $::ngc(any,color,ok)
     }
     postambleerror {
-      $mw conf -text "Postamble Error: $::ngc($hdl,dname,postamble)" \
+      $mw conf -text "[_ "Postamble Error"]: $::ngc($hdl,dname,postamble)" \
                -fg $::ngc(any,color,error)
     }
     readsubfile   {
       periodic_checks $hdl ;# resync
-      $mw conf -text "Read Subfile: $::ngc($hdl,dname,subfile)" \
+      $mw conf -text "[_ "Read Subfile"]: $::ngc($hdl,dname,subfile)" \
                -fg $::ngc(any,color,ok)
       $::ngc($hdl,save,widget) conf -state normal ;# restore after parseerror
     }
     writeerror   {
-      $mw conf -text "Write Error: $::ngc($hdl,dname,outfile)" \
+      $mw conf -text "[_ "Write Error"]: $::ngc($hdl,dname,outfile)" \
                -fg $::ngc(any,color,error)
     }
     setoutfile {
-      $mw conf -text "Outfile set: $::ngc($hdl,dname,outfile)" \
+      $mw conf -text "[_ "Outfile set"]: $::ngc($hdl,dname,outfile)" \
                -fg $::ngc(any,color,ok)
     }
     finalize   {
       $mw conf -text \
-               "Finished: ($::ngc($hdl,savect)): $::ngc($hdl,dname,outfile)"\
+               "[_ "Finished"]: ($::ngc($hdl,savect)): $::ngc($hdl,dname,outfile)"\
                -fg $::ngc(any,color,ok)
     }
     usercancel {
       # user canceled output file spec
-      $mw conf -text "Canceled: $::ngc($hdl,savect) pending "\
+      $mw conf -text "[_ "Canceled"]: $::ngc($hdl,savect) pending "\
                -fg $::ngc(any,color,warn)
       walktree $::ngc($hdl,varframe) normal
       walktree $::ngc($hdl,iframe) normal
     }
     sendfile {
-      $mw conf -text "Sent: $::ngc($hdl,dname,outfile)" \
+      $mw conf -text "[_ "Sent"]: $::ngc($hdl,dname,outfile)" \
                -fg $::ngc(any,color,ok)
     }
     senderror {
-      $mw conf -text "SendFileToAxis failed" -fg $::ngc(any,color,error)
+      $mw conf -text "[_ "SendFileToAxis failed"]" \
+               -fg $::ngc(any,color,error)
     }
     startup {
-      $mw conf -text "Ctrl-k for Key bindings" -fg $::ngc(any,color,ok)
+      $mw conf -text "[_ "Ctrl-k for Key bindings"]" \
+               -fg $::ngc(any,color,ok)
     }
     expandsubroutine {
-      $mw conf -text "Expand sub $::ngc($hdl,expandsubroutine)" \
+      $mw conf -text "[_ "Expand sub"] $::ngc($hdl,expandsubroutine)" \
                -fg $::ngc(any,color,ok)
     }
     retainvalues {
@@ -2413,7 +2434,8 @@ proc ::ngcgui::showmessage {hdl type} {
       $mw conf -text "Autosend $::ngc($hdl,auto)" -fg $::ngc(any,color,ok)
     }
     cancel {
-      $mw conf -text "Finalize Canceled" -fg $::ngc(any,color,ok)
+      $mw conf -text "[_ "Finalize Canceled"]" \
+               -fg $::ngc(any,color,ok)
     }
     default {
       $mw conf -text "$type" -fg $::ngc(any,color,default)
@@ -2567,11 +2589,12 @@ proc ::ngcgui::showerr {msg "opt sort" "maxerr 10"} {
   }
   $l configure -text $text
   pack $l -side top
-  set b [button $w.b -text Dismiss -command "destroy $w"]
+  set b [button $w.b -text "[_ "Dismiss"]" \
+                     -command "destroy $w"]
   pack $b -side top
   focus $b
   wm withdraw $w
-  wm title    $w "ngcgui Error"
+  wm title    $w "[_ "ngcgui Error"]"
   update idletasks
   set x [expr [winfo screenwidth $w]/2 \
             - [winfo reqwidth $w]/2  - [winfo vrootx [winfo parent $w]]]
@@ -2594,8 +2617,8 @@ proc ::ngcgui::sendaxis {hdl cmd} {
       if ![catch {send axis pwd} msg] {return 1 ;#ok}
       # tk8.5 send misfeature
       if {[string first "X server insecure" $msg] >= 0} {
-         puts stderr "Declining support for tk send bug in ngcgui"
-         puts stderr "You should upgrade emc to emc2.5.x"
+         puts stderr "[_ "Declining support for tk send bug in ngcgui"]"
+         puts stderr "[_ "You should upgrade emc to >=emc2.5"]"
          eval exec xhost - SI:localuser:gdm
          eval exec xhost - SI:localuser:root
          # test if that worked:
@@ -2639,7 +2662,7 @@ proc ::ngcgui::pre2.4_send_file_to_axis {hdl f} {
     return 1 ;# ok (expect "None")
   } else {
     # notreached i suspect
-    puts "re2.4_send_file_to_axis:error<$msg>"
+    puts "[_ "pre2.4_send_file_to_axis:error"]<$msg>"
     set ::ngc($hdl,axis,error) [list $msg]
     return 0 ;# error
   }
@@ -2721,7 +2744,8 @@ proc ::ngcgui::simple_text {top text {title ""} } {
              -yscrollcommand "$ysb set" \
             ]
     set ysb [scrollbar $ysb -command "$t yview" -relief sunken]
-    set  db  [button $top.b -pady 1 -text Dismiss -command "destroy $top"]
+    set  db  [button $top.b -pady 1 -text "[_ "Dismiss"]" \
+                            -command "destroy $top"]
     focus $db
 
     pack $t   -side left   -fill both -expand 0
@@ -2834,27 +2858,27 @@ proc ::ngcgui::bindings {hdl mode} {
       set atxt "OFF"
       if {$::ngc($hdl,auto)} {set atxt "ON"}
       set msg "\
-Ctrl-a Toggle autosend\n\
-Ctrl-c Clear entries\n\
-Ctrl-d Set entries to default values\n\
-Ctrl-e Open editor specified by \$VISUAL\n\
-       on last outfile\n\
-Ctrl-E toggle expand subroutines\n\
-Ctrl-f Create feature\n\
-Ctrl-F Finalize (AUTO send is $atxt)\n\
-Ctrl-k Show key bindings\n\
-Ctrl-n Restart (cancel pending)\n\
-Ctrl-p (re)Read Preamble\n\
-Ctrl-P (re)Read Postamble\n\
-Ctrl-r (re)Read Subfile\n\
-Ctrl-R toggle retain values\n\
-Ctrl-q toggle output file verbosity\n\
-Ctrl-s Show status\n\
-Ctrl-S Show full status (debug info)\n\
-Ctrl-u Open editor specified by \$VISUAL\n\
-       on current subfile\n\
-Ctrl-U Open editor specified by \$VISUAL\n\
-       on current preamble\
+Ctrl-a [_ "Toggle autosend"]\n\
+Ctrl-c [_ "Clear entries"]\n\
+Ctrl-d [_ "Set entries to default values"]\n\
+Ctrl-e [_ "Open editor specified by"] \$VISUAL\n\
+       [_ "on last outfile"]\n\
+Ctrl-E [_ "toggle expand subroutines"]\n\
+Ctrl-f [_ "Create feature"]\n\
+Ctrl-F [_ "Finalize (AUTO send is"] $atxt)\n\
+Ctrl-k [_ "Show key bindings"]\n\
+Ctrl-n [_ "Restart (cancel pending)"]\n\
+Ctrl-p [_ "(re)Read Preamble"]\n\
+Ctrl-P [_ "(re)Read Postamble"]\n\
+Ctrl-r [_ "(re)Read Subfile"]\n\
+Ctrl-R [_ "toggle retain values"]\n\
+Ctrl-q [_ "toggle output file verbosity"]\n\
+Ctrl-s [_ "Show status"]\n\
+Ctrl-S [_ "Show full status (debug info)"]\n\
+Ctrl-u [_ "Open editor specified by"] \$VISUAL\n\
+       [_ "on current subfile"]\n\
+Ctrl-U [_ "Open editor specified by"] \$VISUAL\n\
+       [_ "on current preamble"]\
 "
       if [info exists ::ngc(embed,axis)] {
         set msg " Escape Return to Preview page\n$msg"
@@ -2908,10 +2932,10 @@ proc ::ngcgui::aftertoggle {hdl x} {
       if $::ngc($hdl,auto) {
         pack forget $::ngc($hdl,sendfile,widget)
         $::ngc($hdl,sendfile,widget) conf -state normal
-        $::ngc($hdl,finalize,widget) config -text "Finalize"
+        $::ngc($hdl,finalize,widget) config -text "[_ "Finalize"]"
       } else {
         pack $::ngc($hdl,sendfile,widget) -fill x
-        $::ngc($hdl,finalize,widget) config -text "MakeFile"
+        $::ngc($hdl,finalize,widget) config -text "[_ "MakeFile"]"
       }
     }
   }
@@ -3117,7 +3141,7 @@ proc ::ngcgui::top {hdl ay_name} {
       # ok
     } else {
       if [file exists $fname] {
-        puts stderr "$fname not writable"
+        puts stderr "$fname [_ "not writable"]"
         exit 1
       } else {
         if [catch {set fd [open $fname w]} msg] {
@@ -3252,7 +3276,7 @@ proc ::ngcgui::newpage {creatinghdl} {
 
   set pageid ngcgui[qid]
   set w [$::ngc(any,axis,parent) insert end "$pageid" \
-        -text new
+        -text "[_ "new"]"
         ]
   $w config -borderwidth 0 ;# not sure why this needs to be by itself
   set f [frame $w.[qid] -borderwidth 0 -highlightthickness 0]
@@ -3423,7 +3447,8 @@ proc ::ngcgui::tabmanage {pagename wframe ident infovar \
 
   if $removable {
     set hdl [pagetohdl $pagename]
-    set b [button $af.[qid] -text "remove" -padx 2 -pady 1]
+    set b [button $af.[qid] -text "[_ "remove"]" \
+                            -padx 2 -pady 1]
     $b configure -command [list ::ngcgui::deletepage $pagename]
     pack $b -side left -fill none -expand 0
     set ::ngc($pagename,remove,widget) $b
@@ -3431,7 +3456,8 @@ proc ::ngcgui::tabmanage {pagename wframe ident infovar \
 
   if $newable {
     set hdl [pagetohdl $pagename]
-    set b [button $af.[qid] -text "new" -padx 2 -pady 1]
+    set b [button $af.[qid] -text "[_ "new"]" \
+                            -padx 2 -pady 1]
     $b configure -command [list ::ngcgui::newpage $hdl]
     pack $b -side left -fill none -expand 0
   }
@@ -3443,12 +3469,14 @@ proc ::ngcgui::tabmanage {pagename wframe ident infovar \
   pack $l -side left -fill x -expand 1
 
   set parent $::ngc(any,axis,parent)
-  set b [button $af.[qid] -text "move-->" -padx 2 -pady 1]
+  set b [button $af.[qid] -text "[_ "move"]-->" \
+                          -padx 2 -pady 1]
   $b configure -command [list ::ngcgui::movepage $parent right]
   pack $b -side right -fill none -expand 0
   set ::ngc($pagename,move,r,widget) $b
 
-  set b [button $af.[qid] -text "<--move" -padx 2 -pady 1]
+  set b [button $af.[qid] -text "<--[_ "move"]" \
+                          -padx 2 -pady 1]
   $b configure -command [list ::ngcgui::movepage $parent left]
   pack $b -side right -fill none -expand 0
   set ::ngc($pagename,move,l,widget) $b
@@ -3542,7 +3570,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
       set ::ngc($hdl,chooser)        1
       set ::ngc($hdl,fname,subfile)  ""
       $::ngc(any,axis,parent) itemconfigure $page \
-            -text "Custom" \
+            -text "[_ "Custom"]" \
             -background $::ngc(any,color,custom)
     } else {
       set ::ngc($hdl,fname,subfile) $subfile
@@ -3555,14 +3583,14 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   set  w [::ngcgui::gui $hdl create $f.ngc_gui]
 
   if {"$w" == ""} {
-    puts stderr "Problem creating page <$hdl> <$f>"
+    puts stderr "[_ "Problem creating page"] <$hdl> <$f>"
   } else  {
     pack $w -side top -fill none -expand 1 -anchor nw
   }
   # package require Emc ;# needs emcv2.5.x, segfaults emcv2.4.x
   # just invoking emc_init works with v2.4 and v2.5
   if  [catch {emc_init} msg] {
-    puts "embed_in_axis_tab: entrykeybindings not available <$msg>"
+    puts "embed_in_axis_tab: [_ "entrykeybindings not available"] <$msg>"
   }
   lappend ::ngc(embed,pages) $page
   updatepage
@@ -3836,7 +3864,7 @@ if [catch {
         --ini*      {
                        set filename [lindex $::argv 1]
                        if ![file readable $filename] {
-                         puts "ini file: <$filename> not readable"
+                         puts "[_ "ini file"]: <$filename> not readable"
                          exit 1
                        }
                        set ::argv [lreplace $::argv 0 1]
@@ -3844,7 +3872,7 @@ if [catch {
                        set pdir [::ngcgui::inifind $filename \
                                            DISPLAY PROGRAM_PREFIX]
                        if {"$pdir" == ""} {
-                         puts "\[DISPLAY\]PROGRAM_PREFIX not found <$filename>"
+                         puts "\[DISPLAY\]PROGRAM_PREFIX [_ "not found"] <$filename>"
                          exit 1
                        }
                        set ptype [file pathtype $pdir]
