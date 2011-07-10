@@ -5467,7 +5467,7 @@ class App:
             pitchunit =_("Gearbox Reduction Ratio")
         elif axis == "a":
             unit = "degree"
-            pitchuint = _("Reduction Ratio")
+            pitchunit = _("Reduction Ratio")
         elif d.units ==_METRIC:
             unit = "mm"
             pitchunit =_("Leadscrew Pitch")
