@@ -1,4 +1,4 @@
-= Code de référence G (((Code G)))
+= Code de référence G(((Code G)))
 
 Conventions utilisées dans cette section
 
@@ -9,15 +9,15 @@ Comme décrite précédemment, une valeur réelle peut être:
  - un nombre explicite, `4` par exemple. 
  - une expression, `[2+2]` par exemple. 
  - une valeur de paramètre, `#88` par exemple. 
- - une fonction unaire de la valeur, `acos [0]` par exemple.
+ - une fonction unaire de la valeur, `acos[0]` par exemple.
 
-Dans la plupart des cas, si des mots d'axes sont donnés, 
-parmi `X-`, `Y-`, `Z-`, `A-`, `B-`, `C-`, `U-`, `V-`, `W-`, 
+Dans la plupart des cas, si des mots d'axes sont donnés 
+parmi `XYZABCUVW`, 
 ils spécifient le point de destination. 
 
 Les axes sont donnés dans le système de coordonnées courant, 
-à moins qu'explicitement décrit comme étant dans le système de 
-coordonnées absolues (machine). 
+à moins qu'explicitement décrit comme 
+étant dans le système de coordonnées absolues (machine). 
 Où les axes sont optionnels, tout axe omis gardera sa valeur courante. 
 
 Tout item dans une commande non explicitement décrit comme optionnel 
@@ -39,24 +39,24 @@ lettres.
 == Coordonnées polaires (((coordonnées polaires)))
 
 Coordonnées polaires peuvent être utilisés pour spécifier les coordonnées XY d'un déménagement.
-Le n @ est la distance et n ^ est l'angle. L'avantage de cela est
+Le @n est la distance et ^n est l'angle. L'avantage de cela est
 pour des choses comme les cercles de trou de boulon qui peut être fait très simplement en
 passer à un point situé au centre du cercle, réglage de la compensation et
-puis en déplaçant vers le premier trou, puis de lancer le cycle de forage. Polar
-Coordonnées sont toujours à partir du courant XY position zéro. Pour déplacer le
-Coordonnées polaires de la machine à zéro utiliser un décalage ou sélectionnez un
-système de coordonnées.
+puis en déplaçant vers le premier trou, puis de lancer le cycle de forage. 
+Polar Coordonnées sont toujours à partir du courant XY position zéro. 
+Pour déplacer le Coordonnées polaires de la machine à zéro utiliser un décalage 
+ou sélectionnez un système de coordonnées.
 
 Dans l'absolu, le mode de l'angle et la distance est de la position zéro XY
 et l'angle commence à 0 sur l'axe X positif et augmente dans une CCW
-direction autour de l'axe Z. Le code G1 @ 1 ^ 90 est la même que G1 Y1.
+direction autour de l'axe Z. Le code G1 @1 ^90 est la même que G1 Y1.
 
 En mode relatif de la distance et l'angle est également de la XY zéro
-position, mais il est cumulatif. Cela peut être déroutant au premier abord comment cette
-fonctionne en mode incrémental.
+position, mais il est cumulatif. 
+Cela peut être déroutant au premier abord comment cette fonctionne en mode incrémental.
 
-Par exemple, si vous avez le programme suivant vous vous y attendez
-être un motif carré.
+Par exemple, si vous avez le programme suivant vous 
+vous y attendez être un motif carré.
 
     F100 G1 @.5 ^90 
     G91 @.5 ^90 
@@ -67,7 +67,7 @@ Par exemple, si vous avez le programme suivant vous vous y attendez
 
 Vous pouvez le voir sur la figure suivante que la sortie n'est pas 
 ce que vous pourrait s'y attendre. Parce que nous avons ajouté 
-0,5 à la distance chaque fois que le la distance de la position 
+0.5 à la distance chaque fois que le la distance de la position 
 zéro XY a augmenté avec chaque ligne. 
 
 .Polar Spiral[[fig:Polar-Spiral]]
@@ -96,90 +96,92 @@ C'est une erreur si:
   - Un mélange de Polar et X et Y sont ou les mots utilisés
 
 == Table résumée du G-code (((Table du G Code)))
-/////
+
 [width="100%", options="header"]
 |==============================================================================
-|Codes         | Descriptions                                               | Sections
-|G0            | Interpolation linéaire en vitesse rapide                   | <<sec:G0-Interpolation-rapide>>
-|G1            | Interpolation linéaire en vitesse travail                  | <<sec:G1-Interpolation-travail>>
-|G2, G3        | Interpolation circulaire sens horaire, sens anti-horaire   | <<sec:G2-G3-Arc>>
-|G4            | Tempo                                                      | <<sec:G4-Tempo>>
-|G5.2, G5.3    | NURBs Block                                                | <<sec:G5.2-G5.3-NURBs>>
-|G7            | Mode diamètre (sur les tours)                              | <<sec:G7-Mode-diametre>>
-|G8            | Mode rayon (sur les tours)                                 | <<sec:G8-Mode-rayon>>
-|G10 L1        | Entre longu., rayon, orientation outil dans table d'outils | <<sec:G10-L1_>>
-|G10 L10       | Set Tool Table, Calculated, Workpiece                      | <<sec:G10-L10>>
-|G10 L11       | Set Tool Table, Calculated, Fixture                        | <<sec:G10-L11>>
-|G10 L2        | Etablissement du système de coord. pièce (1 à 9)           | <<sec:G10-L2_>>
-|G10 L20       | Coordinate System Origin Setting Calculated                | <<sec:G10-L20>>
-|G17 - G19.1   | Choix du plan de travail                                   | <<sec:G17-G18-G19>>
-|G20, G21      | Unité machine                                              | <<sec:G20-G21-Unites>>
-|G28 - G28.1   | Aller à une position prédéfinie                            | <<sec:G28-G28.1-Aller>>
-|G30 - G30.1   | Aller à une position prédéfinie                            | <<sec:G30-G30.1-Aller>>
-|G33           | Mouvement synchronisé avec la broche                       | <<sec:G33-Broche-sync>>
-|G33.1         | Taraudage rigide                                           | <<sec:G33.1-Taraudage-rigide>>
-|G38.2 - G38.5 | Mesures au palpeur                                         | <<sec:G38.x-Palpeur>>
-|G40           | Annulation de la compensation de longueur d'outil          | <<sec:G40>>
-|G41, G42      | Compensation de rayon d'outil                              | <<sec:G41-G42>>
-|G41.1, G42.1  | Comp. dynamique de rayon d'outil à gauche, à droite        | <<sec:G41.1-G42.1>>
-|G43, G43.1    | Comp. de longueur d'outil depuis la table d'outils         | <<sec:G43-G43.1-Outils>>
-|G49           | Annulation de la compensation de longueur d'outil          | <<sub:G49-Outils>>
-|G53           | Déplacements en coordonnées machine                        | <<sec:G53-Move-in>>
-|G54 - G59     | Choix du système de coordonnées (1 a 6)                    | <<sec:G54-a-G59.3>>
-|G59.1 - G59.3 | Choix du système de coordonnées (7 a 9)                    | <<sec:G54-a-G59.3>>
-|G61, G61.1    | Mode trajectoire exacte, mode arrêt exact                  | <<sec:G61-G61.1-G64>>
-|G64           | Mode trajectoire continue avec tolérance optionnelle       | <<sec:G61-G61.1-G64>>
-|G73           | Cycle de perçage avec brise copeau                         | <<sec:G73-Percage-avec-brise-copeaux>>
-|G76           | Cycle de filetage multipasses préprogrammé (tour)          | <<sec:G76-Filetage>>
-|G80           | Révocation des codes modaux                                | <<sec:G80-Revocation-modaux>>
-|G81           | Cycle de perçage                                           | <<sub:G81-Cycle-de-percage>>
-|G82           | Autres cycles preprogrammes                                | <<sub:G82-Cycle-de-percage>>
-|G83           | Percage avec debourrage                                    | <<sub:G83-Percage-avec-debourrage>>
-|G84           | Taraudage-a-droite *(unimplemented)*                       | <<sub:G84-Taraudage-a-droite>>
-|G85           | Alésage, retrait en vitesse travail                        | <<sub:G85-Alesage-retrait-travail>>
-|G86           | Alesage, retrait en vitesse rapide                         | <<sub:G86-Alesage-retrait-rapide>>
-|G87           | Back-Boring Cycle *(unimplemented)*                        | <<sub:G87-Back-Boring>>
-|G88           | Boring Cycle, Stop, Manl Out *(unimplemented)*             | <<sub:G88-Boring-retrait-manuel-Out>>
-|G89           | Boring Cycle, Dwell, Feed Out                              | <<sub:G89-Alesage-tempo>>
-|G90, G91      | Types de déplacements                                      | <<sec:G90-G91-Set>>
-|G90.1, G91.1  | Arc Distance Mode                                          | <<sec:G90.1-G91.1>>
-|G92           | Décalages d'origines avec mise à jour des paramètres       | <<sec:G92-G92.1-G92.2-G92.3>>
-|G92.1         | Annulation des décalages d'origine                         | <<sec:G92-G92.1-G92.2-G92.3>>
-|G92.2         | Annulation des décalages d'origine                         | <<sec:G92-G92.1-G92.2-G92.3>>
-|G92.3         | Appliquer contenu des paramètres aux déc. d'origine        | <<sec:G92-G92.1-G92.2-G92.3>>
-|G93, G94, G95 | Modes de vitesses                                          | <<sec:G93-G94-G95-Set>> 
-|G96           | Vitesse de coupe constante (IPM ou m/mn)                   | <<sec:G96-G97-Broche>>
-|G97           | Vitesse en tours par minute                                | <<sec:G96-G97-Broche>>
-|G98, G99      | Options de retrait des cycles preprogrammes                | <<sec:G98-G99-Set>>
-===============================================================================
-/////
-[width="100%", options="header"]
-|==============================================================================
-|Code          | Description                               | Parameters  | Section
-|M0, M1, M2    | Contrôle du programme                     | n/a         | <<sec:M0-M1-M2>>
-|M3, M4, M5    | Contrôle de la broche                     | S           | <<sec:M3-M4-M5>>
-|M6            | Appel d'outil Tn n=numéro d'outil         | T           | <<sec:M6-Appel-d-outil>>
-|M7, M8, M9    | Contrôle arrosage                         | n/a         | <<sec:M7-M8-M9>>
-|M30, M60      | Pallet Shuttle                            | n/a         | <<sec:M0-M1-M2>>
-|M48           | Correcteur de vitesse de deux             |             | <<sec:M48-Deux-Correcteur>>
-|M49           | Correcteur de vitesse de ni               |             | <<sec:M49-Ni-Correcteur>>
-|M50           | Correcteur de vitesse d'avance travail    | P           | <<sec:M50-Avance-Correcteur>>
-|M51           | Correcteur de vitesse de broche           | P           | <<sec:M51-Broche-Correcteur>>
-|M52           | Correcteur dynamique de vitesse d'avance  | P           | <<sec:M52-Controle-vitesse-adaptative>>
-|M53           | Vitesse constante                         | P           | <<sec:M53-Controle-coupure-vitesse>>
-|M61           | Numéro de l'outil courant                 | Q           | <<sec:M61-Ajuste-numero-outil>>
-|M62 à M65     | Output control                            | P           | <<sec:M62-a-M65-Controle-sorties-num>>
-|M66           | Input control                             | P, E, L, Q  | <<sec:M66-Controle-entrees-num>>
-|M67           | Analog Output Control                     |             | <<sec:M67-Analog-Output>>
-|M68           | Analog Output Control                     |             | <<sec:M68-Analog-Output>>
-|M100-M199     | M-Codes définis par l'utilisateur         | P Q         | <<sec:M100-a-M199>>
-|O             | O Codes                                   | n/a         | <<cha:O-Codes>>
-|F             | F=réglage vitesse travail                 | n/a         | <<sec:F-vitesse>>
-|S             | S=réglage vitesse broche                  | n/a         | <<sec:S-broche>>
-|T             | Sélectionnez-Tool                         |             | <<sec:T-Sélectionnez-Tool>>
+|Codes         | Descriptions                                         | Sections
+|G0            | Interpolation linéaire en vitesse rapide             | <<sec:G0-Interpolation-rapide>>
+|G1            | Interpolation linéaire en vitesse travail            | <<sec:G1-Interpolation-travail>>
+|G2, G3        | Interpolation circ. sens horaire/anti-horaire        | <<sec:G2-G3-Arc>>
+|G4            | Tempo                                                | <<sec:G4-Tempo>>
+|G5.1          | Quadratic B-Spline                                   | <<sec:G5.1-B-spline>>
+|G5.2, G5.3    | NURBs Block                                          | <<sec:G5.2-G5.3-NURBs>>
+|G7            | Mode diamètre (sur les tours)                        | <<sec:G7-Mode-diametre>>
+|G8            | Mode rayon (sur les tours)                           | <<sec:G8-Mode-rayon>>
+|G10 L1        | Tableau Jeu d'outils, directement                    | <<sec:G10-L1_>>
+|G10 L10       | Tableau Jeu d'outils, calculé, pièce                 | <<sec:G10-L10>>
+|G10 L11       | Tableau Jeu d'outils, calculé, Luminaire             | <<sec:G10-L11>>
+|G10 L2        | Etablissement du système de coord. pièce (1 à 9)     | <<sec:G10-L2_>>
+|G10 L20       | Coordinate System Origin Setting Calculated          | <<sec:G10-L20>>
+|G17 - G19.1   | Choix du plan de travail                             | <<sec:G17-G18-G19>>
+|G20, G21      | Unité machine                                        | <<sec:G20-G21-Unites>>
+|G28 - G28.1   | Aller à une position prédéfinie                      | <<sec:G28-G28.1-Aller>>
+|G30 - G30.1   | Aller à une position prédéfinie                      | <<sec:G30-G30.1-Aller>>
+|G33           | Mouvement synchronisé avec la broche                 | <<sec:G33-Broche-sync>>
+|G33.1         | Taraudage rigide                                     | <<sec:G33.1-Taraudage-rigide>>
+|G38.2 - G38.5 | Mesures au palpeur                                   | <<sec:G38.x-Palpeur>>
+|G40           | Annulation de la compensation de longueur d'outil    | <<sec:G40>>
+|G41, G42      | Compensation de rayon d'outil                        | <<sec:G41-G42>>
+|G41.1, G42.1  | Comp. dynamique de rayon d'outil à gauche, à droite  | <<sec:G41.1-G42.1>>
+|G43, G43.1    | Comp. de longueur d'outil depuis la table d'outils   | <<sec:G43-G43.1-Outils>>
+|G49           | Annulation de la compensation de longueur d'outil    | <<sub:G49-Outils>>
+|G53           | Déplacements en coordonnées machine                  | <<sec:G53-Move-in>>
+|G54 - G59     | Choix du système de coordonnées (1 a 6)              | <<sec:G54-a-G59.3>>
+|G59.1 - G59.3 | Choix du système de coordonnées (7 a 9)              | <<sec:G54-a-G59.3>>
+|G61, G61.1    | Mode trajectoire exacte, mode arrêt exact            | <<sec:G61-G61.1-G64>>
+|G64           | Mode trajectoire continue avec tolérance optionnelle | <<sec:G61-G61.1-G64>>
+|G73           | Cycle de perçage avec brise copeau                   | <<sec:G73-Percage-avec-brise-copeaux>>
+|G76           | Cycle de filetage multipasses préprogrammé (tour)    | <<sec:G76-Filetage>>
+|G80           | Révocation des codes modaux                          | <<sec:G80-Revocation-modaux>>
+|G81           | Cycle de perçage                                     | <<sub:G81-Cycle-de-percage>>
+|G82           | Autres cycles preprogrammes                          | <<sub:G82-Cycle-de-percage>>
+|G83           | Percage avec debourrage                              | <<sub:G83-Percage-avec-debourrage>>
+|G84           | Taraudage-a-droite *(unimplemented)*                 | <<sub:G84-Taraudage-a-droite>>
+|G85           | Alésage, retrait en vitesse travail                  | <<sub:G85-Alesage-retrait-travail>>
+|G86           | Alesage, retrait en vitesse rapide                   | <<sub:G86-Alesage-retrait-rapide>>
+|G87           | Back-Boring Cycle *(unimplemented)*                  | <<sub:G87-Back-Boring>>
+|G88           | Boring Cycle, Stop, Manl Out *(unimplemented)*       | <<sub:G88-Boring-retrait-manuel-Out>>
+|G89           | Boring Cycle, Dwell, Feed Out                        | <<sub:G89-Alesage-tempo>>
+|G90, G91      | Types de déplacements                                | <<sec:G90-G91-Set>>
+|G90.1, G91.1  | Arc Distance Mode                                    | <<sec:G90.1-G91.1>>
+|G92           | Décalages d'origines avec mise à jour des paramètres | <<sec:G92-G92.1-G92.2-G92.3>>
+|G92.1         | Annulation des décalages d'origine                   | <<sec:G92-G92.1-G92.2-G92.3>>
+|G92.2         | Annulation des décalages d'origine                   | <<sec:G92-G92.1-G92.2-G92.3>>
+|G92.3         | Appliquer contenu des paramètres aux déc. d'origine  | <<sec:G92-G92.1-G92.2-G92.3>>
+|G93, G94, G95 | Modes de vitesses                                    | <<sec:G93-G94-G95-Set>> 
+|G96           | Vitesse de coupe constante (IPM ou m/mn)             | <<sec:G96-G97-Broche>>
+|G97           | Vitesse en tours par minute                          | <<sec:G96-G97-Broche>>
+|G98, G99      | Options de retrait des cycles preprogrammes          | <<sec:G98-G99-Set>>
 |==============================================================================
 
-== G0 : Interpolation linéaire en vitesse rapide[[sec:G0-Interpolation-rapide]](((G0 Interpolation lineaire rapide)))
+[width="100%", options="header"]
+|==============================================================================
+|Code       | Description                              | Parameters | Section
+|M0, M1, M2 | Contrôle du programme                    | n/a        | <<sec:M0-M1-M2>>
+|M3, M4, M5 | Contrôle de la broche                    | S          | <<sec:M3-M4-M5>>
+|M6         | Appel d'outil Tn n=numéro d'outil        | T          | <<sec:M6-Appel-d-outil>>
+|M7, M8, M9 | Contrôle arrosage                        | n/a        | <<sec:M7-M8-M9>>
+|M30, M60   | Pallet Shuttle                           | n/a        | <<sec:M0-M1-M2>>
+|M48        | Correcteur de vitesse de deux            |            | <<sec:M48-Deux-Correcteur>>
+|M49        | Correcteur de vitesse de ni              |            | <<sec:M49-Ni-Correcteur>>
+|M50        | Correcteur de vitesse d'avance travail   | P          | <<sec:M50-Avance-Correcteur>>
+|M51        | Correcteur de vitesse de broche          | P          | <<sec:M51-Broche-Correcteur>>
+|M52        | Correcteur dynamique de vitesse d'avance | P          | <<sec:M52-Controle-vitesse-adaptative>>
+|M53        | Vitesse constante                        | P          | <<sec:M53-Controle-coupure-vitesse>>
+|M61        | Numéro de l'outil courant                | Q          | <<sec:M61-Ajuste-numero-outil>>
+|M62 à M65  | Output control                           | P          | <<sec:M62-a-M65-Controle-sorties-num>>
+|M66        | Input control                            | P, E, L, Q | <<sec:M66-Controle-entrees-num>>
+|M67        | Analog Output Control                    |            | <<sec:M67-Analog-Output>>
+|M68        | Analog Output Control                    |            | <<sec:M68-Analog-Output>>
+|M100-M199  | M-Codes définis par l'utilisateur        | P Q        | <<sec:M100-a-M199>>
+|O          | O Codes                                  | n/a        | <<cha:O-Codes>>
+|F          | F=réglage vitesse travail                | n/a        | <<sec:F-vitesse>>
+|S          | S=réglage vitesse broche                 | n/a        | <<sec:S-broche>>
+|T          | Sélectionnez-Tool                        |            | <<sec:T-Selectionnez-Tool>>
+|==============================================================================
+
+== G0 Interpolation linéaire en vitesse rapide[[sec:G0-Interpolation-rapide]]
+(((G0 Interpolation lineaire rapide)))
 
     G0 axes
 
@@ -215,7 +217,8 @@ degrés est égal à zéro
 degré sur un axe rotatif, de sorte que le mouvement linéaire rapide
 spécifié en ligne `N2` ne produira aucun mouvement. 
 
-== G1 : Interpolation linéaire en vitesse travail[[sec:G1-Interpolation-travail]](((G1 Interpolation lineaire travail)))
+== G1 Interpolation linéaire en vitesse travail[[sec:G1-Interpolation-travail]]
+(((G1 Interpolation lineaire travail)))
 
     G1 axes
 
@@ -236,18 +239,36 @@ différent de celui décrit ci-dessus, voir la section
 ligne, le mouvement sera également
 différent, voir la section <<sec:G53-Move-in>>.
 
-== G2 (((G2 Interpolation circulaire sens horaire))), G3(((G3 Interpolation circulaire anti-horaire))): Interpolation circulaire en vitesse travail[[sec:G2-G3-Arc]]
+== G2, G3 Interpolation circulaire en vitesse travail[[sec:G2-G3-Arc]]
+(((G2 Interpolation circulaire sens horaire)))(((G3 Interpolation circulaire anti-horaire)))
 
 Un mouvement circulaire ou hélicoïdal est spécifié en sens horaire
-avec G`2` ou en sens anti-horaire avec `G3` . Les axes du cercle ou de
-l'hélicoïde, doivent être parallèles aux
-axes X, Y, ou Z du système de coordonnées machine. Les axes (ou, leurs
-équivalents, les plans perpendiculaires aux axes) sont sélectionnés
- avec `G17` (axe Z, plan XY), `G18` (axe Y, plan XZ), ou `G19` (axe X,
-plan YZ). Si l'arc est circulaire, il se trouve dans un plan
-parallèle au plan sélectionné.
+avec `G2` ou en sens anti-horaire avec `G3`. 
 
-Si une ligne de code RS274/NGC forme un arc et inclu le mouvement d'un
+Les axes du cercle ou de l'hélicoïde, doivent être parallèles aux
+axes X, Y, ou Z du système de coordonnées machine. 
+Les axes (ou, leurs équivalents, les plans perpendiculaires aux axes) 
+sont sélectionnés avec `G17` (axe Z, plan XY), 
+`G18` (axe Y, plan XZ), ou `G19` (axe X, plan YZ). 
+Plans `17,1`, `18,1` et `19,1` ne sont pas actuellement pris en charge.
+Si l'arc est circulaire, 
+il se trouve dans un plan parallèle au plan sélectionné.
+
+To program a helix, include the axis word perpendicular to the arc 
+plane: for example, if in the `G17` plane, include a `Z` word.  This 
+will cause the `Z` axis to move to the programmed value during the 
+circular `XY` motion. 
+
+To program an arc that gives more than one full turn, use a `P` word
+specifying the number of full or partial turns of arc.  If `P` is
+unspecified, the behavior is as if `P1` was given: that is, only one
+full or partial turn will result, giving an arc less than or equal to
+one full circle.  For example, if an arc is programmed with P2, the
+resulting motion will be more than one full circle and up to two full
+circles (depending on the programmed endpoint.)  Multiturn helical arcs
+are supported and give motion useful for milling holes or threads.
+
+Si une ligne de code (RS274/NGC) forme un arc et inclu le mouvement d'un
 axe rotatif, l'axe rotatif tournera à vitesse constante, de sorte que
 le mouvement de l'axe rotatif commence et se termine en même temps que
 les autres axes XYZ. De telles lignes ne sont pratiquement jamais
@@ -257,67 +278,142 @@ Si la compensation de rayon d'outil est active, le mouvement sera
 différent de celui décrit ci-dessus, voir la sections 
 <<sec:G40>> et <<sec:G41-G42>>.
 
-Deux formats sont autorisés pour spécifier un arc: le format centre et
-le format rayon.
+Deux formats sont autorisés pour spécifier un arc: 
+le format centre et le format rayon.
+
+It is an error if:
+
+ - No feed rate has been set.
 
 === Arc au format centre (format recommandé)
 
 Dans le format centre, les coordonnées du point final de l'arc, dans
 le plan choisi, sont spécifiées par décalage du centre de l'arc depuis
 le point courant. Dans ce format, il est permis d'avoir le point final
-de l'arc identique au point courant. C'est une erreur si:
+de l'arc identique au point courant. 
+
+C'est une erreur si:
 
  - Lorsque l'arc est projeté sur le plan choisi, la distance entre le
    point courant et le centre diffèrent de la distance entre le point
    d'arrivée et le centre de plus de 0,0002 pouce (si les pouces sont
    utilisés), soit 0,002 millimètre (si les millimètres sont utilisés).
 
-Lorsque le plan XY est sélectionné, programmer G2 Axe I- J- (ou
-utiliser G3 au lieu de G2). Les mots d'axes sont tous facultatifs sauf
-au moins un entre X et Y qui doit être utilisé. I et J sont les
-décalages du centre de l'arc, par rapport au point actuel (dans le sens
-X et Y, respectivement). I et J sont facultatifs, sauf qu'au moins un
-des deux doit être utilisé. C'est une erreur si:
+Lorsque le plan XY est sélectionné, programmer: 
 
- - X et Y sont tous les deux omis.
+    G2 ou G3 axes I- J- 
+
+The axis words are all optional except that at least one of X and Y
+must be used to program an arc of less than 360 degrees. I and J are
+the offsets from the current location (in the X and Y directions,
+respectively) of the center of the circle. I and J are optional except
+that at least one of the two must be used. If only one is specified,
+the value of the other is taken as 0. If you include the Z word it will
+helix. 
+
+C'est une erreur si:
+
  - I et J sont tous les deux omis .
 
-Lorsque le plan XZ est sélectionné, programmer `G2` `axes` `I- K-` (ou
-utiliser `G3` au lieu de `G2` ). Les mots d'axes sont tous facultatifs
-sauf au moins un entre X et Z
-qui doit être utilisé. I et K sont les décalages du centre de l'arc,
-par rapport au point actuel (dans le sens X et Z , respectivement). I
-et K sont facultatifs, sauf qu'au moins un des deux doit être utilisé.
+Lorsque le plan XZ est sélectionné, programmer:
+
+    G2 ou G3 axes I- K- 
+
+The axis words are all optional except that at least one of X and Z
+must be used to program an arc of less than 360 degrees. 
+I and K are the offsets from the current location (in the X and Z directions,
+respectively) of the center of the circle. 
+I and K are optional except that at least one of the two must be used. 
+If only one is specified, the value of the other is taken as 0. 
+In Diameter Mode G7 I & K are still radius dimensions.
+
 C'est une erreur si:
 
- - X et Z sont tous les deux omis.
  - I et K sont tous les deux omis .
 
-Lorsque le plan YZ est sélectionné, programmer `G2` `axes` `J- K-` (ou
-utiliser `G3` au lieu de `G2` ). Les mots d'axes sont tous facultatifs
-sauf au moins un entre Y et Z
-qui doit être utilisé. J et K sont les décalages du centre de l'arc,
-par rapport au point actuel (dans le sens Y et Z , respectivement). J
-et K sont facultatifs, sauf qu'au moins un des deux doit être utilisé.
+Lorsque le plan YZ est sélectionné, programmer: 
+
+    G2 ou G3 axes J- K- 
+
+The axis words are all optional except that at least one of Y and Z
+must be used to program an arc of less than 360 degrees. J and K are
+the offsets from the current location (in the Y and Z directions,
+respectively) of the center of the circle. J and K are optional except
+that at least one of the two must be used. If only one is specified,
+the value of the other is taken as 0.
+
 C'est une erreur si:
 
- - Y et Z sont tous les deux omis.
  - J et K sont tous les deux omis .
 
-Voici un exemple de commande pour usiner un arc au format centre: `G17
-G2 x10 y16 i3 j4 z9`.
+=== Examples
 
-Cela signifie faire un mouvement en arc ou hélicoïdal en sens horaire
-(vu du côté positif de l'axe Z), se terminant en X=10, Y=16 et Z=9,
-avec son centre décalé du point actuel de 3 unités en X et de 4 unités
-en Y. Si la position courante est X=7, Y=7 au final, le centre sera en
-X=10, Y=11. Si la position de départ de l'axe Z est 9, ce sera un arc
-circulaire, autrement ce sera un arc hélicoïdal. Le rayon de l'arc sera
-de 5.
+Calculating arcs by hand can be difficult at times. One option is to
+draw the arc with a cad program to get the coordinates and offsets.
+Keep in mind the tolerance mentioned above, you may have to change the
+precision of your cad program to get the desired results. Another
+option is to calculate the coordinates and offset using formulas. As
+you can see in the following figures a triangle can be formed from the
+current position the end position and the arc center.
 
-Dans le format centre, le rayon de l'arc n'est pas spécifié, mais il
-peut facilement être trouvé comme étant la distance entre le centre de
-l'arc et soit, son point d'arrivée soit, le point courant.
+In the following figure you can see the start position is X0 Y0, the
+end position is X1 Y1. The arc center position is at X1 Y0. This gives
+us an offset from the start position of 1 in the X axis and 0 in the Y
+axis. In this case only an I offset is needed.
+
+The code for the example:
+
+    G2 X1 Y1 I1 F10
+
+.G2 Example[[fig:G2-Example]]
+
+image::images/g2.png[]
+
+In the next example we see the difference between the offsets for Y if
+we are doing a G2 or a G3 move. For the G2 move the start position is
+X0 Y0, for the G3 move it is X0 Y1. The arc center is at X1 Y0.5 for
+both moves. The G2 move the J offset is 0.5 and the G3 move the J
+offset is -0.5.
+
+The g code for the following example:
+
+    G2 X0 Y1 I1 J0.5 F25
+    G3 X0 Y0 I1 J-0.5 F25
+
+.G2-G3 Example[[fig:G2/3-Example]]
+
+image::images/g2-3.png[]
+
+Here is an example of a center format command to mill a helix:
+
+    G17 G2 X10 Y16 I3 J4 Z9
+
+That means to make a clockwise (as viewed from the positive z-axis)
+circular or helical arc whose axis is parallel to the Z-axis, ending
+where X=10, Y=16, and Z=9, with its center offset in the X direction by
+3 units from the current X location and offset in the Y direction by 4
+units from the current Y location. If the current location has X=7, Y=7
+at the outset, the center will be at X=10, Y=11. If the starting value
+of Z is 9, this is a circular arc; otherwise it is a helical arc. The
+radius of this arc would be 5.
+
+In the center format, the radius of the arc is not specified, but it
+may be found easily as the distance from the center of the circle to
+either the current point or the end point of the arc.
+
+=== Full Circles
+
+    G2 or G3 I- J- K-
+
+To do a full 360 circle from the current location only program the I,
+J or K offset from the current location for the G2/G3. To program a 360
+degree helix in the XY plane just include the Z word.
+
+It is an error if:
+
+ - The K offset is used in the XY plane
+ - The J offset is used in the XZ plane
+ - the I offset is used in the YZ plane
 
 === Arcs au format rayon (format non recommandé)
 
@@ -348,22 +444,37 @@ long de l'arc. Les cercles presque complets sont encore pires.
 Autrement l'usinage d'arcs dans une gamme de petits à 165 degrés ou de
 195 à 345 degrés sera bon.
 
-Voici un exemple de commande pour usiner un arc au format `rayon: G17
-G2 x 10 y 15 r 20 z 5.`
+Voici un exemple de commande pour usiner un arc au format rayon: 
+
+    G17 G2 X10 Y15 R20 Z5
 
 Cela signifie faire un mouvement en arc ou hélicoïdal en sens horaire
 (vu du côté positif de l'axe Z), se terminant en X=10, Y=15 et Z=5,
 avec un rayon de 20. Si la valeur de départ de Z est 5, Ce sera un arc
 de cercle parallèle au plan XY sinon, ce sera un arc hélicoïdal.
 
-== G4 (((G4 Temporisation))): Tempo[[sec:G4-Tempo]]
+== G4 Tempo[[sec:G4-Tempo]](((G4 Temporisation)))
 
     G4 P[secondes]
 
 Pour une tempo, programmer G4 P- . Les axes s'immobiliseront pour une
-durée de P secondes. C'est une erreur si:
+durée de P secondes. 
+
+C'est une erreur si:
 
  - Le nombre P est négatif.
+
+== G5.1 Quadratic B-spline[[sec:G5.1-B-spline]](((G5.1 Quadratic B-spline)))
+
+    G5.1 Xn Yn I[X offset] J[Y offset]
+
+G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
+
+It is an error if:
+
+ - I and J offset is not specified
+ - An axis other than X or Y is specified
+ - The active plane is not G17
 
 == G5.2 G5.3 NURBs Block[[sec:G5.2-G5.3-NURBs]](((G5.2 G5.3 NURBs Block)))
 
@@ -401,20 +512,20 @@ Sample NURBs Code
 
 .Sample NURBs Output
 
-image::images/nurbs01.png[]
+image:images/nurbs01.png[]
 
 More information on NURBs can be found here:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
 
-== G7 : Mode diamètre[[sec:G7-Mode-diametre]](((G7 Mode diametre)))
+== G7 Mode diamètre[[sec:G7-Mode-diametre]](((G7 Mode diametre)))
 
 Sur un tour, programmer G7 pour passer l'axe X en mode diamètre. En
 mode diamètre, les mouvements de l'axe X font la moitié de la cote
 programmée. Par exemple, X10 placera l'outil à 5 unités du centre, ce
 qui produira bien une pièce d'un diamètre de 10 unités.
 
-== G8 : Mode rayon[[sec:G8-Mode-rayon]](((G8 Mode rayon)))
+== G8 Mode rayon[[sec:G8-Mode-rayon]](((G8 Mode rayon)))
 
 Sur un tour, programmer G8 pour passer l'axe X en mode rayon. En mode
 rayon, les mouvements de l'axe X sont égaux à la cote programmée. Ce
@@ -422,7 +533,8 @@ qui signifie que X10 placera l'outil à 10 unités du centre et aura pour
 résultat une pièce d'un diamètre de 20 unités. G8 est le mode par
 défaut à la mise sous tension.
 
-== G10 L1 : Entrée dans la table d'outils[[sec:G10-L1_]](((G10 L1 Entree dans la table d'outils)))
+== G10 L1 Entrée dans la table d'outils[[sec:G10-L1_]]
+(((G10 L1 Entree dans la table d'outils)))
 
     G10 L1 P[numéro d'outil] R[rayon]
         X[correcteur] Y[correcteur] Z[correcteur] 
@@ -432,16 +544,18 @@ défaut à la mise sous tension.
 
 Programmer un G10 L1 pour ajuster une entrée dans la table d'outils
 depuis un programme ou depuis la fenêtre d'entrées manuelles (MDI).
-G10 L1 recharge la table d'outils.
+Un valables G10 L1 réécrit la table d'outils. 
 
-It is an error if:
+C'est une erreur si:
 
- - Cutter Compensation is on
+  - Rémunération Cutter est sur
+  - Le nombre P est indéterminée
 
 Pour connaître l'orientation des outils, 
 se référer à la figure <<cap:Orientations-des-outils-de-tour>>
 
-== G10 L2 : Établissement du système de coordonnées pièce[[sec:G10-L2_]](((G10 L1 Etablissement coordonnees piece)))
+== G10 L2 Établissement du système de coordonnées pièce[[sec:G10-L2_]]
+(((G10 L1 Etablissement coordonnees piece)))
 
     G10 L1 P[système de coordonnées] R[XY rotation autour de Z]
         X[correcteur] Y[correcteur] Z[correcteur] 
@@ -510,7 +624,8 @@ G10 L2 P1 X0 Y0 Z0::
 |9 | 9 | 59.3
 |========================================
 
-== G10 L10 Set Tool Table[[sec:G10-L10]](((G10 L10 Set Tool Table)))
+== G10 L10 Set Tool Table[[sec:G10-L10]]
+(((G10 L10 Set Tool Table)))
 
     G10 L10 P[tool number] R[radius]
         X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
@@ -528,7 +643,8 @@ It is an error if:
 
  - Cutter Compensation is on
 
-== G10 L11 Set Tool Table[[sec:G10-L11]](((G10 L11 Set Tool Table)))
+== G10 L11 Set Tool Table[[sec:G10-L11]]
+(((G10 L11 Set Tool Table)))
 
     G10 L11 P[tool number] R[radius]
         X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
@@ -550,7 +666,8 @@ It is an error if:
 
  - Cutter Compensation is on
 
-== G10 L20 Set Coordinate System[[sec:G10-L20]](((G10 L20 Set Coordinate System)))
+== G10 L20 Set Coordinate System[[sec:G10-L20]]
+(((G10 L20 Set Coordinate System)))
 
     G10 L20 P[coordinate system] R[rotation about Z] 
         X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
@@ -566,7 +683,8 @@ It is an error if:
  - The P number does not evaluate to an integer in the range 0 to 9.
  - An axis is programmed that is not defined in the configuration.
 
-== G17 , G18, G19, G17.1, G18.1, G19.1: Choix du plan de travail[[sec:G17-G18-G19]](((G17 Plan XY)))(((G18 Plan XZ)))(((G19 Plan YZ)))
+== G17, G18, G19, G17.1, G18.1, G19.1 Choix du plan de travail[[sec:G17-G18-G19]]
+(((G17 Plan XY)))(((G18 Plan XZ)))(((G19 Plan YZ)))
 
 Ces codes sélectionnent le plan courant comme ci-dessous:
 
@@ -584,7 +702,8 @@ Les différents effets provoqués selon la sélection du plan de travail,
 sont expliqués dans les sections 
 <<sec:G2-G3-Arc>> et <<sub:Choix-du-plan-de-travail>>
 
-== G20, G21 : Choix des unités machine[[sec:G20-G21-Unites]](((G20 Pouce)))(((G21 Millimetre)))
+== G20, G21 Choix des unités machine[[sec:G20-G21-Unites]]
+(((G20 Pouce)))(((G21 Millimetre)))
 
 Programmer G20 pour utiliser le pouce comme unité de longueur. +
 Programmer G21 pour utiliser le millimètre comme unité de longueur.
@@ -595,7 +714,7 @@ ailleurs dans le programme. C'est la responsabilité de l'opérateur
 d'être sûr que toutes les longueurs sont appropriées pour l'utilisation
 des unités actuelles.
 
-== G28, G28.1 : Aller à une position prédéfinie[[sec:G28-G28.1]](((G28)))(((G28.1)))
+== G28, G28.1 Aller à une position prédéfinie[[sec:G28-G28.1]](((G28)))(((G28.1)))
 
 La commande G28 utilise les valeurs stockées dans les paramètres 5161
 à 5166 comme valeurs absolues pour effectuer un mouvement en vitesse
@@ -614,7 +733,7 @@ C'est une erreur si:
 
  - La compensation de rayon d'outil est active.
 
-== G30, G30.1 : Aller à une position prédéfinie[[sec:G30-G30.1]](((G30)))(((G30.1)))
+== G30, G30.1 Aller à une position prédéfinie[[sec:G30-G30.1]](((G30)))(((G30.1)))
 
 La commande G30 utilise les valeurs stockées dans les paramètres 5181 à 5186 
 comme valeurs absolues pour effectuer un mouvement en vitesse rapide 
@@ -635,7 +754,8 @@ C'est une erreur si:
 
  - La compensation de rayon d'outil est active.
 
-== G33: Mouvement avec broche synchronisée[[sec:G33-Broche-sync]](((G33 MVT avec broche synchronisee)))
+== G33 Mouvement avec broche synchronisée[[sec:G33-Broche-sync]]
+(((G33 MVT avec broche synchronisee)))
 
     G33 X- Y- Z- K-
 
@@ -661,7 +781,8 @@ C'est une erreur si:
  - Le mouvement linéaire requis excède les limites de vitesse machine 
     en raison de la vitesse de broche.
 
-== G33.1 : Taraudage Rigide[[sec:G33.1-Taraudage-rigide]](((G33.1 Taraudage rigide)))
+== G33.1 Taraudage Rigide[[sec:G33.1-Taraudage-rigide]]
+(((G33.1 Taraudage rigide)))
 
     G33.1 X- Y- Z- K-
 
@@ -704,7 +825,8 @@ Example:
     ;rigides tapant un fil 20 TPI
     G33.1 Z-0.750 K0.05
 
-== G38.x : Mesure au palpeur[[sec:G38.x-Palpeur]](((G38.2 Palpeur)))(((G38.5 Palpeur)))
+== G38.x Mesure au palpeur[[sec:G38.x-Palpeur]]
+(((G38.2 Palpeur)))(((G38.3 Palpeur)))(((G38.4 Palpeur)))(((G38.5 Palpeur)))
 
 IMPORTANT: Vous ne serez pas réussi à utiliser cette commande jusqu'à ce que votre
 machine a été mis en place pour fournir un signal de la sonde via HAL à EMC2.
@@ -766,7 +888,8 @@ ficher 'filename.txt' et y enregistrera les 9 coordonnées de
 XYZABCUVW de chaque mesure réussie. 
 Le fichier doit être fermé avec le commentaire `(PROBECLOSE)`. 
 
-== G40 Compensation de rayon d'outil[[sec:G40]](((G40 Revocation compensation rayon)))
+== G40 Compensation de rayon d'outil[[sec:G40]]
+(((G40 Revocation compensation rayon)))
 
 Pour désactiver la compensation de rayon d'outil, programmer `G40`. 
 Le mouvement suivant doit être une droite. 
@@ -776,7 +899,7 @@ C'est une erreur si:
 
  - Un mouvement en arc avec G2 ou G3 derrière un G40.
 
-== G41, G42: Compensation de rayon d'outil[[sec:G41-G42]]
+== G41, G42 Compensation de rayon d'outil[[sec:G41-G42]]
 (((G41 Compensation de rayon)))(((G42 Compensation de rayon)))
 
     G41 ou G42 D[outil]
@@ -820,7 +943,7 @@ C'est une erreur si:
  - Le plan de travail n'est pas YZ.
  - La compensation de rayon d'outil est activée alors qu'elle est déjà active.
 
-== G41.1, G42.1: Compensation dynamique de rayon d'outil[[sec:G41.1-G42.1]]
+== G41.1, G42.1 Compensation dynamique de rayon d'outil[[sec:G41.1-G42.1]]
 (((G41.1 Compensation dynamique de rayon)))(((G42.1 Compensation dynamique de rayon)))
 
     G41.1 or G42.1 D[diamètre] <L[orientation]>
@@ -839,19 +962,20 @@ C'est une erreur si:
  - Le nombre L est utilisée lorsque le plan XZ n'est pas actif..
  - La compensation de rayon d'outil est activée alors qu'elle est déjà active.
 
-Pour plus d'informations sur l'orientation cutter voir le <<cap:Lathe-Tool-Orientations>> et
-<<fig:Tool-Positions-1-2-3-4>> et <<fig:Tool-Positions-5-6-7-8>> diagrammes.
+Pour plus d'informations sur l'orientation cutter voir le <<cap:Orientations-des-outils-de-tour>> et
+<<fig:Outil-Positions-1-2-3-4>> et <<fig:Outil-Positions-5-6-7-8>> diagrammes.
 
-== G43, G43.1, G49 : Compensation de longueur d'outil[[sec:G43-G43.1-Outils]](((G43 Compensation de longueur)))(((G43.1 Compensation dynamique de longueur)))(((G49 Revocation compensation longueur)))
+== G43, G43.1, G49 Compensation de longueur d'outil[[sec:G43-G43.1-Outils]]
+(((G43 Compensation de longueur)))(((G43.1 Compensation dynamique de longueur)))(((G49 Revocation compensation longueur)))
 
-=== G43 , G43.1: Activation de la compensation de longueur d'outil
+=== G43 , G43.1 Activation de la compensation de longueur d'outil
 
 G43 et G43.1 modifient les mouvements ultérieurs en décalant, de la
 longueur de l'outil, les coordonnées de Z et/ou de X. G43 et G43.1 ne
 provoquent aucun mouvement. L'effet de la compensation ne se produira
 qu'au prochain mouvement de l'axe compensé.
 
-==== G43: Compensation de longueur d'outil depuis une table d'outils
+==== G43 Compensation de longueur d'outil depuis une table d'outils
 
 Pour utiliser la compensation de longueur d'outil depuis une table
 d'outils, programmer `G43 H-`, où la valeur de H est l'index souhaîté
@@ -865,7 +989,7 @@ C'est une erreur si:
  - La valeur de H n'est pas un entier, il est négatif, ou il est
    supérieur au nombre d'outils dans le carrousel.
 
-==== G43.1: Compensation dynamique de longueur d'outil
+==== G43.1 Compensation dynamique de longueur d'outil
 
 Pour utiliser la compensation dynamique de longueur d'outil depuis un
 programme, utiliser `G43.1 I- K-`, où `I-` donne la compensation de
@@ -877,7 +1001,7 @@ C'est une erreur si:
 
  - Une commande de mouvement est sur la même ligne que `G43.1`
 
-=== G49 : Annulation de la compensation de longueur d'outil[[sub:G49-Outils]](((G49 Revocation compensation longueur)))
+=== G49 Annulation de la compensation de longueur d'outil[[sub:G49-Outils]](((G49 Revocation compensation longueur)))
 
 Pour annuler la compensation de longueur d'outil, programmer G49.
 
@@ -885,7 +1009,8 @@ Ce n'est pas une erreur de programmer une compensation qui est déjà
 utilisée. Ce n'est pas non plus une erreur d'annuler la compensation de
 longueur d'outil alors qu'aucune n'est couramment utilisée.
 
-== G53 : Mouvement en coordonnées absolues[[sec:G53-Move-in]](((G53 Mouvements en absolu)))
+== G53 Mouvement en coordonnées absolues[[sec:G53-Move-in]]
+(((G53 Mouvements en absolu)))
 
 Pour un déplacement à un point exprimé en coordonnées absolues, 
 programmer `G1 G53 X- Y- Z- A- B- C-` (ou utiliser `G0` à la place de 
@@ -907,17 +1032,18 @@ C'est une erreur si:
 Voir la section <<cha:Systemes-de-coordonnees>> pour une vue
 complète des systèmes de coordonnées.
 
-== G54-G59.3 : Choix du système de coordonnées[[sec:G54-a-G59.3]]
+== G54-G59.3 Choix du système de coordonnées[[sec:G54-a-G59.3]]
 (((G54 Origine piece 1)))(((G55 Origine piece 2)))(((G56 Origine piece 3))) 
 (((G57 Origine piece 4)))(((G58 Origine piece 5)))(((G59 Origine piece 6))) 
 (((G59.1 Origine piece 7)))(((G59.2 Origine piece 8)))(((G59.3 Origine piece 9)))
 
-Le code G54 est apparié avec le système de coordonnées pièce N°1, pour
-le choisir programmer G54 et ainsi de suite pour les autres systèmes.
-Les systèmes de coordonnées appariés à un G-code sont les suivants: (1
-avec `G54`), (2 avec `G55`), (3 `avec G56`), (4 avec `G57`), (5 avec
-`G58`), (6 avec `G59`), (7 avec `G59.1`), (8 avec `G59.2`) et (9 avec
-`G59.3`).
+Le code G54 est apparié avec le système de coordonnées pièce N°1, 
+pour le choisir programmer G54 
+et ainsi de suite pour les autres systèmes.
+Les systèmes de coordonnées appariés à un G-code sont les suivants: 
+(1 avec `G54`), (2 avec `G55`), (3 `avec G56`), 
+(4 avec `G57`), (5 avec `G58`), (6 avec `G59`), 
+(7 avec `G59.1`), (8 avec `G59.2`), et (9 avec `G59.3`).
 
 Les systèmes de coordonnées stocker les valeurs
 pour chaque système dans le
@@ -947,7 +1073,7 @@ C'est une erreur si:
 Voir la section <<cha:Systemes-de-coordonnees>> pour une vue
 complète des systèmes de coordonnées.
 
-== G61, G61.1, G64 : Types de contrôle de trajectoire[[sec:G61-G61.1-G64]]
+== G61, G61.1, G64 Types de contrôle de trajectoire[[sec:G61-G61.1-G64]]
 (((G61 Trajectoire exacte)))(((G61.1 Arret exact)))(((G64 Trajectoire continue))) 
 (((Path Control)))(((Controle-trajectoire)))
 
@@ -988,7 +1114,7 @@ Section <<sub:Modes-de-controle-trajectoires>> pour une discussion de ces modes.
 Si Q n'est pas spécifié alors il aura le même comportement comme avant et
 utiliser la valeur de P-. 
 
-== G73 : Cycle de perçage avec brise copeaux[[sec:G73-Percage-avec-brise-copeaux]](((G73 Cycle percage brise copeaux)))
+== G73 Cycle de perçage avec brise copeaux[[sec:G73-Percage-avec-brise-copeaux]](((G73 Cycle percage brise copeaux)))
 
     G73 X- Y- Z- A- B- C- R- L- Q-
 
@@ -1010,10 +1136,11 @@ C'est une erreur si:
 
  - La valeur de Q est négative ou égale à zéro.
 
-== G76 : Cycle de filetage préprogrammé[[sec:G76-Filetage]](((G76 Cycle filetage multipasses)))
+== G76 Cycle de filetage préprogrammé[[sec:G76-Filetage]](((G76 Cycle filetage multipasses)))
 
-Programmer `G76 P- Z- I- J- R- K- Q- H- E- L-` pour produire un cycle
-de filetage multi-passes. C'est une erreur si:
+    G76 P- Z- I- J- R- K- Q- H- E- L-
+
+C'est une erreur si:
 
  - Le plan de travail actif n'est pas ZX.
  - D'autres mots d'axes comme X- ou Y-, sont spécifiés.
@@ -1047,21 +1174,21 @@ positif, même quand I`-` est négatif.
 
 La dégressivité de la profondeur de passe est donnée par la valeur de
 `R-`. `R1.0` sélectionne une profondeur de passe constante pour les
-passes
- successives du filetage. `R2.0` sélectionne une surface constante.
-Les valeurs comprises entre 1.0 et
-2.0 sélectionnent une profondeur décroîssante mais une surface
-croîssante. Enfin, les valeurs supérieures à 2.0 sélectionnent une
-surface décroîssante. Attention: les valeurs inutilement hautes de
-dégression, demanderont un nombre inutilement important de passes.
+passes  successives du filetage. 
+`R2.0` sélectionne une surface constante.
+Les valeurs comprises entre 1.0 et 2.0 sélectionnent 
+une profondeur décroîssante mais une surface croîssante. 
+Enfin, les valeurs supérieures à 2.0 sélectionnent une surface décroîssante. 
+
+Attention: les valeurs inutilement hautes de dégression, 
+demanderont un nombre inutilement important de passes.
 
 L'angle de pénétration oblique est donné par la valeur de `Q-` c'est
 l'angle (en degrés) décrivant de combien les passes successives
-doivent être décalées le long de l'axe. C'est utilisé pour faire
-enlever plus de matériau d'un côté de l'outil que de l'autre. Une
- valeur positive de `Q` fait couper d'avantage le bord principal de
-l'outil. Typiquement, les
-valeurs sont 29, 29.5 ou 30 degrés.
+doivent être décalées le long de l'axe. 
+C'est utilisé pour faire enlever plus de matériau d'un côté de l'outil que de l'autre. 
+Une valeur positive de `Q` fait couper d'avantage le bord principal de l'outil. 
+Typiquement, les valeurs sont 29, 29.5 ou 30 degrés.
 
 Le nombre de passes de finition est donné par la valeur de `H-` . Les
 passes de finition sont des passes additionnelles en fond de
@@ -1099,9 +1226,9 @@ configuration `sim/lathe.ini`.
 
 .G76 cycle de filetage[[fig:G76-cycle-de-filetage]]
 
-image::g76.eps[]
+image::images/g76-01.png[]
 
-== G80 : Révocation des codes modaux[[sec:G80-Revocation-modaux]](((G80 Revocation codes modaux)))
+== G80 Révocation des codes modaux[[sec:G80-Revocation-modaux]](((G80 Revocation codes modaux)))
 
 Programmer `G80` pour s'assurer qu'aucun mouvement d'axe ne
 surviendra sans G-code
@@ -1136,7 +1263,7 @@ travail courant (axe Z pour le plan XY, axe X pour le plan YZ, axe Y
 pour le plan XZ, etc.). Quelques cycles préprogrammés utilisent des
 arguments supplémentaires.
 
-=== Mots «sticky»
+=== Mots "sticky"
 
 Dans les cycles préprogrammés, un nombre est appelé «sticky» (persistante, collant)
 si, quand le même cycle est répété sur plusieurs lignes de code en
@@ -1222,7 +1349,7 @@ des mouvements suivants sont faits:
 Si un autre plan est actif, le mouvement préliminaire et intermédiaire
 est analogue.
 
-=== G81 : Cycle de perçage[[sub:G81-Cycle-de-percage]](((G81 Cycle de percage)))
+=== G81 Cycle de perçage[[sub:G81-Cycle-de-percage]](((G81 Cycle de percage)))
 
     G81 (X- Y- Z- ) or (U- V- W- ) R- L-
 
@@ -1291,7 +1418,7 @@ passe à 17.
  . Un déplacement en vitesse travail, parallèle à l'axe Z vers X13, Y17, Z4.2 
  . Un déplacement en vitesse rapide, parallèle à l'axe Z vers X13, Y17, Z4.8 
 
-=== G82 : Cycle de perçage avec temporisation[[sub:G82-Cycle-de-percage]](((G82 Cycle de percage avec tempo)))
+=== G82 Cycle de perçage avec temporisation[[sub:G82-Cycle-de-percage]](((G82 Cycle de percage avec tempo)))
 
     G82 (X- Y- Z- ) or (U- V- W- ) R- L- P-
 
@@ -1302,7 +1429,7 @@ Le cycle `G82` est destiné au perçage.
  . Une temporisation de P secondes.
  . Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 
-=== G83 : Cycle de perçage avec débourrage[[sub:G83-Percage-avec-debourrage]](((G83 Cycle de percage avec debourrage)))
+=== G83 Cycle de perçage avec débourrage[[sub:G83-Percage-avec-debourrage]](((G83 Cycle de percage avec debourrage)))
 
     G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
 
@@ -1328,12 +1455,12 @@ C'est une erreur si:
 
  - La valeur de Q est négative ou égale à zéro.
 
-=== G84 : Cycle de taraudage à droite[[sub:G84-Taraudage-a-droite]](((G84 Cycle de taraudage)))
+=== G84 Cycle de taraudage à droite[[sub:G84-Taraudage-a-droite]](((G84 Cycle de taraudage)))
 
 Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
 comportement n'est pas défini. Voir `G33.1`
 
-=== G85 : Cycle d'alésage, sans temporisation, retrait en vitesse travail[[sub:G85-Alesage-retrait-travail]](((G85 Cycle d'alesage)))
+=== G85 Cycle d'alésage, sans temporisation, retrait en vitesse travail[[sub:G85-Alesage-retrait-travail]](((G85 Cycle d'alesage)))
 
     G85 (X- Y- Z-) or (U- V- W-) R- L-
 
@@ -1345,7 +1472,7 @@ fraisage.
  . Un déplacement de l'axe Z seul en vitesse travail, vers la position Z programmée. 
  . Retrait de l'axe Z en vitesse travail vers le plan de retrait. 
 
-=== G86 : Cycle d'alésage, arrêt de broche, retrait en vitesse rapide[[sub:G86-Alesage-retrait-rapide]](((G86 Cycle d'alesage)))
+=== G86 Cycle d'alésage, arrêt de broche, retrait en vitesse rapide[[sub:G86-Alesage-retrait-rapide]](((G86 Cycle d'alesage)))
 
     G86 (X- Y- Z-) or (U- V- W-) R- L- P-
 
@@ -1365,17 +1492,17 @@ erreur si:
 
  - La broche ne tourne pas avant que ce cycle ne soit éxécuté.
 
-=== G87: Alésage inverse[[sub:G87-Back-Boring]](((G87 Alesage inverse)))
+=== G87 Alésage inverse[[sub:G87-Back-Boring]](((G87 Alesage inverse)))
 
 Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
 comportement n'est pas défini.
 
-=== G88 : Alésage, arrêt de broche, retrait en manuel[[sub:G88-Boring-retrait-manuel]](((G88 Cycle d'alesage)))
+=== G88 Alésage, arrêt de broche, retrait en manuel[[sub:G88-Boring-retrait-manuel]](((G88 Cycle d'alesage)))
 
 Ce code n'est pas encore implémenté dans EMC2. Il est accepté mais son
 comportement n'est pas défini.
 
-=== G89 : Cycle d'alésage, temporisation, retrait en vitesse travail[[sub:G89-Alesage-temporisation]](((G89 Cycle d'alesage)))
+=== G89 Cycle d'alésage, temporisation, retrait en vitesse travail[[sub:G89-Alesage-temporisation]](((G89 Cycle d'alesage)))
 
     G89 (X- Y- Z-) or (U- V- W-) R- L- P-
 
@@ -1566,20 +1693,26 @@ entre le G98 et G99 au cours d'une série de cycles.
 
 = M Codes
 
-== M0, M1, M2, M30, M60 : Arrêts de programme[[sec:M0-M1-M2]](((M0 Arret de programme)))
-(((M1 Arret de programme)))(((M2 Fin de programme)))
-(((M30 Fin de programme)))(((M60 Arret de programme)))
+== M0, M1, M2, M30, M60 Arrêts de programme[[sec:M0-M1-M2]]
+(((M0 Arret de programme)))(((M1 Arret optionnel de programme)))
+(((M2 Fin de programme)))(((M30 Fin de programme)))(((M60 Fin de programme)))
 
-Pour stopper temporairement un programme en cours (quelle que soit la
-position du bouton d'arrêt facultatif), programmer M0.
+Pour stopper temporairement un programme en cours 
+(quelle que soit la position du bouton d'arrêt facultatif), 
+programmer M0.
+EMC2 reste en mode automatique afin de MDI et 
+d'autres actions manuelles ne sont pas activés.
 
-Pour stopper temporairement un programme en cours (mais seulement si
-le bouton d'arrêt optionnel est activé), programmer M1.
+Pour stopper temporairement un programme en cours 
+(mais seulement si le bouton d'arrêt optionnel est activé), 
+programmer M1.
+EMC2 reste en mode automatique afin de MDI et 
+d'autres actions manuelles ne sont pas activés.
 
-Il est permis de programmer `M0` et `M1` en mode données manuelles
-(MDI), mais l'effet ne sera probablement
-pas perceptible, puisque le comportement normal en mode MDI est de
-s'arrêter, de toute façon, à la fin de chaque ligne.
+Il est permis de programmer `M0` et `M1` en mode données manuelles (MDI), 
+mais l'effet ne sera probablement pas perceptible, 
+puisque le comportement normal en mode MDI est 
+de s'arrêter, de toute façon, à la fin de chaque ligne.
 
 Pour procéder à l'échange de porte-pièce avec le chargeur de pièces et
 stopper temporairement un programme en cours (quel que soit le réglage
@@ -1588,10 +1721,11 @@ du bouton d'arrêt facultatif), programmer M60.
 Si un programme est stoppé par M0, M1, ou M60, en appuyant sur le
 bouton de départ cycle, le programme reprend à la ligne suivante.
 
-Pour finir un programme, programmer `M2`. Pour changer le porte-pièce
-du chargeur et finir un programme,
-programmer `M30`. Ces deux commandes produisent les effets suivants:
+Pour finir un programme, programmer `M2`. 
+Pour changer le porte-pièce du chargeur et finir un programme, programmer `M30`. 
+Ces deux commandes produisent les effets suivants:
 
+ . Changement du mode automatique au mode MDI.
  . Les décalages d'axes sont mis à zéro (comme avec `G92.2` ) et les
    décalages d'origine sont mis aux valeurs par défaut (comme
    avec `G54`).
@@ -1604,34 +1738,34 @@ programmer `M30`. Ces deux commandes produisent les effets suivants:
  . Le mode mouvement courant devient G1 (comme avec `G1`). 
  . L'arrosage est arrêté (comme avec `M9`). 
 
-Plus aucune ligne de code RS274/NGC ne sera exécutée après exécution
-de la commande M2 ou M30. Presser le départ cycle relance le programme
+Plus aucune ligne de code RS274/NGC ne sera exécutée 
+après exécution de la commande M2 ou M30. 
+Presser le départ cycle relance le programme 
 au début du fichier.
 
-== M3, M4, M5 : Contrôle de broche[[sec:M3-M4-M5]](((M3 Broche sens horaire)))(((M4 Broche sens anti-horaire)))(((M5 Arret de broche)))
+== M3, M4, M5 Contrôle de broche[[sec:M3-M4-M5]]
+(((M3 Broche sens horaire)))(((M4 Broche sens anti-horaire)))(((M5 Arret de broche)))
 
-Pour démarrer la rotation de la broche en sens horaire à la vitesse
-programmée courante, programmer `M3`.
-
-Pour démarrer la rotation de la broche en sens anti-horaire à la
-vitesse programmée courante, programmer M4.
-
-Pour arrêter la rotation de la broche, programmer `M5`.
+Pour démarrer la broche en sens horaire à la vitesse "S", programmer `M3`. +
+Pour démarrer la broche en sens anti-horaire à la vitesse "S", programmer `M4`. +
+Pour arrêter la rotation de la broche, programmer `M5`. 
 
 Il est permis d'utiliser `M3` ou `M4` si la vitesse de broche est à zéro. 
-Si cela est fait (ou si le bouton
-de correction de vitesse est activé mais mis à zéro), la broche ne
-tournera pas, si, plus tard la vitesse de broche est augmentée (ou que
-le correcteur de vitesse est augmenté), la broche va se mettre en 
-rotation. Il est permis d'utiliser `M3` ou `M4` quand la broche est
-déjà en rotation ou d'utiliser `M5` quand la broche est déjà arrêtée.
+Si cela est fait 
+(ou si le bouton de correction de vitesse est activé mais mis à zéro), 
+la broche ne tournera pas. 
+Si, plus tard la vitesse de broche est augmentée 
+(ou que le correcteur de vitesse est augmenté), 
+la broche va se mettre en rotation. 
+Il est permis d'utiliser `M3` ou `M4` quand la broche est déjà 
+en rotation ou d'utiliser `M5` quand la broche est déjà arrêtée.
 
-== M6 : Appel d'outil[[sec:M6-Appel-d-outil]](((M6 Appel d'outil)))
+== M6 Appel d'outil[[sec:M6-Appel-d-outil]](((M6 Appel d'outil)))
 
 === Changement D'Outil Manuel
 
-Si le hal_manualtoolchange composant HAL est chargé M6 va 
-arrêter la broche et invite l'utilisateur à changer l'outil. 
+Si le hal_manualtoolchange composant HAL est chargé, 
+M6 va arrêter la broche et invite l'utilisateur à changer l'outil. 
 Pour plus d'informations sur hal_manualtoolchange voir 
 la section (<<sec:Changement-D-Outil-Manuel>>)
 
@@ -1639,88 +1773,91 @@ la section (<<sec:Changement-D-Outil-Manuel>>)
 
 Pour changer l'outil actuellement dans la broche par un autre,
 nouvellement sélectionné en utilisant le mot T, voir la section 
-(<<sec:T-Sélectionnez-Tool>>), programmer `M6`. Un changement d'outil
-complet donnera:
+(<<sec:T-Selectionnez-Tool>>), programmer `M6`. 
+Un changement d'outil complet donnera:
 
  - La rotation de la broche est arrêtée. 
  - L'outil qui a été sélectionné (par le mot T sur la même ligne ou sur
-   n'importe quelle ligne après le changement d'outil précédent), sera
-   placé dans la broche. Le mot T est un nombre entier indiquant le numéro
-   du slot d'outil dans le carrousel (non son index).
+   n'importe quelle ligne après le changement d'outil précédent), 
+   sera placé dans la broche. 
+   Le mot T est un nombre entier indiquant le 
+   numéro du slot d'outil dans le carrousel (non son index).
  - Si l'outil sélectionné n'est pas déjà dans la broche avant le
-   changement d'outil, l'outil qui était dans la broche (s'il y en avait
-   un) va être replacé dans son emplacement dans le chargeur. 
+   changement d'outil, l'outil qui était dans la broche 
+   (s'il y en avait un) 
+   va être replacé dans son emplacement dans le chargeur. 
  - Les coordonnées des axes seront arrêtées dans les mêmes positions
    absolues qu'elles avaient avant le changement d'outil (mais la broche
    devra peut-être être réorientée).
  - Aucune autre modification ne sera apportée. Par exemple, l'arrosage
    continue à couler durant le changement d'outil à moins qu'il ne soit
    arrêté par `M9`.
+ - La longueur d'outil n'est pas modifié, 
+   utilisez G43 pour changer la longueur d'outil. 
 
-Le changement d'outil peut inclure des mouvements d'axes pendant son
-exécution. Il est permis, mais pas utile, de programmer un changement
-d'outil avec le même outil que celui qui est déjà dans la broche. Il
-est permis également, si il n'y a pas d'outil dans le slot sélectionné,
-dans ce cas, la broche sera vide après le changement d'outil. Si le
-slot zéro a été le dernier sélectionné, il n'y aura pas d'outil dans la
-broche après le changement.
+Le changement d'outil peut inclure des mouvements d'axes pendant son exécution. 
+Il est permis (mais pas utile) de programmer un changement d'outil avec 
+le même outil que celui qui est déjà dans la broche. 
+Il est permis également, si il n'y a pas d'outil dans le slot sélectionné, 
+dans ce cas, la broche sera vide après le changement d'outil. 
+Si le slot zéro a été le dernier sélectionné, 
+il n'y aura pas d'outil dans la broche après le changement.
 
-== M7 (((M7 Goutelettes))), M8(((M8 Arrosage))), M9(((M9 Arret d'arrosages))): Contrôle d'arrosage[[sec:M7-M8-M9]]
+== M7, M8, M9 Contrôle d'arrosage[[sec:M7-M8-M9]]
+(((M7 Goutelettes)))(((M8 Arrosage)))(((M9 Arret d'arrosages)))
 
-Pour activer l'arrosage par brouillard (gouttelettes), programmer `M7`.
-
-Pour activer l'arrosage fluide, programmer `M8`.
-
+Pour activer l'arrosage par brouillard (gouttelettes), programmer `M7`. +
+Pour activer l'arrosage fluide, programmer `M8`. +
 Pour arrêter tous les arrosages, programmer `M9`.
 
-Il est toujours permis d'utiliser une de ces commandes, que les
-arrosages soient arrêtés ou non.
+Il est toujours permis d'utiliser une de ces commandes, 
+que les arrosages soient arrêtés ou non.
 
-== M48 (((M48 Controle correcteur de vitesse))), M49(((M49))): Contrôle des correcteurs de vitesse[[sec:M48-Deux-Correcteur]][[sec:M49-Ni-Correcteur]]
+== M48, M49 Contrôle des correcteurs de vitesse[[sec:M48-Deux-Correcteur]][[sec:M49-Ni-Correcteur]]
+(((M48, M49 Controle correcteur de vitesse de deux autoriser/inhiber)))
 
-Pour autoriser les potentiomètres de corrections de vitesses de broche
-et celui de vitesse travail, programmer `M48`. Pour les inhiber tous
-les deux, programmer `M49` . Voir la section 
-<<sub:Interaction-vitesses>> pour plus de détails.
-Il est permis d'autoriser ou d'inhiber ces potentiomètres quand ils
-sont déjà autorisés ou inhibés. Ces potentiomètres peuvent aussi être
-activés individuellement en utilisant les commandes M50 et M51 comme
-décrit dans les sections <<sec:M50-Avance-Correcteur>> et 
-<<sec:M51-Broche-Correcteur>>.
+Pour autoriser les potentiomètres de corrections de 
+vitesses de broche et celui de vitesse travail, programmer `M48`. 
+Pour les inhiber tous les deux, programmer `M49`. 
+Voir la section <<sub:Interaction-vitesses>> pour plus de détails.
+Il est permis d'autoriser ou d'inhiber ces potentiomètres quand 
+ils sont déjà autorisés ou inhibés. 
+Ces potentiomètres peuvent aussi être activés individuellement 
+en utilisant les commandes M50 et M51 comme décrit dans les 
+sections <<sec:M50-Avance-Correcteur>> et <<sec:M51-Broche-Correcteur>>.
 
-== M50 (((M50 Controle correcteur travail))): Contrôle du correcteur de vitesse travail[[sec:M50-Avance-Correcteur]]
+== M50 Contrôle du correcteur de vitesse travail[[sec:M50-Avance-Correcteur]](((M50 Controle correcteur travail)))
 
 Pour autoriser le potentiomètre de correction de vitesse travail,
-programmer `M50` ou `M50 P1`. Pour inhiber ce potentiomètre, programmer
-`M50 P0` . Quand il est inhibé, le potentiomètre de correction de
-vitesse n'a
-plus aucune influence et les mouvements seront exécutés à la vitesse de
-travail programmée. (à moins que ne soit actif un correcteur de vitesse
-adaptative).
+programmer `M50` ou `M50 P1`. 
+Pour inhiber ce potentiomètre, programmer `M50 P0`. 
+Quand il est inhibé, le potentiomètre de correction de
+vitesse n'a plus aucune influence 
+et les mouvements seront exécutés à la vitesse de travail programmée. 
+(à moins que ne soit actif un correcteur de vitesse adaptative).
 
-== M51 (((M51 Controle correcteur broche))): Contrôle du correcteur de vitesse broche[[sec:M51-Broche-Correcteur]]
+== M51 Contrôle du correcteur de vitesse broche[[sec:M51-Broche-Correcteur]](((M51 Controle correcteur broche)))
 
-Pour autoriser le potentiomètre de correction de vitesse de la broche,
-programmer `M51` ou `M51 P1`. Pour inhiber ce potentiomètre programmer
-`M51 P0` . Quand il est inhibé, le potentiomètre de correction de
-vitesse de
-broche n'a plus aucune influence et la broche tournera à la vitesse
-programmée, en utilisant le mot S comme décrit dans la section 
-<<sec:S-broche>>.
+Pour autoriser le potentiomètre de correction de vitesse de la broche, 
+programmer `M51` ou `M51 P1`. 
+Pour inhiber ce potentiomètre programmer `M51 P0`. 
+Quand il est inhibé, le potentiomètre de correction de vitesse de broche 
+n'a plus aucune influence, et la broche tournera à la vitesse programmée, 
+(en utilisant le mot S comme décrit dans la section <<sec:S-broche>>).
 
-== M52 (((M52 Controle vitesse adaptative))): Contrôle de vitesse adaptative[[sec:M52-Controle-vitesse-adaptative]]
+== M52 Contrôle de vitesse adaptative[[sec:M52-Controle-vitesse-adaptative]](((M52 Controle vitesse adaptative)))
 
 Pour utiliser une vitesse adaptative, programmer `M52` ou `M52 P1`.
-Pour stopper l'utilisation d'une vitesse adaptative, programmer `M52
-P0`. Quand la vitesse adaptative est utilisée, certaines valeurs
-externes
-sont utilisées avec les correcteurs de vitesse de l'interface
-utilisateur et les vitesses programmées pour obtenir la vitesse 
-travail. Dans EMC2, la HAL pin `motion.adaptive-feed` est utilisée
-dans ce but. Les valeurs de `motion.adaptive-feed` doivent être dans
-une échelle comprise entre 0 (pas de vitesse) et 1 (pleine vitesse).
+Pour stopper l'utilisation d'une vitesse adaptative, programmer `M52 P0`. 
+Quand la vitesse adaptative est utilisée, 
+certaines valeurs externes sont utilisées avec les 
+correcteurs de vitesse de l'interface utilisateur et 
+les vitesses programmées pour obtenir la vitesse travail. 
+Dans EMC2, la HAL pin `motion.adaptive-feed` est utilisée dans ce but. 
+Les valeurs de `motion.adaptive-feed` doivent être dans une échelle comprise 
+entre 0 (pas de vitesse) et 1 (pleine vitesse).
 
-== M53 (((M53 Controle coupure vitesse))): Contrôle de coupure de vitesse[[sec:M53-Controle-coupure-vitesse]]
+== M53 Contrôle de coupure de vitesse[[sec:M53-Controle-coupure-vitesse]](((M53 Controle coupure vitesse)))
 
 Pour autoriser le bouton de coupure de vitesse, programmer `M53` ou
 `M53 P1`. Pour inhiber ce bouton programmer `M53 P0` . Autoriser la
@@ -1729,7 +1866,7 @@ coupure de vitesse permet d'interrompre les mouvements
 `motion.feed-hold` est utilisée pour cette fonctionnalité. Une valeur
 de 1 provoque un arrêt des mouvements (si `M53` est actif).
 
-== M61 (((M61 Ajuste numero outil))): Ajuste le numéro de l'outil courant[[sec:M61-Ajuste-numero-outil]]
+== M61 Ajuste le numéro de l'outil courant[[sec:M61-Ajuste-numero-outil]](((M61 Ajuste numero outil)))
 
 Pour corriger le numéro de l'outil courant, en mode MDI ou après un
 changement manuel d'outil programmer M61 Qxx dans la fenêtre de données
@@ -1741,7 +1878,7 @@ changement d'outil.
 
  - Qxx n'est pas égal où supérieur à 0
 
-== M62 à M65 (((M62 Controle sorties num))): Contrôle de sorties numériques[[sec:M62-a-M65-Controle-sorties-num]]
+== M62 à M65 Contrôle de sorties numériques[[sec:M62-a-M65-Controle-sorties-num]](((M62 Controle sorties num)))
 
 Pour contrôler un bit de sortie digitale, programmer `M- P-` , où le
 mot M doit être compris entre 62 et 65, et le mot P compris
@@ -1780,7 +1917,7 @@ M64 M65 et produire immédiatement, car ils sont reçus par
 le contrôleur de mouvement. Ils ne sont pas synchronisés 
 avec le mouvement, et ils vont casser le mélange.
 
-== M66 (((M66 Controle entrees num))): Contrôle d'entrée digitale[[sec:M66-Controle-entrees-num]]
+== M66 Contrôle d'entrée digitale[[sec:M66-Controle-entrees-num]](((M66 Controle entrees num)))
 
 Pour contrôler un bit d'entrée digitale, programmer 
 `M66 P- E- L- Q-`, où le P-parole et les gammes E-parole de 0 à 3. 
@@ -1840,7 +1977,7 @@ more information on the Motion Controller. M68 functions the same as
 M64-65. See the M62-65 section for information about immediate output
 commands.
 
-== M100 à M199 : Commandes définies par l'utilisateur[[sec:M100-a-M199]](((M100..199 Mcodes utilisateur)))
+== M100 à M199 Commandes définies par l'utilisateur[[sec:M100-a-M199]](((M100..199 Mcodes utilisateur)))
 
 Pour invoquer une commande définie par l'utilisateur, programmer M1xx
 P- Q- où P et Q sont facultatifs. Le programme externe `` M1nn'', qui
@@ -1900,10 +2037,10 @@ Le comportement est indéfini si:
  - D'autres mots sont utilisés sur une ligne contenant un mot O.
  - Un commentaire est utilisé sur une ligne contenant un code O.
 
-== Sous-programmes:   «sub(((sub)))», «endsub(((endsub)))», «return(((return)))», «call(((call)))»
+== Sous-programmes: "sub", "endsub", "return", "call"(((sub)))(((endsub)))(((return)))(((call)))
 
-Les sous-programmes s'étendent d'un `O- sub` à un `O- endsub` . Les
-lignes, à l'intérieur du sous-programme (le corps du
+Les sous-programmes s'étendent d'un `O- sub` à un `O- endsub`. 
+Les lignes, à l'intérieur du sous-programme (le corps du
 sous-programme), ne sont pas exécutées dans l'ordre, mais 
 elles sont exécutées à chaque fois que le sous-programme 
 est appelé avec un `O-call`. 
@@ -1943,7 +2080,7 @@ changer la valeur des paramètres au dessus de #30 et ces changements
 sont visibles depuis le code appelant. Les sous-programmes peuvent
 aussi changer la valeur des paramètres nommés globaux.
 
-== Boucles: «do», «while», «endwhile», «break», «continue»(((Looping: do, while, endwhile, break, continue)))
+== Boucles: "do", "while", "endwhile", "break", "continue"(((Looping: do, while, endwhile, break, continue)))
 
 La boucle «while» a deux structures possibles: while/endwhile et
 do/while. Dans chaque
@@ -1959,13 +2096,12 @@ fausse.
     #1 = [#1+1]
     O101 endwhile
 
-À l'intérieur d'une boucle while, `O- break``,` quitte immédiatement
-la boucle et `O- continue``,` saute immédiatement à la prochaine
-évaluation de la condition du `while` . Si elle est vraie, la boucle
-recommence au début. Si elle est
-fausse, la boucle est quittée.
+À l'intérieur d'une boucle while, `O- break`, quitte immédiatement
+la boucle et `O- continue`, saute immédiatement à la prochaine
+évaluation de la condition du `while`. Si elle est vraie, la boucle
+recommence au début. Si elle est fausse, la boucle est quittée.
 
-== Conditionnel: «if», «else», «endif»(((Conditional: if, else, endif)))
+== Conditionnel: "if", "else", "endif"(((Conditional: if, else, endif)))
 
 Le `if` conditionnel exécute un groupe d'instructions si sa condition
 est vraie et un autre groupe si elle est fausse.
@@ -1977,7 +2113,7 @@ est vraie et un autre groupe si elle est fausse.
     F200
     O102 endif
 
-== Répétition: «Repeat»(((Repeat)))
+== Répétition: "Repeat"(((Repeat)))
 
 La répétition «repeat», exécutera les blocs contenus entre «repeat» et
 «endrepeat» le nombre de fois spécifié entre crochets. L'exemple
@@ -2029,22 +2165,21 @@ Exemple:
 
 == F: Réglage de la vitesse travail[[sec:F-vitesse]]
 
-Pour régler la vitesse d'avance, programmer `F-`. L'application de
-la vitesse est telle que décrite dans la section 
-<<sub:Vitesse-d-avance>>, à moins que le mode vitesse inverse du temps
-ne soit actif, dans ce cas, la vitesse est telle que décrite dans la
+Pour régler la vitesse d'avance, programmer `F-`. 
+L'application de la vitesse est telle que décrite dans la section 
+<<sub:Vitesse-d-avance>>, à moins que le mode vitesse inverse du temps ne soit actif, 
+dans ce cas, la vitesse est telle que décrite dans la
 section <<sec:G93-G94-G95-Set>>.
 
 == S: Réglage de la vitesse de rotation de la broche[[sec:S-broche]]
 
-Pour régler la vitesse en tours par minute (tr/mn) de la broche,
-programmer `S-` . La broche va tourner à cette vitesse quand elle sera
-programmée
-pour tourner. Il est permis de programmer un mot S que la broche tourne
-ou non. Si le potentiomètre de correction de vitesse broche est
-autorisé et n'est pas positionné sur 100%, la vitesse de broche sera
-différente de celle programmée. Il est permis de programmer S0, la
-broche ne tournera pas. 
+Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer `S-`. 
+La broche va tourner à cette vitesse quand elle sera programmée pour tourner. 
+Il est permis de programmer un mot S que la broche tourne ou non. 
+Si le potentiomètre de correction de vitesse broche est
+autorisé et n'est pas positionné sur 100%, 
+la vitesse de broche sera différente de celle programmée. 
+Il est permis de programmer S0, la broche ne tournera pas. 
 
 C'est une erreur si:
 
@@ -2058,18 +2193,18 @@ utilisé. La vitesse de rotation et d'avance resterons synchronisées.
 Dans ce cas, la vitesse peut différer de celle programmée, même si le
 potentiomètre de correction de vitesse travail est sur 100%.
 
-== T: Choix de l'outil[[sec:T-Sélectionnez-Tool]]
+== T: Choix de l'outil[[sec:T-Selectionnez-Tool]]
 
-Pour sélectionner un outil, programmer `T-`, où la valeur de T
-correspond au numéro du slot d'outil dans le
- carrousel. L'outil ne sera appelé et changé que quand un `M6` sera
-programmé (voir la section <<sec:M6-Appel-d-outil>>). Le mot T
- peut apparaitre sur la même ligne que le `M6` ou sur une ligne
-précédente. Il est permis, mais normalement inutile,
-qu'un mot T apparaisse à plus de deux lignes avant, sans changement
-d'outil. Le carrousel peut bouger, seulement le plus récent mot T ne
-prendra effet qu'au prochain changement d'outil. Il est permis de
- programmer `T0`, aucun outil ne sera sélectionné. C'est utile pour
+Pour sélectionner un outil, programmer `T-`, où la valeur de T 
+correspond au numéro du slot d'outil dans le 
+carrousel. L'outil ne sera appelé et changé que quand un `M6` sera 
+programmé (voir la section <<sec:M6-Appel-d-outil>>). Le mot T 
+peut apparaitre sur la même ligne que le `M6` ou sur une ligne 
+précédente. Il est permis, mais normalement inutile, 
+qu'un mot T apparaisse à plus de deux lignes avant, sans changement 
+d'outil. Le carrousel peut bouger, seulement le plus récent mot T ne 
+prendra effet qu'au prochain changement d'outil. Il est permis de 
+programmer `T0`, aucun outil ne sera sélectionné. C'est utile pour 
 avoir la broche vide. 
 
 C'est une erreur si:
