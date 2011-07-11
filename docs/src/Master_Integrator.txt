@@ -12,7 +12,7 @@ image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (French outdated-notice)
+// (DE,ES, Translator-Needed Notice)(FR outdated-notice)
 
 include::common/Integrator_Concepts.txt[]
 
@@ -48,10 +48,6 @@ include::gui/gladevcp.txt[]
 
 include::motion/kinematics.txt[]
 
-:leveloffset: 0
-= Tuning
-:leveloffset: 1
-
 include::motion/tweaking_steppers.txt[]
 
 include::motion/pid_theory.txt[]
@@ -79,26 +75,19 @@ include::examples/mpg.txt[]
 include::examples/gs2_example.txt[]
 
 :leveloffset: 0
-= Diagnostics
+= Diagnostics & FAQ
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics.txt[]
 
-:leveloffset: 0
-= FAQ
-:leveloffset: 1
-
 include::common/Linux_FAQ.txt[]
-
-:leveloffset: 0
-= Appendices 
-:leveloffset: 1
 
 include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
-// 
-=Index
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

@@ -12,7 +12,7 @@ image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (French outdated-notice)
+// (DE,ES, Translator-Needed Notice)(FR outdated-notice)
 
 include::common/userforeword.txt[]
 
@@ -56,23 +56,16 @@ include::lathe/lathe-user.txt[]
 
 include::gcode/rs274ngc.txt[]
 
-:leveloffset: 0
-= Examples
-:leveloffset: 1
-
 include::examples/gcode.txt[]
 
 include::gui/image-to-gcode.txt[]
-
-:leveloffset: 0
-= Appendices
-:leveloffset: 1
 
 include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
-// 
-= Index
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

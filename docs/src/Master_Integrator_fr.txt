@@ -1,4 +1,4 @@
-Manuel de l'intégrateur V2.3, {localdate}
+Manuel de la Intégrateur V2.3, {localdate}
 =========================================
 The EMC Team
 
@@ -48,10 +48,6 @@ include::gui/gladevcp_fr.txt[]
 
 include::motion/kinematics_fr.txt[]
 
-:leveloffset: 0
-= Tuning
-:leveloffset: 1
-
 include::motion/tweaking_steppers_fr.txt[]
 
 include::motion/pid_theory_fr.txt[]
@@ -79,26 +75,19 @@ include::examples/mpg_fr.txt[]
 include::examples/gs2_example_fr.txt[]
 
 :leveloffset: 0
-= Diagnostic
+= Diagnostics & FAQ
 :leveloffset: 1
 
 include::common/Stepper_Diagnostics_fr.txt[]
 
-:leveloffset: 0
-= Petite FAQ Linux
-:leveloffset: 1
-
 include::common/Linux_FAQ_fr.txt[]
-
-:leveloffset: 0
-= Annexes 
-:leveloffset: 1
 
 include::common/Glossary_fr.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
-[index]
-= Index de l'ouvrage
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

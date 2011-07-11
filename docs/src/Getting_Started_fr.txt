@@ -1,4 +1,4 @@
-Guide du débutant V2.3, {localdate}
+Guide du Débutant V2.3, {localdate}
 ===================================
 The EMC Team
 
@@ -30,13 +30,10 @@ include::config/copy_and_run_fr.txt[]
 
 include::common/Linux_FAQ_fr.txt[]
 
-:leveloffset: 0
-= Legal Section
-:leveloffset: 1
-
 include::common/GPLD_Copyright.txt[]
 
-[index]
-= Index de l'ouvrage
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

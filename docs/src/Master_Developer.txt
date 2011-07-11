@@ -12,7 +12,7 @@ image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (No French outdated-notice here)
+// (No other languages to give notice to here)
 
 :leveloffset: 0
 == EMC2 Code Notes
@@ -32,15 +32,12 @@ include::code/NML_Messages.txt[]
 
 include::code/Style_Guide.txt[]
 
-:leveloffset: 0
 include::common/Glossary.txt[]
-
-= Legal Section
-:leveloffset: 1
 
 include::common/GPLD_Copyright.txt[]
 
-//
-= Index
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

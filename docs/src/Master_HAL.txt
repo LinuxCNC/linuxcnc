@@ -12,7 +12,7 @@ image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (French outdated-notice)
+// (DE,ES translator-needed)(FR outdated-notice)
 
 :leveloffset: 0
 = HAL
@@ -56,8 +56,6 @@ include::drivers/GS2.txt[]
 
 include::drivers/hostmot2.txt[]
 
-include::drivers/m5i20.txt[]
-
 include::drivers/motenc.txt[]
 
 include::drivers/opto22.txt[]
@@ -68,13 +66,10 @@ include::drivers/pluto_p.txt[]
 
 include::drivers/servo_to_go.txt[]
 
-:leveloffset: 0
-= Legal Section
-:leveloffset: 1
-
 include::common/GPLD_Copyright.txt[]
 
-// 
-= Index
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

@@ -56,8 +56,6 @@ include::drivers/GS2_fr.txt[]
 
 include::drivers/hostmot2_fr.txt[]
 
-include::drivers/m5i20_fr.txt[]
-
 include::drivers/motenc_fr.txt[]
 
 include::drivers/opto22_fr.txt[]
@@ -68,13 +66,10 @@ include::drivers/pluto_p_fr.txt[]
 
 include::drivers/servo_to_go_fr.txt[]
 
-:leveloffset: 0
-= Legal Section
-:leveloffset: 1
-
 include::common/GPLD_Copyright.txt[]
 
-[index]
-= Index de l'ouvrage
+// = Index
+
+// vim: set syntax=asciidoc:
 
 
