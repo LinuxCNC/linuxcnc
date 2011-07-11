@@ -177,3 +177,6 @@ Pour résoudre ce cas, suivez les instructions données ici:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
 
+// vim: set syntax=asciidoc:
+
+

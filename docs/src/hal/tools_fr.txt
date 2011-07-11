@@ -8,7 +8,7 @@ temps qu' EMC2 depuis ses sources ou depuis un paquet. Si EMC2 a été
 compilé en «run-in-place», la man page n'est pas installée, mais elle
 est accessible, dans le répertoire principal d'EMC2, taper:
 
-    $ 
+    `$ *man -M docs/man halcmd*`
 
 Le chapitre <<cha:Tutoriel-HAL>> donne de nombreux exemples
 d'utilisation de halcmd.
@@ -47,7 +47,7 @@ barre de titre au lieu de sous la valeur et il n'y aura pas de bouton.
 Utile pour afficher beaucoup de halmeter dans un petit espace de
 l'écran.
 
-Se référer à la section <<sec:Tutoriel - Halmeter>> Halmeter dans le
+Se référer à la section <<sec:Tutoriel-Halmeter>> Halmeter dans le
 tutoriel.
 
 == Halscope[[sec:Halscope]]
@@ -55,7 +55,7 @@ tutoriel.
 Halscope est un «oscilloscope» pour HAL. Il permet de capturer la
 valeur des pins, signaux et paramètres en fonction du temps. Des
 instructions plus complètes seront ajoutées ici, éventuellement. Se
-référer à la section Halscope <<sec:Tutoriel - Halscope>> dans le
+référer à la section Halscope <<sec:Tutoriel-Halscope>> dans le
 tutoriel, qui explique les bases de son utilisation. 
 
 

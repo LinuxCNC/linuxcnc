@@ -53,31 +53,31 @@ interfaces utilisateurs graphiques:
 
  - *AXIS*, une GUI basée sur OpenGL, avec prévisualisation du G-Code, appelée
    AXIS.(((AXIS))) Cette interface est l'un des rares qui sont encore en 
-   développement actif et d'amélioration. <<fig:L-interface graphique d-AXIS>>
+   développement actif et d'amélioration. <<fig:L-interface-graphique-d-AXIS>>
 
-.L'interface graphique AXIS[[fig:L-interface graphique d-AXIS]]
+.L'interface graphique AXIS[[fig:L-interface-graphique-d-AXIS]]
 
 image::images/axis_2.3_fr.png[]
 
 
- - *Mini*(((mini))), une Tcl/Tk GUI <<fig:L-interface graphique Mini>> 
+ - *Mini*(((mini))), une Tcl/Tk GUI <<fig:L-interface-graphique-Mini>> 
 
-.L'interface graphique Mini[[fig:L-interface graphique Mini]]
+.L'interface graphique Mini[[fig:L-interface-graphique-Mini]]
 
 image::mini_fr.jpg[]
 
 
- - *TkEMC*(((tkemc))), une Tcl/Tk GUI <<fig:L-interface graphique TkEmc>> 
+ - *TkEMC*(((tkemc))), une Tcl/Tk GUI <<fig:L-interface-graphique-TkEmc>> 
 
-.L'interface graphique TkEmc[[fig:L-interface graphique TkEmc]]
+.L'interface graphique TkEmc[[fig:L-interface-graphique-TkEmc]]
 
 image::tkemc_fr.png[]
 
 
  - *Keystick*(((keystick))), un personnage basé sur l'écran programme graphique approprié pour
-    installations minimales (sans le fonctionnement du serveur X). <<fig:L-interface Keystick>>
+    installations minimales (sans le fonctionnement du serveur X). <<fig:L-interface-Keystick>>
 
-.L'interface graphique Keystick[[fig:L-interface Keystick]]
+.L'interface graphique Keystick[[fig:L-interface-Keystick]]
 
 image::keystick.png[]
 

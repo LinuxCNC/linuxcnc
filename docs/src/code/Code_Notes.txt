@@ -761,12 +761,12 @@ The buffer is dynamically allocated at run time to allow for greater
 flexibility of the CMS/NML sub-system. The buffer size must be large
 enough to accommodate the largest message, a small amount for internal
 use and allow for the message to be encoded if this option is chosen
-(encoded data will be covered later). Figure  <<fig:CMS buffer>> is an
+(encoded data will be covered later). Figure  <<fig:CMS-buffer>> is an
 internal view of the buffer space.
 
 image::CMS_buffer.eps[]
 
-.CMS buffer[[fig:CMS buffer]]
+.CMS buffer[[fig:CMS-buffer]]
 
 The CMS base class is primarily responsible for creating the
 communications pathways and interfacing to the O.S.

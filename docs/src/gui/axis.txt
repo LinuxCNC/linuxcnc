@@ -337,76 +337,84 @@ Quick Reference::
 
 From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are: 
 
-   . image:images/tool_estop.gif[] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
+ . image:images/tool_estop.gif[align="center"] Toggle Emergency Stop [F1] (also called E-Stop)(((ESTOP))))
 
-   . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
+ . image:images/tool_power.gif[] Toggle Machine Power [F2](((machine on)))
 
-   . image:images/tool_open.gif[] Open G Code file [O]
+ . image:images/tool_open.gif[] Open G Code file [O]
 
-   . image:images/tool_reload.gif[] Reload current file [Ctrl-R]
+ . image:images/tool_reload.gif[] Reload current file [Ctrl-R]
 
-   . image:images/tool_run.gif[] Begin executing the current file [R]
+ . image:images/tool_run.gif[] Begin executing the current file [R]
 
-   . image:images/tool_step.gif[] Execute next line [T]
+ . image:images/tool_step.gif[] Execute next line [T]
 
-   . image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
+ . image:images/tool_pause.gif[] Pause Execution [P] Resume Execution[S]
 
-   . image:images/tool_stop.gif[] Stop Program Execution [ESC]
+ . image:images/tool_stop.gif[] Stop Program Execution [ESC]
 
-   . image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
+ . image:images/tool_blockdelete.gif[] Toggle Skip lines with "/" [Alt-M-/]
 
-   . image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
+ . image:images/tool_optpause.gif[] Toggle Optional Pause [Alt-M-1]
 
-   . image:images/tool_zoomin.gif[] Zoom In
+ . image:images/tool_zoomin.gif[] Zoom In
 
-   . image:images/tool_zoomout.gif[] Zoom Out
+ . image:images/tool_zoomout.gif[] Zoom Out
 
-   . image:images/tool_axis_z.gif[] Top view
+ . image:images/tool_axis_z.gif[] Top view
 
-   . image:images/tool_axis_z2.gif[] Rotated Top view
+ . image:images/tool_axis_z2.gif[] Rotated Top view
 
-   . image:images/tool_axis_x.gif[] Side view
+ . image:images/tool_axis_x.gif[] Side view
 
-   . image:images/tool_axis_y.gif[] Front view
+ . image:images/tool_axis_y.gif[] Front view
 
-   . image:images/tool_axis_p.gif[] Perspective view
+ . image:images/tool_axis_p.gif[] Perspective view
 
-   . image:images/tool_rotate.gif[] Toggle between Drag and Rotate Mode [D]
+ . image:images/tool_rotate.gif[align="center"] Toggle between Drag and Rotate Mode [D]
 
-   . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
+ . image:images/tool_clear.gif[] Clear live backplot [Ctrl-K]
 
 
 === Graphical Display Area
 
 ==== Coordinate Display
 
-In the upper-left corner of the program display is the coordinate
-display. It shows the position of the machine. To the left of the axis
-name, an origin symbol (image::images/axis-homed.png[]) is shown if the
-axis has been homed, and/or a limit
-symbol (image::images/axis-limit.png[]) is shown if the axis is on one
-of its limit switches.
+In the upper-left corner of the program display is the coordinate display. 
+It shows the position of the machine. 
+To the left of the axis name, an origin symbol is shown 
+if the axis has been homed. 
+
+image:images/axis-homed.png[align="center"] 
+
+A limit symbol is shown if the axis is on one of its limit switches.
+
+image:images/axis-limit.png[align="center"]
 
 To properly interpret these numbers, refer to the "Position:"
 indicator in the status bar. If the position is "Absolute", then the
 displayed number is in the machine coordinate system. If it is
 "Relative", then the displayed number is in the offset coordinate
 system. When the coordinates displayed are relative and an offset has
-been set, the display will include a cyan "machine origin" marker
-(image::images/axis-machineorigin.png[]). If the position is
-"Commanded", then it is the ideal position--for instance, the exact
-coordinate given in a `G0`  command. If it is "Actual", then it is the
-position the machine has
-actually moved to. These values can differ for several reasons:
-Following error, dead band, encoder resolution, or step size. For
-instance, if you command a movement to X 0.0033 on your mill, but one
-step of your stepper motor or one encoder count is 0.00125, then the 
-"Commanded" position will be 0.0033 but the "Actual" position will be 
-0.0025 or 0.00375.
+been set, the display will include a cyan "machine origin" marker. 
+
+image:images/axis-machineorigin.png[align="center"]
+
+If the position is "Commanded", then it is the ideal position 
+--for instance, the exact coordinate given in a `G0` command. 
+If it is "Actual", then it is the position 
+the machine has actually moved to. 
+These values can differ for several reasons:
+Following error, dead band, encoder resolution, or step size. 
+For instance, if you command a movement to X 0.0033 on your mill, 
+but one step of your stepper motor or one encoder count is 0.00125, 
+then the "Commanded" position might be 0.0033, 
+but the "Actual" position will be 0.0025 (2 steps) or 0.00375 (3 steps).
 
 ==== Preview Plot(((preview plot)))
 
-When a file is loaded, a preview of it is shown in the display area.
+When a file is loaded, 
+a preview of it is shown in the display area.
 Fast moves (such as those produced by the `G0` command) are shown as
 cyan lines. Moves at a feed rate 
 (such as those produced by the `G1` command) are 
@@ -414,34 +422,38 @@ shown as solid white lines. Dwells
 (such as those produced by the `G4` command) 
 are shown as small pink "X" marks.
 
-G0 (Rapid) moves prior to a feed move will not show on the preview
-plot. Rapid moves after a T<n> (Tool Change) will not show on the 
-preview until after the first feed move. To turn either of these features off
+G0 (Rapid) moves prior to a feed move 
+will not show on the preview plot. 
+Rapid moves after a T<n> (Tool Change) will not show on the 
+preview until after the first feed move. 
+To turn either of these features off
 program a G1 without any moves prior to the G0 moves.
 
 ==== Program Extents(((program extents)))
 
-The "extents" of the program in each axis are shown. At the ends, the
-least and greatest coordinate values are indicated. In the middle, the
-difference between the coordinates is shown. 
+The "extents" of the program in each axis are shown. 
+At the ends, the least and greatest coordinate values are indicated. 
+In the middle, the difference between the coordinates is shown. 
 
-When some coordinates exceed the "soft limits" in the .ini file, the
-relevant dimension is shown in a different color and enclosed by a box.
+When some coordinates exceed the "soft limits" in the .ini file, 
+the relevant dimension is shown in a different color and enclosed by a box.
 In Figure (<<cap:Soft-Limit>>) the maximum soft limit is exceeded on
 the X axis as indicated by the box surrounding the coordinate value.
-The minimum X travel of the program is -1.95, the maximum X travel
-is 1.88, and the program requires 3.83 inches of X travel.  To move
-the program so it's within the machine's travel in this case, jog to
-the left and Touch Off X again.
+The minimum X travel of the program is -1.95, 
+the maximum X travel is 1.88, 
+and the program requires 3.83 inches of X travel.  
+To move the program so it's within the machine's travel in this case, 
+jog to the left and Touch Off X again.
 
 .Soft Limit[[cap:Soft-Limit]]
 
 image::images/axis-outofrange.png[]
 
 ==== Tool Cone
-
 When no tool is loaded, the location of the tip of the tool is
 indicated by the "tool cone".
+The "tool cone" does not provide guidance on the form,
+length, or radius of the tool.
 
 When a tool is loaded (for instance, with the MDI command `T1 M6` ),
 the cone changes to a cylinder which shows the diameter of the tool
@@ -449,32 +461,37 @@ given in the tool table file.
 
 ==== Backplot
 
-When the machine moves, it leaves a trail called the backplot. The
-color of the line indicates the type of motion: Yellow for jogs, faint
-green for rapid movements, red for straight moves at a feed rate, and
-magenta for circular moves at a feed rate.
+When the machine moves, it leaves a trail called the backplot. 
+The color of the line indicates the type of motion: 
+Yellow for jogs, faint green for rapid movements, 
+red for straight moves at a feed rate, 
+and magenta for circular moves at a feed rate.
 
 ==== Interacting
 
-By left-clicking on a portion of the preview plot, the line will be
-highlighted in both the graphical and text displays. By left-clicking
-on an empty area, the highlighting will be removed.
+By left-clicking on a portion of the preview plot, 
+the line will be highlighted 
+in both the graphical and text displays. 
+By left-clicking on an empty area, the highlighting will be removed.
 
-By dragging with the left mouse button pressed, the preview plot will
-be shifted (panned).
+By dragging with the left mouse button pressed, 
+the preview plot will be shifted (panned).
 
-By dragging with shift and the left mouse button pressed, or by
-dragging with the mouse wheel pressed, the preview plot will be
-rotated. When a line is highlighted, the center of rotation is the
-center of the line. Otherwise, the center of rotation is the center of
-the entire program.
+By dragging with shift and the left mouse button pressed, 
+or by dragging with the mouse wheel pressed, 
+the preview plot will be rotated. 
+When a line is highlighted, 
+the center of rotation is the center of the line. 
+Otherwise, the center of rotation is 
+the center of the entire program. 
 
-By rotating the mouse wheel, or by dragging with the right mouse
-button pressed, or by dragging with control and the left mouse button
-pressed, the preview plot will be zoomed in or out.
+By rotating the mouse wheel, 
+or by dragging with the right mouse button pressed, 
+or by dragging with control and the left mouse button pressed, 
+the preview plot will be zoomed in or out.
 
-By clicking one of the "Preset View" icons, or by pressing "V",
-several preset views may be selected.
+By clicking one of the "Preset View" icons, 
+or by pressing "V", several preset views may be selected.
 
 === Text Display Area
 
@@ -482,8 +499,8 @@ By left-clicking a line of the program, the line will be highlighted
 in both the graphical and text displays.
 
 When the program is running, the line currently being executed is
-highlighted in red. If no line has been selected by the user, the text
-display will automatically scroll to show the current line.
+highlighted in red. If no line has been selected by the user, 
+the text display will automatically scroll to show the current line.
 
 .Current and Selected Lines[[cap:Current-and-Selected]]
 
@@ -491,33 +508,39 @@ image::images/axis-currentandselected.png[]
 
 === Manual Control(((Manual)))
 
-While the machine is turned on but not running a program, the items in
-the "Manual Control" tab can be used to move the machine or control
-its spindle and coolant.
+While the machine is turned on but not running a program, 
+the items in the "Manual Control" tab can be used to 
+move the machine or control its spindle and coolant. 
 
 When the machine is not turned on, or when a program is running, the
 manual controls are unavailable.
 
-Many of the items described below are not useful on all machines. When
-AXIS detects that a particular pin is not connected in HAL, the
-corresponding item in the Manual Control tab is removed. For instance,
-if the HAL pin `motion.spindle-brake`  is not connected, then the
-"Brake" button will not appear on the
- screen. If the environment variable `AXIS_NO_AUTOCONFIGURE` is set,
-this behavior is disabled and all the items will appear.
+Many of the items described below are not useful on all machines. 
+When AXIS detects that a particular pin is not connected in HAL, 
+the corresponding item in the Manual Control tab is removed. 
+For instance, if the HAL pin `motion.spindle-brake` is not connected, 
+then the "Brake" button will not appear on the screen. 
+If the environment variable `AXIS_NO_AUTOCONFIGURE` is set, 
+this behavior is disabled and all the items will appear. 
 
 ==== The "Axis" group
 
-"Axis" allows you to manually move the machine. This action is known
-as "jogging". First, select the axis to be moved by clicking it. Then,
-click and hold the "+" or "-" button depending on the desired direction
-of motion. The first four axes can also be moved by the arrow keys (X
-and Y), PAGE UP and PAGE DOWN keys (Z) and the [ and ] keys (A).
+"Axis" allows you to manually move the machine. 
+This action is known as "jogging". 
+First, select the axis to be moved by clicking it. 
+Then, click and hold the "+" or "-" button 
+depending on the desired direction of motion. 
+The first four axes can also be moved by 
+the arrow keys (X and Y), 
+PAGE UP and PAGE DOWN keys (Z), 
+and the [ and ] keys (A).
 
-If "Continuous" is selected, the motion will continue as long as the
-button or key is pressed. If another value is selected, the machine
-will move exactly the displayed distance each time the button is
-clicked or the key is pressed. By default, the available values are:
+If "Continuous" is selected, the motion will continue 
+as long as the button or key is pressed. 
+If another value is selected, 
+the machine will move exactly the displayed distance 
+each time the button is clicked or the key is pressed. 
+By default, the available values are:
 
 [quote]
 ________________________________________
@@ -525,8 +548,8 @@ ________________________________________
 ________________________________________
 
 
-See the Configure section of the Integrator Manual for more
-information on setting the increments.
+See the Configure section of the Integrator Manual for 
+more information on setting the increments.
 
 ==== Homing
 

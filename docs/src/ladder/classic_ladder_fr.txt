@@ -1,4 +1,4 @@
-= Classic Ladder [[cha:Classic Ladder]] (((Classic Ladder)))
+= Classic Ladder[[cha:Classic Ladder]](((Classic Ladder)))
 
 == Introduction
 
@@ -559,7 +559,7 @@ will be set to True.
 
 image::images/AssignCompare-Ladder.png[]
 
-image::images/Assignment_Expression.png[] image::images/Comparison_Expression.png[]
+image:images/Assignment_Expression.png[] image:images/Comparison_Expression.png[]
 
 === COILS
 

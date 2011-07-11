@@ -10,14 +10,14 @@ complexe.
 
 === Séquence de prise d'origine
 
-La figure  <<fig:Sequences de prise d-origine>> montre les quatre
+La figure  <<fig:Sequences-de-prise-d-origine>> montre les quatre
 séquences de prise d'origine possibles, avec les variables de
-configuration associées  <<cap:Variables sequences de POM>>. Une
+configuration associées  <<cap:Variables-sequences-de-POM>>. Une
 description détaillée de ces paramètres sera faite au chapitre suivant.
 
-<<fig:Sequences de prise d-origine>>
+<<fig:Sequences-de-prise-d-origine>>
 
-.Les séquences de POM possibles[[fig: Sequences de prise d-origine]]
+.Les séquences de POM possibles[[fig:Sequences-de-prise-d-origine]]
 
 image::images/emc2-motion-homing-diag.eps[]
 
@@ -40,7 +40,7 @@ la section [AXIS] du fichier ini.
 |Switch et Index  |nonzero    |nonzero      |YES
 |==========================================================
 
-.Combinaisons des variables de la POM[[cap:Variables sequences de POM]]
+.Combinaisons des variables de la POM[[cap:Variables-sequences-de-POM]]
 
 ==== HOME_SEARCH_VEL = 0 (((HOME SEARCH VEL)))
 

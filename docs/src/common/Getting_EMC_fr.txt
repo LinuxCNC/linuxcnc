@@ -1,121 +1,266 @@
-= Trouver de l'aide (((Trouver de l'aide)))[[sec:Trouver-aide]]
+= A propos d'EMC2
+
+== Le Logiciel
+
+* EMC2 (commande de la machine améliorée) est un système logiciel pour ordinateur
+  le contrôle de machines-outils telles que fraiseuses et tours.
+* EMC2 est un logiciel libre avec code source ouvert. Les versions actuelles d'EMC
+  sont entièrement sous licence GNU Lesser General Public et de
+  GNU General Public License (GPL et LGPL)
+* EMC2 propose:
+** Une interface utilisateur graphique (en fait plusieurs interfaces au choix)
+** Un interprète pour "G-code" (RS-274 langage de programmation de machines-outils)
+** Un système temps réel de planification de mouvement avec des look-ahead
+** Le fonctionnement de l'électronique machine de bas niveau tels que les capteurs et les moteurs
+** Un outil facile à utiliser "breadboard" calque pour créer rapidement un unique
+   la configuration de votre machine
+** Un automate programmable par logiciel avec des schémas à contacts
+** Installation facile avec un Live-CD
+* Il ne fournit pas de dessin (CAO - Conception Assistée par Ordinateur) ou G-code
+  la génération du dessin (CAM - Computer Automated Manufacturing)
+  fonctions.
+* Il peut déplacer simultanément jusqu'à 9 axes et supporte une variété de
+  interfaces.
+* Le contrôle peut fonctionner servos vrai (analogique ou PWM) avec les commentaires
+  en boucle fermée par le logiciel EMC à l'ordinateur, ou en boucle ouverte avec
+  «step-servos» ou moteurs pas à pas.
+* Fonctions de contrôle de mouvement incluent: rayon de la fraise et la longueur
+  écart de trajectoire d'indemnisation, limitée à une tolérance spécifiée, tour
+  filetage, mouvement de l'axe synchronisé, adaptative avance, nourrir l'opérateur
+  remplacer, et le contrôle de vitesse constante.
+* Support des systèmes de mouvement non cartésienne est fourni via personnalisée
+  modules cinématique. Architectures disponibles incluent hexapodes (Stewart
+  plates-formes et des concepts similaires) et les systèmes avec des joints rotatifs pour
+  fournir un mouvement tels que des robots PUMA ou SCARA.
+* EMC2 fonctionne sous Linux en utilisant des extensions temps réel.
+
+== Le système d'exploitation
+
+Ubuntu a été choisie car elle s'intègre parfaitement dans l'Open Source
+vues d'EMC2:
+
+  - Ubuntu sera toujours gratuit, et il n'ya aucun frais supplémentaire pour
+    le "Enterprise Edition", nous faisons nos meilleurs travaux disponibles pour
+    tout le monde sur les mêmes termes gratuit.
+  - EMC2 est jumelé avec les versions LTS d'Ubuntu qui apportent un soutien
+    correctifs de sécurité et de l'équipe Ubuntu pour 3 - 5 ans.
+  - Ubuntu utilise le meilleur de traductions et de l'accessibilité
+    l'infrastructure que la communauté du logiciel libre a à offrir, à faire
+    Ubuntu utilisable pour autant de personnes que possible.
+  - La communauté Ubuntu est entièrement souscrit aux principes du libre
+    développement de logiciels, nous encourageons les gens à utiliser des logiciels open source,
+    l'améliorer et le transmettre.
+
+= Trouver de l'aide[[sec:Trouver-aide]](((Trouver de l'aide)))
 
 == IRC
 
-Sur le canal IRC d'EMC.
+IRC signifie Internet Relay Chat.
+Il s'agit d'une connexion en direct avec d'autres utilisateurs EMC.
+Le EMC canal IRC # est EMC sur freenode.
 
-La manière la plus simple d'aller sur IRC est d'utiliser le client
-Java embarqué sur cette page
+La manière la plus simple d'aller sur IRC est d'utiliser 
+le client Java embarqué sur cette page:
+
 http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
 
 Un peu d'éthique sur le canal IRC:
 
- - Posez votre question particulière...
- -  Faites preuve de patience quand vous attendez une réponse, il peut
-   s'écouler un certain temps avant que quelqu'un ne fournisse une
-   réponse, les participants peuvent être occupés à leur travail ou
-   autre...
- -  Réglez votre compte IRC avec un unique nom de sorte que les gens
-   sachent qui vous êtes.
+ - Posez des questions précises... Évitez "quelqu'un peut m'aider?", 
+   "Il ne fonctionnera pas" type de questions. 
+ - Si vous êtes vraiment nouveau à tout cela, imaginez un peu votre question 
+   avant qu'il ne frappe. Assurez-vous donner suffisamment d'informations pour 
+   que quelqu'un puisse résoudre vos questions. 
+ - Avoir de la patience quand on attend une réponse, il faut parfois une 
+   alors à formuler une réponse ou tout le monde pourrait être occupé à travailler ou à 
+   quelque chose. 
+ - Configurez votre compte IRC avec votre nom unique afin que les gens savent qui 
+   vous êtes. Si vous utilisez le client java, utiliser le même nom chaque fois que vous 
+   vous connecter Cela aide les gens se rappeler qui vous êtes et si vous avez été sur 
+   avant que beaucoup se souviendront des discussions passées qui fait gagner 
+   du temps sur les deux extrémités. 
+
+=== Partage de fichiers
+
+La façon la plus commune de partager des fichiers sur IRC est de charger le fichier
+l'un des suivants ou un service similaire et collez le lien suivant:
+
+Pour le texte:
+     http://pastebin.com/, http://pastie.org/, https://gist.github.com/
+
+Pour les photos::
+     http://imagebin.org/, http://imgur.com/, http://bayimg.com/
+
+Pour les fichiers:
+     http://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
 == Liste de diffusion
 
-La liste de diffusion des utilisateurs d'EMC2 à
-https://lists.sourceforge.net/lists/listinfo/emc-users[https://lists.sourceforge.net/lists/listinfo/emc-users].
+Une liste de diffusion sur Internet est un moyen de poser des questions pour tout le monde sur le
+cette liste pour voir et répondre à leur convenance. Vous obtiendrez de meilleurs
+exposition à vos questions sur une liste de diffusion que sur l'IRC, mais
+prendre plus de réponses. En un mot, vous e-mail un message à la liste et
+soit obtenir quotidienne digère ou les réponses individuelles retour selon le
+vous avez configuré votre compte.
 
-== Wiki
+Information à la liste de diffusion des utilisateurs d'EMC2 à: 
 
-Le Wiki d'EMC, site maintenu par les utilisateurs à
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl]
-contient un grand nombre d'informations et d'astuces.
+link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users liste de diffusion].
 
-= Charger le logiciel (((Charger le logiciel)))
+== EMC2 Wiki
 
-Téléchargez le CD Live depuis
-http://www.linuxcnc.org/[http://www.linuxcnc.org/] en suivant le lien
-de téléchargement.
+Un site Wiki est un site web de l'utilisateur maintenu 
+que n'importe qui peut ajouter ou modifier. 
+
+Le Wiki d'EMC, site maintenu par les utilisateurs et contient un 
+grand nombre d'informations et d'astuces à: 
+
+link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
+
+= Obtenir EMC2(((Obtenir EMC2)))
+
+== Télécharger normale
+
+Téléchargez le CD Live depuis: 
+
+http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
+
+en suivant le lien de téléchargement.
 
 == Téléchargement fragmenté (((Telechargement fragmente)))
 
 Si le fichier est trop important pour être téléchargé en une seule
 fois parce que votre connection Internet est lente ou mauvaise,
-utilisez `wget` qui permet la reprise après un téléchargement
-interrompu.
+utilisez `wget` (ou «bittorrent») qui permet 
+la reprise après un téléchargement interrompu.
 
-=== Sous Linux (((wget)))
+===  Wget Linux (((Wget Linux)))
 
-Ouvrez un terminal. Dans Ubuntu il est dans
-Applications/Accessoires/Terminal. Notez que le nom du fichier peut
-être différent de celui de cette documentation, suivez le lien de
-téléchargement sur http://www.linuxcnc.org/[http://www.linuxcnc.org/]
-pour avoir le nom du fichier actuel. Vous pouvez copier le lien puis le
-coller dans le terminal à l'aide de la souris.
+Ouvrez une fenêtre de terminal. Dans Ubuntu, il est Applications / Accessoires / Terminal.
+Utilisez `cd` pour changer le répertoire où vous voulez stocker l'image ISO.
+Utilisez `mkdir` pour créer un nouveau répertoire si nécessaire.
 
-Pour prendre la version Ubuntu 8.04 Hardy Heron copiez ce lien dans le
-terminal et pressez Entrée:
+Notez que les noms de fichiers réels peuvent changer si vous pourriez avoir à aller à
+http://www.linuxcnc.org/ [http://www.linuxcnc.org/]
+et suivez le lien Télécharger pour obtenir le nom réel du fichier.
+Dans la plupart des navigateurs, vous pouvez faire un clic droit sur le lien et sélectionnez
+Lieu Copier le lien ou similaire, puis collez le lien dans le
+fenêtre de terminal avec un clic droit et choisissez Coller.
 
-` wget -r
-http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+.Ubuntu 10.04 Lucid Lynx et EMC2 (version actuelle)
+*********************************************************************
+Pour obtenir la version de Ubuntu 10.04 Lucid Lynx, 
+copie de l'un de ces la fenêtre du terminal et appuyez sur Entrée:
 
-Pour prendre la version Ubuntu 6.06 Dapper Drake:
+Pour le miroir Etats-Unis:
+http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso wget
 
-` wget -r
-http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso`
+Pour le miroir européen:
+http://dsplabs.upt.ro/ wget ~ Juve / emc / get.php? file = ubuntu-10.04-linuxcnc1-i386.iso
 
-Pour reprendre un téléchargement interrompu ajoutez l'option -c à wget:
+La somme MD5 du fichier ci-dessus est: `5283b33b7e23e79da1ee561ad476b05f`
+*********************************************************************
 
-` wget -r -c
-http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+Pour continuer un téléchargement partiel qui a été interrompu 
+ajoutez l'option -c à wget:
 
-Pour stopper un téléchargement utilisez Ctrl-C ou fermer la fenêtre du
-terminal.
+wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 
-Après que le téléchargement soit terminé vous trouverez un nouveau
-répertoire appelé www.linuxcnc.org ou quelque chose de similaire. Dans
-ce répertoire vous trouverez l'image ISO du CD. Il ne vous restera plus
-qu'à la graver.
+Pour arrêter un téléchargement utilisez Ctrl-C ou fermer la fenêtre du terminal.
 
-=== Sous Windows
+.Ubuntu 8.04 Hardy Heron et EMC2 (plus)
+*********************************************************************
+Si vous avez besoin d'une ancienne version d'Ubuntu, vous pouvez télécharger Ubuntu 8.04.
+L'image du CD ci-dessous a l'ancien EMC 2.3.x sur elle, mais peut être amélioré pour
+2.4.x en suivant les instructions sur le wiki LinuxCNC.org ici:
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
 
-Le programme wget est également disponible pour Windows depuis
+Pour le miroir Etats-Unis:
+wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
+
+Pour le miroir européen:
+wget http://dsplabs.upt.ro/~Juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
+
+La somme MD5 du fichier ci-dessus est: `1bab052ec879f941628927c988863f14`
+*********************************************************************
+
+.Ubuntu 6.06 Dapper Drake et EMC2 (n'est plus supporté)
+***********************************************************************
+Si vous avez besoin d'une ancienne version d'Ubuntu, vous pouvez télécharger Ubuntu 6.06.
+L'image du CD ci-dessous a l'ancien CEM 2.2.x sur elle, mais peut être amélioré pour
+2.3.x en suivant les instructions sur le wiki LinuxCNC.org ici:
+`http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.3`
+
+Parce que Dapper Drake n'est plus supporté, il n'y a pas de courant
+EMC2 version de (2.4.x) pour Dapper Drake.:
+
+Pour le miroir Etats-Unis:
+wget http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso
+
+Pour le miroir européen:
+http://dsplabs.upt.ro/ wget ~ Juve / emc / get.php? file = emc2.2.2-1-ubuntu6.06-desktop-i386.iso
+
+La somme MD5 du fichier ci-dessus est: `21f4ecdcf9f5ab09ed64b5e76fb389e6`
+***********************************************************************
+
+Après le téléchargement est terminé, vous trouverez le fichier ISO dans le
+répertoire que vous avez sélectionné. Ensuite, nous allons graver le CD. 
+
+=== Wget Windows (((Wget Windows)))
+
+Le programme wget est également disponible pour Windows depuis: 
 
 http://gnuwin32.sourceforge.net/packages/wget.htm
 
 Suivez les instructions de la page web pour télécharger et installer
 le programme wget sous Windows.
 
-Pour lancer wget ouvrez la fenêtre DOS.
+Pour lancer wget ouvrez la fenêtre d'invite de commande.
 
-Dans la plupart des Windows elle est dans
-Programmes/Accessoires/Commande
+Dans la plupart des Windows elle est dans Programmes/Accessoires/Commande
 
 Naviguez jusqu'au répertoire dans lequel s'est installé wget.
 
-Habituellement il est dans C:\Program Files\GnuWin32\bin si c'est le
-cas, tapez la commande:
+Habituellement il est dans C:\Program Files\GnuWin32\bin si 
+c'est le cas, tapez la commande:
 
 `cd C:\Program Files\GnuWin32\bin`
 
-et le prompt devrait changer pour C:\Program Files\GnuWin32>
+et le prompt devrait changer pour: `C:\Program Files\GnuWin32>`
 
-Tapez les commandes wget dans la fenêtre DOS et pressez Entrée comme
-précédemment.
+Tapez les commandes wget dans la fenêtre et pressez Entrée comme précédemment. 
+
+=== Bittorrent
+
+Bittorrent est une méthode de téléchargement qui est facile et fiable.
+
+A cette époque, EMC2 utilisateurs sont la mise en place d'un lien BitTorrent,
+demandez sur IRC ou rechercher sur le wiki pour les dernières informations.
+
+Pour des infos sur les clients bittorrent pour Ubuntu, voir:
+
+https://help.ubuntu.com/community/BitTorrent
+
+(Ubuntu peut avoir «Transmission» déjà installés.)
+
+Pour des infos sur les clients BitTorrent pour Windows, voir:
+
+http://www.bittorrent.com/ ou http://www.vuze.com/
 
 == Graver le CD
 
-EMC2 est distribué sous la forme d'un fichier image de CD, appelée
-image ISO. Pour installer EMC2, vous devez d'abord graver cette image
-ISO sur un CD. Vous devez disposer d'un graveur de CD/DVD et d'un CD
-vierge de 80 minutes (700 Mio). Si la gravure du CD échoue, essayez de
-le graver à une vitesse plus lente.
+EMC2 est distribué sous la forme d'un fichier image de CD, appelée image ISO. 
+Pour installer EMC2, vous devez d'abord graver cette image ISO sur un CD. 
+Vous devez disposer d'un graveur de CD/DVD et d'un CD vierge de 80 minutes (700 Mio). 
+Si la gravure du CD échoue, essayez de le graver à une vitesse plus lente.
 
 === Sous Linux
 
 Avant de graver un CD, il est fortement recommandé de vérifier la
 somme de contrôle md5 (hash) du fichier de l'image iso.
 
-Ouvrez un terminal. Dans Ubuntu il est dans
-Applications/Accessoires/Terminal.
+Ouvrez un terminal. 
+Dans Ubuntu il est dans Applications/Accessoires/Terminal.
 
 Allez dans le répertoire contenant l'image ISO précédemment téléchargée.
 
@@ -123,18 +268,27 @@ Allez dans le répertoire contenant l'image ISO précédemment téléchargée.
 
 Puis lancez la commande md5sum suivie du nom du fichier, exemple:
 
-`md5sum ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+`md5sum -b ubuntu-10.04-linuxcnc1-i386.iso`
 
-La commande md5sum doit retourner une simple ligne après le calcul de
-la somme de contrôle. Sur une machine lente le calcul peut prendre
-plusieurs minutes, exemple de retour:
+La commande md5sum doit retourner une simple ligne après 
+le calcul de la somme de contrôle. 
+Sur une machine lente le calcul peut prendre plusieurs minutes: 
 
-`91c5abb84386091e0ff056e9ebc40fdb *ubuntu-8.04-desktop-emc2-aj07-i386.iso`
+`5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso`
 
-Il reste à comparer avec la somme md5 fournie sur la page de
-téléchargement d'EMC2.
+Maintenant le comparer à la valeur md5sum qu'il devrait être.
 
-Graver l'image ISO sur un CD
+Si vous avez téléchargé le md5sum ainsi que l'ISO, 
+Vous pouvez demander au programme md5sum de faire la vérification pour vous. 
+Dans le même répertoire:
+
+`md5sum-c ubuntu-10.04-linuxcnc1-i386.iso.md5`
+
+Si tout va bien, après un court délai le terminal affichera:
+
+`ubuntu-10.04-linuxcnc1-i386.iso: OK`
+
+==== Graver l'image ISO sur un CD
 
  . Inserez un CD vierge dans votre graveur. Une fenêtre surgissante
    «CD/DVD Creator» ou «Choisissez le type de disque» va s'ouvrir. 
@@ -162,12 +316,12 @@ https://help.ubuntu.com/community/HowToMD5SUM
 
 Gravez l'ISO sur un CD
 
- .  Vous pouvez télécharger Infra Recorder, un logiciel de gravure
-   d'images gratuit et open source.
- .  Inserez un CD vierge dans le graveur sélectionnez Quitter ou Cancel si
-   un auto-run démarre.
- .  Lancez Infra Recorder et choisissez le menu 'Actions' puis 'Graver
-   l'image'.
+ . Vous pouvez télécharger Infra Recorder, un logiciel de gravure
+   d'images gratuit et open source: http://infrarecorder.org/
+ . Inserez un CD vierge dans le graveur sélectionnez 
+   Quitter ou Cancel si un auto-run démarre.
+ . Lancez Infra Recorder et choisissez le menu 
+   'Actions' puis 'Graver l'image'.
 
 == Tester EMC2
 
@@ -183,7 +337,7 @@ essayez le.
 
 Pour savoir si votre ordinateur est utilisable par le générateur de
 trains d'impulsions du logiciel, lancez un test de latence comme
-indiqué à la section (<<sec:Test de latence>>)
+indiqué à la section (<<sec:Test-de-latence-GS>>)
 
 == Installer EMC2
 
@@ -202,12 +356,28 @@ choisir. Elle peut être configurée pour lui ajouter un panneau de
 commandes virtuel personnalisé en fonction des besoins. AXIS est
 l'interface utilisateur par défaut et est activement développée.
 
-image:axis_fr.png[]
+.l'interface Axis[[cap:l-Interface-Axis]]
 
-== Mises à jour d'EMC2
+image::images/axis_2.3_fr.png[]
 
-Avec l'installation normale, si vous êtes en ligne, le gestionnaire de
-mises à jour vous préviendra quand des mises à jour d'EMC2 et d'Ubuntu
-seront disponibles, vous pourrez alors facilement mettre votre système
-à jour sans connaissances particulières de Linux.
+== Les mises à jour d'EMC2 (((Mises à jour d'EMC2)))
+
+Avec l'installation normale de l'Update Manager va vous avertir des mises à jour
+d'EMC2 quand vous allez en ligne et vous permettent de facilement mettre à jour sans
+Connaissances Linux nécessaires.
+Si vous souhaitez passer à 10,04 à partir 8.04 une
+installation propre de la Live-CD est recommandée.
+Il est OK pour mettre à niveau CEM lorsqu'on lui a demandé d'.
+
+Attention: Ne pas mettre à jour Ubuntu vers une nouvelle version, mais non LTS
+(comme 8.4 à 8.10), car elle permettra d'éviter de courir EMC.
+
+== Installer Problèmes
+
+Dans de rares cas, vous pourriez avoir à réinitialiser le BIOS aux réglages par défaut si
+lors de l'installation du Live CD on ne peut pas reconnaître le disque 
+dur pendant le haut de démarrage.
+
+// vim: set syntax=asciidoc:
+
 

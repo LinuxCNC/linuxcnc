@@ -13,14 +13,19 @@ requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsqu'ils pilotent une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
 Pour le lancer, suivre les instructions de la 
-section (<<sec:Test de latence>>).
+section (<<sec:Test-de-latence-GS>>).
 
-== Sherline et Xylotex [[sec:Sherline-and-Xylotex]]
+== Sherline[[sec:Sherline]](((Sherline)))
 
-Si vous avez une machine Sherline ou Xylotex, vous pouvez sauter cette
-section et aller directement à la section relative à l'assistant
-graphique (<<cha:Assistant-graphique>>). EMC fourni une configuration
-rapide pour les machines Sherline et Xylotex.
+Si vous avez un Sherline plusieurs configurations prédéfinies sont fournies.
+Ceci est le menu principal du CNC/EMC puis choisissez la configuration Sherline
+que le vôtre allumettes et enregistrer une copie. 
+
+== Xylotex[[sec:Xylotex]](((Xylotex)))
+
+Si vous avez un Xylotex vous pouvez sauter les sections suivantes et aller
+directement à l'Assistant de configuration pas à pas dans la section (<<cha:Assistant-graphique-pas-a-pas>>).
+EMC a fourni une installation rapide pour les machines Xylotex.
 
 == Informations relatives à la machine
 
@@ -81,48 +86,111 @@ taille du pas est utilisée par SCALE dans le fichier .ini.
 [width="90%", options="header"]
 |====================================================================
 |Axes | Pas par tour | Micropas | Dents moteur | Dents vis | Pas de la vis
-|     |              |          |              |           | 
-|     |              |          |              |           | 
-|     |              |          |              |           | 
+|X    |              |          |              |           | 
+|Y    |              |          |              |           | 
+|Z    |              |          |              |           | 
 |     |              |          |              |           | 
 |====================================================================
 
-Pas pas tour: indique combien de pas moteur sont nécessaires pour que
-celui-ci fasse un tour.
+*Pas par la révolution* est de savoir combien de moteur pas-mesures 
+qu'il faut pour transformer le moteur pas à une révolution. 
+Typique est de 200.
 
-Micropas: indique combien d'impulsions le pilote doit recevoir pour
-que le moteur tourne d'un angle équivalent à un pas.
+*Micro étapes* est de savoir combien CNC-output-étapes le lecteur a besoin 
+de déplacer les moteur pas à pas une moteur pas à pas à pas. 
+Si micropas n'est pas utilisé, ce nombre sera de 1. 
+Si micropas est utilisé, les valeurs typiques seront
+à proximité de 4-16, peut-être 8 ou 10.
 
-Dents moteur et Dents vis: à indiquer si vous avez une réduction
-poulies/courroie entre le moteur et la vis. Sinon mettez 1 pour les
-deux.
+[NOTE]
+De plus petites valeurs ne permettent pas tant que ça, 
+parce que le rapprochement des vagues sinus et cosinus 
+impliqués est trop grossière. 
+Des valeurs élevées ne permettent pas en exigeant trop d'étapes 
+de la sortie CNC et en ralentissant la la vitesse maximale.
 
-Pas de la vis: indique combien de tour la vis d'entraînement de l'axe
-doit faire pour déplacer la table d'une unité utilisateur. Si vous êtes
-en pouces, c'est le nombre de tours pas pouce, si vous êtes en
-millimètres, c'est le nombre de tour (ou fraction de tour) par
-millimètre. Par exemple, pour une vis avec un pas de 5.08mm, il faut
-0.1968503937 tour pour faire 1 mm et 5 tours pour faire un pouce.
+*Dents moteur* et *Dents la vis* est si vous avez une certaine réduction
+(pignons, chaîne, courroie de distribution, etc) entre le moteur et la tige filetée.
+Si non, alors définir ces deux à 1.
+
+*Pas de vis* est de savoir combien le mouvement se produit 
+(en unités utilisateur) en un tour de vis. 
+Si vous configurez en pouces, puis il est pouces par tour. 
+Si vous configurez en millimètres, puis il est millimètres par tour.
+
+Le résultat net que vous recherchez est combien CNC-output-mesures qu'il prend
+pour déplacer une unité d'utilisateur (pouces ou mm).
+
+Par exemple (pouces):
+
+     Stepper = 200 pas par tour
+     Disque = 10 étapes micro par étape
+     Dents moteur = 20
+     Dents de vis = 40
+     Pas de vis = 0,2000 pouces par tour
+
+D'après les informations ci-dessus: 
+ - la tige filetée se déplace 0,200 pouces par tour. 
+ - Le moteur tourne 2,000 fois par 1 tour de vis. 
+ - Le lecteur prend 10 entrées micropas à faire le pas stepper fois. 
+ - Le lecteur doit 2000 des mesures pour faire du stepper une révolution. 
+Ainsi l'échelle requise est la suivante:
+
+latexmath: [
+\frac{200 marches du moteur}{1 moteur de rev} \times
+\frac{10 micropas}{1 moteur pas à pas} \times
+\frac{2 tours moteur}{1 de pas de vis tr} \times
+\frac{1 tr tige filetée}{0,2000 pouces}
+= \frac{20000 micropas}{pouces}
+]
+
+Voici un autre exemple, en millimètres cette fois:
+
+Par exemple (mm):
+
+     Stepper      = 200 pas par tour
+     Disque       =   8 étapes micro par étape
+     Dents moteur =  30
+     Dents de vis =  90
+     Pas de vis   =   5,00 mm par tour
+
+D'après les informations ci-dessus: 
+ - la tige filetée se déplace 5,00 mm par tour. 
+ - Le moteur tourne 3,000 fois par 1 tour de vis. 
+ - Le lecteur prend 8 entrées micropas à faire le pas stepper fois. 
+ - Le lecteur doit 1600 des mesures pour faire du stepper une révolution. 
+Ainsi l'échelle requise est la suivante:
+
+latexmath: [
+\frac{200 marches du moteur}{1 moteur de rev} \times
+\frac{8 micropas}{1 moteur pas à pas} \times
+\frac{3 tours moteur}{de pas de vis 1 rev} \times
+\frac{1 tr tige filetée}{5,000 mm}
+= \frac{960 micropas}{mm}
+]
 
 == Assistant de configuration graphique
 
-Voir l'utilisation de l'assistant Stepconf au chapitre (<<sec:pas a pas>>)
+Voir l'utilisation de l'assistant Stepconf au chapitre (<<cha:Assistant-graphique-pas-a-pas>>)
 
 == Lien sur le bureau (raccourci)
 
-Il est possible de créer un lien sur le bureau après utilisation de
-l'assistant Stepconf. Depuis le menu CNC lancer EMC2 et choisir la
-configuration nouvellement créée dans la liste. Cocher la case 
-«Créer un raccourci sur le bureau» et valider avec OK. Il est 
-désormais possible de lancer directement cette configuration depuis 
-le lien créé sur le bureau.
+Il est possible de créer un lien sur le bureau 
+après utilisation de l'assistant Stepconf. 
+Depuis le menu CNC lancer EMC2 et choisir la
+configuration nouvellement créée dans la liste. 
+Cocher la case «Créer un raccourci sur le bureau» et valider avec OK. 
+Il est désormais possible de lancer directement cette configuration 
+depuis le lien créé sur le bureau.
 
 == Modification
 
-Pour modifier quelque chose dans une configuration créée à l'aide de
-l'assistant Stepconf, relancer celui-ci. Sélectionner 
-«Modifier une configuration...» Puis choisir le fichier. Stepconf à 
-modifier dans le répertoire emc2/configs. L'entête du fichier 
-indique si le fichier peut être édité manuellement ou non. 
+Pour modifier quelque chose dans une configuration créée à 
+l'aide de l'assistant Stepconf, relancer celui-ci. 
+Sélectionner «Modifier une configuration...» Puis choisir le fichier
+*.stepconf* à modifier dans le répertoire emc2/configs. 
+L'entête du fichier indique si le fichier peut être édité manuellement ou non. 
+
+// vim: set syntax=asciidoc:
 
 

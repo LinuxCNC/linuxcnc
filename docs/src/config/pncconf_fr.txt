@@ -1,39 +1,43 @@
-= Point n Click Configurator
+= Assistant graphique de configuration Mesa pncconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))(((pncconf Wizard)))
 
-The Point n Click Configurator covers Mesa cards and parallel port
-stepper configurations. If you have a simple parallel port stepper
-machine the StepConf Wizard might be a better choice. The Point n Click
-Configurator can generate some advanced configurations without knowing
-anything about HAL.
+Le Point n Cliquez Configurateur couvre Mesa cartes et port parallèle
+configurations stepper. Si vous avez un simple port parallèle stepper
+la machine de l'Assistant Stepconf pourrait être un meilleur choix. 
+Le Point n Cliquez sur Configurateur peut générer certaines 
+configurations avancées sans savoir rien sur HAL.
 
-Start the PnCConf program from the CNC menu or from a terminal window
-with `pncconf`. For more information on the terminal window see the
-Linux FAQ section.
+Démarrez le programme depuis le menu PnCConf CNC ou d'une fenêtre de terminal
+avec `pncconf. Pour plus d'informations sur la fenêtre de terminal, voyez le
+Linux section FAQ.
+
+[float]
+Instructions étape par étape
+============================
 
 .PnCConf Splash
 
 image::images/pncconf-splash.png[]
 
-== Basic Machine Information
+== Informations sur l'appareil de base
 
-Machine Name:::
-    What you want to call your machine and must not have any spaces.
+Nom de la machine::
+    Qu'est-ce que vous voulez appeler votre machine et ne doit pas avoir d'espaces.
 
-.PnCConf Basic
+.PnCConf base
 
 image::images/pncconf-basic.png[]
 
-== GUI Configuration
+== Configuration GUI
 
-Here you can select from different GUIs and options for each one.
+Ici vous pouvez choisir entre différentes interfaces graphiques et des options pour chacune d'elles.
 
-.GUI Configuration
+.Configuration GUI
 
 image::images/pncconf-gui.png[]
 
-== Mesa Configuration
+== Configuration Mesa
 
-.Mesa Configuration
+.Configuration Mesa
 
 image::images/pncconf-mesa-config.png[]
 
@@ -51,27 +55,31 @@ image::images/pncconf-mesa-io3.png[]
 
 image::images/pncconf-mesa-io4.png[]
 
-== Axis Configuration
+== Configuration de l'axe
 
-.Axis Drive Configuration
+.Axis Configuration du lecteur
 
 image::images/pncconf-axis-drive.png[]
 
-.Axis Configuration
+.Axe de configuration
 
 image::images/pncconf-axis-config.png[]
 
-== Advanced Options
+== Options avancées
 
-.Advanced Options
+.Options avancées
 
 image::images/pncconf-advanced.png[]
 
-== HAL Components
+== Composants HAL
 
-On this page you can add additional HAL components you might need.
+Sur cette page, vous pouvez ajouter d'autres composants de HAL vous pourriez avoir besoin.
 
-.HAL Components
+.Composants HAL
 
 image::images/pncconf-hal.png[]
+
+
+// vim: set syntax=asciidoc:
+
 

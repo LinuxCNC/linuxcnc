@@ -129,8 +129,8 @@ Les sections suivantes sont utilisées par emc:
 
  - [EMC] informations générales (<<sub:Section-[EMC]>>)
  - [DISPLAY] sélection du type d'interface graphique (<<sub:Section-[DISPLAY]>>)
- - [FILTER] settings input filter programs ([sub:[FILTER]-Section])
- - [RS274NGC] ajustements utilisés par l'interpréteur de g-code
+ - [FILTER] settings input filter programs (<<sub:Section-[FILTER]>>)
+ - [RS274NGC] ajustements utilisés par l'interpréteur de g-code (<<sub:Section-[RS274NGC]>>)
  - [EMCMOT] Réglages utilisés par le contrôleur de mouvements temps réel (<<sub:Section-[EMCMOT]>>)
  - [TASK] Réglages utilisés par le contrôleur de tâche (<<sub:Section-[TASK]>>)
  - [HAL] spécifications des fichiers .hal (<<sub:Section-[HAL]>>)
@@ -451,7 +451,7 @@ BASE_PERIOD = 50000::(((BASE PERIOD)))
     fréquence de pas maximum absolue de 20000
     pas par seconde. 50000ns est une valeur assez large. La plus petite
     valeur utilisable est liée au résultat du test de latence 
-    (<<sec:Test de latence>>), à la longueur des impulsions de pas 
+    (<<sec:Test-de-latence-IM>>), à la longueur des impulsions de pas 
     nécessaire et à la vitesse du µP. 
     Choisir une BASE_PERIOD trop basse peut amener à des messages
     “Unexpected realtime delay”, des bloquages ou des reboots spontanés.
@@ -913,7 +913,7 @@ OUTPUT_OFFSET = 0.000::
     suivez cette procédure: 
       . Construire un tableau de calibrage pour la sortie, piloter le DAC
        avec la tension souhaitée et mesurer le résultat. Voir le tableau 
-       <<cap:Mesure des tensions de sortie>> pour un exemple de mesures de
+       <<cap:Mesure-des-tensions-de-sortie>> pour un exemple de mesures de
        tension.
       . Effectuer un “least squares” linéaire pour obtenir les
        coefficients a,b tels que:latexmath:[meas=a*raw+b]

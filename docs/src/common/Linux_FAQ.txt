@@ -216,4 +216,6 @@ Instructions for fixing this are located here:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
 
+// vim: set syntax=asciidoc:
+
 

@@ -1,4 +1,5 @@
-= Point n Click Configurator
+= Point n Click Configurator Wizard[[cha:PNCconf-Wizard]]
+(((PNCconf Wizard)))
 
 The Point n Click Configurator covers Mesa cards and parallel port
 stepper configurations. If you have a simple parallel port stepper
@@ -10,13 +11,17 @@ Start the PnCConf program from the CNC menu or from a terminal window
 with `pncconf`. For more information on the terminal window see the
 Linux FAQ section.
 
+[float]
+Step by Step Instructions
+=========================
+
 .PnCConf Splash
 
 image::images/pncconf-splash.png[]
 
 == Basic Machine Information
 
-Machine Name:::
+Machine Name::
     What you want to call your machine and must not have any spaces.
 
 .PnCConf Basic
@@ -74,4 +79,8 @@ On this page you can add additional HAL components you might need.
 .HAL Components
 
 image::images/pncconf-hal.png[]
+
+
+// vim: set syntax=asciidoc:
+
 

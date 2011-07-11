@@ -39,8 +39,8 @@ text here
 
 == Upgrading from 2.3.x to 2.4.x
 
-The following instructions only apply to Ubuntu 8.04 "Hardy 
-Heron". EMC 2.4 is not available for older releases of Ubuntu.
+The following instructions only apply to Ubuntu 8.04 "Hardy Heron". 
+EMC 2.4 is not available for older releases of Ubuntu.
 
 Because there are several minor incompatibilities between 2.3.5 
 and 2.4.x, your existing install will not automatically be 
@@ -57,15 +57,10 @@ lines for linuxcnc.org.
 For each of them:
 
  - Select the line and click Edit
-
- - on the Components line, change emc2.3 to emc2.4
-
+ - On the Components line, change emc2.3 to emc2.4
  - Click OK 
-
  - Close the "Software Preferences" window
-
  - Click "Reload" as instructed
-
  - Click "Mark All Upgrades"
    
 .Mesa card and hostmot2 users:
@@ -84,13 +79,12 @@ by following these instructions:
 
 === emc.nml changes (2.3.x to 2.4.x)
 
-For configurations that have not customized emc.nml, remove or 
-comment out the 
-inifile line NML_FILE = emc.nml. This will cause the most up to 
-date version of emc.nml to be used.
+For configurations that have not customized emc.nml, 
+remove or comment out the inifile line NML_FILE = emc.nml. 
+This will cause the most up to date version of emc.nml to be used.
 
-For configurations that have customized emc.nml, a change similar 
-to this one is required.
+For configurations that have customized emc.nml, 
+a change similar to this one is required.
 
 Failure to do this can cause an error like this one: 
 ---------------------------------- 
@@ -100,20 +94,20 @@ Can't write 10748 bytes at offset 60 from buffer of size 10208.
 
 === tool table changes (2.3.x to 2.4.x) 
 
-The format of the tool table has been changed incompatibly. The 
-documentation shows the new format. The tool table will 
-automatically be converted to the new format.
+The format of the tool table has been changed incompatibly. 
+The documentation shows the new format. 
+The tool table will automatically be converted to the new format.
 
 === hostmot2 firmware images (2.3.x to 2.4.x)
 
 The hostmot2 firmware images are now a separate package. You can:
 
- - Continue using an already-installed `emc2-firmware-mesa-*` 2.3.x 
-   package
-
- - Install the new packages from the synaptic package manager. The 
-   new packages are named `hostmot2-firmware-*`
-
+ - Continue using an already-installed `emc2-firmware-mesa-*` 2.3.x package
+ - Install the new packages from the synaptic package manager. 
+   The new packages are named `hostmot2-firmware-*`
  - Download the firmware images as tar files from 
    http://emergent.unpy.net/01267622561 and install them manually 
+
+// vim: set syntax=asciidoc:
+
 

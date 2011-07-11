@@ -63,40 +63,44 @@ views of EMC2:
 
 == IRC
 
-IRC stands for Internet Relay Chat. It is a live connection to other
-EMC users. The EMC IRC channel is #emc on freenode.
+IRC stands for Internet Relay Chat. 
+It is a live connection to other EMC users. 
+The EMC IRC channel is #emc on freenode.
 
-The simplest way to get on the IRC is to use the embedded java client
-on this page: 
+The simplest way to get on the IRC is to use 
+the embedded java client on this page: 
 
 http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
 
 Some IRC etiquette:
 
- - Ask specific questions... Avoid "Can someone help me?", "It won't run"
-   type of questions.
- - If you're really new to all this, think a bit about your question
-   before typing it. Make sure you give enough information so someone can
-   solve your question. 
- - Have some patience when waiting for an answer, sometimes it takes a
-   while to formulate an answer or everyone might be busy working or
-   something.
- - Set up your IRC account with your unique name so people will know who
-   you are. If you use the java client, use the same name every time you
-   log in. This helps people remember who you are and if you have been on
-   before many will remember the past discussions which saves time on both
-   ends.
+ - Ask specific questions... Avoid "Can someone help me?", 
+   "It won't run" type of questions. 
+ - If you're really new to all this, think a bit about your question 
+   before typing it. Make sure you give enough information so 
+   someone can solve your question. 
+ - Have some patience when waiting for an answer, sometimes it takes a 
+   while to formulate an answer or everyone might be busy working or 
+   something. 
+ - Set up your IRC account with your unique name so people will know who 
+   you are. If you use the java client, use the same name every time you 
+   log in. This helps people remember who you are and if you have been on 
+   before many will remember the past discussions which 
+   saves time on both ends.
 
 === Sharing Files
 
-The most common way to share files on the IRC is to upload the file to
-one of the following or a similar service and paste the link:
+The most common way to share files on the IRC is to upload the file 
+to one of the following or a similar service and paste the link:
 
-http://pastebin.ca = for text
+For text::
+    http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
 
-http://imagebin.ca = for pictures
+For pictures:: 
+    http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
 
-http://filebin.ca = for files and pdfs
+For files::
+    http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
 == Mailing List
 
@@ -107,34 +111,36 @@ answers take longer. In a nutshell you e-mail a message to the list and
 either get daily digests or individual replies back depending on how
 you set up your account.
 
-Information about the EMC Users Mailing List at:
+Information about the EMC Users Mailing List at: 
 
-https://lists.sourceforge.net/lists/listinfo/emc-users[https://lists.sourceforge.net/lists/listinfo/emc-users]
+link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users mailing list]
 
-== EMC Wiki
+== EMC2 Wiki
 
-A Wiki site is a user maintained web site that anyone can add to or
-edit.
+A Wiki site is a user maintained web site 
+that anyone can add to or edit.
 
-The user maintained EMC Wiki site contains a wealth of information and
-tips at:
+The user maintained EMC Wiki site contains a 
+wealth of information and tips at:
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl]
+link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
 
-= Get EMC2
+= Getting EMC2
 
 == Normal Download
 
 Download the Live CD from:
 
-http://www.linuxcnc.org/[http://www.linuxcnc.org/]
+http://www.linuxcnc.org/[the EMC2 homepage at www.linuxcnc.org]
 
 and follow the Download link.
 
 == Multi-session Download (((Multi-session Download)))
 
-If the file is too large to download in one session because of a bad
-or slow Internet connection use `wget` to allow resuming downloads.
+If the file is too large to download in one session 
+because of a bad or slow Internet connection, 
+use `wget` (or bittorrent) to allow 
+resuming after an interrupted download. 
 
 === Wget Linux (((Wget Linux)))
 
@@ -151,8 +157,8 @@ terminal window with a right mouse click and select Paste.
 
 .Ubuntu 10.04 Lucid Lynx and EMC2 (current release)
 *********************************************************************
-To get the Ubuntu 10.04 Lucid Lynx version, copy one of these in 
-the terminal window and press enter:
+To get the Ubuntu 10.04 Lucid Lynx version, 
+copy one of these in the terminal window and press enter:
 
 For the USA mirror: 
 wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
@@ -163,18 +169,19 @@ wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.is
 The md5sum of the above file is: `5283b33b7e23e79da1ee561ad476b05f` 
 *********************************************************************
 
-To continue a partial download that was interrupted add the -c option to wget:
+To continue a partial download that was interrupted 
+add the -c option to wget:
 
 wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 
 To stop a download use Ctrl-C or close the terminal window.
 
-.8.04 Hardy Heron and EMC2 (older)
+.Ubuntu 8.04 Hardy Heron and EMC2 (older)
 *********************************************************************
 If you require an older version of Ubuntu, you can download Ubuntu 8.04. 
 The CD image below has the old emc 2.3.x on it, but can be upgraded to 
 2.4.x by following instructions on the LinuxCNC.org wiki here: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.3
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
 
 For the USA mirror: 
 wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
@@ -193,7 +200,7 @@ The CD image below has the old emc 2.2.x on it, but can be upgraded to
 `http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.3`
 
 Because Dapper Drake is not supported anymore, there is no current 
-version of emc2 (2.4.x) for Dapper Drake.:
+version of EMC2 (2.4.x) for Dapper Drake.:
 
 For the USA mirror: 
 wget http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso
@@ -209,7 +216,7 @@ directory that you selected. Next we will burn the CD.
 
 === Wget Windows (((Wget Windows)))
 
-The wget program is also available for Windows from
+The wget program is also available for Windows from: 
 
 http://gnuwin32.sourceforge.net/packages/wget.htm
 
@@ -222,8 +229,8 @@ In most Windows it is Programs/Accessories/Command Prompt
 
 First you have to change to the directory where wget is installed in.
 
-Typically it is in C:\Program Files\GnuWin32\bin so in the Command
-Prompt window type:
+Typically it is in C:\Program Files\GnuWin32\bin so 
+in the Command Prompt window type:
 
 `cd C:\Program Files\GnuWin32\bin`
 
@@ -231,20 +238,37 @@ and the prompt should change to: `C:\Program Files\GnuWin32\bin>`
 
 Type the wget command into the window and press enter as above.
 
+=== Bittorrent
+
+Bittorrent is a downloading method that is easy and reliable. 
+
+At this time, EMC2 users are setting up a bittorrent link, 
+ask in IRC or search the wiki for the latest information. 
+
+For info on bittorrent clients for Ubuntu, see: 
+
+https://help.ubuntu.com/community/BitTorrent
+
+(Ubuntu may have "Transmission" already installed.)
+
+For info on bittorrent clients for Windows, see: 
+
+http://www.bittorrent.com/ or http://www.vuze.com/
+
 == Burning the CD
 
-EMC2 is distributed as CD image files, called ISOs. To install EMC2,
-you first need to burn the ISO file onto a CD. You need a working
-CD/DVD burner and an 80 minute (700 Mb) CD for this. If the CD writing
-fails, try writing at a slower burn speed. 
+EMC2 is distributed as CD image files, called ISOs. 
+To install EMC2, you first need to burn the ISO file onto a CD. 
+You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
+If the CD writing fails, try writing at a slower burn speed. 
 
 === Burn with Linux
 
 Before burning a CD, it is highly recommended that you verify the 
 md5sum (hash) of the .iso file.
 
-Open a terminal window. In Ubuntu it is
-Applications/Accessories/Terminal.
+Open a terminal window. 
+In Ubuntu it is Applications/Accessories/Terminal.
 
 Change to the directory where the ISO was downloaded to.
 
@@ -254,15 +278,17 @@ Then run the md5sum command with the file name you saved.
 
 `md5sum -b ubuntu-10.04-linuxcnc1-i386.iso`
 
-The md5sum should print out a single line after calculating the hash.
+The md5sum should print out a single line after 
+calculating the hash. 
 On slower computers this might take a minute or two.
 
 `5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso`
 
 Now compare it to the md5sum value that it should be.
 
-If you downloaded the md5sum as well as the .iso, you can ask the 
-md5sum program to do the checking for you. In the same directory: 
+If you downloaded the md5sum as well as the iso, 
+you can ask the md5sum program to do the checking for you. 
+In the same directory: 
 
 `md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5`
 
@@ -272,8 +298,9 @@ If all is well, after a short delay the terminal will print:
 
 ==== Burning the ISO to a CD
 
- . Insert a blank CD into your burner. A "CD/DVD Creator" or "Choose Disc
-   Type" window will pop up. Close this, as we will not be using it.
+ . Insert a blank CD into your burner. A "CD/DVD Creator" or 
+   "Choose Disc Type" window will pop up. 
+   Close this, as we will not be using it.
  . Browse to the downloaded ISO image in the file browser.
  . Right click on the ISO image file and choose Write to Disc.
  . Select the write speed. If you are burning a Ubuntu Live CD, it is
@@ -294,10 +321,11 @@ https://help.ubuntu.com/community/HowToMD5SUM
 ==== Burning the ISO to a CD
 
  . Download and install Infra Recorder, a free and open source image
-   burning program.
+   burning program: http://infrarecorder.org/
  . Insert a blank CD in the drive and select Do nothing or Cancel if an
    auto-run dialog pops up.
- . Open Infra Recorder, and select the 'Actions' menu, then 'Burn image'.
+ . Open Infra Recorder, and select the 
+   'Actions' menu, then 'Burn image'.
 
 == Testing EMC2
 
@@ -329,10 +357,6 @@ configured to add a Virtual Control Panel to customize the interface to
 suit your needs. AXIS is the default user interface and is actively
 being developed.
 
-///////////////////////////////////////////////////////////
-  (FIXME caption displaces image in pdf, why?)
-///////////////////////////////////////////////////////////
-
 .Axis User Interface[[cap:Axis-User-Interface]]
 
 image::images/axis_2.3.png[]
@@ -341,17 +365,20 @@ image::images/axis_2.3.png[]
 
 With the normal install the Update Manager will notify you of updates
 to EMC2 when you go on line and allow you to easily upgrade with no
-Linux knowledge needed. If you want to upgrade to 10.04 from 8.04 a
-clean install from the Live-CD is needed. It is OK to upgrade EMC when
-asked to.
+Linux knowledge needed. 
+If you want to upgrade to 10.04 from 8.04 a
+clean install from the Live-CD is recommended. 
+It is OK to upgrade EMC when asked to.
 
-Warning: Do not upgrade Ubuntu to a new version (like 8.04 to 8.10) as
-it will prevent EMC from running.
+Warning: Do not upgrade Ubuntu to a new but non-LTS version 
+(like 8.04 to 8.10) as it will prevent EMC from running.
 
 == Install Problems
 
 In rare cases you might have to reset the BIOS to default settings if
-during the Live CD install it can not recognize the hard drive during
-the boot up.
+during the Live CD install it cannot recognize the hard drive 
+during the boot up.
+
+// vim: set syntax=asciidoc:
 
 

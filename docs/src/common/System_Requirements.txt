@@ -12,7 +12,7 @@ Section (<<sec:Latency-Test>>).
 
 Additional information is on the EMC Wiki site:
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements]
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
 
 EMC2 and Ubuntu should run reasonably well on a computer with the
 following minimum hardware specification. These numbers are not the
@@ -21,11 +21,11 @@ systems.
 
  - 700 MHz x86 processor (1.2 GHz x86 processor recommended)
  - 384 MB of RAM (512 MB up to 1 GB recommended)
- - 4 GB hard disk
- -  Graphics card capable of at least 800x600 resolution, which is not
+ - 8 GB hard disk
+ - Graphics card capable of at least 1024x768 resolution, which is not
    using the NVidia or ATI fglrx proprietary drivers, and which is not an
    onboard video chipset that shares main memory with the CPU
- -  A network or Internet connection (not strictly needed, but very useful
+ - A network or Internet connection (not strictly needed, but very useful
    for updates and for communicating with the EMC community)
 
 == Problematic Hardware
@@ -41,4 +41,7 @@ the info you need to determine suitability.
 If your installation pops up with 800 x 600 screen resolution then
 most likely Ubuntu does not recognize your video card or monitor.
 Onboard video many times causes bad real time performance.
+
+// vim: set syntax=asciidoc:
+
 
