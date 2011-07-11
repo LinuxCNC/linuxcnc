@@ -1,4 +1,3 @@
-
 [Desktop Entry]
 Encoding=UTF-8
 Version=
@@ -7,8 +6,7 @@ Exec=/usr/bin/pncconf
 Icon=emc2icon
 X-GNOME-DocPath=
 Terminal=false
-Name=EMC2 Pncconf Wizard
 Comment=Configuration Wizard For Mesa I/O Cards
 StartupNotify=false
 Categories=X-CNC;
-Name[en_CA]=emc2-pncconf.desktop
+Name[en_CA]=EMC2 Pncconf Wizard
