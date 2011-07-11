@@ -1,0 +1,136 @@
+= Halui Examples
+
+For any Halui examples to work you need to add the following line to the \[HAL\] section of the ini file.
+
+`HALUI = halui`
+
+== Remote Start
+
+To connect a remote program start button to EMC you use the 
+`halui.program.run` pin and the `halui.mode.auto` pin. 
+You have to insure that it is OK to run first by using the 
+`halui.mode.is-auto` pin. You do this with an `and2` 
+component. The following figure shows how this is done. 
+When the Remote Run Button is pressed it is connected to 
+both `halui.mode.auto` and `and2.0.in0`. If it is OK for 
+auto mode the pin `halui.mode.is-auto` will be on. 
+If both the inputs to the `and2.0` component are on the 
+`and2.0.out` will be on and this will start the program. 
+
+[Figure xx: Remote-Start Example]<<fig:Remote-Start-Example>>
+:include:images/remote-start.png
+
+The hal commands needed to accomplish the above are: 
+
+`net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>` +
+`net program-run-ok and2.0.in1 <= halui.mode.is-auto` +
+`net remote-program-run halui.program.run <= and2.0.out`
+
+Notice on line one that there are two reader pins, this can also be split up to two lines like this:
+
+`net program-start-btn halui.mode.auto <= <your input pin>` +
+`net program-start-btn and2.0.in0` 
+
+== Paused & Resume
+
+This example developed from the need of EMC2 to move a 
+rotary axis when told to do so by another machine. 
+To coordinate between two control systems using Halui 
+we take advantage of two components of Halui.
+
+`halui.program.is-paused` +
+`halui.program.resume` 
+
+In your custom.hal file we can add a couple of lines that 
+when connected to your I/O can tell the other control system 
+that the program is paused and to resume the program when 
+the other control system wants EMC2 to resume.
+
+`net ispaused halui.program.is-paused => "your out pin"` +
+`net resume halui.program.resume <= "your in pin"` 
+
+Your "in" and "out” pin is what is connected to the other 
+controller. It could be a parallel port pin or any other 
+pin you have access to. 
+
+This system works in the following way. When an M0 is 
+encountered in your G-code, the `halui.program.is-paused` 
+signal goes true. This turns on your output pin so that 
+the external controller knows that EMC2 is paused. 
+
+When the external controller has finished what it needs to do, 
+it must tell EMC2 to resume executing the G-code program. 
+The external controller does this by providing an output 
+signal that makes your input pin go true. The `resume` 
+signal will then cause EMC2 to resume executing G-code. 
+
+Timing requirements
+
+ - `resume` must not be true longer than it takes to run the G-code. +
+ - `is-paused` must not be on when next resume arrives.
+
+Timing issues that could foul up a good plan might occur if the 
+other controller sends a `resume` out and sees the `is-paused` 
+bit on and thinks that EMC2 was very fast at completing the 
+requested command. The second issue is the other controller 
+sending out a resume that is longer than it takes to execute 
+the program. 
+
+This could be overcome using ClassicLadder to turn on the `is-paused` 
+bit for a limited amount of time, then turning it back off. Also, 
+the `resume` could be delivered via a one shot or a very short timer.
+
+
+
+Examples with Halui =
+
+For these examples to work, you must add the 
+following line in the *hal.ini* file: 
+
+     HALUI = halui
+
+== Pause and Resume
+
+This example was developed to allow EMC2 to move a 
+rotary axis on a signal from an external machine. 
+The coordination between the two systems will be 
+provided by two Halui components. 
+
+ - halui.program.is-paused
+ - halui.program.resume
+
+In your customized hal.ini file, add the following 
+two lines that will be connected to your I/O to turn 
+on the program pause or to resume when the external 
+system wants EMC2 to continue. 
+
+`net-ispaused halui.program.is paused => your output pin`
+`sortienet resume halui.program.resume <= your input pin`
+
+Your input and output pins are connected to the pins 
+wired to the other controller. They may be pins 
+parallel port or any other pin that you have access. 
+
+The operation is as follows. When an M0 is encountered in 
+the g-code program, `halui.program.is-paused` becomes true. 
+The connection to an output pin makes your pin real 
+so the other controller knows that EMC2 is stopped. 
+
+To resume the gcode program, when the external controller 
+is ready, it will make its output true. This will signal 
+EMC2 that it should resume executing Gcode. 
+
+Difficulties in timing
+
+ - The "resume" input return signal should not be 
+   longer than the time required to get the g-code 
+   running again. 
+
+ - The "is-paused" output should no longer be active 
+   by the time the "resume" signal ends. 
+
+These timing problems could be avoided by using
+ClassicLadder to activate the "is-paused" a beat
+and off the end of the pause. The recovery pulse could 
+also be provided by a monostable timer. 
+
