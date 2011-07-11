@@ -420,7 +420,9 @@ endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
-checkref: checkref_en checkref_de checkref_es checkref_fr
+# English only for now, checklinks.py needs adapting -mah
+checkref: checkref_en 
+#checkref: checkref_en checkref_fr checkref_de checkref_es checkref_fr
 
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/main.html
 	python $(DOC_SRCDIR)/checklinks.py $^
@@ -651,11 +653,11 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 #		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 #		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 	
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref.links
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref.links" \
+	         -a "linksfile=objects/xref_en.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 	
