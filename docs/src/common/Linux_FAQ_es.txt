@@ -1,0 +1,221 @@
+= Linux FAQ (((Linux FAQ)))
+
+These are some basic Linux commands and techniques for new to Linux
+users. More complete information can be found on the web or by using
+the man pages.
+
+== Automatic Login (((Automatic Login)))
+
+When you install EMC2 with the Ubuntu LiveCD the default is to have to
+log in each time you turn the computer on. To enable automatic login go
+to System/Administration/Login Window. If it is a fresh install the
+Login Window might take a second or three to pop up. You will have to
+have your password that you used for the install to gain access to the
+Login Window Preferences window. In the Security tab check off Enable
+Automatic Login and pick a user name from the list (that would be you).
+
+== Automatic Startup (((Automatic Startup)))
+
+To have EMC start automatically with your config after turning on the
+computer go to System/Preferences/Sessions Startup Programs, add new.
+Navigate to your config and select the .ini file. When the file picker
+dialog closes, add emc and a space in front of the path to your .ini
+file.
+
+Example:
+
+    emc /home/mill/emc2/config/mill/mill.ini
+
+== Man Pages (((Man Pages)))[[sec:Man-Pages]]
+
+Man pages are automatically generated manual pages in most cases. Man
+pages are usually available for most programs and commands in Linux.
+
+To view a man page open up a terminal window by going to Applications,
+Accessories, Terminal. For example if you wanted to find out something
+about the find command in the terminal window type:
+
+    man find
+
+Use the Page Up and Page Down keys to view the man page and the Q key
+to quit viewing.
+
+== List Modules
+
+Sometimes when troubleshooting you need to get a list of modules that
+are loaded. In a terminal window type:
+
+    lsmod
+
+If you want to send the output from lsmod to a text file in a terminal
+window type:
+
+    lsmod > mymod.txt
+
+The resulting text file will be located in the home directory if you
+did not change directories when you opened up the terminal window and
+it will be named mymod.txt or what ever you named it.
+
+== Editing a Root File (((Editing a Root File)))[[sec:Editing-a-Root-File]]
+
+When you open the file browser and you see the Owner of the file is
+root you must do extra steps to edit that file. Editing some root files
+can have bad results. Be careful when editing root files. Generally, you 
+can open and view most root files, but they will open in “read only”
+mode.
+
+=== The Command Line Way (((sudo gedit)))
+
+Open up Applications, Accessories, Terminal.
+
+In the terminal window type
+
+    sudo gedit
+
+Open the file with File, Open then edit
+
+=== The GUI Way (((gksudo)))
+
+ . Right click on the desktop and select Create Launcher
+ . Type a name in like sudo edit
+ . Type `gksudo "gnome-open %u"` as the command and save the launcher to
+   your desktop
+ . Drag a file onto your launcher to open and edit
+
+=== Root Access
+
+In Ubuntu you can become root by typing in "sudo -i" in a terminal
+window then typing in your password. Be careful, because you can really 
+foul things up as root if you don't know what you're doing. 
+
+== Terminal Commands (((Terminal Commands)))[[sec:Terminal-Commands]]
+
+=== Working Directory (((Working Directory)))(((pwd)))
+
+To find out the path to the present working directory in the terminal
+window type:
+
+    pwd
+
+=== Changing Directories (((Changing Directories)))(((cd)))
+
+To move up one level in the terminal window type:
+
+    cd ..
+
+To move up two levels in the terminal window type:
+
+    cd ../..
+
+To move down to the emc2/configs subdirectory in the terminal window
+type:
+
+    cd emc2/configs
+
+=== Listing files in a directory (((Listing files in a directory)))(((dir)))(((ls)))
+
+To view a list of all the files and subdirectories in the terminal window type: 
+
+    dir
+
+or
+
+    ls
+
+=== Finding a File (((Finding a File)))(((find)))
+
+The find command can be a bit confusing to a new Linux user. The basic
+syntax is:
+
+    find starting-directory parameters actions
+
+For example to find all the .ini files in your emc2 directory you
+first need to use the pwd command to find out the directory. +
+Open a new terminal window and type:
+
+    pwd
+
+And pwd might return the following result: 
+
+    /home/joe
+
+With this information put the command together like this:
+
+    find /home/joe/emc2 -name *.ini -print
+
+The -name is the name of the file your looking for and the -print
+tells it to print out the result to the terminal window. +
+The *.ini tells find to return all files that have the .ini extension.
+
+To find all the files in the named directory and all the
+subdirectories under that, add the -L option to the find command, like
+this:
+
+    find -L /home/joe/emc2 -name *.ini -print
+
+=== Searching for Text (((Searching for Text)))(((grep)))
+
+    grep -i -r 'text to search for' * 
+
+This will find all the files that contain the 'text to search for' in the
+current directory and all the subdirectories below it, while
+ignoring the case. The -i is for ignore case and the -r is for
+recursive (include all subdirectories in the search). The * is a wild
+card for search all files.
+
+=== Bootup Messages
+
+To view the bootup messages use "dmesg" from the command window. To
+save the bootup messages to a file use the redirection operator, like
+this:
+
+    dmesg > bootmsg.txt
+
+The contents of this file can be copied and pasted on line to share
+with people trying to help you diagnose your problem.
+
+To clear the message buffer type this:
+
+    sudo dmesg -c
+
+This can be helpful to do just before launching EMC, so that there will 
+only be a record of information related to the current launch of EMC. 
+
+To find the built in parallel port address use grep to filter the information
+out of dmesg. 
+
+After boot up open a terminal and type:
+
+  dmesg|grep parport
+
+== Convenience Items
+
+=== Terminal Launcher
+
+If you want to add a terminal launcher to the panel bar on top of the
+screen you typically can right click on the panel at the top of the
+screen and select "Add to Panel". Select Custom Application Launcher
+and Add. Give it a name and put gnome-terminal in the command box.
+
+== Hardware Problems
+
+=== Hardware Info
+
+To find out what hardware is connected to your motherboard in a
+terminal window type:
+
+    lspci -v
+
+=== Monitor Resolution
+
+During installation Ubuntu attempts to detect the monitor settings. If
+this fails you are left with a generic monitor with a maximum
+resolution of 800x600.
+
+Instructions for fixing this are located here:
+
+https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
+
+// vim: set syntax=asciidoc:
+
+

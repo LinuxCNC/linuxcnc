@@ -1,0 +1,384 @@
+= About EMC2
+
+== The Software
+
+* EMC2 (the Enhanced Machine Control) is a software system for computer
+  control of machine tools such as milling machines and lathes.
+* EMC2 is free software with open source code. Current versions of EMC
+  are entirely licensed under the GNU General Public License and Lesser
+  GNU General Public License (GPL and LGPL)
+* EMC2 provides:
+** a graphical user interface (actually several interfaces to choose from)
+** an interpreter for "G-code" (the RS-274 machine tool programming language)
+** a realtime motion planning system with look-ahead
+** operation of low-level machine electronics such as sensors and motor drives
+** an easy to use "breadboard" layer for quickly creating a unique 
+   configuration for your machine
+** a software PLC programmable with ladder diagrams
+** easy installation with a Live-CD
+* It does not provide drawing (CAD - Computer Aided Design) or G-code
+  generation from the drawing (CAM - Computer Automated Manufacturing)
+  functions.
+* It can simultaneously move up to 9 axes and supports a variety of
+  interfaces.
+* The control can operate true servos (analog or PWM) with the feedback
+  loop closed by the EMC software at the computer, or open loop with
+  "step-servos" or stepper motors.
+* Motion control features include: cutter radius and length
+  compensation, path deviation limited to a specified tolerance, lathe
+  threading, synchronized axis motion, adaptive feedrate, operator feed
+  override, and constant velocity control.
+* Support for non-Cartesian motion systems is provided via custom
+  kinematics modules. Available architectures include hexapods (Stewart
+  platforms and similar concepts) and systems with rotary joints to
+  provide motion such as PUMA or SCARA robots.
+* EMC2 runs on Linux using real time extensions. 
+
+ +
+ +
+ +
+ +
+ +
+ +
+ +
+
+== The Operating System
+
+Ubuntu has been chosen because it fits perfectly into the Open Source
+views of EMC2:
+
+ - Ubuntu will always be free of charge, and there is no extra fee for
+   the "enterprise edition", we make our very best work available to
+   everyone on the same Free terms.
+ - EMC2 is paired with the LTS versions of Ubuntu which provide support
+   and security fixes from the Ubuntu team for 3 - 5 years.
+ - Ubuntu uses the very best in translations and accessibility
+   infrastructure that the Free Software community has to offer, to make
+   Ubuntu usable for as many people as possible.
+ - The Ubuntu community is entirely committed to the principles of free
+   software development; we encourage people to use open source software,
+   improve it and pass it on.
+
+= Getting Help
+
+== IRC
+
+IRC stands for Internet Relay Chat. 
+It is a live connection to other EMC users. 
+The EMC IRC channel is #emc on freenode.
+
+The simplest way to get on the IRC is to use 
+the embedded java client on this page: 
+
+http://www.linuxcnc.org/content/view/4/8/lang,en/[http://www.linuxcnc.org/content/view/4/8/lang,en/].
+
+Some IRC etiquette:
+
+ - Ask specific questions... Avoid "Can someone help me?", 
+   "It won't run" type of questions. 
+ - If you're really new to all this, think a bit about your question 
+   before typing it. Make sure you give enough information so 
+   someone can solve your question. 
+ - Have some patience when waiting for an answer, sometimes it takes a 
+   while to formulate an answer or everyone might be busy working or 
+   something. 
+ - Set up your IRC account with your unique name so people will know who 
+   you are. If you use the java client, use the same name every time you 
+   log in. This helps people remember who you are and if you have been on 
+   before many will remember the past discussions which 
+   saves time on both ends.
+
+=== Sharing Files
+
+The most common way to share files on the IRC is to upload the file 
+to one of the following or a similar service and paste the link:
+
+For text::
+    http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
+
+For pictures:: 
+    http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
+
+For files::
+    http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+
+== Mailing List
+
+An Internet Mailing List is a way to put questions out for everyone on
+that list to see and answer at their convenience. You get better
+exposure to your questions on a mailing list than on the IRC but
+answers take longer. In a nutshell you e-mail a message to the list and
+either get daily digests or individual replies back depending on how
+you set up your account.
+
+Information about the EMC Users Mailing List at: 
+
+link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users mailing list]
+
+== EMC2 Wiki
+
+A Wiki site is a user maintained web site 
+that anyone can add to or edit.
+
+The user maintained EMC Wiki site contains a 
+wealth of information and tips at:
+
+link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
+
+= Getting EMC2
+
+== Normal Download
+
+Download the Live CD from:
+
+http://www.linuxcnc.org/[the EMC2 homepage at www.linuxcnc.org]
+
+and follow the Download link.
+
+== Multi-session Download (((Multi-session Download)))
+
+If the file is too large to download in one session 
+because of a bad or slow Internet connection, 
+use `wget` (or bittorrent) to allow 
+resuming after an interrupted download. 
+
+=== Wget Linux (((Wget Linux)))
+
+Open a terminal window. In Ubuntu it is Applications/Accessories/Terminal. 
+Use `cd` to change to the directory where you would like to store the ISO. 
+Use `mkdir` to create a new directory if needed. 
+
+Note that actual file names may change so you might have to go to 
+http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
+and follow the Download link to get the actual file name. 
+In most browsers you can right click on the link and select 
+Copy Link Location or similar, then paste the link into the 
+terminal window with a right mouse click and select Paste. 
+
+.Ubuntu 10.04 Lucid Lynx and EMC2 (current release)
+*********************************************************************
+To get the Ubuntu 10.04 Lucid Lynx version, 
+copy one of these in the terminal window and press enter:
+
+For the USA mirror: 
+wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
+
+For the European mirror: 
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
+
+The md5sum of the above file is: `5283b33b7e23e79da1ee561ad476b05f` 
+*********************************************************************
+
+To continue a partial download that was interrupted 
+add the -c option to wget:
+
+wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
+
+To stop a download use Ctrl-C or close the terminal window.
+
+.Ubuntu 8.04 Hardy Heron and EMC2 (older)
+*********************************************************************
+If you require an older version of Ubuntu, you can download Ubuntu 8.04. 
+The CD image below has the old emc 2.3.x on it, but can be upgraded to 
+2.4.x by following instructions on the LinuxCNC.org wiki here: 
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
+
+For the USA mirror: 
+wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
+
+For the European mirror: 
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
+
+The md5sum of the above file is: `1bab052ec879f941628927c988863f14`
+*********************************************************************
+
+.Ubuntu 6.06 Dapper Drake and EMC2 (not supported anymore)
+***********************************************************************
+If you require an older version of Ubuntu, you can download Ubuntu 6.06. 
+The CD image below has the old emc 2.2.x on it, but can be upgraded to 
+2.3.x by following instructions on the LinuxCNC.org wiki here: 
+`http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.3`
+
+Because Dapper Drake is not supported anymore, there is no current 
+version of EMC2 (2.4.x) for Dapper Drake.:
+
+For the USA mirror: 
+wget http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso
+
+For the European mirror: 
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=emc2.2.2-1-ubuntu6.06-desktop-i386.iso
+
+The md5sum of the above file is: `21f4ecdcf9f5ab09ed64b5e76fb389e6`
+***********************************************************************
+
+After the download is complete you will find the ISO file in the 
+directory that you selected. Next we will burn the CD.
+
+=== Wget Windows (((Wget Windows)))
+
+The wget program is also available for Windows from: 
+
+http://gnuwin32.sourceforge.net/packages/wget.htm
+
+Follow the instructions on the web page for downloading and installing
+the windows version of the wget program.
+
+To run wget open a command prompt window.
+
+In most Windows it is Programs/Accessories/Command Prompt
+
+First you have to change to the directory where wget is installed in.
+
+Typically it is in C:\Program Files\GnuWin32\bin so 
+in the Command Prompt window type:
+
+`cd C:\Program Files\GnuWin32\bin`
+
+and the prompt should change to: `C:\Program Files\GnuWin32\bin>`
+
+Type the wget command into the window and press enter as above.
+
+=== Bittorrent
+
+Bittorrent is a downloading method that is easy and reliable. 
+
+At this time, EMC2 users are setting up a bittorrent link, 
+ask in IRC or search the wiki for the latest information. 
+
+For info on bittorrent clients for Ubuntu, see: 
+
+https://help.ubuntu.com/community/BitTorrent
+
+(Ubuntu may have "Transmission" already installed.)
+
+For info on bittorrent clients for Windows, see: 
+
+http://www.bittorrent.com/ or http://www.vuze.com/
+
+== Burning the CD
+
+EMC2 is distributed as CD image files, called ISOs. 
+To install EMC2, you first need to burn the ISO file onto a CD. 
+You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this. 
+If the CD writing fails, try writing at a slower burn speed. 
+
+=== Burn with Linux
+
+Before burning a CD, it is highly recommended that you verify the 
+md5sum (hash) of the .iso file.
+
+Open a terminal window. 
+In Ubuntu it is Applications/Accessories/Terminal.
+
+Change to the directory where the ISO was downloaded to.
+
+`cd download_directory`
+
+Then run the md5sum command with the file name you saved.
+
+`md5sum -b ubuntu-10.04-linuxcnc1-i386.iso`
+
+The md5sum should print out a single line after 
+calculating the hash. 
+On slower computers this might take a minute or two.
+
+`5283b33b7e23e79da1ee561ad476b05f *ubuntu-10.04-linuxcnc1-i386.iso`
+
+Now compare it to the md5sum value that it should be.
+
+If you downloaded the md5sum as well as the iso, 
+you can ask the md5sum program to do the checking for you. 
+In the same directory: 
+
+`md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5`
+
+If all is well, after a short delay the terminal will print: 
+
+`ubuntu-10.04-linuxcnc1-i386.iso: OK`
+
+==== Burning the ISO to a CD
+
+ . Insert a blank CD into your burner. A "CD/DVD Creator" or 
+   "Choose Disc Type" window will pop up. 
+   Close this, as we will not be using it.
+ . Browse to the downloaded ISO image in the file browser.
+ . Right click on the ISO image file and choose Write to Disc.
+ . Select the write speed. If you are burning a Ubuntu Live CD, it is
+   recommended that you write at the lowest possible speed.
+ . Start the burning process.
+ . If a "choose a file name for the disc image" window pops up, just pick OK.
+
+=== Burn with Windows
+
+Before burning a CD, it is highly recommended that you verify the md5
+sum (hash) of the .iso file, to ensure that you got a good download.
+
+Windows does not come with a md5sum program. You will have to download
+and install one to check the md5sum. More information can be found at:
+
+https://help.ubuntu.com/community/HowToMD5SUM
+
+==== Burning the ISO to a CD
+
+ . Download and install Infra Recorder, a free and open source image
+   burning program: http://infrarecorder.org/
+ . Insert a blank CD in the drive and select Do nothing or Cancel if an
+   auto-run dialog pops up.
+ . Open Infra Recorder, and select the 
+   'Actions' menu, then 'Burn image'.
+
+== Testing EMC2
+
+With the Live CD in the CD/DVD drive shut down the computer then turn
+the computer back on. This will boot the computer from the Live CD.
+Once the computer has booted up you can try out EMC2 without installing
+it. You can not create custom configurations or modify most system
+settings like screen resolution unless you install EMC2.
+
+To try out EMC2 from the Applications/CNC menu pick EMC2. Then select
+a sim configuration to try out.
+
+To see if your computer is suitable for software step pulse generation
+run the Latency Test as outlined in Section (<<sec:Latency-Test>>)
+
+== Installing EMC2
+
+If you like what you see, just click the Install icon on the desktop,
+answer a few questions (your name, timezone, password) and the install
+completes in a few minutes. Make sure you write down the name you used
+and the password. Once the install process is complete and you go on
+line the update manager will pop up and allow you to upgrade to the
+latest stable version of EMC2.
+
+== Axis Interface
+
+The AXIS interface is one of the interfaces to choose from. It can be
+configured to add a Virtual Control Panel to customize the interface to
+suit your needs. AXIS is the default user interface and is actively
+being developed.
+
+.Axis User Interface[[cap:Axis-User-Interface]]
+
+image::images/axis_2.3.png[]
+
+== Updates to EMC2 (((Updates to EMC2)))
+
+With the normal install the Update Manager will notify you of updates
+to EMC2 when you go on line and allow you to easily upgrade with no
+Linux knowledge needed. 
+If you want to upgrade to 10.04 from 8.04 a
+clean install from the Live-CD is recommended. 
+It is OK to upgrade EMC when asked to.
+
+Warning: Do not upgrade Ubuntu to a new but non-LTS version 
+(like 8.04 to 8.10) as it will prevent EMC from running.
+
+== Install Problems
+
+In rare cases you might have to reset the BIOS to default settings if
+during the Live CD install it cannot recognize the hard drive 
+during the boot up.
+
+// vim: set syntax=asciidoc:
+
+

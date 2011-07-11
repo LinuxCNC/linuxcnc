@@ -1,0 +1,187 @@
+= Stepper Configuration
+
+This section assumes you have done a standard install from the Live
+CD. After installation it is recommended that you connect the computer
+to the Internet and wait for the update manager to pop up and get the
+latest updates for EMC and Ubuntu before continuing. For more complex
+installations see the Integrator Manual.
+
+== Latency Test
+
+The Latency Test determines how late your computer processor is in
+responding to a request. Some hardware can interrupt the processing
+which could cause missed steps when running a CNC machine. This is the
+first thing you need to do. Follow the instructions in section 
+(<<sec:Latency-Test>>) to run the latency test.
+
+== Sherline [[sec:Sherline]](((Sherline)))
+
+If you have a Sherline several predefined configurations are provided.
+This is on the main menu CNC/EMC then pick the Sherline configuration
+that matches yours and save a copy.
+
+== Xylotex [[sec:Xylotex]](((Xylotex)))
+
+If you have a Xylotex you can skip the following sections and go
+straight to the Stepper Config Wizard in Section(<<cha:Stepconf-Wizard>>). 
+EMC has provided quick setup for the Xylotex machines.
+
+== Machine Information
+
+Gather the information about each axis of your machine.
+
+Drive timing is in nano seconds. If you're unsure about the timing
+many popular drives are included in the stepper configuration wizard.
+Note some newer Gecko drives have different timing than the original
+one. A list is also on the user maintained EMC2 wiki site of more drives
+at link:[http://wiki.linuxcnc.org]. 
+
+[width="100%", options="header"]
+|====================================================================
+|Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns
+|X    |            |              |               |              | 
+|Y    |            |              |               |              | 
+|Z    |            |              |               |              | 
+|     |            |              |               |              | 
+|====================================================================
+
+== Pinout Information
+
+Gather the information about the connections from your machine to the
+PC parallel port.
+
+[width="100%", options="header"]
+|==============================================================================
+|Output Pin | Typ. Function    | If Different | Input Pin | Typ. Function | If Different
+|1          | E-Stop Out       |              | 10        | X Limit/Home  | 
+|2          | X Step           |              | 11        | Y Limit/Home  | 
+|3          | X Direction      |              | 12        | Z Limit/Home  | 
+|4          | Y Step           |              | 13        | A Limit/Home  | 
+|5          | Y Direction      |              | 15        | Probe In      | 
+|6          | Z Step           |              |           |               | 
+|7          | Z Direction      |              |           |               | 
+|8          | A Step           |              |           |               | 
+|9          | A Direction      |              |           |               | 
+|14         | Spindle CW       |              |           |               | 
+|16         | Spindle PWM      |              |           |               | 
+|17         | Amplifier Enable |              |           |               | 
+|==============================================================================
+
+Note any pins not used should be set to Unused in the drop down box.
+These can always be changed later by running Stepconf again.
+
+== Mechanical Information
+
+Gather information on steps and gearing. The result of this is steps
+per user unit which is used for SCALE in the .ini file.
+
+[width="100%", options="header"]
+|==============================================================================
+|Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
+|X    |            |             |             |                 | 
+|Y    |            |             |             |                 | 
+|Z    |            |             |             |                 | 
+|     |            |             |             |                 | 
+|==============================================================================
+
+*Steps per revolution* is how many stepper-motor-steps it takes to turn 
+the stepper motor one revolution. 
+Typical is 200.
+
+*Micro Steps* is how many CNC-output-steps the drive needs 
+to move the stepper motor one stepper-motor-step. 
+If microstepping is not used, this number will be 1. 
+If microstepping is used, typical values will be 
+near 4-16, perhaps 8 or 10. 
+
+[NOTE]
+Smaller values don't help that much, 
+because the approximation of the sine and cosine waves 
+involved is too coarse. 
+Larger values don't help by requiring too many steps 
+from the CNC output and slowing down the maximum speed. 
+
+*Motor Teeth* and *Leadscrew Teeth* is if you have some reduction 
+(gears, chain, timing belt, etc.) between the motor and the leadscrew. 
+If not, then set these both to 1. 
+
+*Leadscrew Pitch* is how much movement occurs 
+(in user units) in one leadscrew turn. 
+If you're setting up in inches then it is inches per turn. 
+If you're setting up in millimeters then it is millimeters per turn. 
+
+The net result you're looking for is how many CNC-output-steps it takes 
+to move one user unit (inches or mm).
+
+For Example (inches):
+
+    Stepper         = 200 steps per revolution
+    Drive           =  10 micro steps per step
+    Motor Teeth     =  20
+    Leadscrew Teeth =  40
+    Leadscrew Pitch =   0.2000 inches per turn
+
+From the above information, the leadscrew moves 0.200 inches per turn. 
+ - The motor turns 2.000 times per 1 leadscrew turn. 
+ - The drive takes 10 microstep inputs to make the stepper step once. 
+ - The drive needs 2000 steps to turn the stepper one revolution. 
+So the scale needed is: 
+
+latexmath:[ 
+\frac{200 motor steps}{1 motor rev} \times 
+\frac{10 microsteps}{1 motor step} \times
+\frac{2 motor revs}{1 leadscrew rev} \times 
+\frac{1 leadscrew revs}{0.2000 inch} 
+= \frac{20,000 microsteps}{inch} 
+]
+
+Here's another example, in millimeters this time: 
+
+For Example (mm):
+
+    Stepper         = 200 steps per revolution
+    Drive           =   8 micro steps per step
+    Motor Teeth     =  30 
+    Leadscrew Teeth =  90
+    Leadscrew Pitch =   5.00 mm per turn
+
+From the above information: 
+ - The leadscrew moves 5.00 mm per turn. 
+ - The motor turns 3.000 times per 1 leadscrew turn. 
+ - The drive takes 8 microstep inputs to make the stepper step once. 
+ - The drive needs 1600 steps to turn the stepper one revolution. 
+So the scale needed is: 
+
+latexmath:[ 
+\frac{200 motor steps}{1 motor rev} \times 
+\frac{8 microsteps}{1 motor step} \times
+\frac{3 motor revs}{1 leadscrew rev} \times 
+\frac{1 leadscrew revs}{5.000 mm} 
+= \frac{960 microsteps}{mm} 
+]
+
+== Configuration Wizard
+
+Run the Stepconf Wizard in chapter (<<cha:Stepconf-Wizard>>)
+
+== Link on the desktop (shortcut)
+
+It is possible to create a link on the desktop 
+after the use of Assistant Stepconf. 
+Since the start EMC2 CNC menu and choose 
+newly created configuration in the list. 
+Tick "Create desktop shortcut" and confirm with OK. 
+There is now a shortcut on the desktop that 
+can be run directly from this configuration. 
+
+== Modifying
+
+To change something in the basic configuration created 
+by Stepconf Wizard run the wizard again. 
+Select "Modify a Configuration", then pick the configuration file 
+*.stepconf* you wish to modify in the emc2/configs folder. 
+The file headers tell you if the file can be manually edited or not.
+
+// vim: set syntax=asciidoc:
+
+
