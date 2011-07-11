@@ -343,12 +343,12 @@ TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
-TARGETS += ngcgui
 
 # ngcgui as standalone app:
-ngcgui: ../tcl/ngcgui.tcl
-	cp ../tcl/ngcgui.tcl $(bindir)/ngcgui
-	chmod 0755 $(bindir)/ngcgui
+TARGETS += ../bin/ngcgui
+../bin/ngcgui: ../tcl/ngcgui.tcl
+	cp $< $@
+	chmod +x $@
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
@@ -509,7 +509,7 @@ install-kernel-indep: install-dirs
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
-	$(FILE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
+	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
