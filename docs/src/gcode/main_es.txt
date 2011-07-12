@@ -1,476 +1,476 @@
-= G Code Reference(((G Codes)))
+= G Código de Referencia(((G Codes)))
 
-Conventions used in this section
+Convenciones utilizadas en esta sección
 
-In the G Code prototypes the hyphen (`-`) stands for a real value.
+En los prototipos Código G del guión (`-`) representa un valor real.
 
-A real value may be: 
+El valor real puede ser: 
 
- - An explicit number, `4`
- - An expression, `[2+2]` 
- - A parameter value, `#88` 
- - A unary function value, `acos[0]`
+- Un número explícito, `4`
+- Una expresión, `[2 +2]` 
+- Un parámetro de valor, '# 88' 
+- Un valor de la función unario, `acos [0] '
 
-In most cases, if axis words are given 
-(any or all of `XYZABCUVW`), 
-they specify a destination point.
+En la mayoría de los casos, es decir si el eje está dado 
+(Cualquiera o todos los `XYZABCUVW`), 
+que especifica un punto de destino.
 
-Axis numbers are in the currently active coordinate system, 
-unless explicitly described as being 
-in the absolute coordinate system. 
-Where axis words are optional, any omitted axes will have their current value. 
+Número de ejes en el sistema de coordenadas activo, 
+a menos que explícitamente describen como 
+en el sistema de coordenadas absolutas. 
+Donde las palabras del eje son opcionales, los ejes se omite tendrá su valor actual. 
 
-Any items in the G Code prototypes not explicitly described as
-optional are required.
+Todos los elementos en los prototipos de código G no se describe explícitamente como
+opcional son obligatorios.
 
-The values following letters are often given as explicit numbers.
-Unless stated otherwise, the explicit numbers can be real values. For
-example, `G10 L2` could equally well be written `G[2*5] L[1+1]`. If the
-value of parameter 100 were 2, `G10 L#100` would also mean the same.
+Los siguientes valores se dan a menudo las letras como los números explícitos.
+A menos que se indique lo contrario, los números pueden ser explícitos los valores reales. Para
+ejemplo, `G-10 L2` también podría ser por escrito `G[2 * 5] L[1 +1]`. Si el
+valor del parámetro 100 a los 2, `G10 L#100` también significan lo mismo.
 
-If `L-` is written in a prototype the `-` will often be referred to
-as the "L number", and so on for any other letter.
+Si la opción `-L` está escrito en un prototipo del `-` a menudo se hace referencia
+como el "número L", y así sucesivamente para cualquier otra letra.
 
-== Polar Coordinates (((Polar Coordinates)))
+== Coordenadas polares(((coordenadas polares)))
 
-Polar Coordinates can be used to specify the XY coordinate of a move.
-The @n is the distance and ^n is the angle. The advantage of this is
-for things like bolt hole circles which can be done very simply by
-moving to a point in the center of the circle, setting the offset and
-then moving out to the first hole then run the drill cycle. 
-Polar Coordinates always are from the current XY zero position. 
-To shift the Polar Coordinates from machine zero use an offset 
-or select a coordinate system.
+Las coordenadas polares se puede utilizar para especificar las coordenadas XY de un movimiento.
+El n @ es la distancia y ^n es el ángulo. La ventaja de esto es
+para cosas como los círculos de taladros que se puede hacer muy simplemente
+llegando a un punto en el centro del círculo, el establecimiento de la compensación y
+luego pasar a primer agujero a continuación, ejecutar el ciclo de perforación. 
+Las coordenadas polares son siempre desde la posición cero de la corriente XY. 
+Para cambiar las coordenadas polares de cero máquina utiliza un desplazamiento 
+o seleccione un sistema de coordenadas.
 
-In Absolute Mode the distance and angle is from the XY zero position
-and the angle starts with 0 on the X Positive axis and increases in a CCW
-direction about the Z axis. The code G1 @1^90 is the same as G1 Y1.
+En el modo absoluto de la distancia y el ángulo es de la posición cero XY
+y el ángulo empieza con 0 en el eje X positivo y aumenta en un CCW
+dirección sobre el eje Z. El G1 de código @ 1 ^ 90 es el mismo que G1 Y1.
 
-In Relative Mode the distance and angle is also from the XY zero
-position but it is cumulative. 
-This can be confusing at first how this works in incremental mode.
+En el modo relativo a la distancia y el ángulo es de cero XY
+posición, pero es acumulativa. 
+Esto puede ser confuso al principio, cómo funciona esto en el modo incremental.
 
-For example if you have the following program you might expect it to
-be a square pattern.
+Por ejemplo, si usted tiene el siguiente programa se puede esperar que
+ser un patrón cuadrado.
 
-    F100 G1 @.5 ^90 
-    G91 @.5 ^90 
-    @.5 ^90
-    @.5 ^90
-    @.5 ^90
+    G1 F100 @ 0,5 ^ 90 
+    G91 @ 0,5 ^ 90 
+    @ 0.5 ^ 90
+    @ 0.5 ^ 90
+    @ 0.5 ^ 90
     G90 G0 X0 Y0 M2
 
-You can see from the following figure that the output is not what you
-might expect. Because we added 0.5 to the distance each time the 
-distance from the XY zero position increased with each line.
+Se puede ver en la siguiente figura que la salida no es lo que
+se podría esperar. Debido a que hemos agregado 0,5 a la distancia cada vez que el 
+distancia desde la posición cero XY aumentó con cada línea.
 
-.Polar Spiral[[fig:Polar-Spiral]]
+.Espiral Polar[[fig:Polar-Espiral]]
 
-image::images/polar01.png[]
+images::images/polar01.png[]
 
-The following code will produce our square pattern.
+El siguiente código producirá nuestro patrón cuadrado.
 
-    F100 G1 @.5 ^90 
-    G91 ^90
-    ^90
-    ^90
-    ^90
+    G1 F100 @ 0,5 ^ 90 
+    G91 ^ 90
+    ^ 90
+    ^ 90
+    ^ 90
     G90 G0 X0 Y0 M2
 
-As you can see by only adding to the angle by 90 degrees each time the
-end point distance is the same for each line.
+Como se puede ver con sólo añadir que el ángulo de 90 grados cada vez que el
+distancia de punto final es el mismo para cada línea.
 
-.Polar Square[[fig:Polar-Square]]
+.Polar Plaza de[[fig:Polar-Plaza]]
 
-image::images/polar02.png[]
+images::images/polar02.png[]
 
-It is an error if:
+Es un error si:
 
- - An incremental move is started at the origin
- - A mix of Polar and and X or Y words are used
+- Un movimiento incremental que se inicia en el origen
+- Una mezcla de Polar y X y Y o palabras se utilizan
 
-== Quick Reference Table[[sec:Quick-Reference-Table]](((G Code Table)))
+== Tabla de Referencia Rápida[[sec:Tabla-de-Referencia-Rapida]](((Tabla de códigos G)))
 
-[width="100%", options="header"]
+[Width="100%", options="header"]
 |====================================================================
-|Code          | Description                                    | Section
-|G0            | Coordinated Straight Motion Rapid              | <<sec:G0-Rapid>>
-|G1            | Coordinated Straight Motion Feed Rate          | <<sec:G1-Linear-Motion>>
-|G2, G3        | Coordinated Helical Motion Feed Rate           | <<sec:G2-G3-Arc>>
-|G4            | Dwell                                          | <<sec:G4-Dwell>>
-|G5.1          | Quadratic B-Spline                             | <<sec:G5.1-B-spline>>
-|G5.2, G5.3    | NURBs Block                                    | <<sec:G5.2-G5.3-NURBs>>
-|G7            | Diameter Mode (lathe)                          | <<sec:G7-Diameter-Mode>>
-|G8            | Radius Mode (lathe)                            | <<sec:G8-Radius-Mode>>
-|G10 L1        | Set Tool Table Entry                           | <<sec:G10-L1_>>
-|G10 L10       | Set Tool Table, Calculated, Workpiece          | <<sec:G10-L10>>
-|G10 L11       | Set Tool Table, Calculated, Fixture            | <<sec:G10-L11>>
-|G10 L2        | Coordinate System Origin Setting               | <<sec:G10-L2_>>
-|G10 L20       | Coordinate System Origin Setting Calculated    | <<sec:G10-L20>>
-|G17 - G19.1   | Plane Select                                   | <<sec:G17-G18-G19>>
-|G20, G21      | Units of Measure                               | <<sec:G20-G21-Units>>
-|G28 - G28.1   | Go to Predefined Position                      | <<sec:G28-G28.1>>
-|G30 - G30.1   | Go to Predefined Position                      | <<sec:G30-G30.1>>
-|G33           | Spindle Synchronized Motion                    | <<sec:G33-Spindle-Sync>>
-|G33.1         | Rigid Tapping                                  | <<sec:G33.1-Rigid-Tapping>>
-|G38.2 - G38.5 | Probing                                        | <<sec:G38.x-Straight-Probe>>
-|G40           | Cancel Cutter Compensation                     | <<sec:G40>>
-|G41, G42      | Cutter Compensation                            | <<sec:G41-G42>>
-|G41.1, G42.1  | Cutter Compensation Transient                  | <<sec:G41.1-G42.1>>
-|G43, G43.1    | Use Tool Length Offset from Tool Table         | <<sec:G43-G43.1-Tool>>
-|G49           | Cancel Tool Length Offset                      | <<sub:G49-Tool>>
-|G53           | Motion in Machine Coordinate System            | <<sub:G53-Move-in>>
-|G54-G59       | Select Coordinate System (1 - 6)               | <<sec:G54-G59.3>>
-|G59.1-G59.3   | Select Coordinate System (7 - 9)               | <<sec:G54-G59.3>>
-|G61, G61.1    | Path Control Mode                              | <<sec:G61-G61.1-G64>>
-|G64           | Path Control Mode with Optional Tolerance      | <<sec:G61-G61.1-G64>>
-|G73           | Drilling Cycle with Chip Breaking              | <<sec:G73-Drilling-Cycle>>
-|G76           | Multipass Threading Cycle (Lathe)              | <<sec:G76-Threading-Canned>>
-|G80           | Cancel Motion Modes                            | <<sec:G80-Cancel-Modal>>
-|G81           | Drilling Cycle                                 | <<sec:G81-Drilling-Cycle>>
-|G82           | Drilling Cycle with Dwell                      | <<sec:G82-Drilling-Dwell>>
-|G83           | Drilling Cycle with Peck                       | <<sec:G83-Drilling-Peck>>
-|G84           | Right Hand Tapping Cycle *(unimplemented)*     | <<sec:G84-Right-Hand-Tapping>>
-|G85           | Boring Cycle, No Dwell, Feed Out               | <<sec:G85-Boring-Feed-Out>>
-|G86           | Boring Cycle, Stop, Rapid Out                  | <<sec:G86-Boring-Rapid-Out>>
-|G87           | Back-Boring Cycle *(unimplemented)*            | <<sec:G87-Back-Boring>>
-|G88           | Boring Cycle, Stop, Manl Out *(unimplemented)* | <<sec:G88-Boring-Manual-Out>>
-|G89           | Boring Cycle, Dwell, Feed Out                  | <<sec:G89-Boring-Dwell>>
-|G90, G91      | Distance Mode                                  | <<sec:G90-G91-Set>>
-|G90.1, G91.1  | Arc Distance Mode                              | <<sec:G90.1-G91.1>>
-|G92           | Offset Coordinate Systems & Set Parameters     | <<sec:G92-G92.1-G92.2-G92.3>>
-|G92.1         | Cancel Offsets                                 | <<sec:G92-G92.1-G92.2-G92.3>>
-|G92.2         | Cancel Offsets                                 | <<sec:G92-G92.1-G92.2-G92.3>>
-|G92.3         | Apply Parameters to Offset Coordinate Systems  | <<sec:G92-G92.1-G92.2-G92.3>>
-|G93, G94, G95 | Feed Modes                                     | <<sec:G93-G94-G95-Mode>>
-|G96           | Constant Surface Speed                         | <<sec:G96-G97-Spindle>>
-|G97           | RPM Mode                                       | <<sec:G96-G97-Spindle>>
-|G98, G99      | Canned Cycle Z Retract Mode                    | <<sec:G98-G99-Set>>
+| Código | Descripción | Sección
+| G0 | movimiento coordinado recta rápida | <<sec:G0-Rapid>>
+| G1 | Coordinado movimiento recto Velocidad de alimentación | <<sec:G1-Linear-Motion>>
+| G2, G3 | movimiento coordinado helicoidal velocidad de alimentación | <<sec:G2-G3-Arc>>
+| G4 | Mora | <<sec:G4-Dwell>>
+| G5.1 | cuadráticas B-Spline | <<sec:G5.1-B-spline>>
+| G5.2, G5.3 | NURBS Bloquear | <<sec:G5.2-G5.3-NURBs>>
+| G7 | Diámetro Mode (torno) | <<sec:G7-Diameter-Mode>>
+| G8 | Radio Mode (torno) | <<sec:G8-Radius-Mode>>
+| G10 L1 | Juego de herramientas de entrada de la tabla | <<sec:G10-L1_>>
+| G10 L10 | Establecer tabla de herramientas, calculado, piezas | <<sec:G10-L10>>
+| G10 L11 | Establecer tabla de herramientas, calculado, Fixture | <<sec:G10-L11>>
+| G10 L2 | Sistema de coordenadas Configuración de Origen | <<sec:G10-L2_>>
+| G10 L20 | Sistema de coordenadas Configuración de Origen Calculado | <<sec:G10-L20>>
+| G17 - G19.1 | Plano Seleccionar | <<sec:G17-G18-G19>>
+| G20, G21 | Unidades de Medida | <<sec:G20-G21-Units>>
+| G28 - G28.1 | Ir a las posiciones predefinidas | <<sec:G28-G28.1>>
+| G30 - G30.1 | Ir a las posiciones predefinidas | <<sec:G30-G30.1>>
+| G33 | Movimiento eje sincronizado | <<sec:G33-Spindle-Sync>>
+| G33.1 | Roscado | <<sec:G33.1-Rigid-Tapping>>
+| G38.2 - G38.5 | Sondeo | <<sec:G38.x-Straight-Probe>>
+| G40 | Compensación de corte cancelar | <<sec:G40>>
+| G41, G42 | Cortador de Compensación | <<sec:G41-G42>>
+| G41.1, G42.1 | Compensación de corte transitorio | <<sec:G41.1-G42.1>>
+| G43, G43.1 | El uso de herramientas desplazamiento de longitud de la tabla de Herr | <<sec:G43-G43.1-Tool>>
+| G49 | Duración herramienta Cancelar offset | <<sub:G49-Tool>>
+| G53 | movimiento en la máquina del sistema de coordenadas | <<sub:G53-Move-in>>
+| G54-G59 | Seleccionar sistema de coordenadas (1-6) | <<sec:G54-G59.3>>
+| G59.1-G59.3 | Seleccionar sistema de coordenadas (7-9) | <<sec:G54-G59.3>>
+| G61, G61.1 | modo de control de ruta | <<sec:G61-G61.1-G64>>
+| G64 | modo de control de ruta con la tolerancia opcional | <<sec:G61-G61.1-G64>>
+| G73 | Ciclo de taladrado con rotura de virutas | <<sec:G73-Drilling-Cycle>>
+| G76 | Multipass Threading de ciclo (Tornos) | <<sec:G76-Threading-Canned>>
+| G80 | Cancelar movimiento Modos | <<sec:G80-Cancel-Modal>>
+| G81 | Ciclo de taladrado | <<sec:G81-Drilling-Cycle>>
+| G82 | Ciclo de taladrado con temporización | <<sec:G82-Drilling-Dwell>>
+| G83 | Ciclo de taladrado con Peck | <<sec:G83-Drilling-Peck>>
+| G84 | Mano Derecha * Tapping ciclo (no implementada) * | <<sec:G84-Right-Hand-Tapping>>
+| G85 | Ciclo de aburrido, no de permanencia, salida de alimentación | <<sec:G85-Boring-Feed-Out>>
+| G86 | Ciclo aburrido, Stop, salida rápida | <<sec:G86-Boring-Rapid-Out>>
+| G87 | Back-Aburrido Ciclo * (no implementada) * | <<sec:G87-Back-Boring>>
+| G88 | Ciclo aburrido, Stop, Manl Out * (no implementada) * | <<sec:G88-Boring-Manual-Out>>
+| G89 | Ciclo aburrido, permanencia, salida de alimentación | <<sec:G89-Boring-Dwell>>
+| G90, G91 | Modo Distancia | <<sec:G90-G91-Set>>
+| G90.1, G91.1 | Modo Distancia Arco | <<sec:G90.1-G91.1>>
+| G92 | de los sistemas de coordenadas y parámetros de Set | <<sec:G92-G92.1-G92.2-G92.3>>
+| G92.1 | Compensaciones cancelar | <<sec:G92-G92.1-G92.2-G92.3>>
+| G92.2 | Compensaciones cancelar | <<sec:G92-G92.1-G92.2-G92.3>>
+| G92.3 | Aplicar los parámetros de compensación de sistemas de coordenadas | <<sec:G92-G92.1-G92.2-G92.3>>
+| G93, G94, G95 | Modos de alimentación | <<sec:G93-G94-G95-Mode>>
+| G96 | velocidad de corte constante | <<sec:G96-G97-Spindle>>
+| G97 | RPM Mode | <<sec:G96-G97-Spindle>>
+| G98, G99 | Ciclo enlatados Z retracción Simple | <<sec:G98-G99-Set>>
 |====================================================================
 
-[width="100%", options="header"]
+[Width="100%", options="header"]
 |========================================
-|Code       | Description             | Section
-|M0, M1, M2 | Program Control         | <<sec:M0-M1-M2>>
-|M3, M4, M5 | Spindle Control         | <<sec:M3-M4-M5>>
-|M6         | Tool Change             | <<sec:M6-Tool-Change>>
-|M7, M8, M9 | Coolant Control         | <<sec:M7-M8-M9>>
-|M30, M60   | Pallet Shuttle          | <<sec:M0-M1-M2>>
-|M48        | Override Controls       | <<sub:M48-Both-Override>>
-|M49        | Override Controls       | <<sub:M49-Neither-Override>>
-|M50        | Override Controls       | <<sub:M50-Feed-Override>>
-|M51        | Override Controls       | <<sub:M51-Spindle-Override>>
-|M52        | Override Controls       | <<sub:M52-Adaptive-Feed-Control>>
-|M53        | Override Controls       | <<sub:M53-Feed-Stop-Control>>
-|M61        | Set Current Tool Number | <<sec:M61-Set-Current-Tool-Number>>
-|M62-65     | Output Control          | <<sec:M62-to-M65>>
-|M66        | Input Control           | <<sec:M66-Input-Control>>
-|M67        | Analog Output Control   | <<sec:M67-Analog-Output>>
-|M68        | Analog Output Control   | <<sec:M68-Analog-Output>>
-|M100-M199  | User Defined M-Codes    | <<sec:M100-to-M199>>
-|O          | O Codes                 | <<cha:O-Codes>>
-|F          | Feed                    | <<sub:F-Set-Feed>>
-|S          | Spindle Speed           | <<sub:S-Set-Spindle>>
-|T          | Tool Select             | <<sub:T-Select-Tool>>
+| Código | Descripción | Sección
+| M0, M1, M2 | Programa de Control | <<sec:M0-M1-M2>>
+| M3, M4, M5 | Eje de Control | <<sec:M3-M4-M5>>
+| M6 | Herramienta de Cambio | <<sec:M6-Tool-Change>>
+| M7, M8, M9 | Refrigerante de Control | <<sec:M7-M8-M9>>
+| M30, M60 | Shuttle Palet | <<sec:M0-M1-M2>>
+| M48 | Controles anulación | <<sub:M48-Both-Override>>
+| M49 | Controles anulación | <<sub:M49-Neither-Override>>
+| M50 | Controles anulación | <<sub:M50-Feed-Override>>
+| M51 | Controles anulación | <<sub:M51-Spindle-Override>>
+| M52 | Controles anulación | <<sub:M52-Adaptive-Feed-Control>>
+| M53 | Controles anulación | <<sub:M53-Feed-Stop-Control>>
+| M61 | Establecer Herramienta Número actual | <<sec:M61-Set-Current-Tool-Number>>
+| M62-65 | Control de Salida | <<sec:M62-to-M65>>
+| M66 | Entrada de control | <<sec:M66-Input-Control>>
+| M67 | Control de salida analógica | <<sec:M67-Analog-Output>>
+| M68 | Control de salida analógica | <<sec:M68-Analog-Output>>
+| M100-M199 | Definido por el usuario M-Codes | <<sec:M100-to-M199>>
+| S | S | Códigos | <<cha:O-Codes>>
+| F | Feed | <<sub:F-Set-Feed>>
+| S | Velocidad del eje | <<sub:S-Set-Spindle>>
+| T | Herramienta de selección | <<sub:T-Select-Tool>>
 |========================================
 
-== G0 Rapid Motion[[sec:G0-Rapid]](((G0 Rapid)))
+== G0 movimiento rápido[[sec:G0-Rapido]](((Rápido)))
 
-    G0 axes
+    G0 ejes
 
-For rapid linear (straight line) motion, program `G0 'axes'`, where
-all the axis words are optional. The `G0` is optional if the current
-motion mode is `G0`. This will produce coordinated linear motion to
-the destination point at the current traverse rate (or slower if 
-the machine will not go that fast). It is expected that cutting 
-will not take place when a `G0` command is executing.
+Para una rápida lineal (línea recta) de movimiento, el programa `G0 'ejes'`, donde
+todas las palabras del eje son opcionales. La `G0` es opcional si la corriente
+modo de movimiento es `G0`. Esto produce un movimiento coordinado lineal
+el punto de destino en la actual velocidad de desplazamiento (o menos si 
+la máquina no va a ir tan rápido). Se espera que la reducción de 
+no se llevará a cabo cuando un comando `G0` se está ejecutando.
 
-If cutter radius compensation is active, the motion will differ from
-the above; see Section <<sec:Cutter-Radius-Compensation>>.
+Si la compensación de radio de la fresa está activo, el movimiento será diferente de
+lo anterior, véase la sección <<sec:Cutter-Radius-Compensation>>.
 
-If `G53` is programmed on the same line, the motion will also differ;
-see Section <<sub:G53-Move-in>>.
+Si `G53` está programado en la misma línea, el movimiento también será diferente;
+véase la sección <<sub:G53-Move-in>>.
 
-It is an error if:
+Es un error si:
 
- - An axis letter is without a real value.
+- Una carta de eje sin un valor real.
 
-== G1 Linear Motion[[sec:G1-Linear-Motion]](((G1 Linear Motion)))
+== G1 Linear Motion [[sec:G1-lineal-de-movimiento]](((G1 Linear Motion)))
 
-    G1 axes
+    G1 ejes
 
-For linear (straight line) motion at programed feed rate (for cutting
-or not), program `G1 'axes'`, where all the axis words are optional.
-The `G1` is optional if the current motion mode is `G1` . This will
-produce coordinated linear motion to the destination point
-at the current feed rate (or slower if the machine will not go that
-fast).
+Para lineal (línea recta) de movimiento en la velocidad de avance programada (para el corte
+o no), el programa `G1 'ejes'`, donde todas las palabras del eje son opcionales.
+El `G1` es opcional si el modo de movimiento actual es `G1`. Esto
+producir un movimiento coordinado lineal al punto de destino
+en la velocidad de avance actual (o más lento si la máquina no va a ir por ese
+rápido).
 
-If cutter radius compensation is active, the motion will differ from
-the above; see Section <<sec:Cutter-Radius-Compensation>>.
+Si la compensación de radio de la fresa está activo, el movimiento será diferente de
+lo anterior, véase la sección <<sec:Cutter-Radius-Compensation>>.
 
-If `G53` is programmed on the same line, the motion will also differ;
-see Section  <<sub:G53-Move-in>>.
+Si `G53` está programado en la misma línea, el movimiento también será diferente;
+véase la sección <<sub:G53-Move-in>>.
 
-It is an error if:
+Es un error si:
 
- - No feed rate has been set.
+- No hay velocidad de avance se ha establecido.
 
-== G2, G3 Arc[[sec:G2-G3-Arc]](((G2, G3 Arc)))
+== G2, G3 Arco [[sec:G2-G3-Arco]](((G2, G3 Arco)))
 
-A circular or helical arc is specified using either `G2` (clockwise 
-arc) or `G3` (counterclockwise arc). The direction (CW, CCW) is as 
-viewed from the positive end of the axis about which the 
-circular motion occurs. 
+Un arco circular o helicoidal se especifica utilizando `G2` (a la derecha 
+arco) o `G3` (a la izquierda del arco). La dirección (CW, CCW) es tan 
+visto desde el lado positivo del eje sobre el que el 
+movimiento circular se produce. 
 
-The axis of the circle or helix must be parallel to the 
-X, Y, or Z axis of the machine coordinate system. 
-The axis (or, equivalently, the plane perpendicular to the axis) 
-is selected with `G17` (Z-axis, XY-plane), 
-`G18` (Y-axis, XZ-plane), or `G19` (X-axis, YZ-plane). 
-Planes `17.1`, `18.1`, and `19.1` are not currently supported. 
-If the arc is circular, 
-it lies in a plane parallel to the selected plane. 
+El eje del círculo o espiral debe ser paralelo a la 
+X, Y, o Z del sistema de coordenadas máquina. 
+El eje (o, equivalentemente, el plano perpendicular al eje) 
+se selecciona con `G17` (Z-eje, plano XY), 
+`G18` (eje Y, XZ plano), o `G19` (eje X, YZ-avión). 
+Planes `17.1`, `18.1`, y `19.1` no están soportados. 
+Si el arco es circular, 
+se encuentra en un plano paralelo al plano seleccionado. 
 
-To program a helix, include the axis word perpendicular to the arc 
-plane: for example, if in the `G17` plane, include a `Z` word.  This 
-will cause the `Z` axis to move to the programmed value during the 
-circular `XY` motion. 
+Para programar una hélice, incluya la palabra eje perpendicular al arco 
+Avión: por ejemplo, si en el `G17` de avión, incluyen una `Z` word.  Este 
+hará que la `Z` eje para pasar al valor programado en el 
+circular `XY` movimiento. 
 
-To program an arc that gives more than one full turn, use a `P` word
-specifying the number of full or partial turns of arc.  If `P` is
-unspecified, the behavior is as if `P1` was given: that is, only one
-full or partial turn will result, giving an arc less than or equal to
-one full circle.  For example, if an arc is programmed with P2, the
-resulting motion will be more than one full circle and up to two full
-circles (depending on the programmed endpoint.)  Multiturn helical arcs
-are supported and give motion useful for milling holes or threads.
+Para programar un arco que da más de una vuelta completa, use un `P` word
+especificando el número de vueltas, total o parcial de arco.  Si `P` es
+sin especificar, el comportamiento es como si `P1` se le dio, es decir, sólo una
+a su vez, total o parcial dará lugar, dando un arco menor o igual a
+un círculo completo.  Por ejemplo, si un arco se programa con el P2, la
+movimiento resultante será más que un punto de partida y un máximo de dos completa
+círculos (dependiendo del punto final programado.)  Multivuelta helicoidal arcos
+Se apoyan y dan movimiento útil para los agujeros de la molienda o hilos.
 
-If a line of code makes an arc and includes rotary axis motion,
-the rotary axes turn at a constant rate so that the rotary
-motion starts and finishes when the XYZ motion starts and finishes.
-Lines of this sort are hardly ever programmed.
+Si una línea de código hace un arco, e incluye el movimiento del eje giratorio,
+los ejes giratorios a su vez a un ritmo constante para que la rotativa
+movimiento comienza y termina cuando el movimiento de XYZ se inicia y termina.
+Líneas de este tipo casi nunca son programados.
 
-If cutter radius compensation is active, the motion will differ from
-what is described here. See Section 
+Si la compensación de radio de la fresa está activo, el movimiento será diferente de
+lo que se describe aquí. Vea la sección 
 <<sec:Cutter-Radius-Compensation>>.
 
-Two formats are allowed for specifying an arc: 
-Center Format and Radius Format.
+Dos formatos permitidos para especificar un arco: 
+Centro de Radio y formato.
 
-It is an error if:
+Es un error si:
 
- - No feed rate has been set.
+- No hay velocidad de avance se ha establecido.
 
-=== Center format arcs (preferred format)
+=== Centro formato arcos (formato preferido)
 
-In the center format, the coordinates of the end point of the arc in
-the selected plane are specified along with the offsets of the center
-of the arc from the current location. In this format, it is OK if the
-end point of the arc is the same as the current point.
+En el formato de centro, las coordenadas del punto final del arco en
+plano seleccionado se especifican, junto con los desplazamientos del centro
+del arco desde la ubicación actual. En este formato, que está bien si la
+punto final del arco es el mismo que el punto actual.
 
-It is an error if:
+Es un error si:
 
- -  When the arc is projected on the selected plane, the distance from the
-   current point to the center differs from the distance from the end
-   point to the center by more than 0.0002 inch (if inches are being used)
-   or 0.002 millimeter (if millimeters are being used).
+- Cuando el arco se proyecta sobre el plano seleccionado, la distancia desde el
+   punto actual en el centro se diferencia de la distancia desde el extremo
+   punto en el centro de más de 0.0002 pulgadas (centímetros si se utilizan)
+   o 0.002 milímetros (mm si se utilizan).
 
-When the XY-plane is selected program:
+Cuando el plano XY se selecciona el programa:
 
-    G2 or G3 axes I- J-
+    Ejes G2 o G3 I- J-
 
-The axis words are all optional except that at least one of X and Y
-must be used to program an arc of less than 360 degrees. I and J are
-the offsets from the current location (in the X and Y directions,
-respectively) of the center of the circle. I and J are optional except
-that at least one of the two must be used. If only one is specified,
-the value of the other is taken as 0. If you include the Z word it will
-helix. 
+Las palabras del eje son opcionales, excepto que al menos uno de X e Y
+debe ser usado para programar un arco de menos de 360 ​​grados. I y J son
+los desplazamientos desde la ubicación actual (en las direcciones X e Y,
+respectivamente) del centro del círculo. I y J son opcionales, excepto
+que al menos uno de los dos debe ser utilizado. Si sólo se especifica,
+el valor de la otra se toma como 0. Si se incluye la palabra Z se
+hélice. 
 
-It is an error if:
+Es un error si:
 
- - I and J are both omitted.
+- I y J son omitidos.
 
-When the XZ-plane is selected program:
+Cuando el plano XZ se selecciona el programa:
 
-    G2 or G3 axes I- K-
+    G2 o G3 ejes I-K-
 
-The axis words are all optional except that at least one of X and Z
-must be used to program an arc of less than 360 degrees. 
-I and K are the offsets from the current location (in the X and Z directions,
-respectively) of the center of the circle. 
-I and K are optional except that at least one of the two must be used. 
-If only one is specified, the value of the other is taken as 0. 
-In Diameter Mode G7 I & K are still radius dimensions.
+Las palabras del eje son opcionales, excepto que al menos uno de X y Z
+debe ser usado para programar un arco de menos de 360 ​​grados. 
+I y K son los desplazamientos desde la ubicación actual (en las direcciones X y Z,
+respectivamente) del centro del círculo. 
+I y K son opcionales, excepto que al menos uno de los dos debe ser utilizado. 
+Si sólo se especifica, el valor de la otra se toma como 0. 
+En el modo de diámetro G7 I y K son todavía una cota de radio.
 
-It is an error if:
+Es un error si:
 
- - I and K are both omitted.
+- I y K son omitidos.
 
-When the YZ-plane is selected program:
+Cuando el plano yz se selecciona el programa:
 
-    G2 or G3 axes J- K- 
+    Ejes G2 o G3 J- K- 
 
-The axis words are all optional except that at least one of Y and Z
-must be used to program an arc of less than 360 degrees. J and K are
-the offsets from the current location (in the Y and Z directions,
-respectively) of the center of the circle. J and K are optional except
-that at least one of the two must be used. If only one is specified,
-the value of the other is taken as 0.
+Las palabras del eje son opcionales, excepto que al menos uno de Y y Z
+debe ser usado para programar un arco de menos de 360 ​​grados. J y K son
+los desplazamientos desde la ubicación actual (en la Y y Z,
+respectivamente) del centro del círculo. J y K son opcionales, excepto
+que al menos uno de los dos debe ser utilizado. Si sólo se especifica,
+el valor de la otra se toma como 0.
 
-It is an error if:
+Es un error si:
 
- - J and K are both omitted.
+- J y K son omitidos.
 
-=== Examples
+=== Ejemplos
 
-Calculating arcs by hand can be difficult at times. One option is to
-draw the arc with a cad program to get the coordinates and offsets.
-Keep in mind the tolerance mentioned above, you may have to change the
-precision of your cad program to get the desired results. Another
-option is to calculate the coordinates and offset using formulas. As
-you can see in the following figures a triangle can be formed from the
-current position the end position and the arc center.
+El cálculo de arcos con la mano puede ser difícil a veces. Una opción es
+dibujar el arco con un programa de CAD para obtener las coordenadas y las compensaciones.
+Tenga en cuenta la tolerancia citada más arriba, puede que tenga que cambiar la
+precisión de su programa de CAD para obtener los resultados deseados. Otro
+opción es calcular las coordenadas y el uso de fórmulas de compensación. Como
+se puede ver en las siguientes figuras de un triángulo se puede formar a partir de la
+posición actual de la posición final y el centro del arco.
 
-In the following figure you can see the start position is X0 Y0, the
-end position is X1 Y1. The arc center position is at X1 Y0. This gives
-us an offset from the start position of 1 in the X axis and 0 in the Y
-axis. In this case only an I offset is needed.
+En la figura siguiente se puede ver la posición de inicio es X0 Y0, el
+posición final X1 Y1. La posición del centro del arco está en Y0 X1. Esto le da
+nosotros un desplazamiento desde la posición inicial de 1 en el eje X y 0 en la Y
+eje. En este caso sólo una compensación que se necesita.
 
-The code for the example:
+El código para el ejemplo:
 
     G2 X1 Y1 I1 F10
 
-.G2 Example[[fig:G2-Example]]
+.Ejemplo G2[[fig:G2-Ejemplo]]
 
-image::images/g2.png[]
+images::images/g2.png[]
 
-In the next example we see the difference between the offsets for Y if
-we are doing a G2 or a G3 move. For the G2 move the start position is
-X0 Y0, for the G3 move it is X0 Y1. The arc center is at X1 Y0.5 for
-both moves. The G2 move the J offset is 0.5 and the G3 move the J
-offset is -0.5.
+En el siguiente ejemplo podemos ver la diferencia entre los desplazamientos de Y si
+estamos haciendo un G2 o G3 un movimiento. Para el traslado G2 es la posición de inicio
+X0 Y0, para el traslado G3 es X0 Y1. El centro del arco está en X1 Y0.5 para
+ambos movimientos. La medida G2 del desplazamiento es de 0,5 J y el G3 mover el J
+desplazamiento es -0,5.
 
-The g code for the following example:
+El código de g para el siguiente ejemplo:
 
     G2 X0 Y1 I1 J0.5 F25
     G3 X0 Y0 I1 J-0.5 F25
 
-.G2-G3 Example[[fig:G2/3-Example]]
+.G2-G3 ejemplo[[fig:G2/3-Example]]
 
-image::images/g2-3.png[]
+images::images/g2-3.png[]
 
-Here is an example of a center format command to mill a helix:
+He aquí un ejemplo de un comando de formato de centro de molino de una hélice:
 
     G17 G2 X10 Y16 I3 J4 Z9
 
-That means to make a clockwise (as viewed from the positive z-axis)
-circular or helical arc whose axis is parallel to the Z-axis, ending
-where X=10, Y=16, and Z=9, with its center offset in the X direction by
-3 units from the current X location and offset in the Y direction by 4
-units from the current Y location. If the current location has X=7, Y=7
-at the outset, the center will be at X=10, Y=11. If the starting value
-of Z is 9, this is a circular arc; otherwise it is a helical arc. The
-radius of this arc would be 5.
+Eso significa que para hacer un reloj (visto desde el eje z positivo)
+circular o un arco helicoidal cuyo eje es paralelo al eje Z, que termina
+donde X = 10, Y = 16 y Z = 9, con la desviación en la dirección X por
+3 unidades de la ubicación actual de X y el desplazamiento en la dirección Y por 4
+unidades de la ubicación actual en Y. Si la ubicación actual X = 7, Y = 7
+desde el principio, el centro estará en X = 10, Y = 11. Si el valor inicial
+de Z es de 9, este es un arco circular, de lo contrario se trata de un arco helicoidal. La
+radio de este arco será de 5.
 
-In the center format, the radius of the arc is not specified, but it
-may be found easily as the distance from the center of the circle to
-either the current point or the end point of the arc.
+En el formato de centro, el radio del arco no se especifica, pero
+se pueden encontrar fácilmente como la distancia desde el centro del círculo para
+ya sea el punto actual o el punto final del arco.
 
-=== Full Circles
+=== Completa Cañas
 
-    G2 or G3 I- J- K-
+    G2 o G3 I- J- K-
 
-To do a full 360 circle from the current location only program the I,
-J or K offset from the current location for the G2/G3. To program a 360
-degree helix in the XY plane just include the Z word.
+Para hacer un círculo completo de 360 ​​desde la ubicación actual único programa de la I,
+J o K desplazamiento de la ubicación actual del G2/G3. Para programar una 360
+hélice de grado en el plano XY basta con incluir la palabra Z.
 
-It is an error if:
+Es un error si:
 
- - The K offset is used in the XY plane
- - The J offset is used in the XZ plane
- - the I offset is used in the YZ plane
+- El desplazamiento K se utiliza en el plano XY
+- La J offset se utiliza en el plano XZ
+- La compensación que se utiliza en el plano YZ
 
-=== Radius format arcs (discouraged format)
+=== Arcos Radio formato (formato desanimado)
 
-In the radius format, the coordinates of the end point of the arc in
-the selected plane are specified along with the radius of the arc.
-Program `G2` `axes` `R-` (or use `G3` instead of `G2` ). R is the
-radius. The axis words are all optional except that at
-least one of the two words for the axes in the selected plane must be
-used. The R number is the radius. A positive radius indicates that the
-arc turns through less than 180 degrees, while a negative radius
-indicates a turn of more than 180 degrees. If the arc is helical, the
-value of the end point of the arc on the coordinate axis parallel to
-the axis of the helix is also specified.
+En el formato de radio, las coordenadas del punto final del arco en
+plano seleccionado se especifican junto con el radio del arco.
+Programa de `G2` ejes `R` (o usar `G3` en lugar de `G2`). R es la
+radio. Las palabras del eje son opcionales, excepto que en
+por lo menos una de las dos palabras de los ejes en el plano seleccionado debe ser
+utilizados. El número de R es el radio. Un radio positivo indica que la
+arco se convierte a través de menos de 180 grados, mientras que un radio negativo
+indica un viraje de más de 180 grados. Si el arco es helicoidal, el
+valor del punto final del arco sobre el paralelo del eje de coordenadas para
+el eje de la hélice también se especifica.
 
-It is an error if:
+Es un error si:
 
- - both of the axis words for the axes of the selected plane are omitted
- - the end point of the arc is the same as the current point.
+- Tanto de las palabras del eje de los ejes del plano seleccionado se omiten
+- El punto final del arco es el mismo que el punto actual.
 
-It is not good practice to program radius format arcs that are nearly
-full circles or nearly semicircles because a small change in the
-location of the end point will produce a much larger change in the
-location of the center of the circle (and, hence, the middle of the
-arc). The magnification effect is large enough that rounding error in a
-number can produce out-of-tolerance cuts. For instance, a 1%
-displacement of the endpoint of a 180 degree arc produced a 7%
-displacement of the point 90 degrees along the arc. Nearly full circles
-are even worse. Other size arcs (in the range tiny to 165 degrees or
-195 to 345 degrees) are OK.
+No es una buena práctica arcos programa de formato de radio que son casi
+círculos o semicírculos casi completa debido a que un pequeño cambio en la
+ubicación del punto final se produce un cambio mucho mayor en el
+ubicación del centro del círculo (y, por tanto, la mitad de la
+de arco). El efecto de aumento es lo suficientemente grande que un error de redondeo en
+número puede producir fuera de la tolerancia cortes. Por ejemplo, un 1%
+desplazamiento del punto final de un arco de 180 grados producido un 7%
+desplazamiento del punto de 90 grados a lo largo del arco. Casi círculos completos
+son aún peores. Otros arcos de tamaño (en el rango de pequeña a 165 grados o
+195 a 345 grados) están bien.
 
-Here is an example of a radius format command to mill an arc: 
+He aquí un ejemplo de un comando de formato de radio a la fábrica de un arco: 
 
     G17 G2 X10 Y15 R20 Z5
 
-That means to make a clockwise (as viewed from the positive Z-axis)
-circular or helical arc whose axis is parallel to the Z-axis, ending
-where X=10, Y=15, and Z=5, with a radius of 20. If the starting value
-of Z is 5, this is an arc of a circle parallel to the XY-plane;
-otherwise it is a helical arc.
+Eso significa que para hacer un reloj (visto desde el eje Z positivo)
+circular o un arco helicoidal cuyo eje es paralelo al eje Z, que termina
+donde X = 10, Y = 15, y Z = 5, con un radio de 20. Si el valor inicial
+de Z es de 5, esto es un arco de círculo paralelo al plano XY;
+de lo contrario, es un arco helicoidal.
 
-== G4 Dwell[[sec:G4-Dwell]](((G4 Dwell)))
+== G4 Dwell[[sec:G4-Mora]](((G4 Mora)))
 
-    G4 P[seconds]
+    G4 P[segundos]
 
-For a dwell, program G4 P- . This will keep the axes unmoving for the
-period of time in seconds specified by the P number.
+Para un tiempo de espera, el programa G4 P-. Esto evitará que los ejes inmóviles para la
+período de tiempo en cuestión de segundos especificado por el número P.
 
-It is an error if:
+Es un error si:
 
- - the P number is negative.
+- El número P es negativo.
 
-== G5.1 Quadratic B-spline[[sec:G5.1-B-spline]](((G5.1 Quadratic B-spline)))
+== G5.1 cuadráticas B-spline[[sec:G5.1-B-spline-cuadratica]](((G5.1 B-spline)))
 
-    G5.1 Xn Yn I[X offset] J[Y offset]
+    G5.1 Xn Yn I[desplazamiento X] J[desplazamiento Y]
 
-G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
+G5.1 crea un B-spline cuadrática en el plano XY con los ejes X e Y solamente.
 
-It is an error if:
+Es un error si:
 
- - I and J offset is not specified
- - An axis other than X or Y is specified
- - The active plane is not G17
+- I y J de compensación no se especifica
+- El otro eje de X o Y se especifica
+- El avión no está activo G17
 
-== G5.2 G5.3 NURBs Block[[sec:G5.2-G5.3-NURBs]](((G5.2 G5.3 NURBs Block)))
+== G5.2 G5.3 NURBS bloque [[sec:G5.2-G5.3-NURBs]](((G5.2 G5.3 Bloque NURBs)))
 
-Warning: G5.2, G5.3 is experimental and not fully tested.
+Advertencia: G5.2, G5.3 es experimental y no han sido evaluados completamente.
 
-G5.2 is for opening the data block defining a NURBs and G5.3 for
-closing the data block. In the lines between these two codes the curve
-control points are defined with both their related "weights" (P) and
-their parameter (L) which determines the order of the curve (k) and
-subsequently its degree (k-1).
+G5.2 es para abrir el bloque de datos que definen una NURBS y G5.3 de
+cierre el bloque de datos. En los límites entre estos dos códigos de la curva
+puntos de control se definen con sus dos relacionados con "pesos" (P) y
+sus parámetros (L), que determina el orden de la curva (k) y
+Posteriormente, su grado (k-1).
 
-Using this curve definition the knots of the NURBs curve are not
-defined by the user they are calculated by the inside algorithm, in the
-same way as it happens in a great number of graphic applications, where
-the curve shape can be modified only acting on either control points or
-weights.
+Usando esta definición la curva de los nudos de la curva de NURBS no son
+definido por el usuario son calculados por el algoritmo en el interior, en el
+misma manera que ocurre en un gran número de aplicaciones gráficas, donde
+la forma de la curva sólo se puede modificar actuando sobre los puntos de control o
+pesos.
 
-Sample NURBs Code
+NURBS Código de ejemplo
 
 -------------------------------------------------
     G0 X0 Y0
@@ -480,7 +480,7 @@ Sample NURBs Code
          X2 Y0 P1
          X0 Y0 P2
     G5.3
-    / The rapid moves show the same path without the NURBs Block
+    / Los movimientos rápidos muestran el mismo camino, sin el bloque de NURBS
     G0 X0 Y1
        X2 Y2
        X2 Y0
@@ -488,1755 +488,1757 @@ Sample NURBs Code
     M2
 -------------------------------------------------
 
-.Sample NURBs Output
+.NURBS Ejemplo de salida
 
-image:images/nurbs01.png[]
+images::images/nurbs01.png []
 
-More information on NURBs can be found here:
+Más información sobre NURBS se pueden encontrar aquí:
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS [http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
 
-== G7 Diameter Mode[[sec:G7-Diameter-Mode]](((G7 Diameter Mode)))
+== Modo Diámetro del G7 [[sec:G7-Diametro-Modo]](((Diámetro del G7)))
 
-Program G7 to enter the diameter mode for axis X on a lathe. When in
-the Diameter mode the X axis moves on a lathe will be 1/2 the distance
-to the center of the lathe. For example X1 would move the cutter to
-0.500” from the center of the lathe thus giving a 1” diameter part.
+Programa del G7 para entrar en el modo de diámetro para el eje X en un torno. Cuando en
+el modo de diámetro en el eje X se mueve en un torno, se media la distancia
+en el centro del torno. Por ejemplo X1 se trasladaría a la cortadora
+0.500 "desde el centro del torno dando así un una" parte de diámetro.
 
-== G8 Radius Mode[[sec:G8-Radius-Mode]](((G8 Radius Mode)))
+== G8 modo Radio[[sec:G8-Radio-Mode]](((modo Radio del G8)))
 
-Program G8 to enter the radius mode for axis X on a lathe. When in
-Radius mode the X axis moves on a lathe will be the distance from the
-center. Thus a cut at X1 would result in a part that is 2" in diameter.
-G8 is default at power up.
+Programa del G8 para entrar en el modo de radio para el eje X en un torno. Cuando en
+El modo de radio en el eje X se mueve en un torno, será la distancia de la
+centro. Así, un corte en el X1 se traduciría en una parte que es de 2" de diámetro.
+G8 es por defecto al encender el equipo.
 
-== G10 L1 Set Tool Table[[sec:G10-L1_]]
-(((G10 L1 Tool Table)))
+== G10 L1 Set de herramientas Tabla[[sec:G10-L1_]]
+(((G10 Tabla de herramientas L1)))
 
-    G10 L1 P[tool number] R[radius] 
-        X[offset] Y[offset] Z[offset] 
-        A[offset] B[offset] C[offset] 
-        U[offset] V[offset] W[offset] 
-        I[frontangle] J[backangle] Q[orientation] 
+    G10 L1 P [número de herramientas] R [radio] 
+        X [desplazamiento] Y [desplazamiento] Z [desplazamiento] 
+        A [desplazamiento] B [offset] C [desplazamiento] 
+        U [offset] V [offset] W [desplazamiento] 
+        I [frontangle] J [backangle] Q [orientación] 
 
-Program a G10 L1 to set a tool table entry 
-from a program or the MDI window.  
-A valid G10 L1 rewrites the tool table.
+Un programa de L1 del G10 para establecer una entrada de tabla de herramientas 
+de un programa o la ventana MDI.  
+Una válida G10 L1 reescribe la tabla de herramientas.
 
-It is an error if:
+Es un error si:
 
- - Cutter Compensation is on
- - The P number is unspecified
+- Compensación de corte está en
+- El número no se especifica P
 
-For more information on cutter orientation, 
-see the <<cap:Lathe-Tool-Orientations>> diagram. 
+Para más información sobre la orientación de corte, 
+ver el <<cap:Lathe-Tool-Orientations>> diagrama. 
 
-== G10 L2 Set Coordinate System[[sec:G10-L2_]](((G10 L2 Coordinate System)))
+== G10 L2 conjunto de coordenadas del sistema[[sec:G10-G10 L2_]](((L2 del sistema de coordenadas)))
 
-    G10 L2 P[coordinate system] R[XY rotation about Z] 
-        X[offset] Y[offset] Z[offset] 
-        A[offset] B[offset] C[offset] 
-        U[offset] V[offset] W[offset] 
+    G10 L2 P [sistema de coordenadas] R [rotación XY sobre Z] 
+        X [desplazamiento] Y [desplazamiento] Z [desplazamiento] 
+        A [desplazamiento] B [offset] C [desplazamiento] 
+        U [offset] V [offset] W [desplazamiento] 
 
-The coordinate system is described in Section <<cha:Coordinate-System>>.
+El sistema de coordenadas se describe en la sección <<cha:Coordinate-System>>.
 
-To set the origin of a coordinate system, program `G10 L2 P- R- axes`, 
-where the P number is in the range 0 to 9. 
-For the currently active coordinate system program P0. 
-To specify a coordinate system program 1  to 9 corresponding to `G54` to `G59.3`. 
-Optionally program R to indicate the rotation of the XY axis around the Z axis. 
-All axis words are optional. 
-The origin of the coordinate system specified by the P number is 
-set to the given values (in terms of the not offset machine coordinate system). 
-Only those coordinates for which an axis word is included on the line will be set. 
-Being in incremental distance mode (`G91`) has no effect on `G10 L2`. 
-The direction of rotation is CCW as viewed from the Top View.
+Para establecer el origen de un sistema de coordenadas, el programa `G10 L2 P-R-ejes`, 
+donde el número P está en el rango de 0 a 9. 
+Para el programa de sistema de coordenadas activo P0. 
+Para especificar un programa de sistema de coordenadas de 1 a 9 correspondientes a `` a `G54 G59.3`. 
+Opcionalmente R programa para indicar el giro del eje XY alrededor del eje Z. 
+Todas las palabras eje son opcionales. 
+El origen del sistema de coordenadas especificado por el número P 
+ajustado a los valores dados (en términos del sistema de coordenadas de la máquina no offset). 
+Sólo esas coordenadas para el que se incluye una palabra en la línea de eje se establecerá. 
+Estando en modo de distancia incremental (G91 ``) no tiene ningún efecto sobre 'G10' L2. 
+El sentido de giro es CCW como se ve desde la vista superior.
 
-Important Concepts:
+Conceptos importantes:
 
- - G10 L2 Pn does not change from the current coordinate system to the one specified by P, 
-   you have to use G54-59.3 to select a coordinate system.
- - When a rotation is in effect jogging an axis will only move that axis
-   in a positive or negative direction and not along the rotated axis. 
+- G10 L2 Pn no cambia de un sistema de coordenadas actual a la especificada por P, 
+   usted tiene que utilizar G54-59.3 para seleccionar un sistema de coordenadas.
+- Cuando la rotación es en efecto correr un eje sólo se moverá de ese eje
+   en un sentido positivo o negativo, y no a lo largo del eje de rotación. 
 
-It is an error if:
+Es un error si:
 
- - The P number does not evaluate to an integer in the range 0 to 9.
- - An axis is programmed that is not defined in the configuration.
+- El número P no se evalúa como un número entero en el rango de 0 a 9.
+- Un eje se programa que no está definido en la configuración.
 
-If a `G92` origin offset was in effect before `G10 L2`, 
-it will continue to be in effect afterwards.
+Si un `G92` origen de compensación estaba en vigor antes del `G10 L2`, 
+seguirá en vigor después.
 
-The coordinate system whose origin is set by a `G10` command may be
-active or inactive at the time the `G10` is executed. 
-If it is currently active, the new coordinates take effect immediately.
+El sistema de coordenadas cuyo origen se establece por un comando `G10` puede ser
+activo o inactivo en el momento en el `G10` se ejecuta. 
+Si se activa, las nuevas coordenadas en vigor inmediatamente.
 
-Examples:
+Ejemplos:
 
-G10 L2 P1 X3.5 Y17.2::
-     Sets the origin of the first coordinate system (the one selected by `G54`) 
-    to be X=3.5 and Y=17.2. 
-    Because only X and Y are specified, the origin point is only moved in X and Y; 
-    the other coordinates are not changed.
+G10 L2 P1 X3.5 Y17.2::
+     Establece el origen del sistema de coordenadas primera (la seleccionada por `G54`) 
+    que X = 3.5 y Y = 17.2. 
+    Debido a que sólo X e Y se especifican, el punto de origen no puede ser movido en X e Y; 
+    las coordenadas de otro no se cambian.
 
-G10 L2 P1 X0 Y0 Z0::
-     Sets the XYZ coordinates of the G54 origin to the unoffset origin.
+G10 L2 P1 X0 Y0 Z0:
+     Establece las coordenadas XYZ del origen G54 al origen unoffset.
 
-.Set Coordinate System[[cap:Set-Coordinate-System]]
+.Establecer sistema de coordenadas[[cap:Set-Coordinar-System]]
 
-[width="80%", options="header"]
+[Width="80%", options="header"]
 |========================================
-|P Value | Coordinate System | G Code
-|0 | Currently Active | n/a
-|1 | 1 | 54
-|2 | 2 | 55
-|3 | 3 | 56
-|4 | 4 | 57
-|5 | 5 | 58
-|6 | 6 | 59
-|7 | 7 | 59.1
-|8 | 8 | 59.2
-|9 | 9 | 59.3
-|========================================
-
-== G10 L10 Set Tool Table[[sec:G10-L10]](((G10 L10 Set Tool Table)))
-
-    G10 L10 P[tool number] R[radius]
-        X[set_curr_sys_to] Y[set_curr_sys_to] Z[set_curr_sys_to] 
-        A[set_curr_sys_to] B[set_curr_sys_to] C[set_curr_sys_to] 
-        U[set_curr_sys_to] V[set_curr_sys_to] W[set_curr_sys_to] 
-        I[frontangle] J[backangle] Q[orientation] 
-
-G10 L10 changes the tool table entry for tool P so that if the 
-tool offset is reloaded, with the machine in its current position 
-and with the current G5x and G92 offsets active, the current coordinates
-for the given axes will become the given values.  The axes that are
-not specified in the G10 L10 command will not be changed.
-
-It is an error if:
-
- - Cutter Compensation is on
-
-== G10 L11 Set Tool Table[[sec:G10-L11]](((G10 L11 Set Tool Table)))
-
-    G10 L11 P[tool number] R[radius]
-        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
-        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
-        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
-        I[frontangle] J[backangle] Q[orientation] 
-
-G10 L11 is just like G10 L10 except that instead of setting the entry
-according to the current offsets, it is set so that the current
-coordinates would become the given value if the new tool offset
-is reloaded and the machine is placed in the G59.3 coordinate
-system without any G92 offset active.
-
-This allows the user to set the G59.3 coordinate system according to a
-fixed point on the machine, and then use that fixture to measure tools
-without regard to other currently-active offsets.
-
-It is an error if:
-
- - Cutter Compensation is on
-
-== G10 L20 Set Coordinate System[[sec:G10-L20]](((G10 L20 Set Coordinate System)))
-
-    G10 L20 P[coordinate system] R[rotation about Z] 
-        X[set_curr_loc_to] Y[set_curr_loc_to] Z[set_curr_loc_to] 
-        A[set_curr_loc_to] B[set_curr_loc_to] C[set_curr_loc_to] 
-        U[set_curr_loc_to] V[set_curr_loc_to] W[set_curr_loc_to] 
-
-G10 L20 is similar to G10 L2 except that instead of setting the
-offset/entry to the given value, it is set to a calculated value that
-makes the current coordinates become the given value.
-
-It is an error if:
-
- - The P number does not evaluate to an integer in the range 0 to 9.
- - An axis is programmed that is not defined in the configuration.
-
-== G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection[[sec:G17-G18-G19]]
-
-These codes set the current plane as follows:
-
-[width="60%", options="header"]
-|========================================
-|G17   | XY (default)
-|G18   | ZX
-|G19   | YZ
-|G17.1 | UV
-|G18.1 | WU
-|G19.1 | VW
+| P Valor | Sistema de coordenadas | G Código
+| 0 | Actualmente Activo | n / a
+| 1 | 1 | 54
+| 2 | 2 | 55
+| 3 | 3 | 56
+| 4 | 4 | 57
+| 5 | 5 | 58
+| 6 | 6 | 59
+| 7 | 7 | 59,1
+| 8 | 8 | 59,2
+| 9 | 9 | 59.3
 |========================================
 
-The effects of having a plane selected are discussed in Section 
-<<sec:G2-G3-Arc>> and Section <<sec:G81-G89>>
+== G10 L10 Set Tabla de herramientas[[sec:G10-L10]](((Tabla de herramientas Set)))
 
-== G20, G21 Length Units[[sec:G20-G21-Units]](((G20, G21 Length Units)))
+    G10 L10 P [número de herramientas] R [radio]
+        X [set_curr_sys_to] Y [set_curr_sys_to] Z [set_curr_sys_to] 
+        A [set_curr_sys_to] B [set_curr_sys_to] C [set_curr_sys_to] 
+        U [set_curr_sys_to] V [set_curr_sys_to] W [set_curr_sys_to] 
+        I [frontangle] J [backangle] Q [orientación] 
 
-Program G20 to use inches for length units. +
-Program G21 to use millimeters for length units.
+G10 L10 cambia la entrada de la tabla de herramientas de P herramienta para que si el 
+de herramienta se vuelve a cargar con la máquina en su posición actual 
+y con el actual G5x y compensaciones G92 activa, las coordenadas actuales
+para los ejes dado se convertirán en los valores dados.  Los ejes que se
+no especificado en el comando del G-10 L10 no se cambiará.
 
-It is usually a good idea to program either G20 or G21 near the
-beginning of a program before any motion occurs, and not to use either
-one anywhere else in the program.
+Es un error si:
 
-== G28, G28.1 Go to Predefined Position[[sec:G28-G28.1]](((G28, G28.1)))
+- Compensación de corte está en
 
-G28 uses the values in parameters 5161-5166 as the absolute values to
-make a rapid traverse move to from the current position. The parameter
-values are in terms of the absolute coordinate system and the machine's
-native coordinate system.
+== G10 L11 Set Tabla de herramientas[[sec:G10-L11]](((Tabla de herramientas Set)))
 
-`G28 axes` will make a rapid traverse move 
-to the position specified by `axes`, 
-then will make a rapid traverse move to the predefined position 
-in parameters 5161-5166.
+    G10 L11 P [número de herramientas] R [radio]
+        X [set_curr_loc_to] Y [set_curr_loc_to] Z [set_curr_loc_to] 
+        A [set_curr_loc_to] B [set_curr_loc_to] C [set_curr_loc_to] 
+        U [set_curr_loc_to] V [set_curr_loc_to] W [set_curr_loc_to] 
+        I [frontangle] J [backangle] Q [orientación] 
 
-G28.1 stores the current absolute position into parameters 5161-5166.
+G10 L11 es como G-10 L10, excepto que en lugar de establecer la entrada
+de acuerdo con las compensaciones actuales, se establece para que la corriente
+coordenadas se convertiría en el valor dado, si la nueva herramienta de compensación
+se vuelve a cargar y la máquina se coloca en la coordenada G59.3
+sistema sin ningún tipo de compensación G92 activa.
 
-It is an error if :
+Esto permite al usuario configurar el sistema de coordenadas G59.3 de acuerdo con un
+punto fijo de la máquina, y luego usar ese aparato para medir herramientas
+sin tener en cuenta otras compensaciones actualmente activa.
 
- - Radius compensation is turned on
+Es un error si:
 
-== G30, G30.1 Go to Predefined Position[[sec:G30-G30.1]](((G30, G30.1)))
+- Compensación de corte está en
 
-G30 uses the values in parameters 5181-5186 
-as the absolute values to make a rapid traverse move to from the current position. 
-The parameter values are in terms of the 
-absolute coordinate system and the machine's native coordinate system.
+== G10 L20 conjunto de coordenadas del sistema[[sec:G10-G10 L20 L20]](((Establecer sistema de coordenadas)))
 
-G30 `axes` will make a rapid traverse move 
-to the position specified by `axes`, 
-then will make a rapid traverse move to the predefined position in parameters 5181-5186.
+    G10 L20 P [sistema de coordenadas] R [la rotación alrededor de Z] 
+        X [set_curr_loc_to] Y [set_curr_loc_to] Z [set_curr_loc_to] 
+        A [set_curr_loc_to] B [set_curr_loc_to] C [set_curr_loc_to] 
+        U [set_curr_loc_to] V [set_curr_loc_to] W [set_curr_loc_to] 
 
-G30.1 stores the current absolute position into parameters 5181-5186.
+G10 L20 es similar a la del G-10 L2, excepto que en lugar de establecer la
+offset / entrada a un valor dado, se establece en un valor calculado que
+hace las coordenadas actuales convertido en el valor dado.
 
-G30 parameters will be used to move the tool when a M6 is programmed
-if [TOOL_CHANGE_AT_G30]=1 is in the [EMCIO] section of the ini file.
+Es un error si:
 
-It is an error if :
+- El número P no se evalúa como un número entero en el rango de 0 a 9.
+- Un eje se programa que no está definido en la configuración.
 
- - Radius compensation is turned on
+== G17, G18, G19, G17.1, G18.1, G19.1 Selección de Plano[[sec:G17-G18-G19]]
 
-== G33 Spindle-Synchronized Motion[[sec:G33-Spindle-Sync]](((G33, G33.1 Spindle-Synchronized Motion)))
+Estos códigos de establecer el plano actual de la siguiente manera:
+
+[Width="60%", options="header"]
+|========================================
+| G17 | XY (por defecto)
+| G18 | ZX
+| G19 | YZ
+| G17.1 | UV
+| G18.1 | WU
+| G19.1 | VW
+|========================================
+
+Los efectos de contar con un plano seleccionado se discuten en la Sección 
+<<sec:G2-G3-Arc>> Y en la sección <<sec:G81-G89>>
+
+== G20, G21 Unidades de longitud [[sec:G20-G21-Unidades]](((G20, G21 Unidades de longitud)))
+
+Programa del G-20 para uso pulgadas para unidades de longitud. +
+Programa G21 utilizar milímetros para las unidades de longitud.
+
+Por lo general es una buena idea del programa ya sea del G-20 o G-21, cerca de la
+inicio de un programa antes de que cualquier movimiento se produce, y no utilizar
+uno en el resto del programa.
+
+== G28, G28.1 Ir a las posiciones predefinidas [[sec:G28-G28-G28.1]](((G28, G28.1)))
+
+G28 utiliza los valores de los parámetros de 5161-5166, como los valores absolutos
+hacer un rápido movimiento transversal a partir de la posición actual. El parámetro
+Los valores se expresan en términos del sistema de coordenadas absolutas y el de la máquina
+sistema de coordenadas de origen.
+
+`G28 ejes` hará un rápido movimiento transversal 
+a la posición especificada por 'ejes', 
+hará una rápida travesía mover a la posición predefinida 
+en los parámetros 5161-5166.
+
+G28.1 guarda la posición actual absoluta en los parámetros 5161-5166.
+
+Es un error si:
+
+- La compensación de radio se enciende
+
+== G30, G30.1 Ir a las posiciones predefinidas[[sec:G30-G30 G30.1]](((G30, G30.1)))
+
+G30 utiliza los valores de los parámetros de 5181-5186 
+como los valores absolutos para hacer un rápido movimiento transversal a partir de la posición actual. 
+Los valores de los parámetros en términos de la 
+absoluta del sistema de coordenadas y el sistema de la máquina de coordenadas nativos.
+
+G30 'ejes' hará un rápido movimiento transversal 
+a la posición especificada por 'ejes', 
+hará una rápida travesía hacia el movimiento de las posiciones predefinidas en los parámetros 5181-5186.
+
+G30.1 guarda la posición actual absoluta en los parámetros 5181-5186.
+
+G30 parámetros se utilizan para mover la herramienta cuando el M6 está programado
+si [TOOL_CHANGE_AT_G30] = 1 se encuentra en la sección [EMCIO] del archivo ini.
+
+Es un error si:
+
+- La compensación de radio se enciende
+
+== G33 husillo sincronizado movimiento [[sec:G33-eje-Sync]](((G33, G33.1 husillo sincronizado movimiento)))
 
     G33 X- Y- Z- K-
 
-For spindle-synchronized motion in one direction, code `G33 X- Y- Z- K-` 
-where K gives the distance moved in XYZ for each revolution of the spindle. 
-For instance, if starting at `Z=0`, `G33 Z-1 K.0625` produces 
-a 1 inch motion in Z over 16 revolutions of the spindle.
-This command might be part of a program to produce a 16TPI thread. 
-Another example in metric, `G33 Z-15 K1.5` produces 
-a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm. 
+Para el eje sincronizado movimiento en una dirección, el código de `G33 X- Y- Z- K-` 
+donde K da la distancia recorrida en XYZ para cada revolución del eje. 
+Por ejemplo, si empieza por `Z=0`, `G33 Z-1 K.0625` produce 
+un movimiento de 1 pulgada de Z más de 16 revoluciones del husillo.
+Este comando puede ser parte de un programa para producir un hilo 16TPI. 
+Otro ejemplo en el sistema métrico, `G33 Z-15 K1.5` produce 
+un movimiento de 15 mm, mientras que el eje gira 10 veces por un hilo de 1,5 mm. 
 
-Note: K follows the drive line described by `X- Y- Z-` and is not parallel to the Z axis.
+Nota: K sigue la línea de la unidad descrita por `X- Y- Z-` y no es paralelo al eje Z.
 
-Spindle-synchronized motions wait for spindle index, so multiple passes line up. 
-`G33` moves end at the programmed endpoint.
+Sincronizado de huso movimientos esperar para el índice de eje, la línea pasa por lo que múltiples arriba. 
+`G33` extremo se mueve en el punto final programado.
 
-All the axis words are optional, except that at least one must be used.
+Todas las palabras que el eje son opcionales, excepto que al menos uno debe ser utilizado.
 
-It is an error if:
+Es un error si:
 
- - All axis words are omitted.
- - The spindle is not turning when this command is executed
- - The requested linear motion exceeds machine velocity limits 
-    due to the spindle speed
+- Todas las palabras eje se omiten.
+- El eje no está girando cuando se ejecuta este comando
+- El movimiento lineal solicitado excede los límites de velocidad de la máquina 
+    debido a la velocidad del husillo
 
-== G33.1 Rigid Tapping[[sec:G33.1-Rigid-Tapping]](((G33.1 Rigid Tapping)))
+== G33.1 roscado rígido[[sec:G33.1-rigido-Tapping]](((G33.1 roscado rígido)))
 
     G33.1 X- Y- Z- K-
 
-For rigid tapping (spindle synchronized motion with return), 
-code `G33.1 X- Y- Z- K-` where `K-` gives the distance moved 
-for each revolution of the spindle. 
-A rigid tapping move consists of the following sequence:
+Para el roscado rígido (husillo sincronizado con el movimiento de retorno), 
+código `G33.1 X-Y-Z-K-`, donde `K-` da la distancia recorrida 
+por cada revolución del eje. 
+Un movimiento de roscado rígido se compone de la siguiente secuencia:
 
- - A move to the specified coordinate, synchronized with the spindle at
-   the given ratio and starting with a spindle index pulse.
- - When reaching the endpoint, a command to reverse the spindle (e.g.,
-   from clockwise to counterclockwise).
- - Continued synchronized motion *beyond* the specified end coordinate
-   until the spindle actually stops and reverses.
- - Continued synchronized motion back to the original coordinate.
- - When reaching the original coordinate, 
-   a command to reverse the spindle a second time 
-   (e.g., from counterclockwise to clockwise).
- - Continued synchronized motion *beyond* the original coordinate 
-   until the spindle actually stops and reverses.
- - An *unsynchronized* move back to the original coordinate.
+- El traslado a la coordenada especificada, sincronizado con el husillo en
+   dado la razón y comenzando con un pulso índice del husillo.
+- Cuando se alcanza el punto final, un comando para invertir el eje (por ejemplo,
+   de las agujas del reloj a la izquierda).
+- Continúa el movimiento sincronizado *más* allá de la coordenada final especificado
+   hasta el eje de hecho se detiene y se invierte.
+- Continúa el movimiento sincronizado de nuevo a la coordenada original.
+- Al llegar a la coordenada original, 
+   un comando para invertir el eje por segunda vez 
+   (Por ejemplo, de izquierda a derecha).
+- Continúa el movimiento sincronizado *más* allá de las coordenadas originales 
+   hasta el eje de hecho se detiene y se invierte.
+- Un *sincronizados* volver a la coordenada original.
 
-Spindle-synchronized motions wait for spindle index, 
-so multiple passes line up. 
-`G33.1` moves end at the original coordinate.
+Sincronizado de huso movimientos esperar para el índice de husillo, 
+por lo que múltiples pases en fila. 
+`G33.1` extremo se mueve en las coordenadas originales.
 
-All the axis words are optional, except that at least one must be used.
+Todas las palabras que el eje son opcionales, excepto que al menos uno debe ser utilizado.
 
-It is an error if:
+Es un error si:
 
- - All axis words are omitted.
- - The spindle is not turning when this command is executed
- - The requested linear motion exceeds machine velocity limits 
-   due to the spindle speed
+- Todas las palabras eje se omiten.
+- El eje no está girando cuando se ejecuta este comando
+- El movimiento lineal solicitado excede los límites de velocidad de la máquina 
+   debido a la velocidad del husillo
 
-Example:
+Ejemplo:
 
-    ;move to starting position
+    , Se mueven a la posición inicial
     G0 X1.000 Y1.000 Z0.100
-    ;rigid tapping a 20 TPI thread
+    ; Rígida aprovechar un hilo 20 TPI
     G33.1 Z-0.750 K0.05
 
-== G38.x Straight Probe[[sec:G38.x-Straight-Probe]]
-(((G38.2 Probe)))(((G38.3 Probe)))(((G38.4 Probe)))(((G38.5 Probe)))
+== G38.x recto de la sonda [[sec:G38.x-Straight-Probe]]
+(((G38.2 sonda)))(((G38.3 sonda)))(((G38.4 sonda)))(((G38.5 sonda)))
 
-IMPORTANT: You will not be able to successfully use this command until your 
-machine has been set up to provide a probe signal via HAL to EMC2. 
-The probe signal must be input via a HAL input bit, 
-and then forwarded to `motion.probe-input (bit, in)`. 
-G38.x uses the value on this pin to determine when the probe has made (or lost) contact. 
-TRUE for probe contact closed (touching), FALSE for probe contact open. 
+IMPORTANTE: Usted no será capaz de utilizar correctamente este comando hasta que su 
+máquina ha sido creada para dar una señal de la sonda a través de HAL de EMC2. 
+La señal de la sonda debe introducirse a través de un bit de entrada HAL, 
+y remitido a `motion.probe de entrada (bit, en)`. 
+G38.x utiliza el valor de este pin para determinar cuando la sonda ha hecho (o perdido) de contacto. 
+TRUE para sonda de contacto cerrado (tocar), FALSE para el contacto de la sonda abierta. 
 
-Program `G38.2 'axes'`, `G38.3 'axes'`, `G38.4 'axes'`, or 
-`G38.5 'axes'` to perform a straight probe operation. 
-The axis words are optional, except that at least one of them must be used. 
-The axis words together define the destination point that the probe will move towards, 
-starting from the current location. 
-The tool in the spindle must be a probe. 
+Programa `G38.2 'ejes'`, `G38.3 'ejes'`, `G38.4 'ejes'` o 
+`G38.5 'ejes'` para realizar una operación de la sonda recta. 
+Las palabras del eje son opcionales, excepto que al menos uno de ellos debe ser utilizado. 
+Las palabras del eje en conjunto, definen el punto de destino de que la sonda se desplaza hacia, 
+a partir de la ubicación actual. 
+La herramienta en el cabezal tiene que ser una sonda. 
 
-It is an error if:
+Es un error si:
 
- - the current point is the same as the programmed point.
- - no axis word is used
- - cutter radius compensation is enabled
- - the feed rate is zero
- - the probe is already in the target state
+- El punto actual es el mismo que el punto programado.
+- No se utiliza la palabra eje
+- Compensación de radio de la fresa está activado
+- La velocidad de avance es cero
+- La sonda ya está en el estado de destino
 
-In response to this command, the machine moves the controlled point
-(which should be at the center of the probe ball) in a straight line at the
-current feed rate toward the programmed point. 
-In inverse time feed mode, the feed rate is such that the whole motion 
-from the current point to the programmed point would take the specified time. 
-The move stops (within machine acceleration limits) 
-when the programmed point is reached, 
-or when the requested change in the probe input takes place, 
-whichever occurs first. 
+En respuesta a este comando, la máquina se mueve el punto de control
+(Que debe estar en el centro de la bola de la sonda) en una línea recta en la
+velocidad de avance actual hacia el punto programado. 
+En el modo de alimentación inversa del tiempo, la velocidad de avance es tal que todo el movimiento 
+desde el punto actual al punto programado se tomara el tiempo especificado. 
+El movimiento se detiene (dentro de los límites de aceleración de la máquina) 
+cuando el punto programado se alcanza, 
+o cuando el cambio solicitado en la entrada de la sonda se lleva a cabo, 
+lo que ocurra primero. 
 
-The table <<cap:Probing-codes>> shows the significance of
-different probing codes.
+La tabla <<cap:Probing-codes>> muestra la importancia de
+diferentes códigos de sondeo.
 
-.Probing codes[[cap:Probing-codes]]
+.Códigos de sondeo [[cap:El-sondeo-de-codigos]]
 
-[width="90%", options="header"]
+[Width="90%", options="header"]
 |================================================
-|Code  | Target state | Intended Direction  | Signal Error
-|G38.2 | Contact      | Toward workpiece    | Yes
-|G38.3 | Contact      | Toward workpiece    | No
-|G38.4 | No Contact   | Away from workpiece | Yes
-|G38.5 | No Contact   | Away from workpiece | No
+| Código | Estado de destino | dirección deseada | señal de error
+| G38.2 | Contacto | Hacia la pieza de trabajo | Sí
+| G38.3 | Contacto | Hacia la pieza de trabajo | No hay
+| G38.4 | No Contacto | Lejos de la pieza de trabajo | Sí
+| G38.5 | No Contacto | Lejos de la pieza de trabajo | No hay
 |================================================
 
-After successful probing, parameters 5061 to 5069 will be set to the
-coordinates of XYZABCUVW of the location of the controlled point 
-at the time the probe changed state. 
-After unsuccessful probing, they are set to the coordinates of the programmed point. 
-Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed. 
-If the probing operation failed, G38.2 and G38.4 will signal an error 
-by posting an message onscreen if the selected GUI supports that. 
-(And by halting program execution? *FIXME* TODO ) 
+Tras el éxito de sondeo, los parámetros de 5061 a 5069 se establece en el
+coordenadas de XYZABCUVW de la ubicación del punto de control 
+en el momento de la sonda ha cambiado de estado. 
+Después de infructuosos sondeo, que se establecen las coordenadas del punto programado. 
+Parámetro 5070 está ajustado a 1 si la sonda tuvo éxito y 0 si la avería. 
+Si la operación de sondeo no, G38.2 G38.4 y será una señal de error 
+mediante la publicación de un mensaje en pantalla si la interfaz gráfica de usuario seleccionado es compatible con eso. 
+(Y por detener la ejecución del programa? * FIXME * TODO) 
 
-A comment of the form `(PROBEOPEN filename.txt)` will open
-'filename.txt' and store the 9-number coordinate consisting of 
-XYZABCUVW of each successful straight probe in it. 
-The file must be closed with `(PROBECLOSE)`. 
+Un comentario de la forma `(filename.txt PROBEOPEN)` se abrirá
+"Archivo.txt" y almacenar las coordenadas 9-número que consta de 
+XYZABCUVW de cada sonda recta éxito en ella. 
+El archivo debe estar cerrado con `(PROBECLOSE)`. 
 
-== G40 Compensation Off[[sec:G40]]
-(((G40 Radius Compensation Off)))
+== G40 Compensación Off [[sec:G40]]
+(((Off G40 Compensación de radio)))
 
-Program G40 to turn cutter radius compensation off. 
-The next move must be a straight move. 
-It is OK to turn compensation off when it is already off.
+Programa G40 para activar la compensación de radio de la fresa apagado. 
+El siguiente paso debe ser un movimiento recto. 
+Está bien que a su vez una indemnización de cuando ya está apagado.
 
-It is an error if:
+Es un error si:
 
- - A G2/G3 arc move is programmed next after a G40.
+- Un movimiento de arco G2/G3 está programada siguiente después de un G40.
 
-== G41, G42 Tool Radius Compensation[[sec:G41-G42]]
-(((G41 Radius Compensation)))(((G42 Radius Compensation)))
+== Compensación G41, G42 radio de la herramienta[[sec:G41-G42]]
+(((G41 Compensación de radio )))((( G42 Compensación de radio)))
 
-    G41 or G42 D[tool]
+    G41 o G42 D[herramienta]
 
-To start tool radius compensation to the left of the part profile, use G41. 
-G41 starts cutter radius compensation to the left of the programmed line 
-as viewed from the positive end of the axis perpendicular to the plane.
+Para iniciar la compensación de radio a la izquierda del perfil de la pieza, utilice G41. 
+Comienza cortador G41 Compensación de radio a la izquierda de la línea de programa 
+como se ve desde el lado positivo del eje perpendicular al plano.
 
-To start tool radius compensation to the right of the part profile, use G42. 
-G42 starts cutter radius compensation to the right of the programmed line 
-as viewed from the positive end of the axis perpendicular to the plane.
+Para iniciar la compensación de radio a la derecha del perfil de la pieza, utilice G42. 
+G42 inicia la compensación radio de la fresa a la derecha de la línea de programa 
+como se ve desde el lado positivo del eje perpendicular al plano.
 
-The lead in move must be at least as long as the tool radius. 
-The lead in move can be a rapid move.
+El plomo en movimiento debe ser al menos tan largo como el radio de la herramienta. 
+El plomo en movimiento puede ser una decisión rápida.
 
-Cutter radius compensation may be performed if the XY-plane or XZ-plane is active.
+Compensación de radio de la fresa se puede realizar si el plano XY o XZ plano está activa.
 
-User M100-M199 commands are allowed when Cutter Compensation is on.
+M100-M199 usuario comandos están permitidos cuando compensación de cortador es el.
 
-The behavior of the machining center when cutter radius compensation
-is on is described in Section <<sec:Cutter-Radius-Compensation>>
+El comportamiento del centro de mecanizado cuando la compensación de radio de la fresa
+está en el se describe en la sección <<sec:Cutter-Radius-Compensation>>
 
-=== Cutter Radius Compensation from Tool Table
+Cortador === compensación de radio de la tabla de herramientas
 
-To turn cutter radius compensation on left (i.e., the cutter stays to 
-the left of the programmed path when the tool radius is positive), 
-program `G41 D-`. 
-To turn cutter radius compensation on right (i.e., the cutter stays to 
-the right of the programmed path when the tool radius is positive), 
- program `G42 D-`. 
-The D word is optional; if there is no D word, the radius of 
-the tool currently in the spindle will be used. 
-If used, the D number should normally be the slot number of 
-the tool in the spindle, although this is not required. 
-It is OK for the D number to be zero; a radius value of zero will be used.
+Para activar la compensación de radio de la fresa a la izquierda (es decir, el corte se mantiene a 
+la izquierda de la trayectoria programada, cuando el radio de la herramienta es positivo), 
+programa `D-G41`. 
+Para activar la compensación de radio de la fresa a la derecha (es decir, el corte se mantiene a 
+la derecha de la trayectoria programada, cuando el radio de la herramienta es positivo), 
+programa `D-G42`. 
+La palabra D es opcional, si no hay ninguna palabra D, el radio de 
+la herramienta que está en el huso se utilizará. 
+Si se utiliza, el número D debe ser normalmente el número de ranura de 
+la herramienta en el eje, aunque esto no es necesario. 
+Está bien que el número D a cero, un valor de radio de cero se utiliza.
 
-It is an error if:
+Es un error si:
 
- - The D number is not an integer, is negative, or is larger than the
-   number of carousel slots, 
- - The YZ plane is active,
- - Cutter radius compensation is commanded to turn on when it is already on.
+- El número D no es un número entero, es negativo, o es mayor que el
+   número de ranuras del carrusel, 
+- El plano YZ es activo,
+- Compensación de radio de la fresa se le ordena a su vez en cuando ya está encendida.
 
-== G41.1, G42.1 Dynamic Cutter Radius Compensation[[sec:G41.1-G42.1]]
-(((G41.1 Dynamic Radius Compensation)))(((G41.1 Dynamic Radius Compensation)))
+== G41.1, G42.1 Compensación dinámica de radio de corte [[sec:G41.1-G42.1]]
+(((G41.1 Compensación Dinámica Radio )))((( G41.1 compensación de radio dinámico)))
 
-    G41.1 or G42.1 D[diameter] <L[orientation]>
+    G41.1 G42.1 o D [diámetro] <L[orientation]>
 
-To turn cutter radius compensation on left, program `G41.1 D- L-`. 
+Para activar la compensación de radio de la fresa a la izquierda, el programa `G41.1 D- L-`. 
 
-To turn cutter compensation on right, program `G42.1 D- L-`. 
+Para activar la compensación de corte en el programa de la derecha, `G42.1 D- L-`. 
 
-The D word specifies the cutter diameter. 
-The L word specifies the cutter orientation, and defaults to 0 if unspecified. 
+La palabra D especifica el diámetro de la fresa. 
+La palabra L especifica la orientación del corte, y por defecto a 0 si no se especifica. 
 
-It is an error if:
+Es un error si:
 
- - The YZ plane is active.
- - The L number is not in the range from 0 to 9 inclusive.
- - The L number is used when the XZ plane is not active.
- - Cutter compensation is commanded to turn on when it is already on.
+- El plano YZ es activo.
+- El número L no está en el rango de 0 a 9.
+- El número L se utiliza cuando el plano XZ no está activo.
+- Compensación de corte se le ordena a su vez en cuando ya está encendida.
 
-For more information on cutter orientation see the <<cap:Lathe-Tool-Orientations>> and 
-<<fig:Tool-Positions-1-2-3-4>> and <<fig:Tool-Positions-5-6-7-8>> diagrams. 
+Para más información sobre la orientación de corte ver el <<cap:Lathe-Tool-Orientations>> y 
+<<fig:Tool-Positions-1-2-3-4>> Y <<fig:Tool-Positions-5-6-7-8>> diagramas. 
 
-== G43, G43.1, G49 Tool Length Offsets[[sec:G43-G43.1-Tool]]
-(((G43, G43.1, G49 Tool Length Offsets)))
+== G43, G43.1, G49 Compensación Longitud de la herramienta[[sec:G43-G43.1-Tool]]
+(((G43, G43.1, G49 Compensación longitud de herramienta)))
 
-=== G43, G43.1: Activate Tool length compensation(((G43)))(((G43.1)))
+=== G43, G43.1: Activar compensación de longitud(((G43)))(((G43.1)))
 
-G43 and G43.1 change subsequent motions by offsetting the Z and/or X
-coordinates by the length of the tool. G43 and G43.1 do not cause any
-motion. The next time a compensated axis is moved, that axis's endpoint
-is the compensated location.
+G43 y G43.1 movimientos cambio posterior al compensar la Z y / o X
+coordenadas de la longitud de la herramienta. G43 G43.1 y no causan ningún
+movimiento. La próxima vez que se mueve un eje de compensación, de punto final que el eje de la
+es el lugar compensado.
 
-==== G43: Use current tool loaded
+==== G43: herramienta de uso corriente carga
 
-To use the currently loaded tool from the last Tn M6 program a G43
+Para utilizar la herramienta está cargado de los últimos Tn M6 un programa G43
 
-==== G43 Hn: Offsets from tool table
+==== Hn G43: Compensación de la tabla de herramientas
 
-To use a tool length offset from the tool table, program `G43 Hn`,
-where the n number is the desired index in the tool table. The H
-number will typically be, but does not have to be, the same as the slot
-number of the tool currently in the spindle. It is OK for the H number
-to be zero; an offset value of zero will be used.
+Para utilizar una longitud de herramienta de la tabla de herramientas, el programa `G43` Hn,
+donde el número n es el índice que desee en la tabla de herramientas. El H
+número será normalmente, pero no tiene que ser, al igual que la ranura
+número de la herramienta que está en el huso. Está bien que el número H
+a ser cero, un valor de desplazamiento de cero se utiliza.
 
-It is an error if:
+Es un error si:
 
- - the H number is not an integer, is negative, or is larger than the
-   number of carousel slots.
+- El número H no es un número entero, es negativo, o es mayor que el
+   número de ranuras del carrusel.
 
-==== G43.1: Dynamic tool compensation
+==== G43.1: la compensación de herramienta dinámica
 
-To use a tool length offset from the program, use `G43.1 Xn Yn ... Wn`
-to set any axis tlo at run time.
+Para utilizar una longitud de herramienta del programa, use `G43.1 Xn Yn ... Wn`
+para establecer cualquier TLO eje en tiempo de ejecución.
 
-It is an error if:
+Es un error si:
 
- - motion is commanded on the same line as `G43.1`
+- El movimiento es ordenado en la misma línea que `G43.1`
 
-=== G49 : Cancel tool length compensation[[sub:G49-Tool]]
+=== G49: Cancelar herramienta de corrección de longitud de [[sub:G49-herramientas]]
 
-To use no tool length offset, program G49.
+No utilizar la longitud de herramienta, el programa G49.
 
-It is OK to program using the same offset already in use. It is also
-OK to program using no tool length offset if none is currently being
-used.
+Está bien el programa con el mismo desplazamiento ya está en uso. También es
+OK para programar sin usar la longitud de herramienta si no se está
+utilizados.
 
-== G53 Move in Absolute Coordinates[[sub:G53-Move-in]]
-(((G53 Absolute Coordinates)))
+== Movimiento G53 en coordenadas absolutas[[sub:G53-Move-in]]
+(((G53 coordenadas absolutas)))
 
-To move in absolute coordinates from the machine origin, program `G53`
-on the same line as a linear move. `G53` is not modal and must be
-programmed on each line. `G0` or `G1` does not have to be programmed
-on the same line if one is currently active. 
-For example `G53 G0 X0 Y0 Z0`  will move the axes to the home
-position even if the currently
-selected coordinate system has offsets in effect.
+Para moverse en coordenadas absolutas desde el origen de la máquina, el programa `G53`
+en la misma línea como un movimiento lineal. `G53` no es modal y se debe
+programados en cada línea. `G0` o `G1` no tiene que ser programado
+en la misma línea si uno está activo actualmente. 
+Por ejemplo `G53 G0 X0 Y0 Z0` se moverá los ejes para el hogar
+incluso si la actual
+sistema de coordenadas seleccionado se compensa, en efecto.
 
-It is an error if:
+Es un error si:
 
- - G53 is used without G0 or G1 being active, 
- - or G53 is used while cutter radius compensation is on.
+- G53 se utiliza sin G0 o G1 ser activo, 
+- O G53 se utiliza mientras que la remuneración es el radio de la fresa.
 
-== G54-G59.3 Select Coordinate System[[sec:G54-G59.3]]
-(((G54-G59.3 Select Coordinate System)))
+== G54-G59.3 Seleccione Sistema de coordenadas[[sec:G54-G59.3]]
+(((G54-G59.3 Seleccionar sistema de coordenadas)))
 
-To select coordinate system 1, 
-program G54, 
-and similarly for other coordinate systems. 
-The system-number-G-code pairs are: 
+Para seleccionar un sistema de coordenadas, 
+programa G54, 
+y lo mismo para otros sistemas de coordenadas. 
+Los pares del sistema-número de código-G son: 
 (1 - `G54`), (2 - `G55`), (3 - `G56`), 
 (4 - `G57`), (5 - `G58`), (6 - `G59`), 
-(7 - `G59.1`), (8 - `G59.2`), and (9 - `G59.3` ). 
-The coordinate systems store the values 
-for each system in the
-variables shown in the following table.
+(7 - `G59.1`), (8 - `G59.2`) y (9 - `G59.3`). 
+Los sistemas de coordenadas almacenar los valores 
+para cada sistema en el
+variables que se muestran en la siguiente tabla.
 
-.Coordinate Systems[[cap:Coordinate-Systems]]
+.Sistemas de coordenadas [[cap:Coordinar-Systems]]
 
-[width="100%", options="header"]
+[Width="100%", options="header"]
 |====================================================================
-|Select | CS | X    | Y    | Z    | A    | B    | C    | U    | V    | W
-|G54    | 1  | 5221 | 5222 | 5223 | 5224 | 5225 | 5226 | 5227 | 5228 | 5229
-|G55    | 2  | 5241 | 5242 | 5243 | 5244 | 5245 | 5246 | 5247 | 5248 | 5249
-|G56    | 3  | 5261 | 5262 | 5263 | 5264 | 5265 | 5266 | 5267 | 5268 | 5269
-|G57    | 4  | 5281 | 5282 | 5283 | 5284 | 5285 | 5286 | 5287 | 5288 | 5289
-|G58    | 5  | 5301 | 5302 | 5303 | 5304 | 5305 | 5306 | 5307 | 5308 | 5309
-|G59    | 6  | 5321 | 5322 | 5323 | 5324 | 5325 | 5326 | 5327 | 5328 | 5329
-|G59.1  | 7  | 5341 | 5342 | 5343 | 5344 | 5345 | 5346 | 5347 | 5348 | 5349
-|G59.2  | 8  | 5361 | 5362 | 5363 | 5364 | 5365 | 5366 | 5367 | 5368 | 5369
-|G59.3  | 9  | 5381 | 5382 | 5383 | 5384 | 5385 | 5386 | 5387 | 5388 | 5389
+| Seleccionar | CS | X | Y | Z | A | B | C | U | V | W
+| G54 | 1 | 5221 | 5222 | 5223 | 5224 | 5225 | 5226 | 5227 | 5228 | 5229
+| G55 | 2 | 5241 | 5242 | 5243 | 5244 | 5245 | 5246 | 5247 | 5248 | 5249
+| G56 | 3 | 5261 | 5262 | 5263 | 5264 | 5265 | 5266 | 5267 | 5268 | 5269
+| G57 | 4 | 5281 | 5282 | 5283 | 5284 | 5285 | 5286 | 5287 | 5288 | 5289
+| G58 | 5 | 5301 | 5302 | 5303 | 5304 | 5305 | 5306 | 5307 | 5308 | 5309
+| G59 | 6 | 5321 | 5322 | 5323 | 5324 | 5325 | 5326 | 5327 | 5328 | 5329
+| G59.1 | 7 | 5341 | 5342 | 5343 | 5344 | 5345 | 5346 | 5347 | 5348 | 5349
+| G59.2 | 8 | 5361 | 5362 | 5363 | 5364 | 5365 | 5366 | 5367 | 5368 | 5369
+| G59.3 | 9 | 5381 | 5382 | 5383 | 5384 | 5385 | 5386 | 5387 | 5388 | 5389
 |====================================================================
 
-It is an error if:
+Es un error si:
 
- - one of these G-codes is used while cutter radius compensation is on.
+- Uno de los G-códigos se utiliza mientras que la remuneración es el radio de la fresa.
 
-See Section <<cha:Coordinate-System>> for an overview of coordinate
-systems.
+Vea la sección <<cha:Coordinate-System>> para una descripción de coordinar
+sistemas.
 
-== G61, G61.1, G64 Set Path Control Mode[[sec:G61-G61.1-G64]]
-(((G61 Exact Trajectory)))(((G61.1 Exact Stop)))(((G64 Trajectory Control)))
-(((Path Control)))(((Trajectory Control)))
+== G61, G61.1, G64 Ruta del Menú de control [[sec:G61-G64-G61.1]]
+(((G61 trayectoria exacta)))(((G61.1 parada precisa)))(((G64 control de trayectoria)))
+(((Control de desplazamiento )))((( control de trayectoria)))
 
-    G61 Exact Path Mode
-    G61.1 Exact Stop Mode
-    G64 Best Possible Speed
-    G64 P- (motion blending tolerance) Q- (naive cam tolerance) 
+    G61 Modo ruta exacta
+    G61.1 modo de parada precisa
+    G64 mejor velocidad posible
+    G64 P- (tolerancia al movimiento de mezcla) Q- (ingenua tolerancia de levas) 
 
-G61 visits the programmed point exactly, even though that means 
-temporarily coming to a complete stop.
+G61 visita el punto programado exactamente, a pesar de que los medios 
+temporalmente de llegar a una parada completa.
 
-G64 without P means to keep the  best speed possible, no matter how
-far away from the programmed point  you end up.
+G64 sin P de medios para mantener la mejor velocidad posible, sin importar cómo
+lejos del punto programado se termina.
 
-G64 P- Q- is a way to fine tune your system for best compromise
-between speed and accuracy. The P- tolerance means that the actual path
-will be no more than P- away from the programmed endpoint. The velocity
-will be reduced if needed to maintain the path. In addition, when you
-activate G64 P- Q- it turns on the "naive cam detector"; when there are
-a series of linear XYZ feed moves at the same feed rate that are less
-than Q- away from being collinear, they are collapsed into a single
-linear move. On G2/G3 moves in the G17 (XY) plane when the maximum
-deviation of an arc from a straight line is less than the G64 P-
-tolerance the arc is broken into two lines (from start of arc to
-midpoint, and from midpoint to end). those lines are then subject to
-the naive cam algorithm for lines. Thus, line-arc, arc-arc, and
-arc-line cases as well as line-line benefit from the "naive cam
-detector". This improves contouring performance by simplifying the
-path. It is OK to program for the mode that is already active. See also
-Section <<sub:Path-Control-Mode>> for a discussion of these modes. 
-If Q is not specified then it will have the same behavior as before and
-use the value of P-.
+G64 P- Q- es una manera de afinar el sistema para mejor compromiso
+entre velocidad y precisión. El P-tolerancia significa que el camino real
+no será más que el P-lejos de la punto final programado. La velocidad
+se reducirá, si es necesario para mantener la trayectoria. Además, cuando
+activar G64 P- Q- se convierte en el "detector de ingenuo cam", cuando hay
+una serie de alimentación lineales XYZ se mueve a la velocidad de avance mismo de que son menos
+de Q- lejos de ser alineados, que se desplomó en una sola
+movimiento lineal. El G2/G3 se mueve en el G17 (XY) avión cuando el máximo
+desviación de un arco de la línea recta es menor que el G64 P-
+la tolerancia del arco se divide en dos líneas (desde el inicio del arco
+punto medio, y desde el punto medio a fin). esas líneas son sujetos a
+el algoritmo ingenuo de levas para las líneas. Por lo tanto, la línea del arco, un arco de arco, y
+la línea del arco de los casos, así como de línea a línea se benefician de la leva "ingenuo
+detector ". Esto mejora el rendimiento mediante la simplificación de los contornos
+trayectoria. Está bien para el programa de modo que ya está activa. Véase también
+Sección <<sub:Path-Control-Mode>> para una discusión de estos modos. 
+Si Q no se especifica a continuación, tendrá el mismo comportamiento que antes y
+utilizar el valor de P-.
 
-== G73 Drilling Cycle with Chip Breaking[[sec:G73-Drilling-Cycle]](((G73 Drilling Cycle Chip Break)))
+== G73 Ciclo de taladrado con rotura de la viruta [[sec:G73-Perforacion-del-ciclo]](((G73 Ciclo de taladrado Quiebre Chip)))
 
     G73 X- Y- Z- A- B- C- R- L- Q-
 
-The `G73` cycle is intended for deep drilling or milling with chip breaking. 
-The retracts in this cycle cut off any long stringers (which are common 
-when drilling in aluminum). This cycle takes a Q number which 
-represents a "delta" increment along the Z axis.
+El `G73` ciclo está destinado a la perforación profunda o de fresado con rotura de la viruta. 
+Se retrae en este ciclo de cortar cualquier largueros de largo (que son comunes 
+cuando se perfora en aluminio). Este ciclo tiene una serie Q, que 
+representa un "delta" incremento a lo largo del eje Z.
 
- . Preliminary motion, as described above. 
- . Move the Z-axis only at the current feed rate downward by delta or to
-   the Z position, whichever is less deep. 
- . Rapid up a bit.
- . Repeat steps 2 and 3 until the Z position is reached at step 2.
- . Retract the Z-axis at traverse rate to clear Z. 
+. Movimiento preliminar, como se describió anteriormente. 
+. Mover el eje Z sólo en la velocidad de alimentación de corriente a la baja en delta o
+   la posición Z, lo que es menos profundo. 
+. Rápida un poco.
+. Repita los pasos 2 y 3 hasta la posición Z se alcanza en el paso 2.
+. Retraer el eje Z en la velocidad de desplazamiento para borrar Z. 
 
-It is an error if:
+Es un error si:
 
- - the Q number is negative or zero.
+- El número Q es negativo o cero.
 
-== G76 Threading Cycle[[sec:G76-Threading-Canned]](((G76 Threading)))
+== G76 Roscado ciclo[[sec:G76-Threading-Conservas]](((G76 Threading)))
 
     G76 P- Z- I- J- R- K- Q- H- E- L-
 
-It is an error if:
+Es un error si:
 
- - The active plane is not the ZX plane
- - Other axis words, such as X- or Y-, are specified
- - The `R-` degression value is less than 1.0.
- - All the required words are not specified
- - `P-`, `J-`, `K-` or `H-` is negative
- - `E-` is greater than half the drive line length
+- El plano activo no es el plano ZX
+- Las palabras de otro eje, como por ejemplo X o Y, se especifican
+- El `R`-reducción, el valor es inferior a 1,0.
+- Todas las palabras necesarias no se especifican
+- `P-`,`J-`,`K-` o `H-` es negativo
+- `E-` es mayor que la mitad de la longitud de la línea de impulsión
 
-.G76 Threading[[fig:G76-Threading]]
+.G76 Roscado[[fig:G76-Threading]]
 
-image::images/g76-threads.png[]
+images::images/g76-threads.png []
 
-Drive Line::
-    A line through the initial X position parallel to the Z.
+Línea de unidad::
+    Una línea a través de la X en paralelo posición inicial a la Z.
 
 P-::
-    The "thread pitch" in distance per revolution.
+    El "paso de rosca" en la distancia por vuelta.
 
-Z-::
-     The final position of threads. At the end of the cycle the tool will
-    be at this Z position.
+Z::
+     La posición final de las discusiones. Al final del ciclo de la herramienta
+    estar en esta posición Z.
 
 I-::
-     The "thread peak" offset from the "drive line". Negative `I` values
-    are external threads, and positive `I` values are internal threads.
-    Generally the material has been turned
-    to this size before the `G76` cycle.
+     El "hilo pico" desplazamiento de la "línea de mando". Negativo `I` valores
+    son temas externos, positivos y `I` valores son las discusiones internas.
+    En general, el material se ha convertido
+    de este tamaño antes de que el `G76` ciclo.
 
 J-::
-     A positive value specifying the "initial cut depth". The first
-    threading cut will be `J` beyond the "thread peak" position.
+     Un valor positivo que especifica la "profundidad de corte inicial". La primera
+    cortar hilos será `J` más allá de la "cumbre hilo" posición.
 
 K-::
-     A positive value specifying the "full thread depth". The final
-    threading cut will be `K` beyond the "thread peak" position.
+     Un valor positivo que especifica la "profundidad de la rosca completa". La final
+    cortar hilos será `K` más allá de la "cumbre hilo" posición.
 
-Optional settings
+Los ajustes opcionales
 
 R-::
-     The "depth degression". `R1.0` selects constant depth on successive
-    threading passes. `R2.0` selects constant area. Values between 1.0 and
-    2.0 select decreasing
-    depth but increasing area. Values above 2.0 select decreasing area.
-    Beware that unnecessarily high degression values will cause a large
-    number of passes to be used. (degression = a descent by stages or
-    steps.)
+     La "reducción progresiva de la profundidad". `R1.0` selecciona una profundidad constante en los sucesivos
+    roscado pasa. `R2.0` selecciona la zona de constante. Valores entre 1.0 y
+    2.0 seleccionar la disminución
+    profundidad, pero aumentar la superficie. Valores por encima de 2,0 seleccionar la disminución zona.
+    Tenga en cuenta que los valores de reducción, sin necesidad de alta causará una gran
+    número de pases que se utilizará. Regresividad (= un descenso por etapas o
+    pasos.)
 
 Q-::
-     The "compound slide angle" is the angle (in degrees) describing to
-    what extent successive passes should be offset along the drive line.
-    This is used to cause one side of the tool to remove more material than
-    the other. A positive `Q` value causes the leading edge of the tool to
-    cut more heavily.
-    Typical values are 29, 29.5 or 30.
+     El "ángulo compuesto de diapositivas" es el ángulo (en grados) que describe a
+    lo que pasa medida sucesivos deben ser compensados ​​a lo largo de la línea de transmisión.
+    Esto se utiliza para que un lado de la herramienta para extraer más material del que
+    la otra. Un resultado positivo `Q` valor hace que el borde delantero de la herramienta para
+    corte en mayor medida.
+    Los valores típicos son 29, 29,5 o 30.
 
 H-::
-     The number of "spring passes". Spring passes are additional passes at
-    full thread depth. If no additional passes are desired, program `H0`.
+     El número de "pases de la primavera". Pasa a la primavera se pasa a otros
+    profundidad de la rosca completa. Si no pasa más se desea, el programa `H0`.
 
-Tapered entry and exit moves can be programmed using `E-` and `L-`.
+Entrada cónica y se mueve salida se puede programar el uso de `E-` y `L-`.
 
-E-::
-     Specifies the distance along the drive line used for the taper. The
-    angle of the taper will be so the last pass tapers to the thread crest
-    over the distance specified with E.` E0.2`  will give a taper for the
-    first/last 0.2 length units along the
-    thread. For a 45 degree taper program E the same as K
+E-mail::
+     Especifica la distancia a lo largo de la línea de unidad utilizada para la puesta a punto. La
+    ángulo de la vela será así el último paso se estrecha a la cresta hilo
+    más de la distancia especificada con E. `E0.2` dará una vela para el
+    primer / último 0,2 unidades de longitud a lo largo del
+    hilo. Para un programa de E cono de 45 grados lo mismo que K
 
 L-::
-      Specifies which ends of the thread get the taper. Program `L0` for no
-    taper (the default), `L1` for entry taper, `L2` for exit taper, or `L3`
-     for both entry and exit tapers. Entry tapers will pause at the drive
-    line to synchronize with the index pulse then feed in to the beginning
-    of the taper. No entry taper and the tool will rapid to the cut depth
-    then synchronize and begin the cut.
+      Especifica que los extremos del hilo de conseguir la puesta a punto. Programa `L0` para no 
+    cono (por defecto), `L1` para la puesta a punto de entrada, `L2` de cono de salida, o `L3`
+     tanto para la entrada y salida se estrecha. Se estrecha la entrada se detendrá en la unidad
+    línea para sincronizar con el pulso índice se incorporarán a los principios
+    de la forma cónica. No cono de entrada y la herramienta será rápido a la profundidad de corte
+    a continuación, sincronizar y comenzar el corte.
 
-The tool is moved to the initial X and Z positions prior to issuing
-the G76. The X position is the "drive line" and the Z position is the
-start of the threads.
+La herramienta se mueve a la X inicial y las posiciones de Z antes de emitir
+el G76. La posición X es la "línea de mando" y es la posición de la Z
+inicio de las discusiones.
 
-The tool will pause briefly for synchronization before each threading
-pass, so a relief groove will be required at the entry unless the
-beginning of the thread is past the end of the material or an entry
-taper is used.
+La herramienta de sincronización de una breve pausa antes de cada rosca
+pasar, por lo que una ranura de desahogo se requerirá a la entrada a menos que el
+comienzo de la rosca es más allá del final de la materia, o la inscripción
+cono se utiliza.
 
-Unless using an exit taper, the exit move (traverse to original X) is
-not synchronized to the spindle speed. With a slow spindle, the exit
-move might take only a small fraction of a revolution. If the spindle
-speed is increased after several passes are complete, subsequent exit
-moves will require a larger portion of a revolution, resulting in a
-very heavy cut during the exit move. This can be avoided by providing a
-relief groove at the exit, or by not changing the spindle speed while
-threading.
+A menos que use un cono de salida, el movimiento de salida (transversal a X original) es
+no está sincronizado con la velocidad de giro. Con un eje lento, la salida
+medida puede tener sólo una pequeña fracción de una revolución. Si el cabezal
+la velocidad es mayor después de varios pases de salida se completa, con posterioridad
+mueve requerirá una mayor parte de una revolución, lo que resulta en una
+corte muy fuerte durante el traslado de salida. Esto puede evitarse mediante una
+alivio de la ranura en la salida, o por no cambiar la velocidad de giro, mientras que
+roscado.
 
-The final position of the tool will be at the end of the "drive line".
-A safe Z move will be needed with an internal thread to remove the tool
-from the hole.
+La posición final de la herramienta estará en la final de la "línea de mando".
+Una caja fuerte movimiento Z será necesario con una rosca interna para quitar la herramienta
+del hoyo.
 
-The sample program `g76.ngc`  shows the use of the G76 canned cycle,
-and can be previewed and
-executed on any machine using the `sim/lathe.ini` configuration.
+El programa de ejemplo `g76.ngc` muestra el uso del ciclo de G76 en lata,
+y se puede visualizar y
+ejecutarse en cualquier máquina con el 'SIM / lathe.ini `configuración.
 
-The following example shows the result of running this G-Code:
+El siguiente ejemplo muestra el resultado de la ejecución de este G-Code:
 
-    G0 Z-.5 X .2
-    G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
+    G0 Z-0.5 X 0.2
+    P0.05 G76 Z-1 I-0.075 J0.008 K0.045 Q29.5 L2 E0.045
 
-The tool is in the final position after the G76 cycle is completed.
-You can see the entry path on the right from the Q29.5 and the exit
-path on the left from the L2 E0.045. The white lines are the cutting
-moves.
+La herramienta está en la posición final después de que el ciclo G76 se ha completado.
+Usted puede ver la trayectoria de entrada a la derecha de la Q29.5 y salir de la
+camino a la izquierda de la E0.045 L2. Las líneas blancas son el corte
+se mueve.
 
-.G76 Threading Example[[fig:G76-Threading-Example]]
+.Ejemplo G76 Roscado[[fig:G76-Threading-Ejemplo]]
 
-image::images/g76-01.png[]
+images::images/g76-01.png []
 
-== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
+== G80 Cancelar modal de movimiento[[sec:G80-Cancelar-Modal]]
 
-Program `G80` to ensure no axis motion will occur. It is an error if:
+Programa `G80` para asegurar que no se producirá el movimiento del eje. Es un error si:
 
- -  Axis words are programmed when G80 is active, unless a modal 
-   group 0 Gcode is programmed which uses axis words.
+- Las palabras del Eje se programan cuando G80 está activo, a menos que un referente 
+   el grupo 0 Gcode está programado que usa palabras eje.
 
-== Canned Cycles[[sec:G81-G89]](((Canned Cycles)))
+== Ciclos[[sec:G81-G89]](((Ciclos)))
 
-The canned cycles `G81` through `G89` are described in this section.
-Two examples are given with the description of `G81` below.
+Los ciclos fijos `G81` a través `G89` se describen en esta sección.
+Dos ejemplos se dan con la descripción de `G81` de abajo.
 
-All canned cycles are performed with respect to the currently-selected
-plane. Any of the six planes may be selected. Throughout this section,
-most of the descriptions assume the XY-plane has been selected. The
-behavior is analogous if another plane is selected, and the correct
-words must be used. For instance, in the `G17.1`  plane, the action of
-the canned cycle is along W, and the locations
-or increments are given with U and V. In this case substitute U,V,W for
-X,Y,Z in the instructions below.
+Todos los ciclos fijos se llevan a cabo con respecto a la actualmente seleccionada
+avión. Cualquiera de los seis aviones pueden ser seleccionados. En esta sección,
+la mayoría de las descripciones de asumir el plano XY se ha seleccionado. La
+comportamiento es análogo, si se selecciona otro plano, y corregir la
+palabras deben ser empleadas. Por ejemplo, en el `G17.1` avión, la acción de
+el ciclo fijo es a lo largo de W, y los lugares
+o incrementos se dan con U y V. En este caso, sustituir U, V, W para
+X, Y, Z en las instrucciones de abajo.
 
-Rotary axis words are not allowed in canned cycles.  When the
-active plane is one of the XYZ family, the UVW axis words are not
-allowed.  Likewise, when the active plane is one of the UVW family, the
-XYZ axis words are not allowed.
+Palabras de ejes giratorios no están permitidos en los ciclos enlatados.  Cuando el
+plano activo es uno de los familiares XYZ, las palabras no son el eje UVW
+permitido.  Del mismo modo, cuando el plano activo es uno de los familiares UVW, la
+XYZ palabras eje no están permitidos.
 
-=== Common Words
+=== Palabras comunes
 
-All canned cycles use X, Y, Z, or U, V, W groups depending on the
-plane selected and R words. The R (usually meaning retract) position is
-along the axis perpendicular to the currently selected plane (Z-axis
-for XY-plane, etc.) Some canned cycles use additional arguments.
+Todos los ciclos enlatados usan X, Y, Z o U, V, W grupos en función de la
+plano seleccionado y las palabras de R. La posición R (por lo general significa retraer) es
+a lo largo del eje perpendicular al plano seleccionado en ese momento (el eje Z
+de plano XY, etc) Algunos ciclos enlatados usan argumentos adicionales.
 
-=== Sticky Words
+=== Palabras Adherido
 
-For canned cycles, we will call a number "sticky" if, when the same
-cycle is used on several lines of code in a row, the number must be
-used the first time, but is optional on the rest of the lines. Sticky
-numbers keep their value on the rest of the lines if they are not
-explicitly programmed to be different. The R number is always sticky.
+Para los ciclos enlatados, vamos a llamar a un número "pegajosa" si, cuando el mismo
+ciclo se utiliza en varias líneas de código en una fila, el número debe ser
+usó la primera vez, pero es opcional en el resto de las líneas. Pegajoso
+números de mantener su valor en el resto de las líneas si no se
+explícitamente programado para ser diferente. El número de R es siempre pegajoso.
 
-In incremental distance mode X, Y, and R numbers are treated as
-increments from the current position and Z as an increment from the
-Z-axis position before the move involving Z takes place. In absolute
-distance mode, the X, Y, R, and Z numbers are absolute positions in the
-current coordinate system.
+En el modo incremental distancia X, Y, y los números R son tratados como
+incrementos de la posición actual y Z como un incremento de la
+Z-eje de la posición antes de la mudanza participación de Z se lleva a cabo. En términos absolutos
+modalidad a distancia, la X, Y, R, Z y los números son posiciones absolutas en el
+sistema de coordenadas actual.
 
-=== Repeat Cycle
+=== Repetir el ciclo
 
-The L number is optional and represents the number of repeats.
-latexmath:[L=0] is not allowed. If the repeat feature is used, it is
-normally used in incremental distance mode, so that the same sequence
-of motions is repeated in several equally spaced places along a
-straight line. When L- is greater than 1 in incremental mode with the
-XY-plane selected, the X and Y positions are determined by adding the
-given X and Y numbers either to the current X and Y positions (on the
-first go-around) or to the X and Y positions at the end of the previous
-go-around (on the repetitions). Thus, if you program `L10` , you will
-get 10 cycles. The first cycle will be distance X,Y from
-the original location. The R and Z positions do not change during the
-repeats. The L number is not sticky. In absolute distance mode,
-latexmath:[L>1] means "do the same cycle in the same place several
-times", Omitting the L word is equivalent to specifying
-latexmath:[L=1].
+El número L es opcional y representa el número de repeticiones.
+latexmath: [L = 0] no está permitido. Si la función de repetición se utiliza, es
+normalmente se utiliza en modo de distancia incremental, de modo que la misma secuencia
+de los movimientos se repite en varios lugares equidistantes a lo largo de un
+línea recta. Cuando L-es mayor que 1 en el modo incremental con el
+XY-plano seleccionado, las posiciones X e Y se determina sumando el
+dados X e Y los números ni a la actual de X y Y las posiciones (en el
+primera vuelta) o en las posiciones X e Y en el final de la anterior
+y al aire (en las repeticiones). Por lo tanto, si el programa `L10`, que se
+obtener 10 ciclos. El primer ciclo se distancia X, Y de
+la ubicación original. Las posiciones de R y Z no cambian durante el
+repite. El número L no es pegajoso. En el modo de distancia absoluta,
+latexmath: [L> 1] significa "hacer el mismo ciclo en el mismo lugar varios
+tiempos ", omitiendo la palabra L es equivalente a especificar
+latexmath: [L = 1].
 
-=== Retract Mode
+=== Retracción modo
 
-The height of the retract move at the end of each repeat (called
-"clear Z" in the descriptions below) is determined by the setting of
-the retract mode: either to the original Z position (if that is above
-the R position and the retract mode is `G98`, OLD_Z), or otherwise to
-the R position. See Section <<sec:G98-G99-Set>>
+La altura del movimiento de retracción al final de cada repetición (llamada
+"Claro Z" en las descripciones de abajo) es determinado por el valor de
+la retracción modo: o bien a la posición original Z (si es que está por encima de
+la posición de R y el modo de retractarse es `G98`, OLD_Z), o bien a
+la posición R. Vea la sección <<sec:G98-G99-Set>>
 
-=== Canned Cycle Errors
+=== Los errores de un ciclo fijo
 
-It is an error if:
+Es un error si:
 
- - X, Y, and Z words are all missing during a canned cycle, 
- - Axis words from different groups (XYZ) (UVW) are used together,
- - a P number is required and a negative P number is used, 
- - an L number is used that does not evaluate to a positive integer, 
- - rotary axis motion is used during a canned cycle, 
- - inverse time feed rate is active during a canned cycle, 
- - or cutter radius compensation is active during a canned cycle.
+- X, Y, Z y las palabras están desaparecidos durante un ciclo fijo, 
+- Eje palabras de los diferentes grupos (XYZ) (UVW) se usan juntos,
+- Un número de P que se requiere y un número negativo P se utiliza, 
+- Un número L se utiliza que no se evalúa a un entero positivo, 
+- El movimiento del eje de giro se utiliza durante un ciclo fijo, 
+- Tasa inversa de alimentación vez que se activa durante un ciclo fijo, 
+- O compensación radio de la fresa está activa durante un ciclo fijo.
 
-If the XY plane is active, the Z number is sticky, and it is an error
-if:
+Si el plano XY se activa, el número Z es pegajoso, y es un error
+si:
 
- - the Z number is missing and the same canned cycle was not already
-   active, 
- - or the R number is less than the Z number.
+- El número Z es falta y el ciclo fijo misma no estuviera ya
+   activa, 
+- O el número de R es menor que el número Z.
 
-If other planes are active, the error conditions are analogous to the
-XY conditions above.
+Si los aviones están activas las otras, las condiciones de error son análogos a los
+XY condiciones anteriores.
 
-=== Preliminary and In-Between Motion
+=== Preliminar y en el medio de movimiento
 
-At the very beginning of the execution of any of the canned cycles, if
-the current Z position is below the R position, the Z-axis is traversed
-to the R position. This happens only once, regardless of the value of
+En el comienzo de la ejecución de cualquiera de los ciclos fijos, si
+la actual posición de Z está por debajo de la posición R, el Z-eje se desplaza
+a la posición R. Esto sucede sólo una vez, independientemente del valor de
 L.
 
-In addition, at the beginning of the first cycle and each repeat, the
-following one or two moves are made
+Además, al comienzo del primer ciclo y repite cada uno, el
+se mueve siguiendo una o dos se hacen
 
- . a straight traverse parallel to the XY-plane to the given XY-position, 
- . a straight traverse of the Z-axis only to the R position, if it is not
-   already at the R position. 
+. una recta paralela al atravesar el plano XY a la posición dada XY, 
+. una recta transversal del eje Z sólo a la posición R, si no se
+   Ya en la posición R. 
 
-If another plane is active, the preliminary and in-between motions are
-analogous.
+Si otro avión está activa, los movimientos preliminares y en el medio, se
+análoga.
 
-== G81 Drilling Cycle[[sec:G81-Drilling-Cycle]](((G81 Drilling Cycle)))
+== G81 Ciclo de taladrado[[sec:G81-Perforacion-del-ciclo]](((G81 Ciclo de taladrado)))
 
-    G81 (X- Y- Z-) or (U- V- W-) R- L-
+    G81 (X-Y-Z) o (U-V-W-) R-L-
 
-The `G81` cycle is intended for drilling.
+El `G81` ciclo está destinado a la perforación.
 
- . Preliminary motion, as described above. 
- . Move the Z-axis only at the current feed rate to the Z position.
- . Retract the Z-axis at traverse rate to clear Z. 
+. Movimiento preliminar, como se describió anteriormente. 
+. Mover el eje Z sólo en la velocidad de avance actual en la posición Z.
+. Retraer el eje Z en la velocidad de desplazamiento para borrar Z. 
 
-*Example 1.* Suppose the current position is (1, 2, 3) and the
-XY-plane has been
-selected, and the following line of NC code is interpreted.
+* Ejemplo 1.* Supongamos que la posición actual es (1, 2, 3) y el
+Plano XY se ha
+seleccionados, y la siguiente línea de código NC se interpreta.
 
     G90 G81 G98 X4 Y5 Z1.5 R2.8
 
-This calls for absolute distance mode (`G90`) and OLD_Z retract mode
-(`G98`) and calls for the `G81`  drilling cycle to be performed once.
-The X number and X position are
-4. The Y number and Y position are 5. The Z number and Z position are
-1.5. The R number and clear Z are 2.8. Old Z is 3. The following moves
-take place.
+Esto requiere el modo de distancia absoluta (`G90`) y el modo de retirar OLD_Z
+(`G98`) y pide la `G81` ciclo de perforación que se realiza una vez.
+El número X y la posición X son
+4. Y el número y la posición Y son cinco. El número Z y la posición Z se
+1.5. El número de R y Z son claras 2,8. Antiguo Z es de 3. Los siguientes movimientos
+llevará a cabo.
 
- . a traverse parallel to the XY-plane to (4,5,3) 
- . a traverse parallel to the Z-axis to (4,5,2.8) 
- . a feed parallel to the Z-axis to (4,5,1.5) 
- . a traverse parallel to the Z-axis to (4,5,3) 
+. un paralelo a atravesar el plano XY a (4,5,3) 
+. un paralelo transversal al eje Z de (4,5,2.8) 
+. un paralelo de alimentación a la Z-eje (4,5,1.5) 
+. un paralelo transversal al eje Z de (4,5,3) 
 
-*Example 2.*  Suppose the current position is (1, 2, 3) and the
-XY-plane has been
-selected, and the following line of NC code is interpreted.
+* Ejemplo 2.* Supongamos que la posición actual es (1, 2, 3) y el
+Plano XY se ha
+seleccionados, y la siguiente línea de código NC se interpreta.
 
     G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
 
-This calls for incremental distance mode (`G91`) and OLD_Z retract
-mode (`G98`) and calls for the `G81`  drilling cycle to be repeated
-three times. The X number is 4, the Y
-number is 5, the Z number is -0.6 and the R number is 1.8. The initial
-X position is 5 (=1+4), the initial Y position is 7 (=2+5), the clear Z
-position is 4.8 (=1.8+3), and the Z position is 4.2 (=4.8-0.6). Old Z
-is 3.
+Esto requiere modo de distancia incremental (`G91`) y OLD_Z retraer
+modo (`G98`) y pide la `G81` ciclo de perforación que se repita
+tres veces. El número de X es 4, la Y
+número 5, el número Z es -0,6 y el número de R es de 1,8. La primera
+X es la posición 5 (= 1 +4), la posición Y inicial es 7 (= 2 +5), la clara Z
+posición es de 4,8 (= 1,8 3), y la posición Z es de 4,2 (4,8-0,6 =). Antiguo Z
+3.
 
-The first move is a traverse along the Z-axis to (1,2,4.8), since old
-Z < clear Z.
+El primer movimiento es una travesía a lo largo del eje Z de (1,2,4.8), desde que el viejo
+Z <claro Z.
 
-The first repeat consists of 3 moves.
+La primera repetición consta de tres movimientos.
 
- . a traverse parallel to the XY-plane to (5,7,4.8)
- . a feed parallel to the Z-axis to (5,7, 4.2)
- . a traverse parallel to the Z-axis to (5,7,4.8) 
+. un paralelo a atravesar el plano XY a (5,7,4.8)
+. un paralelo de alimentación a la del eje Z a (5,7, 4,2)
+. un paralelo transversal al eje Z de (5,7,4.8) 
 
-The second repeat consists of 3 moves. The X position is reset to 9
-(=5+4) and the Y position to 12 (=7+5).
+La segunda repetición se compone de 3 movimientos. La posición X se pone a 9
+(= 5 +4) y la posición Y a 12 (= 7 +5).
 
- . a traverse parallel to the XY-plane to (9,12,4.8)
- . a feed parallel to the Z-axis to (9,12, 4.2)
- . a traverse parallel to the Z-axis to (9,12,4.8) 
+. un paralelo a atravesar el plano XY a (9,12,4.8)
+. un paralelo de alimentación a la Z-eje (9,12, 4,2)
+. un paralelo transversal al eje Z de (9,12,4.8) 
 
-The third repeat consists of 3 moves. The X position is reset to 13
-(=9+4) and the Y position to 17 (=12+5).
+La tercera repetición consta de tres movimientos. La posición X se pone a 13
+(= 9 +4) y la posición Y a 17 (= 12 +5).
 
- . a traverse parallel to the XY-plane to (13,17,4.8) 
- . a feed parallel to the Z-axis to (13,17, 4.2) 
- . a traverse parallel to the Z-axis to (13,17,4.8) 
+. un paralelo a atravesar el plano XY a (13,17,4.8) 
+. un paralelo de alimentación a la Z-eje (13,17, 4,2) 
+. un paralelo transversal al eje Z de (13,17,4.8) 
 
-== G82 Drilling Cycle with Dwell[[sec:G82-Drilling-Dwell]](((G82 Drilling Cycle Dwell)))
+== G82 Ciclo de taladrado con temporización [[sec:G82-Perforacion-Dwell]](((G82 Ciclo de taladrado Dwell)))
 
-    G82 (X- Y- Z-) or (U- V- W-) R- L- P-
+    G82 (X-Y-Z) o (U-V-W-) R-L-P-
 
-The `G82` cycle is intended for drilling with a dwell at the bottom of
-the hole.
+El 'G82' ciclo está destinado a la perforación con una temporización en el fondo de
+el agujero.
 
- . Preliminary motion, as described above.
- . Move the Z-axis only at the current feed rate to the Z position. 
- . Dwell for the P number of seconds.
- . Retract the Z-axis at traverse rate to clear Z.
+. Movimiento preliminar, como se describió anteriormente.
+. Mover el eje Z sólo en la velocidad de avance actual en la posición Z. 
+. Morar por el número P de segundos.
+. Retraer el eje Z en la velocidad de desplazamiento para borrar Z.
 
-== G83 Peck Drilling[[sec:G83-Drilling-Peck]](((G83 Peck Drilling)))
+== G83 taladrado [[sec:G83-Perforacion-Peck]](((G83 taladrado)))
 
-    G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+    G83 (X- Y- Z-) o (U- V- W-) R- L- Q-
 
-The `G83` cycle (often called peck drilling) is intended for deep
-drilling or
-milling with chip breaking. The retracts in this cycle clear the hole
-of chips and cut off any long stringers (which are common when drilling
-in aluminum). This cycle takes a Q number which represents a "delta"
-increment along the Z-axis. The retract before final depth will always 
-be to the "retract" plane even if G98 is in effect. The final retract will
-honor the G98/99 in effect.
+El 'G83' ciclo (a menudo llamado paso de taladrado) está destinado a profundidad
+de perforación o
+fresado con rotura de la viruta. Se retrae en este ciclo de limpiar el agujero
+de los chips y cortar cualquier largueros de largo (que son comunes durante la perforación
+de aluminio). Este ciclo tiene una serie Q, que representa un "delta"
+incremento a lo largo del eje Z. La profundidad final antes de retractarse de siempre 
+se a la "retracción" avión incluso si G98 es en efecto. La final se retracte
+honrar a los G98/99 en efecto.
 
- . Preliminary motion, as described above. 
- . Move the Z-axis only at the current feed rate downward by delta or to
-   the Z position, whichever is less deep. 
- . Rapid back out to the retract plane specified by the R word. 
- . Rapid back down to the current hole bottom, backed off a bit.
- . Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
- . Retract the Z-axis at traverse rate to clear Z. 
+. Movimiento preliminar, como se describió anteriormente. 
+. Mover el eje Z sólo en la velocidad de alimentación de corriente a la baja en delta o
+   la posición Z, lo que es menos profundo. 
+. Rápido de vuelta al plano de retractarse especificado por la palabra R. 
+. Vuelta rápida hasta el fondo del agujero actual, retrocedió un poco.
+. Repita los pasos 2, 3 y 4 hasta la posición Z se alcanza en el paso 2.
+. Retraer el eje Z en la velocidad de desplazamiento para borrar Z. 
 
-It is an error if:
+Es un error si:
 
- - the Q number is negative or zero.
+- El número Q es negativo o cero.
 
-== G84 Right-Hand Tapping[[sec:G84-Right-Hand-Tapping]](((G84 Right-Hand Tapping)))
+== G84 de la Mano Derecha tocar[[sec:G84-de-la-mano-derecha-Tapping]](((G84 de la Mano Derecha Tapping)))
 
-This code is currently unimplemented in EMC2. It is accepted, but the
-behavior is undefined. See sections 
-<<sec:G33-Spindle-Sync>> and <<sec:G33.1-Rigid-Tapping>>
+Este código no está implementada en EMC2. Se acepta, pero el
+comportamiento no está definido. Vea las secciones 
+<<sec:G33-Spindle-Sync>> Y <<sec:G33.1-Rigid-Tapping>>
 
-== G85 Boring, No Dwell, Feed Out[[sec:G85-Boring-Feed-Out]](((G85 Boring, No Dwell, Feed Out)))
+== G85 aburrido, no de permanencia, salida de alimentación[[sec:G85-aburrido-Feed-Out]](((G85 aburrido, no de permanencia, salida de alimentación)))
 
-    G85 (X- Y- Z-) or (U- V- W-) R- L-
+    G85 (X-Y-Z) o (U-V-W-) R-L-
 
-The `G85` cycle is intended for boring or reaming, but could be used
-for drilling or milling.
+El 'G85' ciclo está diseñado para perforar o fresar, pero podría ser utilizado
+para la perforación o fresado.
 
- . Preliminary motion, as described above. 
- . Move the Z-axis only at the current feed rate to the Z position.
- . Retract the Z-axis at the current feed rate to clear Z. 
+. Movimiento preliminar, como se describió anteriormente. 
+. Mover el eje Z sólo en la velocidad de avance actual en la posición Z.
+. Retraer el eje Z en la velocidad de alimentación de corriente para limpiar Z. 
 
-== G86 Boring, Spindle Stop, Rapid Out[[sec:G86-Boring-Rapid-Out]](((G86 Boring, Spindle Stop, Rapid Out)))
+== G86 aburrido, parada del cabezal, salida rápida[[sec:G86-aburrido-Rapid-Out]](((G86 parada aburrido, eje, salida rápida)))
 
-    G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+    G86 (X- Y- Z) o (U- V- W-) R- L- P-
 
-The `G86` cycle is intended for boring. This cycle uses a P number
-for the number of seconds to dwell.
+El `G86` ciclo está destinado a aburrido. Este ciclo se utiliza un número de P
+para el número de segundos que habitan.
 
- . Preliminary motion, as described above. 
- . Move the Z-axis only at the current feed rate to the Z position.
- . Dwell for the P number of seconds.
- . Stop the spindle turning.
- . Retract the Z-axis at traverse rate to clear Z.
- . Restart the spindle in the direction it was going. 
+. Movimiento preliminar, como se describió anteriormente. 
+. Mover el eje Z sólo en la velocidad de avance actual en la posición Z.
+. Morar por el número P de segundos.
+. Detener el giro del cabezal.
+. Retraer el eje Z en la velocidad de desplazamiento para borrar Z.
+. Reinicie el cabezal en el sentido que iba. 
 
-The spindle must be turning before this cycle is used. It is an error
-if:
+El eje debe estar girando antes de que este ciclo se utiliza. Se trata de un error
+si:
 
- - the spindle is not turning before this cycle is executed.
+- El eje no está girando antes de que este ciclo se ejecuta.
 
-== G87 Back Boring[[sec:G87-Back-Boring]] (((G87 Back Boring)))
+== G87 Volver aburrido [[sec:G87-Back-Aburrido]](((G87 Volver aburrido)))
 
-This code is currently unimplemented in EMC2. It is accepted, but the
-behavior is undefined.
+Este código no está implementada en EMC2. Se acepta, pero el
+comportamiento no está definido.
 
-== G88 Boring, Spindle Stop, Manual Out[[sec:G88-Boring-Manual-Out]](((G88 Boring, Spindle Stop, Manual Out)))
+== G88 aburrido, parada del cabezal, Manual de salida [[sec:G88-aburrido-Manual-Out]](((G88 aburrido, eje Stop, Manual de salida)))
 
-This code is currently unimplemented in EMC2. It is accepted, but the
-behavior is undefined.
+Este código no está implementada en EMC2. Se acepta, pero el
+comportamiento no está definido.
 
-== G89 Boring, Dwell, Feed Out[[sec:G89-Boring-Dwell,]](((G89 Boring, Dwell, Feed Out)))
+== G89 aburrido, permanencia, salida de alimentación[[sec:G89-aburrido-Dwell]](((G89 aburrido, permanencia, salida de alimentación)))
 
-    G89 (X- Y- Z-) or (U- V- W-) R- L- P-
+    G89 (X-Y-Z) o (U-V-W-) R-L-P-
 
-The `G89` cycle is intended for boring. This cycle uses a P number,
-where P specifies the number of seconds to dwell.
+El 'G89' ciclo está destinado a aburrido. Este ciclo se utiliza un número P,
+donde P especifica el número de segundos que habitan.
 
- . Preliminary motion, as described above.
- . Move the Z-axis only at the current feed rate to the Z position. 
- . Dwell for the P number of seconds. 
- . Retract the Z-axis at the current feed rate to clear Z. 
+. Movimiento preliminar, como se describió anteriormente.
+. Mover el eje Z sólo en la velocidad de avance actual en la posición Z. 
+. Morar por el número P de segundos. 
+. Retraer el eje Z en la velocidad de alimentación de corriente para limpiar Z. 
 
-== G90, G91 Set Distance Mode[[sec:G90-G91-Set]](((G90, G91 Set Distance Mode)))
+== G90, G91 Set modalidad a distancia [[sec:G90-G91-Set]](((G90, G91 modalidad a distancia Set)))
 
-    G90 is Absolute Distance Mode +
-    G91 is Incremental Distance Mode
+    G90 es el modo Absolute Distance +
+    G91 es el modo de distancia incremental
 
-Interpretation of G Code can be in one of two distance modes: absolute
-or incremental.
+Interpretación de G Código puede estar en uno de los dos modos de distancia: absoluta
+o incremental.
 
-To go into absolute distance mode, program `G90`. In absolute 
-distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W) 
-usually represent positions in terms of the currently active coordinate 
-system. Any exceptions to that rule are described explicitly in 
-section <<sec:G81-G89>>. 
+Para entrar en modo absoluto la distancia, el programa de `G90`. En términos absolutos 
+modalidad a distancia, los números de los ejes (X, Y, Z, A, B, C, U, V, W) 
+por lo general representan las posiciones en cuanto a la coordinación activa 
+del sistema. Cualquier excepción a esta regla se describen explícitamente en 
+sección <<sec:G81-G89>>. 
 
-To go into incremental distance mode, program `G91`. In incremental 
-distance mode, axis numbers usually represent 
-increments from the current coordinate. 
+Para entrar en modo incremental la distancia, el programa de `G91`. En incremental 
+números de modalidad a distancia, por lo general representan el eje 
+incrementos de las coordenadas actual. 
 
-== G90.1, G91.1 Arc Distance Mode[[sec:G90.1-G91.1]](((Arc Distance Mode)))
+== G90.1, G91.1 Arco modalidad a distancia [[sec:G90.1-G91.1]](((Arco modalidad a distancia)))
 
-G90.1 Absolute Distance Mode for I, J & K offsets.
+G90.1 modalidad a distancia absoluta de que, las compensaciones de I, J & K.
 
- - I and J both must be specified or it is an error
+- I y J tanto debe ser especificado o es un error
 
-G91.1 Incremental Distance Mode for I, J & K offsets.
+G91.1 modo de distancia incremental para I, J & K compensaciones.
 
- - Returns I, J & K to their normal behavior.
+- Returns I, J & K a su comportamiento normal.
 
-== G92, G92.1, G92.2, G92.3 Coordinate System Offsets[[sec:G92-G92.1-G92.2-G92.3]](((G92, G92.1, G92.2, G92.3 Offsets)))
+== G92, G92.1, G92.2, G92.3 compensaciones sistema de coordenadas [[sec:G92-G92.1-G92.2-G92.3]](((G92, G92.1, G92.2, G92.3 compensaciones)))
 
-    G92 X- Y- Z- A- B- C- U- V- W-
+    G92 X-Y-Z-A-B-C-U-V-W-
 
-See Section <<cha:Coordinate-System>> for an overview of coordinate
-systems.
+Vea la sección <<cha:Coordinate-System>> para una descripción de coordinar
+sistemas.
 
-See Section <<sec:G92-Offsets>> for more information on Offsets.
+Vea la sección <<sec:G92-Offsets>> para obtener más información sobre las compensaciones.
 
-To make the current point have the coordinates you want (without
-motion), program `G92 X- Y- Z- A- B- C- U- V- W-`  , where the axis
-words contain the axis numbers you want. All axis
-words are optional, except that at least one must be used. If an axis
-word is not used for a given axis, the coordinate on that axis of the
-current point is not changed. It is an error if:
+Para hacer el punto actual de las coordenadas que desee (sin
+movimiento), el programa `G92 X-Y-Z-A-B-C-U-V-W-`, donde el eje
+palabras contienen los números de eje que desea. Todos los ejes
+las palabras son opcionales, excepto que al menos uno debe ser utilizado. Si un eje
+palabra no se utiliza para un eje dado, las coordenadas en que el eje de la
+punto actual no cambia. Es un error si:
 
- - all axis words are omitted.
+- Eje de todas las palabras se han omitido.
 
-When `G92` is executed, the origins of all coordinate systems move.
-They move
-such that the value of the current controlled point, in the currently
-active coordinate system, becomes the specified value. All coordinate
-system's origins are offset this same distance.
+Cuando `G92` se ejecuta, el origen de todos los sistemas de coordenadas se mueven.
+Se mueven
+de tal manera que el valor del punto de control actual, en la actualidad
+activa el sistema de coordenadas, se convierte en el valor especificado. Todas las coordenadas
+orígenes del sistema se compensan esta misma distancia.
 
-For example, suppose the current point is at X=4 and there is
-currently no `G92` offset active. Then `G92 x7` is programmed. This
-moves all origins -3 in X, which causes the
-current point to become X=7. This -3 is saved in parameter 5211.
+Por ejemplo, supongamos que el punto actual en X = 4 y es allí
+Actualmente no hay offset `G92` activa. A continuación, `G92` x7 está programado. Este
+mueve todos los orígenes -3 en X, que hace que el
+punto actual para convertirse en X = 7. Esta -3 se guarda en el parámetro 5211.
 
-Being in incremental distance mode has no effect on the action of `G92`.
+Estando en modo de distancia incremental no tiene ningún efecto sobre la acción de `G92`.
 
-`G92` offsets may be already be in effect when the `G92`  is called.
-If this is the case, the offset is replaced with a new
-offset that makes the current point become the specified value.
+`G92` compensaciones pueden estar ya en vigor cuando el G92 se llama.
+Si este es el caso, el desplazamiento es reemplazada por una nueva
+desplazamiento que hace que el punto actual a ser el valor especificado.
 
-To reset axis offsets to zero, program `G92.1` or `G92.2`. `G92.1`
-sets parameters 5211 to 5219 to zero, whereas `G92.2` leaves their
-current values alone.
+Para restablecer las compensaciones de eje a cero, el programa `G92.1` o `G92.2`. `G92.1` 
+establece los parámetros de 5211 a 5219 a cero, mientras que `G92.2` deja su
+valores actuales solo.
 
-To set the axis offset to the values saved in parameters 5211 to 5219,
-program `G92.3`.
+Para definir el eje de desplazamiento a los valores guardados en los parámetros de 5211 a 5219,
+programa `G92.3`.
 
-You can set axis offsets in one program and use the same offsets in
-another program. Program `G92`  in the first program. This will set
-parameters 5211 to 5219. Do not
- use `G92.1`  in the remainder of the first program. The parameter
-values will be
-saved when the first program exits and restored when the second one
- starts up. Use `G92.3`  near the beginning of the second program. That
-will restore the
-offsets saved in the first program.
+Puede establecer las compensaciones de eje en un solo programa y el uso de las compensaciones en el mismo
+otro programa. Programa `G92` en el primer programa. Esto fijará
+los parámetros de 5211 a 5219. No
+usar `G92.1` en el resto del primer programa. El parámetro
+Los valores se
+salvo cuando se sale del primer programa y restaura cuando el segundo
+se pone en marcha. Use `G92.3` cerca del comienzo del segundo programa. Que
+se restaurará la
+compensaciones salvo en el primer programa.
 
-EMC2 stores the G92 offsets and reuses them on the next run of a
-program. To prevent this, one can program a G92.1 (to erase them), or
-program a G92.2 (to remove them - they are still stored).
+EMC2 almacena el G92 compensaciones y los reutiliza en la próxima ejecución de un
+del programa. Para evitar esto, se puede programar un G92.1 (para eliminar), o
+un programa de G92.2 (para eliminarlos - que se conserva aún).
 
-== G93, G94, G95: Set Feed Rate Mode[[sec:G93-G94-G95-Mode]](((G93, G94, G95: Feed Rate Mode)))
+== G93, G94, G95: Feed Rate Set Mode[[sec:G93-G94-G95-modo]](((G93, G94, G95: Modo de velocidad de alimentación)))
 
-    G93 is Inverse Time Mode
-    G94 is Units per Minute Mode
-    G95 is Units per Revolution Mode.
+    G93 es el modo de Tiempo Inverso
+    G94 es el modo de unidades por minuto
+    G95 es el modo de unidades por la Revolución.
 
-Three feed rate modes are recognized: units per minute, inverse time,
-and units per revolution. Program G94 to start the units per minute
-mode. Program G93 to start the inverse time mode. Program G95 to start
-the units per revolution mode.
+Tres modos de velocidad de alimentación se reconocen: unidades por minuto, tiempo inverso,
+y las unidades por revolución. Programa G94 para iniciar la unidades por minuto
+modo. Programa G93 para iniciar el modo de tiempo inverso. Programa G95 para empezar
+las unidades por el modo de la revolución.
 
-In units per minute feed rate mode, an F word is interpreted to mean
-the controlled point should move at a certain number of inches per
-minute, millimeters per minute, or degrees per minute, depending upon
-what length units are being used and which axis or axes are moving.
+En unidades por minuto modo de avance, una palabra F se interpreta como
+el punto de control debe moverse en un cierto número de pulgadas por
+minutos, milímetros por minuto, o grados por minuto, dependiendo de
+lo que las unidades de longitud están siendo utilizados y que el eje o ejes se están moviendo.
 
-In units per revolution mode, an F word is interpreted to mean the
-controlled point should move a certain number of inches per revolution
-of the spindle, depending on what length units are being used and which
-axis or axes are moving. G95 is not suitable for threading, for
-threading use G33 or G76.
+En unidades por el modo de la revolución, una palabra de F se interpreta como la
+punto de control debe pasar un cierto número de pulgadas por revolución
+del eje, en función de las unidades de longitud que se están utilizando y que
+eje o ejes están en movimiento. G95 no es apropiado para roscar, para
+roscado uso G33 o G76.
 
-In inverse time feed rate mode, an F word means the move should be
-completed in [one divided by the F number] minutes. For example, if the
-F number is 2.0, the move should be completed in half a minute.
+En el modo de índice inverso tiempo de alimentación, una palabra F significa que el movimiento debe ser
+completado en [uno dividido por el número F] minutos. Por ejemplo, si el
+Número F es de 2.0, la medida debe ser completada en medio minuto.
 
-When the inverse time feed rate mode is active, an F word must appear
-on every line which has a G1, G2, or G3 motion, and an F word on a line
-that does not have G1, G2, or G3 is ignored. Being in inverse time feed
-rate mode does not affect G0 (rapid traverse) motions.
+Cuando el alimento de tiempo inverso modo de índice está activo, la palabra F debe aparecer
+en cada línea que tiene un G1, G2, G3 o el movimiento, y una palabra de F en una línea
+que no tiene G1, G2, G3 o se ignora. Estar en la alimentación de tiempo inverso
+el modo de tasa no afecta G0 (marcha rápida) movimientos.
 
-It is an error if:
+Es un error si:
 
- -  inverse time feed rate mode is active and a line with G1, G2, or G3
-   (explicitly or implicitly) does not have an F word.
- - A new feed rate is not specified after switching to G94 or G95
+- Alimentar a tiempo inverso modo de tasa activa y una línea con G1, G2 o G3
+   (Explícita o implícitamente) no tiene una palabra F.
+- Un nuevo avance no se especifica después de cambiar a G94 o G95
 
-== G96, G97 Spindle Control Mode[[sec:G96-G97-Spindle]](((G96, G97 Spindle Control Mode)))
+== G96, G97 del eje del modo de control[[sec:G96-G97-eje]](((G96, G97 modo de control del eje)))
 
-    G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode +
-    G97 is RPM Mode
+    G96 D [la velocidad del husillo max] S [unidades por minuto] es el modo de velocidad de corte constante +
+    G97 es el modo RPM
 
-Two spindle control modes are recognized: revolutions per minute, and
-CSS (constant surface speed). Program G96 D- S- to select constant
-surface speed of S feet per minute (if G20 is in effect) or meters per
-minute (if G21 is in effect). The maximum spindle speed is set by the
-D- number in revolutions per minute. 
+Dos modos de la varilla de mando son reconocidos: revoluciones por minuto, y
+CSS (velocidad de corte constante). Programa D-G96-S para seleccionar constante
+la superficie de la velocidad de los pies por minuto S (G-20 si está en vigor) o metros por
+minuto (G21 si está en vigor). La velocidad de giro máximo es fijado por el
+D-número de revoluciones por minuto. 
 
-When using G96, ensure that X0 in
-the current coordinate system (including offsets and tool lengths) is
-the center of rotation or EMC will not give the desired spindle speed. 
-G96 is not affected by radius or diameter mode.
+Cuando se utiliza G96, asegurar que en X0
+el sistema de coordenadas actual (incluyendo compensaciones y longitud de la herramienta) es
+el centro de rotación o de EMC no dará la velocidad de giro deseado. 
+G96 no se ve afectada por la radio o el modo de diámetro.
 
-Program G97 to select RPM mode.
+Programa G97 para seleccionar el modo RPM.
 
-It is an error if:
+Es un error si:
 
- - S is not specified with G96
- - A feed move is specified in G96 mode while the spindle is not turning
+- S no se especifica con el G96
+- Un movimiento de alimentación se especifica en el modo G96, mientras que el eje no está girando
 
-== G98, G99 Set Canned Cycle Return Level[[sec:G98-G99-Set]](((G98, G99 Canned Cycle Return)))
+== G98, G99 Ajustar los ciclos enlatados nivel de retorno[[sec:G98-G99-Set]](((G98, G99 Volver ciclo fijo)))
 
-   G98 Retract to the position that axis was in just before this series
-       of one or more contiguous canned cycles was started. +
-   G99 Retract to the position specified by the R word of the canned cycle. 
+   G98 retracción en la posición de ese eje se encontraba justo antes de esta serie
+       de uno o más ciclos fijos contiguos se inició. +
+   G99 retracción de la posición especificada por la palabra R del ciclo fijo. 
 
-When the spindle retracts during canned cycles, there
-are two options to indicate how it retracts: (1) Withdrawal perpendicular 
-to the current position to the position indicated by the R word, or (2) 
-Withdrawal perpendicular to the current position 
-to the position which was that of this axis just before the start of
-the canned cycle (unless the position is less than
-that indicated by the R word, in which case the latter will
-would be used).
+Cuando se retrae el cabezal durante los ciclos fijos, no
+dos opciones para indicar la forma en que se retrae: (1) perpendicular Retiro 
+a la posición actual a la posición indicada por la palabra R, o (2) 
+Retiro perpendicular a la posición actual 
+a la posición de que era la de este eje justo antes del inicio de la
+el ciclo fijo (a menos que la posición es inferior a
+la indicada por la palabra R, en cuyo caso éste se
+se utiliza).
 
-To use (1), program `G99`. To use (2), program `G98`. 
-Remember that the R word has different meanings mode
-absolute displacement and incremental mode of travel.
+Para utilizar (1), el programa 'G99'. Para utilizar (2), el programa 'G98'. 
+Recordemos que la palabra R tiene el modo de significados diferentes
+desplazamiento absoluto y modo incremental de los viajes.
 
-The "initial" (G98) plane is reset any time cycle motion mode is
-abandoned, whether explicitly (G80) or implicitly (any motion code
-that is not a cycle).  Switching among cycle modes (say G81
-to G83) does NOT reset the "initial" plane. It is possible to switch
-between G98 and G99 during a series of cycles.
-
-= M Codes
+La "primera" (G98) avión se restablece cualquier ciclo de tiempo del modo de cámara está
+abandonados, ya sea explícitamente (G80) o implícitamente (cualquier código de movimiento
+que no es un ciclo).  Cambiar entre los modos de ciclo (por ejemplo G81
+a G83) no restablece el "primer" avión. Es posible cambiar
+G98 y G99 entre en una serie de ciclos.
+
+= M Códigos
 
-== M0, M1, M2, M30, M60 Program Stopping and Ending[[sec:M0-M1-M2]]
-(((M0 Program Stop)))(((M1 Program Optional Stop)))
-(((M2 Program End)))(((M30 Program End)))(((M60 Program End)))
-
-To pause a running program temporarily 
-(regardless of the setting of the optional stop switch), 
-program M0. 
-EMC2 remains in the Auto Mode so MDI and 
-other manual actions are not enabled.
-
-To pause a running program temporarily 
-(but only if the optional stop switch is on), 
-program M1. 
-EMC2 remains in the Auto Mode so MDI and 
-other manual actions are not enabled.
+== M0, M1, M2, M30, M60 Programa de Detención y final [[sec:M0-M1-M2]]
+(((M0 detener el programa )))((( M1 detener el programa opcional)))
+(((Fin de programa M2)))(((M30 Fin del programa)))(((M60 Fin del programa)))
+
+Para poner en pausa un programa en ejecución temporalmente 
+(Independientemente de la configuración del interruptor de parada opcional), 
+programa de `M0`. 
+EMC2 permanece en el modo automático para MDI y 
+otras acciones manuales no están habilitadas.
+
+Para poner en pausa un programa en ejecución temporalmente 
+(Pero sólo si el interruptor de parada opcional en), 
+programa de `M1`. 
+EMC2 permanece en el modo automático para MDI y 
+otras acciones manuales no están habilitadas.
 
-It is OK to program `M0` and `M1` in MDI mode, 
-but the effect will probably not be noticeable, 
-because normal behavior in MDI mode is 
-to stop after each line of input anyway.
+Está bien el programa `M0` y `M1` en el modo MDI, 
+pero el efecto probablemente no se note, 
+debido a un comportamiento normal en el modo MDI se 
+para detenerse después de cada línea de entrada de todos modos.
 
-To exchange pallet shuttles and then stop a running program
-temporarily (regardless of the setting of the optional stop switch),
-program `M60`.
-
-If a program is stopped by an `M0`, `M1`, or `M60`, pressing the
-cycle start button will restart the program at the following line.
-
-To end a program, program `M2`. 
-To exchange pallet shuttles and then end a program, program `M30`. 
-Both of these commands have the following effects: 
+Para el intercambio de transbordadores de palets y luego se detiene un programa en ejecución
+temporalmente (independientemente de la configuración del interruptor de parada opcional),
+programa `M60`.
+
+Si un programa se detiene por un `M0`,`M1`, o `M60`, al pulsar el
+botón de inicio de ciclo se reiniciará el programa en la siguiente línea.
+
+Para finalizar un programa, el programa `M2`. 
+Para el intercambio de transbordadores de palets y después terminar un programa, el programa `M30`. 
+Ambos comandos tienen los siguientes efectos: 
 
- . Change from Auto mode to MDI mode.
- . Origin offsets are set to the default (like `G54`).
- . Selected plane is set to XY plane (like `G17`). 
- . Distance mode is set to absolute mode (like `G90`). 
- . Feed rate mode is set to units per minute (like `G94`).
- . Feed and speed overrides are set to ON (like `M48`). 
- . Cutter compensation is turned off (like `G40`). 
- . The spindle is stopped (like `M5`). 
- . The current motion mode is set to feed (like `G1`). 
- . Coolant is turned off (like `M9`). 
-
-No more lines of code in an RS274/NGC file will be executed 
-after the M2 or M30 command is executed. 
-Pressing cycle start will start the program 
-at the beginning of the file.
-
-== M3, M4, M5 Spindle Control[[sec:M3-M4-M5]]
-(((M3 Spindle CW)))(((M4 Spindle CCW)))(((M5 Spindle Stop)))
-
-To start the spindle clockwise at the "S" speed, program `M3`. +
-To start the spindle counterclockwise at the "S" speed, program `M4`. +
-To stop the spindle from turning, program `M5`.
-
-It is OK to use `M3` or `M4` if the spindle speed is set to zero. 
-If this is done 
-(or if the speed override switch is enabled and set to zero), 
-the spindle will not start turning. 
-If, later, the spindle speed is set above zero 
-(or the override switch is turned up), 
-the spindle will start turning. 
-It is OK to use `M3` or `M4` when the spindle is already 
-turning or to use `M5` when the spindle is already stopped.
-
-== M6 Tool Change[[sec:M6-Tool-Change]](((M6-Tool-Change)))
-
-=== Manual Tool Change
-
-If the HAL component hal_manualtoolchange is loaded, 
-M6 will stop the spindle and prompt the user to change the tool. 
-For more information on hal_manualtoolchange see 
-Section (<<sec:Manual-Tool-Change>>)
-
-=== Tool Changer
-
-To change a tool in the spindle from the tool currently in the spindle
-to the tool most recently selected (using a T word - see Section 
-<<sub:T-Select-Tool>>), program `M6`. 
-When the tool change is complete:
-
- - The spindle will be stopped. 
- - The tool that was selected (by a T word on the same line or on any
-   line after the previous tool change) will be in the spindle. 
-   The T number is an integer giving the 
-   changer slot of the tool (not its id).
- - If the selected tool was not in the spindle before the tool change,
-   the tool that was in the spindle 
-   (if there was one) 
-   will be in its changer slot. 
- - If configured in the .ini file some axis positions may move when a M6
-   is issued. See the EMCIO section of the Integrator's Manual for more
-   information on tool change options.
- - No other changes will be made. For example, coolant will continue to
-   flow during the tool change unless it has been turned off by an `M9`. 
- - The tool length offset is not changed, 
-   use G43 to change the tool length offset.
-
-The tool change may include axis motion. 
-It is OK (but not useful) to program a change to the tool already in the spindle. 
-It is OK if there is no tool in the selected slot; 
-in that case, the spindle will be empty after the tool change. 
-If slot zero was last selected, 
-there will definitely be no tool in the spindle after a tool change.
-
-== M7, M8, M9 Coolant Control[[sec:M7-M8-M9]]
-(((M7 Mist Coolant)))(((M8 Flood Coolant)))(((M9 Coolant Off)))
-
-To turn mist coolant on, program `M7`. +
-To turn flood coolant on, program `M8`. +
-To turn all coolant off, program `M9`.
-
-It is always OK to use any of these commands, 
-regardless of what coolant is on or off.
-
-== Overrides [[sec:Overrides]]
-
-=== M48, M49 Override Control[[sub:M48-Both-Override]][[sub:M49-Neither-Override]](((M48, M49 Override Control)))
-
-To enable the spindle speed and feed rate override controls, program `M48`. 
-To disable both controls, program `M49`. 
-See Section <<sub:Feed-Interaction>> for more details. 
-It is OK to enable or disable the controls when 
-they are already enabled or disabled. 
-These controls can also be toggled individually 
-using M50 and M51 as described in the 
-sections <<sub:M50-Feed-Override>> and <<sub:M51-Spindle-Override>>.
-
-=== M50 Feed Override Control[[sub:M50-Feed-Override]](((M50 Feed Override Control)))
-
-To enable the feed rate override control, 
-program `M50` or `M50 P1`. 
-To disable the control, program `M50 P0`. 
-While disabled the feed override will have no influence, 
-and the motion will be executed at programmed feed rate. 
-(unless there is an adaptive feed rate override active).
-
-=== M51 Spindle Speed Override Control[[sub:M51-Spindle-Override]](((M51 Spindle Speed Override)))
-
-To enable the spindle speed override control, 
-program `M51` or `M51 P1`. 
-To disable the control program `M51 P0`. 
-While disabled the spindle speed override 
-will have no influence, and the spindle speed 
-will have the exact program specified value
-(using the S-word as described in <<sub:S-Set-Spindle>>).
-
-=== M52 Adaptive Feed Control[[sub:M52-Adaptive-Feed-Control]](((M52 Adaptive Feed Control)))
-
-To use an adaptive feed, program `M52` or `M52 P1`. 
-To stop using adaptive feed, program `M52 P0`. 
-When adaptive feed is enabled, 
-some external input value is used together with the 
-user interface feed override value and 
-the commanded feed rate to set the actual feed rate. 
-In EMC2, the HAL pin `motion.adaptive-feed` is used for this purpose. 
-Values on `motion.adaptive-feed` should range 
-from 0 (feed hold) to 1 (full speed).
-
-=== M53 Feed Stop Control[[sub:M53-Feed-Stop-Control]](((M53 Feed Stop Control)))
-
-To enable the feed stop switch, program `M53` or `M53 P1`. To disable
-the switch program `M53 P0` . Enabling the feed stop switch will allow
-motion to be interrupted by means of the feed stop control. 
-In EMC2, the HAL pin `motion.feed-hold` is used for this purpose. 
-Values of 1 will cause the motion to stop (if `M53` is active). 
-
-== M61 Set Current Tool Number[[sec:M61-Set-Current-Tool-Number]](((M61 Set Current Tool Number)))
-
-To change the current tool number while in MDI or Manual mode program
-a M61 Qxx in the MDI window. One use is when you power up EMC with a
-tool currently in the spindle you can set that tool number without
-doing a tool change.
-
-    It is an error if:
-
- - Q- is not 0 or greater
-
-== M62 to M65 Output Control[[sec:M62-to-M65]](((M62 to M65 Output Control)))
-
-To control a digital output bit, program `M- P-`, where the M-word
-ranges from 62 to 65, and the P-word ranges from 0 
-to a default value of 3. If needed the the number of I/O can be
-increased by using the num_dio parameter when loading the motion
-controller. See the Integrator's Manual Configuration Section EMC and
-HAL section for more information.
-
- - The P- word specifies the digital output number.
+. Cambio de modo automático al modo MDI.
+. Las compensaciones de origen se establecen en el valor por defecto (como `G54`).
+. Plano seleccionado está en el plano XY (como `G17`). 
+. Modalidad a distancia está en modo absoluto (como `G90`). 
+. El modo de alimentación tasa se establece en unidades por minuto (como `G94`).
+. Anula avance y la velocidad se establece en ON (como `M48`). 
+. Compensación de cortador está apagado (como `G40`). 
+. El cabezal está parado (como `M5`). 
+. El modo de movimiento actual se establece en los piensos (como `G1`). 
+. Refrigerante se apaga (como `M9`). 
+
+No hay más líneas de código en un archivo de RS274/NGC se ejecutará 
+después del comando M2 o M30 se ejecuta. 
+Al pulsar inicio del ciclo se iniciará el programa 
+en el principio del archivo.
+
+== M3, M4, M5 de control del eje [[sec:M3-M4-M5]]
+(((M3 eje CW CCW )))((( eje M4 M5 )))((( Parada del cabezal)))
+
+Para iniciar el huso horario en la "S" de velocidad, el programa `M3`. +
+Para iniciar el cabezal a izquierdas en la "S" de velocidad, el programa `M4`. +
+Para detener el eje de giro, el programa `M5`.
+
+No hay problema en usar `M3` o `M4` si la velocidad de giro se ajusta a cero. 
+Si esto se hace 
+(O si el interruptor de cancelación de velocidad se habilita y se puso a cero), 
+el eje no empezará a girar. 
+Si, más tarde, la velocidad de giro se encuentra por encima de cero 
+(O el interruptor de cancelación está activado), 
+el eje comenzará a girar. 
+No hay problema en usar `M3` o `M4` cuando el cabezal ya está 
+giro o el uso de `M5` cuando el cabezal se ha detenido.
+
+== M6 Cambio de herramienta [[sec:M6-Tool-Cambio]](((M6-Tool-Change)))
+
+=== Cambio de herramienta manual
+
+Si el componente hal_manualtoolchange HAL está cargado, 
+M6 parará el cabezal y pedir al usuario cambiar la herramienta. 
+Para más información sobre hal_manualtoolchange ver 
+Sección (<<sec:Manual-Tool-Change>>)
+
+=== Cambiador de herramientas
+
+Para cambiar una herramienta en el eje de la herramienta que está en el eje
+a la herramienta más recientemente seleccionado (usando una palabra T - véase la Sección 
+<<sub:T-Select-Tool>>), El programa `M6`. 
+Cuando el cambio de herramienta es completa:
+
+- El eje se detendrá. 
+- La herramienta que se ha seleccionado (por una palabra T en la misma línea o en cualquier
+   línea después del cambio de la herramienta anterior) se encuentra en el cabezal. 
+   El número de T es un entero que indica la 
+   cambiador de la ranura de la herramienta (no su id).
+- Si la herramienta seleccionada no se encuentra en el cabezal antes de que el cambio de herramienta,
+   la herramienta que se encuentra en el cabezal 
+   (Si la hubo) 
+   estará en la ranura del cambiador. 
+-. Si se ha configurado en el archivo ini algunas posiciones de los ejes pueden moverse cuando un M6
+   se emite. Vea la sección EMCIO del Manual del Integrador para obtener más
+   información sobre las opciones de cambio de herramienta.
+- No hay otros cambios se harán. Por ejemplo, el refrigerante continuará
+   flujo durante el cambio de herramienta a menos que se haya apagado por un `M9. 
+- La longitud de herramienta no se cambia, 
+   utilizar G43 para cambiar la longitud de herramienta.
+
+El cambio de herramienta puede incluir el movimiento del eje. 
+Que está bien (pero no muy útiles) para programar un cambio de la herramienta ya está en el eje. 
+Está bien si no existe una herramienta en la ranura seleccionada; 
+en ese caso, el eje estará vacío después de que el cambio de herramienta. 
+Si es cero slot seleccionado en último lugar, 
+definitivamente habrá ninguna herramienta en el cabezal tras un cambio de herramienta.
+
+== M7, M8, M9 refrigerante de control [[sec:M7-M8-M9]]
+(((M7 niebla refrigerante )))(((M8 inundación de refrigerante líquido refrigerante)))(((M9 Off)))
+
+Para activar el refrigerante en la niebla, el programa `` M7. +
+Para activar el refrigerante de inundación en, el programa 'M8'. +
+A su vez, todo el refrigerante fuera, el programa `` M9.
+
+Siempre es conveniente usar cualquiera de estos comandos, 
+independientemente de lo que el refrigerante está encendido o apagado.
+
+== Invalida[[s:Anula]]
+
+=== M48, M49 anulación de control[[sub:M48-Ambos-Override]][[sub:M49-Ni-Anular]](((M48, M49 control de anulación)))
+
+Para permitir que la velocidad de giro y los controles de velocidad de avance de invalidación, el programa `M48. 
+Para desactivar los controles, el programa 'M49'. 
+Vea la sección <<sub:Feed-Interaction>> para más detalles. 
+Está bien para activar o desactivar los controles cuando 
+que ya están activados o desactivados. 
+Estos controles también se puede activar de forma individual 
+con M50 y M51 como se describe en el 
+secciones <<sub:M50-Feed-Override>> y <<sub:M51-Spindle-Override>>.
+
+=== M50 Alimentación anulación de control[[sub:M50-Feed-Anular]](((M50 Alimentación anulación de control)))
+
+Para permitir que la velocidad de avance control de anulación, 
+programa `M50` o `M50 P1`. 
+Para desactivar el control, el programa `M50 P0`. 
+Mientras que las personas con discapacidad anular alimentación no tendrá ninguna influencia, 
+y el movimiento se ejecutará al avance programado. 
+(A menos que haya una adaptación velocidad de alimentación anular activo).
+
+=== Husillo M51 de la velocidad de control[[sub:M51-eje-Anular]](((husillo M51 anulación de velocidad)))
+
+Para habilitar el control de la velocidad de giro de invalidación, 
+programa `` o `M51 M51 'P1. 
+Para desactivar el programa de control 'M51' P0. 
+Mientras que la velocidad de giro con discapacidad anular 
+no tendrá ninguna influencia, y la velocidad del husillo 
+tendrá el valor exacto del programa especificado
+(Con el S-palabra como se describe en <<sub:S-Set-Spindle>>).
+
+=== M52 control adaptativo de la alimentación [[sub:M52-adaptativa-Feed-Control]](((M52 Feed Control Adaptativo)))
+
+Para utilizar una fuente de adaptación, el programa `` o `M52 M52 P1 '. 
+Para dejar de utilizar alimento de adaptación, el programa 'M52' P0. 
+Cuando el alimento de adaptación es activado, 
+un valor de entrada externa se utiliza junto con la 
+interfaz de usuario de alimentación anular el valor y 
+la alimentación de mando tasa para establecer la velocidad de avance real. 
+En EMC2, el HAL pin `motion.adaptive de alimentación 'se utiliza para este propósito. 
+Los valores en `motion.adaptive de alimentación` debe oscilar 
+de 0 (mantener alimentar) a 1 (máxima velocidad).
+
+=== M53 Feed Control Stop [[sub:M53-Feed-Stop-Control]](((M53 tope de control de alimentación)))
+
+Para habilitar la parada de alimentar a cambiar, el programa `` o `M53 M53 P1 '. Para desactivar el
+el programa `switch M53 P0 '. Permitiendo el interruptor de parada de alimentación le permitirá
+moción para ser interrumpido por medio del control de parada de alimentación. 
+En EMC2, el pasador de HAL `motion.feed-hold 'se utiliza para este propósito. 
+Los valores de 1, hará que el movimiento se detenga (si 'M53' se activa). 
+
+== M61 Fijación del Número de la herramienta actual [[sec:M61-Set-actual-Tool-Numero]](((M61 Número Juego de herramientas actual)))
+
+Para cambiar el número actual de la herramienta, mientras que en inhaladores de dosis medidas o el programa de modo manual
+Qxx un M61 en la ventana MDI. Un uso es cuando se enciende con una EMC
+herramienta que está en el eje se puede establecer que el número de herramienta sin
+hacer un cambio de herramienta.
+
+    Es un error si:
+
+- Q-no es 0 o mayor
+
+== M62 para controlar la salida M65 [[sec:M62-a-M65]](((para controlar la salida M65)))
+
+Para controlar un poco la salida digital, el programa `M- P-`, donde el M-palabra
+oscila entre 62 a 65, y los rangos de P-palabra de 0 
+a un valor predeterminado de 3. Si es necesario el número de E / S se puede
+aumentó con el parámetro num_dio al cargar el movimiento
+controlador. Ver el Manual de configuración para los integradores de EMC y de la Sección
+HAL para obtener más información.
+
+- El P-palabra especifica el número de salidas digitales.
 
 M62::(((M62)))
-    Turn on digital output synchronized with motion
+    A su vez en la salida digital sincronizado con el movimiento
 
 M63::(((M63)))
-    Turn off digital output synchronized with motion
+    Apagar la salida digital sincronizado con el movimiento
 
 M64::(((M64)))
-    Turn on digital output immediately
+    A su vez en la salida digital de inmediato
 
 M65::(((M65)))
-    Turn off digital output immediately
+    Desactivar la salida digital de forma inmediata
 
-The M62 & M63 commands will be queued. Subsequent commands referring
-to the same output number will overwrite the older settings. More than
-one output change can be specified by issuing more than one M62/M63
-command.
+La M62 y M63 comandos se pondrán en cola. Acciones posteriores se refiere
+con el número misma salida se sobreponen a los valores anteriores. Más que
+un cambio en la salida se puede especificar mediante la emisión de más de un M62/M63
+comandos.
 
-The actual change of the specified outputs will happen at the
-beginning of the next motion command. If there is no subsequent motion
-command, the queued output changes won't happen. It's best to always
-program a motion g-code (G0, G1, etc) right after the M62/63.
+El cambio real de los resultados especificados va a pasar en el
+principio del comando siguiente movimiento. Si no hay ningún movimiento posterior
+comando, los cambios en la cola de salida no va a suceder. Lo mejor es siempre
+programa de un movimiento de código G (G0, G1, etc) justo después de la M62/63.
 
-M64 & M65 happen immediately as they are received by the motion
-controller. They are not synchronized with movement, and they will
-break blending.
+M64 y M65 ocurrir de inmediato, ya que son recibidos por el movimiento
+controlador. Ellos no están sincronizados con el movimiento, y que
+romper la mezcla.
 
-== M66 Input Control[[sec:M66-Input-Control]](((M66 Input Control)))
+== M66 de entrada de control[[sec:M66-Input-Control]]((( M66 de control de entrada)))
 
-To read the value of an analog or digital input pin, program 
-`M66 P- E- L- Q-`, where the P-word and the E-word ranges 
-from 0 to 3. If needed, the the number of I/O can be increased 
-by using the num_dio or num_aio parameter when 
-loading the motion controller. See the Integrator's
-Manual, Configuration Section, EMC and HAL subsection, for more
-information. 
-Only one of the P or E words must be present. 
-It is an error if they are both missing.
+Para leer el valor de un pin de entrada analógica o digital, programa de 
+`M66 P-E-L-Q-', donde la palabra-P y los intervalos de la palabra E- 
+0 a 3. Si es necesario, el número de E / S se puede aumentar 
+con el parámetro num_dio o cuando num_aio 
+cargar el controlador de movimiento. Ver el integrador de
+Manual, sección de configuración, EMC y el inciso HAL, para más
+de la información. 
+Sólo uno de los P o palabras E deben estar presentes. 
+Es un error si ambos están desaparecidos.
 
 M66::(((M66)))
-    Wait on an input
+    Espera en una entrada
 
- - The P- word specifies the digital input number. 
- - The E- word specifies the analog input number. 
- - The L- word specifies the wait type:
+- El P-palabra especifica el número de entradas digitales. 
+- El E-palabra especifica el número de entradas analógicas. 
+- La L-palabra especifica el tipo de espera:
 
-   0:: WAIT_MODE_IMMEDIATE - no waiting, returns immediately. 
-       The current value of the input is stored in parameter #5399
-   1:: WAIT_MODE_RISE - waits for the selected input to perform a rise event.
-   2:: WAIT_MODE_FALL - waits for the selected input to perform a fall event.
-   3:: WAIT_MODE_HIGH - waits for the selected input to go to the HIGH state.
-   4:: WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
+   0:: WAIT_MODE_IMMEDIATE - sin esperas, vuelve inmediatamente. 
+       El valor actual de la entrada se almacena en el parámetro # 5399
+   1:: WAIT_MODE_RISE - espera para la entrada seleccionada para llevar a cabo un evento de origen.
+   2:: WAIT_MODE_FALL - espera para la entrada seleccionada para llevar a cabo un evento de otoño.
+   3:: WAIT_MODE_HIGH - espera para la entrada seleccionada a ir al estado ALTO.
+   4:: WAIT_MODE_LOW - espera para la entrada seleccionada para ir al estado BAJO.
 
- -  The Q-word specifies the timeout for the waiting. If the timeout is
-   exceeded, the wait is interrupt, and the variable #5399 will be holding
-   the value -1. The Q value is ignored if the L-word is zero (IMMEDIATE).
-   A Q value of zero is an error if the L-word is non-zero.
- - Mode 0 is the only one permitted for an analog input.
+- El Q-palabra especifica el tiempo de espera para la espera. Si el tiempo de espera es
+   superado, la espera se interrumpe, y la variable # 5399 será la celebración de ser
+   el valor -1. El valor de Q se ignora si la L-palabra es igual a cero (inmediata).
+   AQ valor de cero es un error si la L-palabra no es cero.
+- Modo 0 es el único permitido para una entrada analógica.
 
-M66 wait on an input stops further execution of the program, until the
-selected event (or the programmed timeout) occurs.
+M66 esperar en una entrada detiene la ejecución ulterior del programa, hasta que el
+evento seleccionado (o el tiempo de espera programado) se produce.
 
-It is an error to program M66 with both a P-word and an E-word (thus
-selecting both an analog and a digital input).In EMC2 these inputs are
-not monitored in real time and thus should not be used for
-timing-critical applications.
+Se trata de un error de programa M66 tanto con un P-palabra y una palabra de E-(por lo tanto
+seleccionar tanto una analógica y una entrada digital). EMC2 en estas entradas son
+no se controla en tiempo real y por lo tanto no debe utilizarse para
+momento las aplicaciones críticas.
 
-== M67 Analog Output[[sec:M67-Analog-Output]](((M67 Analog Motion Output Control)))
+== M67 salida analógica [[sec:M67-analogico-de-salida]](((M67 Control de la salida analógica de movimiento)))
 
-To control an analog output synchronized with motion, program 
-`M67 E- Q-`, where the E word ranges from 0 to the default maximum 
-of 3 and Q is the value to set. The number of I/O can be increased by 
-using the num_aio parameter when loading the motion controller. See the 
-"EMC2 and HAL" chapter in the Configuration Section of the Integrator 
-Manual for more information on the Motion Controller. M67 functions the 
-same as M62-63. See the M62-65 section for information about queuing 
-output commands synchronized with motion.
+Para el control de una salida analógica sincronizado con el movimiento, el programa de 
+'M67-Q-E', donde los rangos de palabra E desde 0 hasta el máximo predeterminado 
+de 3 y Q es el valor de conjunto. El número de I / O se puede aumentar 
+utilizando el parámetro num_aio al cargar el controlador de movimiento. Ver el 
+"EMC2 y HAL" capítulo en la sección de configuración del integrador 
+Manual para obtener más información sobre el controlador de movimiento. Las funciones de la M67 
+igual que M62-63. Vea la sección M62-65 para obtener información sobre colas 
+comandos de salida sincronizada con el movimiento.
 
-== M68 Analog Output[[sec:M68-Analog-Output]](((M68 Analog Aux Output Control)))
+== M68 salida analógica[[sec:M68-analogico de salida]](((M68 con mando analógico de salida Aux)))
 
-To control an analog output immediately, program `M68 E- Q-, ` where
-the E word ranges from 0 to the default maximum of 3 and Q is
-the value to set. The number of I/O can be increased by using the
-num_aio parameter when loading the motion controller. See the "EMC2 and
-HAL" chapter in the Configuration Section of the Integrator's Manual for
-more information on the Motion Controller. M68 functions the same as
-M64-65. See the M62-65 section for information about immediate output
-commands.
+Para el control de una salida analógica de inmediato, el programa 'E-M68-Q, donde`
+la palabra E va de 0 al máximo por defecto de 3 y Q
+el valor de conjunto. El número de I / O se puede aumentar mediante el uso de la
+num_aio parámetro al cargar el controlador de movimiento. Ver el EMC2 ", y
+HAL "capítulo en la sección de configuración del Manual del Integrador para
+más información sobre el controlador de movimiento. M68 funciona igual que
+M64-65. Vea la sección M62-65 para obtener información sobre la salida inmediata
+comandos.
 
-== M100 to M199 User Defined Commands[[sec:M100-to-M199]](((M100 to M199 User Defined Commands)))
+== M100 a M199 comandos definidos por el usuario [[sec:M100-a-M199]](((comandos definidos por el usuario)))
 
-To invoke a user-defined command, program `M1nn P- Q-` where `P-` and `Q-`
-are both optional and must be a number. The external program "M1nn"
-must be in the directory named in [DISPLAY] PROGRAM_PREFIX in the ini
-file and is executed with the P and Q values as its two arguments.
-Execution of the RS274NGC file pauses until the invoked program exits.
-Any valid executable file can be used.
+Para invocar un comando definido por el usuario, el programa `M1nn P-Q-`, donde `P` y `-Q-`
+son opcionales y debe ser un número. El programa externo "M1nn"
+debe estar en el directorio con el nombre de [DISPLAY] PROGRAM_PREFIX en el ini
+archivo y se ejecuta con la P y Q valores como sus dos argumentos.
+La ejecución del archivo RS274NGC se detiene hasta que se sale del programa invocado.
+Cualquier archivo ejecutable válido puede ser utilizado.
 
-The error "Unknown M code used" denotes one of the following
+El error "código M Desconocido utilizados" se refiere a uno de los siguientes
 
- - The specified User Defined Command does not exist
- - The file is not an executable file
+- El comando especificado definido por el usuario no existe
+- El archivo no es un archivo ejecutable
 
-For example to open and close a collet closer that is controlled by a
-parport pin using a bash script file using M101 and M102. Create two
-files called M101 and M102. Set them as executable files (typically
-right click/properties/permissions) before running EMC2. Make sure the
-parport pin is not connected to anything in a HAL file.
+Por ejemplo, para abrir y cerrar una pinza más cerca que está controlado por un
+pin parport utilizando un archivo script bash con M101 y M102. Crear dos
+archivos llamados M101 y M102. Establecer como archivos ejecutables (por lo general
+botón derecho / propiedades / permisos) antes de ejecutar EMC2. Asegúrese de que el
+parport pin no está conectado a nada en un archivo HAL.
 
-M101 (file name)
+M101 (nombre de archivo)
 
-    #!/bin/sh
-    # file to turn on parport pin 14 to open the collet closer
+    #!/Bin/sh
+    # Archivo para activar el parport pin 14 para abrir la pinza más cerca
     halcmd setp parport.0.pin-14-out True
     exit 0
 
-M102 (file name)
+M102 (nombre de archivo)
 
-    #!/bin/sh
-    # file to turn off parport pin 14 to open the collet closer
+    #!/Bin/sh
+    # Archivo para apagar parport pin 14 para abrir la pinza más cerca
     halcmd setp parport.0.pin-14-out False
     exit 0
 
-To pass a variable to a M1nn file you use the P and Q option like this:
+Para pasar una variable a un archivo M1nn utilizar el P y Q de esta opción:
 
     M100 P123.456 Q321.654
 
-In your M100 file it might look like this:
+En el archivo de M100 que podría tener este aspecto:
 
-    #!/bin/sh
-    voltage=$1
-    feedrate=$2
+    #!/Bin/sh
+    voltage = $1
+    feedrate = $2
     halcmd setp thc.voltage $voltage
     halcmd setp thc.feedrate $feedrate
     exit 0
 
-= O Codes[[cha:O-Codes]](((O Codes)))
+= O códigos[[cha:O-codigos]](((O Códigos)))
 
-O-codes provide for flow control in NC programs. Each block has an
-associated number, which is the number used after O. Care must be taken
-to properly match the O-numbers. O codes use the letter "O" not the
-number zero as the first character in the number like O100.
+O-códigos de proporcionar control de flujo en los programas NC. Cada bloque tiene una
+número de asociados, que es el número que se usa después de la O. Se debe tener cuidado
+adecuadamente para que coincida con el número S-. O utilizar los códigos de la letra "O" no es el
+número cero como primer carácter en el número como Ø100.
 
-The behavior is undefined if:
+El comportamiento no está definido si:
 
- - Other words are used on a line with an O- word
- - Comments are used on a line with an O-word
+- Otras palabras se usan en una línea con una junta palabra
+- Los comentarios se utilizan en una línea con una junta palabra
 
-== Subroutines: sub, endsub, return, call (((Subroutines: sub, endsub, return, call)))
+== Subrutinas: sub, endsub, regreso, llame al (((Subrutinas: sub, endsub, regreso, llame)))
 
-Subroutines extend from a `O- sub` to an `O- endsub` . The lines
-inside the subroutine (the "body") are not executed in
-order; instead, they are executed each time the subroutine is called
-with `O- call`. 
+Subrutinas se extienden desde un `O-sub` a una 'O-endsub `. Las líneas
+dentro de la subrutina (el "cuerpo") no se ejecutan en
+orden, sino que se ejecutan cada vez que se llama la subrutina
+con `O-llamada. 
 
-    O100 sub (subroutine to move to machine home)
+    o100 sub (subrutina para mover a la casa de máquinas)
     G0 X0 Y0 Z0
-    O100 endsub
-    (many intervening lines)
-    O100 call
+    o100 endsub
+    (Número de líneas de intervención)
+    o100 call
 
-Inside a subroutine, `O- return`  can be executed. This immediately
-returns to the calling code, just
-as though `O- endsub` was encountered.
+Dentro de una subrutina, `O-return` puede ser ejecutado. Esto inmediatamente
+vuelve al código de llamada, sólo
+como si `O-endsub` se encontró.
 
-`O- call` takes up to 30 optional arguments, which are passed to the
-subroutine
- as `#1`, `#2` , ..., #N. Parameters from #N+1 to #30 have the same
-value as in the
-calling context. On return from the subroutine, the values of
-parameters #1 through #30 (regardless of the number of arguments) will
-be restored to the values they had before the call. Parameters #1 - #30
-are local to the subroutine.
+`O-call` toma hasta 30 argumentos opcionales, que se pasan a la
+subrutina
+como '# 1', '# 2', ..., N. # Parámetros de # N 1 al # 30 tienen la misma
+valor como en el
+llamando a su contexto. Al volver de la subrutina, los valores de
+parámetros del # 1 al # 30 (independientemente del número de argumentos) se
+ser restaurado a los valores que tenían antes de la llamada. Parámetros # 1 - # 30
+son locales a la subrutina.
 
-Because "`1 2 3` " is parsed as the number 123, the parameters must be
-enclosed in
-square brackets. The following calls a subroutine with 3 arguments:
+Debido a que "`1 2 3`" se analiza como el número 123, los parámetros deben ser
+encerrado en
+entre corchetes. El siguiente se llama a una subrutina con tres argumentos:
 
-    O200 call [1] [2] [3]
+    O200 llame al [1] [2] [3]
 
-Subroutine bodies may not be nested. They may only be called after
-they are defined. They may be called from other functions, and may call
-themselves recursively if it makes sense to do so. The maximum
-subroutine nesting level is 10.
+Cuerpos subrutina no se pueden anidar. Sólo se puede llamar después de
+se definen. Se les puede llamar de otras funciones, y la llamada puede
+ellos mismos de forma recursiva si tiene sentido hacerlo. El máximo
+el nivel de imbricación de subrutinas es de 10.
 
-Subroutines do not have "return values", but they may change the value
-of parameters above #30 and those changes will be visible to the
-calling code. Subroutines may also change the value of global named
-parameters.
+Subrutinas no tienen "valor de retorno", pero se puede cambiar el valor
+de los parámetros por encima de # 30 y esos cambios serán visibles para el
+código de llamada. Subrutinas también puede cambiar el valor de nombre global
+parámetros.
 
-== Looping: do, while, endwhile, break, continue (((Looping: do, while, endwhile, break, continue)))
+== Looping: hacer, mientras que, endwhile, break, continue (((bucle: hacer, mientras que, endwhile, break, continue)))
 
-The "while loop" has two structures: while/endwhile, and do/while. In
-each case, the loop is exited when the "while" condition evaluates to
-false.
+El "while" tiene dos estructuras: mientras que / endwhile, y do / while. En
+cada caso, se sale del bucle cuando el "mientras" condición se evalúa como
+falsa.
 
-    (draw a sawtooth shape)
+    (Dibujar una forma de diente de sierra)
     F100
-    #1 = 0
-    O101 while [#1 lt 10]
+    # 1 = 0
+    O101 while [# 1 lt 10]
     G1 X0
-    G1 Y[#1/10] X1
-    #1 = [#1+1]
+    G1 Y [# 1 / 10] X1
+    # 1 = [# 1 +1]
     O101 endwhile
 
-Inside a while loop, `O- break` immediately exits the loop, and `O-
-continue` immediately skips to the next evaluation of the `while` 
-condition. If it is still true, the loop begins again at the top. If
-it is false, it exits the loop.
+Dentro de un bucle while, 'O-break' de inmediato sale del bucle, y `-O
+`seguir inmediatamente salta a la próxima evaluación del tiempo` 
+condición. Si es cierto, el bucle comienza de nuevo en la parte superior. Si
+es falso, que sale del bucle.
 
-== Conditional: if, else, endif (((Conditional: if, else, endif)))
+== Condicionales: if, else, endif (((condicional: if, else, endif)))
 
-The "if" conditional executes one group of statements if a condition
-is true and another if it is false.
+El "si" condicional se ejecuta un grupo de instrucciones si una condición
+es verdadera y otra si es falsa.
 
-    (Set feed rate depending on a variable)
-    O102 if [#2 GT 5]
+    (Fijar cambio de alimentación en función de una variable)
+    O102 if [# 2 GT 5]
     F100
     O102 else
     F200
     O102 endif
 
-== Repeat (((Repeat)))
+== Repita/Repeat(((Repite)))
 
-The "repeat" will execute the statements inside of the
-repeat/endrepeat the specified number of times. The example shows how
-you might mill a diagonal series of shapes starting at the present
-position.
+La "repetición" se ejecutará las instrucciones dentro de la
+repetición / endrepeat el número específico de veces. El ejemplo muestra cómo
+es posible que un molino serie diagonal de formas a partir de la presente
+posición.
 
-    (Mill 5 diagonal shapes)
-    G91 (Incremental mode)
+    (Mill 5 formas en diagonal)
+    G91 (modo incremental)
     O103 repeat [5]
-    ... (insert milling code here)
-    G0 X1 Y1 (diagonal move to next position)
+    ... (Insertar el código de molienda aquí)
+    G0 X1 Y1 (movimiento diagonal a la siguiente posición)
     O103 endrepeat
-    G90 (Absolute mode)
+    G90 (modo absoluto)
 
-== Indirection (((Indirection)))
+== Indirección (((direccionamiento indirecto)))
 
-The O-number may be given by a parameter or calculation.
+El O-número puede ser dada por un parámetro o el cálculo.
 
-    O[#101+2] call
+    O [# 101 2] llamada
 
-== Computing values in O-words
+== Valores de Informática en O-palabras
 
-In O-words, Parameters (section  <<sub:Numbered-Parameters>>),
-Expressions (section  <<sub:Expressions>>), 
-Binary Operators (section <<sub:Binary-Operators>>), 
-and Functions (table <<cap:Functions>>) are particularly useful.
+En O-es decir, los parámetros (sección <<sub:Numbered-Parameters>>),
+Expresiones (sección <<sub:Expressions>>), 
+Los operadores binarios (sección <<sub:Binary-Operators>>), 
+y funciones (tabla <<cap:Functions>>) son particularmente útiles.
 
-== Calling Files (((Calling Files)))
+== Archivos de Llamadas (((llamadas archivos)))
 
-To call a separate file with a subroutine name the file the same as
-your call and include a sub and endsub in the file. The file must be in
-the directory pointed to by PROGRAM_PREFIX. The file name can include
-lowercase letters, numbers, dash, and underscore only.
+Para llamar a un archivo separado con un nombre de subrutina el archivo de la misma
+su llamada e incluyen un sub y endsub en el archivo. El archivo debe estar en
+el directorio apuntado por PROGRAM_PREFIX. El nombre del archivo puede incluir
+letras minúsculas, números, guión y guión bajo solamente.
 
-    o<myfile> call (a named file)
-or
-    o123 call (a number file)
+    o<myfile> call (un archivo llamado)
+o
+    o123 call (número de archivo)
 
-In the called file you must include the oxxx sub and endsub and the
-file must be a valid file.
+En el archivo llamado se debe incluir el sub oxxx y endsub y la
+archivo debe ser un archivo válido.
 
     myfile.ngc
-    o<myfile> sub
+    o sub <myfile>
     ...
-    o<myfile> endsub
+    o <myfile> endsub
     M2
 
-= Other Codes
+= Otros Códigos
 
-== F: Set Feed Rate[[sub:F-Set-Feed]](((F: Set Feed Rate)))
+== F: Fijar la alimentación [[sub:F-Set-Feed]](((F: Establecer Velocidad de alimentación)))
 
-To set the feed rate, program `F<n>` where "n" is a number. 
-The application of the feed rate is as described in Section 
-<<sub:Feed-Rate>>, unless inverse time feed rate mode is in effect, 
-in which case the feed rate is as described in 
-Section <<sec:G93-G94-G95-Mode>>.
+Para configurar la velocidad de avance, el programa `F<n>` donde "n" es un número. 
+La aplicación de la tasa de alimentación es como se describe en la Sección 
+<<sub:Feed-Rate>>, A menos que alimentar a tiempo inverso modo de índice es, en efecto, 
+en cuyo caso la tasa de alimentación es como se describe en 
+Sección <<sec:G93-G94-G95-Mode>>.
 
-== S: Set Spindle Speed[[sub:S-Set-Spindle]](((S: Set Spindle Speed)))
+== S: Velocidad conjunto de ejes [[sub:S-Set-eje]](((S: Velocidad conjunto de ejes)))
 
-To set the speed in revolutions per minute (RPM) of the spindle, program `S-`. 
-The spindle will turn at that speed when it has been programmed to start turning. 
-It is OK to program an S word whether the spindle is turning or not. 
-If the speed override switch is 
-enabled and not set at 100%, 
-the speed will be different from what is programmed. 
-It is OK to program S0, the spindle will not turn if that is done.
+Para establecer la velocidad en revoluciones por minuto (RPM) del cabezal, el programa `S`. 
+El eje gira a esa velocidad cuando se ha programado para comenzar a dar vuelta. 
+Está bien para programar una palabra S si el cabezal está girando o no. 
+Si el interruptor de cancelación de velocidad 
+y activado, y no a 100% 
+la velocidad va a ser diferente de lo que está programado. 
+Está bien para programar S0, el eje no se enciende si se hace eso.
 
-It is an error if:
+Es un error si:
 
- - the S number is negative.
+- El número S es negativo.
 
-As described in Section <<sec:G84-Right-Hand-Tapping>>, if a `G84` 
-(tapping) canned cycle is active and the feed and speed override
-switches are enabled, the one set at the lower setting will take
-effect. The speed and feed rates will still be synchronized. In this
-case, the speed may differ from what is programmed, even if the speed
-override switch is set at 100%.
+Como se describe en la sección <<sec:G84-Right-Hand-Tapping>>, si un 'G84' 
+(Tapping) ciclo fijo se activa y anular el avance y la velocidad
+interruptores están habilitadas, el conjunto de uno en la posición más baja se
+efecto. La velocidad y la velocidad de avance aún se sincronizarán. En este
+caso, la velocidad puede variar de lo que está programado, aunque la velocidad
+interruptor de corrección se establece en 100%.
 
-== T: Select Tool[[sub:T-Select-Tool]](((T: Select Tool)))
+== T: Herramienta de selección [[sub:T-Seleccionar-Herramienta]](((T:herramienta de selección)))
 
-To select a tool, program `T<n>`, where the <n> number is the
-carousel slot for the tool. The tool is 
-not changed until an `M6` is programmed (see Section 
-<<sec:M6-Tool-Change>>). The T word may 
-appear on the same line as the `M6` or on a previous line. It is OK,
-but not normally useful, if T words 
-appear on two or more lines with no tool change. The carousel may move
-a lot, but only the most recent T word will take effect at the next
- tool change. It is OK to program `T0`; no tool will be selected. This
-is useful if you want the spindle to be empty after a tool change.
+Para seleccionar una herramienta, el programa `T` <n>, donde el número <n> es el
+carrusel de ranura de la herramienta. La herramienta está 
+no cambió hasta que un M6 `está programado (ver Sección 
+<<sec:M6-Tool-Change>>). La palabra T puede 
+aparecen en la misma línea que el 'M6' o en una línea anterior. Está bien,
+pero normalmente no útil, si las palabras de T 
+aparecen en dos o más líneas sin cambiar de herramienta. El carrusel se puede mover
+mucho, pero la palabra T más reciente entrará en vigor en los próximos
+herramienta de cambio. Está bien el programa 'T0'; ninguna herramienta será seleccionado. Este
+es útil si desea que el husillo se vacía después de un cambio de herramienta.
 
-It is an error if:
+Es un error si:
 
- - a negative T number is used, 
- - or a T number larger than the number of slots in the carousel is used.
+- Un número negativo se utiliza T, 
+- O un número de T mayor que el número de ranuras en el carrusel se utiliza.
 
-On some machines, the carousel will move when a T word is programmed,
-at the same time machining is occurring. On such machines, programming
-the T word several lines before a tool change will save time. A common
-programming practice for such machines is to put the T word for the
-next tool to be used on the line after a tool change. This maximizes
-the time available for the carousel to move.
+En algunas máquinas, el carrusel se moverá cuando una palabra T está programado,
+al mismo tiempo de mecanizado que está ocurriendo. En este tipo de máquinas, la programación
+las líneas T palabra varios antes de un cambio de herramienta permitirá ahorrar tiempo. Un común
+práctica de programación para este tipo de máquinas es de poner la palabra T para la
+siguiente herramienta que se utilizará en la línea después de un cambio de herramienta. Esto maximiza
+el tiempo disponible para el carrusel de moverse.
 
-Rapid moves after a T<n> will not show on the AXIS preview until after
-a feed move. This is for machines that travel long distances to change
-the tool like a lathe. This can be very confusing at first. To turn
-this feature off for the current tool change program a G1 without any
-move after the T<n>.
+Se mueve rápido después de un T<n> no se mostrará en la vista previa hasta después de AXIS
+un movimiento de alimentación. Esto es para las máquinas que viajar largas distancias para el cambio
+la herramienta como un torno. Esto puede ser muy confuso al principio. A su vez
+esta función para el programa de cambio de la herramienta actual de un G1 sin ningún tipo de
+movimiento después de la T<n>.
 
-== Comments[[sec:Comments]](((G Code Comments)))
+== Comentarios [[sec:Comentarios]](((G)))
 
-Printable characters and white space inside parentheses is a comment.
-A left parenthesis always starts a comment. The comment ends at the
-first right parenthesis found thereafter. Once a left parenthesis is
-placed on a line, a matching right parenthesis must appear before the
-end of the line. Comments may not be nested; it is an error if a left
-parenthesis is found after the start of a comment and before the end of
-the comment. Here is an example of a line containing a comment: 
+Caracteres imprimibles y espacios en blanco entre paréntesis es un comentario.
+Un paréntesis a la izquierda siempre se inicia un comentario. El comentario termina en el
+paréntesis encontró primero a partir de entonces. Una vez que un paréntesis de apertura se
+colocada en una línea, un paréntesis de juego deberá comparecer ante la
+final de la línea. Los comentarios no pueden anidarse, es un error si a la izquierda
+se encuentra entre paréntesis después del inicio de un comentario y antes de fin de
+el comentario. He aquí un ejemplo de una línea que contiene un comentario: 
 
 `G80 M5 (stop motion)` 
 
-Comments are only informative, they do not cause a machine to do anything. 
+Comentarios son sólo informativos, no son la causa de una máquina de hacer nada. 
 
-== Messages[[sec:Messages]](((G Code Messages)))
+== Mensajes[[sec:Mensajes]](((Mensajes G Código)))
 
-A comment contains a message if `MSG` appears after the left
-parenthesis and before any other printing  characters. Variants of 
-`MSG` which include white space and lower case characters are allowed. 
-The rest of the characters before the right parenthesis are considered to
-be a message. Messages should be displayed on the message display
-device. Comments not containing messages need not be displayed there.
+Un comentario contiene un mensaje si `glutamato monosódico 'aparece después de la izquierda
+paréntesis y antes de los caracteres de impresión. Las variantes de 
+`Glutamato monosódico que incluyen espacios en blanco y caracteres en minúsculas están permitidos. 
+El resto de los personajes antes del paréntesis de la derecha se consideran
+ser un mensaje. Los mensajes deben ser mostrados en la pantalla de mensajes
+dispositivo. Mensajes que no contienen comentarios no tienen que ser exhibidos allí.
 
-== Probe Logging[[sub:Probe-Logging]](((Probe Logging)))
+== Sonda de Registro [[sub: Sonda de Registro de ]]((( la sonda de registro)))
 
-A comment can also be used to specify a file for the results of G38.x
-probing. See section <<sec:G38.x-Straight-Probe>>. 
+Un comentario también se puede utilizar para especificar un archivo de los resultados de G38.x
+el sondeo. Vea la sección <<sec:G38.x-Straight-Probe>>. 
 
-Often, general logging is more useful than probe logging. Using
-general logging, the format of the output data can be controlled.
+A menudo, en general el registro es más útil que el registro de la sonda. Uso
+generales de registro, el formato de los datos de salida se puede controlar.
 
-=== General Logging[[sub:General-logging]](((General Logging)))
+=== Registro General de [[sub: General de registro de ]]((( General de Registro)))
 
-==== (LOGOPEN,filename)
+==== (LOGOPEN, nombre de archivo)
 
-Opens the named log file. If the file already exists, it is truncated.
+Abre el archivo de registro con el nombre. Si el archivo ya existe, se trunca.
 
-==== (LOGAPPEND,filename)
+==== (LOGAPPEND, nombre de archivo)
 
-Opens the named log file. If the file already exists, the data is
-appended.
+Abre el archivo de registro con el nombre. Si el archivo ya existe, los datos se
+añade.
 
 ==== (LOGCLOSE)
 
-If the log file is open, it is closed.
+Si el archivo de registro está abierto, se cierra.
 
-==== (LOG,…)
+==== (LOG, ...)
 
-The message “…” is expanded as described below and then written to the
-log file if it is open.
+El mensaje "..." se expande como se describe a continuación y por escrito a la
+archivo de registro, si está abierta.
 
-=== Debugging Messages[[sub:Debugging-messages]](((G Code Debugging Messages)))
+=== Mensajes de depuración [[sub:mensajes-de-depuracion]](((G mensajes de depuración de código)))
 
-Comments that look like: `(debug, rest of comment)` are the same as
-comments like `(msg, rest of comment)` with the addition of special
-handling for parameters.
+Comentarios que se parecen: `(depuración, el resto del comentario)` son los mismos que
+comentarios como `(msg, el resto del comentario)` con la adición de especial
+el manejo de los parámetros.
 
-Comments that look like: `(print, rest of comment)` are output to
-stderr with special handling for parameters.
+Comentarios que se parecen: '(impresión, el resto del comentario) `se emiten a
+stderr con un tratamiento especial para los parámetros.
 
-=== Parameters in special comments
+=== Parámetros de comentarios especiales
 
-In the DEBUG, PRINT and LOG comments, the values of parameters in the
-message are expanded.
+En los comentarios DEBUG, Print and log, los valores de los parámetros de la
+mensaje se expanden.
 
-For example: to print a named global variable to stderr (the default
-console window) add a line to your gcode like...
+Por ejemplo: para imprimir una variable llamada mundial a stderr (el valor predeterminado
+ventana de la consola) añadir una línea a su Gcode como ...
 
-    (print,endmill dia = #<_endmill_dia>)
+    (Impresión, fresa dia = # <_endmill_dia>)
 
-Inside the above types of comments, sequences like `#123` are replaced
-by the value of the parameter 123. Sequences like `#<named parameter>` 
-are replaced by the value of the named parameter. Remember that named
- parameters will have white space removed from them. 
-So, `#<named parameter>` is the same as `#<namedparameter>`. 
+Dentro de estos tipos de comentarios, secuencias como '# 123' se sustituyen
+por el valor del parámetro 123. Secuencias como `#<named parameter>` 
+se sustituyen por el valor del parámetro con nombre. Recuerde que el nombre
+parámetros se han eliminado los espacios en blanco de ellos. 
+Parámetro así, `#<named parameter>` es lo mismo que `#<namedparameter>`.
+
+// vim: set syntax=asciidoc:
 
 
