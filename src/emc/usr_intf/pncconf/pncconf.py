@@ -354,7 +354,7 @@ mesafirmwaredata = [
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
-
+custommesafirmwaredata = []
 mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
 
 (UNUSED_OUTPUT,
@@ -3109,6 +3109,11 @@ class App:
                     if version == self.data._preference_version:
                         global mesablacklist
                         mesablacklist = eval(text)
+                if name == "customfirmware":
+                    global custommesafirmwaredata
+                    custommesafirmwaredata = eval(text)
+                    print "**** PNCCONF INFO:    Found extra firmware in .pncconf-preference file"
+
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
 
@@ -3185,10 +3190,11 @@ class App:
             return True
        
     def on_page_newormodify_prepare(self, *args):
+        global mesaboardnames
+        global mesafirmwaredata
         self.data.help = "help-load.txt"
         # search for firmware packages
         if os.path.exists(firmdir):
-            global mesaboardnames
             mesaboardnames = []
             for root, dirs, files in os.walk(firmdir):
                 folder = root.lstrip(firmdir)
@@ -3198,9 +3204,16 @@ class App:
                 #print "\n**** ",folder,":\n"
         else:
             #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("You are have no hostmot2 firmware downloaded in folder:%s\nPncconf will use sample firmware data-live testing will not be possible"%firmdir),True)
-        
+            self.warning_dialog(_("You are have no hostmot2 firmware downloaded in folder:\n%s\n\
+PNCconf will use sample firmware data\nlive testing will not be possible"%firmdir),True)
 
+        # add any extra firmware boardnames from .pncconf-preference file 
+        if not custommesafirmwaredata == []:
+            for search, item in enumerate(custommesafirmwaredata):
+                d = custommesafirmwaredata[search]
+                if not d[_BOARDTITLE] in mesaboardnames:
+                    mesaboardnames.append(d[_BOARDTITLE])
+        
     def on_page_newormodify_next(self, *args):
         if not self.widgets.createconfig.get_active():
             filter = gtk.FileFilter()
@@ -3363,15 +3376,19 @@ class App:
            self.data.frontend = _TOUCHY
         i = self.widgets.mesa0_boardtitle.get_active_text()
         j = self.widgets.mesa1_boardtitle.get_active_text()
-        #print i,self.data.mesa0_boardtitle,j,self.data.mesa1_boardtitle 
+        # check for installed firmware 
         if not self.data._arrayloaded or not self.data.mesa0_boardtitle == i or not self.data.mesa1_boardtitle == j:
+            global mesafirmwaredata
             if os.path.exists(os.path.join(firmdir,i)) or os.path.exists(os.path.join(firmdir,j)):
-                global mesafirmwaredata
                 mesafirmwaredata = []
                 self.mesa_firmware_search(i)
-                #print mesafirmwaredata
                 if self.data.number_mesa == 2 and not i == j: self.mesa_firmware_search(j)
                 self.data._arrayloaded = True
+            # add any extra firmware data from .pncconf-preference file
+            if not custommesafirmwaredata == []:
+                for i,j in enumerate(custommesafirmwaredata):
+                    mesafirmwaredata.append(custommesafirmwaredata[i])
+            # ok set up mesa info
             for boardnum in (0,1):
                 model = self.widgets["mesa%d_firmware"% boardnum].get_model()
                 model.clear()
