@@ -1,0 +1,15 @@
+This is an example how to set a background bitmap for the gladevcp toplevel
+window, and absolute positioning of HAL widgets therein.
+
+you might need to 'apt-get install python-cairo' first
+
+then run as
+
+gladevcp -u cairodraw.py cairodraw.ui
+
+
+-psha & mah
+
+
+
+

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="HAL_SpinButton" id="speed">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment1</property>
+            <property name="digits">1</property>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="hal_button1">
+            <property name="label" translatable="yes">  Pass speed as
+paramter in MDI
+    command</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="related_action">hal_action_mdi1</property>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="value">42</property>
+    <property name="upper">100</property>
+    <property name="step_increment">0.10000000000000001</property>
+  </object>
+  <object class="EMC_Action_MDI" id="hal_action_mdi1">
+    <property name="command">(MSG, "The speed is:  ${speed-f}")</property>
+  </object>
+</interface>
