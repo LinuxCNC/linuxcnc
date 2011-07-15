@@ -23,7 +23,7 @@ de le câbler vers les cartes électroniques.
 
 L'image suivante montre plusieurs widgets pyVCP.
 
-image::images/pyvcp_group.png[]
+image:images/pyvcp_group.png[]
 
 == pyVCP
 
@@ -203,7 +203,7 @@ autrement.
 
     <led>
 
-image::images/pyvcp_led.png[]
+image:images/pyvcp_led.png[]
 
 <halpin> définit le nom de la pin, par défaut: “led.n”, où n est un entier. 
 <size> définit la taille de la led, par défaut: 20. 
@@ -230,7 +230,7 @@ C'est une variante du widget "led".
 
 Le code ci-dessus produit cet exemple. 
 Il affiche également un relief autour de la boîte. 
-image::images/pyvcp_rectled.png[]
+image:images/pyvcp_rectled.png[]
 
 === Bouton (button)
 
@@ -252,7 +252,7 @@ Les boutons peuvent suivre le format suivant:
     <button>
     <button>
 
-image::images/pyvcp_button.png[]
+image:images/pyvcp_button.png[]
 
 ==== Case à cocher (checkbutton)
 
@@ -299,7 +299,7 @@ Le widget number affiche la valeur d'un signal de type float.
         <format>"+4.4f"</format> 
     </number>
 
-image::images/pyvcp_number.png[]
+image:images/pyvcp_number.png[]
 
 ==== Flottant
 
@@ -307,7 +307,7 @@ Le widget nombre affiche la valeur d'un signal FLOAT.
 
     <number>
 
-image::images/pyvcp_number.png[]
+image:images/pyvcp_number.png[]
 
 <font> est une police de caractères de type Tkinter avec la
 spécification de sa taille. Noter que sous Ubuntu 6.06 'Helvetica'
@@ -335,7 +335,7 @@ totalité.
     <width>6</width> 
     </s32>
 
-image::images/pyvcp_s32.png[]
+image:images/pyvcp_s32.png[]
 
 ==== Nombre u32
 
@@ -366,7 +366,7 @@ vraie ou fausse de halpin.
 En utilisant les deux images fwd.gif et rev.gif. 
 FWD est affiché quand "selectimage" est fausse 
 et REV est affiché quand "selectimage" est vraie. 
-image::images/pyvcp_image01.png[]image::images/pyvcp_image02.png[]
+image:images/pyvcp_image01.png[] image:images/pyvcp_image02.png[]
 
 ==== Image u32
 
@@ -387,7 +387,7 @@ image etc.
 
 Même résultat mais en ajoutant l'image stb.gif. 
 
-image::images/pyvcp_image_u32_01.png[]image::images/pyvcp_image01.png[]image::images/pyvcp_image02.png[]
+image:images/pyvcp_image_u32_01.png[] image:images/pyvcp_image01.png[] image:images/pyvcp_image02.png[]
 
 === Barre de progression (bar)
 
@@ -397,7 +397,7 @@ numérique.
 
     <bar>
 
-image::images/pyvcp_bar.png[]
+image:images/pyvcp_bar.png[]
 
 === Galvanomètre (meter)
 
@@ -406,7 +406,7 @@ Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage
 
     <meter>
 
-image::images/pyvcp_meter.png[]
+image:images/pyvcp_meter.png[]
 
 === Roue codeuse (spinbox)
 
@@ -417,7 +417,7 @@ tournant la molette de la souris.
 
     <spinbox>
 
-image::images/pyvcp_spinbox.png[]
+image:images/pyvcp_spinbox.png[]
 
 === Curseur (scale)
 
@@ -427,7 +427,7 @@ le curseur puis en tournant la molette de la souris.
 
     <scale>
 
-image::images/pyvcp_scale.png[]
+image:images/pyvcp_scale.png[]
 
 Noter que par défaut c'est min qui est affiché même si il est
 supérieur à max, à moins que min ne soit négatif.
@@ -457,7 +457,7 @@ avec les grands nombres).
     <dotcolor>"black"</dotcolor> 
     </dial>
 
-image::images/pyvcp_dial.png[]
+image:images/pyvcp_dial.png[]
 
 === Bouton tournant (jogwheel)
 
@@ -468,7 +468,7 @@ circulaire, ou en tournant la molette de la souris.
 
     <jogwheel>
 
-image::images/pyvcp_jogwheel.png[]
+image:images/pyvcp_jogwheel.png[]
 
 == Documentation des containers de pyVCP
 
@@ -518,7 +518,7 @@ largeur de la bordure.
     </button> 
     </hbox>
 
-image::images/pyvcp_borders.png[]
+image:images/pyvcp_borders.png[]
 
 === Hbox
 
@@ -527,7 +527,7 @@ horizontalement, les uns à côtés des autres.
 
     <hbox>
 
-image::images/pyvcp_hbox.png[]
+image:images/pyvcp_hbox.png[]
 
 Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
 `<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
@@ -544,7 +544,7 @@ verticalement, les uns au dessus des autres.
 
     <vbox>
 
-image::images/pyvcp_vbox.png[]
+image:images/pyvcp_vbox.png[]
 
 Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
 `<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
@@ -585,7 +585,7 @@ Exemple:
 
     <table flexible_rows="[2]" flexible_columns="[1,4]">
 
-    image::images/pyvcp_table.png[]
+image:images/pyvcp_table.png[]
 
 === Onglets (Tabs)
 
@@ -617,5 +617,5 @@ Une interface à onglets peut économiser énormément d'espace.
     </vbox> 
     </tabs>
 
-image::images/pyvcp_tabs1.png[]image::images/pyvcp_tabs2.png[]image::images/pyvcp_tabs3.png[]
+image:images/pyvcp_tabs1.png[] image:images/pyvcp_tabs2.png[] image:images/pyvcp_tabs3.png[]
 
