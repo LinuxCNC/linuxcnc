@@ -38,9 +38,9 @@ The most common components of ladder are contacts (inputs), these
 usually are either NC (normally closed) or NO (normally open), and
 coils (outputs).
 
- - the NO contact image::images/ladder_action_load.png[]
- - the NC contact image::images/ladder_action_loadbar.png[]
- - the coil (output) image::images/ladder_action_out.png[]
+ - the NO contact image:images/ladder_action_load.png[]
+ - the NC contact image:images/ladder_action_loadbar.png[]
+ - the coil (output) image:images/ladder_action_out.png[]
 
 Of course there are many more components to a full ladder language, 
 but understanding these will help you grasp the overall concept.
@@ -51,7 +51,7 @@ outputs and other), which get evaluated left to right.
 
 This example is the simplest rung:
 
-image::images/example_link_contact_coil.png[]
+image:images/example_link_contact_coil.png[]
 
 The input on the left, B0, a normally open contact, is connected to the
 coil (output) on the right, Q0. Now imagine a voltage gets applied to the
@@ -80,7 +80,7 @@ connect it across the B0 "pushbutton" contact from our earlier example.
 
 Let's take a look at it: 
 
-image::images/example_link_contact_coil2.png[]
+image:images/example_link_contact_coil2.png[]
 
 As before, when the user presses pushbutton B0, coil Q0 comes on. 
 And when coil Q0 comes on, switch Q0 comes on. Now the interesting 
@@ -105,7 +105,7 @@ interrupt the power to coil Q0. So let's add a normally-closed
 
 Here's how that would look: 
 
-image::images/example_link_contact_coil3.png[]
+image:images/example_link_contact_coil3.png[]
 
 Now we have added "off" or "stop" pushbutton B1. If the user 
 pushes it, contact from the rung to the coil is broken. 
