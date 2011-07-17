@@ -64,7 +64,6 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/ctype.h>	/* isdigit */
-#include <linux/delay.h>	/* udelay */
 #include <asm/uaccess.h>	/* copy_from_user() */
 #include <asm/msr.h>		/* rdtscll() */
 
@@ -555,7 +554,7 @@ void rtapi_delay(long int nsec)
     if (nsec > max_delay) {
 	nsec = max_delay;
     }
-    udelay(nsec / 1000);
+    rt_busy_sleep(nsec);
 }
 
 long int rtapi_delay_max(void)
