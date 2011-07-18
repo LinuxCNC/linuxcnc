@@ -223,7 +223,7 @@ case "$CMD" in
 	Load || exit $?
 	CheckLoaded
 	;;
-  restart)
+  restart|force-reload)
 	CheckConfig
 	CheckMem
 	Unload
@@ -241,7 +241,7 @@ case "$CMD" in
 	CheckStatus
 	;;
   *)
-	echo "Usage: $0 {start|load|stop|unload|restart|status}" >&2
+	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
 	exit 1
 	;;
 esac
