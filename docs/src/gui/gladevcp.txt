@@ -109,8 +109,9 @@ the 'gladevcp' HAL component and may observe their pin values while
 interacting with the widgets in the panel. The HAL setup can be
 found in 'configs/gladevcp/manual-example.hal'.
 
-Resetting ESTOP activates the 'Settings' frame. Turning the machine on
-additionally enables the 'Commands' frame at the bottom. The HAL
+The example panel has two frames at the bottom. The panel is
+configured so that resetting ESTOP activates the Settings frame and
+turning the machine on  enables the Commands frame at the bottom. The HAL
 widgets in the Settings frame are linked to LEDs and labels in the
 'Status' frame, and to the current and prepared tool number - play
 with them to see the effect. Executing the 'T<toolnumber>' and 'M6'
@@ -330,8 +331,7 @@ Note the following differences to the Axis tab setup:
 
 == GladeVCP command line options
 
-See also 'man gladevcp' . This is the usage message when you run
-'gladevcp -h':
+See also 'man gladevcp' . These are the gladevcp command line options:
 
 Usage: gladevcp [options] myfile.ui
 
@@ -340,27 +340,38 @@ Options:
 -h, --help::
     show this help message and exit
 
--c NAME::
+-c NAME::
     Set component name to NAME. Default is base name of UI file
 
 -d::
     Enable debug output
 
--g GEOMETRY::
-     Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.Values are in pixel units,
-    XOFFSET/YOFFSET is referenced from top left of screen use -g
-    WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just
-    position -H FILE execute HAL statements from FILE with halcmd after the
+-g GEOMETRY::
+     Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
+    XOFFSET/YOFFSET is referenced from top left of screen.
+    Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just
+    position 
+
+-H FILE::
+    execute hal statements from FILE with halcmd after the
     component is set up and ready
 
--x XID::
+-m MAXIMUM::
+    force panel window to maximize.  Together with the -g geometry option 
+    one can move the panel to a second monitor and force it to use all of the screen
+
+-t THEME::
+    set gtk theme. Default is system theme. Different panels can have different themes.
+    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[EMC Wiki].
+
+-x XID::
      Re-parent GladeVCP into an existing window XID instead of creating a
     new top level window
 
--u FILE::
+-u FILE::
     Use File's as additional user defined modules with handlers
 
--U USEROPT::
+-U USEROPT::
     pass USEROPTs to Python modules
 
 == HAL Widget reference
