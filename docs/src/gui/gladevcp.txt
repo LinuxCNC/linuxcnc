@@ -1,3 +1,4 @@
+= GladeVCP
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -14,8 +15,6 @@
 //[source,{hal}]
 //[source,{ngc}]
 
-
-= GladeVCP
 
 == What is GladeVCP?
 
