@@ -840,7 +840,9 @@ running:
 
 === The Action_MDI Toggle and Action_MDI widgets
 
-These widgets provide a means to execute arbitrary MDI commands.
+These widgets provide a means to execute arbitrary MDI commands. The
+Action_MDI widget does not wait for command completion as the
+Action_MDI Toggle does, which remains disabled until command complete.
 
 === A simple example: Execute MDI command on button press
 
