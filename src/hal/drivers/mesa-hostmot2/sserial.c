@@ -44,7 +44,14 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
     // some standard sanity checks
     //
 
-    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 5, 0x40, 0x001F)) {
+    if (hm2_md_is_consistent(hm2, md_index, 0, 5, 0x40, 0x001F)) {
+        HM2_ERR("The bitfile contains Smart Serial modules for a firmware "
+                "revision < rev22. This Driver now requires rev22 or newer "
+                "firmwares\n");
+        return -EINVAL;
+    }
+    
+    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 6, 0x40, 0x003C)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }
@@ -206,7 +213,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         }
         if (inst->num_all > 0){
             r = hal_pin_bit_newf(HAL_IN, &(inst->run),
-                                 hm2->llio->comp_id, "%s.sserial.port-%1d.run",
+                                 hm2->llio->comp_id, 
+                                 "%s.sserial.port-%1d.run",
                                  hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error adding pin %s.sserial.%1d.run. aborting\n",
@@ -214,22 +222,65 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail0;
             }
             r = hal_pin_u32_newf(HAL_OUT, &(inst->state),
-                                 hm2->llio->comp_id, "%s.sserial.port-%1d.port_state",
+                                 hm2->llio->comp_id, 
+                                 "%s.sserial.port-%1d.port_state",
                                  hm2->llio->name, i);
             if (r < 0) {
                 HM2_ERR("error adding pin %s.sserial.%1d.port_state. aborting\n",
                         hm2->llio->name, i);
                 goto fail0;
             }
+            r = hal_pin_u32_newf(HAL_OUT, &(inst->fault_count),
+                                 hm2->llio->comp_id, 
+                                 "%s.sserial.port-%1d.fault-count",
+                                 hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error adding pin %s.sserial.%1d.fault-count. aborting\n",
+                        hm2->llio->name, i);
+                goto fail0;
+            }
+            r = hal_param_u32_newf(HAL_RW, &(inst->fault_inc),
+                                   hm2->llio->comp_id, 
+                                   "%s.sserial.port-%1d.fault-inc",
+                                   hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error adding parameter %s.sserial.port-%1d.fault-inc"
+                        " aborting\n",hm2->llio->name, i);
+                goto fail0;
+            }            
 
+            r = hal_param_u32_newf(HAL_RW, &(inst->fault_dec),
+                                   hm2->llio->comp_id, 
+                                   "%s.sserial.port-%1d.fault-dec",
+                                   hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error adding parameter %s.sserial.port-%1d.fault-dec"
+                        " aborting\n",hm2->llio->name, i);
+                goto fail0;
+            }
+        
+            r = hal_param_u32_newf(HAL_RW, &(inst->fault_lim),
+                                   hm2->llio->comp_id, 
+                                   "%s.sserial.port-%1d.fault-lim",
+                                   hm2->llio->name, i);
+            if (r < 0) {
+                HM2_ERR("error adding parameter %s.sserial.port-%1d.fault-lim"
+                        " aborting\n",hm2->llio->name, i);
+                goto fail0;
+            }
+            //parameter defaults;
+            inst->fault_dec = 1;
+            inst->fault_inc = 10;
+            inst->fault_lim = 200;
+            
             //only move to the next instance if this one contains things.
             //hm2->sserial.instance[0] will be the lowest numbered module
             //with attached hardware.
-
+            
             count++ ;
         }
     }
-
+    
 
     hm2->sserial.num_instances = count; // because of the extra increment
 
@@ -302,7 +353,8 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
     // smart-serial modules. Useful for restarting broken comms.
     // Actual tram setup is handled by the sub-drivers
 
-    int i;
+    static int doit_err_count, comm_err_flag; // to avoid repeating error messages
+    int i,f;
 
     if (hm2->sserial.num_instances <= 0) return;
 
@@ -322,15 +374,63 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 *inst->state = 0x11;
                 inst->timer = 0;
                 *inst->command_reg_write = 0x900 | inst->tag_all;
+                *inst->fault_count = 0;
+                doit_err_count = 0;
+                comm_err_flag = 0;
                 break;
             case 0x01: // normal running
                 if (!*inst->run){
                      *inst->state = 0x02;
                     break;
                 }
-                if (*inst->command_reg_read) {
-                    HM2_ERR("DoIt not cleared from previous servo thread");
+                if (*inst->fault_count > inst->fault_lim) {
+                    // If there have been a large percentage of misses, for quite
+                    // a long time, it's time to take it seriously. 
+                    HM2_ERR("Smart Serial Comms Error: "
+                            "There have been more than %i errors in %i "
+                            "thread executions at least %i times. "
+                            "See other error messages for details.\n",
+                            inst->fault_dec, 
+                            inst->fault_inc,
+                            inst->fault_lim);
+                    HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
+                    *inst->state = 0x20;
+                    *inst->command_reg_write = 0x800; // stop command
                 }
+                if (*inst->command_reg_read) {
+                    if (doit_err_count < 6){ doit_err_count++; }
+                    if (doit_err_count == 4 ){ // ignore 4 errors at startup
+                        HM2_ERR("Smart Serial port %i: DoIt not cleared from previous "
+                                "servo thread. Servo thread rate probably too fast. "
+                                "This message will not be repeated, but the " 
+                                "%s.sserial.%1d.fault-count pin will indicate "
+                                "if this is happening frequently.\n",
+                                i, hm2->llio->name, i);
+                    }
+                    *inst->fault_count += inst->fault_inc;
+                    break; // give the register chance to clear
+                }
+                if (*inst->data_reg_read & 0xff){ // indicates a failed transfer
+                    *inst->fault_count += inst->fault_inc;
+                    f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
+                    if (f != 0 && f != 0xFF){
+                        comm_err_flag |= (f & -f); //mask LSb
+                        HM2_ERR("Smart Serial data transfer failure on port %i, "
+                                "channel %i. This error is probably caused by "
+                                "a problem with the attached card. This error "
+                                "message will not repeat for this channel.\n",
+                                i, ffs(f) - 1);
+                    }
+                }
+                        
+                if (*inst->fault_count > inst->fault_dec) {
+                    *inst->fault_count -= inst->fault_dec;
+                }
+                else
+                {
+                    *inst->fault_count = 0;
+                }
+                
                 *inst->command_reg_write = 0x1000 | inst->tag_all;
                 break;
 
@@ -352,6 +452,9 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 }
                 *inst->state &= 0x0F;
                 *inst->command_reg_write = 0x80000000; // mask pointless writes
+                break;
+            case 0x20:// Do-nothing state for serious errors. require run pin to cycle
+                if ( ! *inst->run){*inst->state = 0x02;}
                 break;
             default: // Should never happen
                 HM2_ERR("Unhandled run/stop configuration in \n"

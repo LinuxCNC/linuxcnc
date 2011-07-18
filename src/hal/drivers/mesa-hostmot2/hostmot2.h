@@ -519,9 +519,12 @@ typedef struct {
     u32 *reg_0_write;
     u32 *reg_1_read;
     u32 *reg_1_write;
+    u32 *reg_2_read;
+    u32 *reg_2_write;
     u32 reg_cs_addr;
     u32 reg_0_addr;
     u32 reg_1_addr;
+    u32 reg_2_addr;
     u32 tag;
     u32 reg_command_addr; // a duplicate so that a single channel can be passed
     u32 reg_data_addr;
@@ -548,6 +551,10 @@ typedef struct {
     u32 data_reg_addr;
     u32 *data_reg_read;
     u32 *data_reg_write;
+    hal_u32_t *fault_count;
+    hal_u32_t fault_inc;
+    hal_u32_t fault_dec;
+    hal_u32_t fault_lim;
 
     hal_bit_t *run;
     hal_u32_t *state;
