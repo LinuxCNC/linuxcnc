@@ -756,15 +756,15 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     default:
-	MSG("---BUG: lookup_named_param(%s): unhandled index=%f \n",
-	       nameBuf,index);
-	return 0;
+	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
+	      nameBuf,index);
     }
-    return 1;
+    return INTERP_OK;
 }
 
 int Interp::init_named_parameters()
 {
+
 // version       major   minor      Note
 // ------------ -------- ---------- -------------------------------------
 // M.N.m         M.N     0.m        normal format
