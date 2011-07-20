@@ -64,7 +64,6 @@ enum predefined_named_parameters {
     NP_ADAPTIVE_FEED,
     NP_FEED_HOLD,
     NP_FEED,
-    NP_SPEED,
     NP_RPM,
     NP_CURRENT_TOOL,
     NP_SELECTED_POCKET,
@@ -628,7 +627,7 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.feed_rate;
 	break;
 
-    case NP_SPEED: // speed (rpm)
+    case NP_RPM: // speed (rpm)
 	*value = abs(_setup.speed);
 	break;
 
