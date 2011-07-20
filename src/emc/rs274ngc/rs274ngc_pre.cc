@@ -112,7 +112,7 @@ Interp::Interp()
     : log_file(0)
 {
     _setup.py_module_stat = PYMOD_NONE;
-    init_named_parameters();  // need this before Python init
+    init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
     if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
 
@@ -773,6 +773,7 @@ int Interp::init()
           } else {
 	      log_file = stderr;
 	  }
+
           _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
