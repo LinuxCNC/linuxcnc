@@ -33,6 +33,7 @@ namespace bp = boost::python;
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "inifile.hh"
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -125,46 +126,84 @@ Named parameters are now supported.
 */
 
 int Interp::read_named_parameter(
-    char *line,   //!< string: line of RS274/NGC code being processed
-    int *counter, //!< pointer to a counter for position on the line
-    double *double_ptr,   //!< pointer to double to be read
-    double *parameters,   //!< array of system parameters
-    bool check_exists)    //!< test for existence, not value
+				 char *line,   //!< string: line of RS274/NGC code being processed
+				 int *counter, //!< pointer to a counter for position on the line
+				 double *double_ptr,   //!< pointer to double to be read
+				 double *parameters,   //!< array of system parameters
+				 bool check_exists)    //!< test for existence, not value
 {
-  static char name[] = "read_named_parameter";
-  char paramNameBuf[LINELEN+1];
-  int level;
-  context_pointer frame;
-  parameter_map_iterator pi;
+    static char name[] = "read_named_parameter";
+    char paramNameBuf[LINELEN+1];
+    int exists;
+    double value;
+    parameter_map_iterator pi;
 
-  CHKS((line[*counter] != '<'),
-      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
-  CHP(read_name(line, counter, paramNameBuf));
+    CHKS((line[*counter] != '<'),
+	 NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    CHP(read_name(line, counter, paramNameBuf));
 
-  level = (paramNameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
-  frame = &_setup.sub_context[level];
-  pi = frame->named_params.find(paramNameBuf);
+    CHP(find_named_param(paramNameBuf, &exists, &value));
+    if (check_exists) {
+	*double_ptr = exists ? 1.0 : 0.0;
+	return INTERP_OK;
+    }
+    if (exists) {
+	*double_ptr = value;
+	return INTERP_OK;
+    } else {
+	logNP("%s: referencing undefined named parameter '%s' level=%d",
+	      name, paramNameBuf, (paramNameBuf[0] == '_') ? 0 : _setup.call_level);
+	ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
+    }
+    return INTERP_OK;
+}
 
-  if (pi == frame->named_params.end()) {
-      *double_ptr = 0.0;
-      if (check_exists)
-	  return INTERP_OK;
-      logNP("%s: level[%d] param:|%s| returning not defined", name, level,
-           paramNameBuf);
-      ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
-  } else {
-      if (check_exists) {
-	  *double_ptr = 1.0;
-      } else {
-	  parameter_pointer pv = &pi->second;
-	  if (pv->attr & PA_USE_LOOKUP) {
-	      lookup_named_param(paramNameBuf, pv->value, double_ptr);
-	  } else {
-	      *double_ptr = pv->value;
-	  }
-      }
-      return INTERP_OK;
-  }
+// if the variable is of the form '_[section]name', then treat it as
+// an inifile  variable. Lookup section/name and cached the value
+// as global, and read-only.
+// the shortest possible ini variable is '_[s]n' .
+int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
+{
+    char *s;
+    *status = 0;
+    if ((nameBuf[0] == '_') &&
+	(nameBuf[1] == '[') &&
+	(strlen(nameBuf) > 4) &&
+	((s = (char *) strchr(&nameBuf[3],']')) != NULL)) {
+
+	IniFile inifile;
+	const char *iniFileName;
+	int retval;
+	int closeBracket = s - nameBuf;
+
+	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
+	    logNP("warning: referencing ini parameter '%s': no ini file",nameBuf);
+	    *status = 0;
+	    return INTERP_OK;
+	}
+	if (!inifile.Open(iniFileName)) {
+	    *status = 0;
+	    ERS(_("cant open ini file '%s'"), iniFileName);
+	}
+
+	char capName[LINELEN];
+
+	strncpy(capName, nameBuf, sizeof(capName));
+	for (char *p = capName; *p != 0; p++)
+	    *p = toupper(*p);
+	capName[closeBracket] = '\0';
+
+	if ((retval = inifile.Find( value, &capName[closeBracket+1], &capName[2])) == 0) {
+	    *status = 1;
+	    inifile.Close();
+	} else {
+	    inifile.Close();
+	    *status = 0;
+	    ERS(_("Named ini parameter #<%s> not found in inifile '%s': error=0x%x"),
+		nameBuf, iniFileName, retval);
+	}
+    }
+    return INTERP_OK;
 }
 
 
@@ -183,15 +222,28 @@ int Interp::find_named_param(
 
   pi = frame->named_params.find(nameBuf);
   if (pi == frame->named_params.end()) { // not found
-      logNP("warning: referencing undefined variable '%s'\n",nameBuf);
-      *value = 0.0;
-      *status = 0;
+      int exists;
+      double inivalue;
+      CHP(fetch_ini_param(nameBuf, &exists, &inivalue));
+      if (exists) {
+	  logNP("parameter '%s' retrieved from INI: %f",nameBuf,inivalue);
+	  *value = inivalue;
+	  *status = 1;
+	  parameter_value param;  // cache the value
+	  param.value = inivalue;
+	  param.attr = PA_GLOBAL | PA_READONLY | PA_FROM_INI;
+	  _setup.sub_context[0].named_params[strstore(nameBuf)] = param;
+      } else {
+	  *value = 0.0;
+	  *status = 0;
+      }
   } else {
       parameter_pointer pv = &pi->second;
       if (pv->attr & PA_UNSET)
-	  logNP("warning: referencing unset variable '%s'\n",nameBuf);
+	  logNP("warning: referencing unset variable '%s'",nameBuf);
       if (pv->attr & PA_USE_LOOKUP) {
-	  *status = lookup_named_param(nameBuf, pv->value, value);
+	  CHP(lookup_named_param(nameBuf, pv->value, value));
+	  *status = 1;
       } else {
 	  *value = pv->value;
 	  *status = 1;
@@ -231,7 +283,6 @@ int Interp::store_named_param(setup_pointer settings,
 	  logNP("store_named_parameter: level[%d] %s value=%lf",
 		level, nameBuf, value);
       }
-
   }
   return INTERP_OK;
 }
@@ -448,7 +499,6 @@ int Interp::add_named_param(
   param.value = 0.0;
   param.attr = attr;
   _setup.sub_context[level].named_params[strstore(nameBuf)] = param;
-
   return INTERP_OK;
 }
 
@@ -466,9 +516,11 @@ int Interp::init_readonly_param(
     double value,  //!< initial value
     int attr)       //!< see PA_* defs in interp_internal.hh
 {
-    CHP( add_named_param((char *) nameBuf, PA_READONLY|attr));
-    CHP(store_named_param(&_setup, (char *) nameBuf, value, OVERRIDE_READONLY));
-
+    // static char name[] = "init_readonly_param";
+    CHKS( add_named_param((char *) nameBuf, PA_READONLY|attr),
+	  "adding r/o '%s'", nameBuf);
+    CHKS(store_named_param(&_setup, (char *) nameBuf, value, OVERRIDE_READONLY),
+	 "storing r/o '%s' %f", nameBuf, value);
     return INTERP_OK;
 }
 

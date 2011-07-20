@@ -115,6 +115,7 @@ public:
  int find_named_param(const char *nameBuf, int *status, double *value);
  int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
  int add_named_param(const char *nameBuf, int attr = 0);
+ int fetch_ini_param( const char *nameBuf, int *status, double *value);
 
     // common combination of add_named_param and store_named_param
     // int assign_named_param(const char *nameBuf, int attr = 0, double value = 0.0);

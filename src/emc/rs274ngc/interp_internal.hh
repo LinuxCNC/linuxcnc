@@ -483,6 +483,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define PA_GLOBAL	2
 #define PA_UNSET	4
 #define PA_USE_LOOKUP	8  // use lookup_named_param() to retrieve value
+#define PA_FROM_INI	16  // a variable of the form '_[section]value' was retrieved from the ini file
 
 // optional 3rd arg to store_named_param()
 // flag initialization of r/o parameter
