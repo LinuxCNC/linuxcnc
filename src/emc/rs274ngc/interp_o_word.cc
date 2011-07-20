@@ -535,7 +535,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	settings->call_level++;
 
 	// let any  Oword sub know the number of parameters
-	if (!is_py_osub) {
+	if (!(is_py_osub || is_py_remap_handler)) {
 	    CHP(add_named_param("n_args", PA_READONLY));
 	    CHP(store_named_param(settings, "n_args",
 				  (double )block->param_cnt,
