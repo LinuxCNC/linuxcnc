@@ -431,7 +431,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def("set_errormsg", &wrap_setError)
 		       .def("set_tool_parameters", &InterpWrap::set_tool_parameters)
 		       .def("synch", &InterpWrap::synch)
-
+		       .def("print_named_params", &InterpWrap::print_named_params)
 
 		       .def_readonly("filename", (char *) &InterpWrap::_setup.filename)
 		       .def_readonly("linetext", (char *) &InterpWrap::_setup.linetext)

@@ -206,6 +206,38 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
     return INTERP_OK;
 }
 
+// debug aid
+int Interp::print_named_params(bool locals)
+{
+    context_pointer frame;
+    parameter_map_iterator pi;
+    int level;
+    double value;
+
+    printf("--- named parameters: -----\n");
+    for (level =  locals ? _setup.call_level : 0; level >= 0; level --) {
+	frame = &_setup.sub_context[level];
+	for (pi = frame->named_params.begin(); pi != frame->named_params.end(); pi++) {
+	    if (pi->second.attr & PA_USE_LOOKUP)  {
+		CHP(lookup_named_param(pi->first, pi->second.value, &value));
+	    } else {
+		value = pi->second.value;
+	    }
+	    printf("%-2d %-20.20s %10.4f ", level, pi->first, value);
+	    printf((pi->second.attr & PA_GLOBAL) ? "GLOBAL ": "LOCAL ");
+	    if (pi->second.attr & PA_READONLY)
+		printf("R/O ");
+	    if (pi->second.attr & PA_UNSET)
+		printf("UNSET ");
+	    if (pi->second.attr & PA_USE_LOOKUP)
+		printf("LOOKUP ");
+	    if (pi->second.attr & PA_FROM_INI)
+		printf("INI ");
+	    printf("\n");
+	}
+    }
+    return INTERP_OK;
+}
 
 int Interp::find_named_param(
     const char *nameBuf, //!< pointer to name to be read

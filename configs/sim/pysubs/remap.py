@@ -162,6 +162,10 @@ def gdb_window(userdata,**words):
 	return INTERP_OK
 
 #----------------  debugging fluff ----------
+# named parameters table
+def symbols(userdata, **words):
+	interp.print_named_params(words.has_key('p'))
+	return INTERP_OK
 
 # tool table access
 def print_tool(userdata, **words):
