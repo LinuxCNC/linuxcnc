@@ -465,7 +465,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	     (((cblock->executing_remap->remap_ngc != NULL) &&
 	       (!strcmp(cblock->executing_remap->remap_ngc, block->o_name)))));
 
-        is_py_callable = is_pycallable(settings, OWORD_MODULE, block->o_name);
+        is_py_callable = is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, block->o_name);
 	is_py_osub = is_py_callable && ! is_remap_handler;
 
 	// copy parameters from context
