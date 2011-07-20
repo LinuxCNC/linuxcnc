@@ -1,0 +1,38 @@
+PY=python2.6
+BOOST=boost_python
+
+
+INCLUDES += emc/pythonplugin
+
+LIBPPSRCS := $(addprefix emc/pythonplugin/, \
+	python_plugin.cc)
+
+USERSRCS += $(LIBPPSRCS)
+
+TESTSRCS := $(addprefix emc/pythonplugin/, \
+	testpp.cc )
+
+USERSRCS += $(TESTSRCS)
+
+$(call TOOBJSDEPS, $(LIBPPSRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON -g -O0
+
+
+$(call TOOBJSDEPS, $(TESTSRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON -g -O0
+
+TARGETS += ../lib/libpyplugin.so emc/pythonplugin/testpp
+
+../lib/libpyplugin.so.0: $(patsubst %.cc,objects/%.o,$(LIBPPSRCS)) ../lib/libemcini.so
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
+
+
+../include/%.h: ./emc/pythonplugin/%.h
+	cp $^ $@
+../include/%.hh: ./emc/pythonplugin/%.hh
+	cp $^ $@
+
+emc/pythonplugin/testpp: $(call TOOBJS, $(TESTSRCS)) ../lib/libpyplugin.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(CXX) $(LDFLAGS) -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
