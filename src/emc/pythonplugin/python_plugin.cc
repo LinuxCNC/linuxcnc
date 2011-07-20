@@ -1,14 +1,7 @@
-
-
 #include "python_plugin.hh"
 
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <exception>
 
 #define MAX_ERRMSG_SIZE 200
 
@@ -62,11 +55,10 @@ int PythonPlugin::setup(const char *modpath, const char *modname , bool reload_i
     PYCHK(((realpath(module_path, path)) == NULL),
 	  "setup: cant resolve path to '%s'", module_path);
 
-    // record timestamp
     struct stat st;
     PYCHK(stat(module_path, &st),
 	  "setup(): stat(%s) returns %s", module_path, strerror(errno));
-    module_mtime = st.st_mtime;
+    module_mtime = st.st_mtime;      // record timestamp
     Py_SetProgramName(module_path);
     return PLUGIN_OK;
 }
@@ -75,7 +67,7 @@ int PythonPlugin::add_inittab_entry(const char *mod_name, void (*mod_init)())
 {
     PYCHK(PyImport_AppendInittab( (char *) mod_name , mod_init),
 	  "cant extend inittab with module '%s'", mod_name);
-    modules.push_back(mod_name);
+    inittab_entries.push_back(mod_name);
     return PLUGIN_OK;
 }
 
@@ -96,8 +88,8 @@ int PythonPlugin::initialize(bool reload)
 	bp::object module = bp::import("__main__");
 	module_namespace = module.attr("__dict__");
 
-	for(unsigned i = 0; i < modules.size(); i++) {
-	    module_namespace[modules[i]] = bp::import(modules[i].c_str());
+	for(unsigned i = 0; i < inittab_entries.size(); i++) {
+	    module_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
 	}
 	// FIXME
 	// the null deallocator avoids destroying the Interp instance on leaving scope or shutdown
@@ -253,7 +245,6 @@ int PythonPlugin::reload()
 int PythonPlugin::plugin_status()
 {
     return PLUGIN_OK;
-
 }
 
 std::string PythonPlugin::last_exception()
@@ -270,21 +261,21 @@ std::string PythonPlugin::last_errmsg()
 // decode a Python exception into a string.
 std::string PythonPlugin::handle_pyerror()
 {
-    using namespace boost::python;
-    using namespace boost;
+    PyObject *exc, *val, *tb;
+    bp::object formatted_list, formatted;
 
-    PyObject *exc,*val,*tb;
-    object formatted_list, formatted;
-    PyErr_Fetch(&exc,&val,&tb);
-    handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
-    object traceback(import("traceback"));
+    PyErr_Fetch(&exc, &val, &tb);
+    bp::handle<> hexc(exc), hval(bp::allow_null(val)), htb(bp::allow_null(tb));
+    bp::object traceback(bp::import("traceback"));
     if (!tb) {
-	object format_exception_only(traceback.attr("format_exception_only"));
-	formatted_list = format_exception_only(hexc,hval);
+	bp::object format_exception_only(traceback.attr("format_exception_only"));
+	formatted_list = format_exception_only(hexc, hval);
     } else {
-	object format_exception(traceback.attr("format_exception"));
-	formatted_list = format_exception(hexc,hval,htb);
+	bp::object format_exception(traceback.attr("format_exception"));
+	formatted_list = format_exception(hexc, hval, htb);
     }
-    formatted = str("\n").join(formatted_list);
-    return extract<std::string>(formatted);
+    formatted = bp::str("\n").join(formatted_list);
+    return bp::extract<std::string>(formatted);
 }
+
+
