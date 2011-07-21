@@ -41,6 +41,7 @@ public:
     int run_string(const char *cmd, bp::object &retval, bool as_file = false);
 
     int plugin_status();
+    void initialize(bool reload = false);
     std::string last_exception();
     std::string last_errmsg();
 
@@ -51,7 +52,7 @@ private:
     PythonPlugin(const PythonPlugin &) {};        // not copyable
     PythonPlugin & operator=(const PythonPlugin&) { return *this; };  // not assignable
     ~PythonPlugin();                              // no public destructor
-    void initialize(bool reload = false);
+
 
     static PythonPlugin *instance;
 

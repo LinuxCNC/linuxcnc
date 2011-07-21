@@ -102,144 +102,15 @@ std::string handle_pyerror()
     return extract<std::string>(formatted);
 }
 
-// static  char module_path[PATH_MAX];
-
-int Interp::init_python(setup_pointer settings, bool reload)
-{
-    return INTERP_OK;
-
- //    std::string msg;
- //    bool py_exception = false;
- //    PyGILState_STATE gstate;
- //    char path[PATH_MAX];
-
- //    if ((settings->py_module_stat != PYMOD_NONE) && !reload) {
- // 	logPy("init_python RE-INIT %d pid=%d",settings->py_module_stat,getpid());
- // 	return INTERP_OK;  // already done, or failed
- //    }
-
- //    // this crap has to go.
- //    current_setup = get_setup(this);
- //    current_interp = this;
-
- //    logPy("init_python(this=%lx  pid=%d py_module_stat=%d PyInited=%d reload=%d",
- // 	  (unsigned long)this, getpid(), settings->py_module_stat, Py_IsInitialized(),reload);
-
- //    PYCHK((settings->py_module == NULL), "init_python: no module defined");
-
- //    if (settings->py_path) {
- // 	strcpy(module_path, settings->py_path);
- // 	strcat(module_path,"/");
- //    } else {
- // 	module_path[0] = '\0';
- //    }
- //    strcat(module_path, settings->py_module);
- //    strcat(module_path,".py");
-
- //    PYCHK(((realpath(module_path, path)) == NULL),
- //    	  "init_python: cant resolve path to '%s'", module_path);
-
- //    // record timestamp first time around
- //    if (settings->module_mtime == 0) {
- // 	struct stat sub_stat;
- // 	if (stat(module_path, &sub_stat)) {
- // 	    logPy("init_python(): stat(%s) returns %s",
- // 		  module_path, sys_errlist[errno]);
- // 	} else {
- // 	    settings->module_mtime = sub_stat.st_mtime;
- // 	}
- //    }
-
- //    if (!reload) {
- // 	Py_SetProgramName(module_path);
- // 	PyImport_AppendInittab( (char *) "CanonMod", &initCanonMod);
- // 	PyImport_AppendInittab( (char *) "InterpMod", &initInterpMod);
- // 	if (under_task)
- // 	    PyImport_AppendInittab( (char *) "TaskMod", &initTaskMod);
- // 	Py_Initialize();
- // 	if (settings->py_path) {
- // 	    char pathcmd[PATH_MAX];
- // 	    sprintf(pathcmd, "import sys\nsys.path.append(\"%s\")", settings->py_path);
- // 	    PyRun_SimpleString(pathcmd);
- // 	}
- //    }
-
- //    if (useGIL)
- // 	gstate = PyGILState_Ensure();
-
- //    try {
- // 	bp::object module = bp::import("__main__");
- // 	settings->module_namespace = module.attr("__dict__");
- // 	if (!reload) {
- // 	    bp::object interp_module = bp::import("InterpMod");
- // 	    bp::object canon_module = bp::import("CanonMod");
- // 	    settings->module_namespace["InterpMod"] = interp_module;
- // 	    settings->module_namespace["CanonMod"] = canon_module;
- // 	    // the null deallocator avoids destroying the Interp instance on leaving scope or shutdown
- // 	    bp::scope(interp_module).attr("interp") =
- // 		interp_ptr(this, interpDeallocFunc);
- // 	}
- // 	bp::object result = bp::exec_file(module_path,
- // 					  settings->module_namespace,
- // 					  settings->module_namespace);
- // 	settings->py_module_stat = PYMOD_OK;
- //    }
- //    catch (bp::error_already_set) {
- // 	if (PyErr_Occurred()) {
- // 	    msg = handle_pyerror();
- // 	    py_exception = true;
- // 	}
- //    	bp::handle_exception();
- // 	settings->py_module_stat = PYMOD_FAILED;
- // 	PyErr_Clear();
- //    }
- //    PYCHK(py_exception, "init_python: module '%s' init failed: \n%s",
- // 	  module_path, msg.c_str());
-
- //    if (useGIL)
- // 	PyGILState_Release(gstate);
- //    return INTERP_OK;
-
- // error:  // come here if PYCHK() macro fails
- //    if (useGIL)
- // 	PyGILState_Release(gstate);
- //    return INTERP_ERROR;
-}
-
-int Interp::py_reload_on_change(setup_pointer settings)
-{
-    // struct stat current_stat;
-    // if (!settings->py_module)
-    // 	return INTERP_OK;
-
-    // if (stat(module_path, &current_stat)) {
-    // 	logPy("py_reload_on_change: stat(%s) returned %s",
-    // 	      module_path,
-    // 	      sys_errlist[errno]);
-    // 	return INTERP_ERROR;
-    // }
-    // if (current_stat.st_mtime > settings->module_mtime) {
-    // 	settings->module_mtime = current_stat.st_mtime;
-    // 	int status;
-    // 	if ((status = init_python(settings,true)) != INTERP_OK) {
-    // 	    // init_python() set the error text already
-    // 	    char err_msg[LINELEN+1];
-    // 	    error_text(status, err_msg, sizeof(err_msg));
-    // 	    logPy("py_reload_on_change(%s): %s",
-    // 		  module_path, err_msg);
-    // 	    return INTERP_ERROR;
-    // 	} else
-    // 	    logPy("py_reload_on_change(): module %s reloaded",
-    // 		  settings->py_module);
-    // }
-    return INTERP_OK;
-}
 
 // determine wether [module.]funcname is callable
 bool Interp::is_pycallable(setup_pointer settings,
 			   const char *module,
 			   const char *funcname)
 {
+  if (!_setup.pp)
+      return false;
+
     return settings->pp->is_callable(module,funcname);
 }
 
@@ -378,57 +249,20 @@ int Interp::pycall(setup_pointer settings,
     return status;
 }
 
-// called by  (py, ....) comments
-int Interp::py_execute(const char *cmd)
+// called by  (py, ....) or ';py,...' comments
+int Interp::py_execute(const char *cmd, bool as_file)
 {
     bp::object retval;
 
+    if (!_setup.pp)
+	return INTERP_OK;
+
     logPy("py_execute(%s)",cmd);
 
-    _setup.pp->run_string(cmd, retval, false);
-    return INTERP_OK; // FIXME
+    _setup.pp->run_string(cmd, retval, as_file);
+    CHKS((_setup.pp->plugin_status() == PLUGIN_EXCEPTION),
+	 "py_execute(%s)%s:\n%s", cmd,
+	 as_file ? " as file" : "", _setup.pp->last_exception().c_str());
+    return INTERP_OK;
 }
 
-
-
-/// / we borrow the interp Python environment for task-time calls
-// int Interp::plugin_call(const char *module, const char *name, const char *call)
-// {
-//     int status;
-//     block b;
-
-//     logPy("plugin_call(%s)",call);
-//     init_block(&b);
-
-//     if (call != NULL) {
-// 	b.tupleargs = bp::make_tuple(bp::object(call));
-//     }
-
-//     if (is_pycallable(&_setup, module, name)) {
-// 	status = pycall(&_setup, &b, module, name, PY_PLUGIN_CALL);
-// 	// if function returned an int, return that
-// 	if (b.returned[RET_STATUS])
-// 	    return b.py_returned_status;
-// 	return -1;
-//     } else
-// 	return 0;
-// }
-
-// int Interp::task_init()
-// {
-//     int status;
-//     block b;
-//     _setup.running_under_task = true;
-
-//     logPy("task_init()");
-//     init_block(&b);
-
-//     if (is_pycallable(&_setup, TASK_MODULE, TASK_INIT)) {
-// 	status = pycall(&_setup, &b,TASK_MODULE,  TASK_INIT, PY_PLUGIN_CALL);
-// 	// if function returned an int, return that
-// 	if (b.returned[RET_STATUS])
-// 	    return b.py_returned_status;
-// 	return -1;
-//     } else
-// 	return 0;
-// }

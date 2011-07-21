@@ -1359,6 +1359,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   char LOGAPPEND_STR[] = "logappend,";
   char LOGCLOSE_STR[] = "logclose";
   char PY_STR[] = "py,";
+  char PYRUN_STR[] = "pyrun,";
   char PYRELOAD_STR[] = "pyreload";
   int m, n, start;
 
@@ -1413,12 +1414,20 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   }
   else if (startswith(lc, PY_STR))
   {
-      py_execute(comment + start + strlen(PY_STR));
+      py_execute(comment + start + strlen(PY_STR), false);
+      return INTERP_OK;
+  }
+  else if (startswith(lc, PYRUN_STR))
+  {
+      py_execute(comment + start + strlen(PYRUN_STR), true);
       return INTERP_OK;
   }
   else if (startswith(lc, PYRELOAD_STR))
   {
-      return init_python(&(_setup), true);
+      _setup.pp->initialize(true);
+      CHKS((_setup.pp->plugin_status() == PLUGIN_EXCEPTION),
+	   "pyreload:\n%s",  _setup.pp->last_exception().c_str());
+      return INTERP_OK;
   }
   else if (streq(lc, LOGCLOSE_STR))
   {

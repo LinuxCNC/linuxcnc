@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 // #define MAX_ERRMSG_SIZE 256
 
@@ -46,10 +45,6 @@ void PythonPlugin::initialize(bool reload)
 	for(unsigned i = 0; i < inittab_entries.size(); i++) {
 	    module_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
 	}
-	// FIXME
-	// the null deallocator avoids destroying the Interp instance on leaving scope or shutdown
-	// bp::scope(interp_module).attr("interp") =
-	// 	interp_ptr(this, interpDeallocFunc);
 	bp::object result = bp::exec_file(abs_path,
 					  module_namespace,
 					  module_namespace);
@@ -252,13 +247,6 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     IniFile inifile;
     const char *inistring;
 
-    logPP(0,"PythonPlugin(pid=%d) %d", getpid(),Py_IsInitialized());
-
-    // if(Py_IsInitialized()) {  // True under Axis!
-    // 	logPP(1, "Python already initialized pid=%d", getpid());
-    // 	gdb_in_window(1);
-    // 	return;
-    // }
     if (section == NULL) {
 	logPP(1, "no section");
 	status = PLUGIN_NO_SECTION;
@@ -341,14 +329,13 @@ PythonPlugin *PythonPlugin::getInstance(const char *iniFilename,
 					const char *section,
 					struct _inittab *inittab)
 {
-    static pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+    static bool failed = false;
 
-    pthread_mutex_lock( &mutex1 );
-    if (instance == NULL) {
+    if (!failed && (instance == NULL)) {
 	instance =  new PythonPlugin(iniFilename, section, inittab);
+	failed = (instance->plugin_status() < PLUGIN_OK);
     }
-    pthread_mutex_unlock( &mutex1 );
 
-    return instance;
+    return failed ? NULL: instance;
 }
 

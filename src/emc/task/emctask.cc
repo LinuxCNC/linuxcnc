@@ -32,6 +32,7 @@
 #include "task.hh"		// emcTaskCommand etc
 #include "python_plugin.hh"
 
+#define TASK_MODULE "task"
 #define TASK_INIT "task_init"
 #define PLUGIN_CALL "plugin_call"
 

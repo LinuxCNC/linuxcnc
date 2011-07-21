@@ -858,8 +858,7 @@ int Interp::init()
 	  _setup.pp = PythonPlugin::getInstance(iniFileName,"PYTHON",  builtin_modules);
 
 	  // horrible kludge, but dont know better for now
-	  {
-
+	  if (_setup.pp != NULL) {
 	      bp::object interp_module = bp::import("interpreter");
 
 	      bp::scope(interp_module).attr("this") =

@@ -525,11 +525,9 @@ public:
 			      char letter,
 			      int number = -1);
 
-    int init_python(setup_pointer settings, bool reload = false);
 
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
-#define TASK_MODULE  "task"
     bool is_pycallable(setup_pointer settings, const char *module, const char *funcname);
 
     // describes intented use, and hence parameter and return value
@@ -547,8 +545,7 @@ public:
 	       const char *module,
 	       const char *funcname,
 	       int calltype);
-    int py_execute(const char *cmd); // for (py, ....) comments
-    int py_reload_on_change(setup_pointer settings);
+    int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
 
     const char *getSavedError();
 
