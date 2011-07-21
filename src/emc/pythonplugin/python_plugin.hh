@@ -18,10 +18,9 @@ enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
 
 
 class PythonPlugin {
-
 public:
-    PythonPlugin(int loglevel = 0);
-    ~PythonPlugin();
+    static PythonPlugin& getInstance();
+
     int setup(const char *modpath, const char *module, bool reload_if_changed = false);
     int add_inittab_entry(const char *mod_name, void (*mod_init)());
     int initialize(bool reload = false);
@@ -31,10 +30,15 @@ public:
     bool is_callable(const char *module, const char *funcname);
     int plugin_status();
 
-    std::string last_exception();
-    std::string last_errmsg();
 
 private:
+    PythonPlugin(int loglevel = 0);                    // no public constructor
+    PythonPlugin(const PythonPlugin &) {};             // not copyable
+    PythonPlugin & operator=(const PythonPlugin&) { return *this; };  // not assignable
+    ~PythonPlugin();                                   // no public destructor
+
+    std::string last_exception();
+    std::string last_errmsg();
     int reload();
     std::string handle_pyerror();
 

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_ERRMSG_SIZE 200
+#define MAX_ERRMSG_SIZE 256
 
 #define ERRMSG(fmt, args...)					\
     do {							\
@@ -278,4 +278,9 @@ std::string PythonPlugin::handle_pyerror()
     return bp::extract<std::string>(formatted);
 }
 
+PythonPlugin& PythonPlugin::getInstance()
+{
+    static PythonPlugin instance;
+    return instance;
+}
 

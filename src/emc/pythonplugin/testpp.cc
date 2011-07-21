@@ -34,7 +34,9 @@ main (int argc, char **argv)
     char *callablemod = NULL;
     char *xcallable = NULL;
 
-    PythonPlugin pp;
+    PythonPlugin &pp = PythonPlugin::getInstance();  // creates a singleton instance
+    // PythonPlugin two = pp; // this fails since copy constructor is private.
+    // PythonPlugin &second = PythonPlugin::getInstance();  // returns the singleton instance
 
     opterr = 0;
 
