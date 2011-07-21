@@ -14,7 +14,7 @@ static void wrap_canon_error(const char *s)
 #pragma GCC diagnostic warning "-Wformat-security"
 
 
-BOOST_PYTHON_MODULE(CanonMod) {
+BOOST_PYTHON_MODULE(canon) {
     using namespace boost::python;
 
     // first stab - result of an awk-based mass conversion.

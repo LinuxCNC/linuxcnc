@@ -247,7 +247,7 @@ struct SettingsArray {
 };
 static struct SettingsArray active_settings_array;
 
-BOOST_PYTHON_MODULE(InterpMod) {
+BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
     using namespace boost;
 

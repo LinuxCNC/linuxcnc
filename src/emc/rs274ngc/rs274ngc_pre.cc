@@ -860,9 +860,9 @@ int Interp::init()
 	  // horrible kludge, but dont know better for now
 	  {
 
-	      bp::object interp_module = bp::import("InterpMod");
+	      bp::object interp_module = bp::import("interpreter");
 
-	      bp::scope(interp_module).attr("interp") =
+	      bp::scope(interp_module).attr("this") =
 				interp_ptr(this, interpDeallocFunc);
 	  }
 	  int n = 1;

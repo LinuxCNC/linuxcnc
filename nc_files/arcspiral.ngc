@@ -1,6 +1,6 @@
 g20 g64
 s3400 m3
-o<task>call
+;o<task>call
 g0z1
 g0x0y0z1
 g0 x1.724638 y-1.012731

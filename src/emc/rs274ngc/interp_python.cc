@@ -41,13 +41,12 @@ namespace bp = boost::python;
 #include "units.h"
 #include "interpmodule.hh"
 
-#define PYTHONPATH "PYTHONPATH"
+// #define PYTHONPATH "PYTHONPATH"
 
-static bool useGIL = false;     // not sure if this is needed
 
-extern "C" void initCanonMod();
-extern "C" void initInterpMod();
-extern "C" void initTaskMod();
+// extern "C" void initCanon();
+// extern "C" void initinterpreter();
+// extern "C" void initTaskMod();
 
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
@@ -75,7 +74,7 @@ Interp *current_interp;
 // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 // reason: avoid segfaults by del(interp_instance) on program exit
 // make delete(interp_instance) a noop wrt Interp
-static void interpDeallocFunc(Interp *interp) {}
+// static void interpDeallocFunc(Interp *interp) {}
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
@@ -103,7 +102,7 @@ std::string handle_pyerror()
     return extract<std::string>(formatted);
 }
 
-static  char module_path[PATH_MAX];
+// static  char module_path[PATH_MAX];
 
 int Interp::init_python(setup_pointer settings, bool reload)
 {

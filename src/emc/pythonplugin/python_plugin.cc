@@ -120,7 +120,7 @@ int PythonPlugin::call(const char *module, const char *callable,
 	    bp::object submod_namespace = submod.attr("__dict__");
 	    function = submod_namespace[callable];
 	}
-	retval = function(tupleargs,kwargs);
+	retval = function(*tupleargs, **kwargs);
 	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
@@ -176,7 +176,7 @@ bool PythonPlugin::is_callable(const char *module,
 	logPP(1, "is_callable(%s.%s): unexpected exception:\n%s",module,funcname,exception_msg.c_str());
 
     if (log_level)
-	logPP(1, "is_callable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
+	logPP(4, "is_callable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
     return result;
 }
 
@@ -194,7 +194,7 @@ int PythonPlugin::reload()
 	initialize(true);
 	logPP(1, "reload(): module %s reloaded, status=%d", module_basename, status);
     } else {
-	logPP(9, "reload: no-op");
+	logPP(5, "reload: no-op");
 	status = PLUGIN_OK;
     }
     return status;

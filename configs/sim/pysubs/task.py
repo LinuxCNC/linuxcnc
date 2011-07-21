@@ -1,6 +1,6 @@
 import hal
-import CanonMod
-import InterpMod
+import canon
+import interpreter
 
 try:
     import cPickle as pickle
@@ -48,7 +48,7 @@ class Execute(object):
                     h['bit'] = not  h['bit']
             return 0
             # return -1 to fail execution
-            #InterpMod.interp.set_errormsg("really bad")
+            #interpreter.interp.set_errormsg("really bad")
 	    #return -1
 
     def notify(self, s):
@@ -77,7 +77,7 @@ class EnqueueCall(object):
     def _encode(self,*args,**kwargs):
         if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
             p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
-            CanonMod.PLUGIN_CALL(int(len(p)),p)
+            canon.PLUGIN_CALL(int(len(p)),p)
         else:
             raise AttributeError,"no such method: " + self._name
 

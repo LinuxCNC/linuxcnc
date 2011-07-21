@@ -1,9 +1,12 @@
+import sys
+import interpreter
+
+have_emctask = False
+if 'emctask' in sys.builtin_module_names:
+    import emctask
+    have_task = True
+
 import task
-import InterpMod
-
-if InterpMod.under_task:
-    import TaskMod
-
 
 # Demo Python O-word subroutine - call as:
 # o<square> [5]
@@ -25,7 +28,7 @@ def qdemo(args):
 
 def notify(args):
     try:
-        c = InterpMod.interp.blocks[0].comment
+        c = interpreter.this.blocks[0].comment
         print "in oword.notify() comment=",c
         task.enqueue.notify(c)
     except Exception,e:
@@ -34,8 +37,8 @@ def notify(args):
 
 # access emcStatus
 def tdir(args):
-    if InterpMod.under_task:
-        e = TaskMod.EMC_STAT
+    if have_emctask:
+        e = emctask.EMC_STAT
         print "mode=",e.task.mode
         print "state=",e.task.state
         print "file=",e.task.file

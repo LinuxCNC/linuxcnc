@@ -80,12 +80,8 @@ int emcTaskInit()
     struct stat buf;
     IniFile inifile;
     const char *inistring;
-    extern struct _inittab builtin_modules[];
 
     inifile.Open(EMC_INIFILE);
-
-    // this really only obtains the singleton instance already created by Interp
-    pyplugin  = PythonPlugin::getInstance(EMC_INIFILE,"PYTHON",  builtin_modules);
 
     // Identify user_defined_function directories
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
@@ -663,9 +659,14 @@ int emcAbortCleanup(int reason, const char *message)
 // int under_task = 1; // drives import of TaskMod
 int emcTaskOnce()
 {
+    extern struct _inittab builtin_modules[];
+
     bp::object retval;
     bp::tuple arg;
     bp::dict kwarg;
+
+    // this really only obtains the singleton instance already created by Interp
+    pyplugin  = PythonPlugin::getInstance(EMC_INIFILE,"PYTHON",  builtin_modules);
 
     pyplugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
 
@@ -711,13 +712,13 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
     return emcPythonReturnValue(PLUGIN_CALL, retval);
 }
 
-extern "C" void initTaskMod();
-extern "C" void initInterpMod();
-extern "C" void initCanonMod();
+extern "C" void initemctask();
+extern "C" void initinterpreter();
+extern "C" void initcanon();
 struct _inittab builtin_modules[] = {
-    { (char *) "InterpMod", initInterpMod },
-    { (char *) "CanonMod", initCanonMod },
-    { (char *) "TaskMod", initTaskMod },
+    { (char *) "interpreter", initinterpreter },
+    { (char *) "canon", initcanon },
+    { (char *) "emctask", initemctask },
     // any others...
     { NULL, NULL }
 };

@@ -1,4 +1,4 @@
-# sys,InterpMod, CanonMod are automatically imported
+# sys,interpreter,canon automatically imported
 
 import task
 import oword

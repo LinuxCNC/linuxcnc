@@ -28,12 +28,12 @@
 void gdb_in_window(int sig) {}
 
 char _parameter_file_name[LINELEN];
-extern "C" void initInterpMod();
-extern "C" void initCanonMod();
+extern "C" void initinterpreter();
+extern "C" void initcanon();
 extern "C" struct _inittab builtin_modules[];
 struct _inittab builtin_modules[] = {
-    { (char *) "InterpMod", initInterpMod },
-    { (char *) "CanonMod", initCanonMod },
+    { (char *) "interpreter", initinterpreter },
+    { (char *) "canon", initcanon },
     // any others...
     { NULL, NULL }
 };

@@ -8,7 +8,7 @@ namespace bp = boost::python;
 extern EMC_STAT *emcStatus;
 
 
-BOOST_PYTHON_MODULE(TaskMod) {
+BOOST_PYTHON_MODULE(emctask) {
     using namespace boost::python;
     using namespace boost;
 
