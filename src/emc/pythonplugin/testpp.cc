@@ -13,20 +13,71 @@
 	}							       \
     } while(0)
 
+void analyze(const char *what,bp::object retval)
+{
+    PyObject *res_str = PyObject_Str(retval.ptr());
+    Py_XDECREF(res_str);
+    printf("analyze: %s returned '%s' - '%s'\n",what,
+	   PyString_AsString(res_str),
+	   retval.ptr()->ob_type->tp_name);
+}
+
+void exercise(PythonPlugin *pp,const char *mod, const char*func,  bp::tuple tupleargs,   bp::dict kwargs)
+{
+
+    bp::object r;
+
+    bool callable = pp->is_callable(mod,func);
+    printf("callable(%s.%s) = %s\n",mod,func,callable ? "TRUE": "FALSE");
+
+
+    int status = pp->call(mod,func, tupleargs,kwargs,r);
+    switch (status) {
+    case PLUGIN_EXCEPTION:
+	printf("call(%s.%s): exception='%s' status = %d\n",
+	       mod,func,pp->last_exception().c_str(), status);
+	break;
+    case PLUGIN_OK:
+	printf("call(%s.%s): OK\n", mod,func);
+	analyze( func,r);
+	break;
+    default:
+	printf("call(%s.%s): status = %d\n", mod,func,status);
+    }
+}
+
+void run(PythonPlugin *pp,const char *cmd, bool as_file)
+{
+    bp::object r;
+    int status = pp->run_string(cmd,r, as_file);
+    printf("run_string(%s): status = %d\n", cmd,status);
+    analyze(cmd,r);
+}
 
 void foo_init()
 {
     printf("foo init\n");
 }
+void bar_init()
+{
+    printf("bar init\n");
+}
 
+const char *inifile = "test.ini";
+const char *section = "PYTHON";
+struct _inittab builtin_modules[] = {
+    { (char *) "foo", foo_init },
+    { (char *) "bar", bar_init },
+    // any others...
+    { NULL, NULL }
+};
+
+int builtins;
+bool as_file = false;
 int
 main (int argc, char **argv)
 {
-    int reload = 0;
-    char *modpath = NULL;
-    char *module = NULL;
-    char *internmod = NULL;
-    int addpath = 0;
+
     int index;
     int c;
     bp::object retval;
@@ -34,28 +85,18 @@ main (int argc, char **argv)
     char *callablemod = NULL;
     char *xcallable = NULL;
 
-    PythonPlugin &pp = PythonPlugin::getInstance();  // creates a singleton instance
-    // PythonPlugin two = pp; // this fails since copy constructor is private.
-    // PythonPlugin &second = PythonPlugin::getInstance();  // returns the singleton instance
-
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "rM:m:i:aC:c:x:")) != -1) {
+    while ((c = getopt (argc, argv, "fbi:C:c:x:")) != -1) {
 	switch (c)  {
-	case 'r':
-	    reload = 1;
+	case 'f':
+	    as_file = true;
 	    break;
-	case 'M':
-	    modpath = optarg;
-	    break;
-	case 'm':
-	    module = optarg;
+	case 'b':
+	    builtins++;
 	    break;
 	case 'i':
-	    internmod = optarg;
-	    break;
-	case 'a':
-	    addpath = 1;
+	    inifile = optarg;
 	    break;
 	case 'C':
 	    callablemod = optarg;
@@ -80,31 +121,31 @@ main (int argc, char **argv)
 	    abort ();
 	}
     }
-    // printf ("aflag = %d, bflag = %d, cvalue = %s\n",
-    // 	    aflag, bflag, cvalue);
-    CHK(pp.setup(modpath,module,reload) != PLUGIN_OK, "setup failed\n");
-    if (internmod)
-	CHK(pp.add_inittab_entry("foo", foo_init),"add_inittab(%s) failed\n",internmod);
-    CHK(pp.initialize(addpath) != PLUGIN_OK, "initialize failed\n");
+    // creates a singleton instance
+    PythonPlugin *pp = PythonPlugin::getInstance(inifile,
+						 section,
+						 builtins ? builtin_modules : NULL);
+    // PythonPlugin two = pp; // this fails since copy constructor is private.
+    // PythonPlugin &second = PythonPlugin::getInstance();  // returns the singleton instance
 
-    if (callablefunc) {
-	bool result = pp.is_callable(callablemod, callablefunc);
-	printf("callable(%s.%s) = %d\n",callablemod, callablefunc,result);
-    }
+    printf("status = %d\n", pp->plugin_status());
+    bp::tuple tupleargs,nulltupleargs;
+    bp::dict kwargs,nullkwargs;
+    kwargs['x'] = 10;
+    kwargs['y'] = 20;
+    tupleargs = bp::make_tuple(3,2,1,"foo");
 
-    if (xcallable) {
-	bp::tuple tupleargs;
-	bp::dict kwargs;
-	kwargs['x'] = 10;
-	kwargs['y'] = 20;
-	tupleargs = bp::make_tuple(3,2,1,"foo");
-	CHK(pp.call(callablemod,xcallable,tupleargs,kwargs,retval), "call(%s.%s): fail",callablemod,xcallable);
+    exercise(pp,NULL,"func",nulltupleargs, nullkwargs);
 
-    }
+    system("/usr/bin/touch testmod.py");
+
+    exercise(pp,NULL,"badfunc",tupleargs,kwargs);
+    exercise(pp,NULL,"retstring",tupleargs,kwargs);
+    exercise(pp,NULL,"retdouble",tupleargs,kwargs);
+    // exercise(pp,"submod","subfunc");
 
     for (index = optind; index < argc; index++) {
-	CHK(pp.run_string( argv[index], retval)  != PLUGIN_OK, "runstring(%s) failed\n", argv[index] );
-
+	run(pp, argv[index], as_file);
     }
     return 0;
 }

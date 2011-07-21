@@ -1,89 +1,43 @@
 #include "python_plugin.hh"
+#include "inifile.hh"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_ERRMSG_SIZE 256
+// #define MAX_ERRMSG_SIZE 256
 
-#define ERRMSG(fmt, args...)					\
-    do {							\
-        char msgbuf[MAX_ERRMSG_SIZE];				\
-        snprintf(msgbuf, sizeof(msgbuf) -1,  fmt, ##args);	\
-        error_msg = std::string(msgbuf);			\
-    } while(0)
-
-
-#define PYCHK(bad, fmt, ...)					       \
-    do {							       \
-	if (bad) {						       \
-	    fprintf(stderr,fmt, ## __VA_ARGS__);		       \
-	    fprintf(stderr,"\n");				       \
-	    ERRMSG(fmt, ## __VA_ARGS__);			       \
-	    return PLUGIN_ERROR;				       \
-	}							       \
-    } while(0)
-
-#define logPP(fmt, ...)  fprintf(stderr, fmt, ## __VA_ARGS__)
-
-PythonPlugin::PythonPlugin(int loglevel)
-{
-    module_status = PYMOD_NONE;
-    log_level = loglevel;
-}
-
-PythonPlugin::~PythonPlugin()
-{
-    // boost.python dont support PyFinalize()
-}
+// #define ERRMSG(fmt, args...)					\
+//     do {							\
+//         char msgbuf[MAX_ERRMSG_SIZE];				\
+//         snprintf(msgbuf, sizeof(msgbuf) -1,  fmt, ##args);	\
+//         error_msg = std::string(msgbuf);			\
+//     } while(0)
 
 
-int PythonPlugin::setup(const char *modpath, const char *modname , bool reload_if_changed)
-{
-    reload_on_change = reload_if_changed;
-    PYCHK((modname == NULL), "initialize: no module defined");
-    module = modname; // ???
-    if (modpath) {
-	strcpy(module_path, modpath);
-	strcat(module_path,"/");
-    } else {
-	module_path[0] = '\0';
-    }
-    strcat(module_path, modname);
-    strcat(module_path,".py");
+// #define PYCHK(bad, fmt, ...)					       \
+//     do {							       \
+// 	if (bad) {						       \
+// 	    fprintf(stderr,fmt, ## __VA_ARGS__);		       \
+// 	    fprintf(stderr,"\n");				       \
+// 	    ERRMSG(fmt, ## __VA_ARGS__);			       \
+// 	    return PLUGIN_ERROR;				       \
+// 	}							       \
+//     } while(0)
 
-    char path[PATH_MAX];
-    PYCHK(((realpath(module_path, path)) == NULL),
-	  "setup: cant resolve path to '%s'", module_path);
+#define logPP(level, fmt, ...)						\
+    do {								\
+	if (log_level >= level) {					\
+	    fprintf(stderr, fmt, ## __VA_ARGS__);			\
+	    fprintf(stderr,"\n");					\
+	}								\
+    } while (0)
 
-    struct stat st;
-    PYCHK(stat(module_path, &st),
-	  "setup(): stat(%s) returns %s", module_path, strerror(errno));
-    module_mtime = st.st_mtime;      // record timestamp
-    Py_SetProgramName(module_path);
-    return PLUGIN_OK;
-}
+#define strstore strdup // for now
 
-int PythonPlugin::add_inittab_entry(const char *mod_name, void (*mod_init)())
-{
-    PYCHK(PyImport_AppendInittab( (char *) mod_name , mod_init),
-	  "cant extend inittab with module '%s'", mod_name);
-    inittab_entries.push_back(mod_name);
-    return PLUGIN_OK;
-}
-
-int PythonPlugin::initialize(bool reload)
+void PythonPlugin::initialize(bool reload)
 {
     std::string msg;
 
-    if (!reload) {
-	Py_Initialize();
-	if (module_path[0]) {
-	    char pathcmd[PATH_MAX];
-	    sprintf(pathcmd, "import sys\nsys.path.append(\"%s\")", module);
-	    PYCHK(PyRun_SimpleString(pathcmd),
-		  "exeception running '%s'", pathcmd);
-	}
-    }
     try {
 	bp::object module = bp::import("__main__");
 	module_namespace = module.attr("__dict__");
@@ -95,46 +49,52 @@ int PythonPlugin::initialize(bool reload)
 	// the null deallocator avoids destroying the Interp instance on leaving scope or shutdown
 	// bp::scope(interp_module).attr("interp") =
 	// 	interp_ptr(this, interpDeallocFunc);
-	bp::object result = bp::exec_file(module_path,
+	bp::object result = bp::exec_file(abs_path,
 					  module_namespace,
 					  module_namespace);
-	module_status = PYMOD_OK;
+	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
-	python_exception = true;
 	if (PyErr_Occurred()) {
 	    exception_msg = handle_pyerror();
 	} else
 	    exception_msg = "unknown exception";
 	bp::handle_exception();
-	module_status = PYMOD_FAILED;
+	status = PLUGIN_INIT_EXCEPTION;
 	PyErr_Clear();
     }
-    PYCHK(python_exception, "initialize: module '%s' init failed: \n%s",
-	  module_path, exception_msg.c_str());
-    return PLUGIN_OK;
+    if (status == PLUGIN_INIT_EXCEPTION) {
+	logPP(1, "initialize: module '%s' init failed: \n%s",
+	      abs_path, exception_msg.c_str());
+    }
 }
 
 
-int PythonPlugin::run_string(const char *cmd, bp::object &retval)
+int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 {
     if (reload_on_change)
 	reload();
     try {
-	retval = bp::exec(cmd, module_namespace, module_namespace);
+	if (as_file)
+	    retval = bp::exec_file(cmd, module_namespace, module_namespace);
+	else
+	    retval = bp::exec(cmd, module_namespace, module_namespace);
+	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
-	   exception_msg = handle_pyerror();
+	    exception_msg = handle_pyerror();
 	} else
 	    exception_msg = "unknown exception";
-	python_exception = true;
+	status = PLUGIN_EXCEPTION;
 	bp::handle_exception();
 	PyErr_Clear();
     }
-    PYCHK(python_exception, "run_string(%s): \n%s",
-	  cmd, exception_msg.c_str());
-    return PLUGIN_OK;
+    if (status == PLUGIN_EXCEPTION) {
+	logPP(1, "run_string(%s): \n%s",
+	      cmd, exception_msg.c_str());
+    }
+    return status;
 }
 
 int PythonPlugin::call(const char *module, const char *callable,
@@ -142,11 +102,14 @@ int PythonPlugin::call(const char *module, const char *callable,
 {
     bp::object function;
 
+    if (callable == NULL)
+	return PLUGIN_NO_CALLABLE;
+
     if (reload_on_change)
 	reload();
-    if ((module_status != PYMOD_OK) ||
-	(callable == NULL))
-	return PLUGIN_ERROR;
+
+    if (status < PLUGIN_OK)
+	return status;
 
     try {
 	if (module == NULL) {  // default to function in toplevel module
@@ -157,24 +120,26 @@ int PythonPlugin::call(const char *module, const char *callable,
 	    function = submod_namespace[callable];
 	}
 	retval = function(tupleargs,kwargs);
+	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
 	if (PyErr_Occurred()) {
 	   exception_msg = handle_pyerror();
 	} else
 	    exception_msg = "unknown exception";
-	python_exception = true;
+	status = PLUGIN_EXCEPTION;
 	bp::handle_exception();
 	PyErr_Clear();
     }
-    PYCHK(python_exception, "call(%s.%s): \n%s",
+    if (status == PLUGIN_EXCEPTION) {
+	logPP(1, "call(%s.%s): \n%s",
 	  module, callable, exception_msg.c_str());
-
-    return PLUGIN_OK;
+    }
+    return status;
 }
 
 bool PythonPlugin::is_callable(const char *module,
-			   const char *funcname)
+			       const char *funcname)
 {
     bool unexpected = false;
     bool result = false;
@@ -182,7 +147,7 @@ bool PythonPlugin::is_callable(const char *module,
 
     if (reload_on_change)
 	reload();
-    if ((module_status != PYMOD_OK) ||
+    if ((status != PLUGIN_OK) ||
 	(funcname == NULL)) {
 	return false;
     }
@@ -207,44 +172,36 @@ bool PythonPlugin::is_callable(const char *module,
 	PyErr_Clear();
     }
     if (unexpected)
-	logPP("is_pycallable(%s.%s): unexpected exception:\n%s",module,funcname,exception_msg.c_str());
+	logPP(1, "is_callable(%s.%s): unexpected exception:\n%s",module,funcname,exception_msg.c_str());
 
     if (log_level)
-	logPP("is_pycallable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
+	logPP(1, "is_callable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
     return result;
-
-
-    return false;
 }
 
 int PythonPlugin::reload()
 {
     struct stat st;
-    if (module == NULL)
-	return PLUGIN_OK;
 
-    if (stat(module_path, &st)) {
-	logPP("reload: stat(%s) returned %s", module_path, strerror(errno));
-	return PLUGIN_ERROR;
+    if (stat(abs_path, &st)) {
+	logPP(1, "reload: stat(%s) returned %s", abs_path, strerror(errno));
+	status = PLUGIN_STAT_FAILED;
+	return status;
     }
     if (st.st_mtime > module_mtime) {
 	module_mtime = st.st_mtime;
-	int status;
-	if ((status = initialize(true)) != PLUGIN_OK) {
-	    // // init_python() set the error text already
-	    // char err_msg[LINELEN+1];
-	    // error_text(status, err_msg, sizeof(err_msg));
-	    // logPP("reload(%s): %s",  module_path, err_msg);
-	    return PLUGIN_ERROR;
-	} else
-	    logPP("reload(): module %s reloaded", module);
+	initialize(true);
+	logPP(1, "reload(): module %s reloaded, status=%d", module_basename, status);
+    } else {
+	logPP(3, "reload: no-op");
+	status = PLUGIN_OK;
     }
-    return PLUGIN_OK;
+    return status;
 }
 
 int PythonPlugin::plugin_status()
 {
-    return PLUGIN_OK;
+    return status;
 }
 
 std::string PythonPlugin::last_exception()
@@ -278,9 +235,113 @@ std::string PythonPlugin::handle_pyerror()
     return bp::extract<std::string>(formatted);
 }
 
-PythonPlugin& PythonPlugin::getInstance()
+
+PythonPlugin::~PythonPlugin()
 {
-    static PythonPlugin instance;
+    // boost.python dont support PyFinalize()
+}
+
+PythonPlugin* PythonPlugin::instance = NULL;
+
+PythonPlugin::PythonPlugin(const char *iniFilename,
+			   const char *section,
+			   struct _inittab *inittab)
+{
+    IniFile inifile;
+    const char *inistring;
+    // const char *modpath = NULL;
+    // const char *modname;
+
+    if(Py_IsInitialized()) {
+	logPP(1, "Python already initialized");
+	status = PLUGIN_PYTHON_ALREADY_INITIALIZED;
+	return;
+    }
+    if (section == NULL) {
+	logPP(1, "no section");
+	status = PLUGIN_NO_SECTION;
+	return;
+    }
+    if ((iniFilename == NULL) &&
+	((iniFilename = getenv("INI_FILE_NAME")) == NULL)) {
+	logPP(1, "no inifile");
+	status = PLUGIN_NO_INIFILE;
+	return;
+    }
+    if (inifile.Open(iniFilename) == false) {
+          logPP(1, "Unable to open inifile:%s:\n", iniFilename);
+	  status = PLUGIN_BAD_INIFILE;
+	  return;
+    }
+    if ((inistring = inifile.Find("PLUGIN_DIR", section)) != NULL)
+	plugin_dir = strstore(inistring);
+    else {
+         logPP(1, "no PLUGIN_DIR in inifile:%s:\n", iniFilename);
+	 status =  PLUGIN_NO_PLUGIN_DIR;
+	 return;
+    }
+    if ((inistring = inifile.Find("MODULE_BASENAME", section)) != NULL)
+	module_basename = strstore(inistring);
+    else {
+         logPP(1, "no MODULE_BASENAME in inifile:%s:\n", iniFilename);
+	 status =  PLUGIN_NO_MODULE_BASENAME;
+	 return;
+    }
+    if ((inistring = inifile.Find("RELOAD_ON_CHANGE", section)) != NULL)
+	reload_on_change = (atoi(inistring) > 0);
+
+    if ((inistring = inifile.Find("LOG_LEVEL", section)) != NULL)
+	log_level = atoi(inistring);
+
+    inifile.Close();
+
+    char module_path[PATH_MAX];
+    strcpy(module_path, plugin_dir );
+    strcat(module_path,"/");
+    strcat(module_path, module_basename);
+    strcat(module_path,".py");
+
+    char real_path[PATH_MAX];
+    if (realpath(module_path, real_path) == NULL) {
+	logPP(1, "cant resolve path to '%s'", module_path);
+	status = PLUGIN_BAD_PATH;
+	return;
+    }
+    struct stat st;
+    if (stat(real_path, &st)) {
+	logPP(1, "stat(%s) returns %s", real_path, strerror(errno));
+	status = PLUGIN_STAT_FAILED;
+	return;
+    }
+    abs_path = strstore(real_path);
+
+    module_mtime = st.st_mtime;      // record timestamp
+    Py_SetProgramName((char *) abs_path);
+    if ((inittab != NULL) &&
+	PyImport_ExtendInittab(inittab)) {
+	logPP(1, "cant extend inittab");
+	status = PLUGIN_INITTAB_FAILED;
+	return;
+    }
+    Py_Initialize();
+    char pathcmd[PATH_MAX];
+    sprintf(pathcmd, "import sys\nsys.path.append(\"%s\")", plugin_dir);
+    if (PyRun_SimpleString(pathcmd)) {
+	logPP(1, "exeception running '%s'", pathcmd);
+	exception_msg = "exeception running "; // + pathcmd;
+	status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
+	return;
+    }
+    initialize(false);
+}
+
+PythonPlugin *PythonPlugin::getInstance(const char *iniFilename,
+					const char *section,
+					struct _inittab *inittab)
+{
+    if (instance == NULL) {
+	instance =  new PythonPlugin(iniFilename, section, inittab);
+    }
     return instance;
 }
 
