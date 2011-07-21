@@ -137,6 +137,22 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 }
                 break;
             }
+        case HM2_GTAG_BSPI:
+            switch (sec_pin) {
+                case 0x1: return "/Frame";
+                case 0x2: return "Serial Out";
+                case 0x3: return "Clock";
+                case 0x4: return "Serial In";
+                case 0x5: return "CS0";
+                case 0x6: return "CS1";
+                case 0x7: return "CS2";
+                case 0x8: return "CS3";
+                case 0x9: return "CS4";
+                case 0xA: return "CS5";
+                case 0xB: return "CS6";
+                case 0xC: return "CS7";
+            }
+            break;
     }
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
     return unknown;
@@ -396,6 +412,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
     // sserial.num_instances counts active insts, so use config.num_sserial
     hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  hm2->config.num_sserials);
     // muxed encoder gets the sel pins

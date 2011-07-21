@@ -82,7 +82,6 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_MAX_MODULE_DESCRIPTORS  (48)
 #define HM2_MAX_PIN_DESCRIPTORS     (1000)
 
-
 // 
 // Pin Descriptor constants
 // 
@@ -104,6 +103,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_STEPGEN          (5)
 #define HM2_GTAG_PWMGEN           (6)
 #define HM2_GTAG_TRANSLATIONRAM  (11)
+#define HM2_GTAG_BSPI            (14)
 #define HM2_GTAG_TPPWM           (19)
 #define HM2_GTAG_LED            (128)
 #define HM2_GTAG_MUXED_ENCODER   (12)
@@ -728,7 +728,35 @@ typedef struct {
     u32 master_dds_addr;
 } hm2_stepgen_t;
 
+//
+// Buffered SPI transciever
+// 
 
+typedef struct {
+    u32 cd[16];
+    u16 addr[16];
+    int conf_flag[16];
+    u16 cd_addr;
+    u16 count_addr;
+    hal_u32_t *count;
+    int num_frames;
+    u32 clock_freq;
+    u16 base_address;
+    u32 register_stride;
+    u32 instance_stride;
+    char name[HAL_NAME_LEN+1];
+    void *read_function;
+    void *write_function;
+    void *subdata;
+} hm2_bspi_instance_t;
+
+typedef struct {
+    int version;
+    int num_instances;
+    hm2_bspi_instance_t *instance;
+    u8 instances;
+    u8 num_registers;
+} hm2_bspi_t;
 
 
 // 
@@ -841,6 +869,7 @@ typedef struct {
         int num_stepgens;
         int num_leds;
         int num_sserials;
+        int num_bspis;
         int num_sserial_chans[4];
         int enable_raw;
         char *firmware;
@@ -872,6 +901,7 @@ typedef struct {
     hm2_tp_pwmgen_t tp_pwmgen;
     hm2_stepgen_t stepgen;
     hm2_sserial_t sserial;
+    hm2_bspi_t bspi;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
     hm2_led_t led;
@@ -880,8 +910,6 @@ typedef struct {
 
     struct list_head list;
 } hostmot2_t;
-
-
 
 
 //
@@ -1053,6 +1081,26 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_stepgen_allocate_pins(hostmot2_t *hm2);
 
 
+//
+// Buffered SPI functions
+//
+
+int  hm2_bspi_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_bspi_print_module(hostmot2_t *hm2);
+void hm2_bspi_cleanup(hostmot2_t *hm2);
+void hm2_bspi_write(hostmot2_t *hm2);
+void hm2_bspi_force_write(hostmot2_t *hm2);
+void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period);
+void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period);
+int hm2_allocate_bspi_tram(char* name);
+int hm2_bspi_write_chan(char* name, int chan, u32 val);
+int hm2_get_bspi(hostmot2_t **hm2, char *name); // actually in hostmot.c
+int hm2_allocate_bspi_tram(char* name);
+int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
+                        int delay, int cpol, int cpha, int clear, int echo);
+int hm2_bspi_set_read_function(char *name, void *func, void *subdata);
+int hm2_bspi_set_write_function(char *name, void *func, void *subdata);
 
 
 // 
