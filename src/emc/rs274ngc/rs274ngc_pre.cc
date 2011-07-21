@@ -90,6 +90,9 @@ include an option for suppressing superfluous commands.
 #include "rs274ngc_interp.hh"
 //#include "rs274ngc_errors.cc"
 
+#include "interpmodule.hh"
+static void interpDeallocFunc(Interp *interp) {}
+
 #include "units.h"
 
 extern char * _rs274ngc_errors[];
@@ -850,36 +853,18 @@ int Interp::init()
           } else {
 	      _setup.on_abort_command = NULL;
           }
-#if 0
 
-	  if (NULL != (inistring = inifile.Find("PY_RELOAD_ON_CHANGE", "RS274NGC")))
-	      _setup.py_reload_on_change = (atoi(inistring) > 0);
-	  else
-	      _setup.py_reload_on_change = false;
+	  extern struct _inittab builtin_modules[];
+	  _setup.pp = PythonPlugin::getInstance(iniFileName,"PYTHON",  builtin_modules);
 
-	  if (NULL != (inistring = inifile.Find("PYTHONPATH", "RS274NGC")))
-	      _setup.py_path = strstore(inistring);
-	  else
-	      _setup.py_path = NULL;
+	  // horrible kludge, but dont know better for now
+	  {
 
-          if (NULL != (inistring = inifile.Find("PYMODULE", "RS274NGC"))) {
-	      _setup.py_module = strstore(inistring);
-	      int status;
-	      if (_setup.py_module_stat == PYMOD_OK) {
-		  logDebug("PYMODULE: module %s already imported OK, skipping",
-			   _setup.py_module);
-	      } else {
-		  if ((status = init_python(&(_setup))) != INTERP_OK) {
-		      logDebug("PYMODULE: import of module %s failed",_setup.py_module);
-		  }
-	      }
-          } else {
-	      _setup.py_module = NULL;
-          }
-#endif
-	 extern struct _inittab builtin_modules[];
+	      bp::object interp_module = bp::import("InterpMod");
 
-	  _setup.pp = PythonPlugin::getInstance(iniFileName,"RS274NGC",  builtin_modules);
+	      bp::scope(interp_module).attr("interp") =
+				interp_ptr(this, interpDeallocFunc);
+	  }
 	  int n = 1;
 	  int lineno = -1;
 	  _setup.g_remapped.clear();

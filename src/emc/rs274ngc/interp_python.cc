@@ -104,7 +104,6 @@ std::string handle_pyerror()
 }
 
 static  char module_path[PATH_MAX];
-extern int under_task;
 
 int Interp::init_python(setup_pointer settings, bool reload)
 {
@@ -242,45 +241,7 @@ bool Interp::is_pycallable(setup_pointer settings,
 			   const char *module,
 			   const char *funcname)
 {
-    // bool result = false;
-    // bool py_unexpected = false;
-    // std::string msg;
-    // bp::object function;
-
     return settings->pp->is_callable(module,funcname);
-
-    // if (settings->py_reload_on_change)
-    // 	py_reload_on_change(settings);
-    // if ((settings->py_module_stat != PYMOD_OK) ||
-    // 	(funcname == NULL)) {
-    // 	return false;
-    // }
-    // try {
-    // 	if (module == NULL) {  // default to function in toplevel module
-    // 	   function = settings->module_namespace[funcname];
-    // 	} else {
-    // 	    bp::object submod =  settings->module_namespace[module];
-    // 	    bp::object submod_namespace = submod.attr("__dict__");
-    // 	    function = submod_namespace[funcname];
-    // 	}
-    // 	result = PyCallable_Check(function.ptr());
-    // }
-    // catch (bp::error_already_set) {
-    // 	// KeyError expected if not a callable
-    // 	if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
-    // 	    // something else, strange
-    // 	    msg = handle_pyerror();
-    // 	    py_unexpected = true;
-    // 	}
-    // 	result = false;
-    // 	PyErr_Clear();
-    // }
-    // if (py_unexpected)
-    // 	logPy("is_pycallable(%s.%s): unexpected exception:\n%s",module,funcname,msg.c_str());
-
-    // if (_setup.loggingLevel > 5)
-    // 	logPy("is_pycallable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
-    // return result;
 }
 
 // all parameters to Python calls go through block, which looks a bit awkward
@@ -292,7 +253,6 @@ int Interp::pycall(setup_pointer settings,
 		   int calltype)
 {
     bp::object retval, function;
-    // PyGILState_STATE gstate;
     std::string msg;
     bool py_exception = false;
     int status = INTERP_OK;
@@ -301,11 +261,7 @@ int Interp::pycall(setup_pointer settings,
     if (_setup.loggingLevel > 4)
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
-    // if (settings->py_reload_on_change)
-    // 	py_reload_on_change(settings);
 
-    // &this->_setup wont work, _setup is currently private
-    // (well, it used to..)
     current_setup = get_setup(this);
     current_interp = this;
     block->returned = 0;
@@ -315,47 +271,15 @@ int Interp::pycall(setup_pointer settings,
 	    module ? module : "", funcname,
 	    settings->pp->plugin_status());
     }
-    // if (useGIL)
-    // 	gstate = PyGILState_Ensure();
 
-    // try {
-	switch (calltype) {
-
-	case PY_EXECUTE:
-	    // just run a string
-	    status = _setup.pp->run_string(funcname, retval);
-	    // retval = bp::exec(funcname,
-	    // 		      _setup.module_namespace,
-	    // 		      _setup.module_namespace);
-	    break;
-
-	default:
-	    status = _setup.pp->call(module,funcname, block->tupleargs,block->kwargs,retval);
-	    // if (module == NULL) {  // default to function in toplevel module
-	    // 	function = settings->module_namespace[funcname];
-	    // } else {
-	    // 	bp::object submod =  settings->module_namespace[module];
-	    // 	bp::object submod_namespace = submod.attr("__dict__");
-	    // 	function = submod_namespace[funcname];
-	    // }
-	    // retval = function(*block->tupleargs,**block->kwargs);
-	    break;
-	}
-    // }
-    // catch (bp::error_already_set) {
-    // 	if (PyErr_Occurred()) {
-    // 	    msg = handle_pyerror();
-    // 	}
-    // 	py_exception = true;
-    // 	bp::handle_exception();
-    // 	PyErr_Clear();
-    // }
-    // if (py_exception) {
-    // 	logPy("pycall: %s:\n%s", funcname, msg.c_str());
-    // 	ERM("pycall: %s:\n%s", funcname, msg.c_str());
-    // 	status = INTERP_ERROR;
-    // 	goto done;
-    // }
+    switch (calltype) {
+    case PY_EXECUTE: // just run a string
+	_setup.pp->run_string(funcname, retval);
+	break;
+    default:
+	status = _setup.pp->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	break;
+    }
     try {
 	switch  (calltype) {
 	case PY_OWORDCALL:
@@ -366,7 +290,7 @@ int Interp::pycall(setup_pointer settings,
 		if (PyFloat_Check(retval.ptr())) {
 		    block->py_returned_value = bp::extract<double>(retval);
 		    block->returned[RET_DOUBLE] = 1;
-		    logPy("pycall: O <%s> call returned %f", funcname, block->py_returned_value);
+		    logPy("call: O <%s> call returned %f", funcname, block->py_returned_value);
 		} else {
 		    // not a float, strange
 		    PyObject *res_str = PyObject_Str(retval.ptr());
@@ -452,62 +376,60 @@ int Interp::pycall(setup_pointer settings,
 	status = INTERP_ERROR;
     }
  done:
-    // if (useGIL)
-    // 	PyGILState_Release(gstate);
     return status;
 }
 
 // called by  (py, ....) comments
 int Interp::py_execute(const char *cmd)
 {
-    block b;
+    bp::object retval;
 
     logPy("py_execute(%s)",cmd);
-    init_block(&b);
 
-    return pycall(&_setup, &b,NULL, cmd, PY_EXECUTE);
+    _setup.pp->run_string(cmd, retval, false);
+    return INTERP_OK; // FIXME
 }
 
 
 
-// we borrow the interp Python environment for task-time calls
-int Interp::plugin_call(const char *module, const char *name, const char *call)
-{
-    int status;
-    block b;
+/// / we borrow the interp Python environment for task-time calls
+// int Interp::plugin_call(const char *module, const char *name, const char *call)
+// {
+//     int status;
+//     block b;
 
-    logPy("plugin_call(%s)",call);
-    init_block(&b);
+//     logPy("plugin_call(%s)",call);
+//     init_block(&b);
 
-    if (call != NULL) {
-	b.tupleargs = bp::make_tuple(bp::object(call));
-    }
+//     if (call != NULL) {
+// 	b.tupleargs = bp::make_tuple(bp::object(call));
+//     }
 
-    if (is_pycallable(&_setup, module, name)) {
-	status = pycall(&_setup, &b, module, name, PY_PLUGIN_CALL);
-	// if function returned an int, return that
-	if (b.returned[RET_STATUS])
-	    return b.py_returned_status;
-	return -1;
-    } else
-	return 0;
-}
+//     if (is_pycallable(&_setup, module, name)) {
+// 	status = pycall(&_setup, &b, module, name, PY_PLUGIN_CALL);
+// 	// if function returned an int, return that
+// 	if (b.returned[RET_STATUS])
+// 	    return b.py_returned_status;
+// 	return -1;
+//     } else
+// 	return 0;
+// }
 
-int Interp::task_init()
-{
-    int status;
-    block b;
-    _setup.running_under_task = true;
+// int Interp::task_init()
+// {
+//     int status;
+//     block b;
+//     _setup.running_under_task = true;
 
-    logPy("task_init()");
-    init_block(&b);
+//     logPy("task_init()");
+//     init_block(&b);
 
-    if (is_pycallable(&_setup, TASK_MODULE, TASK_INIT)) {
-	status = pycall(&_setup, &b,TASK_MODULE,  TASK_INIT, PY_PLUGIN_CALL);
-	// if function returned an int, return that
-	if (b.returned[RET_STATUS])
-	    return b.py_returned_status;
-	return -1;
-    } else
-	return 0;
-}
+//     if (is_pycallable(&_setup, TASK_MODULE, TASK_INIT)) {
+// 	status = pycall(&_setup, &b,TASK_MODULE,  TASK_INIT, PY_PLUGIN_CALL);
+// 	// if function returned an int, return that
+// 	if (b.returned[RET_STATUS])
+// 	    return b.py_returned_status;
+// 	return -1;
+//     } else
+// 	return 0;
+// }

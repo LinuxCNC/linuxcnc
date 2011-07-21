@@ -32,6 +32,9 @@
 #include "task.hh"		// emcTaskCommand etc
 #include "python_plugin.hh"
 
+#define TASK_INIT "task_init"
+#define PLUGIN_CALL "plugin_call"
+
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
 //note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
@@ -40,6 +43,9 @@
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 Interp interp;
+
+PythonPlugin *pyplugin;
+static int emcPythonReturnValue(const char *funcname, bp::object &retval);
 
 /*
   format string for user-defined programs, e.g., "programs/M1%02d" means
@@ -74,8 +80,12 @@ int emcTaskInit()
     struct stat buf;
     IniFile inifile;
     const char *inistring;
+    extern struct _inittab builtin_modules[];
 
     inifile.Open(EMC_INIFILE);
+
+    // this really only obtains the singleton instance already created by Interp
+    pyplugin  = PythonPlugin::getInstance(EMC_INIFILE,"PYTHON",  builtin_modules);
 
     // Identify user_defined_function directories
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
@@ -375,12 +385,6 @@ static void print_interp_error(int retval)
     }
 }
 
-int under_task = 1; // drives import of TaskMod
-int emcTaskOnce()
-{
-    return interp.task_init();  // let Interpreter know it's running under task
-}
-
 int emcTaskPlanInit()
 {
     interp.ini_load(EMC_INIFILE);
@@ -656,22 +660,57 @@ int emcAbortCleanup(int reason, const char *message)
     return status;
 }
 
+// int under_task = 1; // drives import of TaskMod
+int emcTaskOnce()
+{
+    bp::object retval;
+    bp::tuple arg;
+    bp::dict kwarg;
+
+    pyplugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
+
+    return emcPythonReturnValue(TASK_INIT, retval);
+}
+
+// task callables are expected to return an int.
+// extract it, and return that
+// else complain.
+// Also fail with an operator error if we caused an exception.
+static int emcPythonReturnValue(const char *funcname, bp::object &retval)
+{
+    int status = pyplugin->plugin_status();
+
+    if (status == PLUGIN_EXCEPTION) {
+	emcOperatorError(status,"emcPythonReturnValue(%s): %s",
+			 funcname, pyplugin->last_exception().c_str());
+	return -1;
+    }
+    if ((retval.ptr() != Py_None) &&
+	(PyInt_Check(retval.ptr()))) {
+	return  bp::extract<int>(retval);
+    } else {
+	PyObject *res_str = PyObject_Str(retval.ptr());
+	emcOperatorError(status, "emcPythonReturnValue(%s): expected int return value, got '%s' (%s)",
+			 funcname,
+			 PyString_AsString(res_str),
+			 retval.ptr()->ob_type->tp_name);
+	Py_XDECREF(res_str);
+	return -1;
+    }
+}
 
 int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 {
-    int status;
-    char error[LINELEN-30];
+    bp::object retval;
 
-    // reuses interpreter Python environment for task
-    status = interp.plugin_call(TASK_MODULE, PLUGINCALL, call_msg->call);
+    bp::object arg = bp::make_tuple(bp::object(call_msg->call));
+    bp::dict kwarg;
 
-    if (status == -1) {
-	const char *s = interp.getSavedError();
-	strncpy(error,s, sizeof(error) - 1);
-	emcOperatorError(0, "emcPluginCall: %s",error);
-    }
-    return status;
+    pyplugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
+
+    return emcPythonReturnValue(PLUGIN_CALL, retval);
 }
+
 extern "C" void initTaskMod();
 extern "C" void initInterpMod();
 extern "C" void initCanonMod();

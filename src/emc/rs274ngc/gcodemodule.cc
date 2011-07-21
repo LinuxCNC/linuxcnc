@@ -37,9 +37,6 @@ struct _inittab builtin_modules[] = {
     // any others...
     { NULL, NULL }
 };
-// extern "C" void initTaskMod();
-// void initTaskMod() {}
-int under_task = 0; // drives import of TaskMod
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);

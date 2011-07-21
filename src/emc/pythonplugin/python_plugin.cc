@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 // #define MAX_ERRMSG_SIZE 256
 
@@ -193,7 +194,7 @@ int PythonPlugin::reload()
 	initialize(true);
 	logPP(1, "reload(): module %s reloaded, status=%d", module_basename, status);
     } else {
-	logPP(3, "reload: no-op");
+	logPP(9, "reload: no-op");
 	status = PLUGIN_OK;
     }
     return status;
@@ -213,7 +214,6 @@ std::string PythonPlugin::last_errmsg()
 {
     return error_msg;
 }
-
 
 // decode a Python exception into a string.
 std::string PythonPlugin::handle_pyerror()
@@ -251,14 +251,14 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 {
     IniFile inifile;
     const char *inistring;
-    // const char *modpath = NULL;
-    // const char *modname;
 
-    if(Py_IsInitialized()) {
-	logPP(1, "Python already initialized");
-	gdb_in_window(1);
-	return;
-    }
+    logPP(0,"PythonPlugin(pid=%d) %d", getpid(),Py_IsInitialized());
+
+    // if(Py_IsInitialized()) {  // True under Axis!
+    // 	logPP(1, "Python already initialized pid=%d", getpid());
+    // 	gdb_in_window(1);
+    // 	return;
+    // }
     if (section == NULL) {
 	logPP(1, "no section");
 	status = PLUGIN_NO_SECTION;
@@ -341,9 +341,14 @@ PythonPlugin *PythonPlugin::getInstance(const char *iniFilename,
 					const char *section,
 					struct _inittab *inittab)
 {
+    static pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+
+    pthread_mutex_lock( &mutex1 );
     if (instance == NULL) {
 	instance =  new PythonPlugin(iniFilename, section, inittab);
     }
+    pthread_mutex_unlock( &mutex1 );
+
     return instance;
 }
 

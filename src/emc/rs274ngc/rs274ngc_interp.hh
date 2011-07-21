@@ -548,16 +548,8 @@ public:
 	       const char *funcname,
 	       int calltype);
     int py_execute(const char *cmd); // for (py, ....) comments
-#define PLUGINCALL "plugin_call"
-    int plugin_call(const char *module, const char *name, const char *call);
-
     int py_reload_on_change(setup_pointer settings);
 
-    // this method is called by task once after startup to let the
-    // interpreter know it's the one running under task
-    int task_init();
-    // name of corresponding Python callabled called by task_init()
-#define TASK_INIT "task_init"
     const char *getSavedError();
 
  int convert_straight_indexer(int, block*, setup*);

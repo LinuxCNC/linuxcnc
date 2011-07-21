@@ -246,7 +246,6 @@ struct SettingsArray {
     }
 };
 static struct SettingsArray active_settings_array;
-extern int under_task;
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -255,7 +254,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
     scope().attr("__doc__") =
         "Interpreter introspection\n"
         ;
-    scope().attr("under_task") = under_task;
 
     scope().attr("INTERP_OK") = INTERP_OK;
     scope().attr("INTERP_EXIT") = INTERP_EXIT;
@@ -436,7 +434,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readonly("filename", (char *) &InterpWrap::_setup.filename)
 		       .def_readonly("linetext", (char *) &InterpWrap::_setup.linetext)
 		       .def_readonly("current_tool", &InterpWrap::_setup.tool_table[0].toolno)
-		       .def_readonly("running_under_task", &InterpWrap::_setup.running_under_task)
 
 		       .def_readwrite("AA_axis_offset", &InterpWrap::_setup.AA_axis_offset)
 		       .def_readwrite("AA_current", &InterpWrap::_setup.AA_current)

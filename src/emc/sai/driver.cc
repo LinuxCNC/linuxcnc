@@ -498,7 +498,6 @@ instructions are printed to stdout (with printf), the instructions get
 redirected and the user does not see them.
 
 */
-int under_task; // drive import of TaskMod
 
 int main (int argc, char ** argv)
 {
@@ -516,7 +515,6 @@ int main (int argc, char ** argv)
   int go_flag;
   char *inifile = NULL;
   int log_level = -1;
-  int do_task_init = 0;
 
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
@@ -527,7 +525,7 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
   while(1) {
-      int c = getopt(argc, argv, "Tt:v:bsn:gi:l:");
+      int c = getopt(argc, argv, "t:v:bsn:gi:l:");
       if(c == -1) break;
 
       switch(c) {
@@ -539,7 +537,6 @@ int main (int argc, char ** argv)
           case 'l': log_level = atoi(optarg); break;
           case 'g': go_flag = !go_flag; break;
           case 'i': inifile = optarg; break;
-          case 'T': do_task_init = 1; under_task = 1; break;
           case '?': default: goto usage;
       }
   }
@@ -633,8 +630,6 @@ usage:
   if (log_level != -1)
       interp_set_loglevel(log_level);
 
-  if (do_task_init)
-      status = interp_task_init();
 
   if (argc == 1)
     status = interpret_from_keyboard(block_delete, print_stack);

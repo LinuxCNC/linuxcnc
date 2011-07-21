@@ -709,7 +709,6 @@ typedef struct setup_struct
 
     PythonPlugin *pp;
 
-    bool running_under_task;
 } setup;
 
 typedef setup *setup_pointer;
