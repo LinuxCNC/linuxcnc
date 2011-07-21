@@ -23,6 +23,7 @@
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
+#include "python_plugin.hh"
 
 
 #define _(s) gettext(s)
@@ -697,19 +698,23 @@ typedef struct setup_struct
     int_remap_type  g_remapped,m_remapped;
     remap_type remaps;
 
+#if 0
     const char *py_module;   // top level module to import
     const char *py_path;     // prepended to PYTHONPATH
-
-    int py_module_stat;
+        int py_module_stat;
     int py_reload_on_change;
     time_t    module_mtime;   // top level module - last modification time
     boost::python::object module_namespace;
+#endif
+
+    PythonPlugin *pp;
+
     bool running_under_task;
 } setup;
 
 typedef setup *setup_pointer;
 
-enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
+// enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
 
 
 

@@ -25,11 +25,20 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
+void gdb_in_window(int sig) {}
 
 char _parameter_file_name[LINELEN];
-
-extern "C" void initTaskMod();
-void initTaskMod() {}
+extern "C" void initInterpMod();
+extern "C" void initCanonMod();
+extern "C" struct _inittab builtin_modules[];
+struct _inittab builtin_modules[] = {
+    { (char *) "InterpMod", initInterpMod },
+    { (char *) "CanonMod", initCanonMod },
+    // any others...
+    { NULL, NULL }
+};
+// extern "C" void initTaskMod();
+// void initTaskMod() {}
 int under_task = 0; // drives import of TaskMod
 
 static PyObject *int_array(int *arr, int sz) {

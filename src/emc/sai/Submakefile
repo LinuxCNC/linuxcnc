@@ -1,5 +1,5 @@
 TARGETS += ../bin/rs274
-SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc dummyemcstat.cc) \
+SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc dummyemcstat.cc builtin_modules.cc) \
 	emc/rs274ngc/tool_parse.cc emc/task/taskmodule.cc
 USERSRCS += $(SAISRCS)
 

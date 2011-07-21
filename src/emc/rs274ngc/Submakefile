@@ -45,7 +45,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 #libtool=`cat libtool | sed "s/-nostdlib/-nostdlib -lstdc++/g"`
 #echo "$libtool" > libtool
 
-../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) ../lib/libemcini.so
+../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) ../lib/libemcini.so ../lib/libpyplugin.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@

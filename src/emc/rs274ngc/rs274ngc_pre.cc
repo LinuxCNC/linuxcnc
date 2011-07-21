@@ -108,10 +108,10 @@ const char *Interp::interp_status(int status) {
 
 int trace;
 
-Interp::Interp() 
+Interp::Interp()
     : log_file(0)
 {
-    _setup.py_module_stat = PYMOD_NONE;
+    // _setup.py_module_stat = PYMOD_NONE;
     init_named_parameters();  // need this before Python init. FIXME logging broken - too early in startup
     if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
@@ -842,7 +842,6 @@ int Interp::init()
           {
               logDebug("SUBROUTINE_PATH not found");
           }
-
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
           if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
@@ -851,6 +850,7 @@ int Interp::init()
           } else {
 	      _setup.on_abort_command = NULL;
           }
+#if 0
 
 	  if (NULL != (inistring = inifile.Find("PY_RELOAD_ON_CHANGE", "RS274NGC")))
 	      _setup.py_reload_on_change = (atoi(inistring) > 0);
@@ -876,7 +876,10 @@ int Interp::init()
           } else {
 	      _setup.py_module = NULL;
           }
+#endif
+	 extern struct _inittab builtin_modules[];
 
+	  _setup.pp = PythonPlugin::getInstance(iniFileName,"RS274NGC",  builtin_modules);
 	  int n = 1;
 	  int lineno = -1;
 	  _setup.g_remapped.clear();

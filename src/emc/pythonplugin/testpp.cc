@@ -13,6 +13,8 @@
 	}							       \
     } while(0)
 
+void gdb_in_window(int sig) {}
+
 void analyze(const char *what,bp::object retval)
 {
     PyObject *res_str = PyObject_Str(retval.ptr());

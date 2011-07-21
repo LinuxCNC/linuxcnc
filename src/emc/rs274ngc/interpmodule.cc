@@ -494,7 +494,7 @@ BOOST_PYTHON_MODULE(InterpMod) {
 		       .def_readwrite("program_x", &InterpWrap::_setup.program_x)
 		       .def_readwrite("program_y", &InterpWrap::_setup.program_y)
 		       .def_readwrite("program_z", &InterpWrap::_setup.program_z)
-		       .def_readwrite("py_reload_on_change", &InterpWrap::_setup.py_reload_on_change)
+		       //		       .def_readwrite("py_reload_on_change", &InterpWrap::_setup.py_reload_on_change)
 		       .def_readwrite("random_toolchanger", &InterpWrap::_setup.random_toolchanger)
 		       .def_readwrite("remap_level", &InterpWrap::_setup.remap_level)
 		       .def_readwrite("retract_mode", &InterpWrap::_setup.retract_mode)

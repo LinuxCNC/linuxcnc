@@ -243,6 +243,8 @@ PythonPlugin::~PythonPlugin()
 
 PythonPlugin* PythonPlugin::instance = NULL;
 
+extern void gdb_in_window(int sig);
+
 PythonPlugin::PythonPlugin(const char *iniFilename,
 			   const char *section,
 			   struct _inittab *inittab)
@@ -254,7 +256,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 
     if(Py_IsInitialized()) {
 	logPP(1, "Python already initialized");
-	status = PLUGIN_PYTHON_ALREADY_INITIALIZED;
+	gdb_in_window(1);
 	return;
     }
     if (section == NULL) {

@@ -30,6 +30,7 @@
 #include "inifile.hh"
 #include "rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
+#include "python_plugin.hh"
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -671,4 +672,13 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
     }
     return status;
 }
-
+extern "C" void initTaskMod();
+extern "C" void initInterpMod();
+extern "C" void initCanonMod();
+struct _inittab builtin_modules[] = {
+    { (char *) "InterpMod", initInterpMod },
+    { (char *) "CanonMod", initCanonMod },
+    { (char *) "TaskMod", initTaskMod },
+    // any others...
+    { NULL, NULL }
+};
