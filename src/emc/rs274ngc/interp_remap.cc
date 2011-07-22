@@ -393,6 +393,12 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	break;
 
     default:
+	// make sure the python plugin is in a usable state if needed
+	if ((r->prolog_func || r->remap_py || r->epilog_func) &&
+	    (!PYUSABLE(_setup.pyplugin)))  {
+	    fprintf(stderr, "fatal: REMAP requires the Python plugin, which did not initialize\n");
+	    break;
+	}
 	Log("REMAP BUG=%s %d:REMAP = %s",
 	    code,lineno,inistring);
     }

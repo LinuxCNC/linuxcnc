@@ -1414,20 +1414,15 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   }
   else if (startswith(lc, PY_STR))
   {
-      py_execute(comment + start + strlen(PY_STR), false);
-      return INTERP_OK;
+      return py_execute(comment + start + strlen(PY_STR), false);
   }
   else if (startswith(lc, PYRUN_STR))
   {
-      py_execute(comment + start + strlen(PYRUN_STR), true);
-      return INTERP_OK;
+      return py_execute(comment + start + strlen(PYRUN_STR), true);
   }
   else if (startswith(lc, PYRELOAD_STR))
   {
-      _setup.pp->initialize(true);
-      CHKS((_setup.pp->plugin_status() == PLUGIN_EXCEPTION),
-	   "pyreload:\n%s",  _setup.pp->last_exception().c_str());
-      return INTERP_OK;
+      return py_reload();
   }
   else if (streq(lc, LOGCLOSE_STR))
   {

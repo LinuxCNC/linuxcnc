@@ -546,6 +546,7 @@ public:
 	       const char *funcname,
 	       int calltype);
     int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
+    int py_reload();
 
     const char *getSavedError();
 

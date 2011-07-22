@@ -101,6 +101,15 @@ std::string handle_pyerror()
     formatted = str("\n").join(formatted_list);
     return extract<std::string>(formatted);
 }
+int Interp::py_reload()
+{
+    if (PYUSABLE(_setup.pyplugin)) {
+	_setup.pyplugin->initialize(true);
+	CHKS((_setup.pyplugin->plugin_status() == PLUGIN_EXCEPTION),
+	     "py_reload:\n%s",  _setup.pyplugin->last_exception().c_str());
+    }
+    return INTERP_OK;
+}
 
 
 // determine wether [module.]funcname is callable
@@ -108,10 +117,10 @@ bool Interp::is_pycallable(setup_pointer settings,
 			   const char *module,
 			   const char *funcname)
 {
-  if (!_setup.pp)
+    if (!PYUSABLE(settings->pyplugin))
       return false;
 
-    return settings->pp->is_callable(module,funcname);
+    return settings->pyplugin->is_callable(module,funcname);
 }
 
 // all parameters to Python calls go through block, which looks a bit awkward
@@ -131,25 +140,29 @@ int Interp::pycall(setup_pointer settings,
     if (_setup.loggingLevel > 4)
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
+    CHKS(!PYUSABLE(settings->pyplugin), "pycall(%s): Pyhton plugin not initialized",funcname);
 
-    current_setup = get_setup(this);
+    current_setup = &_setup; // get_setup(this);
     current_interp = this;
     block->returned = 0;
 
-    if (settings->pp->plugin_status() < PLUGIN_OK) {
-	ERS("function '%s.%s' : plugin status bad=%d",
-	    module ? module : "", funcname,
-	    settings->pp->plugin_status());
-    }
+    // if (settings->pyplugin->plugin_status() < PLUGIN_OK) {
+    // 	ERS("function '%s.%s' : plugin status bad=%d",
+    // 	    module ? module : "", funcname,
+    // 	    settings->pyplugin->plugin_status());
+    // }
 
     switch (calltype) {
     case PY_EXECUTE: // just run a string
-	_setup.pp->run_string(funcname, retval);
+	_setup.pyplugin->run_string(funcname, retval);
 	break;
     default:
-	status = _setup.pp->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	_setup.pyplugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
 	break;
     }
+    CHKS(settings->pyplugin->plugin_status() == PLUGIN_EXCEPTION,
+	 "py_call(%s):\n%s", funcname,
+	 settings->pyplugin->last_exception().c_str());
     try {
 	switch  (calltype) {
 	case PY_OWORDCALL:
@@ -254,15 +267,14 @@ int Interp::py_execute(const char *cmd, bool as_file)
 {
     bp::object retval;
 
-    if (!_setup.pp)
-	return INTERP_OK;
-
     logPy("py_execute(%s)",cmd);
 
-    _setup.pp->run_string(cmd, retval, as_file);
-    CHKS((_setup.pp->plugin_status() == PLUGIN_EXCEPTION),
+    CHKS(!PYUSABLE(_setup.pyplugin), "py_execute(%s): Python plugin not initialized",cmd);
+
+    _setup.pyplugin->run_string(cmd, retval, as_file);
+    CHKS((_setup.pyplugin->plugin_status() == PLUGIN_EXCEPTION),
 	 "py_execute(%s)%s:\n%s", cmd,
-	 as_file ? " as file" : "", _setup.pp->last_exception().c_str());
+	 as_file ? " as file" : "", _setup.pyplugin->last_exception().c_str());
     return INTERP_OK;
 }
 

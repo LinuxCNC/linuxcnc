@@ -41,6 +41,7 @@ public:
     int run_string(const char *cmd, bp::object &retval, bool as_file = false);
 
     int plugin_status();
+    bool usable() { return (status >= PLUGIN_OK); }
     void initialize(bool reload = false);
     std::string last_exception();
     std::string last_errmsg();

@@ -854,15 +854,16 @@ int Interp::init()
 	      _setup.on_abort_command = NULL;
           }
 
+	  // initialize the Python plugin singleton
 	  extern struct _inittab builtin_modules[];
-	  _setup.pp = PythonPlugin::getInstance(iniFileName,"PYTHON",  builtin_modules);
+	  _setup.pyplugin = PythonPlugin::getInstance(iniFileName,"PYTHON",  builtin_modules);
 
-	  // horrible kludge, but dont know better for now
-	  if (_setup.pp != NULL) {
-	      bp::object interp_module = bp::import("interpreter");
-
-	      bp::scope(interp_module).attr("this") =
-				interp_ptr(this, interpDeallocFunc);
+	  // make the interpreter instance available as 'interpreter.this'
+	  // I dont know better for now
+	  // the alternative is wrapping Interp in a shared_ptr, which has too-far reaching impact
+	  if (PYUSABLE(_setup.pyplugin))  {
+	      bp::object interp_module = bp::import ("interpreter").attr ("__dict__");
+	      interp_module["this"] = interp_ptr(this, interpDeallocFunc);
 	  }
 	  int n = 1;
 	  int lineno = -1;
@@ -871,9 +872,11 @@ int Interp::init()
 	  _setup.remaps.clear();
 	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
 						   n, &lineno))) {
+
 	      parse_remap( inistring,  lineno);
 	      n++;
 	  }
+	  // for generating docs...
 	  if (NULL != (inistring = inifile.Find("PRINT_CODES", "RS274NGC"))) {
 	      int i;
 

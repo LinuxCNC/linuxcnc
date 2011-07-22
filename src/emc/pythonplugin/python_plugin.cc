@@ -4,28 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// #define MAX_ERRMSG_SIZE 256
+#define MAX_ERRMSG_SIZE 256
 
-// #define ERRMSG(fmt, args...)					\
-//     do {							\
-//         char msgbuf[MAX_ERRMSG_SIZE];				\
-//         snprintf(msgbuf, sizeof(msgbuf) -1,  fmt, ##args);	\
-//         error_msg = std::string(msgbuf);			\
-//     } while(0)
-
-
-// #define PYCHK(bad, fmt, ...)					       \
-//     do {							       \
-// 	if (bad) {						       \
-// 	    fprintf(stderr,fmt, ## __VA_ARGS__);		       \
-// 	    fprintf(stderr,"\n");				       \
-// 	    ERRMSG(fmt, ## __VA_ARGS__);			       \
-// 	    return PLUGIN_ERROR;				       \
-// 	}							       \
-//     } while(0)
+#define ERRMSG(fmt, args...)					\
+    do {							\
+        char msgbuf[MAX_ERRMSG_SIZE];				\
+        snprintf(msgbuf, sizeof(msgbuf) -1,  fmt, ##args);	\
+        error_msg = std::string(msgbuf);			\
+    } while(0)
 
 #define logPP(level, fmt, ...)						\
     do {								\
+        ERRMSG(fmt, ## __VA_ARGS__);					\
 	if (log_level >= level) {					\
 	    fprintf(stderr, fmt, ## __VA_ARGS__);			\
 	    fprintf(stderr,"\n");					\
@@ -329,13 +319,10 @@ PythonPlugin *PythonPlugin::getInstance(const char *iniFilename,
 					const char *section,
 					struct _inittab *inittab)
 {
-    static bool failed = false;
-
-    if (!failed && (instance == NULL)) {
+    if (instance == NULL) {
 	instance =  new PythonPlugin(iniFilename, section, inittab);
-	failed = (instance->plugin_status() < PLUGIN_OK);
     }
 
-    return failed ? NULL: instance;
+    return instance;
 }
 
