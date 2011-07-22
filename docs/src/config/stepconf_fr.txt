@@ -52,36 +52,40 @@ Créer un lanceur de bureau::
 
 image::images/stepconf-basic_fr.png[]
 
-Nom de la machine::(((Nom de la machine)))
+Nom de la machine::
+    (((Nom de la machine)))
     Choisissez un nom pour votre machine. 
     Utilisez uniquement des lettres majuscules, minuscules, des chiffres ou «-» et «_».
 
-Configuration des axes::(((Configuration des axes)))
+Configuration des axes::
+    (((Configuration des axes)))
     Choisissez votre type de machine: 
     XYZ (fraiseuse), XYZA (fraiseuse 4-axe) ou XZ (tour).
 
-Les unités utilisées par la machine::(((Les unités utilisées par la machine)))
+Les unités utilisées par la machine::
+    (((Les unités utilisées par la machine)))
     Choisissez entre pouce ou millimètre. Toutes les questions suivantes
     (telles que la longueur des courses, le pas de la vis, etc) 
     devront obtenir des réponses dans l'unité choisie ici.
 
-Caractéristiques du pilote::(((Caractéristiques du pilote)))
+Caractéristiques du pilote::
+    (((Caractéristiques du pilote)))
     Si vous avez un des pilotes énumérés dans la liste déroulante, cliquez sur lui. 
     Sinon, trouvez les 4 valeurs de timing dans
     la fiche de votre pilote de données et de les saisir. 
     Si la fiche donne des valeurs en microsecondes, multipliez les par 1000. 
     Par exemple, pour 4.5µs entrez 4500ns. 
 
-    Une liste de certains des pilotes pas à pas populaires, avec leurs valeurs de timing,
-    est sur le wiki sous LinuxCNC.org
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing [Le calendrier pilotes pas à pas].
+Une liste de certains des pilotes pas à pas populaires, avec leurs valeurs de timing,
+est sur le wiki sous LinuxCNC.org
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing [Le calendrier pilotes pas à pas].
 
-    Conditionnement de signaux supplémentaires ou d'isolement telles que 
-    optocoupleurs et filtres RC sur les planches de sortir 
-    peut imposer des contraintes temporelles de leurs propres, en plus de ceux du pilote. 
-    Vous trouverez peut-être nécessaire de
-    ajouter un peu de temps pour les besoins d'entraînement pour permettre cela. 
-    Le EMC Configuration Sélecteur a configs pour Sherline déjà configuré.
+Conditionnement de signaux supplémentaires ou d'isolement telles que 
+optocoupleurs et filtres RC sur les planches de sortir 
+peut imposer des contraintes temporelles de leurs propres, en plus de ceux du pilote. 
+Vous trouverez peut-être nécessaire de
+ajouter un peu de temps pour les besoins d'entraînement pour permettre cela. 
+Le EMC Configuration Sélecteur a configs pour Sherline déjà configuré.
 
 Pas de temps::
     Depuis combien de temps le pouls étape est sur "on" en nanosecondes.
@@ -103,20 +107,24 @@ Deuxième Parport::
     Pour plus d'informations sur la recherche de l'adresse du PCI ports parallèles
     Voir l'adresse du port dans le manuel de l'intégrateur. (Essayez de 0x278 ou 0x3BC première fois.)
 
-Période maximale de base de gigue::(((base maximale de gigue Période)))
+Période maximale de base de gigue::
+    (((base maximale de gigue Période)))
     Entrez le résultat du test de latence ici. 
     Pour exécuter un test de latence de presse de la "période de base de test de gigue" bouton.
     Voir la section test de latence pour plus de détails.
 
-Étape maxi Prix::(((étape Max Rate)))
+Étape maxi Prix::
+    (((étape Max Rate)))
     Stepconf calcule automatiquement le taux de l'étape Max sur la base des
     caractéristiques du conducteur entré et le résultat du test de latence.
 
-Base de Min Min Période::((( période de base)))
+Base de Min Min Période::
+    (((période de base)))
     Stepconf détermine automatiquement la base de Min Période sur la base des 
     caractéristiques du conducteur entré et test de latence résultat. 
 
-Prompt à l'écran pour changement d'outil rapide::(((l'écran pour changement d'outil)))
+Prompt à l'écran pour changement d'outil rapide::
+     (((l'écran pour changement d'outil)))
      Si cette case est cochée, EMC va faire une pause et vous invite
      de changer l'outil lorsque *M6* est rencontré.
      Laissez cette case cochée sauf si vous prévoyez d'ajouter le support
@@ -183,7 +191,8 @@ au brochage de votre port parallèle.
 Cochez la case «inverser» si le signal est inversé 
 (0V pour vrai/actif, 5V pour faux/inactif). 
 
-Sorties préselectionnées::(((Sorties preselectionnees)))
+Sorties préselectionnées::
+    (((Sorties preselectionnees)))
     Réglage automatique des pins 2 à 9 selon le standard Sherline 
     (Direction sur les pins 2, 4, 6, 8) ou selon le standard Xylotex 
     (Direction sur les pins 3, 5, 7, 9).
@@ -213,22 +222,26 @@ Pompe de charge:
 
 image::images/stepconf-axis_fr.png[]
 
-Nombre de pas par tour::(((Nombre de pas par tour)))
+Nombre de pas par tour::
+    (((Nombre de pas par tour)))
     Nombre de pas entiers par tour de moteur. 
     Si vous connaissez l'angle d'un pas en degrés (par exemple, 1.8 degrés), 
     puis diviser 360 par le degrés par étape pour trouver les 
     nombre de pas par tour moteur. 
 
-Micropas du pilote::(((Micropas du pilote)))
+Micropas du pilote::
+    (((Micropas du pilote)))
     Le nombre de micropas produits par le pilote. 
     Entrez «2» pour le demipas.
 
-Dents des poulies::(((Dents des poulies)))
+Dents des poulies::
+    (((Dents des poulies)))
     Si votre machine dispose de poulies entre le moteur et la vis, 
     entrez ici le nombre de dents de chacune d'elles. 
     Pour un entraînement direct, entrez «1:1». 
 
-Pas de la vis::(((Pas de la vis)))
+Pas de la vis::
+    (((Pas de la vis)))
     Entrez ici le pas de la vis. 
     Si vous avez choisi le «pouce» comme unité, entrez le nombre 
     de filets par pouce (exemple, entrez 8 pour 8 TPI). 
@@ -240,16 +253,19 @@ Pas de la vis::(((Pas de la vis)))
     entrez une valeur négative au lieu d'une positive, 
     ou inverser la broche la direction de l'axe. 
 
-Vitesse maximum::(((Vitesse maximum)))
+Vitesse maximum::
+    (((Vitesse maximum)))
     Entrez la vitesse maximale de l'axe en unités par seconde.
     
-Accélération maximum::(((Accélération maximum)))
+Accélération maximum::
+    (((Accélération maximum)))
     Les valeurs correctes pour ces deux entrées ne peuvent être
     déterminées que par l'expérimentation. Consultez 
     <<sub:Trouver-Vitesse-Maximale>> pour trouver la vitesse et 
     <<sub:Trouver-Acceleration-Maximale>> pour trouver l'accélération. 
 
-Emplacement de l'origine machine::(((Emplacement de l'origine machine)))
+Emplacement de l'origine machine::
+    (((Emplacement de l'origine machine)))
     La position sur laquelle la machine se place après avoir terminé la
     procédure de prise d'origine de cet axe. 
     Pour les machines sans contact placé au point d'origine, 
@@ -259,19 +275,22 @@ Emplacement de l'origine machine::(((Emplacement de l'origine machine)))
     vous devez déplacer hors de l'interrupteur à la position de la point d'origine 
     ou vous obtiendrez une erreur de limite conjointe. 
 
-Course de la table::(((Course de la table)))
+Course de la table::
+    (((Course de la table)))
     Étendue de la course que le programme en gcode ne doit jamais dépasser. 
     L'origine machine doit être située à l'intérieur de cette course. 
     En particulier, avoir un point d'origine exactement égal à une
     de ces limites de course est une configuration incorrecte.
 
-Position du contact d'origine machine::(((Position du contact d'origine machine)))
+Position du contact d'origine machine::
+    (((Position du contact d'origine machine)))
     Position à laquelle le contact d'origine machine est activé ou relâché
     pendant la procédure de prise d'origine machine. Ces entrées et les
     deux suivantes, n'apparaissent que si les contacts d'origine ont été
     sélectionnés dans le réglage des broches du port parallèle.
 
-Vitesse de recherche de l'origine::(((Vitesse de recherche de l'origine)))
+Vitesse de recherche de l'origine::
+    (((Vitesse de recherche de l'origine)))
     Vitesse utilisée pendant le déplacement vers le contact d'origine machine. 
     Si le contact est proche d'une limite de déplacement de la table, 
     cette vitesse doit être suffisamment basse pour permettre de
@@ -285,7 +304,8 @@ Vitesse de recherche de l'origine::(((Vitesse de recherche de l'origine)
     procédure de prise d'origine machine, rendez négative la valeur de
     *Vitesse de recherche de l'origine*.
 
-Dégagement du contact d'origine::(((Dégagement du contact d'origine)))
+Dégagement du contact d'origine::
+    (((Dégagement du contact d'origine)))
     Choisissez «Identique» pour que la machine reparte en arrière pour dégager le contact, 
     puis revienne de nouveau vers lui à très petite vitesse. 
     La seconde fois que le contact se ferme, la position de l'origine machine est acquise. 
@@ -293,13 +313,16 @@ Dégagement du contact d'origine::(((Dégagement du contact d'origine)))
     à très petite vitesse jusqu'au dégagement du contact. 
     Quand le contact s'ouvre, la position de l'origine machine est acquise.
 
-Temps pour accélérer à la vitesse maxi::(((Temps pour accélérer à la vitesse maxi)))
+Temps pour accélérer à la vitesse maxi::
+    (((Temps pour accélérer à la vitesse maxi)))
     Temps calculé.
 
-Distance pour accélérer à la vitesse maxi::(((Distance pour accélérer à la vitesse maxi)))
+Distance pour accélérer à la vitesse maxi::
+    (((Distance pour accélérer à la vitesse maxi)))
     Distance calculée.
 
-Fréquence des impulsions à la vitesse maxi::(((Fréquence des impulsions à la vitesse maxi)))
+Fréquence des impulsions à la vitesse maxi::
+    (((Fréquence des impulsions à la vitesse maxi)))
     Informations calculées sur la base des informations entrées précédemment. 
     Il faut rechercher la plus haute *Fréquence des impulsions à la vitesse maxi* possible, 
     elle détermine la période de base: *BASE_PERIOD*. 
@@ -308,12 +331,13 @@ Fréquence des impulsions à la vitesse maxi::(((Fréquence des impulsio
     (La plus grande fréquence utilisable variera d'un ordinateur à un autre)
 
 Échelle de l'axe:
-     Le nombre qui sera utilisé dans le fichier ini [SCALE] réglage.
-     C'est le nombre d'étapes par unité utilisateur.
+    Le nombre qui sera utilisé dans le fichier ini [SCALE] réglage.
+    C'est le nombre d'étapes par unité utilisateur.
 
-Test de cet axe::(((Test de cet axe)))
-     Cela va ouvrir une fenêtre pour permettre de tester pour chaque axe.
-     Ceci peut être utilisé après avoir rempli toutes les informations pour cet axe.
+Test de cet axe::
+    (((Test de cet axe)))
+    Cela va ouvrir une fenêtre pour permettre de tester pour chaque axe.
+    Ceci peut être utilisé après avoir rempli toutes les informations pour cet axe.
 
 === Test Ce Axis
 
@@ -325,7 +349,7 @@ Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et d
 
 ==== Trouver Vitesse Maximale[[sub:Trouver-Vitesse-Maximale]](((Trouver Vitesse Maximale)))
 
-Commencez par une faible accélération (par exemple, 2 po/s^2 ou 50mm/s^2) et 
+Commencez par une faible accélération (par exemple, latexmath:[ 2 po/s^2 ] ou latexmath:[ 50 mm/s^2]) et 
 le la vitesse que vous espérez atteindre. 
 En utilisant les boutons fournis, déplacer l'axe à proximité du centre du voyage. 
 Prenez soin, car avec une faible accélération valeur, 
@@ -391,13 +415,15 @@ Cette page ne s'affiche que lorsque "broche PWM" est choisi dans le
 Si «PWM broche» apparaît dans le réglage du port parallèle, les
 informations suivantes doivent être renseignées:
 
-Fréquence PWM::(((Fréquence PWM)))
+Fréquence PWM::
+    (((Fréquence PWM)))
     La fréquence porteuse du signal PWM (modulation de largeur d'impulsions) du moteur de broche. 
     Entrez «0» pour le mode PDM (modulation de densité d'impulsions), 
     qui est très utile pour générer une tension de consigne analogique. 
     Reportez-vous à la documentation de votre variateur de broche pour la valeur appropriée. 
 
-Vitesse 1 et 2, PWM 1 et 2::(((Vitesse 1 et 2)))(((PWM 1 et 2)))
+Vitesse 1 et 2, PWM 1 et 2::
+    (((Vitesse 1 et 2)))(((PWM 1 et 2)))
     Le fichier de configuration généré utilise une simple relation linéaire 
     pour déterminer la valeur PWM correspondante à une vitesse de rotation. 
     Si les valeurs ne sont pas connues, elles peuvent être déterminées. 
@@ -410,14 +436,17 @@ Lorsque les signaux appropriés à partir d'un codeur de broche sont connectés 
 EMC2 via HAL, EMC soutient tour à fileter.
 Ces signaux sont:
 
-Index codeur broche::(((Index codeur broche)))
+Index codeur broche::
+    (((Index codeur broche)))
     Est une impulsion qui survient une fois par révolution de la broche.
 
-Phase A codeur broche::(((Phase A codeur broche)))
+Phase A codeur broche::
+    (((Phase A codeur broche)))
     Ceci est une impulsion qui se produit dans plusieurs endroits équidistants 
     que les virages de la broche.
 
-Phase B codeur broche (en option)::(((Phase B codeur broche)))
+Phase B codeur broche (en option)::
+    (((Phase B codeur broche)))
     Il s'agit d'une deuxième impulsion qui se produit,
     mais avec un décalage par rapport à la phase A. 
     Les avantages à utiliser à la fois A et B sont
@@ -426,7 +455,8 @@ Phase B codeur broche (en option)::(((Phase B codeur broche)))
 Si «Phase A codeur broche» et «Index broche» apparaissent 
 dans le réglage des broches du port, l'information suivante doit être renseignée:
 
-Cycles par tour::(((Cycles par tour)))
+Cycles par tour::
+    (((Cycles par tour)))
     Le nombre de cycles de la *broche A* Un signal durant une révolution de la broche.
     Cette option est activée uniquement lorsqu'une entrée a été fixé à la "Phase de broche A"
 

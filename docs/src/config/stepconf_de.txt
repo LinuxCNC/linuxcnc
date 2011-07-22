@@ -53,35 +53,39 @@ Create Desktop Launcher::
 
 image::images/stepconf-basic.png[]
 
-Machine Name::(((Machine Name)))
+Machine Name::
+    (((Machine Name)))
     Choose a name for your machine. 
     Use only uppercase letters, lowercase letters, digits, "-" and "_".
 
-Axis Configuration::(((Axis Configuration)))
+Axis Configuration::
+    (((Axis Configuration)))
     Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe). 
 
-Machine Units::(((Machine Units)))
+Machine Units::
+    (((Machine Units)))
     Choose Inch or mm. All subsequent questions 
     (such as machine travel, leadscrew pitch, etc) 
     will be answered in the chosen units
 
-Driver Type::(((Driver Type)))
+Driver Type::
+    (((Driver Type)))
     If you have one of the stepper drivers listed in the pull down box, choose it. 
     Otherwise, find the 4 timing values in 
     your driver's data sheet and enter them.  
     If the data sheet gives a value in microseconds, multiply by 1000. 
     For example, enter 4.5us as 4500ns. 
 
-    A list of some popular drives, along with their timing values, 
-    is on the LinuxCNC.org Wiki under 
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Stepper Drive Timing]. 
+A list of some popular drives, along with their timing values, 
+is on the LinuxCNC.org Wiki under 
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Stepper Drive Timing]. 
 
-    Additional signal conditioning or isolation such as 
-    optocouplers and RC filters on break out boards 
-    can impose timing constraints of their own, in addition to those of the driver. 
-    You may find it necessary to 
-    add some time to the drive requirements to allow for this. 
-    The EMC Configuration Selector has configs for Sherline already configured.
+Additional signal conditioning or isolation such as 
+optocouplers and RC filters on break out boards 
+can impose timing constraints of their own, in addition to those of the driver. 
+You may find it necessary to 
+add some time to the drive requirements to allow for this. 
+The EMC Configuration Selector has configs for Sherline already configured.
 
 Step Time::
     How long the step pulse is "on" in nano seconds.
@@ -103,20 +107,24 @@ Second Parport::
     the type. For information on finding the address of PCI parallel ports
     see the Port Address in the Integrator Manual. (Try 0x278 or 0x3BC first.) 
 
-Base Period Maximum Jitter::(((Base Period Maximum Jitter)))
+Base Period Maximum Jitter::
+    (((Base Period Maximum Jitter)))
     Enter the result of the Latency Test here. 
     To run a latency test press the "Test Base Period Jitter" button.
     See the latency test section for more details.
 
-Max Step Rate::(((Max Step Rate)))
+Max Step Rate::
+    (((Max Step Rate)))
     Stepconf automatically calculates the Max Step Rate based on the 
     driver characteristics entered and the latency test result.
 
-Min Base Period::(((Min Base Period)))
+Min Base Period::
+    (((Min Base Period)))
     Stepconf automatically determines the Min Base Period based on the 
     driver characteristics entered and latency test result.
 
-Onscreen Prompt For Tool Change::(((Onscreen Prompt For Tool Change)))
+Onscreen Prompt For Tool Change::
+    (((Onscreen Prompt For Tool Change)))
     If this box is checked, EMC will pause and prompt you 
     to change the tool when *M6* is encountered.
     Leave this box checked unless you plan to add support
@@ -213,21 +221,25 @@ Charge Pump::
 
 image::images/stepconf-axis.png[]
 
-Motor Steps Per Revolution::(((Motor Steps Per Revolution)))
+Motor Steps Per Revolution::
+    (((Motor Steps Per Revolution)))
     The number of full steps per motor revolution. 
     If you know how many degrees per step the motor is (e.g., 1.8 degree), 
     then divide 360 by the degrees per step to find the 
     number of steps per motor revolution. 
 
-Driver Microstepping::(((Driver Microstepping)))
+Driver Microstepping::
+    (((Driver Microstepping)))
     The amount of microstepping performed by the driver. 
     Enter "2" for half-stepping. 
 
-Pulley Ratio::(((Pulley Ratio)))
+Pulley Ratio::
+    (((Pulley Ratio)))
     If your machine has pulleys between the motor and leadscrew, 
     enter the ratio here. If not, enter "1:1".
 
-Leadscrew Pitch::(((Leadscrew Pitch)))
+Leadscrew Pitch::
+    (((Leadscrew Pitch)))
     Enter the pitch of the leadscrew here. 
     If you chose "Inch" units, enter the number 
     of threads per inch here (e.g., enter 8 for 8 TPI). 
@@ -239,16 +251,19 @@ Leadscrew Pitch::(((Leadscrew Pitch)))
     enter a negative number here instead of a positive number, 
     or invert the direction pin for the axis.
 
-Maximum Velocity::(((Maximum Velocity)))
+Maximum Velocity::
+    (((Maximum Velocity)))
     Enter the maximum velocity for the axis in units per second.
 
-Maximum Acceleration::(((Maximum Acceleration)))
+Maximum Acceleration::
+    (((Maximum Acceleration)))
     The correct values for these items can only 
     be determined through experimentation. See 
     <<sub:Finding-Maximum-Velocity>> to set the speed and
     <<sub:Finding-Maximum-Acceleration>> to set the acceleration.
 
-Home Location::(((Home Location)))
+Home Location::
+    (((Home Location)))
     The position the machine moves to after completing
     the homing procedure for this axis. 
     For machines without home switches, 
@@ -258,20 +273,23 @@ Home Location::(((Home Location)))
     you must move off of the switch to the home position 
     or you will get a joint limit error.
 
-Table Travel::(((Table Travel)))
+Table Travel::
+    (((Table Travel)))
     The range of travel that g code programs must not exceed. 
     The home location must be inside the Table Travel. 
     In particular, having Home Location exactly equal to 
     one of the Table Travel values is incorrect configuration
 
-Home Switch Location::(((Home Switch Location)))
-      The location at which the home switch trips
+Home Switch Location::
+    (((Home Switch Location)))
+    The location at which the home switch trips
     or releases during the homing process. This item and the two below only
     appear when Home Switches were chosen in the Parallel Port Pinout. If
     you combine home and limit switches the home switch location can not be
     the same as the home position or you will get a joint limit error.
 
-Home Search Velocity::(((Home Search Velocity)))
+Home Search Velocity::
+    (((Home Search Velocity)))
     The velocity to use when moving towards the switch. 
     If the switch is near the end of travel, 
     this velocity must be chosen so that the axis can 
@@ -284,20 +302,24 @@ Home Search Velocity::(((Home Search Velocity)))
     If the machine moves the wrong direction at the beginning of the
     homing procedure, negate the value of *Home Search Velocity*.
 
-Home Latch Direction::(((Home Latch Direction)))
+Home Latch Direction::
+    (((Home Latch Direction)))
     Choose "Same" to have homing back off the switch, 
     then approach it again at a very low speed. 
     The second time the switch closes, the home position is set. 
     Choose "Opposite" to have homing slowly back off the switch. 
     When the switch opens, the home position is set.
 
-Time to accelerate to max speed::(((Time to accelerate to max speed)))
+Time to accelerate to max speed::
+    (((Time to accelerate to max speed)))
     Calculated time. 
 
-Distance to accelerate to max speed::(((Distance to accelerate to max speed)))
+Distance to accelerate to max speed::
+    (((Distance to accelerate to max speed)))
     Calculated distance.
 
-Pulse rate at max speed::(((Pulse rate at max speed)))
+Pulse rate at max speed::
+    (((Pulse rate at max speed)))
     Information computed based on the values entered above. 
     The greatest *Pulse rate at max speed* determines the *BASE_PERIOD*. 
     Values above 20000Hz may lead to slow response time or even lockups 
@@ -307,7 +329,8 @@ Axis SCALE::
     The number that will be used in the ini file [SCALE] setting. 
     This is how many steps per user unit.
 
-Test this axis::(((Test this axis)))
+Test this axis::
+    (((Test this axis)))
     This will open a window to allow testing for each axis. 
     This can be used after filling out all the information for this axis. 
 
@@ -321,7 +344,7 @@ With Stepconf it is easy to try different values for acceleration and velocity.
 
 ==== Finding Maximum Velocity[[sub:Finding-Maximum-Velocity]](((Finding Maximum Velocity)))
 
-Begin with a low Acceleration (e.g., 2 in/s^2 or 50mm/s^2) and 
+Begin with a low Acceleration (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ]) and 
 the velocity you hope to attain. 
 Using the buttons provided, jog the axis to near the center of travel. 
 Take care because with a low acceleration value, 
@@ -386,13 +409,15 @@ This page only appears when "Spindle PWM" is chosen in the
 If "Spindle PWM" appears on the pinout, 
 the following information should be entered:
 
-PWM Rate::(((PWM Rate)))
+PWM Rate::
+    (((PWM Rate)))
     The "carrier frequency" of the PWM signal to the spindle. 
     Enter "0" for PDM mode, 
     which is useful for generating an analog control voltage. 
     Refer to the documentation for your spindle controller for the appropriate value.
 
-Speed 1 and 2, PWM 1 and 2::(((Speed 1 and 2)))(((PWM 1 and 2)))
+Speed 1 and 2, PWM 1 and 2::
+    (((Speed 1 and 2)))(((PWM 1 and 2)))
     The generated configuration file uses a simple linear relationship 
     to determine the PWM value for a given RPM value. 
     If the values are not known, they can be determined.
@@ -405,14 +430,17 @@ When the appropriate signals from a spindle encoder are connected to
 EMC2 via HAL, EMC supports lathe threading. 
 These signals are:
 
-Spindle Index::(((Spindle Index)))
+Spindle Index::
+    (((Spindle Index)))
     Is a pulse that occurs once per revolution of the spindle.
 
-Spindle Phase A::(((Spindle A)))
+Spindle Phase A::
+    (((Spindle A)))
     This is a pulse that occurs in multiple equally-spaced locations 
     as the spindle turns.
 
-Spindle Phase B (optional)::(((Spindle B)))
+Spindle Phase B (optional)::
+    (((Spindle B)))
     This is a second pulse that occurs, 
     but with an offset from Spindle Phase A. 
     The advantages to using both A and B are 
@@ -421,7 +449,8 @@ Spindle Phase B (optional)::(((Spindle B)))
 If "Spindle Phase A" and "Spindle Index" appear 
 on the pinout, the following information should be entered:
 
-Cycles per revolution::(((Cycles per revolution)))
+Cycles per revolution::
+    (((Cycles per revolution)))
     The number of cycles of the *Spindle A* signal during one revolution of the spindle. 
     This option is only enabled when an input has been set to "Spindle Phase A"
 
