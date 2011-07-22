@@ -24,6 +24,9 @@ BOOST_PYTHON_MODULE(emctask) {
 
     class_<EmcPose, noncopyable>("EmcPose","EMC pose",no_init)
 	.def_readwrite("tran",&EmcPose::tran)
+	// .def_readwrite("x",&EmcPose::tran.x)
+	// .def_readwrite("y",&EmcPose::tran.y)
+	// .def_readwrite("x",&EmcPose::tran.z)
 	.def_readwrite("a",&EmcPose::a)
 	.def_readwrite("b",&EmcPose::b)
 	.def_readwrite("c",&EmcPose::c)

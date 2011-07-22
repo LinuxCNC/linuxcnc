@@ -1,9 +1,6 @@
 import sys
-# interpreter, canon are builtin
 from interpreter import *
 
-sys.path.append("/home/mah/emc2-tc/configs/sim/pysubs")
-#import hal
 import task
 import oword
 import remap
