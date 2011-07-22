@@ -35,6 +35,7 @@
 #define TASK_MODULE "task"
 #define TASK_INIT "task_init"
 #define PLUGIN_CALL "plugin_call"
+#define PYUSABLE(plugin) (((plugin) != NULL) && ((plugin)->usable()))
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -669,9 +670,11 @@ int emcTaskOnce()
     // this really only obtains the singleton instance already created by Interp
     pyplugin  = PythonPlugin::getInstance(EMC_INIFILE,"PYTHON",  builtin_modules);
 
-    pyplugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
-
-    return emcPythonReturnValue(TASK_INIT, retval);
+    if (PYUSABLE(pyplugin)) {
+	pyplugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
+	return emcPythonReturnValue(TASK_INIT, retval);
+    }
+    return 0;
 }
 
 // task callables are expected to return an int.
@@ -703,14 +706,18 @@ static int emcPythonReturnValue(const char *funcname, bp::object &retval)
 
 int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 {
-    bp::object retval;
+    if (PYUSABLE(pyplugin)) {
+	bp::object retval;
+	bp::object arg = bp::make_tuple(bp::object(call_msg->call));
+	bp::dict kwarg;
 
-    bp::object arg = bp::make_tuple(bp::object(call_msg->call));
-    bp::dict kwarg;
+	pyplugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
+	return emcPythonReturnValue(PLUGIN_CALL, retval);
 
-    pyplugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
-
-    return emcPythonReturnValue(PLUGIN_CALL, retval);
+    } else {
+	emcOperatorError(0, "emcPluginCall: Python plugin not initialized");
+	return -1;
+    }
 }
 
 extern "C" void initemctask();
