@@ -109,10 +109,11 @@ proc ::ttt::embedinit {} {
     return
   }
 
-  set ::ttt(preamble)   [inifindall DISPLAY TTT_PREAMBLE]
-  if {([llength $::ttt(preamble)] >1)} {
-    return -code error "[_ "problem with"] \[DISPLAY\]TTT_PREAMBLE <$::ttt(preamble)>"
+  set preamble [inifindall DISPLAY TTT_PREAMBLE]
+  if {([llength $preamble] >1)} {
+    return -code error "[_ "problem with"] \[DISPLAY\]TTT_PREAMBLE <$preamble>"
   }
+  set ::ttt(preamble) [::ngcgui::pathto $preamble]
 
   if $::ttt(use_program_prefix) {
     set ::ttt(dir) [inifindall DISPLAY PROGRAM_PREFIX]

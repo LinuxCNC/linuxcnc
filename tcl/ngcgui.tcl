@@ -3573,12 +3573,16 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
             -text "[_ "Custom"]" \
             -background $::ngc(any,color,custom)
     } else {
-      set ::ngc($hdl,fname,subfile) $subfile
+      set ::ngc($hdl,fname,subfile) [::ngcgui::pathto $subfile]
       set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
     }
   }
-  if {"$preamble"  != ""} {set ::ngc($hdl,fname,preamble) $preamble   }
-  if {"$postamble" != ""} {set ::ngc($hdl,fname,postamble) $postamble }
+  if {"$preamble"  != ""} {
+    set ::ngc($hdl,fname,preamble) [::ngcgui::pathto $preamble]
+  }
+  if {"$postamble" != ""} {
+    set ::ngc($hdl,fname,postamble) [::ngcgui::pathto $postamble]
+  }
 
   set  w [::ngcgui::gui $hdl create $f.ngc_gui]
 
@@ -3597,6 +3601,54 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
 
   return $hdl
 } ;# embed_in_axis_tab
+
+proc ::ngcgui::pathto fname {
+  # for embedded usage, find configuration file using a search path
+  set fname [string trim $fname]
+  if {"$fname" == ""} {return ""}
+
+  # set ::ngc(any,paths) on first use:
+  if ![info exists ::ngc(any,paths)] {
+    # expect single item, so take end item in list:
+    set ::ngc(any,paths) [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]
+    set tmp [lindex [inifindall RS274NGC SUBROUTINE_PATH] end]
+    foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
+  }
+
+  if {[string first "/" $fname] == 0} {
+    set absolute 1 ;# absolute path specified
+    if [file exists $fname] {set found "$fname"}
+  } else {
+    set absolute 0 ;# relative path specified
+    foreach path $::ngc(any,paths) {
+      set f [file join $path $fname]
+      if {[info exists found] && [file exists $f]} {
+        puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
+        puts stderr "[_ "using path"]: $::ngc(any,paths)"
+      }
+      if {![info exists found] && [file exists $f]} {set found $f}
+    }
+  }
+
+  if [info exists found] {
+    return "$found"
+  } else {
+    set msg "[_ "Ngcgui configuration search failed for"]\n<$fname>\n"
+    if !$absolute {
+      set msg "$msg [_ "Search path"]: $::ngc(any,paths)"
+    }
+    set answer [tk_dialog .notfound \
+      "[_ "File Not Found"]" \
+      "$msg" \
+      "" 0 \
+      "[_ "Try to Continue"]" "[_ "Exit"]"
+    ]
+    if $answer {return \
+      -code error "[_ "Ngcgui Configuration File Not Found"] <$fname>"
+    }
+    return "" ;# try to continue
+  }
+} ;# pathto
 
 proc ::ngcgui::raiselastpage {} {
   $::ngc(any,axis,parent) raise $::ngc($::ngc(embed,hdl),axis,page)

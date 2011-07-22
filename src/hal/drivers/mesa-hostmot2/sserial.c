@@ -42,10 +42,9 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
 
     //
     // some standard sanity checks
-    // MGS changed NumRegisters from 5 to 6 and MultipleRegisters from 1F to 3C
     //
 
-    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 6, 0x40, 0x003C)) {
+    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 5, 0x40, 0x001F)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }
