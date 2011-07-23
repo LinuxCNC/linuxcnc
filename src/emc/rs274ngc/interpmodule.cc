@@ -35,7 +35,7 @@ static void wrap_setError(Interp &interp, const char *s)
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 {
     int status, pocket;
-    setup *settings  =  get_setup(&interp); //&interp._setup;
+    setup *settings  =  &interp._setup;
 
     status = interp.find_tool_pocket(settings, toolno, &pocket);
     return bp::make_tuple(status, pocket);
@@ -177,7 +177,17 @@ struct ToolArray {
 };
 static struct ToolArray tool_array;
 
+bp::object wrap_test(Interp &interp, int toolno)
+{
+
+    printf("wrap_test(toolno=%d line_length=%d\n",toolno,interp._setup.line_length);
+    return bp::make_tuple(3.14,4711);
+}
+
 struct InterpWrap : public Interp {
+
+    Interp *instance() { return this; }
+
     // FIXME find out how to unwrap base class 'this' properly
     // bp::object wrap_find_tool_pocket(int toolno)
     // {
@@ -421,8 +431,15 @@ BOOST_PYTHON_MODULE(interpreter) {
 	;
 
     scope interp_class(
-		       class_< Interp, interp_ptr,
+		       class_< Interp, //  interp_ptr,
 		       noncopyable >("Interp",no_init)
+
+		       .def("wtest", &wrap_test)
+		       // static read-only properties
+		       .add_static_property("instance",
+					    make_function(&InterpWrap::instance,
+							  return_value_policy<reference_existing_object>()))
+
 
 		       .def("find_tool_pocket", &wrap_find_tool_pocket)
 		       .def("load_tool_table", &InterpWrap::load_tool_table)
