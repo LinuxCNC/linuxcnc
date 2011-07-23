@@ -27,34 +27,36 @@
 void PythonPlugin::initialize(bool reload)
 {
     std::string msg;
+    if (Py_IsInitialized()) {
+	try {
+	    bp::object module = bp::import("__main__");
+	    module_namespace = module.attr("__dict__");
 
-    try {
-	bp::object module = bp::import("__main__");
-	module_namespace = module.attr("__dict__");
-
-	for(unsigned i = 0; i < inittab_entries.size(); i++) {
-	    module_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
+	    for(unsigned i = 0; i < inittab_entries.size(); i++) {
+		module_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
+	    }
+	    bp::object result = bp::exec_file(abs_path,
+					      module_namespace,
+					      module_namespace);
+	    status = PLUGIN_OK;
 	}
-	bp::object result = bp::exec_file(abs_path,
-					  module_namespace,
-					  module_namespace);
-	status = PLUGIN_OK;
-    }
-    catch (bp::error_already_set) {
-	if (PyErr_Occurred()) {
-	    exception_msg = handle_pyerror();
-	} else
-	    exception_msg = "unknown exception";
-	bp::handle_exception();
-	status = PLUGIN_INIT_EXCEPTION;
-	PyErr_Clear();
-    }
-    if (status == PLUGIN_INIT_EXCEPTION) {
-	logPP(1, "initialize: module '%s' init failed: \n%s",
-	      abs_path, exception_msg.c_str());
+	catch (bp::error_already_set) {
+	    if (PyErr_Occurred()) {
+		exception_msg = handle_pyerror();
+	    } else
+		exception_msg = "unknown exception";
+	    bp::handle_exception();
+	    status = PLUGIN_INIT_EXCEPTION;
+	    PyErr_Clear();
+	}
+	if (status == PLUGIN_INIT_EXCEPTION) {
+	    logPP(1, "initialize: module '%s' init failed: \n%s",
+		  abs_path, exception_msg.c_str());
+	}
+    } else {
+	status = PLUGIN_PYTHON_NOT_INITIALIZED;
     }
 }
-
 
 int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 {
@@ -305,7 +307,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     }
     Py_Initialize();
     char pathcmd[PATH_MAX];
-    sprintf(pathcmd, "import sys\nsys.path.append(\"%s\")", plugin_dir);
+    sprintf(pathcmd, "import sys\nsys.path.insert(0,\"%s\")", plugin_dir);
     if (PyRun_SimpleString(pathcmd)) {
 	logPP(1, "exeception running '%s'", pathcmd);
 	exception_msg = "exeception running "; // + pathcmd;
