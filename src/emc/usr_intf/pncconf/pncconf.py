@@ -2196,11 +2196,11 @@ class Data:
                   if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
-                      print >>f1, ("setp     scale.spindle.gain .01667")
+                      print >>f1, ("setp     scale.spindle.gain 60")
                       print >>f1, ("setp     lowpass.spindle.gain 0.01")
                       print >>f1, ("net spindle-vel-fb => lowpass.spindle.in")
                       print >>f1, ("net spindle-rps-filtered <= lowpass.spindle.out")
