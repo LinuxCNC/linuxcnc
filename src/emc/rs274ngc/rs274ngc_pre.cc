@@ -863,7 +863,8 @@ int Interp::init()
 	  // the alternative is wrapping Interp in a shared_ptr, which has too-far reaching impact
 	  if (PYUSABLE(_setup.pyplugin))  {
 	      bp::object interp_module = bp::import ("interpreter").attr ("__dict__");
-	      interp_module["this"] = interp_ptr(this, interpDeallocFunc);
+	      //     interp_module["this"] = interp_ptr(this, interpDeallocFunc);
+	      interp_module["this"] = bp::ptr(this); // interp_ptr(this, interpDeallocFunc);
 	  }
 	  int n = 1;
 	  int lineno = -1;

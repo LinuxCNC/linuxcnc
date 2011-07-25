@@ -547,6 +547,7 @@ public:
 	       int calltype);
     int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
     int py_reload();
+    // Interp *instance() { return this; }
 
     const char *getSavedError();
 
