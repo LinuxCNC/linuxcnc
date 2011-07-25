@@ -1,6 +1,5 @@
 #include <boost/python.hpp>
 
-namespace bp = boost::python;
 
 #include <stdio.h>
 #include <string.h>
@@ -11,9 +10,28 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include "units.h"
 #include "interpmodule.hh"
+#include "array1.hh"
+
+namespace bp = boost::python;
+namespace pp = pyplusplus::containers::static_sized;
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
+
+
+// like so: typedef pp::array_1_t< int, 10> int10_array,( *int10_wrap )( Interp & );
+
+typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );
+typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_w)( Interp & );
+typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_w)( Interp & );
+// typedef pp::array_1_t< block, MAX_NESTED_REMAPS> blocks_array, (*blocks_w)( Interp & );
+
+typedef pp::array_1_t< double, RS274NGC_MAX_PARAMETERS > parameters_array, (*parameters_w)( Interp & );
+typedef pp::array_1_t< CANON_TOOL_TABLE, CANON_POCKETS_MAX> tool_table_array, (*tool_table_w)( Interp & );
+typedef pp::array_1_t< context, INTERP_SUB_ROUTINE_LEVELS> subcontext_array, (*subcontext_w)( Interp & );
+typedef pp::array_1_t< int, 16> g_modes_array, (*g_modes_w)( Interp & );
+typedef pp::array_1_t< int, 11> m_modes_array, (*m_modes_w)( Interp & );
+
 
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_setError(Interp &interp, const char *s)
@@ -184,6 +202,9 @@ bp::object wrap_test(Interp &interp, int toolno)
     return bp::make_tuple(3.14,4711);
 }
 
+// static Interp *wrap_instance(Interp &interp)  { return &interp; }
+
+
 struct InterpWrap : public Interp {
 
     Interp *instance() { return this; }
@@ -214,48 +235,7 @@ struct InterpWrap : public Interp {
 };
 
 
-struct GcodesArray {
-    int getitem(bp::object sub) {
-	int index = bp::extract < int > (sub);
-	if ((index < 0) || (index > ACTIVE_G_CODES - 1)) {
-	    throw std::runtime_error("Gcodes subscript out of range");
-	} else
-	    return  current_setup->active_g_codes[index];
-    }
-    long len() {
-	return  ACTIVE_G_CODES;
-    }
-};
-static struct GcodesArray active_g_codes_array;
 
-
-struct McodesArray {
-    int getitem(bp::object sub) {
-	int index = bp::extract < int > (sub);
-	if ((index < 0) || (index > ACTIVE_M_CODES - 1)) {
-	    throw std::runtime_error("Mcodes subscript out of range");
-	} else
-	    return  current_setup->active_m_codes[index];
-    }
-    long len() {
-	return ACTIVE_M_CODES;
-    }
-};
-static struct McodesArray active_m_codes_array;
-
-struct SettingsArray {
-    double getitem(bp::object sub) {
-	int index = bp::extract < int > (sub);
-	if ((index < 0) || (index > ACTIVE_SETTINGS - 1)) {
-	    throw std::runtime_error("Settings subscript out of range");
-	} else
-	    return  current_setup->active_settings[index];
-    }
-    long len() {
-	return ACTIVE_SETTINGS;
-    }
-};
-static struct SettingsArray active_settings_array;
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
@@ -282,38 +262,38 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("context_status", &ContextWrap::context_status)
 	;
 
-    class_ <ContextArray, noncopyable>("ContextArray","Interpreter call stack",no_init)
-	.def("__getitem__", &ContextArray::getitem,
-	     return_value_policy<reference_existing_object>())
-	.def("__len__", &ContextArray::len)
-	;
+    // class_ <ContextArray, noncopyable>("ContextArray","Interpreter call stack",no_init)
+    // 	.def("__getitem__", &ContextArray::getitem,
+    // 	     return_value_policy<reference_existing_object>())
+    // 	.def("__len__", &ContextArray::len)
+    // 	;
 
-    class_ <BlockArray, noncopyable>("BlockArray","Interpreter block stack",no_init)
-	.def("__getitem__", &BlockArray::getitem,
-	     return_value_policy<reference_existing_object>())
-	.def("__len__", &BlockArray::len)
-	;
+    // class_ <BlockArray, noncopyable>("BlockArray","Interpreter block stack",no_init)
+    // 	.def("__getitem__", &BlockArray::getitem,
+    // 	     return_value_policy<reference_existing_object>())
+    // 	.def("__len__", &BlockArray::len)
+    // 	;
 
-    class_ <ToolArray, noncopyable>("ToolArray","tool table",no_init)
-	.def("__getitem__", &ToolArray::getitem,
-	     return_value_policy<reference_existing_object>())
-	.def("__len__", &ToolArray::len)
-	;
+    // class_ <ToolArray, noncopyable>("ToolArray","tool table",no_init)
+    // 	.def("__getitem__", &ToolArray::getitem,
+    // 	     return_value_policy<reference_existing_object>())
+    // 	.def("__len__", &ToolArray::len)
+    // 	;
 
-    class_ <GcodesArray, noncopyable>("GcodesArray","active G-codes",no_init)
-	.def("__getitem__", &GcodesArray::getitem)
-	.def("__len__", &GcodesArray::len)
-	;
+    // class_ <GcodesArray, noncopyable>("GcodesArray","active G-codes",no_init)
+    // 	.def("__getitem__", &GcodesArray::getitem)
+    // 	.def("__len__", &GcodesArray::len)
+    // 	;
 
-    class_ <McodesArray, noncopyable>("McodesArray","active M-codes",no_init)
-	.def("__getitem__", &McodesArray::getitem)
-	.def("__len__", &McodesArray::len)
-	;
+    // class_ <McodesArray, noncopyable>("McodesArray","active M-codes",no_init)
+    // 	.def("__getitem__", &McodesArray::getitem)
+    // 	.def("__len__", &McodesArray::len)
+    // 	;
 
-    class_ <SettingsArray, noncopyable>("SettingsArray","active settings",no_init)
-	.def("__getitem__", &SettingsArray::getitem)
-	.def("__len__", &SettingsArray::len)
-	;
+    // class_ <SettingsArray, noncopyable>("SettingsArray","active settings",no_init)
+    // 	.def("__getitem__", &SettingsArray::getitem)
+    // 	.def("__len__", &SettingsArray::len)
+    // 	;
 
     class_ <WrapRemap,noncopyable>("Remap",no_init)
 	.def_readwrite("name",&WrapRemap::name)
@@ -431,14 +411,13 @@ BOOST_PYTHON_MODULE(interpreter) {
 	;
 
     scope interp_class(
-		       class_< Interp, //  interp_ptr,
-		       noncopyable >("Interp",no_init)
+		       class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
 
-		       .def("wtest", &wrap_test)
-		       // static read-only properties
-		       .add_static_property("instance",
-					    make_function(&InterpWrap::instance,
-							  return_value_policy<reference_existing_object>()))
+		       // .def("wtest", &wrap_test)
+		       // // static read-only properties
+		       // .add_static_property("instance",
+		       // 			    make_function(&InterpWrap::instance,
+		       // 					  return_value_policy<reference_existing_object>()))
 
 
 		       .def("find_tool_pocket", &wrap_find_tool_pocket)
@@ -536,13 +515,31 @@ BOOST_PYTHON_MODULE(interpreter) {
 		       .def_readwrite("w_axis_offset", &InterpWrap::_setup.w_axis_offset)
 		       .def_readwrite("w_current", &InterpWrap::_setup.w_current)
 		       .def_readwrite("w_origin_offset", &InterpWrap::_setup.w_origin_offset)
+
+		       // .add_property( "active_g_codes",
+		       // 		      bp::make_function( active_g_codes_array(&active_g_codes_w),
+		       // 					 bp::with_custodian_and_ward_postcall< 0, 1 >() ))
+
+
 		       );
 
-    scope(interp_class).attr("params") = ptr(&params);
-    scope(interp_class).attr("sub_context") = ptr(&sub_context_array);
-    scope(interp_class).attr("blocks") = ptr(&block_array);
-    scope(interp_class).attr("tool_table") = ptr(&tool_array);
-    scope(interp_class).attr("active_g_codes") = ptr(&active_g_codes_array);
-    scope(interp_class).attr("active_m_codes") = ptr(&active_m_codes_array);
-    scope(interp_class).attr("active_settings") = ptr(&active_settings_array);
+   pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
+   pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
+   pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
+   pp::register_array_1< block, MAX_NESTED_REMAPS, bp::return_internal_reference< 1, bp::default_call_policies > > ("BlocksArray");
+   pp::register_array_1< double, RS274NGC_MAX_PARAMETERS > ("ParametersArray");
+   pp::register_array_1< CANON_TOOL_TABLE, CANON_POCKETS_MAX, bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
+   pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS, bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
+   pp::register_array_1< int, 16> ("GmodesArray");
+   pp::register_array_1< int, 11> ("MmodesArray");
+
+
+    // this is BADLY wrong !!
+    // scope(interp_class).attr("params") = ptr(&params);
+    // scope(interp_class).attr("sub_context") = ptr(&sub_context_array);
+    // scope(interp_class).attr("blocks") = ptr(&block_array);
+    // scope(interp_class).attr("tool_table") = ptr(&tool_array);
+    // scope(interp_class).attr("active_g_codes") = ptr(&active_g_codes_array);
+    // scope(interp_class).attr("active_m_codes") = ptr(&active_m_codes_array);
+    // scope(interp_class).attr("active_settings") = ptr(&active_settings_array);
 }
