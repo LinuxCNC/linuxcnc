@@ -7,6 +7,8 @@
 
 #include <boost/python.hpp>
 
+namespace bp = boost::python;
+
 
 #include <stdio.h>
 #include <string.h>
@@ -18,25 +20,14 @@
 #include "units.h"
 #include "interpmodule.hh"
 #include "array1.hh"
-
-namespace bp = boost::python;
 namespace pp = pyplusplus::containers::static_sized;
+
+#include "interp_array_types.hh"
+
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
-
-typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );
-typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_w)( Interp & );
-typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_w)( Interp & );
-typedef pp::array_1_t< block, MAX_NESTED_REMAPS> blocks_array, (*blocks_w)( Interp & );
-
-typedef pp::array_1_t< double, RS274NGC_MAX_PARAMETERS > parameters_array, (*parameters_w)( Interp & );
-typedef pp::array_1_t< CANON_TOOL_TABLE, CANON_POCKETS_MAX> tool_table_array, (*tool_table_w)( Interp & );
-typedef pp::array_1_t< context, INTERP_SUB_ROUTINE_LEVELS> sub_context_array, (*sub_context_w)( Interp & );
-typedef pp::array_1_t< int, 16> g_modes_array, (*g_modes_w)( Interp & );
-typedef pp::array_1_t< int, 11> m_modes_array, (*m_modes_w)( Interp & );
-typedef pp::array_1_t< double, INTERP_SUB_PARAMS> params_array, (*params_w)( Interp & );
 
 static  active_g_codes_array active_g_codes_wrapper ( Interp & inst) {
     return active_g_codes_array(inst._setup.active_g_codes);
