@@ -57,19 +57,6 @@ namespace bp = boost::python;
         }                                                      \
     } while(0)
 
-// accessing the private data of Interp is kind of kludgy because
-// technically the Python module does not run in a member context
-// but 'outside'
-// option 1 is making all member data public
-// option 2 is this:
-// we store references to private data during call setup and
-// use it to reference it in the python module
-// NB: this is likely not thread-safe
-setup_pointer current_setup;
-
-// the Interp instance, set on call before handing to Python
-Interp *current_interp;
-
 
 // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 // reason: avoid segfaults by del(interp_instance) on program exit
@@ -141,16 +128,7 @@ int Interp::pycall(setup_pointer settings,
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
     CHKS(!PYUSABLE(settings->pyplugin), "pycall(%s): Pyhton plugin not initialized",funcname);
-
-    current_setup = &_setup; // get_setup(this);
-    current_interp = this;
     block->returned = 0;
-
-    // if (settings->pyplugin->plugin_status() < PLUGIN_OK) {
-    // 	ERS("function '%s.%s' : plugin status bad=%d",
-    // 	    module ? module : "", funcname,
-    // 	    settings->pyplugin->plugin_status());
-    // }
 
     switch (calltype) {
     case PY_EXECUTE: // just run a string

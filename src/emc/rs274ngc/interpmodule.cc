@@ -89,7 +89,7 @@ static  active_settings_array saved_settings_wrapper ( context &c) {
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_setError(Interp &interp, const char *s)
 {
-    setup *settings  = get_setup(&interp);
+    setup *settings  = &interp._setup;
 
     if ((s == NULL) && !strlen(s))
 	s = "###";
@@ -115,48 +115,48 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 
 // currently unused
 // access to named and numbered parameters via a pseudo-dictionary
-struct ParamClass
-{
-    double getitem( bp::object sub)
-    {
-	double retval = 0;
-	if (IS_STRING(sub)) {
-	    char const* varname = bp::extract < char const* > (sub);
-	    int status;
-	    current_interp->find_named_param(varname, &status, &retval);
-	    if (!status)
-		throw std::runtime_error("parameter does not exist: " + std::string(varname));
-	} else
-	    if (IS_INT(sub)) {
-		int index = bp::extract < int > (sub);
-		retval = current_setup->parameters[index];
-	    } else {
-		throw std::runtime_error("params subscript type must be integer or string");
-	    }
-	return retval;
-    }
+// struct ParamClass
+// {
+//     double getitem( bp::object sub)
+//     {
+// 	double retval = 0;
+// 	if (IS_STRING(sub)) {
+// 	    char const* varname = bp::extract < char const* > (sub);
+// 	    int status;
+// 	    current_interp->find_named_param(varname, &status, &retval);
+// 	    if (!status)
+// 		throw std::runtime_error("parameter does not exist: " + std::string(varname));
+// 	} else
+// 	    if (IS_INT(sub)) {
+// 		int index = bp::extract < int > (sub);
+// 		retval = current_setup->parameters[index];
+// 	    } else {
+// 		throw std::runtime_error("params subscript type must be integer or string");
+// 	    }
+// 	return retval;
+//     }
 
-    double setitem(bp::object sub, double dvalue)
-    {
-	if (IS_STRING(sub)) {
-	    char const* varname = bp::extract < char const* > (sub);
-	    int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
-	    status = current_interp->store_named_param(current_setup,varname,
-						       dvalue, 0);
-	    if (status != INTERP_OK)
-		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
+//     double setitem(bp::object sub, double dvalue)
+//     {
+// 	if (IS_STRING(sub)) {
+// 	    char const* varname = bp::extract < char const* > (sub);
+// 	    int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
+// 	    status = current_interp->store_named_param(current_setup,varname,
+// 						       dvalue, 0);
+// 	    if (status != INTERP_OK)
+// 		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
 
-	} else
-	    if (IS_INT(sub)) {
-		int index = bp::extract < int > (sub);
-		current_setup->parameters[index] = dvalue;
-		return dvalue;
-	    } else
-		throw std::runtime_error("params subscript type must be integer or string");
-	return dvalue;
-    }
-    int length() { return RS274NGC_MAX_PARAMETERS;}
-};
+// 	} else
+// 	    if (IS_INT(sub)) {
+// 		int index = bp::extract < int > (sub);
+// 		current_setup->parameters[index] = dvalue;
+// 		return dvalue;
+// 	    } else
+// 		throw std::runtime_error("params subscript type must be integer or string");
+// 	return dvalue;
+//     }
+//     int length() { return RS274NGC_MAX_PARAMETERS;}
+// };
 
 
 
