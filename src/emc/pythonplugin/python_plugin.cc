@@ -30,14 +30,14 @@ void PythonPlugin::initialize(bool reload)
     if (Py_IsInitialized()) {
 	try {
 	    bp::object module = bp::import("__main__");
-	    module_namespace = module.attr("__dict__");
+	    main_namespace = module.attr("__dict__");
 
 	    for(unsigned i = 0; i < inittab_entries.size(); i++) {
-		module_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
+		main_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
 	    }
 	    bp::object result = bp::exec_file(abs_path,
-					      module_namespace,
-					      module_namespace);
+					      main_namespace,
+					      main_namespace);
 	    status = PLUGIN_OK;
 	}
 	catch (bp::error_already_set) {
@@ -64,9 +64,9 @@ int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 	reload();
     try {
 	if (as_file)
-	    retval = bp::exec_file(cmd, module_namespace, module_namespace);
+	    retval = bp::exec_file(cmd, main_namespace, main_namespace);
 	else
-	    retval = bp::exec(cmd, module_namespace, module_namespace);
+	    retval = bp::exec(cmd, main_namespace, main_namespace);
 	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
@@ -101,9 +101,9 @@ int PythonPlugin::call(const char *module, const char *callable,
 
     try {
 	if (module == NULL) {  // default to function in toplevel module
-	    function = module_namespace[callable];
+	    function = main_namespace[callable];
 	} else {
-	    bp::object submod =  module_namespace[module];
+	    bp::object submod =  main_namespace[module];
 	    bp::object submod_namespace = submod.attr("__dict__");
 	    function = submod_namespace[callable];
 	}
@@ -141,9 +141,9 @@ bool PythonPlugin::is_callable(const char *module,
     }
     try {
 	if (module == NULL) {  // default to function in toplevel module
-	   function = module_namespace[funcname];
+	   function = main_namespace[funcname];
 	} else {
-	    bp::object submod =  module_namespace[module];
+	    bp::object submod =  main_namespace[module];
 	    bp::object submod_namespace = submod.attr("__dict__");
 	    function = submod_namespace[funcname];
 	}
@@ -314,6 +314,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 	status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	return;
     }
+    logPP(3,"PythonPlugin: Python  '%s'",  Py_GetVersion());
     initialize(false);
 }
 

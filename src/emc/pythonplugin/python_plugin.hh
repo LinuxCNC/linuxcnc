@@ -23,6 +23,8 @@ enum pp_status   {
     PLUGIN_EXCEPTION_DURING_PATH_APPEND = -9,
     PLUGIN_INIT_EXCEPTION = -10,
     PLUGIN_NO_PLUGIN_DIR = -11,
+    PLUGIN_PYTHON_NOT_INITIALIZED = -12,
+
     // errors < OK make run_string(), is_callable(), and call() fail immediately
     // a reload might clear the error
     PLUGIN_OK = 0,
@@ -70,7 +72,7 @@ private:
     const char *module_basename;          // toplevel module
     const char *plugin_dir;               // directory prefix
     const char *abs_path;                 // normalized path to toplevel module, ProgramName
-    bp::object module_namespace;
+    bp::object main_namespace;
     std::string exception_msg;
     std::string error_msg;
     int log_level;
