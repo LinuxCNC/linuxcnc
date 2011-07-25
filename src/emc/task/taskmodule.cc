@@ -1,11 +1,72 @@
+    // EMC_AXIS_STAT axis[EMC_AXIS_MAX];
+    // int synch_di[EMC_MAX_DIO];  // motion inputs queried by interp
+    // int synch_do[EMC_MAX_DIO];  // motion outputs queried by interp
+    // double analog_input[EMC_MAX_AIO]; //motion analog inputs queried by interp
+    // double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
+//task_stat:
+
+// reuse interp converters
+
+
+
 #include <boost/python.hpp>
+#include "rs274ngc.hh"
+#include "interp_internal.hh"
+
 namespace bp = boost::python;
+
+#include "array1.hh"
+
+namespace pp = pyplusplus::containers::static_sized;
+
+#include "interp_array_types.hh"  // import activeMCodes,activeGCodes,activeSettings, toolTable
 
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
 
 extern EMC_STAT *emcStatus;
+
+typedef pp::array_1_t< EMC_AXIS_STAT, EMC_AXIS_MAX> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< int, EMC_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< double, EMC_MAX_AIO> analog_io_array, (*analog_io_w)( EMC_MOTION_STAT &m );
+
+typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_tw)( EMC_TASK_STAT &t );
+typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_tw)( EMC_TASK_STAT &t );
+typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_tw)( EMC_TASK_STAT &t );
+
+static  axis_array axis_wrapper ( EMC_MOTION_STAT & m) {
+    return axis_array(m.axis);
+}
+
+static  synch_dio_array synch_di_wrapper ( EMC_MOTION_STAT & m) {
+    return synch_dio_array(m.synch_di);
+}
+
+static  synch_dio_array synch_do_wrapper ( EMC_MOTION_STAT & m) {
+    return synch_dio_array(m.synch_do);
+}
+
+static  analog_io_array analog_input_wrapper ( EMC_MOTION_STAT & m) {
+    return analog_io_array(m.analog_input);
+}
+
+static  analog_io_array analog_output_wrapper ( EMC_MOTION_STAT & m) {
+    return analog_io_array(m.analog_output);
+}
+
+static  active_g_codes_array activeGCodes_wrapper (  EMC_TASK_STAT & m) {
+    return active_g_codes_array(m.activeGCodes);
+}
+
+static  active_m_codes_array activeMCodes_wrapper ( EMC_TASK_STAT & m) {
+    return active_m_codes_array(m.activeMCodes);
+}
+
+static  active_settings_array activeSettings_wrapper ( EMC_TASK_STAT & m) {
+    return active_settings_array(m.activeSettings);
+}
+
 
 
 BOOST_PYTHON_MODULE(emctask) {
@@ -72,10 +133,37 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("feed_hold_enabled", &emcStatus->motion.traj.feed_hold_enabled )
 	;
 
-    // class_ <EMC_AXIS_STAT, noncopyable>("EMC_AXIS_STAT",no_init)
-    // .def_readwrite("", &EmcStatus-> )
+    class_ <EMC_AXIS_STAT, noncopyable>("EMC_AXIS_STAT",no_init)
+    // // .def_readwrite("", &EmcStatus-> )
 
-    // 	;
+    // 	.def("axisType", &EmcStatus-> ;	// EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
+    // double units;		// units per mm, deg for linear, angular
+    // double backlash;
+    // double minPositionLimit;
+    // double maxPositionLimit;
+    // double maxFerror;
+    // double minFerror;
+
+    // // dynamic status
+    // double ferrorCurrent;	// current following error
+    // double ferrorHighMark;	// magnitude of max following error
+    // /*! \todo FIXME - is this really position, or the DAC output? */
+    // double output;		// commanded output position
+    // double input;		// current input position
+    // double velocity;		// current velocity
+    // unsigned char inpos;	// non-zero means in position
+    // unsigned char homing;	// non-zero means homing
+    // unsigned char homed;	// non-zero means has been homed
+    // unsigned char fault;	// non-zero means axis amp fault
+    // unsigned char enabled;	// non-zero means enabled
+    // unsigned char minSoftLimit;	// non-zero means min soft limit exceeded
+    // unsigned char maxSoftLimit;	// non-zero means max soft limit exceeded
+    // unsigned char minHardLimit;	// non-zero means min hard limit exceeded
+    // unsigned char maxHardLimit;	// non-zero means max hard limit exceeded
+    // unsigned char overrideLimits; // non-zero means limits are overridden
+
+    //
+	;
     class_ <EMC_SPINDLE_STAT, noncopyable>("EMC_SPINDLE_STAT",no_init)
 	.def_readwrite("speed", &emcStatus->motion.spindle.speed )
 	.def_readwrite("direction", &emcStatus->motion.spindle.direction )
@@ -96,11 +184,24 @@ BOOST_PYTHON_MODULE(emctask) {
 
     class_ <EMC_MOTION_STAT, noncopyable>("EMC_MOTION_STAT",no_init)
 	.def_readwrite("traj", &emcStatus->motion.traj)
-	// .def_readwrite("axis", &emcStatus->motion.axis)   // FIXME wrap this
+	.add_property( "axis",
+		       bp::make_function( axis_w(&axis_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+
+
 	// .def_readwrite("spindle", &emcStatus->motion.spindle)
-	// .def_readwrite("synch_di", &emcStatus->motion.synch_di)
-	// .def_readwrite("analog_input", &emcStatus->motion.analog_input)
-	// .def_readwrite("analog_output", &emcStatus->motion.analog_output)
+	.add_property( "synch_di",
+		       bp::make_function( synch_dio_w(&synch_di_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "synch_do",
+		       bp::make_function( synch_dio_w(&synch_do_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "analog_input",
+		       bp::make_function( analog_io_w(&analog_input_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "analog_output",
+		       bp::make_function( analog_io_w(&analog_output_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.def_readwrite("estop", &emcStatus->motion.estop)
 	.def_readwrite("coolant", &emcStatus->motion.coolant)
 	.def_readwrite("lube", &emcStatus->motion.lube)
@@ -125,11 +226,15 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("g92_offset", &emcStatus->task.g92_offset)
 	.def_readwrite("rotation_xy", &emcStatus->task.rotation_xy)
 	.def_readwrite("toolOffset", &emcStatus->task.toolOffset)
-
-	// int activeGCodes[ACTIVE_G_CODES];  // FIXME wrap this
-	// int activeMCodes[ACTIVE_M_CODES];
-	// double activeSettings[ACTIVE_SETTINGS];
-
+	.add_property( "activeGCodes",
+		       bp::make_function( active_g_codes_tw(&activeGCodes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "activeMCodes",
+		       bp::make_function( active_m_codes_tw(&activeMCodes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "activeSettings",
+		       bp::make_function( active_settings_tw(&activeSettings_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.def_readwrite("programUnits", &emcStatus->task.programUnits)
 	.def_readwrite("interpreter_errcode", &emcStatus->task.interpreter_errcode)
 	.def_readwrite("task_paused", &emcStatus->task.task_paused)
@@ -163,4 +268,9 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("debug",&emcStatus->debug)
 	;
 
+
+    pp::register_array_1< double, EMC_MAX_AIO> ("AnalogIoArray");
+    pp::register_array_1< int, EMC_MAX_DIO> ("DigitalIoArray");
+    pp::register_array_1< EMC_AXIS_STAT,EMC_AXIS_MAX,
+	bp::return_internal_reference< 1, bp::default_call_policies > > ("AxisArray");
 }
