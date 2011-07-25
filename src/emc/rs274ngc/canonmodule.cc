@@ -16,21 +16,56 @@ static void wrap_canon_error(const char *s)
 
 BOOST_PYTHON_MODULE(canon) {
     using namespace boost::python;
+    scope().attr("__doc__") =
+        "Canon access & introspection\n"
+        ;
+
+    scope().attr("CANON_PLANE_XY") = CANON_PLANE_XY;
+    scope().attr("CANON_PLANE_YZ") = CANON_PLANE_YZ;
+    scope().attr("CANON_PLANE_XZ") = CANON_PLANE_XZ;
+    scope().attr("CANON_PLANE_UV") = CANON_PLANE_UV;
+    scope().attr("CANON_PLANE_VW") = CANON_PLANE_VW;
+    scope().attr("CANON_PLANE_UW") = CANON_PLANE_UW;
+
+    scope().attr("CANON_UNITS_INCHES") = CANON_UNITS_INCHES;
+    scope().attr("CANON_UNITS_MM") = CANON_UNITS_MM;
+    scope().attr("CANON_UNITS_CM") = CANON_UNITS_CM;
+
+    scope().attr("CANON_EXACT_STOP") = CANON_EXACT_STOP;
+    scope().attr("CANON_EXACT_PATH") = CANON_EXACT_PATH;
+    scope().attr("CANON_CONTINUOUS") = CANON_CONTINUOUS;
+
+    scope().attr("CANON_SYNCHED") = CANON_SYNCHED;
+    scope().attr("CANON_INDEPENDENT") = CANON_INDEPENDENT;
+
+    scope().attr("CANON_STOPPED") = CANON_STOPPED;
+    scope().attr("CANON_CLOCKWISE") = CANON_CLOCKWISE;
+    scope().attr("CANON_COUNTERCLOCKWISE") = CANON_COUNTERCLOCKWISE;
+
+    scope().attr("CANON_WORKPIECE") = CANON_WORKPIECE;
+    scope().attr("CANON_XYZ") = CANON_XYZ;
+
+    scope().attr("CANON_SIDE_RIGHT") = CANON_SIDE_RIGHT;
+    scope().attr("CANON_SIDE_LEFT") = CANON_SIDE_LEFT;
+    scope().attr("CANON_SIDE_OFF") = CANON_SIDE_OFF;
+
+    scope().attr("CANON_AXIS_X") = CANON_AXIS_X;
+    scope().attr("CANON_AXIS_Y") = CANON_AXIS_Y;
+    scope().attr("CANON_AXIS_Z") = CANON_AXIS_Z;
+    scope().attr("CANON_AXIS_A") = CANON_AXIS_A;
+    scope().attr("CANON_AXIS_B") = CANON_AXIS_B;
+    scope().attr("CANON_AXIS_C") = CANON_AXIS_C;
+
+    //  scope().attr("") =  ;
+
+
 
     // first stab - result of an awk-based mass conversion.
     // just keeping those without compile errors (no missing type converters)
     def("ARC_FEED",&ARC_FEED);
-    //def("CANON_AXIS;",&CANON_AXIS);
-    //def("CANON_CONTINUOUS.",&CANON_CONTINUOUS);
-    //def("CANON_DIRECTION;",&CANON_DIRECTION);
+
     def("CANON_ERROR",&wrap_canon_error);
-    //def("CANON_FEED_REFERENCE;",&CANON_FEED_REFERENCE);
-    //def("CANON_MOTION_MODE;",&CANON_MOTION_MODE);
-    //def("CANON_PLANE;",&CANON_PLANE);
-    //def("CANON_SIDE;",&CANON_SIDE);
-    //def("CANON_SPEED_FEED_MODE;",&CANON_SPEED_FEED_MODE);
-    //def("CANON_UNITS;",&CANON_UNITS);
-    // def("CANON_UPDATE_END_POINT",&CANON_UPDATE_END_POINT);
+    //  def("CANON_UPDATE_END_POINT",&CANON_UPDATE_END_POINT);
     def("CHANGE_TOOL",&CHANGE_TOOL);
     def("CHANGE_TOOL_NUMBER",&CHANGE_TOOL_NUMBER);
     def("CLAMP_AXIS",&CLAMP_AXIS);
