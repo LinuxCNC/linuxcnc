@@ -1,3 +1,10 @@
+// Interpreter internals - Python bindings
+// Michael Haberler 7/2011
+//
+// TODO:
+// std::map , named parameter access
+
+
 #include <boost/python.hpp>
 
 
@@ -18,8 +25,6 @@ namespace pp = pyplusplus::containers::static_sized;
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
-
-// like so: typedef pp::array_1_t< int, 10> int10_array,( *int10_wrap )( Interp & );
 
 typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );
 typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_w)( Interp & );
@@ -68,9 +73,27 @@ static  m_modes_array m_modes_wrapper ( block & b) {
     return m_modes_array(b.m_modes);
 }
 
+static params_array saved_params_wrapper ( context &c) {
+    return params_array(c.saved_params);
+}
+
 static params_array params_wrapper ( block & b) {
     return params_array(b.params);
 }
+
+static  active_g_codes_array saved_g_codes_wrapper ( context &c) {
+    return active_g_codes_array(c.saved_g_codes);
+}
+
+static  active_m_codes_array saved_m_codes_wrapper ( context &c) {
+    return active_m_codes_array(c.saved_m_codes);
+}
+
+static  active_settings_array saved_settings_wrapper ( context &c) {
+    return active_settings_array(c.saved_settings);
+}
+
+
 
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_setError(Interp &interp, const char *s)
@@ -98,6 +121,8 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
     return bp::make_tuple(status, pocket);
 }
 
+
+// currently unused
 // access to named and numbered parameters via a pseudo-dictionary
 struct ParamClass
 {
@@ -165,7 +190,18 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("sequence_number",&context::sequence_number)
 	.def_readwrite("filename",  &context::filename)
 	.def_readwrite("subname",  &context::subName)
-	// FIXME need wrapper for saved_params
+	.add_property( "saved_params",
+		       bp::make_function( params_w(&saved_params_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "saved_g_codes",
+		       bp::make_function( active_g_codes_w(&saved_g_codes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "saved_m_codes",
+		       bp::make_function( active_m_codes_w(&saved_m_codes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "saved_settings",
+		       bp::make_function( active_settings_w(&saved_settings_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.def_readwrite("context_status", &context::context_status)
 	;
 
@@ -356,7 +392,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("program_y", &Interp::_setup.program_y)
 	.def_readwrite("program_z", &Interp::_setup.program_z)
 
-	//		       .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
+	//  .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
 
 	.def_readwrite("random_toolchanger", &Interp::_setup.random_toolchanger)
 	.def_readwrite("remap_level", &Interp::_setup.remap_level)
