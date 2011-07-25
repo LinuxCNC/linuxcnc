@@ -464,7 +464,7 @@ Maximum speed in thread::
 
 Enter the following values in the Spindle Configuration page:
 
-[width="100%", options="header"]
+[width="100%"]
 |========================================
 |Speed 1: | *0*    | PWM 1: | *0*
 |Speed 2: | *1000* | PWM 2: | *1*

@@ -470,7 +470,7 @@ La vitesse maximale dans le filetage::
 
 Entrez les valeurs suivantes dans la page de configuration de la broche:
 
-[width="100%", options="header"]
+[width="100%"]
 |========================================
 | Vitesse 1: | *0*    | PWM 1: | *0*
 | Vitesse 2: | *1000* | PWM 2: | *1*
