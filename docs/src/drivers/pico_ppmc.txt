@@ -118,17 +118,16 @@ on the board, so it may be non-zero even if there is only one board.
    PWM generator will generate a short sequence of
    pulses of both polarities when E-stop goes false, to charge the
    bootstrap capacitors used on some MOSFET gate drivers.
- - `(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time` -- 
-   Sets minimum time between direction change and step pulse, in
+ - `(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time` -- Sets 
+   minimum time between direction change and step pulse, in
    units of 100ns. Applies to a group of four consecutive PWM generators,
    as indicated by `<channel-range>`.
- - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-width` -- 
-   Sets width of step pulses, in units of 100ns. Applies to a group
+ - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-width` -- Sets 
+   width of step pulses, in units of 100ns. Applies to a group
    of four consecutive PWM generators, as indicated by `<channel-range>`.
- - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min` 
-   -- Sets minimum time between pulses, in units of 100ns. 
-   The maximum step rate is 
-   latexmath:[$ \frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } $]. 
+ - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min` -- Sets 
+   minimum time between pulses, in units of 100ns. The maximum step rate is 
+   latexmath:[ \frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } ]. 
    Applies to a group of four consecutive PWM generators, 
    as indicated by `<channel-range>`. 
  - `(USC float) ppmc.<port>.stepgen.<channel>.scale` -- Scaling for
