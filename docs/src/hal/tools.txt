@@ -8,9 +8,9 @@ have installed EMC2 from either source or a package. If you have
 compiled EMC2 for “run-in-place”, the man page is not installed, but it
 is accessible. From the main EMC2 directory, do:
 
-    `$ *man -M docs/man halcmd*`
++$ *man -M docs/man halcmd*+ 
 
-Chapter  <<cha:HAL-Tutorial>> has a number of examples of halcmd
+Chapter <<cha:HAL-Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
 
 == Halmeter[[Halmeter]](((Halmeter)))
@@ -45,7 +45,7 @@ window. The item name will be displayed in the title bar instead of
 under the value, and there will be no buttons. Useful when you want a
 lot of meters in a small amount of screen space.
 
-Refer to section <<sec:Tutorial-halscope>> for more information. 
+Refer to section <<sec:Tutorial-Halmeter>> for more information. 
 
 == Halscope[[sec:Halscope]]
 

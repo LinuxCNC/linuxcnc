@@ -8,7 +8,7 @@ temps qu' EMC2 depuis ses sources ou depuis un paquet. Si EMC2 a été
 compilé en «run-in-place», la man page n'est pas installée, mais elle
 est accessible, dans le répertoire principal d'EMC2, taper:
 
-    `$ *man -M docs/man halcmd*`
++$ *man -M docs/man halcmd*+ 
 
 Le chapitre <<cha:Tutoriel-HAL>> donne de nombreux exemples
 d'utilisation de halcmd.

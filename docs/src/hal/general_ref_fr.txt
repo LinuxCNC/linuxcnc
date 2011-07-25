@@ -14,7 +14,7 @@ représente un champ qui peut prendre différentes valeurs, le
 paragraphe suivant explique les valeurs appropriées. Les items de texte
 séparés par une barre verticale signifie que l'un ou l'autre, mais pas
 plus, doit être présent. Toutes les lignes de commandes des exemples
- supposent que vous êtes dans le répertoire `d'emc2/` ou vous avez
+ supposent que vous êtes dans le répertoire d' `emc2/` ou vous avez
 configuré ou compilé emc2 avec l'option --run-in-place.
 Les chemins seront par conséquent, affichés en accord avec cet
 emplacement.
@@ -85,6 +85,8 @@ Ce chapitre est réellement un guide pour les développements futurs.]
 
 Les pilotes matériels devraient utiliser cinq champs (sur trois
 niveaux) pour obtenir un nom de pin ou de paramètre, comme le suivant:
+
++*<device-name>.<device-num>.<io-type>.<chan-num>.<specific-name>*+ 
 
 Les champs individuels sont:
 
@@ -177,7 +179,7 @@ HAL, l'autre qui écrit sur le matériel en utilisant les données
 fournies sur les pins HAL. Ce qui devrait être nommé de la façon
 suivante:
 
-     *`<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write`*
++*<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write*+ 
 
 <device-name>::
      Le même que celui utilisé pour les pins et les paramètres.

@@ -26,21 +26,19 @@ except KeyboardInterrupt:
 Copy the above listing into a file named “passthrough”, make it
 executable (`chmod +x),` and place it on your `$PATH`. Then try it out:
 
---------------------------------------------------------
-$ halrun
-halcmd: loadusr passthrough
-halcmd: show pin
-Component Pins:
-Owner Type  Dir     Value  Name
- 03   float IN          0  passthrough.in
- 03   float OUT         0  passthrough.out
-halcmd: setp passthrough.in 3.14
-halcmd: show pin
-Component Pins:
-Owner Type  Dir     Value  Name
- 03   float IN       3.14  passthrough.in
- 03   float OUT      3.14  passthrough.out
---------------------------------------------------------
++$ *halrun*+ 
++halcmd: *loadusr passthrough*+ 
++halcmd: *show pin*+ 
++Component Pins:+ 
++Owner Type  Dir     Value  Name+ 
++ 03   float IN          0  passthrough.in+ 
++ 03   float OUT         0  passthrough.out+ 
++halcmd: *setp passthrough.in 3.14*+ 
++halcmd: *show pin*+ 
++Component Pins:+ 
++Owner Type  Dir     Value  Name+ 
++ 03   float IN       3.14  passthrough.in+ 
++ 03   float OUT      3.14  passthrough.out+ 
 
 == Userspace components and delays
 
@@ -60,7 +58,7 @@ microseconds, no matter what).
 
 == Create pins and parameters
 
-`h = hal.component("passthrough")`
++h = hal.component("passthrough")+ 
 
 The component itself is created by a call to the constructor
 '`hal.component`'. The arguments are the HAL component name and
@@ -68,7 +66,7 @@ The component itself is created by a call to the constructor
 prefix used for pin and parameter names. If the prefix is not
 specified, the component name is used.
 
-`h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)`
++h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)+ 
 
 Then pins are created by calls to methods on the component object. The
 arguments are: pin name suffix, pin type, and pin direction. For
@@ -88,7 +86,7 @@ The full pin or parameter name is formed by joining the prefix and the
 suffix with a “.”, so in the example the pin created is called
 `passthrough.in`.
 
-`h.ready()`
++h.ready()+ 
 
 Once all the pins and parameters have been created, call the
 `.ready()` method.
@@ -103,12 +101,12 @@ current prefix can be retrieved by calling the `.getprefix()` method.
 For pins and parameters which are also proper Python identifiers, the
 value may be accessed or set using the attribute syntax:
 
-`h.out = h.in`
++h.out = h.in+ 
 
 For all pins, whether or not they are also proper Python identifiers,
 the value may be accessed or set using the subscript syntax:
 
-`h['out'] = h['in']`
++h['out'] = h['in']+ 
 
 === Driving output (HAL_OUT) pins
 

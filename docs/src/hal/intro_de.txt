@@ -411,8 +411,7 @@ The total length of the backbone can be changed by the length of rods
 used to connect the hubs. The order of operations is the same but the
 time to get from beginning to end is very different.
 
-=== A Lego Example[[sub:A-Lego-Example]]footnote:[The Lego name 
-is a trademark of the Lego company.]
+=== A Lego Example footnote:[The Lego name is a trademark of the Lego company.][[sub:A-Lego-Example]]
 
 When Lego blocks first arrived in our stores they were pretty much all
 the same size and shape. Sure there were half sized one and a few

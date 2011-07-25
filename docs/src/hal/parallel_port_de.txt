@@ -56,7 +56,7 @@ hal_parport.c). The ports are numbered starting at zero.
 
 === Installing
 
-    loadrt hal_parport cfg="<config-string>"
++*loadrt hal_parport cfg="<config-string>"*+ 
 
 ==== Using the Port Index
 
@@ -64,7 +64,7 @@ I/O addresses below 16 are treated as port indexes. This is the
 simplest way to install the parport driver and cooperates with the
 Linux parport_pc driver if it is loaded.
 
-    loadrt hal_parport cfg="0"
++*loadrt hal_parport cfg="0"*+ 
 
 Will use the address Linux has detected for parport0.
 
@@ -77,7 +77,7 @@ through 9, and whether to create input HAL pins for the physical
 control pins. If the direction is not specified, the data group
 defaults to output. For example:
 
-    loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
++*loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"*+ 
 
 This example installs drivers for one port at 0x0278, with pins 2-9 as
 outputs (by default, since neither "in" nor "out" was specified), one
@@ -92,9 +92,9 @@ log after executing `"sudo modprobe -a parport_pc`". There is no
 default address; if `<config-string>` does not contain at least one
 address, it is an error.
 
-image::parport-block-diag.eps[]
+.Parport Block Diagram[[fig:Parport-block-diag]]
 
-.[[fig:Parport-block-diag]]Parport Block Diagram
+image::parport-block-diag.eps[]
 
 === Pins
 
@@ -172,8 +172,8 @@ same time.
 
 If loading the module reports
 
-    insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
-    -1 Device or resource busy 
++insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':+ 
++-1 Device or resource busy+ 
 
 then ensure that the standard kernel module `parport_pc`  is not
 loadedfootnote:[In the EMC packages for Ubuntu, the file
@@ -194,17 +194,17 @@ specificed by parport.n.reset-time.
 
 For example:
 
-    loadrt hal_parport cfg="0x378 out"
-    setp parport.0.reset-time 5000
-    loadrt stepgen step_type=0,0,0
-    addf parport.0.read base-thread
-    addf stepgen.make-pulses base-thread
-    addf parport.0.write base-thread
-    addf parport.0.reset base-thread
-    addf stepgen.capture-position servo-thread
-    ...
-    setp stepgen.0.steplen 1
-    setp stepgen.0.stepspace 0
++loadrt hal_parport cfg="0x378 out"+ 
++setp parport.0.reset-time 5000+ 
++loadrt stepgen step_type=0,0,0+ 
++addf parport.0.read base-thread+ 
++addf stepgen.make-pulses base-thread+ 
++addf parport.0.write base-thread+ 
++addf parport.0.reset base-thread+ 
++addf stepgen.capture-position servo-thread+ 
++...+ 
++setp stepgen.0.steplen 1+ 
++setp stepgen.0.stepspace 0+ 
 
 == [[sec:probe_parport]]probe_parport
 
@@ -216,13 +216,12 @@ loaded but has no effect.
 
 === Installing
 
-    loadrt probe_parport
-
-    loadrt hal_parport ...
++loadrt probe_parport+ 
++loadrt hal_parport ...+ 
 
 If the Linux kernel prints a message similar to
 
-    parport: PnPBIOS parport detected.
++parport: PnPBIOS parport detected.+
 
 when the parport_pc module is loaded (`sudo modprobe -a parport_pc;
 sudo rmmod parport_pc)` then use of this module is probably required.

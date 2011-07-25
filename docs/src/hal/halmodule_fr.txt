@@ -39,7 +39,7 @@ cas).
 
 == Créer les pins et les paramètres
 
-    h = hal.component("passthrough")
++h = hal.component("passthrough")+ 
 
 Le composant lui-même est créé par l'appel du constructeur
 '`hal.component` '. Les arguments sont le nom du composant HAL et
@@ -47,7 +47,7 @@ optionnellement, le
 préfixe utilisé pour les noms de pin et de paramètre. Si le préfixe
 n'est pas spécifié, le nom du composant est utilisé.
 
-    h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
++h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)+ 
 
 Puis les pins sont créées par appels des méthodes sur l'objet
 composant. Les arguments sont: pin nom suffixe, type de pin et
@@ -67,7 +67,7 @@ Le nom complet d'une pin ou d'un paramètre est formé en joignant le
 préfixe avec le suffixe par un «.», comme dans l'exemple où la pin
 créée est appelée `passthrough.in`.
 
-    h.ready()
++h.ready()+ 
 
 Une fois toutes les pins et les paramètres créés, la méthode `.ready()
 est appelée`.
@@ -84,13 +84,13 @@ Pour les pins et les paramètres qui sont aussi des identifiants
 Python, la valeur est accessible ou ajustable en utilisant la syntaxe
 des attributs suivante:
 
-    h.out = h.in
++h.out = h.in+ 
 
 Pour les pins et les paramètres qui sont aussi des identifiants
 Python, la valeur est accessible ou ajustable en utilisant la syntaxe
 de sous-script suivante:
 
-    h['out'] = h['in']
++h['out'] = h['in']+ 
 
 === Pilotage des pins de sortie (HAL_OUT)
 

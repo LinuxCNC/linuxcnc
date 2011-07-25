@@ -59,12 +59,10 @@ pins et certains paramètres affichent plusieurs réponses. C'est dû à la
 nature des routines de recherche dans halcmd lui même. Si vous cherchez
 une pin, vous pouvez en trouver deux comme cela:
 
------------------------------------------------------------
-    Component Pins: 
-    Owner  Type  Dir  Value  Name 
-    06     bit    -W   TRUE  parport.0.pin-10-in 
-    06     bit    -W  FALSE  parport.0.pin-10-in-not
------------------------------------------------------------
++Component Pins:+ 
++Owner  Type  Dir  Value  Name+ 
++06     bit    -W   TRUE  parport.0.pin-10-in+ 
++06     bit    -W  FALSE  parport.0.pin-10-in-not+ 
 
 Le deuxième nom de pin contient le nom complémenté du premier.
 
@@ -104,38 +102,34 @@ de fonctionner.
 
 Maintenant, regardez dans components, vous devriez y voir blocks.
 
----------------------------------------
-    Loaded HAL Components: 
-    ID Type        Name 
-    10 User halcmd29800 
-    09 User halcmd29374 
-    08   RT      blocks 
-    06   RT hal_parport 
-    05   RT    scope_rt 
-    04   RT     stepgen 
-    03   RT      motmod 
-    02 User   iocontrol
----------------------------------------
++Loaded HAL Components:+ 
++ID Type        Name+ 
++10 User halcmd29800+ 
++09 User halcmd29374+ 
++08   RT      blocks+ 
++06   RT hal_parport+ 
++05   RT    scope_rt+ 
++04   RT     stepgen+ 
++03   RT      motmod+ 
++02 User   iocontrol+ 
 
 Effectivement, il est là. Dans notre cas l'id est 08. Ensuite nous
 devons savoir quelles fonctions sont disponibles avec lui, nous
 regardons dans Functions.
 
------------------------------------------------------------
-    Exported Functions: 
-    Owner  CodeAddr      Arg  FP Users Name 
-      08   E0B97630 E0DC7674 YES     0 ddt.0 
-      03   E0DEF83C 00000000 YES     1 motion-command-handler 
-      03   E0DF0BF3 00000000 YES     1 motion-controller 
-      06   E0B541FE E0DC75B8  NO     1 parport.0.read 
-      06   E0B54270 E0DC75B8  NO     1 parport.0.write 
-      06   E0B54309 E0DC75B8  NO     0 parport.read-all 
-      06   E0B5433A E0DC75B8  NO     0 parport.write-all 
-      05   E0AD712D 00000000  NO     0 scope.sample 
-      04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position 
-      04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses 
-      04   E0B614AD E0DC7448 YES     1 stepgen.update-freq
------------------------------------------------------------
++Exported Functions:+ 
++Owner  CodeAddr      Arg  FP Users Name+ 
++  08   E0B97630 E0DC7674 YES     0 ddt.0+ 
++  03   E0DEF83C 00000000 YES     1 motion-command-handler+ 
++  03   E0DF0BF3 00000000 YES     1 motion-controller+ 
++  06   E0B541FE E0DC75B8  NO     1 parport.0.read+ 
++  06   E0B54270 E0DC75B8  NO     1 parport.0.write+ 
++  06   E0B54309 E0DC75B8  NO     0 parport.read-all+ 
++  06   E0B5433A E0DC75B8  NO     0 parport.write-all+ 
++  05   E0AD712D 00000000  NO     0 scope.sample+ 
++  04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position+ 
++  04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses+ 
++  04   E0B614AD E0DC7448 YES     1 stepgen.update-freq+ 
 
 Ici, nous cherchons owner #08 et voyons que blocks a exporté une
 fonction nommée ddt.0. Nous devrions être en mesure d'ajouter ddt.0 au
@@ -164,22 +158,18 @@ Ensuite, nous devons connecter ce block à quelque chose. Mais comment
 savoir quelles pins sont disponibles? La réponse se trouve dans
 l'arbre, en regardant sous Pins. On y trouve ddt et on voit:
 
----------------------------------------
-    Component Pins: 
-    Owner Type  Dir Value       Name 
-    08    float R-  0.00000e+00 ddt.0.in 
-    08    float -W  0.00000e+00 ddt.0.out
----------------------------------------
++Component Pins:+ 
++Owner Type  Dir Value       Name+ 
++08    float R-  0.00000e+00 ddt.0.in+ 
++08    float -W  0.00000e+00 ddt.0.out+ 
 
 Cela semble assez facile à comprendre, mais à quel signal ou pin
 voulons-nous nous connecter, ça pourrait être une pin d'axe, une pin de
 stepgen, ou un signal. On vois cela en regardant dans axis.0.
 
----------------------------------------------------------------------
-    Component Pins: 
-    Owner Type  Dir Value       Name 
-    03    float -W  0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd
----------------------------------------------------------------------
++Component Pins:+ 
++Owner Type  Dir Value       Name+ 
++03    float -W  0.00000e+00 axis.0.motor-pos-cmd ==> Xpos-cmd+ 
 
 Donc, il semble que Xpos-cmd devrait être un bon signal à utiliser.
 Retour à l'éditeur et entrons la commande suivante:
@@ -189,12 +179,12 @@ Retour à l'éditeur et entrons la commande suivante:
 Maintenant si on regarde le signal Xpos-cmd dans l'arbre, on voit ce
 qu'on a fait.
 
-    Signals: 
-    Type Value Name 
-    float 0.00000e+00 Xpos-cmd 
-    <== axis.0.motor-pos-cmd 
-    ==> ddt.0.in 
-    ==> stepgen.0.position-cmd
++Signals:+ 
++Type Value Name+ 
++float 0.00000e+00 Xpos-cmd+ 
++<== axis.0.motor-pos-cmd+ 
++==> ddt.0.in+ 
++==> stepgen.0.position-cmd+ 
 
 Nous voyons que ce signal provient de axis.0.motor-pos-cmd et va, à la
 fois, sur ddt.0.in et sur stepgen.0.position-cmd. En connectant notre

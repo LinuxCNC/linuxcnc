@@ -8,7 +8,7 @@ a script to open multiple Halmeters you can set the position of each
 one with -g X Y relative to the upper left corner of your screen. See
 the man page for more options. See section <<Halmeter>>. 
 
-    loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
++loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500+ 
     
 .Halmeter
 
@@ -42,7 +42,7 @@ image::freqgen-block-diag.eps[]
 
 === Installing
 
-     emc2$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
++emc2$ halcmd loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]+ 
 
 `<type-array>` is a series of comma separated decimal integers. Each
 number causes a
@@ -53,7 +53,7 @@ mode. `ctrl_type` is optional, if ommitted, all of the step generators
 will be position
 mode. For example:
 
-    emc2$ halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
++emc2$ *halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v*+ 
 
 will install three step generators. The first two use step type '0'
 (step and direction) and run in position mode. The last one uses step
@@ -67,22 +67,22 @@ is the number of a specific generator. The first generator is number 0.
 
 === Removing
 
-    emc2$ halcmd unloadrt stepgen
++emc2$ *halcmd unloadrt stepgen*+ 
 
 === Pins
 
 Each step pulse generator will have only some of these pins, depending
 on the step type and control type selected.
 
- -  `(float) stepgen.<chan>.position-cmd` -- Desired motor position, in
+ - `(float) stepgen.<chan>.position-cmd` -- Desired motor position, in
    position units (position mode only).
- -  `(float) stepgen.<chan>.velocity-cmd`  -- Desired motor velocity, in
+ - `(float) stepgen.<chan>.velocity-cmd`  -- Desired motor velocity, in
    position units per second (velocity mode only).
- -  `(s32) stepgen.<chan>.counts` -- Feedback position in counts,
+ - `(s32) stepgen.<chan>.counts` -- Feedback position in counts,
    updated by `capture_position()`.
- -  `(float) stepgen.<chan>.position-fb` -- Feedback position in
+ - `(float) stepgen.<chan>.position-fb` -- Feedback position in
    position units, updated by `capture_position()`.
- -  `(bit) stepgen.<chan>.enable` -- Enables output steps - when false,
+ - `(bit) stepgen.<chan>.enable` -- Enables output steps - when false,
    no steps are generated.
  - `(bit) stepgen.<chan>.step` -- Step pulse output (step type 0 only).
  - `(bit) stepgen.<chan>.dir` -- Direction output (step type 0 only).
@@ -96,31 +96,31 @@ on the step type and control type selected.
 
 === Parameters
 
- -  `(float) stepgen.<chan>.position-scale`  -- Steps per position unit.
+ - `(float) stepgen.<chan>.position-scale`  -- Steps per position unit.
    This parameter is used for both output and feedback.
- -  `(float) stepgen.<chan>.maxvel`  -- Maximum velocity, in position
+ - `(float) stepgen.<chan>.maxvel`  -- Maximum velocity, in position
    units per second. If 0.0, has no effect.
- -  `(float) stepgen.<chan>.maxaccel` -- Maximum accel/decel rate, in
+ - `(float) stepgen.<chan>.maxaccel` -- Maximum accel/decel rate, in
    positions units per second squared.
    If 0.0, has no effect.
- -  `(float) stepgen.<chan>.frequency` -- The current step rate, in
+ - `(float) stepgen.<chan>.frequency` -- The current step rate, in
    steps per second.
- -  `(float) stepgen.<chan>.steplen` -- Length of a step pulse (step
+ - `(float) stepgen.<chan>.steplen` -- Length of a step pulse (step
    type 0 and 1) or minimum time in a
    given state (step types 2-14), in nano-seconds.
- -  `(float) stepgen.<chan>.stepspace` -- Minimum spacing between two
+ - `(float) stepgen.<chan>.stepspace` -- Minimum spacing between two
    step pulses (step types 0 and 1 only),
    in nano-seconds.
- -  `(float) stepgen.<chan>.dirsetup` -- Minimum time from a direction
+ - `(float) stepgen.<chan>.dirsetup` -- Minimum time from a direction
    change to the beginning of the next
    step pulse (step type 0 only), in nanoseconds.
- -  `(float) stepgen.<chan>.dirhold` -- Minmum time from the end of a
+ - `(float) stepgen.<chan>.dirhold` -- Minmum time from the end of a
    step pulse to a direction change
    (step type 0 only), in nanoseconds.
- -  `(float) stepgen.<chan>.dirdelay` -- Minmum time any step to a step
+ - `(float) stepgen.<chan>.dirdelay` -- Minmum time any step to a step
    in the opposite direction (step
    types 1-14 only), in nano-seconds.
- -  `(s32) stepgen.<chan>.rawcounts` -- The raw feedback count, updated
+ - `(s32) stepgen.<chan>.rawcounts` -- The raw feedback count, updated
    by `make_pulses()`. 
 
 In position mode, the values of maxvel and maxaccel are used by the
@@ -223,14 +223,14 @@ perhaps 10KHz with limited resolution.
 
 === Installing
 
-    emc2$ halcmd loadrt pwmgen output_type=<config-array>
++emc2$ *halcmd loadrt pwmgen output_type=<config-array>*+ 
 
 `<config-array>` is a series of comma separated decimal integers.
 Each number causes a
 single PWM generator to be loaded, the value of the number determines
 the output type. For example:
 
-    emc2$ halcmd loadrt pwmgen output_type=0,1,2
++emc2$ *halcmd loadrt pwmgen output_type=0,1,2*+ 
 
 will install three PWM generators. The first one will use output type
 '0' (PWM only), the next uses output type 1 (PWM and direction) and the
@@ -245,7 +245,7 @@ number 0.
 
 === Removing
 
-    emc2$ halcmd unloadrt pwmgen
++emc2$ *halcmd unloadrt pwmgen*+ 
 
 === Pins
 
@@ -336,7 +336,7 @@ image::encoder-block-diag.eps[]
 
 === Installing
 
-    emc2$ halcmd loadrt encoder [num_chan=<counters>]
++emc2$ *halcmd loadrt encoder [num_chan=<counters>]*+ 
 
 `<counters>` is the number of encoder counters that you want to
 install. If `numchan`  is not specified, three counters will be
@@ -348,7 +348,7 @@ of a specific counter. The first counter is number 0.
 
 === Removing
 
-    emc2$ halcmd unloadrt encoder
++emc2$ *halcmd unloadrt encoder*+ 
 
 === Pins
 
@@ -432,9 +432,9 @@ The component exports two functions. Each function acts on all of the
 encoder counters - running different counters in different threads is
 not supported.
 
- -  `(funct) encoder.update-counters` -- High speed function to count
+ - `(funct) encoder.update-counters` -- High speed function to count
    pulses (no floating point).
- -  `(funct) encoder.capture-position` -- Low speed function to update
+ - `(funct) encoder.capture-position` -- Low speed function to update
    latches and scale position.
 
 == PID[[sec:PID]](((pid)))
@@ -452,7 +452,7 @@ image::pid-block-diag.eps[]
 
 === Installing
 
-    emc2$ halcmd loadrt pid [num_chan=<loops>] [debug=1]
++emc2$ *halcmd loadrt pid [num_chan=<loops>] [debug=1]*+ 
 
 `<loops>` is the number of PID loops that you want to install. If
 `numchan`  is not specified, one loop will be installed. The maximum
@@ -469,7 +469,7 @@ cluttering the parameter list.
 
 === Removing
 
-    emc2$ halcmd unloadrt pid
++emc2$ *halcmd unloadrt pid*+ 
 
 === Pins
 
@@ -567,7 +567,7 @@ for testing.
 
 === Installing
 
-    emc2$ halcmd loadrt sim-encoder num_chan=<number>
++emc2$ *halcmd loadrt sim-encoder num_chan=<number>*+
 
 `<number>` is the number of encoders that you want to simulate. If not
 specified, one encoder will be installed. The maximum number is 8 (as
@@ -575,7 +575,7 @@ defined by MAX_CHAN in sim_encoder.c).
 
 === Removing
 
-    emc2$ halcmd unloadrt sim-encoder
++emc2$ *halcmd unloadrt sim-encoder*+ 
 
 === Pins
 
@@ -617,14 +617,14 @@ applications where short pulses are to be rejected.
 
 === Installing
 
-    emc2$ halcmd loadrt debounce cfg=<config-string>
++emc2$ *halcmd loadrt debounce cfg=<config-string>*+ 
 
 `<config-string>`  is a series of comma separated decimal integers.
 Each number installs
 a group of identical debounce filters, the number determines how many
 filters are in the group. For example:
 
-    emc2$ halcmd loadrt debounce cfg=1,4,2
++emc2$ *halcmd loadrt debounce cfg=1,4,2*+ 
 
 will install three groups of filters. Group 0 contains one filter,
 group 1 contains four, and group 2 contains two filters. The default
@@ -641,7 +641,7 @@ filter 0.
 
 === Removing
 
-    emc2$ halcmd unloadrt debounce
++emc2$ *halcmd unloadrt debounce*+ 
 
 === Pins
 
@@ -681,7 +681,7 @@ sine waves. It is primarily used for testing.
 
 === Installing
 
-    emc2$ halcmd loadrt siggen [num_chan=<chans>]
++emc2$ *halcmd loadrt siggen [num_chan=<chans>]*+ 
 
 `<chans>` is the number of signal generators that you want to install.
 If `numchan`  is not specified, one signal generator will be installed.
@@ -693,7 +693,7 @@ start at 0).
 
 === Removing
 
-    emc2$ halcmd unloadrt siggen
++emc2$ *halcmd unloadrt siggen*+ 
 
 === Pins
 

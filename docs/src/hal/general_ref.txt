@@ -14,7 +14,7 @@ take on different values, and the
 adjacent paragraph will explain the appropriate values. Text items
 separated by a vertical bar means that one or the other, but not both, 
 should be present. All command line examples assume that you are in
-the`emc2/`  directory, and you configured/compiled EMC2 for the
+the `emc2/`  directory, and you configured/compiled EMC2 for the
 run-in-place scenario. Paths will be shown accordingly when needed.
 
 === Names
@@ -80,7 +80,7 @@ is really a guide for future development.]
 Hardware drivers should use five fields (on three levels) to make up a
 pin or parameter name, as follows:
 
-     *`<device-name>.<device-num>.<io-type>.<chan-num>.<specific-name>`*
++*<device-name>.<device-num>.<io-type>.<chan-num>.<specific-name>*+ 
 
 The individual fields are:
 
@@ -163,7 +163,7 @@ Hardware drivers usually only have two kinds of HAL functions, ones
 that read the hardware and update HAL pins, and ones that write to the
 hardware using data from HAL pins. They should be named as follows:
 
-     *`<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write`*
++*<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write*+ 
 
 <device-name>::
      The same as used for pins and parameters.

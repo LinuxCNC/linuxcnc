@@ -412,7 +412,7 @@ intégrateur parviendra rapidement au delà des brefs exemples et
 commencera à assembler des composants entre eux d'une manière qui lui
 sera propre.
 
-=== Tinkertoys  footnote:[Tinkertoy est maintenant registered trademark of the Hasbro company. ]
+=== Tinkertoys footnote:[Tinkertoy est maintenant registered trademark of the Hasbro company.]
 
      Le jouet en bois Tinkertoys est plus humain que l'acier froid de
     l'Erector. Le coeur de la construction avec TinkerToys est un
@@ -464,7 +464,7 @@ peut aussi être changée en jouant sur la longueur des tiges pour
 connecter les modules. L'ordre des opérations est le même mais le temps
 mis pour aller d'un bout à l'autre est très différent.
 
-=== Un exemple en Lego[[sub:Un-Exemple-en-Lego]]footnote:[The Lego name is a trademark of the Lego company. ]
+=== Un exemple en Lego footnote:[The Lego name is a trademark of the Lego company.][[sub:Un-Exemple-en-Lego]]
 
 Lorsque les blocs de Lego sont arrivés dans nos magasins, ils étaient
 à peu près tous de la même taille et de la même forme. Bien sûr il y
