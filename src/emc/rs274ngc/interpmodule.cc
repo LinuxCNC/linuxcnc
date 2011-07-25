@@ -241,11 +241,17 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("o_type",&block::o_type)
 
 	//  read-only
-
 	.add_property("comment", &block::comment)
 	.add_property("o_name",  &block::o_name)
 	.add_property( "params",
 		       bp::make_function( params_w(&params_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	// arrays
+	.add_property( "m_modes",
+		       bp::make_function( m_modes_w(&m_modes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "g_modes",
+		       bp::make_function( g_modes_w(&g_modes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 
 	//FIXME missing
@@ -255,11 +261,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	//
 	;
 
-    // class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
-    // 	.def("__getitem__", &ParamClass::getitem)
-    // 	.def("__setitem__", &ParamClass::setitem)
-    // 	.def("__len__", &ParamClass::length)
-    // 	;
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
 	.def_readwrite("x",&PmCartesian::x)
@@ -286,141 +287,142 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
 	;
 
-    scope interp_class(
-		       class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
 
-		       .def("find_tool_pocket", &wrap_find_tool_pocket)
-		       .def("load_tool_table", &Interp::load_tool_table)
-		       .def("set_errormsg", &wrap_setError)
-		       .def("set_tool_parameters", &Interp::set_tool_parameters)
-		       .def("synch", &Interp::synch)
-		       .def("print_named_params", &Interp::print_named_params)
+    class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
 
-		       .def_readonly("filename", (char *) &Interp::_setup.filename)
-		       .def_readonly("linetext", (char *) &Interp::_setup.linetext)
-		       .def_readonly("current_tool", &Interp::_setup.tool_table[0].toolno)
+	.def("find_tool_pocket", &wrap_find_tool_pocket)
+	.def("load_tool_table", &Interp::load_tool_table)
+	.def("set_errormsg", &wrap_setError)
+	.def("set_tool_parameters", &Interp::set_tool_parameters)
+	.def("synch", &Interp::synch)
+	.def("print_named_params", &Interp::print_named_params)
+	.def_readonly("filename", (char *) &Interp::_setup.filename)
+	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
+	.def_readonly("current_tool", &Interp::_setup.tool_table[0].toolno)
+	.def_readwrite("AA_axis_offset", &Interp::_setup.AA_axis_offset)
+	.def_readwrite("AA_current", &Interp::_setup.AA_current)
+	.def_readwrite("AA_origin_offset", &Interp::_setup.AA_origin_offset)
+	.def_readwrite("BB_axis_offset", &Interp::_setup.BB_axis_offset)
+	.def_readwrite("BB_current", &Interp::_setup.BB_current)
+	.def_readwrite("BB_origin_offset", &Interp::_setup.BB_origin_offset)
+	.def_readwrite("CC_axis_offset", &Interp::_setup.CC_axis_offset)
+	.def_readwrite("CC_current", &Interp::_setup.CC_current)
+	.def_readwrite("CC_origin_offset", &Interp::_setup.CC_origin_offset)
+	.def_readwrite("arc_not_allowed", &Interp::_setup.arc_not_allowed)
+	.def_readwrite("axis_offset_x", &Interp::_setup.axis_offset_x)
+	.def_readwrite("axis_offset_y", &Interp::_setup.axis_offset_y)
+	.def_readwrite("axis_offset_z", &Interp::_setup.axis_offset_z)
+	.def_readwrite("call_level", &Interp::_setup.call_level)
+	.def_readwrite("current_pocket", &Interp::_setup.current_pocket)
+	.def_readwrite("current_x", &Interp::_setup.current_x)
+	.def_readwrite("current_y", &Interp::_setup.current_y)
+	.def_readwrite("current_z", &Interp::_setup.current_z)
+	.def_readwrite("cutter_comp_firstmove", &Interp::_setup.cutter_comp_firstmove)
+	.def_readwrite("cutter_comp_orientation", &Interp::_setup.cutter_comp_orientation)
+	.def_readwrite("cutter_comp_radius", &Interp::_setup.cutter_comp_radius)
+	.def_readwrite("cutter_comp_side", &Interp::_setup.cutter_comp_side)
+	.def_readwrite("cycle_cc", &Interp::_setup.cycle_cc)
+	.def_readwrite("cycle_i", &Interp::_setup.cycle_i)
+	.def_readwrite("cycle_il", &Interp::_setup.cycle_il)
+	.def_readwrite("cycle_il_flag", &Interp::_setup.cycle_il_flag)
+	.def_readwrite("cycle_j", &Interp::_setup.cycle_j)
+	.def_readwrite("cycle_k", &Interp::_setup.cycle_k)
+	.def_readwrite("cycle_l", &Interp::_setup.cycle_l)
+	.def_readwrite("cycle_p", &Interp::_setup.cycle_p)
+	.def_readwrite("cycle_q", &Interp::_setup.cycle_q)
+	.def_readwrite("cycle_r", &Interp::_setup.cycle_r)
+	.def_readwrite("debugmask", &Interp::_setup.debugmask)
+	.def_readwrite("distance_mode", &Interp::_setup.distance_mode)
+	.def_readwrite("feed_mode", &Interp::_setup.feed_mode)
+	.def_readwrite("feed_override", &Interp::_setup.feed_override)
+	.def_readwrite("feed_rate", &Interp::_setup.feed_rate)
+	.def_readwrite("ijk_distance_mode", &Interp::_setup.ijk_distance_mode)
+	.def_readwrite("input_digital", &Interp::_setup.input_digital)
+	.def_readwrite("input_flag", &Interp::_setup.input_flag)
+	.def_readwrite("input_index", &Interp::_setup.input_index)
+	.def_readwrite("length_units", &Interp::_setup.length_units)
+	.def_readwrite("mdi_interrupt", &Interp::_setup.mdi_interrupt)
+	.def_readwrite("mist", &Interp::_setup.mist)
+	.def_readwrite("motion_mode", &Interp::_setup.motion_mode)
+	.def_readwrite("origin_index", &Interp::_setup.origin_index)
+	.def_readwrite("origin_offset_x", &Interp::_setup.origin_offset_x)
+	.def_readwrite("origin_offset_y", &Interp::_setup.origin_offset_y)
+	.def_readwrite("origin_offset_z", &Interp::_setup.origin_offset_z)
+	.def_readwrite("percent_flag", &Interp::_setup.percent_flag)
+	.def_readwrite("plane", &Interp::_setup.plane)
+	.def_readwrite("pockets_max", &Interp::_setup.pockets_max)
+	.def_readwrite("probe_flag", &Interp::_setup.probe_flag)
+	.def_readwrite("program_x", &Interp::_setup.program_x)
+	.def_readwrite("program_y", &Interp::_setup.program_y)
+	.def_readwrite("program_z", &Interp::_setup.program_z)
 
-		       .def_readwrite("AA_axis_offset", &Interp::_setup.AA_axis_offset)
-		       .def_readwrite("AA_current", &Interp::_setup.AA_current)
-		       .def_readwrite("AA_origin_offset", &Interp::_setup.AA_origin_offset)
-		       .def_readwrite("BB_axis_offset", &Interp::_setup.BB_axis_offset)
-		       .def_readwrite("BB_current", &Interp::_setup.BB_current)
-		       .def_readwrite("BB_origin_offset", &Interp::_setup.BB_origin_offset)
-		       .def_readwrite("CC_axis_offset", &Interp::_setup.CC_axis_offset)
-		       .def_readwrite("CC_current", &Interp::_setup.CC_current)
-		       .def_readwrite("CC_origin_offset", &Interp::_setup.CC_origin_offset)
-		       .def_readwrite("arc_not_allowed", &Interp::_setup.arc_not_allowed)
-		       .def_readwrite("axis_offset_x", &Interp::_setup.axis_offset_x)
-		       .def_readwrite("axis_offset_y", &Interp::_setup.axis_offset_y)
-		       .def_readwrite("axis_offset_z", &Interp::_setup.axis_offset_z)
-		       .def_readwrite("call_level", &Interp::_setup.call_level)
-		       .def_readwrite("current_pocket", &Interp::_setup.current_pocket)
-		       .def_readwrite("current_x", &Interp::_setup.current_x)
-		       .def_readwrite("current_y", &Interp::_setup.current_y)
-		       .def_readwrite("current_z", &Interp::_setup.current_z)
-		       .def_readwrite("cutter_comp_firstmove", &Interp::_setup.cutter_comp_firstmove)
-		       .def_readwrite("cutter_comp_orientation", &Interp::_setup.cutter_comp_orientation)
-		       .def_readwrite("cutter_comp_radius", &Interp::_setup.cutter_comp_radius)
-		       .def_readwrite("cutter_comp_side", &Interp::_setup.cutter_comp_side)
-		       .def_readwrite("cycle_cc", &Interp::_setup.cycle_cc)
-		       .def_readwrite("cycle_i", &Interp::_setup.cycle_i)
-		       .def_readwrite("cycle_il", &Interp::_setup.cycle_il)
-		       .def_readwrite("cycle_il_flag", &Interp::_setup.cycle_il_flag)
-		       .def_readwrite("cycle_j", &Interp::_setup.cycle_j)
-		       .def_readwrite("cycle_k", &Interp::_setup.cycle_k)
-		       .def_readwrite("cycle_l", &Interp::_setup.cycle_l)
-		       .def_readwrite("cycle_p", &Interp::_setup.cycle_p)
-		       .def_readwrite("cycle_q", &Interp::_setup.cycle_q)
-		       .def_readwrite("cycle_r", &Interp::_setup.cycle_r)
-		       .def_readwrite("debugmask", &Interp::_setup.debugmask)
-		       .def_readwrite("distance_mode", &Interp::_setup.distance_mode)
-		       .def_readwrite("feed_mode", &Interp::_setup.feed_mode)
-		       .def_readwrite("feed_override", &Interp::_setup.feed_override)
-		       .def_readwrite("feed_rate", &Interp::_setup.feed_rate)
-		       .def_readwrite("ijk_distance_mode", &Interp::_setup.ijk_distance_mode)
-		       .def_readwrite("input_digital", &Interp::_setup.input_digital)
-		       .def_readwrite("input_flag", &Interp::_setup.input_flag)
-		       .def_readwrite("input_index", &Interp::_setup.input_index)
-		       .def_readwrite("length_units", &Interp::_setup.length_units)
-		       .def_readwrite("mdi_interrupt", &Interp::_setup.mdi_interrupt)
-		       .def_readwrite("mist", &Interp::_setup.mist)
-		       .def_readwrite("motion_mode", &Interp::_setup.motion_mode)
-		       .def_readwrite("origin_index", &Interp::_setup.origin_index)
-		       .def_readwrite("origin_offset_x", &Interp::_setup.origin_offset_x)
-		       .def_readwrite("origin_offset_y", &Interp::_setup.origin_offset_y)
-		       .def_readwrite("origin_offset_z", &Interp::_setup.origin_offset_z)
-		       .def_readwrite("percent_flag", &Interp::_setup.percent_flag)
-		       .def_readwrite("plane", &Interp::_setup.plane)
-		       .def_readwrite("pockets_max", &Interp::_setup.pockets_max)
-		       .def_readwrite("probe_flag", &Interp::_setup.probe_flag)
-		       .def_readwrite("program_x", &Interp::_setup.program_x)
-		       .def_readwrite("program_y", &Interp::_setup.program_y)
-		       .def_readwrite("program_z", &Interp::_setup.program_z)
-		       //		       .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
-		       .def_readwrite("random_toolchanger", &Interp::_setup.random_toolchanger)
-		       .def_readwrite("remap_level", &Interp::_setup.remap_level)
-		       .def_readwrite("retract_mode", &Interp::_setup.retract_mode)
-		       .def_readwrite("return_value", &Interp::_setup.return_value)
-		       .def_readwrite("value_returned", &Interp::_setup.value_returned)
-		       .def_readwrite("rotation_xy", &Interp::_setup.rotation_xy)
-		       .def_readwrite("selected_pocket", &Interp::_setup.selected_pocket)
-		       .def_readwrite("selected_tool", &Interp::_setup.selected_tool)
-		       .def_readwrite("sequence_number", &Interp::sequence_number)
-		       .def_readwrite("speed", &Interp::_setup.speed)
-		       .def_readwrite("speed_feed_mode", &Interp::_setup.speed_feed_mode)
-		       .def_readwrite("speed_override", &Interp::_setup.speed_override)
-		       .def_readwrite("spindle_mode", &Interp::_setup.spindle_mode)
-		       .def_readwrite("spindle_turning", &Interp::_setup.spindle_turning)
-		       .def_readwrite("tool_offset", &Interp::_setup.tool_offset)
-		       //unused,removed  .def_readwrite("tool_offset_index", &Interp::_setup.tool_offset_index)
-		       .def_readwrite("toolchange_flag", &Interp::_setup.toolchange_flag)
-		       .def_readwrite("traverse_rate", &Interp::_setup.traverse_rate)
-		       .def_readwrite("u_axis_offset", &Interp::_setup.u_axis_offset)
-		       .def_readwrite("u_current", &Interp::_setup.u_current)
-		       .def_readwrite("u_origin_offset", &Interp::_setup.u_origin_offset)
-		       .def_readwrite("v_axis_offset", &Interp::_setup.v_axis_offset)
-		       .def_readwrite("v_current", &Interp::_setup.v_current)
-		       .def_readwrite("v_origin_offset", &Interp::_setup.v_origin_offset)
-		       .def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
-		       .def_readwrite("w_current", &Interp::_setup.w_current)
-		       .def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
+	//		       .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
 
-		       // _setup arrays
-		       .add_property( "active_g_codes",
-				      bp::make_function( active_g_codes_w(&active_g_codes_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
-		       .add_property( "active_m_codes",
-				      bp::make_function( active_m_codes_w(&active_m_codes_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
-		       .add_property( "active_settings",
-				      bp::make_function( active_settings_w(&active_settings_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
-		       .add_property( "blocks",
-				      bp::make_function( blocks_w(&blocks_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
-		       .add_property( "parameters",
-				      bp::make_function( parameters_w(&parameters_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
-		       .add_property( "tool_table",
-				      bp::make_function( tool_table_w(&tool_table_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
-		       .add_property( "sub_context",
-				      bp::make_function( sub_context_w(&sub_context_wrapper),
-							 bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.def_readwrite("random_toolchanger", &Interp::_setup.random_toolchanger)
+	.def_readwrite("remap_level", &Interp::_setup.remap_level)
+	.def_readwrite("retract_mode", &Interp::_setup.retract_mode)
+	.def_readwrite("return_value", &Interp::_setup.return_value)
+	.def_readwrite("value_returned", &Interp::_setup.value_returned)
+	.def_readwrite("rotation_xy", &Interp::_setup.rotation_xy)
+	.def_readwrite("selected_pocket", &Interp::_setup.selected_pocket)
+	.def_readwrite("selected_tool", &Interp::_setup.selected_tool)
+	.def_readwrite("sequence_number", &Interp::sequence_number)
+	.def_readwrite("speed", &Interp::_setup.speed)
+	.def_readwrite("speed_feed_mode", &Interp::_setup.speed_feed_mode)
+	.def_readwrite("speed_override", &Interp::_setup.speed_override)
+	.def_readwrite("spindle_mode", &Interp::_setup.spindle_mode)
+	.def_readwrite("spindle_turning", &Interp::_setup.spindle_turning)
+	.def_readwrite("tool_offset", &Interp::_setup.tool_offset)
 
+	//unused,removed  .def_readwrite("tool_offset_index", &Interp::_setup.tool_offset_index)
 
+	.def_readwrite("toolchange_flag", &Interp::_setup.toolchange_flag)
+	.def_readwrite("traverse_rate", &Interp::_setup.traverse_rate)
+	.def_readwrite("u_axis_offset", &Interp::_setup.u_axis_offset)
+	.def_readwrite("u_current", &Interp::_setup.u_current)
+	.def_readwrite("u_origin_offset", &Interp::_setup.u_origin_offset)
+	.def_readwrite("v_axis_offset", &Interp::_setup.v_axis_offset)
+	.def_readwrite("v_current", &Interp::_setup.v_current)
+	.def_readwrite("v_origin_offset", &Interp::_setup.v_origin_offset)
+	.def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
+	.def_readwrite("w_current", &Interp::_setup.w_current)
+	.def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
 
+	// _setup arrays
+	.add_property( "active_g_codes",
+		       bp::make_function( active_g_codes_w(&active_g_codes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "active_m_codes",
+		       bp::make_function( active_m_codes_w(&active_m_codes_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "active_settings",
+		       bp::make_function( active_settings_w(&active_settings_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "blocks",
+		       bp::make_function( blocks_w(&blocks_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "parameters",
+		       bp::make_function( parameters_w(&parameters_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "tool_table",
+		       bp::make_function( tool_table_w(&tool_table_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	.add_property( "sub_context",
+		       bp::make_function( sub_context_w(&sub_context_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+	;
 
-		       );
-
-   pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
-   pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
-   pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
-   pp::register_array_1< block, MAX_NESTED_REMAPS, bp::return_internal_reference< 1, bp::default_call_policies > > ("BlocksArray");
-   pp::register_array_1< double, RS274NGC_MAX_PARAMETERS > ("ParametersArray");
-   pp::register_array_1< CANON_TOOL_TABLE, CANON_POCKETS_MAX, bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
-   pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS, bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
-   pp::register_array_1< int, 16> ("GmodesArray");
-   pp::register_array_1< int, 11> ("MmodesArray");
-   pp::register_array_1< double, INTERP_SUB_PARAMS> ("SubroutineParamsArray");
+    pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
+    pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
+    pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
+    pp::register_array_1< block, MAX_NESTED_REMAPS,
+	bp::return_internal_reference< 1, bp::default_call_policies > > ("BlocksArray");
+    pp::register_array_1< double, RS274NGC_MAX_PARAMETERS > ("ParametersArray");
+    pp::register_array_1< CANON_TOOL_TABLE, CANON_POCKETS_MAX,
+	bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
+    pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS,
+	bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
+    pp::register_array_1< int, 16> ("GmodesArray");
+    pp::register_array_1< int, 11> ("MmodesArray");
+    pp::register_array_1< double, INTERP_SUB_PARAMS> ("SubroutineParamsArray");
 }
