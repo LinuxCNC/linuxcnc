@@ -395,7 +395,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     default:
 	// make sure the python plugin is in a usable state if needed
 	if ((r->prolog_func || r->remap_py || r->epilog_func) &&
-	    (!PYUSABLE(_setup.pyplugin)))  {
+	    (!PYUSABLE))  {
 	    fprintf(stderr, "fatal: REMAP requires the Python plugin, which did not initialize\n");
 	    break;
 	}

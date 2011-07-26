@@ -41,12 +41,8 @@ namespace bp = boost::python;
 #include "units.h"
 #include "interpmodule.hh"
 
-// #define PYTHONPATH "PYTHONPATH"
 
-
-// extern "C" void initCanon();
-// extern "C" void initinterpreter();
-// extern "C" void initTaskMod();
+extern    PythonPlugin *python_plugin;
 
 #define PYCHK(bad, fmt, ...)				       \
     do {                                                       \
@@ -58,10 +54,6 @@ namespace bp = boost::python;
     } while(0)
 
 
-// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
-// reason: avoid segfaults by del(interp_instance) on program exit
-// make delete(interp_instance) a noop wrt Interp
-// static void interpDeallocFunc(Interp *interp) {}
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
@@ -90,10 +82,10 @@ std::string handle_pyerror()
 }
 int Interp::py_reload()
 {
-    if (PYUSABLE(_setup.pyplugin)) {
-	_setup.pyplugin->initialize(true);
-	CHKS((_setup.pyplugin->plugin_status() == PLUGIN_EXCEPTION),
-	     "py_reload:\n%s",  _setup.pyplugin->last_exception().c_str());
+    if (PYUSABLE) {
+	python_plugin->initialize(true);
+	CHKS((python_plugin->plugin_status() == PLUGIN_EXCEPTION),
+	     "py_reload:\n%s",  python_plugin->last_exception().c_str());
     }
     return INTERP_OK;
 }
@@ -104,10 +96,10 @@ bool Interp::is_pycallable(setup_pointer settings,
 			   const char *module,
 			   const char *funcname)
 {
-    if (!PYUSABLE(settings->pyplugin))
+    if (!PYUSABLE)
       return false;
 
-    return settings->pyplugin->is_callable(module,funcname);
+    return python_plugin->is_callable(module,funcname);
 }
 
 // all parameters to Python calls go through block, which looks a bit awkward
@@ -127,20 +119,20 @@ int Interp::pycall(setup_pointer settings,
     if (_setup.loggingLevel > 4)
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
-    CHKS(!PYUSABLE(settings->pyplugin), "pycall(%s): Pyhton plugin not initialized",funcname);
+    CHKS(!PYUSABLE, "pycall(%s): Pyhton plugin not initialized",funcname);
     block->returned = 0;
 
     switch (calltype) {
     case PY_EXECUTE: // just run a string
-	_setup.pyplugin->run_string(funcname, retval);
+	python_plugin->run_string(funcname, retval);
 	break;
     default:
-	_setup.pyplugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
 	break;
     }
-    CHKS(settings->pyplugin->plugin_status() == PLUGIN_EXCEPTION,
+    CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
 	 "py_call(%s):\n%s", funcname,
-	 settings->pyplugin->last_exception().c_str());
+	 python_plugin->last_exception().c_str());
     try {
 	switch  (calltype) {
 	case PY_OWORDCALL:
@@ -247,12 +239,12 @@ int Interp::py_execute(const char *cmd, bool as_file)
 
     logPy("py_execute(%s)",cmd);
 
-    CHKS(!PYUSABLE(_setup.pyplugin), "py_execute(%s): Python plugin not initialized",cmd);
+    CHKS(!PYUSABLE, "py_execute(%s): Python plugin not initialized",cmd);
 
-    _setup.pyplugin->run_string(cmd, retval, as_file);
-    CHKS((_setup.pyplugin->plugin_status() == PLUGIN_EXCEPTION),
+    python_plugin->run_string(cmd, retval, as_file);
+    CHKS((python_plugin->plugin_status() == PLUGIN_EXCEPTION),
 	 "py_execute(%s)%s:\n%s", cmd,
-	 as_file ? " as file" : "", _setup.pyplugin->last_exception().c_str());
+	 as_file ? " as file" : "", python_plugin->last_exception().c_str());
     return INTERP_OK;
 }
 

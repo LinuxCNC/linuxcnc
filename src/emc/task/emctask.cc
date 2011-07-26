@@ -35,7 +35,11 @@
 #define TASK_MODULE "task"
 #define TASK_INIT "task_init"
 #define PLUGIN_CALL "plugin_call"
-#define PYUSABLE(plugin) (((plugin) != NULL) && ((plugin)->usable()))
+
+extern PythonPlugin *python_plugin;
+#define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
+
+static int emcPythonReturnValue(const char *funcname, bp::object &retval);
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -46,8 +50,6 @@ static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 Interp interp;
 
-PythonPlugin *pyplugin;
-static int emcPythonReturnValue(const char *funcname, bp::object &retval);
 
 /*
   format string for user-defined programs, e.g., "programs/M1%02d" means
@@ -668,10 +670,8 @@ int emcTaskOnce()
     bp::dict kwarg;
 
     // this really only obtains the singleton instance already created by Interp
-    pyplugin  = PythonPlugin::getInstance(EMC_INIFILE,"PYTHON",  builtin_modules);
-
-    if (PYUSABLE(pyplugin)) {
-	pyplugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
+    if (PythonPlugin::configure(EMC_INIFILE,"PYTHON",  builtin_modules)) {
+	python_plugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
 	return emcPythonReturnValue(TASK_INIT, retval);
     }
     return 0;
@@ -683,11 +683,11 @@ int emcTaskOnce()
 // Also fail with an operator error if we caused an exception.
 static int emcPythonReturnValue(const char *funcname, bp::object &retval)
 {
-    int status = pyplugin->plugin_status();
+    int status = python_plugin->plugin_status();
 
     if (status == PLUGIN_EXCEPTION) {
 	emcOperatorError(status,"emcPythonReturnValue(%s): %s",
-			 funcname, pyplugin->last_exception().c_str());
+			 funcname, python_plugin->last_exception().c_str());
 	return -1;
     }
     if ((retval.ptr() != Py_None) &&
@@ -706,12 +706,12 @@ static int emcPythonReturnValue(const char *funcname, bp::object &retval)
 
 int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 {
-    if (PYUSABLE(pyplugin)) {
+    if (PYUSABLE) {
 	bp::object retval;
 	bp::object arg = bp::make_tuple(bp::object(call_msg->call));
 	bp::dict kwarg;
 
-	pyplugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
+	python_plugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
 	return emcPythonReturnValue(PLUGIN_CALL, retval);
 
     } else {

@@ -34,7 +34,7 @@ enum pp_status   {
 
 class PythonPlugin {
 public:
-    static PythonPlugin *getInstance(const char *iniFilename = NULL,
+    static PythonPlugin *configure(const char *iniFilename = NULL,
 				     const char *section = NULL,
 				     struct _inittab *inittab = NULL);
     bool is_callable(const char *module, const char *funcname);
@@ -54,14 +54,10 @@ private:
 		 struct _inittab *inittab);
     PythonPlugin(const PythonPlugin &) {};        // not copyable
     PythonPlugin & operator=(const PythonPlugin&) { return *this; };  // not assignable
-    ~PythonPlugin();                              // no public destructor
-
-
-    static PythonPlugin *instance;
+    ~PythonPlugin() {};
 
     int reload();
     std::string handle_pyerror();
-
     std::vector<std::string> inittab_entries;
     int status;
     time_t module_mtime;                  // toplevel module - last modification time

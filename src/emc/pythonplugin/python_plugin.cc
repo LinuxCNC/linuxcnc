@@ -223,15 +223,6 @@ std::string PythonPlugin::handle_pyerror()
 }
 
 
-PythonPlugin::~PythonPlugin()
-{
-    // boost.python dont support PyFinalize()
-}
-
-PythonPlugin* PythonPlugin::instance = NULL;
-
-extern void gdb_in_window(int sig);
-
 PythonPlugin::PythonPlugin(const char *iniFilename,
 			   const char *section,
 			   struct _inittab *inittab)
@@ -318,14 +309,17 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     initialize(false);
 }
 
-PythonPlugin *PythonPlugin::getInstance(const char *iniFilename,
-					const char *section,
-					struct _inittab *inittab)
-{
-    if (instance == NULL) {
-	instance =  new PythonPlugin(iniFilename, section, inittab);
-    }
+// the externally visible singleton instance
+PythonPlugin *python_plugin;
 
-    return instance;
+// first caller wins
+PythonPlugin *PythonPlugin::configure(const char *iniFilename,
+				      const char *section,
+				      struct _inittab *inittab)
+{
+    if (python_plugin == NULL) {
+	python_plugin =  new PythonPlugin(iniFilename, section, inittab);
+    }
+    return (python_plugin->usable()) ? python_plugin : NULL;
 }
 

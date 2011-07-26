@@ -698,17 +698,14 @@ typedef struct setup_struct
     int_remap_type  g_remapped,m_remapped;
     remap_type remaps;
 
-#define PYUSABLE(plugin) (((plugin) != NULL) && ((plugin)->usable()))
-    PythonPlugin *pyplugin;
 
 } setup;
 
 typedef setup *setup_pointer;
+// the externally visible singleton instance
 
-// enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
-
-
-
+extern    PythonPlugin *python_plugin;
+#define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 
 inline bool is_a_cycle(int motion) {
     return ((motion > G_80) && (motion < G_90)) || (motion == G_73);

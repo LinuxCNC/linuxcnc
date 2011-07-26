@@ -123,8 +123,8 @@ main (int argc, char **argv)
 	    abort ();
 	}
     }
-    // creates a singleton instance
-    PythonPlugin *pp = PythonPlugin::getInstance(inifile,
+    // creates the singleton instance
+    PythonPlugin *pp = PythonPlugin::configure(inifile,
 						 section,
 						 builtins ? builtin_modules : NULL);
     // PythonPlugin two = pp; // this fails since copy constructor is private.
