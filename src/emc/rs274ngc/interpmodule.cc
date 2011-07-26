@@ -179,14 +179,19 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-    class_<parameter_value,noncopyable>("ParameterValue",no_init)
-	.def_readwrite("attr",&parameter_value::attr)
-	.def_readwrite("value",&parameter_value::value)
+    class_<parameter_value_struct /*,noncopyable */>("ParameterValue") // ,no_init)
+	.def_readwrite("attr",&parameter_value_struct::attr)
+	.def_readwrite("value",&parameter_value_struct::value)
 	;
 
     class_<parameter_map,noncopyable>("ParameterMap",no_init)
         .def(map_indexing_suite<parameter_map>())
 	;
+
+    // stupid allocation
+    // class_<remap_type,noncopyable>("RemapMap",no_init)
+    //     .def(map_indexing_suite<remap_type>())
+    // 	;
 
     class_ <context, noncopyable>("Context",no_init)
 	.def_readwrite("position",&context::position)
@@ -194,7 +199,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("filename",  &context::filename)
 	.def_readwrite("subname",  &context::subName)
 	.add_property( "saved_params",
-		       bp::make_function( params_w(&saved_params_wrapper),
+		       bp::make_function( saved_params_w(&saved_params_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "saved_g_codes",
 		       bp::make_function( active_g_codes_w(&saved_g_codes_wrapper),
@@ -378,6 +383,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("input_flag", &Interp::_setup.input_flag)
 	.def_readwrite("input_index", &Interp::_setup.input_index)
 	.def_readwrite("length_units", &Interp::_setup.length_units)
+	.def_readwrite("loggingLevel", &Interp::_setup.loggingLevel)
 	.def_readwrite("mdi_interrupt", &Interp::_setup.mdi_interrupt)
 	.def_readwrite("mist", &Interp::_setup.mist)
 	.def_readwrite("motion_mode", &Interp::_setup.motion_mode)
