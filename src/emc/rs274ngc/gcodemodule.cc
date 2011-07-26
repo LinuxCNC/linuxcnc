@@ -25,8 +25,6 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
-void gdb_in_window(int sig) {}
-
 char _parameter_file_name[LINELEN];
 extern "C" void initinterpreter();
 extern "C" void initcanon();

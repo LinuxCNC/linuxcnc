@@ -45,7 +45,7 @@ def prepare_epilog(userdata,**words):
 	retval = this.return_value
 	if retval > 0:
 		this.selected_pocket = int(retval)
-		canon.SELECT_POCKET(int(retval))
+		canon.SELECT_POCKET(int(retval),int(words['t']))
 		return INTERP_OK
 	else:
 		this.set_errormsg("T%d: aborted (return code %.4f)" % (int(words['t']),retval))
