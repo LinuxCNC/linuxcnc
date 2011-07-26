@@ -13,7 +13,7 @@
 	}							       \
     } while(0)
 
-void gdb_in_window(int sig) {}
+const char *strstore(const char *s) { return strdup(s); }
 
 void analyze(const char *what,bp::object retval)
 {
