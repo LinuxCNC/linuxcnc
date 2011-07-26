@@ -118,49 +118,74 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 
 // currently unused
 // access to named and numbered parameters via a pseudo-dictionary
-// struct ParamClass
-// {
-//     double getitem( bp::object sub)
-//     {
-// 	double retval = 0;
-// 	if (IS_STRING(sub)) {
-// 	    char const* varname = bp::extract < char const* > (sub);
-// 	    int status;
-// 	    current_interp->find_named_param(varname, &status, &retval);
-// 	    if (!status)
-// 		throw std::runtime_error("parameter does not exist: " + std::string(varname));
-// 	} else
-// 	    if (IS_INT(sub)) {
-// 		int index = bp::extract < int > (sub);
-// 		retval = current_setup->parameters[index];
-// 	    } else {
-// 		throw std::runtime_error("params subscript type must be integer or string");
-// 	    }
-// 	return retval;
-//     }
+struct ParamClass
+{
+    Interp &interp;
 
-//     double setitem(bp::object sub, double dvalue)
-//     {
-// 	if (IS_STRING(sub)) {
-// 	    char const* varname = bp::extract < char const* > (sub);
-// 	    int status = current_interp->add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
-// 	    status = current_interp->store_named_param(current_setup,varname,
-// 						       dvalue, 0);
-// 	    if (status != INTERP_OK)
-// 		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
+    ParamClass(Interp &i) : interp(i) {};
+    double getitem( bp::object sub)
+    {
+	double retval = 0;
+	if (IS_STRING(sub)) {
+	    char const* varname = bp::extract < char const* > (sub);
+	    int status;
+	    interp.find_named_param(varname, &status, &retval);
+	    if (!status)
+		throw std::runtime_error("parameter does not exist: " + std::string(varname));
+	} else
+	    if (IS_INT(sub)) {
+		int index = bp::extract < int > (sub);
+		retval = interp._setup.parameters[index];
+	    } else {
+		throw std::runtime_error("params subscript type must be integer or string");
+	    }
+	return retval;
+    }
 
-// 	} else
-// 	    if (IS_INT(sub)) {
-// 		int index = bp::extract < int > (sub);
-// 		current_setup->parameters[index] = dvalue;
-// 		return dvalue;
-// 	    } else
-// 		throw std::runtime_error("params subscript type must be integer or string");
-// 	return dvalue;
-//     }
-//     int length() { return RS274NGC_MAX_PARAMETERS;}
-// };
+    double setitem(bp::object sub, double dvalue)
+    {
+	if (IS_STRING(sub)) {
+	    char const* varname = bp::extract < char const* > (sub);
+	    int status = interp.add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
+	    status = interp.store_named_param(&interp._setup,varname, dvalue, 0);
+	    if (status != INTERP_OK)
+		throw std::runtime_error("cant assign value to parameter: " + std::string(varname));
 
+	} else
+	    if (IS_INT(sub)) {
+		int index = bp::extract < int > (sub);
+		interp._setup.parameters[index] = dvalue;
+		return dvalue;
+	    } else
+		throw std::runtime_error("params subscript type must be integer or string");
+	return dvalue;
+    }
+
+    bp::object namelist(context &c) {
+	bp::list result;
+	for(parameter_map::iterator it = c.named_params.begin(); it != c.named_params.end(); ++it) {
+	    result.append( it->first);
+	}
+	return result;
+    }
+
+    bp::object locals() {
+	bp::list result;
+	return namelist(interp._setup.sub_context[interp._setup.call_level]);
+    }
+
+    bp::object globals() {
+	bp::list result;
+	return namelist(interp._setup.sub_context[0]);
+    }
+
+    int length() { return RS274NGC_MAX_PARAMETERS;}
+};
+
+// FIXME not sure if this is really needed
+static  ParamClass param_wrapper ( Interp & inst) {
+    return ParamClass(inst);
+}
 
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -188,10 +213,19 @@ BOOST_PYTHON_MODULE(interpreter) {
         .def(map_indexing_suite<parameter_map>())
 	;
 
-    // stupid allocation
+    // FIXME expose properly. RVP? stupid allocation
     // class_<remap_type,noncopyable>("RemapMap",no_init)
     //     .def(map_indexing_suite<remap_type>())
     // 	;
+
+    // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
+    class_<ParamClass>("Params","Interpreter parameters",no_init)
+	.def("__getitem__", &ParamClass::getitem)
+        .def("__setitem__", &ParamClass::setitem)
+        .def("__len__", &ParamClass::length)
+        .def("globals", &ParamClass::globals)
+        .def("locals", &ParamClass::locals)
+	;
 
     class_ <context, noncopyable>("Context",no_init)
 	.def_readwrite("position",&context::position)
@@ -430,6 +464,11 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
 	.def_readwrite("w_current", &Interp::_setup.w_current)
 	.def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
+
+	.add_property( "params",
+		       bp::make_function( &param_wrapper,
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
+
 
 	// _setup arrays
 	.add_property( "active_g_codes",
