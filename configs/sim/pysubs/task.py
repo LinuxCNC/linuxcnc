@@ -13,6 +13,7 @@ h = None
 # task_init() is NOT called when running in the UI
 def task_init():
 	global h
+        print "Python: task_init() called"
 	h = hal.component("iocontrol-task")
 	h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
 	h.newpin("coolant-mist", hal.HAL_BIT, hal.HAL_OUT)
