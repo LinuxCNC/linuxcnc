@@ -46,11 +46,11 @@ public:
 	     bp::object tupleargs, bp::object kwargs, bp::object &retval);
     int run_string(const char *cmd, bp::object &retval, bool as_file = false);
 
-    int plugin_status();
+    int plugin_status() { return status; };
     bool usable() { return (status >= PLUGIN_OK); }
     void initialize(bool reload = false, Interp *interp = NULL);
-    std::string last_exception();
-    std::string last_errmsg();
+    std::string last_exception() { return exception_msg; };
+    std::string last_errmsg() { return error_msg; };
 
 private:
     PythonPlugin(const char *iniFilename,         // no public constructor

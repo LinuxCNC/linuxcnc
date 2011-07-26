@@ -160,21 +160,6 @@ int PythonPlugin::reload()
     return status;
 }
 
-int PythonPlugin::plugin_status()
-{
-    return status;
-}
-
-std::string PythonPlugin::last_exception()
-{
-    return exception_msg;
-}
-
-std::string PythonPlugin::last_errmsg()
-{
-    return error_msg;
-}
-
 // decode a Python exception into a string.
 std::string PythonPlugin::handle_pyerror()
 {
