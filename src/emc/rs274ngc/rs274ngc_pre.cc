@@ -92,12 +92,6 @@ include an option for suppressing superfluous commands.
 
 #include "interpmodule.hh"
 
-// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
-// reason: avoid segfaults by del(interp_instance) on program exit
-// make delete(interp_instance) a noop wrt Interp
-// static void interpDeallocFunc(Interp *interp) {}
-static void interpDeallocFunc(Interp *interp) {}
-
 #include "units.h"
 
 extern char * _rs274ngc_errors[];
@@ -861,10 +855,7 @@ int Interp::init()
 
 	  // initialize the Python plugin singleton
 	  extern struct _inittab builtin_modules[];
-	  if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules) != NULL) {
-	      // make the interpreter instance available as 'interpreter.this'
-	      bp::object interp_module = bp::import ("interpreter").attr ("__dict__");
-	      interp_module["this"] = interp_ptr(this, interpDeallocFunc);  // bp::ptr(this);
+	  if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules, this) != NULL) {
 	      logPy("Python plugin configured");
 	  } else {
 	      logPy("no Python plugin available");

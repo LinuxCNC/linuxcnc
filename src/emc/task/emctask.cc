@@ -660,19 +660,20 @@ int emcAbortCleanup(int reason, const char *message)
     return status;
 }
 
-// int under_task = 1; // drives import of TaskMod
 int emcTaskOnce()
 {
-    extern struct _inittab builtin_modules[];
-
     bp::object retval;
     bp::tuple arg;
     bp::dict kwarg;
 
-    // this really only obtains the singleton instance already created by Interp
-    if (PythonPlugin::configure(EMC_INIFILE,"PYTHON",  builtin_modules)) {
+    // At this point, the interpreter must be done configuring and have instantiated the
+    // Python plugin
+
+    if (PYUSABLE) { //BS!!
 	python_plugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
 	return emcPythonReturnValue(TASK_INIT, retval);
+    } else {
+	fprintf(stderr,"emcTaskOnce: Python plugin not available|n");
     }
     return 0;
 }
