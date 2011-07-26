@@ -118,8 +118,8 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 
 // currently unused
 // access to named and numbered parameters via a pseudo-dictionary
-struct ParamClass
-{
+struct ParamClass { //  : Interp {
+
     Interp &interp;
 
     ParamClass(Interp &i) : interp(i) {};
@@ -187,6 +187,8 @@ static  ParamClass param_wrapper ( Interp & inst) {
     return ParamClass(inst);
 }
 
+static const char *get_comment(block &b) { return b.comment; };
+static const char *get_o_name(block &b) { return b.o_name; };
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
@@ -322,8 +324,9 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("executing_remap",&block::executing_remap)
 
 	//  read-only
-	.add_property("comment", &block::comment)
-	.add_property("o_name",  &block::o_name)
+	.add_property("comment",  &get_comment)
+	.add_property("o_name",   &get_o_name)
+
 	.add_property( "params",
 		       bp::make_function( params_w(&params_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
