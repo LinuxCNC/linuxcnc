@@ -22,41 +22,14 @@
 	}								\
     } while (0)
 
-#define strstore strdup // for now
+extern const char *strstore(const char *s);
 
-void PythonPlugin::initialize(bool reload)
-{
-    std::string msg;
-    if (Py_IsInitialized()) {
-	try {
-	    bp::object module = bp::import("__main__");
-	    main_namespace = module.attr("__dict__");
+// http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
+// reason: avoid segfaults by del(interp_instance) on program exit
+// make delete(interp_instance) a noop wrt Interp
+// static void interpDeallocFunc(Interp *interp) {}
+static void interpDeallocFunc(Interp *interp) {}
 
-	    for(unsigned i = 0; i < inittab_entries.size(); i++) {
-		main_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
-	    }
-	    bp::object result = bp::exec_file(abs_path,
-					      main_namespace,
-					      main_namespace);
-	    status = PLUGIN_OK;
-	}
-	catch (bp::error_already_set) {
-	    if (PyErr_Occurred()) {
-		exception_msg = handle_pyerror();
-	    } else
-		exception_msg = "unknown exception";
-	    bp::handle_exception();
-	    status = PLUGIN_INIT_EXCEPTION;
-	    PyErr_Clear();
-	}
-	if (status == PLUGIN_INIT_EXCEPTION) {
-	    logPP(1, "initialize: module '%s' init failed: \n%s",
-		  abs_path, exception_msg.c_str());
-	}
-    } else {
-	status = PLUGIN_PYTHON_NOT_INITIALIZED;
-    }
-}
 
 int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 {
@@ -222,10 +195,48 @@ std::string PythonPlugin::handle_pyerror()
     return bp::extract<std::string>(formatted);
 }
 
+void PythonPlugin::initialize(bool reload,  Interp *interp )
+{
+    std::string msg;
+    if (Py_IsInitialized()) {
+	try {
+	    bp::object module = bp::import("__main__");
+	    main_namespace = module.attr("__dict__");
+
+	    for(unsigned i = 0; i < inittab_entries.size(); i++) {
+		main_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
+	    }
+	    if (interp != NULL) {
+	      bp::object interp_module = bp::import("interpreter");
+	      bp::scope(interp_module).attr("this") = interp_ptr(interp, interpDeallocFunc);
+	    }
+	    bp::object result = bp::exec_file(abs_path,
+					      main_namespace,
+					      main_namespace);
+	    status = PLUGIN_OK;
+	}
+	catch (bp::error_already_set) {
+	    if (PyErr_Occurred()) {
+		exception_msg = handle_pyerror();
+	    } else
+		exception_msg = "unknown exception";
+	    bp::handle_exception();
+	    status = PLUGIN_INIT_EXCEPTION;
+	    PyErr_Clear();
+	}
+	if (status == PLUGIN_INIT_EXCEPTION) {
+	    logPP(1, "initialize: module '%s' init failed: \n%s",
+		  abs_path, exception_msg.c_str());
+	}
+    } else {
+	status = PLUGIN_PYTHON_NOT_INITIALIZED;
+    }
+}
 
 PythonPlugin::PythonPlugin(const char *iniFilename,
 			   const char *section,
-			   struct _inittab *inittab)
+			   struct _inittab *inittab,
+			   Interp *interp)
 {
     IniFile inifile;
     const char *inistring;
@@ -306,7 +317,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 	return;
     }
     logPP(3,"PythonPlugin: Python  '%s'",  Py_GetVersion());
-    initialize(false);
+    initialize(false, interp);
 }
 
 // the externally visible singleton instance
@@ -315,10 +326,10 @@ PythonPlugin *python_plugin;
 // first caller wins
 PythonPlugin *PythonPlugin::configure(const char *iniFilename,
 				      const char *section,
-				      struct _inittab *inittab)
+				      struct _inittab *inittab,Interp *interp)
 {
     if (python_plugin == NULL) {
-	python_plugin =  new PythonPlugin(iniFilename, section, inittab);
+	python_plugin =  new PythonPlugin(iniFilename, section, inittab, interp);
     }
     return (python_plugin->usable()) ? python_plugin : NULL;
 }
