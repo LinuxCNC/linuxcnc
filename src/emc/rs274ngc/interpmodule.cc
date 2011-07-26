@@ -6,9 +6,10 @@
 
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <map>
 
 namespace bp = boost::python;
-
 
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +21,8 @@ namespace bp = boost::python;
 #include "units.h"
 #include "interpmodule.hh"
 #include "array1.hh"
+
+
 namespace pp = pyplusplus::containers::static_sized;
 
 #include "interp_array_types.hh"
@@ -176,6 +179,15 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
+    class_<parameter_value,noncopyable>("ParameterValue",no_init)
+	.def_readwrite("attr",&parameter_value::attr)
+	.def_readwrite("value",&parameter_value::value)
+	;
+
+    class_<parameter_map,noncopyable>("ParameterMap",no_init)
+        .def(map_indexing_suite<parameter_map>())
+	;
+
     class_ <context, noncopyable>("Context",no_init)
 	.def_readwrite("position",&context::position)
 	.def_readwrite("sequence_number",&context::sequence_number)
@@ -194,6 +206,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 		       bp::make_function( active_settings_w(&saved_settings_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.def_readwrite("context_status", &context::context_status)
+	.def_readwrite("named_params",  &context::named_params)
+
 	;
 
     class_ <remap,noncopyable>("Remap",no_init)
@@ -266,6 +280,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 	.def_readwrite("offset",&block::offset)
 	.def_readwrite("o_type",&block::o_type)
+	.def_readwrite("executing_remap",&block::executing_remap)
 
 	//  read-only
 	.add_property("comment", &block::comment)
@@ -281,11 +296,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 		       bp::make_function( g_modes_w(&g_modes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 
-	//FIXME missing
-	// .add_property("executing_remap",
-	// 	      make_function(&block::executing_remap),
-	// 			    return_value_policy<reference_existing_object>()))
-	//
 	;
 
 
