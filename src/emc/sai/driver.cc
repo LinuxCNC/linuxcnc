@@ -29,7 +29,7 @@
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
 #include <getopt.h>
-
+#include <stdarg.h>
 
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -656,3 +656,16 @@ usage:
 }
 
 /***********************************************************************/
+
+int  emcOperatorError(int id, const char *fmt, ...)
+{
+    va_list ap;
+
+    if (id)
+	fprintf(stderr,"[%d] ", id);
+
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    return 0;
+}

@@ -67,7 +67,13 @@ static  active_settings_array activeSettings_wrapper ( EMC_TASK_STAT & m) {
     return active_settings_array(m.activeSettings);
 }
 
-
+// TODO: wrap optional id argument
+#pragma GCC diagnostic ignored "-Wformat-security"
+static void operator_error(const char *s) {
+    int id = 0;
+    emcOperatorError(id,s);
+}
+#pragma GCC diagnostic warning "-Wformat-security"
 
 BOOST_PYTHON_MODULE(emctask) {
     using namespace boost::python;
@@ -76,6 +82,8 @@ BOOST_PYTHON_MODULE(emctask) {
     scope().attr("__doc__") =
         "Task introspection\n"
         ;
+
+    def("operator_error", &operator_error);
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
 	.def_readwrite("x",&PmCartesian::x)
