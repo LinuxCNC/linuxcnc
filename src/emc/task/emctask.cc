@@ -696,7 +696,7 @@ static int emcPythonReturnValue(const char *funcname, bp::object &retval)
 	return  bp::extract<int>(retval);
     } else {
 	PyObject *res_str = PyObject_Str(retval.ptr());
-	emcOperatorError(status, "emcPythonReturnValue(%s): expected int return value, got '%s' (%s)",
+	emcOperatorError(0, "emcPythonReturnValue(%s): expected int return value, got '%s' (%s)",
 			 funcname,
 			 PyString_AsString(res_str),
 			 retval.ptr()->ob_type->tp_name);
