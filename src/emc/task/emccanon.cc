@@ -2341,7 +2341,7 @@ void CANON_ERROR(const char *fmt, ...)
     operator_error_msg.id = 0;
     if (fmt != NULL) {
 	va_start(ap, fmt);
-	vsprintf(operator_error_msg.error, fmt, ap);
+	vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);
 	va_end(ap);
     } else {
 	operator_error_msg.error[0] = 0;
