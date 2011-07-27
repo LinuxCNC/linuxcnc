@@ -47,7 +47,7 @@ import xml.dom.minidom
 import xml.etree.ElementTree
 import xml.etree.ElementPath
 import traceback
-
+from touchy import preferences
 import cairo
 import hal
 #import mesatest
@@ -125,6 +125,7 @@ helpdir = os.path.join(BASE, "share", "emc", "pncconf", "pncconf-help")
 if not os.path.exists(helpdir):
     helpdir = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "pncconf-help")
 firmdir = "/lib/firmware/hm2/"
+themedir = "/usr/share/themes"
 mesablacklist = ["5i22","7i43","4i65","4i68","SVST8_3P.xml"]
 
 # internalname / displayed name / steptime / step space / direction hold / direction setup
@@ -354,6 +355,7 @@ mesafirmwaredata = [
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
+
 custommesafirmwaredata = []
 mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
 
@@ -554,6 +556,7 @@ human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]],[_("X Axis BL Driver"),[
 (UNUSED_SSERIAL,A8I20_R,A8I20_T,A8I20_E,I7I64_R,I7I64_T,I7I64_E) = hal_sserial_names = ["unused-sserial","8i20-r","8i20-t","8i20-e","7i64-r","7i64-t","7i64-e"]
 
 human_sserial_names = [ [_("Unused Serial"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]] ]
+prefs = preferences.preferences()
 
 def md5sum(filename):
     try:
@@ -620,6 +623,7 @@ class Data:
         self._preference_version = 1.0
         self._pncconf_version = 2.0
         self.pncconf_version = 2.0
+        self._re_editmode = False
 
         # basic machine data
         self.help = "help-welcome.txt"
@@ -754,6 +758,19 @@ class Data:
         self.increments_imperial= ".1in .05in .01in .005in .001in .0005in .0001in"
         self.editor = "gedit"
         self.geometry = "xyz"
+        self.axisforcemax = False
+        self.axissize = [False,0,0]
+        self.axisposition = [False,0,0]
+
+        # Touchy only
+        self.touchysize = [False,0,0]
+        self.touchyposition = [False,0,0]
+        self.touchytheme = "Follow System Theme"
+        self.touchyforcemax = False
+        self.touchyabscolor = "default"
+        self.touchyrelcolor = "default"
+        self.touchydtgcolor = "default"
+        self.touchyerrcolor = "default"
 
         # EMC assorted defaults and options
         self.toolchangeprompt = True
@@ -779,14 +796,42 @@ class Data:
         # pyvcp data
         self.pyvcp = 0 # not included
         self.pyvcpname = "custom.xml"
+        self.pyvcpexist = False
+        self.pyvcp1 = False
+        self.pyvcpblank = True
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
+        self.pyvcpwidth = 200
+        self.pyvcpheight = 200
+        self.pyvcpxpos = 0
+        self.pyvcpypos = 0
+        self.pyvcpposition = False
+        self.pyvcpsize = False
 
         # gladevcp data
-        self.gladevcp = 0 # not included
-        self.gladevcpname = "custom.xml"
-        self.gladevcphaltype = 0 # no HAL connections specified
-        self.gladevcpconnect = 1 # HAL connections allowed
+        self.gladevcp = False # not included
+        self.gladesample = True
+        self.gladeexists = False
+        self.spindlespeedbar = True
+        self.spindleatspeed = True
+        self.maxspeeddisplay = 1000
+        self.zerox = False
+        self.zeroy = False
+        self.zeroz = False
+        self.zeroa = False
+        self.autotouchz = False
+        self.gladevcphaluicmds = 0
+        self.centerembededgvcp = True
+        self.sideembededgvcp = False
+        self.standalonegvcp = False
+        self.gladevcpposition = False
+        self.gladevcpsize = False
+        self.gladevcpforcemax = False
+        self.gladevcpwidth = 200
+        self.gladevcpheight = 200
+        self.gladevcpxpos = 0
+        self.gladevcpypos = 0
+        self.gladevcptheme = "Follow System Theme"
 
         # classicladder data
         self.classicladder = 0 # not included
@@ -796,11 +841,14 @@ class Data:
         self.s32out = 10
         self.floatsin = 10
         self.floatsout = 10
-        self.tempexists = 0 # not present
+        self.tempexists = 0 # not present ( a blank CL program edited through pncconf)
         self.laddername = "custom.clp"
         self.modbus = 0 # not included
         self.ladderhaltype = 0 # no HAL connections specified
         self.ladderconnect = 1 # HAL connections allowed
+        self.ladderexist = False
+        self.cl_haluicmds = 0
+        self.laddertouchz = False
 
         # stepper timing data
         self.drivertype = "other"
@@ -940,7 +988,7 @@ class Data:
         # halui data
         self.halui = 0 # not included
         # Command list
-        for i in range(1,16):
+        for i in range(0,15):
                 pinname ="halui_cmd%s"% i
                 self[pinname] = ""
 
@@ -1156,6 +1204,15 @@ class Data:
             print >>file, "DISPLAY = mini"
         elif self.frontend == _TOUCHY:
             print >>file, "DISPLAY = touchy"
+        if self.gladevcp:
+            theme = self.gladevcptheme
+            if theme == "Follow System Theme":theme = ""
+            else: theme = " -t "+theme
+            if self.centerembededgvcp:
+                print >>file, "EMBED_TAB_NAME = GladeVCP"
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp.hal -x {XID} gvcp-panel.ui"%(theme)
+            elif self.sideembededgvcp:
+                print >>file, "GLADEVCP =%s -H gvcp.hal gvcp-panel.ui"%(theme)
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -1250,7 +1307,7 @@ class Data:
         print >>file
         print >>file, "[HALUI]"          
         if self.halui == True:
-            for i in range(1,16):
+            for i in range(0,15):
                 cmd =self["halui_cmd" + str(i)]
                 if cmd =="": break
                 print >>file,"MDI_COMMAND = %s"% cmd           
@@ -1703,8 +1760,8 @@ class Data:
             print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
             print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
             print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
+            print >>file
             if not self.findsignal("spindle-at-speed"):
-                print >>file
                 print >>file, "# ---Setup spindle at speed signals---"
                 print >>file
                 if encoderpinname and self.suseatspeed:
@@ -1712,8 +1769,29 @@ class Data:
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
                     print >>file, "setp near.0.scale %f"% self.snearscale
+                    print >>file
                 else:
                     print >>file, "sets spindle-at-speed true"
+                    print >>file
+            if self.pyvcphaltype == 1 and self.pyvcpconnect or self.gladevcp and self.spindlespeedbar:
+                if encoderpinname:
+                    print >>file, _("#  Use ACTUAL spindle velocity from spindle encoder")
+                    print >>file, _("#  spindle-velocity bounces around so we filter it with lowpass")
+                    print >>file, _("#  spindle-velocity is signed so we use absolute component to remove sign") 
+                    print >>file, _("#  ACTUAL velocity is in RPS not RPM so we scale it.")
+                    print >>file
+                    print >>file, ("setp     scale.spindle.gain 60")
+                    print >>file, ("setp     lowpass.spindle.gain %f"% self.sfiltergain)
+                    print >>file, ("net spindle-vel-fb        =>   lowpass.spindle.in")
+                    print >>file, ("net spindle-fb-filtered-rps    lowpass.spindle.out      =>   abs.spindle.in")
+                    print >>file, ("net spindle-fb-filtered-abs-rps    abs.spindle.out      =>   scale.spindle.in")
+                    print >>file, ("net spindle-fb-filtered-abs-rpm    scale.spindle.out")
+                else:
+                    print >>file, _("#  Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
+                    print >>file, _("#  COMMANDED velocity is signed so we use absolute component to remove sign")
+                    print >>file
+                    print >>file, ("net spindle-vel-cmd         =>    abs.spindle.in")
+                    print >>file, ("net absolute-spindle-vel    <=    abs.spindle.out")
             return
 
         min_limsig = self.min_lim_sig(let)
@@ -1845,12 +1923,37 @@ class Data:
                     else:continue
 
     def write_halfile(self, base):
+        axis_convert = ("x","y","z","a")
+        halui_cmd_count = 0
         filename = os.path.join(base, self.machinename + ".hal")
         file = open(filename, "w")
         print >>file, _("# Generated by PNCconf at %s") % time.asctime()
         print >>file, _("# If you make changes to this file, they will be")
         print >>file, _("# overwritten when you run PNCconf again")
         print >>file
+        if self.pyvcp and not self.frontend == _AXIS:
+            size = pos = geo = ""
+            if self.pyvcpposition or self.pyvcpsize:
+                if self.pyvcpposition:
+                    pos = "+%d+%d"% (self.pyvcpxpos,self.pyvcpypos)
+                if self.pyvcpsize:
+                    size = "%dx%d"% (self.pyvcpwidth,self.pyvcpheight)
+                geo = " -g %s%s"%(size,pos)
+            print >>file, "loadusr -Wn pyvcp pyvcp%s -c pyvcp [DISPLAY](PYVCP)"%(geo)
+            print >>file, "source custom_postgui.hal"
+        if self.gladevcp and self.standalonegvcp:
+            fmax = geo = pos = size =  ""
+            if self.gladevcpposition or self.gladevcpsize:
+                if self.gladevcpposition:
+                    pos = "+%d+%d"% (self.gladevcpxpos,self.gladevcpypos)
+                if self.gladevcpsize:
+                    size = "%dx%d"% (self.gladevcpwidth,self.gladevcpheight)
+                geo = " -g %s%s"%(size,pos)
+            if self.gladevcpforcemax: fmax = " -m True"
+            theme = self.gladevcptheme
+            if theme == "Follow System Theme":theme = ""
+            else: theme = " -t "+theme
+            print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp.hal gvcp-panel.ui"%(theme,fmax,geo)
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
@@ -1961,9 +2064,11 @@ class Data:
             self._bldcconfigstring = temp
             print >>file, "loadrt bldc cfg=%s"% temp
 
-        if self.pyvcp or self.userneededabs >0:
+        if self.pyvcp or self.gladevcp or self.userneededabs >0:
             self.absnames=""
-            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
+            if self.gladevcp and self.spindlespeedbar: needed = True
+            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp: needed = True
+            if needed:
                 self.absnames=self.absnames+"abs.spindle"
                 if self.userneededabs >0:
                     self.absnames=self.absnames+","
@@ -1973,25 +2078,30 @@ class Data:
                     self.absnames = self.absnames+","
             print >>file, "loadrt abs names=%s"% self.absnames
 
-        if self.pyvcp or self.userneededlowpass >0:
+        if self.pyvcp or self.gladevcp or self.userneededlowpass >0:
             self.lowpassnames=""
             for i in range(0,self.userneededlowpass):
                 self.lowpassnames = self.lowpassnames+"lowpass.%d,"% (i)
-            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
+            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp: needed = True
+            if self.gladevcp and self.spindlespeedbar: needed = True
+            if needed:
                 self.lowpassnames=self.lowpassnames+"lowpass.spindle"
             temp = self.lowpassnames.rstrip(",")
             print >>file, "loadrt lowpass names=%s"% temp
 
-        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and spindle_enc or self.userneededscale >0:
-            self.scalenames=""
-            if spindle_enc and self.pyvcp:
-                self.scalenames=self.scalenames+"scale.spindle"
-                if self.userneededscale >0:
-                    self.scalenames=self.scalenames+","
+        pytest = self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1
+        gladetest = self.gladevcp and self.spindlespeedbar
+        self.scalenames=""
+        if spindle_enc and (pytest or gladetest):
+            self.scalenames=self.scalenames+"scale.spindle"
+            if self.userneededscale >0:
+                self.scalenames=self.scalenames+","
+        if self.userneededscale >0:
             for i in range(0,self.userneededscale):
                 self.scalenames = self.scalenames+"scale.%d"% (i)
                 if  i <> self.userneededscale-1:
                     self.scalenames = self.scalenames+","
+        if not self.scalenames == "":
             print >>file, "loadrt scale names=%s"% self.scalenames
         if pump:
             print >>file, "loadrt charge_pump"
@@ -2026,9 +2136,6 @@ class Data:
             else:              
                 print >>file, i 
 
-        if self.pyvcp and not self.frontend == _AXIS:
-            print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
-        
         print >>file
         if self.number_pports > 0:
             print >>file, "addf parport.0.read servo-thread"
@@ -2106,16 +2213,25 @@ class Data:
             temp=self.mux16names.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
-        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
+        needed = False
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1: needed = True
+        if self.userneededabs > 0 or (self.gladevcp and self.spindlespeedbar): needed = True
+        if needed:
             temp=self.absnames.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
-        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededscale > 0:
-            if spindle_enc or self.userneededscale > 0:
+        needed = False
+        if spindle_enc:
+            if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1: needed = True
+            if (self.gladevcp and self.spindlespeedbar): needed = True
+        if self.userneededabs > 0 or needed :
                 temp=self.scalenames.split(",")
                 for j in (temp):
                     print >>file, "addf %s servo-thread"% j
-        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededlowpass > 0:
+        needed = False
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1: needed = True
+        if self.userneededabs > 0 or (self.gladevcp and self.spindlespeedbar): needed = True
+        if needed:
             temp=self.lowpassnames.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
@@ -2160,7 +2276,25 @@ class Data:
         print >>file, "#******************************"
         print >>file, _("# connect miscellaneous signals") 
         print >>file, "#******************************"
-        print >>file    
+        print >>file
+        print >>file, _("#  ---HALUI signals---")
+        print >>file
+        for axnum,axletter in enumerate(axis_convert):
+            if axletter in self.available_axes:
+                print >>file, "net joint-select-%s        halui.joint.%d.select"% (chr(axnum+97),axnum)
+                print >>file, "net %s-is-homed            halui.joint.%d.is-homed"% (axletter,axnum)
+                print >>file, "net jog-%s-pos             halui.jog.%d.plus"% (axletter,axnum)
+                print >>file, "net jog-%s-neg             halui.jog.%d.minus"% (axletter,axnum)
+                print >>file, "net jog-%s-analog          halui.jog.%d.analog"% (axletter,axnum)
+        print >>file, "net jog-selected-pos      halui.jog.selected.plus"
+        print >>file, "net jog-selected-neg      halui.jog.selected.minus"
+        print >>file, "net spindle-manual-cw     halui.spindle.forward"
+        print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
+        print >>file, "net spindle-manual-stop   halui.spindle.stop"
+        print >>file, "net machine-is-on         halui.machine.is-on"
+        print >>file, "net jog-speed             halui.jog-speed "
+        print >>file, "net MDI-mode              halui.mode.is-mdi"
+        print >>file
         if pump:    
             print >>file, _("#  ---charge pump signals---")
             print >>file, "net estop-out       =>  charge-pump.enable"
@@ -2178,32 +2312,15 @@ class Data:
         if self.externaljog:
             print >>file, _("# ---jog button signals---")
             print >>file
-            print >>file, "net jog-speed            halui.jog-speed "
             print >>file, "sets    jog-speed %f"% self.jograpidrate
-            temp = ("x","y","z","a")
-            if self.multijogbuttons:
-                for axnum,axletter in enumerate(temp):
-                    if axletter in self.available_axes:
-                        print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
-                        print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
-            else:
-                for axnum,axletter in enumerate(temp):
-                    if axletter in self.available_axes:
-                        print >>file, "net joint-select-%s         halui.joint.%d.select"% (chr(axnum+97),axnum)
-                print >>file, "net jog-selected-pos     halui.jog.selected.plus"
-                print >>file, "net jog-selected-neg     halui.jog.selected.minus"
-            print >>file, "net spindle-manual-cw     halui.spindle.forward"
-            print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
-            print >>file, "net spindle-manual-stop   halui.spindle.stop"
             print >>file
-
         if self.joystickjog:
             print >>file, _("# ---USB device jog button signals---")
             print >>file
             print >>file, "# connect selectable mpg jog speeds "
             print >>file, "net jog-speed-a           =>  jogspeed.sel0"
             print >>file, "net jog-speed-b           =>  jogspeed.sel1"
-            print >>file, "net jog-speed             halui.jog-speed  <=  jogspeed.out-f"
+            print >>file, "net jog-speed             <=  jogspeed.out-f"
             print >>file, "setp    jogspeed.in00          %f"% (self.joystickjograpidrate0)
             print >>file, "setp    jogspeed.in01          %f"% (self.joystickjograpidrate1)
             print >>file, "setp    jogspeed.in02          %f"% (self.joystickjograpidrate2)
@@ -2212,19 +2329,16 @@ class Data:
                 print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
             if not self.joycmdrapidb =="":
                 print >>file, "net jog-speed-b           <=  %s"% (self.joycmdrapidb)
-            temp = ("x","y","z","a")
-            for axnum,axletter in enumerate(temp):
+            for axnum,axletter in enumerate(axis_convert):
                 if axletter in self.available_axes:
                     pin_pos = self["joycmd"+axletter+"pos"]
                     pin_neg = self["joycmd"+axletter+"neg"]
                     if not pin_pos == "" and not pin_neg =="":
-                        print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
                         print >>file, "net jog-%s-pos            %s"% (axletter,pin_pos)
-                        print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
                         print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
                     pin_analog = self["joycmdanalog"+axletter]
                     if not pin_analog == "":
-                        print >>file, "net jog-%s-analog         %s     halui.jog.%d.analog"% (axletter,pin_analog,axnum)
+                        print >>file, "net jog-%s-analog         %s"% (axletter,pin_analog)
             print >>file
 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
@@ -2239,8 +2353,7 @@ class Data:
                     print >>file, _("#  ---mpg signals---")
                     print >>file
                     if not self.multimpg:
-                        temp = ("x","y","z","a")
-                        for axnum,axletter in enumerate(temp):
+                        for axnum,axletter in enumerate(axis_convert):
                             if axletter in self.available_axes:
                                 print >>file, "#       for axis %s MPG" % (axletter)
                                 print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
@@ -2248,8 +2361,7 @@ class Data:
                                 print >>file, "net joint-select-%s       =>  axis.%d.jog-enable"% (chr(axnum+97),axnum)
                                 print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
                             print >>file
-        temp = ("x","y","z","a")
-        for axnum,axletter in enumerate(temp):
+        for axnum,axletter in enumerate(axis_convert):
             if axletter in self.available_axes:
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
                 if pinname:
@@ -2364,7 +2476,10 @@ class Data:
                     value = self["soincrvalue%d"% i]
                     print >>file, "    setp soincr.in%02d          %f"% (i,value)
                 print >>file
-
+        print >>file, _("#  ---motion control signals---")
+        print >>file
+        print >>file, "net in_position             motion.in-position"
+        print >>file
         print >>file, _("#  ---digital in / out signals---")
         print >>file
         for i in range(4):
@@ -2426,84 +2541,80 @@ class Data:
                 print >>file
                 print >>file, "loadusr classicladder --nogui custom.clp"
                 print >>file
+            if self.laddertouchz:
+                othercmds = self.gladevcphaluicmds
+                print >>file, _("#  --- Classicladder signals for Z axis Auto touch off program---")
+                print >>file, "net auto-touch-z    =>   classicladder.0.in-00"
+                print >>file, "net MDI-mode        =>   classicladder.0.in-01"
+                print >>file, "net in_position     =>   classicladder.0.in-02"
+                print >>file, "net z-touchoff-cmd       classicladder.0.out-00   =>    halui.mdi-command-%02d"% (othercmds)
+                print >>file, "net z-zero-cmd           classicladder.0.out-01   =>    halui.mdi-command-%02d"% (othercmds +1)
+                print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
+
+        if self.gladevcp:
+            print "gladevcp"
+            gvcp = os.path.join(base, "gvcp-panel.ui")
+            shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
+            custom = os.path.join(base, "gvcp.hal")
+            if os.path.exists(custom): 
+                shutil.copy( custom,os.path.join(base,"backups/glade_backup.hal") ) 
+            f1 = open(custom, "w")
+            if self.spindlespeedbar:
+                print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
+                print >>f1
+                if spindle_enc:
+                    print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
+                else:
+                    print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
+            print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
+            i = 0
+            print >>f1, _("# **** Setup GLADE MDI buttons ****")
+            print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
+            for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
+                if self[temp[0]]:
+                    print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
+                    print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
+                    if self.require_homing:
+                        print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
+                    else:
+                        print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                    print >>f1
+                    i += 1
+            if self.autotouchz:
+                    print >>f1, _("# **** Z axis touch-off button - requires the touch-off classicladder program ****")
+                    print >>f1, ("net auto-touch-z      <=    gladevcp.auto-touch-z")
+                    print >>f1, ("net MDI-mode          =>    gladevcp.auto-touch-z-active")
+                    print >>f1
+
         if self.pyvcp:
             vcp = os.path.join(base, "custompanel.xml")
             if not os.path.exists(vcp):
                 f1 = open(vcp, "w")
-
                 print >>f1, "<?xml version='1.0' encoding='UTF-8'?>"
-
                 print >>f1, "<!-- "
                 print >>f1, _("Include your PyVCP panel here.\n")
                 print >>f1, "-->"
                 print >>f1, "<pyvcp>"
                 print >>f1, "</pyvcp>"
-        if self.pyvcp or self.customhal:
+        if self.pyvcp or self.customhal or self.gladevcp:
             custom = os.path.join(base, "custom_postgui.hal")
             if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"postgui_backup.hal") ) 
+                shutil.copy( custom,os.path.join(base,"backups/postgui_backup.hal") ) 
             f1 = open(custom, "w")
             print >>f1, _("# Include your customized HAL commands here")
-            print >>f1, _("""# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
+            print >>f1, _("""# The commands in this file are run after the GUI loads""") 
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   print >>f1
                   if spindle_enc:
-                      print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
-                      print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
-                      print >>f1
-                      print >>f1
-                      print >>f1, ("setp     scale.spindle.gain 60")
-                      print >>f1, ("setp     lowpass.spindle.gain %f"% self.sfiltergain)
-                      print >>f1, ("net spindle-vel-fb        =>   lowpass.spindle.in")
-                      print >>f1, ("net spindle-fb-filtered-rps    lowpass.spindle.out      =>   abs.spindle.in")
-                      print >>f1, ("net spindle-fb-filtered-abs-rps    abs.spindle.out      =>   scale.spindle.in")
-                      print >>f1, ("net spindle-fb-filtered-abs-rpm    scale.spindle.out    =>   pyvcp.spindle-speed")
+                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
                   else:
-                      print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component to remove sign")
-                      print >>f1
-                      print >>f1, ("net spindle-vel-cmd    =>    abs.spindle.in")
-                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out  =>    pyvcp.spindle-speed")
-                  print >>f1, ("net spindle-at-speed  =>    pyvcp.spindle-at-speed-led")
+                        print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
+                  print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
                   print >>f1
-            if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
-                      print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
-                      print >>f1
-                      print >>f1, ("net jog-x-pos  <=    pyvcp.jog-x+")
-                      print >>f1, ("net jog-x-neg  <=    pyvcp.jog-x-")
-                      print >>f1, ("net jog-y-pos  <=    pyvcp.jog-y+")
-                      print >>f1, ("net jog-y-neg  <=    pyvcp.jog-y-")
-                      print >>f1, ("net jog-z-pos  <=    pyvcp.jog-z+")
-                      print >>f1, ("net jog-z-neg  <=    pyvcp.jog-z-")
-                      print >>f1, ("net jog-speed  <=    pyvcp.jog-speed")
-                      print >>f1, ("net optional-stp-on     pyvcp.ostop-on     =>  halui.program.optional-stop.on")
-                      print >>f1, ("net optional-stp-off    pyvcp.ostop-off    =>  halui.program.optional-stop.off")
-                      print >>f1, ("net optional-stp-is-on  pyvcp.ostop-is-on  =>  halui.program.optional-stop.is-on")
-                      print >>f1, ("net program-pause       pyvcp.pause        =>  halui.program.pause")
-                      print >>f1, ("net program-resume      pyvcp.resume       =>  halui.program.resume")
-                      print >>f1, ("net program-single-step pyvcp.step         =>  halui.program.step")
-                      print >>f1
-                      print >>f1, _("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
-                      print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
-                      print >>f1, ("# **** command 01 - rapid to reference point ( G 28 )")
-                      print >>f1, ("# **** command 02 - zero X axis in G54 cordinate system")
-                      print >>f1, ("# **** command 03 - zero Y axis in G54 cordinate system")
-                      print >>f1, ("# **** command 04 - zero Z axis in G54 cordinate system")
-                      print >>f1
-                      print >>f1, ("net MDI-Z-up            pyvcp.MDI-z_up          =>  halui.mdi-command-00")
-                      print >>f1, ("net MDI-reference-pos   pyvcp.MDI-reference     =>  halui.mdi-command-01")
-                      print >>f1, ("net MDI-zero_X          pyvcp.MDI-zerox         =>  halui.mdi-command-02")
-                      print >>f1, ("net MDI-zero_Y          pyvcp.MDI-zeroy         =>  halui.mdi-command-03")
-                      print >>f1, ("net MDI-zero_Z          pyvcp.MDI-zeroz         =>  halui.mdi-command-04")
-                      print >>f1, ("net MDI-clear-offset    pyvcp.MDI-clear-offset  =>  halui.mdi-command-05")
-                      print >>f1
-                      print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
 
         if self.customhal or self.classicladder or self.halui:
             custom = os.path.join(base, "custom.hal")
@@ -2529,8 +2640,7 @@ class Data:
                 print >>f1, ("net jog-z-pos  => touchy.jog.continuous.z.positive")
                 print >>f1, ("net jog-z-neg  => touchy.jog.continuous.z.negative")
                 print >>f1, ("net quillup  => touchy.quill-up")
-                temp = ("x","y","z","a")
-                for axnum,axletter in enumerate(temp):
+                for axnum,axletter in enumerate(axis_convert):
                     if axletter in self.available_axes:
                         print >>f1, "net joint-select-%s   <=   touchy.jog.wheel.%s"% (chr(axnum+97), axletter)
 
@@ -2620,6 +2730,7 @@ class Data:
                 os.symlink(examples, os.path.join(ncfiles, "examples"))
         
         makedirs(base)
+        makedirs(base+"/backups")
 
         self.md5sums = []
         self.write_readme(base)
@@ -2700,15 +2811,54 @@ class Data:
         n2.setAttribute('name', "mesablacklist")
         n2.setAttribute('value', str(mesablacklist))
 
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'eval')
+        n2.setAttribute('name', "customfirmware")
+        n2.setAttribute('value', str(custommesafirmwaredata))
+
         d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
 
-        # write AXIS rc file to force full screen
-        filename = os.path.expanduser("~/.axisrc")
-        if not os.path.exists(filename):
-            f1 = open(filename, "w")
-            print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
-            print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
-            print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
+        # write to Touchy preference file directly
+        if self.frontend == _TOUCHY:
+            print "Setting TOUCHY preferences"
+            templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
+                        "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
+            for key,value in templist.iteritems():
+                prefs.putpref(value, self[key], str)
+            if self.touchyposition[0] or self.touchysize[0]:
+                    pos = size = ""
+                    if self.touchyposition[0]:
+                        pos = "+%d+%d"% (self.touchyposition[1],self.touchyposition[2])
+                    if self.touchysize[0]:
+                        size = "%dx%d"% (self.touchysize[1],self.touchysize[2])
+                    geo = "%s%s"%(size,pos)
+            else: geo = "default"
+            prefs.putpref('window_geometry',geo, str)
+            prefs.putpref('gtk_theme',self.touchytheme, str)
+            prefs.putpref('window_force_max', self.touchyforcemax, bool)
+
+        # write AXIS rc file for geometry
+        if self.frontend == _AXIS:
+            filename = os.path.expanduser("~/.axisrc")
+            if App.warning_dialog(app,"Ok to replace AXIS's .axisrc file?\n\
+ If you haven't added custom commands to this hidden file, outside of pncconf, then this should be fine.\n\
+Choosing no will mean AXIS options such as size/position and force maximum might not be as requested \n",False):
+                f1 = open(filename, "w")
+                if self.axisposition[0] or self.axissize[0]:
+                    print "Setting AXIS geometry option"
+                    pos = size = ""
+                    if self.axisposition[0]:
+                        pos = "+%d+%d"% (self.axisposition[1],self.axisposition[2])
+                    if self.axissize[0]:
+                        size = "%dx%d"% (self.axissize[1],self.axissize[2])
+                    geo = "%s%s"%(size,pos)
+                    print >>f1,"""root_window.tk.call("wm","geometry",".","%s")"""%(geo)
+                if self.axisforcemax:
+                    print "Setting AXIS forcemax option"
+                    print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
+                    print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+                    print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
@@ -3023,6 +3173,7 @@ class App:
         self.jogminus = self.jogplus = 0
 
         self.data = Data()
+
         # add some custom signals for motor/encoder scaling and bldc 
         for axis in ["x","y","z","a","s"]:
             cb = ["encoderscale","stepscale"]
@@ -3112,8 +3263,8 @@ class App:
                 if name == "customfirmware":
                     global custommesafirmwaredata
                     custommesafirmwaredata = eval(text)
-                    print "**** PNCCONF INFO:    Found extra firmware in .pncconf-preference file"
-
+                    if not custommesafirmwaredata == []:
+                        print "**** PNCCONF INFO:    Found extra firmware in .pncconf-preference file"
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
 
@@ -3213,7 +3364,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 d = custommesafirmwaredata[search]
                 if not d[_BOARDTITLE] in mesaboardnames:
                     mesaboardnames.append(d[_BOARDTITLE])
-        
+
     def on_page_newormodify_next(self, *args):
         if not self.widgets.createconfig.get_active():
             filter = gtk.FileFilter()
@@ -3414,6 +3565,13 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
         self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
 
+    def on_basicinfo_back(self, *args):
+        if self.data._re_editmode:
+            print "re-edit mode"
+            self.warning_dialog(_("You Have choosen to re-edit the current config, so you can not go to the\
+ new/modify page.\n Quit and reload PNCconf if you wish to build a new config."),True)
+            self.widgets.druid1.set_page(self.widgets.basicinfo)
+            return True
 
     def mesa_firmware_search(self,boardtitle,*args):
         #TODO if no firm packages set up for internal data?
@@ -3778,8 +3936,8 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.data.joystickjog = self.widgets.joystickjog.get_active()
         for i in range(0,4):
             self.data["joystickjograpidrate%d"%i] = self.widgets["joystickjograpidrate%d"%i].get_value()
-        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdapos","joycmdaneg","joycmdrapida","joycmdrapidb",
-            "joycmdanalogx","joycmdanalogy","joycmdanalogz","joycmdanaloga"):
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdapos",
+        "joycmdaneg","joycmdrapida","joycmdrapidb","joycmdanalogx","joycmdanalogy","joycmdanalogz","joycmdanaloga"):
             self.data[temp] = self.widgets[temp].get_text()
         self.widgets.joyjogexpander.set_expanded(False)
 
@@ -3787,9 +3945,9 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.data.help = "help-gui.txt"
         self.widgets.pyvcp.set_active(self.data.pyvcp)
         self.on_pyvcp_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                self.widgets.pyvcpexist.set_active(True)
+        self.widgets.pyvcpexist.set_active(self.data.pyvcpexist)
+        self.widgets.pyvcp1.set_active(self.data.pyvcp1)
+        self.widgets.pyvcpblank.set_active(self.data.pyvcpblank)
         self.widgets.default_linear_velocity.set_value( self.data.default_linear_velocity*60)
         self.widgets.max_linear_velocity.set_value( self.data.max_linear_velocity*60)
         self.widgets.min_linear_velocity.set_value( self.data.min_linear_velocity*60)
@@ -3817,8 +3975,64 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.widgets.raise_z_on_toolchange.set_active(self.data.raise_z_on_toolchange) 
         self.widgets.allow_spindle_on_toolchange.set_active(self.data.allow_spindle_on_toolchange)
         self.widgets.toolchangeprompt.set_active(self.data.toolchangeprompt)
+        # This reads the Touchy preference file directly
+        tempdict = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
+                    "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
+        for key,value in tempdict.iteritems():
+            data = prefs.getpref(value, 'default', str)
+            if data == "default":
+                self.widgets[key].set_active(False)
+            else:
+                self.widgets[key].set_active(True)
+                self.widgets[key+"button"].set_color(gtk.gdk.color_parse(data))
+        self.widgets.touchyforcemax.set_active(bool(prefs.getpref('window_force_max')))
+        for i in ("gladevcp","gladesample","gladeexists","spindlespeedbar","spindleatspeed","gladevcpforcemax",
+                "zerox","zeroy","zeroz","zeroa","autotouchz","centerembededgvcp","sideembededgvcp","standalonegvcp",
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax"):
+            self.widgets[i].set_active(self.data[i])
+        for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
+                    "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
+            self.widgets[i].set_value(self.data[i])
+        for i in ("touchy","axis"):
+            self.widgets[i+"size"].set_active(self.data[i+"size"][0])
+            self.widgets[i+"width"].set_value(self.data[i+"size"][1])
+            self.widgets[i+"height"].set_value(self.data[i+"size"][2])
+            self.widgets[i+"position"].set_active(self.data[i+"position"][0])
+            self.widgets[i+"xpos"].set_value(self.data[i+"position"][1])
+            self.widgets[i+"ypos"].set_value(self.data[i+"position"][2])
+        
+        if os.path.exists(themedir):
+            for i in ("gladevcptheme","touchytheme"):
+                if i == "gladevcptheme": data = self.data[i]
+                else: data = prefs.getpref('gtk_theme', 'Follow System Theme', str)
+                model = self.widgets[i].get_model()
+                model.clear()
+                model.append(("Follow System Theme",))
+                temp = 0
+                names = os.listdir(themedir)
+                names.sort()
+                for search,dirs in enumerate(names):
+                    model.append((dirs,))
+                    if dirs  == data:
+                        temp = search+1
+                self.widgets[i].set_active(temp)
+        self.on_gladevcp_toggled()
         
     def on_GUI_config_next(self, *args):
+        # Sanity checks
+        if not self.widgets.createconfig.get_active():
+            if self.widgets.gladevcp.get_active() and self.widgets.gladesample.get_active():
+                if os.path.exists(os.path.expanduser("~/emc2/configs/%s/gvcp-panel.ui" % self.data.machinename)):
+                    if not self.warning_dialog(_("OK to replace existing glade panel and gvcp.hal file ?\
+\nThey will be renamed with '_backup' added in filename.\n Clicking 'existing custom program' will aviod this warning. "),False):
+                        return True
+            if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\
+\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\
+\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost.\n\
+Clicking 'existing custom program' will aviod this warning. "),False):
+                    return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
         self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
         self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
@@ -3838,9 +4052,9 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.data.raise_z_on_toolchange = self.widgets.raise_z_on_toolchange.get_active() 
         self.data.allow_spindle_on_toolchange = self.widgets.allow_spindle_on_toolchange.get_active()
         self.data.toolchangeprompt = self.widgets.toolchangeprompt.get_active()
-        if not self.data.number_mesa:
-           self.widgets.druid1.set_page(self.widgets.pp1pport)
-           return True
+        self.data.pyvcpblank = self.widgets.pyvcpblank.get_active()
+        self.data.pyvcp1 = self.widgets.pyvcp1.get_active()
+        self.data.pyvcpexist = self.widgets.pyvcpexist.get_active()
         self.data.pyvcp = self.widgets.pyvcp.get_active()
         self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active() 
         if self.data.pyvcp == True:
@@ -3850,23 +4064,50 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
            if self.widgets.pyvcp1.get_active() == True:
               self.data.pyvcpname = "spindle.xml"
               self.data.pyvcphaltype = 1
-           if self.widgets.pyvcp2.get_active() == True:
-              self.data.pyvcpname = "xyzjog.xml"
-              self.data.pyvcphaltype = 2
-              self.data.halui = True 
-              self.widgets.halui.set_active(True) 
-              self.data.halui_cmd1="G0 G53 Z0"
-              self.data.halui_cmd2="G28"
-              self.data.halui_cmd3="G92 X0"
-              self.data.halui_cmd4="G92 Y0"
-              self.data.halui_cmd5="G92 Z0"
-              self.data.halui_cmd6="G92.1"               
            if self.widgets.pyvcpexist.get_active() == True:
               self.data.pyvcpname = "custompanel.xml"
-           else:
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
-                   return True
+        for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
+            if not self.widgets[i].get_active():
+                self.data[i] = "default"
+            else:
+                self.data[i] = str(self.widgets[i+"button"].get_color())
+        self.data.touchytheme = self.widgets.touchytheme.get_active_text()
+        self.data.touchyforcemax = self.widgets.touchyforcemax.get_active()
+        for i in ("gladevcp","gladesample","spindlespeedbar","spindleatspeed","gladevcpforcemax",
+                "centerembededgvcp","sideembededgvcp","standalonegvcp","gladeexists",
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax","autotouchz"):
+            self.data[i] = self.widgets[i].get_active()
+        # set HALUI commands ( on advanced page) based on the user requested glade buttons
+        i =  self.data.gladevcphaluicmds = 0
+        for temp in(("zerox","G10 L20 P0 X0 ( Set X to zero )"),("zeroy","G10 L20 P0 Y0 ( Set Y to zero )"),
+                    ("zeroz","G10 L20 P0 Z0 ( Set Z to zero )"),("zeroa","G10 L20 P0 A0 ( Set A to zero )")):
+            self.data[temp[0]] = self.widgets[temp[0]].get_active()
+            if self.data[temp[0]]:
+                self.data.halui = True
+                self.data["halui_cmd%d"% i] = temp[1]
+                i += 1
+                self.data.gladevcphaluicmds += 1
+        for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
+                    "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
+            self.data[i] = self.widgets[i].get_value()
+        for i in ("touchy","axis"):
+            self.data[i+"size"][0] = self.widgets[i+"size"].get_active()
+            self.data[i+"size"][1] = self.widgets[i+"width"].get_value()
+            self.data[i+"size"][2] = self.widgets[i+"height"].get_value()
+            self.data[i+"position"][0] = self.widgets[i+"position"].get_active()
+            self.data[i+"position"][1] = self.widgets[i+"xpos"].get_value()
+            self.data[i+"position"][2] = self.widgets[i+"ypos"].get_value()
+        self.data.gladevcptheme = self.widgets.gladevcptheme.get_active_text()
+        # make sure there is a copy of the choosen gladevcp panel in /tmp/
+        # We will copy it later into our config folder
+        self.gladevcptestpanel(self)
+        if self.widgets.autotouchz.get_active():
+            self.data.classicladder = True
+            if not self.widgets.ladderexist.get_active():
+                self.widgets.laddertouchz.set_active(True)
+        if not self.data.number_mesa:
+           self.widgets.druid1.set_page(self.widgets.pp1pport)
+           return True
 
     def do_exclusive_inputs(self, pin):
         if self.in_pport_prepare: return
@@ -4214,83 +4455,34 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
 
-    def on_mesapanel_kill(self, *args):
-
-        self.halrun.write("quit\n")
-        self.halrun.flush()
-        self.halrun.close()
-
     def on_mesapanel_clicked(self, *args):
-        #self.m5i20test(self)
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w") 
-        halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
+        self.halrun = os.popen("halrun -sf > /dev/null", "w") 
+        self.halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         self.hal_cmnds("LOAD")
         self.hal_cmnds("READ")
         self.hal_cmnds("WRITE")
-        halrun.write("start\n")
-        halrun.flush()
+        self.halrun.write("start\n")
+        self.halrun.write("loadusr  halmeter\n")
+        self.halrun.flush()
         time.sleep(1)
         PyApp(self,self.data,self.widgets)  
-        halrun.write("loadusr  halmeter\n")
-        #halrun.write("quit\n")
-        #halrun.close()
-        return
-        for boardnum in range(0,int(self.data.number_mesa)):
-            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_BOARDNAME]+".%d"% boardnum
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
-                for pin in range (0,24):
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
-                    pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
-                    ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
-                    pintype = self.widgets[ptype].get_active_text()
-                    pininv = self.widgets[pinv].get_active()
-                    truepinnum = (concount*24) + pin
-                    # for output / open drain pins
-                    if  pintype in (GPIOO,GPIOD):                
-                        halrun.write("setp hm2_%s.gpio.%03d.is_output true\n"% (board,truepinnum ))
-                        if pininv:  halrun.write("setp hm2_%s.gpio.%03d.invert_output true\n"% (board,truepinnum ))
-                        halrun.write("net b%d_signal_out%d testpanel.brd.%d.switch.%d hm2_%s.gpio.%03d.out\
-                                    \n"%  (boardnum,truepinnum,boardnum,truepinnum,board,truepinnum))
-                    # for input pins
-                    elif pintype == GPIOI:                                    
-                       
-                        if pininv: halrun.write("net b%d_signal_in%d hm2_%s.gpio.%03d.in_not testpanel.brd.%d.led.%d\
-                            \n"%(boardnum,truepinnum,board,truepinnum,boardnum,truepinnum))
-                        else:   halrun.write("net b%d_signal_in%d hm2_%s.gpio.%03d.in testpanel.brd.%d.led.%d\
-                            \n"% (boardnum,truepinnum,board,truepinnum,boardnum,truepinnum))
-                    # for encoder pins
-                    elif pintype in (ENCA,ENCB,ENCI,ENCM):                                        
-                        if not pintype == ENCA: continue                 
-                        halrun.write("net b%d_enc_reset%d hm2_%s.encoder.%02d.reset testpanel.brd.%d.enc.%d.reset\
-                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
-                        halrun.write("net b%d_enc_count%d hm2_%s.encoder.%02d.count testpanel.brd.%d.enc.%d.count\
-                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
-                    # for PWM pins
-                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):                     
-                        if not pintype in (PWMP,PDMP): continue        
-                        halrun.write("net b%d_pwm_enable%d hm2_%s.pwmgen.%02d.enable testpanel.brd.%d.pwm.%d.enable\
-                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum)) 
-                        halrun.write("net b%d_pwm_value%d hm2_%s.pwmgen.%02d.value testpanel.brd.%d.pwm.%d.value\
-                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum)) 
-                        halrun.write("setp hm2_%s.pwmgen.%02d.scale 10\n"% (board,compnum)) 
-                    # for Stepgen pins
-                    elif pintype in (STEPA,STEPB):                      
-                        if not pintype == STEPA : continue                        
-                        halrun.write("net b%d_step_enable%d hm2_%s.stepgen.%02d.enable testpanel.brd.%d.stp.%d.enable\
-                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
-                        halrun.write("net b%d_step_cmd%d hm2_%s.stepgen.%02d.position-cmd testpanel.brd.%d.stp.%d.cmd\
-                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.maxvel 0 \n"% (board,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.steplen 2000 \n"% (board,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.stepspace 2000 \n"% (board,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.dirhold 2000 \n"% (board,compnum))
-                        halrun.write("setp hm2_%s.stepgen.%02d.dirsetup 2000 \n"% (board,compnum))
-                    else: 
-                        print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
-        halrun.flush()
-        time.sleep(.01)
-    
+
+    def on_mesapanel_returned(self, *args):
+        print "Quit test panel"
+        try:
+            self.halrun.write("delsig all\n")
+            self.halrun.write("exit\n")
+            self.halrun.flush()
+            time.sleep(1)
+            self.halrun.close()
+            a = os.popen("halrun -U > /dev/null", "w")
+            a.flush()
+            time.sleep(1)
+            a.close()
+            a.kill()
+        except :
+            pass
+
     def on_mesa_pintype_changed(self, widget,boardnum,connector,pin):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin) 
@@ -6038,14 +6230,13 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.widgets.floatsin.set_value(self.data.floatsin)
         self.widgets.floatsout.set_value(self.data.floatsout)
         self.widgets.halui.set_active(self.data.halui)
+        self.widgets.ladderexist.set_active(self.data.ladderexist)
+        self.widgets.laddertouchz.set_active(self.data.laddertouchz)
         self.on_halui_toggled()
-        for i in range(1,16):
+        for i in range(0,15):
             self.widgets["halui_cmd"+str(i)].set_text(self.data["halui_cmd"+str(i)])  
         self.widgets.ladderconnect.set_active(self.data.ladderconnect)      
         self.on_classicladder_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                self.widgets.ladderexist.set_active(True)
 
     def on_advanced_next(self, *args):
         self.data.classicladder = self.widgets.classicladder.get_active()
@@ -6056,44 +6247,57 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.data.s32out = self.widgets.s32out.get_value()
         self.data.floatsin = self.widgets.floatsin.get_value()
         self.data.floatsout = self.widgets.floatsout.get_value()
-        self.data.halui = self.widgets.halui.get_active() 
-        for i in range(1,16):
+        self.data.halui = self.widgets.halui.get_active()
+        self.data.ladderexist = self.widgets.ladderexist.get_active()
+        self.data.laddertouchz = self.widgets.laddertouchz.get_active()
+        for i in range(0,15):
             self.data["halui_cmd"+str(i)] = self.widgets["halui_cmd"+str(i)].get_text()         
         self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
         if self.data.classicladder:
-           if self.widgets.ladderblank.get_active() == True:
-              if self.data.tempexists:
-                   self.data.laddername='TEMP.clp'
-              else:
-                   self.data.laddername= 'blank.clp'
-                   self.data.ladderhaltype = 0
-           if self.widgets.ladder1.get_active() == True:
-              self.data.laddername = 'estop.clp'
-              has_estop = self.data.findsignal("estop-ext")
-              if not has_estop:
-                 self.warning_dialog(_("You need to designate an E-stop input pin for this ladder program."),True)
-                 self.widgets.druid1.set_page(self.widgets.advanced)
-                 return True
-              self.data.ladderhaltype = 1
-           if self.widgets.ladder2.get_active() == True:
-                 self.data.laddername = 'serialmodbus.clp'
-                 self.data.modbus = 1
-                 self.widgets.modbus.set_active(self.data.modbus) 
-                 self.data.ladderhaltype = 0          
-           if self.widgets.ladderexist.get_active() == True:
-              self.data.laddername='custom.clp'
-           else:
-               if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be\
-                     renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
-                     self.widgets.druid1.set_page(self.widgets.advanced)
-                     return True 
-           if self.widgets.ladderexist.get_active() == False:
-              if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
-                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy\
-                     to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
-                   self.widgets.druid1.set_page(self.widgets.advanced)
-                   return True       
+            if self.widgets.ladderblank.get_active() == True:
+                if self.data.tempexists:
+                    self.data.laddername='TEMP.clp'
+                else:
+                    self.data.laddername= 'blank.clp'
+                    self.data.ladderhaltype = 0
+            if self.widgets.ladder1.get_active() == True:
+                self.data.laddername = 'estop.clp'
+                has_estop = self.data.findsignal("estop-ext")
+                if not has_estop:
+                    self.warning_dialog(_("You need to designate an E-stop input pin for this ladder program."),True)
+                    self.widgets.druid1.set_page(self.widgets.advanced)
+                    return True
+                self.data.ladderhaltype = 1
+            if self.widgets.ladder2.get_active() == True:
+                self.data.laddername = 'serialmodbus.clp'
+                self.data.modbus = 1
+                self.widgets.modbus.set_active(self.data.modbus) 
+                self.data.ladderhaltype = 0
+            if self.widgets.laddertouchz.get_active() == True:
+                has_probe = self.data.findsignal("probe-in")
+                if not has_probe:
+                    self.warning_dialog(_("You need to designate a probe input pin for this ladder program."),True)
+                    self.widgets.druid1.set_page(self.widgets.advanced)
+                    return True
+                self.data.ladderhaltype = 2
+                self.data.laddername = 'touchoff_z.clp'
+                self.data.halui = True
+                self.widgets.halui.set_active(True)
+            if self.widgets.ladderexist.get_active() == True:
+                self.data.laddername='custom.clp'
+            else:
+                if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                    if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting\
+ Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost.\
+Selecting 'existing ladder program' will avoid this warning"),False):
+                        self.widgets.druid1.set_page(self.widgets.advanced)
+                        return True 
+            if self.widgets.ladderexist.get_active() == False:
+                if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
+                    if not self.warning_dialog(_("You edited a ladder program and have selected a \
+different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
+                        self.widgets.druid1.set_page(self.widgets.advanced)
+                        return True       
         
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
@@ -6122,6 +6326,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.widgets.ladderblank.set_sensitive(i)
         self.widgets.ladder1.set_sensitive(i)
         self.widgets.ladder2.set_sensitive(i)
+        self.widgets.laddertouchz.set_sensitive(i)
         if  self.widgets.createconfig.get_active():
             self.widgets.ladderexist.set_sensitive(False)
         else:
@@ -6134,6 +6339,11 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.widgets.label_floatin.set_sensitive(i)
         self.widgets.label_floatout.set_sensitive(i)
         self.widgets.ladderconnect.set_sensitive(i)
+        if self.widgets.laddertouchz.get_active():
+            i = self.data.gladevcphaluicmds
+            self.widgets["halui_cmd%d"%(i)].set_text("G38.2 Z-2 F16   ( search for touch off plate )")
+            self.widgets["halui_cmd%d"%(i+1)].set_text("G10 L20 P0 Z.25 ( Ofset current Origin by plate thickness )")
+            self.widgets["halui_cmd%d"%(i+2)].set_text("G0 Z.5           ( Rapid away from touch off plate )")
         
     def on_pyvcp_toggled(self,*args):
         i= self.widgets.pyvcp.get_active()
@@ -6256,7 +6466,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 if os.path.exists(filename):     
                   if os.path.exists(original):
                      #print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/custom_backup.clp" % self.data.machinename) ) 
+                     shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.data.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( filename,original)
                   #print "copied ladder program to usr directory"
@@ -6269,17 +6479,18 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
                      #print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/custompanel_backup.xml" % self.data.machinename) ) 
+                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/custompanel_backup.xml" % self.data.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( panelname,originalname)
                   #print "copied PYVCP program to usr directory"
                   #print"%s" % panelname
            else:
-                  print "Master PYVCP files missing from configurable_options dir"
+                  print "Master PYVCP file: %s missing from configurable_options dir"% self.data.pyvcpname
         if not self.warning_dialog (_("Do you wish to continue to edit this configuration."),False):
             gtk.main_quit()
         #self._mesa0_configured = False
         #self._mesa1_configured = False
+        self.data._re_editmode = True
         self.widgets.druid1.set_page(self.widgets.basicinfo)
         
 
@@ -6378,11 +6589,11 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         if self.widgets.pyvcpexist.get_active() == True:
            panel = "custompanel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
-        if self.widgets.pyvcpposcheckbutton.get_active() == True:
+        if self.widgets.pyvcpposition.get_active() == True:
             xpos = self.widgets.pyvcpxpos.get_value()
             ypos = self.widgets.pyvcpypos.get_value()
             pos = "+%d+%d"% (xpos,ypos)
-        if self.widgets.pyvcpsizecheckbutton.get_active() == True:
+        if self.widgets.pyvcpsize.get_active() == True:
             width = self.widgets.pyvcpwidth.get_value()
             height = self.widgets.pyvcpheight.get_value()
             size = "%dx%d"% (width,height)    
@@ -6390,9 +6601,284 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         halrun.write("loadusr -Wn displaytest pyvcp -g %(size)s%(pos)s -c displaytest %(panel)s\n" %{'size':size,'pos':pos,'panel':panel,})
         if self.widgets.pyvcp1.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
-                #halrun.write("setp displaytest.toolnumber 4\n")
         halrun.write("waitusr displaytest\n"); halrun.flush()
         halrun.close()
+
+    def on_gladevcp_toggled(self,*args):
+        i = self.widgets.gladevcp.get_active()
+        self.widgets.gladevcpbox.set_sensitive( i )
+        if self.widgets.sideembededgvcp.get_active() and not self.data.frontend == _AXIS:
+            if self.data.frontend == _TOUCHY: self.widgets.centerembededgvcp.set_active(True)
+            else: self.widgets.standalonegvcp.set_active(True)
+        self.widgets.sideembededgvcp.set_sensitive(self.data.frontend == _AXIS)
+        self.widgets.centerembededgvcp.set_sensitive(self.data.frontend == _TOUCHY or self.data.frontend == _AXIS)
+        if self.widgets.centerembededgvcp.get_active() and not ( self.data.frontend == _AXIS or self.data.frontend == _TOUCHY ):
+            self.widgets.standalonegvcp.set_active(True)
+        i = self.widgets.standalonegvcp.get_active()
+        self.widgets.gladevcpsize.set_sensitive(i)
+        self.widgets.gladevcpposition.set_sensitive(i)
+        self.widgets.gladevcpforcemax.set_sensitive(i)
+        if not i:
+            self.widgets.gladevcpsize.set_active(False)
+            self.widgets.gladevcpposition.set_active(False)
+            self.widgets.gladevcpforcemax.set_active(False)
+        i = self.widgets.gladevcpsize.get_active()
+        self.widgets.gladevcpwidth.set_sensitive(i)
+        self.widgets.gladevcpheight.set_sensitive(i)
+        i = self.widgets.gladevcpposition.get_active()
+        self.widgets.gladevcpxpos.set_sensitive(i)
+        self.widgets.gladevcpypos.set_sensitive(i)
+        for i in (("zerox","x"),("zeroy","y"),("zeroz","z"),("zeroa","a"),("autotouchz","z")):
+            if not i[1] in(self.data.available_axes):
+                self.widgets[i[0]].set_active(False)
+                self.widgets[i[0]].set_sensitive(False)
+            else:
+                self.widgets[i[0]].set_sensitive(True)
+
+    def on_displaygladevcp_clicked(self,*args):
+        pos = "+0+0"
+        size = "200x200"
+        options = ""
+        folder = "/tmp"
+        if not self.widgets.createconfig.get_active() and self.widgets.gladeexists.get_active():
+            folder = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
+            if not os.path.exists(folder + "/gvcp-panel.ui"):
+                self.warning_dialog (_("""You specified there is an existing gladefile, \
+But there is not one in the machine-named folder.."""),True)
+                return
+        self.gladevcptestpanel(self)
+        if self.widgets.gladevcpposition.get_active() == True:
+            xpos = self.widgets.gladevcpxpos.get_value()
+            ypos = self.widgets.gladevcpypos.get_value()
+            pos = "+%d+%d"% (xpos,ypos)
+        if self.widgets.gladevcpsize.get_active() == True:
+            width = self.widgets.gladevcpwidth.get_value()
+            height = self.widgets.gladevcpheight.get_value()
+            size = "%dx%d"% (width,height)
+        if not self.widgets.gladevcptheme.get_active_text() == "Follow System Theme":
+            options ="-t %s"% (self.widgets.gladevcptheme.get_active_text())
+            print options
+        self.halrun = halrun = os.popen("cd %s\nhalrun -sf > /dev/null"%(folder), "w" )    
+        halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{'size':size,'pos':pos,'option':options})
+        if self.widgets.spindlespeedbar.get_active():
+            halrun.write("setp displaytest.spindle-speed 500\n")
+        if self.widgets.zerox.get_active():
+            halrun.write("setp displaytest.zero-x-active true\n")
+        if self.widgets.zeroy.get_active():
+            halrun.write("setp displaytest.zero-y-active true\n")
+        if self.widgets.zeroz.get_active():
+            halrun.write("setp displaytest.zero-z-active true\n")
+        if self.widgets.zeroa.get_active():
+            halrun.write("setp displaytest.zero-a-active true\n")
+        if self.widgets.autotouchz.get_active():
+            halrun.write("setp displaytest.auto-touch-z-active true\n")
+        if self.widgets.spindleatspeed.get_active():
+            halrun.write("setp displaytest.spindle-at-speed-led true\n")
+        halrun.write("setp displaytest.button-box-active true\n")
+        halrun.write("waitusr displaytest\n"); halrun.flush()
+        halrun.close()
+
+    def gladevcptestpanel(self,w):
+        directory = "/tmp/"
+        filename = os.path.join(directory, "gvcp-panel.ui")
+        file = open(filename, "w")
+        print >>file, ("""<?xml version="1.0"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="width_request">100</property>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>""")
+        if self.widgets.spindlespeedbar.get_active():
+            print >>file, ("""
+        <child>
+          <object class="HAL_HBar" id="spindle-speed">
+            <property name="visible">True</property>
+            <property name="force_height">36</property>""")
+            print >>file, ("""<property name="max">%(maxrpm)d</property>"""%{'maxrpm':self.widgets.maxspeeddisplay.get_value() })
+            print >>file, ("""
+            <property name="z0_color">#0000ffff0000</property>
+            <property name="value">44.25</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="bg_color">#bebebebebebe</property>
+            <property name="text_template">Spindle: % 4d RPM</property>
+            <property name="z0_border">0.94999998807907104</property>
+            <property name="z2_color">#ffff00000000</property>
+            <property name="show_limits">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>""" )
+        if self.widgets.spindleatspeed.get_active():
+            print >>file, ("""
+        <child>
+          <object class="GtkHBox" id="hbox1">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="ypad">5</property>
+                <property name="label" translatable="yes"> Spindle Up To Speed </property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_LED" id="spindle-at-speed-led">
+                <property name="visible">True</property>
+                <property name="led_shape">2</property>
+                <property name="on_color">green</property>
+                <property name="led_size">5</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>""")
+        print >>file, ("""
+        <child>
+          <object class="HAL_Table" id="button-box-active">
+            <property name="visible">True</property>
+            <property name="n_rows">5</property>
+            <property name="homogeneous">False</property>""")
+        if self.widgets.autotouchz.get_active():
+            print >>file, ("""
+            <child>
+              <object class="HAL_HBox" id="auto-touch-z-active">
+                <property name="visible">True</property>
+                <child>
+                  <object class="HAL_Button" id="auto-touch-z">
+                    <property name="label" translatable="yes">Z  Auto Touch Off</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="yalign">0.56000000238418579</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+              </packing>
+            </child>""")
+        if self.widgets.zeroa.get_active():
+            print >>file, ("""
+            <child>
+              <object class="HAL_HBox" id="zero-a-active">
+                <property name="visible">True</property>
+                <child>
+                  <object class="HAL_Button" id="zero-a">
+                    <property name="label" translatable="yes">Zero A</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
+            </child>""")
+        if self.widgets.zeroz.get_active():
+            print >>file, ("""
+            <child>
+              <object class="HAL_HBox" id="zero-z-active">
+                <property name="visible">True</property>
+                <child>
+                  <object class="HAL_Button" id="zero-z">
+                    <property name="label" translatable="yes">Zero Z</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+              </packing>
+            </child>""")
+        if self.widgets.zeroy.get_active():
+            print >>file, ("""
+            <child>
+              <object class="HAL_HBox" id="zero-y-active">
+                <property name="visible">True</property>
+                <child>
+                  <object class="HAL_Button" id="zero-y">
+                    <property name="label" translatable="yes">Zero Y</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>""")
+        if self.widgets.zerox.get_active():
+            print >>file, ("""
+            <child>
+              <object class="HAL_HBox" id="zero-x-active">
+                <property name="visible">True</property>
+                <child>
+                  <object class="HAL_Button" id="zero-x">
+                    <property name="label" translatable="yes">Zero X</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>""")
+        print >>file, ("""
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>""")
+        file.close()
+
+
 
     # for classicladder test  
     def load_ladder(self,w): 
@@ -6426,7 +6912,12 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         if self.widgets.ladder2.get_active() == True:
             self.data.laddername = 'serialmodbus.clp'
             self.data.modbus = True
-            self.widgets.modbus.set_active(self.data.modbus)
+            self.widgets.modbus.set_active(True)
+        if self.widgets.laddertouchz.get_active() == True:
+            self.data.laddertouchz = True
+            self.data.laddername = 'touchoff_z.clp'
+            self.data.halui = True
+            self.widgets.halui.set_active(True)
         if self.widgets.ladderexist.get_active() == True:
             self.data.laddername='custom.clp'
             originalfile = filename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
@@ -7177,14 +7668,14 @@ class PyApp(gtk.Window):
             active = self.data2["brd%dstp_ckbutton%d"% (boardnum,number)].get_active()
             self.hal.c["brd.%d.stp.%d.enable"% (boardnum, number)] = active
             if active:
-                self.hal.c["brd.%d.stp.%d.cmd"% (boardnum, number)] = value
+                self.hal.c["brd.%d.stp.%d.position-cmd"% (boardnum, number)] = value
             
 
     def quit(self,widget):  
         self.widgets['window1'].set_sensitive(1)                 
         gobject.source_remove(self.timer)
         self.hal.c.exit()
-        self.app.on_mesapanel_kill()
+        self.app.on_mesapanel_returned()
         return True
 
     def update(self):      
@@ -7237,7 +7728,7 @@ class PyApp(gtk.Window):
     
     # This creates widgets and HAL pins for stepper controls 
     def make_stp(self,container,boardnum,number):
-        stpname = "brd.%d.stp.%d.cmd" % (boardnum,number)
+        stpname = "brd.%d.stp.%d.position-cmd" % (boardnum,number)
         self.hal.c.newpin(stpname, hal.HAL_FLOAT, hal.HAL_OUT)
         hal.new_sig(stpname+"-signal",hal.HAL_FLOAT)
         hal.connect("testpanel."+stpname,stpname+"-signal")
