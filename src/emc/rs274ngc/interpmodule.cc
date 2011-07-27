@@ -161,7 +161,7 @@ struct ParamClass { //  : Interp {
 	return dvalue;
     }
 
-    bp::object namelist(context &c) {
+    bp::list namelist(context &c) const {
 	bp::list result;
 	for(parameter_map::iterator it = c.named_params.begin(); it != c.named_params.end(); ++it) {
 	    result.append( it->first);
@@ -169,15 +169,20 @@ struct ParamClass { //  : Interp {
 	return result;
     }
 
-    bp::object locals() {
-	bp::list result;
+    bp::list locals() {
 	return namelist(interp._setup.sub_context[interp._setup.call_level]);
     }
 
-    bp::object globals() {
-	bp::list result;
+    bp::list globals() {
 	return namelist(interp._setup.sub_context[0]);
     }
+
+    bp::list operator()() const
+    {
+	bp::list result = namelist(interp._setup.sub_context[interp._setup.call_level]);
+	result.extend(namelist(interp._setup.sub_context[0]));
+	return result;
+    };
 
     int length() { return RS274NGC_MAX_PARAMETERS;}
 };
@@ -227,6 +232,7 @@ BOOST_PYTHON_MODULE(interpreter) {
         .def("__len__", &ParamClass::length)
         .def("globals", &ParamClass::globals)
         .def("locals", &ParamClass::locals)
+	.def("__call__", &ParamClass::operator());
 	;
 
     class_ <context, noncopyable>("Context",no_init)
