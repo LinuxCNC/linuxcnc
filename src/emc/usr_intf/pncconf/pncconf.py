@@ -3159,7 +3159,9 @@ class App:
         
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
         axisdiagram = os.path.join(helpdir,"axisdiagram1.png")
-        self.widgets.helppic.set_from_file(axisdiagram)
+        self.widgets.helppic0.set_from_file(axisdiagram)
+        axisdiagram = os.path.join(helpdir,"lathe_diagram.png")
+        self.widgets.helppic1.set_from_file(axisdiagram)
         self.widgets.openloopdialog.hide()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
         self.widgets.complete.set_watermark(self.watermark)
