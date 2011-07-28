@@ -164,7 +164,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             r = -EINVAL;
             goto fail0;
         }
-        // start up the card in setup mode so any sub-drivers can read parameters out
+        // start up the card so any sub-drivers can read parameters out
         buff=0xF00 | (0xFF >> (8 - hm2->config.num_sserial_chans[i]));
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 8000) < 0){
@@ -177,12 +177,11 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         inst->num_7i64 = 0;
         inst->tag_all = 0;
         inst->num_all = 0;
-
         for (c = 0 ; c < inst->num_channels ; c++) {
-            addr = md->base_address + 2 * md->register_stride
+            addr = md->base_address + 4 * md->register_stride
             + i * md->instance_stride + c * sizeof(u32);
             hm2->llio->read(hm2->llio, addr, &buff, sizeof(u32));
-            buff >>= 24;
+            //buff >>= 24;
             HM2_DBG("Device Code %X at addr %x\n",buff, addr);
             switch (buff) {
                 case 0x0: // nothing connected, or masked by config
@@ -194,13 +193,15 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                         }
                     }
                     break;
-                case HM2_SSERIAL_TYPE_8I20: // 8i20 found
+                //case HM2_SSERIAL_TYPE_8I20: // 8i20 found
+                case 0x30324938:    
                     inst->tag_8i20 |= (1 << c);
                     inst->tag_all |= (1 << c);
                     inst->num_8i20 += 1;
                     inst->num_all += 1;
                     break;
-                case HM2_SSERIAL_TYPE_7I64: // 7i64 found
+                //case HM2_SSERIAL_TYPE_7I64: // 7i64 found
+                case 0x34364937:
                     inst->tag_7i64 |= (1 << c);
                     inst->tag_all |= (1 << c);
                     inst->num_7i64 += 1;
@@ -340,7 +341,6 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->llio->write(hm2->llio, hm2->ioport.alt_source_addr + 4 * port,
                          &src_reg, sizeof(u32));
     }
-
     return hm2->sserial.num_instances;
 fail0:
     hm2->sserial.num_instances = 0;
@@ -408,6 +408,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                                 i, hm2->llio->name, i);
                     }
                     *inst->fault_count += inst->fault_inc;
+                    *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                     break; // give the register chance to clear
                 }
                 if (*inst->data_reg_read & 0xff){ // indicates a failed transfer

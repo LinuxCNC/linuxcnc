@@ -243,7 +243,7 @@ void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
 
             if (hal->param.hm2_max_current > hal->param.hm2_nv_max_current) {
                 HM2_ERR("8i20 %X EEPROM Max Curent is %f.\n You asked for %f."
-                        "Resetting to EEPROM max.",
+                        "Resetting to EEPROM max.\n",
                         hal->param.hm2_serialnumber,
                         hal->param.hm2_nv_max_current,
                         hal->param.hm2_max_current);
@@ -251,7 +251,7 @@ void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
             }
             if (hal->param.hm2_max_current < 0){
                 HM2_ERR("8i20 minimum setting for max_current parameter is zero."
-                        "Resetting to zero");
+                        "Resetting to zero\n");
                 hal->param.hm2_max_current = 0;
             }
 
