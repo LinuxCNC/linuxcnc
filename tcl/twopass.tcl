@@ -8,8 +8,8 @@
 #       All HAL:HALFILEs are read.
 #       loadrt, loadusr commands are combined and executed at the end
 #       of pass0 loadrt commands may be invoked multiple times for the
-#       same mod_name.  Both the "count=" and "names=" forms for loadrt
-#       are supported but are mutually exclusive for each module.
+#       same mod_name.  The "count=", "num_chan=", and "names=" forms for
+#       loadrt are supported but are mutually exclusive for each module.
 #       addf commands are deferred to pass1
 # pass1:
 #       All HAL:HALFILES are reread, commands (except the loadrt and
@@ -142,13 +142,13 @@ proc ::tp::loadrt_substitute {args} {
     set item  [lindex $l 0]
     set value [lindex $l 1]
 
-    if { ("$item" == "count") || ("$item" == "names") } {
+    if {("$item"=="count") || ("$item"=="num_chan") || ("$item"=="names")} {
       if ![info exists ::TP($module,form)] {
         set ::TP($module,form) $item
       } else {
         if {$::TP($module,form) != "$item"} {
           return -code error \
-          "loadrt_substitute: cannot mix count= and names= forms\
+          "loadrt_substitute: cannot mix count=, num_chan= and names= forms\
           (module=$module, first used form=$::TP($module,form)"
         }
       }
@@ -160,6 +160,13 @@ proc ::tp::loadrt_substitute {args} {
                 set ::TP($module,count) $value
               } else {
                 incr ::TP($module,count) $value
+              }
+            }
+      num_chan {
+              if ![info exists ::TP($module,num_chan)] {
+                set ::TP($module,num_chan) $value
+              } else {
+                incr ::TP($module,num_chan) $value
               }
             }
       names {
@@ -349,6 +356,8 @@ proc ::tp::load_the_modules {} {
     set cmd "orig_loadrt $m" ;# this is the real loadrt
     if [info exists ::TP($m,count)] {
       set cmd "$cmd count=$::TP($m,count)"
+    } elseif [info exists ::TP($m,num_chan)] {
+      set cmd "$cmd num_chan=$::TP($m,num_chan)"
     } elseif [info exists ::TP($m,names)] {
       set cmd "$cmd names=$::TP($m,names)"
     }
