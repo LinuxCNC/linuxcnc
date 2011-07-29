@@ -576,14 +576,20 @@ fi
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
 
-# 4.3.4. Run emcio in background
-echo "Starting EMC2 IO program: $EMCIO" >>$PRINT_FILE
-if ! program_available $EMCIO ; then
-    echo "Can't execute IO program $EMCIO"
-    Cleanup
-    exit 1
+# 4.3.4. Run emcio in background if so defined in INI
+if [ "$EMCIO" != "" ] ; then
+        echo "Starting EMC2 IO program: $EMCIO" >>$PRINT_FILE
+        if ! program_available $EMCIO ; then
+                echo "Can't execute IO program $EMCIO"
+                Cleanup
+        exit 1
+        fi
+        echo $EMCIO started
+        $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
+        echo halcmd loadusr $EMCIO started
+else
+        echo "Skipping EMC2 IO program >>$PRINT_FILE
 fi
-$HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
