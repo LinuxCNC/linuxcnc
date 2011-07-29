@@ -11,6 +11,9 @@ namespace bp = boost::python;
 #include <sys/types.h>
 
 
+extern std::string handle_pyerror();
+
+
 // PY_EXCEPTION: both exception_msg and error_msg are set
 // PY_ERROR:  error_msg is set
 enum pp_status   {
@@ -51,6 +54,7 @@ public:
     void initialize(bool reload = false, Interp *interp = NULL);
     std::string last_exception() { return exception_msg; };
     std::string last_errmsg() { return error_msg; };
+    bp::object main_namespace;
 
 private:
     PythonPlugin(const char *iniFilename,         // no public constructor
@@ -62,7 +66,6 @@ private:
     ~PythonPlugin() {};
 
     int reload();
-    std::string handle_pyerror();
     std::vector<std::string> inittab_entries;
     int status;
     time_t module_mtime;                  // toplevel module - last modification time
@@ -73,7 +76,6 @@ private:
     const char *module_basename;          // toplevel module
     const char *plugin_dir;               // directory prefix
     const char *abs_path;                 // normalized path to toplevel module, ProgramName
-    bp::object main_namespace;
     std::string exception_msg;
     std::string error_msg;
     int log_level;

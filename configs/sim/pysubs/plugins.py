@@ -1,9 +1,12 @@
 import interpreter
 import canon
 have_emctask = False
-if 'emctask' in sys.builtin_module_names:
+try:
     import emctask
     have_task = True
+except ImportError:
+    pass
+
 
 import task
 import oword

@@ -1,17 +1,13 @@
-    // EMC_AXIS_STAT axis[EMC_AXIS_MAX];
-    // int synch_di[EMC_MAX_DIO];  // motion inputs queried by interp
-    // int synch_do[EMC_MAX_DIO];  // motion outputs queried by interp
-    // double analog_input[EMC_MAX_AIO]; //motion analog inputs queried by interp
-    // double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
-//task_stat:
-
-// reuse interp converters
-
-
+// TODO: reuse interp converters
 
 #include <boost/python.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/class.hpp>
+#include <boost/ref.hpp>
+
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
+#include "taskclass.hh"
 
 namespace bp = boost::python;
 
@@ -26,6 +22,64 @@ namespace pp = pyplusplus::containers::static_sized;
 #include "emc_nml.hh"
 
 extern EMC_STAT *emcStatus;
+
+struct TaskWrap : public Task, public bp::wrapper<Task> {
+
+    TaskWrap() : Task() {}
+    // TaskWrap()  {}
+
+   int test(int arg) {
+	if (bp::override f = this->get_override("test"))
+	    return f(arg);
+	else
+	    return  Task::test(arg);
+    }
+    int default_test(int arg) {
+	return this->Task::test(arg);
+    }
+
+    int emcToolPrepare(int p, int tool) {
+	if (bp::override f = this->get_override("emcToolPrepare"))
+	    return f(p, tool);
+	else
+	    return  Task::emcToolPrepare(p, tool);
+    }
+    int default_emcToolPrepare(int p, int tool) {
+	return this->Task::emcToolPrepare(p, tool);
+    }
+
+    int emcToolLoad() {
+	if (bp::override f = this->get_override("emcToolLoad"))
+	    return f();
+	else
+	    return  Task::emcToolLoad();
+    }
+    int default_emcToolLoad() {
+	return this->Task::emcToolLoad();
+    }
+    int emcToolUnload() {
+	if (bp::override f = this->get_override("emcToolUnload"))
+	    return f();
+	else
+	    return  Task::emcToolUnload();
+    }
+    int default_emcToolUnload() {
+	return this->Task::emcToolUnload();
+    }
+    int emcToolSetNumber(int number) {
+	if (bp::override f = this->get_override("emcToolSetNumber"))
+	    return f(number);
+	else
+	    return  Task::emcToolSetNumber(number);
+    }
+    int default_emcToolSetNumber(int number) {
+	return this->Task::emcToolSetNumber(number);
+    }
+};
+
+
+
+
 
 typedef pp::array_1_t< EMC_AXIS_STAT, EMC_AXIS_MAX> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< int, EMC_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
@@ -67,13 +121,22 @@ static  active_settings_array activeSettings_wrapper ( EMC_TASK_STAT & m) {
     return active_settings_array(m.activeSettings);
 }
 
-// TODO: wrap optional id argument
 #pragma GCC diagnostic ignored "-Wformat-security"
-static void operator_error(const char *s) {
-    int id = 0;
-    emcOperatorError(id,s);
+static void operator_error(const char *message, int id = 0) {
+    emcOperatorError(id,message);
+}
+static void operator_text(const char *message, int id = 0) {
+    emcOperatorText(id,message);
+}
+static void operator_display(const char *message, int id = 0) {
+    emcOperatorDisplay(id,message);
 }
 #pragma GCC diagnostic warning "-Wformat-security"
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(operator_error_overloads, operator_error, 1,2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(operator_text_overloads, operator_text, 1,2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(operator_display_overloads, operator_display, 1,2)
+
 
 BOOST_PYTHON_MODULE(emctask) {
     using namespace boost::python;
@@ -83,7 +146,38 @@ BOOST_PYTHON_MODULE(emctask) {
         "Task introspection\n"
         ;
 
-    def("operator_error", &operator_error);
+    def("operator_error",
+	operator_error,
+	operator_error_overloads ( args("id"),
+				   "send an error messsage to the operator screen with an optional message id"  ));
+    def("operator_text",
+	operator_text,
+	operator_text_overloads ( args("id"),
+				   "send a informational messsage to the operator screen"  ));
+    def("operator_display",
+	operator_display,
+	operator_display_overloads ( args("id"),
+				   "send a messsage to the operator display"  ));
+
+    scope().attr("RCS_EXEC") = (int)RCS_EXEC;
+    scope().attr("RCS_DONE") = (int)RCS_DONE;
+    scope().attr("RCS_ERROR") = (int)RCS_ERROR;
+
+    class_<Task, shared_ptr<Task>, noncopyable>("__Task",  " Pretend I Don't exist",  no_init)
+       .def("test", &Task::test)
+       .def("emcToolPrepare", &Task::emcToolPrepare)
+       .def("emcToolLoad", &Task::emcToolLoad)
+       .def("emcToolUnload", &Task::emcToolUnload)
+       .def("emcToolSetNumber", &Task::emcToolSetNumber)
+	;
+
+    class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
+	.def("test", &Task::test, &TaskWrap::default_test)
+	.def("emcToolPrepare", &Task::emcToolPrepare, &TaskWrap::default_emcToolPrepare)
+	.def("emcToolLoad", &Task::emcToolLoad, &TaskWrap::default_emcToolLoad)
+	.def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
+	.def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
+	;
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
 	.def_readwrite("x",&PmCartesian::x)

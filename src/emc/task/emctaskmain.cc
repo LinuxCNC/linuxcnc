@@ -78,6 +78,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "timer.hh"
 #include "nml_oi.hh"
 #include "task.hh"		// emcTaskCommand etc
+#include "taskclass.hh"
 
 /* time after which the user interface is declared dead
  * because it would'nt read any more messages
@@ -135,6 +136,7 @@ static int pseudoMdiLineNumber = INT_MIN;
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
+static const char *python_taskinit;
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
@@ -2895,10 +2897,10 @@ static int emctask_startup()
 	rcs_print_error("can't initialize interpreter\n");
 	return -1;
     }
-    // let her know she's running under task
-    emcTaskOnce();
+    // inistantiate task methods object, too
+    emcTaskOnce(python_taskinit);
 
-    if (done) {
+    if (done || (task_methods == NULL)) {
 	emctask_shutdown();
 	exit(1);
     }
@@ -3079,6 +3081,11 @@ static int iniLoad(const char *filename)
     // configurable template for iocontrol reason display
     if (NULL != (inistring = inifile.Find("IO_ERROR", "TASK"))) {
 	io_error = strdup(inistring);
+    }
+
+    // configurable template for iocontrol reason display
+    if (NULL != (inistring = inifile.Find( "TASK","PYTHON"))) {
+	python_taskinit = strdup(inistring);
     }
     // close it
     inifile.Close();

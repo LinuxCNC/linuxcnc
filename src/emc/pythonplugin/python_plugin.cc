@@ -161,7 +161,8 @@ int PythonPlugin::reload()
 }
 
 // decode a Python exception into a string.
-std::string PythonPlugin::handle_pyerror()
+// Free function usable without working plugin instance.
+std::string handle_pyerror()
 {
     PyObject *exc, *val, *tb;
     bp::object formatted_list, formatted;

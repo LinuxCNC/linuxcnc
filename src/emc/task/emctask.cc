@@ -31,6 +31,8 @@
 #include "rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "python_plugin.hh"
+#include "taskclass.hh"
+
 
 #define TASK_MODULE "task"
 #define TASK_INIT "task_init"
@@ -40,6 +42,7 @@ extern PythonPlugin *python_plugin;
 #define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 
 static int emcPythonReturnValue(const char *funcname, bp::object &retval);
+
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -660,21 +663,54 @@ int emcAbortCleanup(int reason, const char *message)
     return status;
 }
 
-int emcTaskOnce()
+ Task *task_methods;
+
+int emcTaskOnce(const char *python_taskinit)
 {
     bp::object retval;
     bp::tuple arg;
     bp::dict kwarg;
+    int plugin_status;
+    Task *tmp = NULL;
 
     // At this point, the interpreter must be done configuring and have instantiated the
     // Python plugin
 
     if (PYUSABLE && python_plugin->is_callable(TASK_MODULE, TASK_INIT)) {
 	python_plugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
-	return emcPythonReturnValue(TASK_INIT, retval);
-    } else {
-	fprintf(stderr,"emcTaskOnce: Python task plugin not available|n");
+	plugin_status = emcPythonReturnValue(TASK_INIT, retval);
+	if (plugin_status != PLUGIN_OK)  // FIXME - NO_CALLABLE?
+	    printf("plugin_status = %d '%s'\n'%s'\n", plugin_status,
+		   python_plugin->last_errmsg().c_str(),
+		   python_plugin->last_exception().c_str());
+	if (PYUSABLE && (python_taskinit != NULL)) {
+	    //  fprintf(stderr, "---------- should run '%s'\n", python_taskinit);
+	    try {
+		bp::object result = bp::exec(python_taskinit, python_plugin->main_namespace, python_plugin->main_namespace);
+		tmp = bp::extract< Task * >(python_plugin->main_namespace["task"]);
+		//	tmp = bp::extract< Task * >(result); //hm, doesnt work for bp::eval() ?
+
+	    } catch( bp::error_already_set ) {
+		std::string msg = handle_pyerror();
+		printf("exec(%s): %s\n", python_taskinit,msg.c_str());
+		PyErr_Clear();
+	    }
+	    if (tmp == NULL) {
+		printf("no Python Task() instance available\n");
+	    }
+	}
     }
+    if (tmp == NULL)
+	tmp = new Task();
+    try {
+	tmp->test(4711);
+    } catch( bp::error_already_set ) {
+	std::string msg = handle_pyerror();
+	printf("call t->test(): %s\n", msg.c_str());
+	PyErr_Clear();
+    }
+    //    fprintf(stderr,"emcTaskOnce: Python task plugin not available|n");
+    task_methods = tmp;
     return 0;
 }
 

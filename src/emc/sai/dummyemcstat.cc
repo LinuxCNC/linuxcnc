@@ -4,5 +4,7 @@
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
 
-static EMC_STAT dummy_emcstat;
-EMC_STAT *emcStatus = &dummy_emcstat;
+
+EMC_STAT *emcStatus = new EMC_STAT;
+
+EMC_IO_STAT *emcIoStatus = new EMC_IO_STAT;

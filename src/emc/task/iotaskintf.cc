@@ -4,7 +4,6 @@
 
 
 
-
 /********************************************************************
 * Description: iotaskintf.cc
 *   NML interface functions for IO
@@ -35,6 +34,9 @@
 #include "inifile.hh"
 #include "initool.hh"
 #include "tool_parse.h"
+#include "python_plugin.hh"
+#include "taskclass.hh"
+#include <string>
 
 
 // we just keep emcIoStatus to keep task happy
@@ -123,47 +125,62 @@ int emcIoSetDebug(int debug)
     return 0;
 }
 
+int handle_exception(const char *method)
+{
+    std::string msg = handle_pyerror();
+    printf("executing %s(): %s\n", method,msg.c_str());
+    PyErr_Clear();
+    return RCS_ERROR;
+}
+
 int emcToolPrepare(int p, int tool)
 {
-
-    // it doesn't make sense to prep the spindle pocket
-    if (random_toolchanger && p == 0)
-	return 0;
-
-
-    /* set tool number first */
-    int prep_number;
-    //*(iocontrol_data->tool_prep_pocket) = p;
-    if (!random_toolchanger && p == 0) {
-	//	*(iocontrol_data->tool_prep_number) = 0;
-	prep_number = 0;
-    } else {
-	// *(iocontrol_data->tool_prep_number) = emcIoStatus->tool.toolTable[p].toolno;
-	prep_number = emcIoStatus->tool.toolTable[p].toolno;
+    int retval;
+    try {
+	retval = task_methods->emcToolPrepare(p,tool);
+    } catch( bp::error_already_set ) {
+	retval =  handle_exception("emcToolPrepare");
     }
-    fprintf(stderr,"emcToolPrepare: raise prepare, prep_number=%d, wait for prepared\n",prep_number);
-
-    emcIoStatus->tool.pocketPrepped = p; // *(iocontrol_data->tool_prep_pocket); //check if tool has been prepared
-    emcIoStatus->status = RCS_DONE;
-
-    // *(iocontrol_data->tool_prepare) = 0;
-
-    // if ((proto > V1) && *(iocontrol_data->toolchanger_faulted)) { // informational
-    // 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: prepare: toolchanger faulted (reason=%d), next M6 will %s\n",
-    // 			progname,toolchanger_reason,
-    // 			toolchanger_reason > 0 ? "set fault code and reason" : "abort program");
-    // }
-    // // then set the prepare pin to tell external logic to get started
-    // *(iocontrol_data->tool_prepare) = 1;
-    // *(iocontrol_data->state) = ST_PREPARING;
-
-    // // delay fetching the next message until prepare done
-    // if (!(input_status & TI_PREPARE_COMPLETE)) {
-    // 	emcIoStatus->status = RCS_EXEC;
-    // }
-
-
     return 0;
+
+    // // it doesn't make sense to prep the spindle pocket
+    // if (random_toolchanger && p == 0)
+    // 	return 0;
+
+
+    // /* set tool number first */
+    // int prep_number;
+    // //*(iocontrol_data->tool_prep_pocket) = p;
+    // if (!random_toolchanger && p == 0) {
+    // 	//	*(iocontrol_data->tool_prep_number) = 0;
+    // 	prep_number = 0;
+    // } else {
+    // 	// *(iocontrol_data->tool_prep_number) = emcIoStatus->tool.toolTable[p].toolno;
+    // 	prep_number = emcIoStatus->tool.toolTable[p].toolno;
+    // }
+    // fprintf(stderr,"emcToolPrepare: raise prepare, prep_number=%d, wait for prepared\n",prep_number);
+
+    // emcIoStatus->tool.pocketPrepped = p; // *(iocontrol_data->tool_prep_pocket); //check if tool has been prepared
+    // emcIoStatus->status = RCS_DONE;
+
+    // // *(iocontrol_data->tool_prepare) = 0;
+
+    // // if ((proto > V1) && *(iocontrol_data->toolchanger_faulted)) { // informational
+    // // 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: prepare: toolchanger faulted (reason=%d), next M6 will %s\n",
+    // // 			progname,toolchanger_reason,
+    // // 			toolchanger_reason > 0 ? "set fault code and reason" : "abort program");
+    // // }
+    // // // then set the prepare pin to tell external logic to get started
+    // // *(iocontrol_data->tool_prepare) = 1;
+    // // *(iocontrol_data->state) = ST_PREPARING;
+
+    // // // delay fetching the next message until prepare done
+    // // if (!(input_status & TI_PREPARE_COMPLETE)) {
+    // // 	emcIoStatus->status = RCS_EXEC;
+    // // }
+
+
+    // return 0;
 }
 
 
@@ -179,53 +196,64 @@ int emcToolStartChange()
 
 int emcToolLoad()
 {
-
-    fprintf(stderr,"emcToolLoad()\n");
-
-    // it doesn't make sense to load a tool from the spindle pocket
-    if (random_toolchanger && emcIoStatus->tool.pocketPrepped == 0) {
-	return 0;
+    int retval;
+    try {
+	retval = task_methods->emcToolLoad();
+    } catch( bp::error_already_set ) {
+	retval =  handle_exception("emcToolLoad");
     }
-
-    // it's not necessary to load the tool already in the spindle
-    if (!random_toolchanger && emcIoStatus->tool.pocketPrepped > 0 &&
-	emcIoStatus->tool.toolInSpindle == emcIoStatus->tool.toolTable[emcIoStatus->tool.pocketPrepped].toolno) {
-		return 0;
-    }
-
-    if (emcIoStatus->tool.pocketPrepped != -1) {
-	fprintf(stderr,"emcToolLoad() raise change, wait for changed\n");
-
-	// Assume changed=true:
-        if(!random_toolchanger && emcIoStatus->tool.pocketPrepped == 0) {
-            emcIoStatus->tool.toolInSpindle = 0;
-        } else {
-            // the tool now in the spindle is the one that was prepared
-            emcIoStatus->tool.toolInSpindle = emcIoStatus->tool.toolTable[emcIoStatus->tool.pocketPrepped].toolno;
-        }
-	// *(iocontrol_data->tool_number) = emcIoStatus->tool.toolInSpindle; //likewise in HAL
-	load_tool(emcIoStatus->tool.pocketPrepped);
-	emcIoStatus->tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
-	// *(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
-	// *(iocontrol_data->tool_prep_pocket) = 0; //likewise in HAL
-	// *(iocontrol_data->tool_change) = 0; //also reset the tool change signal
-	emcIoStatus->status = RCS_DONE;	// we finally finished to do tool-changing, signal task with RCS_DONE
-	emcIoStatus->tool.pocketPrepped = -1; // reset the tool prepped number, -1 to permit tool 0 to be loaded
-
-    } else {
-	fprintf(stderr,"emcToolLoad() no pocket prepped, failing\n");
-	emcIoStatus->status = RCS_ERROR;
-
-    }
+    emcIoStatus->status = retval;
     return 0;
+
+    // fprintf(stderr,"emcToolLoad()\n");
+
+    // // it doesn't make sense to load a tool from the spindle pocket
+    // if (random_toolchanger && emcIoStatus->tool.pocketPrepped == 0) {
+    // 	return 0;
+    // }
+
+    // // it's not necessary to load the tool already in the spindle
+    // if (!random_toolchanger && emcIoStatus->tool.pocketPrepped > 0 &&
+    // 	emcIoStatus->tool.toolInSpindle == emcIoStatus->tool.toolTable[emcIoStatus->tool.pocketPrepped].toolno) {
+    // 		return 0;
+    // }
+
+    // if (emcIoStatus->tool.pocketPrepped != -1) {
+    // 	fprintf(stderr,"emcToolLoad() raise change, wait for changed\n");
+
+    // 	// Assume changed=true:
+    //     if(!random_toolchanger && emcIoStatus->tool.pocketPrepped == 0) {
+    //         emcIoStatus->tool.toolInSpindle = 0;
+    //     } else {
+    //         // the tool now in the spindle is the one that was prepared
+    //         emcIoStatus->tool.toolInSpindle = emcIoStatus->tool.toolTable[emcIoStatus->tool.pocketPrepped].toolno;
+    //     }
+    // 	// *(iocontrol_data->tool_number) = emcIoStatus->tool.toolInSpindle; //likewise in HAL
+    // 	load_tool(emcIoStatus->tool.pocketPrepped);
+    // 	emcIoStatus->tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
+    // 	// *(iocontrol_data->tool_prep_number) = 0; //likewise in HAL
+    // 	// *(iocontrol_data->tool_prep_pocket) = 0; //likewise in HAL
+    // 	// *(iocontrol_data->tool_change) = 0; //also reset the tool change signal
+    // 	emcIoStatus->status = RCS_DONE;	// we finally finished to do tool-changing, signal task with RCS_DONE
+    // 	emcIoStatus->tool.pocketPrepped = -1; // reset the tool prepped number, -1 to permit tool 0 to be loaded
+
+    // } else {
+    // 	fprintf(stderr,"emcToolLoad() no pocket prepped, failing\n");
+    // 	emcIoStatus->status = RCS_ERROR;
+
+    // }
+    // return 0;
 }
 
 int emcToolUnload()
 {
-
-    fprintf(stderr,"emcToolUnLoad()\n");
-    emcIoStatus->status = RCS_DONE;
-
+    int retval;
+    try {
+	retval = task_methods->emcToolUnload();
+    } catch( bp::error_already_set ) {
+	retval =  handle_exception("emcToolUnload");
+    }
+    emcIoStatus->status = retval;
     return 0;
 }
 
@@ -280,16 +308,25 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 
 int emcToolSetNumber(int number)
 {
-    fprintf(stderr,"emcToolSetNumber(%d)\n",number);
-    if (number == 0) {
-	emcIoStatus->tool.toolInSpindle = 0;
-	emcIoStatus->tool.pocketPrepped = -1; //????? reset the tool prepped number, -1 to permit tool 0 to be loaded
-    } else {
-	emcIoStatus->tool.toolInSpindle = emcIoStatus->tool.toolTable[number].toolno;
+
+    int retval;
+    try {
+	retval = task_methods->emcToolSetNumber(number);
+    } catch( bp::error_already_set ) {
+	retval =  handle_exception("emcToolSetNumber");
     }
-    load_tool(number);
-    emcIoStatus->status = RCS_DONE;
-    return 0;
+    return retval;
+
+    // fprintf(stderr,"emcToolSetNumber(%d)\n",number);
+    // if (number == 0) {
+    // 	emcIoStatus->tool.toolInSpindle = 0;
+    // 	emcIoStatus->tool.pocketPrepped = -1; //????? reset the tool prepped number, -1 to permit tool 0 to be loaded
+    // } else {
+    // 	emcIoStatus->tool.toolInSpindle = emcIoStatus->tool.toolTable[number].toolno;
+    // }
+    // load_tool(number);
+    // emcIoStatus->status = RCS_DONE;
+    // return 0;
 }
 
 // Status functions

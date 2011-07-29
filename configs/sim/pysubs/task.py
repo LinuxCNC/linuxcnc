@@ -1,6 +1,14 @@
+import sys
 import hal
 import canon
 import interpreter
+
+try:
+    import emctask
+    import customtask
+    print "-- emctask & customtask imported"
+except ImportError:
+    pass
 
 try:
     import cPickle as pickle
@@ -110,8 +118,7 @@ class EnqueueCall(object):
         self._name = name
         return self._encode
 
-
-
 execute = Execute()
 enqueue = EnqueueCall(execute)
+
 
