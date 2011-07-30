@@ -1872,7 +1872,7 @@ class Data:
                         print >>file, "# ---",p.upper(),"---"
                         print >>file, "setp    "+pinname +".is_output true"
                         if i: print >>file, "setp    "+pinname+".invert_output true"
-                        if t == 2: print >>file, "setp    "+pinname+".is_opendrain  true"   
+                        if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
                         print >>file, "net %s     =>  "% (p)+pinname +".out"              
                     # for pwm pins
                     elif t in (PWMP,PDMP):
