@@ -22,18 +22,18 @@ the hal_manualtoolchange "change" and send the hal_manualtoolchange
 This is an example of manual toolchange *with* 
 the HAL Manual Toolchange component: 
 
-+loadusr -W hal_manualtoolchange+ 
-+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change+ 
-+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed+ 
-+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number+ 
-+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared+ 
+loadusr -W hal_manualtoolchange 
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed 
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number 
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
 
 This is an example of manual toolchange *without* 
 the HAL Manual Toolchange component: 
 
-+net tool-number <= iocontrol.0.tool-prep-number+ 
-+net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed+ 
-+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared+ 
+net tool-number <= iocontrol.0.tool-prep-number 
+net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed 
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
 
 == Compute Velocity
 
@@ -50,23 +50,23 @@ correct value. Add the following to your custom.hal file.
 
 Load the realtime components.
 
-+loadrt ddt count=1+ 
-+loadrt mult2 count=1+ 
-+loadrt abs count=1+ 
+    loadrt ddt count=1 
+    loadrt mult2 count=1 
+    loadrt abs count=1 
 
 Add the functions to a thread so it will get updated.
 
-+addf ddt.0 servo-thread+ 
-+addf mult2.0 servo-thread+ 
-+addf abs.0 servo-thread+ 
+    addf ddt.0 servo-thread 
+    addf mult2.0 servo-thread 
+    addf abs.0 servo-thread 
 
 Make the connections.
 
-+setp mult2.in1 60+ 
-+net xpos-cmd ddt.0.in+ 
-+net X-IPS mult2.0.in0 <= ddt.0.out+ 
-+net X-ABS abs.0.in <= mult2.0.out+ 
-+net X-IPM abs.0.out+ 
+    setp mult2.in1 60 
+    net xpos-cmd ddt.0.in 
+    net X-IPS mult2.0.in0 <= ddt.0.out 
+    net X-ABS abs.0.in <= mult2.0.out 
+    net X-IPM abs.0.out 
 
 In this last section we are setting the mult2.0.in1 to 60 to convert
 the inch per second to inch per minute that we get from the ddt.0.out.
