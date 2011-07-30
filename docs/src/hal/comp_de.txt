@@ -203,13 +203,9 @@ OPT, VALUE::
     option singleton yes;;
         (default: no)
         Do not create a `count` module parameter, and always create a single
-         instance. With `singleton`, items are named:
-
-`component-name.item-name`
-
-and without `singleton`, items for numbered instances are named: 
-
-`component-name.<num>.item-name`.
+        instance. With `singleton`, items are named `component-name.item-name` 
+        and without `singleton`, items for numbered instances are named 
+        `component-name.<num>.item-name`.
     
     option default_count ;;
         'number' (default: 1)
