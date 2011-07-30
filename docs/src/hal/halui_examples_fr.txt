@@ -24,14 +24,14 @@ image::images/remote-start.png
 
 The hal commands needed to accomplish the above are: 
 
-`net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>` +
-`net program-run-ok and2.0.in1 <= halui.mode.is-auto` +
-`net remote-program-run halui.program.run <= and2.0.out`
+    net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin> 
+    net program-run-ok and2.0.in1 <= halui.mode.is-auto 
+    net remote-program-run halui.program.run <= and2.0.out 
 
 Notice on line one that there are two reader pins, this can also be split up to two lines like this:
 
-+net program-start-btn halui.mode.auto <= <your input pin>+ 
-+net program-start-btn and2.0.in0+ 
+    net program-start-btn halui.mode.auto <= <your input pin> 
+    net program-start-btn and2.0.in0 
 
 == Pause et Reprise
 
@@ -48,8 +48,8 @@ qui seront connectées à vos entrées/sorties pour mettre le
 programme en pause ou pour le reprendre quand l'autre système veut
 qu'EMC2 soit relancé.
 
-+net ispaused halui.program.is paused => "your output pin"+ 
-+net resume halui.program.resume <= "your input pin"+ 
+    net ispaused halui.program.is paused => "your output pin" 
+    net resume halui.program.resume <= "your input pin" 
 
 Vos broches entréeet sortiecorrespondent à celles qui sont
 câblées vers l'autre contrôleur. Elles peuvent être des broches du
