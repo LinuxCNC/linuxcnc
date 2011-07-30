@@ -5,11 +5,13 @@ faster than Halshow at displaying values. Halmeter has two windows, one
 to pick the pin, signal, or parameter to monitor and one that displays
 the value. Multiple Halmeters can be open at the same time. If you use
 a script to open multiple Halmeters you can set the position of each
-one with -g X Y relative to the upper left corner of your screen. See
-the man page for more options. See section <<Halmeter>>. 
+one with -g X Y relative to the upper left corner of your screen. 
+For example: 
 
-+loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500+ 
-    
++*loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500*+ 
+
+See the man page for more options. See section <<Halmeter>>. 
+  
 .Halmeter
 
 image::images/hal-meter01.png[]
