@@ -26,32 +26,25 @@ except KeyboardInterrupt:
 Copy the above listing into a file named “passthrough”, make it
 executable (`chmod +x),` and place it on your `$PATH`. Then try it out:
 
-+$ *halrun*+ 
++*halrun*+ 
 
 +halcmd: *loadusr passthrough*+ 
 
 +halcmd: *show pin*+ 
 
-+Component Pins:+ 
-
-+Owner Type  Dir     Value  Name+ 
-
-+ 03   float IN          0  passthrough.in+ 
-
-+ 03   float OUT         0  passthrough.out+ 
+    Component Pins: 
+    Owner Type  Dir     Value  Name 
+     03   float IN          0  passthrough.in 
+     03   float OUT         0  passthrough.out 
 
 +halcmd: *setp passthrough.in 3.14*+ 
 
 +halcmd: *show pin*+ 
 
-+Component Pins:+ 
-
-+Owner Type  Dir     Value  Name+ 
-
-+ 03   float IN       3.14  passthrough.in+ 
-
-+ 03   float OUT      3.14  passthrough.out+ 
-
+    Component Pins: 
+    Owner Type  Dir     Value  Name 
+     03   float IN       3.14  passthrough.in 
+     03   float OUT      3.14  passthrough.out 
 
 == Userspace components and delays
 
@@ -144,7 +137,7 @@ another index pulse had been seen.
 == Exiting
 
 A “`halcmd unload`” request for the component is delivered as a 
-`KeyboardInterrupt`  exception. When an unload request arrives, the 
+`KeyboardInterrupt` exception. When an unload request arrives, the 
 process should either 
 exit in a short time, or call the `.exit()` method on the component 
 if substantial work (such as reading or 
@@ -152,16 +145,16 @@ writing files) must be done to complete the shutdown process.
 
 == Project ideas
 
- -  Create an external control panel with buttons, switches, and
+ - Create an external control panel with buttons, switches, and
    indicators. Connect everything to a microcontroller, and connect the
    microcontroller to the PC using a serial interface. Python has a very
    capable serial interface module called
    http://pyserial.sourceforge.net/[pyserial] 
    (Ubuntu package name “python-serial”, in the universe repository)
- -  Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
+ - Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
    and use it to display a digital readout with information of your choice
    (Ubuntu package name “lcdproc”, in the universe repository)
- -  Create a virtual control panel using any GUI library supported by
+ - Create a virtual control panel using any GUI library supported by
    Python (gtk, qt, wxwindows, etc)
 
 
