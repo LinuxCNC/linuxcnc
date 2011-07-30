@@ -27,18 +27,31 @@ Copy the above listing into a file named “passthrough”, make it
 executable (`chmod +x),` and place it on your `$PATH`. Then try it out:
 
 +$ *halrun*+ 
+
 +halcmd: *loadusr passthrough*+ 
+
 +halcmd: *show pin*+ 
+
 +Component Pins:+ 
+
 +Owner Type  Dir     Value  Name+ 
+
 + 03   float IN          0  passthrough.in+ 
+
 + 03   float OUT         0  passthrough.out+ 
+
 +halcmd: *setp passthrough.in 3.14*+ 
+
 +halcmd: *show pin*+ 
+
 +Component Pins:+ 
+
 +Owner Type  Dir     Value  Name+ 
+
 + 03   float IN       3.14  passthrough.in+ 
+
 + 03   float OUT      3.14  passthrough.out+ 
+
 
 == Userspace components and delays
 
