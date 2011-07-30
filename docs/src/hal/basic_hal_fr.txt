@@ -24,7 +24,9 @@ l'espace utilisateur dans l'espace temps réel.
 Syntaxe et exemple:
 
 +loadrt <component> <options>+ 
+
 +loadrt mux4 count=1+ 
+
 
 === addf
 
@@ -42,7 +44,9 @@ threads ont été créés.
 Syntaxe et exemple:
 
 +addf <component> <thread>+ 
+
 +addf mux4 servo-thread+ 
+
 
 === loadusr
 
@@ -70,11 +74,14 @@ Les drapeaux peuvent être un ou plusieurs parmis les suivants:
 Syntaxe et exemple:
 
 +loadusr <component> <options>+ 
+
 +loadusr halui+ 
+
 +loadusr -Wn spindle gs2_vfd -n spindle+ 
 
-     En anglais ça donne «loadusr wait for name spindle component gs2_vfd name spindle». 
-     Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr. 
+
+En anglais ça donne «loadusr wait for name spindle component gs2_vfd name spindle». 
+Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr. 
 
 === net
 
@@ -85,7 +92,9 @@ des aides à la lecture, ils n'ont pas d'autre utilité.
 Syntaxe et exemple:
 
 +net <signal-name> <pin-name> <opt-direction> <opt-pin-name>+ 
+
 +net both-home-y <= parport.0.pin-11-in+ 
+
 
 Chaque signal ne peut avoir qu'une seule source (une seule pin de HAL
 «out») et autant de «lecteurs» (des pins de HAL «in») que souhaité.
@@ -129,7 +138,9 @@ d'utiliser `setp` sur une pin connectée à un signal.
 Syntaxe et exemple:
 
 +setp <pin/parameter-name> <value>+ 
+
 +setp parport.0.pin-08-out TRUE+ 
+
 
 === Quatre commandes obsolètes
 
@@ -140,7 +151,9 @@ The command `linksp` creates a «connection» between a signal and one pin.
 Syntaxe et exemple:
 
 +unlinkp <pin-name>+ 
+
 +unlinkp parport.0.pin-02-out+ 
+
 
 La commande `linksp` a été incluse dans la commande `net`.
 
@@ -152,7 +165,9 @@ signal. It is the same as linksp but the arguments are reversed.
 Syntaxe et exemple:
 
 +linksp <signal-name> <pin-name>+ 
+
 +linksp X-step parport.0.pin-02-out+ 
+
 
 La commande "linkps" a été incluse dans la commande "net".
 
@@ -165,7 +180,9 @@ happens.
 Syntaxe et exemple:
 
 +linkps <pin-name> <signal-name>+ 
+
 +linkps parport.0.pin-02-out X-Step+ 
+
 
 ==== newsig
 
@@ -176,7 +193,9 @@ and the data type of <type>. Type must be "bit", "s32", "u32" or
 Syntaxe et exemple:
 
 +newsig <signame> <type>+ 
+
 +newsig Xstep bit+ 
+
 
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de <<halrun>>.
@@ -206,7 +225,9 @@ is created. These parameters allow you to scope the execution time of a
 component.
 
 +.time+(((time))) 
+
 +.tmax+(((tmax))) 
+
 
 Time is the number of CPU cycles it took to execute the function.
 
@@ -238,9 +259,9 @@ Fonctions
 
 Pins
 
-+and2.N.in0 (bit, in)+ 
-+and2.N.in1 (bit, in)+ 
-+and2.N.out (bit, out)+ 
+    and2.N.in0 (bit, in) 
+    and2.N.in1 (bit, in) 
+    and2.N.out (bit, out) 
 
 Table de vérité
 
@@ -263,13 +284,13 @@ Syntaxe
 
 Fonctions
 
-+not.all+ 
-+not.n+ 
+    not.all 
+    not.n 
 
 Pins
 
-+not.n.in (bit, in)+ 
-+not.n.out (bit, out)+ 
+    not.n.in (bit, in) 
+    not.n.out (bit, out) 
 
 Table de vérité
 
@@ -294,9 +315,9 @@ Functions
 
 Pins
 
-+or2.n.in0 (bit, in)+ 
-+or2.n.in1 (bit, in)+ 
-+or2.n.out (bit, out)+ 
+    or2.n.in0 (bit, in) 
+    or2.n.in1 (bit, in) 
+    or2.n.out (bit, out) 
 
 Table de vérité
 
@@ -323,9 +344,9 @@ Fonctions
 
 Pins
 
-+xor2.n.in0 (bit, in)+ 
-+xor2.n.in1 (bit, in)+ 
-+xor2.n.out (bit, out)+ 
+    xor2.n.in0 (bit, in) 
+    xor2.n.in1 (bit, in) 
+    xor2.n.out (bit, out) 
 
 Table de vérité
 
@@ -343,10 +364,15 @@ Table de vérité
 Un exemple de connection avec un "and2", deux entrées vers une sortie.
 
 +loadrt and2 count=1+ 
+
 +addf and2.0 servo-thread+ 
+
 +net my-sigin1 and2.0.in0 <= parport.0.pin-11-in+ 
+
 +net my-sigin2 and2.0.in1 <= parport.0.pin-12-in+ 
+
 +net both-on parport.0.pin-14-out <= and2.0.out+ 
+
 
 Dans cet exemple un and2 est chargé dans l'espace temps réel, puis
 ajouté à servo thread. Ensuite la broche d'entrée 11 du port parallèle
@@ -383,19 +409,21 @@ In the following example clipped from the HAL Configuration window in
 Axis the bits "0" and "2" are true and there is no offset. The "weight"
 of 0 is 1 and the "weight" of 2 is 4 so the sum is 5.
 
-.weighted_sum[[fig:weighted_sum]]
-+Component Pins:+ 
-+Owner   Type  Dir         Value  Name+ 
-+    10  bit   In           TRUE  wsum.0.bit.0.in+ 
-+    10  s32   I/O             1  wsum.0.bit.0.weight+ 
-+    10  bit   In          FALSE  wsum.0.bit.1.in+ 
-+    10  s32   I/O             2  wsum.0.bit.1.weight+ 
-+    10  bit   In           TRUE  wsum.0.bit.2.in+ 
-+    10  s32   I/O             4  wsum.0.bit.2.weight+ 
-+    10  bit   In          FALSE  wsum.0.bit.3.in+ 
-+    10  s32   I/O             8  wsum.0.bit.3.weight+ 
-+    10  bit   In          FALSE  wsum.0.hold+ 
-+    10  s32   I/O             0  wsum.0.offset+ 
-+    10  s32   Out             5  wsum.0.sum+ 
+.weighted_sum
+-----------------------------------------------------------
+Component Pins: 
+Owner   Type  Dir         Value  Name 
+    10  bit   In           TRUE  wsum.0.bit.0.in 
+    10  s32   I/O             1  wsum.0.bit.0.weight 
+    10  bit   In          FALSE  wsum.0.bit.1.in 
+    10  s32   I/O             2  wsum.0.bit.1.weight 
+    10  bit   In           TRUE  wsum.0.bit.2.in 
+    10  s32   I/O             4  wsum.0.bit.2.weight 
+    10  bit   In          FALSE  wsum.0.bit.3.in 
+    10  s32   I/O             8  wsum.0.bit.3.weight 
+    10  bit   In          FALSE  wsum.0.hold 
+    10  s32   I/O             0  wsum.0.offset 
+    10  s32   Out             5  wsum.0.sum 
+-----------------------------------------------------------
 
 
