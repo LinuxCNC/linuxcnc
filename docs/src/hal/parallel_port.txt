@@ -108,16 +108,16 @@ image::parport-block-diag.eps[]
 For each pin, `<portnum>` is the port number, and `<pinnum>` is the
 physical pin number in the 25 pin D-shell connector.
 
-For each physical output pin, the driver creates a single HAL pin, for
-example `parport.0.pin-14-out` . Pins 2 through 9 are part of the data
-group and are output pins if
+For each physical output pin, the driver creates a single HAL pin, for example: 
+`parport.0.pin-14-out` . + 
+Pins 2 through 9 are part of the data group and are output pins if
 the port is defined as an output port. (Output is the default.) Pins 1,
 14, 16, and 17 are outputs in all modes. These HAL pins control the
 state of the corresponding physical pins.
 
-For each physical input pin, the driver creates two HAL pins, for
-example `parport.0.pin-12-in` and `parport.0.pin-12-in-not` . Pins 10,
-11, 12, 13, and 15 are always input pins. Pins 2 through 9 
+For each physical input pin, the driver creates two HAL pins, for example: + 
+`parport.0.pin-12-in` and `parport.0.pin-12-in-not` . + 
+Pins 10, 11, 12, 13, and 15 are always input pins. Pins 2 through 9 
 are input pins only if the port is defined as an input port. The `-in`
 HAL pin is TRUE if the physical pin is high, and FALSE if the 
 physical pin is low. The `-in-not` HAL pin is inverted -- it is FALSE
@@ -128,12 +128,12 @@ pins.
 
 === Parameters
 
- -  `(bit) parport.<portnum>.pin-<pinnum>-out-invert` -- Inverts an
+ - `(bit) parport.<portnum>.pin-<pinnum>-out-invert` -- Inverts an
    output pin.
- -  `(bit) parport.<portnum>.pin-<pinnum>-out-reset` (only for "out"
+ - `(bit) parport.<portnum>.pin-<pinnum>-out-reset` (only for "out"
    pins) -- TRUE if this pin should be reset when the `-reset` function is
    executed.
- -  `(U32) parport.<portnum>.reset-time` -- The time (in nanoseconds)
+ - `(U32) parport.<portnum>.reset-time` -- The time (in nanoseconds)
    between a pin is set by `write` and reset by the `reset` function if it
    is enabled.
 
@@ -145,15 +145,15 @@ setting the HAL `-out` pin TRUE will drive the physical pin low.
 
 === Functions
 
- -  `(funct) parport.<portnum>.read`-- Reads physical input pins of port
+ - `(funct) parport.<portnum>.read`-- Reads physical input pins of port
    `<portnum>` and updates HAL `-in` and `-in-not` pins.
- -  `(funct) parport.read-all` -- Reads physical input pins of all ports
+ - `(funct) parport.read-all` -- Reads physical input pins of all ports
    and updates HAL `-in` and `-in-not` pins.
- -  `(funct) parport.<portnum>.write` -- Reads HAL `-out` pins of port
+ - `(funct) parport.<portnum>.write` -- Reads HAL `-out` pins of port
    `<portnum>` and updates that port's physical output pins.
- -  `(funct) parport.write-all` -- Reads HAL `-out` pins of all ports
+ - `(funct) parport.write-all` -- Reads HAL `-out` pins of all ports
    and updates all physical output pins.
- -  `(funct) parport.<portnum>.reset` -- Waits until `reset-time` has
+ - `(funct) parport.<portnum>.reset` -- Waits until `reset-time` has
    elapsed since the associated `write`, then resets pins to values
    indicated by `-out-invert` and `-out-invert` settings. `reset` must be
    later in the same thread as `write. `If `-reset` is TRUE, then the
@@ -172,8 +172,8 @@ same time.
 
 If loading the module reports
 
-+insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':+ 
-+-1 Device or resource busy+ 
+    insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
+    -1 Device or resource busy 
 
 then ensure that the standard kernel module `parport_pc`  is not
 loadedfootnote:[In the EMC packages for Ubuntu, the file
@@ -194,17 +194,17 @@ specificed by parport.n.reset-time.
 
 For example:
 
-+loadrt hal_parport cfg="0x378 out"+ 
-+setp parport.0.reset-time 5000+ 
-+loadrt stepgen step_type=0,0,0+ 
-+addf parport.0.read base-thread+ 
-+addf stepgen.make-pulses base-thread+ 
-+addf parport.0.write base-thread+ 
-+addf parport.0.reset base-thread+ 
-+addf stepgen.capture-position servo-thread+ 
-+...+ 
-+setp stepgen.0.steplen 1+ 
-+setp stepgen.0.stepspace 0+ 
+    loadrt hal_parport cfg="0x378 out" 
+    setp parport.0.reset-time 5000 
+    loadrt stepgen step_type=0,0,0 
+    addf parport.0.read base-thread 
+    addf stepgen.make-pulses base-thread 
+    addf parport.0.write base-thread 
+    addf parport.0.reset base-thread 
+    addf stepgen.capture-position servo-thread 
+    ... 
+    setp stepgen.0.steplen 1 
+    setp stepgen.0.stepspace 0 
 
 == [[sec:probe_parport]]probe_parport
 
@@ -217,7 +217,9 @@ loaded but has no effect.
 === Installing
 
 +loadrt probe_parport+ 
+
 +loadrt hal_parport ...+ 
+
 
 If the Linux kernel prints a message similar to
 
