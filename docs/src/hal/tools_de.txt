@@ -17,7 +17,7 @@ usage, and is a good tutorial for halcmd.
 
 Halmeter is a “voltmeter” for the HAL. It lets you look at a pin,
 signal, or parameter, and displays the current value of that item. It
-is pretty simple to use. Start it by typing “`halmeter` ” in a X
+is pretty simple to use. Start it by typing *halmeter* in an X
 windows shell. Halmeter is a GUI application. It will pop up
 a small window, with two buttons labeled “Select” and “Exit”. Exit is
 easy - it shuts down the program. Select pops up a larger window, with

@@ -17,7 +17,7 @@ d'utilisation de halcmd.
 
 Halmeter est un «voltmètre» pour HAL. Il permet de regarder les pins,
 signaux, ou paramètres en affichant la valeur courante de ces items. Il
-est très simple à utiliser. Dans une console taper «`halmeter`».
+est très simple à utiliser. Dans une console taper *halmeter*. 
 Halmeter est une application pour environnement graphique. Deux
 fenêtres vont apparaîtrent, la fenêtre de sélection est la plus grande.
 Elle comprend trois onglets. Un onglet liste toutes les pins
