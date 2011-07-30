@@ -9,7 +9,7 @@ existent avec le nom et le N° de leur page man permettant d'avoir plus
 de détails. Par exemple dans une fenêtre de terminal tapez `man 1 axis` 
 pour accéder aux informations de cette page man.
 
-`man axis` (ou peut-être `man 1 axis` si votre système il faut.)
+*man axis* (ou peut-être *man 1 axis* si votre système il faut.)
 
 *axis* = Interface de télécommande d'AXIS +
 *axis-remote* = AXIS EMC (The Enhanced Machine Controller) Interface Graphique Utilisateur +

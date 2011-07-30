@@ -9,7 +9,7 @@ From these two lists you know what components exist,
 and you can use `man n name` to get additional information. 
 To view the information in the man page, in a terminal window type: 
 
-`man axis` (or perhaps `man 1 axis` if your system requires it.)
+*man axis* (or perhaps *man 1 axis* if your system requires it.)
 
 *axis* = AXIS EMC (The Enhanced Machine Controller) Graphical User Interface. +
 *axis-remote* = AXIS Remote Interface. +
