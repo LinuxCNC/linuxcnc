@@ -227,8 +227,8 @@ The canonical digital input (I/O type field: `digin`) is quite simple.
 
 === Pins
 
- - (bit) `in` -- State of the hardware input.
- - (bit) `in-not` -- Inverted state of the input.
+ - (bit) *in* -- State of the hardware input.
+ - (bit) *in-not* -- Inverted state of the input.
 
 === Parameters
 
@@ -236,7 +236,7 @@ The canonical digital input (I/O type field: `digin`) is quite simple.
 
 === Functions
 
- - (funct) `read` -- Read hardware and set `in` and `in-not` HAL pins.
+ - (funct) *read* -- Read hardware and set `in` and `in-not` HAL pins.
 
 == Digital Output[[sec:CanonDigOut]]
 
@@ -245,17 +245,17 @@ simple.
 
 === Pins
 
- -  (bit) `out` -- Value to be written (possibly inverted) to the hardware
+ -  (bit) *out* -- Value to be written (possibly inverted) to the hardware
    output.
 
 === Parameters
 
- -  (bit) `invert` -- If TRUE, `out` is inverted before writing to the
+ -  (bit) *invert* -- If TRUE, *out* is inverted before writing to the
    hardware.
 
 === Functions
 
- -  (funct) `write` -- Read `out` and `invert`, and set hardware output
+ -  (funct) *write* -- Read *out* and *invert*, and set hardware output
    accordingly.
 
 == Analog Input
@@ -289,7 +289,7 @@ convert e.g. voltage to a continuous range of values.
 
 == Analog Output
 
-The canonical analog output (I/O Type: `adcout`). This is intended
+The canonical analog output (I/O Type: *adcout*). This is intended
 for any kind of hardware that can output a 
 more-or-less continuous range of values. Examples are digital to analog
 converters or PWM generators.

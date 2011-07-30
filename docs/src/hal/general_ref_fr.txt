@@ -247,8 +247,8 @@ L'entrée numérique canonique (I/O type: `digin`) est assez simple.
 
 === Pins
 
- - (bit) `in` -- état de l'entrée matérielle.
- - (bit) `in-not` -- état inversé de l'entrée matérielle.
+ - (bit) *in* -- état de l'entrée matérielle.
+ - (bit) *in-not* -- état inversé de l'entrée matérielle.
 
 === Paramètres
 
@@ -256,7 +256,7 @@ L'entrée numérique canonique (I/O type: `digin`) est assez simple.
 
 === Fonctions
 
- - (funct) `read` -- lire le matériel et ajuster les HAL pins `in` et `in-not`.
+ - (funct) *read* -- lire le matériel et ajuster les HAL pins `in` et `in-not`.
 
 == Sortie numérique (Digital Output)[[sec:CanonDigOut]]
 
@@ -264,19 +264,19 @@ La sortie numérique canonique est également très simple (I/O type: `digout`).
 
 === Pins
 
- -  (bit) `out` -- Valeur à écrire (éventuellement inversée) sur une sortie matérielle.
+ -  (bit) *out* -- Valeur à écrire (éventuellement inversée) sur une sortie matérielle.
 
 === Paramètres
 
- -  (bit) `invert` -- Si TRUE, `out` est inversée avant écriture sur la matériel.
+ -  (bit) *invert* -- Si TRUE, *out* est inversée avant écriture sur la matériel.
 
 === Fonctions
 
- -  (funct) `write` -- Lit `out` et `invert` et ajuste la sortie en conséquence.
+ -  (funct) *write* -- Lit *out* et *invert* et ajuste la sortie en conséquence.
 
 == Entrée analogique (Analog Input)
 
-L'entrée analogique canonique (I/O type: `adcin` ). Devrait être
+L'entrée analogique canonique (I/O type: *adcin* ). Devrait être
 utilisée pour les convertisseurs
 analogiques/numériques, qui convertissent par exemple, les tensions en
 une échelle continue de valeurs.
@@ -306,7 +306,7 @@ une échelle continue de valeurs.
 
 == Sortie analogique (Analog Output)
 
-La sortie analogique canonique (I/O Type: `adcout` ). Elle est
+La sortie analogique canonique (I/O Type: *adcout* ). Elle est
 destinée à tout type de matériel capable de sortir une
 échelle plus ou moins étendue de valeurs. Comme par exemple les
 convertisseurs numérique/analogique ou les générateurs de PWM.
@@ -350,79 +350,5 @@ alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
 (*scale* * *value*) + *offset* sont envoyés en sortie de l'adc . Si
 enable est faux, la sortie passe
 à 0.
-
-== Codeur[[sec:CanonEncoder]]
-
-L'interface de codeur canonique (I/O type: `encoder`) fournit les 
-fonctionnalités nécessaires pour une prise d'origine 
-sur une impulsion d'index et pour la synchronisation avec la vitesse de
-broche, ainsi que de base pour le positionnement et/ou le contrôle de
-vitesse. Cette interface devrait être implémentable quel que soit le
-matériel sous-jacent, même si certains matériels donnent de «meilleurs» 
-résultats que d'autres. (Par exemple, pour capturer un index de
-position à +/- 1 impulsion lors d'un mouvement rapide, ou avoir moins
-de fluctuation sur la pin de vitesse).
-
-=== Pins
-
- - (s32) `count` -- Valeur de comptage du codeur.
- - (float) `position` -- Valeur de position en unités de longueur (voir paramètre «scale»). 
- - (float) `velocity` -- Vitesse en unités de longueur par seconde.
- - (bit) `reset` -- Quand il est vrai, force le compteur à zéro.
- - (bit) `index-enable` -- (bidirectionnel) Quand il est vrai, remise à
-   zéro à la prochaine impulsion d'index et passe les pins sur faux.
-
-La pin «index-enable» est bi-directionnelle, elle exige un peu plus
-d'explications. Si «index-enable» est faux, le canal d'index du codeur
-sera ignoré et le compteur comptera normalement. Le pilote du codeur ne
-passera jamais «index-enable» sur vrai. Cependant, un autre composant
-peut le faire. Si «index-enable» est vrai, alors quand la prochaine
-impulsion d'index arrivera, le compteur du codeur sera remis à zéro et
-le pilote passera «index-enable» sur faux. Ce qui permettra à l'autre
-composant de savoir qu'une impulsion d'index est arrivée. C'est une
-forme de poignée de main, l'autre composant passe «index-enable» sur
-vrai pour requérir une remise à zéro du comptage d'impulsion d'index et
-le pilote le repasse sur faux quand la requête à été satisfaite.
-
-=== Paramètres
-
- - (float) `scale` -- Le facteur d'échelle à utiliser pour convertir la
-   valeur de comptage (count) en unités de longueur. Il se trouve dans 
-   «counts par unité de longueur». Par exemple, si vous avez un codeur qui fournit 512
-   impulsions par tour de codeur sur une vis qui fait 5 tours par pouce,
-   l'échelle (scale) devra être de 512*5 = 2560 counts par pouce, ce qui
-   se traduira par la «position» en pouces et la «vitesse» en pouces par
-   seconde.
- - (float) `max-index-vel` -- (optionnel) La vitesse maximale (en unités
-   de longueur par
-   seconde) à laquelle le codeur peut remettre le comptage à zéro avec une
-   précision de +/- 1 impulsion. Il s'agit d'une sortie du pilote du
-   codeur, elle est destinée à informer l'utilisateur des capacités du
-   codeur. Certains codeurs peuvent remettre le comptage à zéro exactement
-   à l'apparition de l'impulsion d'index. D'autres peuvent seulement dire
-   qu'une impulsion d'index s'est produite depuis la dernière fois que la
-   fonction de lecture à été appelée. Pour ces derniers, une précision de
-   +/- 1 impulsion ne peut être atteinte que si le codeur avance d'une
-   impulsion ou moins entre deux appels à la fonction de lecture.
- - (float) `velocity-resolution` -- (optionnel) La résolution de la
-   sortie vitesse, en unités de
-   longueur par seconde. Il s'agit d'une sortie du pilote du codeur, elle
-   est destinée à informer l'utilisateur des capacités du codeur.
-   L'implémentation la plus simple de la sortie vitesse est le changement
-   de position entre deux appels à la fonction de lecture, divisé par le
-   temps entre ces appels. Cela permet d'obtenir un signal de vitesse
-   grossier avec des fluctuations évaluées entre deux valeurs aussi
-   éloignées que possible (erreur de quantification). Cependant, certains
-   matériels capturent le comptage et le temps exact quand une impulsion
-   arrive (éventuellement avec une haute résolution d'horloge). Ces
-   données permettent au pilote de calculer une vitesse avec une
-   résolution plus fine et moins de fluctuations. 
-
-=== Fonctions
-
-Il n'y a qu'une fonction pour lire les codeurs.
-
- - `(funct)` `read` -- Capture le comptage (counts) et mets à jour la
-   position et la vitesse.
 
 
