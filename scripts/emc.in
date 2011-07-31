@@ -588,7 +588,7 @@ if [ "$EMCIO" != "" ] ; then
         $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
         echo halcmd loadusr $EMCIO started
 else
-        echo "Skipping EMC2 IO program >>$PRINT_FILE
+        echo "Skipping EMC2 IO program >>$PRINT_FILE"
 fi
 
 # 4.3.5. Run halui in background, if necessary
