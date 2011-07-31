@@ -275,13 +275,13 @@ BOOST_PYTHON_MODULE(emctask) {
 	;
 
     class_ <EMC_COOLANT_STAT , noncopyable>("EMC_COOLANT_STAT ",no_init)
-	.def_readwrite("mist", &emcStatus->motion.coolant.mist )
-	.def_readwrite("flood", &emcStatus->motion.coolant.flood )
+	.def_readwrite("mist", &emcStatus->io.coolant.mist )
+	.def_readwrite("flood", &emcStatus->io.coolant.flood )
 	;
 
     class_ <EMC_LUBE_STAT, noncopyable>("EMC_LUBE_STAT",no_init)
-	.def_readwrite("on", &emcStatus->motion.lube.on )
-	.def_readwrite("level", &emcStatus->motion.lube.level )
+	.def_readwrite("on", &emcStatus->io.lube.on )
+	.def_readwrite("level", &emcStatus->io.lube.level )
 	;
 
     class_ <EMC_MOTION_STAT, noncopyable>("EMC_MOTION_STAT",no_init)
@@ -304,10 +304,10 @@ BOOST_PYTHON_MODULE(emctask) {
 	.add_property( "analog_output",
 		       bp::make_function( analog_io_w(&analog_output_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	.def_readwrite("estop", &emcStatus->motion.estop)
-	.def_readwrite("coolant", &emcStatus->motion.coolant)
-	.def_readwrite("lube", &emcStatus->motion.lube)
-	.def_readwrite("debug", &emcStatus->motion.debug)
+	// .def_readwrite("estop", &emcStatus->motion.estop)
+	// .def_readwrite("coolant", &emcStatus->motion.coolant)
+	// .def_readwrite("lube", &emcStatus->motion.lube)
+	// .def_readwrite("debug", &emcStatus->motion.debug)
 	;
 
     class_ <EMC_TASK_STAT, noncopyable>("EMC_TASK_STAT",no_init)
@@ -360,6 +360,9 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("fault", &emcStatus->io.fault )
 	.def_readwrite("tool", &emcStatus->io.tool)
 	.def_readwrite("aux", &emcStatus->io.aux )
+	.def_readwrite("estop", &emcStatus->io.aux.estop)
+	.def_readwrite("coolant", &emcStatus->io.coolant)
+	.def_readwrite("lube", &emcStatus->io.lube)
 	;
 
 

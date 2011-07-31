@@ -103,7 +103,6 @@ EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
 	analog_output[i] = 0.0;
     }
 
-    estop = 1;
     debug = 0;
 };
 
@@ -166,6 +165,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 EMC_AUX_STAT::EMC_AUX_STAT():
 EMC_AUX_STAT_MSG(EMC_AUX_STAT_TYPE, sizeof(EMC_AUX_STAT))
 {
+    estop = 1;
 }
 
 EMC_SPINDLE_STAT::EMC_SPINDLE_STAT():

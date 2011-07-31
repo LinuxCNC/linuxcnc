@@ -471,58 +471,6 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-        case EMCMOT_ESTOP_ON:
-            rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_ON");
-            *(emcmot_hal_data->user_enable_out) = 0;      /* output, FALSE when EMC wants stop */
-            *(emcmot_hal_data->user_request_enable) = 0;  /* output, used to reset HAL latch */
-            break;
-
-        case EMCMOT_ESTOP_OFF:
-            rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_OFF");
-            *(emcmot_hal_data->user_enable_out) = 1;     /* we're good to enable on ESTOP_OFF */
-            *(emcmot_hal_data->user_request_enable) = 1; /* generate a rising edge to reset optional HAL latch */
-            break;
-
-        case EMCMOT_ESTOP_RESET:
-            rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_RESET");
-            break;
-
-        case EMCMOT_FLOOD_ON:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FLOOD_ON");
-            *(emcmot_hal_data->coolant_flood) = 1;
-            emcmotStatus->coolant_flood = 1;
-            break;
-
-        case EMCMOT_FLOOD_OFF:
-            rtapi_print_msg(RTAPI_MSG_DBG, "FLOOD_OFF");
-            *(emcmot_hal_data->coolant_flood) = 0;
-            emcmotStatus->coolant_flood = 0;
-            break;
-
-        case EMCMOT_MIST_ON:
-            rtapi_print_msg(RTAPI_MSG_DBG, "MIST_ON");
-            *(emcmot_hal_data->coolant_mist) = 1;
-            emcmotStatus->coolant_mist = 1;
-            break;
-
-        case EMCMOT_MIST_OFF:
-            rtapi_print_msg(RTAPI_MSG_DBG, "MIST_OFF");
-            *(emcmot_hal_data->coolant_mist) = 0;
-            emcmotStatus->coolant_mist = 0;
-            break;
-
-        case EMCMOT_LUBE_ON:
-            rtapi_print_msg(RTAPI_MSG_DBG, "LUBE_ON");
-            *(emcmot_hal_data->lube) = 1;
-            emcmotStatus->lube = 1;
-            break;
-
-        case EMCMOT_LUBE_OFF:
-            rtapi_print_msg(RTAPI_MSG_DBG, "LUBE_OFF");
-            *(emcmot_hal_data->lube) = 0;
-            emcmotStatus->lube = 0;
-            break;
-
 	case EMCMOT_FREE:
 	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */

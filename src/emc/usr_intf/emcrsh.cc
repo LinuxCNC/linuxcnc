@@ -1500,7 +1500,7 @@ static cmdResponseType getMist(char *s, connectionRecType *context)
 {
   const char *pMistStr = "MIST %s";
   
-  if (emcStatus->motion.coolant.mist == 1)
+  if (emcStatus->io.coolant.mist == 1)
     sprintf(context->outBuf, pMistStr, "ON");
   else sprintf(context->outBuf, pMistStr, "OFF");
   return rtNoError; 
@@ -1510,7 +1510,7 @@ static cmdResponseType getFlood(char *s, connectionRecType *context)
 {
   const char *pFloodStr = "FLOOD %s";
   
-  if (emcStatus->motion.coolant.flood == 1)
+  if (emcStatus->io.coolant.flood == 1)
     sprintf(context->outBuf, pFloodStr, "ON");
   else sprintf(context->outBuf, pFloodStr, "OFF");
   return rtNoError; 
@@ -1520,7 +1520,7 @@ static cmdResponseType getLube(char *s, connectionRecType *context)
 {
   const char *pLubeStr = "LUBE %s";
   
-  if (emcStatus->motion.lube.on == 0)
+  if (emcStatus->io.lube.on == 0)
     sprintf(context->outBuf, pLubeStr, "OFF");
   else sprintf(context->outBuf, pLubeStr, "ON");
   return rtNoError; 
@@ -1530,7 +1530,7 @@ static cmdResponseType getLubeLevel(char *s, connectionRecType *context)
 {
   const char *pLubeLevelStr = "LUBE_LEVEL %s";
   
-  if (emcStatus->motion.lube.level == 0)
+  if (emcStatus->io.lube.level == 0)
     sprintf(context->outBuf, pLubeLevelStr, "LOW");
   else sprintf(context->outBuf, pLubeLevelStr, "OK");
   return rtNoError; 

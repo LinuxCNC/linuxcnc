@@ -361,15 +361,15 @@ static PyMemberDef Stat_members[] = {
     {(char*)"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
 
 // EMC_COOLANT_STAT io.cooland
-    {"mist", T_INT, O(motion.coolant.mist), READONLY},
-    {"flood", T_INT, O(motion.coolant.flood), READONLY},
+    {(char*)"mist", T_INT, O(io.coolant.mist), READONLY},
+    {(char*)"flood", T_INT, O(io.coolant.flood), READONLY},
 
 // EMC_AUX_STAT     io.aux
-    {"estop", T_INT, O(motion.estop), READONLY},
+    {(char*)"estop", T_INT, O(io.aux.estop), READONLY},
 
 // EMC_LUBE_STAT    io.lube
-    {"lube", T_INT, O(motion.lube.on), READONLY},
-    {"lube_level", T_INT, O(motion.lube.level), READONLY},
+    {(char*)"lube", T_INT, O(io.lube.on), READONLY},
+    {(char*)"lube_level", T_INT, O(io.lube.level), READONLY},
 
     {(char*)"debug", T_INT, O(debug), READONLY},
     {NULL}

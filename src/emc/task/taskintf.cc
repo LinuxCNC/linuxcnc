@@ -1446,53 +1446,7 @@ int emcSpindleConstant()
     return 0; // nothing to do
 }
 
-int emcAuxEstopOn()
-{
-    emcmotCommand.command = EMCMOT_ESTOP_ON;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
 
-int emcAuxEstopOff()
-{
-    emcmotCommand.command = EMCMOT_ESTOP_OFF;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcCoolantFloodOn()
-{
-    emcmotCommand.command = EMCMOT_FLOOD_ON;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcCoolantFloodOff()
-{
-    emcmotCommand.command = EMCMOT_FLOOD_OFF;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcCoolantMistOn()
-{
-    emcmotCommand.command = EMCMOT_MIST_ON;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcCoolantMistOff()
-{
-    emcmotCommand.command = EMCMOT_MIST_OFF;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcLubeOn()
-{
-    emcmotCommand.command = EMCMOT_LUBE_ON;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcLubeOff()
-{
-    emcmotCommand.command = EMCMOT_LUBE_OFF;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
@@ -1540,11 +1494,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
-    stat->estop = emcmotStatus.estop;
-    stat->coolant.flood = emcmotStatus.coolant_flood;
-    stat->coolant.mist = emcmotStatus.coolant_mist;
-    stat->lube.on = emcmotStatus.lube;
-    stat->lube.level = emcmotStatus.lube_level;
     stat->debug = emcmotConfig.debug;
     
     stat->spindle.enabled = emcmotStatus.spindle.speed != 0;

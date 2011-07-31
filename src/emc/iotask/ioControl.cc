@@ -82,6 +82,15 @@ static int random_toolchanger = 0;
 
 
 struct iocontrol_str {
+    hal_bit_t *user_enable_out;	/* output, TRUE when EMC wants stop */
+    hal_bit_t *emc_enable_in;	/* input, TRUE on any external stop */
+    hal_bit_t *user_request_enable;	/* output, used to reset ENABLE latch */
+    hal_bit_t *coolant_mist;	/* coolant mist output pin */
+    hal_bit_t *coolant_flood;	/* coolant flood output pin */
+    hal_bit_t *lube;		/* lube output pin */
+    hal_bit_t *lube_level;	/* lube level input pin */
+
+
     // the following pins are needed for toolchanging
     //tool-prepare
     hal_bit_t *tool_prepare;	/* output, pin that notifies HAL it needs to prepare a tool */
@@ -356,6 +365,56 @@ int iocontrol_hal_init(void)
 
     /* STEP 3a: export the out-pin(s) */
 
+    // user-enable-out
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_enable_out), comp_id,
+			      "iocontrol.%d.user-enable-out", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin user-enable-out export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    // user-request-enable
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_request_enable), comp_id,
+			     "iocontrol.%d.user-request-enable", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin user-request-enable export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    // coolant-flood
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_flood), comp_id,
+			 "iocontrol.%d.coolant-flood", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin coolant-flood export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    // coolant-mist
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id,
+			      "iocontrol.%d.coolant-mist", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin coolant-mist export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    // lube
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id,
+			      "iocontrol.%d.lube", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin lube export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
     // tool-prepare
     retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->tool_prepare), comp_id, 
 			      "iocontrol.%d.tool-prepare", n);
@@ -426,6 +485,28 @@ int iocontrol_hal_init(void)
 	hal_exit(comp_id);
 	return -1;
     }
+    /* STEP 3b: export the in-pin(s) */
+
+    // emc-enable-in
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->emc_enable_in), comp_id,
+			     "iocontrol.%d.emc-enable-in", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin emc-enable-in export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
+    // lube_level
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id,
+			     "iocontrol.%d.lube_level", n);
+    if (retval < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"IOCONTROL: ERROR: iocontrol %d pin lube_level export failed with err=%i\n",
+			n, retval);
+	hal_exit(comp_id);
+	return -1;
+    }
 
     hal_ready(comp_id);
 
@@ -442,12 +523,55 @@ int iocontrol_hal_init(void)
 ********************************************************************/
 void hal_init_pins(void)
 {
+    *(iocontrol_data->user_enable_out)=0;	/* output, FALSE when EMC wants stop */
+    *(iocontrol_data->user_request_enable)=0;	/* output, used to reset HAL latch */
+    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
+    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
+    *(iocontrol_data->lube)=0;			/* lube output pin */
     *(iocontrol_data->tool_prepare)=0;		/* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_prep_pocket)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_change)=0;		/* output, notifies a tool-change should happen (emc should be in the tool-change position) */
 }
 
+
+/********************************************************************
+*
+* Description: read_hal_inputs(void)
+*			Reads the pin values from HAL
+*			this function gets called once per cycle
+*			It sets the values for the emcioStatus.aux.*
+*
+* Returns:	returns > 0 if any of the status has changed
+*		we then need to update through NML
+*
+* Side Effects: updates values
+*
+* Called By: main every CYCLE
+********************************************************************/
+int read_hal_inputs(void)
+{
+    int oldval, retval = 0;
+
+    oldval = emcioStatus.aux.estop;
+
+    if ( *(iocontrol_data->emc_enable_in)==0) //check for estop from HW
+	emcioStatus.aux.estop = 1;
+    else
+	emcioStatus.aux.estop = 0;
+
+    if (oldval != emcioStatus.aux.estop) {
+	retval = 1;
+    }
+
+
+    oldval = emcioStatus.lube.level;
+    emcioStatus.lube.level = *(iocontrol_data->lube_level);	//check for lube_level from HW
+    if (oldval != emcioStatus.lube.level) {
+	retval = 1;
+    }
+    return retval;
+}
 
 void load_tool(int pocket) {
     if(random_toolchanger) {
@@ -630,8 +754,13 @@ int main(int argc, char *argv[])
     done = 0;
 
     /* set status values to 'normal' */
+    emcioStatus.aux.estop = 1; //estop=1 means to emc that ESTOP condition is met
     emcioStatus.tool.pocketPrepped = -1;
     emcioStatus.tool.toolInSpindle = 0;
+    emcioStatus.coolant.mist = 0;
+    emcioStatus.coolant.flood = 0;
+    emcioStatus.lube.on = 0;
+    emcioStatus.lube.level = 1;
 
     while (!done) {
 	// check for inputs from HAL (updates emcioStatus)
@@ -639,6 +768,14 @@ int main(int argc, char *argv[])
 	/* if an external ESTOP is activated (or another hal-pin has changed)
 	   a NML message has to be pushed to EMC.
 	   the way it was done status was only checked at the end of a command */
+	if (read_hal_inputs() > 0) {
+	    emcioStatus.command_type = EMC_IO_STAT_TYPE;
+	    emcioStatus.echo_serial_number =
+		emcioCommand->serial_number+1; //need for different serial number, because we are pushing a new message
+	    emcioStatus.heartbeat++;
+	    emcioStatusBuffer->write(&emcioStatus);
+	}
+	;
 	if ( (tool_status = read_tool_inputs() ) > 0) { // in case of tool prep (or change) update, we only need to change the state (from RCS_EXEC
 	    emcioStatus.command_type = EMC_IO_STAT_TYPE; // to RCS_DONE, no need for different serial_number
 	    emcioStatus.echo_serial_number =
@@ -691,7 +828,10 @@ int main(int argc, char *argv[])
 	    // this gets sent on any Task Abort, so it might be safer to stop
 	    // the spindle  and coolant
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
-
+	    emcioStatus.coolant.mist = 0;
+	    emcioStatus.coolant.flood = 0;
+	    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
+	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:
@@ -809,6 +949,64 @@ int main(int argc, char *argv[])
 	    }
 	    break;
 
+
+	case EMC_COOLANT_MIST_ON_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_ON\n");
+	    emcioStatus.coolant.mist = 1;
+	    *(iocontrol_data->coolant_mist) = 1;
+	    break;
+
+	case EMC_COOLANT_MIST_OFF_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_OFF\n");
+	    emcioStatus.coolant.mist = 0;
+	    *(iocontrol_data->coolant_mist) = 0;
+	    break;
+
+	case EMC_COOLANT_FLOOD_ON_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_ON\n");
+	    emcioStatus.coolant.flood = 1;
+	    *(iocontrol_data->coolant_flood) = 1;
+	    break;
+
+	case EMC_COOLANT_FLOOD_OFF_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_OFF\n");
+	    emcioStatus.coolant.flood = 0;
+	    *(iocontrol_data->coolant_flood) = 0;
+	    break;
+
+	case EMC_AUX_ESTOP_ON_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_ON\n");
+	    /* assert an ESTOP to the outside world (thru HAL) */
+	    *(iocontrol_data->user_enable_out) = 0; //disable on ESTOP_ON
+	    hal_init_pins(); //resets all HAL pins to safe value
+	    break;
+
+	case EMC_AUX_ESTOP_OFF_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_OFF\n");
+	    /* remove ESTOP */
+	    *(iocontrol_data->user_enable_out) = 1; //we're good to enable on ESTOP_OFF
+	    /* generate a rising edge to reset optional HAL latch */
+	    *(iocontrol_data->user_request_enable) = 1;
+	    break;
+
+	case EMC_AUX_ESTOP_RESET_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
+	    // doesn't do anything right now, this will need to come from GUI
+	    // but that means task needs to be rewritten/rethinked
+	    break;
+
+	case EMC_LUBE_ON_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ON\n");
+	    emcioStatus.lube.on = 1;
+	    *(iocontrol_data->lube) = 1;
+	    break;
+
+	case EMC_LUBE_OFF_TYPE:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_OFF\n");
+	    emcioStatus.lube.on = 0;
+	    *(iocontrol_data->lube) = 0;
+	    break;
+
 	case EMC_SET_DEBUG_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
 	    EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
@@ -832,6 +1030,9 @@ int main(int argc, char *argv[])
 	emcioStatusBuffer->write(&emcioStatus);
 
 	esleep(EMC_IO_CYCLE_TIME);
+	/* clear reset line to allow for a later rising edge */
+	*(iocontrol_data->user_request_enable) = 0;
+
     }	// end of "while (! done)" loop
 
     if (emcErrorBuffer != 0) {

@@ -2049,9 +2049,9 @@ static void modify_hal_pins()
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
     *(halui_data->so_value) = emcStatus->motion.traj.spindle_scale; //spindle-speed-override from 0 to 1 for 100%
 
-    *(halui_data->mist_is_on) = emcStatus->motion.coolant.mist;
-    *(halui_data->flood_is_on) = emcStatus->motion.coolant.flood;
-    *(halui_data->lube_is_on) = emcStatus->motion.lube.on;
+    *(halui_data->mist_is_on) = emcStatus->io.coolant.mist;
+    *(halui_data->flood_is_on) = emcStatus->io.coolant.flood;
+    *(halui_data->lube_is_on) = emcStatus->io.lube.on;
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
     *(halui_data->tool_length_offset_x) = emcStatus->task.toolOffset.tran.x;

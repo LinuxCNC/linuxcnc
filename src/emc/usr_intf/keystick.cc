@@ -778,22 +778,22 @@ static void printStatus()
       else
         sprintf(brake_string,   "    BRAKE OFF     ");
 
-      if (emcStatus->motion.coolant.mist)
+      if (emcStatus->io.coolant.mist)
         sprintf(mist_string,    "    MIST ON       ");
       else
         sprintf(mist_string,    "    MIST OFF      ");
 
-      if (emcStatus->motion.coolant.flood)
+      if (emcStatus->io.coolant.flood)
         sprintf(flood_string,   "    FLOOD ON      ");
       else
         sprintf(flood_string,   "    FLOOD OFF     ");
 
-      if (emcStatus->motion.lube.on)
+      if (emcStatus->io.lube.on)
         sprintf(lube_on_string,    "     LUBE ON      ");
       else
         sprintf(lube_on_string,    "     LUBE OFF     ");
 
-      if (! emcStatus->motion.lube.level)
+      if (! emcStatus->io.lube.level)
         sprintf(lube_level_string,    "     LUBE OK      ");
       else
         sprintf(lube_level_string,    "     LUBE LOW     ");
@@ -1995,7 +1995,7 @@ int main(int argc, char *argv[])
         case KEY_F(7):          // toggle mist
           if (oldch != ch)
             {
-              if (emcStatus->motion.coolant.mist)
+              if (emcStatus->io.coolant.mist)
                 {
                   emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
                   emcCommandBuffer->write(emc_coolant_mist_off_msg);
@@ -2013,7 +2013,7 @@ int main(int argc, char *argv[])
         case KEY_F(8):          // toggle flood
           if (oldch != ch)
             {
-              if (emcStatus->motion.coolant.flood)
+              if (emcStatus->io.coolant.flood)
                 {
                   emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
                   emcCommandBuffer->write(emc_coolant_flood_off_msg);

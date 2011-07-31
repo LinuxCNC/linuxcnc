@@ -3185,7 +3185,7 @@ int main(int argc, char *argv[])
 	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
 	// synchronize subordinate states
-	if (emcStatus->motion.estop) {
+	if (emcStatus->io.aux.estop) {
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();
@@ -3196,13 +3196,13 @@ int main(int argc, char *argv[])
 		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
 		emcTaskPlanSynch();
 	    }
-	    if (emcStatus->motion.coolant.mist) {
+	    if (emcStatus->io.coolant.mist) {
 		emcCoolantMistOff();
 	    }
-	    if (emcStatus->motion.coolant.flood) {
+	    if (emcStatus->io.coolant.flood) {
 		emcCoolantFloodOff();
 	    }
-	    if (emcStatus->motion.lube.on) {
+	    if (emcStatus->io.lube.on) {
 		emcLubeOff();
 	    }
 	    if (emcStatus->motion.spindle.enabled) {

@@ -2636,7 +2636,7 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
 
   case KEY_F7:
     // mist toggle
-    if (emcStatus->motion.coolant.mist) {
+    if (emcStatus->io.coolant.mist) {
       sendMistOff();
     }
     else {
@@ -2646,7 +2646,7 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
 
   case KEY_F8:
     // flood toggle
-    if (emcStatus->motion.coolant.flood) {
+    if (emcStatus->io.coolant.flood) {
       sendFloodOff();
     }
     else {
@@ -3772,8 +3772,8 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     oldMode = emcStatus->task.mode;
   }
 
-  if (emcStatus->motion.coolant.mist != oldMist) {
-    if (emcStatus->motion.coolant.mist) {
+  if (emcStatus->io.coolant.mist != oldMist) {
+    if (emcStatus->io.coolant.mist) {
       sprintf(string, "MIST ON");
     }
     else {
@@ -3783,11 +3783,11 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     setLabel(mistMenu, string);
     redraw = 1;
 
-    oldMist = emcStatus->motion.coolant.mist;
+    oldMist = emcStatus->io.coolant.mist;
   }
 
-  if (emcStatus->motion.coolant.flood != oldFlood) {
-    if (emcStatus->motion.coolant.flood) {
+  if (emcStatus->io.coolant.flood != oldFlood) {
+    if (emcStatus->io.coolant.flood) {
       sprintf(string, "FLOOD ON");
     }
     else {
@@ -3797,7 +3797,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     setLabel(floodMenu, string);
     redraw = 1;
 
-    oldFlood = emcStatus->motion.coolant.flood;
+    oldFlood = emcStatus->io.coolant.flood;
   }
 
   if (emcStatus->motion.spindle.increasing != oldSpindleIncreasing) {

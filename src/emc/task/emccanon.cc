@@ -2524,12 +2524,12 @@ double GET_EXTERNAL_ANGLE_UNITS(void)
 
 int GET_EXTERNAL_MIST()
 {
-    return emcStatus->motion.coolant.mist;
+    return emcStatus->io.coolant.mist;
 }
 
 int GET_EXTERNAL_FLOOD()
 {
-    return emcStatus->motion.coolant.flood;
+    return emcStatus->io.coolant.flood;
 }
 
 double GET_EXTERNAL_SPEED()
