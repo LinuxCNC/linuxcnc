@@ -21,10 +21,11 @@ servomoteurs, des moteurs pas à pas, des relais ainsi que d'autres
 mécanismes relatifs aux machines-outils. 
 
 Il ya quatre principales composantes du logiciel EMC2: 
-un contrôleur de mouvement (EMCMOT), 
-une contrôleur d'entrées/sorties discrètes (EMCIO), 
-un exécuteur des tâches qui les coordonne (EMCTASK), 
-et les interfaces utilisateur graphiques. 
+* un contrôleur de mouvement (EMCMOT), 
+* une contrôleur d'entrées/sorties discrètes (EMCIO), 
+* un exécuteur des tâches qui les coordonne (EMCTASK), 
+* et les interfaces utilisateur graphiques. 
+
 En outre il ya une couche appelée HAL (Hardware Abstraction Layer) 
 qui permet la configuration d'EMC2 sans avoir besoin de recompiler.
 
@@ -43,6 +44,17 @@ via une interface de puissance pour servomoteurs ou utiliser le port
 parallèle étendu connecté à une carte de contrôle externe. Quand nous
 examinerons chacun des composants qui forment un système EMC2, nous
 nous référerons à cette machine typique.
+
+` `
+` `
+` `
+` `
+` `
+` `
+` `
+` `
+` `
+` `
 
 == Interfaces utilisateur graphiques[[sub:Interfaces-utilisateur-graphiques]]
 

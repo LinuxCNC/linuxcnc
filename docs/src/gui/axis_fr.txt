@@ -330,7 +330,7 @@ valeur résultante sera affichée sous le champ.
 
 image::images/touchoff_fr.png[]
 
-Voir aussi l'outil `touch off à la pièce` et `outil déclencher au montage`
+Voir aussi l'outil "touch off à la pièce" et "outil déclencher au montage" 
 options dans le menu de la machine. 
 
 ==== Dépassement de limite
@@ -665,7 +665,7 @@ ressources X écrasent ceux par défaut dans AXIS, il faut inclure cette
 ligne dans vos ressources X:
 
 ///////////////////////////////////////////////////////////
-L'anti-slash échapper à la astérisques pour éviter "gras",
+L'astérisques non pour éviter "gras",
 ///////////////////////////////////////////////////////////
     *Axis*optionLevel: widgetDefault
 ///////////////////////////////////////////////////////////

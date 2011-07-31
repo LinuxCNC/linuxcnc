@@ -203,9 +203,8 @@ Tool touch off to fixture::
 
 ==== View Menu
 
-*******************************************************************************
 .It's all in your point of view
-
+*******************************************************************************
 The AXIS display pick menu "View" refers to "Top", "Front", and "Side" views. 
 These terms are correct if the CNC machine has its Z axis vertical, with 
 positive Z up. This is true for vertical mills, which is probably the most 
@@ -583,7 +582,7 @@ resulting value is shown as a number.
 
 image::images/touchoff.png[]
 
-See also the `Tool touch off to workpiece` and `Tool touch off to fixture`
+See also the "Tool touch off to workpiece" and "Tool touch off to fixture" 
 options in the Machine menu.
 
 ==== Override Limits
@@ -902,9 +901,9 @@ settings are ignored. To make the X Resource Database items override
 AXIS defaults, include the following line in your X Resources:
 
 ///////////////////////////////////////////////////////////
-The backslashes escape the asterisks to avoid "bold", 
+These asterisks are not for "bold", 
 ///////////////////////////////////////////////////////////
-    \*Axis\*optionLevel: widgetDefault
+    *Axis*optionLevel: widgetDefault
 ///////////////////////////////////////////////////////////
 in this case, we want the asterisks to actually appear. 
 ///////////////////////////////////////////////////////////

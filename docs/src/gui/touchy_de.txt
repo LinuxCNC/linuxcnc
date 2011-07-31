@@ -69,4 +69,6 @@ best results.
 
 The Status Window is a fixed height, set by the size of a fixed font. 
 This can be affected by the Gnome DPI. If the bottom of the screen is 
-cut off return the Gnome DPI to the orignal setting of 96 dots per inch.
+cut off return the Gnome DPI to the orignal setting of 96 dots per inch. 
+
+

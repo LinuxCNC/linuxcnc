@@ -20,10 +20,11 @@ other automated devices. It can control servo motors, stepper motors,
 relays, and other devices related to machine tools.
 
 There are four main components to the EMC2 software: 
-a motion controller (EMCMOT), 
-a discrete I/O controller (EMCIO), 
-a task executor which coordinates them (EMCTASK), 
-and graphical user interfaces. 
+* a motion controller (EMCMOT), 
+* a discrete I/O controller (EMCIO), 
+* a task executor which coordinates them (EMCTASK), 
+* and one of several graphical user interfaces. 
+
 In addition there is a layer called HAL (Hardware Abstraction Layer) 
 which allows configuration of EMC2 without the need of recompiling.
 
@@ -41,6 +42,17 @@ motors via servo interface cards or by using an extended parallel port
 to connect with external control boards. As we examine each of the
 components that make up an EMC2 system we will remind the reader of
 this typical machine.
+
+` `
+` `
+` `
+` `
+` `
+` `
+` `
+` `
+` `
+` `
 
 == Graphical User Interfaces[[sub:Graphical-User-Interfaces]]
 

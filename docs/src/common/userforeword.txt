@@ -11,21 +11,20 @@ different. Among early Unix developers there grew a set of code writing
 ideas that some call the Unix way. These early EMC authors followed
 those ways.
 
-     Eric S. Raymond, in his book The Art of Unix Programming, summarizes
-    the Unix philosophy as the widely-used engineering philosophy, "Keep it
-    Simple, Stupid" (KISS Principle). He then describes how he believes
-    this overall philosophy is applied as a cultural Unix norm, although
-    unsurprisingly it is not difficult to find severe violations of most of
-    the following in actual Unix practice:
+Eric S. Raymond, in his book The Art of Unix Programming, summarizes
+the Unix philosophy as the widely-used engineering philosophy, "Keep it
+Simple, Stupid" (KISS Principle). He then describes how he believes
+this overall philosophy is applied as a cultural Unix norm, although
+unsurprisingly it is not difficult to find severe violations of most of
+the following in actual Unix practice:
 
-    * Rule of Modularity: Write simple parts connected by clean interfaces.
+* Rule of Modularity: Write simple parts connected by clean interfaces.
 
-    * Rule of Clarity: Clarity is better than cleverness.
+* Rule of Clarity: Clarity is better than cleverness.
 
-     * Rule of Composition: Design programs to be connected to other
-    programs.
+* Rule of Composition: Design programs to be connected to other programs.
 
-     * Rule of Separation: Separate policy from mechanism; separate
+* Rule of Separation: Separate policy from mechanism; separate
     interfaces from engines.footnote:[Found at
     http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
