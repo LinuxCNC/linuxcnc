@@ -832,6 +832,8 @@ int main(int argc, char *argv[])
 	    emcioStatus.coolant.flood = 0;
 	    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
 	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
+	    *(iocontrol_data->tool_change)=0;		/* abort tool change if in progress */
+	    *(iocontrol_data->tool_prepare)=0;		/* abort tool prepare if in progress */
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:
