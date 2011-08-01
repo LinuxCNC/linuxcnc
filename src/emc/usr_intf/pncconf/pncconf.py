@@ -370,7 +370,7 @@ A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "enable", "x-enable", "y-enable", "z-enable", "a-enable",
+"coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
@@ -380,7 +380,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 
 spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
 coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
-control_output = [_("ESTOP Out"), _("Machine Enable"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
+control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
 _("A Amplifier Enable"),_("Charge Pump")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
@@ -2030,7 +2030,7 @@ class Data:
             pump = True
         if self.findsignal("estop-ext"):
             estop = True
-        if self.findsignal("enable"):
+        if self.findsignal("machine-is-enabled"):
             enable = True
         if self.findsignal("spindle-enable"):
             spindle_on = True
@@ -2509,7 +2509,7 @@ class Data:
         else:
             print >>file, "net estop-out     =>  iocontrol.0.emc-enable-in"
         if enable:
-            print >>file, "net enable        <=  motion.motion-enabled"
+            print >>file, "net machine-is-enabled        <=  motion.motion-enabled"
 
         print >>file
         if self.toolchangeprompt:
@@ -7108,7 +7108,7 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
         # set up enable output pin if used
-        temp = self.data.findsignal( "enable")
+        temp = self.data.findsignal( "%senabled"% axis)
         amp = self.data.make_pinname(temp)
         if amp:
             if "hm2" in amp:    
@@ -7116,6 +7116,22 @@ But there is not one in the machine-named folder.."""),True)
                 halrun.write("net enable %s \n"% (amp + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (amp + ".invert_output"))
+            if "parport" in amp:
+                halrun.write("    setp %s true\n" % (amp))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("    setp %s true\n" % (amp + "-invert")) 
+        temp = self.data.findsignal( "machine-is-enabled")
+        machine_on = self.data.make_pinname(temp)
+        if machine_on:
+            if "hm2" in machine_on:    
+                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
+                halrun.write("net enable %s \n"% (machine_on + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
+            if "parport" in machine_on:
+                halrun.write("    setp %s true\n" % (machine_on ))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("    setp %s true\n" % (machine_on + "-invert")) 
         # set up estop output if used
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
@@ -7314,38 +7330,51 @@ But there is not one in the machine-named folder.."""),True)
         self.hal_cmnds("READ")
         if pump:
             halrun.write( "loadrt charge_pump\n")
-            halrun.write( "setp charge-pump.enable true\n")
+            halrun.write( "net enable charge-pump.enable\n")
             halrun.write( "net charge-pump <= charge-pump.out\n")
             halrun.write( "addf charge-pump slow\n")                 
         halrun.write("addf steptest.0 slow\n")
         self.hal_cmnds("WRITE")
+        halrun.write("newsig enable bit\n")
+        halrun.write("sets enable false\n")
         # set enable pin if used (output)
-        temp = self.data.findsignal( "enable")
+        temp = self.data.findsignal( "%senable"% axis)
         self.amp = self.data.make_pinname(temp)
         if self.amp:
             if "hm2_" in self.amp:    
                 halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
-                halrun.write("setp %s false\n"% (self.amp + ".out"))
+                halrun.write("net enable %s\n"% (self.amp + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (self.amp + ".invert_output"))
                 self.amp = self.amp + ".out"             
             if "parport" in self.amp:
-                halrun.write("    setp %s true\n" % (self.amp ))
+                halrun.write("net enable %s\n" % (self.amp ))
                 if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (self.amp + "-invert"))  
-            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))     
+                    halrun.write("    setp %s true\n" % (self.amp + "-invert"))
+            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))
+        machine_on = self.data.make_pinname(temp)
+        if machine_on:
+            if "hm2" in machine_on:    
+                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
+                halrun.write("net enable %s \n"% (machine_on + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
+            if "parport" in machine_on:
+                halrun.write("net enable %s\n" % (machine_on ))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("    setp %s true\n" % (machine_on + "-invert"))  
         # setup pwm generator
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
         if estop:        
             if "hm2_" in estop:
                 halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("setp %s true\n"%  (estop + ".out"))
+                halrun.write("net enable %s\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
                 estop = estop + ".out"
             if "parport" in estop:
-                halrun.write("    setp %s true\n" % (estop))
+                halrun.write("net enable %s\n" % (estop))
                 if self.data[temp+"inv"] == True:
                     halrun.write("    setp %s true\n" % (estop + "-invert"))  
             halrun.write("loadusr halmeter -s pin %s -g 0 550 330\n"%  (estop)) 
@@ -7355,12 +7384,12 @@ But there is not one in the machine-named folder.."""),True)
         if pump:        
             if "hm2_" in pump:
                 halrun.write("setp %s true\n"%  (pump + ".is_output"))    
-                halrun.write("setp %s true\n"%  (pump + ".out"))
+                halrun.write("net charge-pump %s\n"%  (pump + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (pump + ".invert_output"))
                 pump = pump + ".out"              
             if "parport" in pump:
-                halrun.write("    setp %s true\n" % (pump))
+                halrun.write("    net charge-pump %s\n" % (pump))
                 if self.data[temp+"inv"] == True:
                     halrun.write("    setp %s true\n" % (pump + "-invert"))  
             halrun.write( "net charge-pump %s\n"%(pump))
@@ -7369,7 +7398,7 @@ But there is not one in the machine-named folder.."""),True)
         pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
         if pwm:          
             halrun.write("net dac %s \n"%  (pwm +".value"))
-            halrun.write("setp %s \n"%  (pwm +".enable true"))
+            halrun.write("net enable %s \n"%  (pwm +".enable"))
             halrun.write("setp %s \n"%  (pwm +".scale 10"))
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
@@ -7399,10 +7428,6 @@ But there is not one in the machine-named folder.."""),True)
         result = widgets.openloopdialog.run()
 
         widgets.openloopdialog.hide()
-        if self.amp:
-             halrun.write("setp %s false\n"% (self.amp))
-        if estop:
-             halrun.write("setp %s false\n"% (estop))
         time.sleep(.001)
         halrun.close()        
         if result == gtk.RESPONSE_OK:
@@ -7435,8 +7460,7 @@ But there is not one in the machine-named folder.."""),True)
         if self.widgets.testinvertmotor.get_active() == True: 
             output = output * -1
         output += get_value(self.widgets.testoutputoffset)
-        if self.amp:
-            halrun.write("setp %s %d\n"% (self.amp, self.enable_amp))
+        halrun.write("sets enable %d\n"% ( self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
