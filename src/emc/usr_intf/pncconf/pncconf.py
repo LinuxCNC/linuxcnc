@@ -4884,8 +4884,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             signal = hal_output_names
                             tree = self.data._gpioosignaltree
                         self.widgets[p].set_model(tree)
-
-                        signalindex = signal.index(datap)
+                        try:
+                            signalindex = signal.index(datap)
+                        except:
+                            print "**** INFO: PNCCONF warning no GPIO signal named: %s\n       found for board %d connector %d pin %d"% \
+                                (datap ,boardnum, connector , pin)
+                            signalindex = 0
                         #print "gpio temp ptype:",dataptype,datap,signalindex
                         count = 0
                         temp = (0) # set unused gpio if no match
@@ -4905,7 +4909,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 # type encoder
                 elif dataptype == ENCA and widgetptype == ENCA or dataptype == MXEA and widgetptype == MXEA:
-                    signalindex = hal_encoder_input_names.index(datap)
+                    try:
+                        signalindex = hal_encoder_input_names.index(datap)
+                    except:
+                        print "**** INFO: PNCCONF warning no ENCODER signal named: %s\n     found for board %d connector %d pin %d"% \
+                                (datap ,boardnum, connector , pin)
+                        signalindex = 0
                     #print "ENC ->dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -3
                     if signalindex > 0:
@@ -4938,8 +4947,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         #print "pwm",self.data._pwmcontrolliststore
                         self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
                         self.widgets[ptype].set_active(0)
-
-                    signalindex = hal_pwm_output_names.index(datap)
+                    try:
+                        signalindex = hal_pwm_output_names.index(datap)
+                    except:
+                        print "**** INFO: PNCCONF warning no PWM / PDM signal named: %s\n     found for board %d connector %d pin %d"% \
+                                (datap ,boardnum, connector , pin)
+                        signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -2
                     if signalindex > 0:
@@ -4971,7 +4984,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif dataptype == TPPWMA and widgetptype == TPPWMA:
                     #print "3 pwm"
                     count = -7
-                    signalindex = hal_tppwm_output_names.index(datap)
+                    try:
+                        signalindex = hal_tppwm_output_names.index(datap)
+                    except:
+                        print "**** INFO: PNCCONF warning no THREE PWM signal named: %s\n     found for board %d connector %d pin %d"% \
+                                (datap ,boardnum, connector , pin)
+                        signalindex = 0
                     #print "3 PWw ,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     if signalindex > 0:
                        for row,parent in enumerate(human_tppwm_output_names):
@@ -5002,7 +5020,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[ptype].set_active(0)
                     self.widgets[p].set_active(0)
                     self.widgets[pinv].set_active(datapinv)
-                    signalindex = hal_stepper_names.index(self.data[p])
+                    try:
+                        signalindex = hal_stepper_names.index(self.data[p])
+                    except:
+                        print "**** INFO: PNCCONF warning no STEPPER signal named: %s\n     found for board %d connector %d pin %d"% \
+                                (datap ,boardnum, connector , pin)
+                        signalindex = 0
                     count = -5
                     #print "stepper,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     if signalindex > 0:
