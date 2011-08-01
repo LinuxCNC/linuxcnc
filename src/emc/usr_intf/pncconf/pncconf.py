@@ -361,7 +361,7 @@ mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x2
 
 (UNUSED_OUTPUT,
 ON, CW, CCW, BRAKE,
-MIST, FLOOD, ESTOP, AMP,
+MIST, FLOOD, ESTOP, AMP, XAMP, YAMP, ZAMP, AAMP,
 PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
 X_HALL1_OUT,X_HALL2_OUT,X_HALL3_OUT,X_C1_OUT,X_C2_OUT,X_C4_OUT,X_C8_OUT,
 Y_HALL1_OUT,Y_HALL2_OUT,Y_HALL3_OUT,Y_C1_OUT,Y_C2_OUT,Y_C4_OUT,Y_C8_OUT,
@@ -370,7 +370,7 @@ A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "enable",
+"coolant-mist", "coolant-flood", "estop-out", "enable", "x-enable", "y-enable", "z-enable", "a-enable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
@@ -380,7 +380,8 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 
 spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
 coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
-control_output = [_("ESTOP Out"), _("Amplifier Enable"),_("Charge Pump")]
+control_output = [_("ESTOP Out"), _("Machine Enable"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
+_("A Amplifier Enable"),_("Charge Pump")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
 ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
@@ -2508,7 +2509,7 @@ class Data:
         else:
             print >>file, "net estop-out     =>  iocontrol.0.emc-enable-in"
         if enable:
-            print >>file, "net enable        =>  motion.motion-enabled"
+            print >>file, "net enable        <=  motion.motion-enabled"
 
         print >>file
         if self.toolchangeprompt:
