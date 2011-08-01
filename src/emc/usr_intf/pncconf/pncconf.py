@@ -4459,6 +4459,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
            return True
 
     def on_mesapanel_clicked(self, *args):
+        if not self.check_for_rt(): return
+        if not self.warning_dialog(_("Do to technical reasons this test panel can be loaded only once without reloading pncconf.\
+You also will not be able to do any other testing untill you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
+I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
+                        return
         self.halrun = os.popen("halrun -sf > /dev/null", "w") 
         self.halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         self.hal_cmnds("LOAD")
@@ -4468,8 +4473,16 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.halrun.write("loadusr  halmeter\n")
         self.halrun.flush()
         time.sleep(1)
-        PyApp(self,self.data,self.widgets)  
-
+        try:
+            PyApp(self,self.data,self.widgets)  
+        except:
+            self.halrun.close()
+            a = os.popen("halrun -U > /dev/null", "w")
+            a.flush()
+            time.sleep(1)
+            a.close()
+            a.kill()
+            
     def on_mesapanel_returned(self, *args):
         print "Quit test panel"
         try:
