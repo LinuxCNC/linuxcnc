@@ -1869,7 +1869,7 @@ class Data:
                     # for output /open drain pins
                     if t in (GPIOO,GPIOD):
                         if p == "unused-output":continue
-                        pinname = self.make_pinname(self.findsignal( p ))
+                        pinname = self.make_pinname('mesa%dc%dpin%d' % (boardnum,connector, pin))
                         print >>file, "# ---",p.upper(),"---"
                         print >>file, "setp    "+pinname +".is_output true"
                         if i: print >>file, "setp    "+pinname+".invert_output true"
