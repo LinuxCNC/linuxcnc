@@ -3102,6 +3102,31 @@ class App:
                 node.childNodes[0].data = axisname + node.childNodes[0].data[1:]
         nextpage.parentNode.insertBefore(axispage, nextpage)
 
+    def make_mesapage(self, doc, axisname):
+        axispage = self._getwidget(doc, 'mesa0').parentNode.cloneNode(True)
+        nextpage = self._getwidget(doc, 'pp1pport').parentNode
+        widget = self._getwidget(axispage, "mesa0")
+        for node in widget.childNodes:
+            if (node.nodeType == xml.dom.Node.ELEMENT_NODE
+                    and node.tagName == "property"
+                    and node.getAttribute('name') == "title"):
+                node.childNodes[0].data = _("%s I/0 Setup") % axisname
+        for node in axispage.getElementsByTagName("widget"):
+            id = node.getAttribute('id')
+            if id.startswith("mesa0"):
+                node.setAttribute('id', axisname + id[5:])
+            else:
+                node.setAttribute('id', axisname + id)
+        for node in axispage.getElementsByTagName("signal"):
+            handler = node.getAttribute('handler')
+            node.setAttribute('handler', handler.replace("on_mes0", "on_" + axisname))
+        for node in axispage.getElementsByTagName("property"):
+            name = node.getAttribute('name')
+            if name == "mnemonic_widget":
+                node.childNodes[0].data = axisname + node.childNodes[0].data[1:]
+        nextpage.parentNode.insertBefore(axispage, nextpage)
+
+
     def splash_screen(self):
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
@@ -3146,6 +3171,7 @@ class App:
             gtk.main_iteration()
         self.make_pportpage(glade, 'pp2')
         self.make_pportpage(glade, 'pp3')
+        self.make_mesapage(glade, 'mesa1')
         self.pbar.set_fraction(.4)
         while gtk.events_pending():
             gtk.main_iteration()
@@ -4656,6 +4682,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 #print "**** INFO set-mesa-options DATA:",self.data[p],p,self.data[ptype]
                 #print "**** INFO set-mesa-options FIRM:",firmptype
                 #print "**** INFO set-mesa-options WIDGET:",self.widgets[p].get_active_text(),self.widgets[ptype].get_active_text()
+                complabel = 'mesa%dc%dpin%dnum' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
                 ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
@@ -4683,12 +4710,14 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             # the encoder's 'A' signal name. If its the other signals
                             # we can add them all because pncconf controls what the user sees
                             if firmptype == ENCA:
+                                self.widgets[complabel].set_text("%d:"%compnum)
                                 self.widgets[p].set_active(0)
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(0)
                                 self.widgets[ptype].set_active(0)
                             # pncconf control what the user sees with these ones:
                             elif firmptype in(ENCB,ENCI,ENCM):
+                                self.widgets[complabel].set_text("")
                                 self.widgets[p].set_active(0)   
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[ptype].set_sensitive(0)
@@ -4715,8 +4744,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[ptype].set_sensitive(0)
                             self.widgets[p].set_active(0)
                             if firmptype == MXEA:
+                                self.widgets[complabel].set_text("%d:"%compnum)
                                 self.widgets[p].set_sensitive(1)
-                            else: 
+                            else:
+                                self.widgets[complabel].set_text("")
                                 self.widgets[p].set_sensitive(0)
                            
                     else:
@@ -4725,6 +4756,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 if firmptype == (MXES):
                     #print "mux select",numofencoders, compnum
                     if numofencoders > 0 and numofencoders >= compnum:
+                        self.widgets[complabel].set_text("")
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
                         pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
@@ -4746,6 +4778,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[p].set_model(self.data._pwmsignaltree)         
                             # only add the -pulse signal names for the user to see
                             if firmptype in(PWMP,PDMP):
+                                self.widgets[complabel].set_text("%d:"%compnum)
                                 #print "firmptype = controlling"
                                 self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
                                 self.widgets[ptype].set_sensitive(1)
@@ -4754,6 +4787,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 self.widgets[ptype].set_active(0)
                             # add them all here      
                             elif firmptype in (PWMD,PWME,PDMD,PDME):
+                                self.widgets[complabel].set_text("")
                                 #print "firmptype = related"
                                 if firmptype in (PWMD,PWME):
                                     self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
@@ -4780,9 +4814,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[p].set_active(0)
                             # only add the -a signal names for the user to change
                             if firmptype == TPPWMA:
+                                self.widgets[complabel].set_text("%d:"%compnum)
                                 self.widgets[p].set_sensitive(1)
                             # the rest the user can't change      
                             else:
+                                self.widgets[complabel].set_text("")
                                 self.widgets[p].set_sensitive(0)
                     else:
                         firmptype = GPIOI
@@ -4798,8 +4834,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[p].set_active(0)
                         #self.widgets[p].set_active(0)
                         if firmptype == STEPA:
+                            self.widgets[complabel].set_text("%d:"%compnum)
                             self.widgets[p].set_sensitive(1)
                         elif firmptype == STEPB:
+                            self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
                     else:firmptype = GPIOI
                 # ---SETUP FOR GPIO FAMILY COMPONENT---
@@ -4812,6 +4850,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # check if widget is already configured
                 # we now set everything in a known state.
                 if firmptype in (GPIOI,GPIOO,GPIOD):
+                    self.widgets[complabel].set_text("%03d:"%(concount*24+pin))
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD):
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
