@@ -7411,6 +7411,7 @@ But there is not one in the machine-named folder.."""),True)
                 if self.data[temp+"inv"] == True:
                     halrun.write("    setp %s true\n" % (self.amp + "-invert"))
             halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))
+        temp = self.data.findsignal( "machine-is-enabled")
         machine_on = self.data.make_pinname(temp)
         if machine_on:
             if "hm2" in machine_on:    
