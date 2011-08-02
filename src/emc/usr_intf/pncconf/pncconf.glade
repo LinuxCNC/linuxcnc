@@ -31209,7 +31209,7 @@ Warning limits switches
               <widget class="GtkSpinButton" id="testenc_scale">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">1 -10000 10000 100 10 0</property>
+                <property name="adjustment">1 -10000 100000 100 0 0</property>
                 <property name="digits">3</property>
                 <signal name="value_changed" handler="update_axis_params"/>
               </widget>
