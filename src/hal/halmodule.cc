@@ -408,6 +408,22 @@ static PyObject *pyhal_exit(PyObject *_self, PyObject *o) {
     Py_RETURN_NONE;
 }
 
+static PyObject *pyhal_compid(PyObject *_self, PyObject *o) {
+    halobject *self = (halobject *)_self;
+    return PyInt_FromLong(self->hal_id);
+}
+
+static PyObject *pyhal_comp_name(PyObject *_self, PyObject *o) {
+    int id;
+    char *s;
+    if(!PyArg_ParseTuple(o, "i", &id)) return NULL;;
+    if ((s = hal_comp_name(id)) == NULL) {
+        PyErr_Format(PyExc_ValueError, "no HAL component with id '%d'", id);
+        return NULL;
+    }
+    return PyString_FromString(s);
+}
+
 static PyObject *pyhal_repr(PyObject *_self) {
     halobject *self = (halobject *)_self;
     return PyString_FromFormat("<hal component %s(%d) with %d pins and params>",
@@ -478,6 +494,10 @@ static PyMethodDef hal_methods[] = {
         "Call hal_exit"},
     {"ready", pyhal_ready, METH_NOARGS,
         "Call hal_ready"},
+    {"compid", pyhal_compid, METH_NOARGS,
+        "Get current HAL component ID"},
+    {"compname", pyhal_comp_name, METH_VARARGS,
+        "map a HAL component ID to its name"},
     {NULL},
 };
 
