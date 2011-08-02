@@ -2675,20 +2675,27 @@ class Data:
         if self.number_mesa <> 0:
             for boardnum in range(0,int(self.number_mesa)):
                 print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][_BOARDTITLE] 
-                print >>file, "with", self["mesa%d_currentfirmwaredata"% boardnum][9], "I/O pins and firmware is:", self["mesa%d_firmware"% boardnum]
+                print >>file, "with", self["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO], "I/O pins and firmware is:", self["mesa%d_firmware"% boardnum]
                 print >>file
             for boardnum in range(0,int(self.number_mesa)):
                 for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
                     print >>file,"** Mesa %s -> Board #"% self["mesa%d_boardtitle"% boardnum],boardnum,_(" connector")," %d **\n"% connector
+                    print >>file ,"connector    board     num   component    signal        "
+                    print >>file ,"number    position           type        name\n"
+                    conpin = 1
                     for pin in range (0,24):
+                        dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                         temp = self["mesa%dc%dpin%d" % (boardnum,connector,pin) ]
                         tempinv = self["mesa%dc%dpin%dinv" % (boardnum,connector,pin) ]
                         temptype = self["mesa%dc%dpin%dtype" % (boardnum,connector,pin) ]
+                        if temptype in(GPIOI,GPIOO,GPIOD):
+                            compnum = pin+(concount*24)
                         if tempinv: 
-                            invmessage = _("-> inverted")
+                            invmessage = _("invrt")
                         else: invmessage =""
-                        print >>file, ("pin# %(pinnum)d (%(type)s)               "%{ 'type':temptype,'pinnum':pin})
-                        print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
+                        print >>file, ("P%d-%d   %d   (%d %s)  %s  %s\n"%(connector,conpin,pin,compnum,temptype,temp,invmessage))
+                        #print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
+                        conpin +=2
             print >>file
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
