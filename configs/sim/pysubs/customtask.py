@@ -1,21 +1,6 @@
 import emctask
 import hal
-
-abort_reasons = {
-    1 : "EMC_ABORT_TASK_EXEC_ERROR" ,
-    2 : "EMC_ABORT_AUX_ESTOP" ,
-    3 : "EMC_ABORT_MOTION_OR_IO_RCS_ERROR",
-    4 : "EMC_ABORT_TASK_STATE_OFF",
-    5 : "EMC_ABORT_TASK_STATE_ESTOP_RESET" ,
-    6 : "EMC_ABORT_TASK_STATE_ESTOP" ,
-    7 : "EMC_ABORT_TASK_STATE_NOT_ON" ,
-    8 : "EMC_ABORT_TASK_ABORT" }
-
-task_state = {
-    1: "EMC_TASK_STATE_ESTOP",
-    2: "EMC_TASK_STATE_ESTOP_RESET",
-    3: "EMC_TASK_STATE_OFF",
-    4: "EMC_TASK_STATE_ON" }
+import emc # use for ini *only*
 
 # startup:
 #     halui.estop.is-activated = true
@@ -53,20 +38,20 @@ class CustomTask(emctask.Task):
         self.hal = h
         self.hal_init_pins()
         self.e = emctask.emcstat
-        self.e.estop = 1
+        #self.e.estop = 1
         print "Py CustomTask.init"
 
 
     def emcIoInit(self):
         print "py:  emcIoInit"
-        self.e.io.estop = 1
+        self.e.io.aux.estop = 1
         self.e.io.tool.pocketPrepped = -1;
         self.e.io.tool.toolInSpindle = 0;
         self.e.io.coolant.mist = 0
         self.e.io.coolant.flood = 0
         self.e.io.lube.on = 0
         self.e.io.lube.level = 1
-        return 0
+        return emctask.iniTool("py.ini")  # FIXME
 
     def hal_init_pins(self):
         """ Sets HAL pins default values """
@@ -84,7 +69,7 @@ class CustomTask(emctask.Task):
     def emcIoUpdate(self):
         #        print "py:  emcIoUpdate"
         self.hal["user-request-enable"] = 0
-        self.e.io.estop = not self.hal["emc-enable-in"]
+        self.e.io.aux.estop = not self.hal["emc-enable-in"]
         self.e.io.status  = emctask.RCS_DONE
         return 0
 
@@ -93,7 +78,7 @@ class CustomTask(emctask.Task):
         return 0
 
     def emcIoAbort(self,reason):
-        print "py:  emcIoAbort reason=",reason, abort_reasons[reason],"state=",task_state[self.e.task.state]
+        print "py:  emcIoAbort reason=",reason,"state=",self.e.task.state
         self.hal["coolant-mist"] = 0
         self.e.io.coolant.mist = 0
         self.hal["coolant-flood"] = 0
@@ -107,7 +92,7 @@ class CustomTask(emctask.Task):
         return 0
 
     def emcAuxEstopOn(self):
-        print "py:  emcAuxEstopOn taskstate=",task_state[self.e.task.state]
+        print "py:  emcAuxEstopOn taskstate=",self.e.task.state
         self.hal["user-enable-out"] = 0
         return 0
 
@@ -177,7 +162,3 @@ class CustomTask(emctask.Task):
         print "py:  emcToolSetOffset", pocket,toolno,offset,diameter,frontangle,backangle,orientation
         return 0
 
-
-    def test(self,arg):
-        print "py:  test arg=",arg
-        return 0
