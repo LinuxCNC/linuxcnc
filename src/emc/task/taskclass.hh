@@ -11,9 +11,6 @@ public:
     Task() {};
     virtual ~Task() {};
 
-    virtual int test(int arg);
-
-
     virtual int emcIoInit();
     virtual int emcIoHalt();
     virtual int emcIoAbort(int reason);

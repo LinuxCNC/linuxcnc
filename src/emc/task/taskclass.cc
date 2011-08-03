@@ -287,7 +287,6 @@ int emcTaskOnce(const char *inifile, const char *python_taskinit)
     bp::tuple arg;
     bp::dict kwarg;
     int plugin_status;
-    Task *tmp = NULL;
 
     extern Interp interp;
 
@@ -313,8 +312,8 @@ int emcTaskOnce(const char *inifile, const char *python_taskinit)
 	if (PYUSABLE && (python_taskinit != NULL)) {
 	    try {
 		bp::object result = bp::exec(python_taskinit, python_plugin->main_namespace, python_plugin->main_namespace);
-		tmp = bp::extract< Task * >(python_plugin->main_namespace["task_instance"]);
-		//	tmp = bp::extract< Task * >(result); //hm, doesnt work for bp::eval() ?
+		task_methods = bp::extract< Task * >(python_plugin->main_namespace["task_instance"]);
+		//	task_methods = bp::extract< Task * >(result); //hm, doesnt work for bp::eval() ?
 		fake_iostat = true;
 
 	    } catch( bp::error_already_set ) {
@@ -322,24 +321,15 @@ int emcTaskOnce(const char *inifile, const char *python_taskinit)
 		printf("exec(%s): %s\n", python_taskinit,msg.c_str());
 		PyErr_Clear();
 	    }
-	    if (tmp == NULL) {
+	    if (task_methods == NULL) {
 		printf("no Python Task() instance available\n");
 	    }
 	}
     } else {
 	printf("python_plugin not available\n");
     }
-    if (tmp == NULL)
-	tmp = new Task();
-    try {
-	tmp->test(4711);
-    } catch( bp::error_already_set ) {
-	std::string msg = handle_pyerror();
-	printf("call t->test(): %s\n", msg.c_str());
-	PyErr_Clear();
-    }
-    //    fprintf(stderr,"emcTaskOnce: Python task plugin not available|n");
-    task_methods = tmp;
+    if (task_methods == NULL)
+	task_methods = new Task();
     return 0;
 }
 
@@ -434,11 +424,6 @@ struct _inittab builtin_modules[] = {
 };
 
 // NML commands
-
-int Task::test(int arg) {
-    printf("C default:  test(arg=%d)\n",arg);
-    return arg * 2;
-}
 
 int Task::emcIoInit()
 {
