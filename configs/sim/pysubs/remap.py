@@ -18,15 +18,20 @@ import canon
 #     after calling prepare.ngc, execute the Python function 'prepare_epilog'
 #
 def prepare_prolog(userdata,**words):
-	tool = int(words['t'])
-	(status,pocket) = this.find_tool_pocket(tool)
-	if status != INTERP_OK:
-		this.set_errormsg("T%d: pocket not found" % (tool))
-		return status
-	# these variables will be visible in the following ngc oword sub
+	this.params[5599] = 1  # turn on DEBUG, output
+	this._tool = int(words['t'])
+	if this._tool:
+		(status,this._pocket) = this.find_tool_pocket(this._tool)
+		if status != INTERP_OK:
+			this.set_errormsg("T%d: pocket not found" % (this._tool))
+			return status
+	else:
+		this._pocket = -1 # this is an T0 - tool unload
+
+	# these variables will be visible in the ngc oword sub
 	# as #<tool> and #<pocket> as local variables
-	this.params["tool"] = tool
-	this.params["pocket"] = pocket
+	this.params["tool"] = this._tool
+	this.params["pocket"] = this._pocket
 	return INTERP_OK
 
 # The minimal ngc prepare procedure looks like so:
@@ -42,13 +47,15 @@ def prepare_prolog(userdata,**words):
 # the prepare epilog looks at the return value from the NGC procedure
 # and does the right thing:
 def prepare_epilog(userdata,**words):
+	#print "prepare_epilog cl=",this.call_level, this._pocket
 	retval = this.return_value
-	if retval > 0:
-		this.selected_pocket = int(retval)
-		canon.SELECT_POCKET(int(retval),int(words['t']))
+	if retval >= 0:
+		this.selected_pocket = this._pocket
+		this.selected_tool = this._tool
+		canon.SELECT_POCKET( this._pocket, this._tool)
 		return INTERP_OK
 	else:
-		this.set_errormsg("T%d: aborted (return code %.4f)" % (int(words['t']),retval))
+		this.set_errormsg("T%d: aborted (return code %.4f)" % (this._tool,retval))
 		return INTERP_ERROR
 
 
@@ -78,10 +85,11 @@ def change_prolog(userdata,**words):
 
 def change_epilog(userdata,**words):
 	retval = this.return_value
-	print "change_epilog retval=",retval
+	print "change_epilog retval=% selected_pocket=%d" %(retval,this.selected_pocket)
 	if retval > 0:
 		# commit change
-		canon.CHANGE_TOOL(this.selected_pocket)
+		#canon.CHANGE_TOOL(this.selected_pocket)
+		canon.CHANGE_TOOL(this.selected_tool)
 		this.current_pocket = this.selected_pocket
 		# cause a sync()
 		this.tool_change_flag = True
