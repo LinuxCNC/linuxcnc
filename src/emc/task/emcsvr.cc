@@ -30,6 +30,8 @@
 #include "timer.hh"
 #include "nml_srv.hh"           // run_nml_servers()
 
+static int tool_channels = 1;
+
 static int iniLoad(const char *filename)
 {
     IniFile inifile;
@@ -60,7 +62,7 @@ static int iniLoad(const char *filename)
     } else {
 	// not found, use default
     }
-
+    inifile.Find(&tool_channels,"TOOL_CHANNELS","EMC");
     // close it
     inifile.Close();
 
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
 
     while (fabs(etime() - start_time) < 10.0 &&
 	   (emcCommandChannel == NULL || emcStatusChannel == NULL
-	    || toolCommandChannel == NULL || toolStatusChannel == NULL
+	    || (tool_channels && (toolCommandChannel == NULL || toolStatusChannel == NULL))
 	    || emcErrorChannel == NULL)
 	) {
 	if (NULL == emcCommandChannel) {
@@ -113,17 +115,18 @@ int main(int argc, char *argv[])
 	    emcErrorChannel =
 		new NML(nmlErrorFormat, "emcError", "emcsvr", EMC_NMLFILE);
 	}
-	if (NULL == toolCommandChannel) {
-	    toolCommandChannel =
-		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-				    EMC_NMLFILE);
+	if (tool_channels) {
+	    if (NULL == toolCommandChannel) {
+		toolCommandChannel =
+		    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
+					EMC_NMLFILE);
+	    }
+	    if (NULL == toolStatusChannel) {
+		toolStatusChannel =
+		    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
+					 EMC_NMLFILE);
+	    }
 	}
-	if (NULL == toolStatusChannel) {
-	    toolStatusChannel =
-		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-				     EMC_NMLFILE);
-	}
-
 
 	if (!emcCommandChannel->valid()) {
 	    delete emcCommandChannel;
@@ -137,15 +140,16 @@ int main(int argc, char *argv[])
 	    delete emcErrorChannel;
 	    emcErrorChannel = NULL;
 	}
-	if (!toolCommandChannel->valid()) {
-	    delete toolCommandChannel;
-	    toolCommandChannel = NULL;
+	if (tool_channels) {
+	    if (!toolCommandChannel->valid()) {
+		delete toolCommandChannel;
+		toolCommandChannel = NULL;
+	    }
+	    if (!toolStatusChannel->valid()) {
+		delete toolStatusChannel;
+		toolStatusChannel = NULL;
+	    }
 	}
-	if (!toolStatusChannel->valid()) {
-	    delete toolStatusChannel;
-	    toolStatusChannel = NULL;
-	}
-
 	esleep(0.200);
     }
 
@@ -165,17 +169,18 @@ int main(int argc, char *argv[])
 	emcErrorChannel =
 	    new NML(nmlErrorFormat, "emcError", "emcsvr", EMC_NMLFILE);
     }
-    if (NULL == toolCommandChannel) {
-	toolCommandChannel =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-				EMC_NMLFILE);
+    if (tool_channels) {
+	if (NULL == toolCommandChannel) {
+	    toolCommandChannel =
+		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
+				    EMC_NMLFILE);
+	}
+	if (NULL == toolStatusChannel) {
+	    toolStatusChannel =
+		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
+				     EMC_NMLFILE);
+	}
     }
-    if (NULL == toolStatusChannel) {
-	toolStatusChannel =
-	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-				 EMC_NMLFILE);
-    }
-
     run_nml_servers();
 
     return 0;
