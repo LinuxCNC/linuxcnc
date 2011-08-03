@@ -48,7 +48,7 @@ net XYZvel <= hypot.1.out
 #disabled for noio: net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 #reenabled for iotask_remove:
 # iocontrol doesnt exist any more, these are really motion pins
-net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # create signals for tool loading loopback
 # net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
