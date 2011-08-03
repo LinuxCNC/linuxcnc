@@ -22,12 +22,6 @@ EOF
     esac
 }
 
-if ! type -path readlink > /dev/null 2>& 1; then
-    function readlink () {
-        perl -le 'print readlink(shift)' -- $1
-    }
-fi
-
 RUN_IN_PLACE=@RUN_IN_PLACE@
 if [ $RUN_IN_PLACE = yes ]; then
     # When using RIP make sure PATH includes the directory where rtapi_app
