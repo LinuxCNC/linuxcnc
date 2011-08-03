@@ -27,11 +27,11 @@
 
 char _parameter_file_name[LINELEN];
 extern "C" void initinterpreter();
-extern "C" void initcanon();
+extern "C" void initemccanon();
 extern "C" struct _inittab builtin_modules[];
 struct _inittab builtin_modules[] = {
     { (char *) "interpreter", initinterpreter },
-    { (char *) "canon", initcanon },
+    { (char *) "emccanon", initemccanon },
     // any others...
     { NULL, NULL }
 };

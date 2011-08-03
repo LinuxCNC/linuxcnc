@@ -14,7 +14,7 @@ static void wrap_canon_error(const char *s)
 #pragma GCC diagnostic warning "-Wformat-security"
 
 
-BOOST_PYTHON_MODULE(canon) {
+BOOST_PYTHON_MODULE(emccanon) {
     using namespace boost::python;
     scope().attr("__doc__") =
         "Canon access & introspection\n"
