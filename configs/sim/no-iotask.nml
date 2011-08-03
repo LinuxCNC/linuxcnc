@@ -11,8 +11,8 @@ B emcStatus             SHMEM   localhost       16384   0       0       2       
 B emcError              SHMEM   localhost       8192    0       0       3       16 1003 TCP=5005 xdr queue
 
 # These are for the IO controller, EMCIO
-B toolCmd               SHMEM   localhost       1024    0       0       4       16 1004 TCP=5005 xdr
-B toolSts               SHMEM   localhost       8192    0       0       5       16 1005 TCP=5005 xdr
+#B toolCmd               SHMEM   localhost       1024    0       0       4       16 1004 TCP=5005 xdr
+#B toolSts               SHMEM   localhost       8192    0       0       5       16 1005 TCP=5005 xdr
 
 # Processes
 # Name          Buffer          Type    Host            Ops     server? timeout master? cnum
@@ -20,14 +20,14 @@ B toolSts               SHMEM   localhost       8192    0       0       5       
 P emc           emcCommand      LOCAL   localhost       RW      0       1.0     0       0
 P emc           emcStatus       LOCAL   localhost       W       0       1.0     0       0
 P emc           emcError        LOCAL   localhost       W       0       1.0     0       0
-#P emc           toolCmd         LOCAL   localhost       W       0       1.0     0       0
-#P emc           toolSts         LOCAL   localhost       R       0       1.0     0       0
+P emc           toolCmd         LOCAL   localhost       W       0       1.0     0       0
+P emc           toolSts         LOCAL   localhost       R       0       1.0     0       0
 
 P emcsvr        emcCommand      LOCAL   localhost       W       1       1.0     1       2
 P emcsvr        emcStatus       LOCAL   localhost       R       1       1.0     1       2
 P emcsvr        emcError        LOCAL   localhost       R       1       1.0     1       2
-#P emcsvr        toolCmd         LOCAL   localhost       W       1       1.0     1       2
-#P emcsvr        toolSts         LOCAL   localhost       R       1       1.0     1       2
+P emcsvr        toolCmd         LOCAL   localhost       W       1       1.0     1       2
+P emcsvr        toolSts         LOCAL   localhost       R       1       1.0     1       2
 P emcsvr        default         LOCAL   localhost       RW      1       1.0     1       2
 
 #P tool          emcError        LOCAL   localhost       W       0       1.0     0       3
