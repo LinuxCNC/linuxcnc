@@ -2,7 +2,7 @@ import os
 import signal
 
 from interpreter import *
-import canon
+import emccanon
 
 #
 # to remap Tx (prepare) to an NGC file 'prepare.ngc', incantate like so:
@@ -52,7 +52,7 @@ def prepare_epilog(userdata,**words):
 	if retval >= 0:
 		this.selected_pocket = this._pocket
 		this.selected_tool = this._tool
-		canon.SELECT_POCKET( this._pocket, this._tool)
+		emccanon.SELECT_POCKET( this._pocket, this._tool)
 		return INTERP_OK
 	else:
 		this.set_errormsg("T%d: aborted (return code %.4f)" % (this._tool,retval))
@@ -88,8 +88,8 @@ def change_epilog(userdata,**words):
 	print "change_epilog retval=% selected_pocket=%d" %(retval,this.selected_pocket)
 	if retval > 0:
 		# commit change
-		#canon.CHANGE_TOOL(this.selected_pocket)
-		canon.CHANGE_TOOL(this.selected_tool)
+		#emccanon.CHANGE_TOOL(this.selected_pocket)
+		emccanon.CHANGE_TOOL(this.selected_tool)
 		this.current_pocket = this.selected_pocket
 		# cause a sync()
 		this.tool_change_flag = True
@@ -124,7 +124,7 @@ def set_tool_number(userdata,**words):
 	if words['q'] > -TOLERANCE_EQUAL:
 		this.current_pocket = pocket
 
-		canon.CHANGE_TOOL_NUMBER(pocket)
+		emccanon.CHANGE_TOOL_NUMBER(pocket)
 		# test: this.tool_table[0].offset.tran.z = this.tool_table[pocket].offset.tran.z
 		# cause a sync()
 		this.tool_change_flag = True
@@ -148,12 +148,12 @@ def set_tool_number(userdata,**words):
 def test_reschedule(userdata,**words):
 	if userdata > 0:
 		# we were called post-sync():
-		pin_status = canon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
+		pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
 		print "pin status=",pin_status
 		return INTERP_OK # done
 	else:
 		# wait for digital-input 00 to go hi for 5secs
-		canon.WAIT(0,1,2,5.0)
+		emccanon.WAIT(0,1,2,5.0)
 		# pls call again after sync() with new userdata value
 		return (INTERP_EXECUTE_FINISH,userdata + 1)
 

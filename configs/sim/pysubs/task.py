@@ -1,6 +1,6 @@
 import sys
 import hal
-import canon
+import emccanon
 import interpreter
 
 try:
@@ -93,7 +93,7 @@ class EnqueueCall(object):
     def _encode(self,*args,**kwargs):
         if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
             p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
-            canon.PLUGIN_CALL(int(len(p)),p)
+            emccanon.PLUGIN_CALL(int(len(p)),p)
         else:
             raise AttributeError,"no such method: " + self._name
 

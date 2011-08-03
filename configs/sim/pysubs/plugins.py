@@ -1,5 +1,5 @@
 import interpreter
-import canon
+import emccanon
 have_emctask = False
 try:
     import emctask
