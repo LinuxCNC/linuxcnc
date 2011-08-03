@@ -8,6 +8,7 @@ USERSRCS += $(EMCSVRSRCS)
 	@$(CXX) $(LDFLAGS) -o $@ $^ 
 TARGETS += ../bin/emcsvr
 
+# disabled:	emc/task/iotaskintf.cc
 MILLTASKSRCS := \
 	emc/motion/emcmotglb.c \
 	emc/task/emctask.cc \
@@ -16,7 +17,6 @@ MILLTASKSRCS := \
 	emc/motion/usrmotintf.cc \
 	emc/motion/emcmotutil.c \
 	emc/task/taskintf.cc \
-	emc/task/iotaskintf.cc \
 	emc/motion/dbuf.c \
 	emc/motion/stashf.c \
 	emc/rs274ngc/tool_parse.cc \
