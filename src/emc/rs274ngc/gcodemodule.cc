@@ -758,6 +758,11 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
            min_xt = 9e99, min_yt = 9e99, min_zt = 9e99,
            max_x = -9e99, max_y = -9e99, max_z = -9e99,
            max_xt = -9e99, max_yt = -9e99, max_zt = -9e99;
+    if (self == NULL) {
+	PyErr_Format(PyExc_RuntimeError,"self == NULL!!");
+	return NULL;
+    }
+
     for(int i=0; i<PySequence_Length(args); i++) {
         PyObject *si = PyTuple_GetItem(args, i);
         if(!si) return NULL;
