@@ -22,64 +22,90 @@ namespace pp = pyplusplus::containers::static_sized;
 #include "emc_nml.hh"
 
 extern EMC_STAT *emcStatus;
+typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
+
+
+#define EXPAND(method)						\
+    int method() {						\
+	if (bp::override f = this->get_override(#method))	\
+	    return f();						\
+	else							\
+	    return  Task::method();				\
+    }								\
+    int default_ ## method() {					\
+	return this->Task::method();				\
+    }
+
+
+#define EXPAND1(method,type,name)					\
+    int method(type name) {						\
+	if (bp::override f = this->get_override(#method))		\
+	    return f(name);						\
+	else								\
+	    return  Task::method(name);					\
+    }									\
+    int default_ ## method(type name) {					\
+	return this->Task::method(name);				\
+    }
+
+
+#define EXPAND2(method,type,name,type2,name2)				\
+    int method(type name,type2 name2) {					\
+	if (bp::override f = this->get_override(#method))		\
+	    return f(name,name2);					\
+	else								\
+	    return  Task::method(name,name2);				\
+    }									\
+    int default_ ## method(type name,type2 name2) {			\
+	return this->Task::method(name,name2);				\
+    }
+
 
 struct TaskWrap : public Task, public bp::wrapper<Task> {
 
     TaskWrap() : Task() {}
     // TaskWrap()  {}
 
-   int test(int arg) {
-	if (bp::override f = this->get_override("test"))
-	    return f(arg);
-	else
-	    return  Task::test(arg);
-    }
-    int default_test(int arg) {
-	return this->Task::test(arg);
-    }
+    EXPAND1(test,int,arg)
+    EXPAND(emcIoInit)
+    EXPAND(emcIoHalt)
+    EXPAND1(emcIoAbort,int,reason)
 
-    int emcToolPrepare(int p, int tool) {
+    EXPAND(emcToolStartChange)
+    EXPAND(emcAuxEstopOn)
+    EXPAND(emcAuxEstopOff)
+    EXPAND(emcCoolantMistOn)
+    EXPAND(emcCoolantMistOff)
+    EXPAND(emcCoolantFloodOn)
+    EXPAND(emcCoolantFloodOff)
+    EXPAND(emcLubeOn)
+    EXPAND(emcLubeOff)
+    EXPAND1(emcIoSetDebug,int,debug)
+
+    EXPAND2(emcToolPrepare,int, p, int, tool)
+    EXPAND(emcToolLoad)
+    EXPAND(emcToolUnload)
+    EXPAND1(emcToolSetNumber,int,number)
+
+    int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+			 double frontangle, double backangle, int orientation) {
 	if (bp::override f = this->get_override("emcToolPrepare"))
-	    return f(p, tool);
+	    return f(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
 	else
-	    return  Task::emcToolPrepare(p, tool);
+	    return  Task::emcToolSetOffset(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
     }
-    int default_emcToolPrepare(int p, int tool) {
-	return this->Task::emcToolPrepare(p, tool);
+    int default_emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+				 double frontangle, double backangle, int orientation) {
+	return this->Task::emcToolSetOffset(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
     }
 
-    int emcToolLoad() {
-	if (bp::override f = this->get_override("emcToolLoad"))
+    int emcIoUpdate(EMC_IO_STAT * stat) {
+	if (bp::override f = this->get_override("emcIoUpdate"))
 	    return f();
 	else
-	    return  Task::emcToolLoad();
-    }
-    int default_emcToolLoad() {
-	return this->Task::emcToolLoad();
-    }
-    int emcToolUnload() {
-	if (bp::override f = this->get_override("emcToolUnload"))
-	    return f();
-	else
-	    return  Task::emcToolUnload();
-    }
-    int default_emcToolUnload() {
-	return this->Task::emcToolUnload();
-    }
-    int emcToolSetNumber(int number) {
-	if (bp::override f = this->get_override("emcToolSetNumber"))
-	    return f(number);
-	else
-	    return  Task::emcToolSetNumber(number);
-    }
-    int default_emcToolSetNumber(int number) {
-	return this->Task::emcToolSetNumber(number);
+	    return  Task::emcIoUpdate(stat);
     }
 };
-
-
-
-
 
 typedef pp::array_1_t< EMC_AXIS_STAT, EMC_AXIS_MAX> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< int, EMC_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
@@ -304,10 +330,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.add_property( "analog_output",
 		       bp::make_function( analog_io_w(&analog_output_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-	// .def_readwrite("estop", &emcStatus->motion.estop)
-	// .def_readwrite("coolant", &emcStatus->motion.coolant)
-	// .def_readwrite("lube", &emcStatus->motion.lube)
-	// .def_readwrite("debug", &emcStatus->motion.debug)
 	;
 
     class_ <EMC_TASK_STAT, noncopyable>("EMC_TASK_STAT",no_init)
@@ -363,15 +385,20 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("estop", &emcStatus->io.aux.estop)
 	.def_readwrite("coolant", &emcStatus->io.coolant)
 	.def_readwrite("lube", &emcStatus->io.lube)
+	.def_readwrite("status", &emcStatus->io.status)
 	;
 
 
-    class_ <EMC_STAT, noncopyable>("EMC_STAT",no_init)
+   class_ <EMC_STAT, emcstatus_ptr, noncopyable>("EMC_STAT",no_init)
 	.def_readwrite("task",&emcStatus->task)
 	.def_readwrite("motion",&emcStatus->motion)
 	.def_readwrite("io",&emcStatus->io)
 	.def_readwrite("debug",&emcStatus->debug)
 	;
+
+
+    // this assumes that at module init time emcStatus is valid (non-NULL)
+    scope().attr("emcstat") = emcstatus_ptr(emcStatus);
 
 
     pp::register_array_1< double, EMC_MAX_AIO> ("AnalogIoArray");
