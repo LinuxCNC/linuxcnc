@@ -65,7 +65,6 @@ typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
 struct TaskWrap : public Task, public bp::wrapper<Task> {
 
     TaskWrap() : Task() {}
-    // TaskWrap()  {}
 
     EXPAND(emcIoInit)
     EXPAND(emcIoHalt)
@@ -181,6 +180,8 @@ BOOST_PYTHON_MODULE(emctask) {
         "Task introspection\n"
         ;
 
+    def("iniTool", iniTool);
+
     def("operator_error",
 	operator_error,
 	operator_error_overloads ( args("id"),
@@ -197,6 +198,52 @@ BOOST_PYTHON_MODULE(emctask) {
     scope().attr("RCS_EXEC") = (int)RCS_EXEC;
     scope().attr("RCS_DONE") = (int)RCS_DONE;
     scope().attr("RCS_ERROR") = (int)RCS_ERROR;
+
+#define VAL(X)  .value(#X, X)
+    enum_<EMC_TASK_MODE_ENUM>("EMC_TASK_MODE")
+	VAL(EMC_TASK_MODE_MANUAL)
+	VAL(EMC_TASK_MODE_AUTO)
+	VAL(EMC_TASK_MODE_MDI)
+	;
+
+    enum_<EMC_TASK_STATE_ENUM>("EMC_TASK_STATE")
+	VAL(EMC_TASK_STATE_ESTOP)
+	VAL(EMC_TASK_STATE_ESTOP_RESET)
+	VAL(EMC_TASK_STATE_OFF)
+	VAL(EMC_TASK_STATE_ON)
+	;
+
+    enum_<EMC_TASK_EXEC_ENUM>("EMC_TASK_EXEC")
+	VAL(EMC_TASK_EXEC_ERROR)
+	VAL(EMC_TASK_EXEC_DONE)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_IO)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_PAUSE)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_DELAY)
+	VAL(EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD)
+	;
+
+    enum_<EMC_TASK_INTERP_ENUM>("EMC_TASK_INTERP")
+	VAL(EMC_TASK_INTERP_IDLE)
+	VAL(EMC_TASK_INTERP_READING)
+	VAL(EMC_TASK_INTERP_PAUSED)
+	VAL(EMC_TASK_INTERP_WAITING)
+	;
+
+
+    enum_<EMC_IO_ABORT_REASON_ENUM>("EMC_IO_ABORT_REASON")
+	VAL(EMC_ABORT_TASK_EXEC_ERROR)
+	VAL(EMC_ABORT_AUX_ESTOP)
+	VAL(EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
+	VAL(EMC_ABORT_TASK_STATE_OFF)
+	VAL(EMC_ABORT_TASK_STATE_ESTOP_RESET)
+	VAL(EMC_ABORT_TASK_STATE_ESTOP)
+	VAL(EMC_ABORT_TASK_STATE_NOT_ON)
+	VAL(EMC_ABORT_TASK_ABORT)
+	VAL(EMC_ABORT_USER)
+	;
 
     class_<Task, shared_ptr<Task>, noncopyable>("__Task",  " Pretend I Don't exist",  no_init)
        .def("emcToolPrepare", &Task::emcToolPrepare)
@@ -332,57 +379,6 @@ BOOST_PYTHON_MODULE(emctask) {
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	;
 
-#define VAL(X)  .value(#X, X)
-    enum_<EMC_TASK_MODE_ENUM>("EMC_TASK_MODE")
-	VAL(EMC_TASK_MODE_MANUAL)
-	VAL(EMC_TASK_MODE_AUTO)
-	VAL(EMC_TASK_MODE_MDI)
-	.export_values()
-	;
-
-    enum_<EMC_TASK_STATE_ENUM>("EMC_TASK_STATE")
-	VAL(EMC_TASK_STATE_ESTOP)
-	VAL(EMC_TASK_STATE_ESTOP_RESET)
-	VAL(EMC_TASK_STATE_OFF)
-	VAL(EMC_TASK_STATE_ON)
-	.export_values()
-	;
-
-    enum_<EMC_TASK_EXEC_ENUM>("EMC_TASK_EXEC")
-	VAL(EMC_TASK_EXEC_ERROR)
-	VAL(EMC_TASK_EXEC_DONE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_IO)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_PAUSE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_DELAY)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD)
-	.export_values()
-	;
-
-    enum_<EMC_TASK_INTERP_ENUM>("EMC_TASK_INTERP")
-	VAL(EMC_TASK_INTERP_IDLE)
-	VAL(EMC_TASK_INTERP_READING)
-	VAL(EMC_TASK_INTERP_PAUSED)
-	VAL(EMC_TASK_INTERP_WAITING)
-	.export_values()
-	;
-
-
-    enum_<EMC_IO_ABORT_REASON_ENUM>("EMC_IO_ABORT_REASON")
-	VAL(EMC_ABORT_TASK_EXEC_ERROR)
-	VAL(EMC_ABORT_AUX_ESTOP)
-	VAL(EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
-	VAL(EMC_ABORT_TASK_STATE_OFF)
-	VAL(EMC_ABORT_TASK_STATE_ESTOP_RESET)
-	VAL(EMC_ABORT_TASK_STATE_ESTOP)
-	VAL(EMC_ABORT_TASK_STATE_NOT_ON)
-	VAL(EMC_ABORT_TASK_ABORT)
-	VAL(EMC_ABORT_USER)
-	.export_values()
-	;
-
 
     class_ <EMC_TASK_STAT, noncopyable>("EMC_TASK_STAT",no_init)
 	.def_readwrite("mode",  &EMC_TASK_STAT::mode)
@@ -450,9 +446,10 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("motion", &EMC_STAT::motion)
 	.def_readwrite("io", &EMC_STAT::io)
 	.def_readwrite("debug", &EMC_STAT::debug)
+	.def_readonly("use_iocontrol", &use_iocontrol)
 	;
 
-    def("iniTool", &iniTool);
+
 
     // this assumes that at module init time emcStatus is valid (non-NULL)
     scope().attr("emcstat") = emcstatus_ptr(emcStatus);
