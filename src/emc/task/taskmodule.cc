@@ -463,4 +463,7 @@ BOOST_PYTHON_MODULE(emctask) {
     pp::register_array_1< int, EMC_MAX_DIO> ("DigitalIoArray");
     pp::register_array_1< EMC_AXIS_STAT,EMC_AXIS_MAX,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("AxisArray");
+
+    pp::register_array_1< CANON_TOOL_TABLE, CANON_POCKETS_MAX,
+	bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolArray");
 }
