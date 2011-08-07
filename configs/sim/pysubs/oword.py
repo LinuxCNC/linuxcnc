@@ -1,6 +1,6 @@
 import sys
 import interpreter
-
+import emccanon
 
 have_emctask = False
 if 'emctask' in sys.builtin_module_names:
@@ -68,3 +68,8 @@ def tdir(args):
         print "state=",e.task.state
         print "file=",e.task.file
         print "toolOffset=",e.task.toolOffset
+
+
+
+def iodemo(args):
+    emccanon.IO_PLUGIN_CALL(13,"foobarbaz12345")

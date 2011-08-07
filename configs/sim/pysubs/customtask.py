@@ -1,6 +1,8 @@
 import emctask
 import hal
 import emc # use for ini *only*
+import tooltable
+
 
 # startup:
 #     halui.estop.is-activated = true
@@ -38,7 +40,9 @@ class CustomTask(emctask.Task):
         self.hal = h
         self.hal_init_pins()
         self.e = emctask.emcstat
-        #self.e.estop = 1
+        self.e.io.aux.estop = 1
+        self.e.io.status  = emctask.RCS_DONE
+        self.pin = None
         print "Py CustomTask.init"
 
 
@@ -51,7 +55,14 @@ class CustomTask(emctask.Task):
         self.e.io.coolant.flood = 0
         self.e.io.lube.on = 0
         self.e.io.lube.level = 1
-        return emctask.iniTool("py.ini")  # FIXME
+        self.e.io.tool.toolTable[0].toolno = -1
+        self.tt = tooltable.EmcToolTable(filename='/home/mah/emc2-tc/configs/sim/nstools-random.tbl')
+
+        for tool in self.tt.table_entries():
+            self.e.io.tool.toolTable[tool.pocket].toolno = tool.tool_number
+            self.e.io.tool.toolTable[tool.pocket].offset_z = tool.offset_z
+        self.e.io.status  = emctask.RCS_DONE
+        return 0
 
     def hal_init_pins(self):
         """ Sets HAL pins default values """
@@ -66,15 +77,27 @@ class CustomTask(emctask.Task):
         self.hal["tool-prep-pocket"] = 0
         self.hal["tool-change"] = 0
 
+
+    def emcIoPluginCall(self, len, msg):
+        print "py: emcIoPluginCall",len,msg
+        self.pin = "tool-changed"
+        self.pin_value = 1
+        self.e.io.status  = emctask.RCS_EXEC
+        return 0
+
     def emcIoUpdate(self):
         #        print "py:  emcIoUpdate"
         self.hal["user-request-enable"] = 0
         self.e.io.aux.estop = not self.hal["emc-enable-in"]
-        self.e.io.status  = emctask.RCS_DONE
+        if self.pin:
+            if self.hal[self.pin] == self.pin_value:
+                self.pin = None
+                self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcIoHalt(self):
         print "py:  emcIoHalt"
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcIoAbort(self,reason):
@@ -85,80 +108,121 @@ class CustomTask(emctask.Task):
         self.e.io.coolant.flood = 0
         self.hal["tool-change"] = 0
         self.hal["tool-prepare"] = 0
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcToolStartChange(self):
         print "py:  emcToolStartChange"
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcAuxEstopOn(self):
         print "py:  emcAuxEstopOn taskstate=",self.e.task.state
         self.hal["user-enable-out"] = 0
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcAuxEstopOff(self):
         print "py:  emcAuxEstopOff"
         self.hal["user-enable-out"] = 1
         self.hal["user-request-enable"] = 1
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcCoolantMistOn(self):
         print "py:  emcCoolantMistOn"
         self.hal["coolant-mist"] = 1
         self.e.io.coolant.mist = 1
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcCoolantMistOff(self):
         print "py:  emcCoolantMistOff"
         self.hal["coolant-mist"] = 0
         self.e.io.coolant.mist = 0
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcCoolantFloodOn(self):
         print "py:  emcCoolantFloodOn"
         self.hal["coolant-flood"] = 1
         self.e.io.coolant.flood = 1
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcCoolantFloodOff(self):
         print "py:  emcCoolantFloodOff"
         self.hal["coolant-flood"] = 0
         self.e.io.coolant.flood = 0
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcLubeOn(self):
         print "py:  emcLubeOn"
         self.hal["lube"] = 1
         self.e.io.lube.on = 1
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcLubeOff(self):
         print "py:  emcLubeOff"
         self.hal["lube"] = 0
         self.e.io.lube.on = 0
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcIoSetDebug(self,debug):
         print "py:   emcIoSetDebug debug =",debug
+        self.e.io.status  = emctask.RCS_DONE
+        return 0
+
+    def emcToolLoadToolTable(self,file):
+        print "py:  emcToolLoadToolTable file =",file
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcToolPrepare(self,p,tool):
         print "py:   emcToolPrepare p =",p,"tool =",tool
+        if self.random_toolchanger and (p == 0):
+            print "it doesn't make sense to prep the spindle pocket"
+            return 0
+
+        self.hal["tool-prep-pocket"] = p
+        if not self.random_toolchanger and (p == 0):
+            self.hal["tool-prep-number"] = 0
+            prep = 0
+        else:
+            prep = self.e.io.tool.toolTable[p].toolno  # or tool
+
+        self.e.io.tool.pocketPrepped = p
+        self.hal["tool-prepare"] = 1
+        #        self.hal["tool-prepared"] = 0
+        # need rcs_exec wait now
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcToolLoad(self):
         print "py:  emcToolLoad"
+        self.e.io.tool.toolInSpindle = self.e.io.tool.toolTable[self.e.io.tool.pocketPrepped].toolno
+        self.e.io.tool.pocketPrepped = -1
+        self.hal["tool-prep-number"] = 0
+        self.hal["tool-prep-pocket"] = 0
+        self.hal["tool-change"] = 0
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcToolUnload(self):
         print "py:  emcToolUnload"
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcToolSetNumber(self,number):
         print "py:   emcToolSetNumber number =",number
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
     def emcToolSetOffset(self,pocket,toolno,offset,diameter,frontangle,backangle,orientation):
         print "py:  emcToolSetOffset", pocket,toolno,offset,diameter,frontangle,backangle,orientation
+        self.e.io.status  = emctask.RCS_DONE
         return 0
 
