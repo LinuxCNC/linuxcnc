@@ -748,7 +748,7 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
                     &unused,
                     &xs, &ys, &zs, &unused, &unused, &unused, &unused, &unused, &unused,
                     &xe, &ye, &ze, &unused, &unused, &unused, &unused, &unused, &unused,
-                    &unused, &xt, &yt, &zt);
+                    &xt, &yt, &zt);
             else
                 r = PyArg_ParseTuple(sj,
                     "O(dddOOOOOO)(dddOOOOOO)O(ddd):calc_extents item",
