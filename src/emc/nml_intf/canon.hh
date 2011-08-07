@@ -937,4 +937,7 @@ extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2))
 // call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
 extern void PLUGIN_CALL(int len, const char *call);
 
+// same for IoTask context
+extern void IO_PLUGIN_CALL(int len, const char *call);
+
 #endif				/* ifndef CANON_HH */

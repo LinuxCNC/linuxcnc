@@ -279,6 +279,8 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 					   frontangle,  backangle,  orientation); }
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
 int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
+int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg) { return task_methods->emcIoPluginCall(call_msg->len,
+											   call_msg->call); }
 
 int emcTaskOnce(const char *filename, const char *python_taskinit)
 {

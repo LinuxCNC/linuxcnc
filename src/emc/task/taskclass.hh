@@ -8,8 +8,8 @@
 
 class Task {
 public:
-    Task() {};
-    virtual ~Task() {};
+    Task();
+    virtual ~Task();
 
     virtual int emcIoInit();
     virtual int emcIoHalt();
@@ -35,6 +35,7 @@ public:
     virtual int emcToolUnload();
     virtual int emcToolSetNumber(int number);
 
+    virtual int emcIoPluginCall(int len, const char *msg);
 
 
     // carried over from ioControl.cc

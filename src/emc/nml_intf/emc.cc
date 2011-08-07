@@ -1758,6 +1758,19 @@ void EMC_EXEC_PLUGIN_CALL::update(CMS * cms)
     cms->update(call,sizeof(call));
 }
 
+/*
+*	NML/CMS Update function for EMC_IO_PLUGIN_CALL
+*	Manually added by Michael Haberler
+*	on Sun Aug  7 13:59:51 CEST 201
+*/
+void EMC_IO_PLUGIN_CALL::update(CMS * cms)
+{
+
+    EMC_CMD_MSG::update(cms);
+    cms->update(len);
+    cms->update(call,sizeof(call));
+}
+
 
 /*
 *	NML/CMS Update function for EMC_TOOL_STAT_MSG

@@ -1511,6 +1511,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	break;
 
     case EMC_EXEC_PLUGIN_CALL_TYPE:
+    case EMC_IO_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
@@ -2234,6 +2235,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval =  emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
 	break;
 
+    case EMC_IO_PLUGIN_CALL_TYPE:
+	retval =  emcIoPluginCall( (EMC_IO_PLUGIN_CALL *) cmd);
+	break;
+
      default:
 	// unrecognized command
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
@@ -2350,6 +2355,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	break;
 
     case EMC_EXEC_PLUGIN_CALL_TYPE:
+    case EMC_IO_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
@@ -3343,7 +3349,7 @@ int main(int argc, char *argv[])
 
 	    // wait on timer cycle, if specified, or calculate actual
 	    // interval if ini file says to run full out via
-	    // [TASK] CYCLE_TIME <= 0.0
+	    // [TASK] CYCLE_TIME <= 0.0d
 	    // emcTaskEager = 0;
 	    if (emcTaskNoDelay) {
 		endTime = etime();

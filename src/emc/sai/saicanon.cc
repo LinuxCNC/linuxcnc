@@ -1161,3 +1161,8 @@ void PLUGIN_CALL(int len, const char *call)
 {
     printf("PLUGIN_CALL(%d)\n",len);
 }
+
+void IO_PLUGIN_CALL(int len, const char *call)
+{
+    printf("IO_PLUGIN_CALL(%d)\n",len);
+}

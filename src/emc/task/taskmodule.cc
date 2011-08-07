@@ -85,6 +85,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcToolLoad)
     EXPAND(emcToolUnload)
     EXPAND1(emcToolSetNumber,int,number)
+    EXPAND2(emcIoPluginCall,int, len, const char *, msg)
 
     int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 			 double frontangle, double backangle, int orientation) {
