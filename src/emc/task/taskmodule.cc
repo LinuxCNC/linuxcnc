@@ -258,6 +258,8 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def("emcToolLoad", &Task::emcToolLoad, &TaskWrap::default_emcToolLoad)
 	.def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
 	.def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
+	.def_readonly("use_iocontrol", &Task::use_iocontrol)
+	.def_readonly("random_toolchanger", &Task::random_toolchanger)
 	;
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
@@ -447,7 +449,7 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("motion", &EMC_STAT::motion)
 	.def_readwrite("io", &EMC_STAT::io)
 	.def_readwrite("debug", &EMC_STAT::debug)
-	.def_readonly("use_iocontrol", &use_iocontrol)
+
 	;
 
 

@@ -49,9 +49,12 @@ public:
     // virtual void reload_tool_number(int toolno);
     // virtual int DummyiniTool(const char *filename);
 
+    int use_iocontrol;
+    int random_toolchanger;
+    int use_legacy_tooltable;
 
 private:
-    int random_toolchanger;
+
     char *ttcomments[CANON_POCKETS_MAX];
     int fms[CANON_POCKETS_MAX];
 };
