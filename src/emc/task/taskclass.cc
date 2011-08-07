@@ -45,7 +45,6 @@ extern PythonPlugin *python_plugin;  // exported by python_plugin.cc
 #define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
 static int emcPythonReturnValue(const char *funcname, bp::object &retval);
 Task *task_methods;
-static bool fake_iostat;
 
 // IO INTERFACE
 
