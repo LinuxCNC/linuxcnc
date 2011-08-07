@@ -281,7 +281,7 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number); }
 int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
 
-int emcTaskOnce(const char *inifile, const char *python_taskinit)
+int emcTaskOnce(const char *filename, const char *python_taskinit)
 {
     bp::object retval;
     bp::tuple arg;
@@ -292,9 +292,9 @@ int emcTaskOnce(const char *inifile, const char *python_taskinit)
 
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
-    // both use it - first to call configure() instantiates the Python part
+    // both Task and Interp use it - first to call configure() instantiates the Python part
     extern struct _inittab builtin_modules[];
-    if (PythonPlugin::configure(inifile,"PYTHON",  builtin_modules, &interp) != NULL) {
+    if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp) != NULL) {
 	printf("Python plugin configured");
     } else {
 	printf("no Python plugin available");
@@ -311,14 +311,19 @@ int emcTaskOnce(const char *inifile, const char *python_taskinit)
 		   python_plugin->last_exception().c_str());
 	if (PYUSABLE && (python_taskinit != NULL)) {
 	    try {
-		bp::object result = bp::exec(python_taskinit, python_plugin->main_namespace, python_plugin->main_namespace);
-		task_methods = bp::extract< Task * >(python_plugin->main_namespace["task_instance"]);
-		//	task_methods = bp::extract< Task * >(result); //hm, doesnt work for bp::eval() ?
-		fake_iostat = true;
-
+		static bp::object result = bp::eval(python_taskinit,
+						    python_plugin->main_namespace,
+						    python_plugin->main_namespace);
+		bp::extract<Task *> typetest(result);
+		if (typetest.check()) {
+		    task_methods = bp::extract< Task * >(result);
+		} else {
+		    printf("cant extract a Task instance out of '%s'\n", python_taskinit);
+		    task_methods = NULL;
+		}
 	    } catch( bp::error_already_set ) {
 		std::string msg = handle_pyerror();
-		printf("exec(%s): %s\n", python_taskinit,msg.c_str());
+		printf("eval(%s): %s\n", python_taskinit,msg.c_str());
 		PyErr_Clear();
 	    }
 	    if (task_methods == NULL) {
@@ -422,6 +427,51 @@ struct _inittab builtin_modules[] = {
     // any others...
     { NULL, NULL }
 };
+
+
+
+Task::Task() {
+
+    IniFile inifile;
+
+    if (inifile.Open(EMC_INIFILE)) {
+	use_iocontrol = (inifile.Find("EMCIO", "EMCIO") != NULL);
+	use_legacy_tooltable = (inifile.Find("EMCIO", "TOOL_TABLE") != NULL);
+	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
+    }
+    // if (use_iocontrol) {
+    // 	for(int i = 0; i < CANON_POCKETS_MAX; i++) {
+    // 	    ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+    // 	}
+    // 	if(!random_toolchanger) {
+    // 	    emcIoStatus->tool.toolTable[0].toolno = -1;
+    // 	    ZERO_EMC_POSE(emcIoStatus->tool.toolTable[0].offset);
+    // 	    emcIoStatus->tool.toolTable[0].diameter = 0.0;
+    // 	    emcIoStatus->tool.toolTable[0].frontangle = 0.0;
+    // 	    emcIoStatus->tool.toolTable[0].backangle = 0.0;
+    // 	    emcIoStatus->tool.toolTable[0].orientation = 0;
+    // 	    fms[0] = 0;
+    // 	    ttcomments[0][0] = '\0';
+    // 	}
+
+    // 	if (0 != loadToolTable(TOOL_TABLE_FILE, emcIoStatus->tool.toolTable,
+    // 			       fms, ttcomments, random_toolchanger)) {
+    // 	    rcs_print_error("%s: can't load tool table.\n",progname);
+    // 	}
+    // 	/* set status values to 'normal' */
+    // 	// emcIoStatus->aux.estop = 1; // estop=1 means to emc that ESTOP condition is met
+    // 	// emcIoStatus->tool.pocketPrepped = -1;
+    // 	// emcIoStatus->tool.toolInSpindle = 0;
+
+    // 	// emcIoStatus->coolant.mist = 0;
+    // 	// emcIoStatus->coolant.flood = 0;
+    // 	// emcIoStatus->lube.on = 0;
+    // 	// emcIoStatus->lube.level = 1;
+    // }
+};
+
+
+Task::~Task() {};
 
 // NML commands
 
@@ -651,8 +701,8 @@ int Task::emcToolSetNumber(int number)
 
 int Task::emcIoUpdate(EMC_IO_STAT * stat)
 {
-    if (fake_iostat) {
-	// there's no message to copy - we directly operate on emcStatus and its io member
+    if (!use_iocontrol) {
+	// there's no message to copy - Python directly operates on emcStatus and its io member
 	return 0;
     }
     if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
@@ -692,6 +742,12 @@ int Task::emcIoUpdate(EMC_IO_STAT * stat)
     //the speed gets set by the IO controller, no need to override it here (io takes care of increase/decrease speed too)
     // stat->spindle.speed = spindleSpeed;
 
+    return 0;
+}
+
+int Task::emcIoPluginCall(int len, const char *msg)
+{
+    printf("iocontrol task: emcIoPluginCall(%d,%s)\n",len,msg);
     return 0;
 }
 
