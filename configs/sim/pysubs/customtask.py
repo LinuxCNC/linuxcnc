@@ -147,7 +147,7 @@ class CustomTask(emctask.Task,UserFuncs):
         self.hal["tool-change"] = 0
         self.hal["tool-prepare"] = 0
         if self._callback:
-            print "cancelling callback to ",self._callback
+            print "emcIoAbort: cancelling callback to ",self._callback
             self._callback = None
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
