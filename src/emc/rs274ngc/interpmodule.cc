@@ -192,6 +192,27 @@ static  ParamClass param_wrapper ( Interp & inst) {
     return ParamClass(inst);
 }
 
+static bp::object emcpose_2_obj ( EmcPose &p) {
+    return  bp::object("x=%.4f y=%.4f z=%.4f a=%.4f b=%.4f c=%.4f u=%.4f v=%.4f w=%.4f" %
+	bp::make_tuple(p.tran.x,p.tran.y,p.tran.z,
+		       p.a,p.b,p.c,p.u,p.v,p.w));
+}
+static bp::object emcpose_str( EmcPose &p) {
+    return  bp::object("EmcPose(" + emcpose_2_obj(p) + ")");
+}
+
+static bp::object tool_str( CANON_TOOL_TABLE &t) {
+    return  bp::object("Tool(T%d D%.4f I%.4f J%.4f Q%d offset: " %
+		       bp::make_tuple(t.toolno,  t.diameter,
+				      t.frontangle,t.backangle, t.orientation) +
+		       emcpose_2_obj(t.offset) + ")");
+}
+
+static bp::object pmcartesian_str( PmCartesian &c) {
+    return  bp::object("PmCartesian(x=%.4f y=%.4f z=%.4f)" %
+		       bp::make_tuple(c.x,c.y,c.z));
+}
+
 static const char *get_comment(block &b) { return b.comment; };
 static const char *get_o_name(block &b) { return b.o_name; };
 
@@ -351,6 +372,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("x",&PmCartesian::x)
 	.def_readwrite("y",&PmCartesian::y)
 	.def_readwrite("z",&PmCartesian::z)
+	.def("__str__", &pmcartesian_str)
 	;
 
     class_<EmcPose, noncopyable>("EmcPose","EMC pose",no_init)
@@ -361,6 +383,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("u",&EmcPose::u)
 	.def_readwrite("v",&EmcPose::v)
 	.def_readwrite("w",&EmcPose::w)
+	.def("__str__", &emcpose_str)
 	;
 
     class_<CANON_TOOL_TABLE, noncopyable>("ToolTableEntry","Tool description",no_init)
@@ -370,6 +393,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)
 	.def_readwrite("backangle", &CANON_TOOL_TABLE::backangle)
 	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
+	.def("__str__", &tool_str)
 	;
 
 

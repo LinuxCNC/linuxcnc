@@ -168,6 +168,7 @@ static void operator_display(const char *message, int id = 0) {
 }
 #pragma GCC diagnostic warning "-Wformat-security"
 
+
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_error_overloads, operator_error, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_text_overloads, operator_text, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_display_overloads, operator_display, 1,2)
@@ -196,11 +197,18 @@ BOOST_PYTHON_MODULE(emctask) {
 	operator_display_overloads ( args("id"),
 				   "send a messsage to the operator display"  ));
 
-    scope().attr("RCS_EXEC") = (int)RCS_EXEC;
-    scope().attr("RCS_DONE") = (int)RCS_DONE;
-    scope().attr("RCS_ERROR") = (int)RCS_ERROR;
+    // scope().attr("RCS_EXEC") = (int)RCS_EXEC;
+    // scope().attr("RCS_DONE") = (int)RCS_DONE;
+    // scope().attr("RCS_ERROR") = (int)RCS_ERROR;
 
 #define VAL(X)  .value(#X, X)
+
+    enum_<RCS_STATUS>("RCS_STATUS")
+	VAL(RCS_EXEC)
+	VAL(RCS_DONE)
+	VAL(RCS_ERROR)
+	;
+
     enum_<EMC_TASK_MODE_ENUM>("EMC_TASK_MODE")
 	VAL(EMC_TASK_MODE_MANUAL)
 	VAL(EMC_TASK_MODE_AUTO)
@@ -260,25 +268,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
 	.def_readonly("use_iocontrol", &Task::use_iocontrol)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
-	;
-
-    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
-	.def_readwrite("x",&PmCartesian::x)
-	.def_readwrite("y",&PmCartesian::y)
-	.def_readwrite("z",&PmCartesian::z)
-	;
-
-    class_<EmcPose, noncopyable>("EmcPose","EMC pose",no_init)
-	.def_readwrite("tran",&EmcPose::tran)
-	// .def_readwrite("x",&EmcPose::tran.x)
-	// .def_readwrite("y",&EmcPose::tran.y)
-	// .def_readwrite("x",&EmcPose::tran.z)
-	.def_readwrite("a",&EmcPose::a)
-	.def_readwrite("b",&EmcPose::b)
-	.def_readwrite("c",&EmcPose::c)
-	.def_readwrite("u",&EmcPose::u)
-	.def_readwrite("v",&EmcPose::v)
-	.def_readwrite("w",&EmcPose::w)
 	;
 
     class_ <EMC_TRAJ_STAT, noncopyable>("EMC_TRAJ_STAT",no_init)
