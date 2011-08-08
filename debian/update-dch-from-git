@@ -26,7 +26,7 @@ GIT_TAG=`echo $GIT_VERSION | sed -r 's/^(.*)-[^-]+-[^-]+$/\1/'`
 
 DEB_VERSION=`git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/'`
 
-NEW_DEB_VERSION="${GIT_VERSION/-pre/~pre}"
+NEW_DEB_VERSION=$(echo $GIT_VERSION | sed -r 's/-pre/~pre/; s/-/+/; s/-/./g')
 NEW_DEB_VERSION="1:${NEW_DEB_VERSION/v/}"
 
 if [ "$NEW_DEB_VERSION" = "$DEB_VERSION" ]; then
