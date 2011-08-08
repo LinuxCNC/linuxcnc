@@ -1,11 +1,9 @@
-import sys
+import sys,os
 import interpreter
 import emccanon
 
-have_emctask = False
 if 'emctask' in sys.builtin_module_names:
     import emctask
-    have_task = True
 
 import task
 
@@ -31,45 +29,67 @@ def debug():
 # o<square> [5]
 # (debug, #<_value>)
 #
-# len(args) reflects the number of actual parameters passed
+# len(args) always reflects the number of actual parameters passed
 def square(args):
     return args[0]*args[0]
 
 
-#----------------  queue a call for task-time execution ------------
+#----------------  queue calls for task-time execution ------------
+# see userfuncs.py for the actual function definitions
+
+# trivial demo: wiggle a user-defined HAL pin a few times
 def qdemo(args):
-    print "in oword.qdemo() - enqueueing demo",args
-    task.enqueue.demo(args)
-
-
-def set_named_pin(args):
-
-    if (len(args) != 1):
-        interpreter.this.set_errormsg("set_named_pin takes a single argument and a comment")
-    if len(interpreter.this.blocks[0].comment) == 0:
-            interpreter.this.set_errormsg("set_named_pin takes  a comment, which is the HAL pin name")
-
-    task.enqueue.set_named_pin(args[0], interpreter.this.blocks[0].comment)
-
-def notify(args):
     try:
-        c = interpreter.this.blocks[0].comment
-        if debug(): print "in oword.notify() comment=",c
-        task.enqueue.notify(c)
+        task.pytask.enqueue.demo(args)
+        if debug(): print "enqueueing demo()",args
     except Exception,e:
-        print "notify: ",e
+        # this happens if called  with the UI context - no task there
+        if debug(): print "qdemo:",e,"pid=",os.getpid()
         pass
 
 # access emcStatus
-def tdir(args):
-    if have_emctask:
-        e = emctask.EMC_STAT
-        print "mode=",e.task.mode
-        print "state=",e.task.state
-        print "file=",e.task.file
-        print "toolOffset=",e.task.toolOffset
+# this is queued so it is done in-sequence at task time
+def show_emcstat(args):
+    try:
+        task.pytask.enqueue.show_emcstat(args)
+        if debug(): print "enqueueing show_emcstat()",args
+    except Exception,e:
+        if debug(): print "show_emcstat:",e,"pid=",os.getpid()
+        pass
 
 
+def set_named_pin(args):
+    ''' an uh, creative way to pass a string argument: use a trailing comment
+    usage example:  o<set_named_pin> call [2.345]  (component.pinname)
+    '''
+    try:
+        if (len(args) != 1):
+            interpreter.this.set_errormsg("set_named_pin takes a single argument and a comment")
+            return -1
+        if len(interpreter.this.blocks[0].comment) == 0:
+            interpreter.this.set_errormsg("set_named_pin takes  a comment, which is the HAL pin name")
+            return -1
+        task.pytask.enqueue.set_named_pin(args[0], interpreter.this.blocks[0].comment)
+        if debug(): print "enqueuing set_named_pin()",args
+    except Exception,e:
+        if debug(): print "set_named_pin:",e,"pid=",os.getpid()
+        pass
 
-def iodemo(args):
-    emccanon.IO_PLUGIN_CALL(13,"foobarbaz12345")
+
+def  wait_for_named_pin(args):
+    ''' same trick to wait for a given named pin to show a certain value:
+    usage example:  o<wait_for_named_pin> call [1]  (component.boolpin)
+    '''
+    try:
+        if (len(args) != 1):
+            interpreter.this.set_errormsg("wait_for_named_pin takes a single argument and a comment")
+            return -1
+        if len(interpreter.this.blocks[0].comment) == 0:
+            interpreter.this.set_errormsg("wait_for_named_pin takes  a comment, which is the HAL pin name")
+            return -1
+        task.pytask.enqueue.wait_for_named_pin(args[0], interpreter.this.blocks[0].comment)
+        if debug(): print "enqueuing wait_for_named_pin()",args
+    except Exception,e:
+        if debug(): print "wait_for_named_pin:",e,"pid=",os.getpid()
+        pass
+

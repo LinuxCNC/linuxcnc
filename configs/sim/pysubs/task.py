@@ -25,60 +25,55 @@ def debug():
 
 # demonstrate a user-defined task HAL module
 def task_init():
-    global myhal
-    if debug(): print "Python: task_init() called"
-    myhal = hal.component("myhal")
-    myhal.newpin("bit", hal.HAL_BIT, hal.HAL_OUT)
-    myhal.newpin("float", hal.HAL_FLOAT, hal.HAL_OUT)
-    myhal.newpin("int", hal.HAL_S32, hal.HAL_OUT)
-    myhal.ready()
-    return 1
+
+    return 0
 
 #----------------  exec-time plugin support ----------
 
 # methods in this class will be executed task-time if
 # queued like in the oword.task example
-class Execute(object):
+## class Execute(object):
 
-    def demo(self,s):
-        global myhal
-        if debug(): print "TASK: demo(%s)" % s
-        try:
-            for i in range(int(s[0])):
-                myhal['bit'] = not  myhal['bit']
-        except Exception,e:
-            print "bad:",e
-            pass
-        return 0
-    # return -1 to fail execution
-    #interpreter.this.set_errormsg("really bad")
-    #return -1
+##     def demo(self,s):
+##         global myhal
+##         if debug(): print "TASK: demo(%s)" % s
+##         try:
+##             for i in range(int(s[0])):
+##                 myhal['bit'] = not  myhal['bit']
+##         except Exception,e:
+##             print "bad:",e
+##             pass
+##         return 0
+##     # return -1 to fail execution
+##     #interpreter.this.set_errormsg("really bad")
+##     #return -1
 
-    def set_named_pin(self,value,name):
-        global myhal
-        if debug(): print "set_named_pin ",value,name
-        if type(myhal[name]).__name__ == 'float':
-            myhal[name] = value
+##     def set_named_pin(self,value,name):
+##         global myhal
+##         if debug(): print "set_named_pin ",value,name
+##         if type(myhal[name]).__name__ == 'float':
+##             myhal[name] = value
 
-        if type(myhal[name]).__name__ == 'int':
-            myhal[name] = int(value)
+##         if type(myhal[name]).__name__ == 'int':
+##             myhal[name] = int(value)
 
-        if type(myhal[name]).__name__ == 'bool':
-            myhal[name] = bool(int(value))
-        return 0
+##         if type(myhal[name]).__name__ == 'bool':
+##             myhal[name] = bool(int(value))
+##         return 0
 
-    def notify(self, s):
-        print "notify s=",s
-        return 0
+##     def notify(self, s):
+##         print "notify s=",s
+##         return 0
 
 
 # this function is called at execution time if a EMC_EXEC_PLUGIN_CALL
 # NML message is encountered by task
 # unwrap method name and arguments, and call the method
 def plugin_call(s):
-    global execute
+    print "plugin_call",s
+    global pytask
     call = pickle.loads(s)
-    func = getattr(execute, call[0], None)
+    func = getattr(pytask, call[0], None)
     if func:
 	    return func(*call[1],**call[2])
     else:
@@ -90,10 +85,13 @@ class EnqueueCall(object):
     def __init__(self,e):
         self._e = e
 
+    def test(self,args):
+        print "Enqueue.test()",args
+
     def _encode(self,*args,**kwargs):
         if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
             p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
-            emccanon.PLUGIN_CALL(int(len(p)),p)
+            emccanon.IO_PLUGIN_CALL(int(len(p)),p)
         else:
             raise AttributeError,"no such method: " + self._name
 
@@ -101,5 +99,13 @@ class EnqueueCall(object):
         self._name = name
         return self._encode
 
-execute = Execute()
-enqueue = EnqueueCall(execute)
+#execute = Execute()
+#enqueue = EnqueueCall(execute)
+#global pytask
+#enqueue = EnqueueCall(pytask)
+
+print "task MAIN"
+
+if 'emctask' in sys.builtin_module_names:
+    pytask = customtask.CustomTask()
+
