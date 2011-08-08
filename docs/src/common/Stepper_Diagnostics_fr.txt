@@ -60,7 +60,7 @@ valeurs de vitesse maximum et d'accélération maximum sont trop élevées.
 Si un backlash a été ajouté, il est nécessaire d'augmenter
 STEPGEN_MAXACCEL aux environs du double de MAX_ACCELERATION dans la
 section [AXIS] du fichier INI et ce, pour chacun des axes sur lesquels
-un backlash a été ajouté. EMC2 utilise une "extra accélération" au
+un backlash a été ajouté. EMC2 utilise une «extra accélération» au
 moment de l'inversion de sens pour reprendre le jeu. Sans correction du
 backlash, l'accélération pour le générateur de pas peut être juste un
 peu plus basse que celle du planificateur de mouvements.

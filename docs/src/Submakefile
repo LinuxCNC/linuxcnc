@@ -1,4 +1,4 @@
-.PHONY: docs docsclean checkref checkref_en checkref_fr
+.PHONY: docs docsclean checkref checkref_en checkref_de checkref_es checkref_fr
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 DOC_DIR=../docs
@@ -26,162 +26,382 @@ endif
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS := \
-	code/Code_Notes.lyx \
-	code/Style_Guide.lyx \
-	code/NML_Messages.lyx \
-	Getting_Started.lyx \
-	Getting_Started_fr.lyx \
-	gui/axis.lyx \
-	gui/axis_fr.lyx \
-	gui/halui.lyx \
-	gui/halui_fr.lyx \
-	gui/keystick.lyx \
-	gui/keystick_fr.lyx \
-	gui/mini.lyx \
-	gui/mini_fr.lyx \
-	gui/ngcgui.lyx \
-	gui/tkemc.lyx \
-	gui/tkemc_fr.lyx \
-	gui/touchy.lyx \
-	gui/image-to-gcode.lyx \
-	gui/image-to-gcode_fr.lyx \
-	gui/gladevcp.lyx \
-	Master_Developer.lyx \
-	Master_Integrator.lyx \
-	Master_Integrator_fr.lyx \
-	Master_User.lyx \
-	Master_User_fr.lyx \
-	common/Document_Header.lyx \
-	common/Document_Header_fr.lyx \
-	common/Getting_EMC.lyx \
-	common/Getting_EMC_fr.lyx \
-	common/GPLD_Copyright.lyx \
-	common/Glossary.lyx \
-	common/Integrator_Concepts.lyx \
-	common/Linux_FAQ.lyx \
-	common/Linux_FAQ_fr.lyx \
-	common/machining_center.lyx \
-	common/Stepper_Diagnostics.lyx \
-	common/Stepper_Diagnostics_fr.lyx \
-	common/System_Requirements.lyx \
-	common/System_Requirements_fr.lyx \
-	common/userforeword.lyx \
-	common/userforeword_fr.lyx \
-	common/User_Concepts.lyx \
-	common/User_Concepts_fr.lyx \
-	common/user_intro.lyx \
-	common/user_intro_fr.lyx \
-	config/ini_config.lyx \
-	config/ini_config_fr.lyx \
-	config/ini_homing.lyx \
-	config/ini_homing_fr.lyx \
-	config/lathe_config.lyx \
-	config/lathe_config_fr.lyx \
-	config/pncconf.lyx \
-	config/emc2hal.lyx \
-	config/emc2hal_fr.lyx \
-	config/stepper.lyx \
-	config/stepper_fr.lyx \
-	config/stepconf.lyx \
-	config/stepconf_fr.lyx \
-	drivers/AX5214H.lyx \
-	drivers/GS2.lyx \
-	drivers/hostmot2.lyx \
-	drivers/motenc.lyx \
-	drivers/opto22.lyx \
-	drivers/pico_ppmc.lyx \
-	drivers/pluto_p.lyx \
-	drivers/servo_to_go.lyx \
-	gcode/coordinates.lyx \
-	gcode/coordinates_fr.lyx \
-	gcode/main.lyx \
-	gcode/main_fr.lyx \
-	gcode/mill_canned.lyx \
-	gcode/mill_canned_fr.lyx \
-	gcode/overview.lyx \
-	gcode/tool_compensation.lyx \
-	gcode/tool_compensation_fr.lyx \
-	hal/basic_hal.lyx \
-	hal/basic_hal_fr.lyx \
-	hal/comp.lyx \
-	hal/comp_fr.lyx \
-	hal/components.lyx \
-	hal/components_fr.lyx \
-	hal/parallel_port.lyx \
-	hal/drivers_fr.lyx \
-	hal/general_ref.lyx \
-	hal/general_ref_fr.lyx \
-	hal/hal-examples.lyx \
-	hal/hal-examples_fr.lyx \
-	hal/halshow.lyx \
-	hal/halshow_fr.lyx \
-	hal/halmodule.lyx \
-	hal/halmodule_fr.lyx \
-	hal/intro.lyx \
-	hal/intro_fr.lyx \
-	hal/pyvcp.lyx \
-	hal/pyvcp_fr.lyx \
-	hal/pyvcp_examples.lyx \
-	hal/rtcomps.lyx \
-	hal/rtcomps_fr.lyx \
-	hal/tools.lyx \
-	hal/tools_fr.lyx \
-	hal/tutorial.lyx \
-	hal/tutorial_fr.lyx \
-	install/compiling_emc2.lyx \
-	install/compiling_emc2_fr.lyx \
-	install/installing_emc2_fr.lyx \
-	ladder/ladder_intro.lyx \
-	ladder/ladder_intro_fr.lyx \
-	ladder/classic_ladder.lyx \
-	ladder/ladder_examples.lyx \
-	lathe/lathe-user.lyx \
-	lathe/lathe-user_fr.lyx \
-	motion/kinematics.lyx \
-	motion/kinematics_fr.lyx \
-	motion/pid_theory.lyx \
-	motion/pid_theory_fr.lyx \
-	motion/tweaking_steppers.lyx \
-	motion/tweaking_steppers_fr.lyx \
-	examples/spindle.lyx \
-	examples/spindle_fr.lyx \
-	examples/misc.lyx \
-	examples/misc_fr.lyx \
-	examples/mpg.lyx \
-	examples/mpg_fr.lyx \
-	examples/gcode.lyx \
-	examples/gcode_fr.lyx \
-	examples/gs2_example.lyx \
-	examples/pci_parallel_port.lyx \
-	examples/pci_parallel_port_fr.lyx \
-	quickstart/stepper_quickstart.lyx \
-	quickstart/stepper_quickstart_fr.lyx \
-	Master_HAL.lyx \
-	Master_HAL_fr.lyx
+	code/Code_Notes.txt \
+	code/Style_Guide.txt \
+	code/NML_Messages.txt \
+	common/Document_Header.txt \
+	common/Document_Header_de.txt \
+	common/Document_Header_es.txt \
+	common/Document_Header_fr.txt \
+	common/Getting_EMC.txt \
+	common/Getting_EMC_de.txt \
+	common/Getting_EMC_es.txt \
+	common/Getting_EMC_fr.txt \
+	common/Glossary.txt \
+	common/Glossary_de.txt \
+	common/Glossary_es.txt \
+	common/Glossary_fr.txt \
+	common/GPLD_Copyright.txt \
+	common/Integrator_Concepts.txt \
+	common/Integrator_Concepts_de.txt \
+	common/Integrator_Concepts_es.txt \
+	common/Integrator_Concepts_fr.txt \
+	common/Linux_FAQ.txt \
+	common/Linux_FAQ_de.txt \
+	common/Linux_FAQ_es.txt \
+	common/Linux_FAQ_fr.txt \
+	common/machining_center.txt \
+	common/machining_center_de.txt \
+	common/machining_center_es.txt \
+	common/machining_center_fr.txt \
+	common/outdated-notice_fr.txt \
+	common/overleaf.txt \
+	common/Stepper_Diagnostics.txt \
+	common/Stepper_Diagnostics_de.txt \
+	common/Stepper_Diagnostics_es.txt \
+	common/Stepper_Diagnostics_fr.txt \
+	common/System_Requirements.txt \
+	common/System_Requirements_de.txt \
+	common/System_Requirements_es.txt \
+	common/System_Requirements_fr.txt \
+	common/translator-needed_de.txt \
+	common/translator-needed_es.txt \
+	common/Updating_EMC.txt \
+	common/Updating_EMC_de.txt \
+	common/Updating_EMC_es.txt \
+	common/Updating_EMC_fr.txt \
+	common/User_Concepts.txt \
+	common/User_Concepts_de.txt \
+	common/User_Concepts_es.txt \
+	common/User_Concepts_fr.txt \
+	common/userforeword.txt \
+	common/userforeword_de.txt \
+	common/userforeword_es.txt \
+	common/userforeword_fr.txt \
+	common/user_intro.txt \
+	common/user_intro_de.txt \
+	common/user_intro_es.txt \
+	common/user_intro_fr.txt \
+	config/copy_and_run.txt \
+	config/copy_and_run_de.txt \
+	config/copy_and_run_es.txt \
+	config/copy_and_run_fr.txt \
+	config/emc2hal.txt \
+	config/emc2hal_de.txt \
+	config/emc2hal_es.txt \
+	config/emc2hal_fr.txt \
+	config/ini_config.txt \
+	config/ini_config_de.txt \
+	config/ini_config_es.txt \
+	config/ini_config_fr.txt \
+	config/ini_homing.txt \
+	config/ini_homing_de.txt \
+	config/ini_homing_es.txt \
+	config/ini_homing_fr.txt \
+	config/lathe_config.txt \
+	config/lathe_config_de.txt \
+	config/lathe_config_es.txt \
+	config/lathe_config_fr.txt \
+	config/pncconf.txt \
+	config/pncconf_de.txt \
+	config/pncconf_es.txt \
+	config/pncconf_fr.txt \
+	config/stepconf.txt \
+	config/stepconf_de.txt \
+	config/stepconf_es.txt \
+	config/stepconf_fr.txt \
+	config/stepper.txt \
+	config/stepper_de.txt \
+	config/stepper_es.txt \
+	config/stepper_fr.txt \
+	drivers/AX5214H.txt \
+	drivers/AX5214H_de.txt \
+	drivers/AX5214H_es.txt \
+	drivers/AX5214H_fr.txt \
+	drivers/GS2.txt \
+	drivers/GS2_de.txt \
+	drivers/GS2_es.txt \
+	drivers/GS2_fr.txt \
+	drivers/hostmot2.txt \
+	drivers/hostmot2_de.txt \
+	drivers/hostmot2_es.txt \
+	drivers/hostmot2_fr.txt \
+	drivers/motenc.txt \
+	drivers/motenc_de.txt \
+	drivers/motenc_es.txt \
+	drivers/motenc_fr.txt \
+	drivers/opto22.txt \
+	drivers/opto22_de.txt \
+	drivers/opto22_es.txt \
+	drivers/opto22_fr.txt \
+	drivers/pico_ppmc.txt \
+	drivers/pico_ppmc_de.txt \
+	drivers/pico_ppmc_es.txt \
+	drivers/pico_ppmc_fr.txt \
+	drivers/pluto_p.txt \
+	drivers/pluto_p_de.txt \
+	drivers/pluto_p_es.txt \
+	drivers/pluto_p_fr.txt \
+	drivers/servo_to_go.txt \
+	drivers/servo_to_go_de.txt \
+	drivers/servo_to_go_es.txt \
+	drivers/servo_to_go_fr.txt \
+	examples/gcode.txt \
+	examples/gcode_de.txt \
+	examples/gcode_es.txt \
+	examples/gcode_fr.txt \
+	examples/gs2_example.txt \
+	examples/gs2_example_de.txt \
+	examples/gs2_example_es.txt \
+	examples/gs2_example_fr.txt \
+	examples/misc.txt \
+	examples/misc_de.txt \
+	examples/misc_es.txt \
+	examples/misc_fr.txt \
+	examples/mpg.txt \
+	examples/mpg_de.txt \
+	examples/mpg_es.txt \
+	examples/mpg_fr.txt \
+	examples/pci_parallel_port.txt \
+	examples/pci_parallel_port_de.txt \
+	examples/pci_parallel_port_es.txt \
+	examples/pci_parallel_port_fr.txt \
+	examples/spindle.txt \
+	examples/spindle_de.txt \
+	examples/spindle_es.txt \
+	examples/spindle_fr.txt \
+	gcode/coordinates.txt \
+	gcode/coordinates_de.txt \
+	gcode/coordinates_es.txt \
+	gcode/coordinates_fr.txt \
+	gcode/main.txt \
+	gcode/main_de.txt \
+	gcode/main_es.txt \
+	gcode/main_fr.txt \
+	gcode/mill_canned.txt \
+	gcode/mill_canned_de.txt \
+	gcode/mill_canned_es.txt \
+	gcode/mill_canned_fr.txt \
+	gcode/overview.txt \
+	gcode/overview_de.txt \
+	gcode/overview_es.txt \
+	gcode/overview_fr.txt \
+	gcode/rs274ngc.txt \
+	gcode/rs274ngc_de.txt \
+	gcode/rs274ngc_es.txt \
+	gcode/rs274ngc_fr.txt \
+	gcode/tool_compensation.txt \
+	gcode/tool_compensation_de.txt \
+	gcode/tool_compensation_es.txt \
+	gcode/tool_compensation_fr.txt \
+	gui/axis.txt \
+	gui/axis_de.txt \
+	gui/axis_es.txt \
+	gui/axis_fr.txt \
+	gui/gladevcp.txt \
+	gui/gladevcp_de.txt \
+	gui/gladevcp_es.txt \
+	gui/gladevcp_fr.txt \
+	gui/halui.txt \
+	gui/halui_de.txt \
+	gui/halui_es.txt \
+	gui/halui_fr.txt \
+	gui/image-to-gcode.txt \
+	gui/image-to-gcode_de.txt \
+	gui/image-to-gcode_es.txt \
+	gui/image-to-gcode_fr.txt \
+	gui/keystick.txt \
+	gui/keystick_de.txt \
+	gui/keystick_es.txt \
+	gui/keystick_fr.txt \
+	gui/mini.txt \
+	gui/mini_de.txt \
+	gui/mini_es.txt \
+	gui/mini_fr.txt \
+	gui/ngcgui.txt \
+	gui/ngcgui_de.txt \
+	gui/ngcgui_es.txt \
+	gui/ngcgui_fr.txt \
+	gui/tkemc.txt \
+	gui/tkemc_de.txt \
+	gui/tkemc_es.txt \
+	gui/tkemc_fr.txt \
+	gui/touchy.txt \
+	gui/touchy_de.txt \
+	gui/touchy_es.txt \
+	gui/touchy_fr.txt \
+	hal/basic_hal.txt \
+	hal/basic_hal_de.txt \
+	hal/basic_hal_es.txt \
+	hal/basic_hal_fr.txt \
+	hal/comp.txt \
+	hal/comp_de.txt \
+	hal/comp_es.txt \
+	hal/comp_fr.txt \
+	hal/components.txt \
+	hal/components_de.txt \
+	hal/components_es.txt \
+	hal/components_fr.txt \
+	hal/general_ref.txt \
+	hal/general_ref_de.txt \
+	hal/general_ref_es.txt \
+	hal/general_ref_fr.txt \
+	hal/hal-examples.txt \
+	hal/hal-examples_de.txt \
+	hal/hal-examples_es.txt \
+	hal/hal-examples_fr.txt \
+	hal/halmodule.txt \
+	hal/halmodule_de.txt \
+	hal/halmodule_es.txt \
+	hal/halmodule_fr.txt \
+	hal/halshow.txt \
+	hal/halshow_de.txt \
+	hal/halshow_es.txt \
+	hal/halshow_fr.txt \
+	hal/halui_examples.txt \
+	hal/halui_examples_de.txt \
+	hal/halui_examples_es.txt \
+	hal/halui_examples_fr.txt \
+	hal/intro.txt \
+	hal/intro_de.txt \
+	hal/intro_es.txt \
+	hal/intro_fr.txt \
+	hal/parallel_port.txt \
+	hal/parallel_port_de.txt \
+	hal/parallel_port_es.txt \
+	hal/parallel_port_fr.txt \
+	hal/pyvcp.txt \
+	hal/pyvcp_de.txt \
+	hal/pyvcp_es.txt \
+	hal/pyvcp_fr.txt \
+	hal/pyvcp_examples.txt \
+	hal/pyvcp_examples_de.txt \
+	hal/pyvcp_examples_es.txt \
+	hal/pyvcp_examples_fr.txt \
+	hal/rtcomps.txt \
+	hal/rtcomps_de.txt \
+	hal/rtcomps_es.txt \
+	hal/rtcomps_fr.txt \
+	hal/tools.txt \
+	hal/tools_de.txt \
+	hal/tools_es.txt \
+	hal/tools_fr.txt \
+	hal/tutorial.txt \
+	hal/tutorial_de.txt \
+	hal/tutorial_es.txt \
+	hal/tutorial_fr.txt \
+	install/Latency_Test.txt \
+	install/Latency_Test_de.txt \
+	install/Latency_Test_es.txt \
+	install/Latency_Test_fr.txt \
+	ladder/classic_ladder.txt \
+	ladder/classic_ladder_de.txt \
+	ladder/classic_ladder_es.txt \
+	ladder/classic_ladder_fr.txt \
+	ladder/ladder_examples.txt \
+	ladder/ladder_examples_de.txt \
+	ladder/ladder_examples_es.txt \
+	ladder/ladder_examples_fr.txt \
+	ladder/ladder_intro.txt \
+	ladder/ladder_intro_de.txt \
+	ladder/ladder_intro_es.txt \
+	ladder/ladder_intro_fr.txt \
+	lathe/lathe-user.txt \
+	lathe/lathe-user_de.txt \
+	lathe/lathe-user_es.txt \
+	lathe/lathe-user_fr.txt \
+	motion/kinematics.txt \
+	motion/kinematics_de.txt \
+	motion/kinematics_es.txt \
+	motion/kinematics_fr.txt \
+	motion/pid_theory.txt \
+	motion/pid_theory_de.txt \
+	motion/pid_theory_es.txt \
+	motion/pid_theory_fr.txt \
+	motion/tweaking_steppers.txt \
+	motion/tweaking_steppers_de.txt \
+	motion/tweaking_steppers_es.txt \
+	motion/tweaking_steppers_fr.txt \
+	quickstart/stepper_quickstart.txt \
+	quickstart/stepper_quickstart_de.txt \
+	quickstart/stepper_quickstart_es.txt \
+	quickstart/stepper_quickstart_fr.txt \
+	Getting_Started.txt \
+	Getting_Started_de.txt \
+	Getting_Started_es.txt \
+	Getting_Started_fr.txt \
+	Master_User.txt \
+	Master_User_de.txt \
+	Master_User_es.txt \
+	Master_User_fr.txt \
+	Master_HAL.txt \
+	Master_HAL_de.txt \
+	Master_HAL_es.txt \
+	Master_HAL_fr.txt \
+	Master_Integrator.txt \
+	Master_Integrator_de.txt \
+	Master_Integrator_es.txt \
+	Master_Integrator_fr.txt \
+	Master_Developer.txt \
 
-DOC_SRCS_TXT  := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 
-DOC_SRCS_FR   := $(filter %_fr.txt, $(DOC_SRCS_TXT))
-DOC_SRCS_EN   := $(filter-out $(DOC_SRCS_FR), $(DOC_SRCS_TXT))
+# DOC_SRCS_TXT := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
+DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
 
+DOC_SRCS_DE := $(filter %_de.txt, $(DOC_SRCS_TXT))
+DOC_SRCS_ES := $(filter %_es.txt, $(DOC_SRCS_TXT))
+DOC_SRCS_FR := $(filter %_fr.txt, $(DOC_SRCS_TXT))
+DOC_SRCS_EN := $(filter-out $(DOC_SRCS_DE), $(filter-out $(DOC_SRCS_ES), $(filter-out $(DOC_SRCS_FR), $(DOC_SRCS_TXT)) ) )
+
+DOC_SRCS_DE_SMALL := $(filter-out Master_%,$(DOC_SRCS_DE))
+DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
 
-DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
-DOC_TARGETS_HTML:=$(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
-DOC_TARGETS_XML:=$(patsubst $(DOC_DIR)/html/%.html, objects/%.xml,\
-	 $(DOC_TARGETS_HTML))
-DOC_TARGETS_XML := 
+# DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
+DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/,HAL_User_Manual.pdf EMC2_User_Manual.pdf EMC2_Developer_Manual.pdf \
-	EMC2_Integrator_Manual.pdf EMC2_Manual_Pages.pdf EMC2_User_Manual_fr.pdf HAL_User_Manual_fr.pdf \
-	EMC2_Integrator_Manual_fr.pdf EMC2_Getting_Started.pdf EMC2_Getting_Started_fr.pdf)
+PDF_TARGETS := $(addprefix $(DOC_DIR)/, \
+	EMC2_Getting_Started.pdf \
+	EMC2_Getting_Started_de.pdf \
+	EMC2_Getting_Started_es.pdf \
+	EMC2_Getting_Started_fr.pdf \
+	EMC2_User_Manual.pdf \
+	EMC2_User_Manual_de.pdf \
+	EMC2_User_Manual_es.pdf \
+	EMC2_User_Manual_fr.pdf \
+	EMC2_HAL_Manual.pdf \
+	EMC2_HAL_Manual_de.pdf \
+	EMC2_HAL_Manual_es.pdf \
+	EMC2_HAL_Manual_fr.pdf \
+	EMC2_Integrator_Manual.pdf \
+	EMC2_Integrator_Manual_de.pdf \
+	EMC2_Integrator_Manual_es.pdf \
+	EMC2_Integrator_Manual_fr.pdf \
+	EMC2_Developer_Manual.pdf \
+	EMC2_Manual_Pages.pdf \
+	)
+# 
+# It's better to keep the above on separate lines for troubleshooting by swapping
+# (Don't ask me how I know this.)
 
-HTML_TARGETS := $(DOC_TARGETS_HTML) $(MAN_HTML_TARGETS) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/index_fr.html #$(DOC_DIR)/html/xref.html $(DOC_DIR)/html/xref_fr.html
+HTML_TARGETS := \
+	$(DOC_TARGETS_HTML) \
+	$(MAN_HTML_TARGETS) \
+	$(DOC_DIR)/html/index.html \
+	$(DOC_DIR)/html/index_de.html \
+	$(DOC_DIR)/html/index_es.html \
+	$(DOC_DIR)/html/index_fr.html \
+#	$(DOC_DIR)/html/xref.html \
+#	$(DOC_DIR)/html/xref_de.html \
+#	$(DOC_DIR)/html/xref_es.html \
+#	$(DOC_DIR)/html/xref_fr.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
-	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table 
+	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table
 
 A2X = $(DOC_SRCDIR)/a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
@@ -207,28 +427,29 @@ endif
 pdfdocs: $(PDF_TARGETS)
 htmldocs: $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
 
-checkref: checkref_en checkref_fr
+# English only for now, checklinks.py needs adapting -mah
+checkref: checkref_en 
+#checkref: checkref_en checkref_fr checkref_de checkref_es checkref_fr
 
 checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/main.html
 	python $(DOC_SRCDIR)/checklinks.py $^
+
+checkref_de: $(DOC_DIR)/html/gcode_de.html $(DOC_DIR)/html/gcode/main_de.html
+	-python $(DOC_SRCDIR)/checklinks.py $^
+
+checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/main_es.html
+	-python $(DOC_SRCDIR)/checklinks.py $^
 
 checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/main_fr.html
 	-python $(DOC_SRCDIR)/checklinks.py $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
-PDF_MAN_ORDER := man1/emc.1 \
-	$(filter-out %/emc.1, \
-			$(filter man1/%, $(MAN_SRCS_NOSO))) \
-	man3/intro.3hal \
-	$(filter-out %/undocumented.3hal %/intro.3hal, \
-			$(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3hal \
-	man3/intro.3rtapi \
-	$(filter-out %/undocumented.3rtapi %/intro.3rtapi, \
-			$(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3rtapi \
-	$(filter man9/%, $(MAN_SRCS_NOSO)) \
+
+PDF_MAN_ORDER := man1/emc.1 $(filter-out %/emc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
+	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
 
 $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
@@ -237,21 +458,37 @@ $(DOC_DIR)/EMC2_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 
 $(DOC_DIR)/EMC2_Getting_Started.pdf: $(DOC_SRCDIR)/Getting_Started.pdf
 	@ln -f $< $@
+$(DOC_DIR)/EMC2_Getting_Started_de.pdf: $(DOC_SRCDIR)/Getting_Started_de.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Getting_Started_es.pdf: $(DOC_SRCDIR)/Getting_Started_es.pdf
+	@ln -f $< $@
 $(DOC_DIR)/EMC2_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Getting_Started_fr.pdf
-	@ln -f $< $@
-$(DOC_DIR)/HAL_User_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
-	@ln -f $< $@
-$(DOC_DIR)/HAL_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual.pdf: $(DOC_SRCDIR)/Master_User.pdf
 	@ln -f $< $@
+$(DOC_DIR)/EMC2_User_Manual_de.pdf: $(DOC_SRCDIR)/Master_User_de.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_User_Manual_es.pdf: $(DOC_SRCDIR)/Master_User_es.pdf
+	@ln -f $< $@
 $(DOC_DIR)/EMC2_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+$(DOC_DIR)/EMC2_HAL_Manual.pdf: $(DOC_SRCDIR)/Master_HAL.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_HAL_Manual_de.pdf: $(DOC_SRCDIR)/Master_HAL_de.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_HAL_Manual_es.pdf: $(DOC_SRCDIR)/Master_HAL_es.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
+$(DOC_DIR)/EMC2_Integrator_Manual_de.pdf: $(DOC_SRCDIR)/Master_Integrator_de.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Integrator_Manual_es.pdf: $(DOC_SRCDIR)/Master_Integrator_es.pdf
+	@ln -f $< $@
 $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+	@ln -f $< $@
+$(DOC_DIR)/EMC2_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -299,25 +536,23 @@ endef
 XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
 
 SUBXML := \
-    $(filter objects/hal_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/code_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/drivers_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/lathe_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
-    $(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
+	$(filter objects/hal_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/code_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/drivers_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/lathe_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
+	$(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
 
 $(filter-out $(SUBXML),$(DOC_TARGETS_XML)): objects/%.xml: $(DOC_SRCDIR)/%.lyx $(XMLDEP)
 	python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$*.xml $<
 
-$(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
-	$(call lyx2xml,hal,$*,$<)
 $(filter objects/code_%.xml,$(DOC_TARGETS_XML)): objects/code_%.xml: $(DOC_SRCDIR)/code/%.lyx $(XMLDEP)
 	$(call lyx2xml,code,$*,$<)
 $(filter objects/common_%.xml,$(DOC_TARGETS_XML)): objects/common_%.xml: $(DOC_SRCDIR)/common/%.lyx $(XMLDEP)
@@ -326,10 +561,14 @@ $(filter objects/config_%.xml,$(DOC_TARGETS_XML)): objects/config_%.xml: $(DOC_S
 	$(call lyx2xml,config,$*,$<)
 $(filter objects/drivers_%.xml,$(DOC_TARGETS_XML)): objects/drivers_%.xml: $(DOC_SRCDIR)/drivers/%.lyx $(XMLDEP)
 	$(call lyx2xml,drivers,$*,$<)
+$(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
+	$(call lyx2xml,examples,$*,$<)
 $(filter objects/gcode_%.xml,$(DOC_TARGETS_XML)): objects/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx $(XMLDEP)
 	$(call lyx2xml,gcode,$*,$<)
 $(filter objects/gui_%.xml,$(DOC_TARGETS_XML)): objects/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx $(XMLDEP)
 	$(call lyx2xml,gui,$*,$<)
+$(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
+	$(call lyx2xml,hal,$*,$<)
 $(filter objects/install_%.xml,$(DOC_TARGETS_XML)): objects/install_%.xml: $(DOC_SRCDIR)/install/%.lyx $(XMLDEP)
 	$(call lyx2xml,install,$*,$<)
 $(filter objects/ladder_%.xml,$(DOC_TARGETS_XML)): objects/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx $(XMLDEP)
@@ -338,16 +577,22 @@ $(filter objects/lathe_%.xml,$(DOC_TARGETS_XML)): objects/lathe_%.xml: $(DOC_SRC
 	$(call lyx2xml,lathe,$*,$<)
 $(filter objects/motion_%.xml,$(DOC_TARGETS_XML)): objects/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
 	$(call lyx2xml,motion,$*,$<)
-$(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
-	$(call lyx2xml,examples,$*,$<)
 $(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx $(XMLDEP)
 	$(call lyx2xml,quickstart,$*,$<)
 
+DOC_TARGETS_XML_DE := $(filter %_de.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_ES := $(filter %_es.xml, $(DOC_TARGETS_XML))
 DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML)) ) )
+DOC_TARGETS_HTML_DE := $(filter %_de.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
 DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) ) )
 
+objects/xref_de.xml: $(DOC_TARGETS_XML_DE) $(DOC_SRCDIR)/xref.py
+	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
+objects/xref_es.xml: $(DOC_TARGETS_XML_ES) $(DOC_SRCDIR)/xref.py
+	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 objects/xref_fr.xml: $(DOC_TARGETS_XML_FR) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
@@ -356,6 +601,14 @@ objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 #$(DOC_TARGETS_HTML_EN): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 #	$(ECHO) Converting $< to HTML
 #	xsltproc --stringparam xrefdoc objects/xref.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+#
+#$(DOC_TARGETS_HTML_DE): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_de.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+#	$(ECHO) Converting $< to HTML
+#	xsltproc --stringparam xrefdoc objects/xref_de.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
+#
+#$(DOC_TARGETS_HTML_ES): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_es.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+#	$(ECHO) Converting $< to HTML
+#	xsltproc --stringparam xrefdoc objects/xref_es.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
 #
 #$(DOC_TARGETS_HTML_FR): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_fr.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 #	$(ECHO) Converting $< to HTML
@@ -374,11 +627,17 @@ objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
 objects/%.links: objects/%.links-stamp
 	@:
 
-# Scondary is not working here.
+# Secondary is not working here.
 # See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
 .PRECIOUS: objects/%.links-stamp
 
 objects/xref_en.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_EN_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
+objects/xref_de.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_DE_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
+objects/xref_es.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_ES_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
@@ -417,12 +676,36 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_fr.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-
+	
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_es.links" \
+		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
+	
+$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_de.links
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_de.links" \
+		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
+	
 default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
+	
+$(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	
+$(DOC_DIR)/html/xref_de.html: objects/xref_de.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_de" --stringparam language german --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	
 default: docs
 
 install-doc-pdf:
@@ -440,15 +723,24 @@ docs:
 endif
 
 docclean:
-	-rm -f $(DOC_DIR)/HAL_User_Manual.pdf
-	-rm -f $(DOC_DIR)/HAL_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
-	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
 	-rm -f $(DOC_DIR)/EMC2_Getting_Started.pdf
+	-rm -f $(DOC_DIR)/EMC2_Getting_Started_de.pdf
+	-rm -f $(DOC_DIR)/EMC2_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/EMC2_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual_de.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual_es.pdf
+	-rm -f $(DOC_DIR)/EMC2_User_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_de.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_es.pdf
+	-rm -f $(DOC_DIR)/EMC2_HAL_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_de.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_es.pdf
+	-rm -f $(DOC_DIR)/EMC2_Integrator_Manual_fr.pdf
+	-rm -f $(DOC_DIR)/EMC2_Developer_Manual.pdf
+	-rm -f $(DOC_DIR)/EMC2_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
@@ -476,3 +768,4 @@ endif
 %.dxf:; $(error Required image file $@ does not exist)
 %.ps:; $(error Required image file $@ does not exist)
 %.eps:; $(error Required image file $@ does not exist)
+

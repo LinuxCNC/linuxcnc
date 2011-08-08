@@ -115,7 +115,7 @@ param rw signed encoder-offset if personality & 0x0A
 """The offset, in encoder counts, between the motor electrical zero and the
 encoder zero modulo the number of counts per electrical revolution""";
 
-param rw float drive-offset = 90 """The angle, in degrees,
+param rw float drive-offset = 0 """The angle, in degrees,
 applied to the commanded angle by the drive in degrees. This value is only used
 during the homing sequence of drives with incremental encoder feedback. It is
 used to back-calculate from commanded angle to actual phase angle. It is only
@@ -300,6 +300,8 @@ encoder pin to prevent loss of commutation on index-reset.
 
 \\fBq\\fR Incremental (quadrature) encoder input. If this input is used then
 the rotor will need to be homed before the motor can be run.
+
+\\fBi\\fR Use the index of an incremental encoder as a home reference.
 
 \\fBf\\fR Use a 4-bit Gray-scale patttern to determine rotor alignment. This
 scheme is only used on the Fanuc "Red Cap" motors. This mode could be used to

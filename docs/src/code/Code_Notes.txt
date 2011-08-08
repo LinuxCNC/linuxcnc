@@ -80,9 +80,9 @@ status of the controller is made available to the user space modules
 through the same shared memory area. The motion controller interacts
 with the motors and other hardware using the HAL (Hardware Abstraction
 Layer). This document assumes that the reader has a basic understanding
-of the HAL, and uses terms like hal pins, hal signals, etc, without
-explaining them. For basic information about the HAL, read the
-“Introduction to HAL” document. Another chapter of this document will
+of the HAL, and uses terms like HAL pins, HAL signals, etc, without
+explaining them. For more information about the HAL, see the 
+HAL Manual. Another chapter of this document will 
 eventually go into the internals of the HAL itself, but in this
 chapter, we only use the HAL API as defined in emc2/src/hal/hal.h.
 
@@ -98,10 +98,9 @@ motor_pos_fb.
 
 image::emc2-motion-joint-controller-block-diag.png[]
 
-.[[fig:motion-joint-controller-block-diag]]Joint Controller Block
-Diagram
+.Joint Controller Block Diagram[[fig:motion-joint-controller-block-diag]]
 
-Figure  <<fig:motion-joint-controller-block-diag>> shows five of the
+Figure <<fig:motion-joint-controller-block-diag>> shows five of the
 seven sets of position information that form the main data flow through
 the motion controller. The seven forms of position data are as follows:
 
@@ -508,8 +507,7 @@ actual homing sequence is determined by a number of configuration
 parameters, and can range from simply setting the current position to
 zero, to a multi-stage search for a home switch and index pulse,
 followed by a move to an arbitrary home location. For more information
-about the homing sequence, see section  <<sec:Homing>> of this
-document.
+about the homing sequence, see the homing section of the Integrator Manual. 
 
 ==== Requirements
 
@@ -635,7 +633,7 @@ along a specific vector in Cartesian space.
 === PROBE
 
 The PROBE command instructs the motion controller to move toward a
-specific point in Cartesean space, stopping and recording its
+specific point in Cartesian space, stopping and recording its
 position if the probe input is triggered.
 
 (More later)
@@ -661,19 +659,19 @@ nearly identical for every parameter.
 
 == Backlash and Screw Error Compensation
 
-.
+ +
 
 = Task controller (EMCTASK)
 
-.
+ +
 
 = IO controller (EMCIO)
 
-.
+ +
 
 = User Interfaces
 
-.
+ +
 
 = libnml
 
@@ -681,10 +679,10 @@ nearly identical for every parameter.
 
 libnml is derived from the NIST rcslib without all the multi-platform
 support. Many of the wrappers around platform specific code has been
-removed along with much of the code that is not required by emc2. It is
+removed along with much of the code that is not required by EMC2. It is
 hoped that sufficient compatibility remains with rcslib so that
 applications can be implemented on non-Linux platforms and still be
-able to communicate with emc2.
+able to communicate with EMC2.
 
 This chapter is not intended to be a definitive guide to using libnml
 (or rcslib), instead, it will eventually provide an overview of each
@@ -724,6 +722,8 @@ resolution of the system clock. If, for example, a process needs to be
 run every 5 seconds regardless of the time taken to run the process,
 the following code snippet demonstrates how :
 
+[source,c]
+-----------------------------------------------------------
     main()
     {
         timer = new Timer(5.0);    /* Initialize a timer with a 5 second loop */
@@ -733,6 +733,7 @@ the following code snippet demonstrates how :
         }
         delete timer;
     }
+-----------------------------------------------------------
 
 == Semaphore
 
@@ -760,12 +761,12 @@ The buffer is dynamically allocated at run time to allow for greater
 flexibility of the CMS/NML sub-system. The buffer size must be large
 enough to accommodate the largest message, a small amount for internal
 use and allow for the message to be encoded if this option is chosen
-(encoded data will be covered later). Figure  <<fig:CMS buffer>> is an
+(encoded data will be covered later). Figure  <<fig:CMS-buffer>> is an
 internal view of the buffer space.
 
 image::CMS_buffer.eps[]
 
-.[[fig:CMS buffer]]CMS buffer
+.CMS buffer[[fig:CMS-buffer]]
 
 The CMS base class is primarily responsible for creating the
 communications pathways and interfacing to the O.S.
@@ -787,67 +788,64 @@ Buffers, and a second for Processes that connect to the buffers.
 
 The original NIST format of the buffer line is:
 
-B name type host size neut RPC# buffer# max_procs key [type specific
-configs]
+*B name type host size neut RPC# buffer# max_procs key [type specific configs]*
 
- - B identifies this line as a Buffer configuration.
- - name is the identifier of the buffer.
- - type describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or
-   GLOBMEM.
- - host is either an IP address or host name for the NML server
- - size is the size of the buffer
- - neut a boolean to indicate if the data in the buffer is encoded in a
-   machine independent format, or raw.
- - RPC# Obsolete - Place holder retained for backward compatibility only.
- - buffer# A unique ID number used if a server controls multiple buffers.
- - max_procs is the maximum processes allowed to connect to this buffer.
- - key is a numerical identifier for a shared memory buffer
+ - *B* identifies this line as a Buffer configuration.
+ - *name* is the identifier of the buffer.
+ - *type* describes the buffer type - SHMEM, LOCMEM, FILEMEM, PHANTOM, or GLOBMEM.
+ - *host* is either an IP address or host name for the NML server
+ - *size* is the size of the buffer
+ - *neut* a boolean to indicate if the data in the buffer is encoded in a
+     machine independent format, or raw.
+ - *RPC#* Obsolete - Place holder retained for backward compatibility only.
+ - *buffer#* A unique ID number used if a server controls multiple buffers.
+ - *max_procs* is the maximum processes allowed to connect to this buffer.
+ - *key* is a numerical identifier for a shared memory buffer
 
 === Type specific configs
 
 The buffer type implies additional configuration options whilst the
 host operating system precludes certain combinations. In an attempt to
-distill published documentation in to a coherent format, only the SHMEM
+distill published documentation in to a coherent format, only the *SHMEM*
 buffer type will be covered.
 
- - mutex=os_sem - default mode for providing semaphore locking of the
-   buffer memory.
- - mutex=none - Not used
- - mutex=no_interrupts - not applicable on a Linux system
- - mutex=no_switching - not applicable on a Linux system
- - mutex=mao split - Splits the buffer in to half (or more) and allows
-   one process to access part of the buffer whilst a second process is
-   writing to another part.
- - TCP=(port number) - Specifies which network port to use.
- - UDP=(port number) - ditto
- - STCP=(port number) - ditto
- - serialPortDevName=(serial port) - Undocumented.
- - passwd=file_name.pwd - Adds a layer of security to the buffer by
-   requiring each process to provide a password.
- - bsem - NIST documentation implies a key for a blocking semaphore, 
-   and if bsem=-1, blocking reads are prevented.
- - queue - Enables queued message passing.
- - ascii - Encode messages in a plain text format
- - disp - Encode messages in a format suitable for display (???)
- - xdr - Encode messages in External Data Representation. (see rpc/xdr.h for details).
- - diag - Enables diagnostics stored in the buffer (timings and byte counts ?)
+ - *mutex=os_sem* - default mode for providing semaphore locking of the buffer memory.
+ - *mutex=none* - Not used
+ - *mutex=no_interrupts* - not applicable on a Linux system
+ - *mutex=no_switching* - not applicable on a Linux system
+ - *mutex=mao split* - Splits the buffer in to half (or more) and allows
+     one process to access part of the buffer whilst a second process is
+     writing to another part.
+ - *TCP=(port number)* - Specifies which network port to use.
+ - *UDP=(port number)* - ditto
+ - *STCP=(port number)* - ditto
+ - *serialPortDevName=(serial port)* - Undocumented.
+ - *passwd=file_name.pwd* - Adds a layer of security to the buffer by
+     requiring each process to provide a password.
+ - *bsem* - NIST documentation implies a key for a blocking semaphore, 
+     and if bsem=-1, blocking reads are prevented.
+ - *queue* - Enables queued message passing.
+ - *ascii* - Encode messages in a plain text format
+ - *disp* - Encode messages in a format suitable for display (???)
+ - *xdr* - Encode messages in External Data Representation. (see rpc/xdr.h for details).
+ - *diag* - Enables diagnostics stored in the buffer (timings and byte counts ?)
 
 === Process line 
 
 The original NIST format of the process line is:
 
-P name buffer type host ops server timeout master c_num [type specific configs]
+*P name buffer type host ops server timeout master c_num [type specific configs]*
 
- - P identifies this line as a Process configuration.
- - name is the identifier of the process.
- - buffer is one of the buffers defined elsewhere in the config file.
- - type defines whether this process is local or remote relative to the buffer.
- - host specifies where on the network this process is running.
- - ops gives the process read only, write only, or read/write access to the buffer.
- - server specifies if this process will running a server for this buffer.
- - timeout sets the timeout characteristics for accesses to the buffer.
- - master indicates if this process is responsible for creating and destroying the buffer.
- - c_num an integer between zero and (max_procs -1)
+ - *P* identifies this line as a Process configuration.
+ - *name* is the identifier of the process.
+ - *buffer* is one of the buffers defined elsewhere in the config file.
+ - *type* defines whether this process is local or remote relative to the buffer.
+ - *host* specifies where on the network this process is running.
+ - *ops* gives the process read only, write only, or read/write access to the buffer.
+ - *server* specifies if this process will running a server for this buffer.
+ - *timeout* sets the timeout characteristics for accesses to the buffer.
+ - *master* indicates if this process is responsible for creating and destroying the buffer.
+ - *c_num* an integer between zero and (max_procs -1)
 
 === Configuration Comments
 
@@ -857,7 +855,7 @@ whilst PHANTOM is only really useful in the testing stage of an
 application, likewise for FILEMEM. LOCMEM is of little use for a
 multi-process application, and only offers limited performance
 advantages over SHMEM. This leaves SHMEM as the only buffer type to use
-with emc2.
+with EMC2.
 
 The neut option is only of use in a multi-processor system where
 different (and incompatible) architectures are sharing a block of
@@ -884,16 +882,16 @@ to or from the buffer with minimal delays, so split reads are not
 essential.
 
 Data encoding is only relevant when transmitted to a remote process -
-Using TCP or UDP implies XDR encoding. Whilst ascii encoding may have
+Using TCP or UDP implies XDR encoding. Whilst ASCII encoding may have
 some use in diagnostics or for passing data to an embedded system that
 does not implement NML.
 
 UDP protocols have fewer checks on data and allows a percentage of
 packets to be dropped. TCP is more reliable, but is marginally slower.
 
-If emc2 is to be connected to a network, one would hope that it is
+If EMC2 is to be connected to a network, one would hope that it is
 local and behind a firewall. About the only reason to allow access to
-emc2 via the Internet would be for remote diagnostics - This can be
+EMC2 via the Internet would be for remote diagnostics - This can be
 achieved far more securely using other means, perhaps by a web
 interface.
 
@@ -935,7 +933,7 @@ declared in derived NMLmsg classes. Changes to the order in which the
 formatting functions are called and also the variables passed will
 break compatibility with rcslib if messed with - There are reasons for
 maintaining rcslib compatibility, and good reasons for messing with the
-code. The question is, which set of reasons are overriding ?
+code. The question is, which set of reasons are overriding?
 
 === NML internals
 
@@ -950,12 +948,15 @@ with each buffer.
 It is from the pointers stored in the lists that NML can interact with
 cms and why Doxygen fails to show the real relationships involved.
 
-(side note) The config is stored in memory before passing a pointer to
+.Side Note
+*********************************************************************
+The config is stored in memory before passing a pointer to
 a specific line to the cms constructor. The cms constructor then parses
 the line again to extract a couple of variables... It would make more
 sense to do ALL the parsing and save the variables in a struct that is
 passed to the cms constructor - This would eliminate string handling
 and reduce duplicate code in cms....
+*********************************************************************
 
 ==== NML read/write
 

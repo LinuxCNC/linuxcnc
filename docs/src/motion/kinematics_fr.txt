@@ -14,8 +14,7 @@ Le système de coordonnées Cartésiennes est composé de 3 axes (X, Y, Z)
 chacun perpendiculaire aux 2 autres. footnote:[Le mot “axes” est aussi
 communément (et incorrectement) utilisé à
 propos des machines CNC, il fait référence aux directions des
-mouvements de la machine.
-]
+mouvements de la machine.]
 
 Quand nous parlons d'un programme G-code (RS274NGC) nous parlons d'un
 certain nombre de commandes (G0, G1, etc.) qui ont comme paramètres (X-
@@ -24,9 +23,7 @@ Cartésiennes. Une partie du contrôleur de mouvements d'EMC2 est
 responsable de la translation entre ces positions et les positions
 correspondantes de la cinématique (((cinematique))) de la
 machinefootnote:[Cinématique: une fonction à deux voies pour
-transformer un espace
-Cartésien en espace à jointures
-].
+transformer un espace Cartésien en espace à jointures].
 
 === Les jointures (articulations) par rapport aux axes
 
@@ -57,7 +54,6 @@ machine), est trivial. C'est un simple plan 1:1:
 
     pos->tran.x = joints[0];
     
-
 Dans l'extrait de code ci-dessus, nous pouvons voir comment le plan
 est fait: la position X est identique avec la jointure 0, Y avec la
 jointure 1 etc. Nous nous référons dans ce cas à une cinématique
@@ -76,11 +72,9 @@ définition de ces 3 jointures, alors l'assertion précédente est fausse.
 Parce-que nous avons actuellement (joint0=x, joint1=Z, joint2=A) ce qui
 suppose que joint1=Y. Pour faire en sorte que cela fonctionne dans EMC2
 il suffit de définir tous les axes (XYZA), EMC2 utilisera alors une
-simple boucle dans HAL pour l'axe Y inutilisé.
- ]footnote:[Une autre façon de le faire fonctionner, est de changer le
-code
-correspondant et recompiler le logiciel.
-]
+simple boucle dans HAL pour l'axe Y inutilisé.]footnote:[Une autre 
+façon de le faire fonctionner, est de changer le code
+correspondant et recompiler le logiciel.]
 
 == Cinématiques non triviales
 
@@ -89,7 +83,7 @@ machine (robots: puma, scara; hexapodes etc.) Chacun d'eux est mis en
 place en utilisant des jointures linéaires et rotatives. Ces jointures
 ne correspondent pas habituellement avec les coordonnées Cartésiennes,
 cela nécessite une fonction cinématique qui fasse la conversion (en
-fait 2 fonctions: fonction en  avant et inverse de la cinématique).
+fait 2 fonctions: fonction en avant et inverse de la cinématique).
 
 Pour illustrer ce qui précède, nous analyserons une simple cinématique
 appelée bipode (une version simplifiée du tripode, qui est déjà une
@@ -148,7 +142,6 @@ Traduction en code:
 
     double AD2 = joints[0] * joints[0];
     return 0;
-    
 
 === Transformation inverse [[sub:Inverse-transformation]]
 
@@ -169,18 +162,18 @@ Un module cinématique est implémenté comme un composant de HAL, et il
 est permis d'exporter ses pins et ses paramètres. Il consiste en
 quelques fonctions “C” (par opposition au fonctions de HAL):
 
- - ` int kinematicsForward(const double *joint, EmcPose *world, const
+ - `int kinematicsForward(const double *joint, EmcPose *world, const
    KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
    Implémente la fonction cinématique avant, comme décrite dans la
-   section  <<sub:Forward-transformation>>.
- - ` int kinematicsInverse(const EmcPose * world, double *joints, const
+   section <<sub:Forward-transformation>>.
+ - `int kinematicsInverse(const EmcPose * world, double *joints, const
    KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)`
    Implémente la fonction cinématique inverse, comme décrite dans la
-   section  <<sub:Inverse-transformation>>.
+   section <<sub:Inverse-transformation>>.
  - `KINEMATICS_TYPE kinematicsType(void)`
    Retourne l'identificateur de type de la cinématique, typiquement
    `KINEMATICS_BOTH`.
- - ` int kinematicsHome(EmcPose *world, double *joint,
+ - `int kinematicsHome(EmcPose *world, double *joint,
    KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
    La fonction prise d'origine de la cinématique ajuste tous ses
    arguments à leur propre valeur à une position d'origine connue. Quand

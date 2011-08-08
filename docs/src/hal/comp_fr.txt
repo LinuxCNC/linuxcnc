@@ -1,4 +1,4 @@
-=  'comp': un outil pour créer les modules HAL
+= 'comp': un outil pour créer les modules HAL
 
 == Introduction
 
@@ -16,11 +16,11 @@ Par exemple, cette portion des blocks «ddt» fait environ 80 lignes de
 code. Le composant équivalent est vraiment très court quand il est
 écrit en utilisant le préprocesseur 'comp':
 
-    component ddt "Calcule la dérivée de la fonction d'entrée";
+    component ddt «Calcule la dérivée de la fonction d'entrée»;
 
 et il peut être compilé et installé très facilement en plaçant
 simplement `ddt.comp` dans `«src/hal/components»` puis en lançant
-`«make`», ou en le plaçant quelque part sur le système et en lançant
+`«make»`, ou en le plaçant quelque part sur le système et en lançant
 `«comp --install ddt.comp»`
 
 == Définitions
@@ -63,14 +63,12 @@ les fonctions du module.
 
 Déclarations d'include:
 
- - `component ``HALNAME`` ``(DOC``);`
- -  `pin ``PINDIRECTION`` ``TYPE`` ``HALNAME`` ([``SIZE``]|[``MAXSIZE ``:
-   ``CONDSIZE]``) (if ``CONDITION``) (= ``STARTVALUE``) (``DOC``);`
- -  `param ``PARAMDIRECTION`` ``TYPE`` ``HALNAME`` ([``SIZE``]|[``MAXSIZE
-   ``: ``CONDSIZE]``) (if ``CONDITION) ``(= ``STARTVALUE``) (``DOC``) ;`
- - `function ``HALNAME`` (fp | nofp) (``DOC``);`
- - `option ``OPT`` (``VALUE``);`
- - `variable ``CTYPE NAME ``([``SIZE``]);`
+ - `component HALNAME (DOC);`
+ - `pin PINDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC);`
+ - `param PARAMDIRECTION TYPE HALNAME ([SIZE]|[MAXSIZE : CONDSIZE]) (if CONDITION) (= STARTVALUE) (DOC) ;`
+ - `function HALNAME (fp | nofp) (DOC);`
+ - `option OPT (VALUE);`
+ - `variable CTYPE NAME ([SIZE]);`
  - `description DOC;`
  - `see_also DOC;`
  - `license LICENSE;`
@@ -88,40 +86,37 @@ HALNAME::
     «ce-nom» et si le nom `«_`», alors le point final est enlevé aussi,
     ainsi `«function _`» donne un nom de fonction HAL tel que
     `component.<num>` au lieu de `component.<num>.`
-    
-    S'il est présent, le préfixe `hal_`  est enlevé du début d'un nom de
-    composant pour la création des pins
-    des paramètres et des fonctions.
-    
-    Dans l'identifiant de HAL pour une pin ou un paramètre, # indique un
-    membre de tableau, il doit être utilisé conjointement avec une
-    déclaration `[SIZE]` . Les «hash marks» sont remplacées par des nombres
-    de 0-barrés
-    équivalents aux nombres de caractères #.
-    
-    Quand ils sont utilisés pour créer des identifiants C, les changements
-    de caractères suivants sont appliqués au HALNAME:
-    
-      .  Tous les caractères # sont enlevés ainsi que tous les caractères
-    «.»,
-       «_» ou «-» immédiatement devant eux.
-     . Dans un nom, tous les carcatères «.» et «-» sont remplacés par «_»
-      . Les caractères «_» répétitifs sont remplacés par un seul caractère
-    «_».
-    
-    Un «_» final est maintenu, de sorte que les identifiants de HAL, qui
-    autrement seraient en conflit avec les noms ou mots clé réservés (par
-    exemple: «min»), puissent être utilisés.
-    
-    [width="90%", options="header"]
-    |========================================
-    |HALNAME | Identifiant C | Identifiant HAL
-    |x_y_z | x_y_z | x-y-z
-    |x-y.z | x_y_z | x-y.z
-    |x_y_z_ | x_y_z_ | x-y-z
-    |x.##.y | x_y(MM) | x.MM.z
-    |x.## | x(MM) | x.MM
-    |========================================
+
+S'il est présent, le préfixe `hal_`  est enlevé du début d'un nom de
+composant pour la création des pins
+des paramètres et des fonctions.
+
+Dans l'identifiant de HAL pour une pin ou un paramètre, # indique un
+membre de tableau, il doit être utilisé conjointement avec une
+déclaration `[SIZE]` . Les «hash marks» sont remplacées par des nombres
+de 0-barrés équivalents aux nombres de caractères #.
+
+Quand ils sont utilisés pour créer des identifiants C, les changements
+de caractères suivants sont appliqués au HALNAME:
+
+ . Tous les caractères # sont enlevés ainsi que tous les caractères
+   «.», «_» ou «-» immédiatement devant eux. 
+ . Dans un nom, tous les carcatères «.» et «-» sont remplacés par «_». 
+ . Les caractères «_» répétitifs sont remplacés par un seul caractère «_». 
+
+Un «_» final est maintenu, de sorte que les identifiants de HAL, qui
+autrement seraient en conflit avec les noms ou mots clé réservés (par
+exemple: «min»), puissent être utilisés.
+
+[width="90%", options="header"]
+|========================================
+|HALNAME | Identifiant C | Identifiant HAL
+|x_y_z   | x_y_z         | x-y-z
+|x-y.z   | x_y_z         | x-y.z
+|x_y_z_  | x_y_z_        | x-y-z
+|x.##.y  | x_y(MM)       | x.MM.z
+|x.##    | x(MM)         | x.MM
+|========================================
 
 if CONDITION::
      Une expression impliquant la 'personnalité'  d'une variable non nulle
@@ -140,9 +135,9 @@ MAXSIZE : CONDSIZE::
 
 DOC::
      Une chaine qui documente l'item. La chaine doit être au format C,
-    «entre guillemets», comme `"Sélectionnez le front désiré: TRUE pour
-    descendant, FALSE pour montant"`  ou au format Python «triples
-    guillemets», pouvant inclure des
+    «entre guillemets», comme `«Sélectionnez le front désiré: TRUE pour
+    descendant, FALSE pour montant»` ou au format Python «triples
+    guillemets», pouvant inclure des 
     caractères newlines et des guillements, comme:
         param rw bit zot=TRUE
     
@@ -181,10 +176,11 @@ nofp::
     n'est pas spécifié, `fp`  est utilisé. Ni comp ni gcc ne peuvent
     détecter l'utilisation de
     calculs en virgule flottante dans les fonctions marquées `nofp`.
-
+    
 OPT, VALUE::
      Selon le nom de l'option OPT, les valeurs VALUE varient. Les options
     actuellement définies sont les suivantes:
+    
     option singleton yes;;
         (défaut: no)
         Ne crée pas le paramètre numéro de module et crée toujours une seule
@@ -201,10 +197,9 @@ OPT, VALUE::
         (défaut: no)
         Normalement, le numéro des instances à créer est specifié dans le
         paramètre `count` du module, si `count_function` est spécifié, la
-         valeur retournée par la fonction `int get_count(void)` est
-    utilisée à
-        la place de la valeur par défaut et le paramètre `count` du module
-        n'est pas défini.
+        valeur retournée par la fonction `int get_count(void)` est 
+        utilisée à la place de la valeur par défaut et le paramètre `count` 
+        du module n'est pas défini.
     
     option rtapi_app no;;
         (défaut: yes)
@@ -223,30 +218,29 @@ OPT, VALUE::
         name of a type created with `typedef`).
         
         In new components, 'variable' should be used instead.
-
-option extra_setup yes::
-    (défaut: no)
+    
+    option extra_setup yes::
+        (défaut: no)
+    
     option extra_cleanup yes;;
         (défaut: no)
-         Si spécifié, appelle la fonction définie par `EXTRA_CLEANUP`
-    depuis la
-        fonction définie automatiquement `rtapi_app_exit`, ou une erreur est
-        détectée dans la fonction automatiquement définie `rtapi_app_main`.
+        Si spécifié, appelle la fonction définie par `EXTRA_CLEANUP`
+        depuis la fonction définie automatiquement `rtapi_app_exit`, 
+        ou une erreur est détectée dans la fonction automatiquement 
+        définie `rtapi_app_main`.
     
     option userspace yes;;
         (défaut: no)
         Si spécifié, ce fichier décrit un composant d'espace utilisateur,
-         plutôt que le réel. Un composant d'espace utilisateur peut ne pas
-    avoir
-        de fonction définie par la directive de fonction. Au lieu de cela,
-        après que toutes les instances soient construites, la fonction C
-        `user_mainloop()`  est appelée. Dès la fin de cette fonction, le
-        composant se termine.
-         En règle générale, `user_mainloop()` va utiliser `FOR_ALL_INSTS()` 
+        plutôt que le réel. Un composant d'espace utilisateur peut ne pas avoir 
+        de fonction définie par la directive de fonction. Au lieu de cela, 
+        après que toutes les instances soient construites, la fonction C 
+        `user_mainloop()`  est appelée. Dès la fin de cette fonction, le 
+        composant se termine. 
+        En règle générale, `user_mainloop()` va utiliser `FOR_ALL_INSTS()` 
         pour effectuer la mise à  jour pour chaque action, puis attendre un
-          court instant. Une autre action commune dans `user_mainloop()` 
-    peut
-        être d'appeler le gestionnaire de boucles d'événements d'une
+        court instant. Une autre action commune dans `user_mainloop()` peut 
+        être d'appeler le gestionnaire de boucles d'événements d'une 
         interface graphique.
     
     option userinit yes;;
@@ -254,12 +248,10 @@ option extra_setup yes::
         Si spécifiée, la fonction `userinit(argc,argv)` est appelée avant
         `rtapi_app_main()` (et cela avant l'appel de `hal_init()` ). Cette
         fonction peut traiter les arguments de la ligne de commande
-          ou exécuter d'autres actions. Son type de retour est `void`; elle
-    peut
-        appeler `exit()`  et si elle le veut, se terminer sans créer de
-        composant HAL (par
-        exemple, parce que les arguments de la ligne de commande sont
-        invalides).
+        ou exécuter d'autres actions. Son type de retour est `void`; elle peut
+        appeler `exit()`  et si elle le veut, se terminer sans créer de 
+        composant HAL (par exemple, parce que les arguments de la ligne de 
+        commande sont invalides).
     
     Si aucune option VALUE n'est spécifiée, alors c'est équivalent à
     spécifier la valeur`… yes` . Le résultat consécutif à l'assignation
@@ -367,12 +359,11 @@ fperiod::
      Le nombre de secondes en virgule flottante entre les appels à cette
     fonction temps réel.
 
-FOR_ALL_INSTS() {::
-     `…` } Pour les composants de l'espace utilisateur. Cette macro utilise
-    la
-     variable `struct state *inst`  pour itérer au dessus de toutes les
-    instances définies. Dans le corps
-     de la boucle, les macros 'pin_name', 'parameter_name' et *data*
+FOR_ALL_INSTS() {`…`}:: 
+    Pour les composants de l'espace utilisateur. Cette macro utilise
+    la variable `struct state *inst` pour itérer au dessus de toutes 
+    les instances définies. Dans le corps 
+    de la boucle, les macros 'pin_name', 'parameter_name' et *data*
     travaillent comme elles le font dans les fonctions temps réel.
 
 == Composants avec une seule fonction
@@ -381,7 +372,7 @@ Si un composant a seulement une fonction et que la chaine «FUNCTION»
 n'apparaît nulle part après `;;`, alors la portion après `;;` est
 considérée comme étant le corps d'un composant simple fonction.
 
-==  «Personnalité» du composant
+== «Personnalité» du composant
 
 Si un composant a n'importe combien de pins ou de paramètres avec un
 «if 'condition'» ou «['maxsize : condsize']», il est appelé un
@@ -487,8 +478,8 @@ cette région en
 cas d'erreur ou quand le module est déchargé.
 
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component out8;
 pin out unsigned out_ "Output value; only low 8 bits are used";
 param r unsigned ioaddr;
@@ -534,7 +525,7 @@ EXTRA_CLEANUP() {
 
 FUNCTION(_) { outb(out_, ioaddr); }
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 === hal_loop
 
@@ -561,10 +552,10 @@ fixe:
 
 Ce composant de l'espace utilisateur modifie la valeur de ses pins de
 sortie vers une nouvelle valeur aléatoire dans l'étendue
-latexmath:[[0,1)] à chaque ms.
+latexmath:[(0,1)] à chaque 1ms.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component rand;
 option userspace;
 
@@ -580,15 +571,15 @@ void user_mainloop(void) {
     }
 }
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 ==== logic
 
 Ce composant temps réel montre l'utilisation de la «personnalité» pour
 créer un tableau de taille variable et des pins optionnelles.
 
-[c]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[source,c]
+-------------------------------------------------
 component logic "EMC2 HAL component providing experimental logic functions";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
@@ -620,7 +611,7 @@ FUNCTION(_) {
     if(personality & 0x400) xor = x;
 }
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------
 
 Une ligne de chargement typique pourrait être:
 
@@ -634,4 +625,5 @@ qui créerait les pins suivantes:
    logic.1.in-04, 
  -  des portes AND et XOR à 3 entrées: logic.2.and, logic.2.xor,
    logic.2.in-00, logic.2.in-01, logic.2.in-02
+
 

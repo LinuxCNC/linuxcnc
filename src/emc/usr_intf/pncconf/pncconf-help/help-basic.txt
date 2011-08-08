@@ -26,8 +26,34 @@ I/O Ports / Boards:
 GUI Frontend list:
     This specifies the graphical display EMC will use.
     Each one has different option. 
-    eg. mini does not support estop
-        AXIS is the only frontend that fully supports lathes.
-        TOUCHY requires cycle-start, abort, and single-step signals
-            It also requires shared axis MPG jogging to be selected.  
+        AXIS 
+            -fully supports lathes.
+            -is the most developed and used frontend
+            -is designed to be used with mouse and keyboard
+            -is tkinter based so intergrates PYVCP panels naturally.
+            -has a graphical window.
+            -allows VCP panels intergrated on the side or in center tab
+
+        TOUCHY
+            -Touchy was designed to be used with a touchscreen, some
+                minimal physical switches and a MPG wheel.
+            -requires cycle-start, abort, and single-step signals and buttons
+            -It also requires shared axis MPG jogging to be selected.  
+            -is GTK based so intergrates GLADE VCP panels naturally.
+            -allows VCP panels intergrated in the center Tab
+            -has no graphical window
+            -look can be changed with custom themes
+
+        MINI
+            -standard on OEM Sherline machines
+            -does not use Estop
+            -no vcp intergration
+            
+        TkEMC
+            - hi contrast bright blue screen
+            -
+
+
+
+
 

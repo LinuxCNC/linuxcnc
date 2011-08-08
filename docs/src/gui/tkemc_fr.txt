@@ -30,16 +30,16 @@ Quand EMC2 est lancé avec TkEMC, une fenêtre comme celle de la figure
 === Une session typique avec TkEMC
 
  . Lancer EMC2 et sélectionner un fichier de configuration.
- .  Libérer l'«Arrêt d'Urgence»(((A/U))) et mettre la machine en marche
+ . Libérer l'«Arrêt d'Urgence»(((A/U))) et mettre la machine en marche
    (en pressant F1 puis F2).
  . Faire l'«Origine(((Origine Machine))) Machine» de chacun des axes.
  . Charger un fichier d'usinage.
  . Brider le brut à usiner sur la table.
- .  Faire l'«Origine (((Origine Piece)))Pièce» de chacun des axes, à
+ . Faire l'«Origine (((Origine Piece)))Pièce» de chacun des axes, à
    l'aide du jog ou en introduisant une valeur de décalage d'origine après
    un clic droit sur le nom d'un axe.
  . Lancer le programme.
- .  Pour refaire une autre pièce identique, reprendre à l'étape 6. Pour
+ . Pour refaire une autre pièce identique, reprendre à l'étape 6. Pour
    usiner une pièce différente, reprendre à l'étape 4. Quand c'est
    terminé, quitter EMC2.
 
@@ -48,16 +48,17 @@ Quand EMC2 est lancé avec TkEMC, une fenêtre comme celle de la figure
 La fenêtre TkEMC contient les éléments suivants:
 
  - Une barre de menu permettant diverses actions;
- -  Un jeu de boutons pemettant d'agir sur le mode de travail,
+ - Un jeu de boutons pemettant d'agir sur le mode de travail,
    Marche/Arrêt de la broche et autres éléments;
  - Une barre de status pour l'affichage des différents offsets;
  - Une zône d'affichage des coordonnées;
- -  Un jeu de curseurs pour contrôler la «vitesse de jog(((vitesse de
-   jog)))», le «Correcteur de vitesse d'avance(((correcteur de vitesse)))»
-   et le «Correcteur de vitesse broche(((correcteur vitesse broche)))» qui
+ - Un jeu de curseurs pour contrôler la 
+   «vitesse de jog(((vitesse de jog)))», le 
+   «Correcteur de vitesse d'avance(((correcteur de vitesse)))» et 
+   le «Correcteur de vitesse broche(((correcteur vitesse broche)))» qui
    permettent d'augmenter ou de diminuer ces vitesses ;
  - Une boîte d'entrée de données manuelles(((MDI))); 
- -  Une barre de status affichant le bloc de programme actif, G-codes,
+ - Une barre de status affichant le bloc de programme actif, G-codes,
    M-codes, mots F et S;
  - Les boutons relatifs à l'interpréteur;
  - Une zône d'affichage de texte montrant le G-code du programme chargé.
@@ -66,18 +67,18 @@ La fenêtre TkEMC contient les éléments suivants:
 
 Dans la première ligne de la gauche vers la droite et cycliquement:
 
- .  Marche Machine: «Arrêt d'Urgence(((A/U)))» / «Arrêt d'Urgence relâché»
-   / «Marche» 
+ .  Marche Machine: «Arrêt d'Urgence(((A/U)))» 
+   «Arrêt d'Urgence relâché» / «Marche» 
  . Bascule brouillard(((Brouillard)))
  . Broche moins vite
- .  Direction de rotation de la broche(((broche))) «Arrêt broche» /
+ . Direction de rotation de la broche(((broche))) «Arrêt broche» /
    «Broche sens horaire» / «Broche sens anti-horaire»
  . Broche plus vite
  . Annuler
 
 puis dans la deuxième ligne:
 
- . Mode de marche: “MANUEL(((Manuel)))” / “MDI(((MDI)))” / “AUTO(((Auto)))”
+ . Mode de marche: «MANUEL(((Manuel)))» / «MDI(((MDI))))» / «AUTO(((Auto)))»
  . Bascule d'arrosage
  . Bascule du contrôle frein de broche
 
@@ -134,11 +135,12 @@ Les boutons de contrôle de la partie inférieure de TkEMC, voir la
 figure  <<cap:TkEMC-Interpreteur>>, sont utilisés pour l'exécution du
 programme: «Ouvrir(((ouvrir)))» pour charger un fichier,
 «Vérifier(((verifie)))» pour vérifier si il contient des erreurs,
-«Lancer(((lancer)))» pour commencer l'usinage, «Pause(((pause)))» pour
+«Lancer(((lancer)))» pour commencer l'usinage, «Pause(((pause)))»our
 pour stopper temporairement l'usinage, «Reprise(((reprise)))» pour
 reprendre un programme mis en pause, «Pas à pas(((pas a pas)))» pour
-avancer d'une seule ligne de programme et «Arrêt optionnel(((arret
-optionnel)))» pour basculer l'arrêt optionnel, si ce bouton est vert
+avancer d'une seule ligne de programme et 
+«Arrêt optionnel(((arret optionnel)))» pour basculer l'arrêt 
+optionnel, si ce bouton est vert 
 l'exécution du programme est stoppée quand un code M1 est rencontré.
 
 ==== Zône texte d'affichage du programme
@@ -182,12 +184,11 @@ jog temporaire pour même si l'axe à franchi une limite d'axe fixée dans
 le fichier .ini. Noter que si «Dépassement de limite» est activé il
 s'affiche en rouge.
 
-. Exemple de dépassement de limite et incréments de jog
-[[cap:Override-Limits]]
+.Exemple de dépassement de limite et incréments de jog[[cap:Override-Limits]]
 
 image::tkemc_override_limits.png[]
 
-==== Le groupe de boutons  «Broche»(((broche)))
+==== Le groupe de boutons «Broche»(((broche)))
 
 Le bouton central du dessus sélectionne le sens de rotation de la
 broche: Anti-horaire, Arrêt, Horaire. Les boutons fléchés augmentent ou
@@ -195,7 +196,7 @@ diminuent la vitesse de rotation. Le bouton central du dessous permet
 d'engager ou de relâcher le frein de broche. Selon la configuration de
 la machine, les items de ce groupe ne sont peut être pas tous visibles.
 
-==== Le groupe de boutons  «Arrosage»(((arrosage)))
+==== Le groupe de boutons «Arrosage»(((arrosage)))
 
 Ces deux boutons permettent d'activer ou non les lubrifiants
 «brouillard» et «Arrrosage». Selon la configuration de la machine, les
@@ -253,26 +254,26 @@ La plupart des actions de TkEMC peuvent être accomplies au clavier.
 Beaucoup des raccourcis clavier ne sont pas accessibles en mode MDI.
 
 Les raccourcis clavier les plus fréquamment utilisés sont montrés dans
-la table  <<cap:Raccourcis-clavier-frequents>>.
+la table <<cap:Raccourcis-clavier-frequents>>.
 
-. Les raccourcis clavier les plus
-utilisés[[cap:Raccourcis-clavier-frequents]]
+.Les raccourcis clavier les plus utilisés[[cap:Raccourcis-clavier-frequents]]
 
 [width="90%", options="header"]
 |========================================
-|Touche | Action
-|F1 | Bascule de l'Arrêt d'Urgence
-|F2 | Marche/Arrêt machine
-|`, 1 .. 9, 0 | Correcteur vitesse d'avance 0% à 100%
-|X, ` | Active le premier axe
-|Y, 1 | Active le deuxième axe
-|Z, 2 | Active le troisième axe
-|A, 3 | Active le quatrième axe
-|Origine | POM de l'axe actif
-|Gauche, Droite | Jog du premier axe
-|Haut, Bas | Jog du deuxième axe
+|Touche           | Action
+|F1               | Bascule de l'Arrêt d'Urgence
+|F2               | Marche/Arrêt machine
+|`, 1 .. 9, 0     | Correcteur vitesse d'avance 0% à 100%
+|X, `             | Active le premier axe
+|Y, 1             | Active le deuxième axe
+|Z, 2             | Active le troisième axe
+|A, 3             | Active le quatrième axe
+|Origine          | POM de l'axe actif
+|Gauche, Droite   | Jog du premier axe
+|Haut, Bas        | Jog du deuxième axe
 |Pg.prec, Pg.suiv | Jog du troisième axe
-|[, ] | Jog du quatrième ax
-|Echap | Arrête l'exécution
+|[, ]             | Jog du quatrième ax
+|Echap            | Arrête l'exécution
 |========================================
+
 

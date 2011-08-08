@@ -9,8 +9,9 @@ pages.
 
 Quand vous installez EMC2 avec le CD-Live Ubuntu, par défaut vous
 devez passer par la fenêtre de connexion à chaque démarrage du PC. Pour
-activer le login automatique ouvrez le menu «Système»
-->«Administration»->«Fenêtre de connexion». Si l'installation est
+activer le login automatique ouvrez le menu 
+«Système» -> «Administration» -> «Fenêtre de connexion». 
+Si l'installation est 
 récente la fenêtre de connexion peut prendre quelques secondes pour
 s'ouvrir. Vous devez entrer le mot de passe utilisé pour l'installation
 pour accéder à la fenêtre des préférences. Ouvrez alors l'onglet
@@ -175,4 +176,7 @@ soit que celle d'un moniteur générique en 800x600.
 Pour résoudre ce cas, suivez les instructions données ici:
 
 https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.com/community/FixVideoResolutionHowto]
+
+// vim: set syntax=asciidoc:
+
 

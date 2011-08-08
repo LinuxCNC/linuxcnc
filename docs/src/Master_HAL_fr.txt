@@ -1,10 +1,12 @@
-:language: fr
-
-Le manuel de HAL (Couche d'abstraction du matériel), {localdate}
-================================================================
+Manuel de HAL V2.3, {localdate}
+===============================
 The EMC Team
 
+:language: fr
+
 :masterdir: {indir}
+
+:leveloffset: 1
 
 image::common/emc2-intro.*[]
 
@@ -12,30 +14,62 @@ include::common/overleaf.txt[]
 
 include::common/outdated-notice_fr.txt[]
 
-
-= Introduction et tutoriels
-
+:leveloffset: 0
+= HAL
 :leveloffset: 1
+
 include::hal/intro_fr.txt[]
 
 include::hal/tutorial_fr.txt[]
 
-:leveloffset: 0
-= Les références de HAL
-:leveloffset: 1
-
 include::hal/general_ref_fr.txt[]
 
 include::hal/tools_fr.txt[]
+
+include::hal/basic_hal_fr.txt[]
+
+include::hal/halshow_fr.txt[]
+
+include::hal/components_fr.txt[]
+
+include::hal/rtcomps_fr.txt[]
+
+include::hal/parallel_port_fr.txt[]
+
+include::hal/hal-examples_fr.txt[]
+
+include::gui/halui_fr.txt[]
+
+include::hal/halui_examples_fr.txt[]
 
 include::hal/comp_fr.txt[]
 
 include::hal/halmodule_fr.txt[]
 
 :leveloffset: 0
-= Annexes
+= Les pilotes de périphériques
 :leveloffset: 1
 
+include::drivers/AX5214H_fr.txt[]
+
+include::drivers/GS2_fr.txt[]
+
+include::drivers/hostmot2_fr.txt[]
+
+include::drivers/motenc_fr.txt[]
+
+include::drivers/opto22_fr.txt[]
+
+include::drivers/pico_ppmc_fr.txt[]
+
+include::drivers/pluto_p_fr.txt[]
+
+include::drivers/servo_to_go_fr.txt[]
+
 include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

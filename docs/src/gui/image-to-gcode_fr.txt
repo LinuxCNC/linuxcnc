@@ -161,7 +161,7 @@ un fraisage dans les deux directions. Trois choix sont possibles:
 === Contact angle
 
 Quand *Lace bounding* n'est pas None, les pentes qui présentent une
-pente supérieure à *Contact angle*  seront considérées comme de
+pente supérieure à *Contact angle* seront considérées comme de
 “fortes” pentes et celles en dessous de
 cet angle considérées comme de faible pentes.
 
@@ -178,7 +178,7 @@ n'usinera plus près de la partie finale que Roughing Offset. La figure
 usiner. Sur cette image, la profondeur des passes d'ébauche est de 0.2
 pouces et Roughing Offset de 0.1 pouces.
 
-.Passes d'ébauche[[cap:Passes d-ebauche]]
+.Passes d'ébauche[[cap:Passes-d-ebauche]]
 
 image::i2g-roughing.png[]
 

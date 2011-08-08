@@ -18,12 +18,6 @@ of some activity.  Returns a 64 bit value.  The resolution of the returned
 value may be as good as one nano-second, or as poor as several microseconds.
 May be called from init/cleanup code, and from within realtime tasks.  
 
-Experience has shown that the implementation of this function in some
-RTOS/Kernel combinations is horrible.  It can take up to several microseconds,
-which is at least 100 times longer than it should, and perhaps a thousand times
-longer.  Use it only if you MUST have results in seconds instead of clocks, and
-use it sparingly.  In most cases, \fBrtapi_get_clocks\fR shold be used instead.
-
 \fBrtapi_get_clocks\fR returns the current time in CPU clocks.  It is 
 fast, since it just reads the TSC in the CPU instead of calling a
 kernel or RTOS function.  Of course, times measured in CPU clocks

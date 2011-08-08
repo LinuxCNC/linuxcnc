@@ -68,7 +68,7 @@ entrée de l'«esclave» est alors fournie par la sortie du régulateur
 
 === Théorie
 
-Le "PID" représente les abréviations des trois actions qu'il utilise
+Le «PID» représente les abréviations des trois actions qu'il utilise
 pour effectuer ses corrections, ce sont des ajouts d'un signal à un
 autre. Tous agissent sur la quantité régulée. Les actions aboutissent
 finalement à des «soustractions» de l'erreur de mesure, parce que le
@@ -161,19 +161,18 @@ habituellement un léger dépassement de consigne pour avoir une montée
 plus rapide, mais certains systèmes ne le permettent pas.
 
 [width="90%", options="header"]
-|========================================
- |Paramètre | Temps de montée | Dépassement | Temps de réglage | S.S.
-Error
-|P | Augmente | Augmente | Chang. faible | Diminue
-|I | Diminue | Augmente | Augmente | Eliminate
-|D | Chang. faible | Diminue | Diminue | Chang. faible
-|========================================
+|==========================================================
+|Paramètre | Temps de montée | Dépassement | Temps de réglage | S.S. Error
+|P         | Augmente        | Augmente    | Chang. faible    | Diminue
+|I         | Diminue         | Augmente    | Augmente         | Eliminate
+|D         | Chang. faible   | Diminue     | Diminue          | Chang. faible
+|==========================================================
 
 Effets de l'augmentation des paramètres
 
 ==== Méthode de Ziegler-Nichols
 
-Une autre méthode de réglage est la méthode dite de "Ziegler-Nichols",
+Une autre méthode de réglage est la méthode dite de «Ziegler-Nichols»,
 introduite par John G. Ziegler et Nathaniel B. Nichols. Elle commence
 comme la méthode précédente: réglage des gains I et D à zéro et
 acroîssement du gain P jusqu'à ce que la sortie du procédé commence à
@@ -182,11 +181,11 @@ période d'oscillation de la sortie (latexmath:[$P_{c}$]). Ajuster alors
 les termes P, I et D de la boucle comme sur la table ci-dessous:
 
 [width="90%", options="header"]
-|========================================
-|Type de régulation | P | I | D
-|P | latexmath:[$.5K_{c}$] |  | 
-|PI | latexmath:[$.45K_{c}$] | latexmath:[$1.2/P_{c}$] | 
- |PID | latexmath:[$.6K_{c}$] | latexmath:[$2/P_{c}$] |
-latexmath:[$P\times P_{c}/8$]
-|========================================
+|====================================================================
+|Type de régulation | P                      | I                       | D
+|P                  | latexmath:[$.5K_{c}$]  |                         | 
+|PI                 | latexmath:[$.45K_{c}$] | latexmath:[$1.2/P_{c}$] | 
+|PID                | latexmath:[$.6K_{c}$]  | latexmath:[$2/P_{c}$]   | latexmath:[$P\times P_{c}/8$]
+|====================================================================
+
 

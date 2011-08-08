@@ -207,11 +207,12 @@ int emcOperatorError(int id, const char *fmt, ...)
     // prepend error code, leave off 0 ad-hoc code
     error_msg.error[0] = 0;
     if (0 != id) {
-	sprintf(error_msg.error, "[%d] ", id);
+	snprintf(error_msg.error, sizeof(error_msg.error), "[%d] ", id);
     }
     // append error string
     va_start(ap, fmt);
-    vsprintf(&error_msg.error[strlen(error_msg.error)], fmt, ap);
+    vsnprintf(&error_msg.error[strlen(error_msg.error)], 
+	      sizeof(error_msg.error) - strlen(error_msg.error), fmt, ap);
     va_end(ap);
 
     // force a NULL at the end for safety
@@ -232,7 +233,7 @@ int emcOperatorText(int id, const char *fmt, ...)
 
     // write args to NML message (ignore int text code)
     va_start(ap, fmt);
-    vsprintf(text_msg.text, fmt, ap);
+    vsnprintf(text_msg.text, sizeof(text_msg.text), fmt, ap);
     va_end(ap);
 
     // force a NULL at the end for safety
@@ -252,7 +253,7 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
 
     // write args to NML message (ignore int display code)
     va_start(ap, fmt);
-    vsprintf(display_msg.display, fmt, ap);
+    vsnprintf(display_msg.display, sizeof(display_msg.display), fmt, ap);
     va_end(ap);
 
     // force a NULL at the end for safety

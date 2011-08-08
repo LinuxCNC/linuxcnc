@@ -2,22 +2,17 @@ User Manual V2.5, {localdate}
 =============================
 The EMC Team
 
-/////////////////////////////////////////////////
-This might be nicer than the above if I could 
-get it to work, but I haven't been able to: 
-
-User Manual V2.5
-================
-:Date:	{localdate}
-/////////////////////////////////////////////////
+:language: en
 
 :masterdir: {indir}
+
+:leveloffset: 1
 
 image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-:leveloffset: 1
+// (DE,ES, Translator-Needed Notice)(FR outdated-notice)
 
 include::common/userforeword.txt[]
 
@@ -55,32 +50,22 @@ include::gcode/tool_compensation.txt[]
 
 include::gcode/main.txt[]
 
+include::gcode/mill_canned.txt[]
+
 include::lathe/lathe-user.txt[]
 
 include::gcode/rs274ngc.txt[]
-
-:leveloffset: 0
-= Examples
-:leveloffset: 1
 
 include::examples/gcode.txt[]
 
 include::gui/image-to-gcode.txt[]
 
-:leveloffset: 0
-= Diagnostics
-:leveloffset: 1
-
-include::common/Stepper_Diagnostics.txt[]
-
-:leveloffset: 0
-= Appendices
-:leveloffset: 1
-
 include::common/Glossary.txt[]
 
 include::common/GPLD_Copyright.txt[]
 
-= Index
+// = Index
+
+// vim: set syntax=asciidoc:
 
 

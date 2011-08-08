@@ -5,13 +5,13 @@ Voir également les man pages *motion(9)* et *iocontrol(1)*
 == motion (realtime)
 
 Ces pins, paramètres et fonctions sont créés par le module temps réel
-`“motmod`”.
+`“motmod”`.
 
 === Pins (((motion (hal pins))))
 
 motion.adaptive-feed::
      (Float, In) Quand la vitesse est placée en mode adaptatif avec
-    `M52 P1`   la vitesse commandée est multipliée par cette valeur. Cet
+    `M52 P1` la vitesse commandée est multipliée par cette valeur. Cet
     effet est
      multiplicatif avec *motion.feed-hold* et la valeur du correcteur de
     vitesse du niveau NML.
@@ -50,7 +50,7 @@ motion.motion-inpos::
     (bit, In) TRUE si la machine est en position.
 
 motion.probe-input::
-     (bit, In)` G38.x`  utilise la valeur de cette pin pour déterminer
+     (bit, In)` G38.x` utilise la valeur de cette pin pour déterminer
     quand la sonde de
     mesure entre en contact. TRUE le contact de la sonde est fermé
     (touche), FALSE le contact de la sonde est ouvert.
@@ -204,16 +204,15 @@ motion-controller::
 
 == axis.N (temps réel)
 
-Ces pins et paramètres sont créés par le module temps réel “`motmod”`
-. Ce sont en fait des valeurs d'articulations, mais les pins et les
+Ces pins et paramètres sont créés par le module temps réel “`motmod”`. 
+Ce sont en fait des valeurs d'articulations, mais les pins et les
 paramètres sont toujours appelés “axis.N”.footnote:[Dans une machine à
 “cinématique triviale”, il y a correspondance une
 pour une, entre les articulations et les axes.
-
-NDT: nous utilisons dans cette traduction le terme “axe”, dans le cas
-d'une cinématique non triviale il devra être remplacé par le terme
-“articulation” (joint).
-] Ils sont lus et mis à jour par la fonction *motion*'-'*controller*.
+Note Du Traducteur: nous utilisons dans cette traduction le terme “axe”, 
+dans le cas d'une cinématique non triviale il devra être remplacé par 
+le terme “articulation” (joint).] 
+Ils sont lus et mis à jour par la fonction *motion*'-'*controller*.
 
 === Pins (((axis (hal pins))))
 

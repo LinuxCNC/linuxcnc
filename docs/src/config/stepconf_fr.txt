@@ -1,541 +1,625 @@
-= Assistant graphique de configuration [[cha:Assistant-graphique]] 
+= Assistant graphique de configuration pas à pas stepconf[[cha:Assistant-graphique-pas-a-pas]](((Assistant graphique de configuration pas à pas stepconf)))(((stepconf Wizard)))
 
-Stepconf est un programme qui génère des fichiers de configuration EMC
-pour une classe spécifique de machine CNC: celles qui sont pilotées via
-un *port parallèle* standard et contrôlées par des signaux de type
-*step & direction*.
+EMC2 est capable de contrôler un large éventail de machines
+utilisant plusieurs interfaces matérielles différentes.
 
-== Instructions pas à pas [[sec:pas a pas]]
+Stepconf est un programme qui génère des fichiers de configuration EMC2
+pour une classe spécifique de machine CNC: 
+celles qui sont pilotées via un *port parallèle standard*, et 
+contrôlées par des signaux de type *pas/direction (step/dir)*.
 
-=== Informations sur la machine [[sub:Informations sur la machine]]
+Stepconf est installé lorsque vous installez EMC2 et se trouve dans le menu de CNC.
 
-.Page d'informations sur la machine[[cap:Page informations machine]]
+Stepconf place un fichier dans le répertoire emc2/config
+pour stocker les choix pour chaque configuration que vous créez.
+Lorsque vous modifiez quelque chose, vous devez choisir le fichier 
+qui correspond à votre nom de configuration.
+L'extension de fichier est .stepconf. 
+
+L'Assistant Stepconf besoin d'au moins une résolution de 800 x 600
+pour voir les boutons sur le bas des pages.
+
+[float]
+Instructions étape par étape
+============================
+
+== Page d'entrée[[sec:Entree-page]]
+
+.Page d'entrée[[cap:Entree-page]]
+
+image::images/stepconf-entry.png[]
+
+Créer un nouveau:
+    Crée une configuration nouvelle.
+
+Modifier::
+    Modifier une configuration existante. 
+    Après avoir sélectionné ce sélecteur de fichier une apparaît pour vous 
+    permettre de sélectionner le fichier de .stepconf de modification. 
+    Si vous apporté des modifications à la principale fichiers .hal ou .ini Ceux-ci seront perdu. 
+    Modifications à custom.hal et custom_postgui.hal ne sera pas
+    changé par l'Assistant Stepconf.
+
+Créer un raccourci de bureau::
+    Cela placera un lien sur votre bureau pour les fichiers.
+
+Créer un lanceur de bureau::
+    Cela placera un lanceur sur votre bureau pour démarrer votre application.
+
+== Informations de base[[sub:Informations-base]]
+
+.Page d'informations de base[[cap:Page-informations-base]]
 
 image::images/stepconf-basic_fr.png[]
 
 Nom de la machine::
-     Choisissez un nom pour votre machine. Utilisez uniquement des lettres,
-    des chiffres ou «-» et «_».
+    (((Nom de la machine)))
+    Choisissez un nom pour votre machine. 
+    Utilisez uniquement des lettres majuscules, minuscules, des chiffres ou «-» et «_».
 
 Configuration des axes::
-     Choisissez votre type de machine: XYZ (fraiseuse), XYZA (machine
-    4-axes) ou XZ (tour).
+    (((Configuration des axes)))
+    Choisissez votre type de machine: 
+    XYZ (fraiseuse), XYZA (fraiseuse 4-axe) ou XZ (tour).
 
 Les unités utilisées par la machine::
-     Choisissez entre pouce ou millimètre. Toutes les questions suivantes
-    (telles que la longueur des courses, le pas de la vis, etc) devront
-    obtenir des réponses dans l'unité choisie ici.
+    (((Les unités utilisées par la machine)))
+    Choisissez entre pouce ou millimètre. Toutes les questions suivantes
+    (telles que la longueur des courses, le pas de la vis, etc) 
+    devront obtenir des réponses dans l'unité choisie ici.
 
 Caractéristiques du pilote::
-     Si vous avez un des pilotes énumérés dans la liste déroulante, cliquez
-    sur lui. Sinon, cherchez dans la documentation du pilote de votre
-    matériel, les 4 valeurs de timing et entrez les. Si la fiche donne des
-    valeurs en microsecondes, multipliez les par 1000. Par exemple, pour
-    4.5µs entrez 4500. 
-    D'éventuels traitements des signaux, une opto-isolation ou des filtres
-    RC, peuvent imposer des contraintes de temps supplémentaires aux
-    signaux, il convient de les ajouter à celles du pilote.
+    (((Caractéristiques du pilote)))
+    Si vous avez un des pilotes énumérés dans la liste déroulante, cliquez sur lui. 
+    Sinon, trouvez les 4 valeurs de timing dans
+    la fiche de votre pilote de données et de les saisir. 
+    Si la fiche donne des valeurs en microsecondes, multipliez les par 1000. 
+    Par exemple, pour 4.5µs entrez 4500ns. 
 
-Résultat du test de latence::
-     Entrez ici, le résultat du test de latence. (voir la section 
-    <<sec:Test de latence>>)
+Une liste de certains des pilotes pas à pas populaires, avec leurs valeurs de timing,
+est sur le wiki sous LinuxCNC.org
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing [Le calendrier pilotes pas à pas].
 
-Fréquence maxi des pas::
-     Affiche la valeur calculée de la fréquence maximum des pas que la
-    machine devrait atteindre avec les paramètres de cette configuration.
+Conditionnement de signaux supplémentaires ou d'isolement telles que 
+optocoupleurs et filtres RC sur les planches de sortir 
+peut imposer des contraintes temporelles de leurs propres, en plus de ceux du pilote. 
+Vous trouverez peut-être nécessaire de
+ajouter un peu de temps pour les besoins d'entraînement pour permettre cela. 
+Le EMC Configuration Sélecteur a configs pour Sherline déjà configuré.
 
-Période de base minimum::
-     En se basant sur les caractéristiques du pilote et sur le résultat du
-    test de latence, Stepconf détermine automatiquement la période de base
-    la plus petite utilisable (BASE_PERIOD). La fréquence maxi des pas est
-    calculée sur la même BASE_PERIOD. 
+Pas de temps::
+    Depuis combien de temps le pouls étape est sur "on" en nanosecondes.
 
-Prompt à l'écran au changement d'outil::
-     Si cette case est cochée, EMC va faire une pause et demander de
-    changer l'outil lorsque M6 est rencontré. Laissez cette case cochée,
-    sauf si vous envisagez d'ajouter la gestion personnalisées d'un
-    changeur automatique d'outils dans un fichier halI.
+Espace étape:
+    Délai minimum entre les impulsions étape en nanosecondes.
 
-=== Réglage du port parallèle [[sub:Reglage du port parallele]]
+Direction Tenez::
+    Depuis combien de temps la broche de direction a lieu après un changement de direction en nanosecondes.
 
-.Page de réglage du port parallèle[[cap:Reglage du port parallele]]
+Configuration Direction::
+    Combien de temps avant un changement de direction après l'impulsion de la dernière étape en nanosecondes.
+
+Premièrement Parport::
+    Habituellement, le défaut de 0x378 est correcte.
+
+Deuxième Parport::
+    Si vous avez besoin de spécifier des ports parallèles et saisissez l'adresse et le type. 
+    Pour plus d'informations sur la recherche de l'adresse du PCI ports parallèles
+    Voir l'adresse du port dans le manuel de l'intégrateur. (Essayez de 0x278 ou 0x3BC première fois.)
+
+Période maximale de base de gigue::
+    (((base maximale de gigue Période)))
+    Entrez le résultat du test de latence ici. 
+    Pour exécuter un test de latence de presse de la "période de base de test de gigue" bouton.
+    Voir la section test de latence pour plus de détails.
+
+Étape maxi Prix::
+    (((étape Max Rate)))
+    Stepconf calcule automatiquement le taux de l'étape Max sur la base des
+    caractéristiques du conducteur entré et le résultat du test de latence.
+
+Base de Min Min Période::
+    (((période de base)))
+    Stepconf détermine automatiquement la base de Min Période sur la base des 
+    caractéristiques du conducteur entré et test de latence résultat. 
+
+Prompt à l'écran pour changement d'outil rapide::
+     (((l'écran pour changement d'outil)))
+     Si cette case est cochée, EMC va faire une pause et vous invite
+     de changer l'outil lorsque *M6* est rencontré.
+     Laissez cette case cochée sauf si vous prévoyez d'ajouter le support
+     pour un changeur d'outils automatique dans un fichier personnalisé HAL
+
+== Test de Latence[[sec:Test-de-latence-GS]](((Test de Latence)))(((Latency Test)))
+
+Alors que le test fonctionne, vous devriez «abus» de l'ordinateur. Déplacez
+fenêtres autour de l'écran. Surfez sur le Web. Copie des fichiers volumineux
+autour du disque. Ecouter de la musique. Exécuter un programme OpenGL tels que
+glxgears. L'idée est de mettre le PC à l'épreuve alors que le temps de latence
+test vérifie pour voir ce que les chiffres sont pires cas. * Ne pas exécuter EMC2
+tandis que le test de latence est en marche .* Exécutez le test au moins quelques
+minutes. Le plus vous exécutez le test de la
+mieux ce sera pour attraper les événements qui pourraient occour au moins fréquent
+intervalles. Ceci est un test pour votre ordinateur uniquement, donc pas de matériel doit
+d'être connecté à exécuter le test.
+
+.Test de latence[[cap:Test-de-Latence]]
+
+image::images/latency.png []
+
+La latence est le temps qu'il faut pour arrêter le PC ce qu'il fait et de
+répondre à une demande externe. Dans notre cas, la demande est la
+périodiques "heartbeat" qui sert de référence de temps pour l'étape
+impulsions. La baisse du temps de latence, plus vite vous pouvez exécuter le battement de coeur,
+et les impulsions rapide et plus fluide de l'étape sera.
+
+La latence est beaucoup plus importante que la vitesse du CPU. Le processeur n'est pas le seul
+facteur dans la détermination de latence. Cartes mères vidéo, ports USB,
+Questions SMI, et un certain nombre d'autres choses peuvent blesser la latence.
+
+.Dépannage des problèmes SMI (LinuxCNC.org Wiki)
+****
+Correction des problèmes causés par Realtime SMI sur Ubuntu
+
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
+****
+
+Les numéros importants sont le "jitter max". Dans l'exemple ci-dessus 7085
+nanosecondes, soit 7.085 microsecondes, est le plus haut de gigue.
+Inscris ce nombre, et l'inscrire dans
+la période de base gigue maximale boîte.
+
+Si votre numéro de gigue max est inférieure à environ 15-20 microsecondes
+(15000-20000 nanosecondes), l'ordinateur devrait donner des résultats très agréable
+à l'intensification de logiciels. Si la latence max est plus de 30-50
+microsecondes, vous pouvez toujours obtenir de bons résultats, mais votre échelon maximum
+taux pourrait être un peu décevant, surtout si vous utilisez
+micropas ou vis à billes pas très fin. Si les chiffres sont
+100 us ou plus (100 000 nanosecondes), puis le PC n'est pas une bonne
+candidat à l'intensification de logiciels. Numéros de plus de 1 milliseconde (1,000,000
+nanosecondes) signifie le PC n'est pas un bon candidat pour la CEM, indépendamment de
+si vous utilisez l'intensification du logiciel ou non.
+
+== Réglage du port parallèle[[sec:Reglage-du-port-parallele]]
+
+.Page de réglage du port parallèle[[cap:Reglage-du-port-parallele]]
 
 image::images/stepconf-pinout_fr.png[]
 
-Pour chacune des pins, choisir le signal qui correspond au brochage de
-votre port parallèle. Cochez la case «inverser» si le signal est
-inversé (0V pour vrai / actif, 5V pour faux / inactif).
+Pour chacune des pins, choisir le signal qui correspond 
+au brochage de votre port parallèle. 
+Cochez la case «inverser» si le signal est inversé 
+(0V pour vrai/actif, 5V pour faux/inactif). 
 
 Sorties préselectionnées::
-     (((Sorties preselectionnees))) Réglage automatique des pins 2 à 9
-    selon le standard Sherline (Direction sur les pins 2, 4, 6, 8) ou selon
-    le standard Xylotex (Direction sur les pins 3, 5, 7, 9).
+    (((Sorties preselectionnees)))
+    Réglage automatique des pins 2 à 9 selon le standard Sherline 
+    (Direction sur les pins 2, 4, 6, 8) ou selon le standard Xylotex 
+    (Direction sur les pins 3, 5, 7, 9).
 
-Entrées et sorties::
-     (((Entrees et sorties))) Les entrées ou les sorties non utilisées
-    doivent être placées sur «Inutilisée».
+Entrées et sorties::
+    Si l'entrée ou de sortie n'est pas utilisée pour définir l'option «inutilisé».
 
-Inclure une configuration de HAL personnalisée::
-     (((Conf. de HAL personnalisee))) Vous permet d'ajouter une
-    personnalisation de hal dans le fichier «custom.hal» après l'exécution
-    de Stepconf.
+Externe E Stop::
+    Cela peut être sélectionné à partir d'une épingle tomber entrée déroulante. 
+    Un arrêt E typiques chaîne utilise tous les contacts normalement fermés.
 
-Inclure un panneau PyVCP personnalisé::(((Panneau PYVCP personnalise)))
-Si coché, le panneau de contrôle PyVCP `«panel.xml»`
-sera affiché dans la partie droite de la fenêtre principale d'AXIS.
+Commutateurs Homing & Limit::
+    Ceux-ci peuvent être sélectionnés à partir d'une chute de broche d'entrée 
+    déroulant pour la plupart des configurations.
 
-Pompe de charge::(((Pompe de charge)))
-Si votre carte de contrôle
-gère une pompe de charge, dans la liste
-déroulante des sorties, sélectionner «Pompe de charge» sur la sortie
-qui doit correspondre à l'entrée Pompe de charge de la carte. La sortie
-pompe de charge sera connectée en interne par Stepconf. Le signal de
-pompe de charge sera d'environ la moitié de la fréquence maxi des pas
-affichée sur la page des informations machine.
+Pompe de charge:
+    Si votre conseil pilote requiert un signal de pompe de charge il suffit de sélectionner
+    Pompe de charge à partir de la liste déroulante pour la broche de sortie que vous souhaitez
+    connecter à votre entrée pompe de charge. 
+    La sortie de pompe de charge est connectée au fil de base par Stepconf. 
+    La sortie de pompe de charge sera d'environ 1/2 de la fréquence de pas maximale 
+    indiquée sur la configuration machine de base page. 
 
-=== Configuration des axes [[sub:Configuration des axes]]
+== Configuration des axes[[sec:Configuration-des-axes]](((Configuration des axes)))
 
-.Page de configuration des axes[[cap:Configuration des axes]]
+.Page de configuration des axes[[cap:Configuration-des-axes]]
 
 image::images/stepconf-axis_fr.png[]
 
 Nombre de pas par tour::
-     Nombre de pas entiers par tour de moteur. Si vous connaissez l'angle
-    d'un pas en degrés (par exemple, 1.8 degrés), divisez 360 par cet angle
-    pour obtenir le nombre de pas par tour du moteur.
+    (((Nombre de pas par tour)))
+    Nombre de pas entiers par tour de moteur. 
+    Si vous connaissez l'angle d'un pas en degrés (par exemple, 1.8 degrés), 
+    puis diviser 360 par le degrés par étape pour trouver les 
+    nombre de pas par tour moteur. 
 
 Micropas du pilote::
-     Le nombre de micropas produits par le pilote. Entrez «2» pour le
-    demipas.
+    (((Micropas du pilote)))
+    Le nombre de micropas produits par le pilote. 
+    Entrez «2» pour le demipas.
 
 Dents des poulies::
-     Si votre machine dispose de poulies entre le moteur et la vis, entrez
-    ici le nombre de dents de chacune d'elles. Pour un entraînement direct,
-    entrez «1:1».
+    (((Dents des poulies)))
+    Si votre machine dispose de poulies entre le moteur et la vis, 
+    entrez ici le nombre de dents de chacune d'elles. 
+    Pour un entraînement direct, entrez «1:1». 
 
 Pas de la vis::
-     Entrez ici le pas de la vis. Si vous avez choisi le «pouce» comme
-    unité, entrez le nombre de filets par pouce (exemple, entrez 8 pour
-    8TPI). Si vous avez choisi le «mm», entrez la taille du filet en
-    millimètres (exemple, entrez 2 pour un pas de 2mm). Si la machine se
-    déplace dans la mauvaise direction, entrez une valeur négative au lieu
-    d'une positive.
+    (((Pas de la vis)))
+    Entrez ici le pas de la vis. 
+    Si vous avez choisi le «pouce» comme unité, entrez le nombre 
+    de filets par pouce (exemple, entrez 8 pour 8 TPI). 
+    Si vous avez une vis multi-plomb, alors vous devez savoir 
+    combien de tours par pouce qu'il faut pour déplacer la "noix". 
+    Si vous avez choisi le «mm», entrez la taille du filet en
+    millimètres (exemple, entrez 2 pour un pas de 2mm). 
+    Si la machine se déplace dans la mauvaise direction, 
+    entrez une valeur négative au lieu d'une positive, 
+    ou inverser la broche la direction de l'axe. 
 
 Vitesse maximum::
+    (((Vitesse maximum)))
+    Entrez la vitesse maximale de l'axe en unités par seconde.
     
-
 Accélération maximum::
-     Les valeurs correctes pour ces deux entrées ne peuvent être
-    déterminées que par l'expérimentation. Consultez  <<sub:Definir la
-    vitesse maximum>> pour définir la vitesse et  <<sub:Definir
-    l-acceleration maximum>> pour définir l'accélération. 
+    (((Accélération maximum)))
+    Les valeurs correctes pour ces deux entrées ne peuvent être
+    déterminées que par l'expérimentation. Consultez 
+    <<sub:Trouver-Vitesse-Maximale>> pour trouver la vitesse et 
+    <<sub:Trouver-Acceleration-Maximale>> pour trouver l'accélération. 
 
 Emplacement de l'origine machine::
-     La position sur laquelle la machine se place après avoir terminé la
-    procédure de prise d'origine de cet axe. Pour les machines sans contact
-    placé au point d'origine, c'est la position à laquelle l'opérateur
-    place la machine en manuel, avant de presser le bouton de *POM des
-    axes*.
+    (((Emplacement de l'origine machine)))
+    La position sur laquelle la machine se place après avoir terminé la
+    procédure de prise d'origine de cet axe. 
+    Pour les machines sans contact placé au point d'origine, 
+    c'est la position à laquelle l'opérateur place la machine en manuel, 
+    avant de presser le bouton de *POM des axes*.
+    Si vous combinez les interrupteurs à placé au point d'origine et limiter 
+    vous devez déplacer hors de l'interrupteur à la position de la point d'origine 
+    ou vous obtiendrez une erreur de limite conjointe. 
 
 Course de la table::
-     Étendue de la course que le programme en gcode ne doit jamais
-    dépasser. L'origine machine doit être située à l'intérieur de cette
-    course. En particulier, avoir un point d'origine exactement égal à une
+    (((Course de la table)))
+    Étendue de la course que le programme en gcode ne doit jamais dépasser. 
+    L'origine machine doit être située à l'intérieur de cette course. 
+    En particulier, avoir un point d'origine exactement égal à une
     de ces limites de course est une configuration incorrecte.
 
 Position du contact d'origine machine::
-     Position à laquelle le contact d'origine machine est activé ou relâché
+    (((Position du contact d'origine machine)))
+    Position à laquelle le contact d'origine machine est activé ou relâché
     pendant la procédure de prise d'origine machine. Ces entrées et les
     deux suivantes, n'apparaissent que si les contacts d'origine ont été
     sélectionnés dans le réglage des broches du port parallèle.
 
 Vitesse de recherche de l'origine::
-     Vitesse utilisée pendant le déplacement vers le contact d'origine
-    machine. Si le contact est proche d'une limite de déplacement de la
-    table, cette vitesse doit être suffisamment basse pour permettre de
-    décélérer et de s'arrêter avant d'atteindre la butée mécanique. Si le
-    contact est fermé par la came sur une faible longueur de déplacement
-    (au lieu d'être fermé depuis son point de fermeture jusqu'au bout de le
-    course), cette vitesse doit être réglée pour permettre la décélération
-    et l'arrêt, avant que le contact ne soit dépassé et ne s'ouvre à
-    nouveau. La prise d'origine machine doit toujours commencer du même
-    côté du contact. 
-     Si la machine se déplace dans la mauvaise direction au début de la
+    (((Vitesse de recherche de l'origine)))
+    Vitesse utilisée pendant le déplacement vers le contact d'origine machine. 
+    Si le contact est proche d'une limite de déplacement de la table, 
+    cette vitesse doit être suffisamment basse pour permettre de
+    décélérer et de s'arrêter avant d'atteindre la butée mécanique. 
+    Si le contact est fermé par la came sur une faible longueur de déplacement
+    (au lieu d'être fermé depuis son point de fermeture jusqu'au bout de le course), 
+    cette vitesse doit être réglée pour permettre la décélération et l'arrêt, 
+    avant que le contact ne soit dépassé et ne s'ouvre à nouveau. 
+    La prise d'origine machine doit toujours commencer du même côté du contact. 
+    Si la machine se déplace dans la mauvaise direction au début de la
     procédure de prise d'origine machine, rendez négative la valeur de
     *Vitesse de recherche de l'origine*.
 
 Dégagement du contact d'origine::
-     Choisissez «Identique» pour que la machine reparte en arrière pour
-    dégager le contact, puis revienne de nouveau vers lui à très petite
-    vitesse. La seconde fois que le contact se ferme, la position de
-    l'origine machine est acquise. 
-     Choisissez «Opposition» pour que la machine reparte en arrière à très
-    petite vitesse jusqu'au dégagement du contact. Quand le contact
-    s'ouvre, la position de l'origine machine est acquise.
+    (((Dégagement du contact d'origine)))
+    Choisissez «Identique» pour que la machine reparte en arrière pour dégager le contact, 
+    puis revienne de nouveau vers lui à très petite vitesse. 
+    La seconde fois que le contact se ferme, la position de l'origine machine est acquise. 
+    Choisissez «Opposition» pour que la machine reparte en arrière 
+    à très petite vitesse jusqu'au dégagement du contact. 
+    Quand le contact s'ouvre, la position de l'origine machine est acquise.
 
 Temps pour accélérer à la vitesse maxi::
+    (((Temps pour accélérer à la vitesse maxi)))
     Temps calculé.
 
 Distance pour accélérer à la vitesse maxi::
+    (((Distance pour accélérer à la vitesse maxi)))
     Distance calculée.
 
 Fréquence des impulsions à la vitesse maxi::
-     Informations calculées sur la base des informations entrées
-    précédemment. Il faut rechercher la plus haute *Fréquence des
-    impulsions à la vitesse maxi* possible, elle détermine la période de
-    base: *BASE_PERIOD* . Des valeurs supérieures à 20000Hz peuvent
-    toutefois provoquer des
-    ralentissements importants de l'ordinateur, voir même son bloquage (La
-    plus grande fréquence utilisable variera d'un ordinateur à un autre)
+    (((Fréquence des impulsions à la vitesse maxi)))
+    Informations calculées sur la base des informations entrées précédemment. 
+    Il faut rechercher la plus haute *Fréquence des impulsions à la vitesse maxi* possible, 
+    elle détermine la période de base: *BASE_PERIOD*. 
+    Des valeurs supérieures à 20000Hz peuvent toutefois provoquer des 
+    ralentissements importants de l'ordinateur, voir même son bloquage 
+    (La plus grande fréquence utilisable variera d'un ordinateur à un autre)
 
-=== Configuration de la broche [[sub:Page configuration de la broche]]
+Échelle de l'axe:
+    Le nombre qui sera utilisé dans le fichier ini [SCALE] réglage.
+    C'est le nombre d'étapes par unité utilisateur.
 
-.Page configuration de la broche[[cap:Page Configuration de la broche]]
+Test de cet axe::
+    (((Test de cet axe)))
+    Cela va ouvrir une fenêtre pour permettre de tester pour chaque axe.
+    Ceci peut être utilisé après avoir rempli toutes les informations pour cet axe.
+
+=== Test Ce Axis
+
+.Test Ce Axis[[cap:Test-Ce-Axis]]
+
+image::images/stepconf-test_fr.png[]
+
+Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et de vélocité.
+
+==== Trouver Vitesse Maximale[[sub:Trouver-Vitesse-Maximale]](((Trouver Vitesse Maximale)))
+
+Commencez par une faible accélération (par exemple, latexmath:[ 2 po/s^2 ] ou latexmath:[ 50 mm/s^2]) et 
+le la vitesse que vous espérez atteindre. 
+En utilisant les boutons fournis, déplacer l'axe à proximité du centre du voyage. 
+Prenez soin, car avec une faible accélération valeur, 
+il peut prendre une distance surprenante pour l'axe de décélérer au un arrêt.
+
+Après évaluer la quantité de déplacements disponibles, 
+entrez une distance de sécurité Zone d'essai, en gardant à l'esprit que, 
+après un décrochage du moteur peut prochain démarrage
+de se déplacer dans une direction inattendue. 
+Puis cliquez sur Exécuter. 
+La machine sera commencent à aller et venir le long de cet axe. 
+Dans ce test, il est important que la combinaison de l'accélération et 
+la zone d'essai permettent au la machine d'atteindre la vitesse sélectionnée et "croisière" pour 
+au moins une à courte distance -- le plus de distance, le mieux ce test est. 
+La formule 
+latexmath:[ d = 0.5 * v * v/a ] 
+donne la distance minimale requise spécifiée atteindre le
+vitesse avec l'accélération donnée. 
+Si elle est pratique et sécuritaire de ce faire, 
+poussez la table contre la direction du mouvement pour simuler les efforts de coupe. 
+Si la machine stalles, réduire la vitesse et démarrer le recommencez le test.
+
+Si la machine n'a évidemment pas décrochage, cliquez sur le bouton "Exécuter" off.
+L'axe renvoie maintenant à la position où il a commencé. 
+Si la position est incorrect, alors l'axe bloqué ou perdu au cours des étapes de test.
+Réduire la vitesse et de commencer le test.
+
+Si la machine ne bouge pas, les stalles, ou perd étapes, quel que soit le bas
+vous tournez la vitesse, vérifiez les points suivants:
+
+ - Corriger les horaires d'onde étape
+ - Brochage correct, y compris "Inverser" sur les broches étape
+ - Corriger, bien blindé de câblage
+ - Les problèmes physiques avec le moteur, accouplement moteur, vis, etc
+
+Une fois que vous avez trouvé une vitesse à laquelle l'axe 
+ne perd plus étapes au cours de cette procédure de test, 
+de le réduire de 10% et l'utiliser comme la vitesse maximale axe.
+
+==== Trouver Accélération Maximale[[sub:Trouver-Acceleration-Maximale]](((Trouver Accélération Maximale)))
+
+Avec la vitesse maximale que vous avez trouvé à l'étape précédente, 
+entrez le valeur de l'accélération de tester. 
+En utilisant la même procédure que ci-dessus, 
+en ajustant le Accélération de valeur vers le haut ou le bas si nécessaire. 
+Dans ce test, il est important que la combinaison de 
+l'accélération et la zone d'essai permettent au la machine d'atteindre la vitesse sélectionnée. 
+Une fois que vous avez trouvé une valeur au dont l'axe 
+ne perd plus de pas pendant ce test procédure, 
+le réduire de 10% et l'utiliser comme axe maximale Accélération.
+
+== Configuration de la broche[[sec:Page-configuration-de-la-broche]]
+
+.Page configuration de la broche[[cap:Page-Configuration-de-la-broche]]
 
 image::images/stepconf-spindle_fr.png[]
 
-Ces options ne sont accessibles que quand «PWM broche», «Phase A
-codeur broche» ou «index broche» sont configurés sur le brochage du
-port parallèle.
+Cette page ne s'affiche que lorsque "broche PWM" est choisi dans le 
+*brochage du port parallèle* Page pour l'une des sorties.
 
-==== Contrôle de la vitesse de broche  (((Contrôle de la vitesse de broche)))[[sub:Controle de la vitesse de broche]]
+=== Contrôle de la vitesse de broche[[sub:Controle-de-la-vitesse-de-broche]](((Contrôle de la vitesse de broche)))
 
 Si «PWM broche» apparaît dans le réglage du port parallèle, les
 informations suivantes doivent être renseignées:
 
 Fréquence PWM::
-     La fréquence porteuse du signal PWM (modulation de largeur
-    d'impulsions) du moteur de broche. Entrez «0» pour le mode PDM
-    (modulation de densité d'impulsions), qui est très utile pour générer
-    une tension de consigne analogique. Reportez-vous à la documentation de
-    votre variateur de broche pour la valeur appropriée. 
+    (((Fréquence PWM)))
+    La fréquence porteuse du signal PWM (modulation de largeur d'impulsions) du moteur de broche. 
+    Entrez «0» pour le mode PDM (modulation de densité d'impulsions), 
+    qui est très utile pour générer une tension de consigne analogique. 
+    Reportez-vous à la documentation de votre variateur de broche pour la valeur appropriée. 
 
 Vitesse 1 et 2, PWM 1 et 2::
-     Le fichier de configuration généré utilise une simple relation
-    linéaire pour déterminer la valeur PWM correspondante à une vitesse de
-    rotation. Si les valeurs ne sont pas connues, elles peuvent être
-    déterminées. Voir la section «Ajuster la vitesse de broche» ci-dessous.
+    (((Vitesse 1 et 2)))(((PWM 1 et 2)))
+    Le fichier de configuration généré utilise une simple relation linéaire 
+    pour déterminer la valeur PWM correspondante à une vitesse de rotation. 
+    Si les valeurs ne sont pas connues, elles peuvent être déterminées. 
+    Voir la section «Ajuster la vitesse de broche» ci-dessous.
 
-==== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)  [[sub:Mouvement avec broche synchronisee]](((Mouvement avec broche synchronisée)))
+=== Mouvement avec broche synchronisée (filetage sur tour, taraudage rigide)[[sub:Mouvement-avec-broche-synchronisee]]
+(((Mouvement avec broche synchronisée)))
 
-Lorsque les signaux appropriés, provenants d'un codeur de broche, sont
-connectés au port parallèle, EMC peut être utilisé pour le filetage
-avec broche synchronisée sur un tour. Ces signaux sont:
+Lorsque les signaux appropriés à partir d'un codeur de broche sont connectés à 
+EMC2 via HAL, EMC soutient tour à fileter.
+Ces signaux sont:
 
 Index codeur broche::
-     également appelé «PPR broche», c'est une impulsion produite à chaque
-    tour de broche.
+    (((Index codeur broche)))
+    Est une impulsion qui survient une fois par révolution de la broche.
 
 Phase A codeur broche::
-     C'est une suite d'impulsions carrées générées sur la voie A du codeur
-    pendant la rotation de la broche. La quantité d'impulsions pour un tour
-    correspond à la résolution du codeur.
+    (((Phase A codeur broche)))
+    Ceci est une impulsion qui se produit dans plusieurs endroits équidistants 
+    que les virages de la broche.
 
-Phase B codeur broche::
-     (optionnel) C'est une seconde suite d'impulsions, générées sur la voie
-    B du codeur et décalées par rapport à celle de la voie A. L'utilisation
-    de ces deux signaux permet d'accroître l'immunité au bruit et la
-    résolution.
+Phase B codeur broche (en option)::
+    (((Phase B codeur broche)))
+    Il s'agit d'une deuxième impulsion qui se produit,
+    mais avec un décalage par rapport à la phase A. 
+    Les avantages à utiliser à la fois A et B sont
+    détection de direction, l'immunité au bruit accrue, et une résolution accrue.
 
-Si «Phase A codeur broche» et «Index broche» apparaissent dans le
-réglage des broches du port, l'information suivante doit être
-renseignée:
+Si «Phase A codeur broche» et «Index broche» apparaissent 
+dans le réglage des broches du port, l'information suivante doit être renseignée:
 
 Cycles par tour::
-     Le nombre d'impulsions par tour sur la pin
-    *Phase A codeur broche.*
+    (((Cycles par tour)))
+    Le nombre de cycles de la *broche A* Un signal durant une révolution de la broche.
+    Cette option est activée uniquement lorsqu'une entrée a été fixé à la "Phase de broche A"
 
-    
-    Vitesse maximum en filetage:;;
-          La vitesse de broche maximum utilisable en filetage. Pour un
-    moteur de
-        broche rapide ou un codeur ayant une résolution élevée, une valeur
-        basse de *BASE_PERIOD est requise*.
+La vitesse maximale dans le filetage::
+    La vitesse de broche maximale utilisée dans le filetage.
+    Pour une broche haute RPM ou un codeur de broche à haute résolution,
+    une faible valeur de *BASE_PERIOD* est nécessaire.
 
-=== Configuration machine complète [[sub:Configuration machine complete]]
-
-Cliquez “Appliquer” pour enregistrer les fichiers de configuration.
-Ensuite, vous pourrez relancer ce programme et ajuster les réglages
-entrés précédemment.
-
-== Définir la vitesse et l'accélération [[sec:Definir la vitesse et l-acceleration]]
-
-.Fenêtre du test d'axe[[cap:Fenetre du test d-axe]]
-
-image::images/stepconf-test_fr.png[]
-
-Avec Stepconf il est facile de définir certaines valeurs comme celles
-de l'accélération et de la vitesse. Entrez d'abord les éléments
-corrects pour les *Pas moteur*, les *Micropas*, les *Poulies*, et le
-*pas de vis*. Puis entrez une valeur aproximative de *Vitesse*.
-*Enfin,* cliquez sur *Tester cet axe*.
-
-=== Définir la vitesse maximum [[sub:Definir la vitesse maximum]]
-
-Commencez avec une faible valeur d'accélération (par exemple, 2 in/s^{2}
-ou 50mm/s^{2}) et la vitesse que vous espérez atteindre. À l'aide des
-boutons de jog, positionnez l'axe vers son centre. Soyez prudent, car
-avec peu d'accélération, l'axe peut prendre une surprenante longueur
-pour ralentir et s'arrêter.
-
-Après avoir mesuré les longueurs de déplacement disponibles dans
-chaque direction, entrez la moyenne de ces distances dans la zone test,
-en gardant à l'esprit que, après un décrochage le moteur peut repartir
-dans la direction inattendue. Cliquez sur `Envoi` . La machine va
-commencer à faire des allers et retours sur cet axe.
-Dans cet essai, il est important que la combinaison entre
-l'accélération et la zone de test, permette à la machine d'atteindre la
-vitesse sélectionnée et de s'y déplacer sur, au moins, une courte
-distance (plus cette distance sera longue, meilleur sera le test). La
-formule: distance=0.5 x vitesse x vitesse/accélération donne la distance
-minimum requise avec les vitesse et accélération spécifiées. Il est
-souhaitable de pousser sur la table dans la direction inverse du
-mouvement pour simuler les efforts de coupe. Si la machine cale,
-réduire la vitesse et relancer le test.
-
-Si la machine ne présente aucun décrochage, cliquez sur le bouton
-`Exécuter` . L'axe revient alors à sa position de départ. Si cette
-position est
-incorrecte, c'est que l'axe a calé ou a perdu des pas au cours de
-l'essai. Réduire la vitesse et relancer le test. Si la machine ne se
-déplace pas, cale, ou perd des pas même à faible vitesse, vérifiez les
-éléments suivants:
-
- - Timings des impulsions de pas corrects
- -  Brochage des sorties correct, inclus les cases `Inverser` des pins du
-   port
- - Câbles blindés et correctement raccordés
- -  Problème physique avec le moteur, le couplage du moteur, l'écrou de la
-   vis, point dur des glissières, etc.
-
-Une fois que vous avez trouvé une vitesse à laquelle l'axe ne perd
-plus de pas et à laquelle les mesures sont exactes pendant le test,
-réduisez la de 10% et utilisez la comme vitesse maximum pour cet axe.
-
-=== Définir l'accélération maximum [[sub:Definir l-acceleration maximum]]
-
-Avec la vitesse maximale que vous avez trouvé à l'étape précédente,
-entrez une valeur d'accélération approximative. Procédez comme pour la
-vitesse, en ajustant la valeur d'accélération en plus ou en moins selon
-le résultat. Dans cet essai, il est important que la combinaison de
-l'accélération et de la zone test permette à la machine d'atteindre la
-vitesse sélectionnée. Une fois que vous avez trouvé une valeur à
-laquelle l'axe ne perd plus de pas pendant le test, la réduire de 10%
-et l'utiliser comme accélération maximale pour cet axe.
-
-== Définir la calibration de la broche [[sec:Definir la calibration de la broche]]
+=== Déterminer calibration de la broche[[sub:Determiner-broche-Etalonnage-broche]]
+(((Déterminer calibration de la broche)))
 
 Entrez les valeurs suivantes dans la page de configuration de la broche:
 
-[width="90%", options="header"]
+[width="100%"]
 |========================================
-|Vitesse 1: | *0* | PWM 1: | *0*
-|Vitesse 2: | *1000* | PWM 1: | *1*
+| Vitesse 1: | *0*    | PWM 1: | *0*
+| Vitesse 2: | *1000* | PWM 2: | *1*
 |========================================
 
-Finissez les étapes suivantes de la configuration, puis lancez EMC2
-avec votre configuration. Mettez la machine en marche et allez dans
-l'onglet `Données manuelles`. démarrez le moteur de broche en entrant:
-`M3 S100`. Modifiez la vitesse de broche avec différentes valeurs
-comme: `S800`. Les valeurs permises vont de 1 à 1000.
+Terminez les étapes restantes du processus de configuration, 
+puis lancer EMC avec votre configuration. 
+Mettez la machine sous tension et sélectionnez le MDI onglet. 
+Démarrer rotation de la broche en entrant: `M3 S100`. 
+Changer le vitesse de la broche en entrant un numéro de différents S-: `S800`. 
+Les numéros valides (à ce point) allant de 1 à 1000.
 
-Pour deux différentes valeurs de `S` xxx, mesurez la vitesse de
-rotation réelle de la broche en tours/mn.
-Enregistrez ces vitesses réelles de la broche. Relancez Stepconf. Pour
- les `Vitesses`, entrez les valeurs réelles mesurées et pour les `PWM`,
-entrez la valeur `S`xxx divisée par 1000.
+Pour deux différentes S-nombres, de mesurer la vitesse de broche réelle dans RPM.
+Enregistrer les S-nombres et des vitesses de broche réelle. Exécuter Stepconf. 
+Pour "Speed", entrez la vitesse mesurée, et 
+pour "PWM", entrez le numéro de la S- divisé par 1000.
 
-Parce que la plupart des interfaces ne sont pas linéaires dans leurs
-courbes de réponse, il est préférable de:
+Parce que la plupart des amplificateurs de la broche sont un peu non-linéaires 
+dans leur réponse courbes, il est préférable de:
 
- -  S'assurer que les deux points de mesure des vitesses en tr/mn ne
-   soient pas trop rapprochés 
- -  S'assurer que les deux vitesses utilisées sont dans la gamme des
-   vitesses utilisées généralement par la machine.
+  - Assurez-vous que les deux vitesses de calibration ne sont pas trop rapprochées au RPM
+  - Assurez-vous que les deux vitesses de calibrage sont dans la gamme de vitesses, 
+    vous utilisera typiquement lors du fraisage
 
-Par exemple, si votre broche tourne entre 0tr/mn et 8000tr/mn, mais
-que vous l'utilisez généralement entre 400tr/mn et 4000tr/mn, prenez
-alors des valeurs qui donneront 1600tr/mn et 2800tr/mn.
+Par exemple, si votre broche passera de 0 RPM à 8000 RPM, 
+mais vous utilisent généralement des vitesses allant de 400 RPM (10%) à 4000 RPM (100%), 
+puis de trouver les valeurs PWM qui donnent, par exemple, 1600 RPM (40%) et 2800 RPM (70%).
 
-== Fin de course des axes, position de l'origine machine et emplacements des contacts d'origine machine [["sec:Fin de course, origine machine"]]
+== Options de configuration avancée[[sec:Options-de-configuration-avancee]](((Options de configuration avancée)))
 
-La course de chaque axe est bien délimitée. Les extrémités physiques
-d'une course sont appelées *les butées mécanique*s.
+.Configuration avancée[[cap:Configuration-avancee]]
 
-Avant la *butée mécanique* se trouve un *contact de fin de course* .
-Si ce contact est rencontré pendant les opérations normales, EMC
- coupe la puissance du moteur. La distance entre *le fin de course* et
-*la butée mécanique*  doit être suffisante pour permettre au moteur,
-dont la puissance a
-été coupée, de s'arrêter malgré l'inertie du mobile.
+image::images/stepconf-advanced.png[]
 
-Avant le *contact de fin de course* se trouve une *limite soft* .
-Cette limite logicielle est introduite après la prise d'origine
-machine. Si une commande manuelle ou un programme gcode dépasse cette
-limite, ils ne seront pas éxécutés. Si un mouvement en jog cherche à
-dépasser la limite logicielle, il sera interrompu sur cette limite.
+Inclure Halui::
+    Cela va ajouter la composante Halui interface utilisateur. 
+    Voir l'intégrateur Manuel pour plus d'informations sur Halui.
 
-Le *contact d'origine machine*  peut être positionné n'importe où, le
-long d'une course (entre les
-butées mécaniques).
+Inclure pyVCP::
+    Cette option ajoute le fichier panneau pyVCP base ou un fichier d'exemple pour le travail le. 
+    Voir le manuel Integrator pour plus d'informations sur pyVCP.
 
-Si aucun mécanisme externe ne désactive la puissance moteur quand un
-contact de limite est enfoncé, un des contacts de fin de course peut
-être utilisé comme contact d'origine machine.
+Inclure ClassicLadder PLC::
+    Cette option va ajouter le PLC ClassicLadder (Programmable Logic Contrôleur). 
+    Voir le manuel Integrator pour plus d'informations sur ClassicLadder. 
 
-La *position zéro*  est la position correspondante au 0 de l'axe dans
-le système de
- coordonnées machine. Habituellement la *position zéro* doit se trouver
-entre les deux *limites soft* . Sur les tours, le mode vitesse de
-surface constante requiert que la
- coordonnée *X=0*  corresponde au centre de rotation de la broche quand
-aucun correcteur
-d'outil n'est actif.
+== Configuration machine complète[[sub:Configuration-machine-complete]]
 
-La *position de l'origine*  est la position, située le long de l'axe,
-sur laquelle le mobile sera
-déplacé à la fin de la séquence de prise d'origine. Cette position doit
- se situer entre les *limites soft*. En particulier, la *position de
-l'origine* ne doit jamais être égale à une *limite soft*.
+Cliquez “Appliquer” pour enregistrer les fichiers de configuration.
+Ensuite, vous pourrez relancer ce programme et ajuster les réglages entrés précédemment.
 
-a diagram of all these limits would be nice
+== Voyage de l'Axe, Lieu d'accueil, et Emplacement du commutateur d'accueil[[sec:Axe-Voyage-Accueil]]
+(((Voyage Axe)))(((Accueil Situation)))(((Accueil Emplacement du commutateur)))
 
-=== Travail sans contact de fin de course [[sub:Travail sans contact de fin de course]]
+Pour chaque axe, il ya un nombre limité de voyages. 
+La fin de la physique voyage est appelé *l'arrêt dur*.
 
-Une machine peut être utilisée sans contact de fin de course. Dans ce
-cas, seules les *limites soft* empêcheront la machine d'atteindre les
-*butées mécaniques*. Les *limites soft*  n'opérent qu'après que la POM
-soit faite sur la machine. Puisqu'il
-n'y a pas de contact, la machine doit être déplacée à la main et à
- l'oeil, à sa position d'origine machine avant de presser le bouton
-`POM des axes` ou le sous-menu `Machine->Prises d'origines machine->POM
-de l'axe`.
+Avant *l'arrêt de durs* il ya un *commutateur de limite*. 
+Si le commutateur de limite est rencontré lors d'un fonctionnement normal, 
+EMC arrête l'ampli moteur. 
+La distance entre le *stop dur* et *commutateur de limite* 
+doit être suffisamment long pour permettre à un moteur non alimenté au océan à l'arrêt.
 
-=== Travail sans contact d'origine machine [[sub:Travail sans contact d-origine machine]]
+Avant que le *commutateur de la limite* il ya une *limite doux*. 
+Ceci est une limite appliquées dans le logiciel après homing. 
+Si une commande MDI ou code de programme g passerait la limite douce, il n'est pas exécuté. 
+Si une jogging passerait la limite douce, il est mis fin à la limite douce.
 
-Un machine peut être utilisée sans contact d'origine machine. Si la
-machine dispose de contacts de fin de courses, mais pas de contact
-d'origine machine, il est préférable d'utiliser le contact de fin de
-course comme contact d'origine machine (exemple, choisissez *Limite
-mini + origine X*  dans le réglage du port). Si la machine ne dispose
-d'aucun contact,
-ou que le contact de fin de course n'est pas utilisable pour une autre
-raison, alors la prise d'origine machine peut être réalisée à la main.
-Faire la prise d'origine à la main n'est certes pas aussi reproductible
- que sur des contacts, mais elle permet tout de même aux *limites soft*
-d'être utilisables.
+Le *commutateur de la origin* peut être placé n'importe où dans le voyage (entre s'arrête dur). 
+Comme longtemps que du matériel externe ne désactive pas les amplificateurs moteur 
+avec l'interrupteur limite est atteinte, l'un des interrupteurs de position 
+peut être utilisé comme une commutateur de la point du origin.
 
-== Test de latence [[sec:Test de latence]]
+La *position zéro* est l'emplacement sur l'axe qui est 0 dans 
+le coordonnées machine système. 
+Habituellement, la *position zéro* sera dans la *limite douce*.
+Sur les tours, constante en mode vitesse de surface exige que la machine *X=0*
+correspondent au centre de rotation de la broche quand aucun outil est en vigueur.
 
-Faire générer les impulsions de pas au logiciel présente un grand
-avantage, c'est gratuit. Quasiment chaque PC dispose d'un port
-parallèle capable de sortir sur ses broches les signaux de pas générés
-par le logiciel. Cependant, les générateurs d'impulsions logiciels ont
-aussi quelques désavantages:
+La position *machine origin* est l'endroit au sein de voyage qui sera l'axe
+être déplacé à la fin de la séquence homing. 
+Cette valeur doit être dans le *doux limites*. 
+En particulier, la position *machine origin* 
+devrait jamais être exactement égale à une *limite douce*. 
 
- - Leur fréquence maximum est limitée 
- - Les trains d'impulsions générés sont irréguliers
- - Ils chargent le processeur
+=== Exploitation sans fin de course[[sub:exploitation-sans-limite]]
+(((exploitation-sans-limite sans fin de course)))
 
-Le temps de latence est le temps nécessaire au PC pour arrêter ce
-qu'il est en train de faire pour répondre à une requête externe. Dans
-notre cas, la requête est le «battement de coeur» périodique qui sert
-de référence pour les impulsions de pas. Plus la latence est basse,
-plus le coeur pourra battre vite et donc, plus rapides et plus douces
-seront les impulsions de pas.
+Une machine peut être exploité sans fin de course. Dans ce cas, seuls les
+les limites soft arrêter la machine d'atteindre l'arrêt dur. 
+Doux seules limites fonctionner après que la machine a été hébergé.
 
-Le temps de latence est beaucoup plus important que la vitesse du µP.
-Un vieux Pentium II qui répond aux interruptions avec 10 microsecondes
-entre chacune peut donner de meilleurs résultats qu'un rapide P4 en
-Hyperthreading.
+=== Exploitation sans contact d'origine[[sub:exploitation-sans-origine]]
+(((exploitation-sans-Accueil sans contact d'origine)))
 
-Le CPU n'est pas le seul facteur déterminant le temps de latence. Les
-cartes mères, les cartes vidéo, les ports USB et de nombreuses autres
-choses peuvent détériorer le temps de latence. La meilleure façon de
-savoir ce qu'il en est sur votre PC est de lancer un `latency test` de
-HAL.
+Une machine peut être utilisée sans contact à la maison. 
+Si la machine a commutateurs fin de course, mais pas de commutateurs à origin, 
+il est préférable d'utiliser un commutateur de limite que l'interrupteur de la maison 
+(par exemple, choisissez Limite * Minimum + X * Accueil dans les brochage). 
+Si la machine n'a pas de commutateurs à tous, ou la limite
+commutateurs ne peuvent pas être utilisés comme des interrupteurs à domicile pour une autre raison, alors la
+machine doit être hébergés "à l'oeil" ou en utilisant des marques de match. Homing à l'oeil
+n'est pas aussi reproductible que homing aux commutateurs, mais il permet toujours au
+limites souples pour être utile.
 
-Pour exécuter le test, il suffit d'ouvrir une console et de taper:
-`latency-test` . Vous devriez voir quelque chose comme ceci:
+=== Accueil et d'options de fin de course de câblage[[sec:Accueil-et-Limit]]
+(((Accueil et d'options de fin de course de câblage)))
 
-image:images/latency.png[]
+Le câblage idéal pour les commutateurs externes serait une entrée par commutateur.
+Cependant, le port parallèle du PC offre seulement un total de 5 entrées, 
+tandis que il ya autant de commutateurs 9 sur une machine à 3 axes. 
+Au lieu de cela, plusieurs interrupteurs sont câblés ensemble de diverses 
+façons afin qu'un plus petit nombre de sont les apports nécessaires.
 
-Pendant que le test est en cours d'exécution, il faut «abuser» de
-l'ordinateur. Déplacez les fenêtres sur l'écran. Connectez vous à
-l'Internet. Copiez quelques gros fichiers sur le disque dur. Jouer de
-la musique. Lancez une démo OpenGL telle que `glxgears` . L'idée est de
-charger le PC au maximum pour que le temps de latence
- soit mesuré dans le pire des cas. ` Ne pas exécuter EMC2 ou Stepconf
-pendant que latency-test est en cours
-d'exécution.`
+Les chiffres ci-dessous montrent l'idée générale de commutateurs multiples 
+pour le câblage une broche d'entrée unique. 
+Dans chaque cas, quand un seul interrupteur est actionné, 
+le vu sur la valeur d'entrée passe de la logique de haut à bas. 
+Cependant, EMC s'attend à une Valeur TRUE quand un interrupteur est fermé, 
+donc le correspondant "Inverser la" boîte 
+doit être cochée sur la page de configuration de brochage. 
+La résistance de montrer dans les diagrammes tire l'entrée haute 
+jusqu'à la connexion à la terre est faite et ensuite l'entrée passe au niveau bas. 
+Sinon, l'entrée pourrait flotter entre on et off lorsque le circuit est ouvert. 
+Typiquement, pour un parallèle port que vous pourriez utiliser 47k.
 
-Le chiffre `max jitter`  dans cet exemple est de 17894 nanosecondes,
-soit 17.9 microsecondes.
-Enregistrer ce chiffre et entrez le dans Stepconf quand il le demande.
-
-Dans cet exemple de test de latence il n'a fallu que quelques secondes
-pour afficher cette valeur. Vous devrez peut être lancer le test
-pendant plusieurs minutes. Parfois même, dans le pire des cas, rien ne
-provoque de latence ou seulement des actions particulières. Par
-exemple, une carte mère Intel marchait très bien la plupart du temps,
-mais toutes les 64 secondes elle avait une très mauvaise latence de
-300µs. Heureusement, il existe un correctif (voir
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingDapperSMIIssues[Fixing
-Dapper SMI Issues])
-
-Alors, que signifient les résultats ? Si le résultat de votre Max
-Jitter est en dessous d'environ 15-20 microsecondes (15000-20000
-nanosecondes), l'ordinateur pourra donner d'excellents résultats avec
-la génération logicielle des pas. Si le temps de latence est à plus de
-30-50 microsecondes, vous aurez de bons résultats, mais la vitesse
-maximum sera un peu décevante, spécialement si vous utilisez des
-micropas ou si le pas de votre vis est fin. Si les résultats sont de
-100uS ou plus (100,000 nanosecondes), alors le PC n'est pas un bon
-candidat à la génération des pas. Les résultats supérieurs à 1
-milliseconde (1,000,000 nanosecondes) éliminent, dans tous les cas, ce
-PC pour faire tourner EMC, en utilisant des micropas ou pas.
-
-Notez que si vous obtenez une latence élevée, il peut être possible de
-l'améliorer. Un PC avait une très mauvaise latence (plusieurs
-millisecondes) en utilisant la carte graphique interne. Un carte
-graphique Matrox d'occasion à $5US a résolu le problème. EMC n'exige
-pas de matériel de pointe.
-
-== Câblage des contacts de fin de course et d'origine machine [[sec:Contacts de fin de course et d-origine machine]]
-
-Le câblage idéal des contacts externes serait une entrée par contact.
-Toutefois, un seul port parallèle d'ordinateur offre un total de 5
-entrées, alors qu'il n'y a pas moins de 9 contacts sur une machine 3
-axes. Au lieu de cela, plusieurs contacts seront câblés ensemble de
-diverses façons afin de nécessiter un plus petit nombre d'entrées.
-
-Les figures ci-dessous montrent l'idée générale du câblage de
-plusieurs contacts à une seule broche d'entrée. Dans chaque cas,
-lorsqu'un contact est actionné, la valeur vue sur l'entrée va passer
-d'une logique `haute` à une logique `basse`. Cependant, EMC s'attend à
-une valeur `VRAIE` quand un contact est fermé, de sorte que les cases
-`Inverser`  correspondantes devront être cochées sur la page de réglage
-du port
-parallèle.
+.Commutateurs normalement fermé[[cap:Normalement-Ferme-commutateurs]]
 
 image::images/switch-nc-series.eps[]
 
-.[[cap:Cablage NC]]Câblage de contacts NC en série (schéma simplifié)
+Câblage N/C interrupteurs en série(schéma simplifié)
+
+.Normalement interrupteurs ouverts[[cap:Normalement-Ouvert-commutateurs]]
 
 image::images/switch-no-parallel.eps[]
 
-.[[cap:Cablage NO]]Câblage de contacts NO en parallèle (schéma simplifié)
+Câblage N/O interrupteurs en parallèle (schéma simplifié)
 
-Les combinaisons suivantes sont permises dans Stepconf:
+Les combinaisons suivantes de commutateurs sont autorisés dans Stepconf:
 
- - Les contacts d'origine machine de tous les axes combinés
- - Les contacts de fin de course de tous les axes combinés
- - Les contacts de fin de course d'un seul axe combinés
- - Les contacts de fin de course et le contact d'origine machine d'un
-   seul axe combinés
- - Un seul contact de fin de course et le contact d'origine machine d'un
-   seul axe combinés
+ - Combiner les Interrupteurs à domicile pour tous les axes
+ - Combiner les fins de course pour tous les axes
+ - Combiner les deux interrupteurs de position pour un axe
+ - Combiner les deux fins de course et l'interrupteur à domicile pour un axe
+ - Combinez un fin de course et l'interrupteur à domicile pour un axe
 
-Les deux dernières combinaisons sont également appropriées quand le
-type `contact + origine` est utilisé.
+Les deux dernières combinaisons sont également appropriés 
+quand une «maison pour limiter» est utilisé. 
+
+// vim: set syntax=asciidoc:
+
 

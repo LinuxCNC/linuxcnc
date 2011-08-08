@@ -22,12 +22,6 @@ EOF
     esac
 }
 
-if ! type -path readlink > /dev/null 2>& 1; then
-    function readlink () {
-        perl -le 'print readlink(shift)' -- $1
-    }
-fi
-
 RUN_IN_PLACE=@RUN_IN_PLACE@
 if [ $RUN_IN_PLACE = yes ]; then
     # When using RIP make sure PATH includes the directory where rtapi_app
@@ -223,7 +217,7 @@ case "$CMD" in
 	Load || exit $?
 	CheckLoaded
 	;;
-  restart|reload)
+  restart|force-reload)
 	CheckConfig
 	CheckMem
 	Unload
@@ -241,7 +235,7 @@ case "$CMD" in
 	CheckStatus
 	;;
   *)
-	echo "Usage: $0 {start|load|stop|unload|restart|reload|status}" >&2
+	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
 	exit 1
 	;;
 esac

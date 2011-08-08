@@ -1,10 +1,12 @@
-:language: fr
-
-Guide du débutant V2.3, {localdate}
+Guide du Débutant V2.3, {localdate}
 ===================================
 The EMC Team
 
+:language: fr
+
 :masterdir: {indir}
+
+:leveloffset: 1
 
 image::common/emc2-intro.*[]
 
@@ -12,41 +14,26 @@ include::common/overleaf.txt[]
 
 include::common/outdated-notice_fr.txt[]
 
-
-= Quel ordinateur ?
-:leveloffset: 1
-
 include::common/System_Requirements_fr.txt[]
-
-:leveloffset: 0
-= Trouver EMC2
-:leveloffset: 1
 
 include::common/Getting_EMC_fr.txt[]
 
-:leveloffset: 0
-= Configuration
-:leveloffset: 1
+include::common/Updating_EMC_fr.txt[]
 
 include::quickstart/stepper_quickstart_fr.txt[]
 
 include::config/stepconf_fr.txt[]
 
-include::config/copy_and_run_fr.txt[]
+include::config/pncconf_fr.txt[]
 
-:leveloffset: 0
-= Petite FAQ Linux
-:leveloffset: 1
+include::config/copy_and_run_fr.txt[]
 
 include::common/Linux_FAQ_fr.txt[]
 
-
-:leveloffset: 0
-= Annexes
-:leveloffset: 1
-
 include::common/GPLD_Copyright.txt[]
 
-[index]
-= Index de l'ouvrage
+// = Index
+
+// vim: set syntax=asciidoc:
+
 

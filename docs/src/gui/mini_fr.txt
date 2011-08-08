@@ -1,8 +1,9 @@
 = L'interface MINI
 
-== Introduction  footnote:[Much of this chapter quotes from a chapater of the Sherline CNC operators manual. ]
+== Introduction  footnote:[Much of this chapter quotes from a 
+chapter of the Sherline CNC operators manual.]
 
-.[[fig:startminif]]L'interface graphique Mini
+.L'interface graphique Mini[[fig:startminif]]
 image::mini01_fr.png[]
 
 Mini(((mini))) a été prévu pour être une interface graphique plein
@@ -17,7 +18,7 @@ instructions écrites par Joe Martin et Ray Henry.
 
 == L'écran
 
-.[[fig:runmini]]Affichage de Mini lors du fonctionnement d'EMC
+.Affichage de Mini lors du fonctionnement d'EMC[[fig:runmini]]
 image::../common/mini_fr.jpg[]
 
  L'écran de Mini est visible dans plusieurs sections, voir la figure
@@ -29,13 +30,13 @@ commandes ou des programmes.
 Quand on compare entre la figure <<fig:startminif>> et la figure 
 <<fig:runmini>> des différences apparaissent. Dans la seconde figure:
 
- -  Chaque axe a été référencé sur son origine -- L'affichage est vert
+ - Chaque axe a été référencé sur son origine -- L'affichage est vert
    sombre
  - EMC est en mode auto(((Auto))) -- le bouton est vert clair
- -  Le parcours d'outil a été activé -- le parcours (((parcours outil)))
+ - Le parcours d'outil a été activé -- le parcours (((parcours outil)))
    est visible dans la fenêtre
- -  Le bloc de G-code en cours est en surbrillance blanche sur fond rouge
-   parmi les lignes défilantes du programme. 
+ - Le bloc de G-code en cours est en surbrillance blanche sur fond rouge
+  parmi les lignes défilantes du programme. 
 
 Dès le début de l'utilisation de Mini on découvre combien il est
 facile de visualiser le fonctionnement d'EMC et d'agir sur lui.
@@ -61,15 +62,14 @@ Vues::
      ce menu inclus plusieurs éléments d'affichage pouvant être ajoutés
     pendant qu'un programme s'exécute, pour donner des information
     supplémentaires. Ce qui inclus:
+
     Type_de_position;;
          cet item ajoute une ligne, au dessus de l'afficheur principal de
         position, qui indique si la position affichée est en coordonnées
-         machine (absolues) ou en coordonnées pièce (relatives), si la
-    position
-        affichée est actuelle ou commandée et si l'unité et le pouce le
-         millimètre. Ce qui peut être modifié en agissant sur le menu
-    «Réglages»
-        décrit plus loin.
+        machine (absolues) ou en coordonnées pièce (relatives), si la
+        position affichée est actuelle ou commandée et si l'unité et 
+        le pouce le millimètre. Ce qui peut être modifié en agissant 
+        sur le menu «Réglages» décrit plus loin. 
    
     Informations_outil;;
          cet item ajoute une ligne immédiatement sous l'afficheur principal,
@@ -77,36 +77,31 @@ Vues::
         appliqué.
     
     Informations_offset;;
-          ajoute une ligne immédiatement sous celle des informations outil,
-    elle
-        affiche les offsets de travail actuellement appliqués. C'est la
+         ajoute une ligne immédiatement sous celle des informations outil,
+        elle affiche les offsets de travail actuellement appliqués. C'est la
         distance totale pour chaque axe depuis son point d'origine machine.
     
     Afficher_Reprise;;
          ajoute, en mode Auto, un bloc de boutons en bas à droite de
         l'affichage du programme. Ces boutons permettent à l'opérateur de
-         relancer un programme après un A/U ou un Abandon. Le programme est
-    figé
-        lorsqu'un A/U ou un Abandon est engagé, mais l'opérateur peut ici
+        relancer un programme après un A/U ou un Abandon. Le programme est
+        figé lorsqu'un A/U ou un Abandon est engagé, mais l'opérateur peut ici
         choisir le bloc sur lequel redémarrer dans le mode Auto, en activant
         cet item de menu.
     
     Masquer_Reprise;;
           enlève le bloc de boutons contrôlant la reprise d'un programme
-    stoppé
-        par Abandon ou Arrêt d'Urgence.
+        stoppé par Abandon ou Arrêt d'Urgence. 
     
     Diviser_la_vue_droite;;
          modifie la nature de l'affichage de la colonne de droite pour qu'il
         montre plus d'informations.
     
     Afficher_en_mode_complet;;
-          modifie l'affichage de la colonne de droite, soit en mode boutons
-    et
-        la colonne divisée, soit affichage sur la colonne entière. En mode
-         manuel et en utilisant ce mode entier, les boutons de la broche et
-    du
-        lubrifiant sont visibles en plus des boutons de mouvement.
+         modifie l'affichage de la colonne de droite, soit en mode boutons
+        et la colonne divisée, soit affichage sur la colonne entière. En mode
+        manuel et en utilisant ce mode entier, les boutons de la broche et
+        du lubrifiant sont visibles en plus des boutons de mouvement. 
     
     Afficher_dans_toute_la_fenêtre;;
          modifie l'affichage dans la colonne de droite pour qu'elle soit
@@ -115,6 +110,7 @@ Vues::
 Réglages::
      Les items de ce menu permettent à l'opérateur de contrôler certains
     paramètres en cours d'usinage.
+
     Position_Actuelle;;
          régle l'afficheur principal sur des valeurs de position actuelle
         (basées sur la machine).
@@ -130,37 +126,32 @@ Réglages::
     Position_Relative;;
          régle l'affichage principal pour qu'il affiche les valeurs de la
         position courante en incluant tous les offsets comme les origines
-         pièces qui seraient actives. Pour plus de détails voir le chapitre
-    sur
-        les «Systèmes de coordonnées» .
+        pièces qui seraient actives. Pour plus de détails voir le chapitre
+        sur les «Systèmes de coordonnées».
 
 Informations::
-     Indique diverses activités en affichant des valeurs dans la zône
-    MESSAGES.
+     Indique diverses activités en affichant des valeurs dans la zône MESSAGES. 
+
     Fichier_programme;;
         Indique le nom du fichier programme actif.
     
     Editeur_de_Fichiers;;
           Indique le nom de l'éditeur de texte lancé quand un fichier est
-    choisi
-        pour être édité.
+    choisi pour être édité.
     
     Fichier_de_paramètres;;
          Indique le nom du fichier devant être utilisé pour enregistrer les
         paramètres du programme. Il est possible d'avoir plus d'informations
-         dans le chapitre sur les offsets et l'utilisation des paramètres
-    dans
-        les programmes.
+        dans le chapitre sur les offsets et l'utilisation des paramètres
+        dans les programmes. 
     
     Fichiers_d'outils;;
         Indique le nom du fichier d'outils utilisé pour l'usinage en cours.
     
     G-Codes_actifs;;
-          Indique la liste des G-codes modaux actifs au moment ou cet item
-    a été
-         sélectionné. Pour plus d'informations sur les codes modaux, se
-    reporter
-        aux chapitres sur la programmation.
+         Indique la liste des G-codes modaux actifs au moment ou cet item
+        a été sélectionné. Pour plus d'informations sur les codes modaux, se
+        reporter aux chapitres sur la programmation.
 
 Aide::
     Ouvre une fenêtre de texte contenant un fichier d'aide.
@@ -181,7 +172,7 @@ est possible de changer de mode cycliquement entre «MANUEL» puis «AUTO»
 puis «MDI» (Manual Data Input). Ces boutons ont un fond vert clair
 quand le mode correspondant est actif.
 
-Il est également possible d'utiliser les boutons «VITESSE-0»,
+Il est également possible d'utiliser les boutons «VITESSE-0», 
 «ABANDON» et «A/U» pour contrôler les mouvements du programme.
 
 === MANUEL (((Manuel)))
@@ -197,6 +188,7 @@ touche plusieurs fois provoquera le changement cyclique de la taille de
 l'incrément de jog.
 
 .Boutons du mode Manuel
+
 image::miniman_fr.png[]
 
 [quote]
@@ -207,39 +199,36 @@ serait facile à utiliser sans avoir de position d'origine. Ce bouton
 met les offsets de tous les axes à zéro et place l'origine de tous les
 axes au point courant.
 
-
  Ce concentrer sur les axes est important ici. Noter que sur la capture
- <<fig:startminif>> qui est en mode manuel, on voit un cadre autour de
+<<fig:startminif>> qui est en mode manuel, on voit un cadre autour de
 l'axe X pour mettre son affichage en évidence. Ce cadre (le focus)
 indique que l'axe X est l'axe actif. Il est l'axe cible pour les
-mouvements de jog faits par appui sur les boutons 'plus' ou 'moins' .
-Il est possible de changer l'axe actif en cliquant sur l'affichage
-d'un autre axe. C'est également possible en mode manuel en pressant la
-touche de son nom sur le clavier. La casse n'a pas d'importance «Y» ou
-«y» donneront le focus à l'axe Y. «A» ou «a» le donneront à l'axe A.
+mouvements de jog faits par appui sur les boutons 'plus' ou 'moins'.
+Il est possible de changer l'axe actif en cliquant sur l'affichage 
+d'un autre axe. C'est également possible en mode manuel en pressant la 
+touche de son nom sur le clavier. La casse n'a pas d'importance «Y» ou 
+«y» donneront le focus à l'axe Y. «A» ou «a» le donneront à l'axe A. 
 Pour aider à se rappeller quel est l'axe actif avant de faire un jog,
 son nom est indiqué sur les boutons de jog. 
-
 
  EMC peut faire un jog (mouvement d'un axe particulier) aussi longtemps
 que le bouton est maintenu pressé, si le jog est réglé sur 'continu' ,
 ou il peut se déplacer d'une valeur prédéfinie, quand il est réglé
- sur 'incrément' s. Il est aussi possible de faire un jog de l'axe
-actif en pressant
+sur 'incrément' s. Il est aussi possible de faire un jog de l'axe
+actif en pressant 
 les touches «+» ou moins «-» du clavier. De nouveau, la casse n'a pas
 d'importance pour les jogs au clavier. Les deux petits boutons situés
 entre les deux gros du jog, permettent de choisir quel type de jog est
 souhaîté. Quand on est en mode incréments, les boutons de taille
 d'incréments sont accessibles. La sélection d'une taille d'incrément se
 fait par clic sur la case à cocher avec la souris ou cycliquement en
-pressant la touche «i» ou «I» sur le clavier. Le jog par incréments
+pressant la touche «i» ou «I» sur le clavier. Le jog par incréments 
 présente quelques effets intéressants autant qu'inattendus. Si vous
 pressez le bouton de jog alors qu'un mouvement de jog est déjà en
 cours, la distance à laquelle il était lorsqu'est arrivée la commande
 du second jog, sera ajoutée à la position. Deux pressions successives
 rapides de 10mm d'incrément ne donneront pas 20mm de mouvement. Vous
 devez attendre que le premier soit terminé avant d'envoyer le second.
-
 
  La vitesse de jog est affichée au dessus du curseur. Il est possible
 de régler le curseur en cliquant dans la glissière du curseur, du côté
@@ -268,6 +257,7 @@ réglages du correcteur de vitesse d'avance travail. Le «0» l'ajuste à
 même manière qu'avec l'interface TkEMC.
 
 .Mode Auto
+
 image::miniauto_fr.png[]
 
 Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux.
@@ -299,7 +289,7 @@ est le même si le bouton «Vitesse-0» était pressé au lieu du bouton
 mouvement, mais il ne continue que jusqu'à la fin du bloc courant.
 Presser une nouvelle fois «Pas à pas» exécutera le mouvement du bloc
 suivant. Presser «Reprise» à ce moment là et l'interpréteur reviendra
-en arrière lire et relancer le programme. La combinaison entre «Pause»
+en arrière lire et relancer le programme. La combinaison entre «Pause» 
 et «Pas à pas» marche un peu comme un seul bloc dans plusieurs
 interpréteurs. Avec la différence que «Pause» ne laisse pas le
 mouvement se poursuivre jusqu'à la fin du bloc courant. Le correcteur
@@ -309,7 +299,6 @@ pour les déplacements rapides, le régler sur 10% et basculez entre
 «Vitesse-0» et 10% en utilisant le bouton «Pause». Quand vous êtes
 satisfait et que les choses se présentent bien, pressez le zéro à la
 droite du neuf en haut du clavier, et c'est parti. 
-
 
  Le bouton «Vérifier» passe le code dans l'interpréteur sans production
 de mouvements. Si Vérifier trouve un problème il stoppe la lecture
@@ -326,7 +315,7 @@ M2, M30, ou M60.
 ________________________________________
 
 
-=== MDI (((MDI)))
+=== MDI[[sub:MDI]](((MDI)))
 
 Le bouton MDI ou la touche «F5» activent le mode d'entrée de données
 en manuel (Manual Data Input). Ce mode affiche un simple champ de
@@ -356,7 +345,7 @@ Puisque les touches du clavier sont nécessaires à la saisie du texte,
 beaucoup des raccourcis clavier disponibles en mode auto ne le sont pas
 ici.
 
-===  «VITESSE-0» -- «CONTINUER»
+=== «VITESSE-0» -- «CONTINUER»
 
 Vitesse-0 est une bascule. Quand EMC est prêt pour exécuter, ou qu'il
 exécute une commande de mouvement, ce bouton affiche son label
@@ -368,7 +357,7 @@ et la vitesse d'avance travail avec l'éventuel correcteur qui était
 actif au moment de l'arrêt. Ce bouton et la fonction qu'il active sont
 également liés à la touche pause de la plupart des claviers.
 
-===  «ABANDON»
+=== «ABANDON»
 
 Le bouton Abandon stoppe tous les mouvements quand il est pressé. Il
 désactive aussi la commande de marche d'EMC. Plus aucun mouvement ne
@@ -378,7 +367,7 @@ enregistre aussi le numéro de la ligne qui s'exécutait quand il a été
 pressé. Vous pouvez vous servir de ce numéro de ligne pour redémarrer
 le programme après avoir supprimé la raison de l'appui...
 
-===  «A/U(((ESTOP)))»
+=== «A/U»(((ESTOP)))
 
 Le bouton d'Arrêt d'Urgence est une bascule mais il a trois
 fonctionnements possibles.
@@ -399,11 +388,11 @@ fonctionnements possibles.
    apparaît quand l'A/U était libéré mais que la touche Marche Machine
    «F2» a été pressée.
 
-Joe Martin disait, “Quand tout le reste a échoué, pressez un «Arrêt
-d'Urgence» software.” Si vous avez un circuit externe qui gère l'A/U en
-surveillant une broche du port parallèle ou celle d'une carte
-d'entrées/sorties, un arrêt d'urgence software pourra couper la
-puissance sur les moteurs.
+Joe Martin disait, «Quand tout le reste a échoué, pressez 
+un 'Arrêt d'Urgence' software.» Si vous avez un circuit externe qui 
+gère l'A/U en surveillant une broche du port parallèle ou celle 
+d'une carte d'entrées/sorties, un arrêt d'urgence software pourra 
+couper la puissance sur les moteurs.
 
 [quote]
 ________________________________________
@@ -438,12 +427,12 @@ boutons dans cette zône.
 Ces afficheurs se comportent exactement comme ceux de TkeEMC. La
 couleur des afficheurs est importante.
 
- -  Rouge, elle indique que la machine est en appui sur un contact de fin
+ - Rouge, elle indique que la machine est en appui sur un contact de fin
    de course ou que la polarité d'une limite est mal positionnée dans le
    fichier ini.
- -  Jaune, elle indique que la machine est prête pour faire ses prises
+ - Jaune, elle indique que la machine est prête pour faire ses prises
    d'origine.
- -  Verte, elle indique que la machine a bien été référencée sur ses
+ - Verte, elle indique que la machine a bien été référencée sur ses
    points d'origine.
 
 Le type de position affichée peut varier, selon les options choisies
@@ -451,7 +440,7 @@ dans le menus «Réglages». Les réglages par défaut, ou de démarrage,
 peuvent être changés dans le fichier ini pour correspondre à vos
 besoins.
 
-=== Correcteur de vitesse travail (((correcteur vitesse)))
+=== Correcteur de vitesse travail(((correcteur vitesse)))
 
 Immédiatement sous les afficheurs de position on trouve un curseur,
 c'est le correcteur de vitesse travail. Vous pouvez agir sur le
@@ -479,10 +468,10 @@ indiquera ce qui se passe. Pour demander à l'opérateur de changer
 d'outil par exemple, vous pouvez aussi ajouter une ligne de code dans
 le programme qui s'affichera sur l'écran, dans la boîte de messages. Un
 exemple pourrait être: (msg, Montez l'outil N°3 puis pressez Reprise).
-Cette ligne de code, incluse dans un programme, va afficher «Montez
-l'outil N°3 puis pressez Reprise» dans la boîte de messages. Le mot
-msg, (avec la virgule) est la commande qui fait apparaître le
-commentaire, sans 'msg,' le message ne serait pas affiché.
+Cette ligne de code, incluse dans un programme, va 
+afficher «Montez l'outil 3 puis pressez Reprise» dans la boîte 
+de messages. Le mot msg, (avec la virgule) est la commande qui fait 
+apparaître le commentaire, sans 'msg,' le message ne serait pas affiché.
 
 Pour effacer les messages cliquer simplement sur le bandeau
 --MESSAGES-- au dessus du bloc-notes ou au clavier, presser «m» tout en
@@ -503,6 +492,7 @@ mode manuel a déjà été décrit précédemment. Chaque écran surgissant va
 === Editeur de texte
 
 .Editeur de texte de Mini
+
 image::miniedit_fr.png[]
 
 L'éditeur de texte de Mini peut sembler un peu limité par rapport aux
@@ -518,9 +508,10 @@ avez lancé un fichier et que vous avez besoin de l'éditer, ce fichier
 sera placé dans l'éditeur quand vous cliquez sur le bouton «Editeur» du
 menu.
 
-=== Parcours d'outil (((trace d'outil )))
+=== Parcours d'outil(((trace d'outil )))
 
 .Parcours d'outil de Mini
+
 image::minibkplot_fr.png[]
 
  Le bouton «Parcours d'outil» du menu, affiche un tracé produit par le
@@ -560,6 +551,7 @@ de lancer le programme. Les offsets d'outils ne peuvent pas être
 modifiés une fois le programme démarré ni quand il est en pause.
 
 .Affichage de la table d'outils de Mini
+
 image::minitool_fr.png[]
 
 Les boutons «Ajouter un outil» et «Enlever le dernier outil» portent
@@ -582,6 +574,7 @@ possible d'entrer directement les valeurs ou de déplacer l'axe à une
 position d'apprentissage. 
 
 .Mini Offset Display
+
 image::minioffsets_fr.png[]
 
  Il est également possible d'utiliser une pinnule puis d'ajouter le
@@ -709,7 +702,7 @@ b::
 Alt-b::
     Engager le frein de broche
 
-=== Mode Auto  (((Auto)))
+=== Mode Auto (((Auto)))
 
 1-9,0::
      Positionne le correcteur de vitesse d'avance travail de 10% en 10%, de
@@ -739,4 +732,5 @@ Une des possibilités de Mini est d'afficher n'importe quel axe, au
 delà de 2, comme étant un axe rotatif, il affiche alors des degrés pour
 celui-ci. Il converti également les unités en degrés quand un axe
 rotatif a le focus.
+
 

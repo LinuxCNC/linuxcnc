@@ -18,7 +18,7 @@ Architecture: any
 Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
-    ${python:Depends},
+    ${python:Depends}, ${misc:Depends},
     @EMC2_PACKAGE_NAME@ (= ${binary:Version}),
     yapps2-runtime
 Section: libs
@@ -35,11 +35,11 @@ Replaces: emc2, emc2-axis
 Conflicts: emc2, emc2-axis
 Provides: emc2, emc2-axis
 Architecture: any
-Recommends: hostmot2-firmware, emc2-doc-en | emc2-doc-fr
+Recommends: hostmot2-firmware, emc2-doc-en | emc2-doc-fr | emc2-doc-de | emc2-doc-es
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
-    ${python:Depends},
+    ${python:Depends}, ${misc:Depends},
     python@PYTHON_VERSION@-tk,
     python@PYTHON_VERSION@-gnome2, python@PYTHON_VERSION@-glade2,
     python@PYTHON_VERSION@-numpy | python-numpy,
@@ -54,6 +54,7 @@ Description: PC based motion controller for real-time Linux
 Package: emc2-doc-en
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
 Architecture: all
+Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
  EMC2 is the next-generation Enhanced Machine Controller which
@@ -65,6 +66,7 @@ Description: PC based motion controller for real-time Linux
 Package: emc2-doc-fr
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
 Architecture: all
+Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
  EMC2 is the next-generation Enhanced Machine Controller which
@@ -72,4 +74,28 @@ Description: PC based motion controller for real-time Linux
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in French.
+
+Package: emc2-doc-de
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ EMC2 is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in German.
+
+Package: emc2-doc-es
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre)
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ EMC2 is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in Spanish.
 

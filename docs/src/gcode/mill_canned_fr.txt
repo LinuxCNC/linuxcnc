@@ -129,7 +129,7 @@ Y0
 Z0  
 M2 (fin du programme)`
 
-image:images/G81mult.png[]
+image::images/G81mult.png[]
 
 L'utilisation de G80 à la ligne N200 est optionnel puisqu'il y a un G0
 sur la ligne suivante qui révoque le cycle G81. Mais utiliser G80,

@@ -9,7 +9,7 @@ générées par le logiciel. Toutefois, cette génération d'impulsions
 logicielle présente aussi certains désaventages:
 
  - La fréquence maximum des impulsions est limitée.
- -  Les impulsions générées ne sont pas de très bonne qualité à cause du
+ - Les impulsions générées ne sont pas de très bonne qualité à cause du
    bruit.
  - Elles sont sujettes à la charge du CPU 
 
@@ -68,7 +68,7 @@ et vous devriez voir quelques choses comme:
     RTD|   -1568|   -1571|    1640|   10636|   10636|      0 
     RTD|   -1568|   -1571|    1640|   10636|   10636|      0
 
-Pendant la durée du test, vous devez "abuser" de l'ordinateur.
+Pendant la durée du test, vous devez «abuser» de l'ordinateur.
 Déplacez les fenêtres tout autour de l'écran. Surfez sur le web.
 Déplacez quelques longs fichiers sur le disque. Jouez de la musique.
 Lancez un programme OpenGL comme glxgears. L'idée étant de pousser le
@@ -85,13 +85,13 @@ Vous devez lancer le test pendant plusieurs minutes, parfois le plus
 mauvais temps n'apparaît pas vraiment, ou il apparaît quand vous faites
 une action particulière. J'ai une carte mère Intel qui marche très bien
 la plupart du temps, mais chaque 64 secondes arrive une valeur très
-mauvaise de 300uS. Par chance, ce cas a trouvé une solution, voyez ici:
+mauvaise de 300uS. Par chance, ce cas a trouvé une solution, voyez ici: 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues[Le Wiky de
-Linuxcnc].
+Linuxcnc - Correction des problèmes SMI].
 
 Que signifient les résultats du tableau, à quels résultats s'attendre?
 Si la valeur de votre «ovl max» est inférieure à 15-20 microsecondes
-(15000-20000 nanosecondes), l'ordinateur donnera d'excellents
+(15,000-20,000 nanosecondes), l'ordinateur donnera d'excellents
 résultats. Si la latence maximale est près de 30-50 microsecondes, vous
 aurez de bons résultats, mais la fréquence maximale des pas risque
 d'être décevante, spécialement si vous utilisez des micropas ou si vous
@@ -116,38 +116,31 @@ de pas et de direction. Aussi vous avez besoin d'accéder (ou Google) à
 la fiche des spécifications techniques de votre carte.
 
 Par exemple, le manuel du Gecko G202 indique:
+
 [quote]
 ________________________________________
-
 Step Frequency: 0 to 200 kHz 
-
 
 Step Pulse “0” Time: 0.5 uS min (Step on falling edge) 
 
-
 Step Pulse “1” Time: 4.5 uS min 
-
 
 Direction Setup: 1 uS min (20 uS min hold time after Step edge)
 ________________________________________
 
 
 Les spécifications du Gecko G203V indiquent:
+
 [quote]
 ________________________________________
 
-
 Step Frequency: 0 to 333 kHz 
-
 
 Step Pulse “0” Time: 2.0 uS min (Step on rising edge) 
 
-
 Step Pulse “1” Time: 1.0 uS min 
 
-
 200 nS (0.2uS) before step pulse rising edge 
-
 
 200 nS (0.2uS) hold after step pulse rising edge
 ________________________________________
@@ -322,8 +315,8 @@ ordinateur et faire les calculs qui garantirons les meilleurs signaux
 dont les moteurs ont besoin.
 
 Pour rendre le calcul plus facile, j'ai créé une feuille de calcul
-Open Office
-(http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[StepTimingCalculator]).
+Open Office: 
+http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[Step Timing Calculator (en) - Calculatrice Calendrier étape (fr)].
 Vous entrez les résultats du test de latence et les timing de votre
 carte de pilotage et la feuille calcule la meilleure BASE_PERIOD.
 Ensuite, vous testez la période pour vous assurer que votre PC ne sera
@@ -334,4 +327,5 @@ aussi la fréquence de pas maximum que vous serez en mesure de générer.
 
 J'ai ajouté quelques petites choses à la feuille de calcul pour
 calculer la fréquence maximum et quelques autres calculs.
+
 

@@ -78,14 +78,15 @@ proc ::ttt::embedinit {} {
   if [info exists ::ttt(instance)] return ;# for testing convenience
   set ::ttt(this) ngcgui_ttt.tcl
   if {[info procs ::ngcgui::parent] == ""} {
-    return -code error "\n\nngcgui_app.tcl must be loaded before $::ttt(this)"
+    return -code error "\n\n[_ "ngcgui_app.tcl must be loaded before"] $::ttt(this)"
   }
 
   # alternate behaviors
   set ::ttt(multiplepages)      1 ;# 1:most flexible
   set ::ttt(use_program_prefix) 0 ;# 0:no clutter
 
-  set ::ttt(info) "Create a subroutine file from truetype-tracer (V4 reqd)"
+  set ::ttt(info) \
+     "[_ "Create a subroutine file from truetype-tracer (V4 reqd)"]"
   set ::ttt(instance)    0
   set ::ttt(color,ok)    green4
   set ::ttt(color,black) black
@@ -97,21 +98,22 @@ proc ::ttt::embedinit {} {
 
   set ::ttt(exe) [inifindall DISPLAY TTT]
   if {[llength $::ttt(exe)] >1} {
-    return -code error "problem with \[DISPLAY\]TTT <$::ttt(exe)>"
+    return -code error "[_ "problem with"] \[DISPLAY\]TTT <$::ttt(exe)>"
   }
   if {"$::ttt(exe)" == ""} {
     set ::ttt(exe) [file join /usr/local/bin truetype-tracer]
-    puts stderr "::ttt::embedinit:No entry for \[DISPLAY\]TTT, trying $::ttt(exe)"
+    puts stderr "::ttt::embedinit:[_ "No entry for"] \[DISPLAY\]TTT, trying $::ttt(exe)"
   }
   if ![checkttt] {
-    puts stderr "::ttt::embedinit:wrong version of truetype-tracer"
+    puts stderr "::ttt::embedinit:[_ "wrong version of truetype-tracer"]"
     return
   }
 
-  set ::ttt(preamble)   [inifindall DISPLAY TTT_PREAMBLE]
-  if {([llength $::ttt(preamble)] >1)} {
-    return -code error "problem with \[DISPLAY\]TTT_PREAMBLE <$::ttt(preamble)>"
+  set preamble [inifindall DISPLAY TTT_PREAMBLE]
+  if {([llength $preamble] >1)} {
+    return -code error "[_ "problem with"] \[DISPLAY\]TTT_PREAMBLE <$preamble>"
   }
+  set ::ttt(preamble) [::ngcgui::pathto $preamble]
 
   if $::ttt(use_program_prefix) {
     set ::ttt(dir) [inifindall DISPLAY PROGRAM_PREFIX]
@@ -119,7 +121,7 @@ proc ::ttt::embedinit {} {
       set d $::ttt(dir)
       set ::ttt(dir) /tmp
       puts stderr \
-       "::ttt::embedinit: <$d> not writable, using $::ttt(dir) and setting expandsub"
+       "::ttt::embedinit: <$d> [_ "not writable, using"] $::ttt(dir) [_ "and setting expandsub"]"
       lappend ::ttt(embed,options) expandsub ;# needed if no PROGRAM_PREFIX
     }
   } else {
@@ -155,7 +157,7 @@ proc ::ttt::embedinit {} {
   # f1 Text
   set f [frame $w.f1 -bd 1 -relief ridge]
   pack $f -fill both -side top -anchor nw -expand 0
-  pack [label $f.l -text "Text " \
+  pack [label $f.l -text "[_ "Text"]" \
        -anchor e -relief ridge \
        -width $lw \
        ] -side left -fill none -expand 0
@@ -165,16 +167,19 @@ proc ::ttt::embedinit {} {
   # f2 linescale
   set f [frame $w.f2 -bd 1 -relief ridge]
   pack $f -side top -anchor nw -fill x -expand 0
-  pack [label $f.l -text "Linescale " -width $lw  \
+  pack [label $f.l -text "[_ "Linescale"]" -width $lw  \
        -anchor e -relief ridge \
        ] -side left -fill none -expand 0
   pack [entry $f.e -textvariable ::ttt(linescale) \
         -justify right -width $ew\
        ] -side left -fill none -expand 0
+  set dummy "[_ "none"]" ;# for i18n
   foreach value {none 25 50 100} {
     pack [radiobutton $f.ls$value \
            -width $rw \
-           -text $value -value "$value" -variable ::ttt(linescale)\
+           -text  "[_ "$value"]" \
+           -value "[_ "$value"]" \
+           -variable ::ttt(linescale)\
            -relief sunken\
          ] -side left -fill none -expand 0
   }
@@ -183,16 +188,20 @@ proc ::ttt::embedinit {} {
   # f3 subdiv
   set f [frame $w.f3 -bd 1 -relief ridge]
   pack $f -side top -anchor nw -fill x -expand 0
-  pack [label $f.l -text "Subdiv " -width $lw  \
+  pack [label $f.l -text "[_ "Subdiv"]" \
+       -width $lw  \
        -anchor e -relief ridge \
        ] -side left -fill none -expand 0
   pack [entry $f.e -textvariable ::ttt(subdiv) \
         -justify right -width $ew\
        ] -side left -fill none -expand 0
+  set dummy "[_ "default"]" ;# for i18n
   foreach value {default 100 200 400} {
     pack [radiobutton $f.ls$value \
            -width $rw \
-           -text $value -value "$value" -variable ::ttt(subdiv)\
+           -text  "[_ "$value"]" \
+           -value "[_ "$value"]" \
+           -variable ::ttt(subdiv)\
            -relief sunken\
          ] -side left -fill none -expand 0
   }
@@ -201,7 +210,8 @@ proc ::ttt::embedinit {} {
   # f4 scale
   set f [frame $w.f4 -bd 1 -relief ridge]
   pack $f -side top -anchor nw -fill x -expand 0
-  pack [label $f.l -text "Scale " -width $lw \
+  pack [label $f.l -text "[_ "Scale"]" \
+       -width $lw \
        -anchor e -relief ridge \
        ] -side left -fill none -expand 0
   pack [entry $f.e -textvariable ::ttt(scale) \
@@ -225,13 +235,17 @@ proc ::ttt::embedinit {} {
   # f5 mode
   set f [frame $w.f5 -bd 1 -relief ridge]
   pack $f -side top -anchor nw -fill x -expand 0
-  pack [label $f.m -text "Mode " -width $lw \
+  pack [label $f.m -text "[_ "Mode"]" \
+       -width $lw \
        -anchor e -relief ridge \
        ] -side left -fill none -expand 0
   pack [entry $f.e -textvariable ::ttt(test) \
         -justify right -width $ew\
         -state readonly \
        ] -side left -fill none -expand 0
+  set dummy "[_ "normal"]"   ;# i18n
+  set dummy "[_ "date"]"     ;# i18n
+  set dummy "[_ "fontname"]" ;# i18n
   foreach value {normal date AaBb123 fontname} {
   pack [radiobutton $f.x$value \
            -width $rw \
@@ -244,25 +258,28 @@ proc ::ttt::embedinit {} {
   # f6 check buttons
   set f [frame $w.f6 -bd 1 -relief ridge]
   pack $f -side top -anchor nw -fill x -expand 0
-  pack [label $f.m -text "Switches " -width $lw \
+  pack [label $f.m -text "[_ "Switches"]" \
+       -width $lw \
        -anchor e -relief ridge \
        ] -side left -fill none -expand 0
 
   pack $f -side top -anchor nw -fill x -expand 0
 
   set ::ttt(unicode) 0
-  pack [checkbutton $f.unicode -text Unicode -var ::ttt(unicode)\
+  pack [checkbutton $f.unicode -text "[_ "Unicode"]" \
+       -var ::ttt(unicode)\
        ] -side left -fill none -expand 0
 
   set ::ttt(allowrotation) 0
-  pack [checkbutton $f.rotation -text "Allow Rotation" -var ::ttt(allowrotation)\
+  pack [checkbutton $f.rotation -text "[_ "Allow Rotation"]" \
+                    -var ::ttt(allowrotation)\
        ] -side left -fill none -expand 0
 
 
   # f7 font
   set f [frame $w.f7 -bd 1 -relief ridge]
   pack $f -fill both -side top -anchor nw -expand 0
-  pack [button $f.b -text Font \
+  pack [button $f.b -text "[_ "Font"]" \
                      -width $lw  -padx 0 -pady 0\
                      -command ::ttt::setfont \
                      ] -side left -fill none -expand 0
@@ -273,7 +290,8 @@ proc ::ttt::embedinit {} {
   # f8 Make
   set f [frame $w.f8 -relief ridge]
   pack $f -fill both -anchor nw -expand 0
-  pack [button $f.b -text "Make ngcgui-compatible subfile and new tab page" \
+  pack [button $f.b \
+       -text "[_ "Make ngcgui-compatible subfile and new tab page"]" \
        -padx 0 -pady 0 \
        -command ::ttt::runttt\
        ] -side top -fill x -expand 1
@@ -331,7 +349,7 @@ proc ::ttt::runttt {} {
     default  {set thetext "$::ttt(test)"}
   }
   if {[string trim $thetext] == ""} {
-    set ::ttt(msg) "Null text"
+    set ::ttt(msg) "[_ "Null text"]"
     $::ttt(msg,widget) configure -fg $::ttt(color,error)
     return
   }
@@ -362,16 +380,16 @@ proc ::ttt::runttt {} {
 
   if {$::ttt(font) == ""} {
     set fopt ""; set fval ""
-    set ::ttt(msg) "Using truetype-tracer default font"
+    set ::ttt(msg) "[_ "Using truetype-tracer default font"]"
     $::ttt(msg,widget) configure -fg $::ttt(color,black)
   } else {
     if ![file exists $::ttt(font)] {
-      set ::ttt(msg) "no such file: $::ttt(font)"
+      set ::ttt(msg) "[_ "no such file"] : $::ttt(font)"
       $::ttt(msg,widget) configure -fg $::ttt(color,error)
       return
     }
     if ![file readable $::ttt(font)] {
-      set ::ttt(msg) "file not readable:$::ttt(font)"
+      set ::ttt(msg) "[_ "file not readable"] :$::ttt(font)"
       $::ttt(msg,widget) configure -fg $::ttt(color,error)
       return
     }
@@ -485,7 +503,7 @@ o<ifx$s> endif
     }
   }
 
-  set ::ttt(msg) "Creating new tab page"
+  set ::ttt(msg) "[_ "Creating new tab page"]"
   $::ttt(msg,widget) configure -fg $::ttt(color,black)
   update
   after 200

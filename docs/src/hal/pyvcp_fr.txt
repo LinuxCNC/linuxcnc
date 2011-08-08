@@ -1,4 +1,4 @@
-= pyVCP
+= PyVCP
 
 Panneau virtuel de contrôle en python (*Py*thon *V*irtual *C*ontrol
 *P*anel)
@@ -172,8 +172,8 @@ Pour ajouter un commentaire utiliser la syntaxe de xml.
 ==== Editer un fichier XML
 
 Editer le fichier XML avec un éditeur de texte. La plupart du temps un
-double click sur le nom de fichier permet de choisir "ouvrir avec
-l'editeur de texte" ou similaire.
+double click sur le nom de fichier permet de choisir 
+«ouvrir avec l'editeur de texte» ou similaire.
 
 ==== Couleurs
 
@@ -185,15 +185,15 @@ http://sedition.com/perl/rgb.html[http://sedition.com/perl/rgb.html].
 Couleurs les plus courantes (les numéros suivant la couleur indiquent
 la nuance de la couleur)
 
- - white
- - black
- - blue and blue1 - 4
- - cyan and cyan1 - 4
- - green and green1 - 4
- - yellow and yellow1 - 4
- - red and red1 - 4
- - purple and purple1 - 4
- - gray and gray0 - 100
+ - white  (blanc)
+ - black  (noir)
+ - blue and blue1 - blue4  (bleu)
+ - cyan and cyan1 - cyan4  (cyan)
+ - green and green1 - green4  (vert)
+ - yellow and yellow1 - yellow4  (jaune)
+ - red and red1 - red4  (rouge)
+ - purple and purple1 - purple4  (violet/pourpre)
+ - gray and gray0 - gray100  (gris)
 
 === LED
 
@@ -205,13 +205,12 @@ autrement.
 
 image:images/pyvcp_led.png[]
 
-<halpin> définit le nom de la pin, par défaut: “led.n”, où n est un
-entier 
-<size> définit la taille de la led, par défaut: 20 
- <on_color> définit la couleur de la led LED quand la pin est vraie,
+<halpin> définit le nom de la pin, par défaut: “led.n”, où n est un entier. 
+<size> définit la taille de la led, par défaut: 20. 
+<on_color> définit la couleur de la led LED quand la pin est vraie, 
 par défaut: “green” 
- <off_color> définit la couleur de la LED quand la pin est fausse, par
-défaut: “ref”
+<off_color> définit la couleur de la LED quand la pin est fausse, 
+par défaut: “ref”
 
 === LED rectangulaire (rectled)
 
@@ -367,7 +366,7 @@ vraie ou fausse de halpin.
 En utilisant les deux images fwd.gif et rev.gif. 
 FWD est affiché quand "selectimage" est fausse 
 et REV est affiché quand "selectimage" est vraie. 
-image:images/pyvcp_image01.png[]image:images/pyvcp_image02.png[]
+image:images/pyvcp_image01.png[] image:images/pyvcp_image02.png[]
 
 ==== Image u32
 
@@ -388,7 +387,7 @@ image etc.
 
 Même résultat mais en ajoutant l'image stb.gif. 
 
-image:images/pyvcp_image_u32_01.png[]image:images/pyvcp_image01.png[]image:images/pyvcp_image02.png[]
+image:images/pyvcp_image_u32_01.png[] image:images/pyvcp_image01.png[] image:images/pyvcp_image02.png[]
 
 === Barre de progression (bar)
 
@@ -530,8 +529,8 @@ horizontalement, les uns à côtés des autres.
 
 image:images/pyvcp_hbox.png[]
 
-Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises `<boxfill
-fill=""/>`, `<boxanchor anchor=""/>` et `<boxexpand expand=""/>`  pour
+Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
+`<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
 comportement de fill, anchor, et expand, référez vous au manuel du pack
@@ -547,8 +546,8 @@ verticalement, les uns au dessus des autres.
 
 image:images/pyvcp_vbox.png[]
 
-Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises `<boxfill
-fill=""/>`, `<boxanchor anchor=""/>` et `<boxexpand expand=""/>`  pour
+Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
+`<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
 comportement de fill, anchor, et expand, référez vous au manuel du pack
@@ -586,7 +585,7 @@ Exemple:
 
     <table flexible_rows="[2]" flexible_columns="[1,4]">
 
-    image:images/pyvcp_table.png[]
+image:images/pyvcp_table.png[]
 
 === Onglets (Tabs)
 
@@ -618,5 +617,5 @@ Une interface à onglets peut économiser énormément d'espace.
     </vbox> 
     </tabs>
 
-image:images/pyvcp_tabs1.png[]image:images/pyvcp_tabs2.png[]image:images/pyvcp_tabs3.png[]
+image:images/pyvcp_tabs1.png[] image:images/pyvcp_tabs2.png[] image:images/pyvcp_tabs3.png[]
 

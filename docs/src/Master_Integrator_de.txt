@@ -1,0 +1,93 @@
+Integrator Manuelle V0.1, {localdate}
+===================================
+The EMC Team
+
+:language: de
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+image::common/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+include::common/translator-needed_de.txt[]
+
+include::common/Integrator_Concepts_de.txt[]
+
+:leveloffset: 0
+= Configuration
+:leveloffset: 1
+
+include::install/Latency_Test_de.txt[]
+
+include::config/ini_config_de.txt[]
+
+include::config/ini_homing_de.txt[]
+
+include::config/lathe_config_de.txt[]
+
+include::config/emc2hal_de.txt[]
+
+include::config/stepper_de.txt[]
+
+:leveloffset: 0
+= GUI
+:leveloffset: 1
+
+include::hal/pyvcp_de.txt[]
+
+include::hal/pyvcp_examples_de.txt[]
+
+include::gui/gladevcp_de.txt[]
+
+:leveloffset: 0
+= Advanced Topics
+:leveloffset: 1
+
+include::motion/kinematics_de.txt[]
+
+include::motion/tweaking_steppers_de.txt[]
+
+include::motion/pid_theory_de.txt[]
+
+:leveloffset: 0
+= Ladder Logic
+:leveloffset: 1
+
+include::ladder/ladder_intro_de.txt[]
+
+include::ladder/classic_ladder_de.txt[]
+
+include::ladder/ladder_examples_de.txt[]
+
+:leveloffset: 0
+= Hardware Examples
+:leveloffset: 1
+
+include::examples/pci_parallel_port_de.txt[]
+
+include::examples/spindle_de.txt[]
+
+include::examples/mpg_de.txt[]
+
+include::examples/gs2_example_de.txt[]
+
+:leveloffset: 0
+= Diagnostics & FAQ
+:leveloffset: 1
+
+include::common/Stepper_Diagnostics_de.txt[]
+
+include::common/Linux_FAQ_de.txt[]
+
+include::common/Glossary_de.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

@@ -1,0 +1,85 @@
+= Assistant graphique de configuration Mesa pncconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))(((pncconf Wizard)))
+
+Le Point n Cliquez Configurateur couvre Mesa cartes et port parallèle
+configurations stepper. Si vous avez un simple port parallèle stepper
+la machine de l'Assistant Stepconf pourrait être un meilleur choix. 
+Le Point n Cliquez sur Configurateur peut générer certaines 
+configurations avancées sans savoir rien sur HAL.
+
+Démarrez le programme depuis le menu PnCConf CNC ou d'une fenêtre de terminal
+avec `pncconf. Pour plus d'informations sur la fenêtre de terminal, voyez le
+Linux section FAQ.
+
+[float]
+Instructions étape par étape
+============================
+
+.PnCConf Splash
+
+image::images/pncconf-splash.png[]
+
+== Informations sur l'appareil de base
+
+Nom de la machine::
+    Qu'est-ce que vous voulez appeler votre machine et ne doit pas avoir d'espaces.
+
+.PnCConf base
+
+image::images/pncconf-basic.png[]
+
+== Configuration GUI
+
+Ici vous pouvez choisir entre différentes interfaces graphiques et des options pour chacune d'elles.
+
+.Configuration GUI
+
+image::images/pncconf-gui.png[]
+
+== Configuration Mesa
+
+.Configuration Mesa
+
+image::images/pncconf-mesa-config.png[]
+
+== Mesa I/O Setup
+
+.Mesa I/O C2
+
+image::images/pncconf-mesa-io2.png[]
+
+.Mesa I/O C3
+
+image::images/pncconf-mesa-io3.png[]
+
+.Mesa I/O C4
+
+image::images/pncconf-mesa-io4.png[]
+
+== Configuration de l'axe
+
+.Axis Configuration du lecteur
+
+image::images/pncconf-axis-drive.png[]
+
+.Axe de configuration
+
+image::images/pncconf-axis-config.png[]
+
+== Options avancées
+
+.Options avancées
+
+image::images/pncconf-advanced.png[]
+
+== Composants HAL
+
+Sur cette page, vous pouvez ajouter d'autres composants de HAL vous pourriez avoir besoin.
+
+.Composants HAL
+
+image::images/pncconf-hal.png[]
+
+
+// vim: set syntax=asciidoc:
+
+

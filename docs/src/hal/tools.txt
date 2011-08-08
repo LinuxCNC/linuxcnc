@@ -1,6 +1,6 @@
 = Tools and Utilities
 
-==  [[sec:Halcmd]]Halcmd
+== [[sec:Halcmd]]Halcmd
 
 Halcmd is a command line tool for manipulating the HAL. There is a
 rather complete man page for halcmd, which will be installed if you
@@ -8,16 +8,16 @@ have installed EMC2 from either source or a package. If you have
 compiled EMC2 for “run-in-place”, the man page is not installed, but it
 is accessible. From the main EMC2 directory, do:
 
-`$` *`man -M docs/man halcmd`*
++$ *man -M docs/man halcmd*+ 
 
-Chapter  <<cha:HAL-Tutorial>> has a number of examples of halcmd
+Chapter <<cha:HAL-Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
 
-==  [[sec:Halmeter]]Halmeter
+== Halmeter[[Halmeter]](((Halmeter)))
 
 Halmeter is a “voltmeter” for the HAL. It lets you look at a pin,
 signal, or parameter, and displays the current value of that item. It
-is pretty simple to use. Start it by typing “`halmeter` ” in a X
+is pretty simple to use. Start it by typing *halmeter* in an X 
 windows shell. Halmeter is a GUI application. It will pop up
 a small window, with two buttons labeled “Select” and “Exit”. Exit is
 easy - it shuts down the program. Select pops up a larger window, with
@@ -33,7 +33,7 @@ convenient if you want to look at a number of different items quickly.
 
 You can have many halmeters running at the same time, if you want to
 monitor several items. If you want to launch a halmeter without tying
-up a shell window, type “`halmeter &` ” to run it in the background.
+up a shell window, type `halmeter &` to run it in the background.
 You can also make halmeter start 
 displaying a specific item immediately, by adding “`pin|sig|par[am]
 <name>` ” to the command line. It will display the pin, signal, or
@@ -42,14 +42,16 @@ parameter
 start normally.) And finally, if you specify an item to display, you
 can add “-s” before the pin|sig|param to tell halmeter to use a small
 window. The item name will be displayed in the title bar instead of
-under the value, and there will be no buttons. Usefull when you want a
+under the value, and there will be no buttons. Useful when you want a
 lot of meters in a small amount of screen space.
 
-==  [[sec:Halscope]]Halscope
+Refer to section <<sec:Tutorial-Halmeter>> for more information. 
+
+== Halscope[[sec:Halscope]]
 
 Halscope is an “oscilloscope” for the HAL. It lets you capture the
 value of pins, signals, and parameters as a function of time. Complete
 operating instructions should be located here eventually. For now,
-refer to section  <<sec:Tutorial - Halscope>> in the tutorial chapter,
+refer to section  <<sec:Tutorial-Halscope>> in the tutorial chapter,
 which explains the basics.
 

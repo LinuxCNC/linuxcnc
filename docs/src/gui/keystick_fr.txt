@@ -2,9 +2,8 @@
 
 == Introduction
 
+.L'interface utilisateur minimale[[fig:startkeystick]]
 image::images/keystick.png[]
-
-.[[fig:startkeystick]]L'interface utilisateur minimale
 
 Keystick est une interface minimaliste textuelle.
 
@@ -26,7 +25,6 @@ pouvez directement taper le G-code et il sera visible dans la partie
 supérieur. La touche «?» bascule avec ou sans aide.
 
 footnote:[ndt: keystick a été conçu pour être minimaliste, par
-conséquent son
-interface n'est pas traductible.
-]
+conséquent son interface n'est pas traductible.]
+
 

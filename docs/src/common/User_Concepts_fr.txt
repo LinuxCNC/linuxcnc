@@ -146,20 +146,20 @@ de 5latexmath:[$^{\textrm{2}}$]/100 = .25mm.
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
-comprendre la section «vitesse d'avance»( <<sub:-Vitesse-d-avance>>) du
+comprendre la section «vitesse d'avance»(<<sub:Vitesse-d-avance>>) du
 manuel de l'utilisateur.
 
 === Compensation de rayon d'outil
 
-La compensation de rayon d'outil (G41/42) nécessite que l'outil puisse
+La compensation de rayon d'outil (G41/G42) nécessite que l'outil puisse
 toucher tout au long de la trajectoire programmée sans interférer avec
 les mouvements d'entrée ou de sortie. Si c'est impossible avec le
 diamètre de l'outil courant, une erreur est signalée. Un diamètre
 d'outil inférieur est peut être utilisable sans erreur pour le même
 parcours. Ce qui signifie que quand ce type de problème se présente, il
 est possible de programmer un outil plus petit pour usiner le même
-parcours sans erreur. Voir la section compensation de rayon d'outil (
-<<sec:Compensation-rayon-d-outil>>) pour plus d'informations.
+parcours sans erreur. Voir la section compensation de rayon d'outil 
+(<<sec:Compensation-rayon-d-outil>>) pour plus d'informations.
 
 == Prise d'origine machine
 
@@ -175,6 +175,7 @@ l'interface Mini, il est possible d'ajuster l'option NO_FORCE_HOMING =
 Il existe plusieurs options pour effectuer un changement d'outil. Voir
 la section [EMCIO] dans le manuel de l'intégrateur pour les
 informations sur la configuration de ces options. Voir également les
-sections G28 <<"sub:G28,-G28.1:-Aller">> et G30
-<<"sub:G30,-G30.1:-Aller">> du manuel de l'utilisateur.
+sections G28 <<sec:G28-G28.1>> et G30
+<<sec:G30-G30.1>> du manuel de l'utilisateur.
+
 

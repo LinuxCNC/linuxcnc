@@ -3,31 +3,53 @@
 Pour que ces exemples fonctionnent, vous devez ajouter la ligne
 suivante dans la section {[}HAL{]} du fichier ini.
 
-    HALUI = halui
++*HALUI = halui*+ 
 
+== Remote Start
+
+To connect a remote program start button to EMC you use the 
+`halui.program.run` pin and the `halui.mode.auto` pin. 
+You have to insure that it is OK to run first by using the 
+`halui.mode.is-auto` pin. You do this with an `and2` 
+component. The following figure shows how this is done. 
+When the Remote Run Button is pressed it is connected to 
+both `halui.mode.auto` and `and2.0.in0`. If it is OK for 
+auto mode the pin `halui.mode.is-auto` will be on. 
+If both the inputs to the `and2.0` component are on the 
+`and2.0.out` will be on and this will start the program. 
+
+.Remote Start Example[[fig:Remote-Start-Example]]
+
+image::images/remote-start.png
+
+The hal commands needed to accomplish the above are: 
+
+    net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin> 
+    net program-run-ok and2.0.in1 <= halui.mode.is-auto 
+    net remote-program-run halui.program.run <= and2.0.out 
+
+Notice on line one that there are two reader pins, this can also be split up to two lines like this:
+
+    net program-start-btn halui.mode.auto <= <your input pin> 
+    net program-start-btn and2.0.in0 
 
 == Pause et Reprise
 
 Cet exemple a été developpé pour permettre à EMC2 de déplacer un
 axe rotatif selon un signal provenant d'une machine extérieure. La
 coordination entre les deux systèmes sera assurée par deux
-composants de Halui.
-
+composants de Halui: 
 
  - halui.program.is-paused
-
  - halui.program.resume
-
 
 Dans votre fichier custom.hal, ajoutez les deux lignes suivantes
 qui seront connectées à vos entrées/sorties pour mettre le
 programme en pause ou pour le reprendre quand l'autre système veut
 qu'EMC2 soit relancé.
 
-    net ispaused halui.program.is-paused => votre broche en
-    sortienet resume halui.program.resume <= votre broche en
-    entrée
-
+    net ispaused halui.program.is paused => "your output pin" 
+    net resume halui.program.resume <= "your input pin" 
 
 Vos broches entréeet sortiecorrespondent à celles qui sont
 câblées vers l'autre contrôleur. Elles peuvent être des broches du
@@ -44,16 +66,15 @@ prochain M0.
 
 Difficultés de timing
 
-
  - Le signal de reprise ne doit pas être plus long que le temps
    nécessaire pour exécuter le g-code
 
  - Le signal øg Is Paused ne doit plus être actif quand le signal
    suivant de reprise arrive
 
-
 Ces problèmes de timming pourraient être évités en utilisant
 ClassicLadder pour activer le signal øg is paused avec une tempo
 et le désactiver en fin de tempo. La reprise pourrait également
 être fournie par un signal monostable très court.
+
 
