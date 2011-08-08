@@ -136,7 +136,6 @@ static int pseudoMdiLineNumber = INT_MIN;
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
-static const char *python_taskinit;
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
@@ -3092,10 +3091,6 @@ static int iniLoad(const char *filename)
 	io_error = strdup(inistring);
     }
 
-    // configurable template for iocontrol reason display
-    if (NULL != (inistring = inifile.Find( "TASK","PYTHON"))) {
-	python_taskinit = strdup(inistring);
-    }
     // close it
     inifile.Close();
 
@@ -3163,7 +3158,7 @@ int main(int argc, char *argv[])
 	// get the Python plugin going
 
 	// inistantiate task methods object, too
-	emcTaskOnce(EMC_INIFILE,python_taskinit);
+	emcTaskOnce(EMC_INIFILE);
 	if (task_methods == NULL) {
 	    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
 	    rcs_print_error("can't initialize Task methods\n");

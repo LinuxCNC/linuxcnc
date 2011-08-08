@@ -7,7 +7,7 @@ extern int steppingWait;
 extern int emcTaskQueueCommand(NMLmsg *cmd);
 extern int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg);
 extern int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg);
-extern int emcTaskOnce(const char *inifile, const char *python_taskinit);
+extern int emcTaskOnce(const char *inifile);
 extern int emcRunHalFiles(const char *filename);
 
 #endif

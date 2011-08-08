@@ -257,7 +257,19 @@ static int forceCommand(RCS_CMD_MSG * msg)
 // glue
 
 int emcIoInit() { return task_methods->emcIoInit(); }
-int emcIoHalt() { return task_methods->emcIoHalt(); }
+
+int emcIoHalt() {
+    try {
+	return task_methods->emcIoHalt();
+    } catch( bp::error_already_set ) {
+	std::string msg = handle_pyerror();
+	printf("emcIoHalt(): %s\n", msg.c_str());
+	PyErr_Clear();
+	return -1;
+    }
+}
+
+
 int emcIoAbort(int reason) { return task_methods->emcIoAbort(reason); }
 int emcIoSetDebug(int debug) { return task_methods->emcIoSetDebug(debug); }
 int emcAuxEstopOn()  { return task_methods->emcAuxEstopOn(); }
@@ -281,61 +293,78 @@ int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number)
 int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
 int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg) { return task_methods->emcIoPluginCall(call_msg->len,
 											   call_msg->call); }
+// static const char *python_taskinit;
+static const char *instance_name = "task_instance";
 
-int emcTaskOnce(const char *filename, const char *python_taskinit)
+int emcTaskOnce(const char *filename)
 {
     bp::object retval;
     bp::tuple arg;
     bp::dict kwarg;
-    int plugin_status;
-
+    int retcode;
+    IniFile inifile;
+    const char *inistring;
     extern Interp interp;
 
+   if (inifile.Open(filename) == false) {
+	return -1;
+    }
+    if (NULL != (inistring = inifile.Find( "TASKVAR","PYTHON"))) {
+	instance_name = strdup(inistring);
+    }
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
     // both Task and Interp use it - first to call configure() instantiates the Python part
     extern struct _inittab builtin_modules[];
     if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp) != NULL) {
-	printf("Python plugin configured");
+	printf("Python plugin configured\n");
     } else {
-	printf("no Python plugin available");
-	task_methods = new Task();
-	return 0;
+	goto no_pytask;
     }
-
-    if (PYUSABLE && python_plugin->is_callable(TASK_MODULE, TASK_INIT)) {
-	python_plugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval);
-	plugin_status = emcPythonReturnValue(TASK_INIT, retval);
-	if (plugin_status != PLUGIN_OK)  // FIXME - NO_CALLABLE?
-	    printf("plugin_status = %d '%s'\n'%s'\n", plugin_status,
-		   python_plugin->last_errmsg().c_str(),
-		   python_plugin->last_exception().c_str());
-	if (PYUSABLE && (python_taskinit != NULL)) {
-	    try {
-		static bp::object result = bp::eval(python_taskinit,
-						    python_plugin->main_namespace,
-						    python_plugin->main_namespace);
-		bp::extract<Task *> typetest(result);
-		if (typetest.check()) {
-		    task_methods = bp::extract< Task * >(result);
-		} else {
-		    printf("cant extract a Task instance out of '%s'\n", python_taskinit);
-		    task_methods = NULL;
-		}
-	    } catch( bp::error_already_set ) {
-		std::string msg = handle_pyerror();
-		printf("eval(%s): %s\n", python_taskinit,msg.c_str());
-		PyErr_Clear();
+    if (PYUSABLE) {
+	if (python_plugin->is_callable(TASK_MODULE, TASK_INIT)) {
+	    if ((retcode = python_plugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval)) != PLUGIN_OK) {
+		printf("plugin call %s.%s():  %d \n%s",
+		       TASK_MODULE, TASK_INIT,  retcode,
+		       python_plugin->last_exception().c_str());
+		goto no_pytask;  // exeception
 	    }
-	    if (task_methods == NULL) {
-		printf("no Python Task() instance available\n");
+	    if ((retcode = emcPythonReturnValue(TASK_INIT, retval))) {
+		printf("%s.%s() returned %d\n", TASK_MODULE, TASK_INIT, retcode);
+		goto no_pytask; // task.task_init() returned non-zero
 	    }
 	}
-    } else {
-	printf("python_plugin not available\n");
+	int n = 1;
+	while ((inistring = inifile.Find( "TASK","PYTHON", n)) != NULL) {
+	    if ((retcode = python_plugin->run_string(inistring, retval)) != PLUGIN_OK) {
+		printf("python execute '%s':  %d\n%s",
+		       inistring, retcode,
+		       python_plugin->last_exception().c_str());
+		goto no_pytask;  // exeception
+	    }
+	    n++;
+	}
+	try {
+	    bp::object task_namespace =  python_plugin->main_namespace[TASK_MODULE].attr("__dict__");;
+	    bp::object result = task_namespace[instance_name];
+	    bp::extract<Task *> typetest(result);
+	    if (typetest.check()) {
+		task_methods = bp::extract< Task * >(result);
+	    } else {
+		printf("cant extract a Task instance out of '%s'\n", instance_name);
+		task_methods = NULL;
+	    }
+	} catch( bp::error_already_set ) {
+	    std::string msg = handle_pyerror();
+	    printf("extract(%s): %s\n", instance_name, msg.c_str());
+	    PyErr_Clear();
+	}
     }
-    if (task_methods == NULL)
+ no_pytask:
+    if (task_methods == NULL) {
+	printf("no Python Task() instance available, using default iocontrol-based task methods\n");
 	task_methods = new Task();
+    }
     return 0;
 }
 
@@ -472,7 +501,7 @@ Task::Task() {
 };
 
 
-Task::~Task() {};
+Task::~Task() { printf("Task destructor\n"); };
 
 // NML commands
 
