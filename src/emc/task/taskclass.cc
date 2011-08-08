@@ -38,7 +38,7 @@
 
 // Python plugin interface
 #define TASK_MODULE "task"
-#define TASK_INIT "task_init"
+#define TASK_VAR "pytask"
 #define PLUGIN_CALL "plugin_call"
 
 extern PythonPlugin *python_plugin;  // exported by python_plugin.cc
@@ -293,7 +293,6 @@ int emcToolSetNumber(int number) { return task_methods->emcToolSetNumber(number)
 int emcIoUpdate(EMC_IO_STAT * stat) { return task_methods->emcIoUpdate(stat); }
 int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg) { return task_methods->emcIoPluginCall(call_msg->len,
 											   call_msg->call); }
-// static const char *python_taskinit;
 static const char *instance_name = "task_instance";
 
 int emcTaskOnce(const char *filename)
@@ -301,52 +300,24 @@ int emcTaskOnce(const char *filename)
     bp::object retval;
     bp::tuple arg;
     bp::dict kwarg;
-    int retcode;
-    IniFile inifile;
-    const char *inistring;
     extern Interp interp;
 
-   if (inifile.Open(filename) == false) {
-	return -1;
-    }
-    if (NULL != (inistring = inifile.Find( "TASKVAR","PYTHON"))) {
-	instance_name = strdup(inistring);
-    }
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
     // both Task and Interp use it - first to call configure() instantiates the Python part
+
     extern struct _inittab builtin_modules[];
-    if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp) != NULL) {
+
+    if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp)) {
 	printf("Python plugin configured\n");
     } else {
 	goto no_pytask;
     }
     if (PYUSABLE) {
-	if (python_plugin->is_callable(TASK_MODULE, TASK_INIT)) {
-	    if ((retcode = python_plugin->call(TASK_MODULE, TASK_INIT, arg, kwarg, retval)) != PLUGIN_OK) {
-		printf("plugin call %s.%s():  %d \n%s",
-		       TASK_MODULE, TASK_INIT,  retcode,
-		       python_plugin->last_exception().c_str());
-		goto no_pytask;  // exeception
-	    }
-	    if ((retcode = emcPythonReturnValue(TASK_INIT, retval))) {
-		printf("%s.%s() returned %d\n", TASK_MODULE, TASK_INIT, retcode);
-		goto no_pytask; // task.task_init() returned non-zero
-	    }
-	}
-	int n = 1;
-	while ((inistring = inifile.Find( "TASK","PYTHON", n)) != NULL) {
-	    if ((retcode = python_plugin->run_string(inistring, retval)) != PLUGIN_OK) {
-		printf("python execute '%s':  %d\n%s",
-		       inistring, retcode,
-		       python_plugin->last_exception().c_str());
-		goto no_pytask;  // exeception
-	    }
-	    n++;
-	}
+	// extract the instance of Python Task()
 	try {
 	    bp::object task_namespace =  python_plugin->main_namespace[TASK_MODULE].attr("__dict__");;
-	    bp::object result = task_namespace[instance_name];
+	    bp::object result = task_namespace[TASK_VAR];
 	    bp::extract<Task *> typetest(result);
 	    if (typetest.check()) {
 		task_methods = bp::extract< Task * >(result);
