@@ -164,7 +164,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             r = -EINVAL;
             goto fail0;
         }
-        // start up the card so any sub-drivers can read parameters out
+        // start up the card in setup mode so any sub-drivers can read parameters out
         buff=0xF00 | (0xFF >> (8 - hm2->config.num_sserial_chans[i]));
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 8000) < 0){
@@ -181,8 +181,6 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
             addr = md->base_address + 4 * md->register_stride
             + i * md->instance_stride + c * sizeof(u32);
             hm2->llio->read(hm2->llio, addr, &buff, sizeof(u32));
-            //buff >>= 24;
-            HM2_DBG("Device Code %X at addr %x\n",buff, addr);
             switch (buff) {
                 case 0x0: // nothing connected, or masked by config
                     for (pin = 0 ; pin < hm2->num_pins ; pin++){
@@ -193,15 +191,13 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                         }
                     }
                     break;
-                //case HM2_SSERIAL_TYPE_8I20: // 8i20 found
-                case 0x30324938:    
+                case HM2_SSERIAL_TYPE_8I20: // 8i20 found   
                     inst->tag_8i20 |= (1 << c);
                     inst->tag_all |= (1 << c);
                     inst->num_8i20 += 1;
                     inst->num_all += 1;
                     break;
-                //case HM2_SSERIAL_TYPE_7I64: // 7i64 found
-                case 0x34364937:
+                case HM2_SSERIAL_TYPE_7I64: // 7i64 found
                     inst->tag_7i64 |= (1 << c);
                     inst->tag_all |= (1 << c);
                     inst->num_7i64 += 1;
