@@ -1,10 +1,10 @@
-import re
 import os
 
 import emctask
 import emccanon
 import interpreter
 import hal
+import tooltable
 
 try:
     import cPickle as pickle
@@ -16,117 +16,9 @@ try:
 except ImportError:
     from nulluserfuncs import UserFuncs
 
-
-
 def debug():
     return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
 
-
-# support queuing calls to Python methods:
-# trap call, pickle a tuple of name and arguments and enqueue with canon IO_PLUGIN_CALL
-class EnqueueCall(object):
-    def __init__(self,e):
-        print "EnqueueCall.__init__()"
-        self._e = e
-
-    def _encode(self,*args,**kwargs):
-        if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
-            p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
-            emccanon.IO_PLUGIN_CALL(int(len(p)),p)
-        else:
-            raise AttributeError,"no such Task method: " + self._name
-
-    def __getattr__(self, name):
-        self._name = name
-        return self._encode
-
-
-class EmcToolTable(object):
-    ttype = { 'T' : int, 'P': int, 'Q':int,
-              'X' : float, 'Y' : float, 'Z' : float,
-              'A' : float, 'B' : float, 'C' : float,
-              'U' : float, 'V' : float, 'W' : float,
-              'I' : float, 'J' : float, 'D' : float }
-
-    def __init__(self,filename,random_toolchanger):
-         self.filename = filename
-         self.random_toolchanger = random_toolchanger
-
-    def load(self, tooltable,comments):
-        self.fakepocket = 0
-        fp = open(self.filename)
-        lno = 0
-        for line in fp.readlines():
-            lno += 1
-            if not line.startswith(';'):
-                if line.strip():
-                    entry = self.parseline(lno,line.strip())
-                    if entry:
-                        self.assign(tooltable,entry,comments)
-        fp.close()
-
-    def save(self, tooltable, comments):
-        print "Save tooltable NIY"
-
-    def assign(self,tooltable,entry,comments):
-        if self.random_toolchanger:
-            pocket = entry['P']
-        else:
-            self.fakepocket += 1
-            pocket = self.fakepocket
-
-        tooltable[pocket].zero()
-        for (key,value) in entry.items():
-            if key == 'T' : tooltable[pocket].toolno = value
-            if key == 'Q' : tooltable[pocket].orientation = value
-            if key == 'D' : tooltable[pocket].diameter = value
-            if key == 'I' : tooltable[pocket].frontangle = value
-            if key == 'J' : tooltable[pocket].backangle = value
-            if key == 'X' : tooltable[pocket].offset.x = value
-            if key == 'Y' : tooltable[pocket].offset.y = value
-            if key == 'Z' : tooltable[pocket].offset.z = value
-            if key == 'A' : tooltable[pocket].offset.a = value
-            if key == 'B' : tooltable[pocket].offset.b = value
-            if key == 'C' : tooltable[pocket].offset.c = value
-            if key == 'U' : tooltable[pocket].offset.u = value
-            if key == 'V' : tooltable[pocket].offset.v = value
-            if key == 'W' : tooltable[pocket].offset.w = value
-            if key == 'comment' : comments[pocket] = value # aaargh
-
-
-
-    def parseline(self,lineno,line):
-        """
-        read a tooltable line
-        if an entry was parsed successfully, return a  Tool() instance
-        """
-        if re.match('\A\s*T\d+',line): # an MG line
-            semi = line.find(";")
-            comment = line[semi+1:]
-            entry = line.split(';')[0]
-            gd = dict()
-            for field in entry.split():
-                (name,value)  = re.search('([a-zA-Z])([+-]?\d*\.?\d*)',field).groups()
-                if name:
-                    key = name.upper()
-                    gd[key] = EmcToolTable.ttype[key](value)
-                else:
-                    print "%s:%d  bad line: '%s' " % (self.filename, lineno, entry)
-            gd['comment'] = comment
-            return gd
-        print "%s:%d: unrecognized tool table entry   '%s'" % (self.filename,lineno,line)
-
-# startup:
-#     halui.estop.is-activated = true
-#
-# estop off:
-#     user-enable-out = true -> emc-enable-in becomes true
-#     halui.estop.is-activated = false
-#
-# machine on:
-#     halui.machine.is-on = true
-#     halui.lube.is-on = true
-#     iocontrol.0.lube = true
 
 class CustomTask(emctask.Task,UserFuncs):
     def __init__(self):
@@ -166,7 +58,7 @@ class CustomTask(emctask.Task,UserFuncs):
 
     def emcIoInit(self):
         print "py:  emcIoInit tt=",self.tooltable_filename
-        self.tt = EmcToolTable(self.tooltable_filename, self.random_toolchanger)
+        self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
         self.comments = dict()
         self.tt.load(self.e.io.tool.toolTable,self.comments)
 
@@ -437,3 +329,22 @@ class CustomTask(emctask.Task,UserFuncs):
         self.hal["tool-change"] = 0
         self.hal["tool-number"] = 0
 
+
+
+# support queuing calls from Interp to Task Python methods:
+# trap call, pickle a tuple of name and arguments and enqueue with canon IO_PLUGIN_CALL
+class EnqueueCall(object):
+    def __init__(self,e):
+        print "EnqueueCall.__init__()"
+        self._e = e
+
+    def _encode(self,*args,**kwargs):
+        if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
+            p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
+            emccanon.IO_PLUGIN_CALL(int(len(p)),p)
+        else:
+            raise AttributeError,"no such Task method: " + self._name
+
+    def __getattr__(self, name):
+        self._name = name
+        return self._encode
