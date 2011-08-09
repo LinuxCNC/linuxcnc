@@ -222,7 +222,8 @@ void PythonPlugin::initialize(bool reload,  Interp *interp )
 PythonPlugin::PythonPlugin(const char *iniFilename,
 			   const char *section,
 			   struct _inittab *inittab,
-			   Interp *interp)
+			   Interp *interp) :
+    log_level(0)
 {
     IniFile inifile;
     const char *inistring;
@@ -246,7 +247,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     if ((inistring = inifile.Find("PLUGIN_DIR", section)) != NULL)
 	plugin_dir = strstore(inistring);
     else {
-         logPP(1, "no PLUGIN_DIR in inifile:%s:\n", iniFilename);
+         logPP(3, "no PLUGIN_DIR in inifile:%s:\n", iniFilename);
 	 status =  PLUGIN_NO_PLUGIN_DIR;
 	 return;
     }
