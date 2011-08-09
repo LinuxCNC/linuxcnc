@@ -26,10 +26,26 @@ extern EMC_STAT *emcStatus;
 typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
 
 
+// man, is this ugly. I'm taking suggestions to make this better
+
+static int handle_exception(const char *name)
+{
+    std::string msg = handle_pyerror();
+    printf("%s(): %s\n", name, msg.c_str());
+    PyErr_Clear();
+    return -1;
+}
+
 #define EXPAND(method)						\
     int method() {						\
-	if (bp::override f = this->get_override(#method))	\
-	    return f();						\
+	if (bp::override f = this->get_override(#method)) {	\
+	    try {						\
+		return f();					\
+	    }							\
+	    catch( bp::error_already_set ) {			\
+		return handle_exception(#method);		\
+	    }							\
+	}							\
 	else							\
 	    return  Task::method();				\
     }								\
@@ -40,9 +56,14 @@ typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
 
 #define EXPAND1(method,type,name)					\
     int method(type name) {						\
-	if (bp::override f = this->get_override(#method))		\
-	    return f(name);						\
-	else								\
+	if (bp::override f = this->get_override(#method)) {		\
+	    try {							\
+		return f(name);						\
+	    }								\
+	    catch( bp::error_already_set ) {				\
+		return handle_exception(#method);			\
+	    }								\
+	} else								\
 	    return  Task::method(name);					\
     }									\
     int default_ ## method(type name) {					\
@@ -52,9 +73,14 @@ typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
 
 #define EXPAND2(method,type,name,type2,name2)				\
     int method(type name,type2 name2) {					\
-	if (bp::override f = this->get_override(#method))		\
-	    return f(name,name2);					\
-	else								\
+	if (bp::override f = this->get_override(#method)) {		\
+	    try {							\
+		return f(name,name2);					\
+	    }								\
+	    catch( bp::error_already_set ) {				\
+		return handle_exception(#method);			\
+	    }								\
+	} else								\
 	    return  Task::method(name,name2);				\
     }									\
     int default_ ## method(type name,type2 name2) {			\
@@ -89,8 +115,13 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 
     int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 			 double frontangle, double backangle, int orientation) {
-	if (bp::override f = this->get_override("emcToolPrepare"))
-	    return f(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
+	if (bp::override f = this->get_override("emcToolSetOffset"))
+	    try {
+		return f(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
+	    }
+	    catch( bp::error_already_set ) {
+		return handle_exception("emcToolSetOffset");
+	    }
 	else
 	    return  Task::emcToolSetOffset(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
     }
@@ -101,10 +132,16 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 
     int emcIoUpdate(EMC_IO_STAT * stat) {
 	if (bp::override f = this->get_override("emcIoUpdate"))
-	    return f();
+	    try {
+		return f();
+	    }
+	    catch( bp::error_already_set ) {
+		return handle_exception("emcIoUpdate");
+	    }
 	else
 	    return  Task::emcIoUpdate(stat);
     }
+
 };
 
 typedef pp::array_1_t< EMC_AXIS_STAT, EMC_AXIS_MAX> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
