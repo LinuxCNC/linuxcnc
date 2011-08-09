@@ -1,9 +1,6 @@
 // Interpreter internals - Python bindings
 // Michael Haberler 7/2011
 //
-// TODO:
-// std::map , named parameter access
-
 
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
@@ -22,15 +19,11 @@ namespace bp = boost::python;
 #include "interpmodule.hh"
 #include "array1.hh"
 
-
 namespace pp = pyplusplus::containers::static_sized;
-
 #include "interp_array_types.hh"
-
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
-
 
 static  active_g_codes_array active_g_codes_wrapper ( Interp & inst) {
     return active_g_codes_array(inst._setup.active_g_codes);
@@ -87,8 +80,6 @@ static  active_settings_array saved_settings_wrapper ( context &c) {
     return active_settings_array(c.saved_settings);
 }
 
-
-
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_setError(Interp &interp, const char *s)
 {
@@ -115,10 +106,9 @@ static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
     return bp::make_tuple(status, pocket);
 }
 
-
-// currently unused
 // access to named and numbered parameters via a pseudo-dictionary
-struct ParamClass { //  : Interp {
+// either params["paramname"] or params[5400] is valid
+struct ParamClass {
 
     Interp &interp;
 
@@ -208,6 +198,15 @@ static bp::object tool_str( CANON_TOOL_TABLE &t) {
 		       emcpose_2_obj(t.offset) + ")");
 }
 
+static void tool_zero( CANON_TOOL_TABLE &t) {
+	t.toolno = -1;
+        ZERO_EMC_POSE(t.offset);
+	t.diameter = 0.0;
+        t.frontangle = 0.0;
+        t.backangle = 0.0;
+        t.orientation = 0;
+}
+
 static bp::object pmcartesian_str( PmCartesian &c) {
     return  bp::object("PmCartesian(x=%.4f y=%.4f z=%.4f)" %
 		       bp::make_tuple(c.x,c.y,c.z));
@@ -215,6 +214,14 @@ static bp::object pmcartesian_str( PmCartesian &c) {
 
 static const char *get_comment(block &b) { return b.comment; };
 static const char *get_o_name(block &b) { return b.o_name; };
+
+static void  set_x(EmcPose &p, double value) { p.tran.x = value; }
+static void  set_y(EmcPose &p, double value) { p.tran.y = value; }
+static void  set_z(EmcPose &p, double value) { p.tran.z = value; }
+static double get_x(EmcPose &p) { return p.tran.x; }
+static double get_y(EmcPose &p) { return p.tran.y; }
+static double get_z(EmcPose &p) { return p.tran.z; }
+
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
@@ -231,6 +238,43 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
+
+    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
+	.def_readwrite("x",&PmCartesian::x)
+	.def_readwrite("y",&PmCartesian::y)
+	.def_readwrite("z",&PmCartesian::z)
+	.def("__str__", &pmcartesian_str)
+	;
+
+
+    // leave EmcPose copyable/assignable because it's used as a parameter value (eg emcSetToolOffset)
+    class_<EmcPose>("EmcPose","EMC pose",no_init)
+	.def_readwrite("tran",&EmcPose::tran)
+	.add_property("x", &get_x, &set_x)
+	.add_property("y", &get_y, &set_y)
+	.add_property("z", &get_z, &set_z)
+	.def_readwrite("a",&EmcPose::a)
+	.def_readwrite("b",&EmcPose::b)
+	.def_readwrite("c",&EmcPose::c)
+	.def_readwrite("u",&EmcPose::u)
+	.def_readwrite("v",&EmcPose::v)
+	.def_readwrite("w",&EmcPose::w)
+	.def("__str__", &emcpose_str)
+	;
+
+    // leave CANON_TOOL_TABLE copyable/assignable because assignment is used a lot when fiddling
+    // with tooltable entries
+    class_<CANON_TOOL_TABLE >("CANON_TOOL_TABLE","Tool description" ,no_init)
+	.def_readwrite("toolno", &CANON_TOOL_TABLE::toolno)
+	.def_readwrite("offset", &CANON_TOOL_TABLE::offset)
+	.def_readwrite("diameter", &CANON_TOOL_TABLE::diameter)
+	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)
+	.def_readwrite("backangle", &CANON_TOOL_TABLE::backangle)
+	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
+	.def("__str__", &tool_str)
+	.def("zero", &tool_zero)
+	;
+
 
     class_<parameter_value_struct /*,noncopyable */>("ParameterValue") // ,no_init)
 	.def_readwrite("attr",&parameter_value_struct::attr)
@@ -367,34 +411,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 	;
 
-
-    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
-	.def_readwrite("x",&PmCartesian::x)
-	.def_readwrite("y",&PmCartesian::y)
-	.def_readwrite("z",&PmCartesian::z)
-	.def("__str__", &pmcartesian_str)
-	;
-
-    class_<EmcPose, noncopyable>("EmcPose","EMC pose",no_init)
-	.def_readwrite("tran",&EmcPose::tran)
-	.def_readwrite("a",&EmcPose::a)
-	.def_readwrite("b",&EmcPose::b)
-	.def_readwrite("c",&EmcPose::c)
-	.def_readwrite("u",&EmcPose::u)
-	.def_readwrite("v",&EmcPose::v)
-	.def_readwrite("w",&EmcPose::w)
-	.def("__str__", &emcpose_str)
-	;
-
-    class_<CANON_TOOL_TABLE, noncopyable>("ToolTableEntry","Tool description",no_init)
-	.def_readwrite("toolno", &CANON_TOOL_TABLE::toolno)
-	.def_readwrite("offset", &CANON_TOOL_TABLE::offset)
-	.def_readwrite("diameter", &CANON_TOOL_TABLE::diameter)
-	.def_readwrite("frontangle", &CANON_TOOL_TABLE::frontangle)
-	.def_readwrite("backangle", &CANON_TOOL_TABLE::backangle)
-	.def_readwrite("orientation", &CANON_TOOL_TABLE::orientation)
-	.def("__str__", &tool_str)
-	;
 
 
     class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
