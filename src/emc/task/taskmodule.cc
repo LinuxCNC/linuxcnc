@@ -296,6 +296,7 @@ BOOST_PYTHON_MODULE(emctask) {
        .def("emcToolLoad", &Task::emcToolLoad)
        .def("emcToolUnload", &Task::emcToolUnload)
        .def("emcToolSetNumber", &Task::emcToolSetNumber)
+
 	;
 
     class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
@@ -304,7 +305,9 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
 	.def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
 	.def_readonly("use_iocontrol", &Task::use_iocontrol)
+	.def_readonly("ini_filename", &Task::ini_filename)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
+	.def_readonly("tooltable_filename", &Task::tooltable_filename)
 	;
 
     class_ <EMC_TRAJ_STAT, noncopyable>("EMC_TRAJ_STAT",no_init)

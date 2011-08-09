@@ -339,6 +339,8 @@ int emcTaskOnce(const char *filename)
     return 0;
 }
 
+// if using a Python-based HAL module in task, normal HAL_FILE's are run too early.
+// execute those here if specified via POSTTASK_HALFILE in ini ,
 int emcRunHalFiles(const char *filename)
 {
     IniFile inifile;
@@ -431,14 +433,18 @@ struct _inittab builtin_modules[] = {
 
 
 
-Task::Task() {
+Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 
     IniFile inifile;
 
-    if (inifile.Open(EMC_INIFILE)) {
+    ini_filename = EMC_INIFILE;
+
+    if (inifile.Open(ini_filename)) {
 	use_iocontrol = (inifile.Find("EMCIO", "EMCIO") != NULL);
-	use_legacy_tooltable = (inifile.Find("EMCIO", "TOOL_TABLE") != NULL);
 	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
+	const char *t;
+	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
+	    tooltable_filename = strdup(t);
     }
 };
 

@@ -51,8 +51,9 @@ public:
 
     int use_iocontrol;
     int random_toolchanger;
-    int use_legacy_tooltable;
-
+    // int use_legacy_tooltable;
+    const char *ini_filename;
+    const char *tooltable_filename;
 private:
 
     char *ttcomments[CANON_POCKETS_MAX];
