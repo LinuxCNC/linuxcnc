@@ -446,6 +446,12 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
 	    tooltable_filename = strdup(t);
     }
+    if (!use_iocontrol) {
+	for(int i = 0; i < CANON_POCKETS_MAX; i++) {
+	    ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
+	}
+    }
+
 };
 
 
@@ -819,8 +825,7 @@ int Task::saveToolTable(const char *filename,
 	    if (toolTable[pocket].frontangle) fprintf(fp, " I%+f", toolTable[pocket].frontangle);
 	    if (toolTable[pocket].backangle) fprintf(fp, " J%+f", toolTable[pocket].backangle);
 	    if (toolTable[pocket].orientation) fprintf(fp, " Q%d", toolTable[pocket].orientation);
-	    // FIXME   fprintf(fp, " ;%s\n", ttcomments[pocket]);
-	    fprintf(fp, "\n");// , ttcomments[pocket]);
+	    fprintf(fp, " ;%s\n", ttcomments[pocket]);
 	}
     }
 
