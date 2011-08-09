@@ -3,6 +3,7 @@ import os
 
 import emctask
 import emccanon
+import interpreter
 import hal
 
 try:
@@ -49,10 +50,25 @@ class EmcToolTable(object):
 
     def __init__(self,filename,random_toolchanger):
          self.filename = filename
-         self.comments = dict()
          self.random_toolchanger = random_toolchanger
 
-    def assign(self,tooltable,entry):
+    def load(self, tooltable,comments):
+        self.fakepocket = 0
+        fp = open(self.filename)
+        lno = 0
+        for line in fp.readlines():
+            lno += 1
+            if not line.startswith(';'):
+                if line.strip():
+                    entry = self.parseline(lno,line.strip())
+                    if entry:
+                        self.assign(tooltable,entry,comments)
+        fp.close()
+
+    def save(self, tooltable, comments):
+        print "Save tooltable NIY"
+
+    def assign(self,tooltable,entry,comments):
         if self.random_toolchanger:
             pocket = entry['P']
         else:
@@ -75,20 +91,9 @@ class EmcToolTable(object):
             if key == 'U' : tooltable[pocket].offset.u = value
             if key == 'V' : tooltable[pocket].offset.v = value
             if key == 'W' : tooltable[pocket].offset.w = value
-            if key == 'comment' : self.comments[pocket] = value # aaargh
+            if key == 'comment' : comments[pocket] = value # aaargh
 
-    def load(self, tooltable):
-        self.fakepocket = 0
-        fp = open(self.filename)
-        lno = 0
-        for line in fp.readlines():
-            lno += 1
-            if not line.startswith(';'):
-                if line.strip():
-                    entry = self.parseline(lno,line.strip())
-                    if entry:
-                        self.assign(tooltable,entry)
-        fp.close()
+
 
     def parseline(self,lineno,line):
         """
@@ -160,10 +165,10 @@ class CustomTask(emctask.Task,UserFuncs):
         print "Py CustomTask.init"
 
     def emcIoInit(self):
-        print "py:  emcIoInit"
+        print "py:  emcIoInit tt=",self.tooltable_filename
         self.tt = EmcToolTable(self.tooltable_filename, self.random_toolchanger)
-        self.tt.load(self.e.io.tool.toolTable)
-        print "tt file=",self.tt
+        self.comments = dict()
+        self.tt.load(self.e.io.tool.toolTable,self.comments)
 
         # on nonrandom machines, always start by assuming the spindle is empty
         if not self.random_toolchanger:
@@ -210,7 +215,9 @@ class CustomTask(emctask.Task,UserFuncs):
 
     def load_tool(self,pocket):
         if self.random_toolchanger:
-            print "FIXME" # pass # swap tt0,ttpock,comments,savetooltable
+            self.e.io.tool.toolTable[0],self.e.io.tool.toolTable[pocket] = self.e.io.tool.toolTable[pocket],self.e.io.tool.toolTable[0]
+            self.comments[0],self.comments[pocket] = self.comments[pocket],self.comments[0]
+            self.tt.save(self.e.io.tool.toolTable,self.comments)
         else:
             if pocket == 0:
                 self.e.io.tool.toolTable[0].zero()
@@ -275,9 +282,13 @@ class CustomTask(emctask.Task,UserFuncs):
         self.e.io.tool.toolTable[pocket].backangle = backangle
         self.e.io.tool.toolTable[pocket].offset = offset
 
-        #print "result: ",str(self.e.io.tool.toolTable[pocket])
+        if debug(): print "new tool enttry: ",str(self.e.io.tool.toolTable[pocket])
+
         if self.e.io.tool.toolInSpindle  == toolno:
             self.e.io.tool.toolTable[0] = self.e.io.tool.toolTable[pocket]
+
+
+        self.tt.save(self.e.io.tool.toolTable,self.comments)
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
