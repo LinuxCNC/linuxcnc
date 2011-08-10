@@ -1,6 +1,11 @@
+import os
 import re
 
 class EmcToolTable(object):
+    ''' intended as bug-compatible Python replacement for the
+    tooltable io used in iocontrol
+    NB: old file formats not supported.
+    '''
 
     ttype = { 'T' : int, 'P': int, 'Q':int,
               'X' : float, 'Y' : float, 'Z' : float,
@@ -12,28 +17,59 @@ class EmcToolTable(object):
          self.filename = filename
          self.random_toolchanger = random_toolchanger
 
-    def load(self, tooltable,comments):
+    def load(self, tooltable,comments,fms):
         self.fakepocket = 0
         fp = open(self.filename)
         lno = 0
         for line in fp.readlines():
             lno += 1
-            if not line.startswith(';'):
-                if line.strip():
-                    entry = self.parseline(lno,line.strip())
-                    if entry:
-                        self.assign(tooltable,entry,comments)
+            if not line.startswith(';') and line.strip():
+                entry = self.parseline(lno,line.strip())
+                if entry:
+                    self.assign(tooltable,entry,comments,fms)
         fp.close()
 
-    def save(self, tooltable, comments):
-        print "Save tooltable NIY"
+    def save(self, tooltable, comments,fms):
+        os.rename(self.filename,self.filename + '.bak')
+        fp = open(self.filename, 'w')
+        start = 0 if self.random_toolchanger else 1
+        for p in range(start,len(tooltable)):
+            t = tooltable[p]
+            if t.toolno != -1:
+                print >> fp, "T%d P%d" % (t.toolno, p if self.random_toolchanger else fms[p]),
+                if t.diameter:  print >> fp, "D%f" % (t.diameter),
+                if t.offset.x: print >> fp, "X%+f" % (t.offset.x),
+                if t.offset.y: print >> fp, "Y%+f" % (t.offset.y),
+                if t.offset.z: print >> fp, "Z%+f" % (t.offset.z),
+                if t.offset.a: print >> fp, "A%+f" % (t.offset.a),
+                if t.offset.b: print >> fp, "B%+f" % (t.offset.b),
+                if t.offset.c: print >> fp, "C%+f" % (t.offset.c),
+                if t.offset.u: print >> fp, "U%+f" % (t.offset.u),
+                if t.offset.v: print >> fp, "V%+f" % (t.offset.v),
+                if t.offset.w: print >> fp, "W%+f" % (t.offset.w),
+                if t.offset.w: print >> fp, "W%+f" % (t.offset.w),
+                if t.frontangle: print >> fp, "I%+f" % (t.frontangle),
+                if t.backangle: print >> fp, "J%+f" % (t.backangle),
+                if t.orientation: print >> fp, "Q%+d" % (t.orientation),
+                if comments.has_key(p) and comments[p]:
+                    print >> fp, ";%s" % (comments[p])
+                else:
+                    print >> fp
+        fp.close()
 
-    def assign(self,tooltable,entry,comments):
-        if self.random_toolchanger:
-            pocket = entry['P']
-        else:
+    def assign(self,tooltable,entry,comments,fms):
+        pocket = entry['P']
+        if not self.random_toolchanger:
             self.fakepocket += 1
+            if self.fakepocket >= len(tooltable):
+                print "too many tools. skipping tool %d" % (toolno)
+                return
+            if not fms is None:
+                fms[self.fakepocket] = pocket
             pocket = self.fakepocket
+        if pocket < 0 or pocket > len(tooltable):
+            print "max pocket number is %d. skipping tool %d" % (len(tooltable) - 1, toolno)
+            return
 
         tooltable[pocket].zero()
         for (key,value) in entry.items():
@@ -53,25 +89,27 @@ class EmcToolTable(object):
             if key == 'W' : tooltable[pocket].offset.w = value
             if key == 'comment' : comments[pocket] = value # aaargh
 
-
-
     def parseline(self,lineno,line):
         """
         read a tooltable line
         if an entry was parsed successfully, return a  Tool() instance
         """
-        if re.match('\A\s*T\d+',line): # an MG line
+        line.rstrip("\n")
+        if re.match('\A\s*T\d+',line):
             semi = line.find(";")
-            comment = line[semi+1:]
+            if semi != -1:
+                comment = line[semi+1:]
+            else:
+                comment = None
             entry = line.split(';')[0]
-            gd = dict()
+            result = dict()
             for field in entry.split():
                 (name,value)  = re.search('([a-zA-Z])([+-]?\d*\.?\d*)',field).groups()
                 if name:
                     key = name.upper()
-                    gd[key] = EmcToolTable.ttype[key](value)
+                    result[key] = EmcToolTable.ttype[key](value)
                 else:
                     print "%s:%d  bad line: '%s' " % (self.filename, lineno, entry)
-            gd['comment'] = comment
-            return gd
+            result['comment'] = comment
+            return result
         print "%s:%d: unrecognized tool table entry   '%s'" % (self.filename,lineno,line)
