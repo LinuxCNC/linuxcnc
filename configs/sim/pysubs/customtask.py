@@ -52,34 +52,53 @@ class CustomTask(emctask.Task,UserFuncs):
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         self._callback = None
         self._check = None
+        tt = self.e.io.tool.toolTable
+        for p in range(0,len(tt)):
+            tt[p].zero()
         UserFuncs.__init__(self)
         self.enqueue = EnqueueCall(self)
         print "Py CustomTask.init"
 
     def emcIoInit(self):
         print "py:  emcIoInit tt=",self.tooltable_filename
-        self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
-        self.comments = dict()
-        self.tt.load(self.e.io.tool.toolTable,self.comments)
+        try:
+            self.e.io.aux.estop = 1
+            self.e.io.tool.pocketPrepped = -1;
+            self.e.io.tool.toolInSpindle = 0;
+            self.e.io.coolant.mist = 0
+            self.e.io.coolant.flood = 0
+            self.e.io.lube.on = 0
+            self.e.io.lube.level = 1
 
-        # on nonrandom machines, always start by assuming the spindle is empty
-        if not self.random_toolchanger:
-             self.e.io.tool.toolTable[0].zero()
+            self.hal_init_pins()
+            # on nonrandom machines, always start by assuming the spindle is empty
+            if not self.random_toolchanger:
+                 self.e.io.tool.toolTable[0].zero()
 
-        self.e.io.aux.estop = 1
-        self.e.io.tool.pocketPrepped = -1;
-        self.e.io.tool.toolInSpindle = 0;
-        self.e.io.coolant.mist = 0
-        self.e.io.coolant.flood = 0
-        self.e.io.lube.on = 0
-        self.e.io.lube.level = 1
+            self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
+            self.comments = dict()
+            self.fms = dict()
+            self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
+            self.reload_tool_number(self.e.io.tool.toolInSpindle)
 
-        self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
+        except Exception,e:
+            self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
+        else:
+            self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcToolLoadToolTable(self,file):
         print "py:  emcToolLoadToolTable file =",file
-        self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
+        # FIXME raise in tt.load, handle exception here
+        self.comments = dict()
+        self.fms = dict()
+        try:
+            self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
+        except Exception,e:
+            self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
+        else:
+            self.reload_tool_number(self.e.io.tool.toolInSpindle)
+            self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def prepare_complete(self):
@@ -105,11 +124,18 @@ class CustomTask(emctask.Task,UserFuncs):
         self.e.io.status =  self.wait_for_named_pin(1,"iocontrol.0.tool-prepared",self.prepare_complete)
         return 0
 
+    def reload_tool_number(self, toolno):
+        if self.random_toolchanger: return
+        t = self.e.io.tool.toolTable
+        for p in range(1,len(t)):
+            if toolno == t.toolno:
+                self.load_tool(p)
+
     def load_tool(self,pocket):
         if self.random_toolchanger:
             self.e.io.tool.toolTable[0],self.e.io.tool.toolTable[pocket] = self.e.io.tool.toolTable[pocket],self.e.io.tool.toolTable[0]
             self.comments[0],self.comments[pocket] = self.comments[pocket],self.comments[0]
-            self.tt.save(self.e.io.tool.toolTable,self.comments)
+            self.tt.save(self.e.io.tool.toolTable,self.comments,self.fms)
         else:
             if pocket == 0:
                 self.e.io.tool.toolTable[0].zero()
@@ -179,8 +205,7 @@ class CustomTask(emctask.Task,UserFuncs):
         if self.e.io.tool.toolInSpindle  == toolno:
             self.e.io.tool.toolTable[0] = self.e.io.tool.toolTable[pocket]
 
-
-        self.tt.save(self.e.io.tool.toolTable,self.comments)
+        self.tt.save(self.e.io.tool.toolTable,self.comments,self.fms)
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
