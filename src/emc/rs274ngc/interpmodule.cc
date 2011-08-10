@@ -144,6 +144,11 @@ struct ParamClass {
 	} else
 	    if (IS_INT(sub)) {
 		int index = bp::extract < int > (sub);
+		if ((index < 0) || (index > RS274NGC_MAX_PARAMETERS -1)) {
+		    std::stringstream sstr;
+		    sstr << "params subscript out of range : " << index << " - must be between 0 and " << RS274NGC_MAX_PARAMETERS;
+		    throw std::runtime_error(sstr.str());
+		}
 		interp._setup.parameters[index] = dvalue;
 		return dvalue;
 	    } else
