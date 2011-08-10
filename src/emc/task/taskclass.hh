@@ -26,32 +26,17 @@ public:
     virtual int emcIoSetDebug(int debug);
     virtual int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 				 double frontangle, double backangle, int orientation);
-    virtual int emcIoUpdate(EMC_IO_STAT * stat);
-
-
     virtual int emcToolPrepare(int p, int tool);
     virtual int emcToolLoad();
     virtual int emcToolLoadToolTable(const char *file);
     virtual int emcToolUnload();
     virtual int emcToolSetNumber(int number);
+    virtual int emcIoUpdate(EMC_IO_STAT * stat);
 
     virtual int emcIoPluginCall(int len, const char *msg);
 
-
-    // carried over from ioControl.cc
-    virtual void load_tool(int pocket);
-    virtual int saveToolTable(const char *filename,
-			      CANON_TOOL_TABLE toolTable[]);
-
-    // virtual int loadTool(IniFile *toolInifile);
-    // virtual int saveToolTable(const char *filename,
-    // 			      CANON_TOOL_TABLE toolTable[]);
-    // virtual void reload_tool_number(int toolno);
-    // virtual int DummyiniTool(const char *filename);
-
     int use_iocontrol;
     int random_toolchanger;
-    // int use_legacy_tooltable;
     const char *ini_filename;
     const char *tooltable_filename;
 private:
