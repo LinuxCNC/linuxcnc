@@ -24,7 +24,7 @@ class CustomTask(emctask.Task,UserFuncs):
     def __init__(self): #, toolchange_pins = False):
         emctask.Task.__init__(self)
 
-        self.inifile = emc.ini(self.ini_filename)
+        self.inifile = emc.ini(emctask.ini_filename())
         yn = self.inifile.find("PYTHON", "TASK_TOOLCHANGE_PINS")
         self.tcpins = int(yn) if yn else 0
         yn = self.inifile.find("PYTHON", "TASK_START_CHANGE_PINS")

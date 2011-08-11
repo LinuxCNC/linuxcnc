@@ -9,6 +9,7 @@
 #include "interp_internal.hh"
 #include "taskclass.hh"
 #include "initool.hh"
+#include "emcglb.h"		// EMC_INIFILE
 
 namespace bp = boost::python;
 
@@ -211,6 +212,8 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(operator_text_overloads, operator_text, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_display_overloads, operator_display, 1,2)
 
 
+static const char *ini_filename() { return EMC_INIFILE; }
+
 BOOST_PYTHON_MODULE(emctask) {
     using namespace boost::python;
     using namespace boost;
@@ -219,6 +222,7 @@ BOOST_PYTHON_MODULE(emctask) {
         "Task introspection\n"
         ;
 
+    def("ini_filename", ini_filename);
     def("iniTool", iniTool);
 
     def("operator_error",
@@ -305,7 +309,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
 	.def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
 	.def_readonly("use_iocontrol", &Task::use_iocontrol)
-	.def_readonly("ini_filename", &Task::ini_filename)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
 	.def_readonly("tooltable_filename", &Task::tooltable_filename)
 	;
