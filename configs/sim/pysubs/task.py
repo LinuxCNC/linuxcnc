@@ -6,7 +6,6 @@ import interpreter
 try:
     import emctask
     import customtask
-    print "-- emctask & customtask imported"
 except ImportError:
     pass
 
@@ -15,8 +14,14 @@ try:
 except ImportError:
     import pickle
 
+def starttask():
+    global pytask
+    import emc
+    ini = emc.ini(emctask.ini_filename())
+    t = ini.find("PYTHON", "PYTHON_TASK")
+    if int(t) if t else 0:
+        pytask = customtask.CustomTask()
 
 # instantiate Python Io Task()
 if 'emctask' in sys.builtin_module_names:
-    pytask = customtask.CustomTask()
-
+    starttask()
