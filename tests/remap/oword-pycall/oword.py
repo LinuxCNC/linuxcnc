@@ -1,15 +1,5 @@
 from interpreter import TOLERANCE_EQUAL
 
-# need to deal with float inaccuracies
-def eq(a,b):
-    return abs(a -b) < TOLERANCE_EQUAL
-
-# return tuple (bool<is_near_int>,<nearest_int>)
-def is_near_int(value):
-    result = int(value + 0.5)
-    return (abs(result - value) < TOLERANCE_EQUAL,result)
-
-
 # Demo Python O-word subroutine - call as:
 # o<square> [5]
 # (debug, #<_value>)
