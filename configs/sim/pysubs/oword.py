@@ -43,8 +43,7 @@ def qdemo(args):
         task.pytask.enqueue.demo(args)
         if debug(): print "enqueueing demo()",args
     except Exception,e:
-        # this happens if called  with the UI context - no task there
-        if debug(): print "qdemo:",e,"pid=",os.getpid()
+        # this happens if called  with the UI context - no task there: harmless
         pass
 
 # access emcStatus
@@ -79,6 +78,8 @@ def set_named_pin(args):
 def  wait_for_named_pin(args):
     ''' same trick to wait for a given named pin to show a certain value:
     usage example:  o<wait_for_named_pin> call [1]  (component.boolpin)
+
+    NB: this will NOT stop readhead, and this is not a method to retrieve a named pin's value
     '''
     try:
         if (len(args) != 1):
