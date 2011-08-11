@@ -82,7 +82,7 @@ class CustomTask(emctask.Task,UserFuncs):
         print "Py CustomTask.init"
 
     def emcIoInit(self):
-        print "py:  emcIoInit tt=",self.tooltable_filename
+        if debug(): print "py:  emcIoInit tt=",self.tooltable_filename
         try:
             self.e.io.aux.estop = 1
             self.e.io.tool.pocketPrepped = -1;
@@ -110,7 +110,7 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def emcToolLoadToolTable(self,file):
-        print "py:  emcToolLoadToolTable file =",file
+        if debug(): print "py:  emcToolLoadToolTable file =",file
         self.comments = dict()
         self.fms = dict()
         try:
@@ -123,19 +123,19 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def prepare_complete(self):
-        print "prepare complete"
+        if debug(): print "prepare complete"
         self.e.io.tool.pocketPrepped = self.hal["tool-prep-pocket"]
         self.hal["tool-prepare"] = 0
 
     def emcToolPrepare(self,p,tool):
-        print "py:   emcToolPrepare p =",p,"tool =",tool
+        if debug(): print "py:   emcToolPrepare p =",p,"tool =",tool
         if self.random_toolchanger and (p == 0):
-            print "it doesn't make sense to prep the spindle pocket"
+            if debug(): print "it doesn't make sense to prep the spindle pocket"
             return 0
 
         if self.tcpins:
             if self.fault_pins and self.hal["toolchanger-faulted"]:
-                print "prepare: toolchanger faulted (reason=%d), next M6 will %s" % (self.hal["toolchanger-reason"], "set fault code and reason"  if self.hal["toolchanger-reason"] > 0 else "abort program")
+                if debug(): print "prepare: toolchanger faulted (reason=%d), next M6 will %s" % (self.hal["toolchanger-reason"], "set fault code and reason"  if self.hal["toolchanger-reason"] > 0 else "abort program")
             self.hal["tool-prep-pocket"] = p
             if not self.random_toolchanger and (p == 0):
                 self.hal["tool-prep-number"] = 0
@@ -170,7 +170,7 @@ class CustomTask(emctask.Task,UserFuncs):
                 self.e.io.tool.toolTable[0] = self.e.io.tool.toolTable[pocket]
 
     def change_complete(self):
-        print "change complete"
+        if debug(): print "change complete"
         if not self.random_toolchanger and (self.e.io.tool.pocketPrepped == 0):
             self.e.io.tool.toolInSpindle = 0
         else:
@@ -183,7 +183,7 @@ class CustomTask(emctask.Task,UserFuncs):
         self.hal["tool-change"] = 0
 
     def emcToolLoad(self):
-        print "py:  emcToolLoad"
+        if debug(): print "py:  emcToolLoad"
 
         if self.random_toolchanger and (self.e.io.tool.pocketPrepped == 0):
             self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
@@ -212,7 +212,7 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def emcToolUnload(self):
-        print "py:  emcToolUnload"
+        if debug(): print "py:  emcToolUnload"
         self.e.io.tool.toolInSpindle = 0
         # this isnt in ioControlv1, but I think it should be.
         self.hal["tool-number"] = self.e.io.tool.toolInSpindle
@@ -220,7 +220,7 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def emcToolSetNumber(self,number):
-        print "py:   emcToolSetNumber number =",number
+        if debug(): print "py:   emcToolSetNumber number =",number
         self.e.io.tool.toolInSpindle = number
         if self.tcpins:
             self.hal["tool-number"] = self.e.io.tool.toolInSpindle
@@ -228,7 +228,7 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def emcToolSetOffset(self,pocket,toolno,offset,diameter,frontangle,backangle,orientation):
-        print "py:  emcToolSetOffset", pocket,toolno,str(offset),diameter,frontangle,backangle,orientation
+        if debug(): print "py:  emcToolSetOffset", pocket,toolno,str(offset),diameter,frontangle,backangle,orientation
 
         self.e.io.tool.toolTable[pocket].toolno = toolno
         self.e.io.tool.toolTable[pocket].orientation = orientation
@@ -248,7 +248,7 @@ class CustomTask(emctask.Task,UserFuncs):
 
 
     def emcIoPluginCall(self, len, msg):
-        print "py: emcIoPluginCall" # ,msg
+        if debug(): print "py: emcIoPluginCall" # ,msg
         call = pickle.loads(msg)
         func = getattr(self, call[0], None)
         if func:
@@ -259,17 +259,17 @@ class CustomTask(emctask.Task,UserFuncs):
 
 
     def emcIoHalt(self):
-        print "py:  emcIoHalt"
+        if debug(): print "py:  emcIoHalt"
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emc_abort_acked(self):
-        print "emc_abort_acked"
+        if debug(): print "emc_abort_acked"
         self.hal["emc-abort"] = 0
 
     def emcIoAbort(self,reason):
-        print "py:  emcIoAbort reason=",reason,"state=",self.e.task.state
-        #print "tc fault=",self.e.io.fault, "tc reason=",self.e.io.reason
+        if debug(): print "py:  emcIoAbort reason=",reason,"state=",self.e.task.state
+        #if debug(): print "tc fault=",self.e.io.fault, "tc reason=",self.e.io.reason
 
         self.e.io.coolant.mist = 0
         self.e.io.coolant.flood = 0
@@ -288,17 +288,17 @@ class CustomTask(emctask.Task,UserFuncs):
             return 0
 
         if self._callback:
-            print "emcIoAbort: cancelling callback to ",self._callback
+            if debug(): print "emcIoAbort: cancelling callback to ",self._callback
             self._callback = None
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def start_change_acked(self):
-        print "start_change_acked"
+        if debug(): print "start_change_acked"
         self.hal["start-change"] = 0
 
     def emcToolStartChange(self):
-        print "py:  emcToolStartChange", "wait for iocontrol.0.start-change-ack" if self.startchange_pins else "noop"
+        if debug(): print "py:  emcToolStartChange", "wait for iocontrol.0.start-change-ack" if self.startchange_pins else "noop"
         if self.startchange_pins:
                 self.hal["start-change"] = 1
                 self.e.io.status =  self.wait_for_named_pin(1,"iocontrol.0.start-change-ack",self.start_change_acked)
@@ -307,67 +307,67 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def emcAuxEstopOn(self):
-        print "py:  emcAuxEstopOn taskstate=",self.e.task.state
+        if debug(): print "py:  emcAuxEstopOn taskstate=",self.e.task.state
         self.hal["user-enable-out"] = 0
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcAuxEstopOff(self):
-        print "py:  emcAuxEstopOff"
+        if debug(): print "py:  emcAuxEstopOff"
         self.hal["user-enable-out"] = 1
         self.hal["user-request-enable"] = 1
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcCoolantMistOn(self):
-        print "py:  emcCoolantMistOn"
+        if debug(): print "py:  emcCoolantMistOn"
         self.hal["coolant-mist"] = 1
         self.e.io.coolant.mist = 1
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcCoolantMistOff(self):
-        print "py:  emcCoolantMistOff"
+        if debug(): print "py:  emcCoolantMistOff"
         self.hal["coolant-mist"] = 0
         self.e.io.coolant.mist = 0
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcCoolantFloodOn(self):
-        print "py:  emcCoolantFloodOn"
+        if debug(): print "py:  emcCoolantFloodOn"
         self.hal["coolant-flood"] = 1
         self.e.io.coolant.flood = 1
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcCoolantFloodOff(self):
-        print "py:  emcCoolantFloodOff"
+        if debug(): print "py:  emcCoolantFloodOff"
         self.hal["coolant-flood"] = 0
         self.e.io.coolant.flood = 0
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcLubeOn(self):
-        print "py:  emcLubeOn"
+        if debug(): print "py:  emcLubeOn"
         self.hal["lube"] = 1
         self.e.io.lube.on = 1
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcLubeOff(self):
-        print "py:  emcLubeOff"
+        if debug(): print "py:  emcLubeOff"
         self.hal["lube"] = 0
         self.e.io.lube.on = 0
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcIoSetDebug(self,debug):
-        print "py:   emcIoSetDebug debug =",debug
+        if debug(): print "py:   emcIoSetDebug debug =",debug
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcIoUpdate(self):
-        #        print "py:  emcIoUpdate"
+        #        if debug(): print "py:  emcIoUpdate"
         self.hal["user-request-enable"] = 0
         self.e.io.aux.estop = not self.hal["emc-enable-in"]
         if self.fault_pins:
@@ -376,7 +376,6 @@ class CustomTask(emctask.Task,UserFuncs):
                 self.hal["toolchanger-fault-ack"] = 1
                 self.hal["toolchanger-faulted"] = 1 # fault indicator latch
                 self.e.io.fault = 1
-                #self.e.io.status  =  emctask.RCS_STATUS.RCS_ERROR
                 return 0
             else:
                 self.hal["toolchanger-fault-ack"] = 0
@@ -389,7 +388,7 @@ class CustomTask(emctask.Task,UserFuncs):
 
     def wait_for_named_pin_callback(self):
         if self._comp[self._pin] == self._value:
-            print "pin %s now %d" % (self._pin,  self._value)
+            if debug(): print "pin %s now %d" % (self._pin,  self._value)
             if self._callback: self._callback()
             self._check = None
             self._callback = None
@@ -400,11 +399,11 @@ class CustomTask(emctask.Task,UserFuncs):
         (component, pin) = name.rsplit('.',1)
         comp = self.components[component]
         if comp[pin] == value:
-            print "pin: %s already at %d" % (name,value)
+            if debug(): print "pin: %s already at %d" % (name,value)
             if callback: callback()
             return emctask.RCS_STATUS.RCS_DONE
         else:
-            print "waiting for %s to become %d" % (name,value)
+            if debug(): print "waiting for %s to become %d" % (name,value)
         # else set up callback
         self._comp = comp
         self._pin = pin
@@ -442,7 +441,7 @@ class CustomTask(emctask.Task,UserFuncs):
 # trap call, pickle a tuple of name and arguments and enqueue with canon IO_PLUGIN_CALL
 class EnqueueCall(object):
     def __init__(self,e):
-        print "EnqueueCall.__init__()"
+        if debug(): print "EnqueueCall.__init__()"
         self._e = e
 
     def _encode(self,*args,**kwargs):
