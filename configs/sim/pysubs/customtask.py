@@ -21,7 +21,9 @@ def debug():
     return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
 
 class CustomTask(emctask.Task,UserFuncs):
-    def __init__(self): #, toolchange_pins = False):
+
+    def __init__(self):
+        if debug(): print "py:  CustomTask()"
         emctask.Task.__init__(self)
 
         self.inifile = emc.ini(emctask.ini_filename())
@@ -71,7 +73,6 @@ class CustomTask(emctask.Task,UserFuncs):
         self.hal_init_pins()
         self.e = emctask.emcstat
         self.e.io.aux.estop = 1
-        self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         self._callback = None
         self._check = None
         tt = self.e.io.tool.toolTable
@@ -79,7 +80,7 @@ class CustomTask(emctask.Task,UserFuncs):
             tt[p].zero()
         UserFuncs.__init__(self)
         self.enqueue = EnqueueCall(self)
-        print "Py CustomTask.init"
+        self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
 
     def emcIoInit(self):
         if debug(): print "py:  emcIoInit tt=",self.tooltable_filename
