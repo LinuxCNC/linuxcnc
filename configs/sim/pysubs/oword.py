@@ -34,30 +34,40 @@ def square(args):
     return args[0]*args[0]
 
 
+# a function taking a variable number of arguments
+# o<multiply> [5] [7]
+# (debug, #<_value>)
+# o<multiply> [5] [7] [9] [16]
+# (debug, #<_value>)
+import operator
+def multiply(*args):
+    return reduce(operator.mul, *args)
+
+
 #----------------  queue calls for task-time execution ------------
 # see userfuncs.py for the actual function definitions
 
 # trivial demo: wiggle a user-defined HAL pin a few times
-def qdemo(args):
+def qdemo(*args,**kwargs):
     try:
-        task.pytask.enqueue.demo(args)
-        if debug(): print "enqueueing demo()",args
+        task.pytask.enqueue.demo(*args,**kwargs)
+        if debug(): print "enqueueing demo()",args,kwargs
     except Exception,e:
         # this happens if called  with the UI context - no task there: harmless
         pass
 
 # access emcStatus
 # this is queued so it is done in-sequence at task time
-def show_emcstat(args):
+def show_emcstat(*args,**kwargs):
     try:
-        task.pytask.enqueue.show_emcstat(args)
+        task.pytask.enqueue.show_emcstat(*args,**kwargs)
         if debug(): print "enqueueing show_emcstat()",args
     except Exception,e:
         if debug(): print "show_emcstat:",e,"pid=",os.getpid()
         pass
 
 
-def set_named_pin(args):
+def set_named_pin(*args):
     ''' an uh, creative way to pass a string argument: use a trailing comment
     usage example:  o<set_named_pin> call [2.345]  (component.pinname)
     '''
@@ -75,7 +85,7 @@ def set_named_pin(args):
         pass
 
 
-def  wait_for_named_pin(args):
+def  wait_for_named_pin(*args):
     ''' same trick to wait for a given named pin to show a certain value:
     usage example:  o<wait_for_named_pin> call [1]  (component.boolpin)
 
