@@ -227,6 +227,15 @@ static double get_x(EmcPose &p) { return p.tran.x; }
 static double get_y(EmcPose &p) { return p.tran.y; }
 static double get_z(EmcPose &p) { return p.tran.z; }
 
+// those are exposed here because they look useful for regression testing
+static bool equal(double a, double b) { return fabs(a - b) < TOLERANCE_EQUAL; }
+// see interp_convert.cc
+static bool is_near_int(double value) {
+    int i = (int)(value + .5);
+    return fabs(i - value) < .0001;
+}
+static int nearest_int(double value) { return (int)(value + .5); }
+
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
@@ -243,6 +252,11 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
+
+    def("equal", &equal);  // EMC's perception of equality of doubles
+    def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
+    def("nearest_int", &nearest_int);  //
+
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
 	.def_readwrite("x",&PmCartesian::x)
