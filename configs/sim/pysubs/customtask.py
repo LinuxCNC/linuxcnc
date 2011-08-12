@@ -156,7 +156,7 @@ class CustomTask(emctask.Task,UserFuncs):
         if self.random_toolchanger: return
         t = self.e.io.tool.toolTable
         for p in range(1,len(t)):
-            if toolno == t.toolno:
+            if toolno == t[p].toolno:
                 self.load_tool(p)
 
     def load_tool(self,pocket):
