@@ -53,11 +53,8 @@ extern    PythonPlugin *python_plugin;
         }                                                      \
     } while(0)
 
-
-
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
-
 
 // decode a Python exception into a string.
 std::string handle_pyerror()
@@ -80,6 +77,7 @@ std::string handle_pyerror()
     formatted = str("\n").join(formatted_list);
     return extract<std::string>(formatted);
 }
+
 int Interp::py_reload()
 {
     if (PYUSABLE) {
@@ -89,7 +87,6 @@ int Interp::py_reload()
     }
     return INTERP_OK;
 }
-
 
 // determine wether [module.]funcname is callable
 bool Interp::is_pycallable(setup_pointer settings,

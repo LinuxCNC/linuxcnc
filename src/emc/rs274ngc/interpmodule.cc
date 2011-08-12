@@ -255,7 +255,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 
     def("equal", &equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
-    def("nearest_int", &nearest_int);  //
+    def("nearest_int", &nearest_int);
 
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)

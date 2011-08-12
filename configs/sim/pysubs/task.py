@@ -22,6 +22,5 @@ def starttask():
     if int(t) if t else 0:
         pytask = customtask.CustomTask()
 
-# instantiate Python Io Task()
 if 'emctask' in sys.builtin_module_names:
     starttask()
