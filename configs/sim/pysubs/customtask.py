@@ -5,6 +5,7 @@ import emccanon
 import interpreter
 import hal
 import tooltable
+import sqltooltable
 import emc  # ini only
 
 try:
@@ -98,13 +99,16 @@ class CustomTask(emctask.Task,UserFuncs):
             if not self.random_toolchanger:
                  self.e.io.tool.toolTable[0].zero()
 
-            self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
+            #self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
+            self.tt = sqltooltable.SqlToolTable("tooltable.sqlite", self.random_toolchanger)
             self.comments = dict()
             self.fms = dict()
             self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
+            #self.tt.save(self.e.io.tool.toolTable,self.comments,self.fms)
             self.reload_tool_number(self.e.io.tool.toolInSpindle)
 
         except Exception,e:
+            print "emcIoInit:",e
             self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
         else:
             self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
