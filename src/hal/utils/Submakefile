@@ -51,7 +51,7 @@ USERSRCS += $(HALSCOPESRCS)
 
 ../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
+	@$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS) -lm
 TARGETS += ../bin/halscope
 
 HALGTKSRCS := \

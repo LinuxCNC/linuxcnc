@@ -2,7 +2,7 @@ Source: emc2
 Section: misc
 Priority: extra
 Maintainer: Jeff Epler <jepler@unpythonic.net>
-Build-Depends: debhelper (>> 4.0.0),
+Build-Depends: debhelper (>= 6),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget, libtk-img,
     libxaw7-dev, libncurses-dev, libreadline-dev,

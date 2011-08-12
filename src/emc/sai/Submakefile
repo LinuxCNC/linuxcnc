@@ -6,4 +6,4 @@ USERSRCS += $(SAISRCS)
 $(call TOOBJSDEPS,$(SAISRCS)) : 
 ../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(CC) $(LDFLAGS) -o $@ $^ $(ULFLAGS)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(ULFLAGS)
