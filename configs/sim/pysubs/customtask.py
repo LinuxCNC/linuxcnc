@@ -1,4 +1,7 @@
 import os
+import sys
+import signal
+import traceback
 
 import emctask
 import emccanon
@@ -7,7 +10,6 @@ import hal
 import tooltable
 import sqltooltable
 import emc  # ini only
-import sys, traceback
 
 try:
     import cPickle as pickle
@@ -22,28 +24,21 @@ except ImportError:
 def debug():
     return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
 
-def myexcepthook(exctype, value, traceback):
-    if exctype == KeyboardInterrupt:
-        print "Handler code goes here"
-    else:
-        _old_excepthook(exctype, value, traceback)
-
-import signal, time
 
 def handler(signum, frame):
-    print 'I just clicked on CTRL-C '
+    ''' controlled shut down
+    after this, emcIoHalt() will be called, too
+    '''
+    print "Python shutdown handler"
+    # this handler overrides the handler in emctaskmain, so call that as well
+    emctask.emctask_quit(signum)
 
 
 class CustomTask(emctask.Task,UserFuncs):
 
     def __init__(self):
-        ## global _old_excepthook
-        ## _old_excepthook = sys.excepthook
-        ## sys.excepthook = myexcepthook
         signal.signal(signal.SIGINT, handler)
         signal.signal(signal.SIGTERM, handler)
-
-
         try:
             if debug(): print "py:  CustomTask()"
             emctask.Task.__init__(self)
