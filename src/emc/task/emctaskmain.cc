@@ -152,7 +152,7 @@ static void emctask_quit(int sig)
 {
     // set main's done flag
     done = 1;
-
+    printf("-------------main done\n");
     // restore signal handler
     signal(sig, emctask_quit);
 }

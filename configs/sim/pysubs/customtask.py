@@ -7,6 +7,7 @@ import hal
 import tooltable
 import sqltooltable
 import emc  # ini only
+import sys, traceback
 
 try:
     import cPickle as pickle
@@ -21,67 +22,90 @@ except ImportError:
 def debug():
     return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
 
+def myexcepthook(exctype, value, traceback):
+    if exctype == KeyboardInterrupt:
+        print "Handler code goes here"
+    else:
+        _old_excepthook(exctype, value, traceback)
+
+import signal, time
+
+def handler(signum, frame):
+    print 'I just clicked on CTRL-C '
+
+
 class CustomTask(emctask.Task,UserFuncs):
 
     def __init__(self):
-        if debug(): print "py:  CustomTask()"
-        emctask.Task.__init__(self)
+        ## global _old_excepthook
+        ## _old_excepthook = sys.excepthook
+        ## sys.excepthook = myexcepthook
+        signal.signal(signal.SIGINT, handler)
+        signal.signal(signal.SIGTERM, handler)
 
-        self.inifile = emc.ini(emctask.ini_filename())
-        yn = self.inifile.find("PYTHON", "TASK_TOOLCHANGE_PINS")
-        self.tcpins = int(yn) if yn else 0
-        yn = self.inifile.find("PYTHON", "TASK_START_CHANGE_PINS")
-        self.startchange_pins = self.tcpins and (int(yn) if yn else 0)
-        yn = self.inifile.find("PYTHON", "TASK_TOOLCHANGE_FAULT_PINS")
-        self.fault_pins = self.tcpins and (int(yn) if yn else 0)
 
-        h = hal.component("iocontrol.0")
-        h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
-        h.newpin("coolant-mist", hal.HAL_BIT, hal.HAL_OUT)
+        try:
+            if debug(): print "py:  CustomTask()"
+            emctask.Task.__init__(self)
+            self.inifile = emc.ini(emctask.ini_filename())
+            #self.random_toolchanger = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
+            self.tcpins = int(self.inifile.find("PYTHON", "TASK_TOOLCHANGE_PINS") or 0)
+            self.startchange_pins = int(self.inifile.find("PYTHON", "TASK_START_CHANGE_PINS") or 0)
+            self.fault_pins = int(self.inifile.find("PYTHON", "TASK_TOOLCHANGE_FAULT_PINS") or 0)
 
-        h.newpin("lube-level", hal.HAL_BIT, hal.HAL_OUT)
-        h.newpin("lube", hal.HAL_BIT, hal.HAL_OUT)
+            h = hal.component("iocontrol.0")
+            h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
+            h.newpin("coolant-mist", hal.HAL_BIT, hal.HAL_OUT)
 
-        h.newpin("emc-enable-in", hal.HAL_BIT, hal.HAL_IN)
-        h.newpin("user-enable-out", hal.HAL_BIT, hal.HAL_OUT)
-        h.newpin("user-request-enable", hal.HAL_BIT, hal.HAL_OUT)
+            h.newpin("lube-level", hal.HAL_BIT, hal.HAL_OUT)
+            h.newpin("lube", hal.HAL_BIT, hal.HAL_OUT)
 
-        if self.tcpins:
-            h.newpin("tool-change", hal.HAL_BIT, hal.HAL_OUT)
-            h.newpin("tool-changed", hal.HAL_BIT, hal.HAL_IN)
-            h.newpin("tool-number", hal.HAL_S32, hal.HAL_OUT)
-            h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_OUT)
-            h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_OUT)
-            h.newpin("tool-prepare", hal.HAL_BIT, hal.HAL_OUT)
-            h.newpin("tool-prepared", hal.HAL_BIT, hal.HAL_IN)
-        if self.startchange_pins:
-            h.newpin("start-change", hal.HAL_BIT, hal.HAL_OUT)
-            h.newpin("start-change-ack", hal.HAL_BIT, hal.HAL_IN)
-        if self.fault_pins:
-            h.newpin("emc-abort", hal.HAL_BIT, hal.HAL_OUT)
-            h.newpin("emc-abort-ack", hal.HAL_BIT, hal.HAL_IN)
-            h.newpin("emc-reason", hal.HAL_S32, hal.HAL_OUT)
-            h.newpin("toolchanger-fault", hal.HAL_BIT, hal.HAL_IN)
-            h.newpin("toolchanger-fault-ack", hal.HAL_BIT, hal.HAL_OUT)
-            h.newpin("toolchanger-reason", hal.HAL_S32, hal.HAL_IN)
-            h.newpin("toolchanger-faulted", hal.HAL_BIT, hal.HAL_OUT)
-            h.newpin("toolchanger-clear-fault", hal.HAL_BIT, hal.HAL_IN)
+            h.newpin("emc-enable-in", hal.HAL_BIT, hal.HAL_IN)
+            h.newpin("user-enable-out", hal.HAL_BIT, hal.HAL_OUT)
+            h.newpin("user-request-enable", hal.HAL_BIT, hal.HAL_OUT)
 
-        h.ready()
-        self.components = dict()
-        self.components["iocontrol.0"] = h
-        self.hal = h
-        self.hal_init_pins()
-        self.e = emctask.emcstat
-        self.e.io.aux.estop = 1
-        self._callback = None
-        self._check = None
-        tt = self.e.io.tool.toolTable
-        for p in range(0,len(tt)):
-            tt[p].zero()
-        UserFuncs.__init__(self)
-        self.enqueue = EnqueueCall(self)
-        self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
+            if self.tcpins:
+                h.newpin("tool-change", hal.HAL_BIT, hal.HAL_OUT)
+                h.newpin("tool-changed", hal.HAL_BIT, hal.HAL_IN)
+                h.newpin("tool-number", hal.HAL_S32, hal.HAL_OUT)
+                h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_OUT)
+                h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_OUT)
+                h.newpin("tool-prepare", hal.HAL_BIT, hal.HAL_OUT)
+                h.newpin("tool-prepared", hal.HAL_BIT, hal.HAL_IN)
+            if self.startchange_pins:
+                h.newpin("start-change", hal.HAL_BIT, hal.HAL_OUT)
+                h.newpin("start-change-ack", hal.HAL_BIT, hal.HAL_IN)
+            if self.fault_pins:
+                h.newpin("emc-abort", hal.HAL_BIT, hal.HAL_OUT)
+                h.newpin("emc-abort-ack", hal.HAL_BIT, hal.HAL_IN)
+                h.newpin("emc-reason", hal.HAL_S32, hal.HAL_OUT)
+                h.newpin("toolchanger-fault", hal.HAL_BIT, hal.HAL_IN)
+                h.newpin("toolchanger-fault-ack", hal.HAL_BIT, hal.HAL_OUT)
+                h.newpin("toolchanger-reason", hal.HAL_S32, hal.HAL_IN)
+                h.newpin("toolchanger-faulted", hal.HAL_BIT, hal.HAL_OUT)
+                h.newpin("toolchanger-clear-fault", hal.HAL_BIT, hal.HAL_IN)
+
+            h.ready()
+            self.components = dict()
+            self.components["iocontrol.0"] = h
+            self.hal = h
+            self.hal_init_pins()
+            self.e = emctask.emcstat
+            self.e.io.aux.estop = 1
+            self._callback = None
+            self._check = None
+            tt = self.e.io.tool.toolTable
+            for p in range(0,len(tt)):
+                tt[p].zero()
+            UserFuncs.__init__(self)
+            self.enqueue = EnqueueCall(self)
+        except Exception,e:
+            print "__init__"
+            print_exc_plus()
+            self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
+        else:
+            self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
+
 
     def emcIoInit(self):
         if debug(): print "py:  emcIoInit tt=",self.tooltable_filename
@@ -105,22 +129,26 @@ class CustomTask(emctask.Task,UserFuncs):
             self.fms = dict()
             self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
             #self.tt.save(self.e.io.tool.toolTable,self.comments,self.fms)
+            # self.e.io.tool.toolInSpindle = 2 # works
             self.reload_tool_number(self.e.io.tool.toolInSpindle)
 
         except Exception,e:
-            print "emcIoInit:",e
+            print "emcIoInit",e
+            print_exc_plus()
             self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
         else:
             self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
     def emcToolLoadToolTable(self,file):
+        # triggered by UI if tooltable was edited
         if debug(): print "py:  emcToolLoadToolTable file =",file
         self.comments = dict()
         self.fms = dict()
         try:
             self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
         except Exception,e:
+            print_exc_plus()
             self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
         else:
             self.reload_tool_number(self.e.io.tool.toolInSpindle)
@@ -194,7 +222,10 @@ class CustomTask(emctask.Task,UserFuncs):
             self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
             return 0
 
-        if not self.random_toolchanger and (self.e.io.tool.pocketPrepped > 0) and self.e.io.tool.toolInSpindle == self.e.io.tool.toolTable[self.e.io.tool.pocketPrepped].toolno:
+        if not self.random_toolchanger and (self.e.io.tool.pocketPrepped > 0) and (
+            self.e.io.tool.toolInSpindle ==
+            self.e.io.tool.toolTable[self.e.io.tool.pocketPrepped].toolno):
+
             self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
             return 0
 
@@ -372,24 +403,36 @@ class CustomTask(emctask.Task,UserFuncs):
         return 0
 
     def emcIoUpdate(self):
-        #        if debug(): print "py:  emcIoUpdate"
-        self.hal["user-request-enable"] = 0
-        self.e.io.aux.estop = not self.hal["emc-enable-in"]
-        if self.fault_pins:
-            if self.hal["toolchanger-fault"]:
-                self.e.io.reason = self.hal["toolchanger-reason"]
-                self.hal["toolchanger-fault-ack"] = 1
-                self.hal["toolchanger-faulted"] = 1 # fault indicator latch
-                self.e.io.fault = 1
+        try:
+            #if debug(): print "py:  emcIoUpdate"
+            self.hal["user-request-enable"] = 0
+            self.e.io.aux.estop = not self.hal["emc-enable-in"]
+            if self.fault_pins:
+                if self.hal["toolchanger-fault"]:
+                    self.e.io.reason = self.hal["toolchanger-reason"]
+                    self.hal["toolchanger-fault-ack"] = 1
+                    self.hal["toolchanger-faulted"] = 1 # fault indicator latch
+                    self.e.io.fault = 1
+                    return 0
+                else:
+                    self.hal["toolchanger-fault-ack"] = 0
+                if self.hal["toolchanger-clear-fault"]:
+                    self.hal["toolchanger-faulted"] = 0 # reset fault indicator latch
+                    self.e.io.reason = 0
+            if self._check:
+                self.e.io.status  = self._check()
                 return 0
-            else:
-                self.hal["toolchanger-fault-ack"] = 0
-            if self.hal["toolchanger-clear-fault"]:
-                self.hal["toolchanger-faulted"] = 0 # reset fault indicator latch
-                self.e.io.reason = 0
-        if self._check:
-            self.e.io.status  = self._check()
-        return 0
+        except KeyboardInterrupt:  # shutting down
+            print "emcIoUpdate----KeyboardInterrupt:"
+
+            return -1
+            pass
+        except Exception, e:
+            print "emcIoUpdate----:"
+            print_exc_plus()
+            return -1
+        else:
+            return 0
 
     def wait_for_named_pin_callback(self):
         if self._comp[self._pin] == self._value:
@@ -459,3 +502,38 @@ class EnqueueCall(object):
     def __getattr__(self, name):
         self._name = name
         return self._encode
+
+## {{{ http://code.activestate.com/recipes/52215/ (r1)
+
+def print_exc_plus():
+    """
+    Print the usual traceback information, followed by a listing of all the
+    local variables in each frame.
+    """
+    tb = sys.exc_info()[2]
+    while 1:
+        if not tb.tb_next:
+            break
+        tb = tb.tb_next
+    stack = []
+    f = tb.tb_frame
+    while f:
+        stack.append(f)
+        f = f.f_back
+    stack.reverse()
+    traceback.print_exc()
+    print "Locals by frame, innermost last"
+    for frame in stack:
+        print
+        print "Frame %s in %s at line %s" % (frame.f_code.co_name,
+                                             frame.f_code.co_filename,
+                                             frame.f_lineno)
+        for key, value in frame.f_locals.items():
+            print "\t%20s = " % key,
+            #We have to be careful not to cause a new error in our error
+            #printer! Calling str() on an unknown object could cause an
+            #error we don't want.
+            try:
+                print value
+            except:
+                print "<ERROR WHILE PRINTING VALUE>"
