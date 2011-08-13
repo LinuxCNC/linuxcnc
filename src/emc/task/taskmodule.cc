@@ -23,6 +23,7 @@ namespace pp = pyplusplus::containers::static_sized;
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
 
+extern void emctask_quit(int sig);
 extern EMC_STAT *emcStatus;
 typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
 
@@ -222,6 +223,7 @@ BOOST_PYTHON_MODULE(emctask) {
         "Task introspection\n"
         ;
 
+    def("emctask_quit", emctask_quit);
     def("ini_filename", ini_filename);
     def("iniTool", iniTool);
 

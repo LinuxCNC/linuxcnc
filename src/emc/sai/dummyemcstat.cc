@@ -22,3 +22,5 @@ int emcAbortCleanup(int reason, const char *message)
     printf("on_abort: [%d] %s\n", reason,message);
     return 0;
 }
+
+extern void emctask_quit(int sig) {};
