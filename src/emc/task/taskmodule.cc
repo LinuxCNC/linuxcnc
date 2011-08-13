@@ -111,6 +111,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 
     EXPAND2(emcToolPrepare,int, p, int, tool)
     EXPAND(emcToolLoad)
+    EXPAND1(emcToolLoadToolTable, const char *, file)
     EXPAND(emcToolUnload)
     EXPAND1(emcToolSetNumber,int,number)
     EXPAND2(emcIoPluginCall,int, len, const char *, msg)
