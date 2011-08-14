@@ -1,0 +1,35 @@
+.TH rtapi_div_u64 "3rtapi" "2006-10-12" "EMC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_div_u64 \- unsigned division of a 64-bit number by a 32-bit number
+
+.SH SYNTAX
+.HP
+__u64 rtapi_div_u64_rem(__u64 \fIdividend\fR, __u32 \fIdivisor\fR, __u32 *\fIremainder\fR)
+.HP
+__u64 rtapi_div_u64(__u64 \fIdividend\fR, __u32 \fIdivisor\fR)
+
+.SH  ARGUMENTS
+.IP \fIdividend\fR
+The value to be divided
+.IP \fIdivisor\fR
+The value to divide by
+.IP \fIremainder\fR
+Pointer to the location to store the remainder.  This may not be a NULL
+pointer.  If the remainder is not desired, call \fBrtapi_div_u64\fR.
+
+.SH DESCRIPTION
+Perform integer division (and optionally compute the remainder) with a 64-bit dividend.
+
+.SH RETURN VALUE
+The result of integer division of \fIdividend / divisor\fR.
+
+.SH NOTES
+If the result of the division does not fit in a \fB__u32\fR, the result is undefined.
+
+This function exists because in kernel space, the use of the division operator
+on a 64-bit type can lead to an undefined symbol when the module is loaded.
+
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code and from within realtime tasks.
+Available in userspace components.

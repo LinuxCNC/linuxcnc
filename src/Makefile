@@ -333,6 +333,7 @@ HEADERS := \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
+    rtapi/rtapi_math64.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
