@@ -1,0 +1,141 @@
+component pcl720 """Driver for the Advantech PCL 720 card.""";
+description """This driver supports the Advantech PCL720 ISA card. It might
+work with the PCI version too, but this is untested. 
+ It creates hal pins corresonding to the digital inputs and outputs, but does
+not support the the counters/timers.""";
+
+pin in bit pin-##-out[32] "Output pins";
+pin out bit pin-##-in[32] "Input pins";
+pin out bit pin-##-in-not[32] "Inverted version of each input pin";
+param rw unsigned reset-time = 5000 """The time in nanoseconds after the write function
+has run to reset the pins for which the "reset" parameter is set.""";
+param rw bit pin-##-reset[32] """specifies if the pin should be reset by the "reset"
+function""";
+param rw bit pin-##-out-invert[32] "Set to true to invert the sense of the output pin";
+
+pin out  unsigned wait_clocks;
+
+function read nofp "Reads each of the digital inputs and updates the HAL pins";
+function write nofp "Writes the values of the output HAL pins to the digital IO";
+function reset nofp """Waits for the length of time specified by the
+\fBbreset-time\fP parameter and resets any pins for which the \fBreset\fP
+parameter has been set. This can be used to allow step generators to make a step
+every thread rather than every other thread. This function must be added to the
+thread after the "write" function.
+ Do not use this function if you do not wish to reset any pins.
+ the stepgen \fBstep-space\fP parameter should be set to 0 to make use of this
+function.""";
+
+variable unsigned base_addr;
+
+variable unsigned out; // write data
+variable unsigned inv; // Invert masks
+variable unsigned res; // Reset mask
+
+variable u64 write_time;
+
+option count_function yes;
+option extra_setup yes;
+
+modparam dummy ioaddr """Base address of card. Separate each card base address
+with a comma but no space to load more than one card. eg
+loadrt pcl720 ioaddr=0x200,0x200. use 0xNNN to define addresses in Hex""";
+
+license "GPL";
+author "Andy Pugh";
+;;
+
+#include <asm/io.h>
+#define MAX_CHAN 8
+
+static int ioaddr[MAX_CHAN] = {-1, -1, -1, -1, -1, -1, -1, -1};
+RTAPI_MP_ARRAY_INT(ioaddr, MAX_CHAN, "Base addresses")
+
+FUNCTION(read){
+    unsigned R;
+    int i;
+    R =   inb(base_addr)
+        + (inb(base_addr + 1) << 8)
+        + (inb(base_addr + 2) << 16)
+        + (inb(base_addr + 3) << 24);
+    
+    for (i = 0;i <= 31;i++){
+        pin_in(i) = R & (1 << i);
+        pin_in_not(i) = ~pin_in(i);
+    }
+}
+
+FUNCTION(write){
+    int i;
+    unsigned char b;
+    out = 0;
+    inv = 0;
+    for (i = 0;i <= 31 ;i++){
+        out |= pin_out(i) << i;
+        inv |= pin_out_invert(i) << i;
+    }
+    
+    out ^= inv;
+    
+    b = (out & 0xff);
+    outb(b, base_addr);
+    b = (out & 0xff00) >> 8;
+    outb(b, base_addr + 1);
+    b = (out & 0xff0000) >> 16;
+    outb(b, base_addr + 2);
+    b = (out & 0xff000000) >> 24;
+    outb(b, base_addr + 3);
+    
+    write_time = rtapi_get_time();
+}
+
+FUNCTION(reset){
+    long long deadline;
+    int i;
+    unsigned tmp;
+    unsigned char b;
+    
+    res= 0;
+    for (i = 0;i <= 31  ;i++){
+        res |= pin_reset(i) << i;
+    }
+    
+    if (res == 0) {return;} // no pins with reset set
+    
+    tmp = (out ^ inv) & (~res);
+    if (tmp == out) {return;} // nothing to reset
+    
+    if(reset_time > period/4) reset_time = period/4;
+    
+    //compensate for any time elapsed since the write
+    rtapi_delay(reset_time - (rtapi_get_time() - write_time));
+
+    b = (tmp & 0xff);
+    outb(b, base_addr);
+    b = (tmp & 0xff00) >> 8;
+    outb(b, base_addr + 1);
+    b = (tmp & 0xff0000) >> 16;
+    outb(b, base_addr + 2);
+    b = (tmp & 0xff000000) >> 24;
+    outb(b, base_addr + 3);
+    
+    out = tmp;
+}
+
+
+EXTRA_SETUP(){
+
+    if (ioaddr[extra_arg] > 0) {
+        base_addr = ioaddr[extra_arg];
+        rtapi_print("Loading Advantech pcl720 driver at base addr %X\n", base_addr);
+        return 0;
+    }
+    return -EINVAL;
+}
+    
+    
+int get_count(void){
+    int i;
+    for (i=0; ioaddr[i] > 0 && i < MAX_CHAN; i++){}
+    return i;
+}
