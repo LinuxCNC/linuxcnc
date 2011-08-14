@@ -37,7 +37,13 @@ INSERT INTO "tools" VALUES (9,24,1.1, 0.0,0.0,0.0,"tool9",0.0,0.0,4.9,0.0,0.0,0.
 
 
 
+CREATE TABLE "state" (
+    toolno	INTEGER,
+    pocket	INTEGER
 
+);
+
+INSERT INTO "state" VALUES (6,9);
 
 
 
