@@ -201,7 +201,7 @@ static char *fnumber(char *buf, char *end, double num)
 * @fmt: The format string to use
 * @args: Arguments for the format string
 */
-static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args)
+int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args)
 {
     int len;
     unsigned long long num;
