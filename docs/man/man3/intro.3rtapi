@@ -25,6 +25,12 @@ It should be used instead of \fR<math.h>\fR in rtapi real-time components.
 The file \fRrtapi_string.h\fR defines string-related functions.
 It should be used instead of \fR<string.h>\fR in rtapi real-time components.
 
+.SS rtapi_byteorder.h
+This file defines the preprocessor macros RTAPI_BIG_ENDIAN,
+RTAPI_LITTLE_ENDIAN, and RTAPI_FLOAT_BIG_ENDIAN as true or false depending on
+the characteristics of the target system.  It should be used instead of
+\fB<endian.h>\fR (userspace) or \fB<linux/byteorder.h>\fR (kernel space).
+
 .SH REALTIME CONSIDERATIONS
 .SS Userspace code
 Certain functions are not available in userspace code.  This includes functions
