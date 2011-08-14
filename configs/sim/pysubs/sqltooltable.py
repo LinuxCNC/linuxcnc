@@ -1,33 +1,28 @@
 import os
 import re
 import pyodbc
-
+import emc # for ini file access only
 import sys, traceback
 
 class SqlToolTable(object):
     '''
-
+    beginnings of ODBC tooltable access
     '''
 
-    ttype = { 'T' : int, 'P': int, 'Q':int,
-              'X' : float, 'Y' : float, 'Z' : float,
-              'A' : float, 'B' : float, 'C' : float,
-              'U' : float, 'V' : float, 'W' : float,
-              'I' : float, 'J' : float, 'D' : float }
-
-    def __init__(self,filename,random_toolchanger):
+    def __init__(self,inifile,random_toolchanger):
         print "SQL tt init"
-
-        self.filename = filename
+        self.inifile = inifile
         self.random_toolchanger = random_toolchanger
-        self.conn = pyodbc.connect('Driver=SQLite3;Database=' + self.filename)
+        self.connectstring = self.inifile.find("TOOL", "ODBC_CONNECT")
+        self.conn = pyodbc.connect(self.connectstring)
         self.cursor = self.conn.cursor()
 
     def load(self, tooltable,comments,fms):
         try:
             self.cursor.execute("select * from tools;")
 
-            cols = [t[0] for t in self.cursor.description]
+            #cols = [t[0] for t in self.cursor.description]
+
             for row in self.cursor.fetchall():
                 pocket = row.pocket
                 t = tooltable[pocket]
@@ -74,3 +69,32 @@ class SqlToolTable(object):
             traceback.print_exc(file=sys.stdout)
             print "saving tooltable to %s failed" % (self.filename)
 
+
+    def save_state(self,e):
+        print "SQL save_state",
+        try:
+
+            self.cursor.execute("delete from state;")
+            self.cursor.execute("insert into state values(?,?);",e.io.tool.toolInSpindle,e.io.tool.pocketPrepped)
+            self.cursor.execute("commit;")
+            print "done"
+
+        except pyodbc.Error, msg:
+            print "save_state() failed:"
+            traceback.print_exc(file=sys.stdout)
+        pass
+
+    def restore_state(self,e):
+        print "SQL save_state",
+        try:
+            self.cursor.execute("select tool_in_spindle,pocket_prepped from state;")
+            row = self.cursor.fetchone()
+            e.io.tool.pocketPrepped = row.pocket_prepped
+            e.io.tool.toolInSpindle = row.tool_in_spindle
+            print "restored tool=%d pocket=%d" % (row.tool_in_spindle,row.pocket_prepped)
+
+        except pyodbc.Error, msg:
+            print "restore_state() failed:"
+            traceback.print_exc(file=sys.stdout)
+        pass
+        pass

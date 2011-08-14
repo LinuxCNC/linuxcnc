@@ -29,7 +29,7 @@ def handler(signum, frame):
     ''' controlled shut down
     after this, emcIoHalt() will be called, too
     '''
-    print "Python shutdown handler"
+    print "Python Task shutdown handler"
     # this handler overrides the handler in emctaskmain, so call that as well
     emctask.emctask_quit(signum)
 
@@ -43,10 +43,9 @@ class CustomTask(emctask.Task,UserFuncs):
             if debug(): print "py:  CustomTask()"
             emctask.Task.__init__(self)
             self.inifile = emc.ini(emctask.ini_filename())
-            #self.random_toolchanger = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
-            self.tcpins = int(self.inifile.find("PYTHON", "TASK_TOOLCHANGE_PINS") or 0)
-            self.startchange_pins = int(self.inifile.find("PYTHON", "TASK_START_CHANGE_PINS") or 0)
-            self.fault_pins = int(self.inifile.find("PYTHON", "TASK_TOOLCHANGE_FAULT_PINS") or 0)
+            self.tcpins = int(self.inifile.find("TOOL", "TASK_TOOLCHANGE_PINS") or 0)
+            self.startchange_pins = int(self.inifile.find("TOOL", "TASK_START_CHANGE_PINS") or 0)
+            self.fault_pins = int(self.inifile.find("TOOL", "TASK_TOOLCHANGE_FAULT_PINS") or 0)
 
             h = hal.component("iocontrol.0")
             h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
@@ -119,11 +118,11 @@ class CustomTask(emctask.Task,UserFuncs):
                  self.e.io.tool.toolTable[0].zero()
 
             #self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
-            self.tt = sqltooltable.SqlToolTable("tooltable.sqlite", self.random_toolchanger)
+            self.tt = sqltooltable.SqlToolTable(self.inifile, self.random_toolchanger)
             self.comments = dict()
             self.fms = dict()
             self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
-            #self.tt.save(self.e.io.tool.toolTable,self.comments,self.fms)
+            self.tt.restore_state(self.e)
             # self.e.io.tool.toolInSpindle = 2 # works
             self.reload_tool_number(self.e.io.tool.toolInSpindle)
 
@@ -137,7 +136,7 @@ class CustomTask(emctask.Task,UserFuncs):
 
     def emcToolLoadToolTable(self,file):
         # triggered by UI if tooltable was edited
-        if debug(): print "py:  emcToolLoadToolTable file =",file
+        if debug(): print "py:  emcToolLoadToolTable file = '%s'" % (file)
         self.comments = dict()
         self.fms = dict()
         try:
@@ -291,6 +290,7 @@ class CustomTask(emctask.Task,UserFuncs):
 
     def emcIoHalt(self):
         if debug(): print "py:  emcIoHalt"
+        self.tt.save_state(self.e)
         self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
