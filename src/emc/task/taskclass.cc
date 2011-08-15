@@ -43,7 +43,7 @@
 
 extern PythonPlugin *python_plugin;  // exported by python_plugin.cc
 #define PYUSABLE (((python_plugin) != NULL) && (python_plugin->usable()))
-static int emcPythonReturnValue(const char *funcname, bp::object &retval);
+extern int return_int(const char *funcname, bp::object &retval);
 Task *task_methods;
 
 // IO INTERFACE
@@ -373,25 +373,24 @@ int emcRunHalFiles(const char *filename)
 // extract it, and return that
 // else complain.
 // Also fail with an operator error if we caused an exception.
-static int emcPythonReturnValue(const char *funcname, bp::object &retval)
+int return_int(const char *funcname, PyObject *retval)
 {
     int status = python_plugin->plugin_status();
 
     if (status == PLUGIN_EXCEPTION) {
-	emcOperatorError(status,"emcPythonReturnValue(%s): %s",
+	emcOperatorError(status,"return_int(%s): %s",
 			 funcname, python_plugin->last_exception().c_str());
 	return -1;
     }
-    if ((retval.ptr() != Py_None) &&
-	(PyInt_Check(retval.ptr()))) {
-	return  bp::extract<int>(retval);
+    if ((retval != Py_None) &&
+	(PyInt_Check(retval))) {
+	return PyInt_AS_LONG(retval);
     } else {
-	PyObject *res_str = PyObject_Str(retval.ptr());
-	emcOperatorError(0, "emcPythonReturnValue(%s): expected int return value, got '%s' (%s)",
+	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
-			 PyString_AsString(res_str),
-			 retval.ptr()->ob_type->tp_name);
-	Py_XDECREF(res_str);
+			 PyString_AsString(retval),
+			 retval->ob_type->tp_name);
+	Py_XDECREF(retval);
 	return -1;
     }
 }
@@ -404,7 +403,7 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 	bp::dict kwarg;
 
 	python_plugin->call(TASK_MODULE, PLUGIN_CALL, arg, kwarg, retval);
-	return emcPythonReturnValue(PLUGIN_CALL, retval);
+	return return_int(PLUGIN_CALL, retval.ptr());
 
     } else {
 	emcOperatorError(0, "emcPluginCall: Python plugin not initialized");

@@ -26,6 +26,7 @@ namespace pp = pyplusplus::containers::static_sized;
 extern void emctask_quit(int sig);
 extern EMC_STAT *emcStatus;
 typedef boost::shared_ptr< EMC_STAT > emcstatus_ptr;
+extern int return_int(const char *funcname, PyObject *retval);
 
 
 // man, is this ugly. I'm taking suggestions to make this better
@@ -136,7 +137,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     int emcIoUpdate(EMC_IO_STAT * stat) {
 	if (bp::override f = this->get_override("emcIoUpdate"))
 	    try {
-		return f();
+		return f(); /// bug in Boost.Python, fixed in 1.44 I guess: return_int("foo",f());
 	    }
 	    catch( bp::error_already_set ) {
 		return handle_exception("emcIoUpdate");
