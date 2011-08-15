@@ -426,9 +426,7 @@ class CustomTask(emctask.Task,UserFuncs):
                 return 0
         except KeyboardInterrupt:  # shutting down
             print "emcIoUpdate----KeyboardInterrupt:"
-
             return -1
-            pass
         except Exception, e:
             print "emcIoUpdate----:"
             print_exc_plus()
