@@ -71,9 +71,9 @@ class SqlToolTable(object):
             for p in range(start,len(tooltable)):
                 t = tooltable[p]
                 if t.toolno != -1:
-                    cursor.execute("insert into tools values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
+                    cursor.execute("insert into tools values(?,?,?,?,?,?,'?',?,?,?,?,?,?,?,?,?);",
                                         (t.toolno, p, t.diameter, t.backangle,t.frontangle,t.orientation,
-                                         'xxx',t.offset.x,t.offset.y,t.offset.z,t.offset.a,t.offset.b,
+                                         comment[p],t.offset.x,t.offset.y,t.offset.z,t.offset.a,t.offset.b,
                                          t.offset.c,t.offset.u,t.offset.v,t.offset.w))
         except pyodbc.Error, msg:
             print "saving tooltable failed:"
