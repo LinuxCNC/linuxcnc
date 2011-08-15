@@ -16,16 +16,23 @@ class SqlToolTable(object):
         self.persist =  int(self.inifile.find("TOOL", "SAVE_TOOLSTATE") or 0)
 
         self.connectstring = self.inifile.find("TOOL", "ODBC_CONNECT")
-        self.conn = pyodbc.connect(self.connectstring)
-        self.cursor = self.conn.cursor()
+        conn = pyodbc.connect(self.connectstring)
+        cursor = conn.cursor()
+        print "tables in database %s:" % (self.connectstring)
+        for row in cursor.tables():
+            print row.table_name
+        cursor.close()
+        conn.close()
 
     def load(self, tooltable,comments,fms):
         try:
-            self.cursor.execute("select * from tools;")
+            conn = pyodbc.connect(self.connectstring)
+            conn.autocommit = True
 
-            #cols = [t[0] for t in self.cursor.description]
+            cursor = conn.cursor()
+            cursor.execute("select * from tools;")
 
-            for row in self.cursor.fetchall():
+            for row in cursor.fetchall():
                 pocket = row.pocket
                 t = tooltable[pocket]
                 t.toolno = row.toolno
@@ -50,50 +57,73 @@ class SqlToolTable(object):
             for p in range(start,len(tooltable)):
                 t = tooltable[p]
                 if t.toolno != -1: print str(t)
+        finally:
+            cursor.close()
+            conn.close()
 
     def save(self, tooltable, comments,fms):
         try:
-            self.cursor.execute("delete from tools;")
+            conn = pyodbc.connect(self.connectstring)
+            conn.autocommit = True
+            cursor = conn.cursor()
+            cursor.execute("delete from tools;")
             start = 0 if self.random_toolchanger else 1
             for p in range(start,len(tooltable)):
                 t = tooltable[p]
                 if t.toolno != -1:
-                    self.cursor.execute("insert into tools values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
+                    cursor.execute("insert into tools values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",
                                         (t.toolno, p, t.diameter, t.backangle,t.frontangle,t.orientation,
                                          'xxx',t.offset.x,t.offset.y,t.offset.z,t.offset.a,t.offset.b,
                                          t.offset.c,t.offset.u,t.offset.v,t.offset.w))
-            self.cursor.execute("commit;")
-
         except pyodbc.Error, msg:
             print "saving tooltable failed:"
             traceback.print_exc(file=sys.stdout)
-
+        finally:
+            cursor.close()
+            conn.close()
 
     def save_state(self,e):
         if not self.persist:
             return
         print "SQL save_state",
         try:
-            self.cursor.execute("delete from state;")
-            self.cursor.execute("insert into state values(?,?);",e.io.tool.toolInSpindle,e.io.tool.pocketPrepped)
-            self.cursor.execute("commit;")
+            conn = pyodbc.connect(self.connectstring)
+            conn.autocommit = True
+            cursor = conn.cursor()
+            cursor.execute("delete from state;")
+            cursor.execute("insert into state (tool_in_spindle,pocket_prepped) values(?,?)", e.io.tool.toolInSpindle,e.io.tool.pocketPrepped)
             print "done"
 
         except pyodbc.Error, msg:
             print "save_state() failed:"
             traceback.print_exc(file=sys.stdout)
-        pass
+        finally:
+            cursor.close()
+            conn.close()
+
 
     def restore_state(self,e):
         if not self.persist:
             return
+
         try:
-            row = self.cursor.execute("select tool_in_spindle,pocket_prepped from state;").fetchone()
-            e.io.tool.pocketPrepped = row.pocket_prepped
-            e.io.tool.toolInSpindle = row.tool_in_spindle
-            print "restored tool=%d pocket=%d" % (row.tool_in_spindle,row.pocket_prepped)
+            conn = pyodbc.connect(self.connectstring)
+            conn.autocommit = True
+            cursor = conn.cursor()
+            if not cursor.tables(table='state').fetchone():
+                print "trying to restore, but no 'state' table found"
+                return
+            row = cursor.execute("select tool_in_spindle,pocket_prepped from state;").fetchone()
+            if row:
+                e.io.tool.pocketPrepped = row.pocket_prepped
+                e.io.tool.toolInSpindle = row.tool_in_spindle
+                print "restored tool=%d pocket=%d" % (row.tool_in_spindle,row.pocket_prepped)
+            else:
+                print "no saved state record found"
 
         except pyodbc.Error, msg:
             print "restore_state() failed:"
             traceback.print_exc(file=sys.stdout)
-        pass
+        finally:
+            cursor.close()
+            conn.close()
