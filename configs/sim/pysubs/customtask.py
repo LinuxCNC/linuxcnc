@@ -7,8 +7,7 @@ import emctask
 import emccanon
 import interpreter
 import hal
-import tooltable
-import sqltooltable
+
 import emc  # ini only
 
 try:
@@ -46,6 +45,7 @@ class CustomTask(emctask.Task,UserFuncs):
             self.tcpins = int(self.inifile.find("TOOL", "TASK_TOOLCHANGE_PINS") or 0)
             self.startchange_pins = int(self.inifile.find("TOOL", "TASK_START_CHANGE_PINS") or 0)
             self.fault_pins = int(self.inifile.find("TOOL", "TASK_TOOLCHANGE_FAULT_PINS") or 0)
+            self.tt_type = self.inifile.find("TOOL", "DBTYPE") or 'legacy'
 
             h = hal.component("iocontrol.0")
             h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
@@ -117,8 +117,14 @@ class CustomTask(emctask.Task,UserFuncs):
             if not self.random_toolchanger:
                  self.e.io.tool.toolTable[0].zero()
 
-            #self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
-            self.tt = sqltooltable.SqlToolTable(self.inifile, self.random_toolchanger)
+            if self.tt_type == 'odbc':
+                import sqltooltable
+                self.tt = sqltooltable.SqlToolTable(self.inifile, self.random_toolchanger)
+
+            if self.tt_type == 'legacy':
+                import tooltable
+                self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
+
             self.comments = dict()
             self.fms = dict()
             self.tt.load(self.e.io.tool.toolTable,self.comments,self.fms)
@@ -132,7 +138,8 @@ class CustomTask(emctask.Task,UserFuncs):
             self.e.io.status  = emctask.RCS_STATUS.RCS_ERROR
         else:
             self.e.io.status  = emctask.RCS_STATUS.RCS_DONE
-        return 0
+        finally:
+            return 0
 
     def emcToolLoadToolTable(self,file):
         # triggered by UI if tooltable was edited

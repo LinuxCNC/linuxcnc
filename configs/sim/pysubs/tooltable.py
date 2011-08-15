@@ -113,3 +113,10 @@ class EmcToolTable(object):
             result['comment'] = comment
             return result
         print "%s:%d: unrecognized tool table entry   '%s'" % (self.filename,lineno,line)
+
+
+    def restore_state(self,e):
+        pass
+
+    def save_state(self,e):
+        pass
