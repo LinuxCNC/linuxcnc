@@ -617,16 +617,17 @@ and vice-versa.
 The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL
 pins. Instead the driver exports a set of functions that can be used by a sub
 -driver for the attached hardware. Typically these would be written in the "comp"
-pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man 
+pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man
 comp for further details. See man mesa_7i65 and the source of mesa_7i65.comp for
-details of a typical sub-driver. 
-See man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame, 
-man hm2_allocate_bspi_tram, man hm2_bspi_set_read_funtion and 
-man hm2_bspi_set_write_function for the exported functions. 
+details of a typical sub-driver.
+See man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame,
+man hm2_allocate_bspi_tram, man hm2_bspi_set_read_funtion and
+man hm2_bspi_set_write_function for the exported functions.
 
-The names of the available channels are printed to standard output during the 
-driver loading process and take the form 
+The names of the available channels are printed to standard output during the
+driver loading process and take the form
 hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
+
 
 .SH General Purpose I/O
 
