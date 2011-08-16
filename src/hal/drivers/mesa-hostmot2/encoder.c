@@ -196,6 +196,10 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         }
     } else if (hm2->md[md_index].gtag == HM2_GTAG_MUXED_ENCODER) {
         if (hm2_md_is_consistent(hm2, md_index, 2, 5, 4, 0x0003)) {
+            HM2_PRINT("WARNING: this firmware has Muxed Encoder v2!\n");
+            HM2_PRINT("WARNING: velocity computation will be incorrect!\n");
+            HM2_PRINT("WARNING: upgrade your firmware!\n");
+        } else if (hm2_md_is_consistent_or_complain(hm2, md_index, 3, 5, 4, 0x0003)) {
             // ok
         } else {
             HM2_ERR("inconsistent Muxed Encoder Module Descriptor!\n");
