@@ -1015,6 +1015,8 @@ class Data:
             self[temp+"encoder_wormdriven"]= 1
             self[temp+"motor_leadscrew"]= 5
             self[temp+"encoder_leadscrew"]= 5
+            self[temp+"motor_leadscrew_tpi"]= 5
+            self[temp+"encoder_leadscrew_tpi"]= 5
             self[temp+"encodercounts"]= 4000
             self[temp+"usecomp"]= 0
             self[temp+"compfilename"]= temp+"compensation"
@@ -5719,6 +5721,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         w["motor_pulleydriven"].set_value(d[axis +"motor_pulleydriven"])
         w["encoder_pulleydriver"].set_value(d[axis +"encoder_pulleydriver"])
         w["encoder_pulleydriven"].set_value(d[axis +"encoder_pulleydriven"])
+        w["motor_leadscrew_tpi"].set_value(d[axis +"motor_leadscrew_tpi"])
+        w["encoder_leadscrew_tpi"].set_value(d[axis +"encoder_leadscrew_tpi"])
         w["motor_leadscrew"].set_value(d[axis +"motor_leadscrew"])
         w["encoder_leadscrew"].set_value(d[axis +"encoder_leadscrew"])
         w["encoderline"].set_value((d[axis+"encodercounts"]/4))
@@ -5768,11 +5772,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         else:
             unit = "inch"
             pitchunit =_("Leadscrew TPI")
-
-        w["labelmotor_pitch"].set_text(pitchunit)
-        w["labelencoder_pitch"].set_text(pitchunit)
-        w["motor_screwunits"].set_text(_("("+unit+" / rev)"))
-        w["encoder_screwunits"].set_text(_("("+unit+" / rev)"))
+        if axis == "s" or axis =="a":
+            w["labelmotor_pitch"].set_text(pitchunit)
+            w["labelencoder_pitch"].set_text(pitchunit)
+            w["motor_screwunits"].set_text(_("("+unit+" / rev)"))
+            w["encoder_screwunits"].set_text(_("("+unit+" / rev)"))
         w[axis + "velunits"].set_text(_(unit+" / min"))
         w[axis + "accunits"].set_text(_(unit+" / sec²"))
         w["accdistunits"].set_text(unit)
@@ -5790,8 +5794,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         w[axis + "maxfollowunits"].set_text(unit)
 
         if axis == 's':
-            w["motor_screwunits"].set_text((""))
-            w["encoder_screwunits"].set_text((""))        
+            #w["motor_screwunits"].set_text((""))
+            #w["encoder_screwunits"].set_text((""))        
             w.sencodercounts.set_sensitive(encoder)
             w[axis + "invertencoder"].set_sensitive(encoder)
             w["sservo_info"].set_sensitive(pwmgen)
@@ -6008,6 +6012,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         d[axis + "motor_pulleydriven"] = int(get_value(w["motor_pulleydriven"]))
         d[axis + "encoder_pulleydriver"] = int(get_value(w["encoder_pulleydriver"]))
         d[axis + "encoder_pulleydriven"] = int(get_value(w["encoder_pulleydriven"]))
+        d[axis + "motor_leadscrew_tpi"] = int(get_value(w["motor_leadscrew_tpi"]))
+        d[axis + "encoder_leadscrew_tpi"] = int(get_value(w["encoder_leadscrew_tpi"]))
         d[axis + "motor_leadscrew"] = int(get_value(w["motor_leadscrew"]))
         d[axis + "encoder_leadscrew"] = int(get_value(w["encoder_leadscrew"]))
         d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
@@ -6063,11 +6069,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         stepdrive = self.data.findsignal(axis+"-stepgen-step")
         encoder = self.data.findsignal(axis+"-encoder-a")
         # temparally add signals
-        templist1 = ["encoderline","encoder_leadscrew","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven","encoder_pulleydriver",
-                "steprev","motor_leadscrew","microstep","motor_wormdriven","motor_wormdriver","motor_pulleydriven","motor_pulleydriver"]
+        templist1 = ["encoderline","encoder_leadscrew","encoder_leadscrew_tpi","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven",
+"encoder_pulleydriver","steprev","motor_leadscrew","motor_leadscrew_tpi","microstep","motor_wormdriven","motor_wormdriver",
+"motor_pulleydriven","motor_pulleydriver"]
         for i in templist1:
             self.data[i] = self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
-        templist2 = [ "cbencoder_pitch","cbencoder_worm","cbencoder_pulley","cbmotor_pitch","cbmicrosteps","cbmotor_worm","cbmotor_pulley"]
+        templist2 = [ "cbencoder_pitch","cbencoder_tpi","cbencoder_worm","cbencoder_pulley","cbmotor_pitch","cbmotor_tpi","cbmicrosteps",
+"cbmotor_worm","cbmotor_pulley"]
         for i in templist2:
             self.data[i] = self.widgets[i].connect("toggled", self.update_scale_calculation,axis)
 
@@ -6123,13 +6131,25 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     microstepfactor = get("microstep")
                 else:
                     w["microstep"].set_sensitive(False)
+
                 if w["cbmotor_pitch"].get_active():
                     w["motor_leadscrew"].set_sensitive(True)
-                    if self.data.units == _METRIC: 
+                    w["cbmotor_tpi"].set_active(False)
+                    if self.data.units == _METRIC:
                         motor_pitch = 1./ get("motor_leadscrew")
-                    else:  
-                        motor_pitch = get("motor_leadscrew")
+                    else:
+                        motor_pitch = 1./ (get("motor_leadscrew")* .03937008)
                 else: w["motor_leadscrew"].set_sensitive(False)
+
+                if w["cbmotor_tpi"].get_active():
+                    w["motor_leadscrew_tpi"].set_sensitive(True)
+                    w["cbmotor_pitch"].set_active(False)
+                    if self.data.units == _METRIC:
+                        motor_pitch = (get("motor_leadscrew_tpi")* .03937008)
+                    else:
+                        motor_pitch = get("motor_leadscrew_tpi")
+                else: w["motor_leadscrew_tpi"].set_sensitive(False)
+
                 motor_steps = get("steprev")
                 motor_scale = (motor_steps * microstepfactor * motor_pulley_ratio * motor_worm_ratio * motor_pitch) / rotary_scale
                 w["calcmotor_scale"].set_text("%.4f" % motor_scale)
@@ -6156,11 +6176,21 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     w["encoder_wormdriven"].set_sensitive(False)
                 if w["cbencoder_pitch"].get_active():
                     w["encoder_leadscrew"].set_sensitive(True)
-                    if self.data.units == _METRIC: 
+                    w["cbencoder_tpi"].set_active(False)
+                    if self.data.units == _METRIC:
                         encoder_pitch = 1./ get("encoder_leadscrew")
-                    else:  
-                        encoder_pitch = get("encoder_leadscrew")
+                    else:
+                        encoder_pitch = 1./ (get("encoder_leadscrew")*.03937008)
                 else: w["encoder_leadscrew"].set_sensitive(False)
+                if w["cbencoder_tpi"].get_active():
+                    w["encoder_leadscrew_tpi"].set_sensitive(True)
+                    w["cbencoder_pitch"].set_active(False)
+                    if self.data.units == _METRIC:
+                        encoder_pitch = (get("encoder_leadscrew_tpi")*.03937008)
+                    else:
+                        encoder_pitch = get("encoder_leadscrew_tpi")
+                else: w["encoder_leadscrew_tpi"].set_sensitive(False)
+
                 encoder_cpr = get_value(w[("encoderline")]) * 4
                 encoder_scale = (encoder_pulley_ratio * encoder_worm_ratio * encoder_pitch * encoder_cpr) / rotary_scale
                 w["calcencoder_scale"].set_text("%.4f" % encoder_scale)
