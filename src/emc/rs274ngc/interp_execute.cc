@@ -258,7 +258,6 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     if (settings->t_command) {
 	char cmd[LINELEN];
 	int pocket;
-	setup saved_setup = *settings;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
 	sprintf(cmd,"%s [%d] [%d]",settings->t_command,block->t_number,pocket);
@@ -271,7 +270,6 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 	// restore setup except file_pointer so as not to disturb the
 	// oword close/reopen logic
 	FILE *fp = settings->file_pointer;
-	*settings = saved_setup;
 	settings->file_pointer = fp;
 
 	SELECT_POCKET(pocket);

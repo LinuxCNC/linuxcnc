@@ -2940,7 +2940,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     // when we have M6 do the actual toolchange
     if (block->m_modes[6] == 6) {
 	if (settings->m6_command) {
-	    setup saved_setup = *settings;
 
 	    // replicate preconditions form convert_tool_change
 	    if (settings->selected_pocket < 0) {
@@ -2962,7 +2961,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		status = Interp::execute(0);
 	    }
 	    FILE *fp = settings->file_pointer;
-	    *settings = saved_setup;
 	    settings->file_pointer = fp;
 
 	    CHANGE_TOOL(settings->selected_pocket);
