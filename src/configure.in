@@ -1146,6 +1146,15 @@ else
     AC_MSG_ERROR([not found])
 fi
 
+HAVE_WORKING_BLT=no
+AC_MSG_CHECKING([for BLT using tclsh8.5])
+if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
+    AC_MSG_RESULT([found])
+    HAVE_WORKING_BLT=yes
+else
+    AC_MSG_RESULT([not found])
+fi
+
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
 AC_SUBST([TCL_CFLAGS])
@@ -1154,6 +1163,7 @@ AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 AC_SUBST([WISH])
 AC_SUBST([TCLSH])
+AC_SUBST([HAVE_WORKING_BLT])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #

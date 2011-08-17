@@ -234,12 +234,15 @@ INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop ../scripts/latencyplot \
+	../scripts/emcmkdesktop \
 	 ../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
 	../share/applications/emc.desktop \
-	../share/applications/emc-latency.desktop \
-	../share/applications/emc-latencyplot.desktop
+	../share/applications/emc-latency.desktop
+
+ifeq ($(HAVE_WORKING_BLT),yes)
+INFILES += ../scripts/latencyplot ../share/applications/emc-latencyplot.desktop
+endif
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -434,11 +437,17 @@ and rebuild
 endef
 install:
 	$(error $(ERROR_MESSAGE))
-install-menus install-menu: ../share/menus/CNC.menu \
-		../share/desktop-directories/cnc.directory \
-		../share/applications/emc.desktop \
-		../share/applications/emc-latency.desktop \
-		../share/applications/emc-latencyplot.desktop
+
+MENUS = ../share/menus/CNC.menu \
+    ../share/desktop-directories/cnc.directory \
+    ../share/applications/emc.desktop \
+    ../share/applications/emc-latency.desktop
+
+ifeq ($(HAVE_WORKING_BLT),yes)
+MENUS += ../share/applications/emc-latencyplot.desktop
+endif
+
+install-menus install-menu: $(MENUS)
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
@@ -500,7 +509,9 @@ install-kernel-indep: install-dirs
 	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
+ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
+endif
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
