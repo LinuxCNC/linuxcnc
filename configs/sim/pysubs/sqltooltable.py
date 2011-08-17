@@ -4,7 +4,7 @@ import pyodbc
 import emc # for ini file access only
 import sys, traceback
 
-class SqlToolTable(object):
+class SqlToolAccess(object):
     '''
     beginnings of ODBC tooltable access
     '''
@@ -24,7 +24,42 @@ class SqlToolTable(object):
         cursor.close()
         conn.close()
 
+    def fetch_tool(self,t):
+        result = None
+        try:
+            conn = pyodbc.connect(self.connectstring)
+            cursor = conn.cursor()
+            row = cursor.execute("""
+                   select
+                       toolno as id,
+                       x_offset as xoffset,
+                       y_offset as yoffset,
+                       z_offset as zoffset,
+                       a_offset as aoffset,
+                       b_offset as boffset,
+                       c_offset as coffset,
+                       u_offset as uoffset,
+                       v_offset as voffset,
+                       w_offset as woffset,
+                       diameter,
+                       frontangle,
+                       backangle,
+                       orientation
+                   from tools where toolno = ?;
+                   """, t).fetchone()
+
+            if row:
+                print "fetch_tool(%d) = %s" % (t,str(row))
+                return row
+            else:
+                print "fetch_tool(%d): no such record" % (t)
+                return  None #(-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+        except pyodbc.Error, e:
+            traceback.print_exc(file=sys.stdout)
+            raise
+
     def load(self, tooltable,comments,fms):
+        ''' populate the table'''
         try:
             conn = pyodbc.connect(self.connectstring)
             conn.autocommit = True
@@ -127,3 +162,15 @@ class SqlToolTable(object):
         finally:
             cursor.close()
             conn.close()
+
+
+if __name__ == '__main__':
+    import sys
+    import emc
+    inifile = emc.ini(sys.argv[1])
+
+    cs = inifile.find("TOOL", "ODBC_CONNECT")
+    tt = SqlToolAccess(cs)
+    x =  tt.fetch_tool(2)
+    print "tool id=%d/%d zoffset=%g/%g diameter=%g/%g" % (x.id,x[0], x.zoffset,x[3],x.diameter,x[10])
+    print tt.fetch_tool(29)

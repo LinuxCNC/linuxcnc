@@ -45,7 +45,6 @@ class CustomTask(emctask.Task,UserFuncs):
             self.tcpins = int(self.inifile.find("TOOL", "TASK_TOOLCHANGE_PINS") or 0)
             self.startchange_pins = int(self.inifile.find("TOOL", "TASK_START_CHANGE_PINS") or 0)
             self.fault_pins = int(self.inifile.find("TOOL", "TASK_TOOLCHANGE_FAULT_PINS") or 0)
-            self.tt_type = self.inifile.find("TOOL", "DBTYPE") or 'legacy'
 
             h = hal.component("iocontrol.0")
             h.newpin("coolant-flood", hal.HAL_BIT, hal.HAL_OUT)
@@ -117,17 +116,16 @@ class CustomTask(emctask.Task,UserFuncs):
             if not self.random_toolchanger:
                  self.io.tool.toolTable[0].zero()
 
-            if self.tt_type == 'odbc':
-                import sqltooltable
-                self.tt = sqltooltable.SqlToolTable(self.inifile, self.random_toolchanger)
-
-            if self.tt_type == 'legacy':
+            if self.inifile.find("TOOL", "ODBC_CONNECT"):
+                import sqltoolaccess
+                self.tt = sqltoolaccess.SqlToolAccess(self.inifile, self.random_toolchanger)
+            else:
                 import tooltable
                 self.tt = tooltable.EmcToolTable(self.tooltable_filename, self.random_toolchanger)
 
             self.comments = dict()
             self.fms = dict()
-            self.tt.load(self.io.tool.toolTable,self.comments,self.fms)
+            self.tt.load_table(self.io.tool.toolTable,self.comments,self.fms)
             self.tt.restore_state(emctask.emcstat)
             # self.io.tool.toolInSpindle = 2 # works
             self.reload_tool_number(self.io.tool.toolInSpindle)
@@ -196,7 +194,7 @@ class CustomTask(emctask.Task,UserFuncs):
         if self.random_toolchanger:
             self.io.tool.toolTable[0],self.io.tool.toolTable[pocket] = self.io.tool.toolTable[pocket],self.io.tool.toolTable[0]
             self.comments[0],self.comments[pocket] = self.comments[pocket],self.comments[0]
-            self.tt.save(self.io.tool.toolTable,self.comments,self.fms)
+            self.tt.save_table(self.io.tool.toolTable,self.comments,self.fms)
         else:
             if pocket == 0:
                 self.io.tool.toolTable[0].zero()
@@ -279,7 +277,7 @@ class CustomTask(emctask.Task,UserFuncs):
         if self.io.tool.toolInSpindle  == toolno:
             self.io.tool.toolTable[0] = self.io.tool.toolTable[pocket]
 
-        self.tt.save(self.io.tool.toolTable,self.comments,self.fms)
+        self.tt.save_table(self.io.tool.toolTable,self.comments,self.fms)
         self.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0
 
