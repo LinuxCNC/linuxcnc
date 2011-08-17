@@ -11,6 +11,10 @@
 #       same mod_name.  The "count=", "num_chan=", and "names=" forms for
 #       loadrt are supported but are mutually exclusive for each module.
 #       addf commands are deferred to pass1
+#
+#       Some components (viz. pid) support a debug=dbg specifier on the
+#       loadrt line.  dbg values are ORed together.
+#
 # pass1:
 #       All HAL:HALFILES are reread, commands (except the loadrt and
 #       loadusr completed commands) are executed and addf commands
@@ -174,6 +178,19 @@ proc ::tp::loadrt_substitute {args} {
                 set ::TP($module,names) $value
               } else {
                 set ::TP($module,names) "$::TP($module,names),$value"
+              }
+            }
+     debug  {
+              if ![info exists ::TP($module,debug)] {
+                set ::TP($module,debug) $value
+              } else {
+                # the pid component uses debug>1 to cause export
+                # of additional pins (for all instances)
+                #
+                # here, logical OR multiple specifiers of debug=
+                # so any setting of debug=1 will be honored (for
+                # all instances)
+                set ::TP($module,debug) [expr $::TP($module,debug) | $value]
               }
             }
      default {
@@ -360,6 +377,9 @@ proc ::tp::load_the_modules {} {
       set cmd "$cmd num_chan=$::TP($m,num_chan)"
     } elseif [info exists ::TP($m,names)] {
       set cmd "$cmd names=$::TP($m,names)"
+    }
+    if [info exists ::TP($m,debug)] {
+      set cmd "$cmd debug=$::TP($m,debug)"
     }
     if [info exists ::TP($m,other)] {
       set cmd "$cmd $::TP($m,other)"
