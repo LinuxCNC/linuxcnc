@@ -43,8 +43,13 @@ proc popup {msg} { \
 } ;# popup
 
 if [catch {package require BLT} msg] {
-  set msg "BLT package is required:\n\
-          sudo apt-get install blt"
+  if {[string first "version conflict" $msg] == 0} {
+    set msg "BLT version conflict!\n\n$msg"
+  } elseif {[string first "can't find package" $msg] == 0} {
+    set msg "package BLT not found!\nrun: sudo apt-get install blt"
+  } else {
+    set msg "unhandled error:\n$msg"
+  }
   popup $msg
   exit 1
 }
