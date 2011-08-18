@@ -1,5 +1,7 @@
-component bldc_hall3
-"3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors";
+component bldc_hall3 
+"""3-wire BLDC motor driver using Hall sensors and trapezoidal commutation.
+The functionality of this component is now included in the generic "bldc" 
+component. This component is likely to be removed in a future release""";
 
 pin in bit hall1 "Hall sensor signal 1";
 pin in bit hall2 "Hall sensor signal 2";

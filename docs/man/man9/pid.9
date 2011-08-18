@@ -8,7 +8,7 @@
 .SH NAME
 pid \- proportional/integral/derivative controller
 .SH SYNOPSIS
-\fBloadrt pid num_chan=\fInum\fR [\fBdebug=\fIdbg\fR]
+\fBloadrt pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]] [\fBdebug=\fIdbg\fR]
 
 .SH DESCRIPTION
 \fBpid\fR is a classic Proportional/Integral/Derivative controller,
@@ -17,17 +17,27 @@ other closed-loop applications.
 .P
 \fBpid\fR supports a maximum of sixteen controllers.  The number that
 are actually loaded is set by the \fBnum_chan\fR argument when
-the module is loaded.  If \fBnumchan\fR is not specified, the default
+the module is loaded.  Alternatively, specify names= and unique names
+separated by commas.
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
 value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
 additional HAL parameters will be exported, which might be useful
 for tuning, but are otherwise unnecessary.
 
 .SH FUNCTIONS
-.TP 
+
 \fBpid.\fIN\fB.do-pid-calcs\fR (uses floating-point)
 Does the PID calculations for control loop \fIN\fR.
 
 .SH PINS
+
+Pin names for num_chan= specifier are:
+    \fBencoder.\fIN\fB.the_pin_name\fR
+.TP
+Pin names for names= specifier are:
+    \fBname\fB.the_pin_name\fR
 .TP
 \fBpid.\fIN\fB.command\fR float in
 The desired (commanded) value for the control loop.
