@@ -90,7 +90,6 @@ FUNCTION(write){
 }
 
 FUNCTION(reset){
-    long long deadline;
     int i;
     unsigned tmp;
     unsigned char b;
