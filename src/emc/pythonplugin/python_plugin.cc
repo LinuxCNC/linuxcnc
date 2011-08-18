@@ -93,8 +93,10 @@ int PythonPlugin::call(const char *module, const char *callable,
 	PyErr_Clear();
     }
     if (status == PLUGIN_EXCEPTION) {
-	logPP(1, "call(%s.%s): \n%s",
-	  module, callable, exception_msg.c_str());
+	logPP(1, "call(%s%s%s): \n%s",
+	      module ? module : "",
+	      module ? "." : "",
+	      callable, exception_msg.c_str());
     }
     return status;
 }
@@ -133,10 +135,14 @@ bool PythonPlugin::is_callable(const char *module,
 	PyErr_Clear();
     }
     if (unexpected)
-	logPP(1, "is_callable(%s.%s): unexpected exception:\n%s",module,funcname,exception_msg.c_str());
+	logPP(1, "is_callable(%s%s%s): unexpected exception:\n%s",
+	      module ? module : "", module ? "." : "",
+	      funcname,exception_msg.c_str());
 
     if (log_level)
-	logPP(4, "is_callable(%s.%s) = %s", module ? module : "",funcname,result ? "TRUE":"FALSE");
+	logPP(4, "is_callable(%s%s%s) = %s",
+	      module ? module : "", module ? "." : "",
+	      funcname,result ? "TRUE":"FALSE");
     return result;
 }
 

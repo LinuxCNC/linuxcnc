@@ -1,3 +1,4 @@
+// test harness for python_plugin
 
 #include "python_plugin.hh"
 #include <ctype.h>
@@ -30,21 +31,22 @@ void exercise(PythonPlugin *pp,const char *mod, const char*func,  bp::tuple tupl
     bp::object r;
 
     bool callable = pp->is_callable(mod,func);
-    printf("callable(%s.%s) = %s\n",mod,func,callable ? "TRUE": "FALSE");
+    printf("callable(%s%s%s) = %s\n",mod ? mod : "", mod ? ".":"",
+	   func, callable ? "TRUE": "FALSE");
 
 
     int status = pp->call(mod,func, tupleargs,kwargs,r);
     switch (status) {
     case PLUGIN_EXCEPTION:
-	printf("call(%s.%s): exception='%s' status = %d\n",
-	       mod,func,pp->last_exception().c_str(), status);
+	printf("call(%s%s%s): exception='%s' status = %d\n",
+	       mod ? mod : "", mod ? ".":"",func,pp->last_exception().c_str(), status);
 	break;
     case PLUGIN_OK:
-	printf("call(%s.%s): OK\n", mod,func);
+	printf("call(%s%s%s): OK\n",  mod ? mod : "", mod ? ".":"",func);
 	analyze( func,r);
 	break;
     default:
-	printf("call(%s.%s): status = %d\n", mod,func,status);
+	printf("call(%s%s%s): status = %d\n", mod ? mod : "", mod ? ".":"",func,status);
     }
 }
 
