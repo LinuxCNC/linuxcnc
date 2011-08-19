@@ -36,6 +36,8 @@ include::reference.txt[]
 
 include::internals.txt[]
 
+include::tasksetup.txt[]
+
 // = Index
 
 //include::common/GPLD_Copyright.txt[]
