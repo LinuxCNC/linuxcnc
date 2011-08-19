@@ -28,7 +28,7 @@
 #include "interp_queue.hh"
 
 #include "units.h"
-#define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)==1)||((side)==RIGHT&&(turn)==-1))
+#define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
 #define DEBUG_EMC
 
 
@@ -561,11 +561,12 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
 
   if (block->r_flag) {
       CHP(arc_data_r(move, plane, *current1, *current2, end1, end2,
-                   block->r_number, &center1, &center2, &turn, tolerance));
+                     block->r_number, block->p_flag? round_to_int(block->p_number) : 1,
+                     &center1, &center2, &turn, tolerance));
   } else {
       CHP(arc_data_ijk(move, plane, *current1, *current2, end1, end2,
                        (settings->ijk_distance_mode == MODE_ABSOLUTE),
-                       offset1, offset2,
+                       offset1, offset2, block->p_flag? round_to_int(block->p_number) : 1,
                        &center1, &center2, &turn, tolerance));
   }
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
@@ -618,11 +619,11 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               setup_pointer settings,    //!< pointer to machine settings                     
                               double end_x,      //!< x-value at end of programmed (then actual) arc  
                               double end_y,      //!< y-value at end of programmed (then actual) arc  
-                              double end_z,      //!< z-value at end of arc                           
-                              double offset_x, double offset_y, 
-                              double AA_end,     //!< a-value at end of arc                     
-                              double BB_end,     //!< b-value at end of arc
-                              double CC_end,     //!< c-value at end of arc                     
+                              double end_z,      //!< z-value at end of arc
+                              double offset_x, double offset_y,
+                              double AA_end,     //!< a-value at end of arc
+                             double BB_end,     //!< b-value at end of arc
+                              double CC_end,     //!< c-value at end of arc
                               double u_end, double v_end, double w_end) //!< uvw at end of arc
 {
     double center_x, center_y;
@@ -645,12 +646,12 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (block->r_flag) {
         CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
-                            block->r_number,
+                            block->r_number, block->p_flag? round_to_int(block->p_number): 1,
                             &center_x, &center_y, &turn, tolerance));
     } else {
         CHP(arc_data_comp_ijk(move, plane, side, tool_radius, cx, cy, end_x, end_y,
                               (settings->ijk_distance_mode == MODE_ABSOLUTE),
-                              offset_x, offset_y,
+                              offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                               &center_x, &center_y, &turn, tolerance));
     }
 
@@ -802,12 +803,13 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (block->r_flag) {
         CHP(arc_data_r(move, plane, opx, opy, end_x, end_y,
-                       block->r_number, &centerx, &centery, &turn, tolerance));
+                       block->r_number, block->p_flag? round_to_int(block->p_number): 1,
+                       &centerx, &centery, &turn, tolerance));
     } else {
         CHP(arc_data_ijk(move, plane,
                          opx, opy, end_x, end_y,
                          (settings->ijk_distance_mode == MODE_ABSOLUTE),
-                         offset_x, offset_y,
+                         offset_x, offset_y, block->p_flag? round_to_int(block->p_number): 1,
                          &centerx, &centery, &turn, tolerance));
     }
 
@@ -860,7 +862,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 toward_nominal = cy + tool_radius;
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
-                if(turn == 1) {
+                if(turn > 0) {
                     angle_from_center = theta + asin(l);
                 } else {
                     angle_from_center = theta - asin(l);
@@ -870,7 +872,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 toward_nominal = cy - tool_radius;
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
-                if(turn == 1) {
+                if(turn > 0) {
                     angle_from_center = theta + M_PIl - asin(l);
                 } else {
                     angle_from_center = theta + M_PIl + asin(l);
@@ -904,12 +906,12 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
             double dir;
             if TOOL_INSIDE_ARC(side, prev.turn) {
-                if(turn == 1)
+                if(turn > 0)
                     dir = cc_dir + pullback;
                 else
                     dir = cc_dir - pullback;
             } else {
-                if(turn == 1)
+                if(turn > 0)
                     dir = cc_dir - pullback;
                 else
                     dir = cc_dir + pullback;
@@ -3488,6 +3490,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     settings->tool_table[pocket].toolno = toolno;
 
+    CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
+	   block->a_flag || block->b_flag || block->c_flag ||
+	   block->u_flag || block->v_flag || block->w_flag ||
+	   block->r_flag || block->q_flag),
+	 _("G10 L1 without offsets has no effect"));
+
     if(direct) {
         if(block->x_flag)
             settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
@@ -4774,10 +4782,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     
         if ((beta < -small) || (beta > (M_PIl + small))) {
             concave = 1;
-        } else if (beta > (M_PIl - small) && 
-                   (!qc().empty() && qc().front().type == QARC_FEED && 
-                    ((side == RIGHT && qc().front().data.arc_feed.turn == 1) ||
-                     (side == LEFT && qc().front().data.arc_feed.turn == -1)))) {
+        } else if (beta > (M_PIl - small) &&
+                   (!qc().empty() && qc().front().type == QARC_FEED &&
+                    ((side == RIGHT && qc().front().data.arc_feed.turn > 0) ||
+                     (side == LEFT && qc().front().data.arc_feed.turn < 0)))) {
             // this is an "h" shape, tool on right, going right to left
             // over the hemispherical round part, then up next to the
             // vertical part (or, the mirror case).  there are two ways
@@ -4841,7 +4849,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 double theta;
                 double phi;
 
-                theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+                theta = (prev.turn > 0) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
                 phi = atan2(prev.center2 - opy, prev.center1 - opx);
                 if TOOL_INSIDE_ARC(side, prev.turn) {
                     oldrad_uncomp = oldrad + radius;
@@ -4859,7 +4867,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     d2 = d - radius;
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
-                    if(prev.turn == 1)
+                    if(prev.turn > 0)
                         angle_from_center = - acos(l) + theta + M_PIl;
                     else
                         angle_from_center = acos(l) + theta + M_PIl;
@@ -4867,7 +4875,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     d2 = d + radius;
                     double l = d2/oldrad;
                     CHKS((l > 1.0 || l < -1.0), _("Arc to straight motion makes a corner the compensated tool can't fit in without gouging"));
-                    if(prev.turn == 1)
+                    if(prev.turn > 0)
                         angle_from_center = acos(l) + theta + M_PIl;
                     else
                         angle_from_center = - acos(l) + theta + M_PIl;
