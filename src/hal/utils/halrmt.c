@@ -3303,16 +3303,16 @@ commandTokenType lookupToken(char *s)
     }
   return i;
 }
- 
+
 int parseCommand(connectionRecType *context)
 {
-  int ret = 0, retval;
+  int ret = 0;
   char *pch;
   char s[64];
   static char *helloNakStr = "HELLO NAK\r\n";
   static char *helloAckStr = "HELLO ACK %s 1.1\r\n";
   static char *setNakStr = "SET NAK\r\n";
-    
+
   pch = strtok(context->inBuf, delims);
   sprintf(s, helloAckStr, serverName);
   if (pch != NULL) {
@@ -3320,16 +3320,16 @@ int parseCommand(connectionRecType *context)
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          retval = write(context->cliSock, helloNakStr, strlen(helloNakStr));
+          ret = write(context->cliSock, helloNakStr, strlen(helloNakStr));
         else 
-          retval = write(context->cliSock, s, strlen(s));
+          ret = write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (context->linked == 0)
-	  retval = write(context->cliSock, setNakStr, strlen(setNakStr)); 
+	  ret = write(context->cliSock, setNakStr, strlen(setNakStr));
         else ret = commandSet(context);
         break;
       case cmdQuit: 
