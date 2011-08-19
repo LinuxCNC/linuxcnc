@@ -88,12 +88,8 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 
 void init_trig(void)
 {
-    scope_trig_t *trig;
-
     /* stop sampling */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the trig structure */
-    trig = &(ctrl_usr->trig);
     /* init non-zero members of the trigger structure */
 
     /* set up the windows */
