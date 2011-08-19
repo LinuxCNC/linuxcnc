@@ -1,5 +1,6 @@
 User-defined Codes
-==========================
+===================
+
 The EMC Team
 
 :masterdir: {indir}
@@ -35,7 +36,7 @@ include::reference.txt[]
 
 include::internals.txt[]
 
-= Index
+// = Index
 
 //include::common/GPLD_Copyright.txt[]
 
