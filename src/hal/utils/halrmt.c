@@ -2406,8 +2406,6 @@ static void print_help_general(int showR)
     printf("  -i filename    Open .ini file 'filename', allow commands\n");
     printf("                 to get their values from ini file.\n");
 #endif
-    printf("  -k             Keep going after failed command.  Default\n");
-    printf("                 is to exit if any command fails. (Useful with -f)\n");
     printf("  -q             Quiet - print errors only (default).\n");
     printf("  -Q             Very quiet - print nothing.\n");
     if (showR != 0) {
@@ -3436,7 +3434,7 @@ int sockMain()
 int main(int argc, char **argv)
 {
     int n, fd;
-    int keep_going, errorcount;
+    int errorcount;
     int opt;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
@@ -3454,7 +3452,7 @@ int main(int argc, char **argv)
         case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
         }
       }
-    keep_going = 0;
+
     /* start parsing halcmd options */
     n = optind;
     while ((n < argc) && (argv[n][0] == '-')) {
@@ -3477,10 +3475,6 @@ int main(int argc, char **argv)
                 } else
 		    print_help_general(1);
 		return 0;
-		break;
-	    case 'k':
-		/* -k = keep going */
-		keep_going = 1;
 		break;
 	    case 'q':
 		/* -q = quiet (default) */
