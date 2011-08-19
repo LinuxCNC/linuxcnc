@@ -336,40 +336,6 @@ remap_pointer Interp::remapping(const char *code)
 	return NULL;
 }
 
-// debug aid
-void Interp::print_remap(const char *key)
-{
-    if (!key)
-	return;
-    remap_pointer r = remapping(key);
-    if (r) {
-	logRemap("----- remap '%s' :",key);
-	logRemap("argspec = '%s'", r->argspec);
-	logRemap("modalgroup = %d", r->modal_group);
-	logRemap("prolog_func = %s",
-		 (r->prolog_func ? r->prolog_func : ""));
-	logRemap("remap_py = %s",
-		 (r->remap_py ? r->remap_py : ""));
-	logRemap("remap_ngc = %s",
-		 (r->remap_ngc ? r->remap_ngc : ""));
-	logRemap("epilog_func = %s",
-		 (r->epilog_func ? r->epilog_func : ""));
-    } else {
-	logRemap("print_remap: no such remap: '%s'",key);
-    }
-}
-
-void Interp::print_remaps(void)
-{
-    remap_iterator n = _setup.remaps.begin();
-
-    logRemap("-----  remaps:");
-    for ( ; n  != _setup.remaps.end(); ++n ) {
-	print_remap(n->first);
-    }
-    logRemap("-------------");
-}
-
 // parse options of the form:
 // REMAP= M420 modalgroup=6 argspec=pq prolog=setnamedvars ngc=m43.ngc epilog=ignore_retvalue
 // REMAP= M421 modalgroup=6 argspec=- prolog=setnamedvars python=m43func epilog=ignore_retvalue
@@ -584,9 +550,6 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	Log("REMAP BUG=%s %d:REMAP = %s",
 	    code,lineno,inistring);
     }
-    // logRemap("success: %d: REMAP=%s line=%s",
-    // 	     lineno, code, inistring);
-
     return INTERP_OK;
 
  fail:
