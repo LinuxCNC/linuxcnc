@@ -112,7 +112,7 @@ int Interp::convert_remapped_code(block_pointer block,
 
     if (build_pyargs) {
 	// for any Python pro/epilogs
-	cblock->tupleargs = bp::make_tuple(plist);
+	cblock->tupleargs = bp::tuple(plist);
 
 	// add_parameters will decorate kwargs as per argspec
 	cblock->kwargs = bp::dict();

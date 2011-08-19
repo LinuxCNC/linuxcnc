@@ -489,7 +489,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		bp::list plist;
 		for(int i = 0; i < block->param_cnt; i++)
 		    plist.append(block->params[i]);
-		block->tupleargs = bp::make_tuple(plist);
+		block->tupleargs = bp::tuple(plist);
 		block->kwargs = bp::dict();
 	    }
 	    catch (bp::error_already_set) {

@@ -4,14 +4,16 @@
 ;py,assert this.call_level  == 0
 
 o<square> call [25.0]
-(debug, after square: return value=#<_value>)
-
 ;py,assert this.call_level  == 0
 ;py,assert this.params["_value"] == 625.0
 ;py,assert this.return_value == 625.0
 
-o<multiply> call [5] [6] [7]
+o<multiply> call [5] [6]
+;py,assert this.call_level  == 0
+;py,assert this.return_value == 30.0
+;py,assert this.params["_value"] == 30.0
 
+o<multiply> call [5] [6] [7]
 ;py,assert this.call_level  == 0
 ;py,assert this.return_value == 210.0
 ;py,assert this.params["_value"] == 210.0

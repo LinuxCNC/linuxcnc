@@ -20,7 +20,7 @@ print "debug: ", i.debugmask,"logging:",i.loggingLevel
 ## i.debugmask |= EMC_DEBUG_PYTHON
 ## i.loggingLevel = 9
 
-def introspect(args):
+def introspect(*args):
     global i
 
     print "argc=", len(args),"args=",args, "call_level=",i.call_level

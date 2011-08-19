@@ -13,7 +13,7 @@ debug:  1073741824 logging: 0
    11 N..... SET_FEED_RATE(200.0000)
    12 N..... SET_SPINDLE_SPEED(3000.0000)
    13 N..... START_SPINDLE_CLOCKWISE()
-argc= 3 args= [1.0, 2.0, 3.0] call_level= 1
+argc= 3 args= (1.0, 2.0, 3.0) call_level= 1
 param # 0 = 1.0
 param # 1 = 2.0
 param # 2 = 3.0
