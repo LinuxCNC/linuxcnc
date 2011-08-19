@@ -143,6 +143,188 @@ int Interp::convert_remapped_code(block_pointer block,
 }
 
 
+// add_parameters - a built-in prolog function
+//
+// handles argspec and extracts required and optional items from the
+// controlling block.
+//
+// if preparing for an NGC file, add local variables to
+// the current oword subroutine call frame
+//
+// if posargs == NULL:
+//      add the named parameters as local variables to  the current call frame
+// if posargs != NULL:
+//      create a positional argument list as per argspec order
+//      instead of adding local variables
+//
+// also, generate a kwargs style dictionary of required and optional items
+// in case a Python prolog is called
+//
+// 1. add all requried and  present optional words.
+// 2. error on missing but required words.
+// 4. handle '>' as to require a positive feed.
+// 5. handle '^' as to require a positive speed.
+// 6. handle 'N' as to add the line number.
+//
+// return INTERP_ERROR and propagate appropriate message if any errors so far
+// else return INTERP_OK
+//
+// handling '@' (positional params) is dealt with in the calling procedure
+
+int Interp::add_parameters(setup_pointer settings,
+			   block_pointer cblock,
+			   char *posarglist)
+{
+    const char *s,*argspec, *code;
+    block_pointer block;
+    char missing[30],optional[30],required[30];
+    char *m = missing;
+    char *o = optional;
+    char *r = required;
+    char msg[LINELEN], tail[LINELEN];
+    bool errored = false;
+    remap_pointer rptr = cblock->executing_remap;
+
+    if (!rptr) {
+	ERS("BUG: add_parameters: remap_frame: executing_remap == NULL ");
+    }
+    code = rptr->name;
+
+    // if any Python handlers are present, create a kwargs dict
+    bool pydict = rptr->remap_py || rptr->prolog_func || rptr->epilog_func;
+
+    memset(missing,0,sizeof(missing));
+    memset(optional,0,sizeof(optional));
+    memset(required,0,sizeof(required));
+    memset(msg,0,sizeof(msg));
+    memset(tail,0,sizeof(tail));
+
+    s = argspec = rptr->argspec;
+    CHKS((argspec == NULL),"BUG: add_parameters: argspec = NULL");
+
+    while (*s) {
+	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
+	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
+	s++;
+    }
+    o = optional;
+    r = required;
+    block = &CONTROLLING_BLOCK((*settings));
+
+    logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s pydict=%d\n",
+	    code,argspec,settings->call_level,required,optional,pydict);
+
+#define STORE(name,value)						\
+    if (pydict) {							\
+	try {								\
+	    cblock->kwargs[name] = value;				\
+        }								\
+        catch (bp::error_already_set) {					\
+	    PyErr_Print();						\
+	    PyErr_Clear();						\
+	    ERS("add_parameters: cant add '%s' to args",name);		\
+	}								\
+    }									\
+    if (posarglist) {							\
+	char actual[LINELEN];						\
+	snprintf(actual, sizeof(actual),"[%.4lf]", value);		\
+	strcat(posarglist, actual);					\
+	cblock->param_cnt++;						\
+    } else {								\
+	add_named_param(name,0);					\
+	store_named_param(settings,name,value,0);			\
+    }
+
+
+#define PARAM(spec,name,flag,value) 	                    	\
+    if ((flag)) { /* present */	                    	        \
+	/* required or optional */ 	                    	\
+	if (strchr(required,spec) || strchr(optional,spec)) {	\
+	    STORE(name,value);					\
+	}							\
+    } else {							\
+	if (strchr(required,spec)) { /* missing */		\
+	    *m++ = spec;					\
+	    errored = true;					\
+	}							\
+    }
+
+    s =  rptr->argspec;
+    // step through argspec in order so positional args are built
+    // in the correct order
+    while (*s) {
+	switch (tolower(*s)) {
+	case 'a' : PARAM('a',"a",block->a_flag,block->a_number); break;
+	case 'b' : PARAM('b',"b",block->b_flag,block->b_number); break;
+	case 'c' : PARAM('c',"c",block->c_flag,block->c_number); break;
+	case 'd' : PARAM('d',"d",block->d_flag,block->d_number_float); break;
+	case 'e' : PARAM('e',"e",block->e_flag,block->e_number); break;
+	case 'f' : PARAM('f',"f",block->f_flag,block->f_number); break;
+	case 'h' : PARAM('h',"h",block->h_flag,(double) block->h_number); break;
+	case 'i' : PARAM('i',"i",block->i_flag,block->i_number); break;
+	case 'j' : PARAM('j',"j",block->j_flag,block->j_number); break;
+	case 'k' : PARAM('k',"k",block->k_flag,block->k_number); break;
+	case 'l' : PARAM('l',"l",block->l_flag,(double) block->l_number); break;
+	case 'p' : PARAM('p',"p",block->p_flag,block->p_number); break;
+	case 'q' : PARAM('q',"q",block->q_flag,block->q_number); break;
+	case 'r' : PARAM('r',"r",block->r_flag,block->r_number); break;
+	case 's' : PARAM('s',"s",block->s_flag,block->s_number); break;
+	case 't' : PARAM('t',"t",block->t_flag, (double) block->t_number); break;
+	case 'u' : PARAM('u',"u",block->u_flag,block->u_number); break;
+	case 'v' : PARAM('v',"v",block->v_flag,block->v_number); break;
+	case 'w' : PARAM('w',"w",block->w_flag,block->w_number); break;
+	case 'x' : PARAM('x',"x",block->x_flag,block->x_number); break;
+	case 'y' : PARAM('y',"y",block->y_flag,block->y_number); break;
+	case 'z' : PARAM('z',"z",block->z_flag,block->z_number); break;
+	case '-' : break; // ignore - backwards compatibility
+	default: ;
+	}
+	s++;
+    }
+
+    s = missing;
+    if (*s) {
+	strcat(tail," missing: ");
+    }
+    while (*s) {
+	errored = true;
+	char c  = toupper(*s);
+	strncat(tail,&c,1);
+	if (*(s+1)) strcat(tail,",");
+	s++;
+    }
+    // special cases:
+    // N...add line number
+    if (strchr(required,'n')) {
+	STORE("n",(double) block->n_number);
+    }
+
+    // >...require positive feed
+    if (strchr(required,'>')) {
+	if (settings->feed_rate > 0.0) {
+	    STORE("f",settings->feed_rate);
+	} else {
+	    strcat(tail,"F>0,");
+	    errored = true;
+	}
+    }
+    // ^...require positive speed
+    if (strchr(required,'^')) {
+	if (settings->speed > 0.0) {
+	    STORE("s",settings->speed);
+	} else {
+	    strcat(tail,"S>0,");
+	    errored = true;
+	}
+    }
+
+    if (errored) {
+	ERS("user-defined %s:%s",
+	    code, tail);
+    }
+    return INTERP_OK;
+}
+
 
 // this looks up a remapping by unnormalized code (like G88.1)
 remap_pointer Interp::remapping(const char *code)
