@@ -1236,7 +1236,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
 
     int pre_trig, width;
     double disp_center, disp_start, disp_end;
-    double rec_start, rec_curr, rec_end;
+    double rec_start, rec_end;
     double min, max, span, scale;
     double newpos; 
 
@@ -1261,7 +1261,6 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     rec_start = -pre_trig * horiz->sample_period;
     rec_end = (ctrl_shm->rec_len - pre_trig) * horiz->sample_period;
-    rec_curr = rec_start + (ctrl_shm->samples * horiz->sample_period);
     disp_center = rec_start + horiz->pos_setting * (rec_end - rec_start);
     disp_start = disp_center - 5.0 * horiz->disp_scale;
     disp_end = disp_center + 5.0 * horiz->disp_scale;
