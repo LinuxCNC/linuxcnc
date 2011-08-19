@@ -43,7 +43,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 {
     int nleft, nrecv;
     char *ptr;
-    double start_time, current_time, timeleft;
+    double start_time, current_time;
     struct timeval timeout_tv;
     fd_set recv_fd_set;
     int bytes_ready;
@@ -82,9 +82,9 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
     }
 
     start_time = current_time = etime();
-    timeleft = _timeout;
     while (nleft > 0) {
 	if (_timeout > 0.0) {
+            double timeleft;
 	    current_time = etime();
 	    timeleft = start_time + _timeout - current_time;
 	    if (timeleft <= 0.0) {
