@@ -17,7 +17,7 @@ class EmcToolTable(object):
          self.filename = filename
          self.random_toolchanger = random_toolchanger
 
-    def load(self, tooltable,comments,fms):
+    def load_table(self, tooltable,comments,fms):
         self.fakepocket = 0
         fp = open(self.filename)
         lno = 0
@@ -29,7 +29,7 @@ class EmcToolTable(object):
                     self.assign(tooltable,entry,comments,fms)
         fp.close()
 
-    def save(self, tooltable, comments,fms):
+    def save_table(self, tooltable, comments,fms):
         os.rename(self.filename,self.filename + '.bak')
         fp = open(self.filename, 'w')
         start = 0 if self.random_toolchanger else 1

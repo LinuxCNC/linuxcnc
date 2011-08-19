@@ -145,7 +145,7 @@ class CustomTask(emctask.Task,UserFuncs):
         self.comments = dict()
         self.fms = dict()
         try:
-            self.tt.load(self.io.tool.toolTable,self.comments,self.fms)
+            self.tt.load_table(self.io.tool.toolTable,self.comments,self.fms)
         except Exception,e:
             print_exc_plus()
             self.io.status  = emctask.RCS_STATUS.RCS_ERROR
