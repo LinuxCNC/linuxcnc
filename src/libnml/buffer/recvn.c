@@ -43,7 +43,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 {
     int nleft, nrecv;
     char *ptr;
-    double start_time, current_time;
+    double start_time;
     struct timeval timeout_tv;
     fd_set recv_fd_set;
     int bytes_ready;
@@ -81,12 +81,11 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	nleft -= *bytes_read_ptr;
     }
 
-    start_time = current_time = etime();
+    start_time = etime();
     while (nleft > 0) {
 	if (_timeout > 0.0) {
             double timeleft;
-	    current_time = etime();
-	    timeleft = start_time + _timeout - current_time;
+	    timeleft = start_time + _timeout - etime();
 	    if (timeleft <= 0.0) {
 		if (print_recvn_timeout_errors) {
 		    rcs_print_error("Recv timed out.\n");
@@ -195,8 +194,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	ptr += nrecv;
 	if (nleft > 0 && _timeout > 0.0) {
 	    esleep(0.001);
-	    current_time = etime();
-	    if (current_time - start_time > _timeout) {
+	    if (etime() - start_time > _timeout) {
 		rcs_print_error("Recv timed out.\n");
 		recvn_timedout = 1;
 		if (NULL != bytes_read_ptr) {
