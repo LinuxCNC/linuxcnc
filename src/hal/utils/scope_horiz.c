@@ -102,12 +102,8 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event);
 
 void init_horiz(void)
 {
-    scope_horiz_t *horiz;
-
     /* stop sampling */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the horiz structure */
-    horiz = &(ctrl_usr->horiz);
     /* init non-zero members of the horizontal structure */
     /* set up the window */
     init_horiz_window();
