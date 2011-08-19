@@ -43,7 +43,9 @@ def introspect(*args):
     print "feed=",i.params['_feed']
     print "speed=",i.params['_rpm']
 
-    print "global paramert set in test.ngc:",i.params['_a_global_set_in_test_dot_ngc']
+    print "global parameter set in test.ngc:",i.params['_a_global_set_in_test_dot_ngc']
+    print "parameter set via test.ini:",i.params['_[example]variable']
+    assert i.params['_[example]variable'] == args[3]
 
     i.params["a_new_local"] = 321.0
     i.params["_a_new_global"] = 456.0
