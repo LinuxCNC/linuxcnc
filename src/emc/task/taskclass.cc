@@ -263,7 +263,7 @@ int emcIoHalt() {
 	return task_methods->emcIoHalt();
     } catch( bp::error_already_set ) {
 	std::string msg = handle_pyerror();
-	printf("emcIoHalt(): %s\n", msg.c_str());
+	rcs_print("emcIoHalt(): %s\n", msg.c_str());
 	PyErr_Clear();
 	return -1;
     }
@@ -309,7 +309,9 @@ int emcTaskOnce(const char *filename)
     extern struct _inittab builtin_modules[];
 
     if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp)) {
-	printf("Python plugin configured\n");
+	if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+	    rcs_print("emcTaskOnce: Python plugin configured");
+	}
     } else {
 	goto no_pytask;
     }
@@ -322,18 +324,20 @@ int emcTaskOnce(const char *filename)
 	    if (typetest.check()) {
 		task_methods = bp::extract< Task * >(result);
 	    } else {
-		printf("cant extract a Task instance out of '%s'\n", instance_name);
+		rcs_print("cant extract a Task instance out of '%s'\n", instance_name);
 		task_methods = NULL;
 	    }
 	} catch( bp::error_already_set ) {
 	    std::string msg = handle_pyerror();
-	    printf("extract(%s): %s\n", instance_name, msg.c_str());
+	    rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
 	    PyErr_Clear();
 	}
     }
  no_pytask:
     if (task_methods == NULL) {
-	printf("no Python Task() instance available, using default iocontrol-based task methods\n");
+	if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+	    rcs_print("emcTaskOnce: no Python Task() instance available, using default iocontrol-based task methods\n");
+	}
 	task_methods = new Task();
     }
     return 0;
@@ -361,7 +365,7 @@ int emcRunHalFiles(const char *filename)
 	    perror("execlp halcmd");
 	} else {
 	    if ((waitpid (pid, &status, 0) == pid) &&  WEXITSTATUS(status))
-		printf("'halcmd -i %s -f %s' exited with  %d\n",
+		rcs_print("'halcmd -i %s -f %s' exited with  %d\n",
 		       filename, inistring, WEXITSTATUS(status));
 	}
 	n++;
@@ -454,7 +458,7 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 };
 
 
-Task::~Task() { printf("Task destructor\n"); };
+Task::~Task() {};
 
 // NML commands
 
@@ -730,7 +734,9 @@ int Task::emcIoUpdate(EMC_IO_STAT * stat)
 
 int Task::emcIoPluginCall(int len, const char *msg)
 {
-    printf("iocontrol task: emcIoPluginCall(%d,%s)\n",len,msg);
+    if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+	rcs_print("emcIoPluginCall(%d,%s) - no Python handler set\n",len,msg);
+    }
     return 0;
 }
 
