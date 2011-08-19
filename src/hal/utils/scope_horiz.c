@@ -894,10 +894,6 @@ static int set_sample_thread_name(char *name)
 
 static void deactivate_sample_thread(void)
 {
-    scope_horiz_t *horiz;
-
-    /* get a pointer to the horiz data structure */
-    horiz = &(ctrl_usr->horiz);
     /* check for old sample thread */
     if (ctrl_shm->thread_name[0] != '\0') {
 	/* disconnect sample funct from old thread */
