@@ -299,19 +299,19 @@ BOOST_PYTHON_MODULE(emctask) {
 	VAL(EMC_ABORT_USER)
 	;
 
-    class_<Task, shared_ptr<Task>, noncopyable>("__Task",  " Pretend I Don't exist",  no_init)
-       .def("emcToolPrepare", &Task::emcToolPrepare)
-       .def("emcToolLoad", &Task::emcToolLoad)
-       .def("emcToolUnload", &Task::emcToolUnload)
-       .def("emcToolSetNumber", &Task::emcToolSetNumber)
+    // class_<Task, shared_ptr<Task>, noncopyable>("__Task",  " Pretend I Don't exist",  no_init)
+    //    .def("emcToolPrepare", &Task::emcToolPrepare)
+    //    .def("emcToolLoad", &Task::emcToolLoad)
+    //    .def("emcToolUnload", &Task::emcToolUnload)
+    //    .def("emcToolSetNumber", &Task::emcToolSetNumber)
 
-	;
+    // 	;
 
     class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
-	.def("emcToolPrepare", &Task::emcToolPrepare, &TaskWrap::default_emcToolPrepare)
-	.def("emcToolLoad", &Task::emcToolLoad, &TaskWrap::default_emcToolLoad)
-	.def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
-	.def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
+	// .def("emcToolPrepare", &Task::emcToolPrepare, &TaskWrap::default_emcToolPrepare)
+	// .def("emcToolLoad", &Task::emcToolLoad, &TaskWrap::default_emcToolLoad)
+	// .def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
+	// .def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
 	.def_readonly("use_iocontrol", &Task::use_iocontrol)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
 	.def_readonly("tooltable_filename", &Task::tooltable_filename)
