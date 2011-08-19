@@ -52,7 +52,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	_timeout = -1.0;
     }
 
-    bytes_ready = bytes_to_read = 0;
+    bytes_ready = 0;
     timeout_tv.tv_sec = (long) _timeout;
     timeout_tv.tv_usec = (long) (_timeout * 1000000.0);
     if (timeout_tv.tv_usec >= 1000000) {
