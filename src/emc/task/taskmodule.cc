@@ -51,9 +51,6 @@ static int handle_exception(const char *name)
 	}							\
 	else							\
 	    return  Task::method();				\
-    }								\
-    int default_ ## method() {					\
-	return this->Task::method();				\
     }
 
 
@@ -68,9 +65,6 @@ static int handle_exception(const char *name)
 	    }								\
 	} else								\
 	    return  Task::method(name);					\
-    }									\
-    int default_ ## method(type name) {					\
-	return this->Task::method(name);				\
     }
 
 
@@ -85,11 +79,7 @@ static int handle_exception(const char *name)
 	    }								\
 	} else								\
 	    return  Task::method(name,name2);				\
-    }									\
-    int default_ ## method(type name,type2 name2) {			\
-	return this->Task::method(name,name2);				\
     }
-
 
 struct TaskWrap : public Task, public bp::wrapper<Task> {
 
@@ -115,7 +105,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND1(emcToolLoadToolTable, const char *, file)
     EXPAND(emcToolUnload)
     EXPAND1(emcToolSetNumber,int,number)
-    // EXPAND2(emcIoPluginCall,int, len, const char *, msg)
 
     int emcIoPluginCall(int len,const char *msg) {
 	if (bp::override f = this->get_override("emcIoPluginCall")) {
@@ -131,7 +120,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    return  Task::emcIoPluginCall(len,msg);
     }
 
-
     int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 			 double frontangle, double backangle, int orientation) {
 	if (bp::override f = this->get_override("emcToolSetOffset"))
@@ -143,10 +131,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    }
 	else
 	    return  Task::emcToolSetOffset(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
-    }
-    int default_emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
-				 double frontangle, double backangle, int orientation) {
-	return this->Task::emcToolSetOffset(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
     }
 
     int emcIoUpdate(EMC_IO_STAT * stat) {
@@ -242,7 +226,7 @@ BOOST_PYTHON_MODULE(emctask) {
 
     def("emctask_quit", emctask_quit);
     def("ini_filename", ini_filename);
-    def("iniTool", iniTool);
+    // def("iniTool", iniTool);
 
     def("operator_error",
 	operator_error,
@@ -257,9 +241,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	operator_display_overloads ( args("id"),
 				   "send a messsage to the operator display"  ));
 
-    // scope().attr("RCS_EXEC") = (int)RCS_EXEC;
-    // scope().attr("RCS_DONE") = (int)RCS_DONE;
-    // scope().attr("RCS_ERROR") = (int)RCS_ERROR;
 
 #define VAL(X)  .value(#X, X)
 
@@ -314,19 +295,8 @@ BOOST_PYTHON_MODULE(emctask) {
 	VAL(EMC_ABORT_USER)
 	;
 
-    // class_<Task, shared_ptr<Task>, noncopyable>("__Task",  " Pretend I Don't exist",  no_init)
-    //    .def("emcToolPrepare", &Task::emcToolPrepare)
-    //    .def("emcToolLoad", &Task::emcToolLoad)
-    //    .def("emcToolUnload", &Task::emcToolUnload)
-    //    .def("emcToolSetNumber", &Task::emcToolSetNumber)
-
-    // 	;
-
     class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
-	// .def("emcToolPrepare", &Task::emcToolPrepare, &TaskWrap::default_emcToolPrepare)
-	// .def("emcToolLoad", &Task::emcToolLoad, &TaskWrap::default_emcToolLoad)
-	// .def("emcToolUnload", &Task::emcToolUnload, &TaskWrap::default_emcToolUnload)
-	// .def("emcToolSetNumber", &Task::emcToolSetNumber, &TaskWrap::default_emcToolSetNumber)
+
 	.def_readonly("use_iocontrol", &Task::use_iocontrol)
 	.def_readonly("random_toolchanger", &Task::random_toolchanger)
 	.def_readonly("tooltable_filename", &Task::tooltable_filename)
