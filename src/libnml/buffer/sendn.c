@@ -39,7 +39,6 @@ int sendn(int fd, const void *vptr, int n, int _flags, double _timeout)
     double start_time, current_time, timeleft;
     char *ptr;
     struct timeval timeout_tv;
-    struct timeval timeout_tv_copy;
     fd_set send_fd_set;
 
     timeout_tv.tv_sec = (long) _timeout;
@@ -47,7 +46,6 @@ int sendn(int fd, const void *vptr, int n, int _flags, double _timeout)
     if (timeout_tv.tv_usec >= 1000000) {
 	timeout_tv.tv_usec = timeout_tv.tv_usec % 1000000;
     }
-    timeout_tv_copy = timeout_tv;
     FD_ZERO(&send_fd_set);
     FD_SET(fd, &send_fd_set);
 
