@@ -439,7 +439,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def("set_errormsg", &wrap_setError)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
 	.def("synch", &Interp::synch)
-	.def("print_named_params", &Interp::print_named_params)
 	.def_readonly("filename", (char *) &Interp::_setup.filename)
 	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
 	.def_readonly("current_tool", &Interp::_setup.tool_table[0].toolno)
