@@ -3436,7 +3436,7 @@ int sockMain()
 int main(int argc, char **argv)
 {
     int n, fd;
-    int keep_going, retval, errorcount;
+    int keep_going, errorcount;
     int opt;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
@@ -3579,7 +3579,6 @@ int main(int argc, char **argv)
 	return 1;
     }
     hal_ready(comp_id);
-    retval = 0;
     errorcount = 0;
     initSockets();
     /* HAL init is OK, let's process the command(s) */
