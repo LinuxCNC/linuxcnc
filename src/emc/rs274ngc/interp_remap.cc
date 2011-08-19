@@ -76,10 +76,10 @@ int Interp::convert_remapped_code(block_pointer block,
 
     settings->sequence_number = 1; // FIXME not sure..
 
-    // some remapped handlers may Python code to
+    // remapped handlers may use Python code to
     // setup environment before, and finish work after doing theirs.
     // That's what prolog and epilog functions are for.
-    // Statically these are described in the remap descriptor (read from ini).
+    // These are described in the remap descriptor as read from ini.
 
     // Since a remap is always executed in the context of a controlling block,
     // this block now contains fields which hold dynamic remap information.
@@ -92,8 +92,10 @@ int Interp::convert_remapped_code(block_pointer block,
 
     // On the corresponding O_endsub/O_return, any epilog function
     // will be executed, doing any work not doable in an NGC file.
-    // (we do not want to expose boost.python objects in method paramters -
-    // this impacts too much code)
+
+    // The reason for passing parameters through the block struct:
+    // We can avoid exposing boost.python objects in method argument lists -
+    // this impacts too much code
 
     // Note that even Python-remapped execution is pulled through the
     // oword mechanism - so no duplication of handler calling code
