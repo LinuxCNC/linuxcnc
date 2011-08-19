@@ -602,7 +602,6 @@ typedef struct setup_struct
   char filename[PATH_MAX];      // name of currently open NC code file
   FILE *file_pointer;           // file pointer for open NC code file
   bool flood;                 // whether flood coolant is on
-    // int tool_offset_index;        // for use with tool length offsets // unused mah
   CANON_UNITS length_units;     // millimeters or inches
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read

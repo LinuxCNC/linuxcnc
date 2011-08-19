@@ -518,9 +518,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("spindle_mode", &Interp::_setup.spindle_mode)
 	.def_readwrite("spindle_turning", &Interp::_setup.spindle_turning)
 	.def_readwrite("tool_offset", &Interp::_setup.tool_offset)
-
-	//unused,removed  .def_readwrite("tool_offset_index", &Interp::_setup.tool_offset_index)
-
 	.def_readwrite("toolchange_flag", &Interp::_setup.toolchange_flag)
 	.def_readwrite("traverse_rate", &Interp::_setup.traverse_rate)
 	.def_readwrite("u_axis_offset", &Interp::_setup.u_axis_offset)

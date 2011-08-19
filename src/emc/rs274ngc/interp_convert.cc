@@ -5133,7 +5133,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
   settings->tool_offset = tool_offset;
-  // settings->tool_offset_index = index;  // unused variable
   return INTERP_OK;
 }
 
