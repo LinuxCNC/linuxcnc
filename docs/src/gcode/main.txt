@@ -2051,38 +2051,10 @@ they are defined. They may be called from other functions, and may call
 themselves recursively if it makes sense to do so. The maximum
 subroutine nesting level is 10.
 
-=== Subroutine return values [[sec:Subroutine-return-values]]
-Subroutines may pass optional return values when executing `return` or
-`endsub`. The value of an optional expression after a `return` or
-`endsub` sets the <<param:_value,`#<_value>`>> named parameter. A
-`return` or `endsub` with no trailing expression sets `#<_value>` to
-0:
-
-[source,{ngc}]
----------------------------------------------------------------------
-o1000 sub
-o1010 if [#1 GT 0]
-o1010    return [123]  ; sets #<_value> to 123
-o1010 endif
-
-o1020 if [#1 LT 0]
-o1020    return  ; sets #<_value> to default value of 0
-o1020 endif
-
-o1000 endsub [4711]  ; sets #<_value> to 4711
-
-o1000 call [23]
-o2000 if [#<_value> EQ 0] ; accessing the return value
-...
----------------------------------------------------------------------
-
-=== Subroutine side effects
-Subroutines may change the value
+Subroutines do not have "return values", but they may change the value
 of parameters above #30 and those changes will be visible to the
 calling code. Subroutines may also change the value of global named
 parameters.
-
-
 
 == Looping: do, while, endwhile, break, continue (((Looping: do, while, endwhile, break, continue)))
 
