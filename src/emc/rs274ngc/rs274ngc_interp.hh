@@ -562,7 +562,7 @@ public:
     //technically this violates encapsulation rules but is needed for
     // the Python introspection module // FIXME mah deleatur
 
-    friend setup *get_setup(const Interp *x) { return &x->_setup;};
+    // friend setup *get_setup(const Interp *x) { return &x->_setup;};
 
     void print_remaps(void);
     void print_remap(const char *key);
