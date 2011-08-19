@@ -495,11 +495,9 @@ static void change_zoom(int dir, int x) {
     scope_disp_t *disp = &(ctrl_usr->disp);
 
     double old_pixels_per_sample, pixels_per_div,
-           pixels_per_sec, new_pixels_per_sample, old_fraction, new_fraction,
-           overall_record_length;
+           pixels_per_sec, new_pixels_per_sample, old_fraction, new_fraction;
 
     old_pixels_per_sample = disp->pixels_per_sample;
-    overall_record_length = horiz->sample_period * ctrl_shm->rec_len;
 
     set_horiz_zoom(horiz->zoom_setting + dir);
 
