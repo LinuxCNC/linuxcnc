@@ -486,7 +486,6 @@ static void dialog_realtime_not_linked(void)
     GtkWidget *hbox, *label;
     GtkWidget *button;
     GtkWidget *buttons[5];
-    GSList *buttongroup;
     GtkWidget *scrolled_window;
     gchar *titles[2];
     const gchar *title, *msg;
@@ -636,13 +635,9 @@ static void dialog_realtime_not_linked(void)
     /* box for record length buttons */
     gtk_label_new_in_box(_("Record Length"),
 	GTK_DIALOG(dialog.window)->vbox, TRUE, TRUE, 0);
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
-	FALSE, TRUE, 5);
     /* now define the radio buttons */
     snprintf(buf, BUFLEN, _("%5d samples (1 channel)"), ctrl_shm->buf_len);
     buttons[0] = gtk_radio_button_new_with_label(NULL, buf);
-    buttongroup = gtk_radio_button_group(GTK_RADIO_BUTTON(buttons[0]));
     snprintf(buf, BUFLEN, _("%5d samples (2 channels)"), ctrl_shm->buf_len / 2);
     buttons[1] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
