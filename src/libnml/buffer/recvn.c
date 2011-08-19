@@ -42,7 +42,6 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
     int *bytes_read_ptr)
 {
     int nleft, nrecv;
-    int select_ret;
     char *ptr;
     double start_time, current_time, timeleft;
     struct timeval timeout_tv;
@@ -112,8 +111,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	    if (timeout_tv.tv_usec >= 1000000) {
 		timeout_tv.tv_usec = timeout_tv.tv_usec % 1000000;
 	    }
-	    switch (select_ret =
-		select(fd + 1, &recv_fd_set, (fd_set *) NULL,
+	    switch (select(fd + 1, &recv_fd_set, (fd_set *) NULL,
 		    (fd_set *) NULL, &timeout_tv)) {
 	    case -1:
 		rcs_print_error("Error in select: %d -> %s\n", errno,
