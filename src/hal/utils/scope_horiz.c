@@ -323,7 +323,6 @@ int set_sample_thread(char *name)
        during the dialog, and sctivating it when the dialog
        is closed.  This may not be neccessary, but that is
        how it works right now. */
-    rv = 0;
     rv = set_sample_thread_name(name);
     if ( rv < 0 ) {
 	return rv;
