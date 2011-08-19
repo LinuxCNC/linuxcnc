@@ -46,7 +46,6 @@ char ConvTypeOffsetVar(char * RawLine,int *VarType,int * VarOffset)
 	EndOfValue = RawLine;
 
 	/* Extract Var Type */
-	StartOfValue = EndOfValue;
 	do
 	{
 		EndOfValue++;
