@@ -24,39 +24,6 @@ class SqlToolAccess(object):
         cursor.close()
         conn.close()
 
-    def fetch_tool(self,t):
-        result = None
-        try:
-            conn = pyodbc.connect(self.connectstring)
-            cursor = conn.cursor()
-            row = cursor.execute("""
-                   select
-                       toolno as id,
-                       x_offset as xoffset,
-                       y_offset as yoffset,
-                       z_offset as zoffset,
-                       a_offset as aoffset,
-                       b_offset as boffset,
-                       c_offset as coffset,
-                       u_offset as uoffset,
-                       v_offset as voffset,
-                       w_offset as woffset,
-                       diameter,
-                       frontangle,
-                       backangle,
-                       orientation
-                   from tools where toolno = ?;
-                   """, t).fetchone()
-
-            if row:
-                print "fetch_tool(%d) = %s" % (t,str(row))
-                return row
-            else:
-                print "fetch_tool(%d): no such record" % (t)
-                return  None #(-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
-        except pyodbc.Error, e:
-            traceback.print_exc(file=sys.stdout)
-            raise
 
     def load_table(self, tooltable,comments,fms):
         ''' populate the table'''
