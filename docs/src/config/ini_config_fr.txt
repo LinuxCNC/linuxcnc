@@ -189,8 +189,8 @@ MACHINE = ma machine::
 DEBUG = 0::
      Niveau de débogage 0 signifie pas de messages seront imprimés lorsque 
     EMC est géré à partir d'un terminal. Drapeaux de débogage ne sont 
-    généralement utiles pour les développeurs. Voir
-    ../src/emc/nml_int / emcglb.h pour les autres paramètres.
+    généralement utiles pour les développeurs. Voir 
+    ../src/emc/nml_intf/emcglb.h pour les autres paramètres.
 
 === Section [DISPLAY][[sub:Section-[DISPLAY]]](((Fichier INI-DISPLAY)))
 
@@ -354,25 +354,25 @@ must write RS274NGC code to standard output. This output is what will
 be displayed in the text area, previewed in the display area, and
 executed by EMC when Run.
 
-    PROGRAM_EXTENSION = .extension Description::
+*PROGRAM_EXTENSION = .extension Description*
 
 If your post processor outputs files in all caps you might want to add
 the following line:
 
-    PROGRAM_EXTENSION = .NGC XYZ Post Processor::
+*PROGRAM_EXTENSION = .NGC XYZ Post Processor*
 
 The following lines add support for the image-to-gcode converter
 included with EMC2:
 
-    PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image::
-    png = image-to-gcode::
-    gif = image-to-gcode::
-    jpg = image-to-gcode::
+*PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image* +
+    *png = image-to-gcode* +
+    *gif = image-to-gcode* +
+    *jpg = image-to-gcode*
 
 It is also possible to specify an interpreter:
 
-    PROGRAM_EXTENSION = .py Python Script::
-    py = python::
+*PROGRAM_EXTENSION = .py Python Script* +
+    *py = python*
 
 In this way, any Python script can be opened, and its output is
 treated as g-code. One such example script is available at
@@ -384,27 +384,27 @@ http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emc
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form
 
-    FILTER_PROGRESS=%d::
+*FILTER_PROGRESS=%d*
 
-Sets the AXIS progress bar to the given percentage. This feature
+sets the AXIS progress bar to the given percentage. This feature
 should be used by any filter that runs for a long time.
 
 === [RS274NGC] Section[[sub:[RS274NGC]-section]](((RS274NGC (inifile section))))
 
-PARAMETER_FILE = myfile.var::(((PARAMETER FILE)))
-     The file located in the same directory as the ini
+PARAMETER_FILE = myfile.var::
+    (((PARAMETER FILE))) The file located in the same directory as the ini
     file which contains the parameters used by the interpreter (saved
     between runs). 
 
-RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98::(((RS274NGC STARTUP CODE)))
-     Une chaine de codes NC qui sera utilisée
+RS274NGC_STARTUP_CODE = G01 G17 G20 G40 G49 G64.1 P0.001 G80 G90 G92 G94 G97 G98::
+    (((RS274NGC STARTUP CODE))) Une chaine de codes NC qui sera utilisée
     pour initialiser l'interpréteur. Elle ne se substitue pas à la
     spécification des gcodes modaux du début de chaque fichier ngc. Les
     codes modaux des machines diffèrent, ils pourraient être modifiés par
     les gcodes interprétés plus tôt dans la session. 
 
-SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs::(((SUBROUTINE PATH)))
-     Specifies a colon (:) separated list of up to 10
+SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs::
+    (((SUBROUTINE PATH))) Specifies a colon (:) separated list of up to 10
     directories to be searched when single-file subroutines are specified
     in gcode. These directories are searched after searching
     [DISPLAY]PROGRAM_PREFIX (if it is specified) and before searching
@@ -413,11 +413,11 @@ SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs::(((SUBROUTINE 
     current directory for the inifile or as absolute paths. The list must
     contain no intervening whitespace.
 
-USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes::(((USER M PATH)))
-     specifies a list of colon (:) separated directories
+USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes::
+    (((USER M PATH))) Specifies a list of colon (:) separated directories
     (no intervening whitespace) for user defined functions. The maximum
-    number of directories is defined at compile time by:
-    USER_DEFINED_FUNCTION_MAX_DIRS=5. Directories are specified relative to
+    number of directories is defined at compile time by: +
+    `USER_DEFINED_FUNCTION_MAX_DIRS=5`. Directories are specified relative to
     the current directory for the inifile or as absolute paths. The list
     must contain no intervening whitespace. 
 
@@ -425,19 +425,19 @@ A search is made for each possible user defined function, typically
 (M100-M199). The search order is:
 
  . [DISPLAY]PROGRAM_PREFIX (if specified)
- . If [DISPLAY]PROGRAM_PREFIX is not specified, search the default
-   location: nc_files
+ . If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location: nc_files
  . Then search each directory in the list [RS274NGC]USER_M_PATH
 
 The first executable M1xx found in the search is used for each M1xx.
 
-=== Section [EMCMOT][[sub:Section-[EMCMOT]]](((Fichier INI-EMCMOT)))
+=== Section [EMCMOT][[sub:Section-[EMCMOT]]]
+(((Fichier INI-EMCMOT)))
 
 You may find other entries in this section and they should not be
 changed.
 
-BASE_PERIOD = 50000::(((BASE PERIOD)))
-     (HAL) “Période de base” des tâches, exprimée en nanosecondes. 
+BASE_PERIOD = 50000::
+    (((BASE PERIOD))) (HAL) “Période de base” des tâches, exprimée en nanosecondes. 
     C'est la plus rapide des horloges de la machine. 
 
      Avec un système à servomoteurs, il n'y a généralement pas de raison
@@ -456,10 +456,11 @@ BASE_PERIOD = 50000::(((BASE PERIOD)))
     Choisir une BASE_PERIOD trop basse peut amener à des messages
     “Unexpected realtime delay”, des bloquages ou des reboots spontanés.
 
-SERVO_PERIOD = 1000000::(((SERVO PERIOD)))
-     (hal) Période de la tâche “Servo”, exprimée également en nanosecondes. 
+SERVO_PERIOD = 1000000::
+    (((SERVO PERIOD))) (hal) Période de la tâche “Servo”, exprimée également en nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de *BASE_PERIOD*. 
     Elle est utilisée aussi sur des systèmes basés sur des moteurs pas à pas 
+
     C'est la vitesse avec laquelle la nouvelle position des moteurs est
     traitée, les erreurs de suivi vérifiées, les valeurs des sorties PID
     sont rafraichies etc. 
@@ -467,14 +468,15 @@ SERVO_PERIOD = 1000000::(((SERVO PERIOD)))
     s'agit du taux de mise à jour du
     planificateur de mouvement de bas niveau.
 
-TRAJ_PERIOD = 1000000::(((TRAJ PERIOD)))
-     (hal) Période du planificateur de trajectoire, exprimée en nanosecondes. 
+TRAJ_PERIOD = 1000000::
+    (((TRAJ PERIOD)))      (hal) Période du planificateur de trajectoire, exprimée en nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de *SERVO_PERIOD*. 
     Excepté pour les machines avec une cinématique particulière 
     (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur 
     supérieure à *SERVO_PERIOD*.
 
-=== Section [TASK] [[sub:Section-[TASK]]](((Fichier INI-TASK )))
+=== Section [TASK] [[sub:Section-[TASK]]]
+(((Fichier INI-TASK )))
 
 TASK = milltask::
      Indique le nom de la "tâche" exécutable. "tâche" ne différentes
@@ -493,7 +495,8 @@ CYCLE_TIME = 0.010::
     une commande provenant d'une interface utilisateur est acceptée. Il
     n'est généralement pas nécessaire de modifier cette valeur.
 
-=== Section [HAL] [[sub:Section-[HAL]]](((Fichier INI-HAL )))
+=== Section [HAL] [[sub:Section-[HAL]]]
+(((Fichier INI-HAL )))
 
 HALFILE = example.hal::
      Exécute le fichier 'example.hal' au démarrage. Si *HALFILE*  est
@@ -527,13 +530,15 @@ d'autres logiciels de protection des défauts de fonctionnement.
 '(Seulement avec l'interface AXIS)' Exécute 'example2.hal' après que
 l'interface graphique ait créé ses HAL pins. 
 
-=== [HALUI] section[[sub:[HALUI]-section]](((HALUI (inifile section))))
+=== [HALUI] section[[sub:[HALUI]-section]]
+(((HALUI (inifile section))))
 
 MDI_COMMAND = G53 G0 X0 Y0 Z0::
      Une commande MDI peut être exécuté en utilisant halui.mdi-command-00. 
     Incrément le nombre pour chaque commande énumérés dans la section [HALUI].
 
-=== Section [TRAJ][[sub:Section-[TRAJ]]](((Fichier INI-TRAJ )))
+=== Section [TRAJ][[sub:Section-[TRAJ]]]
+(((Fichier INI-TRAJ )))
 
 La section [TRAJ] contient les paramètres généraux du module
 planificateur de trajectoires d' EMCMOT. Vous n'aurez pas à modifier
@@ -647,8 +652,8 @@ WRAPPED_ROTARY = 1::
     degrees. Positive Numbers will move the axis in a positive direction and
     negative numbers will move the axis in the negative direction.
 
-UNITS = inch::(((UNITS)))
-     Ce réglage écrase celui des variables [TRAJ] UNITS si il est spécifié. 
+UNITS = inch::
+    (((UNITS))) Ce réglage écrase celui des variables [TRAJ] UNITS si il est spécifié. 
     (ex: [TRAJ]LINEAR_UNITS si le TYPE de cet axe est LINEAR, 
     [TRAJ]ANGULAR_UNITS si le TYPE de cet axe est ANGULAR)
 
@@ -690,16 +695,16 @@ COMP_FILE_TYPE = 0 ou 1::
     Exemple de triplet avec COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
     Exemple de triplet avec COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
 
-MIN_LIMIT = -1000::(((MIN LIMIT)))
-     Limite minimum des mouvements de cet axe (limite soft), en unités machine. 
+MIN_LIMIT = -1000::
+    (((MIN LIMIT))) Limite minimum des mouvements de cet axe (limite soft), en unités machine. 
     Quand cette limite tend à être dépassée, le contrôleur arrête le mouvement. 
 
-MAX_LIMIT = 1000::(((MAX LIMIT)))
-     Limite maximum des mouvements de cet axe (limite soft), en unités machine. 
+MAX_LIMIT = 1000::
+    (((MAX LIMIT))) Limite maximum des mouvements de cet axe (limite soft), en unités machine. 
     Quand cette limite tend à être dépassée, le contrôleur arrête le mouvement.
 
-MIN_FERROR = 0.010::(((MIN FERROR)))
-     Valeur indiquant, en unités machine, de combien le 
+MIN_FERROR = 0.010::
+    (((MIN FERROR))) Valeur indiquant, en unités machine, de combien le 
     mobile peut dévier à très petite vitesse de la position commandée. Si
     MIN_FERROR est plus petit que FERROR, les deux produisent une rampe de
     points de dérive. Vous pouvez imaginer un graphe sur lequel une
@@ -707,8 +712,8 @@ MIN_FERROR = 0.010::(((MIN FERROR)))
     vitesse augmente, la quantité d'erreurs de suivi augmente également et
     tend vers la valeur FERROR. 
 
-FERROR = 1.0::(((FERROR)))
-     FERROR est le maximum d'erreurs de suivi tolérable, en unités machine. 
+FERROR = 1.0::
+    (((FERROR))) FERROR est le maximum d'erreurs de suivi tolérable, en unités machine. 
     Si la différence entre la position commandée et la
     position retournée excède cette valeur, le contrôleur désactive les
     calculs des servomoteurs, positionne toutes les sorties à 0.0 et coupe
@@ -743,8 +748,8 @@ HOME_OFFSET = 0.0::
      Position du contact d'origine machine de l'axe ou impulsion d'index,
     en unités machine.
 
-HOME_SEARCH_VEL = 0.0::(((HOME SEARCH VEL)))
-     Vitesse du mouvement inital de prise d'origine,
+HOME_SEARCH_VEL = 0.0::
+    (((HOME SEARCH VEL))) Vitesse du mouvement inital de prise d'origine,
     en unités machine par seconde. Une valeur de zéro suppose que la
     position courante est l'origine machine. Si votre machine n'a pas de
     contact d'origine, laissez cette valeur à zéro.
@@ -811,12 +816,12 @@ here at first, until you've been through "gross tuning" at least.
 
 Example of calculating machine units per encoder count to use in deciding DEADBAND value: 
 
-latexmath:[$ \frac{X\, inches}{1\, encoder\, count} = 
+latexmath:[ \frac{X\, inches}{1\, encoder\, count} = 
 \frac{1\, revolution}{1000\, encoder\, lines} \times 
 \frac{1\, encoder\, line}{4\, quadrature\, counts} \times 
 \frac{0.200\, inches}{1\, revolution} = 
 \frac{0.200\, inches}{4000\, encoder\, counts} = 
-\frac{0.000050\, inches}{1\, encoder\, count} $]
+\frac{0.000050\, inches}{1\, encoder\, count} ]
 
 BIAS = 0.000::
      (in HAL) '(Sometimes called *offset*)' This is used by hm2-servo and some others. 
@@ -899,7 +904,7 @@ OUTPUT_OFFSET = 0.000::
     une machine sur laquelle une tension de consigne de l'ampli de 1 Volt 
     donne une vitesse de 250 mm/sec :
     
-    latexmath:[$ amplifier [ volts ] = ( output [ \frac{mm}{sec} ] - offset [ \frac{mm}{sec} ] ) / 250 \frac{mm}{sec\, volt} ] $]
+    latexmath:[ amplifier [ volts ] = ( output [ \frac{mm}{sec} ] - offset [ \frac{mm}{sec} ] ) / 250 \frac{mm}{sec\, volt} ] ]
     
     Notez que les unités d'offset sont en unités machine, exemple:
     mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
@@ -947,39 +952,39 @@ MAX_OUTPUT = 10::
     manière symétrique aux deux le plus et le côté négatif.
 
 INPUT_SCALE = 20000::
-      (hal)  (((INPUT SCALE)))Spécifie le nombre d'impulsions qui
-    correspond à un mouvement d'une unité machine. 
-    Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
-    Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
-    Un second chiffre, si spécifié, sera ignoré. 
-     Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
-    réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
-    
-    latexmath:[$ INPUT\_SCALE = 
-    \frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
-    \frac{20000\, counts}{inch} $]
+(((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui
+correspond à un mouvement d'une unité machine. 
+Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
+Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
+Un second chiffre, si spécifié, sera ignoré. 
+Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
+réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
+
+latexmath:[ INPUT\_SCALE = 
+\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
+\frac{20000\, counts}{inch} ]
 
 ==== Variables relatives aux moteurs pas à pas [[sub:Variables relatives aux moteurs pas a pas]]
 
-SCALE = 4000::(((INPUT SCALE)))
-     (hal) Spécifie le nombre d'impulsions qui correspond à un 
-    mouvement d'une unité machine comme indiqué dans la section [TRAJ]. 
-    Pour les sytèmes à moteurs pas à pas, c'est 
-    le nombre d'impulsions de pas nécessaires pour avancer d'une unité machine. 
-    Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
-    Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
-    Pour les systèmes à servo, c'est le nombre d'impulsions
-    de retour signifiant que le mobile a avancé d'une unité machine. 
-    Un second chiffre, si spécifié, sera ignoré. 
-     Par exemple, un pas moteur de 1.8 degré, en mode demipas, avec une
-    réduction de 10 tours/pouce et des unités souhaitées en mm, nous
-    avons:
-    
-    latexmath:[$ scale = 
-    \frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
-    \frac{4000\, steps}{inch} $]
-    
-    (D'anciens fichiers de .ini et .hal utilisaient INPUT_SCALE pour cette valeur.)
+SCALE = 4000::
+(((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 
+mouvement d'une unité machine comme indiqué dans la section [TRAJ]. 
+Pour les sytèmes à moteurs pas à pas, c'est 
+le nombre d'impulsions de pas nécessaires pour avancer d'une unité machine. 
+Pour un axe linéaire d'une unité machine sera égal à l'établissement d'LINEAR_UNITS. 
+Pour un axe angulaire d'une unité est égale à la mise en ANGULAR_UNITS. 
+Pour les systèmes à servo, c'est le nombre d'impulsions
+de retour signifiant que le mobile a avancé d'une unité machine. 
+Un second chiffre, si spécifié, sera ignoré. 
+Par exemple, un pas moteur de 1.8 degré, en mode demipas, avec une
+réduction de 10 tours/pouce et des unités souhaitées en mm, nous
+avons:
+
+latexmath:[ scale = 
+\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
+\frac{4000\, steps}{inch} ]
+
+(D'anciens fichiers de .ini et .hal utilisaient INPUT_SCALE pour cette valeur.)
 
 STEPGEN_MAXACCEL = 21.0::
      (hal) Limite d'accélération pour le générateur de pas. Elle doit être
