@@ -5079,20 +5079,15 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
       if(block->h_flag) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
-
-	// FIXME mah:
-      } else
-	  index = settings->current_pocket;
-    // } else if (settings->toolchange_flag) {
-    //     // we haven't loaded the tool and swapped pockets quite yet
-    //     index = settings->current_pocket;
-    // } else {
-    //     // tool change is done so pockets are swapped
-    //     index = 0;
-    // }
+    } else if (settings->toolchange_flag) {
+        // we haven't loaded the tool and swapped pockets quite yet
+        index = settings->current_pocket;
+    } else {
+        // tool change is done so pockets are swapped
+        index = 0;
+    }
     logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
 	     index, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
-
 
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);
