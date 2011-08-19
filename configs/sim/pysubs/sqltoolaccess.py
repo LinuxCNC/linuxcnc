@@ -58,68 +58,6 @@ class SqlToolAccess(object):
             traceback.print_exc(file=sys.stdout)
             raise
 
-    def get_tool(self,p):
-        for t in self.get_tool_list():
-            print t.pocket
-            if t.pocket == p:
-                return t[0:14]
-        return (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
-
-
-    def get_tool_list(self):
-        try:
-            conn = pyodbc.connect(self.connectstring)
-            cursor = conn.cursor()
-            cursor.execute("""
-                   select
-                       toolno as id,
-                       x_offset as xoffset,
-                       y_offset as yoffset,
-                       z_offset as zoffset,
-                       a_offset as aoffset,
-                       b_offset as boffset,
-                       c_offset as coffset,
-                       u_offset as uoffset,
-                       v_offset as voffset,
-                       w_offset as woffset,
-                       diameter,
-                       frontangle,
-                       backangle,
-                       orientation,
-                       pocket
-                   from tools order by pocket asc;""")
-            result = cursor.fetchall()
-            for row in result:
-                print "got", row
-            return result
-
-        except pyodbc.Error, e:
-            traceback.print_exc(file=sys.stdout)
-        else:
-            start = 0 if self.random_toolchanger else 1
-            for p in range(start,len(tooltable)):
-                t = tooltable[p]
-                if t.toolno != -1: print str(t)
-        finally:
-            cursor.close()
-            conn.close()
-
-    def get_loading(self):
-        try:
-            result = dict()
-            conn = pyodbc.connect(self.connectstring)
-            cursor = conn.cursor()
-            for l in cursor.execute("select toolno, pocket from tools").fetchall():
-                result[l.pocket] = l.toolno
-            return result
-
-        except pyodbc.Error, e:
-            traceback.print_exc(file=sys.stdout)
-        finally:
-            cursor.close()
-            conn.close()
-
-
     def load_table(self, tooltable,comments,fms):
         ''' populate the table'''
         try:
@@ -214,7 +152,7 @@ class SqlToolAccess(object):
             if row:
                 e.io.tool.pocketPrepped = row.pocket_prepped
                 e.io.tool.toolInSpindle = row.tool_in_spindle
-                print "restored tool=%d pocket=%d" % (row.tool_in_spindle,row.pocket_prepped)
+                print "restored tool=%d pocketPrepped=%d" % (row.tool_in_spindle,row.pocket_prepped)
             else:
                 print "no saved state record found"
 
@@ -226,17 +164,3 @@ class SqlToolAccess(object):
             conn.close()
 
 
-if __name__ == '__main__':
-    import sys
-    import emc
-    inifile = emc.ini(sys.argv[1])
-    random_toolchanger = False
-
-    tt = SqlToolAccess(inifile, random_toolchanger)
-    x =  tt.fetch_tool(2)
-    print "tool id=%d/%d zoffset=%g/%g diameter=%g/%g" % (x.id,x[0], x.zoffset,x[3],x.diameter,x[10])
-    print tt.fetch_tool(29)
-    print tt.get_tool_list()
-
-    x=  tt.get_tool(9)
-    print len(x),x
