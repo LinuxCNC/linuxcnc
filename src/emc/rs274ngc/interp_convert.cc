@@ -2865,10 +2865,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M68 reads an analog input*/
 
   if (IS_USER_MCODE(block,settings,5) && ONCE_M(5))  {
-
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
 				   block->m_modes[5]);
-
   } else if ((block->m_modes[5] == 62) && ONCE_M(5)) {
       CHKS((settings->cutter_comp_side),
            (_("Cannot set motion output with cutter radius compensation on")));  // XXX
@@ -2972,7 +2970,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }
 
   if ((block->m_modes[6] != -1)  && ONCE_M(6)){
-      int toolno, pocket;
+      int toolno;
       switch (block->m_modes[6]) {
       case 6:
 	  if (IS_USER_MCODE(block,settings,6)) {
@@ -2994,6 +2992,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
+	      int pocket;
+
 	      // make sure selected tool exists
 	      CHP((find_tool_pocket(settings, toolno, &pocket)));
 	      settings->current_pocket = pocket;
@@ -3059,31 +3059,23 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 			     block->p_flag ? block->p_number : 0);
   } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
 
-    // save state in current stack frame. We borrow the o-word call stack
-    // and extend it to hold modes & settings.
+     // save state in current stack frame. We borrow the o-word call stack
+     // and extend it to hold modes & settings.
+     save_context(&_setup);
 
-    // MSG("---- M%d, call_level=%d)\n", block->m_modes[7],_setup.call_level);
-    // if (_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID) {
-    // 	  MSG("----- overwriting valid M70 context, call_level=%d\n",_setup.call_level);
-    // }
+     // flag this frame as containing a valid context
+     _setup.sub_context[_setup.call_level].context_status |= CONTEXT_VALID;
 
-      save_context(&_setup);
-
-      // flag this frame as containing a valid context
-      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_VALID;
-
-      // mark as auto-restore context
-      if (block->m_modes[7] == 73) {
-	  if (_setup.call_level == 0) {
-	      MSG("----- Warning - M73 at top level: nothing to return to; storing context anyway\n");
-	  } else {
-	      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_RESTORE_ON_RETURN;
-	  }
-      }
-
+     // mark as auto-restore context
+     if (block->m_modes[7] == 73) {
+	 if (_setup.call_level == 0) {
+	     MSG("Warning - M73 at top level: nothing to return to; storing context anyway\n");
+	 } else {
+	     _setup.sub_context[_setup.call_level].context_status |= CONTEXT_RESTORE_ON_RETURN;
+	 }
+     }
  } else if ((block->m_modes[7] == 71) && ONCE_M(7))  {
       // M72 - invalidate context at current level
-      // MSG("---- M71 - mark frame at level %d as invalid\n",_setup.call_level);
       _setup.sub_context[_setup.call_level].context_status &= ~CONTEXT_VALID;
 
  } else if ((block->m_modes[7] == 72)  && ONCE_M(7)) {
@@ -3091,15 +3083,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       // restore state from current stack frame.
       CHKS((!(_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID)),
            (_("Cannot restore context from invalid stack frame - missing M70/M73?")));
-
-      // MSG("---- M72 restore context, call_level=%d)\n", _setup.call_level);
       restore_context(&_setup, _setup.call_level);
   }
 
   if (IS_USER_MCODE(block,settings,8) && ONCE_M(8)) {
      return convert_remapped_code(block, settings, STEP_M_8, 'm',
 				   block->m_modes[8]);
-//return convert_remapped_mcode(block, settings, 8);
   } else if ((block->m_modes[8] == 7) && ONCE_M(8)){
       enqueue_MIST_ON();
       settings->mist = true;
@@ -3132,7 +3121,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
      return convert_remapped_code(block, settings, STEP_M_9, 'm',
 				   block->m_modes[9]);
-// return convert_remapped_mcode(block, settings, 9);
  } else if ((block->m_modes[9] == 48)  && ONCE_M(9)){
     CHKS((settings->cutter_comp_side),
          (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
