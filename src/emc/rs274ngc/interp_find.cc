@@ -14,7 +14,6 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
