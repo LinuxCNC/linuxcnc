@@ -18,10 +18,9 @@ class UserFuncs(object):
         self.myhal = myhal #FIXME
         self.components["myhal"] = myhal
 
-
-    def demo(self,s):
-        print "TASK: demo(%s)" % s
-        for i in range(int(s[0])):
+    def demo(self,*args, **kwargs):
+        print "TASK: demo(%s,%s)" % (args,kwargs)
+        for i in range(int(args[0])):
             self.myhal['bit'] = not  self.myhal['bit']
         return emctask.RCS_STATUS.RCS_DONE
 

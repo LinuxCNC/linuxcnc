@@ -3075,7 +3075,7 @@ void IO_PLUGIN_CALL(int len, const char *call)
     memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
     call_msg.len = len;
 
-    printf("canon: IO_PLUGIN_CALL(arglen=%d)\n",strlen(call));
+    printf("canon: IO_PLUGIN_CALL(arglen=%d)\n",len);
 
     interp_list.append(call_msg);
 }

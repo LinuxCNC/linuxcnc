@@ -283,7 +283,7 @@ class CustomTask(emctask.Task,UserFuncs):
 
 
     def emcIoPluginCall(self, len, msg):
-        if debug(): print "py: emcIoPluginCall" # ,msg
+        if debug(): print "py: emcIoPluginCall len=%d msg=%s" %(len,msg)
         call = pickle.loads(msg)
         func = getattr(self, call[0], None)
         if func:
@@ -492,7 +492,7 @@ class EnqueueCall(object):
 
     def _encode(self,*args,**kwargs):
         if hasattr(self._e,self._name) and callable(getattr(self._e,self._name)):
-            p = pickle.dumps((self._name,args,kwargs)) # ,-1) # hm, binary wont work just yet
+            p = pickle.dumps((self._name,args,kwargs),-1) #  binary pickle
             emccanon.IO_PLUGIN_CALL(int(len(p)),p)
         else:
             raise AttributeError,"no such Task method: " + self._name

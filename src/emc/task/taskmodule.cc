@@ -115,7 +115,22 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND1(emcToolLoadToolTable, const char *, file)
     EXPAND(emcToolUnload)
     EXPAND1(emcToolSetNumber,int,number)
-    EXPAND2(emcIoPluginCall,int, len, const char *, msg)
+    // EXPAND2(emcIoPluginCall,int, len, const char *, msg)
+
+    int emcIoPluginCall(int len,const char *msg) {
+	if (bp::override f = this->get_override("emcIoPluginCall")) {
+	    try {
+		// binary picklings may contain zeroes
+		std::string buffer(msg,len);
+		return f(len,buffer);
+	    }
+	    catch( bp::error_already_set ) {
+		return handle_exception("emcIoPluginCall");
+	    }
+	} else
+	    return  Task::emcIoPluginCall(len,msg);
+    }
+
 
     int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
 			 double frontangle, double backangle, int orientation) {
