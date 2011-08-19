@@ -183,49 +183,6 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
   return INTERP_OK;
 }
 
-int Interp::report_error(setup_pointer settings,int status,const char *text)
-{
-    char interp_error_text_buf[LINELEN],msg[LINELEN];
-    char interp_stack_buf[LINELEN];
-
-    if (!RESULT_OK(status)) {
-	if (status  > INTERP_MIN_ERROR) {
-	    error_text(status, interp_error_text_buf, LINELEN);
-	    snprintf(msg,sizeof(msg),
-		     "%s:%d: \"%s\" - %s (%s)",
-		     settings->filename,
-		     sequence_number(),
-		     text,
-		     interp_error_text_buf,
-		     interp_status(status));
-	    MESSAGE(msg);
-	} else {
-	    snprintf(msg,sizeof(msg),
-		     "%s:%d: \"%s\" (%s)",
-		     settings->filename,
-		     sequence_number(),
-		     text,
-		     interp_status(status));
-	    MESSAGE(msg);
-	}
-    }
-    // from emctask.cc:print_interp_error(int retval)
-    int index = 0;
-    int traceback = 0;  // very intrusive
-    if (traceback &&  (status  > INTERP_MIN_ERROR)) {
-	while (index < 5) {
-	    interp_stack_buf[0] = 0;
-	    stack_name(index, interp_stack_buf, LINELEN);
-	    if (0 == interp_stack_buf[0]) {
-		break;
-	    }
-	    snprintf(msg,sizeof(msg),"%d: %s",index,interp_stack_buf);
-	    MESSAGE(msg);
-	    index++;
-	}
-    }
-    return status;
-}
 
 /****************************************************************************/
 
@@ -317,21 +274,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   }
   if ((block->t_flag) && ONCE(STEP_PREPARE)){
       if ((rptr = remapping("T")) != NULL) {
-	  // switch to generic remap using Python pro/epilogs
+	  // use generic remap using Python pro/epilogs
 	  return (convert_remapped_code(block,settings,STEP_PREPARE,'T'));
-
-	  // this was the hand-crafted remap
-	// int pocket;
-
-	// CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-
-	// // pocket will start making sense once tooltable I/O is folded into
-	// // interp and iocontrol is gone.
-	// CHP(execute_handler(settings, rptr, 2,
-	// 			 (double) block->t_number,
-	// 		    (double) pocket));
-	// return (-T_REMAP);
-
     } else {
 	CHP(convert_tool_select(block, settings));
     }
