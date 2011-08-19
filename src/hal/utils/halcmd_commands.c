@@ -277,8 +277,6 @@ int do_source_cmd(char *hal_filename) {
     halcmd_set_linenumber(lineno_save);
     halcmd_set_filename(filename_save);
     free(filename_save);
-    linenumber = lineno_save;
-
     fclose(f);
     return result;
 }
