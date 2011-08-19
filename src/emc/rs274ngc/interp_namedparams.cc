@@ -159,8 +159,8 @@ int Interp::read_named_parameter(
 }
 
 // if the variable is of the form '_[section]name', then treat it as
-// an inifile  variable. Lookup section/name and cached the value
-// as global, and read-only.
+// an inifile  variable. Lookup section/name and cache the value
+// as global and read-only.
 // the shortest possible ini variable is '_[s]n' .
 int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 {
