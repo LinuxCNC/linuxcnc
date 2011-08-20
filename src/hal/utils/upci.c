@@ -210,7 +210,7 @@ int upci_scan_bus(void)
 	    &dev->p.rom_size);
 	if (n != 17) {
 	    errmsg(__func__, "only %d items on %s line %d", n, DEVICES_FILE, linenum);
-	    goto cleanup2;
+	    goto cleanup3;
 	}
 	/* separate the packed fields */
 	dev->p.vendor_id = (vendordev >> 16) & 0xFFFF;
@@ -242,12 +242,12 @@ int upci_scan_bus(void)
 	fd = open(dev_fname, O_RDONLY);
 	if (fd < 0) {
 	    errmsg(__func__, "opening '%s': %s", dev_fname, strerror(errno));
-	    goto cleanup2;
+	    goto cleanup3;
 	}
 	n = read(fd, &cfg, sizeof(struct cfg_info));
 	if ( n != sizeof(struct cfg_info) ) {
 	    errmsg(__func__, "reading '%s': %s", dev_fname, strerror(errno));
-	    goto cleanup3;
+	    goto cleanup4;
 	}
 	close(fd);
 	dev->p.ss_vendor_id = cfg.ss_vendor_id;
@@ -272,8 +272,11 @@ int upci_scan_bus(void)
     }
     /* loop never falls through, success returns from inside the loop */
     /* errors jump here */
-cleanup3:
+cleanup4:
     close(fd);
+cleanup3:
+    free(dev);
+    num_devs --;
 cleanup2:
     free(lineptr);
     fclose(f);
