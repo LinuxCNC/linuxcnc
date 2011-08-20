@@ -579,6 +579,11 @@ program with if-then-else statements.
 #<_w>::
     Return absolute machine W coordinate. Same as #5428.
 
+#<_value>:: [[param:_value]]
+    Return value from the last O-word `return` or `endsub`.  Default
+    value 0 if no expression after `return` or `endsub`.  Initialized
+    to 0 on program start.  See also
+    <<sec:Subroutine-return-values,Subroutine return values>>.
 
 == Expressions [[sub:Expressions]]
 
