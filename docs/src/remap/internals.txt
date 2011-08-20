@@ -63,13 +63,14 @@ the following categories:
 
 1. configuration information (typically from INI file)
 2. the 'World model' - a representation of actual machine state
-3. modal state
+3. modal state and settings
 4. interpreter execution state
 
 (3) refers to state which is 'carried over' between executing
 individual NGC codes - for instance, once the spindle is turned on and
 the speed is set, it remains at this setting until turned off. The
-same goes for many codes, like feed, units and so forth.
+same goes for many codes, like feed, units, motion modes (feed or
+rapid)  and so forth.
 
 (4) holds information about the block currently executed, wether we
 are in a subroutine, interpreter variables etc.
@@ -610,11 +611,10 @@ foo
 
 == Advanced Prologs and Epilogs: Accessing interpreter internals
 
-InterpMod
-CanonMod
-TaskMod
+interpreter
+emccanon
+emctask
 
-foo
 
 == Organisation of Python plugin modules
 xxx

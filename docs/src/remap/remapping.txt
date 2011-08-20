@@ -1,5 +1,6 @@
-User-defined Codes
-===================
+//User-defined Codes
+Extending EMC2
+==============
 
 The EMC Team
 
@@ -30,13 +31,12 @@ Suite 330 Boston, MA 02111-1307
 
 :leveloffset: 1
 
-include::fundamentals.txt[]
+include::structure.txt[]
 
-include::reference.txt[]
-
-include::internals.txt[]
-
-include::tasksetup.txt[]
+// include::fundamentals.txt[]
+// include::reference.txt[]
+// include::internals.txt[]
+// include::tasksetup.txt[]
 
 // = Index
 

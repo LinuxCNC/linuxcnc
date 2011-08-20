@@ -4,13 +4,13 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-==== Remapping Codes: Principles of Operations
+= Remapping Codes: Principles of Operations
 
 First, a definition: by 'remapping codes' we mean one of the following:
 1. define the semantics of new - that is, currently unallocated - M- or G-codes
 2. redefine the semantics of a - currently limited - set of existing codes.
 
-==== Why would I want to 'remap a code'?
+== Why would I want to 'remap a code'?
 
 The set of codes (M,G,T,S,F) currently understood by the RS274NGC
 interpreter is fixed and cannot be extendedd by configuration options.
@@ -126,21 +126,4 @@ execution sequence (LINK)
 - do not require any word parameters, ignore
 any parameters present in the current block, and do not pass any values to 'myprocedure.ngc'.
 
-== Which codes are subject to remapping?
 
-The current set of unused M-codes open to user definition is:
-
-- codes M74..M99
-- codes M200..M999
-
-The current set of unused G-codes open to user definition is:
-
-- codes G64.9 through G97.9
-
-The current set of built-in codes open to redefinition is:
-
-- Tx (Prepare)
-- M6 (Change tool)
-- M61 (Set tool number)
-- Sx  (set spindle speed)
-- Fx  (set feed)

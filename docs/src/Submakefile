@@ -343,10 +343,8 @@ DOC_SRCS := \
 	Master_Integrator_es.txt \
 	Master_Integrator_fr.txt \
 	Master_Developer.txt \
-	remap/remapping.txt \
-	remap/fundamentals.txt \
-	remap/internals.txt \
-	remap/reference.txt
+	remap/structure.txt
+
 
 # DOC_SRCS_TXT := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
@@ -682,7 +680,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_fr.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
@@ -690,7 +688,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_es.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_de.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
@@ -698,20 +696,20 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.htm
 	         -a "linksfile=objects/xref_de.links" \
 		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
-	
+
 default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 $(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 $(DOC_DIR)/html/xref_de.html: objects/xref_de.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_de" --stringparam language german --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-	
+
 default: docs
 
 install-doc-pdf:

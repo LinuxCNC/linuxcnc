@@ -1,0 +1,813 @@
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+
+= Extending EMC
+
+== Introduction: Extending the RS274NGC Interpreter by Remapping Codes
+
+=== A Definition: Remapping Codes
+
+By 'remapping codes' we mean one of the following:
+
+. define the semantics of new - that is, currently unallocated - M- or G-codes
+. redefine the semantics of a - currently limited - set of existing codes.
+
+=== Why would you want to extend the RS274NGC Interpreter?
+
+The set of codes (M,G,T,S,F) currently understood by the RS274NGC
+interpreter is fixed and cannot be extendedd by configuration options.
+In particular, some of these codes implement a fixed sequence of steps
+to be executed. While some of these, like M6, can be moderately
+configured by activating or skipping some of these steps through ini
+file options, overall the behaviour is fairly rigid.
+
+In many cases, this means that supporting a non 'out of the box'
+configuration or machine is either cumbersome or impossible, or
+requires resorting to changes at the 'C/C\+\+' language level. The latter
+is unpopular for good reasons - changing internals requires in-depth
+understanding of interpreter internals, and moreover brings its own
+set of support issues. While it is conceivable that certain patches
+might make their way into the main EMC2 distribution, the result of
+this approach is a hodge-podge of special-case solutions.
+
+A good example for this deficiency is tool change support in EMC2:
+while random toolchangers are well supported, it is next to impossible
+to reasonably define a configuration for a manual-toolchange machine
+with, for example, an automatic tool length offset switch being
+visited after a toolchange, and offsets set accordingly. Also, while a
+patch for a very specific rack toolchanger exists, it has not found
+its way back into the main code base.
+
+However, many of these things may be fixed by using an O-word
+procedure instead of a builtin code - whenever the - insufficient -
+builtin code is to be executed, call the O-word procedure
+instead. While possible, it is cumbersome - it requires source-editing
+of NGC programs, replacing all calls to the deficient code by a an
+O-word procedure call.
+
+In it's simplest form a remapped code isnt much more than a
+spontaneous call to an O-word procedure. This happens behind the scenes
+- the procedure is visible at the configuration level, but not at the
+NGC program level.
+
+Generally, the behaviour of a remapped code may be defined in the following ways:
+
+- you define a O-word subroutine which implements the desired behaviour
+- alternatively, you may employ a Python function which extends the interpreter's behaviour.
+
+==== How to glue things together
+M- and G-codes, and O-words subroutine calls have some fairly different syntax.
+
+O-word procedures, for example, take positional parameters
+with a specific syntax like so:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o<test> call [1.234] [4.65]
+---------------------------------------------------------------------
+
+whereas M- or G-codes typically take required or optional 'word'
+parameters. For istance, G76 (threading) requires the P,Z,I,J and K
+words, and optionally takes the R,Q,H, E and L words.
+
+So it isnt simply enough to say 'whenever you encounter code X, please
+call procedure Y' - at least some checking and conversion of paramters
+needs to happen. This calls for some 'glue code' between the new code,
+and its corresponding NGC procedure to execute before passing control
+to the NGC procedure.
+
+This glue code is impossible to write as an O-word procedure itself
+since the RS274NGC language lacks the introspective capabilities and
+access into interpreter internal data structures to achieve the
+required effect. Doing the glue code in - again - 'C/C\+\+' would be an
+inflexible and therefore unsatisfactory solution.
+
+==== How Embedded Python fits in
+
+To make a simple situation easy and a complex situation solvable, the
+glue issue is addressed as follows:
+
+- for standard situations, a built-in glue procedure (`argspec`) covers most
+common parameter passing requirements
+- for more complex situations, one may employ Embedded Python code to
+implement new behaviour.
+
+Embedded Python functions in the Interpreter started out as glue code,
+but turned out very useful well beyond that. Users familiar with
+Python will likely find it easier to write remapped codes, glue,
+O-word procedures etc in pure Python, without resorting to the
+somewhat cumbersome RS274NGC language at all.
+
+==== A Word on Embedded Python
+
+Many people are familiar with 'extending' the Python interpreter by
+'C/C\+\+' modules, and this is  heavily used in EMC2 to access Task
+and Interpreter internals from Python scripts. 'Extending Python' basically
+means: your Python script executes as 'it is in the driver seat', and
+may access non-Python code by importing and using extension modules
+written in 'C/C\+\+'. Examples for this are the EMC2 `hal`, `gcode`
+and `emc` modules.
+
+Embedded Python is a bit different and and less commonly known: The
+main program is written in C/C++ and may use Python like a
+subroutine. This is powerful extension mechanism and the basis for the
+'scripting extensions' found in many successful software
+packages. Embedded Python code may access 'C/C\+\+' variables and
+functions through a similar extension module method.
+
+==  Getting started [[remap:getting-started]]
+
+Defining a code involves the following steps:
+
+- pick a code - either use an unallocated code, or redefine an existing code
+- deciding how parameters are handled
+- decide if and how results are handled
+- decide about the execution sequencing.
+
+=== Picking a code
+
+Note that currently only a few existing codes may be redefined,
+whereas there are many 'free' codes which might be made available by
+remapping. When developing a redefined existing code, it might be a
+good idea to start with an unallocated G- or M-code so both the
+existing and new behaviour can be exercised. When done, redefine the
+existing code to use your remapping setup.
+
+- the current set of unused M-codes open to user definition can be found
+<<remap:unallocated-m-codes,here>>,
+- unallocated G-codes are listed <<remap:unallocated-g-codes,here>>.
+- Existing codes which may be remapped are listed <<remap:remappable-codes,here>>.
+
+
+===  Parameter handling [[remap:parameter-handling]]
+
+Let's assume the new code will be defined by an NGC procedure, and needs
+some parameters, some of which might be required, others might be
+optional. We have the following options to feed values to the
+procedure:
+
+// . <<remap:extracting-words,extracting words from the current block>>
+. extracting words from the current block  and pass them to the
+  procedure as parameters (like `X22.34` or `P47`)
+//. <<remap:referto-inifile-variables, referring to ini file
+//variables>>
+. referring to ini file variables
+. referring to global variables (like `#2200 = 47.11` or
+   `#<_global_param> = 315.2`
+
+The first method is preferred for  parameters of dynamic nature, , like
+positions. You need to define which words on the current block have
+any meaning for your new code, and specify how that is passed to the
+NGC procedure (--- FIXME -- argspec, prolog)
+
+Using to ini file variables is most useful for referring to setup
+information for your machine, for instance a fixed position like a
+tool-length sensor position. The advantage of this method is that the
+parameters are fixed for your configuration regardless which NGC file
+you're currently executing.
+
+Referring to global variables is always possible, but they are easily
+overlooked.
+
+Note there's a limited supply of words which may be used as
+parameters, so one might need to fall back to the second and third
+methods if many parameters are needed.
+
+=== Handling results [[remap:handling-results]]
+
+Your new code might succeed or fail, for instance if passed an invalid
+parameter combination. Or you might choose to 'just execute' the
+procedure and disregard results, in which case there isnt much work to do.
+
+Epilog handlers help in processing results of remap procedures - see
+the reference section.
+
+=== Execution sequencing [[remap:execution-sequencingg]]
+Excecutable G-code wods are classified into <<sec:Modal-Groups,modal
+groups>>.
+
+If a  G-code block  contains several executable words on a line, these
+words are executed in a predefined <<sec:Order-of-Execution, order of
+execution>>, not in the order they appear in block.
+
+When you define a new executable code, the interpreter does not yet
+know where your code fits into this scheme. For this
+reason, you need to choose an appropriate modal group for your code to
+execute in.
+
+// FIXME default modal group?
+
+=== An minimal example remapped code
+
+To give you an idea how the pieces fit together, let's explore a
+fairly minimal but complete remapped code definition. We choose an
+unallocated M-code and add the following option to the ini file:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[RS274NGC]
+REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure
+---------------------------------------------------------------------
+
+In a nutshell, this means:
+
+- The `M400` code takes a required parameter `P` and an optional
+  parameter `Q`. Other words in the current block are ignored with
+  respect to the `M400` code. If the `P` word is not present, fail
+  execution with an error.
+
+- when an `M400` code is encountered, execute `myprocedure.ngc`  along
+the other <<sec:Modal-Groups,modal group>> 10 M-codes as per
+<<sec:Order-of-Execution, order of execution>>.
+
+- the value of `P`, and `Q` are available in the procedure as local
+   named parameters. The may be referred to  as `#<P>` and `#<Q>`. The
+   procedure may test wether the `Q` word was present with the
+   <<EXISTS-Function,`EXISTS`>> builtin function.
+
+The file `myprocedure.ngc` is expected to exists in the `[DISPLAY]NC_FILES` or
+`[RS274NGC]SUBROUTINE_PATH` directory.
+
+A detailed discussion of REMAP parameters is found in the reference
+section below.
+
+
+
+== Configuring Remapping Reference
+// normal, _italic_, *bold*, +mono+.
+// ``double quoted'', `single quoted'.
+// normal, ^super^, ~sub~.
+// normal, italic, bold, mono.
+// “double quoted”, ‘single quoted’.
+// normal, super, sub.
+// Command: `ls -al`
+// +mono *bold*+
+// `passthru *bold*`
+
+
+=== The REMAP statement
+To remap a code, define it using the `REMAP` option in
+`RS274NG` section of your ini file. Use one `REMAP` line per remapped code.
+
+The syntax of the `REMAP` is:
+
+`REMAP=`'<code>' '<options>'::
+    where '<code>' may be one of `T`,`M6`,`M61`,`S`,`F` (existing codes) or any of the
+    unallocated <<remap:unallocated-m-codes,M-codes>> or <<remap:unallocated-g-codes,G-codes>>.
+
+The options of the REMAP statement are separated by whitespace. The options are
+keyword-value pairs and currently are:
+
+`modalgroup=`'<modal group>'::
+	For `G`-codes, the only currently supported modal group is 1.
+	For `M`-codes currently supported modal groups are: 5,6,7,8,9,10.
+	For `T`,`S`,`F` remaps the modal group is fixed and any
+	`modalgroup=` option is ignored.
+
+// FIXME  is there a default?
+// what about -non-modal codes=
+`argspec=`'<argspec>'::
+	See <<remap:argspec-parameter, description of the argspec
+	parameter options>>.
+
+`ngc=`'<ngc_basename>'::
+	 Basename of an O-word subroutine file name. Do not specify an
+	 .ngc extension. Searched for in the directories specified in
+	 the directory specified in `[DISPLAY]PROGRAM_PREFIX`, then in
+	 `[RS274NGC]SUBROUTINE_PATH`.
+
+`python=`'<Python function name>'::
+	Instead of calling an ngc O-word procedure call a Python
+	function. The function is expected to be defined in the
+	<<remap:module_basename, module basename>>`.oword` module.
+
+`prolog=`'<Python function name>'::
+	Before executing an ngc procedure, call this Python function.
+	The function is expected to be defined in the
+	<<remap:module_basename, module basename>>`.remap` module.
+
+`epilog=`'<Python function name>'::
+	After executing an ngc procedure, call this Python function.
+	The function is expected to be defined in the
+	<<remap:module_basename, module basename>>`.remap` module.
+
+The `python`, `prolog` and `epilog` options require the Python
+Interpreter plugin to be  <<remap:embedded-Python,configured>>, and
+appropriate Python functions to be defined there so they can be
+referred to with these options.
+
+=== Useful REMAP option combinations
+
+Note that while many combinations of argspec options are possible, not
+all of them make sense. The following combinations are useful idioms:
+
+`argspec=`'<words>' `ngc=`'<procname>' `modalgroup=`'<group>'::
+    Call an NGC procedure with a standard argspec parameter
+    conversion. Used if argspec is good enough.
+
+`prolog=`'<pythonprolog>' `ngc=`'<procname>' `prolog=`'<pythonprolog>' `modalgroup=`'<group>'::
+    Call a Python prolog function to take any preliminary steps, then call the NGC
+    procedure. When done, call the Python epilog function to do any
+    cleanup or result extraction work which cannot be handled in G-code.
+    The most flexible way of remapping a code to an NGC procedure, since almost all of the
+    Interpreter internal variables, and some internal functions may be
+    accessed from the prolog and epilog handlers. Also, a longer rope
+    to hang yourselves.
+
+`python=`'<pythonfunction>' `modalgroup=`'<group>'::
+    Directly call to a Python function without any argument conversion.
+    The most powerful way of remapping a code and going straight to
+    Python. Use this if you dont need an NGC procedure, or NGC is
+    just getting in your way.
+
+`argspec=`'<words>' `python=`'<pythonfunction>' `modalgroup=`'<group>'::
+    Convert the argspec words and pass them to a Python function as
+    keyword argument dictionary. Use it when you're too lazy to
+    investigate words passed on the block yourself.
+
+Note that if all you want to achieve is to call some Python code from
+G-code, there is the somewhat easier way of
+<<remap:Python-O-word-procs, calling Python functions like O-word procedures>>.
+
+FIXME try NO argspec, NO modalgroup - see what happens
+
+=== The 'argspec' parameter [[remap:argspec-parameter]]
+
+FIXME linkto word definition in gcode/overview - no tag there
+
+The argument specification (keyword `argspec`) describes required and
+optional words to be passed to an ngc procedure, as well as optional
+precondtions for that code to execute.
+
+An argspec consists of 0 or more  characters of the class
+ `[@A-KMNP-Za-kmnp-z^>]` . It can by empty (like `argspec=`).
+
+An empty argspec, or no argspec argument at all implies the remapped
+code does not receive  any parameters from the block. It will ignore
+any extra parameters present.
+
+`ABCDEFGHIJKMNPQRSTUVWXYZ`::
+	Defines a required word parameter: an uppercase letter specifies that
+	the corresponding word *must*
+	be present in the current block. The word`s value will be
+	passeed as a local named parameter with a corresponding name.
+	If the `@` character is
+	present in the argspec, it will be passed as positional
+	parameter, see below.
+
+`abcdefghijkmnpqrstuvwxyz`::
+	Defines an optional word parameter: a lowercase letter specifies that
+	the corresponding word *may* be present in the current block.
+	If the word is present, the word's value will be
+	passed as a local named parameter. If the `@` character is
+	present in the argspec, it will be passed as positional
+	parameter, see below.
+
+`@`::
+	The `@` (at-sign) tells argspec to pass words as positional
+	parameters, in the order defined following the `@`
+	option. Note that when using positional parameter passing,
+	a procedure cannot tell wether a word was present or not, see
+	example below.
+
+TIP: this helps with packaging existing NGC procedures as remapped
+codes. Existing procedures do expect positional parameters. With the
+`@` option, you can avoid rewriting them to refer to local named
+parameters.
+
+
+`^`::
+	The `^` (caret) character specifies that the current
+	spindle speed must be greater than zero (spindle running),
+	otherwise the code fails with an appropriate error message.
+
+`>`::
+	The `>` (greater-than) character specifies that the current
+	feed must be greater than zero, otherwise the code fails with
+	an appropriate error message.
+
+By default, parameters are passed  as local named parameter to an NGC
+procedure. These local parameters appear as 'already set' when the
+procedure starts executing, which is different from existing semantics
+(local variables start out with value 0.0 and need to be explicitly
+assigned a value).
+
+Optional word parameters may be tested for presence by the `EXISTS(#<word>)` idiom.
+
+==== Example for named parameter passing to NGC procedures
+
+Assume the code is defined as
+
+`REMAP=M400  modalgroup=10 argspec=Px ngc=demosub`
+
+and `demosub.ngc` looks as follows:
+
+[source,{ngc}]
+----------------------------------------------------------------------------------
+ o<demosub> sub
+ (debug, P=#<x>)   (note: P is required since it's uppercase in the argspec)
+ (an X word is optional since since 'x' was given in lowercase in the argspec)
+ (test for presence of an optional word parameter as follows:)
+ o100 if [EXISTS[#<x>]]
+     (debug, X word was set: #<x>)
+ o100 endif
+ o<demosub> endsub
+ M2
+----------------------------------------------------------------------------------
+
+- executing `M400` will fail (required `P` word missing)
+- executing `M400 P123` will display `P=123.0`
+- executing `M400 P123 X456` will display `P=123.0` and `X word was set: 456.0`
+
+==== Example for positional parameter passing to NGC procedures
+
+Assume the code is defined as
+
+`REMAP=M410  modalgroup=10 argspec=@XYp ngc=posargs`
+
+- executing `M400 X2`  or `M400 Y3` will fail (required word missing)
+
+- executing `M400 X2 Y3` will result in the call to `posargs` like so:
+
+  o<posargs> call [2] [3]
+
+- executing `M400 X2 Y3 P4` will result in the call
+
+  o<posargs> call [2] [3] [4]
+
+NB: you lose the capability to distinguish more than one optional parameter word!
+
+
+==== Example for named parameter passing to a Python function
+
+Assume the code is defined as
+
+       REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886
+
+This instructs the interpreter to execute the Python function 'g886'
+in the <<remap:module_basename, module basename>>`.remap` module
+which might look like so:
+
+[source,python]
+---------------------------------------------------------------------
+from interpreter import this
+
+def g886(userdata,**words):
+    global this
+    for key in words:
+	 print "word '%s' = %f" % (key, words[key])
+    if (words.has_key('p')):
+         print "the P word was present"
+    print "comment on this line: ", this.blocks[0].comment
+    return INTERP_OK
+---------------------------------------------------------------------
+
+See <<remap:Python-body,here>> for details of the Python environment
+and calling conventions.  Note that with Python remapping functions,
+it make no sense to have Python prolog or epilog functions since
+it's executing a Python function in the first place.
+
+
+==== passing and evaluating return values
+
+Refer to prolog/ epilog handlers in the Python section.
+
+
+=== Remapping toolchange-related codes
+
+foo
+
+== Remapped code execution
+
+
+
+call context like oword call
+
+
+
+
+=== Nested remapped codes
+
+Remapped codes may be nested just like procedure calls - that is, a
+remapped code whose NGC procedure refers to some other remapped code
+will execute properly.
+
+The maximum nesting level remaps is currently 10.
+
+=== Debugging
+
+The following flags are relevant for remapping - related execution:
+
+ EMC_DEBUG_OWORD             0x00002000  traces execution of O-word subroutines
+ EMC_DEBUG_REMAP             0x00004000  traces execution of remap-related code
+ EMC_DEBUG_PYTHON            0x00008000  calls to the Python plugin
+ EMC_DEBUG_NAMEDPARAM        0x00010000  trace named parameter access
+ EMC_DEBUG_PYTHON_TASK       0x00040000  trace the task Python plugin
+
+'or' these flags into the `[EMC]DEBUG` variable as needed. For a current
+list of debug flags see 'src/emc/nml_intf/debugflags.h'.
+
+=== An complete example
+foo
+
+=== ngc, ini example configs/remap/manual-example
+foo
+
+== Remappable Codes [[sec:remap:remappable-codes]]
+
+=== Existing codes which can be remapped [[remap:remappable-codes]]
+
+The current set of *existing* codes open to redefinition is:
+
+- Tx (Prepare)
+- M6 (Change tool)
+- M61 (Set tool number)
+- S  (set spindle speed)
+- F  (set feed)
+
+=== Currently unallocated G-codes: [[remap:unallocated-g-codes]]
+
+These codes are currently undefined in the current implementation of EMC2
+and may be used to define new G-codes:
+
+G0.1 G0.2 G0.3 G0.4 G0.5 G0.6 G0.7 G0.8 G0.9
+G1.1 G1.2 G1.3 G1.4 G1.5 G1.6 G1.7 G1.8 G1.9
+G2.1 G2.2 G2.3 G2.4 G2.5 G2.6 G2.7 G2.8 G2.9
+G3.1 G3.2 G3.3 G3.4 G3.5 G3.6 G3.7 G3.8 G3.9
+G4.1 G4.2 G4.3 G4.4 G4.5 G4.6 G4.7 G4.8 G4.9
+G5.4 G5.5 G5.6 G5.7 G5.8 G5.9
+G6 G6.1 G6.2 G6.3 G6.4 G6.5 G6.6 G6.7 G6.8 G6.9
+G7.1 G7.2 G7.3 G7.4 G7.5 G7.6 G7.7 G7.8 G7.9
+G8.1 G8.2 G8.3 G8.4 G8.5 G8.6 G8.7 G8.8 G8.9
+G9 G9.1 G9.2 G9.3 G9.4 G9.5 G9.6 G9.7 G9.8 G9.9
+G10.1 G10.2 G10.3 G10.4 G10.5 G10.6 G10.7 G10.8 G10.9
+G11 G11.1 G11.2 G11.3 G11.4 G11.5 G11.6 G11.7 G11.8 G11.9
+G12 G12.1 G12.2 G12.3 G12.4 G12.5 G12.6 G12.7 G12.8 G12.9
+G13 G13.1 G13.2 G13.3 G13.4 G13.5 G13.6 G13.7 G13.8 G13.9
+G14 G14.1 G14.2 G14.3 G14.4 G14.5 G14.6 G14.7 G14.8 G14.9
+G15 G15.1 G15.2 G15.3 G15.4 G15.5 G15.6 G15.7 G15.8 G15.9
+G16 G16.1 G16.2 G16.3 G16.4 G16.5 G16.6 G16.7 G16.8 G16.9
+G17.2 G17.3 G17.4 G17.5 G17.6 G17.7 G17.8 G17.9
+G18.2 G18.3 G18.4 G18.5 G18.6 G18.7 G18.8 G18.9
+G19.2 G19.3 G19.4 G19.5 G19.6 G19.7 G19.8 G19.9
+G20.1 G20.2 G20.3 G20.4 G20.5 G20.6 G20.7 G20.8 G20.9
+G21.1 G21.2 G21.3 G21.4 G21.5 G21.6 G21.7 G21.8 G21.9
+G22 G22.1 G22.2 G22.3 G22.4 G22.5 G22.6 G22.7 G22.8 G22.9
+G23 G23.1 G23.2 G23.3 G23.4 G23.5 G23.6 G23.7 G23.8 G23.9
+G24 G24.1 G24.2 G24.3 G24.4 G24.5 G24.6 G24.7 G24.8 G24.9
+G25 G25.1 G25.2 G25.3 G25.4 G25.5 G25.6 G25.7 G25.8 G25.9
+G26 G26.1 G26.2 G26.3 G26.4 G26.5 G26.6 G26.7 G26.8 G26.9
+G27 G27.1 G27.2 G27.3 G27.4 G27.5 G27.6 G27.7 G27.8 G27.9
+G28.2 G28.3 G28.4 G28.5 G28.6 G28.7 G28.8 G28.9
+G29 G29.1 G29.2 G29.3 G29.4 G29.5 G29.6 G29.7 G29.8 G29.9
+G30.2 G30.3 G30.4 G30.5 G30.6 G30.7 G30.8 G30.9
+G31 G31.1 G31.2 G31.3 G31.4 G31.5 G31.6 G31.7 G31.8 G31.9
+G32 G32.1 G32.2 G32.3 G32.4 G32.5 G32.6 G32.7 G32.8 G32.9
+G33.2 G33.3 G33.4 G33.5 G33.6 G33.7 G33.8 G33.9
+G34 G34.1 G34.2 G34.3 G34.4 G34.5 G34.6 G34.7 G34.8 G34.9
+G35 G35.1 G35.2 G35.3 G35.4 G35.5 G35.6 G35.7 G35.8 G35.9
+G36 G36.1 G36.2 G36.3 G36.4 G36.5 G36.6 G36.7 G36.8 G36.9
+G37 G37.1 G37.2 G37.3 G37.4 G37.5 G37.6 G37.7 G37.8 G37.9
+G38 G38.1 G38.6 G38.7 G38.8 G38.9
+G39 G39.1 G39.2 G39.3 G39.4 G39.5 G39.6 G39.7 G39.8 G39.9
+G40.1 G40.2 G40.3 G40.4 G40.5 G40.6 G40.7 G40.8 G40.9
+G41.2 G41.3 G41.4 G41.5 G41.6 G41.7 G41.8 G41.9
+G42.2 G42.3 G42.4 G42.5 G42.6 G42.7 G42.8 G42.9
+G43.2 G43.3 G43.4 G43.5 G43.6 G43.7 G43.8 G43.9
+G44 G44.1 G44.2 G44.3 G44.4 G44.5 G44.6 G44.7 G44.8 G44.9
+G45 G45.1 G45.2 G45.3 G45.4 G45.5 G45.6 G45.7 G45.8 G45.9
+G46 G46.1 G46.2 G46.3 G46.4 G46.5 G46.6 G46.7 G46.8 G46.9
+G47 G47.1 G47.2 G47.3 G47.4 G47.5 G47.6 G47.7 G47.8 G47.9
+G48 G48.1 G48.2 G48.3 G48.4 G48.5 G48.6 G48.7 G48.8 G48.9
+G49.1 G49.2 G49.3 G49.4 G49.5 G49.6 G49.7 G49.8 G49.9
+G50 G50.1 G50.2 G50.3 G50.4 G50.5 G50.6 G50.7 G50.8 G50.9
+G51 G51.1 G51.2 G51.3 G51.4 G51.5 G51.6 G51.7 G51.8 G51.9
+G52 G52.1 G52.2 G52.3 G52.4 G52.5 G52.6 G52.7 G52.8 G52.9
+G53.1 G53.2 G53.3 G53.4 G53.5 G53.6 G53.7 G53.8 G53.9
+G54.1 G54.2 G54.3 G54.4 G54.5 G54.6 G54.7 G54.8 G54.9
+G55.1 G55.2 G55.3 G55.4 G55.5 G55.6 G55.7 G55.8 G55.9
+G56.1 G56.2 G56.3 G56.4 G56.5 G56.6 G56.7 G56.8 G56.9
+G57.1 G57.2 G57.3 G57.4 G57.5 G57.6 G57.7 G57.8 G57.9
+G58.1 G58.2 G58.3 G58.4 G58.5 G58.6 G58.7 G58.8 G58.9
+G59.4 G59.5 G59.6 G59.7 G59.8 G59.9
+G60 G60.1 G60.2 G60.3 G60.4 G60.5 G60.6 G60.7 G60.8 G60.9
+G61.2 G61.3 G61.4 G61.5 G61.6 G61.7 G61.8 G61.9
+G62 G62.1 G62.2 G62.3 G62.4 G62.5 G62.6 G62.7 G62.8 G62.9
+G63 G63.1 G63.2 G63.3 G63.4 G63.5 G63.6 G63.7 G63.8 G63.9
+G64.1 G64.2 G64.3 G64.4 G64.5 G64.6 G64.7 G64.8 G64.9
+G65 G65.1 G65.2 G65.3 G65.4 G65.5 G65.6 G65.7 G65.8 G65.9
+G66 G66.1 G66.2 G66.3 G66.4 G66.5 G66.6 G66.7 G66.8 G66.9
+G67 G67.1 G67.2 G67.3 G67.4 G67.5 G67.6 G67.7 G67.8 G67.9
+G68 G68.1 G68.2 G68.3 G68.4 G68.5 G68.6 G68.7 G68.8 G68.9
+G69 G69.1 G69.2 G69.3 G69.4 G69.5 G69.6 G69.7 G69.8 G69.9
+G70 G70.1 G70.2 G70.3 G70.4 G70.5 G70.6 G70.7 G70.8 G70.9
+G71 G71.1 G71.2 G71.3 G71.4 G71.5 G71.6 G71.7 G71.8 G71.9
+G72 G72.1 G72.2 G72.3 G72.4 G72.5 G72.6 G72.7 G72.8 G72.9
+G73.1 G73.2 G73.3 G73.4 G73.5 G73.6 G73.7 G73.8 G73.9
+G74 G74.1 G74.2 G74.3 G74.4 G74.5 G74.6 G74.7 G74.8 G74.9
+G75 G75.1 G75.2 G75.3 G75.4 G75.5 G75.6 G75.7 G75.8 G75.9
+G76.1 G76.2 G76.3 G76.4 G76.5 G76.6 G76.7 G76.8 G76.9
+G77 G77.1 G77.2 G77.3 G77.4 G77.5 G77.6 G77.7 G77.8 G77.9
+G78 G78.1 G78.2 G78.3 G78.4 G78.5 G78.6 G78.7 G78.8 G78.9
+G79 G79.1 G79.2 G79.3 G79.4 G79.5 G79.6 G79.7 G79.8 G79.9
+G80.1 G80.2 G80.3 G80.4 G80.5 G80.6 G80.7 G80.8 G80.9
+G81.1 G81.2 G81.3 G81.4 G81.5 G81.6 G81.7 G81.8 G81.9
+G82.1 G82.2 G82.3 G82.4 G82.5 G82.6 G82.7 G82.8 G82.9
+G83.1 G83.2 G83.3 G83.4 G83.5 G83.6 G83.7 G83.8 G83.9
+G84.1 G84.2 G84.3 G84.4 G84.5 G84.6 G84.7 G84.8 G84.9
+G85.1 G85.2 G85.3 G85.4 G85.5 G85.6 G85.7 G85.8 G85.9
+G86.1 G86.2 G86.3 G86.4 G86.5 G86.6 G86.7 G86.8 G86.9
+G87.1 G87.2 G87.3 G87.4 G87.5 G87.6 G87.7 G87.8 G87.9
+G88.1 G88.2 G88.3 G88.4 G88.5 G88.6 G88.7 G88.8 G88.9
+G89.1 G89.2 G89.3 G89.4 G89.5 G89.6 G89.7 G89.8 G89.9
+G90.2 G90.3 G90.4 G90.5 G90.6 G90.7 G90.8 G90.9
+G91.2 G91.3 G91.4 G91.5 G91.6 G91.7 G91.8 G91.9
+G92.4 G92.5 G92.6 G92.7 G92.8 G92.9
+G93.1 G93.2 G93.3 G93.4 G93.5 G93.6 G93.7 G93.8 G93.9
+G94.1 G94.2 G94.3 G94.4 G94.5 G94.6 G94.7 G94.8 G94.9
+G95.1 G95.2 G95.3 G95.4 G95.5 G95.6 G95.7 G95.8 G95.9
+G96.1 G96.2 G96.3 G96.4 G96.5 G96.6 G96.7 G96.8 G96.9
+G97.1 G97.2 G97.3 G97.4 G97.5 G97.6 G97.7 G97.8 G97.9
+G98.1 G98.2 G98.3 G98.4 G98.5 G98.6 G98.7 G98.8 G98.9
+G99.1 G99.2 G99.3 G99.4 G99.5 G99.6 G99.7 G99.8 G99.9
+
+=== Currently unallocated M-codes: [[remap:unallocated-m-codes]]
+
+These codes are currently undefined in the current implementation of EMC2
+and may be used to define new M-codes:
+
+M10
+M11 M12 M13 M14 M15 M16 M17 M18 M19 M20
+M21 M22 M23 M24 M25 M26 M27 M28 M29 M31 M32 M33 M34 M35 M36 M37 M38 M39 M40
+M41 M42 M43 M44 M45 M46 M47 M54 M55 M56 M57 M58 M59 M74 M75 M76 M77 M78 M79 M80
+M81 M82 M83 M84 M85 M86 M87 M88 M89 M90
+M91 M92 M93 M94 M95 M96 M97 M98 M99
+
+All codes between M199 and M999.
+
+== Named parameters and inifile variables [[remap:referto-inifile-variables]]
+
+To access ini file values from G-code,  use the following named
+parameter syntax:
+
+	  #<_[section]name>
+
+For example, if the ini file looks like so:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[SETUP]
+XPOS = 3.145
+YPOS = 2.718
+---------------------------------------------------------------------
+
+you may refer to the O-word named parameters `#<_[setup]xpos>` and
+`#<_[setup]ypos>` within G-code.
+
+The inifile is read once and the values are cached. These parameters
+are read-only - assigning a value will cause a runtime error. The
+names are not case sensitive - they are converted to uppercase before
+consulting the ini file.
+
+FIXME footnote this:
+
+Permanent setup information is usually stored in the ini file. While
+ini variables can be easily accessed from the shell, Python and C code,
+so far there was no way to refer to ini file variables from G-code.
+This release enables such access. The feature was motivated by the
+need to replace ini variables which are currently used in the
+hard-coded toolchange process, like the `[EMCIO]TOOL_CHANGE_POSITION` parameter.
+
+
+CAUTION: this section doesnt really belong here but since it comes with
+the same branch, here it rests for now until its clear this will be
+merged. It should go into the gcode/overview Named Parameters section.
+
+== Configuring  Embedded Python in the RS274NGC Interpreter [[remap:embedded-Python]]
+
+
+
+=== PYTHON ini config , DEBUG flags
+foo# the Python plugins serves the interpreter as well as task
+`[PYTHON]`
+
+PLUGIN_DIR=/home/mah/emc2-tc/configs/sim/pysubs
+
+# import the following Python modules
+MODULE_BASENAME=plugins
+
+
+
+# if this is set:
+RELOAD_ON_CHANGE=1
+# and the file specified in MODULE_BASENAME was changed, it will be reloaded before
+# executing any Python calls
+# This is handy for debugging because you dont need to restart EMC
+# BUT it incurs a bit of overhead per call so you might want to turn
+# it off in production mode
+# the Python reload_on_change variable may be used to toggle this
+# at runtime
+#LOG_FILE= py.log
+LOG_LEVEL = 2
+
+# start a Python (really IO) Task class
+# see end of $PLUGIN_DIR/$MODULE_BASENAME/task.py to see how it's instantiated
+PYTHON_TASK=1
+
+# section for everything tool related
+# relevant only if NOT using iocontrol - see EMCIO in that case
+
+
+=== Module structure, functions, naming conventions
+foo
+
+=== Python `hot comments`
+foo
+
+== Programming Embedded Python in the RS274NGC Interpreter
+foo
+
+=== Call model: when is Py called?
+foo
+
+=== readahead time and execution time
+foo
+
+==== O-word
+foo
+
+==== epilog, prolog
+foo
+
+==== remap body
+foo
+
+=== Remapping to Python procedures
+foo
+
+=== Using Python functions like O-word procedures [[remap:Python-O-word-procs]]
+foo
+
+=== plugin/pickle hack
+foo
+
+=== Module, methods, classes, etc reference
+foo
+
+=== programming prolog and epilog functions
+foo
+
+=== Python remap body procedures [[remap:Python-body]]
+foo
+userdata, returning values
+arguments - kwargs dict
+
+if calling a Python function, the actual words present in the block as
+ required or optional are passed in the words dictionary; no positional
+ parameters are passed in this case.
+
+=== O-word body procedures
+foo
+
+
+== Introduction: Extending Task Execution
+foo
+
+=== Why would you want to change Task Execution?
+foo
+
+=== A diagram: task, interp, iocontrol, UI (??)
+foo
+
+== Models of Task execution
+foo
+
+=== Traditional iocontrol/iocontrolv2 execution
+foo
+
+=== Redefining IO procedures
+foo
+
+=== Execution-time Python procedures
+foo
+
+// setup examples
+
+
+==  Implementation notes
+foo
+
+// A short survey of EMC2 execution
+// Interpreter internals access - Python view
+// Task internals access - Python view
+
+- fluff
+
+
+The suggested method to handle success or failure of an NGC procedure
+is to <<remap:epilog-handler, inspect its return value in an 'epilog
+handler'>>. This gives you the option to display a message, inspect
+interpreter internals if needed, and optionally fail interpreter
+execution so the program stops.
