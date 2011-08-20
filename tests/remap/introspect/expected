@@ -1,5 +1,4 @@
 executing
-debug:  1073741824 logging: 0
     1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
     2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
     3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -13,6 +12,7 @@ debug:  1073741824 logging: 0
    11 N..... SET_FEED_RATE(200.0000)
    12 N..... SET_SPINDLE_SPEED(3000.0000)
    13 N..... START_SPINDLE_CLOCKWISE()
+debug:  1073741824 logging: 0
 argc= 4 args= (1.0, 2.0, 3.0, 3.1415899999999999) call_level= 1
 param # 0 = 1.0
 param # 1 = 2.0

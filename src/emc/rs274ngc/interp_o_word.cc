@@ -487,6 +487,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		// call with list of positional parameters
 		// no saving needed - this is call by value
 		bp::list plist;
+		plist.append(settings->pythis); // self
 		for(int i = 0; i < block->param_cnt; i++)
 		    plist.append(block->params[i]);
 		block->tupleargs = bp::tuple(plist);
@@ -577,7 +578,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	// a Python remap handler can be executed inline too -
 	// no control_back_to() needed
 	if (is_py_remap_handler) {
-	    cblock->tupleargs = bp::make_tuple(cblock->user_data);
+	    cblock->tupleargs = bp::make_tuple(settings->pythis,cblock->user_data);
 	    status =  pycall(settings, cblock,
 			     REMAP_MODULE,
 			     cblock->executing_remap->remap_py,

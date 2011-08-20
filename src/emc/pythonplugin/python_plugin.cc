@@ -198,6 +198,8 @@ void PythonPlugin::initialize(bool reload,  Interp *interp )
 	    for(unsigned i = 0; i < inittab_entries.size(); i++) {
 		main_namespace[inittab_entries[i]] = bp::import(inittab_entries[i].c_str());
 	    }
+	    // FIXME this needs to be remove and a better way found to make the interpreter
+	    // instance available to ;py,<python>  type comments
 	    if (interp != NULL) {
 	      bp::object interp_module = bp::import("interpreter");
 	      bp::scope(interp_module).attr("this") = interp_ptr(interp, interpDeallocFunc);

@@ -114,6 +114,7 @@ int Interp::convert_remapped_code(block_pointer block,
 
     if (build_pyargs) {
 	// for any Python pro/epilogs
+	plist.append(settings->pythis);
 	cblock->tupleargs = bp::tuple(plist);
 
 	// add_parameters will decorate kwargs as per argspec

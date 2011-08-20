@@ -30,7 +30,7 @@ def debug():
 # (debug, #<_value>)
 #
 # len(args) always reflects the number of actual parameters passed
-def square(args):
+def square(self, *args):
     return args[0]*args[0]
 
 
@@ -40,7 +40,7 @@ def square(args):
 # o<multiply> [5] [7] [9] [16]
 # (debug, #<_value>)
 import operator
-def multiply(*args):
+def multiply(self, *args):
     return reduce(operator.mul, *args)
 
 
@@ -48,17 +48,17 @@ def multiply(*args):
 # see userfuncs.py for the actual function definitions
 
 # trivial demo: wiggle a user-defined HAL pin a few times
-def qdemo(*args,**kwargs):
+def qdemo(self,*args,**kwargs):
     try:
         task.pytask.enqueue.demo(*args,**kwargs)
         if debug(): print "enqueueing demo()",args,kwargs
     except Exception,e:
-        # this happens if called  with the UI context - no task there: harmless
+        # self happens if called  with the UI context - no task there: harmless
         pass
 
 # access emcStatus
 # this is queued so it is done in-sequence at task time
-def show_emcstat(*args,**kwargs):
+def show_emcstat(self,*args,**kwargs):
     try:
         task.pytask.enqueue.show_emcstat(*args,**kwargs)
         if debug(): print "enqueueing show_emcstat()",args
@@ -67,25 +67,25 @@ def show_emcstat(*args,**kwargs):
         pass
 
 
-def set_named_pin(*args):
+def set_named_pin(self,*args):
     ''' an uh, creative way to pass a string argument: use a trailing comment
     usage example:  o<set_named_pin> call [2.345]  (component.pinname)
     '''
     try:
         if (len(args) != 1):
-            interpreter.this.set_errormsg("set_named_pin takes a single argument and a comment")
+            self.set_errormsg("set_named_pin takes a single argument and a comment")
             return -1
-        if len(interpreter.this.blocks[0].comment) == 0:
-            interpreter.this.set_errormsg("set_named_pin takes  a comment, which is the HAL pin name")
+        if len(self.blocks[0].comment) == 0:
+            self.set_errormsg("set_named_pin takes  a comment, which is the HAL pin name")
             return -1
-        task.pytask.enqueue.set_named_pin(args[0], interpreter.this.blocks[0].comment)
+        task.pytask.enqueue.set_named_pin(args[0], self.blocks[0].comment)
         if debug(): print "enqueuing set_named_pin()",args
     except Exception,e:
         if debug(): print "set_named_pin:",e,"pid=",os.getpid()
         pass
 
 
-def  wait_for_named_pin(*args):
+def  wait_for_named_pin(self,*args):
     ''' same trick to wait for a given named pin to show a certain value:
     usage example:  o<wait_for_named_pin> call [1]  (component.boolpin)
 
@@ -93,12 +93,12 @@ def  wait_for_named_pin(*args):
     '''
     try:
         if (len(args) != 1):
-            interpreter.this.set_errormsg("wait_for_named_pin takes a single argument and a comment")
+            self.set_errormsg("wait_for_named_pin takes a single argument and a comment")
             return -1
-        if len(interpreter.this.blocks[0].comment) == 0:
-            interpreter.this.set_errormsg("wait_for_named_pin takes  a comment, which is the HAL pin name")
+        if len(self.blocks[0].comment) == 0:
+            self.set_errormsg("wait_for_named_pin takes  a comment, which is the HAL pin name")
             return -1
-        task.pytask.enqueue.wait_for_named_pin(args[0], interpreter.this.blocks[0].comment)
+        task.pytask.enqueue.wait_for_named_pin(args[0], self.blocks[0].comment)
         if debug(): print "enqueuing wait_for_named_pin()",args
     except Exception,e:
         if debug(): print "wait_for_named_pin:",e,"pid=",os.getpid()

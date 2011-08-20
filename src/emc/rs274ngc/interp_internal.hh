@@ -691,7 +691,7 @@ typedef struct setup_struct
   bool mdi_interrupt;
 
     int retain_g43;  // experimental
-
+    interp_ptr pythis;  // shared_ptr representation of 'this'
 
     const char *on_abort_command;
     int_remap_type  g_remapped,m_remapped;

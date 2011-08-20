@@ -94,6 +94,7 @@ include an option for suppressing superfluous commands.
 
 #include "units.h"
 
+static void interpDeallocFunc(Interp *interp) {} // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 extern char * _rs274ngc_errors[];
 
 
@@ -857,6 +858,7 @@ int Interp::init()
 	  extern struct _inittab builtin_modules[];
 	  if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules, this) != NULL) {
 	      logPy("Python plugin configured");
+	      _setup.pythis =  interp_ptr(this, interpDeallocFunc);
 	  } else {
 	      logPy("no Python plugin available");
 	  }

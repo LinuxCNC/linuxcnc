@@ -14,43 +14,38 @@ EMC_DEBUG_PYTHON            = 0x00008000
 EMC_DEBUG_NAMEDPARAM        = 0x00010000
 EMC_DEBUG_GDBONSIGNAL       = 0x00020000
 
-i = interpreter.this
 
-print "debug: ", i.debugmask,"logging:",i.loggingLevel
-## i.debugmask |= EMC_DEBUG_PYTHON
-## i.loggingLevel = 9
-
-def introspect(*args):
-    global i
-
-    print "argc=", len(args),"args=",args, "call_level=",i.call_level
+def introspect(self,*args):
+    print "debug: ", self.debugmask,"logging:",self.loggingLevel
+    print "argc=", len(args),"args=",args, "call_level=",self.call_level
 
     # the low-level access within the block
     for n in range(len(args)):
-        print "param #",n ,"=", i.blocks[0].params[n]
+        print "param #",n ,"=", self.blocks[0].params[n]
 
     # this is a low-level interface.
-    for x in i.sub_context[1].named_params:
+    for x in self.sub_context[1].named_params:
         print "name:",x.key(),"value=",x.data().value, "attr=",x.data().attr
 
-    print "current oword subname=", i.blocks[0].o_name
-    print "m_modes[0]=", i.blocks[0].m_modes[0]
-    print "g_modes[0]=", i.blocks[0].g_modes[0]
+    print "current oword subname=", self.blocks[0].o_name
+    print "m_modes[0]=", self.blocks[0].m_modes[0]
+    print "g_modes[0]=", self.blocks[0].g_modes[0]
 
     # this is the high level named & numbered parameter interface
-    print "current tool=",i.params[5400],i.params["_current_tool"]
+    print "current tool=",self.params[5400],self.params["_current_tool"]
 
-    print "feed=",i.params['_feed']
-    print "speed=",i.params['_rpm']
+    print "feed=",self.params['_feed']
+    print "speed=",self.params['_rpm']
 
-    print "global parameter set in test.ngc:",i.params['_a_global_set_in_test_dot_ngc']
-    print "parameter set via test.ini:",i.params['_[example]variable']
-    assert i.params['_[example]variable'] == args[3]
+    print "global parameter set in test.ngc:",self.params['_a_global_set_in_test_dot_ngc']
+    print "parameter set via test.ini:",self.params['_[example]variable']
+    assert self.params['_[example]variable'] == args[3]
 
-    i.params["a_new_local"] = 321.0
-    i.params["_a_new_global"] = 456.0
+    self.params["a_new_local"] = 321.0
+    self.params["_a_new_global"] = 456.0
 
-    print "locals: ",i.params.locals()
-    print "globals: ",i.params.globals()
-    print "params(): ",i.params()
+    print "locals: ",self.params.locals()
+    print "globals: ",self.params.globals()
+    print "params(): ",self.params()
     return 2.71828
+

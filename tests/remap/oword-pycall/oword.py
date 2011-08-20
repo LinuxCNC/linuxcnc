@@ -1,11 +1,10 @@
-from interpreter import TOLERANCE_EQUAL
-
 # Demo Python O-word subroutine - call as:
 # o<square> [5]
 # (debug, #<_value>)
 #
-# this function expects exactly one parameter and will throw an exception otherwise
-def square(x):
+# this function expects exactly one parameter from NGC and will throw an exception otherwise
+# which aint particularly bright
+def square(self,x):
     return  x*x
 
 # a function taking a variable number of arguments
@@ -16,7 +15,8 @@ def square(x):
 
 import operator
 
-def multiply(*args):
+# you'd be better of doing it this way:
+def multiply(self, *args):
     print "multiply: number of arguments=", len(args)
     return reduce(operator.mul, args)
 
