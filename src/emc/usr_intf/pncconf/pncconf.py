@@ -5813,7 +5813,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             if not digital_at_speed and encoder:
                 w["satspeedframe"].show()
             if encoder:
-                if self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1:
+                if (self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1) or self.gladevcp and self.spindlespeedbar:
                     w["sfiltergainframe"].show()
             set_active("useatspeed")
             w["snearscale"].set_value(d["snearscale"]*100)
