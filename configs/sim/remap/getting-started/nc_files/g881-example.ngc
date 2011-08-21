@@ -1,0 +1,8 @@
+;
+;
+;
+f200 S2000 M3
+; remapped code on line #6 - verify reported line numbers
+g88.1 x1 y2 z-1 p1 q 1
+;
+m2

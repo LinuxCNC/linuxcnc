@@ -7,6 +7,10 @@ if 'emctask' in sys.builtin_module_names:
 
 import task
 
+from embedding import *
+
+
+
 #define EMC_DEBUG_CONFIG            0x00000002
 #define EMC_DEBUG_VERSIONS          0x00000008
 #define EMC_DEBUG_TASK_ISSUE        0x00000010
