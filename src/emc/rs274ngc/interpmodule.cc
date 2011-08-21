@@ -252,19 +252,19 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-    scope().attr("MODE_ABSOLUTE") = MODE_ABSOLUTE;
-    scope().attr("MODE_INCREMENTAL") = MODE_INCREMENTAL;
-    scope().attr("R_PLANE") = R_PLANE;
-    scope().attr("OLD_Z") = OLD_Z;
+    scope().attr("MODE_ABSOLUTE") = (int) MODE_ABSOLUTE;
+    scope().attr("MODE_INCREMENTAL") = (int) MODE_INCREMENTAL;
+    scope().attr("R_PLANE") =  (int) R_PLANE;
+    scope().attr("OLD_Z") =  (int) OLD_Z;
 
-    scope().attr("UNITS_PER_MINUTE") = UNITS_PER_MINUTE;
-    scope().attr("INVERSE_TIME") = INVERSE_TIME;
-    scope().attr("UNITS_PER_REVOLUTION") = UNITS_PER_REVOLUTION;
+    scope().attr("UNITS_PER_MINUTE") =  (int) UNITS_PER_MINUTE;
+    scope().attr("INVERSE_TIME") =  (int) INVERSE_TIME;
+    scope().attr("UNITS_PER_REVOLUTION") =  (int) UNITS_PER_REVOLUTION;
 
     scope().attr("RIGHT") = RIGHT;
     scope().attr("LEFT") = LEFT;
-    scope().attr("CONSTANT_RPM") = CONSTANT_RPM;
-    scope().attr("CONSTANT_SURFACE") = CONSTANT_SURFACE;
+    scope().attr("CONSTANT_RPM") =  (int) CONSTANT_RPM;
+    scope().attr("CONSTANT_SURFACE") =  (int) CONSTANT_SURFACE;
 
     def("equal", &equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
