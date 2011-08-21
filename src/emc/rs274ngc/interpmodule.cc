@@ -81,7 +81,7 @@ static  active_settings_array saved_settings_wrapper ( context &c) {
 }
 
 #pragma GCC diagnostic ignored "-Wformat-security"
-static void wrap_setError(Interp &interp, const char *s)
+static void setErrorMsg(Interp &interp, const char *s)
 {
     setup *settings  = &interp._setup;
 
@@ -96,6 +96,16 @@ static void wrap_setError(Interp &interp, const char *s)
     settings->stack[settings->stack_index][0] = 0;
 }
 #pragma GCC diagnostic warning "-Wformat-security"
+
+static bp::object errorStack(Interp &interp)
+{
+    setup *settings  = &interp._setup;
+    bp::list msgs;
+
+    for (int i = 0; i < settings->stack_index; i++)
+	msgs.append(bp::object( (const char *) settings->stack[i]));
+    return msgs;
+}
 
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
 {
@@ -236,6 +246,10 @@ static bool is_near_int(double value) {
 }
 static int nearest_int(double value) { return (int)(value + .5); }
 
+int (Interp::*execute_1)(const char *command) = &Interp::execute;
+int (Interp::*execute_2)(const char *command, int line_number) = &Interp::execute;
+
+
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
     using namespace boost;
@@ -269,7 +283,6 @@ BOOST_PYTHON_MODULE(interpreter) {
     def("equal", &equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
     def("nearest_int", &nearest_int);
-
 
     class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
 	.def_readwrite("x",&PmCartesian::x)
@@ -443,15 +456,33 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 	;
 
+// object x_class
+//     = class_<X>("X")
+//          .def( ... )
+//          ...
+//          ;
 
 
+    bp::object interp_class =
     class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
-	.def("set_errormsg", &wrap_setError)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
+
+	.def("set_errormsg", &setErrorMsg)
+
+
+// x_class.attr("bar") = X::bar;
+
+// 	.def("stack_index", Interp::_setup.stack_index) // error stack pointer, beyond last entry
+	.def("stack", &errorStack)
+
 	.def("synch", &Interp::synch)
+	.def("execute", execute_1)
+	.def("execute", execute_2)
+	.def("read", &Interp::read)
+
 	.def_readonly("filename", (char *) &Interp::_setup.filename)
 	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
 	.def_readonly("current_tool", &Interp::_setup.tool_table[0].toolno)
@@ -570,6 +601,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 		       bp::make_function( sub_context_w(&sub_context_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	;
+
+   interp_class.attr("stack_index") = Interp::_setup.stack_index;
 
     pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
     pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
