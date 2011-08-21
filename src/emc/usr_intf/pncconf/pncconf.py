@@ -3714,7 +3714,10 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                     temppinunit.append(int(pins[i].find("index").text))
                 else:
                     temppinunit.append(convertedname)
-                    temppinunit.append(int(pins[i].find("secondaryinstance").text))
+                    if modulename == "MuxedQCount":
+                        temppinunit.append(int(pins[i].find("secondaryinstance").text)*2)
+                    else:
+                        temppinunit.append(int(pins[i].find("secondaryinstance").text))
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = pins[i].find("secondaryfunctionname").text
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
@@ -4764,7 +4767,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # special case mux select
                 if firmptype == (MXES):
                     #print "mux select",numofencoders, compnum
-                    if numofencoders > 0 and numofencoders >= compnum:
+                    if numofencoders > 0 and numofencoders > compnum:
                         self.widgets[complabel].set_text("")
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
