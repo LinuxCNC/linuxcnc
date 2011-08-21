@@ -208,6 +208,7 @@ int Interp::add_parameters(setup_pointer settings,
     while (*s) {
 	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
 	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
+	if (strchr(">^Nn",*s) && !strchr(required,*s)) *r++ = *s;
 	s++;
     }
     o = optional;
@@ -298,8 +299,8 @@ int Interp::add_parameters(setup_pointer settings,
     }
     // special cases:
     // N...add line number
-    if (strchr(required,'n')) {
-	STORE("n",(double) block->n_number);
+    if (strchr(required,'n') || strchr(required,'N')) {
+	STORE("n",(double) block->line_number);
     }
 
     // >...require positive feed
