@@ -1,0 +1,17 @@
+; you might want to single step this file
+
+; M400 will fail - try in MDI window
+m400 p10
+m400 p10 q43
+m400p10
+; M410 will fail - try in MDI window
+m410 p10
+m400 p10 q43
+;
+; g88.6 without x,y,z words fails
+; g88.6
+g88.6 x1 y2 z3
+g88.6 x1 y2 z3 p33
+g88.6 x1 y2 z3 p33 (a comment)
+
+m2
