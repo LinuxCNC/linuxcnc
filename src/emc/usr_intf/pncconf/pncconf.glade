@@ -7305,7 +7305,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_pdm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">105000 5 195309 1000 10 0</property>
+                                    <property name="adjustment">6000000 5 10000000 1000 10 0</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
