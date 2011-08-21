@@ -3,6 +3,7 @@
 namespace bp = boost::python;
 
 #include "rs274ngc_interp.hh"
+#include "interp_queue.hh"
 
 #pragma GCC diagnostic ignored "-Wformat-security"
 static void wrap_canon_error(const char *s)
@@ -202,4 +203,26 @@ BOOST_PYTHON_MODULE(emccanon) {
     // def("USE_SPINDLE_FORCE",&USE_SPINDLE_FORCE);
     def("USE_TOOL_LENGTH_OFFSET",&USE_TOOL_LENGTH_OFFSET);
     def("WAIT",&WAIT);
+
+    // from interp_queue.cc
+    def("enqueue_SET_FEED_RATE", &enqueue_SET_FEED_RATE);
+    def("enqueue_SET_FEED_MODE", &enqueue_SET_FEED_MODE);
+    def("enqueue_DWELL", &enqueue_DWELL);
+    def("enqueue_MIST_ON", &enqueue_MIST_ON);
+    def("enqueue_MIST_OFF", &enqueue_MIST_OFF);
+    def("enqueue_FLOOD_ON", &enqueue_FLOOD_ON);
+    def("enqueue_FLOOD_OFF", &enqueue_FLOOD_OFF);
+    def("enqueue_START_SPINDLE_CLOCKWISE", &enqueue_START_SPINDLE_CLOCKWISE);
+    def("enqueue_START_SPINDLE_COUNTERCLOCKWISE", &enqueue_START_SPINDLE_COUNTERCLOCKWISE);
+    def("enqueue_STOP_SPINDLE_TURNING", &enqueue_STOP_SPINDLE_TURNING);
+    def("enqueue_SET_SPINDLE_MODE", &enqueue_SET_SPINDLE_MODE);
+    def("enqueue_SET_SPINDLE_SPEED", &enqueue_SET_SPINDLE_SPEED);
+    def("enqueue_COMMENT", &enqueue_COMMENT);
+
+    // these need a wrapping so _setup can be passed in - probably better as Interp methods
+    // def("enqueue_STRAIGHT_FEED", &enqueue_STRAIGHT_FEED);
+    // def("enqueue_STRAIGHT_TRAVERSE", &enqueue_STRAIGHT_TRAVERSE);
+    // def("enqueue_ARC_FEED", &enqueue_ARC_FEED);
+    // def("enqueue_M_USER_COMMAND ", &enqueue_M_USER_COMMAND);
+    // def("enqueue_START_CHANGE", & enqueue_START_CHANGE);
 }
