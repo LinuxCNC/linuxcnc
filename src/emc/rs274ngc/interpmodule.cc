@@ -95,6 +95,7 @@ static void setErrorMsg(Interp &interp, const char *s)
     settings->stack_index++;
     settings->stack[settings->stack_index][0] = 0;
 }
+
 #pragma GCC diagnostic warning "-Wformat-security"
 
 static bp::object errorStack(Interp &interp)
@@ -249,6 +250,79 @@ static int nearest_int(double value) { return (int)(value + .5); }
 int (Interp::*execute_1)(const char *command) = &Interp::execute;
 int (Interp::*execute_2)(const char *command, int line_number) = &Interp::execute;
 
+// lifted from http://stackoverflow.com/questions/2261858/boostpython-export-custom-exception
+#include <assert.h>
+#include <iostream>
+
+class InterpreterException : public std::exception {
+private:
+    std::string error_message;
+    int line_number;
+    std::string line_text;
+public:
+    InterpreterException(std::string error_message, int line_number, std::string line_text)  {
+	this->error_message = error_message;
+	this->line_number = line_number;
+	this->line_text = line_text;
+    }
+    const char *what() const throw() { return this->error_message.c_str();  }
+
+    ~InterpreterException() throw()  {}
+    std::string get_error_message()  { return this->error_message;  }
+    int get_line_number()    { return this->line_number;  }
+    std::string get_line_text()      { return this->line_text; }
+};
+
+PyObject *InterpreterExceptionType = NULL;
+
+void translateInterpreterException(InterpreterException const &e)
+{
+  assert(InterpreterExceptionType != NULL);
+  bp::object pythonExceptionInstance(e);
+  PyErr_SetObject(InterpreterExceptionType, pythonExceptionInstance.ptr());
+}
+
+static int throw_exceptions = 1;
+
+static int wrap_interp_execute_1(Interp &interp, const char *command)
+{
+    setup *settings  =  &interp._setup;
+
+    int status = interp.execute(command);
+    if ((status == INTERP_ERROR) && throw_exceptions) {
+	throw InterpreterException(interp.getSavedError(),
+				   settings->blocks[0].line_number, // not sure
+				   settings->linetext);
+    }
+    return status;
+}
+
+static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno)
+{
+    setup *settings  =  &interp._setup;
+
+    int status = interp.execute(command, lineno);
+    if ((status == INTERP_ERROR) && throw_exceptions) {
+	throw InterpreterException(interp.getSavedError(),
+				   lineno, // not sure
+				   settings->linetext);
+    }
+    return status;
+}
+
+static int wrap_interp_read(Interp &interp, const char *command)
+{
+    setup *settings  =  &interp._setup;
+
+    int status = interp.read(command);
+    if ((status == INTERP_ERROR) && throw_exceptions) {
+	throw InterpreterException(interp.getSavedError(),
+				   settings->blocks[0].line_number, // not sure
+				   settings->linetext);
+    }
+    return status;
+}
+
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
@@ -257,6 +331,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("__doc__") =
         "Interpreter introspection\n"
         ;
+    scope().attr("throw_exceptions") = throw_exceptions;
 
     scope().attr("INTERP_OK") = INTERP_OK;
     scope().attr("INTERP_EXIT") = INTERP_EXIT;
@@ -456,14 +531,19 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 	;
 
-// object x_class
-//     = class_<X>("X")
-//          .def( ... )
-//          ...
-//          ;
+    class_<InterpreterException>InterpreterExceptionClass("InterpreterException",							bp::init<std::string, int, std::string>());
+    InterpreterExceptionClass
+	.add_property("error_message", &InterpreterException::get_error_message)
+	.add_property("line_number", &InterpreterException::get_line_number)
+	.add_property("line_text", &InterpreterException::get_line_text)
+	;
+
+    InterpreterExceptionType = InterpreterExceptionClass.ptr();
+
+    bp::register_exception_translator<InterpreterException>
+	(&translateInterpreterException);
 
 
-    bp::object interp_class =
     class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
@@ -471,17 +551,17 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
 
 	.def("set_errormsg", &setErrorMsg)
-
-
-// x_class.attr("bar") = X::bar;
-
-// 	.def("stack_index", Interp::_setup.stack_index) // error stack pointer, beyond last entry
+	.def("get_errormsg", &Interp::getSavedError)
 	.def("stack", &errorStack)
+	.def_readwrite("stack_index", Interp::_setup.stack_index) // error stack pointer, beyond last entry
 
 	.def("synch", &Interp::synch)
-	.def("execute", execute_1)
-	.def("execute", execute_2)
-	.def("read", &Interp::read)
+
+	// those will raise exceptions on INTERP_ERROR. Lets see how useful that works out.
+	.def("execute", &wrap_interp_execute_1)
+	.def("execute",  &wrap_interp_execute_2)
+	.def("read", &wrap_interp_read)
+
 
 	.def_readonly("filename", (char *) &Interp::_setup.filename)
 	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
@@ -602,7 +682,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	;
 
-   interp_class.attr("stack_index") = Interp::_setup.stack_index;
 
     pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
     pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
