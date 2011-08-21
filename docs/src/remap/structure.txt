@@ -348,6 +348,9 @@ An empty argspec, or no argspec argument at all implies the remapped
 code does not receive  any parameters from the block. It will ignore
 any extra parameters present.
 
+Note that RS274NGC rules still apply - for instance you may use axis
+words (eg X,Y,Z) only in the context of a G-code.
+
 `ABCDEFGHIJKMNPQRSTUVWXYZ`::
 	Defines a required word parameter: an uppercase letter specifies that
 	the corresponding word *must*
@@ -400,74 +403,83 @@ Optional word parameters may be tested for presence by the `EXISTS(#<word>)` idi
 
 Assume the code is defined as
 
-`REMAP=M400  modalgroup=10 argspec=Px ngc=demosub`
+`REMAP=M400  modalgroup=10 argspec=Pq ngc=m400`
 
-and `demosub.ngc` looks as follows:
+and `m400.ngc` looks as follows:
 
 [source,{ngc}]
 ----------------------------------------------------------------------------------
- o<demosub> sub
- (debug, P=#<x>)   (note: P is required since it's uppercase in the argspec)
- (an X word is optional since since 'x' was given in lowercase in the argspec)
- (test for presence of an optional word parameter as follows:)
- o100 if [EXISTS[#<x>]]
-     (debug, X word was set: #<x>)
- o100 endif
- o<demosub> endsub
- M2
+o<m400> sub
+(P is required since it's uppercase in the argspec)
+(debug, P word=#<P>)
+(the q argspec is optional since its lowercase in the argspec. Use as follows:)
+o100 if [EXISTS[#<q>]]
+    (debug, Q word set: #<q>)
+o100 endif
+o<m400> endsub
+M2
 ----------------------------------------------------------------------------------
 
-- executing `M400` will fail (required `P` word missing)
-- executing `M400 P123` will display `P=123.0`
-- executing `M400 P123 X456` will display `P=123.0` and `X word was set: 456.0`
+- executing `M400` will fail with the message
+  `user-defined M400: missing: P`
+- executing `M400 P123` will display `P word=123.000000`
+- executing `M400 P123 Q456` will display `P word=123.000000` and `Q word set: 456.000000`
 
 ==== Example for positional parameter passing to NGC procedures
 
 Assume the code is defined as
 
-`REMAP=M410  modalgroup=10 argspec=@XYp ngc=posargs`
+`REMAP=REMAP=M410  modalgroup=10 argspec=@PQr ngc=m410`
 
-- executing `M400 X2`  or `M400 Y3` will fail (required word missing)
+and `m410.ngc` looks as follows:
 
-- executing `M400 X2 Y3` will result in the call to `posargs` like so:
+[source,{ngc}]
+----------------------------------------------------------------------------------
+o<m410> sub
+(debug, [1]=#1 [2]=#2 [3]=#3)
+o<m410> endsub
+M2
+----------------------------------------------------------------------------------
 
-  o<posargs> call [2] [3]
+- executing `M410 P10` will display `m410.ngc: [1]=10.000000 [2]=0.000000`
+- executing `M410 P10 Q20` will display `m410.ngc: [1]=10.000000 [2]=20.000000`
 
-- executing `M400 X2 Y3 P4` will result in the call
-
-  o<posargs> call [2] [3] [4]
-
-NB: you lose the capability to distinguish more than one optional parameter word!
-
+NB: you lose the capability to distinguish more than one optional
+parameter word, and you cannot tell wether an optional parameter was
+present but had the value 0, or was not present at all.
 
 ==== Example for named parameter passing to a Python function
 
 Assume the code is defined as
 
-       REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886
+`REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886`
 
-This instructs the interpreter to execute the Python function 'g886'
+This instructs the interpreter to execute the Python function `g886`
 in the <<remap:module_basename, module basename>>`.remap` module
 which might look like so:
 
 [source,python]
 ---------------------------------------------------------------------
-from interpreter import this
+from interpreter import INTERP_OK
+from emccanon import MESSAGE
 
-def g886(userdata,**words):
-    global this
+def g886(self, userdata,**words):
     for key in words:
-	 print "word '%s' = %f" % (key, words[key])
+        MESSAGE("word '%s' = %f" % (key, words[key]))
     if (words.has_key('p')):
-         print "the P word was present"
-    print "comment on this line: ", this.blocks[0].comment
+        MESSAGE("the P word was present")
+    MESSAGE("comment on this line: '%s'" % (self.blocks[self.remap_level].comment))
     return INTERP_OK
 ---------------------------------------------------------------------
+Try this with out with:
+  g88.6 x1 y2 z3
+  g88.6 x1 y2 z3 p33 (a comment here)
 
-See <<remap:Python-body,here>> for details of the Python environment
-and calling conventions.  Note that with Python remapping functions,
-it make no sense to have Python prolog or epilog functions since
-it's executing a Python function in the first place.
+You'll notice the gradual introduction of the embedded Python
+environment - see <<remap:Python-body,here>> for details.  Note that
+with Python remapping functions, it make no sense to have Python
+prolog or epilog functions since it's executing a Python function in
+the first place.
 
 
 ==== passing and evaluating return values
@@ -811,3 +823,23 @@ is to <<remap:epilog-handler, inspect its return value in an 'epilog
 handler'>>. This gives you the option to display a message, inspect
 interpreter internals if needed, and optionally fail interpreter
 execution so the program stops.
+
+==  Workarounds
+
+# Michael Haberler 4/2011
+#
+# if you get a segfault like described
+# here: https://bugs.launchpad.net/ubuntu/+source/mesa/+bug/259219
+# or here: https://www.libavg.de/wiki/LinuxInstallIssues#glibc_invalid_pointer :
+#
+# specify a workaround with:
+# [DISPLAY]
+# DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
+# and
+# [TASK]
+# TASK_LD_PRELOAD = /usr/lib/libstdc++.so.6
+#
+# this is actually a bug in libgl1-mesa-dri and it looks
+# it has been fixed in mesa - 7.10.1-0ubuntu2
+# unfortunately for now this workaround is needed
+DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
