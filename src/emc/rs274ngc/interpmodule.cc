@@ -324,6 +324,12 @@ static int wrap_interp_read(Interp &interp, const char *command)
 }
 
 
+class InterpWrap : public Interp,public bp::wrapper<Interp> {
+
+public:
+    block &cblock() { return this->_setup.blocks[this->_setup.remap_level]; }
+};
+
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
     using namespace boost;
@@ -543,12 +549,23 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
+    // class_<Foo, noncopyable, shared_ptr<Operator> > ("Foo", no_init)
+    //    class_< InterpWrap, bases<Interp, interp_ptr>, noncopyable >("Interp",no_init)
 
-    class_< Interp,  interp_ptr, noncopyable >("Interp",no_init)
+    // class_<InterpWrap,bases<Interp>, noncopyable  >("Interp",no_init)
+
+    // class_< InterpWrap, bases<Interp, interp_ptr>, noncopyable >("Interp",no_init)
+
+    // class_< Interp,  interp_ptr, noncopyable >("Interp",no_init) //OK
+    // class_< Interp, noncopyable,interp_ptr >("Interp",no_init)
+    // class_< InterpWrap,bases<Interp>, noncopyable,interp_ptr >("Interp",no_init)
+
+    class_< InterpWrap,  interp_ptr, noncopyable >("Interp",no_init) //OK
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
 	.def("set_tool_parameters", &Interp::set_tool_parameters)
+
 
 	.def("set_errormsg", &setErrorMsg)
 	.def("get_errormsg", &Interp::getSavedError)
@@ -562,6 +579,15 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def("execute",  &wrap_interp_execute_2)
 	.def("read", &wrap_interp_read)
 
+// .add_property("a",
+//       make_function(&C::getA, return_value_policy<...>()),
+//       make_function(&C::setA, with_custodian_and_ward<...>())
+// )
+//	.add_property("cblock", &InterpWrap::cblock)
+	//	.add_property("cblock", &wrap_cblock, return_value_policy<reference_existing_object>())
+
+	// .def_readonly("cblock", &wrap_cblock) // controlling block - top of remap stack
+	//	.def_readonly("eblock", &Interp::_setup.blocks[0]) // executing block
 
 	.def_readonly("filename", (char *) &Interp::_setup.filename)
 	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
@@ -631,9 +657,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("program_x", &Interp::_setup.program_x)
 	.def_readwrite("program_y", &Interp::_setup.program_y)
 	.def_readwrite("program_z", &Interp::_setup.program_z)
-
-	//  .def_readwrite("py_reload_on_change", &Interp::_setup.py_reload_on_change)
-
 	.def_readwrite("random_toolchanger", &Interp::_setup.random_toolchanger)
 	.def_readwrite("remap_level", &Interp::_setup.remap_level)
 	.def_readwrite("retract_mode", &Interp::_setup.retract_mode)
@@ -690,6 +713,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	;
 
+    // implicitly_convertible<InterpWrap, interp_ptr >();
+   // register_ptr_to_python< interp_ptr >();
 
     pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
     pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
