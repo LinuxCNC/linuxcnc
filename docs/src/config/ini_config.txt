@@ -73,6 +73,100 @@ suggested as a good convention.
 Other items are used by EMC directly, and must always have 
 the section and item names given. 
 
+== TWOPASS
+
+EMC2.5 supports TWOPASS processing of hal configuration files
+that can help in the modularization and readability of hal files.
+(Hal files are specified in an emc ini file in the HAL stanza 
+as [HAL]HALFILE=filename).
+
+Normally, a set of one or more hal configuration files must use
+a single, unique loadrt line to load a kernel module that may
+handle multiple instances of a component.  For example, if you
+use a two input AND gate component (and2) in three different
+places in your setup, you would need to have a single line
+somewhere to specify:
+
+   loadrt and2 count=3
+
+resulting in components and2.0, and2.1, and2.2.
+
+Configurations are more readable if you specify with the
+names=option for components where it is supported, e.g.,:
+
+  loadrt and2 names=aa,ab,ac
+
+resulting in components aa,ab,ac.
+
+It can be a maintenance problem to keep track of the components
+and their names since when you add (or remove) a component, you
+must find and update the single loadrt directive applicable to
+the component.
+
+TWOPASS processing is enabled by including an ini file parameter:
+
+  [HAL]TWOPASS=anything
+
+With this setting, you can have multiple specifications like:
+
+  loadrt and2 names=aa
+  ...
+  loadrt and2 names=ab,ac
+  ...
+  loadrt and2 names=ad
+
+These commands can appear in different HALFILES.  The HALFILES
+are processed in their order of ther appearance in the ini file.
+
+With TWOPASS processing, all [HAL]HALFILES are first read and
+multiple appearances of loadrt directives for each module are
+accumulated.  No hal commands are executed in this initial pass.
+
+After the initial pass, the modules are loaded automatically
+with a number equal to the total number when using the count=
+option or with all of the individual names specified when using
+the names= option.
+
+A second pass is then made to execute all of the other hal
+instructions specified in the HALFILES.  The addf commands that
+associate a component's functions with thread execution are
+executed in the order of appearance with other commands during
+this second pass.
+
+While you can use either the count= or names= options, they are
+mutually exclusive -- only one type can  be specified for a
+given module.
+
+TWOPASS processing is most effective when using the names=
+option.  This option allows you to provide unique names that
+are mnemonic or otherwise relevant to the configuration.   For
+example, if you use a derivative component to estimate the
+velocities and accelerations on each (x,y,z) coordinate, using
+the count= method will give arcane component names like ddt.0,
+ddt.1, ddt.2, etc.
+
+Alternatively, using the names= option like:
+
+   loadrt ddt names=xvel,yvel,zvel
+   ...
+   loadrt ddt names=xacel,yacel,zacel
+
+results in components sensibly named xvel,yvel,zvel, xacel,yacel,zacel.
+
+Many comps supplied with the distribution are created with the
+comp utility and support the names= option.  These include the
+common logic components that are the glue of many hal configurations.
+Examples include:
+
+  and2,ddt,deadzone,flipflop,or2,or4,mux2,mux4,scale,sum2,timedelay,lowpass
+
+and many more.
+
+User-created comps that use the comp utility automatically
+support the names= option as well.  In addition to comps generated
+with the comp utility, a few others comps like the encoder and
+pid also support the names=option.
+
 = INI File
 
 == The INI File Layout
@@ -477,8 +571,14 @@ CYCLE_TIME = 0.010::
 === [HAL] section[[sub:[HAL]-section]]
 (((HAL (inifile section))))
 
+TWOPASS=ON::
+    Use two pass processing for loading HAL comps. With TWOPASS processing, 
+    all [HAL]HALFILES are first read and multiple appearances of loadrt
+    directives for each moduleb are accumulated.
+    No hal commands are executed in this initial pass.
+
 HALFILE = example.hal::
-     Execute the file 'example.hal' at start up. If *HALFILE*  is specified
+    Execute the file 'example.hal' at start up. If *HALFILE*  is specified
     multiple times, the files are executed in the order they
     appear in the ini file. Almost all configurations will have at least
     one *HALFILE*, and stepper systems typically have two such files, one
