@@ -329,7 +329,10 @@ int emcTaskOnce(const char *filename)
 	    }
 	} catch( bp::error_already_set ) {
 	    std::string msg = handle_pyerror();
-	    rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
+	    if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+		// this really just means the task python backend wasnt configured.
+		rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
+	    }
 	    PyErr_Clear();
 	}
     }
