@@ -566,6 +566,14 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readonly("filename", (char *) &Interp::_setup.filename)
 	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
 	.def_readonly("current_tool", &Interp::_setup.tool_table[0].toolno)
+
+	.def_readwrite("a_axis_wrapped", &Interp::_setup.a_axis_wrapped)
+	.def_readwrite("b_axis_wrapped", &Interp::_setup.b_axis_wrapped)
+	.def_readwrite("c_axis_wrapped", &Interp::_setup.c_axis_wrapped)
+	.def_readwrite("a_indexer", &Interp::_setup.a_indexer)
+	.def_readwrite("b_indexer", &Interp::_setup.b_indexer)
+	.def_readwrite("c_indexer", &Interp::_setup.c_indexer)
+
 	.def_readwrite("AA_axis_offset", &Interp::_setup.AA_axis_offset)
 	.def_readwrite("AA_current", &Interp::_setup.AA_current)
 	.def_readwrite("AA_origin_offset", &Interp::_setup.AA_origin_offset)
