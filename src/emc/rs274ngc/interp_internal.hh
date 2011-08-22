@@ -307,6 +307,9 @@ typedef remap *remap_pointer;
 typedef struct remap_struct {
     const char *name;
     const char *argspec;
+    // if no modalgroup= was given in the REMAP= line, use these defaults
+#define MCODE_DEFAULT_MODAL_GROUP 10
+#define GCODE_DEFAULT_MODAL_GROUP 1
     int modal_group;
     const char *prolog_func; // Py function or null
     const char *remap_py;    // Py function maybe  null, OR

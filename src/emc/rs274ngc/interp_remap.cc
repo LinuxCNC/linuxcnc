@@ -500,12 +500,12 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    goto fail;
 	}
 	if (r->modal_group == -1) {
-	    Error("code '%s' : no modalgroup=<int> given : %d:REMAP = %s",
-		  code,lineno,inistring);
-	    goto fail;
+	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
+		  code, MCODE_DEFAULT_MODAL_GROUP,lineno,inistring);
+	    r->modal_group = MCODE_DEFAULT_MODAL_GROUP;
 	}
 	if (!M_MODE_OK(r->modal_group)) {
-	    Error("code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
+	    Error("error: code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
 	}
@@ -522,22 +522,18 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code, lineno, inistring);
 	    goto fail;
 	}
+	if (r->modal_group == -1) {
+	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
+		  code, GCODE_DEFAULT_MODAL_GROUP, lineno, inistring);
+	    r->modal_group = GCODE_DEFAULT_MODAL_GROUP;
+	    break;
+	}
 	if (!G_MODE_OK(r->modal_group)) {
-	    Error("code '%s' : %s modalgroup=<int> given, def : %d:REMAP = %s",
+	    Error("error: code '%s' : %s modalgroup=<int> given  : %d:REMAP = %s",
 		  argv[0],
 		  r->modal_group == -1 ? "no" : "invalid",
 		  lineno,
 		  inistring);
-	    goto fail;
-	}
-	if (r->modal_group == -1) {
-	    Error("code '%s' : no modalgroup=<int> given : %d:REMAP = %s",
-		  code,lineno,inistring);
-	    goto fail;
-	}
-	if (!G_MODE_OK(r->modal_group)) {
-	    Error("code '%s' : invalid modalgroup=<int> given (currently valid: 1) : %d:REMAP = %s",
-		  code,lineno,inistring);
 	    goto fail;
 	}
 	_setup.remaps[code] = r;
