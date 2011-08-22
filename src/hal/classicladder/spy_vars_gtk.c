@@ -255,7 +255,7 @@ void DisplayFreeVarSpy()
 {
 	static int LastTime;
 	int NumVarSpy,i=NBR_FREE_VAR_SPY;
-	int Value,NumEntry;
+	int Value;
 	char BufferValue[50];
 	char DisplayFormat[10];
 	char  * VarName;
@@ -338,7 +338,6 @@ void DisplayFreeVarSpy()
 
 		if (InfosGene->DisplaySymbols!=LastTime) 
 		{		 	
-		NumEntry = NumVarSpy+0*NBR_FREE_VAR_SPY;
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumVarSpy+(1 *NBR_FREE_VAR_SPY)],CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]));
 		}
 	}

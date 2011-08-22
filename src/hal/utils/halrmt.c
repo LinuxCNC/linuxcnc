@@ -2406,8 +2406,6 @@ static void print_help_general(int showR)
     printf("  -i filename    Open .ini file 'filename', allow commands\n");
     printf("                 to get their values from ini file.\n");
 #endif
-    printf("  -k             Keep going after failed command.  Default\n");
-    printf("                 is to exit if any command fails. (Useful with -f)\n");
     printf("  -q             Quiet - print errors only (default).\n");
     printf("  -Q             Very quiet - print nothing.\n");
     if (showR != 0) {
@@ -3303,16 +3301,16 @@ commandTokenType lookupToken(char *s)
     }
   return i;
 }
- 
+
 int parseCommand(connectionRecType *context)
 {
-  int ret = 0, retval;
+  int ret = 0;
   char *pch;
   char s[64];
   static char *helloNakStr = "HELLO NAK\r\n";
   static char *helloAckStr = "HELLO ACK %s 1.1\r\n";
   static char *setNakStr = "SET NAK\r\n";
-    
+
   pch = strtok(context->inBuf, delims);
   sprintf(s, helloAckStr, serverName);
   if (pch != NULL) {
@@ -3320,16 +3318,16 @@ int parseCommand(connectionRecType *context)
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          retval = write(context->cliSock, helloNakStr, strlen(helloNakStr));
+          ret = write(context->cliSock, helloNakStr, strlen(helloNakStr));
         else 
-          retval = write(context->cliSock, s, strlen(s));
+          ret = write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (context->linked == 0)
-	  retval = write(context->cliSock, setNakStr, strlen(setNakStr)); 
+	  ret = write(context->cliSock, setNakStr, strlen(setNakStr));
         else ret = commandSet(context);
         break;
       case cmdQuit: 
@@ -3436,7 +3434,7 @@ int sockMain()
 int main(int argc, char **argv)
 {
     int n, fd;
-    int keep_going, retval, errorcount;
+    int errorcount;
     int opt;
     char *cp1, *filename = NULL;
     FILE *srcfile = NULL;
@@ -3454,7 +3452,7 @@ int main(int argc, char **argv)
         case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
         }
       }
-    keep_going = 0;
+
     /* start parsing halcmd options */
     n = optind;
     while ((n < argc) && (argv[n][0] == '-')) {
@@ -3477,10 +3475,6 @@ int main(int argc, char **argv)
                 } else
 		    print_help_general(1);
 		return 0;
-		break;
-	    case 'k':
-		/* -k = keep going */
-		keep_going = 1;
 		break;
 	    case 'q':
 		/* -q = quiet (default) */
@@ -3579,7 +3573,6 @@ int main(int argc, char **argv)
 	return 1;
     }
     hal_ready(comp_id);
-    retval = 0;
     errorcount = 0;
     initSockets();
     /* HAL init is OK, let's process the command(s) */

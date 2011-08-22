@@ -205,7 +205,7 @@ If your motor lacks documentation it might be worth trying every pattern.
 <TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \\
 </TABLE> \\
 \\}
-.el \\{\\
+\\{\\
 
 .TS
 box tab(;);
@@ -266,7 +266,6 @@ _
 47;111;011;001;000;100;110
 .TE
 \\}
-.ei
 """;
 
 description """

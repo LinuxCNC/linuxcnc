@@ -88,12 +88,8 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata);
 
 void init_trig(void)
 {
-    scope_trig_t *trig;
-
     /* stop sampling */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the trig structure */
-    trig = &(ctrl_usr->trig);
     /* init non-zero members of the trigger structure */
 
     /* set up the windows */
@@ -295,7 +291,6 @@ static void init_trigger_info_window(void)
 
 static void dialog_select_trigger_source(void)
 {
-    scope_trig_t *trig;
     dialog_generic_t dialog;
     gchar *title, *msg;
     int n, colwidth;
@@ -305,7 +300,6 @@ static void dialog_select_trigger_source(void)
 
     /* is acquisition in progress? */
     if (ctrl_shm->state != IDLE) { prepare_scope_restart(); }
-    trig = &(ctrl_usr->trig);
     title = _("Trigger Source");
     msg = _("Select a channel to use for triggering.");
     /* create dialog window, disable resizing */

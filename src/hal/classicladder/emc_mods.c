@@ -110,26 +110,21 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 sscanf(VarNameParam+2, "%d", &idx);
                 if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
                 return "None -Internal Memory";
-                break;
             case 'B':
                 sscanf(VarNameParam+2, "%d", &idx);
                 if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_bits) {return "out of bounds variable number";}
                 return "None -Internal Memory";
-                break;
             case 'E':
                 sscanf(VarNameParam+2, "%d", &idx);
                 if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_error_bits) {return "out of bounds variable number";}
                 return "None -Internal Error Status";
-                break;
             case 'T':
             case 'C':
             case 'M':
             case 'X':
                 return "None";
-                break;
             default:
                 return "error";
-                break;
         }
 
         if(*pin_name) {

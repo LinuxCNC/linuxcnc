@@ -102,12 +102,8 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event);
 
 void init_horiz(void)
 {
-    scope_horiz_t *horiz;
-
     /* stop sampling */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the horiz structure */
-    horiz = &(ctrl_usr->horiz);
     /* init non-zero members of the horizontal structure */
     /* set up the window */
     init_horiz_window();
@@ -323,7 +319,6 @@ int set_sample_thread(char *name)
        during the dialog, and sctivating it when the dialog
        is closed.  This may not be neccessary, but that is
        how it works right now. */
-    rv = 0;
     rv = set_sample_thread_name(name);
     if ( rv < 0 ) {
 	return rv;
@@ -491,7 +486,6 @@ static void dialog_realtime_not_linked(void)
     GtkWidget *hbox, *label;
     GtkWidget *button;
     GtkWidget *buttons[5];
-    GSList *buttongroup;
     GtkWidget *scrolled_window;
     gchar *titles[2];
     const gchar *title, *msg;
@@ -641,13 +635,9 @@ static void dialog_realtime_not_linked(void)
     /* box for record length buttons */
     gtk_label_new_in_box(_("Record Length"),
 	GTK_DIALOG(dialog.window)->vbox, TRUE, TRUE, 0);
-    hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
-	FALSE, TRUE, 5);
     /* now define the radio buttons */
     snprintf(buf, BUFLEN, _("%5d samples (1 channel)"), ctrl_shm->buf_len);
     buttons[0] = gtk_radio_button_new_with_label(NULL, buf);
-    buttongroup = gtk_radio_button_group(GTK_RADIO_BUTTON(buttons[0]));
     snprintf(buf, BUFLEN, _("%5d samples (2 channels)"), ctrl_shm->buf_len / 2);
     buttons[1] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
@@ -894,10 +884,6 @@ static int set_sample_thread_name(char *name)
 
 static void deactivate_sample_thread(void)
 {
-    scope_horiz_t *horiz;
-
-    /* get a pointer to the horiz data structure */
-    horiz = &(ctrl_usr->horiz);
     /* check for old sample thread */
     if (ctrl_shm->thread_name[0] != '\0') {
 	/* disconnect sample funct from old thread */
@@ -1240,7 +1226,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
 
     int pre_trig, width;
     double disp_center, disp_start, disp_end;
-    double rec_start, rec_curr, rec_end;
+    double rec_start, rec_end;
     double min, max, span, scale;
     double newpos; 
 
@@ -1265,7 +1251,6 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
     rec_start = -pre_trig * horiz->sample_period;
     rec_end = (ctrl_shm->rec_len - pre_trig) * horiz->sample_period;
-    rec_curr = rec_start + (ctrl_shm->samples * horiz->sample_period);
     disp_center = rec_start + horiz->pos_setting * (rec_end - rec_start);
     disp_start = disp_center - 5.0 * horiz->disp_scale;
     disp_end = disp_center + 5.0 * horiz->disp_scale;

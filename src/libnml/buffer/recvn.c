@@ -42,9 +42,8 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
     int *bytes_read_ptr)
 {
     int nleft, nrecv;
-    int select_ret;
     char *ptr;
-    double start_time, current_time, timeleft;
+    double start_time;
     struct timeval timeout_tv;
     fd_set recv_fd_set;
     int bytes_ready;
@@ -53,7 +52,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	_timeout = -1.0;
     }
 
-    bytes_ready = bytes_to_read = 0;
+    bytes_ready = 0;
     timeout_tv.tv_sec = (long) _timeout;
     timeout_tv.tv_usec = (long) (_timeout * 1000000.0);
     if (timeout_tv.tv_usec >= 1000000) {
@@ -82,12 +81,11 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	nleft -= *bytes_read_ptr;
     }
 
-    start_time = current_time = etime();
-    timeleft = _timeout;
+    start_time = etime();
     while (nleft > 0) {
 	if (_timeout > 0.0) {
-	    current_time = etime();
-	    timeleft = start_time + _timeout - current_time;
+            double timeleft;
+	    timeleft = start_time + _timeout - etime();
 	    if (timeleft <= 0.0) {
 		if (print_recvn_timeout_errors) {
 		    rcs_print_error("Recv timed out.\n");
@@ -112,8 +110,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	    if (timeout_tv.tv_usec >= 1000000) {
 		timeout_tv.tv_usec = timeout_tv.tv_usec % 1000000;
 	    }
-	    switch (select_ret =
-		select(fd + 1, &recv_fd_set, (fd_set *) NULL,
+	    switch (select(fd + 1, &recv_fd_set, (fd_set *) NULL,
 		    (fd_set *) NULL, &timeout_tv)) {
 	    case -1:
 		rcs_print_error("Error in select: %d -> %s\n", errno,
@@ -197,8 +194,7 @@ int recvn(int fd, void *vptr, int n, int flags, double _timeout,
 	ptr += nrecv;
 	if (nleft > 0 && _timeout > 0.0) {
 	    esleep(0.001);
-	    current_time = etime();
-	    if (current_time - start_time > _timeout) {
+	    if (etime() - start_time > _timeout) {
 		rcs_print_error("Recv timed out.\n");
 		recvn_timedout = 1;
 		if (NULL != bytes_read_ptr) {

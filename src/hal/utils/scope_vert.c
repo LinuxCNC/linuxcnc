@@ -102,14 +102,11 @@ static void write_chan_config(FILE *fp, scope_chan_t *chan);
 
 void init_vert(void)
 {
-    scope_vert_t *vert;
     scope_chan_t *chan;
     int n;
 
     /* stop sampling */
     ctrl_shm->state = IDLE;
-    /* make a pointer to the vert structure */
-    vert = &(ctrl_usr->vert);
     /* init non-zero members of the vertical structure */
     invalidate_all_channels();
     /* init non-zero members of the channel structures */

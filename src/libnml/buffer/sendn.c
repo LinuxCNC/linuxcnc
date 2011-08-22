@@ -36,10 +36,9 @@ int sendn(int fd, const void *vptr, int n, int _flags, double _timeout)
     int nleft;
     long nwritten;
     int select_ret;
-    double start_time, current_time, timeleft;
+    double start_time;
     char *ptr;
     struct timeval timeout_tv;
-    struct timeval timeout_tv_copy;
     fd_set send_fd_set;
 
     timeout_tv.tv_sec = (long) _timeout;
@@ -47,19 +46,17 @@ int sendn(int fd, const void *vptr, int n, int _flags, double _timeout)
     if (timeout_tv.tv_usec >= 1000000) {
 	timeout_tv.tv_usec = timeout_tv.tv_usec % 1000000;
     }
-    timeout_tv_copy = timeout_tv;
     FD_ZERO(&send_fd_set);
     FD_SET(fd, &send_fd_set);
 
     ptr = (char *) vptr;	/* can't do pointer arithmetic on void* */
     nleft = n;
-    current_time = start_time = etime();
-    timeleft = _timeout;
+    start_time = etime();
     while (nleft > 0) {
 	if (fabs(_timeout) > 1E-6) {
 	    if (_timeout > 0) {
-		current_time = etime();
-		timeleft = start_time + _timeout - current_time;
+                double timeleft;
+		timeleft = start_time + _timeout - etime();
 		if (timeleft <= 0.0) {
 		    if (print_sendn_timeout_errors) {
 			rcs_print_error
@@ -108,10 +105,10 @@ int sendn(int fd, const void *vptr, int n, int _flags, double _timeout)
 	nleft -= nwritten;
 	ptr += nwritten;
 	if (nleft > 0 && _timeout > 0.0) {
-	    current_time = etime();
-	    if (current_time - start_time > _timeout) {
-		rcs_print_error("sendn: timed out after %f seconds.\n",
-		    current_time - start_time);
+            double duration;
+            duration = etime() - start_time;
+            if (duration > _timeout) {
+                rcs_print_error("sendn: timed out after %f seconds.\n", duration);
 		return (-1);
 	    }
 	    esleep(0.001);

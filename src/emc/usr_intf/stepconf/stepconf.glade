@@ -20,7 +20,10 @@
             <property name="position">GNOME_EDGE_START</property>
             <property name="title" translatable="yes">EMC2 Stepper Mill Configuration</property>
             <property name="text" translatable="yes">This program creates configuration files (.ini and .hal) for "step and direction" milling machines and lathes connected to the PC parallel port.
-Stepconf requires a minimum 800 X 600 display resolution</property>
+
+Stepconf requires a minimum 800 X 600 display resolution.
+You may need to collapse the 'Driver Timing Settings' and 
+Parallel Port Settings' expanders.</property>
             <property name="watermark">emc2-wizard.gif</property>
           </widget>
         </child>

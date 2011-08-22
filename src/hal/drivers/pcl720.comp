@@ -18,12 +18,12 @@ pin out  unsigned wait_clocks;
 function read nofp "Reads each of the digital inputs and updates the HAL pins";
 function write nofp "Writes the values of the output HAL pins to the digital IO";
 function reset nofp """Waits for the length of time specified by the
-\fBbreset-time\fP parameter and resets any pins for which the \fBreset\fP
+\\fBreset-time\\fP parameter and resets any pins for which the \\fBreset\\fP
 parameter has been set. This can be used to allow step generators to make a step
 every thread rather than every other thread. This function must be added to the
 thread after the "write" function.
  Do not use this function if you do not wish to reset any pins.
- the stepgen \fBstep-space\fP parameter should be set to 0 to make use of this
+ the stepgen \\fBstep-space\\fP parameter should be set to 0 to make use of this
 function.""";
 
 variable unsigned base_addr;
@@ -90,7 +90,6 @@ FUNCTION(write){
 }
 
 FUNCTION(reset){
-    long long deadline;
     int i;
     unsigned tmp;
     unsigned char b;
