@@ -7000,8 +7000,6 @@ But there is not one in the machine-named folder.."""),True)
 
     # for classicladder test  
     def load_ladder(self,w): 
-        if not self.check_for_rt(True):
-            return  
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
