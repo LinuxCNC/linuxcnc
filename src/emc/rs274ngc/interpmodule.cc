@@ -10,6 +10,7 @@ namespace bp = boost::python;
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "rs274ngc.hh"
 #include "interp_return.hh"
@@ -251,8 +252,7 @@ int (Interp::*execute_1)(const char *command) = &Interp::execute;
 int (Interp::*execute_2)(const char *command, int line_number) = &Interp::execute;
 
 // lifted from http://stackoverflow.com/questions/2261858/boostpython-export-custom-exception
-#include <assert.h>
-#include <iostream>
+
 
 class InterpreterException : public std::exception {
 private:
@@ -273,7 +273,7 @@ public:
     std::string get_line_text()      { return this->line_text; }
 };
 
-PyObject *InterpreterExceptionType = NULL;
+static PyObject *InterpreterExceptionType = NULL;
 
 void translateInterpreterException(InterpreterException const &e)
 {
@@ -289,7 +289,7 @@ static int wrap_interp_execute_1(Interp &interp, const char *command)
     setup *settings  =  &interp._setup;
 
     int status = interp.execute(command);
-    if ((status == INTERP_ERROR) && throw_exceptions) {
+    if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   settings->blocks[0].line_number, // not sure
 				   settings->linetext);
@@ -302,7 +302,7 @@ static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno
     setup *settings  =  &interp._setup;
 
     int status = interp.execute(command, lineno);
-    if ((status == INTERP_ERROR) && throw_exceptions) {
+    if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   lineno, // not sure
 				   settings->linetext);
@@ -315,7 +315,7 @@ static int wrap_interp_read(Interp &interp, const char *command)
     setup *settings  =  &interp._setup;
 
     int status = interp.read(command);
-    if ((status == INTERP_ERROR) && throw_exceptions) {
+    if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   settings->blocks[0].line_number, // not sure
 				   settings->linetext);
@@ -323,12 +323,6 @@ static int wrap_interp_read(Interp &interp, const char *command)
     return status;
 }
 
-
-class InterpWrap : public Interp,public bp::wrapper<Interp> {
-
-public:
-    block &cblock() { return this->_setup.blocks[this->_setup.remap_level]; }
-};
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
@@ -549,18 +543,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
-    // class_<Foo, noncopyable, shared_ptr<Operator> > ("Foo", no_init)
-    //    class_< InterpWrap, bases<Interp, interp_ptr>, noncopyable >("Interp",no_init)
-
-    // class_<InterpWrap,bases<Interp>, noncopyable  >("Interp",no_init)
-
-    // class_< InterpWrap, bases<Interp, interp_ptr>, noncopyable >("Interp",no_init)
-
-    // class_< Interp,  interp_ptr, noncopyable >("Interp",no_init) //OK
-    // class_< Interp, noncopyable,interp_ptr >("Interp",no_init)
-    // class_< InterpWrap,bases<Interp>, noncopyable,interp_ptr >("Interp",no_init)
-
-    class_< InterpWrap,  interp_ptr, noncopyable >("Interp",no_init) //OK
+    class_< Interp,  interp_ptr, noncopyable >("Interp",no_init) //OK
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
@@ -579,15 +562,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def("execute",  &wrap_interp_execute_2)
 	.def("read", &wrap_interp_read)
 
-// .add_property("a",
-//       make_function(&C::getA, return_value_policy<...>()),
-//       make_function(&C::setA, with_custodian_and_ward<...>())
-// )
-//	.add_property("cblock", &InterpWrap::cblock)
-	//	.add_property("cblock", &wrap_cblock, return_value_policy<reference_existing_object>())
 
-	// .def_readonly("cblock", &wrap_cblock) // controlling block - top of remap stack
-	//	.def_readonly("eblock", &Interp::_setup.blocks[0]) // executing block
+
 
 	.def_readonly("filename", (char *) &Interp::_setup.filename)
 	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
@@ -713,8 +689,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	;
 
-    // implicitly_convertible<InterpWrap, interp_ptr >();
-   // register_ptr_to_python< interp_ptr >();
 
     pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
     pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
