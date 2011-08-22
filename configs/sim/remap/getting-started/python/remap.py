@@ -37,7 +37,7 @@ def involute(self, userdata, **words):
     a  = cblock.p_number if cblock.p_flag else 10
     old_z = self.current_z
 
-    print "x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z)
+    if self.debugmask & 0x8000:  print "x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z)
 
     try:
         #self.execute("G3456") # raises InterpreterException
@@ -66,5 +66,7 @@ def involute(self, userdata, **words):
 
     return INTERP_OK
 
+
 def lineno():
     return inspect.currentframe().f_back.f_lineno
+
