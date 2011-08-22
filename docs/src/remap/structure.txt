@@ -17,11 +17,13 @@ By 'remapping codes' we mean one of the following:
 === Why would you want to extend the RS274NGC Interpreter?
 
 The set of codes (M,G,T,S,F) currently understood by the RS274NGC
-interpreter is fixed and cannot be extendedd by configuration options.
+interpreter is fixed and cannot be extended by configuration options.
+
 In particular, some of these codes implement a fixed sequence of steps
 to be executed. While some of these, like M6, can be moderately
 configured by activating or skipping some of these steps through ini
-file options, overall the behaviour is fairly rigid.
+file options, overall the behaviour is fairly rigid. So - if your
+are happy with this situation, then this manual section is not for you.
 
 In many cases, this means that supporting a non 'out of the box'
 configuration or machine is either cumbersome or impossible, or
@@ -274,8 +276,6 @@ keyword-value pairs and currently are:
 	T,S,F;; for these the modal group is fixed and any
 	`modalgroup=` option is ignored.
 
-// FIXME  is there a default?
-// what about -non-modal codes=
 `argspec=`'<argspec>'::
 	See <<remap:argspec-parameter, description of the argspec
 	parameter options>>. Optional.
@@ -317,16 +317,17 @@ all of them make sense. The following combinations are useful idioms:
 
 `argspec=`'<words>' `ngc=`'<procname>' `modalgroup=`'<group>'::
     The recommended way to call an NGC procedure with a standard argspec parameter
-    conversion. Used if argspec is good enough.
+    conversion. Used if argspec is good enough. Note it's not good
+    enough for remapping the Tx and M6/M61 toolchange codes.
 
 `prolog=`'<pythonprolog>' `ngc=`'<procname>' `prolog=`'<pythonprolog>' `modalgroup=`'<group>'::
     Call a Python prolog function to take any preliminary steps, then call the NGC
     procedure. When done, call the Python epilog function to do any
     cleanup or result extraction work which cannot be handled in G-code.
-    The most flexible way of remapping a code to an NGC procedure, since almost all of the
-    Interpreter internal variables, and some internal functions may be
-    accessed from the prolog and epilog handlers. Also, a longer rope
-    to hang yourselves.
+    The most flexible way of remapping a code to an NGC procedure,
+    since almost all of the Interpreter internal variables, and some
+    internal functions may be accessed from the prolog and epilog
+    handlers. Also, a longer rope to hang yourselves.
 
 `python=`'<pythonfunction>' `modalgroup=`'<group>'::
     Directly call to a Python function without any argument conversion.
@@ -342,8 +343,6 @@ all of them make sense. The following combinations are useful idioms:
 Note that if all you want to achieve is to call some Python code from
 G-code, there is the somewhat easier way of
 <<remap:Python-O-word-procs, calling Python functions like O-word procedures>>.
-
-FIXME try NO argspec, NO modalgroup - see what happens
 
 === The 'argspec' parameter [[remap:argspec-parameter]]
 
@@ -464,7 +463,11 @@ NB: you lose the capability to distinguish more than one optional
 parameter word, and you cannot tell wether an optional parameter was
 present but had the value 0, or was not present at all.
 
-==== Example for named parameter passing to a Python function
+==== Simple example for named parameter passing to a Python function
+
+It's possible to define new codes 'without' any NGC procedure. Here's
+a simple first example, a more complex one can be found in the next
+section.
 
 Assume the code is defined as
 
@@ -497,24 +500,109 @@ with Python remapping functions, it make no sense to have Python
 prolog or epilog functions since it's executing a Python function in
 the first place.
 
+====  Advanced example: Remapped codes in pure Python
 
-==== passing and evaluating return values
+The `interpreter` and `emccanoǹ` modules expose most of the Interpreter
+and some Canon internals, so many things which  so far required coding in
+'C/C\+\+' can be now be done in Python.
 
-Refer to prolog/ epilog handlers in the Python section.
+The following example is based on the `nc_files/involute.py` script -
+but canned as a G-code with some parameter extraction and checking. It
+also demonstrates calling the interpreter recursively (see `self.execute()`).
 
+Assuming a definition like so (NB: this does not use argspec):
+
+`REMAP=G88.1 modalgroup=1  py=involute`
+
+The `involute` function in `python/remap.py` listed below does all
+word extraction from the current block directly. Note that interpreter
+errors can be translated to Python exceptions. Remember this is
+'readahead time' - execution time errors cannot be trapped this way.
+
+[source,python]
+---------------------------------------------------------------------
+import sys
+import traceback
+from math import sin,cos
+
+from interpreter import *
+from emccanon import MESSAGE
+from util import lineno, call_pydevd
+# raises InterpreterException if execute() or read() fails
+throw_exceptions = 1
+
+
+def involute(self, userdata, **words):
+    """ remap function with raw access to Interpreter internals """
+
+    if self.debugmask & 0x20000000: call_pydevd() # USER2 debug flag
+
+    if equal(self.feed_rate,0.0):
+        self.set_errormsg("feedrate > 0 required")
+        return INTERP_ERROR
+
+    if equal(self.speed,0.0):
+        self.set_errormsg("spindle speed > 0 required")
+        return INTERP_ERROR
+
+    plunge = 0.1 # if Z word was given, plunge - with reduced feed
+
+    # inspect controlling block for relevant words
+    c = self.blocks[self.remap_level]
+    x0 = c.x_number if c.x_flag else 0
+    y0 = c.y_number if c.y_flag else 0
+    a  = c.p_number if c.p_flag else 10
+    old_z = self.current_z
+
+    if self.debugmask & 0x10000000:
+        print "x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z)
+
+    try:
+        #self.execute("G3456")  # would raise InterpreterException
+        self.execute("G21",lineno())
+        self.execute("G64 P0.001",lineno())
+        self.execute("G0 X%f Y%f" % (x0,y0),lineno())
+
+        if c.z_flag:
+            feed = self.feed_rate
+            self.execute("F%f G1 Z%f" % (feed * plunge, c.z_number),lineno())
+            self.execute("F%f" % (feed),lineno())
+
+        for i in range(100):
+            t = i/10.
+            x = x0 + a * (cos(t) + t * sin(t))
+            y = y0 + a * (sin(t) - t * cos(t))
+            self.execute("G1 X%f Y%f" % (x,y),lineno())
+
+        if c.z_flag: # retract to starting height
+            self.execute("G0 Z%f" % (old_z),lineno())
+
+    except InterpreterException,e:
+        msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
+        self.set_errormsg(msg) # replace builtin error message
+        return INTERP_ERROR
+
+    return INTERP_OK
+---------------------------------------------------------------------
+
+The examples described so far can be found in
+'configs/sim/remap/getting-started' with complete working
+configurations.
 
 === Remapping toolchange-related codes
 
-foo
+TBD
 
 == Remapped code execution
 
+=== NGC procedure call environment during remaps
 
+Normally, an O-word procedure is called with positional parameters.
+This scheme is very limiting in particular in the presence of optional
+parameters. Therefore, the calling convention has been extended to use
+something remotely similar to the Python keyword arguments model.
 
-call context like oword call
-
-
-
+see  LINKTO gcode/main Subroutines: sub, endsub, return, call.
 
 === Nested remapped codes
 
@@ -524,18 +612,58 @@ will execute properly.
 
 The maximum nesting level remaps is currently 10.
 
-=== Debugging
+=== Debugging flags
 
-The following flags are relevant for remapping - related execution:
+The following flags are relevant for remapping and Python - related execution:
 
  EMC_DEBUG_OWORD             0x00002000  traces execution of O-word subroutines
  EMC_DEBUG_REMAP             0x00004000  traces execution of remap-related code
  EMC_DEBUG_PYTHON            0x00008000  calls to the Python plugin
  EMC_DEBUG_NAMEDPARAM        0x00010000  trace named parameter access
  EMC_DEBUG_PYTHON_TASK       0x00040000  trace the task Python plugin
+ EMC_DEBUG_USER1             0x10000000  user-defined - not interpreted by EMC
+ EMC_DEBUG_USER2             0x20000000  user-defined - not interpreted by EMC
 
 'or' these flags into the `[EMC]DEBUG` variable as needed. For a current
 list of debug flags see 'src/emc/nml_intf/debugflags.h'.
+
+=== Debugging Embedded Python code
+
+Debugging of embedded Python code is harder than debugging normal
+Python scripts, and only a limited supply of debuggers exists. A
+working open-source based solution is to use the
+http://www.eclipse.org[Eclipse IDE], and the http://www.pydev.org[PydDev]
+Eclipse plugin and its
+http://pydev.org/manual_adv_remote_debugger.html[remote debugging
+feature].
+
+To use this approach:
+
+- install Eclipse via the the 'Ubuntu Software Center' (choose first
+selection)
+- install the PyDev plugin from the
+http://pydev.org/updates[Pydev Update Site]
+- setup the EMC2 source tree as an Eclipse project
+- start the Pydev Debug Server in Eclipse
+- make sure the embedded Python code can find the `pydevd.py` module
+which comes with that plugin - it's buried somewhere deep under the
+Eclipse install directory. Set the the `pydevd` variable in `util.py`
+to reflect this directory location.
+- `import pydevd` in your Python module - see example `util.py` and `remap.py`
+- call `pydevd.settrace()` in your module at some point to connect to
+the Eclipse Python debug server - here you can set breakpoints in your
+code, inspect variables, step etc as usual.
+
+To cover the last two steps: the `o<pydevd>` procedure helps to get
+into the debugger from MDI mode. See also the `call_pydevd` function
+in `util.py` and its usage in `remap.involute` to set a breakpoint.
+
+Here's a screenshot of Eclipse/PyDevd debugging the `involute`
+procedure from above:
+
+image::images/debug_embedded_python.png[Debugging with Eclipse]
+
+See the Python code in `configs/sim/remap/getting-started/python` for details.
 
 === An complete example
 foo
@@ -842,20 +970,20 @@ execution so the program stops.
 
 ==  Workarounds
 
-# Michael Haberler 4/2011
-#
-# if you get a segfault like described
-# here: https://bugs.launchpad.net/ubuntu/+source/mesa/+bug/259219
-# or here: https://www.libavg.de/wiki/LinuxInstallIssues#glibc_invalid_pointer :
-#
-# specify a workaround with:
-# [DISPLAY]
-# DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
-# and
-# [TASK]
-# TASK_LD_PRELOAD = /usr/lib/libstdc++.so.6
-#
-# this is actually a bug in libgl1-mesa-dri and it looks
-# it has been fixed in mesa - 7.10.1-0ubuntu2
-# unfortunately for now this workaround is needed
-DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
+ # Michael Haberler 4/2011
+ #
+ # if you get a segfault like described
+ # here: https://bugs.launchpad.net/ubuntu/+source/mesa/+bug/259219
+ # or here: https://www.libavg.de/wiki/LinuxInstallIssues#glibc_invalid_pointer :
+ #
+ # specify a workaround with:
+ # [DISPLAY]
+ # DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
+ # and
+ # [TASK]
+ # TASK_LD_PRELOAD = /usr/lib/libstdc++.so.6
+ #
+ # this is actually a bug in libgl1-mesa-dri and it looks
+ # it has been fixed in mesa - 7.10.1-0ubuntu2
+ # unfortunately for now this workaround is needed
+ DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
