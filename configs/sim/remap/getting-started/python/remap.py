@@ -6,6 +6,7 @@ from math import sin,cos
 from interpreter import *
 from emccanon import MESSAGE
 
+from toolchange import prepare_prolog, prepare_epilog, change_prolog, change_epilog, set_tool_number
 
 def g886(self, userdata, **words):
     for key in words:
