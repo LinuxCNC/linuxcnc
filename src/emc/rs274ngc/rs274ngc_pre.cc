@@ -105,7 +105,7 @@ const char *Interp::interp_status(int status) {
 	    "INTERP_ERROR" };
     sprintf(statustext, "%s%s%d", ((status >= INTERP_OK) && (status
 	    <= INTERP_ERROR)) ? msgs[status] : "unknown interpreter error",
-	    (status >= INTERP_MIN_ERROR) ? " - error: " : " - ", status);
+	    (status > INTERP_MIN_ERROR) ? " - error: " : " - ", status);
     return statustext;
 }
 
