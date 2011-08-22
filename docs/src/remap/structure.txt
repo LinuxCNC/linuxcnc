@@ -257,41 +257,53 @@ The syntax of the `REMAP` is:
     where '<code>' may be one of `T`,`M6`,`M61`,`S`,`F` (existing codes) or any of the
     unallocated <<remap:unallocated-m-codes,M-codes>> or <<remap:unallocated-g-codes,G-codes>>.
 
+It is an error to omit the '<code>' parameter.
+
 The options of the REMAP statement are separated by whitespace. The options are
 keyword-value pairs and currently are:
 
 `modalgroup=`'<modal group>'::
-	For `G`-codes, the only currently supported modal group is 1.
-	For `M`-codes currently supported modal groups are: 5,6,7,8,9,10.
-	For `T`,`S`,`F` remaps the modal group is fixed and any
+        G-codes;; the only currently supported modal group is 1, which
+        is also the default value if no group is given. Group 1 means
+        'execute alongside other G-codes'.
+
+	M-codes;; currently supported modal groups are:
+        5,6,7,8,9,10. If no modalgroup is give, it defaults to 10
+        ('execute after all other words in the block').
+
+	T,S,F;; for these the modal group is fixed and any
 	`modalgroup=` option is ignored.
 
 // FIXME  is there a default?
 // what about -non-modal codes=
 `argspec=`'<argspec>'::
 	See <<remap:argspec-parameter, description of the argspec
-	parameter options>>.
+	parameter options>>. Optional.
 
 `ngc=`'<ngc_basename>'::
 	 Basename of an O-word subroutine file name. Do not specify an
 	 .ngc extension. Searched for in the directories specified in
 	 the directory specified in `[DISPLAY]PROGRAM_PREFIX`, then in
-	 `[RS274NGC]SUBROUTINE_PATH`.
+	 `[RS274NGC]SUBROUTINE_PATH`. Mutually exclusive with
+	 `python=`. It is an error to omit both `ngc=` and  `python=`.
 
 `python=`'<Python function name>'::
 	Instead of calling an ngc O-word procedure call a Python
 	function. The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.oword` module.
+	<<remap:module_basename, module basename>>`.oword`
+	module. Mutually exclusive with `ngc=`.
 
 `prolog=`'<Python function name>'::
 	Before executing an ngc procedure, call this Python function.
 	The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.remap` module.
+	<<remap:module_basename, module basename>>`.remap`
+	module. Optional.
 
 `epilog=`'<Python function name>'::
 	After executing an ngc procedure, call this Python function.
 	The function is expected to be defined in the
-	<<remap:module_basename, module basename>>`.remap` module.
+	<<remap:module_basename, module basename>>`.remap`
+	module. Optional.
 
 The `python`, `prolog` and `epilog` options require the Python
 Interpreter plugin to be  <<remap:embedded-Python,configured>>, and
@@ -304,7 +316,7 @@ Note that while many combinations of argspec options are possible, not
 all of them make sense. The following combinations are useful idioms:
 
 `argspec=`'<words>' `ngc=`'<procname>' `modalgroup=`'<group>'::
-    Call an NGC procedure with a standard argspec parameter
+    The recommended way to call an NGC procedure with a standard argspec parameter
     conversion. Used if argspec is good enough.
 
 `prolog=`'<pythonprolog>' `ngc=`'<procname>' `prolog=`'<pythonprolog>' `modalgroup=`'<group>'::
@@ -351,7 +363,7 @@ any extra parameters present.
 Note that RS274NGC rules still apply - for instance you may use axis
 words (eg X,Y,Z) only in the context of a G-code.
 
-`ABCDEFGHIJKMNPQRSTUVWXYZ`::
+`ABCDEFGHIJKMPQRSTUVWXYZ`::
 	Defines a required word parameter: an uppercase letter specifies that
 	the corresponding word *must*
 	be present in the current block. The word`s value will be
@@ -360,7 +372,7 @@ words (eg X,Y,Z) only in the context of a G-code.
 	present in the argspec, it will be passed as positional
 	parameter, see below.
 
-`abcdefghijkmnpqrstuvwxyz`::
+`abcdefghijkmpqrstuvwxyz`::
 	Defines an optional word parameter: a lowercase letter specifies that
 	the corresponding word *may* be present in the current block.
 	If the word is present, the word's value will be
@@ -390,6 +402,10 @@ parameters.
 	The `>` (greater-than) character specifies that the current
 	feed must be greater than zero, otherwise the code fails with
 	an appropriate error message.
+
+`n`::
+	The `n` (greater-than) character specifies to pass the current
+	line number in the `n`local named parameter.
 
 By default, parameters are passed  as local named parameter to an NGC
 procedure. These local parameters appear as 'already set' when the
