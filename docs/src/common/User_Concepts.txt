@@ -193,7 +193,8 @@ information.
 == Homing
 
 After starting EMC2 each axis must be homed prior to running a program
-or running a MDI command.
+or running a MDI command. Homing sets the G53 Machine Coordinates.
+All coordinate system offsets are based on the machine coordinates.
 
 If you want to deviate from the default behavior, or want to use the
 Mini interface you will need to set the option NO_FORCE_HOMING = 1 in
