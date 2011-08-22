@@ -19,6 +19,10 @@
 #define EMC_DEBUG_GDBONSIGNAL       0x00020000
 #define EMC_DEBUG_PYTHON_TASK       0x00040000
 
+// not interpreted by EMC.
+#define EMC_DEBUG_USER1             0x10000000
+#define EMC_DEBUG_USER2             0x20000000
+
 #define EMC_DEBUG_UNCONDITIONAL     0x40000000  // always logged
 #define EMC_DEBUG_ALL               0x7FFFFFFF	/* it's an int for %i to work
 						 */
