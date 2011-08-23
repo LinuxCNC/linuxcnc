@@ -74,7 +74,7 @@ int Interp::convert_remapped_code(block_pointer block,
     }
     CHKS((remap == NULL), "BUG: convert_remapped_code: no remapping");
 
-    settings->sequence_number = 1; // FIXME not sure..
+    // settings->sequence_number = 1; // FIXME not sure.. THIS MUST BE WRONG.
 
     // remapped handlers may use Python code to
     // setup environment before, and finish work after doing theirs.
@@ -126,7 +126,7 @@ int Interp::convert_remapped_code(block_pointer block,
 	// NB: this assumes read() doesnt clear the callframe
 	settings->call_level++;
 	// create a positional argument list instead of local variables
-	// if user specified 'posargs=true'
+	// if user specified '@'
 	CHP(add_parameters(settings, cblock,
 			   use_posargs ? &cmd[strlen(cmd)] : NULL));
 	settings->call_level--;
