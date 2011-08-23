@@ -570,6 +570,9 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 			 block->o_name, block->py_returned_value);
 		settings->return_value = block->py_returned_value;
 		settings->value_returned = 1;
+	    } else {
+		settings->return_value = 0.0;
+		settings->value_returned = 0;
 	    }
 	    settings->call_level--;  // drop back
 	    return status;
