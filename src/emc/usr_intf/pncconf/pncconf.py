@@ -2052,6 +2052,20 @@ class Data:
             if self[i+"bldc_option"]:
                 bldc = True
                 break
+        # load PID compnent:
+        # if axis needs PID- (has pwm signal) then add its letter to pidlist
+        pidlist = ""
+        for i in self.available_axes:
+            #print "looking at available axis : ",i
+            if not self.findsignal(i+"-encoder-a"):
+                continue
+            pidlist = pidlist + "%s,"%i
+        # if user requested PID components add them to the list as well, starting at 0 and working up
+        for i in range(0,self.userneededpid):
+                pidlist=pidlist+"%d,"% (i)
+        temp = pidlist.rstrip(",")
+        if not temp == "":
+            print >>file, "loadrt pid names=%s"% temp
 
         if bldc or self.userneededbldc:
             self._bldcconfigstring = ""
@@ -2170,39 +2184,11 @@ class Data:
             
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
-        temp = 0
-        axislet = []
-        for i in self.available_axes:
-            #if axis needs pid- (has pwm)
-            #print "looking at available axis : ",i
-            if not self.findsignal(i+"-encoder-a"): 
-                continue
-            temp = temp +1 
-            axislet.append(i)
-            # add axis letter to 'need pid' string
-            #if axis is needed
-        temp = temp + self.userneededpid
-        if temp <> 0 : 
-            print >>file, "loadrt pid num_chan=%d"% temp          
-            #use 'need pid string' to add calcs and make aliases 
-            for j in range(0,temp ):
-                print >>file, "addf pid.%d.do-pid-calcs servo-thread"% j
-            for axnum,j in enumerate(axislet):
-                print >>file, "alias pin    pid.%d.Pgain         pid.%s.Pgain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.Igain         pid.%s.Igain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.Dgain         pid.%s.Dgain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.bias          pid.%s.bias" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF0           pid.%s.FF0" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF1           pid.%s.FF1" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF2           pid.%s.FF2" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.deadband      pid.%s.deadband" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.maxoutput     pid.%s.maxoutput" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.enable        pid.%s.enable" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.command       pid.%s.command" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.feedback      pid.%s.feedback" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.output        pid.%s.output" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.index-enable  pid.%s.index-enable" % (axnum + self.userneededpid, j)
-                print >>file
+
+        if not pidlist == "":
+            for i in pidlist:
+                if i == ",":continue
+                print >>file, "addf pid.%s.do-pid-calcs servo-thread"% i
         
         if bldc or self.userneededbldc:
             temp=self._bldcconfigstring.split(",")
