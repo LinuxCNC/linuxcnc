@@ -14,7 +14,7 @@ internals. It is a bit of internals, a bit of white paper, and a bit
 of narrative how the current solution came about.
 
 == A short survey of interpreter execution
-Before discussing remapping of codes it might be helpful to survey the
+To understand remapping of codes it might be helpful to survey the
 standard execution model of the interpreter as far as it relates to
 remapping.
 
@@ -54,7 +54,7 @@ this 'HAL pin read' command, and since the actual value is now
 available, parsing and execution can again run in parallel.
 
 These commands are called "queue busters" and require special handling
-by task, and in the interpreter. They are: 'Tool change', 'Waiting for
+by task, and in the interpreter. They currently are: 'Tool change', 'Waiting for
 HAL input', and 'Probe'.
 
 === Interpreter state
@@ -75,8 +75,8 @@ rapid)  and so forth.
 (4) holds information about the block currently executed, wether we
 are in a subroutine, interpreter variables etc.
 
-Most of this state is aggregated in a - fairly incomprehensible and
-unsystematic - structure _setup (see interp_internals.hh)
+Most of this state is aggregated in a - fairly unsystematic -
+`structure _setup` (see interp_internals.hh).
 
 === Word order and execution order
 

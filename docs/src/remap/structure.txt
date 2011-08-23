@@ -187,8 +187,8 @@ Epilog handlers help in processing results of remap procedures - see
 the reference section.
 
 === Execution sequencing [[remap:execution-sequencingg]]
-Excecutable G-code wods are classified into <<sec:Modal-Groups,modal
-groups>>.
+Excecutable G-code words are classified into <<sec:Modal-Groups,modal
+groups>>, which also defines their relative execution behaviour.
 
 If a  G-code block  contains several executable words on a line, these
 words are executed in a predefined <<sec:Order-of-Execution, order of
@@ -238,15 +238,7 @@ section below.
 
 
 == Configuring Remapping Reference
-// normal, _italic_, *bold*, +mono+.
-// ``double quoted'', `single quoted'.
-// normal, ^super^, ~sub~.
-// normal, italic, bold, mono.
-// “double quoted”, ‘single quoted’.
-// normal, super, sub.
-// Command: `ls -al`
-// +mono *bold*+
-// `passthru *bold*`
+
 
 
 === The REMAP statement
@@ -309,6 +301,9 @@ The `python`, `prolog` and `epilog` options require the Python
 Interpreter plugin to be  <<remap:embedded-Python,configured>>, and
 appropriate Python functions to be defined there so they can be
 referred to with these options.
+
+The syntax for defining a new code, and redefining an existing code is
+identical.
 
 === Useful REMAP option combinations
 
@@ -589,9 +584,6 @@ The examples described so far can be found in
 'configs/sim/remap/getting-started' with complete working
 configurations.
 
-=== Remapping toolchange-related codes
-
-TBD
 
 == Remapped code execution
 
@@ -654,6 +646,9 @@ to reflect this directory location.
 the Eclipse Python debug server - here you can set breakpoints in your
 code, inspect variables, step etc as usual.
 
+CAUTION:  `pydevd.settrace()` will block execution if Eclipse and the
+Pydev debug server have not been started.
+
 To cover the last two steps: the `o<pydevd>` procedure helps to get
 into the debugger from MDI mode. See also the `call_pydevd` function
 in `util.py` and its usage in `remap.involute` to set a breakpoint.
@@ -665,11 +660,206 @@ image::images/debug_embedded_python.png[Debugging with Eclipse]
 
 See the Python code in `configs/sim/remap/getting-started/python` for details.
 
-=== An complete example
-foo
+== Remapping toolchange-related codes: T, M6, M61
 
-=== ngc, ini example configs/remap/manual-example
-foo
+If you are unfamiliar with EMC2 internals, first read the
+<<remap::how-toolchange-currently-works, How toolchange currently
+works>> section.
+
+Let us assume you want to redefine the M6 command, and replace it by
+an O-word procedure, but other than that things 'should continue to
+work'.
+
+So what our O-word procedure would do is to replace the steps
+<<remap::interpreter-action-on-M6,outlined here>>. Looking through
+these steps you'll find that NGC code can be used for most of them,
+but not all. So the stuff NGC cant handle will be done in Python prolog
+and epilog functions.
+
+=== Specifying the M6 replacement
+To convey the idea, we just replace the builtin M6 semantics with our
+own. Once that works, you may go ahead and place any actions you see
+fit into the O-word procedure.
+
+Going through the <<remap::interpreter-action-on-M6,steps>>, we find:
+
+. check for T command already executed - *execute in Python prolog*
+. check for cutter compensation being active - *execute in Python prolog*
+. stop the spindle if needed - *can be done in NGC*
+. quill up - *can be done in NGC*
+. if TOOL_CHANGE_AT_G30 was set:
+.. move the A, B and C indexers if applicable - *can be done in NGC*
+.. generate rapid move to the G30 position - *can be done in NGC*
+. send a CHANGE_TOOL command to task  - *execute in Python epilog*
+. set the numberer parameters 5400-5413 according to the new tool - *execute in Python epilog*
+. signal to task to stop calling the interpreter for readahead -*execute in Python epilog*
+
+So we need a prolog, and an epilog. Lets assume our ini file incantation of the M6 remap looks as follows:
+
+ REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
+
+So the prolog covering steps 1 and 2 would look like so - we decide to pass `current_tool`
+and `selected_pocket`as local named parameters:
+
+[source,python]
+---------------------------------------------------------------------
+def change_prolog(self, **words):
+	if self.selected_pocket < 0:   # step 1
+		self.set_errormsg("Need tool prepared -Txx- for toolchange")
+		return INTERP_ERROR
+	if self.cutter_comp_side:      # step 2
+		self.set_errormsg("Cannot change tools with cutter radius compensation on")
+		return INTERP_ERROR
+
+        self.params["current_tool"] = self.current_tool
+	self.params["selected_pocket"] = self.selected_pocket
+	return INTERP_OK
+---------------------------------------------------------------------
+
+Our first iteration of the O-word procedure is unexciting - just
+verify we got parameters right, and signal success by returning a
+positive value; steps 3-5 would eventually be covered here (see
+<<remap:referto-inifile-variables,here>> for the variables referring
+to ini file settings):
+
+
+[source,ngc]
+---------------------------------------------------------------------
+O<change> sub
+(debug, change: current_tool=#<current_tool>)
+(debug, change: selected_pocket=#<selected_pocket>)
+;
+; insert any g-code which you see fit here, eg:
+; G0  #<_[setup]tc_x>  #<_[setup]tc_y>  #<_[setup]tc_z>
+;
+O<change> endsub [1]
+---------------------------------------------------------------------
+
+Assuming success of `change.ngc`, we need to mop up steps 6-8:
+
+[source,python]
+---------------------------------------------------------------------
+def change_epilog(self, **words):
+    retval =  self.return_value # lets see what change.ngc returned
+
+    print "change_epilog: change.ngc returned %f " % (retval)
+    if retval > 0.0:
+        # commit change
+        emccanon.CHANGE_TOOL(self.selected_pocket) # step 6
+        self.current_pocket = self.selected_pocket
+        # cause a sync()
+        self.set_tool_parameters() # step 7
+        self.tool_change_flag = True  # step 8
+        return INTERP_OK
+    else:
+        self.set_errormsg("M6 aborted (return code %.4f)" % (retval))
+        return INTERP_ERROR
+---------------------------------------------------------------------
+
+This replacement M6 is compatible with the builtin code,
+except steps 3-5 need to be filled in with your NGC code.
+
+=== Configuring iocontrol with a remapped M6
+
+Note that the sequence of operations has changed: we do everything
+required in the O-word procedure - including any HAL pin
+setting/reading to get a changer going, and to acknowledge a tool
+change - likely with `motion.digital-*` and `motion-analog-*` IO
+pins. When we finally execute the `CHANGE_TOOL()` command, all
+movements and HAL interaction is already complete.
+
+Normally only now iocontrol would do its thing as outlined
+<<remap::iocontrol-action-on-load,here>>. However, we dont need this
+anymore - all iocontrol is left to do is to accept we're done with
+prepare and  change.
+
+This means that the corresponding iocontrol pins have no function any
+more. Therefore, we configure iocontrol to immediately acknowledge a
+change by configuring like so:
+
+[source,hal]
+---------------------------------------------------------------------
+# loop change signals when remapping M6
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+---------------------------------------------------------------------
+If you for some reason want to remap `Tx` (prepare), the corresponding
+iocontrol pins need to be looped as well.
+
+=== Specifying the T (prepare) replacement
+If you're confident with the  <<remap::interpreter-action-on-T,default
+implementation>>, you wouldnt need to do this. But remapping is also a
+way to work around deficiencies in the current implementation, for
+instance to not block until the "tool-prepared" pin is set.
+
+What you could do, for instance, is:
+- in a remapped T, just set the equivalent of the "tool-prepare" pin,
+but *not* wait for "tool-prepared" here
+- in the corresponding remapped M6, wait for the "tool-prepared" at
+the very beginning of the O-word procedure.
+
+Again, the iocontrol tool-prepare/tool-prepared pins would be unused
+and replaced by `motion.*` pins, so those would pins must be looped:
+[source,hal]
+---------------------------------------------------------------------
+# loop prepare signals when remapping T
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+---------------------------------------------------------------------
+So, here's the setup for a remapped T:
+
+  REMAP=T  prolog=prepare_prolog epilog=prepare_epilog ngc=prepare
+[source,python]
+---------------------------------------------------------------------
+def prepare_prolog(self,**words):
+    cblock = self.blocks[self.remap_level]
+    if not cblock.t_flag:
+        self.set_errormsg("T requires a tool number")
+        return INTERP_ERROR
+    tool  = cblock.t_number
+    (status,pocket) = self.find_tool_pocket(tool)
+    if status != INTERP_OK:
+        self.set_errormsg("T%d: pocket not found" % (tool))
+        return status
+
+    # remember for the epilog handler
+    self._tool = tool
+    self._pocket = pocket
+
+    # these variables will be visible in the ngc oword sub
+    # as #<tool>, #<pocket> and #<current_tool> local variables
+    self.params["new_tool"] = tool
+    self.params["new_pocket"] = pocket
+    self.params["current_tool"] = self.current_tool
+    self.params["selected_pocket"] = self.selected_pocket
+    return INTERP_OK
+---------------------------------------------------------------------
+
+The minimal ngc prepare procedure again looks like so:
+[source,ngc]
+---------------------------------------------------------------------
+o<prepare> sub
+; returning a positive value to commit:
+o<prepare> endsub [1]
+m2
+---------------------------------------------------------------------
+
+And the epilog:
+[source,python]
+---------------------------------------------------------------------
+def prepare_epilog(self, **words):
+    retval = self.return_value
+    if retval >= 0:
+        self.selected_pocket = self._pocket
+        self.selected_tool = self._tool
+        emccanon.SELECT_POCKET( self._pocket, self._tool)
+        return INTERP_OK
+    else:
+        self.set_errormsg("T%d: aborted (return code %.4f)" % (self._tool,retval))
+        return INTERP_ERROR
+---------------------------------------------------------------------
+
+FIXME verify the prepare example - could be old code
+
+FIXME m61 - describe
 
 == Remappable Codes [[sec:remap:remappable-codes]]
 
@@ -687,6 +877,8 @@ The current set of *existing* codes open to redefinition is:
 
 These codes are currently undefined in the current implementation of EMC2
 and may be used to define new G-codes:
+
+FIXTHIS too verbose
 
 G0.1 G0.2 G0.3 G0.4 G0.5 G0.6 G0.7 G0.8 G0.9
 G1.1 G1.2 G1.3 G1.4 G1.5 G1.6 G1.7 G1.8 G1.9
@@ -794,14 +986,14 @@ G99.1 G99.2 G99.3 G99.4 G99.5 G99.6 G99.7 G99.8 G99.9
 These codes are currently undefined in the current implementation of EMC2
 and may be used to define new M-codes:
 
-M10
-M11 M12 M13 M14 M15 M16 M17 M18 M19 M20
-M21 M22 M23 M24 M25 M26 M27 M28 M29 M31 M32 M33 M34 M35 M36 M37 M38 M39 M40
-M41 M42 M43 M44 M45 M46 M47 M54 M55 M56 M57 M58 M59 M74 M75 M76 M77 M78 M79 M80
-M81 M82 M83 M84 M85 M86 M87 M88 M89 M90
-M91 M92 M93 M94 M95 M96 M97 M98 M99
+ M10
+ M11 M12 M13 M14 M15 M16 M17 M18 M19 M20
+ M21 M22 M23 M24 M25 M26 M27 M28 M29 M31 M32 M33 M34 M35 M36 M37 M38 M39 M40
+ M41 M42 M43 M44 M45 M46 M47 M54 M55 M56 M57 M58 M59 M74 M75 M76 M77 M78 M79 M80
+ M81 M82 M83 M84 M85 M86 M87 M88 M89 M90
+ M91 M92 M93 M94 M95 M96 M97 M98 M99
 
-All codes between M199 and M999.
+All codes between `M199`  and `M999`.
 
 == Named parameters and inifile variables [[remap:referto-inifile-variables]]
 
@@ -841,90 +1033,399 @@ CAUTION: this section doesnt really belong here but since it comes with
 the same branch, here it rests for now until its clear this will be
 merged. It should go into the gcode/overview Named Parameters section.
 
-== Configuring  Embedded Python in the RS274NGC Interpreter [[remap:embedded-Python]]
+== Configuring  Embedded Python  [[remap:embedded-Python]]
 
+The Python plugin serves both the interpreter, and task if so
+configured, and hence has its own section `PYTHON` in the ini file.
 
+=== Python plugin : ini file configuration
 
-=== PYTHON ini config , DEBUG flags
-foo# the Python plugins serves the interpreter as well as task
 `[PYTHON]`
 
-PLUGIN_DIR=/home/mah/emc2-tc/configs/sim/pysubs
+`TOPLEVEL=`'<filename>'::
+	filename of the initial Python script to execute on
+	startup. This script is responsible for setting up the package
+	name structure, see below.
 
-# import the following Python modules
-MODULE_BASENAME=plugins
+`PATH_PREPEND=`'<directory>'::
+	prepend this directory to `PYTHON_PATH`. A repeating
+	group.
 
+`PATH_APPEND=`'<directory>'::
+	append this directory to `PYTHON_PATH`. A repeating
+	group.
 
-
-# if this is set:
-RELOAD_ON_CHANGE=1
-# and the file specified in MODULE_BASENAME was changed, it will be reloaded before
-# executing any Python calls
-# This is handy for debugging because you dont need to restart EMC
-# BUT it incurs a bit of overhead per call so you might want to turn
-# it off in production mode
-# the Python reload_on_change variable may be used to toggle this
-# at runtime
-#LOG_FILE= py.log
-LOG_LEVEL = 2
-
-# start a Python (really IO) Task class
-# see end of $PLUGIN_DIR/$MODULE_BASENAME/task.py to see how it's instantiated
-PYTHON_TASK=1
-
-# section for everything tool related
-# relevant only if NOT using iocontrol - see EMCIO in that case
+`LOG_LEVEL=`'<integer>'::
+	log level of plugin-related actions. Increase this if you
+	suspect problems. Can be very verbose.
 
 
-=== Module structure, functions, naming conventions
-foo
+`RELOAD_ON_CHANGE`='[0|1]'::
+	reload the 'TOPLEVEL' script if the file was changed. Handy
+	for debugging but currently incurs some runtime overhead. Turn
+	this off for production configurations.
 
-=== Python `hot comments`
-foo
+`PYTHON_TASK`='[0|1]'::
+	Start the Python task plugin. Experimental. See xxx.
+
+
+=== Executing Python statements from the interpreter [[remap::executing-Python-statements]]
+
+For ad-hoc execution of commands the Python 'hot comment' has
+been added. Python output by default goes to stdout, so you need to
+start EMC from a terminal window to see results. Example (eg. in the MDI window):
+
+  ;py,print 2*3
+
+Note that the interpreter instance is available here as `self`, so you
+could also run:
+
+  ;py,print self.tool_table[0].toolno
+
+The `emcStatus` structure is accessible, too:
+
+  ;py,from emctask import *
+  ;py,print emcstat.io.aux.estop
 
 == Programming Embedded Python in the RS274NGC Interpreter
-foo
 
-=== Call model: when is Py called?
-foo
+=== The Python plugin namespace
+The namespace is expected to be laid out as follows:
+
+`oword`::
+	Any callables in this module are candidates for Python O-word
+	procedures. Note that the Python `oword` module is checked
+	*before* testing for a NGC procedure with the same name - in
+	effect names in `oword` will hide NGC files of the same
+	basename.
+
+`remap`::
+	Python callables referenced in an argspec `prolog`,`epilog` or
+	`python` option are expected to be found here.
+
+`task`::
+	Task-related callables are expected here.
+
+
+=== The Interpreter as seen from Python
+
+The interpreter is an existing C++ class ('Interp') defined in
+'src/emc/rs274ngc'. Conceptually all `oword.function` Python calls are
+methods of this Interp class, although there is no formal Python
+definition of this class (it's a 'Boost.Python' wrapper instance) and
+hence receive the as the first parameter `self` which can be used to
+access internals.
+
+=== Calling conventions: NGC to Python
+
+Python code is called from NGC in the following situations:
+
+- during normal program execution:
+* when an O-word call like `O<proc> call` is executed and a procedure `oword.proc` is defined
+* when a comment like `;py,<Python statement>` is executed
+- during execution of a remapped code: any `prolog=`, `python=` and
+  `epilog=` handlers.
+
+==== Calling O-word Python subroutines  [[remap:Python-O-word-procs]]
+Arguments:
+
+`self`::
+	the interpreter instance
+
+`*args`::
+	  the list of actual positional parameters. Since the number
+	  of actual parameters may vary, it is best to use this style of declaration:
+
+[source,python]
+---------------------------------------------------------------------
+# this would be defined in the oword module
+def mysub(self, *args):
+    print "number of parameters passed:", len(args)
+    for a in args:
+	print a
+---------------------------------------------------------------------
+==== Return values of O-word Python subroutines
+Just as NGC procedures may return values, so do O-word Python
+subroutines. They are expected to either:
+
+- return no value (no `return` statement or the value `None`)
+- a float value
+
+Any other return value type will raise a Python exception.
+
+In a calling NGC environment, the follwing predefined named parameters
+are available:
+
+`#<_value>`::
+	      value returned by the last procedure called. Initialized
+	      to 0.0 on startup. Exposed in Interp was `self.return_value` (float).
+
+`#<_value_returned>`::
+	      indicates the last procedure called did `return`or
+	      `endsub` with an explicit value. 1.0 if true. Set to 0.0 on each `call`. Exposed
+	      in Interp was  `self.value_returned` (int).
+
+See also `tests/interp/value-returned` for an example.
+
+==== Calling 'prolog=' and 'epilog=' subroutines
+
+Arguments are:
+
+`self`::
+	the interpreter instance
+
+`words`::
+	keyword parameter dictionary. If an argspec was present, words
+	are collected from the current block accordingly and passed in
+	the dictionary for  convenience (the words could as well be
+	retrieved directly from the  calling block, but this requires
+	more knowledge of interpreter internals). If no argspec was
+	passed, or only optional values were specified and none of
+	these was present in the calling block, this dict is
+	empty. Word names are converted to lowercase.
+
+Example call:
+[source,python]
+---------------------------------------------------------------------
+def minimal_prolog(self, **words): # in remap module
+    print len(words)," words passed"
+    for w in words in words:
+        print "%s: %s" % (w, words[w])
+    if words['p'] < 78: # NB: could raise an exception if p were optional
+       self.set_errormsg("failing miserably")
+       return INTERP_ERROR
+    return INTERP_OK
+---------------------------------------------------------------------
+
+Return values:
+
+`INTERP_OK`:: return this on success
+
+`INTERP_ERROR`::
+	aborts execution. Use the `self.set_errormsg()` method
+	function  to pass an appropriate error message.
+
+==== Calling 'python=' subroutines
+
+Arguments are:
+
+`self`::
+	the interpreter instance
+`userdata`::
+	     int value, defaults to zero.  Used in
+	     restarting Python subroutines which have returned
+	     `INTERP_EXECUTE_FINISH` - see below.
+`words`::
+	keyword parameter dictionary. the same  kwargs dictionary as
+	prologs and epilogs (see above).
+
+The minimum `python=` function example:
+[source,python]
+---------------------------------------------------------------------
+def useless(self, userdata, **words): # in remap module
+    return INTERP_OK
+---------------------------------------------------------------------
+Return values:
+
+`INTERP_OK`:: return this on success
+
+`INTERP_ERROR`::
+	aborts execution. Use the `self.set_errormsg()` method
+	function  to pass an appropriate error message.
+
+(`INTERP_EXECUTE_FINISH`, `<userdata>`)::
+	return this tuple if you just executed a 'queuebuster
+	operation' (tool change, probe, HAL pin reading) by calling
+	the corresponding canon function. This functions require the
+	interpreter to stop reading ahead. Task will execute all
+	queued operations, execute the 'queuebuster', synchronize
+	interpreter state with machine state, and then signal
+	the interpreter to continue. At this point the function is
+	called again, with `userdata` reflecting the value which was
+	returned with the tuple.
+
+==== Dealing with queuebuster: Probe, Toolchange and waiting for a HAL pin
+
+
+Queue busters interrupt a procedure at the point where such an
+operation is called, hence the procedure needs to be restarted
+after the interpreter synch(). When this happens the procedure needs to
+know if it is restarted, and where to continue.
+
+The 'userdata' cookie indicates where the procedure should be
+restarted 'next time around'. It's possible to have several such
+suspend/restart points; each one will be designated with a specific
+userdata value.
+
+This demonstrates call continuation with a single point-of-restart:
+
+[source,python]
+---------------------------------------------------------------------
+def read_pin(self, userdata, **words):
+    if userdata == 1:
+	# we were called again post-sync():
+	pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
+	print "pin status=",pin_status
+	return INTERP_OK # done
+    else:
+	# wait 5secs for digital-input 00 to go high
+	emccanon.WAIT(0,1,2,5.0)
+	# pls call again after sync() with new userdata value
+	return (INTERP_EXECUTE_FINISH, 1)
+---------------------------------------------------------------------
+
+=== Calling conventions: Python to NGC
+
+NGC code is executed from Python when:
+
+- the method `self.execute(<NGC code>[,<line number>])` is executed
+-  during execution of a remapped code, if a `prolog=` function is
+ defined, the NGC procedure given in `ngc=` is executed immediately
+ thereafter.
+
+The prolog handler does not call the handler, but it prepares its call
+environment, for instance by setting up predefined local parameters.
+
+==== Inserting parameters in a prolog, and retrieving  them in an epilog
+
+Conceptually a prolog and an epilog execute at the same call level
+like the O-word procedure, that is: after the subroutine call is set
+up, and before the subroutine endsub or return.
+
+This means that any local variable created in a prolog will be a local
+variable in the O-word procedure, and any local variables created in
+the O-word procedure are still accessible when the epilog executes.
+
+The `self.params` array handles reading and setting numbered and named
+parameters. If a named parameter begins with `_` (underscore), it is
+assumed to be a global parameter; if not, it is local to the calling
+procedure. Also, numbered parameters in the range 1..30 are treated
+like local variables; their original values are restored on
+return/endsub from an O-word procedure.
+
+Here is an example remapped code demonstrating insertion and
+extraction of parameters into/from the O-word procedure:
+
+  REMAP=m300 prolog=insert_param ngc=testparam epilog=retrieve_param modalgroup=10
+
+[source,python]
+---------------------------------------------------------------------
+def insert_param(self, **words): # in the remap module
+    print "insert_param call level=",self.call_level
+    self.params["myname"] = 123
+    self.params[1] = 345
+    self.params[2] = 678
+    return INTERP_OK
+
+def retrieve_param(self, **words):
+    print "retrieve_param call level=",self.call_level
+    print "#1=", self.params[1]
+    print "#2=", self.params[2]
+    try:
+        print "result=", self.params["result"]
+    except Exception,e:
+	self.set_errormsg("testparam forgot to assign #<result>")
+	return INTERP_ERROR
+    return INTERP_OK
+---------------------------------------------------------------------
+
+[source,ngc]
+---------------------------------------------------------------------
+o<testparam> sub
+(debug, call_level=#<_call_level> myname=#<myname>)
+; try commenting out the next line and run again
+#<result> = [#<myname> * 3]
+#1 = [#1 * 5]
+#2 = [#2 * 3]
+o<testparam> endsub
+---------------------------------------------------------------------
+
+Since `myname` is local, it goes away after the epilog finishes.
+
+==== Calling the interpreter from Python
+
+You can recursively call the interpreter from Python code as follows:
+
+  self.execute(<NGC code>[,<line number>])
+
+Examples:
+[source,python]
+---------------------------------------------------------------------
+  self.execute("G1 X%f Y%f" % (x,y))
+  self.execute("O <myprocedure> call", currentline)
+---------------------------------------------------------------------
+
+CAUTION: The parameter insertion/retrieval method described in the previous section does not
+work in this case. It is good enough for just executing simple NGC
+commands or a procedure call and advanced introspection into the
+procedure, and passing of local named parameters is not needed.
+
+==== Interpreter Exception during execute()
+
+if `interpreter.throw_exceptions` is nonzero (default 1), and self.execute() returns an error, the exception
+`InterpreterException` is raised. InterpreterException has the
+following attributes:
+
+`line_number`:: where the error occured
+`line_text`:: the NGC statement causing the error
+`error_message`:: the interpreter's error message
+
+Errors can be trapped in the following Pythonic way:
+
+[source,python]
+-------------------------------------------------------------------
+import interpreter
+interpreter.throw_exceptions = 1
+   ...
+   try:
+        self.execute("G3456")  #  raise InterpreterException
+
+   except InterpreterException,e:
+        msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
+        self.set_errormsg(msg) # replace builtin error message
+        return INTERP_ERROR
+---------------------------------------------------------------------
+// NOTE: to iterate is human, to recurse: divine.
+
+==== Canon
+The canon layer is practically all free functions. Example:
+[source,python]
+---------------------------------------------------------------------
+import emccanon
+def example(self,*args):
+    ....
+    emccanon.STRAIGHT_TRAVERSE(line,x0,y0,z0,0,0,0,0,0,0)
+    emccanon.STRAIGHT_FEED(line,x1,y1,z1,0,0,0,0,0,0)
+    ...
+    return INTERP_OK
+---------------------------------------------------------------------
+
+See `src/emc/rs274ncg/canonmodule.cc`.
+
+=== Builtin modules
+The following modules are builtin:
+
+`interpreter`::
+	exposes internals of the Interp class. See
+	 `src/emc/rs274ngc/interpmodule.cc`, and the
+	`tests/remap/introspect` regression test.
+
+`emccanon`::
+	exposes most calls of  `src/emc/task/emccanon.cc`.
+
+`emctask`::
+	exposes the `emcStatus` class instance. See  `src/emc/task/taskmodule.cc`.
+	Not present when using the `gcode` module used for user
+	interfaces - only present in the milltask instance of the interpreter.
+
 
 === readahead time and execution time
-foo
-
-==== O-word
-foo
-
-==== epilog, prolog
-foo
-
-==== remap body
-foo
-
-=== Remapping to Python procedures
-foo
-
-=== Using Python functions like O-word procedures [[remap:Python-O-word-procs]]
 foo
 
 === plugin/pickle hack
 foo
 
 === Module, methods, classes, etc reference
-foo
-
-=== programming prolog and epilog functions
-foo
-
-=== Python remap body procedures [[remap:Python-body]]
-foo
-userdata, returning values
-arguments - kwargs dict
-
-if calling a Python function, the actual words present in the block as
- required or optional are passed in the words dictionary; no positional
- parameters are passed in this case.
-
-=== O-word body procedures
 foo
 
 
@@ -951,22 +1452,276 @@ foo
 
 // setup examples
 
+== A short survey of interpreter execution
+To understand remapping of codes it might be helpful to survey the
+standard execution model of the interpreter as far as it relates to
+remapping.
 
-==  Implementation notes
-foo
+=== Interpreter state
+Conceptually, the interpreter's state consist of variables which fall into
+the following categories:
+
+1. configuration information (typically from INI file)
+2. the 'World model' - a representation of actual machine state
+3. modal state and settings
+4. interpreter execution state
+
+(3) refers to state which is 'carried over' between executing
+individual NGC codes - for instance, once the spindle is turned on and
+the speed is set, it remains at this setting until turned off. The
+same goes for many codes, like feed, units, motion modes (feed or
+rapid)  and so forth.
+
+(4) holds information about the block currently executed, wether we
+are in a subroutine, interpreter variables etc.
+
+Most of this state is aggregated in a - fairly unsystematic -
+`structure _setup` (see interp_internals.hh).
+
+=== Task and Interpreter interaction, Queueing and Read-Ahead
+
+The task part of EMC is responsible for coordinating actual machine
+commands - movement, HAL interactions and so forth. It does not by
+itself handle the RS274NGC language. To do so, task calls upon the
+interpreter to parse and execute the next command - either from MDI or
+the current file.
+
+The interpreter execution generates canonical machine
+operations. These are, however, not immediately executed but put on a queue. The
+actual execution of these codes happens in the task part of EMC: canon
+commands are pulled off that interpreter queue, and executed resulting
+in actual machine movements.
+
+This means that typically the interpreter is far ahead of the actual
+execution of commands - the parsing of the program might well be
+finished before any noticeable movement starts. This behaviour is
+called 'read-ahead'. This is possible because the interpreter has full
+knowledge about 'where the machine is' and 'where it will be' after
+the commands it generates.
+
+However, some operations are incompatible with read-ahead. Thats the
+codes whose results cannot be computed because it depends on some
+information which is not yet available. For instance, assume the
+interpreter at some point requests to read the value of a HAL pin, and
+the program execution thereafter is different depending on the
+value. That clearly cannot be computed in advance; the interpreter
+needs to wait at this point until all queued commands have been
+executed, *then* read the HAL pin value, and only then continuing to
+execute the program. The same goes for 'probe' (the probe position is
+not known in advance), and tool change (the tool geometry is not known
+in advance, so offset calculations might be wrong if going ahead).
+
+Therefore, when such a code is encountered, the interpreter returns a
+special return code to task ('INTERP_EXECUTE_FINISH'). This signals to
+task to stop readahead for now, and 'synchronize the world model with
+the interpreter state'. The interpreter's 'synch()' method does just
+that - read all the world model 'actual' values which are relevant for execution.
+
+In the context of the HAL pin example, this
+means the actual value of the HAL pin is made avalable to the
+interpreter. Now task can call the interpreter again to continue after
+this 'HAL pin read' command, and since the actual value is now
+available, parsing and execution can again run in parallel.
+
+These commands are called "queue busters" and require special handling
+by task, and in the interpreter. They currently are: 'Tool change', 'Waiting for
+HAL input', and 'Probe'. With toolchange, it's the 'M6' and 'M61'
+codes - the 'T' command (prepare) just signals to the changer
+mechanism to start rattling, but does not impact any geometry data
+needed for execution.
+
+=== Word order and execution order
+
+One or several 'words' may be present on an NGC 'block' if they are
+compatible (some are mutually exclusive and must be on different
+lines).  The execution model however prescribes a strict ordering of
+execution of codes, regardless of their appearance on the source line
+(<<sec:Order-of-Execution, G-Code Order of Execution>>).
+
+=== Parsing
+
+Once a line is read (in either MDI mode, or from the current NGC
+file), it is parsed and flags and parameters are set in a 'struct
+block' (struct _setup, member block1). This struct holds all information
+about the current source line, but independent of different ordering
+of codes on the current line: as long as several codes are compatible,
+any source ordering will result in the same variables set in the
+struct block. Right after parsing, all codes on a block are checked for
+compatibility.
+
+=== Execution
+
+After successful parsing the block is executed by execute_block(), and
+here the different items are handled according to execution order.
+
+If a "queue buster" is found, a corresponding flag is set in the
+interpreter state (toolchange_flag, input_flag, probe_flag) and the
+interpreter returns an INTERP_EXECUTE_FINISH return value, signaling
+'stop readahead for now, and resynch' to the caller ('task').
+If no queue busters are found
+after all items are executed, INTERP_OK is returned, signalling that
+read-ahead may continue.
+
+When read ahead continues after the synch, task starts executing
+interpreter read() operations again.  During the next read operation,
+the abovementioned flags are checked and corresponding variables are
+set (because the a synch() was just executed, the values are now
+current). This means that the next command already executes in the
+properly set variable context.
+
+=== Procedure execution
+
+O-word procedures complicate handling of queue busters a bit. A queue
+buster might be found somewhere in a nested procedure, resulting in a
+semi-finished procedure call when INTERP_EXECUTE_FINISH is
+returned. Task makes sure to synchronize the world model, and continue
+parsing and execution as long as there is still a procedure executing
+(call_level > 0).
+
+=== How toolchange currently works [[remap::how-toolchange-currently-works]]
+The actions happening in EMC are a bit involved, but it's necessary to
+get the overall idea what currently happens before you set out to
+adapt those workings to your own needs.
+
+==== How tool information is communicated
+Several processes are 'interested' in tool information: task and its
+interpreter, as well as the user interface. Also, the 'halui' process.
+
+Tool information is held in the 'emcStatus' structure, which is
+ shared by all parties. One of its fields is the 'toolTable' array,
+ which holds the description as loaded from the tool table file (tool
+ number, diameter, frontangle, backangle and orientation for lathe,
+ tool offset information).
+
+The authoritative source and only process actually 'setting' tool
+information in this structure is the 'iocontrol' process. All others
+processes just consult this structure. The interpreter holds actually
+a local copy of the tool table.
+
+For the curious, the current emcStatus structure can be accessed by
+<<remap::executing-Python-statements,Python statements>>. The
+interpreter's perception of the tool currently loaded for instance is
+accessed by:
+
+ ;py,from interpreter import *
+ ;py,print this.tool_table[0]
+
+To see fields in the global emcStatus structure, try this:
+
+ ;py,from emctask import *
+ ;py,print emcstat.io.tool.pocketPrepped
+ ;py,print emcstat.io.tool.toolInSpindle
+ ;py,print emcstat.io.tool.toolTable[0]
+
+You need to have emc started from a terminal window to see the
+results.
+
+==== How Tx (Prepare Tool) works
+
+===== Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
+All the interpreter does is evaluate the toolnumber paramter, looks up
+its corresponding pocket, remembers it in the `selected_pocket`
+variable for later, and  queues a canon command
+(SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
+
+===== Task action on SELECT_POCKET
+When task gets around to handle a SELECT_POCKET, it sends a
+EMC_TOOL_PREPARE message to the iocontrol process, which handles most
+tool-related actions in EMC.
+
+In the current implementation, task actually waits for iocontrol to
+complete the changer positioning operation, which is not necessary IMO
+- it defeats the idea that changer preparation and code execution can
+proceed in parallel.
+
+===== Iocontrol action on EMC_TOOL_PREPARE
+When iocontrol sees the select pocket command, it does the related HAL
+pin wiggling - it sets the "tool-prep-number" pin to indicate which
+tool is next, raises the "tool-prepare" pin, and waits for the
+"tool-prepared" pin to go high.
+
+When the changer responds by asserting "tool-prepared", it considers
+the prepare phase to be completed and signals task to
+continue. (again, this 'wait' istn strictly necessary IMO)
+
+==== How M6 (Change tool) works
+
+You need to understand this fully before you can adapt it. It is very
+relevant to writing a prolog and epilog handler for a remapped
+M6. Remapping an existing codes means you disable the internal steps
+taken normally, and replicate them as far as needed for your own
+purposes.
+
+Even if you are not familiar with C, I suggest you look at the
+'Interp::convert_tool_change' code in
+'src/emc/rs274/interp_convert.cc'.
+
+===== Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
+When the interpreter sees an M6, it:
+
+. checks wether a T command has already been executed (test
+'settings->selected_pocket' to be >= 0) and fail with 'Need tool
+prepared -Txx- for toolchange' message if not.
+. check for cutter compensation being active, and fail with 'Cannot
+change tools with cutter radius compensation on' if so.
+. stop the spindle except if the "TOOL_CHANGE_WITH_SPINDLE_ON" ini
+option is set.
+. generate a rapid 'Z up' move if if the "TOOL_CHANGE_QUILL_UP" ini
+option is set.
+. if TOOL_CHANGE_AT_G30 was set:
+.. move the A, B and C indexers if applicable
+.. generate rapid move to the G30 position
+. send a CHANGE_TOOL command to task, with the selected pocket checked
+for in step 1 above as parameter
+. set the numberer parameters 5400-5413 according to the new tool
+. signal to task to stop calling the interpreter for readahead since
+M6 is a queue buster.
+
+===== What task does when it sees a CHANGE_TOOL command
+Again, not much more than passing the buck to iocontrol by sending it
+an EMC_TOOL_LOAD message, and waiting until iocontrol has done its
+thing.
+
+===== Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
+
+. it asserts the "tool-change" pin
+. it waits for the "tool-changed" pin to become active
+. when that has happened:
+.. deassert "tool-change"
+.. set "tool-prep-number" and "tool-prep-pocket" pins to zero
+.. execute the 'load_tool()' function with the pocket as parameter.
+
+The last step actually sets the tooltable entries in the 'emcStatus'
+structure. The actual action taken depends on wether the
+RANDOM_TOOLCHANGER ini option was set, but at the end of the process
+'toolTable[0]' reflects the tool currently in the spindle.
+
+When that has happended:
+
+. iocontrol signals task to go ahead
+. task tells the interpreter to execute a 'synch()' operation, to see
+what has changed
+. the interpreter 'synch()' pulls all information from the world model
+needed, among it the changed tool table.
+
+From there on, the interpreter has complete  knowledge of the world
+model and continues with readahead.
+
+
+==  Status
+ha!
 
 // A short survey of EMC2 execution
 // Interpreter internals access - Python view
 // Task internals access - Python view
+==  Build notes
 
-- fluff
+ apt-get install libboost-python1.40-dev unixODBC-dev libsqliteodbc
+
+ git clone https://code.google.com/p/pyodbc/
+ sudo  python setup.py build install
 
 
-The suggested method to handle success or failure of an NGC procedure
-is to <<remap:epilog-handler, inspect its return value in an 'epilog
-handler'>>. This gives you the option to display a message, inspect
-interpreter internals if needed, and optionally fail interpreter
-execution so the program stops.
 
 ==  Workarounds
 
@@ -987,3 +1742,14 @@ execution so the program stops.
  # it has been fixed in mesa - 7.10.1-0ubuntu2
  # unfortunately for now this workaround is needed
  DISPLAY_LD_PRELOAD = /usr/lib/libstdc++.so.6
+
+
+// normal, _italic_, *bold*, +mono+.
+// ``double quoted'', `single quoted'.
+// normal, ^super^, ~sub~.
+// normal, italic, bold, mono.
+// “double quoted”, ‘single quoted’.
+// normal, super, sub.
+// Command: `ls -al`
+// +mono *bold*+
+// `passthru *bold*`
