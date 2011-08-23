@@ -359,6 +359,24 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	    leaving_frame = &settings->sub_context[settings->call_level];
 	    returnto_frame = &settings->sub_context[settings->call_level - 1];
 
+	    // we call the epilog handler while the current frame is still alive
+	    // so we can inspect it from the epilog
+
+	    // aquire the remapped block
+	    cblock = &CONTROLLING_BLOCK(_setup);
+
+	    if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
+		logRemap("O_call: py epilog %s for NGC remap %s",
+			 cblock->executing_remap->epilog_func,
+			 cblock->executing_remap->remap_ngc);
+		status = pycall(settings,cblock,
+				REMAP_MODULE,
+				cblock->executing_remap->epilog_func,
+				PY_EPILOG);
+		if (status > INTERP_MIN_ERROR)
+		    ERP(status);
+	    }
+
 	    // free local variables
 	    free_named_parameters(leaving_frame);
 	    leaving_frame->subName = NULL;
@@ -390,25 +408,9 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		fseek(settings->file_pointer, returnto_frame->position, SEEK_SET);
 		settings->sequence_number = returnto_frame->sequence_number;
 
-		// cleanups on return
-		// if we have an epilog function - execute it, passing the
-		// current call frame
+		// cleanups on return:
 
-
-		// aquire the remapped block
-		cblock = &CONTROLLING_BLOCK(_setup);
-
-		if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
-		    logRemap("O_call: py epilog %s for NGC remap %s",
-			     cblock->executing_remap->epilog_func,
-			     cblock->executing_remap->remap_ngc);
-		    status = pycall(settings,cblock,
-				    REMAP_MODULE,
-				    cblock->executing_remap->epilog_func,
-				    PY_EPILOG);
-		    if (status > INTERP_MIN_ERROR)
-			ERP(status);
-		}
+		// if this was a remap we're done
 		if (cblock->executing_remap)
 		    ERP(remap_finished(-cblock->phase));
 
