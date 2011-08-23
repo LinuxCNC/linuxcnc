@@ -20,14 +20,14 @@ enum pp_status   {
     PLUGIN_NO_SECTION = -1,
     PLUGIN_NO_INIFILE = -2,
     PLUGIN_BAD_INIFILE = -3,
-    PLUGIN_NO_MODULE_BASENAME = -4,
+    PLUGIN_NO_TOPLEVEL = -4,
     PLUGIN_BAD_PATH = -5,
     PLUGIN_STAT_FAILED = -6,
     PLUGIN_INITTAB_FAILED = -7 ,
     PLUGIN_PYTHON_ALREADY_INITIALIZED = -8,
-    PLUGIN_EXCEPTION_DURING_PATH_APPEND = -9,
-    PLUGIN_INIT_EXCEPTION = -10,
-    PLUGIN_NO_PLUGIN_DIR = -11,
+    PLUGIN_EXCEPTION_DURING_PATH_PREPEND = -9,
+    PLUGIN_EXCEPTION_DURING_PATH_APPEND = -10,
+    PLUGIN_INIT_EXCEPTION = -11,
     PLUGIN_PYTHON_NOT_INITIALIZED = -12,
 
     // errors < OK make run_string(), is_callable(), and call() fail immediately
@@ -73,9 +73,9 @@ private:
     const char *ini_filename;
     const char *section;
     struct _inittab *inittab_pointer;
-    const char *module_basename;          // toplevel module
-    const char *plugin_dir;               // directory prefix
-    const char *abs_path;                 // normalized path to toplevel module, ProgramName
+    const char *toplevel;          // toplevel script
+    //    const char *plugin_dir;               // directory prefix
+    const char *abs_path;                 // normalized path to toplevel module
     std::string exception_msg;
     std::string error_msg;
     int log_level;

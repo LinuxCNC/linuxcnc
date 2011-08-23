@@ -22,6 +22,7 @@
 	}								\
     } while (0)
 
+
 extern const char *strstore(const char *s);
 
 // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
@@ -52,7 +53,7 @@ int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 	PyErr_Clear();
     }
     if (status == PLUGIN_EXCEPTION) {
-	logPP(1, "run_string(%s): \n%s",
+	logPP(0, "run_string(%s): \n%s",
 	      cmd, exception_msg.c_str());
     }
     return status;
@@ -93,7 +94,7 @@ int PythonPlugin::call(const char *module, const char *callable,
 	PyErr_Clear();
     }
     if (status == PLUGIN_EXCEPTION) {
-	logPP(1, "call(%s%s%s): \n%s",
+	logPP(0, "call(%s%s%s): \n%s",
 	      module ? module : "",
 	      module ? "." : "",
 	      callable, exception_msg.c_str());
@@ -135,7 +136,7 @@ bool PythonPlugin::is_callable(const char *module,
 	PyErr_Clear();
     }
     if (unexpected)
-	logPP(1, "is_callable(%s%s%s): unexpected exception:\n%s",
+	logPP(0, "is_callable(%s%s%s): unexpected exception:\n%s",
 	      module ? module : "", module ? "." : "",
 	      funcname,exception_msg.c_str());
 
@@ -146,19 +147,20 @@ bool PythonPlugin::is_callable(const char *module,
     return result;
 }
 
+// this should be moved to an inotify-based solution and be done with it
 int PythonPlugin::reload()
 {
     struct stat st;
 
     if (stat(abs_path, &st)) {
-	logPP(1, "reload: stat(%s) returned %s", abs_path, strerror(errno));
+	logPP(0, "reload: stat(%s) returned %s", abs_path, strerror(errno));
 	status = PLUGIN_STAT_FAILED;
 	return status;
     }
     if (st.st_mtime > module_mtime) {
 	module_mtime = st.st_mtime;
 	initialize(true);
-	logPP(1, "reload(): module %s reloaded, status=%d", module_basename, status);
+	logPP(1, "reload():  %s reloaded, status=%d", toplevel, status);
     } else {
 	logPP(5, "reload: no-op");
 	status = PLUGIN_OK;
@@ -219,7 +221,7 @@ void PythonPlugin::initialize(bool reload,  Interp *interp )
 	    PyErr_Clear();
 	}
 	if (status == PLUGIN_INIT_EXCEPTION) {
-	    logPP(1, "initialize: module '%s' init failed: \n%s",
+	    logPP(0, "initialize: module '%s' init failed: \n%s",
 		  abs_path, exception_msg.c_str());
 	}
     } else {
@@ -243,27 +245,21 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     }
     if ((iniFilename == NULL) &&
 	((iniFilename = getenv("INI_FILE_NAME")) == NULL)) {
-	logPP(1, "no inifile");
+	logPP(0, "no inifile");
 	status = PLUGIN_NO_INIFILE;
 	return;
     }
     if (inifile.Open(iniFilename) == false) {
-          logPP(1, "Unable to open inifile:%s:\n", iniFilename);
+          logPP(0, "Unable to open inifile:%s:\n", iniFilename);
 	  status = PLUGIN_BAD_INIFILE;
 	  return;
     }
-    if ((inistring = inifile.Find("PLUGIN_DIR", section)) != NULL)
-	plugin_dir = strstore(inistring);
+
+    if ((inistring = inifile.Find("TOPLEVEL", section)) != NULL)
+	toplevel = strstore(inistring);
     else {
-         logPP(3, "no PLUGIN_DIR in inifile:%s:\n", iniFilename);
-	 status =  PLUGIN_NO_PLUGIN_DIR;
-	 return;
-    }
-    if ((inistring = inifile.Find("MODULE_BASENAME", section)) != NULL)
-	module_basename = strstore(inistring);
-    else {
-         logPP(1, "no MODULE_BASENAME in inifile:%s:\n", iniFilename);
-	 status =  PLUGIN_NO_MODULE_BASENAME;
+         logPP(1, "no TOPLEVEL script in inifile:%s:\n", iniFilename);
+	 status =  PLUGIN_NO_TOPLEVEL;
 	 return;
     }
     if ((inistring = inifile.Find("RELOAD_ON_CHANGE", section)) != NULL)
@@ -272,17 +268,10 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     if ((inistring = inifile.Find("LOG_LEVEL", section)) != NULL)
 	log_level = atoi(inistring);
 
-    inifile.Close();
-
-    char module_path[PATH_MAX];
-    strcpy(module_path, plugin_dir );
-    strcat(module_path,"/");
-    strcat(module_path, module_basename);
-    strcat(module_path,".py");
 
     char real_path[PATH_MAX];
-    if (realpath(module_path, real_path) == NULL) {
-	logPP(1, "cant resolve path to '%s'", module_path);
+    if (realpath(toplevel, real_path) == NULL) {
+	logPP(0, "cant resolve path to '%s'", toplevel);
 	status = PLUGIN_BAD_PATH;
 	return;
     }
@@ -303,13 +292,34 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 	return;
     }
     Py_Initialize();
-    char pathcmd[PATH_MAX];
-    sprintf(pathcmd, "import sys\nsys.path.insert(0,\"%s\")", plugin_dir);
-    if (PyRun_SimpleString(pathcmd)) {
-	logPP(1, "exeception running '%s'", pathcmd);
-	exception_msg = "exeception running "; // + pathcmd;
-	status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
-	return;
+    char pycmd[PATH_MAX];
+    int n = 1;
+    int lineno;
+    while (NULL != (inistring = inifile.Find("PATH_PREPEND", "PYTHON",
+					     n, &lineno))) {
+	sprintf(pycmd, "import sys\nsys.path.insert(0,\"%s\")", inistring);
+	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
+
+	if (PyRun_SimpleString(pycmd)) {
+	    logPP(0, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
+	    exception_msg = "exeception running " + std::string((const char*)pycmd);
+	    status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
+	    return;
+	}
+	n++;
+    }
+    n = 1;
+    while (NULL != (inistring = inifile.Find("PATH_APPEND", "PYTHON",
+					     n, &lineno))) {
+	sprintf(pycmd, "import sys\nsys.path.append(\"%s\")", inistring);
+	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
+	if (PyRun_SimpleString(pycmd)) {
+	    logPP(0, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
+	    exception_msg = "exeception running " + std::string((const char*)pycmd);
+	    status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
+	    return;
+	}
+	n++;
     }
     logPP(3,"PythonPlugin: Python  '%s'",  Py_GetVersion());
     initialize(false, interp);
