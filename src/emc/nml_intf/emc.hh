@@ -336,6 +336,7 @@ enum EMC_IO_ABORT_REASON_ENUM {
 	EMC_ABORT_TASK_STATE_ESTOP = 6,
 	EMC_ABORT_TASK_STATE_NOT_ON = 7,
 	EMC_ABORT_TASK_ABORT = 8,
+	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
 	EMC_ABORT_USER = 100  // user-defined abort codes start here
 };
 // --------------

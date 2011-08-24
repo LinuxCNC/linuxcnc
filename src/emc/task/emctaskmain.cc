@@ -586,7 +586,8 @@ interpret_again:
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
 				interp_list.clear();
-				emcAbortCleanup(4711,"interpreter returned error"); // FIXME mah
+				emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR,
+						"interpreter error"); 
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
