@@ -186,44 +186,6 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	settings->sequence_number = op->sequence_number;
 	return INTERP_OK;
     }
-#if 0
-    // NO o_word found
-    // look for a new file
-    sprintf(tmpFileName, "%s.ngc", block->o_name);
-
-    // find subroutine by search: program_prefix, subroutines, wizard_root
-    // use first file found
-
-    // first look in the program_prefix place
-    sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
-    newFP = fopen(newFileName, "r");
-
-    // then look in the subroutines place
-    if (!newFP) {
-	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
-	    if (!settings->subroutines[dct])
-		continue;
-	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
-	    newFP = fopen(newFileName, "r");
-	    if (newFP) {
-		logOword("fopen: |%s|", newFileName);
-		break; // use first occurrence in dir search
-	    }
-	}
-    }
-    // if not found, search the wizard tree
-    if (!newFP) {
-	int ret;
-	ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
-
-	if (INTERP_OK == ret) {
-	    // create the long name
-	    sprintf(newFileName, "%s/%s",
-		    foundPlace, tmpFileName);
-	    newFP = fopen(newFileName, "r");
-	}
-    }
-#endif
     newFP = find_ngc_file(settings, block->o_name, newFileName);
 
     if (newFP) {
