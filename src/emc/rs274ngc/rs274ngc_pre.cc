@@ -2154,16 +2154,17 @@ int Interp::enter_remap(void)
 
     // remember the line where remap was discovered
     if (_setup.remap_level == 1) {
-	CONTROLLING_BLOCK(_setup).line_number  =
+	logRemap("enter_remap: toplevel - saved_line_number=%d",_setup.sequence_number);
+	CONTROLLING_BLOCK(_setup).saved_line_number  =
 	    _setup.sequence_number;
     } else {
-	CONTROLLING_BLOCK(_setup).line_number  =
-	    EXECUTING_BLOCK(_setup).line_number;
+	logRemap("enter_remap into %d - saved_line_number=%d",
+		 _setup.remap_level,
+		 EXECUTING_BLOCK(_setup).saved_line_number);
+	CONTROLLING_BLOCK(_setup).saved_line_number  =
+	    EXECUTING_BLOCK(_setup).saved_line_number;
     }
-    logRemap("enter_remap %d->%d remapline=%d",
-	     _setup.remap_level-1,
-	     _setup.remap_level,
-	     CONTROLLING_BLOCK(_setup).line_number);
+    _setup.sequence_number = 0;
     return INTERP_OK;
 }
 
@@ -2172,17 +2173,18 @@ int Interp::leave_remap(void)
     // restore the line number where remap was found
     if (_setup.remap_level == 1) {
 	// dropping to top level, so pass onto _setup
-	_setup.sequence_number = CONTROLLING_BLOCK(_setup).line_number;
+	_setup.sequence_number = CONTROLLING_BLOCK(_setup).saved_line_number;
+	logRemap("leave_remap into toplevel, restoring seqno=%d",_setup.sequence_number);
+
     } else {
 	// just dropping a nesting level
-	EXECUTING_BLOCK(_setup).line_number =
-	    CONTROLLING_BLOCK(_setup).line_number ;
+	EXECUTING_BLOCK(_setup).saved_line_number =
+	    CONTROLLING_BLOCK(_setup).saved_line_number ;
+	logRemap("leave_remap from %d propagate saved_line_number=%d",
+		 _setup.remap_level,
+		 EXECUTING_BLOCK(_setup).saved_line_number);
     }
     _setup.remap_level--; // drop one nesting level
-    logRemap("leave_remap %d<-%d remapline=%d",
-	     _setup.remap_level,
-	     _setup.remap_level + 1,
-	     CONTROLLING_BLOCK(_setup).line_number);
     if (_setup.remap_level < 0) {
 	ERS("BUG: remap_level < 0 : %d",_setup.remap_level);
     }
@@ -2191,12 +2193,7 @@ int Interp::leave_remap(void)
 
 int Interp::on_abort(int reason, const char *message)
 {
-    // int i;
-
-    logDebug("on_abort reason=%d message='%s' remap_level=%d call_level=%d mdi_interrupt=%d tc=%d probe=%d input=%d",
-	    reason, message,_setup.remap_level,_setup.call_level,_setup.mdi_interrupt
-	    ,_setup.toolchange_flag,
-	    _setup.probe_flag,_setup.input_flag);
+    logDebug("on_abort reason=%d message='%s'", reason, message);
 
     reset();
     _setup.mdi_interrupt = false;

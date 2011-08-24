@@ -401,6 +401,7 @@ typedef struct block_struct
   int l_number;
   bool l_flag;
   int line_number;
+  int saved_line_number;  // value of sequence_number when a remap was encountered
   int n_number;
   int motion_to_be;
   int m_count;

@@ -479,6 +479,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("l_number",&block::l_number)
 	.def_readwrite("l_flag",&block::l_flag)
 	.def_readwrite("line_number",&block::line_number)
+	.def_readwrite("saved_line_number",&block::line_number)
 	.def_readwrite("n_number",&block::n_number)
 	.def_readwrite("motion_to_be",&block::motion_to_be)
 	.def_readwrite("m_count",&block::m_count)
