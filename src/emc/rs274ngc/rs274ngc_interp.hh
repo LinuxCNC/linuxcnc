@@ -546,7 +546,8 @@ public:
 	       int calltype);
     int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
     int py_reload();
-    // Interp *instance() { return this; }
+ 
+    FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
 
     const char *getSavedError();
 

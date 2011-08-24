@@ -144,7 +144,6 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 			     setup_pointer settings)   // pointer to machine settings
 {
     static char name[] = "control_back_to";
-    int  dct;
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     char tmpFileName[PATH_MAX+1];
@@ -187,7 +186,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	settings->sequence_number = op->sequence_number;
 	return INTERP_OK;
     }
-
+#if 0
     // NO o_word found
     // look for a new file
     sprintf(tmpFileName, "%s.ngc", block->o_name);
@@ -224,6 +223,8 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	    newFP = fopen(newFileName, "r");
 	}
     }
+#endif
+    newFP = find_ngc_file(settings, block->o_name, newFileName);
 
     if (newFP) {
 	logOword("fopen: |%s| OK", newFileName);

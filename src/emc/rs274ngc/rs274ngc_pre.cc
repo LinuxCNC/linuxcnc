@@ -2219,6 +2219,56 @@ int Interp::on_abort(int reason, const char *message)
     return status;
 }
 
+// spun out from interp_o_word so we can use it to test ngc file accessibility during
+// config file parsing (REMAP... ngc=<basename>)
+FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
+{
+    FILE *newFP;
+    char tmpFileName[PATH_MAX+1];
+    char newFileName[PATH_MAX+1];
+    char foundPlace[PATH_MAX+1];
+    int  dct;
+
+    // look for a new file
+    sprintf(tmpFileName, "%s.ngc", basename);
+
+    // find subroutine by search: program_prefix, subroutines, wizard_root
+    // use first file found
+
+    // first look in the program_prefix place
+    sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
+    newFP = fopen(newFileName, "r");
+
+    // then look in the subroutines place
+    if (!newFP) {
+	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+	    if (!settings->subroutines[dct])
+		continue;
+	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
+	    newFP = fopen(newFileName, "r");
+	    if (newFP) {
+		logOword("fopen: |%s|", newFileName);
+		break; // use first occurrence in dir search
+	    }
+	}
+    }
+    // if not found, search the wizard tree
+    if (!newFP) {
+	int ret;
+	ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+
+	if (INTERP_OK == ret) {
+	    // create the long name
+	    sprintf(newFileName, "%s/%s",
+		    foundPlace, tmpFileName);
+	    newFP = fopen(newFileName, "r");
+	}
+    }
+    if (foundhere && (newFP != NULL)) 
+	strcpy(foundhere, newFileName);
+    return newFP;
+}
+
 static std::set<std::string> stringtable;
 
 const char *strstore(const char *s)
