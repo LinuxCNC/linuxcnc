@@ -433,7 +433,15 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		errored = true;
 		continue;
 	    }
-	    r->remap_ngc = strstore(arg);
+	    FILE *fp = find_ngc_file(&_setup,arg);
+	    if (fp) {
+		r->remap_ngc = strstore(arg);
+		fclose(fp);
+	    } else {
+		Error("NGC file not found: ngc=%s - %d:REMAP = %s",
+		      arg, lineno,inistring);
+		errored = true;
+	    }
 	    continue;
 	}
 	if (!strncasecmp(kw,"python",kwlen)) {
