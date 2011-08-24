@@ -366,7 +366,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	    cblock = &CONTROLLING_BLOCK(_setup);
 
 	    if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
-		logRemap("O_call: py epilog %s for NGC remap %s",
+		logRemap("O_endsub/return: py epilog %s for NGC remap %s",
 			 cblock->executing_remap->epilog_func,
 			 cblock->executing_remap->remap_ngc);
 		status = pycall(settings,cblock,
