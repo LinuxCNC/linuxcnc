@@ -604,6 +604,13 @@ will execute properly.
 
 The maximum nesting level remaps is currently 10.
 
+=== Sequence number  during remaps
+
+Sequence numbers are propagated and restored like with O-word
+calls. See `tests/remap/nested-remaps/word` for the regression test,
+which shows sequence number tracking during nested remaps three levels
+deep.
+
 === Debugging flags
 
 The following flags are relevant for remapping and Python - related execution:
