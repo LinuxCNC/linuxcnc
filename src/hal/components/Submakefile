@@ -23,11 +23,14 @@ endif
 obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
 
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	../bin/comp --document -o $@ $<
+	$(Q)../bin/comp --document -o $@ $<
+
 $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	../bin/comp --document -o $@ $<
+	$(Q)../bin/comp --document -o $@ $<
 
 objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
@@ -64,31 +67,41 @@ USERSRCS += $(HALSAMPLERSRCS)
 TARGETS += ../bin/halsampler
 
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh float s32 "" -2147483647-1 2147483647 < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh float s32 "" -2147483647-1 2147483647 < $< > $@
 
 hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh float u32 "" 0 2147483647 < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh float u32 "" 0 2147483647 < $< > $@
 
 hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh bit s32 // < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh bit s32 // < $< > $@
 
 hal/components/conv_bit_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh bit u32 // < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh bit u32 // < $< > $@
 
 hal/components/conv_s32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh s32 float // < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s32 float // < $< > $@
 
 hal/components/conv_s32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh s32 bit "" 0 1 < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s32 bit "" 0 1 < $< > $@
 
 hal/components/conv_s32_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh s32 u32 "" 0 0 < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s32 u32 "" 0 0 < $< > $@
 
 hal/components/conv_u32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh u32 float // < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u32 float // < $< > $@
 
 hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh u32 bit "" -1 1 < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u32 bit "" -1 1 < $< > $@
 
 hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
-	sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
