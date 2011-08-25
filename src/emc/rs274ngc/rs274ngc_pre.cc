@@ -856,12 +856,15 @@ int Interp::init()
 
 	  // initialize the Python plugin singleton
 	  extern struct _inittab builtin_modules[];
-	  if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules, this) != NULL) {
-	      logPy("Python plugin configured");
-	      _setup.pythis =  interp_ptr(this, interpDeallocFunc);
-	  } else {
-	      logPy("no Python plugin available");
-	  }
+	  if (inifile.Find("TOPLEVEL", "PYTHON")) {
+	      if (PythonPlugin::configure(iniFileName,"PYTHON",  builtin_modules, this) != NULL) {
+		  logPy("Python plugin configured");
+		  _setup.pythis =  interp_ptr(this, interpDeallocFunc);
+	      } else {
+		  Error("no Python plugin available");
+	      }
+	  } else logPy("Python plugin not configured");
+
 	  int n = 1;
 	  int lineno = -1;
 	  _setup.g_remapped.clear();
@@ -870,10 +873,10 @@ int Interp::init()
 	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
 						   n, &lineno))) {
 
-	      parse_remap( inistring,  lineno);
+	      CHP(parse_remap( inistring,  lineno));
 	      n++;
 	  }
-	  // for generating docs...
+	  // for generating docs... fixthis.
 	  if (NULL != (inistring = inifile.Find("PRINT_CODES", "RS274NGC"))) {
 	      int i;
 

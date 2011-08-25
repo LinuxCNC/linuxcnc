@@ -424,11 +424,25 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    continue;
 	}
 	if (!strncasecmp(kw,"prolog",kwlen)) {
-	    r->prolog_func = strstore(arg);
+	    if (PYUSABLE) {
+		r->prolog_func = strstore(arg);
+	    } else {
+		Error("Python plugin required for prolog=, but not available: %d:REMAP = %s",
+		      lineno,inistring);
+		errored = true;
+		continue;
+	    }
 	    continue;
 	}
 	if (!strncasecmp(kw,"epilog",kwlen)) {
-	    r->epilog_func = strstore(arg);
+	    if (PYUSABLE) {
+		r->epilog_func = strstore(arg);
+	    } else {
+		Error("Python plugin required for epilog=, but not available: %d:REMAP = %s",
+		      lineno,inistring);
+		errored = true;
+		continue;
+	    }
 	    continue;
 	}
 	if (!strncasecmp(kw,"ngc",kwlen)) {
@@ -452,6 +466,12 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	if (!strncasecmp(kw,"python",kwlen)) {
 	    if (r->remap_ngc ) {
 		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		      lineno,inistring);
+		errored = true;
+		continue;
+	    }
+	    if (!PYUSABLE) {
+		Error("Python plugin required for python=, but not available: %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
 		continue;

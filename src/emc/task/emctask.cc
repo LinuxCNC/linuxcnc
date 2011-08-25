@@ -384,7 +384,7 @@ int emcTaskPlanInit()
     waitFlag = 0;
 
     int retval = interp.init();
-    if (retval > INTERP_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {  // I'd think this should be fatal.
 	print_interp_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {

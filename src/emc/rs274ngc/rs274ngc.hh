@@ -71,8 +71,9 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 
 #define _logDebug(mask,dlflags,level, fmt, args...)	\
     do {						\
-	if ((mask & _setup.debugmask) &&		\
-	    (level < _setup.loggingLevel)) {		\
+	if (((mask & _setup.debugmask) &&		\
+	     (level < _setup.loggingLevel)) ||		\
+            (mask & EMC_DEBUG_UNCONDITIONAL)) {		\
 	    doLog(dlflags,				\
 		  __FILE__,				\
 		  __LINE__ ,				\
