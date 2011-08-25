@@ -706,7 +706,7 @@ So we need a prolog, and an epilog. Lets assume our ini file incantation of the 
  REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
 
 So the prolog covering steps 1 and 2 would look like so - we decide to pass `current_tool`
-and `selected_pocket`as local named parameters:
+and `selected_pocket` as local named parameters:
 
 [source,python]
 ---------------------------------------------------------------------
@@ -754,8 +754,8 @@ def change_epilog(self, **words):
         # commit change
         emccanon.CHANGE_TOOL(self.selected_pocket) # step 6
         self.current_pocket = self.selected_pocket
-        # cause a sync()
         self.set_tool_parameters() # step 7
+        # cause a sync()
         self.tool_change_flag = True  # step 8
         return INTERP_OK
     else:
@@ -776,9 +776,9 @@ pins. When we finally execute the `CHANGE_TOOL()` command, all
 movements and HAL interaction is already complete.
 
 Normally only now iocontrol would do its thing as outlined
-<<remap::iocontrol-action-on-load,here>>. However, we dont need this
-anymore - all iocontrol is left to do is to accept we're done with
-prepare and  change.
+<<remap::iocontrol-action-on-load,here>>. However, we dont need the
+HAL pin wiggling anymore - all iocontrol is left to do is to accept
+we're done with prepare and change.
 
 This means that the corresponding iocontrol pins have no function any
 more. Therefore, we configure iocontrol to immediately acknowledge a
@@ -1118,7 +1118,7 @@ The namespace is expected to be laid out as follows:
 
 The interpreter is an existing C++ class ('Interp') defined in
 'src/emc/rs274ngc'. Conceptually all `oword.function` Python calls are
-methods of this Interp class, although there is no formal Python
+methods of this Interp class, although there is no explicit Python
 definition of this class (it's a 'Boost.Python' wrapper instance) and
 hence receive the as the first parameter `self` which can be used to
 access internals.
@@ -1128,7 +1128,8 @@ access internals.
 Python code is called from NGC in the following situations:
 
 - during normal program execution:
-* when an O-word call like `O<proc> call` is executed and a procedure `oword.proc` is defined
+* when an O-word call like `O<proc> call` is executed and the name
+`oword.proc` is defined and callable
 * when a comment like `;py,<Python statement>` is executed
 - during execution of a remapped code: any `prolog=`, `python=` and
   `epilog=` handlers.
@@ -1174,7 +1175,7 @@ are available:
 
 See also `tests/interp/value-returned` for an example.
 
-==== Calling 'prolog=' and 'epilog=' subroutines
+==== Calling conventions for 'prolog=' and 'epilog=' subroutines
 
 Arguments are:
 
@@ -1212,7 +1213,7 @@ Return values:
 	aborts execution. Use the `self.set_errormsg()` method
 	function  to pass an appropriate error message.
 
-==== Calling 'python=' subroutines
+==== Calling conventions for 'python=' subroutines
 
 Arguments are:
 
@@ -1347,6 +1348,7 @@ o<testparam> sub
 o<testparam> endsub
 ---------------------------------------------------------------------
 
+`self.params()` returns a list of all variable names currently defined.
 Since `myname` is local, it goes away after the epilog finishes.
 
 ==== Calling the interpreter from Python
@@ -1361,6 +1363,10 @@ Examples:
   self.execute("G1 X%f Y%f" % (x,y))
   self.execute("O <myprocedure> call", currentline)
 ---------------------------------------------------------------------
+
+You might want to test for the return value being `<
+INTERP_MIN_ERROR`. If you're using lots of execute() statements, it's
+probably easier to trap InterpreterException as per below.
 
 CAUTION: The parameter insertion/retrieval method described in the previous section does not
 work in this case. It is good enough for just executing simple NGC
