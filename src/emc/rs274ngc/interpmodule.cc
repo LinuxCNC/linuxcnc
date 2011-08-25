@@ -339,6 +339,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("INTERP_ENDFILE") = INTERP_ENDFILE;
     scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
     scope().attr("INTERP_ERROR") = INTERP_ERROR;
+    scope().attr("INTERP_MIN_ERROR") = INTERP_MIN_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
     scope().attr("MODE_ABSOLUTE") = (int) MODE_ABSOLUTE;
@@ -558,7 +559,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 	.def("synch", &Interp::synch)
 
-	// those will raise exceptions on INTERP_ERROR. Lets see how useful that works out.
+	// those will raise exceptions on return value < INTERP_MIN_ERROR  if throw_exceptions is set.
 	.def("execute", &wrap_interp_execute_1)
 	.def("execute",  &wrap_interp_execute_2)
 	.def("read", &wrap_interp_read)
