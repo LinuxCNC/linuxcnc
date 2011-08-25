@@ -221,10 +221,11 @@ void PythonPlugin::initialize(bool reload,  Interp *interp )
 	    PyErr_Clear();
 	}
 	if (status == PLUGIN_INIT_EXCEPTION) {
-	    logPP(0, "initialize: module '%s' init failed: \n%s",
+	    logPP(-1, "initialize: module '%s' init failed: \n%s",
 		  abs_path, exception_msg.c_str());
 	}
     } else {
+	logPP(-1, "initialize: Plugin not initialized");
 	status = PLUGIN_PYTHON_NOT_INITIALIZED;
     }
 }
@@ -245,12 +246,12 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     }
     if ((iniFilename == NULL) &&
 	((iniFilename = getenv("INI_FILE_NAME")) == NULL)) {
-	logPP(0, "no inifile");
+	logPP(-1, "no inifile");
 	status = PLUGIN_NO_INIFILE;
 	return;
     }
     if (inifile.Open(iniFilename) == false) {
-          logPP(0, "Unable to open inifile:%s:\n", iniFilename);
+          logPP(-1, "Unable to open inifile:%s:\n", iniFilename);
 	  status = PLUGIN_BAD_INIFILE;
 	  return;
     }
@@ -258,7 +259,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     if ((inistring = inifile.Find("TOPLEVEL", section)) != NULL)
 	toplevel = strstore(inistring);
     else {
-         logPP(1, "no TOPLEVEL script in inifile:%s:\n", iniFilename);
+         logPP(-1, "no TOPLEVEL script in inifile:%s:\n", iniFilename);
 	 status =  PLUGIN_NO_TOPLEVEL;
 	 return;
     }
@@ -267,11 +268,11 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 
     if ((inistring = inifile.Find("LOG_LEVEL", section)) != NULL)
 	log_level = atoi(inistring);
-
+    else log_level = 0;
 
     char real_path[PATH_MAX];
     if (realpath(toplevel, real_path) == NULL) {
-	logPP(0, "cant resolve path to '%s'", toplevel);
+	logPP(-1, "cant resolve path to '%s'", toplevel);
 	status = PLUGIN_BAD_PATH;
 	return;
     }
@@ -287,7 +288,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     Py_SetProgramName((char *) abs_path);
     if ((inittab != NULL) &&
 	PyImport_ExtendInittab(inittab)) {
-	logPP(1, "cant extend inittab");
+	logPP(-1, "cant extend inittab");
 	status = PLUGIN_INITTAB_FAILED;
 	return;
     }
@@ -301,8 +302,8 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 
 	if (PyRun_SimpleString(pycmd)) {
-	    logPP(0, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
-	    exception_msg = "exeception running " + std::string((const char*)pycmd);
+	    logPP(-1, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
+	    exception_msg = "exeception running:" + std::string((const char*)pycmd);
 	    status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
 	    return;
 	}
@@ -314,7 +315,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
 	sprintf(pycmd, "import sys\nsys.path.append(\"%s\")", inistring);
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 	if (PyRun_SimpleString(pycmd)) {
-	    logPP(0, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
+	    logPP(-1, "%s:%d: exeception running '%s'",iniFilename, lineno, pycmd);
 	    exception_msg = "exeception running " + std::string((const char*)pycmd);
 	    status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	    return;
