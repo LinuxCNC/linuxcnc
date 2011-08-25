@@ -1139,13 +1139,6 @@ else
     AC_MSG_ERROR([not found])
 fi
 
-AC_MSG_CHECKING([for Img using $TCLSH])
-if (unset DISPLAY; echo ["catch { package require Img }; exit [expr [lsearch [package names] Img] == -1]"] | $TCLSH); then
-    AC_MSG_RESULT([found])
-else
-    AC_MSG_ERROR([not found])
-fi
-
 HAVE_WORKING_BLT=no
 AC_MSG_CHECKING([for BLT using tclsh8.5])
 if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
