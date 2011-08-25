@@ -112,7 +112,12 @@ int Interp::convert_remapped_code(block_pointer block,
 
     bool build_pyargs = (remap->remap_py || remap->prolog_func || remap->epilog_func);
 
+    // if build_pyargs and the Python plugin is not available,
+    // we're in bad shape
     if (build_pyargs) {
+	CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
+	    remap->name);
+
 	// for any Python pro/epilogs
 	plist.append(settings->pythis);
 	cblock->tupleargs = bp::tuple(plist);
