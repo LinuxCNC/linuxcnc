@@ -671,7 +671,83 @@ See the Python code in `configs/sim/remap/getting-started/python` for details.
 
 If you are unfamiliar with EMC2 internals, first read the
 <<remap::how-toolchange-currently-works, How toolchange currently
-works>> section.
+works>> section (dire but necessary).
+
+Note than when remapping an existing code, we completely disable this codes'
+builtin functionality of the interpreter. However, this does *not*
+affect the processing of toolchange-related commands in task and
+iocontrol (at least in the current version, but first things first).
+
+So the overall approach will be:
+
+. we'd like to do as much as possible with G-code in an O-word
+procedure for flexibility. That includes all HAL interaction which
+would normall be handled by iocontrol - because we rather would want to do
+clever things with moves, probes, HAL pin I/O and so forth.
+
+. we'll try to minimize Python code to the extent needed  to keep the interpreter happy,
+and cause task to actually do anything. That will go into the
+`prolog` and `epilog` Python functions.
+
+NOTE: If you hate O-word procedures and love Python, you're free to do it
+all in Python, in which case you would just have a `python=<function>`
+spec in the REMAP statement. But assuming most folks would be interested in
+using O-word procedures because they are more familiar with that, we'll do
+that as the  first example.
+
+=== Understanding the role of iocontrol with remapped toolchange codes
+Iocontrol provides two HAL interaction sequences we might or might not
+use:
+
+- when the NML message queued by a SELECT_POCKET() canon command is
+executed, this triggers the "raise tool-prepare and wait for
+tool-prepared to become high" HAl sequence in iocontrol, besides
+setting the XXXX pins
+- when the NML message queued by the CHANGE_TOOL() canon command is
+executed, this triggers the  "raise tool-change and wait for
+tool-changed to become high" HAl sequence in iocontrol, besides
+setting the XXXX pins
+
+What you need to decide is:
+
+- is the existing iocontrol HAL sequences good enough for my changer, or
+- do I need a different interaction sequence - for instance more HAL
+ pins, or maybe a more complex interaction?
+
+Depending on the answer, we might continue to use the existing
+iocontrol HAL sequences, or define our own ones. 
+
+For the sake of documentation, we'll disable these  iocontrol
+sequences, and roll our own - the result will look and fell like the
+existing interaction, but now we have complete control over them
+because they are executed in our own O-word procedure.
+
+So what we'll do is use some `motion.digital-*` and `motion.analog-*`
+pins, and the associated `M62` .. `M68` commands to do our own HAL
+interaction in our O-word procedure, and those will effectively
+replace the iocontrol 'tool-prepare/tool-prepared' and
+'tool-change/tool-changed' sequences. So we'll define our pins
+replacing existing iocontrol pins functionally, and go ahead and make
+the iocontrol interactions a noop. We'll use the following
+correspondence in our example:
+
+Iocontrol pin correspondence in the examples
+
+[format="csv",width="60%",cols="2"]
+[frame="topbot",grid="none"]
+[options="header"]
+|======
+iocontrol.0 pin	,motion pin     
+tool-prepare,digital-out-00 
+tool-prepared,digital-in-00  
+tool-change,digital-out-01 
+tool-changed,digital-in-01  
+tool-prep-number,analog-out-00  
+tool-prep-pocket,analog-out-01  
+tool-number,analog-out-02  
+|======
+
+
 
 Let us assume you want to redefine the M6 command, and replace it by
 an O-word procedure, but other than that things 'should continue to
@@ -699,7 +775,7 @@ Going through the <<remap::interpreter-action-on-M6,steps>>, we find:
 .. generate rapid move to the G30 position - *can be done in NGC*
 . send a CHANGE_TOOL command to task  - *execute in Python epilog*
 . set the numberer parameters 5400-5413 according to the new tool - *execute in Python epilog*
-. signal to task to stop calling the interpreter for readahead -*execute in Python epilog*
+. signal to task to stop calling the interpreter for readahead - *execute in Python epilog*
 
 So we need a prolog, and an epilog. Lets assume our ini file incantation of the M6 remap looks as follows:
 
@@ -766,6 +842,7 @@ def change_epilog(self, **words):
 This replacement M6 is compatible with the builtin code,
 except steps 3-5 need to be filled in with your NGC code.
 
+
 === Configuring iocontrol with a remapped M6
 
 Note that the sequence of operations has changed: we do everything
@@ -791,6 +868,10 @@ net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 ---------------------------------------------------------------------
 If you for some reason want to remap `Tx` (prepare), the corresponding
 iocontrol pins need to be looped as well.
+
+=== Writing the change and prepare O-word procedures
+Remember w
+
 
 === Specifying the T (prepare) replacement
 If you're confident with the  <<remap::interpreter-action-on-T,default
