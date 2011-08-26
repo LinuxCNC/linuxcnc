@@ -4846,7 +4846,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if numofsmartserial >= (portnum):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
-                        if compnum < 4: # TODO hack - haven't made all the serial components in glade yet
+                        if compnum < 5: # TODO hack - haven't made all the serial components in glade yet
                             self.widgets["mesa%dsserialtab%d"% (boardnum,compnum)].show()
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
