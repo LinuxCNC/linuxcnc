@@ -11,18 +11,18 @@ PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.p
 
 ../lib/python/touchy/%: emc/usr_intf/touchy/%
 	@$(ECHO) Syntax checking python script $(notdir $@)
-	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
-	@mkdir -p ../lib/python/touchy
-	@cp $< $@
+	$(Q)mkdir -p ../lib/python/touchy
+	$(Q)cp $< $@
 
 ../share/emc/touchy.glade: emc/usr_intf/touchy/touchy.glade
 	$(ECHO) Copying glade file $(notdir $@)
-	mkdir -p $(dir $@)
-	cp -f $< $@
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
 
 ../bin/touchy: emc/usr_intf/touchy/touchy.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
-	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
-	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

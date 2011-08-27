@@ -519,7 +519,7 @@ $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.txt
 depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
-	@$(DOC_SRCDIR)/asciideps $< > $@.tmp
+	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
 
 define lyx2xml
@@ -741,10 +741,10 @@ MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
 	@echo Depending $(notdir $<)
 	@mkdir -p $(dir $@)
-	@echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
-	@grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
-	@echo >> $@.tmp
-	@mv -f $@.tmp $@
+	$(Q)echo -n "$(DOC_DIR)/html/man/$*.html: $<" > $@.tmp
+	$(Q)grep '^\.so ' $< | awk '{printf " \\\n\t$(DOC_DIR)/man/%s", $$2}' >> $@.tmp
+	$(Q)echo >> $@.tmp
+	$(Q)mv -f $@.tmp $@
 
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(MAN_DEPS)
