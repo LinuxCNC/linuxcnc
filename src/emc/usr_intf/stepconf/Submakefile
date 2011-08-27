@@ -1,8 +1,8 @@
 ../bin/stepconf: emc/usr_intf/stepconf/stepconf.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
-	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
-	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 ../share/emc/stepconf.glade: emc/usr_intf/stepconf/stepconf.glade
 	mkdir -p ../share/emc/

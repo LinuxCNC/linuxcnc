@@ -186,12 +186,12 @@ endif
 $(sort $(call TODEPS, $(filter %.cc,$(USERSRCS)))): depends/%.d: %.cc
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
+	$(Q)$(call DEP,$(CXX),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CXXFLAGS) $(EXTRAFLAGS) $<)
 
 $(sort $(call TODEPS, $(filter %.c,$(USERSRCS)))): depends/%.d: %.c 
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(CFLAGS) $(EXTRAFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(CUSEROBJS)) : objects/%.o: %.c
@@ -419,9 +419,9 @@ endif
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
 ../include/%.h: %.h
-	-cp $^ $@
+	$(Q)-cp $^ $@
 ../include/%.hh: %.hh
-	-cp $^ $@
+	$(Q)-cp $^ $@
 
 DIR=install -d -m 0755 -o root
 FILE=install -m 0644 -o root
@@ -590,18 +590,22 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
 	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
 
-configs: $(COPY_CONFIGS)
+configs:
+	$(ECHO) copying shared configs
+	@make copy_configs
+        
+copy_configs: $(COPY_CONFIGS)
 
 $(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
-	-cp $< $@
+	$(Q)-cp $< $@
 $(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
-	-cp $< $@
+	$(Q)-cp $< $@
 $(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
-	-cp $< $@
+	$(Q)-cp $< $@
 $(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
-	-cp $< $@
+	$(Q)-cp $< $@
 $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
-	-cp $< $@
+	$(Q)-cp $< $@
  
 endif # userspace
 
@@ -837,21 +841,21 @@ IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
-	@ld -r -o objects/$*.tmp $^
+	$(Q)ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	@$(CC) -shared -Bsymbolic -o $@ objects/$*.tmp -lm
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG) -DSIM -DRTAPI $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	@$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) $< -o $@
 endif
 
 ifeq ($(BUILD_SYS),normal)
@@ -862,18 +866,18 @@ RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	@$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(EXTRA_CFLAGS) $<)
 
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c -DRTAPI -nostdinc -isystem $(shell $(CC) -print-file-name=include) -I$(KERNELDIR)/include $(EXTRA_CFLAGS) $< -o $@
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
-	@ld -r -static -S -Os -o $@ $^ $(EXTRALINK) $(MATHLIB)
+	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
 ifneq "$(filter normal sim,$(BUILD_SYS))" ""

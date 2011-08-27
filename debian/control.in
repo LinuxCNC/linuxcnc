@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Jeff Epler <jepler@unpythonic.net>
 Build-Depends: debhelper (>= 6),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
-    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget, blt, libtk-img,
+    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget, blt,
     libxaw7-dev, libncurses-dev, libreadline-dev,
     asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
     python, python-dev, python-support, python-tk,
