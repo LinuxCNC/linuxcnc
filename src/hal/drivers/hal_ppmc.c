@@ -1818,7 +1818,6 @@ static int export_PPMC_digout(slot_data_t *slot, bus_data_t *bus)
 	return retval;
       }
       slot->digout[8].invert = 0;
-      bus->last_digout++;
       add_wr_funct(write_PPMC_digouts, slot, block(DIO_DOUTA, DIO_ESTOP_OUT));
       rtapi_print_msg(RTAPI_MSG_INFO, "PPMC:  exporting as MASTER D Out\n");
     }
