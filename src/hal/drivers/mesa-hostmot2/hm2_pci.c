@@ -33,7 +33,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[023], 4i6[58], and 3x20 Anything I/O boards from Mesa Electronics");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[01235], 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
@@ -50,10 +50,13 @@ static int comp_id;
 static hm2_pci_t hm2_pci_board[HM2_PCI_MAX_BOARDS];
 static int num_boards = 0;
 static int num_5i20 = 0;
+static int num_5i21 = 0;
 static int num_5i22 = 0;
 static int num_5i23 = 0;
+static int num_5i25 = 0;
 static int num_4i65 = 0;
 static int num_4i68 = 0;
+static int num_4i69 = 0;
 static int num_3x20 = 0;
 static int failed_errno=0; // errno of last failed registration
 
@@ -62,81 +65,113 @@ static struct pci_device_id hm2_pci_tbl[] = {
 
     // 5i20
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9030,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_5I20,
+    },
+
+   // 5i21
+    {
+        .vendor = HM2_PCI_VENDORID_PLX,
+        .device = HM2_PCI_DEV_PLX9054,
+        .subvendor = HM2_PCI_VENDORID_PLX,
+        .subdevice = HM2_PCI_SSDEV_5I21,
     },
 
     // 4i65
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9030,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_4I65,
     },
 
     // 5i22-1.0M
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9054,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_5I22_10,
     },
 
     // 5i22-1.5M
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9054,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_5I22_15,
     },
 
     // 5i23
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9054,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_5I23,
+    },
+
+    // 5i25
+    {
+        .vendor =  HM2_PCI_VENDORID_MESA,
+        .device = HM2_PCI_DEV_MESA5I25,
+        .subvendor = HM2_PCI_VENDORID_MESA,
+        .subdevice = HM2_PCI_SSDEV_5I25,
     },
 
     // 4i68 (old SSID)
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9054,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_4I68_OLD,
     },
 
     // 4i68 (new SSID)
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9054,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_4I68,
+    },
+
+   // 4i69-16
+    {
+        .vendor = HM2_PCI_VENDORID_PLX,
+        .device = HM2_PCI_DEV_PLX9054,
+        .subvendor = HM2_PCI_VENDORID_PLX,
+        .subdevice = HM2_PCI_SSDEV_4I69_16,
+    },
+
+    // 4i69-25
+    {
+        .vendor = HM2_PCI_VENDORID_PLX,
+        .device = HM2_PCI_DEV_PLX9054,
+        .subvendor = HM2_PCI_VENDORID_PLX,
+        .subdevice = HM2_PCI_SSDEV_4I69_25,
     },
 
     // 3X20-1.0M
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9056,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_3X20_10,
     },
 
     // 3X20-1.5M
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9056,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_3X20_15,
     },
 
     // 3X20-2.0M
     {
-        .vendor = 0x10b5,
+        .vendor = HM2_PCI_VENDORID_PLX,
         .device = HM2_PCI_DEV_PLX9056,
-        .subvendor = 0x10b5,
+        .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_3X20_20,
     },
 
@@ -387,6 +422,17 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
+        case HM2_PCI_SSDEV_5I21: {
+            LL_PRINT("discovered 5i21 at %s\n", pci_name(dev));
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i21.%d", num_5i21);
+            num_5i21 ++;
+            board->llio.num_ioport_connectors = 2;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P1";
+            board->llio.fpga_part_number = "3s400pq208";
+            break;
+        }
+
         case HM2_PCI_SSDEV_4I65: {
             LL_PRINT("discovered 4i65 at %s\n", pci_name(dev));
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i65.%d", num_4i65);
@@ -430,6 +476,17 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
+        case HM2_PCI_SSDEV_5I25: {
+            LL_PRINT("discovered 5i25 at %s\n", pci_name(dev));
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
+            num_5i25 ++;
+            board->llio.num_ioport_connectors = 2;
+            board->llio.ioport_connector_name[0] = "P3";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.fpga_part_number = "6slx9pq144";
+            break;
+        }
+
         case HM2_PCI_SSDEV_4I68:
         case HM2_PCI_SSDEV_4I68_OLD: {
             if (dev->subsystem_device == HM2_PCI_SSDEV_4I68_OLD) {
@@ -444,6 +501,25 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.fpga_part_number = "3s400pq208";
+            break;
+        }
+
+        case HM2_PCI_SSDEV_4I69_16:
+        case HM2_PCI_SSDEV_4I69_25: {
+            if (dev->subsystem_device == HM2_PCI_SSDEV_4I69_16) {
+                LL_PRINT("discovered 4I69-16 at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "6slx16fg256";
+
+            } else {
+                LL_PRINT("discovered 4I69-25 at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "6slx25fg256";
+            }
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i69.%d", num_4i69);
+            num_4i69 ++;
+            board->llio.num_ioport_connectors = 3;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P3";
+            board->llio.ioport_connector_name[2] = "P4";
             break;
         }
 
@@ -521,6 +597,18 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.program_fpga = hm2_plx9054_program_fpga;
             board->llio.reset = hm2_plx9054_reset;
 
+            break;
+        }
+
+        case HM2_PCI_DEV_MESA5I25: {
+              // BAR 0 is 64K mem (32 bit)
+            board->len = pci_resource_len(dev, 0);
+            board->base = ioremap_nocache(pci_resource_start(dev,0), board->len);
+            if (board->base == NULL) {
+                THIS_ERR("could not map in FPGA address space\n");
+                r = -ENODEV;
+                goto fail0;
+            }
             break;
         }
 

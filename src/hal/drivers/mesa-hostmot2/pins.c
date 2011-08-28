@@ -290,13 +290,39 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
 
 void hm2_print_pin_usage(hostmot2_t *hm2) {
     int i;
+    int port, port_pin, mio;
 
     HM2_PRINT("%d I/O Pins used:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        int port = i / hm2->idrom.port_width;
-        int port_pin = ((i % 24) * 2) + 1;
-
+        port_pin = i + 1;
+        port = i / hm2->idrom.port_width;
+        switch (hm2->idrom.port_width) {
+            case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
+                port_pin = ((i % hm2->idrom.port_width) * 2) + 1;
+                break;
+            case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
+                mio = i % hm2->idrom.port_width;
+                if (mio > 7){
+                    port_pin = mio-3;
+                }
+                else {
+                    if (mio & 1){
+                        port_pin = (mio/2)+14;
+                    }
+                    else {
+                        port_pin = (mio/2)+1;
+                    }
+                }
+                break;
+            case 32:      /* 5I21 punt on this for now */
+                port_pin = i+1;
+                break;
+            default:
+                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+        }
+        
+        
         if (hm2->pin[i].gtag == hm2->pin[i].sec_tag) {
             if(hm2->pin[i].sec_unit & 0x80)
                 HM2_PRINT(
