@@ -3000,43 +3000,58 @@ Choosing no will mean AXIS options such as size/position and force maximum might
         halboardnum = 0
         if test == "None": return None
         elif 'mesa' in test:
-            boardnum = int(test[4:5])
-            boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
-            if boardnum == 1 and self.mesa1_currentfirmwaredata[_BOARDNAME] == self.mesa0_currentfirmwaredata[_BOARDNAME]:
-                halboardnum = 1
-            if gpionumber:
-                ptype = GPIOI
-            else:
-                ptype = self[pin+"type"] 
-            signalname = self[pin]
-            pinnum = int(test[10:])
-            connum = int(test[6:7])
-
-            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
-                if i == connum:
-                    dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pinnum+(concount*24)]
-                    break
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder",
                 MXEA:"encoder", MXEB:"encoder", MXEI:"encoder", MXEM:"encoder", MXES:"encoder",
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
                 TPPWME:"tppwmgen",TPPWMF:"tppwmgen","Error":"None" }
+            boardnum = int(test[4:5])
+            boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+            ptype = self[pin+"type"]
+            if boardnum == 1 and self.mesa1_currentfirmwaredata[_BOARDNAME] == self.mesa0_currentfirmwaredata[_BOARDNAME]:
+                halboardnum = 1
+            if 'serial' in test:
+                # sample pin name = self.mesa0sserial0_0pin24
+                subname = mesadaughterdata[0][_SUBBOARDNAME]
+                pinnum = int(test[18:])
+                portnum = int(test[12:13])
+                channel = int(test[14:15])
+                firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pinnum]
+                # we iter over this dic because of locale translation problems when using
+                # comptype = type_name[ptype]
+                comptype = "ERROR FINDING COMPONENT TYPE"
+                for key,value in type_name.iteritems():
+                    if key == ptype: comptype = value
+                if value == "Error":
+                    print "pintype error in make_pinname: ptype = ",ptype
+                    return None
+                elif ptype in(GPIOI,GPIOO,GPIOD):
+                    return "hm2_%s.%d.%s.%d.%d"% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
+                    TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
+                    return "hm2_%s.%d.%s/%d.%d"% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (compnum)          
+            else:
+                pinnum = int(test[10:])
+                connum = int(test[6:7])
+                # we iter over this dic because of locale translation problems when using
+                # comptype = type_name[ptype]
+                comptype = "ERROR FINDING COMPONENT TYPE"
+                for key,value in type_name.iteritems():
+                    if key == ptype: comptype = value
+                if value == "Error":
+                    print "pintype error in make_pinname: ptype = ",ptype
+                    return None
+                elif ptype in(GPIOI,GPIOO,GPIOD):
+                    compnum = int(pinnum)+(concount*24)
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
+                    TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
+                    for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
+                        if i == connum:
+                            dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pinnum+(concount*24)]
+                            break
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)          
 
-            # we iter over this dic because of locale translation problems when using
-            # comptype = type_name[ptype]
-            comptype = "ERROR FINDING COMPONENT TYPE"
-            for key,value in type_name.iteritems():
-                if key == ptype: comptype = value
-            if value == "Error":
-                print "pintype error in make_pinname: ptype = ",ptype
-                return None
-            elif ptype in(GPIOI,GPIOO,GPIOD):
-                compnum = int(pinnum)+(concount*24)
-                return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
-            elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
-                TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
-                return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
-  
         elif 'pp' in test:
             #print test
             ending = "-out"
