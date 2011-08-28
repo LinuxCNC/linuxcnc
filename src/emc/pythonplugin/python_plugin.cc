@@ -259,7 +259,7 @@ PythonPlugin::PythonPlugin(const char *iniFilename,
     if ((inistring = inifile.Find("TOPLEVEL", section)) != NULL)
 	toplevel = strstore(inistring);
     else {
-         logPP(-1, "no TOPLEVEL script in inifile:%s:\n", iniFilename);
+         logPP(1, "no TOPLEVEL script in inifile:%s:\n", iniFilename);
 	 status =  PLUGIN_NO_TOPLEVEL;
 	 return;
     }
