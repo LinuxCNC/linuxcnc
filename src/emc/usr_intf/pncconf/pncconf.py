@@ -1844,34 +1844,43 @@ class Data:
             if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
             else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
         print >>file
+        def write_pins(p,i,t):
+            # for input pins
+            if t == GPIOI:
+                if not p == "unused-input":
+                    pinname = self.make_pinname(self.findsignal( p )) 
+                    print >>file, "# ---",p.upper(),"---"
+                    if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
+                    else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+            # for encoder pins
+            elif t in (ENCA,MXEA):
+                if not p == "unused-encoder":
+                    for sig in (self.halencoderinputsignames):
+                       if p == sig+"-a":
+                            pinname = self.make_pinname(self.findsignal( p ))
+                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
+                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
+                            print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
+                            print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                            break
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    truepinnum = pin + ((connector-2)*24)
-                    # for input pins
-                    if t == GPIOI:
-                        if p == "unused-input":continue 
-                        pinname = self.make_pinname(self.findsignal( p )) 
-                        print >>file, "# ---",p.upper(),"---"
-                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
-                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
-                    # for encoder pins
-                    elif t in (ENCA,MXEA):
-                        if p == "unused-encoder":continue
-                        for sig in (self.halencoderinputsignames):
-                            if p == sig+"-a":
-                                pinname = self.make_pinname(self.findsignal( p ))
-                                print >>file, "# ---",sig.upper(),"---"
-                                print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
-                                print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
-                                print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
-                                print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
-                                print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
-                                break
-                    else: continue
+                    write_pins(p,i,t)
+            if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                port = 0
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    for pin in range (0,48):
+                        p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
+                        i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
+                        t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
+                        write_pins(p,i,t)
 
     def connect_output(self, file):
         
@@ -1884,70 +1893,79 @@ class Data:
             print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
             if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
         print >>file
+        def write_pins(p,i,t):
+            # for output /open drain pins
+            if t in (GPIOO,GPIOD):
+                if not p == "unused-output":
+                    pinname = self.make_pinname(self.findsignal( p ))
+                    print >>file, "# ---",p.upper(),"---"
+                    print >>file, "setp    "+pinname +".is_output true"
+                    if i: print >>file, "setp    "+pinname+".invert_output true"
+                    if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
+                    print >>file, "net %s     =>  "% (p)+pinname +".out"              
+            # for pwm pins
+            elif t in (PWMP,PDMP):
+                if not p == "unused-pwm":
+                    for sig in (self.halpwmoutputsignames):
+                        if p == (sig+"-pulse"):
+                            pinname = self.make_pinname(self.findsignal( p ))
+                            print >>file, "# ---",sig.upper(),"---"
+                            if t == PWMP:
+                                print >>file, "setp    "+pinname +".output-type 1"
+                            elif t == PDMP:
+                                print >>file, "setp    "+pinname +".output-type 3"
+                            print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"
+                            print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value"
+                            break
+            # fot TP pwm pins
+            elif t == (TPPWMA):
+                if not p == "unused-tppwmgen":
+                    for sig in (self.haltppwmoutputsignames):
+                        if p == (sig+"-a"):
+                            pinname = self.make_pinname(self.findsignal( p )) 
+                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
+                            print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
+                            print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
+                            print >>file, "net %s           <=  "% (sig+"-c-value")+pinname +".C-value"
+                            print >>file, "net %s           <=  "% (sig+"-fault")+pinname +".fault"
+            # for stepper pins
+            elif t == (STEPA):
+                if not p == "unused-stepgen":
+                    for sig in (self.halsteppersignames):
+                        if p == (sig+"-step"):
+                            pinname = self.make_pinname(self.findsignal( p )) 
+                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
+                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
+                            print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
+                            print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
+                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
+                            pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, pin, 0)
+                            print pinlist
+                            for i in pinlist:
+                                if self[i[0]+"inv"]:
+                                    gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
+                                    print gpioname
+                                    print >>file, "setp    "+gpioname+".invert_output true"
+                            break
+
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    #print "**** INFO output:",p,t,boardnum,connector,pin
-                    truepinnum = pin + ((connector-2)*24)
-                    # for output /open drain pins
-                    if t in (GPIOO,GPIOD):
-                        if p == "unused-output":continue
-                        pinname = self.make_pinname('mesa%dc%dpin%d' % (boardnum,connector, pin))
-                        print >>file, "# ---",p.upper(),"---"
-                        print >>file, "setp    "+pinname +".is_output true"
-                        if i: print >>file, "setp    "+pinname+".invert_output true"
-                        if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
-                        print >>file, "net %s     =>  "% (p)+pinname +".out"              
-                    # for pwm pins
-                    elif t in (PWMP,PDMP):
-                        if p == "unused-pwm":continue
-                        for sig in (self.halpwmoutputsignames):
-                            if p == (sig+"-pulse"):
-                                pinname = self.make_pinname(self.findsignal( p ))
-                                print >>file, "# ---",sig.upper(),"---"
-                                if t == PWMP:
-                                    print >>file, "setp    "+pinname +".output-type 1"
-                                elif t == PDMP:
-                                    print >>file, "setp    "+pinname +".output-type 3"
-                                print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"
-                                print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value"
-                                break
-                    # fot TP pwm pins
-                    elif t == (TPPWMA):
-                        if p == "unused-tppwmgen":continue
-                        for sig in (self.haltppwmoutputsignames):
-                            if p == (sig+"-a"):
-                                pinname = self.make_pinname(self.findsignal( p ),ini_style) 
-                                print >>file, "# ---",sig.upper(),"---"
-                                print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
-                                print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
-                                print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
-                                print >>file, "net %s           <=  "% (sig+"-c-value")+pinname +".C-value"
-                                print >>file, "net %s           <=  "% (sig+"-fault")+pinname +".fault"
-                    # for stepper pins
-                    elif t == (STEPA):
-                        if p == "unused-stepgen":continue
-                        for sig in (self.halsteppersignames):
-                            if p == (sig+"-step"):
-                                pinname = self.make_pinname(self.findsignal( p )) 
-                                print >>file, "# ---",sig.upper(),"---"
-                                print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
-                                print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
-                                print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
-                                print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
-                                print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
-                                pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, pin, 0)
-                                print pinlist
-                                for i in pinlist:
-                                    if self[i[0]+"inv"]:
-                                        gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
-                                        print gpioname
-                                        print >>file, "setp    "+gpioname+".invert_output true"
-                                break
-                    else:continue
+                    write_pins(p,i,t)
+            if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                port = 0
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    for pin in range (0,48):
+                        p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
+                        i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
+                        t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
+                        write_pins(p,i,t)
 
     def write_halfile(self, base):
         axis_convert = ("x","y","z","a")
