@@ -237,7 +237,7 @@ section below.
 
 
 
-== Configuring Remapping Reference
+== Configuring Remapping
 
 
 
@@ -587,6 +587,8 @@ configurations.
 
 
 == Remapping toolchange-related codes: T, M6, M61
+
+=== Overview
 
 If you are unfamiliar with EMC2 internals, first read the
 <<remap::how-toolchange-currently-works, How toolchange currently
@@ -1502,50 +1504,6 @@ and may be used to define new M-codes:
 
 All codes between `M199`  and `M999`.
 
-== Named parameters and inifile variables [[remap:referto-inifile-variables]]
-
-
-
-FIXME document *n_args* 
-
-
-To access ini file values from G-code,  use the following named
-parameter syntax:
-
-	  #<_[section]name>
-
-For example, if the ini file looks like so:
-
-[source,{ini}]
----------------------------------------------------------------------
-[SETUP]
-XPOS = 3.145
-YPOS = 2.718
----------------------------------------------------------------------
-
-you may refer to the O-word named parameters `#<_[setup]xpos>` and
-`#<_[setup]ypos>` within G-code.
-
-The inifile is read once and the values are cached. These parameters
-are read-only - assigning a value will cause a runtime error. The
-names are not case sensitive - they are converted to uppercase before
-consulting the ini file.
-
-FIXME footnote this:
-
-Permanent setup information is usually stored in the ini file. While
-ini variables can be easily accessed from the shell, Python and C code,
-so far there was no way to refer to ini file variables from G-code.
-This release enables such access. The feature was motivated by the
-need to replace ini variables which are currently used in the
-hard-coded toolchange process, like the `[EMCIO]TOOL_CHANGE_POSITION` parameter.
-
-
-CAUTION: this section doesnt really belong here but since it comes with
-the same branch, here it rests for now until its clear this will be
-merged. It should go into the gcode/overview Named Parameters section.
-
-
 === readahead time and execution time
 foo
 
@@ -1882,6 +1840,50 @@ needed, among it the changed tool table.
 
 From there on, the interpreter has complete  knowledge of the world
 model and continues with readahead.
+
+== Named parameters and inifile variables [[remap:referto-inifile-variables]]
+
+
+
+FIXME document *n_args* 
+
+
+To access ini file values from G-code,  use the following named
+parameter syntax:
+
+	  #<_[section]name>
+
+For example, if the ini file looks like so:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[SETUP]
+XPOS = 3.145
+YPOS = 2.718
+---------------------------------------------------------------------
+
+you may refer to the O-word named parameters `#<_[setup]xpos>` and
+`#<_[setup]ypos>` within G-code.
+
+The inifile is read once and the values are cached. These parameters
+are read-only - assigning a value will cause a runtime error. The
+names are not case sensitive - they are converted to uppercase before
+consulting the ini file.
+
+FIXME footnote this:
+
+Permanent setup information is usually stored in the ini file. While
+ini variables can be easily accessed from the shell, Python and C code,
+so far there was no way to refer to ini file variables from G-code.
+This release enables such access. The feature was motivated by the
+need to replace ini variables which are currently used in the
+hard-coded toolchange process, like the `[EMCIO]TOOL_CHANGE_POSITION` parameter.
+
+
+CAUTION: this section doesnt really belong here but since it comes with
+the same branch, here it rests for now until its clear this will be
+merged. It should go into the gcode/overview Named Parameters section.
+
 
 
 ==  Status
