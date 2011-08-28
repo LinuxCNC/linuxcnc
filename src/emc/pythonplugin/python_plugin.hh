@@ -48,6 +48,7 @@ public:
     int call(const char *module,const char *callable,
 	     bp::object tupleargs, bp::object kwargs, bp::object &retval);
     int run_string(const char *cmd, bp::object &retval, bool as_file = false);
+    int call_method(bp::object method, bp::object &retval);
 
     int plugin_status() { return status; };
     bool usable() { return (status >= PLUGIN_OK); }

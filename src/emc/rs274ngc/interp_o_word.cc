@@ -210,6 +210,36 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     return INTERP_OK;
 }
 
+int Interp::handle_continuation(setup_pointer settings,block_pointer eblock, block_pointer cblock, int status)
+{
+    if (status == INTERP_EXECUTE_FINISH) {
+	
+	if (cblock->call_again) {
+	    settings->call_level--; // stay on current call level (1)
+	    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
+		     eblock->o_name, settings->call_level);
+	    return INTERP_EXECUTE_FINISH;
+	} else {
+	    cblock->call_again = true;
+	    // call level was increased above , now at 1
+	    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (first), call_level=%d",
+		     eblock->o_name, settings->call_level);
+	    return INTERP_EXECUTE_FINISH;
+	}
+    }
+    if (status == INTERP_OK) {
+	if (cblock->call_again) {
+	    cblock->call_again = false;
+	    // block->generator_next = bp::object(); // really None
+	    settings->call_level--; // compensate bump above
+	}
+	settings->call_level--; // and return to previous level
+	ERP(remap_finished(-cblock->phase));
+    }
+    return status;
+}
+
+
 /************************************************************************/
 /* convert_control_functions
 
@@ -336,8 +366,12 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 				REMAP_MODULE,
 				cblock->executing_remap->epilog_func,
 				PY_EPILOG);
-		if (status > INTERP_MIN_ERROR)
+		if (status > INTERP_MIN_ERROR) {
+		    logRemap("O_call: epilog %s failed, unwinding",
+			     cblock->executing_remap->epilog_func);
 		    ERP(status);
+		}
+		status = handle_continuation( settings, block, cblock,  status);
 	    }
 
 	    // free local variables
@@ -513,10 +547,17 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		     cblock->executing_remap->prolog_func,
 		     REMAP_FUNC(cblock->executing_remap),
 		     cblock->executing_remap->name);
-	    CHP(pycall(settings, cblock,
+	    status = pycall(settings, cblock,
 		       REMAP_MODULE,
 		       cblock->executing_remap->prolog_func,
-		       PY_PROLOG));
+			    PY_PROLOG);
+	    
+	    if (status > INTERP_MIN_ERROR) {
+		logOword("O_call: prolog pycall(%s) failed, unwinding",
+			 cblock->executing_remap->prolog_func);
+		ERP(status);
+	    }
+	    return handle_continuation( settings, block, cblock,  status);
 	}
 
 	// a Python oword sub can be executed inline -
@@ -546,11 +587,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	// a Python remap handler can be executed inline too -
 	// no control_back_to() needed
 	if (is_py_remap_handler) {
-	    cblock->tupleargs = bp::make_tuple(settings->pythis,cblock->user_data);
-	    status =  pycall(settings, cblock,
+	    
+	    cblock->tupleargs = bp::make_tuple(settings->pythis); // ,cblock->user_data);
+
+ 	    status =  pycall(settings, cblock,
 			     REMAP_MODULE,
 			     cblock->executing_remap->remap_py,
 			     PY_REMAP);
+
 	    if (status >  INTERP_MIN_ERROR) {
 		logRemap("O_call: pycall %s returned %s, unwinding (%s)",
 			 cblock->executing_remap->remap_py,
@@ -559,17 +603,18 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		settings->call_level--;
 		return status;
 	    }
-	    if (status == INTERP_EXECUTE_FINISH) {
-		if (cblock->returned[RET_USERDATA])
-		    cblock->user_data = cblock->py_returned_userdata;
+	    return handle_continuation( settings, block, cblock,  status);
 
-		if (block->call_again) {
+#if 0
+	    if (status == INTERP_EXECUTE_FINISH) {
+		    
+		if (cblock->call_again) {
 		    settings->call_level--; // stay on current call level (1)
 		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
 			     block->o_name, settings->call_level);
 		    return INTERP_EXECUTE_FINISH;
 		} else {
-		    block->call_again = true;
+		    cblock->call_again = true;
 		    // call level was increased above , now at 1
 		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (first), call_level=%d",
 			     block->o_name, settings->call_level);
@@ -577,14 +622,16 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		}
 	    }
 	    if (status == INTERP_OK) {
-		if (block->call_again) {
-		    block->call_again = false;
+		if (cblock->call_again) {
+		    cblock->call_again = false;
+		    // block->generator_next = bp::object(); // really None
 		    settings->call_level--; // compensate bump above
 		}
 		settings->call_level--; // and return to previous level
 		ERP(remap_finished(-cblock->phase));
 		return status;
 	    }
+#endif
 	}
 
 	if (control_back_to(block,settings) == INTERP_ERROR) {

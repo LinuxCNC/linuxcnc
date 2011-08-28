@@ -28,7 +28,6 @@ extern const char *strstore(const char *s);
 // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 // reason: avoid segfaults by del(interp_instance) on program exit
 // make delete(interp_instance) a noop wrt Interp
-// static void interpDeallocFunc(Interp *interp) {}
 static void interpDeallocFunc(Interp *interp) {}
 
 
@@ -57,6 +56,33 @@ int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 	      cmd, exception_msg.c_str());
     }
     return status;
+}
+
+int PythonPlugin::call_method(bp::object method, bp::object &retval) 
+{
+
+    logPP(1, "call_method()");
+    if (status < PLUGIN_OK)
+	return status;
+
+    try {
+	retval = method(); 
+	status = PLUGIN_OK;
+    }
+    catch (bp::error_already_set) {
+	if (PyErr_Occurred()) {
+	   exception_msg = handle_pyerror();
+	} else
+	    exception_msg = "unknown exception";
+	status = PLUGIN_EXCEPTION;
+	bp::handle_exception();
+	PyErr_Clear();
+    }
+    if (status == PLUGIN_EXCEPTION) {
+	logPP(0, "call_method(): %s", exception_msg.c_str());
+    }
+    return status;
+
 }
 
 int PythonPlugin::call(const char *module, const char *callable,

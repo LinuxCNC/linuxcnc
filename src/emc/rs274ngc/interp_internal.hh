@@ -464,13 +464,14 @@ typedef struct block_struct
     int py_returned_status;
     int py_returned_userdata; // passed as tupleargs again if re-called after (INTERP_EXECUTE_FINISH, <userdata-value>)
     int user_data;
-    bool call_again; // a py osub returned INTERP_EXECUTE_FINISH
+    boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
+    bool call_again;
     std::set<int> remappings; // all remappings in this block
     int phase; // current execution phase
 }
 block;
 
-enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_USERDATA};
+enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_GENERATOR};
 
 typedef block *block_pointer;
 

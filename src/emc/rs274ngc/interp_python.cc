@@ -124,7 +124,11 @@ int Interp::pycall(setup_pointer settings,
 	python_plugin->run_string(funcname, retval);
 	break;
     default:
-	python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	if (block->call_again) {
+	    python_plugin->call_method(block->generator_next, retval);
+	} else {
+	    python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	}
 	break;
     }
     CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
@@ -134,7 +138,7 @@ int Interp::pycall(setup_pointer settings,
 	switch  (calltype) {
 	case PY_OWORDCALL:
 	    // if this was called as "o<pythoncallable> call",
-	    // expect either a float or no return value.
+	    // expect either a float or no return value at all.
 	    status = INTERP_OK;
 	    if (retval.ptr() != Py_None) {
 		if (PyFloat_Check(retval.ptr())) {
@@ -160,31 +164,50 @@ int Interp::pycall(setup_pointer settings,
 	case PY_REMAP:
 	case PY_EPILOG:
 	    // these may return values in two flavours:
-	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...)
-	    // - a tuple (returncode, userdata)
+	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...
+	    // - a generator object, in case the handler contained a yield statement
 	    // - returning no value is considered bad practice and raises an error
 	    if (retval.ptr() != Py_None) {
-		if (PyTuple_Check(retval.ptr())) {
-		    // this will raise a Python exception on type mismatch
-		    bp::tuple rtuple = bp::extract<bp::tuple>(retval);
-		    status = block->py_returned_status = bp::extract<int>(rtuple[0]);
+
+		if (PyGen_Check(retval.ptr()))  {
+
+		    // a generator was returned. This must have been the first time call to a handler
+		    // which contains a yield. Extract next() method.
+		    block->generator_next = bp::getattr(retval, "next");
+
+		    // and  call it for the first time.
+		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
+		    status = block->py_returned_status = bp::extract<int>(block->generator_next());
 		    block->returned[RET_STATUS] = 1;
-		    block->py_returned_userdata = bp::extract<int>(rtuple[1]);
-		    block->returned[RET_USERDATA] = 1;
+
+		    // a handler which yields something else than INTERP_EXECUTE_FINISH
+		    // first time around is supsicious - if it's INTERP_OK, could have 
+		    // just as well returned that value
+
+		    if (status > INTERP_MIN_ERROR)
+			goto done;
+
+		    if (status != INTERP_EXECUTE_FINISH) {
+			Log("pycall(%s):  expected INTERP_EXECUTE_FINISH, got %d", 
+			    funcname, status);
+			break;
+		    }
+		    // FIXME catch PyExc_StopIteration?
+
+		    goto done;
 		} else {
+		    // function just returned an int like INTERP_*
 		    status = block->py_returned_status = bp::extract<int>(retval);
 		    block->returned[RET_STATUS] = 1;
 		}
 		goto done;
+	    } else {
+		// if the 
+		ERM("Python %s function '%s' expected int return value",
+		    (calltype == PY_PROLOG ? "prolog" : (calltype == PY_EPILOG) ? "epilog" : "remap"),
+		    funcname);
+		status = INTERP_ERROR;
 	    }
-	    res_str = PyObject_Str(retval.ptr());
-	    Py_XDECREF(res_str);
-	    ERM("Python %s function '%s' expected tuple or int return value, got '%s' (%s)",
-		(calltype == PY_PROLOG ? "prolog" : (calltype == PY_EPILOG) ? "epilog" : "remap"),
-		funcname,
-		PyString_AsString(res_str),
-		retval.ptr()->ob_type->tp_name);
-	    status = INTERP_ERROR;
 	    break;
 
 	case PY_INTERNAL:
