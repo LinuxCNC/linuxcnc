@@ -678,6 +678,26 @@ builtin functionality of the interpreter. However, this does *not*
 affect the processing of toolchange-related commands in task and
 iocontrol (at least in the current version, but first things first).
 
+Decisions, decisions:
+
+- Do we want to use an O-word procedure or do it all in Python code?
+- Is the iocontrol HAl sequence (tool-prepare/tool-prepared and
+ tool-change/tool-changed pins) good enough or do we need a different kind
+ of HAL interaction (for example: more HAl pins involved with a  different interaction sequence)?
+
+Depending on the answer, we have four different scenarios:
+- When using an O-word procedure, we need prolog and epilog functions
+- if using all Python code and no O-word procedure, a Python function
+is enough
+- when using the iocontrol pins, our O-word procedure or Python code
+will contain mostly moves
+- when we need a more complex interaction than offered by iocontrol,
+we need to completely define our own, using `motion.digital*` and
+`motion.analog*` pins.
+
+
+
+
 So the overall approach will be:
 
 . we'd like to do as much as possible with G-code in an O-word
@@ -1084,6 +1104,11 @@ and may be used to define new M-codes:
 All codes between `M199`  and `M999`.
 
 == Named parameters and inifile variables [[remap:referto-inifile-variables]]
+
+
+
+FIXME document *n_args* 
+
 
 To access ini file values from G-code,  use the following named
 parameter syntax:
