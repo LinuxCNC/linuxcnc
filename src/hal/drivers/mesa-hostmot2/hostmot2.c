@@ -346,14 +346,10 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
 
     HM2_PRINT("    FPGA Size: %u\n", hm2->idrom.fpga_size);
     HM2_PRINT("    FPGA Pins: %u\n", hm2->idrom.fpga_pins);
+    HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width);
 
     HM2_PRINT("    IO Ports: %u\n", hm2->idrom.io_ports);
     HM2_PRINT("    IO Width: %u\n", hm2->idrom.io_width);
-    if (hm2->idrom.port_width == 24) {
-        HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width);
-    } else {
-        HM2_PRINT("    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", hm2->idrom.port_width);
-    }
 
     HM2_PRINT(
         "    Clock Low: %d Hz (%d KHz, %d MHz)\n",
@@ -424,11 +420,6 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     // verify the idrom we read
     //
 
-    if (hm2->idrom.port_width != 24) {
-        HM2_ERR("invalid IDROM PortWidth %d, expected 24, aborting load\n", hm2->idrom.port_width);
-        hm2_print_idrom(hm2);
-        return -EINVAL;
-    }
 
     if (hm2->idrom.io_width != (hm2->idrom.io_ports * hm2->idrom.port_width)) {
         HM2_ERR(
