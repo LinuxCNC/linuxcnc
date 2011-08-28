@@ -349,14 +349,13 @@ mesafirmwaredata = [
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
 
 ]
-# board title, boardname, firmwarename, firmware directory,Hal driver name,
-# max encoders, number of pins per encoder,
-# max pwm gens, max tppwmgens 
-# max step gens, 
-# number of pins per step gen, 
-# has watchdog, max GPIOI, 
-# low frequency rate , hi frequency rate, 
-# available connector numbers,  then list of component type and logical number
+_SUBBOARDNAME = 0; _SUBSTARTOFDATA = 1
+mesadaughterdata = [ ["7i64",
+        [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
+                [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
+        [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],
+                [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1] ],
+]
 
 custommesafirmwaredata = []
 mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
@@ -558,7 +557,7 @@ human_tppwm_output_names = [ [_("Unused TPPWM Gen"),[]],[_("X Axis BL Driver"),[
 
 (UNUSED_SSERIAL,A8I20_R,A8I20_T,A8I20_E,I7I64_R,I7I64_T,I7I64_E) = hal_sserial_names = ["unused-sserial","8i20-r","8i20-t","8i20-e","7i64-r","7i64-t","7i64-e"]
 
-human_sserial_names = [ [_("Unused Serial"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]] ]
+human_sserial_names = [ [_("Unused Channel"),[]],[_("8i20 Amplifier Card"),[]],[ _("7i64 I/O Card"),[]] ]
 prefs = preferences.preferences()
 
 def md5sum(filename):
@@ -989,7 +988,18 @@ class Data:
                 for i in range(0,24):
                     pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
                     self[pinname] = False
-
+            for channels in range(0,4): #TODO add more sserial widgets should be 8
+                # This initializes pins
+                for i in range(0,48):
+                    pinname ="mesa%dsserial%dpin%d"% (boardnum,channels,i)
+                    self[pinname] = UNUSED_INPUT
+                    pinname ="mesa%dsserial%dpin%dtype"% (boardnum,channels,i)
+                    self[pinname] = GPIOI
+                    pinname ="mesa%dsserial%dpin%dinv"% (boardnum,channels,i)
+                    self[pinname] = False
+            self.mesa0sserial0pin0 = PROBE
+            self.mesa0sserial0pin24 = XAMP
+            self.mesa0sserial0pin24type = GPIOO
         # halui data
         self.halui = 0 # not included
         # Command list
@@ -1289,19 +1299,25 @@ class Data:
         #print >>file, "BASE_PERIOD = %d" % self.baseperiod
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
+        # TODO fix this hardcoded hack
+        if self.data.mesa0_numof_smartserial:
+            ssconfig0 = "num_sserials=8"
+        else:
+            ssconfig1 = "num_sserials=0.0.0.0"
+        ssconfig1 = "num_sserials=0.0.0.0"
         print >>file, "# [HOSTMOT2]"
         print >>file, "# This is for info only"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
         print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
-        print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
+        print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
                     self.mesa0_boardtitle, self.mesa0_firmware, self.mesa0_numof_encodergens, 
-                    self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens )
+                    self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0 )
         if self.number_mesa == 2:
             print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
             print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
-            print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
+            print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
                      self.mesa1_boardtitle, self.mesa1_firmware, self.mesa1_numof_encodergens, 
-                     self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens )
+                     self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
         print >>file
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
@@ -1973,18 +1989,23 @@ class Data:
         directory1 = self.mesa1_currentfirmwaredata[_DIRECTORY]
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
+        # TODO fix this hardcoded hack
+        if self.data.mesa0_numof_smartserial:
+            ssconfig0 = "num_sserials=8"
+        else:
+            ssconfig1 = "num_sserials=0.0.0.0"
+        ssconfig1 = "num_sserials=0.0.0.0"
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens )
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"
-                    """ % ( driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens,
-                    directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens )
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"
+                    """ % ( driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens )
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" """ % (
-                    driver1, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens )
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0 )
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver1, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1 )
         for boardnum in range(0,int(self.number_mesa)):
             if boardnum == 1 and (board0 == board1):
                 halnum = 1
@@ -4291,10 +4312,25 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def mesa_data_transfer(self,boardnum):
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range(0,24):
-                foundit = False
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
+                self.data_transfer(boardnum,connector,pin,p,pinv,ptype)
+                self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
+        self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
+        self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
+        self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
+
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                if channel >3: break # TODO only have 4 channels worth of glade widgets
+                for pin in range (0,48):
+                    p = 'mesa%dsserial%dpin%d' % (boardnum, channel, pin)
+                    pinv = 'mesa%dsserial%dpin%dinv' % (boardnum, channel, pin)
+                    ptype = 'mesa%dsserial%dpin%dtype' % (boardnum, channel, pin)
+                    self.data_transfer(boardnum,channel,pin,p,pinv,ptype)
+
+    def data_transfer(self,boardnum,connector,pin,p,pinv,ptype):
+                foundit = False
                 piter = self.widgets[p].get_active_iter()
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
@@ -4384,6 +4420,16 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     relatedending = ["-step","-dir","-c","-d","-e","-f"]
                     addedending = "-a"
                     unusedname = "Unused StepGen"
+                elif pintype in (RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3):
+                    signaltree = self.data._sserialsignaltree
+                    ptypetree = self.data._sserialliststore
+                    nametocheck = human_sserial_names
+                    signaltocheck = hal_sserial_names
+                    addsignalto = self.data.halsteppersignames
+                    relatedsignals =[RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3]
+                    relatedending = ["-step","-dir","-c","-d","-e","-f"]
+                    addedending = "-a"
+                    unusedname = "Unused Channel"
                 else :
                     print "**** ERROR mesa-data-transfer: error unknown pin type:",pintype
                     return
@@ -4408,10 +4454,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.data[ptype] = widgetptype
                 self.data[pinv] = self.widgets[pinv].get_active()
                 #print "*** INFO PNCCONF mesa pin:",p,"signalname:",self.data[p],"pin type:",widgetptype
-        self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
-        self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
-        self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
-        self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
   
     # If we just reloaded a config then update the page right now
     # as we already know what board /firmware /components are.
@@ -4665,6 +4707,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             self.widgets["mesa%dsserialtab1"% boardnum].hide()
             self.widgets["mesa%dsserialtab2"% boardnum].hide()
             self.widgets["mesa%dsserialtab3"% boardnum].hide()
+            self.widgets["mesa%dsserialtab4"% boardnum].hide()
 
         self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum],
             self.data["mesa%d_currentfirmwaredata"% boardnum][_FIRMWARE]))
@@ -4701,6 +4744,58 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
+                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,pin,concount,numofencoders,
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+        
+        self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
+        self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
+        self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
+        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
+        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
+        temp2 = (numofpwmgens * 3)
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
+        self.data["mesa%d_numof_gpio"% boardnum] = total     
+        self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
+        self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
+        self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
+        self.in_mesa_prepare = False   
+        self.data["_mesa%d_configured"% boardnum] = True
+        # unblock all the widget signals again
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
+            for pin in range (0,24):      
+                p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
+                ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
+                self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
+                self.widgets[p].handler_unblock(self.data[blocksignal]) 
+                self.widgets[p].child.handler_unblock(self.data[actblocksignal])          
+        self.window.hide()
+        self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
+        #raw_input("press something\n")
+
+        if numofsmartserial:
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                if channel >3: break # TODO only have 4 channels worth of glade widgets
+                for pin in range (0,48):
+                    firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
+                    p = 'mesa%dsserial%dpin%d' % (boardnum, channel, pin)
+                    print "INFO: smartserial- ",p, firmptype
+                    ptype = 'mesa%dsserial%dpin%dtype' % (boardnum, channel, pin)
+                    pinv = 'mesa%dsserial%dpin%dinv' % (boardnum, channel, pin)
+                    complabel = 'mesa%dsserial%dpin%dnum' % (boardnum, channel, pin)
+                    concount = 0
+                    numofencoders = 0
+                    numofpwmgens = 0
+                    numoftppwmgens = 0
+                    numofstepgens = 0
+                    self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+        self.mesa_data_to_widget(boardnum)
+
+    def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
+                            numofstepgens,numofsmartserial):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
                 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
@@ -4896,45 +4991,21 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD):
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
-                        self.widgets[ptype].set_sensitive(1)
+                        self.widgets[ptype].set_sensitive(not compnum)
                         self.widgets[ptype].set_model(self.data._gpioliststore)
-                        # set pin treestore to gpioi signals
-                        self.widgets[p].set_model(self.data._gpioisignaltree)
-                        # set ptype gpioi
-                        self.widgets[ptype].set_active(0)
+                        if firmptype == GPIOI:
+                            # set pin treestore to gpioi signals
+                            self.widgets[p].set_model(self.data._gpioisignaltree)
+                            # set ptype gpioi
+                            self.widgets[ptype].set_active(0)
+                        else:
+                            self.widgets[p].set_model(self.data._gpioosignaltree)
+                            # set ptype gpioo
+                            self.widgets[ptype].set_active(1)
                         # set p unused signal
                         self.widgets[p].set_active(0)
                         # set pinv unset
                         self.widgets[pinv].set_active(False)
-        
-        self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
-        self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
-        self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
-        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
-        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
-        temp2 = (numofpwmgens * 3)
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
-        self.data["mesa%d_numof_gpio"% boardnum] = total     
-        self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
-        self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
-        self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
-        self.in_mesa_prepare = False   
-        self.data["_mesa%d_configured"% boardnum] = True
-        # unblock all the widget signals again
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
-            for pin in range (0,24):      
-                p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
-                ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
-                ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
-                actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
-                self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
-                self.widgets[p].handler_unblock(self.data[blocksignal]) 
-                self.widgets[p].child.handler_unblock(self.data[actblocksignal])          
-        self.window.hide()
-        self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-        #raw_input("press something\n")
-        self.mesa_data_to_widget(boardnum)
 
     def mesa_data_to_widget(self,boardnum):
         #TODO smart serial
@@ -4944,12 +5015,23 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
+                self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                if channel >3: break # TODO only have 4 channels worth of glade widgets
+                for pin in range (0,48):
+                    firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
+                    p = 'mesa%dsserial%dpin%d' % (boardnum, channel, pin)
+                    print "INFO: data to widget smartserial- ",p, firmptype
+                    ptype = 'mesa%dsserial%dpin%dtype' % (boardnum, channel, pin)
+                    pinv = 'mesa%dsserial%dpin%dinv' % (boardnum, channel, pin)
+                    self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
+
+    def data_to_widgets(self,boardnum,firmptype,compnum,p,ptype,pinv):
                 datap = self.data[p]
                 dataptype = self.data[ptype]
                 datapinv = self.data[pinv]
                 widgetp = self.widgets[p].get_active_text()
                 widgetptype = self.widgets[ptype].get_active_text()
-
                 #print "**** INFO set-data-options DATA:",p,datap,dataptype
                 #print "**** INFO set-data-options WIDGET:",p,widgetp,widgetptype
                 if dataptype in (ENCB,ENCI,ENCM,
@@ -4959,15 +5041,18 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF
                                     ):
                     self.widgets[pinv].set_active(datapinv)
-                    continue
+                    return
 
                 if dataptype in (GPIOI,GPIOO,GPIOD) and widgetptype in (GPIOI,GPIOO,GPIOD):
                         #print "data ptype index:",pintype_gpio.index(dataptype)
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
+                        # if compnum doesn't = 0 (GPIO only) then it means that the component type can not
+                        # be changed from what the firmware designates it as.
+                        # signal names for GPIO INPUT
+                        if not compnum == 0: dataptype = widgetptype 
                         self.widgets[pinv].set_active(self.data[pinv])
                         self.widgets[ptype].set_active( pintype_gpio.index(dataptype) )
-                        # signal names for GPIO INPUT
                         if dataptype == GPIOI:
                             human = human_input_names
                             signal = hal_input_names
@@ -4981,8 +5066,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         try:
                             signalindex = signal.index(datap)
                         except:
-                            print "**** INFO: PNCCONF warning no GPIO signal named: %s\n       found for board %d connector %d pin %d"% \
-                                (datap ,boardnum, connector , pin)
+                            print "**** INFO: PNCCONF warning no GPIO signal named: %s\n       found for pin %s"% (datap , p)
                             signalindex = 0
                         #print "gpio temp ptype:",dataptype,datap,signalindex
                         count = 0
@@ -5006,8 +5090,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     try:
                         signalindex = hal_encoder_input_names.index(datap)
                     except:
-                        print "**** INFO: PNCCONF warning no ENCODER signal named: %s\n     found for board %d connector %d pin %d"% \
-                                (datap ,boardnum, connector , pin)
+                        print "**** INFO: PNCCONF warning no ENCODER signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     #print "ENC ->dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -3
@@ -5044,8 +5127,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     try:
                         signalindex = hal_pwm_output_names.index(datap)
                     except:
-                        print "**** INFO: PNCCONF warning no PWM / PDM signal named: %s\n     found for board %d connector %d pin %d"% \
-                                (datap ,boardnum, connector , pin)
+                        print "**** INFO: PNCCONF warning no PWM / PDM signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -2
@@ -5081,8 +5163,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     try:
                         signalindex = hal_tppwm_output_names.index(datap)
                     except:
-                        print "**** INFO: PNCCONF warning no THREE PWM signal named: %s\n     found for board %d connector %d pin %d"% \
-                                (datap ,boardnum, connector , pin)
+                        print "**** INFO: PNCCONF warning no THREE PWM signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     #print "3 PWw ,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     if signalindex > 0:
@@ -5117,8 +5198,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     try:
                         signalindex = hal_stepper_names.index(self.data[p])
                     except:
-                        print "**** INFO: PNCCONF warning no STEPPER signal named: %s\n     found for board %d connector %d pin %d"% \
-                                (datap ,boardnum, connector , pin)
+                        print "**** INFO: PNCCONF warning no STEPPER signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     count = -5
                     #print "stepper,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
@@ -7659,19 +7739,26 @@ But there is not one in the machine-named folder.."""),True)
             directory1 = self.data.mesa1_currentfirmwaredata[_DIRECTORY]
             firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
+            # TODO fix this hardcoded hack
+            if self.data.mesa0_numof_smartserial:
+                ssconfig0 = "num_sserials=8"
+            else:
+                ssconfig1 = "num_sserials=0.0.0.0"
+            ssconfig1 = "num_sserials=0.0.0.0"
+
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ))
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
+                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
             elif self.data.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d,\
-                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n""" % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,\
+                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n""" % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
-                        self.data.mesa0_numof_stepgens,directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens ))
+                        self.data.mesa0_numof_stepgens, ssconfig0 ,directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1 ))
             elif self.data.number_mesa == 2:
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ))
+                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0 ))
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver1, directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens ))
+                    driver1, directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1 ))
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1
