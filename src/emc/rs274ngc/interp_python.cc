@@ -122,18 +122,45 @@ int Interp::pycall(setup_pointer settings,
     switch (calltype) {
     case PY_EXECUTE: // just run a string
 	python_plugin->run_string(funcname, retval);
+	CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+	     "run_string(%s):\n%s", funcname,
+	     python_plugin->last_exception().c_str());
 	break;
     default:
+	// handler continuation if a generator was used
 	if (block->reexec_prolog |block->reexec_body|block->reexec_epilog) {
-	    python_plugin->call_method(block->generator_next, retval);
+	    try {
+		retval = block->generator_next();
+	    }
+	    catch (bp::error_already_set) {
+		if (PyErr_Occurred()) {
+		    // StopIteration is raised when the generator executes 'return'
+		    // instead of another 'yield INTERP_EXECUTE_FINISH
+		    // Technically this means a normal end of the handler and hence we 
+		    // treat it as INTERP_OK indicating this handler is now done
+		    if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+			block->returned[RET_STOPITERATION] = 1;
+			bp::handle_exception();
+			PyErr_Clear();
+			return INTERP_OK;
+		    } else  {
+			msg = handle_pyerror();
+			bp::handle_exception();
+			PyErr_Clear();
+			ERS("exception during generator call: %s", msg.c_str());
+		    }
+		} else 
+		    Error("calling generator: duh");
+	    }
 	} else {
 	    python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	    CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+		 "py_call(%s):\n%s", funcname,
+		 python_plugin->last_exception().c_str());
 	}
 	break;
     }
-    CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-	 "py_call(%s):\n%s", funcname,
-	 python_plugin->last_exception().c_str());
+
     try {
 	switch  (calltype) {
 	case PY_OWORDCALL:
@@ -163,12 +190,11 @@ int Interp::pycall(setup_pointer settings,
 	case PY_PROLOG:
 	case PY_REMAP:
 	case PY_EPILOG:
+
 	    // these may return values in two flavours:
 	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...
 	    // - a generator object, in case the handler contained a yield statement
-	    // - returning no value is considered bad practice and raises an error
 	    if (retval.ptr() != Py_None) {
-
 		if (PyGen_Check(retval.ptr()))  {
 
 		    // a generator was returned. This must have been the first time call to a handler
@@ -179,28 +205,24 @@ int Interp::pycall(setup_pointer settings,
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
 		    status = block->py_returned_status = bp::extract<int>(block->generator_next());
 		    block->returned[RET_STATUS] = 1;
-
-		    // a handler which yields something else than INTERP_EXECUTE_FINISH
-		    // first time around is supsicious - if it's INTERP_OK, could have 
-		    // just as well returned that value
-
 		    if (status > INTERP_MIN_ERROR)
 			goto done;
 
+		    // a handler which yields something else than INTERP_EXECUTE_FINISH
+		    // first time around is supsicious - if it's INTERP_OK, could have 
+		    // just as well returned that value - StopIteration is dealt with above
 		    if (status != INTERP_EXECUTE_FINISH) {
 			Log("pycall(%s):  expected INTERP_EXECUTE_FINISH, got %d", 
 			    funcname, status);
 			break;
 		    }
-		    // FIXME catch PyExc_StopIteration?
-
-		    goto done;
 		} else {
-		    // function just returned an int like INTERP_*
+		    // an int expected (INTERP_*)
+		    // Returning no value at all is bad practice and cause an exception on
+		    // extract
 		    status = block->py_returned_status = bp::extract<int>(retval);
 		    block->returned[RET_STATUS] = 1;
 		}
-		goto done;
 	    } else {
 		// if the 
 		ERM("Python %s function '%s' expected int return value",

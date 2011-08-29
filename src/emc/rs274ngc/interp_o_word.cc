@@ -636,8 +636,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		if (cblock->reexec_body) {
 		    cblock->reexec_body = false;
 		    settings->call_level--; // compensate bump above
-		    logRemap("O_call: %s returned INTERP_OK, finishing continuation, cl=%d rl=%d",
-			     block->o_name, settings->call_level,settings->remap_level);
+		    if (!cblock->returned[RET_STOPITERATION]) {
+			// the user executed 'yield INTERP_OK' which is fine but keeps
+			// the generator object hanging around (I think)
+			// unsure how to do this - not like so: cblock->generator_next.del();
+		    }
+		    logRemap("O_call: %s returned INTERP_OK, finishing continuation, StopIteration=%d cl=%d rl=%d",
+			     block->o_name,(int) cblock->returned[RET_STOPITERATION],
+			     settings->call_level, settings->remap_level);
 		}
 		logRemap("O_call: %s returning INTERP_OK",    block->o_name);
 		settings->call_level--; // and return to previous level

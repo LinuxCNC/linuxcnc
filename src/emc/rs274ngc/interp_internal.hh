@@ -471,7 +471,7 @@ typedef struct block_struct
 }
 block;
 
-enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_GENERATOR};
+enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_STOPITERATION};
 
 typedef block *block_pointer;
 
