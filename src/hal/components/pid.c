@@ -211,7 +211,7 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_pid(int num, hal_pid_t * addr,char * prefix);
+static int export_pid(hal_pid_t * addr,char * prefix);
 static void calc_pid(void *arg, long period);
 
 /***********************************************************************
@@ -236,7 +236,7 @@ int rtapi_app_main(void)
     }
 
     /* test for number of channels */
-    if ((howmany <= 0) || (num_chan > MAX_CHAN)) {
+    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PID: ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
@@ -261,9 +261,9 @@ int rtapi_app_main(void)
         if(num_chan) {
             char buf[HAL_NAME_LEN + 1];
             rtapi_snprintf(buf, sizeof(buf), "pid.%d", n);
-	    retval = export_pid(n, &(pid_array[n]), buf);
+	    retval = export_pid(&(pid_array[n]), buf);
         } else {
-	    retval = export_pid(n, &(pid_array[n]), names[i++]);
+	    retval = export_pid(&(pid_array[n]), names[i++]);
         }
 
 	if (retval != 0) {
@@ -443,7 +443,7 @@ static void calc_pid(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_pid(int num, hal_pid_t * addr, char * prefix)
+static int export_pid(hal_pid_t * addr, char * prefix)
 {
     int retval, msg;
     char buf[HAL_NAME_LEN + 1];
@@ -645,7 +645,7 @@ static int export_pid(int num, hal_pid_t * addr, char * prefix)
     /* export function for this loop */
     rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);
     retval =
-	hal_export_funct(buf, calc_pid, &(pid_array[num]), 1, 0, comp_id);
+	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PID: ERROR: do_pid_calcs funct export failed\n");
