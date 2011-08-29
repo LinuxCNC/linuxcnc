@@ -290,7 +290,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		     settings->parameters[2],
 		     settings->parameters[3]);
 	} else {
-	    logOword("started a subroutine defn");
+	    logOword("started a subroutine defn: %s",block->o_name);
 	    // a definition
 	    CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
 	    CHP(control_save_offset( block, settings));
@@ -611,12 +611,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 			 cblock->executing_remap->remap_py,
 			 interp_status(status),
 			 cblock->executing_remap->name);
-		settings->call_level--;
-		return status;
+		settings->call_level--;  // unwind this call
+		// a failing remap handler is expected to set an appropriate error message
+		// which is why we just return status
+		return status; 
 	    }
 	    if (status == INTERP_EXECUTE_FINISH) {
 		if (cblock->reexec_body) {
-		    settings->call_level--; // stay on current call level (1)
+		    settings->call_level--; // stay on current call level 
 		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
 			     block->o_name, settings->call_level);
 		    return INTERP_EXECUTE_FINISH;
@@ -628,18 +630,22 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		    return INTERP_EXECUTE_FINISH;
 		}
 	    }
+	    // this condition corresponds to an endsub/return. 
+	    // signal that this remap is done and drop call level.
 	    if (status == INTERP_OK) {
 		if (cblock->reexec_body) {
-		    logRemap("O_call: %s returned INTERP_OK, finishing continuation, cl=%d rl=%d",
-			     block->o_name, settings->call_level,settings->remap_level);
 		    cblock->reexec_body = false;
 		    settings->call_level--; // compensate bump above
+		    logRemap("O_call: %s returned INTERP_OK, finishing continuation, cl=%d rl=%d",
+			     block->o_name, settings->call_level,settings->remap_level);
 		}
 		logRemap("O_call: %s returning INTERP_OK",    block->o_name);
 		settings->call_level--; // and return to previous level
 		ERP(remap_finished(-cblock->phase));
 		return status;
 	    }
+	    logRemap("O_call: %s OOPS STATUS=%d", block->o_name, status);
+
 	}
 	logRemap("O_call: %s STATUS=%d", block->o_name, status);
 
