@@ -371,7 +371,7 @@ A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
+"coolant-mist", "coolant-flood", "estop-out", "enable", "xenable", "yenable", "zenable", "aenable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
@@ -999,11 +999,7 @@ class Data:
                     self[pinname] = GPIOI
                     pinname ="mesa%dsserial%d_%dpin%dinv"% (boardnum, port,channel,i)
                     self[pinname] = False
-            self.mesa0c4pin4type = TXDATA0
-            self.mesa0c4pin4 = I7I64_T
-            self.mesa0sserial0_0pin0 = PROBE
-            self.mesa0sserial0_0pin24 = XAMP
-            self.mesa0sserial0_0pin24type = GPIOO
+
         # halui data
         self.halui = 0 # not included
         # Command list
@@ -1303,12 +1299,12 @@ class Data:
         #print >>file, "BASE_PERIOD = %d" % self.baseperiod
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
-        # TODO fix this hardcoded hack
+        # TODO fix this hack : hardcoded to one serial port
+        ssconfig0 = ssconfig1 = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=8"
-        else:
-            ssconfig1 = "num_sserials=0.0.0.0"
-        ssconfig1 = "num_sserials=0.0.0.0"
+            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+        if self.mesa1_numof_sserialports:
+            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
         print >>file, "# [HOSTMOT2]"
         print >>file, "# This is for info only"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
@@ -1536,7 +1532,8 @@ class Data:
         pin = int(pinnumber[10:])
         connector = int(pinnumber[6:7])
         boardnum = int(pinnumber[4:5])
-        pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, pin, 0)
+        channel = None
+        pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, channel, pin, 0)
         #print pinlist
         for i in pinlist:
             if self[i[0]+"inv"]:
@@ -1941,8 +1938,7 @@ class Data:
                             print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
                             print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
-                            pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, pin, 0)
-                            print pinlist
+                            pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, channel, pin, 0)
                             for i in pinlist:
                                 if self[i[0]+"inv"]:
                                     gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
@@ -2011,12 +2007,12 @@ class Data:
         directory1 = self.mesa1_currentfirmwaredata[_DIRECTORY]
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
-        # TODO fix this hardcoded hack
+        # TODO fix this hardcoded hack: only one serial port
+        ssconfig0 = ssconfig1 = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=8"
-        else:
-            ssconfig1 = "num_sserials=0.0.0.0"
-        ssconfig1 = "num_sserials=0.0.0.0"
+            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+        if self.mesa1_numof_sserialports:
+            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
         if self.number_mesa == 1:            
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
@@ -2989,7 +2985,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     # if not in the relate component type keep searching
     # if is the right component type and number, che3ck the relatedsearch array for a match
     # if its a match add it to a list of pins (pinlist) that need to be updated
-    def list_related_pins(self, relatedsearch, boardnum, connector, pin, style):
+    def list_related_pins(self, relatedsearch, boardnum, connector, channel, pin, style):
         pinlist =[]
         for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
             if i == connector:
@@ -3000,11 +2996,11 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                         if compnum != currentcompnum: continue
                         if comptype not in (relatedsearch): continue
                         if style == 0:
-                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                            tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
                         if style == 1:
-                            tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                            tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
                         if style == 2:
-                            tochange = ['mesa%dc%dpin%dinv'% (boardnum,t_connector,t_pin),boardnum,t_connector,t_pin]
+                            tochange = ['mesa%dc%dpin%dinv'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
                         pinlist.append(tochange)
         return pinlist
 
@@ -3029,7 +3025,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
             if boardnum == 1 and self.mesa1_currentfirmwaredata[_BOARDNAME] == self.mesa0_currentfirmwaredata[_BOARDNAME]:
                 halboardnum = 1
             if 'serial' in test:
-                # sample pin name = self.mesa0sserial0_0pin24
+                # sample pin name = mesa0sserial0_0pin24
                 subname = mesadaughterdata[0][_SUBBOARDNAME]
                 pinnum = int(test[18:])
                 portnum = int(test[12:13])
@@ -3049,6 +3045,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
                     return "hm2_%s.%d.%s/%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (compnum)          
             else:
+                # sample pin name = mesa0c3pin1
                 pinnum = int(test[10:])
                 connum = int(test[6:7])
                 # we iter over this dic because of locale translation problems when using
@@ -3306,28 +3303,45 @@ class App:
                     for pin in range(0,24):
                       cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
                       i = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.data[i] = int(self.widgets[cb].connect("changed", self.on_general_pin_changed,"mesa",boardnum,connector,pin,False))
+                      self.data[i] = int(self.widgets[cb].connect("changed",
+                        self.on_general_pin_changed,"mesa",boardnum,connector,None,pin,False))
                       i = "_mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"mesa",boardnum,connector,pin,True))
+                      self.data[i] = int(self.widgets[cb].child.connect("activate",
+                        self.on_general_pin_changed,"mesa",boardnum,connector,None,pin,True))
                       cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
                       i = "_mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
+                      self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,None,pin))
+
+
+                port = 0 #TODO we only support one serial port
+                for channel in range (0,4):# TODO only have 4 channels worth of glade widgets
+                    for pin in range (0,48):
+                        cb = "mesa%dsserial%i_%ipin%i"% (boardnum,port,channel,pin)
+                        i = "_mesa%dsignalhandlersserial%i_%ipin%i"% (boardnum,port,channel,pin)
+                        self.data[i] = int(self.widgets[cb].connect("changed",
+                            self.on_general_pin_changed,"sserial",boardnum,port,channel,pin,False))
+                        i = "_mesa%dactivatehandlersserial%i_%ipin%i"% (boardnum,port,channel,pin)
+                        self.data[i] = int(self.widgets[cb].child.connect("activate",
+                            self.on_general_pin_changed,"sserial",boardnum,port,channel,pin,True))
+                        cb = "mesa%dsserial%i_%ipin%itype"% (boardnum,port,channel,pin)
+                        i = "_mesa%dptypesignalhandlersserial%i_%ipin%i"% (boardnum,port,channel,pin)
+                        self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,port,channel,pin))
 
         for connector in("pp1","pp2","pp3"):
             # initialize parport input / inv pins
             for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
                 cb = "%sIpin%d"% (connector,pin)
                 i = "_%ssignalhandler"% cb
-                self.data[i] = int(self.widgets[cb].connect("changed", self.on_general_pin_changed,"parport",connector,"Ipin",pin,False))
+                self.data[i] = int(self.widgets[cb].connect("changed", self.on_general_pin_changed,"parport",connector,"Ipin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"parport",connector,"Ipin",pin,True))
+                self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"parport",connector,"Ipin",None,pin,True))
             # initialize parport output / inv pins
             for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
                 cb = "%sOpin%d"% (connector,pin)
                 i = "_%ssignalhandler"% cb
-                self.data[i] = int(self.widgets[cb].connect("changed", self.on_general_pin_changed,"parport",connector,"Opin",pin,False))
+                self.data[i] = int(self.widgets[cb].connect("changed", self.on_general_pin_changed,"parport",connector,"Opin",None,pin,False))
                 i = "_%sactivatehandler"% cb
-                self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"parport",connector,"Opin",pin,True))
+                self.data[i] = int(self.widgets[cb].child.connect("activate", self.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
 
         # set preferences if they exist
         link = short = False
@@ -4365,7 +4379,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
-                self.data_transfer(boardnum,connector,pin,p,pinv,ptype)
+                self.data_transfer(boardnum,connector,None,pin,p,pinv,ptype)
+                print "* mesa data-widget",p
                 self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
         self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
@@ -4377,53 +4392,38 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
-                    self.data_transfer(boardnum,channel,pin,p,pinv,ptype)
+                    self.data_transfer(boardnum,port,channel,pin,p,pinv,ptype)
+                    print "sserial data transfer",p
 
-    def data_transfer(self,boardnum,connector,pin,p,pinv,ptype):
+    def data_transfer(self,boardnum,connector,channel,pin,p,pinv,ptype):
                 foundit = False
                 piter = self.widgets[p].get_active_iter()
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                if not "serial" in p:
-                    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
-                    print "**** INFO mesa-data-transfer:",ptiter,piter
+                #if not "serial" in p:
+                #    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
+                #    print "**** INFO mesa-data-transfer:",ptiter,piter
                 # type GPIO input
                 if pintype == GPIOI:
                     signaltree = self.data._gpioisignaltree
                     ptypetree = self.data._gpioliststore
-                    nametocheck = human_input_names
                     signaltocheck = hal_input_names
-                    addsignalto = self.data.halinputsignames
                 # type gpio output and open drain
                 elif pintype in (GPIOO,GPIOD):
                     signaltree = self.data._gpioosignaltree
                     ptypetree = self.data._gpioliststore
-                    nametocheck = human_output_names
                     signaltocheck = hal_output_names
-                    addsignalto = self.data.haloutputsignames
                 #type encoder
                 elif pintype in (ENCA,ENCB,ENCI,ENCM):
                     signaltree = self.data._encodersignaltree
                     ptypetree = self.data._encoderliststore
-                    nametocheck = human_encoder_input_names
                     signaltocheck = hal_encoder_input_names
-                    addsignalto = self.data.halencoderinputsignames
-                    relatedsignals =["DUMMY",ENCB,ENCI,ENCM]
-                    relatedending = ["-a","-b","-i","-m"]
-                    addedending = "-a"
-                    unusedname = "Unused Encoder"
                 #type mux encoder
                 elif pintype in (MXEA, MXEB, MXEI, MXEM, MXES):
                     signaltree = self.data._muxencodersignaltree
                     ptypetree = self.data._muxencoderliststore
-                    nametocheck = human_encoder_input_names
                     signaltocheck = hal_encoder_input_names
-                    addsignalto = self.data.halencoderinputsignames
-                    relatedsignals =["DUMMY", MXEB, MXEI, MXEM, MXES]
-                    relatedending = ["-a","-b","-i","-m","-s"]
-                    addedending = "-a"
-                    unusedname = "Unused Encoder"
                 # type PWM gen
                 elif pintype in( PDMP,PDMD,PDME):
                     signaltree = self.data._pwmsignaltree
@@ -4431,56 +4431,28 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         ptypetree = self.data._pdmcontrolliststore
                     else:
                         ptypetree = self.data._pdmrelatedliststore
-                    nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
-                    addsignalto = self.data.halpwmoutputsignames
-                    relatedsignals =["DUMMY",PDMD,PDME]
-                    relatedending = ["-pulse","-dir","-enable"]
-                    addedending = "-pulse"
-                    unusedname = "Unused PWM Gen"
                 elif pintype in( PWMP,PWMD,PWME):
                     signaltree = self.data._pwmsignaltree
                     if pintype == PWMP:
                         ptypetree = self.data._pwmcontrolliststore
                     else:
                         ptypetree = self.data._pwmrelatedliststore
-                    nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
-                    addsignalto = self.data.halpwmoutputsignames
-                    relatedsignals =[PWMP,PWMD,PWME]
-                    relatedending = ["-pulse","-dir","-enable"]
-                    addedending = "-pulse"
-                    unusedname = "Unused PWM Gen"
                 # type tp pwm
                 elif pintype in (TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF): 
                     signaltree = self.data._tppwmsignaltree
                     ptypetree = self.data._tppwmliststore 
-                    nametocheck = human_tppwm_output_names
                     signaltocheck = hal_tppwm_output_names
-                    addsignalto = self.data.haltppwmoutputsignames
-                    relatedsignals = [TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF]
-                    relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                 # type step gen
                 elif pintype in (STEPA,STEPB):
                     signaltree = self.data._steppersignaltree
                     ptypetree = self.data._stepperliststore
-                    nametocheck = human_stepper_names
                     signaltocheck = hal_stepper_names
-                    addsignalto = self.data.halsteppersignames
-                    relatedsignals =["DUMMY",STEPB,STEPC,STEPD,STEPE,STEPF]
-                    relatedending = ["-step","-dir","-c","-d","-e","-f"]
-                    addedending = "-a"
-                    unusedname = "Unused StepGen"
                 elif pintype in (RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3):
                     signaltree = self.data._sserialsignaltree
                     ptypetree = self.data._sserialliststore
-                    nametocheck = human_sserial_names
                     signaltocheck = hal_sserial_names
-                    addsignalto = self.data.halsteppersignames
-                    relatedsignals =[RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3]
-                    relatedending = ["-step","-dir","-c","-d","-e","-f"]
-                    addedending = "-a"
-                    unusedname = "Unused Channel"
                 else :
                     print "**** ERROR mesa-data-transfer: error unknown pin type:",pintype
                     return
@@ -4489,28 +4461,33 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # for encoder pins
                 if piter == None:
                         #print "callin pin changed !!!"
-                        self.on_general_pin_changed(None,"mesa",boardnum,connector,pin,True)  
+                        name ="mesa"
+                        if "sserial" in p: name = "sserial"
+                        self.on_general_pin_changed(None,name,boardnum,connector,channel,pin,True)  
                         selection = self.widgets[p].get_active_text()
                         piter = self.widgets[p].get_active_iter()
+                        if piter == None:
+                            print "not custom name available"
+                            return
                         #print "found signame -> ",selection," "
                 # ok we have a piter with a signal type now- lets convert it to a signalname
-                if not "serial" in p:
-                    self.debug_iter(piter,p,"signal")
+                #if not "serial" in p:
+                #    self.debug_iter(piter,p,"signal")
                 dummy, index = signaltree.get(piter,0,1)
-                if not "serial" in p:
-                    print "signaltree: ",dummy
-                    self.debug_iter(ptiter,ptype,"ptype")
+                #if not "serial" in p:
+                #    print "signaltree: ",dummy
+                #    self.debug_iter(ptiter,ptype,"ptype")
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
-                if not "serial" in p:
-                    print "ptypetree: ",widgetptype
+                #if not "serial" in p:
+                #    print "ptypetree: ",widgetptype
                 if pintype in (GPIOI,GPIOO,GPIOD) or (index == 0):index2 = 0
-                if not "serial" in p:
-                    print signaltocheck[index+index2],index,index2
+                #if not "serial" in p:
+                #    print signaltocheck[index+index2],index,index2
                 self.data[p] = signaltocheck[index+index2]
                 self.data[ptype] = widgetptype
                 self.data[pinv] = self.widgets[pinv].get_active()
-                if not "serial" in p:
-                    print "*** INFO PNCCONF mesa pin:",p,"signalname:",self.data[p],"pin type:",widgetptype
+                #if not "serial" in p:
+                #    print "*** INFO PNCCONF mesa pin:",p,"signalname:",self.data[p],"pin type:",widgetptype
   
     # If we just reloaded a config then update the page right now
     # as we already know what board /firmware /components are.
@@ -4519,7 +4496,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 0
         if not self.widgets.createconfig.get_active() and not self.data._mesa0_configured  :
             self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
-                    self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports)
+            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports)
         elif not self.data._mesa0_configured:
             self.widgets.mesa0con2table.hide()
             self.widgets.mesa0con3table.hide()   
@@ -4629,13 +4606,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         except :
             pass
 
-    def on_mesa_pintype_changed(self, widget,boardnum,connector,pin):
-                print "pintypechanged"
+    def on_mesa_pintype_changed(self, widget,boardnum,connector,channel,pin):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin) 
                 modelcheck = self.widgets[p].get_model()
                 modelptcheck = self.widgets[ptype].get_model()
-                new = self.widgets[ptype].get_active_text()    
+                new = self.widgets[ptype].get_active_text()
+                print "pintypechanged",p
                 #if (new == None or new == old): return 
                 if modelcheck == self.data._gpioisignaltree and new in (GPIOO,GPIOD):
                     #print "switch GPIO input ",p," to output",new
@@ -4663,7 +4640,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[ptype].set_active(1)
                     self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                     relatedpins = [PWMP,PWMD,PWME]
-                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, pin, 1)
+                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, channel, pin, 1)
                     for i in (pinlist):
                         if i[0] == ptype :continue
                         j = self.widgets[i[0]].get_active()
@@ -4677,7 +4654,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[ptype].set_active(0)
                     self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                     relatedpins = [PWMP,PWMD,PWME]
-                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, pin, 1)
+                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, channel, pin, 1)
                     for i in (pinlist):
                         if i[0] == ptype :continue
                         j = self.widgets[i[0]].get_active()
@@ -4713,7 +4690,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
     def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial):
-        print numofsmartserial
         self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -4820,7 +4796,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data["_mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
-            for pin in range (0,24):      
+            for pin in range (0,24):
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 blocksignal = "_mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
@@ -4828,22 +4804,35 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.data[blocksignal]) 
-                self.widgets[p].child.handler_unblock(self.data[actblocksignal])          
-        self.window.hide()
-        self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-        #raw_input("press something\n")
+                self.widgets[p].child.handler_unblock(self.data[actblocksignal])
+                print "* mesa data-widget",p
 
         if numofsmartserial:
+            self.pbar.set_text("Setting up Mesa Smart Serial tabs")
+            self.pbar.set_fraction(0)
+            self.window.show()
+            while gtk.events_pending():
+                gtk.main_iteration()
             port = 0
             for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
+                    self.pbar.set_fraction((pin+1)/48.0)
+                    while gtk.events_pending():
+                        gtk.main_iteration()
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
-                    #print "INFO: smartserial- ",p, firmptype
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
                     complabel = 'mesa%dsserial%d_%dpin%dnum' % (boardnum, port, channel, pin)
+                    blocksignal = "_mesa%dsignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)    
+                    ptypeblocksignal  = "_mesa%dptypesignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)  
+                    actblocksignal = "_mesa%dactivatehandlersserial%i_%ipin%i"  % (boardnum, port, channel, pin) 
+                    print "sserial set options",p
+                    # kill all widget signals:
+                    self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
+                    self.widgets[p].handler_block(self.data[blocksignal])
+                    self.widgets[p].child.handler_block(self.data[actblocksignal])
                     concount = 0
                     numofencoders = 0
                     numofpwmgens = 0
@@ -4851,7 +4840,27 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     numofstepgens = 0
                     self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+            # all this to unblock signals
+            port = 0
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                if channel >3: break # TODO only have 4 channels worth of glade widgets
+                for pin in range (0,48):
+                    firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
+                    p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
+                    ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
+                    pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
+                    complabel = 'mesa%dsserial%d_%dpin%dnum' % (boardnum, port, channel, pin)
+                    blocksignal = "_mesa%dsignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)    
+                    ptypeblocksignal  = "_mesa%dptypesignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)  
+                    actblocksignal = "_mesa%dactivatehandlersserial%i_%ipin%i"  % (boardnum, port, channel, pin) 
+                    # unblock all widget signals:
+                    self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
+                    self.widgets[p].handler_unblock(self.data[blocksignal]) 
+                    self.widgets[p].child.handler_unblock(self.data[actblocksignal])
+        # now that the widgets are set up as per firmware, change them as per the loaded data and add signals
         self.mesa_data_to_widget(boardnum)
+        self.window.hide()
+        self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,numofsmartserial):
@@ -5070,7 +5079,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[pinv].set_active(False)
 
     def mesa_data_to_widget(self,boardnum):
-        #TODO smart serial
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
@@ -5078,6 +5086,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
+                print "* mesa data-widget",p
         port = 0
         for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
@@ -5088,6 +5097,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
                     self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
+                    print "sserial data-widget",p
 
     def data_to_widgets(self,boardnum,firmptype,compnum,p,ptype,pinv):
                 datap = self.data[p]
@@ -5095,9 +5105,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 datapinv = self.data[pinv]
                 widgetp = self.widgets[p].get_active_text()
                 widgetptype = self.widgets[ptype].get_active_text()
-                if not "serial" in p:
-                    print "**** INFO set-data-options DATA:",p,datap,dataptype
-                    print "**** INFO set-data-options WIDGET:",p,widgetp,widgetptype
+                #print "**** INFO set-data-options DATA:",p,datap,dataptype
+                #print "**** INFO set-data-options WIDGET:",p,widgetp,widgetptype
                 if dataptype in (ENCB,ENCI,ENCM,
                                     MXEB,MXEI,MXEM,MXES,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
@@ -5291,7 +5300,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[p].set_active_iter(treeiter)
 
                 elif dataptype == TXDATA0 and widgetptype == TXDATA0:
-                    print "SMART SERIAL", dataptype
+                    #print "SMART SERIAL", dataptype
                     self.widgets[ptype].set_active(0)
                     self.widgets[p].set_active(0)
                     self.widgets[pinv].set_active(datapinv)
@@ -5301,15 +5310,15 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         print "**** INFO: PNCCONF warning no SMART SERIAL signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     count = -2
-                    print "sserial,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
+                    #print "sserial,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     if signalindex > 0:
                        for row,parent in enumerate(human_sserial_names):
                           if row == 0:continue
                           if len(parent[1]) == 0:
                              count += 3
-                             print row,count,parent[0]
+                             #print row,count,parent[0]
                              if count == signalindex:
-                                print "match",row
+                                #print "match",row
                                 temp = (row)
                                 break
                              continue
@@ -5389,19 +5398,24 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # if searches for the 'related pins' of a component so it can update them too
     # it also handles adding and updating custom signal names
     # it is used for mesa boards and parport boards according to boardtype
-    def on_general_pin_changed(self, widget, boardtype, boardnum, connector, pin, custom):
-                if boardtype == "mesa":
+    def on_general_pin_changed(self, widget, boardtype, boardnum, connector, channel, pin, custom):
+                if boardtype == "sserial":
+                    p = 'mesa%dsserial%d_%dpin%d' % (boardnum,connector,channel,pin)
+                    ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum,connector,channel,pin)
+                    widgetptype = self.widgets[ptype].get_active_text()
+                    print "pinchaned-",p
+                elif boardtype == "mesa":
                     p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     widgetptype = self.widgets[ptype].get_active_text()
-                if boardtype == "parport":
+                elif boardtype == "parport":
                     p = '%s%s%d' % (boardnum,connector, pin)
                     #print p
                     if "I" in p: widgetptype = GPIOI
                     else: widgetptype = GPIOO
                 pinchanged =  self.widgets[p].get_active_text()
                 piter = self.widgets[p].get_active_iter()
-                
+                print "generalpin chaged",p
                 #print "*** INFO ",boardtype,"-pin-changed: pin:",p,"custom:",custom
                 #print "*** INFO ",boardtype,"-pin-changed: ptype:",widgetptype,"pinchaanged:",pinchanged
                 if piter == None and not custom:
@@ -5556,9 +5570,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
                 if widgetptype in(GPIOI,GPIOO,GPIOD):
-                    pinlist = [["%s"%p,boardnum,connector,pin]]
+                    pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
-                    pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, pin, 0)
+                    pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
 
                 # Now we have a list of pins that need to be updated
                 # first check if the name is a custom name if it is
@@ -5584,11 +5598,14 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         halsignallist.append ((with_endings))
                 for data in(pinlist):
                     if boardtype == "mesa":
-                        blocksignal1 = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[3])
-                        blocksignal2 = "_mesa%dactivatehandlerc%ipin%i"  % (data[1], data[2], data[3])
+                        blocksignal1 = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[4])
+                        blocksignal2 = "_mesa%dactivatehandlerc%ipin%i"  % (data[1], data[2], data[4])
+                    if boardtype == "sserial":
+                        blocksignal1 = "_mesa%dsignalhandlersserial%i_%ipin%i" % (data[1], data[2], data[3], data[4])
+                        blocksignal2 = "_mesa%dactivatehandlersserial%i_%ipin%i"  % (data[1], data[2], data[3],data[4])
                     elif boardtype =="parport":
-                        blocksignal1 = "_%s%s%dsignalhandler" % (data[1], data[2], data[3])
-                        blocksignal2 = "_%s%s%dactivatehandler"  % (data[1], data[2], data[3])
+                        blocksignal1 = "_%s%s%dsignalhandler" % (data[1], data[2], data[4])
+                        blocksignal2 = "_%s%s%dactivatehandler"  % (data[1], data[2], data[4])
                     self.widgets[data[0]].handler_block(self.data[blocksignal1])
                     self.widgets[data[0]].child.handler_block(self.data[blocksignal2])
                     if custom:
@@ -5670,7 +5687,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 signal = hal_output_names
                 tree = self.data._gpioosignaltree
             self.widgets[p].set_model(tree)
-            signalindex = signal.index(datap)
+            # an error probably means the signal name cannot be found
+            # set it as unused rather then error
+            try:
+                signalindex = signal.index(datap)
+            except:
+                signalindex = 0
+                print "**** INFO: PNCCONF warning no GPIO signal named: %s\n       found for pin %s"% (datap , p)
             #print "gpio temp ptype:",dataptype,datap,signalindex
             count = 0
             temp = (0) # set unused gpio if no match
@@ -5724,7 +5747,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             # **Start widget to data Convertion**                    
             if piter == None:# means new custom signal name and user never pushed enter
                     #print "callin pin changed !!!"
-                    self.on_general_pin_changed( None,"parport", port, direction, pin, True)
+                    self.on_general_pin_changed( None,"parport", port, direction, None, pin, True)
                     selection = self.widgets[p].get_active_text()
                     piter = self.widgets[p].get_active_iter()
                     #print "found signame -> ",selection," "
@@ -7859,13 +7882,12 @@ But there is not one in the machine-named folder.."""),True)
             directory1 = self.data.mesa1_currentfirmwaredata[_DIRECTORY]
             firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
-            # TODO fix this hardcoded hack
-            if self.data.mesa0_numof_sserialports:
-                ssconfig0 = "num_sserials=8"
-            else:
-                ssconfig1 = "num_sserials=0.0.0.0"
-            ssconfig1 = "num_sserials=0.0.0.0"
-
+            # TODO fix this hardcoded hack: only one serialport
+            ssconfig0 = ssconfig1 = ""
+            if self.mesa0_numof_sserialports:
+                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            if self.mesa1_numof_sserialports:
+                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
