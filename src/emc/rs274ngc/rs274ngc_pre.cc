@@ -383,7 +383,7 @@ int Interp::_execute(const char *command)
 	  // The remap item procedure call has been parsed into _setup.blocks[0],
 	  // the EXECUTING_BLOCK.
 	  // after parsing a handler, execute_block() either fails to toplevel or
-	  // returns the negative value of phase (to distinguish them from INTERP_* codes which are all > 0)
+	  // returns the negative value of phase (to distinguish them from INTERP_* codes which are all >= 0)
 
 	  if (status < 0) {
 
