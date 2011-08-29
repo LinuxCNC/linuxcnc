@@ -678,6 +678,7 @@ if [ -n "$TASK_LD_PRELOAD" ] ; then
 fi
 
 $EMCTASK -ini "$INIFILE" &
+echo task pid=$!
 
 # setup LD_PRELOAD for display if given
 unset LD_PRELOAD
