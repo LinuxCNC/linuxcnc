@@ -415,6 +415,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i20.%d", num_5i20);
             num_5i20 ++;
             board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
@@ -427,6 +428,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i21.%d", num_5i21);
             num_5i21 ++;
             board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 32;
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P1";
             board->llio.fpga_part_number = "3s400pq208";
@@ -438,6 +440,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i65.%d", num_4i65);
             num_4i65 ++;
             board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
@@ -457,6 +460,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i22.%d", num_5i22);
             num_5i22 ++;
             board->llio.num_ioport_connectors = 4;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
@@ -469,6 +473,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i23.%d", num_5i23);
             num_5i23 ++;
             board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P2";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
@@ -481,6 +486,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i25.%d", num_5i25);
             num_5i25 ++;
             board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "P3";
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.fpga_part_number = "6slx9pq144";
@@ -497,6 +503,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i68.%d", num_4i68);
             num_4i68 ++;
             board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.ioport_connector_name[2] = "P4";
@@ -517,6 +524,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i69.%d", num_4i69);
             num_4i69 ++;
             board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
@@ -539,6 +547,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_3x20.%d", num_3x20);
             num_3x20 ++;
             board->llio.num_ioport_connectors = 6;
+            board->llio.pins_per_connector = 24;
             board->llio.ioport_connector_name[0] = "P4";
             board->llio.ioport_connector_name[1] = "P5";
             board->llio.ioport_connector_name[2] = "P6";

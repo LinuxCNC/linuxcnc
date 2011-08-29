@@ -434,6 +434,7 @@ static int hm2_7i43_setup(void) {
         board[i].llio.reset = hm2_7i43_reset;
 
         board[i].llio.num_ioport_connectors = 2;
+        board[i].llio.pins_per_connector = 24;
         board[i].llio.ioport_connector_name[0] = "P4";
         board[i].llio.ioport_connector_name[1] = "P3";
 

@@ -420,6 +420,11 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     // verify the idrom we read
     //
 
+    if (hm2->idrom.port_width != hm2->llio->pins_per_connector) {
+        HM2_ERR("invalid IDROM PortWidth %d, this board has %d pins per connector, aborting load\n", hm2->idrom.port_width, hm2->llio->pins_per_connector);
+        hm2_print_idrom(hm2);
+        return -EINVAL;
+    }
 
     if (hm2->idrom.io_width != (hm2->idrom.io_ports * hm2->idrom.port_width)) {
         HM2_ERR(
