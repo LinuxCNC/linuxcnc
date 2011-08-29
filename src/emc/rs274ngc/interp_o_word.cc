@@ -210,35 +210,6 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     return INTERP_OK;
 }
 
-int Interp::handle_continuation(setup_pointer settings,block_pointer eblock, block_pointer cblock, int status)
-{
-    if (status == INTERP_EXECUTE_FINISH) {
-	
-	if (cblock->call_again) {
-	    settings->call_level--; // stay on current call level (1)
-	    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
-		     eblock->o_name, settings->call_level);
-	    return INTERP_EXECUTE_FINISH;
-	} else {
-	    cblock->call_again = true;
-	    // call level was increased above , now at 1
-	    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (first), call_level=%d",
-		     eblock->o_name, settings->call_level);
-	    return INTERP_EXECUTE_FINISH;
-	}
-    }
-    if (status == INTERP_OK) {
-	if (cblock->call_again) {
-	    cblock->call_again = false;
-	    // block->generator_next = bp::object(); // really None
-	    settings->call_level--; // compensate bump above
-	}
-	settings->call_level--; // and return to previous level
-	ERP(remap_finished(-cblock->phase));
-    }
-    return status;
-}
-
 
 /************************************************************************/
 /* convert_control_functions
@@ -359,19 +330,36 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	    cblock = &CONTROLLING_BLOCK(_setup);
 
 	    if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
-		logRemap("O_endsub/return: py epilog %s for NGC remap %s",
+		logRemap("O_endsub/return: epilog %s for NGC remap %s cl=%d rl=%d",
 			 cblock->executing_remap->epilog_func,
-			 cblock->executing_remap->remap_ngc);
+			 cblock->executing_remap->remap_ngc,settings->call_level,
+			 settings->remap_level);
 		status = pycall(settings,cblock,
 				REMAP_MODULE,
 				cblock->executing_remap->epilog_func,
 				PY_EPILOG);
 		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_call: epilog %s failed, unwinding",
+		    logRemap("O_endsub/return: epilog %s failed, unwinding",
 			     cblock->executing_remap->epilog_func);
 		    ERP(status);
 		}
-		status = handle_continuation( settings, block, cblock,  status);
+		if (status == INTERP_EXECUTE_FINISH) {
+		    if (cblock->reexec_epilog) {
+			logRemap("O_endsub/return: epilog %s returned INTERP_EXECUTE_FINISH (sequel),  cl=%d rl=%d",
+				 cblock->executing_remap->epilog_func, settings->call_level,settings->remap_level);
+			return INTERP_EXECUTE_FINISH;
+		    } else {
+			cblock->reexec_epilog = true;
+			logRemap("O_endsub/return: epilog %s returned INTERP_EXECUTE_FINISH (first), cl=%d rl=%d",
+				 cblock->executing_remap->epilog_func,settings->call_level,settings->remap_level);
+			return INTERP_EXECUTE_FINISH;
+		    }
+		}
+		if (status == INTERP_OK) {
+		    if (cblock->reexec_epilog) {
+			cblock->reexec_epilog = false;
+		    }
+		}
 	    }
 
 	    // free local variables
@@ -543,23 +531,46 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	}
 
 	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
-	    logRemap("O_call: py prologue %s for remap %s (%s)",
+	    if (cblock->reexec_prolog) 
+		settings->call_level--; // compensate bump above
+	    logRemap("O_call: prolog %s for remap %s (%s)  cl=%d rl=%d",
 		     cblock->executing_remap->prolog_func,
 		     REMAP_FUNC(cblock->executing_remap),
-		     cblock->executing_remap->name);
+		     cblock->executing_remap->name,
+		     settings->call_level,
+		     settings->remap_level);
 	    status = pycall(settings, cblock,
-		       REMAP_MODULE,
-		       cblock->executing_remap->prolog_func,
+			    REMAP_MODULE,
+			    cblock->executing_remap->prolog_func,
 			    PY_PROLOG);
-	    
 	    if (status > INTERP_MIN_ERROR) {
 		logOword("O_call: prolog pycall(%s) failed, unwinding",
 			 cblock->executing_remap->prolog_func);
 		ERP(status);
 	    }
-	    return handle_continuation( settings, block, cblock,  status);
-	}
 
+#ifndef NOTYET
+	    CHKS(status == INTERP_EXECUTE_FINISH,"continuation of prolog functions not supported yet");
+#else
+	    if (status == INTERP_EXECUTE_FINISH) {
+		if (cblock->reexec_prolog) {
+		    logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH (sequel),  cl=%d rl=%d",
+			     cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
+		    return INTERP_EXECUTE_FINISH;
+		} else {
+		    cblock->reexec_prolog = true;
+		    logRemap("O_call: epilog %s returned INTERP_EXECUTE_FINISH (first), cl=%d rl=%d",
+			     cblock->executing_remap->prolog_func,settings->call_level,settings->remap_level);
+		    return INTERP_EXECUTE_FINISH;
+		}
+	    }
+	    if (status == INTERP_OK) {
+		if (cblock->reexec_prolog) {
+		    cblock->reexec_prolog = false;
+		}
+	    }
+#endif
+	}
 	// a Python oword sub can be executed inline -
 	// no control_back_to() needed
 	// might want to cache this in an offset struct eventually
@@ -603,18 +614,14 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		settings->call_level--;
 		return status;
 	    }
-	    return handle_continuation( settings, block, cblock,  status);
-
-#if 0
 	    if (status == INTERP_EXECUTE_FINISH) {
-		    
-		if (cblock->call_again) {
+		if (cblock->reexec_body) {
 		    settings->call_level--; // stay on current call level (1)
 		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
 			     block->o_name, settings->call_level);
 		    return INTERP_EXECUTE_FINISH;
 		} else {
-		    cblock->call_again = true;
+		    cblock->reexec_body = true;
 		    // call level was increased above , now at 1
 		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (first), call_level=%d",
 			     block->o_name, settings->call_level);
@@ -622,17 +629,19 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		}
 	    }
 	    if (status == INTERP_OK) {
-		if (cblock->call_again) {
-		    cblock->call_again = false;
-		    // block->generator_next = bp::object(); // really None
+		if (cblock->reexec_body) {
+		    logRemap("O_call: %s returned INTERP_OK, finishing continuation, cl=%d rl=%d",
+			     block->o_name, settings->call_level,settings->remap_level);
+		    cblock->reexec_body = false;
 		    settings->call_level--; // compensate bump above
 		}
+		logRemap("O_call: %s returning INTERP_OK",    block->o_name);
 		settings->call_level--; // and return to previous level
 		ERP(remap_finished(-cblock->phase));
 		return status;
 	    }
-#endif
 	}
+	logRemap("O_call: %s STATUS=%d", block->o_name, status);
 
 	if (control_back_to(block,settings) == INTERP_ERROR) {
 	    settings->call_level--;

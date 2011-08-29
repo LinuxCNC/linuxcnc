@@ -124,7 +124,7 @@ int Interp::pycall(setup_pointer settings,
 	python_plugin->run_string(funcname, retval);
 	break;
     default:
-	if (block->call_again) {
+	if (block->reexec_prolog |block->reexec_body|block->reexec_epilog) {
 	    python_plugin->call_method(block->generator_next, retval);
 	} else {
 	    python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
