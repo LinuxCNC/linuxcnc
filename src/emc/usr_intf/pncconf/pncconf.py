@@ -2054,18 +2054,18 @@ class Data:
                 break
         # load PID compnent:
         # if axis needs PID- (has pwm signal) then add its letter to pidlist
-        pidlist = ""
+        temp = ""
         for i in self.available_axes:
             #print "looking at available axis : ",i
             if not self.findsignal(i+"-encoder-a"):
                 continue
-            pidlist = pidlist + "%s,"%i
+            temp = temp + "pid.%s,"%i
         # if user requested PID components add them to the list as well, starting at 0 and working up
         for i in range(0,self.userneededpid):
-                pidlist=pidlist+"%d,"% (i)
-        temp = pidlist.rstrip(",")
-        if not temp == "":
-            print >>file, "loadrt pid names=%s"% temp
+                temp=temp+"%d,"% (i)
+        pidlist = temp.rstrip(",")
+        if not pidlist == "":
+            print >>file, "loadrt pid names=%s"% pidlist
 
         if bldc or self.userneededbldc:
             self._bldcconfigstring = ""
@@ -2186,9 +2186,9 @@ class Data:
         print >>file, "addf motion-controller servo-thread"
 
         if not pidlist == "":
-            for i in pidlist:
-                if i == ",":continue
-                print >>file, "addf pid.%s.do-pid-calcs servo-thread"% i
+            temp = pidlist.split(",")
+            for i in temp:
+                print >>file, "addf %s.do-pid-calcs servo-thread"% i
         
         if bldc or self.userneededbldc:
             temp=self._bldcconfigstring.split(",")
