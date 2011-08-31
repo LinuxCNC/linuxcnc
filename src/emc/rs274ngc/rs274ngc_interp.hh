@@ -469,12 +469,15 @@ public:
   block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
-#define NORMAL_CALL 0
-#define NORMAL_RETURN 1
-#define FINISH_BODY 2
-#define FINISH_EPILOG 3
-#define FINISH_PROLOG 4
-#define FINISH_OWORDSUB 5
+    enum restart_points {
+	NONE, 
+	NORMAL_CALL, 
+	NORMAL_RETURN,
+	FINISH_BODY,
+	FINISH_EPILOG,
+	FINISH_PROLOG,
+	FINISH_OWORDSUB
+    };
 
  int execute_call(block_pointer block, // pointer to block
 		   setup_pointer settings, int what);   // pointer to machine settings

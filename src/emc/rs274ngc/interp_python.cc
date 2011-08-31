@@ -127,8 +127,12 @@ int Interp::pycall(setup_pointer settings,
 	     python_plugin->last_exception().c_str());
 	break;
     default:
-	// handler continuation if a generator was used
-	if (block->reexec_prolog |block->reexec_body|block->reexec_epilog) {
+	switch (block->restart_at) {   //FIXTHIS terminally ugly
+	case FINISH_PROLOG:
+	case FINISH_EPILOG:
+	case FINISH_BODY:
+	case FINISH_OWORDSUB:
+	    // handler continuation if a generator was used
 	    try {
 		retval = block->generator_next();
 	    }
@@ -152,13 +156,13 @@ int Interp::pycall(setup_pointer settings,
 		} else 
 		    Error("calling generator: duh");
 	    }
-	} else {
+	    break;
+	default:
 	    python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
 	    CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
 		 "py_call(%s):\n%s", funcname,
 		 python_plugin->last_exception().c_str());
 	}
-	break;
     }
 
     try {

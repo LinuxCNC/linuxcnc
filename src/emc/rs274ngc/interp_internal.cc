@@ -258,6 +258,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->reexec_prolog  = false;
   block->reexec_body  = false;
   block->reexec_epilog  = false;
+  block->restart_at = NONE;
   block->remappings.clear();
 
   // not really needed, set elsewhere

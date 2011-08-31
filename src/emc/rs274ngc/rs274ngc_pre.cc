@@ -246,6 +246,30 @@ int Interp::_execute(const char *command)
 
   logDebug("MDImode = %d",MDImode);
   logDebug("Interp::execute(%s)", command);
+
+  // switch (cblock->restart_at) {
+  // 	case FINISH_PROLOG:
+  // 	case FINISH_BODY:
+  // 	case FINISH_OWORDSUB:
+  // 	    status = execute_call/
+
+  // 	case FINISH_EPILOG:
+
+  // }
+      
+  // if (cblock->reexec_prolog |cblock->reexec_body|cblock->reexec_epilog) {
+  //     logRemap("-------- exeute(): should RE-EXEC p=%d b=%d e=%d cl=%d rl=%d e.o_name=%s c.o_name=%s",
+  // 	       cblock->reexec_prolog ,cblock->reexec_body,cblock->reexec_epilog,
+  // 	       _setup.call_level, _setup.remap_level,eblock->o_name,cblock->o_name);
+  //     status =  pycall(&_setup, cblock,
+  // 		       REMAP_MODULE,
+  // 		       cblock->executing_remap->remap_py,
+  // 		       PY_REMAP);
+  //     logRemap("-------- exeute():pycall RE-EXEC status=%d",status);
+  //     _setup.call_level = 0;
+  // 	  _setup.remap_level = 0;
+  //     return status;
+  // }
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) ||
       (_setup.mdi_interrupt))  {
@@ -1750,6 +1774,10 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
+  // if (_setup.restart_from_snapshot) {
+  // 		Error("restoring context");
+  //     setcontext(&_setup.snapshot);
+  // }
   return INTERP_OK;
 }
 

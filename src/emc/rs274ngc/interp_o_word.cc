@@ -265,28 +265,18 @@ int Interp::execute_call(block_pointer block, // pointer to block
 			 cblock->executing_remap->prolog_func);
 		ERP(status);
 	    }
-
-#ifndef NOTYET
-	    CHKS(status == INTERP_EXECUTE_FINISH,"continuation of prolog functions not supported yet");
-#else
-	    if (status == INTERP_EXECUTE_FINISH) {
-		if (cblock->reexec_prolog) {
-		    logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH (sequel),  cl=%d rl=%d",
-			     cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
-		    return INTERP_EXECUTE_FINISH;
-		} else {
-		    cblock->reexec_prolog = true;
-		    logRemap("O_call: epilog %s returned INTERP_EXECUTE_FINISH (first), cl=%d rl=%d",
-			     cblock->executing_remap->prolog_func,settings->call_level,settings->remap_level);
-		    return INTERP_EXECUTE_FINISH;
-		}
+	    if ((status == INTERP_OK) &&
+		(cblock->restart_at == FINISH_PROLOG)) { // finally done after restart
+		cblock->restart_at = NONE;
+		logRemap("O_call: prolog %s done after restart cl=%d rl=%d",
+			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 	    }
-	    if (status == INTERP_OK) {
-		if (cblock->reexec_prolog) {
-		    cblock->reexec_prolog = false;
-		}
+	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
+		cblock->restart_at = FINISH_PROLOG;  
+		logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
+			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
+		return INTERP_EXECUTE_FINISH;
 	    }
-#endif
 	}
 	// fall through on purpose 
 
@@ -335,48 +325,32 @@ int Interp::execute_call(block_pointer block, // pointer to block
 			 cblock->executing_remap->name);
 		settings->call_level--;  // unwind this call
 		// a failing remap handler is expected to set an appropriate error message
-		// which is why we just return status
+		// which is why we just return status without a message
 		return status; 
 	    }
-#if 0
-	    if (status == INTERP_EXECUTE_FINISH) {
-		settings->restart_from_snapshot = true;
-		getcontext(&settings->snapshot);
-		fprintf(stderr, "post getcontext");
-		return status;
-	    }
-#endif
-	    if (status == INTERP_EXECUTE_FINISH) {
-		if (cblock->reexec_body) {
-		    settings->call_level--; // stay on current call level 
-		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (sequel), call_level=%d",
-			     block->o_name, settings->call_level);
-		    return INTERP_EXECUTE_FINISH;
-		} else {
-		    cblock->reexec_body = true;
-		    // call level was increased above , now at 1
-		    logRemap("O_call: %s returned INTERP_EXECUTE_FINISH (first), call_level=%d",
-			     block->o_name, settings->call_level); //FIXME block->o_name can be NULL
-		    return INTERP_EXECUTE_FINISH;
-		}
-	    }
 
-	    // this condition corresponds to an endsub/return. 
+	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
+		cblock->restart_at = FINISH_BODY;  
+		logRemap("O_call: body %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
+			 cblock->executing_remap->remap_py, settings->call_level,settings->remap_level);
+		return INTERP_EXECUTE_FINISH;
+	    }
+	    // this condition corresponds to an endsub/return of a Python osub
 	    // signal that this remap is done and drop call level.
 	    if (status == INTERP_OK) {
-		if (cblock->reexec_body) {
-		    cblock->reexec_body = false;
+		if (cblock->restart_at == FINISH_BODY) { // finally done after restart
+		    cblock->restart_at = NONE;
 		    settings->call_level--; // compensate bump above
 		    if (!cblock->returned[RET_STOPITERATION]) {
 			// the user executed 'yield INTERP_OK' which is fine but keeps
 			// the generator object hanging around (I think)
 			// unsure how to do this - not like so: cblock->generator_next.del();
 		    }
-		    logRemap("O_call: %s returned INTERP_OK, finishing continuation, StopIteration=%d cl=%d rl=%d",
-			     block->o_name,(int) cblock->returned[RET_STOPITERATION],
+		    logRemap("O_call: %s done after restart, StopIteration=%d cl=%d rl=%d",
+			     cblock->executing_remap->remap_py,(int) cblock->returned[RET_STOPITERATION],
 			     settings->call_level, settings->remap_level);
 		}
-		logRemap("O_call: %s returning INTERP_OK",    block->o_name);
+		logRemap("O_call: %s returning INTERP_OK", cblock->executing_remap->remap_py);
 		settings->call_level--; // and return to previous level
 		ERP(remap_finished(-cblock->phase));
 		return status;
@@ -435,6 +409,7 @@ int Interp::execute_return(block_pointer block, // pointer to block
 	if (settings->call_level != 0) {
 
 	    if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
+		// FIXME not necessarily an NGC remap!
 		logRemap("O_endsub/return: epilog %s for NGC remap %s cl=%d rl=%d",
 			 cblock->executing_remap->epilog_func,
 			 cblock->executing_remap->remap_ngc,settings->call_level,
@@ -449,20 +424,18 @@ int Interp::execute_return(block_pointer block, // pointer to block
 		    ERP(status);
 		}
 		if (status == INTERP_EXECUTE_FINISH) {
-		    if (cblock->reexec_epilog) {
-			logRemap("O_endsub/return: epilog %s returned INTERP_EXECUTE_FINISH (sequel),  cl=%d rl=%d",
-				 cblock->executing_remap->epilog_func, settings->call_level,settings->remap_level);
-			return INTERP_EXECUTE_FINISH;
-		    } else {
-			cblock->reexec_epilog = true;
-			logRemap("O_endsub/return: epilog %s returned INTERP_EXECUTE_FINISH (first), cl=%d rl=%d",
-				 cblock->executing_remap->epilog_func,settings->call_level,settings->remap_level);
-			return INTERP_EXECUTE_FINISH;
-		    }
+		    cblock->restart_at = FINISH_EPILOG;  
+		    logRemap("O_endsub/return: epilog %s  INTERP_EXECUTE_FINISH, mark for restart, cl=%d rl=%d",
+			     cblock->executing_remap->epilog_func, 
+			     settings->call_level,settings->remap_level);
+		    return INTERP_EXECUTE_FINISH;
 		}
 		if (status == INTERP_OK) {
-		    if (cblock->reexec_epilog) {
-			cblock->reexec_epilog = false;
+		    if (cblock->restart_at == FINISH_EPILOG) {
+			cblock->restart_at = NONE;  
+			logRemap("O_call: epilog %s done after restart cl=%d rl=%d",
+				 cblock->executing_remap->epilog_func, 
+				 settings->call_level,settings->remap_level);
 		    }
 		}
 	    }
