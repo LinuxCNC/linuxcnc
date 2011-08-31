@@ -51,8 +51,17 @@ Connector Tabs:
      ENCODER - a hardware base quadrature counter
 
         You select the A phase signal and the rest of the 
-        phases (B, I, and possibly M) are automatically included
-    
+        phases (B, I, and possibly M) are automatically included.
+        If using a single input or single input and index for the spindle
+        encoder, the encoder must be put in 'counter-mode'. This must be
+        manually added in a custom HAL file. For example (changing the board 
+        name and encoder number to your requirements):
+
+        setp    hm2_7i43.0.encoder.00.counter-mode 1 
+
+        HAL file. See the Hostmot2 section on encoders for more info about 
+        counter mode.
+
      MUX ENCODER - a hardware base quadrature counter
 
         You select the A phase signal and the rest of the 
