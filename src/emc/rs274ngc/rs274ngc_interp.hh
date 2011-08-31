@@ -469,6 +469,20 @@ public:
   block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
+#define NORMAL_CALL 0
+#define NORMAL_RETURN 1
+#define FINISH_BODY 2
+#define FINISH_EPILOG 3
+#define FINISH_PROLOG 4
+#define FINISH_OWORDSUB 5
+
+ int execute_call(block_pointer block, // pointer to block
+		   setup_pointer settings, int what);   // pointer to machine settings
+
+ int execute_return(block_pointer block, // pointer to block
+		   setup_pointer settings, int what);   // pointer to machine settings
+
+
  int convert_control_functions( /* ARGUMENTS           */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
