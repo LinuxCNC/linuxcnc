@@ -255,9 +255,6 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->py_returned_value = 0.0;
   block->returned = 0;
   block->param_cnt = 0;
-  block->reexec_prolog  = false;
-  block->reexec_body  = false;
-  block->reexec_epilog  = false;
   block->restart_at = NONE;
   block->remappings.clear();
 

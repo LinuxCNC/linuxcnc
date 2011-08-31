@@ -129,11 +129,10 @@ int Interp::control_find_oword(block_pointer block,      // pointer to block
     }
 }
 
-int Interp::execute_call(block_pointer block, // pointer to block
-			 setup_pointer settings, int what) 
+int Interp::execute_call(setup_pointer settings, int what) 
 {
     context_pointer current_frame, new_frame;
-    block_pointer cblock;
+    block_pointer cblock,eblock;
     bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
     bool is_remap_handler; // the sub is executing on behalf of a remapped code
     bool is_py_callable;   // the sub name is actually Python
@@ -142,12 +141,12 @@ int Interp::execute_call(block_pointer block, // pointer to block
     int i;
     bool py_exception = false;
 
-
     current_frame = &settings->sub_context[settings->call_level];
     new_frame = &settings->sub_context[settings->call_level + 1];
 
     // aquire the 'remap_frame' a.k.a controlling block
     cblock = &CONTROLLING_BLOCK(*settings);
+    eblock = &EXECUTING_BLOCK(*settings);
 
     // determine if this sub is the  body executing on behalf of a remapped code
     // we're loosing a bit of context by funneling everything through the osub call
@@ -155,17 +154,17 @@ int Interp::execute_call(block_pointer block, // pointer to block
     is_remap_handler =
 	(cblock->executing_remap != NULL) &&
 	(((cblock->executing_remap->remap_py != NULL) &&
-	  (!strcmp(cblock->executing_remap->remap_py, block->o_name))) ||
+	  (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))) ||
 	 (((cblock->executing_remap->remap_ngc != NULL) &&
-	   (!strcmp(cblock->executing_remap->remap_ngc, block->o_name)))));
+	   (!strcmp(cblock->executing_remap->remap_ngc, eblock->o_name)))));
 
-    is_py_callable = is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, block->o_name);
+    is_py_callable = is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, eblock->o_name);
     is_py_osub = is_py_callable && ! is_remap_handler;
 
     is_py_remap_handler =
 	(cblock->executing_remap != NULL) &&
 	((cblock->executing_remap->remap_py != NULL) &&
-	 (!strcmp(cblock->executing_remap->remap_py, block->o_name)));
+	 (!strcmp(cblock->executing_remap->remap_py, eblock->o_name)));
 	
 
     switch (what) {
@@ -183,17 +182,17 @@ int Interp::execute_call(block_pointer block, // pointer to block
 	    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
 	}
 	if (is_py_osub) {
-	    logDebug("O_call: vanilla osub pycall(%s), preparing positional args", block->o_name);
+	    logDebug("O_call: vanilla osub pycall(%s), preparing positional args", eblock->o_name);
 	    py_exception = false;
 	    try {
 		// call with list of positional parameters
 		// no saving needed - this is call by value
 		bp::list plist;
 		plist.append(settings->pythis); // self
-		for(int i = 0; i < block->param_cnt; i++)
-		    plist.append(block->params[i]);
-		block->tupleargs = bp::tuple(plist);
-		block->kwargs = bp::dict();
+		for(int i = 0; i < eblock->param_cnt; i++)
+		    plist.append(eblock->params[i]);
+		eblock->tupleargs = bp::tuple(plist);
+		eblock->kwargs = bp::dict();
 	    }
 	    catch (bp::error_already_set) {
 		if (PyErr_Occurred()) {
@@ -205,14 +204,14 @@ int Interp::execute_call(block_pointer block, // pointer to block
 	    }
 	    if (py_exception) {
 		CHKS(py_exception,"O_call: Py exception preparing arguments for %s",
-		     block->o_name);
+		     eblock->o_name);
 	    }
 	} else {
 	    for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
 		current_frame->saved_params[i] =
 		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
 		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
-		    block->params[i];
+		    eblock->params[i];
 	    }
 	}
 
@@ -234,21 +233,21 @@ int Interp::execute_call(block_pointer block, // pointer to block
 		 current_frame->position);
 
 	// set the new subName
-	new_frame->subName = block->o_name;
+	new_frame->subName = eblock->o_name;
 	settings->call_level++;
 
 	// let any  Oword sub know the number of parameters
 	if (!(is_py_osub || is_py_remap_handler)) {
 	    CHP(add_named_param("n_args", PA_READONLY));
 	    CHP(store_named_param(settings, "n_args",
-				  (double )block->param_cnt,
+				  (double )eblock->param_cnt,
 				  OVERRIDE_READONLY));
 	}
 	// fall through on purpose 
 
     case FINISH_PROLOG:
 	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
-	    if (cblock->reexec_prolog) 
+	    if (eblock->restart_at == FINISH_PROLOG)
 		settings->call_level--; // compensate bump above
 	    logRemap("O_call: prolog %s for remap %s (%s)  cl=%d rl=%d",
 		     cblock->executing_remap->prolog_func,
@@ -266,13 +265,13 @@ int Interp::execute_call(block_pointer block, // pointer to block
 		ERP(status);
 	    }
 	    if ((status == INTERP_OK) &&
-		(cblock->restart_at == FINISH_PROLOG)) { // finally done after restart
-		cblock->restart_at = NONE;
+		(eblock->restart_at == FINISH_PROLOG)) { // finally done after restart
+		eblock->restart_at = NONE;
 		logRemap("O_call: prolog %s done after restart cl=%d rl=%d",
 			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 	    }
 	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		cblock->restart_at = FINISH_PROLOG;  
+		eblock->restart_at = FINISH_PROLOG;  
 		logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
 			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 		return INTERP_EXECUTE_FINISH;
@@ -285,17 +284,19 @@ int Interp::execute_call(block_pointer block, // pointer to block
 	// no control_back_to() needed
 	// might want to cache this in an offset struct eventually
 	if (is_py_osub) {
-	    status = pycall(settings, block,
+	    status = pycall(settings, eblock,
 			    OWORD_MODULE,
-			    block->o_name, PY_OWORDCALL);
+			    eblock->o_name, PY_OWORDCALL);
+
+	    //FIXME make restartable with yield
 	    if (status > INTERP_MIN_ERROR) {
 		logOword("O_call: vanilla osub pycall(%s) failed, unwinding",
-			 block->o_name);
+			 eblock->o_name);
 	    }
-	    if (status == INTERP_OK && block->returned[RET_DOUBLE]) {
+	    if (status == INTERP_OK && eblock->returned[RET_DOUBLE]) {
 		logOword("O_call: vanilla osub pycall(%s) returned %lf",
-			 block->o_name, block->py_returned_value);
-		settings->return_value = block->py_returned_value;
+			 eblock->o_name, eblock->py_returned_value);
+		settings->return_value = eblock->py_returned_value;
 		settings->value_returned = 1;
 	    } else {
 		settings->return_value = 0.0;
@@ -330,7 +331,7 @@ int Interp::execute_call(block_pointer block, // pointer to block
 	    }
 
 	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		cblock->restart_at = FINISH_BODY;  
+		eblock->restart_at = FINISH_BODY;  
 		logRemap("O_call: body %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
 			 cblock->executing_remap->remap_py, settings->call_level,settings->remap_level);
 		return INTERP_EXECUTE_FINISH;
@@ -338,8 +339,8 @@ int Interp::execute_call(block_pointer block, // pointer to block
 	    // this condition corresponds to an endsub/return of a Python osub
 	    // signal that this remap is done and drop call level.
 	    if (status == INTERP_OK) {
-		if (cblock->restart_at == FINISH_BODY) { // finally done after restart
-		    cblock->restart_at = NONE;
+		if (eblock->restart_at == FINISH_BODY) { // finally done after restart
+		    eblock->restart_at = NONE;
 		    settings->call_level--; // compensate bump above
 		    if (!cblock->returned[RET_STOPITERATION]) {
 			// the user executed 'yield INTERP_OK' which is fine but keeps
@@ -355,14 +356,14 @@ int Interp::execute_call(block_pointer block, // pointer to block
 		ERP(remap_finished(-cblock->phase));
 		return status;
 	    }
-	    logRemap("O_call: %s OOPS STATUS=%d", block->o_name, status);
+	    logRemap("O_call: %s OOPS STATUS=%d", eblock->o_name, status);
 
 	}
-	logRemap("O_call: %s STATUS=%d", block->o_name, status);
+	logRemap("O_call: %s STATUS=%d", eblock->o_name, status);
 
-	if (control_back_to(block,settings) == INTERP_ERROR) {
+	if (control_back_to(eblock, settings) == INTERP_ERROR) {
 	    settings->call_level--;
-	    ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
+	    ERS(NCE_UNABLE_TO_OPEN_FILE,eblock->o_name);
 	    return INTERP_ERROR;
 	}
 
@@ -370,14 +371,19 @@ int Interp::execute_call(block_pointer block, // pointer to block
     return status;
 }
 
-int Interp::execute_return(block_pointer block, // pointer to block
-			   setup_pointer settings, int what)   // pointer to machine settings
+int Interp::execute_return(setup_pointer settings, int what)   // pointer to machine settings
 {
 
     int status = INTERP_OK;
     int i;
-    block_pointer cblock;   
+    block_pointer cblock,eblock;   
     context_pointer  leaving_frame,  returnto_frame;
+
+    cblock = &CONTROLLING_BLOCK(*settings);
+    eblock = &EXECUTING_BLOCK(*settings);
+    //  some shorthands to make this readable
+    leaving_frame = &settings->sub_context[settings->call_level];
+    returnto_frame = &settings->sub_context[settings->call_level - 1];
 
     switch (what) {
     case NORMAL_RETURN:
@@ -389,24 +395,15 @@ int Interp::execute_return(block_pointer block, // pointer to block
 	// if we were skipping, no longer
 	if (settings->skipping_o) {
 	    logOword("case O_%s -- no longer skipping to:|%s|",
-		     (block->o_type == O_endsub) ? "endsub" : "return",
+		     (eblock->o_type == O_endsub) ? "endsub" : "return",
 		     settings->skipping_o);
 	    settings->skipping_o = NULL;
-	}
-	if (settings->call_level != 0) {
-	    //  some shorthands to make this readable
-	    leaving_frame = &settings->sub_context[settings->call_level];
-	    returnto_frame = &settings->sub_context[settings->call_level - 1];
-
-	    // we call the epilog handler while the current frame is still alive
-	    // so we can inspect it from the epilog
-
-	    // aquire the remapped block
-	    cblock = &CONTROLLING_BLOCK(_setup);
 	}
 
     case FINISH_EPILOG:
 	if (settings->call_level != 0) {
+	    // we call the epilog handler while the current frame is still alive
+	    // so we can inspect it from the epilog
 
 	    if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
 		// FIXME not necessarily an NGC remap!
@@ -424,15 +421,15 @@ int Interp::execute_return(block_pointer block, // pointer to block
 		    ERP(status);
 		}
 		if (status == INTERP_EXECUTE_FINISH) {
-		    cblock->restart_at = FINISH_EPILOG;  
+		    eblock->restart_at = FINISH_EPILOG;  
 		    logRemap("O_endsub/return: epilog %s  INTERP_EXECUTE_FINISH, mark for restart, cl=%d rl=%d",
 			     cblock->executing_remap->epilog_func, 
 			     settings->call_level,settings->remap_level);
 		    return INTERP_EXECUTE_FINISH;
 		}
 		if (status == INTERP_OK) {
-		    if (cblock->restart_at == FINISH_EPILOG) {
-			cblock->restart_at = NONE;  
+		    if (eblock->restart_at == FINISH_EPILOG) {
+			eblock->restart_at = NONE;  
 			logRemap("O_call: epilog %s done after restart cl=%d rl=%d",
 				 cblock->executing_remap->epilog_func, 
 				 settings->call_level,settings->remap_level);
@@ -499,7 +496,7 @@ int Interp::execute_return(block_pointer block, // pointer to block
 	    }
 	} else {
 	    // a definition
-	    if (block->o_type == O_endsub) {
+	    if (eblock->o_type == O_endsub) {
 		CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
 		// no longer skipping or defining
 		if (settings->skipping_o)  {
@@ -610,7 +607,7 @@ Calls: control_skip_to
        control_back_to
        control_save_offset
 */
-
+#undef block
 int Interp::convert_control_functions(block_pointer block, // pointer to a block of RS274/NGC instructions
 				      setup_pointer settings)  // pointer to machine settings
 {
@@ -685,7 +682,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 
     case O_endsub:
     case O_return:
-	return execute_return(block,settings, NORMAL_RETURN);
+	return execute_return(settings, NORMAL_RETURN);
 	break;
 
 #if 0
@@ -820,7 +817,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_call:
-	return  execute_call(block, settings, NORMAL_CALL);
+	return  execute_call(settings, NORMAL_CALL);
 	break;
 #if 0
 	current_frame = &settings->sub_context[settings->call_level];

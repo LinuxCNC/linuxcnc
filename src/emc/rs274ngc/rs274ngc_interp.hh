@@ -479,11 +479,8 @@ public:
 	FINISH_OWORDSUB
     };
 
- int execute_call(block_pointer block, // pointer to block
-		   setup_pointer settings, int what);   // pointer to machine settings
-
- int execute_return(block_pointer block, // pointer to block
-		   setup_pointer settings, int what);   // pointer to machine settings
+ int execute_call(setup_pointer settings, int what);   // pointer to machine settings
+ int execute_return(setup_pointer settings, int what);   // pointer to machine settings
 
 
  int convert_control_functions( /* ARGUMENTS           */
