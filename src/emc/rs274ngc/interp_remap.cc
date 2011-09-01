@@ -74,8 +74,6 @@ int Interp::convert_remapped_code(block_pointer block,
     }
     CHKS((remap == NULL), "BUG: convert_remapped_code: no remapping");
 
-    // settings->sequence_number = 1; // FIXME not sure.. THIS MUST BE WRONG.
-
     // remapped handlers may use Python code to
     // setup environment before, and finish work after doing theirs.
     // That's what prolog and epilog functions are for.
