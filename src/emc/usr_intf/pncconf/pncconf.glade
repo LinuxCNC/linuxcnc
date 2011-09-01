@@ -6939,6 +6939,8 @@ accept the changes.
                         <child>
                           <widget class="GtkAlignment" id="alignment6">
                             <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="yalign">0</property>
                             <property name="xscale">0</property>
                             <property name="yscale">0</property>
                             <child>
@@ -7028,49 +7030,94 @@ accept the changes.
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <widget class="GtkFrame" id="frame3">
+                                    <property name="visible">True</property>
+                                    <property name="label_xalign">0</property>
+                                    <property name="shadow_type">GTK_SHADOW_ETCHED_OUT</property>
+                                    <child>
+                                      <widget class="GtkAlignment" id="alignment2">
+                                        <property name="visible">True</property>
+                                        <property name="left_padding">12</property>
+                                        <child>
+                                          <widget class="GtkVBox" id="vbox30">
+                                            <property name="visible">True</property>
+                                            <child>
+                                              <widget class="GtkCheckButton" id="mesa0_sanity_7i29">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="label" translatable="yes">7i29 daughter board</property>
+                                                <property name="response_id">0</property>
+                                                <property name="draw_indicator">True</property>
+                                              </widget>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkCheckButton" id="mesa0_sanity_7i30">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="label" translatable="yes">7i30 daughter board</property>
+                                                <property name="response_id">0</property>
+                                                <property name="draw_indicator">True</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkCheckButton" id="mesa0_sanity_7i33">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="label" translatable="yes">7i33 daughter board</property>
+                                                <property name="response_id">0</property>
+                                                <property name="draw_indicator">True</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <widget class="GtkCheckButton" id="mesa0_sanity_7i40">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="label" translatable="yes">7i40 daughter board</property>
+                                                <property name="response_id">0</property>
+                                                <property name="draw_indicator">True</property>
+                                              </widget>
+                                              <packing>
+                                                <property name="position">3</property>
+                                              </packing>
+                                            </child>
+                                          </widget>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="label12">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Sanity Checks&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="type">label_item</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">4</property>
+                                    <property name="right_attach">5</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">15</property>
+                                  </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
+                                  <widget class="GtkVSeparator" id="vseparator24">
+                                    <property name="visible">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                    <property name="top_attach">3</property>
+                                    <property name="bottom_attach">14</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <widget class="GtkSpinButton" id="mesa0_numof_sserialports">
@@ -7080,8 +7127,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">11</property>
-                                    <property name="bottom_attach">12</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -7090,8 +7137,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Num of Smart Serial:</property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">11</property>
-                                    <property name="bottom_attach">12</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -7132,8 +7179,8 @@ accept the changes.
                                     <property name="label" translatable="yes">Num of step generators: </property>
                                   </widget>
                                   <packing>
-                                    <property name="top_attach">10</property>
-                                    <property name="bottom_attach">11</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">12</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -7168,8 +7215,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">2</property>
-                                    <property name="top_attach">10</property>
-                                    <property name="bottom_attach">11</property>
+                                    <property name="top_attach">11</property>
+                                    <property name="bottom_attach">12</property>
                                   </packing>
                                 </child>
                                 <child>

@@ -902,6 +902,11 @@ class Data:
         self.mesa0_numof_stepgens = 0
         self.mesa0_numof_gpio = 48
         self.mesa0_numof_sserialports = 0
+        self.mesa0_sanity_7i29 = False
+        self.mesa0_sanity_7i30 = False
+        self.mesa0_sanity_7i33 = False
+        self.mesa0_sanity_7i40 = False
+
         # second mesa card
         self.mesa1_currentfirmwaredata = mesafirmwaredata[1]
         self.mesa1_boardtitle = "5i20"
@@ -918,6 +923,10 @@ class Data:
         self.mesa1_numof_stepgens = 0
         self.mesa1_numof_gpio = 48
         self.mesa1_numof_sserialports = 0
+        self.mesa1_sanity_7i29 = False
+        self.mesa1_sanity_7i30 = False
+        self.mesa1_sanity_7i33 = False
+        self.mesa1_sanity_7i40 = False
 
         for boardnum in(0,1):
             connector = 2
@@ -4519,6 +4528,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets.mesa0con4table.hide()
             self.widgets.mesa0con5table.hide()           
         self.widgets.mesa0_parportaddrs.set_text(self.data.mesa0_parportaddrs)
+        for i in ("mesa0_sanity_7i29","mesa0_sanity_7i30","mesa0_sanity_7i33","mesa0_sanity_7i40"):
+            self.widgets[i].set_active( self.data[i] )
 
     def on_mesa0_next(self,*args):
         model = self.widgets.mesa0_boardtitle.get_model()
@@ -4535,7 +4546,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets.druid1.set_page(self.widgets.mesa0)
             return True
         self.data.mesa0_parportaddrs = self.widgets.mesa0_parportaddrs.get_text()
-        self.mesa_data_transfer(0) 
+        self.mesa_data_transfer(0)
+        for i in ("mesa0_sanity_7i29","mesa0_sanity_7i30","mesa0_sanity_7i33","mesa0_sanity_7i40"):
+            self.data[i] = self.widgets[i].get_active()
+        self.signal_sanity_check()
         if self.data.number_mesa > 1:
            self.widgets.druid1.set_page(self.widgets.mesa1)
            return True
@@ -4553,13 +4567,15 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 1
         if not self.widgets.createconfig.get_active() and not self.data._mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
-                    self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports)
+                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports)
         elif not self.data._mesa1_configured:           
             self.widgets.mesa1con2table.hide()
             self.widgets.mesa1con3table.hide()           
             self.widgets.mesa1con4table.hide()
             self.widgets.mesa1con5table.hide()
         self.widgets.mesa1_parportaddrs.set_text(self.data.mesa1_parportaddrs)
+        for i in ("mesa1_sanity_7i29","mesa1_sanity_7i30","mesa1_sanity_7i33","mesa1_sanity_7i40"):
+            self.widgets[i].set_active( self.data[i] )
 
     def on_mesa1_next(self,*args):
         model = self.widgets.mesa1_boardtitle.get_model()
@@ -4576,7 +4592,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets.druid1.set_page(self.widgets.mesa1)
             return True    
         self.data.mesa1_parportaddrs = self.widgets.mesa1_parportaddrs.get_text()
-        self.mesa_data_transfer(1) 
+        self.mesa_data_transfer(1)
+        for i in ("mesa1_sanity_7i29","mesa1_sanity_7i30","mesa1_sanity_7i33","mesa1_sanity_7i40"):
+            self.data[i] = self.widgets[i].get_active()
+        self.signal_sanity_check()
         if self.data.number_pports<1:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
@@ -5846,11 +5865,24 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             if self.data.incrselect:
                 warnings.append(_("Touchy require selectable increments to be unchecked on the external controls page\n"))
                 do_warning = True
+        for boardnum in range(0,int(self.data.number_mesa)):
+            if self.data["mesa%d_sanity_7i29"%boardnum]:
+                warnings.append(_("The 7i29 daughter board requires PWM type generators and a PWM base frequency of 20 khz\n"))
+            do_warning = True
+            if self.data["mesa%d_sanity_7i30"%boardnum]:
+                warnings.append(_("The 7i30 daughter board requires PWM type generators and a PWM base frequency of 20 khz\n"))
+            do_warning = True
+            if self.data["mesa%d_sanity_7i33"%boardnum]:
+                warnings.append(_("The 7i33 daughter board requires PDM type generators and a PDM base frequency of 6 Mhz\n"))
+            do_warning = True
+            if self.data["mesa%d_sanity_7i40"%boardnum]:
+                warnings.append(_("The 7i40 daughter board requires PWM type generators and a PWM base frequency of 50 khz\n"))
+            do_warning = True
+
         if do_warning: self.warning_dialog("\n".join(warnings),True)
 
     def on_xaxismotor_prepare(self, *args):
         self.data.help = "help-axismotor.txt"
-        self.signal_sanity_check()
         self.axis_prepare('x')
     def on_xaxismotor_next(self, *args):  
         self.data.help = "help-axisconfig.txt"   
