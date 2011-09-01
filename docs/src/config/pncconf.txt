@@ -363,7 +363,14 @@ IMPORTANT: Note lots of PCI cards do not support the EPP protocol properly.
 
 PDM PWM and 3PWM base frequency sets the balance between ripple and linearity. 
 If using Mesa daughter boards the docs for the board should give recommendations
-. For instance if using the 7i33 Mesa recommends PDM and using 6 mHz.
+. It's important to follow these to avoid damage and get the best performance. +
+ For instance :
+....
+         The 7i33 requires PDM and a PDM base frequency of 6 mHz.
+         The 7i29 requires PWM and a PWM base frequency of 20 Khz
+         The 7i30 requires PWM and a PWM base frequency of 20 Khz
+         The 7i40 requires PWM and a PWM base frequency of 50 Khz
+....
 
 Watchdog time out is used to set how long the MESA board will wait before 
 killing outputs if communication is interrupted from the computer. Please 

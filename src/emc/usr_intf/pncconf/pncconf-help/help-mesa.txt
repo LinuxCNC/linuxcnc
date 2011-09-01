@@ -3,7 +3,10 @@ Mesa setup page:
 Configuration Tab:
     allows you to choose the firmware,
     number of components / number of gpio, 
-    frequency of pwm / pdm and the watchdog timeout
+    frequency of pwm / pdm and the watchdog timeout.
+    The base frequency should be set as per the Mesa daughter
+    board you are using. Different boards require PDM vrs PWM
+    which is set on the connector tabs. 
     pick the firmware you wish to use and 
     you will see the component numbers change   
     default is to have all the available components active. 
@@ -79,7 +82,9 @@ Connector Tabs:
 
         You can select PWM or PWD in the pintype combobox
         you select the PULSE signal and the direction and enable 
-        signals are automatically setup
+        signals are automatically setup.
+        The 7i33 daughter board requires PDM.
+        The 7i29,7i30,7i40 requires PWM
 
      3 PWMGEN - special pwm generators used for driving brushless
         servo motors 3 windings directly.
