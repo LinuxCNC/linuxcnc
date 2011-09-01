@@ -245,18 +245,24 @@ int Interp::_execute(const char *command)
   }
 
   logDebug("MDImode = %d",MDImode);
-  logDebug("Interp::execute(%s)", command);
+  logDebug("Interp::execute(%s) %d cl=%d rl=%d", command, cblock->restart_at,
+	   _setup.call_level,_setup.remap_level);
 
-  // switch (cblock->restart_at) {
-  // 	case FINISH_PROLOG:
-  // 	case FINISH_BODY:
-  // 	case FINISH_OWORDSUB:
-  // 	    status = execute_call/
-
-  // 	case FINISH_EPILOG:
-
-  // }
+  switch (cblock->restart_at) {
+  case FINISH_PROLOG:
+  case FINISH_BODY:
+  case FINISH_OWORDSUB:
+      status = execute_call(&_setup,cblock->restart_at);
+      CHP(status);
+      break;
       
+  case FINISH_EPILOG:
+      status = execute_return(&_setup,cblock->restart_at);
+      CHP(status);
+      break;
+  default: ;
+  }
+  
   // if (cblock->reexec_prolog |cblock->reexec_body|cblock->reexec_epilog) {
   //     logRemap("-------- exeute(): should RE-EXEC p=%d b=%d e=%d cl=%d rl=%d e.o_name=%s c.o_name=%s",
   // 	       cblock->reexec_prolog ,cblock->reexec_body,cblock->reexec_epilog,
@@ -2275,7 +2281,7 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
 	    newFP = fopen(newFileName, "r");
 	    if (newFP) {
-		logOword("fopen: |%s|", newFileName);
+		// logOword("fopen: |%s|", newFileName);
 		break; // use first occurrence in dir search
 	    }
 	}

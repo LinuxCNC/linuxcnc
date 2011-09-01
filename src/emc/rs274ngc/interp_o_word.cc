@@ -141,6 +141,9 @@ int Interp::execute_call(setup_pointer settings, int what)
     int i;
     bool py_exception = false;
 
+
+
+
     current_frame = &settings->sub_context[settings->call_level];
     new_frame = &settings->sub_context[settings->call_level + 1];
 
@@ -148,23 +151,27 @@ int Interp::execute_call(setup_pointer settings, int what)
     cblock = &CONTROLLING_BLOCK(*settings);
     eblock = &EXECUTING_BLOCK(*settings);
 
+    logOword("execute_call what=%d name=%s", what, what > NORMAL_RETURN? new_frame->subName : eblock->o_name);
+
     // determine if this sub is the  body executing on behalf of a remapped code
     // we're loosing a bit of context by funneling everything through the osub call
     // interface, which needs to be reestablished here but it's worth the generality
     is_remap_handler =
+	(what > NORMAL_RETURN) || // restarting a Python handler which yielded INTERP_EXECUTE_FINISH
 	(cblock->executing_remap != NULL) &&
 	(((cblock->executing_remap->remap_py != NULL) &&
 	  (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))) ||
 	 (((cblock->executing_remap->remap_ngc != NULL) &&
 	   (!strcmp(cblock->executing_remap->remap_ngc, eblock->o_name)))));
 
-    is_py_callable = is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, eblock->o_name);
+    is_py_callable = 	(what > NORMAL_RETURN) || // already determined on initial call
+	is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, eblock->o_name);
     is_py_osub = is_py_callable && ! is_remap_handler;
 
-    is_py_remap_handler =
-	(cblock->executing_remap != NULL) &&
+    is_py_remap_handler = (what > NORMAL_RETURN) || 
+	((cblock->executing_remap != NULL) &&
 	((cblock->executing_remap->remap_py != NULL) &&
-	 (!strcmp(cblock->executing_remap->remap_py, eblock->o_name)));
+	 (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))));
 	
 
     switch (what) {
@@ -247,7 +254,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 
     case FINISH_PROLOG:
 	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
-	    if (eblock->restart_at == FINISH_PROLOG)
+	    if (cblock->restart_at == FINISH_PROLOG)
 		settings->call_level--; // compensate bump above
 	    logRemap("O_call: prolog %s for remap %s (%s)  cl=%d rl=%d",
 		     cblock->executing_remap->prolog_func,
@@ -265,13 +272,13 @@ int Interp::execute_call(setup_pointer settings, int what)
 		ERP(status);
 	    }
 	    if ((status == INTERP_OK) &&
-		(eblock->restart_at == FINISH_PROLOG)) { // finally done after restart
-		eblock->restart_at = NONE;
+		(cblock->restart_at == FINISH_PROLOG)) { // finally done after restart
+		cblock->restart_at = NONE;
 		logRemap("O_call: prolog %s done after restart cl=%d rl=%d",
 			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 	    }
 	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		eblock->restart_at = FINISH_PROLOG;  
+		cblock->restart_at = FINISH_PROLOG;  
 		logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
 			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 		return INTERP_EXECUTE_FINISH;
@@ -331,7 +338,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 	    }
 
 	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		eblock->restart_at = FINISH_BODY;  
+		cblock->restart_at = FINISH_BODY;  
 		logRemap("O_call: body %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
 			 cblock->executing_remap->remap_py, settings->call_level,settings->remap_level);
 		return INTERP_EXECUTE_FINISH;
@@ -339,9 +346,9 @@ int Interp::execute_call(setup_pointer settings, int what)
 	    // this condition corresponds to an endsub/return of a Python osub
 	    // signal that this remap is done and drop call level.
 	    if (status == INTERP_OK) {
-		if (eblock->restart_at == FINISH_BODY) { // finally done after restart
-		    eblock->restart_at = NONE;
-		    settings->call_level--; // compensate bump above
+		if (cblock->restart_at == FINISH_BODY) { // finally done after restart
+		    cblock->restart_at = NONE;
+		    // settings->call_level--; // compensate bump above
 		    if (!cblock->returned[RET_STOPITERATION]) {
 			// the user executed 'yield INTERP_OK' which is fine but keeps
 			// the generator object hanging around (I think)
@@ -352,14 +359,14 @@ int Interp::execute_call(setup_pointer settings, int what)
 			     settings->call_level, settings->remap_level);
 		}
 		logRemap("O_call: %s returning INTERP_OK", cblock->executing_remap->remap_py);
-		settings->call_level--; // and return to previous level
+		 settings->call_level--; // and return to previous level
 		ERP(remap_finished(-cblock->phase));
 		return status;
 	    }
 	    logRemap("O_call: %s OOPS STATUS=%d", eblock->o_name, status);
 
 	}
-	logRemap("O_call: %s STATUS=%d", eblock->o_name, status);
+	logRemap("O_call: %s STATUS=%d  cl=%d rl=%d", eblock->o_name, status, settings->call_level,settings->remap_level);
 
 	if (control_back_to(eblock, settings) == INTERP_ERROR) {
 	    settings->call_level--;
@@ -378,6 +385,8 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
     int i;
     block_pointer cblock,eblock;   
     context_pointer  leaving_frame,  returnto_frame;
+
+    logOword("execute_return what=%d", what);
 
     cblock = &CONTROLLING_BLOCK(*settings);
     eblock = &EXECUTING_BLOCK(*settings);
@@ -421,15 +430,15 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
 		    ERP(status);
 		}
 		if (status == INTERP_EXECUTE_FINISH) {
-		    eblock->restart_at = FINISH_EPILOG;  
+		    cblock->restart_at = FINISH_EPILOG;  
 		    logRemap("O_endsub/return: epilog %s  INTERP_EXECUTE_FINISH, mark for restart, cl=%d rl=%d",
 			     cblock->executing_remap->epilog_func, 
 			     settings->call_level,settings->remap_level);
 		    return INTERP_EXECUTE_FINISH;
 		}
 		if (status == INTERP_OK) {
-		    if (eblock->restart_at == FINISH_EPILOG) {
-			eblock->restart_at = NONE;  
+		    if (cblock->restart_at == FINISH_EPILOG) {
+			cblock->restart_at = NONE;  
 			logRemap("O_call: epilog %s done after restart cl=%d rl=%d",
 				 cblock->executing_remap->epilog_func, 
 				 settings->call_level,settings->remap_level);
