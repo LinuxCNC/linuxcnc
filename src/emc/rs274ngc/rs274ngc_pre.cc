@@ -198,6 +198,27 @@ int Interp::close()
   return INTERP_OK;
 }
 
+int Interp::mopup_handlers(setup_pointer settings)
+{
+    int status = INTERP_OK;
+
+    block_pointer cblock = &CONTROLLING_BLOCK(_setup);
+    switch (cblock->restart_at) {
+    case FINISH_PROLOG:
+    case FINISH_BODY:
+    case FINISH_OWORDSUB:
+	status = execute_call(&_setup,cblock->restart_at);
+	CHP(status);
+	break;
+	
+    case FINISH_EPILOG:
+	status = execute_return(&_setup,cblock->restart_at);
+	CHP(status);
+	break;
+    default: ;
+    }
+    return status;
+}
 
 /***********************************************************************/
 
@@ -229,8 +250,15 @@ int Interp::_execute(const char *command)
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
   block_pointer cblock = &CONTROLLING_BLOCK(_setup);
 
-  logDebug("execute: command=%s mdi_interrupt=%d C:user_data=%d E:o_name=%s",
-	   command, _setup.mdi_interrupt, cblock->user_data, eblock->o_name);
+  logDebug("execute: command=%s MDI=%d E:o_name=%s cl=%d rl=%d",
+	   command,(command == NULL) ? 0 : 1,  eblock->o_name,
+	   _setup.call_level,_setup.remap_level);
+
+
+  status = mopup_handlers(&_setup);
+  CHP(status);
+
+  // if ((NULL != command) && (cblock->executing_remap == NULL)) { // force auto for self.execute("xxx")
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
@@ -244,38 +272,9 @@ int Interp::_execute(const char *command)
     }
   }
 
-  logDebug("MDImode = %d",MDImode);
-  logDebug("Interp::execute(%s) %d cl=%d rl=%d", command, cblock->restart_at,
-	   _setup.call_level,_setup.remap_level);
+  // logDebug("MDImode = %d",MDImode);
 
-  switch (cblock->restart_at) {
-  case FINISH_PROLOG:
-  case FINISH_BODY:
-  case FINISH_OWORDSUB:
-      status = execute_call(&_setup,cblock->restart_at);
-      CHP(status);
-      break;
-      
-  case FINISH_EPILOG:
-      status = execute_return(&_setup,cblock->restart_at);
-      CHP(status);
-      break;
-  default: ;
-  }
   
-  // if (cblock->reexec_prolog |cblock->reexec_body|cblock->reexec_epilog) {
-  //     logRemap("-------- exeute(): should RE-EXEC p=%d b=%d e=%d cl=%d rl=%d e.o_name=%s c.o_name=%s",
-  // 	       cblock->reexec_prolog ,cblock->reexec_body,cblock->reexec_epilog,
-  // 	       _setup.call_level, _setup.remap_level,eblock->o_name,cblock->o_name);
-  //     status =  pycall(&_setup, cblock,
-  // 		       REMAP_MODULE,
-  // 		       cblock->executing_remap->remap_py,
-  // 		       PY_REMAP);
-  //     logRemap("-------- exeute():pycall RE-EXEC status=%d",status);
-  //     _setup.call_level = 0;
-  // 	  _setup.remap_level = 0;
-  //     return status;
-  // }
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) ||
       (_setup.mdi_interrupt))  {
@@ -346,8 +345,8 @@ int Interp::_execute(const char *command)
           = _setup.parameter_values[n];
   }
 
-  logDebug("_setup.named_parameter_occurrence = %d",
-           _setup.named_parameter_occurrence);
+  // logDebug("_setup.named_parameter_occurrence = %d",
+  //          _setup.named_parameter_occurrence);
   for (n = 0; n < _setup.named_parameter_occurrence; n++)
   {  // copy parameter settings from parameter buffer into parameter table
 
