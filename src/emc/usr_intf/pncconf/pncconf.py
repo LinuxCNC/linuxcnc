@@ -4794,7 +4794,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
-                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,pin,concount,numofencoders,
+                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
         
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
