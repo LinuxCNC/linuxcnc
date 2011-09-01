@@ -254,8 +254,8 @@ int Interp::execute_call(setup_pointer settings, int what)
 
     case FINISH_PROLOG:
 	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
-	    if (cblock->restart_at == FINISH_PROLOG)
-		settings->call_level--; // compensate bump above
+	    // if (cblock->restart_at == FINISH_PROLOG)
+	    // 	settings->call_level--; // compensate bump above
 	    logRemap("O_call: prolog %s for remap %s (%s)  cl=%d rl=%d",
 		     cblock->executing_remap->prolog_func,
 		     REMAP_FUNC(cblock->executing_remap),
