@@ -287,8 +287,11 @@ static int throw_exceptions = 1;
 static int wrap_interp_execute_1(Interp &interp, const char *command)
 {
     setup *settings  =  &interp._setup;
+    block saved_block = settings->blocks[0];
 
     int status = interp.execute(command);
+    settings->blocks[0] = saved_block;
+
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   settings->blocks[0].line_number, // not sure
@@ -300,8 +303,11 @@ static int wrap_interp_execute_1(Interp &interp, const char *command)
 static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno)
 {
     setup *settings  =  &interp._setup;
+    block saved_block = settings->blocks[0];
 
     int status = interp.execute(command, lineno);
+    settings->blocks[0] = saved_block;
+
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   lineno, // not sure
@@ -310,18 +316,19 @@ static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno
     return status;
 }
 
-static int wrap_interp_read(Interp &interp, const char *command)
-{
-    setup *settings  =  &interp._setup;
+// // this might not be a good idea - it destroys the block which has a 'o<ngcbody> call' parsed in it
+// static int wrap_interp_read(Interp &interp, const char *command)
+// {
+//     setup *settings  =  &interp._setup;
 
-    int status = interp.read(command);
-    if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
-	throw InterpreterException(interp.getSavedError(),
-				   settings->blocks[0].line_number, // not sure
-				   settings->linetext);
-    }
-    return status;
-}
+//     int status = interp.read(command);
+//     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
+// 	throw InterpreterException(interp.getSavedError(),
+// 				   settings->blocks[0].line_number, // not sure
+// 				   settings->linetext);
+//     }
+//     return status;
+// }
 
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -562,7 +569,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	// those will raise exceptions on return value < INTERP_MIN_ERROR  if throw_exceptions is set.
 	.def("execute", &wrap_interp_execute_1)
 	.def("execute",  &wrap_interp_execute_2)
-	.def("read", &wrap_interp_read)
+	// .def("read", &wrap_interp_read)
 
 
 
