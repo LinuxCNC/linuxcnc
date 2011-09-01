@@ -7074,7 +7074,6 @@ accept the changes.
                                 </child>
                                 <child>
                                   <widget class="GtkSpinButton" id="mesa0_numof_sserialports">
-                                    <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">0 0 4 1 10 0</property>
                                   </widget>
@@ -7086,8 +7085,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label6">
-                                    <property name="visible">True</property>
+                                  <widget class="GtkLabel" id="mesa0_numof_sserial_label">
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Num of Smart Serial:</property>
                                   </widget>
@@ -7241,8 +7239,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label12">
-                                    <property name="visible">True</property>
+                                  <widget class="GtkLabel" id="mesa0_3pwm_freq_units">
                                     <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
@@ -7361,8 +7358,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label371">
-                                    <property name="visible">True</property>
+                                  <widget class="GtkLabel" id="mesa0_numof_tpp_label">
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Num of 3 pwm generators: </property>
                                   </widget>
@@ -7373,7 +7369,6 @@ accept the changes.
                                 </child>
                                 <child>
                                   <widget class="GtkSpinButton" id="mesa0_numof_tppwmgens">
-                                    <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">7 0 8 1 10 0</property>
                                   </widget>
@@ -7444,7 +7439,6 @@ accept the changes.
                                 </child>
                                 <child>
                                   <widget class="GtkSpinButton" id="mesa0_3pwm_frequency">
-                                    <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">20000 1000 48000 1000 0 0</property>
                                   </widget>
@@ -7456,8 +7450,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label401">
-                                    <property name="visible">True</property>
+                                  <widget class="GtkLabel" id="mesa0_3pwm_freq_label">
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">3PWM base frequency:</property>
                                   </widget>
@@ -25292,6 +25285,18 @@ Connector 8</property>
                               <placeholder/>
                             </child>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <widget class="GtkLabel" id="label29">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
@@ -25775,35 +25780,6 @@ StepGen
                                 <property name="bottom_attach">3</property>
                                 <property name="x_options">GTK_FILL</property>
                                 <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label23">
-                                <property name="visible">True</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">13</property>
-                                <property name="bottom_attach">15</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkButton" id="m5i20panel6">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -30487,6 +30463,18 @@ StepGen
                               <placeholder/>
                             </child>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <widget class="GtkLabel" id="label58">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Pin Type</property>
@@ -32442,35 +32430,6 @@ Unused</property>
                                 <property name="right_attach">2</property>
                                 <property name="x_options">GTK_FILL</property>
                                 <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkButton" id="m5i20panel9">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label48">
-                                <property name="visible">True</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">13</property>
-                                <property name="bottom_attach">15</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -35682,6 +35641,18 @@ StepGen
                               <placeholder/>
                             </child>
                             <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
                               <widget class="GtkLabel" id="label80">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Pin Type</property>
@@ -37637,35 +37608,6 @@ Unused</property>
                                 <property name="right_attach">2</property>
                                 <property name="x_options">GTK_FILL</property>
                                 <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkButton" id="m5i20panel14">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label73">
-                                <property name="visible">True</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">13</property>
-                                <property name="bottom_attach">15</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -40877,7 +40819,19 @@ StepGen
                               <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="label11">
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label45">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Num</property>
@@ -40891,7 +40845,7 @@ StepGen
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="label13">
+                              <widget class="GtkLabel" id="label31">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Num</property>
@@ -41363,36 +41317,7 @@ StepGen
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="label23">
-                                <property name="visible">True</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">13</property>
-                                <property name="bottom_attach">15</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkButton" id="m5i20panel17">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label20">
+                              <widget class="GtkLabel" id="label11">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">function</property>
                               </widget>
@@ -41522,7 +41447,7 @@ All limits
 All home
 Unused</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry120">
+                                  <widget class="GtkEntry" id="comboboxentry-entry440">
                                   </widget>
                                 </child>
                               </widget>
@@ -41574,7 +41499,7 @@ All limits
 All home
 Unused</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry119">
+                                  <widget class="GtkEntry" id="comboboxentry-entry439">
                                   </widget>
                                 </child>
                               </widget>
@@ -41626,7 +41551,7 @@ All limits
 All home
 Unused</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry118">
+                                  <widget class="GtkEntry" id="comboboxentry-entry438">
                                   </widget>
                                 </child>
                               </widget>
@@ -41678,7 +41603,7 @@ All limits
 All home
 Unused</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry117">
+                                  <widget class="GtkEntry" id="comboboxentry-entry437">
                                   </widget>
                                 </child>
                               </widget>
@@ -41891,7 +41816,7 @@ ESTOP Request
 Amplifier Enable
 Charge Pump</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry116">
+                                  <widget class="GtkEntry" id="comboboxentry-entry436">
                                   </widget>
                                 </child>
                               </widget>
@@ -41925,7 +41850,7 @@ ESTOP Request
 Amplifier Enable
 Charge Pump</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry115">
+                                  <widget class="GtkEntry" id="comboboxentry-entry435">
                                   </widget>
                                 </child>
                               </widget>
@@ -41959,7 +41884,7 @@ ESTOP Request
 Amplifier Enable
 Charge Pump</property>
                                 <child internal-child="entry">
-                                  <widget class="GtkEntry" id="comboboxentry-entry114">
+                                  <widget class="GtkEntry" id="comboboxentry-entry434">
                                   </widget>
                                 </child>
                               </widget>
@@ -43352,7 +43277,7 @@ StepGen
                           </widget>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="label31">
+                          <widget class="GtkLabel" id="label81">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Input</property>
                           </widget>
@@ -43463,7 +43388,7 @@ StepGen
                               <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="label81">
+                              <widget class="GtkLabel" id="label113">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Pin Type</property>
                               </widget>
@@ -45941,7 +45866,7 @@ StepGen
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="label45">
+                          <widget class="GtkLabel" id="label114">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Output</property>
                           </widget>
@@ -45957,7 +45882,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="label113">
+                      <widget class="GtkLabel" id="label115">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Smart Serial 4</property>
                       </widget>
@@ -48945,7 +48870,7 @@ Test</property>
                                           </widget>
                                         </child>
                                         <child>
-                                          <widget class="GtkLabel" id="label114">
+                                          <widget class="GtkLabel" id="label116">
                                             <property name="visible">True</property>
                                             <property name="label" translatable="yes">&lt;b&gt;Input Options&lt;/b&gt;</property>
                                             <property name="use_markup">True</property>
@@ -49040,7 +48965,7 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkLabel" id="label115">
+                                                  <widget class="GtkLabel" id="label117">
                                                     <property name="visible">True</property>
                                                   </widget>
                                                   <packing>
@@ -49320,7 +49245,7 @@ Test</property>
                                   </widget>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label116">
+                                  <widget class="GtkLabel" id="label118">
                                     <property name="visible">True</property>
                                     <property name="label" translatable="yes">Details</property>
                                   </widget>
@@ -51043,190 +50968,205 @@ YES</property>
                                   <widget class="GtkVBox" id="vbox3">
                                     <property name="visible">True</property>
                                     <child>
-                                      <widget class="GtkHBox" id="hbox6">
+                                      <widget class="GtkExpander" id="expander14">
                                         <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
                                         <child>
-                                          <widget class="GtkVBox" id="vbox4">
+                                          <widget class="GtkHBox" id="hbox6">
                                             <property name="visible">True</property>
                                             <child>
-                                              <widget class="GtkLabel" id="label_digin">
+                                              <widget class="GtkVBox" id="vbox4">
                                                 <property name="visible">True</property>
-                                                <property name="xalign">0.039999999105930328</property>
-                                                <property name="ypad">5</property>
-                                                <property name="label" translatable="yes">Number of digital (bit) in pins:</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="mnemonic_widget">digitsin</property>
-                                                <property name="angle">0.019999999552965164</property>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_digin">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0.039999999105930328</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes">Number of digital (bit) in pins:</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="mnemonic_widget">digitsin</property>
+                                                    <property name="angle">0.019999999552965164</property>
+                                                  </widget>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_digout">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0.039999999105930328</property>
+                                                    <property name="ypad">3</property>
+                                                    <property name="label" translatable="yes">Number of digital (bit) out pins:</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="mnemonic_widget">digitsout</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_s32in">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="ypad">6</property>
+                                                    <property name="label" translatable="yes"> Number of analog (s32) in pins:</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="wrap_mode">PANGO_WRAP_WORD_CHAR</property>
+                                                    <property name="mnemonic_widget">s32in</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_s32out">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="mnemonic_widget">s32out</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">3</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_floatin">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="mnemonic_widget">s32out</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">4</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkLabel" id="label_floatout">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="mnemonic_widget">s32out</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">5</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkCheckButton" id="modbus">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="label" translatable="yes">Include modbus master support</property>
+                                                    <property name="relief">GTK_RELIEF_NONE</property>
+                                                    <property name="use_underline">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="response_id">0</property>
+                                                    <property name="draw_indicator">True</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="padding">14</property>
+                                                    <property name="position">6</property>
+                                                  </packing>
+                                                </child>
                                               </widget>
                                             </child>
                                             <child>
-                                              <widget class="GtkLabel" id="label_digout">
+                                              <widget class="GtkVBox" id="vbox29">
                                                 <property name="visible">True</property>
-                                                <property name="xalign">0.039999999105930328</property>
-                                                <property name="ypad">3</property>
-                                                <property name="label" translatable="yes">Number of digital (bit) out pins:</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="mnemonic_widget">digitsout</property>
+                                                <child>
+                                                  <widget class="GtkSpinButton" id="digitsin">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">15 15 50 1 10 0</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkSpinButton" id="digitsout">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">15 15 50 1 10 0</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkSpinButton" id="s32in">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">10 10 50 1 10 0</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkSpinButton" id="s32out">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">10 10 50 1 10 0</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="position">3</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkSpinButton" id="floatsin">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">10 10 50 1 10 0</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="position">4</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <widget class="GtkSpinButton" id="floatsout">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="adjustment">10 10 50 1 10 0</property>
+                                                    <property name="climb_rate">0.040000000000000001</property>
+                                                  </widget>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="position">5</property>
+                                                  </packing>
+                                                </child>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="fill">False</property>
                                                 <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkLabel" id="label_s32in">
-                                                <property name="visible">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="ypad">6</property>
-                                                <property name="label" translatable="yes"> Number of analog (s32) in pins:</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="wrap_mode">PANGO_WRAP_WORD_CHAR</property>
-                                                <property name="mnemonic_widget">s32in</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">2</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkLabel" id="label_s32out">
-                                                <property name="visible">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="ypad">5</property>
-                                                <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="mnemonic_widget">s32out</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">3</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkLabel" id="label_floatin">
-                                                <property name="visible">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="ypad">5</property>
-                                                <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="mnemonic_widget">s32out</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">4</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkLabel" id="label_floatout">
-                                                <property name="visible">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="ypad">5</property>
-                                                <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="mnemonic_widget">s32out</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">5</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkCheckButton" id="modbus">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="label" translatable="yes">Include modbus master support</property>
-                                                <property name="relief">GTK_RELIEF_NONE</property>
-                                                <property name="use_underline">True</property>
-                                                <property name="xalign">0</property>
-                                                <property name="response_id">0</property>
-                                                <property name="draw_indicator">True</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="padding">14</property>
-                                                <property name="position">6</property>
                                               </packing>
                                             </child>
                                           </widget>
                                         </child>
                                         <child>
-                                          <widget class="GtkVBox" id="vbox3">
+                                          <widget class="GtkLabel" id="label6">
                                             <property name="visible">True</property>
-                                            <child>
-                                              <widget class="GtkSpinButton" id="digitsin">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="adjustment">15 15 50 1 10 0</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkSpinButton" id="digitsout">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="adjustment">15 15 50 1 10 0</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkSpinButton" id="s32in">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 0</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="position">2</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkSpinButton" id="s32out">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 0</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="position">3</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkSpinButton" id="floatsin">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 0</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="position">4</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <widget class="GtkSpinButton" id="floatsout">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="adjustment">10 10 50 1 10 0</property>
-                                                <property name="climb_rate">0.040000000000000001</property>
-                                              </widget>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="position">5</property>
-                                              </packing>
-                                            </child>
+                                            <property name="label" translatable="yes">Setup number of external pins</property>
                                           </widget>
                                           <packing>
-                                            <property name="expand">False</property>
-                                            <property name="position">1</property>
+                                            <property name="type">label_item</property>
                                           </packing>
                                         </child>
                                       </widget>

@@ -4337,10 +4337,26 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[_MAXENC])
                 self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[_MAXPWM])
                 self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[_MAXPWM])
+                if d[_MAXTPPWM]:
+                    self.widgets["mesa%d_numof_tppwmgens"% boardnum].show()
+                    self.widgets["mesa%d_numof_tpp_label"% boardnum].show()
+                    self.widgets["mesa%d_3pwm_freq_label"% boardnum].show()
+                    self.widgets["mesa%d_3pwm_freq_units"% boardnum].show()
+                else:
+                    self.widgets["mesa%d_numof_tppwmgens"% boardnum].hide()
+                    self.widgets["mesa%d_numof_tpp_label"% boardnum].hide()
+                    self.widgets["mesa%d_3pwm_freq_label"% boardnum].hide()
+                    self.widgets["mesa%d_3pwm_freq_units"% boardnum].hide()
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_range(0,d[_MAXTPPWM])
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(d[_MAXTPPWM])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
+                if d[_MAXSSERIALPORTS]:
+                    self.widgets["mesa%d_numof_sserialports"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserial_label"% boardnum].show()
+                else:
+                    self.widgets["mesa%d_numof_sserialports"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserial_label"% boardnum].hide()
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_range(0,d[_MAXSSERIALPORTS])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(d[_MAXSSERIALPORTS])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
