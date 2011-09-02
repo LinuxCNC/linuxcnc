@@ -374,6 +374,11 @@ EDITOR = gedit::
     from the AXIS menu. This must be configured for this menu item to
     work. Another valid entry is gnome-terminal -e vim. 
 
+TOOL_EDITOR = tooledit::
+     The editor to use when editing the tool table (for example by
+    selecting "File > Edit tool table..." in Axis).  Other valid
+    entries are "gedit", "gnome-terminal -e vim", and "gvim".
+
 PYVCP = /filename.xml::
      The PyVCP panel description file. See the PyVCP section for more
     information.
