@@ -186,6 +186,9 @@ typedef struct {
     u8 sec_tag;
     u8 sec_unit;
     u8 primary_tag;
+    u8 port_num;
+    u8 port_pin;
+    u8 bit_num;
 
 
     //
