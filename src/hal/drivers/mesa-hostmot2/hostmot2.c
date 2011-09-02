@@ -625,6 +625,8 @@ int hm2_md_is_consistent(
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index;
 
+    hm2->sserial.num_mds = 0;
+    
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
         int md_accepted;
@@ -664,7 +666,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
 
             case HM2_GTAG_SMARTSERIAL:
-                md_accepted = hm2_sserial_parse_md(hm2, md_index);
+                // We can't necessarily initialise these yet, the ioports need 
+                // to be set up first. 
+                hm2->sserial.mds[hm2->sserial.num_mds] = md_index;
+                hm2->sserial.num_mds++;
                 break;
 
             case HM2_GTAG_LED:
@@ -703,7 +708,30 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         }
 
     }
-
+    
+    // Now the ioports are ready we can process the pending sserials
+    { 
+        int md_accepted = 0;
+        int i;
+        for (md_index = 0 ; md_index < hm2->sserial.num_mds ; md_index++){
+            md_accepted = hm2_sserial_parse_md(hm2, hm2->sserial.mds[i]);
+            if (md_accepted >= 0)  {
+                HM2_INFO(
+                         "MD %d: %dx %s v%d: accepted, using %d\n",
+                         md_index,
+                         hm2->md[md_index].instances,
+                         hm2_get_general_function_name(hm2->md[md_index].gtag),
+                         hm2->md[md_index].version,
+                         md_accepted
+                         );
+            } else {
+                HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
+                return md_accepted;
+            }
+        }
+    }
+    
+                                           
     return 0;  // success!
 }
 

@@ -577,6 +577,8 @@ typedef struct {
     int num_instances; // number of active instances
     hm2_sserial_instance_t *instance ;
     hm2_sserial_hal_t *hal;
+    u8 num_mds;
+    int mds[8];
 } hm2_sserial_t;
 
 
