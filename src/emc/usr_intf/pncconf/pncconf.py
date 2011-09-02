@@ -3195,7 +3195,7 @@ class App:
                 node.setAttribute('id', axisname + id)
         for node in axispage.getElementsByTagName("signal"):
             handler = node.getAttribute('handler')
-            node.setAttribute('handler', handler.replace("on_mes0", "on_" + axisname))
+            node.setAttribute('handler', handler.replace("on_mesa0", "on_" + axisname))
         for node in axispage.getElementsByTagName("property"):
             name = node.getAttribute('name')
             if name == "mnemonic_widget":
@@ -5868,16 +5868,16 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         for boardnum in range(0,int(self.data.number_mesa)):
             if self.data["mesa%d_sanity_7i29"%boardnum]:
                 warnings.append(_("The 7i29 daughter board requires PWM type generators and a PWM base frequency of 20 khz\n"))
-            do_warning = True
+                do_warning = True
             if self.data["mesa%d_sanity_7i30"%boardnum]:
                 warnings.append(_("The 7i30 daughter board requires PWM type generators and a PWM base frequency of 20 khz\n"))
-            do_warning = True
+                do_warning = True
             if self.data["mesa%d_sanity_7i33"%boardnum]:
                 warnings.append(_("The 7i33 daughter board requires PDM type generators and a PDM base frequency of 6 Mhz\n"))
-            do_warning = True
+                do_warning = True
             if self.data["mesa%d_sanity_7i40"%boardnum]:
                 warnings.append(_("The 7i40 daughter board requires PWM type generators and a PWM base frequency of 50 khz\n"))
-            do_warning = True
+                do_warning = True
 
         if do_warning: self.warning_dialog("\n".join(warnings),True)
 
