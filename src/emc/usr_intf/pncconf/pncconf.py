@@ -4951,21 +4951,19 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if numofencoders >= (compnum+1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
-                        if 1==1:  
-                            self.widgets[pinv].set_sensitive(0)
-                            self.widgets[pinv].set_active(0)
-                            pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
-                            ptmodel = self.widgets[ptype].set_model(self.data._muxencoderliststore)
-                            self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
-                            self.widgets[ptype].set_sensitive(0)
-                            self.widgets[p].set_active(0)
-                            if firmptype == MXEA:
-                                self.widgets[complabel].set_text("%d:"%compnum)
-                                self.widgets[p].set_sensitive(1)
-                            else:
-                                self.widgets[complabel].set_text("")
-                                self.widgets[p].set_sensitive(0)
-                           
+                        self.widgets[pinv].set_sensitive(0)
+                        self.widgets[pinv].set_active(0)
+                        pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
+                        ptmodel = self.widgets[ptype].set_model(self.data._muxencoderliststore)
+                        self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
+                        self.widgets[ptype].set_sensitive(0)
+                        self.widgets[p].set_active(0)
+                        if firmptype == MXEA:
+                            self.widgets[complabel].set_text("%d:"%compnum)
+                            self.widgets[p].set_sensitive(1)
+                        else:
+                            self.widgets[complabel].set_text("")
+                            self.widgets[p].set_sensitive(0)
                     else:
                         firmptype = GPIOI
                         compnum = 0
@@ -4990,33 +4988,32 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     if numofpwmgens >= (compnum+1):
-                        if 1==1 :
-                            self.widgets[pinv].set_sensitive(0)
-                            self.widgets[pinv].set_active(0)
-                            self.widgets[p].set_model(self.data._pwmsignaltree)         
-                            # only add the -pulse signal names for the user to see
-                            if firmptype in(PWMP,PDMP):
-                                self.widgets[complabel].set_text("%d:"%compnum)
-                                #print "firmptype = controlling"
-                                self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
-                                self.widgets[ptype].set_sensitive(1)
-                                self.widgets[p].set_sensitive(1)
-                                self.widgets[p].set_active(0)
-                                self.widgets[ptype].set_active(0)
-                            # add them all here      
-                            elif firmptype in (PWMD,PWME,PDMD,PDME):
-                                self.widgets[complabel].set_text("")
-                                #print "firmptype = related"
-                                if firmptype in (PWMD,PWME):
-                                    self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
-                                else:
-                                    self.widgets[ptype].set_model(self.data._pdmrelatedliststore)
-                                self.widgets[p].set_sensitive(0)
-                                self.widgets[p].set_active(0) 
-                                self.widgets[ptype].set_sensitive(0)
-                                temp = 1
-                                if firmptype in (PWME,PDME): temp = 2
-                                self.widgets[ptype].set_active(temp)
+                        self.widgets[pinv].set_sensitive(0)
+                        self.widgets[pinv].set_active(0)
+                        self.widgets[p].set_model(self.data._pwmsignaltree)         
+                        # only add the -pulse signal names for the user to see
+                        if firmptype in(PWMP,PDMP):
+                            self.widgets[complabel].set_text("%d:"%compnum)
+                            #print "firmptype = controlling"
+                            self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
+                            self.widgets[ptype].set_sensitive(1)
+                            self.widgets[p].set_sensitive(1)
+                            self.widgets[p].set_active(0)
+                            self.widgets[ptype].set_active(0)
+                        # add them all here      
+                        elif firmptype in (PWMD,PWME,PDMD,PDME):
+                            self.widgets[complabel].set_text("")
+                            #print "firmptype = related"
+                            if firmptype in (PWMD,PWME):
+                                self.widgets[ptype].set_model(self.data._pwmrelatedliststore)
+                            else:
+                                self.widgets[ptype].set_model(self.data._pdmrelatedliststore)
+                            self.widgets[p].set_sensitive(0)
+                            self.widgets[p].set_active(0) 
+                            self.widgets[ptype].set_sensitive(0)
+                            temp = 1
+                            if firmptype in (PWME,PDME): temp = 2
+                            self.widgets[ptype].set_active(temp)
                     else:
                         firmptype = GPIOI
                         compnum = 0
