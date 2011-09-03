@@ -3518,6 +3518,8 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
         self.widgets.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.data.machinename)
         # here we initalise the mesa configure page data
         #TODO is this right place?
+        self.data._mesa0_configured = False
+        self.data._mesa1_configured = False
         self.fill_pintype_model()
         self.fill_combobox_models()
 
@@ -3693,6 +3695,10 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
             print "re-edit mode"
             self.warning_dialog(_("You Have choosen to re-edit the current config, so you can not go to the\
  new/modify page.\n Quit and reload PNCconf if you wish to build a new config."),True)
+            self.widgets.druid1.set_page(self.widgets.basicinfo)
+            return True
+        if not self.warning_dialog(_("If you can not go to the new/modify page your current data will be lost.\n\
+Ok to reset data and start a new configuration?"),False):
             self.widgets.druid1.set_page(self.widgets.basicinfo)
             return True
 
@@ -4909,7 +4915,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if numofencoders >= (compnum+1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
-                        if not self.widgets[ptype].get_active_text() == firmptype:  
+                        if not self.widgets[ptype].get_active_text() == firmptype or not self.data["_mesa%d_configured"%boardnum]:  
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
                             self.widgets[ptype].set_model(self.data._encoderliststore)
@@ -5017,7 +5023,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # ---SETUP GUI FOR TP PWM FAMILY COMPONENT---   
                 elif firmptype in ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ):
                     if numoftppwmgens >= (compnum+1):
-                        if not self.widgets[ptype].get_active_text() == firmptype:
+                        if not self.widgets[ptype].get_active_text() == firmptype or not self.data["_mesa%d_configured"%boardnum]:
                             self.widgets[p].set_model(self.data._tppwmsignaltree)
                             self.widgets[ptype].set_model(self.data._tppwmliststore)
                             self.widgets[pinv].set_sensitive(0)
@@ -5101,7 +5107,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # we now set everything in a known state.
                 if firmptype in (GPIOI,GPIOO,GPIOD):
                     self.widgets[complabel].set_text("%03d:"%(concount*24+pin))
-                    if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD):
+                    if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
                         self.widgets[ptype].set_sensitive(not compnum)
