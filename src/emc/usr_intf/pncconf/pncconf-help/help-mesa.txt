@@ -74,17 +74,21 @@ Connector Tabs:
         component is used with firmware that requires a special
         daughter board from Mesa. 
         PNCconf doesn't currently let you selected the signals for
-        the second set of muxed encoders you must do them manually 
-        after PNCconf finishes.
+        the second set of muxed encoders you must add them manually 
+        in a custom HAL file.
 
      PWMGEN - a hardware base pulse width (or density) 
         modulation generator
 
-        You can select PWM or PWD in the pintype combobox
+        You can select:
+        PWM -pulse width modulation using pulse and direction output pins
+        PWD -pulse density modulation
+        UDM -pulse width modulation using up and dowm output pins
         you select the PULSE signal and the direction and enable 
         signals are automatically setup.
         The 7i33 daughter board requires PDM.
         The 7i29,7i30,7i40 requires PWM
+        the 7i48 requires UDM
 
      3 PWMGEN - special pwm generators used for driving brushless
         servo motors 3 windings directly.
