@@ -623,13 +623,41 @@ int hm2_md_is_consistent(
 
 
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
-    int md_index;
-
-    hm2->sserial.num_mds = 0;
+    int md_index, md_accepted;
     
+    // Run through once looking for IO Ports in case other modules
+    // need them
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
-        int md_accepted;
+
+        if (md->gtag == HM2_GTAG_IOPORT) {
+            md_accepted = hm2_ioport_parse_md(hm2, md_index);
+        }
+        
+        if ((*hm2->llio->io_error) != 0) {
+            HM2_ERR("IO error while parsing Module Descriptor %d\n", md_index);
+            return -EIO;
+        }
+        
+        if (md_accepted >= 0)  {
+            HM2_INFO(
+                     "MD %d: %dx %s v%d: accepted, using %d\n",
+                     md_index,
+                     md->instances,
+                     hm2_get_general_function_name(md->gtag),
+                     md->version,
+                     md_accepted
+                     );
+        } else {
+            HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
+            return md_accepted;
+        }
+        
+    }
+    
+    // Now look for the other modules. 
+    for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
+        hm2_module_descriptor_t *md = &hm2->md[md_index];
 
         if (md->gtag == 0) {
             // done
@@ -639,10 +667,6 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         md_accepted = 0;  // will be set by the switch
 
         switch (md->gtag) {
-
-            case HM2_GTAG_IOPORT:
-                md_accepted = hm2_ioport_parse_md(hm2, md_index);
-                break;
 
             case HM2_GTAG_ENCODER:
             case HM2_GTAG_MUXED_ENCODER:
@@ -666,10 +690,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
 
             case HM2_GTAG_SMARTSERIAL:
-                // We can't necessarily initialise these yet, the ioports need 
-                // to be set up first. 
-                hm2->sserial.mds[hm2->sserial.num_mds] = md_index;
-                hm2->sserial.num_mds++;
+                md_accepted = hm2_sserial_parse_md(hm2, md_index);
                 break;
 
             case HM2_GTAG_LED:
@@ -707,30 +728,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             return md_accepted;
         }
 
-    }
-    
-    // Now the ioports are ready we can process the pending sserials
-    { 
-        int md_accepted = 0;
-        int i;
-        for (md_index = 0 ; md_index < hm2->sserial.num_mds ; md_index++){
-            md_accepted = hm2_sserial_parse_md(hm2, hm2->sserial.mds[i]);
-            if (md_accepted >= 0)  {
-                HM2_INFO(
-                         "MD %d: %dx %s v%d: accepted, using %d\n",
-                         md_index,
-                         hm2->md[md_index].instances,
-                         hm2_get_general_function_name(hm2->md[md_index].gtag),
-                         hm2->md[md_index].version,
-                         md_accepted
-                         );
-            } else {
-                HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
-                return md_accepted;
-            }
-        }
-    }
-    
+    }    
                                            
     return 0;  // success!
 }
