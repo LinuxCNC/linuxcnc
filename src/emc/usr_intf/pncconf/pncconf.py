@@ -3796,7 +3796,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 except:
                     # must be GPIO pins if there is no secondary mudule name
                     temppinunit.append(GPIOI)
-                    temppinunit.append(int(pins[i].find("index").text))
+                    temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 else:
                     temppinunit.append(convertedname)
                     if modulename == "MuxedQCount":
@@ -4935,8 +4935,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     else:   
                         # user requested this encoder component to be GPIO instead
                         # We cheat a little and tell the rest of the method that the firmware says
-                        # it should be GPIO
+                        # it should be GPIO and compnum is changed to signify that the GPIO can be changed
+                        # from input to output
                         firmptype = GPIOI
+                        compnum = 0
                 # --- mux encoder ---
                 elif firmptype in (MXEA,MXEB,MXEI,MXEM):
                     #print "**** INFO: MUX ENCODER:",firmptype
@@ -4960,6 +4962,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                            
                     else:
                         firmptype = GPIOI
+                        compnum = 0
                 # special case mux select
                 elif firmptype == (MXES):
                     #print "mux select",numofencoders, compnum
@@ -4975,6 +4978,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[p].set_sensitive(0)
                     else:
                         firmptype = GPIOI
+                        compnum = 0
                 # ---SETUP GUI FOR PWM FAMILY COMPONENT---
                 # the user has a choice of pulse width or pulse density modulation
 
@@ -5009,6 +5013,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 self.widgets[ptype].set_active(temp)
                     else:
                         firmptype = GPIOI
+                        compnum = 0
                 # ---SETUP GUI FOR TP PWM FAMILY COMPONENT---   
                 elif firmptype in ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ):
                     if numoftppwmgens >= (compnum+1):
@@ -5030,7 +5035,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 self.widgets[p].set_sensitive(0)
                     else:
                         firmptype = GPIOI
-
+                        compnum = 0
                 # ---SETUP SMART SERIAL COMPONENTS---
                 # smart serial has port numbers (1-4) and channels (0-7). Pncconf only allows disabling complete ports
                 # so the component number check is different from other components it checks the port number instead.
@@ -5064,7 +5069,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[p].set_sensitive(0)
                     else:
                         firmptype = GPIOI
-
+                        compnum = 0
                 # ---SETUP FOR STEPPER FAMILY COMPONENT---
                 elif firmptype in (STEPA,STEPB):
                     if numofstepgens >= (compnum+1):
@@ -5082,7 +5087,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         elif firmptype == STEPB:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
-                    else:firmptype = GPIOI
+                    else:
+                        firmptype = GPIOI
+                        compnum = 0
                 # ---SETUP FOR GPIO FAMILY COMPONENT---
                 # first check to see if firmware says it should be in GPIO family
                 # (note this can be because firmware says it should be some other 
