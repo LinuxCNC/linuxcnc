@@ -2887,7 +2887,7 @@ class Data:
             prefs.putpref('window_force_max', self.touchyforcemax, bool)
 
         # write AXIS rc file for geometry
-        if self.frontend == _AXIS:
+        if self.frontend == _AXIS and (self.axisposition[0] or self.axissize[0] or self.axisforcemax):
             filename = os.path.expanduser("~/.axisrc")
             if App.warning_dialog(app,"Ok to replace AXIS's .axisrc file?\n\
  If you haven't added custom commands to this hidden file, outside of pncconf, then this should be fine.\n\
