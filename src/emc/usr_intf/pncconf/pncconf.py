@@ -155,6 +155,7 @@ drivertypes = [
     _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
 ( PWMP, PWMD, PWME ) = pintype_pwm = [ _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E") ]
 ( PDMP, PDMD, PDME ) = pintype_pdm = [ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
+( UDMU, UDMD, UDME ) = pintype_udm = [ _("Up/Down Mode -Up"),_("Up/Down Mode-Down"),_("Up/Down Mode-Enable") ]
 ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ) = pintype_tp_pwm = [ _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
     _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"), _("Motor Enable"), _("Motor Fault") ]
 ( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3 ) = pintype_sserial = [ _("SMARTSERIAL-P0-TX"),
@@ -1577,7 +1578,12 @@ class Data:
         if let == 's':
             title = 'SPINDLE'
         closedloop = False
-        pwmpinname = self.make_pinname(self.pwmgen_sig(let))
+        pwmpin = self.pwmgen_sig(let)
+        pwmpinname = self.make_pinname(pwmpin)
+        if not pwmpin == None:
+            pwmtype = self.pwmgen_sig(let)+"type"
+        else:
+            pwmtype = None
         tppwmpinname = self.make_pinname(self.tppwmgen_sig(let))
         tppwm_six = self.tppwmgen_has_6(let)
         steppinname = self.make_pinname(self.stepgen_sig(let))
@@ -1682,7 +1688,10 @@ class Data:
         if pwmpinname:
                 print >>file, "# ---PWM Generator signals/setup---"
                 print >>file
-                print >>file, "setp   "+pwmpinname+".output-type 1" 
+                pulsetype = 1
+                if self[pwmtype] == PDMP: pulsetype = 3
+                if self[pwmtype] == UDMU: pulsetype = 2
+                print >>file, "setp   "+pwmpinname+".output-type %d"% pulsetype 
                 print >>file, "setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)
                 print >>file
                 if let == 's':  
@@ -1910,7 +1919,7 @@ class Data:
                     if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
                     print >>file, "net %s     =>  "% (p)+pinname +".out"              
             # for pwm pins
-            elif t in (PWMP,PDMP):
+            elif t in (PWMP,PDMP,UDMU):
                 if not p == "unused-pwm":
                     for sig in (self.halpwmoutputsignames):
                         if p == (sig+"-pulse"):
@@ -1918,6 +1927,8 @@ class Data:
                             print >>file, "# ---",sig.upper(),"---"
                             if t == PWMP:
                                 print >>file, "setp    "+pinname +".output-type 1"
+                            if t == UDMU:
+                                print >>file, "setp    "+pinname +".output-type 2"
                             elif t == PDMP:
                                 print >>file, "setp    "+pinname +".output-type 3"
                             print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"
@@ -3025,7 +3036,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
         elif 'mesa' in test:
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder",
                 MXEA:"encoder", MXEB:"encoder", MXEI:"encoder", MXEM:"encoder", MXES:"encoder",
-                PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
+                PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",
+                UDMU:"pwmgen",UDMD:"pwmgen", UDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
                 TPPWME:"tppwmgen",TPPWMF:"tppwmgen","Error":"None" }
             boardnum = int(test[4:5])
@@ -3073,8 +3085,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 elif ptype in(GPIOI,GPIOO,GPIOD):
                     compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
-                    TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
+                    STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)          
 
         elif 'pp' in test:
@@ -4432,9 +4444,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                #if not "serial" in p:
-                #    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
-                #    print "**** INFO mesa-data-transfer:",ptiter,piter
+                if not "serial" in p:
+                    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
+                    print "**** INFO mesa-data-transfer:",ptiter,piter
                 # type GPIO input
                 if pintype == GPIOI:
                     signaltree = self.data._gpioisignaltree
@@ -4463,12 +4475,21 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else:
                         ptypetree = self.data._pdmrelatedliststore
                     signaltocheck = hal_pwm_output_names
+                # PDM
                 elif pintype in( PWMP,PWMD,PWME):
                     signaltree = self.data._pwmsignaltree
                     if pintype == PWMP:
                         ptypetree = self.data._pwmcontrolliststore
                     else:
                         ptypetree = self.data._pwmrelatedliststore
+                    signaltocheck = hal_pwm_output_names
+                # Up/Down mode
+                elif pintype in( UDMU,UDMD,UDME):
+                    signaltree = self.data._pwmsignaltree
+                    if pintype == UDMU:
+                        ptypetree = self.data._udmcontrolliststore
+                    else:
+                        ptypetree = self.data._udmrelatedliststore
                     signaltocheck = hal_pwm_output_names
                 # type tp pwm
                 elif pintype in (TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF): 
@@ -4502,12 +4523,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             return
                         #print "found signame -> ",selection," "
                 # ok we have a piter with a signal type now- lets convert it to a signalname
-                #if not "serial" in p:
-                #    self.debug_iter(piter,p,"signal")
+                if not "serial" in p:
+                    self.debug_iter(piter,p,"signal")
                 dummy, index = signaltree.get(piter,0,1)
-                #if not "serial" in p:
-                #    print "signaltree: ",dummy
-                #    self.debug_iter(ptiter,ptype,"ptype")
+                if not "serial" in p:
+                    print "signaltree: ",dummy
+                    self.debug_iter(ptiter,ptype,"ptype")
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
@@ -4649,60 +4670,64 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
     def on_mesa_pintype_changed(self, widget,boardnum,connector,channel,pin):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
-                ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin) 
+                ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin)
                 modelcheck = self.widgets[p].get_model()
                 modelptcheck = self.widgets[ptype].get_model()
                 new = self.widgets[ptype].get_active_text()
                 print "pintypechanged",p
-                #if (new == None or new == old): return 
+                # switch GPIO input to GPIO output
+                # here we switch the available signal names in the combobox
+                # we block signals so pinchanged method is not called
                 if modelcheck == self.data._gpioisignaltree and new in (GPIOO,GPIOD):
                     #print "switch GPIO input ",p," to output",new
                     blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
                     self.widgets[p].handler_block(self.data[blocksignal])
                     self.widgets[p].set_model(self.data._gpioosignaltree)
                     self.widgets[p].set_active(0)
-                    self.widgets[p].handler_unblock(self.data[blocksignal]) 
+                    self.widgets[p].handler_unblock(self.data[blocksignal])
+                # switch GPIO output to input
                 elif modelcheck == self.data._gpioosignaltree:
                     if new == GPIOI:
                         #print "switch GPIO output ",p,"to input"
-                        blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
-                        self.widgets[p].handler_block(self.data[blocksignal])              
+                        blocksignal = "_mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                        self.widgets[p].handler_block(self.data[blocksignal])
                         self.widgets[p].set_model(self.data._gpioisignaltree)
                         self.widgets[p].set_active(0)
-                        self.widgets[p].handler_unblock(self.data[blocksignal])  
-                    #if new == GPIOD:
-                        #print "switch GPIO output ",p,"to open drain"
-                    #if new == GPIOO:
-                        #print "switch GPIO opendrain ",p,"to output"
-                elif modelptcheck == self.data._pwmcontrolliststore and new == PDMP:
-                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
-                    self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
-                    self.widgets[ptype].set_model(self.data._pdmcontrolliststore)
-                    self.widgets[ptype].set_active(1)
-                    self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
+                        self.widgets[p].handler_unblock(self.data[blocksignal])
+                # switch between pulse width, pulse density or up/down mode analog modes
+                # here we search the firmware for related pins (eg PWMP,PWMD,PWME ) and change them too.
+                # we block signals so we don't call this routine again.
+                elif modelptcheck in (self.data._pwmcontrolliststore, self.data._pdmcontrolliststore, self.data._udmcontrolliststore):
                     relatedpins = [PWMP,PWMD,PWME]
+                    if new == PWMP:
+                        display = 0
+                        relatedliststore = self.data._pwmrelatedliststore
+                        controlliststore = self.data._pwmcontrolliststore
+                    elif new == PDMP:
+                        display = 1
+                        relatedliststore = self.data._pdmrelatedliststore
+                        controlliststore = self.data._pdmcontrolliststore
+                    elif new == UDMU:
+                        display = 2
+                        relatedliststore = self.data._udmrelatedliststore
+                        controlliststore = self.data._udmcontrolliststore
+                    else:print "error";return
+                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)
+                    self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
+                    self.widgets[ptype].set_model(controlliststore)
+                    self.widgets[ptype].set_active(display)
+                    self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                     pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, channel, pin, 1)
                     for i in (pinlist):
-                        if i[0] == ptype :continue
-                        j = self.widgets[i[0]].get_active()
-                        self.widgets[i[0]].set_model(self.data._pdmrelatedliststore)
-                        self.widgets[i[0]].set_active(j)
-                    #print "switch PWM  ",p,"to PDM"
-                elif modelptcheck == self.data._pdmcontrolliststore and new == PWMP:
-                    ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
-                    self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
-                    self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
-                    self.widgets[ptype].set_active(0)
-                    self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
-                    relatedpins = [PWMP,PWMD,PWME]
-                    pinlist = self.data.list_related_pins(relatedpins, boardnum, connector, channel, pin, 1)
-                    for i in (pinlist):
-                        if i[0] == ptype :continue
-                        j = self.widgets[i[0]].get_active()
-                        self.widgets[i[0]].set_model(self.data._pwmrelatedliststore)
-                        self.widgets[i[0]].set_active(j)
-                    #print "switch PDM  ",p,"to PWM"
-                else: print "pintype error in pinchanged method new ",new,"    pinnumber ",p
+                        relatedptype = i[0]
+                        if relatedptype == ptype :continue
+                        ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (i[1], i[2],i[4])
+                        self.widgets[relatedptype].handler_block(self.data[ptypeblocksignal])
+                        j = self.widgets[relatedptype].get_active()
+                        self.widgets[relatedptype].set_model(relatedliststore)
+                        self.widgets[relatedptype].set_active(j)
+                        self.widgets[relatedptype].handler_unblock(self.data[ptypeblocksignal])
+                else: print "**** WARNING PNCCONF: pintype error in pinchanged method new ",new,"    pinnumber ",p
 
     def on_mesa_component_value_changed(self, widget,boardnum):
         self.in_mesa_prepare = True
@@ -5155,7 +5180,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 if dataptype in (ENCB,ENCI,ENCM,
                                     MXEB,MXEI,MXEM,MXES,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
-                                    PDMD,PDME,PWMD,PWME,
+                                    PDMD,PDME,PWMD,PWME,UDMD,UDME,
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF
                                     ):
                     self.widgets[pinv].set_active(datapinv)
@@ -5233,7 +5258,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[p].set_active_iter(treeiter)
 
                 # type PWM gen
-                elif dataptype in( PDMP,PWMP) and widgetptype in (PDMP,PWMP):
+                elif dataptype in( PDMP,PWMP,UDMU) and widgetptype in (PDMP,PWMP,UDMU):
                     if dataptype == PDMP:
                         #print "pdm"
                         self.widgets[ptype].set_model(self.data._pdmcontrolliststore)
@@ -5242,6 +5267,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         #print "pwm",self.data._pwmcontrolliststore
                         self.widgets[ptype].set_model(self.data._pwmcontrolliststore)
                         self.widgets[ptype].set_active(0)
+                    elif dataptype == UDMU:
+                        #print "udm",self.data._udmcontrolliststore
+                        self.widgets[ptype].set_model(self.data._udmcontrolliststore)
+                        self.widgets[ptype].set_active(2)
                     try:
                         signalindex = hal_pwm_output_names.index(datap)
                     except:
@@ -5396,6 +5425,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data._pwmcontrolliststore = gtk.ListStore(str,int)
         self.data._pwmcontrolliststore.append([pintype_pwm[0],0])
         self.data._pwmcontrolliststore.append([pintype_pdm[0],0])
+        self.data._pwmcontrolliststore.append([pintype_udm[0],0])
         # pdm
         self.data._pdmrelatedliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_pdm):
@@ -5403,6 +5433,15 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data._pdmcontrolliststore = gtk.ListStore(str,int)
         self.data._pdmcontrolliststore.append([pintype_pwm[0],0])
         self.data._pdmcontrolliststore.append([pintype_pdm[0],0])
+        self.data._pdmcontrolliststore.append([pintype_udm[0],0])
+        # udm
+        self.data._udmrelatedliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_udm):
+            self.data._udmrelatedliststore.append([text,number])
+        self.data._udmcontrolliststore = gtk.ListStore(str,int)
+        self.data._udmcontrolliststore.append([pintype_pwm[0],0])
+        self.data._udmcontrolliststore.append([pintype_pdm[0],0])
+        self.data._udmcontrolliststore.append([pintype_udm[0],0])
         #tppwm
         self.data._tppwmliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_tp_pwm):
@@ -5469,7 +5508,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 if widgetptype in (ENCB,ENCI,ENCM,
                                     MXEB,MXEI,MXEM,MXES,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
-                                    PDMD,PDME,PWMD,PWME,
+                                    PDMD,PDME,PWMD,PWME,UDMD,UDME,
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF,
                                     RXDATA0,TXEN0,RXDATA1,TXEN1,RXDATA2,TXEN2,RXDATA3,TXEN3
                                     ):return
@@ -5523,19 +5562,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedsearch = [MXEA,MXEB,MXEI,MXEM]
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = 4
-                # for PWM pins
-                elif widgetptype == PWMP: 
+                # for PWM,PDM,UDM pins
+                elif widgetptype in(PWMP,PDMP,UDMU): 
                     #print"ptype pwmp\n"
-                    signaltree = self.data._pwmsignaltree
-                    halsignallist = hal_pwm_output_names
-                    humansignallist = human_pwm_output_names
-                    addsignalto = self.data.halpwmoutputsignames
-                    relatedsearch = [PWMP,PWMD,PWME]
-                    relatedending = ["-pulse","-dir","-enable"]
-                    customindex = 6
-                # for PDM pins
-                elif widgetptype == PDMP: 
-                    #print"ptype pdmp\n"
                     signaltree = self.data._pwmsignaltree
                     halsignallist = hal_pwm_output_names
                     humansignallist = human_pwm_output_names
@@ -7473,11 +7502,15 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s.position -g 0 675 330\n"% (self.enc_signalname))
             halrun.write("loadusr halmeter pin %s.velocity -g 275 415\n"% (self.enc_signalname))
         # for pwm components
-        if self.pwmgen:                             
-            self.pwm_signalname = self.data.make_pinname(self.pwmgen)  
+        if self.pwmgen:
+            self.pwm_signalname = self.data.make_pinname(self.pwmgen)
+            pwmtype = self.data.make_pinname(self.pwmgen) +"type"
+            pulsetype = 1
+            if self[pwmtype] == PDMP: pulsetype = 3
+            if self[pwmtype] == UDMU: pulsetype = 2
             #print "got to pwm", self.pwmgen," -- ",self.pwm_signalname                        
             halrun.write("setp %s.scale 10\n"% (self.pwm_signalname))                        
-            halrun.write("setp %s.output-type 1\n"% (self.pwm_signalname))                             
+            halrun.write("setp %s.output-type %d\n"% (self.pwm_signalname,pulsetype))                             
             halrun.write("loadusr halmeter pin %s.enable -g 0 415\n"% (self.pwm_signalname))
             halrun.write("loadusr halmeter -s pin %s.enable -g 0 525 330\n"% (self.pwm_signalname))
             halrun.write("loadusr halmeter -s pin %s.value -g 0 575 330\n"% (self.pwm_signalname)) 
@@ -8336,9 +8369,9 @@ class PyApp(gtk.Window):
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                     # for PWM pins
-                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
+                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMD,UDME):
                         h = gtk.HBox(False,2)
-                        if pintype in (PWMP,PDMP):
+                        if pintype in (PWMP,PDMP,UDMU):
                             self.make_pwm(h,boardnum,compnum)
                             hal.connect("hm2_%s.pwmgen.%02d.enable"% (board,compnum),"brd.%d.pwm.%d.enable-signal"% (boardnum,compnum)) 
                             hal.connect("hm2_%s.pwmgen.%02d.value"% (board,compnum),"brd.%d.pwm.%d.value-signal"% (boardnum,compnum)) 
