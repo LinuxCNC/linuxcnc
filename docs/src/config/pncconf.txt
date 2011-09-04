@@ -739,7 +739,7 @@ image::images/pncconf-diagram-lathe.png[]
 
 The diagrams should help to demonstrate an example of limit switches and 
 standard axis movement directions. +
-In this example the Z axis was two limit switches, the negative switch is shared
+In this example the Z axis was two limit switches, the positive switch is shared
  as a home switch. + 
 The MACHINE ORIGIN (zero point) is located at the negative limit. +
 The left edge of the carriage is the negative trip pin and the right the 
@@ -884,10 +884,12 @@ Loading Custom Firmware::
 PNCconf searches for firmware on the system and then looks for the XML file that
  it can convert to what it understands. These XML files are only supplied for 
 officially released firmware from the EMC team. To utilize custom firmware one 
-must convert it to an array that PNCconf understands and add it to PNCconf's 
-preference file. This hidden file is in the user's home file, is named 
-.pncconf-preferences and require one to select 'show hidden files' to see and 
-edit it. The contents of this file can be seen when you first load PNCconf - 
+must convert it to an array that PNCconf understands and add it's filepath
+ to PNCconf's preference file. By default this path searches the desktop for
+a folder named custom_firmware and a file named firmware.py.
+The hidden preference file is in the user's home file, is 
+named .pncconf-preferences and require one to select 'show hidden files' to see 
+and edit it. The contents of this file can be seen when you first load PNCconf - 
 press the help button and look at the output page. +
 Ask on the EMC mail-list or forum for info about converting custom firmware. 
 Not all firmware can be utilized with PNCconf.
