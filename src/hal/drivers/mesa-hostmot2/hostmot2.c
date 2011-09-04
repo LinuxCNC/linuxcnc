@@ -630,15 +630,17 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
 
-        if (md->gtag == HM2_GTAG_IOPORT) {
-            md_accepted = hm2_ioport_parse_md(hm2, md_index);
+        if (md->gtag != HM2_GTAG_IOPORT) {
+            continue;
         }
-        
+
+        md_accepted = hm2_ioport_parse_md(hm2, md_index);
+
         if ((*hm2->llio->io_error) != 0) {
             HM2_ERR("IO error while parsing Module Descriptor %d\n", md_index);
             return -EIO;
         }
-        
+
         if (md_accepted >= 0)  {
             HM2_INFO(
                      "MD %d: %dx %s v%d: accepted, using %d\n",
@@ -652,9 +654,8 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
             return md_accepted;
         }
-        
     }
-    
+
     // Now look for the other modules. 
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
