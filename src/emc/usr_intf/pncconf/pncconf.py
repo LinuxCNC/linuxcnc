@@ -628,6 +628,7 @@ class Data:
         self._pncconf_version = 2.0
         self.pncconf_version = 2.0
         self._re_editmode = False
+        self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
 
         # basic machine data
         self.help = "help-welcome.txt"
@@ -2872,9 +2873,9 @@ class Data:
 
         n2 = d2.createElement('property')
         e2.appendChild(n2)
-        n2.setAttribute('type', 'eval')
-        n2.setAttribute('name', "customfirmware")
-        n2.setAttribute('value', str(custommesafirmwaredata))
+        n2.setAttribute('type', 'string')
+        n2.setAttribute('name', "customfirmwarefilename")
+        n2.setAttribute('value', str("%s"% self._customfirmwarefilename))
 
         d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
 
@@ -3388,17 +3389,24 @@ class App:
                     link = eval(text)
                 if name == "machinename":
                     self.data._lastconfigname = text
-                if name == "choosetconfig":
+                if name == "chooselastconfig":
                     self.data._chooselastconfig = eval(text)
                 if name == "mesablacklist":
                     if version == self.data._preference_version:
                         global mesablacklist
                         mesablacklist = eval(text)
-                if name == "customfirmware":
-                    global custommesafirmwaredata
-                    custommesafirmwaredata = eval(text)
+                if name == "customfirmwarefilename":
+                    self.data._customfirmwarefilename = text
+                    rcfile = os.path.expanduser(self.data._customfirmwarefilename)
+                    print rcfile
+                    if os.path.exists(rcfile):
+                        try:
+                            execfile(rcfile)
+                        except:
+                            print "**** PNCCONF ERROR:    custom firmware loading error"
+                            custommesafirmwaredata == []
                     if not custommesafirmwaredata == []:
-                        print "**** PNCCONF INFO:    Found extra firmware in .pncconf-preference file"
+                        print "**** PNCCONF INFO:    Found extra firmware in file"
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
 
