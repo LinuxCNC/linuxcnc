@@ -57822,8 +57822,8 @@ Home Position = Origin to Home Position distance = 1</property>
                 <child>
                   <widget class="GtkLabel" id="pictext1">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Total Travel = 4 +6 = 10
-Z Home Offset = Origin to Home Switch distance = 0
+                    <property name="label" translatable="yes">Total Travel = 4 + 6 = 10
+Z Home Offset = Origin to Home Switch distance = 10
 Z Neg Travel Distance = Origin to neg limit distance = 0
 Z Pos Travel Distance = Total Travel - neg travel distance = 10
 Z Home Position = Origin to Home Position distance = 4
