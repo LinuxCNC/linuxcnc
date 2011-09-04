@@ -290,6 +290,7 @@ static int wrap_interp_execute_1(Interp &interp, const char *command)
     block saved_block = settings->blocks[0];
 
     int status = interp.execute(command);
+    printf("ie1: tc=%d if=%d pf=%d\n",settings->toolchange_flag,settings->input_flag,settings->probe_flag);
     settings->blocks[0] = saved_block;
 
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
@@ -300,14 +301,40 @@ static int wrap_interp_execute_1(Interp &interp, const char *command)
     return status;
 }
 
+//FIXME seqno, errmsgs
 static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno)
 {
     setup *settings  =  &interp._setup;
-    block saved_block = settings->blocks[0];
+    //  block saved_block = settings->blocks[0];
+
+    block_pointer cblock = &CONTROLLING_BLOCK(interp._setup);
+    if (cblock->executing_remap) {
+	printf("exec2: --------- executing remap, need push\n");
+	settings->remap_level++;
+	if (settings->remap_level == MAX_NESTED_REMAPS) {
+	    settings->remap_level = 0;
+	    printf("maximum nesting of remapped blocks execeeded");
+	    return INTERP_ERROR;
+	}
+	// push onto block stack
+	CONTROLLING_BLOCK(interp._setup) = EXECUTING_BLOCK(interp._setup);
+	CONTROLLING_BLOCK(interp._setup).breadcrumbs = 0; // clear trail
+    }
 
     int status = interp.execute(command, lineno);
-    settings->blocks[0] = saved_block;
 
+    printf("ie2: tc=%d if=%d pf=%d\n",settings->toolchange_flag,settings->input_flag,settings->probe_flag);
+    if (cblock->executing_remap) {
+	printf("exec2: --------- executing remap, popping\n");
+	//settings->blocks[0] = saved_block;
+	// just dropping a nesting level
+
+	settings->remap_level--; // drop one nesting level
+	if (settings->remap_level < 0) {
+	    printf("BUG: remap_level < 0 : %d",settings->remap_level);
+	    return INTERP_ERROR;
+	}
+    }
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   lineno, // not sure
@@ -316,19 +343,19 @@ static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno
     return status;
 }
 
-// // this might not be a good idea - it destroys the block which has a 'o<ngcbody> call' parsed in it
-// static int wrap_interp_read(Interp &interp, const char *command)
-// {
-//     setup *settings  =  &interp._setup;
+// this might not be a good idea - it destroys the block which has a 'o<ngcbody> call' parsed in it
+static int wrap_interp_read(Interp &interp, const char *command)
+{
+    setup *settings  =  &interp._setup;
 
-//     int status = interp.read(command);
-//     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
-// 	throw InterpreterException(interp.getSavedError(),
-// 				   settings->blocks[0].line_number, // not sure
-// 				   settings->linetext);
-//     }
-//     return status;
-// }
+    int status = interp.read(command);
+    if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
+	throw InterpreterException(interp.getSavedError(),
+				   settings->blocks[0].line_number, // not sure
+				   settings->linetext);
+    }
+    return status;
+}
 
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -569,7 +596,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	// those will raise exceptions on return value < INTERP_MIN_ERROR  if throw_exceptions is set.
 	.def("execute", &wrap_interp_execute_1)
 	.def("execute",  &wrap_interp_execute_2)
-	// .def("read", &wrap_interp_read)
+	.def("read", &wrap_interp_read)
 
 
 

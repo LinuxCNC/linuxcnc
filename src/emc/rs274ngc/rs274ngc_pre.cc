@@ -207,12 +207,17 @@ int Interp::mopup_handlers(setup_pointer settings)
     case FINISH_PROLOG:
     case FINISH_BODY:
     case FINISH_OWORDSUB:
+	logRemap("mopup_handlers: execute_call %d",cblock->restart_at);
 	status = execute_call(&_setup,cblock->restart_at);
 	CHP(status);
 	break;
 	
     case FINISH_EPILOG:
+	logRemap("mopup_handlers: execute_return %d",cblock->restart_at);
 	status = execute_return(&_setup,cblock->restart_at);
+	if (status == INTERP_OK) {
+	    printf("--------- done EPILOG finished\n");
+	}
 	CHP(status);
 	break;
     default: ;
