@@ -482,6 +482,7 @@ public:
  int execute_call(setup_pointer settings, int what);   // pointer to machine settings
  int execute_return(setup_pointer settings, int what);   // pointer to machine settings
  int mopup_handlers(setup_pointer settings);
+ int read_inputs(setup_pointer settings);
 
  int convert_control_functions( /* ARGUMENTS           */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */

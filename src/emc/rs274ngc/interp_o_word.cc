@@ -141,7 +141,8 @@ int Interp::execute_call(setup_pointer settings, int what)
     int i;
     bool py_exception = false;
 
-
+    if (what != NORMAL_CALL)
+	read_inputs(settings);
 
 
     current_frame = &settings->sub_context[settings->call_level];
@@ -387,6 +388,9 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
     context_pointer  leaving_frame,  returnto_frame;
 
     logOword("execute_return what=%d", what);
+    if (what != NORMAL_RETURN)
+    	read_inputs(settings);
+
 
     cblock = &CONTROLLING_BLOCK(*settings);
     eblock = &EXECUTING_BLOCK(*settings);

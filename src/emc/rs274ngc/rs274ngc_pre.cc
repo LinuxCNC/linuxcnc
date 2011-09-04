@@ -1239,6 +1239,41 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   return INTERP_OK;
 }
 
+int Interp::read_inputs(setup_pointer settings)
+{
+  if (settings->probe_flag) {
+    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+        NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
+    set_probe_data(&_setup);
+    settings->probe_flag = false;
+  }
+  if (settings->toolchange_flag) {
+    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+         _("Queue is not empty after tool change"));
+    refresh_actual_position(&_setup);
+    load_tool_table();
+    settings->toolchange_flag = false;
+  }
+  // always track toolchanger-fault and toolchanger-reason codes
+  settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
+  settings->parameters[5601] = GET_EXTERNAL_TC_REASON();
+
+  if (settings->input_flag) {
+    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+        NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
+    if (settings->input_digital) { // we are checking for a digital input
+	settings->parameters[5399] =
+	    GET_EXTERNAL_DIGITAL_INPUT(settings->input_index,
+				      (settings->parameters[5399] != 0.0));
+    } else { // checking for analog input
+	settings->parameters[5399] =
+	    GET_EXTERNAL_ANALOG_INPUT(settings->input_index, settings->parameters[5399]);
+    }
+    settings->input_flag = false;
+  }
+  return INTERP_OK;
+}
+
 /***********************************************************************/
 
 /*! Interp::read
@@ -1275,6 +1310,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   static char name[] = "Interp::read";
   int read_status;
 
+#if 0
   if (_setup.probe_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
@@ -1305,6 +1341,10 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
     }
     _setup.input_flag = false;
   }
+#endif
+
+  read_inputs(&_setup);
+
   CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
 
