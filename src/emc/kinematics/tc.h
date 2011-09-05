@@ -48,6 +48,7 @@ typedef enum {
 typedef struct {
     char anychanged;
     signed char dios[EMCMOT_MAX_DIO];
+    double aios[EMCMOT_MAX_AIO];
 } syncdio_t;
 
 typedef struct {
