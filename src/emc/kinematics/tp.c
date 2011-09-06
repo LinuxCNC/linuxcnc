@@ -1255,7 +1255,6 @@ int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end) {
     syncdio.anychanged = 1; //something has changed
     syncdio.aio_mask |= (1 << index);
     syncdio.aios[index] = start;
-    rtapi_print_msg(RTAPI_MSG_ERR, "tpSetAout(%d,%f,%f)\n", index, start, end);
     return 0;
 }
 
