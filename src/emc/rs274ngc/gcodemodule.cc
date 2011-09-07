@@ -707,11 +707,15 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         result = interp_new.read(unitcode);
         if(!RESULT_OK) goto out_error;
         result = interp_new.execute();
+        while (result == INTERP_EXECUTE_FINISH) // see emctaskmain.cc readahead code
+	    result = interp_new.mopup_handlers();
     }
     if(initcode && RESULT_OK) {
         result = interp_new.read(initcode);
         if(!RESULT_OK) goto out_error;
         result = interp_new.execute();
+        while (result == INTERP_EXECUTE_FINISH) 
+	    result = interp_new.mopup_handlers();
     }
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
@@ -724,6 +728,8 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         if(!RESULT_OK) break;
         error_line_offset = 0;
         result = interp_new.execute();
+	while (result == INTERP_EXECUTE_FINISH) 
+	    result = interp_new.mopup_handlers();
     }
 out_error:
     interp_new.close();
