@@ -2975,7 +2975,7 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 
 int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
-	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
+	 int wait_type,  /* 0 - immediate, 1 - rise, 2 - fall, 3 - be high, 4 - be low */
 	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
