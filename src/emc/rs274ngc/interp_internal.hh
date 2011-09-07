@@ -465,7 +465,8 @@ typedef struct block_struct
     int py_returned_userdata; // passed as tupleargs again if re-called after (INTERP_EXECUTE_FINISH, <userdata-value>)
     int user_data;
     boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
-    int restart_at;  // if a python pro/epilog, body or osub executed yield, indicate where to reexec after sync
+    // if a python pro/epilog, body or osub executed yield, indicate which part to (re) start at after a sync
+    int entry_at; 
     std::set<int> remappings; // all remappings in this block
     int phase; // current execution phase
 }

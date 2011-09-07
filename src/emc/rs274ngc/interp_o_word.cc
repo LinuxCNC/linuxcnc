@@ -273,13 +273,13 @@ int Interp::execute_call(setup_pointer settings, int what)
 		ERP(status);
 	    }
 	    if ((status == INTERP_OK) &&
-		(cblock->restart_at == FINISH_PROLOG)) { // finally done after restart
-		cblock->restart_at = NONE;
+		(cblock->entry_at == FINISH_PROLOG)) { // finally done after restart
+		cblock->entry_at = NONE;
 		logRemap("O_call: prolog %s done after restart cl=%d rl=%d",
 			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 	    }
 	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		cblock->restart_at = FINISH_PROLOG;  
+		cblock->entry_at = FINISH_PROLOG;  
 		logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
 			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
 		return INTERP_EXECUTE_FINISH;
@@ -339,7 +339,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 	    }
 
 	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		cblock->restart_at = FINISH_BODY;  
+		cblock->entry_at = FINISH_BODY;  
 		logRemap("O_call: body %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
 			 cblock->executing_remap->remap_py, settings->call_level,settings->remap_level);
 		return INTERP_EXECUTE_FINISH;
@@ -347,8 +347,8 @@ int Interp::execute_call(setup_pointer settings, int what)
 	    // this condition corresponds to an endsub/return of a Python osub
 	    // signal that this remap is done and drop call level.
 	    if (status == INTERP_OK) {
-		if (cblock->restart_at == FINISH_BODY) { // finally done after restart
-		    cblock->restart_at = NONE;
+		if (cblock->entry_at == FINISH_BODY) { // finally done after restart
+		    cblock->entry_at = NONE;
 		    // settings->call_level--; // compensate bump above
 		    if (!cblock->returned[RET_STOPITERATION]) {
 			// the user executed 'yield INTERP_OK' which is fine but keeps
@@ -434,15 +434,15 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
 		    ERP(status);
 		}
 		if (status == INTERP_EXECUTE_FINISH) {
-		    cblock->restart_at = FINISH_EPILOG;  
+		    cblock->entry_at = FINISH_EPILOG;  
 		    logRemap("O_endsub/return: epilog %s  INTERP_EXECUTE_FINISH, mark for restart, cl=%d rl=%d",
 			     cblock->executing_remap->epilog_func, 
 			     settings->call_level,settings->remap_level);
 		    return INTERP_EXECUTE_FINISH;
 		}
 		if (status == INTERP_OK) {
-		    if (cblock->restart_at == FINISH_EPILOG) {
-			cblock->restart_at = NONE;  
+		    if (cblock->entry_at == FINISH_EPILOG) {
+			cblock->entry_at = NONE;  
 			logRemap("O_call: epilog %s done after restart cl=%d rl=%d",
 				 cblock->executing_remap->epilog_func, 
 				 settings->call_level,settings->remap_level);

@@ -129,12 +129,12 @@ int Interp::pycall(setup_pointer settings,
 	     python_plugin->last_exception().c_str());
 	break;
     default:
-	switch (cblock->restart_at) {   //FIXTHIS terminally ugly
+	switch (cblock->entry_at) {   //FIXTHIS terminally ugly
 	case FINISH_PROLOG:
 	case FINISH_EPILOG:
 	case FINISH_BODY:
 	case FINISH_OWORDSUB:
-	    logPy("pycall: call generator restart_at=%d",cblock->restart_at);
+	    logPy("pycall: call generator restart_at=%d",cblock->entry_at);
 
 	    // handler continuation if a generator was used
 	    try {
