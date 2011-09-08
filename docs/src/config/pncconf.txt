@@ -765,11 +765,17 @@ before moving the axis. This is particularly handy on lathes with constant
 surface feed and large speed diameter changes. It requires either encoder 
 feedback or a digital spindle-at-speed signal typically connected to a VFD 
 drive. +
-If using encoder feedback then you must select a scale setting that specifies 
-how close the actual speed must be to the requested speed to be considered 
-at-speed. If using encoder feedback, the VCP speed display can be erratic - the 
-filter setting can be used to smooth out the display. If using encoder feedback 
-the encoder scale must be set.
+If using encoder feedback, you may select a spindle-at-speed scale setting that 
+specifies how close the actual speed must be to the requested speed to be 
+considered at-speed. +
+If using encoder feedback, the VCP speed display can be erratic - the 
+filter setting can be used to smooth out the display. The encoder scale must be 
+set for the encoder count / gearing used. +
+If you are using a single input for a spindle encoder you must add the line: +
+setp    hm2_7i43.0.encoder.00.counter-mode 1 +
+(changing the board name and encoder number to your requirements) into a custom 
+HAL file. See the Hostmot2 section on encoders for more info about counter mode.
+
  
 
 == Advanced Options

@@ -346,14 +346,10 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
 
     HM2_PRINT("    FPGA Size: %u\n", hm2->idrom.fpga_size);
     HM2_PRINT("    FPGA Pins: %u\n", hm2->idrom.fpga_pins);
+    HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width);
 
     HM2_PRINT("    IO Ports: %u\n", hm2->idrom.io_ports);
     HM2_PRINT("    IO Width: %u\n", hm2->idrom.io_width);
-    if (hm2->idrom.port_width == 24) {
-        HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width);
-    } else {
-        HM2_PRINT("    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", hm2->idrom.port_width);
-    }
 
     HM2_PRINT(
         "    Clock Low: %d Hz (%d KHz, %d MHz)\n",
@@ -424,8 +420,8 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     // verify the idrom we read
     //
 
-    if (hm2->idrom.port_width != 24) {
-        HM2_ERR("invalid IDROM PortWidth %d, expected 24, aborting load\n", hm2->idrom.port_width);
+    if (hm2->idrom.port_width != hm2->llio->pins_per_connector) {
+        HM2_ERR("invalid IDROM PortWidth %d, this board has %d pins per connector, aborting load\n", hm2->idrom.port_width, hm2->llio->pins_per_connector);
         hm2_print_idrom(hm2);
         return -EINVAL;
     }
@@ -653,11 +649,42 @@ int hm2_md_is_consistent(
 
 
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
-    int md_index;
-
+    int md_index, md_accepted;
+    
+    // Run through once looking for IO Ports in case other modules
+    // need them
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
         hm2_module_descriptor_t *md = &hm2->md[md_index];
-        int md_accepted;
+
+        if (md->gtag != HM2_GTAG_IOPORT) {
+            continue;
+        }
+
+        md_accepted = hm2_ioport_parse_md(hm2, md_index);
+
+        if ((*hm2->llio->io_error) != 0) {
+            HM2_ERR("IO error while parsing Module Descriptor %d\n", md_index);
+            return -EIO;
+        }
+
+        if (md_accepted >= 0)  {
+            HM2_INFO(
+                     "MD %d: %dx %s v%d: accepted, using %d\n",
+                     md_index,
+                     md->instances,
+                     hm2_get_general_function_name(md->gtag),
+                     md->version,
+                     md_accepted
+                     );
+        } else {
+            HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
+            return md_accepted;
+        }
+    }
+
+    // Now look for the other modules. 
+    for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
+        hm2_module_descriptor_t *md = &hm2->md[md_index];
 
         if (md->gtag == 0) {
             // done
@@ -667,10 +694,6 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         md_accepted = 0;  // will be set by the switch
 
         switch (md->gtag) {
-
-            case HM2_GTAG_IOPORT:
-                md_accepted = hm2_ioport_parse_md(hm2, md_index);
-                break;
 
             case HM2_GTAG_ENCODER:
             case HM2_GTAG_MUXED_ENCODER:
@@ -736,8 +759,8 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             return md_accepted;
         }
 
-    }
-
+    }    
+                                           
     return 0;  // success!
 }
 

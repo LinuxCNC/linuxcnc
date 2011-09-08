@@ -106,6 +106,7 @@ int rtapi_app_main(void) {
     memset(this, 0, sizeof(hm2_lowlevel_io_t));
 
     me->llio.num_ioport_connectors = 1;
+    me->llio.pins_per_connector = 24;
     me->llio.ioport_connector_name[0] = "P99";
 
     switch (test_pattern) {
@@ -559,6 +560,67 @@ int rtapi_app_main(void) {
                 me->test_pattern[0x600 + (pd_index * 4) + 2] = 0;               // SecUnit (byte) = Which secondary unit or channel connects here
                 me->test_pattern[0x600 + (pd_index * 4) + 3] = HM2_GTAG_IOPORT; // PrimaryTag (byte) = Primary function tag (normally I/O port)
             }
+
+            break;
+        }
+
+
+        // this board has a non-standard (ie, non-24) number of pins per connector, but the idrom does not match that
+        case 13: {
+            *((u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
+
+            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
+
+            // put the IDROM at 0x400, where it usually lives
+            *((u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
+
+            // standard idrom type
+            *((u32*)&me->test_pattern[0x400]) = 2;
+
+            // default PortWidth
+            *((u32*)&me->test_pattern[0x424]) = 24;
+
+            // unusual number of pins per connector
+            me->llio.pins_per_connector = 5;
+
+            break;
+        }
+
+
+        // 
+        // good IO Cookie, Config Name, and IDROM Type
+        // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
+        // good but unusual (non-24) PortWidth
+        // 
+
+        case 14: {
+            *((u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
+
+            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
+
+            // put the IDROM at 0x400, where it usually lives
+            *((u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
+
+            // standard idrom type
+            *((u32*)&me->test_pattern[0x400]) = 2;
+
+            // good but unusual PortWidth
+            *((u32*)&me->test_pattern[0x424]) = 37;
+            me->llio.pins_per_connector = 37;
 
             break;
         }

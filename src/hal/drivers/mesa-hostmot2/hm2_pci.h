@@ -18,7 +18,7 @@
 //
 
 
-#define HM2_PCI_VERSION "0.6"
+#define HM2_PCI_VERSION "0.7"
 
 #define HM2_LLIO_NAME "hm2_pci"
 
@@ -32,22 +32,32 @@
 // PCI Device IDs and SubSystem Device IDs
 //
 
+#define HM2_PCI_VENDORID_PLX   (0x10B5)
+#define HM2_PCI_VENDORID_MESA  (0x2718)
 #define HM2_PCI_DEV_PLX9030    (0x9030)
 #define HM2_PCI_DEV_PLX9054    (0x9054)
 #define HM2_PCI_DEV_PLX9056    (0x9056)
 
+#define HM2_PCI_DEV_MESA5I25   (0x5125)
 
 #define HM2_PCI_SSDEV_5I20     (0x3131)
 
 #define HM2_PCI_SSDEV_4I65     (0x3132)
+
+#define HM2_PCI_SSDEV_5I21     (0x3312)
 
 #define HM2_PCI_SSDEV_5I22_10  (0x3314)
 #define HM2_PCI_SSDEV_5I22_15  (0x3313)
 
 #define HM2_PCI_SSDEV_5I23     (0x3315)
 
+#define HM2_PCI_SSDEV_5I25     (0x5125)
+
 #define HM2_PCI_SSDEV_4I68     (0x3311)
 #define HM2_PCI_SSDEV_4I68_OLD (0x3133)
+
+#define HM2_PCI_SSDEV_4I69_16  (0x3472)
+#define HM2_PCI_SSDEV_4I69_25  (0x3473)
 
 #define HM2_PCI_SSDEV_3X20_10  (0x3427)
 #define HM2_PCI_SSDEV_3X20_15  (0x3428)
@@ -94,7 +104,7 @@
 
 
 //
-// PLX 9054 (5i22, 5i23, 4i68)
+// PLX 9054 (5i22, 5i23, 4i68, 4i69)
 //
 // Note: also used for the PLX 9056 (3x20)
 //

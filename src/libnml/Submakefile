@@ -26,4 +26,4 @@ TARGETS += ../lib/libnml.so ../lib/libnml.so.0
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
