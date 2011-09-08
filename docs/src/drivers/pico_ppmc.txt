@@ -86,12 +86,13 @@ on the board, so it may be non-zero even if there is only one board.
    (minus when on). You must specify extradac = 0x00 on the HAL command
    line that loads the PPMC driver to enable this function on the first
    USC ur UPC board.
- - `(Option bit input) ppmc.<port>.extdout.<channel>.out`  -- Value to be
+ - `(Option bit input) ppmc.<port>.dout.<channel>.out`  -- Value to be
    written to one of the 8 extra digital output pins on
    J8. You must specify extradout = 0x00 on the HAL command line that
    loads the ppmc driver to enable this function on the first USC or UPC
    board. extradac and extradout are mutually exclusive features as they
-   use the same signal lines for different purposes.
+   use the same signal lines for different purposes.  These output pins
+   will be enumerated after the standard digital outputs of the board.
 
 == Parameters
 
@@ -144,7 +145,7 @@ on the board, so it may be non-zero even if there is only one board.
    set by jumpers and/or other digital outputs.)
  - `(Option bit) ppmc.<port>.dout.<channel>.invert` -- Inverts a
    digital output, see canonical digital output.
- - `(Option bit) ppmc.<port>.extdout.<channel>.invert` -- Inverts a
+ - `(Option bit) ppmc.<port>.dout.<channel>.invert` -- Inverts a
    digital output pin of J8, see canonical digital output.
 
 == Functions
