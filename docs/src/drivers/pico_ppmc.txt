@@ -71,12 +71,12 @@ on the board, so it may be non-zero even if there is only one board.
    steps per second. Negative values
    result in the frequency being based on the absolute value, and the
    direction pin is set to indicate negative.
- - `(All bit output) ppmc.<port>.in-<channel>` -- State of digital
+ - `(All bit output) ppmc.<port>.din.<channel>.in` -- State of digital
    input pin, see canonical digital input.
- - `(All bit output) ppmc.<port>.in.<channel>-not` -- Inverted
+ - `(All bit output) ppmc.<port>.din.<channel>.in-not` -- Inverted
    state of digital input pin, see canonical digital input.
- - `(All bit input) ppmc.<port>.out-<channel>`  -- Value to be
-   written to digital output, seen canonical digital output. 
+ - `(All bit input) ppmc.<port>.dout.<channel>.out`  -- Value to be
+   written to digital output, see canonical digital output. 
  - `(Option float input) ppmc.<port>.DAC8-<channel>.value`  -- Value to
    be written to analog output, range from 0 to 255. This
    sends 8 output bits to J8, which should have a Spindle DAC board
@@ -86,7 +86,7 @@ on the board, so it may be non-zero even if there is only one board.
    (minus when on). You must specify extradac = 0x00 on the HAL command
    line that loads the PPMC driver to enable this function on the first
    USC ur UPC board.
- - `(Option bit input) ppmc.<port>.dout-<channel>.out`  -- Value to be
+ - `(Option bit input) ppmc.<port>.extdout.<channel>.out`  -- Value to be
    written to one of the 8 extra digital output pins on
    J8. You must specify extradout = 0x00 on the HAL command line that
    loads the ppmc driver to enable this function on the first USC or UPC
@@ -142,9 +142,9 @@ on the board, so it may be non-zero even if there is only one board.
    of extra DAC output such that an output value equal to
    scale gives a magnitude of 10.0 V output. (The sign of the output is
    set by jumpers and/or other digital outputs.)
- - `(Option bit) ppmc.<port>.out.<channel>-invert` -- Inverts a
+ - `(Option bit) ppmc.<port>.dout.<channel>.invert` -- Inverts a
    digital output, see canonical digital output.
- - `(Option bit) ppmc.<port>.dout.<channel>-invert` -- Inverts a
+ - `(Option bit) ppmc.<port>.extdout.<channel>.invert` -- Inverts a
    digital output pin of J8, see canonical digital output.
 
 == Functions
