@@ -156,7 +156,7 @@ on the board, so it may be non-zero even if there is only one board.
    minimize CPU overhead. 
  - `(All funct) ppmc.<port>.write` -- Writes all outputs (digital
    outputs, stepgens, PWMs) on one port. 
-   These reads are organized into blocks of contiguous registers to be
-   read in a block to minimize CPU overhead. 
+   These writes are organized into blocks of contiguous registers to be
+   written in a block to minimize CPU overhead. 
 
 
