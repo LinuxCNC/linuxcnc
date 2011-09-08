@@ -128,7 +128,7 @@ on the board, so it may be non-zero even if there is only one board.
    of four consecutive step generators, as indicated by `<channel-range>`.
  - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min` -- Sets 
    minimum time between pulses, in units of 100ns. The maximum step rate is 
-   latexmath:[ \frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } ]. 
+   latexmath:[[\frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } \]]. 
    Applies to a group of four consecutive step generators, 
    as indicated by `<channel-range>`. 
  - `(USC float) ppmc.<port>.stepgen.<channel>.scale` -- Scaling for
