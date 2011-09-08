@@ -372,7 +372,7 @@ A_HALL1_OUT,A_HALL2_OUT,A_HALL3_OUT,A_C1_OUT,A_C2_OUT,A_C4_OUT,A_C8_OUT,
 S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_output_names = [
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "enable", "xenable", "yenable", "zenable", "aenable",
+"coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
@@ -2085,7 +2085,7 @@ class Data:
             print >>file, "loadusr -W hal_input -KRAL %s\n"% self.usbdevicename
 
         spindle_enc = counter = probe = pwm = pump = estop = False 
-        enable = spindle_on = spindle_cw = spindle_ccw = False
+        spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = bldc = False
 
         if self.findsignal("s-encoder-a"):
@@ -2098,8 +2098,6 @@ class Data:
             pump = True
         if self.findsignal("estop-ext"):
             estop = True
-        if self.findsignal("machine-is-enabled"):
-            enable = True
         if self.findsignal("spindle-enable"):
             spindle_on = True
         if self.findsignal("spindle-cw"):
@@ -2533,7 +2531,8 @@ class Data:
                 print >>file
         print >>file, _("#  ---motion control signals---")
         print >>file
-        print >>file, "net in_position             motion.in-position"
+        print >>file, "net in_position               <=  motion.in-position"
+        print >>file, "net machine-is-enabled        <=  motion.motion-enabled"
         print >>file
         print >>file, _("#  ---digital in / out signals---")
         print >>file
@@ -2562,9 +2561,6 @@ class Data:
             print >>file, "net estop-ext     =>  iocontrol.0.emc-enable-in"
         else:
             print >>file, "net estop-out     =>  iocontrol.0.emc-enable-in"
-        if enable:
-            print >>file, "net machine-is-enabled        <=  motion.motion-enabled"
-
         print >>file
         if self.toolchangeprompt:
             print >>file, _("#  ---manual tool change signals---")
