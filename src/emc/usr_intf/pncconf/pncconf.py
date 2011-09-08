@@ -2531,7 +2531,7 @@ class Data:
                 print >>file
         print >>file, _("#  ---motion control signals---")
         print >>file
-        print >>file, "net in_position               <=  motion.in-position"
+        print >>file, "net in-position               <=  motion.in-position"
         print >>file, "net machine-is-enabled        <=  motion.motion-enabled"
         print >>file
         print >>file, _("#  ---digital in / out signals---")
@@ -2597,7 +2597,7 @@ class Data:
                 print >>file, _("#  --- Classicladder signals for Z axis Auto touch off program---")
                 print >>file, "net auto-touch-z    =>   classicladder.0.in-00"
                 print >>file, "net MDI-mode        =>   classicladder.0.in-01"
-                print >>file, "net in_position     =>   classicladder.0.in-02"
+                print >>file, "net in-position     =>   classicladder.0.in-02"
                 print >>file, "net z-touchoff-cmd       classicladder.0.out-00   =>    halui.mdi-command-%02d"% (othercmds)
                 print >>file, "net z-zero-cmd           classicladder.0.out-01   =>    halui.mdi-command-%02d"% (othercmds +1)
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
