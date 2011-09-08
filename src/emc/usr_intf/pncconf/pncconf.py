@@ -1909,11 +1909,11 @@ class Data:
             print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
             if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
         print >>file
-        def write_pins(p,i,t):
+        def write_pins(pname,p,i,t):
             # for output /open drain pins
             if t in (GPIOO,GPIOD):
                 if not p == "unused-output":
-                    pinname = self.make_pinname(self.findsignal( p ))
+                    pinname = self.make_pinname(pname)
                     print >>file, "# ---",p.upper(),"---"
                     print >>file, "setp    "+pinname +".is_output true"
                     if i: print >>file, "setp    "+pinname+".invert_output true"
@@ -1924,7 +1924,7 @@ class Data:
                 if not p == "unused-pwm":
                     for sig in (self.halpwmoutputsignames):
                         if p == (sig+"-pulse"):
-                            pinname = self.make_pinname(self.findsignal( p ))
+                            pinname = self.make_pinname(pname)
                             print >>file, "# ---",sig.upper(),"---"
                             if t == PWMP:
                                 print >>file, "setp    "+pinname +".output-type 1"
@@ -1940,7 +1940,7 @@ class Data:
                 if not p == "unused-tppwmgen":
                     for sig in (self.haltppwmoutputsignames):
                         if p == (sig+"-a"):
-                            pinname = self.make_pinname(self.findsignal( p )) 
+                            pinname = self.make_pinname(pname) 
                             print >>file, "# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
                             print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
@@ -1952,7 +1952,7 @@ class Data:
                 if not p == "unused-stepgen":
                     for sig in (self.halsteppersignames):
                         if p == (sig+"-step"):
-                            pinname = self.make_pinname(self.findsignal( p )) 
+                            pinname = self.make_pinname(pname) 
                             print >>file, "# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
@@ -1970,19 +1970,21 @@ class Data:
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    write_pins(p,i,t)
+                    write_pins(pname,p,i,t)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
-                        write_pins(p,i,t)
+                        write_pins(pname,p,i,t)
 
     def write_halfile(self, base):
         axis_convert = ("x","y","z","a")
@@ -2619,7 +2621,8 @@ class Data:
                     print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
                 else:
                     print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
-            print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
+            if self.spindleatspeed:
+                print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
             i = 0
             print >>f1, _("# **** Setup GLADE MDI buttons ****")
             print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
@@ -7430,6 +7433,7 @@ But there is not one in the machine-named folder.."""),True)
             w[axis+"steptable"].set_sensitive(0)
             text = _("Servo tuning is not finished / working\n")
             self.warning_dialog(text,True)
+            return
 
         if axis == "a":
             w[axis + "tunedistunits"].set_text(_("degrees"))
@@ -7512,10 +7516,10 @@ But there is not one in the machine-named folder.."""),True)
         # for pwm components
         if self.pwmgen:
             self.pwm_signalname = self.data.make_pinname(self.pwmgen)
-            pwmtype = self.data.make_pinname(self.pwmgen) +"type"
+            pwmtype = self.pwmgen +"type"
             pulsetype = 1
-            if self[pwmtype] == PDMP: pulsetype = 3
-            if self[pwmtype] == UDMU: pulsetype = 2
+            if self.data[pwmtype] == PDMP: pulsetype = 3
+            if self.data[pwmtype] == UDMU: pulsetype = 2
             #print "got to pwm", self.pwmgen," -- ",self.pwm_signalname                        
             halrun.write("setp %s.scale 10\n"% (self.pwm_signalname))                        
             halrun.write("setp %s.output-type %d\n"% (self.pwm_signalname,pulsetype))                             
@@ -7983,9 +7987,9 @@ But there is not one in the machine-named folder.."""),True)
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = ""
-            if self.mesa0_numof_sserialports:
+            if self.data.mesa0_numof_sserialports:
                 ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
-            if self.mesa1_numof_sserialports:
+            if self.data.mesa1_numof_sserialports:
                 ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
