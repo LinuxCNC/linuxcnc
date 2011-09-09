@@ -140,9 +140,10 @@ int Interp::execute_call(setup_pointer settings, int what)
     int status = INTERP_OK;
     int i;
     bool py_exception = false;
+    extern const char * _entrynames[];
 
-    if (what != NORMAL_CALL)
-	read_inputs(settings);
+    // if (what != NORMAL_CALL)
+    // 	read_inputs(settings);
 
 
     current_frame = &settings->sub_context[settings->call_level];
@@ -152,13 +153,14 @@ int Interp::execute_call(setup_pointer settings, int what)
     cblock = &CONTROLLING_BLOCK(*settings);
     eblock = &EXECUTING_BLOCK(*settings);
 
-    logOword("execute_call what=%d name=%s", what, what > NORMAL_RETURN? new_frame->subName : eblock->o_name);
+    logOword("execute_call %s name=%s", _entrynames[what], 
+	     what > NORMAL_RETURN? new_frame->subName : eblock->o_name);
 
     // determine if this sub is the  body executing on behalf of a remapped code
     // we're loosing a bit of context by funneling everything through the osub call
     // interface, which needs to be reestablished here but it's worth the generality
     is_remap_handler =
-	(what > NORMAL_RETURN) || // restarting a Python handler which yielded INTERP_EXECUTE_FINISH
+	(what > FINISH_OWORDSUB) || // restarting a Python handler which yielded INTERP_EXECUTE_FINISH
 	(cblock->executing_remap != NULL) &&
 	(((cblock->executing_remap->remap_py != NULL) &&
 	  (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))) ||
@@ -169,7 +171,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 	is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, eblock->o_name);
     is_py_osub = is_py_callable && ! is_remap_handler;
 
-    is_py_remap_handler = (what > NORMAL_RETURN) || 
+    is_py_remap_handler = (what ==  FINISH_BODY) || 
 	((cblock->executing_remap != NULL) &&
 	((cblock->executing_remap->remap_py != NULL) &&
 	 (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))));
@@ -255,8 +257,6 @@ int Interp::execute_call(setup_pointer settings, int what)
 
     case FINISH_PROLOG:
 	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
-	    // if (cblock->restart_at == FINISH_PROLOG)
-	    // 	settings->call_level--; // compensate bump above
 	    logRemap("O_call: prolog %s for remap %s (%s)  cl=%d rl=%d",
 		     cblock->executing_remap->prolog_func,
 		     REMAP_FUNC(cblock->executing_remap),
@@ -350,7 +350,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 		if (cblock->entry_at == FINISH_BODY) { // finally done after restart
 		    cblock->entry_at = NONE;
 		    // settings->call_level--; // compensate bump above
-		    if (!cblock->returned[RET_STOPITERATION]) {
+		    if (cblock->returned[RET_STOPITERATION]) {
 			// the user executed 'yield INTERP_OK' which is fine but keeps
 			// the generator object hanging around (I think)
 			// unsure how to do this - not like so: cblock->generator_next.del();
@@ -388,8 +388,8 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
     context_pointer  leaving_frame,  returnto_frame;
 
     logOword("execute_return what=%d", what);
-    if (what != NORMAL_RETURN)
-    	read_inputs(settings);
+    // if (what != NORMAL_RETURN)
+    // 	read_inputs(settings);
 
 
     cblock = &CONTROLLING_BLOCK(*settings);
@@ -606,6 +606,24 @@ int Interp::control_back_to( block_pointer block, // pointer to block
     return INTERP_OK;
 }
 
+static const char *o_ops[] = {
+    "O_none",
+    "O_sub",
+    "O_endsub",
+    "O_call",
+    "O_do",
+    "O_while",
+    "O_if",
+    "O_elseif",
+    "O_else",
+    "O_endif",
+    "O_break",
+    "O_continue",
+    "O_endwhile",
+    "O_return",
+    "O_repeat",
+    "O_endrepeat"
+};
 
 /************************************************************************/
 /* convert_control_functions
@@ -629,7 +647,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
     bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
     offset_pointer op = NULL;
 
-    logOword("convert_control_functions");
+    logOword("convert_control_functions %s", o_ops[block->o_type]);
 
     // aquire the 'remap_frame' a.k.a controlling block
     cblock = &CONTROLLING_BLOCK(*settings);
@@ -649,7 +667,6 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	return INTERP_OK;
     }
 
-    logOword("o_type:  %d\n", block->o_type);
     switch (block->o_type) {
 
     case O_none:
@@ -699,7 +716,13 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_call:
-	return  execute_call(settings, NORMAL_CALL);
+	// if a prolog yielded INTERP_EXECUTE_FINISH, keep calling it until
+	// INTERP_OK
+	if (cblock->entry_at == FINISH_PROLOG) {
+	    return execute_call(settings, FINISH_PROLOG);
+	} else {
+	    return  execute_call(settings, NORMAL_CALL);
+	}
 	break;
 
     case O_do:

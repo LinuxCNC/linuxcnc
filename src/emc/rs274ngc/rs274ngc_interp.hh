@@ -469,19 +469,19 @@ public:
   block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
-    enum restart_points {
+    enum entrypoints {
 	NONE, 
 	NORMAL_CALL, 
 	NORMAL_RETURN,
+	FINISH_OWORDSUB,
 	FINISH_BODY,
 	FINISH_EPILOG,
-	FINISH_PROLOG,
-	FINISH_OWORDSUB
+	FINISH_PROLOG
     };
 
  int execute_call(setup_pointer settings, int what);   // pointer to machine settings
  int execute_return(setup_pointer settings, int what);   // pointer to machine settings
- int mopup_handlers(setup_pointer settings);
+ int mopup_handlers();
  int read_inputs(setup_pointer settings);
 
  int convert_control_functions( /* ARGUMENTS           */

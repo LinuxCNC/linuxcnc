@@ -197,31 +197,72 @@ int Interp::close()
 
   return INTERP_OK;
 }
+ 
+const char * _entrynames[] = {
+	"NONE", 
+	"NORMAL_CALL", 
+	"NORMAL_RETURN",
+	"FINISH_OWORDSUB",
+	"FINISH_BODY",
+	"FINISH_EPILOG",
+	"FINISH_PROLOG"
+};
 
-int Interp::mopup_handlers(setup_pointer settings)
+int Interp::mopup_handlers()
 {
     int status = INTERP_OK;
 
     block_pointer cblock = &CONTROLLING_BLOCK(_setup);
-    switch (cblock->restart_at) {
+    block_pointer eblock = &EXECUTING_BLOCK(_setup);
+
+    logRemap("--->> mopup_handlers: %s", _entrynames[cblock->entry_at]);
+
+    switch (cblock->entry_at) {
+
     case FINISH_PROLOG:
-    case FINISH_BODY:
+	status = execute_call(&_setup,cblock->entry_at);
+	// if (status == INTERP_OK)  
+	//     cblock->entry_at = FINISH_BODY;
+	// if ((status == INTERP_OK) && 
+	//     (cblock->executing_remap->remap_py != NULL)) {
+	//     // a prolog was restarted and finished, and a Python body
+	//     // finished as well.
+
+	//     //if ( _setup.mdi_interrupt) logRemap("---- clearing MDIinterrupt");
+	//     // _setup.mdi_interrupt = false;
+	//     // eblock->o_name  = NULL;
+	// }
+	break;
+
     case FINISH_OWORDSUB:
-	logRemap("mopup_handlers: execute_call %d",cblock->restart_at);
-	status = execute_call(&_setup,cblock->restart_at);
-	CHP(status);
+	// notyet
+	break;
+
+    case FINISH_BODY:
+	status = execute_call(&_setup,cblock->entry_at);
+	if ((status == INTERP_OK) && 
+	    (cblock->executing_remap->epilog_func == NULL)) {
+	    // we finished a Python body function with OK. No epilog.
+	    // if executing a remapped code under MDI, mark this call as done
+	    _setup.mdi_interrupt = false;
+	    eblock->o_name  = NULL;
+	}
 	break;
 	
     case FINISH_EPILOG:
-	logRemap("mopup_handlers: execute_return %d",cblock->restart_at);
-	status = execute_return(&_setup,cblock->restart_at);
+	status = execute_return(&_setup,cblock->entry_at);
 	if (status == INTERP_OK) {
-	    printf("--------- done EPILOG finished\n");
+	    block_pointer eblock = &EXECUTING_BLOCK(_setup);
+
+	    // if executing a remapped code under MDI, mark this call as done
+	    _setup.mdi_interrupt = false;
+	    eblock->o_name  = NULL;
 	}
-	CHP(status);
 	break;
     default: ;
     }
+    logRemap("<<--- mopup_handlers: status=%d next=%s", status,_entrynames[cblock->entry_at]);
+
     return status;
 }
 
@@ -255,15 +296,10 @@ int Interp::_execute(const char *command)
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
   block_pointer cblock = &CONTROLLING_BLOCK(_setup);
 
-  logDebug("execute: command=%s MDI=%d E:o_name=%s cl=%d rl=%d",
-	   command,(command == NULL) ? 0 : 1,  eblock->o_name,
+  logDebug("execute: command=%s MDI=%d mdi_int=%d E:o_name=%s cl=%d rl=%d",
+	   command,(command == NULL) ? 0 : 1, _setup.mdi_interrupt, eblock->o_name,
 	   _setup.call_level,_setup.remap_level);
 
-
-  status = mopup_handlers(&_setup);
-  CHP(status);
-
-  // if ((NULL != command) && (cblock->executing_remap == NULL)) { // force auto for self.execute("xxx")
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
@@ -277,21 +313,18 @@ int Interp::_execute(const char *command)
     }
   }
 
-  // logDebug("MDImode = %d",MDImode);
-
-  
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) ||
       (_setup.mdi_interrupt))  {
-      logDebug("Convert control functions");
       status = convert_control_functions(eblock, &_setup);
+      _setup.mdi_interrupt = (status == INTERP_EXECUTE_FINISH);  // a yielding handler might return INTERP_EXECUTE_FINISH too
       if (status > INTERP_MIN_ERROR) {
-	  logRemap("-- clearing remap stack (current level=%d) due to convert_control_functions() status %s, blocktext='%s' MDImode=%d",
+	  logRemap("-- clearing remap stack (current level=%d) due to convert_control_functions() status %s, blocktext='%s' MDImode=%d", //FIXME improve msg
 		   _setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
 	  _setup.remap_level = 0;
       }
-      CHP(status);
-#if 1
+      CHP(status); // relinquish control if INTERP_EXCUTE_FINISH, INTERP_ERROR etc
+      
       // let MDI code call subroutines.
       // !!!KL not clear what happens if last execution failed while in
       // !!!KL a subroutine
@@ -299,6 +332,7 @@ int Interp::_execute(const char *command)
       // NOTE: the last executed file will still be open, because "close"
       // is really a lazy close.
     
+      // we had an INTERP_OK, so no need to set up another call to finish after sync()
       if (_setup.mdi_interrupt) {
 	  _setup.mdi_interrupt = false;
 	  MDImode = 1;
@@ -333,7 +367,6 @@ int Interp::_execute(const char *command)
           }
       }
       _setup.mdi_interrupt = false;
-#endif
       return INTERP_OK;
     }
 
@@ -431,31 +464,29 @@ int Interp::_execute(const char *command)
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
 		  if ((eblock->o_name != 0) ||
-		      (_setup.mdi_interrupt)) {
+		      (_setup.mdi_interrupt)) { // FIXME this probably aint needed as executed once only
 
-		      CHP(convert_control_functions(eblock, &_setup));
-		      if (_setup.mdi_interrupt) {
-			  _setup.mdi_interrupt = false;
-			  MDImode = 1;
+		      status = convert_control_functions(eblock, &_setup);
+		      if (status == INTERP_EXECUTE_FINISH) {
+			  _setup.mdi_interrupt = true;  // a yielding handler might return INTERP_EXECUTE_FINISH too
 		      }
-		      status = INTERP_OK;
-		      while(MDImode && _setup.call_level) { // we are still in a subroutine
-			  status = read(0);  // reads from current file and calls parse
-			  if (status != INTERP_OK) {
-			      return status;
-			  }
+		      CHP(status);
+		      do {
+			  CHP(read(0));  // reads from current file and calls parse
 			  status = execute();  // special handling for mdi errors
 			  if (status != INTERP_OK) {
 			      if (status == INTERP_EXECUTE_FINISH) {
 				  _setup.mdi_interrupt = true;
 			      } else {
-				  logRemap("execute() returned %s, RESETTING!\n",interp_status(status));
+				  logRemap("execute() returned %s during MDI execution\n",
+					   interp_status(status));
 				  reset();
 			      }
 			      CHP(status);
-			  }
-		      }
-		      _setup.mdi_interrupt = false;
+			  } else 
+			      _setup.mdi_interrupt = false;	      
+		      } while ((status == INTERP_OK) && _setup.call_level);
+		     
 		      // at this point the MDI execution of a remapped block is complete.
 		      logRemap("MDI remap execution complete status=%s\n",interp_status(status));
 		      write_g_codes(eblock, &_setup);
@@ -1315,6 +1346,9 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   static char name[] = "Interp::read";
   int read_status;
 
+  // this input reading code is in the wrong place. It should be executed
+  // in sync(), not here. This would make correct parameter values available 
+  // without doing a read() (e.g. from Python).
 #if 0
   if (_setup.probe_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
@@ -1348,7 +1382,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   }
 #endif
 
-  read_inputs(&_setup);
+  //  read_inputs(&_setup);
 
   CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
@@ -1824,10 +1858,8 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  // if (_setup.restart_from_snapshot) {
-  // 		Error("restoring context");
-  //     setcontext(&_setup.snapshot);
-  // }
+  read_inputs(&_setup); // input/probe/toolchange 
+
   return INTERP_OK;
 }
 
