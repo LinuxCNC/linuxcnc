@@ -71,12 +71,12 @@ on the board, so it may be non-zero even if there is only one board.
    steps per second. Negative values
    result in the frequency being based on the absolute value, and the
    direction pin is set to indicate negative.
- - `(All bit output) ppmc.<port>.in-<channel>` -- State of digital
+ - `(All bit output) ppmc.<port>.din.<channel>.in` -- State of digital
    input pin, see canonical digital input.
- - `(All bit output) ppmc.<port>.in.<channel>-not` -- Inverted
+ - `(All bit output) ppmc.<port>.din.<channel>.in-not` -- Inverted
    state of digital input pin, see canonical digital input.
- - `(All bit input) ppmc.<port>.out-<channel>`  -- Value to be
-   written to digital output, seen canonical digital output. 
+ - `(All bit input) ppmc.<port>.dout.<channel>.out`  -- Value to be
+   written to digital output, see canonical digital output. 
  - `(Option float input) ppmc.<port>.DAC8-<channel>.value`  -- Value to
    be written to analog output, range from 0 to 255. This
    sends 8 output bits to J8, which should have a Spindle DAC board
@@ -86,12 +86,13 @@ on the board, so it may be non-zero even if there is only one board.
    (minus when on). You must specify extradac = 0x00 on the HAL command
    line that loads the PPMC driver to enable this function on the first
    USC ur UPC board.
- - `(Option bit input) ppmc.<port>.dout-<channel>.out`  -- Value to be
+ - `(Option bit input) ppmc.<port>.dout.<channel>.out`  -- Value to be
    written to one of the 8 extra digital output pins on
    J8. You must specify extradout = 0x00 on the HAL command line that
    loads the ppmc driver to enable this function on the first USC or UPC
    board. extradac and extradout are mutually exclusive features as they
-   use the same signal lines for different purposes.
+   use the same signal lines for different purposes.  These output pins
+   will be enumerated after the standard digital outputs of the board.
 
 == Parameters
 
@@ -120,15 +121,15 @@ on the board, so it may be non-zero even if there is only one board.
    bootstrap capacitors used on some MOSFET gate drivers.
  - `(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time` -- Sets 
    minimum time between direction change and step pulse, in
-   units of 100ns. Applies to a group of four consecutive PWM generators,
+   units of 100ns. Applies to a group of four consecutive step generators,
    as indicated by `<channel-range>`.
  - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-width` -- Sets 
    width of step pulses, in units of 100ns. Applies to a group
-   of four consecutive PWM generators, as indicated by `<channel-range>`.
+   of four consecutive step generators, as indicated by `<channel-range>`.
  - `(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min` -- Sets 
    minimum time between pulses, in units of 100ns. The maximum step rate is 
-   latexmath:[ \frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } ]. 
-   Applies to a group of four consecutive PWM generators, 
+   latexmath:[[\frac{1}{ ( 100ns * ( `pulse-width` + `pulse-space-min` )) } \]]. 
+   Applies to a group of four consecutive step generators, 
    as indicated by `<channel-range>`. 
  - `(USC float) ppmc.<port>.stepgen.<channel>.scale` -- Scaling for
    step pulse generator. The step frequency in Hz is the
@@ -142,9 +143,9 @@ on the board, so it may be non-zero even if there is only one board.
    of extra DAC output such that an output value equal to
    scale gives a magnitude of 10.0 V output. (The sign of the output is
    set by jumpers and/or other digital outputs.)
- - `(Option bit) ppmc.<port>.out.<channel>-invert` -- Inverts a
+ - `(Option bit) ppmc.<port>.dout.<channel>.invert` -- Inverts a
    digital output, see canonical digital output.
- - `(Option bit) ppmc.<port>.dout.<channel>-invert` -- Inverts a
+ - `(Option bit) ppmc.<port>.dout.<channel>.invert` -- Inverts a
    digital output pin of J8, see canonical digital output.
 
 == Functions
@@ -155,7 +156,7 @@ on the board, so it may be non-zero even if there is only one board.
    minimize CPU overhead. 
  - `(All funct) ppmc.<port>.write` -- Writes all outputs (digital
    outputs, stepgens, PWMs) on one port. 
-   These reads are organized into blocks of contiguous registers to be
-   read in a block to minimize CPU overhead. 
+   These writes are organized into blocks of contiguous registers to be
+   written in a block to minimize CPU overhead. 
 
 
