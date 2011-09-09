@@ -285,60 +285,41 @@ void translateInterpreterException(InterpreterException const &e)
 static int throw_exceptions = 1;
 
 static int wrap_interp_execute_1(Interp &interp, const char *command)
-{
-    setup *settings  =  &interp._setup;
-    block saved_block = settings->blocks[0];
+{    
+    setup &_setup = interp._setup;
+    block saved_block = _setup.blocks[0];
 
+    CHP(interp.enter_remap());
     int status = interp.execute(command);
-    printf("ie1: tc=%d if=%d pf=%d\n",settings->toolchange_flag,settings->input_flag,settings->probe_flag);
-    settings->blocks[0] = saved_block;
+    CHP(interp.leave_remap());
+    _setup.blocks[0] = saved_block;
+
+    printf("ie1: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
 
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
-				   settings->blocks[0].line_number, // not sure
-				   settings->linetext);
+				   _setup.blocks[0].line_number, // not sure
+				   _setup.linetext);
     }
     return status;
 }
 
-//FIXME seqno, errmsgs
 static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno)
 {
-    setup *settings  =  &interp._setup;
-    //  block saved_block = settings->blocks[0];
+    setup &_setup = interp._setup;
+    block saved_block = _setup.blocks[0];
 
-    block_pointer cblock = &CONTROLLING_BLOCK(interp._setup);
-    if (cblock->executing_remap) {
-	printf("exec2: --------- executing remap, need push\n");
-	settings->remap_level++;
-	if (settings->remap_level == MAX_NESTED_REMAPS) {
-	    settings->remap_level = 0;
-	    printf("maximum nesting of remapped blocks execeeded");
-	    return INTERP_ERROR;
-	}
-	// push onto block stack
-	CONTROLLING_BLOCK(interp._setup) = EXECUTING_BLOCK(interp._setup);
-	CONTROLLING_BLOCK(interp._setup).breadcrumbs = 0; // clear trail
-    }
-
+    CHP(interp.enter_remap());
     int status = interp.execute(command, lineno);
+    CHP(interp.leave_remap());
+       _setup.blocks[0] = saved_block;
 
-    printf("ie2: tc=%d if=%d pf=%d\n",settings->toolchange_flag,settings->input_flag,settings->probe_flag);
-    if (cblock->executing_remap) {
-	printf("exec2: --------- executing remap, popping\n");
-	//settings->blocks[0] = saved_block;
-	// just dropping a nesting level
+    printf("ie2: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
 
-	settings->remap_level--; // drop one nesting level
-	if (settings->remap_level < 0) {
-	    printf("BUG: remap_level < 0 : %d",settings->remap_level);
-	    return INTERP_ERROR;
-	}
-    }
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   lineno, // not sure
-				   settings->linetext);
+				   _setup.linetext);
     }
     return status;
 }
@@ -346,13 +327,14 @@ static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno
 // this might not be a good idea - it destroys the block which has a 'o<ngcbody> call' parsed in it
 static int wrap_interp_read(Interp &interp, const char *command)
 {
-    setup *settings  =  &interp._setup;
+    setup &_setup = interp._setup;
+    block saved_block = _setup.blocks[0];
 
     int status = interp.read(command);
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
-				   settings->blocks[0].line_number, // not sure
-				   settings->linetext);
+				   _setup.blocks[0].line_number, // not sure
+				   _setup.linetext);
     }
     return status;
 }
