@@ -2,7 +2,8 @@
 
 == Tool Length Offsets
 
-=== Touch Off (((Touch Off)))
+=== Touch Off
+(((Touch Off)))
 
 Using the Touch Off Screen in the AXIS interface you can update the
 tool table automatically.
@@ -48,9 +49,11 @@ updated using G10 L1. See the Lathe Specifics Section for lathe tool
 table example. The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999. 
 
+[[sec:Tool-Table-Format]]
 === Tool Table Format
+(((Tool-Table-Format)))
 
-.Tool Table Format[[sec:Tool-Table-Format]](((Tool-Table-Format)))
+.Tool Table Format
 
 [width="100%", options="header"]
 |========================================
@@ -165,7 +168,8 @@ The “Comment” column may optionally be used to describe the tool. Any
 type of description is OK. This column is for the benefit of human
 readers only. The comment must be preceded by a semicolon. 
 
-= Fichier d'outils et compensations[[sec:Outils-et-Compensations]]
+[[sec:Outils-et-Compensations]]
+= Fichier d'outils et compensations
 
 == Fichier d'outils
 
@@ -192,7 +196,8 @@ une situation spécifique. Ces références ont pour but de donner au
 lecteur une idée de la séquences plutôt que d'exiger qu'il comprenne la
 façon dont les fonctions canoniques elles-mêmes fonctionnent dans EMC.
 
-== Compensation de longueur d'outil [[sec:Compensation-longueur-d-outil]]
+[[sec:Compensation-longueur-d-outil]]
+== Compensation de longueur d'outil
 
 Les compensations de longueur d'outil sont données comme des nombres
 positifs dans la table d'outils. Une compensation d'outil est
@@ -239,7 +244,8 @@ Avec ce programme, dans la plupart des cas, la machine va appliquer le
 décalage sous forme d'une rampe pendant le mouvement en xyz suivant le
 mot G43.
 
-== Compensation de rayon d'outil [[sec:Compensation-rayon-d-outil]]
+[[sec:Compensation-rayon-d-outil]]
+== Compensation de rayon d'outil
 
 By Jon Elson
 

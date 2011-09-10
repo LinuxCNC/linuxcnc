@@ -2,7 +2,8 @@
 
 == Tool Length Offsets
 
-=== Touch Off (((Touch Off)))
+=== Touch Off
+(((Touch Off)))
 
 Using the Touch Off Screen in the AXIS interface you can update the
 tool table automatically.
@@ -48,9 +49,11 @@ updated using G10 L1. See the Lathe Specifics Section for lathe tool
 table example. The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999. 
 
+[[sec:Tool-Table-Format]]
 === Tool Table Format
+(((Tool-Table-Format)))
 
-.Tool Table Format[[sec:Tool-Table-Format]](((Tool-Table-Format)))
+.Tool Table Format
 
 [width="100%", options="header"]
 |========================================
@@ -199,7 +202,8 @@ changed EMC rewrites the pocket number to keep track of where the tools
 are. T can be any number but P must be a number that makes sense for
 the machine.
 
-== Cutter Radius Compensation [[sec:Cutter-Radius-Compensation]]
+[[sec:Cutter-Radius-Compensation]]
+== Cutter Radius Compensation
 
 Cutter Radius Compensation allows the programmer to program the tool
 path without knowing the exact tool diameter. The only caveat is the
