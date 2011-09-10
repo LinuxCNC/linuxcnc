@@ -1,6 +1,7 @@
 = Getting Started
 
-== HAL Commands [[sec:Hal-Commands]]
+[[sec:Hal-Commands]]
+== HAL Commands
 
 More detailed information can be found in the man page for halcmd "man
 halcmd" in a terminal window. To see the HAL configuration and check
@@ -128,7 +129,9 @@ line.
 
 The so called I/O pins like index-enable do not follow this rule.
 
-=== setp (((setp)))[[sub:setp]]
+[[sub:setp]]
+=== setp
+(((setp)))
 
 The command "setp" sets the value of a pin or parameter. The valid
 values will depend on the type of the pin or parameter. It is an error
@@ -198,11 +201,11 @@ The syntax and an example:
 
 +newsig Xstep bit+ 
 
-
 More information can be found in the HAL manual or the man pages for
 halrun.
 
-== HAL Data [[sec:Hal-Data]]
+[[sec:Hal-Data]]
+== HAL Data
 
 === Bit (((Bit)))
 
