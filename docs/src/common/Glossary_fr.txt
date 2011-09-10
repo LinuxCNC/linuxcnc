@@ -268,13 +268,13 @@ Rapid::
     or the fixturing during a rapid, it is probably a bad thing!
 
 Rapid rate::
-     (((rapid rate))) [[glo:RapidRate]]The speed at which a rapid motion occurs. 
+     (((rapid rate)))[[glo:RapidRate]]The speed at which a rapid motion occurs. 
     In auto or mdi mode, rapid rate is usually the maximum speed of the machine. 
     It is often desirable to limit the rapid rate when 
     testing a g-code program for the first time. 
 
 Real-time::
-     (((real-time))) [[glo:real-time]] Software that is intended to meet very
+     (((real-time)))[[glo:real-time]] Software that is intended to meet very
     strict timing deadlines. Under Linux, in order to meet these
     requirements it is necessary to install RTAI or RTLINUX and build the
     software to run in those special environments. For this reason
