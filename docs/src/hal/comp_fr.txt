@@ -57,7 +57,7 @@ combien d'instances seront créées.
 == Syntaxe
 
 Un fichier `.comp` commence par un certain nombre de déclarations,
-puis par un `«;;»`  seul sur sa propre ligne. Il se terminé par le code
+puis par un `«;;»` seul sur sa propre ligne. Il se terminé par le code
 C implémentant
 les fonctions du module.
 
@@ -119,7 +119,7 @@ exemple: «min»), puissent être utilisés.
 |========================================
 
 if CONDITION::
-     Une expression impliquant la 'personnalité'  d'une variable non nulle
+     Une expression impliquant la 'personnalité' d'une variable non nulle
     quand la variable ou le paramètre doit être
     créé.
 
@@ -385,7 +385,7 @@ de broches d'entrée à chaque porte logique et permettre la sélection de
  n'importe quelle fonction de logique booléenne de base *and*, *or* et
 *xor*.
 
-== Compiler un fichier  `.comp` dans l'arborescence
+== Compiler un fichier `.comp` dans l'arborescence
 
 Placer le fichier `.comp` dans le répertoire `emc2/src/hal/components`
 et lancer/relancer `«make`». `Les fichiers Comp` sont automatiquement
@@ -396,9 +396,11 @@ placé dans `emc2/src/hal/components`  et il y sera construit excepté si
 emc2 est configuré en mode
 simulation.
 
-== Compiler un composant temps réel hors de l'arborescence [[sec:Compiler-composants-rt]]
+[[sec:Compiler-composants-rt]]
+== Compiler un composant temps réel hors de l'arborescence
+(((Compiling realtime components outside the source tree)))
 
-`comp`  peut traiter, compiler et installer un composant temps réel en
+`comp` peut traiter, compiler et installer un composant temps réel en
 une
  seule étape, en plaçant `rtexample.ko` dans le répertoire du module
 temps réel d'emc2:
@@ -434,7 +436,7 @@ ou copiée à un emplacement standard pour une page de manuel.
 
 == Compiler un composant de l'espace utilisateur hors de l'arborescence
 
-`comp`  peut traiter, compiler et installer un document de l'espace
+`comp` peut traiter, compiler et installer un document de l'espace
 utilisateur:
 
     comp usrexample.comp
@@ -473,7 +475,7 @@ valeur sur 8 bits. Il peut y avoir un nombre quelconque de ces cartes
 dans le système et elles peuvent avoir des adresses variées. La pin est
 appelée `out_` parceque `out` est un identifiant utilisé dans
 `<asm/io.h>`. Il illustre l'utilisation de `EXTRA_SETUP` et de
-`EXTRA_CLEANUP`  pour sa requête de région d'entrées/sorties et libère
+`EXTRA_CLEANUP` pour sa requête de région d'entrées/sorties et libère
 cette région en
 cas d'erreur ou quand le module est déchargé.
 
@@ -533,7 +535,7 @@ FUNCTION(_) { outb(out_, ioaddr); }
 
 Ce fragment de composant illustre l'utilisation du préfixe `hal_` dans
 un nom de composant. `loop` est le nom d'un module standard du kernel
-Linux, donc un composant `loop`  ne pourrait pas être chargé si le
+Linux, donc un composant `loop` ne pourrait pas être chargé si le
 module loop de Linux est également
 présent.
 
@@ -620,10 +622,10 @@ Une ligne de chargement typique pourrait être:
 qui créerait les pins suivantes:
 
  - Une porte AND à 2 entrées: logic.0.and, logic.0.in-00, logic.0.in-01
- -  des portes AND et OR à 5 entrées: logic.1.and, logic.1.or,
+ - des portes AND et OR à 5 entrées: logic.1.and, logic.1.or,
    logic.1.in-00, logic.1.in-01, logic.1.in-02, logic.1.in-03,
    logic.1.in-04, 
- -  des portes AND et XOR à 3 entrées: logic.2.and, logic.2.xor,
+ - des portes AND et XOR à 3 entrées: logic.2.and, logic.2.xor,
    logic.2.in-00, logic.2.in-01, logic.2.in-02
 
 
