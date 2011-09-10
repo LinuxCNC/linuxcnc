@@ -250,7 +250,6 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   // if set in the executing block, current_remap
 
   block->executing_remap = NULL;
-  block->py_returned_userdata = 0;
   block->py_returned_status = -255; // trigger errors if it slips through
   block->py_returned_value = 0.0;
   block->returned = 0;
