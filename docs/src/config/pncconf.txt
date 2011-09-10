@@ -1,4 +1,5 @@
-= Point n Click Configuration Wizard (PNCconf) [[cha:PNCconf-Wizard]]
+[[cha:PNCconf-Wizard]]
+= Point n Click Configuration Wizard (PNCconf)
 (((PNCconf Wizard)))
 
 PNCconf is made to help build configurations that utilize specific Mesa 
