@@ -1569,6 +1569,7 @@ int Interp::reset()
     if (sub->subName) {
 	sub->subName = NULL;
     }
+    sub->call_phase = CS_START; // reset call state machine
 
     for(i=0; i<INTERP_SUB_PARAMS; i++) {
       _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =

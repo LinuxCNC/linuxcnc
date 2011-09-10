@@ -250,16 +250,10 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   // if set in the executing block, current_remap
 
   block->executing_remap = NULL;
-  block->py_returned_status = -255; // trigger errors if it slips through
-  block->py_returned_value = 0.0;
-  block->returned = 0;
+
   block->param_cnt = 0;
-  block->entry_at = NONE;
   block->remappings.clear();
 
-  // not really needed, set elsewhere
-  // block->tupleargs = bp::tuple();
-  // block->kwargs = bp::dict();
 
   block->a_flag = false;
   block->b_flag = false;

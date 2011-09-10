@@ -144,7 +144,6 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_endrepeat 15
 #define O_remap    16  // not a keyword - just indicates a remap call in progress
 #define O_pycall   17  // like O_call, but o_name is a Python callable
-#define O_continue_pycall   18  // after reschedule 
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -460,19 +459,42 @@ typedef struct block_struct
     // in time there's only one excuting
     // conceptually the block is also the 'remap frame'
     remap_pointer executing_remap; // refers to config descriptor
-    boost::python::object tupleargs; // the args tuple for Py functions
-    boost::python::object kwargs; // the args dict for Py functions
-    int returned;
-    double py_returned_value;
-    int py_returned_status;
-    boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
+    // boost::python::object tupleargs; // the args tuple for Py functions
+    // boost::python::object kwargs; // the args dict for Py functions
+    // int returned;
+    // double py_returned_value;
+    // int py_returned_status;
+    // boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
     // if a python pro/epilog, body or osub executed yield, indicate which part to (re) start at after a sync
-    int entry_at; 
+    // int entry_at; 
     std::set<int> remappings; // all remappings in this block
-    int phase; // current execution phase
+    int phase; // current remap execution phase
 }
 block;
+enum call_states {
+    CS_START,
+    CS_CALL_PROLOG,
+    CS_CONTINUE_PROLOG,
+    CS_CALL_BODY,
+    CS_CONTINUTE_BODY,
+    CS_CALL_EPILOG,
+    CS_CONTINUE_EPILOG,
+    CS_CALL_PYBODY,
+    CS_CONTINUE_PYBODY,
+    CS_CALL_PY_OSUB,
+    CS_CONTINUE_PY_OSUB,
+    //    CS_DONE
+};
 
+    enum entrypoints {
+	NONE, 
+	NORMAL_CALL, 
+	NORMAL_RETURN,
+	FINISH_OWORDSUB,
+	FINISH_BODY,
+	FINISH_EPILOG,
+	FINISH_PROLOG
+    };
 enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION};
 
 typedef block *block_pointer;
@@ -514,6 +536,13 @@ typedef struct context_struct {
     int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+    int call_phase; // enum call_states - call execution state machine
+       boost::python::object tupleargs; // the args tuple for Py functions
+    boost::python::object kwargs; // the args dict for Py functions
+    int returned;
+    double py_returned_value;
+    int py_returned_status;
+    boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
 } context;
 
 typedef context *context_pointer;

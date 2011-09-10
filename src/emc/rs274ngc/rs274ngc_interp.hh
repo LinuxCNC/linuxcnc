@@ -469,19 +469,13 @@ public:
   block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
-    enum entrypoints {
-	NONE, 
-	NORMAL_CALL, 
-	NORMAL_RETURN,
-	FINISH_OWORDSUB,
-	FINISH_BODY,
-	FINISH_EPILOG,
-	FINISH_PROLOG
-    };
- int execute_pycall(setup_pointer settings, bool first);
+
+ int enter_context(setup_pointer settings);
+ int leave_context(setup_pointer settings);
+ int execute_pycall(setup_pointer settings, const char *name, int call_phase);
  int execute_call(setup_pointer settings, int what);   // pointer to machine settings
  int execute_return(setup_pointer settings, int what);   // pointer to machine settings
- int mopup_handlers();
+ int execute_remap(setup_pointer settings);   // remap call state machine
  int read_inputs(setup_pointer settings);
 
  int convert_control_functions( /* ARGUMENTS           */
@@ -559,7 +553,7 @@ public:
 		       PY_PLUGIN_CALL
     };
     int pycall(setup_pointer settings,
-	       block_pointer block,
+	       context_pointer frame,
 	       const char *module,
 	       const char *funcname,
 	       int calltype);

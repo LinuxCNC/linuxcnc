@@ -53,7 +53,6 @@ int Interp::convert_remapped_code(block_pointer block,
     block_pointer cblock;
     bp::list plist;
     char cmd[LINELEN];
-    bool use_posargs = false;
 
     if (number == -1)
 	logRemap("convert_remapped_code '%c'", letter);
@@ -106,31 +105,29 @@ int Interp::convert_remapped_code(block_pointer block,
     cblock->executing_remap = remap; // the current descriptor
     cblock->param_cnt = 0;
 
-    bool build_pyargs = (remap->remap_py || remap->prolog_func || remap->epilog_func);
+    // handle in execute_remap()
 
-    // if build_pyargs and the Python plugin is not available,
-    // we're in bad shape
-    if (build_pyargs) {
-	CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
-	    remap->name);
+    // bool build_pyargs = (remap->remap_py || remap->prolog_func || remap->epilog_func);
 
-	// for any Python pro/epilogs
-	plist.append(settings->pythis);
-	cblock->tupleargs = bp::tuple(plist);
+    // // if build_pyargs and the Python plugin is not available,
+    // // we're in bad shape
+    // if (build_pyargs) {
+    // 	CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
+    // 	    remap->name);
 
-	// add_parameters will decorate kwargs as per argspec
-	cblock->kwargs = bp::dict();
-    }
-    if (remap->argspec) {
-	use_posargs = (strchr(remap->argspec, '@') != NULL);
-	// we're inserting locals into a callframe which isnt used yet
-	// NB: this assumes read() doesnt clear the callframe
-	settings->call_level++;
-	// create a positional argument list instead of local variables
-	// if user specified '@'
-	CHP(add_parameters(settings, cblock,
-			   use_posargs ? &cmd[strlen(cmd)] : NULL));
-	settings->call_level--;
+    // 	// for any Python pro/epilogs
+    // 	plist.append(settings->pythis);
+    // 	cblock->tupleargs = bp::tuple(plist);
+
+    // 	// add_parameters will decorate kwargs as per argspec
+    // 	cblock->kwargs = bp::dict();
+    // }
+    if (remap->argspec && (strchr(remap->argspec, '@') != NULL)) {
+    	// append a positional argument list instead of local variables
+    	// if user specified '@'
+	// named local params are dealt with in execute_remap() when the new call frame
+	// is established
+    	CHP(add_parameters(settings, cblock, &cmd[strlen(cmd)]));
     }
 
     if ((_setup.debugmask & EMC_DEBUG_REMAP) &&
@@ -191,6 +188,7 @@ int Interp::add_parameters(setup_pointer settings,
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
     remap_pointer rptr = cblock->executing_remap;
+    context_pointer active_frame = &settings->sub_context[settings->call_level];
 
     if (!rptr) {
 	ERS("BUG: add_parameters: remap_frame: executing_remap == NULL ");
@@ -225,7 +223,7 @@ int Interp::add_parameters(setup_pointer settings,
 #define STORE(name,value)						\
     if (pydict) {							\
 	try {								\
-	    cblock->kwargs[name] = value;				\
+	    active_frame->kwargs[name] = value;				\
         }								\
         catch (bp::error_already_set) {					\
 	    PyErr_Print();						\
