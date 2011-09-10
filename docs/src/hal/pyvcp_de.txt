@@ -1,4 +1,6 @@
-= PyVCP (((Virtual Control Panel)))[[cha:Virtual-Control-Panel]]
+[[cha:Virtual-Control-Panel]]
+= PyVCP
+(((Virtual Control Panel)))
 
 Python Virtual Control Panel
 
@@ -69,7 +71,8 @@ Parts of PyVCP files are evaluated as Python code, and can take any
 action available to Python programs. Only use PyVCP .xml files from a
 source that you trust.
 
-== AXIS [[sec:pyvcp-with-axis]]
+[[sec:pyvcp-with-axis]]
+== AXIS
 
 Since AXIS uses the same GUI toolkit (Tkinter) as PyVCP, it is
 possible to include a PyVCP panel on the right side of the normal AXIS
