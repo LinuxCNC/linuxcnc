@@ -796,7 +796,7 @@ int Interp::init()
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
-
+  _setup.skip_read = false;
 
   if(iniFileName != NULL) {
 
@@ -1349,6 +1349,8 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   // this input reading code is in the wrong place. It should be executed
   // in sync(), not here. This would make correct parameter values available 
   // without doing a read() (e.g. from Python).
+  // Unfortunately synch() isnt called in preview (gcodemodule)
+
 #if 0
   if (_setup.probe_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
@@ -1382,7 +1384,14 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   }
 #endif
 
-  //  read_inputs(&_setup);
+  if (_setup.skip_read) {
+      logOword("read(): skip_read");
+      _setup.line_length = 0;
+      _setup.linetext[0] = 0;
+      return INTERP_OK;
+  }
+  CHP(read_inputs(&_setup));
+
 
   CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
@@ -1858,7 +1867,7 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  read_inputs(&_setup); // input/probe/toolchange 
+  // read_inputs(&_setup); // input/probe/toolchange 
 
   return INTERP_OK;
 }

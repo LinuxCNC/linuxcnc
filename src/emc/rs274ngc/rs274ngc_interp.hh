@@ -478,7 +478,7 @@ public:
 	FINISH_EPILOG,
 	FINISH_PROLOG
     };
-
+ int execute_pycall(setup_pointer settings, bool first);
  int execute_call(setup_pointer settings, int what);   // pointer to machine settings
  int execute_return(setup_pointer settings, int what);   // pointer to machine settings
  int mopup_handlers();
@@ -547,9 +547,13 @@ public:
     // describes intented use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,
+		       PY_FINISH_OWORDCALL,
 		       PY_PROLOG,
-		       PY_REMAP,
+		       PY_FINISH_PROLOG,
+		       PY_BODY,
+		       PY_FINISH_BODY,
 		       PY_EPILOG,
+		       PY_FINISH_EPILOG,
 		       PY_INTERNAL,
 		       PY_EXECUTE,
 		       PY_PLUGIN_CALL

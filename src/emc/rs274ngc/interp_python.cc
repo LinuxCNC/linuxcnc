@@ -102,7 +102,7 @@ bool Interp::is_pycallable(setup_pointer settings,
 // all parameters to Python calls go through block, which looks a bit awkward
 // the reason is not to expose boost.python through the interpreter public interface
 int Interp::pycall(setup_pointer settings,
-		   block_pointer cblock,
+		   block_pointer block,
 		   const char *module,
 		   const char *funcname,
 		   int calltype)
@@ -119,7 +119,7 @@ int Interp::pycall(setup_pointer settings,
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
     CHKS(!PYUSABLE, "pycall(%s): Pyhton plugin not initialized",funcname);
-    cblock->returned = 0;
+    block->returned = 0;
 
     switch (calltype) {
     case PY_EXECUTE: // just run a string
@@ -128,119 +128,97 @@ int Interp::pycall(setup_pointer settings,
 	     "run_string(%s):\n%s", funcname,
 	     python_plugin->last_exception().c_str());
 	break;
-    default:
-	switch (cblock->entry_at) {   //FIXTHIS terminally ugly
-	case FINISH_PROLOG:
-	case FINISH_EPILOG:
-	case FINISH_BODY:
-	case FINISH_OWORDSUB:
-	    logPy("pycall: call generator restart_at=%d",cblock->entry_at);
-
-	    // handler continuation if a generator was used
-	    try {
-		retval = cblock->generator_next();
-	    }
-	    catch (bp::error_already_set) {
-		if (PyErr_Occurred()) {
-		    // StopIteration is raised when the generator executes 'return'
-		    // instead of another 'yield INTERP_EXECUTE_FINISH
-		    // Technically this means a normal end of the handler and hence we 
-		    // treat it as INTERP_OK indicating this handler is now done
-		    if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-			cblock->returned[RET_STOPITERATION] = 1;
-			bp::handle_exception();
-			PyErr_Clear();
-			logPy("pycall: call generator - StopIteration exception");
-
-			return INTERP_OK;
-		    } else  {
-			msg = handle_pyerror();
-			bp::handle_exception();
-			PyErr_Clear();
-			logPy("pycall: call generator - exception: %s",msg.c_str());
-
-			ERS("exception during generator call: %s", msg.c_str());
-		    }
-		} else 
-		    Error("calling generator: duh");
-	    }
-	    break;
-	default:
-	    python_plugin->call(module,funcname, cblock->tupleargs,cblock->kwargs,retval);
-	    CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-		 "py_call(%s):\n%s", funcname,
-		 python_plugin->last_exception().c_str());
+    // default:
+    // 	switch (block->entry_at) {   //FIXTHIS terminally ugly
+    case PY_FINISH_OWORDCALL:
+    case PY_FINISH_PROLOG:
+    case PY_FINISH_BODY:
+    case PY_FINISH_EPILOG:
+	logPy("pycall: call generator restart_at=%d",block->entry_at);
+	
+	// handler continuation if a generator was used
+	try {
+	    retval = block->generator_next();
 	}
+	catch (bp::error_already_set) {
+	    if (PyErr_Occurred()) {
+		// StopIteration is raised when the generator executes 'return'
+		// instead of another 'yield INTERP_EXECUTE_FINISH
+		// Technically this means a normal end of the handler and hence we 
+		// treat it as INTERP_OK indicating this handler is now done
+		if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
+		    block->returned = RET_STOPITERATION;
+		    bp::handle_exception();
+		    PyErr_Clear();
+		    logPy("pycall: call generator - StopIteration exception");
+		    return INTERP_OK;
+		} else  {
+		    msg = handle_pyerror();
+		    bp::handle_exception();
+		    PyErr_Clear();
+		    logPy("pycall: call generator - exception: %s",msg.c_str());
+		    
+		    ERS("exception during generator call: %s", msg.c_str());
+		}
+	    } else 
+		Error("calling generator: duh");
+	}
+	break;
+    default:
+	python_plugin->call(module,funcname, block->tupleargs,block->kwargs,retval);
+	CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
+	     "py_call(%s):\n%s", funcname,
+	     python_plugin->last_exception().c_str());
     }
 
     try {
+	status = INTERP_OK;
+
 	switch  (calltype) {
 	case PY_OWORDCALL:
-	    // if this was called as "o<pythoncallable> call",
-	    // expect either a float or no return value at all.
-	    status = INTERP_OK;
-	    if (retval.ptr() != Py_None) {
-		if (PyFloat_Check(retval.ptr())) {
-		    cblock->py_returned_value = bp::extract<double>(retval);
-		    cblock->returned[RET_DOUBLE] = 1;
-		    logPy("call: O <%s> call returned %f", funcname, cblock->py_returned_value);
-		} else {
-		    // not a float, strange
-		    PyObject *res_str = PyObject_Str(retval.ptr());
-		    Py_XDECREF(res_str);
-		    ERM("Python call for 'O<%s> call returned '%s' - expected float value, got %s",
-			funcname,
-			PyString_AsString(res_str),
-			retval.ptr()->ob_type->tp_name);
-		    status = INTERP_ERROR;
-		}
-	    } else {
-		// no value was returned by Python callable
-	    }
-	    break;
-
 	case PY_PROLOG:
-	case PY_REMAP:
+	case PY_BODY:
 	case PY_EPILOG:
 
-	    // these may return values in two flavours:
-	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...
+	    // these may return values in several flavours:
+	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...)
+	    // - a double (Python oword subroutine)
 	    // - a generator object, in case the handler contained a yield statement
 	    if (retval.ptr() != Py_None) {
 		if (PyGen_Check(retval.ptr()))  {
 
 		    // a generator was returned. This must have been the first time call to a handler
 		    // which contains a yield. Extract next() method.
-		    cblock->generator_next = bp::getattr(retval, "next");
+		    block->generator_next = bp::getattr(retval, "next");
 
 		    // and  call it for the first time.
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
-		    status = cblock->py_returned_status = bp::extract<int>(cblock->generator_next());
-		    cblock->returned[RET_STATUS] = 1;
+		    status = block->py_returned_status = bp::extract<int>(block->generator_next());
+		    block->returned = RET_YIELD;
 		    if (status > INTERP_MIN_ERROR)
 			goto done;
 
-		    // a handler which yields something else than INTERP_EXECUTE_FINISH
-		    // first time around is supsicious - if it's INTERP_OK, could have 
-		    // just as well returned that value - StopIteration is dealt with above
-		    if (status != INTERP_EXECUTE_FINISH) {
-			Log("pycall(%s):  expected INTERP_EXECUTE_FINISH, got %d", 
-			    funcname, status);
-			break;
-		    }
+		} else if (PyInt_Check(retval.ptr())) {  
+		    block->py_returned_status = bp::extract<int>(retval);
+		    block->returned = RET_INT;
+		    logPy("Python call %s.%s returned int: %d", module, funcname, block->py_returned_status);
+		} else if (PyFloat_Check(retval.ptr())) { 
+		    block->py_returned_value = bp::extract<double>(retval);
+		    block->returned = RET_DOUBLE;
+		    logPy("Python call %s.%s returned float: %f", module, funcname, block->py_returned_value);
 		} else {
-		    // an int expected (INTERP_*)
-		    // Returning no value at all is bad practice and cause an exception on
-		    // extract
-		    status = cblock->py_returned_status = bp::extract<int>(retval);
-		    cblock->returned[RET_STATUS] = 1;
+		    // not a generator, int, or float - strange
+		    PyObject *res_str = PyObject_Str(retval.ptr());
+		    Py_XDECREF(res_str);
+		    ERM("Python call %s.%s returned '%s' - expected generator, int, or float value, got %s",
+			module, funcname,
+			PyString_AsString(res_str),
+			retval.ptr()->ob_type->tp_name);
+		    status = INTERP_ERROR;
 		}
 	    } else {
-		// if the 
-		ERM("Python %s function '%s' expected int return value",
-		    (calltype == PY_PROLOG ? "prolog" : (calltype == PY_EPILOG) ? "epilog" : "remap"),
-		    funcname);
-		status = INTERP_ERROR;
+		logPy("call: O <%s> call returned None",funcname);
+		block->returned = RET_NONE;
 	    }
 	    break;
 
@@ -250,8 +228,8 @@ int Interp::pycall(setup_pointer settings,
 	    // must have returned an int
 	    if ((retval.ptr() != Py_None) &&
 		(PyInt_Check(retval.ptr()))) {
-		status = cblock->py_returned_status = bp::extract<int>(retval);
-		cblock->returned[RET_STATUS] = 1;
+		status = block->py_returned_status = bp::extract<int>(retval);
+		block->returned = RET_INT;
 		logPy("pycall(%s):  PY_INTERNAL/PY_PLUGIN_CALL: return code=%d", funcname,status);
 	    } else {
 		logPy("pycall(%s):  PY_INTERNAL: expected an int return code", funcname);

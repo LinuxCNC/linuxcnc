@@ -142,6 +142,9 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_return   13
 #define O_repeat   14
 #define O_endrepeat 15
+#define O_remap    16  // not a keyword - just indicates a remap call in progress
+#define O_pycall   17  // like O_call, but o_name is a Python callable
+#define O_continue_pycall   18  // after reschedule 
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -459,11 +462,9 @@ typedef struct block_struct
     remap_pointer executing_remap; // refers to config descriptor
     boost::python::object tupleargs; // the args tuple for Py functions
     boost::python::object kwargs; // the args dict for Py functions
-    std::bitset<32>  returned;
+    int returned;
     double py_returned_value;
     int py_returned_status;
-    int py_returned_userdata; // passed as tupleargs again if re-called after (INTERP_EXECUTE_FINISH, <userdata-value>)
-    int user_data;
     boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
     // if a python pro/epilog, body or osub executed yield, indicate which part to (re) start at after a sync
     int entry_at; 
@@ -472,7 +473,7 @@ typedef struct block_struct
 }
 block;
 
-enum retopts { RET_NONE, RET_DOUBLE, RET_STATUS, RET_STOPITERATION};
+enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION};
 
 typedef block *block_pointer;
 
@@ -670,6 +671,7 @@ typedef struct setup_struct
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
   int oword_labels;
   offset_map_type offset_map;      // store label x name, file, line
+  bool skip_read;                  // suppress next read() while continung handlers
 
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled

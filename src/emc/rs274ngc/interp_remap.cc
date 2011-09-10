@@ -104,8 +104,6 @@ int Interp::convert_remapped_code(block_pointer block,
     // the controlling block holds all dynamic remap information.
     cblock = &CONTROLLING_BLOCK(*settings);
     cblock->executing_remap = remap; // the current descriptor
-    cblock->py_returned_userdata = 0;
-    cblock->user_data = 0;
     cblock->param_cnt = 0;
 
     bool build_pyargs = (remap->remap_py || remap->prolog_func || remap->epilog_func);
@@ -142,6 +140,9 @@ int Interp::convert_remapped_code(block_pointer block,
 
     // good to go, pass to o-word call handling mechanism
     status = read(cmd);
+    block_pointer eblock = &EXECUTING_BLOCK(*settings);
+    eblock->o_type = O_remap;  // distinguish from normal NGC subs
+
     CHKS(status != INTERP_OK,
 	 "convert_remapped_code: inital read returned %s",
 	 interp_status(status));

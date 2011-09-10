@@ -131,7 +131,7 @@ int Interp::control_find_oword(block_pointer block,      // pointer to block
 
 int Interp::execute_call(setup_pointer settings, int what) 
 {
-    context_pointer current_frame, new_frame;
+    context_pointer previous_frame, new_frame;
     block_pointer cblock,eblock;
     bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
     bool is_remap_handler; // the sub is executing on behalf of a remapped code
@@ -146,7 +146,7 @@ int Interp::execute_call(setup_pointer settings, int what)
     // 	read_inputs(settings);
 
 
-    current_frame = &settings->sub_context[settings->call_level];
+    previous_frame = &settings->sub_context[settings->call_level];
     new_frame = &settings->sub_context[settings->call_level + 1];
 
     // aquire the 'remap_frame' a.k.a controlling block
@@ -218,7 +218,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 	    }
 	} else {
 	    for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
-		current_frame->saved_params[i] =
+		previous_frame->saved_params[i] =
 		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
 		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
 		    eblock->params[i];
@@ -228,19 +228,20 @@ int Interp::execute_call(setup_pointer settings, int what)
 	// if the previous file was NULL, mark positon as -1 so as not to
 	// reopen it on return.
 	if (settings->file_pointer == NULL) {
-	    current_frame->position = -1;
+	    previous_frame->position = -1;
 	} else {
-	    current_frame->position = ftell(settings->file_pointer);
+	    previous_frame->position = ftell(settings->file_pointer);
 	}
 
-	// save the previous filename
-	logOword("Duping |%s|", settings->filename);
-	current_frame->filename = strstore(settings->filename);
-	current_frame->sequence_number = settings->sequence_number;
-	logOword("(in call)set params[%d] return file:%s offset:%ld",
-		 settings->call_level,
-		 current_frame->filename,
-		 current_frame->position);
+	// save return location
+	previous_frame->filename = strstore(settings->filename);
+	previous_frame->sequence_number = settings->sequence_number;
+	logOword("return location: %s:%d offset=%ld cl=%d", 
+		 previous_frame->filename,
+		 previous_frame->sequence_number,
+		 previous_frame->position,
+		 settings->call_level);
+		 
 
 	// set the new subName
 	new_frame->subName = eblock->o_name;
@@ -301,7 +302,7 @@ int Interp::execute_call(setup_pointer settings, int what)
 		logOword("O_call: vanilla osub pycall(%s) failed, unwinding",
 			 eblock->o_name);
 	    }
-	    if (status == INTERP_OK && eblock->returned[RET_DOUBLE]) {
+	    if (status == INTERP_OK && (eblock->returned == RET_DOUBLE)) {
 		logOword("O_call: vanilla osub pycall(%s) returned %lf",
 			 eblock->o_name, eblock->py_returned_value);
 		settings->return_value = eblock->py_returned_value;
@@ -320,12 +321,12 @@ int Interp::execute_call(setup_pointer settings, int what)
 	// no control_back_to() needed
 	if (is_py_remap_handler) {
 	    
-	    cblock->tupleargs = bp::make_tuple(settings->pythis); // ,cblock->user_data);
+	    cblock->tupleargs = bp::make_tuple(settings->pythis); 
 
  	    status =  pycall(settings, cblock,
 			     REMAP_MODULE,
 			     cblock->executing_remap->remap_py,
-			     PY_REMAP);
+			     PY_BODY);
 
 	    if (status >  INTERP_MIN_ERROR) {
 		logRemap("O_call: pycall %s returned %s, unwinding (%s)",
@@ -350,13 +351,13 @@ int Interp::execute_call(setup_pointer settings, int what)
 		if (cblock->entry_at == FINISH_BODY) { // finally done after restart
 		    cblock->entry_at = NONE;
 		    // settings->call_level--; // compensate bump above
-		    if (cblock->returned[RET_STOPITERATION]) {
+		    if (cblock->returned == RET_STOPITERATION) {
 			// the user executed 'yield INTERP_OK' which is fine but keeps
 			// the generator object hanging around (I think)
 			// unsure how to do this - not like so: cblock->generator_next.del();
 		    }
 		    logRemap("O_call: %s done after restart, StopIteration=%d cl=%d rl=%d",
-			     cblock->executing_remap->remap_py,(int) cblock->returned[RET_STOPITERATION],
+			     cblock->executing_remap->remap_py,(int) cblock->returned == RET_STOPITERATION,
 			     settings->call_level, settings->remap_level);
 		}
 		logRemap("O_call: %s returning INTERP_OK", cblock->executing_remap->remap_py);
@@ -622,8 +623,124 @@ static const char *o_ops[] = {
     "O_endwhile",
     "O_return",
     "O_repeat",
-    "O_endrepeat"
+    "O_endrepeat",
+    "O_remap",
+    "O_pycall",
+    "O_continue_pycall"
 };
+
+// execute a Python function when 'o<funcname> call' is encountered
+// and funcname is a Python callable.
+// A Python function may  yield INTERP_EXECUTE_FINISH to indicate
+// it executed a queuebuster, possibly several times in a row.
+// example:
+//     yield self.execute("M66 P0 L0",lineno())
+// this requires:
+// - the procedure must be restarted after synch()
+// - no new read() shall be executed until we get INTERP_OK
+// - post-synch, we need to update HAL input/probe/toolchange data.
+// we therefore signify skipping reads until done, and handl
+int Interp::execute_pycall(setup_pointer settings, bool first) 
+{
+    bool py_exception = false;
+    int status;
+    context_pointer new_frame, previous_frame;
+    block_pointer eblock = &EXECUTING_BLOCK(*settings);
+
+    logOword("O_pycall %s first=%d cl=%d", eblock->o_name, 
+	     first,settings->call_level);
+
+    if (first) {  // first time around: establish new call frame
+	settings->call_level++;
+	if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
+	    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
+	}
+	new_frame = &settings->sub_context[settings->call_level];
+	previous_frame = &settings->sub_context[settings->call_level-1];
+	previous_frame->sequence_number = settings->sequence_number;
+
+	try {
+	    // call with list of positional parameters
+	    bp::list plist;
+	    plist.append(settings->pythis); // self
+	    for(int i = 0; i < eblock->param_cnt; i++)
+		plist.append(eblock->params[i]);
+	    eblock->tupleargs = bp::tuple(plist);
+	    eblock->kwargs = bp::dict();
+	}
+	catch (bp::error_already_set) {
+	    if (PyErr_Occurred()) {
+		PyErr_Print();
+	    }
+	    bp::handle_exception();
+	    PyErr_Clear();
+	    py_exception = true;
+	}
+	if (py_exception) {
+	    CHKS(py_exception,"O_call: Python exception preparing arguments for %s",
+		 eblock->o_name);
+	}
+	new_frame->subName = eblock->o_name; 
+    } else { 
+	// continuation post synch() - refer to existing frame
+	new_frame = &settings->sub_context[settings->call_level];
+	previous_frame = &settings->sub_context[settings->call_level-1];
+	CHP(read_inputs(&_setup));  // update toolchange/input/probe data
+    }
+
+    status = pycall(settings, eblock, OWORD_MODULE,
+		    eblock->o_name, first ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
+    if (status > INTERP_MIN_ERROR) {
+	settings->skip_read = false;
+	return status;
+    }
+
+    settings->return_value = 0.0;
+    settings->value_returned = 0;
+
+    switch (eblock->returned) {
+
+    case RET_YIELD:
+	// yield <integer> was executed, likely INTERP_EXECUTE_FINISH
+	if (eblock->py_returned_status == INTERP_EXECUTE_FINISH) {
+	    eblock->o_type = O_continue_pycall;
+	    // we keep reexcuting the same block until we get OK, or fail
+	    // read() will still set probe/toolchange/input params
+	    settings->skip_read = true;  // 'stay on same line'
+	}
+	CHP(eblock->py_returned_status);
+	break;
+
+    case RET_STOPITERATION:  // treat as INTERP_OK
+    case RET_NONE:
+	break;
+
+	// This procedure just returned a float value. Pass on & be done.
+    case RET_DOUBLE:
+	settings->return_value = eblock->py_returned_value;
+	settings->value_returned = 1;
+	break;
+    }
+    settings->skip_read = false;  // proceed
+    free_named_parameters(new_frame);
+    new_frame->subName = NULL;
+    settings->sequence_number = previous_frame->sequence_number;
+
+    // a valid previous context was marked by an M73 as auto-restore
+    if ((new_frame->context_status &
+	 (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+	(CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
+
+	// NB: this means an M71 invalidate context will prevent an
+	// auto-restore on return/endsub
+	restore_context(settings, settings->call_level + 1);
+    }
+    // always invalidate on leaving a context so we dont accidentially
+    // 'run into' a valid context when growing the stack upwards again
+    new_frame->context_status &=  ~CONTEXT_VALID;
+    settings->call_level--;  // drop back
+    return status;
+}
 
 /************************************************************************/
 /* convert_control_functions
@@ -715,7 +832,22 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	return execute_return(settings, NORMAL_RETURN);
 	break;
 
+
+
+    case O_pycall:
+	// if this hits a yield, will change o_type to O_continue_pycall
+	CHP(execute_pycall(settings, true));
+	break;
+
+    case O_continue_pycall:
+	CHP(execute_pycall(settings, false));
+	break;
+
     case O_call:
+	return  execute_call(settings, NORMAL_CALL);
+	break;
+
+    case O_remap:
 	// if a prolog yielded INTERP_EXECUTE_FINISH, keep calling it until
 	// INTERP_OK
 	if (cblock->entry_at == FINISH_PROLOG) {
