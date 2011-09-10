@@ -1,6 +1,8 @@
-= HAL User Interface [[cha:Hal-User-Interface]]
+[[cha:Hal-User-Interface]]
+= HAL User Interface
 
-== Introduction[[sec:HaluiIntroduction]]
+[[sec:HaluiIntroduction]]
+== Introduction
 
 Halui is a HAL based user interface for EMC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
@@ -20,7 +22,8 @@ file. Make sure you use the actual path to your ini file.
 
 in your custom.hal file.
 
-== Halui pin reference[[sec:Halui-pin-reference]]
+[[sec:Halui-pin-reference]]
+== Halui pin reference
 
 === Abort
 
@@ -152,7 +155,9 @@ that is set in the [TRAJ] section of the ini file.
  - halui.max-velocity.value (float, out) - is the maximum linear velocity 
    in machine units per second. 
 
-=== MDI[[MDI]](((MDI)))
+[[sub:MDI]]
+=== MDI
+(((MDI)))
 
 Sometimes the user wants to add more complicated tasks to be performed 
 by the activation of a HAL pin. This is possible using the following 
