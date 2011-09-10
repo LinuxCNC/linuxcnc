@@ -495,7 +495,7 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
 
 		    // NB: this means an M71 invalidate context will prevent an
 		    // auto-restore on return/endsub
-		    restore_context(settings, settings->call_level + 1);
+		    restore_settings(settings, settings->call_level + 1);
 		}
 		// always invalidate on leaving a context so we dont accidentially
 		// 'run into' a valid context when growing the stack upwards again

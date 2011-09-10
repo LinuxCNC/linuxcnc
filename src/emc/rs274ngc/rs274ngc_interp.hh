@@ -393,8 +393,8 @@ public:
  int lookup_named_param(const char *nameBuf, double index, double *value);
     int init_readonly_param(const char *nameBuf, double value, int attr);
     int free_named_parameters(context_pointer frame);
- int save_context(setup_pointer settings);
- int restore_context(setup_pointer settings, int from_level);
+ int save_settings(setup_pointer settings);
+ int restore_settings(setup_pointer settings, int from_level);
  int gen_settings(double *current, double *saved, char *cmd);
  int gen_g_codes(int *current, int *saved, char *cmd);
  int gen_m_codes(int *current, int *saved, char *cmd);

@@ -2734,7 +2734,7 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
     return INTERP_OK;
 }
 
-int Interp::save_context(setup_pointer settings)
+int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
       // collate state in _setup.active_* arrays
@@ -2756,13 +2756,13 @@ int Interp::save_context(setup_pointer settings)
 /* restore global settings/gcodes/mcodes to current call level from a valid context
  * used by:
  *   M72 - restores context from same level
- *       example: restore_context(settings->call_level)
+ *       example: restore_settings(settings->call_level)
  *
  *   an o-word return/endsub if auto-restore (M73) was issued
  *       issue this like so - after call_level has been decremented:
- *       restore_context(settings->call_level + 1)
+ *       restore_settings(settings->call_level + 1)
  */
-int Interp::restore_context(setup_pointer settings,
+int Interp::restore_settings(setup_pointer settings,
 			    int from_level)    //!< call level of context to restore from
 {
     int status;
@@ -3061,7 +3061,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
      // save state in current stack frame. We borrow the o-word call stack
      // and extend it to hold modes & settings.
-     save_context(&_setup);
+     save_settings(&_setup);
 
      // flag this frame as containing a valid context
      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_VALID;
@@ -3083,7 +3083,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       // restore state from current stack frame.
       CHKS((!(_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID)),
            (_("Cannot restore context from invalid stack frame - missing M70/M73?")));
-      restore_context(&_setup, _setup.call_level);
+      restore_settings(&_setup, _setup.call_level);
   }
 
   if (IS_USER_MCODE(block,settings,8) && ONCE_M(8)) {
