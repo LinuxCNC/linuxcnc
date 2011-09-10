@@ -156,7 +156,8 @@ mais un pas du moteur fait 0.03,
 alors la position «Commandée» sera de 0.08, 
 mais la position «Actuelle» sera de 0.06 (2 pas) ou 0.09 (3 pas).
 
-==== Vue du parcours d'outil(((Chemin d'outil)))
+==== Vue du parcours d'outil
+(((Chemin d'outil)))
 
 Quand un fichier est chargé, 
 une vue du parcours d'outil qu'il produira est visible dans la zone graphique. 
@@ -174,7 +175,8 @@ sur l'aperçu qu'après le déménagement première tétée.
 Pour deactiver une de ces caractéristiques 
 hors programme un G1 sans aucun déplace avant le G0 déplace.
 
-==== Etendues du programme(((Etendues du programme)))
+==== Etendues du programme
+(((Etendues du programme)))
 
 Les «étendues» du programme dans chaque axe sont présentés. 
 Aux extrémités, les valeurs des coordonnées au plus et sont indiqués. 
@@ -252,7 +254,8 @@ le texte défile automatiquement pour toujours laisser la ligne courante visible
 
 image::images/axis-currentandselected_fr.png[]
 
-=== Contrôle manuel(((Contrôle manuel)))
+=== Contrôle manuel
+(((Contrôle manuel)))
 
 Quand la machine est en marche mais qu'aucun programme n'est exécuté,
 les éléments graphiques de l'onglet «Contrôle manuel» peuvent être utilisés pour 
@@ -344,7 +347,8 @@ EMC va permettre au jogging uniquement dans le bon sens.
 _Limites Override ne permettra pas un jogging passé une limite souple. 
 La seule façon de désactiver une limite souple sur un axe est de Unhome it._
 
-==== Le groupe «Broche»(((Broche)))
+==== Le groupe «Broche»
+(((Broche)))
 
 Les boutons de la première rangée permettent de sélectionner la
 direction de rotation de la broche: Sens anti-horaire, Arrêt, Sens
@@ -353,7 +357,8 @@ fréquence de rotation. La case à cocher de la troisième rangée permet
 d'engager ou de relâcher le frein de broche. Selon la configuration de
 votre machine, ces éléments n'apparaîtront peut être pas tous.
 
-==== Le groupe «Arrosage»(((Arrosage)))
+==== Le groupe «Arrosage»
+(((Arrosage)))
 
 Ces deux boutons permettent d'activer le «Brouillard» et l'«Arrosage»
 ou de les désactiver. Selon la configuration de votre machine, ces
@@ -383,14 +388,16 @@ G-Codes actifs:::
     l'interpréteur. Par exemple, «G54» indique que le décalage d'origine
     «G54» sera appliqué à toutes les coordonnées qui seront entrées.
 
-=== Correcteurs de vitesse (((Correcteurs de vitesse)))
+=== Correcteurs de vitesse
+(((Correcteurs de vitesse)))
 
 En déplaçant le curseur, la vitesse de déplacement programmée peut
 être modifiée. Par exemple, si un programme requiert une vitesse à
 `F60` et que le curseur est placé sur 120%, alors la vitesse
 résultante sera de 72.
 
-=== Correcteur de vitesse de broche (((Correcteur de vitesse broche)))
+=== Correcteur de vitesse de broche
+(((Correcteur de vitesse broche)))
 
 En déplaçant ce curseur, la vitesse programmée de la broche peut être
 modifiée. Par exemple, si un programme requiert une vitesse à F8000 et
@@ -398,7 +405,8 @@ que le curseur est placé sur 80%, alors la fréquence de rotation
 résultante sera de 6400. Cet élément n'apparaît que si la «HAL pin»
 `motion.spindle-speed-out` est connectée dans .ini.
 
-=== Vitesse de Jog (((Vitesse de jog))) 
+=== Vitesse de Jog
+(((Vitesse de jog))) 
 
 En déplaçant ce curseur, la vitesse de jog peut être modifiée. Par
 exemple, si ce curseur est placé sur 100 mm/mn, alors un jog de 1 mm
@@ -412,7 +420,8 @@ Sur les machines avec axes rotatifs, un second curseur de vitesse est
 présent. Il permet d'ajuster la vitesse de rotation des axes rotatifs
 (A, B et C).
 
-=== Vitesse Maxi (((Vitesse maxi)))
+=== Vitesse Maxi
+(((Vitesse maxi)))
 
 En déplaçant ce curseur, la vitesse maximale peut être réglée. 
 Cette coiffe la vitesse maximale pour tous les mouvements programmés, 
@@ -517,7 +526,9 @@ Les commandes disponibles sont visibles en faisant: `axis-remote
 charger un fichier, recharger le fichier courant avec: (`--reload`) et
 quitter le programme AXIS avec: (`--quit`).
 
-== hal_manualtoolchange: Dialogue de Changement D'Outil Manuel[[sec:Changement-D-Outil-Manuel]](((Changement D'Outil Manuel)))
+[[sec:Changement-D-Outil-Manuel]]
+== hal_manualtoolchange: Dialogue de Changement D'Outil Manuel
+(((Changement D'Outil Manuel)))
 
 EMC2 inclut un composant userspace HAL de appelé «hal_manualtoolchange», 
 il ouvre une fenêtre d'appel d'outil (Figure <<cap:Changement-manuel-d-outil>>)
@@ -563,7 +574,8 @@ Python. Avec une version installée d'EMC2, ça se fera automatiquement.
 Avec une version installée en «in-place», ça peut être fait avec l'aide
 de: `scripts/emc-environment`.
 
-== Utiliser AXIS en mode tour (((AXIS avec un tour)))
+== Utiliser AXIS en mode tour
+(((AXIS avec un tour)))
 
 En incluant la ligne
 
@@ -676,7 +688,8 @@ ce qui entraînera la construction des options au niveau
 «widgetDefault», de sorte que les ressources X (qui sont elles, au
 niveau «userDefault») puissent l'emporter.
 
-=== [[sub:Manivelle de jog]]Manivelle de jog
+[[sub:Manivelle de jog]]
+=== Manivelle de jog
 
 Pour accroître l'interaction d'AXIS avec une manivelle de jog
 physique, l'axe actif courant sélectionné dans l'interface graphique
@@ -688,7 +701,8 @@ Après qu'AXIS ait créé ces «HAL pins», il exécute le fichier hal
 déclaré avec: `[HAL]POSTGUI_HALFILE`. Ce qui diffère de `[HAL]HALFILE,`
 qui lui ne s'utilise qu'une seule fois.
 
-=== ~/.axisrc (((.axisrc)))
+=== ~/.axisrc
+(((.axisrc)))
 
 Si il existe, le contenu de: `~/.axisrc` est exécuté comme un code
 source Python juste avant l'ouverture de
@@ -705,34 +719,37 @@ l'option “Distance restante” par défaut.
     help2.append(("Control-Q", "Quit"))
 
 === Editeur externe
+(((Editeur externe)))
 
 En définissant: `[DISPLAY]EDITOR` , les options de menu: Fichier >
 Editer ainsi que Fichier > Editer la
  table d'outils, deviennent accessibles. Deux valeurs qui marchent
 bien:`EDITOR=gedit` et `EDITOR=gnome-terminal -e vim`.
 
-=== Panneau de contrôle virtuel (((panneau de commande virtuel)))
+=== Panneau de contrôle virtuel
+(((panneau de commande virtuel)))
 
 AXIS peut afficher un panneau de commande virtuel personnalisé dans la droite
 volet. Vous pouvez boutons de programme, des indicateurs, affiche les données et plus encore. pour
 plus d'informations, consultez le manuel de l'intégrateur.
 
-=== Commentaires spéciale (((Commentaires spéciale)))
+=== Commentaires spéciale
+(((Commentaires spéciale)))
 
 Commentaires spéciaux peuvent être insérés dans le fichier de code G pour contrôler la façon dont
 l'aperçu du comportement AXIS. Dans le cas où vous souhaitez limiter la
 dessin de l'utilisation aperçu de ces observations spéciales. Rien entre les
-(AXIS, cacher) et (AXIS, spectacle) ne sera pas établi lors de la prévisualisation. l'
-(AXIS, cacher) et (AXIS, spectacle) doivent être utilisées en paires avec le (AXIS, cacher)
-être le premier. Tout ce après une (AXIS, arrêt) ne seront pas tirées au cours des
+(AXIS,hide) et (AXIS,show) ne sera pas établi lors de la prévisualisation. l'
+(AXIS,hide) et (AXIS,show) doivent être utilisées en paires avec le (AXIS, cacher)
+être le premier. Tout ce après une (AXIS,stop) ne seront pas tirées au cours des
 aperçu.
 
 Ces commentaires sont utiles pour désencombrer l'affichage d'aperçu (pour les
 Par exemple pendant le débogage plus un g-code du fichier, on peut désactiver le
 aperçu sur certaines parties qui travaillent déjà sur OK).
 
-  - (AXIS, cacher) Arrête la prévisualisation (il faut en premier)
-  - (AXIS, spectacle) Reprend l'aperçu (il faut suivre un cache)
-  - (AXIS, stop) Arrête la preview d'ici à la fin du fichier.
+  - (AXIS,hide) Arrête la prévisualisation (il faut en premier)
+  - (AXIS,show) Reprend l'aperçu (il faut suivre un cache)
+  - (AXIS,stop) Arrête la preview d'ici à la fin du fichier.
 
 
