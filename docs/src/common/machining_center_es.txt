@@ -104,7 +104,7 @@ of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
 have to say how to distinguish clockwise from counterclockwise.]
 
-=== Controlled Point [[sub:Controlled-Point]](((controlled point)))
+=== Controlled Point[[sub:Controlled-Point]](((controlled point)))
 
 The controlled point is the point whose position and rate of motion
 are controlled. When the tool length offset is zero (the default
@@ -120,7 +120,7 @@ controlled point is either at the tool tip or slightly outside it
 (where the perpendicular, axis-aligned lines touched by the “front” and
 “side” of the tool intersect).
 
-=== Coordinated Linear Motion [[sub:Coordinate-Linear-Motion]]
+=== Coordinated Linear Motion[[sub:Coordinate-Linear-Motion]]
 
 To drive a tool along a specified path, a machining center must often
 coordinate the motion of several axes. We use the term “coordinated
@@ -195,7 +195,7 @@ any axis motion if any of several events take place:
  . Tool length offset is changed.
  . Coordinate system offsets are changed. 
 
-=== Selected Plane [[sub:Selected-Plane]]
+=== Selected Plane[[sub:Selected-Plane]]
 
 There is always a “selected plane”, which must be the XY-plane, the
 YZ-plane, or the XZ-plane of the machining center. The Z-axis is, of
@@ -241,7 +241,7 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-=== Feed and Speed Override Switches [[sub:Feed-Interaction]]
+=== Feed and Speed Override Switches[[sub:Feed-Interaction]]
 
 The Interpreter will interpret RS274/NGC commands which enable (`M48`)
 or disable (`M49`) the feed and speed override switches. For certain
@@ -264,7 +264,7 @@ switch should be set before starting the NGC program.
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-== Tool Table [[sub:Tool-Table]]
+== Tool Table[[sub:Tool-Table]]
 
 A tool table is required to use the Interpreter. The file tells which 
 tools are in which tool changer slots and what the size and type of 

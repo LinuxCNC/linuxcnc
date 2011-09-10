@@ -112,7 +112,7 @@ of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
 have to say how to distinguish clockwise from counterclockwise.]
 
-=== Point contrôlé [[sub:Point-controle]](((point contrôlé)))
+=== Point contrôlé[[sub:Point-controle]](((point contrôlé)))
 
 Le point contrôlé est le point dont la position et la vitesse de
 déplacement sont contrôlés. Quand la compensation de longueur d'outil
@@ -127,7 +127,7 @@ l'outil ou (correction du rayon de bec) légèrement en retrait du point
 d'intersection des droites perpendiculaires formées par l'axe des
 points de tangence à la pièce, de face et sur le côté de l'outil.
 
-=== Mouvement linéaire coordonné [[sub:Mouvement-lineaire-coordonne]]
+=== Mouvement linéaire coordonné[[sub:Mouvement-lineaire-coordonne]]
 
 Pour mener un outil sur une trajectoire spécifiée, un centre d'usinage
 doit coordonner les mouvements de plusieurs axes. Nous utilisons le
@@ -203,7 +203,7 @@ l'absence de tout mouvement des axes si un de ces événements a lieu:
  . La compensation de longueur d'outil a changé.
  . Le décalage d'origine a changé. 
 
-=== Choix du plan de travail [[sub:Choix-du-plan-de-travail]]
+=== Choix du plan de travail[[sub:Choix-du-plan-de-travail]]
 
 Il y a toujours un plan sélectionné, qui doit être le plan XY, le plan
 YZ, ou le plan XZ de la machine. L'axe Z est, bien sûr, perpendiculaire
@@ -238,7 +238,7 @@ boutons et une autre qui les désactive. Voir la sections
 <<sec:M48-Deux-Correcteur>> et <<sec:M49-Ni-Correcteur>>. 
 Voir la section <<sub:Interaction-vitesses>> pour d'autres détails. 
 
-=== Modes de contrôle de trajectoire [[sub:Modes-de-controle-trajectoires]]
+=== Modes de contrôle de trajectoire[[sub:Modes-de-controle-trajectoires]]
 
 La machine peut être placée dans un de ces trois modes de contrôle de
 trajectoire: (1) mode arrêt exact, (2) mode trajectoire exacte ou (3)
@@ -257,7 +257,7 @@ L'interpréteur interagit avec plusieurs boutons de commande. Cette
 section décrit ces interactions plus en détail. En aucun cas
 l'interpréteur ne connait ce que sont les réglages de ces boutons.
 
-=== Boutons de correction de vitesses [[sub:Interaction-vitesses]]
+=== Boutons de correction de vitesses[[sub:Interaction-vitesses]]
 
 L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
 l'action des boutons d'ajustement des vitesses. Pour certains
@@ -267,7 +267,7 @@ filetage, les boutons sont neutralisés automatiquement.
 EMC2 réagit aux réglages de ces boutons seulement quand ils sont
 autorisés.
 
-=== Bouton d'effacement de block Switch [[sub:Interaction-effacement-de-block]](((effacement de block)))
+=== Bouton d'effacement de block Switch[[sub:Interaction-effacement-de-block]](((effacement de block)))
 
 Si le bouton “Effacement de block” est actif, les lignes de code
 RS274/NGC commençant par le caractère barre de fraction (caractère
@@ -281,7 +281,7 @@ NGC.
 Si ce bouton est actif et qu'un code M1 est rencontré, le programme
 est mis en pause.
 
-== Fichier d'outils [[sub:Fichier-d-outils]]
+== Fichier d'outils[[sub:Fichier-d-outils]]
 
 Un fichier d'outils est requis par l'interpréteur. Le fichier indique
 dans quels emplacements du carrousel sont placés les outils, la
