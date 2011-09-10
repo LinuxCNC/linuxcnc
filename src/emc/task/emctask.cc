@@ -482,11 +482,6 @@ int emcTaskPlanOpen(const char *file)
     return retval;
 }
 
-int emcTaskMopup()
-{
-    return interp.mopup_handlers();
-}
-
 
 int emcTaskPlanRead()
 {

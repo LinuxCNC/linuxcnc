@@ -1615,7 +1615,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       }
 
       *counter += strlen("call");
-      block->o_type = O_call;
+      block->o_type = is_pycallable(&_setup,  OWORD_MODULE, block->o_name) ? O_pycall : O_call;
 
       for(param_cnt=0;(line[*counter] == '[') || (line[*counter] == '(');)
 	{

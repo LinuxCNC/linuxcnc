@@ -208,63 +208,63 @@ const char * _entrynames[] = {
 	"FINISH_PROLOG"
 };
 
-int Interp::mopup_handlers()
-{
-    int status = INTERP_OK;
+// int Interp::mopup_handlers()
+// {
+//     int status = INTERP_OK;
 
-    block_pointer cblock = &CONTROLLING_BLOCK(_setup);
-    block_pointer eblock = &EXECUTING_BLOCK(_setup);
+//     block_pointer cblock = &CONTROLLING_BLOCK(_setup);
+//     block_pointer eblock = &EXECUTING_BLOCK(_setup);
 
-    logRemap("--->> mopup_handlers: %s", _entrynames[cblock->entry_at]);
+//     logRemap("--->> mopup_handlers: %s", _entrynames[cblock->entry_at]);
 
-    switch (cblock->entry_at) {
+//     switch (cblock->entry_at) {
 
-    case FINISH_PROLOG:
-	status = execute_call(&_setup,cblock->entry_at);
-	// if (status == INTERP_OK)  
-	//     cblock->entry_at = FINISH_BODY;
-	// if ((status == INTERP_OK) && 
-	//     (cblock->executing_remap->remap_py != NULL)) {
-	//     // a prolog was restarted and finished, and a Python body
-	//     // finished as well.
+//     case FINISH_PROLOG:
+// 	status = execute_call(&_setup,cblock->entry_at);
+// 	// if (status == INTERP_OK)  
+// 	//     cblock->entry_at = FINISH_BODY;
+// 	// if ((status == INTERP_OK) && 
+// 	//     (cblock->executing_remap->remap_py != NULL)) {
+// 	//     // a prolog was restarted and finished, and a Python body
+// 	//     // finished as well.
 
-	//     //if ( _setup.mdi_interrupt) logRemap("---- clearing MDIinterrupt");
-	//     // _setup.mdi_interrupt = false;
-	//     // eblock->o_name  = NULL;
-	// }
-	break;
+// 	//     //if ( _setup.mdi_interrupt) logRemap("---- clearing MDIinterrupt");
+// 	//     // _setup.mdi_interrupt = false;
+// 	//     // eblock->o_name  = NULL;
+// 	// }
+// 	break;
 
-    case FINISH_OWORDSUB:
-	// notyet
-	break;
+//     case FINISH_OWORDSUB:
+// 	// notyet
+// 	break;
 
-    case FINISH_BODY:
-	status = execute_call(&_setup,cblock->entry_at);
-	if ((status == INTERP_OK) && 
-	    (cblock->executing_remap->epilog_func == NULL)) {
-	    // we finished a Python body function with OK. No epilog.
-	    // if executing a remapped code under MDI, mark this call as done
-	    _setup.mdi_interrupt = false;
-	    eblock->o_name  = NULL;
-	}
-	break;
+//     case FINISH_BODY:
+// 	status = execute_call(&_setup,cblock->entry_at);
+// 	if ((status == INTERP_OK) && 
+// 	    (cblock->executing_remap->epilog_func == NULL)) {
+// 	    // we finished a Python body function with OK. No epilog.
+// 	    // if executing a remapped code under MDI, mark this call as done
+// 	    _setup.mdi_interrupt = false;
+// 	    eblock->o_name  = NULL;
+// 	}
+// 	break;
 	
-    case FINISH_EPILOG:
-	status = execute_return(&_setup,cblock->entry_at);
-	if (status == INTERP_OK) {
-	    block_pointer eblock = &EXECUTING_BLOCK(_setup);
+//     case FINISH_EPILOG:
+// 	status = execute_return(&_setup,cblock->entry_at);
+// 	if (status == INTERP_OK) {
+// 	    block_pointer eblock = &EXECUTING_BLOCK(_setup);
 
-	    // if executing a remapped code under MDI, mark this call as done
-	    _setup.mdi_interrupt = false;
-	    eblock->o_name  = NULL;
-	}
-	break;
-    default: ;
-    }
-    logRemap("<<--- mopup_handlers: status=%d next=%s", status,_entrynames[cblock->entry_at]);
+// 	    // if executing a remapped code under MDI, mark this call as done
+// 	    _setup.mdi_interrupt = false;
+// 	    eblock->o_name  = NULL;
+// 	}
+// 	break;
+//     default: ;
+//     }
+//     logRemap("<<--- mopup_handlers: status=%d next=%s", status,_entrynames[cblock->entry_at]);
 
-    return status;
-}
+//     return status;
+// }
 
 /***********************************************************************/
 

@@ -552,52 +552,8 @@ interpret_again:
 			    emcTaskCommand == 0 &&
 			    emcStatus->task.execState ==
 			    EMC_TASK_EXEC_DONE) {
-			    
-			    // we come here when the interpreter has returned INTERP_EXECUTE_FINISH,
-			    // emcTaskPlanSetWait() was called, the queue is now empty, and a synch
-			    // was already executed.
-			    // 
-			    // Due to handlers which may yield INTERP_EXECUTE_FINISH the interpreter
-			    // might return that several times in a row. It would therefore be an error
-			    // to restart readahead immediately.
-			    // 
-			    // We need to continue handlers (prolog, epilog, body) with emcTaskMopup()
-			    // and queue a synch as long as any handler yields INTERP_EXECUTE_FINISH.
-			    //
-			    // only when emcTaskMopup() finally returns INTERP_OK we're good to
-			    // continue readahad.
-
-			    execRetval = emcTaskMopup();
-			    if (execRetval == INTERP_OK) {
-				// there was nothing to do, or the handler 'return'd.
-				// good to go.
-				emcTaskPlanClearWait(); 
-			    } else  if (execRetval == INTERP_EXECUTE_FINISH) {
-				// we restarted a handler, and it yielded  INTERP_EXECUTE_FINISH again.
-				// Queue a synch; when that has been issued we'll come here again
-				// since the queue is then empty, and repeat until we eventually 
-				// get an INTERP_OK.
-				emcTaskQueueCommand(&taskPlanSynchCmd);
-				
-			    } else if (execRetval > INTERP_MIN_ERROR) {
-				emcStatus->task.interpState =  EMC_TASK_INTERP_WAITING;
-				interp_list.clear();
-				emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR,
-						"interpreter error during continuation");  
-				// FIXME need to test this case - not sure
-				// turn on readahead again?
-			    }   else if (execRetval == -1
-				    || execRetval == INTERP_EXIT ) {
-
-				emcStatus->task.interpState =   EMC_TASK_INTERP_WAITING;
-			    } else if (execRetval != 0) {
-				// end of file
-				emcStatus->task.interpState =
-				    EMC_TASK_INTERP_WAITING;
-                                emcStatus->task.motionLine = 0;
-                                emcStatus->task.readLine = 0;
-			    }
-			}
+			    emcTaskPlanClearWait();
+			 }
 		    } else {
 			readRetval = emcTaskPlanRead();
 			/*! \todo MGS FIXME
@@ -727,28 +683,14 @@ static void mdi_execute_abort(void)
 
 static void mdi_execute_hook(void)
 {
-    int execRetval;
     if (mdi_execute_wait && emcTaskPlanIsWait()) {
 	// delay reading of next line until all is done
 	if (interp_list.len() == 0 &&
 	    emcTaskCommand == 0 &&
 	    emcStatus->task.execState ==
 	    EMC_TASK_EXEC_DONE) {
-
-	    execRetval = emcTaskMopup();
-	    if (execRetval == INTERP_OK) {
-		// there was nothing to do, or the handler 'return'd.
-		// good to go.
-		emcTaskPlanClearWait(); 
-		mdi_execute_wait = 0;
-
-	    } else  if (execRetval == INTERP_EXECUTE_FINISH) {
-		// we restarted a handler, and it yielded  INTERP_EXECUTE_FINISH again.
-		// Queue a synch; when that has been issued we'll come here again
-		// since the queue is then empty, and repeat until we eventually 
-		// get an INTERP_OK.
-		emcTaskQueueCommand(&taskPlanSynchCmd);
-	    }
+	    emcTaskPlanClearWait(); 
+	    mdi_execute_wait = 0;
 	    mdi_execute_hook();
 	}
 	return;
