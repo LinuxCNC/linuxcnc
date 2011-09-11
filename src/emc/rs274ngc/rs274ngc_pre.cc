@@ -773,10 +773,6 @@ int Interp::init()
   double *pars;                 // short name for _setup.parameters
   char *iniFileName;
 
-
-
-  // printf("---------- sizeof(_setup) = %d\n", sizeof(_setup));
-
   INIT_CANON();
 
   iniFileName = getenv("INI_FILE_NAME");
