@@ -1,6 +1,7 @@
 = Outils et utilitaires pour HAL
 
-== Halcmd[[sec:Halcmd]]
+[[sec:Halcmd]]
+== Halcmd
 
 Halcmd est un outil en ligne de commande pour manipuler HAL. Il existe
 une man page plus complète pour halcmd, elle sera installée en même
@@ -13,7 +14,9 @@ est accessible, dans le répertoire principal d'EMC2, taper:
 Le chapitre <<cha:Tutoriel-HAL>> donne de nombreux exemples
 d'utilisation de halcmd.
 
-== Halmeter[[sec:Halmeter]](((Halmeter)))
+[[sec:Halmeter]]
+== Halmeter
+(((Halmeter)))
 
 Halmeter est un «voltmètre» pour HAL. Il permet de regarder les pins,
 signaux, ou paramètres en affichant la valeur courante de ces items. Il
