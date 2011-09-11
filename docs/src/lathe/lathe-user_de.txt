@@ -1,4 +1,6 @@
-= Lathe Specifics[[cha:Lathe-Specifics]](((Lathe-Specifics)))
+[[cha:Lathe-Specifics]]
+= Lathe Specifics
+(((Lathe-Specifics)))
 
 This chapter attempts to bring together all the lathe specific
 information and is currently under construction.
@@ -63,14 +65,14 @@ image::images/tool_positions.png[]
 
 In AXIS the following figures show what the Tool Positions look like, as entered in the tool table.
 
-.Tool Positions 1, 2, 3 & 4 [[fig:Tool-Positions-1-2-3-4]]
+.Tool Positions 1, 2, 3 & 4[[fig:Tool-Positions-1-2-3-4]]
 
 image::images/tool_pos_1.png[] 
 image::images/tool_pos_2.png[] 
 image::images/tool_pos_3.png[] 
 image::images/tool_pos_4.png[]
 
-.Tool Positions 5, 6, 7 & 8 [[fig:Tool-Positions-5-6-7-8]]
+.Tool Positions 5, 6, 7 & 8[[fig:Tool-Positions-5-6-7-8]]
 
 image::images/tool_pos_5.png[] 
 image::images/tool_pos_6.png[] 
