@@ -247,13 +247,9 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
 {
   int n;
   block->breadcrumbs = 0; // clear execution trail
-  // if set in the executing block, current_remap
-
   block->executing_remap = NULL;
-
   block->param_cnt = 0;
   block->remappings.clear();
-
 
   block->a_flag = false;
   block->b_flag = false;
@@ -299,6 +295,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
 
   block->o_type = O_none;
   block->o_name = 0;
+  block->o_fsm_state = -1;
 
   return INTERP_OK;
 }

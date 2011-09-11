@@ -1615,7 +1615,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       }
 
       *counter += strlen("call");
-      block->o_type = is_pycallable(&_setup,  OWORD_MODULE, block->o_name) ? O_pycall : O_call;
+      // convey starting state for call_fsm() to handle this call
+      // convert_remapped_code() might change this to CS_REMAP 
+      block->o_fsm_state = is_pycallable(&_setup,  OWORD_MODULE, block->o_name) ?
+	  CS_CALL_PY_OSUB : CS_CALL_BODY;
 
       for(param_cnt=0;(line[*counter] == '[') || (line[*counter] == '(');)
 	{

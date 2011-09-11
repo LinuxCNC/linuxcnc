@@ -442,6 +442,7 @@ typedef struct block_struct
   long     offset;   // start of line in file
   int      o_type;
   const char    *o_name;   // !!!KL be sure to free this
+  int o_fsm_state; // starting state for call_fsm() - remap, Python or NGC sub
   double   params[INTERP_SUB_PARAMS];
   int param_cnt;
 

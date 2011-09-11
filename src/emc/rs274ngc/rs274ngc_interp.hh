@@ -470,7 +470,7 @@ public:
   setup_pointer settings);   /* pointer to machine settings */
 
  // establish a new subroutine context
- int enter_context(setup_pointer settings, int call_type, int start_state);
+ int enter_context(setup_pointer settings, int start_state);
  // leave current subroutine context
  int leave_context(setup_pointer settings, bool restore = true);
 

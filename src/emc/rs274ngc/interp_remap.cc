@@ -118,7 +118,7 @@ int Interp::convert_remapped_code(block_pointer block,
     // good to go, pass to o-word call handling mechanism
     status = read(cmd);
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
-    eblock->o_type = O_remap;  // distinguish from normal NGC subs
+    eblock->o_fsm_state = CS_CALL_REMAP;  // starting state for call_fsm()
 
     CHKS(status != INTERP_OK,
 	 "convert_remapped_code: inital read returned %s",

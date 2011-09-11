@@ -1001,7 +1001,7 @@ int Interp::execute_pycall(setup_pointer settings, const char *name, int call_ph
 
 #endif 
 // prepare a new call frame.
-int Interp::enter_context(setup_pointer settings, int call_type, int start_state) 
+int Interp::enter_context(setup_pointer settings, int start_state) 
 {
     settings->call_level++;
     if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
@@ -1011,7 +1011,7 @@ int Interp::enter_context(setup_pointer settings, int call_type, int start_state
     frame->py_returned_int = 0;
     frame->py_returned_double = 0.0;
     frame->py_return_type = -1;
-    frame->frame_type = call_type;
+    frame->frame_type = start_state; // distinguish call frames
     frame->state = start_state;
     return INTERP_OK;
 }
@@ -1125,30 +1125,8 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	CHP(call_fsm(settings, block->o_type));
 	break;
 
-
-	// cases:
-	// 'freshly parsed' ngc call - tag in read()
-	// 'freshly parsed' pyosub call tag in read_o()
-	// 'freshly parsed' remap - tag in convert_remapped_code
-	//    -- on execution, enter frame, mark frame, call fsm 
-	// the NGC body will be a second call frame!
-	// call continuation of py handlers because skip_read = true: 
-	//      --- how to mark continuation? set o_type to O_continue_call?
-	//      --- do this every time a py handler gets IEF!
-	// O_endsub/return - consider callframe type to see 
-
     case O_call:
-	CHP(enter_context(settings, block->o_type, CS_CALL_BODY));
-	CHP(call_fsm(settings, block->o_type));
-	break;
-
-    case O_pycall:
-	CHP(enter_context(settings, block->o_type, CS_CALL_PY_OSUB));
-	CHP(call_fsm(settings, block->o_type));
-	break;
-
-    case O_remap:
-	CHP(enter_context(settings, block->o_type, CS_CALL_PROLOG));
+	CHP(enter_context(settings, block->o_fsm_state));
 	CHP(call_fsm(settings, block->o_type));
 	break;
 
