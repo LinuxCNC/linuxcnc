@@ -470,10 +470,11 @@ public:
   setup_pointer settings);   /* pointer to machine settings */
 
  // establish a new subroutine context
-    int enter_context(setup_pointer settings, int call_type);
+ int enter_context(setup_pointer settings, int call_type, int start_state);
  // leave current subroutine context
  int leave_context(setup_pointer settings, bool restore = true);
 
+ int call_fsm(setup_pointer settings, int event);
  int execute_pycall(setup_pointer settings, const char *name, int call_phase);
  int execute_call(setup_pointer settings, int what);   // pointer to machine settings
  int execute_return(setup_pointer settings, int what);   // pointer to machine settings

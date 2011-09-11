@@ -117,7 +117,7 @@ int Interp::pycall(setup_pointer settings,
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
     CHKS(!PYUSABLE, "pycall(%s): Pyhton plugin not initialized",funcname);
-    frame->returned = 0;
+    frame->py_return_type = 0;
 
     switch (calltype) {
     case PY_EXECUTE: // just run a string
@@ -132,7 +132,7 @@ int Interp::pycall(setup_pointer settings,
     case PY_FINISH_PROLOG:
     case PY_FINISH_BODY:
     case PY_FINISH_EPILOG:
-	logPy("pycall: call generator restart_at=%d",frame->call_phase);
+	logPy("pycall: call generator restart_at=%d",frame->state);
 	
 	// handler continuation if a generator was used
 	try {
@@ -145,7 +145,7 @@ int Interp::pycall(setup_pointer settings,
 		// Technically this means a normal end of the handler and hence we 
 		// treat it as INTERP_OK indicating this handler is now done
 		if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
-		    frame->returned = RET_STOPITERATION;
+		    frame->py_return_type = RET_STOPITERATION;
 		    bp::handle_exception();
 		    PyErr_Clear();
 		    logPy("pycall: call generator - StopIteration exception");
@@ -191,18 +191,16 @@ int Interp::pycall(setup_pointer settings,
 
 		    // and  call it for the first time.
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
-		    status = frame->py_returned_int = bp::extract<int>(frame->generator_next());
-		    frame->returned = RET_YIELD;
-		    if (status > INTERP_MIN_ERROR)
-			goto done;
-
+		    frame->py_returned_int = bp::extract<int>(frame->generator_next());
+		    frame->py_return_type = RET_YIELD;
+	
 		} else if (PyInt_Check(retval.ptr())) {  
 		    frame->py_returned_int = bp::extract<int>(retval);
-		    frame->returned = RET_INT;
+		    frame->py_return_type = RET_INT;
 		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->py_returned_int);
 		} else if (PyFloat_Check(retval.ptr())) { 
 		    frame->py_returned_double = bp::extract<double>(retval);
-		    frame->returned = RET_DOUBLE;
+		    frame->py_return_type = RET_DOUBLE;
 		    logPy("Python call %s.%s returned float: %f", module, funcname, frame->py_returned_double);
 		} else {
 		    // not a generator, int, or float - strange
@@ -216,7 +214,7 @@ int Interp::pycall(setup_pointer settings,
 		}
 	    } else {
 		logPy("call: O <%s> call returned None",funcname);
-		frame->returned = RET_NONE;
+		frame->py_return_type = RET_NONE;
 	    }
 	    break;
 
@@ -226,8 +224,10 @@ int Interp::pycall(setup_pointer settings,
 	    // must have returned an int
 	    if ((retval.ptr() != Py_None) &&
 		(PyInt_Check(retval.ptr()))) {
+
+// FIXME check new return value convention
 		status = frame->py_returned_int = bp::extract<int>(retval);
-		frame->returned = RET_INT;
+		frame->py_return_type = RET_INT;
 		logPy("pycall(%s):  PY_INTERNAL/PY_PLUGIN_CALL: return code=%d", funcname,status);
 	    } else {
 		logPy("pycall(%s):  PY_INTERNAL: expected an int return code", funcname);
@@ -258,7 +258,6 @@ int Interp::pycall(setup_pointer settings,
 	ERM("pycall: %s.%s:\n%s", module ? module:"", funcname, msg.c_str());
 	status = INTERP_ERROR;
     }
- done:
     return status;
 }
 

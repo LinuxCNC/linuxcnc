@@ -144,6 +144,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_endrepeat 15
 #define O_remap    16  // not a keyword - just indicates a remap call in progress
 #define O_pycall   17  // like O_call, but o_name is a Python callable
+#define O_continue_call   18 // signal Python handler reexecution
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -476,14 +477,14 @@ enum call_states {
     CS_CALL_PROLOG,
     CS_CONTINUE_PROLOG,
     CS_CALL_BODY,
-    CS_CONTINUTE_BODY,
+    CS_CONTINUE_BODY,
     CS_CALL_EPILOG,
     CS_CONTINUE_EPILOG,
     CS_CALL_PYBODY,
     CS_CONTINUE_PYBODY,
     CS_CALL_PY_OSUB,
     CS_CONTINUE_PY_OSUB,
-    //    CS_DONE
+    CS_DONE
 };
 
     enum entrypoints {
@@ -536,7 +537,7 @@ typedef struct context_struct {
     int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-    int call_phase; // enum call_states - call execution state machine
+    int state; // enum call_states - call execution state machine
     int frame_type; // O_remap, O_call, O_pycall
 
     // Python-related stuff
