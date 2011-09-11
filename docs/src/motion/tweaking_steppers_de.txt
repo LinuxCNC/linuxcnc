@@ -1,4 +1,6 @@
-= Stepper Tuning [[cha:Stepper-Tuning]]
+[[cha:Stepper-Tuning]]
+= Stepper Tuning
+(((Stepper Tuning)))
 
 == Getting the most out of Software Stepping
 
