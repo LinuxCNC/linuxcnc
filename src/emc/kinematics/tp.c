@@ -54,10 +54,15 @@ int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 // anychanged signals if any DIOs need to be changed
 // dios[i] = 1, DIO needs to get turned on, -1 = off
 int tpClearDIOs() {
+    //XXX: All IO's will be flushed on next synced aio/dio! Is it ok?
     int i;
     syncdio.anychanged = 0;
+    syncdio.dio_mask = 0;
+    syncdio.aio_mask = 0;
     for (i = 0; i < num_dio; i++)
 	syncdio.dios[i] = 0;
+    for (i = 0; i < num_aio; i++)
+	syncdio.aios[i] = 0;
 
     return 0;
 }
@@ -621,9 +626,14 @@ void tpToggleDIOs(TC_STRUCT * tc) {
     int i=0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
 	for (i=0; i < num_dio; i++) {
+            if (!(tc->syncdio.dio_mask & (1 << i))) continue;
 	    if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
 	    if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
 	}
+	for (i=0; i < num_aio; i++) {
+            if (!(tc->syncdio.aio_mask & (1 << i))) continue;
+	    emcmotAioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
+        }
 	tc->syncdio.anychanged = 0; //we have turned them all on/off, nothing else to do for this TC the next time
     }
 }
@@ -1239,6 +1249,12 @@ int tpActiveDepth(TP_STRUCT * tp)
 }
 
 int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end) {
+    if (0 == tp) {
+	return -1;
+    }
+    syncdio.anychanged = 1; //something has changed
+    syncdio.aio_mask |= (1 << index);
+    syncdio.aios[index] = start;
     return 0;
 }
 
@@ -1247,6 +1263,7 @@ int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end) 
 	return -1;
     }
     syncdio.anychanged = 1; //something has changed
+    syncdio.dio_mask |= (1 << index);
     if (start > 0)
 	syncdio.dios[index] = 1; // the end value can't be set from canon currently, and has the same value as start
     else 

@@ -3,7 +3,10 @@ Mesa setup page:
 Configuration Tab:
     allows you to choose the firmware,
     number of components / number of gpio, 
-    frequency of pwm / pdm and the watchdog timeout
+    frequency of pwm / pdm and the watchdog timeout.
+    The base frequency should be set as per the Mesa daughter
+    board you are using. Different boards require PDM vrs PWM
+    which is set on the connector tabs. 
     pick the firmware you wish to use and 
     you will see the component numbers change   
     default is to have all the available components active. 
@@ -51,8 +54,17 @@ Connector Tabs:
      ENCODER - a hardware base quadrature counter
 
         You select the A phase signal and the rest of the 
-        phases (B, I, and possibly M) are automatically included
-    
+        phases (B, I, and possibly M) are automatically included.
+        If using a single input or single input and index for the spindle
+        encoder, the encoder must be put in 'counter-mode'. This must be
+        manually added in a custom HAL file. For example (changing the board 
+        name and encoder number to your requirements):
+
+        setp    hm2_7i43.0.encoder.00.counter-mode 1 
+
+        HAL file. See the Hostmot2 section on encoders for more info about 
+        counter mode.
+
      MUX ENCODER - a hardware base quadrature counter
 
         You select the A phase signal and the rest of the 
@@ -62,15 +74,21 @@ Connector Tabs:
         component is used with firmware that requires a special
         daughter board from Mesa. 
         PNCconf doesn't currently let you selected the signals for
-        the second set of muxed encoders you must do them manually 
-        after PNCconf finishes.
+        the second set of muxed encoders you must add them manually 
+        in a custom HAL file.
 
      PWMGEN - a hardware base pulse width (or density) 
         modulation generator
 
-        You can select PWM or PWD in the pintype combobox
+        You can select:
+        PWM -pulse width modulation using pulse and direction output pins
+        PWD -pulse density modulation
+        UDM -pulse width modulation using up and dowm output pins
         you select the PULSE signal and the direction and enable 
-        signals are automatically setup
+        signals are automatically setup.
+        The 7i33 daughter board requires PDM.
+        The 7i29,7i30,7i40 requires PWM
+        the 7i48 requires UDM
 
      3 PWMGEN - special pwm generators used for driving brushless
         servo motors 3 windings directly.
