@@ -79,7 +79,8 @@ int Interp::convert_remapped_code(block_pointer block,
     // These are described in the remap descriptor as read from ini.
 
     // Since a remap is always executed in the context of a controlling block,
-    // this block now contains fields which hold dynamic remap information.
+    // this block now contains fields which hold dynamic remap information, like
+    // the breadcrumbs execution trail.
     // Some of these fields are initialized here -
     // conceptually the block stack is also a 'remap frame stack'.
 
@@ -89,10 +90,6 @@ int Interp::convert_remapped_code(block_pointer block,
 
     // On the corresponding O_endsub/O_return, any epilog function
     // will be executed, doing any work not doable in an NGC file.
-
-    // The reason for passing parameters through the block struct:
-    // We can avoid exposing boost.python objects in method argument lists -
-    // this impacts too much code
 
     // Note that even Python-remapped execution is pulled through the
     // oword mechanism - so no duplication of handler calling code
@@ -105,28 +102,11 @@ int Interp::convert_remapped_code(block_pointer block,
     cblock->executing_remap = remap; // the current descriptor
     cblock->param_cnt = 0;
 
-    // handle in execute_remap()
-
-    // bool build_pyargs = (remap->remap_py || remap->prolog_func || remap->epilog_func);
-
-    // // if build_pyargs and the Python plugin is not available,
-    // // we're in bad shape
-    // if (build_pyargs) {
-    // 	CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
-    // 	    remap->name);
-
-    // 	// for any Python pro/epilogs
-    // 	plist.append(settings->pythis);
-    // 	cblock->tupleargs = bp::tuple(plist);
-
-    // 	// add_parameters will decorate kwargs as per argspec
-    // 	cblock->kwargs = bp::dict();
-    // }
     if (remap->argspec && (strchr(remap->argspec, '@') != NULL)) {
     	// append a positional argument list instead of local variables
     	// if user specified '@'
-	// named local params are dealt with in execute_remap() when the new call frame
-	// is established
+	// named local params are dealt with in execute_remap() when 
+	// the new call frame is fully established
     	CHP(add_parameters(settings, cblock, &cmd[strlen(cmd)]));
     }
 

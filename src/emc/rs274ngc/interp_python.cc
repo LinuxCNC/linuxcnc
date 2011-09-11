@@ -165,7 +165,7 @@ int Interp::pycall(setup_pointer settings,
     default:
 	python_plugin->call(module,funcname, frame->tupleargs,frame->kwargs,retval);
 	CHKS(python_plugin->plugin_status() == PLUGIN_EXCEPTION,
-	     "py_call(%s):\n%s", funcname,
+	     "pycall(%s):\n%s", funcname,
 	     python_plugin->last_exception().c_str());
     }
 
@@ -191,19 +191,19 @@ int Interp::pycall(setup_pointer settings,
 
 		    // and  call it for the first time.
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
-		    status = frame->py_returned_status = bp::extract<int>(frame->generator_next());
+		    status = frame->py_returned_int = bp::extract<int>(frame->generator_next());
 		    frame->returned = RET_YIELD;
 		    if (status > INTERP_MIN_ERROR)
 			goto done;
 
 		} else if (PyInt_Check(retval.ptr())) {  
-		    frame->py_returned_status = bp::extract<int>(retval);
+		    frame->py_returned_int = bp::extract<int>(retval);
 		    frame->returned = RET_INT;
-		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->py_returned_status);
+		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->py_returned_int);
 		} else if (PyFloat_Check(retval.ptr())) { 
-		    frame->py_returned_value = bp::extract<double>(retval);
+		    frame->py_returned_double = bp::extract<double>(retval);
 		    frame->returned = RET_DOUBLE;
-		    logPy("Python call %s.%s returned float: %f", module, funcname, frame->py_returned_value);
+		    logPy("Python call %s.%s returned float: %f", module, funcname, frame->py_returned_double);
 		} else {
 		    // not a generator, int, or float - strange
 		    PyObject *res_str = PyObject_Str(retval.ptr());
@@ -226,7 +226,7 @@ int Interp::pycall(setup_pointer settings,
 	    // must have returned an int
 	    if ((retval.ptr() != Py_None) &&
 		(PyInt_Check(retval.ptr()))) {
-		status = frame->py_returned_status = bp::extract<int>(retval);
+		status = frame->py_returned_int = bp::extract<int>(retval);
 		frame->returned = RET_INT;
 		logPy("pycall(%s):  PY_INTERNAL/PY_PLUGIN_CALL: return code=%d", funcname,status);
 	    } else {

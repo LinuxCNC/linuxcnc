@@ -469,14 +469,18 @@ public:
   block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
+ // establish a new subroutine context
+    int enter_context(setup_pointer settings, int call_type);
+ // leave current subroutine context
+ int leave_context(setup_pointer settings, bool restore = true);
 
- int enter_context(setup_pointer settings);
- int leave_context(setup_pointer settings);
  int execute_pycall(setup_pointer settings, const char *name, int call_phase);
  int execute_call(setup_pointer settings, int what);   // pointer to machine settings
  int execute_return(setup_pointer settings, int what);   // pointer to machine settings
- int execute_remap(setup_pointer settings);   // remap call state machine
- int read_inputs(setup_pointer settings);
+    int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
+    int handler_returned( setup_pointer settings, 
+			  context_pointer active_frame, const char *name, bool osub);
+int read_inputs(setup_pointer settings);
 
  int convert_control_functions( /* ARGUMENTS           */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */

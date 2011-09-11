@@ -537,12 +537,16 @@ typedef struct context_struct {
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_phase; // enum call_states - call execution state machine
-       boost::python::object tupleargs; // the args tuple for Py functions
+    int frame_type; // O_remap, O_call, O_pycall
+
+    // Python-related stuff
+    boost::python::object tupleargs; // the args tuple for Py functions
     boost::python::object kwargs; // the args dict for Py functions
-    int returned;
-    double py_returned_value;
-    int py_returned_status;
-    boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
+    int py_return_type;   // type of Python return value - enum retopts 
+    double py_returned_double;
+    int py_returned_int;
+    // generator object next method as returned if Python function contained a yield statement
+    boost::python::object generator_next; 
 } context;
 
 typedef context *context_pointer;
