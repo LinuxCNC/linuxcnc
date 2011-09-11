@@ -15,13 +15,17 @@ CNC. Ce test est la toute première chose à faire pour valider un PC.
 Pour le lancer, suivre les instructions de la 
 section (<<sec:Test-de-latence-GS>>).
 
-== Sherline[[sec:Sherline]](((Sherline)))
+[[sec:Sherline]]
+== Sherline
+(((Sherline)))
 
 Si vous avez un Sherline plusieurs configurations prédéfinies sont fournies.
 Ceci est le menu principal du CNC/EMC puis choisissez la configuration Sherline
 que le vôtre allumettes et enregistrer une copie. 
 
-== Xylotex[[sec:Xylotex]](((Xylotex)))
+[[sec:Xylotex]]
+== Xylotex
+(((Xylotex)))
 
 Si vous avez un Xylotex vous pouvez sauter les sections suivantes et aller
 directement à l'Assistant de configuration pas à pas dans la section (<<cha:Assistant-graphique-pas-a-pas>>).
