@@ -1104,7 +1104,7 @@ int Interp::init()
   _setup.call_level = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
-  _setup.oword_labels = 0;
+  _setup.offset_map.clear();
 
   _setup.lathe_diameter_mode = false;
   _setup.parameters[5599] = 1.0; // enable (DEBUG, ) output
@@ -1600,7 +1600,7 @@ int Interp::reset()
   _setup.call_level = 0;
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
-  _setup.oword_labels = 0;
+  _setup.offset_map.clear();
 
   _setup.mdi_interrupt = false;
   _setup.return_value = 0;
