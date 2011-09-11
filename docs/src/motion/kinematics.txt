@@ -111,7 +111,8 @@ and BD, and by the Cartesian coordinates Dx, Dy.
 The job of the kinematics is to transform from joint lengths (AD, BD)
 to Cartesian coordinates (Dx, Dy) and vice-versa.
 
-=== Forward transformation [[sub:Forward-transformation]]
+[[sub:Forward-transformation]]
+=== Forward transformation
 
 To transform from joint space into Cartesian space we will use some
 trigonometry rules (the right triangles determined by the points (0,0),
@@ -150,7 +151,8 @@ Translated to actual code:
     return 0;
     
 
-=== Inverse transformation [[sub:Inverse-transformation]]
+[[sub:Inverse-transformation]]
+=== Inverse transformation
 
 The inverse kinematics is lots easier in our example, as we can write
 it directly:
