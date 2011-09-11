@@ -142,9 +142,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_return   13
 #define O_repeat   14
 #define O_endrepeat 15
-#define O_remap    16  // not a keyword - just indicates a remap call in progress
-#define O_pycall   17  // like O_call, but o_name is a Python callable
-#define O_continue_call   18 // signal Python handler reexecution
+#define O_continue_call   16 // signal Python handler reexecution
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -473,18 +471,20 @@ typedef struct block_struct
     int phase; // current remap execution phase
 }
 block;
+
 enum call_states {
     CS_START,
     CS_CALL_PROLOG,
     CS_CONTINUE_PROLOG,
     CS_CALL_BODY,
-    CS_CONTINUE_BODY,
+    CS_EXECUTING_BODY,
     CS_CALL_EPILOG,
     CS_CONTINUE_EPILOG,
     CS_CALL_PYBODY,
     CS_CONTINUE_PYBODY,
     CS_CALL_PY_OSUB,
     CS_CONTINUE_PY_OSUB,
+    CS_CALL_REMAP,
     CS_DONE
 };
 

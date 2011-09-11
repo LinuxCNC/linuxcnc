@@ -85,30 +85,29 @@ int Interp::findFile( // ARGUMENTS
 int Interp::control_save_offset(block_pointer block,        /* pointer to a block of RS274/NGC instructions */
 				setup_pointer settings)     /* pointer to machine settings */
 {
-  static char name[] = "control_save_offset";
-  offset_pointer op = NULL;
+    static char name[] = "control_save_offset";
+    offset_pointer op = NULL;
 
-  logOword("Entered:%s for o_name:|%s|", name, block->o_name);
+    logOword("Entered:%s for o_name:|%s|", name, block->o_name);
 
-  if (control_find_oword(block, settings, &op) == INTERP_OK) {
-      // already exists
-      ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
-	  settings->filename, settings->sequence_number,
-	  block->o_name,
-	  op->filename);
-  }
-  offset new_offset;
+    if (control_find_oword(block, settings, &op) == INTERP_OK) {
+	// already exists
+	ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
+	    settings->filename, settings->sequence_number,
+	    block->o_name,
+	    op->filename);
+    }
+    offset new_offset;
 
-  new_offset.type = block->o_type;
-  new_offset.offset = block->offset;
-  new_offset.filename = strstore(settings->filename);
-  new_offset.repeat_count = -1;
-  // the sequence number has already been bumped, so save
-  // the proper value
-  new_offset.sequence_number = settings->sequence_number - 1;
-  settings->offset_map[block->o_name] = new_offset;
-
-  return INTERP_OK;
+    new_offset.type = block->o_type;
+    new_offset.offset = block->offset;
+    new_offset.filename = strstore(settings->filename);
+    new_offset.repeat_count = -1;
+    // the sequence number has already been bumped, so save
+    // the proper value
+    new_offset.sequence_number = settings->sequence_number - 1;
+    settings->offset_map[block->o_name] = new_offset;
+    return INTERP_OK;
 }
 
 
@@ -382,7 +381,7 @@ int Interp::execute_call(setup_pointer settings, int what)
     } // end case
     return status;
 }
-
+#endif
 int Interp::execute_return(setup_pointer settings, int what)   // pointer to machine settings
 {
 
@@ -419,37 +418,37 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
 	    // we call the epilog handler while the current frame is still alive
 	    // so we can inspect it from the epilog
 
-	    if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
-		// FIXME not necessarily an NGC remap!
-		logRemap("O_endsub/return: epilog %s for NGC remap %s cl=%d rl=%d",
-			 cblock->executing_remap->epilog_func,
-			 cblock->executing_remap->remap_ngc,settings->call_level,
-			 settings->remap_level);
-		status = pycall(settings,leaving_frame,
-				REMAP_MODULE,
-				cblock->executing_remap->epilog_func,
-				PY_EPILOG);
-		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_endsub/return: epilog %s failed, unwinding",
-			     cblock->executing_remap->epilog_func);
-		    ERP(status);
-		}
-		if (status == INTERP_EXECUTE_FINISH) {
-		    leaving_frame->call_phase = FINISH_EPILOG;  
-		    logRemap("O_endsub/return: epilog %s  INTERP_EXECUTE_FINISH, mark for restart, cl=%d rl=%d",
-			     cblock->executing_remap->epilog_func, 
-			     settings->call_level,settings->remap_level);
-		    return INTERP_EXECUTE_FINISH;
-		}
-		if (status == INTERP_OK) {
-		    if (leaving_frame->call_phase == FINISH_EPILOG) {
-			leaving_frame->call_phase = NONE;  
-			logRemap("O_call: epilog %s done after restart cl=%d rl=%d",
-				 cblock->executing_remap->epilog_func, 
-				 settings->call_level,settings->remap_level);
-		    }
-		}
-	    }
+	    // if (HAS_PYTHON_EPILOG(cblock->executing_remap)) {
+	    // 	// FIXME not necessarily an NGC remap!
+	    // 	logRemap("O_endsub/return: epilog %s for NGC remap %s cl=%d rl=%d",
+	    // 		 cblock->executing_remap->epilog_func,
+	    // 		 cblock->executing_remap->remap_ngc,settings->call_level,
+	    // 		 settings->remap_level);
+	    // 	status = pycall(settings,leaving_frame,
+	    // 			REMAP_MODULE,
+	    // 			cblock->executing_remap->epilog_func,
+	    // 			PY_EPILOG);
+	    // 	if (status > INTERP_MIN_ERROR) {
+	    // 	    logRemap("O_endsub/return: epilog %s failed, unwinding",
+	    // 		     cblock->executing_remap->epilog_func);
+	    // 	    ERP(status);
+	    // 	}
+	    // 	if (status == INTERP_EXECUTE_FINISH) {
+	    // 	    leaving_frame->call_phase = FINISH_EPILOG;  
+	    // 	    logRemap("O_endsub/return: epilog %s  INTERP_EXECUTE_FINISH, mark for restart, cl=%d rl=%d",
+	    // 		     cblock->executing_remap->epilog_func, 
+	    // 		     settings->call_level,settings->remap_level);
+	    // 	    return INTERP_EXECUTE_FINISH;
+	    // 	}
+	    // 	if (status == INTERP_OK) {
+	    // 	    if (leaving_frame->call_phase == FINISH_EPILOG) {
+	    // 		leaving_frame->call_phase = NONE;  
+	    // 		logRemap("O_call: epilog %s done after restart cl=%d rl=%d",
+	    // 			 cblock->executing_remap->epilog_func, 
+	    // 			 settings->call_level,settings->remap_level);
+	    // 	    }
+	    // 	}
+	    // }
 
 	    // free local variables
 	    free_named_parameters(leaving_frame);
@@ -508,7 +507,7 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
 	    } else {
 		settings->sub_name = NULL;
 	    }
-	} else {
+	} else { // call_level == 0
 	    // a definition
 	    if (eblock->o_type == O_endsub) {
 		CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
@@ -525,7 +524,6 @@ int Interp::execute_return(setup_pointer settings, int what)   // pointer to mac
     } // end case
     return status;
 }
-#endif 
 
 //
 // TESTME!!! MORE THOROUGHLY !!!KL
@@ -625,8 +623,6 @@ static const char *o_ops[] = {
     "O_return",
     "O_repeat",
     "O_endrepeat",
-    "O_remap",
-    "O_pycall",
     "O_continue_call",
 };
 static const char *call_phases[] = {
@@ -634,13 +630,14 @@ static const char *call_phases[] = {
     "CS_CALL_PROLOG",
     "CS_CONTINUE_PROLOG",
     "CS_CALL_BODY",
-    "CS_CONTINUE_BODY",
+    "CS_EXECUTING_BODY",
     "CS_CALL_EPILOG",
     "CS_CONTINUE_EPILOG",
     "CS_CALL_PYBODY",
     "CS_CONTINUE_PYBODY",
     "CS_CALL_PY_OSUB",
-    "CS_CONTINUE_PY_OSUB"
+    "CS_CONTINUE_PY_OSUB",
+    "CS_CALL_REMAP",
     "CS_DONE"
 };
 // Propagate an error up the stack as with ERP if the result of 'call' is not
@@ -653,6 +650,9 @@ static const char *call_phases[] = {
         }                                                          \
     } while(0)
 
+#define INVALID_EVENT(cond) CHKS(cond,"call_fsm: invalid event=%s in state=%s cl=%d rl=%d", \
+				 o_ops[event], call_phases[active_frame->state], \
+				 settings->call_level, settings->remap_level);
 
 // call handling FSM. 
 // when called, call frame is already established
@@ -667,14 +667,14 @@ int Interp::call_fsm(setup_pointer settings, int event)
     bp::list plist;
 
     do {
-	logOword("call_fsm event=%s state=%s cl=%d rl=%d", 
+	logOword("call_fsm: event=%s state=%s cl=%d rl=%d status=%s", 
 		 o_ops[event], call_phases[active_frame->state],
-		 settings->call_level, settings->remap_level);
+		 settings->call_level, settings->remap_level, interp_status(status));
 
 	switch (active_frame->state) {
 
 	case CS_CALL_PY_OSUB: // first time around
-	    CHKS(event != O_pycall,"baaad..");
+	    INVALID_EVENT(event != O_call);
 	    settings->return_value = 0.0;
 	    settings->value_returned = 0;
 	    plist.append(settings->pythis); // self
@@ -699,7 +699,7 @@ int Interp::call_fsm(setup_pointer settings, int event)
 	    break;
 	
 	case CS_CONTINUE_PY_OSUB: // continuation post synch()
-	    CHKS(event != O_continue_call,"baaad..");
+	    INVALID_EVENT(event != O_continue_call);
 	    CHP(read_inputs(settings));  // update toolchange/input/probe data
 	    CHP(pycall(settings, active_frame, OWORD_MODULE,
 		       active_frame->subName, PY_FINISH_OWORDCALL));
@@ -714,13 +714,185 @@ int Interp::call_fsm(setup_pointer settings, int event)
 	    }
 	    break;
 
+	case CS_CALL_BODY: // NGC oword procedure
+	    INVALID_EVENT(event != O_call);
+	    // copy parameters from context
+	    // save old values of parameters
+	    // save current file position in context
+	    // if we were skipping, no longer
+	    if (settings->skipping_o) {
+		logOword("case O_call -- no longer skipping to:|%s|",
+			 settings->skipping_o);
+		settings->skipping_o = NULL;
+	    }    
+	    for(int i = 0; i < INTERP_SUB_PARAMS; i++)	{
+		previous_frame->saved_params[i] =
+		    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
+		settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
+		    eblock->params[i];
+	    }
+	    // if the previous file was NULL, mark positon as -1 so as not to
+	    // reopen it on return.
+	    if (settings->file_pointer == NULL) {
+		previous_frame->position = -1;
+	    } else {
+		previous_frame->position = ftell(settings->file_pointer);
+	    }
+	    // save return location
+	    previous_frame->filename = strstore(settings->filename);
+	    previous_frame->sequence_number = settings->sequence_number;
+	    logOword("return location: %s:%d offset=%ld cl=%d", 
+		     previous_frame->filename,
+		     previous_frame->sequence_number,
+		     previous_frame->position,
+		     settings->call_level);
+		 
+
+	    // set the new subName
+	    active_frame->subName = eblock->o_name;
+	    // let any  Oword sub know the number of parameters
+	    CHP(add_named_param("n_args", PA_READONLY));
+	    CHP(store_named_param(settings, "n_args",
+				  (double )eblock->param_cnt,
+				  OVERRIDE_READONLY));
+
+	    if (control_back_to(eblock, settings) == INTERP_ERROR) {
+		settings->call_level--;  //FIXTHIS - leave_context
+		ERS(NCE_UNABLE_TO_OPEN_FILE,eblock->o_name);
+		status =  INTERP_ERROR;
+	    }
+	    active_frame->state = CS_EXECUTING_BODY;
+	    break;
+
+	case CS_EXECUTING_BODY: // NGC oword procedure
+	    INVALID_EVENT((event != O_return) && (event != O_endsub));
+	    if (settings->skipping_o) {
+		logOword("case O_%s -- no longer skipping to:|%s|",
+			 (eblock->o_type == O_endsub) ? "endsub" : "return",
+			 settings->skipping_o);
+		settings->skipping_o = NULL;
+	    }
+	    if (settings->call_level != 0) {
+		int context_status = active_frame->context_status; // leave_context wipes this
+		CHP(leave_context(settings, false));
+
+		// free_named_parameters(active_frame); // free local variables
+		// leaving_frame->subName = NULL;
+		// drop one call level.
+		// settings->call_level--;
+
+		// restore subroutine parameters.
+		for(int i = 0; i < INTERP_SUB_PARAMS; i++) {
+		    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+			previous_frame->saved_params[i];
+		}
+
+		// file at this level was marked as closed, so dont reopen.
+		if (previous_frame->position == -1) {
+		    settings->file_pointer = NULL;
+		    strcpy(settings->filename, "");
+		} else {
+		    logOword("seeking to: %ld", previous_frame->position);
+		    if(settings->file_pointer == NULL) {
+			ERS(NCE_FILE_NOT_OPEN);
+		    }
+		    //!!!KL must open the new file, if changed
+		    if (0 != strcmp(settings->filename, previous_frame->filename))  {
+			fclose(settings->file_pointer);
+			settings->file_pointer = fopen(previous_frame->filename, "r");
+			strcpy(settings->filename, previous_frame->filename);
+		    }
+		    fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
+		    settings->sequence_number = previous_frame->sequence_number;
+
+		    // cleanups on return:
+#ifdef NOTYET
+		    // if this was a remap we're done
+		    if (cblock->executing_remap)
+			ERP(remap_finished(-cblock->phase));
+#endif
+
+		    // a valid previous context was marked by an M73 as auto-restore
+		    if ((context_status &
+			 (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+			(CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
+			// NB: this means an M71 invalidate context will prevent an
+			// auto-restore on return/endsub
+			restore_settings(settings, settings->call_level + 1);
+		    }
+
+		    // always invalidate on leaving a context so we dont accidentially
+		    // 'run into' a valid context when growing the stack upwards again
+		    active_frame->context_status &=  ~CONTEXT_VALID;
+		}
+
+		settings->sub_name = 0;
+		if (previous_frame->subName)  {
+		    settings->sub_name = previous_frame->subName;
+		} else {
+		    settings->sub_name = NULL;
+		}
+	    } else { // call_level == 0
+
+		logDebug("UNEXPECTED state %s:  unhandled event=%s cl=%d rl=%d", 
+			 call_phases[active_frame->state], o_ops[event], 
+			 settings->call_level, settings->remap_level);
+		status = INTERP_ERROR;
+		// // a definition
+		// if (eblock->o_type == O_endsub) {
+		//     CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
+		//     // no longer skipping or defining
+		//     if (settings->skipping_o)  {
+		// 	logOword("case O_endsub in defn -- no longer skipping to:|%s|",
+		// 		 settings->skipping_o);
+		// 	settings->skipping_o = NULL;
+		//     }
+		//     settings->defining_sub = NULL;
+		//     settings->sub_name = NULL;
+		// }
+	    } 
+	    break;
+
+
+	case CS_START: // not in a call
+	    switch (event) {
+	    case O_return:
+	    case O_endsub:
+		// a definition
+		if (eblock->o_type == O_endsub) {
+		    CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
+		    // no longer skipping or defining
+		    if (settings->skipping_o)  {
+			logOword("case O_endsub in defn -- no longer skipping to:|%s|",
+				 settings->skipping_o);
+			settings->skipping_o = NULL;
+		    }
+		    settings->defining_sub = NULL;
+		    settings->sub_name = NULL;
+		}
+		active_frame->state = CS_DONE;
+
+		break;
+	    default:
+		logDebug("state %s:  unhandled event=%s cl=%d rl=%d", 
+			 call_phases[active_frame->state], o_ops[event], 
+			 settings->call_level, settings->remap_level);
+		status = INTERP_ERROR;
+	    }
+	    break;
+
 	default:
-	    logDebug("unhandled state %s event %s cl=%d rl=%d", 
-		 o_ops[event], call_phases[active_frame->state],
-		 settings->call_level, settings->remap_level);
+	    logDebug("state %s unhandled, event=%s cl=%d rl=%d", 
+		     call_phases[active_frame->state], o_ops[event], 
+		     settings->call_level, settings->remap_level);
 	    status = INTERP_ERROR;
 	}
-    } while ((status == INTERP_OK) && (active_frame->state != CS_DONE));
+    } while ((status == INTERP_OK) && 
+	     (active_frame->state != CS_DONE) &&
+	     (active_frame->state != CS_EXECUTING_BODY));
+
+    if (active_frame->state == CS_DONE)
+	active_frame->state = CS_START; // rewind fsm
 
     return status;
 }
@@ -1047,7 +1219,7 @@ Returned Value: int (INTERP_OK)
 Side effects:
    Changes the flow of control.
 
-Called by: execute_block
+Called by: execute
 
 Calls: control_skip_to
        control_back_to
@@ -1076,6 +1248,9 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	return INTERP_OK;
     }
 
+    // if skipping_o was set, we are now on a line which contains that O-word.
+    // if skipping_to_sub was set, we are now on the 'O-name sub' definition line.
+
     switch (block->o_type) {
 
     case O_none:
@@ -1089,12 +1264,8 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	// if we were skipping, no longer
 	if (settings->skipping_o) {
 	    logOword("sub(o_|%s|) was skipping to here", settings->skipping_o);
-
 	    // skipping to a sub means that we must define this now
 	    CHP(control_save_offset( block, settings));
-	}
-
-	if (settings->skipping_o) {
 	    logOword("no longer skipping to:|%s|", settings->skipping_o);
 	    settings->skipping_o = NULL; // this IS our block number
 	}
@@ -1106,12 +1277,13 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		     settings->parameters[2],
 		     settings->parameters[3]);
 	} else {
-	    logOword("started a subroutine defn: %s",block->o_name);
-	    // a definition
+	    // a definition. We're on the O<name> sub line.
+	    logOword("started a subroutine defn: %s",block->o_name);   
 	    CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
 	    CHP(control_save_offset( block, settings));
 
-	    settings->skipping_o = block->o_name; // start skipping
+	    // start skipping to the corresponding ensub.
+	    settings->skipping_o = block->o_name; 
 	    settings->skipping_start = settings->sequence_number;
 	    settings->defining_sub = 1;
 	    settings->sub_name = block->o_name;
@@ -1121,8 +1293,8 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 
     case O_endsub:
     case O_return:
-	// this will also leave_context() including appropriate actions
 	CHP(call_fsm(settings, block->o_type));
+	// CHP(execute_return(settings, NORMAL_RETURN)); same thing
 	break;
 
     case O_call:
