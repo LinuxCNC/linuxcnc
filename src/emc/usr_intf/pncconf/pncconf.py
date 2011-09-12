@@ -1005,9 +1005,15 @@ class Data:
                 # This initializes pins
                 for i in range(0,48):
                     pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
-                    self[pinname] = UNUSED_INPUT
+                    if i < 24:
+                        self[pinname] = UNUSED_INPUT
+                    else:
+                        self[pinname] = UNUSED_OUTPUT
                     pinname ="mesa%dsserial%d_%dpin%dtype"% (boardnum, port,channel,i)
-                    self[pinname] = GPIOI
+                    if i < 24:
+                        self[pinname] = GPIOI
+                    else:
+                        self[pinname] = GPIOO
                     pinname ="mesa%dsserial%d_%dpin%dinv"% (boardnum, port,channel,i)
                     self[pinname] = False
 
