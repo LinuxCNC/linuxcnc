@@ -122,7 +122,7 @@ used to back-calculate from commanded angle to actual phase angle. It is only
 relevant to drives which expect rotor-angle input rather than phase-angle
 demand. Should be 0 for most drives. """;
 
-param rw unsigned output-pattern if personality & 0x40
+param rw unsigned output-pattern=25 if personality & 0x400
 """Commutation pattern to be output in Hall Signal translation mode. See the
 description of /fBpattern/fR for details""";
 
