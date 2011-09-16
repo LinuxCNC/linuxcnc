@@ -457,6 +457,14 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("context_status", &context::context_status)
 	.def_readwrite("named_params",  &context::named_params)
 
+	.def_readwrite("call_type",  &context::call_type)
+	.def_readwrite("tupleargs",  &context::tupleargs)
+	.def_readwrite("kwargs",  &context::kwargs)
+	.def_readwrite("py_return_type",  &context::py_return_type)
+	.def_readwrite("py_returned_double",  &context::py_returned_double)
+	.def_readwrite("py_returned_int",  &context::py_returned_int)
+	.def_readwrite("generator_next",  &context::generator_next)
+
 	;
 
     class_ <remap,noncopyable>("Remap",no_init)
@@ -531,6 +539,9 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("offset",&block::offset)
 	.def_readwrite("o_type",&block::o_type)
 	.def_readwrite("executing_remap",&block::executing_remap)
+	.def_readwrite("call_type",&block::call_type)
+	.def_readwrite("breadcrumbs",&block::breadcrumbs)
+	.def_readwrite("phase",&block::phase)
 
 	//  read-only
 	.add_property("comment",  &get_comment)

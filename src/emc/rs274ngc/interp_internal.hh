@@ -531,7 +531,7 @@ typedef struct context_struct {
     int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-    int context_type; // enum call_types
+    int call_type; // enum call_types
 
     // Python-related stuff
     boost::python::object tupleargs; // the args tuple for Py functions
