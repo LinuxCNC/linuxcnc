@@ -183,16 +183,7 @@ Called By: external programs
 int Interp::close()
 {
     logOword("close()");
-    // be "lazy" only if we're not aborting a call in progress
-    // in which case we need to reset() the call stack
-    // this does not reset the filename properly 
-    if(_setup.use_lazy_close) //  && (_setup.call_level == 0)) 
-    {
-      _setup.lazy_closing = 1;
-      return INTERP_OK;
-    }
-
-  if (_setup.file_pointer != NULL) {
+   if (_setup.file_pointer != NULL) {
     fclose(_setup.file_pointer);
     _setup.file_pointer = NULL;
     _setup.percent_flag = false;
@@ -266,8 +257,7 @@ int Interp::_execute(const char *command)
       // !!!KL not clear what happens if last execution failed while in
       // !!!KL a subroutine
 
-      // NOTE: the last executed file will still be open, because "close"
-      // is really a lazy close.
+      // NOTE: the last executed file will be closed.
     
       // we had an INTERP_OK, so no need to set up another call to finish after sync()
       if (_setup.mdi_interrupt) {
@@ -762,8 +752,6 @@ int Interp::init()
 	      log_file = stderr;
 	  }
 
-          _setup.use_lazy_close = 1;
-
 	  _setup.wizard_root[0] = 0;
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
@@ -1150,15 +1138,9 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   int index;
   int length;
 
-  logOword("open()");
-  if(_setup.use_lazy_close && _setup.lazy_closing)
-    {
-      _setup.use_lazy_close = 0; // so that close will work
-      close();
-      _setup.use_lazy_close = 1;
-      _setup.lazy_closing = 0;
-    }
 
+  logOword("open()");
+  close();
   CHKS((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
   CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");

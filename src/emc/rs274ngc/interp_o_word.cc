@@ -631,7 +631,8 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		}
 		//!!!KL must open the new file, if changed
 		if (0 != strcmp(settings->filename, previous_frame->filename))  {
-		    fclose(settings->file_pointer);
+		    if (settings->file_pointer)
+			    fclose(settings->file_pointer);
 		    settings->file_pointer = fopen(previous_frame->filename, "r");
 		    strcpy(settings->filename, previous_frame->filename);
 		}
