@@ -182,7 +182,11 @@ Called By: external programs
 
 int Interp::close()
 {
-  if(_setup.use_lazy_close)
+    logOword("close()");
+    // be "lazy" only if we're not aborting a call in progress
+    // in which case we need to reset() the call stack
+    // this does not reset the filename properly 
+    if(_setup.use_lazy_close) //  && (_setup.call_level == 0)) 
     {
       _setup.lazy_closing = 1;
       return INTERP_OK;
@@ -198,16 +202,6 @@ int Interp::close()
   return INTERP_OK;
 }
  
-const char * _entrynames[] = {
-	"NONE", 
-	"NORMAL_CALL", 
-	"NORMAL_RETURN",
-	"FINISH_OWORDSUB",
-	"FINISH_BODY",
-	"FINISH_EPILOG",
-	"FINISH_PROLOG"
-};
-
 
 /***********************************************************************/
 
@@ -242,8 +236,6 @@ int Interp::_execute(const char *command)
   extern const char *call_typenames[];
   extern const char *o_ops[];
 
-
-
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
@@ -253,42 +245,18 @@ int Interp::_execute(const char *command)
 	return status;
     }
   }
-  logDebug("execute: command=%s M=%d  mdi_int=%d o_type=%s o_name=%s cl=%d rl=%d type=%s state=%s",
-	   command, MDImode, _setup.mdi_interrupt, o_ops[eblock->o_type], eblock->o_name,
+  logDebug("execute:%s %s='%s' mdi_int=%d o_type=%s o_name=%s cl=%d rl=%d type=%s state=%s",
+	   MDImode ? "MDI" : "auto",
+	   command ? "command" : "line",
+	   command ? command : _setup.linetext,
+	    _setup.mdi_interrupt, o_ops[eblock->o_type], eblock->o_name,
 	   _setup.call_level,_setup.remap_level, 
 	   eblock->call_type < 0 ? "*unset*" : call_typenames[eblock->call_type], 
 	   call_statenames[_setup.call_state]);
 
-// 223 
-//  224   logDebug("MDImode = 1");
-//  225   logDebug("Interp::execute(%s)", command);
-//  226   // process control functions -- will skip if skipping
-//  227   //  if (_setup.block1.o_number != 0)
-//  228   if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
-//  229     {
-//  230       logDebug("Convert control functions");
-//  231       CHP(convert_control_functions(&(_setup.block1), &_setup));
-//  232 
-//  233 #if 1
-//  234       // let MDI code call subroutines.
-//  235       // !!!KL not clear what happens if last execution failed while in
-//  236       // !!!KL a subroutine
-//  237 
-//  238       // NOTE: the last executed file will still be open, because "close"
-//  239       // is really a lazy close.
-//  240     
-//  241       if (_setup.mdi_interrupt) {
-//  242           _setup.mdi_interrupt = false;
-//  243           MDImode = 1;
-//  244       }
-//  245       logDebug("!!!KL Open file is:%s:", _setup.filename);
-//  246       logDebug("MDImode = %d", MDImode);
-//  247       while(MDImode && _setup.call_level) // we are still in a subroutine
-
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
-      //  _setup.mdi_interrupt = (status == INTERP_EXECUTE_FINISH);  
       if (status > INTERP_MIN_ERROR) {
 	  _setup.remap_level = 0;
       }
@@ -306,11 +274,6 @@ int Interp::_execute(const char *command)
 	  _setup.mdi_interrupt = false;
 	  MDImode = 1;
       }
-      // 
-      if (_setup.call_state == CS_DONE) {
-      	  _setup.call_state = CS_NORMAL;
-	  //  MDImode = 1;
-      }
       logDebug("!!!KL Open file is:%s:", _setup.filename);
       logDebug("MDImode = %d", MDImode);
       while(MDImode && _setup.call_level) // we are still in a subroutine
@@ -318,11 +281,8 @@ int Interp::_execute(const char *command)
           status = read(0);  // reads from current file and calls parse
           if (status != INTERP_OK)
 	    {
-		if (status > INTERP_MIN_ERROR) {
-		    logRemap("-- clearing remap stack (current level=%d) due to read(0) status %s, blocktext='%s' MDImode=%d",
-			    _setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
+		if (status > INTERP_MIN_ERROR)
 		    _setup.remap_level = 0;
-		}
 		return status;
 	    }
           status = execute();  // special handling for mdi errors
@@ -330,11 +290,6 @@ int Interp::_execute(const char *command)
 		if (status == INTERP_EXECUTE_FINISH) {
 		    _setup.mdi_interrupt = true;
 		} else {
-		    if (status > INTERP_MIN_ERROR) {
-			logRemap("-- clearing remap stack (current level=%d) due to execute() status %s, blocktext='%s' MDImode=%d",
-				_setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
-			_setup.remap_level = 0;
-		    }
 		    reset();
 		}
                CHP(status);
@@ -471,6 +426,7 @@ int Interp::_execute(const char *command)
 	      } else {
 		  // this should get the osub going
 		  status = execute(0);
+		  CHP(status);
 		  // when this is done, blocks[0] will be executed as per standard case
 		  // on endsub/return and g_codes/m_codes/settings recorded there.
 	      }
@@ -538,8 +494,8 @@ int Interp::execute(const char *command, int line_number)
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
-	logRemap("<----------------------------------------------------------- execute() clearing mdi_interrupt");
-	_setup.mdi_interrupt = false;  // seems to work ok! FIXME mah
+	logDebug(" execute() clearing mdi_interrupt");
+	_setup.mdi_interrupt = false;  // seems to work ok! FIXME mah is this needed?
     }
     return status;
 }
@@ -1194,6 +1150,7 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   int index;
   int length;
 
+  logOword("open()");
   if(_setup.use_lazy_close && _setup.lazy_closing)
     {
       _setup.use_lazy_close = 0; // so that close will work
@@ -1432,7 +1389,10 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   if ((read_status == INTERP_EXECUTE_FINISH)
       || (read_status == INTERP_OK)) {
     if (_setup.line_length != 0) {
-	CHP(parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup));
+	//CHP(parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup));
+	read_status = parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup);
+	if (read_status > INTERP_MIN_ERROR)
+	    logDebug("FAIL: %s", _setup.blocktext);
     }
 
     else // Blank line (zero length)
@@ -1560,6 +1520,7 @@ which are called by Interp::init) change the model.
 
 int Interp::reset()
 {
+    logOword("reset() cl=%d filename=%s",_setup.call_level,_setup.filename);
   _setup.linetext[0] = 0;
   _setup.blocktext[0] = 0;
   _setup.line_length = 0;
@@ -1592,29 +1553,23 @@ int Interp::reset()
     if (sub->filename && !strcmp(_setup.filename, sub->filename)) {
       fclose(_setup.file_pointer);
       _setup.file_pointer = fopen(sub->filename, "r");
-
+      logOword("reset() restoring '%s' from level %d",sub->filename,_setup.call_level);
+    
       strcpy(_setup.filename, sub->filename);
     }
 
     fseek(_setup.file_pointer, sub->position, SEEK_SET);
-
     _setup.sequence_number = sub->sequence_number;
   }
-  if(_setup.sub_name) {
-    _setup.sub_name = NULL;
-  }
-
-  // reset remapping stack
-  _setup.remap_level = 0;
-  // reset call level if a sub aborted
-  _setup.call_level = 0;
+  _setup.sub_name = NULL;
+  _setup.remap_level = 0; // reset remapping stack
+  _setup.call_level = 0;  // reset call level if a sub aborted
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.offset_map.clear();
-
   _setup.mdi_interrupt = false;
   _setup.return_value = 0;
-
+  _setup.value_returned = 0;
   qc_reset();
 
   return INTERP_OK;
@@ -1666,6 +1621,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
   double *pars;                 // short name for _setup.parameters
   int k;
 
+    logOword("restore_parameters()");
   // it's OK if the parameter file doesn't exist yet
   // it'll be created in due course with some default values
   if(access(filename, F_OK) == -1)
@@ -1758,6 +1714,8 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
+  logOword("save_parameters()");
+
   if(access(filename, F_OK)==0) 
   {
     // rename as .bak
@@ -1843,6 +1801,8 @@ int Interp::synch()
 {
 
   char file_name[LINELEN];
+
+  logOword("synch()");
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
