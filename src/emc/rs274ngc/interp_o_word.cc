@@ -256,7 +256,7 @@ int Interp::execute_call(setup_pointer settings,
 		_setup.call_state = CS_REEXEC_PYOSUB;
 		break;
 	    default:
-		_setup.call_state = CS_DONE; // clear call_state on errors too
+		_setup.call_state = CS_NORMAL;
 		settings->sequence_number = previous_frame->sequence_number;
 		CHP(status);
 		// M73 auto-restore is of dubious value in a Python subroutine
