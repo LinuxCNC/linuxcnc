@@ -7,6 +7,7 @@
 
 extern int done;
 extern int emcOperatorError(int id, const char *fmt, ...);
+extern int emcOperatorText(int id, const char *fmt, ...);
 
 void backtrace(int signo)
 {
@@ -33,7 +34,8 @@ void backtrace(int signo)
         waitpid(child_pid, &status,0);
 	if (signo == SIGUSR1) {  // continue running after backtrace
 	    signal(SIGUSR1, backtrace);
-	    fprintf(stderr, "%s continuing status=%d\n", name_buf, status);
+	    emcOperatorText(0, "backtrace for %s stored in %s, continuing", name_buf, filename);
+	    fprintf(stderr, "%s: backtrace stored in %s, continuing\n", name_buf, filename);
 	} else {
 	    // this takes emcmodule.cc:EMC_COMMAND_TIMEOUT seconds to display:
 	    if (status == 0) // backtrace succeeded
