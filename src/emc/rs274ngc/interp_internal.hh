@@ -473,15 +473,14 @@ block;
 
 // indicates which type of Python handler yielded, and needs reexecution
 // post sync/read_inputs
-
 enum call_states {
-    CS_DONE,  // signal end of rexecution phase - no furthere re-calls of this block
     CS_NORMAL,
     CS_REEXEC_PROLOG,
     CS_REEXEC_PYBODY,
     CS_REEXEC_EPILOG,
     CS_REEXEC_PYOSUB,
 };
+
 // detail for O_call; tags the frame
 enum call_types {
     CT_NGC_OWORD_SUB,    // no restartable Python code involved

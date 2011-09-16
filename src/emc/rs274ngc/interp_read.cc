@@ -1472,6 +1472,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   const char *subName;
   char fullNameBuf[2*LINELEN+1];
   int oNumber;
+  extern const char *o_ops[];
 
   CHKS((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
@@ -1565,7 +1566,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
-  logDebug("o_type:%d o_name: %s  line:%d %s", block->o_type, block->o_name,
+  logDebug("o_type:%s o_name: %s  line:%d %s", o_ops[block->o_type], block->o_name,
 	   block->line_number, line);
 
   if (block->o_type == O_sub)

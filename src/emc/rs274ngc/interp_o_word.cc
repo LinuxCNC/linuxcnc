@@ -150,7 +150,6 @@ const char *o_ops[] = {
 };
 
 const char *call_statenames[] = {
-    "CS_DONE",
     "CS_NORMAL",
     "CS_REEXEC_PROLOG",
     "CS_REEXEC_PYBODY",
@@ -548,8 +547,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		    _setup.call_state = CS_REEXEC_EPILOG;
 		    break;
 		default:
-		    _setup.call_state = CS_DONE; // clear call_state on errors too
-		    // eblock->o_name = NULL; // no further reexecution
+		    _setup.call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
 		    CHP(status);
 		    // M73 auto-restore is of dubious value in a Python subroutine
