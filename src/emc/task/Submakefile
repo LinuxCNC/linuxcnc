@@ -21,9 +21,10 @@ MILLTASKSRCS := \
 	emc/motion/stashf.c \
 	emc/rs274ngc/tool_parse.cc \
 	emc/task/taskmodule.cc \
-	emc/task/signalhandler.cc \
 	emc/task/taskclass.cc \
+	emc/task/backtrace.cc \
 	$(ULAPISRCS)
+
 USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=

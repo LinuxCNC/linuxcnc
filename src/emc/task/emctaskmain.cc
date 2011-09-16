@@ -129,9 +129,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd);
 NMLmsg *emcTaskCommand = 0;
 
 // signal handling code to stop main loop
-static int done;
+int done;
 static int emctask_shutdown(void);
 static int pseudoMdiLineNumber = INT_MIN;
+extern void backtrace(int signo);
 
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
@@ -2990,13 +2991,8 @@ static int iniLoad(const char *filename)
 	// set_rcs_print_flag(PRINT_EVERYTHING);
 	max_rcs_errors_to_print = -1;
     }
-    if (EMC_DEBUG & EMC_DEBUG_GDBONSIGNAL) {
-	// enable backtrace on USR2
-	// enable gdb in new window on SEGV or USR2
-	setup_signal_handlers();
-    }
 
-   if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
+    if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
 	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
 		strncpy(version, "unknown", LINELEN-1);
@@ -3123,6 +3119,11 @@ int main(int argc, char *argv[])
     signal(SIGINT, emctask_quit);
     // and SIGTERM (used by runscript to shut down)
     signal(SIGTERM, emctask_quit);
+
+    // create a backtrace on stderr
+    signal(SIGSEGV, backtrace);
+    signal(SIGFPE, backtrace);
+    signal(SIGUSR1, backtrace);
 
     // set print destination to stdout, for console apps
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
