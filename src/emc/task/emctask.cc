@@ -42,6 +42,9 @@
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 Interp interp;
+setup_pointer _is = &interp._setup; // helper for gdb hardware watchpoints FIXME 
+
+
 
 
 /*
@@ -380,6 +383,7 @@ static void print_interp_error(int retval)
 
 int emcTaskPlanInit()
 {
+    //    _is = &interp._setup;  // FIXME
     interp.ini_load(EMC_INIFILE);
     waitFlag = 0;
 
