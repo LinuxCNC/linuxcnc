@@ -320,242 +320,13 @@ int Interp::execute_call(setup_pointer settings,
 		}
 	    }
 
-	    if (remap->remap_ngc) 
+	    // call the NGC remap procedure
+	    if (remap->remap_ngc) {
 		CHP(execute_call(settings, current_frame,
 				 CT_NGC_OWORD_SUB, CS_NORMAL));
+	    }
 	}
     }
-
-    return status;
-#if 0
-    // determine if this sub is the  body executing on behalf of a remapped code
-    // we're loosing a bit of context by funneling everything through the osub call
-    // interface, which needs to be reestablished here but it's worth the generality
-    is_remap_handler =
-	(what > FINISH_OWORDSUB) || // restarting a Python handler which yielded INTERP_EXECUTE_FINISH
-	(cblock->executing_remap != NULL) &&
-	(((cblock->executing_remap->remap_py != NULL) &&
-	  (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))) ||
-	 (((cblock->executing_remap->remap_ngc != NULL) &&
-	   (!strcmp(cblock->executing_remap->remap_ngc, eblock->o_name)))));
-
-    is_py_callable = 	(what > NORMAL_RETURN) || // already determined on initial call
-	is_pycallable(settings, is_remap_handler ? REMAP_MODULE : OWORD_MODULE, eblock->o_name);
-    is_py_osub = is_py_callable && ! is_remap_handler;
-
-    is_py_remap_handler = (what ==  FINISH_BODY) || 
-	((cblock->executing_remap != NULL) &&
-	((cblock->executing_remap->remap_py != NULL) &&
-	 (!strcmp(cblock->executing_remap->remap_py, eblock->o_name))));
-	
-
-    // switch (what) {
-    // case NORMAL_CALL:
-    // 	// copy parameters from context
-    // 	// save old values of parameters
-    // 	// save current file position in context
-    // 	// if we were skipping, no longer
-    // 	if (settings->skipping_o) {
-    // 	    logOword("case O_call -- no longer skipping to:|%s|",
-    // 		     settings->skipping_o);
-    // 	    settings->skipping_o = NULL;
-    // 	}
-    // 	// if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
-    // 	//     ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
-    // 	// }
-	if (is_py_osub) {
-	    logDebug("O_call: vanilla osub pycall(%s), preparing positional args", eblock->o_name);
-	    py_exception = false;
-
-// moved to execute_pycall
-
-	//     try {
-	//     	// call with list of positional parameters
-	//     	// no saving needed - this is call by value
-	//     	bp::list plist;
-	//     	plist.append(settings->pythis); // self
-	//     	for(int i = 0; i < eblock->param_cnt; i++)
-	//     	    plist.append(eblock->params[i]);
-	//     	eblock->tupleargs = bp::tuple(plist);
-	//     	eblock->kwargs = bp::dict();
-	//     }
-	//     catch (bp::error_already_set) {
-	//     	if (PyErr_Occurred()) {
-	//     	    PyErr_Print();
-	//     	}
-	//     	bp::handle_exception();
-	//     	PyErr_Clear();
-	//     	py_exception = true;
-	//     }
-	//     if (py_exception) {
-	//     	CHKS(py_exception,"O_call: Py exception preparing arguments for %s",
-	//     	     eblock->o_name);
-	//     }
-	// } else {
-	//     for(i = 0; i < INTERP_SUB_PARAMS; i++)	{
-	// 	previous_frame->saved_params[i] =
-	// 	    settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM];
-	// 	settings->parameters[i + INTERP_FIRST_SUBROUTINE_PARAM] =
-	// 	    eblock->params[i];
-	//     }
-	// }
-
-	// // if the previous file was NULL, mark positon as -1 so as not to
-	// // reopen it on return.
-	// if (settings->file_pointer == NULL) {
-	//     previous_frame->position = -1;
-	// } else {
-	//     previous_frame->position = ftell(settings->file_pointer);
-	// }
-
-	// // save return location
-	// previous_frame->filename = strstore(settings->filename);
-	// previous_frame->sequence_number = settings->sequence_number;
-	// logOword("return location: %s:%d offset=%ld cl=%d", 
-	// 	 previous_frame->filename,
-	// 	 previous_frame->sequence_number,
-	// 	 previous_frame->position,
-	// 	 settings->call_level);
-		 
-
-	// // set the new subName
-	// current_frame->subName = eblock->o_name;
-	// settings->call_level++;
-
-	// // let any  Oword sub know the number of parameters
-	// if (!(is_py_osub || is_py_remap_handler)) {
-	//     CHP(add_named_param("n_args", PA_READONLY));
-	//     CHP(store_named_param(settings, "n_args",
-	// 			  (double )eblock->param_cnt,
-	// 			  OVERRIDE_READONLY));
-	// }
-	// fall through on purpose 
-
-    case FINISH_PROLOG:
-	if (HAS_PYTHON_PROLOG(cblock->executing_remap)) {
-	    logRemap("O_call: prolog %s for remap %s (%s)  cl=%d rl=%d",
-		     cblock->executing_remap->prolog_func,
-		     REMAP_FUNC(cblock->executing_remap),
-		     cblock->executing_remap->name,
-		     settings->call_level,
-		     settings->remap_level);
-	    status = pycall(settings, current_frame, // cblock,
-			    REMAP_MODULE,
-			    cblock->executing_remap->prolog_func,
-			    PY_PROLOG);
-	    if (status > INTERP_MIN_ERROR) {
-		logOword("O_call: prolog pycall(%s) failed, unwinding",
-			 cblock->executing_remap->prolog_func);
-		ERP(status);
-	    }
-	    if ((status == INTERP_OK) &&
-		(current_frame->call_phase == FINISH_PROLOG)) { // finally done after restart
-		current_frame->call_phase = NONE;
-		logRemap("O_call: prolog %s done after restart cl=%d rl=%d",
-			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
-	    }
-	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		current_frame->call_phase = FINISH_PROLOG;  
-		logRemap("O_call: prolog %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
-			 cblock->executing_remap->prolog_func, settings->call_level,settings->remap_level);
-		return INTERP_EXECUTE_FINISH;
-	    }
-	}
-	// fall through on purpose 
-
-
-// now in execute_pycall
-
-    case FINISH_OWORDSUB:
-    	// a Python oword sub can be executed inline -
-    	// no control_back_to() needed
-    	// might want to cache this in an offset struct eventually
-    	if (is_py_osub) {
-    	    status = pycall(settings, eblock,
-    			    OWORD_MODULE,
-    			    eblock->o_name, PY_OWORDCALL);
-
-    	    //FIXME make restartable with yield
-    	    if (status > INTERP_MIN_ERROR) {
-    		logOword("O_call: vanilla osub pycall(%s) failed, unwinding",
-    			 eblock->o_name);
-    	    }
-    	    if (status == INTERP_OK && (eblock->returned == RET_DOUBLE)) {
-    		logOword("O_call: vanilla osub pycall(%s) returned %lf",
-    			 eblock->o_name, eblock->py_returned_value);
-    		settings->return_value = eblock->py_returned_value;
-    		settings->value_returned = 1;
-    	    } else {
-    		settings->return_value = 0.0;
-    		settings->value_returned = 0;
-    	    }
-    	    settings->call_level--;  // drop back
-    	    return status;
-    	}
-	// fall through on purpose 
-
-    case FINISH_BODY:
-	// a Python remap handler can be executed inline too -
-	// no control_back_to() needed
-	if (is_py_remap_handler) {
-	    
-	    current_frame->tupleargs = bp::make_tuple(settings->pythis); 
-
- 	    status =  pycall(settings, current_frame,
-			     REMAP_MODULE,
-			     cblock->executing_remap->remap_py,
-			     PY_BODY);
-
-	    if (status >  INTERP_MIN_ERROR) {
-		logRemap("O_call: pycall %s returned %s, unwinding (%s)",
-			 cblock->executing_remap->remap_py,
-			 interp_status(status),
-			 cblock->executing_remap->name);
-		settings->call_level--;  // unwind this call
-		// a failing remap handler is expected to set an appropriate error message
-		// which is why we just return status without a message
-		return status; 
-	    }
-
-	    if (status == INTERP_EXECUTE_FINISH) {  // cede control and mark restart point
-		current_frame->call_phase = FINISH_BODY;  
-		logRemap("O_call: body %s returned INTERP_EXECUTE_FINISH, mark restart cl=%d rl=%d",
-			 cblock->executing_remap->remap_py, settings->call_level,settings->remap_level);
-		return INTERP_EXECUTE_FINISH;
-	    }
-	    // this condition corresponds to an endsub/return of a Python osub
-	    // signal that this remap is done and drop call level.
-	    if (status == INTERP_OK) {
-		if (current_frame->call_phase == FINISH_BODY) { // finally done after restart
-		    current_frame->call_phase = NONE;
-		    // settings->call_level--; // compensate bump above
-		    if (current_frame->returned == RET_STOPITERATION) {
-			// the user executed 'yield INTERP_OK' which is fine but keeps
-			// the generator object hanging around (I think)
-			// unsure how to do this - not like so: cblock->generator_next.del();
-		    }
-		    logRemap("O_call: %s done after restart, StopIteration=%d cl=%d rl=%d",
-			     cblock->executing_remap->remap_py,(int) current_frame->returned == RET_STOPITERATION,
-			     settings->call_level, settings->remap_level);
-		}
-		logRemap("O_call: %s returning INTERP_OK", cblock->executing_remap->remap_py);
-		 settings->call_level--; // and return to previous level
-		ERP(remap_finished(-cblock->phase));
-		return status;
-	    }
-	    logRemap("O_call: %s OOPS STATUS=%d", eblock->o_name, status);
-
-	}
-	logRemap("O_call: %s STATUS=%d  cl=%d rl=%d", eblock->o_name, status, settings->call_level,settings->remap_level);
-
-	// if (control_back_to(eblock, settings) == INTERP_ERROR) {
-	//     settings->call_level--;
-	//     ERS(NCE_UNABLE_TO_OPEN_FILE,eblock->o_name);
-	//     return INTERP_ERROR;
-	// }
-
-    } // end case
-#endif
     return status;
 }
 
@@ -641,25 +412,12 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			 previous_frame->position);
 
 		// cleanups on return:
-
-		// if this was a remap we're done
-		if (cblock->executing_remap)
-		    CHP(remap_finished(-cblock->phase));
-
 		CHP(leave_context(settings, true));
-		// FIXME M73 broken!
-		// // a valid previous context was marked by an M73 as auto-restore
-		// if ((current_frame->context_status &
-		//      (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
-		//     (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
 
-		//     // NB: this means an M71 invalidate context will prevent an
-		//     // auto-restore on return/endsub
-		//     restore_settings(settings, settings->call_level + 1);
-		// }
-		// // always invalidate on leaving a context so we dont accidentially
-		// // 'run into' a valid context when growing the stack upwards again
-		// current_frame->context_status &=  ~CONTEXT_VALID;
+		// if this was a remap frame we're done
+		if (current_frame->context_status & REMAP_FRAME) {
+		    CHP(remap_finished(-cblock->phase));
+		}
 	    }
 
 	    settings->sub_name = 0;
@@ -805,53 +563,52 @@ int Interp::handler_returned( setup_pointer settings,  context_pointer active_fr
  
 
 // prepare a new call frame.
-int Interp::enter_context(setup_pointer settings, const char *name, int call_type) 
+int Interp::enter_context(setup_pointer settings, block_pointer block) 
 {
     logOword("enter_context cl=%d->%d type=%s", 
-	     settings->call_level, settings->call_level+1, call_typenames[call_type]);
+	     settings->call_level, settings->call_level+1, 
+	     call_typenames[block->call_type]);
 
     settings->call_level++;
     if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
 	ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
     }
     context_pointer frame = &settings->sub_context[settings->call_level];
-    frame->subName = name;
+    // mark frame for finishing remap
+    frame->context_status = (block->executing_remap != NULL) ? REMAP_FRAME : 0;
+    frame->subName = block->o_name;
     frame->py_returned_int = 0;
     frame->py_returned_double = 0.0;
     frame->py_return_type = -1;
-    frame->call_type = call_type; // distinguish call frames: oword,python,remap
+    frame->call_type = block->call_type; // distinguish call frames: oword,python,remap
     return INTERP_OK;
 }
 
 int Interp::leave_context(setup_pointer settings, bool restore) 
 {
-    context_pointer active_frame = &settings->sub_context[settings->call_level];
+    context_pointer leaving_frame = &settings->sub_context[settings->call_level];
 
    if (settings->call_level < 1) {
 	ERS(NCE_CALL_STACK_UNDERRUN);
     }
     logOword("leave_context cl=%d->%d  type=%s state=%s" , 
 	     settings->call_level, settings->call_level-1, 
-	     call_typenames[active_frame->call_type],
+	     call_typenames[leaving_frame->call_type],
 	     call_statenames[settings->call_state]);
 
-    free_named_parameters(active_frame);
-    active_frame->subName = NULL;
+    free_named_parameters(leaving_frame);
+    leaving_frame->subName = NULL;
+    settings->call_level--;  // drop back
 
-    if (restore && 
-	((active_frame->context_status &
-    	 (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
-	 (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID))) {
+    if (restore && ((leaving_frame->context_status &
+		     (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+		    (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID))) {
 	// a valid previous context was marked by an M73 as auto-restore
 
     	// NB: this means an M71 invalidate context will prevent an
     	// auto-restore on return/endsub
     	restore_settings(settings, settings->call_level + 1);
     }
-    // always invalidate on leaving a context so we dont accidentially
-    // 'run into' a valid context when growing the stack upwards again
-    active_frame->context_status &=  ~CONTEXT_VALID;
-    settings->call_level--;  // drop back
     return INTERP_OK;
 }
 
@@ -946,7 +703,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	// only enter new frame if not reexecuting a Python handler 
 	// which returned INTERP_EXECUTE_FINISH
 	if (settings->call_state == CS_NORMAL) {
-	    CHP(enter_context(settings, block->o_name, block->call_type));
+	    CHP(enter_context(settings, block));
 	}
 	current_frame = &settings->sub_context[settings->call_level];
 	CHP(execute_call(settings, current_frame,
@@ -1237,167 +994,3 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 //========================================================================
 // End of functions for control stuff (O-words)
 //========================================================================
-#if 0
-//int nextstate(remap_pointer remap, int call_phase, 
-int Interp::execute_remap(setup_pointer settings, int call_phase) 
-{
-    int status = INTERP_OK;
-    block_pointer cblock = &CONTROLLING_BLOCK(*settings);
-    remap_pointer remap = cblock->executing_remap;
-    bp::list plist;
-    context_pointer active_frame;
-
-    do {
-	logRemap("execute_remap %s call_phase=%s cl=%d rl=%d", 
-		 remap->name, call_phases[call_phase],
-		 settings->call_level, settings->remap_level);
-	switch (call_phase) {
-	case CS_CALL_PROLOG:
-	
-	    CHP(enter_context(settings));
-	    active_frame = &settings->sub_context[settings->call_level];
-	    
-	    if (remap->remap_py || remap->prolog_func || remap->epilog_func) {
-		CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
-		     remap->name);
-		plist.append(settings->pythis);   //self
-		active_frame->tupleargs = bp::tuple(plist);
-		active_frame->kwargs = bp::dict();
-	    }
-	    if (remap->argspec && (strchr(remap->argspec, '@') == NULL)) {
-		// add_parameters will decorate kwargs as per argspec
-		// if named local parameters specified
-		CHP(add_parameters(settings, cblock, NULL));
-	    }
-	    if (remap->prolog_func) { // initial call
-		status = pycall(settings, active_frame, REMAP_MODULE,
-				     remap->prolog_func, PY_PROLOG);
-		if (status > INTERP_MIN_ERROR) // assume errormsg set in pycall
-		    return status;
-		switch (status = handler_returned(settings, active_frame, remap->prolog_func, false)) {
-		case INTERP_EXECUTE_FINISH:
-		    active_frame->call_phase = CS_CONTINUE_PROLOG;
-		    // we keep reexcuting the same block until we get OK, or fail
-		    settings->skip_read = true;  // 'stay on same line'   
-		    return  INTERP_EXECUTE_FINISH;
-		    break;
-		case INTERP_OK:
-		    call_phase = (remap->remap_py ? CS_CALL_PYBODY : CS_CALL_BODY);
-		    break;
-		default:
-		    CHP(status);
-		}   
-	    } else {
-		call_phase =  (remap->remap_py ? CS_CALL_PYBODY : CS_CALL_BODY);
-	    }
-	    break;
-
-	case CS_CONTINUE_PROLOG:
-	    active_frame = &settings->sub_context[settings->call_level];
-	    CHP(read_inputs(settings));  // update toolchange/input/probe data
-	    status = pycall(settings, active_frame, REMAP_MODULE,
-			    remap->prolog_func, PY_FINISH_PROLOG);
-
-	    switch (status = handler_returned(settings, active_frame, remap->prolog_func, false)) {
-	    case INTERP_EXECUTE_FINISH:
-		call_phase = active_frame->call_phase = CS_CONTINUE_PROLOG;
-		settings->skip_read = true;  
-		return  INTERP_EXECUTE_FINISH;
-		break;
-	    case INTERP_OK:
-		call_phase = (remap->remap_py ? CS_CALL_PYBODY : CS_CALL_BODY);
-		break;
-	    default:
-		CHP(status);
-	    }   
-	    break;
-	
-	case CS_CALL_PYBODY : 
-	    status = pycall(settings, active_frame, REMAP_MODULE,
-			    remap->remap_py, PY_BODY);
-	    switch (status = handler_returned(settings, active_frame, remap->remap_py, false)) {
-	    case INTERP_EXECUTE_FINISH:
-		call_phase = active_frame->call_phase = CS_CONTINUE_PYBODY;
-		settings->skip_read = true; 
-		return  INTERP_EXECUTE_FINISH;
-		break;
-	    case INTERP_OK:
-		call_phase = (remap->epilog_func ? CS_CALL_EPILOG : CS_START);
-		break;
-	    default:
-		CHP(status);
-	    }   
-
-	    break;
-
-	case CS_CONTINUE_PYBODY:
-	    active_frame = &settings->sub_context[settings->call_level];
-	    CHP(read_inputs(settings));
-	    status = pycall(settings, active_frame, REMAP_MODULE,
-			    remap->prolog_func, PY_FINISH_BODY);
-
-	    switch (status = handler_returned(settings, active_frame, remap->prolog_func, false)) {
-	    case INTERP_EXECUTE_FINISH:
-		call_phase = active_frame->call_phase = CS_CONTINUE_PYBODY;
-		settings->skip_read = true;  // 'stay on same line'   
-		return  INTERP_EXECUTE_FINISH;
-		break;
-	    case INTERP_OK:
-		call_phase = (remap->epilog_func ? CS_CALL_EPILOG : CS_START);
-		break;
-	    default:
-		CHP(status);
-	    }   
-	    break;    
-
-	case CS_CALL_EPILOG:
-	    status = pycall(settings, active_frame, REMAP_MODULE,
-			    remap->epilog_func, PY_EPILOG);
-	    switch (status = handler_returned(settings, active_frame, remap->epilog_func, false)) {
-	    case INTERP_EXECUTE_FINISH:
-		call_phase = active_frame->call_phase = CS_CONTINUE_EPILOG;
-		settings->skip_read = true;  
-		return  INTERP_EXECUTE_FINISH;
-		break;
-	    case INTERP_OK:
-		call_phase = CS_START; // done
-		break;
-	    default:
-		CHP(status);
-	    }   
-	    break;
-
-	case CS_CONTINUE_EPILOG:
-	    active_frame = &settings->sub_context[settings->call_level];
-	    CHP(read_inputs(settings));  
-	    status = pycall(settings, active_frame, REMAP_MODULE,
-			    remap->epilog_func, PY_FINISH_EPILOG);
-
-	    switch (status = handler_returned(settings, active_frame, remap->epilog_func, false)) {
-	    case INTERP_EXECUTE_FINISH:
-		call_phase = active_frame->call_phase = CS_CONTINUE_EPILOG;
-		settings->skip_read = true;
-		return  INTERP_EXECUTE_FINISH;
-		break;
-	    case INTERP_OK:
-		call_phase =  CS_START; // done
-		break;
-	    default:
-		CHP(status);
-	    }   
-	    break;    
-
-	case CS_CALL_BODY:
-	    logDebug("CS_CALL_BODY done for now");
-	    call_phase = active_frame->call_phase = CS_START;
-	    break;
-	    
-	}
-    } while ((status == INTERP_OK) && (call_phase != CS_START));
-
-    ERP(remap_finished(-cblock->phase));  // finish remap
-    CHP(leave_context(settings,true));    // finish call
-    settings->skip_read = false; 
-    return status;
-}
-#endif 

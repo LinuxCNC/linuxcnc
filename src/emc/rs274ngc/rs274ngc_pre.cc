@@ -395,34 +395,68 @@ int Interp::_execute(const char *command)
 		  if ((eblock->o_name != 0) ||
 		      (_setup.mdi_interrupt)) { // FIXME this probably aint needed as executed once only
 
-		      status = convert_control_functions(eblock, &_setup);
-		      if (status == INTERP_EXECUTE_FINISH) {
-			  _setup.mdi_interrupt = true;  // a yielding handler might return INTERP_EXECUTE_FINISH too
+		      CHP(convert_control_functions(eblock, &_setup));
+		      if (_setup.mdi_interrupt) {
+			  _setup.mdi_interrupt = false;
+			  MDImode = 1;
 		      }
-		      CHP(status);
-		      // do {
-		      while ((status == INTERP_OK) && _setup.call_level) {
-			  CHP(read(0));  // reads from current file and calls parse
+		      status = INTERP_OK;
+		      while(MDImode && _setup.call_level) { // we are still in a subroutine
+			  status = read(0);  // reads from current file and calls parse
+			  if (status != INTERP_OK) {
+			      return status;
+			  }
 			  status = execute();  // special handling for mdi errors
 			  if (status != INTERP_OK) {
 			      if (status == INTERP_EXECUTE_FINISH) {
 				  _setup.mdi_interrupt = true;
 			      } else {
-				  logRemap("execute() returned %s during MDI execution\n",
-					   interp_status(status));
+				  logRemap("execute() returned %s, RESETTING!\n",interp_status(status));
 				  reset();
 			      }
 			      CHP(status);
-			  } else 
-			      _setup.mdi_interrupt = false;	      
-			  //} while ((status == INTERP_OK) && _setup.call_level);
+			  }
 		      }
+		      _setup.mdi_interrupt = false;
 		      // at this point the MDI execution of a remapped block is complete.
 		      logRemap("MDI remap execution complete status=%s\n",interp_status(status));
 		      write_g_codes(eblock, &_setup);
 		      write_m_codes(eblock, &_setup);
 		      write_settings(&_setup);
 		      return INTERP_OK;
+
+
+
+
+
+		      // status = convert_control_functions(eblock, &_setup);
+		      // if (status == INTERP_EXECUTE_FINISH) {
+		      // 	  _setup.mdi_interrupt = true;  // a yielding handler might return INTERP_EXECUTE_FINISH too
+		      // }
+		      // CHP(status);
+		      // // do {
+		      // while ((status == INTERP_OK) && _setup.call_level) {
+		      // 	  CHP(read(0));  // reads from current file and calls parse
+		      // 	  status = execute();  // special handling for mdi errors
+		      // 	  if (status != INTERP_OK) {
+		      // 	      if (status == INTERP_EXECUTE_FINISH) {
+		      // 		  _setup.mdi_interrupt = true;
+		      // 	      } else {
+		      // 		  logRemap("execute() returned %s during MDI execution\n",
+		      // 			   interp_status(status));
+		      // 		  reset();
+		      // 	      }
+		      // 	      CHP(status);
+		      // 	  } else 
+		      // 	      _setup.mdi_interrupt = false;	      
+		      // 	  //} while ((status == INTERP_OK) && _setup.call_level);
+		      // }
+		      // // at this point the MDI execution of a remapped block is complete.
+		      // logRemap("MDI remap execution complete status=%s\n",interp_status(status));
+		      // write_g_codes(eblock, &_setup);
+		      // write_m_codes(eblock, &_setup);
+		      // write_settings(&_setup);
+		      // return INTERP_OK;
 		  }
 	      } else {
 		  // this should get the osub going
@@ -1195,8 +1229,8 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
 
 int Interp::read_inputs(setup_pointer settings)
 {
-    logDebug("read_inputs probe=%d input=%d toolchange=%d",
-	     settings->probe_flag, settings->toolchange_flag, settings->input_flag);
+    // logDebug("read_inputs probe=%d input=%d toolchange=%d",
+    // 	     settings->probe_flag, settings->toolchange_flag, settings->input_flag);
     if (settings->probe_flag) {
 	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
 	     NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
@@ -1447,6 +1481,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	// When called from Interp::close via Interp::reset, this one is NULL
 	if (!_setup.file_pointer) continue;
 
+	// FIXME make sure this works in rs274 -n 0 (continue on error) mode
 	if(0 != strcmp(_setup.filename, sub->filename)) {
 	    fclose(_setup.file_pointer);
 	    _setup.file_pointer = fopen(sub->filename, "r");

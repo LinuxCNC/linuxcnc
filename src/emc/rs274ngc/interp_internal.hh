@@ -531,7 +531,6 @@ typedef struct context_struct {
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
-
     // Python-related stuff
     boost::python::object tupleargs; // the args tuple for Py functions
     boost::python::object kwargs; // the args dict for Py functions
@@ -544,8 +543,10 @@ typedef struct context_struct {
 
 typedef context *context_pointer;
 
+// context.context_status
 #define CONTEXT_VALID   1 // this was stored by M7*
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
+#define REMAP_FRAME   4 // a remap call frame
 
 typedef struct offset_struct {
   int type;
