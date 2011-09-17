@@ -1,6 +1,6 @@
 executing
 user-defined M400: missing: P,Q
-M400 R122.25
+O <rm400> call 
     1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
     2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
     3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
