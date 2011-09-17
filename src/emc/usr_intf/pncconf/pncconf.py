@@ -1246,7 +1246,7 @@ class Data:
                 print >>file, "EMBED_TAB_NAME = GladeVCP"
                 print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_jumplist.hal -x {XID} gvcp-panel.ui"%(theme)
             elif self.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp_jumplist.hal gvcp-panel.ui"%(theme)
+                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -1341,7 +1341,7 @@ class Data:
         print >>file, "HALFILE = %s.hal" % self.machinename
         print >>file, "HALFILE = custom.hal"
         if self.frontend == _AXIS:
-            print >>file, "POSTGUI_HALFILE = postgui_jumplist.hal"
+            print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
         print >>file, "[HALUI]"          
@@ -2015,7 +2015,7 @@ class Data:
                     size = "%dx%d"% (self.pyvcpwidth,self.pyvcpheight)
                 geo = " -g %s%s"%(size,pos)
             print >>file, "loadusr -Wn pyvcp pyvcp%s -c pyvcp [DISPLAY](PYVCP)"%(geo)
-            print >>file, "source postgui_jumplist.hal"
+            print >>file, "source postgui_call_list.hal"
         if self.gladevcp and self.standalonegvcp:
             fmax = geo = pos = size =  ""
             if self.gladevcpposition or self.gladevcpsize:
@@ -2614,7 +2614,7 @@ class Data:
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
 
         gvcpfilename = os.path.join(base, "gvcp_options.hal")
-        gvcp_halfilename  = os.path.join(base, "gvcp_jumplist.hal")
+        gvcp_halfilename  = os.path.join(base, "gvcp_call_list.hal")
         if self.gladevcp and self.gladesample:
                 # copy glade panel from temp file to config
             gvcp = os.path.join(base, "gvcp-panel.ui")
