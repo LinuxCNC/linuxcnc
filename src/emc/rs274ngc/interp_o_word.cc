@@ -646,7 +646,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 
 		// if this was a remap we're done
 		if (cblock->executing_remap)
-		    ERP(remap_finished(-cblock->phase));
+		    CHP(remap_finished(-cblock->phase));
 
 		CHP(leave_context(settings, true));
 		// FIXME M73 broken!
