@@ -1244,9 +1244,9 @@ class Data:
             else: theme = " -t "+theme
             if self.centerembededgvcp:
                 print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp.hal -x {XID} gvcp-panel.ui"%(theme)
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_jumplist.hal -x {XID} gvcp-panel.ui"%(theme)
             elif self.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp.hal gvcp-panel.ui"%(theme)
+                print >>file, "GLADEVCP =%s -H gvcp_jumplist.hal gvcp-panel.ui"%(theme)
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -1339,10 +1339,9 @@ class Data:
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.machinename
-        if self.customhal:
-            print >>file, "HALFILE = custom.hal"
-        if self.pyvcp or self.customhal:
-            print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
+        print >>file, "HALFILE = custom.hal"
+        if self.frontend == _AXIS:
+            print >>file, "POSTGUI_HALFILE = postgui_jumplist.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
         print >>file, "[HALUI]"          
@@ -1992,6 +1991,13 @@ class Data:
                         write_pins(pname,p,i,t,boardnum,None,port,channel,pin)
 
     def write_halfile(self, base):
+        def writebackup(origname):
+            path, ext = os.path.splitext(origname)
+            name = path.replace(base+"/","")
+            print base
+            print path,name,ext
+            shutil.copy(origname ,os.path.join(base,"backups",name + str(time.time()).replace('.', '') + ext) )
+
         axis_convert = ("x","y","z","a")
         halui_cmd_count = 0
         filename = os.path.join(base, self.machinename + ".hal")
@@ -2009,7 +2015,7 @@ class Data:
                     size = "%dx%d"% (self.pyvcpwidth,self.pyvcpheight)
                 geo = " -g %s%s"%(size,pos)
             print >>file, "loadusr -Wn pyvcp pyvcp%s -c pyvcp [DISPLAY](PYVCP)"%(geo)
-            print >>file, "source custom_postgui.hal"
+            print >>file, "source postgui_jumplist.hal"
         if self.gladevcp and self.standalonegvcp:
             fmax = geo = pos = size =  ""
             if self.gladevcpposition or self.gladevcpsize:
@@ -2607,13 +2613,28 @@ class Data:
                 print >>file, "net z-zero-cmd           classicladder.0.out-01   =>    halui.mdi-command-%02d"% (othercmds +1)
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
 
-        if self.gladevcp:
+        gvcpfilename = os.path.join(base, "gvcp_options.hal")
+        gvcp_halfilename  = os.path.join(base, "gvcp_jumplist.hal")
+        if self.gladevcp and self.gladesample:
+                # copy glade panel from temp file to config
             gvcp = os.path.join(base, "gvcp-panel.ui")
+            if os.path.exists(gvcp):
+                writebackup(gvcp)
             shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
-            custom = os.path.join(base, "gvcp.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"backups/glade_backup.hal") ) 
-            f1 = open(custom, "w")
+                # write the jumplist
+                # the jump list allows multiple hal files to be loaded post gladevcp
+                # this simplifies the problem of overwriting the users custom HAL code
+                # when they change gvcp sample options
+            f1 = open(gvcp_halfilename, "w")
+            print >>f1, _("# These files are loaded post gladeVCP, in the order they appear")
+            print >>f1
+            print >>f1, "source gvcp_options.hal"
+            print >>f1, "source custom_gvcp.hal"
+                # write gvcp options HAL file
+            f1 = open(gvcpfilename, "w")
+            print >>f1, _("# _DO NOT_ include your HAL commands here.")
+            print >>f1, _("# Put custom HAL commands in custom_gvcp.hal")
+            print >> f1 
             if self.spindlespeedbar:
                 print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
                 print >>f1
@@ -2641,6 +2662,12 @@ class Data:
                     print >>f1, ("net auto-touch-z      <=    gladevcp.auto-touch-z")
                     print >>f1, ("net MDI-mode          =>    gladevcp.auto-touch-z-active")
                     print >>f1
+        else:
+            # gvcp was not selected remove any existing file
+            if os.path.exists(gvcpfilename):
+                os.remove(gvcpfilename)
+            if os.path.exists(gvcp_halfilename):
+                os.remove(gvcp_halfilename)
 
         if self.pyvcp:
             vcp = os.path.join(base, "custompanel.xml")
@@ -2652,31 +2679,47 @@ class Data:
                 print >>f1, "-->"
                 print >>f1, "<pyvcp>"
                 print >>f1, "</pyvcp>"
-        if self.pyvcp or self.customhal or self.gladevcp:
-            custom = os.path.join(base, "custom_postgui.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"backups/postgui_backup.hal") ) 
-            f1 = open(custom, "w")
-            print >>f1, _("# Include your customized HAL commands here")
+
+        # the jump list allows multiple hal files to be loaded postgui
+        # this simplifies the problem of overwritting the users custom HAL code
+        # when they change pyvcp sample options
+        custom = os.path.join(base, "postgui_jumplist.hal")
+        f1 = open(custom, "w")
+        print >>f1, _("# These files are loaded post GUI, in the order they appear")
+        print >>f1
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect:
+            print >>f1, "source pyvcp_options.hal"
+        print >>f1, "source custom_postgui.hal"
+
+
+        # If the user asked for pyvcp sample panel add the HAL commands too
+        pyfilename = os.path.join(base, "pyvcp_options.hal")
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
+            f1 = open(pyfilename, "w")
+            print >>f1, _("# _DO NOT_ include your HAL commands here.")
+            print >>f1, _("# Put custom HAL commands in custom_postgui.hal")
             print >>f1, _("""# The commands in this file are run after the GUI loads""") 
             print >>f1
-            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
-                  print >>f1
-                  if spindle_enc:
-                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
-                  else:
-                        print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
-                  print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
-                  print >>f1
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
-                  print >>f1
+            print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
+            print >>f1
+            if spindle_enc:
+                print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
+            else:
+                print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
+                print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
+                print >>f1
+                print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
+                print >>f1
+        else:
+            if os.path.exists(pyfilename):
+                os.remove(pyfilename)
 
-        if self.customhal or self.classicladder or self.halui:
-            custom = os.path.join(base, "custom.hal")
+        # pncconf adds a custom.hal and custom_postgui.hal file if one is not present
+        for i in ("custom","custom_postgui","shutdown","custom_gvcp"):
+            custom = os.path.join(base, i+".hal")
             if not os.path.exists(custom):
                 f1 = open(custom, "w")
-                print >>f1, _("# Include your customized HAL commands here")
+                print >>f1, ("# Include your %s HAL commands here")%i
                 print >>f1, _("# This file will not be overwritten when you run PNCconf again")
 
         if self.frontend == _TOUCHY:# TOUCHY GUI
@@ -2700,11 +2743,35 @@ class Data:
                     if axletter in self.available_axes:
                         print >>f1, "net joint-select-%s   <=   touchy.jog.wheel.%s"% (chr(axnum+97), axletter)
 
-        shutdown = os.path.join(base, "shutdown.hal")
-        if not os.path.exists(shutdown):
-            f1 = open(shutdown, "w")
-            print >>f1, _("# Include your optional shutdown HAL commands here")
-            print >>f1, _("# This file will not be overwritten when you run PNCconf again")
+        if self.classicladder: 
+           if not self.laddername == "custom.clp":
+                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
+                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.machinename)
+                if os.path.exists(filename): # check for the master file to copy from 
+                  if os.path.exists(original):
+                     #print "custom file already exists"
+                     writebackup(original)
+                     #shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( filename,original)
+                  #print "copied ladder program to usr directory"
+                  #print"%s" % filename
+                else:
+                     print "Master or temp ladder files missing from configurable_options dir"
+        if self.pyvcp and not self.pyvcpexist:                
+           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
+           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     #print "custom PYVCP file already exists"
+                     writebackup(originalname)
+                     #shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/custompanel_backup.xml" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  #print "copied PYVCP program to usr directory"
+                  #print"%s" % panelname
+           else:
+                  print "Master PYVCP file: %s missing from configurable_options dir"% self.pyvcpname
         file.close()
         self.add_md5sum(filename)
 
@@ -4184,14 +4251,13 @@ Ok to reset data and start a new configuration?"),False):
         if not self.widgets.createconfig.get_active():
             if self.widgets.gladevcp.get_active() and self.widgets.gladesample.get_active():
                 if os.path.exists(os.path.expanduser("~/emc2/configs/%s/gvcp-panel.ui" % self.data.machinename)):
-                    if not self.warning_dialog(_("OK to replace existing glade panel and gvcp.hal file ?\
-\nThey will be renamed with '_backup' added in filename.\n Clicking 'existing custom program' will aviod this warning. "),False):
+                    if not self.warning_dialog(_("OK to replace existing glade panel ?\
+\nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will aviod this warning. "),False):
                         return True
             if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
               if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\
-\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\
-\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost.\n\
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel?\
+\nExisting custompanel.xml will be renamed and added to 'backups' folder\n\
 Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
@@ -6935,33 +7001,7 @@ different program to copy to your configuration file.\nThe edited program will b
                     self.data[pinname] = False
 
         self.data.save()        
-        if self.data.classicladder: 
-           if not self.data.laddername == "custom.clp":
-                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
-                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
-                if os.path.exists(filename):     
-                  if os.path.exists(original):
-                     #print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( filename,original)
-                  #print "copied ladder program to usr directory"
-                  #print"%s" % filename
-                else:
-                     print "Master or temp ladder files missing from configurable_options dir"
-        if self.data.pyvcp and not self.widgets.pyvcpexist.get_active() == True:                
-           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.data.pyvcpname)
-           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     #print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/custompanel_backup.xml" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  #print "copied PYVCP program to usr directory"
-                  #print"%s" % panelname
-           else:
-                  print "Master PYVCP file: %s missing from configurable_options dir"% self.data.pyvcpname
+
         if not self.warning_dialog (_("Do you wish to continue to edit this configuration."),False):
             gtk.main_quit()
         #self._mesa0_configured = False
