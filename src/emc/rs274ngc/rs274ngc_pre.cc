@@ -1481,17 +1481,19 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	// When called from Interp::close via Interp::reset, this one is NULL
 	if (!_setup.file_pointer) continue;
 
-	// FIXME make sure this works in rs274 -n 0 (continue on error) mode
-	if(0 != strcmp(_setup.filename, sub->filename)) {
-	    fclose(_setup.file_pointer);
-	    _setup.file_pointer = fopen(sub->filename, "r");
-	    logDebug("unwind_call: reopening '%s' at %ld",
-		    sub->filename, sub->position);
-	    strcpy(_setup.filename, sub->filename);
+	// some frames may not have a filename and hence a position to seek to
+	// on return, like Python handlers
+	// needed to make sure this works in rs274 -n 0 (continue on error) mode
+	if (sub->filename) {
+	    if(0 != strcmp(_setup.filename, sub->filename)) {
+		fclose(_setup.file_pointer);
+		_setup.file_pointer = fopen(sub->filename, "r");
+		logDebug("unwind_call: reopening '%s' at %ld",
+			 sub->filename, sub->position);
+		strcpy(_setup.filename, sub->filename);
+	    }
+	    fseek(_setup.file_pointer, sub->position, SEEK_SET);
 	}
-
-	fseek(_setup.file_pointer, sub->position, SEEK_SET);
-
 	_setup.sequence_number = sub->sequence_number;
 	logDebug("unwind_call: setting sequence number=%d from frame %d",
 		_setup.sequence_number,_setup.call_level);
