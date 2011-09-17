@@ -705,6 +705,9 @@ typedef struct setup_struct
   char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];            // program directory
   const char *subroutines[MAX_SUB_DIRS];  // subroutines directories
+  int use_lazy_close;                // wait until next open before closing
+                                     // the input file
+  int lazy_closing;                  // close has been called
   char wizard_root[PATH_MAX];
   int tool_change_at_g30;
   int tool_change_quill_up;
