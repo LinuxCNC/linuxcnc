@@ -164,7 +164,7 @@ _("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSER
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXPWM = 7;_PWMPINS = 8;_MAXTPPWM = 9;
-_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_SSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
+_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_MAXSSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
 _HIFREQ = 18;_NUMOFCNCTRS = 19;_STARTOFDATA = 20
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
@@ -904,6 +904,7 @@ class Data:
         self.mesa0_numof_stepgens = 0
         self.mesa0_numof_gpio = 48
         self.mesa0_numof_sserialports = 0
+        self.mesa0_numof_sserialchannels = 8
         self.mesa0_sanity_7i29 = False
         self.mesa0_sanity_7i30 = False
         self.mesa0_sanity_7i33 = False
@@ -925,6 +926,7 @@ class Data:
         self.mesa1_numof_stepgens = 0
         self.mesa1_numof_gpio = 48
         self.mesa1_numof_sserialports = 0
+        self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
         self.mesa1_sanity_7i33 = False
@@ -1319,9 +1321,9 @@ class Data:
         # TODO fix this hack : hardcoded to one serial port
         ssconfig0 = ssconfig1 = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
         print >>file, "# [HOSTMOT2]"
         print >>file, "# This is for info only"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
@@ -1895,7 +1897,7 @@ class Data:
                     write_pins(p,i,t)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -1981,7 +1983,7 @@ class Data:
                     write_pins(pname,p,i,t,boardnum,connector,None,None,pin)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
@@ -2044,9 +2046,9 @@ class Data:
         # TODO fix this hardcoded hack: only one serial port
         ssconfig0 = ssconfig1 = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.number_mesa == 1:            
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
@@ -3049,7 +3051,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
             if self["mesa%d_numof_sserialports"% boardnum]:
                 sserial = {}
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                         if channel >3: break # TODO only have 4 channels worth of glade widgets
                         for pin in range (0,48):       
                             key = self['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
@@ -3783,6 +3785,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(self.data["mesa%d_numof_tppwmgens"% boardnum])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(self.data["mesa%d_numof_sserialports"% boardnum])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(self.data["mesa%d_numof_sserialchannels"% boardnum])
                 self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
         self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
         self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
@@ -4463,12 +4466,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 if d[_MAXSSERIALPORTS]:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].show()
-                    self.widgets["mesa%d_numof_sserial_label"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialports_label"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialchannels_label"% boardnum].show()
                 else:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].hide()
-                    self.widgets["mesa%d_numof_sserial_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialports_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialchannels_label"% boardnum].hide()
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_range(0,d[_MAXSSERIALPORTS])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(d[_MAXSSERIALPORTS])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_range(1,d[_MAXSSERIALCHANNELS])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(d[_MAXSSERIALCHANNELS])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
                 self.widgets["mesa%d_3pwm_frequency"% boardnum].set_sensitive(d[_MAXTPPWM])
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
@@ -4488,7 +4497,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
                     k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
                     l = (int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value()) * 6)
-                    total = (d[_MAXGPIO]-i-j-k-l)
+                    sp = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+                    sc = int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
+                    m = sp * sc * 3
+                    total = (d[_MAXGPIO]-i-j-k-l-m)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
@@ -4512,7 +4524,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
         port = 0
-        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
@@ -4631,7 +4643,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 0
         if not self.widgets.createconfig.get_active() and not self.data._mesa0_configured  :
             self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
-            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports)
+            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports,
+            self.data.mesa0_numof_sserialchannels)
         elif not self.data._mesa0_configured:
             self.widgets.mesa0con2table.hide()
             self.widgets.mesa0con3table.hide()   
@@ -4677,7 +4690,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 1
         if not self.widgets.createconfig.get_active() and not self.data._mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
-                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports)
+                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports,
+                  self.data.mesa1_numof_sserialchannels)
         elif not self.data._mesa1_configured:           
             self.widgets.mesa1con2table.hide()
             self.widgets.mesa1con3table.hide()           
@@ -4821,10 +4835,12 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         numoftppwmgens = self.data["mesa%d_numof_tppwmgens"% boardnum] = int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value())
         numofstepgens = self.data["mesa%d_numof_stepgens"% boardnum] = int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value())
         numofencoders = self.data["mesa%d_numof_encodergens"% boardnum] = int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value())
-        numofsmartserial = self.data["mesa%d_numof_sserialports"% boardnum] = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+        numofsserialports = self.data["mesa%d_numof_sserialports"% boardnum] = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+        numofsserialchannels = self.data["mesa%d_numof_sserialchannels"% boardnum] = \
+        int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
         title = self.data["mesa%d_boardtitle"% boardnum] = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         firmware = self.data["mesa%d_firmware"% boardnum] = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
-        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial)
+        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels)
         return True
 
     # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
@@ -4838,7 +4854,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
-    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial):
+    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
         self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -4928,19 +4944,24 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels)
         
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
+        self.data["mesa%d_numof_sserialports"% boardnum] = numofsserialports
+        self.data["mesa%d_numof_sserialchannels"% boardnum] = numofsserialchannels
         temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
         temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
         temp2 = (numofpwmgens * 3)
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
+        temp3 = numofsserialports * numofsserialchannels * 3
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2-temp3)
         self.data["mesa%d_numof_gpio"% boardnum] = total     
         self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
         self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
+        self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(numofsserialports)
+        self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(numofsserialchannels)
         self.in_mesa_prepare = False   
         self.data["_mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
@@ -4956,14 +4977,14 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].child.handler_unblock(self.data[actblocksignal])
                 #print "* mesa data-widget",p
 
-        if numofsmartserial:
+        if numofsserialports:
             self.pbar.set_text("Setting up Mesa Smart Serial tabs")
             self.pbar.set_fraction(0)
             self.window.show()
             while gtk.events_pending():
                 gtk.main_iteration()
             port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     self.pbar.set_fraction((pin+1)/48.0)
@@ -4988,10 +5009,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     numoftppwmgens = 0
                     numofstepgens = 0
                     self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels)
             # all this to unblock signals
             port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -5012,7 +5033,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
-                            numofstepgens,numofsmartserial):
+                            numofstepgens,numofsserialports,numofsserialchannels):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
                 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
@@ -5155,9 +5176,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if firmptype in (TXDATA1,RXDATA1,TXEN1): portnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2): portnum = 3
                     if firmptype in (TXDATA3,RXDATA3,TXEN3): portnum = 4
-
                     #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
-                    if numofsmartserial >= (portnum):
+                    if numofsserialports >= (portnum) and numofsserialchannels >= compnum:
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         #if compnum < 5: # TODO hack - haven't made all the serial components in glade yet
@@ -5241,7 +5261,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
                 #print "* mesa data-widget",p
         port = 0
-        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -8034,9 +8054,9 @@ But there is not one in the machine-named folder.."""),True)
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = ""
             if self.data.mesa0_numof_sserialports:
-                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
             if self.data.mesa1_numof_sserialports:
-                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
