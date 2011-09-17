@@ -570,7 +570,7 @@ int read_inputs(setup_pointer settings);
     const char *getSavedError();
 
 
- int unwind_call(int status, const char *file, int line);
+    int unwind_call(int status, const char *file, int line, const char *function);
 
 
  int convert_straight_indexer(int, block*, setup*);

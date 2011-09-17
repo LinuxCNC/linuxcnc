@@ -182,7 +182,6 @@ Called By: external programs
 
 int Interp::close()
 {
-    logOword("close()");
    if (_setup.file_pointer != NULL) {
     fclose(_setup.file_pointer);
     _setup.file_pointer = NULL;
@@ -390,7 +389,8 @@ int Interp::_execute(const char *command)
 			  _setup.mdi_interrupt = true;  // a yielding handler might return INTERP_EXECUTE_FINISH too
 		      }
 		      CHP(status);
-		      do {
+		      // do {
+		      while ((status == INTERP_OK) && _setup.call_level) {
 			  CHP(read(0));  // reads from current file and calls parse
 			  status = execute();  // special handling for mdi errors
 			  if (status != INTERP_OK) {
@@ -404,8 +404,8 @@ int Interp::_execute(const char *command)
 			      CHP(status);
 			  } else 
 			      _setup.mdi_interrupt = false;	      
-		      } while ((status == INTERP_OK) && _setup.call_level);
-		     
+			  //} while ((status == INTERP_OK) && _setup.call_level);
+		      }
 		      // at this point the MDI execution of a remapped block is complete.
 		      logRemap("MDI remap execution complete status=%s\n",interp_status(status));
 		      write_g_codes(eblock, &_setup);
@@ -464,7 +464,7 @@ int Interp::execute(const char *command)
 {
     int status;
     if ((status = _execute(command)) > INTERP_MIN_ERROR) {
-        unwind_call(status, __FILE__,__LINE__);
+        unwind_call(status, __FILE__,__LINE__,__FUNCTION__);
     }
     return status;
 }
@@ -475,7 +475,7 @@ int Interp::execute(const char *command, int line_number)
     _setup.sequence_number = line_number;
     status = Interp::execute(command);
     if (status > INTERP_MIN_ERROR) {
-	unwind_call(status, __FILE__,__LINE__);
+	unwind_call(status, __FILE__,__LINE__,__FUNCTION__);
 	logDebug("<-- execute(): error returned, clearing remap and call stack");
     }
     if ((_setup.call_level == 0) &&
@@ -1135,8 +1135,6 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   int index;
   int length;
 
-
-  logOword("open()");
   close();
   CHKS((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
   CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
@@ -1400,24 +1398,24 @@ int Interp::read(const char *command)
 {
     int status;
     if ((status = _read(command)) > INTERP_MIN_ERROR) {
-	unwind_call(status, __FILE__,__LINE__);
+	unwind_call(status, __FILE__,__LINE__,__FUNCTION__);
     }
     return status;
 }
 
 // Reset interpreter state and  terminate a call in progress by
 // falling back to toplevel in a controlled way. Idempotent.
-int Interp::unwind_call(int status, const char *file, int line)
+int Interp::unwind_call(int status, const char *file, int line, const char *function)
 {
-    logDebug("unwind_call call_level=%d status=%d from %s:%d\n",
-	    _setup.call_level, status, file, line);
+    logDebug("unwind_call: call_level=%d status=%s from %s %s:%d",
+	     _setup.call_level, interp_status(status), function, file, line);
 
     for(; _setup.call_level > 0; _setup.call_level--) {
 	int i;
 	context * sub = _setup.sub_context + _setup.call_level - 1;
 	free_named_parameters(&_setup.sub_context[_setup.call_level]);
 	if(sub->subName) {
-	    logDebug("unwind_call leaving sub '%s'\n", sub->subName);
+	    logDebug("unwind_call leaving sub '%s'", sub->subName);
 	    sub->subName = 0;
 	}
 
@@ -1432,7 +1430,7 @@ int Interp::unwind_call(int status, const char *file, int line)
 	if(0 != strcmp(_setup.filename, sub->filename)) {
 	    fclose(_setup.file_pointer);
 	    _setup.file_pointer = fopen(sub->filename, "r");
-	    logDebug("unwind_call: reopening '%s' at %ld\n",
+	    logDebug("unwind_call: reopening '%s' at %ld",
 		    sub->filename, sub->position);
 	    strcpy(_setup.filename, sub->filename);
 	}
@@ -1440,21 +1438,17 @@ int Interp::unwind_call(int status, const char *file, int line)
 	fseek(_setup.file_pointer, sub->position, SEEK_SET);
 
 	_setup.sequence_number = sub->sequence_number;
-	logDebug("unwind_call: setting sequence number=%d from frame %d\n",
+	logDebug("unwind_call: setting sequence number=%d from frame %d",
 		_setup.sequence_number,_setup.call_level);
 
     }
-
-    _setup.linetext[0] = 0;
-    _setup.blocktext[0] = 0;
-    _setup.line_length = 0;
-
+    // call_level == 0 here.
+ 
     if(_setup.sub_name) {
-	logDebug("unwind_call exiting current sub '%s'\n", _setup.sub_name);
+	logDebug("unwind_call: exiting current sub '%s'\n", _setup.sub_name);
 	_setup.sub_name = 0;
     }
     _setup.remap_level = 0; // reset remapping stack
-    _setup.call_level = 0;  // reset call level if a sub aborted
     _setup.defining_sub = 0;
     _setup.skipping_o = 0;
     _setup.skipping_to_sub = 0;
@@ -1510,8 +1504,11 @@ int Interp::reset()
   //!!!KL (also called by external -- but probably OK)
   //
   // initialization stuff for subroutines and control structures
+    _setup.linetext[0] = 0;
+    _setup.blocktext[0] = 0;
+    _setup.line_length = 0;
 
-    unwind_call(INTERP_OK, __FILE__,__LINE__);
+    unwind_call(INTERP_OK, __FILE__,__LINE__,__FUNCTION__);
     return INTERP_OK;
 }
 
@@ -1561,7 +1558,6 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
   double *pars;                 // short name for _setup.parameters
   int k;
 
-    logOword("restore_parameters()");
   // it's OK if the parameter file doesn't exist yet
   // it'll be created in due course with some default values
   if(access(filename, F_OK) == -1)
@@ -1654,8 +1650,6 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
-  logOword("save_parameters()");
-
   if(access(filename, F_OK)==0) 
   {
     // rename as .bak
@@ -1741,8 +1735,6 @@ int Interp::synch()
 {
 
   char file_name[LINELEN];
-
-  logOword("synch()");
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
