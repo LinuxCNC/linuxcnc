@@ -606,8 +606,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		    _setup.call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
 		    CHP(status);
-		    // M73 auto-restore is of dubious value in a Python epilog
-		    CHP(leave_context(settings,false)); 
+		    // leave_context() is done by falling through into CT_NGC_OWORD_SUB code
 		}
 	    }
 	}
