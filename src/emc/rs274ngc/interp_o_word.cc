@@ -575,7 +575,7 @@ int Interp::enter_context(setup_pointer settings, block_pointer block)
     }
     context_pointer frame = &settings->sub_context[settings->call_level];
     // mark frame for finishing remap
-    frame->context_status = (block->executing_remap != NULL) ? REMAP_FRAME : 0;
+    frame->context_status = (block->call_type  == CT_REMAP) ? REMAP_FRAME : 0;
     frame->subName = block->o_name;
     frame->py_returned_int = 0;
     frame->py_returned_double = 0.0;

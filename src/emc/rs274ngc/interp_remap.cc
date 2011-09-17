@@ -119,8 +119,6 @@ int Interp::convert_remapped_code(block_pointer block,
     status = read(cmd);
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
     eblock->call_type = CT_REMAP; 
-    eblock->executing_remap = remap; // marks current block as carrying a remap call
-
     CHKS(status != INTERP_OK,
 	 "convert_remapped_code: inital read returned %s",
 	 interp_status(status));
