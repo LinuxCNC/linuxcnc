@@ -1206,6 +1206,14 @@ int commandSet(connectionRecType *context)
     sprintf(context->outBuf, setCmdNakStr, pch);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
+  if ((cmd > scMachine) && (emcStatus->task.state != EMC_TASK_STATE_ON)) {
+//  Extra check in the event of an undetected change in Machine state resulting in
+//  sending a set command when the machine state is off. This condition is detected
+//  and appropriate error messages are generated, however erratic behavior has been
+//  seen when doing certain set commands when the Machine state is other than 'On'.
+    sprintf(context->outBuf, setCmdNakStr, pch);
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
+    }
   switch (cmd) {
     case scEcho: ret = setEcho(strtok(NULL, delims), context); break;
     case scVerbose: ret = setVerbose(strtok(NULL, delims), context); break;
