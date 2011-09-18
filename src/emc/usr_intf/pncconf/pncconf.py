@@ -625,8 +625,8 @@ class Data:
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
-        self._pncconf_version = 2.0
-        self.pncconf_version = 2.0
+        self._pncconf_version = 3.0 # This is the actual version of this program
+        self.pncconf_loaded_version = 3.0 # This will version number for new configs or be overwritten by a loaded file to the files version.
         self._re_editmode = False
         self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
 
@@ -1126,7 +1126,7 @@ class Data:
         self.suseatspeed = False
 
     def load(self, filename, app=None, force=False):
-        self.pncconf_version = 0.0
+        self.pncconf_loaded_version = 0.0
         def str2bool(s):
             return s == 'True'
 
@@ -1185,8 +1185,10 @@ class Data:
 
         warnings = []
         warnings2 = []
-        if self.pncconf_version < self._pncconf_version:
-            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\nYou may want to save it with another name.\n") )
+        if self.pncconf_loaded_version < self._pncconf_version:
+            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\n\
+If it doesn't plainly cause an error, you still may want to save it with another name and check it. Safer to start from scratch.\n\
+If you have a REALLY large config that you wish to convert to this newer version of PNConf - ask on the EMC forum - it may be possible..") )
         for f, m in self.md5sums:
             m1 = md5sum(f)
             if m1 and m != m1:
@@ -1197,7 +1199,7 @@ class Data:
             warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
         if warnings:
             warnings = warnings + warnings2
-        self.pncconf_version = self._pncconf_version
+        self.pncconf_loaded_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
