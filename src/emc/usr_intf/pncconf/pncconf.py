@@ -2615,61 +2615,67 @@ class Data:
                 print >>file, "net z-zero-cmd           classicladder.0.out-01   =>    halui.mdi-command-%02d"% (othercmds +1)
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
 
-        gvcpfilename = os.path.join(base, "gvcp_options.hal")
-        gvcp_halfilename  = os.path.join(base, "gvcp_call_list.hal")
-        if self.gladevcp and self.gladesample:
-                # copy glade panel from temp file to config
-            gvcp = os.path.join(base, "gvcp-panel.ui")
-            if os.path.exists(gvcp):
-                writebackup(gvcp)
-            shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
+        gvcp_options_filename = os.path.join(base, "gvcp_options.hal")
+        gvcp_call_filename  = os.path.join(base, "gvcp_call_list.hal")
+        if self.gladevcp:
                 # write the call_list
                 # the call_list allows multiple hal files to be loaded post gladevcp
                 # this simplifies the problem of overwriting the users custom HAL code
                 # when they change gvcp sample options
-            f1 = open(gvcp_halfilename, "w")
-            print >>f1, _("# These files are loaded post gladeVCP, in the order they appear")
-            print >>f1
-            print >>f1, "source gvcp_options.hal"
-            print >>f1, "source custom_gvcp.hal"
-                # write gvcp options HAL file
-            f1 = open(gvcpfilename, "w")
-            print >>f1, _("# _DO NOT_ include your HAL commands here.")
-            print >>f1, _("# Put custom HAL commands in custom_gvcp.hal")
-            print >> f1 
-            if self.spindlespeedbar:
-                print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
+                # if the user asks for existing instead of sample then if the call_list file exists
+                # don't overwrite it
+            if (not self.gladesample and not os.path.exists(gvcp_call_filename)) or self.gladesample:
+                f1 = open(gvcp_call_filename, "w")
+                print >>f1, _("# These files are loaded post gladeVCP, in the order they appear")
                 print >>f1
-                if spindle_enc:
-                    print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
-                else:
-                    print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
-            if self.spindleatspeed:
-                print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
-            i = 0
-            print >>f1, _("# **** Setup GLADE MDI buttons ****")
-            print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
-            for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
-                if self[temp[0]]:
-                    print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
-                    print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
-                    if self.require_homing:
-                        print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
-                    else:
-                        print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                if self.gladesample:
+                    print >>f1, "source gvcp_options.hal"
+                print >>f1, "source custom_gvcp.hal"
+                # write hal file for sample options selected
+            if self.gladesample:
+                    # copy glade panel from temp file to config
+                gvcp = os.path.join(base, "gvcp-panel.ui")
+                if os.path.exists(gvcp):
+                    writebackup(gvcp)
+                shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
+                    # write gvcp options HAL file
+                f1 = open(gvcp_options_filename, "w")
+                print >>f1, _("# _DO NOT_ include your HAL commands here.")
+                print >>f1, _("# Put custom HAL commands in custom_gvcp.hal")
+                print >> f1 
+                if self.spindlespeedbar:
+                    print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
                     print >>f1
-                    i += 1
-            if self.autotouchz:
+                    if spindle_enc:
+                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
+                    else:
+                        print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
+                if self.spindleatspeed:
+                    print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
+                i = 0
+                print >>f1, _("# **** Setup GLADE MDI buttons ****")
+                print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
+                for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
+                    if self[temp[0]]:
+                        print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
+                        print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
+                        if self.require_homing:
+                            print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
+                        else:
+                            print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                        print >>f1
+                        i += 1
+                if self.autotouchz:
                     print >>f1, _("# **** Z axis touch-off button - requires the touch-off classicladder program ****")
                     print >>f1, ("net auto-touch-z      <=    gladevcp.auto-touch-z")
                     print >>f1, ("net MDI-mode          =>    gladevcp.auto-touch-z-active")
                     print >>f1
         else:
-            # gvcp was not selected remove any existing file
-            if os.path.exists(gvcpfilename):
-                os.remove(gvcpfilename)
-            if os.path.exists(gvcp_halfilename):
-                os.remove(gvcp_halfilename)
+            # gvcp was not selected remove any existing related HAl files
+            if os.path.exists(gvcp_options_filename):
+                os.remove(gvcp_options_name)
+            if os.path.exists(gvcp_call_filename):
+                os.remove(gvcp_call_filename)
 
         if self.pyvcp:
             vcp = os.path.join(base, "pyvcp-panel.xml")
@@ -2685,13 +2691,16 @@ class Data:
         # the jump list allows multiple hal files to be loaded postgui
         # this simplifies the problem of overwritting the users custom HAL code
         # when they change pyvcp sample options
-        custom = os.path.join(base, "postgui_call_list.hal")
-        f1 = open(custom, "w")
-        print >>f1, _("# These files are loaded post GUI, in the order they appear")
-        print >>f1
-        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect:
-            print >>f1, "source pyvcp_options.hal"
-        print >>f1, "source custom_postgui.hal"
+        # if the user picked existing pyvcp option and the postgui_call_list is present
+        # don't overwrite it. otherwise write the file.
+        calllist_filename = os.path.join(base, "postgui_call_list.hal")
+        if (self.pyvcpexist and not os.path.exists(calllist_filename)) or not self.pyvcpexist:
+            f1 = open(calllist_filename, "w")
+            print >>f1, _("# These files are loaded post GUI, in the order they appear")
+            print >>f1
+            if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect:
+                print >>f1, "source pyvcp_options.hal"
+            print >>f1, "source custom_postgui.hal"
 
 
         # If the user asked for pyvcp sample panel add the HAL commands too
@@ -4290,7 +4299,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.data.pyvcp == True:
            if self.widgets.pyvcpblank.get_active() == True:
               self.data.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
+              self.data.pyvcphaltype = 0
            if self.widgets.pyvcp1.get_active() == True:
               self.data.pyvcpname = "spindle.xml"
               self.data.pyvcphaltype = 1
@@ -5191,7 +5200,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[p].set_active(0)
                         if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3):
                             self.widgets[complabel].set_text("%d:"%compnum)
-                            if compnum < 5:#TODO fix hack
+                            if compnum < 4:#TODO fix hack harcodes at 4 sserial channels
                                 self.widgets[p].set_sensitive(1)
                             else:
                                 self.widgets[p].set_sensitive(0)
@@ -5689,23 +5698,23 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if connector == temp:
                             firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
-                                if compnum == 1:
+                                if compnum == 0:
                                     self.widgets["mesa%dsserialtab1"% boardnum].hide()
-                                if compnum == 2:
+                                if compnum == 1:
                                     self.widgets["mesa%dsserialtab2"% boardnum].hide()
-                                if compnum == 3:
+                                if compnum == 2:
                                     self.widgets["mesa%dsserialtab3"% boardnum].hide()
-                                if compnum == 4:
+                                if compnum == 3:
                                     self.widgets["mesa%dsserialtab4"% boardnum].hide()
                                 return
                             else:
-                                if compnum == 1:
+                                if compnum == 0:
                                     self.widgets["mesa%dsserialtab1"% boardnum].show()
-                                if compnum == 2:
+                                if compnum == 1:
                                     self.widgets["mesa%dsserialtab2"% boardnum].show()
-                                if compnum == 3:
+                                if compnum == 2:
                                     self.widgets["mesa%dsserialtab3"% boardnum].show()
-                                if compnum == 4:
+                                if compnum == 3:
                                     self.widgets["mesa%dsserialtab4"% boardnum].show()
                                 return
                     return
@@ -7019,6 +7028,38 @@ different program to copy to your configuration file.\nThe edited program will b
                 for i in range(0,24):
                     pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
                     self.data[pinname] = False
+            # clear unused sserial signals
+            keeplist =[]
+            # if the current firmware supports sserial better check for used channels
+            # and make a 'keeplist'. we don't want to clear them
+            if self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALPORTS]:
+                #search all pins for sserial port
+                for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
+                    for pin in range (0,24):
+                        firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
+                        p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                        ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3) and not self.data[p] == UNUSED_SSERIAL:
+                            keeplist.append(compnum)
+            # ok clear the sserial pins unless they are in the keeplist
+            port = 0# TODO hard code at only 1 sserial port 
+            for channel in range(0,4): #TODO hardcoded at 4 sserial channels instead of 8
+                if channel in keeplist: continue
+                # This initializes pins
+                for i in range(0,48):
+                    pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
+                    if i < 24:
+                        self.data[pinname] = UNUSED_INPUT
+                    else:
+                        self.data[pinname] = UNUSED_OUTPUT
+                    pinname ="mesa%dsserial%d_%dpin%dtype"% (boardnum, port,channel,i)
+                    if i < 24:
+                        self.data[pinname] = GPIOI
+                    else:
+                        self.data[pinname] = GPIOO
+                    pinname ="mesa%dsserial%d_%dpin%dinv"% (boardnum, port,channel,i)
+                    self.data[pinname] = False
+
 
         self.data.save()        
 
