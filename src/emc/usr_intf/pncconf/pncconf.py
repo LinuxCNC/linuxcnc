@@ -1005,9 +1005,15 @@ class Data:
                 # This initializes pins
                 for i in range(0,48):
                     pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
-                    self[pinname] = UNUSED_INPUT
+                    if i < 24:
+                        self[pinname] = UNUSED_INPUT
+                    else:
+                        self[pinname] = UNUSED_OUTPUT
                     pinname ="mesa%dsserial%d_%dpin%dtype"% (boardnum, port,channel,i)
-                    self[pinname] = GPIOI
+                    if i < 24:
+                        self[pinname] = GPIOI
+                    else:
+                        self[pinname] = GPIOO
                     pinname ="mesa%dsserial%d_%dpin%dinv"% (boardnum, port,channel,i)
                     self[pinname] = False
 
@@ -1909,7 +1915,7 @@ class Data:
             print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
             if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
         print >>file
-        def write_pins(pname,p,i,t):
+        def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
             if t in (GPIOO,GPIOD):
                 if not p == "unused-output":
@@ -1962,8 +1968,7 @@ class Data:
                             pinlist = self.list_related_pins([STEPA,STEPB], boardnum, connector, channel, pin, 0)
                             for i in pinlist:
                                 if self[i[0]+"inv"]:
-                                    gpioname = self.make_pinname(self.findsignal( self[i[0]] ),True)
-                                    print gpioname
+                                    gpioname = self.make_pinname(i[0],True)
                                     print >>file, "setp    "+gpioname+".invert_output true"
                             break
 
@@ -1974,7 +1979,7 @@ class Data:
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    write_pins(pname,p,i,t)
+                    write_pins(pname,p,i,t,boardnum,connector,None,None,pin)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
@@ -1984,7 +1989,7 @@ class Data:
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
-                        write_pins(pname,p,i,t)
+                        write_pins(pname,p,i,t,boardnum,None,port,channel,pin)
 
     def write_halfile(self, base):
         axis_convert = ("x","y","z","a")
@@ -2603,7 +2608,6 @@ class Data:
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
 
         if self.gladevcp:
-            print "gladevcp"
             gvcp = os.path.join(base, "gvcp-panel.ui")
             shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
             custom = os.path.join(base, "gvcp.hal")
@@ -2880,7 +2884,7 @@ class Data:
 
         # write to Touchy preference file directly
         if self.frontend == _TOUCHY:
-            print "Setting TOUCHY preferences"
+            #print "Setting TOUCHY preferences"
             templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
                         "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
             for key,value in templist.iteritems():
@@ -2905,7 +2909,7 @@ class Data:
 Choosing no will mean AXIS options such as size/position and force maximum might not be as requested \n",False):
                 f1 = open(filename, "w")
                 if self.axisposition[0] or self.axissize[0]:
-                    print "Setting AXIS geometry option"
+                    #print "Setting AXIS geometry option"
                     pos = size = ""
                     if self.axisposition[0]:
                         pos = "+%d+%d"% (self.axisposition[1],self.axisposition[2])
@@ -2914,7 +2918,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     geo = "%s%s"%(size,pos)
                     print >>f1,"""root_window.tk.call("wm","geometry",".","%s")"""%(geo)
                 if self.axisforcemax:
-                    print "Setting AXIS forcemax option"
+                    #print "Setting AXIS forcemax option"
                     print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
                     print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
                     print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
@@ -3003,7 +3007,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     # search all the current firmware array for related pins
     # if not the same component number as the pin that changed or
     # if not in the relate component type keep searching
-    # if is the right component type and number, che3ck the relatedsearch array for a match
+    # if is the right component type and number, check the relatedsearch array for a match
     # if its a match add it to a list of pins (pinlist) that need to be updated
     def list_related_pins(self, relatedsearch, boardnum, connector, channel, pin, style):
         pinlist =[]
@@ -3028,7 +3032,10 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     # and converts it to a HAL pin names (eg hm2_5i20.0.gpio.01)
     # component number conversion is for adjustment of position of pins related to the
     # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
-    # (a,b,i are related pins for encoder component) 
+    # (a,b,i are related pins for encoder component)
+    # gpionumber is a flag to return a gpio piname instead of the component pinname
+    # this is used when we want to invert the pins of a component output (such as a stepper)
+    # because you actually must invert the GPIO that would be in that position
     def make_pinname(self, pin, gpionumber = False):
         test = str(pin)  
         halboardnum = 0
@@ -3058,9 +3065,11 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 for key,value in type_name.iteritems():
                     if key == ptype: comptype = value
                 if value == "Error":
-                    print "pintype error in make_pinname: ptype = ",ptype
+                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
                     return None
-                elif ptype in(GPIOI,GPIOO,GPIOD):
+                # if gpionumber flag is true - convert to gpio pin name
+                if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
+                    comptype = "gpio"
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
@@ -3080,9 +3089,11 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 for key,value in type_name.iteritems():
                     if key == ptype: comptype = value
                 if value == "Error":
-                    print "pintype error in make_pinname: ptype = ",ptype
+                    print "**** ERROR PNCCONF: pintype error in make_pinname: (mesa) ptype = ",ptype
                     return None
-                elif ptype in(GPIOI,GPIOO,GPIOD):
+                # if gpionumber flag is true - convert to gpio pin name
+                if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
+                    comptype = "gpio"
                     compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
@@ -3711,7 +3722,6 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
 
     def on_basicinfo_back(self, *args):
         if self.data._re_editmode:
-            print "re-edit mode"
             self.warning_dialog(_("You Have choosen to re-edit the current config, so you can not go to the\
  new/modify page.\n Quit and reload PNCconf if you wish to build a new config."),True)
             self.widgets.druid1.set_page(self.widgets.basicinfo)
@@ -4003,7 +4013,7 @@ Ok to reset data and start a new configuration?"),False):
 
     def on_joysticktest_clicked(self, *args):
         halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
-        print "requested devicename = ",self.widgets.usbdevicename.get_text()
+        #print "requested devicename = ",self.widgets.usbdevicename.get_text()
         halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
         time.sleep(1.5)
@@ -4430,7 +4440,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                 self.data_transfer(boardnum,connector,None,pin,p,pinv,ptype)
-                print "* mesa data-widget",p
+                #print "* mesa data-widget",p
                 self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
         self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
@@ -4443,7 +4453,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
                     self.data_transfer(boardnum,port,channel,pin,p,pinv,ptype)
-                    print "sserial data transfer",p
+                    #print "sserial data transfer",p
 
     def data_transfer(self,boardnum,connector,channel,pin,p,pinv,ptype):
                 foundit = False
@@ -4451,9 +4461,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 ptiter = self.widgets[ptype].get_active_iter()
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                if not "serial" in p:
-                    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
-                    print "**** INFO mesa-data-transfer:",ptiter,piter
+                #if not "serial" in p:
+                #    print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
+                #    print "**** INFO mesa-data-transfer:",ptiter,piter
                 # type GPIO input
                 if pintype == GPIOI:
                     signaltree = self.data._gpioisignaltree
@@ -4526,16 +4536,16 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         selection = self.widgets[p].get_active_text()
                         piter = self.widgets[p].get_active_iter()
                         if piter == None:
-                            print "not custom name available"
+                            print "****ERROR PNCCONF: no custom name available"
                             return
                         #print "found signame -> ",selection," "
                 # ok we have a piter with a signal type now- lets convert it to a signalname
-                if not "serial" in p:
-                    self.debug_iter(piter,p,"signal")
+                #if not "serial" in p:
+                #    self.debug_iter(piter,p,"signal")
                 dummy, index = signaltree.get(piter,0,1)
-                if not "serial" in p:
-                    print "signaltree: ",dummy
-                    self.debug_iter(ptiter,ptype,"ptype")
+                #if not "serial" in p:
+                #    print "signaltree: ",dummy
+                #    self.debug_iter(ptiter,ptype,"ptype")
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
@@ -4660,7 +4670,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             a.kill()
             
     def on_mesapanel_returned(self, *args):
-        print "Quit test panel"
+        #print "Quit test panel"
         try:
             self.halrun.write("delsig all\n")
             self.halrun.write("exit\n")
@@ -4681,7 +4691,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 modelcheck = self.widgets[p].get_model()
                 modelptcheck = self.widgets[ptype].get_model()
                 new = self.widgets[ptype].get_active_text()
-                print "pintypechanged",p
+                #print "pintypechanged",p
                 # switch GPIO input to GPIO output
                 # here we switch the available signal names in the combobox
                 # we block signals so pinchanged method is not called
@@ -4718,7 +4728,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         display = 2
                         relatedliststore = self.data._udmrelatedliststore
                         controlliststore = self.data._udmcontrolliststore
-                    else:print "error";return
+                    else:print "**** WARNING PNCCONF: pintype error-PWM type not found";return
                     ptypeblocksignal  = "_mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)
                     self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                     self.widgets[ptype].set_model(controlliststore)
@@ -4878,7 +4888,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[ptype].handler_unblock(self.data[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.data[blocksignal]) 
                 self.widgets[p].child.handler_unblock(self.data[actblocksignal])
-                print "* mesa data-widget",p
+                #print "* mesa data-widget",p
 
         if numofsmartserial:
             self.pbar.set_text("Setting up Mesa Smart Serial tabs")
@@ -4901,7 +4911,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     blocksignal = "_mesa%dsignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)    
                     ptypeblocksignal  = "_mesa%dptypesignalhandlersserial%i_%ipin%i" % (boardnum, port, channel, pin)  
                     actblocksignal = "_mesa%dactivatehandlersserial%i_%ipin%i"  % (boardnum, port, channel, pin) 
-                    print "sserial set options",p
+                    #print "sserial set options",p
                     # kill all widget signals:
                     self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                     self.widgets[p].handler_block(self.data[blocksignal])
@@ -5163,7 +5173,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
-                print "* mesa data-widget",p
+                #print "* mesa data-widget",p
         port = 0
         for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
@@ -5174,7 +5184,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
                     self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
-                    print "sserial data-widget",p
+                    #print "sserial data-widget",p
 
     def data_to_widgets(self,boardnum,firmptype,compnum,p,ptype,pinv):
                 datap = self.data[p]
@@ -5494,7 +5504,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum,connector,channel,pin)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum,connector,channel,pin)
                     widgetptype = self.widgets[ptype].get_active_text()
-                    print "pinchaned-",p
+                    #print "pinchaned-",p
                 elif boardtype == "mesa":
                     p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
@@ -5506,7 +5516,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     else: widgetptype = GPIOO
                 pinchanged =  self.widgets[p].get_active_text()
                 piter = self.widgets[p].get_active_iter()
-                print "generalpin chaged",p
+                #print "generalpin chaged",p
                 #print "*** INFO ",boardtype,"-pin-changed: pin:",p,"custom:",custom
                 #print "*** INFO ",boardtype,"-pin-changed: ptype:",widgetptype,"pinchaanged:",pinchanged
                 if piter == None and not custom:
@@ -8307,21 +8317,21 @@ class PyApp(gtk.Window):
     
     def __init__(self,App,data,widgets):
         super(PyApp, self).__init__()
-        print "init super pyapp"
+        #print "init super pyapp"
         self.data2 = Data2()
         self.data = data
         self.app = App
         self.widgets = widgets
         #self.halrun = self.app.halrun
-        print "entering HAL init"
+        #print "entering HAL init"
         self.hal = hal_interface()
-        print "done HAL init"
+        #print "done HAL init"
         self.set_title("Mesa Test Panel")
         self.set_size_request(450, 450)        
         self.set_position(gtk.WIN_POS_CENTER)
         self.connect_after("destroy", self.quit)
         self.timer = gobject.timeout_add(100, self.update)
-        print "added timer"
+        #print "added timer"
         brdnotebook = gtk.Notebook()
         brdnotebook.set_tab_pos(gtk.POS_TOP)
         brdnotebook.show()
@@ -8412,7 +8422,7 @@ class PyApp(gtk.Window):
         self.widgets['window1'].set_sensitive(0) 
         self.hal.c.ready()
         
-        print "got to end of panel"
+        #print "got to end of panel"
 
         
         
