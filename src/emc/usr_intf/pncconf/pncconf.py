@@ -1246,7 +1246,7 @@ class Data:
             else: theme = " -t "+theme
             if self.centerembededgvcp:
                 print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_jumplist.hal -x {XID} gvcp-panel.ui"%(theme)
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
             elif self.sideembededgvcp:
                 print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
         if self.position_offset == 1: temp ="RELATIVE"
@@ -2623,8 +2623,8 @@ class Data:
             if os.path.exists(gvcp):
                 writebackup(gvcp)
             shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
-                # write the jumplist
-                # the jump list allows multiple hal files to be loaded post gladevcp
+                # write the call_list
+                # the call_list allows multiple hal files to be loaded post gladevcp
                 # this simplifies the problem of overwriting the users custom HAL code
                 # when they change gvcp sample options
             f1 = open(gvcp_halfilename, "w")
@@ -2685,7 +2685,7 @@ class Data:
         # the jump list allows multiple hal files to be loaded postgui
         # this simplifies the problem of overwritting the users custom HAL code
         # when they change pyvcp sample options
-        custom = os.path.join(base, "postgui_jumplist.hal")
+        custom = os.path.join(base, "postgui_call_list.hal")
         f1 = open(custom, "w")
         print >>f1, _("# These files are loaded post GUI, in the order they appear")
         print >>f1
