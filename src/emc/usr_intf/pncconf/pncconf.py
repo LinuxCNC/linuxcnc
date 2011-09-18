@@ -1263,7 +1263,7 @@ class Data:
         print >>file, "PROGRAM_PREFIX = %s" % \
                                     os.path.expanduser("~/emc2/nc_files")
         if self.pyvcp:
-            print >>file, "PYVCP = custompanel.xml"
+            print >>file, "PYVCP = pyvcp-panel.xml"
         # these are for AXIS GUI only
         if self.units == _METRIC:
             print >>file, "INCREMENTS = %s"% self.increments_metric
@@ -2672,7 +2672,7 @@ class Data:
                 os.remove(gvcp_halfilename)
 
         if self.pyvcp:
-            vcp = os.path.join(base, "custompanel.xml")
+            vcp = os.path.join(base, "pyvcp-panel.xml")
             if not os.path.exists(vcp):
                 f1 = open(vcp, "w")
                 print >>f1, "<?xml version='1.0' encoding='UTF-8'?>"
@@ -2762,12 +2762,12 @@ class Data:
                      print "Master or temp ladder files missing from configurable_options dir"
         if self.pyvcp and not self.pyvcpexist:                
            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
-           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.machinename)
+           originalname = os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.machinename)
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
                      #print "custom PYVCP file already exists"
                      writebackup(originalname)
-                     #shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/custompanel_backup.xml" % self.machinename) ) 
+                     #shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/pyvcp-panel_backup.xml" % self.machinename) ) 
                      print "made backup of existing custom"
                   shutil.copy( panelname,originalname)
                   #print "copied PYVCP program to usr directory"
@@ -4258,9 +4258,9 @@ Ok to reset data and start a new configuration?"),False):
 \nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will aviod this warning. "),False):
                         return True
             if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.data.machinename)):
                  if not self.warning_dialog(_("OK to replace existing custom pyvcp panel?\
-\nExisting custompanel.xml will be renamed and added to 'backups' folder\n\
+\nExisting pyvcp-panel.xml will be renamed and added to 'backups' folder\n\
 Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
@@ -4295,7 +4295,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
               self.data.pyvcpname = "spindle.xml"
               self.data.pyvcphaltype = 1
            if self.widgets.pyvcpexist.get_active() == True:
-              self.data.pyvcpname = "custompanel.xml"
+              self.data.pyvcpname = "pyvcp-panel.xml"
         for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
             if not self.widgets[i].get_active():
                 self.data[i] = "default"
@@ -7123,7 +7123,7 @@ different program to copy to your configuration file.\nThe edited program will b
         if self.widgets.pyvcp2.get_active() == True:
            panel = "xyzjog.xml"
         if self.widgets.pyvcpexist.get_active() == True:
-           panel = "custompanel.xml"
+           panel = "pyvcp-panel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
         if self.widgets.pyvcpposition.get_active() == True:
             xpos = self.widgets.pyvcpxpos.get_value()
