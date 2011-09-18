@@ -894,8 +894,8 @@ class Data:
         self.mesa0_firmware = "SVST8_4"
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
-        self.mesa0_pwm_frequency = 100000
-        self.mesa0_pdm_frequency = 100000
+        self.mesa0_pwm_frequency = 20000
+        self.mesa0_pdm_frequency = 6000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
@@ -907,7 +907,7 @@ class Data:
         self.mesa0_numof_sserialchannels = 8
         self.mesa0_sanity_7i29 = False
         self.mesa0_sanity_7i30 = False
-        self.mesa0_sanity_7i33 = False
+        self.mesa0_sanity_7i33 = True
         self.mesa0_sanity_7i40 = False
 
         # second mesa card
@@ -916,8 +916,8 @@ class Data:
         self.mesa1_firmware = "SVST8_4"
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
-        self.mesa1_pwm_frequency = 100000
-        self.mesa1_pdm_frequency = 100000
+        self.mesa1_pwm_frequency = 20000
+        self.mesa1_pdm_frequency = 6000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
@@ -929,7 +929,7 @@ class Data:
         self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
-        self.mesa1_sanity_7i33 = False
+        self.mesa1_sanity_7i33 = True
         self.mesa1_sanity_7i40 = False
 
         for boardnum in(0,1):
