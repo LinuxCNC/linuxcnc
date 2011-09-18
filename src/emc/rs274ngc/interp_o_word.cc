@@ -165,7 +165,7 @@ const char *call_typenames[] = {
 
 int Interp::execute_call(setup_pointer settings, 
 			 context_pointer current_frame,
-			 int call_type, int call_state)
+			 int call_type)
 {
     int status = INTERP_OK;
     int i;
@@ -178,7 +178,7 @@ int Interp::execute_call(setup_pointer settings,
     logOword("execute_call %s type=%s state=%s", 
 	     current_frame->subName, 
 	     call_typenames[call_type],
-	     call_statenames[call_state]);
+	     call_statenames[settings->call_state]);
 
     switch (call_type) {
 
@@ -233,7 +233,7 @@ int Interp::execute_call(setup_pointer settings,
 	break;
 
     case CT_PYTHON_OWORD_SUB:
-	switch (call_state) {
+	switch (settings->call_state) {
 	case CS_NORMAL:
 	    settings->return_value = 0.0;
 	    settings->value_returned = 0;
@@ -246,17 +246,17 @@ int Interp::execute_call(setup_pointer settings,
 	    current_frame->kwargs = bp::dict();
 
 	case CS_REEXEC_PYOSUB:
-	    if (call_state ==  CS_REEXEC_PYOSUB)
+	    if (settings->call_state ==  CS_REEXEC_PYOSUB)
 		CHP(read_inputs(settings));
 	    status = pycall(settings, current_frame, OWORD_MODULE,
 			    current_frame->subName, 
-			    call_state == CS_NORMAL ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
+			    settings->call_state == CS_NORMAL ? PY_OWORDCALL : PY_FINISH_OWORDCALL);
 	    switch (status = handler_returned(settings, current_frame, current_frame->subName, true)) {
 	    case INTERP_EXECUTE_FINISH:
-		_setup.call_state = CS_REEXEC_PYOSUB;
+		settings->call_state = CS_REEXEC_PYOSUB;
 		break;
 	    default:
-		_setup.call_state = CS_NORMAL;
+		settings->call_state = CS_NORMAL;
 		settings->sequence_number = previous_frame->sequence_number;
 		CHP(status);
 		// M73 auto-restore is of dubious value in a Python subroutine
@@ -270,7 +270,7 @@ int Interp::execute_call(setup_pointer settings,
 	block_pointer cblock = &CONTROLLING_BLOCK(*settings);
 	remap_pointer remap = cblock->executing_remap;
 
-	switch (call_state) {
+	switch (settings->call_state) {
 	case CS_NORMAL:
 	    if (remap->remap_py || remap->prolog_func || remap->epilog_func) {
 		CHKS(!PYUSABLE, "%s (remapped) uses Python functions, but the Python plugin is not available", 
@@ -289,13 +289,13 @@ int Interp::execute_call(setup_pointer settings,
 	case CS_REEXEC_PROLOG:
 	    if (remap->prolog_func) { 
 		status = pycall(settings, current_frame, REMAP_MODULE,remap->prolog_func,
-				call_state == CS_NORMAL ? PY_PROLOG : PY_FINISH_PROLOG);
+				settings->call_state == CS_NORMAL ? PY_PROLOG : PY_FINISH_PROLOG);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
-		    _setup.call_state = CS_REEXEC_PROLOG;
+		    settings->call_state = CS_REEXEC_PROLOG;
 		    return status;
 		default:
-		    _setup.call_state = CS_NORMAL;
+		    settings->call_state  = CS_NORMAL;
 		    //settings->sequence_number = previous_frame->sequence_number;
 		    CHP(status);
 		}
@@ -305,13 +305,13 @@ int Interp::execute_call(setup_pointer settings,
 	case CS_REEXEC_PYBODY:
 	    if (remap->remap_py) { 
 		status = pycall(settings, current_frame, REMAP_MODULE, remap->remap_py,
-				call_state == CS_NORMAL ? PY_BODY : PY_FINISH_BODY);
+				settings->call_state == CS_NORMAL ? PY_BODY : PY_FINISH_BODY);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
-		    _setup.call_state = CS_REEXEC_PYBODY;
+		    settings->call_state = CS_REEXEC_PYBODY;
 		    return status;
 		default:
-		    _setup.call_state = CS_NORMAL;
+		    settings->call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
 		    CHP(status);
 		    // epilog is not supported on python body -  makes no sense
@@ -321,9 +321,10 @@ int Interp::execute_call(setup_pointer settings,
 	    }
 
 	    // call the NGC remap procedure
+	    assert(settings->call_state == CS_NORMAL);
 	    if (remap->remap_ngc) {
 		CHP(execute_call(settings, current_frame,
-				 CT_NGC_OWORD_SUB, CS_NORMAL));
+				 CT_NGC_OWORD_SUB));
 	    }
 	}
     }
@@ -333,14 +334,14 @@ int Interp::execute_call(setup_pointer settings,
 // this is executed only for NGC subs, either normal ones or part of a remap
 // subs whose name is a Py callable are handled inline in execute_call()
 // since there is no corresponding O_return/O_endsub to execute.
-int Interp::execute_return(setup_pointer settings, context_pointer current_frame,int call_type, int call_state)
+int Interp::execute_return(setup_pointer settings, context_pointer current_frame,int call_type)
 {
     int status = INTERP_OK;
 
     logOword("execute_return %s type=%s state=%s", 
 	     current_frame->subName, 
 	     call_typenames[call_type],
-	     call_statenames[call_state]);
+	     call_statenames[settings->call_state]);
 
     block_pointer cblock = &CONTROLLING_BLOCK(*settings);
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
@@ -359,22 +360,22 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
     switch (call_type) {
 
     case CT_REMAP:
-	switch (call_state) {
+	switch (settings->call_state) {
 	case CS_NORMAL:
    	case CS_REEXEC_EPILOG:
 	    if (cblock->executing_remap->epilog_func) {
-		if (call_state ==  CS_REEXEC_EPILOG)
+		if (settings->call_state ==  CS_REEXEC_EPILOG)
 		    CHP(read_inputs(settings));
 		status = pycall(settings, current_frame, REMAP_MODULE,
 	    			cblock->executing_remap->epilog_func,
-				call_state == CS_NORMAL ? PY_EPILOG : PY_FINISH_EPILOG);
+				settings->call_state == CS_NORMAL ? PY_EPILOG : PY_FINISH_EPILOG);
 		CHP(status);
 		switch (status = handler_returned(settings, current_frame, current_frame->subName, false)) {
 		case INTERP_EXECUTE_FINISH:
-		    _setup.call_state = CS_REEXEC_EPILOG;
+		    settings->call_state = CS_REEXEC_EPILOG;
 		    break;
 		default:
-		    _setup.call_state = CS_NORMAL;
+		    settings->call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
 		    CHP(status);
 		    // leave_context() is done by falling through into CT_NGC_OWORD_SUB code
@@ -695,8 +696,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
     case O_return:
 	current_frame = &settings->sub_context[settings->call_level];
 	CHP(execute_return(settings, current_frame,
-			   current_frame->call_type,
-			   settings->call_state)); 
+			   current_frame->call_type)); 
 	break;
 
     case O_call:
@@ -707,8 +707,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	}
 	current_frame = &settings->sub_context[settings->call_level];
 	CHP(execute_call(settings, current_frame,
-			 current_frame->call_type,
-			 settings->call_state)); 
+			 current_frame->call_type)); 
 	break;
 
       case O_do:

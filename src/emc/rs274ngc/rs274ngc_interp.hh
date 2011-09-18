@@ -476,8 +476,8 @@ public:
 
     //int call_fsm(setup_pointer settings, int event);
     //int execute_pycall(setup_pointer settings, const char *name, int call_phase);
- int execute_call(setup_pointer settings, context_pointer current_frame, int call_type, int call_state);  
- int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type, int call_state);  
+ int execute_call(setup_pointer settings, context_pointer current_frame, int call_type);  
+ int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type);  
     //int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
     int handler_returned( setup_pointer settings, 
 			  context_pointer active_frame, const char *name, bool osub);
@@ -539,11 +539,10 @@ int read_inputs(setup_pointer settings);
 			      char letter,
 			      int number = -1);
 
+    bool is_pycallable(setup_pointer settings, const char *module, const char *funcname);
 
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
-    bool is_pycallable(setup_pointer settings, const char *module, const char *funcname);
-
     // describes intented use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,
