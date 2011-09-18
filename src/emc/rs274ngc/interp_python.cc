@@ -177,6 +177,10 @@ int Interp::pycall(setup_pointer settings,
 	case PY_PROLOG:
 	case PY_BODY:
 	case PY_EPILOG:
+	case PY_FINISH_OWORDCALL:
+	case PY_FINISH_PROLOG:
+	case PY_FINISH_BODY:
+	case PY_FINISH_EPILOG:
 
 	    // these may return values in several flavours:
 	    // - an int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...)
