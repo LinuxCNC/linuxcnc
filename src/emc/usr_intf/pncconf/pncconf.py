@@ -1924,7 +1924,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
                     print >>file, "# ---",p.upper(),"---"
-                    print >>file, "setp    "+pinname +".is_output true"
+                    if channel == None: # sserial has a channel number and doesn't need this next line
+                        print >>file, "setp    "+pinname +".is_output true"
                     if i: print >>file, "setp    "+pinname+".invert_output true"
                     if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
                     print >>file, "net %s     =>  "% (p)+pinname +".out"              
@@ -3134,6 +3135,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 halboardnum = 1
             if 'serial' in test:
                 # sample pin name = mesa0sserial0_0pin24
+                # at this point we can assume the 7i64 as thats all we support right now
                 subname = mesadaughterdata[0][_SUBBOARDNAME]
                 pinnum = int(test[18:])
                 portnum = int(test[12:13])
@@ -3150,6 +3152,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
                     comptype = "gpio"
+                    if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
@@ -4955,7 +4958,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
         
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
@@ -5020,7 +5023,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     numoftppwmgens = 0
                     numofstepgens = 0
                     self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,True)
             # all this to unblock signals
             port = 0
             for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
@@ -5044,7 +5047,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
-                            numofstepgens,numofsserialports,numofsserialchannels):
+                            numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
                 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
@@ -5242,7 +5245,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # check if widget is already configured
                 # we now set everything in a known state.
                 if firmptype in (GPIOI,GPIOO,GPIOD):
-                    self.widgets[complabel].set_text("%03d:"%(concount*24+pin))
+                    if sserialflag:
+                        if pin <24 :
+                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                        else:
+                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                    else:
+                        self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
