@@ -782,6 +782,11 @@ class touchy:
         def save_maxvel_pref(self):
                 self.prefs.putpref('maxvel', self.mv_val, int)
 
+	def postgui(self):
+		inifile=self.emc.emc.ini(sys.argv[2])
+		postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
+		return postgui_halfile,sys.argv[2]
+
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
             print "ini", sys.argv[2]
@@ -790,4 +795,10 @@ if __name__ == "__main__":
             hwg = touchy()
 	res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
 	if res: raise SystemExit, res
+	# load a postgui file if one is present in the INI file
+	postgui_halfile,inifile = touchy.postgui(hwg)
+	print "TOUCHY postgui filename:",postgui_halfile
+	if postgui_halfile:
+		res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
+		if res: raise SystemExit, res
 	gtk.main()
