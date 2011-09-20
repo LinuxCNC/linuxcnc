@@ -445,7 +445,8 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     }
                     HM2_ERR("sserial_write:"
                             "Timeout waiting for CMD to clear\n");
-                    // Carry on regardless
+                    *inst->fault_count += inst->fault_inc;
+                    // carry on, nothing much we can do about it
                 }
                 *inst->state &= 0x0F;
                 *inst->command_reg_write = 0x80000000; // mask pointless writes
@@ -905,12 +906,20 @@ void hm2_sserial_force_write(hostmot2_t *hm2){
         *hm2->sserial.instance[i].state = 0;
         hm2_sserial_waitfor(hm2, hm2->sserial.instance[i].command_reg_addr, 0xFFFFFFFF, 20);
         *hm2->sserial.instance[i].run = 1;
+        *hm2->sserial.instance[i].command_reg_write = 0x80000000;
     }
 }
 
 void hm2_sserial_cleanup(hostmot2_t *hm2){
     int i;
+    u32 buff;
     for (i = 1 ; i < hm2->sserial.num_instances; i++){
+        //Shut down the sserial devices rather than leave that to the watchdog. 
+        buff = 0x800;
+        hm2->llio->write(hm2->llio,
+                         hm2->sserial.instance[i].command_reg_addr,
+                         &buff,
+                         sizeof(u32));
         if (hm2->sserial.instance[i].tram_8i20 != NULL){
             kfree(hm2->sserial.instance[i].tram_8i20);
         }
@@ -919,3 +928,4 @@ void hm2_sserial_cleanup(hostmot2_t *hm2){
         }
     }
 }
+
