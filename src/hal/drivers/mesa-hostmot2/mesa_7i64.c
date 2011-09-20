@@ -66,30 +66,33 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
 
                     r = hal_pin_bit_newf(HAL_OUT, &(hal->pin.digital_in[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.in",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digin.%02d.in",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d.in, "
-                                "aborting\n",
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digin.%02d.in"
+                                ", aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
                         goto fail1;
                     }
                     r = hal_pin_bit_newf(HAL_OUT, &(hal->pin.digital_in_not[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.in_not",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digin.%02d.in-not",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d.in_not, "
-                                "aborting\n",
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digin.%02d."
+                                "in-not, aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
                         goto fail1;
                     }
                     r = hal_pin_bit_newf(HAL_IN, &(hal->pin.digital_out[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.out",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digout.%02d",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d.out, "
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digout.%02d, "
                                 "aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
                         goto fail1;
@@ -97,31 +100,32 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
 
                     r = hal_param_bit_newf(HAL_RW, &(hal->param.invert[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.invert_output",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digout.%02d.invert",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d."
-                                "invert_output, aborting\n",
+                        HM2_ERR("error adding param %s.7i64.%1d.%1d.digout.%02d"
+                                ".invert, aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
                         goto fail1;
                     }
                 }
                 r = hal_pin_float_newf(HAL_OUT, &(hal->pin.analogue_in[0]),
                                      hm2->llio->comp_id,
-                                     "%s.7i64.%1d.%1d.analogue.00",
+                                     "%s.7i64.%1d.%1d.adcin.00.in",
                                      hm2->llio->name, inst->module_index, c);
                 if (r < 0) {
-                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.analogue.00, "
+                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.adcin.00.in, "
                             "aborting\n",
                             hm2->llio->name, inst->module_index, c);
                     goto fail1;
                 }
                 r = hal_pin_float_newf(HAL_OUT, &(hal->pin.analogue_in[1]),
                                        hm2->llio->comp_id,
-                                       "%s.7i64.%1d.%1d.analogue.01",
+                                       "%s.7i64.%1d.%1d.adcin.01.in",
                                        hm2->llio->name, inst->module_index,c );
                 if (r < 0) {
-                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.analogue.01, "
+                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.adcin.01.in, "
                             "aborting\n",
                             hm2->llio->name, inst->module_index, c);
                     goto fail1;
