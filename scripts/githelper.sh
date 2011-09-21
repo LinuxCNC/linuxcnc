@@ -37,7 +37,9 @@ function githelper() {
         fi
     done
 
-    GIT_TAG=$(git tag -l "$GIT_TAG_GLOB" | sort -r | head -1)
-    echo "could not verify tag signatures, using $GIT_TAG" > /dev/null 1>&2
+    if [ -z "$GIT_TAG" ]; then
+        GIT_TAG=$(git tag -l "$GIT_TAG_GLOB" | sort -r | head -1)
+        echo "could not verify tag signatures, using $GIT_TAG" > /dev/null 1>&2
+    fi
 }
 
