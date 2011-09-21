@@ -11,9 +11,6 @@ else
 fi
 
 githelper $1
-if [ -z "$GIT_TAG" ]; then
-    exit 1
-fi
 
 git describe --match "$GIT_TAG"
 

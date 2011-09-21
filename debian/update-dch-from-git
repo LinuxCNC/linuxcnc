@@ -8,9 +8,6 @@ fi
 
 source scripts/githelper.sh
 githelper $1
-if [ -z "$GIT_TAG" ]; then
-    exit 1
-fi
 
 GIT_VERSION=$(scripts/get-version-from-git $GIT_BRANCH)
 if [ $? -ne 0 ]; then

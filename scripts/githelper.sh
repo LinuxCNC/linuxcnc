@@ -16,7 +16,7 @@ function githelper() {
     if [ -z "$1" ]; then
         GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
         if [ "$GIT_BRANCH" = "(no" ]; then
-            echo "'git branch' says we're not on a branch, pass one in as an argument"
+            echo "'git branch' says we're not on a branch, pass one in as an argument" > /dev/null 1>&2
             return
         fi
     else
@@ -36,5 +36,8 @@ function githelper() {
             break
         fi
     done
+
+    GIT_TAG=$(git tag -l "$GIT_TAG_GLOB" | sort -r | head -1)
+    echo "could not verify tag signatures, using $GIT_TAG" > /dev/null 1>&2
 }
 
