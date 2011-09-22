@@ -8985,7 +8985,7 @@ The L- word specifies the wait type:
 
 \end_deeper
 \begin_layout Itemize
-The Q-word specifies the timeout for the waiting.
+The Q-word specifies the timeout in seconds for the waiting.
  If the timeout is exceeded, the wait is interrupt, and the variable #5399
  will be holding the value -1.
  The Q value is ignored if the L-word is zero (IMMEDIATE).

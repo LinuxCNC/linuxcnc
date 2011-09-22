@@ -6947,7 +6947,115 @@ accept the changes.
                               <widget class="GtkTable" id="table21">
                                 <property name="visible">True</property>
                                 <property name="n_rows">15</property>
-                                <property name="n_columns">5</property>
+                                <property name="n_columns">7</property>
+                                <child>
+                                  <widget class="GtkLabel" id="mesa0_numof_sserialchannels_label">
+                                    <property name="label" translatable="yes">Num of channels: </property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkSpinButton" id="mesa0_numof_sserialchannels">
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">1 1 8 1 10 0</property>
+                                    <signal name="value_changed" handler="on_gpio_update"/>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">3</property>
+                                    <property name="right_attach">4</property>
+                                    <property name="top_attach">10</property>
+                                    <property name="bottom_attach">11</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -7102,8 +7210,8 @@ accept the changes.
                                     </child>
                                   </widget>
                                   <packing>
-                                    <property name="left_attach">4</property>
-                                    <property name="right_attach">5</property>
+                                    <property name="left_attach">6</property>
+                                    <property name="right_attach">7</property>
                                     <property name="top_attach">11</property>
                                     <property name="bottom_attach">15</property>
                                   </packing>
@@ -7113,8 +7221,8 @@ accept the changes.
                                     <property name="visible">True</property>
                                   </widget>
                                   <packing>
-                                    <property name="left_attach">3</property>
-                                    <property name="right_attach">4</property>
+                                    <property name="left_attach">5</property>
+                                    <property name="right_attach">6</property>
                                     <property name="top_attach">3</property>
                                     <property name="bottom_attach">14</property>
                                   </packing>
@@ -7123,6 +7231,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_numof_sserialports">
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">0 0 4 1 10 0</property>
+                                    <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -7132,9 +7241,9 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="mesa0_numof_sserial_label">
+                                  <widget class="GtkLabel" id="mesa0_numof_sserialports_label">
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Num of Smart Serial:</property>
+                                    <property name="label" translatable="yes">Num of Smart Serial Ports:</property>
                                   </widget>
                                   <packing>
                                     <property name="top_attach">10</property>
@@ -7276,6 +7385,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label182">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">ns</property>
                                   </widget>
                                   <packing>
@@ -7287,6 +7397,7 @@ accept the changes.
                                 </child>
                                 <child>
                                   <widget class="GtkLabel" id="mesa0_3pwm_freq_units">
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
@@ -7299,6 +7410,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label15">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
@@ -7418,6 +7530,7 @@ accept the changes.
                                   <widget class="GtkSpinButton" id="mesa0_numof_tppwmgens">
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">7 0 8 1 10 0</property>
+                                    <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -7475,6 +7588,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label400">
                                     <property name="visible">True</property>
+                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
@@ -57784,17 +57898,46 @@ Warning limits switches
                   </widget>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="pictext0">
+                  <widget class="GtkScrolledWindow" id="scrolledwindow7">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Total Travel = 3+3 =6
-Home Offset = Origin to Home Switch distance = -1
-Neg Travel Distance = Origin to neg limit distance = -1
-Pos Travel Distance = Total Travel - neg travel distance = 5
-Home Position = Origin to Home Position distance = 1</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
+                    <child>
+                      <widget class="GtkTextView" id="textview1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="text" translatable="yes">X axis:
+Total Travel = 10
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = 0
+Pos Travel Distance = Total Travel - neg travel distance = 10
+Home Position = Origin to Home Position distance = 6
+
+Y axis:
+Total Travel = 8
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = -8
+Pos Travel Distance = Total Travel - neg travel distance = 0
+Home Position = Origin to Home Position distance = 0
+
+Z axis:
+Total Travel = 12
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = -12
+Pos Travel Distance = Total Travel - neg travel distance = 0
+Home Position = Origin to Home Position distance = 0
+
+Note that the direction indicators on the top right show 
+movement of the TOOL and on the actual machine,
+often it is the table that actually moves. In that case the 
+directions are opposite of shown.
+
+Note this is an example, Many other combinations are 
+possible</property>
+                      </widget>
+                    </child>
                   </widget>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
                     <property name="position">1</property>
                   </packing>
                 </child>

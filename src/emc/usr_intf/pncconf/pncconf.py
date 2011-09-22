@@ -164,7 +164,7 @@ _("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSER
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXPWM = 7;_PWMPINS = 8;_MAXTPPWM = 9;
-_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_SSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
+_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_MAXSSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
 _HIFREQ = 18;_NUMOFCNCTRS = 19;_STARTOFDATA = 20
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
@@ -625,8 +625,8 @@ class Data:
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
-        self._pncconf_version = 2.0
-        self.pncconf_version = 2.0
+        self._pncconf_version = 3.0 # This is the actual version of this program
+        self.pncconf_loaded_version = 3.0 # This will version number for new configs or be overwritten by a loaded file to the files version.
         self._re_editmode = False
         self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
 
@@ -894,8 +894,8 @@ class Data:
         self.mesa0_firmware = "SVST8_4"
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
-        self.mesa0_pwm_frequency = 100000
-        self.mesa0_pdm_frequency = 100000
+        self.mesa0_pwm_frequency = 20000
+        self.mesa0_pdm_frequency = 6000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
@@ -904,9 +904,10 @@ class Data:
         self.mesa0_numof_stepgens = 0
         self.mesa0_numof_gpio = 48
         self.mesa0_numof_sserialports = 0
+        self.mesa0_numof_sserialchannels = 8
         self.mesa0_sanity_7i29 = False
         self.mesa0_sanity_7i30 = False
-        self.mesa0_sanity_7i33 = False
+        self.mesa0_sanity_7i33 = True
         self.mesa0_sanity_7i40 = False
 
         # second mesa card
@@ -915,8 +916,8 @@ class Data:
         self.mesa1_firmware = "SVST8_4"
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
-        self.mesa1_pwm_frequency = 100000
-        self.mesa1_pdm_frequency = 100000
+        self.mesa1_pwm_frequency = 20000
+        self.mesa1_pdm_frequency = 6000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
@@ -925,9 +926,10 @@ class Data:
         self.mesa1_numof_stepgens = 0
         self.mesa1_numof_gpio = 48
         self.mesa1_numof_sserialports = 0
+        self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
-        self.mesa1_sanity_7i33 = False
+        self.mesa1_sanity_7i33 = True
         self.mesa1_sanity_7i40 = False
 
         for boardnum in(0,1):
@@ -1124,7 +1126,7 @@ class Data:
         self.suseatspeed = False
 
     def load(self, filename, app=None, force=False):
-        self.pncconf_version = 0.0
+        self.pncconf_loaded_version = 0.0
         def str2bool(s):
             return s == 'True'
 
@@ -1183,8 +1185,10 @@ class Data:
 
         warnings = []
         warnings2 = []
-        if self.pncconf_version < self._pncconf_version:
-            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\nYou may want to save it with another name.\n") )
+        if self.pncconf_loaded_version < self._pncconf_version:
+            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\n\
+If it doesn't plainly cause an error, you still may want to save it with another name and check it. Safer to start from scratch.\n\
+If you have a REALLY large config that you wish to convert to this newer version of PNConf - ask on the EMC forum - it may be possible..") )
         for f, m in self.md5sums:
             m1 = md5sum(f)
             if m1 and m != m1:
@@ -1195,7 +1199,7 @@ class Data:
             warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
         if warnings:
             warnings = warnings + warnings2
-        self.pncconf_version = self._pncconf_version
+        self.pncconf_loaded_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -1244,9 +1248,9 @@ class Data:
             else: theme = " -t "+theme
             if self.centerembededgvcp:
                 print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp.hal -x {XID} gvcp-panel.ui"%(theme)
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
             elif self.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp.hal gvcp-panel.ui"%(theme)
+                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -1261,7 +1265,7 @@ class Data:
         print >>file, "PROGRAM_PREFIX = %s" % \
                                     os.path.expanduser("~/emc2/nc_files")
         if self.pyvcp:
-            print >>file, "PYVCP = custompanel.xml"
+            print >>file, "PYVCP = pyvcp-panel.xml"
         # these are for AXIS GUI only
         if self.units == _METRIC:
             print >>file, "INCREMENTS = %s"% self.increments_metric
@@ -1319,9 +1323,9 @@ class Data:
         # TODO fix this hack : hardcoded to one serial port
         ssconfig0 = ssconfig1 = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
         print >>file, "# [HOSTMOT2]"
         print >>file, "# This is for info only"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
@@ -1339,10 +1343,9 @@ class Data:
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.machinename
-        if self.customhal:
-            print >>file, "HALFILE = custom.hal"
-        if self.pyvcp or self.customhal:
-            print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
+        print >>file, "HALFILE = custom.hal"
+        if self.frontend == _AXIS:
+            print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
         print >>file, "[HALUI]"          
@@ -1896,7 +1899,7 @@ class Data:
                     write_pins(p,i,t)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
@@ -1921,7 +1924,8 @@ class Data:
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
                     print >>file, "# ---",p.upper(),"---"
-                    print >>file, "setp    "+pinname +".is_output true"
+                    if channel == None: # sserial has a channel number and doesn't need this next line
+                        print >>file, "setp    "+pinname +".is_output true"
                     if i: print >>file, "setp    "+pinname+".invert_output true"
                     if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
                     print >>file, "net %s     =>  "% (p)+pinname +".out"              
@@ -1982,7 +1986,7 @@ class Data:
                     write_pins(pname,p,i,t,boardnum,connector,None,None,pin)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
@@ -1992,6 +1996,13 @@ class Data:
                         write_pins(pname,p,i,t,boardnum,None,port,channel,pin)
 
     def write_halfile(self, base):
+        def writebackup(origname):
+            path, ext = os.path.splitext(origname)
+            name = path.replace(base+"/","")
+            print base
+            print path,name,ext
+            shutil.copy(origname ,os.path.join(base,"backups",name + str(time.time()).replace('.', '') + ext) )
+
         axis_convert = ("x","y","z","a")
         halui_cmd_count = 0
         filename = os.path.join(base, self.machinename + ".hal")
@@ -2009,7 +2020,7 @@ class Data:
                     size = "%dx%d"% (self.pyvcpwidth,self.pyvcpheight)
                 geo = " -g %s%s"%(size,pos)
             print >>file, "loadusr -Wn pyvcp pyvcp%s -c pyvcp [DISPLAY](PYVCP)"%(geo)
-            print >>file, "source custom_postgui.hal"
+            print >>file, "source postgui_call_list.hal"
         if self.gladevcp and self.standalonegvcp:
             fmax = geo = pos = size =  ""
             if self.gladevcpposition or self.gladevcpsize:
@@ -2038,9 +2049,9 @@ class Data:
         # TODO fix this hardcoded hack: only one serial port
         ssconfig0 = ssconfig1 = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.number_mesa == 1:            
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
                     driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
@@ -2607,43 +2618,70 @@ class Data:
                 print >>file, "net z-zero-cmd           classicladder.0.out-01   =>    halui.mdi-command-%02d"% (othercmds +1)
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
 
+        gvcp_options_filename = os.path.join(base, "gvcp_options.hal")
+        gvcp_call_filename  = os.path.join(base, "gvcp_call_list.hal")
         if self.gladevcp:
-            gvcp = os.path.join(base, "gvcp-panel.ui")
-            shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
-            custom = os.path.join(base, "gvcp.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"backups/glade_backup.hal") ) 
-            f1 = open(custom, "w")
-            if self.spindlespeedbar:
-                print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
+                # write the call_list
+                # the call_list allows multiple hal files to be loaded post gladevcp
+                # this simplifies the problem of overwriting the users custom HAL code
+                # when they change gvcp sample options
+                # if the user asks for existing instead of sample then if the call_list file exists
+                # don't overwrite it
+            if (not self.gladesample and not os.path.exists(gvcp_call_filename)) or self.gladesample:
+                f1 = open(gvcp_call_filename, "w")
+                print >>f1, _("# These files are loaded post gladeVCP, in the order they appear")
                 print >>f1
-                if spindle_enc:
-                    print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
-                else:
-                    print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
-            if self.spindleatspeed:
-                print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
-            i = 0
-            print >>f1, _("# **** Setup GLADE MDI buttons ****")
-            print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
-            for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
-                if self[temp[0]]:
-                    print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
-                    print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
-                    if self.require_homing:
-                        print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
-                    else:
-                        print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                if self.gladesample:
+                    print >>f1, "source gvcp_options.hal"
+                print >>f1, "source custom_gvcp.hal"
+                # write hal file for sample options selected
+            if self.gladesample:
+                    # copy glade panel from temp file to config
+                gvcp = os.path.join(base, "gvcp-panel.ui")
+                if os.path.exists(gvcp):
+                    writebackup(gvcp)
+                shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
+                    # write gvcp options HAL file
+                f1 = open(gvcp_options_filename, "w")
+                print >>f1, _("# _DO NOT_ include your HAL commands here.")
+                print >>f1, _("# Put custom HAL commands in custom_gvcp.hal")
+                print >> f1 
+                if self.spindlespeedbar:
+                    print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
                     print >>f1
-                    i += 1
-            if self.autotouchz:
+                    if spindle_enc:
+                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
+                    else:
+                        print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
+                if self.spindleatspeed:
+                    print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
+                i = 0
+                print >>f1, _("# **** Setup GLADE MDI buttons ****")
+                print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
+                for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
+                    if self[temp[0]]:
+                        print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
+                        print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
+                        if self.require_homing:
+                            print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
+                        else:
+                            print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                        print >>f1
+                        i += 1
+                if self.autotouchz:
                     print >>f1, _("# **** Z axis touch-off button - requires the touch-off classicladder program ****")
                     print >>f1, ("net auto-touch-z      <=    gladevcp.auto-touch-z")
                     print >>f1, ("net MDI-mode          =>    gladevcp.auto-touch-z-active")
                     print >>f1
+        else:
+            # gvcp was not selected remove any existing related HAl files
+            if os.path.exists(gvcp_options_filename):
+                os.remove(gvcp_options_name)
+            if os.path.exists(gvcp_call_filename):
+                os.remove(gvcp_call_filename)
 
         if self.pyvcp:
-            vcp = os.path.join(base, "custompanel.xml")
+            vcp = os.path.join(base, "pyvcp-panel.xml")
             if not os.path.exists(vcp):
                 f1 = open(vcp, "w")
                 print >>f1, "<?xml version='1.0' encoding='UTF-8'?>"
@@ -2652,31 +2690,50 @@ class Data:
                 print >>f1, "-->"
                 print >>f1, "<pyvcp>"
                 print >>f1, "</pyvcp>"
-        if self.pyvcp or self.customhal or self.gladevcp:
-            custom = os.path.join(base, "custom_postgui.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"backups/postgui_backup.hal") ) 
-            f1 = open(custom, "w")
-            print >>f1, _("# Include your customized HAL commands here")
+
+        # the jump list allows multiple hal files to be loaded postgui
+        # this simplifies the problem of overwritting the users custom HAL code
+        # when they change pyvcp sample options
+        # if the user picked existing pyvcp option and the postgui_call_list is present
+        # don't overwrite it. otherwise write the file.
+        calllist_filename = os.path.join(base, "postgui_call_list.hal")
+        if (self.pyvcpexist and not os.path.exists(calllist_filename)) or not self.pyvcpexist:
+            f1 = open(calllist_filename, "w")
+            print >>f1, _("# These files are loaded post GUI, in the order they appear")
+            print >>f1
+            if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect:
+                print >>f1, "source pyvcp_options.hal"
+            print >>f1, "source custom_postgui.hal"
+
+
+        # If the user asked for pyvcp sample panel add the HAL commands too
+        pyfilename = os.path.join(base, "pyvcp_options.hal")
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
+            f1 = open(pyfilename, "w")
+            print >>f1, _("# _DO NOT_ include your HAL commands here.")
+            print >>f1, _("# Put custom HAL commands in custom_postgui.hal")
             print >>f1, _("""# The commands in this file are run after the GUI loads""") 
             print >>f1
-            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
-                  print >>f1
-                  if spindle_enc:
-                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
-                  else:
-                        print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
-                  print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
-                  print >>f1
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
-                  print >>f1
+            print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
+            print >>f1
+            if spindle_enc:
+                print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
+            else:
+                print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
+                print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
+                print >>f1
+                print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
+                print >>f1
+        else:
+            if os.path.exists(pyfilename):
+                os.remove(pyfilename)
 
-        if self.customhal or self.classicladder or self.halui:
-            custom = os.path.join(base, "custom.hal")
+        # pncconf adds a custom.hal and custom_postgui.hal file if one is not present
+        for i in ("custom","custom_postgui","shutdown","custom_gvcp"):
+            custom = os.path.join(base, i+".hal")
             if not os.path.exists(custom):
                 f1 = open(custom, "w")
-                print >>f1, _("# Include your customized HAL commands here")
+                print >>f1, ("# Include your %s HAL commands here")%i
                 print >>f1, _("# This file will not be overwritten when you run PNCconf again")
 
         if self.frontend == _TOUCHY:# TOUCHY GUI
@@ -2700,11 +2757,35 @@ class Data:
                     if axletter in self.available_axes:
                         print >>f1, "net joint-select-%s   <=   touchy.jog.wheel.%s"% (chr(axnum+97), axletter)
 
-        shutdown = os.path.join(base, "shutdown.hal")
-        if not os.path.exists(shutdown):
-            f1 = open(shutdown, "w")
-            print >>f1, _("# Include your optional shutdown HAL commands here")
-            print >>f1, _("# This file will not be overwritten when you run PNCconf again")
+        if self.classicladder: 
+           if not self.laddername == "custom.clp":
+                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
+                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.machinename)
+                if os.path.exists(filename): # check for the master file to copy from 
+                  if os.path.exists(original):
+                     #print "custom file already exists"
+                     writebackup(original)
+                     #shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( filename,original)
+                  #print "copied ladder program to usr directory"
+                  #print"%s" % filename
+                else:
+                     print "Master or temp ladder files missing from configurable_options dir"
+        if self.pyvcp and not self.pyvcpexist:                
+           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
+           originalname = os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     #print "custom PYVCP file already exists"
+                     writebackup(originalname)
+                     #shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/pyvcp-panel_backup.xml" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  #print "copied PYVCP program to usr directory"
+                  #print"%s" % panelname
+           else:
+                  print "Master PYVCP file: %s missing from configurable_options dir"% self.pyvcpname
         file.close()
         self.add_md5sum(filename)
 
@@ -2982,7 +3063,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
             if self["mesa%d_numof_sserialports"% boardnum]:
                 sserial = {}
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                         if channel >3: break # TODO only have 4 channels worth of glade widgets
                         for pin in range (0,48):       
                             key = self['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
@@ -3054,6 +3135,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 halboardnum = 1
             if 'serial' in test:
                 # sample pin name = mesa0sserial0_0pin24
+                # at this point we can assume the 7i64 as thats all we support right now
                 subname = mesadaughterdata[0][_SUBBOARDNAME]
                 pinnum = int(test[18:])
                 portnum = int(test[12:13])
@@ -3070,6 +3152,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
                     comptype = "gpio"
+                    if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
@@ -3716,6 +3799,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(self.data["mesa%d_numof_tppwmgens"% boardnum])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(self.data["mesa%d_numof_sserialports"% boardnum])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(self.data["mesa%d_numof_sserialchannels"% boardnum])
                 self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
         self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
         self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
@@ -4184,14 +4268,13 @@ Ok to reset data and start a new configuration?"),False):
         if not self.widgets.createconfig.get_active():
             if self.widgets.gladevcp.get_active() and self.widgets.gladesample.get_active():
                 if os.path.exists(os.path.expanduser("~/emc2/configs/%s/gvcp-panel.ui" % self.data.machinename)):
-                    if not self.warning_dialog(_("OK to replace existing glade panel and gvcp.hal file ?\
-\nThey will be renamed with '_backup' added in filename.\n Clicking 'existing custom program' will aviod this warning. "),False):
+                    if not self.warning_dialog(_("OK to replace existing glade panel ?\
+\nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will aviod this warning. "),False):
                         return True
             if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\
-\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\
-\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost.\n\
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.data.machinename)):
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel?\
+\nExisting pyvcp-panel.xml will be renamed and added to 'backups' folder\n\
 Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
@@ -4221,12 +4304,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.data.pyvcp == True:
            if self.widgets.pyvcpblank.get_active() == True:
               self.data.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
+              self.data.pyvcphaltype = 0
            if self.widgets.pyvcp1.get_active() == True:
               self.data.pyvcpname = "spindle.xml"
               self.data.pyvcphaltype = 1
            if self.widgets.pyvcpexist.get_active() == True:
-              self.data.pyvcpname = "custompanel.xml"
+              self.data.pyvcpname = "pyvcp-panel.xml"
         for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
             if not self.widgets[i].get_active():
                 self.data[i] = "default"
@@ -4397,12 +4480,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 if d[_MAXSSERIALPORTS]:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].show()
-                    self.widgets["mesa%d_numof_sserial_label"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialports_label"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialchannels_label"% boardnum].show()
                 else:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].hide()
-                    self.widgets["mesa%d_numof_sserial_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialports_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialchannels_label"% boardnum].hide()
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_range(0,d[_MAXSSERIALPORTS])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(d[_MAXSSERIALPORTS])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_range(1,d[_MAXSSERIALCHANNELS])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(d[_MAXSSERIALCHANNELS])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
                 self.widgets["mesa%d_3pwm_frequency"% boardnum].set_sensitive(d[_MAXTPPWM])
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
@@ -4422,7 +4511,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
                     k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
                     l = (int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value()) * 6)
-                    total = (d[_MAXGPIO]-i-j-k-l)
+                    sp = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+                    sc = int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
+                    m = sp * sc * 3
+                    total = (d[_MAXGPIO]-i-j-k-l-m)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
@@ -4446,7 +4538,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
         port = 0
-        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
@@ -4565,7 +4657,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 0
         if not self.widgets.createconfig.get_active() and not self.data._mesa0_configured  :
             self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
-            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports)
+            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports,
+            self.data.mesa0_numof_sserialchannels)
         elif not self.data._mesa0_configured:
             self.widgets.mesa0con2table.hide()
             self.widgets.mesa0con3table.hide()   
@@ -4611,7 +4704,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 1
         if not self.widgets.createconfig.get_active() and not self.data._mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
-                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports)
+                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports,
+                  self.data.mesa1_numof_sserialchannels)
         elif not self.data._mesa1_configured:           
             self.widgets.mesa1con2table.hide()
             self.widgets.mesa1con3table.hide()           
@@ -4755,10 +4849,12 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         numoftppwmgens = self.data["mesa%d_numof_tppwmgens"% boardnum] = int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value())
         numofstepgens = self.data["mesa%d_numof_stepgens"% boardnum] = int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value())
         numofencoders = self.data["mesa%d_numof_encodergens"% boardnum] = int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value())
-        numofsmartserial = self.data["mesa%d_numof_sserialports"% boardnum] = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+        numofsserialports = self.data["mesa%d_numof_sserialports"% boardnum] = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+        numofsserialchannels = self.data["mesa%d_numof_sserialchannels"% boardnum] = \
+        int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
         title = self.data["mesa%d_boardtitle"% boardnum] = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         firmware = self.data["mesa%d_firmware"% boardnum] = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
-        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial)
+        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels)
         return True
 
     # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
@@ -4772,7 +4868,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
-    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial):
+    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
         self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -4862,19 +4958,24 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
         
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
+        self.data["mesa%d_numof_sserialports"% boardnum] = numofsserialports
+        self.data["mesa%d_numof_sserialchannels"% boardnum] = numofsserialchannels
         temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
         temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
         temp2 = (numofpwmgens * 3)
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
+        temp3 = numofsserialports * numofsserialchannels * 3
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2-temp3)
         self.data["mesa%d_numof_gpio"% boardnum] = total     
         self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
         self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
+        self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(numofsserialports)
+        self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(numofsserialchannels)
         self.in_mesa_prepare = False   
         self.data["_mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
@@ -4890,14 +4991,14 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].child.handler_unblock(self.data[actblocksignal])
                 #print "* mesa data-widget",p
 
-        if numofsmartserial:
+        if numofsserialports:
             self.pbar.set_text("Setting up Mesa Smart Serial tabs")
             self.pbar.set_fraction(0)
             self.window.show()
             while gtk.events_pending():
                 gtk.main_iteration()
             port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     self.pbar.set_fraction((pin+1)/48.0)
@@ -4922,10 +5023,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     numoftppwmgens = 0
                     numofstepgens = 0
                     self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,True)
             # all this to unblock signals
             port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -4946,7 +5047,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
-                            numofstepgens,numofsmartserial):
+                            numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
                 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
@@ -5089,9 +5190,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if firmptype in (TXDATA1,RXDATA1,TXEN1): portnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2): portnum = 3
                     if firmptype in (TXDATA3,RXDATA3,TXEN3): portnum = 4
-
                     #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
-                    if numofsmartserial >= (portnum):
+                    if numofsserialports >= (portnum) and numofsserialchannels >= compnum:
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         #if compnum < 5: # TODO hack - haven't made all the serial components in glade yet
@@ -5105,7 +5205,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[p].set_active(0)
                         if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3):
                             self.widgets[complabel].set_text("%d:"%compnum)
-                            if compnum < 5:#TODO fix hack
+                            if compnum < 4:#TODO fix hack harcodes at 4 sserial channels
                                 self.widgets[p].set_sensitive(1)
                             else:
                                 self.widgets[p].set_sensitive(0)
@@ -5145,7 +5245,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # check if widget is already configured
                 # we now set everything in a known state.
                 if firmptype in (GPIOI,GPIOO,GPIOD):
-                    self.widgets[complabel].set_text("%03d:"%(concount*24+pin))
+                    if sserialflag:
+                        if pin <24 :
+                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                        else:
+                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                    else:
+                        self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
@@ -5175,7 +5281,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
                 #print "* mesa data-widget",p
         port = 0
-        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -5603,23 +5709,23 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if connector == temp:
                             firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
-                                if compnum == 1:
+                                if compnum == 0:
                                     self.widgets["mesa%dsserialtab1"% boardnum].hide()
-                                if compnum == 2:
+                                if compnum == 1:
                                     self.widgets["mesa%dsserialtab2"% boardnum].hide()
-                                if compnum == 3:
+                                if compnum == 2:
                                     self.widgets["mesa%dsserialtab3"% boardnum].hide()
-                                if compnum == 4:
+                                if compnum == 3:
                                     self.widgets["mesa%dsserialtab4"% boardnum].hide()
                                 return
                             else:
-                                if compnum == 1:
+                                if compnum == 0:
                                     self.widgets["mesa%dsserialtab1"% boardnum].show()
-                                if compnum == 2:
+                                if compnum == 1:
                                     self.widgets["mesa%dsserialtab2"% boardnum].show()
-                                if compnum == 3:
+                                if compnum == 2:
                                     self.widgets["mesa%dsserialtab3"% boardnum].show()
-                                if compnum == 4:
+                                if compnum == 3:
                                     self.widgets["mesa%dsserialtab4"% boardnum].show()
                                 return
                     return
@@ -6933,35 +7039,41 @@ different program to copy to your configuration file.\nThe edited program will b
                 for i in range(0,24):
                     pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
                     self.data[pinname] = False
+            # clear unused sserial signals
+            keeplist =[]
+            # if the current firmware supports sserial better check for used channels
+            # and make a 'keeplist'. we don't want to clear them
+            if self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALPORTS]:
+                #search all pins for sserial port
+                for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
+                    for pin in range (0,24):
+                        firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
+                        p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                        ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3) and not self.data[p] == UNUSED_SSERIAL:
+                            keeplist.append(compnum)
+            # ok clear the sserial pins unless they are in the keeplist
+            port = 0# TODO hard code at only 1 sserial port 
+            for channel in range(0,4): #TODO hardcoded at 4 sserial channels instead of 8
+                if channel in keeplist: continue
+                # This initializes pins
+                for i in range(0,48):
+                    pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
+                    if i < 24:
+                        self.data[pinname] = UNUSED_INPUT
+                    else:
+                        self.data[pinname] = UNUSED_OUTPUT
+                    pinname ="mesa%dsserial%d_%dpin%dtype"% (boardnum, port,channel,i)
+                    if i < 24:
+                        self.data[pinname] = GPIOI
+                    else:
+                        self.data[pinname] = GPIOO
+                    pinname ="mesa%dsserial%d_%dpin%dinv"% (boardnum, port,channel,i)
+                    self.data[pinname] = False
+
 
         self.data.save()        
-        if self.data.classicladder: 
-           if not self.data.laddername == "custom.clp":
-                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
-                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
-                if os.path.exists(filename):     
-                  if os.path.exists(original):
-                     #print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( filename,original)
-                  #print "copied ladder program to usr directory"
-                  #print"%s" % filename
-                else:
-                     print "Master or temp ladder files missing from configurable_options dir"
-        if self.data.pyvcp and not self.widgets.pyvcpexist.get_active() == True:                
-           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.data.pyvcpname)
-           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     #print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/custompanel_backup.xml" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  #print "copied PYVCP program to usr directory"
-                  #print"%s" % panelname
-           else:
-                  print "Master PYVCP file: %s missing from configurable_options dir"% self.data.pyvcpname
+
         if not self.warning_dialog (_("Do you wish to continue to edit this configuration."),False):
             gtk.main_quit()
         #self._mesa0_configured = False
@@ -7063,7 +7175,7 @@ different program to copy to your configuration file.\nThe edited program will b
         if self.widgets.pyvcp2.get_active() == True:
            panel = "xyzjog.xml"
         if self.widgets.pyvcpexist.get_active() == True:
-           panel = "custompanel.xml"
+           panel = "pyvcp-panel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
         if self.widgets.pyvcpposition.get_active() == True:
             xpos = self.widgets.pyvcpxpos.get_value()
@@ -7994,9 +8106,9 @@ But there is not one in the machine-named folder.."""),True)
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = ""
             if self.data.mesa0_numof_sserialports:
-                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
             if self.data.mesa1_numof_sserialports:
-                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
                     driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))

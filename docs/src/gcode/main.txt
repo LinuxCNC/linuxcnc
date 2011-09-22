@@ -1888,7 +1888,7 @@ M66::(((M66)))
    3:: WAIT_MODE_HIGH - waits for the selected input to go to the HIGH state.
    4:: WAIT_MODE_LOW - waits for the selected input to go to the LOW state.
 
- -  The Q-word specifies the timeout for the waiting. If the timeout is
+ -  The Q-word specifies the timeout in seconds for waiting. If the timeout is
    exceeded, the wait is interrupt, and the variable #5399 will be holding
    the value -1. The Q value is ignored if the L-word is zero (IMMEDIATE).
    A Q value of zero is an error if the L-word is non-zero.
