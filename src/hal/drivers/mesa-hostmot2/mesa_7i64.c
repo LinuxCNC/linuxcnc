@@ -88,12 +88,12 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                     }
                     r = hal_pin_bit_newf(HAL_IN, &(hal->pin.digital_out[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.digout.%02d",
+                                         "%s.7i64.%1d.%1d.digout.%02d.out",
                                          hm2->llio->name, inst->module_index, 
                                          c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digout.%02d, "
-                                "aborting\n",
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digout.%02d."
+                                "out, aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
                         goto fail1;
                     }
