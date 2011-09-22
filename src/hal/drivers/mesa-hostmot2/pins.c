@@ -285,7 +285,6 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
             hm2->ioport.alt_source_reg[pin->port_num] &= ~(1 << pin->bit_num);
             pin->gtag = pin->primary_tag;
         } else if (source == HM2_PIN_SOURCE_IS_SECONDARY) {
-            HM2_ERR("OK to here4\n");
             hm2->ioport.alt_source_reg[pin->port_num] |= (1 << pin->bit_num);
             pin->gtag = pin->sec_tag;
         } else {
