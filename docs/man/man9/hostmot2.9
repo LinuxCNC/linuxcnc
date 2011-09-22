@@ -586,26 +586,26 @@ maximum is requested.
 also shown on the label on the drive.
 .TP
 .SH \fB 7i64\fR
-The 7i64 is a 24-input 24-output GPIO card.
+The 7i64 is a 24-input 24-output IO card.
 7i64 pins and parameters have names like "hm2_<BoardType>.<BoardNum>.7i64.
-<PortNum>.<ChanNum>.<Pin>", for example hm2_5i23.0.7i63.1.3.gpio.01.out
+<PortNum>.<ChanNum>.<Pin>", for example hm2_5i23.0.7i63.1.3.digout.01.out
 
 Pins:
-(bit, in) .gpio.NN.out: Writing a 1 or TRUE to this pin will enable output
+(bit, in) .digout.NN.out: Writing a 1 or TRUE to this pin will enable output
 driver NN. Note that the outputs are drivers (switches) rather than voltage
 outputs. The LED adjacent to the connector on the board shows the status.
 
-(bit, out) .gpio.NN.in: The value of input NN. Note that the inputs are
-isolated and both pins of each unput must be connected (typically to signal and
+(bit, out) .digin.NN.in: The value of input NN. Note that the inputs are
+isolated and both pins of each input must be connected (typically to signal and
 the ground of the signal. This need not be the ground of the board.)
 
-(bit, out) .gpio.NN.in_not: An inverted copy of the corresponding input.
+(bit, out) .digin.NN.in-not: An inverted copy of the corresponding input.
 
-(float, out) .analogue.00 & .analogue.01: The two analogue inputs (0 to 3.3V) on
+(float, out) .adcin.00.in & .adcin.01.in: The two analogue inputs (0 to 3.3V) on
 the board.
 
 Parameters:
-(bit, rw) .gpio.NN.invert_output: Setting this parameter to 1 / TRUE will invert
+(bit, rw) .digout.NN.invert: Setting this parameter to 1 / TRUE will invert
 the output value, such that writing 0 to .gpio.NN.out will enable the output
 and vice-versa.
 
