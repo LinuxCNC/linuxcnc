@@ -3623,6 +3623,17 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 self.data.load(filename, self)
                 self.data._mesa0_configured = False
                 self.data._mesa1_configured = False
+                try:
+                    # check that the firmware is current enough by checking the length of a sub element and that the other is an integer.
+                    for boardnum in(0,1):
+                        i = len(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS])
+                        j = self.data["mesa%d_currentfirmwaredata"% boardnum][_HIFREQ]+100 # throws an error if not an integer.
+                        if not i > 1:
+                            print i,j,boardnum
+                            raise UserWarning
+                except :
+                    self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue.\n."),True)
+                    return True
             else:
                 dialog.destroy()
                 return True
