@@ -1869,14 +1869,18 @@ If you have a REALLY large config that you wish to convert to this newer version
             if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
             else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
         print >>file
-        def write_pins(p,i,t):
+        def write_pins(pname,p,i,t):
             # for input pins
             if t == GPIOI:
                 if not p == "unused-input":
                     pinname = self.make_pinname(self.findsignal( p )) 
                     print >>file, "# ---",p.upper(),"---"
-                    if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
-                    else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+                    if "sserial" in pname:
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+                    else:
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
             # for encoder pins
             elif t in (ENCA,MXEA):
                 if not p == "unused-encoder":
@@ -1893,19 +1897,21 @@ If you have a REALLY large config that you wish to convert to this newer version
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    write_pins(p,i,t)
+                    write_pins(pname,p,i,t)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
-                        write_pins(p,i,t)
+                        write_pins(pname,p,i,t)
 
     def connect_output(self, file):
         
@@ -1924,11 +1930,15 @@ If you have a REALLY large config that you wish to convert to this newer version
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
                     print >>file, "# ---",p.upper(),"---"
-                    if channel == None: # sserial has a channel number and doesn't need this next line
+                    if "sserial" in pname:
+                        print >>file, "net %s     =>  "% (p)+pinname +".out"
+                        if i: print >>file, "setp    "+pinname+".invert true"
+                    else:
+                        print >>file, "net %s     =>  "% (p)+pinname +".out"
                         print >>file, "setp    "+pinname +".is_output true"
-                    if i: print >>file, "setp    "+pinname+".invert_output true"
-                    if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
-                    print >>file, "net %s     =>  "% (p)+pinname +".out"              
+                        if i: print >>file, "setp    "+pinname+".invert_output true"
+                        if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
+
             # for pwm pins
             elif t in (PWMP,PDMP,UDMU):
                 if not p == "unused-pwm":
@@ -3151,7 +3161,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
-                    comptype = "gpio"
+                    if ptype == GPIOI:comptype = "digin"
+                    else:comptype = "digout"
                     if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
