@@ -352,10 +352,10 @@ mesafirmwaredata = [
 ]
 _SUBBOARDNAME = 0; _SUBSTARTOFDATA = 1
 mesadaughterdata = [ ["7i64",
-        [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
-                [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
-        [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],
-                [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1] ],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100] ],
 ]
 
 custommesafirmwaredata = []
@@ -5108,6 +5108,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         # We cheat a little and tell the rest of the method that the firmware says
                         # it should be GPIO and compnum is changed to signify that the GPIO can be changed
                         # from input to output
+                        # Right now only mainboard GPIO can be changed
+                        # sserial 7i64 I/O can not
                         firmptype = GPIOI
                         compnum = 0
                 # --- mux encoder ---
@@ -5277,7 +5279,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
-                        self.widgets[ptype].set_sensitive(not compnum)
+                        self.widgets[ptype].set_sensitive(not compnum == 100) # compnum = 100 means GPIO cannot be changed by user
                         self.widgets[ptype].set_model(self.data._gpioliststore)
                         if firmptype == GPIOI:
                             # set pin treestore to gpioi signals
@@ -5335,10 +5337,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         #print "data ptype index:",pintype_gpio.index(dataptype)
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
-                        # if compnum doesn't = 0 (GPIO only) then it means that the component type can not
+                        # if compnum  = 100  then it means that the component type can not
                         # be changed from what the firmware designates it as.
                         # signal names for GPIO INPUT
-                        if not compnum == 0: dataptype = widgetptype 
+                        #print "compnum = ",compnum
+                        if compnum == 100: dataptype = widgetptype 
                         self.widgets[pinv].set_active(self.data[pinv])
                         self.widgets[ptype].set_active( pintype_gpio.index(dataptype) )
                         if dataptype == GPIOI:
