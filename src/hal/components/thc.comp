@@ -4,9 +4,13 @@ description
 """
 Torch Height Control
 Mesa THC > Mesa 5i20 Encoder > EMC THC
-The Mesa THC sends a pulse based on the scaled voltage detected. 
-A velocity is used from the encoder that is being driven by a frequency from
-the Mesa THC.
+The Mesa THC sends a frequency based on the voltage detected to the encoder.
+The velocity from the encoder is converted to volts with the velocity scale
+parameter.
+The THCAD card sends a frequency at 0 volts so the scale offset parameter is
+used to correct this.
+
+Component Functions
 If enabled and torch is on and X + Y velocity is within tolerance of set speed
 allow the THC to offset the Z axis as needed to maintain voltage.
 
@@ -37,7 +41,7 @@ thc.current-vel <= motion.current-vel
  
 author "John Thornton";
 
-license "GPL";
+license "GPLv2 or greater";
 
 option singleton yes;
 
@@ -63,7 +67,7 @@ param rw float vel_scale "The scale to convert the Velocity signal to Volts";
 param rw float scale_offset "The offset of the velocity input at 0 volts";
 param rw float velocity_tol "The deviation percent from planned velocity";
 param rw float voltage_tol "The deviation of Tip Voltage before correction takes place";
-param rw float correction_vel "The Velocity to move Z to correct";
+param rw float correction_vel "The amount of change in user units per period to move Z to correct";
 
 // Global Variables
 variable float offset;
