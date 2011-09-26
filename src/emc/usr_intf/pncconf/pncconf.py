@@ -1089,7 +1089,7 @@ class Data:
             self[temp+"invertencoder"]= 0
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
-            self[temp+"outputscale"]= 1
+            self[temp+"outputscale"]= 10
             self[temp+"outputoffset"]= 0
             self[temp+"maxoutput"]= 10
             self[temp+"P"]= 1.0
