@@ -543,8 +543,8 @@ usage:
             "           0: continue\n"
             "           1: enter MDI mode\n"
             "           2: stop (default)\n"
-            "    -b: Toggle the 'block delete' flag (default: ON)\n"
-            "    -s: Toggle the 'print stack' flag (default: ON)\n"
+            "    -b: Toggle the 'block delete' flag (default: OFF)\n"
+            "    -s: Toggle the 'print stack' flag (default: OFF)\n"
             "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
             "    -i: specify the .ini file (default: no ini file)\n"
             , argv[0]);
