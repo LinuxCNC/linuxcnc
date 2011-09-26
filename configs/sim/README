@@ -32,6 +32,8 @@ Right now the possible choices are:
 
 -- tripod.ini (non-trivial kinematics machine)
 
+-- gantry.ini (gantry machine, XYYZ)
+
 -- xemc.ini (native X interface, runs ok on older machines)
 
 Select one of these if you have no functional machine 
