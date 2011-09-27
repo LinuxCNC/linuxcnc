@@ -276,20 +276,14 @@ int Interp::_execute(const char *command)
       while(MDImode && _setup.call_level) // we are still in a subroutine
       {
           status = read(0);  // reads from current file and calls parse
-          if (status != INTERP_OK)
-	    {
-		if (status > INTERP_MIN_ERROR)
-		    _setup.remap_level = 0;
-		return status;
-	    }
+	  if (status > INTERP_MIN_ERROR)
+	      CHP(status);
           status = execute();  // special handling for mdi errors
           if (status != INTERP_OK) {
-		if (status == INTERP_EXECUTE_FINISH) {
-		    _setup.mdi_interrupt = true;
-		} else {
-		    reset();
-		}
-               CHP(status);
+	      if (status == INTERP_EXECUTE_FINISH) {
+		  _setup.mdi_interrupt = true;
+	      }
+	      CHP(status);
           }
       }
       _setup.mdi_interrupt = false;
@@ -403,20 +397,11 @@ int Interp::_execute(const char *command)
 		      }
 		      status = INTERP_OK;
 		      while(MDImode && _setup.call_level) { // we are still in a subroutine
-			  status = read(0);  // reads from current file and calls parse
-			  if (status != INTERP_OK) {
-			      return status;
-			  }
+			  CHP(read(0));  // reads from current file and calls parse
 			  status = execute();  // special handling for mdi errors
-			  if (status != INTERP_OK) {
-			      if (status == INTERP_EXECUTE_FINISH) {
-				  _setup.mdi_interrupt = true;
-			      } else {
-				  logRemap("execute() returned %s, RESETTING!\n",interp_status(status));
-				  reset();
-			      }
-			      CHP(status);
-			  }
+			  if (status == INTERP_EXECUTE_FINISH) 
+			      _setup.mdi_interrupt = true;
+			  CHP(status);
 		      }
 		      _setup.mdi_interrupt = false;
 		      // at this point the MDI execution of a remapped block is complete.
@@ -425,39 +410,6 @@ int Interp::_execute(const char *command)
 		      write_m_codes(eblock, &_setup);
 		      write_settings(&_setup);
 		      return INTERP_OK;
-
-
-
-
-
-		      // status = convert_control_functions(eblock, &_setup);
-		      // if (status == INTERP_EXECUTE_FINISH) {
-		      // 	  _setup.mdi_interrupt = true;  // a yielding handler might return INTERP_EXECUTE_FINISH too
-		      // }
-		      // CHP(status);
-		      // // do {
-		      // while ((status == INTERP_OK) && _setup.call_level) {
-		      // 	  CHP(read(0));  // reads from current file and calls parse
-		      // 	  status = execute();  // special handling for mdi errors
-		      // 	  if (status != INTERP_OK) {
-		      // 	      if (status == INTERP_EXECUTE_FINISH) {
-		      // 		  _setup.mdi_interrupt = true;
-		      // 	      } else {
-		      // 		  logRemap("execute() returned %s during MDI execution\n",
-		      // 			   interp_status(status));
-		      // 		  reset();
-		      // 	      }
-		      // 	      CHP(status);
-		      // 	  } else 
-		      // 	      _setup.mdi_interrupt = false;	      
-		      // 	  //} while ((status == INTERP_OK) && _setup.call_level);
-		      // }
-		      // // at this point the MDI execution of a remapped block is complete.
-		      // logRemap("MDI remap execution complete status=%s\n",interp_status(status));
-		      // write_g_codes(eblock, &_setup);
-		      // write_m_codes(eblock, &_setup);
-		      // write_settings(&_setup);
-		      // return INTERP_OK;
 		  }
 	      } else {
 		  // this should get the osub going
@@ -468,15 +420,9 @@ int Interp::_execute(const char *command)
 	      }
 	      if ((status != INTERP_OK) &&
 		  (status != INTERP_EXECUTE_FINISH) && (status != INTERP_EXIT))
-		  if (status > INTERP_MIN_ERROR) {
-		      _setup.remap_level = 0;
-		      _setup.call_level = 0;
-		      logDebug("execute(): error %d returned, clearing remap and call stack",status);
-		  }
 		  ERP(status);
 	  } else {
 	      CHP(status);
-	      // ERS("BUG: remapping indicated but execute_block() returned status = %d",status);
 	  }
       } else {
 	  // standard case: unremapped block execution
