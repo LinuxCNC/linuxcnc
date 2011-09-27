@@ -390,9 +390,13 @@ int Interp::_execute(const char *command)
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
 		  if ((eblock->o_name != 0) ||
-		      (_setup.mdi_interrupt)) { // FIXME this probably aint needed as executed once only
+		      (_setup.mdi_interrupt)) { 
 
-		      CHP(convert_control_functions(eblock, &_setup));
+		      status = convert_control_functions(eblock, &_setup);
+		      // a prolog might yield INTERP_EXECUTE_FINISH too
+		      if (status == INTERP_EXECUTE_FINISH) 
+			  _setup.mdi_interrupt = true;
+		      CHP(status);
 		      if (_setup.mdi_interrupt) {
 			  _setup.mdi_interrupt = false;
 			  MDImode = 1;
