@@ -257,9 +257,6 @@ int Interp::_execute(const char *command)
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
-      if (status > INTERP_MIN_ERROR) {
-	  _setup.remap_level = 0;
-      }
       CHP(status); // relinquish control if INTERP_EXCUTE_FINISH, INTERP_ERROR etc
       
       // let MDI code call subroutines.
