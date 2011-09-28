@@ -2757,7 +2757,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         else:
             # gvcp was not selected remove any existing related HAl files
             if os.path.exists(gvcp_options_filename):
-                os.remove(gvcp_options_name)
+                os.remove(gvcp_options_filename)
             if os.path.exists(gvcp_call_filename):
                 os.remove(gvcp_call_filename)
 
