@@ -1,5 +1,5 @@
 executing
-Named ini parameter #<_ini[nosuchsection]nosuchname> not found in inifile 'test.ini': error=0x4
+Named parameter #<_ini[nosuchsection]nosuchname> not defined
 #4711 =  #<_iNI[nosuchsection]nosuchname>
     1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
     2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
