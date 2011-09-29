@@ -97,7 +97,10 @@ def change_epilog(self, **words):
 #     the following function is executed on M61:
 #
 # use iocontrolv2 for this to work - CHANGE_TOOL_NUMBER() is broken in iocontrol
-def set_tool_number(self,foo,**words):
+#
+# This example does directly access the results of parse_block() and does not rely
+# on argspec, although it could
+def set_tool_number(self):
     cblock = self.blocks[self.remap_level]
     if not cblock.q_flag: 
         self.set_errormsg("M61: Q word required")
