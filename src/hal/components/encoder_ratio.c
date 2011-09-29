@@ -21,7 +21,9 @@
 
     This module supports up to eight axis pairs.  The number of pairs
     is set by the module parameter 'num_chan' when the component is
-    insmod'ed.
+    insmod'ed.  Alternatively, use the names= specifier and a list of
+    unique names separated by commas.
+    The names= and num_chan= specifiers are mutually exclusive.
 
     The module exports pins and parameters for each axis pair as follows:
 
@@ -98,8 +100,14 @@
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Encoder Ratio Module for HAL");
 MODULE_LICENSE("GPL");
-static int num_chan = 1;	/* number of channels - default = 1 */
+static int num_chan;	/* number of channels*/
+static int default_num_chan = 1;
 RTAPI_MP_INT(num_chan, "number of channels");
+
+static int howmany;
+#define MAX_CHAN 8
+static char *names[MAX_CHAN] = {0,};
+RTAPI_MP_ARRAY_STRING(names,MAX_CHAN,"encoder_ratio names");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -156,7 +164,7 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_encoder_pair(int num, encoder_pair_t * addr);
+static int export_encoder_pair(int num, encoder_pair_t * addr, char* prefix);
 static void sample(void *arg, long period);
 static void update(void *arg, long period);
 
@@ -164,16 +172,27 @@ static void update(void *arg, long period);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_CHAN 8
 
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int n, retval,i;
+
+    if(num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+        return -EINVAL;
+    }
+    if(!num_chan && !names[0]) num_chan = default_num_chan;
+
+    if(num_chan) {
+        howmany = num_chan;
+    } else {
+        for(i=0; names[i]; i++) {howmany = i+1;}
+    }
 
     /* test for number of channels */
-    if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
+    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "ENCODER_RATIO: ERROR: invalid num_chan: %d\n", num_chan);
+	    "ENCODER_RATIO: ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
@@ -183,7 +202,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for encoder data */
-    encoder_pair_array = hal_malloc(num_chan * sizeof(encoder_pair_t));
+    encoder_pair_array = hal_malloc(howmany * sizeof(encoder_pair_t));
     if (encoder_pair_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "ENCODER_RATIO: ERROR: hal_malloc() failed\n");
@@ -191,9 +210,17 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* set up each encoder pair */
-    for (n = 0; n < num_chan; n++) {
+    i = 0; // for names= items
+    for (n = 0; n < howmany; n++) {
 	/* export all vars */
-	retval = export_encoder_pair(n, &(encoder_pair_array[n]));
+        if(num_chan) {
+            char buf[HAL_NAME_LEN + 1];
+            rtapi_snprintf(buf, sizeof(buf), "encoder-ratio.%d", n);
+	    retval = export_encoder_pair(n, &(encoder_pair_array[n]), buf);
+        } else {
+	    retval = export_encoder_pair(n, &(encoder_pair_array[n]), names[i++]);
+        }
+
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"ENCODER_RATIO: ERROR: counter %d var export failed\n", n);
@@ -227,7 +254,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"ENCODER_RATIO: installed %d encoder_ratio blocks\n", num_chan);
+	"ENCODER_RATIO: installed %d encoder_ratio blocks\n", howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -248,7 +275,7 @@ static void sample(void *arg, long period)
     unsigned char state;
 
     pair = arg;
-    for (n = 0; n < num_chan; n++) {
+    for (n = 0; n < howmany; n++) {
 	/* detect transitions on master encoder */
 	/* get state machine current state */
 	state = pair->master_state;
@@ -304,7 +331,7 @@ static void update(void *arg, long period)
     int n;
 
     pair = arg;
-    for (n = 0; n < num_chan; n++) {
+    for (n = 0; n < howmany; n++) {
 	/* scale raw error to output pin */
 	if ( pair->output_scale > 0 ) {
 	    *(pair->error) = pair->raw_error / pair->output_scale;
@@ -324,7 +351,7 @@ static void update(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_encoder_pair(int num, encoder_pair_t * addr)
+static int export_encoder_pair(int num, encoder_pair_t * addr, char* prefix)
 {
     int retval, msg;
 
@@ -337,55 +364,55 @@ static int export_encoder_pair(int num, encoder_pair_t * addr)
 
     /* export pins for the quadrature inputs */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->master_A), comp_id,
-			      "encoder-ratio.%d.master-A", num);
+			      "%s.master-A", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->master_B), comp_id,
-			      "encoder-ratio.%d.master-B", num);
+			      "%s.master-B", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->slave_A), comp_id,
-			      "encoder-ratio.%d.slave-A", num);
+			      "%s.slave-A", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_IN, &(addr->slave_B), comp_id,
-			      "encoder-ratio.%d.slave-B", num);
+			      "%s.slave-B", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the enable input */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
-			      "encoder-ratio.%d.enable", num);
+			      "%s.enable", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for output */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
-				"encoder-ratio.%d.error", num);
+				"%s.error", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for config info() */
     retval = hal_pin_u32_newf(HAL_IO, &(addr->master_ppr), comp_id,
-			      "encoder-ratio.%d.master-ppr", num);
+			      "%s.master-ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_u32_newf(HAL_IO, &(addr->slave_ppr), comp_id,
-			      "encoder-ratio.%d.slave-ppr", num);
+			      "%s.slave-ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_u32_newf(HAL_IO, &(addr->master_teeth), comp_id,
-			      "encoder-ratio.%d.master-teeth", num);
+			      "%s.master-teeth", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_u32_newf(HAL_IO, &(addr->slave_teeth), comp_id,
-			      "encoder-ratio.%d.slave-teeth", num);
+			      "%s.slave-teeth", prefix);
     if (retval != 0) {
 	return retval;
     }

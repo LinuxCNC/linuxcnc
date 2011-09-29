@@ -48,13 +48,16 @@ and other necessary conversion, handles counter rollover, etc.  Can
 (and should) be called less frequently than \fBupdate-counters\fR.
 Operates on all channels at once.
 
+.SH NAMING
+The names for pins and parameters are prefixed as:
+  \fBencoder.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBencoder.N.\fR format is shown in the following descriptions.
+
+
 .SH PINS
 
-Pin names for num_chan= specifier are:
-    \fBencoder.\fIN\fB.the_pin_name\fR
-.TP
-Pin names for names= specifier are:
-    \fBname\fB.the_pin_name\fR
 .TP
 \fBencoder.\fIN\fB.counter-mode\fR bit i/o
 Enables counter mode.  When true, the counter counts each rising edge of the

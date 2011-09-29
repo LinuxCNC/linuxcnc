@@ -1,4 +1,4 @@
-emc2 (1:2.5.0~pre) hardy; urgency=low
+emc2 (1:2.5.0-pre2) lucid; urgency=low
 
   * AXIS: dynamic tabs can embed other applications, including virtual
     control panels
@@ -122,7 +122,7 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
   * add a G code language spec for gedit
   * add latencyplot, a strip-chart type display of latency test results
 
- -- Chris Radek <chris@timeguy.com>  Fri, 14 Jan 2011 10:32:03 -0600
+ -- Chris Radek <chris@timeguy.com>  Thu, 22 Sep 2011 10:50:38 -0500
 
 emc2 (1:2.4.6) lucid; urgency=low
 

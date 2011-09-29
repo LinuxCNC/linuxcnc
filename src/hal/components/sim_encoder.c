@@ -16,7 +16,9 @@
     on other HAL pins.  A parameter sets the counts/revolution.
 
     It supports up to 8 simulated encoders. The number is set by
-    an insmod command line parameter 'num_chan'.
+    an insmod command line parameter 'num_chan'.  Alternatively, use the
+    names= specifier and a list of unique names separated by commas.
+    The names= and num_chan= specifiers are mutually exclusive.
 
     The module exports two functions.  'sim-encoder.make-pulses', is
     responsible for actually generating the A, B, and Z signals.  It
@@ -58,6 +60,7 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_string.h"
 #include "hal.h"		/* HAL public API decls */
 
 #define MAX_CHAN 8
@@ -66,8 +69,12 @@
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Simulated Encoder for EMC HAL");
 MODULE_LICENSE("GPL");
-int num_chan = 1;
-RTAPI_MP_INT(num_chan, "number of 'encoders'");
+static int num_chan;
+static int default_num_chan = 1;
+RTAPI_MP_INT(num_chan, "number of 'sim_encoders'");
+static int howmany;
+static char *names[MAX_CHAN] = {0,};
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of sim_encoder");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -109,7 +116,7 @@ static double maxf;		/* max frequency in Hz */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_sim_enc(int num, sim_enc_t * addr);
+static int export_sim_enc(sim_enc_t * addr, char *prefix);
 static void make_pulses(void *arg, long period);
 static void update_speed(void *arg, long period);
 
@@ -119,11 +126,23 @@ static void update_speed(void *arg, long period);
 
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int n, retval, i;
 
-    if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
+    if(num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+        return -EINVAL;
+    }
+    if(!num_chan && !names[0]) num_chan = default_num_chan;
+
+    if(num_chan) {
+        howmany = num_chan;
+    } else {
+        for(i=0; names[i]; i++) {howmany = i+1;}
+    }
+
+    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIM_ENCODER: ERROR: 'num_chan' must be 1 to %d\n", MAX_CHAN);
+	    "SIM_ENCODER: ERROR: invalid number of channels %d\n", howmany);
 	return -1;
     }
     /* periodns will be set to the proper value when 'make_pulses()' 
@@ -143,7 +162,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for encoder data */
-    sim_enc_array = hal_malloc(num_chan * sizeof(sim_enc_t));
+    sim_enc_array = hal_malloc(howmany * sizeof(sim_enc_t));
     if (sim_enc_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIM_ENCODER: ERROR: hal_malloc() failed\n");
@@ -151,9 +170,18 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* export all the variables for each simulated encoder */
-    for (n = 0; n < num_chan; n++) {
+    i = 0; //for names= items
+    for (n = 0; n < howmany; n++) {
 	/* export all vars */
-	retval = export_sim_enc(n, &(sim_enc_array[n]));
+
+        if(num_chan) {
+            char buf[HAL_NAME_LEN + 1];
+            rtapi_snprintf(buf, sizeof(buf), "sim-encoder.%d", n);
+	    retval = export_sim_enc(&(sim_enc_array[n]),buf);
+        } else {
+	    retval = export_sim_enc(&(sim_enc_array[n]),names[i++]);
+        }
+
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"SIM_ENCODER: ERROR: 'encoder' %d var export failed\n", n);
@@ -179,7 +207,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"SIM_ENCODER: installed %d simulated encoders\n", num_chan);
+	"SIM_ENCODER: installed %d simulated encoders\n", howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -211,7 +239,7 @@ static void make_pulses(void *arg, long period)
     periodns = period;
     /* point to sim_enc data structures */
     sim_enc = arg;
-    for (n = 0; n < num_chan; n++) {
+    for (n = 0; n < howmany; n++) {
 	/* get current value of bit 31 */
 	overunder = sim_enc->accum >> 31;
 	/* update the accumulator */
@@ -300,7 +328,7 @@ static void update_speed(void *arg, long period)
     }
     /* update the 'encoders' */
     sim_enc = arg;
-    for (n = 0; n < num_chan; n++) {
+    for (n = 0; n < howmany; n++) {
 	/* check for change in scale value */
 	if ( *(sim_enc->scale) != sim_enc->old_scale ) {
 	    /* save new scale to detect future changes */
@@ -334,7 +362,7 @@ static void update_speed(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_sim_enc(int num, sim_enc_t * addr)
+static int export_sim_enc(sim_enc_t * addr, char *prefix)
 {
     int retval, msg;
 
@@ -346,41 +374,41 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
     retval = hal_pin_u32_newf(HAL_IO, &(addr->ppr), comp_id,
-			      "sim-encoder.%d.ppr", num);
+			      "%s.ppr", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export param variable for scaling */
     retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
-				"sim-encoder.%d.scale", num);
+				"%s.scale", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for speed command */
     retval = hal_pin_float_newf(HAL_IN, &(addr->speed), comp_id,
-				"sim-encoder.%d.speed", num);
+				"%s.speed", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for output phases */
     retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseA), comp_id,
-			      "sim-encoder.%d.phase-A", num);
+			      "%s.phase-A", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseB), comp_id,
-			      "sim-encoder.%d.phase-B", num);
+			      "%s.phase-B", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseZ), comp_id,
-			      "sim-encoder.%d.phase-Z", num);
+			      "%s.phase-Z", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for rawcounts */
     retval = hal_pin_s32_newf(HAL_IN, &(addr->rawcounts), comp_id,
-			      "sim-encoder.%d.rawcounts", num);
+			      "%s.rawcounts", prefix);
     if (retval != 0) {
 	return retval;
     }

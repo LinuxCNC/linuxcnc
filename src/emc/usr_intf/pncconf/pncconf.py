@@ -352,10 +352,10 @@ mesafirmwaredata = [
 ]
 _SUBBOARDNAME = 0; _SUBSTARTOFDATA = 1
 mesadaughterdata = [ ["7i64",
-        [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
-                [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
-        [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],
-                [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1] ],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100] ],
 ]
 
 custommesafirmwaredata = []
@@ -407,7 +407,8 @@ digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital 
 axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
 override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
     _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),_("Spindle Override incr B"),
-    _("Spindle Override incr C"),_("Spindle Override incr D") ]
+    _("Spindle Override incr C"),_("Spindle Override incr D"), _("Max Vel Override incr A"),_("Max Vel Override incr B"),
+    _("Max Vel Override incr C"),_("Max Vel Override incr D") ]
 spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed") ]
 operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
 control = [_("ESTOP In"), _("Probe In") ]
@@ -435,7 +436,7 @@ BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
 DIN0, DIN1, DIN2, DIN3,
 SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGA, JOGB, JOGC, JOGD, FOA, FOB, FOC, FOD,
-SOA,SOB,SOC,SOD,
+SOA,SOB,SOC,SOD, MVOA, MVOB, MVOC, MVOD,
 SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,SPINDLE_AT_SPEED,
 CYCLE_START, ABORT, SINGLE_STEP,
 ESTOP_IN, PROBE,
@@ -455,7 +456,7 @@ S_HALL1_IN,S_HALL2_IN,S_HALL3_IN,S_C1_IN,S_C2_IN,S_C4_IN,S_C8_IN ) = hal_input_n
 "din-00", "din-01", "din-02", "din-03",
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
-"so-incr-a","so-incr-b","so-incr-c","so-incr-d",
+"so-incr-a","so-incr-b","so-incr-c","so-incr-d","mvo-incr-a","mvo-incr-b","mvo-incr-c","mvo-incr-d",
 "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed",
 "cycle-start","abort","single-step",
 "estop-ext", "probe-in",
@@ -520,7 +521,7 @@ FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal
 
 axis = [_("X Encoder"),_("Y Encoder"), _("Z Encoder"),_("A Encoder"),_("Spindle Encoder")]
 mpg = [_("X Hand Wheel"), _("Y Hand Wheel"), _("Z Hand Wheel"), _("A Hand Wheel") ,_("Multi Hand Wheel")]
-over = [_("Feed Override"),_("spindle Override")]
+over = [_("Feed Override"),_("spindle Override"),_("Max Vel Override")]
 human_encoder_input_names = [ [_("Unused Encoder"),[]],[_("Axis Encoder"), axis],[_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
                             [_("Custom Signals"),[]] ] 
 
@@ -673,6 +674,7 @@ class Data:
         self.singlejogbuttons = False
         self.multijogbuttons = False
         self.jograpidrate = 1.0
+
         self.externalmpg = False
         self.guimpg = True    
         self.multimpg = False
@@ -698,6 +700,7 @@ class Data:
         self.mpgdebouncetime = .2
         self.mpggraycode = False
         self.mpgignorefalse = False
+
         self.externalfo = False
         self.fo_usempg = False
         self.fo_useswitch = False
@@ -721,6 +724,7 @@ class Data:
         self.fodebouncetime = .2
         self.fograycode = False
         self.foignorefalse = False
+
         self.externalso = False
         self.so_usempg = False
         self.so_useswitch = False
@@ -744,7 +748,30 @@ class Data:
         self.sodebouncetime = .2
         self.sograycode = False
         self.soignorefalse = False
-        self.externalfo = False
+
+        self.externalmvo = False
+        self.mvo_usempg = False
+        self.mvo_useswitch = False
+        self.mvoincrvalue0 = 0  # all incr-select low
+        self.mvoincrvalue1 = 5  # incr-select-a  high
+        self.mvoincrvalue2 = 10  # b
+        self.mvoincrvalue3 = 25  # ab
+        self.mvoincrvalue4 = 50 # c
+        self.mvoincrvalue5 = 75 # ac
+        self.mvoincrvalue6 = 90 # bc
+        self.mvoincrvalue7 = 100 # abc
+        self.mvoincrvalue8 = 100  # d
+        self.mvoincrvalue9 = 100  # ad
+        self.mvoincrvalue10 = 100  # bd
+        self.mvoincrvalue11 = 100  # abd
+        self.mvoincrvalue12 = 100 # cd
+        self.mvoincrvalue13 = 100 # acd
+        self.mvoincrvalue14 = 100 # bcd
+        self.mvoincrvalue15 = 100 # abcd
+        self.mvodebounce = True
+        self.mvodebouncetime = .2
+        self.mvograycode = False
+        self.mvoignorefalse = False
 
         # GUI frontend defaults
         self.position_offset = 1 # relative
@@ -1062,7 +1089,7 @@ class Data:
             self[temp+"invertencoder"]= 0
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
-            self[temp+"outputscale"]= 1
+            self[temp+"outputscale"]= 10
             self[temp+"outputoffset"]= 0
             self[temp+"maxoutput"]= 10
             self[temp+"P"]= 1.0
@@ -1751,8 +1778,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxvel"]*1.25) )
-                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxacc"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
             if let == "s":
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
@@ -1869,14 +1896,18 @@ If you have a REALLY large config that you wish to convert to this newer version
             if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
             else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
         print >>file
-        def write_pins(p,i,t):
+        def write_pins(pname,p,i,t):
             # for input pins
             if t == GPIOI:
                 if not p == "unused-input":
                     pinname = self.make_pinname(self.findsignal( p )) 
                     print >>file, "# ---",p.upper(),"---"
-                    if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
-                    else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+                    if "sserial" in pname:
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+                    else:
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
             # for encoder pins
             elif t in (ENCA,MXEA):
                 if not p == "unused-encoder":
@@ -1893,19 +1924,21 @@ If you have a REALLY large config that you wish to convert to this newer version
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    write_pins(p,i,t)
+                    write_pins(pname,p,i,t)
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
-                        write_pins(p,i,t)
+                        write_pins(pname,p,i,t)
 
     def connect_output(self, file):
         
@@ -1924,11 +1957,15 @@ If you have a REALLY large config that you wish to convert to this newer version
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
                     print >>file, "# ---",p.upper(),"---"
-                    if channel == None: # sserial has a channel number and doesn't need this next line
+                    if "sserial" in pname:
+                        print >>file, "net %s     =>  "% (p)+pinname +".out"
+                        if i: print >>file, "setp    "+pinname+".invert true"
+                    else:
+                        print >>file, "net %s     =>  "% (p)+pinname +".out"
                         print >>file, "setp    "+pinname +".is_output true"
-                    if i: print >>file, "setp    "+pinname+".invert_output true"
-                    if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
-                    print >>file, "net %s     =>  "% (p)+pinname +".out"              
+                        if i: print >>file, "setp    "+pinname+".invert_output true"
+                        if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
+
             # for pwm pins
             elif t in (PWMP,PDMP,UDMU):
                 if not p == "unused-pwm":
@@ -2216,7 +2253,9 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.externalmpg: 
                 self.mux16names = self.mux16names+"jogincr,"  
             if self.externalfo: 
-                self.mux16names = self.mux16names+"foincr," 
+                self.mux16names = self.mux16names+"foincr,"
+            if self.externalmvo: 
+                self.mux16names = self.mux16names+"mvoincr,"
             if self.externalso: 
                 self.mux16names = self.mux16names+"soincr,"
             temp = self.mux16names.rstrip(",")
@@ -2278,7 +2317,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
 
-        if self.externalmpg or self.externalfo or self.externalso or self.joystickjog or self.userneededmux16 > 0: 
+        if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0: 
             temp=self.mux16names.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
@@ -2506,6 +2545,48 @@ If you have a REALLY large config that you wish to convert to this newer version
                 for i in range(0,16):
                     value = self["foincrvalue%d"% i]
                     print >>file, "    setp foincr.in%02d          %f"% (i,value)
+                print >>file
+
+        pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
+        if pinname:
+            print >>file, "# ---max velocity override signals to mesa encoder - mpg---"
+            print >>file
+            print >>file, "net mvo-count     <=  %s.count"% (pinname)
+            print >>file, "setp    %s.filter true" % pinname
+            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file
+        if self.externalmvo:
+            temp=[]
+            for i in self.available_axes:
+                temp.append(float(self[i+"maxvel"]))
+            scale = max(temp)/100
+            if self.mvo_usempg:
+                print >>file, "# connect max velocity overide increments - MPG"
+                print >>file
+                print >>file, "    setp halui.max-velocity-override.count-enable true"
+                print >>file, "    setp halui.max-velocity-override.direct-value false"
+                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
+                print >>file, "net mvo-count            =>  halui.max-velocity-override.counts"
+                print >>file
+            elif self.mvo_useswitch:
+                print >>file, "# connect max velocity overide increments - switches"
+                print >>file
+                print >>file, "    setp halui.max-velocity-override.count-enable true"
+                print >>file, "    setp halui.max-velocity-override.direct_value true"
+                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
+                print >>file, "net max-vel-override-incr   =>  halui.max-velocity-override.counts"
+                print >>file, "net mvo-incr-a           =>  mvoincr.sel0"
+                print >>file, "net mvo-incr-b           =>  mvoincr.sel1"
+                print >>file, "net mvo-incr-c           =>  mvoincr.sel2"
+                print >>file, "net mvo-incr-d           =>  mvoincr.sel3"
+                print >>file, "net max-vel-override-incr   <=  mvoincr.out-s"
+                if self.mvodebounce:
+                    print >>file, "    setp mvoincr.debounce-time      %f"% self.mvodebouncetime
+                print >>file, "    setp mvoincr.use-graycode      %s"% self.mvograycode
+                print >>file, "    setp mvoincr.suppress-no-input %s" % self.mvoignorefalse
+                for i in range(0,16):
+                    value = self["mvoincrvalue%d"% i]
+                    print >>file, "    setp mvoincr.in%02d          %f"% (i,value)
                 print >>file
 
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
@@ -3151,7 +3232,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
-                    comptype = "gpio"
+                    if ptype == GPIOI:comptype = "digin"
+                    else:comptype = "digout"
                     if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
@@ -3623,6 +3705,17 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 self.data.load(filename, self)
                 self.data._mesa0_configured = False
                 self.data._mesa1_configured = False
+                try:
+                    # check that the firmware is current enough by checking the length of a sub element and that the other is an integer.
+                    for boardnum in(0,1):
+                        i = len(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS])
+                        j = self.data["mesa%d_currentfirmwaredata"% boardnum][_HIFREQ]+100 # throws an error if not an integer.
+                        if not i > 1:
+                            print i,j,boardnum
+                            raise UserWarning
+                except :
+                    self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue.\n."),True)
+                    return True
             else:
                 dialog.destroy()
                 return True
@@ -3952,6 +4045,10 @@ Ok to reset data and start a new configuration?"),False):
             self.widgets.fo_usempg.set_active(1)
         else:
             self.widgets.fo_useswitch.set_active(1)
+        if self.data.mvo_usempg :
+            self.widgets.mvo_usempg.set_active(1)
+        else:
+            self.widgets.mvo_useswitch.set_active(1)
         if self.data.so_usempg :
             self.widgets.so_usempg.set_active(1)
         else:
@@ -3962,11 +4059,12 @@ Ok to reset data and start a new configuration?"),False):
         self.widgets.externalmpg.set_active(self.data.externalmpg)
         self.widgets.externaljog.set_active(self.data.externaljog)
         self.widgets.externalfo.set_active(self.data.externalfo)
+        self.widgets.externalmvo.set_active(self.data.externalmvo)
         self.widgets.externalso.set_active(self.data.externalso)
         self.widgets.sharedmpg.set_active(self.data.sharedmpg)
         self.widgets.multimpg.set_active(self.data.multimpg)
         self.widgets.incrselect.set_active(self.data.incrselect)
-        for i in ("mpg","fo","so"):
+        for i in ("mpg","fo","so","mvo"):
             self.widgets[i+"debounce"].set_active(self.data[i+"debounce"])
             self.widgets[i+"debouncetime"].set_value(self.data[i+"debouncetime"])
             self.widgets[i+"graycode"].set_active(self.data[i+"graycode"])
@@ -3977,6 +4075,7 @@ Ok to reset data and start a new configuration?"),False):
             tempunits = "mm"      
         for i in range(0,16):          
             self.widgets["foincrvalue"+str(i)].set_value(self.data["foincrvalue"+str(i)])
+            self.widgets["mvoincrvalue"+str(i)].set_value(self.data["mvoincrvalue"+str(i)])
             self.widgets["soincrvalue"+str(i)].set_value(self.data["soincrvalue"+str(i)])
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
 
@@ -4007,10 +4106,13 @@ Ok to reset data and start a new configuration?"),False):
         self.widgets.externaljogbox.set_sensitive(self.widgets.externaljog.get_active())
         self.widgets.externalmpgbox.set_sensitive(self.widgets.externalmpg.get_active())
         self.widgets.externalfobox.set_sensitive(self.widgets.externalfo.get_active())
+        self.widgets.externalmvobox.set_sensitive(self.widgets.externalmvo.get_active())
         self.widgets.externalsobox.set_sensitive(self.widgets.externalso.get_active())      
         self.widgets.foexpander.set_sensitive(self.widgets.fo_useswitch.get_active())
+        self.widgets.mvoexpander.set_sensitive(self.widgets.mvo_useswitch.get_active())
         self.widgets.soexpander.set_sensitive(self.widgets.so_useswitch.get_active())
         self.widgets.joystickjogbox.set_sensitive(self.widgets.joystickjog.get_active())
+        
         i =  self.widgets.incrselect.get_active()
         for j in range(1,16):
             self.widgets["incrlabel%d"% j].set_sensitive(i)
@@ -4156,6 +4258,8 @@ Ok to reset data and start a new configuration?"),False):
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.fo_usempg = self.widgets.fo_usempg.get_active()
         self.data.fo_useswitch = self.widgets.fo_useswitch.get_active()
+        self.data.mvo_usempg = self.widgets.mvo_usempg.get_active()
+        self.data.mvo_useswitch = self.widgets.mvo_useswitch.get_active()
         self.data.so_usempg = self.widgets.so_usempg.get_active()
         self.data.so_useswitch = self.widgets.so_useswitch.get_active()
         self.data.jograpidrate = self.widgets.jograpidrate.get_value()
@@ -4165,16 +4269,18 @@ Ok to reset data and start a new configuration?"),False):
         self.data.externaljog = self.widgets.externaljog.get_active()
         self.data.externalfo = self.widgets.externalfo.get_active()
         self.data.externalso = self.widgets.externalso.get_active()
+        self.data.externalmvo = self.widgets.externalmvo.get_active()
         self.data.sharedmpg = self.widgets.sharedmpg.get_active()
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.incrselect = self.widgets.incrselect.get_active()
-        for i in ("mpg","fo","so"):
+        for i in ("mpg","fo","so","mvo"):
             self.data[i+"debounce"] = self.widgets[i+"debounce"].get_active()
             self.data[i+"debouncetime"] = self.widgets[i+"debouncetime"].get_value()
             self.data[i+"graycode"] = self.widgets[i+"graycode"].get_active()
             self.data[i+"ignorefalse"] = self.widgets[i+"ignorefalse"].get_active()
         for i in range (0,16):
             self.data["foincrvalue"+str(i)] = self.widgets["foincrvalue"+str(i)].get_value()
+            self.data["mvoincrvalue"+str(i)] = self.widgets["mvoincrvalue"+str(i)].get_value()
             self.data["soincrvalue"+str(i)] = self.widgets["soincrvalue"+str(i)].get_value()
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
         self.data.usbdevicename = self.widgets.usbdevicename.get_text()
@@ -5086,6 +5192,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         # We cheat a little and tell the rest of the method that the firmware says
                         # it should be GPIO and compnum is changed to signify that the GPIO can be changed
                         # from input to output
+                        # Right now only mainboard GPIO can be changed
+                        # sserial 7i64 I/O can not
                         firmptype = GPIOI
                         compnum = 0
                 # --- mux encoder ---
@@ -5255,7 +5363,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
-                        self.widgets[ptype].set_sensitive(not compnum)
+                        self.widgets[ptype].set_sensitive(not compnum == 100) # compnum = 100 means GPIO cannot be changed by user
                         self.widgets[ptype].set_model(self.data._gpioliststore)
                         if firmptype == GPIOI:
                             # set pin treestore to gpioi signals
@@ -5313,10 +5421,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         #print "data ptype index:",pintype_gpio.index(dataptype)
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
-                        # if compnum doesn't = 0 (GPIO only) then it means that the component type can not
+                        # if compnum  = 100  then it means that the component type can not
                         # be changed from what the firmware designates it as.
                         # signal names for GPIO INPUT
-                        if not compnum == 0: dataptype = widgetptype 
+                        #print "compnum = ",compnum
+                        if compnum == 100: dataptype = widgetptype 
                         self.widgets[pinv].set_active(self.data[pinv])
                         self.widgets[ptype].set_active( pintype_gpio.index(dataptype) )
                         if dataptype == GPIOI:

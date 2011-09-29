@@ -10,15 +10,18 @@
  * Integeral/Derivative control loops.  It is a realtime component.
  *
  * It supports a maximum of 16 PID loops, as set by the insmod parameter
- * 'num_chan'.
+ * 'num_chan=' or the 'names=" specifier.  The 'num_chan=' and 'names='
+ * specifiers are mutually exclusive.
  *
  * In this documentation, it is assumed that we are discussing position
  * loops.  However this component can be used to implement other loops
  * such as speed loops, torch height control, and others.
  *
- * Each loop has a number of pins and parameters, whose names begin
- * with 'pid.x.', where 'x' is the channel number.  Channel numbers
- * start at zero.
+ * Each loop has a number of pins and parameters
+ * When the 'num_chan=' method is used, names begin with 'pid.x.', where
+ * 'x' is the channel number.  Channel numbers  start at zero.
+ * When the 'names=' method is used, names begin with the specifed names,
+ * e.g., for 'names=PID', the pin/parameter begin with "PID."
  *
  * The three most important pins are 'command', 'feedback', and
  * 'output'.  For a position loop, 'command' and 'feedback' are
@@ -127,11 +130,16 @@
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Auto-Tune PID Loop Component for EMC HAL");
 MODULE_LICENSE("GPL");
-static int num_chan = 3;                // Number of channels - default = 3.
+static int num_chan;                // Number of channels.
+static int default_num_chan = 3;
+static int howmany;
 RTAPI_MP_INT(num_chan, "number of channels");
 static int debug = 0;                   // Flag to export optional params.
 RTAPI_MP_INT(debug, "enables optional params");
 
+#define MAX_CHAN            16
+static char *names[MAX_CHAN] = {0,};
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of at_pid components");
 
 #define PI                              3.141592653589
 
@@ -213,7 +221,7 @@ typedef struct {
 
 // These methods are used for initialization.
 static int Pid_Init(Pid *this);
-static int Pid_Export(Pid *this, int compId, int id);
+static int Pid_Export(Pid *this, int compId, char* prefix);
 static void Pid_AutoTune(Pid *this, long period);
 static void Pid_CycleEnd(Pid *this);
 
@@ -227,7 +235,6 @@ static void Pid_Refresh(void *this, long period);
  *
  ******************************************************************************/
 
-#define MAX_CHANNELS            16
 
 typedef struct {
     int                         id;     // HAL component ID.
@@ -244,13 +251,25 @@ static Component                component;
 int
 rtapi_app_main(void)
 {
-    int                         i;
+    int                         retval,n,i;
     Pid                         *pComp;
 
+    if(num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+        return -EINVAL;
+    }
+    if(!num_chan && !names[0]) num_chan = default_num_chan;
+
+    if(num_chan) {
+        howmany = num_chan;
+    } else {
+        for(i=0; names[i]; i++) {howmany = i+1;}
+    }
+
     // Check number of channels.
-    if((num_chan <= 0) || (num_chan > MAX_CHANNELS)){
+    if((howmany <= 0) || (howmany > MAX_CHAN)){
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "PID: ERROR: invalid num_chan: %d\n", num_chan);
+                        "AT_PID: ERROR: invalid number of channels: %d\n", howmany);
         return(-1);
     }
 
@@ -262,7 +281,7 @@ rtapi_app_main(void)
     }
 
     // Allocate memory for pid objects.
-    component.pidTable = hal_malloc(num_chan * sizeof(*pComp));
+    component.pidTable = hal_malloc(howmany * sizeof(*pComp));
 
     if(component.pidTable == NULL){
         rtapi_print_msg(RTAPI_MSG_ERR, "PID: ERROR: hal_malloc() failed\n");
@@ -271,13 +290,25 @@ rtapi_app_main(void)
     }
 
     pComp = component.pidTable;
-    for(i = 0; i < num_chan; i++, pComp++){
+    i = 0; // for names= items
+    for(n = 0; n < howmany; n++, pComp++){
 
         // Export pins, parameters, and functions.
-        if(Pid_Export(pComp, component.id, i)){
-            hal_exit(component.id);
-            return(-1);
+        if(num_chan) {
+            char buf[HAL_NAME_LEN + 1];
+            // note name is pid not at_pid
+            rtapi_snprintf(buf, sizeof(buf), "pid.%d", n);
+	    retval = Pid_Export(pComp, component.id, buf);
+        } else {
+	    retval = Pid_Export(pComp, component.id, names[i++]);
         }
+	if (retval != 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"AT_PID: ERROR: at_pid %d var export failed\n", n);
+	    hal_exit(component.id);
+	    return -1;
+	}
+
         // Initialize pid.
         if(Pid_Init(pComp)){
             hal_exit(component.id);
@@ -347,7 +378,7 @@ Pid_Init(Pid *this)
 
 
 static int
-Pid_Export(Pid *this, int compId, int id)
+Pid_Export(Pid *this, int compId,char* prefix)
 {
     int                         error, msg;
     char                        buf[HAL_NAME_LEN + 1];
@@ -360,125 +391,125 @@ Pid_Export(Pid *this, int compId, int id)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     // Export pins.
-    error = hal_pin_bit_newf(HAL_IN, &(this->pEnable), compId, "pid.%d.enable", id);
+    error = hal_pin_bit_newf(HAL_IN, &(this->pEnable), compId, "%s.enable", prefix);
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IN, &(this->pCommand), compId, "pid.%d.command", id);
+        error = hal_pin_float_newf(HAL_IN, &(this->pCommand), compId, "%s.command", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IN, &(this->pFeedback), compId, "pid.%d.feedback", id);
+        error = hal_pin_float_newf(HAL_IN, &(this->pFeedback), compId, "%s.feedback", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_OUT, &(this->pError), compId, "pid.%d.error", id);
+        error = hal_pin_float_newf(HAL_OUT, &(this->pError), compId, "%s.error", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_OUT, &(this->pOutput), compId, "pid.%d.output", id);
+        error = hal_pin_float_newf(HAL_OUT, &(this->pOutput), compId, "%s.output", prefix);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IN, &(this->pTuneMode), compId, "pid.%d.tune-mode", id);
+        error = hal_pin_bit_newf(HAL_IN, &(this->pTuneMode), compId, "%s.tune-mode", prefix);
     }
 
     if(!error){
-        error = hal_pin_bit_newf(HAL_IO, &(this->pTuneStart), compId, "pid.%d.tune-start", id);
+        error = hal_pin_bit_newf(HAL_IO, &(this->pTuneStart), compId, "%s.tune-start", prefix);
     }
 
     // Export pins. (former parameters).
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->deadband), compId, "pid.%d.deadband", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->deadband), compId, "%s.deadband", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->maxError), compId, "pid.%d.maxerror", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->maxError), compId, "%s.maxerror", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->maxErrorI), compId, "pid.%d.maxerrorI", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->maxErrorI), compId, "%s.maxerrorI", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->maxErrorD), compId, "pid.%d.maxerrorD", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->maxErrorD), compId, "%s.maxerrorD", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->maxCmdD), compId, "pid.%d.maxcmdD", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->maxCmdD), compId, "%s.maxcmdD", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->maxCmdDd), compId, "pid.%d.maxcmdDD", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->maxCmdDd), compId, "%s.maxcmdDD", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->bias), compId, "pid.%d.bias", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->bias), compId, "%s.bias", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->pGain), compId, "pid.%d.Pgain", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->pGain), compId, "%s.Pgain", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->iGain), compId, "pid.%d.Igain", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->iGain), compId, "%s.Igain", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->dGain), compId, "pid.%d.Dgain", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->dGain), compId, "%s.Dgain", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->ff0Gain), compId, "pid.%d.FF0", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->ff0Gain), compId, "%s.FF0", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->ff1Gain), compId, "pid.%d.FF1", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->ff1Gain), compId, "%s.FF1", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->ff2Gain), compId, "pid.%d.FF2", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->ff2Gain), compId, "%s.FF2", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->maxOutput), compId, "pid.%d.maxoutput", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->maxOutput), compId, "%s.maxoutput", prefix);
     }
 
     if(!error){
-        error = hal_pin_float_newf(HAL_IO, &(this->tuneEffort), compId, "pid.%d.tune-effort", id);
+        error = hal_pin_float_newf(HAL_IO, &(this->tuneEffort), compId, "%s.tune-effort", prefix);
     }
 
     if(!error){
-        error = hal_pin_u32_newf(HAL_IO, &(this->tuneCycles), compId, "pid.%d.tune-cycles", id);
+        error = hal_pin_u32_newf(HAL_IO, &(this->tuneCycles), compId, "%s.tune-cycles", prefix);
     }
 
     if(!error){
-        error = hal_pin_u32_newf(HAL_IO, &(this->tuneType), compId, "pid.%d.tune-type", id);
+        error = hal_pin_u32_newf(HAL_IO, &(this->tuneType), compId, "%s.tune-type", prefix);
     }
 
     // Export optional parameters.
     if(debug > 0){
         if(!error){
-            error = hal_pin_float_newf(HAL_OUT, &(this->errorI), compId, "pid.%d.errorI", id);
+            error = hal_pin_float_newf(HAL_OUT, &(this->errorI), compId, "%s.errorI", prefix);
         }
 
         if(!error){
-            error = hal_pin_float_newf(HAL_OUT, &(this->errorD), compId, "pid.%d.errorD", id);
+            error = hal_pin_float_newf(HAL_OUT, &(this->errorD), compId, "%s.errorD", prefix);
         }
 
         if(!error){
-            error = hal_pin_float_newf(HAL_OUT, &(this->cmdD), compId, "pid.%d.commandD", id);
+            error = hal_pin_float_newf(HAL_OUT, &(this->cmdD), compId, "%s.commandD", prefix);
         }
 
         if(!error){
-            error = hal_pin_float_newf(HAL_OUT, &(this->cmdDd), compId, "pid.%d.commandDD", id);
+            error = hal_pin_float_newf(HAL_OUT, &(this->cmdDd), compId, "%s.commandDD", prefix);
         }
 
         if(!error){
-            error = hal_pin_float_newf(HAL_OUT, &(this->ultimateGain), compId, "pid.%d.ultimate-gain", id);
+            error = hal_pin_float_newf(HAL_OUT, &(this->ultimateGain), compId, "%s.ultimate-gain", prefix);
         }
 
         if(!error){
-            error = hal_pin_float_newf(HAL_OUT, &(this->ultimatePeriod), compId, "pid.%d.ultimate-period", id);
+            error = hal_pin_float_newf(HAL_OUT, &(this->ultimatePeriod), compId, "%s.ultimate-period", prefix);
         }
     } else {
   	this->errorI = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
@@ -491,7 +522,7 @@ Pid_Export(Pid *this, int compId, int id)
 
     // Export functions.
     if(!error){
-        rtapi_snprintf(buf, sizeof(buf), "pid.%d.do-pid-calcs", id);
+        rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);
         error = hal_export_funct(buf, Pid_Refresh, this, 1, 0, compId);
     }
 

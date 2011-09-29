@@ -10,25 +10,44 @@ Servo Info:
         FF0 - zero order feed forward
         FF1 - first order feed forward
         FF2 - second order feed forward
-        Bias - used to add / subract a constant value to dac.
+        Bias - used to add / subtract a constant value to dac.
         Deadband - if the actual position is in this band
-            of the commanded proportional control will not be 
-            added.
+            of the commanded proportional control will not be added.
         Dac scale      - scales the output nominal is +-1 volt
         Dac Max output - clamps the output to +- this value
-        Dac offset     - used to offset dac range.
         3PWM scale     - sets the mid point scale factor: see man pages
         3PWM deadtime  - deadtime between high side and low side enable
-            Too little deadtime creates a short circuit - not good. 
+            Too little deadtime creates a short circuit - not good.
+
+Dac Scale:
+    Dac scale sets the user DAC units to PWM duty cycle. The maximum duty cycle 
+    is (+ or -) 1.
+    If using the 7i33 daughter board then at maximum duty cycle of (+ or -) 1
+    the 7i33 outputs (+ or -) 10 volts (and produce maximum motor speed)
+    If using the 7i29 daughter board at maximum duty cycle of (+ or -) 1
+    then the output would be (+ or -) supply voltage (and produce maximum motor 
+    speed). So with a scale of one, DAC units are duty cycle. If you were using 
+    the 7i33 daughter board then maybe you would like the Dac units to be voltage.
+    then you would set the dac scale to 10. 10 volts / 10 (scale) = 1 (duty cycle)
+    You could scale this to represent motor speed, voltage, duty cycle or anything
+    else. Common settings would be duty cycle (scale of 1), voltage (scale of
+    maximum voltage) or axis speed (scale of maximum axis speed in machine 
+    units per second). I reccomend axis speed.
+    Note that scale is tied closely to dac max output.
+
+Dac Max Output:
+    This is the maximum output that the dac can output to the amps. It is in the 
+    units set by the dac scale. It using a simple H-bridge you may have to set 
+    this less then the actual max output as H-bridges must turn on and off at a 
+    minimum rate. 
 
 Brushless Control:
     Select this to use and configure the BLDC component.
     The BLDC component can be used to control brushless motors
     directly and for HALL sensor conversions. See the MAN pages.
-    PNCconf Does not finish the HAL connections for BLDC control.
+    PNCconf does not finish the HAL connections for BLDC control.
     I have nothing to test with - so you'll have to tinker with it.
     Please send suggestions to EMC mail list or forum.
-    
 
 Open loop servo test Button:
     Use this test to confirm proper Dac output.
@@ -39,8 +58,10 @@ Open loop servo test Button:
     direction when the motor turns in the positive direction.
     If this is not true expect a SERVO MOTOR RUN AWAY when using
     PID control!
+    You can confirm the maximum axis speed the servo can produce.
     You can also confirm the encoder scaling is correct, by moving
-    the axis a known distance and noting the encoder count.
+    the axis a known distance and noting the encoder count. The encoder
+    should function with out the amp enabled depending how it is powered.
     The limit switches are not functional during this test.
 
 Spindle-at-speed settings:
@@ -49,7 +70,7 @@ Spindle-at-speed settings:
     digital input signal is required for this.
 
 Spindle display filter gain:
-    If a spindle speed display was choosen, this sets the filter
+    If a spindle speed display was chosen, this sets the filter
     gain which helps stop the display from bouncing around.
 
 Stepper Info:
@@ -74,6 +95,8 @@ Axis info:
     Invert encoder direction    - check to reverse encoder direction
     When using metric units check the defaults carefully they are not converted
     so need to be adjusted to sane values.
+    Following error setting are usually temporarily set larger to help with
+    servo tuning.
 
 Calculate Scale Button:
     You can enter scaling directly or use this dialog to calculate them.
@@ -98,7 +121,6 @@ Calculate Scale Button:
     The scale settings change as you enter data / check boxes.
     The motion data is just for information.
     If you wish to use the settings press apply otherwise cancel.
-
 
 Test / Tune Axis Button:
     Use this to test and tune the current axis.

@@ -197,6 +197,8 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     int i;
     int addr;
 
+    const u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
+    
     hm2->num_pins = hm2->idrom.io_width;
     hm2->pin = kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, GFP_KERNEL);
     if (hm2->pin == NULL) {
@@ -206,6 +208,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
 
     addr = hm2->idrom_offset + hm2->idrom.offset_to_pin_desc;
     for (i = 0; i < hm2->num_pins; i ++) {
+        hm2_pin_t *pin = &(hm2->pin[i]);
         u32 d;
 
         if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(u32))) {
@@ -213,12 +216,12 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
             return -EIO;
         }
 
-        hm2->pin[i].sec_pin     = (d >>  0) & 0x000000FF;
-        hm2->pin[i].sec_tag     = (d >>  8) & 0x000000FF;
-        hm2->pin[i].sec_unit    = (d >> 16) & 0x000000FF;
-        hm2->pin[i].primary_tag = (d >> 24) & 0x000000FF;
+        pin->sec_pin     = (d >>  0) & 0x000000FF;
+        pin->sec_tag     = (d >>  8) & 0x000000FF;
+        pin->sec_unit    = (d >> 16) & 0x000000FF;
+        pin->primary_tag = (d >> 24) & 0x000000FF;
 
-        if (hm2->pin[i].primary_tag == 0) {
+        if (pin->primary_tag == 0) {
             // oops, found the Zero sentinel before the promised number of pins
             HM2_ERR(
                 "pin %d primary tag is 0 (end-of-list sentinel), expected %d!\n",
@@ -228,18 +231,48 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
             return -EINVAL;
         }
 
-        if (hm2->pin[i].primary_tag != HM2_GTAG_IOPORT) {
+        if (pin->primary_tag != HM2_GTAG_IOPORT) {
             HM2_ERR(
                 "pin %d primary tag is %d (%s), not IOPort!\n",
                 i,
-                hm2->pin[i].primary_tag,
-                hm2_get_general_function_name(hm2->pin[i].primary_tag)
+                pin->primary_tag,
+                hm2_get_general_function_name(pin->primary_tag)
             );
             return -EINVAL;
         }
 
-        hm2->pin[i].gtag = hm2->pin[i].primary_tag;
-
+        pin->gtag = pin->primary_tag;
+        
+        pin->port_num = i / hm2->idrom.port_width;
+        
+        if ((pin->port_num < 0 ) 
+            || (pin->port_num >= hm2->llio->num_ioport_connectors)){
+            HM2_ERR("hm2_read_pin_descriptors: Calculated port number (%d) is "
+                    "invalid\n", pin->port_pin );
+            return -EINVAL;
+        }
+        
+        pin->bit_num = i % hm2->idrom.port_width;
+        
+        if ((pin->bit_num < 0 ) || (pin->bit_num > 31)){
+            HM2_ERR("hm2_read_pin_descriptors: Calculated bit number (%d) is "
+                    "invalid\n", pin->bit_num );
+            return -EINVAL;
+        }
+        switch (hm2->idrom.port_width) {
+            case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
+                pin->port_pin = ((i % 24) * 2) + 1;
+                break;
+            case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
+                pin->port_pin = DB25[i % 17];
+                break;
+            case 32:      /* 5I21 punt on this for now */
+                pin->port_pin = i + 1;
+                break;
+            default:
+                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
+        }
+        
         addr += 4;
     }
 
@@ -254,26 +287,25 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
 
 
 void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
-    int ioport_number;
-    int bit_number;
-
-    ioport_number = pin_number / 24;
-    bit_number = pin_number % 24;
-
-    if ((pin_number < 0) || (ioport_number >= hm2->ioport.num_instances)) {
+    
+    if ((pin_number < 0) 
+        || (pin_number >= hm2->num_pins)
+        || (hm2->ioport.num_instances <= 0)) {
         HM2_ERR("hm2_set_pin_source: invalid pin number %d\n", pin_number);
         return;
     }
-
-    if (source == HM2_PIN_SOURCE_IS_PRIMARY) {
-        hm2->ioport.alt_source_reg[ioport_number] &= ~(1 << bit_number);
-        hm2->pin[pin_number].gtag = hm2->pin[pin_number].primary_tag;
-    } else if (source == HM2_PIN_SOURCE_IS_SECONDARY) {
-        hm2->ioport.alt_source_reg[ioport_number] |= (1 << bit_number);
-        hm2->pin[pin_number].gtag = hm2->pin[pin_number].sec_tag;
-    } else {
-        HM2_ERR("hm2_set_pin_source: invalid pin source 0x%08X\n", source);
-        return;
+    {
+        hm2_pin_t *pin = &(hm2->pin[pin_number]);
+        if (source == HM2_PIN_SOURCE_IS_PRIMARY) {
+            hm2->ioport.alt_source_reg[pin->port_num] &= ~(1 << pin->bit_num);
+            pin->gtag = pin->primary_tag;
+        } else if (source == HM2_PIN_SOURCE_IS_SECONDARY) {
+            hm2->ioport.alt_source_reg[pin->port_num] |= (1 << pin->bit_num);
+            pin->gtag = pin->sec_tag;
+        } else {
+            HM2_ERR("hm2_set_pin_source: invalid pin source 0x%08X\n", source);
+            return;
+        }
     }
 }
 
@@ -281,13 +313,10 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
 
 
 void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
-    int ioport_number;
-    int bit_number;
 
-    ioport_number = pin_number / 24;
-    bit_number = pin_number % 24;
-
-    if ((pin_number < 0) || (ioport_number >= hm2->ioport.num_instances)) {
+    if ((pin_number < 0) 
+        || (pin_number >= hm2->num_pins)
+        || (hm2->ioport.num_instances <= 0)) {
         HM2_ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
         return;
     }
@@ -305,68 +334,42 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
 
 void hm2_print_pin_usage(hostmot2_t *hm2) {
     int i;
-    int port, port_pin, mio;
 
     HM2_PRINT("%d I/O Pins used:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        port_pin = i + 1;
-        port = i / hm2->idrom.port_width;
-        switch (hm2->idrom.port_width) {
-            case 24:   /* standard 50 pin 24 I/O cards, just the odd pins */
-                port_pin = ((i % hm2->idrom.port_width) * 2) + 1;
-                break;
-            case 17:    /* 25 pin 17 I/O parallel port type cards funny DB25 order */
-                mio = i % hm2->idrom.port_width;
-                if (mio > 7){
-                    port_pin = mio-3;
-                }
-                else {
-                    if (mio & 1){
-                        port_pin = (mio/2)+14;
-                    }
-                    else {
-                        port_pin = (mio/2)+1;
-                    }
-                }
-                break;
-            case 32:      /* 5I21 punt on this for now */
-                port_pin = i+1;
-                break;
-            default:
-                HM2_ERR("hm2_print_pin_usage: invalid port width %d\n", hm2->idrom.port_width);
-        }
         
+        hm2_pin_t *pin = &(hm2->pin[i]);
         
-        if (hm2->pin[i].gtag == hm2->pin[i].sec_tag) {
-            if(hm2->pin[i].sec_unit & 0x80)
+        if (pin->gtag == pin->sec_tag) {
+            if(pin->sec_unit & 0x80)
                 HM2_PRINT(
                     "    IO Pin %03d (%s-%02d): %s (all), pin %s (%s)\n",
                     i,
-                    hm2->llio->ioport_connector_name[port],
-                    port_pin,
-                    hm2_get_general_function_name(hm2->pin[i].gtag),
+                    hm2->llio->ioport_connector_name[pin->port_num],
+                    pin->port_pin,
+                    hm2_get_general_function_name(pin->gtag),
                     hm2_get_pin_secondary_name(&hm2->pin[i]),
-                    ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+                    ((pin->sec_pin & 0x80) ? "Output" : "Input")
                 );
             else
                 HM2_PRINT(
                     "    IO Pin %03d (%s-%02d): %s #%d, pin %s (%s)\n",
                     i,
-                    hm2->llio->ioport_connector_name[port],
-                    port_pin,
-                    hm2_get_general_function_name(hm2->pin[i].gtag),
-                    hm2->pin[i].sec_unit,
-                    hm2_get_pin_secondary_name(&hm2->pin[i]),
-                    ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+                    hm2->llio->ioport_connector_name[pin->port_num],
+                    pin->port_pin,
+                    hm2_get_general_function_name(pin->gtag),
+                    pin->sec_unit,
+                    hm2_get_pin_secondary_name(pin),
+                    ((pin->sec_pin & 0x80) ? "Output" : "Input")
                 );
         } else {
             HM2_PRINT(
                 "    IO Pin %03d (%s-%02d): %s\n",
                 i,
-                hm2->llio->ioport_connector_name[port],
-                port_pin,
-                hm2_get_general_function_name(hm2->pin[i].gtag)
+                hm2->llio->ioport_connector_name[pin->port_num],
+                pin->port_pin,
+                hm2_get_general_function_name(pin->gtag)
             );
         }
     }
