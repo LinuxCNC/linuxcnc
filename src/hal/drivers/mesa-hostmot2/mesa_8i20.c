@@ -228,9 +228,10 @@ fail0:
 void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
     int i;
     int c;
-    double angle_lim, norm_current;
+    u32 angle_lim; 
+    double norm_current;
     const float i_const = 32767;
-    const float a_const = 182.0444479;
+    const float a_const = 65535;
 
     for (i = 0 ; i < hm2->sserial.num_instances ; i++){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
@@ -256,11 +257,8 @@ void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
             }
 
 
-            angle_lim = *hal->pin.hm2_phase_angle;
-            if ( 0.0 > (angle_lim = 360.0 * (angle_lim - floor(angle_lim/360.0)))){
-                angle_lim = 360.0 - angle_lim;
-            }
-
+            angle_lim = ((u32)(*hal->pin.hm2_phase_angle * a_const)) & 0x0000FFFF;
+ 
             if (*hal->pin.hm2_current > 1.0) {*hal->pin.hm2_current = 1.0;}
             else if (*hal->pin.hm2_current < -1.0){*hal->pin.hm2_current = -1;}
 
@@ -270,7 +268,7 @@ void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
                            * i_const;
             if (*hal->pin.enable) {
                 *tram->reg_0_write = ((int)(norm_current) << 16)
-                                    | ((u32)(angle_lim * a_const) & 0x0000FFFF);
+                                    | angle_lim;
             }
             else
             {
