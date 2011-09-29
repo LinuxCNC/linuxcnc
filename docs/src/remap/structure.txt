@@ -1076,10 +1076,7 @@ Arguments are:
 
 `self`::
 	the interpreter instance
-`userdata`::
-	     int value, defaults to zero.  Used in
-	     restarting Python subroutines which have returned
-	     `INTERP_EXECUTE_FINISH` - see below.
+
 `words`::
 	keyword parameter dictionary. the same  kwargs dictionary as
 	prologs and epilogs (see above).
@@ -1087,7 +1084,7 @@ Arguments are:
 The minimum `python=` function example:
 [source,python]
 ---------------------------------------------------------------------
-def useless(self, userdata, **words): # in remap module
+def useless(self,  **words): # in remap module
     return INTERP_OK
 ---------------------------------------------------------------------
 Return values:
@@ -1098,16 +1095,16 @@ Return values:
 	aborts execution. Use the `self.set_errormsg()` method
 	function  to pass an appropriate error message.
 
-(`INTERP_EXECUTE_FINISH`, `<userdata>`)::
-	return this tuple if you just executed a 'queuebuster
-	operation' (tool change, probe, HAL pin reading) by calling
-	the corresponding canon function. This functions require the
-	interpreter to stop reading ahead. Task will execute all
-	queued operations, execute the 'queuebuster', synchronize
-	interpreter state with machine state, and then signal
+If the handler needs to execute a 'queuebuster
+operation' (tool change, probe, HAL pin reading) it is supposed
+to suspend execution with the following statement:
+
+`yield INTERP_EXECUTE_FINISH`::
+       This signals task to stop readahead, execute all
+       queued operations, execute the 'queuebuster' operation, 
+       synchronize interpreter state with machine state, and th	en signal
 	the interpreter to continue. At this point the function is
-	called again, with `userdata` reflecting the value which was
-	returned with the tuple.
+	resumed at the statement following the `yield ..` statement.
 
 ==== Dealing with queuebuster: Probe, Toolchange and waiting for a HAL pin
 
@@ -1115,28 +1112,22 @@ Return values:
 Queue busters interrupt a procedure at the point where such an
 operation is called, hence the procedure needs to be restarted
 after the interpreter synch(). When this happens the procedure needs to
-know if it is restarted, and where to continue.
-
-The 'userdata' cookie indicates where the procedure should be
-restarted 'next time around'. It's possible to have several such
-suspend/restart points; each one will be designated with a specific
-userdata value.
+know if it is restarted, and where to continue. The Python generator
+method is used to deal with procedure restart.
 
 This demonstrates call continuation with a single point-of-restart:
 
 [source,python]
 ---------------------------------------------------------------------
-def read_pin(self, userdata, **words):
-    if userdata == 1:
-	# we were called again post-sync():
-	pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
-	print "pin status=",pin_status
-	return INTERP_OK # done
-    else:
-	# wait 5secs for digital-input 00 to go high
-	emccanon.WAIT(0,1,2,5.0)
-	# pls call again after sync() with new userdata value
-	return (INTERP_EXECUTE_FINISH, 1)
+def read_pin(self,**words):
+    # wait 5secs for digital-input 00 to go high
+    emccanon.WAIT(0,1,2,5.0)
+    # cede control after executing the queue buster:
+    yield INTERP_EXECUTE_FINISH
+    # post-sync() execution resumes here:
+    pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
+    print "pin status=",pin_status
+    return INTERP_OK # done
 ---------------------------------------------------------------------
 
 === Calling conventions: Python to NGC
@@ -1843,15 +1834,13 @@ model and continues with readahead.
 
 == Named parameters and inifile variables [[remap:referto-inifile-variables]]
 
-
-
 FIXME document *n_args* 
 
 
 To access ini file values from G-code,  use the following named
 parameter syntax:
 
-	  #<_[section]name>
+	  #<_ini[section]name>
 
 For example, if the ini file looks like so:
 
@@ -1862,8 +1851,8 @@ XPOS = 3.145
 YPOS = 2.718
 ---------------------------------------------------------------------
 
-you may refer to the O-word named parameters `#<_[setup]xpos>` and
-`#<_[setup]ypos>` within G-code.
+you may refer to the O-word named parameters `#<_ini[setup]xpos>` and
+`#<_ini[setup]ypos>` within G-code.
 
 The inifile is read once and the values are cached. These parameters
 are read-only - assigning a value will cause a runtime error. The
@@ -1885,6 +1874,39 @@ the same branch, here it rests for now until its clear this will be
 merged. It should go into the gcode/overview Named Parameters section.
 
 
+== Named parameters and HAL items [[remap:referto-hal-items]]
+
+
+To read arbitrary HAL pins, signals and parameters from G-code,  use the following named
+parameter syntax:
+
+	  #<_hal[hal_name]>
+
+where `hal_name` may be a pin, parameter or signal name. 
+
+Example:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+(debug, #<_hal[motion-controller.time]>)
+---------------------------------------------------------------------
+
+Access of HAL items is read-only. Currently, only all-lowercase HAL
+names can be accessed this way.
+
+FIXME footnote this:
+
+This feature was motivated by the desire for stronger coupling between
+user interface components like `GladeVCP` and `PyVCP` to act as
+paramter source for driving NGC file behaviour. The alternative -
+going through the M6x pins and wiring them - has a limited,
+non-mmemonic namespace and is unncessary cumbersome just as a
+UI/Interpreter communications mechanism.
+
+
+CAUTION: this section doesnt really belong here but since it comes with
+the same branch, here it rests for now until its clear this will be
+merged. It should go into the gcode/overview Named Parameters section.
 
 ==  Status
 ha!
