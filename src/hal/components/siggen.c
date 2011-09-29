@@ -16,7 +16,9 @@
     will mostly be used for testing.  It is a realtime component.
 
     It supports any number of signal generators, as set by the
-    insmod parameter 'num_chan'.
+    insmod parameter 'num_chan'.  Alternatively,use the names= specifier
+    and a list of unique names separated by commas.  The names= and
+    num_chan= specifiers are mututally exclusive.
 
     Each generator has a number of pins and parameters, whose
     names begin with 'siggen.x.', where 'x' is the generator number.
@@ -72,13 +74,20 @@
 #include "hal.h"		/* HAL public API decls */
 #include <float.h>
 #include <rtapi_math.h>
+#include <rtapi_string.h>
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Signal Generator Component for EMC HAL");
 MODULE_LICENSE("GPL");
-static int num_chan = 1;	/* number of channels - default = 1 */
+static int num_chan;	/* number of channels */
+static int default_num_chan = 1;
+static int howmany;
 RTAPI_MP_INT(num_chan, "number of channels");
+
+#define MAX_CHAN 16
+static char *names[MAX_CHAN] = {0,};
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of siggen");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -110,23 +119,34 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_siggen(int num, hal_siggen_t * addr);
+static int export_siggen(int num, hal_siggen_t * addr,char* prefix);
 static void calc_siggen(void *arg, long period);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
-#define MAX_CHAN 16
 
 int rtapi_app_main(void)
 {
-    int n, retval;
+    int n, retval, i;
+
+    if(num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+        return -EINVAL;
+    }
+    if(!num_chan && !names[0]) num_chan = default_num_chan;
+
+    if(num_chan) {
+        howmany = num_chan;
+    } else {
+        for(i=0; names[i]; i++) {howmany = i+1;}
+    }
 
     /* test for number of channels */
-    if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
+    if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIGGEN: ERROR: invalid num_chan: %d\n", num_chan);
+	    "SIGGEN: ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
@@ -136,7 +156,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* allocate shared memory for siggen data */
-    siggen_array = hal_malloc(num_chan * sizeof(hal_siggen_t));
+    siggen_array = hal_malloc(howmany * sizeof(hal_siggen_t));
     if (siggen_array == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SIGGEN: ERROR: hal_malloc() failed\n");
@@ -144,9 +164,17 @@ int rtapi_app_main(void)
 	return -1;
     }
     /* export variables and functions for each siggen */
-    for (n = 0; n < num_chan; n++) {
+    i = 0; // for names= items
+    for (n = 0; n < howmany; n++) {
 	/* export everything for this loop */
-	retval = export_siggen(n, &(siggen_array[n]));
+        if(num_chan) {
+            char buf[HAL_NAME_LEN + 1];
+            rtapi_snprintf(buf, sizeof(buf), "siggen.%d", n);
+	    retval = export_siggen(n, &(siggen_array[n]),buf);
+        } else {
+	    retval = export_siggen(n, &(siggen_array[n]),names[i++]);
+        }
+
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"SIGGEN: ERROR: siggen %d var export failed\n", n);
@@ -155,7 +183,7 @@ int rtapi_app_main(void)
 	}
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"SIGGEN: installed %d signal generators\n", num_chan);
+	"SIGGEN: installed %d signal generators\n", howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -235,54 +263,54 @@ static void calc_siggen(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_siggen(int num, hal_siggen_t * addr)
+static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
 {
     int retval;
     char buf[HAL_NAME_LEN + 1];
 
     /* export pins */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->square), comp_id,
-				"siggen.%d.square", num);
+				"%s.square", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->sawtooth), comp_id,
-				"siggen.%d.sawtooth", num);
+				"%s.sawtooth", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->triangle), comp_id,
-				"siggen.%d.triangle", num);
+				"%s.triangle", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->sine), comp_id,
-				"siggen.%d.sine", num);
+				"%s.sine", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_OUT, &(addr->cosine), comp_id,
-				"siggen.%d.cosine", num);
+				"%s.cosine", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_bit_newf(HAL_OUT, &(addr->clock), comp_id,
-				"siggen.%d.clock", num);
+				"%s.clock", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->frequency), comp_id,
-				"siggen.%d.frequency", num);
+				"%s.frequency", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->amplitude), comp_id,
-				"siggen.%d.amplitude", num);
+				"%s.amplitude", prefix);
     if (retval != 0) {
 	return retval;
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->offset), comp_id,
-				"siggen.%d.offset", num);
+				"%s.offset", prefix);
     if (retval != 0) {
 	return retval;
     }
@@ -298,7 +326,7 @@ static int export_siggen(int num, hal_siggen_t * addr)
     *(addr->offset) = 0.0;
     addr->index = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, sizeof(buf), "siggen.%d.update", num);
+    rtapi_snprintf(buf, sizeof(buf), "%s.update", prefix);
     retval =
 	hal_export_funct(buf, calc_siggen, &(siggen_array[num]), 1, 0,
 	comp_id);

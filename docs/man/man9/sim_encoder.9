@@ -8,7 +8,9 @@
 .SH NAME
 sim_encoder \- simulated quadrature encoder
 .SH SYNOPSIS
-\fBloadrt sim_encoder num_chan=\fInum\fR
+\fBloadrt sim_encoder [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
+
+
 
 .SH DESCRIPTION
 \fBsim_encoder\fR can generate quadrature signals as if from an encoder.
@@ -19,8 +21,13 @@ generators.
 
 .P
 \fBsim_encoder\fR supports a maximum of eight channels.  The number of
-channels actually loaded is set by the \fBnum_chan\fR argument when
-the module is loaded.  If \fBnumchan\fR is not specified, the default
+channels actually loaded is set by the \fBnum_chan=\fR argument when
+the module is loaded.  Alternatively, specify \fBnames=\fR and unique names
+separated by commas.
+
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
 value is one.
 
 .SH FUNCTIONS
@@ -37,7 +44,16 @@ effect only when \fBupdate-speed\fR runs.  Can (and should) be called
 less frequently than \fBmake-pulses\fR.  Operates on all channels at
 once.
 
+.SH NAMING
+The names for pins and parameters are prefixed as:
+  \fBsim-encoder.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBsim-encoder.N.\fR format is shown in the following descriptions.
+
+
 .SH PINS
+
 .TP
 \fBsim-encoder.\fIN\fB.phase-A\fR bit out
 One of the quadrature outputs.
