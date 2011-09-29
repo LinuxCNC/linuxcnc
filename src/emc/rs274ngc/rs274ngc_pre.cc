@@ -240,8 +240,8 @@ int Interp::_execute(const char *command)
     MDImode = 1;
     status = read(command);
     if (status != INTERP_OK) {
-	if (status > INTERP_MIN_ERROR) 
-	    _setup.remap_level = 0;
+	// if (status > INTERP_MIN_ERROR) 
+	//     _setup.remap_level = 0;
 	return status;
     }
   }
@@ -1326,7 +1326,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
        (eblock->o_type == O_return) ||
        (eblock->o_type == O_endsub))) {
 
-      logDebug("read(): -------------------------------------------------------------- skip_read");
+      logDebug("read(): skipping read");
       _setup.line_length = 0;
       _setup.linetext[0] = 0;
       return INTERP_OK;
