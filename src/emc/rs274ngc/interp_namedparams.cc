@@ -172,13 +172,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
     *status = 0;
     int n = strlen(nameBuf);
 
-    // if ((nameBuf[0] == '_') &&
-    // 	(nameBuf[1] == '[') &&
-    // 	(strlen(nameBuf) > 4) &&
-    // 	((s = (char *) strchr(&nameBuf[3],']')) != NULL)) {
-
-    if ( // (strcasecmp(nameBuf,"_ini[") == 0) &&
-	(n > 7) &&
+     if ((n > 7) &&
 	((s = (char *) strchr(&nameBuf[6],']')) != NULL)) {
 
 	IniFile inifile;
@@ -232,8 +226,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     }
     char *s;
     int n = strlen(nameBuf);
-    if ( // (strcasecmp(nameBuf,"_hal[") == 0) &&
-	(n > 6) &&
+    if ((n > 6) &&
 	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
 	int closeBracket = s - nameBuf;
