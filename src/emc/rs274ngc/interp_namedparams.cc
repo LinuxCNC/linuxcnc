@@ -35,6 +35,10 @@ namespace bp = boost::python;
 #include "rs274ngc_interp.hh"
 #include "inifile.hh"
 
+// for HAL pin variables
+#include "hal.h"
+#include "hal/hal_priv.h"
+
 enum predefined_named_parameters {
     NP_LINE,
     NP_MOTION_MODE,
@@ -158,18 +162,24 @@ int Interp::read_named_parameter(
     return INTERP_OK;
 }
 
-// if the variable is of the form '_[section]name', then treat it as
+// if the variable is of the form '_ini[section]name', then treat it as
 // an inifile  variable. Lookup section/name and cache the value
 // as global and read-only.
-// the shortest possible ini variable is '_[s]n' .
+// the shortest possible ini variable is '_ini[s]n' or 8 chars long .
 int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 {
     char *s;
     *status = 0;
-    if ((nameBuf[0] == '_') &&
-	(nameBuf[1] == '[') &&
-	(strlen(nameBuf) > 4) &&
-	((s = (char *) strchr(&nameBuf[3],']')) != NULL)) {
+    int n = strlen(nameBuf);
+
+    // if ((nameBuf[0] == '_') &&
+    // 	(nameBuf[1] == '[') &&
+    // 	(strlen(nameBuf) > 4) &&
+    // 	((s = (char *) strchr(&nameBuf[3],']')) != NULL)) {
+
+    if ( // (strcasecmp(nameBuf,"_ini[") == 0) &&
+	(n > 7) &&
+	((s = (char *) strchr(&nameBuf[6],']')) != NULL)) {
 
 	IniFile inifile;
 	const char *iniFileName;
@@ -188,12 +198,13 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 
 	char capName[LINELEN];
 
-	strncpy(capName, nameBuf, sizeof(capName));
+	strncpy(capName, nameBuf, n);
+	capName[n] = '\0';
 	for (char *p = capName; *p != 0; p++)
 	    *p = toupper(*p);
 	capName[closeBracket] = '\0';
 
-	if ((retval = inifile.Find( value, &capName[closeBracket+1], &capName[2])) == 0) {
+	if ((retval = inifile.Find( value, &capName[closeBracket+1], &capName[5])) == 0) {
 	    *status = 1;
 	    inifile.Close();
 	} else {
@@ -206,6 +217,60 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
     return INTERP_OK;
 }
 
+// if the variable is of the form '_hal[hal_name]', then treat it as
+// a HAL pin, signal or param. Lookup value, convert to float, and export as global and read-only.
+// do not cache.
+// the shortest possible ini variable is '_hal[x]' or 7 chars long .
+int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
+{
+    static int comp_id;
+
+    *status = 0;
+    if (!comp_id) {
+	comp_id = hal_init(NULL); // comp name not needed
+	CHKS(comp_id < 1, _("fetch_hal_param: hal_init() failed: %d"), comp_id);
+    }
+    char *s;
+    int n = strlen(nameBuf);
+    if ( // (strcasecmp(nameBuf,"_hal[") == 0) &&
+	(n > 6) &&
+	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
+
+	int closeBracket = s - nameBuf;
+	char hal_name[LINELEN];
+	hal_pin_t *pin;
+	hal_data_u* ptr = NULL;
+
+
+	strncpy(hal_name, &nameBuf[5], closeBracket);
+	hal_name[closeBracket] = '\0';
+
+	// rtapi_mutex_get(&(hal_data->mutex)); // needed?
+	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
+            if (pin && !pin->signal) {
+		logOword("%s: no signal connected", hal_name);
+		ptr = &(pin->dummysig);
+	    } else {
+		hal_sig_t * sig = (hal_sig_t *) SHMPTR(pin->signal);
+		ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    }
+	    switch (pin->type) {
+	    case HAL_BIT: *value = (double) (ptr->b); break;
+	    case HAL_U32: *value = (double) (ptr->u); break;
+	    case HAL_S32: *value = (double) (ptr->s); break;
+	    case HAL_FLOAT: *value = (double) (ptr->f); break;
+	    }
+	    logOword("%s: value=%f", hal_name, *value);
+	    *status = 1;
+	}
+        // rtapi_mutex_give(&(hal_data->mutex));
+
+	*status = 0;
+	ERS(_("Named hal parameter #<%s> not found as pin, signal or param"),
+	    nameBuf);
+    }
+    return INTERP_OK;
+}
 
 int Interp::find_named_param(
     const char *nameBuf, //!< pointer to name to be read
@@ -219,25 +284,36 @@ int Interp::find_named_param(
 
   level = (nameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
   frame = &_setup.sub_context[level];
+  *status = 0;
 
   pi = frame->named_params.find(nameBuf);
   if (pi == frame->named_params.end()) { // not found
       int exists = 0;
       double inivalue;
-      if (FEATURE(INI_VARS))
+      if (FEATURE(INI_VARS) && (strncasecmp(nameBuf,"_ini[",5) == 0)) {
 	  CHP(fetch_ini_param(nameBuf, &exists, &inivalue));
-      if (exists) {
-	  logNP("parameter '%s' retrieved from INI: %f",nameBuf,inivalue);
-	  *value = inivalue;
-	  *status = 1;
-	  parameter_value param;  // cache the value
-	  param.value = inivalue;
-	  param.attr = PA_GLOBAL | PA_READONLY | PA_FROM_INI;
-	  _setup.sub_context[0].named_params[strstore(nameBuf)] = param;
-      } else {
-	  *value = 0.0;
-	  *status = 0;
+	  if (exists) {
+	      logNP("parameter '%s' retrieved from INI: %f",nameBuf,inivalue);
+	      *value = inivalue;
+	      *status = 1;
+	      parameter_value param;  // cache the value
+	      param.value = inivalue;
+	      param.attr = PA_GLOBAL | PA_READONLY | PA_FROM_INI;
+	      _setup.sub_context[0].named_params[strstore(nameBuf)] = param;
+	      return INTERP_OK;
+	  } 
       }
+      if (FEATURE(HAL_PIN_VARS) && (strncasecmp(nameBuf,"_hal[",5) == 0)) {
+	  CHP(fetch_hal_param(nameBuf, &exists, &inivalue));
+	  if (exists) {
+	      logNP("parameter '%s' retrieved from HAL: %f",nameBuf,inivalue);
+	      *value = inivalue;
+	      *status = 1;
+	      return INTERP_OK;
+	  } 
+      }
+      *value = 0.0;
+      *status = 0;
   } else {
       parameter_pointer pv = &pi->second;
       if (pv->attr & PA_UNSET)
