@@ -38,8 +38,8 @@ def introspect(self,*args):
     print "speed=",self.params['_rpm']
 
     print "global parameter set in test.ngc:",self.params['_a_global_set_in_test_dot_ngc']
-    print "parameter set via test.ini:",self.params['_[example]variable']
-    assert self.params['_[example]variable'] == args[3]
+    print "parameter set via test.ini:",self.params['_ini[example]variable']
+    assert self.params['_ini[example]variable'] == args[3]
 
     self.params["a_new_local"] = 321.0
     self.params["_a_new_global"] = 456.0
