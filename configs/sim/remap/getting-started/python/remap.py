@@ -10,7 +10,7 @@ throw_exceptions = 1 # raises InterpreterException if execute() or read() fail
 
 from toolchange import prepare_prolog, prepare_epilog, change_prolog, change_epilog, set_tool_number
 
-def g886(self, userdata, **words):
+def g886(self, **words):
     for key in words:
         MESSAGE("word '%s' = %f" % (key, words[key]))
     if words.has_key('p'):
@@ -19,7 +19,7 @@ def g886(self, userdata, **words):
     return INTERP_OK
 
 
-def involute(self, userdata, **words):
+def involute(self, **words):
     """ remap function with raw access to Interpreter internals """
 
     if self.debugmask & 0x20000000: call_pydevd() # USER2 debug flag
