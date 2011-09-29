@@ -218,11 +218,18 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;
+    int retval;
+    int type = 0;
+    hal_data_u* ptr;
+    char hal_name[LINELEN];
 
     *status = 0;
     if (!comp_id) {
-	comp_id = hal_init(NULL); // comp name not needed
-	CHKS(comp_id < 1, _("fetch_hal_param: hal_init() failed: %d"), comp_id);
+	char hal_comp[LINELEN];
+	sprintf(hal_comp,"interp%d",getpid());
+	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
+	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
+	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
     }
     char *s;
     int n = strlen(nameBuf);
@@ -230,39 +237,61 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
 	int closeBracket = s - nameBuf;
-	char hal_name[LINELEN];
 	hal_pin_t *pin;
-	hal_data_u* ptr = NULL;
-
+	hal_sig_t *sig;
+	hal_param_t *param;
 
 	strncpy(hal_name, &nameBuf[5], closeBracket);
-	hal_name[closeBracket] = '\0';
+	hal_name[closeBracket - 5] = '\0';
+	if (nameBuf[closeBracket + 1]) {
+	    logOword("%s: trailing garbage after closing bracket", hal_name);
+	    *status = 0;
+	    ERS("%s: trailing garbage after closing bracket", nameBuf);
+	}
+	// the result of these lookups could be cached in the parameter struct, but I'm not sure
+	// this is a good idea - a removed pin/signal will not be noticed
 
-	// rtapi_mutex_get(&(hal_data->mutex)); // needed?
+	// I dont think that's needed - no change in pins/sigs/params
+	// rtapi_mutex_get(&(hal_data->mutex)); 
+        // rtapi_mutex_give(&(hal_data->mutex));
+
 	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
             if (pin && !pin->signal) {
 		logOword("%s: no signal connected", hal_name);
 		ptr = &(pin->dummysig);
-	    } else {
-		hal_sig_t * sig = (hal_sig_t *) SHMPTR(pin->signal);
-		ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
-	    }
-	    switch (pin->type) {
-	    case HAL_BIT: *value = (double) (ptr->b); break;
-	    case HAL_U32: *value = (double) (ptr->u); break;
-	    case HAL_S32: *value = (double) (ptr->s); break;
-	    case HAL_FLOAT: *value = (double) (ptr->f); break;
-	    }
-	    logOword("%s: value=%f", hal_name, *value);
-	    *status = 1;
+	    } 
+	    type = pin->type;
+	    hal_sig_t * sig = (hal_sig_t *) SHMPTR(pin->signal);
+	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    goto assign;
 	}
-        // rtapi_mutex_give(&(hal_data->mutex));
-
+	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
+	    if (!sig->writers) 
+		logOword("%s: signal has no writer", hal_name);
+	    type = sig->type;
+	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    goto assign;
+	}
+	if ((param = halpr_find_param_by_name(hal_name)) != NULL) {
+	    type = param->type;
+	    ptr = (hal_data_u *) SHMPTR(param->data_ptr);
+	    goto assign;
+	}
 	*status = 0;
-	ERS(_("Named hal parameter #<%s> not found as pin, signal or param"),
-	    nameBuf);
+	ERS("Named hal parameter #<%s> not found", nameBuf);
     }
     return INTERP_OK;
+
+    assign:
+    switch (type) {
+    case HAL_BIT: *value = (double) (ptr->b); break;
+    case HAL_U32: *value = (double) (ptr->u); break;
+    case HAL_S32: *value = (double) (ptr->s); break;
+    case HAL_FLOAT: *value = (double) (ptr->f); break;
+    }
+    logOword("%s: value=%f", hal_name, *value);
+    *status = 1;
+    return INTERP_OK; 
 }
 
 int Interp::find_named_param(
@@ -284,7 +313,7 @@ int Interp::find_named_param(
       int exists = 0;
       double inivalue;
       if (FEATURE(INI_VARS) && (strncasecmp(nameBuf,"_ini[",5) == 0)) {
-	  CHP(fetch_ini_param(nameBuf, &exists, &inivalue));
+	 fetch_ini_param(nameBuf, &exists, &inivalue);
 	  if (exists) {
 	      logNP("parameter '%s' retrieved from INI: %f",nameBuf,inivalue);
 	      *value = inivalue;
@@ -297,7 +326,7 @@ int Interp::find_named_param(
 	  } 
       }
       if (FEATURE(HAL_PIN_VARS) && (strncasecmp(nameBuf,"_hal[",5) == 0)) {
-	  CHP(fetch_hal_param(nameBuf, &exists, &inivalue));
+	  fetch_hal_param(nameBuf, &exists, &inivalue);
 	  if (exists) {
 	      logNP("parameter '%s' retrieved from HAL: %f",nameBuf,inivalue);
 	      *value = inivalue;
