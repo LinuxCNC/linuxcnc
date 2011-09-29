@@ -315,7 +315,7 @@ all of them make sense. The following combinations are useful idioms:
     conversion. Used if argspec is good enough. Note it's not good
     enough for remapping the Tx and M6/M61 toolchange codes.
 
-`prolog=`'<pythonprolog>' `ngc=`'<procname>' `prolog=`'<pythonprolog>' `modalgroup=`'<group>'::
+`prolog=`'<pythonprolog>' `ngc=`'<procname>' `epilog=`'<pythonepilog>' `modalgroup=`'<group>'::
     Call a Python prolog function to take any preliminary steps, then call the NGC
     procedure. When done, call the Python epilog function to do any
     cleanup or result extraction work which cannot be handled in G-code.
@@ -480,7 +480,7 @@ from emccanon import MESSAGE
 def g886(self, userdata,**words):
     for key in words:
         MESSAGE("word '%s' = %f" % (key, words[key]))
-    if (words.has_key('p')):
+    if words.has_key('p'):
         MESSAGE("the P word was present")
     MESSAGE("comment on this line: '%s'" % (self.blocks[self.remap_level].comment))
     return INTERP_OK
