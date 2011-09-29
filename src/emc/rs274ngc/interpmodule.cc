@@ -289,12 +289,13 @@ static int wrap_interp_execute_1(Interp &interp, const char *command)
     setup &_setup = interp._setup;
     block saved_block = _setup.blocks[0];
 
+    // use the remap stack to save/restore the current block
     CHP(interp.enter_remap());
     int status = interp.execute(command);
     CHP(interp.leave_remap());
     _setup.blocks[0] = saved_block;
 
-    printf("ie1: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
+    // printf("ie1: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
 
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
@@ -309,13 +310,13 @@ static int wrap_interp_execute_2(Interp &interp, const char *command, int lineno
     setup &_setup = interp._setup;
     block saved_block = _setup.blocks[0];
 
+    // use the remap stack to save/restore the current block
     CHP(interp.enter_remap());
     int status = interp.execute(command, lineno);
     CHP(interp.leave_remap());
-       _setup.blocks[0] = saved_block;
-
-    printf("ie2: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
-
+    _setup.blocks[0] = saved_block;
+    
+    //printf("ie2: tc=%d if=%d pf=%d\n", _setup.toolchange_flag,_setup.input_flag,_setup.probe_flag);
     if ((status > INTERP_MIN_ERROR) && throw_exceptions) {
 	throw InterpreterException(interp.getSavedError(),
 				   lineno, // not sure
