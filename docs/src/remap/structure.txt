@@ -105,12 +105,12 @@ somewhat cumbersome RS274NGC language at all.
 ==== A Word on Embedded Python
 
 Many people are familiar with 'extending' the Python interpreter by
-'C/C\+\+' modules, and this is  heavily used in EMC2 to access Task
-and Interpreter internals from Python scripts. 'Extending Python' basically
-means: your Python script executes as 'it is in the driver seat', and
-may access non-Python code by importing and using extension modules
-written in 'C/C\+\+'. Examples for this are the EMC2 `hal`, `gcode`
-and `emc` modules.
+'C/C\+\+' modules, and this is heavily used in EMC2 to access Task,
+HAL and and Interpreter internals from Python scripts. 'Extending
+Python' basically means: your Python script executes as 'it is in the
+driver seat', and may access non-Python code by importing and using
+extension modules written in 'C/C\+\+'. Examples for this are the EMC2
+`hal`, `gcode` and `emc` modules.
 
 Embedded Python is a bit different and and less commonly known: The
 main program is written in C/C++ and may use Python like a
@@ -761,7 +761,7 @@ O<change> sub
 (debug, change: selected_pocket=#<selected_pocket>)
 ;
 ; insert any g-code which you see fit here, eg:
-; G0  #<_[setup]tc_x>  #<_[setup]tc_y>  #<_[setup]tc_z>
+; G0  #<_ini[setup]tc_x>  #<_ini[setup]tc_y>  #<_ini[setup]tc_z>
 ;
 O<change> endsub [1]
 ---------------------------------------------------------------------
@@ -1261,7 +1261,9 @@ def example(self,*args):
     return INTERP_OK
 ---------------------------------------------------------------------
 
-See `src/emc/rs274ncg/canonmodule.cc`.
+The actual canon functions are declared in `src/emc/nml_intf/canon.hh`
+and implemented in `src/emc/task/emccanon.cc`.  The implementation of
+the Python functions can be found in `src/emc/rs274ncg/canonmodule.cc`.
 
 === Builtin modules
 The following modules are builtin:
@@ -1592,7 +1594,7 @@ N40 G0 Z30
 N50 M2
 ---------------------------------------------------------------------
 
-Now the interpreter can clearly predict machine positions for each line:
+Here the interpreter can clearly predict machine positions for each line:
 
 After N20: x=10 y=-0 z=20; after N30: x=10 y=15 z=-5; after N40: x=10 y=20 z=25
 
@@ -1628,7 +1630,7 @@ are called 'queue busters', and they are:
 
 - reading a HAL pin's value with M66: value of HAL pin not predictable
 - loading a new tool with M6: tool geometry not predictable
-- executing a probe with G38.x: final position and success/failure not predictabke
+- executing a probe with G38.x: final position and success/failure not predictable
 
 === How queuebusters are dealt with
 
@@ -1706,6 +1708,13 @@ The actions happening in EMC are a bit involved, but it's necessary to
 get the overall idea what currently happens before you set out to
 adapt those workings to your own needs.
 
+Note that remapping an existing code completely disables all internal
+processing for that code. That means that beyond your desired
+behaviour - probably described through an NGC Oword or Python
+procedure, you need to replicate those internal actions of the
+interpreter which together result in a complete replacement of the
+existing code. The prolog and epilog code is the place to do this.
+
 ==== How tool information is communicated
 Several processes are 'interested' in tool information: task and its
 interpreter, as well as the user interface. Also, the 'halui' process.
@@ -1766,6 +1775,11 @@ tool is next, raises the "tool-prepare" pin, and waits for the
 When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals task to
 continue. (again, this 'wait' istn strictly necessary IMO)
+
+===== Building the prolog and epilog for Tx
+See the Python functions `prepare_prolog` and `prepare_epilog` in 
+`configs/sim/remap/toolchange/python/toolchange.py`. 
+
 
 ==== How M6 (Change tool) works
 
@@ -1832,10 +1846,60 @@ needed, among it the changed tool table.
 From there on, the interpreter has complete  knowledge of the world
 model and continues with readahead.
 
+===== Building the prolog and epilog for M6
+See the Python functions `change_prolog` and `change_epilog` in 
+`configs/sim/remap/toolchange/python/toolchange.py`. 
+
+==== How M61 (Change tool number) works
+M61 requires a non-negative `Q`parameter (tool number). If zero, this
+means 'unload tool', else 'set current tool number to Q'. 
+
+===== Building the replacement for M61
+An example Python redefinition for M61 can be found in the
+`set_tool_number` function in 
+`configs/sim/remap/toolchange/python/toolchange.py`. 
+
+
+== Optional Interpreter features: ini file configuration
+
+There are some interpreter features in this branch which are
+experimental, and not backwards compatible, which is why they need to
+be enabled explicitly. They are specified as follows:
+
+  [RS274NGC]
+  FEATURES = <feature mask>
+
+Mask bits are:
+
+`Retain G43: 1 (experimental)`:: 
+	When set, you can  turn on G43 after loading the first tool,
+        and then not worry about it through the program.  When you
+	finally unload the last tool, G43 mode is canceled. 
+	This is experimental as it changes the
+	operation of legal ngc program, but it could be argued that
+	those programs are buggy or likely to be not what the author
+        intended.
+ 
+`add n_args parameter:  2`::
+       A called subroutine can determine the number of actual positional 
+       parameters passed by inspecting the +#<n_args>+ parameter.
+
+
+`enable #<_ini[section]name> readonly variables:  4`:: 
+	if set, the interpreter will fetch read-only values from the
+	ini file through this special variable syntax.
+	
+
+`enable #<_hal[Hal item> readonly variables: 8`:: 
+	if set, the interpreter will fetch read-only values from HAL 
+	file through this special variable syntax.
+
+`preserve case in O-word names within comments: 16`:: 
+	  if set, enables reading of mixed-case HAL items in
+	  structured comments like  '(debug, #<_hal[MixedCaseItem])'.
+	  Really a cludge which should go away.
+
 == Named parameters and inifile variables [[remap:referto-inifile-variables]]
-
-FIXME document *n_args* 
-
 
 To access ini file values from G-code,  use the following named
 parameter syntax:
