@@ -1246,7 +1246,10 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                     {
 		        // if tolower is a macro, may need this int
 		        int c = *comment++;
-                        param[i] = tolower(c);
+			if (FEATURE(NO_DOWNCASE_OWORD))
+			    param[i] = c;
+			else
+			    param[i] = tolower(c);
                         i++;
                     }
                 }

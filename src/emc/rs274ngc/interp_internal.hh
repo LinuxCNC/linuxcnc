@@ -730,6 +730,8 @@ typedef struct setup_struct
 #define FEATURE_OWORD_N_ARGS         0x00000002
 #define FEATURE_INI_VARS             0x00000004
 #define FEATURE_HAL_PIN_VARS         0x00000008
+    // do not lowercase named params inside comments - for #<_hal[PinName]>
+#define FEATURE_NO_DOWNCASE_OWORD    0x00000010
 
 
     interp_ptr pythis;  // shared_ptr representation of 'this'
