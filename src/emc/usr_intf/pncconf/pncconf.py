@@ -1888,21 +1888,17 @@ If you have a REALLY large config that you wish to convert to this newer version
 
     def connect_input(self, file):
         print >>file, "# external input signals"
-        print >>file
-        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
-            p = self['pp1Ipin%d' % pin]
-            i = self['pp1Ipin%dinv' % pin]
-            if p == UNUSED_INPUT: continue
-            if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
-            else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
-        print >>file
+
         def write_pins(pname,p,i,t):
             # for input pins
             if t == GPIOI:
                 if not p == "unused-input":
-                    pinname = self.make_pinname(self.findsignal( p )) 
-                    print >>file, "# ---",p.upper(),"---"
-                    if "sserial" in pname:
+                    pinname = self.make_pinname(pname) 
+                    print >>file, "\n# ---",p.upper(),"---"
+                    if "parport" in pinname:
+                        if i: print >>file, "net %s     <= %s-not" % (p, pinname)
+                        else: print >>file, "net %s     <= %s" % (p, pinname)
+                    elif "sserial" in pname:
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
                     else:
@@ -1914,13 +1910,14 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.halencoderinputsignames):
                        if p == sig+"-a":
                             pinname = self.make_pinname(self.findsignal( p ))
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
                             break
+        # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
@@ -1929,7 +1926,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
                     write_pins(pname,p,i,t)
+        # sserial
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                print >>file
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
@@ -1939,44 +1938,53 @@ If you have a REALLY large config that you wish to convert to this newer version
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
                         write_pins(pname,p,i,t)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.number_pports < (j+1): break
+            print >>file
+            for x in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                pname = "%sIpin%d" % (k, x)
+                p = self[pname]
+                i = self[pname+"inv"]
+                if not p == "unused-input":
+                    write_pins(pname,p,i,GPIOI)
 
     def connect_output(self, file):
-        
         print >>file, "# external output signals"
-        print >>file
-        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = self['pp1Opin%d' % pin]
-            i = self['pp1Opin%dinv' % pin]
-            if p == UNUSED_OUTPUT: continue
-            if p == "force-pin-true":
-                print >>file, "setp parport.0.pin-%02d-out true" % (pin)
-            else:
-                print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
-            if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
-        print >>file
+
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
             if t in (GPIOO,GPIOD):
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
-                    print >>file, "# ---",p.upper(),"---"
-                    if "sserial" in pname:
-                        if i: print >>file, "setp    "+pinname+".invert true"
+                    print >>file, "\n# ---",p.upper(),"---"
+                    if "parport" in pinname:
+                        if p == "force-pin-true":
+                            print >>file, "setp %s true"% (pinname)
+                        else:
+                            print >>file, "net %s %s"% (p,pinname)
                     else:
-                        print >>file, "setp    "+pinname +".is_output true"
-                        if i: print >>file, "setp    "+pinname+".invert_output true"
-                        if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
-                    if p == "force-pin-true":
-                        print >>file, "setp %s"% pinname +".out true"
-                    else:
-                        print >>file, "net %s     =>  "% (p)+pinname +".out"
+                        if not "sserial" in pname:
+                            print >>file, "setp %s true"% (pinname + ".is_output")
+                            if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
+                        if p == "force-pin-true":
+                            print >>file, "setp %s true"% ((pinname + ".out"))
+                        else:
+                            print >>file, "net %s %s"% (p,(pinname + ".out"))
+                    if i: # invert pin
+                        if "sserial" in pname: ending = ".invert"
+                        elif "parport" in pinname: ending = "-invert"
+                        else: ending = ".invert_output"
+                        print >>file, "setp %s true"%  (pinname + ending )
+
             # for pwm pins
             elif t in (PWMP,PDMP,UDMU):
                 if not p == "unused-pwm":
                     for sig in (self.halpwmoutputsignames):
                         if p == (sig+"-pulse"):
                             pinname = self.make_pinname(pname)
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             if t == PWMP:
                                 print >>file, "setp    "+pinname +".output-type 1"
                             if t == UDMU:
@@ -1992,7 +2000,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.haltppwmoutputsignames):
                         if p == (sig+"-a"):
                             pinname = self.make_pinname(pname) 
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
                             print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
                             print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
@@ -2004,7 +2012,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.halsteppersignames):
                         if p == (sig+"-step"):
                             pinname = self.make_pinname(pname) 
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
                             print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
@@ -2016,7 +2024,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                                     gpioname = self.make_pinname(i[0],True)
                                     print >>file, "setp    "+gpioname+".invert_output true"
                             break
-
+        # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
@@ -2025,7 +2033,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
                     write_pins(pname,p,i,t,boardnum,connector,None,None,pin)
+            # mesa sserial
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                print >>file
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
@@ -2035,6 +2045,17 @@ If you have a REALLY large config that you wish to convert to this newer version
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
                         write_pins(pname,p,i,t,boardnum,None,port,channel,pin)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.number_pports < (j+1): break
+            print >>file
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pname = "%sOpin%d" % (k, x)
+                p = self[pname]
+                i = self[pname+"inv"]
+                if not p == "unused-output":
+                    write_pins(pname,p,i,GPIOO,None,None,None,None,None)
 
     def write_halfile(self, base):
         def writebackup(origname):
