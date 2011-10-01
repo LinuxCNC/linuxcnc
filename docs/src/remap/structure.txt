@@ -1918,10 +1918,23 @@ YPOS = 2.718
 you may refer to the O-word named parameters `#<_ini[setup]xpos>` and
 `#<_ini[setup]ypos>` within G-code.
 
+`EXISTS` can be used to test for presence of a given ini file
+variable:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [EXISTS[#<_ini[setup]xpos>]]
+  (debug, [setup]xpos exists: #<_ini[setup]xpos>)
+o100 else
+  (debug, [setup]xpos does not exist)
+o100 endif
+---------------------------------------------------------------------
+
 The value is read from the inifile once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
 cause a runtime error. The names are not case sensitive - they are
 converted to uppercase before consulting the ini file.
+
 
 FIXME footnote this:
 
