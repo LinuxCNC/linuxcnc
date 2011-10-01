@@ -7646,6 +7646,7 @@ But there is not one in the machine-named folder.."""),True)
         #print axis," encoder--",self.encoder
         self.pwmgen  = self.data.pwmgen_sig(axis)
         #print axis," pwgen--",self.pwmgen
+        pump = self.data.findsignal("charge-pump")
         w.tuneaxispage.set_current_page(axnum)
         w[axis+"tunepage"].set_sensitive(1)
 
@@ -7721,12 +7722,21 @@ But there is not one in the machine-named folder.."""),True)
         if not self.stepgen: 
             halrun.write("loadrt pid num_chan=1\n")
         self.hal_cmnds("LOAD")
-        self.hal_cmnds("READ")       
+        self.hal_cmnds("READ")
+        if pump:
+            halrun.write( "loadrt charge_pump\n")
+            halrun.write( "net enable charge-pump.enable\n")
+            halrun.write( "net charge-pump <= charge-pump.out\n")
+            halrun.write( "addf charge-pump slow\n")
         halrun.write("addf steptest.0 slow \n")
         if not self.stepgen: 
             halrun.write("addf pid.0.do-pid-calcs slow \n")
         halrun.write("addf scale_to_rpm slow \n")
         self.hal_cmnds("WRITE")
+        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "sets estop-out true\n")
+        # search and connect I/o signals needed to enable amps etc
+        self.hal_test_signals(axis)
         # for encoder signals
         if self.encoder: 
             #print self.encoder,"--",self.encoder[4:5],self.encoder[10:],self.encoder[6:7] 
@@ -7781,40 +7791,6 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter sig speed_rpm -g 0 415\n")
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
-        # set up enable output pin if used
-        temp = self.data.findsignal( "%senabled"% axis)
-        amp = self.data.make_pinname(temp)
-        if amp:
-            if "hm2" in amp:    
-                halrun.write("setp %s true\n"% (amp + ".is_output"))             
-                halrun.write("net enable %s \n"% (amp + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
-            if "parport" in amp:
-                halrun.write("    setp %s true\n" % (amp))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (amp + "-invert")) 
-        temp = self.data.findsignal( "machine-is-enabled")
-        machine_on = self.data.make_pinname(temp)
-        if machine_on:
-            if "hm2" in machine_on:    
-                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
-                halrun.write("net enable %s \n"% (machine_on + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
-            if "parport" in machine_on:
-                halrun.write("    setp %s true\n" % (machine_on ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (machine_on + "-invert")) 
-        # set up estop output if used
-        temp = self.data.findsignal( "estop-out")
-        estop = self.data.make_pinname(temp)
-        if estop:        
-            if "hm2" in estop:
-                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("net enable %s\n"%  (estop + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
         # set up PID if there is a feedback sensor and pwm. TODO add ability to test closed loop steppers
         if self.encoder and self.pwmgen:
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
@@ -7896,6 +7872,7 @@ But there is not one in the machine-named folder.."""),True)
                 setp steptest.0.dir %(dir)s
                 setp steptest.0.pause %(pause)d
                 sets enable %(enable)s
+                sets estop-out %(estop)s
             """ % {
                 'scale':self.scale,
                 'len':self.widgets[axis+"tunecurrentsteptime"].get_value(),
@@ -7912,7 +7889,8 @@ But there is not one in the machine-named folder.."""),True)
                 'velps': (self.widgets[axis+"tunevel"].get_value()/60),
                 'dir': self.widgets[axis+"tunedir"].get_active(),
                 'pause':int(self.widgets[axis+"tunepause"].get_value()),
-                'enable':self.widgets[axis+"tuneenable"].get_active()
+                'enable':self.widgets[axis+"tuneenable"].get_active(),
+                'estop':not (self.widgets[axis+"tuneenable"].get_active())
             })
         else:
             halrun.write("""  
@@ -7981,8 +7959,6 @@ But there is not one in the machine-named folder.."""),True)
 
     # openloop servo test
     def test_axis(self, axis):
-
-
         # one needs real time, pwm gen and an encoder for open loop testing.
         if not self.check_for_rt(self):
             return
