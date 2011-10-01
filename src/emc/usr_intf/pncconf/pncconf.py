@@ -364,7 +364,7 @@ mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x2
 (UNUSED_OUTPUT,
 ON, CW, CCW, BRAKE,
 MIST, FLOOD, ESTOP, AMP, XAMP, YAMP, ZAMP, AAMP,
-PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
+PUMP,FORCE_PIN_TRUE, DOUT0, DOUT1, DOUT2, DOUT3,
 X_HALL1_OUT,X_HALL2_OUT,X_HALL3_OUT,X_C1_OUT,X_C2_OUT,X_C4_OUT,X_C8_OUT,
 Y_HALL1_OUT,Y_HALL2_OUT,Y_HALL3_OUT,Y_C1_OUT,Y_C2_OUT,Y_C4_OUT,Y_C8_OUT,
 Z_HALL1_OUT,Z_HALL2_OUT,Z_HALL3_OUT,Z_C1_OUT,Z_C2_OUT,Z_C4_OUT,Z_C8_OUT,
@@ -373,7 +373,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
-"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+"charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
 "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
@@ -383,7 +383,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
 coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
 control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
-_("A Amplifier Enable"),_("Charge Pump")]
+_("A Amplifier Enable"),_("Charge Pump"),_("Force Pin True")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
 ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
@@ -1948,7 +1948,10 @@ If you have a REALLY large config that you wish to convert to this newer version
             p = self['pp1Opin%d' % pin]
             i = self['pp1Opin%dinv' % pin]
             if p == UNUSED_OUTPUT: continue
-            print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
+            if p == "force-pin-true":
+                print >>file, "setp parport.0.pin-%02d-out true" % (pin)
+            else:
+                print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
             if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
         print >>file
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
@@ -1958,14 +1961,15 @@ If you have a REALLY large config that you wish to convert to this newer version
                     pinname = self.make_pinname(pname)
                     print >>file, "# ---",p.upper(),"---"
                     if "sserial" in pname:
-                        print >>file, "net %s     =>  "% (p)+pinname +".out"
                         if i: print >>file, "setp    "+pinname+".invert true"
                     else:
-                        print >>file, "net %s     =>  "% (p)+pinname +".out"
                         print >>file, "setp    "+pinname +".is_output true"
                         if i: print >>file, "setp    "+pinname+".invert_output true"
                         if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
-
+                    if p == "force-pin-true":
+                        print >>file, "setp %s"% pinname +".out true"
+                    else:
+                        print >>file, "net %s     =>  "% (p)+pinname +".out"
             # for pwm pins
             elif t in (PWMP,PDMP,UDMU):
                 if not p == "unused-pwm":
@@ -8118,19 +8122,19 @@ But there is not one in the machine-named folder.."""),True)
     def hal_test_signals(self, axis):
         # during testing pncconf looks for pins with these signals names
         # and connects to them so as to enable amps etc
-        # FORCE->PIN will just make the pin be true all the time
+        # force-pin-true will just make the pin be true all the time
         # this could be used as a temparary way to enable I/O that the
         # specific machine needs on for the amp to work but pncconf doesn't look for.
         halrun = self.halrun
         def write_pins(pname,p,i,t):
-            if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","FORCE->PIN"):
+            if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
                 pinname  = self.data.make_pinname(pname)
                 if pinname:
                     #print p, pname, i
                     if p == "estop-out": signal = p
                     else: signal = "enable"
                     if "parport" in pinname:
-                        if p == "FORCE->PIN":
+                        if p == "force-pin-true":
                             halrun.write("setp %s true\n"% (pinname))
                         else:
                             halrun.write("net %s %s \n"% (signal,pinname))
@@ -8138,7 +8142,7 @@ But there is not one in the machine-named folder.."""),True)
                         if not "sserial" in pname:
                             halrun.write("setp %s true\n"% (pinname + ".is_output"))
                             if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
-                        if p == "FORCE->PIN":
+                        if p == "force-pin-true":
                             halrun.write("setp %s true\n"% ((pinname + ".out")))
                         else:
                             halrun.write("net %s %s \n"% (signal,(pinname + ".out")))
