@@ -20,7 +20,7 @@
           <widget class="GnomeDruidPageEdge" id="druidpagestart1">
             <property name="visible">True</property>
             <property name="position">GNOME_EDGE_START</property>
-            <property name="title" translatable="yes">EMC2  Configuration Wizard   Alpha Version</property>
+            <property name="title" translatable="yes">EMC2  Configuration Wizard   Beta 1 Version</property>
             <property name="text" translatable="yes">	This program creates configuration 
             files  for  "Closed Loop Servo" 
 	 	 and hardware stepper
