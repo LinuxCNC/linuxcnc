@@ -7981,6 +7981,9 @@ But there is not one in the machine-named folder.."""),True)
 
     # openloop servo test
     def test_axis(self, axis):
+
+
+        # one needs real time, pwm gen and an encoder for open loop testing.
         if not self.check_for_rt(self):
             return
         if not self.data.findsignal( (axis + "-pwm-pulse")) or not self.data.findsignal( (axis + "-encoder-a")):
@@ -7994,85 +7997,43 @@ But there is not one in the machine-named folder.."""),True)
         fastdac = get_value(widgets["fastdac"])
         slowdac = get_value(widgets["slowdac"])
         dacspeed = widgets.Dac_speed_fast.get_active()
+        dac_scale = get_value(widgets[axis+"outputscale"])
+        max_dac = get_value(widgets[axis+"maxoutput"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
         halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))       
         self.hal_cmnds("LOAD")
-        halrun.write("loadrt steptest\n")
+        #halrun.write("loadrt steptest\n")
         halrun.write("loadusr halscope\n")
         self.hal_cmnds("READ")
         if pump:
             halrun.write( "loadrt charge_pump\n")
             halrun.write( "net enable charge-pump.enable\n")
             halrun.write( "net charge-pump <= charge-pump.out\n")
-            halrun.write( "addf charge-pump slow\n")                 
-        halrun.write("addf steptest.0 slow\n")
+            halrun.write( "addf charge-pump slow\n")
+        #halrun.write("addf steptest.0 slow\n")
         self.hal_cmnds("WRITE")
-        # set enable pin if used (output)
-        temp = self.data.findsignal( "%senable"% axis)
-        self.amp = self.data.make_pinname(temp)
-        if self.amp:
-            if "hm2_" in self.amp:    
-                halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
-                halrun.write("net enable %s\n"% (self.amp + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (self.amp + ".invert_output"))
-                self.amp = self.amp + ".out"             
-            if "parport" in self.amp:
-                halrun.write("net enable %s\n" % (self.amp ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (self.amp + "-invert"))
-            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))
-        temp = self.data.findsignal( "machine-is-enabled")
-        machine_on = self.data.make_pinname(temp)
-        if machine_on:
-            if "hm2" in machine_on:    
-                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
-                halrun.write("net enable %s \n"% (machine_on + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
-            if "parport" in machine_on:
-                halrun.write("net enable %s\n" % (machine_on ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (machine_on + "-invert"))  
+        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "sets estop-out true\n")
+        # search for pins with test signals that may be needed to enable amp
+        self.hal_test_signals(axis)
         # setup pwm generator
-        temp = self.data.findsignal( "estop-out")
-        estop = self.data.make_pinname(temp)
-        if estop:        
-            if "hm2_" in estop:
-                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("net enable %s\n"%  (estop + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-                estop = estop + ".out"
-            if "parport" in estop:
-                halrun.write("net enable %s\n" % (estop))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (estop + "-invert"))  
-            halrun.write("loadusr halmeter -s pin %s -g 0 550 330\n"%  (estop)) 
-        # set charge pump if used
-        temp = self.data.findsignal( "charge-pump")
-        pump = self.data.make_pinname(temp)
-        if pump:        
-            if "hm2_" in pump:
-                halrun.write("setp %s true\n"%  (pump + ".is_output"))    
-                halrun.write("net charge-pump %s\n"%  (pump + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (pump + ".invert_output"))
-                pump = pump + ".out"              
-            if "parport" in pump:
-                halrun.write("    net charge-pump %s\n" % (pump))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (pump + "-invert"))  
-            halrun.write( "net charge-pump %s\n"%(pump))
-            halrun.write("loadusr halmeter -s pin %s -g 0 500 330\n"%  (pump))             
-        # setup pwm generator
-        pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
-        if pwm:          
+        temp = self.data.findsignal( (axis + "-pwm-pulse"))
+        pwm = self.data.make_pinname(temp)
+        if pwm:
+            pwmtype = self.data[temp+"type"]
+            if  pwmtype == PWMP: pulsetype = 1
+            elif pwmtype == PDMP: pulsetype = 3
+            elif pwmtype == UDMU: pulsetype = 2
+            else: 
+                print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
+                return
+            halrun.write("setp %s %d \n"%  (pwm +".output-type", pulsetype))
             halrun.write("net dac %s \n"%  (pwm +".value"))
             halrun.write("net enable %s \n"%  (pwm +".enable"))
-            halrun.write("setp %s \n"%  (pwm +".scale 10"))
+            halrun.write("setp %s \n"%  (pwm +".scale %f"% dac_scale))
+            halrun.write("loadusr halmeter -s sig enable -g 0 475 330\n")
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
         # set up encoder     
@@ -8091,7 +8052,9 @@ But there is not one in the machine-named folder.."""),True)
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
         widgets.testoutputoffset.set_value(widgets[axis+"outputoffset"].get_value())
-        widgets.testenc_scale.set_value(float(enc_scale))   
+        widgets.testenc_scale.set_value(float(enc_scale))
+        widgets.fastdac.set_range(0,max_dac)
+        widgets.slowdac.set_range(0,max_dac)
         self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
@@ -8134,6 +8097,7 @@ But there is not one in the machine-named folder.."""),True)
             output = output * -1
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
+        halrun.write("sets estop-out %d\n"% ( not self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
@@ -8174,7 +8138,75 @@ But there is not one in the machine-named folder.."""),True)
             self.data.load(filename, self)
             self.widgets.druid1.set_page(self.widgets.basicinfo)
         gtk.main()
-   
+
+    def hal_test_signals(self, axis):
+        # during testing pncconf looks for pins with these signals names
+        # and connects to them so as to enable amps etc
+        # FORCE->PIN will just make the pin be true all the time
+        # this could be used as a temparary way to enable I/O that the
+        # specific machine needs on for the amp to work but pncconf doesn't look for.
+        halrun = self.halrun
+        def write_pins(pname,p,i,t):
+            if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","FORCE->PIN"):
+                pinname  = self.data.make_pinname(pname)
+                if pinname:
+                    #print p, pname, i
+                    if p == "estop-out": signal = p
+                    else: signal = "enable"
+                    if "parport" in pinname:
+                        if p == "FORCE->PIN":
+                            halrun.write("setp %s true\n"% (pinname))
+                        else:
+                            halrun.write("net %s %s \n"% (signal,pinname))
+                    else:
+                        if not "sserial" in pname:
+                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
+                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
+                        if p == "FORCE->PIN":
+                            halrun.write("setp %s true\n"% ((pinname + ".out")))
+                        else:
+                            halrun.write("net %s %s \n"% (signal,(pinname + ".out")))
+                    if i: # invert pin
+                        if "sserial" in pname: ending = ".invert"
+                        elif "parport" in pinname: ending = "-invert"
+                        else: ending = ".invert_output"
+                        halrun.write("setp %s true\n"%  (pinname + ending ))
+                    return
+
+        # search everything for multiple same named signal output pins
+        # mesa mainboard
+        for boardnum in range(0,int(self.data.number_mesa)):
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
+                for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
+                    p = self.data['mesa%dc%dpin%d' % (boardnum,connector, pin)]
+                    i = self.data['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
+                    t = self.data['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
+                    if t in (GPIOO,GPIOD) and not p == "unused-output":
+                        write_pins(pname,p,i,t)
+            # mesa sserial
+            if self.data["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                port = 0
+                for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
+                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
+                        p = self.data['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
+                        i = self.data['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
+                        t = self.data['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
+                        if t in (GPIOO,GPIOD) and not p == "unused-output":
+                            write_pins(pname,p,i,t)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.data.number_pports < (j+1): break 
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pname = "%sOpin%d" % (k, x)
+                p = self.data[pname]
+                i = self.data[pname+"inv"]
+                if not p == "unused-output":
+                    write_pins(pname,p,i,None)
+
     def hal_cmnds(self,command ):
         halrun = self.halrun
         if command == "LOAD":
