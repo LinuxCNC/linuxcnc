@@ -818,8 +818,14 @@ If you for some reason want to remap `Tx` (prepare), the corresponding
 iocontrol pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
-Remember w
 
+The following predefined named parameters can be useful here when
+writing these procedures:
+
+ #<_selected_tool>
+ #<_selected_pocket>
+ #<_current_tool>
+ #<_current_pocket>
 
 === Specifying the T (prepare) replacement
 If you're confident with the  <<remap::interpreter-action-on-T,default
@@ -855,17 +861,9 @@ def prepare_prolog(self,**words):
     if status != INTERP_OK:
         self.set_errormsg("T%d: pocket not found" % (tool))
         return status
-
     # remember for the epilog handler
     self._tool = tool
-    self._pocket = pocket
-
-    # these variables will be visible in the ngc oword sub
-    # as #<tool>, #<pocket> and #<current_tool> local variables
-    self.params["new_tool"] = tool
-    self.params["new_pocket"] = pocket
-    self.params["current_tool"] = self.current_tool
-    self.params["selected_pocket"] = self.selected_pocket
+    self._pocket = pocket    
     return INTERP_OK
 ---------------------------------------------------------------------
 
