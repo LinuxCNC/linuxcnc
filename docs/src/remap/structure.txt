@@ -1969,6 +1969,16 @@ Example:
 Access of HAL items is read-only. Currently, only all-lowercase HAL
 names can be accessed this way.
 
+`EXISTS` can be used to test for the presence of a given HAL item:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [EXISTS[#<_hal[motion-controller.time]>]]
+  (debug, [motion-controller.time] exists: #<_hal[motion-controller.time]>)
+o100 else
+  (debug, [motion-controller.time] does not exist)
+o100 endif
+---------------------------------------------------------------------
 FIXME footnote this:
 
 This feature was motivated by the desire for stronger coupling between
