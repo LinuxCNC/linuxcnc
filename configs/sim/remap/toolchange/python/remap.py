@@ -55,6 +55,12 @@ def prepare_epilog(self, **words):
 # Incantation:
 # REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
 #
+# Note that the following predefined named parameters can be useful here:
+# #<_selected_tool>
+# #<_selected_pocket>
+# #<_current_tool>
+# #<_current_pocket>
+
 def change_prolog(self, **words):
 	if self.selected_pocket < 0:
 		self.set_errormsg("Need tool prepared -Txx- for toolchange")
@@ -64,9 +70,6 @@ def change_prolog(self, **words):
 		return INTERP_ERROR
 
         print "change_prolog current_tool=%f selected_pocket=%d" % (self.current_tool,self.selected_pocket)
-
-        self.params["current_tool"] = self.current_tool
-	self.params["selected_pocket"] = self.selected_pocket
 	return INTERP_OK
 
 def change_epilog(self, **words):
@@ -77,6 +80,7 @@ def change_epilog(self, **words):
         # commit change
         emccanon.CHANGE_TOOL(self.selected_pocket)
         self.current_pocket = self.selected_pocket
+        self.current_tool = self.selected_tool
         # cause a sync()
         self.tool_change_flag = True
         self.set_tool_parameters()
