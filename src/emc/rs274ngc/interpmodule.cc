@@ -423,10 +423,9 @@ BOOST_PYTHON_MODULE(interpreter) {
         .def(map_indexing_suite<parameter_map>())
 	;
 
-    // FIXME expose properly. RVP? stupid allocation
-    // class_<remap_type,noncopyable>("RemapMap",no_init)
-    //     .def(map_indexing_suite<remap_type>())
-    // 	;
+    class_<remap_type,noncopyable>("RemapMap",no_init)
+        .def(map_indexing_suite<remap_type>())
+	;
 
     // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
     class_<ParamClass>("Params","Interpreter parameters",no_init)
@@ -690,6 +689,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("w_axis_offset", &Interp::_setup.w_axis_offset)
 	.def_readwrite("w_current", &Interp::_setup.w_current)
 	.def_readwrite("w_origin_offset", &Interp::_setup.w_origin_offset)
+	.def_readwrite("remaps",  &Interp::_setup.remaps)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,
