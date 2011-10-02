@@ -18,6 +18,7 @@ param # 0 = 1.0
 param # 1 = 2.0
 param # 2 = 3.0
 param # 3 = 3.14159
+M123 Remap(M123 argspec=Pq modal_group=5 prolog=None ngc=foo python=None epilog=None) 
 current oword subname= introspect
 m_modes[0]= -1
 g_modes[0]= -1
