@@ -1,0 +1,56 @@
+; manual toolchange with automatic tool length probe 
+
+o<manual_change> sub
+
+(we change feed, metric/in and potentially G90, so mark as save caller state & auto-restore  on return or endsub)
+M73
+
+;(print, manual_change: loaded tool=#<_current_tool> current pocket: #<_current_pocket>)
+;(print, manual_change: selected tool=#<_selected_tool> selected pocket: #<_selected_pocket>)
+
+G21 (TLO and toolchange position is in mm)
+G90 (absolute)
+
+; move to toolchange position: z, then xy
+g53 g0 Z #<_ini[change_position]z>
+g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
+
+; signal user to change tool
+M64 P  #<_ini[pins]change> 
+
+; and wait for acknowledgement
+M66 P  #<_ini[pins]changed> L1 Q#<_ini[dwell]ack_secs>
+M65 P #<_ini[pins]change> ; drop change pin
+
+;see if we timed out
+O100 if [#5399 EQ -1]
+O100    return [-1] ; indicate timeout failure to epilog
+O100 endif
+
+; tool changed - move to toolensor
+g53 g0 X #<_ini[toolsensor]x> Y #<_ini[toolsensor]y>
+g53 g0 Z #<_ini[toolsensor]z>
+
+; probe tool length
+F #<_ini[toolsensor]probefeed>
+G91 (relative mode)
+M64 P  #<_ini[pins]probing> ; turn on probing led
+G38.3 Z #<_ini[toolsensor]maxprobe>
+M65 P #<_ini[pins]probing> ; drop probing led
+
+G90 (absolute)
+
+O200 if [#5070 EQ 0]
+O200    return [-2] ; indicate probe contact failure to epilog
+O200 endif
+
+;FIXME set tool offset here.
+
+; move back to toolchange position: z, then xy
+g53 g0 Z #<_ini[change_position]z>
+g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
+
+
+; succeed by returning a positive value
+o<manual_change> endsub [1]
+m2

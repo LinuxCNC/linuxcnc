@@ -1,0 +1,8 @@
+
+o<on_abort> sub
+
+(print, on_abort executing)
+M65 P #<_ini[pins]change> ; drop change pin
+
+o<on_abort> endsub
+m2
