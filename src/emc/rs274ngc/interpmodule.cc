@@ -215,6 +215,12 @@ static bp::object tool_str( CANON_TOOL_TABLE &t) {
 		       emcpose_2_obj(t.offset) + ")");
 }
 
+static bp::object remap_str( remap_struct &r) {
+    return  bp::object("Remap(%s argspec=%s modal_group=%d prolog=%s ngc=%s python=%s epilog=%s) " %
+		       bp::make_tuple(r.name,r.argspec,r.modal_group,r.prolog_func,
+				      r.remap_ngc, r.remap_py, r.epilog_func));
+}
+
 static void tool_zero( CANON_TOOL_TABLE &t) {
 	t.toolno = -1;
         ZERO_EMC_POSE(t.offset);
@@ -423,9 +429,6 @@ BOOST_PYTHON_MODULE(interpreter) {
         .def(map_indexing_suite<parameter_map>())
 	;
 
-    class_<remap_type,noncopyable>("RemapMap",no_init)
-        .def(map_indexing_suite<remap_type>())
-	;
 
     // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
     class_<ParamClass>("Params","Interpreter parameters",no_init)
@@ -466,8 +469,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("generator_next",  &context::generator_next)
 
 	;
-
-    class_ <remap,noncopyable>("Remap",no_init)
+    // FIXME make noncopyable: class_<ParamClass, noncopyable>("Params","Interpreter parameters",no_init)
+    class_ <remap_struct /*, noncopyable */>("Remap" /*, no_init*/)
 	.def_readwrite("name",&remap::name)
 	.def_readwrite("argspec",&remap::argspec)
 	.def_readwrite("modal_group",&remap::modal_group)
@@ -475,6 +478,12 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("remap_py",&remap::remap_py)
 	.def_readwrite("remap_ngc",&remap::remap_ngc)
 	.def_readwrite("epilog_func",&remap::epilog_func)
+	.def("__str__", &remap_str)
+
+	;
+
+    class_<remap_map,noncopyable>("RemapMap",no_init)
+        .def(map_indexing_suite<remap_map>())
 	;
 
     class_ <block, noncopyable>("Block",no_init)
