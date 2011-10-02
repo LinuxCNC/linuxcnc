@@ -327,12 +327,11 @@ struct nocase_cmp
     }
 };
 
-//typedef std::map<const char *,remap_pointer,nocase_cmp> remap_type;
-typedef std::map<const char *,remap,nocase_cmp> remap_type;
-typedef remap_type::iterator remap_iterator;
+typedef std::map<const char *,remap,nocase_cmp> remap_map;
+typedef remap_map::iterator remap_iterator;
 
-typedef std::map<int, remap_pointer> int_remap_type;
-typedef int_remap_type::iterator int_remap_iterator;
+typedef std::map<int, remap_pointer> int_remap_map;
+typedef int_remap_map::iterator int_remap_iterator;
 
 #define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
 		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
@@ -720,8 +719,8 @@ typedef struct setup_struct
     interp_ptr pythis;  // shared_ptr representation of 'this'
 
     const char *on_abort_command;
-    int_remap_type  g_remapped,m_remapped;
-    remap_type remaps;
+    int_remap_map  g_remapped,m_remapped;
+    remap_map remaps;
 
 
 } setup;
