@@ -337,24 +337,6 @@ typedef int_remap_type::iterator int_remap_iterator;
 #define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
 		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
 
-#define HAS_BUILTIN_PROLOG(r)			\
-    (((r) != NULL) &&				\
-     (r)->builtin_prolog)
-
-#define HAS_BUILTIN_EPILOG(r)			\
-    (((r) != NULL) &&				\
-     (r)->builtin_epilog)
-
-#define HAS_PYTHON_PROLOG(r)					\
-    (((r) != NULL) &&						\
-     (r)->prolog_func)
-
-#define HAS_PYTHON_EPILOG(r)					\
-    (((r) != NULL) &&						\
-     (r)->epilog_func)
-
-
-
 typedef struct block_struct
 {
   bool a_flag;
