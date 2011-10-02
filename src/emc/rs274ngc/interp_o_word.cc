@@ -412,13 +412,13 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			 settings->filename,previous_frame->sequence_number,
 			 previous_frame->position);
 
-		// cleanups on return:
-		CHP(leave_context(settings, true));
+	    }
+	    // cleanups on return:
+	    CHP(leave_context(settings, true));
 
-		// if this was a remap frame we're done
-		if (current_frame->context_status & REMAP_FRAME) {
-		    CHP(remap_finished(-cblock->phase));
-		}
+	    // if this was a remap frame we're done
+	    if (current_frame->context_status & REMAP_FRAME) {
+		CHP(remap_finished(-cblock->phase));
 	    }
 
 	    settings->sub_name = 0;
