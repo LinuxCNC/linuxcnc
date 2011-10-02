@@ -147,7 +147,7 @@ drivertypes = [
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
-( GPIOI, GPIOO, GPIOD ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
+( GPIOI, GPIOO, GPIOD,NUSED ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"), _("NOT USED") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
 (  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
     _("Mux Enc Select") ]
@@ -5013,45 +5013,43 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.data["mesa%d_currentfirmwaredata"% boardnum] = mesafirmwaredata[search]
                 break
         #print mesafirmwaredata[search]
-        self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon3tab"% boardnum].set_sensitive(1)
-        self.widgets["mesa%dcon3table"% boardnum].show()
-        self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4table"% boardnum].show() 
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i23":
+
+        self.widgets["mesa%dcon2table"% boardnum].hide()
+        self.widgets["mesa%dcon3table"% boardnum].hide()
+        self.widgets["mesa%dcon4table"% boardnum].hide()
+        self.widgets["mesa%dcon5table"% boardnum].hide()
+        self.widgets["mesa%dcon6table"% boardnum].hide()
+        self.widgets["mesa%dcon7table"% boardnum].hide()
+        self.widgets["mesa%dcon8table"% boardnum].hide()
+        self.widgets["mesa%dcon9table"% boardnum].hide()
+        self.widgets["mesa%dsserialtab1"% boardnum].hide()
+        self.widgets["mesa%dsserialtab2"% boardnum].hide()
+        self.widgets["mesa%dsserialtab3"% boardnum].hide()
+        self.widgets["mesa%dsserialtab4"% boardnum].hide()
+        currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+        if currentboard == "5i20" or currentboard == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i22":
+        if currentboard == "5i22":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()   
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "7i43":
-            self.widgets["mesa%dcon2table"% boardnum].hide()
+            self.widgets["mesa%dcon5table"% boardnum].show()
+        if currentboard == "5i25":
+            self.widgets["mesa%dcon2table"% boardnum].show()
+            self.widgets["mesa%dcon3table"% boardnum].show()
+        if currentboard == "7i43":
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "3x20":
-            self.widgets["mesa%dcon2table"% boardnum].hide()
-            self.widgets["mesa%dcon3table"% boardnum].hide()
+        if currentboard == "3x20":
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].show()
             self.widgets["mesa%dcon6table"% boardnum].show()
             self.widgets["mesa%dcon7table"% boardnum].show()
             self.widgets["mesa%dcon8table"% boardnum].show()
             self.widgets["mesa%dcon9table"% boardnum].show()
-        else:
-            self.widgets["mesa%dcon6table"% boardnum].hide()
-            self.widgets["mesa%dcon7table"% boardnum].hide()
-            self.widgets["mesa%dcon8table"% boardnum].hide()
-            self.widgets["mesa%dcon9table"% boardnum].hide()
-            self.widgets["mesa%dsserialtab1"% boardnum].hide()
-            self.widgets["mesa%dsserialtab2"% boardnum].hide()
-            self.widgets["mesa%dsserialtab3"% boardnum].hide()
-            self.widgets["mesa%dsserialtab4"% boardnum].hide()
+
 
         self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum],
             self.data["mesa%d_currentfirmwaredata"% boardnum][_FIRMWARE]))
@@ -5180,7 +5178,20 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
-                
+
+                # if the board has less then 24 pins hide the extra comboboxes
+                if firmptype == NUSED:
+                    self.widgets[p].hide()
+                    self.widgets[ptype].hide()
+                    self.widgets[pinv].hide()
+                    self.widgets[complabel].hide()
+                    firmptype = GPIOI # we cheat and now call it GPIOI just to simplify later code
+                else:
+                    self.widgets[p].show()
+                    self.widgets[ptype].show()
+                    self.widgets[pinv].show()
+                    self.widgets[complabel].show()
+
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
                 # if we are then we trick this routine into thinking the firware asked for GPIO:
