@@ -895,6 +895,32 @@ FIXME verify the prepare example - could be old code
 
 FIXME m61 - describe
 
+=== Error handling: dealing with abort
+The builting toolchange procedure has some precautions for dealing
+with a program abort (e.g. hitting Escape in Axis during a
+change). Your remapped function has none of this, therefore some
+explicit cleanup might be needed if a remapped code is aborted.
+
+The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND`
+feature. This ini option specifies a O-word procedure call which is
+executed if task for some reason aborts program execution. 
+
+[source,{ini}]
+---------------------------------------------------------------------
+[RS274NGC]
+ON_ABORT_COMMAND=O <on_abort> call 
+---------------------------------------------------------------------
+
+Make sure `on_abort.ngc` is along the interpreter search path
+(recommended location: `SUBROUTINE_PATH` so as not to clutter your
+`NC_FILES` directory with internal procedures). `on_abort` receives a
+single parameter indicating the cause for calling the abort procedure,
+which might be used for conditional cleanup.
+
+Statements in that procedure typically would assure that post-abort
+any state has been cleaned up, like HAL pins properly reset. For an
+example, see `configs/sim/remap/rack-toolchange` .
+
 == Configuring  Embedded Python  [[remap:embedded-Python]]
 
 The Python plugin serves both the interpreter, and task if so
