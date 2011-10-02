@@ -25,6 +25,8 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
+int _task = 0; // control preview behaviour when remapping
+
 char _parameter_file_name[LINELEN];
 extern "C" void initinterpreter();
 extern "C" void initemccanon();

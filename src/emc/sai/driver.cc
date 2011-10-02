@@ -498,6 +498,7 @@ instructions are printed to stdout (with printf), the instructions get
 redirected and the user does not see them.
 
 */
+int _task = 0; // control preview behaviour when remapping
 
 int main (int argc, char ** argv)
 {
@@ -525,7 +526,7 @@ int main (int argc, char ** argv)
   go_flag = 0;
 
   while(1) {
-      int c = getopt(argc, argv, "t:v:bsn:gi:l:");
+      int c = getopt(argc, argv, "t:v:bsn:gi:l:T");
       if(c == -1) break;
 
       switch(c) {
@@ -537,6 +538,7 @@ int main (int argc, char ** argv)
           case 'l': log_level = atoi(optarg); break;
           case 'g': go_flag = !go_flag; break;
           case 'i': inifile = optarg; break;
+          case 'T': _task = 1; break;
           case '?': default: goto usage;
       }
   }

@@ -133,6 +133,7 @@ int done;
 static int emctask_shutdown(void);
 static int pseudoMdiLineNumber = INT_MIN;
 extern void backtrace(int signo);
+int _task = 1; // control preview behaviour when remapping
 
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason

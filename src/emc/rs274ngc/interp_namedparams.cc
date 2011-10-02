@@ -87,6 +87,7 @@ enum predefined_named_parameters {
     NP_REMAP_LEVEL,
     NP_SELECTED_TOOL,
     NP_VALUE_RETURNED,
+    NP_TASK,
 };
 
 /****************************************************************************/
@@ -671,6 +672,12 @@ int Interp::lookup_named_param(const char *nameBuf,
     case NP_REMAP_LEVEL:
 	*value = _setup.remap_level;
 	break;
+	
+    case NP_TASK:
+	extern int _task;  // zero in gcodemodule, 1 in milltask
+	*value = _task;
+	break;
+
 
     default:
 	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
@@ -804,6 +811,9 @@ int Interp::init_named_parameters()
 
   // predicate: last NGC procedure did return a value on endsub/return
   init_readonly_param("_value_returned", NP_VALUE_RETURNED, PA_USE_LOOKUP);
+
+  // predicate: 1 in milltask instance, 0 in UI - control preview behaviour
+  init_readonly_param("_task", NP_TASK, PA_USE_LOOKUP);
 
   // debugging aids
   init_readonly_param("_call_level", NP_CALL_LEVEL, PA_USE_LOOKUP);
