@@ -2,54 +2,83 @@
 
 o<manual_change> sub
 
-(we change feed, metric/in and potentially G90, so mark as save caller state & auto-restore  on return or endsub)
+(we change feed, metric/in and potentially G90)
+(so mark as save caller state & auto-restore on return or endsub)
+
 M73
 
-;(print, manual_change: loaded tool=#<_current_tool> current pocket: #<_current_pocket>)
-;(print, manual_change: selected tool=#<_selected_tool> selected pocket: #<_selected_pocket>)
-
-G21 (TLO and toolchange position is in mm)
+G21 (TLO and toolchange position is in mm as per ini)
 G90 (absolute)
 
 ; move to toolchange position: z, then xy
 g53 g0 Z #<_ini[change_position]z>
 g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
 
+; indicate tool number to be loaded
+M68 E #<_ini[pins]toolno> Q #<_selected_tool>
+
+; enable table
+M64 P  #<_ini[pins]enable> 
+
 ; signal user to change tool
 M64 P  #<_ini[pins]change> 
 
 ; and wait for acknowledgement
-M66 P  #<_ini[pins]changed> L1 Q#<_ini[dwell]ack_secs>
+M66 P #<_ini[pins]changed> L1 Q#<_ini[dwell]ack_secs>
 M65 P #<_ini[pins]change> ; drop change pin
+
 
 ;see if we timed out
 O100 if [#5399 EQ -1]
+        M65 P  #<_ini[pins]enable> ; disable table
 O100    return [-1] ; indicate timeout failure to epilog
 O100 endif
+
+O200 if [#<_selected_tool> EQ 0]   ; an unload.
+        M65 P  #<_ini[pins]enable> ; disable table
+O200    return [1] ; indicate success
+O200 endif
 
 ; tool changed - move to toolensor
 g53 g0 X #<_ini[toolsensor]x> Y #<_ini[toolsensor]y>
 g53 g0 Z #<_ini[toolsensor]z>
 
 ; probe tool length
+M64 P  #<_ini[pins]probing> ; turn on probing led
+
 F #<_ini[toolsensor]probefeed>
 G91 (relative mode)
-M64 P  #<_ini[pins]probing> ; turn on probing led
 G38.3 Z #<_ini[toolsensor]maxprobe>
+
+; see wether this was the reference tool:
+M66 P #<_ini[pins]reftool> L0
+
+O250 if [#5399 EQ 1]
+    #1000=#5063 (save reference tool length)
+    M68 E #<_ini[pins]reflen> Q #1000
+    (print,reference length is #1000)
+O250 else
+     g43.1 z[#5063-#1000] (set new tool offset)
+     M68 E #<_ini[pins]currlen> Q [#5063-#1000]
+     (print,new length is #5063)
+O250 endif 
+
 M65 P #<_ini[pins]probing> ; drop probing led
+M65 P  #<_ini[pins]enable> ; disable table
 
 G90 (absolute)
 
-O200 if [#5070 EQ 0]
-O200    return [-2] ; indicate probe contact failure to epilog
-O200 endif
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
 
-;FIXME set tool offset here.
+O300 if [[#<_task> GT 0] and [#5070 EQ 0]]
+O300    return [-2] ; indicate probe contact failure to epilog
+O300 endif
 
 ; move back to toolchange position: z, then xy
 g53 g0 Z #<_ini[change_position]z>
 g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
-
 
 ; succeed by returning a positive value
 o<manual_change> endsub [1]
