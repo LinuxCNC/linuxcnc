@@ -1428,7 +1428,7 @@ int Interp::unwind_call(int status, const char *file, int line, const char *func
 	// some frames may not have a filename and hence a position to seek to
 	// on return, like Python handlers
 	// needed to make sure this works in rs274 -n 0 (continue on error) mode
-	if (sub->filename) {
+	if (sub->filename && sub->filename[0]) {
 	    if(0 != strcmp(_setup.filename, sub->filename)) {
 		fclose(_setup.file_pointer);
 		_setup.file_pointer = fopen(sub->filename, "r");
