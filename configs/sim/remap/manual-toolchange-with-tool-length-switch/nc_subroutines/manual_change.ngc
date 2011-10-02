@@ -50,24 +50,6 @@ F #<_ini[toolsensor]probefeed>
 G91 (relative mode)
 G38.3 Z #<_ini[toolsensor]maxprobe>
 
-; see wether this was the reference tool:
-M66 P #<_ini[pins]reftool> L0
-
-O250 if [#5399 EQ 1]
-    #1000=#5063 (save reference tool length)
-    M68 E #<_ini[pins]reflen> Q #1000
-    (print,reference length is #1000)
-O250 else
-     g43.1 z[#5063-#1000] (set new tool offset)
-     M68 E #<_ini[pins]currlen> Q [#5063-#1000]
-     (print,new length is #5063)
-O250 endif 
-
-M65 P #<_ini[pins]probing> ; drop probing led
-M65 P  #<_ini[pins]enable> ; disable table
-
-G90 (absolute)
-
 ; we must execute this only in the milltask interpreter
 ; or preview will break, so test for '#<_task>' which is 1 for 
 ; the milltask interpreter and 0 in the UI's
@@ -75,6 +57,26 @@ G90 (absolute)
 O300 if [[#<_task> GT 0] and [#5070 EQ 0]]
 O300    return [-2] ; indicate probe contact failure to epilog
 O300 endif
+
+
+; see wether this was the reference tool:
+M66 P #<_ini[pins]reftool> L0
+
+O400 if [#5399 EQ 1]
+    #1000=#5063 (save reference tool length)
+    M68 E #<_ini[pins]reflen> Q #1000
+    (print,reference length is #1000)
+O400 else
+     g43.1 z[#5063-#1000] (set new tool offset)
+     M68 E #<_ini[pins]currlen> Q [#5063-#1000]
+     (print,new length is #5063)
+O400 endif 
+
+M65 P #<_ini[pins]probing> ; drop probing led
+M65 P  #<_ini[pins]enable> ; disable table
+
+G90 (absolute)
+
 
 ; move back to toolchange position: z, then xy
 g53 g0 Z #<_ini[change_position]z>
