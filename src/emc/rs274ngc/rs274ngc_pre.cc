@@ -1367,10 +1367,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   if ((read_status == INTERP_EXECUTE_FINISH)
       || (read_status == INTERP_OK)) {
     if (_setup.line_length != 0) {
-	//CHP(parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup));
-	read_status = parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup);
-	if (read_status > INTERP_MIN_ERROR)
-	    logDebug("FAIL: %s", _setup.blocktext);
+	CHP(parse_line(_setup.blocktext, &(EXECUTING_BLOCK(_setup)), &_setup));
     }
 
     else // Blank line (zero length)
