@@ -535,7 +535,7 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
   // mode = usercode_mgroup(&(_setup),value);
   // if (mode != -1) {
 
-  remap_pointer r = _setup.g_remapped[value];
+ remap_pointer r = _setup.g_remapped[value];
   if (r) {
       mode =  r->modal_group;
       CHKS ((mode < 0),"BUG: G remapping: modal group < 0"); // real bad

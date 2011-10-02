@@ -327,7 +327,8 @@ struct nocase_cmp
     }
 };
 
-typedef std::map<const char *,remap_pointer,nocase_cmp> remap_type;
+//typedef std::map<const char *,remap_pointer,nocase_cmp> remap_type;
+typedef std::map<const char *,remap,nocase_cmp> remap_type;
 typedef remap_type::iterator remap_iterator;
 
 typedef std::map<int, remap_pointer> int_remap_type;
@@ -438,7 +439,7 @@ typedef struct block_struct
   // control (o-word) stuff
   long     offset;   // start of line in file
   int      o_type;
-    int      call_type; // oword-sub, python oword-sub, remap
+  int      call_type; // oword-sub, python oword-sub, remap
   const char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
   int param_cnt;
@@ -446,7 +447,7 @@ typedef struct block_struct
   // bitmap of phases already executed
   // we have some 31 or so different steps in a block. We must remember
   // which one is done when we reexecute a block after a remap.
-    std::bitset<MAX_STEPS>  breadcrumbs;
+  std::bitset<MAX_STEPS>  breadcrumbs;
 
 #define TICKOFF(step) block->breadcrumbs[step] = 1
 #define TODO(step) (block->breadcrumbs[step] == 0)

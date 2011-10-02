@@ -316,7 +316,7 @@ remap_pointer Interp::remapping(const char *code)
 {
     remap_iterator n = 	_setup.remaps.find(code);
     if (n !=  _setup.remaps.end())
-	return n->second;
+	return &n->second;
     else
 	return NULL;
 }
@@ -332,19 +332,15 @@ int Interp::parse_remap(const char *inistring, int lineno)
     char *argv[MAX_REMAPOPTS];
     int   argc = 0;
     const char *code;
-    remap_pointer r;
+    remap r;
     bool errored = false;
     int g1 = 0, g2 = 0;
     int mcode = -1;
     int gcode = -1;
     char *s;
 
-    if ((r = (remap_pointer) malloc(sizeof(remap))) == NULL) {
-	Error("cant malloc remap_struct");
-	return INTERP_ERROR;
-    }
-    memset((void *)r, 0, sizeof(remap));
-    r->modal_group = -1; // mark as unset, required param for m/g
+    memset((void *)&r, 0, sizeof(remap));
+    r.modal_group = -1; // mark as unset, required param for m/g
     strcpy(iniline, inistring);
     // strip trailing comments
     if ((s = strchr(iniline, '#')) != NULL) {
@@ -362,7 +358,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     }
     argv[argc] = NULL;
     code = strstore(argv[0]);
-    r->name = code;
+    r.name = code;
 
     for (int i = 1; i < argc; i++) {
 	int kwlen = 0;
@@ -384,7 +380,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    continue;;
 	}
 	if (!strncasecmp(kw,"modalgroup",kwlen)) {
-	    r->modal_group = atoi(arg);
+	    r.modal_group = atoi(arg);
 	    continue;
 	}
 	if (!strncasecmp(kw,"argspec",kwlen)) {
@@ -396,12 +392,12 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		errored = true;
 		continue;
 	    }
-	    r->argspec = strstore(arg);
+	    r.argspec = strstore(arg);
 	    continue;
 	}
 	if (!strncasecmp(kw,"prolog",kwlen)) {
 	    if (PYUSABLE) {
-		r->prolog_func = strstore(arg);
+		r.prolog_func = strstore(arg);
 	    } else {
 		Error("Python plugin required for prolog=, but not available: %d:REMAP = %s",
 		      lineno,inistring);
@@ -412,7 +408,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"epilog",kwlen)) {
 	    if (PYUSABLE) {
-		r->epilog_func = strstore(arg);
+		r.epilog_func = strstore(arg);
 	    } else {
 		Error("Python plugin required for epilog=, but not available: %d:REMAP = %s",
 		      lineno,inistring);
@@ -422,7 +418,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    continue;
 	}
 	if (!strncasecmp(kw,"ngc",kwlen)) {
-	    if (r->remap_py) {
+	    if (r.remap_py) {
 		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
@@ -430,7 +426,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    }
 	    FILE *fp = find_ngc_file(&_setup,arg);
 	    if (fp) {
-		r->remap_ngc = strstore(arg);
+		r.remap_ngc = strstore(arg);
 		fclose(fp);
 	    } else {
 		Error("NGC file not found: ngc=%s - %d:REMAP = %s",
@@ -440,7 +436,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	    continue;
 	}
 	if (!strncasecmp(kw,"python",kwlen)) {
-	    if (r->remap_ngc ) {
+	    if (r.remap_ngc ) {
 		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
@@ -458,7 +454,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		errored = true;
 		continue;
 	    }
-	    r->remap_py = strstore(arg);
+	    r.remap_py = strstore(arg);
 	    continue;
 	}
 	Error("unrecognized option '%*s' in  %d:REMAP = %s",
@@ -475,7 +471,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     }
 
     // it is an error not to define a remap function to call.
-    if ((r->remap_ngc == NULL) && (r->remap_py == NULL)) {
+    if ((r.remap_ngc == NULL) && (r.remap_py == NULL)) {
 	Error("code '%s' - no remap function given, use either 'python=<function>' or 'ngc=<basename>' : %d:REMAP = %s",
 	      code,lineno,inistring);
 	goto fail;
@@ -495,25 +491,25 @@ int Interp::parse_remap(const char *inistring, int lineno)
     case 's':
     case 'f':
 	CHECK((strlen(code) > 1),"%d: %c remap - only single letter code allowed", lineno, *code);
-	CHECK((r->modal_group != -1), "%d: %c remap - modal group setting ignored - fixed sequencing", lineno, *code);
+	CHECK((r.modal_group != -1), "%d: %c remap - modal group setting ignored - fixed sequencing", lineno, *code);
 	_setup.remaps[code] = r;
 	break;
 
     case 'm':
 	if (sscanf(code + 1, "%d", &mcode) == 1) {
 	    _setup.remaps[code] = r;
-	    _setup.m_remapped[mcode] = r;
+	    _setup.m_remapped[mcode] = &_setup.remaps[code];
 	} else {
 	    Error("parsing M-code: expecting integer like 'M420', got '%s' : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
 	}
-	if (r->modal_group == -1) {
+	if (r.modal_group == -1) {
 	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
 		  code, MCODE_DEFAULT_MODAL_GROUP,lineno,inistring);
-	    r->modal_group = MCODE_DEFAULT_MODAL_GROUP;
+	    r.modal_group = MCODE_DEFAULT_MODAL_GROUP;
 	}
-	if (!M_MODE_OK(r->modal_group)) {
+	if (!M_MODE_OK(r.modal_group)) {
 	    Error("error: code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
 		  code,lineno,inistring);
 	    goto fail;
@@ -531,27 +527,27 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		  code, lineno, inistring);
 	    goto fail;
 	}
-	if (r->modal_group == -1) {
+	if (r.modal_group == -1) {
 	    Error("warning: code '%s' : no modalgroup=<int> given, using default group %d : %d:REMAP = %s",
 		  code, GCODE_DEFAULT_MODAL_GROUP, lineno, inistring);
-	    r->modal_group = GCODE_DEFAULT_MODAL_GROUP;
+	    r.modal_group = GCODE_DEFAULT_MODAL_GROUP;
 	    break;
 	}
-	if (!G_MODE_OK(r->modal_group)) {
+	if (!G_MODE_OK(r.modal_group)) {
 	    Error("error: code '%s' : %s modalgroup=<int> given  : %d:REMAP = %s",
 		  argv[0],
-		  r->modal_group == -1 ? "no" : "invalid",
+		  r.modal_group == -1 ? "no" : "invalid",
 		  lineno,
 		  inistring);
 	    goto fail;
 	}
 	_setup.remaps[code] = r;
-	_setup.g_remapped[gcode] = r;
+	_setup.g_remapped[gcode] = &_setup.remaps[code];
 	break;
 
     default:
 	// make sure the python plugin is in a usable state if needed
-	if ((r->prolog_func || r->remap_py || r->epilog_func) &&
+	if ((r.prolog_func || r.remap_py || r.epilog_func) &&
 	    (!PYUSABLE))  {
 	    fprintf(stderr, "fatal: REMAP requires the Python plugin, which did not initialize\n");
 	    break;
@@ -562,6 +558,5 @@ int Interp::parse_remap(const char *inistring, int lineno)
     return INTERP_OK;
 
  fail:
-    free(r);
     return INTERP_ERROR;
 }
