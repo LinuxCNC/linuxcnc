@@ -2027,12 +2027,17 @@ ha!
 // Task internals access - Python view
 ==  Build notes
 
- apt-get install libboost-python1.40-dev unixODBC-dev libsqliteodbc
+For the interpreter & task Python plugins, this is required:
 
+ apt-get install libboost-python1.40-dev
+
+
+If you want to play with the configs/sim/remap/iocontrol-removed
+example, you need to install as follows:
+
+ apt-get unixODBC-dev libsqliteodbc sqlite3
  git clone https://code.google.com/p/pyodbc/
  sudo  python setup.py build install
-
-
 
 ==  Workarounds
 
