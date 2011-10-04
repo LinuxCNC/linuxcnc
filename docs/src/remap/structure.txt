@@ -1656,6 +1656,7 @@ are called 'queue busters', and they are:
 - loading a new tool with M6: tool geometry not predictable
 - executing a probe with G38.x: final position and success/failure not predictable
 
+
 === How queuebusters are dealt with
 
 Whenever the interpreter encounters a queuebuster, it needs to stop

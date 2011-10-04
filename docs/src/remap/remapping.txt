@@ -33,13 +33,6 @@ Suite 330 Boston, MA 02111-1307
 
 include::structure.txt[]
 
-// include::fundamentals.txt[]
-// include::reference.txt[]
-// include::internals.txt[]
-// include::tasksetup.txt[]
-
-// = Index
-
 //include::common/GPLD_Copyright.txt[]
 
 The End
