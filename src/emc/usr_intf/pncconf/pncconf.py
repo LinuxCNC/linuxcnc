@@ -147,7 +147,7 @@ drivertypes = [
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
-( GPIOI, GPIOO, GPIOD ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
+( GPIOI, GPIOO, GPIOD,NUSED ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"), _("NOT USED") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
 (  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
     _("Mux Enc Select") ]
@@ -364,7 +364,7 @@ mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x2
 (UNUSED_OUTPUT,
 ON, CW, CCW, BRAKE,
 MIST, FLOOD, ESTOP, AMP, XAMP, YAMP, ZAMP, AAMP,
-PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
+PUMP,FORCE_PIN_TRUE, DOUT0, DOUT1, DOUT2, DOUT3,
 X_HALL1_OUT,X_HALL2_OUT,X_HALL3_OUT,X_C1_OUT,X_C2_OUT,X_C4_OUT,X_C8_OUT,
 Y_HALL1_OUT,Y_HALL2_OUT,Y_HALL3_OUT,Y_C1_OUT,Y_C2_OUT,Y_C4_OUT,Y_C8_OUT,
 Z_HALL1_OUT,Z_HALL2_OUT,Z_HALL3_OUT,Z_C1_OUT,Z_C2_OUT,Z_C4_OUT,Z_C8_OUT,
@@ -373,7 +373,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
-"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+"charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
 "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
@@ -383,7 +383,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
 coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
 control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
-_("A Amplifier Enable"),_("Charge Pump")]
+_("A Amplifier Enable"),_("Charge Pump"),_("Force Pin True")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
 ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
@@ -1353,18 +1353,23 @@ If you have a REALLY large config that you wish to convert to this newer version
             ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.mesa1_numof_sserialports:
             ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
+        firmstring0 = firmstring1 = ""
+        if not "5i25" in self.mesa0_currentfirmwaredata[_BOARDNAME]:
+            firmstring0 = "firmware=hm2/%s/%s.BIT" % (self.mesa0_boardtitle, self.mesa0_firmware)
+        if not "5i25" in self.mesa1_currentfirmwaredata[_BOARDNAME]:
+            firmstring1 = "firmware=hm2/%s/%s.BIT" % (self.mesa1_boardtitle, self.mesa1_firmware)
         print >>file, "# [HOSTMOT2]"
-        print >>file, "# This is for info only"
+        print >>file, "# **** This is for info only ****"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
         print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
-        print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    self.mesa0_boardtitle, self.mesa0_firmware, self.mesa0_numof_encodergens, 
+        print >>file, """# CONFIG0="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    firmstring0, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0 )
         if self.number_mesa == 2:
             print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
             print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
             print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                     self.mesa1_boardtitle, self.mesa1_firmware, self.mesa1_numof_encodergens, 
+                     firmstring1, self.mesa1_numof_encodergens, 
                      self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
         print >>file
         print >>file, "[HAL]"
@@ -1888,21 +1893,17 @@ If you have a REALLY large config that you wish to convert to this newer version
 
     def connect_input(self, file):
         print >>file, "# external input signals"
-        print >>file
-        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
-            p = self['pp1Ipin%d' % pin]
-            i = self['pp1Ipin%dinv' % pin]
-            if p == UNUSED_INPUT: continue
-            if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
-            else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
-        print >>file
+
         def write_pins(pname,p,i,t):
             # for input pins
             if t == GPIOI:
                 if not p == "unused-input":
-                    pinname = self.make_pinname(self.findsignal( p )) 
-                    print >>file, "# ---",p.upper(),"---"
-                    if "sserial" in pname:
+                    pinname = self.make_pinname(pname) 
+                    print >>file, "\n# ---",p.upper(),"---"
+                    if "parport" in pinname:
+                        if i: print >>file, "net %s     <= %s-not" % (p, pinname)
+                        else: print >>file, "net %s     <= %s" % (p, pinname)
+                    elif "sserial" in pname:
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
                     else:
@@ -1914,13 +1915,14 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.halencoderinputsignames):
                        if p == sig+"-a":
                             pinname = self.make_pinname(self.findsignal( p ))
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
                             break
+        # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
@@ -1929,7 +1931,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
                     write_pins(pname,p,i,t)
+        # sserial
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                print >>file
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
@@ -1939,32 +1943,45 @@ If you have a REALLY large config that you wish to convert to this newer version
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
                         write_pins(pname,p,i,t)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.number_pports < (j+1): break
+            print >>file
+            for x in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                pname = "%sIpin%d" % (k, x)
+                p = self[pname]
+                i = self[pname+"inv"]
+                if not p == "unused-input":
+                    write_pins(pname,p,i,GPIOI)
 
     def connect_output(self, file):
-        
         print >>file, "# external output signals"
-        print >>file
-        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = self['pp1Opin%d' % pin]
-            i = self['pp1Opin%dinv' % pin]
-            if p == UNUSED_OUTPUT: continue
-            print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
-            if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
-        print >>file
+
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
             if t in (GPIOO,GPIOD):
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
-                    print >>file, "# ---",p.upper(),"---"
-                    if "sserial" in pname:
-                        print >>file, "net %s     =>  "% (p)+pinname +".out"
-                        if i: print >>file, "setp    "+pinname+".invert true"
+                    print >>file, "\n# ---",p.upper(),"---"
+                    if "parport" in pinname:
+                        if p == "force-pin-true":
+                            print >>file, "setp %s true"% (pinname)
+                        else:
+                            print >>file, "net %s %s"% (p,pinname)
                     else:
-                        print >>file, "net %s     =>  "% (p)+pinname +".out"
-                        print >>file, "setp    "+pinname +".is_output true"
-                        if i: print >>file, "setp    "+pinname+".invert_output true"
-                        if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
+                        if not "sserial" in pname:
+                            print >>file, "setp %s true"% (pinname + ".is_output")
+                            if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
+                        if p == "force-pin-true":
+                            print >>file, "setp %s true"% ((pinname + ".out"))
+                        else:
+                            print >>file, "net %s %s"% (p,(pinname + ".out"))
+                    if i: # invert pin
+                        if "sserial" in pname: ending = ".invert"
+                        elif "parport" in pinname: ending = "-invert"
+                        else: ending = ".invert_output"
+                        print >>file, "setp %s true"%  (pinname + ending )
 
             # for pwm pins
             elif t in (PWMP,PDMP,UDMU):
@@ -1972,7 +1989,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.halpwmoutputsignames):
                         if p == (sig+"-pulse"):
                             pinname = self.make_pinname(pname)
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             if t == PWMP:
                                 print >>file, "setp    "+pinname +".output-type 1"
                             if t == UDMU:
@@ -1988,7 +2005,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.haltppwmoutputsignames):
                         if p == (sig+"-a"):
                             pinname = self.make_pinname(pname) 
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
                             print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
                             print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
@@ -2000,7 +2017,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     for sig in (self.halsteppersignames):
                         if p == (sig+"-step"):
                             pinname = self.make_pinname(pname) 
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
                             print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
@@ -2012,7 +2029,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                                     gpioname = self.make_pinname(i[0],True)
                                     print >>file, "setp    "+gpioname+".invert_output true"
                             break
-
+        # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
@@ -2021,7 +2038,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
                     write_pins(pname,p,i,t,boardnum,connector,None,None,pin)
+            # mesa sserial
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                print >>file
                 port = 0
                 for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
@@ -2031,6 +2050,17 @@ If you have a REALLY large config that you wish to convert to this newer version
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
                         write_pins(pname,p,i,t,boardnum,None,port,channel,pin)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.number_pports < (j+1): break
+            print >>file
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pname = "%sOpin%d" % (k, x)
+                p = self[pname]
+                i = self[pname+"inv"]
+                if not p == "unused-output":
+                    write_pins(pname,p,i,GPIOO,None,None,None,None,None)
 
     def write_halfile(self, base):
         def writebackup(origname):
@@ -2089,17 +2119,22 @@ If you have a REALLY large config that you wish to convert to this newer version
             ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
         if self.mesa1_numof_sserialports:
             ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
+        firmstring0 = firmstring1 = ""
+        if not "5i25" in board0:
+            firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
+        if not "5i25" in board1:
+            firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"
-                    """ % ( driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"
+                    """ % ( driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0 )
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver1, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver1, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1 )
         for boardnum in range(0,int(self.number_mesa)):
             if boardnum == 1 and (board0 == board1):
                 halnum = 1
@@ -2757,7 +2792,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         else:
             # gvcp was not selected remove any existing related HAl files
             if os.path.exists(gvcp_options_filename):
-                os.remove(gvcp_options_name)
+                os.remove(gvcp_options_filename)
             if os.path.exists(gvcp_call_filename):
                 os.remove(gvcp_call_filename)
 
@@ -4988,45 +5023,43 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.data["mesa%d_currentfirmwaredata"% boardnum] = mesafirmwaredata[search]
                 break
         #print mesafirmwaredata[search]
-        self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon3tab"% boardnum].set_sensitive(1)
-        self.widgets["mesa%dcon3table"% boardnum].show()
-        self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4table"% boardnum].show() 
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i23":
+
+        self.widgets["mesa%dcon2table"% boardnum].hide()
+        self.widgets["mesa%dcon3table"% boardnum].hide()
+        self.widgets["mesa%dcon4table"% boardnum].hide()
+        self.widgets["mesa%dcon5table"% boardnum].hide()
+        self.widgets["mesa%dcon6table"% boardnum].hide()
+        self.widgets["mesa%dcon7table"% boardnum].hide()
+        self.widgets["mesa%dcon8table"% boardnum].hide()
+        self.widgets["mesa%dcon9table"% boardnum].hide()
+        self.widgets["mesa%dsserialtab1"% boardnum].hide()
+        self.widgets["mesa%dsserialtab2"% boardnum].hide()
+        self.widgets["mesa%dsserialtab3"% boardnum].hide()
+        self.widgets["mesa%dsserialtab4"% boardnum].hide()
+        currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+        if currentboard == "5i20" or currentboard == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i22":
+        if currentboard == "5i22":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()   
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "7i43":
-            self.widgets["mesa%dcon2table"% boardnum].hide()
+            self.widgets["mesa%dcon5table"% boardnum].show()
+        if currentboard == "5i25":
+            self.widgets["mesa%dcon2table"% boardnum].show()
+            self.widgets["mesa%dcon3table"% boardnum].show()
+        if currentboard == "7i43":
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "3x20":
-            self.widgets["mesa%dcon2table"% boardnum].hide()
-            self.widgets["mesa%dcon3table"% boardnum].hide()
+        if currentboard == "3x20":
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].show()
             self.widgets["mesa%dcon6table"% boardnum].show()
             self.widgets["mesa%dcon7table"% boardnum].show()
             self.widgets["mesa%dcon8table"% boardnum].show()
             self.widgets["mesa%dcon9table"% boardnum].show()
-        else:
-            self.widgets["mesa%dcon6table"% boardnum].hide()
-            self.widgets["mesa%dcon7table"% boardnum].hide()
-            self.widgets["mesa%dcon8table"% boardnum].hide()
-            self.widgets["mesa%dcon9table"% boardnum].hide()
-            self.widgets["mesa%dsserialtab1"% boardnum].hide()
-            self.widgets["mesa%dsserialtab2"% boardnum].hide()
-            self.widgets["mesa%dsserialtab3"% boardnum].hide()
-            self.widgets["mesa%dsserialtab4"% boardnum].hide()
+
 
         self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum],
             self.data["mesa%d_currentfirmwaredata"% boardnum][_FIRMWARE]))
@@ -5155,7 +5188,20 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
-                
+
+                # if the board has less then 24 pins hide the extra comboboxes
+                if firmptype == NUSED:
+                    self.widgets[p].hide()
+                    self.widgets[ptype].hide()
+                    self.widgets[pinv].hide()
+                    self.widgets[complabel].hide()
+                    firmptype = GPIOI # we cheat and now call it GPIOI just to simplify later code
+                else:
+                    self.widgets[p].show()
+                    self.widgets[ptype].show()
+                    self.widgets[pinv].show()
+                    self.widgets[complabel].show()
+
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
                 # if we are then we trick this routine into thinking the firware asked for GPIO:
@@ -7646,6 +7692,7 @@ But there is not one in the machine-named folder.."""),True)
         #print axis," encoder--",self.encoder
         self.pwmgen  = self.data.pwmgen_sig(axis)
         #print axis," pwgen--",self.pwmgen
+        pump = self.data.findsignal("charge-pump")
         w.tuneaxispage.set_current_page(axnum)
         w[axis+"tunepage"].set_sensitive(1)
 
@@ -7721,12 +7768,21 @@ But there is not one in the machine-named folder.."""),True)
         if not self.stepgen: 
             halrun.write("loadrt pid num_chan=1\n")
         self.hal_cmnds("LOAD")
-        self.hal_cmnds("READ")       
+        self.hal_cmnds("READ")
+        if pump:
+            halrun.write( "loadrt charge_pump\n")
+            halrun.write( "net enable charge-pump.enable\n")
+            halrun.write( "net charge-pump <= charge-pump.out\n")
+            halrun.write( "addf charge-pump slow\n")
         halrun.write("addf steptest.0 slow \n")
         if not self.stepgen: 
             halrun.write("addf pid.0.do-pid-calcs slow \n")
         halrun.write("addf scale_to_rpm slow \n")
         self.hal_cmnds("WRITE")
+        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "sets estop-out true\n")
+        # search and connect I/o signals needed to enable amps etc
+        self.hal_test_signals(axis)
         # for encoder signals
         if self.encoder: 
             #print self.encoder,"--",self.encoder[4:5],self.encoder[10:],self.encoder[6:7] 
@@ -7781,40 +7837,6 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter sig speed_rpm -g 0 415\n")
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
-        # set up enable output pin if used
-        temp = self.data.findsignal( "%senabled"% axis)
-        amp = self.data.make_pinname(temp)
-        if amp:
-            if "hm2" in amp:    
-                halrun.write("setp %s true\n"% (amp + ".is_output"))             
-                halrun.write("net enable %s \n"% (amp + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
-            if "parport" in amp:
-                halrun.write("    setp %s true\n" % (amp))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (amp + "-invert")) 
-        temp = self.data.findsignal( "machine-is-enabled")
-        machine_on = self.data.make_pinname(temp)
-        if machine_on:
-            if "hm2" in machine_on:    
-                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
-                halrun.write("net enable %s \n"% (machine_on + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
-            if "parport" in machine_on:
-                halrun.write("    setp %s true\n" % (machine_on ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (machine_on + "-invert")) 
-        # set up estop output if used
-        temp = self.data.findsignal( "estop-out")
-        estop = self.data.make_pinname(temp)
-        if estop:        
-            if "hm2" in estop:
-                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("net enable %s\n"%  (estop + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
         # set up PID if there is a feedback sensor and pwm. TODO add ability to test closed loop steppers
         if self.encoder and self.pwmgen:
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
@@ -7896,6 +7918,7 @@ But there is not one in the machine-named folder.."""),True)
                 setp steptest.0.dir %(dir)s
                 setp steptest.0.pause %(pause)d
                 sets enable %(enable)s
+                sets estop-out %(estop)s
             """ % {
                 'scale':self.scale,
                 'len':self.widgets[axis+"tunecurrentsteptime"].get_value(),
@@ -7912,7 +7935,8 @@ But there is not one in the machine-named folder.."""),True)
                 'velps': (self.widgets[axis+"tunevel"].get_value()/60),
                 'dir': self.widgets[axis+"tunedir"].get_active(),
                 'pause':int(self.widgets[axis+"tunepause"].get_value()),
-                'enable':self.widgets[axis+"tuneenable"].get_active()
+                'enable':self.widgets[axis+"tuneenable"].get_active(),
+                'estop':not (self.widgets[axis+"tuneenable"].get_active())
             })
         else:
             halrun.write("""  
@@ -7981,6 +8005,7 @@ But there is not one in the machine-named folder.."""),True)
 
     # openloop servo test
     def test_axis(self, axis):
+        # one needs real time, pwm gen and an encoder for open loop testing.
         if not self.check_for_rt(self):
             return
         if not self.data.findsignal( (axis + "-pwm-pulse")) or not self.data.findsignal( (axis + "-encoder-a")):
@@ -7994,87 +8019,43 @@ But there is not one in the machine-named folder.."""),True)
         fastdac = get_value(widgets["fastdac"])
         slowdac = get_value(widgets["slowdac"])
         dacspeed = widgets.Dac_speed_fast.get_active()
+        dac_scale = get_value(widgets[axis+"outputscale"])
+        max_dac = get_value(widgets[axis+"maxoutput"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
         halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))       
         self.hal_cmnds("LOAD")
-        halrun.write("loadrt steptest\n")
+        #halrun.write("loadrt steptest\n")
         halrun.write("loadusr halscope\n")
         self.hal_cmnds("READ")
         if pump:
             halrun.write( "loadrt charge_pump\n")
             halrun.write( "net enable charge-pump.enable\n")
             halrun.write( "net charge-pump <= charge-pump.out\n")
-            halrun.write( "addf charge-pump slow\n")                 
-        halrun.write("addf steptest.0 slow\n")
+            halrun.write( "addf charge-pump slow\n")
+        #halrun.write("addf steptest.0 slow\n")
         self.hal_cmnds("WRITE")
-        halrun.write("newsig enable bit\n")
-        halrun.write("sets enable false\n")
-        # set enable pin if used (output)
-        temp = self.data.findsignal( "%senable"% axis)
-        self.amp = self.data.make_pinname(temp)
-        if self.amp:
-            if "hm2_" in self.amp:    
-                halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
-                halrun.write("net enable %s\n"% (self.amp + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (self.amp + ".invert_output"))
-                self.amp = self.amp + ".out"             
-            if "parport" in self.amp:
-                halrun.write("net enable %s\n" % (self.amp ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (self.amp + "-invert"))
-            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))
-        temp = self.data.findsignal( "machine-is-enabled")
-        machine_on = self.data.make_pinname(temp)
-        if machine_on:
-            if "hm2" in machine_on:    
-                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
-                halrun.write("net enable %s \n"% (machine_on + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
-            if "parport" in machine_on:
-                halrun.write("net enable %s\n" % (machine_on ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (machine_on + "-invert"))  
+        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "sets estop-out true\n")
+        # search for pins with test signals that may be needed to enable amp
+        self.hal_test_signals(axis)
         # setup pwm generator
-        temp = self.data.findsignal( "estop-out")
-        estop = self.data.make_pinname(temp)
-        if estop:        
-            if "hm2_" in estop:
-                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("net enable %s\n"%  (estop + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-                estop = estop + ".out"
-            if "parport" in estop:
-                halrun.write("net enable %s\n" % (estop))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (estop + "-invert"))  
-            halrun.write("loadusr halmeter -s pin %s -g 0 550 330\n"%  (estop)) 
-        # set charge pump if used
-        temp = self.data.findsignal( "charge-pump")
-        pump = self.data.make_pinname(temp)
-        if pump:        
-            if "hm2_" in pump:
-                halrun.write("setp %s true\n"%  (pump + ".is_output"))    
-                halrun.write("net charge-pump %s\n"%  (pump + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (pump + ".invert_output"))
-                pump = pump + ".out"              
-            if "parport" in pump:
-                halrun.write("    net charge-pump %s\n" % (pump))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (pump + "-invert"))  
-            halrun.write( "net charge-pump %s\n"%(pump))
-            halrun.write("loadusr halmeter -s pin %s -g 0 500 330\n"%  (pump))             
-        # setup pwm generator
-        pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
-        if pwm:          
+        temp = self.data.findsignal( (axis + "-pwm-pulse"))
+        pwm = self.data.make_pinname(temp)
+        if pwm:
+            pwmtype = self.data[temp+"type"]
+            if  pwmtype == PWMP: pulsetype = 1
+            elif pwmtype == PDMP: pulsetype = 3
+            elif pwmtype == UDMU: pulsetype = 2
+            else: 
+                print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
+                return
+            halrun.write("setp %s %d \n"%  (pwm +".output-type", pulsetype))
             halrun.write("net dac %s \n"%  (pwm +".value"))
             halrun.write("net enable %s \n"%  (pwm +".enable"))
-            halrun.write("setp %s \n"%  (pwm +".scale 10"))
+            halrun.write("setp %s \n"%  (pwm +".scale %f"% dac_scale))
+            halrun.write("loadusr halmeter -s sig enable -g 0 475 330\n")
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
         # set up encoder     
@@ -8093,7 +8074,9 @@ But there is not one in the machine-named folder.."""),True)
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
         widgets.testoutputoffset.set_value(widgets[axis+"outputoffset"].get_value())
-        widgets.testenc_scale.set_value(float(enc_scale))   
+        widgets.testenc_scale.set_value(float(enc_scale))
+        widgets.fastdac.set_range(0,max_dac)
+        widgets.slowdac.set_range(0,max_dac)
         self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
@@ -8136,6 +8119,7 @@ But there is not one in the machine-named folder.."""),True)
             output = output * -1
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
+        halrun.write("sets estop-out %d\n"% ( not self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
@@ -8176,7 +8160,75 @@ But there is not one in the machine-named folder.."""),True)
             self.data.load(filename, self)
             self.widgets.druid1.set_page(self.widgets.basicinfo)
         gtk.main()
-   
+
+    def hal_test_signals(self, axis):
+        # during testing pncconf looks for pins with these signals names
+        # and connects to them so as to enable amps etc
+        # force-pin-true will just make the pin be true all the time
+        # this could be used as a temparary way to enable I/O that the
+        # specific machine needs on for the amp to work but pncconf doesn't look for.
+        halrun = self.halrun
+        def write_pins(pname,p,i,t):
+            if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
+                pinname  = self.data.make_pinname(pname)
+                if pinname:
+                    #print p, pname, i
+                    if p == "estop-out": signal = p
+                    else: signal = "enable"
+                    if "parport" in pinname:
+                        if p == "force-pin-true":
+                            halrun.write("setp %s true\n"% (pinname))
+                        else:
+                            halrun.write("net %s %s \n"% (signal,pinname))
+                    else:
+                        if not "sserial" in pname:
+                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
+                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
+                        if p == "force-pin-true":
+                            halrun.write("setp %s true\n"% ((pinname + ".out")))
+                        else:
+                            halrun.write("net %s %s \n"% (signal,(pinname + ".out")))
+                    if i: # invert pin
+                        if "sserial" in pname: ending = ".invert"
+                        elif "parport" in pinname: ending = "-invert"
+                        else: ending = ".invert_output"
+                        halrun.write("setp %s true\n"%  (pinname + ending ))
+                    return
+
+        # search everything for multiple same named signal output pins
+        # mesa mainboard
+        for boardnum in range(0,int(self.data.number_mesa)):
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
+                for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
+                    p = self.data['mesa%dc%dpin%d' % (boardnum,connector, pin)]
+                    i = self.data['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
+                    t = self.data['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
+                    if t in (GPIOO,GPIOD) and not p == "unused-output":
+                        write_pins(pname,p,i,t)
+            # mesa sserial
+            if self.data["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                port = 0
+                for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
+                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
+                        p = self.data['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
+                        i = self.data['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
+                        t = self.data['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
+                        if t in (GPIOO,GPIOD) and not p == "unused-output":
+                            write_pins(pname,p,i,t)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.data.number_pports < (j+1): break 
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pname = "%sOpin%d" % (k, x)
+                p = self.data[pname]
+                i = self.data[pname+"inv"]
+                if not p == "unused-output":
+                    write_pins(pname,p,i,None)
+
     def hal_cmnds(self,command ):
         halrun = self.halrun
         if command == "LOAD":
@@ -8212,6 +8264,11 @@ But there is not one in the machine-named folder.."""),True)
             directory1 = self.data.mesa1_currentfirmwaredata[_DIRECTORY]
             firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
+            firmstring0 = firmstring1 = ""
+            if not "5i25" in board0:
+                firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
+            if not "5i25" in board1:
+                firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = ""
             if self.data.mesa0_numof_sserialports:
@@ -8219,18 +8276,18 @@ But there is not one in the machine-named folder.."""),True)
             if self.data.mesa1_numof_sserialports:
                 ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
             elif self.data.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,\
-                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n""" % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
-                        self.data.mesa0_numof_stepgens, ssconfig0 ,directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,\
+                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n""" % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
+                        self.data.mesa0_numof_stepgens, ssconfig0, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1 ))
             elif self.data.number_mesa == 2:
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0 ))
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver1, directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
+                    driver1, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1 ))
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1

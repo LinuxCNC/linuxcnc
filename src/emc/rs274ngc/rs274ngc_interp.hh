@@ -273,6 +273,7 @@ private:
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
                           double end3);
  int enhance_block(block_pointer block, setup_pointer settings);
+ int _execute(const char *command = 0);
  int execute_binary(double *left, int operation, double *right);
  int execute_binary1(double *left, int operation, double *right);
  int execute_binary2(double *left, int operation, double *right);
@@ -321,6 +322,7 @@ private:
  int parse_line(char *line, block_pointer block,
                       setup_pointer settings);
  int precedence(int an_operator);
+ int _read(const char *command);
  int read_a(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_atan(char *line, int *counter, double *double_ptr,
@@ -458,7 +460,8 @@ private:
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
- int unwind( setup_pointer settings);   /* pointer to machine settings */
+ int unwind(setup_pointer settings);  
+ int unwind_call(int status, const char *file, int line);
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
