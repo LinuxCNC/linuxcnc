@@ -2020,7 +2020,9 @@ the same branch, here it rests for now until its clear this will be
 merged. It should go into the gcode/overview Named Parameters section.
 
 ==  Status
-ha!
+
+. the RELOAD_ON_CHANGE feature is fairly broken. Restart after
+changing a Python file.
 
 // A short survey of EMC2 execution
 // Interpreter internals access - Python view
@@ -2031,6 +2033,9 @@ For the interpreter & task Python plugins, this is required:
 
  apt-get install libboost-python1.40-dev
 
+When compiling you might notice that interpmodule.cc takes very long
+to compile, which is normal - the extensive use of C++ templates makes the
+compiler breathe heavily. 
 
 If you want to play with the configs/sim/remap/iocontrol-removed
 example, you need to install as follows:
@@ -2038,6 +2043,26 @@ example, you need to install as follows:
  apt-get unixODBC-dev libsqliteodbc sqlite3
  git clone https://code.google.com/p/pyodbc/
  sudo  python setup.py build install
+
+If you'd want to try how the Firefox SQlite manager plugin looks &
+feels as a tooltable editor, try this:
+
+. read http://code.google.com/p/sqlite-manager/wiki/XulrunnerApplication#More_details
+
+. download the zip file  'SQLiteManager 0.7.6 as XULRunner App' 
+    or whatever is the latest from http://code.google.com/p/sqlite-manager/downloads/list
+
+. Install like so:
+    sudo xulrunner --install-app /path/to/zipfile
+    This will install an app in /usr/local/lib/lazierthanthou/sqlite-manager/sqlite-manager .
+    (note this path recently change - please verify)
+
+. try the following command line with an appropriate path to the
+tooltable database, replacing <emcdir> with the path to the emc2
+configs source:
+
+  TOOL_EDITOR= firefox -app  /usr/lib/lazierthanthou/sqlite-manager/application.ini -f <emcdir>/configs/sim/remap/iocontrol-removed/tooltable.sqlite
+
 
 ==  Workarounds
 
