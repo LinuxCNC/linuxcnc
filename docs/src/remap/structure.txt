@@ -1,11 +1,16 @@
+
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
 
+
 = Extending EMC
 
+
 == Introduction: Extending the RS274NGC Interpreter by Remapping Codes
+
+foo!
 
 === A Definition: Remapping Codes
 
@@ -497,7 +502,7 @@ the first place.
 
 ====  Advanced example: Remapped codes in pure Python
 
-The `interpreter` and `emccanoǹ` modules expose most of the Interpreter
+The `interpreter` and `emccanon` modules expose most of the Interpreter
 and some Canon internals, so many things which  so far required coding in
 'C/C\+\+' can be now be done in Python.
 
@@ -665,7 +670,7 @@ complex interaction. Depending on the answer, we might continue to use the exist
 iocontrol HAL sequences, or define our own ones. 
 
 For the sake of documentation, we'll disable these  iocontrol
-sequences, and roll our own - the result will look and fell like the
+sequences, and roll our own - the result will look and feel like the
 existing interaction, but now we have complete control over them
 because they are executed in our own O-word procedure.
 
@@ -754,7 +759,7 @@ positive value; steps 3-5 would eventually be covered here (see
 to ini file settings):
 
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 O<change> sub
 (debug, change: current_tool=#<current_tool>)
@@ -809,7 +814,7 @@ This means that the corresponding iocontrol pins have no function any
 more. Therefore, we configure iocontrol to immediately acknowledge a
 change by configuring like so:
 
-[source,hal]
+[source,{hal}]
 ---------------------------------------------------------------------
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
@@ -841,7 +846,7 @@ the very beginning of the O-word procedure.
 
 Again, the iocontrol tool-prepare/tool-prepared pins would be unused
 and replaced by `motion.*` pins, so those would pins must be looped:
-[source,hal]
+[source,{hal}]
 ---------------------------------------------------------------------
 # loop prepare signals when remapping T
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
@@ -868,7 +873,7 @@ def prepare_prolog(self,**words):
 ---------------------------------------------------------------------
 
 The minimal ngc prepare procedure again looks like so:
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<prepare> sub
 ; returning a positive value to commit:
@@ -1047,7 +1052,7 @@ are available:
 
 `#<_value>`::
 	      value returned by the last procedure called. Initialized
-	      to 0.0 on startup. Exposed in Interp was `self.return_value` (float).
+	      to 0.0 on startup. Exposed in Interp as `self.return_value` (float).
 
 `#<_value_returned>`::
 	      indicates the last procedure called did `return`or
@@ -1209,7 +1214,7 @@ def retrieve_param(self, **words):
     return INTERP_OK
 ---------------------------------------------------------------------
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<testparam> sub
 (debug, call_level=#<_call_level> myname=#<myname>)
@@ -1609,7 +1614,7 @@ Let's look at a simple example program which does relative moves
 imply that the outcome of the next move relies on the position of the
 previous one:
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 N10 G91
 N20 G0 X10 Y-5 Z20
@@ -1631,7 +1636,7 @@ However, complete readahead is only possible when the
 interpreter can predict the position impact for *every* line in the
 program in advance. Let's look at a modified example:
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 N10 G91
 N20 G0 X10 Y-5 Z20
@@ -1773,15 +1778,19 @@ To see fields in the global emcStatus structure, try this:
 You need to have emc started from a terminal window to see the
 results.
 
-==== How Tx (Prepare Tool) works
+=== How Tx (Prepare Tool) works
 
-===== Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
+
+
+==== Interpreter action on a Tx command [[remap::interpreter-action-on-T]]
+
 All the interpreter does is evaluate the toolnumber paramter, looks up
 its corresponding pocket, remembers it in the `selected_pocket`
 variable for later, and  queues a canon command
 (SELECT_POCKET). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
-===== Task action on SELECT_POCKET
+==== Task action on SELECT_POCKET
+
 When task gets around to handle a SELECT_POCKET, it sends a
 EMC_TOOL_PREPARE message to the iocontrol process, which handles most
 tool-related actions in EMC.
@@ -1791,7 +1800,8 @@ complete the changer positioning operation, which is not necessary IMO
 - it defeats the idea that changer preparation and code execution can
 proceed in parallel.
 
-===== Iocontrol action on EMC_TOOL_PREPARE
+==== Iocontrol action on EMC_TOOL_PREPARE
+
 When iocontrol sees the select pocket command, it does the related HAL
 pin wiggling - it sets the "tool-prep-number" pin to indicate which
 tool is next, raises the "tool-prepare" pin, and waits for the
@@ -1801,12 +1811,13 @@ When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals task to
 continue. (again, this 'wait' istn strictly necessary IMO)
 
-===== Building the prolog and epilog for Tx
+==== Building the prolog and epilog for Tx
+
 See the Python functions `prepare_prolog` and `prepare_epilog` in 
 `configs/sim/remap/toolchange/python/toolchange.py`. 
 
 
-==== How M6 (Change tool) works
+=== How M6 (Change tool) works
 
 You need to understand this fully before you can adapt it. It is very
 relevant to writing a prolog and epilog handler for a remapped
@@ -1818,7 +1829,7 @@ Even if you are not familiar with C, I suggest you look at the
 'Interp::convert_tool_change' code in
 'src/emc/rs274/interp_convert.cc'.
 
-===== Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
+==== Interpreter action on a M6 command [[remap::interpreter-action-on-M6]]
 When the interpreter sees an M6, it:
 
 . checks wether a T command has already been executed (test
@@ -1841,12 +1852,12 @@ parameter. CHANGE_TOOL will:
 . signal to task to stop calling the interpreter for readahead by
 returning INTERP_EXECUTE_FINISH since M6 is a queue buster.
 
-===== What task does when it sees a CHANGE_TOOL command
+==== What task does when it sees a CHANGE_TOOL command
 Again, not much more than passing the buck to iocontrol by sending it
 an EMC_TOOL_LOAD message, and waiting until iocontrol has done its
 thing.
 
-===== Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
+==== Iocontrol action on EMC_TOOL_LOAD [[remap::iocontrol-action-on-load]]
 
 . it asserts the "tool-change" pin
 . it waits for the "tool-changed" pin to become active
@@ -1871,15 +1882,15 @@ needed, among it the changed tool table.
 From there on, the interpreter has complete  knowledge of the world
 model and continues with readahead.
 
-===== Building the prolog and epilog for M6
+==== Building the prolog and epilog for M6
 See the Python functions `change_prolog` and `change_epilog` in 
 `configs/sim/remap/toolchange/python/toolchange.py`. 
 
-==== How M61 (Change tool number) works
+=== How M61 (Change tool number) works
 M61 requires a non-negative `Q`parameter (tool number). If zero, this
 means 'unload tool', else 'set current tool number to Q'. 
 
-===== Building the replacement for M61
+==== Building the replacement for M61
 An example Python redefinition for M61 can be found in the
 `set_tool_number` function in 
 `configs/sim/remap/toolchange/python/toolchange.py`. 
@@ -1891,8 +1902,11 @@ There are some interpreter features in this branch which are
 experimental, and not backwards compatible, which is why they need to
 be enabled explicitly. They are specified as follows:
 
+[source,{ini}]
+---------------------------------------------------------------------
   [RS274NGC]
   FEATURES = <feature mask>
+---------------------------------------------------------------------
 
 Mask bits are:
 

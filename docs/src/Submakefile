@@ -326,6 +326,7 @@ DOC_SRCS := \
 	quickstart/stepper_quickstart_de.txt \
 	quickstart/stepper_quickstart_es.txt \
 	quickstart/stepper_quickstart_fr.txt \
+	remap/structure.txt \
 	Getting_Started.txt \
 	Getting_Started_de.txt \
 	Getting_Started_es.txt \
@@ -342,8 +343,7 @@ DOC_SRCS := \
 	Master_Integrator_de.txt \
 	Master_Integrator_es.txt \
 	Master_Integrator_fr.txt \
-	Master_Developer.txt \
-	remap/structure.txt
+	Master_Developer.txt 
 
 
 # DOC_SRCS_TXT := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
