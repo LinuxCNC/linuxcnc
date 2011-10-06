@@ -68,7 +68,7 @@ def latex(txt, block=False):
     if r: raise RuntimeError("Compilation failed")
 
 def substitute(f):
-    xml = ET.parse(open(f))
+    xml = ET.parse(open(f), ET.HTMLParser())
     images = 0
     for e in xml.xpath('//xhtml:span[@class="latexmath"]', namespaces=nsmap):
         images += build_img(f, e, block=False)
@@ -77,7 +77,7 @@ def substitute(f):
     if not images: return
     print "Added %d images" % images
     fp = open(f + ".math", 'w')
-    fp.write(ET.tostring(xml, method="html", pretty_print=True, xml_declaration=False, encoding="utf-8"))
+    fp.write(ET.tostring(xml, pretty_print=True, xml_declaration=False, encoding="utf-8"))
     fp.close()
     os.unlink(f)
     #os.rename(f, f + ".pre-math")
