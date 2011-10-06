@@ -644,6 +644,9 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	done
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
+	mkdir -p objects/image-cache
+	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
+				(X=$$?; rm $@; exit $$X)
 
 #$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 #	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
