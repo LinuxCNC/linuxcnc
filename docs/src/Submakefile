@@ -651,6 +651,9 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	done
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
+	mkdir -p objects/image-cache
+	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
+				(X=$$?; rm $@; exit $$X)
 
 # rebuild source-highlight/local/lang.map if needed - note this will cause a major rebuild
 # unsure how to do this as Submakefile -mah

@@ -1181,8 +1181,9 @@ Spinbox controls a FLOAT pin.
 \newline
     <min_>-12</min_>
 \newline
-    <max_>33</max_
->
+    <max_>33</max_>
+\newline
+    <inival>0</inival>
 \newline
     <resolution>0.1</resolution>
 \newline

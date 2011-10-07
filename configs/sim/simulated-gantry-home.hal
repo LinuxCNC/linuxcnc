@@ -1,0 +1,47 @@
+
+loadrt comp count=4
+loadrt or2 count=1
+
+# Joint 0 = X axis, home switch is on negative end
+# Joint 1 = Y1 axis, home switch is on negative end
+# Joint 2 = Z axis, home switch is on positive end
+# Joint 3 = Y2 axis, home switch is on negative end
+net J0homeswpos => comp.0.in1
+net J1homeswpos => comp.1.in1
+net J2homeswpos => comp.2.in0
+net J3homeswpos => comp.3.in1
+
+sets J0homeswpos -0.1
+sets J1homeswpos -0.1
+sets J2homeswpos 0.1
+sets J3homeswpos -0.1
+
+net J0pos => comp.0.in0
+net J1pos => comp.1.in0
+net J2pos => comp.2.in1
+net J3pos => comp.3.in0
+
+setp comp.0.hyst .02
+setp comp.1.hyst .02
+setp comp.2.hyst .02
+setp comp.3.hyst .02
+
+# the X and Z joints share a home switch
+# the Y joints each have their own home switches
+net J0homesw <= comp.0.out
+net J1homesw <= comp.1.out => axis.1.home-sw-in
+net J2homesw <= comp.2.out
+net J3homesw <= comp.3.out => axis.3.home-sw-in
+
+net J0homesw => or2.0.in0
+net J2homesw => or2.0.in1
+net J0.J1homesw or2.0.out => axis.0.home-sw-in axis.2.home-sw-in
+
+
+addf comp.0 servo-thread
+addf comp.1 servo-thread
+addf comp.2 servo-thread
+addf comp.3 servo-thread
+
+addf or2.0 servo-thread
+
