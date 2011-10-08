@@ -4,9 +4,9 @@ import emccanon
 
 try:
     import emctask
-    print "plugins: milltask=",os.getpid()
+    print "toplevel: milltask=",os.getpid()
 except ImportError:
-    print "plugins: axis=",os.getpid()
+    print "toplevel: axis=",os.getpid()
     pass
 
 
