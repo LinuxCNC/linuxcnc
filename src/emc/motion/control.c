@@ -758,8 +758,9 @@ static void check_for_faults(void)
 
 static void set_operating_mode(void)
 {
-    int joint_num;
+    int joint_num, axis_num;
     emcmot_joint_t *joint;
+    emcmot_axis_t *axis;
     joint_hal_t *joint_data;
     double positions[EMCMOT_MAX_JOINTS];
 
@@ -784,6 +785,15 @@ static void set_operating_mode(void)
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
 	}
+
+	for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+	    /* point to axis data */
+	    axis = &axes[axis_num];
+	    /* disable teleop mode planner */
+	    axis->teleop_tp.enable = 0;
+	    axis->teleop_tp.curr_vel = 0.0;
+        }
+
 	SET_MOTION_ENABLE_FLAG(0);
 	/* don't clear the motion error flag, since that may signify why we
 	   just went into disabled state */
