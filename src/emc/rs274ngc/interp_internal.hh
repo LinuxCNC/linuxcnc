@@ -458,7 +458,7 @@ typedef struct setup_struct
   int defining_sub;                  // true if in a subroutine defn
   char *sub_name;                    // name of sub we are defining (free this)
   int doing_continue;                // true if doing a continue
-  //int doing_break;                 // true if doing a break
+  int doing_break;                   // true if doing a break
   int executed_if;                   // true if executed in current if
   char *skipping_o;                  // o_name we are skipping for (or zero)
   char *skipping_to_sub;             // o_name of sub skipping to (or zero)
