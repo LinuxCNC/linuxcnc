@@ -664,7 +664,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	  // test the condition
 
-	  if(settings->test_value != 0.0)
+	  if (settings->test_value != 0.0)
 	    {
 	      // true
 	      // execute forward
@@ -686,7 +686,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	{
 	  // this is the end of a 'do'
 	  // test the condition
-	  if(settings->test_value != 0.0)
+	    if ((settings->test_value != 0.0) && !_setup.doing_break)
 	    {
 	      // true
 	      // loop on back
@@ -699,6 +699,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      // false
 	      logDebug("not looping back to: [%s] in 'do while'",
 		       block->o_name);
+	      _setup.doing_break = 0;
 	    }
 	}
       
@@ -830,7 +831,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       if(settings->skipping_o)free(settings->skipping_o);
       settings->skipping_o = strdup(block->o_name);
       settings->skipping_start = settings->sequence_number;
-      //settings->doing_break = 1;
+      settings->doing_break = 1;
       logDebug("start skipping forward: [%s] in 'break'",
 	      block->o_name);
       break;
