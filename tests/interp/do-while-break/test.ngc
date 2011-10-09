@@ -1,0 +1,30 @@
+
+#<one_pass> = 0
+
+o100 do
+    (debug,must-execute-outer)
+    #<one_pass> = [#<one_pass> + 1]
+    #<two_pass> = 0
+    o200 do
+        (debug,must-execute-nested)
+        #<two_pass> = [#<two_pass> + 1]
+        #<three_pass> = 0
+	o300 do
+            (debug,must-execute-inner)
+            #<three_pass> = [#<three_pass> + 1]
+	o300 break
+	     (debug,do-not-execute-inner)
+        o300 while [#<three_pass> LT 3]
+	(debug,post-inner-while)
+
+    o200 break
+        (debug,do-not-execute-nested)
+    o200 while [#<two_pass> LT 3]
+    (debug,post-nested-while)
+
+o100 break
+    (debug,do-not-execute-outer)
+o100 while [#<one_pass> LT 3]
+(debug,post-outer-while)
+
+M2
