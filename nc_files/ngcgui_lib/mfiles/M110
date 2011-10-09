@@ -9,9 +9,9 @@
 # the pin for axisui.notifications-clear-info is in emc-2.4pre
 # using an earlier version will print error to stdout
 
-eval halcmd setp axisui.notifications-clear-info 1
+halcmd setp axisui.notifications-clear-info 1
 sleep .100 ;# requires a sleep that does <1
-eval halcmd setp axisui.notifications-clear-info 0
+halcmd setp axisui.notifications-clear-info 0
 
 # if a M1nn command fails and its script exits with nonzero status,
 # the gcode program exits.  So always exit 0, and make sure
