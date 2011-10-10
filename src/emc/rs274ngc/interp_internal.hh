@@ -385,7 +385,7 @@ typedef struct block_struct
   long     offset;   // start of line in file
   int      o_type;
   int      o_number;
-  char    *o_name;   // !!!KL be sure to free this
+  const char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
 
   // bitmap of steps already executed
@@ -488,8 +488,8 @@ struct nocase_cmp
 typedef struct context_struct {
   long position;       // location (ftell) in file
   int sequence_number; // location (line number) in file
-  char *filename;      // name of file for this context
-  char *subName;       // name of the subroutine (oword)
+  const char *filename;      // name of file for this context
+  const char *subName;       // name of the subroutine (oword)
   double saved_params[INTERP_SUB_PARAMS];
   struct named_parameters_struct named_parameters;
   unsigned char context_status;		// see CONTEXT_ defines below
@@ -508,9 +508,9 @@ typedef context *context_pointer;
 // !!!KL ???use the index to this as a surrogate for the o-word text
 typedef struct offset_struct {
   int o_word;
-  char *o_word_name; // or zero
+  const char *o_word_name; // or zero
   int type;
-  char *filename;  // the name of the file
+  const char *filename;  // the name of the file
   long offset;     // the offset in the file
   int sequence_number;
   int repeat_count;
@@ -640,12 +640,12 @@ typedef struct setup_struct
 
   /* stuff for subroutines and control structures */
   int defining_sub;                  // true if in a subroutine defn
-  char *sub_name;                    // name of sub we are defining (free this)
+  const char *sub_name;                    // name of sub we are defining (free this)
   int doing_continue;                // true if doing a continue
   int doing_break;                   // true if doing a break
   int executed_if;                   // true if executed in current if
-  char *skipping_o;                  // o_name we are skipping for (or zero)
-  char *skipping_to_sub;             // o_name of sub skipping to (or zero)
+  const char *skipping_o;                  // o_name we are skipping for (or zero)
+  const char *skipping_to_sub;             // o_name of sub skipping to (or zero)
   int skipping_start;                // start of skipping (sequence)
   double test_value;                 // value for "if", "while", "elseif"
   double return_value;               // optional return value for "return", "endsub"

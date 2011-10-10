@@ -1581,7 +1581,8 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  logDebug("not defining_sub:|%s|", subName);
 	}
       sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
-      block->o_name = strdup(fullNameBuf);
+      // block->o_name = strdup(fullNameBuf); FIXME mah
+      block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
 

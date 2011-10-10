@@ -1617,7 +1617,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
               _setup.blocktext, &_setup.line_length);
 
   if (read_status == INTERP_ERROR && _setup.skipping_to_sub) {
-    free(_setup.skipping_to_sub);
+      // free(_setup.skipping_to_sub);
     _setup.skipping_to_sub = 0;
   }
 
@@ -1765,11 +1765,49 @@ int Interp::reset()
   //
   // initialization stuff for subroutines and control structures
 
-    _setup.linetext[0] = 0;
-    _setup.blocktext[0] = 0;
-    _setup.line_length = 0;
-    unwind_call(INTERP_OK, __FILE__,__LINE__);
-    return INTERP_OK;
+  for(; _setup.call_level > 0; _setup.call_level--) {
+    int i;
+    context * sub = _setup.sub_context + _setup.call_level - 1;
+    free_named_parameters(&_setup.sub_context[_setup.call_level]);
+    if(sub->subName) {
+	// FIXME mah free(sub->subName);
+      sub->subName = 0;
+    }
+
+    for(i=0; i<INTERP_SUB_PARAMS; i++) {
+      _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+        sub->saved_params[i];
+    }
+
+    // When called from Interp::close this one is NULL
+    if (!_setup.file_pointer) continue;
+
+    if(0 != strcmp(_setup.filename, sub->filename)) {
+      fclose(_setup.file_pointer);
+      _setup.file_pointer = fopen(sub->filename, "r");
+
+      strcpy(_setup.filename, sub->filename);
+    }
+
+    fseek(_setup.file_pointer, sub->position, SEEK_SET);
+
+    _setup.sequence_number = sub->sequence_number;
+  }
+  if(_setup.sub_name) {
+      //free(_setup.sub_name);
+    _setup.sub_name = 0;
+  }
+  _setup.call_level = 0;
+  _setup.defining_sub = 0;
+  _setup.skipping_o = 0;
+  _setup.oword_labels = 0;
+
+  _setup.mdi_interrupt = false;
+  _setup.return_value = 0;
+
+  qc_reset();
+
+  return INTERP_OK;
 }
 
 /***********************************************************************/
