@@ -470,15 +470,15 @@ public:
   setup_pointer settings);   /* pointer to machine settings */
 
  // establish a new subroutine context
- int enter_context(setup_pointer settings, int start_state);
+ int enter_context(setup_pointer settings, const char *name, int call_type);
  // leave current subroutine context
  int leave_context(setup_pointer settings, bool restore = true);
 
- int call_fsm(setup_pointer settings, int event);
- int execute_pycall(setup_pointer settings, const char *name, int call_phase);
- int execute_call(setup_pointer settings, int what);   // pointer to machine settings
- int execute_return(setup_pointer settings, int what);   // pointer to machine settings
-    int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
+    //int call_fsm(setup_pointer settings, int event);
+    //int execute_pycall(setup_pointer settings, const char *name, int call_phase);
+ int execute_call(setup_pointer settings, context_pointer current_frame, int call_type, int call_state);  
+ int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type, int call_state);  
+    //int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
     int handler_returned( setup_pointer settings, 
 			  context_pointer active_frame, const char *name, bool osub);
 int read_inputs(setup_pointer settings);

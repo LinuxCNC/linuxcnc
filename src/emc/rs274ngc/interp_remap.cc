@@ -105,7 +105,7 @@ int Interp::convert_remapped_code(block_pointer block,
     if (remap->argspec && (strchr(remap->argspec, '@') != NULL)) {
     	// append a positional argument list instead of local variables
     	// if user specified '@'
-	// named local params are dealt with in execute_remap() when 
+	// named local params are dealt with in execute_call() when 
 	// the new call frame is fully established
     	CHP(add_parameters(settings, cblock, &cmd[strlen(cmd)]));
     }
@@ -118,7 +118,7 @@ int Interp::convert_remapped_code(block_pointer block,
     // good to go, pass to o-word call handling mechanism
     status = read(cmd);
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
-    eblock->o_fsm_state = CS_CALL_REMAP;  // starting state for call_fsm()
+    eblock->call_type = CT_REMAP; 
 
     CHKS(status != INTERP_OK,
 	 "convert_remapped_code: inital read returned %s",

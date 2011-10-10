@@ -142,8 +142,6 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_return   13
 #define O_repeat   14
 #define O_endrepeat 15
-#define O_continue_call   16 // signal Python generator reexecution
-#define O_pyreturn   17 // signal Python return after generator reexecution
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -440,8 +438,8 @@ typedef struct block_struct
   // control (o-word) stuff
   long     offset;   // start of line in file
   int      o_type;
+    int      call_type; // oword-sub, python oword-sub, remap
   const char    *o_name;   // !!!KL be sure to free this
-  int o_fsm_state; // starting state for call_fsm() - remap, Python or NGC sub
   double   params[INTERP_SUB_PARAMS];
   int param_cnt;
 
@@ -473,31 +471,25 @@ typedef struct block_struct
 }
 block;
 
+// indicates which type of Python handler yielded, and needs reexecution
+// post sync/read_inputs
+
 enum call_states {
-    CS_START,
-    CS_CALL_PROLOG,
-    CS_CONTINUE_PROLOG,
-    CS_CALL_BODY,
-    CS_EXECUTING_BODY,
-    CS_CALL_EPILOG,
-    CS_CONTINUE_EPILOG,
-    CS_CALL_PYBODY,
-    CS_CONTINUE_PYBODY,
-    CS_CALL_PY_OSUB,
-    CS_CONTINUE_PY_OSUB,
-    CS_CALL_REMAP,
-    CS_DONE
+    CS_DONE,  // signal end of rexecution phase - no furthere re-calls of this block
+    CS_NORMAL,
+    CS_REEXEC_PROLOG,
+    CS_REEXEC_PYBODY,
+    CS_REEXEC_EPILOG,
+    CS_REEXEC_PYOSUB,
+};
+// detail for O_call; tags the frame
+enum call_types {
+    CT_NGC_OWORD_SUB,    // no restartable Python code involved
+    CT_PYTHON_OWORD_SUB, // restartable Python code may be involved
+    CT_REMAP,            // restartable Python code  may be involved
 };
 
-    enum entrypoints {
-	NONE, 
-	NORMAL_CALL, 
-	NORMAL_RETURN,
-	FINISH_OWORDSUB,
-	FINISH_BODY,
-	FINISH_EPILOG,
-	FINISH_PROLOG
-    };
+
 enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION};
 
 typedef block *block_pointer;
@@ -539,7 +531,7 @@ typedef struct context_struct {
     int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-    int frame_type; // O_remap, O_call, O_pycall
+    int context_type; // enum call_types
 
     // Python-related stuff
     boost::python::object tupleargs; // the args tuple for Py functions
@@ -704,9 +696,8 @@ typedef struct setup_struct
   int value_returned;                // the last NGC procedure did/did not return a value
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
-    int fsm_state;                   // state of the call FSM - enum call_states - call execution state machine
+  int call_state;                  //  enum call_states - inidicate Py handler reexecution
   offset_map_type offset_map;      // store label x name, file, line
-  bool skip_read;                  // suppress next read() while continung handlers
 
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled
@@ -732,8 +723,15 @@ typedef struct setup_struct
 
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
+  int feature_set; 
 
-    int retain_g43;  // experimental
+#define FEATURE(x) (_setup.feature_set & FEATURE_ ## x)
+#define FEATURE_RETAIN_G43           0x00000001
+#define FEATURE_OWORD_N_ARGS         0x00000002
+#define FEATURE_INI_VARS             0x00000004
+#define FEATURE_HAL_PIN_VARS         0x00000008
+
+
     interp_ptr pythis;  // shared_ptr representation of 'this'
 
     const char *on_abort_command;

@@ -3012,9 +3012,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   // needs more testing.. once? test tool_change_flag!
   //#ifdef DEBATABLE
-  if (settings->retain_g43) {
+  if (FEATURE(RETAIN_G43)) {
     // I consider this useful, so make it configurable.
-    // Turn it on with RS274NGC/RETAIN_G43=1 . -mah
+    // Turn it on optionally . -mah
 
     // I would like this, but it's a big change.  It changes the
     // operation of legal ngc programs, but it could be argued that

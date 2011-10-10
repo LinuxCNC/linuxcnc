@@ -208,63 +208,6 @@ const char * _entrynames[] = {
 	"FINISH_PROLOG"
 };
 
-// int Interp::mopup_handlers()
-// {
-//     int status = INTERP_OK;
-
-//     block_pointer cblock = &CONTROLLING_BLOCK(_setup);
-//     block_pointer eblock = &EXECUTING_BLOCK(_setup);
-
-//     logRemap("--->> mopup_handlers: %s", _entrynames[cblock->entry_at]);
-
-//     switch (cblock->entry_at) {
-
-//     case FINISH_PROLOG:
-// 	status = execute_call(&_setup,cblock->entry_at);
-// 	// if (status == INTERP_OK)  
-// 	//     cblock->entry_at = FINISH_BODY;
-// 	// if ((status == INTERP_OK) && 
-// 	//     (cblock->executing_remap->remap_py != NULL)) {
-// 	//     // a prolog was restarted and finished, and a Python body
-// 	//     // finished as well.
-
-// 	//     //if ( _setup.mdi_interrupt) logRemap("---- clearing MDIinterrupt");
-// 	//     // _setup.mdi_interrupt = false;
-// 	//     // eblock->o_name  = NULL;
-// 	// }
-// 	break;
-
-//     case FINISH_OWORDSUB:
-// 	// notyet
-// 	break;
-
-//     case FINISH_BODY:
-// 	status = execute_call(&_setup,cblock->entry_at);
-// 	if ((status == INTERP_OK) && 
-// 	    (cblock->executing_remap->epilog_func == NULL)) {
-// 	    // we finished a Python body function with OK. No epilog.
-// 	    // if executing a remapped code under MDI, mark this call as done
-// 	    _setup.mdi_interrupt = false;
-// 	    eblock->o_name  = NULL;
-// 	}
-// 	break;
-	
-//     case FINISH_EPILOG:
-// 	status = execute_return(&_setup,cblock->entry_at);
-// 	if (status == INTERP_OK) {
-// 	    block_pointer eblock = &EXECUTING_BLOCK(_setup);
-
-// 	    // if executing a remapped code under MDI, mark this call as done
-// 	    _setup.mdi_interrupt = false;
-// 	    eblock->o_name  = NULL;
-// 	}
-// 	break;
-//     default: ;
-//     }
-//     logRemap("<<--- mopup_handlers: status=%d next=%s", status,_entrynames[cblock->entry_at]);
-
-//     return status;
-// }
 
 /***********************************************************************/
 
@@ -295,33 +238,58 @@ int Interp::_execute(const char *command)
   int MDImode = 0;
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
   block_pointer cblock = &CONTROLLING_BLOCK(_setup);
-  extern const char *call_phases[];
+  extern const char *call_statenames[];
+  extern const char *call_typenames[];
+  extern const char *o_ops[];
 
-  logDebug("execute: command=%s mdi_int=%d E:o_name=%s cl=%d rl=%d callstate=%s",
-	   command, _setup.mdi_interrupt, eblock->o_name,
-	   _setup.call_level,_setup.remap_level, call_phases[_setup.fsm_state]);
+
 
   if (NULL != command) {
     MDImode = 1;
     status = read(command);
     if (status != INTERP_OK) {
-	if (status > INTERP_MIN_ERROR) {
-	    logRemap("-- clearing remap stack (current level=%d) due to read(%s) status %s MDImode=%d",
-		    _setup.remap_level,command, interp_status(status),MDImode);
+	if (status > INTERP_MIN_ERROR) 
 	    _setup.remap_level = 0;
-	}
-      return status;
+	return status;
     }
   }
+  logDebug("execute: command=%s M=%d  mdi_int=%d o_type=%s o_name=%s cl=%d rl=%d type=%s state=%s",
+	   command, MDImode, _setup.mdi_interrupt, o_ops[eblock->o_type], eblock->o_name,
+	   _setup.call_level,_setup.remap_level, 
+	   eblock->call_type < 0 ? "*unset*" : call_typenames[eblock->call_type], 
+	   call_statenames[_setup.call_state]);
+
+// 223 
+//  224   logDebug("MDImode = 1");
+//  225   logDebug("Interp::execute(%s)", command);
+//  226   // process control functions -- will skip if skipping
+//  227   //  if (_setup.block1.o_number != 0)
+//  228   if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt))
+//  229     {
+//  230       logDebug("Convert control functions");
+//  231       CHP(convert_control_functions(&(_setup.block1), &_setup));
+//  232 
+//  233 #if 1
+//  234       // let MDI code call subroutines.
+//  235       // !!!KL not clear what happens if last execution failed while in
+//  236       // !!!KL a subroutine
+//  237 
+//  238       // NOTE: the last executed file will still be open, because "close"
+//  239       // is really a lazy close.
+//  240     
+//  241       if (_setup.mdi_interrupt) {
+//  242           _setup.mdi_interrupt = false;
+//  243           MDImode = 1;
+//  244       }
+//  245       logDebug("!!!KL Open file is:%s:", _setup.filename);
+//  246       logDebug("MDImode = %d", MDImode);
+//  247       while(MDImode && _setup.call_level) // we are still in a subroutine
 
   // process control functions -- will skip if skipping
-  if ((eblock->o_name != 0) ||
-      (_setup.mdi_interrupt))  {
+  if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
-      _setup.mdi_interrupt = (status == INTERP_EXECUTE_FINISH);  // a yielding handler might return INTERP_EXECUTE_FINISH too
+      //  _setup.mdi_interrupt = (status == INTERP_EXECUTE_FINISH);  
       if (status > INTERP_MIN_ERROR) {
-	  logRemap("-- clearing remap stack (current level=%d) due to convert_control_functions() status %s, blocktext='%s' MDImode=%d", //FIXME improve msg
-		   _setup.remap_level, interp_status(status), _setup.blocktext,MDImode);
 	  _setup.remap_level = 0;
       }
       CHP(status); // relinquish control if INTERP_EXCUTE_FINISH, INTERP_ERROR etc
@@ -337,6 +305,11 @@ int Interp::_execute(const char *command)
       if (_setup.mdi_interrupt) {
 	  _setup.mdi_interrupt = false;
 	  MDImode = 1;
+      }
+      // 
+      if (_setup.call_state == CS_DONE) {
+      	  _setup.call_state = CS_NORMAL;
+	  //  MDImode = 1;
       }
       logDebug("!!!KL Open file is:%s:", _setup.filename);
       logDebug("MDImode = %d", MDImode);
@@ -556,13 +529,7 @@ int Interp::execute(const char *command, int line_number)
     int status;
 
     _setup.sequence_number = line_number;
-    logDebug("--> execute(%s) remap remap_level=%d call_level=%d  mdi_interrupt=%d",
-	    command == NULL ? "NULL" : command,
-	    _setup.remap_level,_setup.call_level,_setup.mdi_interrupt);
     status = Interp::execute(command);
-    logDebug("<-- execute() remap remap_level=%d call_level=%d status=%s mdi_interrupt=%d",
-	    _setup.remap_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
-
     if (status > INTERP_MIN_ERROR) {
 	_setup.remap_level = 0;
 	_setup.call_level = 0;
@@ -571,7 +538,7 @@ int Interp::execute(const char *command, int line_number)
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
 	(_setup.mdi_interrupt)) {
-	logRemap("<-- execute() clearing mdi_interrupt");
+	logRemap("<----------------------------------------------------------- execute() clearing mdi_interrupt");
 	_setup.mdi_interrupt = false;  // seems to work ok! FIXME mah
     }
     return status;
@@ -793,8 +760,7 @@ int Interp::init()
   _setup.return_value = 0;
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
-  _setup.skip_read = false;
-  _setup.fsm_state = CS_START; // reset call state machine
+  _setup.call_state = CS_NORMAL;
 
   if(iniFileName != NULL) {
 
@@ -812,7 +778,7 @@ int Interp::init()
           inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_4");
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_5");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-          inifile.Find(&_setup.retain_g43, "RETAIN_G43", "RS274NGC");
+          inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
 
           inifile.Find(&_setup.a_indexer, "LOCKING_INDEXER", "AXIS_3");
           inifile.Find(&_setup.b_indexer, "LOCKING_INDEXER", "AXIS_4");
@@ -1275,37 +1241,39 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
 
 int Interp::read_inputs(setup_pointer settings)
 {
-  if (settings->probe_flag) {
-    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
-        NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
-    set_probe_data(&_setup);
-    settings->probe_flag = false;
-  }
-  if (settings->toolchange_flag) {
-    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
-         _("Queue is not empty after tool change"));
-    refresh_actual_position(&_setup);
-    load_tool_table();
-    settings->toolchange_flag = false;
-  }
-  // always track toolchanger-fault and toolchanger-reason codes
-  settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
-  settings->parameters[5601] = GET_EXTERNAL_TC_REASON();
-
-  if (settings->input_flag) {
-    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
-        NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
-    if (settings->input_digital) { // we are checking for a digital input
-	settings->parameters[5399] =
-	    GET_EXTERNAL_DIGITAL_INPUT(settings->input_index,
-				      (settings->parameters[5399] != 0.0));
-    } else { // checking for analog input
-	settings->parameters[5399] =
-	    GET_EXTERNAL_ANALOG_INPUT(settings->input_index, settings->parameters[5399]);
+    logDebug("read_inputs probe=%d input=%d toolchange=%d",
+	     settings->probe_flag, settings->toolchange_flag, settings->input_flag);
+    if (settings->probe_flag) {
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
+	set_probe_data(&_setup);
+	settings->probe_flag = false;
     }
-    settings->input_flag = false;
-  }
-  return INTERP_OK;
+    if (settings->toolchange_flag) {
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     _("Queue is not empty after tool change"));
+	refresh_actual_position(&_setup);
+	load_tool_table();
+	settings->toolchange_flag = false;
+    }
+    // always track toolchanger-fault and toolchanger-reason codes
+    settings->parameters[5600] = GET_EXTERNAL_TC_FAULT();
+    settings->parameters[5601] = GET_EXTERNAL_TC_REASON();
+
+    if (settings->input_flag) {
+	CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+	     NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
+	if (settings->input_digital) { // we are checking for a digital input
+	    settings->parameters[5399] =
+		GET_EXTERNAL_DIGITAL_INPUT(settings->input_index,
+					   (settings->parameters[5399] != 0.0));
+	} else { // checking for analog input
+	    settings->parameters[5399] =
+		GET_EXTERNAL_ANALOG_INPUT(settings->input_index, settings->parameters[5399]);
+	}
+	settings->input_flag = false;
+    }
+    return INTERP_OK;
 }
 
 /***********************************************************************/
@@ -1382,12 +1350,53 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   }
 #endif
 
-  if (_setup.skip_read) {
-      logOword("read(): skip_read");
+  // Support for restartable Python handlers during Auto mode
+  // Conceptually a O_call or O_endsub/O_return block might need to be executed several
+  // times in a row until it finally returns INTERP_OK, the reason being that all Python
+  // procedures might 'yield INTERP_EXECUTE_FINISH' or execute a queue buster an arbitrary number
+  // of times. So they need to be called again post-sync and post-read-input possibly several times.
+  // 
+  // the task readahead logic assumes a block execution may result in a single INTERP_EXECUTE_FINISH
+  // and readahead is started therafter immediately. Modifying the readahead logic would be a massive
+  // change. Therefore we use the trick to suppress reading the next block as required, which means
+  // we will get several calls to execute() in a row which are used to finish the handlers. This is
+  // needed for remapped codes which might involve up to three Python handlers, and Python oword subs.
+  // Note this is not an issue for NGC oword procedures. The call/return logic will set _setup.call_state to
+  // CS_REEXEC_PROLOG, CS_REEXEC_PYBODY, CS_REEXEC_EPILOG or CS_REEXEC_PYOSUB before returning, which 
+  // also indicates the point which handler needs to be restarted
+  // 
+  // We use the following conditions to 'skip reading the next block and stay on the same block' 
+  // until done as follows:
+  // 
+  // 1. block.o_type = O_call and
+  //    block.call_type in {CT_PYTHON_OWORD_SUB, CT_REMAP} and
+  //    _setup.call_state > CS_NORMAL
+  // 
+  // 2. block.o_type in {O_endsub, O_return} and
+  //    block.call_type in {CT_PYTHON_OWORD_SUB, CT_REMAP} and
+  //    _setup.call_state > CS_NORMAL
+  // 
+  // handlers eventually return INTERP_OK, which sets _setup.call_state to CS_NORMAL. Then
+  // normal readahead continues.
+  // A call frame is tagged with the eblock->call_type since this potentially needs to persist across
+  // several blocks. Inside the execute_call()/execute_return() logic we use the frame call type
+  // to decide what to do.
+  // The handler reexec code will call read_inputs() just before continuation.
+   
+  block_pointer eblock = &EXECUTING_BLOCK(_setup);
+
+  if ((_setup.call_state > CS_NORMAL) && 
+      (eblock->call_type > CT_NGC_OWORD_SUB)  && 
+      ((eblock->o_type == O_call) ||
+       (eblock->o_type == O_return) ||
+       (eblock->o_type == O_endsub))) {
+
+      logDebug("read(): -------------------------------------------------------------- skip_read");
       _setup.line_length = 0;
       _setup.linetext[0] = 0;
       return INTERP_OK;
   }
+  _setup.call_state = CS_NORMAL;
   CHP(read_inputs(&_setup));
 
 
@@ -1554,7 +1563,7 @@ int Interp::reset()
   _setup.linetext[0] = 0;
   _setup.blocktext[0] = 0;
   _setup.line_length = 0;
-  _setup.fsm_state = CS_START; // reset call state machine
+  _setup.call_state = CS_NORMAL;
   //!!!KL According to the comment,
   //!!!KL this should not be here because this is for
   //!!!KL more than one line.

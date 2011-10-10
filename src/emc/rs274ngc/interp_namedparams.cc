@@ -222,9 +222,10 @@ int Interp::find_named_param(
 
   pi = frame->named_params.find(nameBuf);
   if (pi == frame->named_params.end()) { // not found
-      int exists;
+      int exists = 0;
       double inivalue;
-      CHP(fetch_ini_param(nameBuf, &exists, &inivalue));
+      if (FEATURE(INI_VARS))
+	  CHP(fetch_ini_param(nameBuf, &exists, &inivalue));
       if (exists) {
 	  logNP("parameter '%s' retrieved from INI: %f",nameBuf,inivalue);
 	  *value = inivalue;
