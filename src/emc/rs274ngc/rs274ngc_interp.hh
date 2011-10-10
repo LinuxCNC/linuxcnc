@@ -487,6 +487,7 @@ int read_inputs(setup_pointer settings);
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
+
  // parse a REMAP= descriptor from the ini file
  int parse_remap(const char *inistring, int lineno);
 
@@ -567,6 +568,10 @@ int read_inputs(setup_pointer settings);
     FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
 
     const char *getSavedError();
+
+
+ int unwind_call(int status, const char *file, int line);
+
 
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);

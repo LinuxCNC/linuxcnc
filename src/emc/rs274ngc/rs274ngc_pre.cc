@@ -460,16 +460,14 @@ int Interp::_execute(const char *command)
   return status;
 }
 
-
-int Interp::execute(const char *command) 
+int Interp::execute(const char *command)
 {
     int status;
     if ((status = _execute(command)) > INTERP_MIN_ERROR) {
-	unwind_call(status, __FILE__,__LINE__);
+        unwind_call(status, __FILE__,__LINE__);
     }
     return status;
 }
-
 int Interp::execute(const char *command, int line_number)
 {
     int status;
@@ -477,8 +475,7 @@ int Interp::execute(const char *command, int line_number)
     _setup.sequence_number = line_number;
     status = Interp::execute(command);
     if (status > INTERP_MIN_ERROR) {
-	_setup.remap_level = 0;
-	_setup.call_level = 0;
+	unwind_call(status, __FILE__,__LINE__);
 	logDebug("<-- execute(): error returned, clearing remap and call stack");
     }
     if ((_setup.call_level == 0) &&
@@ -1410,9 +1407,6 @@ int Interp::read(const char *command)
 
 // Reset interpreter state and  terminate a call in progress by
 // falling back to toplevel in a controlled way. Idempotent.
-// The input line (_setup.linetext,_setup.blocktext, _setup.line_length) 
-// is left untouched for inspection post-error. This is only
-// cleared in reset().
 int Interp::unwind_call(int status, const char *file, int line)
 {
     logDebug("unwind_call call_level=%d status=%d from %s:%d\n",
@@ -1421,10 +1415,9 @@ int Interp::unwind_call(int status, const char *file, int line)
     for(; _setup.call_level > 0; _setup.call_level--) {
 	int i;
 	context * sub = _setup.sub_context + _setup.call_level - 1;
-	free_named_parameters(_setup.call_level, &_setup);
+	free_named_parameters(&_setup.sub_context[_setup.call_level]);
 	if(sub->subName) {
 	    logDebug("unwind_call leaving sub '%s'\n", sub->subName);
-	    free(sub->subName);
 	    sub->subName = 0;
 	}
 
@@ -1452,23 +1445,25 @@ int Interp::unwind_call(int status, const char *file, int line)
 
     }
 
+    _setup.linetext[0] = 0;
+    _setup.blocktext[0] = 0;
+    _setup.line_length = 0;
+
     if(_setup.sub_name) {
 	logDebug("unwind_call exiting current sub '%s'\n", _setup.sub_name);
-	free(_setup.sub_name);
 	_setup.sub_name = 0;
     }
-    _setup.call_level = 0;
+    _setup.remap_level = 0; // reset remapping stack
+    _setup.call_level = 0;  // reset call level if a sub aborted
     _setup.defining_sub = 0;
     _setup.skipping_o = 0;
     _setup.skipping_to_sub = 0;
-    _setup.oword_labels = 0;
-
+    _setup.offset_map.clear();
     _setup.mdi_interrupt = false;
 
     qc_reset();
     return INTERP_OK;
 }
-
 /***********************************************************************/
 
 /*! Interp::reset
@@ -1516,45 +1511,8 @@ int Interp::reset()
   //
   // initialization stuff for subroutines and control structures
 
-  for(; _setup.call_level > 0; _setup.call_level--) {
-    int i;
-    context * sub = _setup.sub_context + _setup.call_level - 1;
-    free_named_parameters(&_setup.sub_context[_setup.call_level]);
-    if (sub->subName) {
-	sub->subName = NULL;
-    }
-
-    for(i=0; i<INTERP_SUB_PARAMS; i++) {
-      _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-        sub->saved_params[i];
-    }
-
-    // When called from Interp::close this one is NULL
-    if (!_setup.file_pointer) continue;
-
-    if (sub->filename && !strcmp(_setup.filename, sub->filename)) {
-      fclose(_setup.file_pointer);
-      _setup.file_pointer = fopen(sub->filename, "r");
-      logOword("reset() restoring '%s' from level %d",sub->filename,_setup.call_level);
-    
-      strcpy(_setup.filename, sub->filename);
-    }
-
-    fseek(_setup.file_pointer, sub->position, SEEK_SET);
-    _setup.sequence_number = sub->sequence_number;
-  }
-  _setup.sub_name = NULL;
-  _setup.remap_level = 0; // reset remapping stack
-  _setup.call_level = 0;  // reset call level if a sub aborted
-  _setup.defining_sub = 0;
-  _setup.skipping_o = 0;
-  _setup.offset_map.clear();
-  _setup.mdi_interrupt = false;
-  _setup.return_value = 0;
-  _setup.value_returned = 0;
-  qc_reset();
-
-  return INTERP_OK;
+    unwind_call(INTERP_OK, __FILE__,__LINE__);
+    return INTERP_OK;
 }
 
 /***********************************************************************/
