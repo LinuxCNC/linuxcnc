@@ -296,43 +296,6 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   return INTERP_OK;
 }
 
-// common code on executing an O_return or O_endsub
-int Interp::unwind(setup_pointer settings)     /* pointer to machine settings */
-{
-    int i;
-
-    // free local variables
-    free_named_parameters(settings->call_level, settings);
-
-    // free subroutine name
-    if(settings->sub_context[settings->call_level].subName) {
-	free(settings->sub_context[settings->call_level].subName);
-	settings->sub_context[settings->call_level].subName = 0;
-    }
-    // drop one call level.
-    settings->call_level--;
-
-    // a valid previous context was marked by an M73 as auto-restore
-    if ((settings->sub_context[settings->call_level+1].context_status &
-	 (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
-	(CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
-	// NB: this means an M71 invalidate context will prevent an
-	// auto-restore on return/endsub
-	restore_context(settings, settings->call_level + 1);
-    }
-    // always invalidate on leaving a context so we dont accidentially
-    // 'run into' a valid context when calling the stack upwards again
-    settings->sub_context[settings->call_level+1].context_status &=
-	~CONTEXT_VALID;
-
-    // restore subroutine parameters.
-    for(i = 0; i < INTERP_SUB_PARAMS; i++) {
-	settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-	    settings->sub_context[settings->call_level].saved_params[i];
-    }
-
-    return 0;
-}
 /************************************************************************/
 /* convert_control_functions
 
@@ -452,7 +415,36 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	}
 
       if(settings->call_level != 0) {
-	  unwind(settings); // common code for return and endsub
+
+	  // free local variables
+	  free_named_parameters(settings->call_level, settings);
+
+	  // free subroutine name
+	  if(settings->sub_context[settings->call_level].subName) {
+	      free(settings->sub_context[settings->call_level].subName);
+	      settings->sub_context[settings->call_level].subName = 0;
+	  }
+	  // drop one call level.
+	  settings->call_level--;
+
+	  // a valid previous context was marked by an M73 as auto-restore
+	  if ((settings->sub_context[settings->call_level+1].context_status &
+	       (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+	      (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
+	      // NB: this means an M71 invalidate context will prevent an
+	      // auto-restore on return/endsub
+	      restore_context(settings, settings->call_level + 1);
+	  }
+	  // always invalidate on leaving a context so we dont accidentially
+	  // 'run into' a valid context when calling the stack upwards again
+	  settings->sub_context[settings->call_level+1].context_status &=
+	      ~CONTEXT_VALID;
+
+	  // restore subroutine parameters.
+	  for(i = 0; i < INTERP_SUB_PARAMS; i++) {
+	      settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		  settings->sub_context[settings->call_level].saved_params[i];
+	  }
 
 	  // file at this level was marked as closed, so dont reopen.
 	  if (settings->sub_context[settings->call_level].position == -1) {
