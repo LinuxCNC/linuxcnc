@@ -8,7 +8,8 @@
 *    
 * Copyright 2005 All rights reserved.
 *
-* Last change:
+* Last change: Michael Haberler 7/2011
+*
 ********************************************************************/
 
 #include <boost/python.hpp>
@@ -28,6 +29,26 @@
 #include "rs274ngc_interp.hh"
 
 namespace bp = boost::python;
+
+
+const char *otypes[] = {
+    "O_none",
+    "O_sub"
+    "O_endsub",
+    "O_call",
+    "O_do",
+    "O_while",
+    "O_if",
+    "O_elseif",
+    "O_else",
+    "O_endif",
+    "O_break",
+    "O_continue",
+    "O_endwhile",
+    "O_return",
+    "O_repeat",
+    "O_endrepeat"
+};
 
 //========================================================================
 // Functions for control stuff (O-words)
@@ -49,33 +70,25 @@ int Interp::findFile( // ARGUMENTS
     char targetPath[PATH_MAX+1];
 
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
-
     file = fopen(targetPath, "r");
-
-    if(file)
-    {
+    if (file) {
         strncpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
         return INTERP_OK;
     }
-
     aDir = opendir(direct);
-
-    if(!aDir)
-    {
+    if (!aDir) {
 	ERS(NCE_FILE_NOT_OPEN);
     }
 
-    while((aFile = readdir(aDir)))
-    {
-        if(aFile->d_type == DT_DIR &&
-           (0 != strcmp(aFile->d_name, "..")) &&
-           (0 != strcmp(aFile->d_name, ".")))
-        {
+    while ((aFile = readdir(aDir))) {
+        if (aFile->d_type == DT_DIR &&
+	    (0 != strcmp(aFile->d_name, "..")) &&
+	    (0 != strcmp(aFile->d_name, "."))) {
+
             char path[PATH_MAX+1];
             snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
-            if(INTERP_OK == findFile(path, target, foundFileDirect))
-            {
+            if (INTERP_OK == findFile(path, target, foundFileDirect)) {
 	        closedir(aDir);
                 return INTERP_OK;
             }
@@ -90,49 +103,41 @@ int Interp::findFile( // ARGUMENTS
    In the long run, this function will use a hash table or other
    fast data structure
 */
-int Interp::control_save_offset( /* ARGUMENTS                   */
-				//int line,                   /* (o-word) line number        */
- block_pointer block,        /* pointer to a block of RS274/NGC instructions */
- setup_pointer settings)     /* pointer to machine settings */
+int Interp::control_save_offset(block_pointer block,        /* pointer to a block of RS274/NGC instructions */
+				setup_pointer settings)     /* pointer to machine settings */
 {
   static char name[] = "control_save_offset";
   int index;
   offset_pointer op = NULL;
+
   logOword("Entered:%s for o_name:|%s|", name, block->o_name);
 
-  if(control_find_oword(block, settings, &op) == INTERP_OK)
-  {
+  if (control_find_oword(block, settings, &op) == INTERP_OK) {
       // already exists
       ERS(_("File:%s line:%d redefining sub: o|%s| already defined in file:%s"),
-               settings->filename, settings->sequence_number,
-	       block->o_name,
+	  settings->filename, settings->sequence_number,
+	  block->o_name,
 	  op->filename);
-	  // settings->oword_offset[index].filename);
-      //return INTERP_OK;
   }
 
   CHKS((settings->oword_labels >= INTERP_OWORD_LABELS),
       NCE_TOO_MANY_OWORD_LABELS);
 
-
   index = settings->oword_labels++;
-  //logOword("index: %d offset: %ld", index, block->offset);
 
-  //  settings->oword_offset[index].o_word = line;
   settings->oword_offset[index].o_word_name = block->o_name;
   settings->oword_offset[index].type = block->o_type;
   settings->oword_offset[index].offset = block->offset;
   settings->oword_offset[index].filename = strstore(settings->filename);
   settings->oword_offset[index].repeat_count = -1;
 
-  // the sequence number has already been bumped, so save
-  // the proper value
+  // the sequence number has already been bumped, so save the proper value
   settings->oword_offset[index].sequence_number =
-    settings->sequence_number - 1;
+      settings->sequence_number - 1;
 
-  logOword("control_save_offset: o_word_name=%s type=%d offset=%ld filename=%s repeat_count=%d sequence_number=%d\n",
+  logOword("control_save_offset: o_word_name=%s type=%s offset=%ld filename=%s repeat_count=%d sequence_number=%d\n",
 	   settings->oword_offset[index].o_word_name,
-	   settings->oword_offset[index].type,
+	   otypes[settings->oword_offset[index].type],
 	   settings->oword_offset[index].offset,
 	   settings->oword_offset[index].filename,
 	   settings->oword_offset[index].repeat_count,
@@ -141,28 +146,29 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   return INTERP_OK;
 }
 
-int Interp::control_find_oword( /* ARGUMENTS                       */
-  block_pointer block,      /* pointer to block */
-  setup_pointer settings,   /* pointer to machine settings      */
-  offset_pointer *op)
-  // int *o_index)             /* the index of o-word (returned) */
-{
-  static char name[] = "control_find_oword";
-  int i;
 
-  logOword("Entered:%s", name);
-  for(i=0; i<settings->oword_labels; i++)
-    {
-      if(0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name))
-	{
-	    //*o_index = i;
+int Interp::control_find_oword(block_pointer block,      // pointer to block
+			       setup_pointer settings,   // pointer to machine settings
+			       offset_pointer *op)       // pointer to offset descriptor
+{
+    static char name[] = "control_find_oword";
+    int i;
+
+    logOword("Entered:%s %s", name, block->o_name);
+    for (i = 0; i < settings->oword_labels; i++) {
+	if (0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name)) {
+	    logOword("----- found offset %s:%s %s %ld %d\n",
+		     block->o_name, settings->oword_offset[i].o_word_name,
+		     settings->oword_offset[i].filename,settings->oword_offset[i].offset,
+		     settings->oword_offset[i].sequence_number);
+
 	    *op = &settings->oword_offset[i];
-	  logOword("Found oword[%d]: |%s|", i, block->o_name);
-	  return INTERP_OK;
+	    logOword("Found oword[%d]: |%s|", i, block->o_name);
+	    return INTERP_OK;
 	}
     }
-  logOword("Unknown oword name: |%s|", block->o_name);
-  ERS(NCE_UNKNOWN_OWORD_NUMBER);
+    logOword("Unknown oword name: |%s|", block->o_name);
+    ERS(NCE_UNKNOWN_OWORD_NUMBER);
 }
 
 //
@@ -176,135 +182,114 @@ int Interp::control_find_oword( /* ARGUMENTS                       */
 //             open it and start skipping (as in 3, below)
 // 3 -- skip to the o_word (will be an error if not found)
 //
-int Interp::control_back_to( /* ARGUMENTS                       */
- block_pointer block, // pointer to block
- setup_pointer settings)   /* pointer to machine settings      */
+int Interp::control_back_to( block_pointer block, // pointer to block
+			     setup_pointer settings)   // pointer to machine settings
 {
-  static char name[] = "control_back_to";
-  int i,dct;
-  char newFileName[PATH_MAX+1];
-  char foundPlace[PATH_MAX+1];
-  char tmpFileName[PATH_MAX+1];
-  FILE *newFP;
+    static char name[] = "control_back_to";
+    int i,dct;
+    char newFileName[PATH_MAX+1];
+    char foundPlace[PATH_MAX+1];
+    char tmpFileName[PATH_MAX+1];
+    FILE *newFP;
 
-  foundPlace[0] = 0;
-  logOword("Entered:%s", name);
-  for(i=0; i<settings->oword_labels; i++)
-    {
-      // if(settings->oword_offset[i].o_word == line)
-      if(0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name))
-	{
+    foundPlace[0] = 0;
+    logOword("Entered:%s %s", name,block->o_name);
+    for( i= 0; i < settings->oword_labels; i++) {
+	if (0 == strcmp(settings->oword_offset[i].o_word_name, block->o_name)) {
 	    if ((settings->filename[0] != 0) &
 		(settings->file_pointer == NULL))  {
 		ERS(NCE_FILE_NOT_OPEN);
 	    }
-          if(0 != strcmp(settings->filename,
-                         settings->oword_offset[i].filename))
-          {
-              // open the new file...
+	    if (0 != strcmp(settings->filename,
+			    settings->oword_offset[i].filename)) {
+		// open the new file...
+		logOword("%s newfile=%s", name,settings->oword_offset[i].filename);
+		newFP = fopen(settings->oword_offset[i].filename, "r");
 
-              newFP = fopen(settings->oword_offset[i].filename, "r");
+		// set the line number
+		settings->sequence_number = 0;
+		strcpy(settings->filename, settings->oword_offset[i].filename);
 
-              // set the line number
-              settings->sequence_number = 0;
+		if (newFP) {
+		    // close the old file...
+		    if (settings->file_pointer) // only close if it was open
+			fclose(settings->file_pointer);
+		    settings->file_pointer = newFP;
+		} else {
+		    logOword("Unable to open file: %s", settings->filename);
+		    ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
+		}
+	    }
+	    if (settings->file_pointer) // only seek if it was open
+		fseek(settings->file_pointer,
+		      settings->oword_offset[i].offset, SEEK_SET);
 
-              strcpy(settings->filename, settings->oword_offset[i].filename);
+	    settings->sequence_number =
+		settings->oword_offset[i].sequence_number;
 
-              if(newFP)
-              {
-                  // close the old file...
-		  if (settings->file_pointer) // only close if it was open
-		      fclose(settings->file_pointer);
-                  settings->file_pointer = newFP;
-              }
-              else
-              {
-                  logOword("Unable to open file: %s", settings->filename);
-                  ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
-              }
-          }
-	  if (settings->file_pointer) // only seek if it was open
-	      fseek(settings->file_pointer,
-		    settings->oword_offset[i].offset, SEEK_SET);
-
-	  settings->sequence_number =
-	    settings->oword_offset[i].sequence_number;
-
-	  return INTERP_OK;
+	    return INTERP_OK;
 	}
     }
 
-  // NO o_word found
+    // NO o_word found
+    // look for a new file
+    sprintf(tmpFileName, "%s.ngc", block->o_name);
 
-  // look for a new file
-  logOword("settings->program_prefix:%s:", settings->program_prefix);
-  sprintf(tmpFileName, "%s.ngc", block->o_name);
+    // find subroutine by search: program_prefix, subroutines, wizard_root
+    // use first file found
 
-  // find subroutine by search: program_prefix, subroutines, wizard_root
-  // use first file found
+    // first look in the program_prefix place
+    sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
+    newFP = fopen(newFileName, "r");
 
-  // first look in the program_prefix place
-  sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
+    // then look in the subroutines place
+    if (!newFP) {
+	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+	    if (!settings->subroutines[dct])
+		continue;
+	    sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
+	    newFP = fopen(newFileName, "r");
+	    if (newFP) {
+		logOword("fopen: |%s|", newFileName);
+		break; // use first occurrence in dir search
+	    }
+	}
+    }
+    // if not found, search the wizard tree
+    if (!newFP) {
+	int ret;
+	ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
 
-  newFP = fopen(newFileName, "r");
-  logOword("fopen: |%s|", newFileName);
+	if (INTERP_OK == ret) {
+	    // create the long name
+	    sprintf(newFileName, "%s/%s",
+		    foundPlace, tmpFileName);
+	    newFP = fopen(newFileName, "r");
+	}
+    }
 
-  // then look in the subroutines place
-  if(!newFP)
-  {
-      for (dct=0; dct < MAX_SUB_DIRS; dct++) {
-          if (!settings->subroutines[dct]) continue;
-          sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
-          newFP = fopen(newFileName, "r");
-          if (newFP) {
-              logOword("fopen: |%s|", newFileName);
-              break; // use first occurrence in dir search
-          }
-      }
-  }
+    if (newFP) {
+	logOword("fopen: |%s| OK", newFileName);
 
+	// close the old file...
+	if (settings->file_pointer)
+	    fclose(settings->file_pointer);
+	settings->file_pointer = newFP;
+	strcpy(settings->filename, newFileName);
+    } else {
+	char *dirname = get_current_dir_name();
+	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
+		 dirname);
+	free(dirname);
+	ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
+    }
 
-  // if not found, search the wizard tree
-  if(!newFP)
-  {
-      int ret;
-      ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+    settings->skipping_o = block->o_name; // start skipping
+    settings->skipping_to_sub = block->o_name; // start skipping
+    settings->skipping_start = settings->sequence_number;
+    //ERS(NCE_UNKNOWN_OWORD_NUMBER);
 
-      if(INTERP_OK == ret)
-      {
-	  // create the long name
-          sprintf(newFileName, "%s/%s",
-		  foundPlace, tmpFileName);
-          newFP = fopen(newFileName, "r");
-      }
-  }
-
-  if(newFP)
-  {
-      logOword("fopen: |%s| OK", newFileName);
-
-      // close the old file...
-      if (settings->file_pointer)
-	  fclose(settings->file_pointer);
-      settings->file_pointer = newFP;
-
-      strcpy(settings->filename, newFileName);
-  }
-  else
-  {
-     char *dirname = get_current_dir_name();
-     logOword("fopen: |%s| failed CWD:|%s|", newFileName,
-              dirname);
-     free(dirname);
-     ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
-  }
-
-  settings->skipping_o = block->o_name; // start skipping
-  settings->skipping_to_sub = block->o_name; // start skipping
-  settings->skipping_start = settings->sequence_number;
-  //ERS(NCE_UNKNOWN_OWORD_NUMBER);
-
-  return INTERP_OK;
+    return INTERP_OK;
 }
 
 /************************************************************************/
@@ -321,106 +306,84 @@ Calls: control_skip_to
        control_save_offset
 */
 
-int Interp::convert_control_functions( /* ARGUMENTS           */
- block_pointer block,      /* pointer to a block of RS274/NGC instructions */
- setup_pointer settings)   /* pointer to machine settings                  */
+int Interp::convert_control_functions(block_pointer block, // pointer to a block of RS274/NGC instructions
+				      setup_pointer settings)  // pointer to machine settings
 {
-  int status = INTERP_OK;
-  //  int index;
-  int i;
-  context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
-  block_pointer cblock;
-  bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
-  bool is_remap_handler; // the sub is executing on behalf of a remapped code
-  bool is_py_callable;   // the sub name is actually Python
-  bool is_py_osub;  // a plain osub whose name is a python callable
-  bool py_exception = false;
-  offset_pointer op = NULL;
-  logOword("convert_control_functions");
+    int status = INTERP_OK;
+    int i;
+    context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
+    block_pointer cblock;
+    bool is_py_remap_handler; // the sub is executing on behalf of a remapped code
+    bool is_remap_handler; // the sub is executing on behalf of a remapped code
+    bool is_py_callable;   // the sub name is actually Python
+    bool is_py_osub;  // a plain osub whose name is a python callable
+    bool py_exception = false;
+    offset_pointer op = NULL;
 
-  // aquire the 'remap_frame' a.k.a controlling block
-  cblock = &CONTROLLING_BLOCK(*settings);
-  is_py_remap_handler =
-      (cblock->executing_remap != NULL) &&
-      ((cblock->executing_remap->remap_py != NULL) &&
-       (!strcmp(cblock->executing_remap->remap_py, block->o_name)));
+    logOword("convert_control_functions");
 
-  // if there is an oword, must get the block->o_number
-  // !!!KL
+    // aquire the 'remap_frame' a.k.a controlling block
+    cblock = &CONTROLLING_BLOCK(*settings);
+    is_py_remap_handler =
+	(cblock->executing_remap != NULL) &&
+	((cblock->executing_remap->remap_py != NULL) &&
+	 (!strcmp(cblock->executing_remap->remap_py, block->o_name)));
 
-  // FIXME mah useless code?
-  // if(block->o_name  && !is_py_remap_handler) // suppress error msg if 'py oword' not found
-  //   {
-  // 	control_find_oword(block, settings, &op);// &(block->o_number));
-  //   }
-  // else
-  //   {
-  // 	//    block->o_number = 0;
-  //   }
+    // must skip if skipping
+    if (settings->skipping_o && (0 != strcmp(settings->skipping_o, block->o_name)))  {
+	logOword("skipping to line: |%s|", settings->skipping_o);
+	return INTERP_OK;
+    }
 
-  // must skip if skipping
-  if(settings->skipping_o && (0 != strcmp(settings->skipping_o, block->o_name)))
-  {
-      logOword("skipping to line: |%s|", settings->skipping_o);
-      return INTERP_OK;
-  }
+    if (settings->skipping_to_sub && (block->o_type != O_sub))
+	{
+	    logOword("skipping to sub: |%s|", settings->skipping_to_sub);
+	    return INTERP_OK;
+	}
 
-  if(settings->skipping_to_sub && (block->o_type != O_sub))
-  {
-      logOword("skipping to sub: |%s|", settings->skipping_to_sub);
-      return INTERP_OK;
-  }
+    logOword("o_type:  %s\n", otypes[block->o_type]);
+    switch (block->o_type) {
 
-  logOword("o_type:%d", block->o_type);
-  switch(block->o_type)
-    {
     case O_none:
-      // not an error because we use this to signal that we
-      // are not evaluating functions
-      break;
+	// not an error because we use this to signal that we
+	// are not evaluating functions
+	break;
 
     case O_sub:
-      // if the level is not zero, this is a call
-      // not the definition
-      // if we were skipping, no longer
-      if(settings->skipping_o)
-      {
-          logOword("sub(o_|%s|) was skipping to here", settings->skipping_o);
+	// if the level is not zero, this is a call
+	// not the definition
+	// if we were skipping, no longer
+	if (settings->skipping_o) {
+	    logOword("sub(o_|%s|) was skipping to here", settings->skipping_o);
 
-          // skipping to a sub means that we must define this now
-	  CHP(control_save_offset( block, settings));
-      }
-
-      if(settings->skipping_o)
-	{
-	  logOword("no longer skipping to:|%s|", settings->skipping_o);
-          settings->skipping_o = NULL; // this IS our block number
+	    // skipping to a sub means that we must define this now
+	    CHP(control_save_offset( block, settings));
 	}
-      settings->skipping_to_sub = NULL; // this IS our block number
 
-      if(settings->call_level != 0)
-	{
-	  logOword("call:%f:%f:%f",
-		   settings->parameters[1],
-		   settings->parameters[2],
-		   settings->parameters[3]);
+	if (settings->skipping_o) {
+	    logOword("no longer skipping to:|%s|", settings->skipping_o);
+	    settings->skipping_o = NULL; // this IS our block number
 	}
-      else
-	{
-	  logOword("started a subroutine defn");
-	  // a definition
-	  CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
-	  CHP(control_save_offset( block, settings));
+	settings->skipping_to_sub = NULL; // this IS our block number
 
-          settings->skipping_o = block->o_name; // start skipping
-          settings->skipping_start = settings->sequence_number;
-	  settings->defining_sub = 1;
-	  settings->sub_name = block->o_name;
-	  logOword("will now skip to: |%s|", settings->sub_name);
-	  // logOword("will now skip to: |%s| %d", settings->sub_name,
-	  // 	   block->o_number); FIXME
+	if (settings->call_level != 0) {
+	    logOword("call:%f:%f:%f",
+		     settings->parameters[1],
+		     settings->parameters[2],
+		     settings->parameters[3]);
+	} else {
+	    logOword("started a subroutine defn");
+	    // a definition
+	    CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
+	    CHP(control_save_offset( block, settings));
+
+	    settings->skipping_o = block->o_name; // start skipping
+	    settings->skipping_start = settings->sequence_number;
+	    settings->defining_sub = 1;
+	    settings->sub_name = block->o_name;
+	    logOword("will now skip to: |%s|", settings->sub_name);
 	}
-      break;
+	break;
 
     case O_endsub:
     case O_return:
@@ -456,7 +419,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 
 	    // file at this level was marked as closed, so dont reopen.
-	    // if (settings->sub_context[settings->call_level].position == -1) {
 	    if (returnto_frame->position == -1) {
 		settings->file_pointer = NULL;
 		strcpy(settings->filename, "");
@@ -549,9 +511,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	     (((cblock->executing_remap->remap_ngc != NULL) &&
 	       (!strcmp(cblock->executing_remap->remap_ngc, block->o_name)))));
 
-
-
-	is_py_callable = is_pycallable(settings, OWORD_MODULE, block->o_name);
+        is_py_callable = is_pycallable(settings, OWORD_MODULE, block->o_name);
 	is_py_osub = is_py_callable && ! is_remap_handler;
 
 	// copy parameters from context
@@ -641,7 +601,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
 	// a Python oword sub can be executed inline -
 	// no control_back_to() needed
-
+	// might want to cache this in an offset struct eventually
 	if (is_py_osub) {
 	    status = pycall(settings, block,
 			    OWORD_MODULE,
@@ -712,239 +672,206 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	break;
 
     case O_do:
-      // if we were skipping, no longer
-      settings->skipping_o = NULL;
-      // save the loop point
-      // we hit this again on loop back -- so test first
-      if(INTERP_OK != control_find_oword(block, settings, &op)) // &index))
-      {
-	  // save offset if not found in offset table
-          CHP(control_save_offset( block, settings));
-      }
-      break;
+	// if we were skipping, no longer
+	settings->skipping_o = NULL;
+	// save the loop point
+	// we hit this again on loop back -- so test first
+	if(INTERP_OK != control_find_oword(block, settings, &op)) // &index))
+	    {
+		// save offset if not found in offset table
+		CHP(control_save_offset( block, settings));
+	    }
+	break;
 
     case O_repeat:
-      // if we were skipping, no longer
-      settings->skipping_o = NULL;
-      status = control_find_oword(block, settings, &op); // &index);
+	// if we were skipping, no longer
+	settings->skipping_o = NULL;
+	status = control_find_oword(block, settings, &op); // &index);
 
-      // test if not already seen OR
-      // if seen and this is a repeat
-      if((status != INTERP_OK) ||
-	 //	 (settings->oword_offset[index].type == block->o_type))	{
-	 (op->type == block->o_type))	{
-	  // this is the beginning of a 'repeat' loop
-	  // add it to the table if not already there
-	  if(status != INTERP_OK)
-              CHP(control_save_offset( block, settings));
+	// test if not already seen OR
+	// if seen and this is a repeat
+	if ((status != INTERP_OK) ||
+	    (op->type == block->o_type))	{
+	    // this is the beginning of a 'repeat' loop
+	    // add it to the table if not already there
+	    if(status != INTERP_OK)
+		CHP(control_save_offset( block, settings));
 
-          // note the repeat count.  it should only be calculated at the
-          // start of the repeat loop.
-          control_find_oword(block, settings, &op); // &index);
-          // if(settings->oword_offset[index].repeat_count == -1)
-          //     settings->oword_offset[index].repeat_count =
-          //         round_to_int(settings->test_value);
-          if(op->repeat_count == -1)
-              op->repeat_count =
-                  round_to_int(settings->test_value);
-	  // are we still repeating?
-	  // if(settings->oword_offset[index].repeat_count > 0) {
-	  if(op->repeat_count > 0) {
-	      // execute forward
-	      logOword("executing forward: [%s] in 'repeat' test value-- %g",
-		       block->o_name, settings->test_value);
-              // one less repeat remains
-              // settings->oword_offset[index].repeat_count--;
-              op->repeat_count--;
-          } else {
-	      // skip forward
-	      logOword("skipping forward: [%s] in 'repeat'",
-		       block->o_name);
-	      settings->skipping_o = block->o_name;
-              settings->skipping_start = settings->sequence_number;
-              // cause the repeat count to be recalculated
-	      // if we do this loop again
-              // settings->oword_offset[index].repeat_count = -1;
-              op->repeat_count = -1;
-          }
-      }
-      break;
+	    // note the repeat count.  it should only be calculated at the
+	    // start of the repeat loop.
+	    control_find_oword(block, settings, &op); // &index);
+	    if(op->repeat_count == -1)
+		op->repeat_count =
+		    round_to_int(settings->test_value);
+
+	    // are we still repeating?
+	    if(op->repeat_count > 0) {
+		// execute forward
+		logOword("executing forward: [%s] in 'repeat' test value-- %g",
+			 block->o_name, settings->test_value);
+		// one less repeat remains
+		op->repeat_count--;
+	    } else {
+		// skip forward
+		logOword("skipping forward: [%s] in 'repeat'",
+			 block->o_name);
+		settings->skipping_o = block->o_name;
+		settings->skipping_start = settings->sequence_number;
+		// cause the repeat count to be recalculated
+		// if we do this loop again
+		op->repeat_count = -1;
+	    }
+	}
+	break;
 
     case O_while:
-      // if we were skipping, no longer
-      settings->skipping_o = NULL;
-      status = control_find_oword(block, settings, &op); //  &index);
+	// if we were skipping, no longer
+	settings->skipping_o = NULL;
+	status = control_find_oword(block, settings, &op); //  &index);
 
-      // test if not already seen OR
-      // if seen and this is a while (alternative is that it is a do)
-      if((status != INTERP_OK) ||
-	 // (settings->oword_offset[index].type == block->o_type))
-	 (op->type == block->o_type))
-	{
-	  // this is the beginning of a 'while' loop
+	// test if not already seen OR
+	// if seen and this is a while (alternative is that it is a do)
+	if ((status != INTERP_OK) ||
+	    (op->type == block->o_type))  {
 
-	  // add it to the table if not already there
-	  if(status != INTERP_OK)
-	    {
-               CHP(control_save_offset( block, settings));
+	    // this is the beginning of a 'while' loop
+	    // add it to the table if not already there
+	    if (status != INTERP_OK)
+		CHP(control_save_offset( block, settings));
+
+	    // test the condition
+	    if (settings->test_value != 0.0) // true - execute forward
+		logOword("executing forward: [%s] in 'while'",
+			 block->o_name);
+	    else  {
+		// false -  skip forward
+		logOword("skipping forward: [%s] in 'while'",
+			 block->o_name);
+		settings->skipping_o = block->o_name;
+		settings->skipping_start = settings->sequence_number;
 	    }
-
-	  // test the condition
-
-	  if (settings->test_value != 0.0)
-	    {
-	      // true
-	      // execute forward
-	      logOword("executing forward: [%s] in 'while'",
-		       block->o_name);
-	    }
-	  else
-	    {
-	      // false
-	      // skip forward
-	      logOword("skipping forward: [%s] in 'while'",
-		       block->o_name);
-	      settings->skipping_o = block->o_name;
-              settings->skipping_start = settings->sequence_number;
+	} else {
+	    // this is the end of a 'do'
+	    // test the condition
+	    if ((settings->test_value != 0.0) && !settings->doing_break) {
+		// true - loop on back
+		logOword("looping back to: [%s] in 'do while'",
+			 block->o_name);
+		CHP(control_back_to(block, settings));
+	    } else {
+		// false
+		logOword("not looping back to: [%s] in 'do while'",
+			 block->o_name);
+ 	    settings->doing_break = 0;
 	    }
 	}
-      else
-	{
-	  // this is the end of a 'do'
-	  // test the condition
-	    if ((settings->test_value != 0.0) && !_setup.doing_break)
-	    {
-	      // true
-	      // loop on back
-	      logOword("looping back to: [%s] in 'do while'",
-		       block->o_name);
-              CHP(control_back_to(block, settings));
-	    }
-	  else
-	    {
-	      // false
-	      logOword("not looping back to: [%s] in 'do while'",
-		       block->o_name);
-	      _setup.doing_break = 0;
-	    }
-	}
-      
-      break;
+	break;
 
     case O_if:
-      if(settings->test_value != 0.0)
-	{
-	  //true
-	  logOword("executing forward: [%s] in 'if'",
-	      block->o_name);
-          settings->skipping_o = NULL;
-	  settings->executed_if = 1;
+	if (settings->test_value != 0.0) {
+	    //true
+	    logOword("executing forward: [%s] in 'if'",
+		     block->o_name);
+	    settings->skipping_o = NULL;
+	    settings->executed_if = 1;
+	} else {
+	    //false
+	    logOword("skipping forward: [%s] in 'if'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    settings->executed_if = 0;
 	}
-      else
-	{
-	  //false
-          logOword("skipping forward: [%s] in 'if'",
-	      block->o_name);
-          settings->skipping_o = block->o_name;
-          settings->skipping_start = settings->sequence_number;
-	  settings->executed_if = 0;
-	}
-      break;
+	break;
 
     case O_elseif:
-      if((settings->skipping_o) &&
-	 (0 != strcmp(settings->skipping_o, block->o_name)))
-	{
-	  //!!!KL -- the if conditions here say that we were skipping
-	  //!!!KL but that the target o_name is not ours.
-	  //!!!KL so we should continue skipping -- that's not what
-	  //!!!KL the code below says.
+	if ((settings->skipping_o) &&
+	    (0 != strcmp(settings->skipping_o, block->o_name)))  {
+
+	    //!!!KL -- the if conditions here say that we were skipping
+	    //!!!KL but that the target o_name is not ours.
+	    //!!!KL so we should continue skipping -- that's not what
+	    //!!!KL the code below says.
+
+	    // mah: so?
 #if 0
-	  // we were not skipping -- start skipping
-          logOword("start skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-	  settings->skipping_o = block->o_name;
-          settings->skipping_start = settings->sequence_number;
-          return INTERP_OK;
+	    // we were not skipping -- start skipping
+	    logOword("start skipping forward: [%s] in 'elseif'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    return INTERP_OK;
 #else
-	  // we were skipping -- continue skipping
-          logOword("continue skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-          return INTERP_OK;
+	    // we were skipping -- continue skipping
+	    logOword("continue skipping forward: [%s] in 'elseif'",
+		     block->o_name);
+	    return INTERP_OK;
 #endif
 	}
 
-      // we were skipping
-      // but were we ever not skipping
-      if(settings->executed_if)
-	{
-	  // we have already executed, keep on skipping
-          logOword("already executed, continue  "
-		   "skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-	  //settings->skipping_0 = block->o_number;
-          settings->skipping_o = block->o_name;
-          settings->skipping_start = settings->sequence_number;
-          return INTERP_OK;
+	// we were skipping
+	// but were we ever not skipping
+	if (settings->executed_if) {
+	    // we have already executed, keep on skipping
+	    logOword("already executed, continue  "
+		     "skipping forward: [%s] in 'elseif'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    return INTERP_OK;
 	}
-      
-      if(settings->test_value != 0.0)
-	{
-	  //true -- start executing
-          logOword("start executing forward: [%s] in 'elseif'",
-	      block->o_name);
-	  settings->skipping_o = NULL;
-	  settings->executed_if = 1;
+
+	if (settings->test_value != 0.0) {
+	    //true -- start executing
+	    logOword("start executing forward: [%s] in 'elseif'",
+		     block->o_name);
+	    settings->skipping_o = NULL;
+	    settings->executed_if = 1;
+	} else {
+	    //false
+	    logOword("continue skipping forward: [%s] in 'elseif'",
+		     block->o_name);
 	}
-      else
-	{
-	  //false
-          logOword("continue skipping forward: [%s] in 'elseif'",
-	      block->o_name);
-	}
-      break;
+	break;
 
     case O_else:
-      // were we ever not skipping
-      if(settings->executed_if)
-	{
-	  // we have already executed, skip
-          logOword("already executed, "
-		   "skipping forward: [%s] in 'else'",
-	      block->o_name);
-	  settings->skipping_o = block->o_name;
-          settings->skipping_start = settings->sequence_number;
-          return INTERP_OK;
+	// were we ever not skipping
+	if (settings->executed_if) {
+	    // we have already executed, skip
+	    logOword("already executed, "
+		     "skipping forward: [%s] in 'else'",
+		     block->o_name);
+	    settings->skipping_o = block->o_name;
+	    settings->skipping_start = settings->sequence_number;
+	    return INTERP_OK;
 	}
 
-      if((settings->skipping_o) &&
-	 (0 == strcmp(settings->skipping_o, block->o_name)))
-	{
-	  // we were skipping so stop skipping
-          logOword("stop skipping forward: [%s] in 'else'",
-	      block->o_name);
-          settings->executed_if = 1;
-	  settings->skipping_o = NULL;
+	if ((settings->skipping_o) &&
+	    (0 == strcmp(settings->skipping_o, block->o_name))) {
+	    // we were skipping so stop skipping
+	    logOword("stop skipping forward: [%s] in 'else'",
+		     block->o_name);
+	    settings->executed_if = 1;
+	    settings->skipping_o = NULL;
+	} else	{
+	    // we were not skipping -- so skip
+	    logOword("start skipping forward: [%s] in 'else'",
+		     block->o_name);
 	}
-      else
-	{
-          // we were not skipping -- so skip
-          logOword("start skipping forward: [%s] in 'else'",
-	      block->o_name);
-	}
-      break;
+	break;
 
     case O_endif:
-      // stop skipping if we were
-      settings->skipping_o = NULL;
-      logOword("stop skipping forward: [%s] in 'endif'",
-	      block->o_name);
-      // the KEY -- outside if clearly must have executed
-      // or this would not have executed
-      settings->executed_if = 1;
-      break;
+	// stop skipping if we were
+	settings->skipping_o = NULL;
+	logOword("stop skipping forward: [%s] in 'endif'",
+		 block->o_name);
+	// the KEY -- outside if clearly must have executed
+	// or this would not have executed
+	settings->executed_if = 1;
+	break;
 
     case O_break:
+<<<<<<< HEAD
       // start skipping
       settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
@@ -952,68 +879,77 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       logOword("start skipping forward: [%s] in 'break'",
 	      block->o_name);
       break;
-
-    case O_continue:
-
-      // if already skipping, do nothing
-      if((settings->skipping_o) &&
-	 (0 == strcmp(settings->skipping_o, block->o_name)))
-	{
-	  logOword("already skipping: [%s] in 'continue'",
-		   block->o_name);
-	  return INTERP_OK;
-	}
+||||||| parent of cbbe0b9... interp_o_word.cc: reformat
       // start skipping
       settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
-      settings->doing_continue = 1;
-      logOword("start skipping forward: [%s] in 'continue'",
+      //settings->doing_break = 1;
+      logOword("start skipping forward: [%s] in 'break'",
 	      block->o_name);
       break;
+=======
+	// start skipping
+	settings->skipping_o = block->o_name;
+	settings->skipping_start = settings->sequence_number;
+	//settings->doing_break = 1;
+	logOword("start skipping forward: [%s] in 'break'",
+		 block->o_name);
+	break;
+>>>>>>> cbbe0b9... interp_o_word.cc: reformat
+
+    case O_continue:
+	// if already skipping, do nothing
+	if ((settings->skipping_o) &&
+	    (0 == strcmp(settings->skipping_o, block->o_name))) {
+	    logOword("already skipping: [%s] in 'continue'",
+		     block->o_name);
+	    return INTERP_OK;
+	}
+	// start skipping
+	settings->skipping_o = block->o_name;
+	settings->skipping_start = settings->sequence_number;
+	settings->doing_continue = 1;
+	logOword("start skipping forward: [%s] in 'continue'",
+		 block->o_name);
+	break;
 
     case O_endrepeat:
     case O_endwhile:
-      // end of a while loop
-      logOword("endwhile: skipping_o:%s", settings->skipping_o);
-      if((settings->skipping_o) &&
-	 (0 == strcmp(settings->skipping_o, block->o_name)))
-	{
-	  // we were skipping, so this is the end
-	  settings->skipping_o = NULL;
+	// end of a while loop
+	logOword("endwhile: skipping_o:%s", settings->skipping_o);
+	if ((settings->skipping_o) &&
+	    (0 == strcmp(settings->skipping_o, block->o_name))) {
+	    // we were skipping, so this is the end
+	    settings->skipping_o = NULL;
 
-	  if(settings->doing_continue)
-	    {
-	      settings->doing_continue = 0;
+	    if (settings->doing_continue) {
+		settings->doing_continue = 0;
 
-  	      // loop on back
-	      logOword("looping back (continue) to: [%s] in while/repeat",
-		   block->o_name);
-	      CHP(control_back_to(block, settings));
+		// loop on back
+		logOword("looping back (continue) to: [%s] in while/repeat",
+			 block->o_name);
+		CHP(control_back_to(block, settings));
+	    } else {
+		// not doing continue, we are done
+		logOword("falling thru the complete while/repeat: [%s]",
+			 block->o_name);
+		return INTERP_OK;
 	    }
-	  else
-	    {
-	      // not doing continue, we are done
-	      logOword("falling thru the complete while/repeat: [%s]",
-		   block->o_name);
-	      return INTERP_OK;
-	    }
+	} else {
+	    // loop on back
+	    logOword("looping back to: [%s] in 'endwhile/endrepeat'",
+		     block->o_name);
+	    CHP(control_back_to(block, settings));
 	}
-      else
-	{
-	  // loop on back
-	  logOword("looping back to: [%s] in 'endwhile/endrepeat'",
-		   block->o_name);
-	  CHP(control_back_to(block, settings));
-	}
-      break;
+	break;
 
     default:
-      // FIXME !!!KL should probably be an error
-	return INTERP_ERROR; // mah
-      break;
+	// FIXME !!!KL should probably be an error
+	return INTERP_ERROR;
+	break;
     }
-  // return status;
-  return INTERP_OK;
+    // return status;
+    return INTERP_OK;
 }
 //========================================================================
 // End of functions for control stuff (O-words)
