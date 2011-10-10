@@ -469,33 +469,28 @@ private:
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
- int unwind(setup_pointer settings);  
- int unwind_call(int status, const char *file, int line);
-
- int execute_handler( /* ARGUMENTS           */
-  setup_pointer settings,  /* pointer to machine settings */
-  const char *cmd,
-  int (Interp::*prolog)(setup_pointer settings, int user_data,
-			bool pydict) = NULL,
-  int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
-  int remap_op = 0, // really NO_REMAP but rather keep internal
-  int user_data = 0,
-  bool pydict = false
-  );
+ int execute_handler(setup_pointer settings,  /* pointer to machine settings */
+		     const char *cmd,
+		     int (Interp::*prolog)(setup_pointer settings, int user_data,
+					   bool pydict) = NULL,
+		     int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
+		     int remap_op = 0, // really NO_REMAP but rather keep internal
+		     int user_data = 0,
+		     bool pydict = false);
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
 
  int report_error(setup_pointer settings,int status,const char *text);
 
  // epilog routines called post G-code handler procedure
-    int finish_t_command(setup_pointer settings,int remap);
-    int finish_m6_command(setup_pointer settings,int remap);
-    int finish_m61_command(setup_pointer settings,int remap);
-    int finish_user_command(setup_pointer settings, int remap);
+ int finish_t_command(setup_pointer settings,int remap);
+ int finish_m6_command(setup_pointer settings,int remap);
+ int finish_m61_command(setup_pointer settings,int remap);
+ int finish_user_command(setup_pointer settings, int remap);
 
  // user-defined g/mcode support
- int define_gcode(double gcode,  int modal_group,const char *argspec);
- int define_mcode(int mcode,  int modal_group,const char *argspec);
+ int define_gcode(double gcode, int modal_group,const char *argspec);
+ int define_mcode(int mcode, int modal_group,const char *argspec);
 
  // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
  bool check_args(block_pointer block,const char *argspec);
@@ -503,29 +498,24 @@ private:
  // given a settings and some opaque userdata, 'do the right thing'
  // present optional words to the subroutine's local variables
  // userdata would typically be a gcode or mcode
-    int add_parameters(setup_pointer settings, int user_data = 0,bool pydict = false);
-
+ int add_parameters(setup_pointer settings, int user_data = 0,bool pydict = false);
+ const char *usercode_argspec(setup_pointer settings,int ccode, bool mcode = false );
  int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
  bool has_user_mcode(setup_pointer settings,block_pointer block);
-
 #define is_user_gcode(s,x) (usercode_mgroup(s,x,false) != -1)
 #define is_user_mcode(s,x) (usercode_mgroup(s,x,true) != -1)
-
 #define IS_USERMCODE(bp,sp,step) (((bp)->m_modes[step] > -1) && (usercode_mgroup(sp,(bp)->m_modes[step],true) > -1))
-
- const char *usercode_argspec(setup_pointer settings,int ccode, bool mcode = false );
-
  int convert_remapped_code(int code,block_pointer block,
 			   setup_pointer settings,int type);
  int remap_m(block_pointer block, setup_pointer settings,
-	    int mode,bool remove_trail);
-    const char *remap_name(setup_pointer settings,int type, int code);
+	    int mode, bool remove_trail);
+ const char *remap_name(setup_pointer settings,int type, int code);
 
-    int init_python(setup_pointer settings);
-    bool is_pycallable(setup_pointer settings,const char *funcname);
-    int pycall(setup_pointer settings,
-	       const char *funcname,
-	       double params[]);
+ int init_python(setup_pointer settings);
+ bool is_pycallable(setup_pointer settings,const char *funcname);
+ int pycall(setup_pointer settings,
+	    const char *funcname,
+	    double params[]);
 
 
  int convert_straight_indexer(int, block*, setup*);

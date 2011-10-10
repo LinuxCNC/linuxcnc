@@ -362,7 +362,6 @@ struct named_parameters_struct {
 #define OVERRIDE_READONLY 1
 
 
-
 typedef struct context_struct {
   long position;       // location (ftell) in file
   int sequence_number; // location (line number) in file
@@ -375,14 +374,16 @@ typedef struct context_struct {
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
 
+  // if set, the following handler is executed during just before
+  // transferring control to a procedure (O-Word or Python)
     // record prolog in stack frame in case recursion involved
-    int (Interp::*prolog)(setup_pointer settings, int user_data, bool pydict);
+  int (Interp::*prolog)(setup_pointer settings, int user_data, bool pydict);
   int userdata; // memoized parameter to prolog function
-  // if set, the following handler is executed on endsub/return
-    int (Interp::*epilog)(setup_pointer settings, int remap);
-    int epilog_arg; // memoized parameter to epilog function
 
-}context;
+  // if set, the following handler is executed on endsub/return
+  int (Interp::*epilog)(setup_pointer settings, int remap);
+  int epilog_arg; // memoized parameter to epilog function
+} context;
 
 #define CONTEXT_VALID   1 // this was stored by M7*
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
@@ -566,24 +567,25 @@ typedef struct setup_struct
   // 3. the subroutine name has been set in subName
   // Usage: add local parameters as passed by block/defined by argspec
   // for canned cylces in g-code
-    int (Interp::*prolog_hook)(setup_pointer settings, int user_data,
-			       bool pydict);
-    int prolog_userdata; // memoized parameter to prolog function
-  // if set on a sub call, the following function is executed on endsub/return
-    int (Interp::*epilog_hook)(setup_pointer settings,int remap);
-    int epilog_userdata; // memoized parameter to epilog function
+  int (Interp::*prolog_hook)(setup_pointer settings, int user_data,
+			     bool pydict);
+  int prolog_userdata; // memoized parameter to prolog function
 
-    const char *t_command, *m6_command,*m61_command,*on_abort_command;
-    //int pending_remap;  // we are in a Tx/M6/M61 replacement procedure
-    // see enum remap_op in rs274ngc_interp.hh for values
+  // if set on a sub call, the following function is executed on endsub/return
+  int (Interp::*epilog_hook)(setup_pointer settings,int remap);
+  int epilog_userdata; // memoized parameter to epilog function
+
+  const char *t_command, *m6_command,*m61_command,*on_abort_command;
+
 // gcodes are 0..999
 // mcodes are at offset MCODE_OFFSET
 #define MCODE_OFFSET 1000
-    std::map<int,const char *> usercodes_argspec;
-    std::map<int,int> usercodes_mgroup;
-    const char *pymodule, *pydir;
-    bool pymodule_ok, py_reload_on_error;
-    PyObject *pymodname,*pymod,*pyresult,*pymdict, *kwargs;
+  std::map<int,const char *> usercodes_argspec;
+  std::map<int,int> usercodes_mgroup;
+
+  const char *pymodule, *pydir;
+  bool pymodule_ok, py_reload_on_error;
+  PyObject *pymodname,*pymod,*pyresult,*pymdict, *kwargs;
 }
 setup;
 
