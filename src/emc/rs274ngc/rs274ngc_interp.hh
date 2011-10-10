@@ -462,6 +462,14 @@ private:
 
  int unwind(setup_pointer settings);  
  int unwind_call(int status, const char *file, int line);
+
+ int execute_handler( /* ARGUMENTS           */
+  setup_pointer settings,  /* pointer to machine settings */
+  const char *cmd);
+
+    int report_error(setup_pointer settings,int status,const char *text);
+
+
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 

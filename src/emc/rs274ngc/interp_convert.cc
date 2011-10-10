@@ -2734,6 +2734,8 @@ int Interp::save_context(setup_pointer settings)
 int Interp::restore_context(setup_pointer settings,
 			    int from_level)    //!< call level of context to restore from
 {
+    int status;
+
     CHKS((from_level < settings->call_level),
 	 (_("BUG: cannot restore from a lower call level (%d) to a higher call level (%d)")),from_level,settings->call_level);
     CHKS((from_level < 0), (_("BUG: restore from level %d !?")),from_level);
@@ -2756,11 +2758,7 @@ int Interp::restore_context(setup_pointer settings,
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
 	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	int status = Interp::execute(cmd);
-	if (status != INTERP_OK) {
-	    MSG("------- execute(%s) returned %s\n",
-		   cmd, interp_status(status));
-	}
+	status = execute_handler(settings, cmd);
 	memset(cmd, 0, LINELEN);
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
@@ -2768,14 +2766,7 @@ int Interp::restore_context(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	int status = Interp::execute(cmd);
-	if (status != INTERP_OK) {
-	    MSG("------- execute(%s) returned %s\n",
-		   cmd, interp_status(status));
-	}
-	while (status == INTERP_EXECUTE_FINISH) { // probably not needed
-	    status = Interp::execute(0);
-	}
+	status = execute_handler(settings, cmd);
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);

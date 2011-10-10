@@ -27,6 +27,8 @@
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
+#define RESULT_OK(x) ((x) == INTERP_OK || (x) == INTERP_EXECUTE_FINISH)
+
 /****************************************************************************/
 
 /*! execute binary
@@ -179,6 +181,67 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
   }
   return INTERP_OK;
 }
+
+int Interp::report_error(setup_pointer settings,int status,const char *text)
+{
+    char interp_error_text_buf[LINELEN],msg[LINELEN];
+    char interp_stack_buf[LINELEN];
+
+    if (!RESULT_OK(status)) {
+	if (status  > INTERP_MIN_ERROR) {
+	    error_text(status, interp_error_text_buf, LINELEN);
+	    snprintf(msg,sizeof(msg),
+		     "%s:%d: \"%s\" - %s (%s)",
+		     settings->filename,
+		     sequence_number(),
+		     text,
+		     interp_error_text_buf,
+		     interp_status(status));
+	    MESSAGE(msg);
+	} else {
+	    snprintf(msg,sizeof(msg),
+		     "%s:%d: \"%s\" (%s)",
+		     settings->filename,
+		     sequence_number(),
+		     text,
+		     interp_status(status));
+	    MESSAGE(msg);
+	}
+    }
+    // from emctask.cc:print_interp_error(int retval)
+    int index = 0;
+    int traceback = 0;  // very intrusive
+    if (traceback &&  (status  > INTERP_MIN_ERROR)) {
+	while (index < 5) {
+	    interp_stack_buf[0] = 0;
+	    stack_name(index, interp_stack_buf, LINELEN);
+	    if (0 == interp_stack_buf[0]) {
+		break;
+	    }
+	    snprintf(msg,sizeof(msg),"%d: %s",index,interp_stack_buf);
+	    MESSAGE(msg);
+	    index++;
+	}
+    }
+    return status;
+}
+
+// common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
+int Interp::execute_handler(setup_pointer settings, const char *cmd)
+{
+    // TBD:  good error reporting on errors in T_COMMAND, M6_COMMAND
+    settings->sequence_number = 1;
+
+    int status = execute(cmd,0);
+    report_error(settings,status,cmd);
+
+    while (status == INTERP_EXECUTE_FINISH) {
+	status = execute(0);
+	report_error(settings,status,cmd);
+    }
+    return(status);
+}
+
 
 /****************************************************************************/
 
