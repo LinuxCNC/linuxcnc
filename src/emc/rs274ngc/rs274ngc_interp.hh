@@ -471,8 +471,11 @@ private:
  int execute_handler( /* ARGUMENTS           */
   setup_pointer settings,  /* pointer to machine settings */
   const char *cmd,
+  int (Interp::*prolog)(setup_pointer settings, int user_data) = NULL,
  int (Interp::*epilog)(setup_pointer settings) = NULL,
-  int remap_op = 0); // really NO_REMAP but rather keep internal
+  int remap_op = 0, // really NO_REMAP but rather keep internal
+  int user_data = 0
+  );
 
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
@@ -483,7 +486,7 @@ private:
  int finish_t_command(setup_pointer settings);
  int finish_m6_command(setup_pointer settings);
  int finish_m61_command(setup_pointer settings);
- int finish_cycle_command(setup_pointer settings);
+ int finish_user_command(setup_pointer settings);
 
  // user-defined g/mcode support
  int define_gcode(double gcode,  int modal_group,const char *argspec);
@@ -492,9 +495,23 @@ private:
  // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
  bool check_args(block_pointer block,const char *argspec);
 
- // given a block and an argspec, add all requried and
+ // given a settings and some opaque userdata, 'do the right thing'
  // present optional words to the subroutine's local variables
- bool add_parameters(block_pointer block,const char *argspec);
+ // userdata would typically be a gcode or mcode
+ int add_parameters(setup_pointer settings, int user_data = 0);
+
+ int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
+
+#define is_user_gcode(s,x) (usercode_mgroup(s,x,false) != -1)
+#define is_user_mcode(s,x) (usercode_mgroup(s,x,true) != -1)
+
+#define IS_USERMCODE(bp,sp,step) (((bp)->m_modes[step] > -1) && (usercode_mgroup(sp,(bp)->m_modes[step],true) > -1))
+
+ const char *usercode_argspec(setup_pointer settings,int ccode, bool mcode = false );
+
+ int convert_remapped_code(int code,block_pointer block,
+			   setup_pointer settings,int type);
+ const char *remap_name(setup_pointer settings,int type, int code);
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 

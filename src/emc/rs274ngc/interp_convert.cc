@@ -2251,8 +2251,10 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
   if (block->motion_to_be != -1) {
       status = convert_motion(block->motion_to_be, block, settings);
-      if (remove_trail)
+      if (remove_trail) {
 	  block->motion_to_be = -1;
+	  block->g_modes[GM_MOTION] = -1; // not sure this is always valid FIXME mah
+      }
       CHP(status);
   }
   return INTERP_OK;
@@ -2806,8 +2808,7 @@ int Interp::restore_context(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	//	status = execute_handler(settings, cmd);
-	status = execute(cmd);  // FIXME
+	status = execute(cmd);
 	ERP(status);
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
@@ -2857,17 +2858,98 @@ int Interp::finish_m61_command(setup_pointer settings)
 	settings->toolchange_flag = true;
 	set_tool_parameters();
     } else {
-	// mark command replacement as finished
-	settings->executing_remap = false;
 	CANON_ERROR("M61 failed (%f)",settings->return_value);
 	SEND_HANDLER_ABORT(round_to_int(settings->return_value));
     }
     remap_finished(status);
-    // // mark command replacement as finished
-    // settings->executing_remap = false;
     return INTERP_OK;
 }
 
+
+int Interp::usercode_mgroup(setup_pointer settings,int code, bool mcode)
+{
+    std::map<int, int>::iterator ii;
+
+    if (mcode)
+	code += MCODE_OFFSET;
+    ii = settings->usercodes_mgroup.find(code);
+    if (ii == settings->usercodes_mgroup.end())
+	return -1;
+    else
+	return settings->usercodes_mgroup[code];
+}
+
+const char *Interp::usercode_argspec(setup_pointer settings,int code,
+				     bool mcode)
+{
+    std::map<int, const char *>::iterator ci;
+
+    if (mcode)
+	code += MCODE_OFFSET;
+    ci = settings->usercodes_argspec.find(code);
+    if (ci == settings->usercodes_argspec.end())
+	return NULL;
+    else
+	return settings->usercodes_argspec[code];
+}
+
+// handler epilogue for remapped user m + g codes
+int Interp::finish_user_command(setup_pointer settings)
+{
+    remap_finished(INTERP_OK);
+    return INTERP_OK;
+}
+
+const char *Interp::remap_name(setup_pointer settings,int type, int code)
+{
+    static char name[10];
+    int rem;
+
+    switch (type) {
+
+    case G_USER_REMAP:
+	rem = code % 10;
+	if (rem)
+	    snprintf(name,sizeof(name),"G%d.%d",code/10,rem);
+	else
+	    snprintf(name,sizeof(name),"G%d",code/10);
+	break;
+
+    case M_USER_REMAP:
+	snprintf(name,sizeof(name),"M%d",code-MCODE_OFFSET);
+	break;
+    default:
+	return "<unknown code>";
+    }
+    return name;
+}
+
+#define CODE(x) ((x == M_USER_REMAP) ? "M": (x == G_USER_REMAP) ? "G":"unknown")
+
+int Interp::convert_remapped_code(int code,block_pointer block,
+				  setup_pointer settings,int type)
+{
+    char cmd[LINELEN];
+    int status;
+
+    fprintf(stderr,"----convert_remapped_code %s%d\n",
+	    CODE(type),code);
+
+    snprintf(cmd,sizeof(cmd),"o<%s%d> call",
+	      CODE(type), code);
+    status = execute_handler(settings, cmd,
+			     &Interp::add_parameters,
+			     &Interp::finish_user_command, // FIXME
+			     type,
+			     code);
+
+    if (status != INTERP_OK) {
+	ERS("%s sub: reading '%s' failed (%d)",
+	    remap_name(settings,type,code),cmd,status);
+	return status;
+    }
+    return(-type);
+}
 
 /****************************************************************************/
 
@@ -2903,7 +2985,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		      setup_pointer settings,    //!< pointer to machine settings
 		      bool remove_trail)
 {
-  int type;
+    int type,status;
   double timeout;               // timeout for M66
   double *pars;                 /* short name for settings->parameters            */
 
@@ -2920,7 +3002,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
 #define CLEAR_MODE(x) if (remove_trail) block->m_modes[x] = -1
 
-  if (block->m_modes[5] == 62) {
+  if (IS_USERMCODE(block,settings,5)) {
+      fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+	      block->m_modes[5],5);
+      status = convert_remapped_code(block->m_modes[5],block,
+				   settings,M_USER_REMAP);
+      if (remove_trail) block->m_modes[5] = -1;
+      return status;
+  } else if (block->m_modes[5] == 62) {
       CLEAR_MODE(5);
       CHKS((settings->cutter_comp_side),
            (_("Cannot set motion output with cutter radius compensation on")));  // XXX
@@ -3026,15 +3115,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
            (_("Cannot set auxiliary analog output with cutter radius compensation on")));  // XXX
       CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
       SET_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
-  }    
-  
-  if (block->m_modes[6] != -1) {
-    // when we have M6 do the actual toolchange
-    if (block->m_modes[6] == 6) {
-	if (settings->m6_command) {
-	    CLEAR_MODE(6);
+  }
 
-	    // replicate preconditions form convert_tool_change
+  if (block->m_modes[6] != -1) {
+      if (IS_USERMCODE(block,settings,6)) {
+	  fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+		  block->m_modes[6],6);
+	  status = convert_remapped_code(block->m_modes[6],block,
+				   settings,M_USER_REMAP);
+	  if (remove_trail) block->m_modes[6] = -1;
+	  return status;
+      } else  if (block->m_modes[6] == 6) {
+	    // when we have M6 do the actual toolchange
+	    if (settings->m6_command) {
+	        CLEAR_MODE(6);
+
+	      // replicate preconditions form convert_tool_change
 	    if (settings->selected_pocket < 0) {
 	      ERS(NCE_TXX_MISSING_FOR_M6);
 	    }
@@ -3062,7 +3158,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 		    settings->tool_table[0].toolno,
 		    block->t_number,
 		    settings->selected_pocket);
-	    int status = execute_handler(settings, cmd,&Interp::finish_m6_command, M6_REMAP);
+	    int status = execute_handler(settings, cmd,NULL,&Interp::finish_m6_command, M6_REMAP);
 	    // just parsing the 'o<foo>call[param]..' command is expected to
 	    // return INTERP_OK; if not, something's badly wrong
 	    if (status != INTERP_OK) {
@@ -3092,7 +3188,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
 	if (settings->m61_command) {
 	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m61_command,toolno);
-	    status = execute_handler(settings, cmd,  &Interp::finish_m61_command, M61_REMAP);
+	    status = execute_handler(settings, cmd, NULL, &Interp::finish_m61_command, M61_REMAP);
 	    if (status != INTERP_OK) {
 		ERS("M61 sub: reading '%s' failed (%d)",cmd,status);
 	    }
@@ -3132,8 +3228,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
 #endif
   }
-
-  if (block->m_modes[7] == 3) {
+  if (IS_USERMCODE(block,settings,7)) {
+	  fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+		  block->m_modes[7],7);
+	  status = convert_remapped_code(block->m_modes[7],block,
+				   settings,M_USER_REMAP);
+	  if (remove_trail) block->m_modes[7] = -1;
+	  return status;
+  } else if (block->m_modes[7] == 3) {
       CLEAR_MODE(7);
       enqueue_START_SPINDLE_CLOCKWISE();
       settings->spindle_turning = CANON_CLOCKWISE;
@@ -3191,7 +3293,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       restore_context(&_setup, _setup.call_level);
   }
 
-  if (block->m_modes[8] == 7) {
+if (IS_USERMCODE(block,settings,8)) {
+	  fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+		  block->m_modes[8],8);
+	  status = convert_remapped_code(block->m_modes[8],block,
+				   settings,M_USER_REMAP);
+	  if (remove_trail) block->m_modes[8] = -1;
+	  return status;
+  } else if (block->m_modes[8] == 7) {
       CLEAR_MODE(8);
       enqueue_MIST_ON();
       settings->mist = true;
@@ -3223,8 +3332,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       settings->a_axis_clamping = false;
     }
 */
-
-  if (block->m_modes[9] == 48) {
+  if (IS_USERMCODE(block,settings,9)) {
+      fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+	      block->m_modes[9],9);
+      status = convert_remapped_code(block->m_modes[9],block,
+				     settings,M_USER_REMAP);
+      if (remove_trail) block->m_modes[9] = -1;
+      return status;
+  } else if (block->m_modes[9] == 48) {
     CLEAR_MODE(9);
     CHKS((settings->cutter_comp_side),
          (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
@@ -3302,9 +3417,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
 
-  /* user-defined M codes */
-  if (block->m_modes[10] != -1) {
-
+  if (IS_USERMCODE(block,settings,10)) {
+      fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+	      block->m_modes[10],10);
+      status = convert_remapped_code(block->m_modes[10],block,
+				     settings,M_USER_REMAP);
+      if (remove_trail) block->m_modes[10] = -1;
+      return status;
+  } else if (block->m_modes[10] != -1) {
+     /* user-defined M codes */
     int index = block->m_modes[10];
     CLEAR_MODE(10);
     if (USER_DEFINED_FUNCTION[index - 100] == 0) {
@@ -3432,6 +3553,8 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
+  } else if (is_user_gcode(settings,motion)) {
+    CHP(convert_remapped_code(motion,block,settings,G_USER_REMAP));
   } else if (is_a_cycle(motion)) {
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {

@@ -3,7 +3,7 @@
 *
 * collect all code related to named parameter handling
 *
-* Author: mostl K. Lerman, some by Michael Haberler
+* Author: mostly K. Lerman, some by Michael Haberler
 * License: GPL Version 2
 * System: Linux
 *
@@ -23,6 +23,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <map>
+
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
@@ -244,120 +246,152 @@ bool Interp::check_args(block_pointer block, const char *argspec)
     return false;
 }
 
-// given a block and an argspec, add all requried and
-// present optional words to the subroutine's local variables
-// return INTERP_ERROR if required word unset
-bool Interp::add_parameters(block_pointer block, const char *argspec)
+// given a block and an argspec, add local variables to
+// the current oword subroutine call frame as follows:
+// 1. add all requried and  present optional words.
+// 2. error on missing but required words.
+// 3. error on superfluous words (present but not in argspec).
+// 4. handle 'F' as to require a positive feed.
+// 5. handle 'S' as to require a positive speed.
+// 6. handle 'N' as to add the line number.
+// return INTERP_ERROR and propagate appropriate message if any errors so far
+int Interp::add_parameters(setup_pointer settings, int user_data)
 {
-    const char *s;
+    const char *s,*argspec;
+    block_pointer block;
+    std::map<int, const char*>::iterator ai;
+    char missing[30],superfluous[30],optional[30],required[30];
+    char *m = missing;
+    char *u = superfluous;
+    char *o = optional;
+    char *r = required;
+    char msg[LINELEN], tail[LINELEN];
+    bool errored = false;
 
+    memset(missing,0,sizeof(missing));
+    memset(superfluous,0,sizeof(superfluous));
+    memset(optional,0,sizeof(optional));
+    memset(required,0,sizeof(required));
+    memset(msg,0,sizeof(msg));
+    memset(tail,0,sizeof(tail));
+
+    ai = settings->usercodes_argspec.find(user_data);
+    if (ai == settings->usercodes_argspec.end()) {
+	fprintf(stderr, "addparams: no argspec for %d\n",user_data);
+	return INTERP_OK;
+    }
+    argspec = ai->second;
     s = argspec;
-#define ADD_PARAM(name,value) \
-    add_named_param(name,0); \
+    while (*s) {
+	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
+	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
+	s++;
+    }
+    o = optional;
+    r = required;
+    block = &settings->stashed_block;
+
+    fprintf(stderr,"----add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s\n",
+	    user_data,argspec,settings->call_level,required,optional);
+
+#define STORE(name,value)			\
+    add_named_param(name,0);			\
     store_named_param(name,value,0);
 
+#define PARAM(spec,name,flag,value) 	                    	\
+    if ((flag)) { /* present */	                    	        \
+	/* required or optional */ 	                    	\
+	if (strchr(required,spec) || strchr(optional,spec)) {	\
+	    STORE(name,value);					\
+	} else {						\
+	    /* superfluous */					\
+	    errored = true;					\
+	    *u++ = spec;					\
+	}							\
+    } else {							\
+	if (strchr(required,spec)) { /* missing */		\
+	    *m++ = spec;					\
+	    errored = true;					\
+	}							\
+    }
+// user-defined G88.1: :missing: A,B,C,D,E,F,H,I,J,K,Q,U,V,W,F>0,S>0,
+// 88.1,1,XYZR
+    PARAM('a',"a",block->a_flag,block->a_number);
+    PARAM('b',"b",block->b_flag,block->b_number);
+    PARAM('c',"c",block->c_flag,block->c_number);
+    PARAM('d',"d",block->d_flag,block->d_number_float);
+    PARAM('e',"e",block->e_flag,block->e_number);
+    PARAM('h',"h",block->h_flag,block->h_number);
+    PARAM('i',"i",block->i_flag,block->i_number);
+    PARAM('j',"j",block->j_flag,block->j_number);
+    PARAM('k',"k",block->k_flag,block->k_number);
+    PARAM('p',"p",block->p_flag,block->p_number);
+    PARAM('q',"q",block->q_flag,block->q_number);
+    PARAM('r',"r",block->r_flag,block->r_number);
+    PARAM('u',"u",block->u_flag,block->u_number);
+    PARAM('v',"v",block->v_flag,block->v_number);
+    PARAM('w',"w",block->w_flag,block->w_number);
+    PARAM('x',"x",block->x_flag,block->x_number);
+    PARAM('y',"y",block->y_flag,block->y_number);
+    PARAM('z',"z",block->z_flag,block->z_number);
+
+    // collect dead bodies
+    s = superfluous;
+    if (*s) {
+	strcpy(tail,"superfluous: ");
+    }
     while (*s) {
-	fprintf(stderr,"------- spec char '%c'\n",*s);
-	switch (tolower(*s)){
-	case 'a':
-	    if (block->a_flag) { ADD_PARAM("a",block->a_number); }
-	    else goto test_required; break;
-
-	case 'b':
-	    if (block->b_flag) { ADD_PARAM("b",block->b_number); }
-	    else goto test_required; break;
-
-	case 'c':
-	    if (block->c_flag) { ADD_PARAM("c",block->c_number); }
-	    else goto test_required; break;
-
-	case 'd':
-	    if (block->d_flag) { ADD_PARAM("d",block->d_number_float); }
-	    else goto test_required; break;
-
-	case 'e':
-	    if (block->e_flag) { ADD_PARAM("e",block->e_number); }
-	    else goto test_required; break;
-
-	case 'f':
-	    if (block->f_flag) { ADD_PARAM("f",block->f_number); }
-	    else goto test_required; break;
-
-	case 'h':
-	    if (block->h_flag) { ADD_PARAM("h",block->h_number); }
-	    else goto test_required; break;
-
-	case 'i':
-	    if (block->i_flag) { ADD_PARAM("i",block->i_number); }
-	    else goto test_required; break;
-
-	case 'j':
-	    if (block->j_flag) { ADD_PARAM("j",block->j_number); }
-	    else goto test_required; break;
-
-	case 'k':
-	    if (block->k_flag) { ADD_PARAM("k",block->k_number); }
-	    else goto test_required; break;
-
-	case 'n':
-	    ADD_PARAM("n",block->n_number);
-	    break;
-
-	case 'p':
-	    if (block->p_flag) { ADD_PARAM("p",block->p_number); }
-	    else goto test_required; break;
-
-	case 'q':
-	    if (block->q_flag) { ADD_PARAM("q",block->q_number); }
-	    else goto test_required; break;
-
-	case 'r':
-	    if (block->r_flag) { ADD_PARAM("r",block->r_number); }
-	    else goto test_required; break;
-
-	case 's':
-	    if (block->s_flag) { ADD_PARAM("s",block->s_number); }
-	    else goto test_required; break;
-
-	case 't':
-	    if (block->t_flag) { ADD_PARAM("t",block->t_number); }
-	    else goto test_required; break;
-
-	case 'u':
-	    if (block->u_flag) { ADD_PARAM("u",block->u_number); }
-	    else goto test_required; break;
-
-	case 'v':
-	    if (block->v_flag) { ADD_PARAM("v",block->v_number); }
-	    else goto test_required; break;
-
-	case 'w':
-	    if (block->w_flag) { ADD_PARAM("w",block->w_number); }
-	    else goto test_required; break;
-
-	case 'x':
-	    if (block->x_flag) { ADD_PARAM("x",block->x_number); }
-	    else goto test_required; break;
-
-	case 'y':
-	    if (block->y_flag) { ADD_PARAM("y",block->y_number); }
-	    else goto test_required; break;
-
-	case 'z':
-	    if (block->z_flag) { ADD_PARAM("z",block->z_number); }
-	    else goto test_required; break;
-
-	default: ;
-	    fprintf(stderr,"unknown word specifier '%c' in argument specification '%s'\n",*s,argspec);
-	    return INTERP_ERROR;
-	}
+	errored = true;
+	char c  = toupper(*s);
+	strncat(tail,&c,1);
+	strcat(tail,",");
 	s++;
-	continue;
-    test_required:
-	if (isupper(*s)) {
-	    fprintf(stderr,"missing '%c' parameter\n",*s);
-	}
+    }
+    s = missing;
+    if (*s) {
+	strcat(tail,"missing: ");
+    }
+    while (*s) {
+	errored = true;
+	char c  = toupper(*s);
+	strncat(tail,&c,1);
+	strcat(tail,",");
 	s++;
+    }
+    // special cases:
+    // N...add line number
+    if (strchr(required,'n')) {
+	STORE("n",block->n_number);
+    }
+    // F...require positive feed
+    if (strchr(required,'f')) {
+	if (settings->feed_rate > 0.0) {
+	    STORE("f",settings->feed_rate);
+	} else {
+	    strcat(tail,"F>0,");
+	    errored = true;
+	}
+    }
+    // S...require positive speed
+    if (strchr(required,'s')) {
+	if (settings->speed > 0.0) {
+	    STORE("s",settings->speed);
+	} else {
+	    strcat(tail,"S>0,");
+	    errored = true;
+	}
+    }
+    if (errored) {
+	if (user_data > MCODE_OFFSET) {
+	    snprintf(msg,sizeof(msg),"user-defined M%d: ",
+		     user_data-MCODE_OFFSET);
+	} else {
+	    snprintf(msg,sizeof(msg),"user-defined G%2.1lf: ",
+		     (double)user_data/10.0);
+	}
+	fprintf(stderr,"----add_parameters error: %s%s\n",msg,tail);
+
+	ERS("%s%s",msg,tail);
     }
     return INTERP_OK;
 }

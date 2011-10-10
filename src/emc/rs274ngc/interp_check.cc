@@ -232,6 +232,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   int motion;
 
   motion = block->motion_to_be;
+
+  // bypass ALL checks
+  if (is_user_gcode(&(_setup), motion)) {
+      return INTERP_OK;
+  }
   if (block->a_flag) {
     CHKS(is_a_cycle(motion), NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE);
   }

@@ -200,7 +200,7 @@ int Interp::close()
 }
 
 const char *remaps[] = {"NONE","T_REMAP","M6_REMAP","M61_REMAP",
-			"G_88_1_REMAP", "G_88_2_REMAP"};
+			"M_USER_REMAP","G_USER_REMAP"};
 
 
 /***********************************************************************/
@@ -331,27 +331,34 @@ int Interp::_execute(const char *command)
       //   corresponding routine (see e.g. handling of T in interp_execute.cc)
       //   through calling into execute_handler()
       //
-      // 4. execute_handler() also sets up an epilogue handler for the replacement sub
+      // 4. execute_handler() sets an optional prologue handler which is called
+      //    when the subroutine environment is set up (parameters set, execution of
+      //    body to begin). This is way to set local named parameters for canned cycles.
+      //
+      // 5. execute_handler() also sets up an epilogue handler for the replacement sub
       //   which finishes any work at the C level on endsub/return, and thereafter a callback
       //   into remap_finished().
       //
-      // 5. The execution stops after parsing, and returns with an indication which
+      // 6. The execution stops after parsing, and returns with an indication which
       //   remapping operation was parsed.
       //
       //   NB: it is important that a convert_xxx function encountering a remapped
       //   item does not return a INTERP_* type code but the negative value of the
       //   the remapping operation so the right thing can be done after parsing.
       //
-      // 6. In MDI mode, we have to kick execution by replicating code from above
+      // 7. In MDI mode, we have to kick execution by replicating code from above
       //   to get the osub call going.
       //
-      // 7. In Auto mode, we do an initial execute(0) to get things going, thereafer
+      // 8. In Auto mode, we do an initial execute(0) to get things going, thereafer
       //   task will do it for us.
       //
-      // 8. When a replacment sub finishes, remap_finished() continues execution of
+      // 9. When a replacment sub finishes, remap_finished() continues execution of
       //   the stashed block until done.
       //
       if (next_remap != NO_REMAP) {
+	  // if (_setup.executing_remap != NO_REMAP) {
+	  //     ERS("%s: nested remap",_setup.blocktext);
+	  // }
 	  fprintf(stderr,"--- found remap %s in '%s', level=%d filename=%s\n",
 		  remaps[next_remap],_setup.blocktext,_setup.call_level,_setup.filename);
 	  _setup.stashed_block = _setup.block1;
@@ -366,14 +373,13 @@ int Interp::_execute(const char *command)
 	  case -T_REMAP:
 	  case -M6_REMAP:
 	  case -M61_REMAP:
-	  case -G_88_1_REMAP:
-	  case -G_88_2_REMAP:
+	  case -M_USER_REMAP:
+	  case -G_USER_REMAP:
 	      fprintf(stderr,"--- handler armed: %s\n",remaps[-status]);
 	      _setup.executing_remap = -status;
 	      if (MDImode) {
 		  // need to trigger execution of parsed _setup.block1 here
 		  // replicate MDI oword execution code here
-
 		  if ((_setup.block1.o_number != 0) || (_setup.block1.o_name != 0) || (_setup.mdi_interrupt)) {
 		      CHP(convert_control_functions(&(_setup.block1), &_setup));
 		      if (_setup.mdi_interrupt) {
@@ -438,9 +444,12 @@ int Interp::execute(const char *command)
 
 int Interp::execute(const char *command, int line_number)
 {
-
-  _setup.sequence_number = line_number;
-  return Interp::execute(command);
+    int status;
+    _setup.sequence_number = line_number;
+    fprintf(stderr,"--> execute() level=%d\n",_setup.call_level);
+    status = Interp::execute(command);
+    fprintf(stderr,"<-- execute() level=%d\n",_setup.call_level);
+    return status;
 }
 
 // when a remapping sub finishes, the oword return/endsub handling code
@@ -458,9 +467,8 @@ int Interp::remap_finished(int status)
     case T_REMAP:
     case M6_REMAP:
     case M61_REMAP:
-    case G_88_1_REMAP:
-    case G_88_2_REMAP:
-
+    case M_USER_REMAP:
+    case G_USER_REMAP:
 	// any more remaps left?
 	next_remap = next_remapping(&(_setup.stashed_block), &_setup);
 	if (next_remap) {
@@ -481,41 +489,98 @@ int Interp::remap_finished(int status)
 	}
 	return status;
 	break;
-    default: ;
 
+    default: ;
+	// "should not happen"
+	fprintf(stderr,"--- BUG: remap_finished(): unhandled remap code %d\n",
+		remap);
     }
     return INTERP_OK;
 
 }
 
+// examine a block in execution sequence for an active item which is
+// remapped to an oword subroutine.
+// execution sequence as described in:
+// http://www.linuxcnc.org/docs/2.4/html/gcode_overview.html#sec:Order-of-Execution
 
+// return NO_REMAP if no remapped item found.
+// return remap_op of the first remap in execution sequence.
 int Interp::next_remapping(block_pointer block, setup_pointer settings)
 {
-    // test if block contains an active item which is
-    // remapped to an oword subroutine.
+    int exec_phase, mode;
 
-    // return NO_REMAP  on no remap found.
-    // return remap_op of the first remap in G-code execution sequence.
+    for (exec_phase = 1; exec_phase < 31; exec_phase++) {
+	switch (exec_phase) {
+	case 1: // Comment (including message)
+	case 2: // Set feed rate mode (G93, G94).
+	case 3: // Set feed rate (F).
+	case 4: // Set spindle speed (S).
+	    break;
+	case 5: // Select tool (T).
+	    if (block->t_flag && (settings->t_command != NULL))
+		return T_REMAP;
+	    break;
+	case 6: // User defined M-Codes in group 5
+	    if (IS_USERMCODE(block,settings,5))
+		return M_USER_REMAP;
+	    break;
+	case 7: // HAL pin I/O (M62-M68)
+	case 8: // User defined M-Codes in group 6
+	    if (IS_USERMCODE(block,settings,6))
+		return M_USER_REMAP;
+	    break;
+	case 9: // Change tool (M6).
+	    if ((block->m_modes[6] == 6) && (settings->m6_command != NULL))
+		return M6_REMAP;
+	    if ((block->m_modes[6] == 61) && (settings->m61_command != NULL))
+		return M61_REMAP;
+	    break;
+	case 10: // User defined M-Codes in group 7
+	    if (IS_USERMCODE(block,settings,7))
+		return M_USER_REMAP;
+	    break;
 
-    // if remapping other codes, add to this predicate accordingly.
-
-
-    // 5:
-    if (block->t_flag && (settings->t_command != NULL))
-	return T_REMAP;
-
-    // 6:
-    if ((block->m_modes[6] == 6) && (settings->m6_command != NULL))
-	return M6_REMAP;
-    if ((block->m_modes[6] == 61) && (settings->m61_command != NULL))
-	return M61_REMAP;
-
-    // 20:
-    if ((block->g_modes[1] == G_88_1) && (settings->g881_command != NULL))
-	return G_88_1_REMAP;
-    if ((block->g_modes[1] == G_88_2) && (settings->g882_command != NULL))
-	return G_88_2_REMAP;
-
+	case 11: // Spindle on or off (M3, M4, M5).
+	case 12: // Save State (M70, M73), Restore State (M72), Invalidate State (M71)
+	case 13: // User defined M-Codes in group 8
+	    if (IS_USERMCODE(block,settings,8))
+		return M_USER_REMAP;
+	    break;
+	case 14: // Coolant on or off (M7, M8, M9).
+	    break;
+	case 15: // User defined M-Codes in group 9
+	    if (IS_USERMCODE(block,settings,9))
+		return M_USER_REMAP;
+	    break;
+	case 16: // Enable or disable overrides (M48, M49,M50,M51,M52,M53).
+	case 17: // User defined M-Codes in group 10
+	    if (IS_USERMCODE(block,settings,10))
+		return M_USER_REMAP;
+	    break;
+        case 18: // User-defined Commands (M100-M199)
+	case 19: // Dwell (G4).
+	case 20: // Set active plane (G17, G18, G19).
+	case 21: // Set length units (G20, G21).
+	case 22: // Cutter radius compensation on or off (G40, G41, G42)
+	case 23: // Cutter length compensation on or off (G43, G49)
+	case 24: // Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
+	case 25: // Set path control mode (G61, G61.1, G64)
+	case 26: // Set distance mode (G90, G91).
+	case 27: // Set retract mode (G98, G99).
+	case 28: // Go to reference location (G28, G30) or change coordinate system data (G10) or set axis offsets (G92, G92.1, G92.2, G94).
+	    break;
+	case 29: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
+	    mode = block->g_modes[GM_MOTION];
+	    if ((mode != -1) && is_user_gcode(settings,mode)) {
+		return G_USER_REMAP;
+	    }
+	    break;
+	case 30: // Stop (M0, M1, M2, M30, M60).
+	    break;
+	    // when adding cases, dont forget to increase exec_phase upper limit
+	}
+    }
     return NO_REMAP;
 }
 
@@ -745,17 +810,6 @@ int Interp::init()
 	      _setup.on_abort_command = NULL;
           }
 
-	  if (NULL != (inistring = inifile.Find("G_88_1_COMMAND", "RS274NGC"))) {
-	      _setup.g881_command = strdup(inistring);
-          } else {
-	      _setup.g881_command = NULL;
-          }
-
-	  if (NULL != (inistring = inifile.Find("G_88_2_COMMAND", "RS274NGC"))) {
-	      _setup.g882_command = strdup(inistring);
-          } else {
-	      _setup.g882_command = NULL;
-          }
 	  // test repeat groups
 	  int n = 1;
 	  while (NULL != (inistring = inifile.Find("GCODE", "CUSTOM", n))) {
@@ -2005,7 +2059,8 @@ int Interp::on_abort(int reason)
     if (_setup.on_abort_command == NULL)
 	return -1;
 
-    _setup.executing_remap = false; // returned to top level
+    // returned to top level - this requires testing FIXME mah
+    _setup.executing_remap = NO_REMAP;
 
     char cmd[LINELEN];
 
@@ -2015,7 +2070,7 @@ int Interp::on_abort(int reason)
     ERP(status);
     return status;
 }
-
+// gcodes are 0..999
 int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
 {
     int code = round_to_int(gcode *10);
@@ -2028,14 +2083,15 @@ int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
     if (_gees[code] != -1) {
 	fprintf(stderr, "G-code %2.1f already defined\n",gcode);
     }
-    if (_setup.user_gcode_mgroup[code]) {
+    if (_setup.usercodes_mgroup[code]) {
 	fprintf(stderr, "G-code %2.1f already remapped\n",gcode);
     }
-    _setup.user_gcode_argspec[code] = strdup(argspec);
-    _setup.user_gcode_mgroup[code] = modal_group;
+    _setup.usercodes_argspec[code] = strdup(argspec);
+    _setup.usercodes_mgroup[code] = modal_group;
     return INTERP_OK;
 }
 
+// mcodes start at MCODE_OFFSET
 int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
 {
     if ((mcode < 74)|| (mcode > 99)) {
@@ -2045,11 +2101,12 @@ int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
     if (_ems[mcode] != -1) {
 	fprintf(stderr, "M-code %d already defined\n",mcode);
     }
-    if (_setup.user_mcode_mgroup[mcode]) {
-	fprintf(stderr, "M-code %d already remapped\n",mcode);
+    mcode += MCODE_OFFSET;
+    if (_setup.usercodes_mgroup[mcode]) {
+	fprintf(stderr, "M-code %d already remapped\n",mcode-MCODE_OFFSET);
     }
-    _setup.user_mcode_argspec[mcode] = strdup(argspec);
-    _setup.user_mcode_mgroup[mcode] = modal_group;
+    _setup.usercodes_argspec[mcode] = strdup(argspec);
+    _setup.usercodes_mgroup[mcode] = modal_group;
     return INTERP_OK;
 }
 

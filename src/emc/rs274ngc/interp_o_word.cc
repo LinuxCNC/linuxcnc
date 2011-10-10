@@ -472,12 +472,8 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	  if (settings->sub_context[settings->call_level+1].epilog) {
 	      fprintf(stderr,"---- return/endsub: calling epilogue\n");
 	      int status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings);
-	      // try executing remap_status() as part of epilog
-	      // // signal end of remapping handler
-	      // remap_finished(status);
-	      // cop out if epilogue failed. NB: this must abort.
 	      if (status > INTERP_MIN_ERROR)
-		  return(status);
+		  ERS("epilogue failed"); //FIXME
 	  }
 
 
@@ -594,25 +590,52 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      settings->epilog_hook;
       settings->epilog_hook = NULL;  // mark as consumed
 
+      // remember a prolog function
+      // and memoized userdata in current call frame
+      // needed for recursive invocation
+      settings->sub_context[settings->call_level].prolog =
+	  settings->prolog_hook;
+      settings->prolog_hook = NULL;  // mark as consumed
+
+      settings->sub_context[settings->call_level].userdata =
+	  settings->prolog_userdata;
+
       // set the new subName
       // !!!KL do we need to free old subName?
       settings->sub_context[settings->call_level].subName =
 	strdup(block->o_name);
 
-      // this is the place to call a prolog function
-      if (settings->prolog_hook) {
-	  fprintf(stderr,"---- call: calling prologue\n");
-	  int status = (*this.*settings->prolog_hook)(settings);
-	  if (status != INTERP_OK) {
-	      ERS("Prolog failed: %s",block->o_name);
+      // just curious: detect recursion
+      if ((settings->call_level > 0) &&
+	  (settings->sub_context[settings->call_level].subName != NULL) &&
+	  (settings->sub_context[settings->call_level-1].subName  != NULL)) {
+	  if (!strcmp(settings->sub_context[settings->call_level].subName,
+		      settings->sub_context[settings->call_level-1].subName)) {
+
+	      fprintf(stderr,"---- recursive call: '%s'\n",
+		      settings->sub_context[settings->call_level].subName);
 	  }
-	  return status;
       }
-      // XXX: add canned cycle params here -mah
-      // a test, and it works
-      // add_parameters(&(settings->stashed_block),"xyzfpqr");
+
+      // this is the place to call a prolog function
+      if (settings->sub_context[settings->call_level].prolog) {
+	  fprintf(stderr,"---- call: calling prologue\n");
+	  int status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
+										   settings->sub_context[settings->call_level].userdata);
+	  // prolog is exepected to set an appropriate error string
+	  if (status != INTERP_OK) {
+	      // we're terminating the call in progress as we were setting it up.
+	      // need to unwind setup so far.
+	      if (settings->sub_context[settings->call_level].subName)
+		  free(settings->sub_context[settings->call_level].subName);
+	      settings->call_level--;
+	      // settings->sub_context[settings->call_level].filename is freed in caller
+	      return status;
+	  }
+      }
 
       if (control_back_to(block,settings) == INTERP_ERROR) {
+	  settings->call_level--;
           ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
           return INTERP_ERROR;
       }

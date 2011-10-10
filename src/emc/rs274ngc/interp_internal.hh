@@ -197,10 +197,6 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_86   860
 #define G_87   870
 #define G_88   880
-
-#define G_88_1 881
-#define G_88_2 882
-
 #define G_89   890
 #define G_90   900
 #define G_90_1 901
@@ -265,9 +261,11 @@ typedef struct block_struct
   bool f_flag;
   double f_number;
 
-    // indices into g_modes
-    // missing: 1,9,11
+// Modal groups
+// also indices into g_modes
+// unused: 9,11
 #define GM_MODAL_0        0
+#define GM_MOTION         1
 #define GM_SET_PLANE      2
 #define GM_DISTANCE_MODE  3
 #define GM_IJK_DISTANCE_MODE  4
@@ -368,10 +366,13 @@ typedef struct context_struct {
   int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+
+    // record prolog in stack frame in case recursion involved
+  int (Interp::*prolog)(setup_pointer settings, int user_data);
+  int userdata; // memoized parameter to prolog function
   // if set, the following handler is executed on endsub/return
   int (Interp::*epilog)(setup_pointer settings);
-    // the prolog function needs no recording in the call frame since it's
-    // executed while 'we have control'
+
 }context;
 
 #define CONTEXT_VALID   1 // this was stored by M7*
@@ -549,23 +550,23 @@ typedef struct setup_struct
   // 3. the subroutine name has been set in subName
   // Usage: add local parameters as passed by block/defined by argspec
   // for canned cylces in g-code
-  int (Interp::*prolog_hook)(setup_pointer settings);
+    int (Interp::*prolog_hook)(setup_pointer settings, int user_data);
+    int prolog_userdata; // memoized parameter to prolog function
   // if set on a sub call, the following function is executed on endsub/return
   int (Interp::*epilog_hook)(setup_pointer settings);
     const char *t_command, *m6_command,*m61_command,*on_abort_command;
-    const char *g881_command, *g882_command;
   int executing_remap;  // we are in a Tx/M6/M61 replacement procedure
     // see enum remap_op in rs274ngc_interp.hh for values
-
-    std::map<int,const char *> user_gcode_argspec;
-    std::map<int,int> user_gcode_mgroup;
-    std::map<int,const char *> user_mcode_argspec;
-    std::map<int,int> user_mcode_mgroup;
+// gcodes are 0..999
+// mcodes are at offset MCODE_OFFSET
+#define MCODE_OFFSET 1000
+    std::map<int,const char *> usercodes_argspec;
+    std::map<int,int> usercodes_mgroup;
 }
 setup;
 
 enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3,
-	       G_88_1_REMAP=4, G_88_2_REMAP=5};
+	       M_USER_REMAP=4,G_USER_REMAP=5};
 
 typedef setup *setup_pointer;
 

@@ -248,8 +248,11 @@ int Interp::finish_t_command(setup_pointer settings)
 
 // common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
 int Interp::execute_handler(setup_pointer settings, const char *cmd,
+			    int (Interp::*prolog)(setup_pointer settings,
+						  int user_data),
 			    int (Interp::*epilog)(setup_pointer settings),
-			    int remap_op
+			    int remap_op,
+			    int user_data
 )
 {
     // TBD:  good error reporting on errors in T_COMMAND, M6_COMMAND
@@ -265,6 +268,11 @@ int Interp::execute_handler(setup_pointer settings, const char *cmd,
     // it's essentially a hidden param to the call
 
     settings->epilog_hook = epilog;
+
+    // this hook might call a function to enrich subroutine local params
+    settings->prolog_hook = prolog;
+    settings->prolog_userdata = user_data;
+
     // just read and parse into _setup.block1
     // NB: we're NOT triggering MDI handling in execute()
     int status = read(cmd);
@@ -377,7 +385,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 		 block->t_number,
 		 pocket);
 
-	status = execute_handler(settings, cmd, &Interp::finish_t_command, T_REMAP);
+	status = execute_handler(settings, cmd, NULL,
+				 &Interp::finish_t_command, T_REMAP);
 	// fprintf(stderr,"---- execute_block(t_command) returning %s\n",
 	// 	interp_status(status));
 
@@ -392,6 +401,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   CHP(convert_g(block, settings, remove_trail));
   if (block->m_modes[4] != -1) {        /* converts m0, m1, m2, m30, or m60 */
     status = convert_stop(block, settings);
+    if (remove_trail)
+	block->m_modes[4] = -1;
     if (status == INTERP_EXIT) {
 	return(INTERP_EXIT);
     }
