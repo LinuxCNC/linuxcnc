@@ -163,7 +163,7 @@ int Interp::find_named_param(
       if(0 == strcmp(nameList->named_parameters[i], nameBuf))
       {
 	  if (nameList->named_param_attr[i] & PA_UNSET) {
-	      MSG("warning: referencing unassigned variable '%s'\n",nameBuf);
+	      logNP("warning: referencing unassigned variable '%s'\n",nameBuf);
 	  }
 	  if (nameList->named_param_attr[i] & PA_USE_LOOKUP) {
 	      *status = lookup_named_param(nameBuf, nameList->named_param_values[i], value);
@@ -249,20 +249,31 @@ bool Interp::check_args(block_pointer block, const char *argspec)
     return false;
 }
 
-// given a block and an argspec, add local variables to
-// the current oword subroutine call frame, or a Python dict as follows:
+// add_parameters - built-in prolog function
+//
+// handles argspec and extracts required and optional items from the
+// controlling block.
+//
+// if preparing for an NGC file, add local variables to
+// the current oword subroutine call frame
+//
+// if preparing for a Python function, generate a kwargs style
+// dictionary of required and optional items
+//
 // 1. add all requried and  present optional words.
 // 2. error on missing but required words.
 // 3. error on superfluous words (present but not in argspec).
 // 4. handle 'F' as to require a positive feed.
 // 5. handle 'S' as to require a positive speed.
 // 6. handle 'N' as to add the line number.
+//
 // return INTERP_ERROR and propagate appropriate message if any errors so far
-int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
+// else return INTERP_OK
+
+int Interp::add_parameters(setup_pointer settings, context_pointer callframe)
 {
-    const char *s,*argspec;
+    const char *s,*argspec, *code;
     block_pointer block;
-    std::map<int, const char*>::iterator ai;
     char missing[30],superfluous[30],optional[30],required[30];
     char *m = missing;
     char *u = superfluous;
@@ -271,10 +282,19 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
     bool ignore_others = false;
+    remap_pointer rptr = callframe->remap_info;
+
+    if (!rptr) {
+	ERS("BUG: add_parameters: callframe: remap_info == NULL ");
+    }
+    code = rptr->name;
+
+    // the remapping function is Python, so create a kwargs dict
+    bool pydict = rptr->remap_py && is_pycallable(settings,rptr->remap_py);
 
     if (pydict) {
 	try {
-	    settings->kwargs = bp::dict();
+	    callframe->kwargs = bp::dict();  // FIXME does this leak?
 	}
 	catch (bp::error_already_set) {
 	    PyErr_Print();
@@ -290,13 +310,9 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     memset(msg,0,sizeof(msg));
     memset(tail,0,sizeof(tail));
 
-    ai = settings->usercodes_argspec.find(user_data);
-    if (ai == settings->usercodes_argspec.end()) {
-	// fprintf(stderr, "addparams: no argspec for %d\n",user_data);
-	return INTERP_OK;
-    }
-    argspec = ai->second;
-    s = argspec;
+    s = argspec = rptr->argspec;
+    CHKS((argspec == NULL),"BUG: add_parameters: argspec = NULL");
+
     while (*s) {
 	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
 	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
@@ -307,13 +323,13 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     r = required;
     block = &CONTROLLING_BLOCK((*settings));
 
-    logRemap("add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
-	    user_data,argspec,settings->call_level,required,optional,pydict);
+    logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
+	    code,argspec,settings->call_level,required,optional,pydict);
 
 #define STORE(name,value)						\
     if (pydict) {							\
 	try {								\
-	    settings->kwargs[name] = value;				\
+	    callframe->kwargs[name] = value;				\
         }								\
         catch (bp::error_already_set) {					\
 	    PyErr_Print();						\
@@ -411,11 +427,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     }
     if (errored) {
 	ERS("user-defined %s:%s",
-	    remap_name(settings,
-		       (user_data > MCODE_OFFSET) ?
-		       M_USER_REMAP : G_USER_REMAP,
-		       user_data),
-	    tail);
+	    code, tail);
     }
     return INTERP_OK;
 }
@@ -496,14 +508,12 @@ int Interp::add_named_param(
 }
 
 
-int Interp::free_named_parameters( // ARGUMENTS
-    int level,      // level to free
-    setup_pointer settings)   // pointer to machine settings
+int Interp::free_named_parameters(context_pointer frame)
 {
     struct named_parameters_struct *nameList;
     int i;
 
-    nameList = &settings->sub_context[level].named_parameters;
+    nameList = &frame->named_parameters;
 
     for(i=0; i<nameList->named_parameter_used_size; i++)
     {
@@ -686,6 +696,14 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = abs(_setup.speed);
 	break;
 
+    case 221:
+	*value = _setup.tool_table[0].toolno;
+	break;
+
+    case 222:
+	*value = _setup.selected_pocket;
+	break;
+
     case 240:  // current position
 	*value = _setup.current_x;
 	break;
@@ -845,6 +863,11 @@ int Interp::init_named_parameters()
   // active_settings
   init_readonly_param("_feed", 210, PA_USE_LOOKUP);
   init_readonly_param("_rpm", 220, PA_USE_LOOKUP);
+
+
+  // tool related
+  init_readonly_param("_current_tool", 221, PA_USE_LOOKUP);
+  init_readonly_param("_selected_pocket", 222, PA_USE_LOOKUP);
 
   // current position - alias to #5420-#5429
   init_readonly_param("_x", 240, PA_USE_LOOKUP);

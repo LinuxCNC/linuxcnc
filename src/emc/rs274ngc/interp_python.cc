@@ -21,6 +21,7 @@
 // method to re-import the py module (easier to debug without restarting Axis)
 // block access
 
+
 #include <boost/python.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/python/object.hpp>
@@ -37,6 +38,8 @@ namespace bp = boost::python;
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <exception>
+
 #include "rs274ngc.hh"
 #include "interp_return.hh"
 #include "interp_internal.hh"
@@ -61,6 +64,10 @@ namespace bp = boost::python;
 // NB: this is likely not thread-safe
 static setup_pointer current_setup;
 
+// the Interp instance, set on call before handing to Python
+static Interp *current_interp;
+
+
 // http://hafizpariabi.blogspot.com/2008/01/using-custom-deallocator-in.html
 // reason: avoid segfaults by del(interp_instance) on program exit
 // make delete(interp_instance) a noop wrt Interp
@@ -71,8 +78,7 @@ typedef boost::shared_ptr< Interp > interp_ptr;
 
 typedef boost::shared_ptr< block > block_ptr;
 
-// the Interp instance, set on call before handing to Python
-static Interp *current_interp;
+
 
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
@@ -150,6 +156,20 @@ struct wrap_block : public block
     }
 };
 
+struct wrap_remap : public remap {
+};
+
+struct wrap_context : public context {
+};
+
+// remap_pointer *wrap_remapping(const char *key)
+// {
+//     return  current_interp->remapping( key);
+// }
+
+    //  // inverse to interp_ptr(this...)
+    // logPy("this=%lx interp_instance=%lx x=%lx",(void *)this,(void *)&interp_instance,(void *)&x);
+
 
 BOOST_PYTHON_MODULE(InterpMod) {
     using namespace boost::python;
@@ -159,10 +179,30 @@ BOOST_PYTHON_MODULE(InterpMod) {
         "Interpreter introspection\n"
         ;
 
+    // def("remapping", (wrap_remap *)&wrap_remapping);
+
     // http://snipplr.com/view/6447/boostpython-sample-code-exposing-classes/
     //class_<block,boost::noncopyable,bases<block>>("block", no_init);
 
-    //class_ <block,block_ptr, noncopyable>("block",no_init) ;
+    class_ <wrap_context,noncopyable>("wrap_context",no_init)
+	.def_readwrite("position", &wrap_context::position)
+	.def_readwrite("sequence_number", &wrap_context::sequence_number)
+	.def_readwrite("filename",  &wrap_context::filename)
+	.def_readwrite("subname",  &wrap_context::subName)
+	// need wrapper for saved_params
+	.def_readwrite("kwargs", &wrap_context::kwargs)
+    ;
+
+    class_ <wrap_remap,noncopyable>("wrap_remap",no_init)
+	.def_readwrite("name",&wrap_remap::name)
+	.def_readwrite("op",&wrap_remap::op)
+	.def_readwrite("modal_group",&wrap_remap::modal_group)
+	.def_readwrite("prolog_func",&wrap_remap::prolog_func)
+	.def_readwrite("remap_py",&wrap_remap::remap_py)
+	.def_readwrite("remap_ngc",&wrap_remap::remap_ngc)
+	.def_readwrite("epilog_func",&wrap_remap::epilog_func)
+    ;
+
     class_ <wrap_block,noncopyable>("wrap_block",no_init)
 	.def_readwrite("f_flag",&wrap_block::f_flag)
 	.def_readwrite("p_flag",&wrap_block::p_flag)
@@ -231,7 +271,6 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.add_property("g_modes", &wrap_block::get_g_modes)
 	.add_property("m_modes", &wrap_block::get_m_modes)
 	.add_property("params", &wrap_block::get_params)
-
 	;
 
     class_< Interp, interp_ptr,
@@ -243,9 +282,11 @@ BOOST_PYTHON_MODULE(InterpMod) {
 
 	// .def_readonly("name", &Var::name)
 
-
 	.def_readwrite("blocktext", (char *) &current_setup->blocktext)
 	.def_readwrite("call_level", &current_setup->call_level)
+	.def_readwrite("callframe",
+		       (wrap_context *)&current_setup->sub_context[current_setup->call_level])
+
 	.def_readwrite("cblock", (wrap_block *) &current_setup->blocks[current_setup->remap_level])
 	.def_readwrite("current_pocket", &current_setup->current_pocket)
 	.def_readwrite("debugmask", &current_setup->debugmask)
@@ -260,6 +301,10 @@ BOOST_PYTHON_MODULE(InterpMod) {
 	.def_readwrite("return_value", &current_setup->return_value)
 	.def_readwrite("selected_pocket", &current_setup->selected_pocket)
 	.def_readwrite("toolchange_flag", &current_setup->toolchange_flag)
+
+	// still broken
+	//.def_readwrite("remap", (wrap_remap *)&current_setup->blocks[0].current_remap)
+
 
 	;
 
@@ -465,12 +510,14 @@ int Interp::init_python(setup_pointer settings)
     // char *path;
     // PyGILState_STATE gstate;
     interp_ptr  interp_instance;  // the wrapped instance
+    std::string msg;
+    bool err = false;
 
     current_setup = get_setup(this); // // &this->_setup;
     current_interp = this;
 
     if (settings->pymodule_stat != PYMOD_NONE) {
-	logPy("init_python RE-INIT %d",settings->pymodule_stat);
+	logPy("init_python RE-INIT %d pid=%d",settings->pymodule_stat,getpid());
 	return INTERP_OK;  // already done, or failed
     }
     logPy("init_python(this=%lx  pid=%d pymodule_stat=%d PyInited=%d",
@@ -520,14 +567,24 @@ int Interp::init_python(setup_pointer settings)
 	settings->pymodule_stat = PYMOD_OK;
     }
     catch (bp::error_already_set) {
-	std::string msg = handle_pyerror();
-
-	logPy("init_python: module '%s' init failed: %s\n",path,msg.c_str());
-	// PyGILState_Release(gstate);
-
-	ERS("init_python: %s",msg.c_str());
+	if (PyErr_Occurred()) {
+	    // msg = handle_pyerror();
+	    PyErr_Print();
+	    err = true;
+	}
+	bp::handle_exception();
 	settings->pymodule_stat = PYMOD_FAILED;
 	PyErr_Clear();
+    }
+    // hm...
+    catch (std::exception& e) {
+	msg = e.what();
+	err = true;
+
+    }
+    if (err) {
+	logPy("init_python: module '%s' init failed: %s\n",path,msg.c_str());
+	ERS("init_python: %s",msg.c_str());
     }
     //PyGILState_Release(gstate);
 
@@ -561,7 +618,8 @@ bool Interp::is_pycallable(setup_pointer settings,
 	result = false;
 	PyErr_Clear();
     }
-    logPy("py_iscallable(%s) = %s\n",funcname,result ? "TRUE":"FALSE");
+    if (_setup.loggingLevel > 3)
+	logPy("py_iscallable(%s) = %s",funcname,result ? "TRUE":"FALSE");
     return result;
 }
 
@@ -572,13 +630,13 @@ static bp::object callobject(bp::object c, bp::object args, bp::object kwds)
 
 int Interp::pycall(setup_pointer settings,
 		   const char *funcname,
-		   double params[])
+		   double *params
+		   )
 {
     bp::object retval;
-    //    PyGILState_STATE gstate;
 
-    logPy("pycall %s [%f] [%f] this=%lx\n",
-	    funcname,params[0],params[1],(unsigned long)this);
+    if (_setup.loggingLevel > 2)
+	logPy("pycall %s \n", funcname);
 
     // &this->_setup wont work, _setup is private
     current_setup = get_setup(this);
@@ -590,21 +648,27 @@ int Interp::pycall(setup_pointer settings,
 	return INTERP_OK;
     }
     // not sure if this is needed
-    //    gstate = PyGILState_Ensure();
+    //   PyGILState_STATE gstate = PyGILState_Ensure();
 
     try {
 	bp::object function = settings->module_namespace[funcname];
-	bp::list plist;
-	for (int i = 0; i < 30; i++) {
-	    plist.append(params[i]);
-	}
+	bp::object posarg;
 
-	retval = callobject(function,bp::make_tuple(plist),
-				       settings->kwargs);
+	if (params) {
+	    bp::list plist;
+	    for (int i = 0; i < INTERP_SUB_PARAMS; i++) {
+		plist.append(params[i]);
+	    }
+	    posarg = bp::make_tuple(plist);
+	} else {
+	    posarg = bp::tuple();
+	}
+	retval = callobject(function,posarg,
+			    settings->sub_context[settings->call_level].kwargs);
     }
     catch (bp::error_already_set) {
+	// NB: see py_execute exception handler - handle_exception() ??
 	std::string msg = handle_pyerror();
-	//logPy("pycall: pid=%d  %s", getpid(), msg.c_str());
 	ERS("pycall: pid=%d %s", getpid(),msg.c_str());
 	PyErr_Clear();
 	//	PyGILState_Release(gstate);
@@ -649,7 +713,8 @@ int Interp::py_execute(const char *cmd)
     bp::object retval;
 
     try {
-	retval = bp::exec(cmd,_setup.module_namespace,
+	retval = bp::exec(cmd,
+			  _setup.module_namespace,
 			  _setup.module_namespace);
     }
     catch (bp::error_already_set) {

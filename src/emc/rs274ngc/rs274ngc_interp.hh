@@ -111,11 +111,13 @@ public:
  int set_tool_parameters();
  int on_abort(int reason, const char *message);
 
+    void set_loglevel(int level);
+
     // for now, public - for boost.python access
  int find_named_param(const char *nameBuf, int *status, double *value);
  int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
  int add_named_param(const char *nameBuf, int attr = 0);
-
+    remap_pointer remapping(const char *code);
 private:
 
 /* Function prototypes for all  functions */
@@ -147,25 +149,25 @@ private:
  int check_other_codes(block_pointer block);
  int close_and_downcase(char *line);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
- int convert_spline(int move, block_pointer block, setup_pointer settings); 
+ int convert_spline(int move, block_pointer block, setup_pointer settings);
  int comp_get_current(setup_pointer settings, double *x, double *y, double *z);
  int comp_set_current(setup_pointer settings, double x, double y, double z);
  int comp_get_programmed(setup_pointer settings, double *x, double *y, double *z);
  int comp_set_programmed(setup_pointer settings, double x, double y, double z);
  int convert_arc(int move, block_pointer block, setup_pointer settings);
  int convert_arc2(int move, block_pointer block,
-                  setup_pointer settings, 
-                  double *current1, double *current2, double *current3, 
+                  setup_pointer settings,
+                  double *current1, double *current2, double *current3,
                   double end1, double end2, double end3,
-                  double AA_end, double BB_end, double CC_end, 
-                  double u_end, double v_end, double w_end, 
+                  double AA_end, double BB_end, double CC_end,
+                  double u_end, double v_end, double w_end,
                   double offset1, double offset2);
 
  int convert_arc_comp1(int move, block_pointer block,
                        setup_pointer settings,
                        double end_x, double end_y, double end_z,
                        double offset_x, double offset_y,
-                       double AA_end, double BB_end, double CC_end, 
+                       double AA_end, double BB_end, double CC_end,
                        double u_end, double v_end, double w_end);
 
  int convert_arc_comp2(int move, block_pointer block,
@@ -259,7 +261,7 @@ private:
  int convert_straight(int move, block_pointer block,
                             setup_pointer settings);
  int convert_straight_comp1(int move, block_pointer block,
-                            setup_pointer settings, 
+                            setup_pointer settings,
                             double px, double py, double end_z,
                             double AA_end, double BB_end, double CC_end,
                             double u_end, double v_end, double w_end);
@@ -294,12 +296,12 @@ private:
  int find_current_in_system_without_tlo(setup_pointer s, int system, double *x, double *y, double *z,
                             double *a, double *b, double *c,
                             double *u, double *v, double *w);
- int find_ends(block_pointer block, setup_pointer settings, 
-               double *px, double *py, double *pz, 
+ int find_ends(block_pointer block, setup_pointer settings,
+               double *px, double *py, double *pz,
                double *AA_p, double *BB_p, double *CC_p,
                double *u_p, double *v_p, double *w_p);
  int find_relative(double x1, double y1, double z1,
-                   double AA_1, double BB_1, double CC_1, 
+                   double AA_1, double BB_1, double CC_1,
                    double u_1, double v_1, double w_1,
                    double *x2, double *y2, double *z2,
                    double *AA_2, double *BB_2, double *CC_2,
@@ -319,7 +321,7 @@ private:
                                  double cx, double cy, int turn, double x2,
                                  double y2, double z2, block_pointer block,
                                  setup_pointer settings);
- int inverse_time_rate_straight(double end_x, double end_y, double end_z, 
+ int inverse_time_rate_straight(double end_x, double end_y, double end_z,
                                 double AA_end, double BB_end, double CC_end,
                                 double u_end, double v_end, double w_end,
                                 block_pointer block,
@@ -385,7 +387,7 @@ private:
 
  int lookup_named_param(const char *nameBuf, double index, double *value);
     int init_readonly_param(const char *nameBuf, double value, int attr);
- int free_named_parameters(int level, setup_pointer settings);
+    int free_named_parameters(context_pointer frame);
  int save_context(setup_pointer settings);
  int restore_context(setup_pointer settings, int from_level);
  int gen_settings(double *current, double *saved, char *cmd);
@@ -467,12 +469,15 @@ private:
 
  int execute_handler(setup_pointer settings,  /* pointer to machine settings */
 		     const char *cmd,
-		     int (Interp::*prolog)(setup_pointer settings, int user_data,
-					   bool pydict) = NULL,
-		     int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
-		     int remap_op = 0, // really NO_REMAP but rather keep internal
-		     int user_data = 0,
-		     bool pydict = false);
+		     remap_pointer rptr);
+
+		     // int (Interp::*prolog)(setup_pointer settings, const char *code,
+		     // 			   bool pydict) = NULL,
+		     // int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
+		     // int remap_op = 0, // really NO_REMAP but rather keep internal
+		     // const char *code = 0,
+		     // bool pydict = false);
+
  // step through parsed block and find first active remapped item
  int next_remapping(block_pointer block, setup_pointer settings);
 
@@ -481,11 +486,17 @@ private:
 
  int report_error(setup_pointer settings,int status,const char *text);
 
+    // standard prolog to add named params/param dict
+ // given a settings and some opaque userdata, 'do the right thing'
+ // present optional words to the subroutine's local variables
+ // userdata would typically be a gcode or mcode
+    int add_parameters(setup_pointer settings, context_pointer callframe);
+
  // epilog routines called post G-code handler procedure
- int finish_t_command(setup_pointer settings,int remap);
- int finish_m6_command(setup_pointer settings,int remap);
- int finish_m61_command(setup_pointer settings,int remap);
- int finish_user_command(setup_pointer settings, int remap);
+ int finish_t_command(setup_pointer settings, context_pointer callframe);
+ int finish_m6_command(setup_pointer settings, context_pointer callframe);
+ int finish_m61_command(setup_pointer settings, context_pointer callframe);
+ int finish_user_command(setup_pointer settings, context_pointer callframe);
 
  // user-defined g/mcode support
  int define_gcode(double gcode, int modal_group,const char *argspec);
@@ -496,19 +507,36 @@ private:
 
 
  int init_named_parameters();
- // given a settings and some opaque userdata, 'do the right thing'
- // present optional words to the subroutine's local variables
- // userdata would typically be a gcode or mcode
- int add_parameters(setup_pointer settings, int user_data = 0,bool pydict = false);
- const char *usercode_argspec(setup_pointer settings,int ccode, bool mcode = false );
- int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
- bool has_user_mcode(setup_pointer settings,block_pointer block);
-#define is_user_gcode(s,x) (usercode_mgroup(s,x,false) != -1)
-#define is_user_mcode(s,x) (usercode_mgroup(s,x,true) != -1)
-#define IS_USERMCODE(bp,sp,step) (((bp)->m_modes[step] > -1) && (usercode_mgroup(sp,(bp)->m_modes[step],true) > -1))
- int convert_remapped_code(int code,block_pointer block,
-			   setup_pointer settings,int type);
- int remap_m(block_pointer block, setup_pointer settings,
+
+    //  const char *usercode_argspec(setup_pointer settings,int ccode, bool mcode = false );
+    //  int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
+
+    bool has_user_mcode(setup_pointer settings,block_pointer block);
+
+    // #define is_user_mcode(s,x) (usercode_mgroup(s,x,true) != -1)
+
+    // range for user-remapped M-codes
+    // M6,M61 are handled separately
+#define M_REMAPPABLE(m)				\
+    ((((m > 73) && (m < 100)) ||		\
+      ((m > 199) && (m < 1000))))
+
+    // range for user-remapped G-codes
+#define G_REMAPPABLE(g)				\
+    ((g > 649) && (g < 980))
+
+#define IS_USER_GCODE(x) (G_REMAPPABLE(x) && _setup.g_remapped[x])
+
+#define IS_USER_MCODE(bp,sp,mgroup) \
+    ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
+    (((bp)->m_modes[mgroup]) > -1) &&		\
+     ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
+
+    int convert_remapped_code(block_pointer block,
+			       setup_pointer settings,
+			      char letter,
+			      int number = -1);
+ int convert_remapped_mcode(block_pointer block, setup_pointer settings,
 	    int mode);
  const char *remap_name(setup_pointer settings,int type, int code);
 
@@ -516,8 +544,8 @@ private:
  bool is_pycallable(setup_pointer settings,const char *funcname);
  int pycall(setup_pointer settings,
 	    const char *funcname,
-	    double params[]);
-
+	    double *params);
+    int py_execute(const char *cmd); // for (py, ....) comments
 
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
@@ -533,6 +561,11 @@ private:
     // the Python introspection module // FIXME mah deleatur
 
     friend setup *get_setup(const Interp *x) { return &x->_setup;};
+    void print_remaps(void);
+    void print_remap(const char *key);
+
+    remap_pointer m_remapping(int number);
+    remap_pointer g_remapping(int number);
 
  FILE *log_file;
 

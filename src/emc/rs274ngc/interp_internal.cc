@@ -245,6 +245,10 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
 {
   int n;
   block->breadcrumbs = 0; // clear execution trail
+  // if set in the executing block, current_remap
+  block->current_remap = NULL;
+  block->py_callback = NULL;
+
   block->a_flag = false;
   block->b_flag = false;
   block->c_flag = false;

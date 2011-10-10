@@ -254,6 +254,53 @@ typedef enum
 { R_PLANE, OLD_Z }
 RETRACT_MODE;
 
+// string table - to get rid of strdup/free
+const char *strstore(const char *s);
+
+
+// Block execution steps
+// used to record execution trail in breadcrumbs
+// FIXME unify with exec_phase steps in next_remapping
+enum steps  {STEP_COMMENT, //=1,
+	     STEP_FEED_MODE, // =2,
+	     STEP_FEED_NOT_INVERSE_TIME, //=3, //FIXME naming
+	     STEP_SPINDLE_SPEED, //=4,
+	     STEP_PREPARE, // =5,
+	     // 6 - // User defined M-Codes in group 5  FIXME
+	     // 7 - HAL I7O M62-M68
+	     // 8 - // User defined M-Codes in group 6  FIXME
+
+	     STEP_SPINDLE_MODE,
+	     STEP_STOP,
+	     STEP_MGROUP4,
+	     STEP_DWELL,
+	     STEP_SET_PLANE,
+	     STEP_LENGTH_UNITS,
+	     STEP_LATHE_DIAMETER_MODE,
+	     STEP_CUTTER_COMP,
+	     STEP_TOOL_LENGTH_OFFSET,
+	     STEP_COORD_SYSTEM,
+	     STEP_CONTROL_MODE,
+	     STEP_DISTANCE_MODE,
+	     STEP_IJK_DISTANCE_MODE,
+	     STEP_RETRACT_MODE,
+	     STEP_MODAL_0,
+	     STEP_MOTION,
+	     STEP_M_0,
+	     STEP_M_1,
+	     STEP_M_2,
+	     STEP_M_3,
+	     STEP_M_4,
+	     STEP_M_5,
+	     STEP_M_6,
+	     STEP_M_7,
+	     STEP_M_8,
+	     STEP_M_9,
+	     STEP_M_10,
+	     // add any more steps before MAX_STEPS
+	     MAX_STEPS
+};
+
 typedef struct block_struct
 {
   bool a_flag;
@@ -344,52 +391,30 @@ typedef struct block_struct
   // bitmap of steps already executed
   // we have some 31 or so different steps in a block. We must remember
   // which one is done when we reexecute a block after a remap.
-    std::bitset<32>  breadcrumbs;
+    std::bitset<MAX_STEPS>  breadcrumbs;
 
 #define tickoff(step) block->breadcrumbs[step] = 1
 #define todo(step) (block->breadcrumbs[step] == 0)
 #define once(step) (todo(step) ? tickoff(step),1 : 0)
 #define once_M(step) (todo(STEP_M_ ## step) ? tickoff(STEP_M_ ## step),1 : 0)
 
+    // refers to the current remap in progress
+    // there might be several remapped items in a block, but at any point
+    // in time there's only one excuting
+    remap_pointer current_remap;
+
+    // denotes a Python function to call after a synch()
+    // if py function returns INTERP_EXECUTE_FINISH, and a callback,
+    // the interpreter returns INTERP_EXECUTE_FINISH.
+    // the next execute(0) will call the callback first before
+    // proceeding with other items. The callback may in turn
+    // INTERP_EXECUTE_FINISH, and a callback etc
+    const char *py_callback;
 }
 block;
 
 typedef block *block_pointer;
 
-enum steps  {STEP_COMMENT,
-	     STEP_SPINDLE_MODE,
-	     STEP_FEED_MODE,
-	     STEP_FEED_NOT_INVERSE_TIME,
-	     STEP_SPINDLE_SPEED,
-	     STEP_PREPARE,
-	     STEP_STOP,
-	     STEP_MGROUP4,
-	     STEP_DWELL,
-	     STEP_SET_PLANE,
-	     STEP_LENGTH_UNITS,
-	     STEP_LATHE_DIAMETER_MODE,
-	     STEP_CUTTER_COMP,
-	     STEP_TOOL_LENGTH_OFFSET,
-	     STEP_COORD_SYSTEM,
-	     STEP_CONTROL_MODE,
-	     STEP_DISTANCE_MODE,
-	     STEP_IJK_DISTANCE_MODE,
-	     STEP_RETRACT_MODE,
-	     STEP_MODAL_0,
-	     STEP_MOTION,
-	     STEP_M_0,
-	     STEP_M_1,
-	     STEP_M_2,
-	     STEP_M_3,
-	     STEP_M_4,
-	     STEP_M_5,
-	     STEP_M_6,
-	     STEP_M_7,
-	     STEP_M_8,
-	     STEP_M_9,
-	     STEP_M_10,
-	     MAX_STEPS
-};
 
 #define NAMED_PARAMETERS_ALLOC_UNIT 20
 struct named_parameters_struct {
@@ -408,11 +433,57 @@ struct named_parameters_struct {
 // flag initialization of r/o parameter
 #define OVERRIDE_READONLY 1
 
-typedef struct remap_struct {
-    const char *argspec;
-    int modalgroup;
+typedef struct remap_struct remap;
+typedef remap *remap_pointer;
 
+typedef struct remap_struct {
+    const char *name;
+    int op;
+    const char *argspec;
+    int modal_group;
+    // the following functions are in execution order:
+    int (Interp::*builtin_prolog)(setup_pointer settings, context_pointer cptr);
+    const char *prolog_func; // Py function or null
+    const char *remap_py;    // Py function maybe  null, OR
+    const char *remap_ngc;   // NGC file, maybe  null
+    const char *epilog_func; // Py function or null
+    int (Interp::*builtin_epilog)(setup_pointer settings, context_pointer cptr);
 } remap;
+
+#define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
+		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
+
+#define HAS_BUILTIN_PROLOG(r)			\
+    (((r) != NULL) &&				\
+     (r)->builtin_prolog)
+
+#define HAS_BUILTIN_EPILOG(r)			\
+    (((r) != NULL) &&				\
+     (r)->builtin_epilog)
+
+#define HAS_PYTHON_PROLOG(r)					\
+    (((r) != NULL) &&						\
+     (r)->prolog_func)
+
+#define HAS_PYTHON_EPILOG(r)					\
+    (((r) != NULL) &&						\
+     (r)->epilog_func)
+
+
+#define MAX_REMAPOPTS 20
+// current implementation limits - legal modal groups
+// for M and G codes
+#define M_MODE_OK(m) ((m > 4) && (m < 11))
+#define G_MODE_OK(m) (m == 1)
+
+// case insensitive compare for std::map etc
+struct nocase_cmp
+{
+    bool operator()(const char* s1, const char* s2) const
+    {
+        return strcasecmp(s1, s2) < 0;
+    }
+};
 
 typedef struct context_struct {
   long position;       // location (ftell) in file
@@ -425,17 +496,11 @@ typedef struct context_struct {
   int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-
-  // if set, the following handler is executed during just before
-  // transferring control to a procedure (O-Word or Python)
-    // record prolog in stack frame in case recursion involved
-  int (Interp::*prolog)(setup_pointer settings, int user_data, bool pydict);
-  int userdata; // memoized parameter to prolog function
-
-  // if set, the following handler is executed on endsub/return
-  int (Interp::*epilog)(setup_pointer settings, int remap);
-  int epilog_arg; // memoized parameter to epilog function
+    remap_pointer remap_info;
+    boost::python::object kwargs;
 } context;
+
+typedef context *context_pointer;
 
 #define CONTEXT_VALID   1 // this was stored by M7*
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
@@ -497,8 +562,8 @@ typedef struct setup_struct
   block blocks[MAX_NESTED_REMAPS];
   // index into blocks, points to currently controlling block
   int remap_level;
-#define CONTROLLING_BLOCK(s) s.blocks[s.remap_level]
-#define EXECUTING_BLOCK(s)   s.blocks[0]
+#define CONTROLLING_BLOCK(s) (s).blocks[(s).remap_level]
+#define EXECUTING_BLOCK(s)   (s).blocks[0]
 
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
@@ -613,39 +678,28 @@ typedef struct setup_struct
   bool lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
   bool mdi_interrupt;
 
-  // if set on a sub call, the following function is executed when:
-  // 1. subroutine parameters are set up
-  // 2. call_level has been incremented
-  // 3. the subroutine name has been set in subName
-  // Usage: add local parameters as passed by block/defined by argspec
-  // for canned cylces in g-code
-  int (Interp::*prolog_hook)(setup_pointer settings, int user_data,
-			     bool pydict);
-  int prolog_userdata; // memoized parameter to prolog function
+    const char *py_callback;     // for continuing after EXECUTE_FINISH
 
-  // if set on a sub call, the following function is executed on endsub/return
-  int (Interp::*epilog_hook)(setup_pointer settings,int remap);
-  int epilog_userdata; // memoized parameter to epilog function
+    const char *on_abort_command;
 
-  const char *t_command, *m6_command,*m61_command,*on_abort_command;
-
-// gcodes are 0..999
-// mcodes are at offset MCODE_OFFSET
-#define MCODE_OFFSET 1000
-  std::map<int,const char *> usercodes_argspec;
-  std::map<int,int> usercodes_mgroup;
+    // fast lookup for g and m
+    std::bitset<1000>  g_remapped,m_remapped;
+    std::map<const char *,remap_pointer,nocase_cmp>  remaps;
 
   const char *pymodule, *pydir;
   int pymodule_stat;
   bool py_reload_on_error;
-  boost::python::object module, module_namespace,kwargs;
+  boost::python::object module, module_namespace;
+
 }
 setup;
+
+
 
 enum pymod_stat {PYMOD_NONE=0, PYMOD_FAILED=1,PYMOD_OK=2};
 
 enum remap_op {NO_REMAP=0, T_REMAP=1, M6_REMAP=2, M61_REMAP=3,
-	       M_USER_REMAP=4,G_USER_REMAP=5};
+	       M_USER_REMAP=4,G_USER_REMAP=5, S_REMAP=6, F_REMAP=7};
 
 typedef setup *setup_pointer;
 

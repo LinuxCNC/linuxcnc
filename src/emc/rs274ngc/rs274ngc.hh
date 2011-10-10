@@ -18,6 +18,8 @@
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 3
 
+
+
 /**********************/
 /* INCLUDE DIRECTIVES */
 /**********************/
@@ -35,6 +37,14 @@ typedef struct block_struct block;
 #ifndef JAVA_DIAG_APPLET
 typedef block *block_pointer;
 #endif
+
+typedef struct remap_struct remap;
+typedef remap *remap_pointer;
+
+typedef struct context_struct context;
+typedef context *context_pointer;
+
+
 
 // Declare class so that we can use it in the typedef.
 class Interp;
@@ -79,6 +89,7 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 
 // log always
 #define Log(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,LOG_PID|LOG_FILENAME,-1,fmt, ## args)
+#define Error(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,0,-1,fmt, ## args)
 
 
 

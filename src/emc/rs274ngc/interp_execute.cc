@@ -228,7 +228,7 @@ int Interp::report_error(setup_pointer settings,int status,const char *text)
 }
 
 // Tx epiplogue - executed past T_COMMAND
-int Interp::finish_t_command(setup_pointer settings,int remap)
+int Interp::finish_t_command(setup_pointer settings, context_pointer callframe)
 {
     // if T_COMMAND 'return'ed or 'endsub'ed a #<_value> >= 0,
     // commit the tool prepare to that value.
@@ -239,48 +239,47 @@ int Interp::finish_t_command(setup_pointer settings,int remap)
     } else {
 
 	char msg[LINELEN];
-	snprintf(msg,sizeof(msg),"T<tool> - prepare failed (%f)", settings->return_value);
+	snprintf(msg, sizeof(msg), "T<tool> - prepare failed (%f)",
+		 settings->return_value);
 	INTERP_ABORT(round_to_int(settings->return_value),msg);
 	return INTERP_EXECUTE_FINISH;
     }
-    return remap_finished(remap);
+    return remap_finished(callframe->remap_info->op);
 }
 
 
 // common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
 int Interp::execute_handler(setup_pointer settings, const char *cmd,
-			    int (Interp::*prolog)(setup_pointer settings,
-						  int user_data, bool pydict),
-			    int (Interp::*epilog)(setup_pointer settings,
-						  int remap_op),
-			    int remap_op,
-			    int user_data,
-			    bool pydict
-)
+			    remap_pointer rptr)
+
 {
 
-    settings->sequence_number = 1;
-
-    // some remapped handlers need c/c++ code to finish work after doing theirs.
-    // that's what epilogue functions are for.
-
-    // this tells O_call code to mark the frame with an epilogue handler
-    // the corresponding O_endsub/O_return will call the epilog
-    // this is zeroed when next O_call is executed
-    // it's essentially a hidden param to the call
-
-    settings->epilog_hook = epilog;
-    settings->epilog_userdata = remap_op;
-
-    // prologue functions are called just before the subroutine is entered
-    // this hook might call a function to enrich subroutine local params
-    settings->prolog_hook = prolog;
-    settings->prolog_userdata = user_data;
+    settings->sequence_number = 1; // FIXME not sure..
 
     // just read and parse into _setup.blocks[0] (EXECUTING_BLOCK)
     // NB: we're NOT triggering MDI handling in execute()
+    // NB: cmd MUST be a call of the form 'o<remapfunc> call ...args..'
+
     int status = read(cmd);
-    return(status);
+
+    // some remapped handlers may need c/c++ or Python code to
+    // setup environment before, and finish work after doing theirs.
+    // That's what prolog and epilog functions are for, which are
+    // described in the remap descriptor.
+    // to effect this, the remap descriptor is stored in the current
+    // block. The next execute() will cause the osub call to execute.
+
+    // the O_call code will pick up the descriptor, store it in the
+    // call frame, and call any prolog function before passing control
+    // to the actual handler procedure.
+
+    // On the corresponding O_endsub/O_return, an epilog function
+    // will be executed, doing any work not doable in an NGC file.
+    // the remap structure is essentially a hidden param to the call
+
+    EXECUTING_BLOCK(_setup).current_remap = rptr;
+
+    return status;
 }
 
 
@@ -364,22 +363,24 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 	CHP(status);
   }
   if ((block->t_flag) && once(STEP_PREPARE)){
-    if (settings->t_command) {
+      //    if (settings->t_command) {
+    remap_pointer rptr = remapping("T");
+    if (rptr != NULL) {
 	char cmd[LINELEN];
 	int pocket;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
 	// pocket will start making sense once tooltable I/O is folded into
 	// interp and iocontrol is gone.
-	snprintf(cmd,sizeof(cmd), "%s [%d] [%d]",
-		 settings->t_command,
+	snprintf(cmd,sizeof(cmd), "O<%s> call [%d] [%d]",
+		 REMAP_FUNC(rptr),
 		 block->t_number,
 		 pocket);
 
-	status = execute_handler(settings, cmd, NULL,
-				 &Interp::finish_t_command, T_REMAP);
-	// fprintf(stderr,"---- execute_block(t_command) returning %s\n",
-	// 	interp_status(status));
+	status = execute_handler(settings, cmd, rptr);
+				 // NULL, // no prolog
+				 // &Interp::finish_t_command, // std epilog
+				 // T_REMAP, "T");
 
 	return (-T_REMAP);
 	CHP(status);

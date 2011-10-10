@@ -327,6 +327,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
   int status = INTERP_OK;
   int index;
   int i;
+  context_pointer current_frame, new_frame, leaving_frame,  returnto_frame;
 
   logOword("convert_control_functions");
 
@@ -415,92 +416,87 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       // if level is not zero, in a call
       // otherwise in a defn
       // if we were skipping, no longer
-      if(settings->skipping_o)
-	{
+      if (settings->skipping_o) 	{
 	  logOword("case O_%s -- no longer skipping to:|%s|",
 		   (block->o_type == O_endsub) ? "endsub" : "return",
 		   settings->skipping_o);
 	  free(settings->skipping_o);
           settings->skipping_o = 0;
-	}
-
-      if(settings->call_level != 0) {
+      }
+      if (settings->call_level != 0) {
+	  //  some shorthands to make this readable
+	  leaving_frame = &settings->sub_context[settings->call_level];
+	  returnto_frame = &settings->sub_context[settings->call_level - 1];
 
 	  // free local variables
-	  free_named_parameters(settings->call_level, settings);
-
+	  free_named_parameters(leaving_frame);
 
 	  // free subroutine name
-	  if(settings->sub_context[settings->call_level].subName) {
-	      free(settings->sub_context[settings->call_level].subName);
-	      settings->sub_context[settings->call_level].subName = 0;
+	  if (leaving_frame->subName) {
+	      free(leaving_frame->subName);
+	      leaving_frame->subName = 0;
 	  }
 	  // drop one call level.
 	  settings->call_level--;
 
-
 	  // restore subroutine parameters.
 	  for(i = 0; i < INTERP_SUB_PARAMS; i++) {
 	      settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-		  settings->sub_context[settings->call_level].saved_params[i];
+		  returnto_frame->saved_params[i];
 	  }
 
 	  // file at this level was marked as closed, so dont reopen.
-	  if (settings->sub_context[settings->call_level].position == -1) {
+	  // if (settings->sub_context[settings->call_level].position == -1) {
+	  if (returnto_frame->position == -1) {
 	      settings->file_pointer = NULL;
-	      strcpy(settings->filename,"");
+	      strcpy(settings->filename, "");
 	  } else {
-	      logOword("seeking to: %ld",
-		       settings->sub_context[settings->call_level].position);
-
-	      if(settings->file_pointer == NULL)
-		  {
-		      ERS(NCE_FILE_NOT_OPEN);
-		  }
-
+	      logOword("seeking to: %ld", returnto_frame->position);
+	      if(settings->file_pointer == NULL) {
+		  ERS(NCE_FILE_NOT_OPEN);
+	      }
 	      //!!!KL must open the new file, if changed
+	      if (0 != strcmp(settings->filename, returnto_frame->filename))  {
+		  fclose(settings->file_pointer);
+		  settings->file_pointer = fopen(returnto_frame->filename, "r");
+		  strcpy(settings->filename, returnto_frame->filename);
+	      }
+	      fseek(settings->file_pointer, returnto_frame->position, SEEK_SET);
+	      settings->sequence_number = returnto_frame->sequence_number;
 
-	      if(0 != strcmp(settings->filename,
-			     settings->sub_context[settings->call_level].filename))
-		  {
-		      fclose(settings->file_pointer);
-		      settings->file_pointer =
-			  fopen(settings->sub_context[settings->call_level].filename, "r");
+	      // cleanups on return
+	      // if we have an epilog function - execute it, passing the
+	      // current call frame
 
-		      strcpy(settings->filename,
-			     settings->sub_context[settings->call_level].filename);
-		  }
-
-	      fseek(settings->file_pointer,
-		    settings->sub_context[settings->call_level].position,
-		    SEEK_SET);
-
-	      settings->sequence_number =
-		  settings->sub_context[settings->call_level].sequence_number;
-
-	  // we have an epilog function. Execute it.
-	      if (settings->sub_context[settings->call_level+1].epilog) {
-		  logRemap("return/endsub: calling epilogue\n");
-		  status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings,
-											     settings->sub_context[settings->call_level+1].epilog_arg
-											     );
-		  if (status > INTERP_MIN_ERROR)
-		      logRemap("call: epilogue failed: %s \n", interp_status(status));
+	      if (HAS_PYTHON_EPILOG(leaving_frame->remap_info)) {
+		  logRemap("O_call: py epilog %s for NGC remap %s",
+			   leaving_frame->remap_info->epilog_func,
+			   leaving_frame->remap_info->remap_ngc);
+		  status = pycall(settings, leaving_frame->remap_info->epilog_func,
+				  NULL);
 	      }
 
+	      if (HAS_BUILTIN_EPILOG(leaving_frame->remap_info)) {
+		  logRemap("O_call: calling builtin epilogue\n");
+		  status = (*this.*leaving_frame->remap_info->builtin_epilog)(settings, leaving_frame);
+		  if (status > INTERP_MIN_ERROR) {
+		      logRemap("O_call: builtin epilogue failed: %s \n", interp_status(status));
+		  }
+	      }
+	      leaving_frame->remap_info = NULL; // strike off
 
-	  // a valid previous context was marked by an M73 as auto-restore
-	  if ((settings->sub_context[settings->call_level+1].context_status &
-	       (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
-	      (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
-	      // NB: this means an M71 invalidate context will prevent an
-	      // auto-restore on return/endsub
-	      restore_context(settings, settings->call_level + 1);
-	  }
-	  // always invalidate on leaving a context so we dont accidentially
-	  // 'run into' a valid context when calling the stack upwards again
-	  settings->sub_context[settings->call_level+1].context_status &=
-	      ~CONTEXT_VALID;
+	      // a valid previous context was marked by an M73 as auto-restore
+	      if ((leaving_frame->context_status &
+		   (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) ==
+		  (CONTEXT_RESTORE_ON_RETURN|CONTEXT_VALID)) {
+
+		  // NB: this means an M71 invalidate context will prevent an
+		  // auto-restore on return/endsub
+		  restore_context(settings, settings->call_level + 1);
+	      }
+	      // always invalidate on leaving a context so we dont accidentially
+	      // 'run into' a valid context when growing the stack upwards again
+	      leaving_frame->context_status &=  ~CONTEXT_VALID;
 
 	  }
 
@@ -510,10 +506,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	      settings->sub_name = 0;
 	    }
 
-	  if(settings->sub_context[settings->call_level].subName)
+	  if(returnto_frame->subName)
 	    {
 	      settings->sub_name =
-		strdup(settings->sub_context[settings->call_level].subName);
+		strdup(returnto_frame->subName);
 	    }
 	  else
 	    {
@@ -534,119 +530,113 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		     settings->skipping_o = 0;
 		 }
 	     settings->defining_sub = 0;
-	     if(settings->sub_name)free(settings->sub_name);
+	     if (settings->sub_name) free(settings->sub_name);
 	     settings->sub_name = 0;
 	 }
        }
       break;
     case O_call:
-	if (!is_pycallable(settings,block->o_name)) {
+	current_frame = &settings->sub_context[settings->call_level];
+	new_frame = &settings->sub_context[settings->call_level + 1];
+
+	if (!is_pycallable(settings, block->o_name)) {
 	    // copy parameters from context
 	    // save old values of parameters
 	    // save current file position in context
 	    // if we were skipping, no longer
-	    if(settings->skipping_o)
-		{
-		    logOword("case O_call -- no longer skipping to:|%s|",
-			     settings->skipping_o);
-		    free(settings->skipping_o);
-		    settings->skipping_o = 0;
-		}
-	    if(settings->call_level >= INTERP_SUB_ROUTINE_LEVELS)
-		{
-		    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
-		}
+	    if (settings->skipping_o) {
+		logOword("case O_call -- no longer skipping to:|%s|",
+			 settings->skipping_o);
+		free(settings->skipping_o);
+		settings->skipping_o = 0;
+	    }
+	    if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
+		ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
+	    }
+	    for(i=0; i<INTERP_SUB_PARAMS; i++)	{
+		current_frame->saved_params[i] =
+		    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM];
 
-	    for(i=0; i<INTERP_SUB_PARAMS; i++)
-		{
-		    settings->sub_context[settings->call_level].saved_params[i] =
-			settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM];
-
-		    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-			block->params[i];
-
-		}
+		settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		    block->params[i];
+	    }
 
 	    // if the previous file was NULL, mark positon as -1 so as not to
 	    // reopen it on return.
 	    if (settings->file_pointer == NULL) {
-		settings->sub_context[settings->call_level].position = -1;
+		current_frame->position = -1;
 	    } else {
-		settings->sub_context[settings->call_level].position = ftell(settings->file_pointer);
+		current_frame->position = ftell(settings->file_pointer);
 	    }
 
-	    if(settings->sub_context[settings->call_level].filename)
-		{
-		    // if there is a string here, free it
-		    free(settings->sub_context[settings->call_level].filename);
-		}
+	    if(current_frame->filename)	{
+		// if there is a string here, free it
+		free(current_frame->filename);
+	    }
 	    // save the previous filename
 	    logOword("Duping |%s|", settings->filename);
-	    settings->sub_context[settings->call_level].filename =
-		strdup(settings->filename);
-
-	    settings->sub_context[settings->call_level].sequence_number
-		= settings->sequence_number;
-
+	    current_frame->filename = strdup(settings->filename);
+	    current_frame->sequence_number = settings->sequence_number;
 	    logOword("(in call)set params[%d] return file:%s offset:%ld",
-		     settings->call_level,
-		     settings->sub_context[settings->call_level].filename,
-		     settings->sub_context[settings->call_level].position);
+		     settings->call_level, current_frame->filename, current_frame->position);
 
 	    settings->call_level++;
 
-	    // remember an epilog function in current call frame
-	    settings->sub_context[settings->call_level].epilog =
-		settings->epilog_hook;
-	    settings->epilog_hook = NULL;  // mark as consumed
-	    settings->sub_context[settings->call_level].epilog_arg =
-		settings->epilog_userdata;
+	    // aquire the remap descriptor which was passed through the
+	    // executing block, if so set by execute_handler()
+	    // pick it up here and store in call frame
+	    // the remap descriptor has all the information needed for
+	    // calling any prolog and epilog
 
-	    // remember a prolog function
-	    // and memoized userdata in current call frame
-	    // needed for recursive invocation
-	    settings->sub_context[settings->call_level].prolog =
-		settings->prolog_hook;
-	    settings->prolog_hook = NULL;  // mark as consumed
-
-	    settings->sub_context[settings->call_level].userdata =
-		settings->prolog_userdata;
+	    new_frame->remap_info = EXECUTING_BLOCK(*settings).current_remap;
+	    EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
 
 	    // set the new subName
 	    // !!!KL do we need to free old subName?
-	    settings->sub_context[settings->call_level].subName =
-		strdup(block->o_name);
+	    new_frame->subName = strdup(block->o_name);
 #if 0
 	    // just curious: detect recursion
 	    if ((settings->call_level > 0) &&
-		(settings->sub_context[settings->call_level].subName != NULL) &&
-		(settings->sub_context[settings->call_level-1].subName  != NULL)) {
-		if (!strcmp(settings->sub_context[settings->call_level].subName,
-			    settings->sub_context[settings->call_level-1].subName)) {
-
-		    logOword("recursive call: '%s'\n",
-			    settings->sub_context[settings->call_level].subName);
+		(new_frame->subName != NULL) &&
+		(current_frame->subName  != NULL)) {
+		if (!strcmp(new_frame->subName, current_frame->subName)) {
+		    logOword("recursive call: '%s' call_level %d\n",
+			     new_frame->subName, settings->call_level);
 		}
 	    }
 #endif
-	    // this is the place to call a prolog function
-	    if (settings->sub_context[settings->call_level].prolog) {
-		logRemap("O_call: calling prologue\n");
-		status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
-											 settings->sub_context[settings->call_level].userdata,
-											 false);
-		// prolog is exepected to set an appropriate error string
+	    // this is the place to call a prolog function.
+	    if (HAS_BUILTIN_PROLOG(new_frame->remap_info)) {
+		logRemap("O_call: calling builtin prolog\n");
+		status = (*this.*new_frame->remap_info->builtin_prolog)(settings, new_frame);
+
+		// prolog is exepected to set an appropriate
+		// error string on failure
 		if (status > INTERP_MIN_ERROR) {
 		    // we're terminating the call in progress as we were setting it up.
 		    // need to unwind setup so far.
 		    logRemap("O_call: prologue failed, unwinding\n");
-		    if (settings->sub_context[settings->call_level].subName)
-			free(settings->sub_context[settings->call_level].subName);
+		    if (new_frame->subName)
+			free(new_frame->subName);
 		    settings->call_level--;
+
+		    // FIXME mah dubious - think this through; better to unwind by return status only
 		    settings->remap_level = 0;
 		    return status;
 		}
+	    } else {
+		new_frame->kwargs = boost::python::dict();
 	    }
+
+	    if (HAS_PYTHON_PROLOG(new_frame->remap_info)) {
+		logRemap("O_call: py prologue %s for NGC remap %s ",
+			 new_frame->remap_info->prolog_func,
+			 new_frame->remap_info->remap_ngc);
+		status = pycall(settings,
+				new_frame->remap_info->prolog_func,
+				NULL);
+	    }
+
 
 	    if (control_back_to(block,settings) == INTERP_ERROR) {
 		settings->call_level--;
@@ -655,7 +645,17 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    }
 	} else {
 
-	    // a python callable function. A lot simpler since it's all executed inline.
+	    // the subname in 'o<subname> call' turned out to be a Python callable.
+
+	    // we establish a new call frame with all relevant information, and
+	    // pass that frame to Python to handle.
+	    settings->call_level++;
+
+	    new_frame->subName = strdup(block->o_name);
+	    new_frame->remap_info =  EXECUTING_BLOCK(*settings).current_remap;
+	    EXECUTING_BLOCK(*settings).current_remap = NULL; // strike off
+
+	    // The 'O word sub' is actually a python callable function.
 	    // call a prolog function if applicable
 	    //   NB: add_parameters will prepare a word dict if called with pydict = true,
 	    //   stored in settings->kwargs
@@ -663,41 +663,79 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	    // call python callable, and save return_value
 	    // call epilogue of applicable
 
-	    // note we dont increment the stack level - we dont need the context frame
-	    if (settings->prolog_hook) {
-		logRemap("O_call: calling py prologue\n");
-	        status = (*this.*settings->prolog_hook)(settings,settings->prolog_userdata, true);
-		settings->prolog_hook = NULL;  // mark as consumed
+	    // a user-defined Python prolog to a user-defined Python function
+	    // doesnt make a whole lot of sense.
+	    // for now, the only builtin prolog we have is the kwargs-dict
+	    // generator add_parameters()
+
+
+	    if (HAS_BUILTIN_PROLOG(new_frame->remap_info)) {
+		logRemap("O_call: calling builtin prolog for py remap %s",new_frame->remap_info->name);
+		status = (*this.*new_frame->remap_info->builtin_prolog)(settings, new_frame);
+
 		// prolog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_call: py prologue failed, unwinding\n");
+		    logRemap("O_call: builtin prologue for %s failed, unwinding\n",new_frame->remap_info->name);
+		    settings->call_level--;
+
 		    // end any remappings in progress
-		    settings->remap_level = 0;
+		    settings->remap_level = 0;  // FIXME mah better unwind just by return code
 		    return status;
 		}
+	    } else {
+		new_frame->kwargs = boost::python::dict();
 	    }
-	    // block->params[0] is the first positional parameter
-	    status =  pycall(settings, block->o_name, block->params);
+	    if (HAS_PYTHON_PROLOG(new_frame->remap_info)) {
+		logRemap("O_call: py prologue %s for py remap %s - useless.. but doing it",
+			 new_frame->remap_info->prolog_func,
+			 new_frame->remap_info->remap_py);
+		status = pycall(settings,
+				  new_frame->remap_info->prolog_func,
+				  NULL);
+	    }
+
+	    status =  pycall(settings, new_frame->remap_info->remap_py, block->params);
+
+	    // this breaks T,M6,M61 - rely on posargs !! fix this with a Python prolog for T/M6/M61
+	    // predef named params to the rescue?
+	    //status =  pycall(settings, block->o_name, new_frame->remap_info ? NULL : block->params);
+
+
 	    if (status >  INTERP_MIN_ERROR) {
 		// end any remappings in progress
 		logRemap("O_call: pycall failed, unwinding\n");
-		settings->remap_level = 0;
+		settings->call_level--;
+		settings->remap_level = 0;  // FIXME mah dubious
 		return status;
 	    }
 	    logRemap("O_call(%s) return value=%f\n",
 		    block->o_name, settings->return_value);
 
+
+	    if (HAS_PYTHON_EPILOG(new_frame->remap_info)) {
+		logRemap("O_call: py epilog %s for py remap %s - useless.. but doing it",
+			 new_frame->remap_info->epilog_func,
+			 new_frame->remap_info->remap_py);
+		  status = pycall(settings,
+				  new_frame->remap_info->epilog_func,
+				  NULL);
+	    }
+	    settings->call_level--;
+
 	    // now the epilogue
-	    if (settings->epilog_hook) {
-		logRemap("O_call: calling py epilogue\n");
-		status = (*this.*settings->epilog_hook)(settings,settings->epilog_userdata);
-		settings->epilog_hook = NULL;  // mark as consumed
+	    if (HAS_BUILTIN_EPILOG(new_frame->remap_info)) {
+		logRemap("O_call: calling builtin epilogue for pyremap %s",new_frame->remap_info->name );
+		status = (*this.*new_frame->remap_info->builtin_epilog)(settings, new_frame);
+		new_frame->remap_info  = NULL; // strike off
+
 		// epilog is exepected to set an appropriate error string
 		if (status > INTERP_MIN_ERROR) {
-		    logRemap("O_call: py epilogue failed: %s \n", interp_status(status));
+		    logRemap("O_call: builtin  epilogue for pyremap %s failed: %s",
+			     new_frame->remap_info->name,
+			     interp_status(status));
 		}
 	    }
-	    // fall through - now return status;
+	    // fall through -  return status;
 	}
 	break;
 

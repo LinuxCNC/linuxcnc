@@ -79,6 +79,8 @@ include an option for suppressing superfluous commands.
 #include <time.h>
 #include <unistd.h>
 #include <libintl.h>
+#include <set>
+#include <stdexcept>
 
 #include "inifile.hh"		// INIFILE
 #include "rs274ngc.hh"
@@ -92,6 +94,7 @@ include an option for suppressing superfluous commands.
 
 extern char * _rs274ngc_errors[];
 
+
 const char *Interp::interp_status(int status) {
     static char statustext[50];
     static const char *msgs[] = { "INTERP_OK", "INTERP_EXIT",
@@ -103,17 +106,19 @@ const char *Interp::interp_status(int status) {
     return statustext;
 }
 
+int trace;
+
 Interp::Interp() 
     : log_file(0)
 {
     _setup.pymodule_stat = PYMOD_NONE;
     init_named_parameters();  // need this before Python init
-    // fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
+    if (trace) fprintf(stderr,"---> new Interp() pid=%d\"",getpid());
 }
 
 
 Interp::~Interp() {
-    // fprintf(stderr,"---> del Interp() pid=%d\"",getpid());
+    if (trace) fprintf(stderr,"---> del Interp() pid=%d\"",getpid());
 
     if(log_file) {
 	fclose(log_file);
@@ -141,8 +146,7 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
     if (flags & LOG_PID) {
 	fprintf(log_file, "%4d ",getpid());
     }
-    if (flags & LOG_FILENAME) {
-	fprintf(log_file, "%s:%d: ",file,line);
+    if (flags & LOG_FILENAME) {fprintf(log_file, "%s:%d: ",file,line);
     }
     vfprintf(log_file, fmt, ap);
     fflush(log_file);
@@ -628,46 +632,46 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 	    break;
 	case 5: // Select tool (T).
 	    if (block->t_flag && todo(STEP_PREPARE) &&
-		(settings->t_command != NULL))
+		remapping("T"))
 		return T_REMAP;
 	    break;
 	case 6: // User defined M-Codes in group 5
-	    if (IS_USERMCODE(block,settings,5) && todo(STEP_M_5))
+	    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
 		return M_USER_REMAP;
 	    break;
 	case 7: // HAL pin I/O (M62-M68)
-	case 8: // User defined M-Codes in group 6
-	    if (IS_USERMCODE(block,settings,6) && todo(STEP_M_6))
+	case 8: // User defined M-Codes in group 6 which are NOT M6 or M61
+	    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
 		return M_USER_REMAP;
 	    break;
-	case 9: // Change tool (M6).
-	    if ((block->m_modes[6] == 6) && (settings->m6_command != NULL)
-		&& todo(STEP_M_6))
+	case 9: // Change tool (M6), Set Tool Number (M61)
+	    if ((block->m_modes[6] == 6) && todo(STEP_M_6) &&
+		remapping("M6"))
 		return M6_REMAP;
-	    if ((block->m_modes[6] == 61) && (settings->m61_command != NULL)
-		&& todo(STEP_M_6))
+	    if ((block->m_modes[6] == 61) && todo(STEP_M_6) &&
+		remapping("M61"))
 		return M61_REMAP;
 	    break;
 	case 10: // User defined M-Codes in group 7
-	    if (IS_USERMCODE(block,settings,7) && todo(STEP_M_7))
+	    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
 		return M_USER_REMAP;
 	    break;
 
 	case 11: // Spindle on or off (M3, M4, M5).
 	case 12: // Save State (M70, M73), Restore State (M72), Invalidate State (M71)
 	case 13: // User defined M-Codes in group 8
-	    if (IS_USERMCODE(block,settings,8) && todo(STEP_M_8))
+	    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
 		return M_USER_REMAP;
 	    break;
 	case 14: // Coolant on or off (M7, M8, M9).
 	    break;
 	case 15: // User defined M-Codes in group 9
-	    if (IS_USERMCODE(block,settings,9) && todo(STEP_M_9))
+	    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
 		return M_USER_REMAP;
 	    break;
 	case 16: // Enable or disable overrides (M48, M49,M50,M51,M52,M53).
 	case 17: // User defined M-Codes in group 10
-	    if (IS_USERMCODE(block,settings,10)  && todo(STEP_M_10))
+	    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
 		return M_USER_REMAP;
 	    break;
         case 18: // User-defined Commands (M100-M199)
@@ -684,7 +688,7 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 	    break;
 	case 29: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
 	    mode = block->g_modes[GM_MOTION];
-	    if ((mode != -1) && is_user_gcode(settings,mode) &&
+	    if ((mode != -1) && IS_USER_GCODE(mode) &&
 		todo(STEP_MOTION)) {
 		return G_USER_REMAP;
 	    }
@@ -728,6 +732,9 @@ int Interp::exit()
   return INTERP_OK;
 }
 
+void Interp::set_loglevel(int level) { _setup.loggingLevel = level; }
+
+
 /***********************************************************************/
 
 /*! rs274_ngc_init
@@ -765,7 +772,7 @@ int Interp::init()
 
   iniFileName = getenv("INI_FILE_NAME");
 
-  logDebug("Interp.init() called pid=%d ini=%s\n",getpid(),iniFileName);
+  // logDebug("Interp.init() called pid=%d ini=%s\n",getpid(),iniFileName);
 
   // the default log file
   _setup.loggingLevel = 0;
@@ -786,18 +793,19 @@ int Interp::init()
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
   {
-      logDebug("INI_FILE_NAME not found");
+      // log_file not yet setup here
+      if (trace) fprintf(stderr,"INI_FILE_NAME not found pid=%d\n",getpid());
   }
   else
   {
-      logDebug("Interp.init(%d) getenv(INI_FILE_NAME)=%s\n",
-	      getpid(),iniFileName);
+      if (trace) fprintf(stderr,"Interp.init(%d) getenv(INI_FILE_NAME)=%s\n",
+			 getpid(),iniFileName);
       IniFile inifile;
 
-      logDebug("iniFileName:%s:", iniFileName);
+      if (trace) fprintf(stderr,"iniFileName:%s:\n", iniFileName);
 
       if (inifile.Open(iniFileName) == false) {
-          logDebug("Unable to open inifile:%s:", iniFileName);
+          fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       }
       else
       {
@@ -834,9 +842,9 @@ int Interp::init()
 			  getpid(), inistring);
 		  log_file = stderr;
 	      }
-          } else
+          } else {
 	      log_file = stderr;
-
+	  }
           _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
@@ -905,27 +913,7 @@ int Interp::init()
           }
           logDebug("_setup.subroutines:%p:", _setup.subroutines);
 
-	  // find T and M6 oword sub replacements commands
-	  // T_COMMAND=O<t> call <pocketnumber>
-	  // M6_COMMAND=O<m6> call
-          if (NULL != (inistring = inifile.Find("T_COMMAND", "RS274NGC"))) {
-	      _setup.t_command = strdup(inistring);
-              logDebug("_setup.t_command=%s", _setup.t_command);
-          } else {
-                 _setup.t_command = NULL;
-          }
-          if (NULL != (inistring = inifile.Find("M6_COMMAND", "RS274NGC"))) {
-	      _setup.m6_command = strdup(inistring);
-              logDebug("_setup.m6_command=%s", _setup.m6_command);
-          } else {
-	      _setup.m6_command = NULL;
-          }
-	  if (NULL != (inistring = inifile.Find("M61_COMMAND", "RS274NGC"))) {
-	      _setup.m61_command = strdup(inistring);
-              logDebug("_setup.m61_command=%s", _setup.m61_command);
-          } else {
-	      _setup.m61_command = NULL;
-          }
+
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
           if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
@@ -935,38 +923,7 @@ int Interp::init()
 	      _setup.on_abort_command = NULL;
           }
 
-	  // test repeat groups
-	  int n = 1;
-	  while (NULL != (inistring = inifile.Find("GCODE", "CUSTOM", n))) {
-	      char argspec[LINELEN];
-	      double gcode = -1.0;
-	      int modal_group;
-	      memset(argspec,0,sizeof(argspec));
-	      if (sscanf(inistring,"%lf,%d,%[A-KMNP-Za-kmnp-z\\-]*",&gcode,&modal_group,argspec) < 2) {
-		  logDebug("GCODE definition '%s': no enough arguments, expect <gcode>,<modal group>,[argument spec]",inistring);
-		  n++;
-		  continue;
-	      }
-	      define_gcode(gcode,modal_group,argspec);
-	      logRemap("GCODE %d: %s --> %2.1f '%s'",n,inistring,gcode,argspec);
-	      n++;
-	  }
-	  n = 1;
-	  while (NULL != (inistring = inifile.Find("MCODE", "CUSTOM", n))) {
-	      char argspec[LINELEN];
-	      int mcode = -1;
-	      int modal_group;
-	      memset(argspec,0,sizeof(argspec));
-	      if (sscanf(inistring,"%d,%d,%[A-KMNP-Za-kmnp-z\\-]*",&mcode,&modal_group,argspec) < 2) {
-		  logDebug("MCODE definition '%s': no enough arguments, expect <mcode>,<modal group>,[argument spec]",inistring);
-		  n++;
-		  continue;
-	      }
-	      define_mcode(mcode,modal_group,argspec);
-	      logDebug("MCODE %d: %s --> %d '%s'", n,inistring,mcode,argspec);
-	      n++;
-	  }
-
+	  // not used yet
 	  if (NULL != (inistring = inifile.Find("PY_RELOAD_AFTER_ERROR", "RS274NGC")))
 	      _setup.py_reload_on_error = (atoi(inistring) > 0);
 	  else
@@ -986,6 +943,281 @@ int Interp::init()
           } else {
 	      _setup.pymodule = NULL;
           }
+
+
+	  // parse options of the form:
+	  // REMAP= M420 modalgroup=6 argspec=pq prolog=setnamedvars ngc=m43.ngc epilog=ignore_retvalue
+	  // REMAP= M421 modalgroup=6 argspec=- prolog=setnamedvars python=m43func epilog=ignore_retvalue
+	  int n = 1;
+	  int lineno = -1;
+	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC", n, &lineno))) {
+
+	      char iniline[LINELEN];
+	      char *argv[MAX_REMAPOPTS];
+	      int   argc = 0;
+	      const char *code;
+	      remap_pointer r;
+	      bool errored = false;
+	      int g1 = 0, g2 = 0;
+	      int mcode = -1;
+
+	      if ((r = (remap_pointer) malloc(sizeof(remap))) == NULL) {
+		  Error("cant malloc remap_struct");
+		  continue;
+	      }
+	      memset((void *)r, 0, sizeof(remap));
+	      r->modal_group = -1; // mark as unset, required param for m/g
+	      strcpy(iniline, inistring);
+	      char* token = strtok((char *) iniline, " \t");
+
+	      while( token != NULL && argc < MAX_REMAPOPTS - 1) {
+		  argv[argc++] = token;
+		  token = strtok( NULL, " \t" );
+	      }
+	      argv[argc] = NULL;
+	      code = strstore(argv[0]);
+	      r->name = code;
+
+	      for (int i = 1; i < argc; i++) {
+		  int kwlen = 0;
+		  char *kw = argv[i];
+		  char *arg = strchr(argv[i],'=');
+		  if (arg != NULL) {
+		      kwlen = arg - argv[i];
+		      arg++;
+		      if (!strlen(arg)) { // 'kw='
+			  Error("option '%s' - zero length value: %d:REMAP = %s",
+				kw,lineno,inistring);
+			  errored = true;
+			  continue;
+		      }
+		  } else { // 'kw'
+		      Error("option '%s' - missing '=<value>: %d:REMAP = %s",
+			    kw,lineno,inistring);
+		      errored = true;
+		      continue;;
+		  }
+		  if (!strncasecmp(kw,"modalgroup",kwlen)) {
+		      r->modal_group = atoi(arg);
+		      continue;
+		  }
+		  if (!strncasecmp(kw,"argspec",kwlen)) {
+		      size_t pos = strspn (arg,
+					   "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz-");
+		      if (pos != strlen(arg)) {
+			  Error("argspec: illegal word '%c' - %d:REMAP = %s",
+				arg[pos],lineno,inistring);
+			  errored = true;
+			  continue;
+		      }
+		      r->argspec = strstore(arg);
+		      continue;
+		  }
+		  if (!strncasecmp(kw,"prolog",kwlen)) {
+		      r->prolog_func = strstore(arg);
+		      continue;
+		  }
+		  if (!strncasecmp(kw,"epilog",kwlen)) {
+		      r->epilog_func = strstore(arg);
+		      continue;
+		  }
+		  if (!strncasecmp(kw,"ngc",kwlen)) {
+		      if (r->remap_py) {
+			  Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+				lineno,inistring);
+			  errored = true;
+			  continue;
+		      }
+		      r->remap_ngc = strstore(arg);
+		      continue;
+		  }
+		  if (!strncasecmp(kw,"python",kwlen)) {
+		      if (r->remap_ngc ) {
+			  Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+				lineno,inistring);
+			  errored = true;
+			  continue;
+		      }
+		      if (!is_pycallable(&_setup,arg)) {
+			  Error("'%s' is not a Python callable function - %d:REMAP = %s",
+				arg,lineno,inistring);
+			  errored = true;
+			  continue;
+		      }
+		      r->remap_py = strstore(arg);
+		      continue;
+		  }
+		  Error("unrecognized option '%*s' in  %d:REMAP = %s",
+			kwlen,kw,lineno,inistring);
+	      }
+	      if (errored) {
+		  free(r);
+		  goto done;
+	      }
+	      char key[10];
+
+	      if (remapping(code)) {
+		  Error("code '%s' already remapped : %d:REMAP = %s",
+			code,lineno,inistring);
+		  free(r);
+		  goto done;
+	      }
+
+	      // it is an error not to define a remap function to call.
+	      if ((r->remap_ngc == NULL) && (r->remap_py == NULL)) {
+		  Error("code '%s' - no remap function given, use either 'python=<function>' or 'ngc=<basename>' : %d:REMAP = %s",
+			code,lineno,inistring);
+		  free(r);
+		  goto done;
+	      }
+
+	      // if an argspec is given, the builtin prolog add_parameters()
+	      // is called automatically.
+	      // for ngc files, this adds local variables as per argspec
+	      // for Python, adds variables to the  kwargs dict
+	      if (r->argspec) {
+		  r->builtin_prolog = &Interp::add_parameters;
+	      }
+
+#define CHECK(bad, fmt)						 \
+	      do {						 \
+		  if (bad) {					 \
+		      Log(fmt);				 \
+		      goto done;				 \
+		  }						 \
+	      } while(0)
+
+	      switch (towlower(*code)) {
+
+	      case 't':
+		  CHECK((strlen(code) > 1),"T remap - only single letter code allowed");
+		  CHECK((r->modal_group != -1), "T remap - modal group setting ignored - fixed sequencing");
+
+		  // prepare has a default builtin epilog for ngc files
+		  // which sets the pocket to a nonnegative return value
+		  // and aborts on negative values
+
+		  // can be overridden by epilog=pyfunc
+		  r->op = T_REMAP;
+		  if (r->epilog_func) {
+		      // finish_user_command just ends a remap in progress
+		      // without any side effects
+		      r->builtin_epilog = &Interp::finish_user_command;
+		  } else {
+		      r->builtin_epilog = &Interp::finish_t_command;
+		  }
+		  _setup.remaps["T"] = r;
+		  break;
+
+	      case 's':
+		  CHECK(strlen(code) > 1,"S remap - only single letter code allowed");
+		  CHECK((r->modal_group != -1), "S remap - modal group setting ignored - fixed sequencing");
+
+		  r->op = S_REMAP;
+		  _setup.remaps["S"] = r;
+		  r->builtin_epilog = &Interp::finish_user_command;
+		  break;
+
+	      case 'f':
+		  CHECK(strlen(code) > 1,"F remap - only single letter code allowed");
+		  CHECK((r->modal_group != -1), "F remap - modal group setting ignored - fixed sequencing");
+
+		  r->op = F_REMAP;
+		  _setup.remaps["F"] = r;
+		  r->builtin_epilog = &Interp::finish_user_command;
+		  break;
+
+	      case 'm':
+		  if (sscanf(code + 1, "%d", &mcode) == 1) {
+		      // change_tool, set tool number have default builtin epilogs for ngc files
+		      // which can be overridden by a py epilog
+		      if (r->epilog_func) {
+			  r->op = M_USER_REMAP;
+			  r->builtin_epilog = &Interp::finish_user_command;
+		      } else {
+			  switch (mcode) {
+			  case 6:
+			      r->builtin_epilog = &Interp::finish_m6_command ;
+			      r->op = M6_REMAP;
+			      break;
+			  case 61:
+			      r->builtin_epilog = &Interp::finish_m61_command;
+			      r->op = M61_REMAP;
+			      break;
+			  default:
+			      r->op = M_USER_REMAP;
+			      r->builtin_epilog =  &Interp::finish_user_command;
+			  }
+		      }
+		      _setup.remaps[code] = r;
+		      _setup.m_remapped[mcode] = 1;
+		  } else {
+		      Error("parsing M-code: expecting integer like 'M420', got '%s' : %d:REMAP = %s",
+			    code,lineno,inistring);
+		      goto done;
+		  }
+		  if (r->modal_group == -1) {
+		      Error("code '%s' : no modalgroup=<int> given : %d:REMAP = %s",
+			    code,lineno,inistring);
+		      goto done;
+		  }
+		  if (!M_MODE_OK(r->modal_group)) {
+			  Error("code '%s' : invalid modalgroup=<int> given (currently valid: 5..10) : %d:REMAP = %s",
+			    code,lineno,inistring);
+		      goto done;
+		  }
+		  break;
+	      case 'g':
+		  r->op = G_USER_REMAP;
+		  r->builtin_epilog =  &Interp::finish_user_command;
+
+		  if (!G_MODE_OK(r->modal_group)) {
+		      Error("code '%s' : %s modalgroup=<int> given, def : %d:REMAP = %s",
+			    code,
+			    r->modal_group == -1 ? "no" : "invalid",
+			    lineno,
+			    inistring);
+		      goto done;
+		  }
+		  if (sscanf(code + 1, "%d.%d", &g1, &g2) == 2) {
+		      int n = g1 * 10 + g2;
+		      sprintf(key,"G%d",n );
+		      code = strstore(key);
+		      _setup.g_remapped[n] = 1;
+		      _setup.remaps[code] = r;
+		  } else
+		      if (sscanf(code + 1, "%d", &g1) == 1) {
+			  sprintf(key,"G%d", g1 * 10);
+			  code = strstore(key);
+			  _setup.remaps[code] = r;
+			  _setup.g_remapped[g1*10] = 1;
+		      } else {
+			  Error("parsing G-code: expecting code like 'G89' or 'G88.7', got '%s' : %d:REMAP = %s",
+				code,lineno,inistring);
+		      }
+		  if (r->modal_group == -1) {
+		      Error("code '%s' : no modalgroup=<int> given : %d:REMAP = %s",
+			    code,lineno,inistring);
+		      goto done;
+		  }
+		  if (!G_MODE_OK(r->modal_group)) {
+			  Error("code '%s' : invalid modalgroup=<int> given (currently valid: 1) : %d:REMAP = %s",
+			    code,lineno,inistring);
+		      goto done;
+		  }
+		  break;
+	      default:
+		  Log("REMAP BUG=%s %d:REMAP = %s",
+		      code,lineno,inistring);
+	      }
+	      logRemap("%d: REMAP=%s line=%s",
+		       lineno, code, inistring);
+
+	  done:
+	      n++;
+	      continue;
+	  }
+	  print_remaps();
 
           // close it
           inifile.Close();
@@ -2223,48 +2455,80 @@ int Interp::on_abort(int reason, const char *message)
     return status;
 }
 
-// gcodes are 0..999
-int Interp::define_gcode(double gcode,   int modal_group, const char *argspec)
-{
-    int code = round_to_int(gcode *10);
+static std::set<std::string> stringtable;
 
-    if ((code < 650)|| (code > 980)) {
-	logConfig( "G-codes must range from 65..98, got %2.1f",
-		gcode);
-	return INTERP_ERROR;
-    }
-    if (_gees[code] != -1) {
-	logDebug( "G-code %2.1f already defined",gcode);
-    }
-    if (_setup.usercodes_mgroup[code]) {
-	logDebug( "G-code %2.1f already remapped",gcode);
-    }
-    _setup.usercodes_argspec[code] = strdup(argspec);
-    _setup.usercodes_mgroup[code] = modal_group;
-    return INTERP_OK;
+const char *strstore(const char *s)
+{
+    using namespace std;
+
+    if (s == NULL)
+        throw invalid_argument("strstore(): NULL argument");
+    pair< set<string>::iterator, bool > pair = stringtable.insert(s);
+    return string(*pair.first).c_str();
 }
 
-// mcodes start at MCODE_OFFSET
-int Interp::define_mcode(int mcode, int modal_group, const char *argspec)
+remap_pointer Interp::g_remapping(int number)
 {
-    if ((mcode < 74)|| ((mcode > 99) && (mcode < 200)) || (mcode > 999)) {
-	logDebug( "M-codes must range from 74..99, 200-999, got %d",mcode);
-	return INTERP_ERROR;
-    }
-    if (_ems[mcode] != -1) {
-	logDebug( "M-code %d already defined",mcode);
-    }
-    mcode += MCODE_OFFSET;
-    if (_setup.usercodes_mgroup[mcode]) {
-	logDebug( "M-code %d already remapped",mcode-MCODE_OFFSET);
-    }
-    _setup.usercodes_argspec[mcode] = strdup(argspec);
-    _setup.usercodes_mgroup[mcode] = modal_group;
-    return INTERP_OK;
+    char key[10];
+    snprintf(key, sizeof(key), "g%d", number);
+    return remapping(key);
 }
 
 
-// setup &Interp::get_setup(const Interp& x)
-// {
-//     return x._setup;
-// }
+remap_pointer Interp::m_remapping(int number)
+{
+    char key[10];
+    snprintf(key, sizeof(key), "m%d", number);
+    return remapping(key);
+}
+
+remap_pointer Interp::remapping(const char *code)
+{
+    std::map<const char *,remap_pointer>::iterator n =
+	_setup.remaps.find(code);
+    if (n !=  _setup.remaps.end())
+	return n->second;
+    else
+	return NULL;
+}
+
+// debug aid
+void Interp::print_remap(const char *key)
+{
+    if (!key)
+	return;
+    remap_pointer r = remapping(key);
+    if (r) {
+	logRemap("----- remap '%s' :",key);
+	logRemap("argspec = '%s'", r->argspec);
+	logRemap("modalgroup = %d", r->modal_group);
+	logRemap("builtin_prolog = %p",(void *)r->builtin_prolog);
+	logRemap("prolog_func = %s",
+		 (r->prolog_func ? r->prolog_func : ""));
+
+	logRemap("remap_py = %s",
+		 (r->remap_py ? r->remap_py : ""));
+	logRemap("remap_ngc = %s",
+		 (r->remap_ngc ? r->remap_ngc : ""));
+	logRemap("epilog_func = %s",
+		 (r->epilog_func ? r->epilog_func : ""));
+	logRemap("builtin_epilog = %p",(void *)r->builtin_epilog);
+
+    } else {
+	logRemap("print_remap: no such remap: '%s'",key);
+    }
+}
+
+void Interp::print_remaps(void)
+{
+    std::map<const char *,remap_pointer>::iterator n =
+	_setup.remaps.begin();
+
+    logRemap("-----  remaps:");
+    for ( ; n  != _setup.remaps.end(); ++n ) {
+	print_remap(n->first);
+    }
+    logRemap("-------------");
+}
+
+
