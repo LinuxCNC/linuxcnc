@@ -1492,10 +1492,6 @@ which are called by Interp::init) change the model.
 
 int Interp::reset()
 {
-    logOword("reset() cl=%d filename=%s",_setup.call_level,_setup.filename);
-  _setup.linetext[0] = 0;
-  _setup.blocktext[0] = 0;
-  _setup.line_length = 0;
   _setup.call_state = CS_NORMAL;
   //!!!KL According to the comment,
   //!!!KL this should not be here because this is for
