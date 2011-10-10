@@ -128,7 +128,7 @@ int Interp::read_named_parameter(
 
   if(check_exists) return INTERP_OK;
 
-  logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
+  logNP("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
   ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
 }
@@ -207,16 +207,16 @@ int Interp::store_named_param(setup_pointer settings,
 
   nameList = &settings->sub_context[level].named_parameters;
 
-  logDebug("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
+  logNP("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
            nameList, nameBuf);
-  logDebug("store_named_parameter: named_parameter_used_size=%d",
+  logNP("store_named_parameter: named_parameter_used_size=%d",
            nameList->named_parameter_used_size);
 
 
   for(i=0; i<nameList->named_parameter_used_size; i++)
   {
 #if 0
-      logDebug("store_named_parameter: named_parameter[%d]=|%s|",
+      logNP("store_named_parameter: named_parameter[%d]=|%s|",
                i, nameList->named_parameters[i]);
 #endif
       if(0 == strcmp(nameList->named_parameters[i], nameBuf))
@@ -228,7 +228,7 @@ int Interp::store_named_param(setup_pointer settings,
 	  } else {
 	      nameList->named_param_values[i] = value;
 	      nameList->named_param_attr[i] &= ~(PA_UNSET);
-	      logDebug("store_named_parameter: level[%d] %s value=%lf",
+	      logNP("store_named_parameter: level[%d] %s value=%lf",
 		       level, nameBuf, value);
 
 	      return INTERP_OK;
@@ -236,7 +236,7 @@ int Interp::store_named_param(setup_pointer settings,
       }
   }
 
-  logDebug("%s: param:|%s| returning not defined", "store_named_param",
+  logNP("%s: param:|%s| returning not defined", "store_named_param",
            nameBuf);
 
   ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
@@ -291,7 +291,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
 
     ai = settings->usercodes_argspec.find(user_data);
     if (ai == settings->usercodes_argspec.end()) {
-	fprintf(stderr, "addparams: no argspec for %d\n",user_data);
+	// fprintf(stderr, "addparams: no argspec for %d\n",user_data);
 	return INTERP_OK;
     }
     argspec = ai->second;
@@ -305,7 +305,7 @@ int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
     r = required;
     block = &CONTROLLING_BLOCK((*settings));
 
-    fprintf(stderr,"----add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
+    logRemap("add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
 	    user_data,argspec,settings->call_level,required,optional,pydict);
 
 #define STORE(name,value)						\
@@ -433,7 +433,7 @@ int Interp::add_named_param(
 
   if(findStatus)
   {
-      logDebug("%s: parameter:|%s| already exists", name, nameBuf);
+      logNP("%s: parameter:|%s| already exists", name, nameBuf);
       return INTERP_OK;
   }
   attr |= PA_UNSET;
@@ -457,7 +457,7 @@ int Interp::add_named_param(
       // must realloc space
       nameList->named_parameter_alloc_size += NAMED_PARAMETERS_ALLOC_UNIT;
 
-      logDebug("realloc space level[%d] size:%d",
+      logNP("realloc space level[%d] size:%d",
                level, nameList->named_parameter_alloc_size);
 
       nameList->named_parameters =
@@ -483,7 +483,7 @@ int Interp::add_named_param(
   {
       ERS(NCE_OUT_OF_MEMORY);
   }
-  logDebug("%s strdup[%p]:|%s|", name, dup, dup);
+  logNP("%s strdup[%p]:|%s|", name, dup, dup);
   nameList->named_parameters[nameList->named_parameter_used_size] = dup;
   nameList->named_param_attr[nameList->named_parameter_used_size] = attr;
   nameList->named_parameter_used_size++;

@@ -755,7 +755,7 @@ int Interp::init()
 
   iniFileName = getenv("INI_FILE_NAME");
 
-  fprintf(stderr,"Interp.init() called pid=%d ini=%s\n",getpid(),iniFileName);
+  logDebug("Interp.init() called pid=%d ini=%s\n",getpid(),iniFileName);
 
   // the default log file
   _setup.loggingLevel = 0;
@@ -779,7 +779,7 @@ int Interp::init()
   }
   else
   {
-      fprintf(stderr,"Interp.init(%d) getenv(INI_FILE_NAME)=%s\n",
+      logDebug("Interp.init(%d) getenv(INI_FILE_NAME)=%s\n",
 	      getpid(),iniFileName);
       IniFile inifile;
 

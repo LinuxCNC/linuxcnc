@@ -2944,7 +2944,7 @@ int Interp::convert_remapped_code(int code,block_pointer block,
     char cmd[LINELEN];
     int status;
 
-    fprintf(stderr,"----convert_remapped_code %s%d\n",
+    logRemap("convert_remapped_code %s%d\n",
 	    CODE(type),NUMBER(type,code));
 
     snprintf(cmd,sizeof(cmd),"o<%s%d> call",
@@ -2966,7 +2966,7 @@ int Interp::convert_remapped_code(int code,block_pointer block,
 int Interp::remap_m(block_pointer block, setup_pointer settings,
 		   int mode,bool remove_trail)
 {
-    fprintf(stderr,"--- convert_m: user M-Code %d detected, modal group %d\n",
+    logRemap("convert_m: user M-Code %d detected, modal group %d\n",
 	    block->m_modes[mode],mode);
     int status = convert_remapped_code(block->m_modes[mode] + MCODE_OFFSET,block,
 				   settings,M_USER_REMAP);
@@ -5283,9 +5283,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   if (g_code == G_49) {
     index = 0;
   } else if (g_code == G_43) {
-      fprintf(stderr,"--- convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
+      logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
-    if(block->h_flag) {
+      if(block->h_flag) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
     } else if (settings->toolchange_flag) {
         // we haven't loaded the tool and swapped pockets quite yet

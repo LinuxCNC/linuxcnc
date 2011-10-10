@@ -333,7 +333,7 @@ std::string handle_pyerror()
     PyErr_Fetch(&exc,&val,&tb);
     handle<> hexc(exc),hval(val),htb(tb);
     if(!htb || !hval) {
-	fprintf(stderr, "handle_pyerror: BUG \n");
+	fprintf(stderr,"handle_pyerror: BUG \n");
 	// MYAPP_ASSERT_BUG(hexc);
 	return extract<std::string>(str(hexc));
     } else {
