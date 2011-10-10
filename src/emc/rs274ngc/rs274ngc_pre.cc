@@ -485,15 +485,6 @@ int Interp::_execute(const char *command)
   return status;
 }
 
-int Interp::signal_error(int status)
-{
-
-    fprintf(stderr," ----- signal error %d\n",status);
-    return INTERP_OK;
-
-    _setup.stack_level = 0;
-    _setup.call_level = 0; // FIXME mah check for memory leaks in call stack
-}
 
 int Interp::execute(const char *command) 
 {
@@ -507,13 +498,20 @@ int Interp::execute(const char *command)
 int Interp::execute(const char *command, int line_number)
 {
     int status;
+
     _setup.sequence_number = line_number;
-    fprintf(stderr,"--> execute(%s) remap nesting=%d call_level=%d\n",
+    fprintf(stderr,"--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d\n",
 	    command == NULL ? "NULL" : command,
-	    _setup.stack_level,_setup.call_level);
+	    _setup.stack_level,_setup.call_level,_setup.mdi_interrupt);
     status = Interp::execute(command);
-    fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d status=%s\n",
-	    _setup.stack_level,_setup.call_level,interp_status(status));
+    fprintf(stderr,"<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d\n",
+	    _setup.stack_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
+    if ((_setup.call_level == 0) &&
+	(status == INTERP_EXECUTE_FINISH) &&
+	(_setup.mdi_interrupt)) {
+	fprintf(stderr,"<-- execute() TRIGGER MDI_INTERRUPT=false\n");
+	_setup.mdi_interrupt = false;  // seems to work ok!
+    }
     return status;
 }
 

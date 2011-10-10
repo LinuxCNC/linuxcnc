@@ -112,8 +112,7 @@ public:
  int default_tool_parameters();
  int set_tool_parameters();
  int init_named_parameters();
- int on_abort(int reason);
-    int signal_error(int code);
+ int on_abort(int reason, const char *message);
 
     //technically this violates encapsulation rules but is needed for
     // the Python introspection module

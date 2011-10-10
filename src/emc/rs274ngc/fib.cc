@@ -45,10 +45,7 @@ fib(PyObject *self, PyObject *args) {
     // Cast the void pointer to an Interp instance:
     Interp *interp = static_cast<Interp *>(temp);
 
-    // now we can call back into the Interpreter:
-    interp->signal_error(4711);
-
-    settings = interp->get_setup();
+     settings = interp->get_setup();
     // or access values:
     fprintf(stderr,"--- _setup.settings: %f %f %f\n",
 	    settings->active_settings[0],
