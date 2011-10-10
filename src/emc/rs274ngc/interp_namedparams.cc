@@ -540,6 +540,13 @@ int Interp::lookup_named_param(char *nameBuf,
 	*value = _setup.w_current;
 	break;
 
+	// o-word subs may optionally have an
+	// expression after endsub and return
+	// this 'function return value' is accessible as '_value'
+    case 249:
+	*value = _setup.return_value;
+	break;
+
     default:
 	MSG("---BUG: lookup_named_param(%s) UNHANDLED INDEX=%f \n",
 	       nameBuf,index);
@@ -660,5 +667,7 @@ int Interp::init_named_parameters()
   init_readonly_param("_v", 247, PA_USE_LOOKUP);
   init_readonly_param("_w", 248, PA_USE_LOOKUP);
 
+  // last (optional) endsub/return value
+  init_readonly_param("_value", 249, PA_USE_LOOKUP);
   return INTERP_OK;
 }

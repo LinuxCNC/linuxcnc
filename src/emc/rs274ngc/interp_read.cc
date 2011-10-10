@@ -1549,7 +1549,20 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(block->o_type == O_endsub)
     {
-      block->o_type = O_endsub;
+	if ((_setup.skipping_o != 0) &&
+	    (0 != strcmp(_setup.skipping_o, block->o_name))) {
+	    return INTERP_OK;
+	}
+
+	*counter += strlen("endsub");
+
+	// optional return value expression
+	if (line[*counter] == '[') {
+	    CHP(read_real_expression(line, counter, &value, parameters));
+	    _setup.return_value = value;
+	} else {
+	    _setup.return_value = 0;
+	}
     }
   else if(_setup.defining_sub == 1)
     {
@@ -1686,7 +1699,19 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       }
   else if(block->o_type == O_return)
     {
-      block->o_type = O_return;
+	if ((_setup.skipping_o != 0) &&
+	   (0 != strcmp(_setup.skipping_o, block->o_name))) {
+	    return INTERP_OK;
+	}
+	*counter += strlen("return");
+
+	// optional return value expression
+	if (line[*counter] == '[') {
+	    CHP(read_real_expression(line, counter, &value, parameters));
+	    _setup.return_value = value;
+	} else {
+	    _setup.return_value = 0;
+	}
     }
   else
     {

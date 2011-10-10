@@ -421,6 +421,7 @@ int Interp::init()
   _setup.a_indexer = 0;
   _setup.b_indexer = 0;
   _setup.c_indexer = 0;
+  _setup.return_value = 0;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
