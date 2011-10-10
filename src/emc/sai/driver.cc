@@ -30,7 +30,13 @@
 #include <string.h>   /* strcpy     */
 #include <getopt.h>
 
+
+#include <readline/readline.h>
+#include <readline/history.h>
+
 Interp interp_new;
+char *prompt = "==> ";
+char *history = "dothistory"; // FIXME -> homedir?
 
 #define active_settings  interp_new.active_settings
 #define active_g_codes   interp_new.active_g_codes
@@ -605,9 +611,7 @@ usage:
     }
   if (inifile!= 0) {
       setenv("INI_FILE_NAME",inifile,1);
-  } else
-      unsetenv("INI_FILE_NAME");
-
+  }
   if ((status = interp_init()) != INTERP_OK)
     {
       report_error(status, print_stack);
