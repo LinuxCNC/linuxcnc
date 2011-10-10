@@ -1,4 +1,18 @@
 o<g881> sub
 (debug, in g881 x=[#1] y=[#2] z=[#3] r=[#4])
+
+o<g881_havep> if [EXISTS[#<p>]]
+(debug, P param set: #<p>)
+o<g881_havep> endif
+
+o<g881_haveq> if [EXISTS[#<q>]]
+(debug, Q param set: #<q>)
+o<g881_haveq> endif
+
+o<g881_haver> if [EXISTS[#<r>]]
+(debug, R param set: #<r>)
+o<g881_haver> endif
+
 o<g881> endsub [1]
 m2
+

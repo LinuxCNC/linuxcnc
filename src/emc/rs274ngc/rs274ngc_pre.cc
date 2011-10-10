@@ -756,6 +756,34 @@ int Interp::init()
           } else {
 	      _setup.g882_command = NULL;
           }
+	  // test repeat groups
+	  int n = 1;
+	  while (NULL != (inistring = inifile.Find("GCODE", "CUSTOM", n))) {
+	      char argspec[LINELEN];
+	      double gcode = -1.0;
+	      int nfound;
+	      memset(argspec,0,sizeof(argspec));
+	      nfound = sscanf(inistring,"%lf,%[A-KMNP-Za-kmnp-z]*",&gcode,argspec);
+	      define_gcode(gcode,argspec);
+	      fprintf(stderr,"---- GCODE %d: %s --> %2.1f '%s'\n",
+		      n,inistring,gcode,argspec);
+	      n++;
+	  }
+	  n = 1;
+	  while (NULL != (inistring = inifile.Find("MCODE", "CUSTOM", n))) {
+	      char argspec[LINELEN];
+	      int mcode = -1;
+	      int nfound;
+	      memset(argspec,0,sizeof(argspec));
+	      nfound = sscanf(inistring,"%d,%[A-KMNP-Za-kmnp-z]*",&mcode,argspec);
+	      define_mcode(mcode,argspec);
+
+	      fprintf(stderr,"---- MCODE %d: %s --> %d '%s'\n",
+		      n,inistring,mcode,argspec);
+	      n++;
+	  }
+
+
           // close it
           inifile.Close();
       }
@@ -1978,4 +2006,30 @@ int Interp::on_abort(int reason)
 
     ERP(status);
     return status;
+}
+
+int Interp::define_gcode(double gcode, const char *argspec)
+{
+    int code = round_to_int(gcode *10);
+
+    if ((code < 650)|| (code > 980)) {
+	fprintf(stderr, "G-codes must range from 65..98, got %2.1f\n",
+		gcode);
+	return INTERP_ERROR;
+    }
+    if (_gees[code] != -1) {
+	fprintf(stderr, "G-code %2.1f already defined\n",gcode);
+    }
+    _setup.user_gcodes[code] = strdup(argspec);
+    return INTERP_OK;
+}
+
+int Interp::define_mcode(int mcode, const char *argspec)
+{
+   if ((mcode < 74)|| (mcode > 99)) {
+	fprintf(stderr, "M-codes must range from 74..99, got %d\n",mcode);
+	return INTERP_ERROR;
+   }
+   _setup.user_mcodes[mcode] = strdup(argspec);
+   return INTERP_OK;
 }

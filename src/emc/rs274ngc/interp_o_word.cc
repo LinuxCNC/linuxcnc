@@ -588,6 +588,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
       settings->call_level++;
 
+      // XXX: add canned cycle params here -mah
+      // a test, and it works
+      // add_parameters(&(settings->stashed_block),"xyzfpqr");
+
       // remember an epilog function in current call frame
       settings->sub_context[settings->call_level].epilog =
 	      settings->epilog_hook;

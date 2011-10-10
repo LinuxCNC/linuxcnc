@@ -129,7 +129,7 @@ int Interp::read_named_parameter(
 }
 
 int Interp::find_named_param(
-    char *nameBuf, //!< pointer to name to be read
+    const char *nameBuf, //!< pointer to name to be read
     int *status,    //!< pointer to return status 1 => found
     double *value   //!< pointer to value of found parameter
     )
@@ -179,7 +179,7 @@ int Interp::find_named_param(
 
 
 int Interp::store_named_param(
-    char *nameBuf, //!< pointer to name to be written
+    const char *nameBuf, //!< pointer to name to be written
     double value,   //!< value to be written
     int override_readonly  //!< set to true to init a r/o parameter
     )
@@ -238,8 +238,132 @@ int Interp::store_named_param(
 }
 
 
+// test a block against an argspec string ([A-KMNP-Za-kmnp-z])
+bool Interp::check_args(block_pointer block, const char *argspec)
+{
+    return false;
+}
+
+// given a block and an argspec, add all requried and
+// present optional words to the subroutine's local variables
+// return INTERP_ERROR if required word unset
+bool Interp::add_parameters(block_pointer block, const char *argspec)
+{
+    const char *s;
+
+    s = argspec;
+#define ADD_PARAM(name,value) \
+    add_named_param(name,0); \
+    store_named_param(name,value,0);
+
+    while (*s) {
+	fprintf(stderr,"------- spec char '%c'\n",*s);
+	switch (tolower(*s)){
+	case 'a':
+	    if (block->a_flag) { ADD_PARAM("a",block->a_number); }
+	    else goto test_required; break;
+
+	case 'b':
+	    if (block->b_flag) { ADD_PARAM("b",block->b_number); }
+	    else goto test_required; break;
+
+	case 'c':
+	    if (block->c_flag) { ADD_PARAM("c",block->c_number); }
+	    else goto test_required; break;
+
+	case 'd':
+	    if (block->d_flag) { ADD_PARAM("d",block->d_number_float); }
+	    else goto test_required; break;
+
+	case 'e':
+	    if (block->e_flag) { ADD_PARAM("e",block->e_number); }
+	    else goto test_required; break;
+
+	case 'f':
+	    if (block->f_flag) { ADD_PARAM("f",block->f_number); }
+	    else goto test_required; break;
+
+	case 'h':
+	    if (block->h_flag) { ADD_PARAM("h",block->h_number); }
+	    else goto test_required; break;
+
+	case 'i':
+	    if (block->i_flag) { ADD_PARAM("i",block->i_number); }
+	    else goto test_required; break;
+
+	case 'j':
+	    if (block->j_flag) { ADD_PARAM("j",block->j_number); }
+	    else goto test_required; break;
+
+	case 'k':
+	    if (block->k_flag) { ADD_PARAM("k",block->k_number); }
+	    else goto test_required; break;
+
+	case 'n':
+	    ADD_PARAM("n",block->n_number);
+	    break;
+
+	case 'p':
+	    if (block->p_flag) { ADD_PARAM("p",block->p_number); }
+	    else goto test_required; break;
+
+	case 'q':
+	    if (block->q_flag) { ADD_PARAM("q",block->q_number); }
+	    else goto test_required; break;
+
+	case 'r':
+	    if (block->r_flag) { ADD_PARAM("r",block->r_number); }
+	    else goto test_required; break;
+
+	case 's':
+	    if (block->s_flag) { ADD_PARAM("s",block->s_number); }
+	    else goto test_required; break;
+
+	case 't':
+	    if (block->t_flag) { ADD_PARAM("t",block->t_number); }
+	    else goto test_required; break;
+
+	case 'u':
+	    if (block->u_flag) { ADD_PARAM("u",block->u_number); }
+	    else goto test_required; break;
+
+	case 'v':
+	    if (block->v_flag) { ADD_PARAM("v",block->v_number); }
+	    else goto test_required; break;
+
+	case 'w':
+	    if (block->w_flag) { ADD_PARAM("w",block->w_number); }
+	    else goto test_required; break;
+
+	case 'x':
+	    if (block->x_flag) { ADD_PARAM("x",block->x_number); }
+	    else goto test_required; break;
+
+	case 'y':
+	    if (block->y_flag) { ADD_PARAM("y",block->y_number); }
+	    else goto test_required; break;
+
+	case 'z':
+	    if (block->z_flag) { ADD_PARAM("z",block->z_number); }
+	    else goto test_required; break;
+
+	default: ;
+	    fprintf(stderr,"unknown word specifier '%c' in argument specification '%s'\n",*s,argspec);
+	    return INTERP_ERROR;
+	}
+	s++;
+	continue;
+    test_required:
+	if (isupper(*s)) {
+	    fprintf(stderr,"missing '%c' parameter\n",*s);
+	}
+	s++;
+    }
+    return INTERP_OK;
+}
+
 int Interp::add_named_param(
-    char *nameBuf, //!< pointer to name to be added
+    const char *nameBuf, //!< pointer to name to be added
     int attr //!< see PA_* defs in interp_internal.hh
     )
 {
@@ -345,7 +469,7 @@ int Interp::init_readonly_param(
     return INTERP_OK;
 }
 
-int Interp::lookup_named_param(char *nameBuf,
+int Interp::lookup_named_param(const char *nameBuf,
 			   double index,
 			   double *value
 			       )

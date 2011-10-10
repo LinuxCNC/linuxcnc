@@ -16,6 +16,7 @@
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
+#include <map>
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
@@ -546,6 +547,9 @@ typedef struct setup_struct
     const char *g881_command, *g882_command;
   int executing_remap;  // we are in a Tx/M6/M61 replacement procedure
     // see enum remap_op in rs274ngc_interp.hh for values
+
+    std::map<int,const char *> user_gcodes;
+    std::map<int,const char *> user_mcodes;
 }
 setup;
 

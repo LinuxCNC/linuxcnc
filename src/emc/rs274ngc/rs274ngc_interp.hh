@@ -380,11 +380,11 @@ private:
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
 
- int store_named_param(char *nameBuf, double value, int override_readonly = 0);
- int add_named_param(char *nameBuf, int attr = 0);
- int lookup_named_param(char *nameBuf, double index, double *value);
+ int store_named_param(const char *nameBuf, double value, int override_readonly = 0);
+ int add_named_param(const char *nameBuf, int attr = 0);
+ int lookup_named_param(const char *nameBuf, double index, double *value);
  int init_readonly_param(const char *nameBuf, double value, int attr);
- int find_named_param(char *nameBuf, int *status, double *value);
+ int find_named_param(const char *nameBuf, int *status, double *value);
  int free_named_parameters(int level, setup_pointer settings);
  int save_context(setup_pointer settings);
  int restore_context(setup_pointer settings, int from_level);
@@ -485,7 +485,16 @@ private:
  int finish_m61_command(setup_pointer settings);
  int finish_cycle_command(setup_pointer settings);
 
+ // user-defined g/mcode support
+ int define_gcode(double gcode, const char *argspec);
+ int define_mcode(int mcode, const char *argspec);
 
+ // test a block against an argspec string ([A-KMNP-Za-kmnp-z])
+ bool check_args(block_pointer block,const char *argspec);
+
+ // given a block and an argspec, add all requried and
+ // present optional words to the subroutine's local variables
+ bool add_parameters(block_pointer block,const char *argspec);
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
