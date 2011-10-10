@@ -801,7 +801,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 		// false
 		logOword("not looping back to: [%s] in 'do while'",
 			 block->o_name);
- 	    settings->doing_break = 0;
+		settings->doing_break = 0;
 	    }
 	}
 	break;
@@ -910,7 +910,6 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_break:
-<<<<<<< HEAD
       // start skipping
       settings->skipping_o = block->o_name;
       settings->skipping_start = settings->sequence_number;
@@ -918,23 +917,6 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
       logOword("start skipping forward: [%s] in 'break'",
 	      block->o_name);
       break;
-||||||| parent of cbbe0b9... interp_o_word.cc: reformat
-      // start skipping
-      settings->skipping_o = block->o_name;
-      settings->skipping_start = settings->sequence_number;
-      //settings->doing_break = 1;
-      logOword("start skipping forward: [%s] in 'break'",
-	      block->o_name);
-      break;
-=======
-	// start skipping
-	settings->skipping_o = block->o_name;
-	settings->skipping_start = settings->sequence_number;
-	//settings->doing_break = 1;
-	logOword("start skipping forward: [%s] in 'break'",
-		 block->o_name);
-	break;
->>>>>>> cbbe0b9... interp_o_word.cc: reformat
 
     case O_continue:
 	// if already skipping, do nothing
