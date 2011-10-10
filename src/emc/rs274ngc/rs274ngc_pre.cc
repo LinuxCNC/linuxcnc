@@ -295,10 +295,11 @@ int Interp::_execute(const char *command)
   int MDImode = 0;
   block_pointer eblock = &EXECUTING_BLOCK(_setup);
   block_pointer cblock = &CONTROLLING_BLOCK(_setup);
+  extern const char *call_phases[];
 
-  logDebug("execute: command=%s MDI=%d mdi_int=%d E:o_name=%s cl=%d rl=%d",
-	   command,(command == NULL) ? 0 : 1, _setup.mdi_interrupt, eblock->o_name,
-	   _setup.call_level,_setup.remap_level);
+  logDebug("execute: command=%s mdi_int=%d E:o_name=%s cl=%d rl=%d callstate=%s",
+	   command, _setup.mdi_interrupt, eblock->o_name,
+	   _setup.call_level,_setup.remap_level, call_phases[_setup.fsm_state]);
 
   if (NULL != command) {
     MDImode = 1;
@@ -793,6 +794,7 @@ int Interp::init()
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
   _setup.skip_read = false;
+  _setup.fsm_state = CS_START; // reset call state machine
 
   if(iniFileName != NULL) {
 
@@ -1549,6 +1551,10 @@ which are called by Interp::init) change the model.
 
 int Interp::reset()
 {
+  _setup.linetext[0] = 0;
+  _setup.blocktext[0] = 0;
+  _setup.line_length = 0;
+  _setup.fsm_state = CS_START; // reset call state machine
   //!!!KL According to the comment,
   //!!!KL this should not be here because this is for
   //!!!KL more than one line.
@@ -1565,7 +1571,6 @@ int Interp::reset()
     if (sub->subName) {
 	sub->subName = NULL;
     }
-    sub->state = CS_START; // reset call state machine
 
     for(i=0; i<INTERP_SUB_PARAMS; i++) {
       _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =

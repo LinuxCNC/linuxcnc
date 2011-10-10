@@ -624,8 +624,9 @@ static const char *o_ops[] = {
     "O_repeat",
     "O_endrepeat",
     "O_continue_call",
+    "O_pyreturn",
 };
-static const char *call_phases[] = {
+const char *call_phases[] = {
     "CS_START",
     "CS_CALL_PROLOG",
     "CS_CONTINUE_PROLOG",
@@ -651,7 +652,7 @@ static const char *call_phases[] = {
     } while(0)
 
 #define INVALID_EVENT(cond) CHKS(cond,"call_fsm: invalid event=%s in state=%s cl=%d rl=%d", \
-				 o_ops[event], call_phases[active_frame->state], \
+				 o_ops[event], call_phases[settings->fsm_state], \
 				 settings->call_level, settings->remap_level);
 
 // call handling FSM. 
@@ -668,10 +669,10 @@ int Interp::call_fsm(setup_pointer settings, int event)
 
     do {
 	logOword("call_fsm: event=%s state=%s cl=%d rl=%d status=%s", 
-		 o_ops[event], call_phases[active_frame->state],
+		 o_ops[event], call_phases[settings->fsm_state],
 		 settings->call_level, settings->remap_level, interp_status(status));
 
-	switch (active_frame->state) {
+	switch (settings->fsm_state) {
 
 	case CS_CALL_PY_OSUB: // first time around
 	    INVALID_EVENT(event != O_call);
@@ -687,12 +688,13 @@ int Interp::call_fsm(setup_pointer settings, int event)
 				active_frame->subName, PY_OWORDCALL));
 	    switch ((status = handler_returned(settings, active_frame, active_frame->subName, true))) {
 	    case INTERP_OK:
-		active_frame->state = CS_DONE;
+		settings->fsm_state = CS_DONE;
 		settings->sequence_number = previous_frame->sequence_number;  //FIXTHIS
+		// CHP(call_fsm(settings, O_pyreturn));
 		CHP(leave_context(settings,false));
 		break;
 	    case INTERP_EXECUTE_FINISH:
-		active_frame->state = CS_CONTINUE_PY_OSUB;
+		settings->fsm_state = CS_CONTINUE_PY_OSUB;
 		settings->skip_read = true;  // 'stay on same line' 
 		eblock->o_type = O_continue_call; // dont enter_context()
 	    }
@@ -705,7 +707,7 @@ int Interp::call_fsm(setup_pointer settings, int event)
 		       active_frame->subName, PY_FINISH_OWORDCALL));
 	    switch ((status = handler_returned(settings, active_frame, active_frame->subName, true))) {
 	    case INTERP_OK:
-		active_frame->state = CS_DONE;
+		settings->fsm_state = CS_DONE;
 		settings->skip_read = false; 
 		settings->sequence_number = previous_frame->sequence_number; //FIXTHIS
 		CHP(leave_context(settings,false));
@@ -761,10 +763,12 @@ int Interp::call_fsm(setup_pointer settings, int event)
 		ERS(NCE_UNABLE_TO_OPEN_FILE,eblock->o_name);
 		status =  INTERP_ERROR;
 	    }
-	    active_frame->state = CS_EXECUTING_BODY;
+	    settings->fsm_state = CS_EXECUTING_BODY;
 	    break;
 
 	case CS_EXECUTING_BODY: // NGC oword procedure
+	    if (event == O_none)
+		break;
 	    INVALID_EVENT((event != O_return) && (event != O_endsub));
 	    if (settings->skipping_o) {
 		logOword("case O_%s -- no longer skipping to:|%s|",
@@ -835,7 +839,7 @@ int Interp::call_fsm(setup_pointer settings, int event)
 	    } else { // call_level == 0
 
 		logDebug("UNEXPECTED state %s:  unhandled event=%s cl=%d rl=%d", 
-			 call_phases[active_frame->state], o_ops[event], 
+			 call_phases[settings->fsm_state], o_ops[event], 
 			 settings->call_level, settings->remap_level);
 		status = INTERP_ERROR;
 		// // a definition
@@ -853,6 +857,16 @@ int Interp::call_fsm(setup_pointer settings, int event)
 	    } 
 	    break;
 
+	// case CS_DONE:
+	//     if (event == O_pyreturn) {
+	// 	CHP(leave_context(settings,false));
+	// 	eblock->o_type = O_none; 
+	//     }
+
+	//     logDebug("state %s, event=%s cl=%d rl=%d -- ignoring", 
+	// 	     call_phases[settings->fsm_state], o_ops[event], 
+	// 	     settings->call_level, settings->remap_level);
+	//     break;
 
 	case CS_START: // not in a call
 	    switch (event) {
@@ -870,12 +884,12 @@ int Interp::call_fsm(setup_pointer settings, int event)
 		    settings->defining_sub = NULL;
 		    settings->sub_name = NULL;
 		}
-		active_frame->state = CS_DONE;
+		settings->fsm_state = CS_DONE;
 
 		break;
 	    default:
 		logDebug("state %s:  unhandled event=%s cl=%d rl=%d", 
-			 call_phases[active_frame->state], o_ops[event], 
+			 call_phases[settings->fsm_state], o_ops[event], 
 			 settings->call_level, settings->remap_level);
 		status = INTERP_ERROR;
 	    }
@@ -883,16 +897,16 @@ int Interp::call_fsm(setup_pointer settings, int event)
 
 	default:
 	    logDebug("state %s unhandled, event=%s cl=%d rl=%d", 
-		     call_phases[active_frame->state], o_ops[event], 
+		     call_phases[settings->fsm_state], o_ops[event], 
 		     settings->call_level, settings->remap_level);
 	    status = INTERP_ERROR;
 	}
     } while ((status == INTERP_OK) && 
-	     (active_frame->state != CS_DONE) &&
-	     (active_frame->state != CS_EXECUTING_BODY));
+	     (settings->fsm_state != CS_DONE) &&
+	     (settings->fsm_state != CS_EXECUTING_BODY));
 
-    if (active_frame->state == CS_DONE)
-	active_frame->state = CS_START; // rewind fsm
+    if (settings->fsm_state == CS_DONE)
+	settings->fsm_state = CS_START; // rewind fsm
 
     return status;
 }
@@ -1175,6 +1189,9 @@ int Interp::execute_pycall(setup_pointer settings, const char *name, int call_ph
 // prepare a new call frame.
 int Interp::enter_context(setup_pointer settings, int start_state) 
 {
+    logOword("enter_context cl=%d->%d start_state=%s", 
+	     settings->call_level, settings->call_level+1, call_phases[start_state]);
+
     settings->call_level++;
     if (settings->call_level >= INTERP_SUB_ROUTINE_LEVELS) {
 	ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
@@ -1184,13 +1201,19 @@ int Interp::enter_context(setup_pointer settings, int start_state)
     frame->py_returned_double = 0.0;
     frame->py_return_type = -1;
     frame->frame_type = start_state; // distinguish call frames
-    frame->state = start_state;
     return INTERP_OK;
 }
 
 int Interp::leave_context(setup_pointer settings, bool restore) 
 {
     context_pointer active_frame = &settings->sub_context[settings->call_level];
+
+   if (settings->call_level < 1) {
+	ERS(NCE_CALL_STACK_UNDERRUN);
+    }
+    logOword("leave_context cl=%d->%d state=%s", 
+	     settings->call_level, settings->call_level-1, 
+	     call_phases[settings->fsm_state]);
 
     free_named_parameters(active_frame);
     active_frame->subName = NULL;
@@ -1298,6 +1321,7 @@ int Interp::convert_control_functions(block_pointer block, // pointer to a block
 	break;
 
     case O_call:
+	settings->fsm_state = block->o_fsm_state; // set FSM start state 
 	CHP(enter_context(settings, block->o_fsm_state));
 	CHP(call_fsm(settings, block->o_type));
 	break;

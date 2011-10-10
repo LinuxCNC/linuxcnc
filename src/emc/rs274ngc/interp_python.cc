@@ -132,7 +132,7 @@ int Interp::pycall(setup_pointer settings,
     case PY_FINISH_PROLOG:
     case PY_FINISH_BODY:
     case PY_FINISH_EPILOG:
-	logPy("pycall: call generator restart_at=%d",frame->state);
+	logPy("pycall: call generator.next()" );
 	
 	// handler continuation if a generator was used
 	try {

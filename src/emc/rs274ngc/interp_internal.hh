@@ -142,7 +142,8 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define O_return   13
 #define O_repeat   14
 #define O_endrepeat 15
-#define O_continue_call   16 // signal Python handler reexecution
+#define O_continue_call   16 // signal Python generator reexecution
+#define O_pyreturn   17 // signal Python return after generator reexecution
 
 // G Codes are symbolic to be dialect-independent in source code
 #define G_0      0
@@ -538,7 +539,6 @@ typedef struct context_struct {
     int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
     int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
-    int state; // enum call_states - call execution state machine
     int frame_type; // O_remap, O_call, O_pycall
 
     // Python-related stuff
@@ -704,7 +704,7 @@ typedef struct setup_struct
   int value_returned;                // the last NGC procedure did/did not return a value
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
-  int oword_labels;
+    int fsm_state;                   // state of the call FSM - enum call_states - call execution state machine
   offset_map_type offset_map;      // store label x name, file, line
   bool skip_read;                  // suppress next read() while continung handlers
 
