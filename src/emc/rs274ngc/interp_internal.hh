@@ -13,6 +13,7 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
+#include "Python.h"
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
@@ -20,6 +21,8 @@
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
+
+
 #define _(s) gettext(s)
 
 /**********************/
@@ -373,7 +376,7 @@ typedef struct context_struct {
   double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
 
     // record prolog in stack frame in case recursion involved
-  int (Interp::*prolog)(setup_pointer settings, int user_data);
+    int (Interp::*prolog)(setup_pointer settings, int user_data, bool pydict);
   int userdata; // memoized parameter to prolog function
   // if set, the following handler is executed on endsub/return
     int (Interp::*epilog)(setup_pointer settings, int remap);
@@ -563,7 +566,8 @@ typedef struct setup_struct
   // 3. the subroutine name has been set in subName
   // Usage: add local parameters as passed by block/defined by argspec
   // for canned cylces in g-code
-    int (Interp::*prolog_hook)(setup_pointer settings, int user_data);
+    int (Interp::*prolog_hook)(setup_pointer settings, int user_data,
+			       bool pydict);
     int prolog_userdata; // memoized parameter to prolog function
   // if set on a sub call, the following function is executed on endsub/return
     int (Interp::*epilog_hook)(setup_pointer settings,int remap);
@@ -577,6 +581,9 @@ typedef struct setup_struct
 #define MCODE_OFFSET 1000
     std::map<int,const char *> usercodes_argspec;
     std::map<int,int> usercodes_mgroup;
+    const char *pymodule;
+    bool pymodule_ok;
+    PyObject *pymodname,*pymod,*pyresult,*pymdict, *kwargs;
 }
 setup;
 

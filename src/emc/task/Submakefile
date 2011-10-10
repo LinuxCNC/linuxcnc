@@ -1,3 +1,4 @@
+
 EMCSVRSRCS := \
 	emc/task/emcsvr.cc
 USERSRCS += $(EMCSVRSRCS)
@@ -21,7 +22,12 @@ MILLTASKSRCS := \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
+#LDFLAGS +=
+
 ../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0
+
+#/usr/lib/libpython2.6.a /usr/lib/libssl.a /usr/lib/libcrypto.a /usr/lib/libz.a /usr/lib/libdl.a
+
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^ 
+	$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/milltask

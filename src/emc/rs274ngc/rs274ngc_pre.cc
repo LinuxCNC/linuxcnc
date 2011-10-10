@@ -65,7 +65,7 @@ suppression can produce more concise output. Future versions might
 include an option for suppressing superfluous commands.
 
 ****************************************************************************/
-
+#include "Python.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -891,7 +891,15 @@ int Interp::init()
 	      n++;
 	  }
 
-
+          if (NULL != (inistring = inifile.Find("PYIMPORT", "RS274NGC"))) {
+	      _setup.pymodule = strdup(inistring);
+              logDebug("_setup.pymodule=%s\n", _setup.pymodule);
+	      if (init_python(&(_setup)) != INTERP_OK) {
+		  fprintf(stderr,"PYIMPORT: import of module %s failed\n",_setup.pymodule);
+	      }
+          } else {
+	      _setup.pymodule = NULL;
+          }
           // close it
           inifile.Close();
       }

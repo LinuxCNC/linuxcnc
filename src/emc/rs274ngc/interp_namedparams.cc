@@ -14,6 +14,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include "Python.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -247,7 +248,7 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 }
 
 // given a block and an argspec, add local variables to
-// the current oword subroutine call frame as follows:
+// the current oword subroutine call frame, or a Python dict as follows:
 // 1. add all requried and  present optional words.
 // 2. error on missing but required words.
 // 3. error on superfluous words (present but not in argspec).
@@ -255,7 +256,7 @@ bool Interp::check_args(block_pointer block, const char *argspec)
 // 5. handle 'S' as to require a positive speed.
 // 6. handle 'N' as to add the line number.
 // return INTERP_ERROR and propagate appropriate message if any errors so far
-int Interp::add_parameters(setup_pointer settings, int user_data)
+int Interp::add_parameters(setup_pointer settings, int user_data, bool pydict)
 {
     const char *s,*argspec;
     block_pointer block;
@@ -267,6 +268,12 @@ int Interp::add_parameters(setup_pointer settings, int user_data)
     char *r = required;
     char msg[LINELEN], tail[LINELEN];
     bool errored = false;
+
+    if (pydict) {
+	if (!(settings->kwargs = PyDict_New())) {
+	    ERS("add_parameters: cant create dictionary");
+	}
+    }
 
     memset(missing,0,sizeof(missing));
     memset(superfluous,0,sizeof(superfluous));
@@ -291,12 +298,19 @@ int Interp::add_parameters(setup_pointer settings, int user_data)
     r = required;
     block = &CONTROLLING_BLOCK((*settings));
 
-    fprintf(stderr,"----add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s\n",
-	    user_data,argspec,settings->call_level,required,optional);
+    fprintf(stderr,"----add_parameters user_data=%d argspec=%s call_level=%d r=%s o=%s PYDICT=%d\n",
+	    user_data,argspec,settings->call_level,required,optional,pydict);
 
 #define STORE(name,value)			\
-    add_named_param(name,0);			\
-    store_named_param(name,value,0);
+    if (pydict) {				\
+	if (PyDict_SetItemString(settings->kwargs,name,		\
+				 PyFloat_FromDouble(value)) < 0) {	\
+	    ERS("add_parameters: cant add '%s' to args",name);		\
+	}								\
+    } else {					\
+	add_named_param(name,0);		\
+	store_named_param(name,value,0); 	\
+    }
 
 #define PARAM(spec,name,flag,value) 	                    	\
     if ((flag)) { /* present */	                    	        \

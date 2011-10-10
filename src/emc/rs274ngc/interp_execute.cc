@@ -249,11 +249,12 @@ int Interp::finish_t_command(setup_pointer settings,int remap)
 // common code for T_COMMAND, M6_COMMAND, ON_ABORT handlers
 int Interp::execute_handler(setup_pointer settings, const char *cmd,
 			    int (Interp::*prolog)(setup_pointer settings,
-						  int user_data),
+						  int user_data, bool pydict),
 			    int (Interp::*epilog)(setup_pointer settings,
 						  int remap_op),
 			    int remap_op,
-			    int user_data
+			    int user_data,
+			    bool pydict
 )
 {
     // TBD:  good error reporting on errors in T_COMMAND, M6_COMMAND

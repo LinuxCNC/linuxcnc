@@ -1,3 +1,5 @@
+
+
 INCLUDES += emc/rs274ngc
 
 LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
@@ -16,6 +18,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_o_word.cc \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
+	interp_python.cc \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
@@ -27,7 +30,11 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+	$(CXX) -g $(LDFLAGS) -Wl,-Map=librs274ngc.map -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lpython2.6_d  -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+
+#	$(CXX) -g $(LDFLAGS) -Wl,-Map=librs274ngc.map -Wl,-soname,$(notdir $@) -shared -o $@ $^ /usr/lib/libpython2.6.a -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc -lcrypto -lssl
+
+# /usr/lib/libssl.a /usr/lib/libz.a /usr/lib/libutil.a /usr/lib/libdl.a /usr/lib/libpthread.a  /usr/lib/libc.a
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@

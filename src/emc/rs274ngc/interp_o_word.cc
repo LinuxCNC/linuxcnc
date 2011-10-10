@@ -469,14 +469,14 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 		  settings->sub_context[settings->call_level].sequence_number;
 
 	  // we have an epilog function. Execute it.
-	  if (settings->sub_context[settings->call_level+1].epilog) {
-	      fprintf(stderr,"---- return/endsub: calling epilogue\n");
-	      int status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings,
-											 settings->sub_context[settings->call_level+1].epilog_arg
-											 );
-	      if (status > INTERP_MIN_ERROR)
-		  ERS("epilogue failed"); //FIXME
-	  }
+	      if (settings->sub_context[settings->call_level+1].epilog) {
+		  fprintf(stderr,"---- return/endsub: calling epilogue\n");
+		  int status = (*this.*settings->sub_context[settings->call_level+1].epilog)(settings,
+											     settings->sub_context[settings->call_level+1].epilog_arg
+											     );
+		  if (status > INTERP_MIN_ERROR)
+		      ERS("epilogue failed"); //FIXME mah
+	      }
 
 
 	  // a valid previous context was marked by an M73 as auto-restore
@@ -530,120 +530,163 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
        }
       break;
     case O_call:
-      // copy parameters from context
-      // save old values of parameters
-      // save current file position in context
-      // if we were skipping, no longer
-      if(settings->skipping_o)
-	{
-	  logDebug("case O_call -- no longer skipping to:|%s|",
-	       settings->skipping_o);
-	  free(settings->skipping_o);
-          settings->skipping_o = 0;
+	if (!is_pycallable(settings,block->o_name)) {
+	    // copy parameters from context
+	    // save old values of parameters
+	    // save current file position in context
+	    // if we were skipping, no longer
+	    if(settings->skipping_o)
+		{
+		    logDebug("case O_call -- no longer skipping to:|%s|",
+			     settings->skipping_o);
+		    free(settings->skipping_o);
+		    settings->skipping_o = 0;
+		}
+	    if(settings->call_level >= INTERP_SUB_ROUTINE_LEVELS)
+		{
+		    ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
+		}
+
+	    for(i=0; i<INTERP_SUB_PARAMS; i++)
+		{
+		    settings->sub_context[settings->call_level].saved_params[i] =
+			settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM];
+
+		    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+			block->params[i];
+
+		}
+
+	    // if the previous file was NULL, mark positon as -1 so as not to
+	    // reopen it on return.
+	    if (settings->file_pointer == NULL) {
+		settings->sub_context[settings->call_level].position = -1;
+	    } else {
+		settings->sub_context[settings->call_level].position = ftell(settings->file_pointer);
+	    }
+
+	    if(settings->sub_context[settings->call_level].filename)
+		{
+		    // if there is a string here, free it
+		    free(settings->sub_context[settings->call_level].filename);
+		}
+	    // save the previous filename
+	    logDebug("Duping |%s|", settings->filename);
+	    settings->sub_context[settings->call_level].filename =
+		strdup(settings->filename);
+
+	    settings->sub_context[settings->call_level].sequence_number
+		= settings->sequence_number;
+
+	    logDebug("(in call)set params[%d] return file:%s offset:%ld",
+		     settings->call_level,
+		     settings->sub_context[settings->call_level].filename,
+		     settings->sub_context[settings->call_level].position);
+
+	    settings->call_level++;
+
+	    // remember an epilog function in current call frame
+	    settings->sub_context[settings->call_level].epilog =
+		settings->epilog_hook;
+	    settings->epilog_hook = NULL;  // mark as consumed
+	    settings->sub_context[settings->call_level].epilog_arg =
+		settings->epilog_userdata;
+
+	    // remember a prolog function
+	    // and memoized userdata in current call frame
+	    // needed for recursive invocation
+	    settings->sub_context[settings->call_level].prolog =
+		settings->prolog_hook;
+	    settings->prolog_hook = NULL;  // mark as consumed
+
+	    settings->sub_context[settings->call_level].userdata =
+		settings->prolog_userdata;
+
+	    // set the new subName
+	    // !!!KL do we need to free old subName?
+	    settings->sub_context[settings->call_level].subName =
+		strdup(block->o_name);
+
+	    // just curious: detect recursion
+	    if ((settings->call_level > 0) &&
+		(settings->sub_context[settings->call_level].subName != NULL) &&
+		(settings->sub_context[settings->call_level-1].subName  != NULL)) {
+		if (!strcmp(settings->sub_context[settings->call_level].subName,
+			    settings->sub_context[settings->call_level-1].subName)) {
+
+		    fprintf(stderr,"---- recursive call: '%s'\n",
+			    settings->sub_context[settings->call_level].subName);
+		}
+	    }
+
+	    // this is the place to call a prolog function
+	    if (settings->sub_context[settings->call_level].prolog) {
+		fprintf(stderr,"---- call: calling prologue\n");
+		int status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
+											 settings->sub_context[settings->call_level].userdata,
+											 false);
+		// prolog is exepected to set an appropriate error string
+		if (status != INTERP_OK) {
+		    // we're terminating the call in progress as we were setting it up.
+		    // need to unwind setup so far.
+		    if (settings->sub_context[settings->call_level].subName)
+			free(settings->sub_context[settings->call_level].subName);
+		    settings->call_level--;
+		    settings->stack_level = 0;
+		    return status;
+		}
+	    }
+
+	    if (control_back_to(block,settings) == INTERP_ERROR) {
+		settings->call_level--;
+		ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
+		return INTERP_ERROR;
+	    }
+	} else {
+
+	    // a python callable function. A lot simpler since it's all inline.
+	    // call a prolog function if applicable
+	    // call python callable, and save return_value
+	    // call epilogue of applicable
+
+	    settings->call_level++;   // we need the stack frame for named params
+	    if (settings->prolog_hook) {
+		fprintf(stderr,"---- call: calling py prologue\n");
+		int status = (*this.*settings->prolog_hook)(settings,settings->prolog_userdata, true);
+		settings->prolog_hook = NULL;  // mark as consumed
+		// prolog is exepected to set an appropriate error string
+		if (status != INTERP_OK) {
+		    // we're terminating the call
+		    settings->call_level--;
+		    // and any remappings in progress
+		    settings->stack_level = 0;
+		    return status;
+		}
+	    }
+	    // block->params[0] is the first positional parameter
+	    settings->return_value =  pycall(settings,block->o_name,
+						  block->params);
+	    fprintf(stderr,"--- O_call(%s) answer=%f\n",
+		    block->o_name,settings->return_value);
+
+	    // now the epilogue
+	    if (settings->epilog_hook) {
+		fprintf(stderr,"---- call: calling py epilogue\n");
+		int status = (*this.*settings->epilog_hook)(settings,settings->epilog_userdata);
+		settings->epilog_hook = NULL;  // mark as consumed
+		// epilog is exepected to set an appropriate error string
+		if (status != INTERP_OK) {
+		    // we're terminating the call
+		    // since we didnt need to increment call_level we're not dropping it either
+		    // however, terminate if part of a remapping
+		    settings->stack_level = 0;
+		    ERS("py epilogue failed"); //FIXME mah
+		}
+	    }
+	    settings->call_level--;
 	}
-      if(settings->call_level >= INTERP_SUB_ROUTINE_LEVELS)
-	{
-	  ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
-	}
+	break;
 
-      for(i=0; i<INTERP_SUB_PARAMS; i++)
-	{
-	  settings->sub_context[settings->call_level].saved_params[i] =
-	    settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM];
-
-	  settings->parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-	    block->params[i];
-
-	}
-
-      // if the previous file was NULL, mark positon as -1 so as not to
-      // reopen it on return.
-      if (settings->file_pointer == NULL) {
-	  settings->sub_context[settings->call_level].position = -1;
-	  //fprintf(stderr,"---- marking as return to 'no file' - level=%d filename='%s' seqno=%d\n",settings->call_level,settings->filename,settings->sequence_number);
-      } else {
-	  //fprintf(stderr,"---- marking as return to valid file level=%d filename='%s' seqno=%d\n",settings->call_level,settings->filename,settings->sequence_number);
-	  settings->sub_context[settings->call_level].position = ftell(settings->file_pointer);
-      }
-
-      if(settings->sub_context[settings->call_level].filename)
-          {
-              // if there is a string here, free it
-	      //fprintf(stderr,"--freeing filename '%s' at level %d\n",settings->sub_context[settings->call_level].filename,settings->call_level);
-              free(settings->sub_context[settings->call_level].filename);
-          }
-      // save the previous filename
-      logDebug("Duping |%s|", settings->filename);
-      settings->sub_context[settings->call_level].filename =
-              strdup(settings->filename);
-
-      settings->sub_context[settings->call_level].sequence_number
-	    = settings->sequence_number;
-
-      logDebug("(in call)set params[%d] return file:%s offset:%ld",
-	       settings->call_level,
-	       settings->sub_context[settings->call_level].filename,
-	       settings->sub_context[settings->call_level].position);
-
-      settings->call_level++;
-
-      // remember an epilog function in current call frame
-      settings->sub_context[settings->call_level].epilog =
-	      settings->epilog_hook;
-      settings->epilog_hook = NULL;  // mark as consumed
-      settings->sub_context[settings->call_level].epilog_arg =
-	  settings->epilog_userdata;
-
-      // remember a prolog function
-      // and memoized userdata in current call frame
-      // needed for recursive invocation
-      settings->sub_context[settings->call_level].prolog =
-	  settings->prolog_hook;
-      settings->prolog_hook = NULL;  // mark as consumed
-
-      settings->sub_context[settings->call_level].userdata =
-	  settings->prolog_userdata;
-
-      // set the new subName
-      // !!!KL do we need to free old subName?
-      settings->sub_context[settings->call_level].subName =
-	strdup(block->o_name);
-
-      // just curious: detect recursion
-      if ((settings->call_level > 0) &&
-	  (settings->sub_context[settings->call_level].subName != NULL) &&
-	  (settings->sub_context[settings->call_level-1].subName  != NULL)) {
-	  if (!strcmp(settings->sub_context[settings->call_level].subName,
-		      settings->sub_context[settings->call_level-1].subName)) {
-
-	      fprintf(stderr,"---- recursive call: '%s'\n",
-		      settings->sub_context[settings->call_level].subName);
-	  }
-      }
-
-      // this is the place to call a prolog function
-      if (settings->sub_context[settings->call_level].prolog) {
-	  fprintf(stderr,"---- call: calling prologue\n");
-	  int status = (*this.*settings->sub_context[settings->call_level].prolog)(settings,
-										   settings->sub_context[settings->call_level].userdata);
-	  // prolog is exepected to set an appropriate error string
-	  if (status != INTERP_OK) {
-	      // we're terminating the call in progress as we were setting it up.
-	      // need to unwind setup so far.
-	      if (settings->sub_context[settings->call_level].subName)
-		  free(settings->sub_context[settings->call_level].subName);
-	      settings->call_level--;
-	      settings->stack_level = 0;
-	      return status;
-	  }
-      }
-
-      if (control_back_to(block,settings) == INTERP_ERROR) {
-	  settings->call_level--;
-          ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
-          return INTERP_ERROR;
-      }
-      break;
     case O_do:
       // if we were skipping, no longer
       if(settings->skipping_o)free(settings->skipping_o);

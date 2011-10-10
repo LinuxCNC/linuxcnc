@@ -471,10 +471,12 @@ private:
  int execute_handler( /* ARGUMENTS           */
   setup_pointer settings,  /* pointer to machine settings */
   const char *cmd,
-  int (Interp::*prolog)(setup_pointer settings, int user_data) = NULL,
+  int (Interp::*prolog)(setup_pointer settings, int user_data,
+			bool pydict) = NULL,
   int (Interp::*epilog)(setup_pointer settings, int remap) = NULL,
   int remap_op = 0, // really NO_REMAP but rather keep internal
-  int user_data = 0
+  int user_data = 0,
+  bool pydict = false
   );
     int signal_error(int code);
  // step through parsed block and find first active remapped item
@@ -498,7 +500,7 @@ private:
  // given a settings and some opaque userdata, 'do the right thing'
  // present optional words to the subroutine's local variables
  // userdata would typically be a gcode or mcode
- int add_parameters(setup_pointer settings, int user_data = 0);
+    int add_parameters(setup_pointer settings, int user_data = 0,bool pydict = false);
 
  int usercode_mgroup(setup_pointer settings,int code, bool mcode = false);
  bool has_user_mcode(setup_pointer settings,block_pointer block);
@@ -514,7 +516,15 @@ private:
 			   setup_pointer settings,int type);
  int remap_m(block_pointer block, setup_pointer settings,
 	    int mode,bool remove_trail);
- const char *remap_name(setup_pointer settings,int type, int code);
+    const char *remap_name(setup_pointer settings,int type, int code);
+
+    int init_python(setup_pointer settings);
+    bool is_pycallable(setup_pointer settings,const char *funcname);
+    double pycall(setup_pointer settings,
+		  const char *funcname,
+		  double params[]);
+
+
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
