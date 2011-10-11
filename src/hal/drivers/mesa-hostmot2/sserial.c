@@ -33,7 +33,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
     int i,c;
     int pin = -1;
     int port_pin, port;
-    u32 ddr_reg, src_reg, addr, buff;
+    u32 ddr_reg, src_reg, addr, buff, buff2;
     int r = 0;
     int count = 0;
     int chan_counts[] = {0,0,0,0,0,0,0,0};
@@ -121,8 +121,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                     chan_counts[hm2->pin[pin].sec_unit] = (hm2->pin[pin].sec_pin & 0x0F);
                 }
                 // check if the channel is enabled
-                if ((hm2->pin[pin].sec_pin & 0x0F)
-                    <= hm2->config.num_sserial_chans[hm2->pin[pin].sec_unit]) {
+                if (hm2->config.sserial_modes[hm2->pin[pin].sec_unit]
+                                        [hm2->pin[pin].sec_pin & 0x0F] != 'x') {
                     src_reg |= (1 << port_pin);
                     if (hm2->pin[pin].sec_pin & 0x80){ ddr_reg |= (1 << port_pin); }
                 }
@@ -148,6 +148,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         inst->command_reg_addr = md->base_address + i * md->instance_stride;
         inst->data_reg_addr
         = md->base_address + i * md->instance_stride + md->register_stride;
+        
+        buff=0x4000; //Reset
+        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
+        buff=0x00; //Clear
+        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
+        rtapi_delay(10000000); 
 
         buff=0x2003; //Read firmware version
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
@@ -158,14 +164,25 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->llio->read(hm2->llio, inst->data_reg_addr, &buff, sizeof(u32));
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
 
-        buff=0x800;
+        buff=0x800; //Stop All
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,51) < 0){
             r = -EINVAL;
             goto fail0;
         }
         // start up the card in setup mode so any sub-drivers can read parameters out
-        buff=0xF00 | (0xFF >> (8 - hm2->config.num_sserial_chans[i]));
+        // we need to set the card mode here too. 
+        buff=0xF00;
+        for (c = 0 ; c < inst->num_channels ; c++){
+            if (hm2->config.sserial_modes[i][c] != 'x'){
+                buff |= 1 << c;
+                // CS addr - write card mode
+                addr = md->base_address + 2 * md->register_stride
+                                + i * md->instance_stride + c * sizeof(u32);
+                buff2 = (hm2->config.sserial_modes[i][c] - '0') << 24;
+                hm2->llio->write(hm2->llio, addr, &buff2, sizeof(u32));
+            }
+        }
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 8000) < 0){
             r = -EINVAL;
@@ -178,6 +195,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         inst->tag_all = 0;
         inst->num_all = 0;
         for (c = 0 ; c < inst->num_channels ; c++) {
+            // user1 addr
             addr = md->base_address + 4 * md->register_stride
             + i * md->instance_stride + c * sizeof(u32);
             hm2->llio->read(hm2->llio, addr, &buff, sizeof(u32));
@@ -204,8 +222,8 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                     inst->num_all += 1;
                     break;
                 default:
-                    HM2_ERR("Unsupported Device ID %X found on sserial %d "
-                            "channel %d\n", buff, i, c);
+                    HM2_ERR("Unsupported Device ID %4s found on sserial %d "
+                            "channel %d\n", (char*)&buff, i, c);
             }
         }
         if (inst->num_all > 0){
@@ -336,6 +354,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                          &ddr_reg, sizeof(u32));
         hm2->llio->write(hm2->llio, hm2->ioport.alt_source_addr + 4 * port,
                          &src_reg, sizeof(u32));
+    }
+    // Stop the sserial ports.
+    buff=0x800; //Stop All
+    for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
+        hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
+        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
     }
     return hm2->sserial.num_instances;
 fail0:

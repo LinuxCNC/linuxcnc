@@ -194,17 +194,14 @@ const char *hm2_get_general_function_name(int gtag) {
 static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     char **argv;
     int argc;
-    int i;
+    int i,j;
 
     // default is to enable everything in the firmware
     hm2->config.num_encoders = -1;
     hm2->config.num_pwmgens = -1;
     hm2->config.num_tp_pwmgens = -1;
     hm2->config.num_sserials = 0;
-    hm2->config.num_sserial_chans[0] = 0; // default to all-off to make probing safer
-    hm2->config.num_sserial_chans[1] = 0;
-    hm2->config.num_sserial_chans[2] = 0;
-    hm2->config.num_sserial_chans[3] = 0;
+    for(i=0;i<4;i++) for(j=0;j<8;j++) hm2->config.sserial_modes[i][j]='0';
     hm2->config.num_stepgens = -1;
     hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
@@ -236,16 +233,26 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_3pwmgens=", 13) == 0) {
             token += 13;
             hm2->config.num_tp_pwmgens = simple_strtol(token, NULL, 0);
-
-        } else if (strncmp(token, "num_sserials=", 13) == 0) {
-            hm2->config.num_sserials = 0;
-            token += 13;
-            for ( ; *token != 0; token++) {
-                if (*token >= '0' && *token <= '8') {
-                    hm2->config.num_sserial_chans[hm2->config.num_sserials] =
-                    *token - '0';
-                    hm2->config.num_sserials ++;
+            
+        } else if (strncmp(token, "sserial_mode", 12) == 0) {
+            int i = *token - '0';
+            int c = 0;
+            token += 12;
+            i = *token - '0';
+            token += 1;
+            if (i < 0 || i > 4 || *token != '='){
+                HM2_ERR("sserial_mode tag must be in the form "
+                        """sserial_modeN=0123xx23"" where N may be 0 to 3\n");
+                goto fail;
+            }
+            for (token += 1 ; *token != 0; token++) {
+                if (((*token >= '0' && *token <= '9') || *token == 'x')
+                    && c <= 8) {
+                    hm2->config.sserial_modes[i][c++] = *token;
                 }
+            }
+            if (i >= hm2->config.num_sserials){
+                hm2->config.num_sserials = i + 1;
             }
 
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
@@ -276,9 +283,14 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
     HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
-    HM2_DBG("    num_sserials=%i.%i.%i.%i)\n", hm2->config.num_sserial_chans[0],
-            hm2->config.num_sserial_chans[1], hm2->config.num_sserial_chans[2],
-            hm2->config.num_sserial_chans[3]);
+    HM2_DBG("    sserial_modes=%s\n"
+            "                  %s\n"
+            "                  %s\n"
+            "                  %s\n", 
+            hm2->config.sserial_modes[0],
+            hm2->config.sserial_modes[1], 
+            hm2->config.sserial_modes[2],
+            hm2->config.sserial_modes[3]);
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");

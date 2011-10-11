@@ -35,7 +35,7 @@ Modules used.
 hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
 to the EMC2 HAL.  This driver by itself does nothing, the boards that
 actually run the firmware require their own drivers before anything
-can happen.  Currently drivers are available for the 5i20, 5i22, 5i23,
+can happen.  Currently drivers are available for the 5i20, 5i22, 5i23, 5i25,
 3x20, 4i65, and 4i68 (all using the hm2_pci module) and the 7i43 (using
 the hm2_7i43 module).
 
@@ -88,7 +88,7 @@ like this:
 
 .B
 .nf
-loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT num_sserials=8 num_encoders=4"
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_mode0=0000 num_encoders=4"
 .fi
 
 Note: this assumes that the hm2_pci driver detects the 5i20 first and
@@ -102,13 +102,16 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [num_sserials=\fIN.N.N.N\fB] [num_leds=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_modes0=00000000\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
 Load the firmware specified by F into the FPGA on this board.  If no
 "\fBfirmware=\fIF\fR" string is specified, the FPGA will not be
 programmed, and had better have a valid configuration already.
+
+The 5i25 comes pre-programmed with firmware, and can be loaded, if required 
+with no config string at all. 
 .P
 .RS
 The requested firmware F is fetched by udev.  udev searches for the
@@ -138,26 +141,25 @@ Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
 .TP
-\fBnum_sserials\fR [optional, default: 0.0.0.0]
+\fBsserial_modesN (N = 0 .. 4)\fR [optional, default: 00000000 for all ports]
 Up to 32 Smart Serial devices can be connected to a Mesa Anything IO board
 depending on the firmware used and the number of physical connections on the
 board. These are arranged in 1-4 ports of 1 to 8 channels.
-The number of ports enabled is governed by the number of digits in the string.
-The "." character is optional and any characters other than space and comma are
-OK. However, do not put a leading 0 in front of a digit or it will be read as a
-zero value.
-The ports and channels are numbered in the C-style, starting at 0, so
-num_sserials=8 will activate channels 0 to 7 of port 0.
-The sserial driver will auto-detect the devices. This parameter determines which
-of the the 8 channels of each port should be searched for devices.
-The channels are activated in ascending order. Pins allocated
-to Smart Serial by the firmware but not connected to a Smart Serial device may
-be used for GPIO. Pins activated but on which no devices are found can also be
-used for GPIO, but this is not recommended as the pin values and directions will
-change randomly during the device interogation stage.
-For this reason the feature defaults to all channels disabled.
-The parameter can also be used to disable specific channels and/
-or ports.
+ To set the modes for port 0 use, for example \fBsserial_modes0=0120xxxx\fR
+ Some Smart Serial (SSLBP) cards offer more than one load-time configuration,
+for example all inputs, or all outputs, or offering additional analogue input on
+some digital pins.
+ A '0'in the string sets the corresponding port to mode 0, 1 to mode 1, and so on
+up to mode 9. An "x" in any position disables that channel and makes the
+corresponding FPGA pins available as GPIO. 
+ The string can be up to 8 characters long, and if it defines more
+modes than there are channels on the port then the extras are ignored. Channel
+numbering is left to right so the example above would set sserial device 0.0
+to mode 0, 0.2 to mode2 and disable channels 0.4 onwards. 
+ The sserial driver will auto-detect connected devices, no further configuration
+should be neded. Unconnected channels will default to GPIO, but the pin values
+will vary semi-randomly during boot when card-detection runs, to it is best to 
+actively disable any channel that is to be usd for GPIO. 
 .TP
 \fBnum_leds\fR [optional, default: -1]
 Only enable the first N of the LEDs on the FPGA board. If N is -1, then HAL
