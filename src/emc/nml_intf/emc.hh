@@ -227,6 +227,7 @@ class PM_CARTESIAN;
 /* removed #define EMC_SPINDLE_ENABLE_TYPE                      ((NMLTYPE) 1314) */
 /* removed #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315) */
 #define EMC_SPINDLE_SPEED_TYPE                       ((NMLTYPE) 1316)
+#define EMC_SPINDLE_ORIENT_TYPE                      ((NMLTYPE) 1317)
 
 #define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)
 

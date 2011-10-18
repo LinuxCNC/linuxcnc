@@ -1672,6 +1672,19 @@ class EMC_SPINDLE_SPEED:public EMC_SPINDLE_CMD_MSG {
     double xoffset; // X axis offset compared to center of rotation, for CSS
 };
 
+class EMC_SPINDLE_ORIENT:public EMC_SPINDLE_CMD_MSG {
+  public:
+    EMC_SPINDLE_ORIENT():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ORIENT_TYPE,
+					    sizeof(EMC_SPINDLE_ORIENT)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    double orientation;   // desired spindle position
+    int    direction;  // cw/ccw
+};
+
+
 class EMC_SPINDLE_ON:public EMC_SPINDLE_CMD_MSG {
   public:
     EMC_SPINDLE_ON():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_ON_TYPE,
