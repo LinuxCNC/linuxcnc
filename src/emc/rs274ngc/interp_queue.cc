@@ -186,6 +186,20 @@ void enqueue_STOP_SPINDLE_TURNING(void) {
     qc().push_back(q);
 }
 
+void enqueue_ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate spindle orient\n");
+        ORIENT_SPINDLE(orientation,direction);
+        return;
+    }
+    queued_canon q;
+    q.type = QORIENT_SPINDLE;
+    q.data.orient_spindle.orientation = orientation;
+    q.data.orient_spindle.direction = direction;
+    if(debug_qc) printf("enqueue spindle orient\n");
+    qc().push_back(q);
+}
+
 void enqueue_SET_SPINDLE_MODE(double mode) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle mode %f\n", mode);
@@ -512,7 +526,10 @@ void dequeue_canons(setup_pointer settings) {
             START_CHANGE();
             free(q.data.comment.comment);
             break;
-
+        case QORIENT_SPINDLE:
+            if(debug_qc) printf("issuing orient spindle\n");
+            ORIENT_SPINDLE(q.data.orient_spindle.orientation, q.data.orient_spindle.direction);
+            break;
         }
     }
     qc().clear();
