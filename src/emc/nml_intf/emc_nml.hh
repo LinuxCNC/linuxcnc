@@ -1681,7 +1681,7 @@ class EMC_SPINDLE_ORIENT:public EMC_SPINDLE_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
     double orientation;   // desired spindle position
-    int    direction;  // cw/ccw
+    int    direction;    // CANON_DIRECTION
 };
 
 

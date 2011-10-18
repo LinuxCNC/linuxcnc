@@ -567,6 +567,25 @@ static void process_inputs(void)
 	}
 	/* end of read and process joint inputs loop */
     }
+
+    // a fault was signalled during a spindle-orient in progress
+    // signal error, and cancel the orient
+    if (*(emcmot_hal_data->spindle_orient)) {
+	if (*(emcmot_hal_data->spindle_orient_fault)) {
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    emcmotStatus->spindle.orient_fault = *(emcmot_hal_data->spindle_orient_fault);
+	    reportError(_("fault %d during orient in progress"), emcmotStatus->spindle.orient_fault);
+	    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+	    tpAbort(&emcmotDebug->queue);
+	    SET_MOTION_ERROR_FLAG(1);
+	} else if (*(emcmot_hal_data->spindle_is_oriented)) {
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    *(emcmot_hal_data->spindle_locked) = 1;
+	    emcmotStatus->spindle.locked = 1;
+	    emcmotStatus->spindle.brake = 1;
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
+	}
+    }
 }
 
 static void do_forward_kins(void)

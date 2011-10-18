@@ -141,6 +141,14 @@ typedef struct {
     hal_float_t *spindle_speed_cmd_rps;	/* spindle speed command without SO applied */
     hal_float_t *spindle_speed_in;	/* spindle speed measured */
     
+    // spindle orient
+    hal_float_t *spindle_orient_angle;	/* out: desired spindle angle, degrees */
+    hal_bit_t   *spindle_orient_fwd;	/* out: search cw if true, else ccw */
+    hal_bit_t   *spindle_orient;	/* out: signal orient in progress */
+    hal_bit_t   *spindle_locked;	/* out: signal orient complete, spindle locked */
+    hal_bit_t   *spindle_is_oriented;	/* in: orientation completed */
+    hal_s32_t   *spindle_orient_fault;	/* in: error code of failed operation */
+
     // FIXME - debug only, remove later
     hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
     hal_float_t traj_vel_out;	/* RPA: traj internals, for debugging */

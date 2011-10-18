@@ -1498,6 +1498,20 @@ check_stuff ( "before command_handler()" );
 	    
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON");
+
+	    if (*(emcmot_hal_data->spindle_orient))
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON");
+	    if (*(emcmot_hal_data->spindle_locked))
+		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON");
+	    *(emcmot_hal_data->spindle_locked) = 0;
+	    *(emcmot_hal_data->spindle_orient) = 0;
+
+	    /* if (emcmotStatus->spindle.orient) { */
+	    /* 	reportError(_("cant turn on spindle during orient in progress")); */
+	    /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
+	    /* 	tpAbort(&emcmotDebug->queue); */
+	    /* 	SET_MOTION_ERROR_FLAG(1); */
+	    /* } else { */
 	    emcmotStatus->spindle.speed = emcmotCommand->vel;
 	    emcmotStatus->spindle.css_factor = emcmotCommand->ini_maxvel;
 	    emcmotStatus->spindle.xoffset = emcmotCommand->acc;
@@ -1507,7 +1521,7 @@ check_stuff ( "before command_handler()" );
 		emcmotStatus->spindle.direction = -1;
 	    }
 	    emcmotStatus->spindle.brake = 0; //disengage brake
-            emcmotStatus->atspeed_next_feed = 1;
+	    emcmotStatus->atspeed_next_feed = 1;
 	    break;
 
 	case EMCMOT_SPINDLE_OFF:
@@ -1515,6 +1529,38 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->spindle.speed = 0;
 	    emcmotStatus->spindle.direction = 0;
 	    emcmotStatus->spindle.brake = 1; // engage brake
+	    if (*(emcmot_hal_data->spindle_orient))
+		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_OFF");
+	    if (*(emcmot_hal_data->spindle_locked))
+		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_OFF");
+	    *(emcmot_hal_data->spindle_locked) = 0;
+	    *(emcmot_hal_data->spindle_orient) = 0;
+	    break;
+
+	case EMCMOT_SPINDLE_ORIENT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT");
+	    if (*(emcmot_hal_data->spindle_orient)) {
+		rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
+
+		// mah:FIXME unsure wether this is ok or an error
+		/* reportError(_("orient already in progress")); */
+		/* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
+		/* tpAbort(&emcmotDebug->queue); */
+		/* SET_MOTION_ERROR_FLAG(1); */
+	    }
+	    emcmotStatus->spindle.speed = 0;
+	    emcmotStatus->spindle.direction = 0;
+	    // so far like spindle stop, except opening brake
+	    emcmotStatus->spindle.brake = 0; // open brake
+
+	    *(emcmot_hal_data->spindle_orient_angle) = emcmotCommand->orientation;
+	    *(emcmot_hal_data->spindle_orient_fwd) = emcmotCommand->direction;
+	    *(emcmot_hal_data->spindle_locked) = 0;
+	    *(emcmot_hal_data->spindle_orient) = 1;
+
+	    // mirror in spindle status
+	    emcmotStatus->spindle.orient_fault = 0; // this pin read during spindle-orient == 1 
+	    emcmotStatus->spindle.locked = 0;
 	    break;
 
 	case EMCMOT_SPINDLE_INCREASE:

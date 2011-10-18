@@ -1738,7 +1738,7 @@ void SPINDLE_RETRACT()
     /*! \todo FIXME-- unimplemented */
 }
 
-void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
+void ORIENT_SPINDLE(double orientation, int direction)
 {
     EMC_SPINDLE_ORIENT o;
 

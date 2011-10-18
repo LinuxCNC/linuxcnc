@@ -1392,6 +1392,15 @@ int emcSpindleSpeed(double speed, double css_factor, double offset)
     return -1; //can't have negative speeds
 }
 
+int emcSpindleOrient(double orientation, int direction) 
+{
+    emcmotCommand.command = EMCMOT_SPINDLE_ORIENT;
+    emcmotCommand.orientation = orientation;
+    emcmotCommand.direction = (direction == CANON_CLOCKWISE);
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+
 int emcSpindleOn(double speed, double css_factor, double offset)
 {
 

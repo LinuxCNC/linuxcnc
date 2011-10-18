@@ -162,6 +162,7 @@ extern "C" {
 	EMCMOT_SPINDLE_DECREASE,	/* spindle slower */
 	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
+	EMCMOT_SPINDLE_ORIENT,          /* orient the spindle */
 	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
         EMCMOT_SET_OFFSET, /* set tool offsets */
@@ -232,6 +233,8 @@ extern "C" {
                                      ~2 = move until probe trips (ngc default)
                                      |2 = move until probe clears */
         EmcPose tool_offset;        /* TLO */
+	double  orientation;    /* angle for spindle orient */
+	char    direction;      /* CANON_DIRECTION flag for spindle orient */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
@@ -555,6 +558,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double xoffset;
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
+	int locked;             // spindle lock engaged after orient
+	int orient_fault;
     } spindle_status;
     
 
