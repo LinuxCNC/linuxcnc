@@ -900,6 +900,22 @@ FIXME verify the prepare example - could be old code
 
 FIXME m61 - describe
 
+=== Error handling: failing a remapped code
+If you determine in your handler procedure that some error condition
+occurred, do not use `M2` to end your handler, rather use the idiom
+laid out in the previous example:
+
+- define an epilog function, even if it's just to signal an error
+  condition
+- pass a negative value from the handler to signal
+  the error
+- inspect the return value in the epilog function.
+- use self.set_errormsg("error text") to set the error message
+- return INTERP_ERROR from the epilog
+
+This error message will be displayed in the UI, and returning
+INTERP_ERROR will cause this error handled like any other runtime error.
+
 === Error handling: dealing with abort
 The builting toolchange procedure has some precautions for dealing
 with a program abort (e.g. hitting Escape in Axis during a
@@ -925,6 +941,10 @@ which might be used for conditional cleanup.
 Statements in that procedure typically would assure that post-abort
 any state has been cleaned up, like HAL pins properly reset. For an
 example, see `configs/sim/remap/rack-toolchange` .
+
+Note that terminating a remapped code by returning INTERP_ERROR from
+the epilog (see previous section) will also cause the `on_abort` procedure
+to be called.
 
 == Configuring  Embedded Python  [[remap:embedded-Python]]
 
