@@ -1762,6 +1762,30 @@ To turn all coolant off, program `M9`.
 It is always OK to use any of these commands, 
 regardless of what coolant is on or off.
 
+== M19 Orient Spindle [[sec:M19]]
+(((M19 Orient Spindle)))
+
+To start spindle orientation mode, program `M19`.
+
+ M19 R- P-
+
+ - The optional R- word specifies the desired angle in degrees (default 0). 
+ - The optional P- word specifies the rotation direction (default clockwise, 
+   a value of 1 specifies counterclockwise rotation). 
+
+M19 cancels spindle rotation mode and enters spindle orientation
+mode. M19 turns off the spindle, unlocks the spindle brake and then starts the
+orientation HAL pin protocol. See the motion manpage for the pin
+description.
+
+Any M3,M4,M5 spindle command will cancel spindle orientation mode and
+switch back to rotation mode, which is the default.
+
+The `[RS274NGC]ORIENT_OFFSET` value from the ini file is added to the
+R word to define an aribtrary zero position.
+
+M19 is a modal group 7 command (same as M3,M4,M5). 
+
 == Overrides [[sec:Overrides]]
 
 === M48, M49 Override Control[[sub:M48-Both-Override]][[sub:M49-Neither-Override]](((M48, M49 Override Control)))

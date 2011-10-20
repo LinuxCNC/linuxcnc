@@ -154,6 +154,65 @@ motion.tooloffset.x ... motion.tooloffset.w::
      it could come from the tool table (`G43` active), or it could
      come from the gcode (`G43.1` active)
 
+spindle-orient-angle::
+	(float,out) Desired spindle orientation for M19. Value of the
+	M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+
+spindle-orient-fwd::
+	(bit,out) Desired spindle rotation direction for M19. Default 1. Set to zero if M19 P1 is given.
+
+spindle-orient::
+	(out,bit)
+	Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5. 
+	If spindle-orient-fault is not zero during spindle-orient
+	true, the M19 command fails with an error message.
+
+spindle-is-oriented::
+	(in, bit) Acknowledge pin for spindle-orient. Completes orient
+	cycle. If spindle-orient was true when spindle-is-oriented was
+	asserted, the spindle-orient pin is cleared and the
+	spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
+
+spindle-orient-fault::
+	(s32, in) Fault code input for orient cycle. Any value other
+	than zero  will cause the orient cycle to abort.
+
+spindle-lock::
+	(bit, out) Spindle orient complete pin. Cleared by any of M3,M4,M5. 
+
+==== HAL pin usage for M19 orient spindle
+
+Conceptually the spindle is in one of the following modes:
+
+ - rotation mode (the default)
+ - searching for desired orientation mode
+ - orienation complete mode.
+
+When an M19 is executed, the spindle changes to 'searching for desired
+orientation' , and the `spindle-orient` HAL pin is asserted.  The
+desired target position is specified by the `spindle-orient-angle` and
+`spindle-orient-fwd` pins and driven by the M19 R and P parameters.
+
+The HAL support logic is expected to react to `spindle-orient` by
+moving the spindle to the desired position. When this is complete, the
+HAL logic is expected to acknowledge this by asserting the
+`spindle-is-oriented` pin.
+
+Motion then acknowledges this by deasserting the `spindle-orient` pin
+and asserts the `spindle-locked` pin to indicate 'orientation
+complete' mode. It also raises the `spindle-brake` pin. The spindle now
+is in 'orientation complete' mode.
+
+If, during `spindle-orient` being true, and `spindle-is-oriented` not
+yet asserted the `spindle-orient-fault` pin has a value other than
+zero, the M19 command is aborted, a message including the fault code
+is displayed, and the motion queue is flushed. The spindle reverts to
+rotation mode.
+
+Also, any of the M3,M4 or M5 commands cancel either 'searching for
+desired orientation' or 'orientation complete' mode. This is indicated
+by deasserting both the `spindle-orient` and `spindle-locked` pins.
+
 === Parameters
 
 Many of these parameters serve as debugging aids, and are subject to

@@ -798,7 +798,7 @@ being in effect. The modal groups are shown in Table
 |Lathe Diameter Mode          | G7, G8
 |Stopping                     | M0, M1, M2, M30, M60
 |Tool Change                  | M6 Tn
-|Spindle                      | M3, M4, M5
+|Spindle                      | M3, M4, M5, M19
 |Coolant                      | (M7 M8 can both be on), M9
 |Override Switches            | M48, M49
 |Flow Control                 | O-
