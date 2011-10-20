@@ -1738,13 +1738,13 @@ void SPINDLE_RETRACT()
     /*! \todo FIXME-- unimplemented */
 }
 
-void ORIENT_SPINDLE(double orientation, int direction)
+void ORIENT_SPINDLE(double orientation, int mode)
 {
     EMC_SPINDLE_ORIENT o;
 
     flush_segments();
     o.orientation = orientation;
-    o.direction = direction;
+    o.mode = mode;
     interp_list.append(o);
 }
 

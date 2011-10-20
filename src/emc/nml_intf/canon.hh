@@ -498,7 +498,7 @@ extern void STOP_SPINDLE_TURNING();
 command may be given, but it will have no effect. */
 
 extern void SPINDLE_RETRACT();
-extern void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction);
+extern void ORIENT_SPINDLE(double orientation, int mode);
 extern void LOCK_SPINDLE_Z();
 extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();

@@ -143,7 +143,7 @@ typedef struct {
     
     // spindle orient
     hal_float_t *spindle_orient_angle;	/* out: desired spindle angle, degrees */
-    hal_bit_t   *spindle_orient_fwd;	/* out: search cw if true, else ccw */
+    hal_s32_t   *spindle_orient_mode;	/* out: 0: least travel; 1: cw; 2: ccw */
     hal_bit_t   *spindle_orient;	/* out: signal orient in progress */
     hal_bit_t   *spindle_locked;	/* out: signal orient complete, spindle locked */
     hal_bit_t   *spindle_is_oriented;	/* in: orientation completed */

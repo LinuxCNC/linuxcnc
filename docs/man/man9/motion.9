@@ -204,29 +204,29 @@ Desired spindle speed in rotations per minute
 Desired spindle speed in rotations per second
 
 .TP
-\fBspindle-orient-angle\fR OUT float    
+\fBmotion.spindle-orient-angle\fR OUT float    
 Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
 
 .TP
-\fBspindle-orient-fwd\fR OUT bit
-Desired spindle rotation direction for M19. Default 1. Set to zero if M19 P1 is given.
+\fBmotion.spindle-orient-mode\fR OUT bit
+Desired spindle rotation mode. Reflects M19 P parameter word.
 
 .TP
-\fBspindle-orient\fR OUT bit
+\fBmotion.spindle-orient\fR OUT bit
 Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5. 
 If spindle-orient-fault is not zero during spindle-orient true, the M19 command fails with an error message.
 
 .TP
-\fBspindle-is-oriented\fR IN bit
+\fBmotion.spindle-is-oriented\fR IN bit
 Acknowledge pin for spindle-orient. Completes orient cycle. If spindle-orient was true when spindle-is-oriented 
 was asserted, the spindle-orient pin is cleared and the spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
 
 .TP
-\fBspindle-orient-fault\fR IN s32
+\fBmotion.spindle-orient-fault\fR IN s32
 Fault code input for orient cycle. Any value other than zero will cause the orient cycle to abort.
 
 .TP
-\fBspindle-locked\fR OUT bit
+\fBmotion.pindle-locked\fR OUT bit
 Spindle orient complete pin. Cleared by any of M3,M4,M5. 
 
 .TP

@@ -1770,13 +1770,18 @@ To start spindle orientation mode, program `M19`.
  M19 R- P-
 
  - The optional R- word specifies the desired angle in degrees (default 0). 
- - The optional P- word specifies the rotation direction (default clockwise, 
-   a value of 1 specifies counterclockwise rotation). 
+ - The optional P- word specifies the rotation direction (default 0).
 
 M19 cancels spindle rotation mode and enters spindle orientation
 mode. M19 turns off the spindle, unlocks the spindle brake and then starts the
 orientation HAL pin protocol. See the motion manpage for the pin
 description.
+
+The P parameter is interpreted as follows:
+
+ - 0: rotate clockwise or counterclockwise for smallest angular movement
+ - 1: always rotate clockwise 
+ - 2: always rotate counterclockwise
 
 Any M3,M4,M5 spindle command will cancel spindle orientation mode and
 switch back to rotation mode, which is the default.

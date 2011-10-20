@@ -2082,7 +2082,7 @@ void EMC_SPINDLE_ORIENT::update(CMS * cms)
 
     EMC_SPINDLE_CMD_MSG::update(cms);
     cms->update(orientation);
-    cms->update(direction);
+    cms->update(mode);
 }
 
 /*

@@ -68,7 +68,7 @@ struct mcommand {
 
 struct orient_spindle {
     double orientation;
-    int direction;
+    int mode;
 };
 
 struct queued_canon {
@@ -122,7 +122,7 @@ void enqueue_ARC_FEED(setup_pointer settings, int l,
                       double u, double v, double w);
 void enqueue_M_USER_COMMAND(int index,double p_number,double q_number);
 void enqueue_START_CHANGE(void);
-void enqueue_ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction);
+void enqueue_ORIENT_SPINDLE(double orientation, int mode);
 void dequeue_canons(setup_pointer settings);
 void set_endpoint(double x, double y);
 void set_endpoint_zx(double z, double x);

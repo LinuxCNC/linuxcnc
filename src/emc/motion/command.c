@@ -1554,7 +1554,7 @@ check_stuff ( "before command_handler()" );
 	    emcmotStatus->spindle.brake = 0; // open brake
 
 	    *(emcmot_hal_data->spindle_orient_angle) = emcmotCommand->orientation;
-	    *(emcmot_hal_data->spindle_orient_fwd) = emcmotCommand->direction;
+	    *(emcmot_hal_data->spindle_orient_mode) = emcmotCommand->mode;
 	    *(emcmot_hal_data->spindle_locked) = 0;
 	    *(emcmot_hal_data->spindle_orient) = 1;
 

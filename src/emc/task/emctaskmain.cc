@@ -1874,7 +1874,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_SPINDLE_ORIENT_TYPE:
 	spindle_orient_msg = (EMC_SPINDLE_ORIENT *) cmd;
-	retval = emcSpindleOrient(spindle_orient_msg->orientation, spindle_orient_msg->direction);
+	retval = emcSpindleOrient(spindle_orient_msg->orientation, spindle_orient_msg->mode);
 	break;
 
     case EMC_SPINDLE_ON_TYPE:

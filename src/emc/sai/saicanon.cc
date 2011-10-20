@@ -606,10 +606,8 @@ void STOP_SPINDLE_TURNING()
 void SPINDLE_RETRACT()
 {PRINT0("SPINDLE_RETRACT()\n");}
 
-void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
-{PRINT2("ORIENT_SPINDLE(%.4f, %s)\n", orientation,
-        (direction == CANON_CLOCKWISE) ? "CANON_CLOCKWISE" :
-                                         "CANON_COUNTERCLOCKWISE");
+void ORIENT_SPINDLE(double orientation, int mode)
+{PRINT2("ORIENT_SPINDLE(%.4f, %d)\n", orientation,mode);
 }
 
 void USE_NO_SPINDLE_FORCE()

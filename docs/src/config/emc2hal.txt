@@ -154,30 +154,30 @@ motion.tooloffset.x ... motion.tooloffset.w::
      it could come from the tool table (`G43` active), or it could
      come from the gcode (`G43.1` active)
 
-spindle-orient-angle::
+motion.spindle-orient-angle::
 	(float,out) Desired spindle orientation for M19. Value of the
 	M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
 
-spindle-orient-fwd::
-	(bit,out) Desired spindle rotation direction for M19. Default 1. Set to zero if M19 P1 is given.
+motion.spindle-orient-mode::
+	(s32,out) Desired spindle rotation mode M19. Default 0.
 
-spindle-orient::
+motion.spindle-orient::
 	(out,bit)
 	Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5. 
 	If spindle-orient-fault is not zero during spindle-orient
 	true, the M19 command fails with an error message.
 
-spindle-is-oriented::
+motion.spindle-is-oriented::
 	(in, bit) Acknowledge pin for spindle-orient. Completes orient
 	cycle. If spindle-orient was true when spindle-is-oriented was
 	asserted, the spindle-orient pin is cleared and the
 	spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
 
-spindle-orient-fault::
+motion.spindle-orient-fault::
 	(s32, in) Fault code input for orient cycle. Any value other
 	than zero  will cause the orient cycle to abort.
 
-spindle-lock::
+motion.spindle-lock::
 	(bit, out) Spindle orient complete pin. Cleared by any of M3,M4,M5. 
 
 ==== HAL pin usage for M19 orient spindle
@@ -212,6 +212,17 @@ rotation mode.
 Also, any of the M3,M4 or M5 commands cancel either 'searching for
 desired orientation' or 'orientation complete' mode. This is indicated
 by deasserting both the `spindle-orient` and `spindle-locked` pins.
+
+The `spindle-orient-mode` pin reflects the M19 P word and shall be
+interpreted as follows: 
+
+ - 0: rotate clockwise or counterclockwise for smallest angular movement
+ - 1: always rotate clockwise 
+ - 2: always rotate counterclockwise
+
+It can be used with the `orient` HAL component which provides a PID
+command value based on spindle encoder positon, `spindle-orient-angle`
+and `spindle-orient-mode`.
 
 === Parameters
 

@@ -303,13 +303,13 @@ static int init_hal_io(void)
 
     // spindle orient pins
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->spindle_orient_angle), mot_comp_id, "motion.spindle-orient-angle")) < 0) goto error;
-    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_orient_fwd), mot_comp_id, "motion.spindle-orient-fwd")) < 0) goto error;
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->spindle_orient_mode), mot_comp_id, "motion.spindle-orient-mode")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_orient), mot_comp_id, "motion.spindle-orient")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->spindle_locked), mot_comp_id, "motion.spindle-locked")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->spindle_is_oriented), mot_comp_id, "motion.spindle-is-oriented")) < 0) goto error;
     if ((retval = hal_pin_s32_newf(HAL_IN, &(emcmot_hal_data->spindle_orient_fault), mot_comp_id, "motion.spindle-orient-fault")) < 0) goto error;
     *(emcmot_hal_data->spindle_orient_angle) = 0.0;
-    *(emcmot_hal_data->spindle_orient_fwd) = 1;
+    *(emcmot_hal_data->spindle_orient_mode) = 0;
     *(emcmot_hal_data->spindle_orient) = 0;
 
 
