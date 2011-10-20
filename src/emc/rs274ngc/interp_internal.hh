@@ -437,10 +437,10 @@ typedef struct block_struct
   // which one is done when we reexecute a block after a remap.
     std::bitset<MAX_STEPS>  breadcrumbs;
 
-#define tickoff(step) block->breadcrumbs[step] = 1
-#define todo(step) (block->breadcrumbs[step] == 0)
-#define once(step) (todo(step) ? tickoff(step),1 : 0)
-#define once_M(step) (todo(STEP_M_ ## step) ? tickoff(STEP_M_ ## step),1 : 0)
+#define TICKOFF(step) block->breadcrumbs[step] = 1
+#define TODO(step) (block->breadcrumbs[step] == 0)
+#define ONCE(step) (TODO(step) ? TICKOFF(step),1 : 0)
+#define ONCE_M(step) (TODO(STEP_M_ ## step) ? TICKOFF(STEP_M_ ## step),1 : 0)
 
 
     // there might be several remapped items in a block, but at any point

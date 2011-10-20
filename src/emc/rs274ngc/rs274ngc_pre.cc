@@ -596,49 +596,45 @@ int Interp::remap_finished(int phase)
 int Interp::find_remappings(block_pointer block, setup_pointer settings)
 {
     if (block->f_flag &&
-	todo(STEP_SET_FEED_RATE) &&
 	remapping("F"))
 	block->remappings.insert(STEP_SET_FEED_RATE);
 
     if (block->s_flag &&
-	todo(STEP_SET_SPINDLE_SPEED) &&
 	remapping("S"))
 	block->remappings.insert(STEP_SET_SPINDLE_SPEED);
 
     if (block->t_flag &&
-	todo(STEP_PREPARE) &&
 	remapping("T"))
 	block->remappings.insert(STEP_PREPARE);
 
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5) && todo(STEP_M_5))
+    if (IS_USER_MCODE(block,settings,5))
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
-    if (IS_USER_MCODE(block,settings,6) && todo(STEP_M_6))
+    if (IS_USER_MCODE(block,settings,6))
 	block->remappings.insert(STEP_M_6);
 
     // User defined M-Codes in group 7
-    if (IS_USER_MCODE(block,settings,7) && todo(STEP_M_7))
+    if (IS_USER_MCODE(block,settings,7))
 	block->remappings.insert(STEP_M_7);
 
     // User defined M-Codes in group 8
-    if (IS_USER_MCODE(block,settings,8) && todo(STEP_M_8))
+    if (IS_USER_MCODE(block,settings,8))
 	block->remappings.insert(STEP_M_8);
 
     // User defined M-Codes in group 9
-    if (IS_USER_MCODE(block,settings,9) && todo(STEP_M_9))
+    if (IS_USER_MCODE(block,settings,9))
 	block->remappings.insert(STEP_M_9);
 
     // User defined M-Codes in group 10
-    if (IS_USER_MCODE(block,settings,10)  && todo(STEP_M_10))
+    if (IS_USER_MCODE(block,settings,10))
 	block->remappings.insert(STEP_M_10);
 
     // User-defined motion codes (G0 to G3, G33, G73, G76, G80 to G89)
     // as modified (possibly) by G53.
     int mode = block->g_modes[GM_MOTION];
-    if ((mode != -1) && IS_USER_GCODE(mode) &&
-	todo(STEP_MOTION))
+    if ((mode != -1) && IS_USER_GCODE(mode))
 	block->remappings.insert(STEP_MOTION);
 
     return block->remappings.size();

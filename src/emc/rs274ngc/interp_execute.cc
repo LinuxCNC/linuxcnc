@@ -283,21 +283,21 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   remap_pointer rptr;
 
   block->line_number = settings->sequence_number;
-  if ((block->comment[0] != 0) && once(STEP_COMMENT)) {
+  if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
     status = convert_comment(block->comment);
     CHP(status);
   }
-  if ((block->g_modes[GM_SPINDLE_MODE] != -1) && once(STEP_SPINDLE_MODE)) {
+  if ((block->g_modes[GM_SPINDLE_MODE] != -1) && ONCE(STEP_SPINDLE_MODE)) {
       status = convert_spindle_mode(block, settings);
       CHP(status);
   }
-  if ((block->g_modes[GM_FEED_MODE] != -1) && once(STEP_FEED_MODE)) {
+  if ((block->g_modes[GM_FEED_MODE] != -1) && ONCE(STEP_FEED_MODE)) {
       status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
       CHP(status);
 
   }
   if (block->f_flag){
-      if ((settings->feed_mode != INVERSE_TIME) && once(STEP_SET_FEED_RATE))  {
+      if ((settings->feed_mode != INVERSE_TIME) && ONCE(STEP_SET_FEED_RATE))  {
 	  if ((rptr = remapping("F")) != NULL) {
 	      return (convert_remapped_code(block, settings, STEP_SET_FEED_RATE, 'F'));
 	  } else {
@@ -307,7 +307,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
       }
       /* INVERSE_TIME is handled elsewhere */
   }
-  if ((block->s_flag) && once(STEP_SET_SPINDLE_SPEED)){
+  if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)){
       if ((rptr = remapping("S")) != NULL) {
 	  return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
       } else {
@@ -315,7 +315,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 	  CHP(status);
       }
   }
-  if ((block->t_flag) && once(STEP_PREPARE)){
+  if ((block->t_flag) && ONCE(STEP_PREPARE)){
       if ((rptr = remapping("T")) != NULL) {
 	  // switch to generic remap using Python pro/epilogs
 	  return (convert_remapped_code(block,settings,STEP_PREPARE,'T'));
@@ -338,7 +338,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   }
   CHP(convert_m(block, settings));
   CHP(convert_g(block, settings));
-  if ((block->m_modes[4] != -1) && once(STEP_MGROUP4)) {        /* converts m0, m1, m2, m30, or m60 */
+  if ((block->m_modes[4] != -1) && ONCE(STEP_MGROUP4)) {        /* converts m0, m1, m2, m30, or m60 */
     status = convert_stop(block, settings);
     if (status == INTERP_EXIT) {
 	return(INTERP_EXIT);
