@@ -451,6 +451,7 @@ int Interp::init()
           inifile.Find(&_setup.a_indexer, "LOCKING_INDEXER", "AXIS_3");
           inifile.Find(&_setup.b_indexer, "LOCKING_INDEXER", "AXIS_4");
           inifile.Find(&_setup.c_indexer, "LOCKING_INDEXER", "AXIS_5");
+          inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
 
           if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {

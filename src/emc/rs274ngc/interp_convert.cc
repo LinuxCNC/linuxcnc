@@ -3018,7 +3018,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   } else if (block->m_modes[7] == 5) {
       enqueue_STOP_SPINDLE_TURNING();
       settings->spindle_turning = CANON_STOPPED;
-
+  } else if (block->m_modes[7] == 19) {
+      enqueue_STOP_SPINDLE_TURNING();
+      settings->spindle_turning = CANON_STOPPED;
+      enqueue_ORIENT_SPINDLE(block->r_flag ? (block->r_number + settings->orient_offset) : settings->orient_offset, 
+			     block->p_flag ? (block->p_number > 0.0 ? CANON_COUNTERCLOCKWISE : CANON_CLOCKWISE) :
+			     CANON_CLOCKWISE);
   } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
 
       // save state in current stack frame. We borrow the o-word call stack

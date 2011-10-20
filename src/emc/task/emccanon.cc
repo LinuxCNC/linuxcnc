@@ -1740,7 +1740,12 @@ void SPINDLE_RETRACT()
 
 void ORIENT_SPINDLE(double orientation, CANON_DIRECTION direction)
 {
-    /*! \todo FIXME-- unimplemented */
+    EMC_SPINDLE_ORIENT o;
+
+    flush_segments();
+    o.orientation = orientation;
+    o.direction = direction;
+    interp_list.append(o);
 }
 
 void USE_SPINDLE_FORCE(void)

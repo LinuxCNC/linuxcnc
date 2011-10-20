@@ -475,6 +475,7 @@ typedef struct setup_struct
   int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
+  double orient_offset;         // added to M19 R word, from [RS274NGC]ORIENT_OFFSET
 
   /* stuff for subroutines and control structures */
   int defining_sub;                  // true if in a subroutine defn
