@@ -321,6 +321,8 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
          (block->g_modes[0] != G_10) && (block->m_modes[7] != 19) ),
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
+    CHKS((block->m_modes[7] == 19) && ((block->r_number > 360.0) || (block->r_number < 0.0)),
+	   _("R value must be within 0..360 with M19"));
   }
 
   if (!block->s_flag) {
