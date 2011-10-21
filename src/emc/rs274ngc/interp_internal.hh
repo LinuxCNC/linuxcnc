@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <map>
+#include <bitset>
 #include "canon.hh"
 #include "emcpos.h"
 #include "libintl.h"
@@ -339,10 +340,58 @@ typedef struct block_struct
   int      o_number;
   char    *o_name;   // !!!KL be sure to free this
   double   params[INTERP_SUB_PARAMS];
+
+  // bitmap of steps already executed
+  // we have some 25 or so different steps in a block. We must remember
+  // which one is done when we reexecute a block after a remap.
+    std::bitset<32>  breadcrumbs;
+
+
+#define tickoff(step) block->breadcrumbs[step] = 1
+#define todo(step) (block->breadcrumbs[step] == 0)
+#define once(step) (todo(step) ? tickoff(step),1 : 0)
+#define once_M(step) (todo(STEP_M_ ## step) ? tickoff(STEP_M_ ## step),1 : 0)
+
 }
 block;
 
 typedef block *block_pointer;
+
+enum steps  {STEP_NONE,
+	     STEP_COMMENT,
+	     STEP_SPINDLE_MODE,
+	     STEP_FEED_MODE,
+	     STEP_FEED_NOT_INVERSE_TIME,
+	     STEP_SPINDLE_SPEED,
+	     STEP_PREPARE,
+	     STEP_STOP,
+	     STEP_MGROUP4,
+	     STEP_DWELL,
+	     STEP_SET_PLANE,
+	     STEP_LENGTH_UNITS,
+	     STEP_LATHE_DIAMETER_MODE,
+	     STEP_CUTTER_COMP,
+	     STEP_TOOL_LENGTH_OFFSET,
+	     STEP_COORD_SYSTEM,
+	     STEP_CONTROL_MODE,
+	     STEP_DISTANCE_MODE,
+	     STEP_IJK_DISTANCE_MODE,
+	     STEP_RETRACT_MODE,
+	     STEP_MODAL_0,
+	     STEP_MOTION,
+	     STEP_M_0,
+	     STEP_M_1,
+	     STEP_M_2,
+	     STEP_M_3,
+	     STEP_M_4,
+	     STEP_M_5,
+	     STEP_M_6,
+	     STEP_M_7,
+	     STEP_M_8,
+	     STEP_M_9,
+	     STEP_M_10,
+	     MAX_STEPS
+};
 
 #define NAMED_PARAMETERS_ALLOC_UNIT 20
 struct named_parameters_struct {

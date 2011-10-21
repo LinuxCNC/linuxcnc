@@ -382,6 +382,7 @@ int Interp::_execute(const char *command)
 
 	  // push onto block stack
 	  CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
+	  CONTROLLING_BLOCK(_setup).breadcrumbs = 0; // clear trail
 
 	  // remember the line where remap was discovered
 	  if (_setup.remap_level == 1) {
@@ -393,7 +394,7 @@ int Interp::_execute(const char *command)
 	  logRemap("enter remap nesting (now level %d) remapline=%d", _setup.remap_level,CONTROLLING_BLOCK(_setup).line_number);
 
 	  // execute up to the first remap including read() of its handler
-	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup, true);
+	  status = execute_block(&(CONTROLLING_BLOCK(_setup)), &_setup);
 
 	  // All items up to the first remap item have been executed.
 	  // The remap item procedure call has been parsed into _setup.blocks[0],
@@ -497,11 +498,11 @@ int Interp::execute(const char *command, int line_number)
     int status;
 
     _setup.sequence_number = line_number;
-    logDebug("--> execute(%s) remap nesting=%d call_level=%d  mdi_interrupt=%d",
+    logDebug("--> execute(%s) remap remap_level=%d call_level=%d  mdi_interrupt=%d",
 	    command == NULL ? "NULL" : command,
 	    _setup.remap_level,_setup.call_level,_setup.mdi_interrupt);
     status = Interp::execute(command);
-    logDebug("<-- execute() remap nesting=%d call_level=%d status=%s mdi_interrupt=%d",
+    logDebug("<-- execute() remap remap_level=%d call_level=%d status=%s mdi_interrupt=%d",
 	    _setup.remap_level,_setup.call_level,interp_status(status),_setup.mdi_interrupt);
     if ((_setup.call_level == 0) &&
 	(status == INTERP_EXECUTE_FINISH) &&
@@ -518,7 +519,7 @@ int Interp::remap_finished(int finished_remap)
 {
     int next_remap,status;
 
-    logRemap("remap_finished finished=%s nesting=%d call_level=%d filename=%s",
+    logRemap("remap_finished finished=%s remap_level=%d call_level=%d filename=%s",
 	  remaps[finished_remap],_setup.remap_level,_setup.call_level,_setup.filename);
 
     switch (finished_remap) {
@@ -538,7 +539,7 @@ int Interp::remap_finished(int finished_remap)
 	    // after parsing the handler with read()
 	    // so blocks[0] is armed (meaning: a osub call is parsed, but not executed yet)
 	    status = execute_block(&(CONTROLLING_BLOCK(_setup)),
-				   &_setup, true); // remove trail
+				   &_setup);
 	    logRemap("post-arming: execute_block() returns %d",status);
 
 	    if (status < 0) {
@@ -621,44 +622,47 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 	case 4: // Set spindle speed (S).
 	    break;
 	case 5: // Select tool (T).
-	    if (block->t_flag && (settings->t_command != NULL))
+	    if (block->t_flag && todo(STEP_PREPARE) &&
+		(settings->t_command != NULL))
 		return T_REMAP;
 	    break;
 	case 6: // User defined M-Codes in group 5
-	    if (IS_USERMCODE(block,settings,5))
+	    if (IS_USERMCODE(block,settings,5) && todo(STEP_M_5))
 		return M_USER_REMAP;
 	    break;
 	case 7: // HAL pin I/O (M62-M68)
 	case 8: // User defined M-Codes in group 6
-	    if (IS_USERMCODE(block,settings,6))
+	    if (IS_USERMCODE(block,settings,6) && todo(STEP_M_6))
 		return M_USER_REMAP;
 	    break;
 	case 9: // Change tool (M6).
-	    if ((block->m_modes[6] == 6) && (settings->m6_command != NULL))
+	    if ((block->m_modes[6] == 6) && (settings->m6_command != NULL)
+		&& todo(STEP_M_6))
 		return M6_REMAP;
-	    if ((block->m_modes[6] == 61) && (settings->m61_command != NULL))
+	    if ((block->m_modes[6] == 61) && (settings->m61_command != NULL)
+		&& todo(STEP_M_6))
 		return M61_REMAP;
 	    break;
 	case 10: // User defined M-Codes in group 7
-	    if (IS_USERMCODE(block,settings,7))
+	    if (IS_USERMCODE(block,settings,7) && todo(STEP_M_7))
 		return M_USER_REMAP;
 	    break;
 
 	case 11: // Spindle on or off (M3, M4, M5).
 	case 12: // Save State (M70, M73), Restore State (M72), Invalidate State (M71)
 	case 13: // User defined M-Codes in group 8
-	    if (IS_USERMCODE(block,settings,8))
+	    if (IS_USERMCODE(block,settings,8) && todo(STEP_M_8))
 		return M_USER_REMAP;
 	    break;
 	case 14: // Coolant on or off (M7, M8, M9).
 	    break;
 	case 15: // User defined M-Codes in group 9
-	    if (IS_USERMCODE(block,settings,9))
+	    if (IS_USERMCODE(block,settings,9) && todo(STEP_M_9))
 		return M_USER_REMAP;
 	    break;
 	case 16: // Enable or disable overrides (M48, M49,M50,M51,M52,M53).
 	case 17: // User defined M-Codes in group 10
-	    if (IS_USERMCODE(block,settings,10))
+	    if (IS_USERMCODE(block,settings,10)  && todo(STEP_M_10))
 		return M_USER_REMAP;
 	    break;
         case 18: // User-defined Commands (M100-M199)
@@ -675,7 +679,8 @@ int Interp::next_remapping(block_pointer block, setup_pointer settings)
 	    break;
 	case 29: // Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly) by G53.
 	    mode = block->g_modes[GM_MOTION];
-	    if ((mode != -1) && is_user_gcode(settings,mode)) {
+	    if ((mode != -1) && is_user_gcode(settings,mode) &&
+		todo(STEP_MOTION)) {
 		return G_USER_REMAP;
 	    }
 	    break;
@@ -771,6 +776,7 @@ int Interp::init()
   _setup.c_indexer = 0;
   _setup.return_value = 0;
   _setup.remap_level = 0; // remapped blocks stack index
+
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -1368,6 +1374,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   {
       EXECUTING_BLOCK(_setup).offset = ftell(_setup.file_pointer);
   }
+  EXECUTING_BLOCK(_setup).breadcrumbs = 0; // clear trail
 
   read_status =
     read_text(command, _setup.file_pointer, _setup.linetext,

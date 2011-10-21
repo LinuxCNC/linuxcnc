@@ -244,6 +244,7 @@ The rules for the indicators for slots whose values may be read are:
 int Interp::init_block(block_pointer block)      //!< pointer to a block to be initialized or reset
 {
   int n;
+  block->breadcrumbs = 0; // clear execution trail
   block->a_flag = false;
   block->b_flag = false;
   block->c_flag = false;

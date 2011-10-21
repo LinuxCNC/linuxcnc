@@ -334,52 +334,39 @@ error message.
 */
 
 int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-			  setup_pointer settings, //!< pointer to machine settings
-			  bool remove_trail)
+			  setup_pointer settings) //!< pointer to machine settings
 {
   int status;
 
   block->line_number = settings->sequence_number;
-  if (block->comment[0] != 0) {
+  if ((block->comment[0] != 0) && once(STEP_COMMENT)) {
     status = convert_comment(block->comment);
-    if (remove_trail)
-	block->comment[0] = 0;
     CHP(status);
   }
-  if (block->g_modes[GM_SPINDLE_MODE] != -1) {
+  if ((block->g_modes[GM_SPINDLE_MODE] != -1) && once(STEP_SPINDLE_MODE)) {
       status = convert_spindle_mode(block, settings);
-      if (remove_trail)
-	  block->g_modes[GM_SPINDLE_MODE] = -1;
       CHP(status);
   }
-  if (block->g_modes[GM_FEED_MODE] != -1) {
+  if ((block->g_modes[GM_FEED_MODE] != -1) && once(STEP_FEED_MODE)) {
       status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
-     if (remove_trail)
-	  block->g_modes[GM_FEED_MODE] = -1;
       CHP(status);
 
   }
-  if (block->f_flag) {
-    if (settings->feed_mode != INVERSE_TIME) {
+  if (block->f_flag){
+	  if ((settings->feed_mode != INVERSE_TIME) && once(STEP_FEED_NOT_INVERSE_TIME))  {
 	status = convert_feed_rate(block, settings);
-	if (remove_trail)
-	    block->f_flag = false;
 	CHP(status);
     }
     /* INVERSE_TIME is handled elsewhere */
   }
-  if (block->s_flag) {
+  if ((block->s_flag) && once(STEP_SPINDLE_SPEED)){
       status = convert_speed(block, settings);
-	if (remove_trail)
-	    block->s_flag = false;
 	CHP(status);
   }
-  if (block->t_flag) {
+  if ((block->t_flag) && once(STEP_PREPARE)){
     if (settings->t_command) {
 	char cmd[LINELEN];
 	int pocket;
-	if (remove_trail)
-	    block->t_flag = false;
 	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
 
 	// pocket will start making sense once tooltable I/O is folded into
@@ -401,12 +388,10 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 	CHP(convert_tool_select(block, settings));
     }
   }
-  CHP(convert_m(block, settings, remove_trail));
-  CHP(convert_g(block, settings, remove_trail));
-  if (block->m_modes[4] != -1) {        /* converts m0, m1, m2, m30, or m60 */
+  CHP(convert_m(block, settings));
+  CHP(convert_g(block, settings));
+  if ((block->m_modes[4] != -1) && once(STEP_MGROUP4)) {        /* converts m0, m1, m2, m30, or m60 */
     status = convert_stop(block, settings);
-    if (remove_trail)
-	block->m_modes[4] = -1;
     if (status == INTERP_EXIT) {
 	return(INTERP_EXIT);
     }
