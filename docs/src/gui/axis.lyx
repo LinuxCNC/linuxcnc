@@ -412,7 +412,9 @@ as...
 \end_layout
 
 \begin_layout Description
-Properties Properties of the current loaded g code file.
+Properties The sum of the rapid and feed moves. Does not factor in 
+ acceleration, blending or path mode so time reported will never
+ be less than the actual run time.  
 \end_layout
 
 \begin_layout Description
