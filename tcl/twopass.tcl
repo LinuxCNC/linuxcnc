@@ -315,36 +315,34 @@ proc ::tp::hal_to_tcl {ifile ofile} {
       }
     }
     set idx 0
-    set new $line
-    set altered 0
     while {$idx >= 0} {
       set l [string first \[ $line $idx]
       if {$l < 0} break
       set r [string first \] $line $idx]
       if {$r < 0} break
-      if {!$altered} {
-        set altered 1
-        set new ""
-      }
-      set new "${new}[string range $line $idx [expr $l -1]]"
-      set new "${new}\$::[string range $line [expr $l+1] [expr $r-1]]\("
+      set stanza [string range $line [expr $l + 1] [expr $r -1]]
+
+      set new "[string range $line 0 [expr $l -1]]"
+      set new "${new}\$::$stanza\("
       set s [string first " " $line $r]
       if {$s <0} {
-        set new "${new}[string range $line [expr $r + 1] end]\)"
-        break
+        set item   [string range $line [expr $r + 1] end]
+        set line "${new}${item}\) "
+        set idx  -1
       } else {
-        set new "${new}[string range $line [expr $r + 1] [expr -1 + $s]]\) "
+        set item   [string range $line [expr $r + 1] [expr $s -1]]
+        set new "${new}${item}\) "
+        set idx [expr [string length $new] -1]
+        set new "${new}[string range $line [expr $s +1] end]"
+        set line $new
       }
-      set idx [expr $s + 1]
-    }
-    if {$altered} {
-      set line $new
     }
     # Anything following "#" on a line is a comment
     set cidx [string first "#" $line]
     if {$cidx > 0} {
-      puts $fdout "[string range $line 0 [expr -1 + $cidx]]\
-                  ;[string range $line $cidx end]"
+      set notcomment "[string range $line 0 [expr -1 + $cidx]]"
+      set    comment ";[string range $line $cidx end]"
+      puts $fdout "$notcomment$comment"
     } else {
       puts $fdout $line
     }
