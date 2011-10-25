@@ -1103,7 +1103,7 @@ Example call:
 ---------------------------------------------------------------------
 def minimal_prolog(self, **words): # in remap module
     print len(words)," words passed"
-    for w in words in words:
+    for w in words:
         print "%s: %s" % (w, words[w])
     if words['p'] < 78: # NB: could raise an exception if p were optional
        self.set_errormsg("failing miserably")
@@ -1645,10 +1645,11 @@ N50 M2
 
 Here the interpreter can clearly predict machine positions for each line:
 
-After N20: x=10 y=-0 z=20; after N30: x=10 y=15 z=-5; after N40: x=10 y=20 z=25
+After N20: x=10 y=-5 z=20; after N30: x=10 y=15 z=15; after N40: x=10 y=15 z=45
 
 and so can parse the whole program and generate canonical operations
 well in advance.
+
 
 === Queuebusters break position prediction
 
@@ -1665,7 +1666,7 @@ N40 O100 if [#5070 EQ 0]
 N50    G1 Y20 Z-5
 N60 O100 else
 N70    G0 Z30
-N80 O100 fi
+N80 O100 endif
 N90 G1 Z10
 N95 M2
 ---------------------------------------------------------------------
