@@ -82,11 +82,11 @@ FUNCTION(_) {
 		break;
 	    case 1: // always cw
 		command = revs + target_angle + 
-		    (target_angle < spindle_angle) ? 1.0 : 0.0; 
+		    ((target_angle < spindle_angle) ? 1.0 : 0.0);
 		break;
 	    case 2: // always ccw
 		command = revs + target_angle + 
-		    (target_angle > spindle_angle) ? -1.0 : 0.0; 
+		    ((target_angle > spindle_angle) ? -1.0 : 0.0);
 		break;
 	    }
 	}
