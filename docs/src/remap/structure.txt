@@ -832,6 +832,33 @@ writing these procedures:
  #<_current_tool>
  #<_current_pocket>
 
+
+=== Making minimal changes to the builtin `M6`
+
+Remember that normally remapping a code completely disables all internal
+processing for that code.
+
+However, in some situations it might be sufficient to add a few codes around
+the existing `M6` builtin implementation, like a tool length probe,
+but other than that retain the behaviour of the builtin `M6`.
+
+Since this might be a common scenario, the builtin behaviour of `M6`
+has also been made available as `M69`. This would look like so:
+
+ REMAP=M6   modalgroup=6  ngc=mychange 
+
+Although M6 has been remapped, `mychange` could still use the builtin
+`M6` behaviour like in this example:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o<mychange> sub
+M69  
+(.. move to tool length switch, probe and set tool length..)
+o<mychange> endsub 
+m2
+---------------------------------------------------------------------
+
 === Specifying the T (prepare) replacement
 If you're confident with the  <<remap::interpreter-action-on-T,default
 implementation>>, you wouldnt need to do this. But remapping is also a
