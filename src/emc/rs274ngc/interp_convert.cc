@@ -2984,29 +2984,11 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       int toolno;
       switch (block->m_modes[6]) {
       case 6:
-	  if (IS_USER_MCODE(block,settings,6)) {
-	      // this M6 is remapped.
-	      // determine wether this a recursive invocation, eg from
-	      // inside the NGC replacement procedure
-	      remap_pointer rp = remapping("M6");
-	      bool is_recursive = false;
-	      for (int i = _setup.remap_level; i > 0; i--) {
-		  if (_setup.blocks[i].executing_remap == rp) {
-		      is_recursive = true;
-		      break;
-		  }
-	      }	      
-	      if (is_recursive) { 
-		  // executing inside a remapped M6, so
-		  // refer to builtin behaviour
-		  printf("recursive M6: using builtin semantics\n");
-		  CHP(convert_tool_change(settings));
-	      } else 
-		  // NB: no checks - you're on your own
-		  return convert_remapped_code(block,settings,
-					       STEP_M_6,
-					       'm',
-					       block->m_modes[6]);
+	  if (IS_USER_MCODE(block,settings,6) && !remap_in_progress("M6")) {
+	      return convert_remapped_code(block,settings,
+					   STEP_M_6,
+					   'm',
+					   block->m_modes[6]);
 	  }  else {
 	      CHP(convert_tool_change(settings));
 	  }
@@ -3030,6 +3012,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      set_tool_parameters();
 	  }
 	  break;
+
+	  // this should be deleted because it's covered by the recursion test for M6 above
       case 69: // alias original M6 to M69
 	  CHP(convert_tool_change(settings));
 	  break;
