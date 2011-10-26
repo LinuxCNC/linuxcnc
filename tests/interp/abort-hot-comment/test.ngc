@@ -1,0 +1,10 @@
+#42 = 0
+#<named> = 4711
+o100 while [#42 lt 100]
+o200 if [#42 eq 20]
+     (abort, MixedCase param42=#42 named=#<named> ini=#<_ini[a]value>)
+o200 endif
+#42 = [#42 + 1]
+o100 endwhile
+
+M2

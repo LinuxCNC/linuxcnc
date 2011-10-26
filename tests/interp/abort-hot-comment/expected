@@ -1,0 +1,8 @@
+executing
+ MixedCase param42=20.000000 named=4711.000000 ini=3.140000
+     (abort, MixedCase param42=#42 named=#<named> ini=#<_ini[a]value>)
+    1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
+    2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+    3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
+    4 N..... SET_XY_ROTATION(0.0000)
+    5 N..... SET_FEED_REFERENCE(CANON_XYZ)
