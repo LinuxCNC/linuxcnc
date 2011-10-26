@@ -360,11 +360,22 @@ int Interp::_execute(const char *command)
 	  logRemap("found remap %d in '%s', level=%d filename=%s line=%d",
 		  next_remap,_setup.blocktext,_setup.call_level,_setup.filename,_setup.sequence_number);
 
+
 	  CHP(enter_remap());
 	  cblock = &CONTROLLING_BLOCK(_setup);
 	  cblock->phase = next_remap;
 	  // execute up to the first remap including read() of its handler
+	  // this also sets cblock->executing_remap
 	  status = execute_block(cblock, &_setup);
+
+	  // detect a remapping recursion.
+	  // since each remapped item pushes a new block onto the remap stack, we walk
+	  // the remap stack searching for an identical remap below the TOS
+	  for (int i = _setup.remap_level - 1; i > 0; i--) {
+	      if (_setup.blocks[i].executing_remap == cblock->executing_remap) {
+		  ERS("recursive remapping for %s detected", cblock->executing_remap->name);
+	      }
+	  }
 
 	  // All items up to the first remap item have been executed.
 	  // The remap item procedure call has been parsed into _setup.blocks[0],
