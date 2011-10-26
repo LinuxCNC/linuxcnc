@@ -1878,6 +1878,15 @@ const char *Interp::getSavedError()
 {
     return savedError;
 }
+
+// set error message text without going through printf format interpretation
+int Interp::setSavedError(const char *msg)
+{
+    savedError[0] = '\0';
+    strncpy(savedError, msg, LINELEN);
+    return INTERP_OK;
+}
+
 /***********************************************************************/
 
 /*! Interp::error_text

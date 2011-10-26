@@ -568,7 +568,8 @@ int read_inputs(setup_pointer settings);
     FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
 
     const char *getSavedError();
-
+    // set error message text without going through printf format interpretation
+    int setSavedError(const char *msg); 
 
     int unwind_call(int status, const char *file, int line, const char *function);
 
