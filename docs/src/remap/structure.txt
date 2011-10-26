@@ -927,21 +927,6 @@ FIXME verify the prepare example - could be old code
 
 FIXME m61 - describe
 
-=== Error handling: failing a remapped code
-If you determine in your handler procedure that some error condition
-occurred, do not use `M2` to end your handler, rather use the idiom
-laid out in the previous example:
-
-- define an epilog function, even if it's just to signal an error
-  condition
-- pass a negative value from the handler to signal
-  the error
-- inspect the return value in the epilog function.
-- use self.set_errormsg("error text") to set the error message
-- return INTERP_ERROR from the epilog
-
-This error message will be displayed in the UI, and returning
-INTERP_ERROR will cause this error handled like any other runtime error.
 
 === Error handling: dealing with abort
 The builting toolchange procedure has some precautions for dealing
@@ -972,6 +957,45 @@ example, see `configs/sim/remap/rack-toolchange` .
 Note that terminating a remapped code by returning INTERP_ERROR from
 the epilog (see previous section) will also cause the `on_abort` procedure
 to be called.
+
+=== Error handling: failing a remapped code NGC procedure
+If you determine in your handler procedure that some error condition
+occurred, do not use `M2` to end your handler, which is slightly too
+heavy a hammer:
+
+If displaying an operator error message and stopping the current program is
+good enough, use the `(abort, <message>)` feature to terminate the handler with an
+error message. Note that you can subsitute numbered, named, ini and
+HAL parameters in the text like
+in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [..] (some error condition)
+     (abort, Bad Things! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
+o100 endif
+---------------------------------------------------------------------
+NB: ini and HAL variable expansion need explicit enabling with
+<<sub:ini-features,FEATURE>>.
+
+If more fine grained recovery action is needed, use the idiom
+laid out in the previous example:
+
+- define an epilog function, even if it's just to signal an error
+  condition
+- pass a negative value from the handler to signal
+  the error
+- inspect the return value in the epilog function.
+- take any recovery action needed
+- use self.set_errormsg("error text") to set the error message
+- return INTERP_ERROR from the epilog
+
+This error message will be displayed in the UI, and returning
+INTERP_ERROR will cause this error handled like any other runtime error.
+
+Note that both `(abort, msg)` and returning INTERP_ERROR from an
+epilog will cause any ON_ABORT handler to be called as well if defined
+(see previous section).
 
 == Configuring  Embedded Python  [[remap:embedded-Python]]
 
@@ -1944,7 +1968,8 @@ An example Python redefinition for M61 can be found in the
 `configs/sim/remap/toolchange/python/toolchange.py`. 
 
 
-== Optional Interpreter features: ini file configuration
+== Optional Interpreter features: ini file configuration[[sub:ini-features]]
+(((Enabling optional features)))
 
 There are some interpreter features in this branch which are
 experimental, and not backwards compatible, which is why they need to
@@ -1977,7 +2002,7 @@ Mask bits are:
 	ini file through this special variable syntax.
 	
 
-`enable #<_hal[Hal item> readonly variables: 8`:: 
+`enable #<_hal[Hal item]> readonly variables: 8`:: 
 	if set, the interpreter will fetch read-only values from HAL 
 	file through this special variable syntax.
 
