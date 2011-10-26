@@ -41,6 +41,20 @@ bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
     return false;
 }
 
+bool Interp::remap_in_progress(const char *code)
+{
+    remap_pointer rp = remapping(code);
+    if (rp == NULL)
+	return false;
+    for (int i = _setup.remap_level; i > 0; i--) {
+	if (_setup.blocks[i].executing_remap == rp) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+
 int Interp::convert_remapped_code(block_pointer block,
 				  setup_pointer settings,
 				  int phase,

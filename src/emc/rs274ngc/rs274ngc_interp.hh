@@ -533,7 +533,8 @@ int read_inputs(setup_pointer settings);
     ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
     (((bp)->m_modes[mgroup]) > -1) &&		\
      ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
-
+    
+    bool remap_in_progress(const char *code);
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
 			      int phase,
