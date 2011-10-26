@@ -2692,6 +2692,9 @@ In the center format, the coordinates of the end point of the arc in the
  arc from the current location.
  In this format, it is OK if the end point of the arc is the same as the
  current point.
+ When programming arcs using a precision of less than 4 decimal places
+ (0.0000) for inch and less than 3 decimal places (0.000) for millimeters
+ can result in error due to rounding.
  
 \end_layout
 
@@ -2702,8 +2705,7 @@ It is an error if:
 \begin_layout Itemize
 When the arc is projected on the selected plane, the distance from the current
  point to the center differs from the distance from the end point to the
- center by more than 0.0002 inch (if inches are being used) or 0.002 millimeter
- (if millimeters are being used).
+ center by more than (.05 inch/.5 mm) OR ((.0005 inch/.005mm) AND .1% of radius).
 \end_layout
 
 \begin_layout Standard

@@ -2768,8 +2768,6 @@ Use an appropriate decimal precision
 \begin_layout Standard
 Use at least 3 digits after the decimal when milling in millimeters, and
  at least 4 digits after the decimal when milling in inches.
- In particular, arc tolerance checks are made to .001 and .0001 depending
- on the active units.
 \end_layout
 
 \begin_layout Section*
