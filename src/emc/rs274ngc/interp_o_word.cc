@@ -363,7 +363,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	switch (settings->call_state) {
 	case CS_NORMAL:
    	case CS_REEXEC_EPILOG:
-	    if (cblock->executing_remap->epilog_func) {
+	    if (cblock->executing_remap && cblock->executing_remap->epilog_func) {
 		if (settings->call_state ==  CS_REEXEC_EPILOG)
 		    CHP(read_inputs(settings));
 		status = pycall(settings, current_frame, REMAP_MODULE,
