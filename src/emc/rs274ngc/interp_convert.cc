@@ -1366,6 +1366,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   char PY_STR[] = "py,";
   char PYRUN_STR[] = "pyrun,";
   char PYRELOAD_STR[] = "pyreload";
+  char ABORT_STR[] = "abort,";
   int m, n, start;
 
   // step over leading white space in comment
@@ -1428,6 +1429,13 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
   else if (startswith(lc, PYRELOAD_STR))
   {
       return py_reload();
+  }
+  else if (startswith(lc, ABORT_STR))
+  {
+      convert_param_comment(comment+start+strlen(ABORT_STR), expanded,
+                            EX_SIZE);
+      setSavedError(expanded); // avoid printf interpretation
+      return INTERP_ERROR;
   }
   else if (streq(lc, LOGCLOSE_STR))
   {
