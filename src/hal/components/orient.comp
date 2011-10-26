@@ -81,12 +81,16 @@ FUNCTION(_) {
 		command = revs + target_angle; 
 		break;
 	    case 1: // always cw
-		command = revs + target_angle + 
-		    ((target_angle < spindle_angle) ? 1.0 : 0.0);
+		if (target_angle < spindle_angle)
+		    command = revs + target_angle + 1.0;
+		else
+		    command = revs + target_angle;
 		break;
 	    case 2: // always ccw
-		command = revs + target_angle + 
-		    ((target_angle > spindle_angle) ? -1.0 : 0.0);
+		if (target_angle > spindle_angle)
+		    command = revs + target_angle - 1.0;
+		else
+		    command = revs + target_angle;
 		break;
 	    }
 	}
