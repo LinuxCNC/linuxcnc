@@ -48,9 +48,11 @@ bool Interp::remap_in_progress(const char *code)
 	return false;
     for (int i = _setup.remap_level; i > 0; i--) {
 	if (_setup.blocks[i].executing_remap == rp) {
+	    // printf("---------------- remap_in_progress(%s): TRUE level=%d\n",code,i);
 	    return true;
 	}
     }
+    // printf("---------------- remap_in_progress(%s): FALSE\n",code);
     return false;
 }
 

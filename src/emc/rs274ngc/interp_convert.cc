@@ -2984,12 +2984,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       int toolno;
       switch (block->m_modes[6]) {
       case 6:
-	  if (IS_USER_MCODE(block,settings,6) && !remap_in_progress("M6")) {
+	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_M_6) && IS_USER_MCODE(block,settings,6)) {
+	      // printf("---- using remapped M6\n");
 	      return convert_remapped_code(block,settings,
 					   STEP_M_6,
 					   'm',
 					   block->m_modes[6]);
 	  }  else {
+	      // printf("---- using BUILTIN M6\n");
 	      CHP(convert_tool_change(settings));
 	  }
 	  break;

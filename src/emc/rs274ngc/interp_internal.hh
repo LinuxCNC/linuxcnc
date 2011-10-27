@@ -450,6 +450,15 @@ typedef struct block_struct
     // int entry_at; 
     std::set<int> remappings; // all remappings in this block
     int phase; // current remap execution phase
+
+    // the strategy to get the builtin behaviour of a code in a remap procedure is as follows:
+    // if recursion is detected in find_remappings() (called by parse_line()), that *step* 
+    // (roughly the modal group) is NOT added to the set of remapped steps in a block (block->remappings)
+    // in the convert_* procedures we test if the step is remapped with the macro below, and wether
+    // it is the current code which is remapped (IS_USER_MCODE, IS_USER_GCODE etc). If both
+    // are true, we execute the remap procedure; if not, use the builtin code.
+#define STEP_REMAPPED_IN_BLOCK(bp, step) (bp->remappings.find(step) != bp->remappings.end())
+
 }
 block;
 
