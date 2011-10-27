@@ -267,14 +267,17 @@ It is an error if:
 In the center format, the coordinates of the end point of the arc in
 the selected plane are specified along with the offsets of the center
 of the arc from the current location. In this format, it is OK if the
-end point of the arc is the same as the current point.
+end point of the arc is the same as the current point. When programming
+arcs using a precision of less than 4 decimal places (0.0000) for inch
+and less than 3 decimal places (0.000) for millimeters can result in
+an error due to rounding.
 
 It is an error if:
 
- -  When the arc is projected on the selected plane, the distance from the
-   current point to the center differs from the distance from the end
-   point to the center by more than 0.0002 inch (if inches are being used)
-   or 0.002 millimeter (if millimeters are being used).
+ -  When the arc is projected on the selected plane, the distance from
+   the current point to the center differs from the distance from the end
+   point to the center by more than (.05 inch/.5 mm) 
+   OR ((.0005 inch/.005mm) AND .1% of radius).
 
 When the XY-plane is selected program:
 
@@ -377,6 +380,13 @@ radius of this arc would be 5.
 In the center format, the radius of the arc is not specified, but it
 may be found easily as the distance from the center of the circle to
 either the current point or the end point of the arc.
+
+Deciphering the Error message "Radius to end of arc differs from radius to start:"
+ start = the current position
+ center = the center position as calculated using the i,j or k words
+ end = the programmed end point
+ r1 = radius from the start position to the center
+ r2 = radius from the end position to the center
 
 === Full Circles
 
