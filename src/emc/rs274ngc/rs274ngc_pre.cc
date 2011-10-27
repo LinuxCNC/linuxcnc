@@ -367,6 +367,11 @@ int Interp::_execute(const char *command)
 	  // execute up to the first remap including read() of its handler
 	  // this also sets cblock->executing_remap
 	  status = execute_block(cblock, &_setup);
+#if 0
+	  // this is too naive a test and needs improving (aka: not segfault). 
+	  // It needs to kick in only for  new codes, not remapped ones, for which
+	  // recursion just means 'use builtin semantics'
+	  // add some kind of 'is_remapped_builtin()' macro or test method
 
 	  // detect a remapping recursion.
 	  // since each remapped item pushes a new block onto the remap stack, we walk
@@ -376,7 +381,7 @@ int Interp::_execute(const char *command)
 		  ERS("recursive remapping for %s detected", cblock->executing_remap->name);
 	      }
 	  }
-
+#endif
 	  // All items up to the first remap item have been executed.
 	  // The remap item procedure call has been parsed into _setup.blocks[0],
 	  // the EXECUTING_BLOCK.
@@ -593,9 +598,12 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
-    if (IS_USER_MCODE(block,settings,6))
-	block->remappings.insert(STEP_M_6);
-
+    if (IS_USER_MCODE(block,settings,6) &&  // a group 6 code is remapped
+	!((block->m_modes[6] == 6) &&   // it's an M6
+	  remap_in_progress("M6"))) {  // it's not a recursive M6 invocation
+	block->remappings.insert(STEP_M_6); // then call the remap procedure
+    } // else we get the builtin behaviour
+    
     // User defined M-Codes in group 7
     if (IS_USER_MCODE(block,settings,7))
 	block->remappings.insert(STEP_M_7);
@@ -2193,6 +2201,8 @@ int Interp::enter_remap(void)
     // push onto block stack
     CONTROLLING_BLOCK(_setup) = EXECUTING_BLOCK(_setup);
     CONTROLLING_BLOCK(_setup).breadcrumbs = 0; // clear trail
+    // set later but tested for in remap_in_progress()
+    CONTROLLING_BLOCK(_setup).executing_remap = NULL;
 
     // remember the line where remap was discovered
     if (_setup.remap_level == 1) {
@@ -2226,6 +2236,7 @@ int Interp::leave_remap(void)
 		 _setup.remap_level,
 		 EXECUTING_BLOCK(_setup).saved_line_number);
     }
+    _setup.blocks[_setup.remap_level].executing_remap = NULL;
     _setup.remap_level--; // drop one nesting level
     if (_setup.remap_level < 0) {
 	ERS("BUG: remap_level < 0 : %d",_setup.remap_level);
