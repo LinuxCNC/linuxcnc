@@ -396,7 +396,7 @@ HTML_TARGETS := \
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table
 
-A2X = $(DOC_SRCDIR)/a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
+A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
