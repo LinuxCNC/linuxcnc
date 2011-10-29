@@ -88,7 +88,7 @@ like this:
 
 .B
 .nf
-loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_mode0=0000 num_encoders=4"
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_port_0=0000 num_encoders=4"
 .fi
 
 Note: this assumes that the hm2_pci driver detects the 5i20 first and
@@ -102,7 +102,7 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_modes0=00000000\fB] [num_leds=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_0=00000000\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
@@ -141,14 +141,14 @@ Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
 .TP
-\fBsserial_modesN (N = 0 .. 4)\fR [optional, default: 00000000 for all ports]
+\fBsserial_port_N (N = 0 .. 3)\fR [optional, default: 00000000 for all ports]
 Up to 32 Smart Serial devices can be connected to a Mesa Anything IO board
 depending on the firmware used and the number of physical connections on the
 board. These are arranged in 1-4 ports of 1 to 8 channels.
- To set the modes for port 0 use, for example \fBsserial_modes0=0120xxxx\fR
  Some Smart Serial (SSLBP) cards offer more than one load-time configuration,
 for example all inputs, or all outputs, or offering additional analogue input on
 some digital pins.
+ To set the modes for port 0 use, for example \fBsserial_port_0=0120xxxx\fR
  A '0'in the string sets the corresponding port to mode 0, 1 to mode 1, and so on
 up to mode 9. An "x" in any position disables that channel and makes the
 corresponding FPGA pins available as GPIO. 
@@ -159,7 +159,7 @@ to mode 0, 0.2 to mode2 and disable channels 0.4 onwards.
  The sserial driver will auto-detect connected devices, no further configuration
 should be neded. Unconnected channels will default to GPIO, but the pin values
 will vary semi-randomly during boot when card-detection runs, to it is best to 
-actively disable any channel that is to be usd for GPIO. 
+actively disable any channel that is to be used for GPIO. 
 .TP
 \fBnum_leds\fR [optional, default: -1]
 Only enable the first N of the LEDs on the FPGA board. If N is -1, then HAL
@@ -755,45 +755,32 @@ to the address in .write_address, and .write_strobe is set back to False.
 True the hostmot2 driver will write its representation of the board's
 internal state to the syslog, and set the pin back to False.
 
-.SH setup_sserial
-Adding "setup_sserial" to the hostmot2 modparam will start up any attached
-Smart Serial devices in setup mode. The on-board parameters can then be
-manuipulated with "setp" commands from within halrun or with halcmd.
+.SH Setting up Smart Serial devices 
+
+If a Smart Serial port is stopped, it is then possible to read and set the 
+onboard firmware settings using "setp" commands from within halrun or with halcmd.
 The hostmot read function needs to be attached to a realtime thread to allow
 parameters to be read and set, but the write thread is not needed.
-A typical command-line sequence to read and set parameters would be:
+A typical command-line sequence to read the max current setting of an 8i20 on 
+channel 1 of pirt 0 would be:
+
 $>halrun
 
  halcmd: loadrt hostmot2
- halcmd: loadrt hm2_pci conf="config="firmware=hm2/5i23/svss8_44 conf_sserial=
-0x00000001 setup_sserial"
+ halcmd: loadrt hm2_pci config="firmware=hm2/5i23/svss8_44 sserial_port_0=x0xxxxxxx"
  halcmd: loadrt threads
  halcmd: addf hm2_5i23.0.read thread1
  halcmd: addf hm2_5i23.0.write thread1
  halcmd: start
+ halcmd: setp hm2_5i23.0.sserial.0.port-0.run 0
+ halcmd: setp hm2_5i23.0.sserial.0.port 0
+ halcmd: setp hm2_5i23.0.sserial.0.channel 1
  halcmd: setp hm2_5i23.0.sserial.0.0.parameter 0x8e8
  halcmd: setp hm2_5i23.0.sserial.0.0.read 1
  halcmd: show pin hm2_5i23.0.sserial.0.0.value
 
 It is not expected that this would be a frequent task.
-
-Pins:
-(u32, r/w) parameter: The address of the parameter to be read or set. See the
-manual for the relevant hardware for the parameter addresses.
-
-(u32, r/w) value: The raw value of the parameter as read from the device, or to
-be written. See the device manual for the conversion to engineering units.
-
-(bit, r/w) read: setting this bit high will copy the internal value at the
-parameter address to the "value" pin.
-
-(bit, r/w) write: setting this bit high will copy the value from the "value" pin
-to the internal drive memory at the address specified by "parameter"
-
-(u32, ro) state: Shows the state of the state machine that handles
-communications with the board. 0 is idle, 1, 2 & 3 are read-states and 9 & 10
-are write states.
-
+The pin descriptions appear earlier in this document. 
 
 .SH FUNCTIONS
 .TP
