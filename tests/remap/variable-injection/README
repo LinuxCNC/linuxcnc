@@ -1,0 +1,10 @@
+this regression tests wether:
+
+(1)
+- variables inserted in a prolog can be references properly in the NGC procedure
+- changes to variables in the NGC procedure can be properly retrieved in the epilog
+
+(2)
+- variables inserted in a prolog, NGC procedure or epilog are deleted on the end of a remap
+- (1) also works for several remaps in a block
+
