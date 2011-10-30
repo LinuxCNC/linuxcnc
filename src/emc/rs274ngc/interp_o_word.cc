@@ -175,10 +175,11 @@ int Interp::execute_call(setup_pointer settings,
 
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
 
-    logOword("execute_call %s type=%s state=%s", 
+    logOword("execute_call %s type=%s state=%s cl=%d rl=%d", 
 	     current_frame->subName, 
 	     call_typenames[call_type],
-	     call_statenames[settings->call_state]);
+	     call_statenames[settings->call_state],
+	     settings->call_level,settings->remap_level);
 
     switch (call_type) {
 
@@ -413,13 +414,14 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 			 previous_frame->position);
 
 	    }
+	    // cleanups on return:
+	    CHP(leave_context(settings, true));
 
 	    // if this was a remap frame we're done
 	    if (current_frame->context_status & REMAP_FRAME) {
 		CHP(remap_finished(-cblock->phase));
 	    }
-	    // cleanups on return:
-	    CHP(leave_context(settings, true));
+
 
 	    settings->sub_name = 0;
 	    if (previous_frame->subName)  {
