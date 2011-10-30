@@ -237,7 +237,6 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
 			  setup_pointer settings) //!< pointer to machine settings
 {
   int status;
-  remap_pointer rptr;
 
   block->line_number = settings->sequence_number;
   if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
@@ -255,7 +254,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   }
   if (block->f_flag){
       if ((settings->feed_mode != INVERSE_TIME) && ONCE(STEP_SET_FEED_RATE))  {
-	  if ((rptr = remapping("F")) != NULL) {
+	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_FEED_RATE)) {
 	      return (convert_remapped_code(block, settings, STEP_SET_FEED_RATE, 'F'));
 	  } else {
 	      status = convert_feed_rate(block, settings);
@@ -265,20 +264,19 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
       /* INVERSE_TIME is handled elsewhere */
   }
   if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)){
-      if ((rptr = remapping("S")) != NULL) {
+      if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
 	  return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
       } else {
 	  status = convert_speed(block, settings);
 	  CHP(status);
       }
   }
-  if ((block->t_flag) && ONCE(STEP_PREPARE)){
-      if ((rptr = remapping("T")) != NULL) {
-	  // use generic remap using Python pro/epilogs
+  if ((block->t_flag) && ONCE(STEP_PREPARE)) {
+      if (STEP_REMAPPED_IN_BLOCK(block, STEP_PREPARE)) {
 	  return (convert_remapped_code(block,settings,STEP_PREPARE,'T'));
-    } else {
-	CHP(convert_tool_select(block, settings));
-    }
+      } else {
+	  CHP(convert_tool_select(block, settings));
+      }
   }
   CHP(convert_m(block, settings));
   CHP(convert_g(block, settings));

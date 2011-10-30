@@ -582,15 +582,18 @@ int Interp::remap_finished(int phase)
 int Interp::find_remappings(block_pointer block, setup_pointer settings)
 {
     if (block->f_flag &&
-	remapping("F"))
+	remapping("F") &&
+	!remap_in_progress("F"))
 	block->remappings.insert(STEP_SET_FEED_RATE);
 
     if (block->s_flag &&
-	remapping("S"))
+	remapping("S") &&
+	!remap_in_progress("S"))
 	block->remappings.insert(STEP_SET_SPINDLE_SPEED);
 
     if (block->t_flag &&
-	remapping("T"))
+	remapping("T")&&
+	!remap_in_progress("T"))
 	block->remappings.insert(STEP_PREPARE);
 
     // User defined M-Codes in group 5
@@ -598,9 +601,12 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
-    if (IS_USER_MCODE(block,settings,6) &&  // a group 6 code is remapped
-	!((block->m_modes[6] == 6) &&   // it's an M6
-	  remap_in_progress("M6"))) {  // it's not a recursive M6 invocation
+    // call the remap procedure if it the code in that group is remapped unless:
+    // it's an M6 or M61 and a remap is in progress
+    // (recursion case)
+    if (IS_USER_MCODE(block,settings,6) &&  
+	!(((block->m_modes[6] == 6) && remap_in_progress("M6")) ||
+	  ((block->m_modes[6] == 61) && remap_in_progress("M61")))) {  
 	block->remappings.insert(STEP_M_6); // then call the remap procedure
     } // else we get the builtin behaviour
     

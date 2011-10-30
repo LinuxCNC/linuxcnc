@@ -2996,14 +2996,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	  }
 	  break;
       case 61:
-	  toolno = round_to_int(block->q_number);
-	  // now also accept M61 Q0 - unload tool
-	  CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
-
-	  if (IS_USER_MCODE(block,settings,6)) {
+	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_M_6) && IS_USER_MCODE(block,settings,6)) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
+	      toolno = round_to_int(block->q_number);
+	      // now also accept M61 Q0 - unload tool
+	      CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
+
 	      int pocket;
 
 	      // make sure selected tool exists
@@ -3015,10 +3015,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	  }
 	  break;
 
-	  // this should be deleted because it's covered by the recursion test for M6 above
-      case 69: // alias original M6 to M69
-	  CHP(convert_tool_change(settings));
-	  break;
+      // deleted because it's covered by the recursion test for M6 above
+      // case 69: // alias original M6 to M69
+      // 	  CHP(convert_tool_change(settings));
+      // 	  break;
 
       default:
 	  if (IS_USER_MCODE(block,settings,6)) {
