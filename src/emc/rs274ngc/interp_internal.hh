@@ -438,17 +438,9 @@ typedef struct block_struct
 
     // there might be several remapped items in a block, but at any point
     // in time there's only one excuting
-    // conceptually the block is also the 'remap frame'
+    // conceptually blocks[1..n] are also the 'remap frames'
     remap_pointer executing_remap; // refers to config descriptor
-    // boost::python::object tupleargs; // the args tuple for Py functions
-    // boost::python::object kwargs; // the args dict for Py functions
-    // int returned;
-    // double py_returned_value;
-    // int py_returned_status;
-    // boost::python::object generator_next; // generator object next method as returned if remap handler contained a yield statement
-    // if a python pro/epilog, body or osub executed yield, indicate which part to (re) start at after a sync
-    // int entry_at; 
-    std::set<int> remappings; // all remappings in this block
+    std::set<int> remappings; // all remappings in this block (enum phases)
     int phase; // current remap execution phase
 
     // the strategy to get the builtin behaviour of a code in a remap procedure is as follows:
@@ -476,7 +468,7 @@ enum call_states {
 enum call_types {
     CT_NGC_OWORD_SUB,    // no restartable Python code involved
     CT_PYTHON_OWORD_SUB, // restartable Python code may be involved
-    CT_REMAP,            // restartable Python code  may be involved
+    CT_REMAP,            // restartable Python code may be involved
 };
 
 
