@@ -601,7 +601,9 @@ works>> section (dire but necessary).
 
 Note than when remapping an existing code, we completely disable
 <<remap::interpreter-action-on-M6,this codes' builtin functionality>>
-of the interpreter. So our remapped code will need to do a bit more
+of the interpreter. 
+
+So our remapped code will need to do a bit more
 than just generating some commands to move the machine as we like - it
 will also need to replicate those steps from this sequence which are
 needed to keep the interpreter and task happy.
@@ -734,23 +736,37 @@ So we need a prolog, and an epilog. Lets assume our ini file incantation of the 
 
  REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
 
-So the prolog covering steps 1 and 2 would look like so - we decide to pass `current_tool`
-and `selected_pocket` as local named parameters:
+So the prolog covering steps 1 and 2 would look like so - we decide to
+pass a few variables to the remap procedure which can be inspected and
+changed there, or used in a message. Those are: `tool_in_spindle`,
+`selected_tool` (tool numbers) and their respective pockets
+`current_pocket` and `selected_pocket`:
 
 [source,python]
 ---------------------------------------------------------------------
 def change_prolog(self, **words):
-	if self.selected_pocket < 0:   # step 1
-		self.set_errormsg("Need tool prepared -Txx- for toolchange")
-		return INTERP_ERROR
-	if self.cutter_comp_side:      # step 2
-		self.set_errormsg("Cannot change tools with cutter radius compensation on")
-		return INTERP_ERROR
-
-        self.params["current_tool"] = self.current_tool
-	self.params["selected_pocket"] = self.selected_pocket
-	return INTERP_OK
+    try:
+	if self.selected_pocket < 0:
+            self.set_errormsg("M6: no tool prepared")
+            return INTERP_ERROR
+	if self.cutter_comp_side:
+            self.set_errormsg("Cannot change tools with cutter radius compensation on")
+            return INTERP_ERROR
+	self.params["tool_in_spindle"] = self.current_tool
+	self.params["selected_tool"] = self.selected_tool
+	self.params["current_pocket"] = self.current_pocket
+        self.params["selected_pocket"] = self.selected_pocket
+        return INTERP_OK
+    except Exception, e:
+        self.set_errormsg("M6/change_prolog: %s" % (e))
+        return INTERP_ERROR
 ---------------------------------------------------------------------
+
+You will find that most prolog functions look very similar: first test
+that all preconditions for executing the code hold, then prepare the
+environment - inject variables and/or do any preparatory processing
+steps which cannot easily be done in NGC code; then hand off to the
+NGC procedure by returning INTERP_OK.
 
 Our first iteration of the O-word procedure is unexciting - just
 verify we got parameters right, and signal success by returning a
@@ -776,25 +792,29 @@ Assuming success of `change.ngc`, we need to mop up steps 6-8:
 [source,python]
 ---------------------------------------------------------------------
 def change_epilog(self, **words):
-    retval =  self.return_value # lets see what change.ngc returned
-
-    print "change_epilog: change.ngc returned %f " % (retval)
-    if retval > 0.0:
-        # commit change
-        emccanon.CHANGE_TOOL(self.selected_pocket) # step 6
-        self.current_pocket = self.selected_pocket
-        self.set_tool_parameters() # step 7
-        # cause a sync()
-        self.tool_change_flag = True  # step 8
-        return INTERP_OK
-    else:
-        self.set_errormsg("M6 aborted (return code %.4f)" % (retval))
+    try:
+        if self.return_value > 0.0:
+            # commit change
+            self.selected_pocket =  int(self.params["selected_pocket"])
+            emccanon.CHANGE_TOOL(self.selected_pocket)
+            # cause a sync()
+            self.tool_change_flag = True
+            self.set_tool_parameters()
+            return INTERP_OK
+        else:
+            self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
+            return INTERP_ERROR
+    except Exception, e:
+        self.set_errormsg("M6/change_epilog: %s" % (e))
         return INTERP_ERROR
 ---------------------------------------------------------------------
 
 This replacement M6 is compatible with the builtin code,
 except steps 3-5 need to be filled in with your NGC code.
 
+Again, most epilogs have a common scheme: first, determine wether
+things went right in the remap procedure, then do any commit and cleanup
+actions which cant be done in NGC code.
 
 === Configuring iocontrol with a remapped M6
 
@@ -803,7 +823,7 @@ required in the O-word procedure - including any HAL pin
 setting/reading to get a changer going, and to acknowledge a tool
 change - likely with `motion.digital-*` and `motion-analog-*` IO
 pins. When we finally execute the `CHANGE_TOOL()` command, all
-movements and HAL interaction is already complete.
+movements and HAL interactions are already completed.
 
 Normally only now iocontrol would do its thing as outlined
 <<remap::iocontrol-action-on-load,here>>. However, we dont need the
@@ -833,7 +853,7 @@ writing these procedures:
  #<_current_pocket>
 
 
-=== Making minimal changes to the builtin `M6`
+=== Making minimal changes to the builtin codes, including `M6`
 
 Remember that normally remapping a code completely disables all internal
 processing for that code.
@@ -842,18 +862,23 @@ However, in some situations it might be sufficient to add a few codes around
 the existing `M6` builtin implementation, like a tool length probe,
 but other than that retain the behaviour of the builtin `M6`.
 
-Since this might be a common scenario, the builtin behaviour of `M6`
-has also been made available as `M69`. This would look like so:
+Since this might be a common scenario, the builtin behaviour of
+remapped codes has been made available within the remap
+procedure. The interpreter detects that you are referring to a
+remapped code within the procedure which is supposed to redefine its
+behaviour. In this case, the builtin behaviour is used - this
+currently is enabled for the set: `M6`, `M61`,`T`, `S`, `F`). Note
+that otherwise referring to a code within its own remap procedure
+would be a error - a `remapping recursion`.
+
+Slightly twisting a builtin would look like so (in the case of `M6`):
 
  REMAP=M6   modalgroup=6  ngc=mychange 
-
-Although M6 has been remapped, `mychange` could still use the builtin
-`M6` behaviour like in this example:
 
 [source,{ngc}]
 ---------------------------------------------------------------------
 o<mychange> sub
-M69  
+M6 (use builtin M6 behaviour)
 (.. move to tool length switch, probe and set tool length..)
 o<mychange> endsub 
 m2
@@ -881,22 +906,35 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 So, here's the setup for a remapped T:
 
   REMAP=T  prolog=prepare_prolog epilog=prepare_epilog ngc=prepare
+
 [source,python]
 ---------------------------------------------------------------------
 def prepare_prolog(self,**words):
-    cblock = self.blocks[self.remap_level]
-    if not cblock.t_flag:
-        self.set_errormsg("T requires a tool number")
+    try:
+        cblock = self.blocks[self.remap_level]
+        if not cblock.t_flag:
+            self.set_errormsg("T requires a tool number")
+            return INTERP_ERROR
+        tool  = cblock.t_number
+        if tool:
+            (status, pocket) = self.find_tool_pocket(tool)
+            if status != INTERP_OK:
+                self.set_errormsg("T%d: pocket not found" % (tool))
+                return status
+        else:
+            pocket = -1 # this is a T0 - tool unload
+            
+        # these variables will be visible in the ngc oword sub
+        # as #<tool> and #<pocket> local variables, and can be
+        # modified there - the epilog will retrieve the changed
+        # values
+        self.params["tool"] = tool
+        self.params["pocket"] = pocket
+
+        return INTERP_OK
+    except Exception, e:
+        self.set_errormsg("T%d/prepare_prolog: %s" % (int(words['t']), e))
         return INTERP_ERROR
-    tool  = cblock.t_number
-    (status,pocket) = self.find_tool_pocket(tool)
-    if status != INTERP_OK:
-        self.set_errormsg("T%d: pocket not found" % (tool))
-        return status
-    # remember for the epilog handler
-    self._tool = tool
-    self._pocket = pocket    
-    return INTERP_OK
 ---------------------------------------------------------------------
 
 The minimal ngc prepare procedure again looks like so:
@@ -912,20 +950,23 @@ And the epilog:
 [source,python]
 ---------------------------------------------------------------------
 def prepare_epilog(self, **words):
-    retval = self.return_value
-    if retval >= 0:
-        self.selected_pocket = self._pocket
-        self.selected_tool = self._tool
-        emccanon.SELECT_POCKET( self._pocket, self._tool)
-        return INTERP_OK
-    else:
-        self.set_errormsg("T%d: aborted (return code %.4f)" % (self._tool,retval))
-        return INTERP_ERROR
+    try:
+        if self.return_value > 0:
+            self.selected_tool = int(self.params["tool"])
+            self.selected_pocket = int(self.params["pocket"])
+            emccanon.SELECT_POCKET(self.selected_pocket, self.selected_tool)
+            return INTERP_OK
+        else:
+            self.set_errormsg("T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value))
+            return INTERP_ERROR
+    except Exception, e:
+        self.set_errormsg("T%d/prepare_epilog: %s" % (tool,e))
+        return INTERP_ERROR       
 ---------------------------------------------------------------------
 
-FIXME verify the prepare example - could be old code
-
-FIXME m61 - describe
+prepare_prolog and prepare_epilog are part of the 'standard glue'
+provided by 'FIXME pathname'. This module is intended to cover most
+standard remapping situations in a common way.
 
 
 === Error handling: dealing with abort
@@ -1474,6 +1515,8 @@ The current set of *existing* codes open to redefinition is:
 - M61 (Set tool number)
 - S  (set spindle speed)
 - F  (set feed)
+
+Note that the use of M61 currently requires the use of iocontrol-v2.
 
 === Currently unallocated G-codes: [[remap:unallocated-g-codes]]
 
@@ -2112,6 +2155,8 @@ merged. It should go into the gcode/overview Named Parameters section.
 . the RELOAD_ON_CHANGE feature is fairly broken. Restart after
 changing a Python file.
 
+. M61 (remapped or not) is broken in iocontrol and requires
+iocontrol-v2 to actually work.
 // A short survey of EMC2 execution
 // Interpreter internals access - Python view
 // Task internals access - Python view
