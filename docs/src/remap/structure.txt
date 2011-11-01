@@ -844,14 +844,27 @@ iocontrol pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
 
-The following predefined named parameters can be useful here when
-writing these procedures:
+The standard prologs epilogs found in
+`configs/sim/remap/python-stdglue/remap.py` pass a few 'exposed
+parameters' to the remap procedure.
 
- #<_selected_tool>
- #<_selected_pocket>
- #<_current_tool>
- #<_current_pocket>
+An 'exposed parameter' is a named local variable visible in a remap
+procedure which corresponds to interpreter-internal variable which 
+is relevant for the current remap. Exposed parameters
+are set up in the respective prolog, and inspected in the epilog. They
+can be changed in the remap procedure and the change will be picked up
+in the epilog. The exposed parameters for remappable builtin codes are:
 
+
+- `T` (prepare_prolog): `#<tool>` , `#<pocket>`
+- `M6` (change_prolog): `#<tool_in_spindle>`, `#<selected_tool>`, `#<current_pocket>`, `#<selected_pocket>`
+- `M61` (settool_prolog): `#<tool>` , `#<pocket>`
+- `S` (setspeed_prolog):  `#<speed>`
+- `F` (setfeed_prolog):  `#<feed>`
+
+If you have specific needs for extra parameters to be made visible,
+that can simply be added to the prolog - practically all of the
+interpreter internals are visible to Python.
 
 === Making minimal changes to the builtin codes, including `M6`
 
@@ -883,6 +896,11 @@ M6 (use builtin M6 behaviour)
 o<mychange> endsub 
 m2
 ---------------------------------------------------------------------
+
+See the `configs/sim/remap/extend-builtins` directory for a complete
+configuration which is the recommded starting point for own work
+when extending builtin codes.
+
 
 === Specifying the T (prepare) replacement
 If you're confident with the  <<remap::interpreter-action-on-T,default
