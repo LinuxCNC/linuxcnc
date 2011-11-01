@@ -547,7 +547,12 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 	.def_readwrite("offset",&block::offset)
 	.def_readwrite("o_type",&block::o_type)
-	.def_readwrite("executing_remap",&block::executing_remap)
+
+	// I hope someday I really understand this
+	.add_property("executing_remap", 
+		      make_getter(&block::executing_remap,return_value_policy<reference_existing_object>()),
+		      make_setter(&block::executing_remap,return_value_policy<reference_existing_object>()))
+
 	.def_readwrite("call_type",&block::call_type)
 	.def_readwrite("breadcrumbs",&block::breadcrumbs)
 	.def_readwrite("phase",&block::phase)
