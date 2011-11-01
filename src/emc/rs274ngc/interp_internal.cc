@@ -250,6 +250,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->executing_remap = NULL;
   block->param_cnt = 0;
   block->remappings.clear();
+  block->builtin_used = false;
 
   block->a_flag = false;
   block->b_flag = false;

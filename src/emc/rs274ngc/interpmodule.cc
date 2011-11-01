@@ -556,6 +556,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def_readwrite("call_type",&block::call_type)
 	.def_readwrite("breadcrumbs",&block::breadcrumbs)
 	.def_readwrite("phase",&block::phase)
+	.def_readwrite("builtin_used",&block::builtin_used)
 
 	//  read-only
 	.add_property("comment",  &get_comment)

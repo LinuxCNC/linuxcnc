@@ -451,6 +451,11 @@ typedef struct block_struct
     // are true, we execute the remap procedure; if not, use the builtin code.
 #define STEP_REMAPPED_IN_BLOCK(bp, step) (bp->remappings.find(step) != bp->remappings.end())
 
+    // true if in a remap procedure the code being remapped was
+    // referenced, which caused execution of the builtin semantics
+    // reason for recording the fact: this permits an epilog to do the
+    // right thing depending on wether the builtin was used or not.
+    bool builtin_used; 
 }
 block;
 
