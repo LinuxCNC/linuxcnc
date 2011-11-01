@@ -728,7 +728,6 @@ typedef struct setup_struct
     int_remap_map  g_remapped,m_remapped;
     remap_map remaps;
 
-
 } setup;
 
 typedef setup *setup_pointer;

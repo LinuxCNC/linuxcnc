@@ -581,21 +581,24 @@ int Interp::remap_finished(int phase)
 // return number of remaps found
 int Interp::find_remappings(block_pointer block, setup_pointer settings)
 {
-    if (block->f_flag &&
-	remapping("F") &&
-	!remap_in_progress("F"))
-	block->remappings.insert(STEP_SET_FEED_RATE);
-
-    if (block->s_flag &&
-	remapping("S") &&
-	!remap_in_progress("S"))
-	block->remappings.insert(STEP_SET_SPINDLE_SPEED);
-
-    if (block->t_flag &&
-	remapping("T")&&
-	!remap_in_progress("T"))
-	block->remappings.insert(STEP_PREPARE);
-
+    if (block->f_flag && remapping("F")) {
+	if (remap_in_progress("F"))
+	    CONTROLLING_BLOCK(*settings).builtin_used = true;
+	else
+	    block->remappings.insert(STEP_SET_FEED_RATE);
+    }
+    if (block->s_flag && remapping("S")) {
+	if (remap_in_progress("S"))
+	    CONTROLLING_BLOCK(*settings).builtin_used = true;
+	else
+	    block->remappings.insert(STEP_SET_SPINDLE_SPEED);
+    }
+    if (block->t_flag && remapping("T")) {
+	if (remap_in_progress("T"))
+	    CONTROLLING_BLOCK(*settings).builtin_used = true;
+	else
+	    block->remappings.insert(STEP_PREPARE);
+    }
     // User defined M-Codes in group 5
     if (IS_USER_MCODE(block,settings,5))
 	block->remappings.insert(STEP_M_5);

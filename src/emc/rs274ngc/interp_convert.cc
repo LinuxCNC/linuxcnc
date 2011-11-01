@@ -2982,30 +2982,35 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if ((block->m_modes[6] != -1)  && ONCE_M(6)){
       int toolno;
+      bool remapped_in_block = STEP_REMAPPED_IN_BLOCK(block, STEP_M_6);
+
       switch (block->m_modes[6]) {
       case 6:
-	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_M_6) && IS_USER_MCODE(block,settings,6)) {
-	      // printf("---- using remapped M6\n");
-	      return convert_remapped_code(block,settings,
-					   STEP_M_6,
-					   'm',
-					   block->m_modes[6]);
-	  }  else {
-	      // printf("---- using BUILTIN M6\n");
+      	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+      		  return convert_remapped_code(block,settings,
+      					       STEP_M_6,
+      					       'm',
+      					       block->m_modes[6]);  
+	  } else {
+	      // the code was used in its very remap procedure -
+	      // the 'recursion case'; record the fact
+	      CONTROLLING_BLOCK(*settings).builtin_used = !remapped_in_block;
 	      CHP(convert_tool_change(settings));
 	  }
-	  break;
+      	  break;
+
       case 61:
-	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_M_6) && IS_USER_MCODE(block,settings,6)) {
+	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
+	      CONTROLLING_BLOCK(*settings).builtin_used = !remapped_in_block;
 	      toolno = round_to_int(block->q_number);
 	      // now also accept M61 Q0 - unload tool
 	      CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
-
+	      
 	      int pocket;
-
+	      
 	      // make sure selected tool exists
 	      CHP((find_tool_pocket(settings, toolno, &pocket)));
 	      settings->current_pocket = pocket;
