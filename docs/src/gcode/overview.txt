@@ -579,11 +579,42 @@ program with if-then-else statements.
 #<_w>::
     Return absolute machine W coordinate. Same as #5428.
 
-#<_value>:: [[param:_value]]
+#<_current_tool>::
+    Return number of the current tool in spindle. Same as #5400.
+
+#<_current_pocket>::
+    Return pocket number of the current tool.
+
+#<_selected_tool>::
+    Return number of the selected tool post a T code. Default -1.
+
+#<_selected_pocket>::
+    Return number of the selected pocket post a T code. Default -1
+    (no pocket selected).
+
+#<_value>::  [[param:_value]]
     Return value from the last O-word `return` or `endsub`.  Default
     value 0 if no expression after `return` or `endsub`.  Initialized
     to 0 on program start.  See also
     <<sec:Subroutine-return-values,Subroutine return values>>.
+
+#<_value_returned>::
+    1.0 if the last O-word `return` or `endsub` returned a value, 0
+    otherwise. Cleared by the next O-word call.
+
+#<_task>::
+    1.0 if the executing interpreter instance is part of milltask, 0.0
+    otherwise. Sometimes it is necessary to treat this case specially
+    to retain proper preview, for instance when testing the success of 
+    a probe (G38.x) by inspecting #5070, which will always fail in the
+    preview interpreter (e.g. Axis).
+
+#<_call_level>::
+    current nesting level of O-word procedures. For debugging.
+
+#<_remap_level>::
+    current level of the remap stack. Each remap in a block adds one
+    to the remap level. For debugging.
 
 == Expressions [[sub:Expressions]]
 
