@@ -8,8 +8,6 @@ from util import lineno, call_pydevd
 
 throw_exceptions = 1 # raises InterpreterException if execute() or read() fail
 
-from toolchange import prepare_prolog, prepare_epilog, change_prolog, change_epilog, set_tool_number
-
 def g886(self, **words):
     for key in words:
         MESSAGE("word '%s' = %f" % (key, words[key]))
