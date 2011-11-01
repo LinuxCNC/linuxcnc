@@ -1139,11 +1139,6 @@ int GET_EXTERNAL_TC_REASON()
     return _toolchanger_reason;
 }
 
-void INTERP_ABORT(int reason, const char *message)
-{
-    PRINT1("INTERP_ABORT(%d)\n",reason);
-}
-
 /* Sends error message */
 void CANON_ERROR(const char *fmt, ...)
 {

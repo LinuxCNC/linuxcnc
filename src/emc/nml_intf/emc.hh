@@ -193,8 +193,6 @@ class PM_CARTESIAN;
 // even before emccanon issues the move to toolchange position
 #define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
-// a oword procedure handler failed (gcode toolchange)
-#define EMC_INTERP_ABORT_TYPE                       ((NMLTYPE) 1111)
 #define EMC_EXEC_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1112)
 #define EMC_IO_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1113)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)

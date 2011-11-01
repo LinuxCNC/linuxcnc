@@ -927,9 +927,6 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
 
-// queue a suicide message.
-extern void INTERP_ABORT(int reason,const char *message);
-
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 

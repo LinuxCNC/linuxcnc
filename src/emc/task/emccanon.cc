@@ -3028,20 +3028,6 @@ int LOCK_ROTARY(int line_number, int axis) {
     return 0;
 }
 
-/* INTERP_ABORT queues a suicide message due to failed toolchange
- * G-code procedure handlers
- */
-void INTERP_ABORT(int reason, const char *message)
-{
-    EMC_INTERP_ABORT interp_abort_msg;
-
-    interp_abort_msg.reason = reason;
-    if (message != NULL)
-	strncpy(interp_abort_msg.message,message,
-		sizeof(interp_abort_msg.message));
-    interp_list.append(interp_abort_msg);
-}
-
 /* PLUGIN_CALL queues a Python tuple for execution by task
  * the tuple is expected to be already pickled
  * The tuple format is: (callable,tupleargs,keywordargs)

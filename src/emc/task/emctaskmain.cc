@@ -404,7 +404,6 @@ static EMC_TASK_PLAN_EXECUTE *execute_msg;
 static EMC_TASK_PLAN_OPEN *open_msg;
 static EMC_TASK_PLAN_SET_OPTIONAL_STOP *os_msg;
 static EMC_TASK_PLAN_SET_BLOCK_DELETE *bd_msg;
-static EMC_INTERP_ABORT *ia_msg;
 
 static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
@@ -1507,11 +1506,6 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
 	break;
 
-	// this should go out immediately - mah
-    case EMC_INTERP_ABORT_TYPE:
-	return EMC_TASK_EXEC_DONE;
-	break;
-
     case EMC_EXEC_PLUGIN_CALL_TYPE:
     case EMC_IO_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC_DONE;
@@ -2221,18 +2215,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = 0;
 	break;
 
-    case EMC_INTERP_ABORT_TYPE:
-	ia_msg = (EMC_INTERP_ABORT *) cmd;
-	retval = emcOperatorText(0,"%s",(const char *)&ia_msg->message);
-	// abort everything
-	emcTaskAbort();
-        emcIoAbort(EMC_ABORT_TASK_ABORT);
-        emcSpindleAbort();
-	mdi_execute_abort();
-	emcAbortCleanup(ia_msg->reason,ia_msg->message);
-	retval = 0;
-	break;
-
     case EMC_EXEC_PLUGIN_CALL_TYPE:
 	retval =  emcPluginCall( (EMC_EXEC_PLUGIN_CALL *) cmd);
 	break;
@@ -2349,10 +2331,6 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_MOTION_SET_AOUT_TYPE:
     case EMC_MOTION_SET_DOUT_TYPE:
     case EMC_MOTION_ADAPTIVE_TYPE:
-	return EMC_TASK_EXEC_DONE;
-	break;
-
-    case EMC_INTERP_ABORT_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
 
