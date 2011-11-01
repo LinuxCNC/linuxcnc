@@ -2118,8 +2118,6 @@ void MESSAGE(char *s)
     operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, s, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
-    fprintf(stderr,"MESSAGE(%s)\n",operator_display_msg.display);
-
     interp_list.append(operator_display_msg);
 }
 
