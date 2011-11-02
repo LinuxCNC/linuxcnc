@@ -34,8 +34,6 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;
-    int led_count;
-
 
     //
     // some standard sanity checks
@@ -47,41 +45,17 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
-    // Choose the max number of LEDs from the board ID
-    if (strcmp(hm2->idrom.board_name, "hm2_7i43")) {
-        led_count = 8;
-    }
-    else if (strcmp(hm2->idrom.board_name, "hm2_5i20")) {
-        led_count = 8;
-    }
-    else if (strcmp(hm2->idrom.board_name, "hm2_5i22")) {
-        led_count = 8;
-    }
-    else if (strcmp(hm2->idrom.board_name, "hm2_5i23")) {
-        led_count = 2;
-    }
-    else if (strcmp(hm2->idrom.board_name, "hm2_4i65")) {
-        led_count = 8;
-    }
-    else if (strcmp(hm2->idrom.board_name, "hm2_4i68")) {
-        led_count = 4;
-    }
-    else if (strcmp(hm2->idrom.board_name, "hm2_3x20")) {
-        led_count = 0; // Without knowing how it works, don't try
-    }
-    else {
-        led_count = 8;
-        HM2_ERR("Unknown board type %s, Defaulting to 8 onboard LEDs", hm2->idrom.board_name);
-    }
+    // LEDs were enumerated during llio setup
+    
+    if (hm2->llio->num_leds == 0 || hm2->config.num_leds == 0) return 0;
 
-    if (led_count == 0 || hm2->config.num_leds == 0) return 0;
-
-    if (hm2->config.num_leds > led_count) {
-        hm2->config.num_leds = led_count;
-        HM2_ERR( "There are only %d LEDs on this board type, defaulting to %d\n", led_count, hm2->config.num_leds );
+    if (hm2->config.num_leds > hm2->llio->num_leds) {
+        hm2->config.num_leds = hm2->llio->num_leds;
+        HM2_ERR( "There are only %d LEDs on this board type, defaulting to %d\n",
+                hm2->llio->num_leds, hm2->config.num_leds );
     }
     else if (hm2->config.num_leds == -1) {
-        hm2->config.num_leds = led_count;
+        hm2->config.num_leds = hm2->llio->num_leds;
     }
 
     //

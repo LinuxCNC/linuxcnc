@@ -858,7 +858,7 @@ typedef struct {
         int num_leds;
         int num_sserials;
         int num_bspis;
-        int num_sserial_chans[4];
+        char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
     } config;

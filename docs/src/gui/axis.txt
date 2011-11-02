@@ -98,7 +98,9 @@ Save gcode as...::
     Save the current file with a new name.
 
 Properties::
-    Properties of the current loaded g code file.
+    The sum of the rapid and feed moves. Does not factor in 
+    acceleration, blending or path mode so time reported will never
+    be less than the actual run time.
 
 Edit tool table...::
      Same as Edit if you have defined an editor you can open the tool table
