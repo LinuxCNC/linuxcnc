@@ -516,17 +516,6 @@ typedef struct {
 }hal_7i64_t;
 
 typedef struct {
-    struct{
-        hal_u32_t *hm2_reg_0_read;
-        hal_u32_t *hm2_reg_1_read;
-        hal_u32_t *hm2_reg_0_write;
-        hal_u32_t *hm2_reg_1_write;
-    }pin;
-    int card_type;
-    hal_u32_t hm2_serialnumber;
-}hal_other_t;
-
-typedef struct {
     u32 *reg_cs_read;
     u32 *reg_cs_write;
     u32 *reg_0_read;
@@ -554,10 +543,6 @@ typedef struct {
     unsigned char tag_7i64;
     hal_7i64_t *hal_7i64;
     hm2_sserial_tram_t *tram_7i64;
-    int num_other;
-    unsigned char tag_other;
-    hal_other_t *hal_other;
-    hm2_sserial_tram_t *tram_other;
     int num_all;
     unsigned char tag_all;
 
@@ -1064,11 +1049,6 @@ int hm2_sserial_config_create(hostmot2_t *hm2);
     int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md);
     void hm2_7i64_prepare_tram_write(hostmot2_t *hm2);
     void hm2_7i64_process_tram_read(hostmot2_t *hm2);
-
-    // Smart-Serial functions in hm2_other_sserial.c
-    int hm2_other_create(hostmot2_t *hm2, hm2_module_descriptor_t *md);
-    void hm2_other_prepare_tram_write(hostmot2_t *hm2);
-    void hm2_other_process_tram_read(hostmot2_t *hm2);
 
 //
 // stepgen functions

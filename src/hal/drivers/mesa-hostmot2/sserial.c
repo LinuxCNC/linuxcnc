@@ -202,12 +202,9 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                     inst->num_7i64 += 1;
                     inst->num_all += 1;
                     break;
-                default: // Unknown card, so create raw register access
-                    inst->tag_other |= (1 << c);
-                    inst->tag_all |= (1 << c);
-                    inst->num_other += 1;
-                    inst->num_all += 1;
-                    break;
+                default:
+                    HM2_ERR("Unsupported Device ID %X found on sserial %d "
+                            "channel %d\n", buff, i, c);
             }
         }
         if (inst->num_all > 0){
@@ -289,7 +286,6 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
 
         hm2_8i20_create(hm2, md);
         hm2_7i64_create(hm2, md);
-        hm2_other_create(hm2,md);
         hm2_sserial_config_create(hm2);
         hm2_8i20_params(hm2);
 
@@ -359,7 +355,6 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
 
     hm2_8i20_prepare_tram_write(hm2);
     hm2_7i64_prepare_tram_write(hm2);
-    hm2_other_prepare_tram_write(hm2);
 
 
     for (i = 0 ; i < hm2->sserial.num_instances ; i++ ) {
@@ -471,7 +466,6 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
 
     hm2_8i20_process_tram_read(hm2);
     hm2_7i64_process_tram_read(hm2);
-    hm2_other_process_tram_read(hm2);
     hm2_sserial_process_config(hm2, period);
 
 }

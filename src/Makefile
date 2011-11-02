@@ -729,7 +729,6 @@ hostmot2-objs :=                          \
 	hal/drivers/mesa-hostmot2/sserial.o   \
 	hal/drivers/mesa-hostmot2/mesa_8i20.o \
 	hal/drivers/mesa-hostmot2/mesa_7i64.o \
-	hal/drivers/mesa-hostmot2/mesa_other_sserial.o \
     hal/drivers/mesa-hostmot2/stepgen.o   \
 	hal/drivers/mesa-hostmot2/bspi.o	  \
     hal/drivers/mesa-hostmot2/watchdog.o  \
