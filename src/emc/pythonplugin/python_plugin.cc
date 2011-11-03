@@ -107,7 +107,11 @@ int PythonPlugin::call(const char *module, const char *callable,
 	    bp::object submod_namespace = submod.attr("__dict__");
 	    function = submod_namespace[callable];
 	}
-	retval = function(*tupleargs, **kwargs);
+	// this wont work with boost-python1.34 - needs 1.40
+	//retval = function(*tupleargs, **kwargs);
+
+	// this does
+	retval = bp::object(bp::borrowed(PyObject_Call(function.ptr(), tupleargs.ptr(), kwargs.ptr())));
 	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
