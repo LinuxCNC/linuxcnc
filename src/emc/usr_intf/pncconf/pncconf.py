@@ -1352,7 +1352,6 @@ If you have a REALLY large config that you wish to convert to this newer version
         # TODO fix this hack : hardcoded to one serial port
         ssconfig0 = ssconfig1 = temp = ""
         if self.mesa0_numof_sserialports:
-            print self.mesa0_numof_sserialchannels
             for i in range(1,9):
                 if i <= self.mesa0_numof_sserialchannels:
                     temp = temp + "0"
@@ -4679,7 +4678,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     sp = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
                     sc = int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
                     m = sp * sc * 3
-                    print d[_MAXGPIO],i,j,k,l,m
                     total = (d[_MAXGPIO]-i-j-k-l-m)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
@@ -5369,8 +5367,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if firmptype in (TXDATA1,RXDATA1,TXEN1): portnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2): portnum = 3
                     if firmptype in (TXDATA3,RXDATA3,TXEN3): portnum = 4
-                    print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
-                    print "sserial channel:%d"% numofsserialchannels
+                    #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
+                    #print "sserial channel:%d"% numofsserialchannels
                     if numofsserialports >= (portnum) and numofsserialchannels >= (compnum + 1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
