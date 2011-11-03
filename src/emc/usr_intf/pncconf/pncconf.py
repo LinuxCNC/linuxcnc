@@ -168,11 +168,13 @@ _TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_MAXSSERIALC
 _HIFREQ = 18;_NUMOFCNCTRS = 19;_STARTOFDATA = 20
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
+
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, number of pins per encoder,
-# max pwm gens, max tppwmgens 
-# max step gens, 
-# number of pins per step gen, 
+# max pwm gens, # of pins 
+# max tppwmgens , # of pins
+# max step gens, number of pins per step gen,
+# max smart serial, number of chaNnels
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
@@ -266,7 +268,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12, 3, 12, 0, 0, 0, 0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12,3, 12,3, 0,0, 0,0, 0,0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -3627,6 +3629,7 @@ class App:
                         global mesablacklist
                         mesablacklist = eval(text)
                 if name == "customfirmwarefilename":
+                    global custommesafirmwaredata
                     self.data._customfirmwarefilename = text
                     rcfile = os.path.expanduser(self.data._customfirmwarefilename)
                     print rcfile
@@ -3635,7 +3638,7 @@ class App:
                             execfile(rcfile)
                         except:
                             print "**** PNCCONF ERROR:    custom firmware loading error"
-                            custommesafirmwaredata == []
+                            custommesafirmwaredata = []
                     if not custommesafirmwaredata == []:
                         print "**** PNCCONF INFO:    Found extra firmware in file"
         self.widgets.createsymlink.set_active(link)
