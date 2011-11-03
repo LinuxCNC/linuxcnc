@@ -17,10 +17,6 @@
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
 #include <boost/python.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/python/object.hpp>
-#include <boost/python/raw_function.hpp>
-#include <boost/python/call.hpp>
 
 namespace bp = boost::python;
 
