@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-01 12:49+0100\n"
-"PO-Revision-Date: 2011-11-02 23:39+0100\n"
+"PO-Revision-Date: 2011-11-03 10:54+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -122,7 +122,7 @@ msgstr "Horizontal"
 
 #: hal/utils/scope.c:677
 msgid "Selected Channel"
-msgstr "Choisir le canal"
+msgstr "Choisir la voie"
 
 #: hal/utils/scope.c:683
 msgid "Run Mode"
@@ -166,8 +166,8 @@ msgid ""
 "----- Samples\n"
 "at ---- KHz"
 msgstr ""
-"----- Echantillons\n"
-"à ---- KHz"
+"----- Échantil.\n"
+"à ---- kHz"
 
 #: hal/utils/scope_horiz.c:459
 msgid "Realtime component not loaded"
@@ -552,7 +552,7 @@ msgstr "Auto"
 
 #: hal/utils/scope_trig.c:201
 msgid "Force"
-msgstr "Force"
+msgstr "Forcer"
 
 #: hal/utils/scope_trig.c:235 hal/utils/scope_trig.c:269
 msgid "Level"
@@ -1436,7 +1436,7 @@ msgstr " WATCH "
 
 #: ../tcl/bin/halshow.tcl:90
 msgid "Load Watch List"
-msgstr "Load Watch List"
+msgstr "Charger liste de watch"
 
 #: ../tcl/bin/halshow.tcl:102
 msgid "Tree View"
@@ -1448,11 +1448,11 @@ msgstr "Tester une commande HAL :"
 
 #: ../tcl/bin/halshow.tcl:555
 msgid "Load a watch list"
-msgstr "Load a watch list"
+msgstr "Charger une liste de watch"
 
 #: ../tcl/bin/halshow.tcl:578
 msgid "Save current watch list"
-msgstr "Save current watch list"
+msgstr "Enregistrer liste de watch courante"
 
 #: ../tcl/bin/halshow.tcl:592
 msgid "Commands may be tested here but they will NOT be saved"
@@ -2712,7 +2712,7 @@ msgstr "A/U"
 
 #: ../tcl/tkemc.tcl:2231 ../share/axis/tcl/axis.tcl:1916
 msgid "ON"
-msgstr "ON"
+msgstr "MARCHE"
 
 #: ../tcl/tkemc.tcl:2290
 msgid "LUBE ON"
@@ -3657,7 +3657,7 @@ msgid ""
 "produced are shown below:"
 msgstr ""
 "Le programme %(program)r s'est arrêté avec le code %(code)d.  Si des "
-"messages ont été produits, ils sont les suivants:"
+"messages ont été produits, ils sont ci-dessous:"
 
 #: emc/usr_intf/axis/scripts/axis.py:1128
 #, python-format
@@ -3712,11 +3712,11 @@ msgstr "Coordonnées système"
 
 #: emc/usr_intf/axis/scripts/axis.py:1576
 msgid "fixture"
-msgstr "porte pièce"
+msgstr "porte-pièce"
 
 #: emc/usr_intf/axis/scripts/axis.py:1577
 msgid "workpiece"
-msgstr "bloc"
+msgstr "la pièce"
 
 #: emc/usr_intf/axis/scripts/axis.py:1593
 msgid "Name:"
@@ -3863,7 +3863,7 @@ msgstr "Toucher"
 #: emc/usr_intf/axis/scripts/axis.py:2297
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
-msgstr "Entrer la coordonnée %s relative à %%s:"
+msgstr "Coordonnée %s relative à %%s:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2464
 msgid "Error saving file"
@@ -4362,11 +4362,11 @@ msgstr "_G92"
 
 #: ../share/axis/tcl/axis.tcl:246
 msgid "Tool touch off to wor_kpiece"
-msgstr "L'outil a touché le bloc_k"
+msgstr "L'outil touchera la pièce"
 
 #: ../share/axis/tcl/axis.tcl:252
 msgid "Tool touch off to _fixture"
-msgstr "L'outil a touché le porte-pièce"
+msgstr "L'outil touchera le porte-pièce"
 
 #: ../share/axis/tcl/axis.tcl:260
 msgid "_Top view"
@@ -4406,7 +4406,7 @@ msgstr "Parcours d'outil en vitesse r_apide"
 
 #: ../share/axis/tcl/axis.tcl:321
 msgid "Alpha-_blend program"
-msgstr "Alpha-_blend program"
+msgstr "Simulation de transparence"
 
 #: ../share/axis/tcl/axis.tcl:326
 msgid "Sho_w live plot"
@@ -5481,7 +5481,7 @@ msgstr "<b>Afficheur position</b>"
 
 #: emc/usr_intf/touchy/touchy.glade:3379
 msgid "Workpiece"
-msgstr "Block"
+msgstr "Pièce"
 
 #: emc/usr_intf/touchy/touchy.glade:3390
 msgid "Fixture"
@@ -6789,7 +6789,7 @@ msgstr "_Cycles par tour:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4079
 msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr "Entrez 0 Hz pour le mode \"PDM\""
+msgstr "Entrer 0 Hz pour le mode \"PDM\""
 
 #: emc/usr_intf/stepconf/stepconf.glade:4091
 msgid "Scale %"
@@ -11705,7 +11705,7 @@ msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
 "Le mouvement en arc dans l'angle intérieur ne peut pas s'achever sans que "
-"l'outil n'interfére avec la pièce"
+"l'outil n'interfère avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:900
 msgid "Arc to arc motion is invalid because the arcs have the same center"
@@ -12005,7 +12005,7 @@ msgid ""
 "gouging"
 msgstr ""
 "Le mouvement rectiligne en vitesse rapide dans l'angle intérieur ne peut pas "
-"s'achever sans que l'outil n'interfére avec la pièce"
+"s'achever sans que l'outil n'interfère avec la pièce"
 
 #: emc/rs274ngc/interp_queue.cc:632
 #, c-format
@@ -12017,7 +12017,7 @@ msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
 "Le mouvement rectiligne en vitesse travail dans l'angle intérieur ne peut "
-"pas s'achever sans que l'outil n'interfére avec la pièce"
+"pas s'achever sans que l'outil n'interfère avec la pièce"
 
 #: emc/rs274ngc/interp_cycles.cc:628
 msgid "Cannot feed with zero feed rate"
