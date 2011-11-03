@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 6),
     python, python-dev, python-support, python-tk, python-lxml,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
     libgtk2.0-dev, libgnomeprintui2.2-dev,
-    gettext, autoconf, libboost-python1.40-dev
+    gettext, autoconf, libboost-python-dev
 Standards-Version: 2.1.0
 
 Package: @EMC2_PACKAGE_NAME@-dev
