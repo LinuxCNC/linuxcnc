@@ -2,16 +2,14 @@
 .AVIS
 =================================================
 Au 2011-01-16, la version française 
-de la documentation EMC2 
-est de 2 ans à la date d'échéance pour 
-ne pas avoir un traducteur disponible.
+de la documentation EMC2 a 2 ans faute de ne pas 
+avoir de traducteur disponible.
 
-Il est recommandé d'utiliser la 
-documentation en anglais chaque fois que possible.
+Il est recommandé d'utiliser la documentation 
+en anglais chaque fois que possible.
 
-Si vous souhaitez être 
-un rédacteur bénévole pour la
-Traduction française d'EMC2, 
+Si vous souhaitez être un traducteur bénévole
+pour la documentation française d'EMC2, 
 s'il vous plaît contactez-nous. 
 =================================================
 

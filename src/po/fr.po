@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-01 12:49+0100\n"
-"PO-Revision-Date: 2011-11-03 10:54+0100\n"
+"PO-Revision-Date: 2011-11-03 15:26+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -2712,7 +2712,7 @@ msgstr "A/U"
 
 #: ../tcl/tkemc.tcl:2231 ../share/axis/tcl/axis.tcl:1916
 msgid "ON"
-msgstr "MARCHE"
+msgstr "EN MARCHE"
 
 #: ../tcl/tkemc.tcl:2290
 msgid "LUBE ON"
@@ -3708,7 +3708,7 @@ msgstr "°"
 
 #: emc/usr_intf/axis/scripts/axis.py:1560
 msgid "Coordinate System:"
-msgstr "Coordonnées système"
+msgstr "Décalage origine pièce"
 
 #: emc/usr_intf/axis/scripts/axis.py:1576
 msgid "fixture"
@@ -4714,7 +4714,7 @@ msgid ""
 msgstr ""
 "EMC2/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004 - 2011 Jeff Epler et Chris Radek.\n"
+"Copyright (C) 2004-2011 Jeff Epler et Chris Radek.\n"
 "\n"
 "Ceci est un logiciel libre, vous pouvez le redistribuer sous certaines "
 "conditions.  Regardez le fichier COPYING, inclus dans EMC2.\n"
@@ -8326,7 +8326,7 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:6386
 msgid "Gearbox Reduction Ratio"
-msgstr "Rapport de réduction de pignons"
+msgstr "Rapport de réduction des pignons"
 
 #: emc/usr_intf/pncconf/pncconf.py:6389
 msgid "Reduction Ratio"
