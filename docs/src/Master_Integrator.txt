@@ -32,6 +32,8 @@ include::config/emc2hal.txt[]
 
 include::config/stepper.txt[]
 
+include::remap/structure.txt[]
+
 :leveloffset: 0
 = GUI
 :leveloffset: 1

@@ -1,20 +1,39 @@
-; This demonstrates doing T<pocket> remapped to a named oword sub
+; This demonstrates doing T<pocket> select tool command
+; remapped to a named oword sub
+;
 ; to activate, incantate as follows in the ini file:
 ; [RS274NGC]
 ; # remap T<pocket> to a named oword subroutine.
 ; # The tool number will be passed as parameter #1
 ; # The pocket number will be passed as parameter #2
+;
 ; T_COMMAND=o<tdemo>call
 ;
+; on success, return the pocket number to commit the prepare
+;
+;-----------------
 ; emulate the tool-number/tool-prepare/tool-prepared logic of the iocontrol-
 ; based toolchanger
 ;
 O<tdemo> sub
+
+(DEBUG,tdemo.ngc: #1 #2)
+
+; O<tdemo> if ; trigger error to test error reporting
+
+
+; test fail-change line from gladevcp
+M66 P2 L0
+O<tdemo_prepare_fail> if [#5399 EQ 1]
+    (DEBUG,  returning -1 to fail prepare)
+    O<tdemo> return [-1]
+O<tdemo_prepare_fail> endif
+
 ;
 ; number of seconds to wait for 'tool-prepared' equivalent
-#<timeout> = 9999
+; if timing out, fail the prepare and stop the program
+#<timeout> = 5
 ;
-(DEBUG, executing T #1 in O-word sub)
 ;
 ; set analog output pin #0 to signal the tool number
 ; iocontrol.tool-prep-number becomes motion.analog-out-00
@@ -38,17 +57,37 @@ M64 P0
 ;
 M66 P0 L3 Q#<timeout>
 ;
-O<tdemo_timeout> if [#5399] EQ -1
-    (DEBUG, timeout waiting for motion.digital-in-00 to become true: #5399 )
-O<tdemo_timeout> else
-    (DEBUG, motion.digital-in-00 became true: #5399)
+O<tdemo_timeout> if [#5399 LT  0]
+    (DEBUG, timeout waiting for 'prepared' to become true - failing prepare )
+    M65 P0
+    O<tdemo> return [-2]
 O<tdemo_timeout> endif
+
+; test fail-change line from gladevcp once more in case it became active
+; while waiting for prepared:
+M66 P2 L0
+
+O<tdemo_prepare_fail2> if [#5399 EQ 1]
+    (DEBUG,  returning -1 to fail prepare)
+    M65 P0
+    (debug, turned off prepare)
+    O<tdemo> return [-3]
+O<tdemo_prepare_fail2> endif
+
+; all went well
 
 (DEBUG, deasserting motion.digital-out-00)
 ;
 M65 P0
 ;
-;
 (DEBUG, done with prepare sub)
-O<tdemo> endsub
+
+; succeed prepare by passing the pocket number as return value
+; a negative return value leaves the interpreter state untouched
+; and fail with an error message:
+; "Tx prepare failed (<return value>)
+;
+O<tdemo> endsub [#2]
+
+
 m2

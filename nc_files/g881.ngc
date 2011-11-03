@@ -1,0 +1,37 @@
+o<g881> sub
+(debug, in g881); x=[#1] y=[#2] z=[#3] r=[#4])
+
+(debug, g881 call_level= #<_call_level> remap_level=#<_remap_level>)
+
+o<g881_havex> if [EXISTS[#<x>]]
+(debug, X param set: #<x>)
+o<g881_havex> endif
+
+o<g881_havey> if [EXISTS[#<y>]]
+(debug, Y param set: #<y>)
+o<g881_havey> endif
+
+o<g881_havez> if [EXISTS[#<z>]]
+(debug, Z param set: #<z>)
+o<g881_havez> endif
+
+o<g881_havep> if [EXISTS[#<p>]]
+(debug, P param set: #<p>)
+o<g881_havep> endif
+
+o<g881_haveq> if [EXISTS[#<q>]]
+(debug, Q param set: #<q>)
+o<g881_haveq> endif
+
+o<g881_haver> if [EXISTS[#<r>]]
+(debug, R param set: #<r>)
+o<g881_haver> endif
+
+;m250
+
+(debug, end g881)
+
+
+o<g881> endsub [1]
+m2
+

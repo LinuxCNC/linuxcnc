@@ -14,6 +14,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -305,10 +306,13 @@ int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being
                            block_pointer block,    //!< pointer to a block being filled from the line
                            double *parameters)     //!< array of system parameters                   
 {
-
-  CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
-  (*counter) = strlen(line);
-  return INTERP_OK;
+    char *s;
+    CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter) = strlen(line);
+    // pass unmutilated line to convert_comment - FIXME access to _setup
+    if (( s = strchr(_setup.linetext,';')) != NULL)
+	CHP(convert_comment(s+1, false));
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -528,6 +532,19 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHKS((value > 999), NCE_G_CODE_OUT_OF_RANGE);
   CHKS((value < 0), NCE_NEGATIVE_G_CODE_USED);
+  // mode = usercode_mgroup(&(_setup),value);
+  // if (mode != -1) {
+
+ remap_pointer r = _setup.g_remapped[value];
+  if (r) {
+      mode =  r->modal_group;
+      CHKS ((mode < 0),"BUG: G remapping: modal group < 0"); // real bad
+
+      CHKS((block->g_modes[mode] != -1),
+	   NCE_TWO_G_CODES_USED_FROM_SAME_MODAL_GROUP);
+      block->g_modes[mode] = value;
+      return INTERP_OK;
+  }
   mode = _gees[value];
   CHKS((mode == -1), NCE_UNKNOWN_G_CODE_USED);
   if ((value == G_80) && (block->g_modes[mode] != -1));
@@ -1023,6 +1040,20 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   *counter = (*counter + 1);
   CHP(read_integer_value(line, counter, &value, parameters));
   CHKS((value < 0), NCE_NEGATIVE_M_CODE_USED);
+
+  remap_pointer r = _setup.m_remapped[value];
+  if (r) {
+      mode =  r->modal_group;
+      CHKS ((mode < 0),"BUG: M remapping: modal group < 0");
+      CHKS ((mode > 10),"BUG: M remapping: modal group > 10");
+
+      CHKS((block->m_modes[mode] != -1),
+	   NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
+      block->m_modes[mode] = value;
+      block->m_count++;
+      return INTERP_OK;
+  }
+
   CHKS((value > 199), NCE_M_CODE_GREATER_THAN_199);
   mode = _ems[value];
   CHKS((mode == -1), NCE_UNKNOWN_M_CODE_USED);
@@ -1441,14 +1472,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   const char *subName;
   char fullNameBuf[2*LINELEN+1];
   int oNumber;
+  extern const char *o_ops[];
 
   CHKS((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // changed spec so we now read an expression
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
-
-  block->o_number = 0;
 
   logDebug("In: %s line:%d |%s|", name, block->line_number, line);
 
@@ -1461,12 +1491,9 @@ int Interp::read_o(    /* ARGUMENTS                                     */
      CHP(read_integer_value(line, counter, &oNumber,
                             parameters));
      sprintf(oNameBuf, "%d", oNumber);
-     block->o_number = oNumber; //!!!KL keeps this for now
   }
 
   // We stash the text the offset part of setup
-  // And then store the index into block->o_number
-  // Just to be clean, we do not use index zero.
 
 #define CMP(txt) (strncmp(line+*counter, txt, strlen(txt)) == 0)
   // characterize the type of o-word
@@ -1514,9 +1541,9 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     case O_endsub:
     case O_call:
     case O_return:
-      block->o_name = strdup(oNameBuf);
-      logDebug("global case:|%s|", block->o_name);
-      break;
+	block->o_name = strstore(oNameBuf);
+	logDebug("global case:|%s|", block->o_name);
+	break;
 
       // the remainder are local cases
     default:
@@ -1536,20 +1563,42 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  logDebug("not defining_sub:|%s|", subName);
 	}
       sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
-      block->o_name = strdup(fullNameBuf);
+      block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
-
-  logDebug("o_type:%d o_name:|%s| line:%d |%s|", block->o_type, block->o_name,
+  logDebug("o_type:%s o_name: %s  line:%d %s", o_ops[block->o_type], block->o_name,
 	   block->line_number, line);
 
-  if(block->o_type == O_sub)
+  if (block->o_type == O_sub)
     {
       block->o_type = O_sub;
     }
-  else if(block->o_type == O_endsub)
+  // in terms of execution endsub and return do the same thing
+  else if ((block->o_type == O_endsub) || (block->o_type == O_return))
     {
-      block->o_type = O_endsub;
+	if ((_setup.skipping_o != 0) &&
+	    (0 != strcmp(_setup.skipping_o, block->o_name))) {
+	    return INTERP_OK;
+	}
+
+        if (block->o_type == O_endsub) {
+	    *counter += strlen("endsub");
+        } else {
+	    *counter += strlen("return");
+        }
+	// optional return value expression
+	if (line[*counter] == '[') {
+	    CHP(read_real_expression(line, counter, &value, parameters));
+	    logOword("%s %s value %lf",
+		     (block->o_type == O_endsub) ? "endsub" : "return",
+		     block->o_name,
+		     value);
+	    _setup.return_value = value;
+	    _setup.value_returned = 1;
+	} else {
+	    _setup.return_value = 0;
+	    _setup.value_returned = 0;
+	}
     }
   else if(_setup.defining_sub == 1)
     {
@@ -1567,7 +1616,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       }
 
       *counter += strlen("call");
-      block->o_type = O_call;
+      // convey starting state for call_fsm() to handle this call
+      // convert_remapped_code() might change this to CS_REMAP 
+      block->call_type = is_pycallable(&_setup,  OWORD_MODULE, block->o_name) ?
+	  CT_PYTHON_OWORD_SUB : CT_NGC_OWORD_SUB;
 
       for(param_cnt=0;(line[*counter] == '[') || (line[*counter] == '(');)
 	{
@@ -1585,6 +1637,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  param_cnt++;
 	}
       logDebug("set arg params:%d", param_cnt);
+      block->param_cnt = param_cnt;
 
       // zero the remaining params
       for(;param_cnt < INTERP_SUB_PARAMS; param_cnt++)
@@ -1684,10 +1737,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       {
           block->o_type = O_endrepeat;
       }
-  else if(block->o_type == O_return)
-    {
-      block->o_type = O_return;
-    }
   else
     {
       // not legal
@@ -1963,7 +2012,7 @@ int Interp::read_parameter_setting(
   int index;
   double value;
   char *param;
-  char *dup;
+  const char *dup;
 
   CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
@@ -1981,12 +2030,12 @@ int Interp::read_parameter_setting(
       logDebug("setting up named param[%d]:|%s| value:%lf",
                _setup.named_parameter_occurrence, param, value);
 
-      dup = strdup(param);
+      dup = strstore(param); // no more need to free this
       if(dup == 0)
       {
           ERS(NCE_OUT_OF_MEMORY);
       }
-      logDebug("%s strdup[%p]:|%s|", name, dup, dup);
+      logDebug("%s |%s|", name,  dup);
       _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
 
       _setup.named_parameter_values[_setup.named_parameter_occurrence] = value;
@@ -2933,7 +2982,6 @@ int Interp::read_text(
     int *length)       //!< a pointer to an integer to be set
 {
   int index;
-  int n;
 
   if (command == NULL) {
     if (fgets(raw_line, LINELEN, inport) == NULL) {
@@ -2978,17 +3026,6 @@ int Interp::read_text(
   }
 
   _setup.parameter_occurrence = 0;      /* initialize parameter buffer */
-
-  // just in case free the strings
-  if(_setup.named_parameter_occurrence != 0)
-  {
-      for (n = 0; n < _setup.named_parameter_occurrence; n++)
-      {
-          // free the string
-          free(_setup.named_parameters[n]);
-      }
-  }
-  _setup.named_parameter_occurrence = 0;      /* initialize parameter buffer */
 
   if ((line[0] == 0) || ((line[0] == '/') && (GET_BLOCK_DELETE())))
     *length = 0;

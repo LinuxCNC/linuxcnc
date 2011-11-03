@@ -1470,7 +1470,7 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
+    int pocket;
     int tool;
 };
 
@@ -1981,6 +1981,7 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     EMC_COOLANT_STAT coolant;
     EMC_AUX_STAT aux;
     EMC_LUBE_STAT lube;
+
 };
 
 // EMC is aggregate of EMC_TASK, EMC_TRAJ, EMC_IO, etc.
@@ -2021,6 +2022,37 @@ class EMC_ABORT:public EMC_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
+
+/** queue a call to a task-time Python plugin method
+ * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
+ */
+class EMC_EXEC_PLUGIN_CALL:public EMC_CMD_MSG {
+  public:
+    EMC_EXEC_PLUGIN_CALL():EMC_CMD_MSG(EMC_EXEC_PLUGIN_CALL_TYPE,
+				    sizeof(EMC_EXEC_PLUGIN_CALL)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    int len;
+    char call[900]; // MAX_NML_COMMAND_SIZE-100;
+};
+
+/** queue a call to a task-time Io Task Python plugin method
+ * call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
+ */
+class EMC_IO_PLUGIN_CALL:public EMC_CMD_MSG {
+  public:
+    EMC_IO_PLUGIN_CALL():EMC_CMD_MSG(EMC_IO_PLUGIN_CALL_TYPE,
+				    sizeof(EMC_IO_PLUGIN_CALL)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    int len;
+    char call[900]; // MAX_NML_COMMAND_SIZE-100;
+};
+
 
 // EMC status base class
 

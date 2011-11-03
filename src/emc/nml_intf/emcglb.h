@@ -18,6 +18,7 @@
 #include "config.h"             /* LINELEN */
 #include "math.h"		/* M_PI */
 #include "emcmotcfg.h"          /* EMCMOT_MAX_DIO */
+#include "debugflags.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,17 +42,8 @@ extern "C" {
    the GUI scripts that use these. Unfortunately there's no easy way to
    get these into Tk automatically */
     extern int EMC_DEBUG;
-#define EMC_DEBUG_CONFIG            0x00000002
-#define EMC_DEBUG_VERSIONS          0x00000008
-#define EMC_DEBUG_TASK_ISSUE        0x00000010
-#define EMC_DEBUG_NML               0x00000040
-#define EMC_DEBUG_MOTION_TIME       0x00000080
-#define EMC_DEBUG_INTERP            0x00000100
-#define EMC_DEBUG_RCS               0x00000200
-#define EMC_DEBUG_INTERP_LIST       0x00000800
-#define EMC_DEBUG_IOCONTROL 		0x00001000
-#define EMC_DEBUG_ALL               0x7FFFFFFF	/* it's an int for %i to work 
-						 */
+
+    // EMC_DEBUG_* flag definitions moved to debugflags.h
 
     extern double EMC_TASK_CYCLE_TIME;
 

@@ -25,3 +25,10 @@ net tool-change motion.digital-out-01 gladevcp.tool-change
 net tool-changed gladevcp.tool-changed motion.digital-in-01
 
 net halui-abort gladevcp.halui-abort halui.abort
+
+
+# fail change
+
+net fail-change gladevcp.fail-next-op gladevcp.fail-change-led motion.digital-in-02
+
+net fvalue gladevcp.spinbutton-f motion.analog-in-00

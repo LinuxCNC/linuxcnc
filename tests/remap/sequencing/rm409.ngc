@@ -1,0 +1,10 @@
+o<rm409> sub
+o100 if [[#<_seq>] GT 9]
+     (debug,M409 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq>)
+o100 endif
+#<_seq> = 9
+o<rm409> endsub
+m2
+%

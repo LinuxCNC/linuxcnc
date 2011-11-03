@@ -1,0 +1,5 @@
+o<g881min> sub
+(debug, in g881min, nargs=#<n_args>)
+; #<n_args> = 31
+o<g881min> endsub [1]
+m2

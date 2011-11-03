@@ -1,0 +1,13 @@
+#5599 = 1
+
+
+#<n> = 0
+o10 do
+;(debug,set tool #<n>)
+M61Q#<n>G43
+(debug, z offset=#5403)
+g4p1
+G49
+#<n> = [[#<n>] + 1]
+o10 while [[#<n>] LT 5]
+m2

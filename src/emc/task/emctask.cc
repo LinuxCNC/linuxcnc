@@ -30,6 +30,9 @@
 #include "inifile.hh"
 #include "rcs_print.hh"
 #include "task.hh"		// emcTaskCommand etc
+#include "python_plugin.hh"
+#include "taskclass.hh"
+
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -39,8 +42,10 @@
 static int mdiOrAuto = EMC_TASK_MODE_AUTO;
 
 Interp interp;
+setup_pointer _is = &interp._setup; // helper for gdb hardware watchpoints FIXME 
 
-// EMC_TASK interface
+
+
 
 /*
   format string for user-defined programs, e.g., "programs/M1%02d" means
@@ -235,6 +240,7 @@ int emcTaskSetState(int state)
 	emcTaskAbort();
         emcSpindleAbort();
         emcAxisUnhome(-2); // only those joints which are volatile_home
+	emcAbortCleanup(EMC_ABORT_TASK_STATE_OFF);
 	emcTaskPlanSynch();
 	break;
 
@@ -254,6 +260,7 @@ int emcTaskSetState(int state)
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP_RESET);
         emcSpindleAbort();
+	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP_RESET);
 	emcTaskPlanSynch();
 	break;
 
@@ -271,6 +278,7 @@ int emcTaskSetState(int state)
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
         emcSpindleAbort();
         emcAxisUnhome(-2); // only those joints which are volatile_home
+	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP);
 	emcTaskPlanSynch();
 	break;
 
@@ -375,15 +383,19 @@ static void print_interp_error(int retval)
 
 int emcTaskPlanInit()
 {
+    //    _is = &interp._setup;  // FIXME
     interp.ini_load(EMC_INIFILE);
     waitFlag = 0;
 
     int retval = interp.init();
-    if (retval > INTERP_MIN_ERROR) {
+    if (retval > INTERP_MIN_ERROR) {  // I'd think this should be fatal.
 	print_interp_error(retval);
     } else {
 	if (0 != RS274NGC_STARTUP_CODE[0]) {
 	    retval = interp.execute(RS274NGC_STARTUP_CODE);
+	    while (retval == INTERP_EXECUTE_FINISH) {
+		retval = interp.execute(0);
+	    }
 	    if (retval > INTERP_MIN_ERROR) {
 		print_interp_error(retval);
 	    }
@@ -473,6 +485,7 @@ int emcTaskPlanOpen(const char *file)
 
     return retval;
 }
+
 
 int emcTaskPlanRead()
 {
@@ -606,6 +619,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 	emcTaskAbort();
         emcSpindleAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);
+	emcAbortCleanup(EMC_ABORT_TASK_STATE_NOT_ON);
     }
 
     // execState set in main
@@ -636,10 +650,11 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     return 0;
 }
 
-int emcAbortCleanup(int reason)
+int emcAbortCleanup(int reason, const char *message)
 {
-    int status = interp.on_abort(reason);
-    if (status > INTERP_MIN_ERROR) 
-	print_interp_error(status);    
+    int status = interp.on_abort(reason,message);
+    if (status > INTERP_MIN_ERROR)
+	print_interp_error(status);
     return status;
 }
+

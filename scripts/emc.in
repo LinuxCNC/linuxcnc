@@ -316,6 +316,9 @@ EMCIO=$retval
 GetFromIni TASK TASK 
 EMCTASK=$retval
 
+GetFromIni TASK_LD_PRELOAD TASK
+TASK_LD_PRELOAD=$retval
+
 # 2.6. we know the emc server name, change if needed
 # emcsvr now holds/creates all the NML channels,
 # so it needs to start by default, as the first process
@@ -329,6 +332,9 @@ HALUI=$retval
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
+
+GetFromIni DISPLAY_LD_PRELOAD DISPLAY
+DISPLAY_LD_PRELOAD=$retval
 
 # 2.10. get NML config information
 GetFromIniQuiet NML_FILE EMC
@@ -576,14 +582,20 @@ fi
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$EMC2_RTLIB_DIR
 
-# 4.3.4. Run emcio in background
-echo "Starting EMC2 IO program: $EMCIO" >>$PRINT_FILE
-if ! program_available $EMCIO ; then
-    echo "Can't execute IO program $EMCIO"
-    Cleanup
-    exit 1
+# 4.3.4. Run emcio in background if so defined in INI
+if [ "$EMCIO" != "" ] ; then
+        echo "Starting EMC2 IO program: $EMCIO" >>$PRINT_FILE
+        if ! program_available $EMCIO ; then
+                echo "Can't execute IO program $EMCIO"
+                Cleanup
+        exit 1
+        fi
+        echo $EMCIO started
+        $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
+        echo halcmd loadusr $EMCIO started
+else
+        echo "Skipping EMC2 IO program >>$PRINT_FILE"
 fi
-$HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
@@ -657,7 +669,23 @@ if ! program_available $EMCTASK ; then
     Cleanup
     exit 1
 fi
+
+# setup LD_PRELOAD for task if given
+unset LD_PRELOAD
+if [ -n "$TASK_LD_PRELOAD" ] ; then
+	# Export LD_PRELOAD
+	export LD_PRELOAD=$TASK_LD_PRELOAD
+fi
+
 $EMCTASK -ini "$INIFILE" &
+echo task pid=$!
+
+# setup LD_PRELOAD for display if given
+unset LD_PRELOAD
+if [ -n "$DISPLAY_LD_PRELOAD" ] ; then
+	# Export LD_PRELOAD
+	export LD_PRELOAD=$DISPLAY_LD_PRELOAD
+fi
 
 # 4.3.10. Run display in foreground
 echo "Starting EMC2 DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE

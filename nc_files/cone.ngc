@@ -1,42 +1,106 @@
-(for the simulated 5 axis machine)
-g21 g90 g94 g28
+(            Cone cycle           )
+( Copyright 2010 LUDA Mechatronik GmbH )
+( alle Rechte vorbehalten              )
+( Benutzung auf eigene Gefahr          )
 
-o200 sub
+(generates roughing and finish paths for turning a cone)
+(the line from X1/Z1 to X2/Z2 defines the cone)
 
-g0 b0 c0 (tool length change must happen with b,c=0)
-g91 g28 z0 (could also be done with tool change position)
-g90
-g43.1 z#1 (change tool length)
-g0z0 (move Z to apply new length)
+( o<cone> call [X1][Z1][X2][Z2][step][feed][EngageZ][ClearAxial][ClearRadial][feedF][outflag])
 
-x-100 b-45 c-180
-g1 z-100 f2000
+O<cone> sub
+(Startpoint)
+#<X1>		= [#1]
+#<Z1>		= [#2]
 
-#100=-180
-o100 while [ #100 le 180 ]
-    g1 x[100*cos[#100]] y[100*sin[#100]] c#100
-    #100=[#100+10]
-o100 endwhile
-g0 z0
-x0 y0 b0 c0
-o200 endsub
+(Endpoint)
+#<X2>		= [#3]
+#<Z2>		= [#4]
 
-(cut around the "cone" with different tool lengths)
-o200 call [50]
-o200 call [80]
 
-g61
+#<step>		= [#5] 	(Radial stepdown)
+#<feed>		= [#6] 	(Roughing feed rate)
+#<EngageZ>	= [#7] 	(Clearance to stock)
+#<ClearAxial>	= [#8]	(Axial rest material for finishing)
+#<ClearRadial>	= [#9]	(Radial rest material for finishing)
+#<feedF>	= [#10]	(Finishing feed rate)
+#<outflag>	= [#11]	(Lead out move)
+#<actX>		= [#3]	(Start position in X)
 
-g0 x-100 b-45 c-180
-#100=-180
-o101 while [ #100 lt 180 ]
-    g0 x[150*cos[#100]] y[150*sin[#100]] z-100 c#100
-    g1 w100 f2000 (drill)
-    g0 w0
-    #100=[#100+45]
-o101 endwhile
 
-g28
-g49
+#<cof>=[1/ABS[[#<X2>-#<X1>]/[#<Z2>-#<Z1>]]]	(Cone ratio)
 
-m2
+(set axial step direction)
+O<step set> if [[#<X1> LT 0] AND [#<X2> LT 0]]
+	#<step>=-ABS[#<step>]
+O<step set> endif
+
+(initial move to start point)
+G90
+G0 X[#<X2>] Z[#<Z1>+#<EngageZ>]
+G64
+
+(Roughing cycle)
+O<xStepDown> while [[ABS[#<actX>-#<step>] - [ABS[#<X1>]+#<ClearAxial>]] GE 0]
+	#<actX>=[#<actX> - #<step>]
+	G0 X[#<actX>]
+	#<d>=ABS[[[#<actX>]-[#<X1>]]]
+	G1 Z[#<Z1>-[#<d>*#<cof>]+#<ClearRadial>] F[#<feed>]
+
+	O<LeadOut> if [#<outflag> EQ 1] (45° lead out)
+		O<InvX> if [#<step> LT 0]
+		G0 X[#<actX> + [#<step>]/2] Z[#<Z1>-#<d>*#<cof>+#<ClearRadial> - #<step>/2] F[#<feed>]
+	O<InvX> else
+		G0 X[#<actX> + [#<step>]/2] Z[#<Z1>-#<d>*#<cof>+#<ClearRadial> + #<step>/2] F[#<feed>]
+	O<InvX> endif
+
+	G0 Z[#<Z1>+#<EngageZ>]
+
+	O<LeadOut> else			(or 90° lead out)
+		G1 X[#<actX> + [#<step>]] F[#<feed>]
+		G0 Z[#<Z1>+#<EngageZ>]
+	O<LeadOut> endif
+O<xStepDown> endwhile
+
+(last roughing step)
+O<lastCut> if [#<actX> NE [#<X1>+#<ClearAxial>]]
+	#<actX>=[#<X1>+#<ClearAxial>]
+	G0 X[#<actX>]
+	#<d>=ABS[[[#<actX>]-[#<X1>]]]
+	G1 Z[#<Z1>-[#<d>*#<cof>]+#<ClearRadial>] F[#<feed>]
+
+	O<LeadOut2> if [#<outflag> EQ 1]
+		O<InvX> if [#<step> LT 0]
+			G0 X[#<actX> + [#<step>]/2] Z[#<Z1>-#<d>*#<cof>+#<ClearRadial> - #<step>/2] F[#<feed>]
+			G0 Z[#<Z1>+#<EngageZ>]
+		O<InvX> else
+			G0 X[#<actX> + [#<step>]/2] Z[#<Z1>-#<d>*#<cof>+#<ClearRadial> + #<step>/2] F[#<feed>]
+			G0 Z[#<Z1>+#<EngageZ>]
+		O<InvX> endif
+	O<LeadOut2> else
+		O<InvX> if [#<step> LT 0]
+			G1 X[#<actX> - [#<step>]] F[#<feed>]
+			G0 Z[#<Z1>+#<EngageZ>]
+		O<InvX> else
+			G1 X[#<actX> + [#<step>]] F[#<feed>]
+			G0 Z[#<Z1>+#<EngageZ>]
+		O<InvX> endif
+	O<LeadOut2> endif
+	G0 Z[#<Z1>+#<EngageZ>]
+O<lastCut> endif
+
+(finish cycle if finish feedrate is set)
+O<Finishing> if [#<feedF> GT 0]
+	G0 Z[#<Z1>+#<EngageZ>]
+	G61
+	G0 X[#<X1>]
+	G1 Z[#<Z1>]
+	G1 X[#<X2>] Z[#<Z2>] F[#<feedF>]
+	G0 Z[#<Z1>]
+	G64
+O<Finishing> else
+	G0 X[#<X1>] Z[#<Z2>]
+O<Finishing> endif
+
+o<cone> endsub
+M2

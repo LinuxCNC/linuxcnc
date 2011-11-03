@@ -1,9 +1,12 @@
 TARGETS += ../bin/rs274
-SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc) \
-	emc/rs274ngc/tool_parse.cc
+#  builtin_modules.cc
+SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc dummyemcstat.cc) \
+	emc/rs274ngc/tool_parse.cc emc/task/taskmodule.cc emc/task/taskclass.cc
 USERSRCS += $(SAISRCS)
 
-$(call TOOBJSDEPS,$(SAISRCS)) : 
-../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0
+# cludge around linking issue in taskclass
+$(call TOOBJSDEPS,$(SAISRCS)) : EXTRAFLAGS=-Dinterp_new=interp
+../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 \
+	../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(ULFLAGS)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(ULFLAGS) /usr/lib/libpython2.6.a

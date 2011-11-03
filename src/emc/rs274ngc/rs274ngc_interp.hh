@@ -107,10 +107,25 @@ public:
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
- int init_named_parameters();
- int on_abort(int reason);
+ int on_abort(int reason, const char *message);
 
-private:
+    void set_loglevel(int level);
+
+    // for now, public - for boost.python access
+ int find_named_param(const char *nameBuf, int *status, double *value);
+ int store_named_param(setup_pointer settings,const char *nameBuf, double value, int override_readonly = 0);
+ int add_named_param(const char *nameBuf, int attr = 0);
+ int fetch_ini_param( const char *nameBuf, int *status, double *value);
+ int fetch_hal_param( const char *nameBuf, int *status, double *value);
+
+    // common combination of add_named_param and store_named_param
+    // int assign_named_param(const char *nameBuf, int attr = 0, double value = 0.0);
+    remap_pointer remapping(const char *code);
+    remap_pointer remapping(const char letter, int number = -1);
+ int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
+
+    // private:
+    //protected:  // for boost wrapper access
 
 /* Function prototypes for all  functions */
 
@@ -141,25 +156,25 @@ private:
  int check_other_codes(block_pointer block);
  int close_and_downcase(char *line);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
- int convert_spline(int move, block_pointer block, setup_pointer settings); 
+ int convert_spline(int move, block_pointer block, setup_pointer settings);
  int comp_get_current(setup_pointer settings, double *x, double *y, double *z);
  int comp_set_current(setup_pointer settings, double x, double y, double z);
  int comp_get_programmed(setup_pointer settings, double *x, double *y, double *z);
  int comp_set_programmed(setup_pointer settings, double x, double y, double z);
  int convert_arc(int move, block_pointer block, setup_pointer settings);
  int convert_arc2(int move, block_pointer block,
-                  setup_pointer settings, 
-                  double *current1, double *current2, double *current3, 
+                  setup_pointer settings,
+                  double *current1, double *current2, double *current3,
                   double end1, double end2, double end3,
-                  double AA_end, double BB_end, double CC_end, 
-                  double u_end, double v_end, double w_end, 
+                  double AA_end, double BB_end, double CC_end,
+                  double u_end, double v_end, double w_end,
                   double offset1, double offset2);
 
  int convert_arc_comp1(int move, block_pointer block,
                        setup_pointer settings,
                        double end_x, double end_y, double end_z,
                        double offset_x, double offset_y,
-                       double AA_end, double BB_end, double CC_end, 
+                       double AA_end, double BB_end, double CC_end,
                        double u_end, double v_end, double w_end);
 
  int convert_arc_comp2(int move, block_pointer block,
@@ -173,7 +188,7 @@ private:
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
  int convert_param_comment(char *comment, char *expanded, int len);
- int convert_comment(char *comment);
+    int convert_comment(char *comment, bool enqueue = true);
  int convert_control_mode(int g_code, double tolerance, double naivecam_tolerance, setup_pointer settings);
  int convert_adaptive_mode(int g_code, setup_pointer settings);
 
@@ -231,13 +246,13 @@ private:
  int convert_dwell(setup_pointer settings, double time);
  int convert_feed_mode(int g_code, setup_pointer settings);
  int convert_feed_rate(block_pointer block, setup_pointer settings);
- int convert_g(block_pointer block, setup_pointer settings);
+    int convert_g(block_pointer block, setup_pointer settings);
  int convert_home(int move, block_pointer block,
                         setup_pointer settings);
  int convert_savehome(int move, block_pointer block,
                         setup_pointer settings);
  int convert_length_units(int g_code, setup_pointer settings);
- int convert_m(block_pointer block, setup_pointer settings);
+    int convert_m(block_pointer block, setup_pointer settings);
  int convert_modal_0(int code, block_pointer block,
                            setup_pointer settings);
  int convert_motion(int motion, block_pointer block,
@@ -253,7 +268,7 @@ private:
  int convert_straight(int move, block_pointer block,
                             setup_pointer settings);
  int convert_straight_comp1(int move, block_pointer block,
-                            setup_pointer settings, 
+                            setup_pointer settings,
                             double px, double py, double end_z,
                             double AA_end, double BB_end, double CC_end,
                             double u_end, double v_end, double w_end);
@@ -277,7 +292,7 @@ private:
  int execute_binary(double *left, int operation, double *right);
  int execute_binary1(double *left, int operation, double *right);
  int execute_binary2(double *left, int operation, double *right);
- int execute_block(block_pointer block, setup_pointer settings);
+    int execute_block(block_pointer block, setup_pointer settings);
  int execute_unary(double *double_ptr, int operation);
  double find_arc_length(double x1, double y1, double z1,
                               double center_x, double center_y, int turn,
@@ -288,12 +303,12 @@ private:
  int find_current_in_system_without_tlo(setup_pointer s, int system, double *x, double *y, double *z,
                             double *a, double *b, double *c,
                             double *u, double *v, double *w);
- int find_ends(block_pointer block, setup_pointer settings, 
-               double *px, double *py, double *pz, 
+ int find_ends(block_pointer block, setup_pointer settings,
+               double *px, double *py, double *pz,
                double *AA_p, double *BB_p, double *CC_p,
                double *u_p, double *v_p, double *w_p);
  int find_relative(double x1, double y1, double z1,
-                   double AA_1, double BB_1, double CC_1, 
+                   double AA_1, double BB_1, double CC_1,
                    double u_1, double v_1, double w_1,
                    double *x2, double *y2, double *z2,
                    double *AA_2, double *BB_2, double *CC_2,
@@ -305,7 +320,6 @@ private:
                              double x1, double y1, double z1,
                              double AA_1, double BB_1, double CC_1,
                              double u_1, double v_1, double w_1);
- int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  double find_turn(double x1, double y1, double center_x,
                         double center_y, int turn, double x2, double y2);
  int init_block(block_pointer block);
@@ -313,7 +327,7 @@ private:
                                  double cx, double cy, int turn, double x2,
                                  double y2, double z2, block_pointer block,
                                  setup_pointer settings);
- int inverse_time_rate_straight(double end_x, double end_y, double end_z, 
+ int inverse_time_rate_straight(double end_x, double end_y, double end_z,
                                 double AA_end, double BB_end, double CC_end,
                                 double u_end, double v_end, double w_end,
                                 block_pointer block,
@@ -375,14 +389,13 @@ private:
  int read_p(char *line, int *counter, block_pointer block,
                   double *parameters);
 
- int store_named_param(char *nameBuf, double value, int override_readonly = 0);
- int add_named_param(char *nameBuf, int attr = 0);
- int lookup_named_param(char *nameBuf, double index, double *value);
- int init_readonly_param(const char *nameBuf, double value, int attr);
- int find_named_param(char *nameBuf, int *status, double *value);
- int free_named_parameters(int level, setup_pointer settings);
- int save_context(setup_pointer settings);
- int restore_context(setup_pointer settings, int from_level);
+
+
+ int lookup_named_param(const char *nameBuf, double index, double *value);
+    int init_readonly_param(const char *nameBuf, double value, int attr);
+    int free_named_parameters(context_pointer frame);
+ int save_settings(setup_pointer settings);
+ int restore_settings(setup_pointer settings, int from_level);
  int gen_settings(double *current, double *saved, char *cmd);
  int gen_g_codes(int *current, int *saved, char *cmd);
  int gen_m_codes(int *current, int *saved, char *cmd);
@@ -443,31 +456,141 @@ private:
 		     char *foundFileDirect); // where to store the result
 
  int control_save_offset(    /* ARGUMENTS                   */
-  int line,                  /* (o-word) line number        */
+			 // int line,                  /* (o-word) line number        */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
  int control_find_oword(     /* ARGUMENTS                   */
   block_pointer block,       /* block pointer to get (o-word) name        */
   setup_pointer settings,    /* pointer to machine settings */
-  int *o_index);             /* the index of o-word (returned) */
+  offset_pointer *ppo);
+//  int *o_index);             /* the index of o-word (returned) */
 
  int control_back_to(        /* ARGUMENTS                   */
   block_pointer block, // pointer to block
   setup_pointer settings);   /* pointer to machine settings */
 
+ // establish a new subroutine context
+ int enter_context(setup_pointer settings, block_pointer block);
+ // leave current subroutine context
+ int leave_context(setup_pointer settings, bool restore = true);
+
+    //int call_fsm(setup_pointer settings, int event);
+    //int execute_pycall(setup_pointer settings, const char *name, int call_phase);
+ int execute_call(setup_pointer settings, context_pointer current_frame, int call_type);  
+ int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type);  
+    //int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
+    int handler_returned( setup_pointer settings, 
+			  context_pointer active_frame, const char *name, bool osub);
+int read_inputs(setup_pointer settings);
+
  int convert_control_functions( /* ARGUMENTS           */
   block_pointer block,       /* pointer to a block of RS274/NGC instructions */
   setup_pointer settings);   /* pointer to machine settings */
 
- int unwind(setup_pointer settings);  
- int unwind_call(int status, const char *file, int line);
+
+ // parse a REMAP= descriptor from the ini file
+ int parse_remap(const char *inistring, int lineno);
+
+ // step through parsed block and collect remapped items in
+ // block.remappings set
+    int find_remappings(block_pointer block, setup_pointer settings);
+
+ // establish a new remapping context
+ int enter_remap(void);
+ // leave current remapping context
+ int leave_remap(void);
+
+ // callback when remapping handler done
+ int remap_finished( int status);
+
+ int report_error(setup_pointer settings,int status,const char *text);
+
+ //  add named params/param dict if argspec given
+ // present optional words to the subroutine's local variables and Py dict
+    int add_parameters(setup_pointer settings, block_pointer cblock,
+		       char *posarglist);
+
+ int init_named_parameters();
+
+    bool has_user_mcode(setup_pointer settings,block_pointer block);
+
+#define M_BUILTIN(m) (_ems[m] != -1)
+#define G_BUILTIN(g) (_gees[g] != -1)
+
+    // range for user-remapped M-codes
+    // and M6,M61
+#define M_REMAPPABLE(m)					\
+    (((m > 199) && (m < 1000)) ||			\
+     ((m > 0) && (m < 100) &&				\
+      !M_BUILTIN(m)) ||					\
+     (m == 6) ||					\
+     (m == 61))
+
+    // range for user-remapped G-codes
+#define G_REMAPPABLE(g)	 \
+    ((g > 0) && \
+     (g < 1000) && \
+     !G_BUILTIN(g))
+
+#define IS_USER_GCODE(x) (G_REMAPPABLE(x) && _setup.g_remapped[x])
+
+#define IS_USER_MCODE(bp,sp,mgroup) \
+    ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
+    (((bp)->m_modes[mgroup]) > -1) &&		\
+     ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
+    
+    bool remap_in_progress(const char *code);
+    int convert_remapped_code(block_pointer block,
+			       setup_pointer settings,
+			      int phase,
+			      char letter,
+			      int number = -1);
+
+    bool is_pycallable(setup_pointer settings, const char *module, const char *funcname);
+
+#define OWORD_MODULE "oword"
+#define REMAP_MODULE "remap"
+    // describes intented use, and hence parameter and return value
+    // interpretation
+    enum py_calltype { PY_OWORDCALL,
+		       PY_FINISH_OWORDCALL,
+		       PY_PROLOG,
+		       PY_FINISH_PROLOG,
+		       PY_BODY,
+		       PY_FINISH_BODY,
+		       PY_EPILOG,
+		       PY_FINISH_EPILOG,
+		       PY_INTERNAL,
+		       PY_EXECUTE,
+		       PY_PLUGIN_CALL
+    };
+    int pycall(setup_pointer settings,
+	       context_pointer frame,
+	       const char *module,
+	       const char *funcname,
+	       int calltype);
+    int py_execute(const char *cmd, bool as_file = false); // for (py, ....) comments
+    int py_reload();
+    FILE *find_ngc_file(setup_pointer settings,const char *basename, char *foundhere = NULL);
+
+    const char *getSavedError();
+    // set error message text without going through printf format interpretation
+    int setSavedError(const char *msg); 
+
+    int unwind_call(int status, const char *file, int line, const char *function);
+
+
  int convert_straight_indexer(int, block*, setup*);
  int issue_straight_index(int, double, int, setup*);
 
- void doLog(const char *fmt, ...) __attribute__((format(printf,2,3)));
+ void doLog(unsigned int flags, const char *file, int line,
+	    const char *fmt, ...) __attribute__((format(printf,5,6)));
 
  const char *interp_status(int status);
+
+    //technically this violates encapsulation rules but is needed for
+    // the Python introspection module
 
  FILE *log_file;
 

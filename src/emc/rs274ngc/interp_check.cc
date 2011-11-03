@@ -11,6 +11,7 @@
 *
 * Last change:
 ********************************************************************/
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -232,6 +233,15 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   int motion;
 
   motion = block->motion_to_be;
+
+  // bypass ALL checks, argspec takes care of that
+  if (IS_USER_GCODE(motion)) {
+      return INTERP_OK;
+  }
+  // bypass ALL checks, argspec takes care of that
+  if (has_user_mcode(&(_setup),block)) {
+      return INTERP_OK;
+    }
   if (block->a_flag) {
     CHKS(is_a_cycle(motion), NCE_CANNOT_PUT_AN_A_IN_CANNED_CYCLE);
   }

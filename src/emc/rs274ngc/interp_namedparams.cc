@@ -3,17 +3,21 @@
 *
 * collect all code related to named parameter handling
 *
-* Author: mostl K. Lerman, some by Michael Haberler
+* Author: mostly K. Lerman
+* rewrite by Michael Haberler to use STL containers
 * License: GPL Version 2
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change:
+* Last change: Juli 2011
 ********************************************************************/
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include <boost/python.hpp>
+namespace bp = boost::python;
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,11 +27,68 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sstream>
+#include <map>
+
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "inifile.hh"
 
+// for HAL pin variables
+#include "hal.h"
+#include "hal/hal_priv.h"
+
+enum predefined_named_parameters {
+    NP_LINE,
+    NP_MOTION_MODE,
+    NP_PLANE,
+    NP_CCOMP,
+    NP_METRIC,
+    NP_IMPERIAL,
+    NP_ABSOLUTE,
+    NP_INCREMENTAL,
+    NP_INVERSE_TIME,
+    NP_UNITS_PER_MINUTE,
+    NP_UNITS_PER_REV,
+    NP_COORD_SYSTEM,
+    NP_TOOL_OFFSET,
+    NP_RETRACT_R_PLANE,
+    NP_RETRACT_OLD_Z,
+    NP_SPINDLE_RPM_MODE,
+    NP_SPINDLE_CSS_MODE,
+    NP_IJK_ABSOLUTE_MODE,
+    NP_LATHE_DIAMETER_MODE,
+    NP_LATHE_RADIUS_MODE,
+    NP_SPINDLE_ON,
+    NP_SPINDLE_CW,
+    NP_MIST,
+    NP_FLOOD,
+    NP_SPEED_OVERRIDE,
+    NP_FEED_OVERRIDE,
+    NP_ADAPTIVE_FEED,
+    NP_FEED_HOLD,
+    NP_FEED,
+    NP_RPM,
+    NP_CURRENT_TOOL,
+    NP_SELECTED_POCKET,
+    NP_CURRENT_POCKET,
+    NP_X,
+    NP_Y,
+    NP_Z,
+    NP_A,
+    NP_B,
+    NP_C,
+    NP_U,
+    NP_V,
+    NP_W,
+    NP_VALUE,
+    NP_CALL_LEVEL,
+    NP_REMAP_LEVEL,
+    NP_SELECTED_TOOL,
+    NP_VALUE_RETURNED,
+    NP_TASK,
+};
 
 /****************************************************************************/
 
@@ -70,267 +131,302 @@ Named parameters are now supported.
 */
 
 int Interp::read_named_parameter(
-    char *line,   //!< string: line of RS274/NGC code being processed
-    int *counter, //!< pointer to a counter for position on the line
-    double *double_ptr,   //!< pointer to double to be read
-    double *parameters,   //!< array of system parameters
-    bool check_exists)    //!< test for existence, not value
+				 char *line,   //!< string: line of RS274/NGC code being processed
+				 int *counter, //!< pointer to a counter for position on the line
+				 double *double_ptr,   //!< pointer to double to be read
+				 double *parameters,   //!< array of system parameters
+				 bool check_exists)    //!< test for existence, not value
 {
-  static char name[] = "read_named_parameter";
+    static char name[] = "read_named_parameter";
+    char paramNameBuf[LINELEN+1];
+    int exists;
+    double value;
+    parameter_map_iterator pi;
 
-  char paramNameBuf[LINELEN+1];
-  int level;
-  int i;
+    CHKS((line[*counter] != '<'),
+	 NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    CHP(read_name(line, counter, paramNameBuf));
 
-  struct named_parameters_struct *nameList;
+    CHP(find_named_param(paramNameBuf, &exists, &value));
+    if (check_exists) {
+	*double_ptr = exists ? 1.0 : 0.0;
+	return INTERP_OK;
+    }
+    if (exists) {
+	*double_ptr = value;
+	return INTERP_OK;
+    } else {
+	logNP("%s: referencing undefined named parameter '%s' level=%d",
+	      name, paramNameBuf, (paramNameBuf[0] == '_') ? 0 : _setup.call_level);
+	ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
+    }
+    return INTERP_OK;
+}
 
-  CHKS((line[*counter] != '<'),
-      NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+// if the variable is of the form '_ini[section]name', then treat it as
+// an inifile  variable. Lookup section/name and cache the value
+// as global and read-only.
+// the shortest possible ini variable is '_ini[s]n' or 8 chars long .
+int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
+{
+    char *s;
+    *status = 0;
+    int n = strlen(nameBuf);
 
-  CHP(read_name(line, counter, paramNameBuf));
+     if ((n > 7) &&
+	((s = (char *) strchr(&nameBuf[6],']')) != NULL)) {
 
-  // now look it up
-  if(paramNameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
+	IniFile inifile;
+	const char *iniFileName;
+	int retval;
+	int closeBracket = s - nameBuf;
 
-  nameList = &_setup.sub_context[level].named_parameters;
+	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
+	    logNP("warning: referencing ini parameter '%s': no ini file",nameBuf);
+	    *status = 0;
+	    return INTERP_OK;
+	}
+	if (!inifile.Open(iniFileName)) {
+	    *status = 0;
+	    ERS(_("cant open ini file '%s'"), iniFileName);
+	}
 
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], paramNameBuf))
-      {
-          if (check_exists) {
-              *double_ptr = 1.0;
-	  } else {
-	      if (nameList->named_param_attr[i] & PA_USE_LOOKUP) {
-		  lookup_named_param(paramNameBuf, nameList->named_param_values[i], double_ptr);
-	      } else {
-		  *double_ptr = nameList->named_param_values[i];
-	      }
-	  }
-          return INTERP_OK;
-      }
-  }
+	char capName[LINELEN];
 
-  *double_ptr = 0.0;
+	strncpy(capName, nameBuf, n);
+	capName[n] = '\0';
+	for (char *p = capName; *p != 0; p++)
+	    *p = toupper(*p);
+	capName[closeBracket] = '\0';
 
-  if(check_exists) return INTERP_OK;
+	if ((retval = inifile.Find( value, &capName[closeBracket+1], &capName[5])) == 0) {
+	    *status = 1;
+	    inifile.Close();
+	} else {
+	    inifile.Close();
+	    *status = 0;
+	    ERS(_("Named ini parameter #<%s> not found in inifile '%s': error=0x%x"),
+		nameBuf, iniFileName, retval);
+	}
+    }
+    return INTERP_OK;
+}
 
-  logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
-           paramNameBuf);
-  ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
+// if the variable is of the form '_hal[hal_name]', then treat it as
+// a HAL pin, signal or param. Lookup value, convert to float, and export as global and read-only.
+// do not cache.
+// the shortest possible ini variable is '_hal[x]' or 7 chars long .
+int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
+{
+    static int comp_id;
+    int retval;
+    int type = 0;
+    hal_data_u* ptr;
+    char hal_name[LINELEN];
+
+    *status = 0;
+    if (!comp_id) {
+	char hal_comp[LINELEN];
+	sprintf(hal_comp,"interp%d",getpid());
+	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
+	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
+	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
+    }
+    char *s;
+    int n = strlen(nameBuf);
+    if ((n > 6) &&
+	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
+
+	int closeBracket = s - nameBuf;
+	hal_pin_t *pin;
+	hal_sig_t *sig;
+	hal_param_t *param;
+
+	strncpy(hal_name, &nameBuf[5], closeBracket);
+	hal_name[closeBracket - 5] = '\0';
+	if (nameBuf[closeBracket + 1]) {
+	    logOword("%s: trailing garbage after closing bracket", hal_name);
+	    *status = 0;
+	    ERS("%s: trailing garbage after closing bracket", nameBuf);
+	}
+	// the result of these lookups could be cached in the parameter struct, but I'm not sure
+	// this is a good idea - a removed pin/signal will not be noticed
+
+	// I dont think that's needed - no change in pins/sigs/params
+	// rtapi_mutex_get(&(hal_data->mutex)); 
+        // rtapi_mutex_give(&(hal_data->mutex));
+
+	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
+            if (pin && !pin->signal) {
+		logOword("%s: no signal connected", hal_name);
+		ptr = &(pin->dummysig);
+	    } 
+	    type = pin->type;
+	    hal_sig_t * sig = (hal_sig_t *) SHMPTR(pin->signal);
+	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    goto assign;
+	}
+	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
+	    if (!sig->writers) 
+		logOword("%s: signal has no writer", hal_name);
+	    type = sig->type;
+	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
+	    goto assign;
+	}
+	if ((param = halpr_find_param_by_name(hal_name)) != NULL) {
+	    type = param->type;
+	    ptr = (hal_data_u *) SHMPTR(param->data_ptr);
+	    goto assign;
+	}
+	*status = 0;
+	ERS("Named hal parameter #<%s> not found", nameBuf);
+    }
+    return INTERP_OK;
+
+    assign:
+    switch (type) {
+    case HAL_BIT: *value = (double) (ptr->b); break;
+    case HAL_U32: *value = (double) (ptr->u); break;
+    case HAL_S32: *value = (double) (ptr->s); break;
+    case HAL_FLOAT: *value = (double) (ptr->f); break;
+    }
+    logOword("%s: value=%f", hal_name, *value);
+    *status = 1;
+    return INTERP_OK; 
 }
 
 int Interp::find_named_param(
-    char *nameBuf, //!< pointer to name to be read
+    const char *nameBuf, //!< pointer to name to be read
     int *status,    //!< pointer to return status 1 => found
     double *value   //!< pointer to value of found parameter
     )
 {
-    //static char name[] = "find_named_param";
-  struct named_parameters_struct *nameList;
-
+  context_pointer frame;
+  parameter_map_iterator pi;
   int level;
-  int i;
 
-  // now look it up
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
-
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-	  if (nameList->named_param_attr[i] & PA_UNSET) {
-	      MSG("warning: referencing unassigned variable '%s'\n",nameBuf);
-	  }
-	  if (nameList->named_param_attr[i] & PA_USE_LOOKUP) {
-	      *status = lookup_named_param(nameBuf, nameList->named_param_values[i], value);
-	  } else {
-	      *value = nameList->named_param_values[i];
-	      *status = 1;
-	  }
-          return INTERP_OK;
-      }
-  }
-
-  *value = 0.0;
+  level = (nameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
+  frame = &_setup.sub_context[level];
   *status = 0;
 
+  pi = frame->named_params.find(nameBuf);
+  if (pi == frame->named_params.end()) { // not found
+      int exists = 0;
+      double inivalue;
+      if (FEATURE(INI_VARS) && (strncasecmp(nameBuf,"_ini[",5) == 0)) {
+	 fetch_ini_param(nameBuf, &exists, &inivalue);
+	  if (exists) {
+	      logNP("parameter '%s' retrieved from INI: %f",nameBuf,inivalue);
+	      *value = inivalue;
+	      *status = 1;
+	      parameter_value param;  // cache the value
+	      param.value = inivalue;
+	      param.attr = PA_GLOBAL | PA_READONLY | PA_FROM_INI;
+	      _setup.sub_context[0].named_params[strstore(nameBuf)] = param;
+	      return INTERP_OK;
+	  } 
+      }
+      if (FEATURE(HAL_PIN_VARS) && (strncasecmp(nameBuf,"_hal[",5) == 0)) {
+	  fetch_hal_param(nameBuf, &exists, &inivalue);
+	  if (exists) {
+	      logNP("parameter '%s' retrieved from HAL: %f",nameBuf,inivalue);
+	      *value = inivalue;
+	      *status = 1;
+	      return INTERP_OK;
+	  } 
+      }
+      *value = 0.0;
+      *status = 0;
+  } else {
+      parameter_pointer pv = &pi->second;
+      if (pv->attr & PA_UNSET)
+	  logNP("warning: referencing unset variable '%s'",nameBuf);
+      if (pv->attr & PA_USE_LOOKUP) {
+	  CHP(lookup_named_param(nameBuf, pv->value, value));
+	  *status = 1;
+      } else {
+	  *value = pv->value;
+	  *status = 1;
+      }
+  }
   return INTERP_OK;
 }
 
 
-
-int Interp::store_named_param(
-    char *nameBuf, //!< pointer to name to be written
+int Interp::store_named_param(setup_pointer settings,
+    const char *nameBuf, //!< pointer to name to be written
     double value,   //!< value to be written
     int override_readonly  //!< set to true to init a r/o parameter
     )
 {
-  struct named_parameters_struct *nameList;
-
+  context_pointer frame;
   int level;
-  int i;
+  parameter_map_iterator pi;
 
-  // now look it up
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-  }
+  level = (nameBuf[0] == '_') ? 0 : _setup.call_level; // determine scope
+  frame = &settings->sub_context[level];
 
-  nameList = &_setup.sub_context[level].named_parameters;
+  pi = frame->named_params.find(nameBuf);
+  if (pi == frame->named_params.end()) {
+      ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
+  } else {
+      parameter_pointer pv = &pi->second;
 
-  logDebug("store_named_parameter: nameList[%d]=%p storing:|%s|", level,
-           nameList, nameBuf);
-  logDebug("store_named_parameter: named_parameter_used_size=%d",
-           nameList->named_parameter_used_size);
+      CHKS(((pv->attr & PA_GLOBAL)  && level),
+	   "BUG: variable '%s' marked global, but assigned at level %d", nameBuf, level);
 
-
-  for(i=0; i<nameList->named_parameter_used_size; i++)
-  {
-#if 0
-      logDebug("store_named_parameter: named_parameter[%d]=|%s|",
-               i, nameList->named_parameters[i]);
-#endif
-      if(0 == strcmp(nameList->named_parameters[i], nameBuf))
-      {
-	  CHKS((nameList->named_param_attr[i] & PA_GLOBAL) && level,
-	       "BUG: variable marked global, but assigned at level %d",level);
-	  if ((nameList->named_param_attr[i] & PA_READONLY) && !override_readonly) {
-	      ERS(_("Cannot assign to read-only parameter #<%s>"), nameBuf);
-	  } else {
-	      nameList->named_param_values[i] = value;
-	      nameList->named_param_attr[i] &= ~(PA_UNSET);
-	      logDebug("store_named_parameter: level[%d] %s value=%lf",
-		       level, nameBuf, value);
-
-	      return INTERP_OK;
-	  }
+      if ((pv->attr & PA_READONLY) && !override_readonly) {
+	  ERS(_("Cannot assign to read-only parameter #<%s>"), nameBuf);
+      } else {
+	  pv->value = value;
+	  pv->attr &= ~PA_UNSET;
+	  logNP("store_named_parameter: level[%d] %s value=%lf",
+		level, nameBuf, value);
       }
   }
-
-  logDebug("%s: param:|%s| returning not defined", "store_named_param",
-           nameBuf);
-
-  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
-}
-
-
-int Interp::add_named_param(
-    char *nameBuf, //!< pointer to name to be added
-    int attr //!< see PA_* defs in interp_internal.hh
-    )
-{
-  static char name[] = "add_named_param";
-  struct named_parameters_struct *nameList;
-  int findStatus;
-  double value;
-  int level;
-  char *dup;
-
-  // look it up to see if already exists
-  CHP(find_named_param(nameBuf, &findStatus, &value));
-
-  if(findStatus)
-  {
-      logDebug("%s: parameter:|%s| already exists", name, nameBuf);
-      return INTERP_OK;
-  }
-  attr |= PA_UNSET;
-
-  // must do an add
-  if(nameBuf[0] != '_') // local scope
-  {
-      level = _setup.call_level;
-  }
-  else
-  {
-      // call level zero is global scope
-      level = 0;
-      attr |= PA_GLOBAL;
-  }
-  nameList = &_setup.sub_context[level].named_parameters;
-
-  if(nameList->named_parameter_used_size >=
-     nameList->named_parameter_alloc_size)
-  {
-      // must realloc space
-      nameList->named_parameter_alloc_size += NAMED_PARAMETERS_ALLOC_UNIT;
-
-      logDebug("realloc space level[%d] size:%d",
-               level, nameList->named_parameter_alloc_size);
-
-      nameList->named_parameters =
-          (char **)realloc((void *)nameList->named_parameters,
-                      sizeof(char *)*nameList->named_parameter_alloc_size);
-
-      nameList->named_param_values =
-          (double *)realloc((void *)nameList->named_param_values,
-                      sizeof(double)*nameList->named_parameter_alloc_size);
-
-      nameList->named_param_attr = (unsigned char *)realloc((void *)nameList->named_param_attr,
-              sizeof(nameList->named_param_attr[0])*nameList->named_parameter_alloc_size);
-
-      if((nameList->named_parameters == 0) ||
-         (nameList->named_param_values == 0))
-      {
-          ERS(NCE_OUT_OF_MEMORY);
-      }
-  }
-
-  dup = strdup(nameBuf);
-  if(dup == 0)
-  {
-      ERS(NCE_OUT_OF_MEMORY);
-  }
-  logDebug("%s strdup[%p]:|%s|", name, dup, dup);
-  nameList->named_parameters[nameList->named_parameter_used_size] = dup;
-  nameList->named_param_attr[nameList->named_parameter_used_size] = attr;
-  nameList->named_parameter_used_size++;
-
   return INTERP_OK;
 }
 
 
-int Interp::free_named_parameters( // ARGUMENTS
-    int level,      // level to free
-    setup_pointer settings)   // pointer to machine settings
+
+int Interp::add_named_param(
+    const char *nameBuf, //!< pointer to name to be added
+    int attr) //!< see PA_* defs in interp_internal.hh
 {
-    struct named_parameters_struct *nameList;
-    int i;
+  static char name[] = "add_named_param";
+  int findStatus;
+  double value;
+  int level;
+  parameter_value param;
 
-    nameList = &settings->sub_context[level].named_parameters;
+  // look it up to see if already exists
+  CHP(find_named_param(nameBuf, &findStatus, &value));
 
-    for(i=0; i<nameList->named_parameter_used_size; i++)
-    {
-        free(nameList->named_parameters[i]);
-    }
-    nameList->named_parameter_used_size = 0;
+  if (findStatus) {
+      logNP("%s: parameter:|%s| already exists", name, nameBuf);
+      return INTERP_OK;
+  }
+  attr |= PA_UNSET;
 
+  if (nameBuf[0] != '_') {  // local scope
+      level = _setup.call_level;
+  } else {
+      level = 0;    // call level zero is global scope
+      attr |= PA_GLOBAL;
+  }
+  param.value = 0.0;
+  param.attr = attr;
+  _setup.sub_context[level].named_params[strstore(nameBuf)] = param;
+  return INTERP_OK;
+}
+
+
+int Interp::free_named_parameters(context_pointer frame)
+{
+    frame->named_params.clear();
     return INTERP_OK;
 }
+
 
 // just a shorthand
 int Interp::init_readonly_param(
@@ -338,17 +434,18 @@ int Interp::init_readonly_param(
     double value,  //!< initial value
     int attr)       //!< see PA_* defs in interp_internal.hh
 {
-    CHP( add_named_param((char *) nameBuf, PA_READONLY|attr));
-    CHP(store_named_param((char *) nameBuf, value, OVERRIDE_READONLY));
-
-    //MSG("(DEBUG, %s: = #<%s>)\n",nameBuf,nameBuf);
+    // static char name[] = "init_readonly_param";
+    CHKS( add_named_param((char *) nameBuf, PA_READONLY|attr),
+	  "adding r/o '%s'", nameBuf);
+    CHKS(store_named_param(&_setup, (char *) nameBuf, value, OVERRIDE_READONLY),
+	 "storing r/o '%s' %f", nameBuf, value);
     return INTERP_OK;
 }
 
-int Interp::lookup_named_param(char *nameBuf,
+
+int Interp::lookup_named_param(const char *nameBuf,
 			   double index,
-			   double *value
-			       )
+			   double *value)
 {
     int cmd = round_to_int(index);
 
@@ -356,15 +453,15 @@ int Interp::lookup_named_param(char *nameBuf,
 
 	// some active_g_codes fields
 
-    case 10: // _line - sequence number
+    case NP_LINE: // _line - sequence number
 	*value = _setup.sequence_number;
 	break;
 
-    case 20: // _motion_mode
+    case NP_MOTION_MODE: // _motion_mode
 	*value = _setup.motion_mode;
 	break;
 
-    case 30: // _plane
+    case NP_PLANE: // _plane
 	switch(_setup.plane) {
 	case CANON_PLANE_XY:
 	    *value = G_17;
@@ -387,169 +484,211 @@ int Interp::lookup_named_param(char *nameBuf,
 	}
 	break;
 
-    case 40: // _ccomp - cutter compensation
+    case NP_CCOMP: // _ccomp - cutter compensation
 	*value =
 	    (_setup.cutter_comp_side == RIGHT) ? G_42 :
 	(_setup.cutter_comp_side == LEFT) ? G_41 : G_40;
 	break;
 
-    case 50: // _metric
+    case NP_METRIC: // _metric
 	*value = (_setup.length_units == CANON_UNITS_MM);
 	break;
 
-    case 51: // _imperial
+    case NP_IMPERIAL: // _imperial
 	*value = (_setup.length_units == CANON_UNITS_INCHES);
 	break;
 
-    case 60: // _absolute - distance mode
+    case NP_ABSOLUTE: // _absolute - distance mode
 	*value = (_setup.distance_mode == MODE_ABSOLUTE);
 	break;
 
-    case 61: // _incremental - distance mode
+    case NP_INCREMENTAL: // _incremental - distance mode
 	*value = (_setup.distance_mode == MODE_INCREMENTAL);
 	break;
 
-    case 70: // _inverse_time - feed mode
+    case NP_INVERSE_TIME: // _inverse_time - feed mode
 	*value = (_setup.feed_mode == INVERSE_TIME);
 	break;
 
-    case 71: // _units_per_minute - feed mode
+    case NP_UNITS_PER_MINUTE: // _units_per_minute - feed mode
 	*value = (_setup.feed_mode == UNITS_PER_MINUTE);
 	break;
 
-    case 72: // _units_per_rev - feed mode
+    case NP_UNITS_PER_REV: // _units_per_rev - feed mode
 	*value = (_setup.feed_mode == UNITS_PER_REVOLUTION);
 	break;
 
-    case 80: // _coord_system - 0-9
+    case NP_COORD_SYSTEM: // _coord_system - 0-9
 	*value =
 	    (_setup.origin_index < 7) ? (530 + (10 * _setup.origin_index)) :
 	    (584 + _setup.origin_index);
 	break;
 
-    case 90: // _tool_offset
+    case NP_TOOL_OFFSET: // _tool_offset
 	*value =  (_setup.tool_offset.tran.x || _setup.tool_offset.tran.y || _setup.tool_offset.tran.z ||
 		   _setup.tool_offset.a || _setup.tool_offset.b || _setup.tool_offset.c ||
 		   _setup.tool_offset.u || _setup.tool_offset.v || _setup.tool_offset.w) ;
 	break;
 
-    case 100: // _retract_r_plane - G98
+    case NP_RETRACT_R_PLANE: // _retract_r_plane - G98
 	*value = (_setup.retract_mode == R_PLANE);
 	break;
 
-    case 101: // _retract_old_z - G99
+    case NP_RETRACT_OLD_Z: // _retract_old_z - G99
 	*value = (_setup.retract_mode == OLD_Z);
 	break;
 
-    case 120: // _spindle_rpm_mode G97
+    case NP_SPINDLE_RPM_MODE: // _spindle_rpm_mode G97
 	*value = (_setup.spindle_mode == CONSTANT_RPM);
 	break;
 
-    case 121: // _spindle_css_mode G96
+    case NP_SPINDLE_CSS_MODE: // _spindle_css_mode G96
 	*value = (_setup.spindle_mode == CONSTANT_SURFACE);
 	break;
 
-    case 130: //_ijk_absolute_mode - G90.1
+    case NP_IJK_ABSOLUTE_MODE: //_ijk_absolute_mode - G90.1
 	*value = (_setup.ijk_distance_mode == MODE_ABSOLUTE);
 	break;
 
-    case 140: // _lathe_diameter_mode - G7
+    case NP_LATHE_DIAMETER_MODE: // _lathe_diameter_mode - G7
 	*value = _setup.lathe_diameter_mode;
 	break;
 
-    case 141: // _lathe_radius_mode - G8
+    case NP_LATHE_RADIUS_MODE: // _lathe_radius_mode - G8
 	*value = (_setup.lathe_diameter_mode == 0);
 	break;
 
 	// some active_m_codes fields
 
-    case 150: // _spindle_on
+    case NP_SPINDLE_ON: // _spindle_on
 	*value = (_setup.spindle_turning != CANON_STOPPED);
 	break;
 
-    case 151: // spindle_cw
+    case NP_SPINDLE_CW: // spindle_cw
 	*value = (_setup.spindle_turning == CANON_CLOCKWISE);
 	break;
 
-    case 160: // mist
+    case NP_MIST: // mist
 	*value = _setup.mist;
 	break;
 
-    case 170: // flood
+    case NP_FLOOD: // flood
 	*value = _setup.flood;
 	break;
 
-    case 180: // speed override
+    case NP_SPEED_OVERRIDE: // speed override
 	*value = _setup.speed_override;
 	break;
 
-    case 181: // feed override
+    case NP_FEED_OVERRIDE: // feed override
 	*value = _setup.feed_override;
 	break;
 
-    case 190: // adaptive feed
+    case NP_ADAPTIVE_FEED: // adaptive feed
 	*value = _setup.adaptive_feed;
 	break;
 
-    case 200: // feed hold
+    case NP_FEED_HOLD: // feed hold
 	*value = _setup.feed_hold;
 	break;
 
 	// from active_settings:
-    case 210: // feed
+    case NP_FEED: // feed
 	*value = _setup.feed_rate;
 	break;
 
-    case 220: // speed (rpm)
+    case NP_RPM: // speed (rpm)
 	*value = abs(_setup.speed);
 	break;
 
-    case 240:  // current position
+    case NP_CURRENT_TOOL:
+	*value = _setup.tool_table[_setup.current_pocket].toolno;
+	break;
+
+    case NP_SELECTED_POCKET:
+	*value = _setup.selected_pocket;
+	break;
+
+    case NP_CURRENT_POCKET:
+	*value = _setup.current_pocket;
+	break;
+
+    case NP_SELECTED_TOOL:
+	*value = _setup.selected_tool;
+	break;
+
+    case NP_X:  // current position
 	*value = _setup.current_x;
 	break;
 
-    case 241:  // current position
+    case NP_Y:  // current position
 	*value = _setup.current_y;
 	break;
 
-    case 242:  // current position
+    case NP_Z:  // current position
 	*value = _setup.current_z;
 	break;
 
-    case 243:  // current position
+    case NP_A:  // current position
 	*value = _setup.AA_current;
 	break;
 
-    case 244:  // current position
+    case NP_B:  // current position
 	*value = _setup.BB_current;
 	break;
 
-    case 245:  // current position
+    case NP_C:  // current position
 	*value = _setup.CC_current;
 	break;
 
-    case 246:  // current position
+    case NP_U:  // current position
 	*value = _setup.u_current;
 	break;
 
-    case 247:  // current position
+    case NP_V:  // current position
 	*value = _setup.v_current;
 	break;
 
-    case 248:  // current position
+    case NP_W:  // current position
 	*value = _setup.w_current;
 	break;
 
+	// o-word subs may optionally have an
+	// expression after endsub and return
+	// this 'function return value' is accessible as '_value'
+    case NP_VALUE:
+	*value = _setup.return_value;
+	break;
+
+	// predicate: the last NGC procedure did/did not return a value
+    case NP_VALUE_RETURNED:
+	*value = _setup.value_returned;
+	break;
+
+    case NP_CALL_LEVEL:
+	*value = _setup.call_level;
+	break;
+
+    case NP_REMAP_LEVEL:
+	*value = _setup.remap_level;
+	break;
+	
+    case NP_TASK:
+	extern int _task;  // zero in gcodemodule, 1 in milltask
+	*value = _task;
+	break;
+
+
     default:
-	MSG("---BUG: lookup_named_param(%s) UNHANDLED INDEX=%f \n",
-	       nameBuf,index);
-	return 0;
+	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
+	      nameBuf,index);
     }
-    return 1;
+    return INTERP_OK;
 }
 
 int Interp::init_named_parameters()
 {
+
 // version       major   minor      Note
 // ------------ -------- ---------- -------------------------------------
 // M.N.m         M.N     0.m        normal format
@@ -569,96 +708,116 @@ int Interp::init_named_parameters()
   // the active_g_codes fields
 
   // I guess this is the line number
-  init_readonly_param("_line", 10, PA_USE_LOOKUP);
+  init_readonly_param("_line", NP_LINE, PA_USE_LOOKUP);
 
   // any of G1 G2 G3 G5.2 G73 G80 G82 G83 G86 G87 G88 G89
   // value is number after 'G' mutiplied by 10 (10,20,30,52..)
 
-  init_readonly_param("_motion_mode", 20, PA_USE_LOOKUP);
+  init_readonly_param("_motion_mode", NP_MOTION_MODE, PA_USE_LOOKUP);
 
   // G17/18/19/17.1/18.1/19.1 -> return 170/180/190/171/181/191
-  init_readonly_param("_plane", 30, PA_USE_LOOKUP);
+  init_readonly_param("_plane", NP_PLANE, PA_USE_LOOKUP);
 
   // return 400,410,420 depending if (G40,G41,G42) is on
-  init_readonly_param("_ccomp", 40, PA_USE_LOOKUP);
+  init_readonly_param("_ccomp", NP_CCOMP, PA_USE_LOOKUP);
 
   // 1.0 if G21 is on
-  init_readonly_param("_metric", 50, PA_USE_LOOKUP);
+  init_readonly_param("_metric", NP_METRIC, PA_USE_LOOKUP);
 
   // 1.0 if G20 is on
-  init_readonly_param("_imperial", 51, PA_USE_LOOKUP);
+  init_readonly_param("_imperial", NP_IMPERIAL, PA_USE_LOOKUP);
 
   //1.0 if G90 is on
-  init_readonly_param("_absolute", 60, PA_USE_LOOKUP);
+  init_readonly_param("_absolute", NP_ABSOLUTE, PA_USE_LOOKUP);
 
   //1.0 if G91 is on
-  init_readonly_param("_incremental", 61, PA_USE_LOOKUP);
+  init_readonly_param("_incremental", NP_INCREMENTAL, PA_USE_LOOKUP);
 
   // 1.0 if G93 is on
-  init_readonly_param("_inverse_time", 70, PA_USE_LOOKUP);
+  init_readonly_param("_inverse_time", NP_INVERSE_TIME, PA_USE_LOOKUP);
 
   // 1.0 if G94 is on
-  init_readonly_param("_units_per_minute", 71, PA_USE_LOOKUP);
+  init_readonly_param("_units_per_minute", NP_UNITS_PER_MINUTE, PA_USE_LOOKUP);
 
   // 1.0 if G95 is on
-  init_readonly_param("_units_per_rev", 72, PA_USE_LOOKUP);
+  init_readonly_param("_units_per_rev", NP_UNITS_PER_REV, PA_USE_LOOKUP);
 
   // 0..9 for G54..G59.3
-  init_readonly_param("_coord_system", 80, PA_USE_LOOKUP);
+  init_readonly_param("_coord_system", NP_COORD_SYSTEM, PA_USE_LOOKUP);
 
   // 1.0 if G43 is on
-  init_readonly_param("_tool_offset", 90, PA_USE_LOOKUP);
+  init_readonly_param("_tool_offset", NP_TOOL_OFFSET, PA_USE_LOOKUP);
 
   // 1 if G98 set
-  init_readonly_param("_retract_r_plane", 100, PA_USE_LOOKUP);
+  init_readonly_param("_retract_r_plane", NP_RETRACT_R_PLANE, PA_USE_LOOKUP);
 
   // 1 if G99 set
-  init_readonly_param("_retract_old_z", 101, PA_USE_LOOKUP);
+  init_readonly_param("_retract_old_z", NP_RETRACT_OLD_Z, PA_USE_LOOKUP);
 
   // really esoteric
   // init_readonly_param("_control_mode", 110, PA_USE_LOOKUP);
 
 
   // 1 if G97 is on
-  init_readonly_param("_spindle_rpm_mode", 120, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_rpm_mode", NP_SPINDLE_RPM_MODE, PA_USE_LOOKUP);
 
-  init_readonly_param("_spindle_css_mode", 121, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_css_mode", NP_SPINDLE_CSS_MODE, PA_USE_LOOKUP);
 
   // 1 if G90.1 is on
-  init_readonly_param("_ijk_absolute_mode", 130, PA_USE_LOOKUP);
+  init_readonly_param("_ijk_absolute_mode", NP_IJK_ABSOLUTE_MODE, PA_USE_LOOKUP);
 
   // 1 if G7 is on
-  init_readonly_param("_lathe_diameter_mode", 140, PA_USE_LOOKUP);
+  init_readonly_param("_lathe_diameter_mode", NP_LATHE_DIAMETER_MODE, PA_USE_LOOKUP);
 
   // 1 if G8 is on
-  init_readonly_param("_lathe_radius_mode", 141, PA_USE_LOOKUP);
+  init_readonly_param("_lathe_radius_mode", NP_LATHE_RADIUS_MODE, PA_USE_LOOKUP);
 
 
   // the active_m_codes fields
-  init_readonly_param("_spindle_on", 150, PA_USE_LOOKUP);
-  init_readonly_param("_spindle_cw", 151, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_on", NP_SPINDLE_ON, PA_USE_LOOKUP);
+  init_readonly_param("_spindle_cw", NP_SPINDLE_CW, PA_USE_LOOKUP);
 
-  init_readonly_param("_mist", 160, PA_USE_LOOKUP);
-  init_readonly_param("_flood", 170, PA_USE_LOOKUP);
-  init_readonly_param("_speed_override", 180, PA_USE_LOOKUP);
-  init_readonly_param("_feed_override", 181, PA_USE_LOOKUP);
-  init_readonly_param("_adaptive_feed", 190, PA_USE_LOOKUP);
-  init_readonly_param("_feed_hold", 200, PA_USE_LOOKUP);
+  init_readonly_param("_mist", NP_MIST, PA_USE_LOOKUP);
+  init_readonly_param("_flood", NP_FLOOD, PA_USE_LOOKUP);
+  init_readonly_param("_speed_override", NP_SPEED_OVERRIDE, PA_USE_LOOKUP);
+  init_readonly_param("_feed_override", NP_FEED_OVERRIDE, PA_USE_LOOKUP);
+  init_readonly_param("_adaptive_feed", NP_ADAPTIVE_FEED, PA_USE_LOOKUP);
+  init_readonly_param("_feed_hold", NP_FEED_HOLD, PA_USE_LOOKUP);
 
   // active_settings
-  init_readonly_param("_feed", 210, PA_USE_LOOKUP);
-  init_readonly_param("_rpm", 220, PA_USE_LOOKUP);
+  init_readonly_param("_feed", NP_FEED, PA_USE_LOOKUP);
+  init_readonly_param("_rpm", NP_RPM, PA_USE_LOOKUP);
+
+
+  // tool related
+  init_readonly_param("_current_tool", NP_CURRENT_TOOL, PA_USE_LOOKUP);
+  init_readonly_param("_current_pocket", NP_CURRENT_POCKET, PA_USE_LOOKUP);
+  init_readonly_param("_selected_pocket", NP_SELECTED_POCKET, PA_USE_LOOKUP);
+  init_readonly_param("_selected_tool", NP_SELECTED_TOOL, PA_USE_LOOKUP);
 
   // current position - alias to #5420-#5429
-  init_readonly_param("_x", 240, PA_USE_LOOKUP);
-  init_readonly_param("_y", 241, PA_USE_LOOKUP);
-  init_readonly_param("_z", 242, PA_USE_LOOKUP);
-  init_readonly_param("_a", 243, PA_USE_LOOKUP);
-  init_readonly_param("_b", 244, PA_USE_LOOKUP);
-  init_readonly_param("_c", 245, PA_USE_LOOKUP);
-  init_readonly_param("_u", 246, PA_USE_LOOKUP);
-  init_readonly_param("_v", 247, PA_USE_LOOKUP);
-  init_readonly_param("_w", 248, PA_USE_LOOKUP);
+  init_readonly_param("_x", NP_X, PA_USE_LOOKUP);
+  init_readonly_param("_y", NP_Y, PA_USE_LOOKUP);
+  init_readonly_param("_z", NP_Z, PA_USE_LOOKUP);
+  init_readonly_param("_a", NP_A, PA_USE_LOOKUP);
+  init_readonly_param("_b", NP_B, PA_USE_LOOKUP);
+  init_readonly_param("_c", NP_C, PA_USE_LOOKUP);
+  init_readonly_param("_u", NP_U, PA_USE_LOOKUP);
+  init_readonly_param("_v", NP_V, PA_USE_LOOKUP);
+  init_readonly_param("_w", NP_W, PA_USE_LOOKUP);
+
+  // last (optional) endsub/return value
+  init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);
+
+  // predicate: last NGC procedure did return a value on endsub/return
+  init_readonly_param("_value_returned", NP_VALUE_RETURNED, PA_USE_LOOKUP);
+
+  // predicate: 1 in milltask instance, 0 in UI - control preview behaviour
+  init_readonly_param("_task", NP_TASK, PA_USE_LOOKUP);
+
+  // debugging aids
+  init_readonly_param("_call_level", NP_CALL_LEVEL, PA_USE_LOOKUP);
+  init_readonly_param("_remap_level", NP_REMAP_LEVEL, PA_USE_LOOKUP);
 
   return INTERP_OK;
 }

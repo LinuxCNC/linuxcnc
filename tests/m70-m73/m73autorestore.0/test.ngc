@@ -29,10 +29,10 @@ G91 (relative)
 g0 x10 y10
 g0 x10 y10
 o1000 call [1.0] [0.0]
-(back in relative mode due to G73 restore-on-endsub)
+(back in relative mode due to M73 restore-on-endsub)
 (debug, incremental=#<_incremental>)
 o1000 call [1.0] [1.0]
-(back in relative mode due to G73 restore-on-return)
+(back in relative mode due to M73 restore-on-return)
 (debug, incremental=#<_incremental>)
 
 g0 X-5 Y-20

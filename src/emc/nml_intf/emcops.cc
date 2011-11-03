@@ -102,7 +102,7 @@ EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
 	analog_input[i] = 0.0;
 	analog_output[i] = 0.0;
     }
-    
+
     debug = 0;
 };
 

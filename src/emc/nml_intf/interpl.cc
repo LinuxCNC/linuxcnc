@@ -203,19 +203,24 @@ void NML_INTERP_LIST::clear()
 
 void NML_INTERP_LIST::print()
 {
-    NMLmsg *nml_msg;
+    NMLmsg *ret;
+    NML_INTERP_LIST_NODE *node_ptr;
+    int line_number;
 
     if (NULL == linked_list_ptr) {
 	return;
     }
+    node_ptr = (NML_INTERP_LIST_NODE *) linked_list_ptr->get_head();
 
-    nml_msg = (NMLmsg *) linked_list_ptr->get_head();
-
-    while (NULL != nml_msg) {
-	rcs_print("%d ", (int)nml_msg->type);
-	nml_msg = (NMLmsg *) linked_list_ptr->get_next();
+    rcs_print("NML_INTERP_LIST::print(): list size=%d\n",linked_list_ptr->list_size);
+    while (NULL != node_ptr) {
+	line_number = node_ptr->line_number;
+	ret = (NMLmsg *) ((char *) node_ptr->command.commandbuf);
+	rcs_print("--> type=%s,  line_number=%d\n",
+		  emc_symbol_lookup((int)ret->type),
+		  line_number);
+	node_ptr = (NML_INTERP_LIST_NODE *) linked_list_ptr->get_next();
     }
-
     rcs_print("\n");
 }
 

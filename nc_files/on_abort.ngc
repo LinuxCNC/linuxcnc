@@ -26,14 +26,15 @@
 ;
 O<on_abort> sub
  (DEBUG, on_abort called, reason = [#1])
- (DEBUG, deasserting motion.digital-out-00 as iocontrol.tool-prepare)
+; (DEBUG, deasserting motion.digital-out-00 as iocontrol.tool-prepare)
 ;
 M65 P0
 
 ; assert the equivalent of the iocontrol.tool-change pin
 ; which is now motion.digital-out-01
-(DEBUG, deasserting motion.digital-out-01)
+;(DEBUG, deasserting motion.digital-out-01)
 M65 P1
+g0 ; see if this syncs motion
 ;
 O<on_abort> endsub
 ;

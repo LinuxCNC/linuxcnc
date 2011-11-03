@@ -88,7 +88,6 @@ static EmcPose _tool_offset;
 static bool _toolchanger_fault;
 static int  _toolchanger_reason;
 
-
 /************************************************************************/
 
 /* Canonical "Do it" functions
@@ -642,7 +641,7 @@ void CHANGE_TOOL(int slot)
   _tools[0] = _tools[slot];
 }
 
-void SELECT_POCKET(int slot)
+void SELECT_POCKET(int slot, int tool)
 {PRINT1("SELECT_POCKET(%d)\n", slot);}
 
 void CHANGE_TOOL_NUMBER(int slot)
@@ -1138,4 +1137,27 @@ int GET_EXTERNAL_TC_FAULT()
 int GET_EXTERNAL_TC_REASON()
 {
     return _toolchanger_reason;
+}
+
+/* Sends error message */
+void CANON_ERROR(const char *fmt, ...)
+{
+#if 0 // FIXME
+    va_list ap;
+
+    if (fmt != NULL) {
+	va_start(ap, fmt);
+	vfprintf(, fmt, ap);
+	va_end(ap);
+    }
+#endif
+}
+void PLUGIN_CALL(int len, const char *call)
+{
+    printf("PLUGIN_CALL(%d)\n",len);
+}
+
+void IO_PLUGIN_CALL(int len, const char *call)
+{
+    printf("IO_PLUGIN_CALL(%d)\n",len);
 }

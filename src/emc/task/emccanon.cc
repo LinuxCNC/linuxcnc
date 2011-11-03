@@ -1894,11 +1894,12 @@ void CHANGE_TOOL(int slot)
 }
 
 /* SELECT_POCKET results from T1, for example */
-void SELECT_POCKET(int slot)
+void SELECT_POCKET(int slot , int tool)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
 
-    prep_for_tool_msg.tool = slot;
+    prep_for_tool_msg.pocket = slot;
+    prep_for_tool_msg.tool = tool;
 
     interp_list.append(prep_for_tool_msg);
 }
@@ -2114,11 +2115,9 @@ void MESSAGE(char *s)
     EMC_OPERATOR_DISPLAY operator_display_msg;
 
     flush_segments();
-
     operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, s, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
-
     interp_list.append(operator_display_msg);
 }
 
@@ -2974,7 +2973,7 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 
 int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
-	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
+	 int wait_type,  /* 0 - immediate, 1 - rise, 2 - fall, 3 - be high, 4 - be low */
 	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
@@ -3027,4 +3026,40 @@ int UNLOCK_ROTARY(int line_number, int axis) {
 int LOCK_ROTARY(int line_number, int axis) {
     rotary_unlock_for_traverse = -1;
     return 0;
+}
+
+/* PLUGIN_CALL queues a Python tuple for execution by task
+ * the tuple is expected to be already pickled
+ * The tuple format is: (callable,tupleargs,keywordargs)
+ */
+void PLUGIN_CALL(int len, const char *call)
+{
+    EMC_EXEC_PLUGIN_CALL call_msg;
+    if (len > (int) sizeof(call_msg.call)) {
+	// really should call it quits here, this is going to fail
+	printf("PLUGIN_CALL: message size exceeded actual=%d max=%d\n",len,sizeof(call_msg.call));
+    }
+    memset(call_msg.call, 0, sizeof(call_msg.call));
+    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
+    call_msg.len = len;
+
+    printf("canon: PLUGIN_CALL(arglen=%d)\n",strlen(call));
+
+    interp_list.append(call_msg);
+}
+
+void IO_PLUGIN_CALL(int len, const char *call)
+{
+    EMC_IO_PLUGIN_CALL call_msg;
+    if (len > (int) sizeof(call_msg.call)) {
+	// really should call it quits here, this is going to fail
+	printf("IO_PLUGIN_CALL: message size exceeded actual=%d max=%d\n",len,sizeof(call_msg.call));
+    }
+    memset(call_msg.call, 0, sizeof(call_msg.call));
+    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
+    call_msg.len = len;
+
+    printf("canon: IO_PLUGIN_CALL(arglen=%d)\n",len);
+
+    interp_list.append(call_msg);
 }

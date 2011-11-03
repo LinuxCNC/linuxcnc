@@ -193,6 +193,8 @@ class PM_CARTESIAN;
 // even before emccanon issues the move to toolchange position
 #define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
+#define EMC_EXEC_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1112)
+#define EMC_IO_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1113)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations
@@ -332,6 +334,7 @@ enum EMC_IO_ABORT_REASON_ENUM {
 	EMC_ABORT_TASK_STATE_ESTOP = 6,
 	EMC_ABORT_TASK_STATE_NOT_ON = 7,
 	EMC_ABORT_TASK_ABORT = 8,
+	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
 	EMC_ABORT_USER = 100  // user-defined abort codes start here
 };
 // --------------
@@ -491,14 +494,14 @@ extern int emcTaskPlanLevel();
 extern int emcTaskPlanCommand(char *cmd);
 
 extern int emcTaskUpdate(EMC_TASK_STAT * stat);
-extern int emcAbortCleanup(int reason);
+extern int emcAbortCleanup(int reason,const char *message = "");
 
 // implementation functions for EMC_TOOL types
 
 extern int emcToolInit();
 extern int emcToolHalt();
 extern int emcToolAbort();
-extern int emcToolPrepare(int tool);
+extern int emcToolPrepare(int pocket, int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);

@@ -619,11 +619,11 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               setup_pointer settings,    //!< pointer to machine settings                     
                               double end_x,      //!< x-value at end of programmed (then actual) arc  
                               double end_y,      //!< y-value at end of programmed (then actual) arc  
-                              double end_z,      //!< z-value at end of arc                           
-                              double offset_x, double offset_y, 
-                              double AA_end,     //!< a-value at end of arc                     
+                              double end_z,      //!< z-value at end of arc
+                              double offset_x, double offset_y,
+                              double AA_end,     //!< a-value at end of arc
                              double BB_end,     //!< b-value at end of arc
-                              double CC_end,     //!< c-value at end of arc                     
+                              double CC_end,     //!< c-value at end of arc
                               double u_end, double v_end, double w_end) //!< uvw at end of arc
 {
     double center_x, center_y;
@@ -1246,7 +1246,10 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                     {
 		        // if tolower is a macro, may need this int
 		        int c = *comment++;
-                        param[i] = tolower(c);
+			if (FEATURE(NO_DOWNCASE_OWORD))
+			    param[i] = c;
+			else
+			    param[i] = tolower(c);
                         i++;
                     }
                 }
@@ -1344,7 +1347,7 @@ static int startswith(char *haystack, char *needle) {
     return !strncmp(haystack, needle, strlen(needle));
 }
 
-int Interp::convert_comment(char *comment)       //!< string with comment
+int Interp::convert_comment(char *comment, bool enqueue)       //!< string with comment
 {
   enum
   { LC_SIZE = 256, EX_SIZE = 2*LC_SIZE};            // 256 from comment[256] in rs274ngc.hh
@@ -1360,6 +1363,10 @@ int Interp::convert_comment(char *comment)       //!< string with comment
   char LOGOPEN_STR[] = "logopen,";
   char LOGAPPEND_STR[] = "logappend,";
   char LOGCLOSE_STR[] = "logclose";
+  char PY_STR[] = "py,";
+  char PYRUN_STR[] = "pyrun,";
+  char PYRELOAD_STR[] = "pyreload";
+  char ABORT_STR[] = "abort,";
   int m, n, start;
 
   // step over leading white space in comment
@@ -1411,13 +1418,33 @@ int Interp::convert_comment(char *comment)       //!< string with comment
       LOGAPPEND(comment + start + strlen(LOGAPPEND_STR));
       return INTERP_OK;
   }
+  else if (startswith(lc, PY_STR))
+  {
+      return py_execute(comment + start + strlen(PY_STR), false);
+  }
+  else if (startswith(lc, PYRUN_STR))
+  {
+      return py_execute(comment + start + strlen(PYRUN_STR), true);
+  }
+  else if (startswith(lc, PYRELOAD_STR))
+  {
+      return py_reload();
+  }
+  else if (startswith(lc, ABORT_STR))
+  {
+      convert_param_comment(comment+start+strlen(ABORT_STR), expanded,
+                            EX_SIZE);
+      setSavedError(expanded); // avoid printf interpretation
+      return INTERP_ERROR;
+  }
   else if (streq(lc, LOGCLOSE_STR))
   {
       LOGCLOSE();
       return INTERP_OK;
   }
   // else it's a real comment
-  enqueue_COMMENT(comment + start);
+  if (enqueue)
+      enqueue_COMMENT(comment + start);
   return INTERP_OK;
 }
 
@@ -2173,47 +2200,63 @@ until most of the other modes are set.
 */
 
 int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
-                     setup_pointer settings)    //!< pointer to machine settings                 
+		      setup_pointer settings)    //!< pointer to machine settings
 {
+    int status;
 
-  if (block->g_modes[0] == G_4) {
-    CHP(convert_dwell(settings, block->p_number));
+    if ((block->g_modes[GM_MODAL_0] == G_4) && ONCE(STEP_DWELL)) {
+      status = convert_dwell(settings, block->p_number);
+      CHP(status);
+    }
+    if ((block->g_modes[GM_SET_PLANE] != -1) && ONCE(STEP_SET_PLANE)) {
+	status = convert_set_plane(block->g_modes[GM_SET_PLANE], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_LENGTH_UNITS] != -1) && ONCE(STEP_LENGTH_UNITS)) {
+	status = convert_length_units(block->g_modes[GM_LENGTH_UNITS], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_LATHE_DIAMETER_MODE] != -1) && ONCE(STEP_LATHE_DIAMETER_MODE)) {
+	status = convert_lathe_diameter_mode(block->g_modes[GM_LATHE_DIAMETER_MODE], block, settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_CUTTER_COMP] != -1) && ONCE(STEP_CUTTER_COMP)) {
+	status = convert_cutter_compensation(block->g_modes[GM_CUTTER_COMP], block, settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_TOOL_LENGTH_OFFSET] != -1) && ONCE(STEP_TOOL_LENGTH_OFFSET)){
+	status = convert_tool_length_offset(block->g_modes[GM_TOOL_LENGTH_OFFSET], block, settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_COORD_SYSTEM] != -1) && ONCE(STEP_COORD_SYSTEM)){
+	status = convert_coordinate_system(block->g_modes[GM_COORD_SYSTEM], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_CONTROL_MODE] != -1) && ONCE(STEP_CONTROL_MODE)) {
+	status = convert_control_mode(block->g_modes[GM_CONTROL_MODE],
+				      block->p_number, block->q_number, settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_DISTANCE_MODE] != -1) && ONCE(STEP_DISTANCE_MODE)) {
+      status = convert_distance_mode(block->g_modes[GM_DISTANCE_MODE], settings);
+      CHP(status);
+    }
+    if ((block->g_modes[GM_IJK_DISTANCE_MODE] != -1) && ONCE(STEP_IJK_DISTANCE_MODE)){
+	status = convert_ijk_distance_mode(block->g_modes[GM_IJK_DISTANCE_MODE], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_RETRACT_MODE] != -1)  && ONCE(STEP_RETRACT_MODE)){
+	status = convert_retract_mode(block->g_modes[GM_RETRACT_MODE], settings);
+	CHP(status);
+    }
+    if ((block->g_modes[GM_MODAL_0] != -1) && ONCE(STEP_MODAL_0)) {
+      status = convert_modal_0(block->g_modes[GM_MODAL_0], block, settings);
+      CHP(status);
   }
-  if (block->g_modes[2] != -1) {
-    CHP(convert_set_plane(block->g_modes[2], settings));
-  }
-  if (block->g_modes[6] != -1) {
-    CHP(convert_length_units(block->g_modes[6], settings));
-  }
-  if (block->g_modes[15] != -1) {
-    CHP(convert_lathe_diameter_mode(block->g_modes[15], block, settings));
-  }
-  if (block->g_modes[7] != -1) {
-    CHP(convert_cutter_compensation(block->g_modes[7], block, settings));
-  }
-  if (block->g_modes[8] != -1) {
-    CHP(convert_tool_length_offset(block->g_modes[8], block, settings));
-  }
-  if (block->g_modes[12] != -1) {
-    CHP(convert_coordinate_system(block->g_modes[12], settings));
-  }
-  if (block->g_modes[13] != -1) {
-    CHP(convert_control_mode(block->g_modes[13], block->p_number, block->q_number, settings));
-  }
-  if (block->g_modes[3] != -1) {
-    CHP(convert_distance_mode(block->g_modes[3], settings));
-  }
-  if (block->g_modes[4] != -1) {
-    CHP(convert_ijk_distance_mode(block->g_modes[4], settings));
-  }
-  if (block->g_modes[10] != -1) {
-    CHP(convert_retract_mode(block->g_modes[10], settings));
-  }
-  if (block->g_modes[0] != -1) {
-    CHP(convert_modal_0(block->g_modes[0], block, settings));
-  }
-  if (block->motion_to_be != -1) {
-    CHP(convert_motion(block->motion_to_be, block, settings));
+    if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
+      status = convert_motion(block->motion_to_be, block, settings);
+      // block->g_modes[GM_MOTION] = -1;  // FIXME mah checkthis
+      CHP(status);
   }
   return INTERP_OK;
 }
@@ -2587,7 +2630,7 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
 	if (saved[i] != current[i]) {
 	    switch (i) {
-	    case 0: break; // FIXME - is sequence_number important?
+	    case 0: break; // sequence_number - no point in restoring
 	    case 1:
 		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
 		strncat(cmd,buf,sizeof(buf));
@@ -2617,7 +2660,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 
 	    switch (i) {
 	    case 0:
-		// FIXME - sequence_number: important?
+		// // sequence_number - no point in restoring
 		break;
 	    case 2: // FIXME - I dont understand this:
 		//   gez[2] = ((block == NULL) ? -1 : block->g_modes[0]);
@@ -2673,7 +2716,6 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 	if (val != current[i]) {
 	    switch (i) {
 	    case 0: /* 0 seq number  */
-		// FIXME - is sequence_number important?
 		break;
 	    case 1: /* 1 stopping    */
 		// FIXME - is the next line needed at all?
@@ -2703,7 +2745,7 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
     return INTERP_OK;
 }
 
-int Interp::save_context(setup_pointer settings)
+int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
       // collate state in _setup.active_* arrays
@@ -2725,15 +2767,17 @@ int Interp::save_context(setup_pointer settings)
 /* restore global settings/gcodes/mcodes to current call level from a valid context
  * used by:
  *   M72 - restores context from same level
- *       example: restore_context(settings->call_level)
+ *       example: restore_settings(settings->call_level)
  *
  *   an o-word return/endsub if auto-restore (M73) was issued
  *       issue this like so - after call_level has been decremented:
- *       restore_context(settings->call_level + 1)
+ *       restore_settings(settings->call_level + 1)
  */
-int Interp::restore_context(setup_pointer settings,
+int Interp::restore_settings(setup_pointer settings,
 			    int from_level)    //!< call level of context to restore from
 {
+    int status;
+
     CHKS((from_level < settings->call_level),
 	 (_("BUG: cannot restore from a lower call level (%d) to a higher call level (%d)")),from_level,settings->call_level);
     CHKS((from_level < 0), (_("BUG: restore from level %d !?")),from_level);
@@ -2756,11 +2800,9 @@ int Interp::restore_context(setup_pointer settings,
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
 	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	int status = Interp::execute(cmd);
-	if (status != INTERP_OK) {
-	    MSG("------- execute(%s) returned %s\n",
-		   cmd, interp_status(status));
-	}
+	status = execute(cmd);
+	if (status != INTERP_OK)
+	    ERP(status);
 	memset(cmd, 0, LINELEN);
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
@@ -2768,14 +2810,9 @@ int Interp::restore_context(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	int status = Interp::execute(cmd);
-	if (status != INTERP_OK) {
-	    MSG("------- execute(%s) returned %s\n",
-		   cmd, interp_status(status));
-	}
-	while (status == INTERP_EXECUTE_FINISH) { // probably not needed
-	    status = Interp::execute(0);
-	}
+	status = execute(cmd);
+	if (status != INTERP_OK)
+	    ERP(status);
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);
@@ -2787,6 +2824,8 @@ int Interp::restore_context(setup_pointer settings,
 
     return INTERP_OK;
 }
+
+
 
 /****************************************************************************/
 
@@ -2819,7 +2858,7 @@ convert_stop).
 */
 
 int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
-                     setup_pointer settings)    //!< pointer to machine settings                 
+		      setup_pointer settings)    //!< pointer to machine settings
 {
   int type;
   double timeout;               // timeout for M66
@@ -2836,27 +2875,31 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M67 reads a digital input
      M68 reads an analog input*/
 
-  if (block->m_modes[5] == 62) {
+  if (IS_USER_MCODE(block,settings,5) && ONCE_M(5))  {
+      return convert_remapped_code(block, settings, STEP_M_5, 'm',
+				   block->m_modes[5]);
+  } else if ((block->m_modes[5] == 62) && ONCE_M(5)) {
       CHKS((settings->cutter_comp_side),
            (_("Cannot set motion output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M62"));
       SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
-  } else if (block->m_modes[5] == 63) {
+  } else if ((block->m_modes[5] == 63) && ONCE_M(5)) {
       CHKS((settings->cutter_comp_side),
            (_("Cannot set motion digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M63"));
       CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
-  } else if (block->m_modes[5] == 64) {
+  } else if ((block->m_modes[5] == 64) && ONCE_M(5)){
       CHKS((settings->cutter_comp_side),
            (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M64"));
       SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
-  } else if (block->m_modes[5] == 65) {
+  } else if ((block->m_modes[5] == 65) && ONCE_M(5)) {
       CHKS((settings->cutter_comp_side),
            (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CHKS((!block->p_flag), _("No valid P word with M65"));
       CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
-  } else if (block->m_modes[5] == 66) {
+  } else if ((block->m_modes[5] == 66) && ONCE_M(5)){
+
     //P-word = digital channel
     //E-word = analog channel
     //L-word = wait type (immediate, rise, fall, high, low)
@@ -2920,70 +2963,82 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    settings->input_digital = false;
 	}
     } 
-  } else if (block->m_modes[5] == 67) {
+  } else if ((block->m_modes[5] == 67) && ONCE_M(5)) {
+
     //E-word = analog channel
     //Q-word = analog value
       CHKS((settings->cutter_comp_side),
            (_("Cannot set motion analog output with cutter radius compensation on")));  // XXX
       CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M67")));
       SET_MOTION_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
-  } else if (block->m_modes[5] == 68) {
+  } else if ((block->m_modes[5] == 68)  && ONCE_M(5)) {
     //E-word = analog channel
     //Q-word = analog value
       CHKS((settings->cutter_comp_side),
            (_("Cannot set auxiliary analog output with cutter radius compensation on")));  // XXX
       CHKS((!block->e_flag) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
       SET_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
-  }    
-  
-  if (block->m_modes[6] != -1) {
-    // when we have M6 do the actual toolchange
-    if (block->m_modes[6] == 6) {
-	if (settings->m6_command) {
+  }
 
-	    // replicate preconditions form convert_tool_change
-	    if (settings->selected_pocket < 0) {
-	      ERS(NCE_TXX_MISSING_FOR_M6);
-	    }
-	    CHKS((settings->cutter_comp_side),
-	          (_("Cannot change tools with cutter radius compensation on")));
-	    // ignore tool_change_with_spindle_on, tool_change_quill_up,
-	    // tool_change_at_g30 - can be handled in g-code if needed
-	    char cmd[LINELEN];
+  if ((block->m_modes[6] != -1)  && ONCE_M(6)){
+      int toolno;
+      bool remapped_in_block = STEP_REMAPPED_IN_BLOCK(block, STEP_M_6);
 
-	    snprintf(cmd,sizeof(cmd),"%s [%d]",settings->m6_command,block->t_number);
-	    int status = Interp::execute(cmd, 0);
-	    if (status != INTERP_OK) {
-		MSG("------- convert_m(%s) returned %s\n",
-		       cmd, interp_status(status));
-	    }
-	    while (status == INTERP_EXECUTE_FINISH) {
-		status = Interp::execute(0);
-	    }
-	    FILE *fp = settings->file_pointer;
-	    settings->file_pointer = fp;
+      switch (block->m_modes[6]) {
+      case 6:
+      	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+      		  return convert_remapped_code(block,settings,
+      					       STEP_M_6,
+      					       'm',
+      					       block->m_modes[6]);  
+	  } else {
+	      // the code was used in its very remap procedure -
+	      // the 'recursion case'; record the fact
+	      CONTROLLING_BLOCK(*settings).builtin_used = !remapped_in_block;
+	      CHP(convert_tool_change(settings));
+	  }
+      	  break;
 
-	    CHANGE_TOOL(settings->selected_pocket);
-	    settings->current_pocket = settings->selected_pocket;
-	    // tool change can move the controlled point.  reread it:
-	    settings->toolchange_flag = true;
-	    set_tool_parameters();
+      case 61:
+	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+	      return convert_remapped_code(block, settings, STEP_M_6,'m',
+					   block->m_modes[6]);
+	  } else {
+	      CONTROLLING_BLOCK(*settings).builtin_used = !remapped_in_block;
+	      toolno = round_to_int(block->q_number);
+	      // now also accept M61 Q0 - unload tool
+	      CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
+	      
+	      int pocket;
+	      
+	      // make sure selected tool exists
+	      CHP((find_tool_pocket(settings, toolno, &pocket)));
+	      settings->current_pocket = pocket;
+	      settings->toolchange_flag = true;
+	      CHANGE_TOOL_NUMBER(settings->current_pocket);
+	      set_tool_parameters();
+	  }
+	  break;
 
-	    CHP(status);
-	} else {
-	    CHP(convert_tool_change(settings));
-	}
-    }
-    if (block->m_modes[6] == 69) {
-	    CHP(convert_tool_change(settings));
-    }
-    // when we have M61 we only change the number of the loaded tool (for example on startup)
-    if (block->m_modes[6] == 61) {
-	CHKS((round_to_int(block->q_number) < 0), (_("Need positive Q-word to specify tool number with M61")));
-	settings->current_pocket = round_to_int(block->q_number);
-	CHANGE_TOOL_NUMBER(round_to_int(block->q_number));
-    }    
-#ifdef DEBATABLE
+      // deleted because it's covered by the recursion test for M6 above
+      // case 69: // alias original M6 to M69
+      // 	  CHP(convert_tool_change(settings));
+      // 	  break;
+
+      default:
+	  if (IS_USER_MCODE(block,settings,6)) {
+	      return convert_remapped_code(block, settings, STEP_M_6,'m',
+					   block->m_modes[6]);
+	  }
+      }
+  }
+
+  // needs more testing.. once? test tool_change_flag!
+  //#ifdef DEBATABLE
+  if (FEATURE(RETAIN_G43)) {
+    // I consider this useful, so make it configurable.
+    // Turn it on optionally . -mah
+
     // I would like this, but it's a big change.  It changes the
     // operation of legal ngc programs, but it could be argued that
     // those programs are buggy or likely to be not what the author
@@ -2993,8 +3048,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     // and then not worry about it through the program.  When you
     // finally unload the last tool, G43 mode is canceled.
 
-    if(settings->active_g_codes[9] == G_43) {
-        if(settings->selected_tool_slot > 0) {
+      if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
+        if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
             block->g_modes[_gees[G_43]] = G_43;
@@ -3006,69 +3061,64 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
             CHP(convert_tool_length_offset(G_49, &g49, settings));
         }
     }
-#endif
   }
+  //#endif
 
-  if (block->m_modes[7] == 3) {
-      enqueue_START_SPINDLE_CLOCKWISE();
-      settings->spindle_turning = CANON_CLOCKWISE;
-  } else if (block->m_modes[7] == 4) {
-      enqueue_START_SPINDLE_COUNTERCLOCKWISE();
-      settings->spindle_turning = CANON_COUNTERCLOCKWISE;
-  } else if (block->m_modes[7] == 5) {
-      enqueue_STOP_SPINDLE_TURNING();
-      settings->spindle_turning = CANON_STOPPED;
-  } else if (block->m_modes[7] == 19) {
+ if (IS_USER_MCODE(block,settings,7) && ONCE_M(7)) {
+    return convert_remapped_code(block, settings, STEP_M_7, 'm',
+				   block->m_modes[7]);
+ } else if ((block->m_modes[7] == 3)  && ONCE_M(7)) {
+    enqueue_START_SPINDLE_CLOCKWISE();
+    settings->spindle_turning = CANON_CLOCKWISE;
+ } else if ((block->m_modes[7] == 4) && ONCE_M(7)) {
+    enqueue_START_SPINDLE_COUNTERCLOCKWISE();
+    settings->spindle_turning = CANON_COUNTERCLOCKWISE;
+ } else if ((block->m_modes[7] == 5) && ONCE_M(7)){
+    enqueue_STOP_SPINDLE_TURNING();
+    settings->spindle_turning = CANON_STOPPED;
+  } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
       settings->spindle_turning = CANON_STOPPED;
       enqueue_ORIENT_SPINDLE(block->r_flag ? (block->r_number + settings->orient_offset) : settings->orient_offset, 
 			     block->p_flag ? block->p_number : 0);
   } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
 
-      // save state in current stack frame. We borrow the o-word call stack
-      // and extend it to hold modes & settings.
+     // save state in current stack frame. We borrow the o-word call stack
+     // and extend it to hold modes & settings.
+     save_settings(&_setup);
 
-      // MSG("---- M%d, call_level=%d)\n", block->m_modes[7],_setup.call_level);
-      // if (_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID) {
-      // 	  MSG("----- overwriting valid M70 context, call_level=%d\n",_setup.call_level);
-      // }
+     // flag this frame as containing a valid context
+     _setup.sub_context[_setup.call_level].context_status |= CONTEXT_VALID;
 
-      save_context(&_setup);
-
-      // flag this frame as containing a valid context
-      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_VALID;
-
-      // mark as auto-restore context
-      if (block->m_modes[7] == 73) {
-	  if (_setup.call_level == 0) {
-	      MSG("----- Warning - M73 at top level: nothing to return to; storing context anyway\n");
-	  } else {
-	      _setup.sub_context[_setup.call_level].context_status |= CONTEXT_RESTORE_ON_RETURN;
-	  }
-      }
-
-  } else if (block->m_modes[7] == 71) {
+     // mark as auto-restore context
+     if (block->m_modes[7] == 73) {
+	 if (_setup.call_level == 0) {
+	     MSG("Warning - M73 at top level: nothing to return to; storing context anyway\n");
+	 } else {
+	     _setup.sub_context[_setup.call_level].context_status |= CONTEXT_RESTORE_ON_RETURN;
+	 }
+     }
+ } else if ((block->m_modes[7] == 71) && ONCE_M(7))  {
       // M72 - invalidate context at current level
-      // MSG("---- M71 - mark frame at level %d as invalid\n",_setup.call_level);
       _setup.sub_context[_setup.call_level].context_status &= ~CONTEXT_VALID;
 
-  } else if (block->m_modes[7] == 72) {
+ } else if ((block->m_modes[7] == 72)  && ONCE_M(7)) {
 
       // restore state from current stack frame.
-
       CHKS((!(_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID)),
            (_("Cannot restore context from invalid stack frame - missing M70/M73?")));
-
-      // MSG("---- M72 restore context, call_level=%d)\n", _setup.call_level);
-      restore_context(&_setup, _setup.call_level);
+      restore_settings(&_setup, _setup.call_level);
   }
 
-  if (block->m_modes[8] == 7) {
+  if (IS_USER_MCODE(block,settings,8) && ONCE_M(8)) {
+     return convert_remapped_code(block, settings, STEP_M_8, 'm',
+				   block->m_modes[8]);
+  } else if ((block->m_modes[8] == 7) && ONCE_M(8)){
       enqueue_MIST_ON();
       settings->mist = true;
-  } else if (block->m_modes[8] == 8) {
+  } else if ((block->m_modes[8] == 8) && ONCE_M(8)) {
       enqueue_FLOOD_ON();
       settings->flood = true;
-  } else if (block->m_modes[8] == 9) {
+  } else if ((block->m_modes[8] == 9) && ONCE_M(8)) {
       enqueue_MIST_OFF();
       settings->mist = false;
       enqueue_FLOOD_OFF();
@@ -3091,15 +3141,17 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       settings->a_axis_clamping = false;
     }
 */
-
-  if (block->m_modes[9] == 48) {
+if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
+     return convert_remapped_code(block, settings, STEP_M_9, 'm',
+				   block->m_modes[9]);
+ } else if ((block->m_modes[9] == 48)  && ONCE_M(9)){
     CHKS((settings->cutter_comp_side),
          (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
     ENABLE_FEED_OVERRIDE();
     ENABLE_SPEED_OVERRIDE();
     settings->feed_override = true;
     settings->speed_override = true;
-  } else if (block->m_modes[9] == 49) {
+ } else if ((block->m_modes[9] == 49)  && ONCE_M(9)){
     CHKS((settings->cutter_comp_side),
          (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
     DISABLE_FEED_OVERRIDE();
@@ -3108,7 +3160,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     settings->speed_override = false;
   }
 
-  if (block->m_modes[9] == 50) {
+if ((block->m_modes[9] == 50)  && ONCE_M(9)){
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
@@ -3122,7 +3174,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
 
-  if (block->m_modes[9] == 51) {
+if ((block->m_modes[9] == 51)  && ONCE_M(9)){
+
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
@@ -3136,7 +3189,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
   
-  if (block->m_modes[9] == 52) {
+if ((block->m_modes[9] == 52)  && ONCE_M(9)){
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
@@ -3150,7 +3203,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
   
-  if (block->m_modes[9] == 53) {
+if ((block->m_modes[9] == 53)  && ONCE_M(9)){
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
@@ -3164,8 +3217,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
 
-  /* user-defined M codes */
-  if (block->m_modes[10] != -1) {
+if (IS_USER_MCODE(block,settings,10) && ONCE_M(10)) {
+    return convert_remapped_code(block,settings,STEP_M_10,'m',
+				   block->m_modes[10]);
+
+ } else if ((block->m_modes[10] != -1)  && ONCE_M(10)){
+     /* user-defined M codes */
     int index = block->m_modes[10];
     if (USER_DEFINED_FUNCTION[index - 100] == 0) {
       CHKS(1, NCE_UNKNOWN_M_CODE_USED);
@@ -3292,6 +3349,8 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
+  } else if (IS_USER_GCODE(motion)) {
+      CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
@@ -3441,7 +3500,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     CHP((find_tool_pocket(settings, toolno, &pocket)));
 
     settings->tool_table[pocket].toolno = toolno;
-    
+
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
 	   block->a_flag || block->b_flag || block->c_flag ||
 	   block->u_flag || block->v_flag || block->w_flag ||
@@ -4734,8 +4793,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     
         if ((beta < -small) || (beta > (M_PIl + small))) {
             concave = 1;
-        } else if (beta > (M_PIl - small) && 
-                   (!qc().empty() && qc().front().type == QARC_FEED && 
+        } else if (beta > (M_PIl - small) &&
+                   (!qc().empty() && qc().front().type == QARC_FEED &&
                     ((side == RIGHT && qc().front().data.arc_feed.turn > 0) ||
                      (side == LEFT && qc().front().data.arc_feed.turn < 0)))) {
             // this is an "h" shape, tool on right, going right to left
@@ -5035,7 +5094,9 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   if (g_code == G_49) {
     index = 0;
   } else if (g_code == G_43) {
-    if(block->h_flag) {
+      logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
+	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
+      if(block->h_flag) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
     } else if (settings->toolchange_flag) {
         // we haven't loaded the tool and swapped pockets quite yet
@@ -5044,6 +5105,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         // tool change is done so pockets are swapped
         index = 0;
     }
+    logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
+	     index, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
 
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.x);
     tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.tran.y);
@@ -5089,7 +5152,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
   settings->tool_offset = tool_offset;
-  settings->tool_offset_index = index;
   return INTERP_OK;
 }
 
@@ -5126,7 +5188,10 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 {
   int pocket;
   CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-  SELECT_POCKET(pocket);
+  SELECT_POCKET(pocket, block->t_number);
   settings->selected_pocket = pocket;
+  settings->selected_tool = block->t_number;
   return INTERP_OK;
 }
+
+

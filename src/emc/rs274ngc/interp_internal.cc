@@ -11,6 +11,7 @@
 *
 * Last change:
 ********************************************************************/
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +24,8 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
 #include "rs274ngc_interp.hh"
+
+namespace bp = boost::python;
 
 /****************************************************************************/
 
@@ -243,6 +246,12 @@ The rules for the indicators for slots whose values may be read are:
 int Interp::init_block(block_pointer block)      //!< pointer to a block to be initialized or reset
 {
   int n;
+  block->breadcrumbs = 0; // clear execution trail
+  block->executing_remap = NULL;
+  block->param_cnt = 0;
+  block->remappings.clear();
+  block->builtin_used = false;
+
   block->a_flag = false;
   block->b_flag = false;
   block->c_flag = false;
@@ -286,13 +295,8 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->radius_flag = false;
 
   block->o_type = O_none;
-  block->o_number = 0;
-
-  if(block->o_name)
-    {
-      free(block->o_name);
-      block->o_name = 0;
-    }
+  block->o_name = 0;
+  block->call_type = -1;
 
   return INTERP_OK;
 }
@@ -330,6 +334,8 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
   {
     CHP(enhance_block(block, settings));
     CHP(check_items(block, settings));
+    int n = find_remappings(block,settings);
+    if (n) logRemap("parse_line: found %d remappings",n);
   }
   return INTERP_OK;
 }

@@ -366,7 +366,7 @@ int iocontrol_hal_init(void)
     /* STEP 3a: export the out-pin(s) */
 
     // user-enable-out
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_enable_out), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_enable_out), comp_id,
 			      "iocontrol.%d.user-enable-out", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -376,7 +376,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // user-request-enable
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_request_enable), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->user_request_enable), comp_id,
 			     "iocontrol.%d.user-request-enable", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -396,7 +396,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // coolant-mist
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id,
 			      "iocontrol.%d.coolant-mist", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -406,7 +406,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // lube
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id, 
+    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id,
 			      "iocontrol.%d.lube", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -488,7 +488,7 @@ int iocontrol_hal_init(void)
     /* STEP 3b: export the in-pin(s) */
 
     // emc-enable-in
-    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->emc_enable_in), comp_id, 
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->emc_enable_in), comp_id,
 			     "iocontrol.%d.emc-enable-in", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -498,7 +498,7 @@ int iocontrol_hal_init(void)
 	return -1;
     }
     // lube_level
-    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id, 
+    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id,
 			     "iocontrol.%d.lube_level", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -538,7 +538,7 @@ void hal_init_pins(void)
 /********************************************************************
 *
 * Description: read_hal_inputs(void)
-*			Reads the pin values from HAL 
+*			Reads the pin values from HAL
 *			this function gets called once per cycle
 *			It sets the values for the emcioStatus.aux.*
 *
@@ -559,12 +559,12 @@ int read_hal_inputs(void)
 	emcioStatus.aux.estop = 1;
     else
 	emcioStatus.aux.estop = 0;
-    
+
     if (oldval != emcioStatus.aux.estop) {
 	retval = 1;
     }
-    
-    
+
+
     oldval = emcioStatus.lube.level;
     emcioStatus.lube.level = *(iocontrol_data->lube_level);	//check for lube_level from HW
     if (oldval != emcioStatus.lube.level) {
@@ -828,11 +828,10 @@ int main(int argc, char *argv[])
 	    // this gets sent on any Task Abort, so it might be safer to stop
 	    // the spindle  and coolant
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
-
 	    emcioStatus.coolant.mist = 0;
 	    emcioStatus.coolant.flood = 0;
 	    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
-    	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
+	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
 	    *(iocontrol_data->tool_change)=0;		/* abort tool change if in progress */
 	    *(iocontrol_data->tool_prepare)=0;		/* abort tool prepare if in progress */
 	    break;
@@ -991,13 +990,13 @@ int main(int argc, char *argv[])
 	    /* generate a rising edge to reset optional HAL latch */
 	    *(iocontrol_data->user_request_enable) = 1;
 	    break;
-	    
+
 	case EMC_AUX_ESTOP_RESET_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_AUX_ESTOP_RESET\n");
 	    // doesn't do anything right now, this will need to come from GUI
 	    // but that means task needs to be rewritten/rethinked
 	    break;
-	    
+
 	case EMC_LUBE_ON_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ON\n");
 	    emcioStatus.lube.on = 1;
@@ -1035,7 +1034,7 @@ int main(int argc, char *argv[])
 	esleep(EMC_IO_CYCLE_TIME);
 	/* clear reset line to allow for a later rising edge */
 	*(iocontrol_data->user_request_enable) = 0;
-	
+
     }	// end of "while (! done)" loop
 
     if (emcErrorBuffer != 0) {

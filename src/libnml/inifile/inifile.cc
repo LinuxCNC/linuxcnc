@@ -163,7 +163,8 @@ IniFile::Find(double *result, double min, double max,
 
 
 IniFile::ErrorCode                   
-IniFile::Find(double *result, const char *tag, const char *section, int num)
+IniFile::Find(double *result, const char *tag, const char *section,
+	      int num, int *lineno)
 {
     const char                  *pStr;
     double                      tmp;
@@ -180,14 +181,15 @@ IniFile::Find(double *result, const char *tag, const char *section, int num)
     }
 
     *result = tmp;
-
+    if (lineno)
+	*lineno = lineNo;
     return(ERR_NONE);
 }
 
 
 IniFile::ErrorCode
 IniFile::Find(int *result, StrIntPair *pPair,
-     const char *tag, const char *section, int num)
+     const char *tag, const char *section, int num, int *lineno)
 {
     const char                  *pStr;
     int                         tmp;
@@ -195,17 +197,23 @@ IniFile::Find(int *result, StrIntPair *pPair,
     if((pStr = Find(tag, section, num)) == NULL){
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
+	if (lineno)
+	    *lineno = 0;
         return(ERR_TAG_NOT_FOUND);
     }
 
     if(sscanf(pStr, "%i", &tmp) == 1){
         *result = tmp;
+	if (lineno)
+	    *lineno = lineNo;
         return(ERR_NONE);
     }
 
     while(pPair->pStr != NULL){
         if(strcasecmp(pStr, pPair->pStr) == 0){
             *result = pPair->value;
+	    if (lineno)
+		*lineno = lineNo;
             return(ERR_NONE);
         }
         pPair++;
@@ -218,7 +226,7 @@ IniFile::Find(int *result, StrIntPair *pPair,
 
 IniFile::ErrorCode
 IniFile::Find(double *result, StrDoublePair *pPair,
-     const char *tag, const char *section, int num)
+     const char *tag, const char *section, int num, int *lineno)
 {
     const char                  *pStr;
     double                      tmp;
@@ -226,17 +234,25 @@ IniFile::Find(double *result, StrDoublePair *pPair,
     if((pStr = Find(tag, section, num)) == NULL){
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
+	if (lineno)
+	    *lineno = 0;
         return(ERR_TAG_NOT_FOUND);
     }
 
     if(sscanf(pStr, "%lf", &tmp) == 1){
+	if (lineno)
+	    *lineno = lineNo;
         *result = tmp;
+	if (lineno)
+	    *lineno = lineNo;
         return(ERR_NONE);
     }
 
     while(pPair->pStr != NULL){
         if(strcasecmp(pStr, pPair->pStr) == 0){
             *result = pPair->value;
+	    if (lineno)
+		*lineno = lineNo;
             return(ERR_NONE);
         }
         pPair++;
@@ -257,7 +273,7 @@ IniFile::Find(double *result, StrDoublePair *pPair,
 
    @return pointer to the the variable after the '=' delimiter */
 const char *
-IniFile::Find(const char *_tag, const char *_section, int _num)
+IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 {
     // WTF, return a pointer to the middle of a local buffer?
     // FIX: this is totally non-reentrant.
@@ -397,6 +413,8 @@ IniFile::Find(const char *_tag, const char *_section, int _num)
                 *endValueString = 0;
                 endValueString--;
             }
+	    if (lineno)
+		*lineno = lineNo;
             return(valueString);
         }
         /* else continue */

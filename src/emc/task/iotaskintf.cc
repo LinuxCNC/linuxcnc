@@ -124,7 +124,7 @@ static long largest_io_command_size = 0;
 /*
   sendCommand() waits until any currently executing command has finished,
   then writes the given command.*/
-/*! \todo 
+/*! \todo
   FIXME: Not very RCS-like to wait for status done here. (wps)
 */
 static int sendCommand(RCS_CMD_MSG * msg)
@@ -379,10 +379,11 @@ int emcLubeOff()
     return 0;
 }
 
-int emcToolPrepare(int tool)
+int emcToolPrepare(int p, int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
 
+    toolPrepareMsg.pocket = p;
     toolPrepareMsg.tool = tool;
     sendCommand(&toolPrepareMsg);
 
@@ -437,9 +438,9 @@ int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
     toolSetOffsetMsg.pocket = pocket;
     toolSetOffsetMsg.toolno = toolno;
     toolSetOffsetMsg.offset = offset;
-    toolSetOffsetMsg.diameter = diameter;      
-    toolSetOffsetMsg.frontangle = frontangle;  
-    toolSetOffsetMsg.backangle = backangle;    
+    toolSetOffsetMsg.diameter = diameter;
+    toolSetOffsetMsg.frontangle = frontangle;
+    toolSetOffsetMsg.backangle = backangle;
     toolSetOffsetMsg.orientation = orientation;
 
     sendCommand(&toolSetOffsetMsg);
@@ -462,7 +463,7 @@ int emcToolSetNumber(int number)
 
 int emcIoUpdate(EMC_IO_STAT * stat)
 {
-    
+
     if (0 == emcIoStatusBuffer || !emcIoStatusBuffer->valid()) {
 	return -1;
     }
@@ -487,7 +488,7 @@ int emcIoUpdate(EMC_IO_STAT * stat)
     // copy status
     *stat = *emcIoStatus;
 
-    /* 
+    /*
        We need to check that the RCS_DONE isn't left over from the previous
        command, by comparing the command number we sent with the command
        number that emcio echoes. If they're different, then the command

@@ -14,6 +14,7 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
+#include <boost/python.hpp>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,8 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+
+#define RESULT_OK(x) ((x) == INTERP_OK || (x) == INTERP_EXECUTE_FINISH)
 
 /****************************************************************************/
 
@@ -180,6 +183,7 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
   return INTERP_OK;
 }
 
+
 /****************************************************************************/
 
 /*! execute_block
@@ -230,72 +234,69 @@ error message.
 */
 
 int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-                         setup_pointer settings)        //!< pointer to machine settings                 
+			  setup_pointer settings) //!< pointer to machine settings
 {
   int status;
 
   block->line_number = settings->sequence_number;
+  if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
+    status = convert_comment(block->comment);
+    CHP(status);
+  }
+  if ((block->g_modes[GM_SPINDLE_MODE] != -1) && ONCE(STEP_SPINDLE_MODE)) {
+      status = convert_spindle_mode(block, settings);
+      CHP(status);
+  }
+  if ((block->g_modes[GM_FEED_MODE] != -1) && ONCE(STEP_FEED_MODE)) {
+      status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
+      CHP(status);
 
-  if (block->comment[0] != 0) {
-    CHP(convert_comment(block->comment));
   }
-  if (block->g_modes[14] != -1) {
-    CHP(convert_spindle_mode(block, settings));
+  if (block->f_flag){
+      if ((settings->feed_mode != INVERSE_TIME) && ONCE(STEP_SET_FEED_RATE))  {
+	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_FEED_RATE)) {
+	      return (convert_remapped_code(block, settings, STEP_SET_FEED_RATE, 'F'));
+	  } else {
+	      status = convert_feed_rate(block, settings);
+	      CHP(status);
+	  }
+      }
+      /* INVERSE_TIME is handled elsewhere */
   }
-  if (block->g_modes[5] != -1) {
-    CHP(convert_feed_mode(block->g_modes[5], settings));
+  if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)){
+      if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
+	  return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
+      } else {
+	  status = convert_speed(block, settings);
+	  CHP(status);
+      }
   }
-  if (block->f_flag) {
-    if (settings->feed_mode != INVERSE_TIME) {
-      CHP(convert_feed_rate(block, settings));
-    }
-    /* INVERSE_TIME is handled elsewhere */
-  }
-  if (block->s_flag) {
-    CHP(convert_speed(block, settings));
-  }
-  if (block->t_flag) {
-    if (settings->t_command) {
-	char cmd[LINELEN];
-	int pocket;
-	CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-
-	sprintf(cmd,"%s [%d] [%d]",settings->t_command,block->t_number,pocket);
-//	printf("---- execute(%s),  current_pocket=%d ftell=%ld\n",cmd, settings->current_pocket,ftell(settings->file_pointer));
-	int status = execute(cmd,0);
-//	printf("------- execute() returned %s \n",interp_status(status));
-	while (status == INTERP_EXECUTE_FINISH) {
-	    status = execute(0);
-	}
-	// restore setup except file_pointer so as not to disturb the
-	// oword close/reopen logic
-	FILE *fp = settings->file_pointer;
-	settings->file_pointer = fp;
-
-	SELECT_POCKET(pocket);
-	settings->selected_pocket = pocket;
-	CHP(status);
-    } else {
-	CHP(convert_tool_select(block, settings));
-    }
+  if ((block->t_flag) && ONCE(STEP_PREPARE)) {
+      if (STEP_REMAPPED_IN_BLOCK(block, STEP_PREPARE)) {
+	  return (convert_remapped_code(block,settings,STEP_PREPARE,'T'));
+      } else {
+	  CHP(convert_tool_select(block, settings));
+      }
   }
   CHP(convert_m(block, settings));
   CHP(convert_g(block, settings));
-  if (block->m_modes[4] != -1) {        /* converts m0, m1, m2, m30, or m60 */
+  if ((block->m_modes[4] != -1) && ONCE(STEP_MGROUP4)) {        /* converts m0, m1, m2, m30, or m60 */
     status = convert_stop(block, settings);
-    if (status == INTERP_EXIT)
-      return INTERP_EXIT;
-    else if (status != INTERP_OK)
-      ERP(status);
+    if (status == INTERP_EXIT) {
+	return(INTERP_EXIT);
+    }
+    else if (status != INTERP_OK) {
+	ERP(status);
+    }
   }
   if (settings->probe_flag)
-    return INTERP_EXECUTE_FINISH;
+      return (INTERP_EXECUTE_FINISH);
 
   if (settings->input_flag)
-    return INTERP_EXECUTE_FINISH;
+      return (INTERP_EXECUTE_FINISH);
 
   if (settings->toolchange_flag)
-    return INTERP_EXECUTE_FINISH;
+      return (INTERP_EXECUTE_FINISH);
 
   return INTERP_OK;
 }

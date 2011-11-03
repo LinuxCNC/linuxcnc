@@ -474,6 +474,8 @@ const char *emc_symbol_lookup(long type)
     switch (type) {
     case EMC_ABORT_TYPE:
 	return "EMC_ABORT";
+    case EMC_EXEC_PLUGIN_CALL_TYPE:
+	return "EMC_EXEC_PLUGIN_CALL";
     case EMC_AUX_ESTOP_RESET_TYPE:
 	return "EMC_AUX_ESTOP_RESET";
     case EMC_AUX_ESTOP_OFF_TYPE:
@@ -1724,6 +1726,33 @@ void EMC_ABORT::update(CMS * cms)
     EMC_CMD_MSG::update(cms);
 
 }
+
+/*
+*	NML/CMS Update function for EMC_EXEC_PLUGIN_CALL
+*	Manually added by Michael Haberler
+*	on Wed Jun 29 20:00:36 CEST 2011
+*/
+void EMC_EXEC_PLUGIN_CALL::update(CMS * cms)
+{
+
+    EMC_CMD_MSG::update(cms);
+    cms->update(len);
+    cms->update(call,sizeof(call));
+}
+
+/*
+*	NML/CMS Update function for EMC_IO_PLUGIN_CALL
+*	Manually added by Michael Haberler
+*	on Sun Aug  7 13:59:51 CEST 201
+*/
+void EMC_IO_PLUGIN_CALL::update(CMS * cms)
+{
+
+    EMC_CMD_MSG::update(cms);
+    cms->update(len);
+    cms->update(call,sizeof(call));
+}
+
 
 /*
 *	NML/CMS Update function for EMC_TOOL_STAT_MSG
