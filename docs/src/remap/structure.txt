@@ -2178,7 +2178,7 @@ iocontrol-v2 to actually work.
 // A short survey of EMC2 execution
 // Interpreter internals access - Python view
 // Task internals access - Python view
-==  Build notes
+==  Build notes - Lucid (10.04)
 
 For the interpreter & task Python plugins, this is required:
 
@@ -2214,6 +2214,25 @@ configs source:
 
   TOOL_EDITOR= firefox -app  /usr/lib/lazierthanthou/sqlite-manager/application.ini -f <emcdir>/configs/sim/remap/iocontrol-removed/tooltable.sqlite
 
+==  Build notes - Hardy (8.04)
+
+Building and running on Hardy is possible. runtests works fine too, so
+the remapping framework per se is ok.
+
+However running the examples is quite limited as of now:
+
+The Git version included in 8.04 is too old to pull
+https://code.google.com/p/pyodbc/ so the iocontrol-removed demo cant
+be run.
+
+The  python-gtkglext1 dependency is missing for reasons I dont
+understand.
+
+Even if python-gtkglext1 is installed, the startup of the
+manualtoolchange and racktoolchange demos fails due to gladevcp startup issues.
+
+Note that has nothing to to with the new code but rather the very old
+platform trying to run gladevcp.
 
 ==  Workarounds
 
