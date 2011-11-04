@@ -1,5 +1,4 @@
 # this should go into configure FIXME
-PY=python2.6
 BOOST=boost_python
 
 
@@ -37,7 +36,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(LIBPYTHON)
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@

@@ -1,4 +1,3 @@
-PY=python2.6
 BOOST=boost_python
 
 
@@ -25,7 +24,7 @@ TARGETS += ../lib/libpyplugin.so emc/pythonplugin/testpp
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(LIBPYTHON)
 
 
 ../include/%.h: ./emc/pythonplugin/%.h
@@ -35,4 +34,4 @@ TARGETS += ../lib/libpyplugin.so emc/pythonplugin/testpp
 
 emc/pythonplugin/testpp: $(call TOOBJS, $(TESTSRCS)) ../lib/libpyplugin.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) $(LDFLAGS) -o $@ $^ -lstdc++ -l$(BOOST) -l$(PY)
+	$(CXX) $(LDFLAGS) -o $@ $^ -lstdc++ -l$(BOOST) -l$(LIBPYTHON)

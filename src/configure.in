@@ -1383,6 +1383,10 @@ if test "$BUILD_PYTHON" = "yes"; then
     fi
     AC_MSG_RESULT(OK)
 
+    AC_MSG_CHECKING([version of python libraries])
+    LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+    AC_MSG_RESULT($LIBPYTHON)
+
     AC_MSG_CHECKING([match between tk and Tkinter versions])
 	
     PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
@@ -1430,6 +1434,7 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 fi
 
 AC_SUBST([BUILD_PYTHON])
+AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
