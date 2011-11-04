@@ -6,6 +6,6 @@ net oriented  gladevcp.spindle-is-oriented motion.spindle-is-oriented gladevcp.s
 net locked motion.spindle-locked gladevcp.spindle-locked-led
 
 net angle motion.spindle-orient-angle gladevcp.spindle-orient-angle
-net fwd motion.spindle-orient-fwd gladevcp.spindle-orient-fwd-led
+
 net brake motion.spindle-brake  gladevcp.spindle-brake-led
 net fault gladevcp.spindle-orient-fault-s motion.spindle-orient-fault 

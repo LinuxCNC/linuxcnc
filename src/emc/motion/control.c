@@ -572,6 +572,7 @@ static void process_inputs(void)
     // signal error, and cancel the orient
     if (*(emcmot_hal_data->spindle_orient)) {
 	if (*(emcmot_hal_data->spindle_orient_fault)) {
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_FAULTED;
 	    *(emcmot_hal_data->spindle_orient) = 0;
 	    emcmotStatus->spindle.orient_fault = *(emcmot_hal_data->spindle_orient_fault);
 	    reportError(_("fault %d during orient in progress"), emcmotStatus->spindle.orient_fault);
@@ -583,6 +584,7 @@ static void process_inputs(void)
 	    *(emcmot_hal_data->spindle_locked) = 1;
 	    emcmotStatus->spindle.locked = 1;
 	    emcmotStatus->spindle.brake = 1;
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_COMPLETE;
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
 	}
     }

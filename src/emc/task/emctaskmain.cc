@@ -79,6 +79,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "nml_oi.hh"
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
+#include "motion.h"             // EMCMOT_ORIENT_*
 
 /* time after which the user interface is declared dead
  * because it would'nt read any more messages
@@ -392,6 +393,7 @@ static EMC_TRAJ_SET_SPINDLESYNC *emcTrajSetSpindlesyncMsg;
 
 static EMC_SPINDLE_SPEED *spindle_speed_msg;
 static EMC_SPINDLE_ORIENT *spindle_orient_msg;
+static EMC_SPINDLE_WAIT_ORIENT_COMPLETE *wait_spindle_orient_complete_msg;
 static EMC_SPINDLE_ON *spindle_on_msg;
 static EMC_TOOL_PREPARE *tool_prepare_msg;
 static EMC_TOOL_LOAD_TOOL_TABLE *load_tool_table_msg;
@@ -1004,6 +1006,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ORIENT_TYPE:
+		case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1163,6 +1166,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ORIENT_TYPE:
+		case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
 		case EMC_SPINDLE_ON_TYPE:
 		case EMC_SPINDLE_OFF_TYPE:
 		case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1315,6 +1319,7 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 	    case EMC_SPINDLE_SPEED_TYPE:
 	    case EMC_SPINDLE_ORIENT_TYPE:
+	    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
 	    case EMC_SPINDLE_ON_TYPE:
 	    case EMC_SPINDLE_OFF_TYPE:
 	    case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
@@ -1413,6 +1418,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_TRAJ_RIGID_TAP_TYPE: //and this
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:	// and this
     case EMC_AUX_INPUT_WAIT_TYPE:
+    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
 	break;
 
@@ -1510,6 +1516,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
     case EMC_IO_PLUGIN_CALL_TYPE:
 	return EMC_TASK_EXEC_DONE;
 	break;
+
 
     default:
 	// unrecognized command
@@ -1823,6 +1830,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	}
 	break;
 
+    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
+	wait_spindle_orient_complete_msg = (EMC_SPINDLE_WAIT_ORIENT_COMPLETE *) cmd;
+	taskExecDelayTimeout = etime() + wait_spindle_orient_complete_msg->timeout;
+	break;
+
     case EMC_TRAJ_RIGID_TAP_TYPE:
 	retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
 	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
@@ -1886,7 +1898,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	retval = emcSpindleOrient(spindle_orient_msg->orientation, spindle_orient_msg->mode);
 	break;
 
-    case EMC_SPINDLE_ON_TYPE:
+   case EMC_SPINDLE_ON_TYPE:
 	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
 	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset);
 	break;
@@ -2323,6 +2335,10 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_DONE;
 	break;
 
+    case EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE:
+	return EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED;
+	break;
+
     case EMC_TRAJ_DELAY_TYPE:
     case EMC_AUX_INPUT_WAIT_TYPE:
 	return EMC_TASK_EXEC_WAITING_FOR_DELAY;
@@ -2537,6 +2553,37 @@ static int emcTaskExecute(void)
 		   emcStatus->io.status == RCS_DONE) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
 	    emcTaskEager = 1;
+	}
+	break;
+
+    case EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED:
+	STEPPING_CHECK(); // not sure
+	switch (emcStatus->motion.spindle.orient_state) {
+	case EMCMOT_ORIENT_NONE:
+	case EMCMOT_ORIENT_COMPLETE:
+	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->task.delayLeft = 0;
+	    emcTaskEager = 1;
+	    rcs_print("wait for orient complete: nothing to do\n");
+	    break;
+
+	case EMCMOT_ORIENT_IN_PROGRESS:
+	    emcStatus->task.delayLeft = taskExecDelayTimeout - etime();
+	    if (etime() >= taskExecDelayTimeout) {
+		emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+		emcStatus->task.delayLeft = 0;
+		emcTaskEager = 1;
+		emcOperatorError(0, "wait for orient complete: TIMED OUT");
+	    }
+	    break;
+
+	case EMCMOT_ORIENT_FAULTED:
+	    // actually the code in main() should trap this before we get here
+	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+	    emcStatus->task.delayLeft = 0;
+	    emcTaskEager = 1;
+	    emcOperatorError(0, "wait for orient complete: FAULTED code=%d", 
+			     emcStatus->motion.spindle.orient_fault);
 	}
 	break;
 
@@ -3230,6 +3277,7 @@ int main(int argc, char *argv[])
 	    }
 
 	}
+
 	// check for subordinate errors, and halt task if so
 	if (emcStatus->motion.status == RCS_ERROR ||
 	    ((emcStatus->io.status == RCS_ERROR) &&
@@ -3249,10 +3297,18 @@ int main(int argc, char *argv[])
 		    emcOperatorError(0, io_error, emcStatus->io.reason);
 		}
 	    }
-	    // abort everything
-	    emcTaskAbort();
-	    emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
-	    emcSpindleAbort();
+	    // motion already should have reported this condition (and set RCS_ERROR?)
+	    // an M19 orient failed to complete within timeout
+	    // if ((emcStatus->motion.status == RCS_ERROR) && 
+	    // 	(emcStatus->motion.spindle.orient_state == EMCMOT_ORIENT_FAULTED) &&
+	    // 	(emcStatus->motion.spindle.orient_fault != 0)) {
+	    // 	emcOperatorError(0, "wait for orient complete timed out");
+	    // }
+
+        // abort everything
+        emcTaskAbort();
+        emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+        emcSpindleAbort();
 	    mdi_execute_abort();
 	    // without emcTaskPlanClose(), a new run command resumes at
 	    // aborted line-- feature that may be considered later

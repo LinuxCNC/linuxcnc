@@ -1782,10 +1782,11 @@ regardless of what coolant is on or off.
 
 To start spindle orientation mode, program `M19`.
 
- M19 R- P-
+ M19 R- P- Q-
 
  - The optional R- word specifies the desired angle in degrees (default 0). 
  - The optional P- word specifies the rotation direction (default 0).
+ - The optional Q- word specifies the timeout ins seconds to wait for  orient to complete.
 
 M19 cancels spindle rotation mode and enters spindle orientation
 mode. M19 turns off the spindle, unlocks the spindle brake and then starts the
@@ -1802,7 +1803,18 @@ Any M3,M4,M5 spindle command will cancel spindle orientation mode and
 switch back to rotation mode, which is the default.
 
 The `[RS274NGC]ORIENT_OFFSET` value from the ini file is added to the
-R word to define an aribtrary zero position.
+R word to define an arbitrary zero position.
+
+The Q word commands the spindle orient support to wait for the orient
+cycle to complete. If no Q word is given, the orient cycle is
+initiated but not waited for in order to allow parallel operations of
+e.g. a rapid move and a spindle orient.
+
+An `M19` command with just a `Q` word, but no `R` and `P` words will
+wait for the last M19 cycle to complete, which is considered complete
+when the HAL logic asserts `motion.spindle-locked`.
+
+It is an error to specify a Q value less than 0.
 
 M19 is a modal group 7 command (same as M3,M4,M5). 
 

@@ -609,6 +609,11 @@ void ORIENT_SPINDLE(double orientation, int mode)
 {PRINT2("ORIENT_SPINDLE(%.4f, %d)\n", orientation,mode);
 }
 
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) 
+{
+  PRINT1("SPINDLE_WAIT_ORIENT_COMPLETE(%.4f)\n", timeout);
+}
+
 void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 

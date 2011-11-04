@@ -230,6 +230,7 @@ class PM_CARTESIAN;
 /* removed #define EMC_SPINDLE_DISABLE_TYPE                     ((NMLTYPE) 1315) */
 #define EMC_SPINDLE_SPEED_TYPE                       ((NMLTYPE) 1316)
 #define EMC_SPINDLE_ORIENT_TYPE                      ((NMLTYPE) 1317)
+#define EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE        ((NMLTYPE) 1318)
 
 #define EMC_SPINDLE_STAT_TYPE                        ((NMLTYPE) 1399)
 
@@ -306,7 +307,8 @@ enum EMC_TASK_EXEC_ENUM {
     EMC_TASK_EXEC_WAITING_FOR_PAUSE = 6,
     EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO = 7,
     EMC_TASK_EXEC_WAITING_FOR_DELAY = 8,
-    EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD = 9
+    EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD = 9,
+    EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED = 10
 };
 
 // types for EMC_TASK interpState
@@ -527,6 +529,7 @@ extern int emcSpindleAbort();
 extern int emcSpindleSpeed(double speed, double factor, double xoffset);
 extern int emcSpindleOn(double speed, double factor, double xoffset);
 extern int emcSpindleOrient(double orientation, int direction);
+extern int emcSpindleWaitOrientComplete(double timout);
 extern int emcSpindleOff();
 extern int emcSpindleIncrease();
 extern int emcSpindleDecrease();

@@ -1499,12 +1499,13 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON");
 
-	    if (*(emcmot_hal_data->spindle_orient))
+	    if (*(emcmot_hal_data->spindle_orient)) 
 		rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT cancelled by SPINDLE_ON");
 	    if (*(emcmot_hal_data->spindle_locked))
 		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_ON");
 	    *(emcmot_hal_data->spindle_locked) = 0;
 	    *(emcmot_hal_data->spindle_orient) = 0;
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_NONE;
 
 	    /* if (emcmotStatus->spindle.orient) { */
 	    /* 	reportError(_("cant turn on spindle during orient in progress")); */
@@ -1535,6 +1536,7 @@ check_stuff ( "before command_handler()" );
 		rtapi_print_msg(RTAPI_MSG_DBG, "spindle-locked cleared by SPINDLE_OFF");
 	    *(emcmot_hal_data->spindle_locked) = 0;
 	    *(emcmot_hal_data->spindle_orient) = 0;
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_NONE;
 	    break;
 
 	case EMCMOT_SPINDLE_ORIENT:
@@ -1548,6 +1550,7 @@ check_stuff ( "before command_handler()" );
 		/* tpAbort(&emcmotDebug->queue); */
 		/* SET_MOTION_ERROR_FLAG(1); */
 	    }
+	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_IN_PROGRESS;
 	    emcmotStatus->spindle.speed = 0;
 	    emcmotStatus->spindle.direction = 0;
 	    // so far like spindle stop, except opening brake

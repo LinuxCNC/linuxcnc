@@ -1748,6 +1748,15 @@ void ORIENT_SPINDLE(double orientation, int mode)
     interp_list.append(o);
 }
 
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout)
+{
+    EMC_SPINDLE_WAIT_ORIENT_COMPLETE o;
+
+    flush_segments();
+    o.timeout = timeout;
+    interp_list.append(o);
+}
+
 void USE_SPINDLE_FORCE(void)
 {
     /*! \todo FIXME-- unimplemented */

@@ -201,6 +201,19 @@ void enqueue_ORIENT_SPINDLE(double orientation, int mode) {
     qc().push_back(q);
 }
 
+void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(double timeout) {
+    if(qc().empty()) {
+        if(debug_qc) printf("immediate wait spindle orient complete\n");
+        WAIT_SPINDLE_ORIENT_COMPLETE(timeout);
+        return;
+    }
+    queued_canon q;
+    q.type = QWAIT_ORIENT_SPINDLE_COMPLETE;
+    q.data.wait_orient_spindle_complete.timeout = timeout;
+    if(debug_qc) printf("enqueue wait spindle orient complete\n");
+    qc().push_back(q);
+}
+
 void enqueue_SET_SPINDLE_MODE(double mode) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle mode %f\n", mode);
@@ -530,6 +543,10 @@ void dequeue_canons(setup_pointer settings) {
         case QORIENT_SPINDLE:
             if(debug_qc) printf("issuing orient spindle\n");
             ORIENT_SPINDLE(q.data.orient_spindle.orientation, q.data.orient_spindle.mode);
+            break;
+	case QWAIT_ORIENT_SPINDLE_COMPLETE:
+            if(debug_qc) printf("issuing wait orient spindle complete\n");
+            WAIT_SPINDLE_ORIENT_COMPLETE(q.data.wait_orient_spindle_complete.timeout);
             break;
         }
     }

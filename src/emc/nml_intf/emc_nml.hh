@@ -1129,6 +1129,8 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     int brake;			// 0 released, 1 engaged
     int increasing;		// 1 increasing, -1 decreasing, 0 neither
     int enabled;		// non-zero means enabled
+    int orient_state;
+    int orient_fault;
 };
 
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
@@ -1682,6 +1684,17 @@ class EMC_SPINDLE_ORIENT:public EMC_SPINDLE_CMD_MSG {
     void update(CMS * cms);
     double orientation;   // desired spindle position
     int    mode;   
+};
+
+class EMC_SPINDLE_WAIT_ORIENT_COMPLETE:public EMC_SPINDLE_CMD_MSG {
+  public:
+    EMC_SPINDLE_WAIT_ORIENT_COMPLETE():EMC_SPINDLE_CMD_MSG(EMC_SPINDLE_WAIT_ORIENT_COMPLETE_TYPE,
+					    sizeof(EMC_SPINDLE_WAIT_ORIENT_COMPLETE)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+    double timeout;   // how long to wait until spindle orient completes; > 0
 };
 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <child>
@@ -87,35 +87,13 @@
                 <child>
                   <object class="HAL_Label" id="spindle-orient-angle">
                     <property name="visible">True</property>
-                    <property name="label_pin_type">1</property>
                     <property name="text_template">motion.spindle-orient-angle: %f</property>
+                    <property name="label_pin_type">1</property>
                   </object>
                   <packing>
                     <property name="right_attach">2</property>
                     <property name="top_attach">3</property>
                     <property name="bottom_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label3">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">motion.spindle-orient-fwd:</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="HAL_LED" id="spindle-orient-fwd-led">
-                    <property name="visible">True</property>
-                    <property name="led_shape">2</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -163,6 +141,12 @@
                     <property name="top_attach">6</property>
                     <property name="bottom_attach">7</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
             </child>

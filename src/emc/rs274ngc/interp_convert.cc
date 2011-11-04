@@ -3078,8 +3078,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     settings->spindle_turning = CANON_STOPPED;
   } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
       settings->spindle_turning = CANON_STOPPED;
+      if (block->r_flag || block->p_flag)
       enqueue_ORIENT_SPINDLE(block->r_flag ? (block->r_number + settings->orient_offset) : settings->orient_offset, 
 			     block->p_flag ? block->p_number : 0);
+      if (block->q_flag) {
+	  CHKS((block->q_number <= 0.0),(_("Q word with M19 requires a value > 0")));
+	  enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(block->q_number);
+      }
   } else if ((block->m_modes[7] == 70) || (block->m_modes[7] == 73)) {
 
      // save state in current stack frame. We borrow the o-word call stack

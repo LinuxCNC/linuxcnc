@@ -405,6 +405,7 @@ void SET_SPINDLE_MODE(double) {}
 void STOP_SPINDLE_TURNING() {}
 void SET_SPINDLE_SPEED(double rpm) {}
 void ORIENT_SPINDLE(double d, int i) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
