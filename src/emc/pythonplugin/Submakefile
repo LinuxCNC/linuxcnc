@@ -18,7 +18,7 @@ $(call TOOBJSDEPS, $(LIBPPSRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON -g -O0
 
 $(call TOOBJSDEPS, $(TESTSRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON -g -O0
 
-TARGETS += ../lib/libpyplugin.so emc/pythonplugin/testpp
+TARGETS += ../lib/libpyplugin.so.0 emc/pythonplugin/testpp
 
 ../lib/libpyplugin.so.0: $(patsubst %.cc,objects/%.o,$(LIBPPSRCS)) ../lib/libemcini.so
 	$(ECHO) Linking $(notdir $@)
