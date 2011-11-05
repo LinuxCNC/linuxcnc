@@ -19,7 +19,7 @@ Finding line number information for faults in realtime components
 5. Find the module which contains the offending IP. 
    $cat /proc/modules
    motmod 142230 0 - Live 0xc93df000
-   fault 1626 1 motmod, Live 0xc93dc000 (P)
+   fault 1626 1 motmod, Live 0xc93dc000
    hal_lib 30517 2 motmod,fault, Live 0xc93d5000
 
    Now you can exit hal/emc2.
