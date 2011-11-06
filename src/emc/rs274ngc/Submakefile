@@ -1,6 +1,5 @@
-# this should go into configure FIXME
-BOOST=boost_python
-
+#BOOST_DEBUG_FLAGS= -DBOOST_DEBUG_PYTHON -g -O0
+BOOST_DEBUG_FLAGS=
 
 INCLUDES += emc/rs274ngc
 
@@ -27,7 +26,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	rs274ngc_pre.cc)
 USERSRCS += $(LIBRS274SRCS)
 
-$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC -DBOOST_DEBUG_PYTHON
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC  $(BOOST_DEBUG_FLAGS) 
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
@@ -36,7 +35,7 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ -l$(BOOST) -l$(LIBPYTHON)
+	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
 
 ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@
