@@ -281,6 +281,7 @@ HEADERS := \
     emc/nml_intf/interp_return.hh \
     emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
+    emc/nml_intf/debugflags.h \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/rs274ngc.hh \
     hal/hal.h \
