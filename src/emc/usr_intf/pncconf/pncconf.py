@@ -181,7 +181,7 @@ _IMPERIAL = 0;_METRIC = 1
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
-    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0,12,3, 0,0, 0,0, 0,0, 1, 72 , 33, 100, [2,3,4],
+    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -1487,8 +1487,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         encoder = self.encoder_sig(letter)
         resolver = self.resolver_sig(letter)
         closedloop = False
-        if stepgen and encoder: closedloop = True
-        if encoder and (pwmgen or tppwmgen) : closedloop = True
+        if stepgen and (encoder or resolver): closedloop = True
+        if (encoder or resolver) and (pwmgen or tppwmgen) : closedloop = True
         #print "INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen
 
         print >>file
@@ -1979,6 +1979,20 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
+                            print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
+                            print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                            break
+            elif t in (RES0,RES1,RES2,RES3,RES4,RES5):
+                if not p == "unused-resolver":
+                    for sig in (self.halresolversignames):
+                       if p == sig:
+                            pinname = self.make_pinname(self.findsignal( p ))
+                            print >>file, "\n# ---",sig.upper(),"---"
+                            print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
+                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                            print >>file, "net %s            <=  "% (sig+"-angle")+pinname +".angle"
+                            print >>file, "net %s            <=  "% (sig+"-error")+pinname +".error"
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
@@ -4120,10 +4134,10 @@ Ok to reset data and start a new configuration?"),False):
             pinconvertenc = {"Phase A (in)":ENCA,"Phase B (in)":ENCB,"Index (in)":ENCI,"IndexMask (in)":ENCM,
                 "Muxed Phase A (in)":MXE0,"Muxed Phase B (in)":MXE1,"Muxed Index (in)":MXEU,"Muxed Index Mask (in)":MXEM,
                 "Muxed Encoder Select 0 (out)":MXES}
-            pinconvertresolver = {" Resolver Power Enable (out)":RESU," Resolver SpiDi 0 (in)":RES0," Resolver SpiDi 1 (in)":RES1,
-                                " Resolver ADC Channel 2 (out)":RES2," Resolver ADC Channel 1 (out)":RES3," Resolver ADC Channel 0 (out)":RES4,
-                                " Resolver Spi Clk (out)":RES5," Resolver Spi Chip Select (out)":RESU," Resolver PDMM (out)":RESU,
-                                " Resolver PDMP (out)":RESU}
+            pinconvertresolver = {"Resolver Power Enable (out)":RESU,"Resolver SpiDi 0 (in)":RES0,"Resolver SpiDi 1 (in)":RES1,
+                                "Resolver ADC Channel 2 (out)":RES2,"Resolver ADC Channel 1 (out)":RES3,"Resolver ADC Channel 0 (out)":RES4,
+                                "Resolver Spi Clk (out)":RES5,"Resolver Spi Chip Select (out)":RESU,"Resolver PDMM (out)":RESU,
+                                "Resolver PDMP (out)":RESU}
             pinconvertstep = {"Step (out)":STEPA,"Dir (out)":STEPB}
                 #"StepTable 2 (out)":STEPC,"StepTable 3 (out)":STEPD,"StepTable 4 (out)":STEPE,"StepTable 5 (out)":STEPF
             pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
@@ -5209,7 +5223,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # kill all widget signals:
                 self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                 self.widgets[p].handler_block(self.data[blocksignal]) 
-                self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
+                self.widgets[p].child.handler_block(self.data[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
 
@@ -8469,7 +8483,7 @@ But there is not one in the machine-named folder.."""),True)
             if not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
             # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = temp = ""
+            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
             if self.mesa0_numof_sserialports:
                 for i in range(1,9):
                     if i <= self.mesa0_numof_sserialchannels:
