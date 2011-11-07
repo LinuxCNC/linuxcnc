@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-01 12:49+0100\n"
-"PO-Revision-Date: 2011-11-03 15:26+0100\n"
+"PO-Revision-Date: 2011-11-07 18:26+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -655,12 +655,12 @@ msgstr "Erreur de suivi jointure %d:"
 #: emc/motion/control.c:1442
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
-msgstr "jointure %d à dépassé la limite logicielle positive"
+msgstr "La jointure %d à dépassé la limite logicielle positive"
 
 #: emc/motion/control.c:1447
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
-msgstr "jointure %d à dépassé la limite logicielle négative"
+msgstr "La jointure %d à dépassé la limite logicielle négative"
 
 #: emc/motion/command.c:159
 #, c-format
@@ -5947,21 +5947,24 @@ msgstr "# ajouter ici les commandes MDI halui (maximum 64) "
 
 #: emc/usr_intf/stepconf/stepconf.py:988 emc/usr_intf/pncconf/pncconf.py:2684
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr "# **** Setup for external estop ladder program -START ****"
+msgstr "# **** Paramètre -START pour l'A/U externe du programme ladder ****"
 
 #: emc/usr_intf/stepconf/stepconf.py:995 emc/usr_intf/pncconf/pncconf.py:2691
 msgid "# **** Setup for external estop ladder program -END ****"
-msgstr "# **** Setup for external estop ladder program -END ****"
+msgstr "# **** Paramètre -END pour l'A/U externe du programme ladder ****"
 
 #: emc/usr_intf/stepconf/stepconf.py:1015 emc/usr_intf/pncconf/pncconf.py:2718
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr ""
-"# Load Classicladder with modbus master included (GUI must run for Modbus)"
+"# Chargement de Classicladder avec modbus maître inclus (La GUI doit tourner "
+"avec Modbus)"
 
 #: emc/usr_intf/stepconf/stepconf.py:1018 emc/usr_intf/pncconf/pncconf.py:2723
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
-msgstr "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
+msgstr ""
+"# Chargement de Classicladder sans GUI (peut recharger la GUI LADDER dans la "
+"GUI AXIS)"
 
 #: emc/usr_intf/stepconf/stepconf.py:1028 emc/usr_intf/pncconf/pncconf.py:2805
 msgid "Include your PyVCP panel here.\n"
@@ -6002,7 +6005,9 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1047
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr "# **** ACTUAL velocity is in RPS not RPM so we scale it."
+msgstr ""
+"# **** La vitesse ACTUELLE est en tr/s et non en tr/mn, elle peut, si "
+"besoin, être mise à l'échelle."
 
 #: emc/usr_intf/stepconf/stepconf.py:1056
 msgid "# **** set up spindle at speed indicator ****"
@@ -6013,16 +6018,16 @@ msgid ""
 "# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
 "was specified"
 msgstr ""
-"# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
-"was specified"
+"# **** Utilise la vitesse de broche COMMANDÉE par EMC2 puisqu'aucun codeur "
+"de broche n'a été spécifié"
 
 #: emc/usr_intf/stepconf/stepconf.py:1070
 msgid ""
 "# **** COMANDED velocity is signed so we use absolute component (abs.0) to "
 "remove sign"
 msgstr ""
-"# **** COMANDED velocity is signed so we use absolute component (abs.0) to "
-"remove sign"
+"# **** La vitesse COMMANDÉE est signée, le composant absolu (abs.0) peut "
+"être utilisé pour enlever le signe"
 
 #: emc/usr_intf/stepconf/stepconf.py:1085
 msgid "# This file will not be overwritten when you run stepconf again"
@@ -6219,13 +6224,12 @@ msgid ""
 "You may need to collapse the 'Driver Timing Settings' and \n"
 "Parallel Port Settings' expanders."
 msgstr ""
-"This program creates configuration files (.ini and .hal) for \"step and "
-"direction \" milling machines and lathes connected to the PC parallel "
-"port. \n"
+"Ce programme crée les fichiers de confguration (.ini et .hal) pour "
+"fraiseuses ou tours \"step/dir.\" connectés au port parallèle du PC. \n"
 "\n"
-"Stepconf requires a minimum 800 X 600 display resolution.\n"
-"You may need to collapse the 'Driver Timing Settings' and \n"
-"Parallel Port Settings' expanders."
+"Stepconf requiert une résolution d'écran minimale de 800X600.\n"
+"Vous devrez peut être réduire les 'réglages de timing du pilote' et \n"
+"étendre ceux du Port parralèle."
 
 #: emc/usr_intf/stepconf/stepconf.glade:51
 msgid "Create a _new configuration"
@@ -9397,8 +9401,8 @@ msgid ""
 "Configuration\n"
 "     Page"
 msgstr ""
-"Configuration\n"
-"     Page"
+"        Page de\n"
+"configuration"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8709
 #: emc/usr_intf/pncconf/pncconf.glade:8761
@@ -10745,11 +10749,11 @@ msgstr "<b>Réglages filtre d'affichage broche</b>"
 
 #: emc/usr_intf/pncconf/pncconf.glade:50504
 msgid "Rapid Speed Following Error:"
-msgstr "Rapid Speed Following Error:"
+msgstr "Erreur de suivi vitesse rapide:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:50516
 msgid "Feed Speed Following Error:"
-msgstr "Feed Speed Following Error:"
+msgstr "Erreur de suivi vitesse travail:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:50530
 msgid "Invert Motor Direction"
@@ -10981,7 +10985,7 @@ msgstr "Servo Thread"
 
 #: emc/usr_intf/pncconf/pncconf.glade:52785
 msgid "Load Command "
-msgstr "Commande de chargement"
+msgstr "Charger commande"
 
 #: emc/usr_intf/pncconf/pncconf.glade:52833
 msgid "Thread Speed"
@@ -11299,9 +11303,9 @@ msgstr ""
 "Position de l'origine pièce en Z = de l'origine machine à la position "
 "d'origine = 100\n"
 "\n"
-"X axis would be similar but not shown fully for clarity.\n"
-"This is just a sample reference other switch combinations are\n"
-"possible."
+"C'est similaire pour l'axe X, non affiché pour plus de clarté.\n"
+"Ceci est juste un exemple, d'autres combinaisons de contacts sont\n"
+"possibles."
 
 #: emc/usr_intf/pncconf/pncconf.glade:58870
 msgid "Lathe"
@@ -11521,8 +11525,8 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
-"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
+"Le rayon à la fin de l'arc différe de celui du début: début=(%c%.4f,%c%.4f) "
+"centre=(%c%.4f,%c%.4f) fin=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 
 #: emc/rs274ngc/interp_check.cc:89
