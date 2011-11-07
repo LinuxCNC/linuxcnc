@@ -106,7 +106,7 @@ Les valeurs élevées, qui exigent beaucoup de pas ce qui ralenti la vitesse max
 
 *Dents moteur* et *Dents vis* à indiquer si vous avez une réduction poulies/courroie entre le moteur et la vis. Sinon mettez 1 pour les deux.
 
-*Pas de vis* indique combien de tour la vis d'entraînement de l'axe doit faire pour déplacer la table d'une unité utilisateur. Si vous êtes en pouces, c'est le nombre de tours pas pouce, si vous êtes en millimètres, c'est le nombre de tour (ou fraction de tour) par millimètre. Par exemple, pour une vis avec un pas de 5.08mm, il faut 0.1968503937 tour pour faire 1 mm et 5 tours pour faire un pouce.
+*Pas de vis* indique combien de tour la vis d'entraînement de l'axe doit faire pour déplacer la table d'une unité utilisateur. Si vous êtes en pouces, c'est le nombre de tours par pouce, si vous êtes en millimètres, c'est le nombre de tour (ou fraction de tour) par millimètre. Par exemple, pour une vis avec un pas de 5.08mm, il faut 0.1968503937 tour pour faire 1 mm et 5 tours pour faire un pouce.
 
 Autre exemple (pouces):
 
@@ -164,7 +164,7 @@ Voir l'utilisation de l'assistant Stepconf au chapitre (<<cha:Assistant-graphiqu
 
 == Lien sur le bureau (raccourci)
 
-Il est possible de créer un lien sur le bureau 
+Il est possible de créer un lien associé à une icône sur le bureau 
 après utilisation de l'assistant Stepconf. 
 Au lancement d'EMC2, le sélecteur de configuration s'ouvre, choisir la
 configuration nouvellement créée dans la liste et cocher la case
