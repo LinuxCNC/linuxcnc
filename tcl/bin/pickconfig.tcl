@@ -251,8 +251,7 @@ pack $f5 -side bottom -anchor e -fill x -expand n -padx 15
 
 pack $f1 -fill both -expand y
 
-set config_count 0
-set nonsample_count 0
+set ::config_count 0
 
 proc describe {dir} {
     if {[string compare $dir $emc::USER_CONFIG_DIR] == 0} {
@@ -264,58 +263,46 @@ proc describe {dir} {
     return $dir/
 }
 
-foreach dir $configs_dir_list {
-    if {[info exists seen($dir)]} continue
-    set seen($dir) 1
-    set dir_in_tree 0
-    set subdir_list [ glob -nocomplain $dir/*/ ]
-    set subdir_list [ lsort $subdir_list ]
-    foreach subdir $subdir_list {
-	set ::inifile_list [ glob -nocomplain $subdir*.ini ]
-	# add dir to tree if not already
-	if { $dir_in_tree == 0 } {
-	    set text [describe $dir]
-	    $::tree insert end root $dir -text $text -open 1
-	    set dir_in_tree 1
-	}
-	if { [ llength $::inifile_list ] == 1 } {
-	    # only one ini file, no second level
-	    # add inifile to tree
-	    set ::inifile [ lindex $inifile_list 0 ]
-            set parts [file split $::inifile]
-	    $::tree insert end $dir $::inifile -text [lindex $parts end-1] -open 1
-	    incr config_count
-	    if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
-	} elseif { [ llength $inifile_list ] > 1 } {
-	    # multiples, use second level and sort
-  	    set inifile_list [ lsort $inifile_list ]
-	    # add subdir to tree
-	    set subdir [format %s $subdir]
-	    $::tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
-	    # add second level entries, one per inifile
-	    foreach ::inifile $inifile_list {
-		# add inifile to tree
-		set ::inifile [format %s $::inifile]
-                set text [file rootname [file tail $::inifile]]
-		$::tree insert end $subdir $::inifile -text $text -open 1
-		incr config_count
-		if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
-	    }
-	}
-    }
+proc walktree {dir} {
+   if ![info exists ::openmode] {set ::openmode 1}
+   if ![$::tree exists $dir] {
+     set ::lvl $dir
+     $::tree insert end root $dir -text [describe $dir] -open $::openmode
+   }
+  foreach f [lsort [glob -nocomplain $dir/*]] {
+     if [file isdirectory $f] {
+       set foundini [exec find $f -type f -name "*.ini"]
+       if {"$foundini" == ""} {
+         verbose "no ini files, skipping $f"
+         continue
+       }
+       $::tree insert end $::lvl $f -text [file tail $f] -open $::openmode
+       set restore $::lvl
+       set ::lvl $f
+       walktree $f ;# recursion
+       set ::lvl $restore
+     } else {
+       if { [ regexp {.*\.ini$} $f] == 1 } {
+         $::tree insert end $::lvl $f -text [file tail $f] -open $::openmode
+         incr ::config_count
+         continue
+       } else {
+         verbose "skipping non-ini file: $f"
+       }
+     }
+  }
+} ;# walktree
+
+proc verbose {msg} {
+  if ![info exists ::env(verbose_pickconfig)] return
+  puts stderr "pickconfig:$msg"
 }
 
-if {$nonsample_count} {
-    foreach dir $emc::CONFIG_DIR {
-	if {$dir != $emc::USER_CONFIG_DIR} {
-	    catch {$::tree closetree $dir}
-	}
-    }
+foreach dir $::configs_dir_list {
+  walktree $dir
 }
 
-unset seen
-
-if { $config_count == 0 } {
+if { $::config_count == 0 } {
     puts stderr [msgcat::mc "ERROR: no configurations found in path '%s'" $configs_dir_list]
     exit 1
 }
