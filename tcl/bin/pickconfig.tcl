@@ -97,6 +97,16 @@ proc sSlide {f a b} {
     $f.sc set $a $b
 }
 
+# if node is an ini file named xxx.ini, then:
+#    show xxx.txt      if it exists
+# else
+#    show README       if it exists in the directory for node
+# else
+#    show "No Details available"
+#
+# if node is a directory, then:
+#    show README       if it exists in the directory for node
+
 # called when user clicks tree node
 proc node_clicked {} {
 
@@ -106,13 +116,11 @@ proc node_clicked {} {
 
     $::tree selection set $node
     $::tree see $node
+
+    set readme ""
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
 	# enable changes to the details widget
-	$::detail_box configure -state normal
-	# remove old text
-	$::detail_box delete 1.0 end
-	# add new text
 	set node [format %s $node]
 	set dir [ file dirname $node]
 	set name [ file rootname [file tail $node ] ]
@@ -133,45 +141,49 @@ proc node_clicked {} {
 	    $::detail_box tag configure centered -justify center
 	    $::detail_box tag add centered 0.0 0.end
 	}
-	if { [ file readable $readme ] } {
-	    # description found, read it
-	    set descr [ read -nonewline [ open $readme ]]
-	    # reformat - remove line breaks, preserve paragraph breaks
-	    regsub -all {([^\n])\n([^\n])} $descr {\1 \2} descr
-	    # and display it
-	    $::detail_box insert end $descr
-	} else {
-	    # no description, gotta tell the user something
-	    $::detail_box insert end [msgcat::mc "No details available."]
-	}
-	# lock it again
-	$::detail_box configure -state disabled
 	# save selection
 	set ::inifile $node
-        # enable the OK button
+	# enable the OK button
 	$::button_ok configure -state normal
 	bind . <Return> {button_pushed OK}
 	bind . <KP_Enter> {button_pushed OK}
     } else {
-	# not an ini node, can't use it
-	# enable changes to the details widget
-	$::detail_box configure -state normal
-	# remove old text
-	$::detail_box delete 1.0 end
-	# lock it again
-	$::detail_box configure -state disabled
-	# clear selection
-	set ::inifile ""
-	# disable the OK button
-	$::button_ok configure -state disabled
-	bind . <Return> ""
-	bind . <KP_Enter> ""
-    }
+	if {[file isdirectory $node]} {
+	    set readme [file join $node README]
+	    # clear selection
+	    set ::inifile ""
+	    # disable the OK button
+	    $::button_ok configure -state disabled
+	    bind . <Return> ""
+	    bind . <KP_Enter> ""
+        }
+   }
+
+   # remove old text
+   $::detail_box configure -state normal
+   $::detail_box delete 1.0 end
+   if { [ file readable $readme ] } {
+       # description found, read it
+       set descr [ read -nonewline [ open $readme ]]
+       # reformat - remove line breaks, preserve paragraph breaks
+       regsub -all {([^\n])\n([^\n])} $descr {\1 \2} descr
+       # and display it
+       $::detail_box insert end $descr
+   } else {
+       if [file isdirectory $node] {
+           # leave detail_box empty
+       } else {
+           # no description, gotta tell the user something
+           $::detail_box insert end [msgcat::mc "No details available."]
+       }
+   }
+   # lock it again
+   $::detail_box configure -state disabled
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
 set configs_dir_list $emc::CONFIG_DIR
- 
+
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
     option add *$class.borderWidth 1  100
