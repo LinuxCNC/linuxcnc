@@ -207,7 +207,7 @@ This executes a previously parsed block.
 
 */
 
-int Interp::execute(const char *command)
+int Interp::_execute(const char *command)
 {
   int status;
   int n;
@@ -309,6 +309,15 @@ int Interp::execute(const char *command)
   return status;
 }
 
+
+int Interp::execute(const char *command) 
+{
+    int status;
+    if ((status = _execute(command)) > INTERP_MIN_ERROR) {
+	unwind_call(status, __FILE__,__LINE__);
+    }
+    return status;
+}
 
 int Interp::execute(const char *command, int line_number)
 {
@@ -870,7 +879,7 @@ zero, this parses the line into the _setup.block1.
 
 */
 
-int Interp::read(const char *command)  //!< may be NULL or a string to read
+int Interp::_read(const char *command)  //!< may be NULL or a string to read
 {
   static char name[] = "Interp::read";
   int read_status;
@@ -960,6 +969,76 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
   return read_status;
 }
 
+int Interp::read(const char *command) 
+{
+    int status;
+    if ((status = _read(command)) > INTERP_MIN_ERROR) {
+	unwind_call(status, __FILE__,__LINE__);
+    }
+    return status;
+}
+
+// Reset interpreter state and  terminate a call in progress by
+// falling back to toplevel in a controlled way. Idempotent.
+// The input line (_setup.linetext,_setup.blocktext, _setup.line_length) 
+// is left untouched for inspection post-error. This is only
+// cleared in reset().
+int Interp::unwind_call(int status, const char *file, int line)
+{
+    logDebug("unwind_call call_level=%d status=%d from %s:%d\n",
+	    _setup.call_level, status, file, line);
+
+    for(; _setup.call_level > 0; _setup.call_level--) {
+	int i;
+	context * sub = _setup.sub_context + _setup.call_level - 1;
+	free_named_parameters(_setup.call_level, &_setup);
+	if(sub->subName) {
+	    logDebug("unwind_call leaving sub '%s'\n", sub->subName);
+	    free(sub->subName);
+	    sub->subName = 0;
+	}
+
+	for(i=0; i<INTERP_SUB_PARAMS; i++) {
+	    _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
+		sub->saved_params[i];
+	}
+
+	// When called from Interp::close via Interp::reset, this one is NULL
+	if (!_setup.file_pointer) continue;
+
+	if(0 != strcmp(_setup.filename, sub->filename)) {
+	    fclose(_setup.file_pointer);
+	    _setup.file_pointer = fopen(sub->filename, "r");
+	    logDebug("unwind_call: reopening '%s' at %ld\n",
+		    sub->filename, sub->position);
+	    strcpy(_setup.filename, sub->filename);
+	}
+
+	fseek(_setup.file_pointer, sub->position, SEEK_SET);
+
+	_setup.sequence_number = sub->sequence_number;
+	logDebug("unwind_call: setting sequence number=%d from frame %d\n",
+		_setup.sequence_number,_setup.call_level);
+
+    }
+
+    if(_setup.sub_name) {
+	logDebug("unwind_call exiting current sub '%s'\n", _setup.sub_name);
+	free(_setup.sub_name);
+	_setup.sub_name = 0;
+    }
+    _setup.call_level = 0;
+    _setup.defining_sub = 0;
+    _setup.skipping_o = 0;
+    _setup.skipping_to_sub = 0;
+    _setup.oword_labels = 0;
+
+    _setup.mdi_interrupt = false;
+
+    qc_reset();
+    return INTERP_OK;
+}
+
 /***********************************************************************/
 
 /*! Interp::reset
@@ -993,10 +1072,6 @@ which are called by Interp::init) change the model.
 
 int Interp::reset()
 {
-  _setup.linetext[0] = 0;
-  _setup.blocktext[0] = 0;
-  _setup.line_length = 0;
-
   //!!!KL According to the comment,
   //!!!KL this should not be here because this is for
   //!!!KL more than one line.
@@ -1006,48 +1081,11 @@ int Interp::reset()
   //
   // initialization stuff for subroutines and control structures
 
-  for(; _setup.call_level > 0; _setup.call_level--) {
-    int i;
-    context * sub = _setup.sub_context + _setup.call_level - 1;
-    free_named_parameters(_setup.call_level, &_setup);
-    if(sub->subName) {
-      free(sub->subName);
-      sub->subName = 0;
-    }
-
-    for(i=0; i<INTERP_SUB_PARAMS; i++) {
-      _setup.parameters[i+INTERP_FIRST_SUBROUTINE_PARAM] =
-        sub->saved_params[i];
-    }
-
-    // When called from Interp::close this one is NULL
-    if (!_setup.file_pointer) continue;
-
-    if(0 != strcmp(_setup.filename, sub->filename)) {
-      fclose(_setup.file_pointer);
-      _setup.file_pointer = fopen(sub->filename, "r");
-
-      strcpy(_setup.filename, sub->filename);
-    }
-
-    fseek(_setup.file_pointer, sub->position, SEEK_SET);
-
-    _setup.sequence_number = sub->sequence_number;
-  }
-  if(_setup.sub_name) {
-    free(_setup.sub_name);
-    _setup.sub_name = 0;
-  }
-  _setup.call_level = 0;
-  _setup.defining_sub = 0;
-  _setup.skipping_o = 0;
-  _setup.oword_labels = 0;
-
-  _setup.mdi_interrupt = false;
-
-  qc_reset();
-
-  return INTERP_OK;
+    _setup.linetext[0] = 0;
+    _setup.blocktext[0] = 0;
+    _setup.line_length = 0;
+    unwind_call(INTERP_OK, __FILE__,__LINE__);
+    return INTERP_OK;
 }
 
 /***********************************************************************/

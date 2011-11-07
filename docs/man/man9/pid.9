@@ -26,6 +26,13 @@ value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
 additional HAL parameters will be exported, which might be useful
 for tuning, but are otherwise unnecessary.
 
+.SH NAMING
+The names for pins, parameters, and functions are prefixed as:
+  \fBpid.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBpid.N.\fR format is shown in the following descriptions.
+
 .SH FUNCTIONS
 
 \fBpid.\fIN\fB.do-pid-calcs\fR (uses floating-point)
@@ -33,11 +40,6 @@ Does the PID calculations for control loop \fIN\fR.
 
 .SH PINS
 
-Pin names for num_chan= specifier are:
-    \fBencoder.\fIN\fB.the_pin_name\fR
-.TP
-Pin names for names= specifier are:
-    \fBname\fB.the_pin_name\fR
 .TP
 \fBpid.\fIN\fB.command\fR float in
 The desired (commanded) value for the control loop.

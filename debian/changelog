@@ -1,4 +1,4 @@
-emc2 (1:2.5.0~pre) hardy; urgency=low
+emc2 (1:2.5.0-pre2) lucid; urgency=low
 
   * AXIS: dynamic tabs can embed other applications, including virtual
     control panels
@@ -122,7 +122,56 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
   * add a G code language spec for gedit
   * add latencyplot, a strip-chart type display of latency test results
 
- -- Chris Radek <chris@timeguy.com>  Fri, 14 Jan 2011 10:32:03 -0600
+ -- Chris Radek <chris@timeguy.com>  Thu, 22 Sep 2011 10:50:38 -0500
+
+emc2 (1:2.4.7) lucid; urgency=low
+
+  * axis: fix problem removing a single notification
+  * axis: fix jog after ctrl-alt-left or -right in mdi
+
+  * classicladder: fix a problem when more than 8 modbus inputs are read
+  * classicladder: fix possible crashes
+
+  * comp: fix a problem with 'option userinit yes"
+
+  * emcrsh: minor bugfixes
+
+  * halcmd: fix a possible crash
+  * halrmt: fix a possible crash
+  * halmeter: fix a possible crash
+
+  * hal_input: add names for new input events
+
+  * hal_motenc: set outputs to 0 on exit
+
+  * interpreter: fix spurious cutter comp error with tiny arcs in metric
+  * interpreter: fix G10 L2 on the active coordinate system
+  * interpreter: disallow changing coordinate system with cutter comp on
+  * interpreter: fix incorrect handling of do-break-while (SF#3420655)
+
+  * motion: fix spurious reversal in CSS mode with M4 and X=0
+  * motion: fix a problem with probing (SF#3040806)
+
+  * pncconf: fix nameless 'addf' in HAL file
+  * pncconf: changes spaces in configuration names to underscores
+  * pncconf: fixes for 3i28 and 7i43-4 boards
+  * pncconf: fix scale calculation
+  * pncconf: fix scaled spindle speed display
+
+  * stepconf: changes spaces in configuration names to underscores
+  * stepconf: fix for spindle PWM on pin 17
+  * stepconf: fix name of "Z Both Limit + Home" pin
+  * stepconf: fix scaled spindle speed display
+  * stepconf: advice about how to use on an 800x600 display
+
+  * thc: correctly remove offset after compensation disabled
+
+  * documentation: various improvements
+
+  * configs/smithy: various updates
+  * configs/gantry: simulated XYYZ gantry configuration
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 15 Oct 2011 12:23:30 -0500
 
 emc2 (1:2.4.6) lucid; urgency=low
 

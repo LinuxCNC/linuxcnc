@@ -437,7 +437,7 @@ static int hm2_7i43_setup(void) {
         board[i].llio.pins_per_connector = 24;
         board[i].llio.ioport_connector_name[0] = "P4";
         board[i].llio.ioport_connector_name[1] = "P3";
-
+        board[i].llio.num_leds = 8;
         board[i].llio.private = &board[i];
 
         this = &board[i].llio;

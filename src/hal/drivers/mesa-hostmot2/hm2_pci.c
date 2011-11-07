@@ -420,6 +420,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.fpga_part_number = "2s200pq208";
+            board->llio.num_leds = 8;
             break;
         }
 
@@ -432,6 +433,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[0] = "P1";
             board->llio.ioport_connector_name[1] = "P1";
             board->llio.fpga_part_number = "3s400pq208";
+            board->llio.num_leds = 8;
             break;
         }
 
@@ -445,6 +447,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.fpga_part_number = "2s200pq208";
+            board->llio.num_leds = 8;
             break;
         }
 
@@ -465,6 +468,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.ioport_connector_name[3] = "P5";
+            board->llio.num_leds = 8;
             break;
         }
 
@@ -478,6 +482,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.fpga_part_number = "3s400pq208";
+            board->llio.num_leds = 2;
             break;
         }
 
@@ -490,6 +495,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[0] = "P3";
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.fpga_part_number = "6slx9pq144";
+            board->llio.num_leds = 2;
             break;
         }
 
@@ -508,6 +514,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P2";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.fpga_part_number = "3s400pq208";
+            board->llio.num_leds = 4;
             break;
         }
 
@@ -554,6 +561,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[3] = "P9";
             board->llio.ioport_connector_name[4] = "P8";
             board->llio.ioport_connector_name[5] = "P7";
+            board->llio.num_leds = 0;
             break;
         }
 

@@ -27,7 +27,7 @@ pin in float initvalue = 0.2 if personality & 0x04 """The current to be used for
 the homing sequence in applications where an incremental encoder is used with no
 hall-sensor feedback""";
 
-pin in signed rawcounts if personality & 0x06
+pin in signed rawcounts = 0 if personality & 0x06
 """Encoder counts input. This must be linked to the encoder rawcounts pin or
 encoder index resets will cause the motor commutation to fail""";
 
@@ -662,7 +662,7 @@ FUNCTION(_) {
             } else {
                 lead = lead_angle / 360.0;
             }
-            rotor_angle = (double)((long_rawcounts-offset) * poles/2)/scale;
+            rotor_angle = (double)((long_rawcounts-encoder_offset) * poles/2)/scale;
             rotor_angle -= floor(rotor_angle);
             phase_angle = rotor_angle + lead;
             phase_angle -= floor(phase_angle);

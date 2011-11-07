@@ -147,7 +147,7 @@ drivertypes = [
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
-( GPIOI, GPIOO, GPIOD ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
+( GPIOI, GPIOO, GPIOD,NUSED ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"), _("NOT USED") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
 (  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
     _("Mux Enc Select") ]
@@ -164,15 +164,17 @@ _("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSER
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXPWM = 7;_PWMPINS = 8;_MAXTPPWM = 9;
-_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_SSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
+_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_MAXSSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
 _HIFREQ = 18;_NUMOFCNCTRS = 19;_STARTOFDATA = 20
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
+
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, number of pins per encoder,
-# max pwm gens, max tppwmgens 
-# max step gens, 
-# number of pins per step gen, 
+# max pwm gens, # of pins 
+# max tppwmgens , # of pins
+# max step gens, number of pins per step gen,
+# max smart serial, number of chaNnels
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
@@ -266,7 +268,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12, 3, 12, 0, 0, 0, 0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12,3, 12,3, 0,0, 0,0, 0,0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -350,12 +352,12 @@ mesafirmwaredata = [
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
 
 ]
-_SUBBOARDNAME = 0; _SUBSTARTOFDATA = 1
-mesadaughterdata = [ ["7i64",
-        [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
-                [GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],[GPIOI,1],
-        [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],
-                [GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1],[GPIOO,1] ],
+_SUBBOARDNAME = 0; _SUBFIRMNAME = 1; _SUBMODE = 2; _SUBSTARTOFDATA = 3
+mesadaughterdata = [ ["7i64", "7i64", 0,
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
+    [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100] ],
 ]
 
 custommesafirmwaredata = []
@@ -364,7 +366,7 @@ mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x2
 (UNUSED_OUTPUT,
 ON, CW, CCW, BRAKE,
 MIST, FLOOD, ESTOP, AMP, XAMP, YAMP, ZAMP, AAMP,
-PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
+PUMP,FORCE_PIN_TRUE, DOUT0, DOUT1, DOUT2, DOUT3,
 X_HALL1_OUT,X_HALL2_OUT,X_HALL3_OUT,X_C1_OUT,X_C2_OUT,X_C4_OUT,X_C8_OUT,
 Y_HALL1_OUT,Y_HALL2_OUT,Y_HALL3_OUT,Y_C1_OUT,Y_C2_OUT,Y_C4_OUT,Y_C8_OUT,
 Z_HALL1_OUT,Z_HALL2_OUT,Z_HALL3_OUT,Z_C1_OUT,Z_C2_OUT,Z_C4_OUT,Z_C8_OUT,
@@ -373,7 +375,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 "unused-output", 
 "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled", "xenable", "yenable", "zenable", "aenable",
-"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+"charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
 "x-hall1-out","x-hall2-out","x-hall3-out","x-gray-c1-out","x-gray-c2-out","x-gray-C4-out","x-gray-C8-out",
 "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
 "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
@@ -383,7 +385,7 @@ S_HALL1_OUT,S_HALL2_OUT,S_HALL3_OUT,S_C1_OUT,S_C2_OUT,S_C4_OUT,S_C8_OUT) = hal_o
 spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
 coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
 control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),_("Y Amplifier Enable"),_("Z Amplifier Enable"),
-_("A Amplifier Enable"),_("Charge Pump")]
+_("A Amplifier Enable"),_("Charge Pump"),_("Force Pin True")]
 digital_output = [_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 xmotor_control = [_("X HALL 1"),_("X HALL 2"),_("X HALL 3"),_("X Gray C1"),_("X Gray C2"),_("X Gray C4"),_("X Gray C8")]
 ymotor_control = [_("Y HALL 1"),_("Y HALL 2"),_("Y HALL 3"),_("Y Gray C1"),_("Y Gray C2"),_("Y Gray C4"),_("Y Gray C8")]
@@ -407,7 +409,8 @@ digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital 
 axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
 override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
     _("Feed Override incr C"),_("Feed Override incr D"),_("Spindle Override incr A"),_("Spindle Override incr B"),
-    _("Spindle Override incr C"),_("Spindle Override incr D") ]
+    _("Spindle Override incr C"),_("Spindle Override incr D"), _("Max Vel Override incr A"),_("Max Vel Override incr B"),
+    _("Max Vel Override incr C"),_("Max Vel Override incr D") ]
 spindle = [ _("Manual Spindle CW"),_("Manual Spindle CCW"),_("Manual Spindle Stop"),_("Spindle Up-To-Speed") ]
 operation =  [_("Cycle Start"),_("Abort"),_("Single Step") ]
 control = [_("ESTOP In"), _("Probe In") ]
@@ -435,7 +438,7 @@ BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
 DIN0, DIN1, DIN2, DIN3,
 SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGA, JOGB, JOGC, JOGD, FOA, FOB, FOC, FOD,
-SOA,SOB,SOC,SOD,
+SOA,SOB,SOC,SOD, MVOA, MVOB, MVOC, MVOD,
 SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,SPINDLE_AT_SPEED,
 CYCLE_START, ABORT, SINGLE_STEP,
 ESTOP_IN, PROBE,
@@ -455,7 +458,7 @@ S_HALL1_IN,S_HALL2_IN,S_HALL3_IN,S_C1_IN,S_C2_IN,S_C4_IN,S_C8_IN ) = hal_input_n
 "din-00", "din-01", "din-02", "din-03",
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
-"so-incr-a","so-incr-b","so-incr-c","so-incr-d",
+"so-incr-a","so-incr-b","so-incr-c","so-incr-d","mvo-incr-a","mvo-incr-b","mvo-incr-c","mvo-incr-d",
 "spindle-manual-cw","spindle-manual-ccw","spindle-manual-stop","spindle-at-speed",
 "cycle-start","abort","single-step",
 "estop-ext", "probe-in",
@@ -520,7 +523,7 @@ FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal
 
 axis = [_("X Encoder"),_("Y Encoder"), _("Z Encoder"),_("A Encoder"),_("Spindle Encoder")]
 mpg = [_("X Hand Wheel"), _("Y Hand Wheel"), _("Z Hand Wheel"), _("A Hand Wheel") ,_("Multi Hand Wheel")]
-over = [_("Feed Override"),_("spindle Override")]
+over = [_("Feed Override"),_("spindle Override"),_("Max Vel Override")]
 human_encoder_input_names = [ [_("Unused Encoder"),[]],[_("Axis Encoder"), axis],[_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
                             [_("Custom Signals"),[]] ] 
 
@@ -625,8 +628,8 @@ class Data:
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
-        self._pncconf_version = 2.0
-        self.pncconf_version = 2.0
+        self._pncconf_version = 3.0 # This is the actual version of this program
+        self.pncconf_loaded_version = 3.0 # This will version number for new configs or be overwritten by a loaded file to the files version.
         self._re_editmode = False
         self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
 
@@ -673,6 +676,7 @@ class Data:
         self.singlejogbuttons = False
         self.multijogbuttons = False
         self.jograpidrate = 1.0
+
         self.externalmpg = False
         self.guimpg = True    
         self.multimpg = False
@@ -698,6 +702,7 @@ class Data:
         self.mpgdebouncetime = .2
         self.mpggraycode = False
         self.mpgignorefalse = False
+
         self.externalfo = False
         self.fo_usempg = False
         self.fo_useswitch = False
@@ -721,6 +726,7 @@ class Data:
         self.fodebouncetime = .2
         self.fograycode = False
         self.foignorefalse = False
+
         self.externalso = False
         self.so_usempg = False
         self.so_useswitch = False
@@ -744,7 +750,30 @@ class Data:
         self.sodebouncetime = .2
         self.sograycode = False
         self.soignorefalse = False
-        self.externalfo = False
+
+        self.externalmvo = False
+        self.mvo_usempg = False
+        self.mvo_useswitch = False
+        self.mvoincrvalue0 = 0  # all incr-select low
+        self.mvoincrvalue1 = 5  # incr-select-a  high
+        self.mvoincrvalue2 = 10  # b
+        self.mvoincrvalue3 = 25  # ab
+        self.mvoincrvalue4 = 50 # c
+        self.mvoincrvalue5 = 75 # ac
+        self.mvoincrvalue6 = 90 # bc
+        self.mvoincrvalue7 = 100 # abc
+        self.mvoincrvalue8 = 100  # d
+        self.mvoincrvalue9 = 100  # ad
+        self.mvoincrvalue10 = 100  # bd
+        self.mvoincrvalue11 = 100  # abd
+        self.mvoincrvalue12 = 100 # cd
+        self.mvoincrvalue13 = 100 # acd
+        self.mvoincrvalue14 = 100 # bcd
+        self.mvoincrvalue15 = 100 # abcd
+        self.mvodebounce = True
+        self.mvodebouncetime = .2
+        self.mvograycode = False
+        self.mvoignorefalse = False
 
         # GUI frontend defaults
         self.position_offset = 1 # relative
@@ -894,8 +923,8 @@ class Data:
         self.mesa0_firmware = "SVST8_4"
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
-        self.mesa0_pwm_frequency = 100000
-        self.mesa0_pdm_frequency = 100000
+        self.mesa0_pwm_frequency = 20000
+        self.mesa0_pdm_frequency = 6000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
@@ -904,9 +933,10 @@ class Data:
         self.mesa0_numof_stepgens = 0
         self.mesa0_numof_gpio = 48
         self.mesa0_numof_sserialports = 0
+        self.mesa0_numof_sserialchannels = 8
         self.mesa0_sanity_7i29 = False
         self.mesa0_sanity_7i30 = False
-        self.mesa0_sanity_7i33 = False
+        self.mesa0_sanity_7i33 = True
         self.mesa0_sanity_7i40 = False
 
         # second mesa card
@@ -915,8 +945,8 @@ class Data:
         self.mesa1_firmware = "SVST8_4"
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
-        self.mesa1_pwm_frequency = 100000
-        self.mesa1_pdm_frequency = 100000
+        self.mesa1_pwm_frequency = 20000
+        self.mesa1_pdm_frequency = 6000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
@@ -925,9 +955,10 @@ class Data:
         self.mesa1_numof_stepgens = 0
         self.mesa1_numof_gpio = 48
         self.mesa1_numof_sserialports = 0
+        self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
-        self.mesa1_sanity_7i33 = False
+        self.mesa1_sanity_7i33 = True
         self.mesa1_sanity_7i40 = False
 
         for boardnum in(0,1):
@@ -1060,7 +1091,7 @@ class Data:
             self[temp+"invertencoder"]= 0
             self[temp+"3pwmscale"]= 1
             self[temp+"3pwmdeadtime"]= 500
-            self[temp+"outputscale"]= 1
+            self[temp+"outputscale"]= 10
             self[temp+"outputoffset"]= 0
             self[temp+"maxoutput"]= 10
             self[temp+"P"]= 1.0
@@ -1124,7 +1155,7 @@ class Data:
         self.suseatspeed = False
 
     def load(self, filename, app=None, force=False):
-        self.pncconf_version = 0.0
+        self.pncconf_loaded_version = 0.0
         def str2bool(s):
             return s == 'True'
 
@@ -1183,8 +1214,10 @@ class Data:
 
         warnings = []
         warnings2 = []
-        if self.pncconf_version < self._pncconf_version:
-            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\nYou may want to save it with another name.\n") )
+        if self.pncconf_loaded_version < self._pncconf_version:
+            warnings.append(_("This configuration was saved with an earlier version of pncconf which may be incompatible.\n\
+If it doesn't plainly cause an error, you still may want to save it with another name and check it. Safer to start from scratch.\n\
+If you have a REALLY large config that you wish to convert to this newer version of PNConf - ask on the EMC forum - it may be possible..") )
         for f, m in self.md5sums:
             m1 = md5sum(f)
             if m1 and m != m1:
@@ -1195,7 +1228,7 @@ class Data:
             warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
         if warnings:
             warnings = warnings + warnings2
-        self.pncconf_version = self._pncconf_version
+        self.pncconf_loaded_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -1244,9 +1277,9 @@ class Data:
             else: theme = " -t "+theme
             if self.centerembededgvcp:
                 print >>file, "EMBED_TAB_NAME = GladeVCP"
-                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp.hal -x {XID} gvcp-panel.ui"%(theme)
+                print >>file, "EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp%s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme)
             elif self.sideembededgvcp:
-                print >>file, "GLADEVCP =%s -H gvcp.hal gvcp-panel.ui"%(theme)
+                print >>file, "GLADEVCP =%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme)
         if self.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print >>file, "POSITION_OFFSET = %s"% temp
@@ -1261,7 +1294,7 @@ class Data:
         print >>file, "PROGRAM_PREFIX = %s" % \
                                     os.path.expanduser("~/emc2/nc_files")
         if self.pyvcp:
-            print >>file, "PYVCP = custompanel.xml"
+            print >>file, "PYVCP = pyvcp-panel.xml"
         # these are for AXIS GUI only
         if self.units == _METRIC:
             print >>file, "INCREMENTS = %s"% self.increments_metric
@@ -1317,32 +1350,46 @@ class Data:
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
         # TODO fix this hack : hardcoded to one serial port
-        ssconfig0 = ssconfig1 = ""
+        ssconfig0 = ssconfig1 = temp = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa0_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig0 = "sserial_port_0=%s"% temp
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa1_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig1 = "sserial_port_0=%s"% temp
+        firmstring0 = firmstring1 = ""
+        if not "5i25" in self.mesa0_currentfirmwaredata[_BOARDNAME]:
+            firmstring0 = "firmware=hm2/%s/%s.BIT" % (self.mesa0_boardtitle, self.mesa0_firmware)
+        if not "5i25" in self.mesa1_currentfirmwaredata[_BOARDNAME]:
+            firmstring1 = "firmware=hm2/%s/%s.BIT" % (self.mesa1_boardtitle, self.mesa1_firmware)
         print >>file, "# [HOSTMOT2]"
-        print >>file, "# This is for info only"
+        print >>file, "# **** This is for info only ****"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
         print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
-        print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    self.mesa0_boardtitle, self.mesa0_firmware, self.mesa0_numof_encodergens, 
+        print >>file, """# CONFIG0="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    firmstring0, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0 )
         if self.number_mesa == 2:
             print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
             print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
             print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                     self.mesa1_boardtitle, self.mesa1_firmware, self.mesa1_numof_encodergens, 
+                     firmstring1, self.mesa1_numof_encodergens, 
                      self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
         print >>file
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
         print >>file, "HALFILE = %s.hal" % self.machinename
-        if self.customhal:
-            print >>file, "HALFILE = custom.hal"
-        if self.pyvcp or self.customhal:
-            print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
+        print >>file, "HALFILE = custom.hal"
+        if self.frontend == _AXIS:
+            print >>file, "POSTGUI_HALFILE = postgui_call_list.hal"
         print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
         print >>file, "[HALUI]"          
@@ -1748,8 +1795,8 @@ class Data:
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxvel"]*1.25) )
-                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxacc"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
             if let == "s":
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
@@ -1858,80 +1905,103 @@ class Data:
 
     def connect_input(self, file):
         print >>file, "# external input signals"
-        print >>file
-        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
-            p = self['pp1Ipin%d' % pin]
-            i = self['pp1Ipin%dinv' % pin]
-            if p == UNUSED_INPUT: continue
-            if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, pin)
-            else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, pin)
-        print >>file
-        def write_pins(p,i,t):
+
+        def write_pins(pname,p,i,t):
             # for input pins
             if t == GPIOI:
                 if not p == "unused-input":
-                    pinname = self.make_pinname(self.findsignal( p )) 
-                    print >>file, "# ---",p.upper(),"---"
-                    if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
-                    else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+                    pinname = self.make_pinname(pname) 
+                    print >>file, "\n# ---",p.upper(),"---"
+                    if "parport" in pinname:
+                        if i: print >>file, "net %s     <= %s-not" % (p, pinname)
+                        else: print >>file, "net %s     <= %s" % (p, pinname)
+                    elif "sserial" in pname:
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
+                    else:
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname +".in"
             # for encoder pins
             elif t in (ENCA,MXEA):
                 if not p == "unused-encoder":
                     for sig in (self.halencoderinputsignames):
                        if p == sig+"-a":
                             pinname = self.make_pinname(self.findsignal( p ))
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
                             break
+        # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, pin)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
-                    write_pins(p,i,t)
+                    write_pins(pname,p,i,t)
+        # sserial
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                print >>file
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
-                        write_pins(p,i,t)
+                        write_pins(pname,p,i,t)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.number_pports < (j+1): break
+            print >>file
+            for x in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                pname = "%sIpin%d" % (k, x)
+                p = self[pname]
+                i = self[pname+"inv"]
+                if not p == "unused-input":
+                    write_pins(pname,p,i,GPIOI)
 
     def connect_output(self, file):
-        
         print >>file, "# external output signals"
-        print >>file
-        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = self['pp1Opin%d' % pin]
-            i = self['pp1Opin%dinv' % pin]
-            if p == UNUSED_OUTPUT: continue
-            print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, pin)
-            if i: print >>file, "setp    parport.0.pin-%02d-out-invert true" % pin           
-        print >>file
+
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
             if t in (GPIOO,GPIOD):
                 if not p == "unused-output":
                     pinname = self.make_pinname(pname)
-                    print >>file, "# ---",p.upper(),"---"
-                    print >>file, "setp    "+pinname +".is_output true"
-                    if i: print >>file, "setp    "+pinname+".invert_output true"
-                    if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"   
-                    print >>file, "net %s     =>  "% (p)+pinname +".out"              
+                    print >>file, "\n# ---",p.upper(),"---"
+                    if "parport" in pinname:
+                        if p == "force-pin-true":
+                            print >>file, "setp %s true"% (pinname)
+                        else:
+                            print >>file, "net %s %s"% (p,pinname)
+                    else:
+                        if not "sserial" in pname:
+                            print >>file, "setp %s true"% (pinname + ".is_output")
+                            if t == GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
+                        if p == "force-pin-true":
+                            print >>file, "setp %s true"% ((pinname + ".out"))
+                        else:
+                            print >>file, "net %s %s"% (p,(pinname + ".out"))
+                    if i: # invert pin
+                        if "sserial" in pname: ending = ".invert"
+                        elif "parport" in pinname: ending = "-invert"
+                        else: ending = ".invert_output"
+                        print >>file, "setp %s true"%  (pinname + ending )
+
             # for pwm pins
             elif t in (PWMP,PDMP,UDMU):
                 if not p == "unused-pwm":
                     for sig in (self.halpwmoutputsignames):
                         if p == (sig+"-pulse"):
                             pinname = self.make_pinname(pname)
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             if t == PWMP:
                                 print >>file, "setp    "+pinname +".output-type 1"
                             if t == UDMU:
@@ -1947,7 +2017,7 @@ class Data:
                     for sig in (self.haltppwmoutputsignames):
                         if p == (sig+"-a"):
                             pinname = self.make_pinname(pname) 
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
                             print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
                             print >>file, "net %s           <=  "% (sig+"-b-value")+pinname +".B-value"
@@ -1959,7 +2029,7 @@ class Data:
                     for sig in (self.halsteppersignames):
                         if p == (sig+"-step"):
                             pinname = self.make_pinname(pname) 
-                            print >>file, "# ---",sig.upper(),"---"
+                            print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
                             print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
@@ -1971,7 +2041,7 @@ class Data:
                                     gpioname = self.make_pinname(i[0],True)
                                     print >>file, "setp    "+gpioname+".invert_output true"
                             break
-
+        # mesa mainboards
         for boardnum in range(0,int(self.number_mesa)):
             for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range(0,24):
@@ -1980,9 +2050,11 @@ class Data:
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
                     t = self['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
                     write_pins(pname,p,i,t,boardnum,connector,None,None,pin)
+            # mesa sserial
             if self["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                print >>file
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                     if channel >3: break # TODO only have 4 channels worth of glade widgets
                     for pin in range (0,48):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
@@ -1990,8 +2062,26 @@ class Data:
                         i = self['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
                         t = self['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
                         write_pins(pname,p,i,t,boardnum,None,port,channel,pin)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.number_pports < (j+1): break
+            print >>file
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pname = "%sOpin%d" % (k, x)
+                p = self[pname]
+                i = self[pname+"inv"]
+                if not p == "unused-output":
+                    write_pins(pname,p,i,GPIOO,None,None,None,None,None)
 
     def write_halfile(self, base):
+        def writebackup(origname):
+            path, ext = os.path.splitext(origname)
+            name = path.replace(base+"/","")
+            print base
+            print path,name,ext
+            shutil.copy(origname ,os.path.join(base,"backups",name + str(time.time()).replace('.', '') + ext) )
+
         axis_convert = ("x","y","z","a")
         halui_cmd_count = 0
         filename = os.path.join(base, self.machinename + ".hal")
@@ -2009,7 +2099,7 @@ class Data:
                     size = "%dx%d"% (self.pyvcpwidth,self.pyvcpheight)
                 geo = " -g %s%s"%(size,pos)
             print >>file, "loadusr -Wn pyvcp pyvcp%s -c pyvcp [DISPLAY](PYVCP)"%(geo)
-            print >>file, "source custom_postgui.hal"
+            print >>file, "source postgui_call_list.hal"
         if self.gladevcp and self.standalonegvcp:
             fmax = geo = pos = size =  ""
             if self.gladevcpposition or self.gladevcpsize:
@@ -2036,22 +2126,37 @@ class Data:
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
         # TODO fix this hardcoded hack: only one serial port
-        ssconfig0 = ssconfig1 = ""
+        ssconfig0 = ssconfig1 = temp = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa0_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig0 = "sserial_port_0=%s"% temp
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa1_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig1 = "sserial_port_0=%s"% temp
+        firmstring0 = firmstring1 = ""
+        if not "5i25" in board0:
+            firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
+        if not "5i25" in board1:
+            firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"
-                    """ % ( driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"
+                    """ % ( driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0 )
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver1, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+                    driver1, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1 )
         for boardnum in range(0,int(self.number_mesa)):
             if boardnum == 1 and (board0 == board1):
                 halnum = 1
@@ -2205,7 +2310,9 @@ class Data:
             if self.externalmpg: 
                 self.mux16names = self.mux16names+"jogincr,"  
             if self.externalfo: 
-                self.mux16names = self.mux16names+"foincr," 
+                self.mux16names = self.mux16names+"foincr,"
+            if self.externalmvo: 
+                self.mux16names = self.mux16names+"mvoincr,"
             if self.externalso: 
                 self.mux16names = self.mux16names+"soincr,"
             temp = self.mux16names.rstrip(",")
@@ -2267,7 +2374,7 @@ class Data:
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
 
-        if self.externalmpg or self.externalfo or self.externalso or self.joystickjog or self.userneededmux16 > 0: 
+        if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0: 
             temp=self.mux16names.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
@@ -2497,6 +2604,48 @@ class Data:
                     print >>file, "    setp foincr.in%02d          %f"% (i,value)
                 print >>file
 
+        pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
+        if pinname:
+            print >>file, "# ---max velocity override signals to mesa encoder - mpg---"
+            print >>file
+            print >>file, "net mvo-count     <=  %s.count"% (pinname)
+            print >>file, "setp    %s.filter true" % pinname
+            print >>file, "setp    %s.counter-mode true" % pinname
+            print >>file
+        if self.externalmvo:
+            temp=[]
+            for i in self.available_axes:
+                temp.append(float(self[i+"maxvel"]))
+            scale = max(temp)/100
+            if self.mvo_usempg:
+                print >>file, "# connect max velocity overide increments - MPG"
+                print >>file
+                print >>file, "    setp halui.max-velocity-override.count-enable true"
+                print >>file, "    setp halui.max-velocity-override.direct-value false"
+                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
+                print >>file, "net mvo-count            =>  halui.max-velocity-override.counts"
+                print >>file
+            elif self.mvo_useswitch:
+                print >>file, "# connect max velocity overide increments - switches"
+                print >>file
+                print >>file, "    setp halui.max-velocity-override.count-enable true"
+                print >>file, "    setp halui.max-velocity-override.direct_value true"
+                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
+                print >>file, "net max-vel-override-incr   =>  halui.max-velocity-override.counts"
+                print >>file, "net mvo-incr-a           =>  mvoincr.sel0"
+                print >>file, "net mvo-incr-b           =>  mvoincr.sel1"
+                print >>file, "net mvo-incr-c           =>  mvoincr.sel2"
+                print >>file, "net mvo-incr-d           =>  mvoincr.sel3"
+                print >>file, "net max-vel-override-incr   <=  mvoincr.out-s"
+                if self.mvodebounce:
+                    print >>file, "    setp mvoincr.debounce-time      %f"% self.mvodebouncetime
+                print >>file, "    setp mvoincr.use-graycode      %s"% self.mvograycode
+                print >>file, "    setp mvoincr.suppress-no-input %s" % self.mvoignorefalse
+                for i in range(0,16):
+                    value = self["mvoincrvalue%d"% i]
+                    print >>file, "    setp mvoincr.in%02d          %f"% (i,value)
+                print >>file
+
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
             print >>file, "# ---spindle override signals to mesa encoder - mpg---"
@@ -2607,43 +2756,70 @@ class Data:
                 print >>file, "net z-zero-cmd           classicladder.0.out-01   =>    halui.mdi-command-%02d"% (othercmds +1)
                 print >>file, "net rapid-away-cmd       classicladder.0.out-02   =>    halui.mdi-command-%02d"% (othercmds +2)
 
+        gvcp_options_filename = os.path.join(base, "gvcp_options.hal")
+        gvcp_call_filename  = os.path.join(base, "gvcp_call_list.hal")
         if self.gladevcp:
-            gvcp = os.path.join(base, "gvcp-panel.ui")
-            shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
-            custom = os.path.join(base, "gvcp.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"backups/glade_backup.hal") ) 
-            f1 = open(custom, "w")
-            if self.spindlespeedbar:
-                print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
+                # write the call_list
+                # the call_list allows multiple hal files to be loaded post gladevcp
+                # this simplifies the problem of overwriting the users custom HAL code
+                # when they change gvcp sample options
+                # if the user asks for existing instead of sample then if the call_list file exists
+                # don't overwrite it
+            if (not self.gladesample and not os.path.exists(gvcp_call_filename)) or self.gladesample:
+                f1 = open(gvcp_call_filename, "w")
+                print >>f1, _("# These files are loaded post gladeVCP, in the order they appear")
                 print >>f1
-                if spindle_enc:
-                    print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
-                else:
-                    print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
-            if self.spindleatspeed:
-                print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
-            i = 0
-            print >>f1, _("# **** Setup GLADE MDI buttons ****")
-            print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
-            for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
-                if self[temp[0]]:
-                    print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
-                    print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
-                    if self.require_homing:
-                        print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
-                    else:
-                        print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                if self.gladesample:
+                    print >>f1, "source gvcp_options.hal"
+                print >>f1, "source custom_gvcp.hal"
+                # write hal file for sample options selected
+            if self.gladesample:
+                    # copy glade panel from temp file to config
+                gvcp = os.path.join(base, "gvcp-panel.ui")
+                if os.path.exists(gvcp):
+                    writebackup(gvcp)
+                shutil.copy2('/tmp/gvcp-panel.ui', gvcp)
+                    # write gvcp options HAL file
+                f1 = open(gvcp_options_filename, "w")
+                print >>f1, _("# _DO NOT_ include your HAL commands here.")
+                print >>f1, _("# Put custom HAL commands in custom_gvcp.hal")
+                print >> f1 
+                if self.spindlespeedbar:
+                    print >>f1, _("# **** Setup of spindle speed display using gladevcp ****")
                     print >>f1
-                    i += 1
-            if self.autotouchz:
+                    if spindle_enc:
+                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
+                    else:
+                        print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
+                if self.spindleatspeed:
+                    print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
+                i = 0
+                print >>f1, _("# **** Setup GLADE MDI buttons ****")
+                print >>f1, ("net machine-is-on          =>    gladevcp.button-box-active")
+                for temp in(("zerox","zero-x","x"),("zeroy","zero-y","y"),("zeroz","zero-z","z"),("zeroa","zero-a","a")):
+                    if self[temp[0]]:
+                        print >>f1, ("# **** MDI Command %d - %s-axis is specified in the machine named INI file under [HALUI] heading ****"%(i,temp[1]))
+                        print >>f1, ("net MDI-%s            gladevcp.%s          =>  halui.mdi-command-%02d")%(temp[0],temp[1],i)
+                        if self.require_homing:
+                            print >>f1, ("net %s-is-homed      =>    gladevcp.%s-active"% (temp[2],temp[1]))
+                        else:
+                            print >>f1, ("net machine-is-on          =>    gladevcp.%s-active"% (temp[1]))
+                        print >>f1
+                        i += 1
+                if self.autotouchz:
                     print >>f1, _("# **** Z axis touch-off button - requires the touch-off classicladder program ****")
                     print >>f1, ("net auto-touch-z      <=    gladevcp.auto-touch-z")
                     print >>f1, ("net MDI-mode          =>    gladevcp.auto-touch-z-active")
                     print >>f1
+        else:
+            # gvcp was not selected remove any existing related HAl files
+            if os.path.exists(gvcp_options_filename):
+                os.remove(gvcp_options_filename)
+            if os.path.exists(gvcp_call_filename):
+                os.remove(gvcp_call_filename)
 
         if self.pyvcp:
-            vcp = os.path.join(base, "custompanel.xml")
+            vcp = os.path.join(base, "pyvcp-panel.xml")
             if not os.path.exists(vcp):
                 f1 = open(vcp, "w")
                 print >>f1, "<?xml version='1.0' encoding='UTF-8'?>"
@@ -2652,31 +2828,50 @@ class Data:
                 print >>f1, "-->"
                 print >>f1, "<pyvcp>"
                 print >>f1, "</pyvcp>"
-        if self.pyvcp or self.customhal or self.gladevcp:
-            custom = os.path.join(base, "custom_postgui.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"backups/postgui_backup.hal") ) 
-            f1 = open(custom, "w")
-            print >>f1, _("# Include your customized HAL commands here")
+
+        # the jump list allows multiple hal files to be loaded postgui
+        # this simplifies the problem of overwritting the users custom HAL code
+        # when they change pyvcp sample options
+        # if the user picked existing pyvcp option and the postgui_call_list is present
+        # don't overwrite it. otherwise write the file.
+        calllist_filename = os.path.join(base, "postgui_call_list.hal")
+        if (self.pyvcpexist and not os.path.exists(calllist_filename)) or not self.pyvcpexist:
+            f1 = open(calllist_filename, "w")
+            print >>f1, _("# These files are loaded post GUI, in the order they appear")
+            print >>f1
+            if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect:
+                print >>f1, "source pyvcp_options.hal"
+            print >>f1, "source custom_postgui.hal"
+
+
+        # If the user asked for pyvcp sample panel add the HAL commands too
+        pyfilename = os.path.join(base, "pyvcp_options.hal")
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
+            f1 = open(pyfilename, "w")
+            print >>f1, _("# _DO NOT_ include your HAL commands here.")
+            print >>f1, _("# Put custom HAL commands in custom_postgui.hal")
             print >>f1, _("""# The commands in this file are run after the GUI loads""") 
             print >>f1
-            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
-                  print >>f1
-                  if spindle_enc:
-                        print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
-                  else:
-                        print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
-                  print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
-                  print >>f1
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
-                  print >>f1
+            print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
+            print >>f1
+            if spindle_enc:
+                print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
+            else:
+                print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
+                print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
+                print >>f1
+                print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
+                print >>f1
+        else:
+            if os.path.exists(pyfilename):
+                os.remove(pyfilename)
 
-        if self.customhal or self.classicladder or self.halui:
-            custom = os.path.join(base, "custom.hal")
+        # pncconf adds a custom.hal and custom_postgui.hal file if one is not present
+        for i in ("custom","custom_postgui","shutdown","custom_gvcp"):
+            custom = os.path.join(base, i+".hal")
             if not os.path.exists(custom):
                 f1 = open(custom, "w")
-                print >>f1, _("# Include your customized HAL commands here")
+                print >>f1, ("# Include your %s HAL commands here")%i
                 print >>f1, _("# This file will not be overwritten when you run PNCconf again")
 
         if self.frontend == _TOUCHY:# TOUCHY GUI
@@ -2700,11 +2895,35 @@ class Data:
                     if axletter in self.available_axes:
                         print >>f1, "net joint-select-%s   <=   touchy.jog.wheel.%s"% (chr(axnum+97), axletter)
 
-        shutdown = os.path.join(base, "shutdown.hal")
-        if not os.path.exists(shutdown):
-            f1 = open(shutdown, "w")
-            print >>f1, _("# Include your optional shutdown HAL commands here")
-            print >>f1, _("# This file will not be overwritten when you run PNCconf again")
+        if self.classicladder: 
+           if not self.laddername == "custom.clp":
+                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
+                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.machinename)
+                if os.path.exists(filename): # check for the master file to copy from 
+                  if os.path.exists(original):
+                     #print "custom file already exists"
+                     writebackup(original)
+                     #shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( filename,original)
+                  #print "copied ladder program to usr directory"
+                  #print"%s" % filename
+                else:
+                     print "Master or temp ladder files missing from configurable_options dir"
+        if self.pyvcp and not self.pyvcpexist:                
+           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
+           originalname = os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     #print "custom PYVCP file already exists"
+                     writebackup(originalname)
+                     #shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/pyvcp-panel_backup.xml" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  #print "copied PYVCP program to usr directory"
+                  #print"%s" % panelname
+           else:
+                  print "Master PYVCP file: %s missing from configurable_options dir"% self.pyvcpname
         file.close()
         self.add_md5sum(filename)
 
@@ -2982,7 +3201,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
             if self["mesa%d_numof_sserialports"% boardnum]:
                 sserial = {}
                 port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                         if channel >3: break # TODO only have 4 channels worth of glade widgets
                         for pin in range (0,48):       
                             key = self['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
@@ -3054,6 +3273,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 halboardnum = 1
             if 'serial' in test:
                 # sample pin name = mesa0sserial0_0pin24
+                # at this point we can assume the 7i64 as thats all we support right now
                 subname = mesadaughterdata[0][_SUBBOARDNAME]
                 pinnum = int(test[18:])
                 portnum = int(test[12:13])
@@ -3069,7 +3289,9 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
-                    comptype = "gpio"
+                    if ptype == GPIOI:comptype = "digin"
+                    else:comptype = "digout"
+                    if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
@@ -3406,6 +3628,7 @@ class App:
                         global mesablacklist
                         mesablacklist = eval(text)
                 if name == "customfirmwarefilename":
+                    global custommesafirmwaredata
                     self.data._customfirmwarefilename = text
                     rcfile = os.path.expanduser(self.data._customfirmwarefilename)
                     print rcfile
@@ -3414,7 +3637,7 @@ class App:
                             execfile(rcfile)
                         except:
                             print "**** PNCCONF ERROR:    custom firmware loading error"
-                            custommesafirmwaredata == []
+                            custommesafirmwaredata = []
                     if not custommesafirmwaredata == []:
                         print "**** PNCCONF INFO:    Found extra firmware in file"
         self.widgets.createsymlink.set_active(link)
@@ -3540,6 +3763,17 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 self.data.load(filename, self)
                 self.data._mesa0_configured = False
                 self.data._mesa1_configured = False
+                try:
+                    # check that the firmware is current enough by checking the length of a sub element and that the other is an integer.
+                    for boardnum in(0,1):
+                        i = len(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS])
+                        j = self.data["mesa%d_currentfirmwaredata"% boardnum][_HIFREQ]+100 # throws an error if not an integer.
+                        if not i > 1:
+                            print i,j,boardnum
+                            raise UserWarning
+                except :
+                    self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue.\n."),True)
+                    return True
             else:
                 dialog.destroy()
                 return True
@@ -3716,6 +3950,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(self.data["mesa%d_numof_tppwmgens"% boardnum])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(self.data["mesa%d_numof_sserialports"% boardnum])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(self.data["mesa%d_numof_sserialchannels"% boardnum])
                 self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
         self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
         self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
@@ -3868,6 +4103,10 @@ Ok to reset data and start a new configuration?"),False):
             self.widgets.fo_usempg.set_active(1)
         else:
             self.widgets.fo_useswitch.set_active(1)
+        if self.data.mvo_usempg :
+            self.widgets.mvo_usempg.set_active(1)
+        else:
+            self.widgets.mvo_useswitch.set_active(1)
         if self.data.so_usempg :
             self.widgets.so_usempg.set_active(1)
         else:
@@ -3878,11 +4117,12 @@ Ok to reset data and start a new configuration?"),False):
         self.widgets.externalmpg.set_active(self.data.externalmpg)
         self.widgets.externaljog.set_active(self.data.externaljog)
         self.widgets.externalfo.set_active(self.data.externalfo)
+        self.widgets.externalmvo.set_active(self.data.externalmvo)
         self.widgets.externalso.set_active(self.data.externalso)
         self.widgets.sharedmpg.set_active(self.data.sharedmpg)
         self.widgets.multimpg.set_active(self.data.multimpg)
         self.widgets.incrselect.set_active(self.data.incrselect)
-        for i in ("mpg","fo","so"):
+        for i in ("mpg","fo","so","mvo"):
             self.widgets[i+"debounce"].set_active(self.data[i+"debounce"])
             self.widgets[i+"debouncetime"].set_value(self.data[i+"debouncetime"])
             self.widgets[i+"graycode"].set_active(self.data[i+"graycode"])
@@ -3893,6 +4133,7 @@ Ok to reset data and start a new configuration?"),False):
             tempunits = "mm"      
         for i in range(0,16):          
             self.widgets["foincrvalue"+str(i)].set_value(self.data["foincrvalue"+str(i)])
+            self.widgets["mvoincrvalue"+str(i)].set_value(self.data["mvoincrvalue"+str(i)])
             self.widgets["soincrvalue"+str(i)].set_value(self.data["soincrvalue"+str(i)])
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
 
@@ -3923,10 +4164,13 @@ Ok to reset data and start a new configuration?"),False):
         self.widgets.externaljogbox.set_sensitive(self.widgets.externaljog.get_active())
         self.widgets.externalmpgbox.set_sensitive(self.widgets.externalmpg.get_active())
         self.widgets.externalfobox.set_sensitive(self.widgets.externalfo.get_active())
+        self.widgets.externalmvobox.set_sensitive(self.widgets.externalmvo.get_active())
         self.widgets.externalsobox.set_sensitive(self.widgets.externalso.get_active())      
         self.widgets.foexpander.set_sensitive(self.widgets.fo_useswitch.get_active())
+        self.widgets.mvoexpander.set_sensitive(self.widgets.mvo_useswitch.get_active())
         self.widgets.soexpander.set_sensitive(self.widgets.so_useswitch.get_active())
         self.widgets.joystickjogbox.set_sensitive(self.widgets.joystickjog.get_active())
+        
         i =  self.widgets.incrselect.get_active()
         for j in range(1,16):
             self.widgets["incrlabel%d"% j].set_sensitive(i)
@@ -4072,6 +4316,8 @@ Ok to reset data and start a new configuration?"),False):
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.fo_usempg = self.widgets.fo_usempg.get_active()
         self.data.fo_useswitch = self.widgets.fo_useswitch.get_active()
+        self.data.mvo_usempg = self.widgets.mvo_usempg.get_active()
+        self.data.mvo_useswitch = self.widgets.mvo_useswitch.get_active()
         self.data.so_usempg = self.widgets.so_usempg.get_active()
         self.data.so_useswitch = self.widgets.so_useswitch.get_active()
         self.data.jograpidrate = self.widgets.jograpidrate.get_value()
@@ -4081,16 +4327,18 @@ Ok to reset data and start a new configuration?"),False):
         self.data.externaljog = self.widgets.externaljog.get_active()
         self.data.externalfo = self.widgets.externalfo.get_active()
         self.data.externalso = self.widgets.externalso.get_active()
+        self.data.externalmvo = self.widgets.externalmvo.get_active()
         self.data.sharedmpg = self.widgets.sharedmpg.get_active()
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.incrselect = self.widgets.incrselect.get_active()
-        for i in ("mpg","fo","so"):
+        for i in ("mpg","fo","so","mvo"):
             self.data[i+"debounce"] = self.widgets[i+"debounce"].get_active()
             self.data[i+"debouncetime"] = self.widgets[i+"debouncetime"].get_value()
             self.data[i+"graycode"] = self.widgets[i+"graycode"].get_active()
             self.data[i+"ignorefalse"] = self.widgets[i+"ignorefalse"].get_active()
         for i in range (0,16):
             self.data["foincrvalue"+str(i)] = self.widgets["foincrvalue"+str(i)].get_value()
+            self.data["mvoincrvalue"+str(i)] = self.widgets["mvoincrvalue"+str(i)].get_value()
             self.data["soincrvalue"+str(i)] = self.widgets["soincrvalue"+str(i)].get_value()
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
         self.data.usbdevicename = self.widgets.usbdevicename.get_text()
@@ -4184,14 +4432,13 @@ Ok to reset data and start a new configuration?"),False):
         if not self.widgets.createconfig.get_active():
             if self.widgets.gladevcp.get_active() and self.widgets.gladesample.get_active():
                 if os.path.exists(os.path.expanduser("~/emc2/configs/%s/gvcp-panel.ui" % self.data.machinename)):
-                    if not self.warning_dialog(_("OK to replace existing glade panel and gvcp.hal file ?\
-\nThey will be renamed with '_backup' added in filename.\n Clicking 'existing custom program' will aviod this warning. "),False):
+                    if not self.warning_dialog(_("OK to replace existing glade panel ?\
+\nIt will be renamed and added to 'backups' folder.\n Clicking 'existing custom program' will aviod this warning. "),False):
                         return True
             if self.widgets.pyvcp.get_active() and not self.widgets.pyvcpexist.get_active():
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\
-\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\
-\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost.\n\
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/pyvcp-panel.xml" % self.data.machinename)):
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel?\
+\nExisting pyvcp-panel.xml will be renamed and added to 'backups' folder\n\
 Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
         self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
@@ -4221,12 +4468,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.data.pyvcp == True:
            if self.widgets.pyvcpblank.get_active() == True:
               self.data.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
+              self.data.pyvcphaltype = 0
            if self.widgets.pyvcp1.get_active() == True:
               self.data.pyvcpname = "spindle.xml"
               self.data.pyvcphaltype = 1
            if self.widgets.pyvcpexist.get_active() == True:
-              self.data.pyvcpname = "custompanel.xml"
+              self.data.pyvcpname = "pyvcp-panel.xml"
         for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
             if not self.widgets[i].get_active():
                 self.data[i] = "default"
@@ -4397,12 +4644,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
                 if d[_MAXSSERIALPORTS]:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].show()
-                    self.widgets["mesa%d_numof_sserial_label"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialports_label"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].show()
+                    self.widgets["mesa%d_numof_sserialchannels_label"% boardnum].show()
                 else:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].hide()
-                    self.widgets["mesa%d_numof_sserial_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialports_label"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].hide()
+                    self.widgets["mesa%d_numof_sserialchannels_label"% boardnum].hide()
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_range(0,d[_MAXSSERIALPORTS])
                 self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(d[_MAXSSERIALPORTS])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_range(1,d[_MAXSSERIALCHANNELS])
+                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(d[_MAXSSERIALCHANNELS])
                 self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
                 self.widgets["mesa%d_3pwm_frequency"% boardnum].set_sensitive(d[_MAXTPPWM])
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
@@ -4422,7 +4675,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
                     k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
                     l = (int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value()) * 6)
-                    total = (d[_MAXGPIO]-i-j-k-l)
+                    sp = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+                    sc = int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
+                    m = sp * sc * 3
+                    total = (d[_MAXGPIO]-i-j-k-l-m)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
@@ -4446,7 +4702,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.data["mesa%d_3pwm_frequency"% boardnum] = self.widgets["mesa%d_3pwm_frequency"% boardnum].get_value()
         self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
         port = 0
-        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
@@ -4565,7 +4821,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 0
         if not self.widgets.createconfig.get_active() and not self.data._mesa0_configured  :
             self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
-            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports)
+            self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens,self.data.mesa0_numof_sserialports,
+            self.data.mesa0_numof_sserialchannels)
         elif not self.data._mesa0_configured:
             self.widgets.mesa0con2table.hide()
             self.widgets.mesa0con3table.hide()   
@@ -4611,7 +4868,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         boardnum = 1
         if not self.widgets.createconfig.get_active() and not self.data._mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
-                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports)
+                  self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens,self.data.mesa1_numof_sserialports,
+                  self.data.mesa1_numof_sserialchannels)
         elif not self.data._mesa1_configured:           
             self.widgets.mesa1con2table.hide()
             self.widgets.mesa1con3table.hide()           
@@ -4755,10 +5013,12 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         numoftppwmgens = self.data["mesa%d_numof_tppwmgens"% boardnum] = int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value())
         numofstepgens = self.data["mesa%d_numof_stepgens"% boardnum] = int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value())
         numofencoders = self.data["mesa%d_numof_encodergens"% boardnum] = int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value())
-        numofsmartserial = self.data["mesa%d_numof_sserialports"% boardnum] = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+        numofsserialports = self.data["mesa%d_numof_sserialports"% boardnum] = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
+        numofsserialchannels = self.data["mesa%d_numof_sserialchannels"% boardnum] = \
+        int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
         title = self.data["mesa%d_boardtitle"% boardnum] = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         firmware = self.data["mesa%d_firmware"% boardnum] = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
-        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial)
+        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels)
         return True
 
     # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
@@ -4772,7 +5032,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
-    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsmartserial):
+    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
         self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -4786,45 +5046,43 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.data["mesa%d_currentfirmwaredata"% boardnum] = mesafirmwaredata[search]
                 break
         #print mesafirmwaredata[search]
-        self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon3tab"% boardnum].set_sensitive(1)
-        self.widgets["mesa%dcon3table"% boardnum].show()
-        self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4table"% boardnum].show() 
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i23":
+
+        self.widgets["mesa%dcon2table"% boardnum].hide()
+        self.widgets["mesa%dcon3table"% boardnum].hide()
+        self.widgets["mesa%dcon4table"% boardnum].hide()
+        self.widgets["mesa%dcon5table"% boardnum].hide()
+        self.widgets["mesa%dcon6table"% boardnum].hide()
+        self.widgets["mesa%dcon7table"% boardnum].hide()
+        self.widgets["mesa%dcon8table"% boardnum].hide()
+        self.widgets["mesa%dcon9table"% boardnum].hide()
+        self.widgets["mesa%dsserialtab1"% boardnum].hide()
+        self.widgets["mesa%dsserialtab2"% boardnum].hide()
+        self.widgets["mesa%dsserialtab3"% boardnum].hide()
+        self.widgets["mesa%dsserialtab4"% boardnum].hide()
+        currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+        if currentboard == "5i20" or currentboard == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i22":
+        if currentboard == "5i22":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].show()   
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "7i43":
-            self.widgets["mesa%dcon2table"% boardnum].hide()
+            self.widgets["mesa%dcon5table"% boardnum].show()
+        if currentboard == "5i25":
+            self.widgets["mesa%dcon2table"% boardnum].show()
+            self.widgets["mesa%dcon3table"% boardnum].show()
+        if currentboard == "7i43":
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
-            self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "3x20":
-            self.widgets["mesa%dcon2table"% boardnum].hide()
-            self.widgets["mesa%dcon3table"% boardnum].hide()
+        if currentboard == "3x20":
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].show()
             self.widgets["mesa%dcon6table"% boardnum].show()
             self.widgets["mesa%dcon7table"% boardnum].show()
             self.widgets["mesa%dcon8table"% boardnum].show()
             self.widgets["mesa%dcon9table"% boardnum].show()
-        else:
-            self.widgets["mesa%dcon6table"% boardnum].hide()
-            self.widgets["mesa%dcon7table"% boardnum].hide()
-            self.widgets["mesa%dcon8table"% boardnum].hide()
-            self.widgets["mesa%dcon9table"% boardnum].hide()
-            self.widgets["mesa%dsserialtab1"% boardnum].hide()
-            self.widgets["mesa%dsserialtab2"% boardnum].hide()
-            self.widgets["mesa%dsserialtab3"% boardnum].hide()
-            self.widgets["mesa%dsserialtab4"% boardnum].hide()
+
 
         self.widgets["mesa%d"%boardnum].set_title("Mesa%d Configuration-Board: %s firmware: %s"% (boardnum,self.data["mesa%d_boardtitle"%boardnum],
             self.data["mesa%d_currentfirmwaredata"% boardnum][_FIRMWARE]))
@@ -4862,19 +5120,24 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].handler_block(self.data[blocksignal]) 
                 self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
         
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
+        self.data["mesa%d_numof_sserialports"% boardnum] = numofsserialports
+        self.data["mesa%d_numof_sserialchannels"% boardnum] = numofsserialchannels
         temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
         temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
         temp2 = (numofpwmgens * 3)
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
+        temp3 = numofsserialports * numofsserialchannels * 3
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2-temp3)
         self.data["mesa%d_numof_gpio"% boardnum] = total     
         self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
         self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
+        self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(numofsserialports)
+        self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(numofsserialchannels)
         self.in_mesa_prepare = False   
         self.data["_mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
@@ -4890,14 +5153,14 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.widgets[p].child.handler_unblock(self.data[actblocksignal])
                 #print "* mesa data-widget",p
 
-        if numofsmartserial:
+        if numofsserialports:
             self.pbar.set_text("Setting up Mesa Smart Serial tabs")
             self.pbar.set_fraction(0)
             self.window.show()
             while gtk.events_pending():
                 gtk.main_iteration()
             port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     self.pbar.set_fraction((pin+1)/48.0)
@@ -4922,10 +5185,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     numoftppwmgens = 0
                     numofstepgens = 0
                     self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
-                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsmartserial)
+                                        numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,True)
             # all this to unblock signals
             port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -4946,9 +5209,22 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
-                            numofstepgens,numofsmartserial):
+                            numofstepgens,numofsserialports,numofsserialchannels,sserialflag):
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
-                
+
+                # if the board has less then 24 pins hide the extra comboboxes
+                if firmptype == NUSED:
+                    self.widgets[p].hide()
+                    self.widgets[ptype].hide()
+                    self.widgets[pinv].hide()
+                    self.widgets[complabel].hide()
+                    firmptype = GPIOI # we cheat and now call it GPIOI just to simplify later code
+                else:
+                    self.widgets[p].show()
+                    self.widgets[ptype].show()
+                    self.widgets[pinv].show()
+                    self.widgets[complabel].show()
+
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
                 # if we are then we trick this routine into thinking the firware asked for GPIO:
@@ -4985,6 +5261,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         # We cheat a little and tell the rest of the method that the firmware says
                         # it should be GPIO and compnum is changed to signify that the GPIO can be changed
                         # from input to output
+                        # Right now only mainboard GPIO can be changed
+                        # sserial 7i64 I/O can not
                         firmptype = GPIOI
                         compnum = 0
                 # --- mux encoder ---
@@ -5089,9 +5367,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if firmptype in (TXDATA1,RXDATA1,TXEN1): portnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2): portnum = 3
                     if firmptype in (TXDATA3,RXDATA3,TXEN3): portnum = 4
-
                     #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
-                    if numofsmartserial >= (portnum):
+                    #print "sserial channel:%d"% numofsserialchannels
+                    if numofsserialports >= (portnum) and numofsserialchannels >= (compnum + 1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         #if compnum < 5: # TODO hack - haven't made all the serial components in glade yet
@@ -5105,7 +5383,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[p].set_active(0)
                         if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3):
                             self.widgets[complabel].set_text("%d:"%compnum)
-                            if compnum < 5:#TODO fix hack
+                            if compnum < 4:#TODO fix hack harcodes at 4 sserial channels
                                 self.widgets[p].set_sensitive(1)
                             else:
                                 self.widgets[p].set_sensitive(0)
@@ -5145,11 +5423,17 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # check if widget is already configured
                 # we now set everything in a known state.
                 if firmptype in (GPIOI,GPIOO,GPIOD):
-                    self.widgets[complabel].set_text("%03d:"%(concount*24+pin))
+                    if sserialflag:
+                        if pin <24 :
+                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
+                        else:
+                            self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                    else:
+                        self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
-                        self.widgets[ptype].set_sensitive(not compnum)
+                        self.widgets[ptype].set_sensitive(not compnum == 100) # compnum = 100 means GPIO cannot be changed by user
                         self.widgets[ptype].set_model(self.data._gpioliststore)
                         if firmptype == GPIOI:
                             # set pin treestore to gpioi signals
@@ -5175,7 +5459,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 self.data_to_widgets(boardnum,firmptype,compnum,p,ptype,pinv)
                 #print "* mesa data-widget",p
         port = 0
-        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_SSERIALCHANNELS]):
+        for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
                 if channel >3: break # TODO only have 4 channels worth of glade widgets
                 for pin in range (0,48):
                     firmptype,compnum = mesadaughterdata[0][_SUBSTARTOFDATA+pin]       
@@ -5207,10 +5491,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         #print "data ptype index:",pintype_gpio.index(dataptype)
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
-                        # if compnum doesn't = 0 (GPIO only) then it means that the component type can not
+                        # if compnum  = 100  then it means that the component type can not
                         # be changed from what the firmware designates it as.
                         # signal names for GPIO INPUT
-                        if not compnum == 0: dataptype = widgetptype 
+                        #print "compnum = ",compnum
+                        if compnum == 100: dataptype = widgetptype 
                         self.widgets[pinv].set_active(self.data[pinv])
                         self.widgets[ptype].set_active( pintype_gpio.index(dataptype) )
                         if dataptype == GPIOI:
@@ -5603,23 +5888,23 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if connector == temp:
                             firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
-                                if compnum == 1:
+                                if compnum == 0:
                                     self.widgets["mesa%dsserialtab1"% boardnum].hide()
-                                if compnum == 2:
+                                if compnum == 1:
                                     self.widgets["mesa%dsserialtab2"% boardnum].hide()
-                                if compnum == 3:
+                                if compnum == 2:
                                     self.widgets["mesa%dsserialtab3"% boardnum].hide()
-                                if compnum == 4:
+                                if compnum == 3:
                                     self.widgets["mesa%dsserialtab4"% boardnum].hide()
                                 return
                             else:
-                                if compnum == 1:
+                                if compnum == 0:
                                     self.widgets["mesa%dsserialtab1"% boardnum].show()
-                                if compnum == 2:
+                                if compnum == 1:
                                     self.widgets["mesa%dsserialtab2"% boardnum].show()
-                                if compnum == 3:
+                                if compnum == 2:
                                     self.widgets["mesa%dsserialtab3"% boardnum].show()
-                                if compnum == 4:
+                                if compnum == 3:
                                     self.widgets["mesa%dsserialtab4"% boardnum].show()
                                 return
                     return
@@ -6933,35 +7218,41 @@ different program to copy to your configuration file.\nThe edited program will b
                 for i in range(0,24):
                     pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
                     self.data[pinname] = False
+            # clear unused sserial signals
+            keeplist =[]
+            # if the current firmware supports sserial better check for used channels
+            # and make a 'keeplist'. we don't want to clear them
+            if self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALPORTS]:
+                #search all pins for sserial port
+                for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
+                    for pin in range (0,24):
+                        firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
+                        p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                        ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3) and not self.data[p] == UNUSED_SSERIAL:
+                            keeplist.append(compnum)
+            # ok clear the sserial pins unless they are in the keeplist
+            port = 0# TODO hard code at only 1 sserial port 
+            for channel in range(0,4): #TODO hardcoded at 4 sserial channels instead of 8
+                if channel in keeplist: continue
+                # This initializes pins
+                for i in range(0,48):
+                    pinname ="mesa%dsserial%d_%dpin%d"% (boardnum, port,channel,i)
+                    if i < 24:
+                        self.data[pinname] = UNUSED_INPUT
+                    else:
+                        self.data[pinname] = UNUSED_OUTPUT
+                    pinname ="mesa%dsserial%d_%dpin%dtype"% (boardnum, port,channel,i)
+                    if i < 24:
+                        self.data[pinname] = GPIOI
+                    else:
+                        self.data[pinname] = GPIOO
+                    pinname ="mesa%dsserial%d_%dpin%dinv"% (boardnum, port,channel,i)
+                    self.data[pinname] = False
+
 
         self.data.save()        
-        if self.data.classicladder: 
-           if not self.data.laddername == "custom.clp":
-                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
-                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
-                if os.path.exists(filename):     
-                  if os.path.exists(original):
-                     #print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/backups/custom_backup.clp" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( filename,original)
-                  #print "copied ladder program to usr directory"
-                  #print"%s" % filename
-                else:
-                     print "Master or temp ladder files missing from configurable_options dir"
-        if self.data.pyvcp and not self.widgets.pyvcpexist.get_active() == True:                
-           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.data.pyvcpname)
-           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     #print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/backups/custompanel_backup.xml" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  #print "copied PYVCP program to usr directory"
-                  #print"%s" % panelname
-           else:
-                  print "Master PYVCP file: %s missing from configurable_options dir"% self.data.pyvcpname
+
         if not self.warning_dialog (_("Do you wish to continue to edit this configuration."),False):
             gtk.main_quit()
         #self._mesa0_configured = False
@@ -7063,7 +7354,7 @@ different program to copy to your configuration file.\nThe edited program will b
         if self.widgets.pyvcp2.get_active() == True:
            panel = "xyzjog.xml"
         if self.widgets.pyvcpexist.get_active() == True:
-           panel = "custompanel.xml"
+           panel = "pyvcp-panel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
         if self.widgets.pyvcpposition.get_active() == True:
             xpos = self.widgets.pyvcpxpos.get_value()
@@ -7425,6 +7716,7 @@ But there is not one in the machine-named folder.."""),True)
         #print axis," encoder--",self.encoder
         self.pwmgen  = self.data.pwmgen_sig(axis)
         #print axis," pwgen--",self.pwmgen
+        pump = self.data.findsignal("charge-pump")
         w.tuneaxispage.set_current_page(axnum)
         w[axis+"tunepage"].set_sensitive(1)
 
@@ -7500,12 +7792,21 @@ But there is not one in the machine-named folder.."""),True)
         if not self.stepgen: 
             halrun.write("loadrt pid num_chan=1\n")
         self.hal_cmnds("LOAD")
-        self.hal_cmnds("READ")       
+        self.hal_cmnds("READ")
+        if pump:
+            halrun.write( "loadrt charge_pump\n")
+            halrun.write( "net enable charge-pump.enable\n")
+            halrun.write( "net charge-pump <= charge-pump.out\n")
+            halrun.write( "addf charge-pump slow\n")
         halrun.write("addf steptest.0 slow \n")
         if not self.stepgen: 
             halrun.write("addf pid.0.do-pid-calcs slow \n")
         halrun.write("addf scale_to_rpm slow \n")
         self.hal_cmnds("WRITE")
+        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "sets estop-out true\n")
+        # search and connect I/o signals needed to enable amps etc
+        self.hal_test_signals(axis)
         # for encoder signals
         if self.encoder: 
             #print self.encoder,"--",self.encoder[4:5],self.encoder[10:],self.encoder[6:7] 
@@ -7560,40 +7861,6 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter sig speed_rpm -g 0 415\n")
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
-        # set up enable output pin if used
-        temp = self.data.findsignal( "%senabled"% axis)
-        amp = self.data.make_pinname(temp)
-        if amp:
-            if "hm2" in amp:    
-                halrun.write("setp %s true\n"% (amp + ".is_output"))             
-                halrun.write("net enable %s \n"% (amp + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
-            if "parport" in amp:
-                halrun.write("    setp %s true\n" % (amp))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (amp + "-invert")) 
-        temp = self.data.findsignal( "machine-is-enabled")
-        machine_on = self.data.make_pinname(temp)
-        if machine_on:
-            if "hm2" in machine_on:    
-                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
-                halrun.write("net enable %s \n"% (machine_on + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
-            if "parport" in machine_on:
-                halrun.write("    setp %s true\n" % (machine_on ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (machine_on + "-invert")) 
-        # set up estop output if used
-        temp = self.data.findsignal( "estop-out")
-        estop = self.data.make_pinname(temp)
-        if estop:        
-            if "hm2" in estop:
-                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("net enable %s\n"%  (estop + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
         # set up PID if there is a feedback sensor and pwm. TODO add ability to test closed loop steppers
         if self.encoder and self.pwmgen:
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
@@ -7675,6 +7942,7 @@ But there is not one in the machine-named folder.."""),True)
                 setp steptest.0.dir %(dir)s
                 setp steptest.0.pause %(pause)d
                 sets enable %(enable)s
+                sets estop-out %(estop)s
             """ % {
                 'scale':self.scale,
                 'len':self.widgets[axis+"tunecurrentsteptime"].get_value(),
@@ -7691,7 +7959,8 @@ But there is not one in the machine-named folder.."""),True)
                 'velps': (self.widgets[axis+"tunevel"].get_value()/60),
                 'dir': self.widgets[axis+"tunedir"].get_active(),
                 'pause':int(self.widgets[axis+"tunepause"].get_value()),
-                'enable':self.widgets[axis+"tuneenable"].get_active()
+                'enable':self.widgets[axis+"tuneenable"].get_active(),
+                'estop':not (self.widgets[axis+"tuneenable"].get_active())
             })
         else:
             halrun.write("""  
@@ -7760,6 +8029,7 @@ But there is not one in the machine-named folder.."""),True)
 
     # openloop servo test
     def test_axis(self, axis):
+        # one needs real time, pwm gen and an encoder for open loop testing.
         if not self.check_for_rt(self):
             return
         if not self.data.findsignal( (axis + "-pwm-pulse")) or not self.data.findsignal( (axis + "-encoder-a")):
@@ -7773,87 +8043,43 @@ But there is not one in the machine-named folder.."""),True)
         fastdac = get_value(widgets["fastdac"])
         slowdac = get_value(widgets["slowdac"])
         dacspeed = widgets.Dac_speed_fast.get_active()
+        dac_scale = get_value(widgets[axis+"outputscale"])
+        max_dac = get_value(widgets[axis+"maxoutput"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
         halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))       
         self.hal_cmnds("LOAD")
-        halrun.write("loadrt steptest\n")
+        #halrun.write("loadrt steptest\n")
         halrun.write("loadusr halscope\n")
         self.hal_cmnds("READ")
         if pump:
             halrun.write( "loadrt charge_pump\n")
             halrun.write( "net enable charge-pump.enable\n")
             halrun.write( "net charge-pump <= charge-pump.out\n")
-            halrun.write( "addf charge-pump slow\n")                 
-        halrun.write("addf steptest.0 slow\n")
+            halrun.write( "addf charge-pump slow\n")
+        #halrun.write("addf steptest.0 slow\n")
         self.hal_cmnds("WRITE")
-        halrun.write("newsig enable bit\n")
-        halrun.write("sets enable false\n")
-        # set enable pin if used (output)
-        temp = self.data.findsignal( "%senable"% axis)
-        self.amp = self.data.make_pinname(temp)
-        if self.amp:
-            if "hm2_" in self.amp:    
-                halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
-                halrun.write("net enable %s\n"% (self.amp + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (self.amp + ".invert_output"))
-                self.amp = self.amp + ".out"             
-            if "parport" in self.amp:
-                halrun.write("net enable %s\n" % (self.amp ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (self.amp + "-invert"))
-            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))
-        temp = self.data.findsignal( "machine-is-enabled")
-        machine_on = self.data.make_pinname(temp)
-        if machine_on:
-            if "hm2" in machine_on:    
-                halrun.write("setp %s true\n"% (machine_on + ".is_output"))             
-                halrun.write("net enable %s \n"% (machine_on + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (machine_on + ".invert_output"))
-            if "parport" in machine_on:
-                halrun.write("net enable %s\n" % (machine_on ))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (machine_on + "-invert"))  
+        halrun.write( "newsig estop-out bit\n")
+        halrun.write( "sets estop-out true\n")
+        # search for pins with test signals that may be needed to enable amp
+        self.hal_test_signals(axis)
         # setup pwm generator
-        temp = self.data.findsignal( "estop-out")
-        estop = self.data.make_pinname(temp)
-        if estop:        
-            if "hm2_" in estop:
-                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
-                halrun.write("net enable %s\n"%  (estop + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-                estop = estop + ".out"
-            if "parport" in estop:
-                halrun.write("net enable %s\n" % (estop))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (estop + "-invert"))  
-            halrun.write("loadusr halmeter -s pin %s -g 0 550 330\n"%  (estop)) 
-        # set charge pump if used
-        temp = self.data.findsignal( "charge-pump")
-        pump = self.data.make_pinname(temp)
-        if pump:        
-            if "hm2_" in pump:
-                halrun.write("setp %s true\n"%  (pump + ".is_output"))    
-                halrun.write("net charge-pump %s\n"%  (pump + ".out"))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (pump + ".invert_output"))
-                pump = pump + ".out"              
-            if "parport" in pump:
-                halrun.write("    net charge-pump %s\n" % (pump))
-                if self.data[temp+"inv"] == True:
-                    halrun.write("    setp %s true\n" % (pump + "-invert"))  
-            halrun.write( "net charge-pump %s\n"%(pump))
-            halrun.write("loadusr halmeter -s pin %s -g 0 500 330\n"%  (pump))             
-        # setup pwm generator
-        pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
-        if pwm:          
+        temp = self.data.findsignal( (axis + "-pwm-pulse"))
+        pwm = self.data.make_pinname(temp)
+        if pwm:
+            pwmtype = self.data[temp+"type"]
+            if  pwmtype == PWMP: pulsetype = 1
+            elif pwmtype == PDMP: pulsetype = 3
+            elif pwmtype == UDMU: pulsetype = 2
+            else: 
+                print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
+                return
+            halrun.write("setp %s %d \n"%  (pwm +".output-type", pulsetype))
             halrun.write("net dac %s \n"%  (pwm +".value"))
             halrun.write("net enable %s \n"%  (pwm +".enable"))
-            halrun.write("setp %s \n"%  (pwm +".scale 10"))
+            halrun.write("setp %s \n"%  (pwm +".scale %f"% dac_scale))
+            halrun.write("loadusr halmeter -s sig enable -g 0 475 330\n")
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
         # set up encoder     
@@ -7872,7 +8098,9 @@ But there is not one in the machine-named folder.."""),True)
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
         widgets.testoutputoffset.set_value(widgets[axis+"outputoffset"].get_value())
-        widgets.testenc_scale.set_value(float(enc_scale))   
+        widgets.testenc_scale.set_value(float(enc_scale))
+        widgets.fastdac.set_range(0,max_dac)
+        widgets.slowdac.set_range(0,max_dac)
         self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
@@ -7915,6 +8143,7 @@ But there is not one in the machine-named folder.."""),True)
             output = output * -1
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
+        halrun.write("sets estop-out %d\n"% ( not self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
@@ -7955,7 +8184,75 @@ But there is not one in the machine-named folder.."""),True)
             self.data.load(filename, self)
             self.widgets.druid1.set_page(self.widgets.basicinfo)
         gtk.main()
-   
+
+    def hal_test_signals(self, axis):
+        # during testing pncconf looks for pins with these signals names
+        # and connects to them so as to enable amps etc
+        # force-pin-true will just make the pin be true all the time
+        # this could be used as a temparary way to enable I/O that the
+        # specific machine needs on for the amp to work but pncconf doesn't look for.
+        halrun = self.halrun
+        def write_pins(pname,p,i,t):
+            if p in ((axis+"enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true"):
+                pinname  = self.data.make_pinname(pname)
+                if pinname:
+                    #print p, pname, i
+                    if p == "estop-out": signal = p
+                    else: signal = "enable"
+                    if "parport" in pinname:
+                        if p == "force-pin-true":
+                            halrun.write("setp %s true\n"% (pinname))
+                        else:
+                            halrun.write("net %s %s \n"% (signal,pinname))
+                    else:
+                        if not "sserial" in pname:
+                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
+                            if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true")
+                        if p == "force-pin-true":
+                            halrun.write("setp %s true\n"% ((pinname + ".out")))
+                        else:
+                            halrun.write("net %s %s \n"% (signal,(pinname + ".out")))
+                    if i: # invert pin
+                        if "sserial" in pname: ending = ".invert"
+                        elif "parport" in pinname: ending = "-invert"
+                        else: ending = ".invert_output"
+                        halrun.write("setp %s true\n"%  (pinname + ending ))
+                    return
+
+        # search everything for multiple same named signal output pins
+        # mesa mainboard
+        for boardnum in range(0,int(self.data.number_mesa)):
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
+                for pin in range(0,24):
+                    pname = 'mesa%dc%dpin%d' % (boardnum,connector, pin)
+                    p = self.data['mesa%dc%dpin%d' % (boardnum,connector, pin)]
+                    i = self.data['mesa%dc%dpin%dinv' % (boardnum,connector, pin)]
+                    t = self.data['mesa%dc%dpin%dtype' % (boardnum,connector, pin)]
+                    if t in (GPIOO,GPIOD) and not p == "unused-output":
+                        write_pins(pname,p,i,t)
+            # mesa sserial
+            if self.data["mesa%d_numof_sserialports"% (boardnum)]: # only check if we have sserialports
+                port = 0
+                for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
+                    if channel >3: break # TODO only have 4 channels worth of glade widgets
+                    for pin in range (0,48):
+                        pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
+                        p = self.data['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
+                        i = self.data['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]
+                        t = self.data['mesa%dsserial%d_%dpin%dtype' % (boardnum,port,channel,pin)]
+                        if t in (GPIOO,GPIOD) and not p == "unused-output":
+                            write_pins(pname,p,i,t)
+        # parports
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.data.number_pports < (j+1): break 
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pname = "%sOpin%d" % (k, x)
+                p = self.data[pname]
+                i = self.data[pname+"inv"]
+                if not p == "unused-output":
+                    write_pins(pname,p,i,None)
+
     def hal_cmnds(self,command ):
         halrun = self.halrun
         if command == "LOAD":
@@ -7991,25 +8288,40 @@ But there is not one in the machine-named folder.."""),True)
             directory1 = self.data.mesa1_currentfirmwaredata[_DIRECTORY]
             firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
+            firmstring0 = firmstring1 = ""
+            if not "5i25" in board0:
+                firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
+            if not "5i25" in board1:
+                firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
             # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = ""
-            if self.data.mesa0_numof_sserialports:
-                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_SSERIALCHANNELS]
+            ssconfig0 = ssconfig1 = temp = ""
+            if self.mesa0_numof_sserialports:
+                for i in range(1,9):
+                    if i <= self.mesa0_numof_sserialchannels:
+                        temp = temp + "0"
+                    else:
+                        temp = temp + "x"
+                ssconfig0 = "sserial_port_0=%s"% temp
             if self.data.mesa1_numof_sserialports:
-                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_SSERIALCHANNELS]
+                for i in range(1,9):
+                    if i <= self.mesa1_numof_sserialchannels:
+                        temp = temp + "0"
+                    else:
+                        temp = temp + "x"
+                ssconfig1 = "sserial_port_0=%s"% temp
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
             elif self.data.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,\
-                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n""" % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
-                        self.data.mesa0_numof_stepgens, ssconfig0 ,directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,\
+                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n""" % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
+                        self.data.mesa0_numof_stepgens, ssconfig0, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1 ))
             elif self.data.number_mesa == 2:
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0 ))
-                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver1, directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
+                    driver1, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1 ))
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1

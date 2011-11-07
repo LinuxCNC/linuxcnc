@@ -1,21 +1,16 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
-    GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
-    if [ "$GIT_BRANCH" = "(no" ]; then
-        echo "'git branch' says we're not on a branch, pass one in as an argument"
+if [ ! -z "$EMC2_HOME" ]; then
+    source $EMC2_HOME/scripts/githelper.sh
+else
+    if [ ! -d debian -o ! -d src ]; then
+        echo "this script must be run from the root of the source tree (the directory with debian and src in it)"
         exit 1
     fi
-else
-    GIT_BRANCH="$1"
+    source scripts/githelper.sh
 fi
 
-case $GIT_BRANCH in
-    master) TAG_GLOB="v2.6*";;
-    v2.5_branch) TAG_GLOB="v2.5*";;
-    v2.4_branch) TAG_GLOB="v2.4*";;
-    *) TAG_GLOB="*";;
-esac
+githelper $1
 
-git describe --match "$TAG_GLOB"
+git describe --match "$GIT_TAG"
 

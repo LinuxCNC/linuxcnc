@@ -1,4 +1,5 @@
 (info: db25 connector -- uses iquad.ngc)
+; centered at origin, use offsets to relocate
 o<db25>  sub
 #<toolno>   =  #1 (=1)
 #<rpm>      =  #2 (=2000)
@@ -8,25 +9,41 @@ o<db25>  sub
 #<zincr>    =  #6 (=.02)
 #<zsafe>    =  #7 (=0.2)
 #<zstart>   =  #8 (=0)
-#<xctr>     =  #9 (=5)
-#<ytop>     = #10 (=2)
-#<rotate>   = #11 (=90)
+#<xoff>     =  #9 (=0)
+#<yoff>     = #10 (=0)
+#<rotate>   = #11 (=0)
 
-; todo: check these dimensions
-;       center at cg ?
-;       reject too big tools
-#<x1>       =  0.5465
-#<y1>       =  0.0
-#<x2>       =  0.4567
-#<y2>       = -0.509
-#<x3>       = -0.4567
-#<y3>       = -0.509
-#<x4>       = -0.5465
-#<y4>       =  0.0
+; reject tools that are too big
+o<loadtool> call  [#<toolno>]
+#<tooldiam> = #5410
+o<if0>  if [#<tooldiam> Gt 0.12501]
+           (debug, tooldiam too big: #<tooldiam>)
+           m2
+o<if0>  endif
+
+; http://www.interfacebus.com/Connector_D-Sub_Mechanical_Dimensions.html
+; mounting hole spacing is 1.857
+
+ #<xlong> = 1.635
+ #<xlong> = 1.675 ; adjust to allow use of 0.125 cutter diameter
+     #<y> = 0.432
+#<xshort> = [#<xlong> - 2 * #<y> * tan[10]]
+
+; center at origin
+#<x1>       = [0.5 * #<xlong>]
+#<y1>       = [0.5 * #<y>]
+
+#<x2>       = [ 0.5 * #<xshort>]
+#<y2>       = [-0.5 * #<y>]
+
+#<x3>       = [-0.5 * #<xshort>]
+#<y3>       = [-0.5 * #<y>]
+
+#<x4>       = [-0.5 * #<xlong>]
+#<y4>       = [ 0.5 * #<y>]
 
 #<scale>    = 1.0
 
-
-o<iquad>call[#<toolno>][#<rpm>][#<dir>][#<feedrate>][#<cutdepth>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xctr>][#<ytop>]
+o<iquad>call[#<toolno>][#<rpm>][#<dir>][#<feedrate>][#<cutdepth>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>]
 
 o<db25>  endsub

@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# This script checks if the current version (HEAD) is an official release.
+# If so, the program returns with an exit code of 0 (True).  If it is not a
+# release, the program returns an exit code other than 0 (False).
+#
+# HEAD is an official release if there exists a tag that points to it and
+# that is signed by the release manager's key.
+#
+
+if [ ! -z "$EMC2_HOME" ]; then
+    source $EMC2_HOME/scripts/githelper.sh
+else
+    if [ ! -d debian -o ! -d src ]; then
+        echo "this script must be run from the root of the source tree (the directory with debian and src in it)"
+        exit 1
+    fi
+    source scripts/githelper.sh
+fi
+
+githelper $1
+if [ -z "$GIT_TAG" ]; then
+    # no signed tags found
+    echo "no"
+    exit 1
+fi
+
+TAGGED_REV=$(git rev-parse $GIT_TAG^{commit})
+HEAD_REV=$(git rev-parse HEAD)
+
+if [ "$TAGGED_REV" == "$HEAD_REV" ]; then
+    echo "yes"
+    exit 0
+fi
+
+echo "no"
+exit 1
+

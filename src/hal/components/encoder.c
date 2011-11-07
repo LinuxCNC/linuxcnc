@@ -181,7 +181,7 @@ static int comp_id;		/* component ID */
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr,char * prefix);
+static int export_encoder(counter_t * addr,char * prefix);
 static void update(void *arg, long period);
 static void capture(void *arg, long period);
 
@@ -238,9 +238,9 @@ int rtapi_app_main(void)
         if(num_chan) {
             char buf[HAL_NAME_LEN + 1];
             rtapi_snprintf(buf, sizeof(buf), "encoder.%d", n);
-	    retval = export_counter(n, cntr,buf);
+	    retval = export_encoder(cntr,buf);
         } else {
-	    retval = export_counter(n, cntr,names[i++]);
+	    retval = export_encoder(cntr,names[i++]);
         }
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -512,7 +512,7 @@ static void capture(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr,char * prefix)
+static int export_encoder(counter_t * addr,char * prefix)
 {
     int retval, msg;
 

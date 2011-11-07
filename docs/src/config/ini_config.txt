@@ -618,7 +618,7 @@ SHUTDOWN = shutdown.hal::
 
 POSTGUI_HALFILE = example2.hal::
 
-'(Only with the AXIS GUI)' Execute 'example2.hal' after the GUI has
+'(Only with the TOUCHY and AXIS GUI)' Execute 'example2.hal' after the GUI has
 created its HAL pins. See
 section <<sec:pyvcp-with-axis>> for more information.
     
@@ -1029,6 +1029,7 @@ MAX_OUTPUT = 10::
     both the plus and the minus side.
 
 INPUT_SCALE = 20000::
+(or ENCODER_SCALE = 20000 Used in PNCconf built configs)::
 (((INPUT SCALE))) (in HAL) Specifies the number of pulses that
 corresponds to a move of one machine unit as set in the [TRAJ] section. 
 For a linear axis one machine unit will be equal to 
@@ -1048,6 +1049,7 @@ latexmath:[ INPUT\_SCALE =
 The following items are Stepper related items.
 
 SCALE = 4000::
+(or STEP_SCALE = 4000 Used in PNCconf built configs)::
 (((INPUT SCALE))) (in HAL) Specifies the number of pulses that corresponds to a 
 move of one machine unit as set in the [TRAJ] section. 
 For stepper systems, this is
@@ -1065,7 +1067,21 @@ latexmath:[ scale =
 \frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
 \frac{4000\, steps}{inch} ]
 
-(Older stepper .ini and .hal used INPUT_SCALE for this value.)
+ENCODER_SCALE = 20000 (Optionally used in PNCconf built configs)::
+(in HAL) Specifies the number of pulses that
+corresponds to a move of one machine unit as set in the [TRAJ] section. 
+For a linear axis one machine unit will be equal to 
+the setting of LINEAR_UNITS. 
+For an angular axis one unit is equal to the setting in ANGULAR_UNITS. 
+A second number, if specified, is ignored. 
+For example, on a 2000 counts per rev encoder(((encoder))), and 10
+revs/inch gearing, and desired units of inch, we
+have: 
+
+latexmath:[ ENCODER\_SCALE = 
+\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
+\frac{20000\, counts}{inch} ]
+
 
 STEPGEN_MAXACCEL = 21.0::
     (in HAL) Acceleration limit for the step generator. This should

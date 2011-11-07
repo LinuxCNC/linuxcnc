@@ -23,18 +23,20 @@
 
 int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
     int i,c,r = 0,p;
-    int n = -1;
+    int n;
 
     for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
 
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
 
+        if (inst->num_7i64 == 0) continue;
+        
         inst->hal_7i64 =
         (hal_7i64_t *)hal_malloc(inst->num_7i64 * sizeof(hal_7i64_t));
         if (inst->hal_7i64 == NULL) {
             HM2_ERR("out of memory!\n");
             r = -ENOMEM;
-            goto fail0;
+            return r;
         }
 
         inst->tram_7i64 =
@@ -43,7 +45,7 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
         if (inst->tram_7i64 == NULL) {
             HM2_ERR("out of memory!\n");
             r = -ENOMEM;
-            goto fail1;
+            return r;
         }
 
         n = -1;
@@ -58,7 +60,7 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 hal = &hm2->sserial.instance[i].hal_7i64[n];
                 tram = &hm2->sserial.instance[i].tram_7i64[n];
 
-                tram->tag = (1 << c);
+                tram->index = c;
                 tram->reg_command_addr = inst->command_reg_addr;
                 tram->reg_data_addr= inst->data_reg_addr;
 
@@ -66,65 +68,69 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
 
                     r = hal_pin_bit_newf(HAL_OUT, &(hal->pin.digital_in[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.in",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digin.%02d.in",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d.in, "
-                                "aborting\n",
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digin.%02d.in"
+                                ", aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
-                        goto fail1;
+                        return r;
                     }
                     r = hal_pin_bit_newf(HAL_OUT, &(hal->pin.digital_in_not[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.in_not",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digin.%02d.in-not",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d.in_not, "
-                                "aborting\n",
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digin.%02d."
+                                "in-not, aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
-                        goto fail1;
+                        return r;
                     }
                     r = hal_pin_bit_newf(HAL_IN, &(hal->pin.digital_out[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.out",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digout.%02d.out",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d.out, "
-                                "aborting\n",
+                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.digout.%02d."
+                                "out, aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
-                        goto fail1;
+                        return r;
                     }
 
                     r = hal_param_bit_newf(HAL_RW, &(hal->param.invert[p]),
                                          hm2->llio->comp_id,
-                                         "%s.7i64.%1d.%1d.gpio.%02d.invert_output",
-                                         hm2->llio->name, inst->module_index, c, p);
+                                         "%s.7i64.%1d.%1d.digout.%02d.invert",
+                                         hm2->llio->name, inst->module_index, 
+                                         c, p);
                     if (r < 0) {
-                        HM2_ERR("error adding pin %s.7i64.%1d.%1d.gpio.%02d."
-                                "invert_output, aborting\n",
+                        HM2_ERR("error adding param %s.7i64.%1d.%1d.digout.%02d"
+                                ".invert, aborting\n",
                                 hm2->llio->name, inst->module_index, c, p);
-                        goto fail1;
+                        return r;
                     }
                 }
                 r = hal_pin_float_newf(HAL_OUT, &(hal->pin.analogue_in[0]),
                                      hm2->llio->comp_id,
-                                     "%s.7i64.%1d.%1d.analogue.00",
+                                     "%s.7i64.%1d.%1d.adcin.00.in",
                                      hm2->llio->name, inst->module_index, c);
                 if (r < 0) {
-                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.analogue.00, "
+                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.adcin.00.in, "
                             "aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_float_newf(HAL_OUT, &(hal->pin.analogue_in[1]),
                                        hm2->llio->comp_id,
-                                       "%s.7i64.%1d.%1d.analogue.01",
+                                       "%s.7i64.%1d.%1d.adcin.01.in",
                                        hm2->llio->name, inst->module_index,c );
                 if (r < 0) {
-                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.analogue.01, "
+                    HM2_ERR("error adding pin %s.7i64.%1d.%1d.adcin.01.in, "
                             "aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
 
 
@@ -143,7 +149,7 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram read region for sserial CS"
                             "register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
 
                 tram->reg_0_addr = md->base_address + 3 * md->register_stride
@@ -155,7 +161,7 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram read region for sserial "
                             "interface 0 register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
 
                 tram->reg_1_addr = md->base_address + 4 * md->register_stride
@@ -168,7 +174,7 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram read region for sserial "
                             "interface 1 register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
 
                 r = hm2_register_tram_write_region(hm2,
@@ -178,27 +184,12 @@ int hm2_7i64_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram write region for sserial"
                             "interface 0 register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
             }
         }
     }
     return 0;
-
-fail1:
-    {
-        int i;
-        for (i = 1 ; i < hm2->sserial.num_instances; i++){
-            if (hm2->sserial.instance[i].tram_8i20 != NULL){
-                kfree(hm2->sserial.instance[i].tram_8i20);
-            }
-            if (hm2->sserial.instance[i].tram_7i64 != NULL){
-                kfree(hm2->sserial.instance[i].tram_7i64);
-            }
-        }
-    }
-fail0:
-    return r;
 }
 
 void hm2_7i64_prepare_tram_write(hostmot2_t *hm2){
@@ -247,6 +238,43 @@ void hm2_7i64_process_tram_read(hostmot2_t  * hm2){
             r = *tram->reg_1_read;
             *hal->pin.analogue_in[0] = (r & 0xFFFF) * u16toV;
             *hal->pin.analogue_in[1] = ((r & 0xFFFF0000) >> 16) * u16toV;
+        }
+    }
+}
+
+void hm2_7i64_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
+    u32 buff=0x00;
+    u32 addr;
+    int c;
+    int n = 0;
+    int i = inst->module_index;
+    for (c = 0 ; c < inst->num_7i64 ; c++){
+        n = inst->tram_7i64[c].index;
+        if (hm2->config.sserial_modes[i][n] != 'x') {
+            // CS addr - write card mode
+            addr = inst->tram_7i64[c].reg_cs_addr;
+            buff = (hm2->config.sserial_modes[i][n] - '0') << 24;
+            hm2->llio->write(hm2->llio, addr, &buff, sizeof(u32));
+            HM2_DBG("Normal Start (7i64): Writing %08x to %04x\n", buff, addr);
+        }
+    }
+}
+
+int hm2_sserial_7i64_check(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
+    int c;
+    int err_flag = 0;
+    for (c = 0 ; c < inst->num_7i64 ; c++){
+        hm2_sserial_tram_t *tram=&inst->tram_7i64[c];
+        if ( hm2_sserial_check_errors(hm2, tram)) {err_flag = -EINVAL;}
+    }
+    return err_flag;
+}
+
+void hm2_sserial_7i64_cleanup(hostmot2_t *hm2){
+    int i;
+    for (i = 1 ; i < hm2->sserial.num_instances; i++){
+        if (hm2->sserial.instance[i].tram_7i64 != NULL){
+            kfree(hm2->sserial.instance[i].tram_7i64);
         }
     }
 }

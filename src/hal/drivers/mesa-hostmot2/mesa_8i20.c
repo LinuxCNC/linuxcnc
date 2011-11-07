@@ -25,18 +25,20 @@
 
 int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
     int i,c,r;
-    int n = -1;
+    int n;
 
     for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
 
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
 
+        if (inst->num_8i20 == 0) continue;
+        
         inst->hal_8i20 =
             (hal_8i20_t *)hal_malloc(inst->num_8i20 * sizeof(hal_8i20_t));
         if (inst->hal_8i20 == NULL) {
             HM2_ERR("out of memory!\n");
             r = -ENOMEM;
-            goto fail0;
+            return r;
         }
 
 
@@ -46,7 +48,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
         if (inst->tram_8i20 == NULL) {
             HM2_ERR("out of memory!\n");
             r = -ENOMEM;
-            goto fail1;
+            return r;
         }
 
         n = -1;
@@ -61,7 +63,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 hal = &hm2->sserial.instance[i].hal_8i20[n];
                 tram = &hm2->sserial.instance[i].tram_8i20[n];
 
-                tram->tag = (1 << c);
+                tram->index = c;
                 tram->reg_command_addr = inst->command_reg_addr;
                 tram->reg_data_addr= inst->data_reg_addr;
 
@@ -71,7 +73,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.angle. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_float_newf(HAL_IN, &(hal->pin.hm2_current),
                                     hm2->llio->comp_id, "%s.8i20.%1d.%1d.current",
@@ -79,7 +81,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.current. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_float_newf(HAL_OUT, &(hal->pin.hm2_bus_voltage),
                                     hm2->llio->comp_id, "%s.8i20.%1d.%1d.voltage",
@@ -87,7 +89,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.voltage. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_float_newf(HAL_OUT, &(hal->pin.hm2_card_temp),
                                     hm2->llio->comp_id, "%s.8i20.%1d.%1d.temp",
@@ -95,7 +97,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.temp. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_u32_newf(HAL_OUT, &(hal->pin.hm2_fault),
                                      hm2->llio->comp_id, "%s.8i20.%1d.%1d.fault",
@@ -103,7 +105,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.fault. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_u32_newf(HAL_OUT, &(hal->pin.hm2_status),
                                      hm2->llio->comp_id, "%s.8i20.%1d.%1d.status",
@@ -111,7 +113,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.status. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_u32_newf(HAL_OUT, &(hal->pin.hm2_comms),
                                      hm2->llio->comp_id, "%s.8i20.%1d.%1d.comms",
@@ -119,7 +121,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.comms. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_pin_bit_newf(HAL_IN, &(hal->pin.enable),
                                      hm2->llio->comp_id, "%s.8i20.%1d.%1d.amp_enable",
@@ -127,7 +129,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding pin %s.8i20.%1d.%1d.amp_enable. aborting\n",
                             hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
 
 
@@ -139,7 +141,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding parameter %s.8i20.%1d.%1d.max_current."
                             "aborting\n", hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
                 r = hal_param_u32_newf(HAL_RW, &(hal->param.hm2_serialnumber),
                                        hm2->llio->comp_id, "%s.8i20.%1d.%1d.serial_number",
@@ -147,7 +149,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error adding parameter %s.8i20.%1d.%1d.serial_"
                             "number. aborting\n",hm2->llio->name, inst->module_index, c);
-                    goto fail1;
+                    return r;
                 }
 
 
@@ -166,7 +168,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram read region for sserial CS"
                             "register (%d)\n", r);
-                    goto fail1;
+                   return r;
                 }
 
                 tram->reg_0_addr = md->base_address + 3 * md->register_stride
@@ -178,7 +180,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram read region for sserial "
                             "interface 0 register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
 
                 tram->reg_1_addr = md->base_address + 4 * md->register_stride
@@ -191,7 +193,7 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram read region for sserial "
                             "interface 1 register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
 
                 r = hm2_register_tram_write_region(hm2,
@@ -201,36 +203,21 @@ int hm2_8i20_create(hostmot2_t *hm2, hm2_module_descriptor_t *md) {
                 if (r < 0) {
                     HM2_ERR("error registering tram write region for sserial"
                             "interface 0 register (%d)\n", r);
-                    goto fail1;
+                    return r;
                 }
             }
         }
     }
-
-    return n;
-fail1:
-    {
-        int i;
-        for (i = 1 ; i < hm2->sserial.num_instances; i++){
-            if (hm2->sserial.instance[i].tram_8i20 != NULL){
-                kfree(hm2->sserial.instance[i].tram_8i20);
-            }
-            if (hm2->sserial.instance[i].tram_7i64 != NULL){
-                kfree(hm2->sserial.instance[i].tram_7i64);
-            }
-        }
-    }
-fail0:
-    return r;
-
+    return 0;
 }
 
 void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
     int i;
     int c;
-    double angle_lim, norm_current;
+    u32 angle_lim; 
+    double norm_current;
     const float i_const = 32767;
-    const float a_const = 182.0444479;
+    const float a_const = 65535;
 
     for (i = 0 ; i < hm2->sserial.num_instances ; i++){
         hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
@@ -256,11 +243,8 @@ void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
             }
 
 
-            angle_lim = *hal->pin.hm2_phase_angle;
-            if ( 0.0 > (angle_lim = 360.0 * (angle_lim - floor(angle_lim/360.0)))){
-                angle_lim = 360.0 - angle_lim;
-            }
-
+            angle_lim = ((u32)(*hal->pin.hm2_phase_angle * a_const)) & 0x0000FFFF;
+ 
             if (*hal->pin.hm2_current > 1.0) {*hal->pin.hm2_current = 1.0;}
             else if (*hal->pin.hm2_current < -1.0){*hal->pin.hm2_current = -1;}
 
@@ -270,7 +254,7 @@ void hm2_8i20_prepare_tram_write(hostmot2_t *hm2){
                            * i_const;
             if (*hal->pin.enable) {
                 *tram->reg_0_write = ((int)(norm_current) << 16)
-                                    | ((u32)(angle_lim * a_const) & 0x0000FFFF);
+                                    | angle_lim;
             }
             else
             {
@@ -333,3 +317,40 @@ int hm2_8i20_params(hostmot2_t *hm2){
     }
     return 0;
 }
+
+void hm2_8i20_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
+    u32 buff=0x00;
+    u32 addr;
+    int c;
+    int n = 0;
+    int i = inst->module_index;
+    for (c = 0 ; c < inst->num_8i20 ; c++){
+        n = inst->tram_8i20[c].index;
+        if (hm2->config.sserial_modes[i][n] != 'x') {
+            // CS addr - write card mode
+            addr = inst->tram_8i20[c].reg_cs_addr;
+            buff = (hm2->config.sserial_modes[i][n] - '0') << 24;
+            hm2->llio->write(hm2->llio, addr, &buff, sizeof(u32));
+        }
+    }
+}
+
+int hm2_sserial_8i20_check(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
+    int c;
+    int err_flag = 0;
+    for (c = 0 ; c < inst->num_8i20 ; c++){
+        hm2_sserial_tram_t *tram=&inst->tram_8i20[c];
+        if ( hm2_sserial_check_errors(hm2, tram)) {err_flag = -EINVAL;}
+    }
+    return err_flag;
+}
+
+void hm2_sserial_8i20_cleanup(hostmot2_t *hm2){
+    int i;
+    for (i = 1 ; i < hm2->sserial.num_instances; i++){
+        if (hm2->sserial.instance[i].tram_8i20 != NULL){
+            kfree(hm2->sserial.instance[i].tram_8i20);
+        }
+    }
+}
+

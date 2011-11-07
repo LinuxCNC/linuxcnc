@@ -778,7 +778,10 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 
     if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
         AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
-Documentation cannot be built.])
+Documentation cannot be built.
+On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
+On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
+On other systems, do what you need to install asciidoc version 8.5 or newer.])
     fi
     AC_MSG_RESULT([$ASCIIDOC_VER])
 

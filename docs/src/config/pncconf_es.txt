@@ -1,4 +1,4 @@
-= Point n Click Configuration Wizard Mesa PNCconf[[cha:pncconf-wizard]]
+= Point n Click Configuration Wizard Mesa PNCconf[[cha:PNCconf-Wizard]]
 
 (((Point n Click Configuration Wizard)))
 (((PNCconf Wizard)))
@@ -897,18 +897,15 @@ press the help button and look at the output page. +
 Ask on the EMC mail-list or forum for info about converting custom firmware. 
 Not all firmware can be utilized with PNCconf.
 
-.Advanced Options
+Custom HAL Files::
 
-image::images/pncconf-advanced.png[]
-
-== HAL Components
-
-On this page you can add additional HAL components you might need.
-
-.HAL Components
-
-image::images/pncconf-hal.png[]
-
+There are four custom files that you can use to add HAL commands to: +
+-custom.hal is for HAL commands that don't have to be run after the GUI frontend
+loads. It is run after the configuration-named HAL file. +
+-custom_postgui.hal is for commands that must be run after AXIS loads or a 
+standalone PYVCP display loads. +
+-custom_gvcp.hal is for commands that must be run after glade VCP is loaded. +
+-shutdown.hal is for commands to run when EMC shuts down in a controlled manner.
 
 // vim: set syntax=asciidoc:
 

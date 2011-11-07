@@ -1,4 +1,4 @@
-= Point n Click Configuration Wizard Mesa PNCconf[[cha:pncconf-wizard]]
+= Point n Click Configuration Wizard Mesa PNCconf[[cha:PNCconf-Wizard]]
 
 (((Point n Click Configuration Wizard)))
 (((PNCconf Wizard)))
@@ -11,7 +11,7 @@ It can configure closed loop servo systems or hardware stepper systems. +
 It uses a similar 'wizard' approach as Stepconf (used for software stepping, 
 parallel port driven systems).
 
-PNCconf is still in a early development stage (alpha) so there are some bugs and
+PNCconf is still in a development stage (Beta) so there are some bugs and
  lacking features. +
 Please report bugs and suggestions to the EMC forum page or mail-list.
 
@@ -452,7 +452,7 @@ tuning test is available.
 An open loop test is important as it confirms the direction of the motor and 
 encoder. The motor should move the axis in the positive direction when the 
 positive button is pushed and also the encoder should count in the postie 
-direction. The axis movementshould follow the Machinery Handbook standards or 
+direction. The axis movement should follow the Machinery Handbook standards or 
 AXIS graphical display will not make much sense. Hopefully the help page and 
 diagrams can help figure this out. Note that axis directions are based on TOOL 
 movement not table movement. There is no acceleration ramping with the open loop
@@ -755,7 +755,7 @@ between the negative limit and the negative trip pin. +
 == Spindle Configuration
 
 If you select spindle signals then this page is available to configure spindle 
-control.+
+control. +
 
 TIP: Many of the option on this page will not show unless the proper option was 
 selected on previous pages!
@@ -897,18 +897,15 @@ press the help button and look at the output page. +
 Ask on the EMC mail-list or forum for info about converting custom firmware. 
 Not all firmware can be utilized with PNCconf.
 
-.Advanced Options
+Custom HAL Files::
 
-image::images/pncconf-advanced.png[]
-
-== HAL Components
-
-On this page you can add additional HAL components you might need.
-
-.HAL Components
-
-image::images/pncconf-hal.png[]
-
+There are four custom files that you can use to add HAL commands to: +
+-custom.hal is for HAL commands that don't have to be run after the GUI frontend
+loads. It is run after the configuration-named HAL file. +
+-custom_postgui.hal is for commands that must be run after AXIS loads or a 
+standalone PYVCP display loads. +
+-custom_gvcp.hal is for commands that must be run after glade VCP is loaded. +
+-shutdown.hal is for commands to run when EMC shuts down in a controlled manner.
 
 // vim: set syntax=asciidoc:
 
