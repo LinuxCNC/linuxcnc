@@ -64,7 +64,9 @@ stoppée sur une position fixée ou non.
 Un centre d'usinage peut être équipé d'un composant fournissant
 l'arrosage fuide ou en brouillard.
 
-=== Correcteurs de vitesse (((correcteurs vitesse))) d'avance et de broche(((correcteur v. broche)))
+=== Correcteurs de vitesse d'avance et de broche
+(((correcteurs vitesse)))
+(((correcteur v. broche)))
 
 Un centre d'usinage est équipé de boutons de réglage de la vitesse
 d'avance et de la vitesse de rotation de la broche, ils laissent
@@ -72,12 +74,16 @@ l'opérateur corriger les vitesses nécessaires pour la broche et
 l'avance travail, il peut ainsi augmenter ou réduire les vitesses
 programmées.
 
-=== Bouton d'effacement de block (((Bouton effacement de block)))[[sub:Bouton-effacement-de-block]]
+=== Bouton d'effacement de block[[sub:Bouton-effacement-de-block]]
+
+(((Bouton effacement de block)))
 
 Un centre d'usinage peut être équipé d'un bouton d'effacement de
 block. Voir la section <<sub:Interaction-effacement-de-block>>.
 
-=== Bouton d'arrêt optionnel du programme(((arrêt optionnel)))[[sub:arret-optionnel]]
+=== Bouton d'arrêt optionnel du programme[[sub:arret-optionnel]]
+
+(((arrêt optionnel)))
 
 Un centre d'usinage peut être équipé d'un bouton d'arrêt du programme.
 Voir la section <<sub:Interaction-arrets-optionnels>>.
@@ -112,7 +118,9 @@ of view of someone standing next to the machine. footnote:[If the
 parallelism requirement is violated, the system builder will
 have to say how to distinguish clockwise from counterclockwise.]
 
-=== Point contrôlé[[sub:Point-controle]](((point contrôlé)))
+=== Point contrôlé[[sub:Point-controle]]
+
+(((point contrôlé)))
 
 Le point contrôlé est le point dont la position et la vitesse de
 déplacement sont contrôlés. Quand la compensation de longueur d'outil
@@ -151,7 +159,9 @@ rotation de la broche. Si les limites physique de l'axe rendent le
 déplacement impossible, tous les axes seront ralentis pour maintenir 
 le chemin prévu.
 
-=== Vitesse (((vitesse d'avance)))[[sub:Vitesse-d-avance]]
+=== Vitesse[[sub:Vitesse-d-avance]]
+
+(((vitesse d'avance)))
 
 La vitesse à laquelle le point contrôlé se déplace est ajustable par
 l'opérateur. Sauf cas particulier, (vitesse inverse du temps, vitesse
@@ -267,7 +277,9 @@ filetage, les boutons sont neutralisés automatiquement.
 EMC2 réagit aux réglages de ces boutons seulement quand ils sont
 autorisés.
 
-=== Bouton d'effacement de block Switch[[sub:Interaction-effacement-de-block]](((effacement de block)))
+=== Bouton d'effacement de block Switch[[sub:Interaction-effacement-de-block]]
+
+(((effacement de block)))
 
 Si le bouton “Effacement de block” est actif, les lignes de code
 RS274/NGC commençant par le caractère barre de fraction (caractère
@@ -276,7 +288,9 @@ désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
 d'effacement de block doit être positionné avant de lancer le programme
 NGC.
 
-=== Bouton d'arrêt optionnel du programme[[sub:Interaction-arrets-optionnels]](((Arrets optionnels)))
+=== Bouton d'arrêt optionnel du programme[[sub:Interaction-arrets-optionnels]]
+
+(((Arrets optionnels)))
 
 Si ce bouton est actif et qu'un code M1 est rencontré, le programme
 est mis en pause.
@@ -312,7 +326,9 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 Pour plus d'informations sur les spécificités du format de tableau outil, 
 voir les <<sec:Tool-Table-Format>> section.
 
-== Paramètres (((parametres)))[[sub:Parametres]]
+== Paramètres[[sub:Parametres]]
+
+(((parametres)))
 
 Dans le language RS274/NGC, le centre d'usinage maintient un tableau
 de 5400 paramètres numériques. La plupart d'entre eux ont un usage
