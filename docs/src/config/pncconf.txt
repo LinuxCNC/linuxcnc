@@ -1,13 +1,15 @@
-[[cha:PNCconf-Wizard]]
-= Point n Click Configuration Wizard (PNCconf)
+= Point n Click Configuration Wizard Mesa PNCconf[[cha:pncconf-wizard]]
+
+(((Point n Click Configuration Wizard)))
 (((PNCconf Wizard)))
+(((Mesa Configuration Wizard)))
 
 PNCconf is made to help build configurations that utilize specific Mesa 
 'Anything I/O' products. 
 
 It can configure closed loop servo systems or hardware stepper systems. +
-It uses a similar 'wizard' approach as Stepconf ( used for software stepping, 
-parallel port driven systems ).
+It uses a similar 'wizard' approach as Stepconf (used for software stepping, 
+parallel port driven systems).
 
 PNCconf is still in a early development stage (alpha) so there are some bugs and
  lacking features. +
@@ -895,7 +897,19 @@ press the help button and look at the output page. +
 Ask on the EMC mail-list or forum for info about converting custom firmware. 
 Not all firmware can be utilized with PNCconf.
 
- 
+.Advanced Options
+
+image::images/pncconf-advanced.png[]
+
+== HAL Components
+
+On this page you can add additional HAL components you might need.
+
+.HAL Components
+
+image::images/pncconf-hal.png[]
+
+
 // vim: set syntax=asciidoc:
 
 
