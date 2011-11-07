@@ -123,7 +123,7 @@ D'après les informations ci-dessus:
  - Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un tour. 
 Ainsi l'échelle requise est la suivante:
 
-latexmath: [
+latexmath:[
 \frac{200 pas moteur}{1 tour moteur} \times
 \frac{10 micropas}{1 pas moteur} \times
 \frac{2 tours moteur}{1 tour de vis} \times
@@ -150,7 +150,7 @@ D'après les informations ci-dessus:
 
 Ainsi l'échelle requise est la suivante:
 
-latexmath: [
+latexmath:[
 \frac{200 Pas par tour}{1 tour moteur} \times
 \frac{8 micropas}{1 pas moteur} \times
 \frac{3 tours moteur}{1 tour de vis} \times
