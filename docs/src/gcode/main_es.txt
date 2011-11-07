@@ -68,7 +68,7 @@ distancia desde la posición cero XY aumentó con cada línea.
 
 .Espiral Polar[[fig:Polar-Espiral]]
 
-images::images/polar01.png[]
+image::images/polar01.png[]
 
 El siguiente código producirá nuestro patrón cuadrado.
 
@@ -84,15 +84,15 @@ distancia de punto final es el mismo para cada línea.
 
 .Polar Plaza de[[fig:Polar-Plaza]]
 
-images::images/polar02.png[]
+image::images/polar02.png[]
 
 Es un error si:
 
 - Un movimiento incremental que se inicia en el origen
 - Una mezcla de Polar y X y Y o palabras se utilizan
 
-[[sec:Tabla-de-Referencia-Rapida]]
-== Tabla de Referencia Rápida
+== Tabla de Referencia Rápida[[sec:Tabla-de-Referencia-Rapida]]
+
 (((Tabla de códigos G)))
 
 [Width="100%", options="header"]
@@ -178,8 +178,8 @@ Es un error si:
 | T | Herramienta de selección | <<sub:T-Select-Tool>>
 |========================================
 
-[[sec:G0-Rapido]]
-== G0 movimiento rápido
+== G0 movimiento rápido[[sec:G0-Rapido]]
+
 (((G0 Rápido)))
 (((Rápido)))
 
@@ -202,8 +202,8 @@ Es un error si:
 
 - Una carta de eje sin un valor real.
 
-[[sec:G1-lineal-de-movimiento]]
-== G1 Linear Motion
+== G1 Linear Motion[[sec:G1-lineal-de-movimiento]]
+
 (((G1 Linear Motion)))
 
     G1 ejes
@@ -225,8 +225,8 @@ Es un error si:
 
 - No hay velocidad de avance se ha establecido.
 
-[[sec:G2-G3-Arco]]
-== G2, G3 Arco
+== G2, G3 Arco[[sec:G2-G3-Arco]]
+
 (((G2, G3 Arco)))
 
 Un arco circular o helicoidal se especifica utilizando `G2` (a la derecha 
@@ -355,7 +355,7 @@ El código para el ejemplo:
 
 .Ejemplo G2[[fig:G2-Ejemplo]]
 
-images::images/g2.png[]
+image::images/g2.png[]
 
 En el siguiente ejemplo podemos ver la diferencia entre los desplazamientos de Y si
 estamos haciendo un G2 o G3 un movimiento. Para el traslado G2 es la posición de inicio
@@ -370,7 +370,7 @@ El código de g para el siguiente ejemplo:
 
 .G2-G3 ejemplo[[fig:G2/3-Example]]
 
-images::images/g2-3.png[]
+image::images/g2-3.png[]
 
 He aquí un ejemplo de un comando de formato de centro de molino de una hélice:
 
@@ -442,8 +442,8 @@ donde X = 10, Y = 15, y Z = 5, con un radio de 20. Si el valor inicial
 de Z es de 5, esto es un arco de círculo paralelo al plano XY;
 de lo contrario, es un arco helicoidal.
 
-[[sec:G4-Mora]]
-== G4 Dwell
+== G4 Dwell[[sec:G4-Mora]]
+
 (((G4 Mora)))
 
     G4 P[segundos]
@@ -455,7 +455,9 @@ Es un error si:
 
 - El número P es negativo.
 
-== G5.1 cuadráticas B-spline[[sec:G5.1-B-spline-cuadratica]](((G5.1 B-spline)))
+== G5.1 cuadráticas B-spline[[sec:G5.1-B-spline-cuadratica]]
+
+(((G5.1 B-spline)))
 
     G5.1 Xn Yn I[desplazamiento X] J[desplazamiento Y]
 
@@ -467,8 +469,8 @@ Es un error si:
 - El otro eje de X o Y se especifica
 - El avión no está activo G17
 
-[[sec:G5.2-G5.3-NURBs]]
-== G5.2 G5.3 NURBS bloque
+== G5.2 G5.3 NURBS bloque[[sec:G5.2-G5.3-NURBs]]
+
 (((G5.2 G5.3 Bloque NURBs)))
 
 Advertencia: G5.2, G5.3 es experimental y no han sido evaluados completamente.
@@ -505,14 +507,14 @@ NURBS Código de ejemplo
 
 .NURBS Ejemplo de salida
 
-images::images/nurbs01.png []
+image::images/nurbs01.png []
 
 Más información sobre NURBS se pueden encontrar aquí:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS [http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
 
-[[sec:G7-Diametro-Modo]]
-== Modo Diámetro del G7
+== Modo Diámetro del G7[[sec:G7-Diametro-Modo]]
+
 (((Diámetro del G7)))
 
 Programa del G7 para entrar en el modo de diámetro para el eje X en un torno. Cuando en
@@ -520,8 +522,8 @@ el modo de diámetro en el eje X se mueve en un torno, se media la distancia
 en el centro del torno. Por ejemplo X1 se trasladaría a la cortadora
 0.500 "desde el centro del torno dando así un una" parte de diámetro.
 
-[[sec:G8-Radio-Mode]]
-== G8 modo Radio
+== G8 modo Radio[[sec:G8-Radio-Mode]]
+
 (((modo Radio del G8)))
 
 Programa del G8 para entrar en el modo de radio para el eje X en un torno. Cuando en
@@ -529,8 +531,8 @@ El modo de radio en el eje X se mueve en un torno, será la distancia de la
 centro. Así, un corte en el X1 se traduciría en una parte que es de 2" de diámetro.
 G8 es por defecto al encender el equipo.
 
-[[sec:G10-L1_]]
-== G10 L1 Set de herramientas Tabla
+== G10 L1 Set de herramientas Tabla[[sec:G10-L1_]]
+
 (((G10 Tabla de herramientas L1)))
 
     G10 L1 P [número de herramientas] R [radio] 
@@ -551,8 +553,8 @@ Es un error si:
 Para más información sobre la orientación de corte, 
 ver el <<cap:Lathe-Tool-Orientations>> diagrama. 
 
-[[sec:G10-L2_]]
-== G10 L2 conjunto de coordenadas del sistema
+== G10 L2 conjunto de coordenadas del sistema[[sec:G10-L2_]]
+
 (((L2 del sistema de coordenadas)))
 
     G10 L2 P [sistema de coordenadas] R [rotación XY sobre Z] 
@@ -621,8 +623,8 @@ G10 L2 P1 X0 Y0 Z0:
 | 9 | 9 | 59.3
 |========================================
 
-[[sec:G10-L10]]
-== G10 L10 Set Tabla de herramientas
+== G10 L10 Set Tabla de herramientas[[sec:G10-L10]]
+
 (((Tabla de herramientas Set)))
 
     G10 L10 P [número de herramientas] R [radio]
@@ -641,8 +643,8 @@ Es un error si:
 
 - Compensación de corte está en
 
-[[sec:G10-L11]]
-== G10 L11 Set Tabla de herramientas
+== G10 L11 Set Tabla de herramientas[[sec:G10-L11]]
+
 (((Tabla de herramientas Set)))
 
     G10 L11 P [número de herramientas] R [radio]
@@ -665,8 +667,8 @@ Es un error si:
 
 - Compensación de corte está en
 
-[[sec:G10-L20]]
-== G10 L20 conjunto de coordenadas del sistema
+== G10 L20 conjunto de coordenadas del sistema[[sec:G10-L20]]
+
 (((Establecer sistema de coordenadas)))
 
     G10 L20 P [sistema de coordenadas] R [la rotación alrededor de Z] 
@@ -683,8 +685,8 @@ Es un error si:
 - El número P no se evalúa como un número entero en el rango de 0 a 9.
 - Un eje se programa que no está definido en la configuración.
 
-[[sec:G17-G18-G19]]
-== G17, G18, G19, G17.1, G18.1, G19.1 Selección de Plano
+== G17, G18, G19, G17.1, G18.1, G19.1 Selección de Plano[[sec:G17-G18-G19]]
+
 (((G17 Plano XY)))
 (((G18 Plano XZ)))
 (((G19 Plano YZ)))
@@ -704,19 +706,20 @@ Estos códigos de establecer el plano actual de la siguiente manera:
 Los efectos de contar con un plano seleccionado se discuten en la Sección 
 <<sec:G2-G3-Arc>> Y en la sección <<sec:G81-G89>>
 
-[[sec:G20-G21-Unidades]]
-== G20, G21 Unidades de longitud
-(((G20, G21 Unidades de longitud)))
+== G20, G21 Unidades de longitud[[sec:G20-G21-Unidades]]
 
-Programa del G-20 para uso pulgadas para unidades de longitud. +
-Programa G21 utilizar milímetros para las unidades de longitud.
+(((G20 Pulgadas)))
+(((G21 Milimetros)))
 
-Por lo general es una buena idea del programa ya sea del G-20 o G-21, cerca de la
+Programa G20 para uso pulgadas para unidades de longitud. +
+Programa G21 para uso milímetros para las unidades de longitud.
+
+Por lo general es una buena idea del programa ya sea del G20 o G21, cerca de la
 inicio de un programa antes de que cualquier movimiento se produce, y no utilizar
 uno en el resto del programa.
 
-[[sec:G28-G28-G28.1]]
-== G28, G28.1 Ir a las posiciones predefinidas
+== G28, G28.1 Ir a las posiciones predefinidas[[sec:G28-G28-G28.1]]
+
 (((G28)))
 (((G28.1)))
 
@@ -736,7 +739,10 @@ Es un error si:
 
 - La compensación de radio se enciende
 
-== G30, G30.1 Ir a las posiciones predefinidas[[sec:G30-G30 G30.1]](((G30, G30.1)))
+== G30, G30.1 Ir a las posiciones predefinidas[[sec:G30-G30.1]]
+
+(((G30)))
+(((G30.1)))
 
 G30 utiliza los valores de los parámetros de 5181-5186 
 como los valores absolutos para hacer un rápido movimiento transversal a partir de la posición actual. 
@@ -756,8 +762,8 @@ Es un error si:
 
 - La compensación de radio se enciende
 
-[[sec:G33-eje-Sync]]
-== G33 husillo sincronizado movimiento
+== G33 husillo sincronizado movimiento[[sec:G33-eje-Sync]]
+
 (((G33 husillo sincronizado movimiento)))
 
     G33 X- Y- Z- K-
@@ -784,8 +790,8 @@ Es un error si:
 - El movimiento lineal solicitado excede los límites de velocidad de la máquina 
     debido a la velocidad del husillo
 
-[[sec:G33.1-rigido-Tapping]]
-== G33.1 roscado rígido
+== G33.1 roscado rígido[[sec:G33.1-rigido-Tapping]]
+
 (((G33.1 roscado rígido)))
 
     G33.1 X- Y- Z- K-
@@ -829,8 +835,8 @@ Ejemplo:
     ; Rígida aprovechar un hilo 20 TPI
     G33.1 Z-0.750 K0.05
 
-[[sec:G38.x-Straight-Probe]]
-== G38.x recto de la sonda
+== G38.x recto de la sonda[[sec:G38.x-Straight-Probe]]
+
 (((G38.2 sonda)))(((G38.3 sonda)))(((G38.4 sonda)))(((G38.5 sonda)))
 
 IMPORTANTE: Usted no será capaz de utilizar correctamente este comando hasta que su 
@@ -893,8 +899,8 @@ Un comentario de la forma `(filename.txt PROBEOPEN)` se abrirá
 XYZABCUVW de cada sonda recta éxito en ella. 
 El archivo debe estar cerrado con `(PROBECLOSE)`. 
 
-[[sec:G40]]
-== G40 Compensación Off
+== G40 Compensación Off[[sec:G40]]
+
 (((Off G40 Compensación de radio)))
 
 Programa G40 para activar la compensación de radio de la fresa apagado. 
@@ -905,8 +911,8 @@ Es un error si:
 
 - Un movimiento de arco G2/G3 está programada siguiente después de un G40.
 
-[[sec:G41-G42]]
-== Compensación G41, G42 radio de la herramienta
+== Compensación G41, G42 radio de la herramienta[[sec:G41-G42]]
+
 (((G41 Compensación de radio )))
 (((G42 Compensación de radio)))
 
@@ -951,10 +957,10 @@ Es un error si:
 - El plano YZ es activo,
 - Compensación de radio de la fresa se le ordena a su vez en cuando ya está encendida.
 
-[[sec:G41.1-G42.1]]
-== G41.1, G42.1 Compensación dinámica de radio de corte
-(((G41.1 Compensación Dinámica Radio )))
-(((G42.1 compensación de radio dinámico)))
+== G41.1, G42.1 Compensación dinámica de radio de corte[[sec:G41.1-G42.1]]
+
+(((G41.1 Compensación Dinámica de Radio)))
+(((G42.1 Compensación Dinámica de Radio)))
 
     G41.1 G42.1 o D [diámetro] <L[orientation]>
 
@@ -975,9 +981,11 @@ Es un error si:
 Para más información sobre la orientación de corte ver el <<cap:Lathe-Tool-Orientations>> y 
 <<fig:Tool-Positions-1-2-3-4>> Y <<fig:Tool-Positions-5-6-7-8>> diagramas. 
 
-[[sec:G43-G43.1-Tool]]
-== G43, G43.1, G49 Compensación Longitud de la herramienta
-(((G43, G43.1, G49 Compensación longitud de herramienta)))
+== G43, G43.1, G49 Compensación Longitud de la herramienta[[sec:G43-G43.1-Tool]]
+
+(((G43 Compensación longitud de herramienta)))
+(((G43.1 Compensación dinámica de longitud de herramienta)))
+(((G49 Cancelar compensación longitud de herramienta)))
 
 === G43, G43.1: Activar compensación de longitud
 
@@ -1012,18 +1020,16 @@ Es un error si:
 
 - El movimiento es ordenado en la misma línea que `G43.1`
 
-[[sub:G49-herramientas]]
-=== G49: Cancelar herramienta de corrección de longitud de
-(((G49)))
+=== G49: Cancelar herramienta de corrección de longitud[[sub:G49-herramientas]]
 
-No utilizar la longitud de herramienta, el programa G49.
+No utilizar la corrección de longitud de herramienta, el programa G49.
 
 Está bien el programa con el mismo desplazamiento ya está en uso. También es
 OK para programar sin usar la longitud de herramienta si no se está
 utilizados.
 
-[[sub:G53-Move-in]]
-== Movimiento G53 en coordenadas absolutas
+== Movimiento G53 en coordenadas absolutas[[sub:G53-Move-in]]
+
 (((G53 coordenadas absolutas)))
 
 Para moverse en coordenadas absolutas desde el origen de la máquina, el programa `G53`
@@ -1039,8 +1045,8 @@ Es un error si:
 - G53 se utiliza sin G0 o G1 ser activo, 
 - O G53 se utiliza mientras que la remuneración es el radio de la fresa.
 
-[[sec:G54-G59.3]]
-== G54-G59.3 Seleccione Sistema de coordenadas
+== G54-G59.3 Seleccione Sistema de coordenadas[[sec:G54-G59.3]]
+
 (((G54 Seleccionar sistema de coordenadas 1)))
 (((G55 Seleccionar sistema de coordenadas 2)))
 (((G56 Seleccionar sistema de coordenadas 3)))
@@ -1085,8 +1091,8 @@ Es un error si:
 Vea la sección <<cha:Coordinate-System>> para una descripción de coordinar
 sistemas.
 
-[[sec:G61-G61.1-G64]]
-== G61, G61.1, G64 Ruta del Menú de control
+== G61, G61.1, G64 Ruta del Menú de control[[sec:G61-G61.1-G64]]
+
 (((G61 trayectoria exacta)))
 (((G61.1 parada precisa)))
 (((G64 control de trayectoria)))
@@ -1123,8 +1129,8 @@ Sección <<sub:Path-Control-Mode>> para una discusión de estos modos.
 Si Q no se especifica a continuación, tendrá el mismo comportamiento que antes y
 utilizar el valor de P-.
 
-[[sec:G73-Perforacion-del-ciclo]]
-== G73 Ciclo de taladrado con rotura de la viruta
+== G73 Ciclo de taladrado con rotura de la viruta[[sec:G73-Perforacion-del-ciclo]]
+
 (((G73 Ciclo de taladrado Quiebre Chip)))
 
     G73 X- Y- Z- A- B- C- R- L- Q-
@@ -1145,8 +1151,8 @@ Es un error si:
 
 - El número Q es negativo o cero.
 
-[[sec:G76-Threading-Conservas]]
-== G76 Roscado ciclo
+== G76 Roscado ciclo[[sec:G76-Threading-Conservas]]
+
 (((G76 Threading)))
 
     G76 P- Z- I- J- R- K- Q- H- E- L-
@@ -1162,7 +1168,7 @@ Es un error si:
 
 .G76 Roscado[[fig:G76-Threading]]
 
-images::images/g76-threads.png []
+image::images/g76-threads.png []
 
 Línea de unidad::
     Una línea a través de la X en paralelo posición inicial a la Z.
@@ -1266,10 +1272,10 @@ se mueve.
 
 .Ejemplo G76 Roscado[[fig:G76-Threading-Ejemplo]]
 
-images::images/g76-01.png []
+image::images/g76-01.png []
 
-[[sec:G80-Cancelar-Modal]]
-== G80 Cancelar modal de movimiento
+== G80 Cancelar modal de movimiento[[sec:G80-Cancelar-Modal]]
+
 (((G80 Cancelar modal de movimiento)))
 
 Programa `G80` para asegurar que no se producirá el movimiento del eje. Es un error si:
@@ -1277,8 +1283,8 @@ Programa `G80` para asegurar que no se producirá el movimiento del eje. Es un e
 - Las palabras del Eje se programan cuando G80 está activo, a menos que un referente 
    el grupo 0 Gcode está programado que usa palabras eje.
 
-[[sec:G81-G89]]
-== Los ciclos preprogramados G81-G89
+== Los ciclos preprogramados G81-G89[[sec:G81-G89]]
+
 (((ciclos preprogramados G81-G89)))
 (((G81-G89, Los ciclos preprogramados)))
 
@@ -1385,8 +1391,8 @@ se mueve siguiendo una o dos se hacen
 Si otro avión está activa, los movimientos preliminares y en el medio, se
 análoga.
 
-[[sec:G81-Perforacion-del-ciclo]]
-== G81 Ciclo de taladrado
+== G81 Ciclo de taladrado[[sec:G81-Perforacion-del-ciclo]]
+
 (((G81 Ciclo de taladrado)))
 
     G81 (X-Y-Z) o (U-V-W-) R-L-
@@ -1452,8 +1458,8 @@ La tercera repetición consta de tres movimientos. La posición X se pone a 13
 . un paralelo de alimentación a la Z-eje (13,17, 4,2) 
 . un paralelo transversal al eje Z de (13,17,4.8) 
 
-[[sec:G82-Perforacion-Dwell]]
-== G82 Ciclo de taladrado con temporización
+== G82 Ciclo de taladrado con temporización[[sec:G82-Perforacion-Dwell]]
+
 (((G82 Ciclo de taladrado Dwell)))
 
     G82 (X-Y-Z) o (U-V-W-) R-L-P-
@@ -1466,8 +1472,8 @@ el agujero.
 . Morar por el número P de segundos.
 . Retraer el eje Z en la velocidad de desplazamiento para borrar Z.
 
-[[sec:G83-Perforacion-Peck]]
-== G83 taladrado
+== G83 taladrado[[sec:G83-Perforacion-Peck]]
+
 (((G83 taladrado)))
 
     G83 (X- Y- Z-) o (U- V- W-) R- L- Q-
@@ -1493,16 +1499,16 @@ Es un error si:
 
 - El número Q es negativo o cero.
 
-[[sec:G84-de-la-mano-derecha-Tapping]]
-== G84 de la Mano Derecha tocar
+== G84 de la Mano Derecha tocar[[sec:G84-de-la-mano-derecha-Tapping]]
+
 (((G84 de la Mano Derecha Tapping)))
 
 Este código no está implementada en EMC2. Se acepta, pero el
 comportamiento no está definido. Vea las secciones 
 <<sec:G33-Spindle-Sync>> Y <<sec:G33.1-Rigid-Tapping>>
 
-[[sec:G85-aburrido-Feed-Out]]
-== G85 aburrido, no de permanencia, salida de alimentación
+== G85 aburrido, no de permanencia, salida de alimentación[[sec:G85-aburrido-Feed-Out]]
+
 (((G85 aburrido, no de permanencia, salida de alimentación)))
 
     G85 (X-Y-Z) o (U-V-W-) R-L-
@@ -1514,8 +1520,8 @@ para la perforación o fresado.
 . Mover el eje Z sólo en la velocidad de avance actual en la posición Z.
 . Retraer el eje Z en la velocidad de alimentación de corriente para limpiar Z. 
 
-[[sec:G86-aburrido-Rapid-Out]]
-== G86 aburrido, parada del cabezal, salida rápida
+== G86 aburrido, parada del cabezal, salida rápida[[sec:G86-aburrido-Rapid-Out]]
+
 (((G86 parada aburrido, eje, salida rápida)))
 
     G86 (X- Y- Z) o (U- V- W-) R- L- P-
@@ -1535,22 +1541,22 @@ si:
 
 - El eje no está girando antes de que este ciclo se ejecuta.
 
-[[sec:G87-Back-Aburrido]]
-== G87 Volver aburrido
+== G87 Volver aburrido[[sec:G87-Back-Aburrido]]
+
 (((G87 Volver aburrido)))
 
 Este código no está implementada en EMC2. Se acepta, pero el
 comportamiento no está definido.
 
-[[sec:G88-aburrido-Manual-Out]]
-== G88 aburrido, parada del cabezal, Manual de salida
+== G88 aburrido, parada del cabezal, Manual de salida[[sec:G88-aburrido-Manual-Out]]
+
 (((G88 aburrido, eje Stop, Manual de salida)))
 
 Este código no está implementada en EMC2. Se acepta, pero el
 comportamiento no está definido.
 
-[[sec:G89-aburrido-Dwell]]
-== G89 aburrido, permanencia, salida de alimentación
+== G89 aburrido, permanencia, salida de alimentación[[sec:G89-aburrido-Dwell]]
+
 (((G89 aburrido, permanencia, salida de alimentación)))
 
     G89 (X-Y-Z) o (U-V-W-) R-L-P-
@@ -1563,8 +1569,8 @@ donde P especifica el número de segundos que habitan.
 . Morar por el número P de segundos. 
 . Retraer el eje Z en la velocidad de alimentación de corriente para limpiar Z. 
 
-[[sec:G90-G91-Set]]
-== G90, G91 Set modalidad a distancia
+== G90, G91 Set modalidad a distancia[[sec:G90-G91-Set]]
+
 (((G90, G91 modalidad a distancia Set)))
 
     G90 es el modo Absolute Distance +
@@ -1583,8 +1589,8 @@ Para entrar en modo incremental la distancia, el programa de `G91`. En increment
 números de modalidad a distancia, por lo general representan el eje 
 incrementos de las coordenadas actual. 
 
-[[sec:G90.1-G91.1]]
-== G90.1, G91.1 Arco modalidad a distancia
+== G90.1, G91.1 Arco modalidad a distancia[[sec:G90.1-G91.1]]
+
 (((Arco modalidad a distancia)))
 
 G90.1 modalidad a distancia absoluta de que, las compensaciones de I, J & K.
@@ -1595,8 +1601,8 @@ G91.1 modo de distancia incremental para I, J & K compensaciones.
 
 - Returns I, J & K a su comportamiento normal.
 
-[[sec:G92-G92.1-G92.2-G92.3]]
-== G92, G92.1, G92.2, G92.3 compensaciones sistema de coordenadas
+== G92, G92.1, G92.2, G92.3 compensaciones sistema de coordenadas[[sec:G92-G92.1-G92.2-G92.3]]
+
 (((G92, G92.1, G92.2, G92.3 compensaciones)))
 
     G92 X-Y-Z-A-B-C-U-V-W-
@@ -1653,8 +1659,8 @@ EMC2 almacena el G92 compensaciones y los reutiliza en la próxima ejecución de
 del programa. Para evitar esto, se puede programar un G92.1 (para eliminar), o
 un programa de G92.2 (para eliminarlos - que se conserva aún).
 
-[[sec:G93-G94-G95-modo]]
-== G93, G94, G95: Feed Rate Set Mode
+== G93, G94, G95: Feed Rate Set Mode[[sec:G93-G94-G95-modo]]
+
 (((G93, G94, G95: Modo de velocidad de alimentación)))
 
     G93 es el modo de Tiempo Inverso
@@ -1692,8 +1698,8 @@ Es un error si:
    (Explícita o implícitamente) no tiene una palabra F.
 - Un nuevo avance no se especifica después de cambiar a G94 o G95
 
-[[sec:G96-G97-eje]]
-== G96, G97 del eje del modo de control
+== G96, G97 del eje del modo de control[[sec:G96-G97-eje]]
+
 (((G96, G97 modo de control del eje)))
 
     G96 D [la velocidad del husillo max] S [unidades por minuto] es el modo de velocidad de corte constante +
@@ -1717,8 +1723,8 @@ Es un error si:
 - S no se especifica con el G96
 - Un movimiento de alimentación se especifica en el modo G96, mientras que el eje no está girando
 
-[[sec:G98-G99-Set]]
-== G98, G99 Ajustar los ciclos enlatados nivel de retorno
+== G98, G99 Ajustar los ciclos enlatados nivel de retorno[[sec:G98-G99-Set]]
+
 (((G98, G99 Volver ciclo fijo)))
 
    G98 retracción en la posición de ese eje se encontraba justo antes de esta serie
@@ -1746,8 +1752,8 @@ G98 y G99 entre en una serie de ciclos.
 
 = M Códigos
 
-[[sec:M0-M1-M2]]
-== M0, M1, M2, M30, M60 Programa de Detención y final
+== M0, M1, M2, M30, M60 Programa de Detención y final[[sec:M0-M1-M2]]
+
 (((M0 detener el programa)))
 (((M1 detener el programa opcional)))
 (((M2 Fin de programa)))
@@ -1798,7 +1804,8 @@ después del comando M2 o M30 se ejecuta.
 Al pulsar inicio del ciclo se iniciará el programa 
 en el principio del archivo.
 
-== M3, M4, M5 de control del eje
+== M3, M4, M5 de control del eje[[sec:M3-M4-M5]]
+
 (((M3 eje CW)))
 (((M4 eje CCW)))
 (((M5 Parada del cabezal)))
@@ -1817,8 +1824,8 @@ el eje comenzará a girar.
 No hay problema en usar `M3` o `M4` cuando el cabezal ya está 
 giro o el uso de `M5` cuando el cabezal se ha detenido.
 
-[[sec:M6-Tool-Cambio]]
-== M6 Cambio de herramienta
+== M6 Cambio de herramienta[[sec:M6-Tool-Cambio]]
+
 (((M6-Tool-Change)))
 
 === Cambio de herramienta manual
@@ -1859,8 +1866,8 @@ en ese caso, el eje estará vacío después de que el cambio de herramienta.
 Si es cero slot seleccionado en último lugar, 
 definitivamente habrá ninguna herramienta en el cabezal tras un cambio de herramienta.
 
-[[sec:M7-M8-M9]]
-== M7, M8, M9 refrigerante de control
+== M7, M8, M9 refrigerante de control[[sec:M7-M8-M9]]
+
 (((M7 niebla refrigerante )))
 (((M8 inundación de refrigerante líquido refrigerante)))
 (((M9 alto de refrigerantes)))
@@ -1872,11 +1879,10 @@ A su vez, todo el refrigerante fuera, el programa `` M9.
 Siempre es conveniente usar cualquiera de estos comandos, 
 independientemente de lo que el refrigerante está encendido o apagado.
 
-== Invalida[[s:Anula]]
+== M48-M53 Anulars[[sec:Anulars]]
 
-[[sub:M48-Ambos-Override]]
-[[sub:M49-Ni-Anular]]
-=== M48, M49 anulación de control
+=== M48, M49 anulación de control[[sub:M48-Ambos-Override]][[sub:M49-Ni-Anular]]
+
 (((M48, M49 control de anulación)))
 
 Para permitir que la velocidad de giro y los controles de velocidad de avance de invalidación, el programa `M48. 
@@ -1888,8 +1894,8 @@ Estos controles también se puede activar de forma individual
 con M50 y M51 como se describe en el 
 secciones <<sub:M50-Feed-Override>> y <<sub:M51-Spindle-Override>>.
 
-[[sub:M50-Feed-Anular]]
-=== M50 Alimentación anulación de control
+=== M50 Alimentación anulación de control[[sub:M50-Feed-Anular]]
+
 (((M50 Alimentación anulación de control)))
 
 Para permitir que la velocidad de avance control de anulación, 
@@ -1899,8 +1905,8 @@ Mientras que las personas con discapacidad anular alimentación no tendrá ningu
 y el movimiento se ejecutará al avance programado. 
 (A menos que haya una adaptación velocidad de alimentación anular activo).
 
-[[sub:M51-eje-Anular]]
-=== Husillo M51 de la velocidad de control
+=== Husillo M51 de la velocidad de control[[sub:M51-eje-Anular]]
+
 (((husillo M51 anulación de velocidad)))
 
 Para habilitar el control de la velocidad de giro de invalidación, 
@@ -1911,8 +1917,8 @@ no tendrá ninguna influencia, y la velocidad del husillo
 tendrá el valor exacto del programa especificado
 (Con el S-palabra como se describe en <<sub:S-Set-Spindle>>).
 
-[[sub:M52-adaptativa-Feed-Control]]
-=== M52 control adaptativo de la alimentación
+=== M52 control adaptativo de la alimentación[[sub:M52-adaptativa-Feed-Control]]
+
 (((M52 Feed Control Adaptativo)))
 
 Para utilizar una fuente de adaptación, el programa `` o `M52 M52 P1 '. 
@@ -1925,8 +1931,8 @@ En EMC2, el HAL pin `motion.adaptive de alimentación 'se utiliza para este prop
 Los valores en `motion.adaptive de alimentación` debe oscilar 
 de 0 (mantener alimentar) a 1 (máxima velocidad).
 
-[[sub:M53-Feed-Stop-Control]]
-=== M53 Feed Control Stop
+=== M53 Feed Control Stop[[sub:M53-Feed-Stop-Control]]
+
 (((M53 tope de control de alimentación)))
 
 Para habilitar la parada de alimentar a cambiar, el programa `` o `M53 M53 P1 '. Para desactivar el
@@ -1935,8 +1941,8 @@ moción para ser interrumpido por medio del control de parada de alimentación.
 En EMC2, el pasador de HAL `motion.feed-hold 'se utiliza para este propósito. 
 Los valores de 1, hará que el movimiento se detenga (si 'M53' se activa). 
 
-[[sec:M61-Set-actual-Tool-Numero]]
-== M61 Fijación del Número de la herramienta actual
+== M61 Fijación del Número de la herramienta actual[[sec:M61-Set-actual-Tool-Numero]]
+
 (((M61 Número Juego de herramientas actual)))
 
 Para cambiar el número actual de la herramienta, mientras que en inhaladores de dosis medidas o el programa de modo manual
@@ -1948,8 +1954,8 @@ hacer un cambio de herramienta.
 
 - Q-no es 0 o mayor
 
-[[sec:M62-a-M65]]
-== M62 para controlar la salida M65
+== M62 para controlar la salida M65[[sec:M62-a-M65]]
+
 (((para controlar la salida M65)))
 
 Para controlar un poco la salida digital, el programa `M- P-`, donde el M-palabra
@@ -1987,8 +1993,8 @@ M64 y M65 ocurrir de inmediato, ya que son recibidos por el movimiento
 controlador. Ellos no están sincronizados con el movimiento, y que
 romper la mezcla.
 
-[[sec:M66-Input-Control]]
-== M66 de entrada de control
+== M66 de entrada de control[[sec:M66-Input-Control]]
+
 ((( M66 de control de entrada)))
 
 Para leer el valor de un pin de entrada analógica o digital, programa de 
@@ -2029,8 +2035,8 @@ seleccionar tanto una analógica y una entrada digital). EMC2 en estas entradas 
 no se controla en tiempo real y por lo tanto no debe utilizarse para
 momento las aplicaciones críticas.
 
-[[sec:M67-analogico-de-salida]]
-== M67 salida analógica
+== M67 salida analógica[[sec:M67-analogico-de-salida]]
+
 (((M67 Control de la salida analógica de movimiento)))
 
 Para el control de una salida analógica sincronizado con el movimiento, el programa de 
@@ -2042,8 +2048,8 @@ Manual para obtener más información sobre el controlador de movimiento. Las fu
 igual que M62-63. Vea la sección M62-65 para obtener información sobre colas 
 comandos de salida sincronizada con el movimiento.
 
-[[sec:M68-analogico de salida]]
-== M68 salida analógica
+== M68 salida analógica[[sec:M68-analogico de salida]]
+
 (((M68 con mando analógico de salida Aux)))
 
 Para el control de una salida analógica de inmediato, el programa 'E-M68-Q, donde`
@@ -2055,8 +2061,8 @@ más información sobre el controlador de movimiento. M68 funciona igual que
 M64-65. Vea la sección M62-65 para obtener información sobre la salida inmediata
 comandos.
 
-[[sec:M100-a-M199]]
-== M100 a M199 comandos definidos por el usuario
+== M100 a M199 comandos definidos por el usuario[[sec:M100-a-M199]]
+
 (((M100-M199 comandos definidos por el usuario)))
 (((comandos definidos por el usuario M100-M199)))
 
@@ -2105,8 +2111,8 @@ En el archivo de M100 que podría tener este aspecto:
     halcmd setp thc.feedrate $feedrate
     exit 0
 
-[[cha:O-codigos]]
-= O códigos
+= O códigos[[cha:O-codigos]]
+
 (((O Códigos)))
 
 O-códigos de proporcionar control de flujo en los programas NC. Cada bloque tiene una
@@ -2119,8 +2125,9 @@ El comportamiento no está definido si:
 - Otras palabras se usan en una línea con una junta palabra
 - Los comentarios se utilizan en una línea con una junta palabra
 
-== Subrutinas: sub, endsub, regreso, llame al
-(((Subrutinas: sub, endsub, regreso, llame)))
+== Subrutinas: sub, endsub, return, call
+(((Subrutinas: sub, endsub, return, call)))
+(((sub)))(((endsub)))(((return)))(((call)))
 
 Subrutinas se extienden desde un `O-sub` a una 'O-endsub `. Las líneas
 dentro de la subrutina (el "cuerpo") no se ejecutan en
@@ -2162,12 +2169,12 @@ de los parámetros por encima de # 30 y esos cambios serán visibles para el
 código de llamada. Subrutinas también puede cambiar el valor de nombre global
 parámetros.
 
-== Looping: hacer, mientras que, endwhile, break, continue
-(((bucle: hacer, mientras que, endwhile, break, continue)))
+== Looping: do, while, endwhile, break, continue
+(((bucle: do, while, endwhile, break, continue)))
+(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
-El "while" tiene dos estructuras: mientras que / endwhile, y do / while. En
-cada caso, se sale del bucle cuando el "mientras" condición se evalúa como
-falsa.
+El "while" tiene dos estructuras: while/endwhile, y do/while. En cada caso, 
+se sale del bucle cuando el "mientras" condición se evalúa como falsa.
 
     (Dibujar una forma de diente de sierra)
     F100
@@ -2178,15 +2185,15 @@ falsa.
     # 1 = [# 1 +1]
     O101 endwhile
 
-Dentro de un bucle while, 'O-break' de inmediato sale del bucle, y `-O
-`seguir inmediatamente salta a la próxima evaluación del tiempo` 
+Dentro de un bucle while, `O-break` de inmediato sale del bucle, y `O-continue` seguir inmediatamente salta a la próxima evaluación del tiempo` 
 condición. Si es cierto, el bucle comienza de nuevo en la parte superior. Si
 es falso, que sale del bucle.
 
 == Condicionales: if, else, endif
 (((condicional: if, else, endif)))
+(((if)))(((else)))(((endif)))
 
-El "si" condicional se ejecuta un grupo de instrucciones si una condición
+El "if" condicional se ejecuta un grupo de instrucciones si una condición
 es verdadera y otra si es falsa.
 
     (Fijar cambio de alimentación en función de una variable)
@@ -2197,7 +2204,7 @@ es verdadera y otra si es falsa.
     O102 endif
 
 == Repita/Repeat
-(((Repite)))
+(((Repeat)))
 
 La "repetición" se ejecutará las instrucciones dentro de la
 repetición / endrepeat el número específico de veces. El ejemplo muestra cómo
@@ -2249,8 +2256,8 @@ archivo debe ser un archivo válido.
 
 = Otros Códigos
 
-[[sub:F-Set-Feed]]
-== F: Fijar la alimentación
+== F: Fijar la alimentación[[sub:F-Set-Feed]]
+
 (((F: Establecer Velocidad de alimentación)))
 
 Para configurar la velocidad de avance, el programa `F<n>` donde "n" es un número. 
@@ -2259,8 +2266,8 @@ La aplicación de la tasa de alimentación es como se describe en la Sección
 en cuyo caso la tasa de alimentación es como se describe en 
 Sección <<sec:G93-G94-G95-Mode>>.
 
-[[sub:S-Set-eje]]
-== S: Velocidad conjunto de ejes
+== S: Velocidad conjunto de ejes[[sub:S-Set-eje]]
+
 (((S: Velocidad conjunto de ejes)))
 
 Para establecer la velocidad en revoluciones por minuto (RPM) del cabezal, el programa `S`. 
@@ -2282,8 +2289,8 @@ efecto. La velocidad y la velocidad de avance aún se sincronizarán. En este
 caso, la velocidad puede variar de lo que está programado, aunque la velocidad
 interruptor de corrección se establece en 100%.
 
-[[sub:T-Seleccionar-Herramienta]]
-== T: Herramienta de selección
+== T: Herramienta de selección[[sub:T-Seleccionar-Herramienta]]
+
 (((T:herramienta de selección)))
 
 Para seleccionar una herramienta, el programa `T` <n>, donde el número <n> es el
@@ -2315,8 +2322,8 @@ la herramienta como un torno. Esto puede ser muy confuso al principio. A su vez
 esta función para el programa de cambio de la herramienta actual de un G1 sin ningún tipo de
 movimiento después de la T<n>.
 
-[[sec:Comentarios]]
-== Comentarios
+== Comentarios[[sec:Comentarios]]
+
 (((Comentarios)))
 
 Caracteres imprimibles y espacios en blanco entre paréntesis es un comentario.
@@ -2331,8 +2338,8 @@ el comentario. He aquí un ejemplo de una línea que contiene un comentario:
 
 Comentarios son sólo informativos, no son la causa de una máquina de hacer nada. 
 
-[[sec:Mensajes]]
-== Mensajes
+== Mensajes[[sec:Mensajes]]
+
 (((Mensajes)))
 
 Un comentario contiene un mensaje si `glutamato monosódico 'aparece después de la izquierda
@@ -2342,8 +2349,8 @@ El resto de los personajes antes del paréntesis de la derecha se consideran
 ser un mensaje. Los mensajes deben ser mostrados en la pantalla de mensajes
 dispositivo. Mensajes que no contienen comentarios no tienen que ser exhibidos allí.
 
-[[sub: Sonda de Registro de]]
-== Sonda de Registro
+== Sonda de Registro[[sub: Sonda de Registro de]]
+
 (((la sonda de registro)))
 
 Un comentario también se puede utilizar para especificar un archivo de los resultados de G38.x
@@ -2352,8 +2359,8 @@ el sondeo. Vea la sección <<sec:G38.x-Straight-Probe>>.
 A menudo, en general el registro es más útil que el registro de la sonda. Uso
 generales de registro, el formato de los datos de salida se puede controlar.
 
-[[sub: General de registro de ]]
-=== Registro General de
+=== Registro General de[[sub: General de registro de ]]
+
 (((General de Registro)))
 
 ==== (LOGOPEN, nombre de archivo)
@@ -2374,8 +2381,8 @@ Si el archivo de registro está abierto, se cierra.
 El mensaje "…" se expande como se describe a continuación y por escrito a la
 archivo de registro, si está abierta.
 
-[[sub:mensajes-de-depuracion]]
-=== Mensajes de depuración
+=== Mensajes de depuración[[sub:mensajes-de-depuracion]]
+
 (((G mensajes de depuración de código)))
 
 Comentarios que se parecen: `(debug, el resto del comentario)` son los mismos que

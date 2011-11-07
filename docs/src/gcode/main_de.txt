@@ -91,8 +91,8 @@ It is an error if:
  - An incremental move is started at the origin
  - A mix of Polar and and X or Y words are used
 
-[[sec:Quick-Reference-Table]]
-== Quick Reference Table
+== Quick Reference Table[[sec:Quick-Reference-Table]]
+
 (((G Code Table)))
 
 [width="100%", options="header"]
@@ -178,8 +178,8 @@ It is an error if:
 |T          | Tool Select             | <<sub:T-Select-Tool>>
 |========================================
 
-[[sec:G0-Rapid]]
-== G0 Rapid Motion
+== G0 Rapid Motion[[sec:G0-Rapid]]
+
 (((G0 Rapid)))
 (((Rapid)))
 
@@ -202,8 +202,8 @@ It is an error if:
 
  - An axis letter is without a real value.
 
-[[sec:G1-Linear-Motion]]
-== G1 Linear Motion
+== G1 Linear Motion[[sec:G1-Linear-Motion]]
+
 (((G1 Linear Motion)))
 
     G1 axes
@@ -225,8 +225,8 @@ It is an error if:
 
  - No feed rate has been set.
 
-[[sec:G2-G3-Arc]]
-== G2, G3 Arc
+== G2, G3 Arc[[sec:G2-G3-Arc]]
+
 (((G2, G3 Arc)))
 
 A circular or helical arc is specified using either `G2` (clockwise 
@@ -442,8 +442,8 @@ where X=10, Y=15, and Z=5, with a radius of 20. If the starting value
 of Z is 5, this is an arc of a circle parallel to the XY-plane;
 otherwise it is a helical arc.
 
-[[sec:G4-Dwell]]
-== G4 Dwell
+== G4 Dwell[[sec:G4-Dwell]]
+
 (((G4 Dwell)))
 
     G4 P[seconds]
@@ -455,8 +455,8 @@ It is an error if:
 
  - the P number is negative.
 
-[[sec:G5.1-B-spline]]
-== G5.1 Quadratic B-spline
+== G5.1 Quadratic B-spline[[sec:G5.1-B-spline]]
+
 (((G5.1 Quadratic B-spline)))
 
     G5.1 Xn Yn I[X offset] J[Y offset]
@@ -469,8 +469,8 @@ It is an error if:
  - An axis other than X or Y is specified
  - The active plane is not G17
 
-[[sec:G5.2-G5.3-NURBs]]
-== G5.2 G5.3 NURBs Block
+== G5.2 G5.3 NURBs Block[[sec:G5.2-G5.3-NURBs]]
+
 (((G5.2 G5.3 NURBs Block)))
 
 Warning: G5.2, G5.3 is experimental and not fully tested.
@@ -513,8 +513,8 @@ More information on NURBs can be found here:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
 
-[[sec:G7-Diameter-Mode]]
-== G7 Diameter Mode
+== G7 Diameter Mode[[sec:G7-Diameter-Mode]]
+
 (((G7 Diameter Mode)))
 
 Program G7 to enter the diameter mode for axis X on a lathe. When in
@@ -522,8 +522,8 @@ the Diameter mode the X axis moves on a lathe will be 1/2 the distance
 to the center of the lathe. For example X1 would move the cutter to
 0.500” from the center of the lathe thus giving a 1” diameter part.
 
-[[sec:G8-Radius-Mode]]
-== G8 Radius Mode
+== G8 Radius Mode[[sec:G8-Radius-Mode]]
+
 (((G8 Radius Mode)))
 
 Program G8 to enter the radius mode for axis X on a lathe. When in
@@ -531,8 +531,8 @@ Radius mode the X axis moves on a lathe will be the distance from the
 center. Thus a cut at X1 would result in a part that is 2" in diameter.
 G8 is default at power up.
 
-[[sec:G10-L1_]]
-== G10 L1 Set Tool Table
+== G10 L1 Set Tool Table[[sec:G10-L1_]]
+
 (((G10 L1 Tool Table)))
 
     G10 L1 P[tool number] R[radius] 
@@ -553,8 +553,8 @@ It is an error if:
 For more information on cutter orientation, 
 see the <<cap:Lathe-Tool-Orientations>> diagram. 
 
-[[sec:G10-L2_]]
-== G10 L2 Set Coordinate System
+== G10 L2 Set Coordinate System[[sec:G10-L2_]]
+
 (((G10 L2 Coordinate System)))
 
     G10 L2 P[coordinate system] R[XY rotation about Z] 
@@ -623,8 +623,8 @@ G10 L2 P1 X0 Y0 Z0::
 |9 | 9 | 59.3
 |========================================
 
-[[sec:G10-L10]]
-== G10 L10 Set Tool Table
+== G10 L10 Set Tool Table[[sec:G10-L10]]
+
 (((G10 L10 Set Tool Table)))
 
     G10 L10 P[tool number] R[radius]
@@ -643,8 +643,8 @@ It is an error if:
 
  - Cutter Compensation is on
 
-[[sec:G10-L11]]
-== G10 L11 Set Tool Table
+== G10 L11 Set Tool Table[[sec:G10-L11]]
+
 (((G10 L11 Set Tool Table)))
 
     G10 L11 P[tool number] R[radius]
@@ -667,8 +667,8 @@ It is an error if:
 
  - Cutter Compensation is on
 
-[[sec:G10-L20]]
-== G10 L20 Set Coordinate System
+== G10 L20 Set Coordinate System[[sec:G10-L20]]
+
 (((G10 L20 Set Coordinate System)))
 
     G10 L20 P[coordinate system] R[rotation about Z] 
@@ -685,8 +685,8 @@ It is an error if:
  - The P number does not evaluate to an integer in the range 0 to 9.
  - An axis is programmed that is not defined in the configuration.
 
-[[sec:G17-G18-G19]]
-== G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection
+== G17, G18, G19, G17.1, G18.1, G19.1 Plane Selection[[sec:G17-G18-G19]]
+
 (((G17 XY Plane)))
 (((G18 XZ Plane)))
 (((G19 YZ Plane)))
@@ -706,9 +706,10 @@ These codes set the current plane as follows:
 The effects of having a plane selected are discussed in Section 
 <<sec:G2-G3-Arc>> and Section <<sec:G81-G89>>
 
-[[sec:G20-G21-Units]]
-== G20, G21 Length Units
-(((G20, G21 Length Units)))
+== G20, G21 Length Units[[sec:G20-G21-Units]]
+
+(((G20 Inches)))
+(((G21 Millimeters)))
 
 Program G20 to use inches for length units. +
 Program G21 to use millimeters for length units.
@@ -717,8 +718,8 @@ It is usually a good idea to program either G20 or G21 near the
 beginning of a program before any motion occurs, and not to use either
 one anywhere else in the program.
 
-[[sec:G28-G28.1]]
-== G28, G28.1 Go to Predefined Position
+== G28, G28.1 Go to Predefined Position[[sec:G28-G28.1]]
+
 (((G28)))
 (((G28.1)))
 
@@ -738,9 +739,10 @@ It is an error if :
 
  - Radius compensation is turned on
 
-[[sec:G30-G30.1]]
-== G30, G30.1 Go to Predefined Position
-(((G30, G30.1)))
+== G30, G30.1 Go to Predefined Position[[sec:G30-G30.1]]
+
+(((G30)))
+(((G30.1)))
 
 G30 uses the values in parameters 5181-5186 
 as the absolute values to make a rapid traverse move to from the current position. 
@@ -760,8 +762,8 @@ It is an error if :
 
  - Radius compensation is turned on
 
-[[sec:G33-Spindle-Sync]]
-== G33 Spindle-Synchronized Motion
+== G33 Spindle-Synchronized Motion[[sec:G33-Spindle-Sync]]
+
 (((G33 Spindle-Synchronized Motion)))
 
     G33 X- Y- Z- K-
@@ -788,8 +790,8 @@ It is an error if:
  - The requested linear motion exceeds machine velocity limits 
     due to the spindle speed
 
-[[sec:G33.1-Rigid-Tapping]]
-== G33.1 Rigid Tapping
+== G33.1 Rigid Tapping[[sec:G33.1-Rigid-Tapping]]
+
 (((G33.1 Rigid Tapping)))
 
     G33.1 X- Y- Z- K-
@@ -833,8 +835,8 @@ Example:
     ;rigid tapping a 20 TPI thread
     G33.1 Z-0.750 K0.05
 
-[[sec:G38.x-Straight-Probe]]
-== G38.x Straight Probe
+== G38.x Straight Probe[[sec:G38.x-Straight-Probe]]
+
 (((G38.2 Probe)))(((G38.3 Probe)))(((G38.4 Probe)))(((G38.5 Probe)))
 
 IMPORTANT: You will not be able to successfully use this command until your 
@@ -897,8 +899,8 @@ A comment of the form `(PROBEOPEN filename.txt)` will open
 XYZABCUVW of each successful straight probe in it. 
 The file must be closed with `(PROBECLOSE)`. 
 
-[[sec:G40]]
-== G40 Compensation Off
+== G40 Compensation Off[[sec:G40]]
+
 (((G40 Radius Compensation Off)))
 
 Program G40 to turn cutter radius compensation off. 
@@ -909,8 +911,8 @@ It is an error if:
 
  - A G2/G3 arc move is programmed next after a G40.
 
-[[sec:G41-G42]]
-== G41, G42 Tool Radius Compensation
+== G41, G42 Tool Radius Compensation[[sec:G41-G42]]
+
 (((G41 Radius Compensation)))
 (((G42 Radius Compensation)))
 
@@ -955,8 +957,8 @@ It is an error if:
  - The YZ plane is active,
  - Cutter radius compensation is commanded to turn on when it is already on.
 
-[[sec:G41.1-G42.1]]
-== G41.1, G42.1 Dynamic Cutter Radius Compensation
+== G41.1, G42.1 Dynamic Cutter Radius Compensation[[sec:G41.1-G42.1]]
+
 (((G41.1 Dynamic Radius Compensation)))
 (((G42.1 Dynamic Radius Compensation)))
 
@@ -979,9 +981,11 @@ It is an error if:
 For more information on cutter orientation see the <<cap:Lathe-Tool-Orientations>> and 
 <<fig:Tool-Positions-1-2-3-4>> and <<fig:Tool-Positions-5-6-7-8>> diagrams. 
 
-[[sec:G43-G43.1-Tool]]
-== G43, G43.1, G49 Tool Length Offsets
-(((G43, G43.1, G49 Tool Length Offsets)))
+== G43, G43.1, G49 Tool Length Offset[[sec:G43-G43.1-Tool]]
+
+(((G43 Tool Length Offset)))
+(((G43.1 Dynamic Tool Length Offset)))
+(((G49 Cancel Tool Length Offset)))
 
 === G43, G43.1: Activate Tool length compensation
 
@@ -1016,9 +1020,7 @@ It is an error if:
 
  - motion is commanded on the same line as `G43.1`
 
-[[sub:G49-Tool]]
-=== G49 : Cancel tool length compensation
-(((G49)))
+=== G49: Cancel tool length compensation[[sub:G49-Tool]]
 
 To use no tool length offset, program G49.
 
@@ -1026,8 +1028,8 @@ It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
 used.
 
-[[sub:G53-Move-in]]
-== G53 Move in Absolute Coordinates
+== G53 Move in Absolute Coordinates[[sub:G53-Move-in]]
+
 (((G53 Absolute Coordinates)))
 
 To move in absolute coordinates from the machine origin, program `G53`
@@ -1043,8 +1045,8 @@ It is an error if:
  - G53 is used without G0 or G1 being active, 
  - or G53 is used while cutter radius compensation is on.
 
-[[sec:G54-G59.3]]
-== G54-G59.3 Select Coordinate System
+== G54-G59.3 Select Coordinate System[[sec:G54-G59.3]]
+
 (((G54 Select Coordinate System 1)))
 (((G55 Select Coordinate System 2)))
 (((G56 Select Coordinate System 3)))
@@ -1089,8 +1091,8 @@ It is an error if:
 See Section <<cha:Coordinate-System>> for an overview of coordinate
 systems.
 
-[[sec:G61-G61.1-G64]]
-== G61, G61.1, G64 Set Path Control Mode
+== G61, G61.1, G64 Set Path Control Mode[[sec:G61-G61.1-G64]]
+
 (((G61 Exact Trajectory)))
 (((G61.1 Exact Stop)))
 (((G64 Trajectory Control)))
@@ -1127,8 +1129,8 @@ Section <<sub:Path-Control-Mode>> for a discussion of these modes.
 If Q is not specified then it will have the same behavior as before and
 use the value of P-.
 
-[[sec:G73-Drilling-Cycle]]
-== G73 Drilling Cycle with Chip Breaking
+== G73 Drilling Cycle with Chip Breaking[[sec:G73-Drilling-Cycle]]
+
 (((G73 Drilling Cycle Chip Break)))
 
     G73 X- Y- Z- A- B- C- R- L- Q-
@@ -1149,8 +1151,8 @@ It is an error if:
 
  - the Q number is negative or zero.
 
-[[sec:G76-Threading-Canned]]
-== G76 Threading Cycle
+== G76 Threading Cycle[[sec:G76-Threading-Canned]]
+
 (((G76 Threading)))
 
     G76 P- Z- I- J- R- K- Q- H- E- L-
@@ -1272,8 +1274,8 @@ moves.
 
 image::images/g76-01.png[]
 
-[[sec:G80-Cancel-Modal]]
-== G80 Cancel Modal Motion
+== G80 Cancel Modal Motion[[sec:G80-Cancel-Modal]]
+
 (((G80 Cancel Modal Motion)))
 
 Program `G80` to ensure no axis motion will occur. It is an error if:
@@ -1281,8 +1283,8 @@ Program `G80` to ensure no axis motion will occur. It is an error if:
  -  Axis words are programmed when G80 is active, unless a modal 
    group 0 Gcode is programmed which uses axis words.
 
-[[sec:G81-G89]]
-== Canned Cycles G81-G89
+== Canned Cycles G81-G89[[sec:G81-G89]]
+
 (((Canned Cycles G81-G89)))
 (((G81-G89 Canned Cycles)))
 
@@ -1389,8 +1391,8 @@ following one or two moves are made
 If another plane is active, the preliminary and in-between motions are
 analogous.
 
-[[sec:G81-Drilling-Cycle]]
-== G81 Drilling Cycle
+== G81 Drilling Cycle[[sec:G81-Drilling-Cycle]]
+
 (((G81 Drilling Cycle)))
 
     G81 (X- Y- Z-) or (U- V- W-) R- L-
@@ -1456,8 +1458,8 @@ The third repeat consists of 3 moves. The X position is reset to 13
  . a feed parallel to the Z-axis to (13,17, 4.2) 
  . a traverse parallel to the Z-axis to (13,17,4.8) 
 
-[[sec:G82-Drilling-Dwell]]
-== G82 Drilling Cycle with Dwell
+== G82 Drilling Cycle with Dwell[[sec:G82-Drilling-Dwell]]
+
 (((G82 Drilling Cycle Dwell)))
 
     G82 (X- Y- Z-) or (U- V- W-) R- L- P-
@@ -1470,8 +1472,8 @@ the hole.
  . Dwell for the P number of seconds.
  . Retract the Z-axis at traverse rate to clear Z.
 
-[[sec:G83-Drilling-Peck]]
-== G83 Peck Drilling
+== G83 Peck Drilling[[sec:G83-Drilling-Peck]]
+
 (((G83 Peck Drilling)))
 
     G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
@@ -1497,16 +1499,16 @@ It is an error if:
 
  - the Q number is negative or zero.
 
-[[sec:G84-Right-Hand-Tapping]]
-== G84 Right-Hand Tapping
+== G84 Right-Hand Tapping[[sec:G84-Right-Hand-Tapping]]
+
 (((G84 Right-Hand Tapping)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined. See sections 
 <<sec:G33-Spindle-Sync>> and <<sec:G33.1-Rigid-Tapping>>
 
-[[sec:G85-Boring-Feed-Out]]
-== G85 Boring, No Dwell, Feed Out
+== G85 Boring, No Dwell, Feed Out[[sec:G85-Boring-Feed-Out]]
+
 (((G85 Boring, No Dwell, Feed Out)))
 
     G85 (X- Y- Z-) or (U- V- W-) R- L-
@@ -1518,8 +1520,8 @@ for drilling or milling.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Retract the Z-axis at the current feed rate to clear Z. 
 
-[[sec:G86-Boring-Rapid-Out]]
-== G86 Boring, Spindle Stop, Rapid Out
+== G86 Boring, Spindle Stop, Rapid Out[[sec:G86-Boring-Rapid-Out]]
+
 (((G86 Boring, Spindle Stop, Rapid Out)))
 
     G86 (X- Y- Z-) or (U- V- W-) R- L- P-
@@ -1539,22 +1541,22 @@ if:
 
  - the spindle is not turning before this cycle is executed.
 
-[[sec:G87-Back-Boring]]
-== G87 Back Boring
+== G87 Back Boring[[sec:G87-Back-Boring]]
+
 (((G87 Back Boring)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined.
 
-[[sec:G88-Boring-Manual-Out]]
-== G88 Boring, Spindle Stop, Manual Out
+== G88 Boring, Spindle Stop, Manual Out[[sec:G88-Boring-Manual-Out]]
+
 (((G88 Boring, Spindle Stop, Manual Out)))
 
 This code is currently unimplemented in EMC2. It is accepted, but the
 behavior is undefined.
 
-[[sec:G89-Boring-Dwell,]]
-== G89 Boring, Dwell, Feed Out
+== G89 Boring, Dwell, Feed Out[[sec:G89-Boring-Dwell,]]
+
 (((G89 Boring, Dwell, Feed Out)))
 
     G89 (X- Y- Z-) or (U- V- W-) R- L- P-
@@ -1567,8 +1569,8 @@ where P specifies the number of seconds to dwell.
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 
 
-[[sec:G90-G91-Set]]
-== G90, G91 Set Distance Mode
+== G90, G91 Set Distance Mode[[sec:G90-G91-Set]]
+
 (((G90, G91 Set Distance Mode)))
 
     G90 is Absolute Distance Mode +
@@ -1587,8 +1589,8 @@ To go into incremental distance mode, program `G91`. In incremental
 distance mode, axis numbers usually represent 
 increments from the current coordinate. 
 
-[[sec:G90.1-G91.1]]
-== G90.1, G91.1 Arc Distance Mode
+== G90.1, G91.1 Arc Distance Mode[[sec:G90.1-G91.1]]
+
 (((Arc Distance Mode)))
 
 G90.1 Absolute Distance Mode for I, J & K offsets.
@@ -1599,8 +1601,8 @@ G91.1 Incremental Distance Mode for I, J & K offsets.
 
  - Returns I, J & K to their normal behavior.
 
-[[sec:G92-G92.1-G92.2-G92.3]]
-== G92, G92.1, G92.2, G92.3 Coordinate System Offsets
+== G92, G92.1, G92.2, G92.3 Coordinate System Offsets[[sec:G92-G92.1-G92.2-G92.3]]
+
 (((G92, G92.1, G92.2, G92.3 Offsets)))
 
     G92 X- Y- Z- A- B- C- U- V- W-
@@ -1657,8 +1659,8 @@ EMC2 stores the G92 offsets and reuses them on the next run of a
 program. To prevent this, one can program a G92.1 (to erase them), or
 program a G92.2 (to remove them - they are still stored).
 
-[[sec:G93-G94-G95-Mode]]
-== G93, G94, G95: Set Feed Rate Mode
+== G93, G94, G95: Set Feed Rate Mode[[sec:G93-G94-G95-Mode]]
+
 (((G93, G94, G95: Feed Rate Mode)))
 
     G93 is Inverse Time Mode
@@ -1696,8 +1698,8 @@ It is an error if:
    (explicitly or implicitly) does not have an F word.
  - A new feed rate is not specified after switching to G94 or G95
 
-[[sec:G96-G97-Spindle]]
-== G96, G97 Spindle Control Mode
+== G96, G97 Spindle Control Mode[[sec:G96-G97-Spindle]]
+
 (((G96, G97 Spindle Control Mode)))
 
     G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode +
@@ -1721,8 +1723,8 @@ It is an error if:
  - S is not specified with G96
  - A feed move is specified in G96 mode while the spindle is not turning
 
-[[sec:G98-G99-Set]]
-== G98, G99 Set Canned Cycle Return Level
+== G98, G99 Set Canned Cycle Return Level[[sec:G98-G99-Set]]
+
 (((G98, G99 Canned Cycle Return)))
 
    G98 Retract to the position that axis was in just before this series
@@ -1750,8 +1752,8 @@ between G98 and G99 during a series of cycles.
 
 = M Codes
 
-[[sec:M0-M1-M2]]
-== M0, M1, M2, M30, M60 Program Stopping and Ending
+== M0, M1, M2, M30, M60 Program Stopping and Ending[[sec:M0-M1-M2]]
+
 (((M0 Program Stop)))
 (((M1 Program Optional Stop)))
 (((M2 Program End)))
@@ -1802,8 +1804,8 @@ after the M2 or M30 command is executed.
 Pressing cycle start will start the program 
 at the beginning of the file.
 
-[[sec:M3-M4-M5]]
-== M3, M4, M5 Spindle Control
+== M3, M4, M5 Spindle Control[[sec:M3-M4-M5]]
+
 (((M3 Spindle CW)))
 (((M4 Spindle CCW)))
 (((M5 Spindle Stop)))
@@ -1822,8 +1824,8 @@ the spindle will start turning.
 It is OK to use `M3` or `M4` when the spindle is already 
 turning or to use `M5` when the spindle is already stopped.
 
-[[sec:M6-Tool-Change]]
-== M6 Tool Change
+== M6 Tool Change[[sec:M6-Tool-Change]]
+
 (((M6-Tool-Change)))
 
 === Manual Tool Change
@@ -1864,8 +1866,8 @@ in that case, the spindle will be empty after the tool change.
 If slot zero was last selected, 
 there will definitely be no tool in the spindle after a tool change.
 
-[[sec:M7-M8-M9]]
-== M7, M8, M9 Coolant Control
+== M7, M8, M9 Coolant Control[[sec:M7-M8-M9]]
+
 (((M7 Mist Coolant)))
 (((M8 Flood Coolant)))
 (((M9 Coolant Off)))
@@ -1877,12 +1879,10 @@ To turn all coolant off, program `M9`.
 It is always OK to use any of these commands, 
 regardless of what coolant is on or off.
 
-[[sec:Overrides]]
-== Overrides
+== M48-M53 Overrides[[sec:Overrides]]
 
-[[sub:M48-Both-Override]]
-[[sub:M49-Neither-Override]]
-=== M48, M49 Override Control
+=== M48, M49 Override Control[[sub:M48-Both-Override]][[sub:M49-Neither-Override]]
+
 (((M48, M49 Override Control)))
 
 To enable the spindle speed and feed rate override controls, program `M48`. 
@@ -1894,8 +1894,8 @@ These controls can also be toggled individually
 using M50 and M51 as described in the 
 sections <<sub:M50-Feed-Override>> and <<sub:M51-Spindle-Override>>.
 
-[[sub:M50-Feed-Override]]
-=== M50 Feed Override Control
+=== M50 Feed Override Control[[sub:M50-Feed-Override]]
+
 (((M50 Feed Override Control)))
 
 To enable the feed rate override control, 
@@ -1905,8 +1905,8 @@ While disabled the feed override will have no influence,
 and the motion will be executed at programmed feed rate. 
 (unless there is an adaptive feed rate override active).
 
-[[sub:M51-Spindle-Override]]
-=== M51 Spindle Speed Override Control
+=== M51 Spindle Speed Override Control[[sub:M51-Spindle-Override]]
+
 (((M51 Spindle Speed Override)))
 
 To enable the spindle speed override control, 
@@ -1917,8 +1917,8 @@ will have no influence, and the spindle speed
 will have the exact program specified value
 (using the S-word as described in <<sub:S-Set-Spindle>>).
 
-[[sub:M52-Adaptive-Feed-Control]]
-=== M52 Adaptive Feed Control
+=== M52 Adaptive Feed Control[[sub:M52-Adaptive-Feed-Control]]
+
 (((M52 Adaptive Feed Control)))
 
 To use an adaptive feed, program `M52` or `M52 P1`. 
@@ -1931,8 +1931,8 @@ In EMC2, the HAL pin `motion.adaptive-feed` is used for this purpose.
 Values on `motion.adaptive-feed` should range 
 from 0 (feed hold) to 1 (full speed).
 
-[[sub:M53-Feed-Stop-Control]]
-=== M53 Feed Stop Control
+=== M53 Feed Stop Control[[sub:M53-Feed-Stop-Control]]
+
 (((M53 Feed Stop Control)))
 
 To enable the feed stop switch, program `M53` or `M53 P1`. To disable
@@ -1941,8 +1941,8 @@ motion to be interrupted by means of the feed stop control.
 In EMC2, the HAL pin `motion.feed-hold` is used for this purpose. 
 Values of 1 will cause the motion to stop (if `M53` is active). 
 
-[[sec:M61-Set-Current-Tool-Number]]
-== M61 Set Current Tool Number
+== M61 Set Current Tool Number[[sec:M61-Set-Current-Tool-Number]]
+
 (((M61 Set Current Tool Number)))
 
 To change the current tool number while in MDI or Manual mode program
@@ -1954,8 +1954,8 @@ doing a tool change.
 
  - Q- is not 0 or greater
 
-[[sec:M62-to-M65]]
-== M62 to M65 Output Control
+== M62 to M65 Output Control[[sec:M62-to-M65]]
+
 (((M62 to M65 Output Control)))
 
 To control a digital output bit, program `M- P-`, where the M-word
@@ -1993,8 +1993,8 @@ M64 & M65 happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
 break blending.
 
-[[sec:M66-Input-Control]]
-== M66 Input Control
+== M66 Input Control[[sec:M66-Input-Control]]
+
 (((M66 Input Control)))
 
 To read the value of an analog or digital input pin, program 
@@ -2035,8 +2035,8 @@ selecting both an analog and a digital input).In EMC2 these inputs are
 not monitored in real time and thus should not be used for
 timing-critical applications.
 
-[[sec:M67-Analog-Output]]
-== M67 Analog Output
+== M67 Analog Output[[sec:M67-Analog-Output]]
+
 (((M67 Analog Motion Output Control)))
 
 To control an analog output synchronized with motion, program 
@@ -2048,8 +2048,8 @@ Manual for more information on the Motion Controller. M67 functions the
 same as M62-63. See the M62-65 section for information about queuing 
 output commands synchronized with motion.
 
-[[sec:M68-Analog-Output]]
-== M68 Analog Output
+== M68 Analog Output[[sec:M68-Analog-Output]]
+
 (((M68 Analog Aux Output Control)))
 
 To control an analog output immediately, program `M68 E- Q-, ` where
@@ -2061,8 +2061,8 @@ more information on the Motion Controller. M68 functions the same as
 M64-65. See the M62-65 section for information about immediate output
 commands.
 
-[[sec:M100-to-M199]]
-== M100 to M199 User Defined Commands
+== M100 to M199 User Defined Commands[[sec:M100-to-M199]]
+
 (((M100 to M199 User Defined Commands)))
 (((User Defined Commands M100-M199)))
 
@@ -2111,8 +2111,8 @@ In your M100 file it might look like this:
     halcmd setp thc.feedrate $feedrate
     exit 0
 
-[[cha:O-Codes]]
-= O Codes
+= O Codes[[cha:O-Codes]]
+
 (((O Codes)))
 
 O-codes provide for flow control in NC programs. Each block has an
@@ -2127,6 +2127,7 @@ The behavior is undefined if:
 
 == Subroutines: sub, endsub, return, call
 (((Subroutines: sub, endsub, return, call)))
+(((sub)))(((endsub)))(((return)))(((call)))
 
 Subroutines extend from a `O- sub` to an `O- endsub` . The lines
 inside the subroutine (the "body") are not executed in
@@ -2170,6 +2171,7 @@ parameters.
 
 == Looping: do, while, endwhile, break, continue
 (((Looping: do, while, endwhile, break, continue)))
+(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
 The "while loop" has two structures: while/endwhile, and do/while. In
 each case, the loop is exited when the "while" condition evaluates to
@@ -2191,6 +2193,7 @@ it is false, it exits the loop.
 
 == Conditional: if, else, endif
 (((Conditional: if, else, endif)))
+(((if)))(((else)))(((endif)))
 
 The "if" conditional executes one group of statements if a condition
 is true and another if it is false.
@@ -2255,8 +2258,8 @@ file must be a valid file.
 
 = Other Codes
 
-[[sub:F-Set-Feed]]
-== F: Set Feed Rate
+== F: Set Feed Rate[[sub:F-Set-Feed]]
+
 (((F: Set Feed Rate)))
 
 To set the feed rate, program `F<n>` where "n" is a number. 
@@ -2265,8 +2268,8 @@ The application of the feed rate is as described in Section
 in which case the feed rate is as described in 
 Section <<sec:G93-G94-G95-Mode>>.
 
-[[sub:S-Set-Spindle]]
-== S: Set Spindle Speed
+== S: Set Spindle Speed[[sub:S-Set-Spindle]]
+
 (((S: Set Spindle Speed)))
 
 To set the speed in revolutions per minute (RPM) of the spindle, program `S-`. 
@@ -2288,8 +2291,8 @@ effect. The speed and feed rates will still be synchronized. In this
 case, the speed may differ from what is programmed, even if the speed
 override switch is set at 100%.
 
-[[sub:T-Select-Tool]]
-== T: Select Tool
+== T: Select Tool[[sub:T-Select-Tool]]
+
 (((T: Select Tool)))
 
 To select a tool, program `T<n>`, where the <n> number is the
@@ -2321,8 +2324,8 @@ the tool like a lathe. This can be very confusing at first. To turn
 this feature off for the current tool change program a G1 without any
 move after the T<n>.
 
-[[sec:Comments]]
-== Comments
+== Comments[[sec:Comments]]
+
 (((Comments)))
 
 Printable characters and white space inside parentheses is a comment.
@@ -2337,8 +2340,8 @@ the comment. Here is an example of a line containing a comment:
 
 Comments are only informative, they do not cause a machine to do anything. 
 
-[[sec:Messages]]
-== Messages
+== Messages[[sec:Messages]]
+
 (((Messages)))
 
 A comment contains a message if `MSG` appears after the left
@@ -2348,8 +2351,8 @@ The rest of the characters before the right parenthesis are considered to
 be a message. Messages should be displayed on the message display
 device. Comments not containing messages need not be displayed there.
 
-[[sub:Probe-Logging]]
-== Probe Logging
+== Probe Logging[[sub:Probe-Logging]]
+
 (((Probe Logging)))
 
 A comment can also be used to specify a file for the results of G38.x
@@ -2358,8 +2361,8 @@ probing. See section <<sec:G38.x-Straight-Probe>>.
 Often, general logging is more useful than probe logging. Using
 general logging, the format of the output data can be controlled.
 
-[[sub:General-logging]]
-=== General Logging
+=== General Logging[[sub:General-logging]]
+
 (((General Logging)))
 
 ==== (LOGOPEN,filename)
@@ -2380,8 +2383,8 @@ If the log file is open, it is closed.
 The message “…” is expanded as described below and then written to the
 log file if it is open.
 
-[[sub:Debugging-messages]]
-=== Debugging Messages
+=== Debugging Messages[[sub:Debugging-messages]]
+
 (((G Code Debugging Messages)))
 
 Comments that look like: `(debug, rest of comment)` are the same as
