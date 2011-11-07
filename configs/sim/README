@@ -22,8 +22,6 @@ Right now the possible choices are:
 
 -- lathe.ini (simulation for a lathe, AXIS-interface)
 
--- ngcgui.ini (simulation for a mill, AXIS-interface, subroutine tabs)
-
 -- mini.ini (advanced tcl/tk interface)
 
 -- servo_sim.ini (simulation for a servo machine)
