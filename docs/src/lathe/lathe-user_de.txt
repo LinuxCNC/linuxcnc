@@ -1,5 +1,5 @@
-[[cha:Lathe-Specifics]]
-= Lathe Specifics
+= Lathe Specifics[[cha:Lathe-Specifics]]
+
 (((Lathe-Specifics)))
 
 This chapter attempts to bring together all the lathe specific
