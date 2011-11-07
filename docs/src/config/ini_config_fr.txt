@@ -171,8 +171,8 @@ Unité de la machine::
 
 == Définition des variables du fichier INI[[sub:Details fichier INI]]
 
-[[sub:Section-[EMC]]]
-=== Section [EMC]
+=== Section [EMC][[sub:Section-[EMC]]]
+
 (((Sections du fichier INI)))
 
 VERSION = $Revision: 1.3 $::
@@ -194,8 +194,8 @@ DEBUG = 0::
     généralement utiles pour les développeurs. Voir 
     ../src/emc/nml_intf/emcglb.h pour les autres paramètres.
 
-[[sub:Section-[DISPLAY]]]
-=== Section [DISPLAY]
+=== Section [DISPLAY][[sub:Section-[DISPLAY]]]
+
 (((Fichier INI-DISPLAY)))
 
 Différents programmes d'interface utilisateur utiliser des options différentes, 
@@ -344,8 +344,8 @@ user interface program.
 HELP_FILE = tkemc.txt::
     Path to help file (not used in AXIS).
 
-[[sub:[FILTER]-Section]]
-=== [FILTER] Section
+=== [FILTER] Section[[sub:[FILTER]-Section]]
+
 (((ini [FILTER] Section))) 
 
 AXIS has the ability to send loaded files through a filter program.
@@ -395,8 +395,8 @@ written to stderr of the form
 sets the AXIS progress bar to the given percentage. This feature
 should be used by any filter that runs for a long time.
 
-[[sub:[RS274NGC]-section]]
-=== [RS274NGC] Section
+=== [RS274NGC] Section[[sub:[RS274NGC]-section]]
+
 (((RS274NGC (inifile section))))
 
 PARAMETER_FILE = myfile.var::
@@ -438,8 +438,8 @@ A search is made for each possible user defined function, typically
 
 The first executable M1xx found in the search is used for each M1xx.
 
-[[sub:Section-[EMCMOT]]]
-=== Section [EMCMOT]
+=== Section [EMCMOT][[sub:Section-[EMCMOT]]]
+
 (((Fichier INI-EMCMOT)))
 
 You may find other entries in this section and they should not be
@@ -484,8 +484,8 @@ TRAJ_PERIOD = 1000000::
     (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur 
     supérieure à *SERVO_PERIOD*.
 
-[[sub:Section-[TASK]]]
-=== Section [TASK]
+=== Section [TASK][[sub:Section-[TASK]]]
+
 (((Fichier INI-TASK )))
 
 TASK = milltask::
@@ -505,8 +505,8 @@ CYCLE_TIME = 0.010::
     une commande provenant d'une interface utilisateur est acceptée. Il
     n'est généralement pas nécessaire de modifier cette valeur.
 
-[[sub:Section-[HAL]]]
-=== Section [HAL]
+=== Section [HAL][[sub:Section-[HAL]]]
+
 (((Fichier INI-HAL )))
 
 HALFILE = example.hal::
@@ -541,16 +541,16 @@ d'autres logiciels de protection des défauts de fonctionnement.
 '(Seulement avec l'interface AXIS)' Exécute 'example2.hal' après que
 l'interface graphique ait créé ses HAL pins. 
 
-[[sub:[HALUI]-section]]
-=== [HALUI] section
+=== [HALUI] section[[sub:[HALUI]-section]]
+
 (((HALUI (inifile section))))
 
 MDI_COMMAND = G53 G0 X0 Y0 Z0::
      Une commande MDI peut être exécuté en utilisant halui.mdi-command-00. 
     Incrément le nombre pour chaque commande énumérés dans la section [HALUI].
 
-[[sub:Section-[TRAJ]]]
-=== Section [TRAJ]
+=== Section [TRAJ][[sub:Section-[TRAJ]]]
+
 (((Fichier INI-TRAJ )))
 
 La section [TRAJ] contient les paramètres généraux du module
@@ -638,8 +638,8 @@ NO_FORCE_HOMING mise à 1 permettra à la machine de franchir les
 limites logicielles pendant les mouvements ce qui n'est pas souhaîtable 
 pour un fonctionnement normal!
 
-[[sub:Section-[AXIS]]]
-=== Section [AXIS_<num>]
+=== Section [AXIS_<num>][[sub:Section-[AXIS]]]
+
 (((Fichier INI-AXIS)))
 
 Les sections [AXIS_0], [AXIS_1], etc. contiennent les paramètres
@@ -751,8 +751,7 @@ FERROR = 1.0::
     «Machine» puis «Calibration» et dans TkEMC depuis le menu «Réglages»
     puis «Calibration».
 
-[[sub:Variables relatives aux origines]]
-==== Variables relatives aux prises d'origines
+==== Variables relatives aux prises d'origines[[sub:Variables relatives aux origines]]
 
 Les paramètres suivants sont relatifs aux prises d'origine, pour plus
 d'informations, lire le chapitre sur la POM. <<sec:Prises-d-origine>>
@@ -810,8 +809,7 @@ VOLATILE_HOME = 0::
      Accueil des commutateurs et n'a pas de retour de position comme une étape et
      direction conduit la machine.
 
-[[sub:Variables relatives aux servomoteurs]]
-==== Variables relatives aux servomoteurs
+==== Variables relatives aux servomoteurs[[sub:Variables relatives aux servomoteurs]]
 
 Les éléments suivants sont des servo-systèmes et des servo-like systèmes. 
 Cette description suppose que les unités en sortie du composant PID sont des Volts.
@@ -1018,8 +1016,8 @@ STEPGEN_MAXVEL = 1.4::
     montré que l'utilisation de STEPGEN_MAXVEL n'améliore pas le réglage de
     la boucle de position de stepgen. 
 
-[[sub:Section-[EMCIO]]]
-=== Section [EMCIO]
+=== Section [EMCIO][[sub:Section-[EMCIO]]]
+
 (((Fichier INI-EMCIO)))
 
 CYCLE_TIME = 0.100::
