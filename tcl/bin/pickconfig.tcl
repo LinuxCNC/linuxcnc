@@ -31,7 +31,7 @@ source [file join [file dirname [info script]] .. emc.tcl]
 set logo [emc::image_search emc2-wizard]
 image create photo machinelogo
 
-option add *font [emc::standard_font]
+option add *font [emc::standard_fixed_font]
 option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
