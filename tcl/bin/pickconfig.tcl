@@ -85,12 +85,11 @@ proc setVal {stringb sect var newval} {
     }
 }
 
-# main button callback, it assigns the button name to 'choice'
+# main button callback, it assigns the button name to '::choice'
 
 proc button_pushed { button_name } {
-    global choice
 
-    set choice $button_name
+    set ::choice $button_name
 }
 
 # slider process is used for several widgets
@@ -100,20 +99,19 @@ proc sSlide {f a b} {
 
 # called when user clicks tree node
 proc node_clicked {} {
-    global tree detail_box button_ok inifile
 
-    set node [$tree selection get]
+    set node [$::tree selection get]
     if {$node == ""} return
     set node [lindex $node 0]
 
-    $tree selection set $node
-    $tree see $node
+    $::tree selection set $node
+    $::tree see $node
     if { [ regexp {.*\.ini$} $node ] == 1 } {
 	# an ini node, acceptable
 	# enable changes to the details widget
-	$detail_box configure -state normal
+	$::detail_box configure -state normal
 	# remove old text
-	$detail_box delete 1.0 end
+	$::detail_box delete 1.0 end
 	# add new text
 	set node [format %s $node]
 	set dir [ file dirname $node]
@@ -130,10 +128,10 @@ proc node_clicked {} {
 	    machinelogo blank
 	    machinelogo read $image
 	    puts stderr "using image $image"
-	    $detail_box image create end -image machinelogo
-	    $detail_box insert end "\n"
-	    $detail_box tag configure centered -justify center
-	    $detail_box tag add centered 0.0 0.end
+	    $::detail_box image create end -image machinelogo
+	    $::detail_box insert end "\n"
+	    $::detail_box tag configure centered -justify center
+	    $::detail_box tag add centered 0.0 0.end
 	}
 	if { [ file readable $readme ] } {
 	    # description found, read it
@@ -141,31 +139,31 @@ proc node_clicked {} {
 	    # reformat - remove line breaks, preserve paragraph breaks
 	    regsub -all {([^\n])\n([^\n])} $descr {\1 \2} descr
 	    # and display it
-	    $detail_box insert end $descr
+	    $::detail_box insert end $descr
 	} else {
 	    # no description, gotta tell the user something
-	    $detail_box insert end [msgcat::mc "No details available."]
+	    $::detail_box insert end [msgcat::mc "No details available."]
 	}
 	# lock it again
-	$detail_box configure -state disabled
+	$::detail_box configure -state disabled
 	# save selection
-	set inifile $node
+	set ::inifile $node
         # enable the OK button
-	$button_ok configure -state normal
+	$::button_ok configure -state normal
 	bind . <Return> {button_pushed OK}
 	bind . <KP_Enter> {button_pushed OK}
     } else {
 	# not an ini node, can't use it
 	# enable changes to the details widget
-	$detail_box configure -state normal
+	$::detail_box configure -state normal
 	# remove old text
-	$detail_box delete 1.0 end
+	$::detail_box delete 1.0 end
 	# lock it again
-	$detail_box configure -state disabled
+	$::detail_box configure -state disabled
 	# clear selection
-	set inifile ""
+	set ::inifile ""
 	# disable the OK button
-	$button_ok configure -state disabled
+	$::button_ok configure -state disabled
 	bind . <Return> ""
 	bind . <KP_Enter> ""
     }
@@ -213,18 +211,18 @@ set f2 [ frame $f1.f2 -borderwidth 0 -relief flat -padx 15 ]
 set s1 [ SW $f2.f3 -auto both]
 $s1 configure -relief sunken -borderwidth 2
 # the tree
-set tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4 ]
-$s1 setwidget $tree
+set ::tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4 ]
+$s1 setwidget $::tree
 pack $s1 -fill y -expand n -side left
 
 # pack the tree into its subframe
-bind $tree <<TreeSelect>> { node_clicked }
-$tree bindText <Double-1> { $f5.ok invoke ;# }
+bind $::tree <<TreeSelect>> { node_clicked }
+$::tree bindText <Double-1> { $f5.ok invoke ;# }
 
 # bwidget 1.7.0 does not generate <<TreeSelect>> events for keyboard navigation.
 # These bindings fix that.
-bind $tree.c <KeyPress-Up> [list +event generate $tree <<TreeSelect>>]
-bind $tree.c <KeyPress-Down> [list +event generate $tree <<TreeSelect>>]
+bind $::tree.c <KeyPress-Up> [list +event generate $::tree <<TreeSelect>>]
+bind $::tree.c <KeyPress-Down> [list +event generate $::tree <<TreeSelect>>]
 
 # Let the text scroll
 set f4 [ SW $f2.f4 -scrollbar vertical]
@@ -235,7 +233,7 @@ set tb [ text $f4.tb -width 30 -wrap word -padx 6 -pady 6 \
          -relief flat -borderwidth 0 -height 12]
 $f4.vscroll configure -takefocus 1
 $f4 setwidget $tb
-set detail_box $tb
+set ::detail_box $tb
 # pack the subframe into the main frame
 pack $f2 -side top -fill both -expand y
 pack $f4 -side left -padx 3 -fill both -expand y
@@ -244,8 +242,8 @@ pack $f4 -side left -padx 3 -fill both -expand y
 # a subframe for the buttons
 set f5 [ frame $f1.f5 ]
 button $f5.ok -text [msgcat::mc "OK"] -command "button_pushed OK" -width 8 -default active
-set button_ok $f5.ok
-$button_ok configure -state disabled
+set ::button_ok $f5.ok
+$::button_ok configure -state disabled
 button $f5.cancel -text [msgcat::mc  "Cancel"] -command "button_pushed Cancel" -width 8 -default normal
 pack $f5.cancel -side right -padx 4 -pady 4
 pack $f5.ok -side right -padx 4 -pady 4
@@ -273,19 +271,19 @@ foreach dir $configs_dir_list {
     set subdir_list [ glob -nocomplain $dir/*/ ]
     set subdir_list [ lsort $subdir_list ]
     foreach subdir $subdir_list {
-	set inifile_list [ glob -nocomplain $subdir*.ini ]
+	set ::inifile_list [ glob -nocomplain $subdir*.ini ]
 	# add dir to tree if not already
 	if { $dir_in_tree == 0 } {
 	    set text [describe $dir]
-	    $tree insert end root $dir -text $text -open 1
+	    $::tree insert end root $dir -text $text -open 1
 	    set dir_in_tree 1
 	}
-	if { [ llength $inifile_list ] == 1 } {
+	if { [ llength $::inifile_list ] == 1 } {
 	    # only one ini file, no second level
 	    # add inifile to tree
-	    set inifile [ lindex $inifile_list 0 ]
-            set parts [file split $inifile]
-	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
+	    set ::inifile [ lindex $inifile_list 0 ]
+            set parts [file split $::inifile]
+	    $::tree insert end $dir $::inifile -text [lindex $parts end-1] -open 1
 	    incr config_count
 	    if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
 	} elseif { [ llength $inifile_list ] > 1 } {
@@ -293,13 +291,13 @@ foreach dir $configs_dir_list {
   	    set inifile_list [ lsort $inifile_list ]
 	    # add subdir to tree
 	    set subdir [format %s $subdir]
-	    $tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
+	    $::tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
 	    # add second level entries, one per inifile
-	    foreach inifile $inifile_list {
+	    foreach ::inifile $inifile_list {
 		# add inifile to tree
-		set inifile [format %s $inifile]
-                set text [file rootname [file tail $inifile]]
-		$tree insert end $subdir $inifile -text $text -open 1
+		set ::inifile [format %s $::inifile]
+                set text [file rootname [file tail $::inifile]]
+		$::tree insert end $subdir $::inifile -text $text -open 1
 		incr config_count
 		if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
 	    }
@@ -310,7 +308,7 @@ foreach dir $configs_dir_list {
 if {$nonsample_count} {
     foreach dir $emc::CONFIG_DIR {
 	if {$dir != $emc::USER_CONFIG_DIR} {
-	    catch {$tree closetree $dir}
+	    catch {$::tree closetree $dir}
 	}
     }
 }
@@ -329,13 +327,12 @@ bind . <KP_Enter> ""
 wm protocol . WM_DELETE_WINDOW {button_pushed Cancel}
 
 proc wait_and_see {node {wait 10}} {
-    global tree
-    set yv [$tree yview]
-    if {![winfo viewable $tree] || [lindex $yv 0] == [lindex $yv 1]} {
+    set yv [$::tree yview]
+    if {![winfo viewable $::tree] || [lindex $yv 0] == [lindex $yv 1]} {
         after $wait [list wait_and_see $node [expr $wait*2]]
     } else {
-        $tree see $node
-        $tree xview moveto 0.0
+        $::tree see $node
+        $::tree xview moveto 0.0
         node_clicked
     }
 }
@@ -399,8 +396,8 @@ proc prompt_copy configname {
 
 # add the selection set if a last_ini has been found in ~/.emcrc
 
-if {$last_ini != -1 && [file exists $last_ini] && ![catch {$tree index $last_ini}]} {
-    $tree selection set $last_ini
+if {$last_ini != -1 && [file exists $last_ini] && ![catch {$::tree index $last_ini}]} {
+    $::tree selection set $last_ini
     wait_and_see $last_ini
 }
 
@@ -428,23 +425,23 @@ if {[file isdir $::desktopdir]} {
 }
 
 while {1} {
-    focus $tree
-    vwait choice
+    focus $::tree
+    vwait ::choice
 
-    if { $choice == "OK" } {
-        if {![file writable [file dirname $inifile]]} {
-            set copied_inifile [prompt_copy $inifile]
+    if { $::choice == "OK" } {
+        if {![file writable [file dirname $::inifile]]} {
+            set copied_inifile [prompt_copy $::inifile]
             if {$copied_inifile == ""} { continue }
-            set inifile $copied_inifile
+            set ::inifile $copied_inifile
         }
-	if {$make_shortcut} { make_shortcut $inifile }
-        puts $inifile
+	if {$make_shortcut} { make_shortcut $::inifile }
+        puts $::inifile
 
         # test for ~/.emcrc file and modify if needed.
         # or make this file and add the var.
 
         if {[file exists ~/.emcrc]} {
-            if {$inifile == $last_ini} {
+            if {$::inifile == $last_ini} {
                 exit
             } else {
                 if {[catch {open ~/.emcrc} programin]} {
@@ -453,7 +450,7 @@ while {1} {
                     set rcstring [read $programin]
                     catch {close $programin}
                 }
-                set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $inifile ]
+                set ret [setVal $rcstring PICKCONFIG LAST_CONFIG $::inifile ]
                 catch {file copy -force $name $name.bak}
                 if {[catch {open ~/.emcrc w} fileout]} {
                     puts stdout [msgcat::mc "can't save %s" ~/.emcrc ]
@@ -464,7 +461,7 @@ while {1} {
                 exit
             }
         }
-        set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $inifile\n"
+        set newfilestring "# .emcrc is a startup configuration file for EMC2. \n# format is INI like. \n# \[SECTION_NAME\] \n# VARNAME = varvalue \n# where section name is the name of the system writing to this file \n\n# written by pickconfig.tcl \n\[PICKCONFIG\]\nLAST_CONFIG = $::inifile\n"
                 
         if {[catch {open ~/.emcrc w+} fileout]} {
             puts stderr [msgcat::mc "can't save %s" ~/.emcrc ]
