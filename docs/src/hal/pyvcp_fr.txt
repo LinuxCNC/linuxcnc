@@ -1,5 +1,5 @@
-[[cha:Panneau-Virtuel-Control]]
-= PyVCP
+= PyVCP[[cha:Panneau-Virtuel-Control]]
+
 (((Panneau Virtuel de Control)))
 
 Panneau virtuel de contrôle en python (*Py*thon *V*irtual *C*ontrol
