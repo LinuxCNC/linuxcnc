@@ -316,7 +316,7 @@ if {$nonsample_count} {
 unset seen
 
 if { $config_count == 0 } {
-    puts stderr [msgcat::mc "ERROR: no configurations found in path '%s'" $configs_path]
+    puts stderr [msgcat::mc "ERROR: no configurations found in path '%s'" $configs_dir_list]
     exit 1
 }
 
