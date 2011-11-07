@@ -1,47 +1,24 @@
-The sim configuration is a set of files
-that makes up a very basic EMC2 using
-ini, tbl, var, and a single hal file
-for simulated limit switches.  It also
-finds a file in configs/common that is
-a core_sim.hal.  This file provides that
-functionality in common with other
-configurations.
+Sim configurations make it possible to
+run EMC2 without special hardware on
+a simulated basis.
 
-In addition you can chose between various GUIs 
-(Graphical User Interfaces), so you can find the 
-one that you like.
-Right now the possible choices are:
+EMC2 supports multiple guis and there are
+multiple examples for the most popular guis.
 
--- axis.ini (AXIS: a modern GL-based interface in python)
+  axis    python based gui
 
--- axis_9axis.ini (AXIS based, 9-axis machine: XYZABCUVW)
+  ngcgui  axis with tabs for subroutines
 
--- axis_mm.ini (AXIS based config, with mm settings)
+  simtcl  axis gui with tcl halfiles
 
--- keystick.ini (a terminal, curses based non-X interface)
+  tkemc   tcl/tk based gui
 
--- lathe.ini (simulation for a lathe, AXIS-interface)
+Other gui examples:
 
--- mini.ini (advanced tcl/tk interface)
+  touchy.ini    touchscreen gui
 
--- servo_sim.ini (simulation for a servo machine)
+  keystick.ini  curses based non-X interface
 
--- tkemc.ini (another tcl/tk interface, lots of people like this one)
+  mini.ini      tcl/tk interface
 
--- tracking-test.hal (a demonstration of hal_input and vismach. a neat toy)
-
--- tripod.ini (non-trivial kinematics machine)
-
--- gantry.ini (gantry machine, XYYZ)
-
--- xemc.ini (native X interface, runs ok on older machines)
-
-Select one of these if you have no functional machine 
-but want to edit some basic configuration stuff
-or play with one of the EMC2 displays.
-
-There is also a more complex simulated machine
-called "servo_sim" that has full PID loops and
-simulated motors and encoders.  This "machine"
-can be used for more sophisticated testing 
-and tuning.
+  xemc.ini      native X interface
