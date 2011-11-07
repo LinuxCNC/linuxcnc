@@ -12,24 +12,20 @@ Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsqu'ils pilotent une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
-Pour le lancer, suivre les instructions de la 
-section (<<sec:Test-de-latence-GS>>).
+Pour le lancer, suivre les instructions de la section (<<sec:Test-de-latence-GS>>).
 
 [[sec:Sherline]]
 == Sherline
 (((Sherline)))
 
-Si vous avez un Sherline plusieurs configurations prédéfinies sont fournies.
-Ceci est le menu principal du CNC/EMC puis choisissez la configuration Sherline
-que le vôtre allumettes et enregistrer une copie. 
+Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
+Au premier démarrage d'EMC2, le sélecteur de configuration s'ouvre, sélectionnez alors le modèle correspondant à votre machine Sherline, puis acceptez d'enregistrez une copie. 
 
 [[sec:Xylotex]]
 == Xylotex
 (((Xylotex)))
 
-Si vous avez un Xylotex vous pouvez sauter les sections suivantes et aller
-directement à l'Assistant de configuration pas à pas dans la section (<<cha:Assistant-graphique-pas-a-pas>>).
-EMC a fourni une installation rapide pour les machines Xylotex.
+Si vous avez une machine Xylotex vous pouvez utiliser l'assistant graphique de configuration fourni par EMC2 et créer rapidement votre configuration personnalisée (<<cha:Assistant-graphique-pas-a-pas>>).
 
 == Informations relatives à la machine
 
@@ -37,11 +33,10 @@ Regroupe les informations à propos des axes de la machine.
 
 Les timings des pilotes sont exprimés en nanosecondes. Si vous n'êtes
 pas sur de vous à propos des timings de votre interface, les
-caractèristiques des plus populaires sont incluses dans l'assistant
+caractéristiques des interfaces les plus populaires sont incluses dans l'assistant
 graphique de configuration. Notez que les pilotes Gecko ont des timings
-différents les uns des autres. Une liste des caractèristiques courantes
-est également maintenue sur le 
-Wiki [http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
+différents les uns des autres. Une liste des caractéristiques courantes
+est également maintenue sur le Wiki [http://wiki.linuxcnc.org[http://wiki.linuxcnc.org].
 
 [width="90%", options="header"]
 |==============================================================================
@@ -83,7 +78,7 @@ pourront être modifiées par la suite en relançant Stepconf.
 
 == Informations relatives à la mécanique
 
-Regroupe les informations à propos des pas de vis et des poulies.
+Regroupe les informations à propos des réducteurs.
 Utilisées pour définir la taille d'un pas dans l'unité utilisateur. La
 taille du pas est utilisée par SCALE dans le fichier .ini.
 
@@ -96,80 +91,70 @@ taille du pas est utilisée par SCALE dans le fichier .ini.
 |     |              |          |              |           | 
 |====================================================================
 
-*Pas par la révolution* est de savoir combien de moteur pas-mesures 
-qu'il faut pour transformer le moteur pas à une révolution. 
-Typique est de 200.
+*Pas par tour* indique combien de pas moteur sont nécessaires pour que celui-ci fasse un tour. 
+Valeur typique: 200.
 
-*Micro étapes* est de savoir combien CNC-output-étapes le lecteur a besoin 
-de déplacer les moteur pas à pas une moteur pas à pas à pas. 
-Si micropas n'est pas utilisé, ce nombre sera de 1. 
-Si micropas est utilisé, les valeurs typiques seront
-à proximité de 4-16, peut-être 8 ou 10.
+*Micro pas* indique combien d'impulsions le pilote doit recevoir pour que le moteur tourne d'un angle équivalent à un pas.
+
+Si les micropas ne sont pas utilisés, cette valeur devra être mise à 1. 
+Si les micropas sont utilisés, les valeurs les plus courantes sont 2, 4, 8 ou 10.
 
 [NOTE]
-De plus petites valeurs ne permettent pas tant que ça, 
-parce que le rapprochement des vagues sinus et cosinus 
-impliqués est trop grossière. 
-Des valeurs élevées ne permettent pas en exigeant trop d'étapes 
-de la sortie CNC et en ralentissant la la vitesse maximale.
+Le meilleur choix sera un compromis entre:
+Les petites valeurs, qui peuvent rendre le système bruyant à cause des vibrations.
+Les valeurs élevées, qui exigent beaucoup de pas ce qui ralenti la vitesse maximale.
 
-*Dents moteur* et *Dents la vis* est si vous avez une certaine réduction
-(pignons, chaîne, courroie de distribution, etc) entre le moteur et la tige filetée.
-Si non, alors définir ces deux à 1.
+*Dents moteur* et *Dents vis* à indiquer si vous avez une réduction poulies/courroie entre le moteur et la vis. Sinon mettez 1 pour les deux.
 
-*Pas de vis* est de savoir combien le mouvement se produit 
-(en unités utilisateur) en un tour de vis. 
-Si vous configurez en pouces, puis il est pouces par tour. 
-Si vous configurez en millimètres, puis il est millimètres par tour.
+*Pas de vis* indique combien de tour la vis d'entraînement de l'axe doit faire pour déplacer la table d'une unité utilisateur. Si vous êtes en pouces, c'est le nombre de tours pas pouce, si vous êtes en millimètres, c'est le nombre de tour (ou fraction de tour) par millimètre. Par exemple, pour une vis avec un pas de 5.08mm, il faut 0.1968503937 tour pour faire 1 mm et 5 tours pour faire un pouce.
 
-Le résultat net que vous recherchez est combien CNC-output-mesures qu'il prend
-pour déplacer une unité d'utilisateur (pouces ou mm).
+Autre exemple (pouces):
 
-Par exemple (pouces):
-
-     Stepper = 200 pas par tour
-     Disque = 10 étapes micro par étape
-     Dents moteur = 20
-     Dents de vis = 40
-     Pas de vis = 0,2000 pouces par tour
+     Moteur            = 200 pas par tour
+     Pilote            = 10 micropas par pas
+     Dents côté moteur = 20
+     Dents côté vis    = 40
+     Pas de vis        = 0,2000 pouces par tour
 
 D'après les informations ci-dessus: 
- - la tige filetée se déplace 0,200 pouces par tour. 
- - Le moteur tourne 2,000 fois par 1 tour de vis. 
- - Le lecteur prend 10 entrées micropas à faire le pas stepper fois. 
- - Le lecteur doit 2000 des mesures pour faire du stepper une révolution. 
+ - la table se déplacera de 0,200 pouces par tour. 
+ - Le moteur fera 2000 micropas par tour de vis. 
+ - Le pilote demande 10 micropas pour faire un pas. 
+ - Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un tour. 
 Ainsi l'échelle requise est la suivante:
 
 latexmath: [
-\frac{200 marches du moteur}{1 moteur de rev} \times
-\frac{10 micropas}{1 moteur pas à pas} \times
-\frac{2 tours moteur}{1 de pas de vis tr} \times
-\frac{1 tr tige filetée}{0,2000 pouces}
-= \frac{20000 micropas}{pouces}
+\frac{200 pas moteur}{1 tour moteur} \times
+\frac{10 micropas}{1 pas moteur} \times
+\frac{2 tours moteur}{1 tour de vis} \times
+\frac{1 tour de vis}{0,2000 pouce}
+= \frac{20000 micropas}{pouce}
 ]
 
-Voici un autre exemple, en millimètres cette fois:
+Encore un autre exemple, en millimètres cette fois:
 
 Par exemple (mm):
 
-     Stepper      = 200 pas par tour
-     Disque       =   8 étapes micro par étape
-     Dents moteur =  30
-     Dents de vis =  90
-     Pas de vis   =   5,00 mm par tour
+     Pas par tour      = 200 pas par tour
+     Micropas          =   8 micropas
+     Dents côté moteur =  30
+     Dents côté vis    =  90
+     Pas de la vis     =   5,00 mm par tour
 
 D'après les informations ci-dessus: 
- - la tige filetée se déplace 5,00 mm par tour. 
- - Le moteur tourne 3,000 fois par 1 tour de vis. 
- - Le lecteur prend 8 entrées micropas à faire le pas stepper fois. 
- - Le lecteur doit 1600 des mesures pour faire du stepper une révolution. 
+ - la vis déplacera le mobile de 5,00 mm par tour. 
+ - Le moteur fait 3 tours pour 1 tour de vis. (90/30)
+ - Le pilote utilisera 8 micropas pour faire un pas.
+ - Le pilote aura besoin de 1600 impulsions pour un tour moteur
+   et donc de 4800 pour 1 tour de vis.
+
 Ainsi l'échelle requise est la suivante:
 
 latexmath: [
-\frac{200 marches du moteur}{1 moteur de rev} \times
-\frac{8 micropas}{1 moteur pas à pas} \times
-\frac{3 tours moteur}{de pas de vis 1 rev} \times
-\frac{1 tr tige filetée}{5,000 mm}
+\frac{200 Pas par tour}{1 tour moteur} \times
+\frac{8 micropas}{1 pas moteur} \times
+\frac{3 tours moteur}{1 tour de vis} \times
+\frac{1 tour de vis}{5,00 mm}
 = \frac{960 micropas}{mm}
 ]
 
@@ -181,19 +166,19 @@ Voir l'utilisation de l'assistant Stepconf au chapitre (<<cha:Assistant-graphiqu
 
 Il est possible de créer un lien sur le bureau 
 après utilisation de l'assistant Stepconf. 
-Depuis le menu CNC lancer EMC2 et choisir la
-configuration nouvellement créée dans la liste. 
-Cocher la case «Créer un raccourci sur le bureau» et valider avec OK. 
+Au lancement d'EMC2, le sélecteur de configuration s'ouvre, choisir la
+configuration nouvellement créée dans la liste et cocher la case
+ «Créer un raccourci sur le bureau» puis valider avec OK. 
 Il est désormais possible de lancer directement cette configuration 
-depuis le lien créé sur le bureau.
+depuis le lien et l'icône créés sur le bureau.
 
 == Modification
 
-Pour modifier quelque chose dans une configuration créée à 
-l'aide de l'assistant Stepconf, relancer celui-ci. 
-Sélectionner «Modifier une configuration...» Puis choisir le fichier
-*.stepconf* à modifier dans le répertoire emc2/configs. 
-L'entête du fichier indique si le fichier peut être édité manuellement ou non. 
+Pour modifier une configuration créée à l'aide de l'assistant Stepconf, 
+relancer celui-ci. Sélectionner «Modifier une configuration...» 
+Puis choisir le fichier *.stepconf* à modifier dans le répertoire 
+emc2/configs. L'entête du fichier indique si le fichier peut être édité 
+manuellement ou non. 
 
 // vim: set syntax=asciidoc:
 
