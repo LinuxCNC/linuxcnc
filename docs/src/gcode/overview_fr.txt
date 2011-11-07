@@ -1,5 +1,4 @@
-[[cha:Vue-d-ensemble-du-langage]]
-= Vue d'ensemble du langage
+= Vue d'ensemble du langage[[cha:Vue-d-ensemble-du-langage]]
 
 Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
 (également appelée un “block”) peut inclure des commandes pour faire
