@@ -11,7 +11,7 @@ It can configure closed loop servo systems or hardware stepper systems. +
 It uses a similar 'wizard' approach as Stepconf (used for software stepping, 
 parallel port driven systems).
 
-PNCconf is still in a early development stage (Beta) so there are some bugs and
+PNCconf is still in a development stage (Beta) so there are some bugs and
  lacking features. +
 Please report bugs and suggestions to the EMC forum page or mail-list.
 
