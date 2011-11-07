@@ -310,6 +310,17 @@ proc verbose {msg} {
   puts stderr "pickconfig:$msg"
 }
 
+proc minimal_tree {node} {
+  if {"$node" == "root"} return
+  set p [$::tree parent $node]
+  foreach c [$::tree nodes $p] {
+    if {"$c" == "$node"} continue
+    $::tree closetree $c
+  }
+  minimal_tree $p ;#recursion
+} ;# minimal_tree
+
+
 foreach dir $::configs_dir_list {
   walktree $dir
 }
@@ -332,6 +343,7 @@ proc wait_and_see {node {wait 10}} {
     } else {
         $::tree see $node
         $::tree xview moveto 0.0
+        minimal_tree $node
         node_clicked
     }
 }
