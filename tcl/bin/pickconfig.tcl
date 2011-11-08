@@ -295,7 +295,8 @@ proc walktree {dir} {
        set ::lvl $restore
      } else {
        if { [ regexp {.*\.ini$} $f] == 1 } {
-         $::tree insert end $::lvl $f -text [file tail $f] -open $::openmode
+         set text [file rootname [file tail $f]]
+         $::tree insert end $::lvl $f -text $text -open $::openmode
          incr ::config_count
          continue
        } else {
