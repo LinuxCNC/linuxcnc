@@ -5417,11 +5417,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_active(0)
                         if firmptype == RESU:
                             self.widgets[complabel].set_text("")
+                            self.widgets[p].hide()
                             self.widgets[p].set_sensitive(0)
                             self.widgets[p].set_active(0) 
                             self.widgets[ptype].set_active(6)
                         else:
                             temp = (RES0,RES1,RES2,RES3,RES4,RES5)
+                            self.widgets[p].show()
                             for num,i in enumerate(temp):
                                 if firmptype == i:break
                             self.widgets[complabel].set_text("%d:"% (compnum*6+num))
