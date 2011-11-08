@@ -5374,7 +5374,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # --- mux encoder ---
                 elif firmptype in (MXE0,MXE1,MXEU,MXEM,MXES):
                     #print "**** INFO: MUX ENCODER:",firmptype,compnum,numofencoders
-                    if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum +1):
+                    if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum +1) or \
+                        (firmptype == MXEM and numofencoders >= compnum +1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         self.widgets[pinv].set_sensitive(0)
@@ -5391,6 +5392,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                             self.widgets[p].set_sensitive(1)
                             self.widgets[ptype].show()
                             self.widgets[p].show()
+                        elif firmptype == MXEM:
+                            self.widgets[complabel].set_text("%d:"%compnum)
+                            self.widgets[p].set_sensitive(0)
+                            self.widgets[ptype].show()
+                            self.widgets[p].hide()
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
