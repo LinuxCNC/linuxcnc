@@ -168,11 +168,13 @@ _TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_MAXSSERIALC
 _HIFREQ = 18;_NUMOFCNCTRS = 19;_STARTOFDATA = 20
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
+
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, number of pins per encoder,
-# max pwm gens, max tppwmgens 
-# max step gens, 
-# number of pins per step gen, 
+# max pwm gens, # of pins 
+# max tppwmgens , # of pins
+# max step gens, number of pins per step gen,
+# max smart serial, number of chaNnels
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
@@ -266,7 +268,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12, 3, 12, 0, 0, 0, 0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12,3, 12,3, 0,0, 0,0, 0,0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -350,8 +352,8 @@ mesafirmwaredata = [
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
 
 ]
-_SUBBOARDNAME = 0; _SUBSTARTOFDATA = 1
-mesadaughterdata = [ ["7i64",
+_SUBBOARDNAME = 0; _SUBFIRMNAME = 1; _SUBMODE = 2; _SUBSTARTOFDATA = 3
+mesadaughterdata = [ ["7i64", "7i64", 0,
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],[GPIOI,100],
     [GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],[GPIOO,100],
@@ -1348,11 +1350,21 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
         # TODO fix this hack : hardcoded to one serial port
-        ssconfig0 = ssconfig1 = ""
+        ssconfig0 = ssconfig1 = temp = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa0_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig0 = "sserial_port_0=%s"% temp
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa1_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig1 = "sserial_port_0=%s"% temp
         firmstring0 = firmstring1 = ""
         if not "5i25" in self.mesa0_currentfirmwaredata[_BOARDNAME]:
             firmstring0 = "firmware=hm2/%s/%s.BIT" % (self.mesa0_boardtitle, self.mesa0_firmware)
@@ -2114,11 +2126,21 @@ If you have a REALLY large config that you wish to convert to this newer version
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
         # TODO fix this hardcoded hack: only one serial port
-        ssconfig0 = ssconfig1 = ""
+        ssconfig0 = ssconfig1 = temp = ""
         if self.mesa0_numof_sserialports:
-            ssconfig0 = "num_sserials=%d"%self.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa0_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig0 = "sserial_port_0=%s"% temp
         if self.mesa1_numof_sserialports:
-            ssconfig1 = "num_sserials=%d"%self.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
+            for i in range(1,9):
+                if i <= self.mesa1_numof_sserialchannels:
+                    temp = temp + "0"
+                else:
+                    temp = temp + "x"
+            ssconfig1 = "sserial_port_0=%s"% temp
         firmstring0 = firmstring1 = ""
         if not "5i25" in board0:
             firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
@@ -3606,6 +3628,7 @@ class App:
                         global mesablacklist
                         mesablacklist = eval(text)
                 if name == "customfirmwarefilename":
+                    global custommesafirmwaredata
                     self.data._customfirmwarefilename = text
                     rcfile = os.path.expanduser(self.data._customfirmwarefilename)
                     print rcfile
@@ -3614,7 +3637,7 @@ class App:
                             execfile(rcfile)
                         except:
                             print "**** PNCCONF ERROR:    custom firmware loading error"
-                            custommesafirmwaredata == []
+                            custommesafirmwaredata = []
                     if not custommesafirmwaredata == []:
                         print "**** PNCCONF INFO:    Found extra firmware in file"
         self.widgets.createsymlink.set_active(link)
@@ -5345,7 +5368,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     if firmptype in (TXDATA2,RXDATA2,TXEN2): portnum = 3
                     if firmptype in (TXDATA3,RXDATA3,TXEN3): portnum = 4
                     #print "**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum
-                    if numofsserialports >= (portnum) and numofsserialchannels >= compnum:
+                    #print "sserial channel:%d"% numofsserialchannels
+                    if numofsserialports >= (portnum) and numofsserialchannels >= (compnum + 1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         #if compnum < 5: # TODO hack - haven't made all the serial components in glade yet
@@ -8270,11 +8294,21 @@ But there is not one in the machine-named folder.."""),True)
             if not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
             # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = ""
-            if self.data.mesa0_numof_sserialports:
-                ssconfig0 = "num_sserials=%d"%self.data.mesa0_currentfirmwaredata[_MAXSSERIALCHANNELS]
+            ssconfig0 = ssconfig1 = temp = ""
+            if self.mesa0_numof_sserialports:
+                for i in range(1,9):
+                    if i <= self.mesa0_numof_sserialchannels:
+                        temp = temp + "0"
+                    else:
+                        temp = temp + "x"
+                ssconfig0 = "sserial_port_0=%s"% temp
             if self.data.mesa1_numof_sserialports:
-                ssconfig1 = "num_sserials=%d"%self.data.mesa1_currentfirmwaredata[_MAXSSERIALCHANNELS]
+                for i in range(1,9):
+                    if i <= self.mesa1_numof_sserialchannels:
+                        temp = temp + "0"
+                    else:
+                        temp = temp + "x"
+                ssconfig1 = "sserial_port_0=%s"% temp
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
                     driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))

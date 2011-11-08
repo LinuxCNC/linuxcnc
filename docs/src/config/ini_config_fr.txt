@@ -171,7 +171,9 @@ Unité de la machine::
 
 == Définition des variables du fichier INI[[sub:Details fichier INI]]
 
-=== Section [EMC][[sub:Section-[EMC]]](((Sections du fichier INI)))
+=== Section [EMC][[sub:Section-[EMC]]]
+
+(((Sections du fichier INI)))
 
 VERSION = $Revision: 1.3 $::
      Le numéro de version du fichier INI. La valeur indiquée ici semble
@@ -192,7 +194,9 @@ DEBUG = 0::
     généralement utiles pour les développeurs. Voir 
     ../src/emc/nml_intf/emcglb.h pour les autres paramètres.
 
-=== Section [DISPLAY][[sub:Section-[DISPLAY]]](((Fichier INI-DISPLAY)))
+=== Section [DISPLAY][[sub:Section-[DISPLAY]]]
+
+(((Fichier INI-DISPLAY)))
 
 Différents programmes d'interface utilisateur utiliser des options différentes, 
 et ne sont pas tous option est soutenue par toutes les interfaces utilisateur. 
@@ -340,7 +344,9 @@ user interface program.
 HELP_FILE = tkemc.txt::
     Path to help file (not used in AXIS).
 
-=== [FILTER] Section (((ini [FILTER] Section)))[[sub:[FILTER]-Section]] 
+=== [FILTER] Section[[sub:[FILTER]-Section]]
+
+(((ini [FILTER] Section))) 
 
 AXIS has the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure
@@ -389,7 +395,9 @@ written to stderr of the form
 sets the AXIS progress bar to the given percentage. This feature
 should be used by any filter that runs for a long time.
 
-=== [RS274NGC] Section[[sub:[RS274NGC]-section]](((RS274NGC (inifile section))))
+=== [RS274NGC] Section[[sub:[RS274NGC]-section]]
+
+(((RS274NGC (inifile section))))
 
 PARAMETER_FILE = myfile.var::
     (((PARAMETER FILE))) The file located in the same directory as the ini
@@ -431,6 +439,7 @@ A search is made for each possible user defined function, typically
 The first executable M1xx found in the search is used for each M1xx.
 
 === Section [EMCMOT][[sub:Section-[EMCMOT]]]
+
 (((Fichier INI-EMCMOT)))
 
 You may find other entries in this section and they should not be
@@ -475,7 +484,8 @@ TRAJ_PERIOD = 1000000::
     (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur 
     supérieure à *SERVO_PERIOD*.
 
-=== Section [TASK] [[sub:Section-[TASK]]]
+=== Section [TASK][[sub:Section-[TASK]]]
+
 (((Fichier INI-TASK )))
 
 TASK = milltask::
@@ -495,7 +505,8 @@ CYCLE_TIME = 0.010::
     une commande provenant d'une interface utilisateur est acceptée. Il
     n'est généralement pas nécessaire de modifier cette valeur.
 
-=== Section [HAL] [[sub:Section-[HAL]]]
+=== Section [HAL][[sub:Section-[HAL]]]
+
 (((Fichier INI-HAL )))
 
 HALFILE = example.hal::
@@ -531,6 +542,7 @@ d'autres logiciels de protection des défauts de fonctionnement.
 l'interface graphique ait créé ses HAL pins. 
 
 === [HALUI] section[[sub:[HALUI]-section]]
+
 (((HALUI (inifile section))))
 
 MDI_COMMAND = G53 G0 X0 Y0 Z0::
@@ -538,6 +550,7 @@ MDI_COMMAND = G53 G0 X0 Y0 Z0::
     Incrément le nombre pour chaque commande énumérés dans la section [HALUI].
 
 === Section [TRAJ][[sub:Section-[TRAJ]]]
+
 (((Fichier INI-TRAJ )))
 
 La section [TRAJ] contient les paramètres généraux du module
@@ -625,7 +638,9 @@ NO_FORCE_HOMING mise à 1 permettra à la machine de franchir les
 limites logicielles pendant les mouvements ce qui n'est pas souhaîtable 
 pour un fonctionnement normal!
 
-=== Section [AXIS_<num>][[sub:Section-[AXIS]]](((Fichier INI-AXIS)))
+=== Section [AXIS_<num>][[sub:Section-[AXIS]]]
+
+(((Fichier INI-AXIS)))
 
 Les sections [AXIS_0], [AXIS_1], etc. contiennent les paramètres
 généraux des composants individuels du module de contrôle. La
@@ -964,7 +979,8 @@ latexmath:[ INPUT\_SCALE =
 \frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
 \frac{20000\, counts}{inch} ]
 
-==== Variables relatives aux moteurs pas à pas [[sub:Variables relatives aux moteurs pas a pas]]
+[[sub:Variables relatives aux moteurs pas a pas]]
+==== Variables relatives aux moteurs pas à pas
 
 SCALE = 4000::
 (((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 
@@ -1000,7 +1016,9 @@ STEPGEN_MAXVEL = 1.4::
     montré que l'utilisation de STEPGEN_MAXVEL n'améliore pas le réglage de
     la boucle de position de stepgen. 
 
-=== Section [EMCIO][[sub:Section-[EMCIO]]](((Fichier INI-EMCIO)))
+=== Section [EMCIO][[sub:Section-[EMCIO]]]
+
+(((Fichier INI-EMCIO)))
 
 CYCLE_TIME = 0.100::
      La période en secondes, à laquelle EMCIO va tourner. La mettre à 0.0

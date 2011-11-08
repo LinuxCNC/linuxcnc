@@ -1,4 +1,6 @@
-= Tour spécifiques[[cha:Tour-Specifiques]](((Tour-Specifiques)))
+= Tour spécifiques[[cha:Tour-Specifiques]]
+
+(((Tour-Specifiques)))
 
 Ce chapitre va regrouper les informations spécifiques aux tours, il
 est en cours de rédaction.

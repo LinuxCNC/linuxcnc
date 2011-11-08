@@ -14,12 +14,16 @@ processus, causant des pertes de pas lorsqu'ils pilotent une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
 Pour le lancer, suivre les instructions de la section (<<sec:Test-de-latence-GS>>).
 
-== Sherline[[sec:Sherline]](((Sherline)))
+[[sec:Sherline]]
+== Sherline
+(((Sherline)))
 
 Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
 Au premier démarrage d'EMC2, le sélecteur de configuration s'ouvre, sélectionnez alors le modèle correspondant à votre machine Sherline, puis acceptez d'enregistrez une copie. 
 
-== Xylotex[[sec:Xylotex]](((Xylotex)))
+[[sec:Xylotex]]
+== Xylotex
+(((Xylotex)))
 
 Si vous avez une machine Xylotex vous pouvez utiliser l'assistant graphique de configuration fourni par EMC2 et créer rapidement votre configuration personnalisée (<<cha:Assistant-graphique-pas-a-pas>>).
 

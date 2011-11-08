@@ -6,7 +6,7 @@
 //[source,{hal}]
 //[source,{ngc}]
 
-= G Code Overview [[cha:Language-Overview]]
+= G Code Overview[[cha:Language-Overview]]
 
 The EMC2 G Code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
@@ -68,7 +68,8 @@ Input is case insensitive, except in comments, i.e., any letter
 outside a comment may be in upper or lower case without changing the
 meaning of a line.
 
-== Line Number (((Line Number)))
+== Line Number
+(((Line Number)))
 
 A line number is the letter N followed by an integer (with no sign)
 between 0 and 99999 written with no more than five digits (000009 is
@@ -77,7 +78,8 @@ order, although normal practice is to avoid such usage. Line numbers
 may also be skipped, and that is normal practice. A line number is not
 required to be used, but must be in the proper place if used.
 
-== Word (((Word)))
+== Word
+(((Word)))
 
 A word is a letter other than N followed by a real value.
 
@@ -121,7 +123,8 @@ valid on a machine which does not have the corresponding axis.
 |Z | Z axis of machine
 |========================================
 
-== Number [[sub:Number]]
+[[sub:Number]]
+== Number
 
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
@@ -241,8 +244,7 @@ parameter 1, not
  the value found in parameter 3. Of course, `#[1+2]` does mean the
 value found in parameter 3. The `#` character may be repeated; for
 example `##2`  means the value of the parameter whose index is the
-(integer) value
-of parameter 2.
+(integer) value of parameter 2.
 
 31-5000::
     G-Code user parameters. These parameters are global in the G Code file,
@@ -341,7 +343,8 @@ of parameter 2.
     local to the subroutine. Volatile. See also the chapter on <<cha:O-Codes,O-Codes>>.
 
 
-=== Named Parameters [[sub:Named-Parameters]]
+[[sub:Named-Parameters]]
+== Named Parameters
 
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
@@ -616,7 +619,8 @@ program with if-then-else statements.
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
-== Expressions [[sub:Expressions]]
+[[sub:Expressions]]
+== Expressions
 
 An expression is a set of characters starting with a left bracket `[`
 and ending with a balancing right bracket `]` . In between the brackets
@@ -626,7 +630,8 @@ produce a number. The expressions on a line are evaluated when the line
 is read, before anything on the line is executed. An example of an
 expression is `[1 + acos[0] - [#3 ** [4.0/2]]]`.
 
-== Binary Operators [[sub:Binary-Operators]]
+[[sub:Binary-Operators]]
+== Binary Operators
 
 Binary operators only appear inside expressions. There are four basic
 mathematical operations: addition (`+`), subtraction (`-`),
@@ -675,7 +680,8 @@ solves this problem by considering values equal if their absolute
 difference is less than 0.0001 (this value is defined as
 `TOLERANCE_EQUAL` in src/emc/rs274ngc/interp_internal.h).
 
-== Functions [[sub:Unary-Operation-Value]]
+[[sub:Unary-Operation-Value]]
+== Functions
 
 A function is either "`ATAN` " followed by one expression divided by
 another expression (for example "`ATAN[2]/[1+3]`") or any other
@@ -802,7 +808,9 @@ axis words or canceling motion.
 "Non-modal" codes have effect only on the lines on which they occur.
 For example, G4 (dwell) is non-modal.
 
-== Modal Groups (((Modal Groups)))[[sec:Modal-Groups]]
+[[sec:Modal-Groups]]
+== Modal Groups
+(((Modal Groups)))
 
 Modal commands are arranged in sets called "modal groups", and only
 one member of a modal group may be in force at any given time. In
@@ -889,7 +897,9 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 special comments.
 
-== G Code Order of Execution[[sec:Order-of-Execution]](((G Code Order of Execution)))
+[[sec:Order-of-Execution]]
+== G Code Order of Execution
+(((G Code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -921,7 +931,8 @@ position of each item on the line, but by the following list:
  . Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified (possibly) by G53. 
  . Stop (M0, M1, M2, M30, M60).
 
-== G Code Best Practices (((G Code Best Practices)))
+== G Code Best Practices
+(((G Code Best Practices)))
 
 === Use an appropriate decimal precision
 

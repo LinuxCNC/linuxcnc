@@ -33,7 +33,7 @@ reliés à d'autres programmes.
 les interfaces du mécanisme.footnote:[Trouvé 
 sur http://fr.wikipedia.org/wiki/Philosophie_d%27Unix, 09/09/2008] 
 
-M. Raymond offre d'autres règles mais ces quatre décrivent les 
+Monsieur Raymond offre d'autres règles mais ces quatre décrivent les 
 caractéristiques essentielles du système de contrôle de mouvement EMC2.
 
 La règle de *Modularité* est critique. Tout au long de ces manuels,

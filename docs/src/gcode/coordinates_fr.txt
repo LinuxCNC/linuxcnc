@@ -1,5 +1,7 @@
 = Systèmes de coordonnées et décalage G92[[cha:Systemes-de-coordonnees]]
 
+(((Systèmes de coordonnées)))
+
 == Introduction
 
 Vous avez vu comme il est pratique d'utiliser la compensation de

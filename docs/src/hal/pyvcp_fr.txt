@@ -1,4 +1,6 @@
-= PyVCP
+= PyVCP[[cha:Panneau-Virtuel-Control]]
+
+(((Panneau Virtuel de Control)))
 
 Panneau virtuel de contrôle en python (*Py*thon *V*irtual *C*ontrol
 *P*anel)
@@ -64,7 +66,8 @@ peuvent donc exécuter n'importe quelle action disponible dans les
 programmes Python. N'utilisez que des fichiers pyVCP en .xml à partir
 d'une source de confiance.
 
-== Utiliser pyVCP avec AXIS [[sec:pyvcp-avec-axis]]
+[[sec:pyvcp-avec-axis]]
+== Utiliser pyVCP avec AXIS
 
 Puisque AXIS utilise le même environnement graphique et les même
 outils (Tkinter) que pyVCP, il est possible d'inclure un panneau pyVCP
@@ -113,7 +116,8 @@ Voila à quoi ressemble le panneau pyVCP que nous venons de créer,
 incorporé à AXIS. La configuration `sim/lathe` fournie en exemple, est
 configurée de cette manière.
 
-== Documentation des widgets de pyVCP [[sec:Documentation-des-widgets]]
+[[sec:Documentation-des-widgets]]
+== Documentation des widgets de pyVCP
 
 Les signaux de HAL existent en deux variantes, BIT et FLOAT. pyVCP
 peut afficher la valeur d'un signal avec un widget indicateur, ou
@@ -240,11 +244,9 @@ quand le bouton sera relâché.
 
 Les boutons peuvent suivre le format suivant:
 
- -  <padx>n</padx> où "n" est le nombre d'espaces horizontaux
-   supplémentaires
+ - <padx>n</padx> où "n" est le nombre d'espaces horizontaux supplémentaires
  - <pady>n</pady> où "n" est le nombre d'espaces verticaux supplémentaires
- -  <activebackground>"color"</activebackground> Couleur au survol du
-   curseur
+ - <activebackground>"color"</activebackground> Couleur au survol du curseur
  - <bg>"color"</bg> Couleur du bouton
 
 ==== Bouton avec texte (Text Button)

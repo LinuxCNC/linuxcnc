@@ -1,4 +1,4 @@
-= Vue d'ensemble du langage [[cha:Vue-d-ensemble-du-langage]]
+= Vue d'ensemble du langage[[cha:Vue-d-ensemble-du-langage]]
 
 Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
 (également appelée un “block”) peut inclure des commandes pour faire
@@ -67,6 +67,7 @@ indifféremment des majuscules ou des minuscules sans changer la
 signification de la ligne.
 
 == Numéro de ligne
+(((Numéro de ligne)))
 
 Un numéro de ligne commence par la lettre N suivie d'un nombre entier
 non signé compris entre 0 et 99999 écrit avec moins de six caractères
@@ -77,6 +78,7 @@ pratique normale. L'utilisation d'un numéro de ligne n'est pas
 obligatoire, mais si il est utilisé, il doit être à sa place.
 
 == Les mots
+(((mots)))
 
 Un mot est une lettre, autre que N, suivie d'un nombre réel.
 
@@ -120,7 +122,8 @@ valides sur une machine n'ayant pas les axes correspondants.
 |Z      | Axe Z de la machine
 |========================================
 
-=== Nombres [[sub:Nombres]]
+[[sub:Nombres]]
+=== Nombres
 
 Les règles suivantes sont employées pour des nombres (explicites).
 Dans ces règles un chiffre est un caractère simple entre 0 et 9.
@@ -144,7 +147,8 @@ Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-=== Paramètres numérotés [[sub:Parametres-numerotes]]
+[[sub:Parametres-numerotes]]
+=== Paramètres numérotés
 
 Un paramètre numéroté commence par le caractère `#` suivi par un
 entier compris entre 1 et 5399. Le paramètre est
@@ -165,7 +169,26 @@ valeur contenue dans
 numéro est égal à la valeur entière
 trouvée dans le paramètre 2.
 
-=== Paramètres nommés [[sub:Parametres-nommes]]
+The interpreter maintains a number of read-only parameters for a loaded
+tool:
+
+ - #5400 Tool number 
+ - #5401 Tool X offset 
+ - #5402 Tool Y offset 
+ - #5403 Tool Z offset 
+ - #5404 Tool A offset 
+ - #5405 Tool B offset 
+ - #5406 Tool C offset 
+ - #5407 Tool U offset 
+ - #5408 Tool V offset 
+ - #5409 Tool W offset 
+ - #5410 Tool Diameter 
+ - #5411 Tool Frontangle 
+ - #5412 Tool Backangle 
+ - #5413 Tool Orientation
+
+[[sub:Parametres-nommes]]
+=== Paramètres nommés
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
 sont plus faciles à lire. Les paramètres nommés sont convertis en
@@ -207,7 +230,8 @@ Les paramètres globaux _a, _b, _c, ... _z sont réservés pour une
 utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
 derniers Aword, Bword, Cword, ... Zword etc.
 
-=== System Parameters [[sec:System-Parameters]]
+[[sec:System-Parameters]]
+=== System Parameters
 
 Two global read only named parameters are available to check which
 version is running from G Code.
@@ -218,7 +242,8 @@ version is running from G Code.
 #<_vminor>::
     Minor package version. If current version was 2.6.2 would return 0.2.
 
-=== Expressions [[sub:Expressions]]
+[[sub:Expressions]]
+=== Expressions
 
 Une expression est un groupe de caractères commençant avec le crochet
 gauche `[` et se terminant avec le crocher droit `]` . Entre les
@@ -229,7 +254,8 @@ est évaluée pour produire un nombre. Les expressions sur une ligne sont
  éxécuté sur cette ligne. 
 Un exemple d'expression: `[1 + acos[0] - [#3 ** [4.0/2]]]`.
 
-=== Opérateurs binaires [[sub:Operateurs-binaires]]
+[[sub:Operateurs-binaires]]
+=== Opérateurs binaires
 
 Les opérateurs binaires ne se rencontrent que dans les expressions. Il
 y a quatre opérateurs mathématiques de base: addition (`+`),
@@ -270,7 +296,8 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |AND OR XOR        | 'basse'
 |========================================
 
-=== Fonctions [[sub:Operations-unaires]]
+[[sub:Operations-unaires]]
+=== Fonctions
 
 Une fonction commence par son nom, ex: “`ATAN` ” suivi par une
 expression divisée par une autre expression (par
@@ -390,7 +417,9 @@ mouvement.
 Les codes “non modaux” n'ont d'effet que sur la ligne ou ils se
 présentent. Par exemple, G4 (tempo) est non modale.
 
-== Groupes modaux [[sec:Groupes-modaux]]
+[[sec:Groupes-modaux]]
+== Groupes modaux
+(((Groupes modaux)))
 
 Les commandes modales sont arrangées par lots appelés “groupes
 modaux”, à tout moment, un seul membre d'un groupe modal peut être
@@ -475,7 +504,9 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 special comments.
 
-= Ordre d'exécution [[sec:Ordre-d-execution]]
+[[sec:Ordre-d-execution]]
+= Ordre d'exécution
+(((Ordre d'exécution)))
 
 L'ordre d'exécution des éléments d'une ligne est essentiel à la
 sécurité et l'efficacité d'une machine. Les éléments sont exécutés dans
@@ -506,6 +537,7 @@ l'ordre indiqué ci-dessous, si ils se trouvent sur la même ligne.
  . Arrêt (M0, M1, M2, M30, M60).
 
 = G-Code: Bonnes pratiques
+(((G-Code bonnes pratiques)))
 
 == Utiliser un nombre de décimales approprié
 
@@ -573,9 +605,5 @@ les axes à déplacer et parce que la quantité de matière enlevée ne
 dépend pas que de la vitesse travail, il peut être plus simple
 d'utiliser G93, vitesse inverse du temps pour atteindre l'enlévement de
 matière souhaîté.
-
-= Fichier d'outils et compensations 
-
-Voir section <<sec:Outils-et-Compensations>>
 
 

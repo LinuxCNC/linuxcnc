@@ -16,6 +16,12 @@
 //   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+// FIXME: Since the change to auto-configuring cards, the separate drivers
+// for 8i20 and 7i64 make no sense. They should simply spoof a GTOC and share a
+// structure with the auto-conf type. It probably makes sense to consolidate
+// into one file too, though it will be a biggie. 
+
+
 #include <linux/slab.h>
 
 #include "rtapi.h"
@@ -26,17 +32,21 @@
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
+//utility function delarations
+int hm2_sserial_stopstart(hostmot2_t *hm2, hm2_module_descriptor_t *md, 
+                          hm2_sserial_instance_t *inst, u32 start_mode);
+
 
 int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
-    int i,c;
+    int i, c;
     int pin = -1;
     int port_pin, port;
-    u32 ddr_reg, src_reg, addr, buff, buff2;
+    u32 ddr_reg, src_reg, addr, buff;
     int r = 0;
     int count = 0;
     int chan_counts[] = {0,0,0,0,0,0,0,0};
-
+    
     hm2->sserial.version = md->version;
 
     //
@@ -107,7 +117,7 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
     // We can't create the pins until we know what is on each channel, and
     // can't communicate until the pin directions are set up.
 
-    // Temporarily enable the pins that are not masked by conf_sserial
+    // Temporarily enable the pins that are not masked by sserial_mode
 
     for (port  = 0; port < hm2->ioport.num_instances; port ++) {
         ddr_reg = 0;
@@ -120,8 +130,9 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
                     chan_counts[hm2->pin[pin].sec_unit] = (hm2->pin[pin].sec_pin & 0x0F);
                 }
                 // check if the channel is enabled
+                HM2_DBG("sec unit = %i, sec pin = %i\n", hm2->pin[pin].sec_unit, hm2->pin[pin].sec_pin & 0x0F);
                 if (hm2->config.sserial_modes[hm2->pin[pin].sec_unit]
-                                        [hm2->pin[pin].sec_pin & 0x0F] != 'x') {
+                                        [(hm2->pin[pin].sec_pin & 0x0F) - 1] != 'x') {
                     src_reg |= (1 << port_pin);
                     if (hm2->pin[pin].sec_pin & 0x80){ ddr_reg |= (1 << port_pin); }
                 }
@@ -150,10 +161,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         
         buff=0x4000; //Reset
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-        buff=0x00; //Clear
+        buff=0x0001; //Clear
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-        rtapi_delay(10000000); 
-
+        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,1007) < 0){
+            r = -EINVAL;
+            goto fail0;
+        }
         buff=0x2003; //Read firmware version
         hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
         if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,49) < 0){
@@ -163,66 +176,59 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->llio->read(hm2->llio, inst->data_reg_addr, &buff, sizeof(u32));
         HM2_PRINT("Smart Serial Firmware Version %i\n",buff);
 
-        buff=0x800; //Stop All
-        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,51) < 0){
-            r = -EINVAL;
-            goto fail0;
-        }
-        // start up the card in setup mode so any sub-drivers can read parameters out
-        // we need to set the card mode here too. 
-        buff=0xF00;
-        for (c = 0 ; c < inst->num_channels ; c++){
-            if (hm2->config.sserial_modes[i][c] != 'x'){
-                buff |= 1 << c;
-                // CS addr - write card mode
-                addr = md->base_address + 2 * md->register_stride
-                                + i * md->instance_stride + c * sizeof(u32);
-                buff2 = (hm2->config.sserial_modes[i][c] - '0') << 24;
-                hm2->llio->write(hm2->llio, addr, &buff2, sizeof(u32));
-            }
-        }
-        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-        if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 8000) < 0){
-            r = -EINVAL;
-            goto fail0;
-        }
+        //start up in setup mode
+        if ( hm2_sserial_stopstart(hm2, md, inst, 0xF00) < 0) {goto fail0;}
+        
         inst->tag_8i20 = 0;
         inst->tag_7i64 = 0;
         inst->num_8i20 = 0;
         inst->num_7i64 = 0;
+        inst->num_auto = 0;
+        inst->tag_auto = 0;
         inst->tag_all = 0;
         inst->num_all = 0;
         for (c = 0 ; c < inst->num_channels ; c++) {
+            u32 user1, user2;
             // user1 addr
             addr = md->base_address + 4 * md->register_stride
-            + i * md->instance_stride + c * sizeof(u32);
-            hm2->llio->read(hm2->llio, addr, &buff, sizeof(u32));
-            switch (buff) {
-                case 0x0: // nothing connected, or masked by config
-                    for (pin = 0 ; pin < hm2->num_pins ; pin++){
-                        if (hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIAL
-                            && (hm2->pin[pin].sec_pin & 0x0F) - 1  == c
-                            && hm2->pin[pin].sec_unit == i){
-                            hm2->pin[pin].sec_tag = 0;
+                                    + i * md->instance_stride + c * sizeof(u32);
+            hm2->llio->read(hm2->llio, addr, &user1, sizeof(u32));
+            // user2 addr
+            addr = md->base_address + 5 * md->register_stride
+                                    + i * md->instance_stride + c * sizeof(u32);
+            hm2->llio->read(hm2->llio, addr, &user2, sizeof(u32));
+            if (user2 & 0x0000ffff){// Parameter discovery
+                inst->tag_auto |= (1 << c);
+                inst->tag_all |= (1 << c);
+                inst->num_auto += 1;
+                inst->num_all += 1;
+            } else {
+                switch (user1) {
+                    case 0x0: // nothing connected, or masked by config
+                        for (pin = 0 ; pin < hm2->num_pins ; pin++){
+                            if (hm2->pin[pin].sec_tag == HM2_GTAG_SMARTSERIAL
+                                && (hm2->pin[pin].sec_pin & 0x0F) - 1  == c
+                                && hm2->pin[pin].sec_unit == i){
+                                hm2->pin[pin].sec_tag = 0;
+                            }
                         }
-                    }
-                    break;
-                case HM2_SSERIAL_TYPE_8I20: // 8i20 found   
-                    inst->tag_8i20 |= (1 << c);
-                    inst->tag_all |= (1 << c);
-                    inst->num_8i20 += 1;
-                    inst->num_all += 1;
-                    break;
-                case HM2_SSERIAL_TYPE_7I64: // 7i64 found
-                    inst->tag_7i64 |= (1 << c);
-                    inst->tag_all |= (1 << c);
-                    inst->num_7i64 += 1;
-                    inst->num_all += 1;
-                    break;
-                default:
-                    HM2_ERR("Unsupported Device ID %4s found on sserial %d "
-                            "channel %d\n", (char*)&buff, i, c);
+                        break;
+                    case HM2_SSERIAL_TYPE_8I20: // 8i20 found   
+                        inst->tag_8i20 |= (1 << c);
+                        inst->tag_all |= (1 << c);
+                        inst->num_8i20 += 1;
+                        inst->num_all += 1;
+                        break;
+                    case HM2_SSERIAL_TYPE_7I64: // 7i64 found
+                        inst->tag_7i64 |= (1 << c);
+                        inst->tag_all |= (1 << c);
+                        inst->num_7i64 += 1;
+                        inst->num_all += 1;
+                        break;
+                    default:
+                        HM2_ERR("Unsupported Device %s4.4 found on sserial %d "
+                                "channel %d\n", (char*)&user1, i, c);
+                }
             }
         }
         if (inst->num_all > 0){
@@ -301,16 +307,17 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
     if (hm2->sserial.num_instances > 0){
 
         // create the HAL pins
-
-        hm2_8i20_create(hm2, md);
-        hm2_7i64_create(hm2, md);
-        hm2_sserial_config_create(hm2);
-        hm2_8i20_params(hm2);
-
+        if (hm2_8i20_create(hm2, md) < 0) goto fail0;
+        if (hm2_7i64_create(hm2, md) < 0) goto fail0;
+        if (hm2_auto_create(hm2, md) < 0) goto fail0;
+        if (hm2_sserial_config_create(hm2) < 0) goto fail0;
+        if (hm2_8i20_params(hm2) < 0) goto fail0;
+        
         // Set up TRAM writes
 
         for (i = 0 ; i < hm2->sserial.num_instances ; i++){
             hm2_sserial_instance_t  *inst = &hm2->sserial.instance[i];
+            int err_flag;
             if (inst->num_all > 0 ){
                 // setup read-back in all modes
 
@@ -343,7 +350,24 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
 
                 }
             }
+            // Normal start to check for errors, as soon it will be too late to 
+            // abort the load. 
+            
+            err_flag = 0;
+            if (hm2_sserial_stopstart(hm2, md, inst, 0x900) < 0 ) {goto fail0;}
+            if (hm2_sserial_auto_check(hm2, inst) < 0) {err_flag = -EINVAL;}
+            if (hm2_sserial_8i20_check(hm2, inst) < 0) {err_flag = -EINVAL;}
+            if (hm2_sserial_7i64_check(hm2, inst) < 0) {err_flag = -EINVAL;}
+            if (err_flag) goto fail0;
         }
+    }
+    
+    
+    // Stop the sserial ports.
+    buff=0x800; //Stop All
+    for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
+        hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
+        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
     }
     // Return the physical ports to default
     ddr_reg = 0;
@@ -354,16 +378,12 @@ int hm2_sserial_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->llio->write(hm2->llio, hm2->ioport.alt_source_addr + 4 * port,
                          &src_reg, sizeof(u32));
     }
-    // Stop the sserial ports.
-    buff=0x800; //Stop All
-    for (i = 0 ; i < hm2->sserial.num_instances ; i++) {
-        hm2_sserial_instance_t *inst = &hm2->sserial.instance[i];
-        hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
-    }
     return hm2->sserial.num_instances;
+
 fail0:
+    hm2_sserial_cleanup(hm2);
     hm2->sserial.num_instances = 0;
-    return r;
+    return -EINVAL;
 }
 
 
@@ -379,6 +399,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
 
     hm2_8i20_prepare_tram_write(hm2);
     hm2_7i64_prepare_tram_write(hm2);
+    hm2_auto_prepare_tram_write(hm2);
 
 
     for (i = 0 ; i < hm2->sserial.num_instances ; i++ ) {
@@ -392,7 +413,13 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 if (! *inst->run){ return; }
                 *inst->state = 0x11;
                 inst->timer = 0;
+                //set the modes for the cards
+                hm2_8i20_setmode(hm2, inst);
+                hm2_7i64_setmode(hm2, inst);
+                hm2_sserial_auto_setmode(hm2, inst);
+
                 *inst->command_reg_write = 0x900 | inst->tag_all;
+                HM2_DBG("Tag-All = %x\n", inst->tag_all);
                 *inst->fault_count = 0;
                 doit_err_count = 0;
                 comm_err_flag = 0;
@@ -435,11 +462,14 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     f = (*inst->data_reg_read & (comm_err_flag ^ 0xFF));
                     if (f != 0 && f != 0xFF){
                         comm_err_flag |= (f & -f); //mask LSb
-                        HM2_ERR("Smart Serial data transfer failure on port %i, "
-                                "channel %i. This error is probably caused by "
-                                "a problem with the attached card. This error "
-                                "message will not repeat for this channel.\n",
+                        HM2_ERR("Smart Serial Error: port %i channel %i. " 
+                                "You may see this error if the FPGA card "
+                                """read"" thread is not running. "
+                                "This error message will not repeat.\n",
                                 i, ffs(f) - 1);
+                        hm2_sserial_auto_check(hm2, inst);
+                        hm2_sserial_8i20_check(hm2, inst);
+                        hm2_sserial_7i64_check(hm2, inst);
                     }
                 }
                         
@@ -490,6 +520,7 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
 
     hm2_8i20_process_tram_read(hm2);
     hm2_7i64_process_tram_read(hm2);
+    hm2_auto_process_tram_read(hm2);
     hm2_sserial_process_config(hm2, period);
 
 }
@@ -606,7 +637,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
 
             if (inst->tag_8i20 & (1 << chan)) {
                 for (i = 0
-                     ; i < inst->num_8i20 && (inst->tram_8i20[i].tag != (1 << chan))
+                     ; (i < inst->num_8i20) && (inst->tram_8i20[i].index != chan)
                      ; i++){
                 }
                 if (i >= inst->num_8i20) {
@@ -620,7 +651,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             }
             else if (inst->tag_7i64 & (1 << chan)) {
                 for (i = 0
-                     ; i < inst->num_7i64 && (inst->tram_7i64[i].tag != (1 << chan))
+                     ; (i < inst->num_auto) && (inst->tram_7i64[i].index != chan)
                      ; i++){}
                 if (i >= inst->num_7i64) {
                     HM2_ERR("7i64 on sserial port %i, channel %i not found\n",
@@ -630,6 +661,19 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                     return;
                 }
                 tram = &inst->tram_7i64[i];
+            }
+            else if (inst->tag_auto & (1 << chan)) {
+                for (i = 0
+                     ; (i < inst->num_auto) && (inst->tram_auto[i].index != chan)
+                     ; i++){}
+                if (i >= inst->num_7i64) {
+                    HM2_ERR("auto-config card on sserial port %i, channel %i "
+                            "not found\n", port, chan);
+                    *hm2->sserial.hal->read = 0;
+                    *hm2->sserial.hal->write = 0;
+                    return;
+                }
+                tram = &inst->tram_auto[i];
             }
             /***********************************************************
              // Add other sserial devices here...
@@ -648,7 +692,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             else if (*hm2->sserial.hal->write) {*hm2->sserial.hal->state = 9;}
             else if (*hm2->sserial.hal->read) { *hm2->sserial.hal->state = 5; }
 
-            *inst->command_reg_write = 0xF00 | tram->tag; // start in setup mode
+            *inst->command_reg_write = 0xF00 | (1 << tram->index); // start in setup mode
             timer = 0;
             break;
 
@@ -666,7 +710,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 }
                 break;
             }
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 *hm2->sserial.hal->state = 20;
                 HM2_ERR("Channel-not-ready error in parameter write case 1\n"
                         "Data Reg = %08X\nCS Reg = %08X\n",
@@ -679,7 +723,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             //..memory type
             *tram->reg_0_write = (*hm2->sserial.hal->parameter & 0x00FF0000)>>16;
             //..DoIt command
-            *inst->command_reg_write = 0x1000 | tram->tag;
+            *inst->command_reg_write = 0x1000 | (1 << tram->index);
             timer = 0;
 
             if (*hm2->sserial.hal->write) {*hm2->sserial.hal->state = 9;}
@@ -705,7 +749,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 }
                 break;
             }
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 *hm2->sserial.hal->state = 20;
                 HM2_ERR("Channel-not-ready error waiting to send param read"
                         "command (%x)\n", *inst->data_reg_read);
@@ -715,7 +759,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             buff = 0x45000000 | (*hm2->sserial.hal->parameter & 0x0000FFFF);
             hm2->llio->write(hm2->llio, tram->reg_cs_addr, &buff, sizeof(u32));
             // Do It command (written by tram)
-            *inst->command_reg_write =  0x1000 | tram->tag;
+            *inst->command_reg_write =  0x1000 | (1 << tram->index);
             timer = 0;
             *hm2->sserial.hal->state = 6;
             break;
@@ -734,10 +778,10 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 break;
             }
             *hm2->sserial.hal->state = 20;
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 HM2_ERR("Channel-not-ready error in state 6: %x, %x\n"
                         "errror flags %d\n",
-                        *inst->data_reg_read, tram->tag,
+                        *inst->data_reg_read, (1 << tram->index),
                         (*tram->reg_cs_read & 0x0000FF00) >> 8);
                 //              break;
             }
@@ -756,7 +800,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                     break;
                 }
             }
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 *hm2->sserial.hal->state = 20;
                 HM2_ERR("Channel-not-ready error in parameter write case 9\n"
                         "Data Reg = %08X\nCS Reg = %08X\n",
@@ -768,7 +812,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             buff = 0x65000000 | (*hm2->sserial.hal->parameter & 0x00FFFFFF);
             hm2->llio->write(hm2->llio, tram->reg_cs_addr, &buff, sizeof(u32));
             // Do It command
-            *inst->command_reg_write = 0x1000 | tram->tag;
+            *inst->command_reg_write = 0x1000 | (1 << tram->index);
             timer = 0;
             *hm2->sserial.hal->state = 10;
             break;
@@ -785,7 +829,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 break;
             }
             *hm2->sserial.hal->state = 20;
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 HM2_ERR("Channel-not-ready error in parameter write case 10\n"
                         "Data Reg = %08X\nCS Reg = %08X\n",
                         *inst->data_reg_read, *tram->reg_cs_read);
@@ -806,7 +850,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
             buff = (*hm2->sserial.hal->parameter & 0xFF000000); //flag
             hm2->llio->write(hm2->llio, tram->reg_cs_addr, &buff, sizeof(u32));
             *tram->reg_0_write = 0; //clear type flag
-            *inst->command_reg_write = 0x1000 |  tram->tag; // DoIt command
+            *inst->command_reg_write = 0x1000 |  (1 << tram->index); // DoIt command
             timer = 0;
             *hm2->sserial.hal->state = 21;
             break;
@@ -823,7 +867,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 }
                 break;
             }
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 HM2_ERR("Channel-not-ready error in parameter write case 21\n"
                         "Data Reg = %08X\nCS Reg = %08X\n",
                         *inst->data_reg_read, *tram->reg_cs_read);
@@ -843,7 +887,7 @@ void hm2_sserial_process_config(hostmot2_t *hm2, long period){
                 break;
             }
             *hm2->sserial.hal->state = 0;
-            if (*inst->data_reg_read & tram->tag){
+            if (*inst->data_reg_read & (1 << tram->index)){
                 HM2_ERR("Channel-not-ready error in parameter write case 22\n"
                         "Data Reg = %08X\nCS Reg = %08X\n",
                         *inst->data_reg_read, *tram->reg_cs_read);
@@ -882,7 +926,7 @@ u32 hm2_sserial_get_param(hostmot2_t *hm2, hm2_sserial_tram_t *chan, int param){
 
     data = 0x45000000 | param;
     hm2->llio->write(hm2->llio, chan->reg_cs_addr, &data, sizeof(u32));
-    data = 0x1000 | chan->tag;
+    data = 0x1000 | (1 << chan->index);
     hm2->llio->write(hm2->llio, chan->reg_command_addr, &data, sizeof(u32));
 
     if (0 > hm2_sserial_waitfor(hm2, chan->reg_command_addr, 0xFFFFFFFF, 20)){
@@ -897,6 +941,109 @@ u32 hm2_sserial_get_param(hostmot2_t *hm2, hm2_sserial_tram_t *chan, int param){
     return data;
 fail0:
     return -EINVAL;
+}
+
+int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_tram_t *chan, void *buffer, int addr, int size ){
+    // Gets the bytes one at a time. This could be done more efficiently. 
+    char *ptr;
+    if (0 > hm2_sserial_waitfor(hm2, chan->reg_cs_addr, 0x0000FF00, 20)){
+        goto fail0;
+    }
+    ptr = (char*)buffer;
+    while(0 != size){ // -1 in size means "find null" for strings.
+        
+        u32 data = 0x4C000000 | addr++;
+        hm2->llio->write(hm2->llio, chan->reg_cs_addr, &data, sizeof(u32));
+        
+        if (0 > hm2_sserial_waitfor(hm2, chan->reg_cs_addr, 0x0000FF00, 20)){
+            goto fail0;
+        }
+        data = 0x1000 | (1 << chan->index);
+        hm2->llio->write(hm2->llio, chan->reg_command_addr, &data, sizeof(u32));
+        
+        if (0 > hm2_sserial_waitfor(hm2, chan->reg_command_addr, 0xFFFFFFFF, 20)){
+            goto fail0;
+        }
+        
+        hm2->llio->read(hm2->llio, chan->reg_0_addr, &data, sizeof(u32));
+        data &= 0x000000FF;
+        size--;
+        if (size < 0) { // string data
+            if (data == 0 || size < (-HM2_SSERIAL_MAX_STRING_LENGTH)){
+                size = 0; 
+            } else {
+                data |= 0x20; // lower case
+            }
+        }
+        *(ptr++) = (unsigned char)data;
+    }
+    return addr;
+        
+fail0:
+    HM2_ERR("Error trying to read config data in sserial_get_bytes\n");
+    return -EINVAL;
+}
+
+int hm2_sserial_stopstart(hostmot2_t *hm2, hm2_module_descriptor_t *md, 
+                          hm2_sserial_instance_t *inst, u32 start_mode){
+    u32 buff, addr;
+    int i = inst->module_index;
+    int c;
+    
+    buff=0x800; //Stop All
+    hm2->llio->write(hm2->llio, inst->command_reg_addr, &buff, sizeof(u32));
+    if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF,51) < 0){
+        return -EINVAL;
+    }
+    
+    for (c = 0 ; c < inst->num_channels ; c++){
+        if (hm2->config.sserial_modes[i][c] != 'x'){
+            start_mode |= 1 << c;
+            HM2_DBG("Start-mode = %x\n", start_mode);
+            // CS addr - write card mode
+            addr = md->base_address + 2 * md->register_stride
+            + i * md->instance_stride + c * sizeof(u32);
+            buff = (hm2->config.sserial_modes[i][c] - '0') << 24;
+            hm2->llio->write(hm2->llio, addr, &buff, sizeof(u32));
+        }
+    }
+    hm2->llio->write(hm2->llio, inst->command_reg_addr, &start_mode, sizeof(u32));
+    if (hm2_sserial_waitfor(hm2, inst->command_reg_addr, 0xFFFFFFFF, 8000) < 0){
+        return -EINVAL;
+    }
+    return 0;
+}
+
+int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_tram_t *tram){
+    u32 buff;
+    int i;
+    int err_flag = 0;
+    u32 err_mask = 0xF300E1FF;
+    const char *err_list[32] = {"CRC error", "Invalid cookie", "Overrun",
+        "Timeout", "Extra character", "Serial Break Error", "Remote Fault", 
+        "Too many errors", 
+        
+        "Remote fault", "unused", "unused", "unused", "unused", 
+        "Communication error", "No Remote ID", "Communication Not Ready",
+        
+        "unused","unused","unused","unused","unused","unused","unused","unused",
+        
+        "Watchdog Fault", "No Enable", "Over Temperature", "Over Current", 
+        "Over Voltage", "Under Voltage", "Illegal Remote Mode", "LBPCOM Fault"};
+    
+    hm2->llio->read(hm2->llio, tram->reg_data_addr, &buff, sizeof(u32));
+    if (0 == (buff & (1 << tram->index))) {return 0;}
+    
+    hm2->llio->read(hm2->llio, tram->reg_cs_addr, &buff, sizeof(u32));
+    buff &= err_mask;
+    for (i = 31 ; i > 0 ; i--){
+        if (buff & (1 << i)) {
+            HM2_ERR("Smart serial card %s error = (%i) %s\n", 
+                    tram->name, i, err_list[i]);
+            err_flag = -EINVAL;
+        }
+    }
+    return err_flag;
 }
 
 int hm2_sserial_waitfor(hostmot2_t *hm2, u32 addr, u32 mask, int ms){
@@ -944,10 +1091,13 @@ void hm2_sserial_cleanup(hostmot2_t *hm2){
                          &buff,
                          sizeof(u32));
         if (hm2->sserial.instance[i].tram_8i20 != NULL){
-            kfree(hm2->sserial.instance[i].tram_8i20);
+            hm2_sserial_8i20_cleanup(hm2);
         }
         if (hm2->sserial.instance[i].tram_7i64 != NULL){
-            kfree(hm2->sserial.instance[i].tram_7i64);
+            hm2_sserial_7i64_cleanup(hm2);
+        }
+        if (hm2->sserial.instance[i].tram_auto != NULL){
+            hm2_sserial_auto_cleanup(hm2);
         }
     }
 }

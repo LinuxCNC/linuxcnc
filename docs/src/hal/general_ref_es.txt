@@ -155,7 +155,7 @@ stg.0.din.03.in::
     board.
 
 ppmc.0.pwm.00-03.frequency::
-     -- the carrier frequency used for PWM channels 0 through 3.
+     -- the carrier frequency used for PWM channels 0 through 3 on the first Pico Systems ppmc board.
 
 === Function Names
 
@@ -194,15 +194,15 @@ read|write::
 ==== Examples
 
 motenc.0.encoder.read::
-     -- reads all encoders on the first motenc board
+     -- reads all encoders on the first motenc board.
 
 generic8255.0.din.09-15.read::
       -- reads the second 8 bit port on the first generic 8255 based
-    digital I/O board
+    digital I/O board.
 
 ppmc.0.write::
       -- writes all outputs (step generators, pwm, DACs, and digital) on
-    the first ppmc board
+    the first Pico Systems ppmc board.
 
 = Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
 

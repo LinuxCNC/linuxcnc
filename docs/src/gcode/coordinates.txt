@@ -1,4 +1,6 @@
-= Coordinate System (((Coordinate System)))[[cha:Coordinate-System]]
+= Coordinate System[[cha:Coordinate-System]]
+
+(((Coordinate System)))
 
 == Introduction
 
@@ -149,7 +151,9 @@ G10 L2  P(fixture 1-9) - Set offset(s) to a value. Current position irrelevant.
 G10 L20 P(fixture 1-9) - Set offset(s) so current position becomes a value. 
                          (see <<sec:G10-L20>> for details)(((G10 L20)))
 
-== G92 Offsets[[sec:G92-Offsets]](((G92)))
+== G92 Offsets[[sec:G92-Offsets]]
+
+(((G92)))
 
 The way that it works has changed just a bit from the early days to
 the current releases. It should be thought of as a temporary offset

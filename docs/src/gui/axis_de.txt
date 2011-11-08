@@ -410,7 +410,8 @@ but one step of your stepper motor or one encoder count is 0.00125,
 then the "Commanded" position might be 0.0033, 
 but the "Actual" position will be 0.0025 (2 steps) or 0.00375 (3 steps).
 
-==== Preview Plot(((preview plot)))
+==== Preview Plot
+(((preview plot)))
 
 When a file is loaded, 
 a preview of it is shown in the display area.
@@ -428,7 +429,8 @@ preview until after the first feed move.
 To turn either of these features off
 program a G1 without any moves prior to the G0 moves.
 
-==== Program Extents(((program extents)))
+==== Program Extents
+(((program extents)))
 
 The "extents" of the program in each axis are shown. 
 At the ends, the least and greatest coordinate values are indicated. 
@@ -505,7 +507,8 @@ the text display will automatically scroll to show the current line.
 
 image::images/axis-currentandselected.png[]
 
-=== Manual Control(((Manual)))
+=== Manual Control
+(((Manual)))
 
 While the machine is turned on but not running a program, 
 the items in the "Manual Control" tab can be used to 
@@ -595,7 +598,8 @@ EMC will allow the jog only in the correct direction.  _Override Limits will
 not allow a jog past a soft limit.  The only way to disable a soft limit 
 on an axis is to Unhome it._
 
-==== The "Spindle" group (((spindle)))
+==== The "Spindle" group
+(((AxisUI, spindle)))
 
 The buttons on the first row select the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. Counterclockwise will
@@ -607,15 +611,17 @@ engaged or released. Depending on your machine configuration, not all
 the items in this group may appear. Pressing the spindle start button
 sets the "S" speed to 1.
 
-==== The "Coolant" group (((coolant)))
+==== The "Coolant" group
+(((AxisUI, coolant)))
 
 The two buttons allow the "Mist" and "Flood" coolants to be turned on
 and off. Depending on your machine configuration, not all the items in
 this group may appear.
 
 === MDI
+(((AxisUI, MDI)))
 
-MDI(((MDI))) allows G-code commands to be entered manually.
+MDI allows G-code commands to be entered manually.
 When the machine is not turned on, or when a program is
 running, the MDI controls are unavailable.
 
@@ -636,20 +642,23 @@ Active G-Codes:::
     coordinates that are entered. When in Auto the Active G-Codes represent
     the codes after any read ahead by the interpreter.
 
-=== Feed Override (((feed override)))
+=== Feed Override
+(((AxisUI, feed override)))
 
 By moving this slider, the programmed feed rate can be modified. For
 instance, if a program requests `F60` and the slider is set to 120%,
 then the resulting feed rate will be 72.
 
-=== Spindle Speed Override (((spindle speed override)))
+=== Spindle Speed Override
+(((AxisUI, spindle speed override)))
 
 By moving this slider, the programmed spindle speed can be
 modified. For instance, if a program requests S8000 and the slider is
 set to 80%, then the resulting spindle speed will be 6400. This item
 only appears when the HAL pin `motion.spindle-speed-out` is connected.
 
-=== Jog Speed (((jog speed))) 
+=== Jog Speed
+(((AxisUI, jog speed))) 
 
 By moving this slider, the speed of jogs can be modified. For
 instance, if the slider is set to 1 in/min, then a .01 inch jog will
@@ -661,13 +670,15 @@ wide range of jog speeds with fine control when it is most important.
 On machines with a rotary axis, a second jog speed slider is shown.
 This slider sets the jog rate for the rotary axes (A, B and C).
 
-=== Max Velocity (((Max Velocity)))
+=== Max Velocity
+(((AxisUI, Max Velocity)))
 
 By moving this slider, the maximum velocity can be set. This caps the
 maximum velocity for all programmed moves except spindle-synchronized
 moves.
 
 == Keyboard Controls
+(((AxisUI, keyboard shortcuts)))
 
 Almost all actions in AXIS can be accomplished with the keyboard. A
 full list of keyboard shortcuts can be found in the AXIS Quick
@@ -764,7 +775,9 @@ commands to a running AXIS. The available commands are shown by running
 (`--ping`), loading a file by name, reloading the currently loaded
 file (`--reload`), and making AXIS exit (`--quit`).
 
-== Manual Tool Change[[sec:Manual-Tool-Change]](((Manual Tool Change)))
+[[sec:Manual-Tool-Change]]
+== Manual Tool Change
+(((Manual Tool Change)))
 
 EMC2 includes a userspace HAL component called "hal_manualtoolchange",
 which shows a window (Figure <<cap:The-Manual-Toolchange>>) when a
@@ -809,6 +822,7 @@ running "in-place", this can be done by using
 `scripts/emc-environment`.
 
 == Using AXIS in Lathe Mode
+(((AXIS in lathe mode)))
 
 By including the line
 
@@ -923,7 +937,8 @@ After AXIS has created these HAL pins, it executes the HAL file named
 in `[HAL]POSTGUI_HALFILE`. Unlike `[HAL]HALFILE`, only one such file
 may be used.
 
-=== axisrc (((.axisrc)))
+=== ~/.axisrc
+(((.axisrc)))
 
 If it exists, the contents of `~/.axisrc`  are executed as Python
 source code just before the AXIS GUI is
@@ -935,7 +950,8 @@ The following adds Control-Q as a keyboard shortcut for Quit.
     root_window.bind("<Control-q>", "destroy .")
     help2.append(("Control-Q", "Quit"))
 
-=== External Editor (((External Editor)))
+=== External Editor
+(((External Editor)))
 
 The menu options File > Edit... and File > Edit Tool Table... become
 available after defining the editor in the ini section [DISPLAY].
@@ -943,13 +959,15 @@ Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
 For more information, see the DISPLAY section of the INI Configuration
 Chapter in the Integrator Manual.
 
-=== Virtual Control Panel (((Virtual Control Panel)))
+=== Virtual Control Panel
+(((Virtual Control Panel)))
 
 AXIS can display a custom virtual control panel in the right-hand
 pane. You can program buttons, indicators, data displays and more. For
 more information, see the Integrator Manual.
 
-=== Special Comments (((Special Comments)))
+=== Special Comments
+(((Special Comments)))
 
 Special comments can be inserted into the G Code file to control how
 the preview of AXIS behaves. In the case where you want to limit the

@@ -418,7 +418,9 @@ If a `.comp` file is a driver for hardware, it may be placed in
 `emc2/src/hal/components` and will be built unless EMC2 is 
 configured as a userspace simulator.
 
-== Compiling realtime components outside the source tree[[sec:Compiling-realtime-components]]
+[[sec:Compiling-realtime-components]]
+== Compiling realtime components outside the source tree
+(((Compiling realtime components outside the source tree)))
 
 `comp` can process, compile, and install a realtime component 
 in a single step, placing `rtexample.ko` in the EMC2 realtime 

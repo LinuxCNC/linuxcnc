@@ -183,8 +183,8 @@ Type::
  - s32 - a 32 bit signed integer, legal values are -2,147,483,647 to
    +2,147,483,647
 
-Function::
-     [[des:Function]](((HAL Function)))Real hardware components tend to
+Function::[[des:Function]](((HAL Function)))
+    Real hardware components tend to
     act immediately on their inputs. For example, if the input voltage to a
     servo amp changes, the output also changes automatically. However
     software components cannot act "automatically". Each component has
@@ -200,8 +200,8 @@ Function::
     "threads" to schedule a series of functions to be executed in a
     particular order and at specific time intervals.
 
-Thread::
-     [[des:Thread]](((HAL Thread)))A "thread" is a list of functions that
+Thread::[[des:Thread]](((HAL Thread)))
+    A "thread" is a list of functions that
     runs at specific intervals as part of a realtime task. When a thread is
     first created, it has a specific time interval (period), but no
     functions. Functions can be added to the thread, and will be executed

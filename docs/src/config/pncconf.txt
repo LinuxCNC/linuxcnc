@@ -1,12 +1,15 @@
-= Point n Click Configuration Wizard (PNCconf) [[cha:PNCconf-Wizard]]
+= Point n Click Configuration Wizard Mesa PNCconf[[cha:PNCconf-Wizard]]
+
+(((Point n Click Configuration Wizard)))
 (((PNCconf Wizard)))
+(((Mesa Configuration Wizard)))
 
 PNCconf is made to help build configurations that utilize specific Mesa 
 'Anything I/O' products. 
 
 It can configure closed loop servo systems or hardware stepper systems. +
-It uses a similar 'wizard' approach as Stepconf ( used for software stepping, 
-parallel port driven systems ).
+It uses a similar 'wizard' approach as Stepconf (used for software stepping, 
+parallel port driven systems).
 
 PNCconf is still in a development stage (Beta) so there are some bugs and
  lacking features. +

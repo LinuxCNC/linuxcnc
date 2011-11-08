@@ -1,5 +1,6 @@
 = Les bases de HAL
 
+[[sec:Commandes-de-Hal]]
 == Commandes de Hal
 
 Des informations plus détaillées peuvent être trouvées dans la man
@@ -115,7 +116,9 @@ avec les lecteurs des lignes suivantes:
 
 Les pins appelées I/O pins comme «index-enable», ne suivent pas cette règle. 
 
+[[sub:setp]]
 === setp
+(((setp)))
 
 La commande `setp` ajuste la valeur d'une pin ou d'un paramètre. Les
 valeurs valides dépendront du type de la pin ou du paramètre.
@@ -196,9 +199,42 @@ Syntaxe et exemple:
 
 +newsig Xstep bit+ 
 
-
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de <<halrun>>.
+
+[[sec:Hal-Data]]
+== HAL Data
+
+=== Bit (((Bit)))
+
+A bit value is an on or off.
+
+ - bit values = true or 1 and false or 0 (True, TRUE, true are all valid)
+
+=== Float (((Float)))
+
+A "float" is a floating point number. In other words the decimal point
+can move as needed.
+
+ - float values = a 32 bit floating point value, with approximately 24
+   bits of resolution and over 200 bits of dynamic range.
+
+For more information on floating point numbers see:
+
+http://en.wikipedia.org/wiki/Floating_point[http://en.wikipedia.org/wiki/Floating_point]
+
+=== s32 (((s32)))
+
+An "s32" number is a whole number that can have a negative or positive
+value.
+
+ - s32 values = integer numbers -2147483648 to 2147483647
+
+=== u32 (((u32)))
+
+A "u32" number is a whole number that is positive only.
+
+ - u32 values = integer numbers 0 to 4294967295
 
 == Fichiers Hal
 

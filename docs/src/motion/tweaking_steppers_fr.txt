@@ -1,4 +1,6 @@
-= Réglages des pas à pas
+= Réglages des pas à pas[[cha:Reglages-de-pas-a-pas]]
+
+(((Réglages des pas à pas)))
 
 == Obtenir le meilleur pilotage logiciel possible
 

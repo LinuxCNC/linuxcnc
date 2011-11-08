@@ -1,6 +1,8 @@
 = Parallel Port
 
-== Parport[[sec:Parport]](((parallel port)))
+[[sec:Parport]]
+== Parport
+(((parallel port)))
 
 Parport is a driver for the traditional PC parallel port. The port has
 a total of 17 physical pins. The original parallel port divided those
@@ -206,7 +208,8 @@ For example:
     setp stepgen.0.steplen 1 
     setp stepgen.0.stepspace 0 
 
-== [[sec:probe_parport]]probe_parport
+[[sec:probe_parport]]
+== probe_parport
 
 In modern PCs, the parallel port may require plug and play (PNP)
 configuration before it can be used. The `probe_parport`  module

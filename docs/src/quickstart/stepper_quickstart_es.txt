@@ -14,13 +14,17 @@ which could cause missed steps when running a CNC machine. This is the
 first thing you need to do. Follow the instructions in section 
 (<<sec:Latency-Test>>) to run the latency test.
 
-== Sherline [[sec:Sherline]](((Sherline)))
+[[sec:Sherline]]
+== Sherline
+(((Sherline)))
 
 If you have a Sherline several predefined configurations are provided.
 This is on the main menu CNC/EMC then pick the Sherline configuration
 that matches yours and save a copy.
 
-== Xylotex [[sec:Xylotex]](((Xylotex)))
+[[sec:Xylotex]]
+== Xylotex
+(((Xylotex)))
 
 If you have a Xylotex you can skip the following sections and go
 straight to the Stepper Config Wizard in Section(<<cha:Stepconf-Wizard>>). 

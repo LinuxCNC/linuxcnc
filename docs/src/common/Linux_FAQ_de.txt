@@ -26,7 +26,9 @@ Example:
 
     emc /home/mill/emc2/config/mill/mill.ini
 
-== Man Pages (((Man Pages)))[[sec:Man-Pages]]
+== Man Pages[[sec:Man-Pages]]
+
+(((Man Pages)))
 
 Man pages are automatically generated manual pages in most cases. Man
 pages are usually available for most programs and commands in Linux.
@@ -56,7 +58,9 @@ The resulting text file will be located in the home directory if you
 did not change directories when you opened up the terminal window and
 it will be named mymod.txt or what ever you named it.
 
-== Editing a Root File (((Editing a Root File)))[[sec:Editing-a-Root-File]]
+== Editing a Root File[[sec:Editing-a-Root-File]]
+
+(((Editing a Root File)))
 
 When you open the file browser and you see the Owner of the file is
 root you must do extra steps to edit that file. Editing some root files
@@ -64,7 +68,9 @@ can have bad results. Be careful when editing root files. Generally, you
 can open and view most root files, but they will open in “read only”
 mode.
 
-=== The Command Line Way (((sudo gedit)))
+=== The Command Line Way
+
+(((sudo gedit)))
 
 Open up Applications, Accessories, Terminal.
 
@@ -74,7 +80,9 @@ In the terminal window type
 
 Open the file with File, Open then edit
 
-=== The GUI Way (((gksudo)))
+=== The GUI Way
+
+(((gksudo)))
 
  . Right click on the desktop and select Create Launcher
  . Type a name in like sudo edit
@@ -88,16 +96,22 @@ In Ubuntu you can become root by typing in "sudo -i" in a terminal
 window then typing in your password. Be careful, because you can really 
 foul things up as root if you don't know what you're doing. 
 
-== Terminal Commands (((Terminal Commands)))[[sec:Terminal-Commands]]
+== Terminal Commands[[sec:Terminal-Commands]]
 
-=== Working Directory (((Working Directory)))(((pwd)))
+(((Terminal Commands)))
+
+=== Working Directory
+
+(((Working Directory)))(((pwd)))
 
 To find out the path to the present working directory in the terminal
 window type:
 
     pwd
 
-=== Changing Directories (((Changing Directories)))(((cd)))
+=== Changing Directories
+
+(((Changing Directories)))(((cd)))
 
 To move up one level in the terminal window type:
 
@@ -112,7 +126,9 @@ type:
 
     cd emc2/configs
 
-=== Listing files in a directory (((Listing files in a directory)))(((dir)))(((ls)))
+=== Listing files in a directory
+
+(((Listing files in a directory)))(((dir)))(((ls)))
 
 To view a list of all the files and subdirectories in the terminal window type: 
 
@@ -122,7 +138,9 @@ or
 
     ls
 
-=== Finding a File (((Finding a File)))(((find)))
+=== Finding a File
+
+(((Finding a File)))(((find)))
 
 The find command can be a bit confusing to a new Linux user. The basic
 syntax is:
@@ -153,7 +171,9 @@ this:
 
     find -L /home/joe/emc2 -name *.ini -print
 
-=== Searching for Text (((Searching for Text)))(((grep)))
+=== Searching for Text
+
+(((Searching for Text)))(((grep)))
 
     grep -i -r 'text to search for' * 
 

@@ -169,7 +169,7 @@ stg.0.din.03.in::
     Servo-to-Go.
 
 ppmc.0.pwm.00-03.frequency::
-     -- la fréquence porteuse utilisée sur les canaux PWM de 0 à 3.
+     -- la fréquence porteuse utilisée sur les canaux PWM de 0 à 3 sur la première carte Pico Systems ppmc.
 
 === Noms des fonctions
 
@@ -221,7 +221,7 @@ generic8255.0.din.09-15.read::
 
 ppmc.0.write::
       -- écrit toutes les sorties (générateur de pas, pwm, DAC et ADC) sur
-    la première carte ppmc.
+    la première carte Pico Systems ppmc.
 
 = Périphériques d'interfaces canoniques[[cha:Priphriques-canoniques]]
 
