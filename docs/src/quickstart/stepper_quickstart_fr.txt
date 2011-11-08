@@ -121,15 +121,6 @@ D'après les informations ci-dessus:
  - Le moteur fera 2000 micropas par tour de vis. 
  - Le pilote demande 10 micropas pour faire un pas. 
  - Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un tour. 
-Ainsi l'échelle requise est la suivante:
-
-latexmath:[
-\frac{200 pas moteur}{1 tour moteur} \times
-\frac{10 micropas}{1 pas moteur} \times
-\frac{2 tours moteur}{1 tour de vis} \times
-\frac{1 tour de vis}{0,2000 pouce}
-= \frac{20000 micropas}{pouce}
-]
 
 Encore un autre exemple, en millimètres cette fois:
 
@@ -147,16 +138,6 @@ D'après les informations ci-dessus:
  - Le pilote utilisera 8 micropas pour faire un pas.
  - Le pilote aura besoin de 1600 impulsions pour un tour moteur
    et donc de 4800 pour 1 tour de vis.
-
-Ainsi l'échelle requise est la suivante:
-
-latexmath:[
-\frac{200 Pas par tour}{1 tour moteur} \times
-\frac{8 micropas}{1 pas moteur} \times
-\frac{3 tours moteur}{1 tour de vis} \times
-\frac{1 tour de vis}{5,00 mm}
-= \frac{960 micropas}{mm}
-]
 
 == Assistant de configuration graphique
 
