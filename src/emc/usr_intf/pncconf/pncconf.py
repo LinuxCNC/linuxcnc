@@ -149,8 +149,7 @@ drivertypes = [
 
 ( GPIOI, GPIOO, GPIOD,NUSED ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"), _("NOT USED") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
-(  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
-    _("Mux Enc Select") ]
+(  MXE0, MXE1, MXEU, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder 0"),_("Muxed Encoder 1"),_("muxed enc"),_("mux enc mask"),_("mux select") ]
 ( STEPA, STEPB, STEPC, STEPD, STEPE, STEPF ) = pintype_stepper = [_("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
     _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
 ( PWMP, PWMD, PWME ) = pintype_pwm = [ _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E") ]
@@ -510,7 +509,8 @@ SPINDLE_ENCODER_A, SPINDLE_ENCODER_B, SPINDLE_ENCODER_I, SPINDLE_ENCODER_M,
 X_MPG_A, X_MPG_B, X_MPG_I, X_MPG_M, Y_MPG_A, Y_MPG_B, Y_MPG_I, Y_MPG_M,
 Z_MPG_A, Z_MPG_B, Z_MPG_I, Z_MPG_M, A_MPG_A, A_MPG_B, A_MPG_I,A_MPG_M,
 SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M,
-FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal_encoder_input_names = [ "unused-encoder",
+FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,
+MVO_MPG_A,MVO_MPG_B,MVO_MPG_I,MVO_MPG_I,)  = hal_encoder_input_names = [ "unused-encoder",
 "x-encoder-a", "x-encoder-b", "x-encoder-i", "x-encoder-m",
 "y-encoder-a", "y-encoder-b", "y-encoder-i", "y-encoder-m",
 "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m", 
@@ -519,7 +519,8 @@ FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal
 "x-mpg-a","x-mpg-b", "x-mpg-i", "x-mpg-m", "y-mpg-a", "y-mpg-b", "y-mpg-i", "y-mpg-m",
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m",
-"fo-mpg-a","fo-mpg-b","fo-mpg-i","fo-mpg-m","so-mpg-a","so-mpg-b","so-mpg-i","so-mpg-m"]
+"fo-mpg-a","fo-mpg-b","fo-mpg-i","fo-mpg-m","so-mpg-a","so-mpg-b","so-mpg-i","so-mpg-m",
+"mvo-mpg-a","mvo-mpg-b","mvo-mpg-i","mvo-mpg-m"]
 
 axis = [_("X Encoder"),_("Y Encoder"), _("Z Encoder"),_("A Encoder"),_("Spindle Encoder")]
 mpg = [_("X Hand Wheel"), _("Y Hand Wheel"), _("Z Hand Wheel"), _("A Hand Wheel") ,_("Multi Hand Wheel")]
@@ -1922,7 +1923,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
             # for encoder pins
-            elif t in (ENCA,MXEA):
+            elif t in (ENCA,MXE0,MXE1):
                 if not p == "unused-encoder":
                     for sig in (self.halencoderinputsignames):
                        if p == sig+"-a":
@@ -2301,7 +2302,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg or self.externalfo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
+        if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
             self.mux16names=""
             for i in range(0,self.userneededmux16):
                 self.mux16names = self.mux16names+"%d,"% (i)
@@ -3261,7 +3262,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
         if test == "None": return None
         elif 'mesa' in test:
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder",
-                MXEA:"encoder", MXEB:"encoder", MXEI:"encoder", MXEM:"encoder", MXES:"encoder",
+                MXE0:"encoder", MXE1:"encoder",
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",
                 UDMU:"pwmgen",UDMD:"pwmgen", UDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
@@ -3293,7 +3294,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     else:comptype = "digout"
                     if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXE0,MXE1,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
                     return "hm2_%s.%d.%s/%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (compnum)          
             else:
@@ -3318,9 +3319,13 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     comptype = "gpio"
                     compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
                     STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
-                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)          
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
+                elif ptype in (MXE0,MXE1):
+                    num = 0
+                    if ptype == MXE1: num = 1
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% ((compnum * 2 + num))
 
         elif 'pp' in test:
             #print test
@@ -4037,7 +4042,7 @@ Ok to reset data and start a new configuration?"),False):
             temppinlist = []
             tempconlist = []
             pinconvertenc = {"Phase A (in)":ENCA,"Phase B (in)":ENCB,"Index (in)":ENCI,"IndexMask (in)":ENCM,
-                "Muxed Phase A (in)":MXEA,"Muxed Phase B (in)":MXEB,"Muxed Index (in)":MXEI,"Muxed Index Mask (in)":MXEM,"Muxed Encoder Select 0 (out)":MXES}
+                "Muxed Phase A (in)":MXE0,"Muxed Phase B (in)":MXE1,"Muxed Index (in)":MXEU,"Muxed Index Mask (in)":MXEM,"Muxed Encoder Select 0 (out)":MXES}
             pinconvertstep = {"Step (out)":STEPA,"Dir (out)":STEPB}
                 #"StepTable 2 (out)":STEPC,"StepTable 3 (out)":STEPD,"StepTable 4 (out)":STEPE,"StepTable 5 (out)":STEPF
             pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
@@ -4069,10 +4074,7 @@ Ok to reset data and start a new configuration?"),False):
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 else:
                     temppinunit.append(convertedname)
-                    if modulename == "MuxedQCount":
-                        temppinunit.append(int(pins[i].find("secondaryinstance").text)*2)
-                    else:
-                        temppinunit.append(int(pins[i].find("secondaryinstance").text))
+                    temppinunit.append(int(pins[i].find("secondaryinstance").text))
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = pins[i].find("secondaryfunctionname").text
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
@@ -4736,7 +4738,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     ptypetree = self.data._encoderliststore
                     signaltocheck = hal_encoder_input_names
                 #type mux encoder
-                elif pintype in (MXEA, MXEB, MXEI, MXEM, MXES):
+                elif pintype in (MXE0, MXE1, MXEU, MXEM, MXES):
                     signaltree = self.data._muxencodersignaltree
                     ptypetree = self.data._muxencoderliststore
                     signaltocheck = hal_encoder_input_names
@@ -4805,7 +4807,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
-                if pintype in (GPIOI,GPIOO,GPIOD) or (index == 0):index2 = 0
+                if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1) or (index == 0):index2 = 0
                 #if not "serial" in p:
                 #    print signaltocheck[index+index2],index,index2
                 self.data[p] = signaltocheck[index+index2]
@@ -5265,10 +5267,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         # sserial 7i64 I/O can not
                         firmptype = GPIOI
                         compnum = 0
+
                 # --- mux encoder ---
-                elif firmptype in (MXEA,MXEB,MXEI,MXEM):
-                    #print "**** INFO: MUX ENCODER:",firmptype
-                    if numofencoders >= (compnum+1):
+                elif firmptype in (MXE0,MXE1,MXEU,MXEM,MXES):
+                    #print "**** INFO: MUX ENCODER:",firmptype,compnum,numofencoders
+                    if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum +1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         self.widgets[pinv].set_sensitive(0)
@@ -5278,34 +5281,24 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
-                        if firmptype == MXEA:
-                            self.widgets[complabel].set_text("%d:"%compnum)
+                        if firmptype in(MXE0,MXE1):
+                            temp = 0
+                            if firmptype == MXE1: temp = 1
+                            self.widgets[complabel].set_text("%d:"%(compnum *2 + temp))
                             self.widgets[p].set_sensitive(1)
+                            self.widgets[ptype].show()
+                            self.widgets[p].show()
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
+                            self.widgets[ptype].hide()
+                            self.widgets[p].hide()
                     else:
                         firmptype = GPIOI
                         compnum = 0
-                # special case mux select
-                elif firmptype == (MXES):
-                    #print "mux select",numofencoders, compnum
-                    if numofencoders > 0 and numofencoders > compnum:
-                        self.widgets[complabel].set_text("")
-                        self.widgets[pinv].set_sensitive(0)
-                        self.widgets[pinv].set_active(0)
-                        pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
-                        ptmodel = self.widgets[ptype].set_model(self.data._muxencoderliststore)
-                        self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
-                        self.widgets[ptype].set_sensitive(0)
-                        self.widgets[p].set_active(0)
-                        self.widgets[p].set_sensitive(0)
-                    else:
-                        firmptype = GPIOI
-                        compnum = 0
+
                 # ---SETUP GUI FOR PWM FAMILY COMPONENT---
                 # the user has a choice of pulse width or pulse density modulation
-
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     if numofpwmgens >= (compnum+1):
                         self.widgets[pinv].set_sensitive(0)
@@ -5431,6 +5424,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     else:
                         self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
+                        self.widgets[ptype].show()
+                        self.widgets[p].show()
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
                         self.widgets[ptype].set_sensitive(not compnum == 100) # compnum = 100 means GPIO cannot be changed by user
@@ -5479,7 +5474,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 #print "**** INFO set-data-options DATA:",p,datap,dataptype
                 #print "**** INFO set-data-options WIDGET:",p,widgetp,widgetptype
                 if dataptype in (ENCB,ENCI,ENCM,
-                                    MXEB,MXEI,MXEM,MXES,
+                                    MXEU,MXEM,MXES,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
                                     PDMD,PDME,PWMD,PWME,UDMD,UDME,
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF
@@ -5530,8 +5525,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         treeiter = tree.get_iter(temp)
                         self.widgets[p].set_active_iter(treeiter)
 
-                # type encoder
-                elif dataptype == ENCA and widgetptype == ENCA or dataptype == MXEA and widgetptype == MXEA:
+                # type encoder / mux encoder
+                elif dataptype == ENCA and widgetptype == ENCA or dataptype in(MXE0,MXE1) and widgetptype in(MXE0,MXE1):
                     try:
                         signalindex = hal_encoder_input_names.index(datap)
                     except:
@@ -5604,7 +5599,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     #print "temp",temp
                     treeiter = self.data._pwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
-
+ 
                 # type tp 3 pwm
                 elif dataptype == TPPWMA and widgetptype == TPPWMA:
                     #print "3 pwm"
@@ -5808,7 +5803,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     #print "*** INFO ",boardtype,"-pin-changed: no iter and not custom"
                     return
                 if widgetptype in (ENCB,ENCI,ENCM,
-                                    MXEB,MXEI,MXEM,MXES,
+                                    MXEU,MXEM,MXES,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
                                     PDMD,PDME,PWMD,PWME,UDMD,UDME,
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF,
@@ -5855,13 +5850,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = 4
                 # for mux encoder pins
-                elif widgetptype == MXEA: 
+                elif widgetptype in(MXE0,MXE1): 
                     #print"\nptype encoder"
                     signaltree = self.data._muxencodersignaltree
                     halsignallist = hal_encoder_input_names
                     humansignallist = human_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
-                    relatedsearch = [MXEA,MXEB,MXEI,MXEM]
+                    relatedsearch = ["dummy","dummy","dummy","dummy",]
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = 4
                 # for PWM,PDM,UDM pins
@@ -5945,7 +5940,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 #print "*** INFO ",boardtype,"-pin-changed: index",index
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
-                if widgetptype in(GPIOI,GPIOO,GPIOD):
+                if widgetptype in(GPIOI,GPIOO,GPIOD,MXE0,MXE1):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
                     pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
