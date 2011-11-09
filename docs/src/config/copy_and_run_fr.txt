@@ -8,51 +8,30 @@ ou depuis le menu Applications -> CNC.
 
 == Sélecteur de configuration
 
-Par défaut, la boîte de dialogue de configuration Sélecteur
-s'affiche lorsque vous exécutez d'abord EMC2.
-Vos propres configurations personnalisées sont affichées en haut de la liste,
-suivie par des exemples de configurations.
-Parce que chaque configuration de l'échantillon est pour un autre type d'interface matérielle,
-presque tous ne fonctionnera pas sans le matériel installé.
-Les configurations répertoriées sous la catégorie "sim" entièrement géré
-sans matériel ci-joint. 
+Par défaut, le dialogue Sélecteur de configuration s'affichera la première fois que vous lancerez emc. Vos propres configurations personnalisées s'affichent dans le haut de la liste, suivies par les différentes configurations fournies en exemple.
+Etant donné que chaque exemple de configuration utilise un type différent d'interface matérielle, la plupart ne fonctionneront pas sur votre système. Les configurations listées dans la catégorie « Sim » (simulation) fonctionneront toutes, même sans matériel raccordé.
 
-Figure <<cap:Selecteur-de-configuration>> montre l'apparence 
-de la fenêtre du sélecteur de configuration.
+Figure <<cap:Selecteur-de-configuration>> la fenêtre du sélecteur de configuration.
 
 .Sélecteur de configuration pour EMC2[[cap:Selecteur-de-configuration]]
 
 image::images/configuration-selector1_fr.png[]
 
-Cliquez sur l'une des configurations répertoriées
-pour afficher des informations spécifiques à ce sujet.
-Double-cliquez sur une configuration ou cliquez sur OK
-pour démarrer la configuration.
-Sélectionnez "Créer un raccourci bureau" puis cliquez sur OK
-pour ajouter une icône sur le bureau Ubuntu
-pour lancer directement cette configuration
-sans montrer l'écran de configuration Selector.
+Cliquez dans la liste, sur les différentes configurations pour afficher les informations les concernant. Double-cliquez sur une configuration ou cliquez OK pour démarrer EMC2 avec cette configuration. Cochez la case « Créer un raccourci sur le bureau » puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu. Cette icône vous permettra par la suite de lancer directement EMC2 avec cette configuration, sans passer par le sélecteur de configuration.
 
-Si vous sélectionnez une configuration de l'échantillon Configurations la section,
-il vous sera demandé de copier la configuration
-à un emplacement dans votre répertoire home.
-Il est sûr de dire «oui» à cette invite.
-Si vous dites «non», EMC2 peut démarrer mais se comporter bizarrement - par exemple,
-décalages entré avec Off tactile sera effacé de façon inattendue.
-C'est parce que les fichiers sont en lecture seule
-si vous n'avez pas d'enregistrer une copie de votre répertoire home.
+Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogue vous demandera si vous voulez en faire une copie dans votre répertoire home. Si vous répondez oui, un dossier « emc2 » autorisé en écriture sera créé, il contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos besoins. Si vous répondez « non », emc démarrera mais pourra se comporter de façon étrange, par exemple, les décalages d'origine pièce entrés avec la commande « Toucher » ne seront pas pris en compte, ce comportement est lié à ce moment, à l'absence de répertoire autorisé en écriture sans lequel les paramètres ne peuvent être enregistrés.
 
-.Dialogue de copier configuration
+.Dialogue de copie de la configuration
 
 image::images/copy-configuration_fr.png []
 
-== Les prochaines étapes dans la configuration
+== Les étapes suivantes dans la configuration
 
 Après avoir trouvé l'exemple de configuration qui utilise
-le matériel même interface que votre machine,
-et l'enregistrement d'une copie de votre répertoire personnel,
-vous pouvez la personnaliser en fonction des détails de votre machine.
-Consultez le Manuel de l'intégrateur pour les sujets de la configuration.
+la même interface matérielle que votre machine,
+et en avoir enregistré une copie dans votre répertoire personnel,
+vous pouvez la personnaliser en fonction des besoins spécifiques à votre machine.
+Consultez le Manuel de l'intégrateur pour les détails de la configuration.
 
 // vim: set syntax = asciidoc:
 
