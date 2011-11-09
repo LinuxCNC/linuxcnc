@@ -5376,7 +5376,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # --- mux encoder ---
                 elif firmptype in (MXE0,MXE1,MXEU,MXEM,MXES):
                     #print "**** INFO: MUX ENCODER:",firmptype,compnum,numofencoders
-                    if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum +1) or \
+                    if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum*2+1) or \
                         (firmptype == MXEM and numofencoders >= compnum +1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
