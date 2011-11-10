@@ -7061,7 +7061,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w["calscale"].set_text("")
 
     def motor_encoder_sanity_check(self,widgets,axis):
-        stepdrive = encoder = bad = False
+        stepdrive = encoder = bad = resolver = False
         if self.data.findsignal(axis+"-stepgen-step"): stepdrive = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
         if self.data.findsignal(axis+"-resolver"): resolver = True
@@ -8494,7 +8494,7 @@ But there is not one in the machine-named folder.."""),True)
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-            if self.mesa0_numof_sserialports:
+            if self.data.mesa0_numof_sserialports:
                 for i in range(1,9):
                     if i <= self.mesa0_numof_sserialchannels:
                         temp = temp + "0"
