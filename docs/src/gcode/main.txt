@@ -2173,7 +2173,7 @@ In your M100 file it might look like this:
     halcmd setp thc.feedrate $feedrate
     exit 0
 
-= O Codes[[cha:O-Codes]]
+== O Codes[[cha:O-Codes]]
 
 (((O Codes)))
 
@@ -2203,7 +2203,7 @@ To make these errors non-fatal  warnings on stderr, set bit 0x20 in
 the `[RS274NGC]FEATURE=` mask ini option. 
 
 
-== Subroutines: sub, endsub, return, call
+=== Subroutines: sub, endsub, return, call
 (((Subroutines: sub, endsub, return, call)))
 (((sub)))(((endsub)))(((return)))(((call)))
 
@@ -2212,11 +2212,14 @@ inside the subroutine (the "body") are not executed in
 order; instead, they are executed each time the subroutine is called
 with `O- call`. 
 
+[source,{ngc}]
+---------------------------------------------------------------------
     O100 sub (subroutine to move to machine home)
     G0 X0 Y0 Z0
     O100 endsub
     (many intervening lines)
     O100 call
+---------------------------------------------------------------------
 
 Inside a subroutine, `O- return`  can be executed. This immediately
 returns to the calling code, just
@@ -2235,14 +2238,17 @@ Because "`1 2 3` " is parsed as the number 123, the parameters must be
 enclosed in
 square brackets. The following calls a subroutine with 3 arguments:
 
+[source,{ngc}]
+---------------------------------------------------------------------
     O200 call [1] [2] [3]
+---------------------------------------------------------------------
 
 Subroutine bodies may not be nested. They may only be called after
 they are defined. They may be called from other functions, and may call
 themselves recursively if it makes sense to do so. The maximum
 subroutine nesting level is 10.
 
-=== Subroutine return values [[sec:Subroutine-return-values]]
+==== Subroutine return values [[sec:Subroutine-return-values]]
 Subroutines may pass optional return values when executing `return` or
 `endsub`. The value of an optional expression after a `return` or
 `endsub` sets the <<param:_value,`#<_value>`>> named parameter. A
@@ -2267,7 +2273,7 @@ o2000 if [#<_value> EQ 0] ; accessing the return value
 ...
 ---------------------------------------------------------------------
 
-=== Subroutine side effects
+==== Subroutine side effects
 Subroutines may change the value
 of parameters above #30 and those changes will be visible to the
 calling code. Subroutines may also change the value of global named
@@ -2275,14 +2281,15 @@ parameters.
 
 
 
-== Looping: do, while, endwhile, break, continue
+=== Looping: do, while, endwhile, break, continue
 (((Looping: do, while, endwhile, break, continue)))
 (((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
 The "while loop" has two structures: while/endwhile, and do/while. In
 each case, the loop is exited when the "while" condition evaluates to
 false.
-
+[source,{ngc}]
+---------------------------------------------------------------------
     (draw a sawtooth shape)
     F100
     #1 = 0
@@ -2291,19 +2298,20 @@ false.
     G1 Y[#1/10] X1
     #1 = [#1+1]
     O101 endwhile
-
+---------------------------------------------------------------------
 Inside a while loop, `O- break` immediately exits the loop, and `O-
 continue` immediately skips to the next evaluation of the `while` 
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-== Conditional: if, else, elseif, endif
+=== Conditional: if, else, elseif, endif
 (((Conditional: if, else, elseif, endif)))
 (((if)))(((else)))(((elseif)))(((endif)))
 
 The "if" conditional executes one group of statements if a condition
 is true and another if it is false.
-
+[source,{ngc}]
+---------------------------------------------------------------------
     (Set feed rate depending on a variable)
     O102 if [#2 GT 5]
     F100
@@ -2312,15 +2320,16 @@ is true and another if it is false.
     O102 else
     F200
     O102 endif
-
-== Repeat
+---------------------------------------------------------------------
+=== Repeat
 (((Repeat)))
 
 The "repeat" will execute the statements inside of the
 repeat/endrepeat the specified number of times. The example shows how
 you might mill a diagonal series of shapes starting at the present
 position.
-
+[source,{ngc}]
+---------------------------------------------------------------------
     (Mill 5 diagonal shapes)
     G91 (Incremental mode)
     O103 repeat [5]
@@ -2328,15 +2337,17 @@ position.
     G0 X1 Y1 (diagonal move to next position)
     O103 endrepeat
     G90 (Absolute mode)
+---------------------------------------------------------------------
 
-== Indirection
+=== Indirection
 (((Indirection)))
 
 The O-number may be given by a parameter or calculation.
-
+[source,{ngc}]
+---------------------------------------------------------------------
     O[#101+2] call
-
-== Computing values in O-words
+---------------------------------------------------------------------
+=== Computing values in O-words
 
 In O-words, Parameters (section  <<sub:Numbered-Parameters>>),
 Expressions (section  <<sub:Expressions>>), 
