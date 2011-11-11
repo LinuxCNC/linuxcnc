@@ -3,8 +3,8 @@
 loadrt timedelay count=1
 addf timedelay.0 servo-thread
 
-net B-unlock axis.4.unlock => timedelay.0.in
-net B-is-unlocked timedelay.0.out => axis.4.is-unlocked
+net B-unlock joint.4.unlock => timedelay.0.in
+net B-is-unlocked timedelay.0.out => joint.4.is-unlocked
 
 setp timedelay.0.on-delay 0.75
 setp timedelay.0.off-delay 0.5
