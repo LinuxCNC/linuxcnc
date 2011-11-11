@@ -2187,6 +2187,22 @@ The behavior is undefined if:
  - Other words are used on a line with an O- word
  - Comments are used on a line with an O-word
 
+The following statements  cause an error message and  abort the
+interpreter:
+
+ - a `return` or `endsub` not within a sub defintion
+ - a label on `repeat` which is defined elsewhere
+ - a label on `while` which is defińed elsewhere and not referring to a `do`
+ - a label on `if` defined elsewhere
+ - a undefined label on `else` or `elseif`
+ - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
+ - a label on `break` or `continue` which does not point to a matching `while` or `do`
+ - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
+    
+To make these errors non-fatal  warnings on stderr, set bit 0x20 in
+the `[RS274NGC]FEATURE=` mask ini option. 
+
+
 == Subroutines: sub, endsub, return, call
 (((Subroutines: sub, endsub, return, call)))
 (((sub)))(((endsub)))(((return)))(((call)))
@@ -2281,9 +2297,9 @@ continue` immediately skips to the next evaluation of the `while`
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
-== Conditional: if, else, endif
-(((Conditional: if, else, endif)))
-(((if)))(((else)))(((endif)))
+== Conditional: if, else, elseif, endif
+(((Conditional: if, else, elseif, endif)))
+(((if)))(((else)))(((elseif)))(((endif)))
 
 The "if" conditional executes one group of statements if a condition
 is true and another if it is false.
@@ -2291,6 +2307,8 @@ is true and another if it is false.
     (Set feed rate depending on a variable)
     O102 if [#2 GT 5]
     F100
+    O102 elseif [#2 GT 3]
+    F300
     O102 else
     F200
     O102 endif
