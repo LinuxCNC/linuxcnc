@@ -42,7 +42,7 @@ comment = '^[n|N]([ |\t]*[0-9]){1,5}'
 
 # O-word lines and their keywords
 preproc = '[ \t]*[o|O](([ \t]*[0-9])+|<([[:alpha:]]|_)([[:word:]]|\-)+>)[ \t]*',
-	'(sub|endsub|while|endwhile|if|else|endif|do|call|break|continue|return)'
+	'(sub|endsub|while|endwhile|if|else|endif|do|call|break|continue|return|repeat|endrepeat|elseif)'
 
 # G codes
 vardef GCODE = '[g|G]([ \t]*[0])*[ \t]*'
