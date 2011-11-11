@@ -1,4 +1,4 @@
-= Quel ordinateur
+= Quelle configuration est requise ?
 
 == Configuration minimale (((Configuration minimale)))
 

@@ -1,16 +1,17 @@
 = EMC2
 
 [float]
-La Machine Control améliorée
-============================
+Le contrôleur de machine amélioré
+=================================
 
-== Ce Manuel
+== Introduction
 
-L'objectif de ce manuel se trouve sur l'aide d'EMC2. Il est destiné à être utilisé 
-EMC2 est une fois installé et configuré. Pour les installations standard, voir 
-le Guide de Démarrage pour les instructions étape par étape pour vous permettre 
-et venues. Pour des informations détaillées sur l'installation et la configuration 
-d'EMC2 voir le manuel de l'intégrateur.
+Ce document est centré sur l'utilisation d'EMC2, 
+il est plutôt destiné aux lecteurs l'ayant déjà installé et configuré.
+Quelques informations sur l'installation sont données dans les
+chapitres suivants.
+La documentation complète sur l'installation et
+la configuration se trouve dans le manuel de l'intégrateur.
 
 == Comment marche EMC2[[sec:Comment-marche-EMC2]]
 
@@ -20,20 +21,20 @@ robots ou d'autres automatismes. Il est capable de contrôler des
 servomoteurs, des moteurs pas à pas, des relais ainsi que d'autres
 mécanismes relatifs aux machines-outils. 
 
-Il ya quatre principales composantes du logiciel EMC2: 
-* un contrôleur de mouvement (EMCMOT), 
-* une contrôleur d'entrées/sorties discrètes (EMCIO), 
-* un exécuteur des tâches qui les coordonne (EMCTASK), 
-* et les interfaces utilisateur graphiques. 
+Il y a quatre principales composantes du logiciel EMC2: 
+- un contrôleur de mouvement (EMCMOT), 
+- une contrôleur d'entrées/sorties discrètes (EMCIO), 
+- un exécuteur des tâches qui les coordonne (EMCTASK), 
+- et les interfaces utilisateur graphiques. 
 
-En outre il ya une couche appelée HAL (Hardware Abstraction Layer) 
+En outre il y a une couche appelée HAL (couche d'abstraction du matériel) 
 qui permet la configuration d'EMC2 sans avoir besoin de recompiler.
 
-.Simple machine contrôlée par EMC2[[fig:Machine-typique]]
+.Machine simple contrôlée par EMC2[[fig:Machine-typique]]
 
 image::whatstep1.png[]
 
-La figure <<fig:Machine-typique>> montre un simple diagramme bloc
+La figure <<fig:Machine-typique>> montre un diagramme bloc
 représentant une machine 3 axes typique comme EMC2 les aime. Cette
 figure montre un système basé sur des moteurs pas à pas. Le PC,
 tournant sous Linux(((Linux))) contrôle les interfaces de puissance des
@@ -45,78 +46,78 @@ parallèle étendu connecté à une carte de contrôle externe. Quand nous
 examinerons chacun des composants qui forment un système EMC2, nous
 nous référerons à cette machine typique.
 
-` `
-` `
-` `
-` `
-` `
-` `
-` `
-` `
-` `
-` `
+`
+`
+`
+`
+`
+`
+`
+`
+`
+`
 
 == Interfaces utilisateur graphiques[[sub:Interfaces-utilisateur-graphiques]]
 
-L'interface graphique est la partie d'EMC2 qui interragit avec
+L'interface graphique est la partie d'EMC2 qui interagit avec
 l'opérateur de la machine-outil. EMC2 est fourni avec plusieurs
 interfaces utilisateurs graphiques:
 
 
- - *AXIS*, une GUI basée sur OpenGL, avec prévisualisation du G-Code, appelée
-   AXIS.(((AXIS))) Cette interface est l'un des rares qui sont encore en 
-   développement actif et d'amélioration. <<fig:L-interface-graphique-d-AXIS>>
+- *AXIS*, une GUI basée sur OpenGL, avec prévisualisation du G-Code.
+   Elle offre un aperçu permanent du parcours d'outil.
+   C'est l'interface qui a le développement le plus actif. <<fig:Interface-graphique-AXIS>>
 
-.L'interface graphique AXIS[[fig:L-interface-graphique-d-AXIS]]
+.L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
 
 image::images/axis_2.3_fr.png[]
 
 
- - *Mini*(((mini))), une Tcl/Tk GUI <<fig:L-interface-graphique-Mini>> 
+- *Mini*(((mini))), une Tcl/Tk GUI <<fig:Interface-graphique-Mini>> 
 
-.L'interface graphique Mini[[fig:L-interface-graphique-Mini]]
+.L'interface graphique Mini[[fig:Interface-graphique-Mini]]
 
 image::mini_fr.jpg[]
 
 
- - *TkEMC*(((tkemc))), une Tcl/Tk GUI <<fig:L-interface-graphique-TkEmc>> 
+- *TkEMC*(((tkemc))), une interface basée sur Tcl/Tk.
+    C'est l'interface la plus populaire après Axis <<fig:L-interface-graphique-TkEmc>> 
 
 .L'interface graphique TkEmc[[fig:L-interface-graphique-TkEmc]]
 
 image::tkemc_fr.png[]
 
 
- - *Keystick*(((keystick))), un personnage basé sur l'écran programme graphique approprié pour
-    installations minimales (sans le fonctionnement du serveur X). <<fig:L-interface-Keystick>>
+- *Keystick*(((keystick))), c'est une interface minimaliste textuelle, appropriée pour
+    les installations légères (sans serveur X par exemple). <<fig:L-interface-Keystick>>
 
-.L'interface graphique Keystick[[fig:L-interface-Keystick]]
+.L'interface textuelle Keystick[[fig:L-interface-Keystick]]
 
 image::keystick.png[]
 
+- *Xemc*, un programme X-Windows(((xemc)))
 
- - *Xemc*, un programme X-Windows(((xemc)))
+- *halui*, une interface utilisateur basée sur HAL, qui permet de contrôler EMC2
+    en utilisant des boutons et des interrupteurs
 
- - Une interface utilisateur basée sur HAL appelé *halui*, qui permet de contrôler EMC2
-    en utilisant les boutons et interrupteurs
-
- - Une interface utilisateur basée telnet appelé *emcrsh*, qui permet aux commandes
-    être envoyés à partir d'ordinateurs distants EMC2
+- *emcrsh*, une interface utilisateur basée sur telnet, qui permet aux commandes
+    d'être envoyées à partir d'ordinateurs distants de celui d'EMC2
 
 == Langues
 
 EMC2 utilise des fichiers de traduction pour traduire les 
-interfaces utilisateur EMC dans de nombreux langues. 
-Vous avez juste besoin de se connecter avec la langue que vous souhaitez 
-utiliser et quand vous démarrez EMC vient dans cette langue. 
-Si votre la langue n'a pas été traduit contacter un développeur sur 
+interfaces utilisateur EMC2 fonctionne dans de nombreuses langues. 
+Vous avez juste besoin de vous loguer avec la langue que vous souhaitez 
+utiliser et quand vous démarrerez EMC2 sera dans cette langue. 
+Si votre langue n'a pas encore été traduite contactez un développeur sur 
 l'IRC ou sur la mailing liste si vous pouvez aider à la traduction.
 
 == Penser comme un opérateur sur CNC[[sec:Penser-operateur]]
 
 Ce manuel ne prétend pas vous apprendre à utiliser un tour ou une
 fraiseuse. Devenir un opérateur expérimenté prends beaucoup de temps et
-demande beaucoup de travail. Un auteur a dit une fois, «Nous apprenons
-de l'expérience, si on la possède toute». Les outils cassés, les étaux
+demande beaucoup de travail. Un auteur a dit un jour, «Nous apprenons
+par l'expérience, si on la possède toute». Les outils cassés, les étaux
 attaqués et les cicatrices sont les preuves des leçons apprises. Une
 belle finition, des tolérances serrées et la prudence pendant le
 travail sont les preuves des leçons retenues. Aucune machine, aucun
@@ -127,7 +128,7 @@ vous devez vous placer dans la peau d'un opérateur. Vous devez être 
 dans le rôle de quelqu'un qui a la charge d'une machine. C'est une
 machine qui attendra vos commandes puis qui exécutera les ordres que
 vous lui donnerez. Dans ces pages nous donnerons les explications qui
-vous aideront à devenir un bon opérateur de fraiseuse avec EMC2. 
+vous aideront à devenir un bon opérateur de CNC avec EMC2. 
 Vous aurez besoin de quelques bonnes informations ici devant moi afin 
 que les pages suivantes de sens pour vous.
 
@@ -144,7 +145,7 @@ en mode auto mais pas en mode manuel ni en MDI.
 
 En mode manuel, chaque commande est entrée séparément. En termes
 humains une commande manuelle pourrait être «active l'arrosage» ou «jog
-l'axe X à 250 millimètres par minute.» C'est en gros équivalent à
+l'axe X à 250 millimètres par minute.» C'est en gros, équivalent à
 basculer un interrupteur ou à tourner la manivelle d'un axe. Ces
 commandes sont normalement contrôlées en pressant un bouton de
 l'interface graphique avec la souris ou en maintenant appuyée une
@@ -164,7 +165,7 @@ L'interface utilisateur graphique AXIS supprime certaines distinctions
 entre Auto et les autres modes en rendant automatique la disponibilité
 des commandes, la plupart du temps. Il rend également floue la
 distinction entre Manuel et MDI parce que certaines commandes manuelles
-comme Toucher, sont également implémentées en envoyant une commande
+comme "Toucher", sont également implémentées en envoyant une commande
 MDI. Il fait cela en changeant automatiquement le mode qui est 
 nécessaire pour l'action que l'utilisateur a demandé. 
 
