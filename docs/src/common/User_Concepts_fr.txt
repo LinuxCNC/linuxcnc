@@ -57,7 +57,7 @@ G61::
     exactement la trajectoire prévue. 
 
 G61.1::
-     (mode Arrêt exact) G61.1 demande au planificateur s'arrêter exactement
+     (mode Arrêt exact) G61.1 demande au planificateur de s'arrêter exactement
     à la fin de chaque segment. Le parcours sera suivi avec exactitude mais
     les arrêts complets de l'avance peuvent se révéler destructeurs pour la
     pièce ou l'outillage, selon les particularités de l'usinage. 
@@ -75,7 +75,7 @@ G64::
     Dans le cas d'un mouvement en G0 (rapide) avec G64, faire preuve de 
     prudence sur les mouvements de dégagement et  prévoir suffisamment de 
     distance pour éviter les obstacles selon les capacités d'accélérations
-    de votre machine.
+    de la machine.
 
 G64 Px.xxx::
      (mode trajectoire continue avec tolérance) Ce mode active le "naive
@@ -121,7 +121,7 @@ Naive Cam Detector::
     (du début de l'arc à son milieu et du milieu à la fin de l'arc).
     Ces deux tronçons sont ensuite soumis à l'algorithme Naïve cam des lignes.
     Ainsi, les cas ligne-arc, arc-arc et arc-ligne, comme les cas ligne-ligne
-    bénéficient du traitement "naive cam detector". Les preformances de
+    bénéficient du traitement "naive cam detector". Les performances de
     contourage sont accrues grâce à la simplification de la trajectoire. 
 
 Dans la figure suivante la ligne bleue représente la vitesse machine actuelle. 
@@ -152,7 +152,7 @@ donné.
 Les phases d'accélération et de décélération utilisent chacune la
 moitié de la variable MAX_ACCELERATION du fichier .ini. Avec une
 trajectoire continue c'est exactement inversé, ce qui fait que
-l'accélération totale de l'axe est égal à la variablee
+l'accélération totale de l'axe est égal à la variable
 MAX_ACCELERATION. Dans d'autres cas, l'accélération actuelle de la
 machine est un peu inférieure à celle du fichier ini.
 
@@ -236,7 +236,7 @@ sections G28 xxxxx et G30 xxxxx du manuel de l'utilisateur.
 Les systèmes de coordonnées peuvent être déroutant au premier abord.
 Avant de démarrer une machine CNC, il est important de bien comprendre
 les bases des systèmes utilisés par EMC. Pour explorer plus en profondeur
-les systèmes de coordonnées utilisés par EMC, voire la section xxxxx
+les systèmes de coordonnées utilisés par EMC, voir la section xxxxx
 de ce manuel.
 
 === G53 Coordonnées machine

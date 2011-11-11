@@ -2,7 +2,7 @@
 
 EMC2 est souple et modulaire. Ces attributs l'ont fait apparaître à
 certains comme un brouillon de petits morceaux confus, ils se sont
-demandé pourquoi il en était ainsi. Cette page tente de répondre à
+demandé pourquoi il en était ainsi. Cette page tentent de répondre à
 cette question avant que vous lecteurs, ne plongiez dedans pour vous
 faire votre propre idée.
 
