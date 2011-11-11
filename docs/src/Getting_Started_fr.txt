@@ -1,5 +1,5 @@
-Guide du Débutant V2.3, {localdate}
-===================================
+Guide de démarrage V2.5, {localdate}
+====================================
 The EMC Team
 
 :language: fr

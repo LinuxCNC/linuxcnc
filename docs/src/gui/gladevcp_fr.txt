@@ -163,8 +163,8 @@ GladeVCP Programming>> section.
 
 == Creating and Integrating a Glade user interface
 
-[[gladevcp:Prerequisites]]
-=== Prerequisite: Glade installation
+=== Prerequisite: Glade installation[[gladevcp:Prerequisites]]
+
 To view or modify Glade UI files, you need glade installed - it is not
 needed just to run a GladeVCP panel. If the glade command is ḿissing,
 install it with the command:
@@ -444,8 +444,7 @@ widget, that is, has been created by the
 +hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>)+ method (see
 GladeVCP Programming for an example).
 
-[[gladevcp::hal-pin-changed_signal]]
-=== The hal-pin-changed signal
+=== The hal-pin-changed signal[[gladevcp::hal-pin-changed_signal]]
 
 Event-driven programming means that the UI tells your code when "something
 happens" - through a callback, like when a button was pressed. The
@@ -463,10 +462,10 @@ image::images/hal-pin-change-66.png[]
 The example in +configs/gladevcp/examples/complex+ shows how
 this is handled in Python.
 
-[[gladevcp:HAL_Button]]
-[[gladevcp:HAL_RadioButton]]
-[[gladevcp:HAL_CheckButton]]
-=== Buttons
+
+
+
+=== Buttons[[gladevcp:HAL_Button]][[gladevcp:HAL_RadioButton]][[gladevcp:HAL_CheckButton]]
 
 This group of widgets are derived from various Gtk buttons and consists
 of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
@@ -506,9 +505,7 @@ See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
 and UI file for working with radio buttons.
 ======================================
 
-[[gladevcp:HAL_HScale]]
-[[gladevcp:HAL_VScale]]
-=== Scales
+=== Scales[[gladevcp:HAL_HScale]][[gladevcp:HAL_VScale]]
 
 HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
 respectively. They have one output FLOAT pin with name equal to widget
@@ -524,8 +521,8 @@ Example HAL_HScale:
 image:images/hscale.png[]
 .
 
-[[gladevcp:HAL_SpinButton]]
-=== SpinButton
+
+=== SpinButton[[gladevcp:HAL_SpinButton]]
 
 HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
@@ -541,8 +538,8 @@ Example SpinButton:
 image:images/spinbutton.png[]
 .
 
-[[gladevcp:HAL_Label]]
-=== Label
+
+=== Label[[gladevcp:HAL_Label]]
 
 HAL_Label is a simple widget based on GtkLabel which represents a HAL
 pin value in a user-defined format.
@@ -560,9 +557,9 @@ text_template::
 	Example: +Distance: %.03f+ will display the text and the pin value with
 	3 fractional digits padded with zeros for a FLOAT pin.
 
-[[gladevcp:HAL_HBox]]
-[[gladevcp:HAL_Table]]
-=== Containers: HAL_HBox and HAL_Table
+
+
+=== Containers: HAL_HBox and HAL_Table[[gladevcp:HAL_Table]][[gladevcp:HAL_HBox]]
 
 Compared to their Gtk counterparts they have one input BIT pin which
 controls if their child widgets are sensitive or not. If the pin is low
@@ -572,8 +569,7 @@ then child widgets are inactive which is the default.
 If you find some part of your GladeVCP application is 'grayed
 out' (insensitive), see whether a container's pin is unset.
 
-[[gladevcp:HAL_LED]]
-=== LED
+=== LED[[gladevcp:HAL_LED]]
 
 The hal_led simulates a real indicator LED. It has a single input BIT
 pin which controls it's state: ON or OFF. LEDs have several properties
@@ -617,8 +613,7 @@ Example LEDs:
 image:images/leds.png[]
 .
 
-[[gladevcp:HAL_ProgressBar]]
-=== ProgressBar
+=== ProgressBar[[gladevcp:HAL_ProgressBar]]
 
 [NOTE]
 This widget might go away. Use the HAL_HBar and HAL_VBar widgets
@@ -653,8 +648,7 @@ Example HAL_ProgressBar:
 image:images/progressbar2.png[]
 .
 
-[[gladevcp:HAL_ComboBox]]
-=== ComboBox
+=== ComboBox[[gladevcp:HAL_ComboBox]]
 
 HAL_ComboBox is derived from gtk.ComboBox. It enables choice of a
 value from a dropdown list.
@@ -688,9 +682,7 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-[[gladevcp:HAL_HBar]]
-[[gladevcp:HAL_VBar]]
-=== Bars
+=== Bars[[gladevcp:HAL_VBar]][[gladevcp:HAL_HBar]]
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing
 float values. They have one input FLOAT hal pin. Both bars have the
@@ -734,8 +726,7 @@ Vertical bar:
 image:images/vscale.png[]
 .
 
-[[gladevcp:HAL_Meter]]
-=== Meter
+=== Meter[[gladevcp:HAL_Meter]]
 
 HAL Meter is a widget similar to PyVCP meter - it represents a float value and has 
 one input FLOAT hal pin. HAL Meter has the following properties:
@@ -771,8 +762,8 @@ Example HAL Meters:
 image:images/hal_meter.png[]
 .
 
-[[gladevcp:HAL_Gremlin]]
-=== Gremlin tool path preview for .ngc files
+
+=== Gremlin tool path preview for .ngc files[[gladevcp:HAL_Gremlin]]
 
 Gremlin is a plot preview widget similar to the Axis preview window.
 It assumes a running EMC environment like Axis or Touchy. To connect to
@@ -998,8 +989,7 @@ signals:
 
 
 
-[[gladevcp:GladeVCP_Programming]]
-== GladeVCP Programming
+== GladeVCP Programming[[gladevcp:GladeVCP_Programming]]
 
 === User Defined Actions
 
@@ -1369,8 +1359,7 @@ is detected, a console message will hint about that happened, and the
 bad inifile will be renamed to have the .BAD suffix. Subsequent bad ini
 files overwrite earlier .BAD files.
 
-[[gladevcp:Adding_HAL_pins]]
-=== Adding HAL pins
+=== Adding HAL pins[[gladevcp:Adding_HAL_pins]]
 
 If you need HAL pins which are not associated with a specific HAL
 widget, add them as follows:

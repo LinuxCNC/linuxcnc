@@ -66,8 +66,7 @@ peuvent donc exécuter n'importe quelle action disponible dans les
 programmes Python. N'utilisez que des fichiers pyVCP en .xml à partir
 d'une source de confiance.
 
-[[sec:pyvcp-avec-axis]]
-== Utiliser pyVCP avec AXIS
+== Utiliser pyVCP avec AXIS[[sec:pyvcp-avec-axis]]
 
 Puisque AXIS utilise le même environnement graphique et les même
 outils (Tkinter) que pyVCP, il est possible d'inclure un panneau pyVCP
@@ -116,8 +115,7 @@ Voila à quoi ressemble le panneau pyVCP que nous venons de créer,
 incorporé à AXIS. La configuration `sim/lathe` fournie en exemple, est
 configurée de cette manière.
 
-[[sec:Documentation-des-widgets]]
-== Documentation des widgets de pyVCP
+== Documentation des widgets de pyVCP[[sec:Documentation-des-widgets]]
 
 Les signaux de HAL existent en deux variantes, BIT et FLOAT. pyVCP
 peut afficher la valeur d'un signal avec un widget indicateur, ou

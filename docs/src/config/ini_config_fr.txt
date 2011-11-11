@@ -1047,9 +1047,7 @@ latexmath:[ INPUT\_SCALE =
 \frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
 \frac{20000\, counts}{inch} ]
 
-[[sub:Variables relatives aux moteurs pas a pas]]
-
-==== Variables relatives aux moteurs pas à pas
+==== Variables relatives aux moteurs pas à pas[[sub:Variables relatives aux moteurs pas a pas]]
 
 SCALE = 4000::
 (((INPUT SCALE))) (hal) Spécifie le nombre d'impulsions qui correspond à un 

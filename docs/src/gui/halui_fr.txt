@@ -1,8 +1,6 @@
-[[cha:Halui]]
-= Halui
+= Halui[[cha:Halui]]
 
-[[sec:HaluiIntroduction]]
-== Introduction
+== Introduction[[sec:HaluiIntroduction]]
 
 Halui est une interface utilisateur pour EMC s'appuyant sur HAL, elle
 connecte les pins de HAL à des commandes NML. La plupart des
@@ -24,8 +22,7 @@ config avec stepconf) est d'inclure
 
 dans votre fichier custom.hal.
 
-[[sec:Halui-pin-reference]]
-== Nomenclature des pins d'Halui
+== Nomenclature des pins d'Halui[[sec:Halui-pin-reference]]
 
 === Abandon (abort)
 
@@ -150,8 +147,7 @@ la variable MAX_VELOCITY dans la section [TRAJ] du fichier ini.
  - halui.max-velocity.value (float, out) - Valeur de la vitesse 
    linéaire maximum en unités machine par seconde.
 
-[[sub:MDI]]
-=== Données manuelles
+=== Données manuelles[[sub:MDI]]
 (((MDI)))
 
 Il arrive que l'utilisateur veuille ajouter des tâches plus complexes 

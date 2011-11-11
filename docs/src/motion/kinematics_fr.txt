@@ -111,8 +111,7 @@ La tâche de la cinématique consistera à transformer les longueurs des
 articulations en (AD, BD) en coordonnées Cartésiennes (Dx, Dy) et
 vice-versa.
 
-[[sub:Forward-transformation]]
-=== Transformation avant
+=== Transformation avant[[sub:Forward-transformation]]
 
 Pour effectuer la transformation de l'espace articulation en espace
 Cartésien nous allons utiliser quelques règles de trigonomètrie (le
@@ -144,8 +143,7 @@ Traduction en code:
     double AD2 = joints[0] * joints[0];
     return 0;
 
-[[sub:Inverse-transformation]]
-=== Transformation inverse
+=== Transformation inverse[[sub:Inverse-transformation]]
 
 La cinématique inverse est beaucoup plus simple dans notre exemple, de
 sorte que nous pouvons l'écrire directement:

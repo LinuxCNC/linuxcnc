@@ -1,7 +1,6 @@
 = Les bases de HAL
 
-[[sec:Commandes-de-Hal]]
-== Commandes de Hal
+== Commandes de Hal[[sec:Commandes-de-Hal]]
 
 Des informations plus détaillées peuvent être trouvées dans la man
 page en tapant «man halcmd» dans une console. Pour voir la
@@ -116,8 +115,7 @@ avec les lecteurs des lignes suivantes:
 
 Les pins appelées I/O pins comme «index-enable», ne suivent pas cette règle. 
 
-[[sub:setp]]
-=== setp
+=== setp[[sub:setp]]
 (((setp)))
 
 La commande `setp` ajuste la valeur d'une pin ou d'un paramètre. Les
@@ -202,8 +200,7 @@ Syntaxe et exemple:
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de <<halrun>>.
 
-[[sec:Hal-Data]]
-== HAL Data
+== HAL Data[[sec:Hal-Data]]
 
 === Bit (((Bit)))
 
