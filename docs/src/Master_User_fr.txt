@@ -1,4 +1,4 @@
-Manuel de la Utilisateur V2.3, {localdate}
+Manuel de l'utilisateur V2.5, {localdate}
 =========================================
 The EMC Team
 

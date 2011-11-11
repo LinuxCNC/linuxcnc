@@ -297,7 +297,7 @@
 <docgroup lang="fr" index="index_fr.html">
 <doc name="html_gcode_fr" title="Référence G Code, aide rapide"/>
 
-<doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
+<doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/System_Requirements_fr.html" title="Configuration requise"/>
 <doc name="common/Getting_EMC_fr.html" title="Où trouver EMC2"/>
 <doc name="common/Updating_EMC_fr.html" title="Mise à jour d'EMC2"/>
@@ -308,7 +308,7 @@
 <doc name="common/Linux_FAQ_fr.html" title="Petite FAQ Linux"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
-<doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
+<doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/userforeword_fr.html" title="Avant-propos"/>
 <doc name="common/user_intro_fr.html" title="Introduction"/>
 <doc name="common/User_Concepts_fr.html" title="Concepts importantes pour l'utilisateur"/>
@@ -331,7 +331,7 @@
 <doc name="common/Glossary_fr.html" title="Glossaire"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
-<doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
+<doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="hal/intro_fr.html" title="Introduction à HAL"/>
 <doc name="hal/tutorial_fr.html" title="Le tutoriel de HAL"/>
 <doc name="hal/general_ref_fr.html" title="Documentation générale de HAL"/>
@@ -356,7 +356,7 @@
 <doc name="drivers/servo_to_go_fr.html" title="Pilote Servo-To-Go Driver"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
-<doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
+<doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/Integrator_Concepts_fr.html" title="Concepts intégrateurs importants"/>
 <doc name="install/Latency_Test_fr.html" title="Test de latence"/>
 <doc name="config/ini_config_fr.html" title="La configuration en détail"/>
@@ -382,7 +382,7 @@
 <doc name="common/Glossary_fr.html" title="Glossaire"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
-<doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
+<doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="code/Code_Notes.html" title="Notes sur le code (en anglais)"/>
 <doc name="code/NML_Messages.html" title="Messages LNM (en anglais)"/>
 <doc name="code/Style_Guide.html" title="Guide de style (en anglais)"/>

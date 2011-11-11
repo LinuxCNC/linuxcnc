@@ -49,6 +49,7 @@ DOC_SRCS := \
 	common/machining_center_fr.txt \
 	common/outdated-notice_fr.txt \
 	common/overleaf.txt \
+	common/overleaf_fr.txt \
 	common/Stepper_Diagnostics.txt \
 	common/Stepper_Diagnostics_de.txt \
 	common/Stepper_Diagnostics_es.txt \

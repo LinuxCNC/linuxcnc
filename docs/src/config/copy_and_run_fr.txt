@@ -8,7 +8,7 @@ ou depuis le menu Applications -> CNC.
 
 == Sélecteur de configuration
 
-Par défaut, le dialogue Sélecteur de configuration s'affichera la première fois que vous lancerez emc. Vos propres configurations personnalisées s'affichent dans le haut de la liste, suivies par les différentes configurations fournies en exemple.
+Par défaut, la boîte de dialogue "Sélecteur de configuration" s'affichera la première fois que vous lancerez emc. Vos propres configurations personnalisées s'affichent dans le haut de la liste, suivies par les différentes configurations fournies en exemple.
 Etant donné que chaque exemple de configuration utilise un type différent d'interface matérielle, la plupart ne fonctionneront pas sur votre système. Les configurations listées dans la catégorie « Sim » (simulation) fonctionneront toutes, même sans matériel raccordé.
 
 Figure <<cap:Selecteur-de-configuration>> la fenêtre du sélecteur de configuration.
@@ -23,7 +23,7 @@ Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogu
 
 .Dialogue de copie de la configuration
 
-image::images/copy-configuration_fr.png []
+image::images/copy-configuration_fr.png[]
 
 == Les étapes suivantes dans la configuration
 
