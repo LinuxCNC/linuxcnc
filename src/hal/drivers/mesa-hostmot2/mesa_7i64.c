@@ -206,7 +206,7 @@ void hm2_7i64_prepare_tram_write(hostmot2_t *hm2){
             hm2_sserial_tram_t *tram = &inst->tram_7i64[c];
             r = 0;
             for (p = 0 ; p < 24 ; p++){
-                r |= ((*hal->pin.digital_out[p] ^ hal->param.invert[p]) << p);
+                r |= (((*hal->pin.digital_out[p] != 0) ^ (hal->param.invert[p] != 0)) << p);
             }
             *tram->reg_0_write = r;
         }
