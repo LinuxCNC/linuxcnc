@@ -2702,18 +2702,18 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.mvo_usempg:
                 print >>file, "# connect max velocity overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.max-velocity-override.count-enable true"
-                print >>file, "    setp halui.max-velocity-override.direct-value false"
-                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
-                print >>file, "net mvo-count            =>  halui.max-velocity-override.counts"
+                print >>file, "    setp halui.max-velocity.count-enable true"
+                print >>file, "    setp halui.max-velocity.direct-value false"
+                print >>file, "    setp halui.max-velocity.scale %04f"% scale
+                print >>file, "net mvo-count            =>  halui.max-velocity.counts"
                 print >>file
             elif self.mvo_useswitch:
                 print >>file, "# connect max velocity overide increments - switches"
                 print >>file
-                print >>file, "    setp halui.max-velocity-override.count-enable true"
-                print >>file, "    setp halui.max-velocity-override.direct_value true"
-                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
-                print >>file, "net max-vel-override-incr   =>  halui.max-velocity-override.counts"
+                print >>file, "    setp halui.max-velocity.count-enable true"
+                print >>file, "    setp halui.max-velocity.direct-value true"
+                print >>file, "    setp halui.max-velocity.scale %04f"% scale
+                print >>file, "net max-vel-override-incr   =>  halui.max-velocity.counts"
                 print >>file, "net mvo-incr-a           =>  mvoincr.sel0"
                 print >>file, "net mvo-incr-b           =>  mvoincr.sel1"
                 print >>file, "net mvo-incr-c           =>  mvoincr.sel2"
