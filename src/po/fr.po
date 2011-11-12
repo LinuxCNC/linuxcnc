@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-01 12:49+0100\n"
-"PO-Revision-Date: 2011-11-07 18:26+0100\n"
+"PO-Revision-Date: 2011-11-12 01:18+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -8236,7 +8236,7 @@ msgstr "Vous avez omis de désigner un signal PWM ou pas à pas pour l'axe %s\n"
 #, python-format
 msgid "You forgot to designate an encoder signal for axis %s servo\n"
 msgstr ""
-"Vous avez omis de désigner un signal d'encodeur pour servo de l'axe %s\n"
+"Vous avez omis de désigner un signal d'encodeur pour le servo de l'axe %s\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6154
 #, python-format
@@ -8262,39 +8262,38 @@ msgstr "Touchy requiert un signal d'abandon externe\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6171
 msgid "Touchy require an external single-step signal\n"
-msgstr "Touchy requiert un signal d'avance pas par pas externe\n"
+msgstr "Touchy requiert un signal d'avance par pas externe\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6174
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
-"Touchy require an external multi handwheel MPG encoder signal on the mesa "
-"page\n"
+"Touchy requiert le signal du codeur d'un MPG multi-axes sur la page mesa\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6177
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
-"Touchy require 'external mpg jogging' to be selected on the external control "
-"page\n"
+"Touchy requiert que 'Jogging MPG externe' soit sélectionné sur la page des "
+"contrôles externes\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6180
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
-"Touchy require the external mpg to be in 'shared mpg' mode on the external "
-"controls page\n"
+"Touchy requiert que le MPG externe soit en mode 'MPG partagé' sur la page "
+"des contrôles externes\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6183
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
-"Touchy require selectable increments to be unchecked on the external "
-"controls page\n"
+"Touchy requiert que la case 'Incréments de MPG sélectionnables' soit "
+"décochée sur la page des contrôles externes\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:6187
 msgid ""
@@ -9183,7 +9182,7 @@ msgstr "Détails pyvcp"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7097
 msgid "Sample display  "
-msgstr "affichage simple"
+msgstr "Affichage simple"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7264
 msgid "Standalone Panel"
@@ -9235,7 +9234,7 @@ msgstr "Bouton A à zéro"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7486
 msgid "Requires Classicladder touch-off program"
-msgstr "Requiert le programme de toucher de Classicladder"
+msgstr "Requiert le programme de 'touch-off de Classicladder"
 
 #: emc/usr_intf/pncconf/pncconf.glade:7487
 msgid "Auto Z Touch Off Button"
@@ -9338,15 +9337,15 @@ msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:8165
 msgid "PWM base frequency:"
-msgstr "PWM base frequency:"
+msgstr "Fréquence de base PWM:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8176
 msgid "PDM base frequency:"
-msgstr "fréquence de base PDM:"
+msgstr "Fréquence de base PDM:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8187
 msgid "Watchdog timeout:"
-msgstr "Watchdog timeout:"
+msgstr "Chien de garde timeout:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8304
 msgid "Num of encoders:"
@@ -10629,15 +10628,15 @@ msgstr "Info moteur pas à pas"
 
 #: emc/usr_intf/pncconf/pncconf.glade:49809
 msgid "No feedback"
-msgstr "Pas de feedback"
+msgstr "Pas de retour"
 
 #: emc/usr_intf/pncconf/pncconf.glade:49819
 msgid "Absolute Feedback"
-msgstr "Feedback absolu"
+msgstr "Retour absolu"
 
 #: emc/usr_intf/pncconf/pncconf.glade:49833
 msgid "Incremental Feedback"
-msgstr "Incrémental Feedback"
+msgstr "Retour incrémental"
 
 #: emc/usr_intf/pncconf/pncconf.glade:49847
 msgid "Incremental Encoder"
@@ -10673,7 +10672,7 @@ msgstr "Forcer le mode trapèzoïdal"
 
 #: emc/usr_intf/pncconf/pncconf.glade:49971
 msgid "Emulate feedback "
-msgstr "Émuler feedback"
+msgstr "Émuler le retour"
 
 #: emc/usr_intf/pncconf/pncconf.glade:49983
 msgid "Emulated Hall sensors"
@@ -10701,11 +10700,11 @@ msgstr "Inverse"
 
 #: emc/usr_intf/pncconf/pncconf.glade:50212
 msgid "Input-pattern"
-msgstr "motif d'entrée"
+msgstr "Motif d'entrée"
 
 #: emc/usr_intf/pncconf/pncconf.glade:50222
 msgid "output-pattern"
-msgstr "motif de sortie"
+msgstr "Motif de sortie"
 
 #: emc/usr_intf/pncconf/pncconf.glade:50232
 msgid "Drive-offset"
@@ -10837,7 +10836,7 @@ msgstr "Utiliser un fichier de compensation:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:51330
 msgid "Use Backlash Compensation:"
-msgstr "Utiliser la compensation des jeux:"
+msgstr "Utiliser la compensation de jeu:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:51357
 msgid "Home Position location   (offset from machine zero Origin):"
@@ -10929,7 +10928,7 @@ msgstr "Cmd 1"
 
 #: emc/usr_intf/pncconf/pncconf.glade:51950
 msgid "Include Halui user interface component / commands"
-msgstr "Inclure les commandes de l'interface utilisateur de composants Halui"
+msgstr "Inclure les composants / commandes de l'interface utilisateur Halui"
 
 #: emc/usr_intf/pncconf/pncconf.glade:52024
 msgid "Number of digital (bit) in pins:"
