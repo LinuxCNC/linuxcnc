@@ -300,11 +300,10 @@
 <doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/System_Requirements_fr.html" title="Configuration requise"/>
 <doc name="common/Getting_EMC_fr.html" title="Où trouver EMC2"/>
-<doc name="common/Updating_EMC_fr.html" title="Mise à jour d'EMC2"/>
-<doc name="quickstart/stepper_quickstart_fr.html" title="Démarrage rapide"/>
+<doc name="config/copy_and_run_fr.html" title="Démarrage rapide d'EMC2"/>
+<doc name="quickstart/stepper_quickstart_fr.html" title="Informations de configuration"/>
 <doc name="config/stepconf_fr.html" title="L'assistant de configuration StepConf"/>
 <doc name="config/pncconf_fr.html" title="L'assistant de configuration PncConf (pour les machines utilisant Mesa)"/>
-<doc name="config/copy_and_run_fr.html" title="Copier et exécuter"/>
 <doc name="common/Linux_FAQ_fr.html" title="Petite FAQ Linux"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
@@ -379,6 +378,7 @@
 <doc name="examples/gs2_example_fr.html" title="Exemple GS2"/>
 <doc name="common/Stepper_Diagnostics_fr.html" title="Pas à pas de diagnostic"/>
 <doc name="common/Linux_FAQ_fr.html" title="Petite FAQ Linux"/>
+<doc name="common/Updating_EMC_fr.html" title="Mises à jour d'EMC2"/>
 <doc name="common/Glossary_fr.html" title="Glossaire"/>
 <doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 

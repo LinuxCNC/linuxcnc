@@ -1,18 +1,18 @@
-= A propos d'EMC2
+= Comment se procurer EMC2
 
-== Le Logiciel
+== À savoir à propos du logiciel EMC2
 
 - EMC2 (contrôleur de machine amélioré) est un logiciel de contrôle de machines-outils
   telles que fraiseuses, tours, robots etc.
-- EMC2 est un logiciel libre avec code source ouvert. Les versions actuelles d'EMC
+- EMC2 est un logiciel libre avec code source ouvert. Les versions actuelles d'EMC2
   sont entièrement sous licence GNU Lesser General Public et de
   GNU General Public License (GPL et LGPL)
 - EMC2 propose:
 -- Une interface utilisateur graphique (plusieurs interfaces au choix)
--- Un interprète pour "G-code" (RS-274 langage de programmation de machines-outils)
+-- Un interpréteur de "G-code" (RS-274NGC langage de programmation de machines-outils)
 -- Un système temps réel de planification de mouvement anticipatif
--- Le fonctionnement de l'électronique machine de bas niveau, tels que les capteurs et les moteurs
--- Un assistant de configuration facile à utiliser pour créer rapidement
+-- La gestion du fonctionnement de l'électronique machine de bas niveau, tels que les capteurs et les moteurs
+-- Un assistant de configuration facile à utiliser pour créer rapidement une
 configuration spécifique à la machine
 -- Un logiciel d'automate programmable pour schémas à contacts (Ladder)
 -- Installation facile à partir d'un CD live
@@ -21,11 +21,9 @@ configuration spécifique à la machine
 - Le contrôleur peut fonctionner avec de vrais servomoteurs (analogiques ou PWM) en boucle fermée,
 ou avec «step-servos» ou encore, des moteurs pas à pas en boucle ouverte.
 - Le contrôleur de mouvement assure: les compensations de rayon et/ou de longueur d'outil, 
-le suivi de trajectoire d'usinage avec tolérance spécifiée, le filetage sur tour filetage,
-les mouvements avec axes synchronisés, la vitesse d'avance adaptative,
-la correction de vitesse par l'opérateur et le contrôle de vitesse constante.
-- Il supporte les systèmes à mouvement non cartésiens grâce aux modules cinématique personnalisés.
-  Les architectures disponibles incluent les hexapodes (plate-forme de Stewart et concepts similaires) et les systèmes à articulations rotatives pour assurer des mouvements tels que des robots PUMA ou SCARA.
+le suivi de trajectoire d'usinage avec tolérance spécifiée, le filetage sur tour filetage, le taraudage rigide, les mouvements avec axes synchronisés, la vitesse d'avance adaptative, la correction de vitesse par l'opérateur, le contrôle de vitesse constante etc.
+- Il supporte les systèmes à mouvements non cartésiens grâce aux modules cinématiques personnalisés.
+  Les architectures disponibles incluent les hexapodes (plate-forme de Stewart et concepts similaires) et les systèmes à articulations rotatives pour assurer les mouvements de robots tels que PUMA ou SCARA.
 - EMC2 fonctionne sous Linux en utilisant ses extensions temps réel.
 
 == Le système d'exploitation
@@ -36,13 +34,13 @@ La distribution Ubuntu a été choisie car elle s'intègre parfaitement dans les
     la version "Enterprise Edition", nous rendons nos travaux disponibles pour
     tout le monde dans les mêmes conditions de gratuité.
 - EMC2 est jumelé avec les versions LTS d'Ubuntu qui apportent le soutien et 
-les correctifs de sécurité de l'équipe Ubuntu pour 3 - 5 ans.
-- Ubuntu utilise les meilleurs outils de traductions et d'accessibilité à l'infrastructure que la communauté du logiciel libre a à offrir, pour rendre Ubuntu accessible au maximum de personnes.
-- La communauté Ubuntu a entièrement souscrit aux principes du développement de logiciels libres, nous encourageons tout le monde à utiliser des logiciels open source, à les améliorer et les transmettre.
+les correctifs de sécurité de l'équipe Ubuntu pour 3 à 5 ans.
+- Ubuntu utilise les meilleurs outils de traductions et d'accessibilité à l'infrastructure, que la communauté du logiciel libre a à offrir, pour rendre Ubuntu accessible à un maximum de personnes.
+- La communauté Ubuntu a entièrement souscrit aux principes du développement de logiciels libres, nous encourageons tout le monde à utiliser des logiciels open source, à les améliorer et à les transmettre.
 
 = Trouver de l'aide[[sec:Trouver-aide]](((Trouver de l'aide)))
 
-== IRC
+== Les salons IRC
 
 IRC signifie Internet Relay Chat.
 Il s'agit d'une connexion en direct avec d'autres utilisateurs EMC.
@@ -61,15 +59,15 @@ Un peu d'éthique sur le canal IRC:
    avant de la poser. Assurez-vous de donner suffisamment d'informations pour 
    que quelqu'un puisse résoudre votre problème. 
 - Ayez de la patience quand vous attendez une réponse, il faut parfois du temps pour formuler une réponse.
-   Tout le monde pourrait être occupé, à travailler par exemple :) ou à autre chose. 
+   Tout les participants pourraient être occupés, à travailler par exemple :-) ou à autre chose. 
 - Configurez votre compte IRC avec un pseudo unique afin que les gens sachent qui 
    vous êtes. Si vous utilisez le client java, utilisez le même pseudo à chaque fois que vous 
-   vous connecter, cela aidera les gens se rappeler de qui vous êtes, ainsi, si vous avez êtes déjà venu 
+   vous connecter, cela aidera les gens à se rappeler qui vous êtes, ainsi, si vous êtes déjà venu 
    avant, beaucoup se souviendront des discussions passées, ce qui fait gagner du temps à tout monde. 
 
-=== Partage de fichiers
+=== Partage de fichiers sur IRC
 
-La façon la plus commune de partager des fichiers sur IRC est de charger le fichier sur un des services suivants ou service similaire puis collez le lien vers le fichier sur l'IRC:
+La façon la plus courante de partager des fichiers sur IRC est de charger le fichier sur un des services suivants ou service similaire, puis collez le lien vers le fichier, sur l'IRC:
 
 - Pour le texte:
      http://pastebin.com/, http://pastie.org/, https://gist.github.com/
@@ -80,18 +78,18 @@ La façon la plus commune de partager des fichiers sur IRC est de charger le fic
 - Pour les fichiers:
      http://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
-== Liste de diffusion
+== Les liste de diffusion
 
 Une liste de diffusion sur Internet est un moyen de poser des questions, tout les abonnés à
-cette liste pourrons voir et répondre à leur convenance. Vous obtiendrez une meilleurs
+cette liste pourrons lire et répondre à leur convenance. Vous obtiendrez une meilleurs
 visibilité de vos questions sur une liste de diffusion plutôt que sur l'IRC, et vous
-aurez plus de réponses. En un mot, vous envoyez un e-mail à la liste et selon comment vous avez configuré votre compte, vous aurez les réponses soit regroupés quotidiennement, soit individuellement.
+aurez plus de réponses. En un mot, vous envoyez un e-mail à la liste et selon comment vous avez configuré votre compte, vous aurez les réponses soit, regroupés quotidiennement, soit individuellement.
 
 Information de la liste de diffusion des utilisateurs d'EMC2 à: 
 
 link:[https://lists.sourceforge.net/lists/listinfo/emc-users,emc-users liste de diffusion].
 
-== EMC2 Wiki
+== Le Wiki d'EMC2
 
 Un site Wiki est un site web maintenu et enrichi par les utilisateurs, n'importe qui peut ajouter ou modifier les pages. 
 
@@ -101,21 +99,21 @@ link:[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org]
 
 = Pour obtenir EMC2(((Obtenir EMC2)))
 
-== Téléchargement normal
+== Par téléchargement normal
 
 Téléchargez le CD Live depuis: 
 
 http://www.linuxcnc.org/[http://www.linuxcnc.org/] 
 
 
-== Téléchargement fragmenté (((Telechargement fragmente)))
+== Par téléchargement fragmenté (((Telechargement fragmente)))
 
 Si le fichier est trop important pour être téléchargé en une seule
 fois parce que votre connection Internet est lente ou mauvaise,
 utilisez `wget` (ou «bittorrent») qui permet 
 la reprise après un téléchargement interrompu.
 
-===  Wget Linux (((Wget Linux)))
+===  La commande Wget sous Linux (((Wget Linux)))
 
 Ouvrez une fenêtre de terminal. Dans Ubuntu, il est dans Applications / Accessoires / Terminal.
 Utilisez `cd` pour changer le répertoire où vous voulez stocker l'image ISO.
@@ -185,7 +183,7 @@ La somme MD5 du fichier ci-dessus est: `21f4ecdcf9f5ab09ed64b5e76fb389e6`
 Quand le téléchargement est terminé, vous trouverez le fichier ISO dans le
 répertoire que vous avez sélectionné. Ensuite, nous allons graver le CD. 
 
-=== Wget Windows (((Wget Windows)))
+=== La commande Wget sous Windows (((Wget Windows)))
 
 Le programme wget est également disponible pour Windows depuis: 
 
@@ -209,7 +207,7 @@ et le prompt devrait changer pour: `C:\Program Files\GnuWin32>`
 
 Tapez les commandes wget dans la fenêtre et pressez Entrée comme précédemment. 
 
-=== Bittorrent
+=== Par Bittorrent
 
 Bittorrent est une méthode de téléchargement qui est facile et fiable.
 
@@ -351,7 +349,7 @@ Si vous souhaitez passer en 10,04 à partir d'une 8.04, une installation propre
 Attention: Ne pas mettre à jour Ubuntu vers une nouvelle version non LTS
 (comme 10.04 à 11.04), car elle ne permettrait plus d'utiliser EMC2.
 
-== Problèmes d'installation
+== Problèmes d'installation possible
 
 Dans de rares cas, vous pourriez avoir à réinitialiser le BIOS aux réglages par défaut si
 lors de l'installation du Live CD, le disque dur n'est pas reconnu pendant le démarrage.

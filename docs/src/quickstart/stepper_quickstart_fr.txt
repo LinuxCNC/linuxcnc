@@ -1,4 +1,4 @@
-= Configuration pour moteurs pas à pas
+= Informations de configuration pour moteurs pas à pas
 
 Cette section suppose qu'une installation à partir du CD Live a été
 faite. Après cette installation et avant de continuer, il est
@@ -141,23 +141,6 @@ D'après les informations ci-dessus:
 
 Voir l'utilisation de l'assistant Stepconf au chapitre (<<cha:Assistant-graphique-pas-a-pas>>)
 
-== Lien sur le bureau (raccourci)
-
-Il est possible de créer un lien associé à une icône sur le bureau 
-après utilisation de l'assistant Stepconf. 
-Au lancement d'EMC2, le sélecteur de configuration s'ouvre, choisir la
-configuration nouvellement créée dans la liste et cocher la case
- «Créer un raccourci sur le bureau» puis valider avec OK. 
-Il est désormais possible de lancer directement cette configuration 
-depuis le lien et l'icône créés sur le bureau.
-
-== Modification
-
-Pour modifier une configuration créée à l'aide de l'assistant Stepconf, 
-relancer celui-ci. Sélectionner «Modifier une configuration...» 
-Puis choisir le fichier *.stepconf* à modifier dans le répertoire 
-emc2/configs. L'entête du fichier indique si le fichier peut être édité 
-manuellement ou non. 
 
 // vim: set syntax=asciidoc:
 

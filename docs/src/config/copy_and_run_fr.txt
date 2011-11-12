@@ -1,6 +1,6 @@
-= Démarrage d'EMC
+= Démarrage rapide d'EMC2
 
-== Lancer emc
+== Lancer EMC2
 
 Après installation, emc2 se lance comme un autre programme Linux:
 depuis un terminal en passant la commande `emc`, 
@@ -8,8 +8,8 @@ ou depuis le menu Applications -> CNC.
 
 == Sélecteur de configuration
 
-Par défaut, la boîte de dialogue "Sélecteur de configuration" s'affichera la première fois que vous lancerez emc. Vos propres configurations personnalisées s'affichent dans le haut de la liste, suivies par les différentes configurations fournies en exemple.
-Etant donné que chaque exemple de configuration utilise un type différent d'interface matérielle, la plupart ne fonctionneront pas sur votre système. Les configurations listées dans la catégorie « Sim » (simulation) fonctionneront toutes, même sans matériel raccordé.
+Par défaut, la boîte de dialogue "Sélecteur de configuration" s'affichera la première fois que vous lancerez EMC2. Vos propres configurations personnalisées s'affichent dans le haut de la liste, suivies par les différentes configurations fournies en standard.
+Étant donné que chaque exemple de configuration utilise un type différent d'interface matérielle, la plupart ne fonctionneront pas sur votre système. Les configurations listées dans la catégorie « Sim » fonctionneront toutes, même sans matériel raccordé, ce sont des simulations de machines.
 
 Figure <<cap:Selecteur-de-configuration>> la fenêtre du sélecteur de configuration.
 
