@@ -2669,7 +2669,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "# connect feed overide increments - switches"
                 print >>file
                 print >>file, "    setp halui.feed-override.count-enable true"
-                print >>file, "    setp halui.feed-override.direct_value true"
+                print >>file, "    setp halui.feed-override.direct-value true"
                 print >>file, "    setp halui.feed-override.scale .01"
                 print >>file, "net feedoverride-incr   =>  halui.feed-override.counts"
                 print >>file, "net fo-incr-a           =>  foincr.sel0"
@@ -2749,7 +2749,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "# connect spindle overide increments "
                 print >>file
                 print >>file, "    setp halui.spindle-override.count-enable true"
-                print >>file, "    setp halui.spindle-override.direct_value true"
+                print >>file, "    setp halui.spindle-override.direct-value true"
                 print >>file, "    setp halui.spindle-override.scale .01"
                 print >>file, "net spindleoverride-incr  =>  halui.spindle-override.counts"
                 print >>file, "net so-incr-a             =>  soincr.sel0"
