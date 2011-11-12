@@ -56,10 +56,10 @@ static void read(struct state *inst){
 
     // Write Misc IO & Reset Watchdog
     *CPLD_write = 0xA00 // "write" command
-               | enable_out(7) << 7 | enable_out(6) << 6
-               | enable_out(5) << 5 | enable_out(4) << 4
-               | enable_out(3) << 3 | enable_out(2) << 2
-               | enable_out(1) << 1 | enable_out(0);
+               | (enable_out(7) != 0) << 7 | (enable_out(6) != 0) << 6
+               | (enable_out(5) != 0) << 5 | (enable_out(4) != 0) << 4
+               | (enable_out(3) != 0) << 3 | (enable_out(2) != 0) << 2
+               | (enable_out(1) != 0) << 1 | (enable_out(0) != 0);
 
     // Read Analog to Digital
     *AD7329_write[0] = 0x00000000;
