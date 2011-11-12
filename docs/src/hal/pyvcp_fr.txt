@@ -251,7 +251,6 @@ autrement.
 
 
 [source,xml]
-
 ---------------------------------------
 
 <led>
@@ -272,11 +271,11 @@ par défaut: “green”
 <off_color> définit la couleur de la LED quand la pin est fausse, 
 par défaut: “ref”
 
-=== LED rectangulaire (rectled)
+=== LED rectangulaire
 
 C'est une variante du widget "led".
-[source,xml]
 
+[source,xml]
 ---------------------------------------
     <vbox> 
     <relief>RIDGE</relief> 
@@ -293,6 +292,7 @@ C'est une variante du widget "led".
 
 Le code ci-dessus produit cet exemple. 
 Il affiche également un relief autour de la boîte. 
+
 image:images/pyvcp_rectled.png[]
 
 === Bouton (button)
@@ -351,7 +351,7 @@ seront mises fausses.
 </checkbutton>
 ---------------------------------------
 
-image:pyvcp_checkbutton.png[]
+image:images/pyvcp_checkbutton.png[]
 
 
 === Affichage d'un nombre (number)
@@ -370,11 +370,13 @@ L'affichage d'un nombre peux suivre le format suivant:
 
 Le widget number affiche la valeur d'un signal de type float.
 
+---------------------------------------
     <number> 
         <halpin>"number"</halpin> 
         <font>("Helvetica",24)</font> 
         <format>"+4.4f"</format> 
     </number>
+---------------------------------------
 
 image:images/pyvcp_number.png[]
 
@@ -390,7 +392,6 @@ Le widget nombre affiche la valeur d'un signal FLOAT.
     <format>"+4.4f"</format>
 </number>
 --------------------------------------- 
-
 
 image:images/pyvcp_number.png[]
 
@@ -413,12 +414,14 @@ même que celle de "number" excepté le nom qui est <s32>. Il faut
 prévoir une largeur suffisante pour afficher le nombre dans sa
 totalité.
 
+---------------------------------------
     <s32> 
     <halpin>"simple-number"</halpin> 
     <font>("Helvetica",24)</font> 
     <format>"6d"</format> 
     <width>6</width> 
     </s32>
+---------------------------------------
 
 image:images/pyvcp_s32.png[]
 
@@ -440,6 +443,7 @@ halrun/halcmd).
 La bascule "image_bit" bascule entre deux images selon la position
 vraie ou fausse de halpin.
 
+---------------------------------------
     <pyvcp> 
     <image name='fwd' file='fwd.gif'/> 
     <image name='rev' file='rev.gif'/> 
@@ -447,6 +451,7 @@ vraie ou fausse de halpin.
     <image_bit halpin='selectimage' images='fwd rev'/> 
     </vbox> 
     </pyvcp>
+---------------------------------------
 
 En utilisant les deux images fwd.gif et rev.gif. 
 FWD est affiché quand "selectimage" est fausse 
@@ -461,6 +466,7 @@ nombre d'images n'est pratiquement plus limité, il suffit de
 commençant à 0 pour la première image de la liste, à 1 pour la seconde
 image etc.
 
+---------------------------------------
     <pyvcp> 
     <image name='stb' file='stb.gif'/> 
     <image name='fwd' file='fwd.gif'/> 
@@ -469,6 +475,7 @@ image etc.
     <image_u32 halpin='selectimage' images='stb fwd rev'/> 
     </vbox> 
     </pyvcp>
+---------------------------------------
 
 Même résultat mais en ajoutant l'image stb.gif. 
 
@@ -483,7 +490,7 @@ numérique.
 [source,xml]
 ---------------------------------------
 <bar>
-    <halpin>"my-bar"</halpin>
+    <halpin>"bar"</halpin>
     <min_>0</min_>
     <max_>123</max_>
     <bgcolor>"grey"</bgcolor>
@@ -524,7 +531,18 @@ augmentée ou diminuée de la valeur de 'resolution', à chaque pression
 sur une flèche, ou en positionnant la souris sur le nombre puis en
 tournant la molette de la souris.
 
-    <spinbox>
+[source,xml]
+---------------------------------------
+<spinbox>
+    <halpin>"my-spinbox"</halpin>
+    <min_>-12</min_>
+    <max_>33</max_>
+    <inival>0</inival>
+    <resolution>0.1</resolution>
+    <format>"2.3f"</format>
+    <font>("Arial",30)</font>
+</spinbox>
+---------------------------------------
 
 image:images/pyvcp_spinbox.png[]
 
@@ -534,7 +552,29 @@ Le curseur contrôle une pin FLOAT. La valeur de la pin est augmentée
 ou diminuée en déplaçant le curseur, ou en positionnant la souris sur
 le curseur puis en tournant la molette de la souris.
 
-    <scale>
+[source,xml]
+---------------------------------------
+<scale>
+    <font>("Helvetica",16)</font>
+    <width>"25"</width>
+    <halpin>"my-hscale"</halpin>
+    <resolution>0.1</resolution>
+    <orient>HORIZONTAL</orient>
+    <initval>-15</initval>
+    <min_>-33</min_>
+    <max_>26</max_>
+</scale>
+<scale>
+    <font>("Helvetica",16)</font>
+    <width>"50"</width>
+    <halpin>"my-vscale"</halpin>
+    <resolution>1</resolution>
+    <orient>VERTICAL</orient>
+    <min_>100</min_>
+    <max_>0</max_>
+</scale>
+---------------------------------------
+
 
 image:images/pyvcp_scale.png[]
 
@@ -552,19 +592,23 @@ digit. La sortie est limitée par les valeurs min et max. La variable
 cpr fixe le nombre de graduations sur le pourtour du cadran (prudence
 avec les grands nombres).
 
-    <dial> 
-    <size>200</size> 
-    <cpr>100</cpr> 
-    <min_>-15</min_> 
-    <max_>15</max_> 
-    <text>"Dial"</text> 
-    <init>0</init> 
-    <resolution>0.001</resolution> 
-    <halpin>"anaout"</halpin> 
-    <dialcolor>"yellow"</dialcolor> 
-    <edgecolor>"green"</edgecolor> 
-    <dotcolor>"black"</dotcolor> 
-    </dial>
+[source,xml]
+---------------------------------------
+<dial>
+    <size>200</size>
+    <cpr>100</cpr>
+    <min_>-15</min_>
+    <max_>15</max_>
+    <text>"Dial"</text>
+    <initval>0</initval>
+    <resolution>0.001</resolution>
+    <halpin>"anaout"</halpin>
+    <dialcolor>"yellow"</dialcolor>
+    <edgecolor>"green"</edgecolor>
+    <dotcolor>"black"</dotcolor>
+</dial>
+---------------------------------------
+
 
 image:images/pyvcp_dial.png[]
 
@@ -575,7 +619,14 @@ en sortant sur une pin FLOAT la valeur sur laquelle est positionné le
 curseur, que ce soit en le faisant tourner avec un mouvement
 circulaire, ou en tournant la molette de la souris.
 
-    <jogwheel>
+[source,xml]
+---------------------------------------
+<jogwheel>
+    <halpin>"my-wheel"</halpin>
+    <cpr>45</cpr>
+    <size>250</size>
+</jogwheel>
+---------------------------------------
 
 image:images/pyvcp_jogwheel.png[]
 
@@ -595,6 +646,7 @@ largeur de la bordure.
 <bd>n</bd>::
     La valeur de "n" fixe la largeur de la bordure.
 
+------------------------------------------
     <hbox> 
     <button> 
     <relief>FLAT</relief> 
@@ -626,6 +678,7 @@ largeur de la bordure.
     <bd>3</bd> 
     </button> 
     </hbox>
+------------------------------------------
 
 image:images/pyvcp_borders.png[]
 
@@ -634,11 +687,21 @@ image:images/pyvcp_borders.png[]
 Utilisez une Hbox lorsque vous voulez aligner les widgets,
 horizontalement, les uns à côtés des autres.
 
-    <hbox>
+[source,xml]
+-------------------------------------------------
+<hbox>
+    <relief>RIDGE</relief>
+    <bd>6</bd>
+    <label><text>"a hbox:"</text></label>
+    <led></led>
+    <number></number>
+    <bar></bar>
+</hbox>
+-------------------------------------------------
 
 image:images/pyvcp_hbox.png[]
 
-Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
+Á l'intérieur d'une Hbox, vous pouvez utiliser les balises 
 `<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
@@ -651,11 +714,22 @@ comportement de fill, anchor, et expand, référez vous au manuel du pack
 Utilisez une Vbox lorsque vous voulez aligner les widgets
 verticalement, les uns au dessus des autres.
 
-    <vbox>
+[source,xml]
+-------------------------------------------------
+<vbox>
+    <relief>RIDGE</relief>
+    <bd>6</bd>
+    <label><text>"a vbox:"</text></label>
+    <led></led>
+    <number></number>
+    <bar></bar>
+</vbox>
+-------------------------------------------------
+
 
 image:images/pyvcp_vbox.png[]
 
-Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
+Á l'intérieur d'une Hbox, vous pouvez utiliser les balises 
 `<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
@@ -676,8 +750,11 @@ image:pyvcp_label_fr.png[]
 Un labelframe est un cadre entouré d'un sillon et un label en haut à
 gauche.
 
+-------------------------------------------------
     <labelframe text="Label: Leds groupées">
-    
+-------------------------------------------------
+
+image::pyvcp_labelframe_fr1.png[]
 
 === Table
 
@@ -692,7 +769,9 @@ flexibles (sticky).
 
 Exemple:
 
+-------------------------------------------------
     <table flexible_rows="[2]" flexible_columns="[1,4]">
+-------------------------------------------------
 
 image:images/pyvcp_table.png[]
 
@@ -700,6 +779,7 @@ image:images/pyvcp_table.png[]
 
 Une interface à onglets peut économiser énormément d'espace.
 
+-------------------------------------------------
     <tabs> 
     <names> ["spindle","green eggs"]</names> 
     </tabs> 
@@ -725,6 +805,7 @@ Une interface à onglets peut économiser énormément d'espace.
     </label> 
     </vbox> 
     </tabs>
+-------------------------------------------------
 
 image:images/pyvcp_tabs1.png[] image:images/pyvcp_tabs2.png[] image:images/pyvcp_tabs3.png[]
 
