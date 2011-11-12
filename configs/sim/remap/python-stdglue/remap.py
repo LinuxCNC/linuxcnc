@@ -178,8 +178,11 @@ def change_epilog(self, **words):
                 # commit change
                 self.selected_pocket =  int(self.params["selected_pocket"])
                 emccanon.CHANGE_TOOL(self.selected_pocket)
+                self.current_pocket = self.selected_pocket
+                self.selected_pocket = -1
+                self.selected_tool = -1
                 # cause a sync()
-                self.tool_change_flag = True
+                self.toolchange_flag = True
                 self.set_tool_parameters()
                 return INTERP_OK
             else:
