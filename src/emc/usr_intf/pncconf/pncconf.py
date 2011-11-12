@@ -172,8 +172,8 @@ _IMPERIAL = 0;_METRIC = 1
 
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, number of pins per encoder,
-# max pwm gens, # of pins
 # max resolver gens, # of pins,
+# max pwm gens, # of pins
 # max tppwmgens , # of pins
 # max step gens, number of pins per step gen,
 # max smart serial, number of channels,
@@ -6485,7 +6485,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
-        stepdriven = encoder = pwmgen = tppwm = digital_at_speed = False
+        stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = False
         if self.data.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
@@ -7917,7 +7917,7 @@ But there is not one in the machine-named folder.."""),True)
             w[axis+"tuningnotebook"].set_current_page(0)
             w[axis+"step"].set_sensitive(0)
             w[axis+"steptable"].set_sensitive(0)
-            text = _("Servo tuning is not finished / working\n")
+            text = _("Servo tuning is not avaiable in PNCconf yet\n")
             self.warning_dialog(text,True)
             return
 
@@ -8220,12 +8220,14 @@ But there is not one in the machine-named folder.."""),True)
         # one needs real time, pwm gen and an encoder for open loop testing.
         if not self.check_for_rt(self):
             return
-        self.enc = self.data.findsignal( (axis + "-encoder-a"))
-        self.res = self.data.findsignal( (axis + "-resolver"))
+        temp = self.data.findsignal( (axis + "-encoder-a"))
+        self.enc = self.data.make_pinname(temp)
+        temp = self.data.findsignal( (axis + "-resolver"))
+        self.res = self.data.make_pinname(temp)
         pwm_sig = self.data.findsignal( (axis + "-pwm-pulse"))
         pwm = self.data.make_pinname(pwm_sig)
 
-        if not pwm or (not enc and not res) :
+        if not pwm or (not self.enc and not self.res) :
              self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
              return
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
@@ -8275,7 +8277,8 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
         # set up encoder     
-        if self.enc:           
+        if self.enc:
+            print self.enc
             halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
             halrun.write("setp %s.scale %f \n"%  (self.enc, enc_scale))
             halrun.write("setp %s \n"%  (self.enc +".filter true"))
@@ -8283,8 +8286,8 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s -g 550 600 330\n"%  (self.enc +".velocity"))
         # set up resolver
         if self.res:
-            halrun.write("net resolver-reset %s \n"%  (self.enc +".reset"))
-            halrun.write("setp %s.scale %f \n"%  (self.enc, enc_scale))
+            halrun.write("net resolver-reset %s \n"%  (self.res +".reset"))
+            halrun.write("setp %s.scale %f \n"%  (self.res, enc_scale))
 
         widgets.openloopdialog.set_title(_("%s Axis Test") % axis.upper())
         widgets.openloopdialog.move(550,0)
@@ -8496,14 +8499,14 @@ But there is not one in the machine-named folder.."""),True)
             ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
             if self.data.mesa0_numof_sserialports:
                 for i in range(1,9):
-                    if i <= self.mesa0_numof_sserialchannels:
+                    if i <= self.data.mesa0_numof_sserialchannels:
                         temp = temp + "0"
                     else:
                         temp = temp + "x"
                 ssconfig0 = "sserial_port_0=%s"% temp
             if self.data.mesa1_numof_sserialports:
                 for i in range(1,9):
-                    if i <= self.mesa1_numof_sserialchannels:
+                    if i <= self.data.mesa1_numof_sserialchannels:
                         temp = temp + "0"
                     else:
                         temp = temp + "x"
