@@ -1,4 +1,4 @@
-Manuel de la Intégrateur V2.5, {localdate}
+Manuel de l'intégrateur V2.5, {localdate}
 =========================================
 The EMC Team
 

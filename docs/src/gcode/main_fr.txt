@@ -1,5 +1,5 @@
-= Code de référence G
-(((Code G)))
+= Référence du G-code
+(((G-code)))
 
 Conventions utilisées dans cette section
 

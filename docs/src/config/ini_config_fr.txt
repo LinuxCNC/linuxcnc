@@ -7,7 +7,7 @@ EMC2 est lancé avec le fichier de script EMC.
     utilisation: EMC [options] [<ini-file>]
 
     options:
-        -v = verbose - inforamations de fonctionnement
+        -v = verbose - informations de fonctionnement
         -d = commandes d'échos à l'écran pour le débogage
 
 Le fichier de script 'emc' lit le fichier ini et lance EMC. La section [HAL] du fichier .ini spécifie l'ordre de chargement des fichiers de HAL, si plusieurs sont utilisés. Après que les fichiers HAL soient chargés, l'interface graphique est chargée à son tour puis le fichier HAL POSTGUI. Si des objets pyvcp ont été créés avec des pins de HAL, le fichier postgui HAL doit être pour effectuer les raccordements à ces pins.
@@ -61,7 +61,7 @@ NML::
     avec un seul ordinateur, peut être modifié pour communiquer entre
     plusieurs ordinateurs.
 
-.emcrc::
+ .emcrc::
      (((.emcrc))) Ce fichier enregistre des informations spécifiques à
     l'utilisateur, il a été créé pour enregistrer le nom du répertoire
     lorsque l'utilisateur choisit sa première configuration
@@ -207,17 +207,17 @@ L'ordre des sections est sans importance.
 
 Les sections suivantes sont utilisées par EMC:
 
- - [EMC] informations générales (<<sub:Section-[EMC]>>)
- - [DISPLAY] sélection du type d'interface graphique (<<sub:Section-[DISPLAY]>>)
- - [FILTER] settings input filter programs (<<sub:Section-[FILTER]>>)
- - [RS274NGC] ajustements utilisés par l'interpréteur de g-code (<<sub:Section-[RS274NGC]>>)
- - [EMCMOT] Réglages utilisés par le contrôleur de mouvements temps réel (<<sub:Section-[EMCMOT]>>)
- - [TASK] Réglages utilisés par le contrôleur de tâche (<<sub:Section-[TASK]>>)
- - [HAL] spécifications des fichiers .hal (<<sub:Section-[HAL]>>)
- - [HALUI] Commandes MDI utilisées par HALUI. Voir le chapitre sur HALUI pour plus d'informations (<<sub:MDI>>)
- - [TRAJ] Réglages additionnels utilisés par le contrôleur de mouvements temps réel (<<sub:Section-[TRAJ]>>)
- - [AXIS_0] ... [AXIS_n] Groupes de variables pour AXIS (<<sub:Section-[AXIS]>>)
- - [EMCIO] Réglages utilisés par le contrôleur d'entrées/sorties (<<sub:Section-[EMCIO]>>)
+- [EMC] informations générales <<Section-EMC>>
+- [DISPLAY] sélection du type d'interface graphique <<sub:Section-DISPLAY>>
+- [FILTER] settings input filter programs <<sub:Section-FILTER>>
+- [RS274NGC] ajustements utilisés par l'interpréteur de g-code <<sub:Section-RS274NGC>>
+- [EMCMOT] Réglages utilisés par le contrôleur de mouvements temps réel <<sub:Section-EMCMOT>>
+- [TASK] Réglages utilisés par le contrôleur de tâche <<sub:Section-TASK>>
+- [HAL] spécifications des fichiers .hal <<sub:Section-HAL>>
+- [HALUI] Commandes MDI utilisées par HALUI. <<sub:Section-HALUI>>
+- [TRAJ] Réglages additionnels utilisés par le contrôleur de mouvements temps réel <<sub:Section-TRAJ>>
+- [AXIS_0] ... [AXIS_n] Groupes de variables pour AXIS <<sub:Section-AXIS>>
+- [EMCIO] Réglages utilisés par le contrôleur d'entrées/sorties <<sub:Section-EMCIO>>
 
 === Variables
 
@@ -249,13 +249,13 @@ Machine Unit:: #(unité de la machine)
     la section [TRAJ]. Une unité machine est égale à une unité telle 
     que spécifiée par LINEAR_UNITS ou ANGULAR_UNITS.
 
-== Définition des variables du fichier INI[[sub:Details fichier INI]]
+== Définition des variables du fichier ini[[sub:Details fichier INI]]
 
-=== Section [EMC][[sub:Section-[EMC]]]
+=== Section EMC[[Section-EMC]]
 
-(((Sections du fichier INI)))
+(((Section [EMC] du fichier ini)))
 
-VERSION = $Revision: 1.3 $::
+VERSION = $Revision: 1.5 $::
      Le numéro de version du fichier INI. La valeur indiquée ici semble
     étrange, car elle est automatiquement mise à jour lors de l'utilisation
     du système de contrôle de révision. C'est une bonne idée de changer ce
@@ -274,9 +274,9 @@ DEBUG = 0::
     généralement utiles pour les développeurs. Voir 
     ../src/emc/nml_intf/emcglb.h pour les autres paramètres.
 
-=== Section [DISPLAY][[sub:Section-[DISPLAY]]]
+=== Section DISPLAY[[sub:Section-DISPLAY]]
 
-(((Fichier INI-DISPLAY)))
+(((Section [DISPLAY] du fichier ini)))
 
 Les différentes interfaces graphiques utilisent différentes options 
 qui ne sont pas supportées par toutes les interfaces utilisateur. 
@@ -416,9 +416,9 @@ MDI_HISTORY_FILE =::
 HELP_FILE = tkemc.txt::
     Chemin du fichier d'aide (non utilisé avec AXIS).
 
-=== [FILTER] Section[[sub:[FILTER]-Section]]
+=== Section FILTER[[sub:Section-FILTER]]
 
-(((ini [FILTER] Section))) 
+(((Section [FILTER] du fichier ini))) 
 
 AXIS la possibilité d'envoyer les fichiers chargés au travers d'un programme de filtrage.
 Ce filtrage peut réaliser toutes sortes de tâches: Parfois aussi simple que s'assurer que le programme se termine bien par M2, ou parfois aussi compliqué que détecter si le fichier d'entrée est une image et générer le g-code pour graver la forme qu'il à ainsi défini.
@@ -464,9 +464,9 @@ Si la variable d'environnement AXIS_PROGRESS_BAR est activée, alors les lignes
 activeront la barre de progression d'AXIS qui donnera le pourcentage. Cette fonctionnalité
 devrait être utilisée par tous les filtres susceptibles de fonctionner pendant un long moment.
 
-=== [RS274NGC] Section[[sub:[RS274NGC]-section]]
+=== Section RS274NGC[[sub:Section-RS274NGC]]
 
-(((RS274NGC (inifile section))))
+(((Section [RS274NGC] du fichier ini)))
 
 PARAMETER_FILE = monfichier.var::
     (((PARAMETER FILE))) Le fichier situé dans le même répertoire que le fichier ini
@@ -507,16 +507,15 @@ Une recherche est faite pour chaque fonction utilisateur définie possible, typi
 
 Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
 
-=== Section [EMCMOT][[sub:Section-[EMCMOT]]]
+=== Section EMCMOT[[sub:Section-EMCMOT]]
 
-(((Fichier INI-EMCMOT)))
+(((Section [EMCMOT] du fichier ini)))
 
 Vous pouvez trouver d'autres entrées dans cette section, elles ne doivent pas être changées.
 
 BASE_PERIOD = 50000::
     (((BASE PERIOD))) (HAL) “Période de base” des tâches, exprimée en nanosecondes. 
-    C'est la plus rapide des horloges de la machine. 
-
+    C'est la plus rapide des horloges de la machine.
      Avec un système à servomoteurs, il n'y a généralement pas de raison
     pour que *BASE_PERIOD* soit plus petite que *SERVO_PERIOD*.  
     Sur une machine de type “step&direction” avec génération logicielle
@@ -536,25 +535,23 @@ BASE_PERIOD = 50000::
 SERVO_PERIOD = 1000000::
     (((SERVO PERIOD))) (hal) Période de la tâche “Servo”, exprimée également en nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de *BASE_PERIOD*. 
-    Elle est utilisée aussi sur des systèmes basés sur des moteurs pas à pas 
-
+    Elle est utilisée aussi sur des systèmes basés sur des moteurs pas à pas.
     C'est la vitesse avec laquelle la nouvelle position des moteurs est
     traitée, les erreurs de suivi vérifiées, les valeurs des sorties PID
     sont rafraichies etc. 
     Sur la plupart des systèmes *cette*  valeur n'est pas à modifier. Il
-    s'agit du taux de mise à jour du
-    planificateur de mouvement de bas niveau.
+    s'agit du taux de mise à jour du planificateur de mouvement de bas niveau.
 
 TRAJ_PERIOD = 1000000::
     (((TRAJ PERIOD)))      (hal) Période du planificateur de trajectoire, exprimée en nanosecondes. 
     Cette valeur sera arrondie à un multiple entier de *SERVO_PERIOD*. 
     Excepté pour les machines avec une cinématique particulière 
-    (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur 
+    (ex: hexapodes) Il n'y a aucune raison de rendre cette valeur
     supérieure à *SERVO_PERIOD*.
 
-=== Section [TASK][[sub:Section-[TASK]]]
+=== Section TASK[[sub:Section-TASK]]
 
-(((Fichier INI-TASK )))
+(((Section [TASK] du fichier ini)))
 
 TASK = milltask::
      Indique le nom de la "tâche" exécutable. La "tâche" réalise différentes
@@ -571,9 +568,9 @@ CYCLE_TIME = 0.010::
     une commande provenant d'une interface utilisateur est acceptée. Il
     n'est généralement pas nécessaire de modifier cette valeur.
 
-=== Section [HAL][[sub:Section-[HAL]]]
+=== Section HAL[[sub:Section-HAL]]
 
-(((Fichier INI-HAL )))
+(((Section [HAL] du fichier ini )))
 
 TWOPASS=ON::
     Utilise le processus 'two pass' (double pase) pour charger les composants HAL.
@@ -613,17 +610,17 @@ d'autres logiciels de protection des défauts de fonctionnement.
 '(Seulement avec les interfaces TOUCHY et AXIS)' Exécute 'example2.hal' après que
 l'interface graphique ait créé ses HAL pins. 
 
-=== [HALUI] section[[sub:[HALUI]-section]]
+=== Section HALUI[[sub:Section-HALUI]]
 
-(((HALUI (inifile section))))
+(((Section [HALUI] du fichier ini )))
 
 MDI_COMMAND = G53 G0 X0 Y0 Z0::
      Une commande MDI peut être exécuté en utilisant halui.mdi-command-00. 
     Incrément le nombre pour chaque commande énumérés dans la section [HALUI].
 
-=== Section [TRAJ][[sub:Section-[TRAJ]]]
+=== Section TRAJ[[sub:Section-TRAJ]]
 
-(((Fichier INI-TRAJ )))
+(((Section [TRAJ] du fichier ini )))
 
 La section [TRAJ] contient les paramètres généraux du module
 planificateur de trajectoires d' EMCMOT. Vous n'aurez pas à modifier
@@ -710,9 +707,9 @@ NO_FORCE_HOMING mise à 1 permettra à la machine de franchir les
 limites logicielles pendant les mouvements ce qui n'est pas souhaîtable 
 pour un fonctionnement normal!
 
-=== Section [AXIS_<num>][[sub:Section-[AXIS]]]
+=== Section AXIS_n[[sub:Section-AXIS]]
 
-(((Fichier INI-AXIS)))
+(((Section [AXIS_n] du fichier ini)))
 
 Les sections [AXIS_0], [AXIS_1], etc. contiennent les paramètres
 généraux des composants individuels du module de contrôle. La
@@ -1083,9 +1080,9 @@ STEPGEN_MAXVEL = 1.4::
     montré que l'utilisation de STEPGEN_MAXVEL n'améliore pas le réglage de
     la boucle de position de stepgen. 
 
-=== Section [EMCIO][[sub:Section-[EMCIO]]]
+=== Section EMCIO[[sub:Section-EMCIO]]
 
-(((Fichier INI-EMCIO)))
+(((Section [EMCIO] du fichier ini)))
 
 CYCLE_TIME = 0.100::
      La période en secondes, à laquelle EMCIO va tourner. La mettre à 0.0

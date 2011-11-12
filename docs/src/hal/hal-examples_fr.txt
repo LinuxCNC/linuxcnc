@@ -65,7 +65,7 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 This example uses "ddt", "mult2" and "abs" to compute the velocity of
 a single axis. For more information on the real time components see the
-man pages or the Realtime Components section (<<sec:Realtime-Components>>).
+man pages or the Realtime Components section.
 
 The first thing is to check your configuration to make sure you are
 not using any of the real time components all ready. You can do this by

@@ -298,7 +298,7 @@ stepgen::
      Générateur d'impulsions de pas avec boucle de position. Voir section <<sec:Stepgen>>.(((stepgen)))
 
 encoder::
-     Codeur/compteur logiciel. Voir section <<sec:Encoder>>.(((Codeur)))(((encoder)))
+     Codeur/compteur logiciel. Voir section <<sec:Codeur>>.(((Codeur)))
 
 pid::
      Boucle de contrôle Proportionnelle/Intégrale/Dérivée. Voir section <<sec:PID>>.(((pid)))

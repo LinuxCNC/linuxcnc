@@ -198,7 +198,7 @@ Syntaxe et exemple:
 +newsig Xstep bit+ 
 
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
-la man page de <<halrun>>.
+la man page de "halrun".
 
 == HAL Data[[sec:Hal-Data]]
 

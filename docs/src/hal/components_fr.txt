@@ -136,7 +136,8 @@ Converti une valeur de u32 en s32
 
 === counter (((counter)))
 
-Impulsions d'entrée Comtes (obsolète). +
+Impulsions d'entrée Comptage (obsolète). +
+
 Utilisez le composant *encoder* avec `... counter-mode = TRUE`. Voir <<sec:Codeur>>.
 
 === ddt (((ddt)))
