@@ -112,6 +112,8 @@ int PythonPlugin::call(const char *module, const char *callable,
 
 	// this does
 	PyObject *rv = PyObject_Call(function.ptr(), tupleargs.ptr(), kwargs.ptr());
+	if (PyErr_Occurred()) 
+	    bp::throw_error_already_set();
 	if (rv) 
 	    retval = bp::object(bp::borrowed(rv));
 	else
