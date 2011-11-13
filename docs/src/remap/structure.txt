@@ -538,12 +538,10 @@ def involute(self, userdata, **words):
     if self.debugmask & 0x20000000: call_pydevd() # USER2 debug flag
 
     if equal(self.feed_rate,0.0):
-        self.set_errormsg("feedrate > 0 required")
-        return INTERP_ERROR
+        return "feedrate > 0 required"
 
     if equal(self.speed,0.0):
-        self.set_errormsg("spindle speed > 0 required")
-        return INTERP_ERROR
+        return "spindle speed > 0 required"
 
     plunge = 0.1 # if Z word was given, plunge - with reduced feed
 
@@ -579,8 +577,7 @@ def involute(self, userdata, **words):
 
     except InterpreterException,e:
         msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
-        self.set_errormsg(msg) # replace builtin error message
-        return INTERP_ERROR
+	return msg
 
     return INTERP_OK
 ---------------------------------------------------------------------
@@ -747,19 +744,18 @@ changed there, or used in a message. Those are: `tool_in_spindle`,
 def change_prolog(self, **words):
     try:
 	if self.selected_pocket < 0:
-            self.set_errormsg("M6: no tool prepared")
-            return INTERP_ERROR
+            return "M6: no tool prepared"
+
 	if self.cutter_comp_side:
-            self.set_errormsg("Cannot change tools with cutter radius compensation on")
-            return INTERP_ERROR
+            return "Cannot change tools with cutter radius compensation on"
+
 	self.params["tool_in_spindle"] = self.current_tool
 	self.params["selected_tool"] = self.selected_tool
 	self.params["current_pocket"] = self.current_pocket
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
     except Exception, e:
-        self.set_errormsg("M6/change_prolog: %s" % (e))
-        return INTERP_ERROR
+        return "M6/change_prolog: %s" % (e)
 ---------------------------------------------------------------------
 
 You will find that most prolog functions look very similar: first test
@@ -802,11 +798,10 @@ def change_epilog(self, **words):
             self.set_tool_parameters()
             return INTERP_OK
         else:
-            self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
-            return INTERP_ERROR
+            return "M6 aborted (return code %.1f)" % (self.return_value)
+
     except Exception, e:
-        self.set_errormsg("M6/change_epilog: %s" % (e))
-        return INTERP_ERROR
+        return "M6/change_epilog: %s" % (e)
 ---------------------------------------------------------------------
 
 This replacement M6 is compatible with the builtin code,
@@ -931,14 +926,13 @@ def prepare_prolog(self,**words):
     try:
         cblock = self.blocks[self.remap_level]
         if not cblock.t_flag:
-            self.set_errormsg("T requires a tool number")
-            return INTERP_ERROR
+            return "T requires a tool number"
+
         tool  = cblock.t_number
         if tool:
             (status, pocket) = self.find_tool_pocket(tool)
             if status != INTERP_OK:
-                self.set_errormsg("T%d: pocket not found" % (tool))
-                return status
+                return "T%d: pocket not found" % (tool)
         else:
             pocket = -1 # this is a T0 - tool unload
             
@@ -951,8 +945,8 @@ def prepare_prolog(self,**words):
 
         return INTERP_OK
     except Exception, e:
-        self.set_errormsg("T%d/prepare_prolog: %s" % (int(words['t']), e))
-        return INTERP_ERROR
+        return "T%d/prepare_prolog: %s" % (int(words['t']), e)
+
 ---------------------------------------------------------------------
 
 The minimal ngc prepare procedure again looks like so:
@@ -975,11 +969,11 @@ def prepare_epilog(self, **words):
             emccanon.SELECT_POCKET(self.selected_pocket, self.selected_tool)
             return INTERP_OK
         else:
-            self.set_errormsg("T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value))
-            return INTERP_ERROR
+            return "T%d: aborted (return code %.1f)" % (int(self.params["tool"]),self.return_value)
+
     except Exception, e:
-        self.set_errormsg("T%d/prepare_epilog: %s" % (tool,e))
-        return INTERP_ERROR       
+        return "T%d/prepare_epilog: %s" % (tool,e)
+
 ---------------------------------------------------------------------
 
 prepare_prolog and prepare_epilog are part of the 'standard glue'
@@ -1046,8 +1040,9 @@ laid out in the previous example:
   the error
 - inspect the return value in the epilog function.
 - take any recovery action needed
-- use self.set_errormsg("error text") to set the error message
-- return INTERP_ERROR from the epilog
+- return the error message string from the handler, which will set the
+  interpreter error message and abort the program (pretty much like
+  `(abort, message=`
 
 This error message will be displayed in the UI, and returning
 INTERP_ERROR will cause this error handled like any other runtime error.
@@ -1173,7 +1168,8 @@ Just as NGC procedures may return values, so do O-word Python
 subroutines. They are expected to either:
 
 - return no value (no `return` statement or the value `None`)
-- a float value
+- a float or int value
+- a string, this  means 'this is an error message, abort the program'. Works like `(abort, msg)`.
 
 Any other return value type will raise a Python exception.
 
@@ -1188,6 +1184,7 @@ are available:
 	      indicates the last procedure called did `return`or
 	      `endsub` with an explicit value. 1.0 if true. Set to 0.0 on each `call`. Exposed
 	      in Interp was  `self.value_returned` (int).
+
 
 See also `tests/interp/value-returned` for an example.
 
@@ -1216,18 +1213,19 @@ def minimal_prolog(self, **words): # in remap module
     for w in words:
         print "%s: %s" % (w, words[w])
     if words['p'] < 78: # NB: could raise an exception if p were optional
-       self.set_errormsg("failing miserably")
-       return INTERP_ERROR
+       return "failing miserably"
     return INTERP_OK
 ---------------------------------------------------------------------
 
 Return values:
 
-`INTERP_OK`:: return this on success
+`INTERP_OK`:: return this on success. You need to import this from
+`interpreter`.
 
-`INTERP_ERROR`::
-	aborts execution. Use the `self.set_errormsg()` method
-	function  to pass an appropriate error message.
+`"a message text"`:: returning a string from a handler means 'this is
+an error message, abort the program'. Works like `(abort, msg)`.
+
+.
 
 ==== Calling conventions for 'python=' subroutines
 
@@ -1250,9 +1248,8 @@ Return values:
 
 `INTERP_OK`:: return this on success
 
-`INTERP_ERROR`::
-	aborts execution. Use the `self.set_errormsg()` method
-	function  to pass an appropriate error message.
+`"a message text"`:: returning a string from a handler means 'this is
+an error message, abort the program'. Works like `(abort, msg)`.
 
 If the handler needs to execute a 'queuebuster
 operation' (tool change, probe, HAL pin reading) it is supposed
@@ -1339,8 +1336,7 @@ def retrieve_param(self, **words):
     try:
         print "result=", self.params["result"]
     except Exception,e:
-	self.set_errormsg("testparam forgot to assign #<result>")
-	return INTERP_ERROR
+	return "testparam forgot to assign #<result>"
     return INTERP_OK
 ---------------------------------------------------------------------
 
@@ -1402,8 +1398,7 @@ interpreter.throw_exceptions = 1
 
    except InterpreterException,e:
         msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
-        self.set_errormsg(msg) # replace builtin error message
-        return INTERP_ERROR
+        return msg  # replace builtin error message
 ---------------------------------------------------------------------
 // NOTE: to iterate is human, to recurse: divine.
 
@@ -2264,3 +2259,14 @@ platform trying to run gladevcp.
 // Command: `ls -al`
 // +mono *bold*+
 // `passthru *bold*`
+
+== Changes
+
+- the method to return error messages and fail used to be
+  'self.set_errormsg(text)' followed by 'return INTERP_ERROR'. This
+  has been replaced by merely returning a string from a Python handler
+  or oword subroutine. This sets the error message and aborts the
+  progam. Previously there was no clean way to abort a Python oword
+  subroutine.
+
+
