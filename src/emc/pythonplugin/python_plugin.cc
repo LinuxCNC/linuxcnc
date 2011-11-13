@@ -111,7 +111,11 @@ int PythonPlugin::call(const char *module, const char *callable,
 	//retval = function(*tupleargs, **kwargs);
 
 	// this does
-	retval = bp::object(bp::borrowed(PyObject_Call(function.ptr(), tupleargs.ptr(), kwargs.ptr())));
+	PyObject *rv = PyObject_Call(function.ptr(), tupleargs.ptr(), kwargs.ptr());
+	if (rv) 
+	    retval = bp::object(bp::borrowed(rv));
+	else
+	    retval = bp::object();
 	status = PLUGIN_OK;
     }
     catch (bp::error_already_set) {
