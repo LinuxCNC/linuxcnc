@@ -28,7 +28,7 @@ de la plupart des systèmes à moteurs pas à pas.
  - Une connection Internet ou réseau (optionnelle mais très pratique pour
    les mises à jour)
 
-== Problèmatique du matériel
+== Problématique du matériel
 
 === Les portables
 

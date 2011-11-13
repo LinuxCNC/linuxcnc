@@ -33,6 +33,8 @@ et en avoir enregistré une copie dans votre répertoire personnel,
 vous pouvez la personnaliser en fonction des besoins spécifiques à votre machine.
 Consultez le Manuel de l'intégrateur pour les détails de la configuration.
 
+Si vous souhaitez créer une configuration personnalisée, vous pouvez utiliser pour cela, un des assistants graphiques de configuration, StepConf ou PncConf selon votre type de machine.
+
 // vim: set syntax = asciidoc:
 
 

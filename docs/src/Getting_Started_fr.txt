@@ -30,7 +30,7 @@ include::config/copy_and_run_fr.txt[]
 
 include::common/Linux_FAQ_fr.txt[]
 
-include::common/GPLD_Copyright.txt[]
+include::common/GPLD_Copyright_fr.txt[]
 
 // = Index
 

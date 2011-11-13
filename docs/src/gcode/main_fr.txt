@@ -7,14 +7,13 @@ Dans une commande type, le tiret (`-`) signifie une valeur réelle.
 
 Comme décrite précédemment, une valeur réelle peut être: 
 
- - un nombre explicite, `4` par exemple. 
- - une expression, `[2+2]` par exemple. 
- - une valeur de paramètre, `#88` par exemple. 
- - une fonction unaire de la valeur, `acos[0]` par exemple.
+- un nombre explicite, `4` par exemple. 
+- une expression, `[2+2]` par exemple. 
+- une valeur de paramètre, `#88` par exemple. 
+- une fonction unaire de la valeur, `acos[0]` par exemple.
 
 Dans la plupart des cas, si des mots d'axes sont donnés 
-parmi `XYZABCUVW`, 
-ils spécifient le point de destination. 
+parmi `XYZABCUVW`, ils spécifient le point de destination. 
 
 Les axes sont donnés dans le système de coordonnées courant, 
 à moins qu'explicitement décrit comme 
@@ -34,21 +33,25 @@ explicites, comme indiqué dans les exemples sont rarement utiles.
 
 Si `L-` est écrit dans une commande le “`-`” fera référence à “L
 nombre”. De la même manière, le “`-`” dans `H-` peut être appelé le “H
-nombre” et ainsi de suite pour les autres
-lettres.
+nombre” et ainsi de suite pour les autres lettres.
 
 == Coordonnées polaires (((coordonnées polaires)))
 
-Coordonnées polaires peuvent être utilisés pour spécifier les coordonnées XY d'un déménagement.
-Le @n est la distance et ^n est l'angle. L'avantage de cela est
-pour des choses comme les cercles de trou de boulon qui peut être fait très simplement en
-passer à un point situé au centre du cercle, réglage de la compensation et
-puis en déplaçant vers le premier trou, puis de lancer le cycle de forage. 
-Polar Coordonnées sont toujours à partir du courant XY position zéro. 
-Pour déplacer le Coordonnées polaires de la machine à zéro utiliser un décalage 
+Les coordonnées polaires peuvent être utilisées pour spécifier 
+les coordonnées XY d'un mouvement.
+Le @n est la distance et le ^n est l'angle. L'avantage est important, par
+exemple: Pour faire très simplement un cercle de trous tangents:
+
+- Passer un point situé au centre du cercle
+- Régler la compensation de longueur d'outil
+- Déplacer l'outil vers le premier trou
+- Enfin, lancer le cycle de perçage. 
+
+Les coordonnées polaires sont toujours données à partir de la position X0,Y0. 
+Pour mettre les coordonnées polaires machine à zéro utiliser un décalage 
 ou sélectionnez un système de coordonnées.
 
-Dans l'absolu, le mode de l'angle et la distance est de la position zéro XY
+En mode absolu, la distance et l'angle sont donnés à partir de la position zéro XY
 et l'angle commence à 0 sur l'axe X positif et augmente dans une CCW
 direction autour de l'axe Z. Le code G1 @1 ^90 est la même que G1 Y1.
 

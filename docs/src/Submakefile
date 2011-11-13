@@ -35,6 +35,7 @@ DOC_SRCS := \
 	common/Glossary_es.txt \
 	common/Glossary_fr.txt \
 	common/GPLD_Copyright.txt \
+	common/GPLD_Copyright_fr.txt \
 	common/Integrator_Concepts.txt \
 	common/Integrator_Concepts_de.txt \
 	common/Integrator_Concepts_es.txt \
