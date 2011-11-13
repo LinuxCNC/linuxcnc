@@ -477,7 +477,7 @@ enum call_types {
 };
 
 
-enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION};
+enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION, RET_ERRORMSG };
 
 typedef block *block_pointer;
 

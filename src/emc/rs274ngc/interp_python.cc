@@ -193,7 +193,13 @@ int Interp::pycall(setup_pointer settings,
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
 		    frame->py_returned_int = bp::extract<int>(frame->generator_next());
 		    frame->py_return_type = RET_YIELD;
-	
+		
+		} else if (PyString_Check(retval.ptr())) {  
+		    // returning a string sets the interpreter error message and aborts
+		    char *msg = bp::extract<char *>(retval);
+		    ERM("%s", msg);
+		    frame->py_return_type = RET_ERRORMSG;
+		    status = INTERP_ERROR;
 		} else if (PyInt_Check(retval.ptr())) {  
 		    frame->py_returned_int = bp::extract<int>(retval);
 		    frame->py_return_type = RET_INT;

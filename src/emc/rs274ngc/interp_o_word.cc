@@ -560,6 +560,11 @@ int Interp::handler_returned( setup_pointer settings,  context_pointer active_fr
 	    settings->value_returned = 1;
 	} else 
 	    return active_frame->py_returned_int;
+
+    case RET_ERRORMSG:
+	status = INTERP_ERROR;
+	break;
+
     }
     return status;
 }
