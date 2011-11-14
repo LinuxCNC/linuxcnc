@@ -14,10 +14,17 @@
    height="251.53568"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 "
+   inkscape:version="0.47 r22583"
    sodipodi:docname="HomeAxisTravel.svg">
   <defs
      id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 125.76784 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="653.84888 : 125.76784 : 1"
+       inkscape:persp3d-origin="326.92444 : 83.845225 : 1"
+       id="perspective5594" />
     <marker
        inkscape:stockid="Arrow1Lstart"
        orient="auto"
@@ -166,17 +173,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="127.74754"
-     inkscape:cy="94.810006"
+     inkscape:zoom="1.979899"
+     inkscape:cx="343.06562"
+     inkscape:cy="98.945105"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:snap-global="true"
-     inkscape:window-width="1280"
-     inkscape:window-height="962"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1920"
+     inkscape:window-height="1005"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      inkscape:window-maximized="1"
      units="mm"
      fit-margin-top="0"
@@ -3052,8 +3059,8 @@
     <text
        xml:space="preserve"
        style="font-size:14px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="504.94095"
-       y="719.29132"
+       x="575.80707"
+       y="719.57129"
        id="text8044-8"
        sodipodi:linespacing="125%"
        inkscape:export-filename="C:\Users\mbaillif\Documents\Dev\EMC\docs\src\config\images\HomeAxisTravel.png"
@@ -3061,13 +3068,13 @@
        inkscape:export-ydpi="600.13934"><tspan
          sodipodi:role="line"
          id="tspan8046-2"
-         x="504.94095"
-         y="719.29132">1</tspan></text>
+         x="575.80707"
+         y="719.57129">1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:14px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="575.80707"
-       y="719.29132"
+       x="497.85434"
+       y="719.57129"
        id="text8044-8-8"
        sodipodi:linespacing="125%"
        inkscape:export-filename="C:\Users\mbaillif\Documents\Dev\EMC\docs\src\config\images\HomeAxisTravel.png"
@@ -3075,8 +3082,8 @@
        inkscape:export-ydpi="600.13934"><tspan
          sodipodi:role="line"
          id="tspan8046-2-8"
-         x="575.80707"
-         y="719.29132">-1</tspan></text>
+         x="497.85434"
+         y="719.57129">-1</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:13px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -3306,5 +3313,26 @@
        inkscape:export-filename="C:\Users\mbaillif\Documents\Dev\EMC\docs\src\config\images\HomeAxisTravel.png"
        inkscape:export-xdpi="600.13934"
        inkscape:export-ydpi="600.13934" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="225.01968"
+       y="538.86267"
+       id="text5596"><tspan
+         sodipodi:role="line"
+         x="225.01968"
+         y="538.86267"
+         id="tspan5600">- </tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:28.70229149px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="684.09595"
+       y="554.04181"
+       id="text5604"
+       transform="scale(1.0281689,0.97260287)"><tspan
+         sodipodi:role="line"
+         id="tspan5606"
+         x="684.09595"
+         y="554.04181">+</tspan></text>
   </g>
 </svg>
