@@ -1,4 +1,4 @@
-= Les bases de la configuration pour système pas/direction “dir/step”
+= Les bases de la configuration d'un système pas/direction “dir/step”
 
 == Introduction[[sec:Introduction]]
 

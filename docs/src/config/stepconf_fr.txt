@@ -549,7 +549,7 @@ entrés précédemment.
 
 == Fin de course des axes, position de l'origine machine et emplacements 
 des contacts d'origine machine[[sec:Axe-Voyage-Accueil]]
-(((Voyage Axe)))(((Accueil Situation)))(((Accueil Emplacement du commutateur)))
+(((Fin de course des axes)))(((Position origine machine)))(((Emplacements des contacts)))
 
 image::images/HomeAxisTravel.png[]
 
@@ -571,7 +571,7 @@ ils ne seront pas exécutés. Si un mouvement en jog ou en manuel cherche
 à dépasser la limite logicielle, il sera interrompu sur cette limite.
 
 Le *contact d'origine machine* (c) peut être positionné n'importe où, 
-le long d'une course entre les *butées mécaniques*). 
+le long d'une course entre les *butées mécaniques*. 
 Si aucun mécanisme externe ne désactive la puissance moteur quand un 
 contact de limite est enfoncé, un des contacts de fin de course peut 
 être utilisé comme contact d'origine machine.
