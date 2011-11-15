@@ -722,6 +722,7 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o    \
     hal/drivers/mesa-hostmot2/encoder.o   \
+	hal/drivers/mesa-hostmot2/resolver.o  \
     hal/drivers/mesa-hostmot2/pwmgen.o    \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
 	hal/drivers/mesa-hostmot2/sserial.o   \

@@ -108,6 +108,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_LED            (128)
 #define HM2_GTAG_MUXED_ENCODER   (12)
 #define HM2_GTAG_MUXED_ENCODER_SEL (13)
+#define HM2_GTAG_RESOLVER       (192)
 #define HM2_GTAG_SMARTSERIAL    (193)
 
 
@@ -318,7 +319,73 @@ typedef struct {
     u32 filter_rate_addr;
 } hm2_encoder_t;
 
+//
+// resolver
+//
 
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_s32_t *rawcounts;
+            hal_s32_t *count;
+            hal_float_t *angle;
+            hal_float_t *position;
+            hal_float_t *velocity;
+            hal_bit_t *reset;
+            hal_bit_t *index_enable;
+            hal_bit_t *error;
+        } pin;
+
+        struct {
+            hal_float_t scale;
+            hal_float_t vel_scale;
+        } param;
+
+    } hal;
+    
+    long long accum;
+    long long offset;
+    u32 old_reg;
+
+} hm2_resolver_instance_t;
+
+typedef struct {
+    struct {
+        hal_float_t excitation_khz;
+    } param;
+} hm2_resolver_global_t;
+
+typedef struct {
+    int num_instances;
+    int num_resolvers;
+
+    hm2_resolver_global_t *hal;
+    hm2_resolver_instance_t *instance;
+
+    u32 stride;
+    u32 clock_frequency;
+    u8 version;
+
+    // hw registers
+    u32 status_addr;
+    u32 *status_reg;
+    
+    u32 command_addr;
+    
+    u32 data_addr;
+    
+    u32 position_addr;
+    u32 *position_reg;
+
+    u32 velocity_addr;
+    s32 *velocity_reg;
+    
+    hal_float_t written_khz;
+    hal_float_t kHz;
+    
+} hm2_resolver_t;
 
 
 //
@@ -875,6 +942,7 @@ typedef struct {
 
     struct {
         int num_encoders;
+        int num_resolvers;
         int num_pwmgens;
         int num_tp_pwmgens;
         int num_stepgens;
@@ -907,6 +975,7 @@ typedef struct {
 
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
+    hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
     hm2_tp_pwmgen_t tp_pwmgen;
     hm2_stepgen_t stepgen;
@@ -1018,8 +1087,16 @@ void hm2_encoder_cleanup(hostmot2_t *hm2);
 void hm2_encoder_print_module(hostmot2_t *hm2);
 void hm2_encoder_force_write(hostmot2_t *hm2);
 
+//
+// resolver functions
+//
 
 
+int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period);
+void hm2_resolver_cleanup(hostmot2_t *hm2);
+void hm2_resolver_print_module(hostmot2_t *hm2);
+void hm2_resolver_write(hostmot2_t *hm2, long period);
 
 //
 // pwmgen functions

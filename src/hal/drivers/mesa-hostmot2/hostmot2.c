@@ -84,6 +84,7 @@ static void hm2_read(void *void_hm2, long period) {
 
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, period);
+    hm2_resolver_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
     hm2_sserial_process_tram_read(hm2, period);
 
@@ -116,6 +117,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
     hm2_encoder_write(hm2);   // update ctrl register if needed
+    hm2_resolver_write(hm2, period); // Update the excitation frequency
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
@@ -174,6 +176,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_WATCHDOG:        return "Watchdog";
         case HM2_GTAG_IOPORT:          return "IOPort";
         case HM2_GTAG_ENCODER:         return "Encoder";
+        case HM2_GTAG_RESOLVER:        return "Resolver";    
         case HM2_GTAG_STEPGEN:         return "StepGen";
         case HM2_GTAG_PWMGEN:          return "PWMGen";
         case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
@@ -198,6 +201,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     // default is to enable everything in the firmware
     hm2->config.num_encoders = -1;
+    hm2->config.num_resolvers = -1;
     hm2->config.num_pwmgens = -1;
     hm2->config.num_tp_pwmgens = -1;
     hm2->config.num_sserials = -1;
@@ -226,6 +230,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 13;
             hm2->config.num_encoders = simple_strtol(token, NULL, 0);
 
+        } else if (strncmp(token, "num_resolvers=", 14) == 0) {
+            token += 14;
+            hm2->config.num_resolvers = simple_strtol(token, NULL, 0);
+            
         } else if (strncmp(token, "num_pwmgens=", 12) == 0) {
             token += 12;
             hm2->config.num_pwmgens = simple_strtol(token, NULL, 0);
@@ -281,6 +289,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     HM2_DBG("final config:\n");
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
+    HM2_DBG("    num_resolvers=%d\n", hm2->config.num_resolvers);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
     HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
     HM2_DBG("    sserial_port_0=%8.8s\n"
@@ -685,6 +694,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_MUXED_ENCODER:
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
                 break;
+            
+            case HM2_GTAG_RESOLVER:
+                md_accepted = hm2_resolver_parse_md(hm2, md_index);
+                break;
 
             case HM2_GTAG_PWMGEN:
                 md_accepted = hm2_pwmgen_parse_md(hm2, md_index);
@@ -760,6 +773,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
     hm2_encoder_cleanup(hm2);
+    hm2_resolver_cleanup(hm2);
     hm2_watchdog_cleanup(hm2);
     hm2_pwmgen_cleanup(hm2);
     hm2_tp_pwmgen_cleanup(hm2);
@@ -775,6 +789,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 
 void hm2_print_modules(hostmot2_t *hm2) {
     hm2_encoder_print_module(hm2);
+    hm2_resolver_print_module(hm2);
     hm2_pwmgen_print_module(hm2);
     hm2_tp_pwmgen_print_module(hm2);
     hm2_sserial_print_module(hm2);
