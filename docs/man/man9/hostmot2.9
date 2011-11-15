@@ -157,7 +157,7 @@ modes than there are channels on the port then the extras are ignored. Channel
 numbering is left to right so the example above would set sserial device 0.0
 to mode 0, 0.2 to mode2 and disable channels 0.4 onwards. 
  The sserial driver will auto-detect connected devices, no further configuration
-should be neded. Unconnected channels will default to GPIO, but the pin values
+should be needed. Unconnected channels will default to GPIO, but the pin values
 will vary semi-randomly during boot when card-detection runs, to it is best to 
 actively disable any channel that is to be used for GPIO. 
 .TP
@@ -469,9 +469,9 @@ The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
 (see the config modparam definition above).
 
-In addition to the per-channel/device pins detailed below there are three per-
-port pins, three parameters and a further 7 pins shared between all ports used 
-for changing on-device settings.
+In addition to the per-channel/device pins detailed below there are three
+per-port pins, three parameters and a further 7 pins shared between all ports
+used for changing on-device settings.
 
 Pins:
 
