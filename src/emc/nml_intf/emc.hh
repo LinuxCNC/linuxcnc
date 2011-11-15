@@ -109,6 +109,7 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
 #define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)
 #define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
+#define EMC_TRAJ_SET_RAPID_SCALE_TYPE                ((NMLTYPE) 238)
 #define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)
 
 #define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)
@@ -418,6 +419,7 @@ extern int emcTrajSetAcceleration(double acc);
 extern int emcTrajSetMaxVelocity(double vel);
 extern int emcTrajSetMaxAcceleration(double acc);
 extern int emcTrajSetScale(double scale);
+extern int emcTrajSetRapidScale(double scale);
 extern int emcTrajSetFOEnable(unsigned char mode);   //feed override enable
 extern int emcTrajSetFHEnable(unsigned char mode);   //feed hold enable
 extern int emcTrajSetSpindleScale(double scale);

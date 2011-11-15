@@ -798,6 +798,18 @@ int emcTrajSetScale(double scale)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcTrajSetRapidScale(double scale)
+{
+    if (scale < 0.0) {
+	scale = 0.0;
+    }
+
+    emcmotCommand.command = EMCMOT_RAPID_SCALE;
+    emcmotCommand.scale = scale;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajSetSpindleScale(double scale)
 {
     if (scale < 0.0) {
@@ -1148,6 +1160,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->paused = emcmotStatus.paused;
     stat->scale = emcmotStatus.feed_scale;
+    stat->rapid_scale = emcmotStatus.rapid_scale;
     stat->spindle_scale = emcmotStatus.spindle_scale;
 
     stat->position = emcmotStatus.carte_pos_cmd;
