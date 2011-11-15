@@ -1138,6 +1138,16 @@ int emcmotCommandHandler(void *arg, const hal_funct_args_t *fa)
 	    emcmotStatus->feed_scale = emcmotCommand->scale;
 	    break;
 
+	case EMCMOT_RAPID_SCALE:
+	    /* override rapids */
+	    /* can happen at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "RAPID SCALE");
+	    if (emcmotCommand->scale < 0.0) {
+		emcmotCommand->scale = 0.0;	/* clamp it */
+	    }
+	    emcmotStatus->rapid_scale = emcmotCommand->scale;
+	    break;
+
 	case EMCMOT_FS_ENABLE:
 	    /* enable/disable overriding speed */
 	    /* can happen at any time */
