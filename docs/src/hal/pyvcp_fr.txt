@@ -1,6 +1,6 @@
 = PyVCP[[cha:Panneau-Virtuel-Control]]
 
-(((Panneau de Control Virtuel)))
+(((Panneau de Contrôle Virtuel)))
 
 Panneau virtuel de contrôle en python (*Py*thon *V*irtual *C*ontrol
 *P*anel)
@@ -42,7 +42,7 @@ exemple:
 
 --------------------------------------------------------------------------
 
-image:pyvcp_mypanel_fr.png[]
+image:images/pyvcp_mypanel_fr.png[]
 
 Si vous placez ce texte dans un fichier nommé tiny.xml et que vous le
 lancez avec:
@@ -143,7 +143,7 @@ ce qui suppose que le signal appelé “spindle-rpm-filtered” existe
 aussi. Noter que lors de l'exécution avec AXIS, toutes les pins des
 widgets de pyVCP ont des noms commençant par “pyvcp.”.
 
-image:pyvcp_AXIS_fr.png[]
+image:images/pyvcp_AXIS_fr.png[]
 
 Voila à quoi ressemble le panneau pyVCP que nous venons de créer,
 incorporé à AXIS. La configuration `sim/lathe` fournie en exemple, est
@@ -334,10 +334,7 @@ la case sera cochée et fausse si la case est décochée.
 Une case non cochée: image:pyvcp_checkbutton1.png[] et une case
 cochée: image:pyvcp_checkbutton2.png[]
 
-==== Bouton radio (radiobutton)
-
-Un bouton radio placera une seule des pins BIT vraie. Les autres
-seront mises fausses.
+Exemple de code:
 
 [source,xml]
 ---------------------------------------
@@ -353,6 +350,13 @@ seront mises fausses.
 
 image:images/pyvcp_checkbutton.png[]
 
+
+==== Bouton radio (radiobutton)
+
+Un bouton radio placera une seule des pins BIT vraie. Les autres
+seront mises fausses.
+
+image:images/pyvcp_radiobutton_fr.png[]
 
 === Affichage d'un nombre (number)
 
@@ -743,7 +747,7 @@ Un label est un texte qui s'affiche sur le panneau.
 
     <label>
 
-image:pyvcp_label_fr.png[]
+images:image/pyvcp_label_fr.png[]
 
 === Labelframe
 
@@ -754,7 +758,7 @@ gauche.
     <labelframe text="Label: Leds groupées">
 -------------------------------------------------
 
-image::pyvcp_labelframe_fr1.png[]
+image:images/pyvcp_labelframe_fr1.png[]
 
 === Table
 

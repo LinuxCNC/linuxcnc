@@ -10,7 +10,7 @@ portable (elle fonctionne sur une multitude de plateformes).
 
 .L'affichage de TkEMC[[cap:affichage-TkEMC]]
 
-image::tkemc_fr.png[]
+image::images/tkemc_fr.png[]
 
 == Utiliser TkEMC
 
@@ -127,7 +127,7 @@ menu Vues->Parcours d'outil.
 
 .Interpréteur de TkEMC[[cap:TkEMC-Interpreteur]]
 
-image::tkemc_interp_fr.png[]
+image::images/tkemc_interp_fr.png[]
 
 ==== Boutons de contrôle
 

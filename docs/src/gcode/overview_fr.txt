@@ -146,7 +146,7 @@ Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-=== Paramètres numérotés[[sub:Parametres-numerotes]]
+=== Paramètres numérotés[[sub:Parametres-Numerotes]]
 
 Un paramètre numéroté commence par le caractère `#` suivi par un
 entier compris entre 1 et 5399. Le paramètre est
@@ -185,7 +185,7 @@ tool:
  - #5412 Tool Backangle 
  - #5413 Tool Orientation
 
-=== Paramètres nommés[[sub:Parametres-nommes]]
+=== Paramètres nommés[[sub:Parametres-Nommes]]
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
 sont plus faciles à lire. Les paramètres nommés sont convertis en
@@ -249,7 +249,7 @@ est évaluée pour produire un nombre. Les expressions sur une ligne sont
  éxécuté sur cette ligne. 
 Un exemple d'expression: `[1 + acos[0] - [#3 ** [4.0/2]]]`.
 
-=== Opérateurs binaires[[sub:Operateurs-binaires]]
+=== Opérateurs binaires[[sub:Operateurs-Binaires]]
 
 Les opérateurs binaires ne se rencontrent que dans les expressions. Il
 y a quatre opérateurs mathématiques de base: addition (`+`),
@@ -278,7 +278,7 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 état logique faux (FALSE), tout nombre différent de zéro est équivalent
 à un état logique vrai (TRUE).
 
-. Précédence des opérateurs[[cap:Precedence-des-operateurs]](((Precedence des operateurs)))
+. Précédence des opérateurs[[cap:Precedence-des-operateurs]](((Précédence des opérateurs)))
 
 [width="90%", options="header"]
 |========================================

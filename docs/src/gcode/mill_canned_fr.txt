@@ -1,28 +1,28 @@
-= Cycles préprogrammés
+= Cycles de perçage
 
-Les cycles préprogrammés G81 à G89 sont implémentés comme décrit dans
+Les cycles de perçage G81 à G89 sont implémentés comme décrit dans
 cette section.
 
-Tous les cycles préprogrammés sont effectués dans le respect du plan
+Tous les cycles de perçage sont effectués dans le respect du plan
 de travail courant. N'importe lequel des trois plans de travail XY, YZ,
 ZX peut être choisi. Dans cette section, la plupart des descriptions
 supposeront que le plan de travail XY est le plan courant. Le
 comportement reste analogue pour les plans de travail YZ ou XZ.
 
 Les mots d'axes rotatifs sont autorisés (sous conditions) dans les
-cycles préprogrammés, mais il est préférable de les omettre. Si les
+cycles de perçage, mais il est préférable de les omettre. Si les
 mots d'axes rotatifs sont utilisés, leurs valeurs doivent rester les
 mêmes que celles de la position courante, de sorte qu'ils ne tournent
 pas.
 
-Tous les cycles préprogrammés utilisent X-, Y-, R-, et Z- dans le code
+Tous les cycles de perçage utilisent X-, Y-, R-, et Z- dans le code
 NC. Ces valeurs sont utilisées pour déterminer les positions de X, Y,
 R, et Z. La position de R- (signifiant rétraction) est perpendiculaire
 au plan de travail courant (axe Z pour le plan XY, axe X pour le plan
-YZ, axe Y pour le plan XZ). Quelques cycles préprogrammés utilisent des
+YZ, axe Y pour le plan XZ). Quelques cycles de perçage utilisent des
 arguments supplémentaires.
 
-Dans les cycles préprogrammés, un nombre est appelé “sticky” (collant)
+Dans les cycles de perçage, un nombre est appelé “sticky” (collant)
 si, quand le même cycle est répété sur plusieurs lignes de code en
 colonne, le nombre doit être indiqué la première fois, mais qu'il
 devient optionnel pour le reste des lignes suivantes. Les nombres
@@ -62,7 +62,7 @@ est G98, OLD_Z, sinon, à la position de R-.
 
 == Mouvement préliminaire 
 
-Tout au début de l'exécution d'un cycle préprogrammé, avec le plan
+Tout au début de l'exécution d'un cycle de perçage, avec le plan
 courant XY, si la position actuelle de Z est en dessous de la position
 de retrait R, l'axe Z va à la position R. Ceci n'arrive qu'une fois,
 sans tenir compte de la valeur de L.
@@ -85,39 +85,44 @@ surviendra sans G-code modal.
 Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout
 autre g-code. Les résultats des lignes suivantes sont identiques:
 
-` G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements
+--------------------------------------------------------
+G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
 absolus) 
 G80 (révoque G81) 
- G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
-mobile en X0, Y0 et Z0)`
+G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
+mobile en X0, Y0 et Z0)
+--------------------------------------------------------
 
 produit le même déplacement et le même état final de la machine que:
 
-` G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements
+--------------------------------------------------------
+G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
 absolus)  
- G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
-mobile en X0, Y0 et Z0)`
+G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
+mobile en X0, Y0 et Z0)
+--------------------------------------------------------
 
 L'avantage du premier, la ligne du G80 révoque clairement le cycle
 G81. Avec ce premier programme, le programmeur doit revenir en mode
 mouvement avec G0, comme c'est fait sur la ligne suivante, ou tout
 autre mot G de mouvement.
 
-Exemple 0: Utilisation d'un cycle préprogrammé avec un code de
+Exemple 0: Utilisation d'un cycle de perçage avec un code de
 mouvement modal
 
-Si un cycle préprogrammé n'est pas révoqué avec G80 ou un autre mot G
-de mouvement, le cycle préprogrammé attend de se répéter en utilisant
+Si un cycle de perçage n'est pas révoqué avec G80 ou un autre mot G
+de mouvement, le cycle de perçage attend de se répéter en utilisant
 le prochaine ligne de code contenant un (ou plusieurs) mot d'axe X, Y
 ou Z. Le fichier suivant perce (G81) un ensemble de huit trous. Noter
 la position de Z change après les quatre premiers trous.
 
-`G90 G0 X0 Y0 Z0 (coordonnées d'origine)  
+--------------------------------------------------------
+G90 G0 X0 Y0 Z0 (coordonnées d'origine)  
 G1 X0 G4 P0.1  
 G81 X1 Y0 Z0 R1 (cycle de perçage)  
-X2 `
+X2 
 
-`X3  
+X3  
 X4  
 Y1 Z0.5  
 X3  
@@ -127,14 +132,15 @@ G80 (révocation du cycle G81)
 G0 X0 (mouvement en vitesse rapide)  
 Y0  
 Z0  
-M2 (fin du programme)`
+M2 (fin du programme)
+--------------------------------------------------------
 
 image::images/G81mult.png[]
 
 L'utilisation de G80 à la ligne N200 est optionnel puisqu'il y a un G0
 sur la ligne suivante qui révoque le cycle G81. Mais utiliser G80,
 comme l'exemple 1 le montre, donne une meilleure lisibilité au code du
-cycle préprogrammé. Sans lui, il est moins évident que les lignes entre
+cycle de perçage. Sans lui, il est moins évident que les lignes entre
 N120 et N200 appartiennent au cycle G81.
 
 Si vous utilisez G80 et que vous ne placez pas un code de mouvement
@@ -162,7 +168,9 @@ Exemple 1: G81 en position absolue
 Supposons que la position courante soit, X1, Y2, Z3 dans le plan XY,
 la ligne de codes suivante est interprétée:
 
+--------------------------------------------------------
 G90 G81 G98 X4 Y5 Z1.5 R2.8
+--------------------------------------------------------
 
 Le mode de déplacements absolus est appelé (G90), le plan de retrait
 est positionné sur OLD_Z (G98), l'appel du cycle de perçage G81 va
@@ -186,7 +194,9 @@ image:G81ex1.png[]
 Exemple 2: Supposons que la position courante soit, X1, Y2, Z3 dans le
 plan XY, la ligne de codes suivante est interprétée:
 
+--------------------------------------------------------
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+--------------------------------------------------------
 
 Le mode de déplacements incrémentaux est appelé (G91), le plan de
 retrait est positionné sur OLD_Z (G98), l'appel du cycle de perçage G81
@@ -253,7 +263,9 @@ Exemple 4 - G81 en absolu avec R > Z
 
 Il s'agit de la trajectoire pour le second block de code de g81.
 
+--------------------------------------------------------
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
+--------------------------------------------------------
 
 Cette trajectoire commence en (0, 0, 0), l'interpréteur ajoute les
 valeurs initiales Z0 et R 1.8 et déplace le mobile en vitesse rapide
@@ -278,19 +290,21 @@ position Z programmée.
 
 4. Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 
-Les mouvements du cycle G82 ressemblent à ceux de g81 avec une
+Les mouvements du cycle G82 ressemblent à ceux de G81 avec une
 temporisation supplémentaire en fin de mouvement Z. La longueur de
 cette temporisation, exprimée en secondes, est spécifiée par un mot P#
 sur la ligne du G82.
 
+--------------------------------------------------------
 G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
+--------------------------------------------------------
 
 Sera équivalent à l'exemple 3 ci-dessus mais avec une temporisation de
 2 secondes en fond de trou.
 
 == Cycle G83
 
-Le cycle G83(((G82))) est destiné au perçage profond ou au fraisage
+Le cycle G83(((G83))) est destiné au perçage profond ou au fraisage
 avec brise-copeaux. Les retraits, au cours de ce cycle, dégagent les
 copeaux du trou et fragmentent les copeaux longs (qui sont fréquents
 lors du perçage dans l'aluminum). Ce cycle utilise la valeur Q qui
@@ -431,7 +445,9 @@ Example six uses a incremental distances from (0, 0, 0) so the
 preliminary moves look much like those in example five but they are
 done using the G87 backbore canned cycle.
 
+--------------------------------------------------------
 G91 G87 M3 S1000 X1 Y1 Z-0.4 R1.4 I-0.1 J-0.1 K-0.1
+--------------------------------------------------------
 
 You will notice that the preliminary moves shift the tool to directly
 above the center axis of the existing bore.
@@ -509,12 +525,12 @@ Z programmée.
 
 == Options G98 et G99
 
-Quand la broche se rétracte pendant les cycles préprogrammés, il
+Quand la broche se rétracte pendant les cycles de perçage, il
 existe deux options pour indiquer comment elle se rétracte: (1) Retrait
 perpendiculaire au plan de travail courant jusqu'à la position indiquée
 par le mot R, ou (2) Retrait perpendiculaire au plan de travail courant
 jusqu'à la position qui était celle de cet axe juste avant le début du
-cycle préprogrammé (à moins que cette position ne soit inférieure à
+cycle de perçage (à moins que cette position ne soit inférieure à
 celle indiquée par le mot R, auquel cas, c'est cette dernière qui
 serait utilisée.
 
@@ -531,62 +547,59 @@ image:G81ret.png[]
 
 Utilisation de G99
 
-== Pourquoi utiliser les cycles préprogrammés ?
+== Pourquoi utiliser les cycles de perçage ?
 
 Il y a au moins deux raisons, la première est l'économie de code. Un
 simple trou demande plusieurs lignes de code pour être exécuté.
 
 Exemple 7: Nous avons montré plus haut, comment les cycles
-préprogrammés peuvent être utilisés pour produire 8 trous avec dix
+de perçage peuvent être utilisés pour produire 8 trous avec dix
 lignes de code. Le programme ci-dessous permet de produire le même jeu
-de 8 trous en utilisant cinq lignes pour le cycle préprogrammé. Il ne
+de 8 trous en utilisant cinq lignes pour le cycle de perçage. Il ne
 suit pas exactement le même parcours et ne perce pas dans le même ordre
 que l'exemple précédent, mais le programme a été écrit de manière
 économique, une bonne pratique qui devrait être courante avec les
-cycles préprogrammés.
+cycles de perçage.
 
 Exemple 7 - perçage de huit trous, réécrit.
 
-`g90 g0 x0 y0 z0 (coordonnées d'origine) `
-
-`g1 f10 x0 g4 p0.1 `
-
-`g91 g81 x1 y0 z-1 r1 l4(cycle de perçage) `
-
-`g90 g0 x0 y1 `
-
-`z0 `
-
-`g91 g81 x1 y0 z-.5 r1 l4(cycle de perçage) `
-
-`g80 (révocation du cycle G81) `
-
-`m2 (fin du programme)`
+--------------------------------------------------------
+g90 g0 x0 y0 z0 (coordonnées d'origine)
+g1 f10 x0 g4 p0.1
+g91 g81 x1 y0 z-1 r1 l4(cycle de perçage)
+g90 g0 x0 y1
+z0
+g91 g81 x1 y0 z-.5 r1 l4(cycle de perçage)
+g80 (révocation du cycle G81)
+m2 (fin de programme)
+--------------------------------------------------------
 
 image:Eight.png[]
 
-Exemple 8 - Douze trous dans un carré
+Exemple 8 - Douze trous en carré
 
 Cet exemple montre l'utilisation du mot L pour répéter une série
 incrémentale de cycles de perçage pour des blocks de code successifs
 dans le même mode mouvements G81. Ici, nous produisons 12 trous au
 moyen de cinq lignes de code dans le mouvement modal.
 
-`G90 G0 X0 Y0 Z0 (coordinées d'origine) 
-G1 F50 X0 G4 P0.1 
-G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage) 
-X0 Y1 R0 L3 (répétition) 
-X-1 Y0 L3 (répétition) 
-X0 Y-1 L2 (répétition) 
-G80 (révocation du cycle G81) 
-G90 G0 X0 (retour vers l'origine en vitesse rapide) 
-Y0 
-Z0 
-M2 (fin du programme)`
+--------------------------------------------------------
+G90 G0 X0 Y0 Z0 (coordonnées d'origine)
+G1 F50 X0 G4 P0.1
+G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage)
+X0 Y1 R0 L3 (répétition)
+X-1 Y0 L3 (répétition)
+X0 Y-1 L2 (répétition)
+G80 (révocation du cycle G81)
+G90 G0 X0 (retour vers l'origine en vitesse rapide)
+Y0
+Z0
+M2 (fin de programme)
+--------------------------------------------------------
 
 image:Twelve.png[]
 
-La deuxième raison d'utiliser les cycles préprogrammés, c'est qu'il
+La deuxième raison d'utiliser les cycles de perçages, c'est qu'il
 produisent un mouvement préliminaire et retournent à une position
 prévisible et contrôlable, quel que soit le point de départ du cycle.
 

@@ -1,6 +1,6 @@
 = Les bases de HAL
 
-== Commandes de Hal[[sec:Commandes-de-Hal]]
+== Commandes de Hal[[sec:Commandes-de-HAL]]
 
 Des informations plus détaillées peuvent être trouvées dans la man
 page en tapant «man halcmd» dans une console. Pour voir la
@@ -200,7 +200,7 @@ Syntaxe et exemple:
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de "halrun".
 
-== HAL Data[[sec:Hal-Data]]
+== HAL Data[[sec:HAL-Data]]
 
 === Bit (((Bit)))
 

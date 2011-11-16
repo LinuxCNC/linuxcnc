@@ -163,7 +163,7 @@ GladeVCP Programming>> section.
 
 == Creating and Integrating a Glade user interface
 
-=== Prerequisite: Glade installation[[gladevcp:Prerequisites]]
+=== Prerequisite: Glade installation[[gladevcp::Prerequisites]]
 
 To view or modify Glade UI files, you need glade installed - it is not
 needed just to run a GladeVCP panel. If the glade command is ḿissing,
@@ -397,7 +397,7 @@ label your panel.
  - Widgets for controlling "bit" signals: <<gladevcp:HAL_Button,HAL_Button>>,
    <<gladevcp:HAL_RadioButton,HAL_RadioButton>>,
    <<gladevcp:HAL_CheckButton,HAL_CheckButton>>
- - Widgets for indicating "number" signals: <<gladevcp:HAL_Label,HAL_Label>>,
+ - Widgets for indicating "number" signals: <<gladevcp:HAL_Label>>,
    <<gladevcp:HAL_ProgressBar,HAL_ProgressBar>>,
    <<gladevcp:HAL_HBar,HAL_HBar>>, <<gladevcp:HAL_VBar,HAL_VBar>>,
    <<gladevcp:HAL_Meter,HAL_Meter>>
@@ -759,7 +759,7 @@ z0_border, z1_border::
    last border to max. Borders are set as values in range min-max.
 
 Example HAL Meters:
-image:images/hal_meter.png[]
+image::images/hal_meter.png[]
 .
 
 
@@ -784,7 +784,7 @@ enable_dro ::
    Defaults to `True`.
 
 Example:
-image:images/gremlin.png[]
+image::images/gremlin.png[]
 
 
 === Animated function diagrams: HAL widgets in a bitmap
@@ -797,7 +797,7 @@ and use the glade Fixed widget to position widgets on this image.
 
 The code for the below example can be found in +configs/gladevcp/animated-backdrop+:
 
-image:images/small-screenshot.png[]
+image::images/small-screenshot.png[]
 
 == Action Widgets reference
 

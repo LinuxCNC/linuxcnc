@@ -77,7 +77,7 @@ image::images/axis_2.3_fr.png[]
 
 .L'interface graphique Mini[[fig:Interface-graphique-Mini]]
 
-image::mini_fr.jpg[]
+image::images/mini_fr.jpg[]
 
 
 - *TkEMC*(((tkemc))), une interface basée sur Tcl/Tk.
@@ -85,7 +85,7 @@ image::mini_fr.jpg[]
 
 .L'interface graphique TkEmc[[fig:L-interface-graphique-TkEmc]]
 
-image::tkemc_fr.png[]
+image::images/tkemc_fr.png[]
 
 
 - *Keystick*(((keystick))), c'est une interface minimaliste textuelle, appropriée pour

@@ -111,7 +111,7 @@ La tâche de la cinématique consistera à transformer les longueurs des
 articulations en (AD, BD) en coordonnées Cartésiennes (Dx, Dy) et
 vice-versa.
 
-=== Transformation avant[[sub:Forward-transformation]]
+=== Transformation avant[[sec:Forward-transformation]]
 
 Pour effectuer la transformation de l'espace articulation en espace
 Cartésien nous allons utiliser quelques règles de trigonomètrie (le
@@ -143,7 +143,7 @@ Traduction en code:
     double AD2 = joints[0] * joints[0];
     return 0;
 
-=== Transformation inverse[[sub:Inverse-transformation]]
+=== Transformation inverse[[sec:Inverse-transformation]]
 
 La cinématique inverse est beaucoup plus simple dans notre exemple, de
 sorte que nous pouvons l'écrire directement:
@@ -165,11 +165,11 @@ quelques fonctions “C” (par opposition au fonctions de HAL):
  - `int kinematicsForward(const double *joint, EmcPose *world, const
    KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
    Implémente la fonction cinématique avant, comme décrite dans la
-   section <<sub:Forward-transformation>>.
+   section <<sec:Forward-transformation>>.
  - `int kinematicsInverse(const EmcPose * world, double *joints, const
    KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)`
    Implémente la fonction cinématique inverse, comme décrite dans la
-   section <<sub:Inverse-transformation>>.
+   section <<sec:Inverse-transformation>>.
  - `KINEMATICS_TYPE kinematicsType(void)`
    Retourne l'identificateur de type de la cinématique, typiquement
    `KINEMATICS_BOTH`.
