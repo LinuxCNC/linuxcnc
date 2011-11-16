@@ -19,13 +19,15 @@ description détaillée de ces paramètres sera faite au chapitre suivant.
 
 .Les séquences de POM possibles[[fig:Sequences-de-prise-d-origine]]
 
-image::images/emc2-motion-homing-diag.eps[]
+image::images/emc2-motion-homing-diag.png[]
 
 === Configuration
 
 Il y a six combinaisons possibles des variables qui définissent le
 déroulement de la séquence de prise d'origine. EIles sont définies dans
 la section [AXIS] du fichier ini.
+
+.Combinaisons des variables de la POM[[cap:Variables-sequences-de-POM]]
 
 [width="90%", options="header"]
 |==========================================================
@@ -39,8 +41,6 @@ la section [AXIS] du fichier ini.
 |Switch-seulement |nonzero    |nonzero      |NO
 |Switch et Index  |nonzero    |nonzero      |YES
 |==========================================================
-
-.Combinaisons des variables de la POM[[cap:Variables-sequences-de-POM]]
 
 ==== HOME_SEARCH_VEL = 0 (((HOME SEARCH VEL)))
 
