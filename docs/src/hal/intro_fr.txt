@@ -437,12 +437,16 @@ sera propre.
 
 L'idée qu'une “pin” ou qu'un “component” est la plaque centrale pour
 de nombreuses connections est aussi une notion facile avec le HAL. Les
-exemples deux à quatre (voir section  <<cha:Tutoriel-HAL>>) connectent
-le multimètre et l'oscilloscope aux signaux qui sont prévus pour aller
-ailleurs. Moins facile, la notion d'un moyeu pour plusieurs signaux
+exemples deux à quatre connectent le multimètre et l'oscilloscope aux 
+signaux qui sont prévus pour allerailleurs. 
+Moins facile, la notion d'un moyeu pour plusieurs signaux
 entrants. Mais, c'est également possible avec l'utilisation appropriée
 des fonctions dans ce composant de moyeu qui manipulent les signaux
 quand ils arrivent, venant d'autres composants.
+
+////////////////
+ (voir section  <<cha:Tutoriel-HAL>>)
+////////////////
 
 Une autre réflexion qui vient à partir de ce jouet mécanique est une
 représentation de “HAL threads”. Un “thread” pourrait ressembler un peu

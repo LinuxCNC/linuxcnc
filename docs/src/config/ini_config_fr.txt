@@ -784,7 +784,7 @@ MIN_LIMIT = -1000::
     Quand cette limite tend à être dépassée, le contrôleur arrête le mouvement. 
 
 MAX_LIMIT = 1000::
-    (((MAX LIMIT))) Limite maximale des mouvements de cet axe (limite soft), en unités machine. 
+    (((MAX LIMIT))) Limite maximale des mouvements de cet axe (limite logicielle), en unités machine. 
     Quand cette limite tend à être dépassée, le contrôleur arrête le mouvement.
 
 MIN_FERROR = 0.010::

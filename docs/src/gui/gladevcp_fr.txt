@@ -759,6 +759,7 @@ z0_border, z1_border::
    last border to max. Borders are set as values in range min-max.
 
 Example HAL Meters:
+
 image::images/hal_meter.png[]
 .
 
@@ -784,6 +785,7 @@ enable_dro ::
    Defaults to `True`.
 
 Example:
+
 image::images/gremlin.png[]
 
 

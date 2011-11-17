@@ -10,8 +10,10 @@ est accessible, dans le répertoire principal d'EMC2, taper:
 
 +$ *man -M docs/man halcmd*+ 
 
+//////////
 Le chapitre <<cha:Tutoriel-HAL>> donne de nombreux exemples
 d'utilisation de halcmd.
+//////////
 
 == Halmeter[[sec:Halmeter]]
 (((Halmeter)))
