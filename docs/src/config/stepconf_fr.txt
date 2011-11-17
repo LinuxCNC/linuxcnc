@@ -547,14 +547,15 @@ Cliquez “Appliquer” pour enregistrer les fichiers de configuration.
 Ensuite, vous pourrez relancer ce programme et ajuster les réglages 
 entrés précédemment.
 
-== Fin de course des axes, position de l'origine machine et emplacements 
-des contacts d'origine machine[[sec:Axe-Voyage-Accueil]]
+== Position des fin de course sur les axes[[sec:Position-Origine-Position-Contacts]]
 (((Fin de course des axes)))(((Position origine machine)))(((Emplacements des contacts)))
+
 
 image::images/HomeAxisTravel.png[]
 
+
 La course de chaque axe est bien délimitée. Les extrémités physiques d'une
-course sont appelées les *butées mécaniques* position *[red]#(a)#*. 
+course sont appelées les *butées mécaniques*, position *[red]#(a)#*. 
 
 IMPORTANT: [red]#Si une butée mécanique venait à être dépassée, 
 la vis ou le bâti machine seraient détériorés!#
