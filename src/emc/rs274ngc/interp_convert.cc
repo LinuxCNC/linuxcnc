@@ -2776,7 +2776,6 @@ int Interp::save_settings(setup_pointer settings)
 int Interp::restore_settings(setup_pointer settings,
 			    int from_level)    //!< call level of context to restore from
 {
-    int status;
 
     CHKS((from_level < settings->call_level),
 	 (_("BUG: cannot restore from a lower call level (%d) to a higher call level (%d)")),from_level,settings->call_level);
@@ -2800,9 +2799,7 @@ int Interp::restore_settings(setup_pointer settings,
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
 	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	status = execute(cmd);
-	if (status != INTERP_OK)
-	    ERP(status);
+	CHKS(execute(cmd) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd);
 	memset(cmd, 0, LINELEN);
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
@@ -2810,9 +2807,7 @@ int Interp::restore_settings(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	status = execute(cmd);
-	if (status != INTERP_OK)
-	    ERP(status);
+	CHKS(execute(cmd) != INTERP_OK, _("M7x: restore_settings failed: '%s'"), cmd);
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);
@@ -3111,7 +3106,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       // restore state from current stack frame.
       CHKS((!(_setup.sub_context[_setup.call_level].context_status & CONTEXT_VALID)),
            (_("Cannot restore context from invalid stack frame - missing M70/M73?")));
-      restore_settings(&_setup, _setup.call_level);
+      CHP(restore_settings(&_setup, _setup.call_level));
   }
 
   if (IS_USER_MCODE(block,settings,8) && ONCE_M(8)) {
