@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-16 17:03+0100\n"
-"PO-Revision-Date: 2011-11-17 10:15+0100\n"
+"PO-Revision-Date: 2011-11-17 12:21+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -2056,15 +2056,15 @@ msgstr "FREIN ?"
 
 #: ../tcl/mini.tcl:1919 ../tcl/tkemc.tcl:2274
 msgid "MIST ON"
-msgstr "AVEC BROUILLARD"
+msgstr "AVEC GOUTTELETTES"
 
 #: ../tcl/mini.tcl:1921 ../tcl/tkemc.tcl:2276
 msgid "MIST OFF"
-msgstr "SANS BROUILLARD"
+msgstr "SANS GOUTELETTES"
 
 #: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2278
 msgid "MIST ?"
-msgstr "BROUILLARD ?"
+msgstr "GOUTTELETTES ?"
 
 #: ../tcl/mini.tcl:1927 ../tcl/tkemc.tcl:2282
 msgid "FLOOD ON"
@@ -2566,11 +2566,11 @@ msgstr "Manuel"
 
 #: ../tcl/tkemc.tcl:835
 msgid "Mist on"
-msgstr "Avec brouillard"
+msgstr "Avec gouttelettes"
 
 #: ../tcl/tkemc.tcl:836
 msgid "Mist off"
-msgstr "Sans brouillard"
+msgstr "Sans gouttelettes"
 
 #: ../tcl/tkemc.tcl:843
 msgid "Flood on"
@@ -3563,7 +3563,7 @@ msgstr "stopper le parcours d'outil"
 
 #: emc/usr_intf/axis/scripts/axis.py:198
 msgid "Toggle mist"
-msgstr "Avec ou sans brouillard"
+msgstr "Avec ou sans gouttelettes"
 
 #: emc/usr_intf/axis/scripts/axis.py:199
 msgid "Toggle flood"
@@ -3611,7 +3611,7 @@ msgstr "Défilement cyclique des vues prédéfinies"
 
 #: emc/usr_intf/axis/scripts/axis.py:209
 msgid "Cycle among preview, DRO, and user tabs"
-msgstr "Cycle among preview, DRO, and user tabs"
+msgstr "Défilement parcours d'outil, visu et onglets utilisateur"
 
 #: emc/usr_intf/axis/scripts/axis.py:211
 msgid "Ctrl-Space"
@@ -4240,7 +4240,7 @@ msgstr "Démarrer à la lig_ne sélectionnée"
 
 #: ../share/axis/tcl/axis.tcl:120
 msgid "S_tep"
-msgstr "Pa_s à pas"
+msgstr "Pas à pas"
 
 #: ../share/axis/tcl/axis.tcl:125
 msgid "_Pause"
@@ -4300,7 +4300,7 @@ msgstr "Ha_l scope"
 
 #: ../share/axis/tcl/axis.tcl:182
 msgid "Sho_w EMC Status"
-msgstr "Afficher l'état d'EMC"
+msgstr "A_fficher l'état d'EMC"
 
 #: ../share/axis/tcl/axis.tcl:186
 msgid "Set _Debug Level"
@@ -4404,7 +4404,7 @@ msgstr "Parcours d'outil en vitesse r_apide"
 
 #: ../share/axis/tcl/axis.tcl:323
 msgid "Alpha-_blend program"
-msgstr "Simulation de transparence"
+msgstr "Simulation de _transparence"
 
 #: ../share/axis/tcl/axis.tcl:328
 msgid "Sho_w live plot"
@@ -4416,11 +4416,11 @@ msgstr "Afficher _l'outil"
 
 #: ../share/axis/tcl/axis.tcl:338
 msgid "Show e_xtents"
-msgstr "Afficher extensions"
+msgstr "Afficher e_xtensions"
 
 #: ../share/axis/tcl/axis.tcl:343
 msgid "Show o_ffsets"
-msgstr "Afficher les o_ffsets"
+msgstr "Afficher les offs_ets"
 
 #: ../share/axis/tcl/axis.tcl:348
 msgid "Sh_ow machine limits"
@@ -4428,7 +4428,7 @@ msgstr "Afficher les l_imites machine"
 
 #: ../share/axis/tcl/axis.tcl:353
 msgid "Show v_elocity"
-msgstr "Affich_er la vitesse d'avance"
+msgstr "Afficher la _vitesse d'avance"
 
 #: ../share/axis/tcl/axis.tcl:358
 msgid "Show _distance to go"
@@ -4436,7 +4436,7 @@ msgstr "Afficher la _distance restante"
 
 #: ../share/axis/tcl/axis.tcl:363
 msgid "Large coordinate fo_nt"
-msgstr "Coordonnées en police la_rge "
+msgstr "Coordonnées en p_olice large "
 
 #: ../share/axis/tcl/axis.tcl:366
 msgid "Ctrl-K"
@@ -4444,23 +4444,23 @@ msgstr "Ctrl+K"
 
 #: ../share/axis/tcl/axis.tcl:368
 msgid "_Clear live plot"
-msgstr "Rafraîchir le parcours d'_outil"
+msgstr "Rafraîchir le parcours d'outil"
 
 #: ../share/axis/tcl/axis.tcl:377
 msgid "Show commanded position"
-msgstr "Afficher la position commandée"
+msgstr "Afficher la position _commandée"
 
 #: ../share/axis/tcl/axis.tcl:384
 msgid "Show actual position"
-msgstr "Afficher la position actuelle"
+msgstr "Afficher la position _actuelle"
 
 #: ../share/axis/tcl/axis.tcl:393
 msgid "Show machine position"
-msgstr "Afficher la position machine"
+msgstr "Afficher la position _machine"
 
 #: ../share/axis/tcl/axis.tcl:400
 msgid "Show relative position"
-msgstr "Afficher la position relative"
+msgstr "Afficher la position _relative"
 
 #: ../share/axis/tcl/axis.tcl:409
 msgid "Joint mode"
@@ -4601,7 +4601,7 @@ msgstr "Arrosage:"
 
 #: ../share/axis/tcl/axis.tcl:1294
 msgid "Mist"
-msgstr "Brouillard"
+msgstr "Gouttelettes"
 
 #: ../share/axis/tcl/axis.tcl:1299
 msgid "Flood"
@@ -4793,7 +4793,7 @@ msgstr "Avec ou sans arrosage [F8]"
 
 #: ../share/axis/tcl/axis.tcl:2345
 msgid "Turn mist on or off [F7]"
-msgstr "Avec ou sans brouillard [F7]"
+msgstr "Avec ou sans gouttelettes [F7]"
 
 #: ../share/axis/tcl/axis.tcl:2346
 msgid "Send active axis home [Home]"
@@ -5227,11 +5227,11 @@ msgstr "Arrêt arrosage"
 
 #: emc/usr_intf/touchy/touchy.glade:1324
 msgid "Mist On"
-msgstr "Marche brouillard"
+msgstr "Marche gouttelettes"
 
 #: emc/usr_intf/touchy/touchy.glade:1339
 msgid "Mist Off"
-msgstr "Arrêt brouillard"
+msgstr "Arrêt gouttelettes"
 
 #: emc/usr_intf/touchy/touchy.glade:1362
 msgid "<b>Coolant</b>"
@@ -5697,7 +5697,7 @@ msgstr "Frein de broche"
 
 #: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:389
 msgid "Coolant Mist"
-msgstr "Brouillard"
+msgstr "Gouttelettes"
 
 #: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:389
 msgid "Coolant Flood"
