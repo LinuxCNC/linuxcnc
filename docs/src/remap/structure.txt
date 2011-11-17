@@ -985,7 +985,13 @@ standard remapping situations in a common way.
 The builting toolchange procedure has some precautions for dealing
 with a program abort (e.g. hitting Escape in Axis during a
 change). Your remapped function has none of this, therefore some
-explicit cleanup might be needed if a remapped code is aborted.
+explicit cleanup might be needed if a remapped code is aborted. In
+particular, a remap procedure might establish modal settings which are
+undesirable to have active after an abort. For instance, if your
+remap procedure has motion codes (G0,G1,G38..) and the remap is
+aborted, then the last modal code will remain active. However, you
+very likely want to have any modal motion canceled when the remap is
+aborted.
 
 The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND`
 feature. This ini option specifies a O-word procedure call which is
@@ -997,6 +1003,32 @@ executed if task for some reason aborts program execution.
 ON_ABORT_COMMAND=O <on_abort> call 
 ---------------------------------------------------------------------
 
+The suggested on_abort procedure would look like so (adapt to
+your needs):
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o<on_abort> sub
+
+G54 (origin offsets are set to the default)
+G17 (select XY plane)
+G90 (absolute)
+G94 (feed mode: units/minute)
+M48 (set feed and speed overrides)
+G40 (cutter compensation off)
+M5  (spindle off)
+G80 (cancel modal motion)
+M9  (mist and coolant off)
+
+o<on_abort> endsub
+m2
+---------------------------------------------------------------------
+
+CAUTION: Never use an `M2` in a O-word subroutine, including this
+one. It will cause hard-to-find errors. For instance, using an `M2` in
+a subroutine will not end the subroutine properly and will leave the
+subroutine NGC file open, not your main program.
+
 Make sure `on_abort.ngc` is along the interpreter search path
 (recommended location: `SUBROUTINE_PATH` so as not to clutter your
 `NC_FILES` directory with internal procedures). `on_abort` receives a
@@ -1005,7 +1037,7 @@ which might be used for conditional cleanup.
 
 Statements in that procedure typically would assure that post-abort
 any state has been cleaned up, like HAL pins properly reset. For an
-example, see `configs/sim/remap/rack-toolchange` .
+example, see `configs/sim/remap/rack-toolchange`. 
 
 Note that terminating a remapped code by returning INTERP_ERROR from
 the epilog (see previous section) will also cause the `on_abort` procedure
@@ -1013,8 +1045,7 @@ to be called.
 
 === Error handling: failing a remapped code NGC procedure
 If you determine in your handler procedure that some error condition
-occurred, do not use `M2` to end your handler, which is slightly too
-heavy a hammer:
+occurred, do not use `M2` to end your handler - see above:
 
 If displaying an operator error message and stopping the current program is
 good enough, use the `(abort, <message>)` feature to terminate the handler with an
