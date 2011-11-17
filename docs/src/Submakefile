@@ -404,7 +404,8 @@ A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
 	  --asciidoc-opts "-f $(DOC_SRCDIR)/docbook.conf" \
-	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty"
+	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
+			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue"
 
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
