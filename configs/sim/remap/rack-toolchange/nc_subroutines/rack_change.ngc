@@ -2,6 +2,9 @@
 
 
 o<rack_change> sub
+
+M73 (auto-restore modal settings on return)
+
 ;(print, rack_change: loaded tool=#<_current_tool> current pocket: #<_current_pocket>)
 ;(print, rack_change: selected tool=#<_selected_tool> selected pocket: #<_selected_pocket>)
 

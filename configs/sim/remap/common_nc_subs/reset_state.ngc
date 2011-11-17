@@ -1,0 +1,25 @@
+
+o<reset_state> sub
+
+; if say a G38 probe was interrupted during a remap, this leaves the G38 modal state active
+; clear it out here, and any other state you what to have established after an error
+;
+; executing an M2 here is NOT recommended here, so we replicate the steps taken by an M2
+; but keep executing 
+
+G54 (origin offsets are set to the default)
+G17 (select XY plane)
+G90 (absolute)
+G94 (feed mode: units/minute)
+M48 (set feed and speed overrides)
+G40 (cutter compensation off)
+M5  (spindle off)
+
+; M2 sets G1, but  this fails with feed zero
+; a G80 is the next best safe thing
+G80 (cancel modal motion)
+
+M9  (mist and coolant off)
+
+o<reset_state> endsub
+m2
