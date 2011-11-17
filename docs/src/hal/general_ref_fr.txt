@@ -77,8 +77,8 @@ de HAL devraient suivrent les règles suivantes:
    «pid.0.p-gain».]
  - Utiliser seulement des caractères minuscules, lettres et chiffres.
 
-== Conventions de nommage des pilotes de matériels[[sec:GR-Nommage-pilotes-matriel]]footnote:[La 
-plupart des pilotes ne suivent pas ces conventions dans la version 2.0. 
+== Conventions de nommage des pilotes de matériels[[sec:GR-Nommage-pilotes-materiel]]
+footnote:[La plupart des pilotes ne suivent pas ces conventions dans la version 2.0. 
 Ce chapitre est réellement un guide pour les développements futurs.]
 
 === Noms de pin/paramètre
@@ -156,7 +156,7 @@ Les champs individuels sont:
     plupart des types d' entrée/sortie, il existe un jeu standard de
     broches et de paramètres, (appelé l'«interface canonique») que le
     pilote doit implémenter. Les interfaces canoniques sont décrites au
-    chapitre <<cha:Priphriques-canoniques>>.
+    chapitre <<cha:Pripheriques-canoniques>>.
 
 ==== Exemples
 
@@ -223,7 +223,7 @@ ppmc.0.write::
       -- écrit toutes les sorties (générateur de pas, pwm, DAC et ADC) sur
     la première carte Pico Systems ppmc.
 
-= Périphériques d'interfaces canoniques[[cha:Priphriques-canoniques]]
+= Périphériques d'interfaces canoniques[[cha:Pripheriques-canoniques]]
 
 .Note
 *********************************************************************

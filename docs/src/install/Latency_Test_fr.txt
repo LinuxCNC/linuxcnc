@@ -1,7 +1,7 @@
 Test des capacités temps réel
 =============================
 
-== Test de latence[[Test-de-latence-IM]]
+== Test de latence[[sec:Test-de-latence-IM]]
 
 Ce test est le premier test qui doit être effectué sur un PC 
 pour savoir si celui-ci est capable de piloter une machine CNC.

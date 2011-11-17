@@ -4,7 +4,7 @@
 chapter of the Sherline CNC operators manual.]
 
 .L'interface graphique Mini[[fig:startminif]]
-image::mini01_fr.png[]
+image::images/mini01_fr.png[]
 
 Mini(((mini))) a été prévu pour être une interface graphique plein
 écran. Il a été écrit initialement pour Sherline(((Sherline)))
@@ -18,8 +18,8 @@ instructions écrites par Joe Martin et Ray Henry.
 
 == L'écran
 
-.Affichage de Mini lors du fonctionnement d'EMC[[fig:runmini]]
-image::../common/mini_fr.jpg[]
+.Affichage de Mini lors du fonctionnement d'EMC[[fig:runminif]]
+image::images/mini_fr.jpg[]
 
  L'écran de Mini est visible dans plusieurs sections, voir la figure
 <<fig:startminif>>. Il inclu une barre de menu, un jeu de boutons de
@@ -28,7 +28,7 @@ montrant l'état de la machine et permettant à l'opérateur d'entrer des
 commandes ou des programmes.
 
 Quand on compare entre la figure <<fig:startminif>> et la figure 
-<<fig:runmini>> des différences apparaissent. Dans la seconde figure:
+<<fig:runminif>> des différences apparaissent. Dans la seconde figure:
 
  - Chaque axe a été référencé sur son origine -- L'affichage est vert
    sombre
@@ -189,7 +189,7 @@ l'incrément de jog.
 
 .Boutons du mode Manuel
 
-image::miniman_fr.png[]
+image::images/miniman_fr.png[]
 
 [quote]
 ________________________________________
@@ -258,7 +258,7 @@ même manière qu'avec l'interface TkEMC.
 
 .Mode Auto
 
-image::miniauto_fr.png[]
+image::images/miniauto_fr.png[]
 
 Le mode Auto n'affiche normalement pas les G-codes actifs ou modaux.
 Si l'opérateur veut les voir, il doit utiliser le menu «Informations ->
@@ -493,7 +493,7 @@ mode manuel a déjà été décrit précédemment. Chaque écran surgissant va
 
 .Editeur de texte de Mini
 
-image::miniedit_fr.png[]
+image::images/miniedit_fr.png[]
 
 L'éditeur de texte de Mini peut sembler un peu limité par rapport aux
 éditeurs de texte modernes. Il a été inclus parce qu'il comporte
@@ -512,7 +512,7 @@ menu.
 
 .Parcours d'outil de Mini
 
-image::minibkplot_fr.png[]
+image::images/minibkplot_fr.png[]
 
  Le bouton «Parcours d'outil» du menu, affiche un tracé produit par le
 cheminement de l'outil pendant l'usinage. Cette trace est affichable
@@ -552,7 +552,7 @@ modifiés une fois le programme démarré ni quand il est en pause.
 
 .Affichage de la table d'outils de Mini
 
-image::minitool_fr.png[]
+image::images/minitool_fr.png[]
 
 Les boutons «Ajouter un outil» et «Enlever le dernier outil» portent
 sur la fin de la liste des outils de sorte que l'ajout d'outils
@@ -575,7 +575,7 @@ position d'apprentissage.
 
 .Mini Offset Display
 
-image::minioffsets_fr.png[]
+image::images/minioffsets_fr.png[]
 
  Il est également possible d'utiliser une pinnule puis d'ajouter le
 rayon et la longueur par le bouton «Apprentissage». Pour celà, il peur

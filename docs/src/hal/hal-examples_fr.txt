@@ -18,12 +18,6 @@ Cet exemple utilise `ddt` pour calculer la vitesse d'un axe.
     *net X-vel ddt.0.out => ddt.1.in *
 
 
-
-
-
-
-
-
 = HAL Examples
 
 All of these examples assume you are starting with a stepconf based

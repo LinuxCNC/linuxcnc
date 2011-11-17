@@ -174,11 +174,11 @@ d'ébauche d'une profondeur de 0.2, la seconde passe d'ébauche aura une
 profondeur de 0.4 et ainsi de suite, jusqu'à-ce que la profondeur
 totale Depth de l'image soit atteinte. Aucune des passes d'ébauche
 n'usinera plus près de la partie finale que Roughing Offset. La figure 
-<<cap:Passes d-ebauche>> montre une grande profondeur verticale à
+<<cap:Passes-Ebauche>> montre une grande profondeur verticale à
 usiner. Sur cette image, la profondeur des passes d'ébauche est de 0.2
 pouces et Roughing Offset de 0.1 pouces.
 
-.Passes d'ébauche[[cap:Passes-d-ebauche]]
+.Passes d'ébauche[[cap:Passes-Ebauche]]
 
 image::i2g-roughing.png[]
 

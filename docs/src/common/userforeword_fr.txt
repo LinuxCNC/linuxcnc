@@ -76,9 +76,7 @@ telle autre.» Tout au long de ces manuels nous décrirons l'étendue des
 possibilités d'EMC2 actuellement disponibles.
 
 Puisque vous commencez votre voyage dans l'utilisation d'EMC2 nous
-vous proposons ces deux citations de précaution:footnote:[Trouvé 
-sur link:[http://fr.wikipedia.org/wiki/Philosophie_d%27Unix,
-Philosophie d'Unix], le 06/07/2008]
+vous proposons ces deux citations de précaution.
 
  - Pour paraphraser les paroles de Doug Gwyn sur UNIX: "EMC2 n'a pas 
    été conçu pour empêcher ses utilisateurs de commettre des actes 

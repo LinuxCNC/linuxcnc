@@ -68,7 +68,7 @@ ce que vous avez besoin de savoir à propos de RTAPI est qu'il doit être
 (avec le RTOS) chargé dans la mémoire de votre ordinateur avant de
 pouvoir faire n'importe quoi avec HAL.
 
-== Un exemple simple[[sec:Tutoriel - Exemple simple]]
+== Un exemple simple[[sec:Tutoriel-Exemple-Simple]]
 
 === Charger un composant temps réel
 
@@ -581,7 +581,7 @@ il est possible d'ouvrir plusieurs halmeters. La fenêtre de halmeter
 est intentionnellement petite justement pour permettre d'en ouvrir un
 grand nombre sur le même écran.
 
-== Exemple plus complexe avec stepgen[[sec:Tutorial - Plus complexe]]
+== Exemple plus complexe avec stepgen[[sec:Tutorial-Plus-Complexe]]
 
 Jusqu'à maintenant, nous avons chargé un composant HAL. Mais l'idée
 générale de HAL est de vous permettre de charger et de relier un grand

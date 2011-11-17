@@ -618,7 +618,7 @@ Faire la prise d'origine à la main n'est certes pas aussi reproductible
 que sur des contacts, mais elle permet tout de même aux limites logicielles
 d'être utilisables.
 
-=== 7.9 Câblage des contacts de fin de course et d'origine machine[[sec:Contacts-Origine-et-Limites]]
+=== Câblage des contacts de fin de course et d'origine machine[[sec:Contacts-Origine-et-Limites]]
 (((Câblage des contacts d'origine machine et des limites)))
 
 Le câblage idéal des contacts externes serait une entrée par contact. 
