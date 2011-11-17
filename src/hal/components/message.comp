@@ -49,7 +49,7 @@ pressure,Spindle inverter fault"
  net no-pressure classicladder.0.out-22 oilpressure.trigger
  net no-inverter classicladder.0.out-23 inverterfail.trigger
  
-When any pin goes active, it's message will be displayed.""";
+When any pin goes active, the corresponding message will be displayed.""";
  
 pin in bit trigger =FALSE "signal that triggers the message";
 pin in bit force =FALSE """A FALSE->TRUE transition forces the message to be
@@ -63,7 +63,7 @@ comma-delimited, inside a single set of quotes. See the "Description" section
 for an example.
 If there are more messages than "count" or "names" then the excess will be
 ignored. If there are fewer messages than "count" or "names" then an error will
-be raised and EMC2 will exit.""";
+be raised and the component will not load.""";
  
 variable int myidx;
 variable bool prev_trigger = FALSE;
