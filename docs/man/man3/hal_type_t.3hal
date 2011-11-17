@@ -3,6 +3,9 @@
 hal_type_t \- typedefs for HAL datatypes
 .SH DESRCIPTION
 .TP
+typedef ... \fBhal_bool;
+A type which may have a value of 0 or nonzero.
+.TP
 typedef ... \fBhal_bit_t;
 A volatile type which may have a value of 0 or nonzero.
 .TP
