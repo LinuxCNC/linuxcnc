@@ -1,4 +1,4 @@
-= Création de composants de l'espace utilisateur Python avec les modules de 'hal'
+= Créer des composants de l'espace utilisateur Python avec les modules de 'hal'
 
 == Utilisation de base
 
@@ -6,28 +6,60 @@ Un composant de l'espace utilisateur commence par créer ses pins et
 ses paramètres, puis il entre dans une boucle de laquelle il va
 positionner périodiquement toutes ses sorties en fonction de ses
 entrées. Le composant suivant, un passe-tout, copie la valeur vue sur
-ses pins d'entrée (`passthrough.in`) vers ses pins de sortie
-(`passthrough.out`) approximativement une fois par seconde.
+ses pins d'entrée (`passe_tout.in`) vers ses pins de sortie
+(`passe_tout.out`) approximativement une fois par seconde.
 
-    #!/usr/bin/python
+----------------------------------------------------------
+#!/usr/bin/python
+import hal, time
+h = hal.component("passe_tout")
+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+h.ready()
+try:
+    while 1:
+        time.sleep(1)
+        h[’out’] = h[’in’]
+except KeyboardInterrupt:
+    raise SystemExit
+----------------------------------------------------------
 
-Copier le listing précédent dans un fichier nommé «passthrough», le
-rendre exécutable par un `«chmod +x» `et le placer dans son `$PATH`. On
-peut alors l'essayer en faisant:
+Copier le listing précédent dans un fichier nommé `passe_tout`, le
+rendre exécutable par un `chmod +x` et le placer dans son `$PATH`. 
+On peut alors l'essayer en faisant:
 
-    $ halrun
+
++*halrun*+ 
+
++halcmd: *loadusr passe_tout*+ 
+
++halcmd: *show pin*+ 
+
+    Component Pins: 
+    Owner Type  Dir     Value  Name 
+     03   float IN          0  passe_tout.in 
+     03   float OUT         0  passe_tout.out 
+
++halcmd: *setp passe_tout.in 3.14*+ 
+
++halcmd: *show pin*+ 
+
+    Component Pins: 
+    Owner Type  Dir     Value  Name 
+     03   float IN       3.14  passe_tout.in 
+     03   float OUT      3.14  passe_tout.out 
+
 
 == Composants de l'espace utilisateur et délais
 
-Si vous tapez rapidement «show pin», vous pourrez voir que
-`passthrough.out` conserve un moment son ancienne valeur de 0. Ceci
-est dû à l'appel de
-la fonction 'time.sleep(1)', qui fait que les pins de sortie changent
-d'état, au plus, une fois par seconde. Parceque ce composant appartient
-à l'espace utilisateur, ce délai peut apparaître plus long, par exemple
-si la mémoire utilisée par le composant passthrough est échangée avec
-le disque dur, le délai peut être allongé jusqu'au raffraîchissement de
-la mémoire.
+Si vous tapez rapidement `show pin`, vous pourrez voir que
+`passe_tout.out` conserve un moment son ancienne valeur de 0. Ceci
+est dû à l'appel de la fonction `time.sleep(1)`, qui fait que les pins 
+de sortie changent d'état, au plus, une fois par seconde. 
+Parce-que ce composant appartient à l'espace utilisateur, 
+ce délai peut apparaître plus long, par exemple si la mémoire utilisée 
+par le composant pass_tout est échangée avec le disque dur, 
+le délai peut être allongé jusqu'au rafraîchissement de la mémoire.
 
 Ces composants de l'espace utilisateur conviennent parfaitement pour
 des éléments tels que des panneaux de contrôle pour lesquels des délais
@@ -35,17 +67,16 @@ de l'ordre de quelques millisecondes sont imperceptibles. Ils ne
 conviennent pas, en revanche, pour envoyer des impulsions de pas vers
 une carte de pilotage de périphériques pour lesquelles les délais
 doivent rester de l'ordre de quelques microsecondes, dans tous les
-cas).
+cas.
 
 == Créer les pins et les paramètres
 
-+h = hal.component("passthrough")+ 
++h = hal.component("passe_tout")+ 
 
 Le composant lui-même est créé par l'appel du constructeur
-'`hal.component` '. Les arguments sont le nom du composant HAL et
-optionnellement, le
-préfixe utilisé pour les noms de pin et de paramètre. Si le préfixe
-n'est pas spécifié, le nom du composant est utilisé.
+`hal.component`. Les arguments sont le nom du composant HAL et
+optionnellement, le préfixe utilisé pour les noms de pin et de paramètre. 
+Si le préfixe n'est pas spécifié, le nom du composant est utilisé.
 
 +h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)+ 
 
@@ -54,7 +85,7 @@ composant. Les arguments sont: pin nom suffixe, type de pin et
 direction de la pin. Pour les paramètres, les arguments sont: paramètre
 nom suffixe, type de paramètre et direction du paramètre.
 
-.HAL Option Names
+.Noms des options de HAL
 
 [width="90%", options="header"]
 |========================================
@@ -65,12 +96,12 @@ nom suffixe, type de paramètre et direction du paramètre.
 
 Le nom complet d'une pin ou d'un paramètre est formé en joignant le
 préfixe avec le suffixe par un «.», comme dans l'exemple où la pin
-créée est appelée `passthrough.in`.
+créée est appelée `passe_tout.in`.
 
 +h.ready()+ 
 
-Une fois toutes les pins et les paramètres créés, la méthode `.ready()
-est appelée`.
+Une fois toutes les pins et les paramètres créés, la méthode `.ready()`
+est appelée.
 
 === Changer le préfixe
 
@@ -102,17 +133,17 @@ signal, l'ancienne valeur de sortie n'est pas copiée vers le signal, la
 valeur correcte n'apparaîtra donc sur le signal qu'une fois que le
 composant lui aura assigné une nouvelle valeur.
 
-=== Pilotage des pins bidirectionelles (HAL_IO)
+=== Pilotage des pins bidirectionnelles (HAL_IO)
 
 La règle mentionnée ci-dessus ne s'applique pas aux pins
-bidirectionnelles. Au lieux de celà, une pin bidirectionnelle doit
-seulement être pilotée par le composant et quand le composant souhaîte
+bidirectionnelles. Au lieux de cela, une pin bidirectionnelle doit
+seulement être pilotée par le composant et quand le composant souhaite
 changer sa valeur. Par exemple, dans l'interface codeur, le composant
 codeur positionne seulement la pin *index-enable* à *FALSE* quand une
 impulsion d'index est vue et que l'ancienne valeur est *TRUE*, mais ne
-la positionne jamais à *TRUE*. Piloter répétitivement la pin à *FALSE* 
-pourrait faire qu'un autre composant connecté agisse comme si une
-nouvelle impulsion d'index avait été vue.
+la positionne jamais à *TRUE*. Positionner de manière répétitive la 
+pin à *FALSE* pourrait faire qu'un autre composant connecté agisse 
+comme si une nouvelle impulsion d'index avait été vue.
 
 == Quitter
 
@@ -120,188 +151,24 @@ Une requête `«halcmd unload»` pour le composant est délivrée comme une
 exception `KeyboardInterrupt` . Quand une requête de déchargement
 arrive, le processus doit quitter
  dans un court laps de temps ou appeler la méthode `.exit()` sur le
-composant si un travail substentiel, comme la lecture ou
+composant si un travail substantiel, comme la lecture ou
 l'écriture de fichiers, doit être fourni pour terminer le processus
 d'arrêt.
 
 == Idées de projets
 
  - Créer un panneau de contrôle extérieur avec boutons poussoirs,
-   interrupteurs et voyants. Connecter le tout à un microcontrolleur et
-   raccorder le microcontrolleur à un PC en utilisant une liaison série.
+   interrupteurs et voyants. Connecter le tout à un microcontrôleur et
+   raccorder le microcontrôleur à un PC en utilisant une liaison série.
    Python est vraiment capable d'interfacer une liaison série grâce à son
    module http://pyserial.sourceforge.net/[pyserial] (Paquet 
-   «python-serial», dans les dépots universe d'Ubuntu)
+   «python-serial», dans les dépôts universe d'Ubuntu)
  - Relier un module d'affichage à LCD
    http://lcdproc.omnipotent.net/[LCDProc] et l'utiliser pour afficher les
-   informations de votre choix (Paquet «lcdproc», dans les dépots universe
+   informations de votre choix (Paquet «lcdproc», dans les dépôts universe
    d'Ubuntu)
  - Créer un panneau de contrôle virtuel utilisant n'importe quelle
    librairie d'interface graphique supportée par Python (gtk, qt,
    wxwindows, etc)
-
-
-
-
-
-= Creating Userspace Python Components with the 'hal' module
-
-== Basic usage
-
-A userspace component begins by creating its pins and parameters, then
-enters a loop which will periodically drive all the outputs from the
-inputs. The following component copies the value seen on its input pin
-(`passthrough.in`) to its output pin (`passthrough.out`) approximately
-once per second.
-
-----------------------------------------------------------
-#!/usr/bin/python
-import hal, time
-h = hal.component("passthrough")
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
-h.ready()
-try:
-    while 1:
-        time.sleep(1)
-        h[’out’] = h[’in’]
-except KeyboardInterrupt:
-    raise SystemExit
-----------------------------------------------------------
-
-Copy the above listing into a file named “passthrough”, make it
-executable (`chmod +x),` and place it on your `$PATH`. Then try it out:
-
-+*halrun*+ 
-
-+halcmd: *loadusr passthrough*+ 
-
-+halcmd: *show pin*+ 
-
-    Component Pins: 
-    Owner Type  Dir     Value  Name 
-     03   float IN          0  passthrough.in 
-     03   float OUT         0  passthrough.out 
-
-+halcmd: *setp passthrough.in 3.14*+ 
-
-+halcmd: *show pin*+ 
-
-    Component Pins: 
-    Owner Type  Dir     Value  Name 
-     03   float IN       3.14  passthrough.in 
-     03   float OUT      3.14  passthrough.out 
-
-== Userspace components and delays
-
-If you typed “show pin” quickly, you may see that `passthrough.out` 
-still had its old value of 0. This is because of the call to
-'time.sleep(1)', which makes the assignment to the output pin occur at
-most once per second. Because this is a userspace component, the actual
-delay between assignments can be much longer--for instance, if the
-memory used by the passthrough component is swapped to disk, the
-assignment could be delayed until that memory is swapped back in.
-
-Thus, userspace components are suitable for user-interactive elements
-such as control panels (delays in the range of milliseconds are not
-noticed, and longer delays are acceptable), but not for sending step
-pulses to a stepper driver board (delays must always be in the range of
-microseconds, no matter what).
-
-== Create pins and parameters
-
-+h = hal.component("passthrough")+ 
-
-The component itself is created by a call to the constructor
-'`hal.component`'. The arguments are the HAL component name and
-(optionally) the
-prefix used for pin and parameter names. If the prefix is not
-specified, the component name is used.
-
-+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)+ 
-
-Then pins are created by calls to methods on the component object. The
-arguments are: pin name suffix, pin type, and pin direction. For
-parameters, the arguments are: parameter name suffix, parameter type,
-and parameter direction.
-
-.HAL Option Names[[cap:HAL-Option-Names]]
-
-[width="80%", options="header"]
-|========================================
-|*Pin and Parameter Types:* | HAL_BIT | HAL_FLOAT | HAL_S32 | HAL_U32
-|*Pin Directions:*          | HAL_IN  | HAL_OUT   | HAL_IO  | 
-|*Parameter Directions:*    | HAL_RO  | HAL_RW    |         | 
-|========================================
-
-The full pin or parameter name is formed by joining the prefix and the
-suffix with a “.”, so in the example the pin created is called
-`passthrough.in`.
-
-+h.ready()+ 
-
-Once all the pins and parameters have been created, call the
-`.ready()` method.
-
-=== Changing the prefix
-
-The prefix can be changed by calling the `.setprefix()` method. The
-current prefix can be retrieved by calling the `.getprefix()` method.
-
-== Reading and writing pins and parameters
-
-For pins and parameters which are also proper Python identifiers, the
-value may be accessed or set using the attribute syntax:
-
-+h.out = h.in+ 
-
-For all pins, whether or not they are also proper Python identifiers,
-the value may be accessed or set using the subscript syntax:
-
-+h['out'] = h['in']+ 
-
-=== Driving output (HAL_OUT) pins
-
-Periodically, usually in response to a timer, all HAL_OUT pins should
-be “driven” by assigning them a new value. This should be done whether
-or not the value is different than the last one assigned. When a pin is
-connected to a signal, its old output value is not copied into the
-signal, so the proper value will only appear on the signal once the
-component assigns a new value.
-
-=== Driving bidirectional (HAL_IO) pins
-
-The above rule does not apply to bidirectional pins. Instead, a
-bidirectional pin should only be driven by the component when the
-component wishes to change the value. For instance, in the canonical
-encoder interface, the encoder component only sets the *index-enable*
-pin to *FALSE* (when an index pulse is seen and the old value is
-*TRUE*), but never sets it to *TRUE*. Repeatedly driving the pin
-*FALSE*  might cause the other connected component to act as though
-another index pulse had been seen. 
-
-== Exiting
-
-A “`halcmd unload`” request for the component is delivered as a 
-`KeyboardInterrupt` exception. When an unload request arrives, the 
-process should either 
-exit in a short time, or call the `.exit()` method on the component 
-if substantial work (such as reading or 
-writing files) must be done to complete the shutdown process.
-
-== Project ideas
-
- - Create an external control panel with buttons, switches, and
-   indicators. Connect everything to a microcontroller, and connect the
-   microcontroller to the PC using a serial interface. Python has a very
-   capable serial interface module called
-   http://pyserial.sourceforge.net/[pyserial] 
-   (Ubuntu package name “python-serial”, in the universe repository)
- - Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
-   and use it to display a digital readout with information of your choice
-   (Ubuntu package name “lcdproc”, in the universe repository)
- - Create a virtual control panel using any GUI library supported by
-   Python (gtk, qt, wxwindows, etc)
-
 
 

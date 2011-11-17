@@ -1,112 +1,93 @@
-Upgrading EMC2
-==============
+Mises à jour d'EMC2
+===================
 
+//// 
+   a modifier dès que possible
+   
 == Upgrading from 2.4.x to 2.5.x
-
-Put
-
-some
-
-text
-
-here
 
 
 == Changes between 2.4.x and 2.5.x
 
-Put
-
-some
-
-text
-
-here
-
 
 === Details on thing 1 changes (2.4.x to 2.5.x)
-
-Put some 
-
-text here
 
 
 === Details on thing 2 changes (2.4.x to 2.5.x)
 
-Put some 
+////
 
-text here
+== Mise à jour 2.3.x à 2.4.x
 
+Les instructions suivantes s’appliquent à Ubuntu 8.04 "Hardy Heron". 
+EMC 2.4 n'est pas disponible pour des versions plus anciennes de Ubuntu.
 
-== Upgrading from 2.3.x to 2.4.x
+En raison de plusieurs incompatibilités mineures entre les versions 2.3.5 et 2.4.x,
+votre installation existante ne sera pas automatiquement mise à jour vers la version 
+2.4.x. Si vous voulez exécuter la version 2.4.x, veuillez modifier 
+le dépôt EMC-2.4 en suivant ces instructions :
 
-The following instructions only apply to Ubuntu 8.04 "Hardy Heron". 
-EMC 2.4 is not available for older releases of Ubuntu.
+Lancez Système/Administration/Gestionnaire de paquets Synaptic
+Sélectionnez Configuration/Dépôt
+Dans l'onglet "Autres logiciels" vous trouverez deux lignes 
+concernant linuxcnc.org.
 
-Because there are several minor incompatibilities between 2.3.5 
-and 2.4.x, your existing install will not automatically be 
-updated to 2.4.x. If you want to run 2.4.x, change to the EMC-2.4 
-repository by following these instructions:
+Pour chacune:
 
-run System/Administration/Synaptic Package Manager
-
-go to Settings/Repositories
-
-In the list of Third-Party software there should be at least two 
-lines for linuxcnc.org.
-
-For each of them:
-
- - Select the line and click Edit
- - On the Components line, change emc2.3 to emc2.4
- - Click OK 
- - Close the "Software Preferences" window
- - Click "Reload" as instructed
- - Click "Mark All Upgrades"
+- Sélectionnez la ligne et cliquez sur le bouton "Editer"
+- Dans le champ composants remplacez emc2.3 par emc2.4
+- Cliquez sur "Valider" 
+- Fermer la fenêtre "Source de logiciels" avec le bouton fermer
+- Cliquez sur "Recharger" dans la barre d'outils
+- Cliquez sur "Tout mettre à jour" dans la barre d'outils
    
-.Mesa card and hostmot2 users:
+.Utilisateurs de carte Mesa et hostmot2 :
+
 **********
-If you use a mesa card, find the proper hostmot2-firmware package 
-for your card and mark it for installation. Hint: do a search for 
-"hostmot2-firmware in the synaptic package manager.
+Si vous utilisez une carte _mesa_, trouvez le paquet 
+hostmot2-firmware approprié à votre carte et marquez-le pour 
+l'installation. Astuce: faites une recherche "hostmot2-firmware"
+dans gestionnaire de paquet Synaptic.
 **********
 
- - Click "Apply" 
+ - Cliquez "Appliquer"
 
-== Changes between 2.3.x and 2.4.x
+== Changements entre 2.3.x et 2.4.x
 
-Once you have done the upgrade, update any custom configurations 
-by following these instructions:
+Une fois que vous avez fait la mise à jour, mettez à jour les 
+configurations personnalisées en suivant ces instructions
 
-=== emc.nml changes (2.3.x to 2.4.x)
+=== Changement emc.nml (2.3.x to 2.4.x)
 
-For configurations that have not customized emc.nml, 
-remove or comment out the inifile line NML_FILE = emc.nml. 
-This will cause the most up to date version of emc.nml to be used.
+Pour les configurations qui ont personnalisé emc.nml, enlevez la ligne 
+`NML_FILE = emc.nml` dans le fichier inifile. Cela forcera l'utilisation 
+de la version la plus à jour de emc.nml.
 
-For configurations that have customized emc.nml, 
-a change similar to this one is required.
+Pour les configurations qui n'ont pas personnalisé emc.nml, 
+un changement similaire est requis.
 
-Failure to do this can cause an error like this one: 
+Un échec de cette opération provoque une erreur comme: 
 ---------------------------------- 
 libnml/buffer/physmem.cc 143: PHYSMEM_HANDLE: 
 Can't write 10748 bytes at offset 60 from buffer of size 10208.
 ----------------------------------
 
-=== tool table changes (2.3.x to 2.4.x) 
+=== Changements de la table d'outils (2.3.x to 2.4.x) 
 
-The format of the tool table has been changed incompatibly. 
-The documentation shows the new format. 
-The tool table will automatically be converted to the new format.
+Le nouveau format de la table d'outil est incompatible. 
+La documentation explique le nouveau format. 
+La table d'outil sera automatiquement convertie dans le nouveau format.
 
-=== hostmot2 firmware images (2.3.x to 2.4.x)
+=== Images du micro logiciel hostmot2 (2.3.x to 2.4.x)
 
-The hostmot2 firmware images are now a separate package. You can:
+Les images du micro logiciel hostmot2 sont dorénavent dans un paquet séparé. 
+Vous pouvez :
 
- - Continue using an already-installed `emc2-firmware-mesa-*` 2.3.x package
- - Install the new packages from the synaptic package manager. 
-   The new packages are named `hostmot2-firmware-*`
- - Download the firmware images as tar files from 
-   http://emergent.unpy.net/01267622561 and install them manually 
+- Continuer à utiliser un paquet déjà installé `emc2-firmware-mesa-*`
+- Installer les nouveaux paquets du gestionnaire de paquets Synaptic. 
+   Les nouveaux paquets sont nommés `hostmot2-firmware-*`
+- Télécharger les fichiers .tar des images du microprogramme depuis 
+   http://emergent.unpy.net/01267622561 et les installer manuellement. 
 
 // vim: set syntax=asciidoc:
 

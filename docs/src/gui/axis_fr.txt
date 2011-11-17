@@ -129,11 +129,11 @@ Il montre les positions de la machine.
 A gauche du nom de l'axe, un symbole d'origine est visible 
 si la prise d'origine de l'axe a été faite. 
 
-image:images/axis-homed.png[align="center"] Symbole prise d'origine
+image::images/axis-homed.png[align="center"] Symbole prise d'origine
 
 A droite du nom de l'axe, un symbole de limite est visible si l'axe est sur un de ses capteurs de limite.
 
-image:images/axis-limit.png[align="center"] Symbole de limite
+image::images/axis-limit.png[align="center"] Symbole de limite
 
 Pour interpréter correctement ces valeurs, référez vous à l'indicateur
 «Position» de la barre d'état. Si la position est «Absolue», alors les
@@ -143,7 +143,7 @@ coordonnées relatives à la pièce. Quand les coordonnées affichées sont
 relatives, une marque d'origine de couleur cyan est visible pour
 représenter «l'origine machine». 
 
-image:images/axis-machineorigin.png[align="center"] Symbol d'origine de machine
+image::images/axis-machineorigin.png[align="center"] Symbol d'origine de machine
 
 Si la position est «Commandée», alors il s'agit de la position à atteindre 
 -- par exemple, les coordonnées passées dans une commande `G0`. 
@@ -526,8 +526,7 @@ Les commandes disponibles sont visibles en faisant: `axis-remote
 charger un fichier, recharger le fichier courant avec: (`--reload`) et
 quitter le programme AXIS avec: (`--quit`).
 
-[[sec:Changement-D-Outil-Manuel]]
-== hal_manualtoolchange: Dialogue de Changement D'Outil Manuel
+== hal_manualtoolchange: Dialogue de Changement D'Outil Manuel[[sec:Changement-D-Outil-Manuel]]
 (((Changement D'Outil Manuel)))
 
 EMC2 inclut un composant userspace HAL de appelé «hal_manualtoolchange», 
@@ -595,7 +594,7 @@ En mode tour (lathe), la forme de l'outil chargé est visible.
 
 .Forme d'outil visible en mode tour
 
-image::axis-lathe-tool.png[]
+image::images/lathe-tool_fr.png[]
 
 == Configuration avancée d'AXIS
 
@@ -688,8 +687,7 @@ ce qui entraînera la construction des options au niveau
 «widgetDefault», de sorte que les ressources X (qui sont elles, au
 niveau «userDefault») puissent l'emporter.
 
-[[sub:Manivelle de jog]]
-=== Manivelle de jog
+=== Manivelle de jog[[sub:Manivelle de jog]]
 
 Pour accroître l'interaction d'AXIS avec une manivelle de jog
 physique, l'axe actif courant sélectionné dans l'interface graphique

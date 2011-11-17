@@ -396,8 +396,7 @@ placé dans `emc2/src/hal/components`  et il y sera construit excepté si
 emc2 est configuré en mode
 simulation.
 
-[[sec:Compiler-composants-rt]]
-== Compiler un composant temps réel hors de l'arborescence
+== Compiler un composant temps réel hors de l'arborescence[[sec:Compiler-composants-rt]]
 (((Compiling realtime components outside the source tree)))
 
 `comp` peut traiter, compiler et installer un composant temps réel en

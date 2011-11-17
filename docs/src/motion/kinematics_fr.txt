@@ -23,20 +23,20 @@ Cartésiennes. Une partie du contrôleur de mouvements d'EMC2 est
 responsable de la translation entre ces positions et les positions
 correspondantes de la cinématique (((cinematique))) de la
 machinefootnote:[Cinématique: une fonction à deux voies pour
-transformer un espace Cartésien en espace à jointures].
+transformer un espace Cartésien en espace à articulations].
 
-=== Les jointures (articulations) par rapport aux axes
+=== Les articulations par rapport aux axes
 
-Une jointure, pour une machine CNC est un des degrés physiques de
+Une articulation, pour une machine CNC est un des degrés physiques de
 liberté de la machine. Elle peut être linéaire (vis à billes) ou
-rotative (table tournante, jointures d'un bras robotisé). Il peut y
-avoir n'importe quel nombre de jointures sur une machine. Par exemple,
-un robot classique dispose de 6 jointures et une fraiseuse classique
+rotative (table tournante, articulations d'un bras robotisé). Il peut y
+avoir n'importe quel nombre d'articulations sur une machine. Par exemple,
+un robot classique dispose de 6 articulations et une fraiseuse classique
 n'en a que 3.
 
-Sur certaines machines, les jointures sont placées de manière à
-correspondre aux axes cinématiques (jointure 0 le long de l'axe X,
-jointure 1 le long de l'axe Y et jointure 2 le long de l'axe Z), ces
+Sur certaines machines, les articulations sont placées de manière à
+correspondre aux axes cinématiques (articulation 0 le long de l'axe X,
+articulation 1 le long de l'axe Y et articulation 2 le long de l'axe Z), ces
 machines sont appelées machines Cartésiennes (((Machines
 Cartesiennes))) (ou encore machines à cinématiques triviales
 (((Cinematique triviale)))). Ce sont les machines les plus courantes
@@ -49,14 +49,14 @@ de type puma).
 Comme nous l'avons vu, il y a un groupe de machines sur lesquelles
 chacun des axes est placé le long d'un des axes Cartésiens. Sur ces
 machines le passage, du plan de l'espace Cartésien (le programme
-G-code) au plan de l'espace jointure (l'actuateur actuel de la
+G-code) au plan de l'espace articulation (l'actuateur actuel de la
 machine), est trivial. C'est un simple plan 1:1:
 
     pos->tran.x = joints[0];
     
 Dans l'extrait de code ci-dessus, nous pouvons voir comment le plan
-est fait: la position X est identique avec la jointure 0, Y avec la
-jointure 1 etc. Nous nous référons dans ce cas à une cinématique
+est fait: la position X est identique avec la articulation 0, Y avec la
+articulation 1 etc. Nous nous référons dans ce cas à une cinématique
 directe (une transformation avant), tandis que dans l'extrait de code
 suivant il est fait référence à une cinématique inverse (ou une
 transformation inverse):
@@ -68,7 +68,7 @@ d'une machine à cinématique banale (ou Cartésienne). Cela devient un
 peu plus compliqué si il manque un axe à la machine.footnote:[Si la
 machine (par exemple un tour) est montée avec seulement les axes
 X, Z et A et que le fichier d'init d'EMC2 contient uniquement la
-définition de ces 3 jointures, alors l'assertion précédente est fausse.
+définition de ces 3 articulations, alors l'assertion précédente est fausse.
 Parce-que nous avons actuellement (joint0=x, joint1=Z, joint2=A) ce qui
 suppose que joint1=Y. Pour faire en sorte que cela fonctionne dans EMC2
 il suffit de définir tous les axes (XYZA), EMC2 utilisera alors une
@@ -80,7 +80,7 @@ correspondant et recompiler le logiciel.]
 
 Il peut y avoir un certain nombre de types de configurations de
 machine (robots: puma, scara; hexapodes etc.) Chacun d'eux est mis en
-place en utilisant des jointures linéaires et rotatives. Ces jointures
+place en utilisant des articulations linéaires et rotatives. Ces articulations
 ne correspondent pas habituellement avec les coordonnées Cartésiennes,
 cela nécessite une fonction cinématique qui fasse la conversion (en
 fait 2 fonctions: fonction en avant et inverse de la cinématique).
@@ -95,7 +95,7 @@ image::bipod.png[]
 
 Le bipode dont nous parlons est un appareil, composé de deux moteurs
 placés sur un mur, à cet appareil un mobile est suspendu par des fils.
-Les jointures dans ce cas sont les distances entre le mobile et les
+Les articulations dans ce cas sont les distances entre le mobile et les
 moteurs de l'appareil (nommées AD et BD sur la figure 
 <<cap:Bipod-setup>>).
 
@@ -108,13 +108,12 @@ Notre pointe mobile se trouvera au point D défini par les distances AD
 et BD, et par les coordonnées Cartésiennes Dx, Dy.
 
 La tâche de la cinématique consistera à transformer les longueurs des
-jointures en (AD, BD) en coordonnées Cartésiennes (Dx, Dy) et
+articulations en (AD, BD) en coordonnées Cartésiennes (Dx, Dy) et
 vice-versa.
 
-[[sub:Forward-transformation]]
-=== Transformation avant
+=== Transformation avant[[sec:Forward-transformation]]
 
-Pour effectuer la transformation de l'espace jointure en espace
+Pour effectuer la transformation de l'espace articulation en espace
 Cartésien nous allons utiliser quelques règles de trigonomètrie (le
 triangle rectangle déterminé par les points (0,0), (Dx,0), (Dx,Dy) et
 le triangle rectangle (Dx,0), (Bx,0) et (Dx,Dy).
@@ -136,7 +135,7 @@ latexmath:[[y=\sqrt{AD^{2}-x^{2}}\]]
 
 Noter que le calcul inclus la racine carrée de la différence, mais
 qu'il n'en résulte pas un nombre réel. Si il n'y a aucune coordonnées
-Cartésienne pour la position de cette jointure, alors la position est
+Cartésienne pour la position de cette articulation, alors la position est
 dite singulière. Dans ce cas, la cinématique inverse retourne -1.
 
 Traduction en code:
@@ -144,8 +143,7 @@ Traduction en code:
     double AD2 = joints[0] * joints[0];
     return 0;
 
-[[sub:Inverse-transformation]]
-=== Transformation inverse
+=== Transformation inverse[[sec:Inverse-transformation]]
 
 La cinématique inverse est beaucoup plus simple dans notre exemple, de
 sorte que nous pouvons l'écrire directement:
@@ -167,11 +165,11 @@ quelques fonctions “C” (par opposition au fonctions de HAL):
  - `int kinematicsForward(const double *joint, EmcPose *world, const
    KINEMATICS_FORWARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)`
    Implémente la fonction cinématique avant, comme décrite dans la
-   section <<sub:Forward-transformation>>.
+   section <<sec:Forward-transformation>>.
  - `int kinematicsInverse(const EmcPose * world, double *joints, const
    KINEMATICS_INVERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)`
    Implémente la fonction cinématique inverse, comme décrite dans la
-   section <<sub:Inverse-transformation>>.
+   section <<sec:Inverse-transformation>>.
  - `KINEMATICS_TYPE kinematicsType(void)`
    Retourne l'identificateur de type de la cinématique, typiquement
    `KINEMATICS_BOTH`.
@@ -189,6 +187,6 @@ quelques fonctions “C” (par opposition au fonctions de HAL):
    désinstallation des modules RTAPI.
 
 Quand ils sont contenus dans un seul fichier source, les modules de la
-cinématique peuvent être compilés et installé par `«comp`». Voir la
+cinématique peuvent être compilés et installés par `«comp`». Voir la
 manpage `«comp(1)»` pour d'autres informations.
 

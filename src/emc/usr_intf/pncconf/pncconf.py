@@ -149,8 +149,9 @@ drivertypes = [
 
 ( GPIOI, GPIOO, GPIOD,NUSED ) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"), _("NOT USED") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
-(  MXEA, MXEB, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder-A"),_("Muxed Encoder-B"),_("Muxed Encoder-I"),_("Muxed Encoder-M"),
-    _("Mux Enc Select") ]
+(  MXE0, MXE1, MXEU, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder 0"),_("Muxed Encoder 1"),_("muxed enc"),_("mux enc mask"),_("mux select") ]
+( RES0, RES1, RES2, RES3, RES4, RES5, RESU ) = pintype_resolver = [_("Resolver 0 Encoder"),_("Resolver 1 Encoder"),_("Resolver 2 Encoder"),
+_("Resolver 3 Encoder"),_("Resolver 4 Encoder"),_("Resolver 5 Encoder"), "resolver" ]
 ( STEPA, STEPB, STEPC, STEPD, STEPE, STEPF ) = pintype_stepper = [_("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
     _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
 ( PWMP, PWMD, PWME ) = pintype_pwm = [ _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E") ]
@@ -163,58 +164,60 @@ _("SMARTSERIAL-P0-RX"),_("SMARTSERIAL-P0-EN"), _("SMARTSERIAL-P1-RX"),_("SMARTSE
 _("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSERIAL-P3-RX"),_("SMARTSERIAL-P3-EN"), ]
 
 
-_BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXPWM = 7;_PWMPINS = 8;_MAXTPPWM = 9;
-_TTPWMPINMS = 10;_MAXSTEP = 11;_STEPPINS = 12;_MAXSSERIALPORTS = 13;_MAXSSERIALCHANNELS = 14;_HASWATCHDOG = 15;_MAXGPIO = 16;_LOWFREQ = 17;
-_HIFREQ = 18;_NUMOFCNCTRS = 19;_STARTOFDATA = 20
+_BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
+_PWMPINS = 10;_MAXTPPWM = 11;_TTPWMPINMS = 12;_MAXSTEP = 13;_STEPPINS = 14;_MAXSSERIALPORTS = 15;_MAXSSERIALCHANNELS = 16;_HASWATCHDOG = 25;
+_MAXGPIO = 26;_LOWFREQ = 27;_HIFREQ = 28;_NUMOFCNCTRS = 29;_STARTOFDATA = 30
 _AXIS = 1;_TKEMC = 2;_MINI = 3;_TOUCHY = 4
 _IMPERIAL = 0;_METRIC = 1
 
 # board title, boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, number of pins per encoder,
-# max pwm gens, # of pins 
+# max resolver gens, # of pins,
+# max pwm gens, # of pins
 # max tppwmgens , # of pins
 # max step gens, number of pins per step gen,
-# max smart serial, number of chaNnels
+# max smart serial, number of channels,
+# spare,spare,spare,spare,spare,spare,spare,spare,
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
-    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 12,3, 0,0, 0,0, 0,0, 1, 72 , 33, 100, [2,3,4],
+    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8,3, 8,3, 0,0, 4,2, 0,0, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 4,2, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST2_4_7I47", "5i20", "hm2_pci", 4,3, 2,2, 0,0, 4,2, 0,0, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_4_7I47", "5i20", "hm2_pci", 4,3, 0,0, 2,2, 0,0, 4,2, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[ENCA,0],[ENCA,2],[ENCB,0],[ENCB,2],[ENCI,0],[ENCI,2],[ENCA,1],[ENCA,3],
                 [ENCB,1],[ENCB,3],[ENCI,1],[ENCI,3],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0], ],
-    ["5i20", "5i20", "SVST2_8", "5i20", "hm2_pci", 2,3, 2,3, 0,0, 8,6, 0,0, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_8", "5i20", "hm2_pci", 2,3, 0,0, 2,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST8_4IM2", "5i20", "hm2_pci", 8,4, 8,4, 0,0, 4,2, 0,0, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4IM2", "5i20", "hm2_pci", 8,4, 0,0, 8,4, 0,0, 4,2, 0,0, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCM,0],[ENCM,1],[ENCM,2],[ENCM,3],[ENCM,4],[ENCM,5],[ENCM,6],[ENCM,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3] ],
-    ["5i22-1", "5i22", "SV16", "5i22-1", "hm2_pci", 16,3, 16,3, 0,0, 0,0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SV16", "5i22-1", "hm2_pci", 16,3, 0,0, 16,3, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -223,7 +226,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1", "5i22", "SVST8_8", "5i22-1", "hm2_pci", 8,3, 8,3, 0,0, 8,6, 0,0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVST8_8", "5i22-1", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -232,7 +235,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1", "5i22", "SVST8_24", "5i22-1", "hm2_pci", 8,3, 8,3, 0,0, 24,2, 0,0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVST8_24", "5i22-1", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 24,2, 0,0, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -241,7 +244,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i22-1.5", "5i22", "SV16", "5i22-1.5", "hm2_pci", 16,3, 16,3, 0,0, 0,0, 0,0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SV16", "5i22-1.5", "hm2_pci", 16,3, 0,0, 16,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -250,7 +253,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1.5", "5i22", "SVST8_8", "5i22-1.5", "hm2_pci", 8,3, 8,3, 0,0, 8,6, 0,0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVST8_8", "5i22-1.5", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -259,7 +262,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1.5", "5i22", "SVS8_24", "5i22-1.5", "hm2_pci", 8,3, 8,3, 0,0, 24,2, 0,0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVS8_24", "5i22-1.5", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 24,2, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -268,63 +271,63 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12,3, 12,3, 0,0, 0,0, 0,0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i23", "5i23", "SVST8_4", "5i23", "hm2_pci", 8,3, 8,3, 0,0, 4,6, 0,0, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST8_4", "5i23", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 4,6, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i23", "5i23", "SVST4_8", "5i23", "hm2_pci", 4,3, 4,3, 0,0, 8,6, 0,0, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST4_8", "5i23", "hm2_pci", 4,3, 0,0, 4,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 48, 96, [2,3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-2", "7i43", "SV8", "7i43-2", "hm2_7i43", 8, 3, 8,3, 0,0, 0,0, 0,0, 1, 48, 50, 100, [4,3], 
+    ["7i43-2", "7i43", "SV8", "7i43-2", "hm2_7i43", 8,3, 0,0, 8,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43-2", "7i43", "SVST4_4", "7i43-2", "hm2_7i43", 4,3, 4,3, 0,0, 4,6, 0,0, 1, 48, 50, 100, [4,3],
+    ["7i43-2", "7i43", "SVST4_4", "7i43-2", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 4,6, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-2", "7i43", "SVST4_6", "7i43-2", "hm2_7i43", 4,4, 6,6, 0,0, 3,4, 0,0, 1, 48, 50, 100, [4,3],
+    ["7i43-2", "7i43", "SVST4_6", "7i43-2", "hm2_7i43", 4,4, 0,0, 6,6, 0,0, 3,4, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                   [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SV8", "7i43-4", "hm2_7i43", 8,3, 8,3, 0,0, 0,0, 0,0, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SV8", "7i43-4", "hm2_7i43", 8,3, 0,0, 8,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43-4", "7i43", "SVST4_4", "7i43-4", "hm2_7i43", 4,3, 4,3, 0,0, 4,6, 0,0, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SVST4_4", "7i43-4", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 4,6, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SVST4_6", "7i43-4", "hm2_7i43", 4,3, 4,3, 0,0, 6,4, 0,0, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SVST4_6", "7i43-4", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 6,4, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                   [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SVST4_12", "7i43-4", "hm2_7i43", 4, 3, 4,3, 0,0, 12,2, 0,0, 1, 48, 50, 100, [4,3],
+    ["7i43-4", "7i43", "SVST4_12", "7i43-4", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 12,2, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
                   [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11] ],
-    ["3x20-1", "3x20", "SV24", "3x20-1", "hm2_pci", 24,3, 24,3, 0,0, 0,0, 0,0, 1, 144, 50, 100, [4,5,6,9,8,7],
+    ["3x20-1", "3x20", "SV24", "3x20-1", "hm2_pci", 24,3, 0,0, 24,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 144, 50, 100, [4,5,6,9,8,7],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -337,7 +340,7 @@ mesafirmwaredata = [
                  [ENCB,19],[ENCA,19],[ENCB,18],[ENCA,18],[ENCI,19],[ENCI,18],[PWMP,19],[PWMP,18],[PWMD,19],[PWMD,18],[PWME,19],[PWME,18],
         [ENCB,21],[ENCA,21],[ENCB,20],[ENCA,20],[ENCI,21],[ENCI,20],[PWMP,21],[PWMP,20],[PWMD,21],[PWMD,20],[PWME,21],[PWME,20],
                  [ENCB,23],[ENCA,23],[ENCB,22],[ENCA,22],[ENCI,23],[ENCI,22],[PWMP,23],[PWMP,22],[PWMD,23],[PWMD,22],[PWME,23],[PWME,22] ],
-    ["3x20-1", "3x20", "SVST16_24", "3x20-1", "hm2_pci", 16,3, 16,3, 0,0, 24,2, 0,0, 1, 144, 50, 100, [4,5,6,9,8,7],
+    ["3x20-1", "3x20", "SVST16_24", "3x20-1", "hm2_pci", 16,3, 0,0, 16,3, 0,0, 24,2, 0,0, 0,0,0,0,0,0,0,0, 1, 144, 50, 100, [4,5,6,9,8,7],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -510,7 +513,8 @@ SPINDLE_ENCODER_A, SPINDLE_ENCODER_B, SPINDLE_ENCODER_I, SPINDLE_ENCODER_M,
 X_MPG_A, X_MPG_B, X_MPG_I, X_MPG_M, Y_MPG_A, Y_MPG_B, Y_MPG_I, Y_MPG_M,
 Z_MPG_A, Z_MPG_B, Z_MPG_I, Z_MPG_M, A_MPG_A, A_MPG_B, A_MPG_I,A_MPG_M,
 SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M,
-FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal_encoder_input_names = [ "unused-encoder",
+FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,
+MVO_MPG_A,MVO_MPG_B,MVO_MPG_I,MVO_MPG_I,)  = hal_encoder_input_names = [ "unused-encoder",
 "x-encoder-a", "x-encoder-b", "x-encoder-i", "x-encoder-m",
 "y-encoder-a", "y-encoder-b", "y-encoder-i", "y-encoder-m",
 "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m", 
@@ -519,14 +523,19 @@ FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal
 "x-mpg-a","x-mpg-b", "x-mpg-i", "x-mpg-m", "y-mpg-a", "y-mpg-b", "y-mpg-i", "y-mpg-m",
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m",
-"fo-mpg-a","fo-mpg-b","fo-mpg-i","fo-mpg-m","so-mpg-a","so-mpg-b","so-mpg-i","so-mpg-m"]
+"fo-mpg-a","fo-mpg-b","fo-mpg-i","fo-mpg-m","so-mpg-a","so-mpg-b","so-mpg-i","so-mpg-m",
+"mvo-mpg-a","mvo-mpg-b","mvo-mpg-i","mvo-mpg-m"]
 
 axis = [_("X Encoder"),_("Y Encoder"), _("Z Encoder"),_("A Encoder"),_("Spindle Encoder")]
 mpg = [_("X Hand Wheel"), _("Y Hand Wheel"), _("Z Hand Wheel"), _("A Hand Wheel") ,_("Multi Hand Wheel")]
 over = [_("Feed Override"),_("spindle Override"),_("Max Vel Override")]
 human_encoder_input_names = [ [_("Unused Encoder"),[]],[_("Axis Encoder"), axis],[_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
-                            [_("Custom Signals"),[]] ] 
+                            [_("Custom Signals"),[]] ]
 
+human_resolver_input_names =[ [_("Unused Resolver"),[]],[_("X Resolver"), []],[_("Y Resolver"), []],[_("Z Resolver"), []],
+                                [_("A Resolver"), []],[_("S Resolver"), []],[_("Custom Signals"),[]] ]
+USED_RESOLVER,X_RESOLVER,Y_RESOLVER,Z_RESOLVER,A_RESOLVER,S_RESOLVER = hal_resolver_input_names = ["unused-resolver","x-resolver",
+"y-resolver","z-resolver","a-resolver","s-resolver"]
 
 (UNUSED_STEPGEN, 
 X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
@@ -591,6 +600,7 @@ class Data:
         # custom signal name lists
         self.halencoderinputsignames = []
         self.halmuxencodersignames = []
+        self.halresolversignames = []
         self.halpwmoutputsignames = []
         self.haltppwmoutputsignames = []
         self.halinputsignames = []
@@ -608,6 +618,7 @@ class Data:
         self._stepperliststore = None
         self._encoderliststore = None
         self._muxencoderliststore = None
+        self._resolverliststore = None
         self._pwmliststore = None
         self._tppwmliststore = None
         self._sserialliststore = None
@@ -617,6 +628,7 @@ class Data:
         self._steppersignaltree = None
         self._encodersignaltree = None
         self._muxencodersignaltree = None
+        self._resolversignaltree = None
         self._pwmcontrolsignaltree = None
         self._pwmrelatedsignaltree = None
         self._tppwmsignaltree = None
@@ -928,6 +940,7 @@ class Data:
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
+        self.mesa0_numof_resolvers = 0
         self.mesa0_numof_pwmgens = 4
         self.mesa0_numof_tppwmgens = 0
         self.mesa0_numof_stepgens = 0
@@ -950,6 +963,7 @@ class Data:
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
+        self.mesa1_numof_resolvers = 0
         self.mesa1_numof_pwmgens = 4
         self.mesa1_numof_tppwmgens = 0
         self.mesa1_numof_stepgens = 0
@@ -1178,6 +1192,12 @@ class Data:
             for j in(["-a","-b","-i","-m"]):
                 hal_encoder_input_names.append(i+j)
         if i:  human_encoder_input_names[4][1]= temp
+        #resolvers
+        temp = []; i = False
+        for i in  self.halresolversignames:
+            temp.append(i)
+            hal_resolver_input_names.append(i)
+        if i: human_resolver_input_names[6][1]= temp
         #pwm
         temp =[]; i = False
         for i in  self.halpwmoutputsignames:
@@ -1350,7 +1370,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
         # TODO fix this hack : hardcoded to one serial port
-        ssconfig0 = ssconfig1 = temp = ""
+        ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
         if self.mesa0_numof_sserialports:
             for i in range(1,9):
                 if i <= self.mesa0_numof_sserialchannels:
@@ -1365,6 +1385,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                 else:
                     temp = temp + "x"
             ssconfig1 = "sserial_port_0=%s"% temp
+            if self.mesa0_numof_resolvers:
+                resolver0 = "num_resolvers=%d"% self.mesa0_numof_resolvers
+            if self.mesa1_numof_resolvers:
+                resolver1 = "num_resolvers=%d"% self.mesa1_numof_resolvers
         firmstring0 = firmstring1 = ""
         if not "5i25" in self.mesa0_currentfirmwaredata[_BOARDNAME]:
             firmstring0 = "firmware=hm2/%s/%s.BIT" % (self.mesa0_boardtitle, self.mesa0_firmware)
@@ -1374,15 +1398,15 @@ If you have a REALLY large config that you wish to convert to this newer version
         print >>file, "# **** This is for info only ****"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
         print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
-        print >>file, """# CONFIG0="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+        print >>file, """# CONFIG0="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
                     firmstring0, self.mesa0_numof_encodergens, 
-                    self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0 )
+                    self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, resolver0 )
         if self.number_mesa == 2:
             print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
             print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
-            print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
+            print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
                      firmstring1, self.mesa1_numof_encodergens, 
-                     self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
+                     self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1, resolver1 )
         print >>file
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
@@ -1462,9 +1486,10 @@ If you have a REALLY large config that you wish to convert to this newer version
         tppwmgen = self.tppwmgen_sig(letter)
         stepgen = self.stepgen_sig(letter)
         encoder = self.encoder_sig(letter)
+        resolver = self.resolver_sig(letter)
         closedloop = False
-        if stepgen and encoder: closedloop = True
-        if encoder and (pwmgen or tppwmgen) : closedloop = True
+        if stepgen and (encoder or resolver): closedloop = True
+        if (encoder or resolver) and (pwmgen or tppwmgen) : closedloop = True
         #print "INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen
 
         print >>file
@@ -1611,6 +1636,11 @@ If you have a REALLY large config that you wish to convert to this newer version
            test = self.findsignal(thisaxisencoder)
            return test
 
+    def resolver_sig(self, axis):
+        thisaxisresolver = axis +"-resolver"
+        test = self.findsignal(thisaxisresolver)
+        return test
+
     def pwmgen_sig(self, axis):
            thisaxispwmgen =  axis + "-pwm-pulse" 
            test = self.findsignal( thisaxispwmgen)
@@ -1645,9 +1675,13 @@ If you have a REALLY large config that you wish to convert to this newer version
         if steppinname:
             stepinvertlist = self.stepgen_invert_pins(self.stepgen_sig(let))
         encoderpinname = self.make_pinname(self.encoder_sig(let))
+        resolverpinname = self.make_pinname(self.resolver_sig(let))
         if steppinname and encoderpinname: closedloop = True
-        if encoderpinname and (pwmpinname or tppwmpinname): closedloop = True
-        print let + " is closedloop? "+ str(closedloop),encoderpinname,pwmpinname,tppwmpinname,steppinname
+        if (encoderpinname or resolverpinname) and (pwmpinname or tppwmpinname): closedloop = True
+        print let + " is closedloop? "+ str(closedloop)
+        print " ENCODER:",encoderpinname," RESOLVER:",resolverpinname
+        print " PWM:",pwmpinname," 3PWM:",tppwmpinname
+        print " STEPPER:",steppinname
 
         lat = self.latency
         print >>file, "#*******************"
@@ -1801,7 +1835,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
-                if not encoderpinname:
+                if not encoderpinname or not resolverpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
             elif closedloop:
                 print >>file
@@ -1821,27 +1855,43 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file
 
         if encoderpinname:             
-                countmode = 0
-                print >>file, "# ---Encoder feedback signals/setup---"
-                print >>file             
-                print >>file, "setp    "+encoderpinname+".counter-mode %d"% countmode
-                print >>file, "setp    "+encoderpinname+".filter 1" 
-                print >>file, "setp    "+encoderpinname+".index-invert 0"
-                print >>file, "setp    "+encoderpinname+".index-mask 0" 
-                print >>file, "setp    "+encoderpinname+".index-mask-invert 0"              
-                print >>file, "setp    "+encoderpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
-                print >>file
-                if let == 's':
-                    print >>file, "net spindle-revs              <=  " + encoderpinname + ".position"
-                    print >>file, "net spindle-vel-fb            <=  " + encoderpinname + ".velocity"
-                    print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable" 
-               
-                else: 
-                    print >>file, "net %spos-fb               <=  "% (let) + encoderpinname+".position"
-                    print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
-                    print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
-                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
-                print >>file
+            countmode = 0
+            print >>file, "# ---Encoder feedback signals/setup---"
+            print >>file
+            print >>file, "setp    "+encoderpinname+".counter-mode %d"% countmode
+            print >>file, "setp    "+encoderpinname+".filter 1"
+            print >>file, "setp    "+encoderpinname+".index-invert 0"
+            print >>file, "setp    "+encoderpinname+".index-mask 0"
+            print >>file, "setp    "+encoderpinname+".index-mask-invert 0"
+            print >>file, "setp    "+encoderpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
+            print >>file
+            if let == 's':
+                print >>file, "net spindle-revs              <=  " + encoderpinname + ".position"
+                print >>file, "net spindle-vel-fb            <=  " + encoderpinname + ".velocity"
+                print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
+            else:
+                print >>file, "net %spos-fb               <=  "% (let) + encoderpinname+".position"
+                print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
+                print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
+                print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
+            print >>file
+
+        if resolverpinname:
+            print >>file, "# ---Encoder feedback signals/setup---"
+            print >>file
+            print >>file, "#setp    "+resolverpinname+".velocity-scale 1"
+            print >>file, "setp    "+resolverpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
+            print >>file
+            if let == 's':
+                print >>file, "net spindle-revs              <=  " + resolverpinname + ".position"
+                print >>file, "net spindle-vel-fb            <=  " + resolverpinname + ".velocity"
+                print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
+            else:
+                print >>file, "net %spos-fb               <=  "% (let) + resolverpinname+".position"
+                print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
+                print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
+                print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + resolverpinname + ".index-enable"
+            print >>file
 
         if let =='s':
             print >>file, "# ---setup spindle control signals---" 
@@ -1860,7 +1910,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             if not self.findsignal("spindle-at-speed"):
                 print >>file, "# ---Setup spindle at speed signals---"
                 print >>file
-                if encoderpinname and self.suseatspeed:
+                if (encoderpinname or resolverpinname) and self.suseatspeed:
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
@@ -1870,7 +1920,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, "sets spindle-at-speed true"
                     print >>file
             if self.pyvcphaltype == 1 and self.pyvcpconnect or self.gladevcp and self.spindlespeedbar:
-                if encoderpinname:
+                if encoderpinname or resolverpinname:
                     print >>file, _("#  Use ACTUAL spindle velocity from spindle encoder")
                     print >>file, _("#  spindle-velocity bounces around so we filter it with lowpass")
                     print >>file, _("#  spindle-velocity is signed so we use absolute component to remove sign") 
@@ -1922,7 +1972,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
             # for encoder pins
-            elif t in (ENCA,MXEA):
+            elif t in (ENCA,MXE0,MXE1):
                 if not p == "unused-encoder":
                     for sig in (self.halencoderinputsignames):
                        if p == sig+"-a":
@@ -1930,6 +1980,34 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
+                            print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
+                            print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                            break
+            elif t in (RES0,RES1,RES2,RES3,RES4,RES5):
+                if not p == "unused-resolver":
+                    for sig in (self.halresolversignames):
+                       if p == sig:
+                            pinname = self.make_pinname(self.findsignal( p ))
+                            print >>file, "\n# ---",sig.upper(),"---"
+                            print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
+                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                            print >>file, "net %s            <=  "% (sig+"-angle")+pinname +".angle"
+                            print >>file, "net %s            <=  "% (sig+"-error")+pinname +".error"
+                            print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
+                            print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
+                            print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
+                            break
+            elif t in (RES0,RES1,RES2,RES3,RES4,RES5):
+                if not p == "unused-resolver":
+                    for sig in (self.halresolversignames):
+                       if p == sig:
+                            pinname = self.make_pinname(self.findsignal( p ))
+                            print >>file, "\n# ---",sig.upper(),"---"
+                            print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
+                            print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
+                            print >>file, "net %s            <=  "% (sig+"-angle")+pinname +".angle"
+                            print >>file, "net %s            <=  "% (sig+"-error")+pinname +".error"
                             print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
                             print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"
                             print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"
@@ -2126,7 +2204,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
         # TODO fix this hardcoded hack: only one serial port
-        ssconfig0 = ssconfig1 = temp = ""
+        ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
+        if self.mesa0_numof_resolvers:
+            resolver0 = "num_resolvers=%d"% self.mesa0_numof_resolvers
+        if self.mesa1_numof_resolvers:
+            resolver1 = "num_resolvers=%d"% self.mesa1_numof_resolvers
         if self.mesa0_numof_sserialports:
             for i in range(1,9):
                 if i <= self.mesa0_numof_sserialchannels:
@@ -2147,16 +2229,16 @@ If you have a REALLY large config that you wish to convert to this newer version
         if not "5i25" in board1:
             firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0)
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0, resolver0)
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"
-                    """ % ( driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"
+                    """ % ( driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, resolver0,firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1, resolver1 )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0 )
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s" """ % (
-                    driver1, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0, resolver0 )
+            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver1, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1, resolver1 )
         for boardnum in range(0,int(self.number_mesa)):
             if boardnum == 1 and (board0 == board1):
                 halnum = 1
@@ -2301,7 +2383,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg or self.externalfo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
+        if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
             self.mux16names=""
             for i in range(0,self.userneededmux16):
                 self.mux16names = self.mux16names+"%d,"% (i)
@@ -2587,7 +2669,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "# connect feed overide increments - switches"
                 print >>file
                 print >>file, "    setp halui.feed-override.count-enable true"
-                print >>file, "    setp halui.feed-override.direct_value true"
+                print >>file, "    setp halui.feed-override.direct-value true"
                 print >>file, "    setp halui.feed-override.scale .01"
                 print >>file, "net feedoverride-incr   =>  halui.feed-override.counts"
                 print >>file, "net fo-incr-a           =>  foincr.sel0"
@@ -2620,18 +2702,18 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.mvo_usempg:
                 print >>file, "# connect max velocity overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.max-velocity-override.count-enable true"
-                print >>file, "    setp halui.max-velocity-override.direct-value false"
-                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
-                print >>file, "net mvo-count            =>  halui.max-velocity-override.counts"
+                print >>file, "    setp halui.max-velocity.count-enable true"
+                print >>file, "    setp halui.max-velocity.direct-value false"
+                print >>file, "    setp halui.max-velocity.scale %04f"% scale
+                print >>file, "net mvo-count            =>  halui.max-velocity.counts"
                 print >>file
             elif self.mvo_useswitch:
                 print >>file, "# connect max velocity overide increments - switches"
                 print >>file
-                print >>file, "    setp halui.max-velocity-override.count-enable true"
-                print >>file, "    setp halui.max-velocity-override.direct_value true"
-                print >>file, "    setp halui.max-velocity-override.scale %04f"% scale
-                print >>file, "net max-vel-override-incr   =>  halui.max-velocity-override.counts"
+                print >>file, "    setp halui.max-velocity.count-enable true"
+                print >>file, "    setp halui.max-velocity.direct-value true"
+                print >>file, "    setp halui.max-velocity.scale %04f"% scale
+                print >>file, "net max-vel-override-incr   =>  halui.max-velocity.counts"
                 print >>file, "net mvo-incr-a           =>  mvoincr.sel0"
                 print >>file, "net mvo-incr-b           =>  mvoincr.sel1"
                 print >>file, "net mvo-incr-c           =>  mvoincr.sel2"
@@ -2667,7 +2749,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "# connect spindle overide increments "
                 print >>file
                 print >>file, "    setp halui.spindle-override.count-enable true"
-                print >>file, "    setp halui.spindle-override.direct_value true"
+                print >>file, "    setp halui.spindle-override.direct-value true"
                 print >>file, "    setp halui.spindle-override.scale .01"
                 print >>file, "net spindleoverride-incr  =>  halui.spindle-override.counts"
                 print >>file, "net so-incr-a             =>  soincr.sel0"
@@ -3261,7 +3343,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
         if test == "None": return None
         elif 'mesa' in test:
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder",
-                MXEA:"encoder", MXEB:"encoder", MXEI:"encoder", MXEM:"encoder", MXES:"encoder",
+                RES0:"resolver",RES1:"resolver",RES2:"resolver",RES3:"resolver",RES4:"resolver",RES5:"resolver",
+                MXE0:"encoder", MXE1:"encoder",
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",
                 UDMU:"pwmgen",UDMD:"pwmgen", UDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen",
                 TPPWMA:"tppwmgen",TPPWMB:"tppwmgen",TPPWMC:"tppwmgen",TPPWMAN:"tppwmgen",TPPWMBN:"tppwmgen",TPPWMCN:"tppwmgen",
@@ -3293,7 +3376,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     else:comptype = "digout"
                     if ptype in(GPIOO,GPIOD):pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (pinnum)          
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXE0,MXE1,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,
                     TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
                     return "hm2_%s.%d.%s/%d.%d."% (boardname,halboardnum,subname,portnum,channel) + comptype+".%02d"% (compnum)          
             else:
@@ -3318,9 +3401,18 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     comptype = "gpio"
                     compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
-                elif ptype in (ENCA,ENCB,ENCI,ENCM,MXEA,MXEB,MXEI,MXEM,MXES,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
+                elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
                     STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
-                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)          
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
+                elif ptype in (RES0,RES1,RES2,RES3,RES4,RES5):
+                    temp = (RES0,RES1,RES2,RES3,RES4,RES5)
+                    for num,dummy in enumerate(temp):
+                        if ptype == dummy:break
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum*6+num)
+                elif ptype in (MXE0,MXE1):
+                    num = 0
+                    if ptype == MXE1: num = 1
+                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% ((compnum * 2 + num))
 
         elif 'pp' in test:
             #print test
@@ -3772,6 +3864,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                             print i,j,boardnum
                             raise UserWarning
                 except :
+                    print i,j,boardnum
                     self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue.\n."),True)
                     return True
             else:
@@ -3990,8 +4083,8 @@ Ok to reset data and start a new configuration?"),False):
             while gtk.events_pending():
                 gtk.main_iteration()
             root = xml.etree.ElementTree.parse(os.path.join(firmdir,boardtitle,currentfirm+".xml"))
-            watchdog = encoder = pwmgen = led = muxedqcount = stepgen = tppwmgen = sserialports = sserialchannels = 0
-            numencoderpins = numpwmpins = 3; numstepperpins = 2; numttpwmpins = 0
+            watchdog = encoder = resolver = pwmgen = led = muxedqcount = stepgen = tppwmgen = sserialports = sserialchannels = 0
+            numencoderpins = numpwmpins = 3; numstepperpins = 2; numttpwmpins = 0; numresolverpins = 10
             boardname = root.find("boardname").text;#print boardname, currentfirm
             maxgpio  = int(root.find("iowidth").text) ; #print maxgpio
             numcnctrs  = root.find("ioports").text ; #print numcnctrs
@@ -4010,6 +4103,9 @@ Ok to reset data and start a new configuration?"),False):
                 elif k == "Encoder": 
                     l = modules[i].find("numinstances").text;#print l,k
                     encoder = int(l)
+                elif k == "ResolverMod":
+                    l = modules[i].find("numinstances").text;#print l,k
+                    resolver = int(l)
                 elif k == "PWMGen":
                     l = modules[i].find("numinstances").text;#print l,k
                     pwmgen = int(l)
@@ -4037,7 +4133,12 @@ Ok to reset data and start a new configuration?"),False):
             temppinlist = []
             tempconlist = []
             pinconvertenc = {"Phase A (in)":ENCA,"Phase B (in)":ENCB,"Index (in)":ENCI,"IndexMask (in)":ENCM,
-                "Muxed Phase A (in)":MXEA,"Muxed Phase B (in)":MXEB,"Muxed Index (in)":MXEI,"Muxed Index Mask (in)":MXEM,"Muxed Encoder Select 0 (out)":MXES}
+                "Muxed Phase A (in)":MXE0,"Muxed Phase B (in)":MXE1,"Muxed Index (in)":MXEU,"Muxed Index Mask (in)":MXEM,
+                "Muxed Encoder Select 0 (out)":MXES}
+            pinconvertresolver = {"Resolver Power Enable (out)":RESU,"Resolver SpiDi 0 (in)":RES0,"Resolver SpiDi 1 (in)":RES1,
+                                "Resolver ADC Channel 2 (out)":RES2,"Resolver ADC Channel 1 (out)":RES3,"Resolver ADC Channel 0 (out)":RES4,
+                                "Resolver Spi Clk (out)":RES5,"Resolver Spi Chip Select (out)":RESU,"Resolver PDMM (out)":RESU,
+                                "Resolver PDMP (out)":RESU}
             pinconvertstep = {"Step (out)":STEPA,"Dir (out)":STEPB}
                 #"StepTable 2 (out)":STEPC,"StepTable 3 (out)":STEPD,"StepTable 4 (out)":STEPE,"StepTable 5 (out)":STEPF
             pinconvertppwm = {"PWM/Up (out)":PWMP,"Dir/Down (out)":PWMD,"Enable (out)":PWME}
@@ -4054,6 +4155,8 @@ Ok to reset data and start a new configuration?"),False):
                     #print temp,modulename
                     if modulename in ("Encoder","MuxedQCount","MuxedQCountSel"):
                         convertedname = pinconvertenc[temp]
+                    elif modulename == "ResolverMod":
+                        convertedname = pinconvertresolver[temp]
                     elif modulename == "PWMGen":
                         convertedname = pinconvertppwm[temp]
                     elif modulename == "StepGen":
@@ -4069,10 +4172,7 @@ Ok to reset data and start a new configuration?"),False):
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 else:
                     temppinunit.append(convertedname)
-                    if modulename == "MuxedQCount":
-                        temppinunit.append(int(pins[i].find("secondaryinstance").text)*2)
-                    else:
-                        temppinunit.append(int(pins[i].find("secondaryinstance").text))
+                    temppinunit.append(int(pins[i].find("secondaryinstance").text))
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = pins[i].find("secondaryfunctionname").text
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("Muxed Index Mask (in)","IndexMask (in)"):
@@ -4081,11 +4181,13 @@ Ok to reset data and start a new configuration?"),False):
                     tempconlist.append(tempcon)
                 temppinlist.append(temppinunit)
 
-            temp = [boardtitle,boardname,currentfirm,boardtitle,driver,encoder + muxedqcount,numencoderpins,pwmgen,numpwmpins,
-                    tppwmgen,numttpwmpins,stepgen,numstepperpins,sserialports,sserialchannels,watchdog,maxgpio,lowfreq,hifreq,tempconlist]
-            #print temp
+            temp = [boardtitle,boardname,currentfirm,boardtitle,driver,encoder + muxedqcount,numencoderpins,resolver,numresolverpins,pwmgen,numpwmpins,
+                    tppwmgen,numttpwmpins,stepgen,numstepperpins,sserialports,sserialchannels,0,0,0,0,0,0,0,0,watchdog,maxgpio,
+                    lowfreq,hifreq,tempconlist]
             for i in temppinlist:
                 temp.append(i)
+            #if temp[1] == "7i43":
+            #    print temp
             mesafirmwaredata.append(temp)
         self.window.hide()
 
@@ -4642,6 +4744,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(d[_MAXTPPWM])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
                 self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
+                self.data["mesa%d_numof_resolvers"% boardnum] = (d[_MAXRES]) # TODO fix this hack should be selectable
                 if d[_MAXSSERIALPORTS]:
                     self.widgets["mesa%d_numof_sserialports"% boardnum].show()
                     self.widgets["mesa%d_numof_sserialports_label"% boardnum].show()
@@ -4735,8 +4838,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltree = self.data._encodersignaltree
                     ptypetree = self.data._encoderliststore
                     signaltocheck = hal_encoder_input_names
+                elif pintype in (RES0,RES1,RES2,RES3,RES4,RES5,RESU):
+                    signaltree = self.data._resolversignaltree
+                    ptypetree = self.data._resolverliststore
+                    signaltocheck = hal_resolver_input_names
                 #type mux encoder
-                elif pintype in (MXEA, MXEB, MXEI, MXEM, MXES):
+                elif pintype in (MXE0, MXE1, MXEU, MXEM, MXES):
                     signaltree = self.data._muxencodersignaltree
                     ptypetree = self.data._muxencoderliststore
                     signaltocheck = hal_encoder_input_names
@@ -4805,7 +4912,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
-                if pintype in (GPIOI,GPIOO,GPIOD) or (index == 0):index2 = 0
+                if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES1,RES2,RES3,RES4,RES5,RESU) or (index == 0):index2 = 0
                 #if not "serial" in p:
                 #    print signaltocheck[index+index2],index,index2
                 self.data[p] = signaltocheck[index+index2]
@@ -5033,7 +5140,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
     def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
-        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+        #self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
         self.window.show()
@@ -5118,10 +5225,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # kill all widget signals:
                 self.widgets[ptype].handler_block(self.data[ptypeblocksignal])
                 self.widgets[p].handler_block(self.data[blocksignal]) 
-                self.widgets[p].child.handler_block(self.data[actblocksignal])                                            
+                self.widgets[p].child.handler_block(self.data[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,numofsserialports,numofsserialchannels,False)
-        
+
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
@@ -5265,10 +5372,12 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         # sserial 7i64 I/O can not
                         firmptype = GPIOI
                         compnum = 0
+
                 # --- mux encoder ---
-                elif firmptype in (MXEA,MXEB,MXEI,MXEM):
-                    #print "**** INFO: MUX ENCODER:",firmptype
-                    if numofencoders >= (compnum+1):
+                elif firmptype in (MXE0,MXE1,MXEU,MXEM,MXES):
+                    #print "**** INFO: MUX ENCODER:",firmptype,compnum,numofencoders
+                    if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum*2+1) or \
+                        (firmptype == MXEM and numofencoders >= compnum +1):
                         # if the combobox is not already displaying the right component:
                         # then we need to set up the comboboxes for this pin, otherwise skip it
                         self.widgets[pinv].set_sensitive(0)
@@ -5278,34 +5387,54 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
-                        if firmptype == MXEA:
-                            self.widgets[complabel].set_text("%d:"%compnum)
+                        if firmptype in(MXE0,MXE1):
+                            temp = 0
+                            if firmptype == MXE1: temp = 1
+                            self.widgets[complabel].set_text("%d:"%(compnum *2 + temp))
                             self.widgets[p].set_sensitive(1)
+                            self.widgets[ptype].show()
+                            self.widgets[p].show()
+                        elif firmptype == MXEM:
+                            self.widgets[complabel].set_text("%d:"%compnum)
+                            self.widgets[p].set_sensitive(0)
+                            self.widgets[ptype].show()
+                            self.widgets[p].hide()
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
+                            self.widgets[ptype].hide()
+                            self.widgets[p].hide()
                     else:
                         firmptype = GPIOI
                         compnum = 0
-                # special case mux select
-                elif firmptype == (MXES):
-                    #print "mux select",numofencoders, compnum
-                    if numofencoders > 0 and numofencoders > compnum:
-                        self.widgets[complabel].set_text("")
+
+                # ---SETUP GUI FOR RESOLVER FAMILY COMPONENTS---
+                elif firmptype in (RES0,RES1,RES2,RES3,RES4,RES5,RESU):
+                    if 0 == 0:
                         self.widgets[pinv].set_sensitive(0)
                         self.widgets[pinv].set_active(0)
-                        pmodel = self.widgets[p].set_model(self.data._muxencodersignaltree)
-                        ptmodel = self.widgets[ptype].set_model(self.data._muxencoderliststore)
-                        self.widgets[ptype].set_active(pintype_muxencoder.index(firmptype))
+                        self.widgets[p].set_model(self.data._resolversignaltree)
+                        self.widgets[ptype].set_model(self.data._resolverliststore)
                         self.widgets[ptype].set_sensitive(0)
-                        self.widgets[p].set_active(0)
-                        self.widgets[p].set_sensitive(0)
-                    else:
-                        firmptype = GPIOI
-                        compnum = 0
+                        self.widgets[ptype].set_active(0)
+                        if firmptype == RESU:
+                            self.widgets[complabel].set_text("")
+                            self.widgets[p].hide()
+                            self.widgets[p].set_sensitive(0)
+                            self.widgets[p].set_active(0) 
+                            self.widgets[ptype].set_active(6)
+                        else:
+                            temp = (RES0,RES1,RES2,RES3,RES4,RES5)
+                            self.widgets[p].show()
+                            for num,i in enumerate(temp):
+                                if firmptype == i:break
+                            self.widgets[complabel].set_text("%d:"% (compnum*6+num))
+                            self.widgets[p].set_sensitive(1)
+                            self.widgets[p].set_active(0)
+                            self.widgets[ptype].set_active(num)
+
                 # ---SETUP GUI FOR PWM FAMILY COMPONENT---
                 # the user has a choice of pulse width or pulse density modulation
-
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     if numofpwmgens >= (compnum+1):
                         self.widgets[pinv].set_sensitive(0)
@@ -5431,6 +5560,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     else:
                         self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD) or not self.data["_mesa%d_configured"%boardnum]:
+                        self.widgets[ptype].show()
+                        self.widgets[p].show()
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
                         self.widgets[ptype].set_sensitive(not compnum == 100) # compnum = 100 means GPIO cannot be changed by user
@@ -5479,7 +5610,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 #print "**** INFO set-data-options DATA:",p,datap,dataptype
                 #print "**** INFO set-data-options WIDGET:",p,widgetp,widgetptype
                 if dataptype in (ENCB,ENCI,ENCM,
-                                    MXEB,MXEI,MXEM,MXES,
+                                    MXEU,MXEM,MXES,
+                                    RESU,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
                                     PDMD,PDME,PWMD,PWME,UDMD,UDME,
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF
@@ -5530,8 +5662,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         treeiter = tree.get_iter(temp)
                         self.widgets[p].set_active_iter(treeiter)
 
-                # type encoder
-                elif dataptype == ENCA and widgetptype == ENCA or dataptype == MXEA and widgetptype == MXEA:
+                # type encoder / mux encoder
+                elif dataptype == ENCA and widgetptype == ENCA or dataptype in(MXE0,MXE1) and widgetptype in(MXE0,MXE1):
                     try:
                         signalindex = hal_encoder_input_names.index(datap)
                     except:
@@ -5557,6 +5689,40 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         treeiter = self.data._encodersignaltree.get_iter(temp)
                     else:
                         treeiter = self.data._muxencodersignaltree.get_iter(temp)
+                    self.widgets[p].set_active_iter(treeiter)
+
+                # type resolver
+                elif dataptype in(RES0,RES1,RES2,RES3,RES4,RES5,RESU) and widgetptype in(RES0,RES1,RES2,RES3,RES4,RES5,RESU):
+                    try:
+                        signalindex = hal_resolver_input_names.index(datap)
+                    except:
+                        print "**** INFO: PNCCONF warning no resolver signal named: %s\n     found for pin %s"% (datap ,p)
+                        signalindex = 0
+                    #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
+                    count = 0
+                    if signalindex > 0:
+                        for row,parent in enumerate(human_resolver_input_names):
+                            if row == 0: continue
+                            if len(parent[1]) == 0:
+                                    count +=1
+                                    #print row,count,"parent-",parent[0]
+                                    if count == signalindex:
+                                        #print "match",row
+                                        temp = (row)
+                                        break
+                                    continue
+                            for column,child in enumerate(parent[1]):
+                                count +=1
+                                #print row,column,count,parent[0],child
+                                if count == signalindex:
+                                    #print "match",row
+                                    temp = (row,column)
+                                    break
+                            if count >= signalindex:break
+                    else:
+                        temp = (0) # set unused resolver
+                    #print "temp",temp
+                    treeiter = self.data._resolversignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
                 # type PWM gen
@@ -5604,7 +5770,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     #print "temp",temp
                     treeiter = self.data._pwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
-
+ 
                 # type tp 3 pwm
                 elif dataptype == TPPWMA and widgetptype == TPPWMA:
                     #print "3 pwm"
@@ -5720,6 +5886,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data._muxencoderliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_muxencoder):
             self.data._muxencoderliststore.append([text,number])
+        # resolver
+        self.data._resolverliststore = gtk.ListStore(str,int)
+        for number,text in enumerate(pintype_resolver):
+            self.data._resolverliststore.append([text,number])
         # pwm
         self.data._pwmrelatedliststore = gtk.ListStore(str,int)
         for number,text in enumerate(pintype_pwm):
@@ -5754,8 +5924,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             self.data._sserialliststore.append([text,number])
 
     def fill_combobox_models(self):
-        templist = [ ["_gpioosignaltree",human_output_names,1],["_gpioisignaltree",human_input_names,1],["_encodersignaltree",human_encoder_input_names,4],
-                     ["_pwmsignaltree",human_pwm_output_names,3],["_tppwmsignaltree",human_tppwm_output_names,8],["_steppersignaltree",human_stepper_names,6],
+        templist = [ ["_gpioosignaltree",human_output_names,1],["_gpioisignaltree",human_input_names,1],
+                     ["_encodersignaltree",human_encoder_input_names,4],["_resolversignaltree",human_resolver_input_names,1],
+                     ["_pwmsignaltree",human_pwm_output_names,3],["_tppwmsignaltree",human_tppwm_output_names,8],
+                     ["_steppersignaltree",human_stepper_names,6],
                      ["_muxencodersignaltree",human_encoder_input_names,4],["_sserialsignaltree",human_sserial_names,3] ]
         for item in templist:
             #print item[0]
@@ -5808,7 +5980,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     #print "*** INFO ",boardtype,"-pin-changed: no iter and not custom"
                     return
                 if widgetptype in (ENCB,ENCI,ENCM,
-                                    MXEB,MXEI,MXEM,MXES,
+                                    MXEU,MXEM,MXES,
+                                    RESU,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
                                     PDMD,PDME,PWMD,PWME,UDMD,UDME,
                                     TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF,
@@ -5855,15 +6028,23 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = 4
                 # for mux encoder pins
-                elif widgetptype == MXEA: 
+                elif widgetptype in(MXE0,MXE1): 
                     #print"\nptype encoder"
                     signaltree = self.data._muxencodersignaltree
                     halsignallist = hal_encoder_input_names
                     humansignallist = human_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
-                    relatedsearch = [MXEA,MXEB,MXEI,MXEM]
+                    relatedsearch = ["dummy","dummy","dummy","dummy",]
                     relatedending = ["-a","-b","-i","-m"]
                     customindex = 4
+                elif widgetptype in (RES0,RES1,RES2,RES3,RES4,RES5):
+                    signaltree = self.data._resolversignaltree
+                    halsignallist = hal_resolver_input_names
+                    humansignallist = human_resolver_input_names
+                    addsignalto = self.data.halresolversignames
+                    relatedsearch = ["dummy"]
+                    relatedending = [""]
+                    customindex = 1
                 # for PWM,PDM,UDM pins
                 elif widgetptype in(PWMP,PDMP,UDMU): 
                     #print"ptype pwmp\n"
@@ -5945,7 +6126,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 #print "*** INFO ",boardtype,"-pin-changed: index",index
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
-                if widgetptype in(GPIOI,GPIOO,GPIOD):
+                if widgetptype in(GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES0,RES1,RES2,RES3,RES4,RES5):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
                     pinlist = self.data.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
@@ -6160,6 +6341,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             tppwm = pwm = False
             step = self.data.findsignal(i+"-stepgen-step")
             enc = self.data.findsignal(i+"-encoder-a")
+            resolver = self.data.findsignal(i+"-resolver")
             if self.data.findsignal(i+"-pwm-pulse"): pwm = True
             if self.data.findsignal(i+"-tppwm-a"): tppwm = pwm = True
             #print "signal sanity check: axis",i,"\n    pwm = ",pwm,"\n    3pwm =",tppwm,"\n    encoder =",enc,"\n    step=",step
@@ -6171,8 +6353,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             if not step and not pwm:
                 warnings.append(_("You forgot to designate a stepper or pwm signal for axis %s\n")% i)
                 do_warning = True
-            if pwm and not enc: 
-                warnings.append(_("You forgot to designate an encoder signal for axis %s servo\n")% i)
+            if pwm and not (enc or resolver):
+                warnings.append(_("You forgot to designate an encoder /resolver signal for axis %s servo\n")% i)
                 do_warning = True
             if enc and not pwm and not step: 
                 warnings.append(_("You forgot to designate a pwm signal or stepper signal for axis %s\n")% i)
@@ -6303,10 +6485,11 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
-        stepdriven = encoder = pwmgen = tppwm = digital_at_speed = False
+        stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = False
         if self.data.findsignal("spindle-at-speed"): digital_at_speed = True
         if self.data.findsignal(axis+"-stepgen-step"): stepdriven = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
+        if self.data.findsignal(axis+"-resolver"): encoder = resolver = True
         if self.data.findsignal(axis+"-pwm-pulse"): pwmgen = True
         if self.data.findsignal(axis+"-tppwm-a"): pwmgen = True ; tppwm = True
 
@@ -6454,7 +6637,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w["sfiltergainframe"].hide()
             if not digital_at_speed and encoder:
                 w["satspeedframe"].show()
-            if encoder:
+            if encoder or resolver:
                 if (self.data.pyvcp and self.data.pyvcphaltype == 1 and self.data.pyvcpconnect == 1) or (self.data.gladevcp 
                     and self.data.spindlespeedbar):
                     w["sfiltergainframe"].show()
@@ -6605,6 +6788,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def get_active(n): d[axis + n] = w[axis + n].get_active()
         stepdrive = self.data.findsignal(axis+"-stepgen-step")
         encoder = self.data.findsignal(axis+"-encoder-a")
+        resolver = self.data.findsignal(axis+"-resolver")
         get_pagevalue("P")
         get_pagevalue("I")
         get_pagevalue("D")
@@ -6650,6 +6834,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         d[axis + "encodercounts"] = int(float(w["encoderline"].get_text())*4)
         if stepdrive: get_pagevalue("stepscale")
         if encoder: get_pagevalue("encoderscale")
+        if resolver: get_pagevalue("encoderscale")
         get_active("invertmotor")
         get_active("invertencoder")
         d[axis + "steprev"] = int(get_value(w["steprev"]))
@@ -6714,6 +6899,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def get(n): return get_value(self.widgets[n])
         stepdrive = self.data.findsignal(axis+"-stepgen-step")
         encoder = self.data.findsignal(axis+"-encoder-a")
+        resolver = self.data.findsignal(axis+"-resolver")
         # temparally add signals
         templist1 = ["encoderline","encoder_leadscrew","encoder_leadscrew_tpi","encoder_wormdriven","encoder_wormdriver","encoder_pulleydriven",
 "encoder_pulleydriver","steprev","motor_leadscrew","motor_leadscrew_tpi","microstep","motor_wormdriven","motor_wormdriver",
@@ -6736,7 +6922,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         for i in templist2:
             self.widgets[i].disconnect(self.data[i])
         if not result: return
-        if encoder:
+        if encoder or resolver:
             self.widgets[axis+"encoderscale"].set_value(get("calcencoder_scale"))
         if stepdrive:
             self.widgets[axis+"stepscale"].set_value(get("calcmotor_scale"))
@@ -6747,6 +6933,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         def get(n): return get_value(w[n])
         stepdrive = self.data.findsignal(axis+"-stepgen-step")
         encoder = self.data.findsignal(axis+"-encoder-a")
+        resolver = self.data.findsignal(axis+"-resolver")
         motor_pulley_ratio = encoder_pulley_ratio = 1
         motor_worm_ratio = encoder_worm_ratio = 1
         encoder_scale = motor_scale = 0
@@ -6803,7 +6990,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 w["calcmotor_scale"].set_sensitive(False)
                 w["stepscaleframe"].set_sensitive(False)
             # encoder scale
-            if encoder:
+            if encoder or resolver:
                 w["calcencoder_scale"].set_sensitive(True)
                 w["encoderscaleframe"].set_sensitive(True)
                 if w["cbencoder_pulley"].get_active():
@@ -6853,7 +7040,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w["khz"].set_text("%.1f" % pps)
             acctime = (maxvps) / get_value(w[axis+"maxacc"])
             accdist = acctime * .5 * (maxvps)
-            if encoder:
+            if encoder or resolver:
                 maxrpm = int(maxvps * 60 * (scale/encoder_cpr))
             else:
                 maxrpm = int(maxvps * 60 * (scale/(microstepfactor * motor_steps)))
@@ -6874,14 +7061,15 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             w["calscale"].set_text("")
 
     def motor_encoder_sanity_check(self,widgets,axis):
-        stepdrive = encoder = bad = False
+        stepdrive = encoder = bad = resolver = False
         if self.data.findsignal(axis+"-stepgen-step"): stepdrive = True
         if self.data.findsignal(axis+"-encoder-a"): encoder = True
-        if encoder:
+        if self.data.findsignal(axis+"-resolver"): resolver = True
+        if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1: bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1: bad = True
-        if not encoder and not stepdrive and not axis == "s": bad = True
+        if not (encoder or resolver) and not stepdrive and not axis == "s": bad = True
         if self.widgets[axis+"maxvel"] < 1: bad = True
         if self.widgets[axis+"maxacc"] < 1: bad = True
         if bad:
@@ -7729,7 +7917,7 @@ But there is not one in the machine-named folder.."""),True)
             w[axis+"tuningnotebook"].set_current_page(0)
             w[axis+"step"].set_sensitive(0)
             w[axis+"steptable"].set_sensitive(0)
-            text = _("Servo tuning is not finished / working\n")
+            text = _("Servo tuning is not avaiable in PNCconf yet\n")
             self.warning_dialog(text,True)
             return
 
@@ -8032,8 +8220,15 @@ But there is not one in the machine-named folder.."""),True)
         # one needs real time, pwm gen and an encoder for open loop testing.
         if not self.check_for_rt(self):
             return
-        if not self.data.findsignal( (axis + "-pwm-pulse")) or not self.data.findsignal( (axis + "-encoder-a")):
-             self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
+        temp = self.data.findsignal( (axis + "-encoder-a"))
+        self.enc = self.data.make_pinname(temp)
+        temp = self.data.findsignal( (axis + "-resolver"))
+        self.res = self.data.make_pinname(temp)
+        pwm_sig = self.data.findsignal( (axis + "-pwm-pulse"))
+        pwm = self.data.make_pinname(pwm_sig)
+
+        if not pwm or (not self.enc and not self.res) :
+             self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
              return
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
         data = self.data
@@ -8065,10 +8260,9 @@ But there is not one in the machine-named folder.."""),True)
         # search for pins with test signals that may be needed to enable amp
         self.hal_test_signals(axis)
         # setup pwm generator
-        temp = self.data.findsignal( (axis + "-pwm-pulse"))
-        pwm = self.data.make_pinname(temp)
+
         if pwm:
-            pwmtype = self.data[temp+"type"]
+            pwmtype = self.data[pwm_sig+"type"]
             if  pwmtype == PWMP: pulsetype = 1
             elif pwmtype == PDMP: pulsetype = 3
             elif pwmtype == UDMU: pulsetype = 2
@@ -8083,17 +8277,21 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
         # set up encoder     
-        self.enc = self.data.make_pinname(self.data.findsignal( (axis + "-encoder-a")))
-        if self.enc:           
+        if self.enc:
+            print self.enc
             halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
             halrun.write("setp %s.scale %f \n"%  (self.enc, enc_scale))
             halrun.write("setp %s \n"%  (self.enc +".filter true"))
             halrun.write("loadusr halmeter -s pin %s -g 550 550 330\n"%  (self.enc +".position"))
             halrun.write("loadusr halmeter -s pin %s -g 550 600 330\n"%  (self.enc +".velocity"))
-       
+        # set up resolver
+        if self.res:
+            halrun.write("net resolver-reset %s \n"%  (self.res +".reset"))
+            halrun.write("setp %s.scale %f \n"%  (self.res, enc_scale))
+
         widgets.openloopdialog.set_title(_("%s Axis Test") % axis.upper())
         widgets.openloopdialog.move(550,0)
-        self.jogplus = self.jogminus = self.enc_reset = self.enable_amp = 0
+        self.jogplus = self.jogminus = self.enc_reset = self.res_reset = self.enable_amp = 0
         self.axis_under_test = axis
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
@@ -8144,9 +8342,13 @@ But there is not one in the machine-named folder.."""),True)
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
         halrun.write("sets estop-out %d\n"% ( not self.enable_amp))
-        halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
+        if self.enc:
+            halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
+            halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
+        if self.res:
+            halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.res, 'scale': (enc_scale * enc_invert)})
+            halrun.write("""sets resolver-reset %(reset)d\n""" % { 'reset': self.res_reset})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
-        halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
         halrun.flush()
 
     def on_jogminus_pressed(self, w):
@@ -8162,10 +8364,10 @@ But there is not one in the machine-named folder.."""),True)
         self.jogplus = 0
         self.update_axis_params()
     def on_resetbutton_pressed(self, w):
-        self.enc_reset = 1
+        self.enc_reset = self.res_reset = 1
         self.update_axis_params()
     def on_resetbutton_released(self, w):
-        self.enc_reset = 0
+        self.enc_reset = self.res_reset = 0
         self.update_axis_params()
     def on_testinvertmotor_toggled(self, w):
         self.update_axis_params()
@@ -8294,34 +8496,40 @@ But there is not one in the machine-named folder.."""),True)
             if not "5i25" in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
             # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = temp = ""
-            if self.mesa0_numof_sserialports:
+            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
+            if self.data.mesa0_numof_sserialports:
                 for i in range(1,9):
-                    if i <= self.mesa0_numof_sserialchannels:
+                    if i <= self.data.mesa0_numof_sserialchannels:
                         temp = temp + "0"
                     else:
                         temp = temp + "x"
                 ssconfig0 = "sserial_port_0=%s"% temp
             if self.data.mesa1_numof_sserialports:
                 for i in range(1,9):
-                    if i <= self.mesa1_numof_sserialchannels:
+                    if i <= self.data.mesa1_numof_sserialchannels:
                         temp = temp + "0"
                     else:
                         temp = temp + "x"
                 ssconfig1 = "sserial_port_0=%s"% temp
+            if self.data.mesa0_numof_resolvers:
+                resolver0 = "num_resolvers=%d"% self.data.mesa0_numof_resolvers
+            if self.data.mesa1_numof_resolvers:
+                resolver1 = "num_resolvers=%d"% self.data.mesa1_numof_resolvers
+
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n """ % (
-                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens ,ssconfig0))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0, resolver0))
             elif self.data.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s,\
-                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s"\n""" % (
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,\
+                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n""" % (
                     driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
-                        self.data.mesa0_numof_stepgens, ssconfig0, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1 ))
+                        self.data.mesa0_numof_stepgens, ssconfig0, resolver0, firmstring1, self.data.mesa1_numof_encodergens,
+ self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1, resolver1))
             elif self.data.number_mesa == 2:
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0 ))
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d"\n """ % (
-                    driver1, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" %s %s\n """ % (
+                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0, resolver0 ))
+                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
+                    driver1, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1, resolver1 ))
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1

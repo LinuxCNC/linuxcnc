@@ -1,7 +1,6 @@
 = Parallel Port
 
-[[sec:Parport]]
-== Parport
+== Parport[[sec:Parport]]
 (((parallel port)))
 
 Parport is a driver for the traditional PC parallel port. The port has
@@ -208,8 +207,7 @@ For example:
     setp stepgen.0.steplen 1 
     setp stepgen.0.stepspace 0 
 
-[[sec:probe_parport]]
-== probe_parport
+== probe_parport[[sec:probe_parport]]
 
 In modern PCs, the parallel port may require plug and play (PNP)
 configuration before it can be used. The `probe_parport`  module

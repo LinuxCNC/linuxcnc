@@ -122,8 +122,7 @@ valides sur une machine n'ayant pas les axes correspondants.
 |Z      | Axe Z de la machine
 |========================================
 
-[[sub:Nombres]]
-=== Nombres
+=== Nombres[[sub:Nombres]]
 
 Les règles suivantes sont employées pour des nombres (explicites).
 Dans ces règles un chiffre est un caractère simple entre 0 et 9.
@@ -147,8 +146,7 @@ Si un nombre utilisé dans le langage RS274/NGC est proche d'une valeur
 entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
-[[sub:Parametres-numerotes]]
-=== Paramètres numérotés
+=== Paramètres numérotés[[sub:Parametres-Numerotes]]
 
 Un paramètre numéroté commence par le caractère `#` suivi par un
 entier compris entre 1 et 5399. Le paramètre est
@@ -187,8 +185,7 @@ tool:
  - #5412 Tool Backangle 
  - #5413 Tool Orientation
 
-[[sub:Parametres-nommes]]
-=== Paramètres nommés
+=== Paramètres nommés[[sub:Parametres-Nommes]]
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
 sont plus faciles à lire. Les paramètres nommés sont convertis en
@@ -230,8 +227,7 @@ Les paramètres globaux _a, _b, _c, ... _z sont réservés pour une
 utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
 derniers Aword, Bword, Cword, ... Zword etc.
 
-[[sec:System-Parameters]]
-=== System Parameters
+=== System Parameters[[sec:System-Parameters]]
 
 Two global read only named parameters are available to check which
 version is running from G Code.
@@ -242,8 +238,7 @@ version is running from G Code.
 #<_vminor>::
     Minor package version. If current version was 2.6.2 would return 0.2.
 
-[[sub:Expressions]]
-=== Expressions
+=== Expressions[[sub:Expressions]]
 
 Une expression est un groupe de caractères commençant avec le crochet
 gauche `[` et se terminant avec le crocher droit `]` . Entre les
@@ -254,8 +249,7 @@ est évaluée pour produire un nombre. Les expressions sur une ligne sont
  éxécuté sur cette ligne. 
 Un exemple d'expression: `[1 + acos[0] - [#3 ** [4.0/2]]]`.
 
-[[sub:Operateurs-binaires]]
-=== Opérateurs binaires
+=== Opérateurs binaires[[sub:Operateurs-Binaires]]
 
 Les opérateurs binaires ne se rencontrent que dans les expressions. Il
 y a quatre opérateurs mathématiques de base: addition (`+`),
@@ -284,7 +278,7 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 état logique faux (FALSE), tout nombre différent de zéro est équivalent
 à un état logique vrai (TRUE).
 
-. Précédence des opérateurs[[cap:Precedence-des-operateurs]](((Precedence des operateurs)))
+. Précédence des opérateurs[[cap:Precedence-des-operateurs]](((Précédence des opérateurs)))
 
 [width="90%", options="header"]
 |========================================
@@ -296,8 +290,7 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |AND OR XOR        | 'basse'
 |========================================
 
-[[sub:Operations-unaires]]
-=== Fonctions
+=== Fonctions[[sub:Operations-unaires]]
 
 Une fonction commence par son nom, ex: “`ATAN` ” suivi par une
 expression divisée par une autre expression (par
@@ -417,8 +410,7 @@ mouvement.
 Les codes “non modaux” n'ont d'effet que sur la ligne ou ils se
 présentent. Par exemple, G4 (tempo) est non modale.
 
-[[sec:Groupes-modaux]]
-== Groupes modaux
+== Groupes modaux[[sec:Groupes-modaux]]
 (((Groupes modaux)))
 
 Les commandes modales sont arrangées par lots appelés “groupes
@@ -504,8 +496,7 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 special comments.
 
-[[sec:Ordre-d-execution]]
-= Ordre d'exécution
+= Ordre d'exécution[[sec:Ordre-d-execution]]
 (((Ordre d'exécution)))
 
 L'ordre d'exécution des éléments d'une ligne est essentiel à la

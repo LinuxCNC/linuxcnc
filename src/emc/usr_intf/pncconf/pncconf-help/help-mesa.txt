@@ -72,10 +72,11 @@ Connector Tabs:
         Mux encoders allows two encoders per set of pins by using
         a select pin to choose a second set of encoders. This
         component is used with firmware that requires a special
-        daughter board from Mesa. 
-        PNCconf doesn't currently let you selected the signals for
-        the second set of muxed encoders you must add them manually 
-        in a custom HAL file.
+        daughter board from Mesa.
+
+     RESOLVER - a resolver encoder counter
+        used with MESA 7i49 daughter board with special firmware
+        Some servos have resolvers rather then quadrature encoders
 
      PWMGEN - a hardware base pulse width (or density) 
         modulation generator
@@ -86,9 +87,11 @@ Connector Tabs:
         UDM -pulse width modulation using up and dowm output pins
         you select the PULSE signal and the direction and enable 
         signals are automatically setup.
-        The 7i33 daughter board requires PDM.
-        The 7i29,7i30,7i40 requires PWM
-        the 7i48 requires UDM
+        Please see the Mesa daughter board documentaion for the most up-to-date
+        recommendations for frequency and type. Here are the common ones: 
+        The 7i33 daughter board requires PDM @ 6 MHz.
+        The 7i29,7i30,7i40 require PWM @ 20 KHz
+        the 7i48 and 7i49 require UDM @ 24 KHz
 
      3 PWMGEN - special pwm generators used for driving brushless
         servo motors 3 windings directly.

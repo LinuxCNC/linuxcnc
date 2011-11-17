@@ -1,18 +1,18 @@
 == Halmeter(((halmeter)))
 
 Halmeter peut être chargé à partir d'un terminal ou d'Axis. Halmeter est
-plus rapide que l'affichage de valeurs au Halshow. Halmeter a deux fenêtres, une
+plus rapide que l'affichage de valeurs de Halshow. Halmeter a deux fenêtres, une
 pour ramasser la broche, le signal, ou un paramètre à surveiller et celle qui affiche
 la valeur. Halmeters multiples peuvent être ouverts en même temps. Si vous utilisez
 un script pour ouvrir Halmeters multiples, vous pouvez définir la position de chaque
-l'un avec-g par rapport au coin supérieur gauche de votre écran XY. 
+l'un avec -g par rapport au coin supérieur gauche de votre écran XY. 
 Par exemple:
 
 +*loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500*+ 
 
-Voir la page de manuel pour plus d'options. Voir la section <<Halmeter>>.
+Voir la page de manuel pour plus d'options. Voir la section <<cap:Halmeter>>.
 
-.Halmeter
+Halmeter
 
 image::images/hal-meter01.png[]
 

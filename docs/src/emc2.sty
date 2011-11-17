@@ -3,17 +3,23 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{emc2doc}[2011/02/10 EMC2 Style]
+%% XXX: Here starts verbatim copy of asciidoc-docbook.sty
 
-% The defined options
-\DeclareOption{hyperlink}{ \def\DBKhyperlink{yes} }
-\DeclareOption{nohyperlink}{ \def\DBKhyperlink{no} }
+%% Just use the original package and pass the options.
+\RequirePackageWithOptions{docbook}
 
-% Default values
-\ExecuteOptions{nohyperlink}
+% Sidebar is a boxed minipage that can contain verbatim.
+% Changed shadow box to double box.
+\renewenvironment{sidebar}[1][0.95\textwidth]{
+  \hspace{0mm}\newline%
+  \noindent\begin{Sbox}\begin{minipage}{#1}%
+  \setlength\parskip{\medskipamount}%
+}{
+  \end{minipage}\end{Sbox}\doublebox{\TheSbox}%
+}
 
-% If defined, process the options
-\ProcessOptions\relax
-
-\usepackage{docbook}
-\usepackage{grffile}
+% For DocBook literallayout elements, see `./dblatex/dblatex-readme.txt`.
 \usepackage{alltt}
+%% XXX: Here ends verbatim copy of asciidoc-docbook.sty
+
+\usepackage{grffile}

@@ -33,7 +33,7 @@ motion.analog-out-00::
 
 motion.coord-error::
      (bit, out) TRUE quand le mouvement est en erreur, ex: dépasser une
-    limite soft.
+    limite logicielle.
 
 motion.coord-mode::
      (bit, out) TRUE quand le mouvement est en “mode coordonnées” par

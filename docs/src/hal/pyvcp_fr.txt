@@ -1,15 +1,15 @@
 = PyVCP[[cha:Panneau-Virtuel-Control]]
 
-(((Panneau Virtuel de Control)))
+(((Panneau de Contrôle Virtuel)))
 
 Panneau virtuel de contrôle en python (*Py*thon *V*irtual *C*ontrol
 *P*anel)
 
 == Introduction
 
-Le panneau de contrôle virtuel pyVCP (python Virtual Control Panel) a
-été créé pour donner à l'intégrateur la possibilité de personnaliser
-l'interface graphique AXIS avec des boutons et des indicateurs destinés
+Le panneau de contrôle virtuel pyVCP a été créé pour donner à 
+l'intégrateur la possibilité de personnaliser l'interface graphique 
+AXIS avec des boutons et des indicateurs destinés
 aux tâches spéciales.
 
 Le coût d'un panneau de contrôle physique est très élevé et il peut
@@ -17,10 +17,10 @@ utiliser un grand nombre de broches d'entrées/sorties. C'est là que le
 panneau virtuel prends l'avantage car il ne coûte rien d'utiliser
 pyVCP.
 
-Les panneaux virtuels de contrôle peuvent être utilisés pour tester ou
-monitorer le matériel, les entrées/sorties et remplacer temporairement
+Les panneaux de contrôle virtuels peuvent être utilisés pour tester ou
+monitorer le matériel, les entrées/sorties, remplacer temporairement
 d'autres matériels d'entrées/sorties pendant le déboguage d'une logique
-ladder, ou pour simuler un panneau physique avant de le construire et
+ladder ou pour simuler un panneau physique, avant de le construire et
 de le câbler vers les cartes électroniques.
 
 L'image suivante montre plusieurs widgets pyVCP.
@@ -33,14 +33,25 @@ La disposition d'un panneau pyVCP est spécifiée avec un fichier XML
 qui contient les balises des widgets entre <pyvcp> et </pyvcp>. Par
 exemple:
 
-    <pyvcp>
+--------------------------------------------------------------------------
 
-image:pyvcp_mypanel_fr.png[]
+<pyvcp>
+   <label text="Ceci est un indicateur à LED"/>
+   <led/>
+</pyvcp>
+
+--------------------------------------------------------------------------
+
+image:images/pyvcp_mypanel_fr.png[]
 
 Si vous placez ce texte dans un fichier nommé tiny.xml et que vous le
 lancez avec:
 
+--------------------------------------------------------------------------
+
     pyvcp -c panneau tiny.xml
+
+--------------------------------------------------------------------------
 
 pyVCP va créer le panneau pour vous, il y inclut deux widgets, un
 Label avec le texte “Ceci est un indicateur à LED” et une LED rouge,
@@ -56,8 +67,12 @@ la documentation des widgets: <<sec:Documentation-des-widgets>>
 
 Un fois que vous avez créé votre panneau, connecter les signaux HAL de
 la forme à la pin pyVCP se fait avec la commande 'halcmd linksp'
-habituelle. Si vous débutez avec HAL, le tutoriel de HAL 
-<<cha:Tutoriel-HAL>> est vivement recommendé.
+habituelle. 
+
+/////////
+Si vous débutez avec HAL, le tutoriel de HAL 
+<<cha:Tutoriel-HAL>> est vivement recommandé.
+/////////
 
 == Sécurité avec pyVCP
 
@@ -66,8 +81,7 @@ peuvent donc exécuter n'importe quelle action disponible dans les
 programmes Python. N'utilisez que des fichiers pyVCP en .xml à partir
 d'une source de confiance.
 
-[[sec:pyvcp-avec-axis]]
-== Utiliser pyVCP avec AXIS
+== Utiliser pyVCP avec AXIS[[sec:pyvcp-avec-axis]]
 
 Puisque AXIS utilise le même environnement graphique et les même
 outils (Tkinter) que pyVCP, il est possible d'inclure un panneau pyVCP
@@ -79,7 +93,19 @@ répertoire que le fichier .ini. Nous voulons afficher la vitesse
 courante de la broche sur un widget barre de progression. Copier le
 code XML suivant dans un fichier appelé broche.xml:
 
-    <pyvcp>
+-------------------------------------------------
+
+<pyvcp>
+    <label>
+        <text>"Vitesse broche:"</text>
+    </label>
+    <bar>
+        <halpin>"spindle-speed"</halpin>
+        <max_>5000</max_>
+    </bar>
+</pyvcp>
+
+-------------------------------------------------
 
 Ici nous avons fait un panneau avec un label “Vitesse broche:” et un
 widget barre de progression. Nous avons spécifié que la pin HAL
@@ -90,34 +116,44 @@ disponibles). Pour faire connaître ce fichier à AXIS et qu'il l'appelle
 au démarrage, nous devons préciser ce qui suit dans la section
 [DISPLAY] du fichier .ini:
 
+-------------------------------------------------
+
     PYVCP = broche.xml
+
+-------------------------------------------------
 
 Pour que notre widget affiche réellement la vitesse de la broche
 “spindle-speed”, il doit être raccordé au signal approprié de HAL. Le
 fichier .hal qui sera exécuté quand AXIS et pyVCP démarreront doit être
-spécifié, de la manière suivante, dans la section [HAL] du fichier
-.ini:
+spécifié, de la manière suivante, dans la section [HAL] du fichier .ini:
+
+-------------------------------------------------
 
     POSTGUI_HALFILE = broche_vers_pyvcp.hal
+
+-------------------------------------------------
 
 Ce changement lancera la commande HAL spécifiée dans
 “broche_vers_pyvcp.hal”. Dans notre exemple, ce fichier contiendra
 juste la commande suivante:
 
+-------------------------------------------------
+
     net spindle-rpm-filtered  => pyvcp.spindle-speed
+
+-------------------------------------------------
 
 ce qui suppose que le signal appelé “spindle-rpm-filtered” existe
 aussi. Noter que lors de l'exécution avec AXIS, toutes les pins des
 widgets de pyVCP ont des noms commençant par “pyvcp.”.
 
-image:pyvcp_AXIS_fr.png[]
+image:images/pyvcp_AXIS_fr.png[]
 
 Voila à quoi ressemble le panneau pyVCP que nous venons de créer,
 incorporé à AXIS. La configuration `sim/lathe` fournie en exemple, est
 configurée de cette manière.
 
-[[sec:Documentation-des-widgets]]
-== Documentation des widgets de pyVCP
+== Documentation des widgets de pyVCP[[sec:Documentation-des-widgets]]
 
 Les signaux de HAL existent en deux variantes, BIT et FLOAT. pyVCP
 peut afficher la valeur d'un signal avec un widget indicateur, ou
@@ -126,11 +162,11 @@ a quatre classes de widgets pyVCP connectables aux signaux de HAL. Une
 cinquième classe de widgets d'aide permet d'organiser et d'appliquer
 des labels aux panneaux.
 
- - Widgets de signalisation, signaux BIT: led, rectled
- - Widgets de contrôle, signaux BIT: button, checkbutton, radiobutton
- - Widgets de signalisation, signaux FLOAT: number, s32, u32, bar, meter
- - Widgets de contrôle, signaux FLOAT: spinbox, scale, jogwheel
- - Widgets d'aide: hbox, vbox, table, label, labelframe
+- Widgets de signalisation, signaux BIT: led, rectled
+- Widgets de contrôle, signaux BIT: button, checkbutton, radiobutton
+- Widgets de signalisation, signaux FLOAT: number, s32, u32, bar, meter
+- Widgets de contrôle, signaux FLOAT: spinbox, scale, jogwheel
+- Widgets d'aide: hbox, vbox, table, label, labelframe
 
 === Syntaxe
 
@@ -140,15 +176,23 @@ balise du widget principal, sont optionnelles.
 
 === Notes générales
 
-Ã l'heure actuelle, les deux syntaxes, basée sur les balises et basée
+Á l'heure actuelle, les deux syntaxes, basée sur les balises et basée
 sur les attributs, sont supportées. Par exemple, les deux fragments de
 code XML suivants sont traités de manière identique:
 
+-------------------------------------------------
+
     <led halpin="ma-led"/>
+
+-------------------------------------------------
 
 et
 
+-------------------------------------------------
+
     <led><halpin>"ma-led"</halpin></led>
+
+-------------------------------------------------
 
 Quand la syntaxe basée sur les attributs est utilisée, les règles
 suivantes sont utilisées pour convertir les valeurs des attributs en
@@ -171,7 +215,11 @@ Les exemples ci-dessous montrent un mélange des deux formats.
 
 Pour ajouter un commentaire utiliser la syntaxe de xml.
 
+-------------------------------------------------
+
     <!--Mon commentaire-->
+
+-------------------------------------------------
 
 ==== Editer un fichier XML
 
@@ -189,23 +237,34 @@ http://sedition.com/perl/rgb.html[http://sedition.com/perl/rgb.html].
 Couleurs les plus courantes (les numéros suivant la couleur indiquent
 la nuance de la couleur)
 
- - white  (blanc)
- - black  (noir)
- - blue and blue1 - blue4  (bleu)
- - cyan and cyan1 - cyan4  (cyan)
- - green and green1 - green4  (vert)
- - yellow and yellow1 - yellow4  (jaune)
- - red and red1 - red4  (rouge)
- - purple and purple1 - purple4  (violet/pourpre)
- - gray and gray0 - gray100  (gris)
+- white  (blanc)
+- black  (noir)
+- blue and blue1 - blue4  (bleu)
+- cyan and cyan1 - cyan4  (cyan)
+- green and green1 - green4  (vert)
+- yellow and yellow1 - yellow4  (jaune)
+- red and red1 - red4  (rouge)
+- purple and purple1 - purple4  (violet/pourpre)
+- gray and gray0 - gray100  (gris)
 
-=== LED
+=== LED ronde
 
 Une LED est utilisée pour indiquer l'état d'un signal BIT. La couleur
 de la LED sera on_color quand le signal BIT est vrai et off_color
 autrement.
 
-    <led>
+
+[source,xml]
+---------------------------------------
+
+<led>
+    <halpin>"ma-led"</halpin>
+    <size>50</size>
+    <on_color>"verte"</on_color>
+    <off_color>"rouge"</off_color>
+</led>
+
+---------------------------------------
 
 image:images/pyvcp_led.png[]
 
@@ -216,10 +275,12 @@ par défaut: “green”
 <off_color> définit la couleur de la LED quand la pin est fausse, 
 par défaut: “ref”
 
-=== LED rectangulaire (rectled)
+=== LED rectangulaire
 
 C'est une variante du widget "led".
 
+[source,xml]
+---------------------------------------
     <vbox> 
     <relief>RIDGE</relief> 
     <bd>6</bd> 
@@ -231,9 +292,11 @@ C'est une variante du widget "led".
     <off_color>"red"</off_color> 
     </rectled> 
     </vbox>
+---------------------------------------
 
 Le code ci-dessus produit cet exemple. 
 Il affiche également un relief autour de la boîte. 
+
 image:images/pyvcp_rectled.png[]
 
 === Bouton (button)
@@ -251,8 +314,17 @@ Les boutons peuvent suivre le format suivant:
 
 ==== Bouton avec texte (Text Button)
 
-    <button>
-    <button>
+[source,xml]
+---------------------------------------
+<button>
+    <halpin>"Bouton-OK"</halpin>
+    <text>"OK"</text>
+</button>
+<button>
+    <halpin>"Bouton-Abandon"</halpin>
+    <text>"Abandon"</text>
+</button
+---------------------------------------
 
 image:images/pyvcp_button.png[]
 
@@ -266,18 +338,29 @@ la case sera cochée et fausse si la case est décochée.
 Une case non cochée: image:pyvcp_checkbutton1.png[] et une case
 cochée: image:pyvcp_checkbutton2.png[]
 
+Exemple de code:
+
+[source,xml]
+---------------------------------------
+<checkbutton>
+    <halpin>"coolant-chkbtn"</halpin>
+    <text>"Coolant"</text>
+</checkbutton>
+<checkbutton>
+    <halpin>"chip-chkbtn"</halpin>
+    <text>"Chips    "</text>
+</checkbutton>
+---------------------------------------
+
+image:images/pyvcp_checkbutton.png[]
+
+
 ==== Bouton radio (radiobutton)
 
 Un bouton radio placera une seule des pins BIT vraie. Les autres
 seront mises fausses.
 
-    <radiobutton>
-
-image:pyvcp_radiobutton_fr.png[]
-
-Noter que dans cet exemple, les pins de HAL seront nommées
-mon-bouton-radio.un, mon-bouton-radio.deux et mon-bouton-radio.trois.
-Dans la capture d'écran, la valeur “trois” est sélectionnée.
+image:images/pyvcp_radiobutton_fr.png[]
 
 === Affichage d'un nombre (number)
 
@@ -295,11 +378,13 @@ L'affichage d'un nombre peux suivre le format suivant:
 
 Le widget number affiche la valeur d'un signal de type float.
 
+---------------------------------------
     <number> 
         <halpin>"number"</halpin> 
         <font>("Helvetica",24)</font> 
         <format>"+4.4f"</format> 
     </number>
+---------------------------------------
 
 image:images/pyvcp_number.png[]
 
@@ -307,7 +392,14 @@ image:images/pyvcp_number.png[]
 
 Le widget nombre affiche la valeur d'un signal FLOAT.
 
-    <number>
+[source,xml]
+---------------------------------------
+<number>
+    <halpin>"my-number"</halpin>
+    <font>("Helvetica",24)</font>
+    <format>"+4.4f"</format>
+</number>
+--------------------------------------- 
 
 image:images/pyvcp_number.png[]
 
@@ -330,12 +422,14 @@ même que celle de "number" excepté le nom qui est <s32>. Il faut
 prévoir une largeur suffisante pour afficher le nombre dans sa
 totalité.
 
+---------------------------------------
     <s32> 
     <halpin>"simple-number"</halpin> 
     <font>("Helvetica",24)</font> 
     <format>"6d"</format> 
     <width>6</width> 
     </s32>
+---------------------------------------
 
 image:images/pyvcp_s32.png[]
 
@@ -357,6 +451,7 @@ halrun/halcmd).
 La bascule "image_bit" bascule entre deux images selon la position
 vraie ou fausse de halpin.
 
+---------------------------------------
     <pyvcp> 
     <image name='fwd' file='fwd.gif'/> 
     <image name='rev' file='rev.gif'/> 
@@ -364,6 +459,7 @@ vraie ou fausse de halpin.
     <image_bit halpin='selectimage' images='fwd rev'/> 
     </vbox> 
     </pyvcp>
+---------------------------------------
 
 En utilisant les deux images fwd.gif et rev.gif. 
 FWD est affiché quand "selectimage" est fausse 
@@ -378,6 +474,7 @@ nombre d'images n'est pratiquement plus limité, il suffit de
 commençant à 0 pour la première image de la liste, à 1 pour la seconde
 image etc.
 
+---------------------------------------
     <pyvcp> 
     <image name='stb' file='stb.gif'/> 
     <image name='fwd' file='fwd.gif'/> 
@@ -386,6 +483,7 @@ image etc.
     <image_u32 halpin='selectimage' images='stb fwd rev'/> 
     </vbox> 
     </pyvcp>
+---------------------------------------
 
 Même résultat mais en ajoutant l'image stb.gif. 
 
@@ -397,7 +495,16 @@ Le widget barre de progression affiche la valeur d'un signal FLOAT,
 graphiquement dans une barre de progression et simultanément, en
 numérique.
 
-    <bar>
+[source,xml]
+---------------------------------------
+<bar>
+    <halpin>"bar"</halpin>
+    <min_>0</min_>
+    <max_>123</max_>
+    <bgcolor>"grey"</bgcolor>
+    <fillcolor>"red"</fillcolor>
+</bar>
+---------------------------------------
 
 image:images/pyvcp_bar.png[]
 
@@ -406,7 +513,22 @@ image:images/pyvcp_bar.png[]
 Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage
 à aiguille “à l'ancienne”.
 
-    <meter>
+[source,xml]
+-------------------------------------------------
+<meter>
+    <halpin>"mymeter"</halpin>
+    <text>"Battery"</text>
+    <subtext>"Volts"</subtext>
+    <size>250</size>
+    <min_>0</min_>
+    <max_>15.5</max_>
+    <majorscale>1</majorscale>
+    <minorscale>0.2</minorscale>
+    <region1>(14.5,15.5,"yellow")</region1>
+    <region2>(12,14.5,"green")</region2>
+    <region3>(0,12,"red")</region3>
+</meter>
+-------------------------------------------------
 
 image:images/pyvcp_meter.png[]
 
@@ -417,7 +539,18 @@ augmentée ou diminuée de la valeur de 'resolution', à chaque pression
 sur une flèche, ou en positionnant la souris sur le nombre puis en
 tournant la molette de la souris.
 
-    <spinbox>
+[source,xml]
+---------------------------------------
+<spinbox>
+    <halpin>"my-spinbox"</halpin>
+    <min_>-12</min_>
+    <max_>33</max_>
+    <inival>0</inival>
+    <resolution>0.1</resolution>
+    <format>"2.3f"</format>
+    <font>("Arial",30)</font>
+</spinbox>
+---------------------------------------
 
 image:images/pyvcp_spinbox.png[]
 
@@ -427,7 +560,29 @@ Le curseur contrôle une pin FLOAT. La valeur de la pin est augmentée
 ou diminuée en déplaçant le curseur, ou en positionnant la souris sur
 le curseur puis en tournant la molette de la souris.
 
-    <scale>
+[source,xml]
+---------------------------------------
+<scale>
+    <font>("Helvetica",16)</font>
+    <width>"25"</width>
+    <halpin>"my-hscale"</halpin>
+    <resolution>0.1</resolution>
+    <orient>HORIZONTAL</orient>
+    <initval>-15</initval>
+    <min_>-33</min_>
+    <max_>26</max_>
+</scale>
+<scale>
+    <font>("Helvetica",16)</font>
+    <width>"50"</width>
+    <halpin>"my-vscale"</halpin>
+    <resolution>1</resolution>
+    <orient>VERTICAL</orient>
+    <min_>100</min_>
+    <max_>0</max_>
+</scale>
+---------------------------------------
+
 
 image:images/pyvcp_scale.png[]
 
@@ -445,19 +600,23 @@ digit. La sortie est limitée par les valeurs min et max. La variable
 cpr fixe le nombre de graduations sur le pourtour du cadran (prudence
 avec les grands nombres).
 
-    <dial> 
-    <size>200</size> 
-    <cpr>100</cpr> 
-    <min_>-15</min_> 
-    <max_>15</max_> 
-    <text>"Dial"</text> 
-    <init>0</init> 
-    <resolution>0.001</resolution> 
-    <halpin>"anaout"</halpin> 
-    <dialcolor>"yellow"</dialcolor> 
-    <edgecolor>"green"</edgecolor> 
-    <dotcolor>"black"</dotcolor> 
-    </dial>
+[source,xml]
+---------------------------------------
+<dial>
+    <size>200</size>
+    <cpr>100</cpr>
+    <min_>-15</min_>
+    <max_>15</max_>
+    <text>"Dial"</text>
+    <initval>0</initval>
+    <resolution>0.001</resolution>
+    <halpin>"anaout"</halpin>
+    <dialcolor>"yellow"</dialcolor>
+    <edgecolor>"green"</edgecolor>
+    <dotcolor>"black"</dotcolor>
+</dial>
+---------------------------------------
+
 
 image:images/pyvcp_dial.png[]
 
@@ -468,7 +627,14 @@ en sortant sur une pin FLOAT la valeur sur laquelle est positionné le
 curseur, que ce soit en le faisant tourner avec un mouvement
 circulaire, ou en tournant la molette de la souris.
 
-    <jogwheel>
+[source,xml]
+---------------------------------------
+<jogwheel>
+    <halpin>"my-wheel"</halpin>
+    <cpr>45</cpr>
+    <size>250</size>
+</jogwheel>
+---------------------------------------
 
 image:images/pyvcp_jogwheel.png[]
 
@@ -488,6 +654,7 @@ largeur de la bordure.
 <bd>n</bd>::
     La valeur de "n" fixe la largeur de la bordure.
 
+------------------------------------------
     <hbox> 
     <button> 
     <relief>FLAT</relief> 
@@ -519,6 +686,7 @@ largeur de la bordure.
     <bd>3</bd> 
     </button> 
     </hbox>
+------------------------------------------
 
 image:images/pyvcp_borders.png[]
 
@@ -527,11 +695,21 @@ image:images/pyvcp_borders.png[]
 Utilisez une Hbox lorsque vous voulez aligner les widgets,
 horizontalement, les uns à côtés des autres.
 
-    <hbox>
+[source,xml]
+-------------------------------------------------
+<hbox>
+    <relief>RIDGE</relief>
+    <bd>6</bd>
+    <label><text>"a hbox:"</text></label>
+    <led></led>
+    <number></number>
+    <bar></bar>
+</hbox>
+-------------------------------------------------
 
 image:images/pyvcp_hbox.png[]
 
-Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
+Á l'intérieur d'une Hbox, vous pouvez utiliser les balises 
 `<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
@@ -544,11 +722,22 @@ comportement de fill, anchor, et expand, référez vous au manuel du pack
 Utilisez une Vbox lorsque vous voulez aligner les widgets
 verticalement, les uns au dessus des autres.
 
-    <vbox>
+[source,xml]
+-------------------------------------------------
+<vbox>
+    <relief>RIDGE</relief>
+    <bd>6</bd>
+    <label><text>"a vbox:"</text></label>
+    <led></led>
+    <number></number>
+    <bar></bar>
+</vbox>
+-------------------------------------------------
+
 
 image:images/pyvcp_vbox.png[]
 
-Ã l'intérieur d'une Hbox, vous pouvez utiliser les balises 
+Á l'intérieur d'une Hbox, vous pouvez utiliser les balises 
 `<boxfill fill=/>`, `<boxanchor anchor=/>` et `<boxexpand expand=/>`  pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
@@ -562,15 +751,18 @@ Un label est un texte qui s'affiche sur le panneau.
 
     <label>
 
-image:pyvcp_label_fr.png[]
+images:image/pyvcp_label_fr.png[]
 
 === Labelframe
 
 Un labelframe est un cadre entouré d'un sillon et un label en haut à
 gauche.
 
+-------------------------------------------------
     <labelframe text="Label: Leds groupées">
-    
+-------------------------------------------------
+
+image:images/pyvcp_labelframe_fr1.png[]
 
 === Table
 
@@ -585,7 +777,9 @@ flexibles (sticky).
 
 Exemple:
 
+-------------------------------------------------
     <table flexible_rows="[2]" flexible_columns="[1,4]">
+-------------------------------------------------
 
 image:images/pyvcp_table.png[]
 
@@ -593,6 +787,7 @@ image:images/pyvcp_table.png[]
 
 Une interface à onglets peut économiser énormément d'espace.
 
+-------------------------------------------------
     <tabs> 
     <names> ["spindle","green eggs"]</names> 
     </tabs> 
@@ -618,6 +813,7 @@ Une interface à onglets peut économiser énormément d'espace.
     </label> 
     </vbox> 
     </tabs>
+-------------------------------------------------
 
 image:images/pyvcp_tabs1.png[] image:images/pyvcp_tabs2.png[] image:images/pyvcp_tabs3.png[]
 

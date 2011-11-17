@@ -39,10 +39,10 @@ can happen.  Currently drivers are available for the 5i20, 5i22, 5i23, 5i25,
 3x20, 4i65, and 4i68 (all using the hm2_pci module) and the 7i43 (using
 the hm2_7i43 module).
 
-The HostMot2 firmware provides encoders, PWM generators, step/dir
-generators, and general purpose I/O pins (GPIOs).  These things are
+The HostMot2 firmware provides modules such as encoders, PWM generators,
+step/dir generators, and general purpose I/O pins (GPIOs).  These things are
 called "Modules".  The firmware is configured, at firmware compile time,
-to provide zero or more instances of each of these four Modules.
+to provide zero or more instances of each of these Modules.
 .SH Board I/O Pins
 
 The HostMot2 firmware runs on an FPGA board.  The board interfaces with
@@ -52,10 +52,9 @@ the board.
 
 Each I/O pin can be configured, at board-driver load time, to serve
 one of two purposes: either as a particular I/O pin of a particular
-Module instance (encoder, pwmgen, or stepgen), or as a general purpose
-digital I/O pin.  By default all Module instances with the exception of 
-SmartSerial are enabled, and all the board's pins are used by the Module 
-instances.
+Module instance (encoder, pwmgen, stepgen etc), or as a general purpose
+digital I/O pin.  By default all Module instances are enabled, and all the
+board's pins are used by the Module instances.
 
 The user can disable Module instances at board-driver load time, by
 specifying a hostmot2 config string modparam.  Any pins which belong to
@@ -102,16 +101,15 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_0=00000000\fB] [num_leds=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_resolvers=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_0=00000000\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
 Load the firmware specified by F into the FPGA on this board.  If no
 "\fBfirmware=\fIF\fR" string is specified, the FPGA will not be
 programmed, and had better have a valid configuration already.
-
-The 5i25 comes pre-programmed with firmware, and can be loaded, if required 
-with no config string at all. 
+ The 5i25 comes pre-programmed with firmware and no "firmware=" string should be
+used. It can be loaded, if desired with no config string at all. 
 .P
 .RS
 The requested firmware F is fetched by udev.  udev searches for the
@@ -125,6 +123,12 @@ supplied by the hostmot2-firmware packages, available from linuxcnc.org.
 Only enable the first N encoders.  If N is -1, all encoders are enabled.
 If N is 0, no encoders are enabled.  If N is greater than the number of
 encoders available in the firmware, the board will fail to register.
+.TP
+\fBnum_resolvers\fR [optional, default: -1]
+Only enable the first N resolvers. If N = -1 then all resolvers are enabled.
+This module does not work with generic resolvers (unlike the encoder module
+which works with any encoder). At the time of writing the  Hostmot2 Resolver
+function only works with the Mesa 7i49 card.
 .TP
 \fBnum_pwmgens\fR [optional, default: -1]
 Only enable the first N pwmgens.  If N is -1, all pwmgens are enabled.
@@ -149,15 +153,15 @@ board. These are arranged in 1-4 ports of 1 to 8 channels.
 for example all inputs, or all outputs, or offering additional analogue input on
 some digital pins.
  To set the modes for port 0 use, for example \fBsserial_port_0=0120xxxx\fR
- A '0'in the string sets the corresponding port to mode 0, 1 to mode 1, and so on
-up to mode 9. An "x" in any position disables that channel and makes the
+ A '0'in the string sets the corresponding port to mode 0, 1 to mode 1, and so
+on up to mode 9. An "x" in any position disables that channel and makes the
 corresponding FPGA pins available as GPIO. 
  The string can be up to 8 characters long, and if it defines more
 modes than there are channels on the port then the extras are ignored. Channel
 numbering is left to right so the example above would set sserial device 0.0
 to mode 0, 0.2 to mode2 and disable channels 0.4 onwards. 
  The sserial driver will auto-detect connected devices, no further configuration
-should be neded. Unconnected channels will default to GPIO, but the pin values
+should be needed. Unconnected channels will default to GPIO, but the pin values
 will vary semi-randomly during boot when card-detection runs, to it is best to 
 actively disable any channel that is to be used for GPIO. 
 .TP
@@ -248,6 +252,63 @@ can wait several iterations for the next pulse to arrive, all the while
 reporting the upper bound of the encoder velocity, which can be accurately
 guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
+
+.SH resolver
+Resolvers have names like hm2_<BoardType>.<BoardNum>.resolver.<Instance>.
+<Instance is a 2-digit number, which for the 7i49 board will be between 00 and
+05. This function only works with the Mesa Resolver interface boards (of which
+the 7i49 is the only example at the time of writing). This board uses an SPI
+interface to the FPGA card, and will only work with the correct firmware.
+The pins allocated will be listed in the dmesg output, but are unlikely to be
+usefully probed with HAL tools.
+
+Pins:
+
+(float, out) angle: This pin indicates the angular position of the resolver. It
+is a number between 0 and 1 for each electrical rotation.
+
+(float, out) Position: Calculated from the number of complete and partial
+revolutions since startup, reset, or  index-reset multiplied by the scale
+parameter. 
+
+(float, out) Velocity: Calculated from the rotational velocity and the 
+velocity-scale parameter. The default scale is electrical rotations per second. 
+
+(signed 32, out)count: This pins outputs a simulated encoder count at 2^24
+counts per rev (16777216 counts).
+
+(signed 32, out)rawcounts: This is identical to the counts pin, except it is not
+reset by the 'index' or 'reset' pins. This is the pin which would be linked to
+the bldc HAL component if the resolver was being used to commutate a motor.
+
+(bit, in) reset: Resets the position and counts pins to zero immediately.
+
+(bit, in/out) index-enable: When this pin is set high the position and counts
+pins will be reset the next time the resolver passes through the zero position.
+At the same time the pin is driven low to indicate to connected modules that the
+index has been seen, and that the counters have been reset.  
+
+(bit, out) error: Indicates an error in the particular channel. If this value is
+"true" then the reported position and velocity are invalid. 
+
+Parameters:
+(float, read/write) scale: The position scale, in machine units per resolver
+electrical revolution. 
+
+(float, read/write) velocity-scale: The conversion factor between resolver
+rotation speed and machine velocity. A value of 1 will typically give motor
+speed in rps, a value of 0.01666667 will give (approximate) RPM. 
+
+(float, read/write) excitation-khz: This pin sets the excitation frequency for
+the resolver. This pin is module-level rather than instance-level as all
+resolvers share the same excitation frequency.
+ Valid values are 10 (~10kHz), 5 (~5kHz) and 2.5 (~2.5kHz). The
+actual frequency depends on the FPGA frequency, and they correspond to 
+CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively. 
+The parameter will be set to the closest available of the three frequencies.
+ A value of -1 (the default) indicates that the current setting should be
+retained. 
+
 
 .SH pwmgen
 
@@ -473,9 +534,9 @@ The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
 (see the config modparam definition above).
 
-In addition to the per-channel/device pins detailed below there are three per-
-port pins, three parameters and a further 7 pins shared between all ports used 
-for changing on-device settings.
+In addition to the per-channel/device pins detailed below there are three
+per-port pins, three parameters and a further 7 pins shared between all ports
+used for changing on-device settings.
 
 Pins:
 
@@ -777,11 +838,11 @@ internal state to the syslog, and set the pin back to False.
 .SH Setting up Smart Serial devices 
 
 If a Smart Serial port is stopped, it is then possible to read and set the 
-onboard firmware settings using "setp" commands from within halrun or with halcmd.
-The hostmot read function needs to be attached to a realtime thread to allow
-parameters to be read and set, but the write thread is not needed.
+onboard firmware settings using "setp" commands from within halrun or with
+halcmd. The hostmot read function needs to be attached to a realtime thread to
+allow parameters to be read and set, but the write thread is not needed.
 A typical command-line sequence to read the max current setting of an 8i20 on 
-channel 1 of pirt 0 would be:
+channel 1 of port 0 would be:
 
 $>halrun
 

@@ -42,6 +42,7 @@ DOC_SRCS := \
 	common/Glossary_es.txt \
 	common/Glossary_fr.txt \
 	common/GPLD_Copyright.txt \
+	common/GPLD_Copyright_fr.txt \
 	common/Integrator_Concepts.txt \
 	common/Integrator_Concepts_de.txt \
 	common/Integrator_Concepts_es.txt \
@@ -56,6 +57,7 @@ DOC_SRCS := \
 	common/machining_center_fr.txt \
 	common/outdated-notice_fr.txt \
 	common/overleaf.txt \
+	common/overleaf_fr.txt \
 	common/Stepper_Diagnostics.txt \
 	common/Stepper_Diagnostics_de.txt \
 	common/Stepper_Diagnostics_es.txt \
@@ -410,7 +412,8 @@ A2X = a2x --xsltproc-opts "--stringparam toc.section.depth 3 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
 	  --asciidoc-opts "-f $(DOC_SRCDIR)/docbook.conf" \
-	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty"
+	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
+			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue"
 
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
@@ -621,7 +624,7 @@ objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 
 objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
 	@mkdir -p `dirname $@`
-	asciidoc -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm $@; exit $$X)
+	asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm $@; exit $$X)
 	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
 	touch $@
 

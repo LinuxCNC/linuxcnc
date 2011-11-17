@@ -1,4 +1,4 @@
-= Les bases de la configuration pour système pas/direction “dir/step”
+= Les bases de la configuration d'un système pas/direction “dir/step”
 
 == Introduction[[sec:Introduction]]
 
@@ -51,8 +51,12 @@ supportés par EMC2)
 
 EMC2 est très flexible et grâce à la couche d'abstraction de HAL
 (Hardware Abstraction Layer) il est facile de spécifier que tel signal
-ira sur telle broche. (voir la section <<sec:Qu-est-ce-que-HAL>> pour
-des informations complètes à propos de HAL(((HAL)))).
+ira sur telle broche. 
+
+/////////////
+(voir le chapitre <<cha:Tutoriel-HAL>> pour
+le tutoriel complet de HAL(((HAL)))).
+/////////////
 
 Comme décrit dans l'introduction et la manuel de HAL, il comporte des
 composants dont il fourni les signaux, les pins et les paramètres.

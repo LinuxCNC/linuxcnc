@@ -1,4 +1,4 @@
-Manuel de la Intégrateur V2.3, {localdate}
+Manuel de l'intégrateur V2.5, {localdate}
 =========================================
 The EMC Team
 
@@ -10,7 +10,7 @@ The EMC Team
 
 image::common/emc2-intro.*[]
 
-include::common/overleaf.txt[]
+include::common/overleaf_fr.txt[]
 
 include::common/outdated-notice_fr.txt[]
 
