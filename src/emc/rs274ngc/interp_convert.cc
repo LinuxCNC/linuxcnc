@@ -3828,6 +3828,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
         }
       }
     }
+    unwind_call(INTERP_EXIT, __FILE__,__LINE__);
     return INTERP_EXIT;
   } else
     ERS(NCE_BUG_CODE_NOT_M0_M1_M2_M30_M60);
