@@ -172,7 +172,7 @@ readers only. The comment must be preceded by a semicolon.
 == Fichier d'outils
 
 Les longueurs et diamètres d'outils peuvent être lus dans un fichier
-d'outils (voir la section <<sub:Fichier-d-outils>>) ou provenir d'un
+d'outils (voir la section <<sub:Fichier-Outils>>) ou provenir d'un
 mot spécifié pour activer la compensation d'outil.
 
 == Compensation d'outil

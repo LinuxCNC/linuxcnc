@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-16 17:03+0100\n"
-"PO-Revision-Date: 2011-11-17 12:21+0100\n"
+"PO-Revision-Date: 2011-11-18 19:59+0100\n"
 "Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
 "thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
@@ -2758,11 +2758,11 @@ msgstr "Écrire"
 
 #: ../tcl/ngcgui.tcl:469
 msgid "Need non-null file name"
-msgstr "nécessite un nom de fichier"
+msgstr "Nécessite un nom de fichier"
 
 #: ../tcl/ngcgui.tcl:545
 msgid "Disallowed use of ngcgui generated file as Subfile"
-msgstr "refus d'utiliser le fichier ngcgui généré comme un sous-fichier"
+msgstr "Refus d'utiliser le fichier ngcgui généré comme un sous-fichier"
 
 #: ../tcl/ngcgui.tcl:551
 msgid ""
@@ -4204,7 +4204,7 @@ msgstr "Ctrl+S"
 
 #: ../share/axis/tcl/axis.tcl:67
 msgid "_Save gcode as..."
-msgstr "_Sauvegarder le G-code sous..."
+msgstr "Enregi_strer le G-code sous..."
 
 #: ../share/axis/tcl/axis.tcl:71
 msgid "_Properties..."
@@ -4416,7 +4416,7 @@ msgstr "Afficher _l'outil"
 
 #: ../share/axis/tcl/axis.tcl:338
 msgid "Show e_xtents"
-msgstr "Afficher e_xtensions"
+msgstr "Afficher les étendues"
 
 #: ../share/axis/tcl/axis.tcl:343
 msgid "Show o_ffsets"
