@@ -238,6 +238,9 @@ static bp::object pmcartesian_str( PmCartesian &c) {
 static const char *get_comment(block &b) { return b.comment; };
 static const char *get_o_name(block &b) { return b.o_name; };
 
+static const char *get_filename(Interp &i) { return i._setup.filename; };
+static const char *get_linetext(Interp &i) { return i._setup.linetext; };
+
 static void  set_x(EmcPose &p, double value) { p.tran.x = value; }
 static void  set_y(EmcPose &p, double value) { p.tran.y = value; }
 static void  set_z(EmcPose &p, double value) { p.tran.z = value; }
@@ -606,12 +609,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.def("execute",  &wrap_interp_execute_2)
 	.def("read", &wrap_interp_read)
 
-
-
-
-	.def_readonly("filename", (char *) &Interp::_setup.filename)
-	.def_readonly("linetext", (char *) &Interp::_setup.linetext)
-
+	.add_property("filename", &get_filename) // R/O
+	.add_property("linetext", &get_linetext) // R/O
 
 	.def_readwrite("a_axis_wrapped", &Interp::_setup.a_axis_wrapped)
 	.def_readwrite("b_axis_wrapped", &Interp::_setup.b_axis_wrapped)
