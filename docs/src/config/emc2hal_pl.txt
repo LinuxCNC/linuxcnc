@@ -1,0 +1,404 @@
+= EMC2 and HAL
+
+See also the manual pages *motion(9)* and *iocontrol(1)*.
+
+== motion (realtime)
+
+=== Options
+
+Motion is loaded with the motmod command. A kins should be loaded
+before motion.
+
+    loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] \ +
+    [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
+
+If the number of digital I/O needed is more than the default of 4 you 
+can add up to 64 digital I/O by using the num_dio option when loading
+motmod.
+
+If the number of analog I/O needed is more than the default of 4 you
+can add up to 16 analog I/O by using the num_aio option when loading
+motmod.
+
+=== Pins (((motion (HAL pins))))
+
+These pins, parameters, and functions are created by the realtime
+`motmod` module.
+
+motion.adaptive-feed::
+     (float, in) When adaptive feed is enabled with `M52 P1` , the
+    commanded velocity is multiplied by this value. This effect is
+     multiplicative with the NML-level feed override value and
+    *motion.feed-hold*.
+
+motion.analog-in-00::
+     (float, in) These pins (00, 01, 02, 03 or more if configured) are
+    controlled by M66. 
+
+motion.analog-out-00::
+     (float, out) These pins (00, 01, 02, 03 or more if configured) are
+    controlled by M67 or M68.
+
+motion.coord-error::
+     (bit, out) TRUE when motion has encountered an error, such as
+    exceeding a soft limit
+
+motion.coord-mode::
+     (bit, out) TRUE when motion is in "coordinated mode", as opposed to
+    "teleop mode"
+
+motion.current-vel::
+    (float, out) The current tool velocity in user units per second.
+
+motion.digital-in-00::
+     (bit, in) These pins (00, 01, 02, 03 or more if configured) are
+    controlled by M62-65.
+
+motion.digital-out-00::
+     (bit, out) These pins (00, 01, 02, 03 or more if configured) are
+    controlled by the `M62-65`.
+
+motion.distance-to-go::
+    (float,out) The distance remaining in the current move.
+
+motion.enable::
+     (bit, in) If this bit is driven FALSE, motion stops, the machine is
+    placed in the "machine off" state, and a message is displayed for the
+    operator. For normal motion, drive this bit TRUE.
+
+motion.feed-hold::
+     (bit, in) When Feed Stop Control is enabled with `M53 P1`, and this
+    bit is TRUE, the feed rate is set to 0.
+
+motion.in-position::
+    (bit, out) TRUE if the machine is in position.
+
+motion.motion-enabled::
+    (bit, out) TRUE when in "machine on" state.
+
+motion.on-soft-limit::
+    (bit, out) TRUE when the machine is on a soft limit.
+
+motion.probe-input::
+     (bit, in) `G38.x`  uses the value on this pin to determine when the
+    probe has made contact. 
+    TRUE for probe contact closed (touching), 
+    FALSE for probe contact open.
+
+motion.program-line::
+     (s32, out) The current program line while executing. Zero if not
+    running or between lines while single stepping.
+
+motion.requested-vel::
+     (float, out) The current requested velocity in user units per second
+    from the F=n setting in the G Code file. No feed overrides or any other
+    adjustments are applied to this pin.
+
+motion.spindle-at-speed::
+     (bit, in) Motion will pause until this pin is TRUE, under the
+    following conditions: before the first feed move after each spindle
+    start or speed change; before the start of every chain of
+    spindle-synchronized moves; and if in CSS mode, at every rapid to feed
+    transition. This input can be used to ensure that the spindle is up to
+    speed before starting a cut, or that a lathe spindle in CSS mode has
+    slowed down after a large to small facing pass before starting the next
+    pass at the large diameter. Many VFDs have an "at speed" output.
+    Otherwise, it is easy to generate this signal with the `HAL near`
+    component, by comparing requested and actual spindle speeds.
+
+motion.spindle-brake::
+    (bit, out) TRUE when the spindle brake should be applied.
+
+motion.spindle-forward::
+    (bit, out) TRUE when the spindle should rotate forward.
+
+motion.spindle-index-enable::
+     (bit, I/O) For correct operation of spindle synchronized moves, this
+    pin must be hooked to the index-enable pin of the spindle encoder. 
+
+motion.spindle-on::
+    (bit, out) TRUE when spindle should rotate.
+
+motion.spindle-reverse::
+    (bit, out) TRUE when the spindle should rotate backward
+
+motion.spindle-revs::
+     (float, in) For correct operation of spindle synchronized moves, this
+    signal must be hooked to the position pin of the spindle encoder. The
+    spindle encoder position should be scaled such that spindle-revs
+    increases by 1.0 for each rotation of the spindle in the clockwise
+    (`M3`) direction.
+
+motion.spindle-speed-in::
+     (float, in) Feedback of actual spindle speed in rotations per second.
+    This is used by feed-per-revolution motion (`G95`). If your spindle
+    encoder driver does not have a velocity output, you
+     can generate a suitable one by sending the spindle position through a
+    `ddt` component.  If you do not have a spindle encoder, you can loop 
+    back `motion.spindle-speed-out-rps`.
+
+motion.spindle-speed-out::
+     (float, out) Commanded spindle speed in rotations per minute. Positive
+    for spindle forward (`M3`), negative for spindle reverse (`M4`).
+
+motion.spindle-speed-out-rps::
+     (float, out) Commanded spindle speed in rotations per second. Positive
+    for spindle forward (`M3`), negative for spindle reverse (`M4`).
+
+motion.teleop-mode::
+     (bit, out) TRUE when motion is in "teleop mode", as opposed to
+    "coordinated mode"
+
+motion.tooloffset.x ... motion.tooloffset.w::
+     (float, out, one per axis) shows the tool offset in effect;
+     it could come from the tool table (`G43` active), or it could
+     come from the gcode (`G43.1` active)
+
+=== Parameters
+
+Many of these parameters serve as debugging aids, and are subject to
+change or removal at any time.
+
+motion-command-handler.time::
+    (s32, RO)
+
+motion-command-handler.tmax::
+    (s32, RW)
+
+motion-controller.time::
+    (s32, RO)
+
+motion-controller.tmax::
+    (s32, RW)
+
+motion.debug-bit-0::
+    (bit, RO) This is used for debugging purposes. 
+
+motion.debug-bit-1::
+    (bit, RO) This is used for debugging purposes. 
+
+motion.debug-float-0::
+    (float, RO) This is used for debugging purposes. 
+
+motion.debug-float-1::
+    (float, RO) This is used for debugging purposes. 
+
+motion.debug-float-2::
+    (float, RO) This is used for debugging purposes. 
+
+motion.debug-float-3::
+    (float, RO) This is used for debugging purposes. 
+
+motion.debug-s32-0::
+    (s32, RO) This is used for debugging purposes. 
+
+motion.debug-s32-1::
+    (s32, RO) This is used for debugging purposes. 
+
+motion.servo.last-period::
+     (u32, RO) The number of CPU cycles between invocations of the servo
+    thread. Typically, this number divided by the CPU speed gives the time
+    in seconds, and can be used to determine whether the realtime motion
+    controller is meeting its timing constraints
+
+motion.servo.last-period-ns::
+    (float, RO)
+
+motion.servo.overruns::
+     (u32, RW) By noting large differences between successive values of
+    'motion.servo.last-period' , the motion controller can determine that
+    there has probably been a
+    failure to meet its timing constraints. Each time such a failure is
+    detected, this value is incremented.
+
+=== Functions
+
+Generally, these functions are both added to the servo-thread in the
+order shown.
+
+motion-command-handler::
+    Processes motion commands coming from user space
+
+motion-controller::
+    Runs the EMC motion controller
+
+== axis.N (realtime)
+
+These pins and parameters are created by the realtime `motmod` 
+module. These are actually joint values, but the pins and parameters
+are still called "axis.N".footnote:[In "trivial kinematics" machines,
+there is a one-to-one correspondence between joints and axes.] 
+They are read and updated by the 'motion-controller' function.
+
+=== Pins (((axis (HAL pins))))
+
+axis.N.active::
+    (bit, out)
+
+axis.N.amp-enable-out::
+    (bit, out) TRUE if the amplifier for this joint should be enabled
+
+axis.N.amp-fault-in::
+     (bit, in) Should be driven TRUE if an external fault is detected with
+    the amplifier for this joint
+
+axis.N.backlash-corr::
+    (float, out)
+
+axis.N.backlash-filt::
+    (float, out)
+
+axis.N.backlash-vel::
+    (float, out)
+
+axis.N.coarse-pos-cmd::
+    (float, out)
+
+axis.N.error::
+    (bit, out)
+
+axis.N.f-error::
+    (float, out)
+
+axis.N.f-error-lim::
+    (float, out)
+
+axis.N.f-errored::
+    (bit, out)
+
+axis.N.faulted::
+    (bit, out)
+
+axis.N.free-pos-cmd::
+    (float, out)
+
+axis.N.free-tp-enable::
+    (bit, out)
+
+axis.N.free-vel-lim::
+    (float, out)
+
+axis.N.home-sw-in::
+     (bit, in) Should be driven TRUE if the home switch for this joint is
+    closed.
+
+axis.N.homed::
+    (bit, out) 
+
+axis.N.homing::
+    (bit, out) TRUE if the joint is currently homing
+
+axis.N.in-position::
+    (bit, out)
+
+axis.N.index-enable::
+    (bit, I/O)
+
+axis.N.jog-counts::
+     (s32, in) Connect to the "counts" pin of an external encoder to use a
+    physical jog wheel.
+
+axis.N.jog-enable::
+     (bit, in) When TRUE (and in manual mode), any change in "jog-counts"
+    will result in motion. When false, "jog-counts" is ignored.
+
+axis.N.jog-scale::
+     (float, in) Sets the distance moved for each count on "jog-counts", in
+    machine units.
+
+axis.N.jog-vel-mode::
+     (bit, in) When FALSE (the default), the jogwheel operates in position
+    mode. The axis will move exactly jog-scale units for each count,
+    regardless of how long that might take. When TRUE, the wheel operates
+    in velocity mode - motion stops when the wheel stops, even if that
+    means the commanded motion is not completed.
+
+axis.N.joint-pos-cmd::
+     (float, out) The joint (as opposed to motor) commanded position. There
+    may be an offset between the joint and motor positions--for example,
+    the homing process sets this offset.
+
+axis.N.joint-pos-fb::
+    (float, out) The joint (as opposed to motor) feedback position.
+
+axis.N.joint-vel-cmd::
+    (float, out)
+
+axis.N.kb-jog-active::
+    (bit, out)
+
+axis.N.motor-pos-cmd::
+    (float, out) The commanded position for this joint.
+
+axis.N.motor-pos-fb::
+    (float, in) The actual position for this joint.
+
+axis.N.neg-hard-limit::
+    (bit, out)
+
+axis.N.pos-lim-sw-in::
+     (bit, in) Should be driven TRUE if the positive limit switch for this
+    joint is closed. 
+
+axis.N.pos-hard-limit::
+    (bit, out)
+
+axis.N.neg-lim-sw-in::
+     (bit, in) Should be driven TRUE if the negative limit switch for this
+    joint is closed. 
+
+axis.N.wheel-jog-active::
+    (bit, out) 
+
+=== Parameters
+
+axis.N.home-state::
+    Reflects the step of homing currently taking place. 
+
+== iocontrol (userspace)
+
+These pins are created by the userspace IO controller, usually called `io`. 
+
+=== Pins (((iocontrol (HAL pins))))
+
+iocontrol.0.coolant-flood::
+    (bit, out) TRUE when flood coolant is requested. 
+
+iocontrol.0.coolant-mist::
+    (bit, out) TRUE when mist coolant is requested. 
+
+iocontrol.0.emc-enable-in::
+     (bit, in) Should be driven FALSE when an external E-Stop condition
+    exists. 
+
+iocontrol.0.lube::
+    (bit, out) TRUE when lube is commanded. 
+
+iocontrol.0.lube_level::
+    (bit, in) Should be driven TRUE when lube level is high enough. 
+
+iocontrol.0.tool-change::
+    (bit, out) TRUE when a tool change is requested. 
+
+iocontrol.0.tool-changed::
+    (bit, in) Should be driven TRUE when a tool change is completed. 
+
+iocontrol.0.tool-number::
+    (s32, out) The current tool number. 
+
+iocontrol.0.tool-prep-number::
+    (s32, out) The number of the next tool, from the RS274NGC T-word. 
+
+iocontrol.0.tool-prepare::
+    (bit, out) TRUE when a tool prepare is requested. 
+
+iocontrol.0.tool-prepared::
+    (bit, in) Should be driven TRUE when a tool prepare is completed. 
+
+iocontrol.0.user-enable-out::
+    (bit, out) FALSE when an internal E-Stop condition exists. 
+
+iocontrol.0.user-request-enable::
+    (bit, out) TRUE when the user has requested that E-Stop be cleared. 
+
+

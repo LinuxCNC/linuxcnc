@@ -1,0 +1,92 @@
+= NGCGUI
+
+image::images/ngcgui.png[]
+
+== Overview
+    
+ - ngcgui is a subroutine utility for writing and using EMC subroutines
+ - ngcgui can run as a standalone application or be embedded in
+ - multiple tab pages in the axis gui
+
+ngcgui is a powerful tool for building g-code programs from subroutines.
+Subroutines can be concatenated to build a complete program. Multiple 
+instances of a subroutine can be used to perform the same task in different
+locations on the part. Any valid g-code can be used in the subroutine.
+
+== Embedding ngcgui in Axis
+
+This is an example of embedding ngcgui into Axis. The subroutines need to be
+in the subdirectories as shown if you just copy this. Some example subroutines
+use other subroutines so check to be sure you have the dependences if any in
+your subroutine directory.
+
+  [DISPLAY]
+  TKPKG             = Ngcgui    1.0
+  TKPKG             = Ngcguittt 1.0
+  # Ngcgui must precede Ngcguittt
+
+  NGCGUI_FONT       = Helvetica -12 normal
+  # specify relative or full path for startup subroutine tab pages:
+  NGCGUI_PREAMBLE   = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/simp.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/xyz.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/iquad.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/db25.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/ihex.ngc
+  NGCGUI_SUBFILE    = ../../nc_files/ngcgui_lib/gosper.ngc
+  # specify "" for a custom tab page
+  NGCGUI_SUBFILE    = ""
+  #NGCGUI_SUBFILE   = "" use when image frame is specified if
+  #                      opening other files is required
+  #                      images will be put in a top level window
+  NGCGUI_OPTIONS    =
+  #NGCGUI_OPTIONS   = opt1 opt2 ...
+  # opt items:
+  #   nonew      -- disallow making a new custom tab
+  #   noremove   -- disallow removing any tab page
+  #   noauto     -- no auto send (makeFile, then manually send)
+  #   noiframe   -- no internal image, image  on separate top level
+
+  TTT               = truetype-tracer
+  TTT_PREAMBLE      = ../../nc_files/ngcgui_lib/utilitysubs/in_std.ngc
+
+  PROGRAM_PREFIX          = ../../nc_files
+
+== DB25 Example
+
+The following shows the DB25 subroutine. In the first photo you see where you 
+fill in the blanks for each variable.
+
+image::images/ngcgui-db25-1.png[]
+
+This photo shows the backplot of the DB25 subroutine.
+
+image::images/ngcgui-db25-2.png[]
+
+This photo shows the use of the new button and the custom tab to create
+three DB25 cutouts in one program.
+
+image::images/ngcgui-db25-3.png[]
+
+
+== Creating a Subroutine
+
+Creating a subroutine for use with ngcgui requires that the file name and the 
+subroutine be named the same. The file must be in the subdirectory pointed to in
+the ini file. In the first line you can have a comment identified by info: and
+it will be added to the top of the subroutine. The subroutine must be
+surrounded by the sub/endsub tags. The variables used in your subroutine must
+be assigned number variables and not skip any numbers. Comments and presets can
+be included.
+
+  (info: simp -- simple subroutine example -- Ctrl-U to edit)
+  o<simp> sub
+    #<ra>       = #1 (=.6 Radius A) ;Example parm with a comment
+    #<radius_b> = #2 (=0.4)         ;Example parm with no comment
+    #<feedrate> = #3 (Feedrate)     ;Example parm with no preset
+    g0x0y0z1
+    g3 i#<ra> f#<feedrate>
+    g3 i[0-#<radius_b>]
+  o<simp> endsub
+
+
