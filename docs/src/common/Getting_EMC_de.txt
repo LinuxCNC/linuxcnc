@@ -34,14 +34,6 @@
   provide motion such as PUMA or SCARA robots.
 * EMC2 runs on Linux using real time extensions. 
 
- +
- +
- +
- +
- +
- +
- +
-
 == The Operating System
 
 Ubuntu has been chosen because it fits perfectly into the Open Source
