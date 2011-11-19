@@ -28782,7 +28782,7 @@ StepGen
                           </widget>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="mesa0sserial0_1label1">
+                          <widget class="GtkLabel" id="mesa0sserial0_0tab0">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Input</property>
                           </widget>
@@ -29389,22 +29389,6 @@ StepGen
                                 <property name="bottom_attach">15</property>
                                 <property name="x_options">GTK_FILL</property>
                                 <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkButton" id="m5i20panel8">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -31371,7 +31355,7 @@ StepGen
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="mesa0sserial0_1label2">
+                          <widget class="GtkLabel" id="mesa0sserial0_0tab1">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Output</property>
                           </widget>
@@ -31389,7 +31373,7 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="la">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Smart Serial 1</property>
+                        <property name="label" translatable="yes">Smart Serial 0</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -33960,7 +33944,7 @@ StepGen
                           </widget>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="mesa0sserial0_2label1">
+                          <widget class="GtkLabel" id="mesa0sserial0_1tab0">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Input</property>
                           </widget>
@@ -36029,22 +36013,6 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkButton" id="m5i20panel13">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="GtkLabel" id="label67">
                                 <property name="visible">True</property>
                               </widget>
@@ -36549,7 +36517,7 @@ StepGen
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="mesa0sserial0_2label2">
+                          <widget class="GtkLabel" id="mesa0sserial0_1tab1">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Output</property>
                           </widget>
@@ -36567,7 +36535,7 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="m">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Smart Serial 2</property>
+                        <property name="label" translatable="yes">Smart Serial 1</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -39138,7 +39106,7 @@ StepGen
                           </widget>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="mesa0sserial0_3label1">
+                          <widget class="GtkLabel" id="mesa0sserial0_2tab0">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Input</property>
                           </widget>
@@ -41207,22 +41175,6 @@ Unused</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkButton" id="m5i20panel15">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="GtkLabel" id="label88">
                                 <property name="visible">True</property>
                               </widget>
@@ -41727,7 +41679,7 @@ StepGen
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="mesa0sserial0_3label2">
+                          <widget class="GtkLabel" id="mesa0sserial0_2tab1">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Output</property>
                           </widget>
@@ -41745,7 +41697,7 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="label9">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Smart Serial 3</property>
+                        <property name="label" translatable="yes">Smart Serial 2</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -44316,7 +44268,7 @@ StepGen
                           </widget>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="label81">
+                          <widget class="GtkLabel" id="mesa0sserial0_3tab0">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Input</property>
                           </widget>
@@ -44923,22 +44875,6 @@ StepGen
                                 <property name="bottom_attach">15</property>
                                 <property name="x_options">GTK_FILL</property>
                                 <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkButton" id="m5i20panel18">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="label" translatable="yes">Launch test panel</property>
-                                <property name="response_id">0</property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">15</property>
-                                <property name="bottom_attach">17</property>
-                                <property name="x_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -46905,7 +46841,7 @@ StepGen
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkLabel" id="label114">
+                          <widget class="GtkLabel" id="mesa0sserial0_3tab1">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7i64 Output</property>
                           </widget>
@@ -46923,7 +46859,7 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="label115">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Smart Serial 4</property>
+                        <property name="label" translatable="yes">Smart Serial 3</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
