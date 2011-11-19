@@ -3046,13 +3046,13 @@ void PLUGIN_CALL(int len, const char *call)
     EMC_EXEC_PLUGIN_CALL call_msg;
     if (len > (int) sizeof(call_msg.call)) {
 	// really should call it quits here, this is going to fail
-	printf("PLUGIN_CALL: message size exceeded actual=%d max=%d\n",len,sizeof(call_msg.call));
+	printf("PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
     }
     memset(call_msg.call, 0, sizeof(call_msg.call));
     memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
     call_msg.len = len;
 
-    printf("canon: PLUGIN_CALL(arglen=%d)\n",strlen(call));
+    printf("canon: PLUGIN_CALL(arglen=%zd)\n",strlen(call));
 
     interp_list.append(call_msg);
 }
@@ -3062,7 +3062,7 @@ void IO_PLUGIN_CALL(int len, const char *call)
     EMC_IO_PLUGIN_CALL call_msg;
     if (len > (int) sizeof(call_msg.call)) {
 	// really should call it quits here, this is going to fail
-	printf("IO_PLUGIN_CALL: message size exceeded actual=%d max=%d\n",len,sizeof(call_msg.call));
+	printf("IO_PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
     }
     memset(call_msg.call, 0, sizeof(call_msg.call));
     memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
