@@ -151,7 +151,7 @@ drivertypes = [
 ( SPDLO,SPDLE,SPDLD ) = pintype_spindle = [ _("Spindle CMD"), _("Spindle Enable"),_("Spindle Direction") ]
 ( GPIOI, GPIOO, GPIOD) = pintype_gpio = [ _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
 ( ENCA, ENCB, ENCI, ENCM ) = pintype_encoder = [_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M") ]
-(  MXE0, MXE1, MXEU, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder 0"),_("Muxed Encoder 1"),_("muxed enc"),_("mux enc mask"),_("mux select") ]
+(  MXE0, MXE1, MXEI, MXEM, MXES ) = pintype_muxencoder = [_("Muxed Encoder 0"),_("Muxed Encoder 1"),_("muxed enc"),_("mux enc mask"),_("mux select") ]
 ( RES0, RES1, RES2, RES3, RES4, RES5, RESU ) = pintype_resolver = [_("Resolver 0 Encoder"),_("Resolver 1 Encoder"),_("Resolver 2 Encoder"),
 _("Resolver 3 Encoder"),_("Resolver 4 Encoder"),_("Resolver 5 Encoder"), "resolver" ]
 ( STEPA, STEPB, STEPC, STEPD, STEPE, STEPF ) = pintype_stepper = [_("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
@@ -4239,7 +4239,7 @@ Ok to reset data and start a new configuration?"),False):
             temppinlist = []
             tempconlist = []
             pinconvertenc = {"Phase A (in)":ENCA,"Phase B (in)":ENCB,"Index (in)":ENCI,"IndexMask (in)":ENCM,
-                "Muxed Phase A (in)":MXE0,"Muxed Phase B (in)":MXE1,"Muxed Index (in)":MXEU,"Muxed Index Mask (in)":MXEM,
+                "Muxed Phase A (in)":MXE0,"Muxed Phase B (in)":MXE1,"Muxed Index (in)":MXEI,"Muxed Index Mask (in)":MXEM,
                 "Muxed Encoder Select 0 (out)":MXES}
             pinconvertresolver = {"Resolver Power Enable (out)":RESU,"Resolver SpiDi 0 (in)":RES0,"Resolver SpiDi 1 (in)":RES1,
                                 "Resolver ADC Channel 2 (out)":RES2,"Resolver ADC Channel 1 (out)":RES3,"Resolver ADC Channel 0 (out)":RES4,
@@ -4965,7 +4965,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     ptypetree = self.data._8i20liststore
                     signaltocheck = hal_8i20_input_names
                 #type mux encoder
-                elif pintype in (MXE0, MXE1, MXEU, MXEM, MXES):
+                elif pintype in (MXE0, MXE1, MXEI, MXEM, MXES):
                     signaltree = self.data._muxencodersignaltree
                     ptypetree = self.data._muxencoderliststore
                     signaltocheck = hal_encoder_input_names
@@ -5481,6 +5481,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     self.widgets[ptype].show()
                     self.widgets[pinv].show()
                     self.widgets[complabel].show()
+                    self.widgets[p].child.set_editable(True)
 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
@@ -5524,7 +5525,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         compnum = 0
 
                 # --- mux encoder ---
-                elif firmptype in (MXE0,MXE1,MXEU,MXEM,MXES):
+                elif firmptype in (MXE0,MXE1,MXEI,MXEM,MXES):
                     #print "**** INFO: MUX ENCODER:",firmptype,compnum,numofencoders
                     if numofencoders >= (compnum*2+1) or (firmptype == MXES and numofencoders >= compnum*2+1) or \
                         (firmptype == MXEM and numofencoders >= compnum +1):
@@ -5670,6 +5671,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_active(pintype_sserial.index(firmptype))
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
+                        self.widgets[p].child.set_editable(False) # sserial cannot have custom names
                         if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3):
                             self.widgets[complabel].set_text("%d:"%compnum)
                             if compnum < 4:#TODO fix hack harcodes at 4 sserial channels
@@ -5770,7 +5772,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 #print "**** INFO set-data-options DATA:",p,datap,dataptype
                 #print "**** INFO set-data-options WIDGET:",p,widgetp,widgetptype
                 if dataptype in (ENCB,ENCI,ENCM,
-                                    MXEU,MXEM,MXES,
+                                    MXEI,MXEM,MXES,
                                     RESU,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
                                     PDMD,PDME,PWMD,PWME,UDMD,UDME,
@@ -6185,7 +6187,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     #print "*** INFO ",boardtype,"-pin-changed: no iter and not custom"
                     return
                 if widgetptype in (ENCB,ENCI,ENCM,
-                                    MXEU,MXEM,MXES,
+                                    MXEI,MXEM,MXES,
                                     RESU,
                                     STEPB,STEPC,STEPD,STEPE,STEPF,
                                     PDMD,PDME,PWMD,PWME,UDMD,UDME,
@@ -6285,24 +6287,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if connector == temp:
                             firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
-                                if compnum == 0:
-                                    self.widgets["mesa%dsserialtab1"% boardnum].hide()
-                                if compnum == 1:
-                                    self.widgets["mesa%dsserialtab2"% boardnum].hide()
-                                if compnum == 2:
-                                    self.widgets["mesa%dsserialtab3"% boardnum].hide()
-                                if compnum == 3:
-                                    self.widgets["mesa%dsserialtab4"% boardnum].hide()
+                                self.widgets["mesa%dsserialtab%d"% (boardnum,compnum + 1)].hide()
                                 return
                             else:
-                                if compnum == 0:
-                                    self.widgets["mesa%dsserialtab1"% boardnum].show()
-                                if compnum == 1:
-                                    self.widgets["mesa%dsserialtab2"% boardnum].show()
-                                if compnum == 2:
-                                    self.widgets["mesa%dsserialtab3"% boardnum].show()
-                                if compnum == 3:
-                                    self.widgets["mesa%dsserialtab4"% boardnum].show()
+                                self.widgets["mesa%dsserialtab%d"% (boardnum,compnum + 1)].show()
                                 portnum = 0 #TODO support more ports
                                 # TODO we should search for these names rather then use hard coded logic
                                 # so as to make adding cards easier
@@ -6322,6 +6310,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     self.widgets[table].hide()
                                 else:
                                     self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, compnum)] = "none"
+                                    self.widgets["mesa%dsserialtab%d"% (boardnum,compnum + 1)].hide()
+                                    return
                                 print p,temp," set at",self.data["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, compnum)]
                                 self.set_sserial_options(boardnum,portnum,compnum)
                                 return
