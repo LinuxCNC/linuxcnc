@@ -1719,7 +1719,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         encoderpinname = self.make_pinname(self.encoder_sig(let))
         amp8i20pinname = self.make_pinname(self.amp_8i20_sig(let))
         resolverpinname = self.make_pinname(self.resolver_sig(let))
-        if steppinname and encoderpinname: closedloop = True
+        if steppinname and encoderpinname and not let == 's': closedloop = True
         if (encoderpinname or resolverpinname) and (pwmpinname or tppwmpinname or amp8i20pinname): closedloop = True
         print let + " is closedloop? "+ str(closedloop)
         print " ENCODER:",encoderpinname," RESOLVER:",resolverpinname
@@ -1789,12 +1789,12 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net %s-b-value       bldc.%d.B-value"% (let,axnum)
                 print >>file, "net %s-c-value       bldc.%d.C-value"% (let,axnum)
             print >>file
-            print >>file, "net %spos-rawcounts      bldc.%d.rawcounts"% (let,axnum)
+            print >>file, "net %s-pos-rawcounts      bldc.%d.rawcounts"% (let,axnum)
             print >>file, "net %s-index-enable      bldc.%d.index-enable"% (let,axnum)
             print >>file, "net %s-bldc-current      bldc.%d.out"% (let,axnum)
             print >>file, "net %s-meas-angle        bldc.%d.phase-angle"% (let,axnum)
-            print >>file, "net %soutput             bldc.%d.value"% (let,axnum)
-            print >>file, "net %senable             bldc.%d.init"% (let,axnum)
+            print >>file, "net %s-output             bldc.%d.value"% (let,axnum)
+            print >>file, "net %s-enable             bldc.%d.init"% (let,axnum)
             print >>file, "net %s-is-init           bldc.%s.init-done"% (let,axnum)
             print >>file
 
@@ -1813,15 +1813,15 @@ If you have a REALLY large config that you wish to convert to this newer version
                     name = "spindle"
                 else:
                     name = let
-                print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (let, let)
-                print >>file, "net %senable       => pid.%s.enable" % (let, let)
-                print >>file, "net %soutput       => pid.%s.output"% (let, let)
+                print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
+                print >>file, "net %s-enable       => pid.%s.enable" % (name, let)
+                print >>file, "net %s-output       => pid.%s.output"% (name, let)
                 if let == 's':
-                    print >>file, "net %s-vel-cmd     => pid.%s.command" % (let, let)
-                    print >>file, "net %s-vel-fb      => pid.%s.feedback"% (let, let)
+                    print >>file, "net %s-vel-cmd     => pid.%s.command" % (name, let)
+                    print >>file, "net %s-vel-fb      => pid.%s.feedback"% (name, let)
                 else:
-                    print >>file, "net %spos-cmd      => pid.%s.command" % (let, let)
-                    print >>file, "net %spos-fb       => pid.%s.feedback"% (let,let)
+                    print >>file, "net %s-pos-cmd      => pid.%s.command" % (name, let)
+                    print >>file, "net %s-pos-fb       => pid.%s.feedback"% (name,let)
                 print >>file
 
         if tppwmpinname:
@@ -1838,7 +1838,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "# setp       %s.max_current 5"% (amp8i20pinname)
                 print >>file, "# net %s-meas-angle =>       %s.angle"% (let,amp8i20pinname)
                 print >>file, "# net %s-bldc-current =>     %s.current"% (let,amp8i20pinname)
-                print >>file, "# net %senable =>            %s.amp_enable"% (let,amp8i20pinname)
+                print >>file, "# net %s-enable =>            %s.amp_enable"% (let,amp8i20pinname)
                 print >>file
 
         if pwmpinname:
@@ -1871,9 +1871,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                         print >>file, "net spindle-vel-cmd     => " + pwmpinname + ".value"
                         print >>file, "net spindle-enable      => " + pwmpinname +".enable"
                 else:
-                    print >>file, "net %soutput                             => "% (let) + pwmpinname + ".value"
-                    print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
-                    print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
+                    print >>file, "net %s-output                             => "% (let) + pwmpinname + ".value"
+                    print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
+                    print >>file, "net %s-enable     axis.%d.amp-enable-out  => "% (let,axnum) + pwmpinname +".enable"
 
                 print >>file    
         if steppinname:
@@ -1899,20 +1899,20 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file
                 print >>file, "net spindle-enable          =>  " + steppinname + ".enable" 
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
-                if not encoderpinname or not resolverpinname:
+                if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
             elif closedloop:
                 print >>file
                 print >>file, "# ---closedloop stepper signals---"
                 print >>file
-                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
-                print >>file, "net %soutput                             => "% (let) + steppinname + ".velocity-cmd"
-                print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + steppinname +".enable"
+                print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
+                print >>file, "net %s-output                             => "% (let) + steppinname + ".velocity-cmd"
+                print >>file, "net %s-enable     axis.%d.amp-enable-out  => "% (let,axnum) + steppinname +".enable"
             else:
                 print >>file
-                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + steppinname + ".position-fb"
-                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
-                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
+                print >>file, "net %s-pos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + steppinname + ".position-fb"
+                print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
+                print >>file, "net %s-enable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
             for i in stepinvertlist:
                    print >>file, "setp    "+i+".invert_output true"
             print >>file
@@ -1933,10 +1933,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "net spindle-vel-fb            <=  " + encoderpinname + ".velocity"
                 print >>file, "net spindle-index-enable     <=>  " + encoderpinname + ".index-enable"
             else:
-                print >>file, "net %spos-fb               <=  "% (let) + encoderpinname+".position"
-                print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
+                print >>file, "net %s-pos-fb               <=  "% (let) + encoderpinname+".position"
+                print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
                 print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + encoderpinname + ".index-enable"
-                print >>file, "net %spos-rawcounts        <=  " + encoderpinname + ".rawcounts"
+                print >>file, "net %s-pos-rawcounts        <=  "% (let) + encoderpinname + ".rawcounts"
             print >>file
 
         if resolverpinname:
@@ -1945,14 +1945,14 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "setp    "+resolverpinname+".velocity-scale 1 # mptor speed in RPS"
             print >>file, "setp    "+resolverpinname+".scale  [%s_%d]ENCODER_SCALE"% (title, axnum)
             print >>file
-            print >>file, "# net %spos-rawcounts        <=  " + resolverpinname + ".rawcounts"
+            print >>file, "net %s-pos-rawcounts        <=  "% (let) + resolverpinname + ".rawcounts"
             if let == 's':
                 print >>file, "net spindle-revs              <=  " + resolverpinname + ".position"
                 print >>file, "net spindle-vel-fb            <=  " + resolverpinname + ".velocity"
                 print >>file, "net spindle-index-enable     <=>  " + resolverpinname + ".index-enable"
             else:
-                print >>file, "net %spos-fb               <=  "% (let) + resolverpinname+".position"
-                print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
+                print >>file, "net %s-pos-fb               <=  "% (let) + resolverpinname+".position"
+                print >>file, "net %s-pos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
                 print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + resolverpinname + ".index-enable"
             print >>file
 
@@ -1982,7 +1982,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                 else:
                     print >>file, "sets spindle-at-speed true"
                     print >>file
-            if self.pyvcphaltype == 1 and self.pyvcpconnect or self.gladevcp and self.spindlespeedbar:
+            if (self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect) or (self.gladevcp and self.spindlespeedbar):
                 if encoderpinname or resolverpinname:
                     print >>file, _("#  Use ACTUAL spindle velocity from spindle encoder")
                     print >>file, _("#  spindle-velocity bounces around so we filter it with lowpass")
@@ -8235,7 +8235,7 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write("addf scale_to_rpm slow \n")
         self.hal_cmnds("WRITE")
         halrun.write( "newsig estop-out bit\n")
-        halrun.write( "sets estop-out true\n")
+        halrun.write( "sets estop-out false\n")
         # search and connect I/o signals needed to enable amps etc
         self.hal_test_signals(axis)
         # for encoder signals
@@ -8391,7 +8391,7 @@ But there is not one in the machine-named folder.."""),True)
                 'dir': self.widgets[axis+"tunedir"].get_active(),
                 'pause':int(self.widgets[axis+"tunepause"].get_value()),
                 'enable':self.widgets[axis+"tuneenable"].get_active(),
-                'estop':not (self.widgets[axis+"tuneenable"].get_active())
+                'estop':(self.widgets[axis+"tuneenable"].get_active())
             })
         else:
             halrun.write("""  
@@ -8499,7 +8499,7 @@ But there is not one in the machine-named folder.."""),True)
         #halrun.write("addf steptest.0 slow\n")
         self.hal_cmnds("WRITE")
         halrun.write( "newsig estop-out bit\n")
-        halrun.write( "sets estop-out true\n")
+        halrun.write( "sets estop-out false\n")
         # search for pins with test signals that may be needed to enable amp
         self.hal_test_signals(axis)
         # setup pwm generator
@@ -8584,7 +8584,7 @@ But there is not one in the machine-named folder.."""),True)
             output = output * -1
         output += get_value(self.widgets.testoutputoffset)
         halrun.write("sets enable %d\n"% ( self.enable_amp))
-        halrun.write("sets estop-out %d\n"% ( not self.enable_amp))
+        halrun.write("sets estop-out %d\n"% ( self.enable_amp))
         if self.enc:
             halrun.write("""setp %(scalepin)s.scale %(scale)f\n""" % { 'scalepin':self.enc, 'scale': (enc_scale * enc_invert)})
             halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
