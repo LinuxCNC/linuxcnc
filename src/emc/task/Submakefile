@@ -29,9 +29,9 @@ USERSRCS += $(MILLTASKSRCS)
 
 #LDFLAGS +=
 
-../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0 ../lib/libemchal.so.0
+../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0 ../lib/libposemath.so.0 ../lib/libemchal.so.0 ../lib/libpyplugin.so.0
 
 
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) $(LDFLAGS) -o $@ $^
+	$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
 TARGETS += ../bin/milltask
