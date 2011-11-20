@@ -178,7 +178,7 @@ else
     subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
 fi
 
-DOCS_PACKAGES=$(echo emc2-doc-{en,fr,de,es})
+DOCS_PACKAGES=$(echo emc2-doc-{en,fr,de,es,pl})
 for P in $DOCS_PACKAGES; do
     if [ -f $EXTRAS/$P.files ]; then
         cat $P.files.in $EXTRAS/$P.files > $P.files
