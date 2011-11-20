@@ -6,3 +6,25 @@ Save as .dxf to same directory as the image
 Set line thickness to 0.50mm
 Export image as 480 x 480 Resolution Auto .png
 
+
+How to add a new translation language
+-------------------------------------
+
+Add the asciidoc source files that will contain your new translation.
+Usually that means copying the language files for one of the existing
+languages, probably English since that's usually the most up to date.
+
+Add the new files to the proper place in docs/src/Submakefile, to ensure
+they'll get built.
+
+Edit debian/control.in to add the new emc2-doc-$NEWLANG package.  Add the new
+doc package to the or-list of the Recommends line of the emc2/emc2-sim
+package.
+
+Add the new language to the DOCS_PACKAGES variable in debian/configure.
+
+Add the 'emc2-doc-$NEWLANG.files.in' file for the new package, probably
+by copying and editing "debian/emc2-doc-en.files.in".
+
+Test build the packages and verify!
+
