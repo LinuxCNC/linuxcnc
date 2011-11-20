@@ -10,7 +10,7 @@ emc2
 emc2-dev
 emc2-sim-dev
 emc2-python
-emc2-doc-*
+emc2-doc-*/
 *.substvars
 /emc2.files
 /emc2-sim.files
