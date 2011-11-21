@@ -108,10 +108,9 @@ http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org/
 
 == Par téléchargement normal
 
-Téléchargez le CD Live depuis: 
+Téléchargez le CD Live sur le site: 
 
-http://www.linuxcnc.org/[http://www.linuxcnc.org]
-
+http://www.linuxcnc.org/index.php?lang=french
 
 == Par téléchargement fragmenté (((Telechargement fragmente)))
 
@@ -142,7 +141,7 @@ wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
 
 Pour le miroir européen:
 
-wget http://dsplabs.upt.ro/ wget ~ Juve / emc / get.php? file = ubuntu-10.04-linuxcnc1-i386.iso
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
 
 La somme MD5 du fichier ci-dessus est: `5283b33b7e23e79da1ee561ad476b05f`
 *********************************************************************
@@ -166,7 +165,7 @@ Pour le miroir Etats-Unis:
 wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
 Pour le miroir européen:
-wget http://dsplabs.upt.ro/~Juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
 La somme MD5 du fichier ci-dessus est: `1bab052ec879f941628927c988863f14`
 *********************************************************************
@@ -184,7 +183,7 @@ Pour le miroir Etats-Unis:
 wget http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso
 
 Pour le miroir européen:
-http://dsplabs.upt.ro/ wget ~ Juve / emc / get.php? file = emc2.2.2-1-ubuntu6.06-desktop-i386.iso
+http://dsplabs.upt.ro/~juve/emc/get.php?file=emc2.2.2-1-ubuntu6.06-desktop-i386.iso
 
 La somme MD5 du fichier ci-dessus est: `21f4ecdcf9f5ab09ed64b5e76fb389e6`
 ***********************************************************************
