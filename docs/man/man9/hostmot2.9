@@ -558,7 +558,9 @@ above.
 
 (u32, in) .sserial.parameter: The two LSBs of this pin determine the parameter
 address on the device connected to the channel and port defined above which will
-be read from or written to.
+be read from or written to. Byte 2 is used to pass the data type for
+non-volatile writes, and byte 3 passes the access type flags. For example 
+0xEC010002 is the code to use to set 8i20 NVMAXCURRENT.
 
 (u32, in) .sserial.value: This pin is used to set the value to be written to a
 device parameter. It can also be used to read-back a value from the device, but
