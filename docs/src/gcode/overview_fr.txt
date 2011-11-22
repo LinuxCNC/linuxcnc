@@ -1,7 +1,7 @@
 = Vue d'ensemble du langage[[cha:Vue-d-ensemble-du-langage]]
 
 Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
-(également appelée un “block”) peut inclure des commandes pour faire
+(également appelée un “bloc”) peut inclure des commandes pour faire
 produire diverses actions au centre d'usinage. Plusieurs lignes de code
 peuvent être regroupées dans un fichier pour créer un programme.
 

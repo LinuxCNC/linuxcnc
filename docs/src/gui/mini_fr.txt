@@ -1,6 +1,8 @@
 = L'interface MINI
 
-== Introduction  footnote:[Much of this chapter quotes from a 
+== Introduction  
+
+footnote:[Much of this chapter quotes from a 
 chapter of the Sherline CNC operators manual.]
 
 .L'interface graphique Mini[[fig:startminif]]
@@ -21,7 +23,7 @@ instructions écrites par Joe Martin et Ray Henry.
 .Affichage de Mini lors du fonctionnement d'EMC[[fig:runminif]]
 image::images/mini_fr.jpg[]
 
- L'écran de Mini est visible dans plusieurs sections, voir la figure
+L'écran de Mini est visible dans plusieurs sections, voir la figure
 <<fig:startminif>>. Il inclu une barre de menu, un jeu de boutons de
 contrôle juste en dessous et deux larges colonnes d'information
 montrant l'état de la machine et permettant à l'opérateur d'entrer des

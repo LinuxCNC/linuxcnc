@@ -1,4 +1,4 @@
-= Aperçu machine CNC
+= Aperçu global d'une machine CNC
 
 Cette section donne une brève description de la façon dont une 
 machine CNC est considéré à partir des extrémités d'entrée et 

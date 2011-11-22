@@ -1,4 +1,4 @@
-= Références du G-code (((G-code)))
+= Guide de référence du G-code (((G-code)))
 
 Conventions utilisées dans cette section
 
