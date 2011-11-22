@@ -156,15 +156,15 @@ indique à find de retourner tous les fichiers contenant l'extension
 
 Tapez dans un terminal:
 
-`grep -i -r 'texte à rechercher' *`
+`grep -lir "texte à rechercher" *`
 
-Pour trouver tous les fichiers contenant le texte ''texte à
-rechercher''  dans le répertoire courant et tous ses sous-répertoires
-et en
-ignorant la casse. Le paramètre -i demande d'ignorer la casse et le -r
-demande une recherche récursive (qui inclus tous les sous-répertoires
-dans la recherche). Le caractère * est un jocker indiquant «tous les
-fichiers».
+Pour trouver tous les fichiers contenant le texte "texte à rechercher"  dans le 
+répertoire _courant_ et tous ses sous-répertoires et en ignorant la casse. 
+Le paramètre -l demande de ne pas afficher les résultats normaux mais à la place, 
+d'indiquer le nom des fichiers pour lesquels des résultats auraient été affichés. 
+Le paramètre -i demande d'ignorer la casse. Le paramètre -r demande une recherche 
+récursive (qui inclus tous les sous-répertoires dans la recherche). 
+Le caractère * est un jocker indiquant «tous les fichiers».
 
 === Messages du boot
 

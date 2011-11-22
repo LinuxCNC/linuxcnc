@@ -10,7 +10,7 @@ en Anglais chaque fois que possible.
 
 Si vous souhaitez être un traducteur bénévole
 pour la documentation française d'EMC2, 
-s'il vous plaît contactez-nous. 
+merci de nous contactez. 
 =================================================
 
 [NOTE]

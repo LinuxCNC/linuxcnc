@@ -23,10 +23,10 @@ DOC_SRCS := \
 	code/Style_Guide.txt \
 	code/NML_Messages.txt \
 	common/Document_Header.txt \
-     	common/Document_Header_de.txt \
+    common/Document_Header_de.txt \
 	common/Document_Header_es.txt \
 	common/Document_Header_fr.txt \
-        common/Document_Header_pl.txt \
+    common/Document_Header_pl.txt \
 	common/Getting_EMC.txt \
 	common/Getting_EMC_de.txt \
 	common/Getting_EMC_es.txt \
@@ -94,7 +94,6 @@ DOC_SRCS := \
 	config/copy_and_run.txt \
 	config/copy_and_run_de.txt \
 	config/copy_and_run_es.txt \
-	config/copy_and_run_fr.txt \
 	config/copy_and_run_pl.txt \
 	config/emc2hal.txt \
 	config/emc2hal_de.txt \

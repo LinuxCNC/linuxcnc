@@ -1,4 +1,4 @@
-﻿= Comment se procurer EMC2
+﻿= Installer EMC2
 
 == À savoir à propos du logiciel EMC2
 
@@ -69,7 +69,9 @@ Un peu d'éthique sur le canal IRC:
 
 === Partage de fichiers sur IRC
 
-La façon la plus courante de partager des fichiers sur IRC est de charger le fichier sur un des services suivants ou service similaire, puis collez le lien vers le fichier, sur l'IRC:
+La façon la plus courante de partager des fichiers sur IRC est de charger le 
+fichier sur un des services suivants ou service similaire, puis collez le lien 
+vers le fichier, sur l'IRC:
 
  - Pour le texte:
      http://pastebin.com/, http://pastie.org/, https://gist.github.com/
@@ -121,7 +123,7 @@ la reprise après un téléchargement interrompu.
 
 ===  La commande Wget sous Linux (((Wget Linux)))
 
-Ouvrez une fenêtre de terminal. Dans Ubuntu, il est dans Applications / Accessoires / Terminal.
+Ouvrez une fenêtre de terminal. Dans Ubuntu, il est dans Applications -> Accessoires -> Terminal.
 Utilisez `cd` pour changer le répertoire où vous voulez stocker l'image ISO.
 Utilisez `mkdir` pour créer un nouveau répertoire si nécessaire.
 
@@ -349,11 +351,68 @@ C'est aussi la plus populaire.
 
 image::images/axis_2.3_fr.png[]
 
+== Lancer EMC2
+
+Après installation, emc2 se lance comme un autre programme Linux:
+depuis un terminal en passant la commande `emc`, 
+ou depuis le menu Applications -> CNC.
+
+== Sélecteur de configuration
+
+Par défaut, la boîte de dialogue "Sélecteur de configuration" s'affichera la 
+première fois que vous lancerez EMC2. Vos propres configurations personnalisées 
+s'affichent dans le haut de la liste, suivies par les différentes configurations 
+fournies en standard.
+Étant donné que chaque exemple de configuration utilise un type différent d'interface 
+matérielle, la plupart ne fonctionneront pas sur votre système. Les configurations 
+listées dans la catégorie « Sim » fonctionneront toutes, même sans matériel raccordé, 
+ce sont des simulations de machines.
+
+Figure <<cap:Selecteur-de-configuration>> la fenêtre du sélecteur de configuration.
+
+.Sélecteur de configuration pour EMC2[[cap:Selecteur-de-configuration]]
+
+image::images/configuration-selector1_fr.png[]
+
+Cliquez dans la liste, sur les différentes configurations pour afficher les 
+informations les concernant. Double-cliquez sur une configuration ou cliquez OK 
+pour démarrer EMC2 avec cette configuration. Cochez la case « Créer un raccourci 
+sur le bureau » puis cliquez OK pour ajouter une icône sur le bureau d'Ubuntu. 
+Cette icône vous permettra par la suite de lancer directement EMC2 avec cette 
+configuration, sans passer par le sélecteur de configuration.
+
+Quand vous choisissez un exemple de configuration dans le sélecteur, un dialogue 
+vous demandera si vous voulez en faire une copie dans votre répertoire home. 
+Si vous répondez oui, un dossier « emc2 » autorisé en écriture sera créé, il 
+contiendra un jeu de fichiers que vous pourrez éditer pour les adapter à vos besoins. 
+Si vous répondez « non », emc démarrera mais pourra se comporter de façon étrange, 
+par exemple, les décalages d'origine pièce entrés avec la commande « Toucher » ne 
+seront pas pris en compte, ce comportement est lié à ce moment, à l'absence de 
+répertoire autorisé en écriture sans lequel les paramètres ne peuvent être enregistrés.
+
+.Dialogue de copie de la configuration
+
+image::images/copy-configuration_fr.png[]
+
+== Les étapes suivantes dans la configuration
+
+Après avoir trouvé l'exemple de configuration qui utilise
+la même interface matérielle que votre machine,
+et en avoir enregistré une copie dans votre répertoire personnel,
+vous pouvez la personnaliser en fonction des besoins spécifiques à votre machine.
+Consultez le Manuel de l'intégrateur pour les détails de la configuration.
+
+Si vous souhaitez créer une configuration personnalisée, vous pouvez utiliser 
+pour cela, un des assistants graphiques de configuration, StepConf ou PncConf 
+selon votre type de machine.
+
+
+
 == Les mises à jour d'EMC2 (((Mises à jour d'EMC2)))
 
 Avec l'installation standards, le gestionnaire de mises à jour vous avertir des mises à jour 
-d'EMC2 disponibles quand vous serez en ligne et vous permettra de mettre à jour facilement 
-sans connaissance particulière de Linux.
+d'EMC2 disponibles quand vous serez en ligne et vous permettra de mettre à jour 
+facilement sans connaissance particulière de Linux.
 Si vous souhaitez passer en 10,04 à partir d'une 8.04, une installation propre 
 à partir du CD live est recommandée.
 

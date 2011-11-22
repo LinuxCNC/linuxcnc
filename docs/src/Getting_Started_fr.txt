@@ -18,15 +18,11 @@ include::common/System_Requirements_fr.txt[]
 
 include::common/Getting_EMC_fr.txt[]
 
-include::common/Updating_EMC_fr.txt[]
-
 include::quickstart/stepper_quickstart_fr.txt[]
 
 include::config/stepconf_fr.txt[]
 
 include::config/pncconf_fr.txt[]
-
-include::config/copy_and_run_fr.txt[]
 
 include::common/Linux_FAQ_fr.txt[]
 

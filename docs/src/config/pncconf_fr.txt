@@ -41,8 +41,7 @@ peuvent apparaitre pendant la phase de développement de PNCconf. Elles disparai
 quand le logiciel sera finalisé.
 *************************************************
 
-Instructions pas à pas
-======================
+== Instructions pas à pas
 
 Démarrer le programme depuis le menu CNC->PnCConf ou depuis un terminal
 avec la commande `pncconf`. 
@@ -557,7 +556,7 @@ Test en boucle ouverte::
     codeur. Le codeur doit compter dans le même sens, même sans la puissance sur le 
     moteur, mais cela dépend de la manière dont le codeur est alimenté.
 
-[red]#AVERTISSEMENT:# Si le moteur et le codeur ne compte pas dans le même sens 
+[red]#AVERTISSEMENT:# Si le moteur et le codeur ne comptent pas dans le même sens 
 le servomoteur sera incontrôlable et s'emballera lors de l'utilisation en boucle 
 fermée sous régulation PID.footnote:[ PID: acronyme de Proportionnelle, Intégrale, 
 Dérivée. Ce sont les 3 composantes de la régulation en boucle fermée de type PID.]

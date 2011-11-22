@@ -13,7 +13,7 @@ chapitres suivants.
 La documentation complète sur l'installation et
 la configuration se trouve dans le manuel de l'intégrateur.
 
-== Comment marche EMC2[[sec:Comment-marche-EMC2]]
+== Comment fonctionne EMC2[[sec:Comment-Fonctionne-EMC2]]
 
 EMC2 est un peu plus que juste un autre programme de fraiseuse
 CNC(((CNC))). Il est capable de contrôler des machines-outils, des
