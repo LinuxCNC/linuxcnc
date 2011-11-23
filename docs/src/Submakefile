@@ -23,10 +23,10 @@ DOC_SRCS := \
 	code/Style_Guide.txt \
 	code/NML_Messages.txt \
 	common/Document_Header.txt \
-    common/Document_Header_de.txt \
+	common/Document_Header_de.txt \
 	common/Document_Header_es.txt \
 	common/Document_Header_fr.txt \
-    common/Document_Header_pl.txt \
+	common/Document_Header_pl.txt \
 	common/Getting_EMC.txt \
 	common/Getting_EMC_de.txt \
 	common/Getting_EMC_es.txt \
@@ -417,8 +417,6 @@ DOC_SRCS := \
 	Master_Integrator_pl.txt \
 	Master_Developer.txt \
 
-
-# DOC_SRCS_TXT := $(patsubst %.lyx, %.txt, $(DOC_SRCS))
 DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
 
 DOC_SRCS_DE := $(filter %_de.txt, $(DOC_SRCS_TXT))
@@ -433,7 +431,6 @@ DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_PL_SMALL := $(filter-out Master_%,$(DOC_SRCS_PL))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
 
-# DOC_SRCS_HTML := $(patsubst %.lyx, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
@@ -463,9 +460,8 @@ PDF_TARGETS := $(addprefix $(DOC_DIR)/, \
 	EMC2_Developer_Manual.pdf \
 	EMC2_Manual_Pages.pdf \
 	)
-# 
+
 # It's better to keep the above on separate lines for troubleshooting by swapping
-# (Don't ask me how I know this.)
 
 HTML_TARGETS := \
 	$(DOC_TARGETS_HTML) \
@@ -475,10 +471,6 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_es.html \
 	$(DOC_DIR)/html/index_fr.html \
 	$(DOC_DIR)/html/index_pl.html \
-#	$(DOC_DIR)/html/xref.html \
-#	$(DOC_DIR)/html/xref_de.html \
-#	$(DOC_DIR)/html/xref_es.html \
-#	$(DOC_DIR)/html/xref_fr.html
 
 L2HFLAGS := -init_file src/.latex2html-init -local_icons \
 	-unsegment -link 4 -info 0 -split +0 -html_version 4.0,math,table
@@ -621,56 +613,6 @@ depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
 
-define lyx2xml
-python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$(1)_$(2).xml $(3)
-endef
-
-XMLDEP := $(DOC_SRCDIR)/lyxtree.py $(DOC_SRCDIR)/lyxparser.py
-
-SUBXML := \
-	$(filter objects/hal_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/code_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/common_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/config_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/gcode_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/drivers_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/lathe_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
-	$(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
-
-$(filter-out $(SUBXML),$(DOC_TARGETS_XML)): objects/%.xml: $(DOC_SRCDIR)/%.lyx $(XMLDEP)
-	python $(DOC_SRCDIR)/lyxtree.py --imagedir=$(DOC_DIR)/html -o objects/$*.xml $<
-
-$(filter objects/code_%.xml,$(DOC_TARGETS_XML)): objects/code_%.xml: $(DOC_SRCDIR)/code/%.lyx $(XMLDEP)
-	$(call lyx2xml,code,$*,$<)
-$(filter objects/common_%.xml,$(DOC_TARGETS_XML)): objects/common_%.xml: $(DOC_SRCDIR)/common/%.lyx $(XMLDEP)
-	$(call lyx2xml,common,$*,$<)
-$(filter objects/config_%.xml,$(DOC_TARGETS_XML)): objects/config_%.xml: $(DOC_SRCDIR)/config/%.lyx $(XMLDEP)
-	$(call lyx2xml,config,$*,$<)
-$(filter objects/drivers_%.xml,$(DOC_TARGETS_XML)): objects/drivers_%.xml: $(DOC_SRCDIR)/drivers/%.lyx $(XMLDEP)
-	$(call lyx2xml,drivers,$*,$<)
-$(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
-	$(call lyx2xml,examples,$*,$<)
-$(filter objects/gcode_%.xml,$(DOC_TARGETS_XML)): objects/gcode_%.xml: $(DOC_SRCDIR)/gcode/%.lyx $(XMLDEP)
-	$(call lyx2xml,gcode,$*,$<)
-$(filter objects/gui_%.xml,$(DOC_TARGETS_XML)): objects/gui_%.xml: $(DOC_SRCDIR)/gui/%.lyx $(XMLDEP)
-	$(call lyx2xml,gui,$*,$<)
-$(filter objects/hal_%.xml,$(DOC_TARGETS_XML)): objects/hal_%.xml: $(DOC_SRCDIR)/hal/%.lyx $(XMLDEP)
-	$(call lyx2xml,hal,$*,$<)
-$(filter objects/install_%.xml,$(DOC_TARGETS_XML)): objects/install_%.xml: $(DOC_SRCDIR)/install/%.lyx $(XMLDEP)
-	$(call lyx2xml,install,$*,$<)
-$(filter objects/ladder_%.xml,$(DOC_TARGETS_XML)): objects/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx $(XMLDEP)
-	$(call lyx2xml,ladder,$*,$<)
-$(filter objects/lathe_%.xml,$(DOC_TARGETS_XML)): objects/lathe_%.xml: $(DOC_SRCDIR)/lathe/%.lyx $(XMLDEP)
-	$(call lyx2xml,lathe,$*,$<)
-$(filter objects/motion_%.xml,$(DOC_TARGETS_XML)): objects/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
-	$(call lyx2xml,motion,$*,$<)
-$(filter objects/quickstart_%.xml,$(DOC_TARGETS_XML)): objects/quickstart_%.xml: $(DOC_SRCDIR)/quickstart/%.lyx $(XMLDEP)
-	$(call lyx2xml,quickstart,$*,$<)
 
 DOC_TARGETS_XML_DE := $(filter %_de.xml, $(DOC_TARGETS_XML))
 DOC_TARGETS_XML_ES := $(filter %_es.xml, $(DOC_TARGETS_XML))
@@ -693,30 +635,6 @@ objects/xref_pl.xml: $(DOC_TARGETS_XML_PL) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
 objects/xref.xml: $(DOC_TARGETS_XML_EN) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@
-
-#$(DOC_TARGETS_HTML_EN): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-#	$(ECHO) Converting $< to HTML
-#	xsltproc --stringparam xrefdoc objects/xref.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
-#
-#$(DOC_TARGETS_HTML_DE): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_de.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-#	$(ECHO) Converting $< to HTML
-#	xsltproc --stringparam xrefdoc objects/xref_de.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
-#
-#$(DOC_TARGETS_HTML_ES): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_es.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-#	$(ECHO) Converting $< to HTML
-#	xsltproc --stringparam xrefdoc objects/xref_es.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
-#
-#$(DOC_TARGETS_HTML_FR): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_fr.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-#	$(ECHO) Converting $< to HTML
-#	xsltproc --stringparam xrefdoc objects/xref_fr.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
-#
-#$(DOC_TARGETS_HTML_PL): $(DOC_DIR)/html/%.html: objects/%.xml objects/xref_pl.xml $(DOC_SRCDIR)/l2h.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-#	$(ECHO) Converting $< to HTML
-#	xsltproc --stringparam xrefdoc objects/xref_pl.xml --stringparam docname "$*" --path objects -o $@ $(DOC_SRCDIR)/l2h.xsl $<
-#
-#$(DOC_DIR)/html/xref.html: objects/xref.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-#	$(ECHO) Converting $< to HTML
-#	@xsltproc --stringparam docname "xref" --stringparam language english --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 objects/%.links-stamp: $(DOC_SRCDIR)/%.txt
 	@mkdir -p `dirname $@`
@@ -757,14 +675,6 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	mkdir -p objects/image-cache
 	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
 				(X=$$?; rm $@; exit $$X)
-
-#$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
-#	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-#	         -a "scriptdir=$(DOC_SRCDIR)/" \
-#	         -a "relindir=$(shell dirname $*)" \
-#	         -a "linksfile=objects/xref_en.links" \
-#		 -a stylesheet=$(shell pwd)/$(DOC_SRCDIR)/linuxcnc.css \
-#		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 	
 $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
