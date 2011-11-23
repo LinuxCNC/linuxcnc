@@ -121,9 +121,9 @@ first four holes.)
     M2 (program end)
 
     
-    .G81 Cycle[[cap:G81-Cycle]]
+.G81 Cycle[[cap:G81-Cycle]]
     
-    image::images/G81mult.png[]
+image::images/G81mult.png[]
 
 The use of G80 in line n200 is optional because the G0 on the next
 line will turn off the G81 cycle. But using the G80. as example 1
