@@ -2483,11 +2483,12 @@ machines, consiste à placer le mot T pour le prochain outil sur la
 ligne suivant le changement d'outil. Cela laisse au carrousel tout le
 temps pour se positionner.
 
-Se déplace rapide après une T<n> ne sera pas diffusée sur le preview AXIS 
-qu'après un mouvement d'alimentation. Il s'agit pour les machines qui Voyage 
-de longues distances pour le changement l'outil comme un tour. Cela peut être 
-très déroutant au premier abord. Pour activer cette fonction pour le programme 
-de changement d'outil en cours un G1 sans bouger après l'T<n>. 
+Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de 
+parcours d'écran d'Axis, et ce jusqu'au prochain mouvement en vitesse travail.
+Se remarque surtout sur les machines ayant de longues distances de déplacement lors
+du changement d'outil, comme les tours. Cela peut prêter à confusion au début. 
+Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans 
+mouvement juste après le T<n>.
 
 == Commentaires[[sec:Commentaires]]
 
