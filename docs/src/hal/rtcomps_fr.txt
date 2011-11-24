@@ -38,11 +38,11 @@ troisième montre le mode vitesse. Le mode de commande et le type de
 pas, se réglent indépendamment et n'importe quelle combinaison peut
 être choisie.
 
-image::stepgen-block-diag.eps[]
+image:stepgen-block-diag.eps[]
 
 .Diagramme bloc du générateur de pas (en mode position)[[fig:Diagramme-bloc-stepgen]]
 
-image::freqgen-block-diag.eps[]
+image:freqgen-block-diag.eps[]
 
 .Diagramme bloc du générateur de pas (en mode vitesse)[[fig:Diagramme-bloc-freqgen]]
 
