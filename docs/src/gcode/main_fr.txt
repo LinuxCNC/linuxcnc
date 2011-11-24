@@ -2484,9 +2484,10 @@ ligne suivant le changement d'outil. Cela laisse au carrousel tout le
 temps pour se positionner.
 
 Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de 
-parcours d'écran d'Axis, et ce jusqu'au prochain mouvement en vitesse travail.
-Se remarque surtout sur les machines ayant de longues distances de déplacement lors
-du changement d'outil, comme les tours. Cela peut prêter à confusion au début. 
+parcours d'outil d'Axis, et ce jusqu'au prochain mouvement en vitesse travail.
+Cela se remarque surtout sur les machines ayant de longues distances de 
+déplacement lors du changement d'outil, comme les tours. 
+Cela peut prêter à confusion au début. 
 Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans 
 mouvement juste après le T<n>.
 
@@ -2504,7 +2505,7 @@ une parenthèse ouvrante est rencontrée après le début d'un commentaire
 et avant la fin d'un commentaire. Voici un exemple de ligne de
 commentaire: 
 
-`G80 M5 (arret du mouvement)` 
+`G80 M5 (arrêt du mouvement)` 
 
 Les commentaires sont seulement informatifs, ils n'ont aucune 
 influence sur la machine.

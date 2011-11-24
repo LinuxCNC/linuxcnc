@@ -3,10 +3,10 @@
 == Commandes de Hal[[sec:Commandes-de-HAL]]
 
 Des informations plus détaillées peuvent être trouvées dans la man
-page en tapant «man halcmd» dans une console. Pour voir la
+page en tapant `man halcmd` dans une console. Pour voir la
 configuration de HAL ainsi que le status de ses pins et paramétres
-utiliser la fenêtre HAL Configuration dans le menu «Machine» d'AXIS.
-Pour visualiser le status des pins, ouvrir l'onglet «Watch» puis
+utiliser la fenêtre HAL Configuration dans le menu `Machine` d'AXIS.
+Pour visualiser le status des pins, ouvrir l'onglet `Watch` puis
 cliquer dans l'arborescence sur les pins qui doivent être visualisées
 dans la fenêtre watch.
 
@@ -16,7 +16,7 @@ image::images/HAL_Configuration.png[]
 
 === loadrt
 
-La commande «loadrt» charge un composant temps réel de HAL. Les
+La commande `loadrt` charge un composant temps réel de HAL. Les
 composants temps réel doivent être ajoutés au thread temps réel pour
 être fonctionnels. Il n'est pas possible de charger un composant de
 l'espace utilisateur dans l'espace temps réel.
@@ -25,12 +25,13 @@ Syntaxe et exemple:
 
 +loadrt <component> <options>+ 
 
-+loadrt mux4 count=1+ 
-
+---------------------------------------------------
+loadrt mux4 count=1 
+---------------------------------------------------
 
 === addf
 
-La commande «addf» ajoute une fonction à un thread temps réel. Si
+La commande `addf` ajoute une fonction à un thread temps réel. Si
 l'assistant StepConf a été utilisé pour créer la configuration, deux
 threads ont été créés.
 
@@ -45,12 +46,13 @@ Syntaxe et exemple:
 
 +addf <component> <thread>+ 
 
-+addf mux4 servo-thread+ 
-
+---------------------------------------------------
+addf mux4 servo-thread 
+---------------------------------------------------
 
 === loadusr
 
-La commande «loadusr» charge un composant de HAL de l'espace
+La commande `loadusr` charge un composant de HAL de l'espace
 utilisateur. Les programmes de l'espace utilisateur ont leur propre
 process séparé qui optionellement communique avec les autres composants
 de HAL via leurs pins et paramètres. Il n'est pas possible de charger
@@ -58,34 +60,34 @@ un composant temps réel dans l'espace utilisateur.
 
 Les drapeaux peuvent être un ou plusieurs parmis les suivants:
 
--W::
+-W ::
      pour attendre que le composant soit prêt. Le composant est supposé
     avoir le même nom que le premier argument de la commande.
 
--Wn <nom>::
+-Wn <nom> ::
     pour attendre un composant, qui porte le nom donné sous la forme <nom>.
 
--w::
+-w ::
     pour attendre la fin du programme
 
--i::
+-i ::
     pour ignorer la valeur retournée par le programme (avec -w) 
 
 Syntaxe et exemple:
 
 +loadusr <component> <options>+ 
 
-+loadusr halui+ 
+---------------------------------------------------
+loadusr halui
+loadusr -Wn spindle gs2_vfd -n spindle 
+---------------------------------------------------
 
-+loadusr -Wn spindle gs2_vfd -n spindle+ 
-
-
-En anglais ça donne «loadusr wait for name spindle component gs2_vfd name spindle». 
+En anglais ça donne `loadusr wait for name spindle component gs2_vfd name spindle`. 
 Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr. 
 
 === net
 
-La commande «net» crée une «connection» entre un signal et une ou
+La commande `net` crée une `connection` entre un signal et une ou
 plusieurs pins. Les indicateurs de direction `<=` et `=>` sont seulement
 des aides à la lecture, ils n'ont pas d'autre utilité.
 
@@ -93,13 +95,14 @@ Syntaxe et exemple:
 
 +net <signal-name> <pin-name> <opt-direction> <opt-pin-name>+ 
 
-+net both-home-y <= parport.0.pin-11-in+ 
-
+---------------------------------------------------
+net both-home-y <= parport.0.pin-11-in 
+---------------------------------------------------
 
 Chaque signal ne peut avoir qu'une seule source (une seule pin de HAL
-«out») et autant de «lecteurs» (des pins de HAL «in») que souhaité.
+`out`) et autant de `lecteurs` (des pins de HAL `in`) que souhaité.
 Dans la colonne Dir de la fenêtre de configuration de HAL il est
-possible de voir quelles pins sont «in» et quelles pins sont «out».
+possible de voir quelles pins sont `in` et quelles pins sont `out`.
 
 Pour faire celà en une ligne:
 
@@ -111,9 +114,11 @@ net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 Ou pour le faire en plusieurs lignes, utiliser simplement le signal
 avec les lecteurs des lignes suivantes:
 
-+net xStep <= stepgen.0.out => parport.0.pin-02-out+ 
+---------------------------------------------------
+net xStep <= stepgen.0.out => parport.0.pin-02-out 
+---------------------------------------------------
 
-Les pins appelées I/O pins comme «index-enable», ne suivent pas cette règle. 
+Les pins appelées I/O pins comme `index-enable`, ne suivent pas cette règle. 
 
 === setp[[sub:setp]]
 (((setp)))
@@ -140,50 +145,51 @@ Syntaxe et exemple:
 
 +setp <pin/parameter-name> <value>+ 
 
-+setp parport.0.pin-08-out TRUE+ 
+---------------------------------------------------
+setp parport.0.pin-08-out TRUE
+---------------------------------------------------
 
+==== unlinkp
 
-=== Quatre commandes obsolètes
-
-==== linksp
-
-The command `linksp` creates a «connection» between a signal and one pin. 
+La commande `unlinkp` déconnecte la pin du signal auquel elle est connectée. 
+Si aucun signal n'a été connecté à la pin avant de lancer cette commande, 
+rien ne se passe.
 
 Syntaxe et exemple:
 
 +unlinkp <pin-name>+ 
 
-+unlinkp parport.0.pin-02-out+ 
+---------------------------------------------------
+unlinkp parport.0.pin-02-out 
+---------------------------------------------------
 
+=== Commandes obsolètes
+
+==== linksp
 
 La commande `linksp` a été incluse dans la commande `net`.
 
-==== linkps
-
-The command "linkps" creates a "connection" between one pin and one
-signal. It is the same as linksp but the arguments are reversed.
+La commande `linksp` crée une `connexion` entre un signal et une pin.
 
 Syntaxe et exemple:
 
 +linksp <signal-name> <pin-name>+ 
-
 +linksp X-step parport.0.pin-02-out+ 
 
+==== linkps
 
 La commande "linkps" a été incluse dans la commande "net".
 
-==== unlinkp
-
-The command "unlinkp" unlinks a pin from the connected signal. If no
-signal was connected to the pin prior running the command, nothing
-happens.
+La commande `linksp` crée une `connexion` entre une pin et un signal. C'est la
+même chose que linksp mais les arguments sont inversés.
 
 Syntaxe et exemple:
 
 +linkps <pin-name> <signal-name>+ 
 
-+linkps parport.0.pin-02-out X-Step+ 
-
+---------------------------------------------------
+linkps parport.0.pin-02-out X-Step
+---------------------------------------------------
 
 ==== newsig
 
@@ -200,7 +206,8 @@ Syntaxe et exemple:
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de "halrun".
 
-== HAL Data[[sec:HAL-Data]]
+== HAL Data[[sec:HAL-Data]] footnote:[NDT: la description des données de HAL reste
+en Anglais, elle sont suffisamment simples pour être comprises.]
 
 === Bit (((Bit)))
 
@@ -251,23 +258,21 @@ configuration.
    devant être chargées après la GUI. Toutes les commandes relatives aux
    widgets de pyVCP doivent être placées ici. 
 
-== HAL Components
+== Composants de HAL
 
-Two parameters are automatically added to each HAL component when it
-is created. These parameters allow you to scope the execution time of a
-component.
+Deux paramètres sont automatiquement ajoutés à chaque composants HAL quand il 
+est créé. Ces paramètres permettent d'encadrer le temps d'exécution d'un composant.
 
 +.time+(((time))) 
 
 +.tmax+(((tmax))) 
 
 
-Time is the number of CPU cycles it took to execute the function.
+.time est le nombre de cycles du CPU qu'il a fallu pour exécuter la fonction.
 
-Tmax is the maximum number of CPU cycles it took to execute the
-function. Tmax is a read/write parameter so the user can set it to 0 to
-get rid of the first time initialization on the function's execution
-time.
+.tmax est le nombre maximum de cycles du CPU qu'il a fallu pour exécuter la fonction. 
+.tmax est un paramètre en lecture/écriture, de sorte que l'utilisateur peut le 
+mettre à 0 pour se débarrasser du premier temps d'initialisation de la fonction.
 
 == Composants de logiques combinatoire
 
@@ -309,7 +314,7 @@ Table de vérité
 
 === not
 
-Le composant «not» est un simple inverseur d'état.
+Le composant `not` est un simple inverseur d'état.
 
 Syntaxe
 
@@ -415,34 +420,31 @@ and2.0.out de la porte est connectée à la broche de sortie 14 du port
 parallèle. Ainsi en suivant la table de vérité du and2, si les broches
 11 et 12 du port sont à 1, alors sa sortie 14 est à 1 aussi.
 
-== Conversion Components
+== Composants de conversion
 
-=== weighted_sum
+=== weighted_sum (somme pondérée)
 
-The weighted_sum converts a group of bits to an integer. The
-conversion is the sum of the "weights" of the bits that are on plus any
-offset. This is similar to a binary coded decimal but with more
-options. The "hold" bit stops processing the input changes so the "sum"
-will not change.
+La somme pondérée converti un groupe de bits en un entier. La conversion est la 
+somme des `poids` des bits présents plus n'importe quel offset. C'est similaire 
+au `binaire codé décimal` mais avec plus d'options. The "hold" bit stops processing the input changes so the "sum" will not change.
 
-The following syntax is used to load the weighted_sum component.
+La syntaxe suivante est utilisée pour charger le composant weighted_sum.
 
 +loadrt weighted_sum wsum_sizes=size[,size,...]+ 
 
-Creates weighted sum groups each with the given number of input bits
-(size).
+Crée des groupes de weighted_sum, chacun avec le nombre donné de bits d'entrée (size).
 
-To update the weighted_sum you need to attach process_wsums to a thread.
+Pour mettre à jour la weighted_sum, le process_wsums doit être attaché à un thread.
 
 +addf process_wsums servo-thread+ 
 
-This updates the weighted_sum component.
+Ce qui met à jour le composant weighted_sum.
 
-In the following example clipped from the HAL Configuration window in
-Axis the bits "0" and "2" are true and there is no offset. The "weight"
-of 0 is 1 and the "weight" of 2 is 4 so the sum is 5.
+Dans l'exemple suivant, une copie de la fenêtre de configuration de HAL d'Axis, 
+les bits `0` et `2` sont TRUE, ils n'ont pas d'offset. Le poids (`weight`) du bit 0
+est 1, celui du bit 2 est 4, la somme est donc 5.
 
-.weighted_sum
+.weighted_sum (somme pondérée)
 -----------------------------------------------------------
 Component Pins: 
 Owner   Type  Dir         Value  Name 

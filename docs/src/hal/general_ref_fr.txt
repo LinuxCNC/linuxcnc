@@ -227,11 +227,11 @@ ppmc.0.write::
 
 .Note
 *********************************************************************
-En version 2.1, les pilotes HAL devrait avoir tous été mis à jour
-correspondent à ces spécifications. Envoyer un e-mail si vous repérez tous les problèmes.
+En version 2.1, les pilotes HAL devrait avoir tous été mis à jour pour
+correspondent à ces spécifications. Envoyer un e-mail si vous repérez des problèmes.
 *********************************************************************
 
-Les sections qui suivent expliquent les pins, paramètres et functions
+Les sections qui suivent expliquent les pins, paramètres et fonctions
 qui sont fournies par les «périphériques canoniques». Tous les pilotes
 de périphériques HAL devraient fournir les mêmes pins et paramètres et
 implémenter les mêmes comportements.
@@ -340,15 +340,12 @@ convertisseurs numérique/analogique ou les générateurs de PWM.
 === Fonctions
 
 (funct) *write* -- Ecrit la valeur calculée sur la sortie matérielle.
-Si enable est
- fausse, la sortie passera à 0, indépendamment des valeurs de *value*,
+Si enable est FALSE, la sortie passera à 0, indépendamment des valeurs de *value*,
 *scale* et *offset* . La signification de «0» dépend du matériel. Par
-exemple, un
-convertisseur A/D 12 bits peut vouloir écrire 0x1FF (milieu d'échelle)
+exemple, un convertisseur A/D 12 bits peut vouloir écrire 0x1FF (milieu d'échelle)
 alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
- Si enable est vraie, l'échelle, l'offset et la valeur sont traités et
-(*scale* * *value*) + *offset* sont envoyés en sortie de l'adc . Si
-enable est faux, la sortie passe
-à 0.
+Si enable est TRUE, l'échelle, l'offset et la valeur sont traités et
+(*scale* * *value*) + *offset* sont envoyés à la sortie du DAC . Si
+enable est FALSE, la sortie passe à 0.
 
 
