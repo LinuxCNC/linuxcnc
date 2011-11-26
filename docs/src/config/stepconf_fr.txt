@@ -374,7 +374,7 @@ Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et d
 ==== Trouver la vitesse maximale[[sub:Trouver-Vitesse-Maximale]](((Trouver Vitesse Maximale)))
 
 Commencez avec une faible valeur d'accélération 
-//ne marche pas (par exemple, latexmath:[ 2 po/s^2 ] ou latexmath:[ 50 mm/s^2])
+(par exemple, 2 pouces/s^2^ ou 50 mm/s^2^)
 (par exemple 2 pouces/s^2 ou 50mm/s^2)
 et de la vitesse que vous espérez atteindre. 
 En utilisant les boutons de jog, positionnez l'axe vers son centre. 
@@ -388,7 +388,7 @@ La machine commencera à aller et venir le long de cet axe.
 Dans cet essai, il est important que la combinaison entre l'accélération et
 la zone de test, permette à la machine d'atteindre la vitesse sélectionnée 
 et de s'y déplacer sur, au moins, sur une courte distance
-// ne marche pas La formule latexmath:[ d = 0.5 * v * v/a ] 
+La formule d = 0.5 * v * v/a 
 La formule d = 0.5 * v * v/a, donne la distance minimale requise pour atteindre
 la vitesse de "croisière".
 Si la sécurité est garantie, poussez sur la table dans la direction inverse

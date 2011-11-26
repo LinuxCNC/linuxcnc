@@ -1444,14 +1444,19 @@ La valeur de L n'est pas “sticky”.
 
 === Répétition de cycle
 
-Quand L>1 en mode incrémental et XY comme plan courant,
+Le mot L est optionnel et représente le nombre de répétitions.
+L=0 n'est pas permis. Si les fonctionnalités de répétition sont utilisées,
+elles le sont normalement en mode incrémental, de sorte que la même séquence de
+mouvements se répète à plusieurs emplacements régulièrement espacés le long
+d'une ligne droite. Quand L>1 en mode incrémental et XY comme plan courant,
 les positions X et Y sont déterminées en ajoutant les valeurs X et Y de
 la commande à celles de la position courante, pour le premier trajet ou
 ensuite, à celles de la position finale du précédent trajet, pour les
-répétitions. Ainsi, si vous programmez L10, vous obtiendrez 10 cycles.
+répétitions. Ainsi, si vous programmez `L10`, vous obtiendrez 10 cycles.
 Le premier cycle sera la distance X, Y depuis la position d'origine.
 Les positions de R- et Z- ne changent pas durant toutes les
-répétitions.
+répétitions. En mode absolu, L>1 signifie `faire le même cycle à la même
+place plusieurs fois`, omis, le mot L est équivalent à L=1.
 
 === Mode de retrait
 

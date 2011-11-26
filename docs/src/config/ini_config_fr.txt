@@ -892,16 +892,13 @@ Un réglage serré (petit) permettra d'atteindre une grande précision mais le s
 Est-ce vraiment plus précis si c'est plus incertain ? 
 En règle générale, il est préférable d'éviter le plus possible de solliciter le servo,  si c'est possible. 
 
-Aillez la prudence de ne pas chercher à aller en dessous d'une impulsion de codeur, sinon vous enverrez votre servo quelque part où il ne sera pas heureux ! Cela peut arriver entre réglage lent et réglage nerveux et même un réglage impropre peut provoquer des couinements, des grincements dus aux oscillations provoquées par ce mauvais réglage. Il est préférable de perdre une ou deux impulsions au début des réglages, au moins  jusqu'à avoir bien dégrossis les réglages. 
+Ayez la prudence de ne pas chercher à aller en dessous d'une impulsion de codeur, sinon vous enverrez votre servo quelque part où il ne sera pas heureux ! Cela peut arriver entre réglage lent et réglage nerveux et même un réglage impropre peut provoquer des couinements, des grincements dus aux oscillations provoquées par ce mauvais réglage. Il est préférable de perdre une ou deux impulsions au début des réglages, au moins  jusqu'à avoir bien dégrossis les réglages. 
 
-Example of calculating machine units per encoder count to use in deciding DEADBAND value: 
+Exemple de calcul en unités machine par top de codeur à utiliser pour décider de la valeur de DEADBAND (bande morte): 
 
-latexmath:[ \frac{X\, inches}{1\, encoder\, count} = 
-\frac{1\, revolution}{1000\, encoder\, lines} \times 
-\frac{1\, encoder\, line}{4\, quadrature\, counts} \times 
-\frac{0.200\, inches}{1\, revolution} = 
-\frac{0.200\, inches}{4000\, encoder\, counts} = 
-\frac{0.000050\, inches}{1\, encoder\, count} ]
+X pouces / top de codeur = 
+1 tour / 1000 top de codeur * 1 top de codeur / 4 top en quadrature * 0.2 pouce / tour =
+0.200 pouce / 4000 top de codeur = 0.000050 pouce / top de codeur.
 
 BIAS = 0.000::
      (in HAL) '(Parfois appelé *offset*)' il est utilisé par hm2-servo et quelques autres. 
@@ -918,8 +915,7 @@ P = 50::
     multiplie l'erreur entre la position commandée et la position actuelle
     en unités machine, elle entre dans le calcul de la tension appliquée à
      l'ampli moteur. Les unités du gain *P*  sont des Volts sur des unités
-    machine, exemple:
-    latexmath:[$\frac{volt}{mm}$] si l'unité machine est le millimètre.
+    machine, par exemple: Volt/mm si l'unité machine est le millimètre.
 
 I = 0::
       (hal) La composante *i* ntégrale du gain de l'ampli moteur de cet
@@ -927,8 +923,7 @@ I = 0::
     l'erreur cumulative entre la position commandée et la position actuelle
     en unités machine, elle entre dans le calcul de la tension appliquée à
      l'ampli moteur. Les unités du gain *I* sont des Volts sur des unités
-    machine par seconde, exemple:
-    latexmath:[$\frac{volt}{mm\, s}$] si l'unité machine est le millimètre.
+    machine par seconde, exemple: Volt/mm*s si l'unité machine est le millimètre.
 
 D = 0::
       (hal) La composante *d* érivée du gain de l'ampli moteur de cet axe.
@@ -936,30 +931,27 @@ D = 0::
     différence entre l'erreur courante et les précédentes, elle entre dans
      le calcul de la tension appliquée à l'ampli moteur. Les unités du gain
     *D* sont des Volts sur des unités machine sur des secondes, exemple:
-    latexmath:[$\frac{volt}{mm/s}$] si l'unité machine est le millimètre.
+    Volt/(mm/s) si l'unité machine est le millimètre.
 
 FF0 = 0::
-      (hal) Gain à priori (feedforward) d'ordre 0. Cette valeur est
-    multipliée par
-    la position commandée, elle entre dans le calcul de la tension
-    appliquée à l'ampli moteur. Les unités du gain FF0 sont des Volts sur
-    des unités machine, exemple: latexmath:[$\frac{volt}{mm}$] si l'unité
-    machine est le millimètre.
+     (hal) Gain à priori (retour vitesse) d'ordre 0. Cette valeur est multipliée
+    par la position commandée, elle entre dans le calcul de la tension appliquée 
+    à l'ampli moteur. Les unités du gain FF0 sont des Volts sur des unités 
+    machine, exemple: Volt/mm si l'unité machine est le millimètre.
 
 FF1 = 0::
      (hal) Gain à priori (feedforward) de premier ordre. Cette valeur est
     multipliée par l'écart de la position commandée par seconde, elle entre
     dans le calcul de la tension appliquée à l'ampli moteur. Les unités du
     gain FF1 sont des Volts sur des unités machine par seconde, exemple:
-    latexmath:[$\frac{volt}{mm\, s}$] si l'unité machine est le millimètre.
+    Volt/(mm/s) si l'unité machine est le millimètre.
 
 FF2 = 0::
      (hal)  Gain à priori (feedforward) de second ordre. Cette valeur est
     multipliée par l'écart de la position commandée par seconde au carré,
     elle entre dans le calcul de la tension appliquée à l'ampli moteur. Les
     unités du gain FF2 sont des Volts sur des unités machine par des
-    secondes au carré, exemple: latexmath:[$\frac{volt}{mm\, s^{2}}$] si
-    l'unité machine est le millimètre.
+    secondes au carré, exemple: Volt/mm/s^2^ si l'unité machine est le millimètre.
 
 OUTPUT_SCALE = 1.000::
     
@@ -977,14 +969,14 @@ OUTPUT_OFFSET = 0.000::
     Volts pour un amplificateur DAC. Cette mise à l'échelle ressemble à
     cela: 
 
-    latexmath:[[raw=\frac{{output-offset}}{scale}\]] 
+    raw = output-offset/scale
 
      La valeur d'échelle peut être obtenue par analyse des unités, exemple: les unités
     sont [unités SI en sortie]/[unités de l'actuateur]. Par exemple, sur 
     une machine sur laquelle une tension de consigne de l'ampli de 1 Volt 
     donne une vitesse de 250 mm/sec :
     
-    latexmath:[ amplifier [ volts ] = ( output [ \frac{mm}{sec} ] - offset [ \frac{mm}{sec} ] ) / 250 \frac{mm}{sec\, volt} ] ]
+    amplifier [volts] = (output[mm/s] - offset[mm/s]) / 250mm/(sec/Volt)
     
     Notez que les unités d'offset sont en unités machine, exemple:
     mm/sec et qu'elles sont déjà soustraites depuis la sonde de lecture. La
@@ -1001,11 +993,11 @@ OUTPUT_OFFSET = 0.000::
        <<cap:Mesure-des-tensions-de-sortie>> pour un exemple de mesures de
        tension.
       . Effectuer un “least squares” linéaire pour obtenir les
-       coefficients a,b tels que:latexmath:[meas=a*raw+b]
+       coefficients a,b tels que: mesure = a*raw+b
       . Notez que nous voulons des sorties brutes de sorte que nos résultats
        mesurés soient identiques à la sortie commandée. Ce qui signifie:
-        . latexmath:[cmd=a*raw+b]
-        . latexmath:[raw=(cmd-b)/a]
+        . cmd = a*raw+b
+        . raw = (cmd-b)/a
       .  En conséquence, les coefficients a et b d'ajustement linéaire
        peuvent être directement utilisés comme valeurs d'échelle et 
        d'offset pour le contrôleur. 
@@ -1040,9 +1032,7 @@ Un second chiffre, si spécifié, sera ignoré.
 Par exemple, sur un codeur de 2000 impulsions par tour(((codeur))), un
 réducteur de 10 tours/pouce et des unités demandées en mm, nous avons:
 
-latexmath:[ INPUT\_SCALE = 
-\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} = 
-\frac{20000\, counts}{inch} ]
+INPUT_SCALE = 2000 top/tour * 10 tour/pouce = 20000 top/pouce
 
 ==== Variables relatives aux moteurs pas à pas[[sub:Variables relatives aux moteurs pas a pas]]
 
@@ -1060,9 +1050,7 @@ Par exemple, un pas moteur de 1.8 degré, en mode demi-pas, avec une
 réduction de 10 tours/pouce et des unités souhaitées en mm, nous
 avons:
 
-latexmath:[ scale = 
-\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} = 
-\frac{4000\, steps}{inch} ]
+scale = 2 pas/1.8 degrés * 360 degrés/tour * 10 tour/pouce = 4000 pas/pouce
 
 (D'anciens fichiers de .ini et .hal utilisaient INPUT_SCALE pour cette valeur.)
 

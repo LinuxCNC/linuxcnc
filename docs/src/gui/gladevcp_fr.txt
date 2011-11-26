@@ -632,7 +632,7 @@ It has the following properties:
 scale::
 	value scale. set maximum absolute value of input. Same as
 	setting the <widgetname>.scale pin. A float, range from
-	latexmath:[-2^{24}] to latexmath:[+2^{24}].
+	-2^24^ à +2^24^.
 green_limit::
       green zone limit lower limit
 yellow_limit::

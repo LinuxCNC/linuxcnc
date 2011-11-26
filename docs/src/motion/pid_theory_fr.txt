@@ -176,16 +176,16 @@ Une autre méthode de réglage est la méthode dite de «Ziegler-Nichols»,
 introduite par John G. Ziegler et Nathaniel B. Nichols. Elle commence
 comme la méthode précédente: réglage des gains I et D à zéro et
 acroîssement du gain P jusqu'à ce que la sortie du procédé commence à
-osciller. Noter alors le gain critique (latexmath:[$K_{c}$]) et la
-période d'oscillation de la sortie (latexmath:[$P_{c}$]). Ajuster alors
+osciller. Noter alors le gain critique (K~c~) et la période d'oscillation 
+de la sortie (P~c~). Ajuster alors
 les termes P, I et D de la boucle comme sur la table ci-dessous:
 
 [width="90%", options="header"]
 |====================================================================
-|Type de régulation | P                      | I                       | D
-|P                  | latexmath:[$.5K_{c}$]  |                         | 
-|PI                 | latexmath:[$.45K_{c}$] | latexmath:[$1.2/P_{c}$] | 
-|PID                | latexmath:[$.6K_{c}$]  | latexmath:[$2/P_{c}$]   | latexmath:[$P\times P_{c}/8$]
+|Type de régulation | P           | I        | D
+|P                  | .5K~c~      |          | 
+|PI                 | .45K~c~     | 1.2/P~c~ | 
+|PID                | .6K~c~      | 2/P~c~   | P * P~c~/8
 |====================================================================
 
 
