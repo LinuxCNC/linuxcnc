@@ -90,7 +90,7 @@ static int loadTraj(EmcIniFile *trajInifile)
 	trajInifile->Find(&axes, "AXES", "TRAJ");
 
         if (0 != emcTrajSetAxes(axes, axismask)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetAxes\n");
             }
             return -1;
@@ -102,7 +102,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         trajInifile->FindAngularUnits(&angularUnits, "ANGULAR_UNITS", "TRAJ");
 
         if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetUnits\n");
             }
             return -1;
@@ -112,11 +112,11 @@ static int loadTraj(EmcIniFile *trajInifile)
         trajInifile->Find(&vel, "DEFAULT_VELOCITY", "TRAJ");
 
         // set the corresponding global
-        TRAJ_DEFAULT_VELOCITY = vel;
+        traj_default_velocity = vel;
 
         // and set dynamic value
         if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetVelocity\n");
             }
             return -1;
@@ -126,11 +126,11 @@ static int loadTraj(EmcIniFile *trajInifile)
         trajInifile->Find(&vel, "MAX_VELOCITY", "TRAJ");
 
         // set the corresponding global
-        TRAJ_MAX_VELOCITY = vel;
+        traj_max_velocity = vel;
 
         // and set dynamic value
         if (0 != emcTrajSetMaxVelocity(vel)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetMaxVelocity\n");
             }
             return -1;
@@ -140,7 +140,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         trajInifile->Find(&acc, "DEFAULT_ACCELERATION", "TRAJ");
 
         if (0 != emcTrajSetAcceleration(acc)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetAcceleration\n");
             }
             return -1;
@@ -150,7 +150,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         trajInifile->Find(&acc, "MAX_ACCELERATION", "TRAJ");
 
         if (0 != emcTrajSetMaxAcceleration(acc)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
             }
             return -1;
@@ -232,7 +232,7 @@ static int loadTraj(EmcIniFile *trajInifile)
     }
 
     if (0 != emcTrajSetHome(homePose)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+	if (emc_debug & EMC_DEBUG_CONFIG) {
 	    rcs_print("bad return value from emcTrajSetHome\n");
 	}
 	return -1;

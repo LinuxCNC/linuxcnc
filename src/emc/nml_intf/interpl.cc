@@ -89,7 +89,7 @@ int NML_INTERP_LIST::append(NMLmsg & nml_msg)
 								   size %
 								   32), 1);
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP_LIST) {
+    if (emc_debug & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
 	    ("NML_INTERP_LIST::append(nml_msg{size=%ld,type=%s}) : list_size=%d, line_number=%d\n",
 	     nml_msg.size, emc_symbol_lookup(nml_msg.type),
@@ -159,7 +159,7 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
 								   size %
 								   32), 1);
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP_LIST) {
+    if (emc_debug & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
 	    ("NML_INTERP_LIST::append(nml_msg_ptr{size=%ld,type=%s}) : list_size=%d, line_number=%d\n",
 	     nml_msg_ptr->size, emc_symbol_lookup(nml_msg_ptr->type),

@@ -214,7 +214,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(operator_text_overloads, operator_text, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_display_overloads, operator_display, 1,2)
 
 
-static const char *ini_filename() { return EMC_INIFILE; }
+static const char *ini_filename() { return emc_inifile; }
 
 BOOST_PYTHON_MODULE(emctask) {
     using namespace boost::python;

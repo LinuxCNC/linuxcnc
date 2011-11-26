@@ -73,7 +73,7 @@ static int emcioNmlGet()
 	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoCommandBuffer =
 		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc",
-				    EMC_NMLFILE);
+				    emc_nmlfile);
 	    if (!emcIoCommandBuffer->valid()) {
 		delete emcIoCommandBuffer;
 		emcIoCommandBuffer = 0;
@@ -87,7 +87,7 @@ static int emcioNmlGet()
 
     if (emcIoCommandBuffer == 0) {
 	emcIoCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emc", emc_nmlfile);
 	if (!emcIoCommandBuffer->valid()) {
 	    delete emcIoCommandBuffer;
 	    emcIoCommandBuffer = 0;
@@ -102,7 +102,7 @@ static int emcioNmlGet()
 	while (start_time - etime() < EMCIO_BUFFER_GET_TIMEOUT) {
 	    emcIoStatusBuffer =
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc",
-				     EMC_NMLFILE);
+				     emc_nmlfile);
 	    if (!emcIoStatusBuffer->valid()) {
 		delete emcIoStatusBuffer;
 		emcIoStatusBuffer = 0;
@@ -120,7 +120,7 @@ static int emcioNmlGet()
 
     if (emcIoStatusBuffer == 0) {
 	emcIoStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc", EMC_NMLFILE);
+	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emc", emc_nmlfile);
 	if (!emcIoStatusBuffer->valid()
 	    || EMC_IO_STAT_TYPE != emcIoStatusBuffer->peek()) {
 	    delete emcIoStatusBuffer;
@@ -309,7 +309,7 @@ int emcTaskOnce(const char *filename)
     extern struct _inittab builtin_modules[];
 
     if (PythonPlugin::configure(filename, "PYTHON",  builtin_modules, &interp)) {
-	if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 	    rcs_print("emcTaskOnce: Python plugin configured");
 	}
     } else {
@@ -329,7 +329,7 @@ int emcTaskOnce(const char *filename)
 	    }
 	} catch( bp::error_already_set ) {
 	    std::string msg = handle_pyerror();
-	    if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 		// this really just means the task python backend wasnt configured.
 		rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
 	    }
@@ -338,7 +338,7 @@ int emcTaskOnce(const char *filename)
     }
  no_pytask:
     if (task_methods == NULL) {
-	if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+	if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 	    rcs_print("emcTaskOnce: no Python Task() instance available, using default iocontrol-based task methods\n");
 	}
 	task_methods = new Task();
@@ -443,7 +443,7 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 
     IniFile inifile;
 
-    ini_filename = EMC_INIFILE;
+    ini_filename = emc_inifile;
 
     if (inifile.Open(ini_filename)) {
 	use_iocontrol = (inifile.Find("EMCIO", "EMCIO") != NULL);
@@ -475,7 +475,7 @@ int Task::emcIoInit()
 	return -1;
     }
 
-    if (0 != iniTool(EMC_INIFILE)) {
+    if (0 != iniTool(emc_inifile)) {
 	return -1;
     }
     // send init command to emcio
@@ -737,7 +737,7 @@ int Task::emcIoUpdate(EMC_IO_STAT * stat)
 
 int Task::emcIoPluginCall(int len, const char *msg)
 {
-    if (EMC_DEBUG & EMC_DEBUG_PYTHON_TASK) {
+    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 	rcs_print("emcIoPluginCall(%d,%s) - no Python handler set\n",len,msg);
     }
     return 0;

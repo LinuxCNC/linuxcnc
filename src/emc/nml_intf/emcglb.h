@@ -29,40 +29,42 @@ extern "C" {
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
 #define EMC_MAX_AIO EMCMOT_MAX_AIO
 
-    extern char EMC_INIFILE[LINELEN];
+    extern char emc_inifile[LINELEN];
 
-    extern char EMC_NMLFILE[LINELEN];
+    extern char emc_nmlfile[LINELEN];
 
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
-    extern char RS274NGC_STARTUP_CODE[LINELEN];
+    extern char rs274ngc_startup_code[LINELEN];
 
 /* debug bitflags */
 /* Note: these may be hard-code referenced by the GUI (e.g., emcdebug.tcl).
    If you change the assignments here, make sure and reflect that in
    the GUI scripts that use these. Unfortunately there's no easy way to
    get these into Tk automatically */
-    extern int EMC_DEBUG;
+
+    // there's also an emc_Debug function in emc/usr_intf/emcsh.cc
+    extern int emc_debug;
 
     // EMC_DEBUG_* flag definitions moved to debugflags.h
 
-    extern double EMC_TASK_CYCLE_TIME;
+    extern double emc_task_cycle_time;	
 
-    extern double EMC_IO_CYCLE_TIME;
+    extern double emc_io_cycle_time;
 
-    extern int EMC_TASK_INTERP_MAX_LEN;
+    extern int emc_task_interp_max_len;
 
-    extern char TOOL_TABLE_FILE[LINELEN];
+    extern char tool_table_file[LINELEN];
 
-    extern double TRAJ_DEFAULT_VELOCITY;
-    extern double TRAJ_MAX_VELOCITY;
+    extern double traj_default_velocity;
+    extern double traj_max_velocity;
 
-    extern double AXIS_MAX_VELOCITY[EMC_AXIS_MAX];
-    extern double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX];
+    extern double axis_max_velocity[EMC_AXIS_MAX];
+    extern double axis_max_acceleration[EMC_AXIS_MAX];
 
-    extern struct EmcPose TOOL_CHANGE_POSITION;
-    extern unsigned char HAVE_TOOL_CHANGE_POSITION;
-    extern struct EmcPose TOOL_HOLDER_CLEAR;
-    extern unsigned char HAVE_TOOL_HOLDER_CLEAR;
+    extern struct EmcPose tool_change_position;
+    extern unsigned char have_tool_change_position;
+    extern struct EmcPose tool_holder_clear;
+    extern unsigned char have_tool_holder_clear;
 
 /*just used to keep track of unneccessary debug printing. */
     extern int taskplanopen;

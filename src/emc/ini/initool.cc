@@ -65,75 +65,75 @@ static int readToolChange(IniFile *toolInifile)
 	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
 	/* found an entry */
         if (9 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                        &TOOL_CHANGE_POSITION.tran.x,
-                        &TOOL_CHANGE_POSITION.tran.y,
-                        &TOOL_CHANGE_POSITION.tran.z,
-                        &TOOL_CHANGE_POSITION.a,
-                        &TOOL_CHANGE_POSITION.b,
-                        &TOOL_CHANGE_POSITION.c,
-                        &TOOL_CHANGE_POSITION.u,
-                        &TOOL_CHANGE_POSITION.v,
-                        &TOOL_CHANGE_POSITION.w)) {
-            HAVE_TOOL_CHANGE_POSITION=1;
+                        &tool_change_position.tran.x,
+                        &tool_change_position.tran.y,
+                        &tool_change_position.tran.z,
+                        &tool_change_position.a,
+                        &tool_change_position.b,
+                        &tool_change_position.c,
+                        &tool_change_position.u,
+                        &tool_change_position.v,
+                        &tool_change_position.w)) {
+            have_tool_change_position=1;
             retval=0;
         } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
-                        &TOOL_CHANGE_POSITION.tran.x,
-                        &TOOL_CHANGE_POSITION.tran.y,
-                        &TOOL_CHANGE_POSITION.tran.z,
-                        &TOOL_CHANGE_POSITION.a,
-                        &TOOL_CHANGE_POSITION.b,
-                        &TOOL_CHANGE_POSITION.c)) {
-	    TOOL_CHANGE_POSITION.u = 0.0;
-	    TOOL_CHANGE_POSITION.v = 0.0;
-	    TOOL_CHANGE_POSITION.w = 0.0;
-            HAVE_TOOL_CHANGE_POSITION = 1;
+                        &tool_change_position.tran.x,
+                        &tool_change_position.tran.y,
+                        &tool_change_position.tran.z,
+                        &tool_change_position.a,
+                        &tool_change_position.b,
+                        &tool_change_position.c)) {
+	    tool_change_position.u = 0.0;
+	    tool_change_position.v = 0.0;
+	    tool_change_position.w = 0.0;
+            have_tool_change_position = 1;
             retval = 0;
         } else if (3 == sscanf(inistring, "%lf %lf %lf",
-                               &TOOL_CHANGE_POSITION.tran.x,
-                               &TOOL_CHANGE_POSITION.tran.y,
-                               &TOOL_CHANGE_POSITION.tran.z)) {
+                               &tool_change_position.tran.x,
+                               &tool_change_position.tran.y,
+                               &tool_change_position.tran.z)) {
 	    /* read them OK */
-	    TOOL_CHANGE_POSITION.a = 0.0;
-	    TOOL_CHANGE_POSITION.b = 0.0;
-	    TOOL_CHANGE_POSITION.c = 0.0;
-	    TOOL_CHANGE_POSITION.u = 0.0;
-	    TOOL_CHANGE_POSITION.v = 0.0;
-	    TOOL_CHANGE_POSITION.w = 0.0;
-	    HAVE_TOOL_CHANGE_POSITION = 1;
+	    tool_change_position.a = 0.0;
+	    tool_change_position.b = 0.0;
+	    tool_change_position.c = 0.0;
+	    tool_change_position.u = 0.0;
+	    tool_change_position.v = 0.0;
+	    tool_change_position.w = 0.0;
+	    have_tool_change_position = 1;
 	    retval = 0;
 	} else {
 	    /* bad format */
 	    rcs_print("bad format for TOOL_CHANGE_POSITION\n");
-	    HAVE_TOOL_CHANGE_POSITION = 0;
+	    have_tool_change_position = 0;
 	    retval = -1;
 	}
     } else {
 	/* didn't find an entry */
-	HAVE_TOOL_CHANGE_POSITION = 0;
+	have_tool_change_position = 0;
     }
 
     if (NULL !=
 	(inistring = toolInifile->Find("TOOL_HOLDER_CLEAR", "EMCIO"))) {
 	/* found an entry */
 	if (3 == sscanf(inistring, "%lf %lf %lf",
-			&TOOL_HOLDER_CLEAR.tran.x,
-			&TOOL_HOLDER_CLEAR.tran.y,
-			&TOOL_HOLDER_CLEAR.tran.z)) {
+			&tool_holder_clear.tran.x,
+			&tool_holder_clear.tran.y,
+			&tool_holder_clear.tran.z)) {
 	    /* read them OK */
-	    TOOL_HOLDER_CLEAR.a = 0.0;	// not supporting ABC for now
-	    TOOL_HOLDER_CLEAR.b = 0.0;
-	    TOOL_HOLDER_CLEAR.c = 0.0;
-	    HAVE_TOOL_HOLDER_CLEAR = 1;
+	    tool_holder_clear.a = 0.0;	// not supporting ABC for now
+	    tool_holder_clear.b = 0.0;
+	    tool_holder_clear.c = 0.0;
+	    have_tool_holder_clear = 1;
 	    retval = 0;
 	} else {
 	    /* bad format */
 	    rcs_print("bad format for TOOL_HOLDER_CLEAR\n");
-	    HAVE_TOOL_HOLDER_CLEAR = 0;
+	    have_tool_holder_clear = 0;
 	    retval = -1;
 	}
     } else {
 	/* didn't find an entry */
-	HAVE_TOOL_HOLDER_CLEAR = 0;
+	have_tool_holder_clear = 0;
     }
 
     return retval;
@@ -170,7 +170,7 @@ int iniTool(const char *filename)
 
 int emcToolSetToolTableFile(const char *filename)
 {
-    strcpy(TOOL_TABLE_FILE, filename);
+    strcpy(tool_table_file, filename);
 
     return 0;
 }

@@ -215,7 +215,7 @@ static int emcIoNmlGet()
     /* Try to connect to EMC IO command buffer */
     if (emcioCommandBuffer == 0) {
 	emcioCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "tool", EMC_NMLFILE);
+	    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "tool", emc_nmlfile);
 	if (!emcioCommandBuffer->valid()) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "emcToolCmd buffer not available\n");
@@ -232,7 +232,7 @@ static int emcIoNmlGet()
     if (emcioStatusBuffer == 0) {
 	emcioStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "tool",
-				 EMC_NMLFILE);
+				 emc_nmlfile);
 	if (!emcioStatusBuffer->valid()) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "toolSts buffer not available\n");
@@ -252,7 +252,7 @@ static int emcIoNmlGet()
     /* try to connect to EMC error buffer */
     if (emcErrorBuffer == 0) {
 	emcErrorBuffer =
-	    new NML(nmlErrorFormat, "emcError", "tool", EMC_NMLFILE);
+	    new NML(nmlErrorFormat, "emcError", "tool", emc_nmlfile);
 	if (!emcErrorBuffer->valid()) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "emcError buffer not available\n");
@@ -278,20 +278,20 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	/* copy to global */
-	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
-	    EMC_DEBUG = 0;
+	if (1 != sscanf(inistring, "%i", &emc_debug)) {
+	    emc_debug = 0;
 	}
     } else {
 	/* not found, use default */
-	EMC_DEBUG = 0;
+	emc_debug = 0;
     }
 
     // make it verbose if debugging RCS
-    if (EMC_DEBUG & EMC_DEBUG_IOCONTROL) {
+    if (emc_debug & EMC_DEBUG_IOCONTROL) {
 	rtapi_set_msg_level(RTAPI_MSG_DBG);
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_VERSIONS) {
+    if (emc_debug & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
 	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
 		strncpy(version, "unknown", LINELEN-1);
@@ -309,28 +309,28 @@ static int iniLoad(const char *filename)
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-	strcpy(EMC_NMLFILE, inistring);
+	strcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
 
     double temp;
-    temp = EMC_IO_CYCLE_TIME;
+    temp = emc_io_cycle_time;
     if (NULL != (inistring = inifile.Find("CYCLE_TIME", "EMCIO"))) {
-	if (1 == sscanf(inistring, "%lf", &EMC_IO_CYCLE_TIME)) {
+	if (1 == sscanf(inistring, "%lf", &emc_io_cycle_time)) {
 	    // found it
 	} else {
 	    // found, but invalid
-	    EMC_IO_CYCLE_TIME = temp;
+	    emc_io_cycle_time = temp;
 	    rtapi_print
 		("invalid [EMCIO] CYCLE_TIME in %s (%s); using default %f\n",
-		 filename, inistring, EMC_IO_CYCLE_TIME);
+		 filename, inistring, emc_io_cycle_time);
 	}
     } else {
 	// not found, using default
 	rtapi_print
 	    ("[EMCIO] CYCLE_TIME not found in %s; using default %f\n",
-	     filename, EMC_IO_CYCLE_TIME);
+	     filename, emc_io_cycle_time);
     }
 
     inifile.Find(&proto, "PROTOCOL_VERSION", "EMCIO");
@@ -368,7 +368,7 @@ static int saveToolTable(const char *filename,
 
     // check filename
     if (filename[0] == 0) {
-	name = TOOL_TABLE_FILE;
+	name = tool_table_file;
     } else {
 	// point to name provided
 	name = filename;
@@ -556,7 +556,7 @@ void load_tool(int pocket) {
 	ttcomments[0] = ttcomments[pocket];
 	ttcomments[pocket] = comment_temp;
 
-	if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
+	if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable))
 	    emcioStatus.status = RCS_ERROR;
     } else if (pocket == 0) {
 	// magic T0 = pocket 0 = no tool
@@ -813,7 +813,7 @@ int main(int argc, char *argv[])
 		    rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
 		    return -1;
 		}
-		strcpy(EMC_INIFILE, argv[t + 1]);
+		strcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
@@ -826,8 +826,8 @@ int main(int argc, char *argv[])
     /* catch SIGTERM too - the run script uses it to shut things down */
     signal(SIGTERM, quit);
 
-    if (0 != iniLoad(EMC_INIFILE)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "%s: can't open ini file %s\n",progname,EMC_INIFILE);
+    if (0 != iniLoad(emc_inifile)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: can't open ini file %s\n",progname,emc_inifile);
 	exit(-1);
     }
 
@@ -840,11 +840,11 @@ int main(int argc, char *argv[])
 
     if (0 != emcIoNmlGet()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s:can't connect to NML buffers in %s\n",progname,EMC_INIFILE);
+			"%s:can't connect to NML buffers in %s\n",progname,emc_inifile);
 	exit(-1);
     }
     // used only for getting TOOL_TABLE_FILE out of the ini file
-    if (0 != iniTool(EMC_INIFILE)) {
+    if (0 != iniTool(emc_inifile)) {
 	rcs_print_error("%s: iniTool failed.\n",progname);
 	exit(-1);
     }
@@ -865,7 +865,7 @@ int main(int argc, char *argv[])
 	ttcomments[0][0] = '\0';
     }
 
-    if (0 != loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
+    if (0 != loadToolTable(tool_table_file, emcioStatus.tool.toolTable,
 			   fms, ttcomments, random_toolchanger)) {
 	rcs_print_error("%s: can't load tool table.\n",progname);
     }
@@ -932,7 +932,7 @@ int main(int argc, char *argv[])
 	/* read NML, run commands */
 	if (-1 == emcioCommandBuffer->read()) {
 	    /* bad command, wait until next cycle */
-	    esleep(EMC_IO_CYCLE_TIME);
+	    esleep(emc_io_cycle_time);
 	    /* and repeat */
 	    continue;
 	}
@@ -941,7 +941,7 @@ int main(int argc, char *argv[])
 	    0 == emcioCommand->type ||	// bad command type
 	    emcioCommand->serial_number == emcioStatus.echo_serial_number) {	// command already finished
 	    /* wait until next cycle */
-	    esleep(EMC_IO_CYCLE_TIME);
+	    esleep(emc_io_cycle_time);
 	    /* and repeat */
 	    continue;
 	}
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_INIT\n");
-	    loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
+	    loadToolTable(tool_table_file, emcioStatus.tool.toolTable,
 			  fms, ttcomments, random_toolchanger);
 	    reload_tool_number(emcioStatus.tool.toolInSpindle);
 	    break;
@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
 	{
 	    const char *filename =
 		((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file;
-	    if (!strlen(filename)) filename = TOOL_TABLE_FILE;
+	    if (!strlen(filename)) filename = tool_table_file;
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
 	    if (0 != loadToolTable(filename, emcioStatus.tool.toolTable,
 				   fms, ttcomments, random_toolchanger))
@@ -1124,7 +1124,7 @@ int main(int argc, char *argv[])
 		emcioStatus.tool.toolTable[0] = emcioStatus.tool.toolTable[p];
 	    }
 	}
-	if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
+	if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable))
 	    emcioStatus.status = RCS_ERROR;
 	break;
 
@@ -1203,7 +1203,7 @@ int main(int argc, char *argv[])
 
 	case EMC_SET_DEBUG_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_SET_DEBUG\n");
-	    EMC_DEBUG = ((EMC_SET_DEBUG *) emcioCommand)->debug;
+	    emc_debug = ((EMC_SET_DEBUG *) emcioCommand)->debug;
 	    break;
 
 	default:
@@ -1218,7 +1218,7 @@ int main(int argc, char *argv[])
 	emcioStatus.reason = toolchanger_reason;  // always piggyback current fault code
 	emcioStatusBuffer->write(&emcioStatus);
 
-	esleep(EMC_IO_CYCLE_TIME);
+	esleep(emc_io_cycle_time);
 	/* clear reset line to allow for a later rising edge */
 	*(iocontrol_data->user_request_enable) = 0;
 

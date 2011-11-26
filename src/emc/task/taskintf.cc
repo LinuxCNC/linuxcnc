@@ -284,7 +284,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 	vel = 0.0;
     }
 
-    AXIS_MAX_VELOCITY[axis] = vel;
+    axis_max_velocity[axis] = vel;
 
     emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
     emcmotCommand.axis = axis;
@@ -301,7 +301,7 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     if (acc < 0.0) {
 	acc = 0.0;
     }
-    AXIS_MAX_ACCELERATION[axis] = acc;
+    axis_max_acceleration[axis] = acc;
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.acc = acc;
@@ -338,13 +338,13 @@ int emcAxisInit(int axis)
     }
     // init emcmot interface
     if (!AxisOrTrajInited()) {
-	usrmotIniLoad(EMC_INIFILE);
+	usrmotIniLoad(emc_inifile);
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
     emcmotAxisInited[axis] = 1;
-    if (0 != iniAxis(axis, EMC_INIFILE)) {
+    if (0 != iniAxis(axis, emc_inifile)) {
 	retval = -1;
     }
     return retval;
@@ -358,7 +358,7 @@ int emcAxisHalt(int axis)
     /*! \todo FIXME-- refs global emcStatus; should make EMC_AXIS_STAT an arg here */
     if (NULL != emcStatus && emcmotion_initialized
 	&& emcmotAxisInited[axis]) {
-	dumpAxis(axis, EMC_INIFILE, &emcStatus->motion.axis[axis]);
+	dumpAxis(axis, emc_inifile, &emcStatus->motion.axis[axis]);
     }
     emcmotAxisInited[axis] = 0;
 
@@ -471,10 +471,10 @@ int emcAxisJog(int axis, double vel)
 	return 0;
     }
 
-    if (vel > AXIS_MAX_VELOCITY[axis]) {
-	vel = AXIS_MAX_VELOCITY[axis];
-    } else if (vel < -AXIS_MAX_VELOCITY[axis]) {
-	vel = -AXIS_MAX_VELOCITY[axis];
+    if (vel > axis_max_velocity[axis]) {
+	vel = axis_max_velocity[axis];
+    } else if (vel < -axis_max_velocity[axis]) {
+	vel = -axis_max_velocity[axis];
     }
 
     emcmotCommand.command = EMCMOT_JOG_CONT;
@@ -490,10 +490,10 @@ int emcAxisIncrJog(int axis, double incr, double vel)
 	return 0;
     }
 
-    if (vel > AXIS_MAX_VELOCITY[axis]) {
-	vel = AXIS_MAX_VELOCITY[axis];
-    } else if (vel < -AXIS_MAX_VELOCITY[axis]) {
-	vel = -AXIS_MAX_VELOCITY[axis];
+    if (vel > axis_max_velocity[axis]) {
+	vel = axis_max_velocity[axis];
+    } else if (vel < -axis_max_velocity[axis]) {
+	vel = -axis_max_velocity[axis];
     }
 
     emcmotCommand.command = EMCMOT_JOG_INCR;
@@ -510,10 +510,10 @@ int emcAxisAbsJog(int axis, double pos, double vel)
 	return 0;
     }
 
-    if (vel > AXIS_MAX_VELOCITY[axis]) {
-	vel = AXIS_MAX_VELOCITY[axis];
-    } else if (vel < -AXIS_MAX_VELOCITY[axis]) {
-	vel = -AXIS_MAX_VELOCITY[axis];
+    if (vel > axis_max_velocity[axis]) {
+	vel = axis_max_velocity[axis];
+    } else if (vel < -axis_max_velocity[axis]) {
+	vel = -axis_max_velocity[axis];
     }
 
     emcmotCommand.command = EMCMOT_JOG_ABS;
@@ -704,14 +704,14 @@ int emcTrajSetVelocity(double vel, double ini_maxvel)
 
     if (vel < 0.0) {
 	vel = 0.0;
-    } else if (vel > TRAJ_MAX_VELOCITY) {
-	vel = TRAJ_MAX_VELOCITY;
+    } else if (vel > traj_max_velocity) {
+	vel = traj_max_velocity;
     }
 
     if (ini_maxvel < 0.0) {
 	    ini_maxvel = 0.0;
-    } else if (vel > TRAJ_MAX_VELOCITY) {
-	    ini_maxvel = TRAJ_MAX_VELOCITY;
+    } else if (vel > traj_max_velocity) {
+	    ini_maxvel = traj_max_velocity;
     }
 
     emcmotCommand.command = EMCMOT_SET_VEL;
@@ -747,7 +747,7 @@ int emcTrajSetMaxVelocity(double vel)
 	vel = 0.0;
     }
 
-    TRAJ_MAX_VELOCITY = vel;
+    traj_max_velocity = vel;
 
     emcmotCommand.command = EMCMOT_SET_VEL_LIMIT;
     emcmotCommand.vel = vel;
@@ -846,7 +846,7 @@ int emcTrajSetAFEnable(unsigned char enable)
 int emcTrajSetMotionId(int id)
 {
 
-    if (EMC_DEBUG_MOTION_TIME & EMC_DEBUG) {
+    if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (id != localEmcTrajMotionId) {
 	    rcs_print("Outgoing motion id is %d.\n", id);
 	}
@@ -863,14 +863,14 @@ int emcTrajInit()
 
     // init emcmot interface
     if (!AxisOrTrajInited()) {
-	usrmotIniLoad(EMC_INIFILE);
+	usrmotIniLoad(emc_inifile);
 	if (0 != usrmotInit("emc2_task")) {
 	    return -1;
 	}
     }
     emcmotTrajInited = 1;
     // initialize parameters from ini file
-    if (0 != iniTraj(EMC_INIFILE)) {
+    if (0 != iniTraj(emc_inifile)) {
 	retval = -1;
     }
     return retval;
@@ -1131,7 +1131,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->distance_to_go = emcmotStatus.distance_to_go;
     stat->dtg = emcmotStatus.dtg;
     stat->current_vel = emcmotStatus.current_vel;
-    if (EMC_DEBUG_MOTION_TIME & EMC_DEBUG) {
+    if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (stat->id != last_id) {
 	    if (last_id != last_id_printed) {
 		rcs_print("Motion id %d took %f seconds.\n", last_id,
@@ -1163,7 +1163,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	stat->status = RCS_EXEC;
     }
 
-    if (EMC_DEBUG_MOTION_TIME & EMC_DEBUG) {
+    if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (stat->status == RCS_DONE && last_status != RCS_DONE
 	    && stat->id != last_id_printed) {
 	    rcs_print("Motion id %d took %f seconds.\n", last_id,
@@ -1201,7 +1201,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 int emcPositionLoad() {
     double positions[EMCMOT_MAX_JOINTS];
     IniFile ini;
-    ini.Open(EMC_INIFILE);
+    ini.Open(emc_inifile);
     const char *posfile = ini.Find("POSITION_FILE", "TRAJ");
     ini.Close();
     if(!posfile || !posfile[0]) return 0;
@@ -1224,7 +1224,7 @@ int emcPositionSave() {
     IniFile ini;
     const char *posfile;
 
-    ini.Open(EMC_INIFILE);
+    ini.Open(emc_inifile);
     try {
         posfile = ini.Find("POSITION_FILE", "TRAJ");
     } catch (IniFile::Exception e) {

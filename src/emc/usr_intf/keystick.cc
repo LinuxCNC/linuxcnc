@@ -1337,7 +1337,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC cmd
   if (emcCommandBuffer == 0)
     {
-      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "keystick", EMC_NMLFILE);
+      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "keystick", emc_nmlfile);
       if (! emcCommandBuffer->valid())
         {
           rcs_print_error("emcCommand buffer not available\n");
@@ -1350,7 +1350,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC status
   if (emcStatusBuffer == 0)
     {
-      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "keystick", EMC_NMLFILE);
+      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "keystick", emc_nmlfile);
       if (! emcStatusBuffer->valid() ||
           EMC_STAT_TYPE != emcStatusBuffer->peek())
         {
@@ -1375,7 +1375,7 @@ static int emcErrorNmlGet()
 
   if (emcErrorBuffer == 0)
     {
-      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "keystick", EMC_NMLFILE);
+      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "keystick", emc_nmlfile);
       if (! emcErrorBuffer->valid())
         {
           rcs_print_error("emcError buffer not available\n");
@@ -1434,14 +1434,14 @@ static int iniLoad(const char *filename)
 
   if ((inistring = inifile.Find("MAX_VELOCITY", "TRAJ")))
     {
-      if (1 != sscanf(inistring, "%lf", &TRAJ_MAX_VELOCITY))
+      if (1 != sscanf(inistring, "%lf", &traj_max_velocity))
         {
-          TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
+          traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
         }
     }
   else
     {
-      TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
+      traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
     }
 
   if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
@@ -1558,7 +1558,7 @@ int tryNml()
 #define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
 #define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
 
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
 	// messages
     }
@@ -1572,7 +1572,7 @@ int tryNml()
 	esleep(RETRY_INTERVAL);
 	end -= RETRY_INTERVAL;
     } while (end > 0.0);
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
 	// messages
     }
@@ -1580,7 +1580,7 @@ int tryNml()
 	return -1;
     }
 
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
 	// messages
     }
@@ -1594,7 +1594,7 @@ int tryNml()
 	esleep(RETRY_INTERVAL);
 	end -= RETRY_INTERVAL;
     } while (end > 0.0);
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
 	// messages
     }
@@ -1644,7 +1644,7 @@ int main(int argc, char *argv[])
             }
           else
             {
-              strcpy(EMC_NMLFILE, argv[t+1]);
+              strcpy(emc_nmlfile, argv[t+1]);
               t++;              // step over nmlfile
               continue;
             }
@@ -1660,7 +1660,7 @@ int main(int argc, char *argv[])
             }
           else
             {
-              strcpy(EMC_INIFILE, argv[t+1]);
+              strcpy(emc_inifile, argv[t+1]);
               t++;              // step over inifile
               continue;
             }
@@ -1728,7 +1728,7 @@ int main(int argc, char *argv[])
     }
 
   // read INI file
-  iniLoad(EMC_INIFILE);
+  iniLoad(emc_inifile);
 
   // trap SIGINT
   signal(SIGINT, quit);
@@ -2689,9 +2689,9 @@ int main(int argc, char *argv[])
           else
             {
               jogSpeed += 1;
-              if (jogSpeed > TRAJ_MAX_VELOCITY * 60.0)
+              if (jogSpeed > traj_max_velocity * 60.0)
                 {
-                  jogSpeed = TRAJ_MAX_VELOCITY * 60.0;
+                  jogSpeed = traj_max_velocity * 60.0;
                 }
             }
           break;

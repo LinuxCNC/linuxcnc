@@ -81,7 +81,7 @@ int emcTaskInit()
     IniFile inifile;
     const char *inistring;
 
-    inifile.Open(EMC_INIFILE);
+    inifile.Open(emc_inifile);
 
     // Identify user_defined_function directories
     if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
@@ -127,14 +127,14 @@ int emcTaskInit()
 		    snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
 			     "%s/M1%%02d", mdir[dct]); // update global
 		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
-		    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: adding user-defined function %s\n",
 			     path);
 		    }
 	            user_defined_function_dirindex[num] = dct;
 	            break; // use first occurrence found for num
 	        } else {
-		    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+		    if (emc_debug & EMC_DEBUG_CONFIG) {
 		        rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
 			     path);
 		    }
@@ -177,7 +177,7 @@ int emcTaskAbort()
     {
 	int was_open = taskplanopen;
 	emcTaskPlanClose();
-	if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+	if (emc_debug & EMC_DEBUG_INTERP && was_open) {
 	    rcs_print("emcTaskPlanClose() called at %s:%d\n", __FILE__,
 		      __LINE__);
 	}
@@ -366,7 +366,7 @@ static void print_interp_error(int retval)
     }
     emcOperatorError(0, "%s", interp_error_text_buf);
     index = 0;
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
 	rcs_print("Interpreter stack: \t");
 	while (index < 5) {
 	    interp_stack_buf[0] = 0;
@@ -384,15 +384,15 @@ static void print_interp_error(int retval)
 int emcTaskPlanInit()
 {
     //    _is = &interp._setup;  // FIXME
-    interp.ini_load(EMC_INIFILE);
+    interp.ini_load(emc_inifile);
     waitFlag = 0;
 
     int retval = interp.init();
     if (retval > INTERP_MIN_ERROR) {  // I'd think this should be fatal.
 	print_interp_error(retval);
     } else {
-	if (0 != RS274NGC_STARTUP_CODE[0]) {
-	    retval = interp.execute(RS274NGC_STARTUP_CODE);
+	if (0 != rs274ngc_startup_code[0]) {
+	    retval = interp.execute(rs274ngc_startup_code);
 	    while (retval == INTERP_EXECUTE_FINISH) {
 		retval = interp.execute(0);
 	    }
@@ -402,7 +402,7 @@ int emcTaskPlanInit()
 	}
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanInit() returned %d\n", retval);
     }
 
@@ -413,7 +413,7 @@ int emcTaskPlanSetWait()
 {
     waitFlag = 1;
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanSetWait() called\n");
     }
 
@@ -429,7 +429,7 @@ int emcTaskPlanClearWait()
 {
     waitFlag = 0;
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanClearWait() called\n");
     }
 
@@ -452,7 +452,7 @@ int emcTaskPlanSynch()
 {
     int retval = interp.synch();
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanSynch() returned %d\n", retval);
     }
 
@@ -479,7 +479,7 @@ int emcTaskPlanOpen(const char *file)
     }
     taskplanopen = 1;
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanOpen(%s) returned %d\n", file, retval);
     }
 
@@ -503,7 +503,7 @@ int emcTaskPlanRead()
 	print_interp_error(retval);
     }
     
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanRead() returned %d\n", retval);
     }
     
@@ -528,7 +528,7 @@ int emcTaskPlanExecute(const char *command)
 	FINISH();
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanExecute(0) return %d\n", retval);
     }
 
@@ -545,7 +545,7 @@ int emcTaskPlanExecute(const char *command, int line_number)
 	FINISH();
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanExecute(%s) returned %d\n", command, retval);
     }
 
@@ -577,7 +577,7 @@ int emcTaskPlanLine()
 {
     int retval = interp.line();
     
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanLine() returned %d\n", retval);
     }
 
@@ -588,7 +588,7 @@ int emcTaskPlanLevel()
 {
     int retval = interp.call_level();
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanLevel() returned %d\n", retval);
     }
 
@@ -601,7 +601,7 @@ int emcTaskPlanCommand(char *cmd)
 
     strcpy(cmd, interp.command(buf, LINELEN));
 
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+    if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanCommand(%s) called. (line_number=%d)\n",
           cmd, emcStatus->task.readLine);
     }

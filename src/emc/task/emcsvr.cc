@@ -44,21 +44,21 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	// copy to global
-	if (1 != sscanf(inistring, "%x", &EMC_DEBUG)) {
-	    EMC_DEBUG = 0;
+	if (1 != sscanf(inistring, "%x", &emc_debug)) {
+	    emc_debug = 0;
 	}
     } else {
 	// not found, use default
-	EMC_DEBUG = 0;
+	emc_debug = 0;
     }
-    if (EMC_DEBUG & EMC_DEBUG_RCS) {
+    if (emc_debug & EMC_DEBUG_RCS) {
 	set_rcs_print_flag(PRINT_EVERYTHING);
 	max_rcs_errors_to_print = -1;
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(EMC_NMLFILE, inistring);
+	strcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // get configuration information
-    iniLoad(EMC_INIFILE);
+    iniLoad(emc_inifile);
 
     set_rcs_print_destination(RCS_PRINT_TO_NULL);
 
@@ -103,28 +103,28 @@ int main(int argc, char *argv[])
 	    rcs_print("emcCommandChannel==NULL, attempt to create\n");
 	    emcCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
-				    EMC_NMLFILE);
+				    emc_nmlfile);
 	}
 	if (NULL == emcStatusChannel) {
 	    rcs_print("emcStatusChannel==NULL, attempt to create\n");
 	    emcStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
-				     EMC_NMLFILE);
+				     emc_nmlfile);
 	}
 	if (NULL == emcErrorChannel) {
 	    emcErrorChannel =
-		new NML(nmlErrorFormat, "emcError", "emcsvr", EMC_NMLFILE);
+		new NML(nmlErrorFormat, "emcError", "emcsvr", emc_nmlfile);
 	}
 	if (tool_channels) {
 	    if (NULL == toolCommandChannel) {
 		toolCommandChannel =
 		    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-					EMC_NMLFILE);
+					emc_nmlfile);
 	    }
 	    if (NULL == toolStatusChannel) {
 		toolStatusChannel =
 		    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-					 EMC_NMLFILE);
+					 emc_nmlfile);
 	    }
 	}
 
@@ -158,27 +158,27 @@ int main(int argc, char *argv[])
     if (NULL == emcCommandChannel) {
 	emcCommandChannel =
 	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
-				EMC_NMLFILE);
+				emc_nmlfile);
     }
     if (NULL == emcStatusChannel) {
 	emcStatusChannel =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
-				 EMC_NMLFILE);
+				 emc_nmlfile);
     }
     if (NULL == emcErrorChannel) {
 	emcErrorChannel =
-	    new NML(nmlErrorFormat, "emcError", "emcsvr", EMC_NMLFILE);
+	    new NML(nmlErrorFormat, "emcError", "emcsvr", emc_nmlfile);
     }
     if (tool_channels) {
 	if (NULL == toolCommandChannel) {
 	    toolCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-				    EMC_NMLFILE);
+				    emc_nmlfile);
 	}
 	if (NULL == toolStatusChannel) {
 	    toolStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-				     EMC_NMLFILE);
+				     emc_nmlfile);
 	}
     }
     run_nml_servers();

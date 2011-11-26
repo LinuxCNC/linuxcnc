@@ -617,12 +617,12 @@ double getStraightAcceleration(double x, double y, double z,
 
     // Pure linear move:
     if (cartesian_move && !angular_move) {
-	tx = dx? (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0])): 0.0;
-	ty = dy? (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1])): 0.0;
-	tz = dz? (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2])): 0.0;
-	tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
-	tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
-	tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+	tx = dx? (dx / FROM_EXT_LEN(axis_max_acceleration[0])): 0.0;
+	ty = dy? (dy / FROM_EXT_LEN(axis_max_acceleration[1])): 0.0;
+	tz = dz? (dz / FROM_EXT_LEN(axis_max_acceleration[2])): 0.0;
+	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
+	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
+	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
         tmax = MAX3(tx, ty ,tz);
         tmax = MAX4(tu, tv, tw, tmax);
 
@@ -637,9 +637,9 @@ double getStraightAcceleration(double x, double y, double z,
     }
     // Pure angular move:
     else if (!cartesian_move && angular_move) {
-	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+	ta = da? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
+	tb = db? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
+	tc = dc? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
         tmax = MAX3(ta, tb, tc);
 
 	dtot = sqrt(da * da + db * db + dc * dc);
@@ -649,15 +649,15 @@ double getStraightAcceleration(double x, double y, double z,
     }
     // Combination angular and linear move:
     else if (cartesian_move && angular_move) {
-	tx = dx? (dx / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0])): 0.0;
-	ty = dy? (dy / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1])): 0.0;
-	tz = dz? (dz / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2])): 0.0;
-	ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-	tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-	tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
-	tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
-	tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
-	tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+	tx = dx? (dx / FROM_EXT_LEN(axis_max_acceleration[0])): 0.0;
+	ty = dy? (dy / FROM_EXT_LEN(axis_max_acceleration[1])): 0.0;
+	tz = dz? (dz / FROM_EXT_LEN(axis_max_acceleration[2])): 0.0;
+	ta = da? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
+	tb = db? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
+	tc = dc? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
+	tu = du? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
+	tv = dv? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
+	tw = dw? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
         tmax = MAX9(tx, ty, tz,
                     ta, tb, tc,
                     tu, tv, tw);
@@ -735,12 +735,12 @@ double getStraightVelocity(double x, double y, double z,
 
     // Pure linear move:
     if (cartesian_move && !angular_move) {
-	tx = dx? fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0])): 0.0;
-	ty = dy? fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1])): 0.0;
-	tz = dz? fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2])): 0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
+	tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+	ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+	tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+	tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+	tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+	tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
         tmax = MAX3(tx, ty ,tz);
         tmax = MAX4(tu, tv, tw, tmax);
 
@@ -757,9 +757,9 @@ double getStraightVelocity(double x, double y, double z,
     }
     // Pure angular move:
     else if (!cartesian_move && angular_move) {
-	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
+	ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
+	tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
+	tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
         tmax = MAX3(ta, tb, tc);
 
 	dtot = sqrt(da * da + db * db + dc * dc);
@@ -771,15 +771,15 @@ double getStraightVelocity(double x, double y, double z,
     }
     // Combination angular and linear move:
     else if (cartesian_move && angular_move) {
-	tx = dx? fabs(dx / FROM_EXT_LEN(AXIS_MAX_VELOCITY[0])): 0.0;
-	ty = dy? fabs(dy / FROM_EXT_LEN(AXIS_MAX_VELOCITY[1])): 0.0;
-	tz = dz? fabs(dz / FROM_EXT_LEN(AXIS_MAX_VELOCITY[2])): 0.0;
-	ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
-	tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
-	tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
-	tu = du? fabs(du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
-	tv = dv? fabs(dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
-	tw = dw? fabs(dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
+	tx = dx? fabs(dx / FROM_EXT_LEN(axis_max_velocity[0])): 0.0;
+	ty = dy? fabs(dy / FROM_EXT_LEN(axis_max_velocity[1])): 0.0;
+	tz = dz? fabs(dz / FROM_EXT_LEN(axis_max_velocity[2])): 0.0;
+	ta = da? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
+	tb = db? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
+	tc = dc? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
+	tu = du? fabs(du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+	tv = dv? fabs(dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+	tw = dw? fabs(dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
         tmax = MAX9(tx, ty, tz,
                     ta, tb, tc,
                     tu, tv, tw);
@@ -1394,15 +1394,15 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.y - center.y);
         axis_len = fabs(end.tran.z - canonEndPoint.z);
 
-	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
-	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
-	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+	v1 = FROM_EXT_LEN(axis_max_velocity[0]);
+	v2 = FROM_EXT_LEN(axis_max_velocity[1]);
+	a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
+	a2 = FROM_EXT_LEN(axis_max_acceleration[1]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
         if(axis_valid(2) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[2]);
+            axial_acc = a1 = FROM_EXT_LEN(axis_max_acceleration[2]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1430,15 +1430,15 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.y - center.y, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.x - canonEndPoint.x);
 
-	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
-	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+	v1 = FROM_EXT_LEN(axis_max_velocity[1]);
+	v2 = FROM_EXT_LEN(axis_max_velocity[2]);
+	a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
+	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
         if(axis_valid(0) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
-            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
+            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[0]);
+            axial_acc = a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1467,15 +1467,15 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.y - canonEndPoint.y);
 
-	v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
-	v2 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
-	a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
-	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
+	v1 = FROM_EXT_LEN(axis_max_velocity[0]);
+	v2 = FROM_EXT_LEN(axis_max_velocity[2]);
+	a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
+	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
         if(axis_valid(1) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
-            axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
+            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[1]);
+            axial_acc = a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1491,13 +1491,13 @@ void ARC_FEED(int line_number,
     helical_length = hypot(angle * radius, axis_len);
 
 // COMPUTE VELOCITIES
-    ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
-    tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
-    tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
+    ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
+    tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
+    tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
                            
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
+    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
 
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     v1 = sqrt(circ_acc * radius);
@@ -1536,13 +1536,13 @@ void ARC_FEED(int line_number,
     // expression of the acceleration in the various directions.
 
     thelix = (helical_length / acc);
-    ta = (axis_valid(3) && da)? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-    tb = (axis_valid(4) && db)? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-    tc = (axis_valid(5) && dc)? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+    ta = (axis_valid(3) && da)? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
+    tb = (axis_valid(4) && db)? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
+    tc = (axis_valid(5) && dc)? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
 
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
 
     tmax = MAX4(thelix, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
@@ -1859,18 +1859,18 @@ void CHANGE_TOOL(int slot)
      * move to a particular coordinate before the tool change
      * is called.  */
     
-    if (HAVE_TOOL_CHANGE_POSITION) {
+    if (have_tool_change_position) {
         double vel, acc, x, y, z, a, b, c, u, v, w;
 
-        x = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.x);
-        y = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.y);
-        z = FROM_EXT_LEN(TOOL_CHANGE_POSITION.tran.z);
-        a = FROM_EXT_ANG(TOOL_CHANGE_POSITION.a);
-        b = FROM_EXT_ANG(TOOL_CHANGE_POSITION.b);
-        c = FROM_EXT_ANG(TOOL_CHANGE_POSITION.c);
-        u = FROM_EXT_LEN(TOOL_CHANGE_POSITION.u);
-        v = FROM_EXT_LEN(TOOL_CHANGE_POSITION.v);
-        w = FROM_EXT_LEN(TOOL_CHANGE_POSITION.w);
+        x = FROM_EXT_LEN(tool_change_position.tran.x);
+        y = FROM_EXT_LEN(tool_change_position.tran.y);
+        z = FROM_EXT_LEN(tool_change_position.tran.z);
+        a = FROM_EXT_ANG(tool_change_position.a);
+        b = FROM_EXT_ANG(tool_change_position.b);
+        c = FROM_EXT_ANG(tool_change_position.c);
+        u = FROM_EXT_LEN(tool_change_position.u);
+        v = FROM_EXT_LEN(tool_change_position.v);
+        w = FROM_EXT_LEN(tool_change_position.w);
 
 
         vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);

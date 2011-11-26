@@ -421,7 +421,7 @@ static int emcTaskNmlGet()
     if (emcCommandBuffer == 0) {
 	emcCommandBuffer =
 	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
-				EMC_NMLFILE);
+				emc_nmlfile);
 	if (!emcCommandBuffer->valid()) {
 	    delete emcCommandBuffer;
 	    emcCommandBuffer = 0;
@@ -432,7 +432,7 @@ static int emcTaskNmlGet()
     if (emcStatusBuffer == 0) {
 	emcStatusBuffer =
 	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
-				 EMC_NMLFILE);
+				 emc_nmlfile);
 	if (!emcStatusBuffer->valid()) {
 	    delete emcStatusBuffer;
 	    emcStatusBuffer = 0;
@@ -452,7 +452,7 @@ static int emcErrorNmlGet()
 
     if (emcErrorBuffer == 0) {
 	emcErrorBuffer =
-	    new NML(nmlErrorFormat, "emcError", "xemc", EMC_NMLFILE);
+	    new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
 	if (!emcErrorBuffer->valid()) {
 	    delete emcErrorBuffer;
 	    emcErrorBuffer = 0;
@@ -470,7 +470,7 @@ static int tryNml()
 #define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
 #define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
 
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
 	// messages
     }
@@ -484,7 +484,7 @@ static int tryNml()
 	esleep(RETRY_INTERVAL);
 	end -= RETRY_INTERVAL;
     } while (end > 0.0);
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
 	// messages
     }
@@ -492,7 +492,7 @@ static int tryNml()
 	return -1;
     }
 
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
 	// messages
     }
@@ -506,7 +506,7 @@ static int tryNml()
 	esleep(RETRY_INTERVAL);
 	end -= RETRY_INTERVAL;
     } while (end > 0.0);
-    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
+    if ((emc_debug & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
 	// messages
     }
@@ -1519,17 +1519,17 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
 	// copy to global
-	if (1 != sscanf(inistring, "%i", &EMC_DEBUG)) {
-	    EMC_DEBUG = 0;
+	if (1 != sscanf(inistring, "%i", &emc_debug)) {
+	    emc_debug = 0;
 	}
     } else {
 	// not found, use default
-	EMC_DEBUG = 0;
+	emc_debug = 0;
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(EMC_NMLFILE, inistring);
+	strcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -2126,7 +2126,7 @@ int main(int argc, char *argv[])
     }
 
     // get configuration information
-    if (0 != iniLoad(EMC_INIFILE)) {
+    if (0 != iniLoad(emc_inifile)) {
 	rcs_print_error("iniLoad error\n");
 	exit(2);
     }
