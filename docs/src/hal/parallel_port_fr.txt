@@ -56,7 +56,7 @@ Cet exemple installe les pilotes pour un port 0x0278, avec les broches 2 à 9 en
 
 .Diagrammes blocs de parport[[fig:Parport-block-diag]]
 
-image::parport-block-diag.eps[]
+image::images/parport-block-diag.png[]
 
 === Pins
 
