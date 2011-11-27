@@ -121,7 +121,7 @@ C'est une erreur si:
 |G10 L11       | Modifie valeurs de l'outil dans la table d'outils    | <<sec:G10-L11>>
 |G10 L2        | Établissement du système de coord. pièce (1 à 9)     | <<sec:G10-L2_>>
 |G10 L20       | Établissement du système de coord. machine calculé   | <<sec:G10-L20>>
-|G17 - G19.1   | Choix du plan de travai                              | <<sec:G17-G18-G19>>
+|G17 - G19.1   | Choix du plan de travail                             | <<sec:G17-G18-G19>>
 |G20, G21      | Unités machine                                       | <<sec:G20-G21-Unites-Machine>>
 |G28 - G28.1   | Aller à une position prédéfinie                      | <<sec:G28-G28.1-Aller-a-une-position>>
 |G30 - G30.1   | Aller à une position prédéfinie                      | <<sec:G30-G30.1-Aller-a-une-position-predefinie>>
@@ -142,11 +142,11 @@ C'est une erreur si:
 |G76           | Cycle de filetage multipasses de perçage (tour)      | <<sec:G76-Filetage>>
 |G80           | Révocation des codes modaux                          | <<sec:G80-Revocation-modaux>>
 |G81           | Cycle de perçage                                     | <<sec:G81-Cycle-de-percage>>
-|G82           | Autres cycles preprogrammes                          | <<sec:G82-Cycle-de-percage>>
-|G83           | Percage avec debourrage                              | <<sec:G83-Percage-avec-debourrage>>
+|G82           | Autres cycles préprogrammés                          | <<sec:G82-Cycle-de-percage>>
+|G83           | Perçage avec débourrage                              | <<sec:G83-Percage-avec-debourrage>>
 |G84           | Taraudage-a-droite *(pas implémenté)*                | <<sec:G84-Taraudage-a-droite>>
 |G85           | Alésage, retrait en vitesse travail                  | <<sec:G85-Alesage-retrait-travail>>
-|G86           | Alesage, retrait en vitesse rapide                   | <<sec:G86-Alesage-retrait-rapide>>
+|G86           | Alésage, retrait en vitesse rapide                   | <<sec:G86-Alesage-retrait-rapide>>
 |G87           | Back-Boring Cycle *(pas implémenté)*                 | <<sec:G87-Back-Boring>>
 |G88           | Cycle d'alésage, Stop, Manl Out *(pas implémenté)*   | <<sec:G88-Alesage-Retrait-Manuel-Out>>
 |G89           | Cycle d'alésage avec tempo, recul vitesse travail    | <<sec:G89-Alesage-Tempo>>
@@ -159,15 +159,15 @@ C'est une erreur si:
 |G93, G94, G95 | Modes de vitesses                                    | <<sec:G93-G94-G95-Set>> 
 |G96           | Vitesse de coupe constante (IPM ou m/mn)             | <<sec:G96-G97-Broche>>
 |G97           | Vitesse en tours par minute                          | <<sec:G96-G97-Broche>>
-|G98, G99      | Options de retrait des cycles preprogrammes          | <<sec:G98-G99-Set>>
+|G98, G99      | Options de retrait des cycles de perçage             | <<sec:G98-G99-Set>>
 |==============================================================================
 
 [width="100%", options="header"]
 |==============================================================================
-|Code       | Description                              | Parameters | Section
+|Code       | Description                              | Paramètres | Section
 |M0, M1, M2 | Contrôle du programme                    | n/a        | <<sec:M0-M1-M2>>
 |M3, M4, M5 | Contrôle de la broche                    | S          | <<sec:M3-M4-M5>>
-|M6         | Appel d'outil Tn n=numéro d'outil        | T          | <<sec:M6-Appel-d-outil>>
+|M6         | Appel d'outil Tn n=numéro d'outil        | T          | <<sec:M6-Appel-Outil>>
 |M7, M8, M9 | Contrôle arrosage                        | n/a        | <<sec:M7-M8-M9>>
 |M30, M60   | Fin de prog. avec déchargement pièce     | n/a        | <<sec:M0-M1-M2-M30>>
 |M48        | Activation des correcteurs de vitesse    |            | <<sec:M48-Activation-Correcteurs-Vitesse>>
@@ -185,7 +185,7 @@ C'est une erreur si:
 |O          | O-Codes                                  | n/a        | <<cha:O-Codes>>
 |F          | F=Réglage vitesse d'avance travail       | n/a        | <<sec:F-Vitesse>>
 |S          | S=réglage vitesse de rotation broche     | n/a        | <<sec:S-Broche>>
-|T          | Appel d'outil                            |            | <<sec:T-Appel-Outil>>
+|T          | Choix de l'outil                         |            | <<sec:T-Choix-Outil>>
 |==============================================================================
 
 == G0 Interpolation linéaire en vitesse rapide[[sec:G0-Interpolation-rapide]]
@@ -1957,7 +1957,7 @@ la broche va se mettre en rotation.
 Il est permis d'utiliser `M3` ou `M4` quand la broche est déjà 
 en rotation ou d'utiliser `M5` quand la broche est déjà arrêtée.
 
-== M6 Appel d'outil[[sec:M6-Appel-d-outil]]
+== M6 Appel d'outil[[sec:M6-Appel-Outil]]
 
 (((M6 Appel d'outil)))
 
@@ -1972,7 +1972,7 @@ la section (<<sec:Changement-D-Outil-Manuel>>)
 
 Pour changer l'outil, actuellement dans la broche, par un autre,
 nouvellement sélectionné en utilisant le mot T, voir la section 
-(<<sec:T-Appel-Outil>>), programmer `M6`. 
+(<<sec:T-Choix-Outil>>), programmer `M6`. 
 Un changement d'outil complet donnera:
 
  - La rotation de la broche est arrêtée. 
@@ -2458,14 +2458,14 @@ utilisé. La vitesse de rotation et d'avance resterons synchronisées.
 Dans ce cas, la vitesse peut différer de celle programmée, même si le
 potentiomètre de correction de vitesse travail est sur 100%.
 
-== T: Choix de l'outil[[sec:T-Appel-Outil]]
+== T: Choix de l'outil[[sec:T-Choix-Outil]]
 
 (((T: Choix de l'outil)))
 
 Pour sélectionner un outil, programmer `T-`, où la valeur de T 
 correspond au numéro du slot d'outil dans le 
 carrousel. L'outil ne sera appelé et changé que quand un `M6` sera 
-programmé (voir la section <<sec:M6-Appel-d-outil>>). Le mot T 
+programmé (voir la section <<sec:M6-Appel-Outil>>). Le mot T 
 peut apparaitre sur la même ligne que le `M6` ou sur une ligne 
 précédente. Il est permis, mais normalement inutile, 
 qu'un mot T apparaisse à plus de deux lignes avant, sans changement 
