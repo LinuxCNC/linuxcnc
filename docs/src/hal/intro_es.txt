@@ -300,7 +300,7 @@ halgui::
 
 halmeter::
      (((halmeter))) A handy multimeter for HAL signals. See section 
-    <<Halmeter>>. 
+    <<sec:Halmeter>>. 
 
 halscope::
      (((halscope))) A full featured digital storage oscilloscope for HAL

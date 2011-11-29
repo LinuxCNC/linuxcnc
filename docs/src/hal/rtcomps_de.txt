@@ -10,7 +10,7 @@ For example:
 
 +*loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500*+ 
 
-See the man page for more options. See section <<Halmeter>>. 
+See the man page for more options. See section <<sec:Halmeter>>. 
   
 .Halmeter
 
