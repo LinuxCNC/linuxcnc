@@ -301,8 +301,7 @@ halgui::
     GUI tool for configuration and tuning (not implemented yet).
 
 halmeter::
-     (((halmeter))) A handy multimeter for HAL signals. See section 
-    <<Halmeter>>. 
+     (((halmeter))) A handy multimeter for HAL signals. See section <<sec.Halmeter>>. 
 
 halscope::
      (((halscope))) A full featured digital storage oscilloscope for HAL
