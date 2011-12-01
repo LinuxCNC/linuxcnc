@@ -349,7 +349,7 @@ halgui:: (((halgui)))
     implémenté).
 
 halmeter:: (((halmeter)))
-     Un multimètre pour les signaux HAL. 
+      Un multimètre pour les signaux HAL. Voir <<cap:Halmeter>>
 
 halscope:: (((halscope)))
      Un oscilloscope digital à mémoire, complétement

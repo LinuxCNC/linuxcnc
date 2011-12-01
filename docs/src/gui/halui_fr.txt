@@ -51,22 +51,22 @@ dans votre fichier custom.hal.
    exemple pour modifier la correction de vitesse d'avance
  - halui.feed-override.value (float, out) - Valeur de la correction courante de vitesse d'avance
 
-=== Brouillard (Mist) 
+=== Arrosage par gouttelettes (Mist) 
 
- - halui.mist.is-on (bit, out) - indique si le brouillard est actif
- - halui.mist.off (bit, in) - pin de requête d'arrêt du brouillard
- - halui.mist.on (bit, in) - pin de requête du brouillard
+ - halui.mist.is-on (bit, out) - indique si l'arrosage par gouttelettes est actif
+ - halui.mist.off (bit, in) - pin de requête d'arrêt de l'arrosage par gouttelettes
+ - halui.mist.on (bit, in) - pin de requête de l'attosage par gouttelettes
 
-=== Arrosage (Flood)
+=== Arrosage fluide (Flood)
 
- - halui.flood.is-on (bit, out) - indique si l'arrosage est actif
- - halui.flood.off (bit, in) - pin de requête d'arrêt d'arrosage
- - halui.flood.on (bit, in) - pin de requête d'arrosage
+ - halui.flood.is-on (bit, out) - indique si l'arrosage fluide est actif
+ - halui.flood.off (bit, in) - pin de requête d'arrêt d'arrosage fluide
+ - halui.flood.on (bit, in) - pin de requête d'arrosage fluide
 
-=== Homing
+=== Prise d'origine machine de tous les axes (Homing)
 
- - halui.home-all (bit, in) - pin for requesting all axis to home. This
-   pin will only be there if HOME_SEQUENCE is set in the ini file.
+ - halui.home-all (bit, in) - pin de requête de prise d'origine machine de tous les axes. 
+   Cette pin sera présente seulement si HOME_SEQUENCE est fixée dans le fichier ini.
 
 === Jog
 
@@ -84,14 +84,14 @@ dans votre fichier custom.hal.
  - halui.jog.<selected>.plus (bit, in) - jog l'axe <selected> en 
    direction positive et à la vitesse de halui.jog.speed velocity
 
-=== Joints 
+=== Articulations (Joints) 
 
 <n> est un nombre compris entre 0 et 8, ou <selected>.
 
- - halui.joint.<n>.has-fault (bit, out) - pin de status indiquant que le joint est en défaut
- - halui.joint.<n>.home (bit, in) - pin pour la prise d'origine d'un joint spécifique 
- - halui.joint.<n>.is-homed (bit, out) - pin de status indiquant que le joint est référencé
- - halui.joint.<n>.is-selected (bit, out) - pin indiquant que le joint est <selected> - interne à halui
+ - halui.joint.<n>.has-fault (bit, out) - pin de status indiquant que l'articulation est en défaut
+ - halui.joint.<n>.home (bit, in) - pin pour la prise d'origine d'une articulation spécifique 
+ - halui.joint.<n>.is-homed (bit, out) - pin de status indiquant que l'articulation est référencée
+ - halui.joint.<n>.is-selected (bit, out) - pin indiquant que l'articulation est <selected> - interne à halui
  - halui.joint.<n>.on-hard-max-limit (bit, out) - pin de status indiquant 
    que le joint est sur son fin de course de limite positive
  - halui.joint.<n>.on-hard-min-limit (bit, out) - pin de status indiquant 
@@ -105,7 +105,7 @@ dans votre fichier custom.hal.
  - halui.joint.selected (u32, out) - selected joint (0..8) - interne à halui
  - halui.joint.selected.has-fault (bit, out) - pin de status 
    indiquant que le joint <n> est en défaut
- - halui.joint.selected.home (bit, in) - pin pour la prise d'origine du joint <selected> 
+ - halui.joint.selected.home (bit, in) - pin pour la prise d'origine de l'articulation <selected> 
  - halui.joint.selected.is-homed (bit, out) - pin de status indiquant 
    que le joint <selected> est référencé
  - halui.joint.selected.on-hard-max-limit (bit, out) - pin de status 
@@ -116,9 +116,9 @@ dans votre fichier custom.hal.
    indiquant que le joint <selected> est sur sa limite logicielle positive
  - halui.joint.selected.on-soft-min-limit (bit, out) - pin de status 
    indiquant que le joint <selected> est sur sa limite logicielle négative
- - halui.joint.selected.unhome (bit, in) - pin for unhoming the selected joint. 
+ - halui.joint.selected.unhome (bit, in) - pin for unhoming  l'articulation selected. 
 
-=== Lube Lubrifiant (Lube)
+=== Graissage centralisé (Lube)
 
  - halui.lube.is-on (bit, out) - indique si le graissage est actif
  - halui.lube.off (bit, in) - pin de requête d'arrêt du graissage
@@ -171,22 +171,22 @@ suivant:
    EMC2, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
    commande MDI. 
 
-=== Sélection d'un joint
+=== Sélection d'une articulation
 
- - halui.joint.select (u32, in) - sélectionne le joint (0..7) - internal halui
- - halui.joint.selected (u32, out) - joint (0..7) sélectionné - internal halui
- - halui.joint.x.select bit (bit, in) - pins pour sélectinner un joint - internal halui
- - halui.joint.x.is-selected bit (bit, out) - pin de status indiquant un joint sélectionné - internal halui
+ - halui.joint.select (u32, in) - sélectionne l'articulation (0..7) - internal halui
+ - halui.joint.selected (u32, out) - articulation (0..7) sélectionnée - internal halui
+ - halui.joint.x.select bit (bit, in) - pins pour sélectinner une articulation - internal halui
+ - halui.joint.x.is-selected bit (bit, out) - pin de status indiquant une articulation sélectionné - internal halui
 
 === Mode de fonctionnement
 
  - halui.mode.auto (bit, in) - pin de requête du mode auto
  - halui.mode.is_auto (bit, out)- indique si le mode auto est actif
- - halui.mode.is-joint (bit, out) - indique si le mode joint par joint est actif
+ - halui.mode.is-joint (bit, out) - indique si le mode articulation par articulation est actif
  - halui.mode.is_manual (bit, out) - indique si le mode manuel est actif
  - halui.mode.is_mdi (bit, out) - indique si le mode données manuelles est actif
  - halui.mode.is-teleop (bit, out) - indique que le mode jog coordonné est actif
- - halui.mode.joint (bit, in) - pin de requête du mode jog joint par joint
+ - halui.mode.joint (bit, in) - pin de requête du mode jog articulation par articulation
  - halui.mode.manual (bit, in) - pin de requête du mode manuel
  - halui.mode.mdi (bit, in) - pin de requête du mode données manuelles
  - halui.mode.teleop (bit, in) - pin de requête du mode jog coordonné

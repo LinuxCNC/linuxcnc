@@ -21,7 +21,7 @@ image::images/emc2-motion-homing-diag_fr.png[]
 
 ==== Vitesse de recherche (HOME_SEARCH_VEL = 0) (((Vitesse de recherche du contact d'origine)))
 
-Vitesse de la phase initiale de prise d'origine, c'est la recherche du
+Vitesse de la phase initiale de prise d'origine, pendant la recherche du
 contact d'origine machine. Une valeur différente de zéro indique à EMC
 la présence d'un contact d'origine machine. EMC va alors commencer par
 vérifier si ce contact est déjà pressé. Si oui, il le dégagera à la

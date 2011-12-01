@@ -206,8 +206,9 @@ Syntaxe et exemple:
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de "halrun".
 
-== HAL Data[[sec:HAL-Data]] footnote:[NDT: la description des données de HAL reste
-en Anglais, elle sont suffisamment simples pour être comprises.]
+== HAL Data[[sec:HAL-Data]] 
+footnote:[NDT la description des données de HAL reste en Anglais, elle sont 
+suffisamment simples pour être comprises.]
 
 === Bit (((Bit)))
 
@@ -426,7 +427,8 @@ parallèle. Ainsi en suivant la table de vérité du and2, si les broches
 
 La somme pondérée converti un groupe de bits en un entier. La conversion est la 
 somme des `poids` des bits présents plus n'importe quel offset. C'est similaire 
-au `binaire codé décimal` mais avec plus d'options. The "hold" bit stops processing the input changes so the "sum" will not change.
+au `binaire codé décimal` mais avec plus d'options. Le bit `hold` interrompt le
+traitement des entrées, de sorte que la valeur `sum` ne change plus.
 
 La syntaxe suivante est utilisée pour charger le composant weighted_sum.
 

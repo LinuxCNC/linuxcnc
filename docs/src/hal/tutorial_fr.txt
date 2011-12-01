@@ -561,7 +561,7 @@ les HAL pins du système. La seconde affiche tous les signaux et le
 troisième affiche tous les paramètres. Si nous voulons analyser la pin
 `siggen.0.cosine` en premier, il suffit de cliquer sur elle puis sur
 le bouton «Close». Le dialogue de sélection se ferme et la mesure s'affiche,
-quelque chose comme sur la figure <<cap:Halmeter>>.
+quelque chose comme sur la figure ci-dessous.
 
 Halmeter[[cap:Halmeter]]
 
