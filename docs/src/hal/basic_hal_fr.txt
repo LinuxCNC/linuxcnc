@@ -50,7 +50,7 @@ Syntaxe et exemple:
 addf mux4 servo-thread 
 ---------------------------------------------------
 
-=== loadusr
+=== loadusr[[sec:loadusr]]
 
 La commande `loadusr` charge un composant de HAL de l'espace
 utilisateur. Les programmes de l'espace utilisateur ont leur propre
