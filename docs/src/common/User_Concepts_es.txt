@@ -170,7 +170,7 @@ running a G-Code file and left in a different state than when you
 started your EMC session. The best practice is to set the defaults
 needed for the job in the preamble of your G-Code file and not assume
 that the defaults have not changed. Printing out the G-Code Quick
-Reference (<<sec:Quick-Reference-Table>>) page can help you remember
+Reference <<sec:Tabla-de-Referencia-Rapida>> page can help you remember
 what each one is.
 
 === Feed Rate

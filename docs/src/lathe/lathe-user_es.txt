@@ -171,7 +171,7 @@ Typically an encoder is used to provide the feedback.
 See the Integrator Manual for more information on spindle feedback.
 
 The G76 threading cycle is used for both internal and external
-threads. For more information see G76 <<sec:G76-Threading-Canned>> in
+threads. For more information see G76 <<sec:G76-Threading-Conservas>> in
 the G Code section.
 
 == Constant Surface Speed
