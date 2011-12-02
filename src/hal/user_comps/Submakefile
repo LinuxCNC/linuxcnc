@@ -18,7 +18,7 @@ USERSRCS += $(MODBUSSRCS)
 
 ../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) $(MODBUSLDFLAGS) -o $@ $^
+	@$(CXX) -o $@ $^ $(LDFLAGS) $(MODBUSLDFLAGS)
 TARGETS += ../bin/gs2_vfd
 
 ../include/%.h: ./hal/user_comps/%.h
