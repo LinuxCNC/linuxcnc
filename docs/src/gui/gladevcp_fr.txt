@@ -632,7 +632,7 @@ It has the following properties:
 scale::
 	value scale. set maximum absolute value of input. Same as
 	setting the <widgetname>.scale pin. A float, range from
-	latexmath:[-2^{24}] to latexmath:[+2^{24}].
+	-2^24^ à +2^24^.
 green_limit::
       green zone limit lower limit
 yellow_limit::
@@ -759,6 +759,7 @@ z0_border, z1_border::
    last border to max. Borders are set as values in range min-max.
 
 Example HAL Meters:
+
 image::images/hal_meter.png[]
 .
 
@@ -784,6 +785,7 @@ enable_dro ::
    Defaults to `True`.
 
 Example:
+
 image::images/gremlin.png[]
 
 

@@ -49,7 +49,7 @@ pressure,Spindle inverter fault"
  net no-pressure classicladder.0.out-22 oilpressure.trigger
  net no-inverter classicladder.0.out-23 inverterfail.trigger
  
-When any pin goes active, it's message will be displayed.""";
+When any pin goes active, the corresponding message will be displayed.""";
  
 pin in bit trigger =FALSE "signal that triggers the message";
 pin in bit force =FALSE """A FALSE->TRUE transition forces the message to be
@@ -63,12 +63,12 @@ comma-delimited, inside a single set of quotes. See the "Description" section
 for an example.
 If there are more messages than "count" or "names" then the excess will be
 ignored. If there are fewer messages than "count" or "names" then an error will
-be raised and EMC2 will exit.""";
+be raised and the component will not load.""";
  
 variable int myidx;
-variable bool prev_trigger = FALSE;
-variable bool prev_force = TRUE;
-variable bool prev_edge = TRUE;
+variable hal_bit_t prev_trigger = FALSE;
+variable hal_bit_t prev_force = TRUE;
+variable hal_bit_t prev_edge = TRUE;
  
 option extra_setup yes;
  
@@ -80,29 +80,29 @@ char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 RTAPI_MP_ARRAY_STRING(messages, 16, "Displayed strings");
  
 FUNCTION(_){
-    bool show = false;    
-    if(prev_edge != edge) /* edge type has changed */
+    hal_bit_t show = false;    
+    if(!!prev_edge != !!edge) /* edge type has changed */
     {
         prev_edge = edge;
         prev_trigger = !edge;
     }
-    if(force != prev_force) /* force type has changed */
+    if(!!force != !!prev_force) /* force type has changed */
     {
         prev_force = force;
-        if(force && (trigger == edge))
+        if(force && (!!trigger == !!edge))
         {
             show = true;
         }
     }
-    if(trigger != prev_trigger) /* trigger has changed */
+    if(!!trigger != !!prev_trigger) /* trigger has changed */
     {
         prev_trigger = trigger;
-        if(trigger == edge)
+        if(!!trigger == !!edge)
         {
             show = true;
         }
     }
-    if(show && messages[myidx] != 0)
+    if(show && (messages[myidx] != 0))
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s\n", messages[myidx]);
     }

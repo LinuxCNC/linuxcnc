@@ -1,0 +1,74 @@
+= Touchy
+
+Touchy is a user interface for EMC2 meant for use on machine control panels,
+and therefore does not require keyboard or mouse.
+
+It is meant to be used with a touch screen, and works in combination
+with a wheel/MPG and a few buttons and switches.
+
+.Touchy
+
+image::images/touchy.png[]
+
+== Panel Configuration
+
+=== HAL connections
+
+Touchy requires that you create a file named `touchy.hal` in your
+configuration directory (the directory your ini file is in) to 
+connect its controls. Touchy executes the HAL commands in this file
+after it has made its own pins available for connection.
+
+Touchy has several output pins that are meant to be connected to the
+motion controller to control wheel jogging:
+
+ - `touchy.jog.wheel.increment`,
+	which is to be connected to the `axis.N.jog-scale` pin of each axis N.
+
+ - `touchy.jog.wheel.N`, which is to be connected to `axis.N.jog-enable`
+	for each axis N.
+
+ - In addition to being connected to `touchy.wheel-counts`, the wheel counts 
+	should also be connected to `axis.N.jog-counts` for 
+	each axis N.  If you use HAL component `ilowpass` to smooth wheel jogging, be
+	sure to smooth only `axis.N.jog-counts` and not `touchy.wheel-counts`.
+
+==== Required controls
+
+ - Abort button (momentary contact) connected to the HAL pin `touchy.abort`
+ - Cycle start button (momentary contact) connected to `touchy.cycle-start`
+ - Wheel/MPG, connected to `touchy.wheel-counts` and motion pins as described above
+ - Single block (toggle switch) connected to `touchy.single-block`
+
+==== Optional controls
+
+ -  For continuous jog, one center-off bidirectional momentary toggle
+   (or two momentary buttons) for each axis, hooked to `touchy.jog.continuous.x.negative`,
+   `touchy.jog.continuous.x.positive`, etc.
+ -  If a quill up button is wanted (to jog Z to the top of travel at top
+   speed), a momentary button connected to `touchy.quill-up`.
+
+==== Optional panel lamps
+
+ - `touchy.jog.active` shows when the panel jogging controls are live
+ - `touchy.status-indicator` is on when the machine is executing G-code,
+    and flashes when the machine is executing but is in pause/feedhold.
+
+=== Recommended for any setup
+
+ - Estop button hardwired in the estop chain
+
+== Setup
+
+To use Touchy, in the `[DISPLAY]` section of your ini file change the
+display selector line to `DISPLAY = touchy`
+
+When you start Touchy the first time, check the Preferences tab.
+If using a touchscreen, choose the option to hide the pointer for
+best results.
+
+The Status Window is a fixed height, set by the size of a fixed font. 
+This can be affected by the Gnome DPI. If the bottom of the screen is 
+cut off return the Gnome DPI to the orignal setting of 96 dots per inch. 
+
+

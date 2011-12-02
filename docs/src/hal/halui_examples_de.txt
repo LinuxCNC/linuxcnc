@@ -17,9 +17,10 @@ auto mode the pin `halui.mode.is-auto` will be on.
 If both the inputs to the `and2.0` component are on the 
 `and2.0.out` will be on and this will start the program. 
 
-.Remote Start Example[[fig:Remote-Start-Example]]
+[[fig:Remote-Start-Example]]
+.Remote Start Example
 
-image::images/remote-start.png
+image::images/remote-start.png[]
 
 The hal commands needed to accomplish the above are: 
 

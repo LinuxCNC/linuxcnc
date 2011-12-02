@@ -218,9 +218,14 @@ void hm2_auto_process_tram_read(hostmot2_t *hm2){
                                 *pin->boolean_not = (buff == 0);
                                 break;
                             case 0x08: //Counter
-                                // sign-extend the data to 32 bits
+                                // sign-extend buff into buff32 
                                 buff32 = 1L << (conf->DataLength - 1);
                                 buff32 = (buff ^ buff32) - buff32;
+                                if ((buff32 - pin->oldval) > (1 << (conf->DataLength - 2))){
+                                    *pin->s32_pin -= (1 << conf->DataLength);
+                                } else if ((pin->oldval - buff32) > (1 << (conf->DataLength - 2))){
+                                    *pin->s32_pin += (1 << conf->DataLength);
+                                }
                                 *pin->s32_pin += (buff32 - pin->oldval);
                                 pin->oldval = buff32;
                                 break;

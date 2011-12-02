@@ -34,8 +34,6 @@ include::hal/components_fr.txt[]
 
 include::hal/rtcomps_fr.txt[]
 
-include::hal/parallel_port_fr.txt[]
-
 include::hal/hal-examples_fr.txt[]
 
 include::gui/halui_fr.txt[]
@@ -49,6 +47,8 @@ include::hal/halmodule_fr.txt[]
 :leveloffset: 0
 = Les pilotes de périphériques
 :leveloffset: 1
+
+include::hal/parallel_port_fr.txt[]
 
 include::drivers/AX5214H_fr.txt[]
 

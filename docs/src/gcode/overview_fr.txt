@@ -1,7 +1,7 @@
 = Vue d'ensemble du langage[[cha:Vue-d-ensemble-du-langage]]
 
 Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
-(également appelée un “block”) peut inclure des commandes pour faire
+(également appelée un “bloc”) peut inclure des commandes pour faire
 produire diverses actions au centre d'usinage. Plusieurs lignes de code
 peuvent être regroupées dans un fichier pour créer un programme.
 
@@ -426,29 +426,29 @@ visibles dans le tableau <<cap:Groupes-modaux>>.
 
 [width="90%", options="header"]
 |================================================
-||Signification du groupe modal        | Mots des membres
-||Mouvements (“Groupe 1”)       .2+^.^ | G0 G1 G2 G3 G33 G38.x G73 G80 G81
-||                                     | G82 G83 G84 G85 G86 G87 G88 G89
-||Choix du plan de travail             | G17 G18 G19
-||Mode diamètre/rayon sur les tours    | G7, G8
-||Mode de déplacements                 | G90, G91
-||Mode de vitesses                     | G93, G94
-||Unités machine                       | G20, G21
-||Correcteurs de rayon d'outil         | G40, G41, G42, G41.1, G42.1
-||Correcteurs de longueur d'outil      | G43, G43.1, G49
-||Options plan de retrait              | G98, G99
-||Systèmes de coordonnées       .2+^.^ | G54, G55, G56, G57, G58,
-||                                     | G59, G59.1, G59.2, G59.3
-||Types d'arrêt de programme           | M0, M1, M2, M30, M60
-||Appel d'outil                        | M6
-||Types de rotation de la broche       | M3, M4, M5
-||Arrosages                     .2+^.^ | M7, M8, M9. Cas spéciaux: M7, M8
-||                                     | peuvent être actifs simultanément
-||Boutons de correction de vitesse     | M48, M49, M50, M51
-||Contrôle de flux                     | O-
-||Codes non modaux (“Groupe 0”) .3+^.^ | G4, G10, G28, G28.1, G30, G30.1, G53
-||                                     | G92, G92.1, G92.2, G92.3
-||                                     | M100 à M199
+|Signification du groupe modal        | Mots des membres
+|Mouvements (“Groupe 1”)       .2+^.^ | G0 G1 G2 G3 G33 G38.x G73 G80 G81
+|                                     | G82 G83 G84 G85 G86 G87 G88 G89
+|Choix du plan de travail             | G17 G18 G19
+|Mode diamètre/rayon sur les tours    | G7, G8
+|Mode de déplacements                 | G90, G91
+|Mode de vitesses                     | G93, G94
+|Unités machine                       | G20, G21
+|Correcteurs de rayon d'outil         | G40, G41, G42, G41.1, G42.1
+|Correcteurs de longueur d'outil      | G43, G43.1, G49
+|Options plan de retrait              | G98, G99
+|Systèmes de coordonnées       .2+^.^ | G54, G55, G56, G57, G58,
+|                                     | G59, G59.1, G59.2, G59.3
+|Types d'arrêt de programme           | M0, M1, M2, M30, M60
+|Appel d'outil                        | M6
+|Types de rotation de la broche       | M3, M4, M5
+|Arrosages                     .2+^.^ | M7, M8, M9. Cas spéciaux: M7, M8
+|                                     | peuvent être actifs simultanément
+|Boutons de correction de vitesse     | M48, M49, M50, M51
+|Contrôle de flux                     | O-
+|Codes non modaux (“Groupe 0”) .3+^.^ | G4, G10, G28, G28.1, G30, G30.1, G53
+|                                     | G92, G92.1, G92.2, G92.3
+|                                     | M100 à M199
 |================================================
 
 Pour plusieurs groupes modaux, quand la machine est prête à accepter

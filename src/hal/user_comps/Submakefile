@@ -18,7 +18,7 @@ USERSRCS += $(MODBUSSRCS)
 
 ../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) $(MODBUSLDFLAGS) -o $@ $^
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(MODBUSLDFLAGS)
 TARGETS += ../bin/gs2_vfd
 
 ifeq ($(HIDRAW_H_USABLE),yes)

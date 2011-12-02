@@ -374,7 +374,7 @@ Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et d
 ==== Trouver la vitesse maximale[[sub:Trouver-Vitesse-Maximale]](((Trouver Vitesse Maximale)))
 
 Commencez avec une faible valeur d'accélération 
-//ne marche pas (par exemple, latexmath:[ 2 po/s^2 ] ou latexmath:[ 50 mm/s^2])
+(par exemple, 2 pouces/s^2^ ou 50 mm/s^2^)
 (par exemple 2 pouces/s^2 ou 50mm/s^2)
 et de la vitesse que vous espérez atteindre. 
 En utilisant les boutons de jog, positionnez l'axe vers son centre. 
@@ -388,7 +388,7 @@ La machine commencera à aller et venir le long de cet axe.
 Dans cet essai, il est important que la combinaison entre l'accélération et
 la zone de test, permette à la machine d'atteindre la vitesse sélectionnée 
 et de s'y déplacer sur, au moins, sur une courte distance
-// ne marche pas La formule latexmath:[ d = 0.5 * v * v/a ] 
+La formule d = 0.5 * v * v/a 
 La formule d = 0.5 * v * v/a, donne la distance minimale requise pour atteindre
 la vitesse de "croisière".
 Si la sécurité est garantie, poussez sur la table dans la direction inverse
@@ -547,16 +547,20 @@ Cliquez “Appliquer” pour enregistrer les fichiers de configuration.
 Ensuite, vous pourrez relancer ce programme et ajuster les réglages 
 entrés précédemment.
 
-== Fin de course des axes, position de l'origine machine et emplacements 
-des contacts d'origine machine[[sec:Axe-Voyage-Accueil]]
+== Position des fin de course sur les axes[[sec:Position-Origine-Position-Contacts]]
 (((Fin de course des axes)))(((Position origine machine)))(((Emplacements des contacts)))
+
 
 image::images/HomeAxisTravel.png[]
 
-La course de chaque axe est bien délimitée. Les extrémités physiques d'une
-course sont appelées les *butées mécaniques* position (a). 
 
-Avant la *butée mécanique* se trouve un *contact de fin de course* (b). 
+La course de chaque axe est bien délimitée. Les extrémités physiques d'une
+course sont appelées les *butées mécaniques*, position *[red]#(a)#*. 
+
+IMPORTANT: [red]#Si une butée mécanique venait à être dépassée, 
+la vis ou le bâti machine seraient détériorés!#
+
+Avant la *butée mécanique* se trouve un *contact de fin de course* *[green]#(b)#*. 
 Si ce contact est rencontré pendant les opérations normales, EMC coupe 
 la puissance du moteur. La distance entre *le fin de course* et *la butée 
 mécanique* doit être suffisante pour permettre au moteur, dont la puissance
@@ -564,30 +568,30 @@ a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fin de course
 doivent détecter le mobile sur toutes la distance d'arrêt et ne pas se 
 réactiver à cause d'un dépassement dû à l'inertie. 
  
-Avant le *contact de fin de course* se trouve une *limite soft* (d). 
+Avant le *contact de fin de course* se trouve une *limite logicielle* *[blue]#(d)#*. 
 Cette limite logicielle est introduite après la prise d'origine machine. 
 Si une commande manuelle ou un programme G-code dépasse cette limite, 
 ils ne seront pas exécutés. Si un mouvement en jog ou en manuel cherche
 à dépasser la limite logicielle, il sera interrompu sur cette limite.
 
-Le *contact d'origine machine* (c) peut être positionné n'importe où, 
+Le *contact d'origine machine* *[purple]#(c)#* peut être positionné n'importe où, 
 le long d'une course entre les *butées mécaniques*. 
 Si aucun mécanisme externe ne désactive la puissance moteur quand un 
 contact de limite est enfoncé, un des contacts de fin de course peut 
 être utilisé comme contact d'origine machine.
 
-La *position zéro* (e) est la position correspondante au 0 de l'axe 
-dans le système de coordonnées pièce, après que la prise d'origine 
+La *position zéro* *[orange]#(e)#* correspond au 0 de l'axe dans le
+système de coordonnées pièce, après que la prise d'origine pièce
 de cette axe ait été faite. La *position zéro* doit se trouver entre
-les deux *limites soft* pour que l'usinage soit possible. Sur les tours, 
+les deux *limites logicielles* pour que l'usinage soit possible. Sur les tours, 
 le mode vitesse à surface constante requiert que la coordonnée *X=0* 
 corresponde au centre de rotation de la broche quand aucun correcteur 
 d'outil n'est actif. 
 
 La *position de l'origine* est la position, située le long de l'axe, sur 
 laquelle le mobile sera déplacé à la fin de la séquence de prise d'origine.
-Cette position doit se situer entre les *limites soft*. En particulier, 
-la *position de l'origine* ne doit jamais être égale à une *limite soft*. 
+Cette position doit se situer entre les *limites logicielles*. En particulier, 
+la *position de l'origine* ne doit jamais être égale à une *limite logicielle*. 
 On place habituellement cette position au point le plus facile pour
 réaliser le changement d'outil.
 
@@ -595,14 +599,14 @@ réaliser le changement d'outil.
 (((exploitation sans limite sans fin de course)))
 
 Une machine peut être utilisée sans contact de fin de course. Dans ce cas,
-seules les *limites soft* empêcheront la machine d'atteindre les *butées
-mécaniques*. Les *limites soft* n’opèrent qu'après que la POM 
+seules les *limites logicielles* empêcheront la machine d'atteindre les *butées
+mécaniques*. Les *limites logicielles* n’opèrent qu'après que la POM 
 (prise d'origine machine) soit faite sur la machine. Puisqu'il n'y a pas
 de contact, la machine doit être déplacée à la main et à l’œil, 
 à sa position d'origine avant de presser le bouton *POM des axes* ou le
 sous-menu *Machine->Prises d'origines machine->POM de l'axe*.
 L'opérateur devra cocher chacun des axes individuellement pour faire la
-*POM* de chacun.
+*POM* de chacun d'eux.
 
 === Exploitation sans contact d'origine[[sub:exploitation-sans-origine]]
 (((Exploitation sans contact d'origine)))

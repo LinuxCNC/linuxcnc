@@ -118,43 +118,40 @@ Cartésien nous allons utiliser quelques règles de trigonomètrie (le
 triangle rectangle déterminé par les points (0,0), (Dx,0), (Dx,Dy) et
 le triangle rectangle (Dx,0), (Bx,0) et (Dx,Dy).
 
-Nous pouvons voir aisément que latexmath:[$AD^{2}=x^{2}+y^{2}$], de
-même que latexmath:[$BD^{2}=(Bx-x)^{2}+y^{2}$].
+Nous pouvons voir aisément que *AD^2^=x^2^+y^2^*, de même que *BD^2^=(Bx-x)^2^+y^2^*.
 
-Si nous soustrayons l'un de l'autre nous aurons:
+Si nous soustrayons l'un de l'autre nous aurons: 
+*AD^2^-BD^2^=x^2^+y^2^-x^2^+2*x*Bx-Bx^2^-y^2^*
 
-latexmath:[[AD^{2}-BD^{2}=x^{2}+y^{2}-x^{2}+2*x*Bx-Bx^{2}-y^{2}\]]
+et par conséquent: *x=(AD^2^-BD^2^+Bx^2^)/(2*Bx)*
 
-et par conséquent:
+De là nous calculons: *y=sqrt(AD^2^-x^2^)*
 
-latexmath:[[x=\frac{AD^{2}-BD^{2}+Bx^{2}}{2*Bx}\]]
-
-De là nous calculons:
-
-latexmath:[[y=\sqrt{AD^{2}-x^{2}}\]]
 
 Noter que le calcul inclus la racine carrée de la différence, mais
-qu'il n'en résulte pas un nombre réel. Si il n'y a aucune coordonnées
+qu'il n'en résulte pas un nombre réel. Si il n'y a aucune coordonnée
 Cartésienne pour la position de cette articulation, alors la position est
 dite singulière. Dans ce cas, la cinématique inverse retourne -1.
 
 Traduction en code:
-
+----
     double AD2 = joints[0] * joints[0];
     return 0;
+----
 
 === Transformation inverse[[sec:Inverse-transformation]]
 
 La cinématique inverse est beaucoup plus simple dans notre exemple, de
 sorte que nous pouvons l'écrire directement:
 
-latexmath:[[AD=\sqrt{x^{2}+y^{2}}\]]
+*AD=sqrt(x^2^+y^2^)*
 
-latexmath:[[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
+*BD=sqrt((Bx-x)^2^+y^2^)*
 
 ou traduite en code:
-
+----
     double x2 = pos->tran.x * pos->tran.x;
+----
 
 == Détails d'implémentation
 

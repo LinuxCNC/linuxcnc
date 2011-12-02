@@ -231,7 +231,7 @@ The feed and speed override switches may be enabled (so they work as
 expected) or disabled (so they have no effect on the feed rate or
 spindle speed). The RS274/NGC language has one command that enables
 both switches and one command that disables both (see Sections 
-<<sub:M48-Both-Override>> and <<sub:M49-Neither-Override>>). 
+<<sub:M48-Ambos-Override>> and <<sub:M49-Ni-Anular>>). 
 See Section  <<sub:Feed-Interaction>> for further details.
 
 === Path Control Mode[[sub:Path-Control-Mode]]
@@ -330,7 +330,7 @@ All parameters are available for use in G Code programs.
 
 1-30::
      Subroutine local parameters of call arguments. These parameters are
-    local to the subroutine. See  <<cha:O-Codes>>
+    local to the subroutine. See  <<cha:O-codigos>>
 
 1-5000::
     G-Code user parameters. These parameters are global in the G Code file.

@@ -1,0 +1,37 @@
+Getting Started V0.1, {localdate}
+=================================
+The EMC Team
+
+:language: pl
+
+:masterdir: {indir}
+
+:leveloffset: 1
+
+image::common/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+include::common/System_Requirements_pl.txt[]
+
+include::common/Getting_EMC_pl.txt[]
+
+include::common/Updating_EMC_pl.txt[]
+
+include::quickstart/stepper_quickstart_pl.txt[]
+
+include::config/stepconf_pl.txt[]
+
+include::config/pncconf_pl.txt[]
+
+include::config/copy_and_run_pl.txt[]
+
+include::common/Linux_FAQ_pl.txt[]
+
+include::common/GPLD_Copyright_pl.txt[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

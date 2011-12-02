@@ -1,74 +1,79 @@
 = Touchy
 
-Touchy is a user interface for EMC2 meant for use on machine control panels,
-and therefore does not require keyboard or mouse.
+Touchy est une interface utilisateur pour EMC2, destinée à être utilisée avec les
+panneaux de commande de machines. Il ne nécessite ni clavier, ni souris.
 
-It is meant to be used with a touch screen, and works in combination
-with a wheel/MPG and a few buttons and switches.
+Il a été conçu pour fonctionner également sur les écrans tactiles, en combinaison 
+avec une manivelle électronique (MPG) et des boutons et interrupteurs.
 
-.Touchy
+.L'interface tactile Touchy
 
 image::images/touchy.png[]
 
-== Panel Configuration
+== Panneau de Configuration
 
-=== HAL connections
+=== Connections avec HAL
 
-Touchy requires that you create a file named `touchy.hal` in your
-configuration directory (the directory your ini file is in) to 
-connect its controls. Touchy executes the HAL commands in this file
-after it has made its own pins available for connection.
+Touchy requiert qu'un fichier nommé `touchy.hal` soit créé, dans le même 
+répertoire de configuration que le fichier ini, pour y connecter ses contrôles. 
+Touchy exécute les commandes de HAL dans ce fichier après qu'il a créé ses propres
+pins, lesquelles sont disponibles pour connexion.
 
-Touchy has several output pins that are meant to be connected to the
-motion controller to control wheel jogging:
+Touchy dispose de plusieurs pins de sortie destinées à être connectées au 
+contrôleur de mouvement pour gérer les manivelles de jogging:
 
  - `touchy.jog.wheel.increment`,
-	which is to be connected to the `axis.N.jog-scale` pin of each axis N.
+	qui doit être connecté à la pin `axis.N.jog-scale` de chacun des N axes.
 
- - `touchy.jog.wheel.N`, which is to be connected to `axis.N.jog-enable`
-	for each axis N.
+ - `touchy.jog.wheel.N`, qui doit être connecté à `axis.N.jog-enable` pour
+    chacun des N axes.
 
- - In addition to being connected to `touchy.wheel-counts`, the wheel counts 
-	should also be connected to `axis.N.jog-counts` for 
-	each axis N.  If you use HAL component `ilowpass` to smooth wheel jogging, be
-	sure to smooth only `axis.N.jog-counts` and not `touchy.wheel-counts`.
+ - En plus d'être connecté à `touchy.wheel-counts`, le compteur d'impulsions 
+    de la manivelle doit aussi être connecté à `axis.N.jog-counts` pour chacun 
+    des N axes. Si le composant de HAL `ilowpass` est utilisé pour adoucir les
+    mouvements de jogging à la manivelle, il faut l'appliquer uniquement sur 
+    `axis.N.jog-counts` et non sur `touchy.wheel-counts`.
 
-==== Required controls
+==== Contrôles requis
 
- - Abort button (momentary contact) connected to the HAL pin `touchy.abort`
- - Cycle start button (momentary contact) connected to `touchy.cycle-start`
- - Wheel/MPG, connected to `touchy.wheel-counts` and motion pins as described above
- - Single block (toggle switch) connected to `touchy.single-block`
+ - Un bouton `Abandon` (contact momentané) connecté sur la HAL pin `touchy.abort`
+ - Un bouton de `Départ cycle` (contact momentané) connecté à `touchy.cycle-start`
+ - Volant/Manivelle/MPG, connecté à `touchy.wheel-counts` et à la pin de mouvement
+   comme décrit précédemment.
+ - Un bouton à bascule simple (contact à deux positions) connecté à `touchy.single-block`
 
-==== Optional controls
+==== Contrôles optionnels
 
- -  For continuous jog, one center-off bidirectional momentary toggle
-   (or two momentary buttons) for each axis, hooked to `touchy.jog.continuous.x.negative`,
-   `touchy.jog.continuous.x.positive`, etc.
- -  If a quill up button is wanted (to jog Z to the top of travel at top
-   speed), a momentary button connected to `touchy.quill-up`.
+ -  Pour le jog continu, un interrupteur à trois positions avec retour au centre
+   (ou deux boutons momentanés) pour chacun des axes concernés, attaché à 
+    `touchy.jog.continuous.x.negative` et à `touchy.jog.continuous.x.positive`, 
+    etc. pour les autres axes.
+ -  Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa course
+    en grande vitesse), un bouton à contact momentané sera connecté à `touchy.quill-up`.
 
-==== Optional panel lamps
+==== Voyants de panneau optionnels
 
- - `touchy.jog.active` shows when the panel jogging controls are live
- - `touchy.status-indicator` is on when the machine is executing G-code,
-    and flashes when the machine is executing but is in pause/feedhold.
+ - `touchy.jog.active` indique quand les contrôles de jog du panneau sont actifs.
+ - `touchy.status-indicator` est allumé en continu quand la machine exécute un 
+    G-code et clignote quand la machine est en marche mais en pause, ou en
+    vitesse à zéro.
 
-=== Recommended for any setup
+=== Recommandé  dans tous les cas
 
- - Estop button hardwired in the estop chain
+ - Un bouton d'Arrêt d'Urgence (A/U) câblé physiquement, dans la chaîne d'arrêt 
+   d'urgence.
 
-== Setup
+== Réglage
 
-To use Touchy, in the `[DISPLAY]` section of your ini file change the
-display selector line to `DISPLAY = touchy`
+Pour utiliser Touchy, dans la section `[DISPLAY]` du fichier ini de la machine,
+modifier la ligne de cette manière: `DISPLAY = touchy`
 
-When you start Touchy the first time, check the Preferences tab.
-If using a touchscreen, choose the option to hide the pointer for
-best results.
+Quand Touchy démarre pour la première fois, vérifier l'onglet `Préférences`.
+Dans le cas d'un écran tactile, choisir de cacher le pointeur dans les options,
+pour obtenir les meilleurs résultats.
 
-The Status Window is a fixed height, set by the size of a fixed font. 
-This can be affected by the Gnome DPI. If the bottom of the screen is 
-cut off return the Gnome DPI to the orignal setting of 96 dots per inch. 
+La fenêtre d'état est fixée en haut, ajustée par la taille d'une police fixe. 
+La résolution de Gnome peut affecter cela. Si le bas de l'écran est coupé, aller dans
+le gestionnaire de résolution de Gnome pour revenir au réglage d'origine, à 96 DPI. 
 
 

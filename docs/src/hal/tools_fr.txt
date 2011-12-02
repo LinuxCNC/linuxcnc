@@ -5,7 +5,7 @@
 Halcmd est un outil en ligne de commande pour manipuler HAL. Il existe
 une man page plus complète pour halcmd, elle sera installée en même
 temps qu' EMC2 depuis ses sources ou depuis un paquet. Si EMC2 a été
-compilé en «run-in-place», la man page n'est pas installée, mais elle
+compilé en `run-in-place`, la man page n'est pas installée, mais elle
 est accessible, dans le répertoire principal d'EMC2, taper:
 
 +$ *man -M docs/man halcmd*+ 
@@ -16,7 +16,7 @@ d'utilisation de halcmd.
 == Halmeter[[sec:Halmeter]]
 (((Halmeter)))
 
-Halmeter est un «voltmètre» pour HAL. Il permet de regarder les pins,
+Halmeter est un `voltmètre` pour HAL. Il permet de regarder les pins,
 signaux, ou paramètres en affichant la valeur courante de ces items. Il
 est très simple à utiliser. Dans une console taper *halmeter*. 
 Halmeter est une application pour environnement graphique. Deux
@@ -28,18 +28,18 @@ puis cliquer sur un des pin/signal/paramètre pour le sélectionner. La
 petite fenêtre affichera le nom et la valeur de l'item sélectionné.
 L'affichage est mis à jour environ 10 fois par seconde. Pour libérer de
 la place sur l'écran, la fenêtre de sélection peut être fermée avec le
-bouton «Close». Sur la petite fenêtre, cachée sous la grande à
-l'ouverture, le bouton «Select», réouvre la fenêtre de sélection et le
+bouton `Close`. Sur la petite fenêtre, cachée sous la grande à
+l'ouverture, le bouton `Select`, réouvre la fenêtre de sélection et le
 bouton Exit arrête le programme et ferme les fenêtres.
 
 Il est possible d'ouvrir et de faire fonctionner simultanément
 plusieurs halmeters, ce qui permet de visualiser plusieurs items en
 même temps. Pour ouvrir un halmeter en libérant la console, taper
-«`halmeter &`» pour le lancer en tâche de fond. Il est possible de
+`halmeter &` pour le lancer en tâche de fond. Il est possible de
 lancer halmeter 
 en lui faisant afficher immédiatement un item, pour cela, ajouter les 
-arguments sur la ligne de commande `pin|sig|par[am] «nom»`. Il 
-affichera le signal, pin, ou paramètre «nom» dès qu'il
+arguments sur la ligne de commande `pin|sig|par[am] nom`. Il 
+affichera le signal, pin, ou paramètre `nom` dès qu'il
 démarrera. (Si l'item indiqué n'existe pas, il démarrera normalement.
 Finalement, si un item est spécifié pour l'affichage, il est possible
 d'ajouter `-s` devant pin|sig|param pour indiquer à halmeter d'utiliser
@@ -53,7 +53,7 @@ tutoriel.
 
 == Halscope[[sec:Halscope]]
 
-Halscope est un «oscilloscope» pour HAL. Il permet de capturer la
+Halscope est un `oscilloscope` pour HAL. Il permet de capturer la
 valeur des pins, signaux et paramètres en fonction du temps. Des
 instructions plus complètes seront ajoutées ici, éventuellement. Se
 référer à la section Halscope <<sec:Tutoriel-Halscope>> dans le

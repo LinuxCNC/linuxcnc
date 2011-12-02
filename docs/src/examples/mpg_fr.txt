@@ -1,68 +1,70 @@
-= Manivelle (MPG)
+= Utilisation d'une manivelle (MPG) [[cha:Manivelle-Electronique]]
 
-Cet exemple explique comment relier une manivelle facile à trouver
+Cet exemple explique comment relier une manivelle, facile à trouver
 aujourd'hui sur le marché. Cet exemple utilisera la manivelle MPG3 avec
 une carte d'interface C22 de chez CNC4PC et un second port parallèle
 placé sur un slot PCI. Cet exemple fournira trois axes avec chacun
 trois incréments de pas: 0.1, 0.01, 0.001.
 
-Dans votre fichier «custom.hal» ou dans un autre fichier .hal, ajoutez
-ce qui suit en vérifiant bien que les composants mux4 ou encoder ne
+Dans le fichier `custom.hal` ou dans un autre fichier .hal, ajouter
+ce qui suit en vérifiant bien que les composants `mux4` ou `encoder` ne
 soient pas déjà utilisés. Si c'était le cas vous auriez juste à
 augmenter le nombre de ces composants.
 
 # Manivelle de jog
 
-`loadrt encoder num_chan=1`
-`loadrt mux4 count=1`
-`addf encoder.capture-position servo-thread`
-`addf encoder.update-counters base-thread`
-`addf mux4.0 servo-thread`
+------------------------------------------------------
+loadrt encoder num_chan=1
+loadrt mux4 count=1
+addf encoder.capture-position servo-thread
+addf encoder.update-counters base-thread
+addf mux4.0 servo-thread
 
 # Mode position 
 # Chaque cran de manivelle provoque un pas calibré,  
 # la durée du mouvement total peut dépasser la durée de rotation de la manivelle.  
 # C'est le mode par défaut. 
 
-`setp axis.N.jog-vel-mode 0`
+setp axis.N.jog-vel-mode 0
 
 # Mode vitesse  
 # L'axe s'arrête quand la manivelle s'arrête, même si la pas de jog est incomplet. 
 # Décommenter la ligne suivante pour obtenir ce mode de fonctionnement, 
 # et commenter le mode position. 
 
-`setp axis.N.jog-vel-mode 1`
+setp axis.N.jog-vel-mode 1
 
 # Chaque axe est ajusté indépendemment des autres.
 
 # Tailles des pas de jog 
 
-`setp mux4.0.in0 0.1` 
-`setp mux4.0.in1 0.01` 
-`setp mux4.0.in2 0.001`
+setp mux4.0.in0 0.1 
+setp mux4.0.in1 0.01 
+setp mux4.0.in2 0.001
 
 # Sélecteur de taille des pas du jog
 
-`net scale1 mux4.0.sel0 <= parport.1.pin-09-in` 
-`net scale2 mux4.0.sel1 <= parport.1.pin-10-in`
+net scale1 mux4.0.sel0 <= parport.1.pin-09-in 
+net scale2 mux4.0.sel1 <= parport.1.pin-10-in
 
-`net pend-scale axis.0.jog-scale <= mux4.0.out 
-`net pend-scale axis.1.jog-scale` 
-`net pend-scale axis.2.jog-scale`
+net pend-scale axis.0.jog-scale <= mux4.0.out 
+net pend-scale axis.1.jog-scale 
+net pend-scale axis.2.jog-scale
 
 # Signaux du codeur 
 
-`net mpg-a encoder.0.phase-A <= parport.1.pin-02-in` 
-`net mpg-b encoder.0.phase-B <= parport.1.pin-03-in`
+net mpg-a encoder.0.phase-A <= parport.1.pin-02-in 
+net mpg-b encoder.0.phase-B <= parport.1.pin-03-in
 
 # Sélecteur d'axe 
 
-`net mpg-x axis.0.jog-enable <= parport.1.pin-04-in` 
-`net mpg-y axis.1.jog-enable <= parport.1.pin-05-in` 
-`net mpg-z axis.2.jog-enable <= parport.1.pin-06-in`
+net mpg-x axis.0.jog-enable <= parport.1.pin-04-in 
+net mpg-y axis.1.jog-enable <= parport.1.pin-05-in 
+net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
 
-`net pend-counts axis.0.jog-counts <= encoder.0.counts` 
-`net pend-counts axis.1.jog-counts` 
-`net pend-counts axis.2.jog-counts`
+net pend-counts axis.0.jog-counts <= encoder.0.counts 
+net pend-counts axis.1.jog-counts 
+net pend-counts axis.2.jog-counts
+-----------------------------------------------------
 
 

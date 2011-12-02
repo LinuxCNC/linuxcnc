@@ -147,7 +147,7 @@ outputs.  To change the default permission of a device, add a new file to
 /etc/udev/rules.d to set the device's GROUP to "plugdev".  You can do this for
 all input devices with this rule:
 .RS
-SUBSYSTEM=="input", mode="0660", group="plugdev"
+SUBSYSTEM=="input", MODE="0660", GROUP="plugdev"
 .RE
 You can also make more specific rules for particular devices.  For instance, a
 SpaceBall input device uses the 'spaceball' kernel module, so a udev entry for

@@ -1,232 +1,172 @@
-= Parallel Port
+= Port parallèle
 
 == Parport[[sec:Parport]]
-(((parallel port)))
+(((Pilote parport)))
 
-Parport is a driver for the traditional PC parallel port. The port has
-a total of 17 physical pins. The original parallel port divided those
-pins into three groups: data, control, and status. The data group
-consists of 8 output pins, the control group consists of 4 pins, and
-the status group consists of 5 input pins.
+Parport est un pilote pour le port parallèle traditionnel des PC. Le port dispose 
+d'un total de 17 broches physiques. Le port parallèle originel a divisé ces 
+broches en trois groupes: données, contrôles et états. Le groupe `données` 
+consiste en 8 broches de sortie, le groupe `contrôles` consiste en 4 broches 
+et le groupe `états` consiste en 5 broches d'entrée.
 
-In the early 1990's, the bidirectional parallel port was introduced,
-which allows the data group to be used for output or input. The HAL
-driver supports the bidirectional port, and allows the user to set the
-data group as either input or output. If configured as output, a port
-provides a total of 12 outputs and 5 inputs. If configured as input, it
-provides 4 outputs and 13 inputs.
+Au début des années 1990, le port parallèle bidirectionnel est arrivé, ce qui a permis à l'utilisateur d'ajuster le groupe des données comme étant des sorties ou comme étant des entrées. Le pilote de HAL supporte le port bidirectionnel et permet à l'utilisateur de configurer le groupe des données en entrées ou en sorties. Si il est configuré en sorties, un port fournit un total de 12 sorties et 5 entrées. Si il est configuré en entrées, il fournit 4 sorties et 13 entrées. 
 
-In some parallel ports, the control group pins are open collectors,
-which may also be driven low by an external gate. On a board with open
-collector control pins, the "x" mode allows a more flexible mode with 8
-outputs, and 9 inputs. In other parallel ports, the control group has
-push-pull drivers and cannot be used as an input.
+Dans certains ports parallèles, les broches du groupe contrôle sont des collecteurs ouverts, ils peuvent aussi être mis à l'état bas par une porte extérieure. Sur une carte avec les broches de contrôle en collecteurs ouverts, le mode `x` de HAL permet un usage plus flexible avec 8 sorties dédiées, 5 entrées dédiées et 4 broches en collecteurs ouverts. Dans d'autres ports parallèles, les broches du groupe contrôles sont en push-pull et ne peuvent pas être utilisées comme des entrées.
 
-.HAL and Open Collectors
+.HAL et les collecteurs ouverts
 [NOTE]
 ===========================================================
-HAL cannot automatically determine if the "x" mode bidirectional pins
-are actually open collectors (OC). If they are not, they cannot be used
-as inputs, and attempting to drive them LOW from an external source can
-damage the hardware.
+HAL ne peut pas déterminer automatiquement si les broches en mode bidirectionnel *`x`* sont effectivement en collecteurs ouverts. Si elles n'y sont pas, elles ne peuvent pas être utilisées comme des entrées. Essayer de les passer à l'état BAS par une source extérieure peut détériorer le matériel.
 
-To determine whether your port has "open collector" pins, load
-hal_parport in "x" mode.  With no device attached, HAL should read the
-pin as TRUE. Next, insert a 470 ohm resistor from one of the 
-control pins to GND. If the resulting voltage on the control pin is
-close to 0V, and HAL now reads the pin as FALSE, then you have an OC
-port. If the resulting voltage is far from 0V, or HAL does not read the
-pin as FALSE, then your port cannot be used in "x" mode.
+Pour déterminer si un port a des broches de contrôle en *`collecteur ouvert`*, charger hal_parport en mode *`x`*, positionner les broches de contrôle à une valeur HAUTE. HAL doit lire des pins à l'état VRAI. Ensuite, insérer une résistance de 470Ω entre une des broches de contrôle et GND du port parallèle. Si la tension de cette broche de contrôle est maintenant proche de 0V et que HAL la lit comme une pin FAUSSE, alors vous avez un port OC. Si la tension résultante est loin de 0V ou que HAL ne la lit pas comme étant FAUSSE, votre port ne ne peut pas être utilisé en mode *`x`*.
 
-The external hardware that drives the control pins should also use
-open collector gates (e.g., 74LS05).
+Le matériel extérieur qui pilote les broches de contrôle devrait également utiliser des portes en collecteur ouvert (ex: 74LS05...). Généralement, une pin de HAL -out devrait être VRAIE quand la pin physique est utilisée comme une entrée.
 
-On some machines, BIOS settings may affect whether "x" mode can be
-used. "SPP" mode is most likely to work. 
+Sur certaines machines, les paramètres du BIOS peuvent affecter la possibilité d'utiliser le mode *`x`*. Le mode *`SPP`* est le mode qui fonctionne le plus fréquemment.
 ===========================================================
 
-No other combinations are supported, and a port cannot be changed from
-input to output once the driver is installed. Figure 
-<<fig:Parport-block-diag>> shows two block diagrams, one showing the
-driver when the data group is configured for output, and one showing it
-configured for input.  For "x" mode, refer to the pin listing of
-"halcmd show pin" for pin direction assignment.
+Aucune autre combinaison n'est supportée. Un port ne peut plus être modifié pour passer d'entrées en sorties une fois le pilote installé. La figure <<fig:Parport-block-diag>> affiche deux diagrammes, un montre le pilote quand le groupe de données est configuré en sorties et le second le montre configuré en entrées.
 
-The parport driver can control up to 8 ports (defined by MAX_PORTS in
-hal_parport.c). The ports are numbered starting at zero.
+Le pilote `parport` peut contrôler au maximum 8 ports (définis par MAX_PORTS dans le fichier hal_parport.c). Les ports sont numérotés à partir de zéro.
 
-=== Installing
+=== Chargement de hal_parport
+--------------------------------------------------
+loadrt hal_parport cfg="<config-string>" 
+--------------------------------------------------
 
-+*loadrt hal_parport cfg="<config-string>"*+ 
+=== Utiliser l'index du port
 
-==== Using the Port Index
+Les adresses d'E/S inférieures à 16 sont traitées comme les index de port. C'est 
+la manière la plus simple d'installer le pilote `parport` en coopération avec le
+pilote de Linux parport_pc si il est chargé.
+--------------------------------------------------
+loadrt hal_parport cfg="0" 
+--------------------------------------------------
 
-I/O addresses below 16 are treated as port indexes. This is the
-simplest way to install the parport driver and cooperates with the
-Linux parport_pc driver if it is loaded.
+Utilisera l'adresse que Linux a détecté pour parport0.
 
-+*loadrt hal_parport cfg="0"*+ 
+=== Utiliser l'adresse du port
 
-Will use the address Linux has detected for parport0.
+La chaine config-string représente l'adresse hexadécimale du port, suivie optionnellement par une direction, le tout répété pour chaque port. Les directions sont `in`, `out`, ou `x`, elles déterminent la direction des broches physiques 2 à 9 et s'il y a lieu de créer des pins d'entrée de HAL pour les broches de contrôle physiques. Si la direction n'est pas précisée, le groupe données sera par défaut configuré en sorties. Par exemple:
+--------------------------------------------------
+loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out" 
+--------------------------------------------------
 
-==== Using the Port Address
+Cet exemple installe les pilotes pour un port 0x0278, avec les broches 2 à 9 en sorties (par défaut, puisque ni `in`, ni `out` n'est spécifié), un port 0x0378, avec les broches 2 à 9 en entrées et un port 0x20A0, avec les broches 2 à 9 explicitement spécifiées en sorties. Notez que vous devez connaître l'adresse de base des ports parallèles pour configurer correctement les pilotes. Pour les ports sur bus ISA, ce n'est généralement pas un problème, étant donné que les ports sont presque toujours à une adresse `bien connue`, comme 0x278 ou 0x378 qui sont typiquement configurées dans le BIOS. Les adresses des cartes sur bus PCI sont habituellement trouvées avec `lspci -v` dans une ligne `I/O ports`, ou dans un message du noayau après l'exécution de `sudo modprobe -a parport_pc`. Il n'y a pas d'adresse par défaut, si <config-string> ne contient pas au moins une adresse, c'est une erreur.
 
-The configure string consists of a hex port address, followed by an
-optional direction, repeated for each port. The direction is "in",
-"out", or "x" and determines the direction of the physical pins 2
-through 9, and whether to create input HAL pins for the physical
-control pins. If the direction is not specified, the data group
-defaults to output. For example:
+.Diagrammes blocs de parport[[fig:Parport-block-diag]]
 
-+*loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"*+ 
-
-This example installs drivers for one port at 0x0278, with pins 2-9 as
-outputs (by default, since neither "in" nor "out" was specified), one
-at 0x0378, with pins 2-9 as inputs, and one at 0x20A0, with pins 2-9
-explicitly specified as outputs. Note that you must know the base
-address of the parallel port to properly configure the driver. For ISA
-bus ports, this is usually not a problem, since the port is almost
-always at a "well known" address, like 0278 or 0378 which is typically
-configured in the system BIOS. The address for a PCI card is usually
-shown in "lspci -v" in an "I/O ports" line, or in the kernel message
-log after executing `"sudo modprobe -a parport_pc`". There is no
-default address; if `<config-string>` does not contain at least one
-address, it is an error.
-
-.Parport Block Diagram[[fig:Parport-block-diag]]
-
-image::parport-block-diag.eps[]
+image::images/parport-block-diag.png[]
 
 === Pins
 
- - `(bit) parport.<portnum>.pin-<pinnum>-out` -- Drives a physical
+ - `(bit) parport.<portnum>.pin-<pinnum>-out` -- Pilote une broche de sortie physique.
    output pin.
- - `(bit) parport.<portnum>.pin-<pinnum>-in` -- Tracks a physical input
+ - `(bit) parport.<portnum>.pin-<pinnum>-in` -- Suit une broche d'entrée physique.
    pin.
- - `(bit) parport.<portnum>.pin-<pinnum>-in-not` -- Tracks a physical
-   input pin, but inverted.
+ - `(bit) parport.<portnum>.pin-<pinnum>-in-not` -- Suit une pin d'entrée physique, 
+    mais inversée.
+Pour chaque pin, `<portnum>` est le numéro du port et `<pinnum>` est le numéro de la broche physique du connecteur DB-25.
 
-For each pin, `<portnum>` is the port number, and `<pinnum>` is the
-physical pin number in the 25 pin D-shell connector.
+Pour chaque broche de sortie physique, le pilote crée une simple pin de HAL, par exemple parport.0.pin-14-out. Les pins 2 jusqu'à 9 font partie du groupe `données`, elles sont des pins de sortie si le port est défini comme un port de sortie (par défaut, port de sortie). Les broches 1, 14, 16 et 17 sont des sorties dans tous les modes. Ces pins de HAL contrôlent l'état des pins physiques correspondantes.
 
-For each physical output pin, the driver creates a single HAL pin, for example: 
-`parport.0.pin-14-out` . + 
-Pins 2 through 9 are part of the data group and are output pins if
-the port is defined as an output port. (Output is the default.) Pins 1,
-14, 16, and 17 are outputs in all modes. These HAL pins control the
-state of the corresponding physical pins.
+Pour chaque pin d'entrée physique, le pilote crée deux pins de HAL, par exemple: parport.0.pin-12-in et parport.0.pin-12-in-not. Les pins 10, 11, 12, 13 et 15 sont toujours des sorties. Les pins 2 jusqu'à 9 sont des pins d'entrée seulement si le port est défini comme un port d'entrée. Une pin de HAL -in est VRAIE si la pin physique est haute et FAUSSE si la pin physique est basse. Une pin de HAL -in-not est inversée, elle est FAUSSE si la pin physique est haute. En connectant un signal à l'une ou à l'autre, l'utilisateur peut décider de la logique de l'entrée. En mode `x`, les pins 1, 14, 16 et 17 sont également des pins d'entrée.
 
-For each physical input pin, the driver creates two HAL pins, for example: 
-`parport.0.pin-12-in` and `parport.0.pin-12-in-not` . + 
-Pins 10, 11, 12, 13, and 15 are always input pins. Pins 2 through 9 
-are input pins only if the port is defined as an input port. The `-in`
-HAL pin is TRUE if the physical pin is high, and FALSE if the 
-physical pin is low. The `-in-not` HAL pin is inverted -- it is FALSE
-if the physical pin is high. By 
-connecting a signal to one or the other, the user can determine the
-state of the input. In "x" mode, pins 1, 14, 16, and 17 are also input
-pins. 
+=== Paramètres
 
-=== Parameters
+ - `(bit) parport.<portnum>.pin-<pinnum>-out-invert` -- Inverse une pin de sortie.
+ - `(bit) parport.<portnum>.pin-<pinnum>-out-reset` -- (seulement pour les pins 2..9) 
+    VRAIE si cette pin doit être réinitialisée quand la fonction de réinitialisation 
+    est exécutée.
+ - `(U32) parport.<portnum>.reset-time` -- Le temps (en nanosecondes) entre le 
+    moment ou la broche est écrite et le moment ou elle est réinitialisée par les 
+    fonctions de réinitialisation de HAL.
 
- - `(bit) parport.<portnum>.pin-<pinnum>-out-invert` -- Inverts an
-   output pin.
- - `(bit) parport.<portnum>.pin-<pinnum>-out-reset` (only for "out"
-   pins) -- TRUE if this pin should be reset when the `-reset` function is
-   executed.
- - `(U32) parport.<portnum>.reset-time` -- The time (in nanoseconds)
-   between a pin is set by `write` and reset by the `reset` function if it
-   is enabled.
+Le paramètre `-invert` détermine si une pin de sortie est active haute ou active basse. 
+Si `-invert` est FAUX, mettre la pin HAL -out VRAIE, placera la pin physique à l'état 
+haut et mettre la pin HAL FAUSSE, placera la pin physique à l'état bas. 
+Si `-invert` est VRAI, mettre la pin HAL -out VRAIE, va mettre la pin physique à l'état bas.
+Si `-reset` est VRAI, la fonction de réinitialisation va passer la pin à la valeur 
+de `-out-invert`. Ceci peut être utilisé en conjonction avec `stepgen doublefreq` 
+pour produire un pas par période.
 
-The `-invert` parameter determines whether an output pin is active
-high or active low. If `-invert` is FALSE, setting 
-the HAL `-out` pin TRUE drives the
-physical pin high, and FALSE drives it low. If `-invert` is TRUE, then
-setting the HAL `-out` pin TRUE will drive the physical pin low.
+=== Fonctions
 
-=== Functions
+ - `(funct) parport.<portnum>.read`-- Lit les pins physiques du port <portnum> 
+    et met à jour les pins de HAL -in et -in-not.
+ - `(funct) parport.read-all` -- Lit les pins physiques de tous les ports et met 
+    à jour les pins de HAL -in et -in-not.
+ - `(funct) parport.<portnum>.write` -- Lit les pins de HAL -out du port <portnum> 
+    et met à jour les pins de sortie physiques correspondantes.
+ - `(funct) parport.write-all` -- Lit les pins de HAL -out de tous les ports et 
+    met à jour toutes les pins de sortie physiques.
+ - `(funct) parport.<portnum>.reset` -- Attends que le délai de mise à jour `reset-time` 
+    soit écoulé depuis la dernière écriture associée `write` puis remet à jour les 
+    pins aux valeurs indiquées par `-out-invert` et les paramètres de `-out-invert`. 
+    La réinitialisation doit être plus tard dans le même thread que l'écriture.
 
- - `(funct) parport.<portnum>.read`-- Reads physical input pins of port
-   `<portnum>` and updates HAL `-in` and `-in-not` pins.
- - `(funct) parport.read-all` -- Reads physical input pins of all ports
-   and updates HAL `-in` and `-in-not` pins.
- - `(funct) parport.<portnum>.write` -- Reads HAL `-out` pins of port
-   `<portnum>` and updates that port's physical output pins.
- - `(funct) parport.write-all` -- Reads HAL `-out` pins of all ports
-   and updates all physical output pins.
- - `(funct) parport.<portnum>.reset` -- Waits until `reset-time` has
-   elapsed since the associated `write`, then resets pins to values
-   indicated by `-out-invert` and `-out-invert` settings. `reset` must be
-   later in the same thread as `write. `If `-reset` is TRUE, then the
-   `reset` function will set the pin to the value of `-out-invert`. This
-   can be used in conjunction with stepgen's `doublefreq`  to produce one
-   step per period. The stepgen stepspace for that pin
-   must be set to 0 to enable doublefreq.
+Les différentes fonctions individuelles sont prévues pour les situations où un 
+port doit être mis à jour dans un thread très rapide, mais d'autres ports peuvent 
+être mis à jour dans un thread plus lent pour gagner du temps CPU. Ce n'est 
+probablement pas une bonne idée d'utiliser en même temps, les fonctions -all et une fonction individuelle.
 
-The individual functions are provided for situations where one port
-needs to be updated in a very fast thread, but other ports can be
-updated in a slower thread to save CPU time. It is probably not a good
-idea to use both an `-all` function and an individual function at the
-same time.
+=== Problème courant
 
-=== Common problems
-
-If loading the module reports
+Si, au chargement du module un message du genre suivant apparait:
 
     insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko': 
     -1 Device or resource busy 
 
-then ensure that the standard kernel module `parport_pc`  is not
-loadedfootnote:[In the EMC packages for Ubuntu, the file
-/etc/modprobe.d/emc2
-generally prevents `parport_pc` from being automatically loaded.] 
-and that no other device in the system has claimed the I/O ports.
+s'assurer que le noyau du kernel standard, parport_pc, n'est pas chargé et qu'aucun 
+périphérique dans le système ne revendique les ports concernés. footnote:[Dans le
+paquetage EMC pour Ubuntu, le fichier /etc/modprobe.d/emc2 empêche normalement que
+`parport_pc` soit chargé automatiquement.]
 
-If the module loads but does not appear to function, then the port
-address is incorrect or the `probe_parport` module is required.
+Si le module est chargé mais ne semble pas fonctionner, l'adresse du port est 
+incorrecte ou le module `probe_parport` est revendiqué par un autre périphérique. 
 
-=== Using DoubleStep
+=== Utiliser DoubleStep
 
-To setup DoubleStep on the parallel port you must add the function
-parport.n.reset after parport.n.write and configure stepspace to 0 and
-the reset time wanted. So that step can be asserted on every period in
-HAL and then toggled off by parport after being asserted for time
-specificed by parport.n.reset-time.
+Pour activer DoubleStep sur un port parallèle, il faut ajouter la fonction
+`parport.n.reset` après `parport.n.write` et configurer `stepspace` à `0` ainsi 
+que le `reset-time` souhaité. Alors ce pas pourra être positionné à chaque période
+dans HAL, puis voir son état basculé par `parport` après été positionné pendant
+le temps spécifié par parport.n.reset-time.
 
-For example:
-
-    loadrt hal_parport cfg="0x378 out" 
-    setp parport.0.reset-time 5000 
-    loadrt stepgen step_type=0,0,0 
-    addf parport.0.read base-thread 
-    addf stepgen.make-pulses base-thread 
-    addf parport.0.write base-thread 
-    addf parport.0.reset base-thread 
-    addf stepgen.capture-position servo-thread 
-    ... 
-    setp stepgen.0.steplen 1 
-    setp stepgen.0.stepspace 0 
+Par exemple:
+--------------------------------------------------
+loadrt hal_parport cfg="0x378 out" 
+setp parport.0.reset-time 5000
+loadrt stepgen step_type=0,0,0 
+addf parport.0.read base-thread 
+addf stepgen.make-pulses base-thread 
+addf parport.0.write base-thread 
+addf parport.0.reset base-thread
+addf stepgen.capture-position servo-thread 
+...
+setp stepgen.0.steplen 1 
+setp stepgen.0.stepspace 0 
+--------------------------------------------------
 
 == probe_parport[[sec:probe_parport]]
 
-In modern PCs, the parallel port may require plug and play (PNP)
-configuration before it can be used. The `probe_parport`  module
-performs configuration of any PNP ports present, and should be
-loaded before `hal_parport`. On machines without PNP ports, it may be
-loaded but has no effect.
+Dans les PC actuels, les ports parallèles peuvent requérir une configuration 
+plug and play (PNP) avant qu'ils ne puissent être utilisés. Le module de noyau 
+`probe_parport` effectue la configuration de tous les port PNP présents. Il doit 
+être chargé avant `hal_parport`. Sur les machines sans port PNP, il peut être chargé mais restera sans effet.
 
-=== Installing
+=== Installer probe_parport
 
-+loadrt probe_parport+ 
+--------------------------------------------------
+loadrt probe_parport
+loadrt hal_parport ... 
+--------------------------------------------------
 
-+loadrt hal_parport ...+ 
-
-
-If the Linux kernel prints a message similar to
+Si le kernel Linux affiche un message similaire à:
 
 +parport: PnPBIOS parport detected.+
 
-when the parport_pc module is loaded (`sudo modprobe -a parport_pc;
-sudo rmmod parport_pc)` then use of this module is probably required.
+Quand le module parport_pc est chargé, avec la commande: `sudo modprobe -a parport_pc; 
+sudo rmmod parport_pc`, l'utilisation de ce module sera probablement nécessaire.
 
 

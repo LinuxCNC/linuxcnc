@@ -11,7 +11,7 @@ carte de conversion (DAC) comme la m5i20 pour sortir le signal.
 Premièrement vous devez calculer le facteur d'échelle entre la vitesse
 broche et la tension de commande. Dans cet exemple, la vitesse maximale
 de la broche sera de 5000 tr/mn pour une tension de commande de 10V.
-latexmath:[10/5000=0.002] notre facteur d'échelle sera donc de 0.002
+10 Volts/5000 tr/mn = 0.002 Volts par tr/mn notre facteur d'échelle sera donc de 0.002
 
 Si votre carte DAC ne dispose pas d'une fonction échelle, nous devrons
 ajouter un composant «scale» (echelle) au fichier hal pour calibrer

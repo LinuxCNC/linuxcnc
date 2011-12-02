@@ -137,10 +137,12 @@ D'après les informations ci-dessus:
  - Le pilote aura besoin de 1600 impulsions pour un tour moteur
    et donc de 4800 pour 1 tour de vis.
 
-== Assistant de configuration graphique
+== Assistants de configuration graphique
 
-Voir l'utilisation de l'assistant Stepconf au chapitre (<<cha:Assistant-graphique-pas-a-pas>>)
-
+ - Pour les moteurs pas à pas, voir la documentation de l'assistant graphique Stepconf 
+au chapitre (<<cha:Assistant-graphique-pas-a-pas>>)
+ - Pour les servomoteurs et les moteurs pas à pas, voir la documentation de 
+l'assistant graphique PNCconf au chapitre: (<<cha:Assistant-graphique-Mesa>>)
 
 // vim: set syntax=asciidoc:
 

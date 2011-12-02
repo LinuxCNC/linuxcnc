@@ -80,7 +80,7 @@ widgets.
     <labelframe text="Jog Buttons"> 
     <font>("Helvetica",16)</font>
 
-    <!--- the X jog buttons ---> 
+    <!-- the X jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -98,7 +98,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the Y jog buttons ---> 
+    <!-- the Y jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -116,7 +116,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the Z jog buttons ---> 
+    <!-- the Z jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -134,7 +134,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the jog speed slider ---> 
+    <!-- the jog speed slider --> 
     <vbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 

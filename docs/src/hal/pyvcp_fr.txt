@@ -67,8 +67,12 @@ la documentation des widgets: <<sec:Documentation-des-widgets>>
 
 Un fois que vous avez créé votre panneau, connecter les signaux HAL de
 la forme à la pin pyVCP se fait avec la commande 'halcmd linksp'
-habituelle. Si vous débutez avec HAL, le tutoriel de HAL 
+habituelle. 
+
+/////////
+Si vous débutez avec HAL, le tutoriel de HAL 
 <<cha:Tutoriel-HAL>> est vivement recommandé.
+/////////
 
 == Sécurité avec pyVCP
 

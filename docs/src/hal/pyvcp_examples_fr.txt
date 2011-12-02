@@ -80,7 +80,7 @@ widgets.
     <labelframe text="Jog Buttons"> 
     <font>("Helvetica",16)</font>
 
-    <!--- the X jog buttons ---> 
+    <!-- the X jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -98,7 +98,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the Y jog buttons ---> 
+    <!-- the Y jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -116,7 +116,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the Z jog buttons ---> 
+    <!-- the Z jog buttons --> 
     <hbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -134,7 +134,7 @@ widgets.
     </button> 
     </hbox>
 
-    <!--- the jog speed slider ---> 
+    <!-- the jog speed slider --> 
     <vbox> 
     <relief>RAISED</relief> 
     <bd>3</bd> 
@@ -343,7 +343,7 @@ Owner Type  Dir Value  Name
 This will show you what pins are IN and what pins are OUT as well as
 any connections.
 
-== GS2 RPM Meter[[sec:GS2-RPM-Meter-Example]]
+== Compte tours pour GS2[[sec:Exemple-Compte-Tours-GS2]]
 
 The following example uses the Automation Direct GS2 VDF driver and
 displays the RPM and other info in a PyVCP panel. This example is based
@@ -441,7 +441,7 @@ To create the panel we add the following to the .xml file.
 
 The above gives us a PyVCP panel that looks like the following.
 
-.GS2 Panel[[cap:GS2-Panel]]
+.GS2 Panel[[cap:Panneau-GS2]]
 
 image::images/gs2_panel.png[]
 

@@ -1,912 +1,1042 @@
-= Assistant graphique de configuration Mesa PNCconf[[cha:Assistant-graphique-Mesa]]
+﻿= Assistant graphique de configuration Mesa PNCconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))
 
-(((Assistant graphique de configuration Mesa pncconf)))
-(((PNCconf Wizard)))
-(((Mesa Assistant graphique de configuration pncconf)))
+L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/
+sorties Mesa et des ports parallèles (3). Il est destiné à la configuration de 
+systèmes à servomoteurs en boucle fermée ou de systèmes à moteurs pas à pas 
+avec pilotage _matériel_ externe. Il utilise une approche d'assistance similaire 
+à celle de StepConf qui est lui, utilisé pour configurer les systèmes avec 
+pilotage _logiciel_ des moteurs pas à pas, au travers de ports parallèles. 
+Pour une machine n'utilisant qu’un ou deux ports parallèles standards, le 
+logiciel StepConf pourrait être un choix plus judicieux.
 
-PNCconf is made to help build configurations that utilize specific Mesa 
-'Anything I/O' products. 
+L'assistant PNCconf permet de produire des configurations avancées sans 
+connaitre quoi que ce soit de HAL. 
 
-It can configure closed loop servo systems or hardware stepper systems. +
-It uses a similar 'wizard' approach as Stepconf (used for software stepping, 
-parallel port driven systems).
+PNCconf en est encore au stade du développement (Alpha) il peut exister 
+quelques bogues et manques de fonctionnalités.
+Merci de rapporter les bogues et les suggestions à la page du forum ou par 
+courriel à la liste de diffusion.
 
-PNCconf is still in a development stage (Beta) so there are some bugs and
- lacking features. +
-Please report bugs and suggestions to the EMC forum page or mail-list.
+Il y a deux manières d'utiliser PNCconf:
 
-There are two trains of thought when using PNCconf:
+- La première consiste à l'utiliser pour configurer le système et si, par
+la suite, certaines options doivent être modifiées, il suffira alors de
+recharger PNCconf et d'apportez les modifications aux réglages.
+Cela fonctionne bien si la machine est assez standard, pour les machines particulières 
+il est possible d'ajouter à la main les nouvelles fonctionnalités. 
+PCNConf est bien adapté pour cette utilisation.
+ 
+- La seconde consiste à l'utiliser pour construire une configuration la plus 
+proche possible de ce que est souhaité, puis à la modifier à la main pour 
+l'adapter aux besoins. C'est le bon choix si les besoins de modifications vont 
+au-delà des possibilités de PNCconf ou pour expérimenter et en apprendre plus sur EMC2.
 
-One is to use PNCconf to always configure your system - if you decide to change 
-options, reload PNCconf and allow it to configure the new options. This will 
-work well if your machine is fairly standard and you can use custom files to add
- non standard features. PNCconf tries to work with you in this regard.
+Il est possible de naviguer dans l'assistant, revenir sur des pages, annuler des 
+choix, obtenir de l'aide et des diagrammes puis enfin, de valider la configuration 
+par la page de sortie du programme.
 
-The other is to use PNCconf to build a config that is close to what you want and
- then hand edit everything to tailor it to your needs. This would be the choice 
-if you need extensive modifications beyond PNCconf's scope or just want to 
-tinker with / learn about EMC
+*************************************************
+NDT: Certaines divergences entre cette traduction et l'aspect réel de l'interface
+peuvent apparaitre pendant la phase de développement de PNCconf. Elles disparaitront
+quand le logiciel sera finalisé.
+*************************************************
 
-You navigate the wizard pages with the forward, back, and cancel buttons there 
-is also a help button that gives some help information about the pages, diagrams
- and an output page.
+== Instructions pas à pas
 
-TIP: PNCconf's help page should have the most up to date info and has additional
- details.
+Démarrer le programme depuis le menu CNC->PnCConf ou depuis un terminal
+avec la commande `pncconf`. 
 
-[float]
-Step by Step Instructions
-=========================
-
-.PnCConf Splash
+.Écran d'accueil de PnCConf
 
 image::images/pncconf-splash.png[]
 
-== Create or Edit
+== Créer ou éditer une configuration
 
-This allows you to select a previously saved configuration or create a new one.
-If you pick 'Modify a configuration' and then press next a file selection box 
-will show. Pncconf preselects your last saved file. Choose the the config you 
-wish to edit. It also allows you to select desktop shortcut / launcher options.
-A desktop shortcut will place a folder icon on the desktop that points to your 
-new configuration files. Otherwise you would have to look in your home folder 
-under EMC2/configs. +
-A Desktop launcher will add an icon to the desktop for starting your config 
-directly. You can also launch it under Applications/cnc/emc2 and selecting your
- config name.
+Il est possible de créer une nouvelle configuration ou d'en modifier une ancienne.
+Si 'Modify a configuration' est choisi, suivi d'un clic sur 'Next', une boite de 
+sélection apparait. Pncconf présélectionne le dernier fichier enregistré. 
+Choisir alors, la configuration à modifier. Vous pouvez aussi cocher les options 
+suivantes `Create a desktop shortcut` qui créera un raccourci sur le bureau 
+pointant sur ce nouveau fichier de configuration, `Create a desktop launcher` qui
+créera un lanceur sur le bureau pour EMC2 dans cette configuration.
+Si ces options ne sont pas utilisées, le nouveau fichier de configuration se trouvera
+dans le dossier `~/emc2/configs`. Il est toujours  possible de lancez EMC2 
+normalement et de sélectionner la configuration souhaitée dans la liste.
 
-== Basic Machine Information
+== Informations de base sur la machine
 
-.PnCConf Basic
+.Informations de base sur la machine
 
 image::images/pncconf-basic.png[]
 
-Machine Basics::
-If you use a name with spaces PNCconf will replace the spaces with underscore 
-(as a loose rule Linux doesn't like spaces in names) +
-Pick an axis configuration - this selects what type of machine you are building 
-and what axes are available. The Machine units selector allows data entry of 
-metric or imperial units in the following pages. +
+Informations de base sur la machine::
 
-TIP: Defaults are not converted when using metric so make sure they are sane 
-values!
+- Machine Name:: 
+     Préciser ici le nom de la configuration, les espaces dans les noms seront 
+    remplacés par des '_' (en règle générale,  Linux n'aime pas les espaces dans 
+    les noms de fichiers). 
 
-Computer Response Time::
-The servo period sets the heart beat of the system. Latency refers to the amount
- of time the computer can be longer then that period. Just like a railroad, EMC
- requires everything on a very tight and consistent time line or bad things 
-happen. EMC requires and uses a 'real time' operating system, which just means 
-it has a low latency ( lateness ) response time when EMC requires it's 
-calculations and when doing EMC's calculations it cannot be interrupted by lower
- priority requests (such as user input to screen buttons or drawing etc).
-Testing the latency is very important and a key thing to check early. Luckily by
- using the Mesa card to do the work that requires the fastest response time 
-(encoder counting and PWM generation) we can endure a lot more latency then if 
-we used the parallel port for these things. The standard test in EMC is checking
- the BASE period latency (even though we are not using a base period). If you 
-press the 'test base period jitter' button, this launches the latency test 
-window ( you can also load this directly from the applications/cnc panel ). The 
-test mentions to run it for a few minutes but the longer the better. consider 15
- minutes a bare minimum and overnight even better. At this time use the computer
- to load things, use the net, use USB etc we want to know the worst case 
-latency and to find out if any particular activity hurts our latency. We need to
- look at base period jitter. +
-Anything under 20000 is excellent - you could even do fast software stepping 
-with the machine +
-20000 - 50000 is still good for software stepping and fine for us. +
-50000 - 100000 is really not that great but could still be used with hardware 
-cards doing the fast response stuff. +
-So anything under 100000 is useable to us. +
-If the latency is disappointing or you get a bad hicup periodically you may 
-still be able to improve it. 
+- Axis configuration:: 
+     Cette liste déroulante précise le nombre d'axe de votre machine, 
+    sélectionnez selon la machine XYZ (fraiseuse), XYZA (fraiseuse 4-axe) 
+    ou XZ (tour).
 
-TIP: There is a user compiled list of equipment and the 
-latency obtained on the EMC wiki : +
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test +
-Please consider adding your info to the list. Also on that page are links to 
-info about fixing some latency problems. 
+Machine Units::
+     Définit l'unité de mesure utilisée par la machine, impérial ou métrique 
+    (Pouce ou mm), toutes les données de mesure introduites par la suite devront 
+    être dans l'unité précisée ici.
+     *Avertissement*: Les valeurs par défaut déjà introduites ne sont pas converties 
+    dans l'unité choisie, bien vérifier ces valeurs.
 
-Now we are happy with the latency and 
-must pick a servo period. In most cases a servo period of 1000000 ns is
-fine ( that gives a 1 kHz servo calculation rate - 1000 calculations a second) 
-if you are building a closed loop servo system that controls torque (current) 
-rather then velocity (voltage) a faster rate would be better - something like 
-200000 (5 kHz calculation rate). The problem with lowering the servo rate is 
-that it leaves less time available for the computer to do other things besides 
-EMC's calculations. Typically the display (GUI) becomes less responsive. You
- must decide on a balance. Keep in mind that if you tune your closed loop servo
-system then change the servo period you probably will need to tune them again.
+- Computer Response Time::
+     The servo period: C'est l'horloge du système. La latence donne la variation 
+    de cette horloge. EMC2 demande une chronologie serrée et cohérente, sinon 
+    des problèmes surviendront.
  
-I/O Control Ports/Boards::
-PNCconf is capable of configuring machines that have up to two Mesa boards and 
-three parallel ports. Parallel ports can only be used for simple low speed 
-(servo rate) I/O.
+EMC2 requiert et utilise un système `temps réel` ce qui signifie qu'il a une 
+latence faible et un temps de réponse très court. Les évènements arrivent avec 
+précision dans le temps quand EMC2 nécessite pour ses calculs, de ne pas être 
+interrompu par des demandes (interruption) de priorités inférieures comme des 
+saisies au clavier ou des demandes d'affichage.
+
+Le test de latence est très important, il est un élément clef et doit être 
+effectué au plus tôt. Heureusement les cartes Mesa se chargent des tâches critiques 
+en temps de réponse, comme le comptage d'impulsions, la génération de PWM et cela 
+leur permet de supporter une latence supérieure à celle d'un système utilisant 
+les ports parallèles de la carte mère.
+
+Le test standard dans EMC2, consiste à vérifier la latence de base. Un appui sur 
+le bouton `test base period jitter` lancera le test de latence, il est également 
+possible de le lancer depuis le menu `application->cnc->latency test`. Ce test 
+doit fonctionner plusieurs minutes, en fait, le plus longtemps possible. 
+15 minutes est un minimum. Pendant le test, essayer de d'utilisez le plus possible 
+l'ordinateur, le réseau, le port USB, les disques durs, l'affichage. 
+Observer et noter si une action particulière dégrade le temps de latence. 
+A la fin, il sera possible de connaitre la "base period jitter"+
+Un valeur en dessous de 20000 est excellente et permet une génération rapide des 
+impulsions de pas avec cette machine.+
+20000 à 50000 est assez bon pour la génération de pas. +
+50000 à 100000 ce n'est pas très bon mais la machine peu encore servir pour la 
+génération de pas avec une carte ayant des temps de réponse courts.+
+Plus grand que 100000, la machine n'est pas utilisable pour cette fonction.
+
+Si la latence est médiocre ou si des problèmes intermittents surviennent 
+régulièrement il sera toujours possible de l'améliorer.
+
+TIP: Il y a une liste d'équipements et de leurs temps de latences sur le wiki EMC : +
+http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Latency-Test +
+SVP, pensez à ajouter vos infos à la liste. Sur cette page il y a des liens vers 
+des informations pour résoudre les problèmes de latence.
+
+Maintenant que nous avons un temps de latence acceptable nous devons choisir 
+une période d'asservissement (servo period).
+Dans la plupart des cas une période d'asservissement de 1000000ns est bonne, 
+cela donne un taux (servo rate) de 1 kHz soit 1000 calculs par seconde.
+Si vous construisez un système d'asservissement en boucle fermée qui contrôle 
+le couple (courant) plutôt que la vitesse (tension) le taux sera meilleur,
+quelque chose comme 200 000 (5 kHz). Le problème avec l'abaissement de la période 
+c'est qu'elle laisse moins de temps disponible à l'ordinateur pour faire 
+d'autres choses. Typiquement la réponse de l'affichage (GUI) est moins bonne. 
+Il faut choisir un équilibre. Garder à l'esprit que sur un mécanisme en boucle fermée, 
+une modification de la période d'asservissement nécessitera de réajuster l'ensemble 
+des paramètres de la boucle.
+
+//I/O Control Ports/Boards::
+Carte d'entrées/sorties::
+     PNCconf est capable de configurer une machines avec deux cartes Mesa et 
+    trois ports parallèles. Les ports parallèles ne sont utilisables que pour 
+    des actions simples et peu rapide.
 
 Mesa::
-You must choose at least one Mesa board as PNCconf will not configure the 
-parallel ports to count encoders or output step or PWM signals.
-The mesa cards available in the selection box are based on what PNCconf finds 
-for firmware on the systems. There are options to add custom firmware and/or 
-'blacklist' (ignore) some firmware or boards using a preference file.
-If no firmware is found PNCconf will show a warning and use internal sample 
-firmware - no testing will be possible. One point to note is that if you choose 
-two PCI Mesa cards there currently is no way to predict which card is 0 and 
-which is 1 - you must test - moving the cards could change their order. If you 
-configure with two cards both cards must be installed for tests to function.
+     Au moins une carte Mesa doit être choisie. PNCconf ne peut pas configurer 
+    les ports parallèles pour des codeurs, des signaux de pas ou pour la 
+    génération de signaux PWM. La liste de sélection des cartes Mesa présentes 
+    dans la liste de sélection est construite selon les micros logiciels des 
+    cartes trouvées sur le système. Il existe des options permettant d'ajouter 
+    des micros logiciels personnalisés ou pour ignorer 'blacklist' certaines 
+    versions de micros logiciels ou certaines cartes, en utilisant un fichier 
+    de préférence.
+     Si aucune carte n'est détectée PNCconf affichera un avertissement et 
+    utilisera des valeurs par défaut mais aucun test ne sera possible. Il faut 
+    noter que, si plusieurs cartes Mesa sont utilisées, il n'existe aucun moyen 
+    de déterminer laquelle sera la carte N°0 ou N°1 et il sera indispensable de
+    le tester. Déplacer les cartes dans les ports PCI, peut changer leur ordre. 
+    Si la configuration est créée pour deux cartes, elles doivent être installées 
+    pour que les tests fonctionnent.
 
-Parallel Port::
-Up to 3 parallel ports (referred to as parports) can be used as simple I/O. You 
-must set the address of the parport. You can either enter the Linux parallel 
-port numbering system (0,1,or 2) or enter the actual address. The address for an
- on board parport is often 0x0278 or 0x0378 (written in hexadecimal) but can be 
-found in the BIOS page. The BIOS page is found when you first start your 
-computer you must press a key to enter it (such as F2). On the BIOS page you can
- find the parallel port address and set the mode such as SPP, EPP, etc on some
-computers this info is displayed for a few seconds during start up. For PCI 
-parallel port cards the address can be found by pressing the 'parport address 
-search' button. This pops up the help output page with a list of all the PCI 
-devices that can be found. In there should be a reference to a parallel port 
-device with a list of addresses. One of those addresses should work. Not all
-PCI parallel ports work properly. Either type can be selected as 'in' (maximum 
-amount of input pins) or 'out' (maximum amount of output pins)
 
-GUI Frontend list::
-    This specifies the graphical display screens EMC will use.
-    Each one has different option. 
+//Parallèle Port::
+Ports parallèle::
+     Jusqu'à 3 ports parallèles, appelés `parports` par Mesa, peuvent être utilisés 
+    comme de simples entrées sorties. L'adresse du port parallèle doit être définie. 
+    Il est possible soit d'entrer le N° du port parallèle selon le système
+    de numérotation de Linux 0, 1 ou 2 ou, d'entrer l'adresse réelle en hexadécimal. 
+    Les adresses des ports parallèles intégrés à la carte mère sont le plus souvent 
+    aux adresses 0x0378 0x0278, elles peuvent être trouvées dans la configuration 
+    du BIOS. Le Bios s'ouvre en enfonçant une touche du clavier au tout début du 
+    cycle de démarrage de l'ordinateur, souvent (Del ou F2) reportez-vous au 
+    document de votre carte mère. Sur une des pages du BIOS, il est possible de 
+    choisir l'adresse des ports parallèles et de définir leurs modes de fonctionnement 
+    comme SSP, EPP, etc, sur certains ordinateurs cette information est affichée
+    pendant quelques secondes lors du démarrage du PC.
+    Pour les ports parallèles sur carte PCI les adresses sont trouvées en cliquant 
+    sur le bouton 'parport address search' qui affichera la liste des périphériques 
+    PCI découverts. Dans cette liste, se trouvera une référence aux ports 
+    parallèles avec une liste d'adresses. Une de ces adresses doit fonctionner. 
+    Noter que tous les ports parallèles PCI ne fonctionnent pas correctement. 
+    Chaque port peut être sélectionné comme "in" pour augmenter le
+    nombre d'entrées sur ce port ou "out" pour un maximum de sorties. Par défaut,
+    les ports parallèles sont configurés en "out".
 
-        AXIS 
-            -fully supports lathes.
-            -is the most developed and used frontend
-            -is designed to be used with mouse and keyboard
-            -is tkinter based so integrates PYVCP (python based virtual control 
-                panels)  naturally.
-            -has a 3D graphical window.
-            -allows VCP integrated on the side or in center tab
+//GUI Frontend list::
+Les interfaces graphiques::
+    Spécifie les interfaces utilisateur graphiques que EMC2 peut utiliser.
+    Chacune a des options particulières. 
 
-        TOUCHY
-            -Touchy was designed to be used with a touchscreen, some minimal 
-                physical switches and a MPG wheel.
-            -requires cycle-start, abort, and single-step signals and buttons
-            -It also requires shared axis MPG jogging to be selected.  
-            -is GTK based so integrates GLADE VCP (virtual control panels) 
-                naturally.
-            -allows VCP panels integrated in the center Tab
-            -has no graphical window
-            -look can be changed with custom themes
+*AXIS*::
+ Supporte les tours.
+ C'est l'interface le plus utilisée.
+ Est conçu pour être utilisé avec la souris est un clavier.
+ Est basé sur tkinter et intègre donc PYVCP (contrôle visuel python).
+ Dispose d'un affichage graphique en 3D
+ Est intégrable sur les barres de tâches ou sur le bureau.
 
-        MINI
-            -standard on OEM Sherline machines
-            -does not use Estop
-            -no VCP integration
+*TOUCHY*::
+ Touchy est une interface minimale conçue pour les écrans tactiles. 
+ Permet l'usage de contacts physiques et d'une manivelle de jog à micro impulsions (MPG)
+ Demande les boutons `Départ cycle`, `Abandon`, `Marche par pas`
+ Demande aussi un bouton de sélection d'axe sur le jog si est multiaxe.  
+ Il est basé sur GTK et intègre GLADE VCP (panneaux de contrôle virtuel).
+ Permet d'intégrer un panneau de contrôle virtuel (VCP).
+ N'a pas de fenêtre de suivi du parcours d'outil.
+ L'aspect peut être modifié avec des thèmes personnalisés.
+
+*MINI*::
+ Est en standard sur les machines Sherline.
+ N'utilise pas d'arrêt d'urgence (ESTOP).
+ Pas d'intégration d'un panneau de contrôle.
             
-        TkEMC
-            - hi contrast bright blue screen   
-            - separate graphics window
-            - no VCP integration
+*TkEMC*::
+ Contraste élevé grâce à un fond bleu.
+ Fenêtre graphique séparée.
+ Pas d'intégration de panneau de contrôle.
 
-== External Configuration
+//== External Configuration
+== Configuration externe
 
-This page allows you to select external controls such as for jogging or 
-overrides.
+Cette page permet de sélectionner des contrôles externes pour la commande 
+manuelle de déplacement des axes (jogging) ou des curseurs des correcteurs de vitesse.
 
-.GUI External
+.GUI externe
 
 image::images/pncconf-external.png[]
 
-If you select a Joystick for jogging, You will need it always connected for EMC 
-to load. To use the analog sticks for useful jogging you probably need to add 
-some custom HAL code. MPG jogging requires a pulse generator connected to a MESA
- encoder counter. Override controls can either use a pulse generator (MPG) or 
-switches (such as a rotary dial). External buttons might be used with a switch 
-based OEM joystick.
+Si une manette de jeu externe est sélectionnée pour le jogging, il faudra 
+toujours la connecter à EMC2 avant de démarrer celui-ci. Si la manette est 
+analogique il faudra probablement ajouter du code personnalisé à HAL. 
+Les manivelles de jogging à vernier et micro impulsion (MPG) nécessitent d'être 
+connectées à une carte Mesa sur un compteur de codeur. Pour les correcteurs de 
+vitesses externe il est possible d'utiliser un mécanisme à générateur d'impulsions 
+(MPG) ou à commutation comme un commutateur rotatif. 
+Les boutons externes peuvent être ceux d'une manette de jeu.
 
-Joystick jogging:: 
-require a custom 'device rule' to be installed in the system. This is a file 
-that EMC uses to connect to LINUX's device list. PNCconf will help to make this 
-file.
+Joystick USB pour le jogging:: 
+     Demande des règlages spécifiques personnalisés pour être installé dans le 
+    système. Il s'agi d'un fichier qui est utilisé par EMC2 pour se connecter à 
+    liste des périphériques Linux. PNCconf aidera à la construction de ce fichier.
+- 'Search for device rule' va rechercher les règles dans le système, utilisable
+    pour trouver le nom des périphériques déjà construits avec PNCconf.
 
-'Search for device rule' will search the system for rules, you can use this to 
-find the name of devices you have already built with PNCconf.
+- 'Add a device rule' S'utilise pour configurer un nouveau périphérique 
+    en suivant les instructions. Le périphérique doit être branché et disponible.
 
-'Add a device rule' will allow you to configure a new device by following the 
-prompts. You will need your device available.
+- 'test device' permet de charger un périphérique et d'afficher ses noms de 
+    broches et visualiser ses fonctions avec l’outil halmeter.
 
-'test device' allows you to load a device, see its pin names and check it's 
-functions with halmeter.
+Les manettes de jeu utilisées en jogging utilisent HALUI et le composant hal_input.
 
-joystick jogging uses HALUI and hal_input components.
+//External buttons::
+Boutons externes::
+     Permet le jogging de l'axe avec de simples boutons à une vitesse spécifiée.
+    Probablement mieux adapté pour le jogging en vtesse rapide. 
 
-External buttons:: 
-allows jogging the axis with simple buttons at a specified jog rate. Probably 
-best for rapid jogging.
+//MPG Jogging::
+Manivelle à micro impulsions::
+     Permet d'utiliser un générateur d'impulsions (MPG) manuel pour faire du 
+    jogging sur les axes de la machine.
+    Les manivelles à micro impulsions sont souvent rencontrées sur les machines 
+    de bonne qualité. Elles délivrent en sortie des impulsions en quadrature qui 
+    peuvent être comptées avec un compteur de codeur MESA. PNCconf gère une 
+    manivelle par axe ou une manivelle partagée entre les axes. 
+    Il permet la sélection des vitesses de jogging en utilisant des commutateurs
+    rotatifs. L'option  de sélection des incréments de jog utilise le 
+    composant mux16. Ce composant dispose d'options telles que l'anti-rebond et 
+    l'utilisation du code Gray pour filtrer l'entrée physique du commutateur.
 
-MPG Jogging::
-allows you to use a Manual Pulse Generator to jog the machine's axis.
-
-MPG's are often found on commercial grade machines. They output quadrature 
-pulses that can be counted with a MESA encoder counter. PNCconf allows for an 
-MPG per axis or one MPG shared with all axis. It allows for selection of jog 
-speeds using switches or a single speed.
-The selectable increments option uses the mux16 component. This component
-has options such as debounce and gray code to help filter the raw switch input. 
-
-Overrides::
-PNCconf allows overrides of feedrates and/or spindle speed using a pulse 
-generator (MPG) or switches (eg. rotary).  
+//Overrides::
+Correcteurs de vitesses::
+     PNCconf permet de modifier les vitesses d'avances ou de broche en utilisant 
+    une manivelle à micros impulsions (MPG) ou un commutateur rotatif.
  
-== GUI Configuration
+//== GUI Configuration
+== Configuration de la GUI
 
-Here you can set defaults for the display screens, add virtual control panels 
-(VCP), and set some EMC options..
+Ici vous pouvez configurer l'interface graphique utilisateur (GUI), lui 
+ajouter des panneaux de commande virtuels (VCP) et définir certaines options 
+d'EMC2.
 
-.GUI Configuration
+.Configuration de la GUI
 
 image::images/pncconf-gui.png[]
 
-Frontend GUI Options::
+Options de la façade GUI::
 
-The default options allows general defaults to be chosen for any display screen.
+Les options par défaut permettent aux règles générales d'être choisies pour 
+n'importe quel écran d'affichage.
 
-AXIS defaults are options specific to AXIS. If you choose size , position or 
-force maximize options then PNCconf will ask if it's alright to overwrite a 
-preference file (.axisrc). Unless you have manually added commands to this file 
-it is fine to allow it. Position and force max can be used to move AXIS to a 
-second monitor if the system is capable.
+AXIS defaults:: 
+     Ici se trouve les options spécifiques à AXIS. Si une des options `size`, 
+    `position` ou `maximisez la zone` et choisie, il sera possible de modifier 
+    les valeurs de vitesse minimale ou maximale, le choix de l'éditeur de fichiers, 
+    la géométrie de la machine affichée. Ensuite, PNCconf demandera si il peut
+    écraser le fichier de préférences (.Axisrc). 
+    Cela écrasera les données que vous auriez ajoutées à la main dans ce fichier. 
+ 
+Touchy defaults:: 
+     Ici se trouve les options spécifiques à Touchy. La plupart des options de 
+    Touchy peuvent être modifiées dans la page des préférences de l'application
+    même quand elle est en marche. Touchy utilise GTK pour dessiner son écran, 
+    et supporte les thèmes GTK. Les thèmes modifient l'apparence et l'ergonomie
+    du programme. il est possible de télécharger des thèmes depuis le net ou 
+    de les modifier vous-même. Il y a déjà une liste des thèmes utilisables sur 
+    le système. PNCconf permet de modifier facilement le thème par défaut.
 
-Touchy defaults are options specific to Touchy. Most of Touchy's options can be 
-changed while Touchy is running using the preference page. Touchy uses GTK to 
-draw it's screen, and GTK supports themes. Themes controls the basic look and 
-feel of a program. You can download themes from the net or edit them yourself. 
-There are a list of the current themes on the computer that you can pick from.
-To help some of the text to stand out PNCconf allows you to override the 
-Themes's defaults. The position and force max options can be used to move Touchy
- to a second monitor if the system is capable.
-
-VCP options::
-
-Virtual Control Panels allow one to add custom controls and displays to the 
-screen. AXIS and Touchy can integrate these controls inside the screen in 
-designated positions. There are two kinds of VCPs - +
-pyVCP which uses *Tkinter* to draw the screen and GLADE VCP that uses *GTK* to 
-draw the screen. +
+Options de VCP::
+     Les panneaux de contrôle virtuels permettent d'ajouter des contrôles 
+    et des afficheurs personnalisés. AXIS et Touchy peuvent intégrer ces contrôles 
+    dans une zone déterminée de leur écran. Il y a deux sortes de panneaux de 
+    contrôle (VCP), pyVCP qui utilise *Tkinter* pour dessiner l'écran ou 
+    GLADE VCP qui utilise *GTK*.
 
 PyVCP::
-PyVCPs screen XML file can only be hand built. PyVCPs fit naturally in with AXIS
- as they both use TKinter. +
-HAL pins are created for the user to connect to inside their custom HAL file. +
-There is a sample spindle display panel for the user to use as-is or build on. +
-You may select a blank file that you can later add your controls ("widgets") to 
-or select a spindle display sample that will display spindle speed and indicate 
-if the spindle is at requested speed. +
-PNCconf will connect the proper spindle display HAL pins for you. +
-If you are using AXIS then the panel will be integrated on the right side. +
-If not using AXIS then the panel will be separate ("stand-alone") from the 
-frontend screen. +
-You can use the geometry options to size and move the panel, for instance to 
-move it to a second screen if the system is capable. If you press the "Display 
-sample panel" button the size and placement options will be honoured.
+     PyVCPs est un écran construit par un fichier XML. Il ne peut pas être 
+    construit à la main. PyVCPs s'intègrent naturellement avec AXIS car ils 
+    utilisent tous les deux Tkinter. Des `HAL pins` sont créées pour que 
+    l'utilisateur puisse les connecter dans son fichier HAL personnalisé.
+    Il existe par exemple, un tachymètre pour la vitesse de broche ou un panneau 
+    de boutons XYZ pour le jogging, l'utilisateur peut les utiliser tel quel ou 
+    les reconstruire à son gout.
+    Sélectionner un fichier vide où les contrôles («widgets») personnel seront 
+    enregistrés ou sélectionner un des modèles d'affichage prêts à l'emploi,
+    PCCcong établira alors lui-même les bonnes connexions avec HAL.
+////
+ Modification pour correspondre a l'application
+////
+    Si AXIS est utilisé, le panneau sera intégré sur le côté droit. 
+    Si AXIS n'est pas utilisé, le panneau sera distinct ("stand-alone") de l'écran 
+    frontal. Il est possible d'utiliser les options de géométrie et de dimensions 
+    pour déplacer le panneau, par exemple si le système le permet vers un second 
+    écran. Si le bouton `Display sample panel` est pressé, les données de 
+    géométrie et de dimensions seront utilisées et le panneau affiché.
 
 GLADE VCP::
-GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw 
-them, but by changing GLADE VCP's theme it can be made to blend pretty well in 
-AXIS. (try Redmond) +
-It uses a graphical editor to build it's XML files. +
-HAL pins are created for the user to connect to, inside of their custom HAL 
-file. + 
-GLADE VCP also allows much more sophisticated (and complicated) programming 
-interaction, which PNCconf currently doesn't leverage. (see GLADE VCP in the 
-manual)
+     VCPs GLADE s'intègrent naturellement à l'intérieur de l'écran TOUCHY car ils 
+    utilisent tous les deux GTK pour leurs interfaces, mais en modifiant le thème 
+    de GLADE VCP il se fond très bien dans AXIS. Il utilise un éditeur graphique 
+    pour créer ses fichiers XML. Des `HAL pins` sont créées, que l'utilisateur 
+    pourra connecter dans son fichier HAL personnalisé.
+    GLADE VCP permet aussi une interaction de programmation beaucoup plus 
+    sophistiquée et compliquée, ce qui n'est actuellement pas possible par PNCconf. 
+    (Voir GLADE VCP dans le manuel)
 
-PNCconf has sample panels for the user to use as-is or build on. +
-With GLADE VCP PNCconf will allow you to select different options on your sample
- display. +
-Under 'sample options' select which ones you would like. +
-The zero buttons use HALUI commands which you could edit later in the HALUI 
-section. +
-Auto Z touch-off also requires the classicladder touch-off program and a probe 
-input selected. +
-It requires a conductive touch-off plate and a grounded conductive tool. For an 
-idea on how it works see: +
+PNCconf propose des exemples de panneaux à utiliser tel quel ou à reconstruire. 
+Avec PNCconf, GLADE VCP permettra de sélectionner différentes options d'affichage 
+sur le modèle. Sous "sample options" sélectionner l'option souhaitée. 
+Les boutons de zéro utilisent des commandes HALUI qui pourront être modifiées 
+ultérieurement dans la section HALUI. Auto Z nécessite le programme "Touch-off' de 
+classicladder et que l'entrée de sonde soit sélectionnée. Il faut aussi un palpeur 
+qui peut être réalisé avec une plaque conductrice reliée à la masse. Pour avoir 
+une idée sur la façon dont cela fonctionne voir: 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?ClassicLadderExamples#Single_button_probe_touchoff 
 
-Under 'Display Options', size, position, and force max can be used on a 
-"stand-alone" panel for such things as placing the screen on a second monitor if
- the system is capable. +
-You can select a GTK theme which sets the  basic look and feel of the panel. +
-You Usually want this to match the frontend screen. +
-These options will be used if you press the "Display sample button". +
-With GLADE VCP depending on the frontend screen, you can select where the panel 
-will display. +
-You can force it to be stand-alone or with AXIS it can be in the center or on 
-the right side, with Touchy it can be in the center.
+Sous 'Display Options', les options de géométrie et de dimensions permettent de
+déplacer le panneau, par exemple vers un second écran, si le système le permet.
+Sélectionner un thème GTK pour définir l'aspect du panneaux.
+En général, on le souhaite identique à l'aspect de l'écran frontal.
+Ces options seront utilisées en appuyant sur le bouton "Display sample button".
+GLADE VCP placé sur l'écran frontal permet de sélectionner la position du panneau 
+sur celui-ci. Il peut fonctionner de manière autonome ou avec AXIS, il peut être 
+au centre ou sur le côté droit, avec Touchy il peut être dans le centre.
 
 Defaults and Options::
 
-....
-        Require homing before MDI / Running: 
-            -If you want to be able to move the machine before homing uncheck 
-                this checkbox.
-
-        Popup Tool Prompt: 
-            -Choose between an on screen prompt for tool changes or export 
-                standard signal names for a User supplied custom tool changer 
-                Hal file
-
+////
+        Require homing before MDI / Running:
+////
+Aquisition d'origine obligatoire avant MDI / exécution::
+- Pour pouvoir déplacer la machine sans passer par une recherche du point 
+    d'origine machine décochez la case.
+////
+      Popup Tool Prompt: 
+////
+Fenêtre de changement d'outils::
+- Permet le choix entre l'utilisation d'un écran de changement d'outil et 
+l'exportation d'un signal standard pour utiliser un changeur d'outils externe 
+et la table d'outils.
+////
         Leave spindle on during tool change: 
-            -Used for lathes
-
+////
+Laisser tourner la broche pendant le changement d'outil::
+- Laisse tourner la broche pendant le changement d'outil. Pour les tours.
+////
         Force individual manual homing: 
-
+////
+Oblige à faire la POM de chaque axe individuellement::
+- Oblige à fixer le point zéro de chaque axe individuellement.
+////
         Move spindle up before tool change: 
+////
+Position haute de la broche avant le changement d'outil::
+- Met la broche en position haute avant le changement d'outil.
+////
+        Restore joint position after shutdown:
+////    
+Retrouver la position après une extinction:: 
+- Mémorise la position des articulations à l'extinction. Utilisé pour les 
+    machines a cinématique complexe.
+////
+        Random position toolchangers:
+////
+Changeur d'outil à position changeante::		
+- Utilisé pour les changeurs d'outils qui ne reçoivent pas toujours les outils
+au mêmes emplacements. Des codes HAL doivent être ajoutés pour le support ces 
+changeurs d'outils.
 
-        Restore joint position after shutdown: 
-            -Used for non-trivial kinematics machines
+== Configuration Mesa::
+     Les pages de configuration Mesa permettent d'utiliser des micros logiciels 
+    différents. Sur la page de base, si une carte Mesa a été sélectionnée, 
+    ici s'effectue le choix du micro logiciel parmi ceux disponibles, puis le 
+choix et le paramétrage des composants nécessaires à la machine.
 
-        Random position toolchangers: 
-            -Used for toolchangers that do not return the tool to the same
-             pocket. You will need to add custom HAL code to support toolchangers.
-....
-
-== Mesa Configuration
-The Mesa configuration pages allow one to utilize different firmwares.
-On the basic page you selected a Mesa card here you pick the available firmware
-and select what and how many components are available.
-
-.Mesa Configuration
+.Configuration Mesa
 
 image::images/pncconf-mesa-config.png[]
 
-Parport address is used only with Mesa parport card, the 7i43. An onboard 
-parallel port usually uses 0x278 or 0x378 though you should be able to find the 
-address from the BIOS page. The 7i43 requires the parallel port to use the EPP 
-mode, again set in the BIOS page. If using a PCI parallel port the address can 
-be searched for by using the search button on the basic page. + 
+//Mesa parport adress::
+Adresse du port parallèle MESA:: 
+     Un port parallèle est utilisé seulement avec la carte Mesa 7i43. 
+    Les ports parallèles sur la carte mère ont généralement les adresses 0x378 et 
+    0x278 il est possible de trouver l'adresse sur la page du BIOS. 
+    Le 7i43 nécessite de programmer le port parallèle dans le mode EPP, 
+    encore une fois cela se configure dans la page du BIOS. Si un port parallèle 
+    sur carte PCI est utilisé, les adresses peuvent être recherchées en utilisant 
+    le bouton de recherche sur la page de base de PNCConf.
 
-IMPORTANT: Note lots of PCI cards do not support the EPP protocol properly.
+IMPORTANT: Noter que beaucoup de cartes PCI ne prennent pas en charge le 
+    protocole EPP correctement.
 
-PDM PWM and 3PWM base frequency sets the balance between ripple and linearity. 
-If using Mesa daughter boards the docs for the board should give recommendations
-. It's important to follow these to avoid damage and get the best performance. +
- For instance :
-....
-         The 7i33 requires PDM and a PDM base frequency of 6 mHz.
-         The 7i29 requires PWM and a PWM base frequency of 20 Khz
-         The 7i30 requires PWM and a PWM base frequency of 20 Khz
-         The 7i40 requires PWM and a PWM base frequency of 50 Khz
-         The 7i48 requires UDM and a PWM base frequency of 24 Khz
-....
+//PDM PWM et 3PWM base frequency : 
+Fréquence de base PDM, PWM et 3PWM:: footnote:[PDM: acronyme de Modulation de 
+Densité d'Impulsions, PWM: acronyme de Modulation de Largeur d'Impulsions]
+    Règle l'équilibrage entre entrainement et linéarité.
+    Si des cartes filles Mesa sont utilisées, les documents de celle-ci devraient 
+donner des recommandations. Il est important de les suivre pour éviter des dommages 
+et obtenir les meilleures performances.
 
-Watchdog time out is used to set how long the MESA board will wait before 
-killing outputs if communication is interrupted from the computer. Please 
-remember Mesa uses 'active low' outputs meaning that when the output pin is on, 
-it is low (approx 0 volts) and if its off the output in high (approx 5 volts) 
-make sure your equipment is safe when in the off (watchdog bitten) state.
+Par exemple....::
+- La carte 7i33 demande un PDM et une fréquence de base de 6 mHz.
+- La carte 7i29 demande un PWM et une fréquence de base de 20 Khz
+- La carte 7i30 demande un PWM et une fréquence de base de 20 Khz
+- La carte 7i40 demande un PWM et une fréquence de base de 50 Khz
+- La carte 7i48 demande un PWM et une fréquence de base de 24 Khz
 
-You may choose the number of available components by deselecting unused ones. 
-Not all component types are available with all firmware.
+//Watchdog time out :
+Durée du Watchdog::
+     Définit le délai durant lequel la carte Mesa va attendre avant de 
+    déconnecter les sorties si la communication est interrompue avec l'ordinateur. 
+    Les carte Mesa utilisent sur ce contact un niveau actif bas ce qui signifie 
+    que lorsque la sortie est activée son niveau logique est à 0 et si la sortie 
+    est inactive son niveau logique est à 1 soit environ 5 volts. S'assurer 
+    que l'équipement est en sécurité quand le watchdog est déclenché. 
 
-Choosing less then the maximum number of components allows one to gain more GPIO
- pins. If using daughter boards keep in mind you must not deselect pins that the
- card uses. For instance some firmware supports two 7i33 cards, If you only have
- one you may deselect enough components to utilize the connector that supported 
-the second 7i33. Components are deselected numerically by the highest number
-first then down with out skipping a number. If by doing this the components are 
-not where you want them then you must use a different firmware. The firmware 
-dictates where, what and the max amounts of the components. Custom firmware is 
-possible, ask nicely when contacting the EMC developers and Mesa. Using custom 
-firmware in PNCconf requires special procedures and is not always possible - 
-Though I try to make PNCconf as flexible as possible.
+//Num of encoders
+//Num of pwm generators
+//Num of step générators
+Nombre de codeurs::
+Nombre de générateur de PWM::
+Nombre de générateur de PAS::
+     Il est possible de choisir les composants en dé-sélectionnant ceux qui sont 
+    inutilisés. Les types de composants disponibles varient selon le micro logiciel 
+    et les cartes installées.
+    Si des composants ne sont pas sélectionnés, des broches GPIO seront gagnées. 
+    Si des cartes filles sont utilisées, garder à l'esprit que les pins que 
+    les cartes utilisent ne doivent pas être dé-sélectionnées. Par exemple, 
+    certain micros logiciels supportent deux cartes 7i33, si une seule est installée, 
+    il est possible de dé-sélectionner assez de composants non nécessaires pour utiliser 
+    le connecteur qui était prévus pour la seconde 7i33. Les composants sont 
+    dé-sélectionnés numériquement en commençant par le plus grand nombre d'abord, 
+    puis en descendant sans en sauter. Si en faisant cela, les composants ne sont 
+    pas là où il devraient, alors il faut utiliser un micro logiciel différent. 
+    Le micro logiciel dicte où, quoi et les nombre maximum de composants. 
+    Un micro logiciel personnalisé est possible en le demandant gentiment aux 
+    développeurs EMC et Mesa.
+    Les micros logiciels dans PNCconf nécessitent des procédures spéciales et ce 
+    n'est pas toujours possible. Bien que nous essayons de rendre PNCconf aussi 
+    souple que possible.
+    Après avoir choisi toutes les options, appuyer sur le bouton 
+    `Accept Component Changes` et PNCconf mettra à jour les pages de configuration 
+    des E / S. Seuls les onglets nécessaires seront affichés pour les connexions 
+    disponibles, selon les documents de Mesa.
 
-After choosing all these options press the 'Accept Component Changes' button and
- PNCconf will update the I/O setup pages. Only I/O tabs will be shown for 
-available connectors, depending on the Mesa board.
+//== Mesa I/O Setup
+== Réglages des E/S Mesa
 
+Les onglets sont utilisés pour configurer les broches d'entrée et de sortie 
+des cartes Mesa. PNCconf permet de créer des noms de signaux personnalisés 
+à utiliser dans les fichiers de HAL personnalisés.
 
-== Mesa I/O Setup
-The tabs are used to configure the input and output pins of the Mesa boards.
-PNCconf allows one to create custom signal names for use in custom HAL files.
-
-.Mesa I/O C2
+.Réglages des E/S Mesa C2
 
 image::images/pncconf-mesa-io2.png[]
+Sur cet onglet, avec ce micro logiciel, les composants sont liés à l'installation 
+d'une carte fille 7i33, généralement utilisée avec des servomoteurs en boucle fermée. 
+Noter que les numéros de composant des codeurs, des compteurs et des pilotes PWM 
+ne sont pas dans l'ordre numérique. Cela fait suite aux exigences de 
+l'architecture des cartes filles.
 
-On this tab with this firmware the components are setup for a 7i33 daughter 
-board, usually used with closed loop servos. Note the component numbers of the 
-encoder counters and PWM drivers are not in numerical order. This follows the 
-daughter board requirements.
-
-.Mesa I/O C3
+.Réglages des E/S Mesa C3
 
 image::images/pncconf-mesa-io3.png[]
+Sur cet onglet, il n'y a que des broches GPIO. Noter les numéros à trois 
+chiffres, ils correspondent au numéros des `HAL pins`. Les broches GPIO 
+peuvent être sélectionnées comme des entrées ou des sorties et elles peuvent 
+être inversées.
 
-On this tab all the pins are GPIO. Note the 3 digit numbers - they will match 
-the HAL pin number. GPIO pins can be selected as input or output and can be 
-inverted.
-
-.Mesa I/O C4
+.Réglages des E/S Mesa C4
 
 image::images/pncconf-mesa-io4.png[]
+Sur cet onglet, il y a un mélange entre des broches GPIO et des générateurs de pas.
+Les sorties générateur de pas et de direction peuvent être inversées. 
+Noter que l'inversion d'un signal Step Gen modifie les délais de pas, 
+il doivent correspondre à ce que le contrôleur attend.
 
-On this tab there are a mix of step generators and GPIO.
-Step generators output and direction pins can be inverted. Note that inverting a
- Step Gen-A pin (the step output pin) changes the step timing. It should match 
-what your controller expects.
+//== Parport configuration
+Configuration des ports parallèles
 
-== Parport configuration
 
 image::images/pncconf-parport.png[]
 
-The parallel port can be used for simple I/O similar to Mesa's GPIO pins.
+Les ports parallèles peuvent être utilisés comme de simples E/S similaires aux 
+broches GPIO Mesa.
 
-== Axis Configuration
+//== Axis Configuration
+== Configuration des axes
 
-.Axis Drive Configuration
+
+.Configuration des axes
 
 image::images/pncconf-axis-drive.png[]
 
-This page allows configuring and testing of the motor and/or encoder combination
-. If using a servo motor an open loop test is available, if using a stepper a 
-tuning test is available.
+Cette page permet de configurer et tester un moteur combiné ou non à un codeur. 
+Si un servomoteur est utilisé, un test en boucle ouverte est disponible. 
+si un moteur pas à pas est utilisé, un test de réglage est disponible.
 
-*Open Loop Test* +
-An open loop test is important as it confirms the direction of the motor and 
-encoder. The motor should move the axis in the positive direction when the 
-positive button is pushed and also the encoder should count in the postie 
-direction. The axis movementshould follow the Machinery Handbook standards or 
-AXIS graphical display will not make much sense. Hopefully the help page and 
-diagrams can help figure this out. Note that axis directions are based on TOOL 
-movement not table movement. There is no acceleration ramping with the open loop
- test so start with lower DAC numbers. By moving the axis a known distance one 
-can confirm the encoder scaling. The encoder should count even without the amp 
-enabled depending on how power is supplied to the encoder. 
+//*Open Loop Test* +
+Test en boucle ouverte::
+     Le test en boucle ouverte est important car il confirme la bonne direction du 
+    moteur et du codeur. Le moteur doit se déplacer dans le sens positif sur l'axe 
+    lorsque le bouton est pressé dans le sens positifs et aussi le codeur doit compter 
+    dans le même sens. Le mouvement de l'axe doit suivre les normes conventionnelles 
+    des machine-outil, sinon l'affichage graphique de l'axe n'aura pas de sens. 
+    Espérons que la page d'aide et le diagramme vous aideront à comprendre cela. 
+    Noter que les directions des axes sont celles du mouvement de l'outil et non 
+    celle du mouvement de la table. Il n'y a pas de rampe d'accélération lors du test 
+    en boucle ouverte, il convient donc de commencer avec une valeur faible du DAC. 
+    Déplacer l'axe sur une distance connue, confirmera la bonne mise à l'échelle du 
+    codeur. Le codeur doit compter dans le même sens, même sans la puissance sur le 
+    moteur, mais cela dépend de la manière dont le codeur est alimenté.
 
-WARNING: If the motor and encoder do not agree on counting direction then the 
-servo will run away when using PID control.
+[red]#AVERTISSEMENT:# Si le moteur et le codeur ne comptent pas dans le même sens 
+le servomoteur sera incontrôlable et s'emballera lors de l'utilisation en boucle 
+fermée sous régulation PID.footnote:[ PID: acronyme de Proportionnelle, Intégrale, 
+Dérivée. Ce sont les 3 composantes de la régulation en boucle fermée de type PID.]
 
-Since at the moment PID settings can not be tested in PNCconf the settings are 
-really for when you re-edit a config - enter your tested PID settings.
+Pour le moment les paramètres PID ne peuvent pas être testés dans PNCconf,
+ces réglages sont vraiment, pour quand vous rééditerez une configuration pour y
+mettre vos paramètres PID testés...
 
-DAC scaling, max output and offset are used to tailor the DAC output.
+Echelle du DAC:: footnote:[ DAC, acronyme pour Convertisseur Analogique Digital]
+     Deux valeurs de mise à l'échelle, `Max Output` et `Offset` sont utilisées 
+    pour linéariser le DAC (convertisseur digital analogique).
 
-*From the manual:* +
-These two values are the scale and offset factors for the axis output to the 
-motor amplifiers. The second value (offset) is subtracted from the computed 
-output (in volts), and divided by the first value (scale factor), before being 
-written to the D/A converters. The units on the scale value are in true volts 
-per DAC output volts. The units on the offset value are in volts. These can be 
-used to linearize a DAC. +
-    Specifically, when writing outputs, the EMC first converts the desired 
-output in quasi-SI units to raw actuator values, e.g., volts for an amplifier
- DAC. This scaling looks like: The value for scale can be obtained analytically 
-by doing a unit analysis, i.e., units are [output SI units]/[actuator units]. 
-For example, on a machine with a velocity mode amplifier such that 1 volt 
-results in 250 mm/sec velocity, Note that the units of the offset are in machine
- units, e.g., mm/sec, and they are pre-subtracted from the sensor readings. The 
-value for this offset is obtained by finding the value of your output which 
-yields 0.0 for the actuator output. If the DAC is linearized, this offset is 
-normally 0.0. +
-    The scale and offset can be used to linearize the DAC as well, resulting in 
-values that reflect the combined effects of amplifier gain, DAC non-linearity, 
-DAC units, etc. To do this, follow this procedure:
-....
+//*From the manual:* 
+*Théorie:*
+     Ces deux valeurs sont les facteurs d'échelle et d'offset de la sortie vers
+    l’amplificateur moteur, de l'axe. La deuxième valeur, l'offset, est soustraite 
+    de la sortie calculée (en Volts) et divisée par la première valeur (le facteur d'échelle), 
+    avant d'être écrite dans le DAC. La valeur d'échelle (Scale) s'exprime en
+    Volts/Volts de sortie du DAC. Le décalage (offset) s'exprime en Volts. 
+    Elles peuvent être utilisées pour linéariser le DAC. Plus précisément, lors 
+    de l'écriture des sorties, EMC2 convertit d'abord la valeur effective de la 
+    sortie concernée, qui est en quasi-unités SI, en valeurs brute d'actionneur. 
+    Par exemple, des Volts pour un amplificateur DAC. La valeur de l'échelle peut 
+    être obtenue en analysant l'unité c'est-à-dire en déterminant le rapport 
+    `[sortie unités SI]/[unités actionneur]`.
+    Par exemple, sur une machine avec un amplificateur en mode vitesse, qui fourni 
+    1 Volt pour une vitesse résultante de 250 mm/s. Noter que les unités de 
+    l'offset sont en unités machine, ici des mm/s et qu'elles sont pré-soustraites 
+    des lectures capteur. La valeur de cet offset est obtenue en trouvant la 
+    valeur de sortie qui donne 0,0 sur la sortie de l'actionneur. Si le DAC est
+    linéarisé, cet offset est normalement de 0,0.
+    L'échelle et l'offset peuvent être utilisés pour linéariser le DAC, il en 
+    résultera des valeurs qui reflèteront les effets combinés du gain de 
+    l'amplificateur, de la non-linéarité du DAC, des unités du DAC, etc. 
+    Pour le faire, suivez cette procédure:
 
-       1. Build a calibration table for the output, driving the DAC with a 
-            desired voltage and measuring the result:
-....
-Output Voltage Measurements
+.Construire une table de calibration pour la sortie. 
+Piloter le DAC avec la tension souhaitée et mesurez le résultat:
+////
+ Output Voltage Measurements
+////
+Mesure des tensions de sortie:
 
 [width="50%"]
 |========================================
-|*Raw* | *Measured*
-|-10 | *-9.93*    
-| -9 | *-8.83*
-|  0 | *-0.96*
-|  1 | *-0.03*
-|  9 | *9.87*
-| 10 | *10.07*
+|*Sortie brute* | *Mesure*
+|-10            | *-9.93*    
+| -9            | *-8.83*
+|  0            | *-0.96*
+|  1            | *-0.03*
+|  9            | *9.87*
+| 10            | *10.07*
 |========================================
 
-....
+. Par la méthode des moindres carrés, déterminer les coefficients a, b tels que 
+   `Mesure=a*Sortiebrute+b`
+. Noter que nous voulons une sortie effective telle que la valeur mesurée soit 
+    identique à la consigne. Cela signifie 
+ .. `cmd=a*Sortiebrute+b`
+ .. `Sortiebrute=(cmd-b)/a`
+. Par conséquent, les coefficients a et b de l'ajustement linéaire peuvent être 
+    utilisés directement comme échelle et offset pour le contrôleur. 
 
-       2. Do a least-squares linear fit to get coefficients a, b such that 
-            meas=a*raw+b
-       3. Note that we want raw output such that our measured result is 
-            identical to the commanded output. This means
-             1. cmd=a*raw+b
-             2. raw=(cmd-b)/a
-       4. As a result, the a and b coefficients from the linear fit can be used 
-            as the scale and offset for the controller directly. 
-....
+//MAX OUTPUT:
+Valeur maximale de sortie::
+     La valeur maximale pour la sortie de compensation PID qui est écrite sur 
+    l'ampli moteur, exprimée en volts. La valeur de sortie calculée est alignée 
+    sur cette limite. La limite est appliquée avant la mise à l'échelle des unités 
+    de sortie effective. La valeur est appliquée de manière symétrique aux deux 
+    limites, positive et négative.
 
-MAX OUTPUT:
-The maximum value for the output of the PID compensation that is written to the 
-motor amplifier, in volts. The computed output value is clamped to this limit. 
-The limit is applied before scaling to raw output units. The value is applied 
-symmetrically to both the plus and the minus side.
+//*Tuning Test* +
+Test de réglage::
+     Le test de réglage ne fonctionne, malheureusement, qu'avec les systèmes à 
+base moteur pas à pas. Encore une fois vérifier que les directions de déplacements 
+sur l'axe sont correctes. Puis testez le système en déplaçant l'axe d’avant en arrière, 
+si l'accélération ou la vitesse maximum sont trop élevées, vous perdrez des pas. 
+Attention: Au cours de ce déplacement manuel garder à l'esprit que la distance 
+d’arrêt est inversement proportionnelle à l’accélération et qu'avec une accélération 
+faible il faut du temps et de la distance pour arrêter l’axe. Les fin de course 
+ne sont pas fonctionnels pendant ce test. Un temps de pause peut être défini 
+entre chaque mouvement d'essai. Cela permet de vérifier la position de l’axe et 
+de voir si des pas sont perdus.
 
-*Tuning Test* +
-The tuning test unfortunately only works with stepper based systems. Again 
-confirm the directions on the axis is correct. Then test the system by running
- the axis back and forth, If the acceleration or max speed is too high you will 
-lose steps. While jogging, Keep in mind it can take a while for an axis with low
-acceleration to stop. Limit switches are not functional during this test. You 
-can set a pause time so each end of the test movement. This would allow you to 
-set up and read a dial indicator to see if you are loosing steps.
+//*Stepper Timing* 
+Timing des moteur pas à pas::
+     La séquence de signaux des sorties pas a pas, doit être adaptée aux exigences 
+du pilote des moteurs. Pncconf propose par défaut, certaines de ces séquences et il
+est possible de les personnaliser. 
+Voir http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing pour y 
+trouver des séquences pour le matériel le plus commun (n'hésitez pas à ajouter 
+celles que vous avez expérimenté). En cas de doute utiliser une valeur élevée 
+comme 5000, cela ne fera que limiter la vitesse maximale.
 
-*Stepper Timing* +
-Stepper timing needs to be tailored to the step controller's requirements. 
-Pncconf supplies some default controller timing or allows custom timing settings
-. See http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing for
-some more known timing numbers (feel free to add ones you have figured out). If 
-in doubt use large numbers such as 5000 this will only limit max speed.
+//*Brushless Motor Control* +
+Contrôle de moteur Brushless::
+     Ces options sont utilisées pour permettre le contrôle bas niveau des 
+moteurs `brushless` avec un micro logiciel spécial et des cartes filles. 
+Elles permettent également la conversion des capteurs à effet Hall d'un fabricant 
+à l'autre. Ce n'est que partiellement pris en charge et aura besoin d’une 
+intervention pour terminer les connexions de HAL. Contacter la mail-liste ou un 
+forum pour avoir de l'aide.
 
-*Brushless Motor Control* +
-These options are used to allow low level control of brushless motors using 
-special firmware and daughter boards. It also allows conversion of HALL sensors 
-from one manufacturer to another. It is only partially supported and will 
-require one to finish the HAL connections. Contact the mail-list or forum for 
-more help.
-
-.Axis Scale Calculation
+.Calcul de l'échelle d'axe
 
 image::images/pncconf-scale-calc.png[]
+Les paramètres d'échelle peuvent être saisis directement ou, on peut utiliser le 
+bouton `calculer échelle` pour être assisté. Utiliser les cases à cocher pour 
+sélectionner les calculs appropriés. Noter que `pulley teeth` exige le nombre de 
+dents et non le rapport de réduction. `Worm turn ratio`, le rapport de vis sans fin,
+est exactement le contraire, il exige le rapport de réduction. Si vous êtes à 
+l’aise avec la notion d'échelle vous pouvez la saisir directement sans passer par 
+l'assistant.
 
-The scale settings can be directly entered or one can use the 'calculate scale' 
-button to assist. Use the check boxes to select appropriate calculations. Note 
-that 'pulley teeth' requires the number of teeth not the gear ratio. Worm turn 
-ratio is just the opposite it requires the gear ratio. If your happy with the 
-scale press apply otherwise push cancel and enter the scale directly.
- 
-
-.Axis Configuration
+.Configuration des axes
 
 image::images/pncconf-axis-config.png[]
 
-Also refer to the diagram tab for two examples of
-home and limit switches. These are two examples of
-many different ways to set homing and limits.
+Se référer également à l'onglet diagramme pour deux exemples de disposition des 
+contacts de fin de course d'origine machine et de limites. Ce sont deux exemples 
+parmi les nombreuses façons différentes de placez ces contacts.
 
-IMPORTANT: It is very important to start with the axis moving in the right 
-direction or else getting homing right is very difficult!
+IMPORTANT: Il est très important de commencer avec l'axe se déplaçant dans la 
+bonne direction sinon l’acquisition du point d'origine est impossible !
 
-Remember positive and negative directions
-refer to the TOOL not the table as per the 
-Machinists handbook.
+Se souvenir que les directions positives et négatives se référent toujours à 
+l'outil et jamais à la table.
 
-....
-on a typical knee or bed mill: 
-    when the TABLE moves out that is the positive Y direction
-    when the TABLE moves left that is the positive X direction
-    when the TABLE moves down that is the positive Z direction
-    when the HEAD moves up that is the positive Z direction
-on a typical lathe:
-    when the TOOL moves right, away from the chuck
-    that is the positive Z direction
-    when the TOOL moves toward the operator
-    that is the positive X direction. Some lathes have X 
-    opposite (eg tool on back side), that will work fine but 
-    AXIS graphical display can not be made to reflect this. 
-....
-When using homing and / or limit switches
-EMC2 expects the HAL signals to be true when 
-the switch is being pressed / tripped.
-If the signal is wrong for a limit switch then
-EMC2 will think the machine is on end of limit
-all the time. If the home switch search logic is wrong
-EMC2 will seem to home in the wrong direction.
-What it actually is doing is trying to BACK off 
-the home switch.
+Sur une faiseuse classique::
+- Lorsque la table se déplace vers l'opérateur, c'est la direction positive de l'axe Y.
+- Lorsque la table se déplace à gauche, c'est la direction positive de l'axe X.
+- Lorsque la table se déplace vers le bas, c'est la direction positive de l'axe Z.
+- Lorsque la tête se déplace vers le haut, c'est aussi la direction positive de l'axe Z.
 
-....
--Decide on limit switch location.
-    Limit switches are the back up for software limits in case
-    something electrical goes wrong eg. servo runaway.
-    Limit switches should be placed so that the machine does not
-    hit the physical end of the axis movement. Remember the axis
-    will coast past the contact point if moving fast. Limit switches
-    should be 'active low' on the machine. eg. power runs through
-    the switches all the time - a loss of power (open switch) trips.
-    While one could wire them the other way, this is fail safe.
-    This may need to be inverted so that the HAL signal in EMC
-    in 'active high' - a TRUE means the switch was tripped. When
-    starting EMC if you get an on-limit warning, and axis is NOT
-    tripping the switch, inverting the signal is probably the
-    solution. (use HALMETER to check the corresponding HAL signal  
-    eg. axis.0.pos-lim-sw-in  X axis positive limit switch)
+Sur un tour classique::
+- Lorsque l'outil se déplace à droite, en s'éloignant du mandrin,  c'est le sens 
+    positif de l'axe Z.
+- Lorsque l'outil se déplace vers l'opérateur, c’est le sens positif de l'axe X. 
+- Certains tours ont un axe X opposé, dans ce cas l'outil est à l'arrière, cela 
+   fonctionne bien, mais l'affichage graphique d'AXIS ne peut pas refléter cette 
+   configuration.
 
--Decide on the home switch location.
-    If you are using limit switches You may as well use one as a
-    home switch. A separate home switch is useful if you have a long
-    axis that in use is usually a long way from the limit switches or
-    moving the axis to the ends presents problems of interference 
-    with material.
-    eg a long shaft in a lathe makes it hard to home to limits with out 
-    the tool hitting the shaft, so a separate home switch closer to the 
-    middle may be better.
-    If you have an encoder with index then the home switch acts as a 
-    course home and the index will be the actual home location.
+Lorsque des contacts d'origine machine et des contacts de fin de course sont utilisés, 
+EMC2 attend des signaux de HAL au niveaux haut lorsque le contact est actionné. 
+Si le signal d'un fin de course est inversé, EMC2 détectera en permanence que 
+la machine est en bout de course. Si la logique de recherche du contact d'origine
+machine est mauvaise (fichier ini), EMC2 lancera la séquence de recherche d'origine 
+machine de l'axe dans la mauvaise direction.
 
--Decide on the MACHINE ORIGIN position.
-    MACHINE ORIGIN is what EMC uses to reference all user coordinate
-    systems from.
-    I can think of little reason it would need to be in any particular
-    spot. There are only a few G codes that can access the 
-    MACHINE COORDINATE system.( G53, G30 and G28 )
-    If using tool-change-at-G30 option having the Origin at the tool
-    change position may be convenient. By convention, it may be easiest
-    to have the ORIGIN at the home switch.
-
--Decide on the (final) HOME POSITION.
-    this just places the carriage at a consistent and convenient position 
-    after EMC figures out where the ORIGIN is.
-
--Measure / calculate the positive / negative axis travel distances.
-    Move the axis to the origin. Mark a reference on the movable
-    slide and the non-moveable support (so they are in line) move 
-    the machine to the end of limits. Measure between the marks that is one 
-    of the travel distances. Move the table to the other end of travel.
-    Measure the marks again. That is the other travel distance. If the ORIGIN
-    is at one of the limits then that travel distance will be zero.
-....
-
-(machine) ORIGIN::
-    The Origin is the MACHINE zero point. (not
-    the zero point you set your cutter / material at).
-    EMC2 uses this point to reference everything else
-    from. It should be inside the software limits.
-    EMC uses the home switch location to calculate 
-    the origin position (when using home switches
-    or must be manually set if not using home switches.
-
-Travel distance::
-    This is the maximum distance the axis can
-    travel in each direction. This may
-    or may not be able to be measured directly
-    from origin to limit switch. The positive and
-    negative travel distances should add up to the
-    total travel distance.
+Décider de l'emplacement des fins de courses::
+     Les fin de course de limite d'axe sont au delà des limites logicielles, ils 
+    protègent la machine en cas de problème électrique, par exemple, l'emballement 
+    d'un servomoteur.
+	Les fin de course doivent être placés de manière à ce que l'axe ne puisse pas 
+    percuter une butée mécanique. Attention: si la distance d'activation du contact
+    de fin de course est trop faible, avec l'inertie du mobile il pourra le dépasser.
+    Les fin de course des limites d'axes, doivent être actifs à l'état bas et 
+    ils doivent aussi couper la puissance sur l'axe concerné. Le contact doit 
+    s'ouvrir à l'activation du fin de course. Utiliser un autre câblage est 
+    possible mais il est moins sécurisé.
+    Il peut être nécessaire d'inverser le signal de HAL dans EMC2 pour avoir un 
+    état actif haut, TRUE signifie que le contact a été activé. Lorsqu'au 
+    démarrage d'EMC2 un avertissement de limite et affiché même si l'axe n'est 
+    pas sur un des fin de course, le signal est probablement inversé. Utiliser 
+    HALMETER pour vérifier l'état du signal de HAL correspondant, par exemple,
+    axis.0.pos-lim-sw-in, fin de course positif de l'axe X.
+	 
+Décider de l'emplacement des contacts d'origine machine::
+    Si des fin de course de limite d'axe sont utilisés, il est possible de les 
+    utiliser également comme contacts d'origine machine.
+	Un contact d'origine machine séparé est utile si les axes sont longs et que 
+    le déplacement vers un fin de course dure trop longtemps pour un usage normale 
+    ou que le déplacement vers une extrémité présente des problèmes d'interférences 
+    avec le porte-pièce ou la pièce.
+    Par exemple sur un tour, le déplacement en bout de banc n'est pas efficace 
+    pour un point d'origine machine et un contact placé vers le centre est 
+    certainement meilleur.
+    Si codeur avec un index est utilisé, le contact agit comme point de référence 
+    et l'index suivant sera le point d'origine machine effectif.
   
-POSITIVE TRAVEL DISTANCE::
-    This is the distance the Axis travels from 
-    the Origin to the positive travel distance or
-    the total travel minus the negative travel 
-    distance. You would set this to zero if the
-    origin is positioned at the positive limit.
-    The will always be zero or a positive number.
+Décider de la position de l'origine machine::
+     L'origine machine dans EMC2 sert de référence à tous les systèmes de coordonnées 
+    utilisateur. Il n'y a pas d'emplacement particulier pour ce point. Seuls 
+    quelques G-codes accèdent au système de coordonnées machine (G53, G30 et G28).
+    Si l'option de changement d'outil sur G30 est utilisée, placer l'origine machine 
+    à cet endroit peut être commode. Par convention, il est plus simple d'avoir 
+    l'origine machine sur le contact d'origine.
+	
+Décider de la position finale de l'origine::
+     Ça consiste simplement à placer le chariot ou la broche à la position 
+    la plus commode après qu'EMC2 soit initialisé et que les points d'origines
+    machine de chacun des axes lui soit connus.   
 
-NEGATIVE TRAVEL DISTANCE::
-    This is the distance the Axis travels from 
-    the Origin to the negative travel distance.
-    or the total travel minus the positive travel 
-    distance. You would set this to zero if the
-    origin is positioned at the negative limit.
-    This will always be zero or a negative number.
-    If you forget to make this negative PNCconf
-    will do it internally.
+Définition des côtés positifs/négatifs et des longueurs de courses maximales::
+    Placer l'axe à l'origine. Faire un repère sur le mobile et un autre sur la 
+    partie fixe. Déplacer la machine jusqu'au contact de limite d'axe. Mesurer
+    la distance entre les deux repères pour obtenir la longueur de déplacement 
+    maximale dans ce sens. Déplacer dans l'autre sens, sur le contact de limite 
+    de l'autre côté. Mesurer de nouveau les repères pour obtenir la longueur de 
+    déplacement maximale dans l'autre sens. Si l'origine machine est située sur 
+    une des limites d'axe, alors cette distance de déplacement sera évidemment de zéro.
 
-(Final) HOME POSITION::
-    This is the position the home sequence will
-    finish at. It is referenced from the Origin
-    so can be negative or positive depending on
-    what side of the Origin it is located.
-    When at the (final) home position if
-    you must move in the Positive direction to
-    get to the Origin, then the number will be 
-    negative.
+Point d'origine machine::
+    Ce point est le point de référence de la machine. (Ne pas confondre avec le 
+    point zéro de l'outil ou de la pièce). EMC2 référence tout à partir de ce point. 
+    Il doit être à l'intérieur des limites logicielles sinon la machine ne pourrait
+    jamais l'atteindre. EMC2 utilise la position du contact d'origine machine 
+    pour calculer la position d'origine. Si la machine ne dispose pas de contact 
+    il faudra la positionner manuellement sur les points d'origine, cocher les axes 
+    l'un après l'autre et pour chacun, presser le bouton `POM des axes`. 
+    Dans Axis, le symbole indiquant que l'origine machine de l'axe est connue 
+    s'affichera alors à droite de la visu de l'axe concerné.
 
-HOME SWITCH LOCATION::
-    This is the distance from the home switch to 
-    the Origin. It could be negative or positive
-    depending on what side of the Origin it is
-    located. When at the home switch location if
-    you must move in the Positive direction to
-    get to the Origin, then the number will be 
-    negative. If you set this to zero then the
-    Origin will be at the location of the limit
-    switch (plus distance to find index if used) 
-    
-Home Search Velocity::
-    Course home search velocity in units per minute.
+Course de la table::
+     C'est la distance maximale que l'axe peut parcourir dans chaque direction. 
+    Ceci peut ou ne peut pas être mesuré directement de l'origine aux contacts 
+    de fin de course. Le cumul des courses positives et négatives sera égal à la 
+    longueur de course totale.
+
+Course positive::
+     C'est la distance depuis l'origine de l'axe, jusqu'au fin de course de limite 
+    du côté positif. Si l'origine de l'axe est placée sur le fin de course de limite positive, 
+    cette valeur est égale à zéro. Les valeurs possibles sont positives ou égales à zéro.
+
+Course négative::
+     C'est la distance depuis l'origine de l'axe, jusqu'au fin de course de limite 
+    du coté négatif. Ou la course totale moins la course positive. Si l'origine de l'axe
+    est placée sur le fin de course de limite négative, cette valeur est de zéro.
+    Les valeurs possibles sont négatives égales à zéro.
+    Si la valeur entrée dans PNCconf n'est pas négative, elle sera déduite des 
+    autres valeurs.
+
+//(Final) HOME POSITION::
+Position de l'origine::
+     C'est la position ou se termine la séquence de prise d'origine machine. 
+    Elle est référencée par rapport à l'origine et peut être positive, si cette 
+    position finale est du coté positif ou négative, si cette position finale est 
+    du coté négatif.
+	
+//HOME SWITCH LOCATION::
+Position du contact d'origine machine::
+     C'est la distance depuis le contact d'origine jusqu'à la position de l'origine. 
+    Il peut être négatif ou positif selon de quel côté de l'origine il est placé. 
+    Depuis ce point, si l'axe doit être déplacé dans la direction positive pour 
+    arriver à l'origine, alors la valeur sera négative, sinon elle sera positive. 
+    Si il est mis à zéro, l'origine sera à l'emplacement du contact (plus la distance
+    éventuelle pour attendre l'index suivant, si une règle de mesure, ou un codeur 
+    de position avec index sont utilisés).
+	
+//Home Search Velocity::
+Vitesse de recherche du contact d'origine machine::    
+	 Vitesse utilisée pendant le déplacement vers le contact d'origine machine en 
+    unités par minute.
    
-Home Search Direction::
-    Sets the home switch search direction
-    either negative (ie. towards negative limit switch)
-    or positive (ie. towards positive limit switch)
+//Home Search Direction::
+Direction de recherche du contact d'origine machine::
+    Direction de la recherche de l'origine machine. Négatif ou Positif selon le
+    coté de l'axe où se trouve le contact d'origine machine. 
 
-Home Latch Velocity::
-    Fine Home search velocity in units per minute
+//Home Latch Velocity::
+Vitesse d'acquisition du contact d'origine machine::
+    Vitesse lente de détection du contact d'origine machine, en unités par minute.
 
-Home Final Velocity::
-    Velocity used from latch position to (final) home position
-    in units per minute. Set to 0 for max rapid speed 
+//Home Final Velocity::
+Vitesse vers la position de l'origine::
+     Vitesse utilisée pour déplacer le mobile de la position d'acquisition du contact
+    d'origine machine, vers la position finale de l'origine, en unités par minute. 
+    Si réglée à 0 c'est la vitesse de déplacement rapide qui sera utilisée.
 
-Home latch Direction::
-    Allows setting of the latch direction to the same
-    or opposite of the search direction.
+//Home latch Direction::
+Direction d'acquisition du contact d'origine machine::
+     Direction d'acquisition de l'origine machine, peut être dans la même direction 
+    que la recherche, ou à l'opposé.  
 
-Use Encoder Index For Home::
-    EMC2 will search for an encoder index pulse while in
-    the latch stage of homing.
+//Use Encoder Index For Home::
+Origine machine sur l'index du codeur::
+     EMC2 attendra l'impulsion d'index du codeur après l’acquisition du contact 
+    d'origine machine.
 
-Use Compensation File::
-    Allows specifying a Comp filename and type.
-    Allows sophisticated compensation. See Manual.
+//Use Compensation File::
+Utiliser un fichier de compensation de jeu::
+    Permet de spécifier le nom et le type d'un fichier de compensation de jeu. 
+    Permet une compensation sophistiquée. Voir le manuel.
 
-Use Backlash Compensation::
-    Allows setting of simple backlash compensation. Can 
-    not be used with Compensation File. See Manual.
+//Use Backlash Compensation::
+Utiliser la compensation de jeu::
+     Permet de régler la compensation du jeu de la vis, ne peut pas être utilisé 
+    en même temps qu'un fichier de compensation. Voir le manuel.
 
-.AXIS Help Diagram
+.Dessin d'aide à l'identification des axes et fin de course
 
 image::images/pncconf-diagram-lathe.png[]
 
-The diagrams should help to demonstrate an example of limit switches and 
-standard axis movement directions. +
-In this example the Z axis was two limit switches, the positive switch is shared
- as a home switch. + 
-The MACHINE ORIGIN (zero point) is located at the negative limit. +
-The left edge of the carriage is the negative trip pin and the right the 
-positive trip pin. +
-We wish the FINAL HOME POSITION to be 4 inches away from the ORIGIN on the 
-positive side. +
-If the carriage was moved to the positive limit we would measure 10 inches 
-between the negative limit and the negative trip pin. +
+Ce dessin devrait aider à comprendre un exemple de positionnement des contacts 
+de fin de course et les directions standards sur un tour.
+Sur ce tour, l'axe Z a deux contacts de fin de course, le contact positif est 
+utilisé également comme contact de prise d'origine machine. La position du zéro 
+machine (origine machine de l'axe) est placée à la limite négative.
+Le bord gauche du chariot est la came qui active le fin de course de la limite 
+négative et le côté droit, la came qui active le fin de course de la limite positive. 
+Nous voyons que la position finale de l'origine se trouve à 4 pouces de distance 
+de l'origine de l'axe, du côté positif.
+Si le chariot était déplacé jusqu'à la limite positive, nous mesurerions 10 pouces 
+entre la limite négative et la came du côté négatif du chariot (fin de course 
+bord gauche du chariot).
 
-== Spindle Configuration
+//== Spindle Configuration
+Configuration de la broche
 
-If you select spindle signals then this page is available to configure spindle 
-control.+
+Si un signal de contrôle de la broche est présent, cette page permet de le configurer.
 
-TIP: Many of the option on this page will not show unless the proper option was 
-selected on previous pages!
+Astuce: Beaucoup d'options de cette page ne sont visibles que si les sélections 
+appropriées ont été choisies dans les pages précédentes. Si des signaux de broche 
+ont été sélectionnés, alors cette page est disponible pour les configurer.
 
-.Spindle Configuration
+.Configuration de la broche
 
 image::images/pncconf-spindle-config.png[]
 
-This page is similar to the axis motor configuration page. +
-There are some differences: +
-Unless one has chosen a stepper driven spindle there is no acceleration or 
-velocity limiting. +
-There is no support for gear changes or ranges. + 
-If you picked a VCP spindle display option then spindle-at-speed scale and 
-filter settings may be shown. +
-Spindle-at-speed allows EMC to wait till the spindle is at the requested speed 
-before moving the axis. This is particularly handy on lathes with constant 
-surface feed and large speed diameter changes. It requires either encoder 
-feedback or a digital spindle-at-speed signal typically connected to a VFD 
-drive. +
-If using encoder feedback, you may select a spindle-at-speed scale setting that 
-specifies how close the actual speed must be to the requested speed to be 
-considered at-speed. +
-If using encoder feedback, the VCP speed display can be erratic - the 
-filter setting can be used to smooth out the display. The encoder scale must be 
-set for the encoder count / gearing used. +
-If you are using a single input for a spindle encoder you must add the line: +
-setp    hm2_7i43.0.encoder.00.counter-mode 1 +
-(changing the board name and encoder number to your requirements) into a custom 
-HAL file. See the Hostmot2 section on encoders for more info about counter mode.
+Cette page est semblable à la page de configuration des moteurs d'axe mais il y a 
+quelques différences: À moins que l'on ait choisi un moteur pas à pas pour la 
+conduite de la broche il n'y a pas d'accélération ni de limitation de vitesse.
+Il n'y a pas de support pour les changements de vitesse ni pour les gammes de vitesses.  
+Si une option VCP d'affichage de vitesse broche est choisie, alors la 
+`vitesse broche atteinte`, `l'échelle`, `la vitesse` et `les réglages de filtres`
+seront visibles. L’information sur la vitesse de broche permet à EMC2 d'attendre 
+que celle-ci ait atteint la vitesse de consigne, avant de déplacer les axes. 
+C'est particulièrement pratique sur les tours, lors de l'utilisation d'une vitesse 
+de coupe constante avec de grands changements de diamètre. Il exige un retour 
+d'information par codeur ou par un signal de vitesse broche numérique, typiquement 
+connecté à un variateur de vitesse (VFD). 
 
- 
+En utilisant le retour d'information d'un codeur, il est possible de choisir une 
+plage de `vitesse broche atteinte` comme tolérance de vitesse, au delà de laquelle,
+la vitesse broche sera admise comme étant la vitesse de consigne.
 
-== Advanced Options
+En utilisant le retour d'information d'un codeur, l'affichage de vitesse VCP peut 
+être irrégulier, des filtres peuvent dans ce cas, être utilisés pour corriger l'affichage. 
+L'échelle du codeur doit être réglée à la valeur `comptage codeur/rapport de réduction utilisé`.
+Si une seule entrée est utilisée pour le codeur de broche, la ligne suivante doit 
+être ajoutée: setp hm2_7i43.0.encoder.00.counter-mode 1 (Changer le nom de la 
+carte et le numéro de codeur selon besoins) dans le fichier HAL personnalisé. 
+Lire la section codeurs dans Hostmot2 pour plus d'information sur les modes de 
+comptage.
 
-This allows setting of HALUI commands and loading of classicladder and sample 
-ladder programs. +
-If you selected GLADE VCP options such as for zeroing axis, there will be 
-commands showing. +
-See the manual about info on HALUI for using custom halcmds. +
-There are several ladder program options. +
-The Estop program allows an external ESTOP switch or the GUI frontend to throw 
-an Estop. It also has a timed lube pump signal. +
-The Z auto touch-off is with a touch-off plate, the GLADE VCP touch-off button 
-and special HALUI commands to set the current +
-user origin to zero and rapid clear. +
-The serial modbus program is basically a blank template program that sets up 
-classicladder for serial modbus. See the classicladder section in the manual.
-  
-.Advanced Options
+//== Advanced Options
+== Options avancées
+
+Cette page permet de régler les commandes HALUI, de charger classicladder. Elle
+propose des exemples de programmes en Ladder.
+Si l'option GLADE VCP a été choisie, comme pour la mise à zéro de l'axe sur 
+l'origine pièce.  Les commandes nécessaires s'afficheront. 
+Voir le manuel de HALUI pour utiliser des commandes personnalisées halcmds. 
+Parmi les exemples de programmes ladder: Le programme Estop permet de gérer un 
+contact externe d'arrêt d'urgence ou permet à l'interface graphique de déclencher
+l'arrêt d'urgence. La commande périodique de la pompe du graissage centralisé est 
+disponible. +
+Le contact de mise au zéro pièce de l'axe Z (longueur d'outil) s'utilise avec 
+une plaque de référence, le contact (touch-off) de GLADE VCP et les commandes 
+spéciales HALUI sont là pour permettre rapidement, une recherche de l'origine pièce.
+
+Le programme série `modbus` est un squelette de programme, vierge, préréglé pour 
+l'utilisation de classicladder avec le protocole série modbus. Voir la section 
+classicladder dans le manuel.
+
+
+.Options avancées
 
 image::images/pncconf-advanced.png[]
 
-== HAL Components
+//== HAL Components
+== Composants de HAL
 
-On this page you can add additional HAL components you might need for custom 
-HAL files. +
-In this way one should not have to hand edit the main HAL file, while still 
-allowing user needed components.
+Cette page permet d'ajouter des composants de HAL supplémentaires qui seront utilisés
+dans les fichiers HAL personnalisés. De cette manière il n'est pas nécessaire 
+d'éditer le fichier HAL principal en permettant malgré tout à l'utilisateur de 
+définir ses propres composants.
 
-.HAL Components
+.Composants de HAL
 
 image::images/pncconf-hal.png[]
 
-The first selection is components that pncconf uses internally. +
-You may configure pncconf to load extra instances of the components for your 
-custom HAL file. +
-Select the number of instances your custom file will need, pncconf will add 
-what it needs after them. +
-Meaning if you need 2 and pncconf needs 1 pncconf will load 3 instances and use 
-the last one.
+La première sélection est prévue pour les composants que pncconf utilise en interne.
+Il est possible de configurer pncconf pour qu'il charge les instances additionnelles
+pour votre fichier HAL personnalisé.
+Sélectionner le nombres d'instances dont a besoin le fichier de personnalisation 
+et pncconf ajoutera ce qui est nécessaire.
+Si 2 composants sont nécessaires et que pncconf à besoin d'un composant interne, 
+il chargera 3 composants et utilisera le dernier.
 
-Custom Component Commands:
-This selection will allow you to load HAL components that pncconf does not use. +
-Add the loadrt or loadusr command, under the heading 'loading command' + 
-Add the addf command under the heading 'Thread command'. +
-The components will be added to the thread between reading of inputs and writing
- of outputs, in the order you write them in the 'thread command'.
+//Custom Component Commands:
+Composants de commande personnalisés::
+     Cette sélection permettra de charger des composants de HAL que pncconf 
+    n'utilise pas. 
+    Ajoute les commandes loadrt ou loadusr dans l'entête 'loading command'. 
+    Ajoute la commande addf dans l'entête 'Thread command'.
+    Les composants seront ajoutés au thread entre la lecture des entrées et 
+    l'écriture des sorties, dans l'ordre ou ils sont écrits dans `thread command`.
 
-== Advanced Usage Of PNCconf
+//== Advanced Usage Of PNCconf
+== Utilisation avancée de PNCConf
 
-PNCconf does it's best to allow flexible customization by the user. +
-PNCconf has support for custom signal names, custom loading of components, 
-custom HAL files and custom firmware. +
-There are also signal names that PNCconf always provides regardless of options 
-selected, for user's custom HAL files +
-With some thought most customizations should work regardless if you later select
- different options in PNCconf. +
-Eventually if the customizations are beyond the scope of PNCconf's frame work 
-you can use PNCconf to build a base config or use one of EMC's sample 
-configurations and just hand edit it to what ever you want.
+PNCconf fait de son mieux pour permettre un personnalisation souple à l'utilisateur, 
+PNCconf supporte les noms de signaux particuliers, le chargement de composants 
+personnalisés comme la personnalisation des fichiers de HAL et des microprogrammes.
+Il y a aussi les noms de signaux que PNCconf fournit, indépendamment des options 
+choisies, pour les fichiers HAL personnalisés.
 
-Custom Signal Names::
+Avec une conception réfléchie, la plupart des personnalisations devraient fonctionner, 
+même si des options doivent être modifiées par la suite dans PNCCONF.
+Finalement, si les personnalisations vont au-delà du périmètre de travail de PNCCONF,
+il sera possible d'utiliser PNCCONF pour construire une configuration de base, 
+ou d'utiliser une des configurations fournies en standards par EMC2 et de l'éditer
+pour obtenir ce que est souhaité. 
 
-If you wish to connect a component to something in a custom HAL file write a 
-unique signal name in the combo entry box. Certain components will add endings 
-to your custom signal name:
+//Custom Signal Names::
+Nom de signaux personnalisés::
 
-    Encoders will add < customname > +:
+Si un composant doit être connecté à quelque chose dans un fichier HAL personnalisé, 
+écrire un nom de signal unique dans la boîte de dialogue. Certains composants 
+ajouteront des suffixes au nom du signal personnalisé.
+
+    Les codeurs ajoutent  < Nom personnalisé >:
     -position
     -count
     -velocity
     -index-enable
     -reset
 
-    Steppers add:
+    Les contrôles de moteurs pas à pas ajoutent:
     -enable
     -counts
     -position-cmd
     -position-fb
     -velocity-fb
     
-    PWM add:
+    Les PWM ajoutent:
     -enable
     -value
 
-    GPIO pins will just have the entered signal name connected to it
+    Les broches GPIO auront juste le nom du signal d'entrée qui leur est connecté.
 
-In this way one can connect to these signals in the custom HAL files and still 
-have the option to move them around later.
+De cette façon on peut établir des connexions à ces signaux dans les fichiers 
+personnalisés de HAL et avoir toujours la possibilité de les déplacer plus tard.
 
-Custom Signal Names::
+//Loading Custom Firmware::
+Charger un microprogramme personnalisé::
 
-The Hal Components page can be used to load components needed by a user for 
-customization.
+PNCconf cherche le microprogramme sur le système et cherche ensuite le fichier XML 
+qu'il peut convertir et qu'il comprend. Ces fichiers XML sont seulement fournis 
+pour les microprogrammes officiellement délivrés par l'équipe EMC2. Pour utiliser 
+un microprogramme personnalisé, il faut le convertir en tableau que PNCconf comprend 
+et ajouter son chemin dans le fichier de préférences de PNCCONF. Par défaut 
+le chemin recherché est sur le bureau, dans un dossier nommé `custom_firmware` 
+contenant un fichier nommé firmware.py.
 
-Loading Custom Firmware::
+Le fichier caché des préférence est dans le dossier home de l'utilisateur et se 
+nomme .pncconf-preferences, pour l'éditer il faut sélectionner `afficher les 
+fichiers cachés`. On peut voir le contenu de ce fichier au premier démarrage de 
+PNCCONF. Presser le bouton d'aide et regarder la page de sortie.
+Demander sur la liste de diffusion EMC2 ou sur le forum pour des renseignements 
+pour convertir un microprogramme personnalisé. 
+Tous les microprogrammes ne peuvent pas être utilisés avec PNCCONF.
 
-PNCconf searches for firmware on the system and then looks for the XML file that
- it can convert to what it understands. These XML files are only supplied for 
-officially released firmware from the EMC team. To utilize custom firmware one 
-must convert it to an array that PNCconf understands and add it's filepath
- to PNCconf's preference file. By default this path searches the desktop for
-a folder named custom_firmware and a file named firmware.py.
-The hidden preference file is in the user's home file, is 
-named .pncconf-preferences and require one to select 'show hidden files' to see 
-and edit it. The contents of this file can be seen when you first load PNCconf - 
-press the help button and look at the output page. +
-Ask on the EMC mail-list or forum for info about converting custom firmware. 
-Not all firmware can be utilized with PNCconf.
-
-Custom HAL Files::
-
-There are four custom files that you can use to add HAL commands to: +
--custom.hal is for HAL commands that don't have to be run after the GUI frontend
-loads. It is run after the configuration-named HAL file. +
--custom_postgui.hal is for commands that must be run after AXIS loads or a 
-standalone PYVCP display loads. +
--custom_gvcp.hal is for commands that must be run after glade VCP is loaded. +
--shutdown.hal is for commands to run when EMC shuts down in a controlled manner.
+//Custom HAL Files::
+Fichiers HAL Personnalisés::
+    Il y a quatre fichiers personnalisés utilisables pour ajouter des commandes a HAL:
+- custom.hal est prévu pour les commandes HAL utilisées avant le chargement de 
+    l'interface graphique. Il est exécuté après le fichier HAL de configuration 
+    nommé : non-de-la-configuration.hal
+- custom_postgui.hal est prévu pour les commandes qui doivent être exécutées après 
+    le chargement de l'interface graphique Axis ou PYVCP autonomes.
+// PYVCP a trouver 
+- custom_gvcp.hal est prévu pour les commandes qui doivent être exécutées après 
+    le chargement de GLADE VCP.
+- shutdown.hal est prévu pour des commandes exécutées quand EMC2 se ferme de façon 
+    contrôlée.
 
 // vim: set syntax=asciidoc:
+
+
 
 

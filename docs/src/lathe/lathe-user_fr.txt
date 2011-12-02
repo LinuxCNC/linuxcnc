@@ -1,169 +1,164 @@
-= Tour spécifiques[[cha:Tour-Specifiques]]
+= Particularités des tours[[cha:Tour-Specifiques]]
 
-(((Tour-Specifiques)))
+(((Particularités des tours)))
 
 Ce chapitre va regrouper les informations spécifiques aux tours, il
-est en cours de rédaction.
+est encore en cours de rédaction.
 
 == Mode tour
 
-Si votre machine CNC est un tour, il ya quelques changements spécifiques 
-que vous voudrez probablement faire à votre fichier ini afin d'obtenir 
-les meilleurs résultats de EMC2.
-
-Si vous utilisez l'affichage de l'axe, 
-ont Axe afficher votre outils de tournage correctement. 
-Voir la section fichier INI du Manuel de l'intégrateur pour plus de détails, 
-mais vous aurez probablement envie de faire une entrée 
-comme celle-ci à mettre en place pour le mode Tour AXIS.
+Si l'interface graphique Axis est utilisée et que la machine est un tour, pour 
+qu'Axis représente les axes et la position de l'outil correctement il conviendra 
+d'éditer le fichier ini et de modifier la section [DISPLAY] comme ceci:
 
 ---------------------------------------
 [DISPLAY]
 
-# Tell the Axis Display our machine is a lathe. 
+# Pour indiquer à Axis que la machine est un tour (lathe). 
 LATHE = TRUE
 ---------------------------------------
 
-Mode de Tour de l'Axe ne fixe pas de votre avion par défaut G18 (XZ). 
-Vous devez programmer que dans le préambule de chaque fichier gcode ou 
-(mieux) l'ajouter à votre fichier INI, comme ceci: 
+Le mode `tour` dans Axis ne fixe pas le plan par défaut comme étant G18 (XZ). Il
+est nécessaire de l'ajouter dans le préambule de tout programmer G-code ou, 
+encore mieux, de l'ajouter directement dans le fichier ini comme cela:
 
 ---------------------------------------
 [RS274NGC]
 
-# g-code modal codes (modes) that the interpreter is initialized with on startup
+# G-code modaux pour initialiser l'interpréteur
 RS274NGC_STARTUP_CODE = G18 G20 G90
 ---------------------------------------
 
 == Fichier d'outils
 
-La «Tool Table» est un fichier texte qui contient des informations sur chaque outil. 
-Le fichier se trouve dans le même répertoire que votre configuration et est appelé "tool.tbl" par défaut.
-Les outils pourraient être dans un changeur d'outils ou tout simplement changé manuellement.
-Le fichier peut être édité avec un éditeur de texte ou être mis à jour en utilisant G10 L1, L10, L11.
-Il ya aussi un éditeur intégré dans l'outil de table dans l'affichage d'axe.
-Le nombre maximum d'entrées dans la table d'outils est de 56.
-L'outil et le nombre maximal de poche est 99999.
+La table d'outils est un fichier texte qui contient les informations de chaque outil. 
+Ce fichier se trouve dans le même répertoire que le fichier ini, il est appelé 
+`tool.tbl` par défaut. 
+Les outils peuvent être dans un changeur d'outils ou simplement changés manuellement.
+Le fichier peut être édité avec un éditeur de texte ou être mis à jour en 
+utilisant G10 L1, L10, L11.
+Axis peut aussi lancer l'éditeur de texte du système en y chargeant la table, 
+l'opérateur peut ainsi intervenir directement sur les valeurs des outils.
+Le nombre maximum d'outils dans la table d'outils est de 56.
+Les numéros d'outil et de poches peuvent aller jusqu'à 99999.
 
-Les versions antérieures d'EMC2 a eu deux différents formats de tableau d'outils pour les moulins et les tours, 
-mais depuis la sortie 2.4.x, un format de table outil est utilisé pour toutes les machines. 
-Juste ignorer les parties de la table d'outils qui ne se rapportent pas à votre machine, 
-ou que vous n'avez pas besoin d'utiliser.
-Pour plus d'informations sur les spécificités du format de tableau outil, 
-consultez le <<sec:Tool-Table-Format>> section.
+Les versions antérieures d'EMC2 avaient deuc différents formats de tableau 
+d'outils pour les fraiseuses et les tours, mais depuis la version 2.4.x, 
+un format de table d'outil unique est utilisé. Il faut juste ignorer les parties 
+de la table d'outils qui ne se rapportent pas à la machine.
+Pour plus d'informations sur les spécificités du format de la table d'outils, 
+consultez la section <<sec:Tool-Table-Format>>.
 
-== Orientation outil de tournage
+== Orientations des outils de tournage
 
-La figure suivante montre les orientations outil de tour 
-à l'angle de chaque ligne du centre d'orientation et 
-d'information sur FRONTANGLE et BACKANGLE.
-Le FRONTANGLE et BACKANGLE sont dans le sens horaire à partir d'une ligne parallèle à Z +.
+La figure suivante montre les angles d'orientations des outils de tour ainsi que 
+les informations sur FRONTANGLE (angle avant) et BACKANGLE (angle de dos).
+FRONTANGLE et BACKANGLE sont dans le sens horaire par rapport une ligne parallèle à Z.
 
-.Orientations des outils de tour[[cap:Orientations-des-outils-de-tour]]
+.Orientations des outils de tournage[[cap:Orientations-des-outils-de-tour]]
 
 image::images/tool_positions.png[]
 
-Dans «AXIS» Les chiffres suivants montrent ce que les positions de l'outil ressemble, comme inscrit dans le tableau d'outils. 
+Dans AXIS, les valeurs suivantes montrent à quoi les orientations de l'outil 
+ressemblent, en se référant à la figure des orientations d'outils. 
 
-.Outil Positions 1, 2, 3, & 4[[fig:Outil-Positions-1-2-3-4]]
+.Outil dans les positions 1, 2, 3 et 4[[fig:Outil-Positions-1-2-3-4]]
 
 image::images/tool_pos_1.png[] 
 image::images/tool_pos_2.png[] 
 image::images/tool_pos_3.png[] 
 image::images/tool_pos_4.png[]
 
-.Outil Positions 5, 6, 7, & 8[[fig:Outil-Positions-5-6-7-8]]
+.Outil dans les positions 5, 6, 7 et 8[[fig:Outil-Positions-5-6-7-8]]
 
 image::images/tool_pos_5.png[] 
 image::images/tool_pos_6.png[] 
 image::images/tool_pos_7.png[] 
 image::images/tool_pos_8.png[]
 
-== Corriger l'outil
+== Correction d'outil
 
-Quand AXIS est utilisé sur un tour, il est possible de corriger
-l'outil sur les deux axes X et Z. Les corrections sont alors
-introduites dans la table d'outils en utilisant le bouton «Toucher» et
-sa fenêtre de dialogue.
+Quand AXIS est utilisé sur un tour, il est possible de corriger l'outil sur les 
+axes X et Z. Les corrections sont alors introduites directement dans la table 
+d'outils en utilisant le bouton `Toucher` et sa fenêtre de dialogue.
 
-=== L'outil X décalage
+=== Offset d'outil en X
 
-L'axe X de décalage pour chaque outil est normalement un décalage 
-de l'axe de la broche.
+L'offset X pour chaque outil correspond à un décalage de l'axe de la broche.
 
-Une méthode consiste à prendre votre outil normal de tournage et 
-baissez un peu de bouillon à un diamètre connu. 
-Utilisation de l'outil tactile hors fenêtrede saisir le diamètre mesuré 
-(ou le rayon si en mode rayon) de cet outil. 
-Ensuite, en utilisant un peu de liquide mise en page ou un marqueur pour enrober la partie 
-apportent chaque outil jusqu'à ce qu'il touche le colorant et il est mis en offset X au 
-diamètre du la partie utilisée en utilisant la touche outil hors tension. 
-Assurez-vous que tous les outils dans les quadrants coin ont le rayon du nez 
-correctement défini dans le tableau d'outils de sorte que le point de contrôle est correct. 
-Outil tactile hors ajoute automatiquement un G43 
-si l'outil de courant est le décalage.
+Une méthode consiste à prendre un outil de tournage standard et usiner un diamètre. 
+Mesurer exactement ce diamètre puis, sans toucher à l'axe X, dans la fenêtre qui 
+s'ouvre, après un appui sur le bouton `Toucher`, saisir le diamètre mesuré, ou 
+le rayon si c'est le mode en cours. Ensuite, à l'aide d'encre à tracer ou 
+d'un marqueur, recouvrir une zone sur la pièce, faire tangenter l'outil à cet 
+endroit pour qu'il touche juste la surface encrée, ajuster alors l'offset X au
+diamètre mesuré de la pièce en utilisant le bouton `Toucher`. S'assurer que le
+rayon de bec est bien défini dans la table d'outils, pour que le point 
+contrôlé soit correct. Le `Toucher` ajoute automatiquement un G43 de sorte que 
+l'offset s'applique à l'outil courant.
 
 Voici une séquence typique:
 
- . Prise d'origine de chacun des axes.
- . Déclarer l'outil avec «Tn M6» dans lequel «n» est le numéro de l'outil courant.
- . Sélectionner l'axe X dans la fenêtre de l'onglet «Contrôle manuel» (F3).
- . Déplacer l'axe X sur une position connue ou prendre une passe de test et mesurer le diamètre obtenu.
- . Cliquer le bouton «Toucher» et choisir l'option «T Table d'outils», ce qui entrera la correction dans la table.
+ . Prise d'origine machine de chacun des axes, si ce n'est pas déjà fait.
+ . Déclarer l'outil avec `Tn M6` dans lequel `n` est le numéro de l'outil courant.
+ . Sélectionner l'axe X dans la fenêtre de l'onglet `Contrôle manuel (F3)`.
+ . Déplacer l'axe X sur une position connue ou prendre une passe de test puis 
+   mesurer le diamètre obtenu.
+ . Cliquer le bouton `Toucher` et choisir l'option `Table d'outils`, ce qui 
+   entrera la correction directement dans la table d'outil.
  . Recommencer la même séquence pour corriger l'axe Z.
 
-Remarque: si vous êtes en mode Radius, vous devez entrer le rayon, et non pas le diamètre. 
+Remarque: si le mode rayon est le mode courant, il faut évidemment entrer le 
+rayon et non pas le diamètre. 
 
-=== L'outil Z offset
+=== Offset d'outil en Z
 
-Les décalages axe Z peut être un peu déroutant au premier 
-abord car il ya deux éléments à la Z offset. 
-Il ya la tableau d'outils décalages, et la machine de coordonner l'offset. 
-Nous allons d'abord regarder le tableau d'outils décalages. 
-Une méthode consiste à utiliser un point fixe sur votre tour et 
-régler le décalage Z pour tous les outils de ce point. 
-Certains utilisent le nez de la broche ou le visage de chuck.
-Cela vous donne la possibilité de changer à un nouvel outil et 
-définissez son Z offset sans avoir à réinitialiser tous les outils.
+L'offset de l'axe Z peut être un peu déroutant au premier abord car il est 
+composé de deux éléments. Le premier est l'offset de la table d'outils, le second
+est l'offset des coordonnées machine. Nous allons d'abord examiner l'offset de 
+la table d'outils. Une méthode consiste à utiliser un point fixe sur le tour et 
+d'ajuster l'offset Z de tous les outils à partir de ce point fixe. Certains 
+utilisent le nez de broche ou la face du mandrin. Cela donne la possibilité de 
+changer d'outil et d'ajuster son offset Z, sans avoir à réinitialiser tous les 
+outils.
 
-Une session typique pourrait être:
+Voici un séquence typique:
 
- . Accueil chaque axe sinon hébergés.
- . Assurez-vous qu'aucun des compensations sont en vigueur pour le système de coordonnées courant.
- . Régler l'outil en cours avec "TnM6" où "n" est le numéro de l'outil.
- . Sélectionnez l'axe Z dans la fenêtre de contrôle manuel.
- . Apportez de l'outil à proximité de la surface de contrôle. L'utilisation d'un vérin passer le 
-    Z de la surface de contrôle jusqu'à ce que le cylindre passe juste entre 
-    l'outil et la surface de contrôle.
- . Sélectionnez tactile embarquement et de débarquement tableau d'outils et de définir la position à 0,0.
- . Répétez l'opération pour chaque outil en utilisant le même cylindre.
+ . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.
+ . S'assurer qu'aucune compensation n'est activée pour le système de coordonnées
+courant.
+ . Déclarer l'outil avec `Tn M6` dans lequel `n` est le numéro de l'outil courant.
+ . Sélectionner l'axe Z dans la fenêtre de l'onglet `contrôle manuel (F3)`.
+ . Placer un cylindre dans le mandrin. 
+ . Faire tangenter l'outil contre la face du cylindre.
+ . Cliquer le bouton `Toucher` puis choisir `Table d'outils` et saisir la position à 0,0.
+ . Répéter l'opération pour chaque outil, en utilisant le même cylindre.
 
 Maintenant, tous les outils sont compensés à la même distance d'une position standard. 
-Si vous changez un outil comme un foret vous répétez le dessus et 
-il est maintenant en phase avec le reste des outils pour Z offset. 
-Certains outils pourraient nécessiter un peu de chiffrement afin de déterminer 
-le point de contrôle de la touche off point. 
-Par exemple, si vous avez un 0.125" outil de tronçonnage de large et 
-que vous touchez le côté gauche hors mais veulent le droit d'être Z0, 
-puis entrez 0.125" dans la fenêtre de déclencher.
+Si un outil doit être changé, par exemple par un foret il suffira de répéter la
+séquence précédente pour qu'il soit en phase avec l'offset Z du reste des outils. 
+Certains outils pourraient nécessiter un peu de réflexion pour déterminer le point 
+de contrôle par rapport au point de `Toucher`. 
+Par exemple, un outil de tronçonnage de 3.17mm de large et qui est touché sur le 
+côté gauche, alors que l'opérateur veut Z0 sur le côté droit, il devra alors entrer
+3.17 dans la fenêtre du `Toucher`.
 
 === La Z machine offset
 
-Une fois que tous les outils ont compensé le Z entré dans le tableau d'outils, 
-vous pouvez utiliser n'importe quel outil pour régler la machine offset 
-en utilisant le système de coordonnées machine.
+Une fois que tous les outils ont leurs offsets entrés dans la table d'outils, 
+il est possible d'utiliser n'importe quel outil pour ajuster le décalage du système de coordonnées machine.
 
-Une session typique pourrait être:
+Voici une séquence typique:
 
- . Accueil chaque axe sinon hébergés.
- . Régler l'outil en cours avec "Tn M6" où "n" est le numéro de l'outil.
- . Délivrer un G43 si l'outil de décalage actuel est en vigueur.
- . Apportez de l'outil à la pièce et mettre la machine Z offset.
+ . Prise d'origine machine de tous les axes, si pas déjà fait.
+ . Déclarer l'outil avec `Tn M6` dans lequel `n` est le numéro de l'outil courant.
+ . Envoyer un G43 pour que l'offset de l'outil soit activé. (voir ci-dessous)
+ . Tangenter l'outil contre la pièce et fixer l'offset machine Z.
 
-Si vous oubliez de régler le G43 pour l'outil actuel lorsque vous définissez le 
-système de coordonnées machine offset, vous n'obtiendrez pas ce que vous attendez, 
-comme la correction d'outil sera ajouté à l'offset courant lorsque 
-l'outil est utilisé dans votre programme.
+En cas d'oubli du G43 sur l'outil courant lorsque le décalage du système de 
+coordonnées machine est défini, les résultats ne seront pas ceux attendus... 
+puisque la compensation de l'outil sera ajoutée à l'offset courant lorsque 
+l'outil sera utilisé dans le programme.
 
 == Filetage
 
@@ -171,143 +166,146 @@ Sur un tour, le filetage nécessite un signal de retour entre la broche et EMC2.
 Généralement, c'est un codeur de position qui fourni ce retour. 
 Le manuel de l'intégrateur donne d'avantage d'informations sur le codeur de broche.
 
-Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage
-intérieur qu'en filetage extérieur, voir G76
-<<sec:G76-Filetage>> dans la section G-code.
+Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage intérieur 
+qu'en filetage extérieur, voir G76 <<sec:G76-Filetage>> dans la section G-code.
 
-== Constant Surface Speed
+== Vitesse de coupe à surface constante
 
-CSS or Constant Surface Speed (G96) uses the machine X origin modified
-by the tool X offset to compute the spindle speed in RPM. CSS will
-track changes in tool offsets. The X machine origin should be when the
-reference tool (the one with zero offset) is at the center of rotation.
+La vitesse de coupe à surface constante (G96) utilise l'origine machine X modifiée
+par l'offset d'outil X, pour calculer la vitesse de rotation de la broche en tr/mn.
+La vitesse de coupe à surface constante permet de suivre les changements d'offset
+de l'outil. L'emplacement de l'origine machine de l'axe X doit être sur l'axe de 
+rotation et doit se faire avec l'outil de référence (celui qui a l'offset à zéro).
 
 == Arcs
 
-Calculating arcs can be mind challenging enough without considering
-radius and diameter mode on lathes as well as machine coordinate system
-orientation. The following applies to center format arcs. On a lathe
-you should include G18 in your preamble as the default is G17 even if
-you're in lathe mode, in the user interface Axis. Arcs in G18 XZ plane
-use I (X axis) and K (Z axis) offsets.
+Le calcul des arcs peut être un exercice assez compliqué, même sur un tour,
+sans considérer les modes rayon et diamètre, ni l'orientation du système 
+de coordonnées machine. Ce qui suit s'applique à des arcs au format centre. 
+Sur un tour, il faut inclure G18 dans le préambule du programme G-code pour 
+remplacer le G17 par défaut, le fait d'être en mode tour dans Axis ne suffit pas. 
+Les arcs en G18, plan XZ utilisent les offsets pour I (l'axe X) et K (l'axe Z).
 
-=== Arcs and Lathe Design
+=== Les arcs et la cinématique du tour
 
-The typical lathe has the spindle on the left of the operator and the
-tools on the operator side of the spindle center line. This is
-typically set up with the imaginary Y axis (+) pointing at the floor.
+Le tour classique a la broche à gauche de l'opérateur et l'outil entre 
+l'opérateur et le centre de rotation du mandrin. C'est un agencement avec un axe Y(+)
+imaginaire pointant vers le sol.
 
-The following will be true on this type of setup:
+Ce qui suit est valable pour ce type d'agencement:
 
- - The Z axis (+) points to the right, away from the spindle.
- - The X axis (+) points toward the operator, and when on the operator 
-   side of the spindle the X values are positive.
+ - Le côté positif de l'axe Z pointe vers la droite, en s'éloignant de la broche.
+ - Le côté positif de l'axe X pointe vers l'opérateur, quand il est du côté de 
+l'opérateur par rapport au centre de rotation, ses valeur sont positives.
 
-Some lathes with tools on the back side have the imaginary Y axis (+) 
-pointing up. 
+Certains tours ont l'outil du côté arrière et un axe Y(+) imaginaire pointant vers 
+le haut. 
 
-G2/G3 Arc directions are based on the axis they rotate around. In the
-case of lathes, it is the imaginary Y axis. If the Y axis (+) points 
-toward the floor, you have to look up for the arc to appear to go in the 
-correct direction. So looking from above you reverse the G2/G3 for the 
-arc to appear to go in the correct direction.
+Les directions des arcs G2/G3 sont basées sur l'axe autour duquel ils tournent.
+Dans le cas des tours, il s'agit de l'axe imaginaire Y. Si l'axe Y(+) pointe 
+vers le sol, il faut regarder vers le haut pour que l'arc paraisse aller dans la 
+bonne direction. Alors qu'en regardant depuis le dessus il faut inverser les G2/G3
+pour que l'arc semble aller dans la bonne direction.
 
-=== Radius & Diameter Mode
+=== Mode rayon et mode diamètre
 
-When calculating arcs in radius mode you only have to remember the
-direction of rotation as it applies to your lathe.
+Lors du calcul des arcs en mode rayon, il suffi de se rappeler la direction de 
+rotation telle qu'elle s'applique à ce tour.
 
-When calculating arcs in diameter mode X is diameter and the X offset
-(I) is radius even if you're in G7 diameter mode.
+Lors du calcul des arcs en mode diamètre, X est le diamètre, l'offset X (I) est 
+le rayon, même en mode diamètre G7.
 
-== Tool Path
+== Parcours d'outil
 
-=== Control Point
+=== Point contrôlé
 
-The control point for the tool follows the programmed path. The
-control point is the intersection of a line parallel to the X and Z
-axis and tangent to the tool tip diameter, as defined when you touch
-off the X and Z axes for that tool. When turning or facing straight
-sided parts the cutting path and the tool edge follow the same path.
-When turning radius and angles the edge of the tool tip will not follow
-the programmed path unless cutter comp is in effect. In the following
-figures you can see how the control point does not follow the tool edge
-as you might assume.
+Le point contrôlé pour l'outil, suit la trajectoire programmée. Le point contrôlé 
+est l'intersection entre deux lignes parallèles aux axes X et Z, tangentes au 
+diamètre de bec de l'outil, définies en faisant tangenter l'outil en X puis en Z. 
+En tournage ou en dressage de face sur une pièce, la trajectoire de coupe et l'arrête 
+de coupe de l'outil suivent le même parcours. Lors du tournage d'un rayon ou d'un
+angle, l'arête de coupe de l'outil ne suit pas la trajectoire programmée, à moins 
+que la compensation d'outil ne soit activée. Dans la figure suivante, on voit bien
+que le point contrôlé ne suit pas l'arête de coupe de l'outil comme on pourrait
+le supposer.
 
-.Control Point[[fig:Control-Point]]
+.Point contrôlé[[fig:Control-Point]]
 
 image::images/control_point.png[]
 
-=== Cutting Angles without Cutter Comp
+=== Tourner les angles sans compensation d'outil
 
-Now imagine we program a ramp without cutter comp. The programmed path
-is shown in the following figure. As you can see in the figure the
-programmed path and the desired cut path are one and the same as long
-as we are moving in an X or Z direction only.
+Maintenant imaginons de programmer une rampe sans compensation d'outil. La
+trajectoire programmée est représentée sur la figure suivante. Comme on peut le voir,
+la trajectoire programmée et la trajectoire de coupe souhaitée sont identiques 
+uniquement si les mouvements de tournage suivent les axes X et Z.
 
-.Ramp Entry
+.Tournage en rampe
 
 image::images/ramp_entry.png[]
 
-Now as the control point progresses along the programmed path the
-actual cutter edge does not follow the programmed path as shown in the
-following figure. There are two ways to solve this, cutter comp and
-adjusting your programmed path to compensate for tip radius.
+Le point contrôlé progresse en suivant la trajectoire programmée mais l'arête de 
+coupe ne suit pas cette trajectoire comme c'est visible sur la figure suivante. 
+Pour résoudre ce problème, il est nécessaire d'activer la compensation d'outil et
+d'ajuster la trajectoire programmée pour compenser le rayon de bec de l'outil.
 
-.Ramp Path
+.Trajectoire en rampe
 
 image::images/ramp_cut.png[]
 
-In the above example it is a simple exercise to adjust the programmed
-path to give the desired actual path by moving the programmed path for
-the ramp to the left the radius of the tool tip.
+Dans l'exemple ci-dessus, il est simple d'ajuster la rampe programmée et d'obtenir 
+la bonne trajectoire en décalant la trajectoire programmée pour 
+la rampe vers la gauche, de la valeur d'un rayon d'outil.
 
-=== Cutting a Radius
+=== Tourner un  rayon extérieur
 
-In this example we will examine what happens during a radius cut
-without cutter comp. In the next figure you see the tool turning the OD
-of the part. The control point of the tool is following the programmed
-path and the tool is touching the OD of the part.
+Dans cet exemple nous allons examiner ce qui se passe durant le tournage d'un 
+rayon extérieur sans compensation de rayon. Sur la figure suivante on peut voir
+l'outil tourner un diamètre extérieur sur la pièce. Le point contrôlé de l'outil
+suit la trajectoire programmée et l'outil touche le diamètre extérieur de la
+pièce.
 
-.Turning Cut
+.Tournage d'un diamètre
 
 image::images/radius_1.png[]
 
-In this next figure you can see as the tool approaches the end of the
-part the control point still follows the path but the tool tip has left
-the part and is cutting air. You can also see that even though a radius
-has been programmed the part will actually end up with a square corner.
+Sur la figure suivante on peut voir que quand l'outil approche la fin la pièce
+le point contrôlé continue de suivre la trajectoire alors que l'arête de coupe
+a déjà quitté la matière et coupe en l'air. On voit aussi que malgré qu'un rayon 
+a été programmé, la pièce conserve son angle d'extrémité.
 
-.Radius Cut
+.Tournage d'un rayon
 
 image::images/radius_2.png[]
 
-Now you can see as the control point follows the radius programmed the
-tool tip has left the part and is now cutting air.
+Maintenant comme on le voit le point contrôlé suit bien la trajectoire programmée
+mais l'arête de coupe est en dehors de la matière.
 
-.Radius Cut
+.Tournage d'un rayon
 
 image::images/radius_3.png[]
 
-In the final figure we can see the tool tip will finish cutting the
-face but leave a square corner instead of a nice radius. Notice also
-that if you program the cut to end at the center of the part a small
-amount of material will be left from the radius of the tool. To finish
-a face cut to the center of a part you have to program the tool to go
-past center at least the nose radius of the tool.
+Sur la figure finale on voit que l'arête de coupe a terminé le dressage de la face
+mais laisse un coin carré à la place du beau rayon attendu. Noter aussi que, pour
+la même raison, pour ne pas laisser de téton au centre de la pièce lors du dressage 
+de sa face, il convient de dépasser le centre de rotation de la valeur du rayon 
+de bec de l'outil.
 
-.Face Cut
+.Dressage d'une face
 
 image::images/radius_4.png[]
 
-=== Using Cutter Comp
+=== Utiliser la compensation d'outil
 
-When using cutter comp on a lathe think of the tool tip radius as the
-radius of a round cutter. When using cutter comp the path must be large
-enough for a round tool that will not gouge into the next line. When
-cutting straight lines on the lathe you might not want to use cutter
-comp. For example boring a hole with a tight fitting boring bar you may
-not have enough room to do the exit move. The entry move into a cutter
-comp arc is important to get the correct results.
+- Quand la compensation d'outil est utilisée sur un tour, penser à l'arête de coupe 
+    de l'outil comme étant celle d'un outil rond. 
+- Quand la compensation d'outil est utilisée la trajectoire doit être suffisamment 
+    large pour qu'un outil rond n'interfère pas avec la pièce à la ligne suivante. 
+- Pour tourner des lignes droites sur un tour, il est préférable de ne pas utiliser 
+    la compensation d'outil. Par exemple pour aléser un trou avec une barre d'alésage 
+    un peu grosse, la place pourrait manquer pour dégager l'outil et faire le mouvement 
+    de sortie. 
+- Le mouvement d'entrée, dans un arc avec la compensation d'outil, est important 
+    pour obtenir des résultats corrects.
 
 

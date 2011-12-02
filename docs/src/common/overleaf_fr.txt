@@ -1,7 +1,7 @@
 Ce manuel est en évolution permanente. Si vous voulez  nous aider à son écriture, 
-sa rédaction, sa traduction ou la préparation des graphiques, contactez 
-s'il vous plait, n'importe quel membre de l'équipe de traduction ou 
-envoyez un courrier électronique à emc-users@lists.sourceforge.net.
+sa rédaction, sa traduction ou la préparation des graphiques, merci de contactez 
+n'importe quel membre de l'équipe de traduction ou envoyez un courrier 
+électronique à emc-users@lists.sourceforge.net.
 
     Copyright (c) 2000-2011 LinuxCNC.org
 

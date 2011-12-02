@@ -4,14 +4,17 @@
 # This file is distributed under the same license package as rs274ngc.pot.
 #
 # Ernesto Lo Valvo <elovalvo@unipa.it>, 2007.
-# Francis Tisserant <ftissera@free.fr>, 2007, 2008, 2009, 2010.
+# Francis Tisserant <ftissera@free.fr>, 2007, 2008, 2009, 2010, 2011.
+# thank you very much to "mbaillif" for is help.
+# Francis Tisserant <tissf@free.fr> with the help of mbaillif thank>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-01 12:49+0100\n"
-"PO-Revision-Date: 2011-11-13 14:11+0100\n"
-"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
+"POT-Creation-Date: 2011-11-16 17:03+0100\n"
+"PO-Revision-Date: 2011-11-18 19:59+0100\n"
+"Last-Translator: Francis Tisserant <tissf@free.fr> with the help of mbaillif "
+"thank>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -38,7 +41,7 @@ msgstr ""
 
 #: hal/utils/meter.c:238 ../tcl/tkemc.tcl:764
 msgid "Hal Meter"
-msgstr "Hal Metre"
+msgstr "Hal Mètre"
 
 #: hal/utils/meter.c:287
 msgid "_Select"
@@ -96,7 +99,7 @@ msgstr "Ouvrir un fichier de données..."
 msgid "S_ave Data File..."
 msgstr "Enregistrer d_ans un fichier de données"
 
-#: hal/utils/scope.c:566 ../share/axis/tcl/axis.tcl:91
+#: hal/utils/scope.c:566 ../share/axis/tcl/axis.tcl:93
 msgid "_Quit"
 msgstr "_Quitter"
 
@@ -104,11 +107,11 @@ msgstr "_Quitter"
 msgid "_About Halscope"
 msgstr "_A propos de Halscope"
 
-#: hal/utils/scope.c:578 ../share/axis/tcl/axis.tcl:433
+#: hal/utils/scope.c:578 ../share/axis/tcl/axis.tcl:435
 msgid "_File"
 msgstr "_Fichier"
 
-#: hal/utils/scope.c:582 ../share/axis/tcl/axis.tcl:445
+#: hal/utils/scope.c:582 ../share/axis/tcl/axis.tcl:447
 msgid "_Help"
 msgstr "Aide"
 
@@ -136,8 +139,8 @@ msgstr "Trigger"
 msgid "Vertical"
 msgstr "Vertical"
 
-#: hal/utils/scope.c:700 ../share/axis/tcl/axis.tcl:133
-#: ../share/axis/tcl/axis.tcl:1197
+#: hal/utils/scope.c:700 ../share/axis/tcl/axis.tcl:135
+#: ../share/axis/tcl/axis.tcl:1199
 msgid "Stop"
 msgstr "Stopper"
 
@@ -297,20 +300,20 @@ msgstr "%5d échantillons (16 canaux)"
 #: hal/utils/scope_vert.c:853 ../tcl/bin/emccalib.tcl:227
 #: ../tcl/bin/genedit.tcl:180 ../tcl/bin/genedit.tcl:450
 #: ../tcl/bin/halconfig.tcl:682 ../tcl/bin/halconfig.tcl:733
-#: ../tcl/bin/pickconfig.tcl:246 ../tcl/bin/pickconfig.tcl:395
-#: ../tcl/bin/pickconfig.tcl:421 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
+#: ../tcl/bin/pickconfig.tcl:256 ../tcl/bin/pickconfig.tcl:404
+#: ../tcl/bin/pickconfig.tcl:430 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2937
 #: ../tcl/tkemc.tcl:160 ../tcl/tkemc.tcl:245 ../tcl/tkemc.tcl:419
 #: ../tcl/tkemc.tcl:1338 ../tcl/tkemc.tcl:1407 ../tcl/tkemc.tcl:1438
 #: ../tcl/tkemc.tcl:1469 ../tcl/tkemc.tcl:2017 ../tcl/tkemc.tcl:2036
 #: ../tcl/tkemc.tcl:2055 ../tcl/tkemc.tcl:2102
-#: emc/usr_intf/axis/scripts/axis.py:1070
-#: emc/usr_intf/axis/scripts/axis.py:1130
-#: emc/usr_intf/axis/scripts/axis.py:1446
-#: emc/usr_intf/axis/scripts/axis.py:2465
-#: emc/usr_intf/axis/scripts/axis.py:3321
+#: emc/usr_intf/axis/scripts/axis.py:1069
+#: emc/usr_intf/axis/scripts/axis.py:1129
+#: emc/usr_intf/axis/scripts/axis.py:1445
+#: emc/usr_intf/axis/scripts/axis.py:2464
+#: emc/usr_intf/axis/scripts/axis.py:3320
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:718
-#: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1718
-#: ../share/axis/tcl/axis.tcl:1755
+#: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1720
+#: ../share/axis/tcl/axis.tcl:1757
 msgid "OK"
 msgstr "OK"
 
@@ -465,14 +468,14 @@ msgstr "AC Couplé"
 #: hal/utils/scope_trig.c:367 ../tcl/bin/emccalib.tcl:229
 #: ../tcl/bin/genedit.tcl:294 ../tcl/bin/halconfig.tcl:103
 #: ../tcl/bin/halconfig.tcl:684 ../tcl/bin/halconfig.tcl:735
-#: ../tcl/bin/pickconfig.tcl:249 ../tcl/bin/pickconfig.tcl:358
+#: ../tcl/bin/pickconfig.tcl:259 ../tcl/bin/pickconfig.tcl:367
 #: ../tcl/mini.tcl:1457 ../tcl/mini.tcl:2938 ../tcl/mini.tcl:3110
 #: ../tcl/tkemc.tcl:162 ../tcl/tkemc.tcl:213 ../tcl/tkemc.tcl:420
 #: ../tcl/tkemc.tcl:1339 ../tcl/tkemc.tcl:1408 ../tcl/tkemc.tcl:1439
 #: ../tcl/tkemc.tcl:1470 ../tcl/tkemc.tcl:2103
-#: emc/usr_intf/axis/scripts/axis.py:1392
-#: emc/usr_intf/axis/scripts/axis.py:1447
-#: emc/usr_intf/axis/scripts/axis.py:1634
+#: emc/usr_intf/axis/scripts/axis.py:1391
+#: emc/usr_intf/axis/scripts/axis.py:1446
+#: emc/usr_intf/axis/scripts/axis.py:1633
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:720
 msgid "Cancel"
 msgstr "Annuler"
@@ -628,36 +631,31 @@ msgstr "La sonde à touche pendant un mouvement de prise d'origine."
 msgid "Probe tripped during a jog."
 msgstr "La sonde à touché pendant un mouvement à la manivelle."
 
-#: emc/motion/control.c:577
-#, c-format
-msgid "fault %d during orient in progress"
-msgstr "Défaut %d pendant une orientation"
-
-#: emc/motion/control.c:716
+#: emc/motion/control.c:697
 msgid "motion stopped by enable input"
 msgstr "mouvement stoppé par enable input"
 
-#: emc/motion/control.c:739
+#: emc/motion/control.c:720
 #, c-format
 msgid "joint %d on limit switch error"
 msgstr "jointure %d en erreur sur un contact de limite"
 
-#: emc/motion/control.c:751
+#: emc/motion/control.c:732
 #, c-format
 msgid "joint %d amplifier fault"
 msgstr "amplificateur jointure %d en défaut"
 
-#: emc/motion/control.c:760
+#: emc/motion/control.c:741
 #, c-format
 msgid "joint %d following error"
 msgstr "Erreur de suivi jointure %d:"
 
-#: emc/motion/control.c:1442
+#: emc/motion/control.c:1423
 #, c-format
 msgid "Exceeded positive soft limit on joint %d"
 msgstr "La jointure %d à dépassé la limite logicielle positive"
 
-#: emc/motion/control.c:1447
+#: emc/motion/control.c:1428
 #, c-format
 msgid "Exceeded negative soft limit on joint %d"
 msgstr "La jointure %d à dépassé la limite logicielle négative"
@@ -850,17 +848,17 @@ msgstr "ne peut pas ajouter de mouvement de taraudage rigide"
 msgid "need to be enabled, in teleop mode for teleop move"
 msgstr "doit être activé, en mode teleop pour un mouvement teleop"
 
-#: emc/motion/command.c:1602
+#: emc/motion/command.c:1556
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr "jointure %d: trop d'entrées de compensation"
 
-#: emc/motion/command.c:1608
+#: emc/motion/command.c:1562
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr "jointure %d: les valeurs de compensations doivent augmenter"
 
-#: emc/motion/command.c:1637
+#: emc/motion/command.c:1591
 #, c-format
 msgid "unrecognized command %d"
 msgstr "commande %d inconnue"
@@ -915,7 +913,7 @@ msgstr "MOTION:défaut hal_exit(), a retourné %d\n"
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION: défaut emcmot_hal_data malloc\n"
 
-#: emc/motion/motion.c:596
+#: emc/motion/motion.c:584
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: défaut joint %d pin/param export\n"
@@ -923,28 +921,28 @@ msgstr "MOTION: défaut joint %d pin/param export\n"
 #: emc/motion/homing.c:80 emc/motion/homing.c:748
 #, c-format
 msgid "hit limit in home state %d"
-msgstr "hit limit in home state %d"
+msgstr "limite atteinte en recherche d'origine %d"
 
 #: emc/motion/homing.c:90
 #, c-format
 msgid "end of move in home state %d"
-msgstr "end of move in home state %d"
+msgstr "fin de mouvement en recherche d'origine %d"
 
 #: emc/motion/homing.c:185
 #, c-format
 msgid "unknown state '%d' during homing sequence"
-msgstr "état '%d' inconnu pendant une séquence de prise d'origine"
+msgstr "état '%d' inconnu durant une séquence de prise d'origine"
 
 #: emc/motion/homing.c:246
 msgid "Cannot home while shared home switch is closed"
-msgstr "ne peut chercher l'origine tant que le contact partagé est attaqué"
+msgstr "ne peut rechercher l'origine tant que le contact partagé est attaqué"
 
 #: emc/motion/homing.c:290
 msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
 msgstr ""
-"configuration des origines invalide: non-zero LATCH_VEL a besoin soit de "
+"configuration des origines invalide: non-zero LATCH_VEL a besoin de "
 "SEARCH_VEL ou de USE_INDEX"
 
 #: emc/motion/homing.c:299
@@ -1002,7 +1000,7 @@ msgstr "Calibrer %d"
 
 #: ../tcl/bin/emccalib.tcl:160 ../tcl/bin/halconfig.tcl:628
 msgid "INI Name"
-msgstr "Nom d' ini"
+msgstr "Nom d'ini"
 
 #: ../tcl/bin/emccalib.tcl:161 ../tcl/bin/halconfig.tcl:629
 msgid "HAL's Value"
@@ -1042,8 +1040,8 @@ msgstr ""
 "travailler sur cette copie."
 
 #: ../tcl/bin/emccalib.tcl:457 ../tcl/bin/genedit.tcl:211
-#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:459
-#: ../tcl/bin/pickconfig.tcl:470 ../tcl/scripts/Set_Coordinates.tcl:205
+#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:468
+#: ../tcl/bin/pickconfig.tcl:479 ../tcl/scripts/Set_Coordinates.tcl:205
 #: ../tcl/scripts/Set_Coordinates.tcl:228
 #, tcl-format
 msgid "can't save %s"
@@ -1198,7 +1196,7 @@ msgstr ""
 "GPL Version 2"
 
 #: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1373 ../tcl/mini.tcl:1775
-#: ../tcl/tkemc.tcl:451 emc/task/emctaskmain.cc:2051
+#: ../tcl/tkemc.tcl:451 emc/task/emctaskmain.cc:2001
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
@@ -1468,15 +1466,15 @@ msgstr ""
 "installez le \n"
 "avec sudo apt-get install bwidget."
 
-#: ../tcl/bin/pickconfig.tcl:147
+#: ../tcl/bin/pickconfig.tcl:177
 msgid "No details available."
 msgstr "Aucun détail disponible."
 
-#: ../tcl/bin/pickconfig.tcl:183
+#: ../tcl/bin/pickconfig.tcl:193
 msgid "EMC2 Configuration Selector"
 msgstr "Sélecteur de configuration d'EMC2 "
 
-#: ../tcl/bin/pickconfig.tcl:204
+#: ../tcl/bin/pickconfig.tcl:214
 msgid ""
 "Welcome to EMC2.\n"
 "\n"
@@ -1492,24 +1490,24 @@ msgstr ""
 "droite.\n"
 "Cliquer 'OK' pour lancer la configuration sélectionnée"
 
-#: ../tcl/bin/pickconfig.tcl:261
+#: ../tcl/bin/pickconfig.tcl:270
 msgid "My Configurations"
 msgstr "Mes configurations"
 
-#: ../tcl/bin/pickconfig.tcl:264
+#: ../tcl/bin/pickconfig.tcl:273
 msgid "Sample Configurations"
 msgstr "Exemples de configuration"
 
-#: ../tcl/bin/pickconfig.tcl:321
+#: ../tcl/bin/pickconfig.tcl:330
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
 msgstr "ERREUR: Aucune configuration trouvée dans le chemin '%s'"
 
-#: ../tcl/bin/pickconfig.tcl:358
+#: ../tcl/bin/pickconfig.tcl:367
 msgid "Copy Configuration?"
 msgstr "Copier la configuration ?"
 
-#: ../tcl/bin/pickconfig.tcl:358
+#: ../tcl/bin/pickconfig.tcl:367
 #, tcl-format
 msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
@@ -1518,16 +1516,16 @@ msgstr ""
 "Voulez-vous copier le dossier %s dans votre répertoire home pour pouvoir "
 "l'adapter à vos besoins ?"
 
-#: ../tcl/bin/pickconfig.tcl:358
+#: ../tcl/bin/pickconfig.tcl:367
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:563
 msgid "Yes"
 msgstr "Oui"
 
-#: ../tcl/bin/pickconfig.tcl:395
+#: ../tcl/bin/pickconfig.tcl:404
 msgid "Configuration Copied"
 msgstr "Configuration copiée"
 
-#: ../tcl/bin/pickconfig.tcl:395
+#: ../tcl/bin/pickconfig.tcl:404
 #, tcl-format
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
@@ -1536,11 +1534,11 @@ msgstr ""
 "Le fichier de configuration a bien été copié dans %s. La prochaine fois, "
 "choisissez cet emplacement quand vous démarrerez EMC2."
 
-#: ../tcl/bin/pickconfig.tcl:421
+#: ../tcl/bin/pickconfig.tcl:430
 msgid "Shortcut Created"
 msgstr "Raccourci créé"
 
-#: ../tcl/bin/pickconfig.tcl:421
+#: ../tcl/bin/pickconfig.tcl:430
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
@@ -1548,7 +1546,7 @@ msgstr ""
 "Un lien vers ce fichier de configuration a bien été créé sur votre bureau.  "
 "Vous pourrez l'utiliser pour démarrer automatiquement cette configuration."
 
-#: ../tcl/bin/pickconfig.tcl:426
+#: ../tcl/bin/pickconfig.tcl:435
 msgid "Create Desktop Shortcut"
 msgstr "Créer un raccourci sur le bureau"
 
@@ -1824,7 +1822,7 @@ msgstr "Ouvrir la fenêtre des offsets ici"
 msgid "start override popup here"
 msgstr "Ouvrir la fenêtre des correcteurs ici"
 
-#: ../tcl/mini.tcl:1168 ../tcl/tkemc.tcl:1576 ../share/axis/tcl/axis.tcl:1667
+#: ../tcl/mini.tcl:1168 ../tcl/tkemc.tcl:1576 ../share/axis/tcl/axis.tcl:1669
 msgid "Feed Override:"
 msgstr "Correcteur de vitesse:"
 
@@ -1985,7 +1983,7 @@ msgid "Restart"
 msgstr "Reprise"
 
 #: ../tcl/mini.tcl:1711 ../tcl/mini.tcl:2823 ../tcl/mini.tcl:2882
-#: ../tcl/tkemc.tcl:465 emc/usr_intf/axis/scripts/axis.py:1873
+#: ../tcl/tkemc.tcl:465 emc/usr_intf/axis/scripts/axis.py:1872
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:754
 msgid "All files"
 msgstr "Tous les fichiers"
@@ -2058,15 +2056,15 @@ msgstr "FREIN ?"
 
 #: ../tcl/mini.tcl:1919 ../tcl/tkemc.tcl:2274
 msgid "MIST ON"
-msgstr "AVEC BROUILLARD"
+msgstr "AVEC GOUTTELETTES"
 
 #: ../tcl/mini.tcl:1921 ../tcl/tkemc.tcl:2276
 msgid "MIST OFF"
-msgstr "SANS BROUILLARD"
+msgstr "SANS GOUTELETTES"
 
 #: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2278
 msgid "MIST ?"
-msgstr "BROUILLARD ?"
+msgstr "GOUTTELETTES ?"
 
 #: ../tcl/mini.tcl:1927 ../tcl/tkemc.tcl:2282
 msgid "FLOOD ON"
@@ -2499,17 +2497,17 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: ../tcl/tkemc.tcl:756 emc/usr_intf/pncconf/pncconf.py:7725
+#: ../tcl/tkemc.tcl:756 emc/usr_intf/pncconf/pncconf.py:7937
 msgid "inches"
 msgstr "pouces"
 
-#: ../tcl/tkemc.tcl:757 emc/usr_intf/axis/scripts/axis.py:1544
-#: emc/usr_intf/axis/scripts/axis.py:1714
+#: ../tcl/tkemc.tcl:757 emc/usr_intf/axis/scripts/axis.py:1543
+#: emc/usr_intf/axis/scripts/axis.py:1713
 #: emc/usr_intf/touchy/touchy.glade:3301
 #: emc/usr_intf/stepconf/stepconf.py:1682
 #: emc/usr_intf/stepconf/stepconf.py:2218
 #: emc/usr_intf/stepconf/stepconf.glade:4357
-#: emc/usr_intf/pncconf/pncconf.py:7721
+#: emc/usr_intf/pncconf/pncconf.py:7933
 #: emc/usr_intf/pncconf/pncconf.glade:2187
 #: emc/usr_intf/pncconf/pncconf.glade:2354
 #: emc/usr_intf/pncconf/pncconf.glade:50491
@@ -2568,11 +2566,11 @@ msgstr "Manuel"
 
 #: ../tcl/tkemc.tcl:835
 msgid "Mist on"
-msgstr "Avec brouillard"
+msgstr "Avec gouttelettes"
 
 #: ../tcl/tkemc.tcl:836
 msgid "Mist off"
-msgstr "Sans brouillard"
+msgstr "Sans gouttelettes"
 
 #: ../tcl/tkemc.tcl:843
 msgid "Flood on"
@@ -2706,11 +2704,11 @@ msgstr "Taille"
 msgid "Style"
 msgstr "Style"
 
-#: ../tcl/tkemc.tcl:2229 ../share/axis/tcl/axis.tcl:1914
+#: ../tcl/tkemc.tcl:2229 ../share/axis/tcl/axis.tcl:1916
 msgid "ESTOP"
 msgstr "A/U"
 
-#: ../tcl/tkemc.tcl:2231 ../share/axis/tcl/axis.tcl:1916
+#: ../tcl/tkemc.tcl:2231 ../share/axis/tcl/axis.tcl:1918
 msgid "ON"
 msgstr "EN MARCHE"
 
@@ -2760,11 +2758,11 @@ msgstr "Écrire"
 
 #: ../tcl/ngcgui.tcl:469
 msgid "Need non-null file name"
-msgstr "nécessite un nom de fichier"
+msgstr "Nécessite un nom de fichier"
 
 #: ../tcl/ngcgui.tcl:545
 msgid "Disallowed use of ngcgui generated file as Subfile"
-msgstr "refus d'utiliser le fichier ngcgui généré comme un sous-fichier"
+msgstr "Refus d'utiliser le fichier ngcgui généré comme un sous-fichier"
 
 #: ../tcl/ngcgui.tcl:551
 msgid ""
@@ -3152,8 +3150,8 @@ msgstr "enlever"
 msgid "move"
 msgstr "mouvement"
 
-#: ../tcl/ngcgui.tcl:3573 emc/usr_intf/pncconf/pncconf.py:6293
-#: emc/usr_intf/pncconf/pncconf.py:6373 emc/usr_intf/pncconf/pncconf.py:6536
+#: ../tcl/ngcgui.tcl:3573 emc/usr_intf/pncconf/pncconf.py:6500
+#: emc/usr_intf/pncconf/pncconf.py:6580 emc/usr_intf/pncconf/pncconf.py:6743
 msgid "Custom"
 msgstr "Personnalisé"
 
@@ -3353,7 +3351,7 @@ msgstr "Sélection de la vitesse angulaire de jog"
 msgid "I, Shift-I"
 msgstr "I, Maj+I"
 
-#: emc/usr_intf/axis/scripts/axis.py:155 ../share/axis/tcl/axis.tcl:2354
+#: emc/usr_intf/axis/scripts/axis.py:155 ../share/axis/tcl/axis.tcl:2356
 msgid "Select jog increment"
 msgstr "Sélection de l'incrément de jog"
 
@@ -3361,7 +3359,7 @@ msgstr "Sélection de l'incrément de jog"
 msgid "Continuous jog"
 msgstr "Jog en continu"
 
-#: emc/usr_intf/axis/scripts/axis.py:157 emc/usr_intf/pncconf/pncconf.py:422
+#: emc/usr_intf/axis/scripts/axis.py:157 emc/usr_intf/pncconf/pncconf.py:427
 msgid "Home"
 msgstr "Origine"
 
@@ -3514,7 +3512,7 @@ msgstr "Ctrl+Maj+H"
 msgid "Paste clipboard to MDI history"
 msgstr "Coller dans l'historique du MDI"
 
-#: emc/usr_intf/axis/scripts/axis.py:186 ../share/axis/tcl/axis.tcl:1111
+#: emc/usr_intf/axis/scripts/axis.py:186 ../share/axis/tcl/axis.tcl:1113
 #: emc/usr_intf/touchy/touchy.glade:508
 msgid "Override Limits"
 msgstr "Dépassement des limites"
@@ -3565,7 +3563,7 @@ msgstr "stopper le parcours d'outil"
 
 #: emc/usr_intf/axis/scripts/axis.py:198
 msgid "Toggle mist"
-msgstr "Avec ou sans brouillard"
+msgstr "Avec ou sans gouttelettes"
 
 #: emc/usr_intf/axis/scripts/axis.py:199
 msgid "Toggle flood"
@@ -3613,7 +3611,7 @@ msgstr "Défilement cyclique des vues prédéfinies"
 
 #: emc/usr_intf/axis/scripts/axis.py:209
 msgid "Cycle among preview, DRO, and user tabs"
-msgstr "Cycle among preview, DRO, and user tabs"
+msgstr "Défilement parcours d'outil, visu et onglets utilisateur"
 
 #: emc/usr_intf/axis/scripts/axis.py:211
 msgid "Ctrl-Space"
@@ -3623,34 +3621,34 @@ msgstr "Ctrl-Espace"
 msgid "Clear notifications"
 msgstr "Effacer les notifications"
 
-#: emc/usr_intf/axis/scripts/axis.py:829
+#: emc/usr_intf/axis/scripts/axis.py:828
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Outil %d inconnu"
 
-#: emc/usr_intf/axis/scripts/axis.py:831
+#: emc/usr_intf/axis/scripts/axis.py:830
 msgid "No tool"
 msgstr "Pas d'outil"
 
-#: emc/usr_intf/axis/scripts/axis.py:833
+#: emc/usr_intf/axis/scripts/axis.py:832
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "Outil %(tool)d, offset %(zo)g, diamètre %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:835
+#: emc/usr_intf/axis/scripts/axis.py:834
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "Outil %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1006
+#: emc/usr_intf/axis/scripts/axis.py:1005
 msgid "Filtering..."
 msgstr "Filtrage..."
 
-#: emc/usr_intf/axis/scripts/axis.py:1066
+#: emc/usr_intf/axis/scripts/axis.py:1065
 msgid "Filter failed"
 msgstr "Le filtrage a échoué"
 
-#: emc/usr_intf/axis/scripts/axis.py:1067
+#: emc/usr_intf/axis/scripts/axis.py:1066
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
@@ -3659,12 +3657,12 @@ msgstr ""
 "Le programme %(program)r s'est arrêté avec le code %(code)d.  Si des "
 "messages ont été produits, ils sont ci-dessous:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1128
+#: emc/usr_intf/axis/scripts/axis.py:1127
 #, python-format
 msgid "G-Code error in %s"
 msgstr "Erreur de G-code en %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1129
+#: emc/usr_intf/axis/scripts/axis.py:1128
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
@@ -3673,131 +3671,131 @@ msgstr ""
 "Vers la ligne %(seq)d de %(f)s:\n"
 "%(error_str)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1280
-#: emc/usr_intf/axis/scripts/axis.py:2713 ../share/axis/tcl/axis.tcl:1090
-#: ../share/axis/tcl/axis.tcl:1092 ../share/axis/tcl/axis.tcl:2142
+#: emc/usr_intf/axis/scripts/axis.py:1279
+#: emc/usr_intf/axis/scripts/axis.py:2712 ../share/axis/tcl/axis.tcl:1092
+#: ../share/axis/tcl/axis.tcl:1094 ../share/axis/tcl/axis.tcl:2144
 msgid "Continuous"
 msgstr "Continu"
 
-#: emc/usr_intf/axis/scripts/axis.py:1391
+#: emc/usr_intf/axis/scripts/axis.py:1390
 msgid "Ok"
 msgstr "Ok"
 
-#: emc/usr_intf/axis/scripts/axis.py:1534
+#: emc/usr_intf/axis/scripts/axis.py:1533
 msgid "T    Tool Table"
 msgstr "T    Table d'outils"
 
-#: emc/usr_intf/axis/scripts/axis.py:1545
-#: emc/usr_intf/axis/scripts/axis.py:1718
+#: emc/usr_intf/axis/scripts/axis.py:1544
+#: emc/usr_intf/axis/scripts/axis.py:1717
 #: emc/usr_intf/stepconf/stepconf.py:1688
 #: emc/usr_intf/stepconf/stepconf.py:2232
 msgid "in"
 msgstr "en"
 
-#: emc/usr_intf/axis/scripts/axis.py:1548
+#: emc/usr_intf/axis/scripts/axis.py:1547
 msgid " radius"
 msgstr "rayon"
 
-#: emc/usr_intf/axis/scripts/axis.py:1550
+#: emc/usr_intf/axis/scripts/axis.py:1549
 msgid " diameter"
 msgstr "diamètre"
 
-#: emc/usr_intf/axis/scripts/axis.py:1551
+#: emc/usr_intf/axis/scripts/axis.py:1550
 msgid "°"
 msgstr "°"
 
-#: emc/usr_intf/axis/scripts/axis.py:1560
+#: emc/usr_intf/axis/scripts/axis.py:1559
 msgid "Coordinate System:"
 msgstr "Décalage origine pièce"
 
-#: emc/usr_intf/axis/scripts/axis.py:1576
+#: emc/usr_intf/axis/scripts/axis.py:1575
 msgid "fixture"
 msgstr "porte-pièce"
 
-#: emc/usr_intf/axis/scripts/axis.py:1577
+#: emc/usr_intf/axis/scripts/axis.py:1576
 msgid "workpiece"
 msgstr "la pièce"
 
-#: emc/usr_intf/axis/scripts/axis.py:1593
+#: emc/usr_intf/axis/scripts/axis.py:1592
 msgid "Name:"
 msgstr "Nom:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1593
+#: emc/usr_intf/axis/scripts/axis.py:1592
 msgid "Size:"
 msgstr "Taille:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1594
+#: emc/usr_intf/axis/scripts/axis.py:1593
 msgid "Tool order:"
 msgstr "Outil N°:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1594
+#: emc/usr_intf/axis/scripts/axis.py:1593
 msgid "Rapid distance:"
 msgstr "Distance en vitesse rapide:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1595
+#: emc/usr_intf/axis/scripts/axis.py:1594
 msgid "Feed distance:"
 msgstr "Distance en vitesse travail:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1595
+#: emc/usr_intf/axis/scripts/axis.py:1594
 msgid "Total distance:"
 msgstr "Distance totale:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1596
+#: emc/usr_intf/axis/scripts/axis.py:1595
 msgid "Run time:"
 msgstr "Run time:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1596
+#: emc/usr_intf/axis/scripts/axis.py:1595
 msgid "X bounds:"
 msgstr "Limites X:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1597
+#: emc/usr_intf/axis/scripts/axis.py:1596
 msgid "Y bounds:"
 msgstr "Limites Y:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1597
+#: emc/usr_intf/axis/scripts/axis.py:1596
 msgid "Z bounds:"
 msgstr "Limites Z:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1598
+#: emc/usr_intf/axis/scripts/axis.py:1597
 msgid "A bounds:"
 msgstr "Limites A:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1598
+#: emc/usr_intf/axis/scripts/axis.py:1597
 msgid "B bounds:"
 msgstr "Limites B:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1599
+#: emc/usr_intf/axis/scripts/axis.py:1598
 msgid "C bounds:"
 msgstr "Limites C:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1623
+#: emc/usr_intf/axis/scripts/axis.py:1622
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "Le programme dépasse la limite mini sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1626
+#: emc/usr_intf/axis/scripts/axis.py:1625
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "Le programme dépasse la limite maxi sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1631
+#: emc/usr_intf/axis/scripts/axis.py:1630
 msgid "Program exceeds machine limits"
 msgstr "Le programme excède les limites machine"
 
-#: emc/usr_intf/axis/scripts/axis.py:1634
+#: emc/usr_intf/axis/scripts/axis.py:1633
 msgid "Run Anyway"
 msgstr "Exécuter tout de même"
 
-#: emc/usr_intf/axis/scripts/axis.py:1696
+#: emc/usr_intf/axis/scripts/axis.py:1695
 msgid "No file loaded"
 msgstr "Aucun fichier chargé"
 
-#: emc/usr_intf/axis/scripts/axis.py:1704
+#: emc/usr_intf/axis/scripts/axis.py:1703
 #, python-format
 msgid "generated from %s"
 msgstr "produit depuis %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1710
+#: emc/usr_intf/axis/scripts/axis.py:1709
 #, python-format
 msgid ""
 "%(size)s bytes\n"
@@ -3806,100 +3804,100 @@ msgstr ""
 "%(size)s octets\n"
 "%(lines)s lignes de gcode"
 
-#: emc/usr_intf/axis/scripts/axis.py:1736
+#: emc/usr_intf/axis/scripts/axis.py:1735
 #, python-format
 msgid "%.1f minutes"
 msgstr "% 1f minutes"
 
-#: emc/usr_intf/axis/scripts/axis.py:1738
+#: emc/usr_intf/axis/scripts/axis.py:1737
 #, python-format
 msgid "%d seconds"
 msgstr "%d secondes"
 
-#: emc/usr_intf/axis/scripts/axis.py:1746
+#: emc/usr_intf/axis/scripts/axis.py:1745
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f à %(b)f = %(diff)f %(units)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1747
+#: emc/usr_intf/axis/scripts/axis.py:1746
 msgid "G-Code Properties"
 msgstr "Propriétés du G-code"
 
-#: emc/usr_intf/axis/scripts/axis.py:1871
+#: emc/usr_intf/axis/scripts/axis.py:1870
 msgid "All machinable files"
 msgstr "Tous les fichiers d'usinage"
 
-#: emc/usr_intf/axis/scripts/axis.py:1872
-#: emc/usr_intf/axis/scripts/axis.py:2452
+#: emc/usr_intf/axis/scripts/axis.py:1871
+#: emc/usr_intf/axis/scripts/axis.py:2451
 msgid "rs274ngc files"
 msgstr "Fichiers rs274ngc"
 
-#: emc/usr_intf/axis/scripts/axis.py:1887
+#: emc/usr_intf/axis/scripts/axis.py:1886
 msgid "axis cannot accept remote command while running"
 msgstr ""
 "les axes n'acceptent pas de commande à distance pendant leur fonctionnement"
 
-#: emc/usr_intf/axis/scripts/axis.py:2243
-#: emc/usr_intf/axis/scripts/axis.py:2256
+#: emc/usr_intf/axis/scripts/axis.py:2242
+#: emc/usr_intf/axis/scripts/axis.py:2255
 msgid "Warning"
 msgstr "Attention"
 
-#: emc/usr_intf/axis/scripts/axis.py:2243
+#: emc/usr_intf/axis/scripts/axis.py:2242
 msgid "Axis is already homed, are you sure you want to re-home?"
 msgstr ""
 "Les axes sont déjà référencés, vous êtes sûr de vouloir relancer une prise "
 "d'origine générale ?"
 
-#: emc/usr_intf/axis/scripts/axis.py:2256
+#: emc/usr_intf/axis/scripts/axis.py:2255
 msgid "This axis is already homed, are you sure you want to re-home?"
 msgstr ""
 "Cet axe est déjà référencé, êtes vous sûr de vouloir relancer une prise "
 "d'origine ?"
 
-#: emc/usr_intf/axis/scripts/axis.py:2296 ../share/axis/tcl/axis.tcl:1106
+#: emc/usr_intf/axis/scripts/axis.py:2295 ../share/axis/tcl/axis.tcl:1108
 msgid "Touch Off"
 msgstr "Toucher"
 
-#: emc/usr_intf/axis/scripts/axis.py:2297
+#: emc/usr_intf/axis/scripts/axis.py:2296
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "Coordonnée %s relative à %%s:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2464
+#: emc/usr_intf/axis/scripts/axis.py:2463
 msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
-#: emc/usr_intf/axis/scripts/axis.py:2846 emc/usr_intf/touchy/touchy.glade:577
+#: emc/usr_intf/axis/scripts/axis.py:2845 emc/usr_intf/touchy/touchy.glade:577
 msgid "Home All"
 msgstr "Prise d'origine générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:2848
+#: emc/usr_intf/axis/scripts/axis.py:2847
 msgid "Home all axes [Ctrl-Home]"
 msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
-#: emc/usr_intf/axis/scripts/axis.py:2851
+#: emc/usr_intf/axis/scripts/axis.py:2850
 msgid "Home All Axes"
 msgstr "POM générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:2856
+#: emc/usr_intf/axis/scripts/axis.py:2855
 msgid "Unhome All Axes"
 msgstr "Annulation OM de tous les axes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2880
+#: emc/usr_intf/axis/scripts/axis.py:2879
 #, python-format
 msgid "Home Axis _%s"
 msgstr "POM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2882
+#: emc/usr_intf/axis/scripts/axis.py:2881
 #, python-format
 msgid "Unhome Axis _%s"
 msgstr "Annulation OM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:3025
+#: emc/usr_intf/axis/scripts/axis.py:3024
 msgid "Run from here"
 msgstr "Démarrer depuis ici"
 
-#: emc/usr_intf/axis/scripts/axis.py:3320
+#: emc/usr_intf/axis/scripts/axis.py:3319
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -4180,472 +4178,472 @@ msgstr ""
 msgid "  * This option can only be enabled in the inifile"
 msgstr "  * Cette option ne peut être activée que dans le fichier ini"
 
-#: ../share/axis/tcl/axis.tcl:47
+#: ../share/axis/tcl/axis.tcl:49
 msgid "_Open..."
 msgstr "_Ouvrir..."
 
-#: ../share/axis/tcl/axis.tcl:51
+#: ../share/axis/tcl/axis.tcl:53
 msgid "Recent _Files"
 msgstr "_Fichiers récents"
 
-#: ../share/axis/tcl/axis.tcl:55
+#: ../share/axis/tcl/axis.tcl:57
 msgid "_Edit..."
 msgstr "_Éditer.."
 
-#: ../share/axis/tcl/axis.tcl:58
+#: ../share/axis/tcl/axis.tcl:60
 msgid "Ctrl-R"
 msgstr "Ctrl+R"
 
-#: ../share/axis/tcl/axis.tcl:60
+#: ../share/axis/tcl/axis.tcl:62
 msgid "_Reload"
 msgstr "_Recharger"
 
-#: ../share/axis/tcl/axis.tcl:63
+#: ../share/axis/tcl/axis.tcl:65
 msgid "Ctrl-S"
 msgstr "Ctrl+S"
 
-#: ../share/axis/tcl/axis.tcl:65
+#: ../share/axis/tcl/axis.tcl:67
 msgid "_Save gcode as..."
-msgstr "_Sauvegarder le G-code sous..."
+msgstr "Enregi_strer le G-code sous..."
 
-#: ../share/axis/tcl/axis.tcl:69
+#: ../share/axis/tcl/axis.tcl:71
 msgid "_Properties..."
 msgstr "_Propriétés..."
 
-#: ../share/axis/tcl/axis.tcl:75
+#: ../share/axis/tcl/axis.tcl:77
 msgid "Edit _tool table..."
 msgstr "Éditer la _table d'outils"
 
-#: ../share/axis/tcl/axis.tcl:79
+#: ../share/axis/tcl/axis.tcl:81
 msgid "Reload tool ta_ble"
 msgstr "Recharger la ta_ble d'outils"
 
-#: ../share/axis/tcl/axis.tcl:85
+#: ../share/axis/tcl/axis.tcl:87
 msgid "_Ladder Editor..."
 msgstr "Editeur de _Ladder..."
 
-#: ../share/axis/tcl/axis.tcl:97
+#: ../share/axis/tcl/axis.tcl:99
 msgid "Toggle _Emergency Stop"
 msgstr "_Arrêt d'urgence"
 
-#: ../share/axis/tcl/axis.tcl:102
+#: ../share/axis/tcl/axis.tcl:104
 msgid "Toggle _Machine Power"
 msgstr "_Marche/Arrêt machine"
 
-#: ../share/axis/tcl/axis.tcl:109
+#: ../share/axis/tcl/axis.tcl:111
 msgid "_Run program"
 msgstr "Déma_rrer le programme"
 
-#: ../share/axis/tcl/axis.tcl:113
+#: ../share/axis/tcl/axis.tcl:115
 msgid "Ru_n from selected line"
 msgstr "Démarrer à la lig_ne sélectionnée"
 
-#: ../share/axis/tcl/axis.tcl:118
+#: ../share/axis/tcl/axis.tcl:120
 msgid "S_tep"
-msgstr "Pa_s à pas"
+msgstr "Pas à pas"
 
-#: ../share/axis/tcl/axis.tcl:123
+#: ../share/axis/tcl/axis.tcl:125
 msgid "_Pause"
 msgstr "_Pause"
 
-#: ../share/axis/tcl/axis.tcl:128
+#: ../share/axis/tcl/axis.tcl:130
 msgid "Re_sume"
 msgstr "Repri_se"
 
-#: ../share/axis/tcl/axis.tcl:138
+#: ../share/axis/tcl/axis.tcl:140
 msgid "Stop at M_1"
 msgstr "Arrêt sur M_1"
 
-#: ../share/axis/tcl/axis.tcl:143
+#: ../share/axis/tcl/axis.tcl:145
 msgid "Skip lines with '_/'"
 msgstr "Sauter les lignes avec '_/'"
 
-#: ../share/axis/tcl/axis.tcl:148
+#: ../share/axis/tcl/axis.tcl:150
 msgid "Ctrl-M"
 msgstr "Ctrl+M"
 
-#: ../share/axis/tcl/axis.tcl:150
+#: ../share/axis/tcl/axis.tcl:152
 msgid "Clear MDI h_istory"
 msgstr "Vider l'h_istorique du MDI"
 
-#: ../share/axis/tcl/axis.tcl:152
+#: ../share/axis/tcl/axis.tcl:154
 msgid "Ctrl-H"
 msgstr "Ctrl+H"
 
-#: ../share/axis/tcl/axis.tcl:154
+#: ../share/axis/tcl/axis.tcl:156
 msgid "Copy from MDI hist_ory"
 msgstr "Copier depuis l'hist_orique du MDI"
 
-#: ../share/axis/tcl/axis.tcl:156
+#: ../share/axis/tcl/axis.tcl:158
 msgid "Ctrl-Shift-H"
 msgstr "Ctrl+Maj+H"
 
-#: ../share/axis/tcl/axis.tcl:158
+#: ../share/axis/tcl/axis.tcl:160
 msgid "Paste to MDI histor_y"
 msgstr "Coller dans l'historique du MDI"
 
-#: ../share/axis/tcl/axis.tcl:164
+#: ../share/axis/tcl/axis.tcl:166
 msgid "_Calibration"
 msgstr "_Calibration"
 
-#: ../share/axis/tcl/axis.tcl:168
+#: ../share/axis/tcl/axis.tcl:170
 msgid "Show _Hal Configuration"
 msgstr "Afficher configuration de _HAL"
 
-#: ../share/axis/tcl/axis.tcl:172
+#: ../share/axis/tcl/axis.tcl:174
 msgid "H_al Meter"
 msgstr "H_al mètre"
 
-#: ../share/axis/tcl/axis.tcl:176
+#: ../share/axis/tcl/axis.tcl:178
 msgid "Ha_l Scope"
 msgstr "Ha_l scope"
 
-#: ../share/axis/tcl/axis.tcl:180
+#: ../share/axis/tcl/axis.tcl:182
 msgid "Sho_w EMC Status"
-msgstr "Afficher l'état d'EMC"
+msgstr "A_fficher l'état d'EMC"
 
-#: ../share/axis/tcl/axis.tcl:184
+#: ../share/axis/tcl/axis.tcl:186
 msgid "Set _Debug Level"
 msgstr "Choisir le niveau de _Debug"
 
-#: ../share/axis/tcl/axis.tcl:190
+#: ../share/axis/tcl/axis.tcl:192
 msgid "Homin_g"
 msgstr "Prise d'ori_gine"
 
-#: ../share/axis/tcl/axis.tcl:194
+#: ../share/axis/tcl/axis.tcl:196
 msgid "_Unhoming"
 msgstr "Annulation OM"
 
-#: ../share/axis/tcl/axis.tcl:198
+#: ../share/axis/tcl/axis.tcl:200
 msgid "_Zero coordinate system"
 msgstr "Annulation décalage d'origine"
 
-#: ../share/axis/tcl/axis.tcl:202
+#: ../share/axis/tcl/axis.tcl:204
 msgid "P1  G5_4"
 msgstr "P1··G5_4"
 
-#: ../share/axis/tcl/axis.tcl:206
+#: ../share/axis/tcl/axis.tcl:208
 msgid "P2  G5_5"
 msgstr "P2··G5_5"
 
-#: ../share/axis/tcl/axis.tcl:210
+#: ../share/axis/tcl/axis.tcl:212
 msgid "P3  G5_6"
 msgstr "P3  G5_6"
 
-#: ../share/axis/tcl/axis.tcl:214
+#: ../share/axis/tcl/axis.tcl:216
 msgid "P4  G5_7"
 msgstr "P4  G5_7"
 
-#: ../share/axis/tcl/axis.tcl:218
+#: ../share/axis/tcl/axis.tcl:220
 msgid "P5  G5_8"
 msgstr "P5  G5_8"
 
-#: ../share/axis/tcl/axis.tcl:222
+#: ../share/axis/tcl/axis.tcl:224
 msgid "P6  G5_9"
 msgstr "P6  G5_9"
 
-#: ../share/axis/tcl/axis.tcl:226
+#: ../share/axis/tcl/axis.tcl:228
 msgid "P7  G59._1"
 msgstr "P7  G59._1"
 
-#: ../share/axis/tcl/axis.tcl:230
+#: ../share/axis/tcl/axis.tcl:232
 msgid "P8  G59._2"
 msgstr "P8  G59._2"
 
-#: ../share/axis/tcl/axis.tcl:234
+#: ../share/axis/tcl/axis.tcl:236
 msgid "P9  G59._3"
 msgstr "P9  G59._3"
 
-#: ../share/axis/tcl/axis.tcl:238
+#: ../share/axis/tcl/axis.tcl:240
 msgid "_G92"
 msgstr "_G92"
 
-#: ../share/axis/tcl/axis.tcl:246
+#: ../share/axis/tcl/axis.tcl:248
 msgid "Tool touch off to wor_kpiece"
 msgstr "L'outil touchera la pièce"
 
-#: ../share/axis/tcl/axis.tcl:252
+#: ../share/axis/tcl/axis.tcl:254
 msgid "Tool touch off to _fixture"
 msgstr "L'outil touchera le porte-pièce"
 
-#: ../share/axis/tcl/axis.tcl:260
+#: ../share/axis/tcl/axis.tcl:262
 msgid "_Top view"
 msgstr "Vue de dess_us"
 
-#: ../share/axis/tcl/axis.tcl:267
+#: ../share/axis/tcl/axis.tcl:269
 msgid "_Rotated Top view"
 msgstr "Vue de dessus _basculée"
 
-#: ../share/axis/tcl/axis.tcl:274
+#: ../share/axis/tcl/axis.tcl:276
 msgid "_Side view"
 msgstr "Vue de _côté"
 
-#: ../share/axis/tcl/axis.tcl:281
+#: ../share/axis/tcl/axis.tcl:283
 msgid "_Front view"
 msgstr "Vue de _face"
 
-#: ../share/axis/tcl/axis.tcl:288
+#: ../share/axis/tcl/axis.tcl:290
 msgid "_Perspective view"
 msgstr "Vue en per_spective"
 
-#: ../share/axis/tcl/axis.tcl:297
+#: ../share/axis/tcl/axis.tcl:299
 msgid "Display _Inches"
 msgstr "Affichage en _pouces"
 
-#: ../share/axis/tcl/axis.tcl:304
+#: ../share/axis/tcl/axis.tcl:306
 msgid "Display _MM"
 msgstr "Affichage en _mm"
 
-#: ../share/axis/tcl/axis.tcl:311
+#: ../share/axis/tcl/axis.tcl:313
 msgid "S_how program"
 msgstr "Affic_her le programme"
 
-#: ../share/axis/tcl/axis.tcl:316
+#: ../share/axis/tcl/axis.tcl:318
 msgid "Show program r_apids"
 msgstr "Parcours d'outil en vitesse r_apide"
 
-#: ../share/axis/tcl/axis.tcl:321
+#: ../share/axis/tcl/axis.tcl:323
 msgid "Alpha-_blend program"
-msgstr "Simulation de transparence"
+msgstr "Simulation de _transparence"
 
-#: ../share/axis/tcl/axis.tcl:326
+#: ../share/axis/tcl/axis.tcl:328
 msgid "Sho_w live plot"
 msgstr "Pa_rcours d'outil en temps réel"
 
-#: ../share/axis/tcl/axis.tcl:331
+#: ../share/axis/tcl/axis.tcl:333
 msgid "Show too_l"
 msgstr "Afficher _l'outil"
 
-#: ../share/axis/tcl/axis.tcl:336
+#: ../share/axis/tcl/axis.tcl:338
 msgid "Show e_xtents"
-msgstr "Afficher extensions"
+msgstr "Afficher les étendues"
 
-#: ../share/axis/tcl/axis.tcl:341
+#: ../share/axis/tcl/axis.tcl:343
 msgid "Show o_ffsets"
-msgstr "Afficher les o_ffsets"
+msgstr "Afficher les offs_ets"
 
-#: ../share/axis/tcl/axis.tcl:346
+#: ../share/axis/tcl/axis.tcl:348
 msgid "Sh_ow machine limits"
 msgstr "Afficher les l_imites machine"
 
-#: ../share/axis/tcl/axis.tcl:351
+#: ../share/axis/tcl/axis.tcl:353
 msgid "Show v_elocity"
-msgstr "Affich_er la vitesse d'avance"
+msgstr "Afficher la _vitesse d'avance"
 
-#: ../share/axis/tcl/axis.tcl:356
+#: ../share/axis/tcl/axis.tcl:358
 msgid "Show _distance to go"
 msgstr "Afficher la _distance restante"
 
-#: ../share/axis/tcl/axis.tcl:361
+#: ../share/axis/tcl/axis.tcl:363
 msgid "Large coordinate fo_nt"
-msgstr "Coordonnées en police la_rge "
+msgstr "Coordonnées en p_olice large "
 
-#: ../share/axis/tcl/axis.tcl:364
+#: ../share/axis/tcl/axis.tcl:366
 msgid "Ctrl-K"
 msgstr "Ctrl+K"
 
-#: ../share/axis/tcl/axis.tcl:366
+#: ../share/axis/tcl/axis.tcl:368
 msgid "_Clear live plot"
-msgstr "Rafraîchir le parcours d'_outil"
+msgstr "Rafraîchir le parcours d'outil"
 
-#: ../share/axis/tcl/axis.tcl:375
+#: ../share/axis/tcl/axis.tcl:377
 msgid "Show commanded position"
-msgstr "Afficher la position commandée"
+msgstr "Afficher la position _commandée"
 
-#: ../share/axis/tcl/axis.tcl:382
+#: ../share/axis/tcl/axis.tcl:384
 msgid "Show actual position"
-msgstr "Afficher la position actuelle"
+msgstr "Afficher la position _actuelle"
 
-#: ../share/axis/tcl/axis.tcl:391
+#: ../share/axis/tcl/axis.tcl:393
 msgid "Show machine position"
-msgstr "Afficher la position machine"
+msgstr "Afficher la position _machine"
 
-#: ../share/axis/tcl/axis.tcl:398
+#: ../share/axis/tcl/axis.tcl:400
 msgid "Show relative position"
-msgstr "Afficher la position relative"
+msgstr "Afficher la position _relative"
 
-#: ../share/axis/tcl/axis.tcl:407
+#: ../share/axis/tcl/axis.tcl:409
 msgid "Joint mode"
 msgstr "Mode articulations"
 
-#: ../share/axis/tcl/axis.tcl:414
+#: ../share/axis/tcl/axis.tcl:416
 msgid "World mode"
 msgstr "Mode articulations"
 
-#: ../share/axis/tcl/axis.tcl:423
+#: ../share/axis/tcl/axis.tcl:425
 msgid "_About AXIS"
 msgstr "_À propos d'AXIS"
 
-#: ../share/axis/tcl/axis.tcl:427
+#: ../share/axis/tcl/axis.tcl:429
 msgid "Quick _Reference"
 msgstr "Aide _rapide"
 
-#: ../share/axis/tcl/axis.tcl:437
+#: ../share/axis/tcl/axis.tcl:439
 msgid "_Machine"
 msgstr "_Machine"
 
-#: ../share/axis/tcl/axis.tcl:441
+#: ../share/axis/tcl/axis.tcl:443
 msgid "_View"
 msgstr "_Vues"
 
-#: ../share/axis/tcl/axis.tcl:454
+#: ../share/axis/tcl/axis.tcl:456
 msgid "Toggle Emergency Stop [F1]"
 msgstr "Arrêt d'urgence [F1]"
 
-#: ../share/axis/tcl/axis.tcl:463
+#: ../share/axis/tcl/axis.tcl:465
 msgid "Toggle Machine power [F2]"
 msgstr "Marche/arrêt machine [F2]"
 
-#: ../share/axis/tcl/axis.tcl:474
+#: ../share/axis/tcl/axis.tcl:476
 msgid "Open G-Code file [O]"
 msgstr "Ouvrir fichier G-code [O]"
 
-#: ../share/axis/tcl/axis.tcl:482
+#: ../share/axis/tcl/axis.tcl:484
 msgid "Reopen current file [Control-R]"
 msgstr "Recharger le fichier courant [Ctrl+R]"
 
-#: ../share/axis/tcl/axis.tcl:492
+#: ../share/axis/tcl/axis.tcl:494
 msgid "Begin executing current file [R]"
 msgstr "Départ cycle [R]"
 
-#: ../share/axis/tcl/axis.tcl:500
+#: ../share/axis/tcl/axis.tcl:502
 msgid "Execute next line [T]"
 msgstr "Exécuter la ligne suivante [T]"
 
-#: ../share/axis/tcl/axis.tcl:508
+#: ../share/axis/tcl/axis.tcl:510
 msgid "Pause [P] / resume [S] execution"
 msgstr "Pause [P] / reprise [S] d'exécution"
 
-#: ../share/axis/tcl/axis.tcl:516
+#: ../share/axis/tcl/axis.tcl:518
 msgid "Stop program execution [ESC]"
 msgstr "Stopper l'exécution du programme [ESC]"
 
-#: ../share/axis/tcl/axis.tcl:526
+#: ../share/axis/tcl/axis.tcl:528
 msgid "Toggle skip lines with '/' [Alt-M /]"
 msgstr "Sauter ou non les lignes avec '/' [Alt-M /]"
 
-#: ../share/axis/tcl/axis.tcl:533
+#: ../share/axis/tcl/axis.tcl:535
 msgid "Toggle optional pause [Alt-M 1]"
 msgstr "Avec ou sans pause optionnelle [Alt-M 1]"
 
-#: ../share/axis/tcl/axis.tcl:542
+#: ../share/axis/tcl/axis.tcl:544
 msgid "Zoom in"
 msgstr "Zoom plus [+]"
 
-#: ../share/axis/tcl/axis.tcl:550
+#: ../share/axis/tcl/axis.tcl:552
 msgid "Zoom out"
 msgstr "Zoom moins [-]"
 
-#: ../share/axis/tcl/axis.tcl:558
+#: ../share/axis/tcl/axis.tcl:560
 msgid "Top view"
 msgstr "Vue de dessus"
 
-#: ../share/axis/tcl/axis.tcl:566
+#: ../share/axis/tcl/axis.tcl:568
 msgid "Rotated top view"
 msgstr "Vue de dessus, basculée"
 
-#: ../share/axis/tcl/axis.tcl:574
+#: ../share/axis/tcl/axis.tcl:576
 msgid "Side view"
 msgstr "Vue de côté"
 
-#: ../share/axis/tcl/axis.tcl:582
+#: ../share/axis/tcl/axis.tcl:584
 msgid "Front view"
 msgstr "Vue de face"
 
-#: ../share/axis/tcl/axis.tcl:590
+#: ../share/axis/tcl/axis.tcl:592
 msgid "Perspective view"
 msgstr "Vue en perspective"
 
-#: ../share/axis/tcl/axis.tcl:598
+#: ../share/axis/tcl/axis.tcl:600
 msgid "Toggle between Drag and Rotate Mode [D]"
 msgstr "Bascule entre « glisser la vue » et « tourner la vue» "
 
-#: ../share/axis/tcl/axis.tcl:613
+#: ../share/axis/tcl/axis.tcl:615
 msgid "Clear live plot [Ctrl-K]"
 msgstr "Rafraîchi le parcours d'outil [Ctrl+K]"
 
-#: ../share/axis/tcl/axis.tcl:764
+#: ../share/axis/tcl/axis.tcl:766
 msgid "Manual Control [F3]"
 msgstr "Contrôle manuel [F3]"
 
-#: ../share/axis/tcl/axis.tcl:765
+#: ../share/axis/tcl/axis.tcl:767
 msgid "MDI [F5]"
 msgstr "Données manuelles [F5]"
 
-#: ../share/axis/tcl/axis.tcl:779 ../share/axis/tcl/axis.tcl:2034
-#: ../share/axis/tcl/axis.tcl:2201
+#: ../share/axis/tcl/axis.tcl:781 ../share/axis/tcl/axis.tcl:2036
+#: ../share/axis/tcl/axis.tcl:2203
 msgid "Axis:"
 msgstr "Axe:"
 
-#: ../share/axis/tcl/axis.tcl:1100
+#: ../share/axis/tcl/axis.tcl:1102
 msgid "Home Axis"
 msgstr "POM des axes"
 
-#: ../share/axis/tcl/axis.tcl:1174
+#: ../share/axis/tcl/axis.tcl:1176
 msgid "Spindle:"
 msgstr "Broche:"
 
-#: ../share/axis/tcl/axis.tcl:1221 emc/usr_intf/touchy/touchy.glade:946
+#: ../share/axis/tcl/axis.tcl:1223 emc/usr_intf/touchy/touchy.glade:946
 msgid "-"
 msgstr "-"
 
-#: ../share/axis/tcl/axis.tcl:1235
+#: ../share/axis/tcl/axis.tcl:1237
 msgid "+"
 msgstr "+"
 
-#: ../share/axis/tcl/axis.tcl:1240
+#: ../share/axis/tcl/axis.tcl:1242
 msgid "Brake"
 msgstr "Frein"
 
-#: ../share/axis/tcl/axis.tcl:1287
+#: ../share/axis/tcl/axis.tcl:1289
 msgid "Coolant:"
 msgstr "Arrosage:"
 
-#: ../share/axis/tcl/axis.tcl:1292
+#: ../share/axis/tcl/axis.tcl:1294
 msgid "Mist"
-msgstr "Brouillard"
+msgstr "Gouttelettes"
 
-#: ../share/axis/tcl/axis.tcl:1297
+#: ../share/axis/tcl/axis.tcl:1299
 msgid "Flood"
 msgstr "Fluide"
 
-#: ../share/axis/tcl/axis.tcl:1369
+#: ../share/axis/tcl/axis.tcl:1371
 msgid "History:"
 msgstr "Historique:"
 
-#: ../share/axis/tcl/axis.tcl:1392
+#: ../share/axis/tcl/axis.tcl:1394
 msgid "MDI Command:"
 msgstr "Commande MDI:"
 
-#: ../share/axis/tcl/axis.tcl:1401
+#: ../share/axis/tcl/axis.tcl:1403
 msgid "Go"
 msgstr "Envoi"
 
-#: ../share/axis/tcl/axis.tcl:1407
+#: ../share/axis/tcl/axis.tcl:1409
 msgid "Active G-Codes:"
 msgstr "G-codes actifs:"
 
-#: ../share/axis/tcl/axis.tcl:1485
+#: ../share/axis/tcl/axis.tcl:1487
 msgid "Preview"
 msgstr "Parcours d'outil"
 
-#: ../share/axis/tcl/axis.tcl:1486
+#: ../share/axis/tcl/axis.tcl:1488
 msgid "DRO"
 msgstr "Visu"
 
-#: ../share/axis/tcl/axis.tcl:1573 ../share/axis/tcl/axis.tcl:1586
+#: ../share/axis/tcl/axis.tcl:1575 ../share/axis/tcl/axis.tcl:1588
 msgid "Jog Speed:"
 msgstr "Vitesse de jog:"
 
-#: ../share/axis/tcl/axis.tcl:1598
+#: ../share/axis/tcl/axis.tcl:1600
 msgid "Max Velocity:"
 msgstr "Vitesse maximale:"
 
-#: ../share/axis/tcl/axis.tcl:1627
+#: ../share/axis/tcl/axis.tcl:1629
 msgid "Spindle Override:"
 msgstr "Correction vitesse de broche:"
 
-#: ../share/axis/tcl/axis.tcl:1629 ../share/axis/tcl/axis.tcl:1669
+#: ../share/axis/tcl/axis.tcl:1631 ../share/axis/tcl/axis.tcl:1671
 #: emc/usr_intf/pncconf/pncconf.glade:2826
 #: emc/usr_intf/pncconf/pncconf.glade:2837
 #: emc/usr_intf/pncconf/pncconf.glade:2941
@@ -4700,7 +4698,7 @@ msgstr "Correction vitesse de broche:"
 msgid "%"
 msgstr "%"
 
-#: ../share/axis/tcl/axis.tcl:1709
+#: ../share/axis/tcl/axis.tcl:1711
 msgid ""
 "EMC2/AXIS version $version\n"
 "\n"
@@ -4721,129 +4719,129 @@ msgstr ""
 "\n"
 "Visitez le site web d'EMC: "
 
-#: ../share/axis/tcl/axis.tcl:1737
+#: ../share/axis/tcl/axis.tcl:1739
 msgid "About AXIS"
 msgstr "À propos d'AXIS"
 
-#: ../share/axis/tcl/axis.tcl:1766
+#: ../share/axis/tcl/axis.tcl:1768
 msgid "AXIS Quick Reference"
 msgstr "Aide rapide d'AXIS"
 
-#: ../share/axis/tcl/axis.tcl:1901
+#: ../share/axis/tcl/axis.tcl:1903
 msgid "AXIS $::version on $::machine"
 msgstr "AXIS $::version sur $::machine"
 
-#: ../share/axis/tcl/axis.tcl:1903
+#: ../share/axis/tcl/axis.tcl:1905
 msgid "(no file)"
 msgstr "(pas de fichier)"
 
-#: ../share/axis/tcl/axis.tcl:1915
+#: ../share/axis/tcl/axis.tcl:1917
 msgid "OFF"
 msgstr "ARRÊT"
 
-#: ../share/axis/tcl/axis.tcl:1974 ../share/axis/tcl/axis.tcl:1979
+#: ../share/axis/tcl/axis.tcl:1976 ../share/axis/tcl/axis.tcl:1981
 msgid "Position:"
 msgstr "Position:"
 
-#: ../share/axis/tcl/axis.tcl:1976
+#: ../share/axis/tcl/axis.tcl:1978
 msgid "Machine"
 msgstr "Machine"
 
-#: ../share/axis/tcl/axis.tcl:1976 emc/usr_intf/touchy/touchy.glade:155
+#: ../share/axis/tcl/axis.tcl:1978 emc/usr_intf/touchy/touchy.glade:155
 msgid "Relative"
 msgstr "Relatif"
 
-#: ../share/axis/tcl/axis.tcl:1977 emc/usr_intf/touchy/touchy.glade:3329
+#: ../share/axis/tcl/axis.tcl:1979 emc/usr_intf/touchy/touchy.glade:3329
 msgid "Actual"
 msgstr "Actuelle"
 
-#: ../share/axis/tcl/axis.tcl:1977 emc/usr_intf/touchy/touchy.glade:3318
+#: ../share/axis/tcl/axis.tcl:1979 emc/usr_intf/touchy/touchy.glade:3318
 msgid "Commanded"
 msgstr "Commandée"
 
-#: ../share/axis/tcl/axis.tcl:2030 ../share/axis/tcl/axis.tcl:2201
+#: ../share/axis/tcl/axis.tcl:2032 ../share/axis/tcl/axis.tcl:2203
 msgid "Joint:"
 msgstr "Jointure:"
 
-#: ../share/axis/tcl/axis.tcl:2336
+#: ../share/axis/tcl/axis.tcl:2338
 msgid "Turn spindle counterclockwise [F10]"
 msgstr "Broche en sens anti-horaire [F10]"
 
-#: ../share/axis/tcl/axis.tcl:2337
+#: ../share/axis/tcl/axis.tcl:2339
 msgid "Turn spindle clockwise [F9]"
 msgstr "Broche en sens horaire [F9]"
 
-#: ../share/axis/tcl/axis.tcl:2338
+#: ../share/axis/tcl/axis.tcl:2340
 msgid "Stop spindle [F9/F10]"
 msgstr "Arrêt broche [F9/F10]"
 
-#: ../share/axis/tcl/axis.tcl:2339
+#: ../share/axis/tcl/axis.tcl:2341
 msgid "Turn spindle Faster [F12]"
 msgstr "Broche plus vite [F12]"
 
-#: ../share/axis/tcl/axis.tcl:2340
+#: ../share/axis/tcl/axis.tcl:2342
 msgid "Turn spindle Slower [F11]"
 msgstr "Broche moins vite [F11]"
 
-#: ../share/axis/tcl/axis.tcl:2341
+#: ../share/axis/tcl/axis.tcl:2343
 msgid "Turn spindle brake on [Shift-B] or off [B]"
 msgstr "Activer [Maj+B] ou arrêter [B] le frein de broche"
 
-#: ../share/axis/tcl/axis.tcl:2342
+#: ../share/axis/tcl/axis.tcl:2344
 msgid "Turn flood on or off [F8]"
 msgstr "Avec ou sans arrosage [F8]"
 
-#: ../share/axis/tcl/axis.tcl:2343
+#: ../share/axis/tcl/axis.tcl:2345
 msgid "Turn mist on or off [F7]"
-msgstr "Avec ou sans brouillard [F7]"
+msgstr "Avec ou sans gouttelettes [F7]"
 
-#: ../share/axis/tcl/axis.tcl:2344
+#: ../share/axis/tcl/axis.tcl:2346
 msgid "Send active axis home [Home]"
 msgstr "Prise d'origine machine de l'axe courant [origine]"
 
-#: ../share/axis/tcl/axis.tcl:2345
+#: ../share/axis/tcl/axis.tcl:2347
 msgid "Set G54 offset for active axis [End]"
 msgstr "Valide le décalage G54 de l'axe actif [Fin]"
 
-#: ../share/axis/tcl/axis.tcl:2346
+#: ../share/axis/tcl/axis.tcl:2348
 msgid "Activate axis [X]"
 msgstr "Activer l'axe [X]"
 
-#: ../share/axis/tcl/axis.tcl:2347
+#: ../share/axis/tcl/axis.tcl:2349
 msgid "Activate axis [Y]"
 msgstr "Activer l'axe [Y]"
 
-#: ../share/axis/tcl/axis.tcl:2348
+#: ../share/axis/tcl/axis.tcl:2350
 msgid "Activate axis [Z]"
 msgstr "Activer l'axe [Z]"
 
-#: ../share/axis/tcl/axis.tcl:2349
+#: ../share/axis/tcl/axis.tcl:2351
 msgid "Activate axis [A]"
 msgstr "Activer l'axe [A]"
 
-#: ../share/axis/tcl/axis.tcl:2350
+#: ../share/axis/tcl/axis.tcl:2352
 msgid "Activate axis [4]"
 msgstr "Activer l'axe [4]"
 
-#: ../share/axis/tcl/axis.tcl:2351
+#: ../share/axis/tcl/axis.tcl:2353
 msgid "Activate axis [5]"
 msgstr "Activer l'axe [5]"
 
-#: ../share/axis/tcl/axis.tcl:2352 ../share/axis/tcl/axis.tcl:2353
+#: ../share/axis/tcl/axis.tcl:2354 ../share/axis/tcl/axis.tcl:2355
 msgid "Jog selected axis"
 msgstr "Jog de l'axe sélectionné"
 
-#: ../share/axis/tcl/axis.tcl:2355
+#: ../share/axis/tcl/axis.tcl:2357
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Mouvement temporaire hors limites [L]"
 
 #: emc/usr_intf/touchy/mdi.py:47 emc/usr_intf/stepconf/stepconf.py:155
-#: emc/usr_intf/pncconf/pncconf.py:383
+#: emc/usr_intf/pncconf/pncconf.py:388
 msgid "Spindle CW"
 msgstr "Broche en sens horaire"
 
 #: emc/usr_intf/touchy/mdi.py:48 emc/usr_intf/stepconf/stepconf.py:155
-#: emc/usr_intf/pncconf/pncconf.py:383
+#: emc/usr_intf/pncconf/pncconf.py:388
 msgid "Spindle CCW"
 msgstr "Broche en sens anti-horaire"
 
@@ -5229,11 +5227,11 @@ msgstr "Arrêt arrosage"
 
 #: emc/usr_intf/touchy/touchy.glade:1324
 msgid "Mist On"
-msgstr "Marche brouillard"
+msgstr "Marche gouttelettes"
 
 #: emc/usr_intf/touchy/touchy.glade:1339
 msgid "Mist Off"
-msgstr "Arrêt brouillard"
+msgstr "Arrêt gouttelettes"
 
 #: emc/usr_intf/touchy/touchy.glade:1362
 msgid "<b>Coolant</b>"
@@ -5685,27 +5683,27 @@ msgstr "Pas en A"
 msgid "A Direction"
 msgstr "A direction"
 
-#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:383
+#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:388
 msgid "Spindle ON"
 msgstr "Marche broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:500
+#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:505
 msgid "Spindle PWM"
 msgstr "PWM broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:383
+#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:388
 msgid "Spindle Brake"
 msgstr "Frein de broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:384
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:389
 msgid "Coolant Mist"
-msgstr "Brouillard"
+msgstr "Gouttelettes"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:384
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:389
 msgid "Coolant Flood"
 msgstr "Arrosage"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:385
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:390
 msgid "ESTOP Out"
 msgstr "Sortie A/U"
 
@@ -5713,23 +5711,23 @@ msgstr "Sortie A/U"
 msgid "Amplifier Enable"
 msgstr "Activation ampli (enable)"
 
-#: emc/usr_intf/stepconf/stepconf.py:157 emc/usr_intf/pncconf/pncconf.py:386
+#: emc/usr_intf/stepconf/stepconf.py:157 emc/usr_intf/pncconf/pncconf.py:391
 msgid "Charge Pump"
 msgstr "Pompe de charge"
 
-#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:387
+#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:392
 msgid "Digital out 0"
 msgstr "Sortie numérique 0"
 
-#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:387
+#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:392
 msgid "Digital out 1"
 msgstr "Sortie numérique 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:387
+#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:392
 msgid "Digital out 2"
 msgstr "Sortie numérique 2"
 
-#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:387
+#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:392
 msgid "Digital out 3"
 msgstr "Sortie numérique 3"
 
@@ -5737,11 +5735,11 @@ msgstr "Sortie numérique 3"
 msgid "Unused"
 msgstr "Inutilisé"
 
-#: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:414
+#: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:419
 msgid "ESTOP In"
 msgstr "Entrée A/U"
 
-#: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:414
+#: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:419
 msgid "Probe In"
 msgstr "Entrée palpeur"
 
@@ -5881,19 +5879,19 @@ msgstr "Toutes les origines"
 msgid "All limits + homes"
 msgstr "Toutes les limites + origines"
 
-#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:406
+#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:411
 msgid "Digital in 0"
 msgstr "Entrée numérique 0"
 
-#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:406
+#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:411
 msgid "Digital in 1"
 msgstr "Entrée numérique 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:406
+#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:411
 msgid "Digital in 2"
 msgstr "Entrée numérique 2"
 
-#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:406
+#: emc/usr_intf/stepconf/stepconf.py:177 emc/usr_intf/pncconf/pncconf.py:411
 msgid "Digital in 3"
 msgstr "Entrée numérique 3"
 
@@ -5902,7 +5900,7 @@ msgid "my-mill"
 msgstr "ma-machine"
 
 #: emc/usr_intf/stepconf/stepconf.py:215 emc/usr_intf/stepconf/stepconf.py:217
-#: emc/usr_intf/pncconf/pncconf.py:897 emc/usr_intf/pncconf/pncconf.py:899
+#: emc/usr_intf/pncconf/pncconf.py:911 emc/usr_intf/pncconf/pncconf.py:913
 msgid "Enter Address"
 msgstr "Entrer l'adresse"
 
@@ -5919,11 +5917,11 @@ msgstr ""
 "Enregistrer cette configuration va écraser les modifications faites à "
 "l'extérieur de Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:393 emc/usr_intf/pncconf/pncconf.py:1244
+#: emc/usr_intf/stepconf/stepconf.py:393 emc/usr_intf/pncconf/pncconf.py:1266
 msgid "Continue? "
 msgstr "Continuer ?"
 
-#: emc/usr_intf/stepconf/stepconf.py:394 emc/usr_intf/pncconf/pncconf.py:1245
+#: emc/usr_intf/stepconf/stepconf.py:394 emc/usr_intf/pncconf/pncconf.py:1267
 msgid "yY"
 msgstr "yY"
 
@@ -5933,7 +5931,7 @@ msgid "# Generated by stepconf at %s"
 msgstr "# Généré par Stepconf le %s"
 
 #: emc/usr_intf/stepconf/stepconf.py:447 emc/usr_intf/stepconf/stepconf.py:784
-#: emc/usr_intf/pncconf/pncconf.py:1254 emc/usr_intf/pncconf/pncconf.py:2078
+#: emc/usr_intf/pncconf/pncconf.py:1276 emc/usr_intf/pncconf/pncconf.py:2168
 msgid "# If you make changes to this file, they will be"
 msgstr "# Si vous modifiez ce fichier, il sera"
 
@@ -5945,30 +5943,30 @@ msgstr "# écrasé quand vous relancerez Stepconf"
 msgid "# add halui MDI commands here (max 64) "
 msgstr "# ajouter ici les commandes MDI halui (maximum 64) "
 
-#: emc/usr_intf/stepconf/stepconf.py:988 emc/usr_intf/pncconf/pncconf.py:2684
+#: emc/usr_intf/stepconf/stepconf.py:988 emc/usr_intf/pncconf/pncconf.py:2788
 msgid "# **** Setup for external estop ladder program -START ****"
 msgstr "# **** Paramètre -START pour l'A/U externe du programme ladder ****"
 
-#: emc/usr_intf/stepconf/stepconf.py:995 emc/usr_intf/pncconf/pncconf.py:2691
+#: emc/usr_intf/stepconf/stepconf.py:995 emc/usr_intf/pncconf/pncconf.py:2795
 msgid "# **** Setup for external estop ladder program -END ****"
 msgstr "# **** Paramètre -END pour l'A/U externe du programme ladder ****"
 
-#: emc/usr_intf/stepconf/stepconf.py:1015 emc/usr_intf/pncconf/pncconf.py:2718
+#: emc/usr_intf/stepconf/stepconf.py:1015 emc/usr_intf/pncconf/pncconf.py:2822
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr ""
 "# Chargement de Classicladder avec modbus maître inclus (La GUI doit tourner "
 "avec Modbus)"
 
-#: emc/usr_intf/stepconf/stepconf.py:1018 emc/usr_intf/pncconf/pncconf.py:2723
+#: emc/usr_intf/stepconf/stepconf.py:1018 emc/usr_intf/pncconf/pncconf.py:2827
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
 msgstr ""
 "# Chargement de Classicladder sans GUI (peut recharger la GUI LADDER dans la "
 "GUI AXIS)"
 
-#: emc/usr_intf/stepconf/stepconf.py:1028 emc/usr_intf/pncconf/pncconf.py:2805
+#: emc/usr_intf/stepconf/stepconf.py:1028 emc/usr_intf/pncconf/pncconf.py:2909
 msgid "Include your PyVCP panel here.\n"
-msgstr "Inclure son propre panneau PyVCP ici \n"
+msgstr "Inclure son propre panneau PyVCP ici.\n"
 
 #: emc/usr_intf/stepconf/stepconf.py:1037
 #: emc/usr_intf/stepconf/stepconf.py:1084
@@ -5983,7 +5981,7 @@ msgstr ""
 "# Les commandes contenues dans ce fichier seront lancées après "
 "quel'interface graphique AXIS (PyVCP inclus) aura démarré."
 
-#: emc/usr_intf/stepconf/stepconf.py:1042 emc/usr_intf/pncconf/pncconf.py:2833
+#: emc/usr_intf/stepconf/stepconf.py:1042 emc/usr_intf/pncconf/pncconf.py:2937
 msgid "# **** Setup of spindle speed display using pyvcp -START ****"
 msgstr "# **** Réglage de l'affichage de vitesse broche avec pyvcp -START ****"
 
@@ -6038,7 +6036,7 @@ msgstr "# Ce fichier ne sera pas écrasé si vous relancez Stepconf"
 msgid "Generated by stepconf at %s"
 msgstr "Généré par Stepconf le %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1163 emc/usr_intf/pncconf/pncconf.py:3144
+#: emc/usr_intf/stepconf/stepconf.py:1163 emc/usr_intf/pncconf/pncconf.py:3248
 #, python-format
 msgid "launch %s"
 msgstr "lancer %s"
@@ -6047,7 +6045,7 @@ msgstr "lancer %s"
 msgid "Desktop Launcher for EMC config made by Stepconf"
 msgstr "Lanceur de bureau pour la configuration faite avec Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:1193 emc/usr_intf/pncconf/pncconf.py:3332
+#: emc/usr_intf/stepconf/stepconf.py:1193 emc/usr_intf/pncconf/pncconf.py:3446
 #, python-format
 msgid "%s Axis Configuration"
 msgstr "Configuration axe %s"
@@ -6086,7 +6084,7 @@ msgstr ""
 msgid "EMC2 'stepconf' configuration files"
 msgstr "Fichier de configuration 'stepconf' d'EMC2 "
 
-#: emc/usr_intf/stepconf/stepconf.py:1296 emc/usr_intf/pncconf/pncconf.py:3725
+#: emc/usr_intf/stepconf/stepconf.py:1296 emc/usr_intf/pncconf/pncconf.py:3840
 msgid "Modify Existing Configuration"
 msgstr "Modifier configuration existante"
 
@@ -6108,7 +6106,7 @@ msgstr ""
 "Le fichier custom.clp existant sera renommé custom_backup.clp \n"
 "Tout autre fichier custom_backup.clp précédent sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:1454 emc/usr_intf/pncconf/pncconf.py:7034
+#: emc/usr_intf/stepconf/stepconf.py:1454 emc/usr_intf/pncconf/pncconf.py:7246
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -6135,7 +6133,7 @@ msgstr ""
 "Les fichiers existants custompanel.xml et custom_postgui.hal seront "
 "renommés \n"
 "custompanel_backup.xml et postgui_backup.hal \n"
-"Tout fichier existant portant déjà un de ces noms sera perdu."
+"Tout fichier existant portant déjà un de ces noms sera écrasé."
 
 #: emc/usr_intf/stepconf/stepconf.py:1673
 msgid "degree / rev"
@@ -6205,7 +6203,7 @@ msgstr "pouces / s²"
 msgid "Steps / in"
 msgstr "Pas / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:2199 emc/usr_intf/pncconf/pncconf.py:8070
+#: emc/usr_intf/stepconf/stepconf.py:2199 emc/usr_intf/pncconf/pncconf.py:8292
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test axe %s"
@@ -6315,7 +6313,7 @@ msgid ""
 "Out"
 msgstr ""
 "Entrée\n"
-"sortie"
+"Sortie"
 
 #: emc/usr_intf/stepconf/stepconf.glade:633
 msgid "S_econd Parport Address:"
@@ -6419,7 +6417,7 @@ msgstr "Options de configuration avancée"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1033
 msgid "Include Halui user interface component"
-msgstr "Inclure l'interface utilisateur HalUI"
+msgstr "Inclure l'interface utilisateur Halui"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1074
 #: emc/usr_intf/pncconf/pncconf.glade:6745
@@ -6677,12 +6675,12 @@ msgstr "Pas de _la vis:"
 #: emc/usr_intf/stepconf/stepconf.glade:3148
 #: emc/usr_intf/pncconf/pncconf.glade:50614
 msgid "Maximum _Velocity:"
-msgstr "_Vitesse maximum:"
+msgstr "_Vitesse maximale:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3163
 #: emc/usr_intf/pncconf/pncconf.glade:50629
 msgid "Maximum _Acceleration:"
-msgstr "_Accélération maximum:"
+msgstr "_Accélération maximale:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3178
 #: emc/usr_intf/pncconf/pncconf.glade:59767
@@ -6700,7 +6698,7 @@ msgstr "Fréquence des impulsions à la vitesse maxi:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3362
 msgid "_Home location:"
-msgstr "Emplacement de l'origine machine:"
+msgstr "Emplacement de l'origine mac_hine:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3377
 msgid "Home _Switch location:"
@@ -6712,7 +6710,7 @@ msgstr "Vitesse de re_cherche de l'origine:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3407
 msgid "Home La_tch direction:"
-msgstr "Dégagement du contact d'origine:"
+msgstr "Dégagement du contac_t d'origine:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3420
 #: emc/usr_intf/pncconf/pncconf.glade:59059
@@ -6757,11 +6755,11 @@ msgstr "Configuration broche"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3785
 msgid "Use spindle-at-speed:"
-msgstr "Ajustement vitesse de broche:"
+msgstr "Utiliser vitesse-broche-atteinte:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3841
 msgid "Speed display filter gain:"
-msgstr "Gain du filtre d'affichage:"
+msgstr "Gain du filtre d'affichage vitesse:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3870
 msgid "Calibration:"
@@ -6915,847 +6913,896 @@ msgstr "Inutilisé"
 
 #: emc/usr_intf/pncconf/pncconf.py:151
 msgid "Quad Encoder-A"
-msgstr "Quad Encoder-A"
+msgstr "Codeur quad.-A"
 
 #: emc/usr_intf/pncconf/pncconf.py:151
 msgid "Quad Encoder-B"
-msgstr "Quad Encoder-B"
+msgstr "Codeur quad.-B"
 
 #: emc/usr_intf/pncconf/pncconf.py:151
 msgid "Quad Encoder-I"
-msgstr "Quad Encoder-I"
+msgstr "Codeur quad.-I"
 
 #: emc/usr_intf/pncconf/pncconf.py:151
 msgid "Quad Encoder-M"
-msgstr "Quad Encoder-M"
+msgstr "Codeur quad.-M"
 
 #: emc/usr_intf/pncconf/pncconf.py:152
-msgid "Muxed Encoder-A"
-msgstr "Muxed Encoder-A"
+msgid "Muxed Encoder 0"
+msgstr "Codeur multiplexé-0"
 
 #: emc/usr_intf/pncconf/pncconf.py:152
-msgid "Muxed Encoder-B"
-msgstr "Muxed Encoder-B"
+msgid "Muxed Encoder 1"
+msgstr "Codeur multiplexé-A"
 
 #: emc/usr_intf/pncconf/pncconf.py:152
-msgid "Muxed Encoder-I"
-msgstr "Muxed Encoder-I"
+msgid "muxed enc"
+msgstr "Codeur multiplexé"
 
 #: emc/usr_intf/pncconf/pncconf.py:152
-msgid "Muxed Encoder-M"
-msgstr "Muxed Encoder-M"
+msgid "mux enc mask"
+msgstr "masque de codeur multiplexé"
+
+#: emc/usr_intf/pncconf/pncconf.py:152
+msgid "mux select"
+msgstr "mux select"
 
 #: emc/usr_intf/pncconf/pncconf.py:153
-msgid "Mux Enc Select"
-msgstr "Mux Enc Select"
+msgid "Resolver 0 Encoder"
+msgstr "Résolveur encoder 0"
+
+#: emc/usr_intf/pncconf/pncconf.py:153
+msgid "Resolver 1 Encoder"
+msgstr "Résolveur encoder 1"
+
+#: emc/usr_intf/pncconf/pncconf.py:153
+msgid "Resolver 2 Encoder"
+msgstr "Résolveur encoder 2"
 
 #: emc/usr_intf/pncconf/pncconf.py:154
+msgid "Resolver 3 Encoder"
+msgstr "Résolveur encoder 3"
+
+#: emc/usr_intf/pncconf/pncconf.py:154
+msgid "Resolver 4 Encoder"
+msgstr "Résolveur encoder 4"
+
+#: emc/usr_intf/pncconf/pncconf.py:154
+msgid "Resolver 5 Encoder"
+msgstr "Résolveur encoder 5"
+
+#: emc/usr_intf/pncconf/pncconf.py:155
 msgid "Step Gen-A"
-msgstr "Step Gen-A"
+msgstr "Géné step-A"
 
-#: emc/usr_intf/pncconf/pncconf.py:154
+#: emc/usr_intf/pncconf/pncconf.py:155
 msgid "Dir Gen-B"
-msgstr "Dir Gen-B"
+msgstr "Géné dir-B"
 
-#: emc/usr_intf/pncconf/pncconf.py:154
+#: emc/usr_intf/pncconf/pncconf.py:155
 msgid "Step/Dir Gen-C"
-msgstr "Step/Dir Gen-C"
+msgstr "Géné Step/Dir -C"
 
-#: emc/usr_intf/pncconf/pncconf.py:154
+#: emc/usr_intf/pncconf/pncconf.py:155
 msgid "Step/Dir Gen-D"
-msgstr "Step/Dir Gen-D"
+msgstr "Géné Step/Dir -D"
 
-#: emc/usr_intf/pncconf/pncconf.py:155
+#: emc/usr_intf/pncconf/pncconf.py:156
 msgid "Step/Dir Gen-E"
-msgstr "Step/Dir Gen-E"
+msgstr "Géné Step/Dir -E"
 
-#: emc/usr_intf/pncconf/pncconf.py:155
+#: emc/usr_intf/pncconf/pncconf.py:156
 msgid "Step/dir Gen-F"
-msgstr "Step/dir Gen-F"
+msgstr "Géné Step/Dir -F"
 
-#: emc/usr_intf/pncconf/pncconf.py:156
+#: emc/usr_intf/pncconf/pncconf.py:157
 msgid "Pulse Width Gen-P"
-msgstr "Pulse Width Gen-P"
+msgstr "Géné Pulse Width-P"
 
-#: emc/usr_intf/pncconf/pncconf.py:156
+#: emc/usr_intf/pncconf/pncconf.py:157
 msgid "Pulse Width Gen-D"
-msgstr "Pulse Width Gen-D"
+msgstr "Géné Pulse Width-D"
 
-#: emc/usr_intf/pncconf/pncconf.py:156
+#: emc/usr_intf/pncconf/pncconf.py:157
 msgid "Pulse Width Gen-E"
-msgstr "Pulse Width Gen-E"
-
-#: emc/usr_intf/pncconf/pncconf.py:157
-msgid "Pulse Density Gen-P"
-msgstr "Pulse Density Gen-P"
-
-#: emc/usr_intf/pncconf/pncconf.py:157
-msgid "Pulse Density Gen-D"
-msgstr "Pulse Density Gen-D"
-
-#: emc/usr_intf/pncconf/pncconf.py:157
-msgid "Pulse Density Gen-E"
-msgstr "Pulse Density Gen-E"
+msgstr "Géné Pulse Width-E"
 
 #: emc/usr_intf/pncconf/pncconf.py:158
+msgid "Pulse Density Gen-P"
+msgstr "Géné Pulse Density-P"
+
+#: emc/usr_intf/pncconf/pncconf.py:158
+msgid "Pulse Density Gen-D"
+msgstr "Géné Pulse Density-D"
+
+#: emc/usr_intf/pncconf/pncconf.py:158
+msgid "Pulse Density Gen-E"
+msgstr "Géné Pulse Density-E"
+
+#: emc/usr_intf/pncconf/pncconf.py:159
 msgid "Up/Down Mode -Up"
 msgstr "Up/Down Mode -Up"
 
-#: emc/usr_intf/pncconf/pncconf.py:158
+#: emc/usr_intf/pncconf/pncconf.py:159
 msgid "Up/Down Mode-Down"
 msgstr "Up/Down Mode-Down"
 
-#: emc/usr_intf/pncconf/pncconf.py:158
+#: emc/usr_intf/pncconf/pncconf.py:159
 msgid "Up/Down Mode-Enable"
 msgstr "Up/Down Mode-Enable"
 
-#: emc/usr_intf/pncconf/pncconf.py:159
+#: emc/usr_intf/pncconf/pncconf.py:160
 msgid "Motor Phase A"
 msgstr "Moteur phase A"
 
-#: emc/usr_intf/pncconf/pncconf.py:159
+#: emc/usr_intf/pncconf/pncconf.py:160
 msgid "Motor Phase B"
 msgstr "Moteur phase B"
 
-#: emc/usr_intf/pncconf/pncconf.py:159
+#: emc/usr_intf/pncconf/pncconf.py:160
 msgid "Motor Phase C"
 msgstr "Moteur phase C"
 
-#: emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:161
 msgid "Motor Phase A Not"
 msgstr "Moteur phase A Not"
 
-#: emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:161
 msgid "Motor Phase B Not"
 msgstr "Moteur phase B Not"
 
-#: emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:161
 msgid "Motor Phase C Not"
 msgstr "Moteur phase C Not"
 
-#: emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:161
 msgid "Motor Enable"
 msgstr "Activation moteur"
 
-#: emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:161
 msgid "Motor Fault"
 msgstr "Défaut moteur"
 
-#: emc/usr_intf/pncconf/pncconf.py:161
+#: emc/usr_intf/pncconf/pncconf.py:162
 msgid "SMARTSERIAL-P0-TX"
 msgstr "SMARTSERIAL-P0-TX"
 
-#: emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:163
 msgid "SMARTSERIAL-P0-RX"
 msgstr "SMARTSERIAL-P0-RX"
 
-#: emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:163
 msgid "SMARTSERIAL-P0-EN"
 msgstr "SMARTSERIAL-P0-EN"
 
-#: emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:163
 msgid "SMARTSERIAL-P1-RX"
 msgstr "SMARTSERIAL-P1-RX"
 
-#: emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:163
 msgid "SMARTSERIAL-P1-TX"
 msgstr "SMARTSERIAL-P1-TX"
 
-#: emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:163
 msgid "SMARTSERIAL-P1-EN"
 msgstr "SMARTSERIAL-P1-EN"
 
-#: emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:163
 msgid "SMARTSERIAL-P2-TX"
 msgstr "SMARTSERIAL-P2-TX"
 
-#: emc/usr_intf/pncconf/pncconf.py:163
+#: emc/usr_intf/pncconf/pncconf.py:164
 msgid "SMARTSERIAL-P2-RX"
 msgstr "SMARTSERIAL-P2-RX"
 
-#: emc/usr_intf/pncconf/pncconf.py:163
+#: emc/usr_intf/pncconf/pncconf.py:164
 msgid "SMARTSERIAL-P2-EN"
 msgstr "SMARTSERIAL-P2-EN"
 
-#: emc/usr_intf/pncconf/pncconf.py:163
+#: emc/usr_intf/pncconf/pncconf.py:164
 msgid "SMARTSERIAL-P3-TX"
 msgstr "SMARTSERIAL-P3-TX"
 
-#: emc/usr_intf/pncconf/pncconf.py:163
+#: emc/usr_intf/pncconf/pncconf.py:164
 msgid "SMARTSERIAL-P3-RX"
 msgstr "SMARTSERIAL-P3-RX"
 
-#: emc/usr_intf/pncconf/pncconf.py:163
+#: emc/usr_intf/pncconf/pncconf.py:164
 msgid "SMARTSERIAL-P3-EN"
 msgstr "SMARTSERIAL-P3-EN"
 
-#: emc/usr_intf/pncconf/pncconf.py:385
+#: emc/usr_intf/pncconf/pncconf.py:390
 msgid "Machine Is Enabled"
 msgstr "Machine activée"
 
-#: emc/usr_intf/pncconf/pncconf.py:385
+#: emc/usr_intf/pncconf/pncconf.py:390
 msgid "X Amplifier Enable"
 msgstr "Activation ampli X"
 
-#: emc/usr_intf/pncconf/pncconf.py:385
+#: emc/usr_intf/pncconf/pncconf.py:390
 msgid "Y Amplifier Enable"
 msgstr "Activation ampli Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:385
+#: emc/usr_intf/pncconf/pncconf.py:390
 msgid "Z Amplifier Enable"
 msgstr "Activation ampli Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:386
+#: emc/usr_intf/pncconf/pncconf.py:391
 msgid "A Amplifier Enable"
 msgstr "Activation ampli A"
 
-#: emc/usr_intf/pncconf/pncconf.py:386
+#: emc/usr_intf/pncconf/pncconf.py:391
 msgid "Force Pin True"
 msgstr "Force Pin True"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X HALL 1"
 msgstr "X HALL 1"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X HALL 2"
 msgstr "X HALL 2"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X HALL 3"
 msgstr "X HALL 3"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X Gray C1"
 msgstr "X Gray C1"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X Gray C2"
 msgstr "X Gray C2"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X Gray C4"
 msgstr "X Gray C4"
 
-#: emc/usr_intf/pncconf/pncconf.py:388 emc/usr_intf/pncconf/pncconf.py:415
+#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:420
 msgid "X Gray C8"
 msgstr "X Gray C8"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y HALL 1"
 msgstr "Y HALL 1"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y HALL 2"
 msgstr "Y HALL 2"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y HALL 3"
 msgstr "Y HALL 3"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y Gray C1"
 msgstr "Y Gray C1"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y Gray C2"
 msgstr "Y Gray C2"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y Gray C4"
 msgstr "Y Gray C4"
 
-#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:416
+#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:421
 msgid "Y Gray C8"
 msgstr "Y Gray C8"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z HALL 1"
 msgstr "Z HALL 1"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z HALL 2"
 msgstr "Z HALL 2"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z HALL 3"
 msgstr "Z HALL 3"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z Gray C1"
 msgstr "Z Gray C1"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z Gray C2"
 msgstr "Z Gray C2"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z Gray C4"
 msgstr "Z Gray C4"
 
-#: emc/usr_intf/pncconf/pncconf.py:390 emc/usr_intf/pncconf/pncconf.py:417
+#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:422
 msgid "Z Gray C8"
 msgstr "Z Gray C8"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A HALL 1"
 msgstr "A HALL 1"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A HALL 2"
 msgstr "A HALL 2"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A HALL 3"
 msgstr "A HALL 3"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A Gray C1"
 msgstr "A Gray C1"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A Gray C2"
 msgstr "A Gray C2"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A Gray C4"
 msgstr "A Gray C4"
 
-#: emc/usr_intf/pncconf/pncconf.py:391 emc/usr_intf/pncconf/pncconf.py:418
+#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:423
 msgid "A Gray C8"
 msgstr "A Gray C8"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S HALL 1"
 msgstr "S HALL 1"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S HALL 2"
 msgstr "S HALL 2"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S HALL 3"
 msgstr "S HALL 3"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S Gray C1"
 msgstr "S Gray C1"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S Gray C2"
 msgstr "S Gray C2"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S Gray C4"
 msgstr "S Gray C4"
 
-#: emc/usr_intf/pncconf/pncconf.py:392 emc/usr_intf/pncconf/pncconf.py:419
+#: emc/usr_intf/pncconf/pncconf.py:397 emc/usr_intf/pncconf/pncconf.py:424
 msgid "S Gray C8"
 msgstr "S Gray C8"
 
-#: emc/usr_intf/pncconf/pncconf.py:393
+#: emc/usr_intf/pncconf/pncconf.py:398
 msgid "Unused Output"
 msgstr "Sortie inutilisée"
 
-#: emc/usr_intf/pncconf/pncconf.py:393 emc/usr_intf/pncconf/pncconf.py:423
+#: emc/usr_intf/pncconf/pncconf.py:398 emc/usr_intf/pncconf/pncconf.py:428
 msgid "Spindle"
 msgstr "Broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:393
+#: emc/usr_intf/pncconf/pncconf.py:398
 msgid "Coolant"
 msgstr "Arrosage"
 
-#: emc/usr_intf/pncconf/pncconf.py:394
+#: emc/usr_intf/pncconf/pncconf.py:399
 msgid "Control"
 msgstr "Contrôle"
 
-#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:423
+#: emc/usr_intf/pncconf/pncconf.py:399 emc/usr_intf/pncconf/pncconf.py:428
 msgid "Digital"
 msgstr "Numérique"
 
-#: emc/usr_intf/pncconf/pncconf.py:394 emc/usr_intf/pncconf/pncconf.py:424
+#: emc/usr_intf/pncconf/pncconf.py:399 emc/usr_intf/pncconf/pncconf.py:429
 msgid "X BLDC Control"
 msgstr "X BLDC Control"
 
-#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:425
+#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:430
 msgid "Y BLDC Control"
 msgstr "Y BLDC Control"
 
-#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:425
+#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:430
 msgid "Z BLDC Control"
 msgstr "Z BLDC Control"
 
-#: emc/usr_intf/pncconf/pncconf.py:395 emc/usr_intf/pncconf/pncconf.py:425
+#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:430
 msgid "A BLDC Control"
 msgstr "A BLDC Control"
 
-#: emc/usr_intf/pncconf/pncconf.py:396
+#: emc/usr_intf/pncconf/pncconf.py:401
 msgid " S BLDC Control"
 msgstr " S BLDC Control"
 
-#: emc/usr_intf/pncconf/pncconf.py:396 emc/usr_intf/pncconf/pncconf.py:426
-#: emc/usr_intf/pncconf/pncconf.py:500 emc/usr_intf/pncconf/pncconf.py:526
-#: emc/usr_intf/pncconf/pncconf.py:543 emc/usr_intf/pncconf/pncconf.py:558
+#: emc/usr_intf/pncconf/pncconf.py:401 emc/usr_intf/pncconf/pncconf.py:431
+#: emc/usr_intf/pncconf/pncconf.py:505 emc/usr_intf/pncconf/pncconf.py:533
+#: emc/usr_intf/pncconf/pncconf.py:536 emc/usr_intf/pncconf/pncconf.py:554
+#: emc/usr_intf/pncconf/pncconf.py:569
 msgid "Custom Signals"
-msgstr " Signaux utilisateur"
+msgstr " Signaux personnalisés"
 
-#: emc/usr_intf/pncconf/pncconf.py:398 emc/usr_intf/pncconf/pncconf.py:484
+#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:489
 msgid "X Minimum Limit"
 msgstr "Limite minimale X"
 
-#: emc/usr_intf/pncconf/pncconf.py:398 emc/usr_intf/pncconf/pncconf.py:484
+#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:489
 msgid "Y Minimum Limit"
 msgstr "Limite minimale Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:398 emc/usr_intf/pncconf/pncconf.py:485
+#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:490
 msgid "Z Minimum Limit"
 msgstr "Limite minimale Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:398 emc/usr_intf/pncconf/pncconf.py:485
+#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:490
 msgid "A Minimum Limit"
 msgstr "Limite minimale A"
 
-#: emc/usr_intf/pncconf/pncconf.py:399 emc/usr_intf/pncconf/pncconf.py:486
+#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:491
 msgid "X Maximum Limit"
 msgstr "Limite maximale X "
 
-#: emc/usr_intf/pncconf/pncconf.py:399 emc/usr_intf/pncconf/pncconf.py:486
+#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:491
 msgid "Y Maximum Limit"
 msgstr "Limite maximale Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:399 emc/usr_intf/pncconf/pncconf.py:487
+#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:492
 msgid "Z Maximum Limit"
 msgstr "Limite maximale Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:399 emc/usr_intf/pncconf/pncconf.py:487
+#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:492
 msgid "A Maximum Limit"
 msgstr "Limite maximale A"
 
-#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:488
+#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:493
 msgid "X Both Limit"
 msgstr "Toutes les limites X"
 
-#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:488
+#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:493
 msgid "Y Both Limit"
 msgstr "Toutes les limites Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:489
+#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:494
 msgid "Z Both Limit"
 msgstr "Toutes les limites Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:400 emc/usr_intf/pncconf/pncconf.py:489
+#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:494
 msgid "A Both Limit"
 msgstr "Toutes les limites A"
 
-#: emc/usr_intf/pncconf/pncconf.py:401 emc/usr_intf/pncconf/pncconf.py:489
+#: emc/usr_intf/pncconf/pncconf.py:406 emc/usr_intf/pncconf/pncconf.py:494
 msgid "All Limits"
 msgstr "Toutes les limites"
 
-#: emc/usr_intf/pncconf/pncconf.py:402
+#: emc/usr_intf/pncconf/pncconf.py:407
 msgid "X Home"
 msgstr "Origine X"
 
-#: emc/usr_intf/pncconf/pncconf.py:402
+#: emc/usr_intf/pncconf/pncconf.py:407
 msgid "Y Home"
 msgstr "Origine Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:402
+#: emc/usr_intf/pncconf/pncconf.py:407
 msgid "Z Home"
 msgstr "Origine Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:402
+#: emc/usr_intf/pncconf/pncconf.py:407
 msgid "A Home"
 msgstr "Origine A"
 
-#: emc/usr_intf/pncconf/pncconf.py:402
+#: emc/usr_intf/pncconf/pncconf.py:407
 msgid "All Home"
 msgstr "Toutes les origines"
 
-#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:477
+#: emc/usr_intf/pncconf/pncconf.py:408 emc/usr_intf/pncconf/pncconf.py:482
 msgid "X Minimum Limit + Home"
 msgstr "Limite mini + origine machine X "
 
-#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:477
+#: emc/usr_intf/pncconf/pncconf.py:408 emc/usr_intf/pncconf/pncconf.py:482
 msgid "Y Minimum Limit + Home"
 msgstr "Limite mini + origine machine Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:478
+#: emc/usr_intf/pncconf/pncconf.py:408 emc/usr_intf/pncconf/pncconf.py:483
 msgid "Z Minimum Limit + Home"
 msgstr "Limite mini + origine machine Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:403 emc/usr_intf/pncconf/pncconf.py:478
+#: emc/usr_intf/pncconf/pncconf.py:408 emc/usr_intf/pncconf/pncconf.py:483
 msgid "A Minimum Limit + Home"
 msgstr "Limite mini + origine machine A"
 
-#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:479
+#: emc/usr_intf/pncconf/pncconf.py:409 emc/usr_intf/pncconf/pncconf.py:484
 msgid "X Maximum Limit + Home"
 msgstr "Limite maxi + origine machine X "
 
-#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:479
+#: emc/usr_intf/pncconf/pncconf.py:409 emc/usr_intf/pncconf/pncconf.py:484
 msgid "Y Maximum Limit + Home"
 msgstr "Limite maxi + origine machine Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:480
+#: emc/usr_intf/pncconf/pncconf.py:409 emc/usr_intf/pncconf/pncconf.py:485
 msgid "Z Maximum Limit + Home"
 msgstr "Limite maxi + origine machine Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:404 emc/usr_intf/pncconf/pncconf.py:480
+#: emc/usr_intf/pncconf/pncconf.py:409 emc/usr_intf/pncconf/pncconf.py:485
 msgid "A Maximum Limit + Home"
 msgstr "Limite maxi + origine machine A"
 
-#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:481
+#: emc/usr_intf/pncconf/pncconf.py:410 emc/usr_intf/pncconf/pncconf.py:486
 msgid "X Both Limit + Home"
 msgstr "Les deux limites + origine machine X "
 
-#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:481
+#: emc/usr_intf/pncconf/pncconf.py:410 emc/usr_intf/pncconf/pncconf.py:486
 msgid "Y Both Limit + Home"
 msgstr "Les deux limites + origine machine Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:482
+#: emc/usr_intf/pncconf/pncconf.py:410 emc/usr_intf/pncconf/pncconf.py:487
 msgid "Z Both Limit + Home"
 msgstr "Les deux limites + origine machine Z "
 
-#: emc/usr_intf/pncconf/pncconf.py:405 emc/usr_intf/pncconf/pncconf.py:482
+#: emc/usr_intf/pncconf/pncconf.py:410 emc/usr_intf/pncconf/pncconf.py:487
 msgid "A Both Limit + Home"
 msgstr "Les deux limites + origine machine A"
 
-#: emc/usr_intf/pncconf/pncconf.py:407
+#: emc/usr_intf/pncconf/pncconf.py:412
 msgid "Joint select A"
 msgstr "Sélection jointure A"
 
-#: emc/usr_intf/pncconf/pncconf.py:407
+#: emc/usr_intf/pncconf/pncconf.py:412
 msgid "Joint select B"
 msgstr "Sélection jointure B"
 
-#: emc/usr_intf/pncconf/pncconf.py:407
+#: emc/usr_intf/pncconf/pncconf.py:412
 msgid "Joint select C"
 msgstr "Sélection jointure C"
 
-#: emc/usr_intf/pncconf/pncconf.py:407
+#: emc/usr_intf/pncconf/pncconf.py:412
 msgid "Joint select D"
 msgstr "Sélection jointure D"
 
-#: emc/usr_intf/pncconf/pncconf.py:408
+#: emc/usr_intf/pncconf/pncconf.py:413
 msgid "Jog incr A"
 msgstr "Incrément du Jog A"
 
-#: emc/usr_intf/pncconf/pncconf.py:408
+#: emc/usr_intf/pncconf/pncconf.py:413
 msgid "Jog incr B"
 msgstr "Incrément du Jog B"
 
-#: emc/usr_intf/pncconf/pncconf.py:408
+#: emc/usr_intf/pncconf/pncconf.py:413
 msgid "Jog incr C"
 msgstr "Incrément du Jog C"
 
-#: emc/usr_intf/pncconf/pncconf.py:408
+#: emc/usr_intf/pncconf/pncconf.py:413
 msgid "Jog incr D"
 msgstr "Incrément du Jog D"
 
-#: emc/usr_intf/pncconf/pncconf.py:408
+#: emc/usr_intf/pncconf/pncconf.py:413
 msgid "Feed Override incr A"
 msgstr "Incrément correcteur de vitesse A"
 
-#: emc/usr_intf/pncconf/pncconf.py:408
+#: emc/usr_intf/pncconf/pncconf.py:413
 msgid "Feed Override incr B"
 msgstr "Incrément correcteur de vitesse B"
 
-#: emc/usr_intf/pncconf/pncconf.py:409
+#: emc/usr_intf/pncconf/pncconf.py:414
 msgid "Feed Override incr C"
 msgstr "Incrément correcteur de vitesse C"
 
-#: emc/usr_intf/pncconf/pncconf.py:409
+#: emc/usr_intf/pncconf/pncconf.py:414
 msgid "Feed Override incr D"
 msgstr "Incrément correcteur de vitesse D"
 
-#: emc/usr_intf/pncconf/pncconf.py:409
+#: emc/usr_intf/pncconf/pncconf.py:414
 msgid "Spindle Override incr A"
 msgstr "Incrément correcteur vitesse broche A"
 
-#: emc/usr_intf/pncconf/pncconf.py:409
+#: emc/usr_intf/pncconf/pncconf.py:414
 msgid "Spindle Override incr B"
 msgstr "Incrément correcteur vitesse broche B"
 
-#: emc/usr_intf/pncconf/pncconf.py:410
+#: emc/usr_intf/pncconf/pncconf.py:415
 msgid "Spindle Override incr C"
 msgstr "Incrément correcteur vitesse broche C"
 
-#: emc/usr_intf/pncconf/pncconf.py:410
+#: emc/usr_intf/pncconf/pncconf.py:415
 msgid "Spindle Override incr D"
 msgstr "Incrément correcteur vitesse broche D"
 
-#: emc/usr_intf/pncconf/pncconf.py:410
+#: emc/usr_intf/pncconf/pncconf.py:415
 msgid "Max Vel Override incr A"
 msgstr "Incrément correcteur vitesse maximale A"
 
-#: emc/usr_intf/pncconf/pncconf.py:410
+#: emc/usr_intf/pncconf/pncconf.py:415
 msgid "Max Vel Override incr B"
 msgstr "Incrément correcteur vitesse maximale B"
 
-#: emc/usr_intf/pncconf/pncconf.py:411
+#: emc/usr_intf/pncconf/pncconf.py:416
 msgid "Max Vel Override incr C"
 msgstr "Incrément correcteur vitesse maximale C"
 
-#: emc/usr_intf/pncconf/pncconf.py:411
+#: emc/usr_intf/pncconf/pncconf.py:416
 msgid "Max Vel Override incr D"
 msgstr "Incrément correcteur vitesse maximale D"
 
-#: emc/usr_intf/pncconf/pncconf.py:412
+#: emc/usr_intf/pncconf/pncconf.py:417
 msgid "Manual Spindle CW"
 msgstr "Marche manuelle broche en sens horaire"
 
-#: emc/usr_intf/pncconf/pncconf.py:412
+#: emc/usr_intf/pncconf/pncconf.py:417
 msgid "Manual Spindle CCW"
 msgstr "Marche manuelle broche en sens anti-horaire"
 
-#: emc/usr_intf/pncconf/pncconf.py:412
+#: emc/usr_intf/pncconf/pncconf.py:417
 msgid "Manual Spindle Stop"
 msgstr "Arrêt de broche manuel"
 
-#: emc/usr_intf/pncconf/pncconf.py:412
+#: emc/usr_intf/pncconf/pncconf.py:417
 msgid "Spindle Up-To-Speed"
 msgstr "Broche Up-To-Speed"
 
-#: emc/usr_intf/pncconf/pncconf.py:413
+#: emc/usr_intf/pncconf/pncconf.py:418
 msgid "Cycle Start"
 msgstr "Départ cycle"
 
-#: emc/usr_intf/pncconf/pncconf.py:413
+#: emc/usr_intf/pncconf/pncconf.py:418
 msgid "Abort"
 msgstr "Abandon"
 
-#: emc/usr_intf/pncconf/pncconf.py:413
+#: emc/usr_intf/pncconf/pncconf.py:418
 msgid "Single Step"
 msgstr "Pas par pas"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:472
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:477
 msgid "Jog X +"
 msgstr "Jog X +"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:472
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:477
 msgid "Jog X -"
 msgstr "Jog X -"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:473
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:478
 msgid "Jog Y +"
 msgstr "Jog Y +"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:473
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:478
 msgid "Jog Y -"
 msgstr "Jog Y -"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:474
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:479
 msgid "Jog Z +"
 msgstr "Jog Z +"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:474
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:479
 msgid "Jog Z -"
 msgstr "Jog Z -"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:475
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:480
 msgid "Jog A +"
 msgstr "Jog A +"
 
-#: emc/usr_intf/pncconf/pncconf.py:420 emc/usr_intf/pncconf/pncconf.py:475
+#: emc/usr_intf/pncconf/pncconf.py:425 emc/usr_intf/pncconf/pncconf.py:480
 msgid "Jog A -"
 msgstr "Jog A -"
 
-#: emc/usr_intf/pncconf/pncconf.py:421
+#: emc/usr_intf/pncconf/pncconf.py:426
 msgid "Jog button selected +"
 msgstr "Bouton + du Jog sélectionné"
 
-#: emc/usr_intf/pncconf/pncconf.py:421
+#: emc/usr_intf/pncconf/pncconf.py:426
 msgid "Jog button selected -"
 msgstr "Bouton - du Jog sélectionné"
 
-#: emc/usr_intf/pncconf/pncconf.py:422
+#: emc/usr_intf/pncconf/pncconf.py:427
 msgid "Unused Input"
 msgstr "Entrée inutilisée"
 
-#: emc/usr_intf/pncconf/pncconf.py:422
+#: emc/usr_intf/pncconf/pncconf.py:427
 msgid "Limits"
 msgstr "Limites"
 
-#: emc/usr_intf/pncconf/pncconf.py:422
+#: emc/usr_intf/pncconf/pncconf.py:427
 msgid "Limts/Home Shared"
 msgstr "Limites/origines partagées"
 
-#: emc/usr_intf/pncconf/pncconf.py:423
+#: emc/usr_intf/pncconf/pncconf.py:428
 msgid "Axis Selection"
 msgstr "Sélection d'axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:423
+#: emc/usr_intf/pncconf/pncconf.py:428
 msgid "Overrides"
 msgstr "Survitesse"
 
-#: emc/usr_intf/pncconf/pncconf.py:424
+#: emc/usr_intf/pncconf/pncconf.py:429
 msgid "Operation"
 msgstr "Opération"
 
-#: emc/usr_intf/pncconf/pncconf.py:424
+#: emc/usr_intf/pncconf/pncconf.py:429
 msgid "External Control"
 msgstr "Contrôle externe"
 
-#: emc/usr_intf/pncconf/pncconf.py:424
+#: emc/usr_intf/pncconf/pncconf.py:429
 msgid "Axis rapid"
 msgstr "Axe rapide"
 
-#: emc/usr_intf/pncconf/pncconf.py:426
+#: emc/usr_intf/pncconf/pncconf.py:431
 msgid "S BLDC Control"
 msgstr "S BLDC Control"
 
-#: emc/usr_intf/pncconf/pncconf.py:499
+#: emc/usr_intf/pncconf/pncconf.py:504
 msgid "Unused PWM Gen"
 msgstr "Géné PWM inutilisé"
 
-#: emc/usr_intf/pncconf/pncconf.py:499
+#: emc/usr_intf/pncconf/pncconf.py:504
 msgid "X Axis PWM"
 msgstr "PWM axe X"
 
-#: emc/usr_intf/pncconf/pncconf.py:499
+#: emc/usr_intf/pncconf/pncconf.py:504
 msgid "Y Axis PWM"
 msgstr "PWM axe Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:500
+#: emc/usr_intf/pncconf/pncconf.py:505
 msgid "Z Axis PWM"
 msgstr "PWM axe Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:500
+#: emc/usr_intf/pncconf/pncconf.py:505
 msgid "A Axis PWM"
 msgstr "PWM axe A"
 
-#: emc/usr_intf/pncconf/pncconf.py:522
+#: emc/usr_intf/pncconf/pncconf.py:529
 msgid "X Encoder"
 msgstr "Codeur X"
 
-#: emc/usr_intf/pncconf/pncconf.py:522
+#: emc/usr_intf/pncconf/pncconf.py:529
 msgid "Y Encoder"
 msgstr "Codeur Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:522
+#: emc/usr_intf/pncconf/pncconf.py:529
 msgid "Z Encoder"
 msgstr "Codeur Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:522
+#: emc/usr_intf/pncconf/pncconf.py:529
 msgid "A Encoder"
 msgstr "Codeur A"
 
-#: emc/usr_intf/pncconf/pncconf.py:522
+#: emc/usr_intf/pncconf/pncconf.py:529
 msgid "Spindle Encoder"
 msgstr "Codeur broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:523
+#: emc/usr_intf/pncconf/pncconf.py:530
 msgid "X Hand Wheel"
 msgstr "Manivelle X"
 
-#: emc/usr_intf/pncconf/pncconf.py:523
+#: emc/usr_intf/pncconf/pncconf.py:530
 msgid "Y Hand Wheel"
 msgstr "Manivelle Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:523
+#: emc/usr_intf/pncconf/pncconf.py:530
 msgid "Z Hand Wheel"
 msgstr "Manivelle Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:523
+#: emc/usr_intf/pncconf/pncconf.py:530
 msgid "A Hand Wheel"
 msgstr "Manivelle A"
 
-#: emc/usr_intf/pncconf/pncconf.py:523
+#: emc/usr_intf/pncconf/pncconf.py:530
 msgid "Multi Hand Wheel"
-msgstr "Multi manivelle"
+msgstr "Manivelle multi-axes"
 
-#: emc/usr_intf/pncconf/pncconf.py:524
+#: emc/usr_intf/pncconf/pncconf.py:531
 msgid "Feed Override"
 msgstr "Correcteur de vitesse"
 
-#: emc/usr_intf/pncconf/pncconf.py:524
+#: emc/usr_intf/pncconf/pncconf.py:531
 msgid "spindle Override"
-msgstr "Correcteur vitesse de broche"
+msgstr "Correcteur vitesse broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:524
+#: emc/usr_intf/pncconf/pncconf.py:531
 msgid "Max Vel Override"
-msgstr "Correcteur de vitesse maximale"
+msgstr "Correcteur vitesse maximale"
 
-#: emc/usr_intf/pncconf/pncconf.py:525
+#: emc/usr_intf/pncconf/pncconf.py:532
 msgid "Unused Encoder"
 msgstr "Codeur inutilisé"
 
-#: emc/usr_intf/pncconf/pncconf.py:525
+#: emc/usr_intf/pncconf/pncconf.py:532
 msgid "Axis Encoder"
 msgstr "Codeur d'axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:525
+#: emc/usr_intf/pncconf/pncconf.py:532
 msgid "MPG Jog Controls"
 msgstr "Contrôles MPG Jog"
 
-#: emc/usr_intf/pncconf/pncconf.py:525
+#: emc/usr_intf/pncconf/pncconf.py:532
 msgid "Override MPG control"
 msgstr "Correcteur MPG contrôle"
 
-#: emc/usr_intf/pncconf/pncconf.py:542
+#: emc/usr_intf/pncconf/pncconf.py:535
+msgid "Unused Resolver"
+msgstr "Résolveur inutilisé"
+
+#: emc/usr_intf/pncconf/pncconf.py:535
+msgid "X Resolver"
+msgstr "Résolveur X"
+
+#: emc/usr_intf/pncconf/pncconf.py:535
+msgid "Y Resolver"
+msgstr "Résolveur Y"
+
+#: emc/usr_intf/pncconf/pncconf.py:535
+msgid "Z Resolver"
+msgstr "Résolveur Z"
+
+#: emc/usr_intf/pncconf/pncconf.py:536
+msgid "A Resolver"
+msgstr "Résolveur A"
+
+#: emc/usr_intf/pncconf/pncconf.py:536
+msgid "S Resolver"
+msgstr "Résolveur S"
+
+#: emc/usr_intf/pncconf/pncconf.py:553
 msgid "Unused StepGen"
 msgstr "Générateur de pas inutilisé"
 
-#: emc/usr_intf/pncconf/pncconf.py:542
+#: emc/usr_intf/pncconf/pncconf.py:553
 msgid "X Axis StepGen"
 msgstr "Générateur de pas axe X"
 
-#: emc/usr_intf/pncconf/pncconf.py:542
+#: emc/usr_intf/pncconf/pncconf.py:553
 msgid "Y Axis StepGen"
 msgstr "Générateur de pas axe Y"
 
-#: emc/usr_intf/pncconf/pncconf.py:542
+#: emc/usr_intf/pncconf/pncconf.py:553
 msgid "Z Axis StepGen"
 msgstr "Générateur de pas axe Z"
 
-#: emc/usr_intf/pncconf/pncconf.py:543
+#: emc/usr_intf/pncconf/pncconf.py:554
 msgid "A Axis StepGen"
 msgstr "Générateur de pas axe A"
 
-#: emc/usr_intf/pncconf/pncconf.py:543
+#: emc/usr_intf/pncconf/pncconf.py:554
 msgid "Spindle StepGen"
 msgstr "Générateur de pas de la broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:557
+#: emc/usr_intf/pncconf/pncconf.py:568
 msgid "Unused TPPWM Gen"
 msgstr "Unused TPPWM Gen"
 
-#: emc/usr_intf/pncconf/pncconf.py:557
+#: emc/usr_intf/pncconf/pncconf.py:568
 msgid "X Axis BL Driver"
 msgstr "X Axis BL Driver"
 
-#: emc/usr_intf/pncconf/pncconf.py:557
+#: emc/usr_intf/pncconf/pncconf.py:568
 msgid "Y Axis BL Driver"
 msgstr "Y Axis BL Driver"
 
-#: emc/usr_intf/pncconf/pncconf.py:558
+#: emc/usr_intf/pncconf/pncconf.py:569
 msgid "Z Axis BL Driver"
 msgstr "Z Axis BL Driver"
 
-#: emc/usr_intf/pncconf/pncconf.py:558
+#: emc/usr_intf/pncconf/pncconf.py:569
 msgid "A Axis BL Driver"
 msgstr "A Axis BL Driver"
 
-#: emc/usr_intf/pncconf/pncconf.py:558
+#: emc/usr_intf/pncconf/pncconf.py:569
 msgid "S Axis BL Driver"
 msgstr "S Axis BL Driver"
 
-#: emc/usr_intf/pncconf/pncconf.py:563 emc/usr_intf/pncconf/pncconf.py:5866
+#: emc/usr_intf/pncconf/pncconf.py:574 emc/usr_intf/pncconf/pncconf.py:6071
 msgid "Unused Channel"
-msgstr "voie inutilisée"
+msgstr "Voie inutilisée"
 
-#: emc/usr_intf/pncconf/pncconf.py:563
+#: emc/usr_intf/pncconf/pncconf.py:574
 msgid "8i20 Amplifier Card"
 msgstr "8i20 Carte amplificateur"
 
-#: emc/usr_intf/pncconf/pncconf.py:563
+#: emc/usr_intf/pncconf/pncconf.py:574
 msgid "7i64 I/O Card"
 msgstr "Carte I/O 7i64"
 
-#: emc/usr_intf/pncconf/pncconf.py:636
+#: emc/usr_intf/pncconf/pncconf.py:650
 msgid "my_EMC_machine"
 msgstr "ma_machine_EMC"
 
-#: emc/usr_intf/pncconf/pncconf.py:1216
+#: emc/usr_intf/pncconf/pncconf.py:1238
 msgid ""
 "This configuration was saved with an earlier version of pncconf which may be "
 "incompatible.\n"
@@ -7773,12 +7820,12 @@ msgstr ""
 "version, posez la question sur le forum EMC,\n"
 "c'est peut être possible..."
 
-#: emc/usr_intf/pncconf/pncconf.py:1222
+#: emc/usr_intf/pncconf/pncconf.py:1244
 #, python-format
 msgid "File %r was modified since it was written by PNCconf"
 msgstr "Le fichier %r a été modifié depuis qu'il a été écrit par PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:1226
+#: emc/usr_intf/pncconf/pncconf.py:1248
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside PNCconf."
@@ -7786,38 +7833,38 @@ msgstr ""
 "Enregistrer cette configuration va écraser les modifications faites à "
 "l'extérieur de PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:1253 emc/usr_intf/pncconf/pncconf.py:2077
+#: emc/usr_intf/pncconf/pncconf.py:1275 emc/usr_intf/pncconf/pncconf.py:2167
 #, python-format
 msgid "# Generated by PNCconf at %s"
 msgstr "# Généré par PNCconf le %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:1255 emc/usr_intf/pncconf/pncconf.py:2079
+#: emc/usr_intf/pncconf/pncconf.py:1277 emc/usr_intf/pncconf/pncconf.py:2169
 msgid "# overwritten when you run PNCconf again"
 msgstr "# écrasé quand vous relancerez PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:1862
+#: emc/usr_intf/pncconf/pncconf.py:1924
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
 msgstr "#  Utiliser la vitesse de broche actuelle depuis le codeur de broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:1863
+#: emc/usr_intf/pncconf/pncconf.py:1925
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
 "#  les variations parasites de la vitesse de broche seront filtrées par un "
 "filtre passe-bas"
 
-#: emc/usr_intf/pncconf/pncconf.py:1864
+#: emc/usr_intf/pncconf/pncconf.py:1926
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
 "#  le signe de la vitesse de broche sera enlevé par un composant absolut"
 
-#: emc/usr_intf/pncconf/pncconf.py:1865
+#: emc/usr_intf/pncconf/pncconf.py:1927
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr ""
 "#  La vitesse ACTUELLE est en tr/s et non en tr/mn elle doit être mise à "
 "l'échelle."
 
-#: emc/usr_intf/pncconf/pncconf.py:1874
+#: emc/usr_intf/pncconf/pncconf.py:1936
 msgid ""
 "#  Use COMMANDED spindle velocity from EMC because no spindle encoder was "
 "specified"
@@ -7825,92 +7872,92 @@ msgstr ""
 "#  Pas de codeur de broche spécifié, la vitesse de broche COMMANDEE sera "
 "utilisée"
 
-#: emc/usr_intf/pncconf/pncconf.py:1875
+#: emc/usr_intf/pncconf/pncconf.py:1937
 msgid ""
 "#  COMMANDED velocity is signed so we use absolute component to remove sign"
 msgstr ""
 "#  La vitesse COMANDEE est signée, un composant absolut (abs.0) sera utilisé "
 "pour enlever le signe"
 
-#: emc/usr_intf/pncconf/pncconf.py:2420
+#: emc/usr_intf/pncconf/pncconf.py:2524
 msgid "# connect miscellaneous signals"
 msgstr "#connections de signaux divers"
 
-#: emc/usr_intf/pncconf/pncconf.py:2423
+#: emc/usr_intf/pncconf/pncconf.py:2527
 msgid "#  ---HALUI signals---"
 msgstr "#  ---signaux HALUI---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2442
+#: emc/usr_intf/pncconf/pncconf.py:2546
 msgid "#  ---charge pump signals---"
 msgstr "#  ---signaux pompe de charge---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2446
+#: emc/usr_intf/pncconf/pncconf.py:2550
 msgid "#  ---coolant signals---"
 msgstr "#  ---signaux d'arrosage---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2451
+#: emc/usr_intf/pncconf/pncconf.py:2555
 msgid "#  ---probe signal---"
 msgstr "#  ---signal de sonde---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2456
+#: emc/usr_intf/pncconf/pncconf.py:2560
 msgid "# ---jog button signals---"
 msgstr "#  ---signaux bouton jog---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2461
+#: emc/usr_intf/pncconf/pncconf.py:2565
 msgid "# ---USB device jog button signals---"
 msgstr "# ---signaux bouton de jog dispositif USB---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2496 emc/usr_intf/pncconf/pncconf.py:2518
+#: emc/usr_intf/pncconf/pncconf.py:2600 emc/usr_intf/pncconf/pncconf.py:2622
 msgid "#  ---mpg signals---"
 msgstr "#  ---signaux MPG---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2664
+#: emc/usr_intf/pncconf/pncconf.py:2768
 msgid "#  ---motion control signals---"
 msgstr "#  ---signaux contrôle mouvement---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2669
+#: emc/usr_intf/pncconf/pncconf.py:2773
 msgid "#  ---digital in / out signals---"
 msgstr "#  ---signaux entrée / sortie numérique---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2679
+#: emc/usr_intf/pncconf/pncconf.py:2783
 msgid "#  ---estop signals---"
 msgstr "#  ---signaux d'A/U---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2698
+#: emc/usr_intf/pncconf/pncconf.py:2802
 msgid "#  ---manual tool change signals---"
 msgstr "#  ---signaux changeur manuel d'outil---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2707
+#: emc/usr_intf/pncconf/pncconf.py:2811
 msgid "#  ---toolchange signals for custom tool changer---"
 msgstr "#  ---signaux pour changeur d'outil personnalisé---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2729
+#: emc/usr_intf/pncconf/pncconf.py:2833
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
 "#  --- signaux Classicladder programme de toucher automatique pour l'axe Z---"
 
-#: emc/usr_intf/pncconf/pncconf.py:2748
+#: emc/usr_intf/pncconf/pncconf.py:2852
 msgid "# These files are loaded post gladeVCP, in the order they appear"
 msgstr ""
 "# Ces fichiers sont chargés après gladeVCP, dans leur ordre d'apparition"
 
-#: emc/usr_intf/pncconf/pncconf.py:2762 emc/usr_intf/pncconf/pncconf.py:2829
+#: emc/usr_intf/pncconf/pncconf.py:2866 emc/usr_intf/pncconf/pncconf.py:2933
 msgid "# _DO NOT_ include your HAL commands here."
 msgstr "# _NE PAS_ inclure vos commandes HAL ici"
 
-#: emc/usr_intf/pncconf/pncconf.py:2763
+#: emc/usr_intf/pncconf/pncconf.py:2867
 msgid "# Put custom HAL commands in custom_gvcp.hal"
 msgstr "# Placez vos commandes HAL personnalisées dans custom_gvcp.hal"
 
-#: emc/usr_intf/pncconf/pncconf.py:2766
+#: emc/usr_intf/pncconf/pncconf.py:2870
 msgid "# **** Setup of spindle speed display using gladevcp ****"
 msgstr "# **** Réglage de vitesse broche affiché avec gladevcp ****"
 
-#: emc/usr_intf/pncconf/pncconf.py:2775
+#: emc/usr_intf/pncconf/pncconf.py:2879
 msgid "# **** Setup GLADE MDI buttons ****"
 msgstr "# **** Boutons de réglage GLADE MDI ****"
 
-#: emc/usr_intf/pncconf/pncconf.py:2788
+#: emc/usr_intf/pncconf/pncconf.py:2892
 msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
@@ -7918,112 +7965,112 @@ msgstr ""
 "# **** Bouton toucher de l'axe Z - requiert le programme de toucher de "
 "classicladder ****"
 
-#: emc/usr_intf/pncconf/pncconf.py:2818
+#: emc/usr_intf/pncconf/pncconf.py:2922
 msgid "# These files are loaded post GUI, in the order they appear"
 msgstr "# Ces fichiers sont chargés après la GUI, dans leur ordre d'apparition"
 
-#: emc/usr_intf/pncconf/pncconf.py:2830
+#: emc/usr_intf/pncconf/pncconf.py:2934
 msgid "# Put custom HAL commands in custom_postgui.hal"
 msgstr "# Placez vos commandes HAL personnalisées dans custom_postgui.hal"
 
-#: emc/usr_intf/pncconf/pncconf.py:2831
+#: emc/usr_intf/pncconf/pncconf.py:2935
 msgid "# The commands in this file are run after the GUI loads"
 msgstr ""
 "# Les commandes de ce fichier seront exécutées après le chargement de la GUI"
 
-#: emc/usr_intf/pncconf/pncconf.py:2841
+#: emc/usr_intf/pncconf/pncconf.py:2945
 msgid "# **** Setup of spindle speed display using pyvcp -END ****"
 msgstr "# **** Réglage de vitesse broche affiché avec pyvcp -END ****"
 
-#: emc/usr_intf/pncconf/pncconf.py:2853
+#: emc/usr_intf/pncconf/pncconf.py:2957
 msgid "# This file will not be overwritten when you run PNCconf again"
 msgstr "# Ce fichier ne sera pas écrasé si vous relancez PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:2859
+#: emc/usr_intf/pncconf/pncconf.py:2963
 msgid "# These commands are required for Touchy GUI"
 msgstr "# Ces commandes sont requises par la GUI Touchy"
 
-#: emc/usr_intf/pncconf/pncconf.py:2911
+#: emc/usr_intf/pncconf/pncconf.py:3015
 #, python-format
 msgid "Generated by PNCconf at %s"
 msgstr "Généré par PNCconf le %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:2923
+#: emc/usr_intf/pncconf/pncconf.py:3027
 msgid "configures EMC2 as:\n"
 msgstr "configurer EMC2:\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:2924
+#: emc/usr_intf/pncconf/pncconf.py:3028
 msgid "type CNC\n"
 msgstr "type de CNC\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:2925
+#: emc/usr_intf/pncconf/pncconf.py:3029
 msgid "will be used as the frontend display"
 msgstr "sera utilisé en façade de l'affichage"
 
-#: emc/usr_intf/pncconf/pncconf.py:2934
+#: emc/usr_intf/pncconf/pncconf.py:3038
 msgid " connector"
 msgstr " connecteur"
 
-#: emc/usr_intf/pncconf/pncconf.py:2946
+#: emc/usr_intf/pncconf/pncconf.py:3050
 msgid "invrt"
 msgstr "Inverser"
 
-#: emc/usr_intf/pncconf/pncconf.py:2955
+#: emc/usr_intf/pncconf/pncconf.py:3059
 #, python-format
 msgid "%(name)s Parport"
 msgstr "%(name)s Parport"
 
-#: emc/usr_intf/pncconf/pncconf.py:2960 emc/usr_intf/pncconf/pncconf.py:2968
+#: emc/usr_intf/pncconf/pncconf.py:3064 emc/usr_intf/pncconf/pncconf.py:3072
 msgid "-> inverted"
 msgstr "-> inversé"
 
-#: emc/usr_intf/pncconf/pncconf.py:2962
+#: emc/usr_intf/pncconf/pncconf.py:3066
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d est connectée au signal d'entrée:'%(data)s' %(mesag)s"
 
-#: emc/usr_intf/pncconf/pncconf.py:2970
+#: emc/usr_intf/pncconf/pncconf.py:3074
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d est connectée au signal de sortie:'%(data)s' %(mesag)s"
 
-#: emc/usr_intf/pncconf/pncconf.py:3148
+#: emc/usr_intf/pncconf/pncconf.py:3252
 msgid "Desktop Launcher for EMC config made by PNCconf"
 msgstr "Lanceur de bureau pour la configuration faite par PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:3357
+#: emc/usr_intf/pncconf/pncconf.py:3471
 msgid "Spindle Motor/Encoder Configuration"
 msgstr "Configuration moteur/codeur de la broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:3359
+#: emc/usr_intf/pncconf/pncconf.py:3473
 #, python-format
 msgid "%s Axis Motor/Encoder Configuration"
 msgstr "Configuration moteur/codeur de l'axe %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:3388
+#: emc/usr_intf/pncconf/pncconf.py:3502
 #, python-format
 msgid "%s Parallel Port Setup"
 msgstr "Réglage du port parallèle %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:3412
+#: emc/usr_intf/pncconf/pncconf.py:3526
 #, python-format
 msgid "%s I/0 Setup"
 msgstr "Réglage I/O %s "
 
-#: emc/usr_intf/pncconf/pncconf.py:3632
+#: emc/usr_intf/pncconf/pncconf.py:3747
 msgid "Quit PNCconfig and discard changes?"
 msgstr "Quitter PNCconf et perdre les modifications ?"
 
-#: emc/usr_intf/pncconf/pncconf.py:3673
+#: emc/usr_intf/pncconf/pncconf.py:3788
 #: emc/usr_intf/pncconf/pncconf.glade:58725
 msgid "Help Pages"
 msgstr "Pages d'aide"
 
-#: emc/usr_intf/pncconf/pncconf.py:3678
+#: emc/usr_intf/pncconf/pncconf.py:3793
 msgid "Help page is unavailable\n"
 msgstr "Page d'aide indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:3685
+#: emc/usr_intf/pncconf/pncconf.py:3800
 msgid ""
 "You are using a simulated-realtime version of EMC, so testing / tuning of "
 "external hardware is unavailable."
@@ -8031,7 +8078,7 @@ msgstr ""
 "Vous utilisez une version de test d'EMC en temps réel simulé, / les réglages "
 "du hardware externe sont impossibles."
 
-#: emc/usr_intf/pncconf/pncconf.py:3690
+#: emc/usr_intf/pncconf/pncconf.py:3805
 #, python-format
 msgid ""
 "You are using a realtime version of EMC but didn't load a realtime kernel so "
@@ -8047,7 +8094,7 @@ msgstr ""
 "incapable de charger le kernel RTAI\n"
 " Vous utilisez actuellement le kernel %(actual)s au lieu du kernel %(needed)s"
 
-#: emc/usr_intf/pncconf/pncconf.py:3710
+#: emc/usr_intf/pncconf/pncconf.py:3825
 #, python-format
 msgid ""
 "You are have no hostmot2 firmware downloaded in folder:\n"
@@ -8060,11 +8107,11 @@ msgstr ""
 "PNCconf utilisera un firmware échantillon,\n"
 "les tests en direct ne seront pas possible."
 
-#: emc/usr_intf/pncconf/pncconf.py:3724
+#: emc/usr_intf/pncconf/pncconf.py:3839
 msgid "EMC2 'PNCconf' configuration files"
 msgstr "Fichiers 'PNCconf' de configuration d'EMC2 "
 
-#: emc/usr_intf/pncconf/pncconf.py:3752
+#: emc/usr_intf/pncconf/pncconf.py:3868
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue.\n"
@@ -8074,18 +8121,18 @@ msgstr ""
 "ancienne de PNCConf, impossible de continuer.\n"
 "."
 
-#: emc/usr_intf/pncconf/pncconf.py:3759 emc/usr_intf/pncconf/pncconf.py:3857
+#: emc/usr_intf/pncconf/pncconf.py:3875 emc/usr_intf/pncconf/pncconf.py:3973
 #, python-format
 msgid "Point and click configuration - %s.pncconf "
 msgstr "Configuration à la souris - %s.pncconf "
 
-#: emc/usr_intf/pncconf/pncconf.py:3879
+#: emc/usr_intf/pncconf/pncconf.py:3995
 msgid ""
 "You need to designate a parport and/or mesa I/O device before continuing."
 msgstr ""
 "Vous devez définir un port parallèle et/ou une carte Mesa avant de continuer."
 
-#: emc/usr_intf/pncconf/pncconf.py:3937
+#: emc/usr_intf/pncconf/pncconf.py:4053
 msgid ""
 "You Have choosen to re-edit the current config, so you can not go to the new/"
 "modify page.\n"
@@ -8096,7 +8143,7 @@ msgstr ""
 " Quittez puis relancez PNCconf si vous voulez construire une nouvelle "
 "configuration."
 
-#: emc/usr_intf/pncconf/pncconf.py:3941
+#: emc/usr_intf/pncconf/pncconf.py:4057
 msgid ""
 "If you can not go to the new/modify page your current data will be lost.\n"
 "Ok to reset data and start a new configuration?"
@@ -8106,27 +8153,27 @@ msgstr ""
 "Êtes-vous sûr de vouloir effacer les données courantes et démarrer une "
 "nouvelle configuration ?"
 
-#: emc/usr_intf/pncconf/pncconf.py:4184
+#: emc/usr_intf/pncconf/pncconf.py:4309
 msgid "USB device Info Search"
 msgstr "Recherche informations dispositif USB"
 
-#: emc/usr_intf/pncconf/pncconf.py:4198
+#: emc/usr_intf/pncconf/pncconf.py:4323
 msgid "USB device  page is unavailable\n"
-msgstr "Dispositif USB  la page est indisponible\n"
+msgstr "La page du dispositif USB est indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:4263
+#: emc/usr_intf/pncconf/pncconf.py:4388
 msgid "Pin names are unavailable\n"
 msgstr "Nom de Pin indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:4285
+#: emc/usr_intf/pncconf/pncconf.py:4410
 msgid "Device names are unavailable\n"
 msgstr "Nom de dispositif indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:4288
+#: emc/usr_intf/pncconf/pncconf.py:4413
 msgid "No Pncconf made device rules were found\n"
 msgstr "No Pncconf made device rules were found\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:4412
+#: emc/usr_intf/pncconf/pncconf.py:4537
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -8136,7 +8183,7 @@ msgstr ""
 "Il sera renommé et ajouté au dossier 'backup'.\n"
 " Cliquer 'programme utilisateur existant' pour éviter cet avertissement. "
 
-#: emc/usr_intf/pncconf/pncconf.py:4417
+#: emc/usr_intf/pncconf/pncconf.py:4542
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -8146,7 +8193,7 @@ msgstr ""
 "Le fichier pyvcp-panel.xml sera renommé et ajouté au dossier 'backup'. \n"
 "Cliquez 'programme utilisateur existant' pour éviter cet avertissement."
 
-#: emc/usr_intf/pncconf/pncconf.py:4819
+#: emc/usr_intf/pncconf/pncconf.py:4949
 msgid ""
 "You need to configure the mesa0 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
@@ -8156,7 +8203,7 @@ msgstr ""
 "Choisir le type de carte, de micro-programme, de composants et presser le "
 "bouton 'Accepter les changements de composants'"
 
-#: emc/usr_intf/pncconf/pncconf.py:4823
+#: emc/usr_intf/pncconf/pncconf.py:4953
 msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
@@ -8164,7 +8211,7 @@ msgstr ""
 "La carte Mesa0 choisie est différente de celle affichée.\n"
 "Presser le bouton 'Accepter les changements de composant'"
 
-#: emc/usr_intf/pncconf/pncconf.py:4866
+#: emc/usr_intf/pncconf/pncconf.py:4996
 msgid ""
 "You need to configure the mesa1 page.\n"
 " Choose the board type, firmware, component amounts and press 'Accept "
@@ -8174,7 +8221,7 @@ msgstr ""
 "Choisir le type de carte, de micro-programme, de composants et presser le "
 "bouton 'Accepter les changements de composant'"
 
-#: emc/usr_intf/pncconf/pncconf.py:4870
+#: emc/usr_intf/pncconf/pncconf.py:5000
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
@@ -8182,7 +8229,7 @@ msgstr ""
 "La carte Mesa1 choisie est différente de celle affichée.\n"
 "Presser le bouton 'Accepter les changements de composant'"
 
-#: emc/usr_intf/pncconf/pncconf.py:4884
+#: emc/usr_intf/pncconf/pncconf.py:5014
 msgid ""
 "Do to technical reasons this test panel can be loaded only once without "
 "reloading pncconf.You also will not be able to do any other testing untill "
@@ -8197,81 +8244,82 @@ msgstr ""
 "permettre son utilisation, mais parfois il est très utile.\n"
 "Souhaitez-vous continuer le test ?"
 
-#: emc/usr_intf/pncconf/pncconf.py:5979
+#: emc/usr_intf/pncconf/pncconf.py:6184
 msgid "First Parallel Port set for OUTPUT"
 msgstr "Réglage du premier port parallèle en SORTIES"
 
-#: emc/usr_intf/pncconf/pncconf.py:5981
+#: emc/usr_intf/pncconf/pncconf.py:6186
 msgid "First Parallel Port set for INPUT"
 msgstr "Réglage du premier port parallèle en ENTREES"
 
-#: emc/usr_intf/pncconf/pncconf.py:6005
+#: emc/usr_intf/pncconf/pncconf.py:6210
 msgid "Second Parallel Port set for OUTPUT"
 msgstr "Réglage du deuxième port parallèle en SORTIES"
 
-#: emc/usr_intf/pncconf/pncconf.py:6007
+#: emc/usr_intf/pncconf/pncconf.py:6212
 msgid "Second Parallel Port set for INPUT"
 msgstr "Réglage du deuxième port parallèle en ENTREES"
 
-#: emc/usr_intf/pncconf/pncconf.py:6019
+#: emc/usr_intf/pncconf/pncconf.py:6224
 msgid "Third Parallel Port set for OUTPUT"
 msgstr "Réglage du troisième port parallèle en SORTIES"
 
-#: emc/usr_intf/pncconf/pncconf.py:6021
+#: emc/usr_intf/pncconf/pncconf.py:6226
 msgid "Third Parallel Port set for INPUT"
 msgstr "Réglage du troisième port parallèle en ENTREES"
 
-#: emc/usr_intf/pncconf/pncconf.py:6144
+#: emc/usr_intf/pncconf/pncconf.py:6350
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
 "Il est impossible d'avoir simultanément les signaux PWM et de pas à pas pour "
 "contrôler la broche\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6148
+#: emc/usr_intf/pncconf/pncconf.py:6354
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "Vous avez omis de désigner un signal PWM ou pas à pas pour l'axe %s\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6151
+#: emc/usr_intf/pncconf/pncconf.py:6357
 #, python-format
-msgid "You forgot to designate an encoder signal for axis %s servo\n"
+msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
-"Vous avez omis de désigner un signal d'encodeur pour le servo de l'axe %s\n"
+"Vous avez omis de désigner un signal d'encodeur/résolveur pour le servo de "
+"l'axe %s\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6154
+#: emc/usr_intf/pncconf/pncconf.py:6360
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
 "Vous avez omis de désigner un signal PWM ou un signal pas à pas pour l'axe %"
 "s\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6157
+#: emc/usr_intf/pncconf/pncconf.py:6363
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
 "Vous ne pouvez pas avoir simultanément des signaux PWM et de pas à pas pour "
 "l'axe %s\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6165
+#: emc/usr_intf/pncconf/pncconf.py:6371
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiert un signal de départ cycle externe\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6168
+#: emc/usr_intf/pncconf/pncconf.py:6374
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy requiert un signal d'abandon externe\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6171
+#: emc/usr_intf/pncconf/pncconf.py:6377
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy requiert un signal d'avance par pas externe\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6174
+#: emc/usr_intf/pncconf/pncconf.py:6380
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
 "Touchy requiert le signal du codeur d'un MPG multi-axes sur la page mesa\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6177
+#: emc/usr_intf/pncconf/pncconf.py:6383
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -8279,7 +8327,7 @@ msgstr ""
 "Touchy requiert que 'Jogging MPG externe' soit sélectionné sur la page des "
 "contrôles externes\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6180
+#: emc/usr_intf/pncconf/pncconf.py:6386
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -8287,7 +8335,7 @@ msgstr ""
 "Touchy requiert que le MPG externe soit en mode 'MPG partagé' sur la page "
 "des contrôles externes\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6183
+#: emc/usr_intf/pncconf/pncconf.py:6389
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -8295,7 +8343,7 @@ msgstr ""
 "Touchy requiert que la case 'Incréments de MPG sélectionnables' soit "
 "décochée sur la page des contrôles externes\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6187
+#: emc/usr_intf/pncconf/pncconf.py:6393
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -8303,7 +8351,7 @@ msgstr ""
 "La carte fille 7i29 requiert des générateurs de type PWM et une fréquence "
 "PWM de base de 20 kHz\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6190
+#: emc/usr_intf/pncconf/pncconf.py:6396
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -8311,7 +8359,7 @@ msgstr ""
 "La carte fille 7i30 requiert des générateurs de type PWM et une fréquence "
 "PWM de base de 20 kHz\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6193
+#: emc/usr_intf/pncconf/pncconf.py:6399
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -8319,7 +8367,7 @@ msgstr ""
 "La carte fille 7i33 requiert des générateurs de type PDM et une fréquence "
 "PDM de base de 6 MHz\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6196
+#: emc/usr_intf/pncconf/pncconf.py:6402
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -8327,70 +8375,70 @@ msgstr ""
 "La carte fille 7i40 requiert des générateurs de type PWM et une fréquence "
 "PWM de base de 50 kHz\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:6386
+#: emc/usr_intf/pncconf/pncconf.py:6593
 msgid "Gearbox Reduction Ratio"
 msgstr "Rapport de réduction des pignons"
 
-#: emc/usr_intf/pncconf/pncconf.py:6389
+#: emc/usr_intf/pncconf/pncconf.py:6596
 msgid "Reduction Ratio"
 msgstr "Rapport de réduction"
 
-#: emc/usr_intf/pncconf/pncconf.py:6392
+#: emc/usr_intf/pncconf/pncconf.py:6599
 msgid "Leadscrew Pitch"
 msgstr "Pas de la vis"
 
-#: emc/usr_intf/pncconf/pncconf.py:6395
+#: emc/usr_intf/pncconf/pncconf.py:6602
 #: emc/usr_intf/pncconf/pncconf.glade:59022
 #: emc/usr_intf/pncconf/pncconf.glade:59335
 msgid "Leadscrew TPI"
 msgstr "Filets de la vis par pouce"
 
-#: emc/usr_intf/pncconf/pncconf.py:6399 emc/usr_intf/pncconf/pncconf.py:6400
+#: emc/usr_intf/pncconf/pncconf.py:6606 emc/usr_intf/pncconf/pncconf.py:6607
 msgid "("
 msgstr "("
 
-#: emc/usr_intf/pncconf/pncconf.py:6401 emc/usr_intf/pncconf/pncconf.py:6411
-#: emc/usr_intf/pncconf/pncconf.py:6412 emc/usr_intf/pncconf/pncconf.py:6413
+#: emc/usr_intf/pncconf/pncconf.py:6608 emc/usr_intf/pncconf/pncconf.py:6618
+#: emc/usr_intf/pncconf/pncconf.py:6619 emc/usr_intf/pncconf/pncconf.py:6620
 msgid " / min"
 msgstr " / mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:6402
+#: emc/usr_intf/pncconf/pncconf.py:6609
 msgid " / sec²"
 msgstr " / s²"
 
-#: emc/usr_intf/pncconf/pncconf.py:6405
+#: emc/usr_intf/pncconf/pncconf.py:6612
 msgid " / Step"
 msgstr " / pas"
 
-#: emc/usr_intf/pncconf/pncconf.py:6406
+#: emc/usr_intf/pncconf/pncconf.py:6613
 msgid "Steps / "
 msgstr "Pas / "
 
-#: emc/usr_intf/pncconf/pncconf.py:6408
+#: emc/usr_intf/pncconf/pncconf.py:6615
 msgid " / encoder pulse"
 msgstr " / impulsion codeur"
 
-#: emc/usr_intf/pncconf/pncconf.py:6409
+#: emc/usr_intf/pncconf/pncconf.py:6616
 msgid "Encoder pulses / "
 msgstr "Impulsions codeur / "
 
-#: emc/usr_intf/pncconf/pncconf.py:6705
+#: emc/usr_intf/pncconf/pncconf.py:6915
 msgid "Axis Scale Calculation"
 msgstr "Calcul d'échelle d'axe"
 
-#: emc/usr_intf/pncconf/pncconf.py:7004
+#: emc/usr_intf/pncconf/pncconf.py:7216
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour "
 "l'arrêt d'urgence."
 
-#: emc/usr_intf/pncconf/pncconf.py:7016
+#: emc/usr_intf/pncconf/pncconf.py:7228
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour le "
 "palpeur."
 
-#: emc/usr_intf/pncconf/pncconf.py:7027
+#: emc/usr_intf/pncconf/pncconf.py:7239
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -8402,15 +8450,15 @@ msgstr ""
 "Tout autre fichier custom_backup.clp précédent sera écrasé. Presser "
 "'programme ladder existant' pour éviter cet avertissement"
 
-#: emc/usr_intf/pncconf/pncconf.py:7232
+#: emc/usr_intf/pncconf/pncconf.py:7444
 msgid "Do you wish to continue to edit this configuration."
 msgstr "Voulez-vous continuer pour éditer cette configuration."
 
-#: emc/usr_intf/pncconf/pncconf.py:7271
+#: emc/usr_intf/pncconf/pncconf.py:7483
 msgid "PCI search page is unavailable\n"
 msgstr "Page de recherche PCI indisponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:7389
+#: emc/usr_intf/pncconf/pncconf.py:7601
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
@@ -8418,63 +8466,65 @@ msgstr ""
 "Vous avez spécifié un fichier glade comme existant alors que le dossier "
 "portant le nom de la machine n'en contient pas..."
 
-#: emc/usr_intf/pncconf/pncconf.py:7708
-msgid "Servo tuning is not finished / working\n"
-msgstr "Les réglages servo ne sont pas terminés / opérationnels\n"
+#: emc/usr_intf/pncconf/pncconf.py:7920
+msgid "Servo tuning is not avaiable in PNCconf yet\n"
+msgstr "Les réglages de servo ne sont pas  opérationnels dans PNCconf \n"
 
-#: emc/usr_intf/pncconf/pncconf.py:7713
+#: emc/usr_intf/pncconf/pncconf.py:7925
 msgid "degrees"
 msgstr "degrés"
 
-#: emc/usr_intf/pncconf/pncconf.py:7714
+#: emc/usr_intf/pncconf/pncconf.py:7926
 msgid "degrees / minute"
 msgstr "degrés / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:7715
+#: emc/usr_intf/pncconf/pncconf.py:7927
 msgid "degrees / second²"
 msgstr "degrés / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:7717
+#: emc/usr_intf/pncconf/pncconf.py:7929
 msgid "revolutions"
 msgstr "tour"
 
-#: emc/usr_intf/pncconf/pncconf.py:7718
+#: emc/usr_intf/pncconf/pncconf.py:7930
 msgid "rpm"
 msgstr "tr/mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:7719
+#: emc/usr_intf/pncconf/pncconf.py:7931
 msgid "revs / second²"
 msgstr "tours / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:7722
+#: emc/usr_intf/pncconf/pncconf.py:7934
 #: emc/usr_intf/pncconf/pncconf.glade:51108
 #: emc/usr_intf/pncconf/pncconf.glade:51205
 #: emc/usr_intf/pncconf/pncconf.glade:51389
 msgid "mm / minute"
 msgstr "mm / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:7723
+#: emc/usr_intf/pncconf/pncconf.py:7935
 msgid "mm / second²"
 msgstr "mm / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:7726
+#: emc/usr_intf/pncconf/pncconf.py:7938
 msgid "inches / minute"
 msgstr "pouces / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:7727
+#: emc/usr_intf/pncconf/pncconf.py:7939
 msgid "inches / second²"
 msgstr "pouces / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:7859
+#: emc/usr_intf/pncconf/pncconf.py:8071
 #, python-format
 msgid "%s Axis Tune"
 msgstr "Calibration de l'axe %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:8012
+#: emc/usr_intf/pncconf/pncconf.py:8231
 msgid ""
-" You must designate a ENCODER signal and a PWM signal for this axis test"
+" You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
+"axis test"
 msgstr ""
-" Un signal CODEUR et un signal PWM doivent être déclarés pour tester cet axe"
+" Un signal CODEUR/RESOLVEUR et un signal PWM doivent être déclarés pour "
+"tester cet axe"
 
 #: emc/usr_intf/pncconf/pncconf.glade:8
 msgid "EMC2 Point And Click Configuration"
@@ -11428,37 +11478,37 @@ msgstr "<b>Données mouvement</b>"
 msgid "gtk-cancel"
 msgstr "gtk-cancel"
 
-#: emc/task/emctaskmain.cc:463 emc/task/emctaskmain.cc:496
+#: emc/task/emctaskmain.cc:427 emc/task/emctaskmain.cc:460
 #, c-format
 msgid "%s exceeds +X limit"
 msgstr "%s limite +X dépassée"
 
-#: emc/task/emctaskmain.cc:468 emc/task/emctaskmain.cc:501
+#: emc/task/emctaskmain.cc:432 emc/task/emctaskmain.cc:465
 #, c-format
 msgid "%s exceeds +Y limit"
 msgstr "%s limite +Y dépassée"
 
-#: emc/task/emctaskmain.cc:473 emc/task/emctaskmain.cc:506
+#: emc/task/emctaskmain.cc:437 emc/task/emctaskmain.cc:470
 #, c-format
 msgid "%s exceeds +Z limit"
 msgstr "%s limite +Z dépassée"
 
-#: emc/task/emctaskmain.cc:478 emc/task/emctaskmain.cc:511
+#: emc/task/emctaskmain.cc:442 emc/task/emctaskmain.cc:475
 #, c-format
 msgid "%s exceeds -X limit"
 msgstr "%s limite -X dépassée"
 
-#: emc/task/emctaskmain.cc:483 emc/task/emctaskmain.cc:516
+#: emc/task/emctaskmain.cc:447 emc/task/emctaskmain.cc:480
 #, c-format
 msgid "%s exceeds -Y limit"
 msgstr "%s limite -Y dépassée"
 
-#: emc/task/emctaskmain.cc:488 emc/task/emctaskmain.cc:521
+#: emc/task/emctaskmain.cc:452 emc/task/emctaskmain.cc:485
 #, c-format
 msgid "%s exceeds -Z limit"
 msgstr "%s limite -Z dépassée"
 
-#: emc/task/emctaskmain.cc:846
+#: emc/task/emctaskmain.cc:810
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
@@ -11467,49 +11517,49 @@ msgstr ""
 "La commande (%s) ne peut être exécutée tant que la machine n'est pas sortie "
 "de l'arrêt d'urgence et mise en marche"
 
-#: emc/task/emctaskmain.cc:966
+#: emc/task/emctaskmain.cc:930
 #, c-format
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:1064
+#: emc/task/emctaskmain.cc:1027
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en charge"
 
-#: emc/task/emctaskmain.cc:1124
+#: emc/task/emctaskmain.cc:1087
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en lecture"
 
-#: emc/task/emctaskmain.cc:1207
+#: emc/task/emctaskmain.cc:1169
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en pause"
 
-#: emc/task/emctaskmain.cc:1269
+#: emc/task/emctaskmain.cc:1231
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en attente"
 
-#: emc/task/emctaskmain.cc:1360
+#: emc/task/emctaskmain.cc:1321
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1993
+#: emc/task/emctaskmain.cc:1943
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "Impossible de quitter le mode AUTO si l'interpréteur est en charge"
 
-#: emc/task/emctaskmain.cc:2063
+#: emc/task/emctaskmain.cc:2013
 msgid "Can't issue MDI command when not homed"
 msgstr "Pas de commande MDI avant la prise d'origine machine"
 
-#: emc/task/emctaskmain.cc:2068
+#: emc/task/emctaskmain.cc:2018
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Pas de commande MDI hors du mode MDI"
 
-#: emc/task/emctaskmain.cc:2129
+#: emc/task/emctaskmain.cc:2079
 msgid "Can't run a program when not homed"
 msgstr "Pas de départ cycle avant la prise d'origine machine"
 
@@ -11593,29 +11643,21 @@ msgstr ""
 "Mot P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 ou M50 M51 M52 M53 "
 "M62 M63 M64 M65 M66 ni code M utilisateur l'utilisant"
 
+#: emc/rs274ngc/interp_check.cc:302
+msgid "P value not an integer with G2 or G3"
+msgstr "La valeur de P avec G2 ou G3 n'est pas un entier "
+
 #: emc/rs274ngc/interp_check.cc:304
-msgid "P value not an integer with M19 G2 or G3"
-msgstr "La valeur de P n'est pas un entier avec M19 G2 ou G3 "
-
-#: emc/rs274ngc/interp_check.cc:306
-msgid "P value must be 0,1,or 2 with M19"
-msgstr "Valeur de P doit être 0, 1 ou 2 avec M19 "
-
-#: emc/rs274ngc/interp_check.cc:308
 msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Valeur de P doit être 1 ou plus avec G2 ou G3"
 
-#: emc/rs274ngc/interp_check.cc:315
+#: emc/rs274ngc/interp_check.cc:311
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M66, M67, M68 or user M code "
 "that uses it"
 msgstr ""
 "Mot Q sans G5, G10, G64, G73, G76, G83, M66, M67, M68 ou code M utilisateur "
 "l'utilisant"
-
-#: emc/rs274ngc/interp_check.cc:325
-msgid "R value must be within 0..360 with M19"
-msgstr "La valeur de R doit être comprise entre 0 et 360 avec M19"
 
 #: emc/rs274ngc/interp_convert.cc:138
 msgid "You must specify both X and Y coordinates for Control Points"
@@ -11682,7 +11724,7 @@ msgstr ""
 "Le premier mouvement après l'arrêt de la compensation de rayon d'outil doit "
 "être une droite, pas un arc"
 
-#: emc/rs274ngc/interp_convert.cc:378 emc/rs274ngc/interp_convert.cc:4199
+#: emc/rs274ngc/interp_convert.cc:378 emc/rs274ngc/interp_convert.cc:3907
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 "Mouvement impossible en mode longueur par tour avec une vitesse de broche à "
@@ -11703,7 +11745,7 @@ msgstr ""
 "de l'outil"
 
 #: emc/rs274ngc/interp_convert.cc:864 emc/rs274ngc/interp_convert.cc:874
-#: emc/rs274ngc/interp_queue.cc:574
+#: emc/rs274ngc/interp_queue.cc:541
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
@@ -11723,259 +11765,233 @@ msgstr ""
 "être suivi sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:1032 emc/rs274ngc/interp_convert.cc:1033
-#: emc/rs274ngc/interp_convert.cc:1034 emc/rs274ngc/interp_convert.cc:3667
-#: emc/rs274ngc/interp_convert.cc:3670 emc/rs274ngc/interp_convert.cc:3673
+#: emc/rs274ngc/interp_convert.cc:1034 emc/rs274ngc/interp_convert.cc:3375
+#: emc/rs274ngc/interp_convert.cc:3378 emc/rs274ngc/interp_convert.cc:3381
 #: emc/rs274ngc/interp_find.cc:97
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Position absolue %5.2f invalide pour l'axe rotatif wrapped %c"
 
-#: emc/rs274ngc/interp_convert.cc:1463
+#: emc/rs274ngc/interp_convert.cc:1462
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr ""
 "Changement de mode de contrôle impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:1576
+#: emc/rs274ngc/interp_convert.cc:1575
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr ""
 "Changement de système de coordonnées impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:1820
+#: emc/rs274ngc/interp_convert.cc:1819
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr "G%d.1 sans mot D"
 
-#: emc/rs274ngc/interp_convert.cc:1823
+#: emc/rs274ngc/interp_convert.cc:1822
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
 msgstr "G%d.1 avec mot L, mais le plan n'est pas G18"
 
-#: emc/rs274ngc/interp_convert.cc:1834
+#: emc/rs274ngc/interp_convert.cc:1833
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr "G%d exige que le mot D soit un nombre entier"
 
-#: emc/rs274ngc/interp_convert.cc:1841
+#: emc/rs274ngc/interp_convert.cc:1840
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
 msgstr "G%d avec outil de tour, mais le plan n'est pas G18"
 
-#: emc/rs274ngc/interp_convert.cc:2225
+#: emc/rs274ngc/interp_convert.cc:2224
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr ""
 "Réglage de point de référence impossible avec la compensation d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2738
-#, c-format
-msgid ""
-"BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
-msgstr ""
-"BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
-
-#: emc/rs274ngc/interp_convert.cc:2739
-#, c-format
-msgid "BUG: restore from level %d !?"
-msgstr "BUG: restore from level %d !?"
-
-#: emc/rs274ngc/interp_convert.cc:2740
-#, c-format
-msgid "BUG: restore to level %d !?"
-msgstr "BUG: restore to level %d !?"
-
-#: emc/rs274ngc/interp_convert.cc:2841
+#: emc/rs274ngc/interp_convert.cc:2627
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie mouvement impossible avec la compensation de rayon d'outil "
 "activée"
 
-#: emc/rs274ngc/interp_convert.cc:2842
+#: emc/rs274ngc/interp_convert.cc:2628
 msgid "No valid P word with M62"
 msgstr "Pas de mot P valide avec M62"
 
-#: emc/rs274ngc/interp_convert.cc:2846
+#: emc/rs274ngc/interp_convert.cc:2632
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie numérique impossible avec la compensation de rayon d'outil "
 "activée"
 
-#: emc/rs274ngc/interp_convert.cc:2847
+#: emc/rs274ngc/interp_convert.cc:2633
 msgid "No valid P word with M63"
 msgstr "Pas de mot P valide avec M63"
 
-#: emc/rs274ngc/interp_convert.cc:2851 emc/rs274ngc/interp_convert.cc:2856
+#: emc/rs274ngc/interp_convert.cc:2637 emc/rs274ngc/interp_convert.cc:2642
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie numérique auxiliaire impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2852
+#: emc/rs274ngc/interp_convert.cc:2638
 msgid "No valid P word with M64"
 msgstr "Pas de mot P valide avec M64"
 
-#: emc/rs274ngc/interp_convert.cc:2857
+#: emc/rs274ngc/interp_convert.cc:2643
 msgid "No valid P word with M65"
 msgstr "Pas de mot P valide avec M65"
 
-#: emc/rs274ngc/interp_convert.cc:2886
+#: emc/rs274ngc/interp_convert.cc:2672
 msgid "invalid P-word with M66"
 msgstr "Mot P valide avec M66"
 
-#: emc/rs274ngc/interp_convert.cc:2901
+#: emc/rs274ngc/interp_convert.cc:2687
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr ""
 "Attente d'une entrée numérique impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2913
+#: emc/rs274ngc/interp_convert.cc:2699
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr ""
 "Attente d'une entrée analogique impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2927
+#: emc/rs274ngc/interp_convert.cc:2713
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie analogique impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2928
+#: emc/rs274ngc/interp_convert.cc:2714
 msgid "Invalid analog index with M67"
 msgstr "Index analogique invalide avec M67"
 
-#: emc/rs274ngc/interp_convert.cc:2934
+#: emc/rs274ngc/interp_convert.cc:2720
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr ""
 "Réglage de sortie analogique auxiliaire impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:2935
+#: emc/rs274ngc/interp_convert.cc:2721
 msgid "Invalid analog index with M68"
 msgstr "Index analogique invalide avec M68"
 
-#: emc/rs274ngc/interp_convert.cc:2949 emc/rs274ngc/interp_convert.cc:4913
-msgid "Cannot change tools with cutter radius compensation on"
-msgstr ""
-"Changement d'outil impossible avec la compensation de rayon d'outil active"
-
-#: emc/rs274ngc/interp_convert.cc:2982
+#: emc/rs274ngc/interp_convert.cc:2732
 msgid "Need positive Q-word to specify tool number with M61"
 msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3059
-msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
-msgstr "Cannot restore context from invalid stack frame - missing M70/M73?"
-
-#: emc/rs274ngc/interp_convert.cc:3097 emc/rs274ngc/interp_convert.cc:3114
-#: emc/rs274ngc/interp_convert.cc:3128 emc/rs274ngc/interp_convert.cc:3142
-#: emc/rs274ngc/interp_convert.cc:3156
+#: emc/rs274ngc/interp_convert.cc:2805 emc/rs274ngc/interp_convert.cc:2822
+#: emc/rs274ngc/interp_convert.cc:2836 emc/rs274ngc/interp_convert.cc:2850
+#: emc/rs274ngc/interp_convert.cc:2864
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr ""
 "Activation de correcteur impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3104 emc/rs274ngc/interp_convert.cc:3119
-#: emc/rs274ngc/interp_convert.cc:3133 emc/rs274ngc/interp_convert.cc:3147
-#: emc/rs274ngc/interp_convert.cc:3161
+#: emc/rs274ngc/interp_convert.cc:2812 emc/rs274ngc/interp_convert.cc:2827
+#: emc/rs274ngc/interp_convert.cc:2841 emc/rs274ngc/interp_convert.cc:2855
+#: emc/rs274ngc/interp_convert.cc:2869
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
 "Désactivation de correcteur impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3261 emc/rs274ngc/interp_convert.cc:3262
-#: emc/rs274ngc/interp_convert.cc:3263
+#: emc/rs274ngc/interp_convert.cc:2969 emc/rs274ngc/interp_convert.cc:2970
+#: emc/rs274ngc/interp_convert.cc:2971
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr "Indexing axis %c can only be moved with G0"
 
-#: emc/rs274ngc/interp_convert.cc:3270 emc/rs274ngc/interp_convert.cc:3272
-#: emc/rs274ngc/interp_convert.cc:3274
+#: emc/rs274ngc/interp_convert.cc:2978 emc/rs274ngc/interp_convert.cc:2980
+#: emc/rs274ngc/interp_convert.cc:2982
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr "Indexing axis %c can only be moved alone"
 
-#: emc/rs274ngc/interp_convert.cc:3367
+#: emc/rs274ngc/interp_convert.cc:3075
 msgid "Cannot probe with feed per rev mode"
 msgstr "Mesure impossible dans le mode vitesse en unités par tour"
 
-#: emc/rs274ngc/interp_convert.cc:3415
+#: emc/rs274ngc/interp_convert.cc:3123
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 "Changement de mode de retrait impossible avec la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3449
+#: emc/rs274ngc/interp_convert.cc:3157
 msgid "G10 L1 without offsets has no effect"
 msgstr "G10 L1 sans offsets n'a aucun effet"
 
-#: emc/rs274ngc/interp_convert.cc:3555
+#: emc/rs274ngc/interp_convert.cc:3263
 msgid "Q number in G10 is not an integer"
 msgstr "Le nombre Q dans G10 n'est pas un entier"
 
-#: emc/rs274ngc/interp_convert.cc:3556
+#: emc/rs274ngc/interp_convert.cc:3264
 msgid "Invalid tool orientation"
 msgstr "Orientation d'outil invalide"
 
-#: emc/rs274ngc/interp_convert.cc:3655
+#: emc/rs274ngc/interp_convert.cc:3363
 msgid "I J words not allowed with G10 L2"
 msgstr "Mots I J non permis avec G10 L2"
 
-#: emc/rs274ngc/interp_convert.cc:3676
+#: emc/rs274ngc/interp_convert.cc:3384
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 "Changement de système de coordonnées impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: emc/rs274ngc/interp_convert.cc:3684
+#: emc/rs274ngc/interp_convert.cc:3392
 msgid "R not allowed in G10 L20"
 msgstr "R n'est pas permis avec G10 L20"
 
-#: emc/rs274ngc/interp_convert.cc:4256
+#: emc/rs274ngc/interp_convert.cc:3964
 msgid "Spindle not turning in G33"
 msgstr "Broche pas en rotation en G33"
 
-#: emc/rs274ngc/interp_convert.cc:4266
+#: emc/rs274ngc/interp_convert.cc:3974
 msgid "Spindle not turning in G33.1"
 msgstr "Broche pas en rotation en G33.1"
 
-#: emc/rs274ngc/interp_convert.cc:4309
+#: emc/rs274ngc/interp_convert.cc:4017
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "BUG: An axis incorrectly moved along with an indexer"
 
-#: emc/rs274ngc/interp_convert.cc:4322
+#: emc/rs274ngc/interp_convert.cc:4030
 msgid "BUG: trying to index incorrect axis"
 msgstr "BUG: trying to index incorrect axis"
 
-#: emc/rs274ngc/interp_convert.cc:4414
+#: emc/rs274ngc/interp_convert.cc:4122
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "Cycle de filetage G76 impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4417
+#: emc/rs274ngc/interp_convert.cc:4125
 msgid "In G76, I must not be 0"
 msgstr "I ne peut pas être à 0 dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4419
+#: emc/rs274ngc/interp_convert.cc:4127
 msgid "In G76, J must be greater than 0"
 msgstr "J doit être supérieur à 0 dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4421
+#: emc/rs274ngc/interp_convert.cc:4129
 msgid "In G76, K must be greater than J"
 msgstr "K doit être plus grand que J dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4564
+#: emc/rs274ngc/interp_convert.cc:4272
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 "Le mouvement d'entrée en compensation de longueur d'outil doit être plus "
 "grand que le rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4783
+#: emc/rs274ngc/interp_convert.cc:4491
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 "Un angle interne de zéro degré est invalide pour la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4821 emc/rs274ngc/interp_convert.cc:4829
+#: emc/rs274ngc/interp_convert.cc:4529 emc/rs274ngc/interp_convert.cc:4537
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -11983,13 +11999,18 @@ msgstr ""
 "Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne "
 "pouvant pas être suivi sans interférer avec la pièce"
 
-#: emc/rs274ngc/interp_convert.cc:5034
+#: emc/rs274ngc/interp_convert.cc:4621
+msgid "Cannot change tools with cutter radius compensation on"
+msgstr ""
+"Changement d'outil impossible avec la compensation de rayon d'outil active"
+
+#: emc/rs274ngc/interp_convert.cc:4741
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
 "active"
 
-#: emc/rs274ngc/interp_queue.cc:572
+#: emc/rs274ngc/interp_queue.cc:539
 #, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
@@ -11998,11 +12019,11 @@ msgstr ""
 "BOGUE: la compensation d'outil a généré un arc invalide avec des rayons "
 "incorrects r1 %f r2 %f\n"
 
-#: emc/rs274ngc/interp_queue.cc:594
+#: emc/rs274ngc/interp_queue.cc:561
 msgid "BUG: Unsupported plane in cutter compensation"
 msgstr "BOGUE: Plan incorrect avec la compensation d'outil"
 
-#: emc/rs274ngc/interp_queue.cc:604
+#: emc/rs274ngc/interp_queue.cc:571
 msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
@@ -12010,12 +12031,12 @@ msgstr ""
 "Le mouvement rectiligne en vitesse rapide dans l'angle intérieur ne peut pas "
 "s'achever sans que l'outil n'interfère avec la pièce"
 
-#: emc/rs274ngc/interp_queue.cc:632
+#: emc/rs274ngc/interp_queue.cc:599
 #, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
 msgstr "BOGUE: Plan [%d] non supporté avec la compensation d'outil"
 
-#: emc/rs274ngc/interp_queue.cc:643
+#: emc/rs274ngc/interp_queue.cc:610
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
@@ -12141,82 +12162,87 @@ msgstr "Crochet gauche manquant après 'if'"
 msgid "Left bracket missing after 'elseif'"
 msgstr "Crochet gauche manquant après 'elseif'"
 
-#: emc/rs274ngc/interp_read.cc:1866
+#: emc/rs274ngc/interp_read.cc:1849
+#, c-format
+msgid "Cannot change #<%s>"
+msgstr "Ne peux modifier #<%s>"
+
+#: emc/rs274ngc/interp_read.cc:1880 emc/rs274ngc/interp_read.cc:1923
+#, c-format
+msgid "Internal error: Could not assign #<%s>"
+msgstr "Erreur interne: Ne peut assigner #<%s>"
+
+#: emc/rs274ngc/interp_read.cc:1897
+#, c-format
+msgid "init_named_parameter must be global #<%s>"
+msgstr "init_named_parameter doit être global #<%s>"
+
+#: emc/rs274ngc/interp_read.cc:2084
+#, c-format
+msgid "Named parameter #<%s> not defined"
+msgstr "Paramètre nommé #<%s> non défini"
+
+#: emc/rs274ngc/interp_read.cc:2165
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
 "Lecture de la position courante impossible avec la compensation de rayon "
 "d'outil activée"
 
-#: emc/rs274ngc/interp_read.cc:1881
+#: emc/rs274ngc/interp_read.cc:2180
 msgid "Expected # reading parameter"
 msgstr "Lecture paramètre # attendue"
 
-#: emc/rs274ngc/interp_read.cc:1883
+#: emc/rs274ngc/interp_read.cc:2182
 msgid "Expected ] reading bracketed parameter"
 msgstr "La lecture de paramètre entre crochets attendait un ]"
 
-#: emc/rs274ngc/interp_read.cc:2555
+#: emc/rs274ngc/interp_read.cc:2872
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
 msgstr ""
 "mauvais format de nombre (la conversion a échoué) lors de l'analyse de '%s'"
 
-#: emc/rs274ngc/interp_read.cc:2556
+#: emc/rs274ngc/interp_read.cc:2873
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
 msgstr "mauvais format de nombre (caractère de fin) lors de l'analyse de '%s'"
 
-#: emc/rs274ngc/interp_read.cc:2646
+#: emc/rs274ngc/interp_read.cc:2963
 msgid "Calculation resulted in 'not a number'"
 msgstr "Le résultat du calcul est 'pas un nombre'"
 
-#: emc/rs274ngc/interp_read.cc:2648
+#: emc/rs274ngc/interp_read.cc:2965
 msgid "Calculation resulted in 'infinity'"
 msgstr "Le résultat du calcul est 'infini'"
 
-#: emc/rs274ngc/interp_read.cc:2942
+#: emc/rs274ngc/interp_read.cc:3259
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
 msgstr "EOF dans le fichier: %s cherche le mot-O: o<%s> à la ligne: %d"
 
-#: emc/rs274ngc/interp_read.cc:3067
+#: emc/rs274ngc/interp_read.cc:3384
 msgid "Multiple U words on one line"
 msgstr "Multiples mots U sur une ligne"
 
-#: emc/rs274ngc/interp_read.cc:3083
+#: emc/rs274ngc/interp_read.cc:3400
 msgid "Multiple V words on one line"
 msgstr "Multiples mots V sur une ligne"
 
-#: emc/rs274ngc/interp_read.cc:3099
+#: emc/rs274ngc/interp_read.cc:3416
 msgid "Multiple W words on one line"
 msgstr "Multiples mots W sur une ligne"
 
-#: emc/rs274ngc/interp_o_word.cc:103
+#: emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
 "Fichier:%s ligne:%d redéfinition sub: o|%s| déjà défini dans le fichier:%s"
 
-#: emc/rs274ngc/interp_namedparams.cc:128
-#, c-format
-msgid "Named parameter #<%s> not defined"
-msgstr "Paramètre nommé #<%s> non défini"
-
-#: emc/rs274ngc/interp_namedparams.cc:222
-#, c-format
-msgid "Cannot assign to read-only parameter #<%s>"
-msgstr "Impossible d'assigner au paramètre #<%s> il est en lecture seule"
-
-#: emc/rs274ngc/interp_namedparams.cc:237
-#, c-format
-msgid "Internal error: Could not assign #<%s>"
-msgstr "Erreur interne: Ne peut assigner #<%s>"
-
-#: emc/rs274ngc/rs274ngc_pre.cc:914
+#: emc/rs274ngc/rs274ngc_pre.cc:895
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide après changement d'outil"
 
-#: emc/rs274ngc/rs274ngc_pre.cc:1166
+#: emc/rs274ngc/rs274ngc_pre.cc:1143
 #, c-format
 msgid "Unable to open parameter file: '%s'"
 msgstr "Impossible d'ouvrir le fichier de paramètres:'%s'"
@@ -13007,6 +13033,43 @@ msgstr "R inférieur à U dans un cycle dans le plan VW"
 #: emc/rs274ngc/rs274ngc_return.hh:198
 msgid "R less than V in cycle in UW plane"
 msgstr "R inférieur à V dans un cycle dans le plan UW"
+
+#~ msgid "fault %d during orient in progress"
+#~ msgstr "Défaut %d pendant une orientation"
+
+#~ msgid "Muxed Encoder-B"
+#~ msgstr "Muxed Encoder-B"
+
+#~ msgid "Muxed Encoder-I"
+#~ msgstr "Muxed Encoder-I"
+
+#~ msgid "Muxed Encoder-M"
+#~ msgstr "Muxed Encoder-M"
+
+#~ msgid "P value must be 0,1,or 2 with M19"
+#~ msgstr "Valeur de P doit être 0, 1 ou 2 avec M19 "
+
+#~ msgid "R value must be within 0..360 with M19"
+#~ msgstr "La valeur de R doit être comprise entre 0 et 360 avec M19"
+
+#~ msgid ""
+#~ "BUG: cannot restore from a lower call level (%d) to a higher call level (%"
+#~ "d)"
+#~ msgstr ""
+#~ "BUG: cannot restore from a lower call level (%d) to a higher call level (%"
+#~ "d)"
+
+#~ msgid "BUG: restore from level %d !?"
+#~ msgstr "BUG: restore from level %d !?"
+
+#~ msgid "BUG: restore to level %d !?"
+#~ msgstr "BUG: restore to level %d !?"
+
+#~ msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
+#~ msgstr "Cannot restore context from invalid stack frame - missing M70/M73?"
+
+#~ msgid "Cannot assign to read-only parameter #<%s>"
+#~ msgstr "Impossible d'assigner au paramètre #<%s> il est en lecture seule"
 
 #~ msgid "Select item to display"
 #~ msgstr "Choisir l'item à afficher"

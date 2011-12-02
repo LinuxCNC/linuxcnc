@@ -3,55 +3,52 @@
 == Composants de commandes et composants de l'espace utilisateur
 
 Certaines de ces descriptions sont plus approfondies dans leurs pages
-man. Certaines auront juste une description limitée. Chaque composant a
-sa page man. A partir de cette liste vous connaîtrez quels composants
-existent avec le nom et le N° de leur page man permettant d'avoir plus
-de détails. Par exemple dans une fenêtre de terminal tapez `man 1 axis` 
-pour accéder aux informations de cette page man.
+man. Certaines y auront une description exhaustive, d'autres, juste une description limitée. Chaque composant a sa man page. La liste ci-dessous, montre les composants existants, 
+avec le nom et le N° de section de leur page man. 
+Par exemple dans une console, tapez `man axis` pour accéder aux informations de la man page d'Axis.
+Ou peut être *man 1 axis*, si le système exige le N° de section des man pages.
 
-*man axis* (ou peut-être *man 1 axis* si votre système il faut.)
-
-*axis* = Interface de télécommande d'AXIS +
-*axis-remote* = AXIS EMC (The Enhanced Machine Controller) Interface Graphique Utilisateur +
-*comp* = Créer, compiler et installer des composants de EMC HAL +
-*emc* = EMC (The Enhanced Machine Controller) +
-*gladevcp* = Panneau de contrôle virtuel pour EMC2 repose sur Glade, Gtk et widgets HAL. +
-*gs2* = HAL espace utilisateur de composants pour l'Automation Direct GS2 VFD. +
-*halcmd* = Manipuler HAL depuis la ligne de commandes +
-*hal_input* = Contrôler des pins d'entrée de HAL avec n'importe quel matériel y compris les matériels USB HID +
-*halmeter* = Observer les pins de HAL, ses signaux et ses paramètres +
-*halrun* = Manipuler HAL depuis la ligne de commandes +
-*halsampler* = Echantillonner des données temps réel depuis HAL +
-*halstreamer* = Créer un flux de données temps réel dans HAL depuis un fichier +
-*halui* = Observer des pins de HAL et commander EMC au travers d'NML +
-*io* = Commandes NML I/O acceptées et interactions avec HAL dans l'espace utilisateur +
-*iocontrol* = Commandes NML I/O acceptées et interactions avec HAL dans l'espace utilisateur +
-*pyvcp* = Virtual Control Panel (Panneau de Contrôle Virtuel) pour EMC2 +
-*shuttlexpress* = Le contrôle pins de HAL avec l'appareil ShuttleXpress faites par Contour Design. +
+- *axis* = AXIS EMC (The Enhanced Machine Controller) Interface Graphique Utilisateur.
+- *axis-remote* = Interface de télécommande d'AXIS.
+- *comp* = Crée, compile et installe des composants de HAL.
+- *emc* = EMC (The Enhanced Machine Controller).
+- *gladevcp* = Panneau de contrôle virtuel pour EMC2, repose sur Glade, Gtk et les widgets HAL.
+- *gs2* = composant de l'espace utilisateur de HAL, pour le variateur de fréquence GS2 de la société _Automation Direct_.
+- *halcmd* = Manipulation de HAL, depuis la ligne de commandes.
+- *hal_input* = Contrôler des pins d'entrée de HAL avec n'importe quelle matériel supporté par Linux, y compris les matériels USB HID.
+-  *halmeter* = Observer les pins de HAL, ses signaux et ses paramètres.
+- *halrun* = Manipulation de  HAL, depuis la ligne de commandes.
+- *halsampler* = Échantillonner des données temps réel depuis HAL.
+- *halstreamer* = Créer un flux de données temps réel dans HAL depuis un fichier.
+- *halui* = Observer des pins de HAL et commander EMC au travers d'NML.
+- *io* = Accepte les commandes NML I/O, interagi avec HAL dans l'espace utilisateur.
+- *iocontrol* = Accepte les commandes NML I/O, interagi avec HAL dans l'espace utilisateur.
+- *pyvcp* = Panneau de Contrôle Virtuel pour EMC2 (Python Virtual Control Panel).
+- *shuttlexpress* = Contrôle des pins de HAL avec la manette ShuttleXpress, de la société _Contour Design_.
 
 == Composants temps réel et modules du noyau
 
-Certaines de ces descriptions sont plus approfondies dans leur man
-page. Certaines auront juste une description limitée. Chaque composant
+Certaines de ces descriptions sont plus approfondies dans leur man page. 
+Certaines auront juste une description limitée. Chaque composant
 a sa man page. A partir de cette liste vous connaîtrez quels composants
 existent avec le nom et le N° de leur man page permettant d'avoir plus
 de détails.
 
 === abs (((abs)))
 
-Calcule la valeur absolue et le signe d'un signal d'entrée
+Calcule la valeur absolue et le signe d'un signal d'entrée.
 
 === and2 (((and2)))
 
-Porte AND (ET) à deux entrées
+Porte AND (ET) à deux entrées.
 
 === at_pid (((at_pid)))
 
-Contrôleur Proportionelle/Intégrale/dérivée avec réglage automatique
+Contrôleur Proportionnelle/Intégrale/dérivée avec réglage automatique
 
 === axis (((axis)))
 
-Commandes de mouvement NML acceptées, intéractions en temps réel avec HAL
+Commandes de mouvement NML acceptées, intéragi en temps réel avec HAL
 
 === biquad (((biquad)))
 
@@ -59,7 +56,8 @@ Filtre biquad IIR
 
 === bldc_hall3 (((bldc_hall3)))
 
-Qu'est ce que c'est?
+Commutateur bipolaire trapézoïdal à 3 directions pour moteur sans balais (BLDC) 
+avec capteurs de Hall.
 
 === blend (((blend)))
 
@@ -67,442 +65,449 @@ Provoque une interpolation linéaire entre deux valeurs
 
 === charge_pump (((charge_pump)))
 
-Crée un signal carré destiné à l'entrée «pompe de charge» de 
+Crée un signal carré destiné à l'entrée `pompe de charge` de 
 certaines cartes de contrôle
 
 === clarke2 (((clarke2))) 
 
-Transformation de Clarke, version à deux entrées
+Transformation de Clarke, version à deux entrées.
 
 === clarke3 (((clarke3)))
 
-Transformation de Clarke (3 triphasé/cartésien)
+Transformation de Clarke, 3 entrées vers cartésien.
 
 === clarkeinv (((clarkeinv)))
 
-Transformation de Clarke inverse
+Transformation de Clarke inverse.
 
 === classicladder (((classicladder)))
 
-Automate temps réel programmable en logique Ladder
+Automate temps réel programmable en logique Ladder.
 
 === comp (((comp)))
 
-Comparateur à deux entrées avec hystérésis
+Comparateur à deux entrées avec hystérésis.
 
 === constant (((constant)))
 
-Utilise un paramètre pour positionner une pin
+Utilise un paramètre pour positionner une pin.
 
 === conv_bit_s32 (((conv_bit_s32)))
 
-Converti une valeur de bit vers s32
+Converti une valeur de bit vers s32 (entier 32 bits signé).
 
 === conv_bit_u32 (((conv_bit_u32)))
 
-Converti une valeur de bit vers u32
+Converti une valeur de bit vers u32  (entier 32 bit non signé).
 
 === conv_float_s32 (((conv_float_s32)))
 
-Converti la valeur d'un flottant vers s32
+Converti la valeur d'un flottant vers s32.
 
 === conv_float_u32 (((conv_float_u32)))
 
-Converti la valeur d'un flottant vers u32
+Converti la valeur d'un flottant vers u32.
 
 === conv_s32_bit (((conv_s32_bit)))
 
-Converti une valeur de s32 en bit
+Converti une valeur de s32 en bit.
 
 === conv_s32_float (((conv_s32_float)))
 
-Converti une valeur de s32 en flottant
+Converti une valeur de s32 en flottant.
 
 === conv_s32_u32 (((conv_s32_u32)))
 
-Converti une valeur de s32 en u32
+Converti une valeur de s32 en u32.
 
 === conv_u32_bit (((conv_u32_bit)))
 
-Converti une valeur de u32 en bit
+Converti une valeur de u32 en bit.
 
 === conv_u32_float (((conv_u32_float)))
 
-Converti une valeur de u32 en flottant
+Converti une valeur de u32 en flottant.
 
 === conv_u32_s32 (((conv_u32_s32)))
 
-Converti une valeur de u32 en s32
+Converti une valeur de u32 en s32.
 
 === counter (((counter)))
 
-Impulsions d'entrée Comptage (obsolète). +
+Comptage d'impulsions d'entrée (obsolète).
 
 Utilisez le composant *encoder* avec `... counter-mode = TRUE`. Voir <<sec:Codeur>>.
 
 === ddt (((ddt)))
 
-Calcule la dérivée de la fonction d'entrée
+Calcule la dérivée de la fonction d'entrée.
 
 === deadzone (((deadzone)))
 
-Retourne le centre si il est dans le seuil
+Retourne le centre si il est dans le seuil.
 
 === debounce (((debounce)))
 
-Filtre une entrée digitale bruitée
+Filtre une entrée digitale bruitée (typiquement antirebond).
 
 === edge (((edge)))
 
-Détecteur de front
+Détecteur de front.
 
 === encoder (((encoder)))
 
-Comptage logiciel des signaux en quadrature d'un codeur, voir <<sec:Codeur>>
+Comptage logiciel de signaux en quadrature d'un codeur, voir <<sec:Codeur>>
 
 === encoder_ratio (((encoder_ratio)))
 
-Un engrenage électronique pour synchroniser deux axes
+Un engrenage électronique pour synchroniser deux axes.
 
 === estop_latch (((estop_latch)))
 
-Verrou d'Arrêt d'Ugence
+Verrou d'Arrêt d'Urgence.
 
 === feedcomp (((feedcomp)))
 
-Multiply the input by the ratio of current velocity to the feed rate. 
+Multiply the input by the ratio of current velocity to the feed rate.
+Multiplie l'entrée par le ratio vitesse courante/vitesse d'avance travail. 
 
 === flipflop (((flipflop)))
 
-Bascule D
+Bascule D.
 
 === freqgen (((freqgen)))
 
-Générateur logiciel d'impulsions de pas
+Générateur logiciel d'impulsions de pas.
 
 === gantrykins (((gantrykins)))
 
-A kinematics module that maps one axis to multiple joints. 
+Module de cinématique pour un seul axe à articulations multiples.
 
 === gearchange (((gearchange)))
 
-Select from one of two speed ranges. 
+Sélectionne une grandeur de vitesse parmi deux.
 
 === genhexkins (((genhexkins)))
 
-Gives six degrees of freedom in position and orientation (XYZABC). 
-The location of the motors is defined at compile time.
+Donne six degrés de liberté en position et en orientation (XYZABC). 
+L'emplacement des moteurs est défini au moment de la compilation.
 
 === genserkins (((genserkins)))
 
-Kinematics that can model a general serial-link manipulator with up to
-6 angular joints.
+Cinématique capable de modéliser une bras manipulateur avec un maximum de 6 articulations angulaires.
 
 === gladevcp (((gladevcp)))
 
 Displays Virtual Control Panels built with GTK/Glade. 
+Affiche un panneaux de contrôle virtuel construit avec GTK/Glade.
 
 === hm2_7i43 (((hm2_7i43)))
 
-HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
-HostMot2. 
+Pilote HAL pour les cartes _Mesa Electronics_ 7i43 EPP avec HostMot2.
 
 === hm2_pci (((hm2_pci)))
 
-HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68
-Anything I/O boards, with HostMot2 firmware. 
+Pilote HAL pour les cartes _Mesa Electronics_ 5i20, 5i22, 5i23, 4i65 et 4i68
+avec micro logiciel HostMot2. 
 
 === hostmot2 (((hostmot2)))
 
-HAL driver for the Mesa Electronics HostMot2 firmware. 
+HAL driver for the Mesa Electronics HostMot2 firmware.
+Pilote HAL pour micro logiciel _Mesa Electronics_ HostMot2.  
 
 === hypot (((hypot)))
 
-Calculateur d'hypoténuse à trois entrées (distance Euclidienne)
+Calculateur d'hypoténuse à trois entrées (distance Euclidienne).
 
 === ilowpass (((ilowpass)))
-
-Low-pass filter with integer inputs and outputs. 
-
+ 
+Filtre passe-bas avec entrées et sorties au format entier.
+ 
 === integ (((integ)))
 
-Intégrateur
+Intégrateur.
 
 === invert (((invert)))
 
-Compute the inverse of the input signal. 
+Calcule l'inverse du signal d'entrée.
 
 === joyhandle (((joyhandle)))
 
-Sets nonlinear joypad movements, deadbands and scales. 
+Définit les mouvements d'un joypad non linéaire, zones mortes et échelles.
 
 === kins (((kins)))
 
-Définition de cinématique pour emc2
+Définition des cinématiques pour EMC2.
 
 === knob2float (((knob2float)))
 
-Convertisseur de comptage (probablement d'un codeur) vers une valeur en virgule flottante
+Convertisseur de comptage (probablement d'un codeur) vers une valeur en virgule flottante.
 
 === limit1 (((limit1)))
 
-1) Limite le signal de sortie pour qu'il soit entre min et max. footnote:[Lorsque 
-l'entrée C'est une position, cela signifie que la *position* est limitée.]
+. Limite le signal de sortie pour qu'il soit entre min et max. footnote:[Lorsque 
+l'entrée est une position, cela signifie que la *position* est limitée.]
 
 === limit2 (((limit2)))
 
-1) Limite le signal de sortie pour qu'il soit entre min et max. +
-2) Limiter sa vitesse de montée à moins de Max V par seconde. footnote:[Lorsque 
-l'entrée C'est une position, cela signifie que la *position* et la 
-*vitesse* est limitée.]
+. Limite le signal de sortie pour qu'il soit entre min et max.
+. Limite sa vitesse de montée à moins de MaxV par seconde. footnote:[Lorsque 
+l'entrée est une position, cela signifie que la *position* et la 
+*vitesse* sont limitées.]
 
 === limit3 (((limit3)))
 
-1) Limite le signal de sortie pour qu'il soit entre min et max
-2) Limiter sa vitesse de montée à moins de Max V par seconde. 
-3) Limiter ses maxa dérivée seconde à moins de par seconde carrée. footnote:[Lorsque 
-l'entrée est une position, cela signifie que la *position*, *vitesse* et 
-d'*accélération* sont limitées.]
+. Limite le signal de sortie pour qu'il soit entre min et max.
+. Limite sa vitesse de montée à moins de MaxV par seconde. 
+. Limite sa dérivée seconde à moins de MaxA par seconde carré. footnote:[Lorsque 
+l'entrée est une position, cela signifie que la *position*, la *vitesse* et 
+l'*accélération* sont limitées.]
 
 === logic (((logic)))
 
-Experimental general logic function component. 
+Composant expérimental de logique générale. 
 
 === lowpass (((lowpass)))
 
-Filtre passe-bas
+Filtre passe-bas.
 
 === lut5 (((lut5)))
 
-Cinq fonctions logiques arbitraires basée sur une table de recherche
+Fonction logique arbitraire à cinq entrées, basée sur une table de correspondance.
 
 === maj3 (((maj3)))
 
-Calcule la majorité parmis 3 entrées
+Calcule l'entrée majoritaire parmi 3.
 
 === match8 (((match8)))
 
-Détecteur de coïncidence binaire sur 8 bits
+Détecteur de coïncidence binaire sur 8 bits.
 
 === maxkins (((maxkins)))
-
-Kinematics for a tabletop 5 axis mill named «max» with tilting head (B axis) and 
-horizontal rotary mounted to the table (C axis). 
-Provides UVW motion in the rotated coordinate system. 
-The source file, maxkins.c, may be a useful starting point for other 5-axis systems. 
+ 
+Cinématique d'une fraiseuse 5 axes nommée `max`, avec tête inclinable (axe B) ​
+​et un axe rotatif horizontal monté sur la table (axe C). 
+Fournit le mouvement UVW dans le système de coordonnées système tourné. 
+Le fichier source, maxkins.c, peut être un point de départ utile 
+pour d'autres systèmes 5 axes.
 
 === mesa_7i65 (((7i65)))
-
-Support for the Mesa 7i65 eight-axis servo card. 
+ 
+Support à la carte huit axes Mesa 7i65 pour servomoteurs.
 
 === minmax (((minmax)))
 
-Suiveur de valeur minimum et maximum de l'entrée vers les sorties
+Suiveur de valeurs minimum et maximum de l'entrée vers les sorties.
 
 === motion (((motion)))
 
-Commandes de mouvement NML acceptées, intéractions en temps réel avec HAL
+Accepte les commandes de mouvement NML, interagi en temps réel avec HAL.
 
 === mult2 (((mult2)))
 
-Le produit de deux entrées
+Le produit de deux entrées.
 
 === mux16 (((mux16)))
 
-Select from one of sixteen input values. 
+Sélection d'une valeur d'entrée sur seize. 
 
 === mux2 (((mux2)))
 
-Sélection d'une valeur d'entrée sur deux
+Sélection d'une valeur d'entrée sur deux.
 
 === mux4 (((mux4)))
 
-Sélection d'une valeur d'entrée sur quatre
+Sélection d'une valeur d'entrée sur quatre.
 
 === mux8 (((mux8)))
 
-Select from one of eight input values. 
+Sélection d'une valeur d'entrée sur huit.
 
 === near (((near)))
 
-Determine whether two values are roughly equal. 
+Détermine si deux valeurs sont à peu près égales.
 
 === not (((not)))
 
-Inverseur
+Inverseur.
 
 === offset (((offset)))
 
-Additionne un offset à une entrée et la soustrait à la valeur de retour
+Ajoute un décalage à une entrée et la soustrait à la valeur de retour.
 
 === oneshot (((oneshot)))
 
-Générateur d'impulsion monostable
+Générateur d'impulsion monostable.
 
 === or2 (((or2)))
 
-Porte OR (OU) à deux entrées
+Porte OR (OU) à deux entrées.
 
 === pid (((pid)))
 
-Contrôleur Proportionelle/Intégrale/dérivée, pour plus de détails voir <<sec:PID>>
+Contrôleur Proportionnelle/Intégrale/dérivée, voir <<sec:PID>>
 
 === pluto_servo (((pluto_servo)))
 
-Pilote matériel et microprogramme pour le «Pluto-P parallel-port FPGA», utilisation avec servomoteurs
+Pilote matériel et micro programme pour la carte `Pluto-P parallel-port FPGA`, 
+utilisation avec servomoteurs.
 
 === pluto_step (((pluto_step)))
 
-Pilote matériel et microprogramme pour le «Pluto-P parallel-port FPGA», utilisation avec moteurs pas à pas
+Pilote matériel et micro programme pour la carte `Pluto-P parallel-port FPGA`, 
+utilisation avec moteurs pas à pas.
 
 === pumakins (((pumakins)))
 
-Kinematics for PUMA-style robots. 
+Cinématique pour robot style PUMA.
 
 === pwmgen (((pwmgen)))
 
-Générateur logiciel de PWM/PDM, pour plus de détails voir (???)
+Générateur logiciel de PWM/PDM, voir <<sec:PWMgen>>
 
 === rotatekins (((rotatekins)))
 
-The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. 
+Les axes X et Y sont pivotés de 45 degrés par rapport aux articulations 0 et 1.
 
 === sample_hold (((sample_hold)))
 
-Echantillonneur bloqueur
+Échantillonneur bloqueur.
 
 === sampler (((sampler)))
 
-Echantillonneur de données de HAL en temps réel
+Échantillonneur de données de HAL en temps réel.
 
 === scale (((scale)))
 
-Applies a scale and offset to its input. 
+Applique une échelle et un décalage à son entrée.
 
 === scarakins (((scarakins)))
 
-Kinematics for SCARA-type robots. 
+Cinématique des robots de type SCARA.
 
 === select8 (((select8)))
 
-Détecteur de coïncidence binaire sur 8 bits
+Détecteur de coïncidence binaire sur 8 bits.
 
 === serport (((serport)))
 
-Pilote matériel pour les circuits d'entrées/sorties digitales de port série 8250 et 16550
+Pilote matériel pour les circuits d'entrées/sorties digitales de port série 8250 et 16550.
 
 === siggen (((siggen)))
 
-Générateur de signal <<sec:Siggen>>
+Générateur de signal, voir <<sec:Siggen>>
 
 === sim_encoder (((sim_encoder)))
 
-Simulation d'un codeur en quadrature, pour plus de détails voir <<sec:Codeur-simul>>
+Codeur en quadrature simulé, voir <<sec:Codeur-simul>>
 
 === sphereprobe (((sphereprobe)))
 
-Probe a pretend hemisphere. 
+Sonde hémisphérique. 
 
 === stepgen (((stepgen)))
 
-Générateur d'impulsions de pas logiciel <<sec:Stepgen>>
+Générateur d'impulsions de pas logiciel, voir <<sec:Stepgen>>
 
 === steptest (((steptest)))
 
-Utilisé par Stepconf pour permettre de tester les valeurs d'accélération et de vitesse d'un axe
+Utilisé par Stepconf pour permettre de tester les valeurs d'accélération et de vitesse d'un axe.
 
 === streamer (((streamer)))
 
-Flux temps réel depuis un fichier vers HAL
+Flux temps réel depuis un fichier vers HAL.
 
 === sum2 (((sum2)))
 
-La somme de deux entrées (chacune avec un gain) et l'écart
+Somme de deux entrées, chacune avec un gain, et d'un offset.
 
-=== sum2 (((sum2)))
+=== sum2 (((sum2))) (obsolète)
 
-set output pins with values from parameters (deprecated)
+Fixe les broches de sortie avec une valeurs de paramètres (obsolète).
 
 === thc
 
-Torch Height Control using a Mesa THC card.
+Contrôle de la hauteur de torche, en utilisant une carte Mesa THC.
 
 === threads (((threads)))
 
-Créer des threads temps réel de HAL
+Crée des threads de HAL temps réel.
 
 === threadtest (((threadtest)))
 
-Component for testing thread behavior. 
+Composant de HAL pour tester le comportement des threads. 
 
 === time (((time)))
 
-Accumulated run-time timer counts HH:MM:SS of «active» input. 
+Compteur de temps écoulé HH:MM:SS avec entrée `actif`. 
 
 === timedelay (((timedelay)))
 
-The equivalent of a time-delay relay. 
+L'équivalent d'un relais temporisé.
 
 === timedelta (((timedelta)))
 
-Component that measures thread scheduling timing behavior. 
+Composant pour mesurer le comportement temporel des threads.
 
 === toggle2nist (((toggle2nist)))
 
-Toggle button to nist logic. 
+Bouton à bascule pour logique NIST.
 
 === toggle (((toggle)))
 
-Bouton à bascule NO/NF
+Bouton à bascule NO/NF à partir d'un bouton poussoir momentané.
 
 === tripodkins (((tripodkins)))
 
-The joints represent the distance of the controlled point from three
-predefined locations (the motors), giving three degrees of freedom in
-position (XYZ). 
+Les articulations représentent la distance du point contrôlé à
+partir de trois emplacements prédéfinis (les moteurs), ce qui donne
+trois degrés de liberté en position (XYZ).
 
 === tristate_bit (((tristate_bit)))
 
-Place un signal sur une pin d'I/O seulement quand elle est validée, similaire à un tampon trois états en électronique
+Place un signal sur une pin d'I/O seulement quand elle est validée, 
+similaire à un tampon trois états en électronique.
 
 === tristate_float (((tristate_float)))
 
-Place un signal sur une pin d'I/O seulement quand elle est validée, similaire à un tampon trois états en électronique
+Place un signal sur une pin d'I/O seulement quand elle est validée, 
+similaire à un tampon trois états en électronique.
 
 === trivkins (((trivkins)))
 
-There is a 1:1 correspondence between joints and axes. Most standard
-milling machines and lathes use the trivial kinematics module.
+Il y a une correspondance 1:1 entre les articulations et les axes. 
+La plupart des fraiseuses standard et des tours utilisent ce module de cinématique 
+triviale.
 
 === updown (((updown)))
 
-Compteur/décompteur avec limites optionnelles et wraparound behavior
+Compteur/décompteur avec limites optionnelles et bouclage en cas de dépassement.
 
 === watchdog (((watchdog)))
 
-Monitor one to thirty-two inputs for a «heartbeat». 
+Moniteur de fréquence (chien de garde) sur 1 à 32 entrées. 
 
 === wcomp (((wcomp)))
 
-Comparateur à fenêtre
+Comparateur à fenêtre.
 
 === weighted_sum (((weighted_sum)))
 
-Convertir un groupe de bits en un entier
+Converti un groupe de bits en un entier.
 
 === xor2 (((xor2)))
 
-Porte XOR (OU exclusif) à deux entrées
+Porte XOR (OU exclusif) à deux entrées.
 
 
-== HAL and RTAPI (list of man 3 pages)
+== HAL et RTAPI (liste de la section 3 des man pages)
 
-As long as we have just given a list of man 1 and man 9 pages, 
-let's finish the job and give a list of the man 3 pages. 
-Maybe some of the files are for housekeeping and don't really belong here. 
-This should probably be fixed up later somehow. 
-Consider this a *FIX ME* note, or a TODO note. 
-Anyway, here's the list: 
+Comme nous venons de donner une liste des pages man 1 et man 9, 
+pour être exhaustif voici maintenant une liste des pages man 3.
+Peut-être que certains des fichiers sont à nettoyer et n'ont pas 
+vraiment leur place ici, ça devrait probablement être fixé ultérieurement. 
+Considérer cette liste comme un *"Fix Me"*, ou une liste des *"à faire"*.
+Quoi qu'il en soit, voici cette liste:
 
 EXPORT_FUNCTION.3rtapi +
 hal_add_funct_to_thread.3hal +
