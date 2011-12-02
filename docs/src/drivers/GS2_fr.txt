@@ -1,8 +1,11 @@
-= Variateur de fréquence GS2 [[cha:Variateur-GS2]]
+= Variateur de fréquence GS2
+
+(((Variateur de fréquence GS2)))
 
 Composant de HAL pour la série de variateurs de fréquence GS2 fournie par
 la société Automation Direct.
 footnote:[ En Europe on trouve l'équivalent sous la marque Omron.]
+
 
 == Chargement du composant
 
@@ -86,6 +89,6 @@ Les valeurs *<name>* sont les noms donnés par l'option *-n* durant la
  - *<name>.tolerance* (s32, RW) Tolérance en vitesse (défaut 0.01).
 
 Un exemple d'utilisation d'un variateur de fréquence pour piloter une broche
-est donné dans le manuel de l'intégrateur, chapitre Exemples:utiliser un GS2 
-<<cha:Broche-GS2>>.
+est donné dans le manuel de l'intégrateur au chapitre Exemples: utiliser un GS2. 
+
 

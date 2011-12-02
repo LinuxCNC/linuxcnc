@@ -4,214 +4,205 @@
 
 == Vitesse broche en 0-10V (((Vitesse broche en 0-10V)))
 
-Si la vitesse de votre broche est contrôlée par un variateur de
-fréquence avec une consigne vitesse en 0 à 10V et que vous utilisez une
-carte de conversion (DAC) comme la m5i20 pour sortir le signal.
+Si la vitesse de la broche est contrôlée par un variateur de
+fréquence avec une consigne vitesse en 0 à 10V et qu'une carte de conversion 
+(DAC) comme la m5i20 est utilisée pour sortir le signal.
 
-Premièrement vous devez calculer le facteur d'échelle entre la vitesse
+Premièrement il faut calculer le facteur d'échelle entre la vitesse
 broche et la tension de commande. Dans cet exemple, la vitesse maximale
 de la broche sera de 5000 tr/mn pour une tension de commande de 10V.
-10 Volts/5000 tr/mn = 0.002 Volts par tr/mn notre facteur d'échelle sera donc de 0.002
+10 Volts/5000 tr/mn = 0.002 Volts par tr/mn notre facteur d'échelle sera donc 
+de 0.002.
 
-Si votre carte DAC ne dispose pas d'une fonction échelle, nous devrons
-ajouter un composant «scale» (echelle) au fichier hal pour calibrer
+Si la carte DAC ne dispose pas d'une fonction échelle, il est nécessaire
+d'ajouter un composant `scale` (echelle) au fichier hal pour calibrer
 `motion.spindle-speed-out` entre 0 et 10 comme demandé par le variateur
 de fréquence.
-
-    loadrt scale count=1
-    addf scale.0 servo-thread
-    setp scale.0.gain 0.002
-    net spindle-speed-scale motion.spindle-speed-out => scale.0.in
-    net spindle-speed-DAC scale.0.out => «le nom de la sortie de votre DAC»
+----
+loadrt scale count=1
+addf scale.0 servo-thread
+setp scale.0.gain 0.002
+net spindle-speed-scale motion.spindle-speed-out => scale.0.in
+net spindle-speed-DAC scale.0.out => «le nom de la sortie de votre DAC»
+----
 
 == Vitesse de broche en PWM (((Vitesse de broche en PWM)))
 
-Si la vitesse de votre broche peut être contrôlée par un signal de
-PWM, utilisez le composant «pwmgen» pour créer le signal:
-
-    loadrt pwmgen output_type=0
-    addf pwmgen.update servo-thread
-    addf pwmgen.make-pulses base-thread
-    net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
-    net spindle-on motion.spindle-on => pwmgen.0.enable
-    net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
-    # Adaptez selon la vitesse maximale de votre broche en tr/mn
-    setp pwmgen.0.scale 1800 
+Si la vitesse de la broche peut être contrôlée par un signal de
+PWM, utiliser le composant `pwmgen` pour créer le signal:
+----
+loadrt pwmgen output_type=0
+addf pwmgen.update servo-thread
+addf pwmgen.make-pulses base-thread
+net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
+net spindle-on motion.spindle-on => pwmgen.0.enable
+net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
+# Adapter selon la vitesse maximale de la broche en tr/mn
+setp pwmgen.0.scale 1800 
+----
 
 La réponse du contrôleur de PWM est simple: 0% donne 0tr/mn, 10%
 donnent 180 tr/mn... 100% donnent 1800 tr/mn. Si un minimum est
-nécessaire pour faire tourner la broche, suivez l'exemple «nist-lathe»
+nécessaire pour faire tourner la broche, suivre l'exemple `nist-lathe`
 fourni dans les exemples de configuration pour ajouter un composant
 d'échelle.
 
 == Marche broche (((Marche broche)))
 
-Si vous voulez un signal de marche broche reliant `motion.spindle-on` 
-à une broche de sortie physique. Pour relier ces pins à une broche du
-port parallèle, ajouter une ligne comme la suivante dans votre fichier
-.hal, il faut bien sûr qu'elle soit câblée à votre interface de
-contrôle.
-
-    net spindle-enable motion.spindle-on => parport.0.pin-14-out
+Si un signal de marche broche reliant `motion.spindle-on` à une broche de 
+sortie physique est envisagé. Pour relier ces pins à une broche du
+port parallèle, ajouter une ligne comme la suivante dans le fichier .hal, 
+il faut bien sûr qu'elle soit câblée à l'interface de contrôle.
+----
+net spindle-enable motion.spindle-on => parport.0.pin-14-out
+----
 
 == Sens de rotation de la broche (((Sens de rotation de la broche)))
 
-Si vous voulez contrôler le sens de rotation de votre broche, les pins
-de HAL `motion.spindle-forward` et `motion.spindle-reverse` étant 
-contrôlées par M3 et M4, peuvent être mise à une valeur positive
-différente de zéro pour que M3/4 inverse le sens de la broche.
+Pour contrôler le sens de rotation de la broche, les pins de HAL 
+`motion.spindle-forward` et `motion.spindle-reverse` étant contrôlées par M3 et 
+M4, peuvent être mise à une valeur positive différente de zéro pour que 
+M3/4 inverse le sens de la broche.
 
-Pour relier ces pins à des broches du port parallèle utilisez, par
-exemple, les lignes suivantes dans votre fichier .hal, bien sûr ces
-broches doivent être câblées à votre interface de contrôle.
+Pour relier ces pins à des broches du port parallèle utiliser, par
+exemple, les lignes suivantes dans le fichier .hal, bien sûr ces
+broches doivent être câblées à l'interface de contrôle.
+----
+net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
+net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+----
 
-    net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
-    net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+== Démarrage en rampe(((Démarrage en rampe)))
 
-== Spindle Soft Start (((Spindle Soft Start)))
+Si la broche doit démarrer en rampe et que le contrôleur n'a pas cette 
+possibilité, HAL pourra le faire. Il faut premièrement détourner la sortie de
+`motion.spindle-speed-out` et la faire transiter par un composant `limit2`
+dont l'échelle est ajustée de sorte que la consigne suive une rampe entre 
+`motion.spindle-speed-out` et le périphérique recevant la consigne de vitesse. 
+Ensuite, il faut faire connaitre à EMC2 le moment ou la broche a atteint sa 
+vitesse pour que les mouvements puissent commencer.
 
-If you need to ramp your spindle speed command and your control does
-not have that feature it can be done in HAL. Basically you need to
-hijack the output of motion.spindle-speed-out and run it through a
-limit2 component with the scale set so it will ramp the rpm from
-motion.spindle-speed-out to your device that receives the rpm. The
-second part is to let EMC know when the spindle is at speed so motion
-can begin.
-
-In the 0-10 volt example the line
+Reprenant dans l'exemple en 0-10 V, la ligne:
     'net spindle-speed-scale motion.spindle-speed-out => scale.0.in'
-is changed as shown in the following example:
+ sera modifiée, comme indiqué dans l'exemple ci-dessous:
 
-.Intro to HAL components "limit2" and "near":
+.Introduction aux composants de HAL "limit2" et "near":
 *********************************************************************
-In case you have not run across them before, here's a quick introduction 
-to the two HAL components used in the following example. 
+Au cas ou vous ne les auriez jamais rencontré auparavant, voici une rapide
+introduction à ces deux composants de HAL utilisés dans l'exemple suivant. 
 
- - A "limit2" is a HAL component (floating point) that accepts an 
-   input value and provides an output that has been limited to a 
-   max/min range, and *also* limited to not exceed a specified 
-   rate of change. 
+ - Le composant de HAL "limit2" est un composant qui reçoit
+   une valeur sur une entrée et fourni une valeur en sortie, limitée entre les
+   seuils min et max et *également*, limitée pour ne pas dépasser 
+   l'amortissement spécifié. En d'autres termes, les fluctuations de la valeur 
+   de sortie seront toujours lentes et cette lenteur est ajustable. 
 
- - A "near" is a HAL component (floating point) with a binary output 
-   that says whether two inputs are approximately equal. 
+ - Le composant de HAL "near" est un composant à deux entrées et une sortie 
+   binaire qui indique quand les deux entrées sont approximativement égales. 
 
-More info is available from the documentation for HAL components, 
-or from the man pages, just enter "man limit2" or "man near". 
+Voir le manuel de HAL ou les man pages, taper juste "man limit2" ou "man near". 
 *********************************************************************
+----
+# charge un composant temps réel `limit2` et un `near` avec des noms aisés à suivre
+loadrt limit2 names=spindle-ramp
+loadrt near names=spindle-at-speed
 
-    # load real time a limit2 and a near with names so it is easier to follow
-    loadrt limit2 names=spindle-ramp
-    loadrt near names=spindle-at-speed
+# ajoute les fonctions au thread
+addf spindle-ramp servo-thread
+addf spindle-at-speed servo-thread
 
-    # add the functions to a thread
-    addf spindle-ramp servo-thread
-    addf spindle-at-speed servo-thread
+# fixe le paramètre `max` pour l'amortissement
+# (accélération/décélération de la broche en unités par seconde)
+setp spindle-ramp.maxv 60
 
-    # set the parameter for max rate-of-change
-    # (max spindle accel/decel in units per second)
-    setp spindle-ramp.maxv 60
+# détourne la sortie vitesse broche et l'envoie à l'entrée de la rampe
+net spindle-cmd <= motion.spindle-speed-out => spindle-ramp.in
 
-    # hijack the spindle speed out and send it to spindle ramp in
-    net spindle-cmd <= motion.spindle-speed-out => spindle-ramp.in
+# la sortie de la rampe est envoyée à l'entrée de l'échelle
+net spindle-ramped <= spindle-ramp.out => scale.0.in
 
-    # the output of spindle ramp is sent to the scale in
-    net spindle-ramped <= spindle-ramp.out => scale.0.in
+# pour connaitre quand commencer le mouvement on envoie la vitesse de broche 
+# commandée à une entrée du composant `spindle-at-speed` (qui est un composant `near`).
+# on envoie également le signal de fin de rampe (vitesse actuelle) 
+# sur l'autre entrée de `spindle-at-speed`
+net spindle-cmd => spindle-at-speed.in1
+net spindle-ramped => spindle-at-speed.in2
 
-    # to know when to start the motion we send the near component 
-    # (named spindle-at-speed) to the spindle commanded speed from
-    # the signal spindle-cmd and the actual spindle speed
-    # provided your spindle can accelerate at the maxv setting.
-    net spindle-cmd => spindle-at-speed.in1
-    net spindle-ramped => spindle-at-speed.in2
+# la sortie de `spindle-at-speed` est envoyée à `motion.spindle-at-speed`
+# et quand elle devient TRUE, les mouvements peuvent commencer
+net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
+----
 
-    # the output from spindle-at-speed is sent to motion.spindle-at-speed
-    # and when this is true motion will start
-    net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
+== Vitesse de broche avec signal de retour
 
-
-= Vitesse de broche avec signal de retour
-
-Une information de retour est nécessaire pour qu'EMC puisse réaliser
-les mouvements synchronisés avec la broche comme le filetage ou la
+Une information de retour est nécessaire pour qu'EMC2 puisse réaliser
+des mouvements synchronisés avec la broche comme le filetage ou la
 vitesse de coupe constante. L'assistant de configuration StepConf peut
-réaliser les connections lui même si les 
-signaux «Canal A codeur broche» et «Index codeur broche» sont 
-choisis parmi les entrées.
+réaliser les connections lui même si les signaux `Canal A codeur broche` et 
+`Index codeur broche` sont choisis parmi les entrées.
 
 Matériel supposé présent:
 
  - Un codeur est monté sur la broche et délivre 100 impulsions par tour
    sur son canal A.
- - Ce canal A est raccordé à la pin 10 du port parallèle.
- - L'index de ce codeur est connecté à la pin 11 du port parallèle.
+ - Ce canal A est raccordé à la broche 10 du port parallèle.
+ - L'index de ce codeur est connecté à la broche 11 du port parallèle.
 
 Configuration de base pour ajouter ces composants:
+----
+loadrt encoder num_chan=1 
+addf encoder.update-counters base-thread 
+addf encoder.capture-position servo-thread 
+setp encoder.0.position-scale 100 
+setp encoder.0.counter-mode 1 
+net spindle-position encoder.0.position => motion.spindle-revs 
+net spindle-velocity encoder.0.velocity => motion.spindle-speed-in 
+net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable 
+net spindle-phase-a encoder.0.phase-A 
+net spindle-phase-b encoder.0.phase-B 
+net spindle-index encoder.0.phase-Z 
+net spindle-phase-a <= parport.0.pin-10-in 
+net spindle-index <= parport.0.pin-11-in
+----
 
-    loadrt encoder num_chan=1 
-    addf encoder.update-counters base-thread 
-    addf encoder.capture-position servo-thread 
-    setp encoder.0.position-scale 100 
-    setp encoder.0.counter-mode 1 
-    net spindle-position encoder.0.position => motion.spindle-revs 
-    net spindle-velocity encoder.0.velocity => motion.spindle-speed-in 
-    net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable 
-    net spindle-phase-a encoder.0.phase-A 
-    net spindle-phase-b encoder.0.phase-B 
-    net spindle-index encoder.0.phase-Z 
-    net spindle-phase-a <= parport.0.pin-10-in 
-    net spindle-index <= parport.0.pin-11-in
+== Vitesse broche atteinte[[sec:Vitesse-Broche-Atteinte]]
 
+(((Vitesse broche atteilte)))
 
+Si le moteur de broche possède un retour d'information de vitesse provenant d'un 
+codeur, il est alors possible d'utiliser la variable *`motion.spindle-at-speed`* 
+pour permettre à EMC2 d'attendre que la broche ait atteint sa vitesse de consigne 
+avant d'effectuer tout mouvement. Cette variable passe à TRUE quand la vitesse 
+commandée est atteinte. Comme le retour vitesse est la vitesse de consigne 
+ne sont jamais _exactement_ identiques, il faut utiliser le composant *`near`* 
+qui indique quand les deux composantes sont suffisamment proches l'une de l'autre. 
 
-////////////////////////////////////////////////////////////
+Il est nécessaire de connecter la commande de vitesse broche sur near.n.in1 et
+le signal de retour vitesse du codeur sur near.n.in2. La sortie near.n.out est
+connectée à motion.spindle-at-speed. Le paramètre near.n.scale doit être ajusté 
+pour indiquer dans quelle mesure les deux valeurs sont suffisamment proches 
+pour passer activer la sortie. Selon le matériel utilisé, il pourra être utile 
+d'ajuster l'échelle.
 
-Note du traducteur: 
+Les éléments suivants sont à ajouter au fichier HAL pour activer `Spindle At Speed`. 
+Si near est déjà présent dans le fichier HAL, augmenter le numéro de composant et
+adapter le code suivant en conséquence. S'assurer que le nom du signal est bien
+le même dans le fichier HAL.
+----
+# charger un composant `near` et l'attacher à un thread
+loadrt near
+addf near.0 servo-thread
 
-The English version of the above ("Spindle Feedback") is newer, 
-please take a look and merge what you think is good. Thanks. 
+# connecter une entrée à la vitesse de broche commandée
+net spindle-cmd => near.0.in1
 
-///////////////////////////////////////////////////////////
+# connecter une entrée à la mesure de vitesse broche du codeur
+net spindle-velocity => near.0.in2
 
+# connecter la sortie sur l'entrée spindle-at-speed
+net spindle-at-speed motion.spindle-at-speed <= near.0.out
 
-
-== Spindle At Speed[[sec:Spindle-At-Speed]]
-
-(((Spindle At Speed)))
-
-To enable EMC to wait for the spindle to be at speed before executing
-a series of moves you need to set motion.spindle-at-speed to true when
-the spindle is at the commanded speed. To do this you need spindle
-feedback from an encoder. Since the feedback and the commanded speed
-are not usually *exactly* the same you need to use the "near"
-component to say that the two numbers are close enough. 
-
-The connections needed are from the spindle
-velocity command signal to near.n.in1 and from the spindle velocity
-from the encoder to near.n.in2. Then the near.n.out is connected to
-motion.spindle-at-speed. The near.n.scale needs to be set to say how
-close the two numbers must be before turning on the output. Depending
-on your setup you may need to adjust the scale to work with your
-hardware. 
-
-The following is typical of the additions needed to your HAL
-file to enable Spindle At Speed. If you already have near in your HAL
-file then increase the count and adjust code to suit. Check to make
-sure the signal names are the same in your HAL file.
-
-    # load a "near" component and attach it to a thread
-    loadrt near
-    addf near.0 servo-thread
-
-    # connect one input to the commanded spindle speed
-    net spindle-cmd => near.0.in1
-
-    # connect one input to the encoder-measured spindle speed
-    net spindle-velocity => near.0.in2
-
-    # connect the output to the spindle-at-speed input
-    net spindle-at-speed motion.spindle-at-speed <= near.0.out
-
-    # set the spindle speed inputs to agree if within 1%
-    setp near.0.scale 1.01
-
+# Ajuster les entrées de vitesse de broche pour être dans une fourchette de 1%
+setp near.0.scale 1.01
+----
 

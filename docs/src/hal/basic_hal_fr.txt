@@ -1,6 +1,7 @@
 = Les bases de HAL
 
-== Commandes de Hal[[sec:Commandes-de-HAL]]
+[[sec:Commandes-de-HAL]]
+== Commandes de Hal
 
 Des informations plus détaillées peuvent être trouvées dans la man
 page en tapant `man halcmd` dans une console. Pour voir la

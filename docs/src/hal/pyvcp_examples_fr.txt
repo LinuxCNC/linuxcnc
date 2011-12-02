@@ -26,8 +26,8 @@ n'importe quelle interface, suivre les points suivants:
 
 L'exemple suivant montre le chargement de deux panneaux PyVCP.
 ----
-    loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
-    loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
+loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
+loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
 ----
 
 Les paramètres *-Wn* font que HAL **W**ait for **n**ame, attends un nom. 
@@ -70,7 +70,7 @@ Tous les détails sur chacun des Widgets de PyVCP sont donnés dans la section <
 Dans le fichier custompanel.xml nous ajoutons la description des widgets.
 
 [source,xml]
------------------------------------------------------------
+----
     <pyvcp>
 
     <labelframe text="Boutons de Jog"> 
@@ -151,7 +151,7 @@ Dans le fichier custompanel.xml nous ajoutons la description des widgets.
     </labelframe>
 
     </pyvcp>
------------------------------------------------------------
+----
 
 Après les ajouts précédents, nous avons un panneau PyVCP tel que celui
 de l'image suivante, attaché à droite d'Axis. Il est beau mais ne fait rien tant
@@ -169,7 +169,7 @@ image::images/xyz_buttons.png[]
 Pour effectuer les connections nécessaires, ouvrir le fichier custom_postgui.hal 
 et y ajouter le code suivant:
 
------------------------------------------------------------
+----
     # connecte les boutons PyVCP pour X 
     net my-jogxmoins halui.jog.0.moins <= pyvcp.x-moins 
     net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
@@ -184,7 +184,7 @@ et y ajouter le code suivant:
 
     # connecte le curseur de vitesse de jog PyVCP  
     net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
------------------------------------------------------------
+----
 
 Après avoir désactivé l'A/U (E-Stop) et activé la marche machine en mode Jog,
 le déplacement du curseur du panneau PyVCP devrait agir dès qu'il est placé au 
@@ -201,7 +201,7 @@ Premièrement, créer le fichier ptest.xml qui contiendra le code suivant pour c
 la description du panneau.
 
 [source,xml]
------------------------------------------------------------
+----
 <!-- Panneau de test pour la config. du port parallèle -->
 <pyvcp>
   <hbox>
@@ -261,7 +261,7 @@ la description du panneau.
     </led>
   </hbox>
 </pyvcp>
------------------------------------------------------------
+----
 
 Le panneau flottant contenant deux pins de HAL d'entrée et deux pins de 
 HAL de sortie.
@@ -274,7 +274,7 @@ Pour lancer les commandes de HAL dont nous avons besoin et démarrer tout ce
 qi'il nous faut, nous avons mis le code suivant dans notre fichier ptest.hal.
 
 [source,c]
------------------------------------------------------------
+----
 loadrt hal_parport cfg="0x378 out"
 loadusr -Wn ptest pyvcp -c ptest ptest.xml
 loadrt threads name1=porttest period1=1000000
@@ -285,7 +285,7 @@ net pin02 ptest.btn02 parport.0.pin-02-out ptest.led-02
 net pin10 parport.0.pin-10-in ptest.led-10
 net pin11 parport.0.pin-11-in ptest.led-11
 start
------------------------------------------------------------
+----
 
 Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes 
 suivantes:
@@ -305,7 +305,7 @@ fichiers .xml et .hal.
 Pour visualiser les pins après avoir lancé le script HAL, utiliser la
 commande suivante au prompt `halcmd:`
 
------------------------------------------------------------
+----
 halcmd: show pin
 Component Pins:
 Owner Type  Dir Value  Name
@@ -336,8 +336,8 @@ Owner Type  Dir Value  Name
     4 bit   IN  FALSE  ptest.led-01 <== pin01
     4 bit   IN  FALSE  ptest.led-02 <== pin02
     4 bit   IN  TRUE   ptest.led-10 <== pin10
-    4 bit   IN  TRUE   ptest.led-11 <== pin11`
------------------------------------------------------------
+    4 bit   IN  TRUE   ptest.led-11 <== pin11
+------
 
 Cela montre quelles pins sont IN est lesquelles sont OUT, ainsi que toutes les
 connections.
@@ -349,15 +349,16 @@ Direct. footnote:[ En Europe on trouve ce type de variateur sous la marque Omron
  Il permet le pilotage du moteur, la visualisation de la vitesse ainsi que
 d'autres informations dans un panneau PyVCP. Cet exemple est basé sur un autre,
 relatif au variateur GS2 et se trouvant dans la section des exemples matériels
-de ce manuel <<cha:Broche-GS2>> Ce dernier exemple s'appuie lui même sur 
-la description du composant de HAL gs2_vfd, disponible ici <<cha:Variateur-GS2>>
+de ce manuel.
+Ce dernier exemple s'appuie lui même sur la description du composant de 
+HAL gs2_vfd.
 
 === Le panneau
 
 Pour créer le panneau nous ajoutons ce code au fichier .xml.
 
 [source,xml]
------------------------------------------------------------
+----
     <pyvcp>
 
     <!-- Compte tours --> 
@@ -440,7 +441,7 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
     </vbox> 
     </hbox> 
     </pyvcp>
------------------------------------------------------------
+----
 
 L'image ci-dessous montre notre panneau PyVCP en fonctionnement. 
 
@@ -453,7 +454,7 @@ image::images/gs2_panel.png[]
 Pour qu'il fonctionne, il est nécessaire d'ajouter le code suivant au fichier
 custom_postgui.hal, il réalise les connections entre PyVCP et EMC2.
 
------------------------------------------------------------
+----
     # affiche le compte tours, calcul basé sur freq * rpm par hz 
     loadrt mult2 
     addf mult2.0 servo-thread 
@@ -469,7 +470,7 @@ custom_postgui.hal, il réalise les connections entre PyVCP et EMC2.
 
     # la led Sens anti-horaire
     net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
------------------------------------------------------------
+----
 
 Certaines lignes demandent quelques explications. 
 
