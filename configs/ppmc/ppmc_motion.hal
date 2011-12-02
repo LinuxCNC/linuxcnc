@@ -1,7 +1,5 @@
 # HAL config file for Pico Systems UPC board
 #
-# NOTE: this is a copy of the stepper board file, it will be edited soon for PWM - do not use yet
-
 
 # connect position feedback signals to encoders
 net Xpos-fb <= ppmc.0.encoder.00.position
