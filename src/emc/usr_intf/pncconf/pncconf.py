@@ -161,9 +161,9 @@ _("Resolver 3 Encoder"),_("Resolver 4 Encoder"),_("Resolver 5 Encoder"), "resolv
 ( UDMU, UDMD, UDME ) = pintype_udm = [ _("Up/Down Mode -Up"),_("Up/Down Mode-Down"),_("Up/Down Mode-Enable") ]
 ( TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF ) = pintype_tp_pwm = [ _("Motor Phase A"),_("Motor Phase B"),_("Motor Phase C"),
     _("Motor Phase A Not"),_("Motor Phase B Not") ,_("Motor Phase C Not"), _("Motor Enable"), _("Motor Fault") ]
-( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3 ) = pintype_sserial = [ _("SMARTSERIAL-P0-TX"),
+( TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN1,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,SS7I76M0 ) = pintype_sserial = [ _("SMARTSERIAL-P0-TX"),
 _("SMARTSERIAL-P0-RX"),_("SMARTSERIAL-P0-EN"), _("SMARTSERIAL-P1-RX"),_("SMARTSERIAL-P1-TX"),_("SMARTSERIAL-P1-EN"),_("SMARTSERIAL-P2-TX"),
-_("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSERIAL-P3-RX"),_("SMARTSERIAL-P3-EN"), ]
+_("SMARTSERIAL-P2-RX"),_("SMARTSERIAL-P2-EN"),_("SMARTSERIAL-P3-TX"),_("SMARTSERIAL-P3-RX"),_("SMARTSERIAL-P3-EN"),_("7i76 sserial") ]
 
 
 _BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_ENCPINS = 6;_MAXRES = 7;_RESPINS = 8;_MAXPWM = 9;
@@ -3443,7 +3443,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 for subnum,temp in enumerate(mesadaughterdata):
                     print "pinname search -",mesadaughterdata[subnum][_SUBFIRMNAME],subfirmname
                     if mesadaughterdata[subnum][_SUBFIRMNAME] == subfirmname: break
-                print "pinname -found subboard name:",mesadaughterdata[subnum][_SUBFIRMNAME],subfirmname,subnum
+                print "pinname -found subboard name:",mesadaughterdata[subnum][_SUBFIRMNAME],subfirmname,subnum,"channel:",channel
                 subboardname = mesadaughterdata[subnum][_SUBBOARDNAME]
                 firmptype,compnum = mesadaughterdata[subnum][_SUBSTARTOFDATA+pinnum]
                 # we iter over this dic because of locale translation problems when using
@@ -4138,19 +4138,21 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                     if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
                         self.widgets["mesa%d_firmware"% boardnum].set_active(search)
                         break
-                    if search == (len(model)-1):
-                        self.widgets["mesa%d_firmware"% boardnum].set_active(0)
-                self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
-                self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
-                self.widgets["mesa%d_3pwm_frequency"% boardnum].set_value(self.data["mesa%d_3pwm_frequency"% boardnum])
-                self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
-                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
-                self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(self.data["mesa%d_numof_tppwmgens"% boardnum])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
-                self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(self.data["mesa%d_numof_sserialports"% boardnum])
-                self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(self.data["mesa%d_numof_sserialchannels"% boardnum])
-                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
+                if search == (len(model)-1):
+                    self.widgets["mesa%d_firmware"% boardnum].set_active(0)
+                    self.on_mesa_firmware_changed( None,boardnum)
+                else:      
+                    self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
+                    self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
+                    self.widgets["mesa%d_3pwm_frequency"% boardnum].set_value(self.data["mesa%d_3pwm_frequency"% boardnum])
+                    self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
+                    self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
+                    self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
+                    self.widgets["mesa%d_numof_tppwmgens"% boardnum].set_value(self.data["mesa%d_numof_tppwmgens"% boardnum])
+                    self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
+                    self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(self.data["mesa%d_numof_sserialports"% boardnum])
+                    self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(self.data["mesa%d_numof_sserialchannels"% boardnum])
+                    self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
         self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
         self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
 
@@ -4931,8 +4933,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
                 #if not "serial" in p:
-                print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
-                #    print "**** INFO mesa-data-transfer:",ptiter,piter
+                #print "**** INFO mesa-data-transfer:",p," selection: ",selection,"  pintype: ",pintype
+                #print "**** INFO mesa-data-transfer:",ptiter,piter
                 # type NOTUSED
                 if pintype == NUSED:
                     self.data[p] = UNUSED_UNUSED
@@ -5003,7 +5005,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     signaltree = self.data._steppersignaltree
                     ptypetree = self.data._stepperliststore
                     signaltocheck = hal_stepper_names
-                elif pintype in (RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3):
+                elif pintype in (RXDATA0,TXDATA0,TXEN0,RXDATA1,TXDATA1,TXEN1,RXDATA2,TXDATA2,TXEN2,RXDATA3,TXDATA3,TXEN3,SS7I76M0):
                     signaltree = self.data._sserialsignaltree
                     ptypetree = self.data._sserialliststore
                     signaltocheck = hal_sserial_names
@@ -5034,7 +5036,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
-                if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES1,RES2,RES3,RES4,RES5,RESU) or (index == 0):index2 = 0
+                if pintype in (GPIOI,GPIOO,GPIOD,MXE0,MXE1,RES1,RES2,RES3,RES4,RES5,RESU,SS7I76M0) or (index == 0):index2 = 0
                 #if not "serial" in p:
                 #    print signaltocheck[index+index2],index,index2
                 self.data[p] = signaltocheck[index+index2]
@@ -5388,18 +5390,13 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.mesa_mainboard_data_to_widgets(boardnum)
         self.window.hide()
         self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-        if numofsserialports:
-            port = 0
-            for channel in range (0,self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXSSERIALCHANNELS]):
-                if channel >3: break # TODO only have 4 channels worth of glade widgets
-                self.set_sserial_options(boardnum,port,channel)
 
     def set_sserial_options(self,boardnum,port,channel):
-        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         numofsserialports = self.data["mesa%d_numof_sserialports"% boardnum]
         numofsserialchannels = self.data["mesa%d_numof_sserialchannels"% boardnum]
         subboardname = self.data["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
         if subboardname == "none":return
+        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa Smart Serial tabs")
         self.pbar.set_fraction(0)
         self.window.show()
@@ -5408,7 +5405,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         for subnum,temp in enumerate(mesadaughterdata):
             print mesadaughterdata[subnum][_SUBFIRMNAME],subboardname
             if mesadaughterdata[subnum][_SUBFIRMNAME] == subboardname: break
-        print "found subboard name:",mesadaughterdata[subnum][_SUBFIRMNAME],subboardname,subnum
+        print "found subboard name:",mesadaughterdata[subnum][_SUBFIRMNAME],subboardname,subnum,"channel:",channel
         for pin in range (0,48):
             self.pbar.set_fraction((pin+1)/48.0)
             while gtk.events_pending():
@@ -5652,7 +5649,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 # ---SETUP SMART SERIAL COMPONENTS---
                 # smart serial has port numbers (1-4) and channels (0-7). Pncconf only allows disabling complete ports
                 # so the component number check is different from other components it checks the port number instead.
-                elif firmptype in (TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN2,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3):
+                elif firmptype in (TXDATA0,RXDATA0,TXEN0,TXDATA1,RXDATA1,TXEN2,TXDATA2,RXDATA2,TXEN2,TXDATA3,RXDATA3,TXEN3,SS7I76M0):
                     portnum = 1
                     if firmptype in (TXDATA1,RXDATA1,TXEN1): portnum = 2
                     if firmptype in (TXDATA2,RXDATA2,TXEN2): portnum = 3
@@ -5672,11 +5669,17 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
                         self.widgets[p].child.set_editable(False) # sserial cannot have custom names
-                        if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3):
+                        if firmptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0):
                             self.widgets[complabel].set_text("%d:"%compnum)
                             if compnum < 4:#TODO fix hack harcodes at 4 sserial channels
                                 self.widgets[p].set_sensitive(1)
                             else:
+                                self.widgets[p].set_sensitive(0)
+                            # if the sserial ptype is 7i76 then the data must be set to 7i76 signal
+                            # as that sserial instance can only be for the 7i76 I/O points
+                            if firmptype == SS7I76M0:
+                                self.data[p] = I7I76_M0_T
+                                self.data[ptype] = SS7I76M0
                                 self.widgets[p].set_sensitive(0)
                         else:
                             self.widgets[complabel].set_text("")
@@ -6038,9 +6041,12 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     treeiter = self.data._steppersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
-                elif dataptype == TXDATA0 and widgetptype == TXDATA0:
-                    #print "SMART SERIAL", dataptype
-                    self.widgets[ptype].set_active(0)
+                elif dataptype in( TXDATA0,SS7I76M0) and widgetptype in( TXDATA0,SS7I76M0):
+                    print "SMART SERIAL", dataptype,widgetptype
+                    if widgetptype == TXDATA0:
+                        self.widgets[ptype].set_active(0)
+                    else:
+                        self.widgets[ptype].set_active(12)
                     self.widgets[p].set_active(0)
                     self.widgets[pinv].set_active(datapinv)
                     try:
@@ -6065,6 +6071,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         temp = (0) # set unused sserial
                     treeiter = self.data._sserialsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
+
+                else:
+                    print "**** INFO: PNCCONF data to widget: ptype not recognized/match:",dataptype,widgetptype
 
     def fill_pintype_model(self):
         # notused
@@ -6180,9 +6189,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     else: widgetptype = GPIOO
                 pinchanged =  self.widgets[p].get_active_text()
                 piter = self.widgets[p].get_active_iter()
-                #print "generalpin chaged",p
-                #print "*** INFO ",boardtype,"-pin-changed: pin:",p,"custom:",custom
-                #print "*** INFO ",boardtype,"-pin-changed: ptype:",widgetptype,"pinchaanged:",pinchanged
+                print "generalpin changed",p
+                print "*** INFO ",boardtype,"-pin-changed: pin:",p,"custom:",custom
+                print "*** INFO ",boardtype,"-pin-changed: ptype:",widgetptype,"pinchaanged:",pinchanged
                 if piter == None and not custom:
                     #print "*** INFO ",boardtype,"-pin-changed: no iter and not custom"
                     return
@@ -6282,7 +6291,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                     relatedsearch = [TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF]
                     relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                     customindex = 6
-                elif widgetptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3):
+                elif widgetptype in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0):
                     for count,temp in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
                         if connector == temp:
                             firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
@@ -7650,7 +7659,7 @@ different program to copy to your configuration file.\nThe edited program will b
                         firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3) and not self.data[p] == UNUSED_SSERIAL:
+                        if self.data[ptype] in (TXDATA0,TXDATA1,TXDATA2,TXDATA3,SS7I76M0) and not self.data[p] == UNUSED_SSERIAL:
                             keeplist.append(compnum)
             # ok clear the sserial pins unless they are in the keeplist
             port = 0# TODO hard code at only 1 sserial port 
