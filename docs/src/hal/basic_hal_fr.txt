@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Commandes et composants de base
 
 [[sec:Commandes-de-HAL]]

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Petite FAQ Linux (((Linux FAQ)))
 
 Voici quelques commandes et techniques de base pour l'utilisateur

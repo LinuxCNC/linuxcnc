@@ -1,4 +1,7 @@
-= Vue d'ensemble du langage[[cha:Vue-d-ensemble-du-langage]]
+:lang: fr
+:toc:
+
+= Vue d'ensemble du langage G-code[[cha:Vue-d-ensemble-du-langage]]
 
 Le langage RS274/NGC est basé sur des lignes de code. Chaque ligne
 (également appelée un “bloc”) peut inclure des commandes pour faire

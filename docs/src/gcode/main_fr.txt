@@ -1,4 +1,7 @@
-= Guide de référence du G-code (((G-code)))
+:lang: fr
+:toc:
+
+= Guide de référence du langage G-code (((G-code)))
 
 Conventions utilisées dans cette section
 

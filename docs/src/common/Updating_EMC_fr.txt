@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 Mises à jour d'EMC2
 ===================
 

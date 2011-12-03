@@ -1,4 +1,7 @@
-= L'interface MINI
+:lang: fr
+:toc:
+
+= L'interface graphique MINI
 
 == Introduction  
 

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Moteurs pas à pas
 
 Si ce que vous obtenez ne correspond pas à ce que vous espériez, la

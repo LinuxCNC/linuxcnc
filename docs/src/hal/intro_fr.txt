@@ -1,4 +1,7 @@
-= Introduction[[cha:HAL-Introduction]]
+:lang: fr
+:toc:
+
+= Introduction à HAL[[cha:HAL-Introduction]]
 
 HAL(((HAL))) est le sigle de Hardware Abstraction Layer, le terme
 Anglais pour Couche d'Abstraction Matériel.footnote:[Note du 

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Exemples d'utilisation de PyVCP
 
 == Panneau PyVCP dans AXIS

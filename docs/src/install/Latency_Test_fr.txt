@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 Test des capacités temps réel
 =============================
 

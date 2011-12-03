@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Exemples pour HAL
 
 NOTE: En cours de construction.

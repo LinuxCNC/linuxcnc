@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Réglages des pas à pas[[cha:Reglages-de-pas-a-pas]]
 
 (((Réglages des pas à pas)))

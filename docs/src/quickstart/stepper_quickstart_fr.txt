@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Informations de configuration pour moteurs pas à pas
 
 Cette section suppose qu'une installation à partir du CD Live a été

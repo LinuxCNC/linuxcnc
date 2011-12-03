@@ -1,4 +1,7 @@
-= L'interface KEYSTICK (((KEYSTICK)))
+:lang: fr
+:toc:
+
+= L'interface textuelle KEYSTICK (((KEYSTICK)))
 
 == Introduction
 

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = EMC2
 
 [float]

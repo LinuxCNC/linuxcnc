@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Broche avec variateur GS2
 
 (((Broche avec variateur GS2)))

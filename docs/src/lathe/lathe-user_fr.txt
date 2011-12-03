@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Particularités des tours[[cha:Tour-Specifiques]]
 
 (((Particularités des tours)))

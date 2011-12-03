@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Créer des composants de l'espace utilisateur 
 
 == Utilisation de base en Python

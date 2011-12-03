@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Prise d'origine[[sec:Prises-d-origine]]
 
 == La prise d'origine

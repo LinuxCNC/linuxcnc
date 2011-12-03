@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Variateur de fréquence GS2
 
 (((Variateur de fréquence GS2)))

@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Les composants de HAL
 
 == Composants de commandes et composants de l'espace utilisateur

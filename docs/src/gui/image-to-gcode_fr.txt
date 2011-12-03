@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Image-to-gcode: Usiner un “depth maps”
 
 image:image-to-gcode.png[]

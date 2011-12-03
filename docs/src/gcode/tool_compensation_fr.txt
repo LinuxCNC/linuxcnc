@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Les compensations d'outil
 
 == Compensation de longueur d'outil

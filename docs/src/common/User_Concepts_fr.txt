@@ -1,4 +1,7 @@
-= Concepts importants
+:lang: fr
+:toc:
+
+= Concepts importants pour l'utilisateur
 
 Ce chapitre couvre les concepts importants qui doivent être assimilés
 avant d'essayer de démarrer un fichier de G-code.

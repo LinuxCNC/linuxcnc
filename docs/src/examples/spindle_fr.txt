@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Contrôle de la broche[[cha:Controle-broche]]
 
 (((Contrôle de la broche)))

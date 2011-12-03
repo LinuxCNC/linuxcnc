@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = L'interface Halui[[cha:Halui]]
 
 == Introduction[[sec:HaluiIntroduction]]

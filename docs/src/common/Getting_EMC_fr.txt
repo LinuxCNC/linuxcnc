@@ -1,4 +1,7 @@
-﻿= Installer EMC2
+﻿:lang: fr
+:toc:
+
+= Se procurer et installer EMC2
 
 == À savoir à propos du logiciel EMC2
 
@@ -106,7 +109,7 @@ il contient un très grand nombre d'informations et d'astuces à:
 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl,wiki.linuxcnc.org/
 
-= Pour obtenir EMC2(((Obtenir EMC2)))
+= Se procurer EMC2(((Obtenir EMC2)))
 
 == Par téléchargement normal
 
@@ -329,7 +332,7 @@ Pour savoir si votre ordinateur est utilisable par le générateur de
 trains d'impulsions du logiciel, lancez un test de latence comme
 indiqué à la section (<<sec:Test-de-latence-GS>>)
 
-== Installer EMC2
+== Installer la distribition Ubuntu d'EMC2 sur votre PC
 
 Si vous avez envie d'aller plus loin, cliquez juste sur l'icône
 Install se trouvant sur le bureau, répondez à quelques questions (votre

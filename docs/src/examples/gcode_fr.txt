@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Exemples de fichiers G-Code
 
 Après l'installation d'EMC2, plusieurs exemples de fichiers G-code se trouveront

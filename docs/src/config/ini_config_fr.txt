@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Démarrage d'EMC2
 
 == Fichiers

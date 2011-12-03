@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Utilisation d'une manivelle (MPG) [[cha:Manivelle-Electronique]]
 
 Cet exemple explique comment relier une manivelle, facile à trouver

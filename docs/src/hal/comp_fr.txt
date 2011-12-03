@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = 'comp': un outil pour créer les modules HAL
 
 == Introduction

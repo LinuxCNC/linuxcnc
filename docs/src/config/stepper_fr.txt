@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Les bases de la configuration d'un système pas/direction “dir/step”
 
 == Introduction[[sec:Introduction]]

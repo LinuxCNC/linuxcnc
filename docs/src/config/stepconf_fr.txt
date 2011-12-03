@@ -1,4 +1,7 @@
-﻿= Assistant graphique de configuration stepconf[[cha:Assistant-graphique-pas-a-pas]](((Assistant graphique de configuration stepconf)))(((stepconf Wizard)))
+﻿:lang: fr
+:toc:
+
+= Assistant graphique de configuration stepconf[[cha:Assistant-graphique-pas-a-pas]](((Assistant graphique de configuration stepconf)))(((stepconf Wizard)))
 
 EMC2 est capable de contrôler un large éventail de machines
 utilisant de nombreuses interfaces matérielles différentes.

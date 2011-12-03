@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Quelle configuration est requise ?
 
 == Configuration minimale (((Configuration minimale)))

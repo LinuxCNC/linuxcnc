@@ -1,14 +1,16 @@
-= Tutoriel de HAL[[cha:Tutoriel-HAL]]
+:lang: fr
+:toc:
+
+= Le tutoriel de HAL[[cha:Tutoriel-HAL]]
 
 (((Tutoriel de HAL)))
 
 == Introduction[[sec:Intro-tutoriel]]
 
-Pour ceux qui ont juste un peu de pratique avec la programmation,
-cette section est le `Hello World` de HAL. halrun peut être utilisé pour créer 
-un système complet et fonctionnel. Il s'agit d'un outil de configuration et 
-de mise au point en ligne de commande ou en fichier texte. Les exemples 
-suivants illustrent son installation et son fonctionnement.
+Halrun peut être utilisé pour créer un système complet et fonctionnel. 
+Il s'agit d'un outil de configuration et de mise au point en ligne de 
+commande ou en fichier texte. Les exemples suivants illustrent son 
+installation et son fonctionnement.
 
 == Halcmd[[sec:Tutoriel-Halcmd]]
 

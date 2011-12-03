@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Aperçu global d'une machine CNC
 
 Cette section donne une brève description de la façon dont une 

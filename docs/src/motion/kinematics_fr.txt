@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = La cinématique dans EMC2
 
 == Introduction

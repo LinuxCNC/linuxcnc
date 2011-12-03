@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 ﻿= Assistant graphique de configuration Mesa PNCconf[[cha:Assistant-graphique-Mesa]](((Assistant graphique de configuration Mesa pncconf)))
 
 L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/

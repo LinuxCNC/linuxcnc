@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Important Concepts
 
 == Stepper Systems

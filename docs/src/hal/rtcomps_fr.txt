@@ -1,3 +1,8 @@
+:lang: fr
+:toc:
+
+= Les composants temps réel
+
 == Halmeter(((halmeter)))
 
 Halmeter peut être chargé à partir d'un terminal ou d'Axis. Halmeter est

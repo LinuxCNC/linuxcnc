@@ -1,4 +1,7 @@
-= NGCGUI
+:lang: fr
+:toc:
+
+= L'interface graphique NGCGUI
 
 image::images/ngcgui.png[]
 

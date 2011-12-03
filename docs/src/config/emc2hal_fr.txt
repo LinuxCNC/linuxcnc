@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = EMC2 et HAL
 
 Voir également les man pages *motion(9)* et *iocontrol(1)*

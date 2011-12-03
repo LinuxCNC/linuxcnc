@@ -1,3 +1,6 @@
+:lang: fr
+:toc:
+
 = Deuxième port parallèle
 
 Lors de l'ajout d'un deuxième port parallèle placé dans un slot PCI il

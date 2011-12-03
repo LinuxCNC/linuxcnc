@@ -1,4 +1,7 @@
-= Cycles de perçage
+:lang: fr
+:toc:
+
+= Les cycles de perçage
 
 Les cycles de perçage G81 à G89 sont implémentés comme décrit dans
 cette section.
@@ -84,23 +87,21 @@ surviendra sans G-code modal.
 
 Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout
 autre g-code. Les résultats des lignes suivantes sont identiques:
-
---------------------------------------------------------
+----
 G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
 absolus) 
 G80 (révoque G81) 
 G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
 mobile en X0, Y0 et Z0)
---------------------------------------------------------
+----
 
 produit le même déplacement et le même état final de la machine que:
-
---------------------------------------------------------
+----
 G90 G81 X1 Y1 Z1.5 R2.8 (cycle de perçage en mode de déplacements
 absolus)  
 G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
 mobile en X0, Y0 et Z0)
---------------------------------------------------------
+----
 
 L'avantage du premier, la ligne du G80 révoque clairement le cycle
 G81. Avec ce premier programme, le programmeur doit revenir en mode
@@ -115,8 +116,7 @@ de mouvement, le cycle de perçage attend de se répéter en utilisant
 le prochaine ligne de code contenant un (ou plusieurs) mot d'axe X, Y
 ou Z. Le fichier suivant perce (G81) un ensemble de huit trous. Noter
 la position de Z change après les quatre premiers trous.
-
---------------------------------------------------------
+----
 G90 G0 X0 Y0 Z0 (coordonnées d'origine)  
 G1 X0 G4 P0.1  
 G81 X1 Y0 Z0 R1 (cycle de perçage)  
@@ -133,7 +133,7 @@ G0 X0 (mouvement en vitesse rapide)
 Y0  
 Z0  
 M2 (fin du programme)
---------------------------------------------------------
+----
 
 image::images/G81mult.png[]
 
@@ -167,10 +167,9 @@ Exemple 1: G81 en position absolue
 
 Supposons que la position courante soit, X1, Y2, Z3 dans le plan XY,
 la ligne de codes suivante est interprétée:
-
---------------------------------------------------------
+----
 G90 G81 G98 X4 Y5 Z1.5 R2.8
---------------------------------------------------------
+----
 
 Le mode de déplacements absolus est appelé (G90), le plan de retrait
 est positionné sur OLD_Z (G98), l'appel du cycle de perçage G81 va
@@ -193,10 +192,9 @@ image:G81ex1.png[]
 
 Exemple 2: Supposons que la position courante soit, X1, Y2, Z3 dans le
 plan XY, la ligne de codes suivante est interprétée:
-
---------------------------------------------------------
+----
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
---------------------------------------------------------
+----
 
 Le mode de déplacements incrémentaux est appelé (G91), le plan de
 retrait est positionné sur OLD_Z (G98), l'appel du cycle de perçage G81
@@ -261,11 +259,10 @@ image:G81.png[]
 
 Exemple 4 - G81 en absolu avec R > Z
 
-Il s'agit de la trajectoire pour le second block de code de g81.
-
---------------------------------------------------------
+Il s'agit de la trajectoire pour le second block de code de G81.
+----
 G91 G81 G98 X4 Y5 Z-0.6 R1.8 L3
---------------------------------------------------------
+----
 
 Cette trajectoire commence en (0, 0, 0), l'interpréteur ajoute les
 valeurs initiales Z0 et R 1.8 et déplace le mobile en vitesse rapide
@@ -294,10 +291,9 @@ Les mouvements du cycle G82 ressemblent à ceux de G81 avec une
 temporisation supplémentaire en fin de mouvement Z. La longueur de
 cette temporisation, exprimée en secondes, est spécifiée par un mot P#
 sur la ligne du G82.
-
---------------------------------------------------------
+----
 G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
---------------------------------------------------------
+----
 
 Sera équivalent à l'exemple 3 ci-dessus mais avec une temporisation de
 2 secondes en fond de trou.
@@ -444,10 +440,9 @@ Exemple 6 - Backbore
 Example six uses a incremental distances from (0, 0, 0) so the
 preliminary moves look much like those in example five but they are
 done using the G87 backbore canned cycle.
-
---------------------------------------------------------
+----
 G91 G87 M3 S1000 X1 Y1 Z-0.4 R1.4 I-0.1 J-0.1 K-0.1
---------------------------------------------------------
+----
 
 You will notice that the preliminary moves shift the tool to directly
 above the center axis of the existing bore.
@@ -562,8 +557,7 @@ que l'exemple précédent, mais le programme a été écrit de manière
 cycles de perçage.
 
 Exemple 7 - perçage de huit trous, réécrit.
-
---------------------------------------------------------
+----
 g90 g0 x0 y0 z0 (coordonnées d'origine)
 g1 f10 x0 g4 p0.1
 g91 g81 x1 y0 z-1 r1 l4(cycle de perçage)
@@ -572,7 +566,7 @@ z0
 g91 g81 x1 y0 z-.5 r1 l4(cycle de perçage)
 g80 (révocation du cycle G81)
 m2 (fin de programme)
---------------------------------------------------------
+----
 
 image:Eight.png[]
 
@@ -582,8 +576,7 @@ Cet exemple montre l'utilisation du mot L pour répéter une série
 incrémentale de cycles de perçage pour des blocks de code successifs
 dans le même mode mouvements G81. Ici, nous produisons 12 trous au
 moyen de cinq lignes de code dans le mouvement modal.
-
---------------------------------------------------------
+----
 G90 G0 X0 Y0 Z0 (coordonnées d'origine)
 G1 F50 X0 G4 P0.1
 G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage)
@@ -595,7 +588,7 @@ G90 G0 X0 (retour vers l'origine en vitesse rapide)
 Y0
 Z0
 M2 (fin de programme)
---------------------------------------------------------
+----
 
 image:Twelve.png[]
 
