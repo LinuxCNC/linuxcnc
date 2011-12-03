@@ -1197,6 +1197,7 @@ class Data:
         self.snearscale = .95
         self.sfiltergain = .1
         self.suseatspeed = False
+        self.ssingleinputencoder = False
 
     def load(self, filename, app=None, force=False):
         self.pncconf_loaded_version = 0.0
@@ -1919,6 +1920,7 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         if encoderpinname:             
             countmode = 0
+            if let == "s" and self.ssingleinputencoder: countmode = 1
             print >>file, "# ---Encoder feedback signals/setup---"
             print >>file
             print >>file, "setp    "+encoderpinname+".counter-mode %d"% countmode
@@ -6756,7 +6758,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         set_value("3pwmscale")
         set_value("3pwmdeadtime")
         set_active("invertmotor")
-        set_active("invertencoder")  
+        set_active("invertencoder")
         set_value("maxoutput")
         if amp_8i20:
             w[axis + "bldc_option"].set_active(True)
@@ -6867,7 +6869,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             #w["motor_screwunits"].set_text((""))
             #w["encoder_screwunits"].set_text((""))        
             w.sencodercounts.set_sensitive(encoder)
-            w[axis + "invertencoder"].set_sensitive(encoder)
+            w.ssingleinputencoder.set_sensitive(encoder)
+            w["sinvertencoder"].set_sensitive(encoder)
+            w["ssingleinputencoder"].show()
             w["sservo_info"].set_sensitive(pwmgen)
             w["saxistest"].set_sensitive(pwmgen)
             w["sstepper_info"].set_sensitive(stepdriven)
@@ -6886,6 +6890,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             set_active("useatspeed")
             w["snearscale"].set_value(d["snearscale"]*100)
             set_value("filtergain")
+            set_active("singleinputencoder")
         else:
             w[axis+"maxferror"].set_sensitive(True)
             w[axis+"minferror"].set_sensitive(True)
@@ -7115,6 +7120,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
             get_pagevalue("nearscale")
             d["snearscale"] = w["snearscale"].get_value()/100
             get_pagevalue("filtergain")
+            get_active("singleinputencoder")
 
     def configure_bldc(self,axis):
         d = self.data
