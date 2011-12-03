@@ -11,11 +11,11 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2985"
    version="1.1"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.2 r9819"
    width="717.5"
    height="968.75"
    xml:space="preserve"
-   sodipodi:docname="hal_stepgen_type0.svg"
+   sodipodi:docname="stepgen_type0.svg"
    inkscape:export-filename="hal_stepgen_type0.png"
    inkscape:export-xdpi="300"
    inkscape:export-ydpi="300"><title
@@ -24,13 +24,7 @@
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>stepgen-type11-14</dc:title><dc:date>23.11.2011</dc:date><dc:publisher><cc:Agent><dc:title>linuxcnc.org</dc:title></cc:Agent></dc:publisher><dc:subject><rdf:Bag><rdf:li>Stepgen</rdf:li></rdf:Bag></dc:subject><cc:license
            rdf:resource="http://www.gnu.org/copyleft/gpl.html" /><dc:rights><cc:Agent><dc:title>Copyright 2011 linuxcnc.org</dc:title></cc:Agent></dc:rights></cc:Work></rdf:RDF></metadata><defs
-     id="defs2989"><inkscape:perspective
-       sodipodi:type="inkscape:persp3d"
-       inkscape:vp_x="0 : 484.375 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_z="717.5 : 484.375 : 1"
-       inkscape:persp3d-origin="358.75 : 322.91667 : 1"
-       id="perspective100" /><marker
+     id="defs2989"><marker
        inkscape:stockid="Arrow2Lstart"
        orient="auto"
        refY="0.0"
@@ -50,225 +44,7 @@
          id="path44735"
          style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
          d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
-         transform="scale(1.1) rotate(180) translate(1,0)" /></marker><marker
-       inkscape:stockid="Arrow1Lend"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
-       id="Arrow1Lend"
-       style="overflow:visible;"><path
-         id="path44717"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
-         transform="scale(0.8) rotate(180) translate(12.5,0)" /></marker><marker
-       inkscape:stockid="Arrow1Lstart"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
-       id="Arrow1Lstart"
-       style="overflow:visible"><path
-         id="path44714"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         transform="scale(0.8) translate(12.5,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-5"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-6"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-4"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-2"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-2"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-2"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-5"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-3"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-7"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-60"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-50"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-8"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-21"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-69"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-6"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-0"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-9"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-8"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-3"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-22"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-90"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-63"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-1"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-82"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-72"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-4"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-2"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-35"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-0"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-61"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-45"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-4"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lstart"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lstart-4"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44732-9"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(1.1,0,0,1.1,1.1,0)" /></marker><marker
-       inkscape:stockid="Arrow2Lend"
-       orient="auto"
-       refY="0"
-       refX="0"
-       id="Arrow2Lend-450"
-       style="overflow:visible"><path
-         inkscape:connector-curvature="0"
-         id="path44735-1"
-         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
-         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
-         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" /></marker></defs><sodipodi:namedview
+         transform="scale(1.1) rotate(180) translate(1,0)" /></marker></defs><sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1"
@@ -277,17 +53,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1003"
+     inkscape:window-width="1280"
+     inkscape:window-height="949"
      id="namedview2987"
      showgrid="true"
-     inkscape:snap-global="true"
+     inkscape:snap-global="false"
      units="mm"
      showguides="false"
      inkscape:guide-bbox="true"
-     inkscape:zoom="1.1788531"
-     inkscape:cx="728.06016"
-     inkscape:cy="644.45608"
+     inkscape:zoom="2.3577062"
+     inkscape:cx="438.74367"
+     inkscape:cy="774.58655"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
@@ -316,26 +92,17 @@
    d="m 401.45669,126.86015 46.77166,0 m 62.3622,0 54.56693,0"
    id="path44201-4-4-8"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cccc" /><path
    style="fill:none;stroke:#0000ff;stroke-width:0.70866144;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2.12598425, 2.12598425;stroke-dashoffset:0"
    d="m 183.18898,54.325824 0,134.896526"
    id="path19456-4"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cc" /><path
    style="fill:none;stroke:#0000ff;stroke-width:0.70866144;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2.12598425, 2.12598425;stroke-dashoffset:0"
    d="m 245.55118,54.325822 0,103.715428"
    id="path19456-4-0"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cc" /><path
    style="fill:none;stroke:#0000ff;stroke-width:0.70866144;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2.12598425, 2.12598425;stroke-dashoffset:0"
    d="m 97.440945,126.86015 0,136.68616"
    id="path19456-4-9"
@@ -345,18 +112,12 @@
    d="m 339.09449,55.520265 0,102.520985"
    id="path19456-48"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cc" /><path
    style="fill:none;stroke:#0000ff;stroke-width:0.70866144;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2.12598425, 2.12598425;stroke-dashoffset:0"
    d="m 401.45669,54.325833 0,134.896517"
    id="path19456-4-9-4"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cc" /><path
    style="fill:none;stroke:#0000ff;stroke-width:0.70866144;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2.12598425, 2.12598425;stroke-dashoffset:0"
    d="m 479.89166,171.20323 0,89.29991"
    id="path19456-5"
@@ -366,10 +127,7 @@
    d="m 565.15748,52.805031 0,136.417319"
    id="path19456-4-5"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" />
+   sodipodi:nodetypes="cc" />
 
 
 
@@ -426,18 +184,16 @@
 
 <text
    xml:space="preserve"
-   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
    x="31.181103"
-   y="85.499664"
+   y="49.818836"
    id="text20495"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan20497"
      x="31.181103"
-     y="85.499664">step</tspan></text>
+     y="49.818836">step</tspan></text>
+
 
 
 
@@ -447,18 +203,16 @@
 
 <text
    xml:space="preserve"
-   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
+   style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
    x="31.181103"
    y="203.61613"
    id="text20499"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan20501"
      x="31.181103"
      y="203.61613">direction</tspan></text>
+
 
 
 
@@ -506,18 +260,12 @@
    d="m 66.259851,95.679047 113.031489,0 7.79528,-31.181102 54.56693,0 7.79527,31.181102 85.1051,0 7.79528,-31.181102 54.56693,0 7.79527,31.181102 156.54845,0 7.79527,-31.181102 54.56693,0 7.79528,31.181102 23.38582,0"
    id="path21369"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccccccccccccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cccccccccccccc" /><path
    style="fill:none;stroke:#000000;stroke-width:0.99921262;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
    d="m 66.259842,251.58456 27.283472,0 7.795276,-31.1811 374.17322,0 7.79528,31.1811 144.2126,0"
    id="path21369-3"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" />
+   sodipodi:nodetypes="cccccc" />
 
 
 
@@ -707,19 +455,13 @@
    d="m 66.25983,220.40346 27.283484,0 7.795276,31.1811 374.17322,0 7.79528,-31.1811 144.2126,0"
    id="path21369-3-4"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans;font-stretch:normal;font-variant:normal"
    x="479.40945"
    y="122.96251"
    id="text44075"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44077"
      x="479.40945"
@@ -730,36 +472,29 @@
      id="tspan44079">(min)</tspan></text>
 
 
+
 <path
    style="fill:none;stroke:#0000ff;stroke-width:0.70866144;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2.12598425, 2.12598425;stroke-dashoffset:0;display:inline"
    d="m 627.51969,52.805031 0,105.236219"
    id="path19456-4-5-6"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><path
+   sodipodi:nodetypes="cc" /><path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend)"
    d="m 183.18898,126.86015 13.20037,0 m 35.23979,0 13.92204,0"
    id="path44201"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-   x="198.77951"
+   style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+   x="196.23466"
    y="129.55444"
    id="text44071-6-2"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44073-1-1"
-     x="198.77951"
+     x="196.23466"
      y="129.55444">steplen</tspan></text>
+
 
 
 
@@ -769,28 +504,19 @@
    width="38.976376"
    height="15.59055"
    x="576.8504"
-   y="119.39871"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" />
+   y="119.39871" />
 <path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend);display:inline"
    d="m 245.55118,126.86015 19.48819,0 m 54.56693,0 19.38967,0"
    id="path44201-4-4"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans;font-stretch:normal;font-variant:normal"
    x="292.90775"
    y="123.38665"
    id="text44075-6"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44077-4"
      x="292.90775"
@@ -801,24 +527,19 @@
      id="tspan44079-3">(min)</tspan></text>
 
 
+
 <path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend);display:inline"
    d="m 97.440945,177.52944 19.488185,0 m 46.77166,0 17.68624,0"
    id="path44201-4-4-9"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans;font-stretch:normal;font-variant:normal"
    x="140.31496"
    y="173.63181"
    id="text44081"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44083"
      x="140.31496"
@@ -829,24 +550,19 @@
      id="tspan44085">(min)</tspan></text>
 
 
+
 <path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend);display:inline"
    d="m 401.45669,177.52944 19.48819,0 m 35.07874,0 22.59562,0"
    id="path44201-4-4-9-1"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
+   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans;font-stretch:normal;font-variant:normal"
    x="439.84164"
    y="173.20766"
    id="text44087"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44089"
      x="439.84164"
@@ -857,24 +573,19 @@
      id="tspan44091">(min)</tspan></text>
 
 
+
 <path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend);display:inline"
    d="m 479.40945,177.52944 19.48819,0 m 46.77165,0 19.48819,0"
    id="path44201-4-4-9-1-1"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+   style="font-size:10px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans;font-stretch:normal;font-variant:normal"
    x="522.28345"
    y="173.63181"
    id="text44081-2"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44083-1"
      x="522.28345"
@@ -885,50 +596,41 @@
      id="tspan44085-7">(min)</tspan></text>
 
 
+
 <path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend);display:inline"
    d="m 339.09451,126.86015 13.20037,0 m 35.23979,0 13.92204,0"
    id="path44201-1"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-   x="354.68503"
+   style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+   x="351.98706"
    y="129.55444"
    id="text44071-6-2-3"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44073-1-1-7"
-     x="354.68503"
+     x="351.98706"
      y="129.55444">steplen</tspan></text>
+
 
 <path
    style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow2Lstart);marker-mid:none;marker-end:url(#Arrow2Lend);display:inline"
    d="m 565.15748,126.86015 13.20037,0 m 35.23979,0 13.92204,0"
    id="path44201-1-5"
    inkscape:connector-curvature="0"
-   sodipodi:nodetypes="cccc"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90" /><text
+   sodipodi:nodetypes="cccc" /><text
    xml:space="preserve"
-   style="font-size:10px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
-   x="580.74799"
+   style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+   x="578.62726"
    y="129.55443"
    id="text44071-6-2-3-1"
-   sodipodi:linespacing="125%"
-   inkscape:export-filename="/home/francis/emc2.5-dev/docs/src/hal/images/stepgen-type0.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90"><tspan
+   sodipodi:linespacing="125%"><tspan
      sodipodi:role="line"
      id="tspan44073-1-1-7-4"
-     x="580.74799"
+     x="578.62726"
      y="129.55443">steplen</tspan></text>
+
 
 </g></svg>

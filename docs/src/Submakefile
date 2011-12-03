@@ -243,7 +243,6 @@ DOC_SRCS := \
 	gui/halui.txt \
 	gui/halui_de.txt \
 	gui/halui_es.txt \
-	gui/halui_fr.txt \
 	gui/halui_pl.txt \
 	gui/image-to-gcode.txt \
 	gui/image-to-gcode_de.txt \
@@ -310,6 +309,7 @@ DOC_SRCS := \
 	hal/halshow_es.txt \
 	hal/halshow_fr.txt \
 	hal/halshow_pl.txt \
+	hal/halui_fr.txt \
 	hal/halui_examples.txt \
 	hal/halui_examples_de.txt \
 	hal/halui_examples_es.txt \
@@ -343,7 +343,6 @@ DOC_SRCS := \
 	hal/tools.txt \
 	hal/tools_de.txt \
 	hal/tools_es.txt \
-	hal/tools_fr.txt \
 	hal/tools_pl.txt \
 	hal/tutorial.txt \
 	hal/tutorial_de.txt \
