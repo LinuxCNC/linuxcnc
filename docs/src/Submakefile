@@ -770,6 +770,23 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html
+	-rm -f $(DOC_DIR)/html/*.png
+	-rm -f $(DOC_DIR)/html/code/*.*
+	-rm -f $(DOC_DIR)/html/common/images/*.*
+	-rm -f $(DOC_DIR)/html/config/images/*.*
+	-rm -f $(DOC_DIR)/html/drivers/images/*.*
+	-rm -f $(DOC_DIR)/html/examples/*.*
+	-rm -f $(DOC_DIR)/html/gcode/images/*.*
+	-rm -f $(DOC_DIR)/html/gui/images/*.*
+	-rm -f $(DOC_DIR)/html/hal/images/*.*
+	-rm -f $(DOC_DIR)/html/install/images/*.*
+	-rm -f $(DOC_DIR)/html/ladder/images/*.*
+	-rm -f $(DOC_DIR)/html/lathe/images/*.*
+	-rm -f $(DOC_DIR)/html/motion/*.*
+	-rm -f $(DOC_DIR)/html/quickstart/*.*
+	-rm -f $(DOC_DIR)/html/man/man1/*.*
+	-rm -f $(DOC_DIR)/html/man/man3/*.*
+	-rm -f $(DOC_DIR)/html/man/man9/*.*
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
