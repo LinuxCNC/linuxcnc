@@ -1,4 +1,4 @@
-= Halui[[cha:Halui]]
+= L'interface Halui[[cha:Halui]]
 
 == Introduction[[sec:HaluiIntroduction]]
 

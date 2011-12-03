@@ -1,4 +1,4 @@
-= Les bases de HAL
+= Commandes et composants de base
 
 [[sec:Commandes-de-HAL]]
 == Commandes de Hal

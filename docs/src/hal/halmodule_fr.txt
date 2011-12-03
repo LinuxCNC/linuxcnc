@@ -1,6 +1,6 @@
-= Créer des composants de l'espace utilisateur Python avec les modules de 'hal'
+= Créer des composants de l'espace utilisateur 
 
-== Utilisation de base
+== Utilisation de base en Python
 
 Un composant de l'espace utilisateur commence par créer ses pins et
 ses paramètres, puis il entre dans une boucle dans laquelle il va
