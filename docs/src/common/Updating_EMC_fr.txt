@@ -4,21 +4,10 @@
 Mises à jour d'EMC2
 ===================
 
-//// 
-   a modifier dès que possible
-   
-== Upgrading from 2.4.x to 2.5.x
+  
+== Mise à jour 2.4.x à 2.5.x
 
-
-== Changes between 2.4.x and 2.5.x
-
-
-=== Details on thing 1 changes (2.4.x to 2.5.x)
-
-
-=== Details on thing 2 changes (2.4.x to 2.5.x)
-
-////
+Auncun changement de configuration n'est nécessaire pour passer de 2.4.x à 2.5.x
 
 == Mise à jour 2.3.x à 2.4.x
 
