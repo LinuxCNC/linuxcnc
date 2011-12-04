@@ -3,39 +3,7 @@ Upgrading EMC2
 
 == Upgrading from 2.4.x to 2.5.x
 
-Put
-
-some
-
-text
-
-here
-
-
-== Changes between 2.4.x and 2.5.x
-
-Put
-
-some
-
-text
-
-here
-
-
-=== Details on thing 1 changes (2.4.x to 2.5.x)
-
-Put some 
-
-text here
-
-
-=== Details on thing 2 changes (2.4.x to 2.5.x)
-
-Put some 
-
-text here
-
+No configurations changeds need to be made to upgrade from 2.4.x to 2.5.x
 
 == Upgrading from 2.3.x to 2.4.x
 
