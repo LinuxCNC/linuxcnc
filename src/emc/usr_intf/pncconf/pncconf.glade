@@ -7808,8 +7808,7 @@ panel</property>
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">Click on each page tab to configure signal names for each connector port.
 
-The spin buttons below on this page allow you to select the amounts of 
-different types of components. Press the button to make the tabbed pages
+Press the button to make the tabbed pages
 accept the changes.
 </property>
                           </widget>
@@ -8099,8 +8098,8 @@ accept the changes.
                                   <packing>
                                     <property name="left_attach">6</property>
                                     <property name="right_attach">7</property>
-                                    <property name="top_attach">9</property>
-                                    <property name="bottom_attach">14</property>
+                                    <property name="top_attach">0</property>
+                                    <property name="bottom_attach">5</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -8143,30 +8142,6 @@ accept the changes.
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Board name</property>
                                   </widget>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="mesa0_numof_gpio">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">0</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
-                                    <property name="top_attach">12</property>
-                                    <property name="bottom_attach">13</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label324">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Num of GPIO:</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">12</property>
-                                    <property name="bottom_attach">13</property>
-                                  </packing>
                                 </child>
                                 <child>
                                   <widget class="GtkLabel" id="label323">
@@ -8462,8 +8437,8 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label604">
-                                    <property name="visible">True</property>
+                                  <widget class="GtkLabel" id="mesa0_parporttext">
+                                    <property name="visible">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Mesa parport address:</property>
                                   </widget>
@@ -26229,7 +26204,7 @@ Connector 8</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkNotebook" id="mesa0sserialtab1">
+                      <widget class="GtkNotebook" id="mesa0sserial0_0">
                         <property name="can_focus">True</property>
                         <child>
                           <widget class="GtkTable" id="mesa0sserial0_0table1">
@@ -31397,7 +31372,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkNotebook" id="mesa0sserialtab2">
+                      <widget class="GtkNotebook" id="mesa0sserial0_1">
                         <property name="can_focus">True</property>
                         <child>
                           <widget class="GtkTable" id="mesa0sserial0_1table1">
@@ -36565,7 +36540,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkNotebook" id="mesa0sserialtab3">
+                      <widget class="GtkNotebook" id="mesa0sserial0_2">
                         <property name="can_focus">True</property>
                         <child>
                           <widget class="GtkTable" id="mesa0sserial0_2table1">
@@ -41733,7 +41708,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkNotebook" id="mesa0sserialtab4">
+                      <widget class="GtkNotebook" id="mesa0sserial0_3">
                         <property name="can_focus">True</property>
                         <child>
                           <widget class="GtkTable" id="mesa0sserial0_3table1">

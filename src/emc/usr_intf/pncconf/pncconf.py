@@ -973,13 +973,13 @@ class Data:
         self.mesa0_numof_pwmgens = 4
         self.mesa0_numof_tppwmgens = 0
         self.mesa0_numof_stepgens = 0
-        self.mesa0_numof_gpio = 48
         self.mesa0_numof_sserialports = 0
         self.mesa0_numof_sserialchannels = 8
         self.mesa0_sanity_7i29 = False
         self.mesa0_sanity_7i30 = False
         self.mesa0_sanity_7i33 = True
         self.mesa0_sanity_7i40 = False
+        self.mesa0_sanity_7i48 = False
 
         # second mesa card
         self.mesa1_currentfirmwaredata = mesafirmwaredata[1]
@@ -996,13 +996,13 @@ class Data:
         self.mesa1_numof_pwmgens = 4
         self.mesa1_numof_tppwmgens = 0
         self.mesa1_numof_stepgens = 0
-        self.mesa1_numof_gpio = 48
         self.mesa1_numof_sserialports = 0
         self.mesa1_numof_sserialchannels = 8
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
         self.mesa1_sanity_7i33 = True
         self.mesa1_sanity_7i40 = False
+        self.mesa1_sanity_7i48 = False
 
         for boardnum in(0,1):
             connector = 2
@@ -4154,7 +4154,6 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
                     self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
                     self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(self.data["mesa%d_numof_sserialports"% boardnum])
                     self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(self.data["mesa%d_numof_sserialchannels"% boardnum])
-                    self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])
         self.data.mesa0_boardtitle = self.widgets.mesa0_boardtitle.get_active_text()
         self.data.mesa1_boardtitle = self.widgets.mesa1_boardtitle.get_active_text()
 
@@ -4873,26 +4872,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_3pwm_frequency"% boardnum].set_sensitive(d[_MAXTPPWM])
                 self.widgets["mesa%d_pwm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
                 self.widgets["mesa%d_pdm_frequency"% boardnum].set_sensitive(d[_MAXPWM])
+                if "7i43" in title:
+                    self.widgets["mesa%d_parportaddrs"% boardnum].show()
+                    self.widgets["mesa%d_parporttext"% boardnum].show()
+                else:
+                    self.widgets["mesa%d_parportaddrs"% boardnum].hide()
+                    self.widgets["mesa%d_parporttext"% boardnum].hide()
                 break
-            self.on_gpio_update(self,boardnum)
-
-    def on_gpio_update(self,*args):
-        for boardnum in (0,1):
-            title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
-            firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
-            for search, item in enumerate(mesafirmwaredata):
-                d = mesafirmwaredata[search]
-                if not d[_BOARDTITLE] == title:continue
-                if d[_FIRMWARE] == firmware:      
-                    i = (int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value()) * 3)
-                    j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
-                    k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
-                    l = (int(self.widgets["mesa%d_numof_tppwmgens"% boardnum].get_value()) * 6)
-                    sp = int(self.widgets["mesa%d_numof_sserialports"% boardnum].get_value())
-                    sc = int(self.widgets["mesa%d_numof_sserialchannels"% boardnum].get_value())
-                    m = sp * sc * 3
-                    total = (d[_MAXGPIO]-i-j-k-l-m)
-                    self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
     # It starts by checking pin type to set up the proper lists to search
@@ -5062,7 +5048,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets.mesa0con4table.hide()
             self.widgets.mesa0con5table.hide()           
         self.widgets.mesa0_parportaddrs.set_text(self.data.mesa0_parportaddrs)
-        for i in ("mesa0_sanity_7i29","mesa0_sanity_7i30","mesa0_sanity_7i33","mesa0_sanity_7i40"):
+        for i in ("mesa0_sanity_7i29","mesa0_sanity_7i30","mesa0_sanity_7i33","mesa0_sanity_7i40","mesa0_sanity_7i48"):
             self.widgets[i].set_active( self.data[i] )
 
     def on_mesa0_next(self,*args):
@@ -5081,7 +5067,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             return True
         self.data.mesa0_parportaddrs = self.widgets.mesa0_parportaddrs.get_text()
         self.mesa_data_transfer(0)
-        for i in ("mesa0_sanity_7i29","mesa0_sanity_7i30","mesa0_sanity_7i33","mesa0_sanity_7i40"):
+        for i in ("mesa0_sanity_7i29","mesa0_sanity_7i30","mesa0_sanity_7i33","mesa0_sanity_7i40","mesa0_sanity_7i48"):
             self.data[i] = self.widgets[i].get_active()
         self.signal_sanity_check()
         if self.data.number_mesa > 1:
@@ -5109,7 +5095,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets.mesa1con4table.hide()
             self.widgets.mesa1con5table.hide()
         self.widgets.mesa1_parportaddrs.set_text(self.data.mesa1_parportaddrs)
-        for i in ("mesa1_sanity_7i29","mesa1_sanity_7i30","mesa1_sanity_7i33","mesa1_sanity_7i40"):
+        for i in ("mesa1_sanity_7i29","mesa1_sanity_7i30","mesa1_sanity_7i33","mesa1_sanity_7i40","mesa0_sanity_7i48"):
             self.widgets[i].set_active( self.data[i] )
 
     def on_mesa1_next(self,*args):
@@ -5128,7 +5114,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             return True    
         self.data.mesa1_parportaddrs = self.widgets.mesa1_parportaddrs.get_text()
         self.mesa_data_transfer(1)
-        for i in ("mesa1_sanity_7i29","mesa1_sanity_7i30","mesa1_sanity_7i33","mesa1_sanity_7i40"):
+        for i in ("mesa1_sanity_7i29","mesa1_sanity_7i30","mesa1_sanity_7i33","mesa1_sanity_7i40","mesa0_sanity_7i48"):
             self.data[i] = self.widgets[i].get_active()
         self.signal_sanity_check()
         if self.data.number_pports<1:
@@ -5294,10 +5280,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets["mesa%dcon7table"% boardnum].hide()
         self.widgets["mesa%dcon8table"% boardnum].hide()
         self.widgets["mesa%dcon9table"% boardnum].hide()
-        self.widgets["mesa%dsserialtab1"% boardnum].hide()
-        self.widgets["mesa%dsserialtab2"% boardnum].hide()
-        self.widgets["mesa%dsserialtab3"% boardnum].hide()
-        self.widgets["mesa%dsserialtab4"% boardnum].hide()
+        self.widgets["mesa%dsserial0_0"% boardnum].hide()
+        self.widgets["mesa%dsserial0_1"% boardnum].hide()
+        self.widgets["mesa%dsserial0_2"% boardnum].hide()
+        self.widgets["mesa%dsserial0_3"% boardnum].hide()
         currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
         if currentboard == "5i20" or currentboard == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
@@ -5365,13 +5351,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
         self.data["mesa%d_numof_sserialports"% boardnum] = numofsserialports
-        self.data["mesa%d_numof_sserialchannels"% boardnum] = numofsserialchannels
-        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
-        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
-        temp2 = (numofpwmgens * 3)
-        temp3 = numofsserialports * numofsserialchannels * 3
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2-temp3)
-        self.data["mesa%d_numof_gpio"% boardnum] = total     
+        self.data["mesa%d_numof_sserialchannels"% boardnum] = numofsserialchannels     
         self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
         self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
@@ -6298,10 +6278,10 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if connector == temp:
                             firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(count*24)]
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
-                                self.widgets["mesa%dsserialtab%d"% (boardnum,compnum + 1)].hide()
+                                self.widgets["mesa%dsserial0_%d"% (boardnum,compnum)].hide()
                                 return
                             else:
-                                self.widgets["mesa%dsserialtab%d"% (boardnum,compnum + 1)].show()
+                                self.widgets["mesa%dsserial0_%d"% (boardnum,compnum)].show()
                                 portnum = 0 #TODO support more ports
                                 # TODO we should search for these names rather then use hard coded logic
                                 # so as to make adding cards easier
@@ -6640,6 +6620,9 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 do_warning = True
             if self.data["mesa%d_sanity_7i40"%boardnum]:
                 warnings.append(_("The 7i40 daughter board requires PWM type generators and a PWM base frequency of 50 khz\n"))
+                do_warning = True
+            if self.data["mesa%d_sanity_7i48"%boardnum]:
+                warnings.append(_("The 7i48 daughter board requires UDM type generators and a PWM base frequency of 24 khz\n"))
                 do_warning = True
 
         if do_warning: self.warning_dialog("\n".join(warnings),True)
