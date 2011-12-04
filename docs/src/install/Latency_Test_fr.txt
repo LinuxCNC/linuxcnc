@@ -48,7 +48,7 @@ et exécutez la commande suivante:
 
 Vous devriez voir quelque chose comme ceci:
 
-image::images/latency.png[]
+image::../config/images/latency.png[]
 
 Alors que le test est en cours d'exécution, vous devriez «abuser» de l'ordinateur.
 Déplacer les fenêtres sur l'écran. Surfez sur le Web. Écouter de la musique.
