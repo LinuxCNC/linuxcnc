@@ -28,7 +28,7 @@ Step by Step Instructions
 
 .Entry Page[[cap:Entry-Page]]
 
-image::images/stepconf-entry.png[]
+image::images/stepconf-config.png[]
 
 Create New::
     Creates a fresh configuration.
@@ -593,15 +593,15 @@ Typically for a parallel port you might use 47k.
 
 .Normally Closed Switches[[cap:Normally-Closed-Switches]]
 
-image::images/switch-nc-series.eps[]
-
 Wiring N/C switches in series (simplified diagram)
+
+image::images/switch-nc-series.eps[]
 
 .Normally Open Switches[[cap:Normally-Open-Switches]]
 
-image::images/switch-no-parallel.eps[]
-
 Wiring N/O switches in parallel (simplified diagram)
+
+image::images/switch-no-parallel.eps[]
 
 The following combinations of switches are permitted in Stepconf:
 
@@ -610,9 +610,6 @@ The following combinations of switches are permitted in Stepconf:
  - Combine both limit switches for one axis
  - Combine both limit switches and the home switch for one axis
  - Combine one limit switch and the home switch for one axis
-
-The last two combinations are also appropriate 
-when a "home to limit" is used.
 
 // vim: set syntax=asciidoc:
 
