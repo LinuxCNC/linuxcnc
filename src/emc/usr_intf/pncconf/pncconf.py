@@ -1189,6 +1189,7 @@ class Data:
             self[temp+"bldc_drive_offset"]= 0.0
             self[temp+"bldc_pattern_out"]= 25
             self[temp+"bldc_pattern_in"]= 25
+            self[temp+"8i20maxcurrent"] = 5.0
 
         # rotary tables need bigger limits
         self.aminlim = -9999
@@ -1836,10 +1837,10 @@ If you have a REALLY large config that you wish to convert to this newer version
         if amp8i20pinname:
                 print >>file, "# ---8i20 amplifier card signals/setup---"
                 print >>file
-                print >>file, "# setp       %s.max_current 5"% (amp8i20pinname)
-                print >>file, "# net %s-meas-angle =>       %s.angle"% (let,amp8i20pinname)
-                print >>file, "# net %s-bldc-current =>     %s.current"% (let,amp8i20pinname)
-                print >>file, "# net %s-enable =>            %s.amp_enable"% (let,amp8i20pinname)
+                print >>file, "setp       %s.max_current %03f"% (amp8i20pinname,self[let+"8i20maxcurrent"])
+                print >>file, "net %s-meas-angle =>       %s.angle"% (let,amp8i20pinname)
+                print >>file, "net %s-bldc-current =>     %s.current"% (let,amp8i20pinname)
+                print >>file, "net %s-enable =>            %s.amp_enable"% (let,amp8i20pinname)
                 print >>file
 
         if pwmpinname:
@@ -6771,6 +6772,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         set_value("bldc_drive_offset")
         set_value("bldc_pattern_out")
         set_value("bldc_pattern_in")
+        set_value("8i20maxcurrent")
 
         w["motor_pulleydriver"].set_value(d[axis +"motor_pulleydriver"])
         w["motor_pulleydriven"].set_value(d[axis +"motor_pulleydriven"])
@@ -7046,6 +7048,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         get_pagevalue("bldc_pattern_in")
         get_pagevalue("bldc_lead_angle")
         get_pagevalue("bldc_inital_value")
+        get_pagevalue("8i20maxcurrent")
         get_active("bldc_no_feedback")
         get_active("bldc_absolute_feedback")
         get_active("bldc_incremental_feedback")

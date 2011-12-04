@@ -49948,8 +49948,28 @@ Test</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkLabel" id="label117">
+                                                  <widget class="GtkHBox" id="hbox4">
                                                     <property name="visible">True</property>
+                                                    <child>
+                                                      <widget class="GtkSpinButton" id="x8i20maxcurrent">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="adjustment">5 0.5 30 0.5 0 0</property>
+                                                        <property name="digits">1</property>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <widget class="GtkLabel" id="label81">
+                                                        <property name="visible">True</property>
+                                                        <property name="label" translatable="yes">8i20 Max Current</property>
+                                                      </widget>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
                                                   </widget>
                                                   <packing>
                                                     <property name="position">6</property>
