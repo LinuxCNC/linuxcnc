@@ -251,7 +251,7 @@ Si l'assistant StepConf a été utilisé pour générer la configuration
 trois fichiers HAL ont dû être créés dans le répertoire de la
 configuration.
 
- - ma-fraiseuse.hal (si ne nom de la config est nomée "ma-fraiseuse") Ce
+ - ma-fraiseuse.hal (si ne nom de la config est nommé "ma-fraiseuse") Ce
    fichier est chargé en premier, il ne doit pas être modifié sous peine
    de ne plus pouvoir l'utiliser avec l'assistant StepConf.
  - custom.hal Ce fichier est le deuxième à être chargé et il l'est avant
@@ -402,7 +402,7 @@ Table de vérité
 |False | False | False
 |========================================
 
-=== Exemples de logique combinatoire
+=== Exemples en logique combinatoire
 
 Un exemple de connection avec un "and2", deux entrées vers une sortie.
 
@@ -427,7 +427,7 @@ parallèle. Ainsi en suivant la table de vérité du and2, si les broches
 
 == Composants de conversion
 
-=== weighted_sum (somme pondérée)
+=== Somme pondérée  (weighted_sum)
 
 La somme pondérée converti un groupe de bits en un entier. La conversion est la 
 somme des `poids` des bits présents plus n'importe quel offset. C'est similaire 
