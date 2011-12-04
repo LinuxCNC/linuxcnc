@@ -31,7 +31,7 @@ Instructions étape par étape
 
 .Page d'entrée[[cap:Entree-page]]
 
-image::images/stepconf-entry.png[]
+image::images/stepconf-config.png[]
 
 // M25 J'ai modifier pour correspondre à la version anglaise.
 Create New::

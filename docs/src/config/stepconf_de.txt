@@ -28,7 +28,7 @@ Step by Step Instructions
 
 .Entry Page[[cap:Entry-Page]]
 
-image::images/stepconf-entry.png[]
+image::images/stepconf-config.png[]
 
 Create New::
     Creates a fresh configuration.
