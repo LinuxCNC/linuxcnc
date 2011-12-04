@@ -184,25 +184,6 @@ wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-
 The md5sum of the above file is: `1bab052ec879f941628927c988863f14`
 *********************************************************************
 
-.Ubuntu 6.06 Dapper Drake and EMC2 (not supported anymore)
-***********************************************************************
-If you require an older version of Ubuntu, you can download Ubuntu 6.06. 
-The CD image below has the old emc 2.2.x on it, but can be upgraded to 
-2.3.x by following instructions on the LinuxCNC.org wiki here: 
-`http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.3`
-
-Because Dapper Drake is not supported anymore, there is no current 
-version of EMC2 (2.4.x) for Dapper Drake.:
-
-For the USA mirror: 
-wget http://www.linuxcnc.org/iso/emc2.2.2-1-ubuntu6.06-desktop-i386.iso
-
-For the European mirror: 
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=emc2.2.2-1-ubuntu6.06-desktop-i386.iso
-
-The md5sum of the above file is: `21f4ecdcf9f5ab09ed64b5e76fb389e6`
-***********************************************************************
-
 After the download is complete you will find the ISO file in the 
 directory that you selected. Next we will burn the CD.
 
@@ -229,23 +210,6 @@ in the Command Prompt window type:
 and the prompt should change to: `C:\Program Files\GnuWin32\bin>`
 
 Type the wget command into the window and press enter as above.
-
-=== Bittorrent
-
-Bittorrent is a downloading method that is easy and reliable. 
-
-At this time, EMC2 users are setting up a bittorrent link, 
-ask in IRC or search the wiki for the latest information. 
-
-For info on bittorrent clients for Ubuntu, see: 
-
-https://help.ubuntu.com/community/BitTorrent
-
-(Ubuntu may have "Transmission" already installed.)
-
-For info on bittorrent clients for Windows, see: 
-
-http://www.bittorrent.com/ or http://www.vuze.com/
 
 == Burning the CD
 
@@ -342,17 +306,6 @@ and the password. Once the install process is complete and you go on
 line the update manager will pop up and allow you to upgrade to the
 latest stable version of EMC2.
 
-== Axis Interface
-
-The AXIS interface is one of the interfaces to choose from. It can be
-configured to add a Virtual Control Panel to customize the interface to
-suit your needs. AXIS is the default user interface and is actively
-being developed.
-
-.Axis User Interface[[cap:Axis-User-Interface]]
-
-image::images/axis_2.3_fr.png[]
-
 == Updates to EMC2 (((Updates to EMC2)))
 
 With the normal install the Update Manager will notify you of updates
@@ -360,7 +313,7 @@ to EMC2 when you go on line and allow you to easily upgrade with no
 Linux knowledge needed. 
 If you want to upgrade to 10.04 from 8.04 a
 clean install from the Live-CD is recommended. 
-It is OK to upgrade EMC when asked to.
+It is OK to upgrade everything except the operating system when asked to.
 
 Warning: Do not upgrade Ubuntu to a new but non-LTS version 
 (like 8.04 to 8.10) as it will prevent EMC from running.
