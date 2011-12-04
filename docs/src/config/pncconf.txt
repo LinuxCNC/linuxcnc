@@ -1,4 +1,4 @@
-= Point n Click Configuration Wizard Mesa PNCconf[[cha:PNCconf-Wizard]]
+= Mesa Servo Wizard[[cha:PNCconf-Wizard]]
 
 (((Point n Click Configuration Wizard)))
 (((PNCconf Wizard)))

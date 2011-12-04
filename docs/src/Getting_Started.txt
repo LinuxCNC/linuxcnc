@@ -12,8 +12,6 @@ image::common/emc2-intro.*[]
 
 include::common/overleaf.txt[]
 
-// (DE,ES, Translator-Needed Notice)(FR outdated-notice)
-
 include::common/System_Requirements.txt[]
 
 include::common/Getting_EMC.txt[]
