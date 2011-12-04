@@ -52,7 +52,7 @@ qu'EMC2 soit relancé.
     net ispaused halui.program.is paused => "your output pin" 
     net resume halui.program.resume <= "your input pin" 
 
-Vos broches entréeet sortiecorrespondent à celles qui sont
+Vos broches entrée et sortie correspondent à celles qui sont
 câblées vers l'autre contrôleur. Elles peuvent être des broches du
 port parallèle ou toutes autres broches auquelles vous avez accès.
 

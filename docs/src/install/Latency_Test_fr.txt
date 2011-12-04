@@ -43,8 +43,9 @@ est d'exécuter le test de latence de HAL.
 Pour exécuter ce test, ouvrez une fenêtre de terminal
 (Dans Ubuntu, à partir de Applications -> Accessoires -> Terminal)
 et exécutez la commande suivante:
-
-    `latency-test` 
+----
+latency-test 
+----
 
 Vous devriez voir quelque chose comme ceci:
 
@@ -108,14 +109,15 @@ fournissent un ou deux ports parallèles.
 
 Pour trouver les adresses d'entrées/sorties de ces cartes, ouvrir
 une console et utiliser la commande en ligne:
-
-    `lspci -v`
+----
+lspci -v
+----
 
 Rechercher ensuite dans la liste de matériel fourni, le nom du
 chipset de la nouvelle carte, dans cette exemple c'est l'entrée
 NetMos Technology pour une carte à deux ports:
 
--------------------------------------------------
+----
   0000:01:0a.0 Communication controller: \
         Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
         Subsystem: LSI Losgic / Symbios Logic 2POS (2 port parallel adapter)
@@ -126,7 +128,7 @@ NetMos Technology pour une carte à deux ports:
         I/O ports at c400 [size=8]
         I/O ports at c800 [size=8]
         I/O ports at cc00 [size=16]
--------------------------------------------------
+----
 
 Après expérimentation, il se trouve que le premier port (incorporé
 à la carte) utilise la troisième adresse de la liste (c000) et le
@@ -144,9 +146,10 @@ ils sont obligatoires dès qu'il y a plus d'une carte.
 Il est nécessaire également d'ajouter les fonctions de lecture
 (read) et d'écriture (write) pour la nouvelle carte. Par
 exemple,
-
-    `addf parport.1.read base-thread 1`
-    `addf parport.1.write base-thread -1`
+----
+addf parport.1.read base-thread 1
+addf parport.1.write base-thread -1
+----
 
 Noter que les valeurs peuvent être différentes de celles de cet
 exemple. Les cartes Netmos sont Plug-N-Play, elles peuvent donc
