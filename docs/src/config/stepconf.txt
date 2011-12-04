@@ -164,8 +164,8 @@ Fixing Realtime problems caused by SMI on Ubuntu
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
 ****
 
-The important numbers are the "max jitter". In the example above 7085
-nanoseconds, or 7.085 microseconds, is the highest jitter. 
+The important numbers are the "max jitter". In the example above 9075
+nanoseconds, or 9.075 microseconds, is the highest jitter. 
 Record this number, and enter it in
 the Base Period Maximum Jitter box.
 
