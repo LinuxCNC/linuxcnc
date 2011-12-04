@@ -336,14 +336,6 @@
 <doc name="hal/hal-examples_fr.html" title="Exemples pour HAL"/>
 <doc name="hal/comp_fr.html" title="Comp: un outil de cr&eacute;ation de composants HAL"/>
 <doc name="hal/halmodule_fr.html" title="Cr&eacute;er des composants de HAL pour l'espace utilisateur"/>
-<doc name="hal/parallel_port_fr.html" title="Pilote de port parall&egrave;le"/>
-<doc name="drivers/AX5214H_fr.html" title="Pilote AX5214H"/>
-<doc name="drivers/GS2_fr.html" title="Pilote GS2"/>
-<doc name="drivers/hostmot2_fr.html" title="Pilote HostMot2"/>
-<doc name="drivers/motenc_fr.html" title="Pilote Motenc Driver"/>
-<doc name="drivers/opto22_fr.html" title="Pilote Opto22 Driver"/>
-<doc name="drivers/pico_ppmc_fr.html" title="Pilote Pico PPMC Driver"/>
-<doc name="drivers/pluto_p_fr.html" title="Pilote Pluto-P Driver"/>
 
 <doc name="common/Integrator_Concepts_fr.html" title="Concepts importants pour l'int&eacute;grateur"/>
 <doc name="install/Latency_Test_fr.html" title="Test de latence"/>
@@ -355,6 +347,14 @@
 <doc name="hal/pyvcp_fr.html" title="Panneau de commande virtuel Python (PyVCP)"/>
 <doc name="hal/pyvcp_examples_fr.html" title="Exemples avec PyVCP"/>
 <doc name="gui/gladevcp_fr.html" title="Panneau de commande virtuel Glade"/>
+<doc name="hal/parallel_port_fr.html" title="Pilote de port parall&egrave;le"/>
+<doc name="drivers/AX5214H_fr.html" title="Pilote AX5214H"/>
+<doc name="drivers/GS2_fr.html" title="Pilote GS2"/>
+<doc name="drivers/hostmot2_fr.html" title="Pilote HostMot2"/>
+<doc name="drivers/motenc_fr.html" title="Pilote Motenc Driver"/>
+<doc name="drivers/opto22_fr.html" title="Pilote Opto22 Driver"/>
+<doc name="drivers/pico_ppmc_fr.html" title="Pilote Pico PPMC Driver"/>
+<doc name="drivers/pluto_p_fr.html" title="Pilote Pluto-P Driver"/>
 <doc name="motion/kinematics_fr.html" title="Notions de cin&eacute;matique"/>
 <doc name="motion/tweaking_steppers_fr.html" title="R&eacute;glage des moteurs pas &agrave; pas"/>
 <doc name="motion/pid_theory_fr.html" title="Th&eacute;orie du PID"/>
