@@ -3,7 +3,7 @@ Upgrading EMC2
 
 == Upgrading from 2.4.x to 2.5.x
 
-No configurations changeds need to be made to upgrade from 2.4.x to 2.5.x
+No configuration changes need to be made to upgrade from 2.4.x to 2.5.x
 
 == Upgrading from 2.3.x to 2.4.x
 
