@@ -60,8 +60,8 @@ dans le cas le plus défavorable et donc, connaitre la latence la plus grande.
 Ne pas exécuter EMC2 ou Stepconf pendant que latency-test est 
 en cours d'exécution. 
 
-Le chiffre "max jitter" de l'exemple ci-dessous est de 6762.
-Ce qui représente 6762 nanosecondes, soit 6.762 microsecondes.
+La colonne "max jitter" et la ligne "Base Thread" de l'exemple ci-dessous 
+donne 9075. Ce qui représente 9075 nanosecondes, soit 9.075 microsecondes.
 Notez bien ce nombre et entrez le dans Stepconf quand il le demande.
 
 Dans cet exemple de test de latence il n'a fallu que quelques
