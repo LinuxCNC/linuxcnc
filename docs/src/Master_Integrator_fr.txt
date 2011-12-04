@@ -33,7 +33,7 @@ include::config/emc2hal_fr.txt[]
 include::config/stepper_fr.txt[]
 
 :leveloffset: 0
-= GUI
+= Interfaces graphiques
 :leveloffset: 1
 
 include::hal/pyvcp_fr.txt[]
@@ -43,7 +43,7 @@ include::hal/pyvcp_examples_fr.txt[]
 include::gui/gladevcp_fr.txt[]
 
 :leveloffset: 0
-= Advanced Topics
+= Notions avancées
 :leveloffset: 1
 
 include::motion/kinematics_fr.txt[]
