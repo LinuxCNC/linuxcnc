@@ -785,7 +785,7 @@ d'état d'EMC.
 
 .Fenêtre d'état d'EMC2
 
-image::axis-emctop.png[]
+image::images/axis-emc-status.png[]
 
 Le nom de chaque entrée est affiché dans la colonne de gauche. La
 valeur courante de chaque entrée s'affiche dans la colonne de droite.

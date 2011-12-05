@@ -629,7 +629,7 @@ running, the MDI controls are unavailable.
 
 .The MDI tab[[cap:The-MDI-tab]]
 
-image::images/axis_mdi.png[]
+image::images/axis-mdi.png[]
 
 History:::
     This shows MDI commands that have been typed earlier in this session.
@@ -740,7 +740,7 @@ Show EMC Status
 
 .EMC Status Window[[cap:EMC-Status-Window]]
 
-image::axis-emctop.png[]
+image::images/axis-emc-status.png[]
 
 The name of each item is shown in the left column. The current value
 is shown in the right column. If the value has recently changed, it is
@@ -802,7 +802,7 @@ program a G1 with no move after the T<n>.
 
 .The Manual Toolchange Window[[cap:The-Manual-Toolchange]]
 
-image::images/manualtoolchange.png[]
+image::images/manual-tool-change.png[]
 
 == Python modules 
 
