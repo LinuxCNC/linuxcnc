@@ -313,7 +313,6 @@ DOC_SRCS := \
 	hal/halui_examples.txt \
 	hal/halui_examples_de.txt \
 	hal/halui_examples_es.txt \
-	hal/halui_examples_fr.txt \
 	hal/halui_examples_pl.txt \
 	hal/intro.txt \
 	hal/intro_de.txt \
