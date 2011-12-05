@@ -248,3 +248,89 @@ suivant:
  - halui.tool.length-offset (float, out) - indique la correction de longueur d'outil appliquée
  - halui.tool.number (u32, out) - indique l'outil courant sélectionné
 
+== Exemples de programme avec Halui
+
+Pour que ces exemples fonctionnent, il faut ajouter la ligne
+suivante dans la section [HAL] du fichier ini.
+
++*HALUI = halui*+ 
+
+=== Démarrage à distance
+
+Pour connecter un bouton de démarrage à distance à EMC il faut utiliser
+la pin *halui.program.run* et la pin *halui.mode.auto*. 
+
+Il faut s'assurer qu'il est possible de démarrer en utilisant la 
+pin *halui.mode.is-auto*. On peut faire cela avec un composant de HAL *and2*. 
+La figure suivante montre comment faire. 
+
+Quand le bouton de commande à distance est pressé, il est connecté à 
+*halui.mode.auto* et à l'entrée *and2.0.in0*. Si le le mode auto est activé,
+la pin *halui.mode.is-auto* sera TRUE. 
+
+Si les deux entrées du composant *and2.0* sont TRUE, la sortie *and2.0.out* 
+sera TRUE également et le programme sera démarré. 
+
+[[fig:Remote-Start-Example]]
+.Exemple de commande à distance
+
+image::images/remote-start.png[]
+
+Les commandes de Hal pour accomplir ces actions sont les suivantes: 
+----
+net program-start-btn halui.mode.auto and2.0.in0 <= <la pin d'entrée> 
+net program-run-ok and2.0.in1 <= halui.mode.is-auto 
+net remote-program-run halui.program.run <= and2.0.out 
+----
+
+Noter que sur la première ligne il y a deux pins en lecture, ce qui pourrait aussi
+se séparer en deux lignes comme ceci:
+----
+net program-start-btn halui.mode.auto <= <la pin d'entrée> 
+net program-start-btn and2.0.in0 
+----
+
+=== Pause et Reprise
+
+Cet exemple a été developpé pour permettre à EMC2 de déplacer un
+axe rotatif selon un signal provenant d'une machine extérieure. La
+coordination entre les deux systèmes est assurée par deux composants de Halui: 
+
+ - halui.program.is-paused
+ - halui.program.resume
+
+Dans le fichier *custom.hal*, ajoutez les deux lignes suivantes
+qui seront connectées à vos entrées/sorties pour mettre le
+programme en pause ou pour le reprendre quand l'autre système veut
+qu'EMC2 soit relancé.
+----
+net ispaused halui.program.is paused => "la pin de sortie" 
+net resume halui.program.resume <= "la pin d'entrée" 
+----
+
+Les pins d'entrée et de sortie, correspondent à celles qui sont
+câblées vers l'autre contrôleur. Elles peuvent être des broches du
+port parallèle ou toutes autres broches auquelles nous avons accès.
+
+Le fonctionnement est le suivant, quand un M0 est rencontré dans le
+programme G-code, *halui.program.is-paused* devient TRUE. Ce
+qui rend la broche de sortie également TRUE de sorte que
+l'autre contrôleur sait qu'EMC2 est arrêté.
+
+Pour reprendre l'exécution du G-code, l'autre contrôleur devra rendre
+l'entrée TRUE. Ce qui relancera EMC2 jusqu'au prochain M0.
+
+Difficultés de timing
+
+ - Le signal de reprise ne doit pas être plus long que le temps
+   nécessaire pour exécuter le G-code.
+
+ - Le signal *Is Paused* ne doit plus être actif quand le signal
+   suivant de reprise arrive.
+
+Ces problèmes de timming pourraient être évités, en utilisant
+ClassicLadder pour activer le signal *is paused* avec une tempo
+et le désactiver en fin de tempo. La reprise pourrait également
+être fournie par un signal monostable très court.
+
+

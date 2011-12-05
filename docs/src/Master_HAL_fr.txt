@@ -36,8 +36,6 @@ include::hal/hal-examples_fr.txt[]
 
 include::hal/halui_fr.txt[]
 
-include::hal/halui_examples_fr.txt[]
-
 include::hal/comp_fr.txt[]
 
 include::hal/halmodule_fr.txt[]
