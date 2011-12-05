@@ -1498,7 +1498,10 @@ If you have a REALLY large config that you wish to convert to this newer version
             print >>file, "LINEAR_UNITS = inch"
         print >>file, "ANGULAR_UNITS = degree"
         print >>file, "CYCLE_TIME = 0.010"
-        maxvel = max(self.xmaxvel, self.ymaxvel, self.zmaxvel)        
+        if self.axes == 2:
+            maxvel = max(self.xmaxvel, self.zmaxvel)
+        else:
+            maxvel = max(self.xmaxvel, self.ymaxvel, self.zmaxvel)
         hypotvel = (self.xmaxvel**2 + self.ymaxvel**2 + self.zmaxvel**2) **.5
         defvel = min(maxvel, max(.1, maxvel/10.))
         print >>file, "DEFAULT_VELOCITY = %.2f" % defvel
