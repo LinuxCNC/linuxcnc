@@ -96,7 +96,7 @@ image::images/tkemc_fr.png[]
 
 .L'interface textuelle Keystick[[fig:L-interface-Keystick]]
 
-image::keystick.png[]
+image::images/keystick.png[]
 
 - *Xemc*, un programme X-Windows(((xemc)))
 

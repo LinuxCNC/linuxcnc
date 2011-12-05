@@ -10,7 +10,7 @@ shown in Figure(<<cap:TkEMC-Window>>).
 
 .TkEMC Window[[cap:TkEMC-Window]]
 
-image::../common/tkemc.png[]
+image::images/tkemc.png[]
 
 == Getting Started
 

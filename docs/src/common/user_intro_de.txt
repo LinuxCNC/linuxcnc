@@ -67,21 +67,21 @@ interfaces:
 
 .The AXIS GUI[[fig:The-Axis-GUI]]
 
-image::images/axis_2.3.png[]
+image::images/axis-2.5.png[]
 
 
  - *Mini*, a Tcl/Tk-based GUI 
 
 .The Mini GUI[[fig:The-Mini-GUI]]
 
-image::mini.png[]
+image::images/mini.png[]
 
 
  - *TkEMC*, a Tcl/Tk-based GUI
 
 .The TkEmc GUI[[fig:The-TkEmc-GUI]]
 
-image::tkemc.png[]
+image::images/tkemc.png[]
 
 
  - *Keystick*, a character-based screen graphics program suitable for
@@ -89,7 +89,7 @@ image::tkemc.png[]
 
 .The Keystick GUI[[fig:The-Keystick-GUI]]
 
-image::keystick.png[]
+image::images/keystick.png[]
 
 
  - *Xemc*, an X-Windows program

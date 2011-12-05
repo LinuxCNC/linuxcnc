@@ -8,7 +8,7 @@ Tk(((Tk))) and OpenGL(((OpenGL))) to display its user interface.
 
 .AXIS Window[[cap:AXIS-Window]]
 
-image::images/axis_2.3.png[]
+image::images/axis-2.5.png[]
 
 == Getting Started
 
