@@ -2224,21 +2224,25 @@ example, you need to install as follows:
 If you'd want to try how the Firefox SQlite manager plugin looks &
 feels as a tooltable editor, try this:
 
-. read http://code.google.com/p/sqlite-manager/wiki/XulrunnerApplication#More_details
+. read http://code.google.com/p/sqlite-manager/
 
-. download the zip file  'SQLiteManager 0.7.6 as XULRunner App' 
+. download the zip file  'SQLiteManager 0.7.7 as XULRunner App' 
     or whatever is the latest from http://code.google.com/p/sqlite-manager/downloads/list
 
-. Install like so:
-    sudo xulrunner --install-app /path/to/zipfile
-    This will install an app in /usr/local/lib/lazierthanthou/sqlite-manager/sqlite-manager .
-    (note this path recently change - please verify)
+. create a directory under your home directory, eg ~/sqlite-manager
 
-. try the following command line with an appropriate path to the
-tooltable database, replacing <emcdir> with the path to the emc2
-configs source:
+. unzip the zp file from 1) into this directory
+ 
+.try running firefox with this plugin and the tooltable.sqlite file in this directory like so:
+ `firefox -app <homdir>/sqlite-manager/application.ini -f tooltable.sqlite`
+   
+ firefox should come up with the sqlite manager extension and having this database opened
 
-  TOOL_EDITOR= firefox -app  /usr/lib/lazierthanthou/sqlite-manager/application.ini -f <emcdir>/configs/sim/remap/iocontrol-removed/tooltable.sqlite
+. adapt the following command line with appropriate paths in the ini file:
+
+`TOOL_EDITOR= firefox -app  /home/mah/sqlite-manager/application.ini -f /home/mah/emc2-dev/configs/sim/remap/iocontrol-removed/tooltable.sqlite`
+
+
 
 ==  Build notes - Hardy (8.04)
 
